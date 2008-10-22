@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<jnlp
+  spec="1.0"
+  codebase=""
+  href="chipster.jnlp">
+  <information>
+    <title>Chipster </title>
+    <vendor>The Finnish IT Center for Science CSC</vendor>
+    <homepage href="http://chipster.csc.fi"/>
+    <description></description>
+    <description kind="short"></description>
+    <!--
+    <icon href=""/>
+    <icon kind="splash" href=""/>
+    -->
+    
+    <offline-allowed/> 
+    <shortcut online="false">
+      <desktop/>
+      <menu submenu="Chipster"/>
+    </shortcut>
+  </information>
+  <security>
+    <all-permissions/>
+  </security>
+  <resources>
+    <j2se version="1.5+" href="http://java.sun.com/products/autodl/j2se" java-vm-args="-Xmx1024m" /> <!-- 1 giga should be safe, more causes troubles -->
+    <jar href="lib/chipster-current.jar" download="eager"/>
+  </resources>
+  <application-desc main-class="fi.csc.microarray.MicroarrayMain">
+  	<argument>client</argument>
+  	<argument>-homework</argument>
+  	<argument>-override</argument>
+  	<argument></argument>
+  </application-desc>
+</jnlp> 

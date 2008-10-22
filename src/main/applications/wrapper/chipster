@@ -1,0 +1,78 @@
+#!/bin/bash
+
+ACTIVEMQ_START_DELAY=10
+
+CHIPSTER_HOME="$(dirname "$(readlink -f ${BASH_SOURCE[0]})")"
+# platform, should be linux-x86-32 or linux-x86-64, autodetected if not set
+PLATFORM=""
+
+
+## detect if platform not set
+if [ ! $PLATFORM ]; then
+    ARCH=`arch`
+    if [ "$ARCH" = "i686" ]; then
+	PLATFORM="linux-x86-32"
+    elif [ "$ARCH" = "x86_64" ]; then
+	PLATFORM="linux-x86-64"
+    else
+	echo "Could not detect hardware architecture, please set platform manually."
+	exit -1;
+    fi
+fi
+
+
+start() {
+	$CHIPSTER_HOME/activemq/bin/$PLATFORM/activemq start
+    echo Waiting $ACTIVEMQ_START_DELAY seconds for ActiveMQ to start...
+    sleep $ACTIVEMQ_START_DELAY
+
+    $CHIPSTER_HOME/fileserver/bin/$PLATFORM/chipster-fileserver start
+    $CHIPSTER_HOME/webstart/bin/$PLATFORM/chipster-webstart start
+    $CHIPSTER_HOME/auth/bin/$PLATFORM/chipster-auth start
+    $CHIPSTER_HOME/comp/bin/$PLATFORM/chipster-comp start
+#    $CHIPSTER_HOME/manager/bin/$PLATFORM/chipster-manager start
+}
+
+stopit() {
+    $CHIPSTER_HOME/auth/bin/$PLATFORM/chipster-auth stop
+    $CHIPSTER_HOME/comp/bin/$PLATFORM/chipster-comp stop
+#	$CHIPSTER_HOME/manager/bin/$PLATFORM/chipster-manager stop
+    $CHIPSTER_HOME/fileserver/bin/$PLATFORM/chipster-fileserver stop
+    $CHIPSTER_HOME/webstart/bin/$PLATFORM/chipster-webstart stop
+    
+    $CHIPSTER_HOME/activemq/bin/$PLATFORM/activemq stop
+}
+
+status() {
+    $CHIPSTER_HOME/activemq/bin/$PLATFORM/activemq status
+    
+    $CHIPSTER_HOME/fileserver/bin/$PLATFORM/chipster-fileserver status
+    $CHIPSTER_HOME/webstart/bin/$PLATFORM/chipster-webstart status
+    $CHIPSTER_HOME/auth/bin/$PLATFORM/chipster-auth status
+    $CHIPSTER_HOME/comp/bin/$PLATFORM/chipster-comp status
+#    $CHIPSTER_HOME/manager/bin/$PLATFORM/chipster-manager status
+}
+
+case "$1" in
+
+    'start')
+        start
+        ;;
+    'stop')
+        stopit
+        ;;
+    'restart')
+        stopit
+        start
+        ;;
+    'status')
+        status
+        ;;
+    *)
+        echo "Usage: chipster { start | stop | restart | status }"
+        exit 1
+        ;;
+esac
+
+
+exit 0

@@ -1,0 +1,85 @@
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+   
+    http://www.apache.org/licenses/LICENSE-2.0
+   
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<!-- START SNIPPET: example -->
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.org/config/1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.org/config/1.0 http://activemq.apache.org/schema/activemq-core.xsd
+  http://activemq.apache.org/camel/schema/spring http://activemq.apache.org/camel/schema/spring/camel-spring.xsd">
+
+  <!-- Allows us to use system properties as variables in this configuration file -->
+  <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"/>
+  
+  <broker xmlns="http://activemq.org/config/1.0" brokerName="localhost" dataDirectory="${activemq.base}/data" persistent="false" useJmx="false">
+  
+
+    <!-- The transport connectors ActiveMQ will listen to -->
+    <transportConnectors>
+    <transportConnector name="openwire" uri="tcp://localhost:61616" /> 
+   <!--    <transportConnector name="ssl"     uri="ssl://localhost:61617"/> -->
+   <!--    <transportConnector name="stomp"   uri="stomp://localhost:61613"/>-->
+   <!--    <transportConnector name="xmpp"    uri="xmpp://localhost:61222"/>-->
+    </transportConnectors>
+
+
+
+
+    <plugins>
+      <simpleAuthenticationPlugin>
+         <users>
+           <authenticationUser username="client" password="client" groups="clients,all" />
+           <authenticationUser username="comp" password="comp" groups="analysers,all" />
+           <authenticationUser username="auth" password="auth" groups="authenticators,all" />
+           <authenticationUser username="manager" password="manager" groups="managers,all" />
+           <authenticationUser username="nonauth" password="nonauth" groups="clients,analysers,all" />
+       
+         </users>
+       </simpleAuthenticationPlugin>
+      <authorizationPlugin>
+         <map>
+           <authorizationMap>
+             <authorizationEntries>
+               <authorizationEntry topic="authorised-request-topic" write="authenticators" read="analysers" admin="all" />
+               <authorizationEntry topic="request-topic" write="clients" read="authenticators" admin="all" />
+               <authorizationEntry topic="manager-topic" write="analysers,authenticators" read="managers" admin="all" />
+               <authorizationEntry topic="admin-topic" write="all" read="all" admin="all" />
+               <authorizationEntry topic="test-topic" write="all" read="all" admin="all" />
+               <authorizationEntry topic="ActiveMQ.Advisory.>" read="all" write="all" admin="all"/>
+             </authorizationEntries>
+           </authorizationMap>
+         </map>
+       </authorizationPlugin>
+
+
+
+    </plugins>
+
+
+
+
+
+
+
+
+
+  </broker>
+
+
+</beans>
+<!-- END SNIPPET: example -->

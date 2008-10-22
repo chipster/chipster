@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="build.xml" default="package" basedir=".">
+	<description>
+		The Chipster build script
+    </description>
+
+
+	<!-- get the environment variables -->
+	<property environment="env" />
+
+	<!-- the project folder configuration -->
+	<property name="src" location="src/main/java" />
+	<property name="scripts" location="src/main/R" />
+	<property name="test-src" location="src/test/java" />
+	<property name="ext-src" location="src/main/applications" />
+	<property name="lib" location="ext/lib" />
+	<property name="lib-src" location="ext/lib-src" />
+	<property name="lib-ext" location="ext/lib-ext" />
+	<property name="ext-apps" location="ext/applications" />
+	<property name="data" location="src/main/resources" />
+	<property name="build" location="bin/ant" />	
+	<property name="dist" location="dist" />
+
+    <!-- import fatjar -->
+    <property name="fjepPath" value="${lib-ext}/fatjar.jar"/>
+    <taskdef name="fatjar.build" classname="net.sf.fjep.anttask.FJBuildTask" classpath="${fjepPath}" loaderref="lib.path.loader"/>
+	<typedef name="fatjar.manifest" classname="net.sf.fjep.anttask.FJManifestType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
+    <typedef name="fatjar.exclude" classname="net.sf.fjep.anttask.FJExcludeType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
+    <typedef name="fatjar.jarsource" classname="net.sf.fjep.anttask.FJJarSourceType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
+    <typedef name="fatjar.filesource" classname="net.sf.fjep.anttask.FJFileSourceType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
+
+	<!-- version numbering -->
+	<property name="release-version" value="1.2.0" />
+	<property name="r-version" value="R-2.6.1" />
+	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
+	<property name="release-tar" value="${dist}/chipster-${release-version}.tar" />
+	<property name="config-tool-jar" value="${dist}/chipster-config-tool.jar" />
+	<property name="client-jar" value="${dist}/microarray-${release-version}.jar" />
+
+	<!-- external stuff -->
+	<property name="wrapper-dist" value="${ext-apps}/wrapper" />
+	<property name="wrapper-linux-x86-32" value="${wrapper-dist}/wrapper-linux-x86-32-3.2.3" />
+	<property name="wrapper-linux-x86-64" value="${wrapper-dist}/wrapper-linux-x86-64-3.2.3" />
+	<property name="activemq-dist" value="${ext-apps}/apache-activemq-5.1.0" />
+
+	<!-- keystore for signing -->
+    <property name="keyalias" value="csc" />
+	<property name="keystorepass" value="chipster" />
+	<property name="default-keystore" value="keystore.ks" />
+
+	<target name="clean" description="Remove previously compiled and generated files">
+		<delete dir="${build}" />
+		<mkdir dir="${build}" />
+	</target>
+	
+	<!-- separate client jar will be removed in future, but while waiting for it... -->
+	<target name="package-client-jar" depends="compile, is-alt-keystore-available, load-alt-keystore-path, use-default-keystore-path, is-keystore-available, warn-about-keystore" description="Creates one fat client jar">
+
+		<!-- build one fat jar -->
+		    <fatjar.build output="${client-jar}">
+            <fatjar.manifest mainclass="fi.csc.microarray.MicroarrayMain" />
+        	<fatjar.filesource path="${build}" relpath=""/>
+        	<fatjar.filesource path="${data}" relpath=""/>
+
+        	<fatjar.jarsource file="${lib}/concurrent.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib}/log4j-1.2.9.jar" relpath=""/>
+            <fatjar.jarsource file="${lib}/jgraph.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib}/testng-5.7-jdk15.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib}/antlr-3.0b7.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib}/antlr-2.7.7.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib}/stringtemplate-3.0.jar" relpath=""/>
+        	<!-- Viski has to be before jfreechart (maybe also before jcommon) 
+        	to make it's files override ones from JFreeChart. -->
+            <fatjar.jarsource file="${lib}/viski-1.0.0.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib}/commons-pool-1.3.jar" relpath=""/>
+            <fatjar.jarsource file="${lib}/commons-daemon.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib}/swingx-0.9.1.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib}/bsh-2.0b4.jar" relpath=""/>
+            <fatjar.jarsource file="${lib}/jetty-6.1.1.jar" relpath=""/>
+	        <fatjar.jarsource file="${lib}/jetty-util-6.1.1.jar" relpath=""/>
+            <fatjar.jarsource file="${lib}/jcommon-1.0.9.jar" relpath=""/>   
+            <fatjar.jarsource file="${lib}/jfreechart-1.0.5.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib}/looks-2.1.4.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib}/commons-io-1.3.2.jar" relpath=""/>
+           	<fatjar.jarsource file="${lib}/eclipse-icons.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib}/geronimo-servlet_2.5_spec-1.1.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib}/activemq-all-5.1-SNAPSHOT.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib}/commons-logging-1.1.jar" relpath=""/>
+        </fatjar.build>
+
+		<!-- sign it -->
+		<signjar keystore="${keystore}" jar="${client-jar}" alias="${keyalias}" storepass="${keystorepass}"/>
+		<verifyjar jar="${client-jar}" />
+
+    </target>
+
+	<target name="warn-about-keystore" unless="keystore-exists">
+		<fail message="Keystore file ${keystore} not found. You need to generate a key to for signing the client JAR." />
+	</target>
+
+	<target name="is-keystore-available">
+		<available file="${keystore}" property="keystore-exists"/>
+	</target>
+
+	<target name="is-alt-keystore-available">
+		<available file="alternative-keystore-path.txt" property="alt-keystore-exists"/>
+	</target>
+	
+	<target name="load-alt-keystore-path" if="alt-keystore-exists">
+		<loadfile srcfile="alternative-keystore-path.txt" property="keystore" />
+	</target>
+
+	<target name="use-default-keystore-path" unless="alt-keystore-exists">
+		<property name="keystore" value="${default-keystore}" />
+	</target>
+
+	<target name="compile" depends="clean" description="Compile the source code">
+
+		<!-- update automatic numbering -->
+		<buildnumber file="${data}/build.number" />
+		<echo>Build number was ${build.number}, incremented by one.</echo>
+		<propertyfile file="${data}/version.number">
+			<entry key="version.number" value="${release-version}" />
+		</propertyfile>
+
+		<mkdir dir="${build}" />
+		<javac destdir="${build}" executable="javac" compiler="javac1.5" fork="yes" debug="true" failonerror="true">
+			<src path="${src}" />
+			<classpath>
+				<fileset dir="${lib}">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+
+		<copy file="${src}/log4j.properties" tofile="${build}/log4j.properties" />
+	</target>
+
+	<target name="package-jar" depends="compile" description="Create chipster jar">
+		<jar destfile="${release-jar}">
+			<manifest>
+				<attribute name="Main-Class" value="fi.csc.microarray.MicroarrayMain" />
+			</manifest>
+			<fileset dir="${build}/" />
+			<fileset dir="${data}/" />
+			<tarfileset dir="${scripts}/${r-version}/" prefix="R/" />
+			<tarfileset dir="${scripts}/hidden/" prefix="R/hidden/" />
+		</jar>
+	</target>
+
+	<target name="package-config-tool" depends="compile" description="Create config tool jar">
+
+		<jar destfile="${config-tool-jar}">
+			<manifest>
+				<attribute name="Main-Class" value="fi.csc.microarray.configtool.ConfigTool" />
+			</manifest>
+			<fileset dir="${build}">
+				<include name="fi/csc/microarray/configtool/*" />
+				<include name="fi/csc/microarray/util/*" />
+			</fileset>
+		</jar>
+	</target>
+
+	<target name="package-tar" description="Create chipster tar">
+		<tar destfile="${release-tar}" longfile="gnu">
+
+			<!-- shared -->
+			<tarfileset file="${release-jar}" prefix="chipster/shared/lib" />
+			<tarfileset file="${config-tool-jar}" prefix="chipster/shared/lib" />
+			<tarfileset file="${wrapper-linux-x86-32}/lib/wrapper.jar" prefix="chipster/shared/lib" />
+			<tarfileset file="${wrapper-linux-x86-32}/lib/libwrapper.so" filemode="755" fullpath="chipster/shared/lib/libwrapper-linux-x86-32.so" />
+			<tarfileset file="${wrapper-linux-x86-64}/lib/libwrapper.so" filemode="755" fullpath="chipster/shared/lib/libwrapper-linux-x86-64.so" />
+			<tarfileset dir="${lib}" prefix="chipster/shared/lib" />
+			<tarfileset dir="${lib-src}" prefix="chipster/shared/lib-src" />
+			<tarfileset dir="${ext-src}/wrapper/shared/bin" filemode="755" prefix="chipster/shared/bin" />
+			<tarfileset file="${ext-src}/wrapper/chipster" filemode="755" prefix="chipster" />
+			<tarfileset file="${ext-src}/wrapper/readme.txt" prefix="chipster" />
+			
+			<!-- config tool -->
+			<tarfileset file="${ext-src}/wrapper/configure.sh" filemode="755" prefix="chipster" />
+			<tarfileset file="${ext-src}/wrapper/configure.sh" filemode="755" prefix="chipster" />
+			<tarfileset file="${ext-src}/wrapper/genpasswd.sh" filemode="755" prefix="chipster" />
+			<tarfileset file="${ext-src}/wrapper/install_r_pkg.sh" filemode="755" prefix="chipster" />
+			<tarfileset file="${scripts}/${r-version}/install.R" prefix="chipster/shared/lib" />
+			
+			<!-- auth -->
+			<tarfileset file="${ext-src}/wrapper/auth/chipster-auth-generic" filemode="755" fullpath="chipster/auth/bin/chipster-auth" />
+			
+			<tarfileset file="${wrapper-linux-x86-32}/bin/wrapper" filemode="755" prefix="chipster/auth/bin/linux-x86-32" />
+			<tarfileset file="${ext-src}/wrapper/auth/chipster-auth" filemode="755" prefix="chipster/auth/bin/linux-x86-32" />
+			<tarfileset file="${ext-src}/wrapper/auth/wrapper.conf" prefix="chipster/auth/bin/linux-x86-32" />
+
+			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/auth/bin/linux-x86-64" />
+			<tarfileset file="${ext-src}/wrapper/auth/chipster-auth" filemode="755" prefix="chipster/auth/bin/linux-x86-64" />
+			<tarfileset file="${ext-src}/wrapper/auth/wrapper.conf" prefix="chipster/auth/bin/linux-x86-64" />
+
+			<tarfileset dir="${ext-src}/wrapper/auth/nami-work-files" prefix="chipster/auth/nami-work-files" />
+			<tarfileset dir="${ext-src}/wrapper/logs" prefix="chipster/auth/logs" />
+
+			<!-- comp -->
+			<tarfileset file="${ext-src}/wrapper/comp/chipster-comp-generic" filemode="755" fullpath="chipster/comp/bin/chipster-comp" />
+			
+			<tarfileset file="${wrapper-linux-x86-32}/bin/wrapper" filemode="755" prefix="chipster/comp/bin/linux-x86-32" />
+			<tarfileset file="${ext-src}/wrapper/comp/chipster-comp" filemode="755" prefix="chipster/comp/bin/linux-x86-32" />
+			<tarfileset file="${ext-src}/wrapper/comp/wrapper.conf" prefix="chipster/comp/bin/linux-x86-32" />
+
+			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/comp/bin/linux-x86-64" />
+			<tarfileset file="${ext-src}/wrapper/comp/chipster-comp" filemode="755" prefix="chipster/comp/bin/linux-x86-64" />
+			<tarfileset file="${ext-src}/wrapper/comp/wrapper.conf" prefix="chipster/comp/bin/linux-x86-64" />
+
+			<tarfileset dir="${ext-src}/wrapper/comp/nami-work-files" prefix="chipster/comp/nami-work-files" />
+			<tarfileset dir="${ext-src}/wrapper/logs" prefix="chipster/comp/logs" />
+
+			<!-- fileserver -->
+			<tarfileset file="${ext-src}/wrapper/fileserver/chipster-fileserver-generic" filemode="755" fullpath="chipster/fileserver/bin/chipster-fileserver" />
+			
+			<tarfileset file="${wrapper-linux-x86-32}/bin/wrapper" filemode="755" prefix="chipster/fileserver/bin/linux-x86-32" />
+			<tarfileset file="${ext-src}/wrapper/fileserver/chipster-fileserver" filemode="755" prefix="chipster/fileserver/bin/linux-x86-32" />
+			<tarfileset file="${ext-src}/wrapper/fileserver/wrapper.conf" prefix="chipster/fileserver/bin/linux-x86-32" />
+
+			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/fileserver/bin/linux-x86-64" />
+			<tarfileset file="${ext-src}/wrapper/fileserver/chipster-fileserver" filemode="755" prefix="chipster/fileserver/bin/linux-x86-64" />
+			<tarfileset file="${ext-src}/wrapper/fileserver/wrapper.conf" prefix="chipster/fileserver/bin/linux-x86-64" />
+
+			<tarfileset dir="${ext-src}/wrapper/fileserver/nami-work-files" prefix="chipster/fileserver/nami-work-files" />
+			<tarfileset dir="${ext-src}/wrapper/logs" prefix="chipster/fileserver/logs" />
+
+			<!-- client -->
+			<tarfileset file="${ext-src}/wrapper/client/chipster-client-generic" filemode="755" fullpath="chipster/client/bin/chipster-client" />
+			
+			<tarfileset file="${wrapper-linux-x86-32}/bin/wrapper" filemode="755" prefix="chipster/client/bin/linux-x86-32" />
+			<tarfileset file="${ext-src}/wrapper/client/chipster-client" filemode="755" prefix="chipster/client/bin/linux-x86-32" />
+			<tarfileset file="${ext-src}/wrapper/client/wrapper.conf" prefix="chipster/client/bin/linux-x86-32" />
+
+			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/client/bin/linux-x86-64" />
+			<tarfileset file="${ext-src}/wrapper/client/chipster-client" filemode="755" prefix="chipster/client/bin/linux-x86-64" />
+			<tarfileset file="${ext-src}/wrapper/client/wrapper.conf" prefix="chipster/client/bin/linux-x86-64" />
+
+			<tarfileset dir="${ext-src}/wrapper/client/nami-work-files" prefix="chipster/client/nami-work-files" />
+			<tarfileset dir="${ext-src}/wrapper/logs" prefix="chipster/client/logs" />
+
+			<!-- web start -->
+			<tarfileset file="${ext-src}/wrapper/webstart/chipster-webstart-generic" filemode="755" fullpath="chipster/webstart/bin/chipster-webstart" />
+			
+			<tarfileset file="${wrapper-linux-x86-32}/bin/wrapper" filemode="755" prefix="chipster/webstart/bin/linux-x86-32" />
+			<tarfileset file="${ext-src}/wrapper/webstart/chipster-webstart" filemode="755" prefix="chipster/webstart/bin/linux-x86-32" />
+			<tarfileset file="${ext-src}/wrapper/webstart/wrapper.conf" prefix="chipster/webstart/bin/linux-x86-32" />
+
+			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/webstart/bin/linux-x86-64" />
+			<tarfileset file="${ext-src}/wrapper/webstart/chipster-webstart" filemode="755" prefix="chipster/webstart/bin/linux-x86-64" />
+			<tarfileset file="${ext-src}/wrapper/webstart/wrapper.conf" prefix="chipster/webstart/bin/linux-x86-64" />
+
+			<tarfileset dir="${ext-src}/wrapper/webstart/nami-work-files" prefix="chipster/webstart/nami-work-files" />
+			<tarfileset dir="${ext-src}/wrapper/logs" prefix="chipster/webstart/logs" />
+			
+			<tarfileset dir="${ext-src}/wrapper/webstart/web-content" prefix="chipster/webstart/web-content" />
+			<tarfileset file="dist/microarray-${release-version}.jar" fullpath="chipster/webstart/web-content/lib/chipster-current.jar" />
+
+			<!-- manager -->
+			<!--
+			<tarfileset file="${ext-src}/wrapper/manager/chipster-manager-generic" filemode="755" fullpath="chipster/manager/bin/chipster-manager" />
+			
+			<tarfileset file="${wrapper-linux-x86-32}/bin/wrapper" filemode="755" prefix="chipster/manager/bin/linux-x86-32" />
+			<tarfileset file="${ext-src}/wrapper/manager/chipster-manager" filemode="755" prefix="chipster/manager/bin/linux-x86-32" />
+			<tarfileset file="${ext-src}/wrapper/manager/wrapper.conf" prefix="chipster/manager/bin/linux-x86-32" />
+
+			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/manager/bin/linux-x86-64" />
+			<tarfileset file="${ext-src}/wrapper/manager/chipster-manager" filemode="755" prefix="chipster/manager/bin/linux-x86-64" />
+			<tarfileset file="${ext-src}/wrapper/manager/wrapper.conf" prefix="chipster/manager/bin/linux-x86-64" />
+
+			<tarfileset dir="${ext-src}/wrapper/manager/nami-work-files" prefix="chipster/manager/nami-work-files" />
+			<tarfileset dir="${ext-src}/wrapper/logs" prefix="chipster/manager/logs" />
+			-->
+			
+			<!-- activemq -->
+			<!-- this looks weird because tar task does not preserve file permissions and activemq has messed up with some files -->
+			<tarfileset dir="${activemq-dist}" prefix="chipster/activemq" />
+			<tarfileset file="${activemq-dist}/bin/activemq" filemode="755" prefix="chipster/activemq/bin" />
+			<tarfileset file="${activemq-dist}/bin/activemq-admin" filemode="755" prefix="chipster/activemq/bin" />
+			<tarfileset file="${activemq-dist}/bin/macosx/activemq" filemode="755" prefix="chipster/activemq/bin/linux-x86-32" />
+			<tarfileset file="${activemq-dist}/bin/macosx/activemq" filemode="755" prefix="chipster/activemq/bin/linux-x86-64" />
+			<tarfileset file="${activemq-dist}/bin/linux-x86-32/wrapper" filemode="755" prefix="chipster/activemq/bin/linux-x86-32" />
+			<tarfileset file="${activemq-dist}/bin/linux-x86-32/libwrapper.so" filemode="755" prefix="chipster/activemq/bin/linux-x86-32" />
+			<tarfileset file="${activemq-dist}/bin/linux-x86-64/wrapper" filemode="755" prefix="chipster/activemq/bin/linux-x86-64" />
+			<tarfileset file="${activemq-dist}/bin/linux-x86-64/libwrapper.so" filemode="755" prefix="chipster/activemq/bin/linux-x86-64" />
+			<tarfileset file="${activemq-dist}/bin/macosx/wrapper" filemode="755" prefix="chipster/activemq/bin/macosx" />
+			<tarfileset file="${activemq-dist}/bin/macosx/activemq" filemode="755" prefix="chipster/activemq/bin/macosx" />
+			<tarfileset file="${activemq-dist}/bin/macosx/libwrapper.jnilib" filemode="755" prefix="chipster/activemq/bin/macosx" />
+
+			<tarfileset file="${ext-src}/activemq/activemq.xml" prefix="chipster/activemq/conf" />
+
+		</tar>
+
+
+	</target>
+
+	<target name="package" depends="package-jar, package-config-tool, package-client-jar, package-tar" description="Create jars and tar">
+		<echo>REMEMBER TO TURN DEBUG LOGGING OFF!</echo>
+	</target>
+
+
+</project>
+

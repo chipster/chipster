@@ -1,0 +1,620 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Java Service Wrapper - Troubleshooting</title>
+<style media="all" type="text/css">
+            @import url("./style/wrapper.css");
+        </style>
+</head>
+<body bgcolor="#eeeeff" marginheight="0" marginwidth="0" leftmargin="0" topmargin="0" alink="#023264" vlink="#023264" link="#525D76" text="#000000">
+<map name="wrapperLogo">
+<area href="http://wrapper.tanukisoftware.org" coords="90,90,88" shape="circle">
+</map>
+<map name="wrapperTitle">
+<area href="http://www.tanukisoftware.com" coords="28,32,176,48" shape="rect">
+</map>
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td valign="top" width="180">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td width="180"><img usemap="#wrapperLogo" border="0" height="180" width="180" src="images/WrapperLogo.png"></td>
+</tr>
+<tr>
+<td>
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true">
+<div id="menu">
+<script language="JavaScript">//@@MENU_TOP@@</script>
+<div>
+<b>Essentials</b>
+<div>
+<a href="introduction.html">Introduction</a>
+</div>
+<div>
+<a href="integrate.html">Integration Methods</a>
+</div>
+<div>
+<a href="properties.html">Configuration Properties</a>
+</div>
+<div>
+<a href="launch.html">Launching Your Application</a>
+</div>
+<div>
+<b>
+                        &gt;&gt;
+                        <a href="donate.html">Show Your Support</a>
+                        &lt;&lt;
+                    </b>
+</div>
+<div>
+<a href="sponsors.html">Sponsors</a>
+</div>
+</div>
+<div>
+<b>Documentation</b>
+<div>
+<a href="jmx.html">JMX Control</a>
+</div>
+<div>
+<a href="security-model.html">Security Model</a>
+</div>
+<div>
+<a href="example.html">Feature Examples</a>
+</div>
+<div>
+<a href="debugging.html">Debugging Your Application</a>
+</div>
+<div>
+<a href="troubleshooting.html">Troubleshooting</a>
+</div>
+<div>
+<a href="faq.html">FAQ</a>
+</div>
+<div>
+<a href="release-notes.html">Release Notes</a>
+</div>
+<div>
+<a href="history.html">Project History</a>
+</div>
+<div>
+<a href="javadocs.html">Javadocs API</a>
+</div>
+<div>
+<a href="buttons.html">Buttons</a>
+</div>
+<div>
+<a href="authors.html">Authors</a>
+</div>
+<div>
+<a href="license.html">License</a>
+</div>
+</div>
+<div>
+<b>Download</b>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=31591">Binaries</a>
+</div>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=33658">Source Code</a>
+</div>
+</div>
+<div>
+<b>Get Involved</b>
+<div>
+<a href="http://sourceforge.net/projects/wrapper/">Source Forge</a>
+</div>
+<div>
+<a href="http://svn.sourceforge.net/viewvc/wrapper/">Subversion Repository</a>
+</div>
+<div>
+<a href="http://sourceforge.net/tracker/?group_id=39428">Issue Tracking</a>
+</div>
+<div>
+<a href="http://sourceforge.net/mail/?group_id=39428">Mailing Lists and Archives</a>
+</div>
+<div>
+<a href="http://sourceforge.net/forum/?group_id=39428">Forums (Old)</a>
+</div>
+</div>
+</div>
+<script language="JavaScript">//@@MENU_BOTTOM@@</script>
+<p>
+<b>Hosted by:</b>
+<br>
+<a href="http://sourceforge.net/projects/wrapper/"><img alt="SourceForge" border="0" height="31" width="88" src="http://sourceforge.net/sflogo.php?group_id=39428"></a>
+<br>
+</p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td><td valign="top" width="*">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td colspan="3"><img height="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td align="center" height="90" colspan="2"><a href="http://wrapper.tanukisoftware.org"><img border="0" height="90" width="728" src="images/OfflineAd728x90.png"></a></td><td rowspan="5"><img width="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td height="49" width="435"><img usemap="#wrapperTitle" border="0" height="49" width="435" src="images/WrapperTitle.png"></td><td valign="bottom" align="right" width="*"><a href="donate.html"><img border="0" height="16" width="300" src="images/DonationRequest.png"></a></td>
+</tr>
+<tr>
+<td height="4" colspan="2"><img height="4" width="500" src="images/BorderTop.png"></td>
+</tr>
+<tr>
+<td colspan="2">
+<table cellspacing="0" cellpadding="0" width="100%" border="0">
+<tr>
+<td valign="top" width="4"><img height="496" width="4" src="images/BorderLeft.png"></td><td bgcolor="#ffffff" valign="top" width="*" colspan="2">
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true" align="center"><font zcolor="#115b77" color="#8888aa" size="5"><b>Troubleshooting</b></font></td>
+</tr>
+<tr>
+<td>
+<title>Troubleshooting</title>
+    
+    
+<a name="N10009"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>
+            My Program is not running as fast as I would like.
+        </b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<p>
+            In general an application should run as fast under the Wrapper as it does
+            when running standalone.  Here are a few places to start looking.
+        </p>
+        
+<a name="N10011"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Console Output</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                On some platforms, including Windows, sending large quantities of text to
+                System.out or System.err will cause the program to slow down.  This is because
+                all of that output is being rendered to the screen in a graphics environment.
+                This is actually the OS eating the CPU rather than the Wrapper or your
+                application but the end result is the same.
+            </p>
+            
+<p>
+                To significantly reduce this effect, use a logging tool which will output to
+                a file rather than to stdout.  By doing so the output is never sent to the
+                Wrapper or the user console.
+            </p>
+            
+<p>
+                Another option which is almost as good is to configure the Wrapper's console
+                log level, using the <a href="prop-console-loglevel.html">wrapper.console.loglevel</a>
+                property, so that the output is only sent to the Wrapper's log file.  Console
+                output is disabled by default when running as an NT service and the console has
+                not been enabled.
+            </p>
+        
+</td>
+</tr>
+</table>
+        
+<a name="N10024"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Memory</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                Make sure that your system has plenty of memory for the JVM to run without
+                doing any disk swapping.   Because of the way Java manages memory.  A very
+                significant speed hit is common simply because Java is forced to do paging
+                of large amounts of its memory as it attempted to perform garbage collection.
+            </p>
+        
+</td>
+</tr>
+</table>
+        
+<a name="N1002D"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Sun's Documentation</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                Another good place to look is the
+                <a href="http://java.sun.com/docs/hotspot/index.html">Performance Documentation for the Java HotSpot VM</a>
+                page on Sun's site.  In addition, there was a very informative JDC Tech Tip talking
+                about <a href="http://java.sun.com/developer/JDCTechTips/2004/tt0420.html#2">garbage collection</a>
+                issues.
+            </p>
+        
+</td>
+</tr>
+</table>
+    
+</td>
+</tr>
+</table>
+    
+<a name="N1003F"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>
+            I get an error about not being able to write a pid file when starting the Wrapper.
+        </b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<p>
+            Strarting with version 3.0.5 of the Java Service Wrapper, the
+            <a href="prop-wrapper-pidfile.html">wrapper.pidfile</a> property was
+            implemented on the Windows platform.  Previous versions of the Wrapper
+            ignored this property when running under Windows.  However, if the wrapper.conf
+            file that you are using was created using a version of the Wrapper prior to
+            3.0.0 then you may have this property defined as a holdout from when you
+            copied the file from the example wrapper.conf.  This will lead to an error
+            like the following:
+        </p>
+        
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">ERROR: Could not write pid file /var/run/testwrapper.pid: The
+system cannot find the path specified. (0x3)</pre>
+</font></td>
+</tr>
+</table>
+        
+<p>
+            To resolve this simply edit your wrapper.conf file and remove the
+            wrapper.pidfile property.
+        </p>
+    
+</td>
+</tr>
+</table>
+    
+<a name="N10056"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>
+            I am getting a warning that the Wrapper can not load its native library.  What do I do?
+        </b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<p>
+            A few users have asked about the following message showing up in their wrapper.log file:
+            <table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">WARNING - Unable to load native library 'wrapper' for class WrapperManager.
+          System signals will not be handled correctly.</pre>
+</font></td>
+</tr>
+</table>
+            This message is being shown because the Java component of the Wrapper was unable to
+            load its native libraries during initialization.  If you look in your wrapper.conf
+            file, you will see a property, <tt>wrapper.java.library.path</tt>.
+            This is used to specify the directory that the Wrapper will look in to find its native
+            library. (Wrapper.DLL on Windows, or libwrapper.so on Unix systems)  You should place
+            the library file in the specified directory or change the property to point to the
+            directory where it is located.
+        </p>
+        
+<p>
+            As of version 2.2.9 this error message was improved.  You will now see something like
+            the following (Depending on your platform of course):
+            <table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">WARNING - Unable to load native library 'wrapper' because the
+          file 'Wrapper.DLL' could not be located in the following
+          java.library.path:
+            C:\SourceForge\wrapper\bin\..\lib
+          Please see the documentation for the wrapper.java.library.path
+          configuration property.
+          System signals will not be handled correctly.</pre>
+</font></td>
+</tr>
+</table>
+        
+</p>
+    
+</td>
+</tr>
+</table>
+    
+<a name="N10074"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>I am unable to install my application as a service under Windows 2000 or NT.</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<p>
+            On Windows 2000 or NT, you will see the following error message if you attempt to
+            install a service when logged in as a user without Administrator privileges.
+            <table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">OpenSCManager failed - access denied.</pre>
+</font></td>
+</tr>
+</table>
+        
+</p>
+        
+<p>
+            Solution.  Contact your system administrator and beg them to install the service for
+            you.  Easy if that is you.
+        </p>
+    
+</td>
+</tr>
+</table>
+    
+<a name="N10087"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>My Application will not start.  What can I do to narrow down the problem?</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<p>
+            Output describing the problem should be displayed in the console as well as the
+            configured log file.  To get more detailed output, edit your wrapper.conf file and
+            enable debugging by uncommenting the wrapper.debug property.  This will display very
+            detailed output at every step in the process of launching and monitoring your
+            application.
+        </p>
+        
+<p>
+            If your application works when not using the Wrapper, but fails with the Wrapper,
+            then it is very likely that there is a problem in the way you set up your wrapper.conf
+            file.  Please look closely at the command used to launch java, in the debug output.
+            It is possible that there is a mistake in the classpath or something.
+        </p>
+    
+</td>
+</tr>
+</table>
+    
+<a name="N10093"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>I am not getting any output in my configured log file.</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<p>
+            It is possible that the Wrapper is not able to locate the specified wrapper
+            configuration file, or it is not able to open the configured log file for some reason.
+            In either case, the Wrapper will log output to a file called wrapper.log in the current
+            working directory.  The current working directory will most likely be the directory
+            containing the binary.  However, in some cases, when running as an NT service, the
+            wrapper.log file may be placed in your WinNT\System32 directory.
+        </p>
+    
+</td>
+</tr>
+</table>
+    
+<a name="N1009C"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>My application is hanging while it is shutting down.</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<p>
+            If you call System.exit() in your application then Wrapper will catch this and attempt
+            to shutdown the application cleanly.  If during the shutdown process, your application
+            once again calls System.exit() then the call will block indefinitely causing your
+            application to hang.  There are also problems with calling the destroy() method on an
+            AWT frame or window from within a shutdown hoot thread.  Please take a look at the
+            wrapper.disable_shutdown_hook property in the Configuration File Overview for details
+            on how to avoid this problem.
+        </p>
+    
+</td>
+</tr>
+</table>
+    
+<a name="N100A5"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>My 1.2.x JVM crashes when I run my application with the Wrapper.</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<p>
+            Most of the features of the Wrapper will work with 1.2.x JVMs so the JVM is
+            included on the list of supported JVMs.  However, the released version of
+            the wrapper is built using a 1.4.x version of Java.  1.2.x versions of the
+            JVM have problems with the generated jar and will crash with very low level
+            JNI errors.  This appears to be a bug in the 1.4.x versions of the compiler
+            as it happens even if the "1.1" JVM target is specified when compiling the
+            classes.
+        </p>
+        
+<p>
+            Here is an example of the errors that I have seen:
+        </p>
+        
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">A nonfatal internal JIT (3.10.107(x)) error 'chgTarg: Conditional' has occurred in :
+  'org/tanukisoftware/wrapper/WrapperManager.stopCommon (II)V': Interpreting method.
+  Please report this error in detail to http://java.sun.com/cgi-bin/bugreport.cgi</pre>
+</font></td>
+</tr>
+</table>
+        
+<p>
+            I get help from several people to be able to produce the releases for all
+            of the various supported platforms and it is not really possible to force
+            everyone to use old JDKs to build the Wrapper distributions.
+        </p>
+        
+<p>
+            If you are experiencing crash problems with 1.2.x JVMs and the Wrapper
+            please try downloading a source distribution and building the wrapper.jar
+            file using your 1.2.x JDK.  This will fix the problem.
+        </p>
+        
+<p>
+            If you are running into this, please post a note to the wrapper-user mailing
+            list.  I am not sure how many people are still using 1.2.x JVMs.  But if
+            it is still fairly common, I may reconsider the above policy and look into
+            what it will take to get the releases built using an older JVM.
+        </p>
+    
+</td>
+</tr>
+</table>
+    
+<a name="N100C1"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>My JVM is sometimes restarted when the system is heavily loaded.</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<p>
+            Because the Wrapper is using a pinging mechanism to check on the health of the JVM, it
+            is possible that the Wrapper will think that the JVM is hung when it isn't if another
+            process is taking 100% of the CPU for longer than 30 seconds.  This will result in an
+            entry like the following in your log file, and the JVM being restarted:
+            <table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">jvm 1    | 2001/12/01 12:23:23 | start()
+wrapper  | 2001/12/01 12:23:44 | Startup failed: Timed out waiting for signal from JVM.
+wrapper  | 2001/12/01 12:23:44 | Java Virtual Machine did not exit on request, terminated
+wrapper  | 2001/12/01 12:23:49 | Launching a JVM...
+jvm 2    | 2001/12/01 12:23:50 | Initializing...</pre>
+</font></td>
+</tr>
+</table>
+        
+</p>
+        
+<p>
+            The property <tt>wrapper.ping.timeout=30</tt> in
+            <tt>conf/wrapper.log</tt> can be used to extend this timeout.
+            But be aware that this will also lengthen the amount of time that your application will
+            remain hung in the event of a real problem.
+        </p>
+    
+</td>
+</tr>
+</table>
+
+</td>
+</tr>
+<tr>
+<td align="right" id="author">
+<p>
+<i>by Leif Mortenson</i>
+</p>
+</td>
+</tr>
+</table>
+<script language="JavaScript">//@@BODY_SECTION@@</script></td><td valign="bottom" width="4"><img height="496" width="4" src="images/BorderRight.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td align="right" height="4" colspan="2"><img height="4" width="500" src="images/BorderBottom.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
+<tr>
+<td id="copyright" align="left"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            Copyright &copy;1999-2004 by <a href="http://www.tanukisoftware.com">Tanuki Software</a>.
+                            All Rights Reserved.
+                        </i></font></td><td align="right"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            last modified:
+                            <script language="JavaScript"> document.write(document.lastModified); </script></i></font></td>
+</tr>
+</table>
+</body>
+</html>

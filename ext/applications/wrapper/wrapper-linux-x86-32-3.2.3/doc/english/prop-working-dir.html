@@ -1,0 +1,572 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Java Service Wrapper - wrapper.working.dir Property</title>
+<style media="all" type="text/css">
+            @import url("./style/wrapper.css");
+        </style>
+</head>
+<body bgcolor="#eeeeff" marginheight="0" marginwidth="0" leftmargin="0" topmargin="0" alink="#023264" vlink="#023264" link="#525D76" text="#000000">
+<map name="wrapperLogo">
+<area href="http://wrapper.tanukisoftware.org" coords="90,90,88" shape="circle">
+</map>
+<map name="wrapperTitle">
+<area href="http://www.tanukisoftware.com" coords="28,32,176,48" shape="rect">
+</map>
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td valign="top" width="180">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td width="180"><img usemap="#wrapperLogo" border="0" height="180" width="180" src="images/WrapperLogo.png"></td>
+</tr>
+<tr>
+<td>
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true">
+<div id="menu">
+<script language="JavaScript">//@@MENU_TOP@@</script>
+<div>
+<b>Essentials</b>
+<div>
+<a href="introduction.html">Introduction</a>
+</div>
+<div>
+<a href="integrate.html">Integration Methods</a>
+</div>
+<div>
+<a href="properties.html">Configuration Properties</a>
+</div>
+<div>
+<a href="launch.html">Launching Your Application</a>
+</div>
+<div>
+<b>
+                        &gt;&gt;
+                        <a href="donate.html">Show Your Support</a>
+                        &lt;&lt;
+                    </b>
+</div>
+<div>
+<a href="sponsors.html">Sponsors</a>
+</div>
+</div>
+<div>
+<b>Documentation</b>
+<div>
+<a href="jmx.html">JMX Control</a>
+</div>
+<div>
+<a href="security-model.html">Security Model</a>
+</div>
+<div>
+<a href="example.html">Feature Examples</a>
+</div>
+<div>
+<a href="debugging.html">Debugging Your Application</a>
+</div>
+<div>
+<a href="troubleshooting.html">Troubleshooting</a>
+</div>
+<div>
+<a href="faq.html">FAQ</a>
+</div>
+<div>
+<a href="release-notes.html">Release Notes</a>
+</div>
+<div>
+<a href="history.html">Project History</a>
+</div>
+<div>
+<a href="javadocs.html">Javadocs API</a>
+</div>
+<div>
+<a href="buttons.html">Buttons</a>
+</div>
+<div>
+<a href="authors.html">Authors</a>
+</div>
+<div>
+<a href="license.html">License</a>
+</div>
+</div>
+<div>
+<b>Download</b>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=31591">Binaries</a>
+</div>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=33658">Source Code</a>
+</div>
+</div>
+<div>
+<b>Get Involved</b>
+<div>
+<a href="http://sourceforge.net/projects/wrapper/">Source Forge</a>
+</div>
+<div>
+<a href="http://svn.sourceforge.net/viewvc/wrapper/">Subversion Repository</a>
+</div>
+<div>
+<a href="http://sourceforge.net/tracker/?group_id=39428">Issue Tracking</a>
+</div>
+<div>
+<a href="http://sourceforge.net/mail/?group_id=39428">Mailing Lists and Archives</a>
+</div>
+<div>
+<a href="http://sourceforge.net/forum/?group_id=39428">Forums (Old)</a>
+</div>
+</div>
+</div>
+<script language="JavaScript">//@@MENU_BOTTOM@@</script>
+<p>
+<b>Hosted by:</b>
+<br>
+<a href="http://sourceforge.net/projects/wrapper/"><img alt="SourceForge" border="0" height="31" width="88" src="http://sourceforge.net/sflogo.php?group_id=39428"></a>
+<br>
+</p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td><td valign="top" width="*">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td colspan="3"><img height="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td align="center" height="90" colspan="2"><a href="http://wrapper.tanukisoftware.org"><img border="0" height="90" width="728" src="images/OfflineAd728x90.png"></a></td><td rowspan="5"><img width="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td height="49" width="435"><img usemap="#wrapperTitle" border="0" height="49" width="435" src="images/WrapperTitle.png"></td><td valign="bottom" align="right" width="*"><a href="donate.html"><img border="0" height="16" width="300" src="images/DonationRequest.png"></a></td>
+</tr>
+<tr>
+<td height="4" colspan="2"><img height="4" width="500" src="images/BorderTop.png"></td>
+</tr>
+<tr>
+<td colspan="2">
+<table cellspacing="0" cellpadding="0" width="100%" border="0">
+<tr>
+<td valign="top" width="4"><img height="496" width="4" src="images/BorderLeft.png"></td><td bgcolor="#ffffff" valign="top" width="*" colspan="2">
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true" align="center"><font zcolor="#115b77" color="#8888aa" size="5"><b>wrapper.working.dir Property</b></font></td>
+</tr>
+<tr>
+<td>
+<title>wrapper.working.dir Property</title>
+    
+    
+<a name="N10009"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>Configuration Property Overview</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<ul>
+            
+<li>
+                
+<a href="properties.html">Configuration Property Overview</a>
+            
+</li>
+            
+<li>
+                
+<a href="props-advanced.html">Advanced Properties</a>
+            
+</li>
+            
+<li>
+                
+<a href="properties.html#name">Property List by Name</a>
+            
+</li>
+        
+</ul>
+    
+</td>
+</tr>
+</table>
+    
+<a name="N10027"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>wrapper.working.dir</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<div class="warning">
+<table cellspacing="0" cellpadding="0" width="100%" border="0">
+<tr>
+<td nowrap="nowrap" valign="top">
+<p class="warninglabel">
+<font color="#a00000"><b>WARNING</b></font>
+</p>
+</td><td><img width="10" src="images/spacer.gif"></td><td bgcolor="#dd8080" class="warningbody"><font color="#602222">
+            
+<p>
+                You will save yourself a lot of time by reading this page BEFORE
+                playing with this property.
+            </p>
+        
+</font></td>
+</tr>
+</table>
+</div>
+        
+<a name="N10032"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Overview of How The Working Dir Works</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                When the Wrapper is launched it is very careful about making sure that the
+                working directory is in a known and constant state.  This helps to
+                guarantee that there will be no path related problems caused
+                by a user launching the Wrapper from an unexpected location.
+            </p>
+            
+<p>
+                On Windows platforms, the <tt>Wrapper.exe</tt>
+                sets its own working directory immediately on startup to the directory
+                where it is located.  This is especially critical on Windows platforms.
+                When running in a console the working directory is normally set to the
+                current directory when an application is launched.  This means that it
+                would be different if the Wrapper was launched as
+                <tt>bin\Wrapper.exe</tt> versus
+                <tt>.\Wrapper.exe</tt> versus
+                <tt>..\bin\Wrapper.exe</tt>.   In addition,
+                when running as an NT service, the working directory is normally set
+                to the Windows <tt>system32</tt> directory.
+                By always forcing the working directory to the location of the
+                <tt>Wrapper.exe</tt>, integrators can reliably
+                make use of relative path references.
+            </p>
+            
+<p>
+                Things work a little differently on UNIX platforms.  There, the wrapper
+                binary does not set its own working directory by default.  This is left
+                up to the script used to launch the Wrapper.  While this has traditionally
+                given more flexibility to UNIX users, the same issues as exist on the
+                Windows platform also exist on UNIX.  By using the scripts shipped with
+                the Wrapper distribution all path issue should be taken care of.
+            </p>
+            
+<p>
+                There are times however where having the working directory set to the
+                location of the Wrapper binary makes it impossible to run some
+                applications cleanly.   An example is an application which expects the
+                working directory to be at the root of the file system.   The only way
+                to run such an application under the Wrapper would be to place the
+                Wrapper binary and scripts in the root directory.  Not something that
+                most system administrators would want to do.
+            </p>
+            
+<p>
+                To allow such cases, the <tt>wrapper.working.dir</tt>
+                property was added.  It is very important to understand exactly how
+                this property works to avoid problems.
+            </p>
+            
+<p>
+                The <tt>wrapper.working.dir</tt> property
+                can be specified either in the <tt>wrapper.conf</tt>
+                or as a parameter to the Wrapper binary.  However, the property does not take
+                effect until AFTER all of the Wrapper's properties have been completely
+                parsed.   This means that the location of the
+                <tt>wrapper.conf</tt> file and any include
+                files referenced therein must still be referenced using locations
+                relative to the Wrapper binary.   This is necessary to make sure
+                that the configuration file can be loaded reliably.
+            </p>
+            
+<p>
+                Any and all paths defined in OTHER properties specified either from the
+                command line or within the <tt>wrapper.conf</tt>
+                file will then be relative to the location specified by the
+                <tt>wrapper.working.dir</tt> property.
+            </p>
+            
+<p>
+                Confused yet?  An example or two is in order.
+            </p>
+        
+</td>
+</tr>
+</table>
+        
+<a name="N10080"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Example Without Setting wrapper.working.dir</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                Windows will be used as an example, but the issues are all the same
+                for UNIX platforms.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>Sample Directory Structure:</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">C:\myapp\
+    bin\
+        Wrapper.exe
+    conf\
+        wrapper.conf
+        include.conf
+    lib\
+        Wrapper.dll
+        wrapper.jar
+        myapp.jar
+    logs\
+        wrapper.log</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                Without using the <tt>wrapper.working.dir</tt>
+                property, the working directory will be located in the
+                <tt>C:\myapp\bin</tt> directory.
+                The Wrapper would be launched using the following command.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">Wrapper.exe -c ../conf/wrapper.conf</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                Paths in the <tt>wrapper.conf</tt> file
+                would be configured as follows. (Note this is not a complete
+                configuration file.):
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">#include ../conf/include.conf
+wrapper.java.classpath.1=../lib/wrapper.jar
+wrapper.java.classpath.2=../lib/myapp.jar
+wrapper.java.library.path.1=../lib
+wrapper.pidfile=./wrapper.pid
+wrapper.java.pidfile=./java.pid
+wrapper.logfile=../logs/wrapper.log</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                Note that all paths are relative to the location of the
+                <tt>Wrapper.exe</tt> file.
+            </p>
+        
+</td>
+</tr>
+</table>
+        
+<a name="N100BB"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Example Setting wrapper.working.dir</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                The same directory structure used in the previous example will
+                be reused.
+            </p>
+            
+<p>
+                This time the <tt>wrapper.working.dir</tt>
+                property will be set the parent of the
+                <tt>bin</tt> directory in which
+                the <tt>Wrapper.exe</tt> file is
+                located.  This is a location that is commonly referred to as the
+                application HOME.  <tt>C:\myapp</tt>
+                in this case.
+            </p>
+            
+<p>
+                The <tt>wrapper.working.dir</tt>
+                property can be specified either on the command line
+                used to launch the Wrapper, or within the wrapper.conf file.
+                In either case, the specified directory can be absolute or
+                relative.  In the case of a relative directory, the directory
+                will be relative to the location of the Wrapper binary.
+            </p>
+            
+<p>
+                This example will specify the new working directory within
+                the <tt>wrapper.conf</tt> file.
+                So in this case, the command used to launch the Wrapper is
+                unchanged, meaning that the batch files and scripts that
+                ship with the Wrapper can be used without any modification.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">Wrapper.exe -c ../conf/wrapper.conf</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                When the Wrapper is launched, it immediately sets its working
+                directory to the location of the Wrapper binary.  Then loads
+                the <tt>wrapper.conf</tt> file and
+                any include files using that working directory.   Once the
+                configuration is loaded, the working directory will be changed
+                to the new location specified by the
+                <tt>wrapper.working.dir</tt> property.
+                All future paths including the launching of the JVM will be
+                done using this new working directory.
+            </p>
+            
+<p>
+                For this example the <tt>wrapper.conf</tt>
+                fragment used above will be modified as follows:
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper.working.dir=../
+#include ../conf/include.conf
+wrapper.java.classpath.1=lib/wrapper.jar
+wrapper.java.classpath.2=lib/myapp.jar
+wrapper.java.library.path.1=lib
+wrapper.pidfile=bin/wrapper.pid
+wrapper.java.pidfile=bin/java.pid
+wrapper.logfile=logs/wrapper.log</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                Notice that the location of the include file and
+                <tt>wrapper.working.dir</tt> property
+                are both relative to the Wrapper binary location, but all other
+                paths are now relative to the new working directory.
+            </p>
+            
+<p>
+                The location of the <tt>wrapper.working.dir</tt>
+                property in the <tt>wrapper.conf</tt> file
+                is not important as it is not applied until after the entire
+                configuration file has been parsed.
+            </p>
+            
+<p>
+                As with any problems configuring the Wrapper.  The first thing that
+                should be done when problems are encountered is to enable the
+                <a href="prop-debug.html">wrapper.debug</a> property and
+                rerun the application.  Make sure that the application can be run
+                as a console application before attempting to run it as a service
+                or daemon process.
+            </p>
+        
+</td>
+</tr>
+</table>
+        
+<div class="note">
+<table cellspacing="0" cellpadding="2" width="100%" border="0">
+<tr>
+<td nowrap="nowrap" valign="top">
+<p class="notelabel">
+<font color="#0000a0"><b>NOTE MEG</b></font>
+</p>
+</td><td><img width="10" src="images/spacer.gif"></td><td bgcolor="#bbbbdd" class="notebody"><font color="#222260">
+            
+<p>
+                
+<a href="prop-restart-reload-configuration.html">Reloading</a>
+                the Wrapper configuration will have no effect on the value of this property.
+                Changes will not take effect until the Wrapper has been restarted.
+            </p>
+        
+</font></td>
+</tr>
+</table>
+</div>
+    
+</td>
+</tr>
+</table>
+
+</td>
+</tr>
+<tr>
+<td align="right" id="author">
+<p>
+<i>by Leif Mortenson</i>
+</p>
+</td>
+</tr>
+</table>
+<script language="JavaScript">//@@BODY_SECTION@@</script></td><td valign="bottom" width="4"><img height="496" width="4" src="images/BorderRight.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td align="right" height="4" colspan="2"><img height="4" width="500" src="images/BorderBottom.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
+<tr>
+<td id="copyright" align="left"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            Copyright &copy;1999-2004 by <a href="http://www.tanukisoftware.com">Tanuki Software</a>.
+                            All Rights Reserved.
+                        </i></font></td><td align="right"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            last modified:
+                            <script language="JavaScript"> document.write(document.lastModified); </script></i></font></td>
+</tr>
+</table>
+</body>
+</html>

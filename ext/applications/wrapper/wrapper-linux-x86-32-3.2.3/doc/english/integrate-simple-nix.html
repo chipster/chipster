@@ -1,0 +1,1123 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Java Service Wrapper - WrapperSimpleApp Integration (Linux / UNIX)</title>
+<style media="all" type="text/css">
+            @import url("./style/wrapper.css");
+        </style>
+</head>
+<body bgcolor="#eeeeff" marginheight="0" marginwidth="0" leftmargin="0" topmargin="0" alink="#023264" vlink="#023264" link="#525D76" text="#000000">
+<map name="wrapperLogo">
+<area href="http://wrapper.tanukisoftware.org" coords="90,90,88" shape="circle">
+</map>
+<map name="wrapperTitle">
+<area href="http://www.tanukisoftware.com" coords="28,32,176,48" shape="rect">
+</map>
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td valign="top" width="180">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td width="180"><img usemap="#wrapperLogo" border="0" height="180" width="180" src="images/WrapperLogo.png"></td>
+</tr>
+<tr>
+<td>
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true">
+<div id="menu">
+<script language="JavaScript">//@@MENU_TOP@@</script>
+<div>
+<b>Essentials</b>
+<div>
+<a href="introduction.html">Introduction</a>
+</div>
+<div>
+<a href="integrate.html">Integration Methods</a>
+</div>
+<div>
+<a href="properties.html">Configuration Properties</a>
+</div>
+<div>
+<a href="launch.html">Launching Your Application</a>
+</div>
+<div>
+<b>
+                        &gt;&gt;
+                        <a href="donate.html">Show Your Support</a>
+                        &lt;&lt;
+                    </b>
+</div>
+<div>
+<a href="sponsors.html">Sponsors</a>
+</div>
+</div>
+<div>
+<b>Documentation</b>
+<div>
+<a href="jmx.html">JMX Control</a>
+</div>
+<div>
+<a href="security-model.html">Security Model</a>
+</div>
+<div>
+<a href="example.html">Feature Examples</a>
+</div>
+<div>
+<a href="debugging.html">Debugging Your Application</a>
+</div>
+<div>
+<a href="troubleshooting.html">Troubleshooting</a>
+</div>
+<div>
+<a href="faq.html">FAQ</a>
+</div>
+<div>
+<a href="release-notes.html">Release Notes</a>
+</div>
+<div>
+<a href="history.html">Project History</a>
+</div>
+<div>
+<a href="javadocs.html">Javadocs API</a>
+</div>
+<div>
+<a href="buttons.html">Buttons</a>
+</div>
+<div>
+<a href="authors.html">Authors</a>
+</div>
+<div>
+<a href="license.html">License</a>
+</div>
+</div>
+<div>
+<b>Download</b>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=31591">Binaries</a>
+</div>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=33658">Source Code</a>
+</div>
+</div>
+<div>
+<b>Get Involved</b>
+<div>
+<a href="http://sourceforge.net/projects/wrapper/">Source Forge</a>
+</div>
+<div>
+<a href="http://svn.sourceforge.net/viewvc/wrapper/">Subversion Repository</a>
+</div>
+<div>
+<a href="http://sourceforge.net/tracker/?group_id=39428">Issue Tracking</a>
+</div>
+<div>
+<a href="http://sourceforge.net/mail/?group_id=39428">Mailing Lists and Archives</a>
+</div>
+<div>
+<a href="http://sourceforge.net/forum/?group_id=39428">Forums (Old)</a>
+</div>
+</div>
+</div>
+<script language="JavaScript">//@@MENU_BOTTOM@@</script>
+<p>
+<b>Hosted by:</b>
+<br>
+<a href="http://sourceforge.net/projects/wrapper/"><img alt="SourceForge" border="0" height="31" width="88" src="http://sourceforge.net/sflogo.php?group_id=39428"></a>
+<br>
+</p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td><td valign="top" width="*">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td colspan="3"><img height="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td align="center" height="90" colspan="2"><a href="http://wrapper.tanukisoftware.org"><img border="0" height="90" width="728" src="images/OfflineAd728x90.png"></a></td><td rowspan="5"><img width="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td height="49" width="435"><img usemap="#wrapperTitle" border="0" height="49" width="435" src="images/WrapperTitle.png"></td><td valign="bottom" align="right" width="*"><a href="donate.html"><img border="0" height="16" width="300" src="images/DonationRequest.png"></a></td>
+</tr>
+<tr>
+<td height="4" colspan="2"><img height="4" width="500" src="images/BorderTop.png"></td>
+</tr>
+<tr>
+<td colspan="2">
+<table cellspacing="0" cellpadding="0" width="100%" border="0">
+<tr>
+<td valign="top" width="4"><img height="496" width="4" src="images/BorderLeft.png"></td><td bgcolor="#ffffff" valign="top" width="*" colspan="2">
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true" align="center"><font zcolor="#115b77" color="#8888aa" size="5"><b>WrapperSimpleApp Integration (Linux / UNIX)</b></font></td>
+</tr>
+<tr>
+<td>
+<title>WrapperSimpleApp Integration (Linux / UNIX)</title>
+    
+    
+<a name="N10009"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>Integration Methods</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<ul>
+            
+<li>
+                
+<a href="integrate.html">Methods of Integrating with the Java Service Wrapper</a>
+            
+</li>
+        
+</ul>
+    
+</td>
+</tr>
+</table>
+    
+<a name="N10019"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>Method 1 - WrapperSimpleApp Integration (Linux / UNIX)</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<ul>
+            
+<li>
+                
+<a href="#overview">Overview</a>
+            
+</li>
+            
+<li>
+                
+<a href="#detailed">Detailed Instructions</a>
+            
+</li>
+        
+</ul>
+        
+<a name="overview"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Overview</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                The first method is to use the
+                <tt>WrapperSimpleApp</tt> helper class to
+                launch the application.  This is by far the simplest way to integrate
+                with the Wrapper, and where possible, it is highly recommended.  There
+                are some things to be aware of when using this method however.  When
+                the Wrapper shuts down the JVM, there is no direct call to an
+                application requesting that it shutdown cleanly.  Rather, the Wrapper
+                will exit the JVM by calling <tt>System.exit()</tt>
+                from within the JVM.  If the application has registered its own
+                <a href="http://developer.java.sun.com/developer/TechTips/2000/tt0711.html">shutdown hook</a>,
+                it will be invoked, giving the application a chance to shutdown
+                cleanly.  If on the other hand, a shutdown hook is not registered, then
+                the application will suddenly exit.   Both cases, with and without a
+                shutdown hook, provide the exact same behavior as if the application
+                was running without the Wrapper and a user pressed CTRL-C in the console.
+            </p>
+            
+<p>
+                When integrating with the <tt>WrapperSimpleApp</tt>
+                helper class, the <tt>WrapperSimpleApp</tt>
+                class replaces an application's main class.   This gives the
+                <tt>WrapperSimpleApp</tt> class a chance to
+                immediately initialize the <tt>WrapperManager</tt>
+                and register the JVM with the Wrapper.  The
+                <tt>WrapperSimpleApp</tt> class then manages all
+                interaction with the Wrapper as well as the life-cycle of an application.
+                When the Wrapper sends a start message to the JVM via the 
+                <tt>WrapperManager</tt>, the main method of
+                the application's actual main class is called.
+            </p>
+            
+<p>
+                The <tt>WrapperSimpleApp</tt> helper class
+                is told how to launch the application by passing the application's
+                main class name, followed by any additional application parameters
+                to the main method of the <tt>WrapperSimpleApp</tt>.
+            </p>
+            
+<p>
+                The following section will walk you through a detailed explanation of
+                how to configure <a href="http://www.jboss.org">JBoss</a> to
+                run within the Wrapper.  Most other applications can be integrated by
+                following the same steps.
+            </p>
+        
+</td>
+</tr>
+</table>
+        
+<a name="detailed"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Detailed Instructions</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            <a name="N10078"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Install JBoss</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    This tutorial will start with a clean install of
+                    <a href="http://www.jboss.org">JBoss</a>.  We used version
+                    3.0.4 so the exact steps may be slightly different depending
+                    on the exact version installed.  JBoss was installed in the
+                    <tt>/usr/lib</tt> directory, resulting
+                    in a JBoss Home directory of
+                    <tt>/usr/lib/jboss-3.0.4</tt>.
+                </p>
+            
+</td>
+</tr>
+</table>
+            
+<a name="N1008D"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Installing Wrapper Files</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    There are four files which are required to be able to use the
+                    Wrapper.  We will also copy over a script which makes it easy to
+                    launch and control the Wrapper.
+                </p>
+                
+<div class="note">
+<table cellspacing="0" cellpadding="2" width="100%" border="0">
+<tr>
+<td nowrap="nowrap" valign="top">
+<p class="notelabel">
+<font color="#0000a0"><b>NOTE MEG</b></font>
+</p>
+</td><td><img width="10" src="images/spacer.gif"></td><td bgcolor="#bbbbdd" class="notebody"><font color="#222260">
+                    
+<p>
+                        Please make sure that you are using the
+                        <tt>wrapper</tt>, and
+                        <tt>libwrapper.so</tt> files which
+                        were built for the platform being run.   It sounds obvious,
+                        but the Linux version will not work on Solaris for example.
+                    </p>
+                
+</font></td>
+</tr>
+</table>
+</div>
+                
+<a name="N100A3"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#bbbbdd" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>bin directory</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                    
+                    
+<p>
+                        The Wrapper is shipped with a <tt>sh</tt>
+                        script which can be used to reliably start and stop any Java
+                        application controlled by the Java Service Wrapper.
+                    </p>
+                    
+<p>
+                        First we will copy the following files into the JBoss
+                        <tt>bin</tt> directory:  
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">{WRAPPER_HOME}/bin/wrapper
+{WRAPPER_HOME}/src/bin/sh.script.in</pre>
+</font></td>
+</tr>
+</table>
+                    
+<p>
+                        Rename the script file to reflect the name of the application.
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">{JBOSS_HOME}/bin/jboss</pre>
+</font></td>
+</tr>
+</table>
+                    
+<p>
+                        Now open the script into an editor.  We need to set the long and
+                        short names to reflect that the script is being used to launch
+                        JBoss.  You will see two variables immediately after the header
+                        of the script.  <tt>APP_NAME</tt>
+                        and <tt>APP_LONG_NAME</tt>.  Note that
+                        the default values of both of these variables are
+                        <a href="http://ant.apache.org/">Ant</a> friendly
+                        tokens which can easily be replaced as part of a build.
+                        Suggested values for these variables are shown below.
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">APP_NAME="jboss"
+APP_LONG_NAME="JBoss Application Server"</pre>
+</font></td>
+</tr>
+</table>
+                    
+<p>
+                        These script should not require any additional modification.
+                        It does assume that the <tt>wrapper.conf</tt>
+                        file will be located within a
+                        <tt>conf</tt> directory one level up,
+                        <tt>../conf/wrapper.conf</tt>.  If
+                        you wish to locate this file someplace else, then that can also
+                        be set using the <tt>WRAPPER_CONF</tt>
+                        variable in the script.
+                    </p>
+                    
+<div class="note">
+<table cellspacing="0" cellpadding="2" width="100%" border="0">
+<tr>
+<td nowrap="nowrap" valign="top">
+<p class="notelabel">
+<font color="#0000a0"><b>NOTE MEG</b></font>
+</p>
+</td><td><img width="10" src="images/spacer.gif"></td><td bgcolor="#bbbbdd" class="notebody"><font color="#222260">
+                        
+<p>
+                            Important!  Before proceeding, please make sure that all
+                            three files copied into the <tt>bin</tt>
+                            directory have their executable bit set.
+                        </p>
+                    
+</font></td>
+</tr>
+</table>
+</div>
+                
+</td>
+</tr>
+</table>
+                
+<a name="N100FB"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#bbbbdd" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>lib directory</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                    
+                    
+<p>
+                        Copy the following two files into the JBoss lib directory:
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">{WRAPPER_HOME}/lib/libwrapper.so
+{WRAPPER_HOME}/lib/wrapper.jar</pre>
+</font></td>
+</tr>
+</table>
+                    
+<p>
+                        The <tt>libwrapper.so</tt> file is a
+                        native library required by the portion of the Wrapper which
+                        runs within the JVM.  The <tt>wrapper.jar</tt>
+                        file contains all of the Wrapper classes.
+                    </p>
+                
+</td>
+</tr>
+</table>
+                
+<a name="N10116"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#bbbbdd" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>conf directory</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                    
+                    
+<p>
+                        The Wrapper requires a configuration file.  The standard
+                        location for this file is in a conf directory in the
+                        application's home directory.  JBoss does not have such
+                        a directory by default, so we will need to create one.
+                        Please do so and copy the template
+                        <tt>wrapper.conf</tt> file to
+                        that location:
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">{WRAPPER_HOME}/src/conf/wrapper.conf.in</pre>
+</font></td>
+</tr>
+</table>
+                    
+<p>
+                        Be sure to remove the <tt>.in</tt>
+                        extension so that the file is named
+                        <tt>wrapper.conf</tt>.  You should
+                        now have:
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">{JBOSS_HOME}/conf/wrapper.conf</pre>
+</font></td>
+</tr>
+</table>
+                    
+<p>
+                        If you wish to relocate the configuration file, you are free
+                        to do so.  You will need to modify the batch scripts copied
+                        into the <tt>bin</tt> directory above,
+                        to reflect the new location.
+                    </p>
+                
+</td>
+</tr>
+</table>
+                
+<a name="N10143"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#bbbbdd" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>logs directory</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                    
+                    
+<p>
+                        The default <tt>wrapper.conf</tt> file
+                        will place a <tt>wrapper.log</tt> file
+                        in a <tt>logs</tt> directory under the
+                        application home directory.  JBoss does not have such a directory
+                        by default, so we will need to create one.  Please do so.  You
+                        should now have the following directory:
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">{JBOSS_HOME}/logs</pre>
+</font></td>
+</tr>
+</table>
+                    
+<p>
+                        If you wish to place the log file in another location, you will
+                        need to edit the <tt>wrapper.conf</tt>
+                        file and modify the <tt>wrapper.logfile</tt>
+                        property to reflect the new location.
+                    </p>
+                
+</td>
+</tr>
+</table>
+            
+</td>
+</tr>
+</table>
+            
+<a name="N1016B"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Locate the Application's Java Command Line</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    Before the Wrapper can be configured to launch an Application,
+                    you will need to know the full Java command which is normally
+                    used.
+                </p>
+                
+<p>
+                    Most applications make use of a script to build up the actual
+                    command line.  These scripts tend to get quite unwieldy and
+                    in fact, the ability to avoid having to work with them is one of
+                    the benefits of working with the Wrapper.
+                </p>
+                
+<p>
+                    JBoss is launched by using a script called 
+                    <tt>run.sh</tt>.  It is
+                    launched by first changing the current directory to the
+                    <tt>bin</tt> directory and then
+                    run from there.  If you open
+                    <tt>run.sh</tt> into an editor, you
+                    will notice the following lines towards the end of the file:
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">    exec $JAVA $JAVA_OPTS \
+            -classpath "$JBOSS_CLASSPATH" \
+            org.jboss.Main "$@"</pre>
+</font></td>
+</tr>
+</table>
+                
+<p>
+                    The majority of the script has the task of collecting system
+                    specific information and storing that information into environment
+                    variables.  The lines above then expands all of the collected
+                    information into the final Java command which launches the
+                    application.  From looking at the source of the script,
+                    we hope you appreciate the complexity and the desire to have to
+                    avoid completely writing such scripts yourself.
+                </p>
+                
+<p>
+                    In order to configure the Wrapper, all that is really needed is
+                    the final expanded command line.  Rather than reading through the
+                    entire script and attempting to understand it, we will use a
+                    simple trick to display the final command line in the console.
+                    Edit the script by changing it as follows:
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">    #exec $JAVA $JAVA_OPTS \
+    #        -classpath "$JBOSS_CLASSPATH" \
+    #        org.jboss.Main "$@"
+    echo "exec $JAVA $JAVA_OPTS -classpath $JBOSS_CLASSPATH org.jboss.Main $@"
+</pre>
+</font></td>
+</tr>
+</table>
+                
+<p>
+                    If you now rerun the script, you will see something like the
+                    following in the console (Your output will all be on one line):
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">exec /opt/IBMJava2-131/bin/java  -Dprogram.name=run.sh
+  -classpath /usr/lib/jboss-3.0.4/bin/run.jar:/opt/IBMJava2-131/lib/tools.jar org.jboss.Main</pre>
+</font></td>
+</tr>
+</table>
+            
+</td>
+</tr>
+</table>
+            
+<a name="N101A4"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Modifying the wrapper.conf File</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    In order to be able to use this command with the Wrapper, we need
+                    to break up its components.  Open the
+                    <tt>wrapper.conf</tt> file into an editor
+                    and make the changes below.
+                </p>
+                
+<div class="note">
+<table cellspacing="0" cellpadding="2" width="100%" border="0">
+<tr>
+<td nowrap="nowrap" valign="top">
+<p class="notelabel">
+<font color="#0000a0"><b>NOTE MEG</b></font>
+</p>
+</td><td><img width="10" src="images/spacer.gif"></td><td bgcolor="#bbbbdd" class="notebody"><font color="#222260">
+                    
+<p>
+                        Where properties are mentioned below, links are provided to their
+                        descriptions.  Please take the time to review the descriptions of
+                        any properties which are modified.  In many cases, there are
+                        further details on their usage which are not mentioned here.
+                    </p>
+                
+</font></td>
+</tr>
+</table>
+</div>
+                
+<a name="N101B6"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#bbbbdd" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Java Executable</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                    
+                    
+<p>
+                        First is to extract the java executable and assign it to the
+                        <tt><a href="prop-java-command.html">wrapper.java.command</a></tt>
+                        property:
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper.java.command=/opt/IBMJava2-131/bin/java</pre>
+</font></td>
+</tr>
+</table>
+                
+</td>
+</tr>
+</table>
+                
+<a name="N101CC"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#bbbbdd" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Java Arguments</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                    
+                    
+<p>
+                        Most applications provide a number of parameters to the Java
+                        executable when it is launched.  The Wrapper provides special
+                        properties for configuring things like memory, as well as
+                        class and library paths.  These will be covered below, however
+                        any other settings are configured using the 
+                        <tt><a href="prop-java-additional-n.html">wrapper.java.additional.&lt;n&gt;</a></tt>
+                        series of properties.
+                    </p>
+                    
+<p>
+                        The JBoss command line only has one such property.  In this
+                        case, we have changed the name of the script used to launch
+                        JBoss from <tt>run.sh</tt>, but
+                        for consistency we will leave it as is.:
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper.java.additional.1=-Dprogram.name=run.sh</pre>
+</font></td>
+</tr>
+</table>
+                    
+<p>
+                        Notice that the full property was copied directly from the
+                        command line without any modifications.  See the property
+                        documentation for details on how to handle properties
+                        containing spaces.
+                    </p>
+                
+</td>
+</tr>
+</table>
+                
+<a name="N101EC"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#bbbbdd" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Classpath</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                    
+                    
+<p>
+                        Next, comes the classpath, which is configured using the
+                        <tt><a href="prop-java-classpath-n.html">wrapper.java.classpath.&lt;n&gt;</a></tt>
+                        properties.  The Wrapper requires that the classpath be
+                        broken up into its individual elements.  Then, because we
+                        will also be making use of the Wrapper, it is necessary to
+                        include the <tt>wrapper.jar</tt>
+                        file as well:
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper.java.classpath.1=/usr/lib/jboss-3.0.4/wrapper.jar
+wrapper.java.classpath.2=/usr/lib/jboss-3.0.4/bin/run.jar
+wrapper.java.classpath.3=/opt/IBMJava2-131/lib/tools.jar</pre>
+</font></td>
+</tr>
+</table>
+                
+</td>
+</tr>
+</table>
+                
+<a name="N10206"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#bbbbdd" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Main Class</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                    
+                    
+<p>
+                        The final component of the command used to launch JBoss is the
+                        main class, <tt>org.jboss.Main</tt>.
+                        The main class executed by Java when launched is specified by
+                        using the 
+                        <tt><a href="prop-java-mainclass.html">wrapper.java.mainclass</a></tt>
+                        property.  As mentioned above however.  Because the JBoss main
+                        class does not know how to communicate with the Wrapper, we
+                        will set the main class to be the full class name of
+                        <tt>WrapperSimpleApp</tt>.
+                        The JBoss main class is then specified as the first application
+                        parameter below.
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperSimpleApp</pre>
+</font></td>
+</tr>
+</table>
+                
+</td>
+</tr>
+</table>
+                
+<a name="N10224"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#bbbbdd" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Application Parameters</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                    
+                    
+<p>
+                        Application parameters are set using the
+                        <tt><a href="prop-app-parameter-n.html">wrapper.app-parameter.&lt;n&gt;</a></tt>
+                        properties.  Application parameters appear in the Java command
+                        line directly after the main class.  While JBoss does not have
+                        any such parameters, it is still necessary to set one of these
+                        properties.  This is because we are using the
+                        <tt>WrapperSimpleApp</tt> helper class
+                        and as described above, its first parameter is the main class
+                        name of the application being run.  in this case, 
+                        <tt>org.jboss.Main</tt>:
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper.app.parameter.1=org.jboss.Main</pre>
+</font></td>
+</tr>
+</table>
+                
+</td>
+</tr>
+</table>
+                
+<a name="N10242"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#bbbbdd" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Library Path</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                    
+                    
+<p>
+                        In order to use the Wrapper, there is one more property which
+                        much be set.  The Wrapper makes use of a native library to
+                        control interactions with the system.  This file
+                        <tt>libwrapper.so</tt> needs to be
+                        specified on the library path supplied to the JVM.  JBoss
+                        does not have any native libraries of its own, but if it did,
+                        the directories where they were located would also need to be
+                        specified.  The library path is set using the 
+                        <tt><a href="prop-java-library-path-n.html">wrapper.java-library-path.&lt;n&gt;</a></tt>
+                        properties.
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper.java.library.path.1=/usr/lib/jboss-3.0.4/lib</pre>
+</font></td>
+</tr>
+</table>
+                
+</td>
+</tr>
+</table>
+                
+<a name="N1025C"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#bbbbdd" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Putting It All Together</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                    
+                    
+<p>
+                        Putting it all together, we get the following:
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper.java.command=/opt/IBMJava2-131/bin/java
+
+wrapper.java.additional.1=-Dprogram.name=run.sh
+
+wrapper.java.classpath.1=/usr/lib/jboss-3.0.4/wrapper.jar
+wrapper.java.classpath.2=/usr/lib/jboss-3.0.4/bin/run.jar
+wrapper.java.classpath.3=/opt/IBMJava2-131/lib/tools.jar
+
+wrapper.java.library.path.1=/usr/lib/jboss-3.0.4/lib
+
+wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperSimpleApp
+
+wrapper.app.parameter.1=org.jboss.Main</pre>
+</font></td>
+</tr>
+</table>
+                    
+<p>
+                        Notice what while this will function correctly on this
+                        particular machine, it is highly dependent on the directory
+                        structure and platform.  By taking advantage of the fact that
+                        the Wrapper's scripts always set the current directory to the
+                        location of the script, and by making use of a single environment
+                        variable, we are able to modify the above properties so that
+                        they are completely platform and machine independent:
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper.java.command=%JAVA_HOME%/bin/java
+
+wrapper.java.additional.1=-Dprogram.name=run.sh
+
+wrapper.java.classpath.1=../lib/wrapper.jar
+wrapper.java.classpath.2=./run.jar
+wrapper.java.classpath.3=%JAVA_HOME%/lib/tools.jar
+
+wrapper.java.library.path.1=../lib
+
+wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperSimpleApp
+
+wrapper.app.parameter.1=org.jboss.Main</pre>
+</font></td>
+</tr>
+</table>
+                
+</td>
+</tr>
+</table>
+            
+</td>
+</tr>
+</table>
+            
+<a name="N10277"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Trying It Out</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    JBoss can now be run by simply executing
+                    <tt>bin/jboss console</tt>.
+                    Because of the way the Wrapper sets its current directory, it
+                    is not necessary to run this script from within the
+                    <tt>bin</tt> directory.
+                </p>
+                
+<p>
+                    As you will see if you omit a command, the scripts shipped
+                    with the wrapper are fairly standard daemon scripts.  They
+                    accept <tt>console</tt>,
+                    <tt>start</tt>,
+                    <tt>stop</tt>,
+                    <tt>restart</tt>, and
+                    <tt>dump</tt> commands.
+                    The <tt>start</tt>,
+                    <tt>stop</tt>, and
+                    <tt>restart</tt> commands are common
+                    to most daemon scripts and are used to control the wrapper and 
+                    its application as a daemon process.  The 
+                    <tt>status</tt> command
+                    can be used to find out whether or not the wrapper is currently
+                    running.  The <tt>console</tt> command
+                    will launch the wrapper in the current shell, making it
+                    possible to kill the application with CTRL-C.  The final
+                    command, <tt>dump</tt>, will send a
+                    <tt>kill -3</tt> signal to the wrapper
+                    causing the its JVM to do a full thread dump.
+                </p>
+                
+<p>
+                    Congratulations.  Your application should now be up and running.
+                </p>
+                
+<p>
+                    If you did have any problems, please take a look at the
+                    <a href="troubleshooting.html">Troubleshooting</a>
+                    section for help with tracking down the problem.
+                </p>
+            
+</td>
+</tr>
+</table>
+        
+</td>
+</tr>
+</table>
+    
+</td>
+</tr>
+</table>
+
+</td>
+</tr>
+<tr>
+<td align="right" id="author">
+<p>
+<i>by Leif Mortenson</i>
+</p>
+</td>
+</tr>
+</table>
+<script language="JavaScript">//@@BODY_SECTION@@</script></td><td valign="bottom" width="4"><img height="496" width="4" src="images/BorderRight.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td align="right" height="4" colspan="2"><img height="4" width="500" src="images/BorderBottom.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
+<tr>
+<td id="copyright" align="left"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            Copyright &copy;1999-2004 by <a href="http://www.tanukisoftware.com">Tanuki Software</a>.
+                            All Rights Reserved.
+                        </i></font></td><td align="right"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            last modified:
+                            <script language="JavaScript"> document.write(document.lastModified); </script></i></font></td>
+</tr>
+</table>
+</body>
+</html>

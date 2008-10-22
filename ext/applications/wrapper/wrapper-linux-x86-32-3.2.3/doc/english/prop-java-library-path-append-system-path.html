@@ -1,0 +1,346 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Java Service Wrapper - wrapper.java.library.path.append_system_path Property</title>
+<style media="all" type="text/css">
+            @import url("./style/wrapper.css");
+        </style>
+</head>
+<body bgcolor="#eeeeff" marginheight="0" marginwidth="0" leftmargin="0" topmargin="0" alink="#023264" vlink="#023264" link="#525D76" text="#000000">
+<map name="wrapperLogo">
+<area href="http://wrapper.tanukisoftware.org" coords="90,90,88" shape="circle">
+</map>
+<map name="wrapperTitle">
+<area href="http://www.tanukisoftware.com" coords="28,32,176,48" shape="rect">
+</map>
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td valign="top" width="180">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td width="180"><img usemap="#wrapperLogo" border="0" height="180" width="180" src="images/WrapperLogo.png"></td>
+</tr>
+<tr>
+<td>
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true">
+<div id="menu">
+<script language="JavaScript">//@@MENU_TOP@@</script>
+<div>
+<b>Essentials</b>
+<div>
+<a href="introduction.html">Introduction</a>
+</div>
+<div>
+<a href="integrate.html">Integration Methods</a>
+</div>
+<div>
+<a href="properties.html">Configuration Properties</a>
+</div>
+<div>
+<a href="launch.html">Launching Your Application</a>
+</div>
+<div>
+<b>
+                        &gt;&gt;
+                        <a href="donate.html">Show Your Support</a>
+                        &lt;&lt;
+                    </b>
+</div>
+<div>
+<a href="sponsors.html">Sponsors</a>
+</div>
+</div>
+<div>
+<b>Documentation</b>
+<div>
+<a href="jmx.html">JMX Control</a>
+</div>
+<div>
+<a href="security-model.html">Security Model</a>
+</div>
+<div>
+<a href="example.html">Feature Examples</a>
+</div>
+<div>
+<a href="debugging.html">Debugging Your Application</a>
+</div>
+<div>
+<a href="troubleshooting.html">Troubleshooting</a>
+</div>
+<div>
+<a href="faq.html">FAQ</a>
+</div>
+<div>
+<a href="release-notes.html">Release Notes</a>
+</div>
+<div>
+<a href="history.html">Project History</a>
+</div>
+<div>
+<a href="javadocs.html">Javadocs API</a>
+</div>
+<div>
+<a href="buttons.html">Buttons</a>
+</div>
+<div>
+<a href="authors.html">Authors</a>
+</div>
+<div>
+<a href="license.html">License</a>
+</div>
+</div>
+<div>
+<b>Download</b>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=31591">Binaries</a>
+</div>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=33658">Source Code</a>
+</div>
+</div>
+<div>
+<b>Get Involved</b>
+<div>
+<a href="http://sourceforge.net/projects/wrapper/">Source Forge</a>
+</div>
+<div>
+<a href="http://svn.sourceforge.net/viewvc/wrapper/">Subversion Repository</a>
+</div>
+<div>
+<a href="http://sourceforge.net/tracker/?group_id=39428">Issue Tracking</a>
+</div>
+<div>
+<a href="http://sourceforge.net/mail/?group_id=39428">Mailing Lists and Archives</a>
+</div>
+<div>
+<a href="http://sourceforge.net/forum/?group_id=39428">Forums (Old)</a>
+</div>
+</div>
+</div>
+<script language="JavaScript">//@@MENU_BOTTOM@@</script>
+<p>
+<b>Hosted by:</b>
+<br>
+<a href="http://sourceforge.net/projects/wrapper/"><img alt="SourceForge" border="0" height="31" width="88" src="http://sourceforge.net/sflogo.php?group_id=39428"></a>
+<br>
+</p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td><td valign="top" width="*">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td colspan="3"><img height="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td align="center" height="90" colspan="2"><a href="http://wrapper.tanukisoftware.org"><img border="0" height="90" width="728" src="images/OfflineAd728x90.png"></a></td><td rowspan="5"><img width="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td height="49" width="435"><img usemap="#wrapperTitle" border="0" height="49" width="435" src="images/WrapperTitle.png"></td><td valign="bottom" align="right" width="*"><a href="donate.html"><img border="0" height="16" width="300" src="images/DonationRequest.png"></a></td>
+</tr>
+<tr>
+<td height="4" colspan="2"><img height="4" width="500" src="images/BorderTop.png"></td>
+</tr>
+<tr>
+<td colspan="2">
+<table cellspacing="0" cellpadding="0" width="100%" border="0">
+<tr>
+<td valign="top" width="4"><img height="496" width="4" src="images/BorderLeft.png"></td><td bgcolor="#ffffff" valign="top" width="*" colspan="2">
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true" align="center"><font zcolor="#115b77" color="#8888aa" size="5"><b>wrapper.java.library.path.append_system_path Property</b></font></td>
+</tr>
+<tr>
+<td>
+<title>wrapper.java.library.path.append_system_path Property</title>
+    
+    
+<a name="N10009"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>Configuration Property Overview</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<ul>
+            
+<li>
+                
+<a href="properties.html">Configuration Property Overview</a>
+            
+</li>
+            
+<li>
+                
+<a href="props-jvm.html">JVM Configuration Properties</a>
+            
+</li>
+            
+<li>
+                
+<a href="properties.html#name">Property List by Name</a>
+            
+</li>
+        
+</ul>
+    
+</td>
+</tr>
+</table>
+    
+<a name="N10027"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>wrapper.java.library.path.append_system_path</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<p>
+            The Java Service Wrapper includes a native library component, and thus
+            requires that the location of that library be specified by passing its
+            location to the JVM using the java.library.path system property.
+        </p>
+        
+<p>
+            Normally when Java is launched and a library path is not specified, the
+            JVM will default to using the system PATH on Windows and the LD_LIBRARY_PATH
+            on Unix systems to locate any native libraries loaded by the application.
+            This is akin to what happens with the CLASSPATH environment variable when
+            a specific classpath is not specified when launching the JVM.   The use of
+            the CLASSPATH environment variable has fallen out of style because of all
+            the conflict problems which can arise when multiple Java applications are
+            installed on the same machine.  The same issues are all there with the
+            library path as well.  But some applications still make use of the system
+            PATH or LD_LIBRARY_PATH by default.
+        </p>
+        
+<p>
+            In general, it is advised that you avoid potential problems when your
+            application is deployed by being conservative about which directories
+            will be included in the java library path.   However if there is a need
+            to search the entire PATH, then this property will cause the Wrapper to
+            append the contents of the system PATH or LD_LIBRARY_PATH to the java
+            library path used to launch the JVM.  It is appended rather than
+            prepended so that directories configured using the
+            <a href="prop-java-library-path-n.html">wrapper.java.library.path.&lt;n&gt;</a>
+            properties will be given priority.  Defaults to false.
+        </p>
+        
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>Example:</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper.java.library.path.append_system_path=true</pre>
+</font></td>
+</tr>
+</table>
+        
+<div class="note">
+<table cellspacing="0" cellpadding="2" width="100%" border="0">
+<tr>
+<td nowrap="nowrap" valign="top">
+<p class="notelabel">
+<font color="#0000a0"><b>NOTE MEG</b></font>
+</p>
+</td><td><img width="10" src="images/spacer.gif"></td><td bgcolor="#bbbbdd" class="notebody"><font color="#222260">
+            
+<p>
+                Some native libraries reference other dynamically linked libraries.
+                Java will locate the initial JNI library using the java library path,
+                but the secondary libraries are loaded using the default mechanism
+                for the platform.
+            </p>
+            
+<p>
+                On Windows, the system will first look in the current working
+                directory (The location of the wrapper.exe), then it will look in
+                the Windows system32 directory and the Windows directory.  Finally,
+                it will search the entire system PATH.  If both DLLs are located in
+                your application's lib directory, it may be necessary to add its
+                location to your system path as follows.  The PATH is for Windows
+                and the LD_LIBRARY_PATH makes the configuration file cross
+                platform so it works on Unix systems as well.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">set.PATH=..%WRAPPER_FILE_SEPARATOR%bin%WRAPPER_PATH_SEPARATOR%%PATH%
+set.LD_LIBRARY_PATH=..%WRAPPER_FILE_SEPARATOR%bin%WRAPPER_PATH_SEPARATOR%%LD_LIBRARY_PATH%</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                Not that placing the secondary library on the PATH rather than in the
+                current working directory has a risk that an old version of the library
+                could be encountered first in the Windows system32 directory if it was
+                installed by another application.  This is due to the order in which
+                the system looks for the file.
+            </p>
+            
+<p>
+                This problem has been seen when working with SAP's JCO libraries
+                if other SAP applications are also installed on the system.
+            </p>
+        
+</font></td>
+</tr>
+</table>
+</div>
+    
+</td>
+</tr>
+</table>
+
+</td>
+</tr>
+<tr>
+<td align="right" id="author">
+<p>
+<i>by Leif Mortenson</i>
+</p>
+</td>
+</tr>
+</table>
+<script language="JavaScript">//@@BODY_SECTION@@</script></td><td valign="bottom" width="4"><img height="496" width="4" src="images/BorderRight.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td align="right" height="4" colspan="2"><img height="4" width="500" src="images/BorderBottom.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
+<tr>
+<td id="copyright" align="left"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            Copyright &copy;1999-2004 by <a href="http://www.tanukisoftware.com">Tanuki Software</a>.
+                            All Rights Reserved.
+                        </i></font></td><td align="right"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            last modified:
+                            <script language="JavaScript"> document.write(document.lastModified); </script></i></font></td>
+</tr>
+</table>
+</body>
+</html>

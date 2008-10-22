@@ -1,0 +1,161 @@
+body, html{
+	padding: 0%;
+	margin: 0%;
+	height: 100%;
+}
+
+a img{
+	border-width: 0px;
+}
+
+h3{
+	margin-top: 50px;
+}
+
+body{
+	background-image: url("images/main_background.png");
+	background-position: center;
+	font-family: sans-serif;
+	line-height: 150%;
+	font-size: 10pt;
+}
+
+div#container{
+	margin: 0px auto;
+
+	/* The width minus shadows. 750px total */
+	width: 688px;
+}
+
+div#top{
+	width: 688px;
+	height: 160px;
+
+}
+
+h1#chipster-title span{
+	display: none;
+}
+
+h2#software{
+	display: none;
+}
+
+h1#csc-link{
+  position: relative;
+  top: 30px;
+  left: 20px;
+  margin: 0px;
+  z-index: 2;
+}
+
+h1#csc-link a{
+  width: 144px;
+  height: 100px;
+  display: block;
+}
+
+h1#csc-link a span{
+	display: none;
+}
+
+h1#chipster-title{
+   position: relative;
+   top: -100px;
+	background-image: url("images/upper_splash.png");
+	background-position: bottom right;
+	width: 688px;
+	height: 160px;
+	margin: 0%;
+	padding: 0%;
+}
+
+div#main-left{
+	float: left;
+	width: 188px;
+	height: 500px;
+}
+
+div#main-right{
+	padding: 20px;
+	width: 460px;
+	float: right;
+}
+
+div#news {
+	width : 13em;
+	margin-top: 40px;
+	float : right;
+	border-color: #CCCCCC;
+	border-style: solid;
+	border-width : 0px;
+	border-left-width : 1px;
+}
+
+div#launch{
+	margin-top: 4em;
+	background-color: #E8EDF1;
+	padding: 1em;
+}
+
+img#launch-button{
+	vertical-align: middle;
+	margin-right: 2em;
+}
+
+div#launch a{
+	text-decoration: none;
+}
+
+span#launch-text{
+	vertical-align: middle;
+	display: inline-block;
+	font-size: 140%;
+}
+
+ul#navigation-links{
+	color: gray;
+	list-style: square;
+	margin-top: 70px;
+}
+
+ul#news {
+	padding-left : 1em;
+}
+
+li#news {
+	font-size : 80%;
+	list-style: none;
+	color : gray;
+}
+
+ul#navigation-links li{
+	margin: 0.5em 0em;
+}
+
+ul#navigation-links a{
+	color: gray;
+	text-decoration: none;
+}
+
+ul#navigation-links a:hover{
+	color: #AAAAAA;
+}
+
+table#contact-table{
+	border-spacing: 0.7em;
+}
+
+img.screenshot_img{
+	margin: 5px;
+	padding: 1px;
+	border-color: #CCCCCC;
+	border-style: solid;
+	border-width: 1px;
+}
+
+p#news {
+	color : gray;
+	padding-left : 1em;
+}
+

@@ -1,0 +1,730 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Java Service Wrapper - FAQ</title>
+<style media="all" type="text/css">
+            @import url("./style/wrapper.css");
+        </style>
+</head>
+<body bgcolor="#eeeeff" marginheight="0" marginwidth="0" leftmargin="0" topmargin="0" alink="#023264" vlink="#023264" link="#525D76" text="#000000">
+<map name="wrapperLogo">
+<area href="http://wrapper.tanukisoftware.org" coords="90,90,88" shape="circle">
+</map>
+<map name="wrapperTitle">
+<area href="http://www.tanukisoftware.com" coords="28,32,176,48" shape="rect">
+</map>
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td valign="top" width="180">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td width="180"><img usemap="#wrapperLogo" border="0" height="180" width="180" src="images/WrapperLogo.png"></td>
+</tr>
+<tr>
+<td>
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true">
+<div id="menu">
+<script language="JavaScript">//@@MENU_TOP@@</script>
+<div>
+<b>Essentials</b>
+<div>
+<a href="introduction.html">Introduction</a>
+</div>
+<div>
+<a href="integrate.html">Integration Methods</a>
+</div>
+<div>
+<a href="properties.html">Configuration Properties</a>
+</div>
+<div>
+<a href="launch.html">Launching Your Application</a>
+</div>
+<div>
+<b>
+                        &gt;&gt;
+                        <a href="donate.html">Show Your Support</a>
+                        &lt;&lt;
+                    </b>
+</div>
+<div>
+<a href="sponsors.html">Sponsors</a>
+</div>
+</div>
+<div>
+<b>Documentation</b>
+<div>
+<a href="jmx.html">JMX Control</a>
+</div>
+<div>
+<a href="security-model.html">Security Model</a>
+</div>
+<div>
+<a href="example.html">Feature Examples</a>
+</div>
+<div>
+<a href="debugging.html">Debugging Your Application</a>
+</div>
+<div>
+<a href="troubleshooting.html">Troubleshooting</a>
+</div>
+<div>
+<a href="faq.html">FAQ</a>
+</div>
+<div>
+<a href="release-notes.html">Release Notes</a>
+</div>
+<div>
+<a href="history.html">Project History</a>
+</div>
+<div>
+<a href="javadocs.html">Javadocs API</a>
+</div>
+<div>
+<a href="buttons.html">Buttons</a>
+</div>
+<div>
+<a href="authors.html">Authors</a>
+</div>
+<div>
+<a href="license.html">License</a>
+</div>
+</div>
+<div>
+<b>Download</b>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=31591">Binaries</a>
+</div>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=33658">Source Code</a>
+</div>
+</div>
+<div>
+<b>Get Involved</b>
+<div>
+<a href="http://sourceforge.net/projects/wrapper/">Source Forge</a>
+</div>
+<div>
+<a href="http://svn.sourceforge.net/viewvc/wrapper/">Subversion Repository</a>
+</div>
+<div>
+<a href="http://sourceforge.net/tracker/?group_id=39428">Issue Tracking</a>
+</div>
+<div>
+<a href="http://sourceforge.net/mail/?group_id=39428">Mailing Lists and Archives</a>
+</div>
+<div>
+<a href="http://sourceforge.net/forum/?group_id=39428">Forums (Old)</a>
+</div>
+</div>
+</div>
+<script language="JavaScript">//@@MENU_BOTTOM@@</script>
+<p>
+<b>Hosted by:</b>
+<br>
+<a href="http://sourceforge.net/projects/wrapper/"><img alt="SourceForge" border="0" height="31" width="88" src="http://sourceforge.net/sflogo.php?group_id=39428"></a>
+<br>
+</p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td><td valign="top" width="*">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td colspan="3"><img height="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td align="center" height="90" colspan="2"><a href="http://wrapper.tanukisoftware.org"><img border="0" height="90" width="728" src="images/OfflineAd728x90.png"></a></td><td rowspan="5"><img width="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td height="49" width="435"><img usemap="#wrapperTitle" border="0" height="49" width="435" src="images/WrapperTitle.png"></td><td valign="bottom" align="right" width="*"><a href="donate.html"><img border="0" height="16" width="300" src="images/DonationRequest.png"></a></td>
+</tr>
+<tr>
+<td height="4" colspan="2"><img height="4" width="500" src="images/BorderTop.png"></td>
+</tr>
+<tr>
+<td colspan="2">
+<table cellspacing="0" cellpadding="0" width="100%" border="0">
+<tr>
+<td valign="top" width="4"><img height="496" width="4" src="images/BorderLeft.png"></td><td bgcolor="#ffffff" valign="top" width="*" colspan="2">
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true" align="center"><font zcolor="#115b77" color="#8888aa" size="5"><b>FAQ</b></font></td>
+</tr>
+<tr>
+<td>
+<title>FAQ</title>
+    
+    
+<a name="N10009"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>
+            Questions
+        </b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<ul>
+            
+<li>
+                
+<a href="#1">My application can not access network drives when run as an NT service.</a>
+            
+</li>
+            
+<li>
+                
+<a href="#2">My application is an executable jar. What do I do.</a>
+            
+</li>
+            
+<li>
+                
+<a href="#3">The JVM exits unexpectedly when requesting a thread dump.</a>
+            
+</li>
+            
+<li>
+                
+<a href="#4">My application uses the Windows COMM API, but it doesn't work with the Wrapper.</a>
+            
+</li>
+            
+<li>
+                
+<a href="#5">My is throwing security exceptions when I run with the Wrapper.</a>
+            
+</li>
+            
+<li>
+                
+<a href="#6">Does the Wrapper handle the problem of JVMs exiting when a user logs out under Windows?</a>
+            
+</li>
+            
+<li>
+                
+<a href="#7">How can I change the priority at which my application runs on the system?</a>
+            
+</li>
+            
+<li>
+                
+<a href="#8">How can I change the user directory of my application?</a>
+            
+</li>
+            
+<li>
+                
+<a href="#9">I have several Wrapper's and JVMs running, how can I tell which is which in the Windows Task Manager.</a>
+            
+</li>
+        
+</ul>
+    
+</td>
+</tr>
+</table>
+    
+<a name="N10051"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>
+            Answers
+        </b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        <a name="1"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>
+                My application can not access network drives when run as an NT service.
+            </b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                By default, NT Services run as the SYSTEM user.  The problem is that the
+                SYSTEM user does not have access to network resources.   If your
+                application is working fine when run as a service.  Then the first thing
+                to try is running your service as the user you were logged in as when
+                running it as a console application.
+            </p>
+            
+<p>
+                To do this, first uninstall your application if it is currently installed
+                as an NT service.  Then edit the wrapper.conf file, setting the
+                <a href="prop-ntservice-account.html">wrapper.ntservice.account</a> and
+                <a href="prop-ntservice-password.html">wrapper.ntservice.password</a>
+                properties.  Next reinstall and start your service.
+            </p>
+            
+<p>
+                The service will now be running under the same environment as it was being
+                run as a console application, so everything should now be working correctly.
+                This issue is explained a bit in the following document,
+                <a href="http://support.microsoft.com/default.aspx?scid=kb;EN-US;149984">Accessing Network Drives Created in Services Under Windows NT</a>
+            
+</p>
+            
+<p>
+                Depending on your security requirements, you may wish to create and
+                configure a new user especially for the service.
+            </p>
+            
+<p>
+                I have found that on some systems, drives mapped to a drive letter are not
+                always accessable on system restart until a real user actually logs on and
+                connects to the drive.  The workaround is to use the UNC syntax to reference
+                the drive directly rather than using the mapped drive letter.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">//host/share/path</pre>
+</font></td>
+</tr>
+</table>
+        
+</td>
+</tr>
+</table>
+        
+<a name="2"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>
+                My application is an executable jar. What do I do.
+            </b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                The Wrapper does not directly support executable jar files.  But
+                this is easily worked around.
+            </p>
+            
+<p>
+                The first step is to find out what class is actually being executed
+                when the JVM runs the jar.  To do this, you will need to expand the
+                contents of the jar into a temp directory.  A jar file is nothing
+                more than a fancy ZIP file, so you can either use your favorite ZIP
+                utility or the jar utility that comes with Java.
+            </p>
+            
+<p>
+                Inside the jar file, you will find the file,
+                <tt>meta-inf/Manifest.mf</tt>.  Opening
+                this into an editor, reveals something like the following:
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">Manifest-Version: 1.0
+Main-Class: com.myco.myapp.Main</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                Passing the <tt>-jar</tt> parameter and a
+                jar file to Java simply causes it to read the above main class name
+                and use it to run the application.  So to get the Wrapper to launch
+                the same application, all that needs to be done is to include the
+                executable jar on the wrapper classpath along with any other jars,
+                and then follow the normal <a href="integrate.html">integration</a>
+                steps using the <tt>Main-Class</tt> as the
+                application's main class.
+            </p>
+        
+</td>
+</tr>
+</table>
+        
+<a name="3"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>
+                The JVM exits unexpectedly when requesting a thread dump.
+            </b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                When I request a thread dump by hitting CTRL-BREAK, CTRL-\, or via the
+                API, I get the following message in the log and the JVM is restarted:
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper  | JVM exited unexpectedly.</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                Please make sure that you have not specified the -Xrs flag when launching
+                the JVM.  This flag is useful in some environments when using Java without
+                the Wrapper.  But it compromises the Wrapper's ability to respond to the
+                the various system signals.
+            </p>
+            
+<p>
+                To tell the Wrapper and thus it's JVM to ignore system signals, use the
+                <a href="prop-ignore-signals.html">wrapper.ignore_signals</a>
+                instead.  Make sure you have read the docs first.
+            </p>
+        
+</td>
+</tr>
+</table>
+        
+<a name="4"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>
+                My application uses the Windows COMM API, but it doesn't work with the Wrapper.
+            </b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                Some users have reported problems when attempting to get their COMM
+                applications working with the Wrapper.  The application will work fine
+                standalone, but when run under the Wrapper errors like the following
+                are thrown:
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">Caught java.lang.NullPointerException: name can't be null while loading driver com.sun.comm.Win32Driver</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                The COMM API requires two files to be available:  The win32com.dll file
+                on the library path, and a javax.comm.properties file located in a lib
+                subdirectory of the directory returned by System.getProperty("java.home").
+            </p>
+            
+<p>
+                Problems are caused if your wrapper.conf has configured that you use a
+                different JVM than is specified by your JAVA_HOME environment variable.
+                You can make sure you are using the correct JVM by specifying the following
+                in your wrapper.conf file
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper.java.command=%JAVA_HOME%/bin/java</pre>
+</font></td>
+</tr>
+</table>
+        
+</td>
+</tr>
+</table>
+        
+<a name="5"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>
+                My is throwing security exceptions when I run with the Wrapper.
+            </b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                The only difference between the way your application is running
+                under the Wrapper and the way is was running before being integrated
+                is that before your application's main method was being called directly
+                by the JVM on startup.  Now, assuming that you are using the
+                WrapperSimpleApp or WrapperStartStopApp helper classes, the JVM first
+                calls that class's main method, then after the Wrapper has initialized,
+                it calls your application's main method.
+            </p>
+            
+<p>
+                This can cause some problems when a security manager is in use.  The
+                reason is that the Java security manager searches up the call stack to
+                make sure that every class and method is authorized to call the protected
+                code before granting access.  If the Wrapper's classes exist in your call
+                stack and they are not given privileges then you will get a security
+                exception.
+            </p>
+            
+<p>
+                Try giving wrapper.jar permissions by adding the following to your policy
+                file:
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">// Give Wrapper classes full permissions
+grant codeBase "file:../lib/wrapper.jar" {
+    permission java.security.AllPermission;
+};</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                This usually fixes this kind of problem.
+            </p>
+        
+</td>
+</tr>
+</table>
+        
+<a name="6"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>
+                Does the Wrapper handle the problem of JVMs exiting when a user logs out under Windows?
+            </b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                Some Java Service application have a problem with the Java process exiting whenever a
+                user logs out under Windows.  Several people have asked about whether or not the
+                Wrapper handles this.  The answer is that the Wrapper has handled this correctly since
+                its first release.
+            </p>
+            
+<p>
+                The Java side of the Wrapper requires a native library to make this work.  (Wrapper.DLL
+                on Windows and libwrapper.so on Unix systems.)  The native library is responsible for
+                trapping all system signals sent to the JVM process and handling them correctly.
+                A Java Application may handle these signals by implementing the
+                <tt>controlEvent</tt> method in the
+                <tt>WrapperListener</tt> interface.
+            </p>
+            
+<p>
+                If you are experiencing any problems with your JVM being restarted by the Wrapper when
+                a user logs out, please verify that the library is being loaded.  If it is not, then a
+                warning message will be displayed in the JVM output during the WrapperManager
+                initialization.
+            </p>
+            
+<p>
+                You can find examples of what happens the user logs out while Wrapper is being run as
+                a console application and as a service in the <a href="example.html">Examples</a>
+                section of the documentation.
+            </p>
+        
+</td>
+</tr>
+</table>
+        
+<a name="7"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>How can I change the priority at which my application runs on the system?</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                On Windows systems, the priority can be set by setting the
+                wrapper.ntservice.process_priority property in the wrapper.conf file.  Please the
+                configuration overview for more details.
+            </p>
+            
+<p>
+                On Unix systems, the suggested method for setting the priority is to use the
+                <tt>nice</tt> command in your shell scripts when launching
+                the Wrapper. The example scripts provided with the Wrapper distribution show how to do
+                this. See <tt>man nice</tt> or
+                <tt>info nice</tt> for details about how to use
+                <tt>nice</tt>.
+            </p>
+        
+</td>
+</tr>
+</table>
+        
+<a name="8"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>How can I change the user directory of my application?</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                By default, the Wrapper sets the JVM's user directory to the location of the
+                Wrapper.exe file on Windows, or wrapper shell script on UNIX systems.  This
+                is done to make it possible to reliably make use of relative paths within
+                your application.  Normally this would not be possible because the user dir
+                would depend on where the JVM was launched from.
+            </p>
+            
+<p>
+                Relative paths make it extremely easy to install an application as it can
+                usually be unzipped into any directory and run reliably.
+            </p>
+            
+<p>
+                There are some cases where it is necessary to set the user.dir to a location
+                other than the default.  This is done by setting the
+                <a href="prop-working-dir.html">wrapper.working.dir</a> property.
+            </p>
+            
+<p>
+                Important - Make sure that you have read over the documentation for the
+                working dir property before playing with it.  You will safe yourself some
+                headaches.
+            </p>
+        
+</td>
+</tr>
+</table>
+        
+<a name="9"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>I have several Wrapper's and JVMs running, how can I tell which is which in the Windows Task Manager.</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                When running several copies of the Wrapper under Windows, it is not easy to tell
+                which application is which in the Task Manager because they all show up as
+                wrapper.exe and java.exe.
+            </p>
+            
+<p>
+                If is not possible for the Wrpaper to implement a feature to change this name
+                because Windows does not allow that for security reasons.
+            </p>
+            
+<p>
+                The workaround is a bit of a hack.  But it works great.  Rename the wrapper.exe
+                file to wrapper-myapp.exe.   Then modify the batch files so they use this new
+                wrapper-myapp.exe.   For the java process, you have to do the same thing.  Go
+                into the %JAVA_HOME%/bin directory and simply copy java.exe to java-myapp.exe.
+                Then modify the wrapper.conf file so that new java-myapp.exe is used.
+            </p>
+            
+<p>
+                Now when you look at your Windows Task Manager, it will be easy to tell which
+                exe is which.
+            </p>
+            
+<p>
+                Note, you can also set the <a href="prop-pidfile.html">wrapper.pidfile</a>
+                and <a href="prop-java-pidfile.html">wrapper.java.pidfile</a> properties in
+                the wrapper.conf file.  These will create files containing the pids.  These pids
+                can then be compared with those shown in the Task Manager.  Note that you need to
+                configure the Task Manager to display process pids.
+            </p>
+        
+</td>
+</tr>
+</table>
+    
+</td>
+</tr>
+</table>
+
+</td>
+</tr>
+<tr>
+<td align="right" id="author">
+<p>
+<i>by Leif Mortenson</i>
+</p>
+</td>
+</tr>
+</table>
+<script language="JavaScript">//@@BODY_SECTION@@</script></td><td valign="bottom" width="4"><img height="496" width="4" src="images/BorderRight.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td align="right" height="4" colspan="2"><img height="4" width="500" src="images/BorderBottom.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
+<tr>
+<td id="copyright" align="left"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            Copyright &copy;1999-2004 by <a href="http://www.tanukisoftware.com">Tanuki Software</a>.
+                            All Rights Reserved.
+                        </i></font></td><td align="right"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            last modified:
+                            <script language="JavaScript"> document.write(document.lastModified); </script></i></font></td>
+</tr>
+</table>
+</body>
+</html>

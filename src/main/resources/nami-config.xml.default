@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration content-version="2">
+
+	<!-- COMMON PART -->
+	
+	<configuration-module moduleId="messaging">
+
+		<!-- host of message broker (JMS server ActiveMQ) to connect to -->
+		<entry entryKey="broker_host">
+			<value></value> <!-- MUST BE FILLED IN (MANUALLY OR BY WEBSTART) -->
+		</entry>
+
+		<!-- url(s) of filebroker(s) to connect to -->
+		<entry entryKey="filebroker_urls">
+			<value></value> <!-- MUST BE FILLED IN (MANUALLY OR BY WEBSTART) -->
+		</entry>
+
+		<!-- should we use chunked HTTP mode when connecting to filebroker -->
+		<!-- (warning: disabling this means all data is loaded to memory in transfer!) -->
+		<entry entryKey="use_chunked_http">
+			<value>true</value>
+		</entry>
+
+		<!-- protocol used to connect to message broker -->
+		<entry entryKey="broker_protocol">
+			<value>ssl</value>
+		</entry>
+
+		<!-- port used to connect to message broker -->
+		<entry entryKey="broker_port">
+			<value>61617</value>
+		</entry>
+		
+	</configuration-module>
+
+	<configuration-module moduleId="security">
+
+		<!-- for SSL: keystore -->
+		<entry entryKey="keystore">
+			<value>${nami_work_dir}/keystore.ks</value>
+		</entry>
+
+		<!-- for SSL: master keystore -->		
+		<entry entryKey="master_keystore">
+			<value>/keystore.ks</value>
+		</entry>
+
+		<!-- for SSL: keystore password -->		
+		<entry entryKey="keypass">
+			<value>microarray</value>
+		</entry>
+
+		<!-- for SSL: alias of key to be used -->		
+		<entry entryKey="keyalias">
+			<value>microarray</value>
+		</entry>
+
+		<!-- username for authenticating connection to broker -->
+		<entry entryKey="username">
+			<value>client</value>
+		</entry>
+
+		<!-- password for authenticating connection to broker -->
+		<entry entryKey="password">
+			<value>client</value>
+		</entry>
+	
+	</configuration-module>
+
+	
+	<!-- FILEBROKER -->
+	
+	<configuration-module moduleId="frontend">
+	
+		<entry entryKey="fileServerPath">
+			<value>nami-work-files/fileserver</value>
+		</entry>
+		
+		<!-- how long files are stored in fileserver, seconds -->
+		<entry entryKey="fileLifeTime">
+			<value>86400</value>
+		</entry>
+
+		<!-- how often file cleanup check occurs, seconds -->
+		<entry entryKey="cleanUpFrequency">
+			<value>3600</value>
+		</entry>
+
+	</configuration-module>
+			
+	<configuration-module moduleId="filebroker">
+	    
+	    <!-- server port to use in this filebroker instance -->
+        <entry entryKey="port">
+            <value>8080</value>
+        </entry>
+        
+	</configuration-module>
+
+
+	<!-- ANALYSER -->
+    	
+	<configuration-module moduleId="analyser">
+
+		<!-- directory for temporary job files --> 
+		<entry entryKey="work_dir">
+			<value>nami-work-files/analyser-work</value>
+		</entry>
+
+		<!-- maximum number of jobs run simultaneously -->
+		<entry entryKey="max_jobs">
+			<value>3</value>
+		</entry>
+
+		<!-- time after which a received job is removed, seconds -->
+		<entry entryKey="receive_timeout">
+			<value>3600</value>
+		</entry>
+		
+		<!-- time after which a scheduled job is removed if there is now response from the client, seconds -->
+		<entry entryKey="schedule_timeout">
+			<value>10</value>
+		</entry>
+		
+		<!-- directory for overriding scripts --> 
+		<entry entryKey="customScriptsDir">
+			<value>custom-scripts</value>
+		</entry>
+
+		<!-- operations included in the operations list (operations listed in the default operations are NOT
+		included if they are not explicitly listed here)
+		If includeOperations entry contains is not present all operations will be included.
+		At the moment, if there are no values, all operations will be included, but this
+		will change after the refactoring of the configuration mechanisms to indicate that 
+		no operations will be included. -->
+		<entry entryKey="includeOperations">
+			<!-- <value>/R/norm-affy.R</value> -->
+		</entry>
+		
+		<!-- operations excluded from the operations list, overrides includeOperations -->
+		<entry entryKey="excludeOperations">
+			<!-- <value>/R/norm-affy.R</value> -->
+		</entry>
+
+		<!-- should job specific temporary directory be sweeped after job execution -->
+		<entry entryKey="sweep_work_dir">
+			<value>true</value>
+		</entry>
+		
+		<!-- Number of processes always available if possible. -->
+		<entry entryKey="RProcessPoolSizeMin">
+			<value>5</value>
+		</entry>
+		
+		<!-- Max number of processes controlled by this pool (available and in use together). -->
+		<entry entryKey="RProcessPoolSizeMax">
+			<value>20</value>
+		</entry>
+		
+		<!-- Timeout for waiting for a process to become available. Seconds -->
+		<entry entryKey="RProcessPoolTimeout">
+			<value>360</value>
+		</entry>
+
+		<!-- Used when deciding whether a process should be recycled. --> 
+		<entry entryKey="RProcessPoolProcessUseCountMax">
+			<value>10</value>
+		</entry>
+
+		<!-- Used when deciding whether a process should be recycled. Seconds --> 
+		<entry entryKey="RProcessPoolProcessLifetimeMax">
+			<value>36000</value>
+		</entry>
+		
+		<!--  timeout for a single R script, in seconds -->
+		<entry entryKey="RTimeout">
+			<value>36000</value>
+		</entry>
+		
+		<entry entryKey="RCommand">
+			<value>R</value>
+		</entry>		
+
+	</configuration-module>
+
+</configuration>

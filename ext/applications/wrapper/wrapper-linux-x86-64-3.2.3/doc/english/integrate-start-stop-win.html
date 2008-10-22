@@ -1,0 +1,1283 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Java Service Wrapper - WrapperStartStopApp Integration (Win32)</title>
+<style media="all" type="text/css">
+            @import url("./style/wrapper.css");
+        </style>
+</head>
+<body bgcolor="#eeeeff" marginheight="0" marginwidth="0" leftmargin="0" topmargin="0" alink="#023264" vlink="#023264" link="#525D76" text="#000000">
+<map name="wrapperLogo">
+<area href="http://wrapper.tanukisoftware.org" coords="90,90,88" shape="circle">
+</map>
+<map name="wrapperTitle">
+<area href="http://www.tanukisoftware.com" coords="28,32,176,48" shape="rect">
+</map>
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td valign="top" width="180">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td width="180"><img usemap="#wrapperLogo" border="0" height="180" width="180" src="images/WrapperLogo.png"></td>
+</tr>
+<tr>
+<td>
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true">
+<div id="menu">
+<script language="JavaScript">//@@MENU_TOP@@</script>
+<div>
+<b>Essentials</b>
+<div>
+<a href="introduction.html">Introduction</a>
+</div>
+<div>
+<a href="integrate.html">Integration Methods</a>
+</div>
+<div>
+<a href="properties.html">Configuration Properties</a>
+</div>
+<div>
+<a href="launch.html">Launching Your Application</a>
+</div>
+<div>
+<b>
+                        &gt;&gt;
+                        <a href="donate.html">Show Your Support</a>
+                        &lt;&lt;
+                    </b>
+</div>
+<div>
+<a href="sponsors.html">Sponsors</a>
+</div>
+</div>
+<div>
+<b>Documentation</b>
+<div>
+<a href="jmx.html">JMX Control</a>
+</div>
+<div>
+<a href="security-model.html">Security Model</a>
+</div>
+<div>
+<a href="example.html">Feature Examples</a>
+</div>
+<div>
+<a href="debugging.html">Debugging Your Application</a>
+</div>
+<div>
+<a href="troubleshooting.html">Troubleshooting</a>
+</div>
+<div>
+<a href="faq.html">FAQ</a>
+</div>
+<div>
+<a href="release-notes.html">Release Notes</a>
+</div>
+<div>
+<a href="history.html">Project History</a>
+</div>
+<div>
+<a href="javadocs.html">Javadocs API</a>
+</div>
+<div>
+<a href="buttons.html">Buttons</a>
+</div>
+<div>
+<a href="authors.html">Authors</a>
+</div>
+<div>
+<a href="license.html">License</a>
+</div>
+</div>
+<div>
+<b>Download</b>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=31591">Binaries</a>
+</div>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=33658">Source Code</a>
+</div>
+</div>
+<div>
+<b>Get Involved</b>
+<div>
+<a href="http://sourceforge.net/projects/wrapper/">Source Forge</a>
+</div>
+<div>
+<a href="http://svn.sourceforge.net/viewvc/wrapper/">Subversion Repository</a>
+</div>
+<div>
+<a href="http://sourceforge.net/tracker/?group_id=39428">Issue Tracking</a>
+</div>
+<div>
+<a href="http://sourceforge.net/mail/?group_id=39428">Mailing Lists and Archives</a>
+</div>
+<div>
+<a href="http://sourceforge.net/forum/?group_id=39428">Forums (Old)</a>
+</div>
+</div>
+</div>
+<script language="JavaScript">//@@MENU_BOTTOM@@</script>
+<p>
+<b>Hosted by:</b>
+<br>
+<a href="http://sourceforge.net/projects/wrapper/"><img alt="SourceForge" border="0" height="31" width="88" src="http://sourceforge.net/sflogo.php?group_id=39428"></a>
+<br>
+</p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td><td valign="top" width="*">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td colspan="3"><img height="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td align="center" height="90" colspan="2"><a href="http://wrapper.tanukisoftware.org"><img border="0" height="90" width="728" src="images/OfflineAd728x90.png"></a></td><td rowspan="5"><img width="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td height="49" width="435"><img usemap="#wrapperTitle" border="0" height="49" width="435" src="images/WrapperTitle.png"></td><td valign="bottom" align="right" width="*"><a href="donate.html"><img border="0" height="16" width="300" src="images/DonationRequest.png"></a></td>
+</tr>
+<tr>
+<td height="4" colspan="2"><img height="4" width="500" src="images/BorderTop.png"></td>
+</tr>
+<tr>
+<td colspan="2">
+<table cellspacing="0" cellpadding="0" width="100%" border="0">
+<tr>
+<td valign="top" width="4"><img height="496" width="4" src="images/BorderLeft.png"></td><td bgcolor="#ffffff" valign="top" width="*" colspan="2">
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true" align="center"><font zcolor="#115b77" color="#8888aa" size="5"><b>WrapperStartStopApp Integration (Win32)</b></font></td>
+</tr>
+<tr>
+<td>
+<title>WrapperStartStopApp Integration (Win32)</title>
+    
+    
+<a name="N10009"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>Integration Methods</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<ul>
+            
+<li>
+                
+<a href="integrate.html">Methods of Integrating with the Java Service Wrapper</a>
+            
+</li>
+        
+</ul>
+    
+</td>
+</tr>
+</table>
+    
+<a name="N10019"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>Method 2 - WrapperStartStopApp Integration (Win32)</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<ul>
+            
+<li>
+                
+<a href="#overview">Overview</a>
+            
+</li>
+            
+<li>
+                
+<a href="#detailed">Detailed Instructions</a>
+            
+</li>
+        
+</ul>
+        
+<a name="overview"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Overview</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                The second method is to use the
+                <tt>WrapperStartStopApp</tt> helper class.
+                This method provides a way to integrate with applications like Tomcat,
+                which are started using one class and then stopped using another
+                class.  Typically, this kind of application will open a server socket
+                on startup whose job is to wait for a connection which triggers a
+                shutdown.  The shutdown, or "stop", class when launched then triggers
+                the shutdown by connecting to application.   The Wrapper works with
+                this kind of application by starting up the application, as in the
+                first method, using the "start" class and then calling the main method
+                of the "stop" class when it is time for the application to be shutdown.
+            </p>
+            
+<p>
+                When integrating with the <tt>WrapperStartStopApp</tt>
+                helper class, the <tt>WrapperStartStopApp</tt>
+                class replaces an application's main class.  This gives the
+                <tt>WrapperStartStopApp</tt> class a chance to
+                immediately initialize the <tt>WrapperManager</tt>
+                and register the JVM with the Wrapper.  The
+                <tt>WrapperStartStopApp</tt> class then
+                manages all interaction with the Wrapper as well as the life-cycle of
+                an application.  When the Wrapper sends a start message to the JVM via
+                the <tt>WrapperManager</tt>, the main method of
+                the application's "start" class is called.  Likewise, when the Wrapper
+                sends a stop message, the main method of the application's "stop" class is
+                called.
+            </p>
+            
+<p>
+                When the <tt>WrapperStartStopApp</tt> helper
+                class is launched, it needs to be told about the class names of both
+                the "start" and "stop" classes as well as any parameters which need to
+                be provided to the main methods of each class.   This results in a
+                parameter list which is a little more complicated than with the
+                <tt>WrapperSimpleApp</tt> helper class.
+            </p>
+            
+<p>
+                The first parameter passed to the <tt>WrapperStartStopApp</tt>
+                class will be the full class name of the "start" class.  This is followed
+                by a count of the parameters to the "start" class's main method which
+                will come next.  After the "start" class's parameters, comes the "stop"
+                class's	full class name.  This is followed a true/false flag which
+                tells the <tt>WrapperStartStopApp</tt> class
+                whether or not it should wait until all non-daemon threads have completed
+                before actually exiting.  This flag is then followed by the "stop"
+                class's parameter count and parameters.  Don't worry if this is confusing
+                right now.  A detailed example is provided below.
+            </p>
+            
+<p>
+                The following section will walk you through a detailed explanation of
+                how to configure <a href="http://tomcat.apache.org/">Tomcat</a>
+                to run within the Wrapper.  Most other applications can be integrated by
+                following the same steps.
+            </p>
+        
+</td>
+</tr>
+</table>
+        
+<a name="detailed"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Detailed Instructions</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            <a name="N1007B"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Install Tomcat</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    This tutorial will start with a clean install of
+                    <a href="http://tomcat.apache.org/">Tomcat</a>.  We
+                    used version 4.1.18 so the exact steps may be slightly different
+                    depending on the exact version installed.  Tomcat was installed in
+                    the root directory, <tt>D:\</tt>,
+                    resulting in a Tomcat Home directory of
+                    <tt>D:\jakarta-tomcat-4.1.18</tt>.
+                </p>
+            
+</td>
+</tr>
+</table>
+            
+<a name="N10090"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Installing Wrapper Files</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    There are four files which are required to be able to use the
+                    Wrapper.  We will also copy over three additional batch files
+                    which can be used to launch Tomcat as well as install and
+                    uninstall it as an NT Service.
+                </p>
+                
+<a name="N10098"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#bbbbdd" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>bin directory</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                    
+                    
+<p>
+                        First we will copy the following files into the Tomcat bin
+                        directory:  
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">{WRAPPER_HOME}\bin\Wrapper.exe
+{WRAPPER_HOME}\src\bin\App.bat.in
+{WRAPPER_HOME}\src\bin\InstallApp-NT.bat.in
+{WRAPPER_HOME}\src\bin\UninstallApp-NT.bat.in</pre>
+</font></td>
+</tr>
+</table>
+                    
+<p>
+                        Rename the three batch files as follows.
+                        Be sure to remove the <tt>.in</tt>
+                        extensions so that the files all end in
+                        <tt>.bat</tt>.  Depending on how
+                        your file explorer is configured, you may not be able to see
+                        the extensions.
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">{TOMCAT_HOME}\bin\Tomcat.bat
+{TOMCAT_HOME}\bin\InstallTomcat-NT.bat
+{TOMCAT_HOME}\bin\UninstallTomcat-NT.bat</pre>
+</font></td>
+</tr>
+</table>
+                    
+<p>
+                        The Wrapper.exe file is the actual Wrapper executable.  The
+                        three batch files are used to run Tomcat in a console, and to
+                        install and remove it as an NT Service.  These scripts should
+                        not require any modification.  They do assume that the
+                        <tt>wrapper.conf</tt> file will be
+                        located within a <tt>conf</tt>
+                        directory one level up, 
+                        <tt>../conf/wrapper.conf</tt>.  If
+                        you wish to locate this file someplace else, then the three
+                        batch files will require that small modification.
+                    </p>
+                
+</td>
+</tr>
+</table>
+                
+<a name="N100C9"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#bbbbdd" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>lib directory</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                    
+                    
+<p>
+                        Tomcat does not have a <tt>lib</tt>
+                        directory, which is the standard place for the Wrapper's
+                        library files to be located.  So for Tomcat, we will place them
+                        into the <tt>common/lib</tt> directory.
+                        Copy the following two files into that directory:
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">{WRAPPER_HOME}\lib\Wrapper.DLL
+{WRAPPER_HOME}\lib\wrapper.jar</pre>
+</font></td>
+</tr>
+</table>
+                    
+<p>
+                        The <tt>Wrapper.DLL</tt> file is a
+                        native library required by the portion of the Wrapper which
+                        runs within the JVM.  The <tt>wrapper.jar</tt>
+                        file contains all of the Wrapper classes.
+                    </p>
+                
+</td>
+</tr>
+</table>
+                
+<a name="N100EC"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#bbbbdd" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>conf directory</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                    
+                    
+<p>
+                        The Wrapper requires a configuration file.  Please
+                        copy the template <tt>wrapper.conf</tt>
+                        file into the <tt>conf</tt>
+                        directory.
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">{WRAPPER_HOME}\src\conf\wrapper.conf.in</pre>
+</font></td>
+</tr>
+</table>
+                    
+<p>
+                        Be sure to remove the <tt>.in</tt>
+                        extension so that the file is named
+                        <tt>wrapper.conf</tt>.  Depending
+                        on how your file explorer is configured, you may not be able
+                        to see the extension.  You should now have:
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">{TOMCAT_HOME}\conf\wrapper.conf</pre>
+</font></td>
+</tr>
+</table>
+                    
+<p>
+                        If you wish to relocate the configuration file, you are free
+                        to do so.  You will need to modify the batch scripts copied
+                        into the bin directory above, to reflect the new location.
+                    </p>
+                
+</td>
+</tr>
+</table>
+                
+<a name="N10119"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#bbbbdd" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>logs directory</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                    
+                    
+<p>
+                        The default <tt>wrapper.conf</tt>
+                        file will place a <tt>wrapper.log</tt>
+                        file in a <tt>logs</tt> directory
+                        under the application home directory.  Tomcat already has
+                        such a directory, so we are all set.
+                    </p>
+                    
+<p>
+                        If you wish to place the log file in another location, you will
+                        need to edit the <tt>wrapper.conf</tt>
+                        file and modify the <tt>wrapper.logfile</tt>
+                        property to reflect the new location.
+                    </p>
+                
+</td>
+</tr>
+</table>
+            
+</td>
+</tr>
+</table>
+            
+<a name="N1013A"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Locate the Application's Java Command Line</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    Before the Wrapper can be configured to launch an Application,
+                    you will need to know the full Java command which is normally
+                    used.
+                </p>
+                
+<p>
+                    Most applications make use of a batch file to build up the actual
+                    command line.  These batch files tend to get quite unwieldy and
+                    in fact, the ability to avoid having to work with them is one of
+                    the benefits of working with the Wrapper.
+                </p>
+                
+<p>
+                    Tomcat is launched by using a batch file called 
+                    <tt>startup.bat</tt> and then
+                    shutdown using a batch file called
+                    <tt>shutdown.bat</tt>.  It is
+                    launched by first changing the current directory to the
+                    <tt>bin</tt> directory and then
+                    run from there.  If you open
+                    <tt>startup.bat</tt> into an editor,
+                    you will notice after some investigation, that Java is not
+                    actually launched from this script.  Rather another batch
+                    file, <tt>catalina.bat</tt>, is
+                    called.  Tomcat's scripts are very advanced and allow the user
+                    to do a lot of configuration from the command line.  The command
+                    line that we will capture and use with the Wrapper will actually
+                    be a snapshot of one such configuration.  This example will
+                    assume that no parameters are passed to either the startup
+                    or shutdown scripts when they are run.
+                </p>
+                
+<p>
+                    If you open <tt>catalina.bat</tt>
+                    into an editor and scroll down to the very bottom of the file,
+                    you will see four lines which launch Java.  With the defaults
+                    that we are using, the first of these will be used.  The
+                    line we are interested in looks like the following: (The command
+                    is very long and has been truncated.)
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">%_EXECJAVA% %JAVA_OPTS% %CATALINA_OPTS% %DEBUG_OPTS% -Djava.endorsed.dirs="%JAVA_ENDORSED_DIRS%" ...</pre>
+</font></td>
+</tr>
+</table>
+                
+<p>
+                    The majority of the batch file has the task of collecting system
+                    specific information and storing that information into environment
+                    variables.  The line above then expands all of the collected
+                    information into the final Java command which launches the
+                    application.  From looking at the source of the batch file,
+                    we hope you appreciate the complexity and the desire to have to
+                    avoid completely writing such scripts yourself.
+                </p>
+                
+<p>
+                    In order to configure the Wrapper, all that is really needed is
+                    the final expanded command line.  Rather than reading through the
+                    entire script and attempting to understand it, we will use a
+                    simple trick to display the final command line in the console.
+                    Edit the batch file by inserting "ECHO " at the beginning of the
+                    above line.  After doing so, you should have: (Once again the line
+                    has been truncated to fit on the screen.)
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">ECHO %_EXECJAVA% %JAVA_OPTS% %CATALINA_OPTS% %DEBUG_OPTS% -Djava.endorsed.dirs="%JAVA_ENDORSED_DIRS%" ...</pre>
+</font></td>
+</tr>
+</table>
+                
+<p>
+                    If you now rerun the script, you will see something like the
+                    following in the console (Your output will all be on one line):
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">start "Tomcat" "D:\Sun\j2sdk1.4.0_03\bin\java"    -Djava.endorsed.dirs="..\bin;..\common\endorsed"
+  -classpath "D:\Sun\j2sdk1.4.0_03\lib\tools.jar;..\bin\bootstrap.jar" -Dcatalina.base=".."
+  -Dcatalina.home=".." -Djava.io.tmpdir="..\temp" org.apache.catalina.startup.Bootstrap  start</pre>
+</font></td>
+</tr>
+</table>
+                
+<p>
+                    We now need to repeat the same process for the
+                    <tt>shutdown.bat</tt> script.  You
+                    may be surprised to find that if you simply run it now, you
+                    will get the following output.  This is because they both call
+                    <tt>catalina.bat</tt> only changing
+                    a parameter.
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">"D:\Sun\j2sdk1.4.0_03\bin\java"    -Djava.endorsed.dirs="..\bin;..\common\endorsed"
+  -classpath "D:\Sun\j2sdk1.4.0_03\lib\tools.jar;..\bin\bootstrap.jar" -Dcatalina.base=".."
+  -Dcatalina.home=".." -Djava.io.tmpdir="..\temp" org.apache.catalina.startup.Bootstrap  stop</pre>
+</font></td>
+</tr>
+</table>
+                
+<p>
+                    Other than the <tt>start "Tomcat"</tt>
+                    at the beginning of the startup line, the two commands are almost
+                    identical.  The only difference is the parameter passed to the
+                    main class at the end.  The <tt>start "Tomcat"</tt>
+                    portion of the command is only used to spawn Tomcat into its own
+                    console.  This is not required with the Wrapper so the rest of
+                    this example will ignore that portion of the command.
+                </p>
+                
+<p>
+                    The Wrapper will also handle the quoting of elements of the Java
+                    command line that it builds up.  so it is not necessary for them
+                    to be carried over into the configuration file below.
+                </p>
+            
+</td>
+</tr>
+</table>
+            
+<a name="N101A2"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Modifying the wrapper.conf File</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    In order to be able to use this command with the Wrapper, we need
+                    to break up its components.  Open the
+                    <tt>wrapper.conf</tt> file into an editor
+                    and make the changes below.
+                </p>
+                
+<div class="note">
+<table cellspacing="0" cellpadding="2" width="100%" border="0">
+<tr>
+<td nowrap="nowrap" valign="top">
+<p class="notelabel">
+<font color="#0000a0"><b>NOTE MEG</b></font>
+</p>
+</td><td><img width="10" src="images/spacer.gif"></td><td bgcolor="#bbbbdd" class="notebody"><font color="#222260">
+                    
+<p>
+                        Where properties are mentioned below, links are provided to their
+                        descriptions.  Please take the time to review the descriptions of
+                        any properties which are modified.  In many cases, there are
+                        further details on their usage which are not mentioned here.
+                    </p>
+                
+</font></td>
+</tr>
+</table>
+</div>
+                
+<a name="N101B4"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#bbbbdd" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Java Executable</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                    
+                    
+<p>
+                        First is to extract the java executable and assign it to the
+                        <tt><a href="prop-java-command.html">wrapper.java.command</a></tt>
+                        property:
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper.java.command=D:\Sun\j2sdk1.4.0_03\bin\java</pre>
+</font></td>
+</tr>
+</table>
+                
+</td>
+</tr>
+</table>
+                
+<a name="N101CA"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#bbbbdd" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Java Arguments</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                    
+                    
+<p>
+                        Most applications provide a number of parameters to the Java
+                        executable when it is launched.  The Wrapper provides special
+                        properties for configuring things like memory, as well as
+                        class and library paths.  These will be covered below, however
+                        any other settings are configured using the 
+                        <tt><a href="prop-java-additional-n.html">wrapper.java.additional.&lt;n&gt;</a></tt>
+                        series of properties.
+                    </p>
+                    
+<p>
+                        The Tomcat command line has several such properties:
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper.java.additional.1=-Djava.endorsed.dirs=..\bin;..\common\endorsed
+wrapper.java.additional.2=-Dcatalina.base=..
+wrapper.java.additional.3=-Dcatalina.home=..
+wrapper.java.additional.4=-Djava.io.tmpdir=..\temp</pre>
+</font></td>
+</tr>
+</table>
+                    
+<p>
+                        Note that all quotes have been removed as none of these
+                        paths will ever contain quotes.  (See the property documentation
+                        for details on how to handle cases where a property must
+                        contain spaces.)
+                    </p>
+                
+</td>
+</tr>
+</table>
+                
+<a name="N101E6"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#bbbbdd" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Classpath</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                    
+                    
+<p>
+                        Next, comes the classpath, which is configured using the
+                        <tt><a href="prop-java-classpath-n.html">wrapper.java.classpath.&lt;n&gt;</a></tt>
+                        properties.  The Wrapper requires that the classpath be
+                        broken up into its individual elements.  Then, because we
+                        will also be making use of the Wrapper, it is necessary to
+                        include the <tt>wrapper.jar</tt>
+                        file as well:
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper.java.classpath.1=..\common\lib\wrapper.jar
+wrapper.java.classpath.2=D:\Sun\j2sdk1.4.0_03\lib\tools.jar
+wrapper.java.classpath.3=..\bin\bootstrap.jar</pre>
+</font></td>
+</tr>
+</table>
+                
+</td>
+</tr>
+</table>
+                
+<a name="N10200"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#bbbbdd" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Main Class</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                    
+                    
+<p>
+                        The next component of the command used to launch Tomcat is the
+                        main class, <tt>org.apache.catalina.startup.Bootstrap</tt>.
+                        The main class executed by Java when launched is specified by
+                        using the 
+                        <tt><a href="prop-java-mainclass.html">wrapper.java.mainclass</a></tt>
+                        property.  As mentioned above however.  Because we are making
+                        use of the <tt>WrapperStartStopApp</tt>
+                        helper class to start and stop Tomcat, we will specify that
+                        class's full name as the main class.  The Tomcat main classes are
+                        then specified as application parameters below.
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperStartStopApp</pre>
+</font></td>
+</tr>
+</table>
+                
+</td>
+</tr>
+</table>
+                
+<a name="N1021E"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#bbbbdd" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Application Parameters</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                    
+                    
+<p>
+                        Application parameters are set using the
+                        <tt><a href="prop-app-parameter-n.html">wrapper.app-parameter.&lt;n&gt;</a></tt>
+                        properties.  Application parameters appear in the Java command
+                        line directly after the main class.
+                    </p>
+                    
+<p>
+                        When using the <tt>WrapperStartStopApp</tt>
+                        helper class, a lot of information needs to be provided about
+                        both the "start" and "stop" classes.  This information includes
+                        each classes' full name, the list of parameters passed to their
+                        main methods, and a flag instructing the helper class whether or
+                        not it should wait for all non daemon threads to exit before
+                        causing the JVM to exit.
+                    </p>
+                    
+<p>
+                        To make it clear how all of this information is encoded, we will
+                        start by presenting the property values for the Tomcat
+                        application several comments have been added above what is
+                        normally in the <tt>wrapper.conf</tt>
+                        file to make it clearer what the properties mean.  We suggest
+                        adding these comments to your configuration file as well.
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">
+# The first application parameter is the name of the class whose main
+# method is to be called when the application is launched.  The class
+# name is followed by the number of parameters to be passed to its main
+# method.  Then comes the actual parameters.
+wrapper.app.parameter.1=org.apache.catalina.startup.Bootstrap
+wrapper.app.parameter.2=1
+wrapper.app.parameter.3=start
+
+# The start parameters are followed by the name of the class whose main
+# method is to be called to stop the application.  The stop class name
+# is followed by a flag which controls whether or not the Wrapper should
+# wait for all non daemon threads to complete before exiting the JVM.
+# The flag is followed by the number of parameters to be passed to the
+# stop class's main method.  Finally comes the actual parameters.
+wrapper.app.parameter.4=org.apache.catalina.startup.Bootstrap
+wrapper.app.parameter.5=true
+wrapper.app.parameter.6=1
+wrapper.app.parameter.7=stop</pre>
+</font></td>
+</tr>
+</table>
+                    
+<p>
+                        The start and stop class names should be fairly clear.  The
+                        first parameter count is required to locate the stop class
+                        in the parameter list.  The second count is there for
+                        consistency.
+                    </p>
+                    
+<p>
+                        The flag at parameter #5 above is used to control the
+                        behavior of the <tt>WrapperStartStopApp</tt>
+                        helper class when it is shutting down the JVM.  When the Wrapper
+                        sends a JVM shutdown request, <tt>WrapperStartStopApp</tt>
+                        responds by calling the main method of the "stop" class with the
+                        configured parameters.  The flag above controls what happens when
+                        that main method returns.  If the flag is false then
+                        <tt>System.exit(0)</tt> will be called
+                        immediately.  When true, <tt>WrapperStartStopApp</tt>
+                        will wait until all non daemon threads have completed before
+                        calling <tt>System.exit(0)</tt>.
+                        The later is the behavior which produces the cleanest shutdown
+                        for Tomcat.  If true is specified, but one or more daemon threads
+                        do not complete, the Wrapper will forcibly kill the JVM after its
+                        <tt><a href="prop-shutdown-timeout.html">Shutdown Timeout</a></tt>
+                        has expired.  This defaults to 30 seconds.
+                    </p>
+                    
+<p>
+                        Non-daemon threads are counted by iterating over all threads in the
+                        system and counting those whose isDaemon method returns false.
+                        Unfortunately, this count will never actually reach 0 on most JVMs
+                        because of the existence of system threads.  In most Sun JVMs, there
+                        will be one non-daemon system thread.  To make the shutdown work
+                        correctly, this system thread count needs to be correct.  It can be
+                        set by defining a
+                        <tt>org.tanukisoftware.wrapper.WrapperStartStopApp.systemThreadCount</tt>
+                        system property.  The default value is 1 thread.
+                    </p>
+                    
+<div class="note">
+<table cellspacing="0" cellpadding="2" width="100%" border="0">
+<tr>
+<td nowrap="nowrap" valign="top">
+<p class="notelabel">
+<font color="#0000a0"><b>NOTE MEG</b></font>
+</p>
+</td><td><img width="10" src="images/spacer.gif"></td><td bgcolor="#bbbbdd" class="notebody"><font color="#222260">
+                        
+<p>
+                            If the main method of the stop class calls System.exit from within its
+                            main thread, that thread will in effect become deadlocked by that call.
+                            The Wrapper avoids a deadlock by detecting this and proceeding with the
+                            shutdown after 5 seconds.  This may however result in the application
+                            failing to shutdown cleanly on its own and should be avoided where
+                            possible.
+                        </p>
+                        
+<p>
+                            This case can be tested for by enabling the wrapper.debug=true property
+                            and then observing the log file during the shutdown process.
+                        </p>
+                    
+</font></td>
+</tr>
+</table>
+</div>
+                
+</td>
+</tr>
+</table>
+                
+<a name="N10272"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#bbbbdd" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Library Path</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                    
+                    
+<p>
+                        In order to use the Wrapper, there is one more property which
+                        much be set.  The Wrapper makes use of a native library to
+                        control interactions with the system.  This file
+                        <tt>Wrapper.DLL</tt> needs to be
+                        specified on the library path supplied to the JVM.  Tomcat
+                        does not have any native libraries of its own, but if it did,
+                        the directories where they were located would also need to be
+                        specified.  The library path is set using the 
+                        <tt><a href="prop-java-library-path-n.html">wrapper.java-library-path.&lt;n&gt;</a></tt>
+                        properties.
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper.java.library.path.1=..\common\lib</pre>
+</font></td>
+</tr>
+</table>
+                
+</td>
+</tr>
+</table>
+                
+<a name="N1028C"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#bbbbdd" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Putting It All Together</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                    
+                    
+<p>
+                        Putting it all together, we get the following:
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper.java.command=D:\Sun\j2sdk1.4.0_03\bin\java
+
+wrapper.java.additional.1=-Djava.endorsed.dirs=..\bin;..\common\endorsed
+wrapper.java.additional.2=-Dcatalina.base=..
+wrapper.java.additional.3=-Dcatalina.home=..
+wrapper.java.additional.4=-Djava.io.tmpdir=..\temp
+                        
+wrapper.java.classpath.1=..\common\lib\wrapper.jar
+wrapper.java.classpath.2=D:\Sun\j2sdk1.4.0_03\lib\tools.jar
+wrapper.java.classpath.3=..\bin\bootstrap.jar
+
+wrapper.java.library.path.1=..\common\lib
+
+wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperStartStopApp
+
+wrapper.app.parameter.1=org.apache.catalina.startup.Bootstrap
+wrapper.app.parameter.2=1
+wrapper.app.parameter.3=start
+wrapper.app.parameter.4=org.apache.catalina.startup.Bootstrap
+wrapper.app.parameter.5=true
+wrapper.app.parameter.6=1
+wrapper.app.parameter.7=stop</pre>
+</font></td>
+</tr>
+</table>
+                    
+<p>
+                        Notice what while this will function correctly on this
+                        particular machine, it is highly dependent on the directory
+                        structure and platform.  By taking advantage of the fact that
+                        the Wrapper always sets the working directory to the location
+                        of the <tt>Wrapper.exe</tt> file
+                        and by making use of a single environment variable, we are able
+                        to modify the above properties so that they are completely
+                        platform and machine independent.  One exception in the case
+                        of Tomcat, being the
+                        <tt>java.endorsed.dirs</tt> property,
+                        which contains a Windows path separator.
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper.java.command=%JAVA_HOME%/bin/java
+
+wrapper.java.additional.1=-Djava.endorsed.dirs=../bin;../common/endorsed
+wrapper.java.additional.2=-Dcatalina.base=..
+wrapper.java.additional.3=-Dcatalina.home=..
+wrapper.java.additional.4=-Djava.io.tmpdir=../temp
+
+wrapper.java.classpath.1=../common/lib/wrapper.jar
+wrapper.java.classpath.2=%JAVA_HOME%/lib/tools.jar
+wrapper.java.classpath.3=../bin/bootstrap.jar
+
+wrapper.java.library.path.1=../common/lib
+
+wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperStartStopApp
+
+wrapper.app.parameter.1=org.apache.catalina.startup.Bootstrap
+wrapper.app.parameter.2=1
+wrapper.app.parameter.3=start
+wrapper.app.parameter.4=org.apache.catalina.startup.Bootstrap
+wrapper.app.parameter.5=true
+wrapper.app.parameter.6=1
+wrapper.app.parameter.7=stop</pre>
+</font></td>
+</tr>
+</table>
+                    
+<div class="note">
+<table cellspacing="0" cellpadding="2" width="100%" border="0">
+<tr>
+<td nowrap="nowrap" valign="top">
+<p class="notelabel">
+<font color="#0000a0"><b>NOTE MEG</b></font>
+</p>
+</td><td><img width="10" src="images/spacer.gif"></td><td bgcolor="#bbbbdd" class="notebody"><font color="#222260">
+                        
+<p>
+                            It has been reported that Tomcat 5.0.28 will not work correctly if the
+                            bin directory is included in the java.endorsed.dirs system property.
+                            This is caused by a change in Tomcat, rather than any issue with the
+                            Wrapper.  Please modify the above configuration as follows:
+                        </p>
+                        
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper.java.additional.1=-Djava.endorsed.dirs=../common/endorsed</pre>
+</font></td>
+</tr>
+</table>
+                    
+</font></td>
+</tr>
+</table>
+</div>
+                
+</td>
+</tr>
+</table>
+                
+<a name="N102BB"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#bbbbdd" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Wrapper NT/2000/XP Service Properties</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                    
+                    
+<p>
+                        The final step is to set the Windows specific
+                        <tt><a href="props-nt.html">NT/2000/XP Service Properties</a></tt>
+                        properties.  We will just set the properties which should be
+                        changed.  But there are several others available.  See the
+                        documentation for details on their usage.
+                    </p>
+                    
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper.ntservice.name=Tomcat
+wrapper.ntservice.displayname=Tomcat Application Server
+wrapper.ntservice.description=Tomcat Application Server</pre>
+</font></td>
+</tr>
+</table>
+                
+</td>
+</tr>
+</table>
+            
+</td>
+</tr>
+</table>
+            
+<a name="N102D2"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Trying It Out</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    Tomcat can now be run by simply executing the
+                    <tt>bin\Tomcat.bat</tt> script.
+                    Because of the way the Wrapper sets its current directory, it
+                    is not necessary to run this script from within the
+                    <tt>bin</tt> directory.
+                    Please try running the application once as a console application
+                    to verify the configuration before attempting to run it as a
+                    service.
+                </p>
+                
+<p>
+                    Congratulations.  Your application should now be up and running.
+                </p>
+                
+<p>
+                    If you did have any problems, please take a look at the
+                    <a href="troubleshooting.html">Troubleshooting</a>
+                    section for help with tracking down the problem.
+                </p>
+            
+</td>
+</tr>
+</table>
+        
+</td>
+</tr>
+</table>
+    
+</td>
+</tr>
+</table>
+
+</td>
+</tr>
+<tr>
+<td align="right" id="author">
+<p>
+<i>by Leif Mortenson</i>
+</p>
+</td>
+</tr>
+</table>
+<script language="JavaScript">//@@BODY_SECTION@@</script></td><td valign="bottom" width="4"><img height="496" width="4" src="images/BorderRight.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td align="right" height="4" colspan="2"><img height="4" width="500" src="images/BorderBottom.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
+<tr>
+<td id="copyright" align="left"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            Copyright &copy;1999-2004 by <a href="http://www.tanukisoftware.com">Tanuki Software</a>.
+                            All Rights Reserved.
+                        </i></font></td><td align="right"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            last modified:
+                            <script language="JavaScript"> document.write(document.lastModified); </script></i></font></td>
+</tr>
+</table>
+</body>
+</html>

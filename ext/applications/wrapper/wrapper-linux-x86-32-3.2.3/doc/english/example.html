@@ -1,0 +1,1320 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Java Service Wrapper - Feature Examples</title>
+<style media="all" type="text/css">
+            @import url("./style/wrapper.css");
+        </style>
+</head>
+<body bgcolor="#eeeeff" marginheight="0" marginwidth="0" leftmargin="0" topmargin="0" alink="#023264" vlink="#023264" link="#525D76" text="#000000">
+<map name="wrapperLogo">
+<area href="http://wrapper.tanukisoftware.org" coords="90,90,88" shape="circle">
+</map>
+<map name="wrapperTitle">
+<area href="http://www.tanukisoftware.com" coords="28,32,176,48" shape="rect">
+</map>
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td valign="top" width="180">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td width="180"><img usemap="#wrapperLogo" border="0" height="180" width="180" src="images/WrapperLogo.png"></td>
+</tr>
+<tr>
+<td>
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true">
+<div id="menu">
+<script language="JavaScript">//@@MENU_TOP@@</script>
+<div>
+<b>Essentials</b>
+<div>
+<a href="introduction.html">Introduction</a>
+</div>
+<div>
+<a href="integrate.html">Integration Methods</a>
+</div>
+<div>
+<a href="properties.html">Configuration Properties</a>
+</div>
+<div>
+<a href="launch.html">Launching Your Application</a>
+</div>
+<div>
+<b>
+                        &gt;&gt;
+                        <a href="donate.html">Show Your Support</a>
+                        &lt;&lt;
+                    </b>
+</div>
+<div>
+<a href="sponsors.html">Sponsors</a>
+</div>
+</div>
+<div>
+<b>Documentation</b>
+<div>
+<a href="jmx.html">JMX Control</a>
+</div>
+<div>
+<a href="security-model.html">Security Model</a>
+</div>
+<div>
+<a href="example.html">Feature Examples</a>
+</div>
+<div>
+<a href="debugging.html">Debugging Your Application</a>
+</div>
+<div>
+<a href="troubleshooting.html">Troubleshooting</a>
+</div>
+<div>
+<a href="faq.html">FAQ</a>
+</div>
+<div>
+<a href="release-notes.html">Release Notes</a>
+</div>
+<div>
+<a href="history.html">Project History</a>
+</div>
+<div>
+<a href="javadocs.html">Javadocs API</a>
+</div>
+<div>
+<a href="buttons.html">Buttons</a>
+</div>
+<div>
+<a href="authors.html">Authors</a>
+</div>
+<div>
+<a href="license.html">License</a>
+</div>
+</div>
+<div>
+<b>Download</b>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=31591">Binaries</a>
+</div>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=33658">Source Code</a>
+</div>
+</div>
+<div>
+<b>Get Involved</b>
+<div>
+<a href="http://sourceforge.net/projects/wrapper/">Source Forge</a>
+</div>
+<div>
+<a href="http://svn.sourceforge.net/viewvc/wrapper/">Subversion Repository</a>
+</div>
+<div>
+<a href="http://sourceforge.net/tracker/?group_id=39428">Issue Tracking</a>
+</div>
+<div>
+<a href="http://sourceforge.net/mail/?group_id=39428">Mailing Lists and Archives</a>
+</div>
+<div>
+<a href="http://sourceforge.net/forum/?group_id=39428">Forums (Old)</a>
+</div>
+</div>
+</div>
+<script language="JavaScript">//@@MENU_BOTTOM@@</script>
+<p>
+<b>Hosted by:</b>
+<br>
+<a href="http://sourceforge.net/projects/wrapper/"><img alt="SourceForge" border="0" height="31" width="88" src="http://sourceforge.net/sflogo.php?group_id=39428"></a>
+<br>
+</p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td><td valign="top" width="*">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td colspan="3"><img height="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td align="center" height="90" colspan="2"><a href="http://wrapper.tanukisoftware.org"><img border="0" height="90" width="728" src="images/OfflineAd728x90.png"></a></td><td rowspan="5"><img width="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td height="49" width="435"><img usemap="#wrapperTitle" border="0" height="49" width="435" src="images/WrapperTitle.png"></td><td valign="bottom" align="right" width="*"><a href="donate.html"><img border="0" height="16" width="300" src="images/DonationRequest.png"></a></td>
+</tr>
+<tr>
+<td height="4" colspan="2"><img height="4" width="500" src="images/BorderTop.png"></td>
+</tr>
+<tr>
+<td colspan="2">
+<table cellspacing="0" cellpadding="0" width="100%" border="0">
+<tr>
+<td valign="top" width="4"><img height="496" width="4" src="images/BorderLeft.png"></td><td bgcolor="#ffffff" valign="top" width="*" colspan="2">
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true" align="center"><font zcolor="#115b77" color="#8888aa" size="5"><b>Feature Examples</b></font></td>
+</tr>
+<tr>
+<td>
+<title>Feature Examples</title>
+     
+    
+<a name="N10009"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>Running the TestWrapper example application</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<p>
+            This section will make use of the TestWrapper sample application,
+            which ships with the Wrapper, to demonstrate several of the Wrapper's
+            failure recovery features.
+        </p>
+        
+<ul>
+            
+<li>
+                
+<a href="example.html#testwrapper-console">Running in a Console</a>
+            
+</li>
+            
+<li>
+                
+<a href="example.html#testwrapper-internal">Testing Wrapper Features (Internal Exits and Problems)</a>
+            
+</li>
+            
+<li>
+                
+<a href="example.html#testwrapper-external">Testing Wrapper Features (External Exits)</a>
+            
+</li>
+            
+<li>
+                
+<a href="example.html#testwrapper-nt">Running as an NT Service</a>
+            
+</li>
+            
+<li>
+                
+<a href="example.html#testwrapper-unix">Running as a Linux / Solaris Service</a>
+            
+</li>
+        
+</ul>
+        
+<a name="testwrapper-console"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Running in a Console</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                Once you install the binary version of the Wrapper distribution, or have run build
+                on a source distribution, you will be ready to immediately run the example
+                application.
+            </p>
+            
+<p>
+                The TestWrapper example application is also used to test many of the recovery
+                features of the Java Service Wrapper.
+            </p>
+            
+<p>
+                To run the example, cd into your bin directory and run the following script:
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>Windows:</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">TestWrapper.bat</pre>
+</font></td>
+</tr>
+</table>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>Linux / Solaris:</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">./testwrapper start</pre>
+</font></td>
+</tr>
+</table>
+            
+<div class="note">
+<table cellspacing="0" cellpadding="2" width="100%" border="0">
+<tr>
+<td nowrap="nowrap" valign="top">
+<p class="notelabel">
+<font color="#0000a0"><b>NOTE MEG</b></font>
+</p>
+</td><td><img width="10" src="images/spacer.gif"></td><td bgcolor="#bbbbdd" class="notebody"><font color="#222260">
+                
+<p>
+                    The Solaris <tt>testwrapper</tt> script tries
+                    to write a PID file to <tt>/var/run</tt>. If
+                    you aren't logged in as root, this will fail. You can fix this by simply
+                    changing the <tt>PIDDIR</tt> variable in the
+                    script, or by logging in as root. If you log in as root, make sure that 
+                    you have permission to use the X server or else you won't be able to see
+                    the <tt>testwrapper</tt> GUI.
+                </p>
+            
+</font></td>
+</tr>
+</table>
+</div>
+            
+<p>
+                The Windows console can be stopped cleanly by hitting CTRL-C, but the Linux and
+                Solaris version require you to run the script with the stop parameter:
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>Linux / Solaris:</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">./testwrapper stop</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                The Linux and Solaris versions also provide the ability to restart the application:
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>Linux / Solaris:</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">./testwrapper restart</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                When the application starts, you should see the following dialog:
+            </p>
+            
+<div align="center" class="screenshot">
+                
+                
+<p>
+<img src="images/TestWrapper.png"></p>
+            
+</div>
+            
+<p>
+                You should also see the following in the console:
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper  | --&gt; Wrapper Started as Console
+wrapper  | Launching a JVM...
+jvm 1    | Initializing...
+jvm 1    | Wrapper (Version 3.x.x)
+jvm 1    |
+jvm 1    | start()</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                Let's start with the console output.  The first column of data displays the source
+                of the output.  Lines starting with <tt>wrapper</tt> are
+                coming from the native Wrapper application.  Lines starting with
+                <tt>jvm 1</tt> are coming from the output of the JVM.  
+                The number after <tt>jvm</tt> indicates the JVM number
+                since the wrapper was started.  We will see how that works when we start playing
+                with the TestWrapper's dialog.
+            </p>
+            
+<p>
+                The console output is also all logged to
+                <tt>logs/wrapper.log</tt>.  The logged output differs
+                from the console output in that each line of output also includes a timestamp.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper  | 2001/12/06 16:18:27 | --&gt; Wrapper Started as Console
+wrapper  | 2001/12/06 16:18:28 | Launching a JVM...
+jvm 1    | 2001/12/06 16:18:29 | Initializing...
+jvm 1    | 2001/12/06 16:18:30 | Wrapper (Version 3.x.x)
+jvm 1    | 2001/12/06 16:18:30 | 
+jvm 1    | 2001/12/06 16:18:30 | start()</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                The TestWrapper presents you with a number of buttons.  These are each used to test
+                various functionality of the Wrapper.  Each button is described below with the
+                output you will see in the console if the button is activated.
+            </p>
+        
+</td>
+</tr>
+</table>
+        
+<a name="testwrapper-internal"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Testing Wrapper Features (Internal Exits and Problems)</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                This section will demonstrate how the Wrapper responds to various
+                events.  Each of these events can be tested in the safety of your
+                very own home by pressing the various buttons on the TestWrapper
+                sample application's dialog.
+            </p>
+            
+<a name="N100CE"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Stop</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    Exits the JVM cleanly by calling WrapperManager.stop(0).
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>Console Output:</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper  | --&gt; Wrapper Started as Console
+wrapper  | Launching a JVM...
+jvm 1    | Initializing...
+jvm 1    | Wrapper (Version 3.x.x)
+jvm 1    |
+jvm 1    | start()
+jvm 1    | stop(0)
+wrapper  | &lt;-- Wrapper Stopped</pre>
+</font></td>
+</tr>
+</table>
+                
+<p>
+                    As you can see, the application had its stop() method called and
+                    was stopped cleanly.
+                </p>
+            
+</td>
+</tr>
+</table>
+            
+<a name="N100E5"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Exit</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    This button tests the Wrapper's ability to trap an unexpected call
+                    to System.exit() and stop the application gracefully.
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>Console Output:</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper  | --&gt; Wrapper Started as Console
+wrapper  | Launching a JVM...
+jvm 1    | Initializing...
+jvm 1    | Wrapper (Version 3.x.x)
+jvm 1    |
+jvm 1    | start()
+jvm 1    | stop(0)
+jvm 1    | here
+wrapper  | &lt;-- Wrapper Stopped</pre>
+</font></td>
+</tr>
+</table>
+                
+<p>
+                    As an exercise, edit your <tt>conf/wrapper.conf</tt>
+                    file and uncomment the property,
+                    <tt>wrapper.disable_shutdown_hook=TRUE</tt>.
+                    (Make sure to comment it back out when you are done)  Now rerun the
+                    test.
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>Console Output:</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper  | --&gt; Wrapper Started as Console
+wrapper  | Launching a JVM...
+jvm 1    | Initializing...
+jvm 1    | Wrapper (Version 3.x.x)
+jvm 1    |
+jvm 1    | start()
+wrapper  | JVM exited unexpectedly.
+wrapper  | Launching a JVM...
+jvm 2    | Initializing...
+jvm 2    | Wrapper (Version 3.x.x)
+jvm 2    |
+jvm 2    | start()</pre>
+</font></td>
+</tr>
+</table>
+                
+<p>
+                    You will notice that the Wrapper no longer catches the call to
+                    System.exit() and so the it thinks that the JVM crashed and
+                    restarts it.
+                </p>
+                
+<div class="note">
+<table cellspacing="0" cellpadding="2" width="100%" border="0">
+<tr>
+<td nowrap="nowrap" valign="top">
+<p class="notelabel">
+<font color="#0000a0"><b>NOTE MEG</b></font>
+</p>
+</td><td><img width="10" src="images/spacer.gif"></td><td bgcolor="#bbbbdd" class="notebody"><font color="#222260">
+                    
+<p>
+                        Because Shutdown hooks are not supported in 1.2 versions of
+                        Java, calls to System.exit will always result in the JVM being
+                        restarted.  To shutdown the JVM using Java 1.2, it is necessary
+                        to call WrapperManager.stop(exitCode).
+                    </p>
+                
+</font></td>
+</tr>
+</table>
+</div>
+            
+</td>
+</tr>
+</table>
+            
+<a name="N10118"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Halt</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    This button calls a very low-level method to stop the JVM very
+                    forcibly.  In this case, Shutdown Hooks are not executed and the
+                    Wrapper has no way to catch it.
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>Console Output:</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper  | --&gt; Wrapper Started as Console
+wrapper  | Launching a JVM...
+jvm 1    | Initializing...
+jvm 1    | Wrapper (Version 3.x.x)
+jvm 1    |
+jvm 1    | start()
+wrapper  | JVM exited unexpectedly.
+wrapper  | Launching a JVM...
+jvm 2    | Initializing...
+jvm 2    | Wrapper (Version 3.x.x)
+jvm 2    |
+jvm 2    | start()</pre>
+</font></td>
+</tr>
+</table>
+                
+<p>
+                    Notice that the Wrapper thinks that the JVM crashed and restarts it.
+                </p>
+            
+</td>
+</tr>
+</table>
+            
+<a name="N1012F"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Request Restart</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    Restarts the JVM cleanly by calling WrapperManager.restart()
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>Console Output:</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper  | --&gt; Wrapper Started as Console
+wrapper  | Launching a JVM...
+jvm 1    | Initializing...
+jvm 1    | Wrapper (Version 3.x.x)
+jvm 1    |
+jvm 1    | start()
+wrapper  | JVM requested a restart.
+jvm 1    | stop(0)
+wrapper  | Launching a JVM...
+jvm 2    | Initializing...
+jvm 2    | Wrapper (Version 3.x.x)
+jvm 2    |
+jvm 2    | start()</pre>
+</font></td>
+</tr>
+</table>
+                
+<p>
+                    As you can see, the application had its stop() method called and
+                    was restarted cleanly. 
+                </p>
+            
+</td>
+</tr>
+</table>
+            
+<a name="N10146"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Access Violation</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    This takes advantage of a bug in the 1.3 Sun JVM to cause an immediate
+                    access violation in the JVM.  (It doesn't work in the IBM JVM.  Or
+                    I guess you could say it does work...).
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>Console Output (SUN JVM):</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper  | --&gt; Wrapper Started as Console
+wrapper  | Launching a JVM...
+jvm 1    | Initializing...
+jvm 1    | Wrapper (Version 3.x.x)
+jvm 1    |
+jvm 1    | start()
+jvm 1    | WARNING: Attempting to cause an access violation...
+jvm 1    | #
+jvm 1    | # HotSpot Virtual Machine Error, EXCEPTION_ACCESS_VIOLATION
+jvm 1    | # Please report this error at
+jvm 1    | # http://java.sun.com/cgi-bin/bugreport.cgi
+jvm 1    | #
+jvm 1    | # Error ID: 4F533F57494E13120E43505002D4
+jvm 1    | #
+jvm 1    |
+jvm 1    | abnormal program termination
+wrapper  | JVM exited unexpectedly.
+wrapper  | Launching a JVM...
+jvm 2    | Initializing...
+jvm 2    | Wrapper (Version 3.x.x)
+jvm 2    |
+jvm 2    | start()</pre>
+</font></td>
+</tr>
+</table>
+                
+<p>
+                    As you can see, an access violation caused the JVM to display an
+                    error dump and then terminate.  The wrapper immediately detects
+                    this and after a 5 second pause, restarts the application in a new
+                    JVM, as can be seen with the
+                    <tt>jvm 2</tt>.  All available
+                    information about the crash has been logged for future reference.
+                </p>
+            
+</td>
+</tr>
+</table>
+            
+<a name="N10161"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Native Access Violation</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    The Wrapper includes a lightweight native library which is used to
+                    handle system events.  The library also contains a native method,
+                    which is used for testing, to cause an access violation in native
+                    code due to a NULL reference.
+                </p>
+                
+<p>
+                    Depending on the JVM, this will give different output.  In the example
+                    below, the JVM created a core dump which takes about a minute to save.
+                    During this time, the JVM appears to be hung so the Wrapper kills and
+                    restarts it.
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>Console Output:</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper  | --&gt; Wrapper Started as Console
+wrapper  | Launching a JVM...
+jvm 1    | Initializing...
+jvm 1    | Wrapper (Version 3.x.x)
+jvm 1    |
+jvm 1    | start()
+jvm 1    | WARNING: Attempting to cause an access violation...
+jvm 1    | #
+jvm 1    | # An EXCEPTION_ACCESS_VIOLATION exception has been detected in native code outside the VM.
+jvm 1    | # Program counter=0x8f7105f
+jvm 1    | #
+wrapper  | JVM is hung: Timed out waiting for signal from JVM.
+wrapper  | Java Virtual Machine did not exit on request, terminated
+wrapper  | Launching a JVM...
+jvm 2    | Initializing...
+jvm 2    | Wrapper (Version 3.x.x)
+jvm 2    |
+jvm 2    | start()</pre>
+</font></td>
+</tr>
+</table>
+            
+</td>
+</tr>
+</table>
+            
+<a name="N10178"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Simulate JVM Hang</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    This test causes the Wrapper to think that the JVM has become hung.
+                    After 30 seconds, the Wrapper times out and decides that the JVM
+                    will not come back and restarts it.
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>Console Output:</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper  | --&gt; Wrapper Started as Console
+wrapper  | Launching a JVM...
+jvm 1    | Initializing...
+jvm 1    | Wrapper (Version 3.x.x)
+jvm 1    |
+jvm 1    | start()
+jvm 1    | WARNING: Making JVM appear to be hung...
+wrapper  | JVM appears hung: Timed out waiting for signal from JVM.
+wrapper  | Java Virtual Machine did not exit on request, terminated
+wrapper  | Launching a JVM...
+jvm 2    | Initializing...
+jvm 2    | Wrapper (Version 3.x.x)
+jvm 2    |
+jvm 2    | start()</pre>
+</font></td>
+</tr>
+</table>
+            
+</td>
+</tr>
+</table>
+        
+</td>
+</tr>
+</table>
+        
+<a name="testwrapper-external"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Testing Wrapper Features (External Exits)</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                The above section covered all of the ways that an application can exit or
+                die of its own will.  There are other external factors that the Wrapper
+                can also protect itself against.
+            </p>
+            
+<a name="N10196"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>CTRL-C</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    Most Java applications die rather abruptly if the user hits CTRL-C,
+                    logs out of windows, etc.  You can work around some of these issues
+                    with a Shutdown Hook, but the Wrapper implements this by using a
+                    native library to directly capture the system signals.  This makes
+                    it possible to have a Java application installed as an NT Service
+                    without it being stopped when a user logs out.
+                </p>
+                
+<p>
+                    As a test, try hitting CTRL-C in the console window.
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>Console Output:</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper  | --&gt; Wrapper Started as Console
+wrapper  | Launching a JVM...
+jvm 1    | Initializing...
+jvm 1    | Wrapper (Version 3.x.x)
+jvm 1    |
+jvm 1    | start()
+wrapper  | CTRL-C trapped.  Shutting down.
+jvm 1    | stop(0)
+wrapper  | &lt;-- Wrapper Stopped</pre>
+</font></td>
+</tr>
+</table>
+                
+<p>
+                    You can also see variations on this by logging out when the console
+                    application is still running.  The Wrapper will correctly terminate
+                    the application.
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>Console Output:</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper  | Launching a JVM...
+jvm 1    | Initializing...
+jvm 1    | Wrapper (Version 3.x.x)
+jvm 1    | 
+jvm 1    | start()
+wrapper  | User logged out.  Shutting down.
+jvm 1    | stop(0)
+wrapper  | &lt;-- Wrapper Stopped</pre>
+</font></td>
+</tr>
+</table>
+                
+<p>
+                    On Linux or Solaris platforms, you can only hit CTRL-C if the script
+                    used to launch the wrapper was passed the console command.  If the
+                    wrapper was launched using the start command then it has been spawned
+                    in a different process.  To stop spawned instances of the Wrapper,
+                    run the same script used to launch the wrapper, only this time specify
+                    the stop command:
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>Console Output:</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper  | --&gt; Wrapper Started as Console
+wrapper  | Launching a JVM...
+jvm 1    | Initializing...
+jvm 1    | Wrapper (Version 3.x.x)
+jvm 1    |
+jvm 1    | start()
+wrapper  | Shutting down.
+jvm 1    | stop(0)
+wrapper  | &lt;-- Wrapper Stopped</pre>
+</font></td>
+</tr>
+</table>
+            
+</td>
+</tr>
+</table>
+            
+<a name="N101C9"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Process Termination</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    It is also possible, though unlikely, that the application process
+                    could be killed by another application.  This test also simulates
+                    cases where the JVM dies very suddenly of its own accord.  On Unix
+                    systems, you can kill the java process with a
+                    <tt>kill -9</tt>.  On Windows systems,
+                    open up the Task Manager.  Select the Process tab.  Locate the
+                    java.exe process to kill and then kill it.
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>Console Output:</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper  | --&gt; Wrapper Started as Console
+wrapper  | Launching a JVM...
+jvm 1    | Initializing...
+jvm 1    | Wrapper (Version 3.x.x)
+jvm 1    |
+jvm 1    | start()
+wrapper  | JVM exited unexpectedly.
+wrapper  | Launching a JVM...
+jvm 2    | Initializing...
+jvm 2    | Wrapper (Version 3.x.x)
+jvm 2    |
+jvm 2    | start()</pre>
+</font></td>
+</tr>
+</table>
+                
+<p>
+                    The Wrapper will be restarted without any problems.
+                </p>
+                
+<p>
+                    If rather than killing the Java process, the Wrapper process is
+                    killed then there is currently now recovery mode.  The WrapperManager
+                    inside the Java process reacts to the loss of the Wrapper by assuming
+                    that it is abandoned.  This leads to the JVM being shutdown cleanly
+                    30 seconds after the Wrapper process died.
+                </p>
+            
+</td>
+</tr>
+</table>
+            
+<a name="N101E7"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>System Under High Load or System Suspend</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    There are cases where either the Wrapper, the JVM or both will be
+                    denied CPU cycles for an extended period of time.  This can happen
+                    if a resource unfriendly process starts taking 100% of the CPU for
+                    a period of time.   It is also possible if the user Suspends the
+                    system to RAM or disk.  When the system is resumed, all running
+                    applications will have experienced some missing time.  The Wrapper
+                    is capable of recognizing that this has happened making it possible
+                    to avoid unneeded restarts of the JVM process.  The following output
+                    shows what happens when the System is suspended to RAM for 255
+                    seconds before being resumed.
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>Console Output:</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper  | --&gt; Wrapper Started as Console
+wrapper  | Launching a JVM...
+jvm 1    | Initializing...
+jvm 1    | Wrapper (Version 3.x.x)
+jvm 1    |
+jvm 1    | start()
+jvm 1    | JVM Process has not received any CPU time for 255 seconds.  Extending timeouts.
+wrapper  | Wrapper Process has not received any CPU time for 255 seconds.  Extending timeouts.</pre>
+</font></td>
+</tr>
+</table>
+            
+</td>
+</tr>
+</table>
+        
+</td>
+</tr>
+</table>
+        
+<a name="testwrapper-nt"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Running as an NT Service</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                When running as an NT service, the TestWrapper will be unable to show
+                its Dialog.  So this application is not very interesting.  We can
+                however do a few tests to verify that the Wrapper acts as an NT service
+                correctly.
+            </p>
+            
+<p>
+                The first thing you will need to do is get the TestWrapper installed
+                as a service by running the following command:
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">InstallTestWrapper-NT.bat</pre>
+</font></td>
+</tr>
+</table>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>You will see the output:</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper  | Test Wrapper Application installed.</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                Once the TestWrapper application in installed as a service, we will
+                want to start it.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">net start TestWrapper</pre>
+</font></td>
+</tr>
+</table>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>You will see the output:</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">The Test Wrapper Application service is starting.
+The Test Wrapper Application service was started successfully.</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                The service can be uninstalled by executing the following command:
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">UninstallTestWrapper-NT.bat</pre>
+</font></td>
+</tr>
+</table>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>If the service is running, you will see the output:</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper  | Service is running.  Stopping it...
+wrapper  | Waiting to stop...
+wrapper  | Test Wrapper Application stopped.
+wrapper  | Test Wrapper Application removed.</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                If you look at the contents of <tt>logs/wrapper.log</tt>,
+                you will see output very similar to that of the console.  Except this
+                time, the start message informs you that the application is being started
+                as a Service.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>wrapper.log</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper  | 2001/12/06 17:34:21 | --&gt; Wrapper Started as Service
+wrapper  | 2001/12/06 17:34:21 | Launching a JVM...
+jvm 1    | 2001/12/06 17:34:22 | Initializing...
+jvm 1    | 2001/12/06 17:34:22 | Wrapper (Version 3.x.x)
+jvm 1    | 2001/12/06 17:34:22 |
+jvm 1    | 2001/12/06 17:34:22 | start()</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                Here are the results of several more actions that can take place on an
+                NT service:
+            </p>
+            
+<a name="N10259"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>User Logging out and then back in</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    A log entry is made when the user logs out, but the service is
+                    unaffected.
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>wrapper.log</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper  | 2001/12/06 17:39:39 | --&gt; Wrapper Started as Service
+wrapper  | 2001/12/06 17:39:40 | Launching a JVM...
+jvm 1    | 2001/12/06 17:39:40 | Initializing...
+jvm 1    | 2001/12/06 17:39:40 | Wrapper (Version 3.x.x)
+jvm 1    | 2001/12/06 17:39:40 |
+jvm 1    | 2001/12/06 17:39:41 | start()
+wrapper  | 2001/12/06 17:40:07 | User logged out.  Ignored.
+jvm 1    | 2001/12/06 17:40:07 | controlEvent(202)</pre>
+</font></td>
+</tr>
+</table>
+            
+</td>
+</tr>
+</table>
+            
+<a name="N1026D"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Restarting the machine.</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    This will result in a logout signal followed by a shut down signal.
+                    The service will be shut down gracefully and then come back after
+                    the machine restarts.
+                </p>
+                
+<p>
+                    A log entry is made when the user logs out, but the service is
+                    unaffected.
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td class="listingcaption"><i>wrapper.log</i></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">wrapper  | 2001/12/06 17:41:04 | --&gt; Wrapper Started as Service
+wrapper  | 2001/12/06 17:41:05 | Launching a JVM...
+jvm 1    | 2001/12/06 17:41:05 | Initializing...
+jvm 1    | 2001/12/06 17:41:05 | Wrapper (Version 3.x.x)
+jvm 1    | 2001/12/06 17:41:05 |
+jvm 1    | 2001/12/06 17:41:05 | start()
+wrapper  | 2001/12/06 17:41:25 | User logged out.  Ignored.
+jvm 1    | 2001/12/06 17:41:26 | controlEvent(202)
+wrapper  | 2001/12/06 17:41:27 | Machine is shutting down.
+jvm 1    | 2001/12/06 17:41:27 | controlEvent(203)
+jvm 1    | 2001/12/06 17:41:28 | stop(0)
+wrapper  | 2001/12/06 17:41:29 | &lt;-- Wrapper Stopped
+wrapper  | 2001/12/06 17:44:12 | --&gt; Wrapper Started as Service
+wrapper  | 2001/12/06 17:44:12 | Launching a JVM...
+jvm 1    | 2001/12/06 17:44:17 | Initializing...
+jvm 1    | 2001/12/06 17:44:21 | Wrapper (Version 3.x.x)
+jvm 1    | 2001/12/06 17:44:21 |
+jvm 1    | 2001/12/06 17:44:23 | start()</pre>
+</font></td>
+</tr>
+</table>
+            
+</td>
+</tr>
+</table>
+        
+</td>
+</tr>
+</table>
+        
+<a name="testwrapper-unix"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Running as a Linux / Solaris Service</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                There are not any differences between running as a service vs as a console
+                application in a Unix environment.
+            </p>
+        
+</td>
+</tr>
+</table>
+    
+</td>
+</tr>
+</table>
+
+</td>
+</tr>
+<tr>
+<td align="right" id="author">
+<p>
+<i>by Leif Mortenson</i>
+</p>
+</td>
+</tr>
+</table>
+<script language="JavaScript">//@@BODY_SECTION@@</script></td><td valign="bottom" width="4"><img height="496" width="4" src="images/BorderRight.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td align="right" height="4" colspan="2"><img height="4" width="500" src="images/BorderBottom.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
+<tr>
+<td id="copyright" align="left"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            Copyright &copy;1999-2004 by <a href="http://www.tanukisoftware.com">Tanuki Software</a>.
+                            All Rights Reserved.
+                        </i></font></td><td align="right"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            last modified:
+                            <script language="JavaScript"> document.write(document.lastModified); </script></i></font></td>
+</tr>
+</table>
+</body>
+</html>

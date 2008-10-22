@@ -1,0 +1,919 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Java Service Wrapper - Configuration Property Overview</title>
+<style media="all" type="text/css">
+            @import url("./style/wrapper.css");
+        </style>
+</head>
+<body bgcolor="#eeeeff" marginheight="0" marginwidth="0" leftmargin="0" topmargin="0" alink="#023264" vlink="#023264" link="#525D76" text="#000000">
+<map name="wrapperLogo">
+<area href="http://wrapper.tanukisoftware.org" coords="90,90,88" shape="circle">
+</map>
+<map name="wrapperTitle">
+<area href="http://www.tanukisoftware.com" coords="28,32,176,48" shape="rect">
+</map>
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td valign="top" width="180">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td width="180"><img usemap="#wrapperLogo" border="0" height="180" width="180" src="images/WrapperLogo.png"></td>
+</tr>
+<tr>
+<td>
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true">
+<div id="menu">
+<script language="JavaScript">//@@MENU_TOP@@</script>
+<div>
+<b>Essentials</b>
+<div>
+<a href="introduction.html">Introduction</a>
+</div>
+<div>
+<a href="integrate.html">Integration Methods</a>
+</div>
+<div>
+<a href="properties.html">Configuration Properties</a>
+</div>
+<div>
+<a href="launch.html">Launching Your Application</a>
+</div>
+<div>
+<b>
+                        &gt;&gt;
+                        <a href="donate.html">Show Your Support</a>
+                        &lt;&lt;
+                    </b>
+</div>
+<div>
+<a href="sponsors.html">Sponsors</a>
+</div>
+</div>
+<div>
+<b>Documentation</b>
+<div>
+<a href="jmx.html">JMX Control</a>
+</div>
+<div>
+<a href="security-model.html">Security Model</a>
+</div>
+<div>
+<a href="example.html">Feature Examples</a>
+</div>
+<div>
+<a href="debugging.html">Debugging Your Application</a>
+</div>
+<div>
+<a href="troubleshooting.html">Troubleshooting</a>
+</div>
+<div>
+<a href="faq.html">FAQ</a>
+</div>
+<div>
+<a href="release-notes.html">Release Notes</a>
+</div>
+<div>
+<a href="history.html">Project History</a>
+</div>
+<div>
+<a href="javadocs.html">Javadocs API</a>
+</div>
+<div>
+<a href="buttons.html">Buttons</a>
+</div>
+<div>
+<a href="authors.html">Authors</a>
+</div>
+<div>
+<a href="license.html">License</a>
+</div>
+</div>
+<div>
+<b>Download</b>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=31591">Binaries</a>
+</div>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=33658">Source Code</a>
+</div>
+</div>
+<div>
+<b>Get Involved</b>
+<div>
+<a href="http://sourceforge.net/projects/wrapper/">Source Forge</a>
+</div>
+<div>
+<a href="http://svn.sourceforge.net/viewvc/wrapper/">Subversion Repository</a>
+</div>
+<div>
+<a href="http://sourceforge.net/tracker/?group_id=39428">Issue Tracking</a>
+</div>
+<div>
+<a href="http://sourceforge.net/mail/?group_id=39428">Mailing Lists and Archives</a>
+</div>
+<div>
+<a href="http://sourceforge.net/forum/?group_id=39428">Forums (Old)</a>
+</div>
+</div>
+</div>
+<script language="JavaScript">//@@MENU_BOTTOM@@</script>
+<p>
+<b>Hosted by:</b>
+<br>
+<a href="http://sourceforge.net/projects/wrapper/"><img alt="SourceForge" border="0" height="31" width="88" src="http://sourceforge.net/sflogo.php?group_id=39428"></a>
+<br>
+</p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td><td valign="top" width="*">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td colspan="3"><img height="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td align="center" height="90" colspan="2"><a href="http://wrapper.tanukisoftware.org"><img border="0" height="90" width="728" src="images/OfflineAd728x90.png"></a></td><td rowspan="5"><img width="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td height="49" width="435"><img usemap="#wrapperTitle" border="0" height="49" width="435" src="images/WrapperTitle.png"></td><td valign="bottom" align="right" width="*"><a href="donate.html"><img border="0" height="16" width="300" src="images/DonationRequest.png"></a></td>
+</tr>
+<tr>
+<td height="4" colspan="2"><img height="4" width="500" src="images/BorderTop.png"></td>
+</tr>
+<tr>
+<td colspan="2">
+<table cellspacing="0" cellpadding="0" width="100%" border="0">
+<tr>
+<td valign="top" width="4"><img height="496" width="4" src="images/BorderLeft.png"></td><td bgcolor="#ffffff" valign="top" width="*" colspan="2">
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true" align="center"><font zcolor="#115b77" color="#8888aa" size="5"><b>Configuration Property Overview</b></font></td>
+</tr>
+<tr>
+<td>
+<title>Configuration Property Overview</title>
+    
+    
+<a name="N10009"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>Configuration Property Overview</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<p>
+            The Java Service Wrapper uses a configuration file to control
+            the various Wrapper settings.  The file also contains all of
+            the information necessary to launch a JVM instance with the
+            correct command line required by a given application.
+        </p>
+        
+<p>
+            This section includes an example configuration file as well
+            as covers some general features which apply to all properties.
+        </p>
+        
+<p>
+            The individual properties are individually explained below.
+            They can be accessed by category or name.  Many of the
+            properties which will most likely be required are also
+            explained elsewhere in this document.
+        </p>
+        
+<p>
+            The Wrapper configuration file is very similar, but not exactly
+            the same, as a Java Properties file.  The '\' character is not
+            interpreted as an escape character for example.  The '#'
+            character is interpreted as a comment character.  To include a
+            '#' character in a property value, the value must either be
+            quoted, or escaped by a second '#' character.
+        </p>
+        
+<ul>
+            
+<li>
+                
+<a href="props-example-config.html">Example Configuration File</a>
+            
+</li>
+            
+<li>
+                
+<a href="props-command-line.html">Command Line Configuration</a>
+            
+</li>
+            
+<li>
+                
+<a href="props-paths.html">Paths in Configuration Properties</a>
+            
+</li>
+            
+<li>
+                
+<a href="props-envvars.html">Environment Variables</a>
+            
+</li>
+            
+<li>
+                
+<a href="props-cascading.html">Cascading Configuration Files</a>
+            
+</li>
+        
+</ul>
+        
+<a name="category"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Properties by Category</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<ul>
+                
+<li>
+                    
+<a href="props-jvm.html">JVM Configuration Properties</a>
+                
+</li>
+                
+<li>
+                    
+<a href="props-logging.html">Logging Configuration Properties</a>
+                
+</li>
+                
+<li>
+                    
+<a href="props-unix.html">Linux/Unix Configuration Properties</a>
+                
+</li>
+                
+<li>
+                    
+<a href="props-nt.html">Windows NT/2000/XP Configuration Properties</a>
+                
+</li>
+                
+<li>
+                    
+<a href="props-advanced.html">Advanced Properties</a>
+                
+</li>
+            
+</ul>
+        
+</td>
+</tr>
+</table>
+        
+<a name="name"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Properties by Name</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                Properties added after the initial release are followed by the version in which
+                they were implemented.
+            </p>
+            
+<ul>
+                
+<li>
+                    
+<a href="prop-adviser.html">wrapper.adviser</a>
+                <font color="#808080"><i>(3.1.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-anchorfile.html">wrapper.anchorfile</a>
+                <font color="#808080"><i>(3.1.1)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-umask.html">wrapper.anchorfile.umask</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-app-parameter-n.html">wrapper.app.parameter.&lt;n&gt;</a>
+                
+</li>
+                
+<li>
+                    
+<a href="prop-commandfile.html">wrapper.commandfile</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-console-flush.html">wrapper.console.flush</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-console-format.html">wrapper.console.format</a>
+                
+</li>
+                
+<li>
+                    
+<a href="prop-console-loglevel.html">wrapper.console.loglevel</a>
+                
+</li>
+                
+<li>
+                    
+<a href="prop-console-title.html">wrapper.console.title</a>
+                <font color="#808080"><i>(3.1.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-cpu-timeout.html">wrapper.cpu.timeout</a>
+                <font color="#808080"><i>(2.2.8)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-daemonize.html">wrapper.daemonize</a>
+                <font color="#808080"><i>(3.0.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-debug.html">wrapper.debug</a>
+                
+</li>
+                
+<li>
+                    
+<a href="prop-disable-restarts.html">wrapper.disable_restarts</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-disable-shutdown-hook.html">wrapper.disable_shutdown_hook</a>
+                
+</li>
+                
+<li>
+                    
+<a href="prop-filter-x-n.html">wrapper.filter.action.&lt;n&gt;</a>
+                <font color="#808080"><i>(3.0.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-filter-x-n.html">wrapper.filter.trigger.&lt;n&gt;</a>
+                <font color="#808080"><i>(3.0.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-ignore-signals.html">wrapper.ignore_signals</a>
+                <font color="#808080"><i>(3.0.5)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-java-additional-n.html">wrapper.java.additional.&lt;n&gt;</a>
+                
+</li>
+                
+<li>
+                    
+<a href="prop-java-classpath-n.html">wrapper.java.classpath.&lt;n&gt;</a>
+                
+</li>
+                
+<li>
+                    
+<a href="prop-java-command.html">wrapper.java.command</a>
+                
+</li>
+                
+<li>
+                    
+<a href="prop-java-command-loglevel.html">wrapper.java.command.loglevel</a>
+                <font color="#808080"><i>(3.1.2)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-java-idfile.html">wrapper.java.idfile</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-java-initmemory.html">wrapper.java.initmemory</a>
+                
+</li>
+                
+<li>
+                    
+<a href="prop-java-library-path-n.html">wrapper.java.library.path.&lt;n&gt;</a>
+                <font color="#808080"><i>(2.2.9)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-java-library-path-append-system-path.html">wrapper.java.library.path.append_system_path</a>
+                <font color="#808080"><i>(3.1.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-java-mainclass.html">wrapper.java.mainclass</a>
+                
+</li>
+                
+<li>
+                    
+<a href="prop-java-maxmemory.html">wrapper.java.maxmemory</a>
+                
+</li>
+                
+<li>
+                    
+<a href="prop-java-idfile.html">wrapper.java.idfile</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-umask.html">wrapper.java.idfile.umask</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-java-pidfile.html">wrapper.java.pidfile</a>
+                <font color="#808080"><i>(3.0.5)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-umask.html">wrapper.java.pidfile.umask</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-java-statusfile.html">wrapper.java.statusfile</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-umask.html">wrapper.java.statusfile.umask</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-umask.html">wrapper.java.umask</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-jvm-exit-timeout.html">wrapper.jvm_exit.timeout</a>
+                <font color="#808080"><i>(2.2.8)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-jvm-port.html">wrapper.jvm.port</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-jvm-port.html">wrapper.jvm.port.max</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-jvm-port.html">wrapper.jvm.port.min</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-lockfile.html">wrapper.lockfile</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-umask.html">wrapper.lockfile.umask</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-logfile.html">wrapper.logfile</a>
+                
+</li>
+                
+<li>
+                    
+<a href="prop-logfile-format.html">wrapper.logfile.format</a>
+                <font color="#808080"><i>(2.2.5)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-logfile-inactivity-timeout.html">wrapper.logfile.inactivity.timeout</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-logfile-loglevel.html">wrapper.logfile.loglevel</a>
+                <font color="#808080"><i>(2.2.5)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-logfile-maxfiles.html">wrapper.logfile.maxfiles</a>
+                <font color="#808080"><i>(2.2.5)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-logfile-maxsize.html">wrapper.logfile.maxsize</a>
+                <font color="#808080"><i>(2.2.5)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-logfile-rollmode.html">wrapper.logfile.rollmode</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-umask.html">wrapper.logfile.umask</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-max-failed-invocations.html">wrapper.max_failed_invocations</a>
+                <font color="#808080"><i>(2.2.8)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-monitor-thread-count.html">wrapper.monitor_thread_count</a>
+                <font color="#808080"><i>(3.2.0 (Deprecated as of 3.2.1))</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-native-library.html">wrapper.native_library</a>
+                <font color="#808080"><i>(3.1.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-ntservice-account.html">wrapper.ntservice.account</a>
+                <font color="#808080"><i>(3.0.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-ntservice-console.html">wrapper.ntservice.console</a>
+                <font color="#808080"><i>(3.1.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-ntservice-dependency-n.html">wrapper.ntservice.dependency.&lt;n&gt;</a>
+                
+</li>
+                
+<li>
+                    
+<a href="prop-ntservice-description.html">wrapper.ntservice.description</a>
+                <font color="#808080"><i>(2.2.5)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-ntservice-displayname.html">wrapper.ntservice.displayname</a>
+                
+</li>
+                
+<li>
+                    
+<a href="prop-ntservice-hide-console.html">wrapper.ntservice.hide_console</a>
+                <font color="#808080"><i>(3.0.4)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-ntservice-interactive.html">wrapper.ntservice.interactive</a>
+                <font color="#808080"><i>(3.0.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-ntservice-load-order-group.html">wrapper.ntservice.load_order_group</a>
+                <font color="#808080"><i>(3.0.4)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-ntservice-name.html">wrapper.ntservice.name</a>
+                
+</li>
+                
+<li>
+                    
+<a href="prop-ntservice-password.html">wrapper.ntservice.password</a>
+                <font color="#808080"><i>(3.0.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-ntservice-password.html#prompt">wrapper.ntservice.password.prompt</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-ntservice-password.html#mask">wrapper.ntservice.password.prompt.mask</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-ntservice-pausable.html">wrapper.ntservice.pausable</a>
+                <font color="#808080"><i>(3.2.1)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-ntservice-pausable-stop-jvm.html">wrapper.ntservice.pausable.stop_jvm</a>
+                <font color="#808080"><i>(3.2.1)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-ntservice-process-priority.html">wrapper.ntservice.process_priority</a>
+                <font color="#808080"><i>(2.2.7)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-ntservice-starttype.html">wrapper.ntservice.starttype</a>
+                
+</li>
+                
+<li>
+                    
+<a href="prop-on-exit-n.html">wrapper.on_exit.&lt;n&gt;</a>
+                <font color="#808080"><i>(3.1.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-pidfile.html">wrapper.pidfile</a>
+                <font color="#808080"><i>(Usage changed in 3.0.5)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-umask.html">wrapper.pidfile.umask</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-ping-interval.html">wrapper.ping.interval</a>
+                <font color="#808080"><i>(3.0.5)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-ping-timeout.html">wrapper.ping.timeout</a>
+                
+</li>
+                
+<li>
+                    
+<a href="prop-port.html">wrapper.port</a>
+                
+</li>
+                
+<li>
+                    
+<a href="prop-port.html">wrapper.port.max</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-port.html">wrapper.port.min</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-request-thread-dump-on-failed-jvm-exit.html">wrapper.request_thread_dump_on_failed_jvm_exit</a>
+                <font color="#808080"><i>(2.2.7)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-restart-delay.html">wrapper.restart.delay</a>
+                <font color="#808080"><i>(2.2.9)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-restart-reload-configuration.html">wrapper.restart.reload_configuration</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-shutdown-timeout.html">wrapper.shutdown.timeout</a>
+                <font color="#808080"><i>(2.2.7)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-signal-mode-hup.html">wrapper.signal.mode.hup</a>
+                <font color="#808080"><i>(3.2.2)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-single-invocation.html">wrapper.single_invocation</a>
+                <font color="#808080"><i>(3.1.2)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-startup-delay.html">wrapper.startup.delay</a>
+                <font color="#808080"><i>(3.1.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-startup-timeout.html">wrapper.startup.timeout</a>
+                
+</li>
+                
+<li>
+                    
+<a href="prop-statusfile.html">wrapper.statusfile</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-umask.html">wrapper.statusfile.umask</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-successful-invocation-time.html">wrapper.successful_invocation_time</a>
+                <font color="#808080"><i>(2.2.8)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-syslog-facility.html">wrapper.syslog.facility</a>
+                <font color="#808080"><i>(3.2.1)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-syslog-ident.html">wrapper.syslog.ident</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-syslog-loglevel.html">wrapper.syslog.loglevel</a>
+                <font color="#808080"><i>(2.2.5)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-thread-count-delay.html">wrapper.thread_count_delay</a>
+                <font color="#808080"><i>(3.2.0 (Deprecated as of 3.2.1))</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-use-system-time.html#prop-timer-fast-threshold">wrapper.timer_fast_threshold</a>
+                <font color="#808080"><i>(3.1.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-use-system-time.html#prop-timer-slow-threshold">wrapper.timer_slow_threshold</a>
+                <font color="#808080"><i>(3.1.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-umask.html">wrapper.umask</a>
+                <font color="#808080"><i>(3.2.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-use-system-time.html">wrapper.use_system_time</a>
+                <font color="#808080"><i>(3.1.0)</i></font>
+</li>
+                
+<li>
+                    
+<a href="prop-working-dir.html">wrapper.working.dir</a>
+                <font color="#808080"><i>(3.1.0)</i></font>
+</li>
+            
+</ul>
+        
+</td>
+</tr>
+</table>
+    
+</td>
+</tr>
+</table>
+
+</td>
+</tr>
+<tr>
+<td align="right" id="author">
+<p>
+<i>by Leif Mortenson</i>
+</p>
+</td>
+</tr>
+</table>
+<script language="JavaScript">//@@BODY_SECTION@@</script></td><td valign="bottom" width="4"><img height="496" width="4" src="images/BorderRight.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td align="right" height="4" colspan="2"><img height="4" width="500" src="images/BorderBottom.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
+<tr>
+<td id="copyright" align="left"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            Copyright &copy;1999-2004 by <a href="http://www.tanukisoftware.com">Tanuki Software</a>.
+                            All Rights Reserved.
+                        </i></font></td><td align="right"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            last modified:
+                            <script language="JavaScript"> document.write(document.lastModified); </script></i></font></td>
+</tr>
+</table>
+</body>
+</html>

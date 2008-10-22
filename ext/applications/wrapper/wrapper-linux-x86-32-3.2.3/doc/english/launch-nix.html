@@ -1,0 +1,687 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Java Service Wrapper - Launching Your Application (Linux / UNIX)</title>
+<style media="all" type="text/css">
+            @import url("./style/wrapper.css");
+        </style>
+</head>
+<body bgcolor="#eeeeff" marginheight="0" marginwidth="0" leftmargin="0" topmargin="0" alink="#023264" vlink="#023264" link="#525D76" text="#000000">
+<map name="wrapperLogo">
+<area href="http://wrapper.tanukisoftware.org" coords="90,90,88" shape="circle">
+</map>
+<map name="wrapperTitle">
+<area href="http://www.tanukisoftware.com" coords="28,32,176,48" shape="rect">
+</map>
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td valign="top" width="180">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td width="180"><img usemap="#wrapperLogo" border="0" height="180" width="180" src="images/WrapperLogo.png"></td>
+</tr>
+<tr>
+<td>
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true">
+<div id="menu">
+<script language="JavaScript">//@@MENU_TOP@@</script>
+<div>
+<b>Essentials</b>
+<div>
+<a href="introduction.html">Introduction</a>
+</div>
+<div>
+<a href="integrate.html">Integration Methods</a>
+</div>
+<div>
+<a href="properties.html">Configuration Properties</a>
+</div>
+<div>
+<a href="launch.html">Launching Your Application</a>
+</div>
+<div>
+<b>
+                        &gt;&gt;
+                        <a href="donate.html">Show Your Support</a>
+                        &lt;&lt;
+                    </b>
+</div>
+<div>
+<a href="sponsors.html">Sponsors</a>
+</div>
+</div>
+<div>
+<b>Documentation</b>
+<div>
+<a href="jmx.html">JMX Control</a>
+</div>
+<div>
+<a href="security-model.html">Security Model</a>
+</div>
+<div>
+<a href="example.html">Feature Examples</a>
+</div>
+<div>
+<a href="debugging.html">Debugging Your Application</a>
+</div>
+<div>
+<a href="troubleshooting.html">Troubleshooting</a>
+</div>
+<div>
+<a href="faq.html">FAQ</a>
+</div>
+<div>
+<a href="release-notes.html">Release Notes</a>
+</div>
+<div>
+<a href="history.html">Project History</a>
+</div>
+<div>
+<a href="javadocs.html">Javadocs API</a>
+</div>
+<div>
+<a href="buttons.html">Buttons</a>
+</div>
+<div>
+<a href="authors.html">Authors</a>
+</div>
+<div>
+<a href="license.html">License</a>
+</div>
+</div>
+<div>
+<b>Download</b>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=31591">Binaries</a>
+</div>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=33658">Source Code</a>
+</div>
+</div>
+<div>
+<b>Get Involved</b>
+<div>
+<a href="http://sourceforge.net/projects/wrapper/">Source Forge</a>
+</div>
+<div>
+<a href="http://svn.sourceforge.net/viewvc/wrapper/">Subversion Repository</a>
+</div>
+<div>
+<a href="http://sourceforge.net/tracker/?group_id=39428">Issue Tracking</a>
+</div>
+<div>
+<a href="http://sourceforge.net/mail/?group_id=39428">Mailing Lists and Archives</a>
+</div>
+<div>
+<a href="http://sourceforge.net/forum/?group_id=39428">Forums (Old)</a>
+</div>
+</div>
+</div>
+<script language="JavaScript">//@@MENU_BOTTOM@@</script>
+<p>
+<b>Hosted by:</b>
+<br>
+<a href="http://sourceforge.net/projects/wrapper/"><img alt="SourceForge" border="0" height="31" width="88" src="http://sourceforge.net/sflogo.php?group_id=39428"></a>
+<br>
+</p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td><td valign="top" width="*">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td colspan="3"><img height="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td align="center" height="90" colspan="2"><a href="http://wrapper.tanukisoftware.org"><img border="0" height="90" width="728" src="images/OfflineAd728x90.png"></a></td><td rowspan="5"><img width="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td height="49" width="435"><img usemap="#wrapperTitle" border="0" height="49" width="435" src="images/WrapperTitle.png"></td><td valign="bottom" align="right" width="*"><a href="donate.html"><img border="0" height="16" width="300" src="images/DonationRequest.png"></a></td>
+</tr>
+<tr>
+<td height="4" colspan="2"><img height="4" width="500" src="images/BorderTop.png"></td>
+</tr>
+<tr>
+<td colspan="2">
+<table cellspacing="0" cellpadding="0" width="100%" border="0">
+<tr>
+<td valign="top" width="4"><img height="496" width="4" src="images/BorderLeft.png"></td><td bgcolor="#ffffff" valign="top" width="*" colspan="2">
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true" align="center"><font zcolor="#115b77" color="#8888aa" size="5"><b>Launching Your Application (Linux / UNIX)</b></font></td>
+</tr>
+<tr>
+<td>
+<title>Launching Your Application (Linux / UNIX)</title>
+    
+    
+<a name="N10009"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>Launching Your Application</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<ul>
+            
+<li>
+                
+<a href="launch.html">All Platforms</a>
+            
+</li>
+        
+</ul>
+    
+</td>
+</tr>
+</table>
+    
+<a name="N10019"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>Launching Your Application (Linux / UNIX)</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<ul>
+            
+<li>
+                
+<a href="#scripts">Setup The Scripts</a>
+            
+</li>
+            
+<li>
+                
+<a href="#console">Running in a Console</a>
+            
+</li>
+            
+<li>
+                
+<a href="#daemon">Running as a Daemon Process</a>
+            
+</li>
+            
+<li>
+                
+<a href="#boot">Installing The Application To Start on Reboot</a>
+            
+</li>
+            
+<li>
+                
+<a href="#exe">Using wrapper Directly</a>
+            
+</li>
+        
+</ul>
+        
+<a name="scripts"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Setup The Scripts</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                The Wrapper is shipped with a <tt>sh</tt>
+                script which can be used to reliably start and stop any Java
+                application controlled by the Java Service Wrapper.
+            </p>
+            
+<p>
+                First copy the <tt>sh</tt> script to the
+                <tt>bin</tt> directory of your
+                application.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">{WRAPPER_HOME}\src\bin\sh.script.in</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                Rename the script file to reflect the name of the application.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">/usr/lib/myapp/bin/myapp</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                Now open the script into an editor.  We need to set the long and
+                short names to reflect that the script is being used to launch
+                your application.  You will see two variables immediately after
+                the header of the script.  <tt>APP_NAME</tt>
+                and <tt>APP_LONG_NAME</tt>.  Note that
+                the default values of both of these variables are
+                <a href="http://ant.apache.org/">Ant</a> friendly
+                tokens which can easily be replaced as part of a build.
+                Suggested values for these variables are shown below.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">APP_NAME="myapp"
+APP_LONG_NAME="My Application"</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                The script should not require any additional modification.
+                However it does assume that it is placed into the same directory
+                as the <tt>wrapper</tt> executable.
+                It also assumes that the <tt>wrapper.conf</tt>
+                file will be located within a
+                <tt>conf</tt> directory one level up,
+                <tt>../conf/wrapper.conf</tt>.  If
+                you wish to locate this file someplace else, then that can also
+                be set using the <tt>WRAPPER_CONF</tt>
+                variable in the script.
+            </p>
+            
+<div class="note">
+<table cellspacing="0" cellpadding="2" width="100%" border="0">
+<tr>
+<td nowrap="nowrap" valign="top">
+<p class="notelabel">
+<font color="#0000a0"><b>NOTE MEG</b></font>
+</p>
+</td><td><img width="10" src="images/spacer.gif"></td><td bgcolor="#bbbbdd" class="notebody"><font color="#222260">
+                
+<p>
+                    Important!  Before proceeding, please make sure that both
+                    the script and the <tt>wrapper</tt>
+                    executable have their executable bit set.
+                </p>
+            
+</font></td>
+</tr>
+</table>
+</div>
+            
+<div class="note">
+<table cellspacing="0" cellpadding="2" width="100%" border="0">
+<tr>
+<td nowrap="nowrap" valign="top">
+<p class="notelabel">
+<font color="#0000a0"><b>NOTE MEG</b></font>
+</p>
+</td><td><img width="10" src="images/spacer.gif"></td><td bgcolor="#bbbbdd" class="notebody"><font color="#222260">
+                
+<p>
+                    The <tt>sh</tt> script will attempt to
+                    create a pid file in the <tt>/var/run</tt>.
+                    If the user used to launch the Wrapper does not have permission to
+                    write to this directory then this will result in an error.  An
+                    alternative that will work in most cases is to write the pid file
+                    to the same directory where the wrapper executable is located.  To
+                    make this change, edit the <tt>sh</tt>
+                    script and change the following line:
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">PIDDIR="/var/run"</pre>
+</font></td>
+</tr>
+</table>
+                
+<p>
+                    to:
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">PIDDIR="./"</pre>
+</font></td>
+</tr>
+</table>
+            
+</font></td>
+</tr>
+</table>
+</div>
+        
+</td>
+</tr>
+</table>
+        
+<a name="console"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Running in a Console</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                The application can now be run by simply executing
+                <tt>bin/myapp console</tt>.
+                Because of the way the Wrapper script sets its current directory,
+                it is not necessary to run this script from within the
+                <tt>bin</tt> directory.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">/usr/lib/myapp/bin/myapp console
+Running My Application...
+wrapper  | --&gt; Wrapper Started as Console
+wrapper  | Launching a JVM...
+jvm 1    | Wrapper (Version 3.x.x)
+jvm 1    |</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                When running using the <tt>console</tt>
+                command, output from the JVM will be visible in the console.
+            </p>
+            
+<p>
+                The application can be terminated by hitting CTRL-C in the command
+                window.  This will cause the Wrapper to shut down the application
+                cleanly.
+            </p>
+            
+<p>
+                As you will see if you omit a command, the scripts shipped
+                with the wrapper are fairly standard daemon scripts.  They
+                accept <tt>console</tt>,
+                <tt>start</tt>,
+                <tt>stop</tt>,
+                <tt>restart</tt>,
+                <tt>status</tt>, and
+                <tt>dump</tt> commands.
+                The <tt>start</tt>,
+                <tt>stop</tt>, and
+                <tt>restart</tt> commands are common
+                to most daemon scripts and are used to control the wrapper and 
+                its application as a daemon process.  The 
+                <tt>status</tt> command
+                can be used to find out whether or not the wrapper is currently
+                running.  The <tt>console</tt> command
+                will launch the wrapper in the current shell, making it
+                possible to kill the application with CTRL-C.  The final
+                command, <tt>dump</tt>, will send a
+                <tt>kill -3</tt> signal to the wrapper
+                causing the its JVM to do a full thread dump.
+            </p>
+        
+</td>
+</tr>
+</table>
+        
+<a name="daemon"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Running as a Daemon Process</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                The application can be run as a detatched daemon process by
+                executing the script using the <tt>start</tt>
+                command.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">/usr/lib/myapp/bin/myapp start
+Running My Application...</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                When running using the <tt>start</tt>
+                command, output from the JVM will only be visible by viewing the
+                <tt>wrapper.log</tt> file using
+                <tt>tail -f wrapper.log</tt>
+            
+</p>
+            
+<p>
+                Because the application is running as a detatched process, it can
+                not be terminated using CTRL-C and will continue to run even if
+                the console is closed.
+            </p>
+            
+<p>
+                To stop the application rerun the script using the
+                <tt>stop</tt> command.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">/usr/lib/myapp/bin/myapp stop
+Stopping Test Wrapper Sample Application...
+Stopped Test Wrapper Sample Application.</pre>
+</font></td>
+</tr>
+</table>
+        
+</td>
+</tr>
+</table>
+        
+<a name="boot"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Installing The Application To Start on Reboot</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                Installing the application to start up when the system boots and
+                shutdown when the system shutsdown is platform specific.  I have
+                tried to include instructions for platforms which I have access
+                to.  If your platform is not included, please read over those that
+                have been included and adapt as necessary.  Please post what you
+                come up with to the
+                <a href="http://sourceforge.net/mail/?group_id=39428">wrapper-user@sourceforge.net</a>
+                mailing list and I will be more than happy to include them in the
+                next release.
+            </p>
+            
+<ul>
+                
+<li>
+                    
+<p>
+                        
+<a href="launch-nix-boot-debian.html">Debian Linux</a>
+                    
+</p>
+                
+</li>
+                
+<li>
+                    
+<p>
+                        
+<a href="launch-nix-boot-solaris.html">Solaris</a>
+                    
+</p>
+                
+</li>
+            
+</ul>
+        
+</td>
+</tr>
+</table>
+        
+<a name="exe"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Using wrapper Directly</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                As an alternative to using the scripts provided with the Java Service
+                Wrapper.  You may choose to launch the Wrapper directly.  If the
+                <tt>wrapper</tt> executable is launched
+                without any parameters, the following usage output will be displayed.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">/usr/lib/myapp/bin/wrapper
+Wrapper (Version 3.n.n) http://wrapper.tanukisoftware.org
+
+Usage:
+  wrapper &lt;command&gt; &lt;configuration file&gt; [configuration properties] [...]
+  wrapper &lt;configuration file&gt; [configuration properties] [...]
+     (&lt;command&gt; implicitly '-c')
+  wrapper &lt;command&gt;
+     (&lt;configuration file&gt; implicitly 'wrapper.conf')
+  wrapper
+     (&lt;command&gt; implicitly '-c' and &lt;configuration file&gt; 'wrapper.conf')
+
+where &lt;command&gt; can be one of:
+  -c  --console run as a Console application
+  -?  --help    print this help message
+
+&lt;configuration file&gt; is the wrapper.conf to use.  Name must be absolute or relative
+  to the location of wrapper
+
+[configuration properties] are configuration name-value pairs which override values
+  in wrapper.conf.  For example:
+  wrapper.debug=true</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                To run the Java Service Wrapper in a shell, you would
+                specify the <tt>-c</tt> command, followed
+                by the wrapper.conf file.  The location of the
+                <tt>wrapper.conf</tt> file can be an
+                absolute or relative location.  If a relative path is used, the path
+                is always relative to the location of the
+                <tt>wrapper</tt> file, not the current
+                directory.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">/usr/lib/myapp/bin/wrapper -c ..\conf\wrapper.conf</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                To launch the application a daemon process (Using the shell
+                script is recommended):
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">/usr/lib/myapp/bin/wrapper -c ..\conf\wrapper.conf wrapper.daemonize=TRUE</pre>
+</font></td>
+</tr>
+</table>
+        
+</td>
+</tr>
+</table>
+    
+</td>
+</tr>
+</table>
+
+</td>
+</tr>
+<tr>
+<td align="right" id="author">
+<p>
+<i>by Leif Mortenson</i>
+</p>
+</td>
+</tr>
+</table>
+<script language="JavaScript">//@@BODY_SECTION@@</script></td><td valign="bottom" width="4"><img height="496" width="4" src="images/BorderRight.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td align="right" height="4" colspan="2"><img height="4" width="500" src="images/BorderBottom.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
+<tr>
+<td id="copyright" align="left"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            Copyright &copy;1999-2004 by <a href="http://www.tanukisoftware.com">Tanuki Software</a>.
+                            All Rights Reserved.
+                        </i></font></td><td align="right"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            last modified:
+                            <script language="JavaScript"> document.write(document.lastModified); </script></i></font></td>
+</tr>
+</table>
+</body>
+</html>

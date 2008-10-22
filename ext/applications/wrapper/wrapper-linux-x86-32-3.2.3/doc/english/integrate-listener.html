@@ -1,0 +1,853 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Java Service Wrapper - WrapperListener Integration</title>
+<style media="all" type="text/css">
+            @import url("./style/wrapper.css");
+        </style>
+</head>
+<body bgcolor="#eeeeff" marginheight="0" marginwidth="0" leftmargin="0" topmargin="0" alink="#023264" vlink="#023264" link="#525D76" text="#000000">
+<map name="wrapperLogo">
+<area href="http://wrapper.tanukisoftware.org" coords="90,90,88" shape="circle">
+</map>
+<map name="wrapperTitle">
+<area href="http://www.tanukisoftware.com" coords="28,32,176,48" shape="rect">
+</map>
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td valign="top" width="180">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td width="180"><img usemap="#wrapperLogo" border="0" height="180" width="180" src="images/WrapperLogo.png"></td>
+</tr>
+<tr>
+<td>
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true">
+<div id="menu">
+<script language="JavaScript">//@@MENU_TOP@@</script>
+<div>
+<b>Essentials</b>
+<div>
+<a href="introduction.html">Introduction</a>
+</div>
+<div>
+<a href="integrate.html">Integration Methods</a>
+</div>
+<div>
+<a href="properties.html">Configuration Properties</a>
+</div>
+<div>
+<a href="launch.html">Launching Your Application</a>
+</div>
+<div>
+<b>
+                        &gt;&gt;
+                        <a href="donate.html">Show Your Support</a>
+                        &lt;&lt;
+                    </b>
+</div>
+<div>
+<a href="sponsors.html">Sponsors</a>
+</div>
+</div>
+<div>
+<b>Documentation</b>
+<div>
+<a href="jmx.html">JMX Control</a>
+</div>
+<div>
+<a href="security-model.html">Security Model</a>
+</div>
+<div>
+<a href="example.html">Feature Examples</a>
+</div>
+<div>
+<a href="debugging.html">Debugging Your Application</a>
+</div>
+<div>
+<a href="troubleshooting.html">Troubleshooting</a>
+</div>
+<div>
+<a href="faq.html">FAQ</a>
+</div>
+<div>
+<a href="release-notes.html">Release Notes</a>
+</div>
+<div>
+<a href="history.html">Project History</a>
+</div>
+<div>
+<a href="javadocs.html">Javadocs API</a>
+</div>
+<div>
+<a href="buttons.html">Buttons</a>
+</div>
+<div>
+<a href="authors.html">Authors</a>
+</div>
+<div>
+<a href="license.html">License</a>
+</div>
+</div>
+<div>
+<b>Download</b>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=31591">Binaries</a>
+</div>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=33658">Source Code</a>
+</div>
+</div>
+<div>
+<b>Get Involved</b>
+<div>
+<a href="http://sourceforge.net/projects/wrapper/">Source Forge</a>
+</div>
+<div>
+<a href="http://svn.sourceforge.net/viewvc/wrapper/">Subversion Repository</a>
+</div>
+<div>
+<a href="http://sourceforge.net/tracker/?group_id=39428">Issue Tracking</a>
+</div>
+<div>
+<a href="http://sourceforge.net/mail/?group_id=39428">Mailing Lists and Archives</a>
+</div>
+<div>
+<a href="http://sourceforge.net/forum/?group_id=39428">Forums (Old)</a>
+</div>
+</div>
+</div>
+<script language="JavaScript">//@@MENU_BOTTOM@@</script>
+<p>
+<b>Hosted by:</b>
+<br>
+<a href="http://sourceforge.net/projects/wrapper/"><img alt="SourceForge" border="0" height="31" width="88" src="http://sourceforge.net/sflogo.php?group_id=39428"></a>
+<br>
+</p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td><td valign="top" width="*">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td colspan="3"><img height="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td align="center" height="90" colspan="2"><a href="http://wrapper.tanukisoftware.org"><img border="0" height="90" width="728" src="images/OfflineAd728x90.png"></a></td><td rowspan="5"><img width="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td height="49" width="435"><img usemap="#wrapperTitle" border="0" height="49" width="435" src="images/WrapperTitle.png"></td><td valign="bottom" align="right" width="*"><a href="donate.html"><img border="0" height="16" width="300" src="images/DonationRequest.png"></a></td>
+</tr>
+<tr>
+<td height="4" colspan="2"><img height="4" width="500" src="images/BorderTop.png"></td>
+</tr>
+<tr>
+<td colspan="2">
+<table cellspacing="0" cellpadding="0" width="100%" border="0">
+<tr>
+<td valign="top" width="4"><img height="496" width="4" src="images/BorderLeft.png"></td><td bgcolor="#ffffff" valign="top" width="*" colspan="2">
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true" align="center"><font zcolor="#115b77" color="#8888aa" size="5"><b>WrapperListener Integration</b></font></td>
+</tr>
+<tr>
+<td>
+<title>WrapperListener Integration</title>
+    
+    
+<a name="N10009"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>Integration Methods</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<ul>
+            
+<li>
+                
+<a href="integrate.html">Methods of Integrating with the Java Service Wrapper</a>
+            
+</li>
+        
+</ul>
+    
+</td>
+</tr>
+</table>
+    
+<a name="N10019"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>Method 3 - WrapperListener Integration</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<ul>
+            
+<li>
+                
+<a href="#overview">Overview</a>
+            
+</li>
+            
+<li>
+                
+<a href="#detailed">Detailed Instructions</a>
+            
+</li>
+        
+</ul>
+        
+<a name="overview"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Overview</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                The third and final method, while providing the most flexibility and
+                access to all of the Wrapper's features, is also the only one which
+                requires some coding to complete the integration.  This method
+                involves creating a class which implements the
+                <tt>WrapperListener</tt> interface.  An
+                instance of the user class is then instantiated and registered with
+                the <tt>WrapperManager</tt>.
+            </p>
+            
+<p>
+                While this method provides features that are not available with
+                either of the first two methods, it does add some complexity.
+                If the additional features are not required, implementing a
+                shutdown hook to enable the use of Method 1, or implementing
+                a shutdown class should be considered as options.  The main method
+                of a shutdown class can be as simple as just calling a shutdown
+                method in the application.
+            </p>
+            
+<p>
+                This method will explain how the
+                <tt>TestWrapper</tt> application which ships
+                with the Wrapper works.
+            </p>
+            
+<div class="note">
+<table cellspacing="0" cellpadding="2" width="100%" border="0">
+<tr>
+<td nowrap="nowrap" valign="top">
+<p class="notelabel">
+<font color="#0000a0"><b>NOTE MEG</b></font>
+</p>
+</td><td><img width="10" src="images/spacer.gif"></td><td bgcolor="#bbbbdd" class="notebody"><font color="#222260">
+                
+<p>
+                    This document will not cover the installation of the Wrapper files
+                    or scripts which will be used to launch the application.  Both of
+                    these subjects are covered in detail in the descriptions of the
+                    first two integration methods.
+                </p>
+            
+</font></td>
+</tr>
+</table>
+</div>
+        
+</td>
+</tr>
+</table>
+        
+<a name="detailed"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Detailed Instructions</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            <a name="N10057"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>The Application Main Class</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    Before explaining the process in too much detail, we will start with
+                    an example main class and then explain each of its components.  The
+                    code below is a simple class which implements the
+                    <tt>WrapperListener</tt> interface and
+                    contains a main method which instantiates the class and calls
+                    start on the <tt>WrapperManager</tt>.  Give
+                    it a brief once over, we go through it step by step below.
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">import org.tanukisoftware.wrapper.WrapperManager;
+import org.tanukisoftware.wrapper.WrapperListener;
+                    
+public class Main
+    implements WrapperListener
+{
+    private MyApp m_app;
+
+    /*---------------------------------------------------------------
+     * Constructors
+     *-------------------------------------------------------------*/
+    private Main()
+    {
+    }
+
+    /*---------------------------------------------------------------
+     * WrapperListener Methods
+     *-------------------------------------------------------------*/
+    /**
+     * The start method is called when the WrapperManager is signaled by the 
+     *	native wrapper code that it can start its application.  This
+     *	method call is expected to return, so a new thread should be launched
+     *	if necessary.
+     *
+     * @param args List of arguments used to initialize the application.
+     *
+     * @return Any error code if the application should exit on completion
+     *         of the start method.  If there were no problems then this
+     *         method should return null.
+     */
+    public Integer start( String[] args )
+    {
+        m_app = new MyApp( args );
+        m_app.start();
+
+        return null;
+    }
+
+    /**
+     * Called when the application is shutting down.  The Wrapper assumes that
+     *  this method will return fairly quickly.  If the shutdown code code
+     *  could potentially take a long time, then WrapperManager.signalStopping()
+     *  should be called to extend the timeout period.  If for some reason,
+     *  the stop method can not return, then it must call
+     *  WrapperManager.stopped() to avoid warning messages from the Wrapper.
+     *
+     * @param exitCode The suggested exit code that will be returned to the OS
+     *                 when the JVM exits.
+     *
+     * @return The exit code to actually return to the OS.  In most cases, this
+     *         should just be the value of exitCode, however the user code has
+     *         the option of changing the exit code if there are any problems
+     *         during shutdown.
+     */
+    public int stop( int exitCode )
+    {
+        m_app.stop();
+        
+        return exitCode;
+    }
+    
+    /**
+     * Called whenever the native wrapper code traps a system control signal
+     *  against the Java process.  It is up to the callback to take any actions
+     *  necessary.  Possible values are: WrapperManager.WRAPPER_CTRL_C_EVENT, 
+     *    WRAPPER_CTRL_CLOSE_EVENT, WRAPPER_CTRL_LOGOFF_EVENT, or 
+     *    WRAPPER_CTRL_SHUTDOWN_EVENT
+     *
+     * @param event The system control signal.
+     */
+    public void controlEvent( int event )
+    {
+        if (WrapperManager.isControlledByNativeWrapper()) {
+            // The Wrapper will take care of this event
+        } else {
+            // We are not being controlled by the Wrapper, so
+            //  handle the event ourselves.
+            if ((event == WrapperManager.WRAPPER_CTRL_C_EVENT) ||
+                (event == WrapperManager.WRAPPER_CTRL_CLOSE_EVENT) ||
+                (event == WrapperManager.WRAPPER_CTRL_SHUTDOWN_EVENT)){
+                WrapperManager.stop(0);
+            }
+        }
+    }
+    
+    /*---------------------------------------------------------------
+     * Main Method
+     *-------------------------------------------------------------*/
+    public static void main( String[] args )
+    {
+        // Start the application.  If the JVM was launched from the native
+        //  Wrapper then the application will wait for the native Wrapper to
+        //  call the application's start method.  Otherwise the start method
+        //  will be called immediately.
+        WrapperManager.start( new Main(), args );
+    }
+}</pre>
+</font></td>
+</tr>
+</table>
+            
+</td>
+</tr>
+</table>
+            
+<a name="N1006F"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>The Main Method</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    The main method should in most cases be extremely simple.  It has
+                    the job of instantiating a class which implements
+                    <tt>WrapperListener</tt> instance and
+                    then passing that instance along with any arguments to the
+                    <tt>start</tt> method of the
+                    <tt>WrapperManager</tt> class.
+                    While it is not a strict rule, in general, the main method should
+                    do nothing else.  All application initialization should be
+                    performed from within the <tt>start</tt>
+                    method.
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">    public static void main( String[] args )
+    {
+        // Start the application.  If the JVM was launched from the native
+        //  Wrapper then the application will wait for the native Wrapper to
+        //  call the application's start method.  Otherwise the start method
+        //  will be called immediately.
+        WrapperManager.start( new Main(), args );
+    }</pre>
+</font></td>
+</tr>
+</table>
+            
+</td>
+</tr>
+</table>
+            
+<a name="N1008F"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>Constructor</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    The constructor should usually be empty as it has to complete within
+                    the scope of the <tt>main</tt> method above.
+                    In general, the rule of doing nothing until the
+                    <tt>start</tt> method has been called should
+                    be followed.
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">    private Main()
+    {
+    }</pre>
+</font></td>
+</tr>
+</table>
+            
+</td>
+</tr>
+</table>
+            
+<a name="N100A7"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>WrapperListener start Method</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    The <tt>start</tt> method is where things
+                    start to happen.  This is called by the
+                    <tt>WrapperManager</tt> after it has
+                    established a connection with the Wrapper process.  Once the Wrapper
+                    has confirmed that the Java process has been successfully launched
+                    and that the <tt>WrapperManager</tt>
+                    class has been loaded, it will request that the user application be
+                    started by calling the
+                    <tt>WrapperListener.start</tt> method.
+                </p>
+                
+<p>
+                    In many ways, the <tt>start</tt> method
+                    can be thought of as replacing an application's
+                    <tt>main</tt> method.  There are some
+                    differences that you will have to keep in mind however.  The
+                    <tt>start</tt> method is called while the
+                    application is in its startup phase and the application will not be
+                    considered to have started until the
+                    <tt>start</tt> method has returned.
+                </p>
+                
+<p>
+                    The Wrapper needs to be able to tell when an application has actually
+                    completed its startup in order to defer the launching of other
+                    processes which depend on the application being controlled by the
+                    Wrapper.  This is currently only an issue with the Windows version,
+                    in cases where another NT Service has the Wrapper on its list of
+                    service dependencies.   Those dependencies state that the Wrapper
+                    must be started before and stopped after the dependent service.
+                </p>
+                
+<p>
+                    In this first example, the <tt>start</tt>
+                    method simply calls the <tt>main</tt> method
+                    of another class.  Remember, this will only work if we know for sure
+                    that the main method will return within a few seconds.
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">    public Integer start( String[] args )
+    {
+        MyApp.main( args );
+        
+        return null;
+    }</pre>
+</font></td>
+</tr>
+</table>
+                
+<p>
+                    This next example instantiates an application's main class and then
+                    tells it to start up.
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">    public Integer start( String[] args )
+    {
+        m_app = new MyApp( args );
+        m_app.start();
+
+        return null;
+    }</pre>
+</font></td>
+</tr>
+</table>
+                
+<p>
+                    The return value of the start method gives the application a chance
+                    to abort the startup process before the application has actually
+                    been officially started.   This can be important where dependent
+                    services are concerned.  If you have such concerns then you must
+                    use this integration method.  Both the
+                    <tt>WrapperSimpleApp</tt> and
+                    <tt>WrapperStartStopApp</tt> helper classes
+                    both call the application's main method in a background thread and
+                    report that the application has successfully started within a few
+                    seconds.
+                </p>
+                
+<p>
+                    A return value of <tt>null</tt> indicates
+                    a successful startup, where as any
+                    <tt>Integer</tt> object is used to indicate
+                    the exit code which the Wrapper should return when it quits.
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">    public Integer start( String[] args )
+    {
+        m_app = new MyApp( args );
+        m_app.start();
+        if ( m_app.isOk() )
+        {
+            return null;
+        }
+        else
+        {
+            System.out.println( "MyApp startup failed." );
+            return new Integer( 1 );
+        }
+    }</pre>
+</font></td>
+</tr>
+</table>
+                
+<p>
+                    As stated above, the Wrapper assumes that the
+                    <tt>start</tt> method returns
+                    after the application has started.  By default, the Wrapper will
+                    wait for 30 seconds for the start method to complete.  This timeout
+                    can be set using the
+                    <tt><a href="prop-startup-timeout.html">wrapper.startup.timeout</a></tt>
+                    property, but it is not always desirable to set that property to a
+                    large value.
+                </p>
+                
+<p>
+                    For applications which take a variable amount of time to start up,
+                    the Wrapper provides a way for the application to report on its
+                    progress.  At various points during the startup phase, user code
+                    can call
+                    <tt>WrapperManager.signalStarting(waitHint)</tt>.
+                    This method tells the Wrapper that startup is going well, but that
+                    additional time is required.  It can be called as many times as needed.
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">    public Integer start( String[] args )
+    {
+        m_app = new MyApp( args );
+        
+        WrapperManager.signalStarting( 60000 );
+        // Do something that takes a while
+        
+        WrapperManager.signalStarting( 60000 );
+        // Do something else that also may take a while
+        
+        return null;
+    }</pre>
+</font></td>
+</tr>
+</table>
+            
+</td>
+</tr>
+</table>
+            
+<a name="N1012A"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>WrapperListener stop Method</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    The stop method is called by the Wrapper whenever the JVM needs
+                    to be shutdown.  It will always be called, whether a user presses
+                    <tt>CTRL-C</tt>, the application is
+                    stopped via the NT service manager or from a script, or user code
+                    calls <tt>System.exit</tt> or
+                    <tt>WrapperManager.stop</tt>.
+                </p>
+                
+<p>
+                    If there is some code in your application to perform a clean shutdown,
+                    it should be called from within this method, rather than having your
+                    shutdown code call <tt>WrapperManager.stop</tt>.
+                    This will guarantee that the shutdown code is always called at the
+                    correct time.   Be aware that existing shutdown hooks will continue
+                    to work as always.
+                </p>
+                
+<p>
+                    The <tt>stop</tt> method is called with
+                    the exit code that the Wrapper is planning on exiting with.  You have
+                    the choice of returning this same exit code, or changing the exit
+                    code to reflect a problem while stopping the application.
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">    public int stop( int exitCode )
+    {
+        m_app.stop();
+        
+        return exitCode;
+    }</pre>
+</font></td>
+</tr>
+</table>
+                
+<p>
+                    As with the <tt>start</tt> method.  There
+                    are times when the act of stopping an application may take longer
+                    than the time available in the default stop timeout.  In such a case,
+                    you have the option of extending the stop timeout using the
+                    <tt><a href="prop-shutdown-timeout.html">wrapper.shutdown.timeout</a></tt>
+                    property.  Rather than changing this property, it is also possible
+                    to inform the Wrapper that more time is needed by calling the
+                    <tt>WrapperManager.signalStopping(waitHint)</tt>
+                    method.
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">    public int stop( int exitCode )
+    {
+        WrapperManager.signalStopping( 60000 );
+        // Do some cleanup that takes a while
+                    
+        WrapperManager.signalStopping( 60000 );
+        // Do some more cleanup that takes a while
+        
+        return exitCode;
+    }</pre>
+</font></td>
+</tr>
+</table>
+            
+</td>
+</tr>
+</table>
+            
+<a name="N1016C"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#aaaacc" class="sectionheader3" width="*"><font color="#eeeeee" size="2"><b>WrapperListener controlEvent Method</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+                
+                
+<p>
+                    The <tt>controlEvent</tt> method is used to
+                    receive control events from the system.  These include
+                    <tt>CTRL-C</tt> on all platforms, as well
+                    as events for when the user logs off or the machine wants to
+                    shutdown, under windows.
+                </p>
+                
+<p>
+                    If most cases, the Wrapper will correctly handle all of these events
+                    and trigger the shutdown process.  However, it is also possible to
+                    run the Java application directly without using the Wrapper.  This
+                    can be done for testing or any number of reasons.  In this case, it
+                    is the responsibility of the Java application to handle its own
+                    life-cycle.
+                </p>
+                
+<p>
+                    The following example will trigger a shutdown of the JVM if the user
+                    presses <tt>CTRL-C</tt>, hits the close box,
+                    logs out, or shuts down the machine.  But only if not controlled by
+                    the Wrapper.
+                </p>
+                
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">    public void controlEvent( int event )
+    {
+        if (WrapperManager.isControlledByNativeWrapper()) {
+            // The Wrapper will take care of this event
+        } else {
+            // We are not being controlled by the Wrapper, so
+            //  handle the event ourselves.
+            if ((event == WrapperManager.WRAPPER_CTRL_C_EVENT) ||
+                (event == WrapperManager.WRAPPER_CTRL_CLOSE_EVENT) ||
+                (event == WrapperManager.WRAPPER_CTRL_SHUTDOWN_EVENT)){
+                WrapperManager.stop(0);
+            }
+        }
+    }</pre>
+</font></td>
+</tr>
+</table>
+            
+</td>
+</tr>
+</table>
+        
+</td>
+</tr>
+</table>
+    
+</td>
+</tr>
+</table>
+
+</td>
+</tr>
+<tr>
+<td align="right" id="author">
+<p>
+<i>by Leif Mortenson</i>
+</p>
+</td>
+</tr>
+</table>
+<script language="JavaScript">//@@BODY_SECTION@@</script></td><td valign="bottom" width="4"><img height="496" width="4" src="images/BorderRight.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td align="right" height="4" colspan="2"><img height="4" width="500" src="images/BorderBottom.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
+<tr>
+<td id="copyright" align="left"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            Copyright &copy;1999-2004 by <a href="http://www.tanukisoftware.com">Tanuki Software</a>.
+                            All Rights Reserved.
+                        </i></font></td><td align="right"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            last modified:
+                            <script language="JavaScript"> document.write(document.lastModified); </script></i></font></td>
+</tr>
+</table>
+</body>
+</html>

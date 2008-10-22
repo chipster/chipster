@@ -1,0 +1,90 @@
+# ANALYSIS Pathways/"SAFE test for KEGG pathway enrichment" (Finds KEGG pathways that are over- 
+# or under-represented in the selected gene list.)
+# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT safeplot.png, safe.tsv
+# PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
+# PARAMETER minimum.category.size INTEGER FROM 1 TO 100 DEFAULT 10 (Minimum size for categories to be evaluated)
+# PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
+# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+
+
+#column<-"group"
+#which.ontology<-"GO"
+#minimum.category.size<-10
+#p.value.threshold<-1
+#image.width<-600
+#image.height<-600
+# PARAMETER which.ontology [KEGG] DEFAULT KEGG (Which ontology to use in the test?)
+which.ontology<-c("KEGG")
+
+# Translating the variables
+w<-image.width
+h<-image.height
+
+# Loads the libraries
+library(safe)
+library(multtest)
+
+# Reads the chiptype from phenodata table
+phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
+if(phenodata$chiptype[1]!="cDNA" | phenodata$chiptype[1]!="Illumina") {
+   # Saves the chiptype into object lib
+   lib<-phenodata$chiptype[1]
+   lib<-as.character(lib)
+}
+
+# Loads the correct annotation library
+library(package=lib, character.only=T)
+
+# Loads the data
+file<-c("normalized.tsv")
+dat<-read.table(file, header=T, sep="\t", row.names=1)
+
+# Separates expression values and flags
+calls<-dat[,grep("flag", names(dat))]
+dat2<-dat[,grep("chip", names(dat))]
+
+# Experimental design
+groups<-phenodata[,grep(column, colnames(phenodata))]
+
+# Creates a C matrix
+if(which.ontology=="KEGG") {
+   env<-paste(lib, "PATH", sep="")
+   alleg<-get(env)
+   alleg<-as.list(alleg)
+   cmatrix<-getCmatrix(alleg, present.genes=rownames(dat), min.size=minimum.category.size)
+}
+
+if(which.ontology=="GO") {
+   env<-paste(lib, "GO2ALLPROBES", sep="")
+   alleg<-get(env)
+   alleg<-as.list(alleg)
+   tcmatrix<-getCmatrix(alleg)
+   tcmatrix<-tcmatrix[,dimnames(tcmatrix)[[2]] %in% rownames(dat2)]
+   cmatrix<-matrix(0, dim(dat2)[[1]], dim(tcmatrix)[[1]])
+   dimnames(cmatrix)<-list(dimnames(dat2)[[1]], dimnames(tcmatrix)[[1]]) 
+   cmatrix[match(dimnames(tcmatrix)[[2]], dimnames(dat2)[[1]]), ] <- t(tcmatrix)
+   cmatrix2<-cmatrix[,apply(cmatrix, 2, sum) >= minimum.category.size]
+}
+
+# Runs the analysis
+result<-safe(dat2, groups, cmatrix, alpha=p.value.threshold)
+
+# Are there any significant results?
+if(length(result@global.pval)==0) {
+   bitmap(file="safeplot.png", width=w/72, height=h/72)
+   plot(1, 1, col=0)
+   text(1, 1, "This is a dummy image.", col=1)
+   text(1, 0.9, "This has been generated, because no significant results were found.", col=1)
+   text(1, 0.8, "These things happen.", col=1)
+   dev.off()
+   write.table(data.frame(Category=names(result@global.pval), Size=rowSums(t(result@C.mat)), P.Value=result@global.pval), file="safe.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+} else {
+   # Plotting the results
+   bitmap(file="safeplot.png", width=w/72, height=h/72)
+   safeplot(result)
+   dev.off()
+   # Writing a result table
+   write.table(data.frame(Category=names(result@global.pval), Size=rowSums(t(result@C.mat)), P.Value=result@global.pval), file="safe.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+}
+

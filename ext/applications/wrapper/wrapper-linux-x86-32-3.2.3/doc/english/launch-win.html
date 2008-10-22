@@ -1,0 +1,836 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Java Service Wrapper - Launching Your Application (Win32)</title>
+<style media="all" type="text/css">
+            @import url("./style/wrapper.css");
+        </style>
+</head>
+<body bgcolor="#eeeeff" marginheight="0" marginwidth="0" leftmargin="0" topmargin="0" alink="#023264" vlink="#023264" link="#525D76" text="#000000">
+<map name="wrapperLogo">
+<area href="http://wrapper.tanukisoftware.org" coords="90,90,88" shape="circle">
+</map>
+<map name="wrapperTitle">
+<area href="http://www.tanukisoftware.com" coords="28,32,176,48" shape="rect">
+</map>
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td valign="top" width="180">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td width="180"><img usemap="#wrapperLogo" border="0" height="180" width="180" src="images/WrapperLogo.png"></td>
+</tr>
+<tr>
+<td>
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true">
+<div id="menu">
+<script language="JavaScript">//@@MENU_TOP@@</script>
+<div>
+<b>Essentials</b>
+<div>
+<a href="introduction.html">Introduction</a>
+</div>
+<div>
+<a href="integrate.html">Integration Methods</a>
+</div>
+<div>
+<a href="properties.html">Configuration Properties</a>
+</div>
+<div>
+<a href="launch.html">Launching Your Application</a>
+</div>
+<div>
+<b>
+                        &gt;&gt;
+                        <a href="donate.html">Show Your Support</a>
+                        &lt;&lt;
+                    </b>
+</div>
+<div>
+<a href="sponsors.html">Sponsors</a>
+</div>
+</div>
+<div>
+<b>Documentation</b>
+<div>
+<a href="jmx.html">JMX Control</a>
+</div>
+<div>
+<a href="security-model.html">Security Model</a>
+</div>
+<div>
+<a href="example.html">Feature Examples</a>
+</div>
+<div>
+<a href="debugging.html">Debugging Your Application</a>
+</div>
+<div>
+<a href="troubleshooting.html">Troubleshooting</a>
+</div>
+<div>
+<a href="faq.html">FAQ</a>
+</div>
+<div>
+<a href="release-notes.html">Release Notes</a>
+</div>
+<div>
+<a href="history.html">Project History</a>
+</div>
+<div>
+<a href="javadocs.html">Javadocs API</a>
+</div>
+<div>
+<a href="buttons.html">Buttons</a>
+</div>
+<div>
+<a href="authors.html">Authors</a>
+</div>
+<div>
+<a href="license.html">License</a>
+</div>
+</div>
+<div>
+<b>Download</b>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=31591">Binaries</a>
+</div>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=33658">Source Code</a>
+</div>
+</div>
+<div>
+<b>Get Involved</b>
+<div>
+<a href="http://sourceforge.net/projects/wrapper/">Source Forge</a>
+</div>
+<div>
+<a href="http://svn.sourceforge.net/viewvc/wrapper/">Subversion Repository</a>
+</div>
+<div>
+<a href="http://sourceforge.net/tracker/?group_id=39428">Issue Tracking</a>
+</div>
+<div>
+<a href="http://sourceforge.net/mail/?group_id=39428">Mailing Lists and Archives</a>
+</div>
+<div>
+<a href="http://sourceforge.net/forum/?group_id=39428">Forums (Old)</a>
+</div>
+</div>
+</div>
+<script language="JavaScript">//@@MENU_BOTTOM@@</script>
+<p>
+<b>Hosted by:</b>
+<br>
+<a href="http://sourceforge.net/projects/wrapper/"><img alt="SourceForge" border="0" height="31" width="88" src="http://sourceforge.net/sflogo.php?group_id=39428"></a>
+<br>
+</p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td><td valign="top" width="*">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td colspan="3"><img height="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td align="center" height="90" colspan="2"><a href="http://wrapper.tanukisoftware.org"><img border="0" height="90" width="728" src="images/OfflineAd728x90.png"></a></td><td rowspan="5"><img width="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td height="49" width="435"><img usemap="#wrapperTitle" border="0" height="49" width="435" src="images/WrapperTitle.png"></td><td valign="bottom" align="right" width="*"><a href="donate.html"><img border="0" height="16" width="300" src="images/DonationRequest.png"></a></td>
+</tr>
+<tr>
+<td height="4" colspan="2"><img height="4" width="500" src="images/BorderTop.png"></td>
+</tr>
+<tr>
+<td colspan="2">
+<table cellspacing="0" cellpadding="0" width="100%" border="0">
+<tr>
+<td valign="top" width="4"><img height="496" width="4" src="images/BorderLeft.png"></td><td bgcolor="#ffffff" valign="top" width="*" colspan="2">
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true" align="center"><font zcolor="#115b77" color="#8888aa" size="5"><b>Launching Your Application (Win32)</b></font></td>
+</tr>
+<tr>
+<td>
+<title>Launching Your Application (Win32)</title>
+    
+    
+<a name="N10009"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>Launching Your Application</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<ul>
+            
+<li>
+                
+<a href="launch.html">All Platforms</a>
+            
+</li>
+        
+</ul>
+    
+</td>
+</tr>
+</table>
+    
+<a name="N10019"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>Launching Your Application (Win32)</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<ul>
+            
+<li>
+                
+<a href="#scripts">Setup The Scripts</a>
+            
+</li>
+            
+<li>
+                
+<a href="#console">Running in a Console</a>
+            
+</li>
+            
+<li>
+                
+<a href="#service">Installing and Running as an NT Service</a>
+            
+</li>
+            
+<li>
+                
+<a href="#exe">Using wrapper.exe Directly</a>
+            
+</li>
+            
+<li>
+                
+<a href="#status">Query Service Status</a>
+            
+</li>
+            
+<li>
+                
+<a href="#command">UNIX-Style Command Based Script</a>
+            
+</li>
+        
+</ul>
+        
+<a name="scripts"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Setup The Scripts</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                Setting up the scripts used to launch the Java Service Wrapper is
+                extremely simple.  Simply copy the following 3 batch files from the
+                Wrapper distribution into the bin directory of your application.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">{WRAPPER_HOME}\src\bin\App.bat.in
+{WRAPPER_HOME}\src\bin\InstallApp-NT.bat.in
+{WRAPPER_HOME}\src\bin\UninstallApp-NT.bat.in</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                Rename the three batch files as follows, replacing "MyApp" throughout
+                this document with the name of your application.
+                Be sure to remove the <tt>.in</tt>
+                extensions so that the files all end in
+                <tt>.bat</tt>.  Depending on how
+                your file explorer is configured, you may not be able to see
+                the extensions.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">C:\MyApp\bin\MyApp.bat
+C:\MyApp\bin\InstallMyApp-NT.bat
+C:\MyApp\bin\UninstallMyApp-NT.bat</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                The three batch files are used to run an application in a console,
+                and to install and remove it as an NT Service.  These scripts
+                should not require any modification.  However, they do assume that
+                they are placed into the same directory as the
+                <tt>wrapper.exe</tt> executable.  They
+                also assume that the <tt>wrapper.conf</tt>
+                file will be located within a <tt>conf</tt>
+                directory one level up,
+                <tt>../conf/wrapper.conf</tt>.  If
+                you wish to locate either of these files elsewhere, then the three
+                batch files will require appropriate modifications.
+            </p>
+        
+</td>
+</tr>
+</table>
+        
+<a name="console"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Running in a Console</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                Running the application in a Command Window (console) can be done by
+                double clicking on the <tt>MyApp.bat</tt>
+                batch file from within the file explorer.  Or by opening a Command
+                Window and then running the script from the command prompt.  The
+                scripts do not require that you be in the
+                <tt>bin</tt> directory.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">C:\MyApp\bin&gt;MyApp.bat
+wrapper  | --&gt; Wrapper Started as Console
+wrapper  | Launching a JVM...
+jvm 1    | Wrapper (Version 3.x.x)
+jvm 1    |</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                The application can be terminated by hitting CTRL-C in the command
+                window.  This will cause the Wrapper to shut down the application
+                cleanly.
+            </p>
+        
+</td>
+</tr>
+</table>
+        
+<a name="service"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Installing and Running as an NT Service</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                Before proceeding, please make sure you have configured all of the
+                <a href="props-nt.html">NT service</a> related
+                properties in the <tt>wrapper.conf</tt>
+                file.  You should also have verified that the application runs
+                correctly in console mode.
+            </p>
+            
+<p>
+                The application can be installed as a service by double clicking on
+                the <tt>InstallMyApp-NT.bat</tt> batch
+                file from within the file explorer.  Or by opening a Command Window
+                and then running the install script from the command prompt.  If the
+                service is installed successfully, the script will terminate
+                immediately.  If there are any problems then an error message
+                describing what went wrong will be displayed.  The script will then
+                wait for the user to press a key before terminating.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">C:\MyApp\bin&gt;InstallMyApp-NT.bat
+wrapper  | My Application installed.</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                Once the service has been installed, it can be started by opening up
+                the Service Control Panel, selecting the service, and then pressing
+                the start button.
+            </p>
+            
+<p>
+                The service can also be started and stopped from within a Command
+                Window by using the <tt>net start MyApp</tt>
+                and <tt>net stop MyApp</tt> commands, or
+                by passing commands to the <a href="#exe">wrapper.exe</a>
+                executable.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">C:\MyApp\bin&gt;net start MyApp
+The My Application service is starting....
+The My Application service was started successfully.</pre>
+</font></td>
+</tr>
+</table>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">C:\MyApp\bin&gt;net stop MyApp
+The My Application service is stopping..
+The My Application service was stopped successfully.</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                If the <a href="prop-ntservice-starttype.html">wrapper.ntservice.starttype</a>
+                property is set to AUTO_START then the service will be started
+                whenever machine is rebooted.
+            </p>
+            
+<p>
+                The service can be uninstalled by running the
+                <tt>UninstallMyApp-NT.bat</tt> batch
+                file.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">C:\MyApp\bin&gt;UninstallMyApp-NT.bat
+wrapper  | Service is running.  Stopping it...
+wrapper  | Waiting to stop...
+wrapper  | My Application stopped.
+wrapper  | My Application removed.</pre>
+</font></td>
+</tr>
+</table>
+        
+</td>
+</tr>
+</table>
+        
+<a name="exe"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Using wrapper.exe Directly</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                As an alternative to using the scripts provided with the Java Service
+                Wrapper.  You may choose to launch the Wrapper directly.  If the
+                <tt>wrapper.exe</tt> executable is launched
+                without any parameters, the following usage output will be displayed.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">C:\MyApp\bin&gt;wrapper.exe
+Wrapper (Version 3.n.n) http://wrapper.tanukisoftware.org
+
+Usage:
+  wrapper.exe &lt;command&gt; &lt;configuration file&gt; [configuration properties] [...]
+  wrapper.exe &lt;configuration file&gt; [configuration properties] [...]
+     (&lt;command&gt; implicitly '-c')
+  wrapper.exe &lt;command&gt;
+     (&lt;configuration file&gt; implicitly 'wrapper.conf')
+  wrapper.exe
+     (&lt;command&gt; implicitly '-c' and &lt;configuration file&gt; 'wrapper.conf')
+
+where &lt;command&gt; can be one of:
+  -c  --console run as a Console application
+  -t  --start   starT an NT service
+  -p  --stop    stoP a running NT service
+  -i  --install Install as an NT service
+  -r  --remove  Remove as an NT service
+  -q  --query   Query the current status of the service
+  -qs --querysilent Silently Query the current status of the service
+  -?  --help    print this help message
+
+&lt;configuration file&gt; is the wrapper.conf to use.  Name must be absolute or relative
+  to the location of wrapper.exe
+
+[configuration properties] are configuration name-value pairs which override values
+  in wrapper.conf.  For example:
+  wrapper.debug=true</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                To run the Java Service Wrapper as a console application, you would
+                specify the <tt>-c</tt> command, followed
+                by the wrapper.conf file.  The location of the
+                <tt>wrapper.conf</tt> file can be an
+                absolute or relative location.  If a relative path is used, the path
+                is always relative to the location of the
+                <tt>wrapper.exe</tt> file, not the current
+                directory.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">C:\MyApp\bin&gt;wrapper.exe -c ..\conf\wrapper.conf</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                To install the application as an NT service, execute:
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">C:\MyApp\bin&gt;wrapper.exe -i ..\conf\wrapper.conf</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                Once installed, the service can be started just like any other NT
+                service.  If the <a href="prop-ntservice-starttype.html">wrapper.ntservice.starttype</a>
+                was set to <tt>AUTO_START</tt> when
+                installed, then the service will be started the next time the
+                machine is rebooted.  It is also possible to start the service
+                manually from the services control panel, or by executing either
+                of the following two commands:
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">C:\MyApp\bin&gt;net start MyApp
+C:\MyApp\bin&gt;wrapper.exe -t ..\conf\wrapper.conf</pre>
+</font></td>
+</tr>
+</table>
+            
+<div class="note">
+<table cellspacing="0" cellpadding="2" width="100%" border="0">
+<tr>
+<td nowrap="nowrap" valign="top">
+<p class="notelabel">
+<font color="#0000a0"><b>NOTE MEG</b></font>
+</p>
+</td><td><img width="10" src="images/spacer.gif"></td><td bgcolor="#bbbbdd" class="notebody"><font color="#222260">
+                
+<p>
+                    The <tt>net start x</tt> and
+                    <tt>net stop x</tt> commands have problems
+                    with services that take a long time to start or stop.  In most
+                    cases they will work, but if a service takes more than a few seconds
+                    to stop, the <tt>net stop x</tt> command
+                    will return that the service was stopped even though it is still in
+                    the process of stopping.  This can lead to problems when a script
+                    must wait until a service has actually stopped before proceeding.
+                    By using the Wrapper to start and stop the service, you will be
+                    guaranteed not to have any such problems.
+                </p>
+                
+<p>
+                    The Wrapper method of starting and stopping the service is also
+                    useful in scripts as it does not require the actual name that
+                    the service is installed as to exist anywhere except in the
+                    <tt>wrapper.conf</tt> file.  This
+                    removes the need for manual editing of multiple files if the
+                    service name is changed.
+                </p>
+            
+</font></td>
+</tr>
+</table>
+</div>
+            
+<p>
+                The service can be stopped using the services control panel, or by
+                executing either of the following commands:
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">C:\MyApp\bin&gt;net stop MyApp
+C:\MyApp\bin&gt;wrapper.exe -p ..\conf\wrapper.conf</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                 To uninstall the application as an NT service, execute:
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">C:\MyApp\bin&gt;wrapper.exe -r ..\conf\wrapper.conf</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                If the service is running at the time that it is uninstalled, the service
+                will be cleanly stopped and then removed.
+            </p>
+        
+</td>
+</tr>
+</table>
+        
+<a name="status"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>Query Service Status</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                The wrapper can be used to query the state of the service manually or from within
+                a batch file.  This can be useful for install scripts which need to know the current
+                state of the service configuration.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">C:\MyApp\bin&gt;wrapper.exe -q ..\conf\wrapper.conf
+wrapper  | The My Application Service is installed.
+wrapper  |   Start Type: Automatic
+wrapper  |   Interactive: Yes
+wrapper  |   Running: No</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                If run with the "-q" command, the Wrapper will display the current status to the
+                console, "-qs" will run silently.  The Wrapper will then exit an exit code that
+                is a combination of the following bits:
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">1  : Service is installed
+2  : Service is running
+4  : Service is interactive
+8  : Start type is automatic
+16 : Start type is manual
+32 : Start type is disabled</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                An exit code of 15, for example, indicates that the service is installed, running,
+                interactive and configured to start automatically when the system is booted.  An
+                exit code of 0 means that the service is not currently installed.
+            </p>
+        
+</td>
+</tr>
+</table>
+        
+<a name="command"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td rowspan="3" width="10"><img height="1" width="10" src="./images/spacer.gif"></td><td bgcolor="#9999bb" class="sectionheader2" width="*"><font color="#eeeeee" size="3"><b>UNIX-Style Command Based Script</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+            
+            
+<p>
+                The Wrapper distribution also includes an alternative batch file
+                which functions very much like the shell script that is provided
+                with UNIX versions of the Wrapper.  This script requires a single
+                command argument, which tells the script what to do.  It has the
+                benefit of being able to do everything from a single batch file.
+                But the drawback of not being able to simply double-click on the
+                batch file from the File Manager.
+            </p>
+            
+<p>
+                To make use of this script, simply copy the following file to your
+                application's bin directory.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">{WRAPPER_HOME}\src\bin\AppCommand.bat.in</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                Rename the script as follows, replacing "MyApp" throughout this
+                document with the name of your application.
+                Be sure to remove the <tt>.in</tt>
+                extensions so that the file ends in
+                <tt>.bat</tt>.  Depending on how
+                your file explorer is configured, you may not be able to see
+                the extension.
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">C:\MyApp\bin\MyApp.bat</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                To familiarize yourself with the script, run it without any
+                arguments.  You will see the following:
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">C:\MyApp\bin&gt;MyApp.bat
+Usage: MyApp.bat { console : start : stop : restart : install : remove }
+Press any key to continue . . .</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                The <tt>console</tt> command runs the
+                Wrapper in the current command window.  The
+                <tt>start</tt> and <tt>stop</tt>
+                commands are used to start and stop the Wrapper when it is installed
+                as an NT service.  The <tt>restart</tt>
+                command will stop and then immediately start the Wrapper.  And the
+                <tt>install</tt> and <tt>remove</tt>
+                commands are used to install and remove the Wrapper as an NT service.
+            </p>
+            
+<p>
+                There are a few differences between this script and the UNIX script.
+                The UNIX script can be used to stop a copy of the Wrapper running in
+                a console.  This is not possible with the Windows script.  In addition,
+                the <tt>dump</tt> command is missing from
+                the Windows version of the script.
+            </p>
+            
+<p>
+                As an example, the Wrapper can be started in a console using the
+                following command:
+            </p>
+            
+<table cellspacing="0" cellpadding="0" width="100%" border="0" class="listing">
+<tr>
+<td bgcolor="#eeeeee" class="listingcell"><font color="#444444">
+<pre class="listingpre">C:\MyApp\bin&gt;MyApp.bat console
+wrapper  | --&gt; Wrapper Started as Console
+wrapper  | Launching a JVM...
+jvm 1    | Wrapper (Version 3.x.x)
+jvm 1    |</pre>
+</font></td>
+</tr>
+</table>
+            
+<p>
+                To execute other commands, simply replace <tt>console</tt>
+                with the command you wish to have executed.
+            </p>
+        
+</td>
+</tr>
+</table>
+    
+</td>
+</tr>
+</table>
+
+</td>
+</tr>
+<tr>
+<td align="right" id="author">
+<p>
+<i>by Leif Mortenson</i>
+</p>
+</td>
+</tr>
+</table>
+<script language="JavaScript">//@@BODY_SECTION@@</script></td><td valign="bottom" width="4"><img height="496" width="4" src="images/BorderRight.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td align="right" height="4" colspan="2"><img height="4" width="500" src="images/BorderBottom.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
+<tr>
+<td id="copyright" align="left"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            Copyright &copy;1999-2004 by <a href="http://www.tanukisoftware.com">Tanuki Software</a>.
+                            All Rights Reserved.
+                        </i></font></td><td align="right"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            last modified:
+                            <script language="JavaScript"> document.write(document.lastModified); </script></i></font></td>
+</tr>
+</table>
+</body>
+</html>

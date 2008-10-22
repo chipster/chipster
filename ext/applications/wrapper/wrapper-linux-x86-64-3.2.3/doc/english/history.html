@@ -1,0 +1,474 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Java Service Wrapper - Java Service Wrapper Project History</title>
+<style media="all" type="text/css">
+            @import url("./style/wrapper.css");
+        </style>
+</head>
+<body bgcolor="#eeeeff" marginheight="0" marginwidth="0" leftmargin="0" topmargin="0" alink="#023264" vlink="#023264" link="#525D76" text="#000000">
+<map name="wrapperLogo">
+<area href="http://wrapper.tanukisoftware.org" coords="90,90,88" shape="circle">
+</map>
+<map name="wrapperTitle">
+<area href="http://www.tanukisoftware.com" coords="28,32,176,48" shape="rect">
+</map>
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td valign="top" width="180">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td width="180"><img usemap="#wrapperLogo" border="0" height="180" width="180" src="images/WrapperLogo.png"></td>
+</tr>
+<tr>
+<td>
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true">
+<div id="menu">
+<script language="JavaScript">//@@MENU_TOP@@</script>
+<div>
+<b>Essentials</b>
+<div>
+<a href="introduction.html">Introduction</a>
+</div>
+<div>
+<a href="integrate.html">Integration Methods</a>
+</div>
+<div>
+<a href="properties.html">Configuration Properties</a>
+</div>
+<div>
+<a href="launch.html">Launching Your Application</a>
+</div>
+<div>
+<b>
+                        &gt;&gt;
+                        <a href="donate.html">Show Your Support</a>
+                        &lt;&lt;
+                    </b>
+</div>
+<div>
+<a href="sponsors.html">Sponsors</a>
+</div>
+</div>
+<div>
+<b>Documentation</b>
+<div>
+<a href="jmx.html">JMX Control</a>
+</div>
+<div>
+<a href="security-model.html">Security Model</a>
+</div>
+<div>
+<a href="example.html">Feature Examples</a>
+</div>
+<div>
+<a href="debugging.html">Debugging Your Application</a>
+</div>
+<div>
+<a href="troubleshooting.html">Troubleshooting</a>
+</div>
+<div>
+<a href="faq.html">FAQ</a>
+</div>
+<div>
+<a href="release-notes.html">Release Notes</a>
+</div>
+<div>
+<a href="history.html">Project History</a>
+</div>
+<div>
+<a href="javadocs.html">Javadocs API</a>
+</div>
+<div>
+<a href="buttons.html">Buttons</a>
+</div>
+<div>
+<a href="authors.html">Authors</a>
+</div>
+<div>
+<a href="license.html">License</a>
+</div>
+</div>
+<div>
+<b>Download</b>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=31591">Binaries</a>
+</div>
+<div>
+<a href="http://sourceforge.net/project/showfiles.php?group_id=39428&package_id=33658">Source Code</a>
+</div>
+</div>
+<div>
+<b>Get Involved</b>
+<div>
+<a href="http://sourceforge.net/projects/wrapper/">Source Forge</a>
+</div>
+<div>
+<a href="http://svn.sourceforge.net/viewvc/wrapper/">Subversion Repository</a>
+</div>
+<div>
+<a href="http://sourceforge.net/tracker/?group_id=39428">Issue Tracking</a>
+</div>
+<div>
+<a href="http://sourceforge.net/mail/?group_id=39428">Mailing Lists and Archives</a>
+</div>
+<div>
+<a href="http://sourceforge.net/forum/?group_id=39428">Forums (Old)</a>
+</div>
+</div>
+</div>
+<script language="JavaScript">//@@MENU_BOTTOM@@</script>
+<p>
+<b>Hosted by:</b>
+<br>
+<a href="http://sourceforge.net/projects/wrapper/"><img alt="SourceForge" border="0" height="31" width="88" src="http://sourceforge.net/sflogo.php?group_id=39428"></a>
+<br>
+</p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td><td valign="top" width="*">
+<table cellpadding="0" cellspacing="0" width="100%" border="0">
+<tr>
+<td colspan="3"><img height="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td align="center" height="90" colspan="2"><a href="http://wrapper.tanukisoftware.org"><img border="0" height="90" width="728" src="images/OfflineAd728x90.png"></a></td><td rowspan="5"><img width="4" src="images/spacer.gif"></td>
+</tr>
+<tr>
+<td height="49" width="435"><img usemap="#wrapperTitle" border="0" height="49" width="435" src="images/WrapperTitle.png"></td><td valign="bottom" align="right" width="*"><a href="donate.html"><img border="0" height="16" width="300" src="images/DonationRequest.png"></a></td>
+</tr>
+<tr>
+<td height="4" colspan="2"><img height="4" width="500" src="images/BorderTop.png"></td>
+</tr>
+<tr>
+<td colspan="2">
+<table cellspacing="0" cellpadding="0" width="100%" border="0">
+<tr>
+<td valign="top" width="4"><img height="496" width="4" src="images/BorderLeft.png"></td><td bgcolor="#ffffff" valign="top" width="*" colspan="2">
+<table cellpadding="4" cellspacing="0" width="100%" border="0">
+<tr>
+<td nowrap="true" align="center"><font zcolor="#115b77" color="#8888aa" size="5"><b>Java Service Wrapper Project History</b></font></td>
+</tr>
+<tr>
+<td>
+<title>Java Service Wrapper Project History</title>
+    
+    
+<p>
+        For those interested, this section will take the reader through a brief
+        history of how the current Java Service Wrapper came to be.
+    </p>
+    
+<a name="N1000C"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>Version 1.x.x</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<p>
+            Early in 1999, after having played with Java for a few months, Leif
+            Mortenson ran into a problem with a service that he had been developing.
+            There was no way to install the Java application as an NT service.
+        </p>
+        
+<p>
+            The solution was to write a replacement for the java executable which
+            had the ability to be installed as a service.  This version of the
+            wrapper worked by loading the jvm.dll and then launching a new JVM
+            instance using JNI.
+        </p>
+    
+</td>
+</tr>
+</table>
+    
+<a name="N10018"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>Version 2.0.x</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<p>
+            In October 1999, Leif joined a startup company called
+            <a href="http://www.silveregg.co.jp">Silver Egg Technology</a>.  Over
+            the next year, Silver Egg developed a recommendation engine, called Aigent,
+            for use in web site personalization.  As Aigent was built in Java, it had
+            the same problem with being installed as an NT service as some of Leif's
+            previous projects.  The Wrapper code was brought in from home and used as
+            part of the Aigent product to provide that functionality.
+        </p>
+        
+<p>
+            In March 2000, Ryan Shaw joined Silver Egg and brought with him a wealth
+            of knowledge of the Linux OS.  All platform specific portions of the Aigent
+            product, including the Wrapper, were ported over to Linux.  At this point
+            was still a very simple tool for running installing a JVM as a service.
+            Its usefulness on Linux was limited to making it easier to run the product
+            on both platforms with common configuration files.
+        </p>
+    
+</td>
+</tr>
+</table>
+    
+<a name="N10028"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>Version 2.1.x</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<p>
+            In November 2000.  Aigent began having serious stability problems.  The
+            product would work perfectly for 2-3 weeks at a time.  All memory and
+            performance were perfectly flat.  Then all of a sudden, the JVM would
+            crash with a Hot Spot Access Violation.  This was very bad as the product
+            was installed at a couple customer sites at the time.  A few weeks were
+            spent trying to track down the problems.  But no headway was made and the
+            customers were getting tired of the procedure of having to restart their
+            server every week to avoid the crash.
+        </p>
+        
+<p>
+            Leif came up with the idea of modifying the Wrapper so that it would run
+            the JVM in a spawned process rather than as a DLL.   This way if the JVM
+            process crashed or hung for any reason, the Wrapper process would still
+            be alive and in a position to do something about it.  This Wrapping and
+            monitoring of the JVM process is where the Java Service Wrapper project
+            got its current name.  This new functionality turned out to be very useful
+            on the Linux platform as well.
+        </p>
+        
+<p>
+            After a few more months, the cause of Aigent crashing turned out to be
+            an ArrayList which was not being synchronized correctly.  The HotSpot
+            compiler had optimized the code in such a way that if two threads accessed
+            the ArrayList in a certain way at the same time, the JVM would crash.  The
+            code was accessed several times per second under load tests, so why it
+            reliably took 2-3 weeks to reproduce is anyone guess.  But the Wrapper had
+            proved its usefulness by getting Aigent through its rough spell
+            guaranteeing that any loss of service due to a JVM crash never lasted
+            more than a few seconds.
+        </p>
+    
+</td>
+</tr>
+</table>
+    
+<a name="N10037"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>Version 2.2.x</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<p>
+            Realizing that the Wrapper would most like be very useful to a lot of other
+            users, Ryan and Leif decided to give something back to the open source
+            community.   A project was registered on SourceForge and the Java Service
+            Wrapper had its first public release in November 2001.
+        </p>
+        
+<p>
+            The first version of the Wrapper was was not very flexible, having been
+            designed for a few specific applications.  Over the first few versions a
+            lot of work was done to create documentation as well as adding several
+            features to make it much more configurable.
+        </p>
+        
+<p>
+            Within a month of the first release, the Wrapper was ported to its first
+            new platform, Solaris.
+        </p>
+        
+<p>
+            Johan Sorlin (Spocke) joined the project in January 2002 after contributing
+            a great new logging architecture which made it possible for the Wrapper to
+            log to the Windows event log and Unix syslog.
+        </p>
+        
+<p>
+            Being a company which provides middle ware software and services to other
+            internet companies, Silver Egg felt the full brunt of the downward spiral
+            in the post bubble internet market, and in April 2002 were forced to do
+            a reorganization.  They have since come back strong, but Ryan and Leif
+            both chose to move on to new jobs while continuing to maintain the Wrapper
+            as a project on SourceForge.
+        </p>
+    
+</td>
+</tr>
+</table>
+    
+<a name="N1004C"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>Version 3.0.0</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<p>
+            In January of 2003, to reflect the fact that continuing development of the
+            Wrapper was being done almost entirely by Leif, the decision was made to
+            branch and then sub-license the Java Service Wrapper code base.  The new
+            <a href="license.html">license</a> was placed under the copyright
+            of Tanuki Software, owned by Leif.  In addition to simply giving credit
+            where credit is due, this move was made to maintain control over the
+            future availability and development of the Wrapper along with the code
+            and ideas added after the branch. 
+        </p>
+        
+<p>
+            Packages were changed from com.silveregg.wrapper to
+            org.tanukisoftware.wrapper.  While the Silver Egg packages were deprecated,
+            they were maintained as wrappers around the classes in the new packages
+            to maintain forward compatibility for the user base.
+        </p>
+        
+<p>
+            Over the last year, several users have offered to donate funds to help
+            support the project.  Of course the members of the team greatly appreciate
+            any such contributions.   So to make it easier, a PayPal account was
+            opened to accept any and all donations.
+        </p>
+        
+<p>
+            Version 3.0.0 also adds AIX and HP-UX to the list of supported platforms.
+            Thanks to Ashish Gawarikar and William Lee for the patches.
+        </p>
+    
+</td>
+</tr>
+</table>
+    
+<a name="N10062"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>Version 3.0.3</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<p>
+            Version 3.0.3 welcomed Mac OSX to the list of supported platforms.  Thanks
+            go out to Andy Barnett for the necessary patches and testing.
+        </p>
+    
+</td>
+</tr>
+</table>
+    
+<a name="N1006B"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>Version 3.0.4</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<p>
+            Version 3.0.4 welcomed DEC OSF1 and FreeBSD to the list of supported platforms.
+            Thanks to Andreas Wendt and Alphonse Bendt for the necessary patches and
+            testing.
+        </p>
+    
+</td>
+</tr>
+</table>
+    
+<a name="N10074"></a>
+<table cellpadding="2" cellspacing="0" width="100%" border="0">
+<tr>
+<td bgcolor="#8888aa" class="sectionheader1" width="*"><font color="#eeeeee" size="4"><b>Version 3.0.5</b></font></td>
+</tr>
+<tr>
+<td><img height="4" width="1" src="./images/spacer.gif"></td>
+</tr>
+<tr>
+<td>
+        
+        
+<p>
+            Version 3.0.5 welcomed SGI Irix to the list of supported platforms.
+            Thanks to Andreas Wendt for the necessary patches and testing.
+        </p>
+    
+</td>
+</tr>
+</table>
+
+</td>
+</tr>
+<tr>
+<td align="right" id="author">
+<p>
+<i>by Leif Mortenson</i>
+</p>
+</td>
+</tr>
+</table>
+<script language="JavaScript">//@@BODY_SECTION@@</script></td><td valign="bottom" width="4"><img height="496" width="4" src="images/BorderRight.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td align="right" height="4" colspan="2"><img height="4" width="500" src="images/BorderBottom.png"></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table cellpadding="2" cellspacing="0" border="0" width="100%">
+<tr>
+<td id="copyright" align="left"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            Copyright &copy;1999-2004 by <a href="http://www.tanukisoftware.com">Tanuki Software</a>.
+                            All Rights Reserved.
+                        </i></font></td><td align="right"><font color="#525D76" size="-1" face="arial,helvetica,sanserif"><i>
+                            last modified:
+                            <script language="JavaScript"> document.write(document.lastModified); </script></i></font></td>
+</tr>
+</table>
+</body>
+</html>
