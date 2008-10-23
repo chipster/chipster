@@ -472,10 +472,10 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	
 	public void sendJobLogMessage(AnalysisJob job) {
 		JobLogMessage jobLogMessage;
-		String hostname;
+		String hostname = "";
 		
 		try {
-			hostname = InetAddress.getLocalHost().getHostName();
+			hostname = InetAddress.getLocalHost().getCanonicalHostName();
 		} catch (UnknownHostException e1) {
 			logger.warn("Could not get local hostname.");
 			hostname = "";
