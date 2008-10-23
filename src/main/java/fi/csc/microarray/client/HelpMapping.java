@@ -86,10 +86,11 @@ public class HelpMapping {
 		mappings.put("Utilities/Generate phenodata", "chipster-manual/generate-phenodata.html");
 		mappings.put("Utilities/Import from GEO", "chipster-manual/import-from-geo.html");
 		mappings.put("Utilities/Merge tables", "chipster-manual/merge-tables.html");
-		mappings.put("Utitilities/Search by correlation", "chipster-manual/search-correlation.html");
-		mappings.put("Utitilities/Search by gene name", "chipster-manual/search-queryword.html");
-		mappings.put("Utitilities/Merge tables", "chipster-manual/merge-tables.html");
-		mappings.put("Utitilites/Sort samples", "chipster-manual/sort-samples.html");
+		mappings.put("Utilities/Search by correlation", "chipster-manual/search-correlation.html");
+		mappings.put("Utilities/Search by gene name", "chipster-manual/search-queryword.html");
+		mappings.put("Utilities/Merge tables", "chipster-manual/merge-tables.html");
+		mappings.put("Utilities/Sort samples", "chipster-manual/sort-samples.html");
+		mappings.put("Utilities/Delete columns", "chipster-manual/delete-columns.html");
 	}
 
 	public static String mapToHelppage(OperationDefinition definition) {
