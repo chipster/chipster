@@ -183,5 +183,49 @@
 		</entry>		
 
 	</configuration-module>
+	
+	<configuration-module moduleId="manager">
+		<entry entryKey="jdbcDriver">
+			<value>org.h2.Driver</value>
+		</entry>
+	
+		<entry entryKey="databaseUrl">
+			<value>jdbc:h2:nami-work-files/database/chipster-manager</value>
+		</entry>
+
+		<entry entryKey="databaseUsername">
+			<value>chipster</value>
+		</entry>
+
+		<entry entryKey="databasePassword">
+			<value></value>
+		</entry>
+
+		<entry entryKey="startWebConsole">
+			<value>true</value>
+		</entry>
+
+		<entry entryKey="webConsolePort">
+			<value>8082</value>
+		</entry>
+		
+		<entry entryKey="backupDir">
+			<value>nami-work-files/database/backups</value>
+		</entry>
+		
+		<entry entryKey="backupTime">
+			<value>00:05</value>
+		</entry>
+		
+		<!-- hours -->
+		<entry entryKey="backupInterval">
+			<value>1</value>
+		</entry>
+			
+
+	</configuration-module>
+	
+	
+	
 
 </configuration>
