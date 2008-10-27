@@ -2,17 +2,20 @@ Chipster Software License
 -------------------------
 
 
-Chipster Software is Copyright (C) 2004-2007 CSC - Scientific Computing Ltd.
+Chipster Software is Copyright (C) CSC - IT Center for Science Ltd.
 
 Chipster Software is distributed under the terms of GNU General Public
 License. Chipster Software refers to everything contained in the
-Chipster distribution package, except for the external components located
-at "lib", "lib-src" and "wrapper" directories. All the external components are 
-distributed under their corresponding licenses.
+Chipster source repository, except for the external components located
+at "ext" directory. All the external components are distributed under their 
+corresponding licenses. Also the components in the directory "src/main/applications" 
+are modified versions of the corresponding components in the directory 
+"ext/applications", and the modified components in the directory 
+"src/main/applications" are distributed under the licenses of the original components.
 
 The runtime versions of the external components distributed together with
-Chipster Software are located at the "lib" subdirectory and their
-source codes (where applicable) are located at the "lib-src" subdirectory.
+Chipster Software are located at the "ext/lib" directory and their
+source codes (where applicable) are located at the "ext/lib-src" directory.
 See inside the component packages (jar-files) for their license conditions.
 
 Chipster is free software: you can redistribute it and/or modify
