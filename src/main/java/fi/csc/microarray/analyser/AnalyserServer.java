@@ -339,14 +339,13 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			
 			// return the operations descriptions
 			if ("describe".equals(jobMessage.getAnalysisId())) {
-				logger.info("Sending all descriptions.");
+				logger.info("sending all descriptions");
 				sendReplyMessage(jobMessage, createDescriptionsMessage(jobMessage));
 				return; 
 			} 
 			
 			// return source code for an operation
 			else if ("describe-operation".equals(jobMessage.getAnalysisId())) {
-				logger.info("Sending source code for " + jobMessage.getAnalysisId());
 				sendReplyMessage(jobMessage, createSourceCodeMessage(jobMessage));
 				return; 
 			}
@@ -670,9 +669,14 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 				"", requestMessage.getReplyTo());
 		try {
 			String name = new String(requestMessage.getParameters().get(0));
+			logger.info("sending source code for " + name);
 			String sourceCode = descriptionRepository.getDescription(name).getSourceCode();
 			
-			resultMessage.addPayload(SOURCECODE_OUTPUT_NAME, new ByteArrayInputStream(sourceCode.getBytes()));
+			byte[] bytes = sourceCode.getBytes();
+			if (bytes.length == 0) {
+				bytes = "<empty source code>".getBytes(); // zero length bytes content would hang upload
+			}
+			resultMessage.addPayload(SOURCECODE_OUTPUT_NAME, new ByteArrayInputStream(bytes));
 		} catch (Exception e) {
 			logger.error("Could not send analysis source code", e);
 			resultMessage.setState(JobState.ERROR);

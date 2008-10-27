@@ -1,6 +1,7 @@
 package fi.csc.microarray.util;
 
 import org.apache.log4j.Logger;
+import org.mortbay.util.IO;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,15 +36,15 @@ public class UrlTransferUtil {
         	connection.setChunkedStreamingMode(CHUNK_SIZE);
         }
         
-        OutputStream os = connection.getOutputStream();
-
-        byte[] buf = new byte[2048];
-        for (int c = fis.read(buf); c != -1; c = fis.read(buf)) {
-        	os.write(buf, 0, c);
-        	os.flush();
+        OutputStream os = null;
+        try {
+        	os = connection.getOutputStream();
+        	IO.copy(fis, os);
+        	
+        } finally {
+        	IOUtils.closeIfPossible(os);
+        	IOUtils.closeIfPossible(fis);
         }
-        os.close();
-        fis.close();
         
         if (!isSuccessfulCode(connection.getResponseCode())) {
         	throw new IOException("PUT was not successful: "
