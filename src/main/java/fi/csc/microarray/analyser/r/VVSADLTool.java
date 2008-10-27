@@ -30,10 +30,14 @@ public class VVSADLTool {
 		BufferedReader in = null;
 		try {
 			in = new BufferedReader(new InputStreamReader(rScriptSource));
-			for (String line = in.readLine(); line != null && line.startsWith(COMMENT); line = in.readLine()) {
-				parsedScript.VVSADL += line.substring(COMMENT.length());
-			}
+			boolean inHeaderCommentBlock = true;
 			for (String line = in.readLine(); line != null; line = in.readLine()) {
+				if (!line.startsWith(COMMENT)) {
+					inHeaderCommentBlock = false;
+				}
+				if (inHeaderCommentBlock) {
+					parsedScript.VVSADL += line.substring(COMMENT.length());
+				}
 				parsedScript.rSource += line + "\n";
 			}
 		} catch (IOException e) {
