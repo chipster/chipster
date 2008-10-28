@@ -22,13 +22,17 @@
 	<property name="build" location="bin/ant" />	
 	<property name="dist" location="dist" />
 
-    <!-- import fatjar -->
+    <!-- import FatJAR -->
     <property name="fjepPath" value="${lib-ext}/fatjar.jar"/>
     <taskdef name="fatjar.build" classname="net.sf.fjep.anttask.FJBuildTask" classpath="${fjepPath}" loaderref="lib.path.loader"/>
 	<typedef name="fatjar.manifest" classname="net.sf.fjep.anttask.FJManifestType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
     <typedef name="fatjar.exclude" classname="net.sf.fjep.anttask.FJExcludeType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
     <typedef name="fatjar.jarsource" classname="net.sf.fjep.anttask.FJJarSourceType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
     <typedef name="fatjar.filesource" classname="net.sf.fjep.anttask.FJFileSourceType" classpath="${fjepPath}" loaderref="lib.path.loader"/>
+
+    
+    <!-- import TestNG -->
+	<taskdef resource="testngtasks" classpath="${lib}/testng-5.7-jdk15.jar"/>
 
 	<!-- version numbering -->
 	<property name="release-version" value="1.2.1" />
@@ -299,6 +303,15 @@
 		<echo>REMEMBER TO TURN DEBUG LOGGING OFF!</echo>
 	</target>
 
-
+	<!--
+    <path id="testngpath">
+      <pathelement location="${test-src}"/>
+    </path>
+	<target name="test" description="Run Chipster unit tests (using TestNG)">
+		<testng sourcedir="${test-src}" classpathref="testngpath">       
+		   <xmlfileset dir="${test-src}" includes="chipster-unit-tests.xml"/>
+		</testng>
+	</target>
+	-->
 </project>
 
