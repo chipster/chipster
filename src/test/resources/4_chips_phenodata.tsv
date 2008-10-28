@@ -1,0 +1,5 @@
+sample	original_name	group	training	chiptype
+microarray1.cel	GSM11814.cel	1		hgu133a
+microarray2.cel	GSM11823.cel	2		hgu133a
+microarray3.cel	GSM11830.cel	1		hgu133a
+microarray4.cel	GSM11805.cel	2		hgu133a

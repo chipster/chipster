@@ -1,0 +1,18 @@
+<!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd">
+
+<suite name="Chipster unit test suite">
+
+  <test name="Unit test">
+  	<groups>
+		<run>
+			<include name="unit" />
+		</run>
+	</groups>
+  
+  
+  <packages>
+  	<package name="fi.csc.microarray.*"></package>
+  </packages>
+
+  </test>
+</suite>
