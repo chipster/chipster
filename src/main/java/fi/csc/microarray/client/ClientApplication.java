@@ -56,6 +56,7 @@ import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
+import fi.csc.microarray.client.visualisation.methods.PhenodataEditor;
 import fi.csc.microarray.client.workflow.WorkflowManager;
 import fi.csc.microarray.databeans.ContentType;
 import fi.csc.microarray.databeans.DataBean;
@@ -63,7 +64,6 @@ import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.biobeans.BioBean;
 import fi.csc.microarray.databeans.features.table.EditableTable;
 import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 import fi.csc.microarray.databeans.fs.FSDataManager;
@@ -493,16 +493,16 @@ public abstract class ClientApplication implements Node, WizardContext {
 				}
 				
 				// if original names are not already contained in the phenodata 
-				if (!phenodata.queryFeatures("/column/" + BioBean.PHENODATA_NAME_COLUMN).exists()) {
+				if (!phenodata.queryFeatures("/column/" + PhenodataEditor.PHENODATA_NAME_COLUMN).exists()) {
 					// augment phenodata with original dataset names (using parameter bindings)
 					HashSet<String> insertedNames = new HashSet<String>();
 					TableBeanEditor tableEditor = new TableBeanEditor(phenodata);
 					EditableTable editableTable = tableEditor.getEditable();
 					LinkedList<String> newColumn = new LinkedList<String>();
 					newColumn.addAll(Arrays.asList(Strings.repeatToArray("", editableTable.getRowCount())));
-					editableTable.addColumn(BioBean.PHENODATA_NAME_COLUMN, 1, newColumn); // add after sample column 
+					editableTable.addColumn(PhenodataEditor.PHENODATA_NAME_COLUMN, 1, newColumn); // add after sample column 
 					for (int ri = 0; ri < editableTable.getRowCount(); ri++) {
-						String sample = editableTable.getValue(BioBean.PHENODATA_SAMPLE_COLUMN, ri);
+						String sample = editableTable.getValue(PhenodataEditor.PHENODATA_SAMPLE_COLUMN, ri);
 						boolean correctRowFound = false;
 						String originalName = null;
 						for (DataBinding binding : oper.getBindings()) {
@@ -526,7 +526,7 @@ public abstract class ClientApplication implements Node, WizardContext {
 							originalName = originalName + separator + i;
 						}
 						
-						editableTable.setValue(BioBean.PHENODATA_NAME_COLUMN, ri, originalName);
+						editableTable.setValue(PhenodataEditor.PHENODATA_NAME_COLUMN, ri, originalName);
 						insertedNames.add(originalName);
 
 					}
@@ -534,16 +534,16 @@ public abstract class ClientApplication implements Node, WizardContext {
 				}
 				
 				// if chip descriptions (visualisation view names) aren't there already 
-				if (!phenodata.queryFeatures("/column/" + BioBean.PHENODATA_DESCRIPTION_COLUMN).exists()) {
+				if (!phenodata.queryFeatures("/column/" + PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN).exists()) {
 					// copy original dataset names
 					TableBeanEditor tableEditor = new TableBeanEditor(phenodata);
 					EditableTable editableTable = tableEditor.getEditable();
 					LinkedList<String> newColumn = new LinkedList<String>();
 					newColumn.addAll(Arrays.asList(Strings.repeatToArray("", editableTable.getRowCount())));
-					editableTable.addColumn(BioBean.PHENODATA_DESCRIPTION_COLUMN, newColumn); 
+					editableTable.addColumn(PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN, newColumn); 
 					for (int ri = 0; ri < editableTable.getRowCount(); ri++) {
-						String sample = editableTable.getValue(BioBean.PHENODATA_NAME_COLUMN, ri);										
-						editableTable.setValue(BioBean.PHENODATA_DESCRIPTION_COLUMN, ri, sample);
+						String sample = editableTable.getValue(PhenodataEditor.PHENODATA_NAME_COLUMN, ri);										
+						editableTable.setValue(PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN, ri, sample);
 					}
 					tableEditor.write();
 				}				

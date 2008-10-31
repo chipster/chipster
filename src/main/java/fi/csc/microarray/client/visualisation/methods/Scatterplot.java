@@ -158,11 +158,13 @@ public class Scatterplot extends ChipVisualisation implements ActionListener, Mo
 		private Rectangle2D bounds;
 		private String name;
 		private Integer index;
+		private Integer series;
 
-		public DataItem2D(Rectangle2D r, String n, int index) {
-			bounds = r;
-			name = n;
+		public DataItem2D(Rectangle2D bounds, String name, int index, int series) {
+			this.bounds = bounds;
+			this.name = name;
 			this.index = index;
+			this.series = series;
 		}
 
 		public Rectangle2D getBounds() {
@@ -177,14 +179,24 @@ public class Scatterplot extends ChipVisualisation implements ActionListener, Mo
 			return index;
 		}
 
+		public int getSeries() {
+			return series;
+		}
+
+
 		public void setBounds(Rectangle rect) {
 			bounds = rect;
 		}
 
 		@Override
 		public boolean equals(Object other) {
-			return other instanceof DataItem2D && ((DataItem2D) other).getIndex() == this.getIndex();
-
+			if (other instanceof DataItem2D) {
+				DataItem2D otherData = (DataItem2D)other;
+				return otherData.getIndex() == this.getIndex() && otherData.getSeries() == this.getSeries();
+				
+			} else {			
+				return false;
+			}
 		}
 
 		// The hashSet uses also hashCode to check equality of the objects and
@@ -240,8 +252,8 @@ public class Scatterplot extends ChipVisualisation implements ActionListener, Mo
 		Iterable<Float> yValues = data.queryFeatures(yVar.getExpression()).asFloats();
 
 		int i = 0;
-		for (String name : data.queryFeatures("/column/ ").asStrings()) {
-			allItems.add(new DataItem2D(null, name, i++));
+		for (String name : data.queryFeatures("/identifier").asStrings()) {
+			allItems.add(new DataItem2D(null, name, i++, 0));
 		}
 
 		PlotDescription description = new PlotDescription(data.getName(), xVar.getName(), yVar.getName());
@@ -335,9 +347,7 @@ public class Scatterplot extends ChipVisualisation implements ActionListener, Mo
 		Rectangle2D r = null;
 		for (DataItem2D item : allItems) {
 			r = item.getBounds();
-			// logger.debug("item: " + r + "contains point: " + e.getPoint() +
-			// r.contains(e.getPoint()));
-			if (r.contains(e.getPoint()) && !selectedItems.contains(item) && item != null) {
+			if (r != null && item != null && r.contains(e.getPoint()) && !selectedItems.contains(item)) {
 				selectedItems.add(item);
 			}
 		}
@@ -378,8 +388,9 @@ public class Scatterplot extends ChipVisualisation implements ActionListener, Mo
 			Rectangle2D selectedArea = new Rectangle(x, y, w, h);
 
 			for (DataItem2D item : allItems) {
-				r = item.getBounds();
-				if (selectedArea.intersects(r)) {
+				r = item.getBounds();		
+
+				if (r != null && selectedArea.intersects(r)) {
 					selectedItems.add(item);
 				}
 			}

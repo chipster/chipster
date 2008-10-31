@@ -3,6 +3,7 @@ package fi.csc.microarray.module.chipster;
 import fi.csc.microarray.client.VisualConstants;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.features.bio.EmbeddedBinaryProvider;
+import fi.csc.microarray.databeans.features.bio.IdentifierProvider;
 import fi.csc.microarray.databeans.features.bio.NormalisedExpressionProvider;
 import fi.csc.microarray.databeans.features.bio.PhenodataProvider;
 import fi.csc.microarray.databeans.features.stat.HierarchicalClusterProvider;
@@ -23,6 +24,7 @@ public class MicroarrayModule implements Module {
 	public void plugFeatures(DataManager manager) {
 		manager.plugFeatureFactory("/normalised-expression", new NormalisedExpressionProvider());
 		manager.plugFeatureFactory("/phenodata", new PhenodataProvider());
+		manager.plugFeatureFactory("/identifier", new IdentifierProvider());
 		manager.plugFeatureFactory("/embedded-binary-content", new EmbeddedBinaryProvider());
 		manager.plugFeatureFactory("/clusters/som", new SomClusterProvider());
 		manager.plugFeatureFactory("/clusters/hierarchical", new HierarchicalClusterProvider());

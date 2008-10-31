@@ -103,7 +103,6 @@ import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.Traversal;
-import fi.csc.microarray.databeans.biobeans.BioBean;
 import fi.csc.microarray.databeans.fs.FSSnapshottingSession;
 import fi.csc.microarray.description.VVSADLParser.ParseException;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
@@ -1132,7 +1131,7 @@ public class SwingClientApplication extends ClientApplication {
 			List<DataBean> beans = getSelectionManager().getSelectedDataBeans();
 
 			if (beans.size() == 1) {
-				return new BioBean(beans.get(0)).getDefaultVisualisation();
+				return VisualisationMethod.getDefaultVisualisationFor(beans.get(0));
 			} else if (beans.size() > 1)
 				for (VisualisationMethod method : VisualisationMethod.orderedDefaultCandidates()) {
 					if (method == VisualisationMethod.NONE || !method.getHeadlessVisualiser().isForMultipleDatas()) {

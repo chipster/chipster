@@ -11,7 +11,6 @@ import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.biobeans.BioBean;
 import fi.csc.microarray.proto.MyPlot;
 import fi.csc.microarray.util.FloatArrayList;
 
@@ -92,7 +91,7 @@ public ArrayLayout(VisualisationFrame frame) {
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
 		boolean isTabular = VisualisationMethod.SPREADSHEET.isApplicableTo(bean);
-		return isTabular && new BioBean(bean).getColorCount() == 1;
+		return isTabular && bean.queryFeatures("/column/MEAN").exists();
 	}
 
 }

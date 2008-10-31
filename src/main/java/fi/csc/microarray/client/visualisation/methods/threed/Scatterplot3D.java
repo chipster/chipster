@@ -366,7 +366,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 				variables.get(0) != null && variables.get(1) != null &&
 				variables.get(2) != null && variables.get(3) != null) {
 
-			Iterable<String> identifier = data.queryFeatures("/column/ ").asStrings();
+			Iterable<String> identifier = data.queryFeatures("/identifier").asStrings();
 			Iterable<Float> xValues = data.queryFeatures(variables.get(0).getExpression()).asFloats();
 			Iterable<Float> yValues = data.queryFeatures(variables.get(1).getExpression()).asFloats();
 			Iterable<Float> zValues = data.queryFeatures(variables.get(2).getExpression()).asFloats();

@@ -14,26 +14,26 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.OverlayLayout;
 
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
+import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.databeans.DataBean;
 
 public class Volcanoplot extends Scatterplot implements ActionListener, MouseListener, MouseMotionListener, PropertyChangeListener {
 
-	private static final String Y_AXIS_EXPRESSION = "neg(log(/column/p.*))"; // -log(p),
-																				// where
-																				// p is
-																				// the
-																				// first
-																				// available
-																				// p.*
-																				// column
-	private static final String X_AXIS_EXPRESSION = "/column/FC"; // fold
-																	// change
+	/**
+	 * Analytical expression is -log(p), where p is the first available p.* column.
+	 */
+	private static final String Y_AXIS_EXPRESSION = "neg(log(/column/p.*))";
+	/**
+	 * Fold change.
+	 */
+	private static final String X_AXIS_EXPRESSION = "/column/FC"; 
 
 	public Volcanoplot(VisualisationFrame frame) {
 		super(frame);
@@ -52,18 +52,31 @@ public class Volcanoplot extends Scatterplot implements ActionListener, MouseLis
 
 		allItems.clear();
 
-		Iterable<Float> xValues = data.queryFeatures(X_AXIS_EXPRESSION).asFloats();
-		Iterable<Float> yValues = data.queryFeatures(Y_AXIS_EXPRESSION).asFloats();
+		Iterator<Float> xValues = data.queryFeatures(X_AXIS_EXPRESSION).asFloats().iterator();
+		Iterator<Float> yValues = data.queryFeatures(Y_AXIS_EXPRESSION).asFloats().iterator();
 
-		int i = 0;
-		for (String name : data.queryFeatures("/column/ ").asStrings()) {
-			allItems.add(new DataItem2D(null, name, i++));
+		XYSeries redSeries = new XYSeries("", false); // autosort=false, autosort would mess up selection
+		XYSeries blackSeries = new XYSeries("", false); // autosort=false, autosort would mess up selection
+		for (String name : data.queryFeatures("/identifier").asStrings()) {
+			float x = xValues.next();
+			float y = yValues.next();
+			boolean overThresholds = Math.abs(x) >= 2f && y >= 1f;
+			int series;
+			int index;
+			if (overThresholds) {
+				series = 1;
+				index = blackSeries.getItemCount();
+				blackSeries.add(new XYDataItem(x, y));				
+			} else {
+				series = 0;
+				index = redSeries.getItemCount();
+				redSeries.add(new XYDataItem(x, y));
+			}
+			allItems.add(new DataItem2D(null, name, index, series));			
 		}
 
 		PlotDescription description = new PlotDescription(data.getName(), "fold change", "-log(p)");
 
-		XYSeries redSeries = filterXYSeries(xValues, yValues, 3f, 1f, true);
-		XYSeries blackSeries = filterXYSeries(xValues, yValues, 2f, 1f, false);
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		dataset.addSeries(redSeries);
 		dataset.addSeries(blackSeries);
@@ -97,27 +110,9 @@ public class Volcanoplot extends Scatterplot implements ActionListener, MouseLis
 		return overlayPanel;
 	}
 
-	protected XYSeries filterXYSeries(Iterable<Float> xValues, Iterable<Float> yValues, float xThreshold, float yThreshold, boolean reversed) {
-
-		XYSeries series = new XYSeries("", false); // autosort=false, autosort would mess up selection
-		Iterator<Float> xIterator = xValues.iterator();
-
-		for (Float y : yValues) {
-			Float x = xIterator.next();
-			boolean overThresholds = Math.abs(x) >= xThreshold && y >= yThreshold;
-			if (overThresholds ^ reversed) {
-				series.add(x, y);
-			}
-		}
-		return series;
-	}
-
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		return false;
-		/*
 		boolean isTabular = VisualisationMethod.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
 		return isTabular && hasRows(bean) && bean.queryFeatures(Y_AXIS_EXPRESSION).exists() && bean.queryFeatures(X_AXIS_EXPRESSION).exists();
-		*/
 	}
 }

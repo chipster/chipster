@@ -49,7 +49,7 @@ public class RowSelectionManager {
 
 		List<String> names = new ArrayList<String>(selectedRows.length);
 		int i = 0;
-		for (String name : data.queryFeatures("/column/ ").asStrings()) {
+		for (String name : data.queryFeatures("/identifier").asStrings()) {
 			if (Arrays.binarySearch(selectedRows, i) >= 0) {
 				names.add(name);
 			}

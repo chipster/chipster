@@ -1,5 +1,6 @@
 package fi.csc.microarray.client.visualisation;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -177,5 +178,14 @@ public enum VisualisationMethod {
 
 	public static Iterable<VisualisationMethod> orderedDefaultCandidates() {
 		return orderedDefaultCandidates;
+	}
+	
+	public static VisualisationMethod getDefaultVisualisationFor(DataBean dataBean) throws IOException, MicroarrayException {
+		for (VisualisationMethod method : VisualisationMethod.orderedDefaultCandidates()) {
+			if (method != VisualisationMethod.NONE && method.isApplicableTo(dataBean)) {
+				return method;
+			}
+		}
+		return null;
 	}
 }

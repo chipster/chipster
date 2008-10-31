@@ -1,10 +1,10 @@
 package fi.csc.microarray.databeans.features.bio;
 
 import fi.csc.microarray.MicroarrayException;
+import fi.csc.microarray.client.visualisation.methods.PhenodataEditor;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.LinkUtils;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.biobeans.BioBean;
 import fi.csc.microarray.databeans.features.BoolFalseFeature;
 import fi.csc.microarray.databeans.features.BoolTrueFeature;
 import fi.csc.microarray.databeans.features.ConstantStringFeature;
@@ -14,17 +14,6 @@ import fi.csc.microarray.databeans.features.QueryResult;
 import fi.csc.microarray.databeans.features.Table;
 
 /**
- * <p>
- * Tool for retrieving phenodata related information. Supports following paths:
- * <ul>
- * <li>/ : a valid feature is returned if this bean is identified as phenodata</li>
- * <li>/is-complete : a valid feature is returned if this phenodata is complete</li>
- * <li>/sample_to_name/X : if phenodata contains real samples names it is
- * returned for X, otherwise X is returned</li>
- * <li>/linked : linked phenodata bean is located and following path is
- * executed against it</li>
- * </ul>
- * </p>
  * 
  * @author Aleksi Kallio
  * 
@@ -103,17 +92,17 @@ public class PhenodataProvider extends FeatureProviderBase {
 				table = bean.queryFeatures("/column/*").asTable();
 
 				if (table != null) {
-					if (table.hasColumn(BioBean.PHENODATA_DESCRIPTION_COLUMN)) {
+					if (table.hasColumn(PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN)) {
 						while (table.nextRow()) {
-							if (sampleName.equals(table.getStringValue(BioBean.PHENODATA_SAMPLE_COLUMN))) {
-								originalName = table.getStringValue(BioBean.PHENODATA_DESCRIPTION_COLUMN);
+							if (sampleName.equals(table.getStringValue(PhenodataEditor.PHENODATA_SAMPLE_COLUMN))) {
+								originalName = table.getStringValue(PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN);
 								break;
 							}
 						}
-					} else if (table.hasColumn(BioBean.PHENODATA_NAME_COLUMN)) {
+					} else if (table.hasColumn(PhenodataEditor.PHENODATA_NAME_COLUMN)) {
 						while (table.nextRow()) {
-							if (sampleName.equals(table.getStringValue(BioBean.PHENODATA_SAMPLE_COLUMN))) {
-								originalName = table.getStringValue(BioBean.PHENODATA_NAME_COLUMN);
+							if (sampleName.equals(table.getStringValue(PhenodataEditor.PHENODATA_SAMPLE_COLUMN))) {
+								originalName = table.getStringValue(PhenodataEditor.PHENODATA_NAME_COLUMN);
 								break;
 							}
 						}

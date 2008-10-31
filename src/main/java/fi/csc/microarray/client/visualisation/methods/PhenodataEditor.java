@@ -47,7 +47,6 @@ import fi.csc.microarray.databeans.ContentChangedEvent;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataChangeEvent;
 import fi.csc.microarray.databeans.DataChangeListener;
-import fi.csc.microarray.databeans.biobeans.BioBean;
 import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 
 
@@ -59,6 +58,20 @@ import fi.csc.microarray.databeans.features.table.TableBeanEditor;
  */
 public class PhenodataEditor extends Visualisation implements DataChangeListener {
 	
+	public static final String PHENODATA_SAMPLE_COLUMN = "sample";
+	public static final String PHENODATA_NAME_COLUMN = "original_name";
+	public static final String PHENODATA_DESCRIPTION_COLUMN = "description";
+	private static final String PHENODATA_CHIPTYPE_COLUMN = "chiptype";
+	private static final String PHENODATA_GROUP_COLUMN = "group";
+	
+	public static boolean isEditablePhenodataColumn(String columnName) {
+		return !PHENODATA_SAMPLE_COLUMN.equals(columnName) && !PHENODATA_NAME_COLUMN.equals(columnName)  && !PHENODATA_CHIPTYPE_COLUMN.equals(columnName);
+	}
+	
+	public static boolean isGroupPhenodataColumn(String columnName) {
+		return PHENODATA_GROUP_COLUMN.equals(columnName);
+	}
+
 	public PhenodataEditor(VisualisationFrame frame) {
 		super(frame);
 	}
@@ -140,7 +153,7 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 		    	cell.setBackground(this.getSelectionBackground());
 		    	cell.setForeground(this.getSelectionForeground());
 		    } else {
-		    	if(!BioBean.isEditablePhenodataColumn(getColumnName(column))){
+		    	if(!isEditablePhenodataColumn(getColumnName(column))){
 		    		cell.setBackground(this.getUneditableBackground());
 		    	} else {
 		    		cell.setBackground(this.getBackground());
@@ -165,7 +178,7 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 		Iterator<String> iter = tableEditor.getEditable().getColumnNames().iterator();
 		while (iter.hasNext()) {
 			String columnName = iter.next();
-			if (BioBean.isEditablePhenodataColumn(columnName)) {
+			if (isEditablePhenodataColumn(columnName)) {
 				columnsCombo.addItem(columnName);
 			}
 		}
@@ -306,7 +319,7 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 		}
 
 		public boolean isCellEditable(int rowIndex, int columnIndex) {
-			return BioBean.isEditablePhenodataColumn(tableEditor.getEditable().getColumnName(columnIndex));
+			return isEditablePhenodataColumn(tableEditor.getEditable().getColumnName(columnIndex));
 		}
 
 		public Object getValueAt(int rowIndex, int columnIndex) {
@@ -446,7 +459,7 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 		for (Object columnObject : table.getColumns()){
 			if (columnObject instanceof TableColumn) {
 				TableColumn tableColumn = (TableColumn) columnObject;
-				if(BioBean.isGroupPhenodataColumn(tableColumn.getHeaderValue().toString())){
+				if(isGroupPhenodataColumn(tableColumn.getHeaderValue().toString())){
 					ColumnHeaderRenderer header = ColumnHeaderRenderer.createColumnHeaderRenderer();
 					if(!data.queryFeatures("/phenodata/is-complete").exists()){
 						header.setIcon(VisualConstants.PHENODATA_ICON);

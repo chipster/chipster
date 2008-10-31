@@ -23,7 +23,7 @@ public class SomClusterProvider extends FeatureProviderBase {
 	public Feature createFeature(String namePostfix, DataBean bean) {
 		// check that data has everything we need
 		if (!bean.queryFeatures("/column/colours").exists() || !bean.queryFeatures("/column/distance2first").exists() ||
-				!bean.queryFeatures("/column/cluster").exists() || !bean.queryFeatures("/column/ ").exists() ||
+				!bean.queryFeatures("/column/cluster").exists() || !bean.queryFeatures("/identifier").exists() ||
 				!bean.queryFeatures("/column/griddim").exists()) {
 			return new NonexistingFeature(bean, this); // SOM feature is not supported
 		}
@@ -60,7 +60,7 @@ public class SomClusterProvider extends FeatureProviderBase {
 			
 			// place genes into clusters
 			Iterable<Float> clusters = bean.queryFeatures("/column/cluster").asFloats();
-			Iterator<String> genes = bean.queryFeatures("/column/ ").asStrings().iterator();
+			Iterator<String> genes = bean.queryFeatures("/identifier").asStrings().iterator();
 
 			for (Float clusterNumber : clusters) {
 				int number = clusterNumber.intValue();

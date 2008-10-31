@@ -2,7 +2,6 @@ package fi.csc.microarray.module.chipster;
 
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.biobeans.BioBean;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.description.VVSADLSyntax.InputType;
 
@@ -16,7 +15,7 @@ public class ChipsterInputTypes {
 		}
 
 		public boolean isTypeOf(DataBean dataBean) {
-			return new BioBean(dataBean).getColorCount() == 2;
+			return dataBean.queryFeatures("/column/sample").exists();
 		}
 
 		public boolean isMetadata() {
@@ -51,7 +50,7 @@ public class ChipsterInputTypes {
 		public boolean isTypeOf(DataBean dataBean) {
 			try {
 				Table chips = dataBean.queryFeatures("/column/chip.*").asTable();
-				return chips != null && chips.getColumnNames().length > 0;
+				return chips != null && chips.getColumnCount() > 0;
 			} catch (MicroarrayException e) {
 				throw new RuntimeException(e);
 			}
@@ -70,7 +69,7 @@ public class ChipsterInputTypes {
 		}
 
 		public boolean isTypeOf(DataBean dataBean) {
-			return dataBean.queryFeatures("/column/ ").exists();
+			return dataBean.queryFeatures("/identifier").exists();
 		}
 
 		public boolean isMetadata() {

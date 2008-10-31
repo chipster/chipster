@@ -131,7 +131,7 @@ public class AffyWizardJob {
 
 		// check result
 		DataBean testResult = testBlocker.getResults().get(0);
-		boolean isEmpty = !testResult.queryFeatures("/column/ ").exists();
+		boolean isEmpty = !testResult.queryFeatures("/identifier").exists();
 
 		// show empty spreadsheet if that is all we got
 		if (isEmpty) {
