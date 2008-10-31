@@ -57,6 +57,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, MouseLis
 
 		XYSeries redSeries = new XYSeries("", false); // autosort=false, autosort would mess up selection
 		XYSeries blackSeries = new XYSeries("", false); // autosort=false, autosort would mess up selection
+		int row = 0;
 		for (String name : data.queryFeatures("/identifier").asStrings()) {
 			float x = xValues.next();
 			float y = yValues.next();
@@ -72,7 +73,8 @@ public class Volcanoplot extends Scatterplot implements ActionListener, MouseLis
 				index = redSeries.getItemCount();
 				redSeries.add(new XYDataItem(x, y));
 			}
-			allItems.add(new DataItem2D(null, name, index, series));			
+			allItems.add(new DataItem2D(null, name, row, index, series));
+			row++;
 		}
 
 		PlotDescription description = new PlotDescription(data.getName(), "fold change", "-log(p)");

@@ -154,7 +154,7 @@ public class AnnotateListPanel extends JPanel {
 		int i = 0;
 		for (Scatterplot.DataItem2D row : content) {
 			selectedListModel.addElement(annotationProvider.getAnnotatedRowname(row.getName()));
-			indexes[i++] = row.getIndex();
+			indexes[i++] = row.getRowIndex();
 		}
 		if (dispatchEvent) {
 			application.getSelectionManager().getRowSelectionManager(data).setSelected(indexes, source);

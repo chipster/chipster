@@ -157,13 +157,15 @@ public class Scatterplot extends ChipVisualisation implements ActionListener, Mo
 	public class DataItem2D {
 		private Rectangle2D bounds;
 		private String name;
-		private Integer index;
 		private Integer series;
+		private int seriesIndex;
+		private int rowIndex;
 
-		public DataItem2D(Rectangle2D bounds, String name, int index, int series) {
+		public DataItem2D(Rectangle2D bounds, String name, int rowIndex, int seriesIndex, int series) {
 			this.bounds = bounds;
 			this.name = name;
-			this.index = index;
+			this.rowIndex = rowIndex;
+			this.seriesIndex = seriesIndex; 
 			this.series = series;
 		}
 
@@ -175,8 +177,8 @@ public class Scatterplot extends ChipVisualisation implements ActionListener, Mo
 			return name;
 		}
 
-		public int getIndex() {
-			return index;
+		public int getRowIndex() {
+			return rowIndex;
 		}
 
 		public int getSeries() {
@@ -192,7 +194,7 @@ public class Scatterplot extends ChipVisualisation implements ActionListener, Mo
 		public boolean equals(Object other) {
 			if (other instanceof DataItem2D) {
 				DataItem2D otherData = (DataItem2D)other;
-				return otherData.getIndex() == this.getIndex() && otherData.getSeries() == this.getSeries();
+				return otherData.getRowIndex() == this.getRowIndex();
 				
 			} else {			
 				return false;
@@ -204,7 +206,11 @@ public class Scatterplot extends ChipVisualisation implements ActionListener, Mo
 		// duplicates
 		@Override
 		public int hashCode() {
-			return index.hashCode();
+			return new Integer(rowIndex).hashCode();
+		}
+
+		public int getSeriesIndex() {
+			return seriesIndex;
 		}
 	}
 
@@ -253,7 +259,8 @@ public class Scatterplot extends ChipVisualisation implements ActionListener, Mo
 
 		int i = 0;
 		for (String name : data.queryFeatures("/identifier").asStrings()) {
-			allItems.add(new DataItem2D(null, name, i++, 0));
+			allItems.add(new DataItem2D(null, name, i, i, 0));
+			i++;
 		}
 
 		PlotDescription description = new PlotDescription(data.getName(), xVar.getName(), yVar.getName());

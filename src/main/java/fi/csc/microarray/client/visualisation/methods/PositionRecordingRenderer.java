@@ -45,7 +45,7 @@ public class PositionRecordingRenderer extends StandardXYItemRenderer {
 	@Override
 	public void drawItem(Graphics2D g2, XYItemRendererState state, Rectangle2D dataArea, PlotRenderingInfo info, XYPlot plot, ValueAxis domainAxis, ValueAxis rangeAxis, XYDataset dataset, int series, int item, CrosshairState crosshairState, int pass) {
 
-		// this method body has been ripped from JFreeChart, and modified to
+		// this method body has been adopted from JFreeChart, and modified to
 		// work in a derived class. it does not support every feature the
 		// original did
 
@@ -64,7 +64,6 @@ public class PositionRecordingRenderer extends StandardXYItemRenderer {
 		g2.setPaint(paint);
 		g2.setStroke(seriesStroke);
 
-		// get the data point...
 		double x1 = dataset.getXValue(series, item);
 		double y1 = dataset.getYValue(series, item);
 		if (Double.isNaN(x1) || Double.isNaN(y1)) {
@@ -76,18 +75,14 @@ public class PositionRecordingRenderer extends StandardXYItemRenderer {
 		double transX1 = domainAxis.valueToJava2D(x1, dataArea, xAxisLocation);
 		double transY1 = rangeAxis.valueToJava2D(y1, dataArea, yAxisLocation);
 
-		// logger.debug("x1: " + x1 + "y1: " + y1 + "transX1: " + transX1 +
-		// "transY1: " + transY1);
-
 		if (getPlotLines()) {
-			if (true/* this.drawSeriesLineAsPath */) {
+			if (/* true */this.getDrawSeriesLineAsPath()) {
 				State s = (State) state;
-				if (true/* s.getSeriesIndex() != series */) {
+				if (/* true */s.getSeriesIndex() != series) {
 					// we are starting a new series path
-					/*
-					 * s.seriesPath().reset(); s.lastPointGood = false;
-					 * s.setSeriesIndex(series);
-					 */
+					// s.seriesPath().reset();
+					s.setLastPointGood(false);
+					s.setSeriesIndex(series);
 				}
 
 				// update path to reflect latest point
@@ -109,7 +104,7 @@ public class PositionRecordingRenderer extends StandardXYItemRenderer {
 					s.setLastPointGood(false);
 				}
 				if (item == dataset.getItemCount(series) - 1) {
-					if (true/* s.seriesIndex == series */) {
+					if (/* true */s.getSeriesIndex() == series) {
 						// draw path
 						g2.setStroke(getSeriesStroke(series));
 						g2.setPaint(getSeriesPaint(series));
@@ -181,11 +176,10 @@ public class PositionRecordingRenderer extends StandardXYItemRenderer {
 					g2.draw(shape);
 				}
 
+				DataItem2D dataItem = getItem(item, series);
 				boolean selected = false;
 				for (DataItem2D selectedItem : selectedItems) {
-//					System.out.println("drawing " + item + " " + series);
-//					System.out.println("comparing to currently selected " + selectedItem.getName() + " " + selectedItem.getIndex() + " " + selectedItem.getSeries());
-					if (selectedItem.getIndex() == item && selectedItem.getSeries() == series) {
+					if (selectedItem.equals(dataItem)) {
 						selected = true;
 						break;
 					}
@@ -199,17 +193,10 @@ public class PositionRecordingRenderer extends StandardXYItemRenderer {
 
 				// store names and coordinates for point selection
 				Rectangle rect = new Rectangle();
-				rect.setSize(shape.getBounds().getSize());// TODO This should
-				// be scaled too
+				rect.setSize(shape.getBounds().getSize());// TODO This should be scaled too
 				rect.setLocation(chartPanel.translateJava2DToScreen(shape.getBounds().getLocation()));
 
-				allItems.get(item).setBounds(rect);
-
-				// logger.debug(chartPanel.translateJava2DToScreen(shape.getBounds().getLocation()));
-				// logger.debug("drew item " + itemNames.get(item) + " to " +
-				// shape.getBounds().x + "," + shape.getBounds().y + ", with h="
-				// + shape.getBounds().height + ", w=" +
-				// shape.getBounds().width);
+				dataItem.setBounds(rect);
 			}
 			entityArea = shape;
 
@@ -237,10 +224,8 @@ public class PositionRecordingRenderer extends StandardXYItemRenderer {
 		}
 
 		/*
-		 * int domainAxisIndex = plot.getDomainAxisIndex(domainAxis); int
-		 * rangeAxisIndex = plot.getRangeAxisIndex(rangeAxis);
-		 * updateCrosshairValues(crosshairState, x1, y1, domainAxisIndex,
-		 * rangeAxisIndex, transX1, transY1, orientation);
+		 * int domainAxisIndex = plot.getDomainAxisIndex(domainAxis); int rangeAxisIndex = plot.getRangeAxisIndex(rangeAxis);
+		 * updateCrosshairValues(crosshairState, x1, y1, domainAxisIndex, rangeAxisIndex, transX1, transY1, orientation);
 		 */
 
 		// add an entity for the item...
@@ -249,4 +234,12 @@ public class PositionRecordingRenderer extends StandardXYItemRenderer {
 		}
 	}
 
+	private DataItem2D getItem(int seriesIndex, int series) {
+		for (DataItem2D item : allItems) {
+			if (item.getSeriesIndex() == seriesIndex && item.getSeries() == series) {
+				return item;
+			}			
+		}
+		throw new IllegalArgumentException("illegal plot item: seriesIndex " + seriesIndex + ", series " + series);
+	}
 }
