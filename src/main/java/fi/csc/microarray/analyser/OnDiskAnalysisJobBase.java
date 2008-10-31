@@ -18,6 +18,7 @@ import org.mortbay.util.IO;
 import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.util.Files;
+import fi.csc.microarray.util.IOUtils;
 
 public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 
@@ -66,21 +67,26 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 			// jetty is sometimes a bit slow to write the payload to disk
 			int maxWaitTime = 5120;
 			int waitTime = 10;
-			HttpURLConnection connection = (HttpURLConnection) inputURL.openConnection();
-			int responseCode = connection.getResponseCode();
-			while (responseCode != HttpURLConnection.HTTP_OK && waitTime <= maxWaitTime) {
-				logger.info("Waiting for payload to become available.");
-				waitTime = waitTime*2;
-				try {
-					Thread.sleep(waitTime);
-				} catch (InterruptedException e) {
-					logger.error("Interrupted while waiting for payload to become available.");
+			HttpURLConnection connection = null;
+			try {
+				connection  = (HttpURLConnection) inputURL.openConnection();
+				int responseCode = connection.getResponseCode();
+				while (responseCode != HttpURLConnection.HTTP_OK && waitTime <= maxWaitTime) {
+					logger.info("Waiting for payload to become available.");
+					waitTime = waitTime*2;
+					try {
+						Thread.sleep(waitTime);
+					} catch (InterruptedException e) {
+						logger.error("Interrupted while waiting for payload to become available.");
+					}
+					responseCode = connection.getResponseCode();
 				}
-				responseCode = connection.getResponseCode();
-			}
-			
-			if (responseCode != HttpURLConnection.HTTP_OK) {
-				throw new RetryException();
+
+				if (responseCode != HttpURLConnection.HTTP_OK) {
+					throw new RetryException();
+				}
+			} finally {
+				IOUtils.disconnectIfPossible(connection);
 			}
 
 				

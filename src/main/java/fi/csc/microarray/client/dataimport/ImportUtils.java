@@ -29,6 +29,7 @@ import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
+import fi.csc.microarray.util.IOUtils;
 
 /**
  * Util class for the import dataset choosers (JFileChooser, URL import,
@@ -167,13 +168,14 @@ public class ImportUtils {
 
 		public void taskToDo() {
 
+			HttpURLConnection connection = null;
 			try {
-				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+				connection = (HttpURLConnection) url.openConnection();
 				info.setMinimunValue(0);
-				info.setMaximumValue(conn.getContentLength());
+				info.setMaximumValue(connection.getContentLength());
 
 				BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile));
-				InputStream in = conn.getInputStream();
+				InputStream in = connection.getInputStream();
 				byte[] buffer = new byte[1024];
 				int numRead;
 				int numWritten = 0;
@@ -195,6 +197,7 @@ public class ImportUtils {
 				} else {
 					JOptionPane.showMessageDialog(((SwingClientApplication)application).getMainFrame(), "Length of the loaded file is zero, import aborted", "File size too small", JOptionPane.ERROR_MESSAGE);
 				}
+				
 			} catch (IOException e) {
 				if (e instanceof FileNotFoundException) {
 					JOptionPane.showMessageDialog(((SwingClientApplication) application).getMainFrame(), "File from the typed url can't be found", "File not found", JOptionPane.ERROR_MESSAGE);
@@ -203,9 +206,14 @@ public class ImportUtils {
 				} else {
 					application.reportException(e);
 				}
+				
 			} catch (IllegalArgumentException e) {
 				JOptionPane.showMessageDialog(((SwingClientApplication) application).getMainFrame(), "Malformed URL, correct URL form is http://www.host.com/file.ext", "Malformed URL", JOptionPane.ERROR_MESSAGE);
+				
+			} finally {
+				IOUtils.disconnectIfPossible(connection);
 			}
+			
 		}
 	}
 

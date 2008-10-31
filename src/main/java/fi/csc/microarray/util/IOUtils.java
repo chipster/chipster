@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.HttpURLConnection;
 
 /**
  * 
@@ -67,5 +68,11 @@ public class IOUtils {
 				// ignore
 			}
 		}
+	}
+
+	public static void disconnectIfPossible(HttpURLConnection connection) {
+		if (connection != null) {
+				connection.disconnect();
+		}		
 	}
 }

@@ -26,6 +26,7 @@ import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.frontend.FileBrokerConfig;
+import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.UrlTransferUtil;
 
 
@@ -270,22 +271,21 @@ public class PayloadMessage extends ParameterMessage {
 	 */
 	public boolean checkCachedPayload(URL cachedURL, long contentLength) {
 		
+		HttpURLConnection connection = null;
 		try {
 
-			HttpURLConnection connection = (HttpURLConnection) cachedURL.openConnection();
-
+			connection = (HttpURLConnection) cachedURL.openConnection();
+			
 			// check file existence
 			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
 				return false;
 			} 
 
-			// check file size
-//			if (connection.getContentLength() != contentLength) {
-//				return false;
-//			}
 		} catch (IOException ioe) {
-			ioe.printStackTrace(); // FIXME remove
 			return false;
+			
+		} finally {
+			IOUtils.disconnectIfPossible(connection);
 		}
 		return true;
 	}
