@@ -81,8 +81,8 @@
             <fatjar.jarsource file="${lib}/commons-daemon.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/swingx-0.9.1.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/bsh-2.0b4.jar" relpath=""/>
-            <fatjar.jarsource file="${lib}/jetty-6.1.1.jar" relpath=""/>
-	        <fatjar.jarsource file="${lib}/jetty-util-6.1.1.jar" relpath=""/>
+            <fatjar.jarsource file="${lib}/jetty-6.1.12.rc4.jar" relpath=""/>
+	        <fatjar.jarsource file="${lib}/jetty-util-6.1.12.rc4.jar" relpath=""/>
             <fatjar.jarsource file="${lib}/jcommon-1.0.9.jar" relpath=""/>   
             <fatjar.jarsource file="${lib}/jfreechart-1.0.5.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/looks-2.1.4.jar" relpath=""/>

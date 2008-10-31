@@ -95,6 +95,11 @@
         <entry entryKey="port">
             <value>8080</value>
         </entry>
+
+		<!-- should Jetty web server run in debug mode (debug log to logs/wrapper.log) -->
+		<entry entryKey="jettyDebug">
+			<value>false</value>
+		</entry>
         
 	</configuration-module>
 

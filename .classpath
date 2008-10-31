@@ -18,8 +18,6 @@
 	<classpathentry kind="lib" path="ext/lib/geronimo-servlet_2.5_spec-1.1.jar"/>
 	<classpathentry kind="lib" path="ext/lib/h2.jar"/>
 	<classpathentry kind="lib" path="ext/lib/jcommon-1.0.9.jar"/>
-	<classpathentry kind="lib" path="ext/lib/jetty-6.1.1.jar"/>
-	<classpathentry kind="lib" path="ext/lib/jetty-util-6.1.1.jar"/>
 	<classpathentry kind="lib" path="ext/lib/jfreechart-1.0.5.jar"/>
 	<classpathentry kind="lib" path="ext/lib/jgraph.jar"/>
 	<classpathentry kind="lib" path="ext/lib/log4j-1.2.9.jar"/>
@@ -29,5 +27,7 @@
 	<classpathentry kind="lib" path="ext/lib/swingx-0.9.1.jar"/>
 	<classpathentry kind="lib" path="ext/lib/testng-5.7-jdk15.jar"/>
 	<classpathentry kind="lib" path="ext/lib/viski-1.0.0.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-6.1.12.rc4.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jetty-util-6.1.12.rc4.jar"/>
 	<classpathentry kind="output" path="bin/eclipse"/>
 </classpath>
