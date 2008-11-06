@@ -1,9 +1,16 @@
 package fi.csc.microarray.manager;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.jms.JMSException;
 
@@ -34,6 +41,25 @@ import fi.csc.microarray.util.config.ConfigurationLoader.OldConfigurationFormatE
 public class Manager extends MonitoredNodeBase implements MessagingListener {
 	
 
+	private class BackupTimerTask extends TimerTask {
+
+		private String baseBackupDirName;
+		
+		public BackupTimerTask(String baseBackupDirName) {
+			this.baseBackupDirName = baseBackupDirName;
+		}
+		
+		
+		@Override
+		public void run() {
+			logger.info("Creating database backup");
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd_mm:ss.SSS");
+			String fileName = baseBackupDirName + File.separator + "chipster-manager-db-backup-" + df.format(new Date());
+			String sql = "SCRIPT TO '" + fileName + ".zip' COMPRESSION ZIP";
+			jdbcTemplate.execute(sql);
+		}
+		
+	}
 	
 	
 	/**
@@ -44,12 +70,6 @@ public class Manager extends MonitoredNodeBase implements MessagingListener {
     private JdbcTemplate jdbcTemplate;
     private SimpleJdbcInsert insertJobTemplate;
 
-	private static final String DATABASE = "database/chipster-manager";
-	private static final boolean START_WEB_CONSOLE = true;
-	private static final String DB_USERNAME = "chipster";
-	private static final String DB_PASSWORD = "";
-    
-    
 	// TODO index, unique keys
 	private static final String CREATE_JOBS_TABLE = 
 		"CREATE TABLE IF NOT EXISTS jobs (" +
@@ -88,17 +108,24 @@ public class Manager extends MonitoredNodeBase implements MessagingListener {
 	 */
 	public Manager() throws MicroarrayException, JMSException, IOException, OldConfigurationFormatException, ClassNotFoundException, SQLException {
 		
-		MicroarrayConfiguration.loadConfiguration();
 		logger = Logger.getLogger(Manager.class);
 		logger.info("Starting manager...");
 		
-		
 		// initialize database connection
+		String dbDriver = MicroarrayConfiguration.getValue("manager", "jdbcDriver");
+		String dbUrl = MicroarrayConfiguration.getValue("manager", "databaseUrl");
+		boolean startWebConsole = "true".equals(MicroarrayConfiguration.getValue("manager", "startWebConsole"));
+		String dbUsername = MicroarrayConfiguration.getValue("manager", "databaseUsername");
+	    String dbPassword = MicroarrayConfiguration.getValue("manager", "databasePassword");
+	    int webConsolePort = Integer.parseInt(MicroarrayConfiguration.getValue("manager", "webConsolePort"));
+
+		
+		
 		DriverManagerDataSource dataSource = new DriverManagerDataSource();
-		dataSource.setDriverClassName("org.h2.Driver");
-		dataSource.setUrl("jdbc:h2:" + DATABASE);
-		dataSource.setUsername(DB_USERNAME);
-		dataSource.setPassword(DB_PASSWORD);
+		dataSource.setDriverClassName(dbDriver);
+		dataSource.setUrl(dbUrl);
+		dataSource.setUsername(dbUsername);
+		dataSource.setPassword(dbPassword);
 		
         this.jdbcTemplate = new JdbcTemplate(dataSource);
 	    this.insertJobTemplate = new SimpleJdbcInsert(dataSource).withTableName("jobs");
@@ -106,6 +133,28 @@ public class Manager extends MonitoredNodeBase implements MessagingListener {
 	    // create tables if they do not exist
 	    jdbcTemplate.execute(CREATE_JOBS_TABLE);
 		
+	    // schedule backups
+	    String backupDirName = MicroarrayConfiguration.getValue("manager", "backupDir");
+	    int backupInterval = Integer.parseInt(MicroarrayConfiguration.getValue("manager", "backupInterval"));
+	    String backupTimeString =  MicroarrayConfiguration.getValue("manager", "backupTime");
+	    int startHour = Integer.parseInt(backupTimeString.split(":")[0]);
+	    int startMinute = Integer.parseInt(backupTimeString.split(":")[1]);
+	    Calendar firstBackupTime = Calendar.getInstance();
+	    if (firstBackupTime.get(Calendar.HOUR_OF_DAY) > startHour || 
+	    		(firstBackupTime.get(Calendar.HOUR_OF_DAY) == startHour && 
+	    				firstBackupTime.get(Calendar.MINUTE) >= startMinute)) {
+	    	firstBackupTime.add(Calendar.DATE, 1);
+	    }
+    	firstBackupTime.set(Calendar.HOUR_OF_DAY, startHour);
+    	firstBackupTime.set(Calendar.MINUTE, startMinute);
+    	firstBackupTime.set(Calendar.SECOND, 0);
+    	firstBackupTime.set(Calendar.MILLISECOND, 0);
+    	logger.info("Next database backup is scheduled at " + firstBackupTime.getTime().toString());
+    	
+	    Timer timer = new Timer("chipster-manager-backup", true);
+    	timer.scheduleAtFixedRate(new BackupTimerTask(backupDirName), firstBackupTime.getTime(), backupInterval*60*60*1000);
+	    
+	    
 		// initialize communications
 		this.endpoint = new MessagingEndpoint(this);
 		
@@ -114,8 +163,8 @@ public class Manager extends MonitoredNodeBase implements MessagingListener {
 
 		// start web console
 		Server server;
-		if (START_WEB_CONSOLE) {
-			server = Server.createWebServer(new String[] {"-webAllowOthers"});
+		if (startWebConsole) {
+			server = Server.createWebServer(new String[] {"-webAllowOthers",  "-webPort " + webConsolePort});
 			server.start();
 		}
 		
