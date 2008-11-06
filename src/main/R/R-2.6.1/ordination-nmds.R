@@ -1,6 +1,6 @@
 # ANALYSIS Statistics/NMDS (Non-metric multidimensional scaling. Creates a 2-dimensional representation of 
 # the arrays using Euclidean distances. Can be used for quality control.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT nmds1.png, nmds1.png
+# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT nmds1.png, nmds2.png
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 

@@ -30,6 +30,8 @@ dat2<-dat[,grep("chip", names(dat))]
 # Scaling the data to the same mean
 if(scale.to.same.mean=="yes") {
    scaled.dat<-genescale(dat2)
+} else {
+   scaled.dat<-dat2
 }
 
 # Filter

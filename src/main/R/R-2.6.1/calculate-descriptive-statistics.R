@@ -1,6 +1,6 @@
 # ANALYSIS Utilities/"Calculate descriptive statistics" (Calculates basic descriptive statistics for all genes.
 # These include parametric and non-parametric location and spread descriptives.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT descr-stats.tsv
+# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT descr-stats.tsv, descriptives.tsv
 # PARAMETER calculate.descriptives.for [genes, chips] DEFAULT genes (Descriptive statistics are calculated for...)
 
 

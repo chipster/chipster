@@ -37,25 +37,27 @@ if(ncol(dat2)==1) {
 # Scaling the data to the same mean
 if(scale.to.same.mean=="yes") {
    scaled.dat<-genescale(dat2)
+} else {
+   scaled.dat<-dat2
 }
 
 # Testing
 if(meth=="t-test") {
    library(genefilter)
-   n<-ncol(dat2)
+   n<-ncol(scaled.dat2)
    d<-sqrt(n)
-   s<-rowSds(dat2)/d
-   m<-rowSums(dat2)/n
+   s<-rowSds(scaled.dat2)/d
+   m<-rowSums(scaled.dat2)/n
    t<-(m-mu)/s
    p.raw<-(1-pt(abs(t), df=n-1))*2
 }
 
 if(meth=="Wilcoxon") {
    p<-c()
-   len<-length(dat2[,1])
+   len<-length(scaled.dat2[,1])
    for(i in 1:len) {
       # Calculates the Wilcoxon test statistic for every row (gene)
-      p<-c(p, wilcox.test(x=as.vector(as.numeric(dat2[i,])), mu=mu, alternative=c("two.sided"))[[3]])
+      p<-c(p, wilcox.test(x=as.vector(as.numeric(scaled.dat2[i,])), mu=mu, alternative=c("two.sided"))[[3]])
    }
    p.raw<-p
 }

@@ -3,7 +3,7 @@
 # INPUT CDNA chip[...].tsv OUTPUT normalized.tsv, phenodata.tsv
 # PARAMETER normalize.genes [none, scale, quantile, vsn] DEFAULT quantile (Between arrays normalization method)
 # PARAMETER beadstudio.version [1, 2, 3] DEFAULT 1 (BeadStudio version number) 
-# PARAMETER chiptype [empty, Human-6v1, HumanRef-8v1, Human-6v2, HumanRef-8v2, Human-6v3, HumanRef-8v3, Mouse-6v1.0a, MouseRef-8v1.0a, Mouse-6v1.1, MouseRef-8v1.1, RatRef-12] DEFAULT empty (chiptype)
+# PARAMETER chiptype [empty, Human-6v1, HumanRef-8v1, Human-6v2, HumanRef-8v2, Human-6v3, HumanRef-8v3, Mouse-6v1.0a, MouseRef-8v1.0a, Mouse-6v1.1, MouseRef-8v1.1, Mouse-6v2, MouseRef-8v2, RatRef-12] DEFAULT empty (chiptype)
 # PARAMETER id.type [TargetID, ProbeID] DEFAULT TargetID (Which annotations to use) 
 
 
@@ -100,6 +100,9 @@ if(id.type=="TargetID") {
    if(chiptype=="Mouse-6v1.1" | chiptype=="MouseRef-8v1.1") {
       chiptype<-c("illuminaMousev1p1")
    }
+   if(chiptype=="Mouse-6v2" | chiptype=="MouseRef-8v2") {
+      chiptype<-c("illuminaMouseV2TargetID")
+   }
    if(chiptype=="RatRef-12") {
       chiptype<-c("illuminaRatv1")
    }
@@ -123,6 +126,9 @@ if(id.type=="ProbeID") {
    }
    if(chiptype=="Mouse-6v1.1" | chiptype=="MouseRef-8v1.1") {
       chiptype<-c("illuminaMouseBCv1p1")
+   }
+   if(chiptype=="Mouse-6v2" | chiptype=="MouseRef-8v2") {
+      chiptype<-c("illuminaMouseV2")
    }
    if(chiptype=="RatRef-12") {
       chiptype<-c("illuminaRatBCv1")
