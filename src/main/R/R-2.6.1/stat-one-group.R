@@ -36,9 +36,9 @@ if(ncol(dat2)==1) {
 
 # Scaling the data to the same mean
 if(scale.to.same.mean=="yes") {
-   scaled.dat<-genescale(dat2)
+   scaled.dat2<-genescale(dat2)
 } else {
-   scaled.dat<-dat2
+   scaled.dat2<-dat2
 }
 
 # Testing
