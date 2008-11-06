@@ -130,7 +130,7 @@ if(id.type=="ProbeID") {
 }
 
 # Write out a phenodata
-write.table(data.frame(sample=sample.names, chiptype=chiptype, group=group, training=training), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+write.table(data.frame(sample=sample.names, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
 if(chiptype!="Illumina") {
    # Including gene names to data

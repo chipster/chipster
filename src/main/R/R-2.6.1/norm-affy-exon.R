@@ -58,7 +58,7 @@ training<-c(rep("", nrow(pData(dat))))
 time<-c(rep("", nrow(pData(dat))))
 random<-c(rep("", nrow(pData(dat))))
 chiptype<-dat@annotation
-write.table(data.frame(sample=sample, chiptype=chiptype, group=group, training=training), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
 # Writes the results into a file
 write.table(dat2, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)

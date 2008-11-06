@@ -46,7 +46,7 @@ group<-c(rep("", nrow(pData(crl))))
 training<-c(rep("", nrow(pData(crl))))
 time<-c(rep("", nrow(pData(crl))))
 random<-c(rep("", nrow(pData(crl))))
-write.table(data.frame(sample=sample, chiptype=chiptype, group=group, training=training), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
 # Writing the results into files
 write.table(data.frame(genotypes, flags), "normalized.tsv", row.names=T, col.names=T, quote=F, sep="\t")

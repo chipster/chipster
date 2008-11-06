@@ -139,7 +139,7 @@ group<-c(rep("", nrow(pData(dat))))
 training<-c(rep("", nrow(pData(dat))))
 time<-c(rep("", nrow(pData(dat))))
 random<-c(rep("", nrow(pData(dat))))
-write.table(data.frame(sample=sample, chiptype=chiptype, group=group, training=training), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
 # Writing out data
 a<-try(library(chiptype, character.only=T))

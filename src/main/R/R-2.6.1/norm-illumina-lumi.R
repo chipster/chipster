@@ -80,7 +80,7 @@ colnames(dat2)<-sample.names
 # Write out a phenodata
 group<-c(rep("", ncol(dat2)))
 training<-c(rep("", ncol(dat2)))
-write.table(data.frame(sample=sample.names, chiptype=chiptype, group=group, training=training), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+write.table(data.frame(sample=sample.names, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
 if(chiptype!="Illumina") {
    # Including gene names to data

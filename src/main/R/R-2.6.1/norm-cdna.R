@@ -40,7 +40,7 @@ training<-c(rep("", length(sample)))
 time<-c(rep("", length(sample)))
 random<-c(rep("", length(sample)))
 chiptype<-c("cDNA")
-write.table(data.frame(sample=sample, chiptype=chiptype, group=group, training=training), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
 # Constructs and writes out a table of data
 M<-dat3$M

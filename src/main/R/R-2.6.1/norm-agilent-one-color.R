@@ -91,7 +91,7 @@ if(chiptype=="drosophila") {
 if(chiptype=="rhesus") {
    chiptype<-c("rhesusrefseq")
 }
-write.table(data.frame(sample=sample, chiptype=chiptype, group=group, training=training), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
 # Removes control probes
 rownames(dat3)<-dat$genes$identifier
