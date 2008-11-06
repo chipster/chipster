@@ -3,6 +3,7 @@
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="src" path="src/main/R"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="ext/lib/activemq-all-5.1-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="ext/lib/antlr-2.7.7.jar"/>
