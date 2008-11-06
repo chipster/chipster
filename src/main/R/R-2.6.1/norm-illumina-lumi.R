@@ -50,7 +50,7 @@ if(transformation=="vst") {
    t.lumi<-lumiT(x.lumi, method=c("vst"))
 }
 if(transformation=="log2") {
-   t.lumi<-lumiT(x.lumi, method=c("vst"))
+   t.lumi<-lumiT(x.lumi, method=c("log2"))
 }
 
 # Normalization

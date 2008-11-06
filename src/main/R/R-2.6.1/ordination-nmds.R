@@ -1,6 +1,6 @@
 # ANALYSIS Statistics/NMDS (Non-metric multidimensional scaling. Creates a 2-dimensional representation of 
 # the arrays using Euclidean distances. Can be used for quality control.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT nmds.png
+# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT nmds1.png, nmds1.png
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
@@ -23,6 +23,9 @@ dat<-read.table(file, header=T, sep="\t", row.names=1)
 calls<-dat[,grep("flag", names(dat))]
 dat2<-dat[,grep("chip", names(dat))]
 
+# Loads phenodata
+phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
+
 # Calculating the distance matrix
 dat2.dist<-dist(t(dat2))
 
@@ -30,7 +33,12 @@ dat2.dist<-dist(t(dat2))
 mds<-isoMDS(dat2.dist)
 
 # Plotting the image
-bitmap(file="nmds.png", width=w/72, height=h/72)
+bitmap(file="nmds1.png", width=w/72, height=h/72)
 plot(mds$points[,1], mds$points[,2], main="NMDS", pch=19, xlab="Dimension 1", ylab="Dimension 2", type="n")
-text(mds$points[,1], mds$points[,2], gsub("chip.(.)", "\\1", rownames(mds$points)), cex=0.75)
+text(mds$points[,1], mds$points[,2], gsub("microarray(.)", "\\1", rownames(mds$points)), cex=0.75, col=phenodata$group)
+dev.off()
+
+bitmap(file="nmds2.png", width=w/72, height=h/72)
+plot(mds$points[,1], mds$points[,2], main="NMDS", pch=19, xlab="Dimension 1", ylab="Dimension 2", type="n")
+text(mds$points[,1], mds$points[,2], phenodata$description, cex=0.75, col=phenodata$group)
 dev.off()

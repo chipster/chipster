@@ -1,9 +1,10 @@
 # ANALYSIS Preprocessing/"Filter by expression" (Filtering the genes by their expression. 
-# Note that chips are first scaled to have a mean of zero, regardless of the previous normalizations.)
+# Note that chips are by default first scaled to have a mean of zero, regardless of the previous normalizations.)
 # INPUT GENE_EXPRS normalized.tsv OUTPUT expression-filter.tsv
 # PARAMETER over.expressed.cutoff DECIMAL FROM -100000 TO 100000 DEFAULT 1 (Cut-off for over-expressed genes)
 # PARAMETER under.expressed.cutoff DECIMAL FROM -100000 TO 100000 DEFAULT -1 (Cut-off for under-expressed genes)
 # PARAMETER number.of.chips INTEGER FROM 1 TO 10000 DEFAULT 2 (Number of chips)
+# PARAMETER scale.to.same.mean [yes, no] DEFAULT yes (Scale the data to the same mean before filtering)
 # PARAMETER included.genes [outside-the-range, inside-the-range] DEFAULT outside-the-range (Filtering method)
 
 # Filtering by expression
@@ -27,7 +28,9 @@ calls<-dat[,grep("flag", names(dat))]
 dat2<-dat[,grep("chip", names(dat))]
 
 # Scaling the data to the same mean
-scaled.dat<-genescale(dat2)
+if(scale.to.same.mean=="yes") {
+   scaled.dat<-genescale(dat2)
+}
 
 # Filter
 # If a data value is smaller than up or larger than down, recode it with 0, otherwise with 1

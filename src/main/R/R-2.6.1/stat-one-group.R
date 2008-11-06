@@ -2,6 +2,7 @@
 # is significantly different from the expected.)
 # INPUT GENE_EXPRS normalized.tsv OUTPUT one-sample.tsv
 # PARAMETER test [t-test, Wilcoxon] DEFAULT t-test (Test type)
+# PARAMETER scale.to.same.mean [yes, no] DEFAULT yes (Scale the data to the same mean before filtering)
 # PARAMETER p.value.adjustment.method [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method)
 # PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
 # PARAMETER assumed.mean DECIMAL FROM -100000 TO 100000 DEFAULT 0 (Assumed mean of the data)
@@ -12,6 +13,7 @@
 
 # Load the libraries
 library(multtest)
+library(genefilter)
 
 # Renaming variables
 meth<-test
@@ -30,6 +32,11 @@ dat2<-dat[,grep("chip", names(dat))]
 # Sanity checks
 if(ncol(dat2)==1) {
    stop("You need to have at least two chips to run this analysis!")
+}
+
+# Scaling the data to the same mean
+if(scale.to.same.mean=="yes") {
+   scaled.dat<-genescale(dat2)
 }
 
 # Testing

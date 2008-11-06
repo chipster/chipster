@@ -2,16 +2,15 @@
 # You can have a maximum of three main effect and their interaction in the model. On top of the main effects,
 # you can specify technical replication and pairing of the samples. Main effects can be fitted as such of as categorical
 # variables, i.e., factors. Fold changes and p-values are reported for all effects and interactions.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT limma.tsv, limma-design.tsv
-# PARAMETER column1 METACOLUMN_SEL DEFAULT group (Main effect 1)
-# PARAMETER column2 METACOLUMN_SEL DEFAULT EMPTY (Main effect 2)
-# PARAMETER column3 METACOLUMN_SEL DEFAULT EMPTY (Main effect 3)
-# PARAMETER column4 METACOLUMN_SEL DEFAULT EMPTY (Technical replication)
-# PARAMETER column5 METACOLUMN_SEL DEFAULT EMPTY (Paired samples)
-# PARAMETER col1.factor [no, yes] DEFAULT no (Should column1 be treated as a factor)
-# PARAMETER col2.factor [no, yes] DEFAULT no (Should column2 be treated as a factor)
-# PARAMETER col3.factor [no, yes] DEFAULT no (Should column3 be treated as a factor)
-# PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
+# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT limma.tsv, limma-design.tsv, foldchange.tsv, pvalues.tsv
+# PARAMETER main.effect1 METACOLUMN_SEL DEFAULT group (Main effect 1)
+# PARAMETER main.effect2 METACOLUMN_SEL DEFAULT EMPTY (Main effect 2)
+# PARAMETER main.effect3 METACOLUMN_SEL DEFAULT EMPTY (Main effect 3)
+# PARAMETER technical.replication METACOLUMN_SEL DEFAULT EMPTY (Technical replication)
+# PARAMETER pairing METACOLUMN_SEL DEFAULT EMPTY (Paired samples)
+# PARAMETER treat.main.effect1.as.factor [no, yes] DEFAULT no (Should main.effect1 be treated as a factor)
+# PARAMETER treat.main.effect2.as.factor [no, yes] DEFAULT no (Should main.effect2 be treated as a factor)
+# PARAMETER treat.main.effect3.as.factor [no, yes] DEFAULT no (Should main.effect3 be treated as a factor)
 # PARAMETER adjust.p.values [yes, no] DEFAULT yes (Should the p-values be adjusted for multiple comparisons)
 # PARAMETER p.value.adjustment.method [none, bonferroni, holm, hochberg, BH, BY] DEFAULT BH (Multiple testing correction method)
 # PARAMETER interactions [main, two-way, three-way] DEFAULT main (What to include in the model)
@@ -21,6 +20,20 @@
 # Linear Modelling using limma
 # 
 # JTT 22.10.2007
+
+#main.effect1<-"group"
+#main.effect2<-"EMPTY"
+#main.effect3<-"EMPTY"
+#technical.replication<-"EMPTY"
+#pairing<-"EMPTY"
+#treat.main.effect1.as.factor<-"no"
+#treat.main.effect2.as.factor<-"no"
+#treat.main.effect3.as.factor<-"no"
+#adjust.p.values<-"yes"
+#p.value.adjustment.method<-"BH"
+#interactions<-"main"
+#significance<-"significance"
+
 
 # Loads the libraries
 library(limma)
@@ -37,10 +50,10 @@ dat2<-dat[,grep("chip", names(dat))]
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 
 # Sanity checks
-if(column1=="EMPTY" & column2=="EMPTY" & column3=="EMPTY") {
+if(main.effect1=="EMPTY" & main.effect2=="EMPTY" & main.effect3=="EMPTY") {
    stop("You need to specify at least one main effect! Please modify the setting accordingly, and rerun.")
 }
-if(column2=="EMPTY" | column3=="EMPTY" & interactions=="two-way" | interactions=="three-way") {
+if(main.effect2=="EMPTY" | main.effect3=="EMPTY" & interactions=="two-way" | interactions=="three-way") {
    print("Only one main effect specified with interactions! No interactions specified for the model.")
    interactions<-c("main")
 }
@@ -50,98 +63,95 @@ if(interactions=="main" & significance=="interactions") {
 }
 
 # Extracting the variables from phenodata
-col1<-phenodata[,grep(column1, colnames(phenodata))]
-col2<-phenodata[,grep(column2, colnames(phenodata))]
-col3<-phenodata[,grep(column3, colnames(phenodata))]
-col4<-phenodata[,grep(column4, colnames(phenodata))]
-col5<-phenodata[,grep(column5, colnames(phenodata))]
+main1<-phenodata[,grep(main.effect1, colnames(phenodata))]
+main2<-phenodata[,grep(main.effect2, colnames(phenodata))]
+main3<-phenodata[,grep(main.effect3, colnames(phenodata))]
+techrep<-phenodata[,grep(technical.replication, colnames(phenodata))]
+pair<-phenodata[,grep(pairing, colnames(phenodata))]
 
 # Converting vectors to factor, if needed
-if(col1.factor=="yes") {
-   col1<-factor(col1)
+if(treat.main.effect1.as.factor=="yes") {
+   main1<-factor(main1)
 }
-if(col2.factor=="yes") {
-   col2<-factor(col2)
+if(treat.main.effect2.as.factor=="yes") {
+   main2<-factor(main2)
 }
-if(col3.factor=="yes") {
-   col3<-factor(col3)
+if(treat.main.effect3.as.factor=="yes") {
+   main3<-factor(main3)
 }
-
-# Recoding variables
-pcut<-p.value.threshold
 
 # Specifying the models
 
 # The basic models
 
 # One main effect
-if(column1!="EMPTY" & column2=="EMPTY" & column3=="EMPTY" & column4=="EMPTY" & column5=="EMPTY") {
-   design<-model.matrix(~col1)
+if(main.effect1!="EMPTY" & main.effect2=="EMPTY" & main.effect3=="EMPTY" & technical.replication=="EMPTY" & pairing=="EMPTY") {
+   design<-model.matrix(~main1)
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
-if(column1=="EMPTY" & column2!="EMPTY" & column3=="EMPTY" & column4=="EMPTY" & column5=="EMPTY") {
-   design<-model.matrix(~col2)
+if(main.effect1=="EMPTY" & main.effect2!="EMPTY" & main.effect3=="EMPTY" & technical.replication=="EMPTY" & pairing=="EMPTY") {
+   design<-model.matrix(~main2)
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
-if(column1=="EMPTY" & column2=="EMPTY" & column3!="EMPTY" & column4=="EMPTY" & column5=="EMPTY") {
-   design<-model.matrix(~col3)
+if(main.effect1=="EMPTY" & main.effect2=="EMPTY" & main.effect3!="EMPTY" & technical.replication=="EMPTY" & pairing=="EMPTY") {
+   design<-model.matrix(~main3)
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
 
 # Two main effects
-if(column1!="EMPTY" & column2!="EMPTY" & column3=="EMPTY" & column4=="EMPTY" & column5=="EMPTY") {
-   design<-model.matrix(~col1+col2)
+if(main.effect1!="EMPTY" & main.effect2!="EMPTY" & main.effect3=="EMPTY" & technical.replication=="EMPTY" & pairing=="EMPTY") {
+   design<-model.matrix(~main1+main2)
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
-if(column1!="EMPTY" & column2=="EMPTY" & column3!="EMPTY" & column4=="EMPTY" & column5=="EMPTY") {
-   design<-model.matrix(~col1+col3)
+if(main.effect1!="EMPTY" & main.effect2=="EMPTY" & main.effect3!="EMPTY" & technical.replication=="EMPTY" & pairing=="EMPTY") {
+   design<-model.matrix(~main1+main3)
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
-if(column1=="EMPTY" & column2!="EMPTY" & column3!="EMPTY" & column4=="EMPTY" & column5=="EMPTY") {
-   design<-model.matrix(~col2+col3)
+if(main.effect1=="EMPTY" & main.effect2!="EMPTY" & main.effect3!="EMPTY" & technical.replication=="EMPTY" & pairing=="EMPTY") {
+   design<-model.matrix(~main2+main3)
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
 
 # Three main effects
-if(column1!="EMPTY" & column2!="EMPTY" & column3!="EMPTY" & column4=="EMPTY" & column5=="EMPTY") {
-   design<-model.matrix(~col1+col2+col3)
+if(main.effect1!="EMPTY" & main.effect2!="EMPTY" & main.effect3!="EMPTY" & technical.replication=="EMPTY" & pairing=="EMPTY") {
+   design<-model.matrix(~main1+main2+main3)
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
 
 # Two main effects and interactions
-if(column1!="EMPTY" & column2!="EMPTY" & column3=="EMPTY" & column4=="EMPTY" & column5=="EMPTY" & interactions=="two-way") {
-   design<-model.matrix(~col1*col2)
+if(main.effect1!="EMPTY" & main.effect2!="EMPTY" & main.effect3=="EMPTY" & technical.replication=="EMPTY" & pairing=="EMPTY" & interactions=="two-way") {
+   design<-model.matrix(~main1*main2)
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
-if(column1!="EMPTY" & column2=="EMPTY" & column3!="EMPTY" & column4=="EMPTY" & column5=="EMPTY" & interactions=="two-way") {
-   design<-model.matrix(~col1*col3)
+if(main.effect1!="EMPTY" & main.effect2=="EMPTY" & main.effect3!="EMPTY" & technical.replication=="EMPTY" & pairing=="EMPTY" & interactions=="two-way") {
+   design<-model.matrix(~main1*main3)
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
-if(column1=="EMPTY" & column2!="EMPTY" & column3!="EMPTY" & column4=="EMPTY" & column5=="EMPTY" & interactions=="two-way") {
-   design<-model.matrix(~col2*col3)
+if(main.effect1=="EMPTY" & main.effect2!="EMPTY" & main.effect3!="EMPTY" & technical.replication=="EMPTY" & pairing=="EMPTY" & interactions=="two-way") {
+   design<-model.matrix(~main2*main3)
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
 
 # Three main effects
-if(column1!="EMPTY" & column2!="EMPTY" & column3!="EMPTY" & column4=="EMPTY" & column5=="EMPTY") {
-   design<-model.matrix(~col1+col2+col3)
+if(main.effect1!="EMPTY" & main.effect2!="EMPTY" & main.effect3!="EMPTY" & technical.replication=="EMPTY" & pairing=="EMPTY") {
+   design<-model.matrix(~main1+main2+main3)
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
 
 # Three main effects and interactions
-if(column1!="EMPTY" & column2!="EMPTY" & column3!="EMPTY" & column4=="EMPTY" & column5=="EMPTY" & interactions=="two-way") {
-   design<-model.matrix(~col1*col2*col3)
+if(main.effect1!="EMPTY" & main.effect2!="EMPTY" & main.effect3!="EMPTY" & technical.replication=="EMPTY" & pairing=="EMPTY" & interactions=="two-way") {
+   design<-model.matrix(~main1*main2*main3)
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
@@ -150,93 +160,93 @@ if(column1!="EMPTY" & column2!="EMPTY" & column3!="EMPTY" & column4=="EMPTY" & c
 # The basic models and biological replication
 
 # Only technical replication
-if(column1=="EMPTY" & column2=="EMPTY" & column3=="EMPTY" & column4!="EMPTY" & column5=="EMPTY") {
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, block=col4, cor=corfit$consensus) 
+if(main.effect1=="EMPTY" & main.effect2=="EMPTY" & main.effect3=="EMPTY" & technical.replication!="EMPTY" & pairing=="EMPTY") {
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, block=techrep, cor=corfit$consensus) 
    fit<-eBayes(fit)
 }
 
 # One main effect and technical replication
-if(column1!="EMPTY" & column2=="EMPTY" & column3=="EMPTY" & column4!="EMPTY" & column5=="EMPTY") {
-   design<-model.matrix(~col1)
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1!="EMPTY" & main.effect2=="EMPTY" & main.effect3=="EMPTY" & technical.replication!="EMPTY" & pairing=="EMPTY") {
+   design<-model.matrix(~main1)
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
-if(column1=="EMPTY" & column2!="EMPTY" & column3=="EMPTY" & column4!="EMPTY" & column5=="EMPTY") {
-   design<-model.matrix(~col2)
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1=="EMPTY" & main.effect2!="EMPTY" & main.effect3=="EMPTY" & technical.replication!="EMPTY" & pairing=="EMPTY") {
+   design<-model.matrix(~main2)
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
-if(column1=="EMPTY" & column2=="EMPTY" & column3!="EMPTY" & column4!="EMPTY" & column5=="EMPTY") {
-   design<-model.matrix(~col3)
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1=="EMPTY" & main.effect2=="EMPTY" & main.effect3!="EMPTY" & technical.replication!="EMPTY" & pairing=="EMPTY") {
+   design<-model.matrix(~main3)
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
 
 # Two main effects and technical replication
-if(column1!="EMPTY" & column2!="EMPTY" & column3=="EMPTY" & column4!="EMPTY" & column5=="EMPTY") {
-   design<-model.matrix(~col1+col2)
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1!="EMPTY" & main.effect2!="EMPTY" & main.effect3=="EMPTY" & technical.replication!="EMPTY" & pairing=="EMPTY") {
+   design<-model.matrix(~main1+main2)
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
-if(column1!="EMPTY" & column2=="EMPTY" & column3!="EMPTY" & column4!="EMPTY" & column5=="EMPTY") {
-   design<-model.matrix(~col1+col3)
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1!="EMPTY" & main.effect2=="EMPTY" & main.effect3!="EMPTY" & technical.replication!="EMPTY" & pairing=="EMPTY") {
+   design<-model.matrix(~main1+main3)
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
-if(column1=="EMPTY" & column2!="EMPTY" & column3!="EMPTY" & column4!="EMPTY" & column5=="EMPTY") {
-   design<-model.matrix(~col2+col3)
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1=="EMPTY" & main.effect2!="EMPTY" & main.effect3!="EMPTY" & technical.replication!="EMPTY" & pairing=="EMPTY") {
+   design<-model.matrix(~main2+main3)
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
 
 # Three main effects and technical replication
-if(column1!="EMPTY" & column2!="EMPTY" & column3!="EMPTY" & column4!="EMPTY" & column5=="EMPTY") {
-   design<-model.matrix(~col1+col2+col3)
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1!="EMPTY" & main.effect2!="EMPTY" & main.effect3!="EMPTY" & technical.replication!="EMPTY" & pairing=="EMPTY") {
+   design<-model.matrix(~main1+main2+main3)
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
 
 # Two main effects and interactions and technical replication
-if(column1!="EMPTY" & column2!="EMPTY" & column3=="EMPTY" & column4!="EMPTY" & column5=="EMPTY" & interactions=="two-way") {
-   design<-model.matrix(~col1*col2)
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1!="EMPTY" & main.effect2!="EMPTY" & main.effect3=="EMPTY" & technical.replication!="EMPTY" & pairing=="EMPTY" & interactions=="two-way") {
+   design<-model.matrix(~main1*main2)
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
-if(column1!="EMPTY" & column2=="EMPTY" & column3!="EMPTY" & column4!="EMPTY" & column5=="EMPTY" & interactions=="two-way") {
-   design<-model.matrix(~col1*col3)
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1!="EMPTY" & main.effect2=="EMPTY" & main.effect3!="EMPTY" & technical.replication!="EMPTY" & pairing=="EMPTY" & interactions=="two-way") {
+   design<-model.matrix(~main1*main3)
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
-if(column1=="EMPTY" & column2!="EMPTY" & column3!="EMPTY" & column4!="EMPTY" & column5=="EMPTY" & interactions=="two-way") {
-   design<-model.matrix(~col2*col3)
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1=="EMPTY" & main.effect2!="EMPTY" & main.effect3!="EMPTY" & technical.replication!="EMPTY" & pairing=="EMPTY" & interactions=="two-way") {
+   design<-model.matrix(~main2*main3)
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
 
 # Three main effects and technical replication
-if(column1!="EMPTY" & column2!="EMPTY" & column3!="EMPTY" & column4!="EMPTY" & column5=="EMPTY") {
-   design<-model.matrix(~col1+col2+col3)
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1!="EMPTY" & main.effect2!="EMPTY" & main.effect3!="EMPTY" & technical.replication!="EMPTY" & pairing=="EMPTY") {
+   design<-model.matrix(~main1+main2+main3)
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
 
 # Three main effects and interactions and technical replication
-if(column1!="EMPTY" & column2!="EMPTY" & column3!="EMPTY" & column4!="EMPTY" & column5=="EMPTY" & interactions=="two-way") {
-   design<-model.matrix(~col1*col2*col3)
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1!="EMPTY" & main.effect2!="EMPTY" & main.effect3!="EMPTY" & technical.replication!="EMPTY" & pairing=="EMPTY" & interactions=="two-way") {
+   design<-model.matrix(~main1*main2*main3)
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
 
@@ -244,73 +254,73 @@ if(column1!="EMPTY" & column2!="EMPTY" & column3!="EMPTY" & column4!="EMPTY" & c
 # Paired models
 
 # One main effect
-if(column1!="EMPTY" & column2=="EMPTY" & column3=="EMPTY" & column4=="EMPTY" & column5!="EMPTY") {
-   design<-model.matrix(~col1+factor(col5))
+if(main.effect1!="EMPTY" & main.effect2=="EMPTY" & main.effect3=="EMPTY" & technical.replication=="EMPTY" & pairing!="EMPTY") {
+   design<-model.matrix(~main1+factor(pair))
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
-if(column1=="EMPTY" & column2!="EMPTY" & column3=="EMPTY" & column4=="EMPTY" & column5!="EMPTY") {
-   design<-model.matrix(~col2+factor(col5))
+if(main.effect1=="EMPTY" & main.effect2!="EMPTY" & main.effect3=="EMPTY" & technical.replication=="EMPTY" & pairing!="EMPTY") {
+   design<-model.matrix(~main2+factor(pair))
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
-if(column1=="EMPTY" & column2=="EMPTY" & column3!="EMPTY" & column4=="EMPTY" & column5!="EMPTY") {
-   design<-model.matrix(~col3+factor(col5))
+if(main.effect1=="EMPTY" & main.effect2=="EMPTY" & main.effect3!="EMPTY" & technical.replication=="EMPTY" & pairing!="EMPTY") {
+   design<-model.matrix(~main3+factor(pair))
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
 
 # Two main effects
-if(column1!="EMPTY" & column2!="EMPTY" & column3=="EMPTY" & column4=="EMPTY" & column5!="EMPTY") {
-   design<-model.matrix(~col1+col2+factor(col5))
+if(main.effect1!="EMPTY" & main.effect2!="EMPTY" & main.effect3=="EMPTY" & technical.replication=="EMPTY" & pairing!="EMPTY") {
+   design<-model.matrix(~main1+main2+factor(pair))
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
-if(column1!="EMPTY" & column2=="EMPTY" & column3!="EMPTY" & column4=="EMPTY" & column5!="EMPTY") {
-   design<-model.matrix(~col1+col3+factor(col5))
+if(main.effect1!="EMPTY" & main.effect2=="EMPTY" & main.effect3!="EMPTY" & technical.replication=="EMPTY" & pairing!="EMPTY") {
+   design<-model.matrix(~main1+main3+factor(pair))
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
-if(column1=="EMPTY" & column2!="EMPTY" & column3!="EMPTY" & column4=="EMPTY" & column5!="EMPTY") {
-   design<-model.matrix(~col2+col3+factor(col5))
+if(main.effect1=="EMPTY" & main.effect2!="EMPTY" & main.effect3!="EMPTY" & technical.replication=="EMPTY" & pairing!="EMPTY") {
+   design<-model.matrix(~main2+main3+factor(pair))
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
 
 # Three main effects
-if(column1!="EMPTY" & column2!="EMPTY" & column3!="EMPTY" & column4=="EMPTY" & column5!="EMPTY") {
-   design<-model.matrix(~col1+col2+col3+factor(col5))
+if(main.effect1!="EMPTY" & main.effect2!="EMPTY" & main.effect3!="EMPTY" & technical.replication=="EMPTY" & pairing!="EMPTY") {
+   design<-model.matrix(~main1+main2+main3+factor(pair))
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
 
 # Two main effects and interactions
-if(column1!="EMPTY" & column2!="EMPTY" & column3=="EMPTY" & column4=="EMPTY" & column5!="EMPTY" & interactions=="two-way") {
-   design<-model.matrix(~col1*col2+factor(col5))
+if(main.effect1!="EMPTY" & main.effect2!="EMPTY" & main.effect3=="EMPTY" & technical.replication=="EMPTY" & pairing!="EMPTY" & interactions=="two-way") {
+   design<-model.matrix(~main1*main2+factor(pair))
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
-if(column1!="EMPTY" & column2=="EMPTY" & column3!="EMPTY" & column4=="EMPTY" & column5!="EMPTY" & interactions=="two-way") {
-   design<-model.matrix(~col1*col3+factor(col5))
+if(main.effect1!="EMPTY" & main.effect2=="EMPTY" & main.effect3!="EMPTY" & technical.replication=="EMPTY" & pairing!="EMPTY" & interactions=="two-way") {
+   design<-model.matrix(~main1*main3+factor(pair))
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
-if(column1=="EMPTY" & column2!="EMPTY" & column3!="EMPTY" & column4=="EMPTY" & column5!="EMPTY" & interactions=="two-way") {
-   design<-model.matrix(~col2*col3+factor(col5))
+if(main.effect1=="EMPTY" & main.effect2!="EMPTY" & main.effect3!="EMPTY" & technical.replication=="EMPTY" & pairing!="EMPTY" & interactions=="two-way") {
+   design<-model.matrix(~main2*main3+factor(pair))
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
 
 # Three main effects
-if(column1!="EMPTY" & column2!="EMPTY" & column3!="EMPTY" & column4=="EMPTY" & column5!="EMPTY") {
-   design<-model.matrix(~col1+col2+col3+factor(col5))
+if(main.effect1!="EMPTY" & main.effect2!="EMPTY" & main.effect3!="EMPTY" & technical.replication=="EMPTY" & pairing!="EMPTY") {
+   design<-model.matrix(~main1+main2+main3+factor(pair))
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
 
 # Three main effects and interactions
-if(column1!="EMPTY" & column2!="EMPTY" & column3!="EMPTY" & column4=="EMPTY" & column5!="EMPTY" & interactions=="two-way") {
-   design<-model.matrix(~col1*col2*col3+factor(col5))
+if(main.effect1!="EMPTY" & main.effect2!="EMPTY" & main.effect3!="EMPTY" & technical.replication=="EMPTY" & pairing!="EMPTY" & interactions=="two-way") {
+   design<-model.matrix(~main1*main2*main3+factor(pair))
    fit<-lmFit(dat2, design)
    fit<-eBayes(fit)
 }
@@ -318,93 +328,93 @@ if(column1!="EMPTY" & column2!="EMPTY" & column3!="EMPTY" & column4=="EMPTY" & c
 # The basic models and biological replication
 
 # Only technical replication
-if(column1=="EMPTY" & column2=="EMPTY" & column3=="EMPTY" & column4!="EMPTY" & column5!="EMPTY") {
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, block=col4, cor=corfit$consensus) 
+if(main.effect1=="EMPTY" & main.effect2=="EMPTY" & main.effect3=="EMPTY" & technical.replication!="EMPTY" & pairing!="EMPTY") {
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, block=techrep, cor=corfit$consensus) 
    fit<-eBayes(fit)
 }
 
 # One main effect and technical replication
-if(column1!="EMPTY" & column2=="EMPTY" & column3=="EMPTY" & column4!="EMPTY" & column5!="EMPTY") {
-   design<-model.matrix(~col1+factor(col5))
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1!="EMPTY" & main.effect2=="EMPTY" & main.effect3=="EMPTY" & technical.replication!="EMPTY" & pairing!="EMPTY") {
+   design<-model.matrix(~main1+factor(pair))
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
-if(column1=="EMPTY" & column2!="EMPTY" & column3=="EMPTY" & column4!="EMPTY" & column5!="EMPTY") {
-   design<-model.matrix(~col2+factor(col5))
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1=="EMPTY" & main.effect2!="EMPTY" & main.effect3=="EMPTY" & technical.replication!="EMPTY" & pairing!="EMPTY") {
+   design<-model.matrix(~main2+factor(pair))
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
-if(column1=="EMPTY" & column2=="EMPTY" & column3!="EMPTY" & column4!="EMPTY" & column5!="EMPTY") {
-   design<-model.matrix(~col3+factor(col5))
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1=="EMPTY" & main.effect2=="EMPTY" & main.effect3!="EMPTY" & technical.replication!="EMPTY" & pairing!="EMPTY") {
+   design<-model.matrix(~main3+factor(pair))
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
 
 # Two main effects and technical replication
-if(column1!="EMPTY" & column2!="EMPTY" & column3=="EMPTY" & column4!="EMPTY" & column5!="EMPTY") {
-   design<-model.matrix(~col1+col2+factor(col5))
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1!="EMPTY" & main.effect2!="EMPTY" & main.effect3=="EMPTY" & technical.replication!="EMPTY" & pairing!="EMPTY") {
+   design<-model.matrix(~main1+main2+factor(pair))
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
-if(column1!="EMPTY" & column2=="EMPTY" & column3!="EMPTY" & column4!="EMPTY" & column5!="EMPTY") {
-   design<-model.matrix(~col1+col3+factor(col5))
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1!="EMPTY" & main.effect2=="EMPTY" & main.effect3!="EMPTY" & technical.replication!="EMPTY" & pairing!="EMPTY") {
+   design<-model.matrix(~main1+main3+factor(pair))
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
-if(column1=="EMPTY" & column2!="EMPTY" & column3!="EMPTY" & column4!="EMPTY" & column5!="EMPTY") {
-   design<-model.matrix(~col2+col3+factor(col5))
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1=="EMPTY" & main.effect2!="EMPTY" & main.effect3!="EMPTY" & technical.replication!="EMPTY" & pairing!="EMPTY") {
+   design<-model.matrix(~main2+main3+factor(pair))
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
 
 # Three main effects and technical replication
-if(column1!="EMPTY" & column2!="EMPTY" & column3!="EMPTY" & column4!="EMPTY" & column5!="EMPTY") {
-   design<-model.matrix(~col1+col2+col3+factor(col5))
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1!="EMPTY" & main.effect2!="EMPTY" & main.effect3!="EMPTY" & technical.replication!="EMPTY" & pairing!="EMPTY") {
+   design<-model.matrix(~main1+main2+main3+factor(pair))
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
 
 # Two main effects and interactions and technical replication
-if(column1!="EMPTY" & column2!="EMPTY" & column3=="EMPTY" & column4!="EMPTY" & column5!="EMPTY" & interactions=="two-way") {
-   design<-model.matrix(~col1*col2+factor(col5))
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1!="EMPTY" & main.effect2!="EMPTY" & main.effect3=="EMPTY" & technical.replication!="EMPTY" & pairing!="EMPTY" & interactions=="two-way") {
+   design<-model.matrix(~main1*main2+factor(pair))
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
-if(column1!="EMPTY" & column2=="EMPTY" & column3!="EMPTY" & column4!="EMPTY" & column5!="EMPTY" & interactions=="two-way") {
-   design<-model.matrix(~col1*col3+factor(col5))
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1!="EMPTY" & main.effect2=="EMPTY" & main.effect3!="EMPTY" & technical.replication!="EMPTY" & pairing!="EMPTY" & interactions=="two-way") {
+   design<-model.matrix(~main1*main3+factor(pair))
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
-if(column1=="EMPTY" & column2!="EMPTY" & column3!="EMPTY" & column4!="EMPTY" & column5!="EMPTY" & interactions=="two-way") {
-   design<-model.matrix(~col2*col3+factor(col5))
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1=="EMPTY" & main.effect2!="EMPTY" & main.effect3!="EMPTY" & technical.replication!="EMPTY" & pairing!="EMPTY" & interactions=="two-way") {
+   design<-model.matrix(~main2*main3+factor(pair))
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
 
 # Three main effects and technical replication
-if(column1!="EMPTY" & column2!="EMPTY" & column3!="EMPTY" & column4!="EMPTY" & column5!="EMPTY") {
-   design<-model.matrix(~col1+col2+col3+factor(col5))
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1!="EMPTY" & main.effect2!="EMPTY" & main.effect3!="EMPTY" & technical.replication!="EMPTY" & pairing!="EMPTY") {
+   design<-model.matrix(~main1+main2+main3+factor(pair))
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
 
 # Three main effects and interactions and technical replication
-if(column1!="EMPTY" & column2!="EMPTY" & column3!="EMPTY" & column4!="EMPTY" & column5!="EMPTY" & interactions=="two-way") {
-   design<-model.matrix(~col1*col2*col3+factor(col5))
-   corfit<-duplicateCorrelation(dat2, ndups=1, block=col4)
-   fit<-lmFit(dat2, design, block=col4, cor=corfit$consensus)
+if(main.effect1!="EMPTY" & main.effect2!="EMPTY" & main.effect3!="EMPTY" & technical.replication!="EMPTY" & pairing!="EMPTY" & interactions=="two-way") {
+   design<-model.matrix(~main1*main2*main3+factor(pair))
+   corfit<-duplicateCorrelation(dat2, ndups=1, block=techrep)
+   fit<-lmFit(dat2, design, block=techrep, cor=corfit$consensus)
    fit<-eBayes(fit)
 }
 
@@ -459,8 +469,16 @@ for(i in 1:ncol(design)) {
 # Writing the data to disk
 m<-data.frame(m)
 mm<-data.frame(mm)
+fc<-data.frame(mm)
 colnames(m)<-paste("p.adjusted.", colnames(design), sep="")
 colnames(mm)<-paste("FC.", colnames(design), sep="")
+colnames(mm)<-paste("chip.", colnames(design), sep="")
 dat3<-data.frame(dat, round(m, digits=4), round(mm, digits=2))
+dat4<-data.frame(round(mm[,-1], digits=2))
+colnames(dat4)<-colnames(mm[-1])
+colnames(m)<-paste("chip.", colnames(design), sep="")
+dat5<-data.frame(round(m, digits=4))
 write.table(dat3, file="limma.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 write.table(design, file="limma-design.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+write.table(dat4, file="foldchange.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+write.table(dat5, file="pvalues.tsv", sep="\t", row.names=T, col.names=T, quote=F)

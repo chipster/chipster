@@ -12,7 +12,7 @@ dat<-read.table(file, header=T, sep="\t", row.names=1)
 
 # Separates expression values and flags
 calls<-dat[,grep("flag", names(dat))]
-dat2<-dat[,grep("chip", names(dat))]
+dat2<-data.frame(dat[,grep("chip", names(dat))])
 
 # Generates the variables
 sample<-colnames(dat2)

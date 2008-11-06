@@ -6,7 +6,7 @@
 # PARAMETER normalize.arrays [none, median, loess] DEFAULT loess (Within array normalization method)
 # PARAMETER normalize.genes [none, scale, quantile, Aquantile, vsn] DEFAULT none (Between arrays normalization method)
 # PARAMETER remove.control.probes [yes, no] DEFAULT no (Remove control probes from the dataset)
-# PARAMETER chiptype [empty, Human-1 (4100a), Human-2 (4101a), Human-1A (4110b), Human-1B (4111a), Human-Whole-Genome (4112a), Mouse (4104a), Mouse (4120a), Mouse (4121a), Mouse (4122a), Rat (4105a), Rat (4130a), Rat (4131), zebrafish, drosophila, rhesus] DEFAULT empty (chiptype)
+# PARAMETER chiptype [empty, Human-1 (4100a), Human-2 (4101a), Human-1A (4110b), Human-1B (4111a), Human-Whole-Genome (4112a), Mouse (4104a), Mouse (4120a), Mouse (4121a), Mouse (4122a), Rat (4105a), Rat (4130a), Rat (4131), zebrafish, zebrafishV2, drosophila, rhesus] DEFAULT empty (chiptype)
 
 
 # cDNA chip normalization
@@ -89,6 +89,9 @@ if(chiptype=="Rat(4131)") {
 }
 if(chiptype=="zebrafish") {
    chiptype<-c("AgilentZF")
+}
+if(chiptype=="zebrafishV2") {
+   chiptype<-c("AZFv2")
 }
 if(chiptype=="drosophila") {
    chiptype<-c("DrosoAgilent")

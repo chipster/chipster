@@ -1,5 +1,6 @@
 # ANALYSIS "Quality control"/"Affymetrix basic" (Affymetrix quality control for RNA degradation and
-# general quality parameters, such as scaling factor. This tool should be run on RAW data, i.e., CEL-files.)
+# general quality parameters, such as scaling factor. This tool should be run on RAW data, i.e., CEL-files.
+# You need to have at least two samples for this tool to work.)
 # INPUT AFFY microarray[...].cel OUTPUT RNA-degradation-plot.png, simpleaffy-plot.png
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)

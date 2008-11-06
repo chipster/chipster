@@ -3,9 +3,9 @@
 # INPUT CDNA microarray[...].tsv OUTPUT normalized.tsv, phenodata.tsv
 # PARAMETER background.treatment [none, subtract, edwards, normexp] DEFAULT normexp (Background treatment method)
 # PARAMETER background.offset [0, 50] DEFAULT 50 (Background offset)
-# PARAMETER normalize.genes [none, scale, quantile, vsn] DEFAULT none (Between arrays normalization method)
+# PARAMETER normalize.chips [none, scale, quantile, vsn] DEFAULT none (Between arrays normalization method)
 # PARAMETER remove.control.probes [yes, no] DEFAULT no (Remove control probes from the dataset)
-# PARAMETER chiptype [empty, Human-1 (4100a), Human-2 (4101a), Human-1A (4110b), Human-1B (4111a), Human-Whole-Genome (4112a), Mouse (4104a), Mouse (4120a), Mouse (4121a), Mouse (4122a), Rat (4105a), Rat (4130a), Rat (4131), zebrafish, drosophila] DEFAULT empty (chiptype)
+# PARAMETER chiptype [empty, Human-1 (4100a), Human-2 (4101a), Human-1A (4110b), Human-1B (4111a), Human-Whole-Genome (4112a), Mouse (4104a), Mouse (4120a), Mouse (4121a), Mouse (4122a), Rat (4105a), Rat (4130a), Rat (4131), zebrafish, zebrafishV2, drosophila] DEFAULT empty (chiptype)
 
 
 # cDNA chip normalization
@@ -81,6 +81,9 @@ if(chiptype=="Rat(4131)") {
 }
 if(chiptype=="zebrafish") {
    chiptype<-c("AgilentZF")
+}
+if(chiptype=="zebrafishV2") {
+   chiptype<-c("AZFv2")
 }
 if(chiptype=="drosophila") {
    chiptype<-c("DrosoAgilent")

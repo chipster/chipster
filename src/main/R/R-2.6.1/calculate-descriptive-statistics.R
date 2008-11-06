@@ -41,4 +41,6 @@ if(calculate.descriptives.for=="chips") {
    write.table(data.frame(rownames(dat2), average=rmean, median=rmedian, sd=rsd, cv=rcv, st.exp=rstexp, min=rmin, max=rmax, range=rrange, iqr=riqr), file="descr-stats.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 } else {
    write.table(data.frame(dat, average=rmean, median=rmedian, sd=rsd, cv=rcv, st.exp=rstexp, min=rmin, max=rmax, range=rrange, iqr=riqr), file="descr-stats.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+   write.table(data.frame(chip.average=rmean, chip.median=rmedian, chip.sd=rsd, chip.cv=rcv, chip.st.exp=rstexp, chip.min=rmin, chip.max=rmax, chip.range=rrange, chip.iqr=riqr), file="descriptives.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+
 }

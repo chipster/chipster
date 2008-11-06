@@ -5,7 +5,7 @@
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 
-# Quality control of cDNA chips
+# Quality control of Agilent chips
 # 15.1.2008 JTT
 
 # Loads the libraries
