@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="build.xml" default="package" basedir=".">
+<project name="Chipster" default="package" basedir=".">
 	<description>
 		The Chipster build script
     </description>
