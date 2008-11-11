@@ -13,7 +13,7 @@ import org.mortbay.util.IO;
 import org.testng.Assert;
 
 public class FileServerTest {
-
+	
 	private String repositoryUrl;
 	private String testfile;
 	boolean put = true;
@@ -34,7 +34,7 @@ public class FileServerTest {
 		}
 
 		for (int i = 0; i < threadCount; i++) {
-			new Thread(new PutGetTest(repeatCount)).start();
+			new Thread(new PutGetTest(repeatCount, "Thread " + i)).start();
 		}
 
 	}
@@ -46,9 +46,11 @@ public class FileServerTest {
 	class PutGetTest implements Runnable {
 
 		private int repeatCount;
+		private String name;
 
-		public PutGetTest(int repeatCount) {
+		public PutGetTest(int repeatCount, String name) {
 			this.repeatCount = repeatCount;
+			this.name = name;
 		}
 
 		public void run() {
@@ -62,14 +64,11 @@ public class FileServerTest {
 			for (int i = 0; i < repeatCount; i++) {
 
 				try {
-
-					URL url = new URL(repositoryUrl + "/" + filename);
-					HttpURLConnection connection = null;
-
+					
 					if (putOnce) {
-						filename = "testfile-" + UUID.randomUUID().toString();
-						url = new URL(repositoryUrl + "/" + filename);
-						connection = (HttpURLConnection) url.openConnection();
+						filename = "testfile-" + UUID.randomUUID().toString();						
+						URL url = new URL(repositoryUrl + "/" + filename);
+						HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 						connection.setRequestMethod("PUT");
 						connection.setDoOutput(true);
 						connection.setChunkedStreamingMode(2048);
@@ -77,15 +76,15 @@ public class FileServerTest {
 						IO.copy(new FileInputStream(new File(testfile)), os);
 						os.close();
 						Assert.assertTrue(isSuccessfulCode(connection.getResponseCode()));
-						connection.disconnect();
+						// do not disconnect so we test also how file broker manages dangling connections
 						putOnce = false;
 					}
 
 					if (put) {
 						// 1. upload
 						filename = "testfile-" + UUID.randomUUID().toString();
-						url = new URL(repositoryUrl + "/" + filename);
-						connection = (HttpURLConnection) url.openConnection();
+						URL url = new URL(repositoryUrl + "/" + filename);
+						HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 						connection.setRequestMethod("PUT");
 						connection.setDoOutput(true);
 						connection.setChunkedStreamingMode(2048);
@@ -93,13 +92,14 @@ public class FileServerTest {
 						IO.copy(new FileInputStream(new File(testfile)), os);
 						os.close();
 						Assert.assertTrue(isSuccessfulCode(connection.getResponseCode()));
-						connection.disconnect();
+						// do not disconnect so we test also how file broker manages dangling connections
 					}
 					// Thread.sleep(1000);
 
 					if (get) {
 						// 2. download
-						connection = (HttpURLConnection) url.openConnection();
+						URL url = new URL(repositoryUrl + "/" + filename);
+						HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 						InputStream is = connection.getInputStream();
 						OutputStream fos = new FileOutputStream(new File(filename));
 
@@ -107,7 +107,7 @@ public class FileServerTest {
 						is.close();
 						fos.close();
 						Assert.assertTrue(isSuccessfulCode(connection.getResponseCode()));
-						connection.disconnect();
+						// do not disconnect so we test also how file broker manages dangling connections
 					}
 
 				} catch (Exception e) {
@@ -115,9 +115,9 @@ public class FileServerTest {
 					throw new RuntimeException(e);
 				}
 			}
-
-		}
+			
+			System.out.println(name + " finished successfully");		
+		}		
 
 	}
-
 }

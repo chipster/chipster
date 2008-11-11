@@ -2,7 +2,7 @@ package fi.csc.microarray.frontend;
 
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Server;
-import org.mortbay.jetty.bio.SocketConnector;
+import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.thread.QueuedThreadPool;
@@ -37,12 +37,11 @@ public class EmbeddedJettyServer {
 		}
 		
 		jettyInstance = new Server();
-		QueuedThreadPool threadPool = new QueuedThreadPool();
-		jettyInstance.setThreadPool(threadPool);
-		Connector connector = new SocketConnector();
+		jettyInstance.setThreadPool(new QueuedThreadPool());
+		Connector connector = new SelectChannelConnector();
 		connector.setServer(jettyInstance);
 		connector.setPort(port);
-		jettyInstance.setConnectors(new Connector[]{connector});
+		jettyInstance.setConnectors(new Connector[]{ connector });
 
 		Context root = new Context(jettyInstance, contextPath, false, false);
 		root.setResourceBase(resourceBase);

@@ -3,10 +3,11 @@ package fi.csc.microarray.frontend;
 import org.apache.log4j.Logger;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Server;
-import org.mortbay.jetty.bio.SocketConnector;
+import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.DefaultServlet;
 import org.mortbay.jetty.servlet.ServletHolder;
+import org.mortbay.thread.QueuedThreadPool;
 
 import fi.csc.microarray.MicroarrayConfiguration;
 
@@ -42,11 +43,11 @@ public class WebstartJettyServer {
 			System.setProperty("DEBUG", "true");
 		}
 		jettyInstance = new Server();
-		Connector connector = new SocketConnector();
+		jettyInstance.setThreadPool(new QueuedThreadPool());
+		Connector connector = new SelectChannelConnector();
 		connector.setServer(jettyInstance);
 		connector.setPort(PORT_NUMBER);
-		jettyInstance.setConnectors(new Connector[]{connector});
-
+		jettyInstance.setConnectors(new Connector[]{ connector });
 		
 		Context wsRoot = new Context(jettyInstance, "/", false, false);
 		wsRoot.setResourceBase("web-content/");
