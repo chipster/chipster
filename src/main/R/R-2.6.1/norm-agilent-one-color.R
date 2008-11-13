@@ -16,7 +16,7 @@ library(limma)
 
 # Renaming variables
 bg<-background.treatment
-normba<-normalize.genes
+normba<-normalize.chips
 
 # Reading data
 columns<-list(R="sample", Rb="samplebg", G="sample", Gb="samplebg")
