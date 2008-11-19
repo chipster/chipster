@@ -22,17 +22,17 @@
 # JTT 22.10.2007
 
 #main.effect1<-"group"
-#main.effect2<-"EMPTY"
+#main.effect2<-"gender"
 #main.effect3<-"EMPTY"
 #technical.replication<-"EMPTY"
 #pairing<-"EMPTY"
-#treat.main.effect1.as.factor<-"no"
-#treat.main.effect2.as.factor<-"no"
+#treat.main.effect1.as.factor<-"yes"
+#treat.main.effect2.as.factor<-"yes"
 #treat.main.effect3.as.factor<-"no"
 #adjust.p.values<-"yes"
 #p.value.adjustment.method<-"BH"
-#interactions<-"main"
-#significance<-"significance"
+#interactions<-"two-way"
+#significance<-"interactions"
 
 
 # Loads the libraries
@@ -53,7 +53,7 @@ phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 if(main.effect1=="EMPTY" & main.effect2=="EMPTY" & main.effect3=="EMPTY") {
    stop("You need to specify at least one main effect! Please modify the setting accordingly, and rerun.")
 }
-if(main.effect2=="EMPTY" | main.effect3=="EMPTY" & interactions=="two-way" | interactions=="three-way") {
+if((main.effect2=="EMPTY" & main.effect3=="EMPTY" & interactions=="two-way") | (main.effect2=="EMPTY" & interactions=="three-way") | (main.effect3=="EMPTY" & interactions=="three-way")) {
    print("Only one main effect specified with interactions! No interactions specified for the model.")
    interactions<-c("main")
 }
@@ -419,34 +419,7 @@ if(main.effect1!="EMPTY" & main.effect2!="EMPTY" & main.effect3!="EMPTY" & techn
 }
 
 
-# Extracting the significant results
-# m<-matrix(nrow=nrow(dat2), ncol=ncol(design)-1)
-# mm<-matrix(nrow=nrow(dat2), ncol=ncol(design)-1)
-# for(i in 2:ncol(design)) {
-#   pp<-toptable(fit, coef=i, number=nrow(dat2), adjust.method=p.value.adjustment.method)
-#   ppind<-as.numeric(rownames(pp))
-#   ppind<-order(ppind)
-#   if(adjust.p.values=="yes") {
-#      pp2<-pp$adj.P.Val[ppind]
-#   }
-#   if(adjust.p.values=="no") {
-#      pp2<-pp$P.Value[ppind]
-#   }
-#   m[,(i-1)]<-pp2
-#   pp3<-pp$logFC[ppind]
-#   mm[,(i-1)]<-pp3
-#}
-#
-# Writing the data to disk
-#m<-data.frame(m)
-#mm<-data.frame(mm)
-#colnames(m)<-paste("p.adjusted.", colnames(design)[-1], sep="")
-#colnames(mm)<-paste("FC.", colnames(design)[-1], sep="")
-#dat3<-data.frame(dat2, round(m, digits=4), round(mm, digits=2))
-#write.table(dat3, file="limma.tsv", sep="\t", row.names=T, col.names=T, quote=F)
-#write.table(design, file="limma-design.tsv", sep="\t", row.names=F, col.names=T, quote=F)
-
-
+# Extracting data
 ## New method ##
 m<-matrix(nrow=nrow(dat2), ncol=ncol(design))
 mm<-matrix(nrow=nrow(dat2), ncol=ncol(design))
@@ -466,19 +439,36 @@ for(i in 1:ncol(design)) {
    mm[,(i)]<-pp3
 }
 
+
 # Writing the data to disk
 m<-data.frame(m)
 mm<-data.frame(mm)
-fc<-data.frame(mm)
-colnames(m)<-paste("p.adjusted.", colnames(design), sep="")
-colnames(mm)<-paste("FC.", colnames(design), sep="")
-colnames(mm)<-paste("chip.", colnames(design), sep="")
-dat3<-data.frame(dat, round(m, digits=4), round(mm, digits=2))
-dat4<-data.frame(round(mm[,-1], digits=2))
-colnames(dat4)<-colnames(mm[-1])
-#colnames(m)<-paste("chip.", colnames(design), sep="")
-dat5<-data.frame(round(m, digits=4))
+
+# Fold change
+fc<-mm
+colnames(fc)<-paste("FC.", colnames(design), sep="")
+fc2<-mm
+fc2<-data.frame(round(fc2[,-1], digits=2))
+colnames(fc2)<-paste("chip.", colnames(design)[-1], sep="")
+rownames(fc2)<-rownames(dat)
+
+# P-values
+pvalues<-m
+colnames(pvalues)<-paste("p.adjusted.", colnames(design), sep="")
+pvalues2<-data.frame(pvalues)
+pvalues2<-data.frame(round(pvalues2[,-1], digits=4))
+colnames(pvalues2)<-paste("chip.p.adjusted.", colnames(design)[-1], sep="")
+rownames(pvalues2)<-rownames(dat)
+pvaluesrounded<-round(pvalues, digits=4)
+fcrounded<-round(fc, digits=2)
+
+# Create data frames
+dat3<-cbind(dat, pvaluesrounded, fcrounded)
+
+# Write data to disk
 write.table(dat3, file="limma.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 write.table(design, file="limma-design.tsv", sep="\t", row.names=F, col.names=T, quote=F)
-write.table(dat4, file="foldchange.tsv", sep="\t", row.names=T, col.names=T, quote=F)
-write.table(dat5, file="pvalues.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+write.table(fc2, file="foldchange.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+write.table(pvalues2, file="pvalues.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+
+
