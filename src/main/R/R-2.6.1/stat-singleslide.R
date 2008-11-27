@@ -19,7 +19,7 @@ cutoff<-significance.cutoff
 
 # Loading the data
 file<-dir()
-dat<-read.table(file[1], header=T, sep="\t", row.names=1)
+dat<-read.table(file[1], header=T, sep="\t")
 
 # Calculating A and M
 x<-dat$sample-dat$samplebg
@@ -66,4 +66,4 @@ if(meth=="Newton") {
 }
 
 # Writes a table of significant genes
-write.table(data.frame(chip.file1=M[ind], average.file1=A[ind], logodds[ind]), "singlechip.tsv", sep="\t", col.names=T, quote=F, row.names=T)
+write.table(data.frame(genes=dat$identifier[ind], chip.file1=M[ind], average.file1=A[ind], logodds=logodds[ind]), "singlechip.tsv", sep="\t", col.names=T, quote=F, row.names=F)
