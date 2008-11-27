@@ -18,8 +18,8 @@ meth<-analysis.method
 cutoff<-significance.cutoff
 
 # Loading the data
-file<-c("normalized.tsv")
-dat<-read.table(file, header=T, sep="\t")
+file<-dir()
+dat<-read.table(file[1], header=T, sep="\t", row.names=1)
 
 # Calculating A and M
 x<-dat$sample-dat$samplebg
@@ -66,4 +66,4 @@ if(meth=="Newton") {
 }
 
 # Writes a table of significant genes
-write.table(data.frame(dat[ind,], chip=M[ind]), "singlechip.tsv", sep="\t", col.names=T, quote=F, row.names=T)
+write.table(data.frame(chip.file1=M[ind], average.file1=A[ind], logodds[ind]), "singlechip.tsv", sep="\t", col.names=T, quote=F, row.names=T)
