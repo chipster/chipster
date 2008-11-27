@@ -5,7 +5,7 @@
 # PARAMETER background.offset [0, 50] DEFAULT 50 (Background offset)
 # PARAMETER normalize.chips [none, scale, quantile, vsn] DEFAULT none (Between arrays normalization method)
 # PARAMETER remove.control.probes [yes, no] DEFAULT no (Remove control probes from the dataset)
-# PARAMETER chiptype [empty, Human-1 (4100a), Human-2 (4101a), Human-1A (4110b), Human-1B (4111a), Human-Whole-Genome (4112a), Mouse (4104a), Mouse (4120a), Mouse (4121a), Mouse (4122a), Rat (4105a), Rat (4130a), Rat (4131), zebrafish, zebrafishV2, drosophila] DEFAULT empty (chiptype)
+# PARAMETER chiptype [empty, Human-1 (4100a), Human-2 (4101a), Human-1A (4110b), Human-1B (4111a), Human-Whole-Genome (4112a), Mouse (4104a), Mouse (4120a), Mouse (4121a), Mouse (4122a), Rat (4105a), Rat (4130a), Rat (4131), zebrafish, zebrafishV2, drosophila, rhesus, rice] DEFAULT empty (chiptype)
 
 
 # cDNA chip normalization
@@ -90,6 +90,9 @@ if(chiptype=="drosophila") {
 }
 if(chiptype=="rhesus") {
    chiptype<-c("rhesusrefseq")
+}
+if(chiptype=="rice") {
+   chiptype<-c("rice")
 }
 write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 

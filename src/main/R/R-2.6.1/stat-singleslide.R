@@ -1,7 +1,7 @@
 # ANALYSIS Statistics/"Single-slide methods" (These are applicable if you only have a single cDNA slide. The noise-envelope
 # uses SD for filtering the genes. Newton's method is a more rigid statistical test of expression. This tool should
 # be run on unnormalized data!)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT singlechip.tsv
+# INPUT CDNA microarray[...].tsv OUTPUT singlechip.tsv
 # PARAMETER do.lowess.normalization [yes, no] DEFAULT yes (Loess-normalize before analysis)
 # PARAMETER analysis.method [noise-envelope, Newton] DEFAULT noise-envelope (Analysis method)
 # PARAMETER significance.cutoff DECIMAL FROM 0 TO 10 DEFAULT 2 (Cut-off for significance)
@@ -25,7 +25,7 @@ dat<-read.table(file, header=T, sep="\t")
 x<-dat$sample-dat$samplebg
 y<-dat$control+dat$controlbg
 M<-log2(y/x)
-A<-log2(x+y)
+A<-log2((x+y)/2)
 
 # Normalization
 if(norm=="no") {
