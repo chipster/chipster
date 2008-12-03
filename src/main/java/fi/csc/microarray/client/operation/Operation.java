@@ -221,13 +221,13 @@ public class Operation implements ExecutionItem {
 		getParameter(name).parseValue(stringValue);
 	}
 
-	private Parameter getParameter(String name) {
+	public Parameter getParameter(String name) {
 		for (Parameter parameter : parameters) {
 			if (parameter.getName().equals(name)) {
 				return parameter;
 			}
 		}
-		throw new IllegalArgumentException("parameter " + name + " does not exist");
+		return null;
 	}
 	
 	public int getColorCount() {

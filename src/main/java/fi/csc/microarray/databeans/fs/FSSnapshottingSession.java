@@ -20,6 +20,8 @@ import java.util.zip.ZipOutputStream;
 
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.ClientApplication;
+import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
+import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationCategory;
 import fi.csc.microarray.client.operation.OperationDefinition;
@@ -357,8 +359,21 @@ public class FSSnapshottingSession {
 				String paramName = split[2];
 				String paramValue = split[3];
 				Operation operation = fetchOperation(operId);
-				operation.parseParameter(paramName, paramValue);
-
+				Parameter parameter = operation.getParameter(paramName);
+				if (parameter != null) {
+					parameter.parseValue(paramValue);
+				} else {
+					// parameter does not exist (anymore), notify user 
+					// TODO add dataset name to the dialog
+					
+					String title = "Obsolete analysis tool parameter.";
+					String message = "The session you opened contains a dataset which has been derived using an analysis tool with a parameter which has been removed or renamed.\n\n" +
+					"The dataset contents have not changed and you can use them as before, but the obsolete parameter has been removed from the history information of the dataset " +						
+					"and will not be saved in further sessions or workflows.";
+					String details = "Analysis tool: " + operation.getCategoryName() + " / " + operation.getName() + "\nObsolete parameter: " + paramName; 
+					application.showDialog(title, message, details, Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_VISIBLE);
+				}
+				
 			} else if (line.startsWith("INPUTS ")) {
 				String[] split = line.split(" ");
 				String operId = split[1];
