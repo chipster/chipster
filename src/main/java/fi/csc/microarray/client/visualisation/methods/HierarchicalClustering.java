@@ -276,7 +276,7 @@ public class HierarchicalClustering extends Visualisation {
 		} catch (Exception e) {
 			// these are very tricky, mostly caused by bad data
 			logger.error(e); // log actual cause
-			throw new ErrorReportAsException("Hierarchical clustering cannot be shown.", "The problem is probably caused by unsupported data, such as gene names that are plain numbers or have illegal characters in them.", e);
+			throw new ErrorReportAsException("Hierarchical clustering cannot be shown.", "The problem is probably caused by unsupported data, such as gene names that have illegal characters in them.", e);
 		}
 
 	}
