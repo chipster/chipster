@@ -28,7 +28,7 @@ colno<-ncol(dat2)
 g.mean <- rowSums(dat2)/colno
 g.sd <- rowSds(dat2)
 g.cv <- g.sd / g.mean
-ffun <- filterfun( cv(0,median(g.cv) ))
+ffun <- filterfun( cv(median(g.cv),Inf))
 sel  <- genefilter(dat2, ffun)
 set <- dat[sel, ]
 
