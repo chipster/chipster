@@ -76,7 +76,7 @@
 			<value>/R/norm-illumina-lumi.R</value>
 			<value>/R/norm-lme.R</value>
 			<value>/R/norm-illumina-SNP.R</value>
-			<value>norm-specific-samples.R</value>
+			<value>/R/norm-specific-samples.R</value>
 
 			<!-- QUALITY CONTROL -->
 			<value>/R/qc-affy.R</value>
