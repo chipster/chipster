@@ -23,6 +23,7 @@ import com.jgoodies.looks.plastic.theme.ExperienceBlue;
 
 public class VisualConstants {
 	
+	
     // icons from Eclipse
     public static final ImageIcon PHENODATA_ICON = 
         new ImageIcon(VisualConstants.class.getResource("/eclipse/phenodata.gif"));
