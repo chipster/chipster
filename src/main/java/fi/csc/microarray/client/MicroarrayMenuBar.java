@@ -646,7 +646,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getContentMenuItem() {
 		if (contentMenuItem == null) {
 			contentMenuItem = new JMenuItem();
-			contentMenuItem.setText("Manual contents");
+			contentMenuItem.setText("User manual");
 			contentMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
 			contentMenuItem.setIcon(VisualConstants.HELP_MENUICON);
 			contentMenuItem.addActionListener(new java.awt.event.ActionListener() {

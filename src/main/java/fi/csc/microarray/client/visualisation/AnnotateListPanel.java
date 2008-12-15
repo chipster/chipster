@@ -58,7 +58,7 @@ public class AnnotateListPanel extends JPanel {
 		});
 
 		filterButton = new JButton("Create dataset");
-		filterButton.setToolTipText("Create new dataset from selected rows");
+		filterButton.setToolTipText("Create new dataset from selected genes");
 		filterButton.setEnabled(false);
 		filterButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
