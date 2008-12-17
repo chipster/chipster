@@ -22,6 +22,7 @@ public class DialogInfo {
 
 	public enum Type {
 		MESSAGE("Close"),
+		OK_MESSAGE("Ok"),
 		OPTION("Ok"),
 		BLOCKER(null);
 		
