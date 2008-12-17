@@ -53,7 +53,7 @@ public class HelpMapping {
 		mappings.put("Pathways/Bayesian network", "chipster-manual/pathway-bayesian.html");
 		mappings.put("Pathways/Boolean network", "chipster-manual/pathway-boolean-bestim.html");
 		mappings.put("Pathways/Hypergeometric test for GO", "chipster-manual/pathways-hypergeometric-go.html");
-		mappings.put("Pathways/Hypergeometric test for KEGG and PFAM", "chipster-manual/pathways-hypergeometric-kegg.html");
+		mappings.put("Pathways/Hypergeometric test for KEGG or PFAM", "chipster-manual/pathways-hypergeometric-kegg.html");
 		mappings.put("Pathways/SAFE test for KEGG pathway enrichment", "chipster-manual/pathways-hypergeometric-safe.html");
 		mappings.put("Pathways/Gene set test", "chipster-manual/stat-geneset.html");
 		mappings.put("Visualisation/Boxplot", "chipster-manual/plot-boxplot.html");
