@@ -12,7 +12,9 @@ import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.StringTokenizer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -169,24 +171,55 @@ public class MicroarrayTable extends JXTable implements ActionListener, Property
 	 */
 	public void paste(){
 		
-		int startRow = (this.getSelectedRows())[0];
-		int startCol = (this.getSelectedColumns())[0];
+//		int startRow = (this.getSelectedRows())[0];
+//		int startCol = (this.getSelectedColumns())[0];
+//		
+		int[] rowsSelected = this.getSelectedRows();
+		int[] colsSelected = this.getSelectedColumns();
 		
 		try{
 			String fromClipboard = (String)(systemClipboard.getData(DataFlavor.stringFlavor));
 			
-			StringTokenizer tokenizedValues = new StringTokenizer(fromClipboard,"\n");
-			for(int row = 0; tokenizedValues.hasMoreTokens(); row++){
-				String rowString = tokenizedValues.nextToken();
-				StringTokenizer tokenizedRowValues = new StringTokenizer(rowString,"\t");
-				
-				for(int col = 0; tokenizedRowValues.hasMoreTokens(); col++){
-					String cellValue = (String)tokenizedRowValues.nextToken();
-					if ((startRow + row < this.getRowCount()) && (startCol + col < this.getColumnCount()) && this.isCellEditable(startRow + row, startCol + col)){
-						this.setValueAt(cellValue, startRow + row, startCol + col);
+			List<List<String>> rows = new ArrayList<List<String>>();
+			
+			//-1 to generate empty strings from sequential delimeters meaning several 
+			//empty cells
+			for(String row: fromClipboard.split("\n", -1)){				
+				rows.add(Arrays.asList(row.split("\t", -1)));
+			}
+			
+			//Trailing \n is needed to make difference between empty clipboard and single 
+			//empty cell. Split with -1 limit generates one extra row in the end of the row
+			//which is removed here.
+			rows.remove(rows.size() - 1);
+			
+			//If one cell is celected, the content of the clipboard is copied once
+			if(rowsSelected.length == 1 && colsSelected.length == 1) {
+				for(int row = 0; row < rows.size(); row ++){
+					for(int col = 0; col < rows.get(row).size(); col++) {																		
+						if(isPasteAllowed(row + rowsSelected[0], col + colsSelected[0])){
+							this.setValueAt(rows.get(row).get(col), 
+									row + rowsSelected[0], col + colsSelected[0]);
+						}
+					}
+				}
+
+			} else {
+				//If multiple cells are selected, they are filled by multiplying 
+				//clipboard content
+
+				for(int row = 0; row < rowsSelected.length; row ++){
+					for(int col = 0; col < colsSelected.length; col++) {
+						if(isPasteAllowed(row + rowsSelected[0], col + colsSelected[0])){
+							
+							List<String> rowList = rows.get(row % rows.size());
+							this.setValueAt(rowList.get(col % rowList.size()), 
+									row + rowsSelected[0], col + colsSelected[0]);
+						}
 					}
 				}
 			}
+
 		} catch(IOException ioe){
 			JOptionPane.showMessageDialog(this, "Error occured while retrieving data from clipboard", "Clipboard error", JOptionPane.ERROR_MESSAGE);
 		} catch(UnsupportedFlavorException ufe){
@@ -194,6 +227,12 @@ public class MicroarrayTable extends JXTable implements ActionListener, Property
 		} catch(IllegalStateException ise){
 			JOptionPane.showMessageDialog(this, "Clipboard is currently unavailable", "Clipboard error", JOptionPane.ERROR_MESSAGE);
 		}
+	}
+	
+	private boolean isPasteAllowed(int row, int col){
+		return (row < this.getRowCount()) && 
+			(col < this.getColumnCount()) && 
+			this.isCellEditable(row, col);
 	}
 
 	public void actionPerformed(ActionEvent e) {
