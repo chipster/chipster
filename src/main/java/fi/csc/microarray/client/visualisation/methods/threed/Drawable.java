@@ -36,7 +36,7 @@ abstract public class Drawable
     public boolean hidden = false;
     
     protected java.awt.Color color;
-    public String text;
+    protected String text;
     protected double[] distanceFromCamera;
     
     /**

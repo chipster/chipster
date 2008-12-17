@@ -50,7 +50,7 @@ public class DataPoint
         this.deviceCoords = new int[1][2];
         this.dataCoords = new double[1][3];
         this.distanceFromCamera = new double[1];
-        this.index = index;
+        this.index = index;        
         
         dataCoords[0][0] = visualisationCoords[0][0] = xData;
         dataCoords[0][1] = visualisationCoords[0][1] = yData;
@@ -72,7 +72,7 @@ public class DataPoint
      * @param radius 
      */
     public DataPoint(double xData, double yData, double zData, 
-            Color color, double radius, CoordinateArea coordianteArea) {
+            Color color, double radius, CoordinateArea coordianteArea, String geneId) {
         this(xData, yData, zData, color, radius, null, -1);
     }
 
@@ -249,6 +249,10 @@ public class DataPoint
         return Math.sqrt(xD*xD + yD*yD + zD*zD);
     }
     
+    /*
+     * In AnnotateListPanel this is used as gene identifier. If toString is changed, separate 
+     * method for giving identifier should be done. 
+     */
     @Override
     public String toString(){
     	return text;

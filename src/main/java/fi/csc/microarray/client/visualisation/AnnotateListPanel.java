@@ -42,7 +42,7 @@ public class AnnotateListPanel extends JPanel {
 		selectedList = new JList(selectedListModel);
 
 		// disabling selections changes text to gray, so we just make it look
-		// like it
+		// like not selectable
 		selectedList.setSelectionBackground(selectedList.getBackground());
 		selectedList.setSelectionForeground(selectedList.getForeground());
 
@@ -105,6 +105,15 @@ public class AnnotateListPanel extends JPanel {
 	public void setSelectedListContent(Collection<DataPoint> content, Object source, boolean dispatchEvent, DataBean data) {
 
 		setData(data);
+		
+		TableAnnotationProvider annotationProvider;
+		try {
+			annotationProvider = new TableAnnotationProvider(data);
+			
+		} catch (MicroarrayException me) {
+			throw new RuntimeException(me);
+		}		
+		
 		selectedListModel.removeAllElements();
 		countLabel.setText(content.size() + " Points selected");
 		annotateButton.setEnabled(content.size() > 0);
@@ -116,10 +125,17 @@ public class AnnotateListPanel extends JPanel {
 
 		int[] indexes = new int[content.size()];
 		int i = 0;
+		/*//Without gene symbols
 		for (DataPoint row : content) {
 			selectedListModel.addElement(row.toString());
 			indexes[i++] = row.getIndex();
+		}*/
+		
+		for (DataPoint row : content) {
+			selectedListModel.addElement(annotationProvider.getAnnotatedRowname(row.toString()));
+			indexes[i++] = row.getIndex();
 		}
+
 
 		if (dispatchEvent) {
 			application.getSelectionManager().getRowSelectionManager(data).setSelected(indexes, source);
