@@ -66,6 +66,7 @@ public class RowSelectionManager {
 		original = new BufferedReader(new InputStreamReader(data.getContentByteStream()));
 		String line;
 
+		//For binary search
 		Arrays.sort(selectedRows);
 
 		for (int i = 0; (line = original.readLine()) != null; i++) {
@@ -80,7 +81,7 @@ public class RowSelectionManager {
 
 		return lines;
 	}
-
+		
 	public static DataBean createDataset(Iterable<String> lines, DataBean... sources) throws Exception {
 		DataBean newData = Session.getSession().getApplication().getDataManager().createDataBean("user_edited.tsv");
 		

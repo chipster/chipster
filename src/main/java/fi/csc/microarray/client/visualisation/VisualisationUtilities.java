@@ -1,7 +1,12 @@
 package fi.csc.microarray.client.visualisation;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.ClientApplication;
@@ -9,6 +14,7 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.selection.RowSelectionManager;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.ThreadUtils;
 import fi.csc.microarray.wizard.ResultBlocker;
@@ -20,25 +26,138 @@ public class VisualisationUtilities {
 	public static DataBean filterBySelection(List<DataBean> datas) {
 		try {
 			
-			// use the data with most columns as the source for filtering
-			int largestDataIndex = 0;
-			int largestDataColCount = -1;
-			for (int i = 0; i < datas.size(); i++) {
-				int colCount = datas.get(i).queryFeatures("/column/*").asTable().getColumnCount();
-				if (colCount > largestDataColCount) {
-					largestDataColCount = colCount;
-					largestDataIndex = i;
+			//Doing this with multiple datas isn't pretty, so here is simple solution
+			//for single datas
+				
+			if(datas.size() == 1){
+				Collection<String> lines = application.getSelectionManager().getRowSelectionManager(datas.get(0)).getSelectedLines();
+				return RowSelectionManager.createDataset(lines, datas.toArray(new DataBean[datas.size()]));
+			} else {
+
+				
+				List<String[]> allColumns = new LinkedList<String[]>();
+				
+				//Get list of columns names from every dataset
+				for(DataBean data : datas){
+					if(application.getSelectionManager().getRowSelectionManager(data).
+							getSelectedRows().length > 0){
+						
+						allColumns.add(data.queryFeatures("/column/*").asTable().getColumnNames());
+					}
 				}
+												
+				List<String> columnOrder = new ArrayList<String>();
+				
+				while(allColumns.size() > 0){
+					
+					//Find the longest remaining column name list
+					int mostColumns = 0;
+										
+					for(String[] columnList : allColumns){
+						if(columnList.length > allColumns.get(mostColumns).length) {
+							mostColumns = allColumns.indexOf(columnList);
+						}						
+					}
+										
+					//Add columns from the found list to columnOrder if it isn't there already
+					
+					for(String col : allColumns.get(mostColumns)){
+						if(!columnOrder.contains(col)){
+							columnOrder.add(col);
+						}
+					}					
+					allColumns.remove(mostColumns);
+				}
+				
+				//Construct new data lines with new column order and from multiple datas
+				Map<String, Map<String, String>> values = getSelectedFromMultipleDatas(datas);				
+										
+				List<String> lines = new ArrayList<String>();
+								
+				String newLine = "";
+				
+				//Column header
+				for(String colName : columnOrder){
+					newLine +=colName + "\t";
+				}
+				
+				if(newLine.endsWith("\t")){
+					newLine = newLine.substring(0, newLine.length() - 1);
+				}				
+				
+				lines.add(newLine);
+				
+				//Actual content
+				for(String id : values.keySet()){
+					newLine = "";
+					
+					Map<String, String> rowValues = values.get(id);
+					
+					for(String colName : columnOrder){
+						String value = rowValues.get(colName);
+						if(value == null){
+							value = "";
+						}
+						newLine += value + "\t";
+					}
+					
+					if(newLine.endsWith("\t")){
+						newLine = newLine.substring(0, newLine.length() - 1);
+					}				
+					
+					lines.add(newLine);
+				}
+				
+				return RowSelectionManager.createDataset(lines, datas.toArray(new DataBean[datas.size()]));
 			}
-			
-			Collection<String> lines = application.getSelectionManager().getRowSelectionManager(datas.get(largestDataIndex)).getSelectedLines();
-			return RowSelectionManager.createDataset(lines, datas.toArray(new DataBean[datas.size()]));
 
 		} catch (Exception exp) {
 			application.reportException(new MicroarrayException("Unable to create user filtered dataset", exp));
 			return null;
 		}
 	}
+	
+	public static Map<String, Map<String, String>> getSelectedFromMultipleDatas(List<DataBean> datas) throws Exception {
+
+		//Maps identifiers to row map, where row map maps column names to values 
+		Map<String, Map<String, String>> lines = new HashMap<String, Map<String, String>>();
+		
+		//Collect all rows to row maps, add all columns of duplicate identifiers to same row map
+		
+		for(DataBean data : datas){
+			Table columns = data.queryFeatures("/column/*").asTable();
+			
+			int[] indexes = application.getSelectionManager().getRowSelectionManager(data).getSelectedRows();
+			
+			Arrays.sort(indexes);
+
+			for(int i = 0; columns.nextRow(); i++){
+				
+				if(Arrays.binarySearch(indexes, i) < 0) {
+					continue;
+				}
+					
+				Map<String, String> newColumns = new HashMap<String, String>();								
+
+				for (String columnName : columns.getColumnNames()) {
+					newColumns.put(columnName, columns.getValue(columnName).toString());
+				}
+
+				String id = newColumns.get(" ").toString();
+
+				if(!lines.containsKey(id)){
+					lines.put(id, newColumns);
+				}
+
+				lines.get(id).putAll(newColumns);					
+			}
+		}
+		
+		return lines;
+	}
+	
+	
+
 
 	public static void annotateBySelection(List<DataBean> datas) {
 

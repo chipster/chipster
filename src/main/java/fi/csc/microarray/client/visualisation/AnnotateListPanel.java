@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -78,6 +79,17 @@ public class AnnotateListPanel extends JPanel {
 	public void setSelectedListContentMultipleDatas(List<String> content, Map<DataBean, Set<Integer>> indexes, Object source, boolean dispatchEvent) {
 
 		setData(indexes.keySet());
+		
+		List<TableAnnotationProvider> annotationProviders = new LinkedList<TableAnnotationProvider>();
+		try {
+			int i = 0;
+			for(DataBean data : indexes.keySet()){
+				annotationProviders.add(new TableAnnotationProvider(data));
+			}
+			i++;			
+		} catch (MicroarrayException me) {
+			throw new RuntimeException(me);
+		}
 
 		selectedListModel.removeAllElements();
 		countLabel.setText(content.size() + " Points selected");
@@ -85,7 +97,20 @@ public class AnnotateListPanel extends JPanel {
 		filterButton.setEnabled(content.size() > 0);
 
 		for (String row : content) {
-			selectedListModel.addElement(row.toString());
+			
+			String viewName = "";
+			for(TableAnnotationProvider annotation : annotationProviders){
+				String annotationStr = annotation.getAnnotatedRowname(row);
+				if(annotationStr != null && !viewName.contains(annotationStr)) {
+					if(viewName.length() == 0){
+						viewName += annotationStr;
+					}else{
+						viewName += ", " + annotationStr;
+					}
+				}	
+			}
+			
+			selectedListModel.addElement(viewName);
 		}
 
 		if (dispatchEvent) {
