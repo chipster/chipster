@@ -1,8 +1,10 @@
 package fi.csc.microarray.client.visualisation.methods;
 
+import java.awt.Color;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.Ellipse2D;
 import java.beans.PropertyChangeListener;
 import java.util.Iterator;
 
@@ -14,6 +16,7 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.data.Range;
 import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -55,23 +58,35 @@ public class Volcanoplot extends Scatterplot implements ActionListener, MouseLis
 		Iterator<Float> xValues = data.queryFeatures(X_AXIS_EXPRESSION).asFloats().iterator();
 		Iterator<Float> yValues = data.queryFeatures(Y_AXIS_EXPRESSION).asFloats().iterator();
 
-		XYSeries redSeries = new XYSeries("", false); // autosort=false, autosort would mess up selection
+		XYSeries greenSeries = new XYSeries("", false); // autosort=false, autosort would mess up selection
 		XYSeries blackSeries = new XYSeries("", false); // autosort=false, autosort would mess up selection
+		XYSeries redSeries = new XYSeries("", false); // autosort=false, autosort would mess up selection
 		int row = 0;
 		for (String name : data.queryFeatures("/identifier").asStrings()) {
 			float x = xValues.next();
 			float y = yValues.next();
-			boolean overThresholds = Math.abs(x) >= 2f && y >= 1f;
+			boolean overYThreshold = y >= -Math.log(0.05);
+			boolean overXThreshold = Math.abs(x) >= 1f;
 			int series;
 			int index;
-			if (overThresholds) {
-				series = 1;
-				index = blackSeries.getItemCount();
-				blackSeries.add(new XYDataItem(x, y));				
+			
+			if (overYThreshold && overXThreshold) {
+				if(x < 0){
+					series = 0;
+					index = greenSeries.getItemCount();
+					greenSeries.add(new XYDataItem(x, y));
+					
+				} else {			
+					series = 1;
+					index = redSeries.getItemCount();
+					redSeries.add(new XYDataItem(x, y));
+					
+				}
 			} else {
-				series = 0;
-				index = redSeries.getItemCount();
-				redSeries.add(new XYDataItem(x, y));
+				series = 2;
+				index = blackSeries.getItemCount();
+				blackSeries.add(new XYDataItem(x, y));
+			
 			}
 			allItems.add(new DataItem2D(null, name, row, index, series));
 			row++;
@@ -80,13 +95,15 @@ public class Volcanoplot extends Scatterplot implements ActionListener, MouseLis
 		PlotDescription description = new PlotDescription(data.getName(), "fold change", "-log(p)");
 
 		XYSeriesCollection dataset = new XYSeriesCollection();
+		dataset.addSeries(greenSeries);
 		dataset.addSeries(redSeries);
 		dataset.addSeries(blackSeries);
 
 		NumberAxis domainAxis = new NumberAxis(description.xTitle);
-		domainAxis.setAutoRangeIncludesZero(false);
 		NumberAxis rangeAxis = new NumberAxis(description.yTitle);
-		rangeAxis.setAutoRangeIncludesZero(false);
+		rangeAxis.setRange(new Range(0, 16));
+		
+		
 		XYPlot plot = new XYPlot(dataset, domainAxis, rangeAxis, null);
 		JFreeChart chart = new JFreeChart(description.plotTitle, plot);
 		chartPanel = makePanel(chart);
@@ -96,6 +113,12 @@ public class Volcanoplot extends Scatterplot implements ActionListener, MouseLis
 		
 		// rendered depends on chartPanel for coordinate translations (a bit awkward...), so it cannot be created earlier
 		XYItemRenderer renderer = new PositionRecordingRenderer(StandardXYItemRenderer.SHAPES, allItems, selectedItems, chartPanel);
+		
+		renderer.setSeriesPaint(0, Color.green);
+		renderer.setSeriesPaint(1, Color.red);
+		renderer.setSeriesPaint(2, Color.black);
+		renderer.setShape(new Ellipse2D.Float(-2, -2, 4, 4));
+		
 		plot.setRenderer(renderer); 
 
 		overlayPanel = new JPanel(new OverlayLayout());

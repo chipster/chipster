@@ -240,6 +240,7 @@ public class PositionRecordingRenderer extends StandardXYItemRenderer {
 				return item;
 			}			
 		}
+		
 		throw new IllegalArgumentException("illegal plot item: seriesIndex " + seriesIndex + ", series " + series);
 	}
 }
