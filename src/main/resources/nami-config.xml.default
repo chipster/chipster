@@ -215,7 +215,7 @@
 		</entry>
 		
 		<entry entryKey="backupDir">
-			<value>nami-work-files/database/backups</value>
+			<value>nami-work-files/database-backups</value>
 		</entry>
 		
 		<entry entryKey="backupTime">
@@ -224,7 +224,7 @@
 		
 		<!-- hours -->
 		<entry entryKey="backupInterval">
-			<value>1</value>
+			<value>24</value>
 		</entry>
 			
 
