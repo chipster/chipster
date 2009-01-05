@@ -57,7 +57,7 @@
              <authorizationEntries>
                <authorizationEntry topic="authorised-request-topic" write="authenticators" read="analysers" admin="all" />
                <authorizationEntry topic="request-topic" write="clients" read="authenticators" admin="all" />
-               <authorizationEntry topic="manager-topic" write="analysers,authenticators" read="managers" admin="all" />
+               <authorizationEntry topic="job-log-topic" write="analysers,authenticators" read="managers" admin="all" />
                <authorizationEntry topic="admin-topic" write="all" read="all" admin="all" />
                <authorizationEntry topic="test-topic" write="all" read="all" admin="all" />
                <authorizationEntry topic="ActiveMQ.Advisory.>" read="all" write="all" admin="all"/>

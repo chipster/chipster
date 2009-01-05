@@ -251,8 +251,8 @@ public class ConfigTool {
 		Document doc = openForUpdating("ActiveMQ", configFile);
 		Element broker = (Element)doc.getDocumentElement().getElementsByTagName("broker").item(0);
 		
-		NodeList transportConnectors = broker.getElementsByTagName("transportConnectors");		
-		Element transportConnector = (Element)transportConnectors.item(0); // edit first in the list (could use attribute name to decide right one)..
+		Element transportConnectors = (Element)broker.getElementsByTagName("transportConnectors").item(0);		
+		Element transportConnector = (Element)transportConnectors.getElementsByTagName("transportConnector").item(0); // edit first in the list (could use attribute name to decide right one)..
 		String uri = configs[BROKER_PROTOCOL_INDEX][VAL_INDEX] + "://" + configs[BROKER_HOST_INDEX][VAL_INDEX] + ":" + configs[BROKER_PORT_INDEX][VAL_INDEX];
 		updateElementAttribute(transportConnector, "uri", uri);
 		
