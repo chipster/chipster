@@ -37,6 +37,7 @@ library(package=lib, character.only=T)
 
 # Creating a list of RefSeq IDs for promoter retrieval
 refseq<-as.vector(unlist(mget(genes, envir=get(env))))
+refseq<-unique(refseq)
 
 # Retrieving promoters
 if(species=="human" & size=="small") {

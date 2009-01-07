@@ -1,7 +1,7 @@
 # ANALYSIS Normalisation/"Illumina" (Illumina preprocessing using individual files. Every file includes data for one
 # array, i.e., the data that has been imported through Import tool. YOU HAVE TO SPECIFY THE CHIPTYPE.)
 # INPUT CDNA chip[...].tsv OUTPUT normalized.tsv, phenodata.tsv
-# PARAMETER normalize.genes [none, scale, quantile, vsn] DEFAULT quantile (Between arrays normalization method)
+# PARAMETER normalize.chips [none, scale, quantile, vsn] DEFAULT quantile (Between arrays normalization method)
 # PARAMETER beadstudio.version [1, 2, 3] DEFAULT 1 (BeadStudio version number) 
 # PARAMETER chiptype [empty, Human-6v1, HumanRef-8v1, Human-6v2, HumanRef-8v2, Human-6v3, HumanRef-8v3, Mouse-6v1.0a, MouseRef-8v1.0a, Mouse-6v1.1, MouseRef-8v1.1, Mouse-6v2, MouseRef-8v2, RatRef-12] DEFAULT empty (chiptype)
 # PARAMETER id.type [TargetID, ProbeID] DEFAULT TargetID (Which annotations to use) 
@@ -17,7 +17,7 @@ produce.flags<-c("no")
 library(limma)
 
 # Renaming variables
-normba<-normalize.genes
+normba<-normalize.chips
 
 # Reading data
 columns<-list(R="sample", Rb="sample", G="sample", Gb="sample")

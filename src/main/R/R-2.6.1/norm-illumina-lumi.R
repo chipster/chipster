@@ -2,7 +2,7 @@
 # TO USE THIS, YOU NEED TO IMPORT THE BeadSummaryData FILE DIRECTLY, NOT USING THE IMPORT TOOL.)
 # INPUT GENERIC chip.tsv OUTPUT normalized.tsv, phenodata.tsv
 # PARAMETER transformation [none, vst, log2] DEFAULT log2 (How to transform the data)
-# PARAMETER normalize.genes [none, rsn, loess, quantile, vsn] DEFAULT quantile (Between arrays normalization method)
+# PARAMETER normalize.chips [none, rsn, loess, quantile, vsn] DEFAULT quantile (Between arrays normalization method)
 # PARAMETER chiptype [empty, Human-6v1, HumanRef-8v1, Human-6v2, HumanRef-8v2, Mouse-6v1.0a, MouseRef-8v1.0a, RatRef-12] DEFAULT empty (chiptype)
 
 
@@ -54,19 +54,19 @@ if(transformation=="log2") {
 }
 
 # Normalization
-if(normalize.genes=="none") {
+if(normalize.chips=="none") {
    n.lumi<-t.lumi
 }
-if(normalize.genes=="rsn") {
+if(normalize.chips=="rsn") {
    n.lumi<-lumiN(t.lumi, method=c("rsn"))
 }
-if(normalize.genes=="loess") {
+if(normalize.chips=="loess") {
    n.lumi<-lumiN(t.lumi, method=c("loess"))
 }
-if(normalize.genes=="quantile") {
+if(normalize.chips=="quantile") {
    n.lumi<-lumiN(t.lumi, method=c("quantile"))
 }
-if(normalize.genes=="vsn") {
+if(normalize.chips=="vsn") {
    n.lumi<-lumiN(t.lumi, method=c("vsn"))
 }
 

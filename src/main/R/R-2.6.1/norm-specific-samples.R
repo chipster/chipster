@@ -30,8 +30,8 @@ if(max(extract>1)) {
 }
 
 # Extracting the samples
-dat0<-dat2[,which(extract==0)]
-dat1<-dat2[,which(extract==1)]
+dat0<-as.data.frame(dat2[,which(extract==0)])
+dat1<-as.data.frame(dat2[,which(extract==1)])
 
 # Normalization values
 nv<-(rowSums(dat0)/ncol(dat0))
