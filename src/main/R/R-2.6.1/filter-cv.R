@@ -28,9 +28,9 @@ colno<-ncol(dat2)
 g.mean <- rowSums(dat2)/colno
 g.sd <- rowSds(dat2)
 g.cv <- g.sd / g.mean
-ffun <- filterfun( cv(median(g.cv),Inf))
+ffun <- filterfun( cv(0,median(g.cv) ))
 sel  <- genefilter(dat2, ffun)
-set <- dat[sel, ]
+set <- dat[!sel, ]
 
 # Saving the results
 write.table(data.frame(set), file=("cv-filter.tsv"), sep="\t", row.names=T, col.names=T, quote=F)
