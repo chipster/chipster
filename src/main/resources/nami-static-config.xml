@@ -106,6 +106,7 @@
 			<value>/R/stat-correlate-with-phenodata.R</value>				
 			<value>/R/stat-timeseries.R</value>			
 			<value>/R/stat-chisq-snp.R</value>
+			<value>/R/stat-adjust-pvalues.R</value>
 			<value>/R/ordination-pca.R</value>
 			<value>/R/ordination-nmds.R</value>
 			<value>/R/estimate-samplesize.R</value>
