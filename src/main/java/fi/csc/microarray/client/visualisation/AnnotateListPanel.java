@@ -92,7 +92,7 @@ public class AnnotateListPanel extends JPanel {
 		}
 
 		selectedListModel.removeAllElements();
-		countLabel.setText(content.size() + " Points selected");
+		countLabel.setText(content.size() + " Genes selected");
 		annotateButton.setEnabled(content.size() > 0);
 		filterButton.setEnabled(content.size() > 0);
 
@@ -140,7 +140,7 @@ public class AnnotateListPanel extends JPanel {
 		}		
 		
 		selectedListModel.removeAllElements();
-		countLabel.setText(content.size() + " Points selected");
+		countLabel.setText(content.size() + " Genes selected");
 		annotateButton.setEnabled(content.size() > 0);
 		filterButton.setEnabled(content.size() > 0);
 		/*
@@ -187,7 +187,7 @@ public class AnnotateListPanel extends JPanel {
 		}
 
 		selectedListModel.removeAllElements();
-		countLabel.setText(content.size() + " Points selected");
+		countLabel.setText(content.size() + " Genes selected");
 		annotateButton.setEnabled(content.size() > 0);
 		filterButton.setEnabled(content.size() > 0);
 
