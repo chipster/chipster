@@ -73,17 +73,18 @@ public class Manager extends MonitoredNodeBase implements MessagingListener {
 	// TODO index, unique keys
 	private static final String CREATE_JOBS_TABLE = 
 		"CREATE TABLE IF NOT EXISTS jobs (" +
-			"jobId VARCHAR(100), " + 
-			"operation VARCHAR(100), " +
-			"status VARCHAR(20), " + 
-			"starttime DATETIME DEFAULT NULL, " + 
-			"endtime DATETIME DEFAULT NULL, " +
-			"wallclockTime INT DEFAULT NULL, " +
-			"errorMessage TEXT DEFAULT NULL, " +
-			"outputText TEXT DEFAULT NULL, " + 
-			"username VARCHAR(20), " +
-			"compHost VARCHAR(50)" +
-			");";
+		"id VARCHAR(100) PRIMARY KEY, " + 
+		"operation VARCHAR(100), " +
+		"status VARCHAR(20), " + 
+		"starttime DATETIME DEFAULT NULL, " + 
+		"endtime DATETIME DEFAULT NULL, " +
+		"wallclockTime INT DEFAULT NULL, " +
+		"errorMessage TEXT DEFAULT NULL, " +
+		"outputText TEXT DEFAULT NULL, " + 
+		"username VARCHAR(20), " +
+		"compHost VARCHAR(50)" +
+		"); ";
+		//"CREATE UNIQUE INDEX IF NOT EXISTS jobIdIndex on jobs(id); ";
 	
 	
 	
@@ -164,7 +165,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener {
 		// start web console
 		Server server;
 		if (startWebConsole) {
-			server = Server.createWebServer(new String[] {"-webAllowOthers",  "-webPort " + webConsolePort});
+			server = Server.createWebServer(new String[] {"-webAllowOthers",  "-webPort", String.valueOf(webConsolePort)});
 			server.start();
 		}
 		
@@ -189,21 +190,23 @@ public class Manager extends MonitoredNodeBase implements MessagingListener {
 		}
 		
 		JobLogMessage jobLogMessage = (JobLogMessage)namiMessage;
-		
-	    Map<String, Object> parameters = new HashMap<String, Object>();
-	    parameters.put("jobId", jobLogMessage.getJobId());
-	    parameters.put("operation", jobLogMessage.getOperation());
-		parameters.put("status", jobLogMessage.getState().toString()); 
-		parameters.put("starttime", jobLogMessage.getStartTime()); 
-		parameters.put("endtime", jobLogMessage.getEndTime());
-		parameters.put("wallclockTime", (jobLogMessage.getEndTime().getTime() - jobLogMessage.getStartTime().getTime()) / 1000);
-		parameters.put("errorMessage", jobLogMessage.getErrorMessage());
-		parameters.put("outputText", jobLogMessage.getOutputText()); 
-		parameters.put("username", jobLogMessage.getUsername());
-		parameters.put("compHost", jobLogMessage.getCompHost());
-		
-		this.insertJobTemplate.execute(parameters);
-	
+		try {
+		    Map<String, Object> parameters = new HashMap<String, Object>();
+		    parameters.put("id", jobLogMessage.getJobId());
+		    parameters.put("operation", jobLogMessage.getOperation());
+			parameters.put("status", jobLogMessage.getState().toString()); 
+			parameters.put("starttime", jobLogMessage.getStartTime()); 
+			parameters.put("endtime", jobLogMessage.getEndTime());
+			parameters.put("wallclockTime", (jobLogMessage.getEndTime().getTime() - jobLogMessage.getStartTime().getTime()) / 1000);
+			parameters.put("errorMessage", jobLogMessage.getErrorMessage());
+			parameters.put("outputText", jobLogMessage.getOutputText()); 
+			parameters.put("username", jobLogMessage.getUsername());
+			parameters.put("compHost", jobLogMessage.getCompHost());
+			
+			this.insertJobTemplate.execute(parameters);
+		} catch (Exception e) {
+			logger.error("Could not insert log entry", e);
+		}
 	}
 
 
