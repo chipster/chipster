@@ -451,11 +451,23 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	}
 
 	public void removeRunningJob(AnalysisJob job) {
-		loggerJobs.info(job.getInputMessage().getAnalysisId().replaceAll("\"", "") + "," +
-						job.getState() + "," + 
-						job.getInputMessage().getUsername() + "," + 
-						job.getExecutionStartTime().toString() + "," +
-						job.getExecutionEndTime());
+		String hostname = "";
+		
+		try {
+			hostname = InetAddress.getLocalHost().getCanonicalHostName();
+		} catch (UnknownHostException e1) {
+			logger.warn("Could not get local hostname.");
+			hostname = "";
+		}
+		
+		char delimiter = ';';
+		loggerJobs.info(job.getId() + delimiter + 
+						job.getInputMessage().getAnalysisId().replaceAll("\"", "") + delimiter +
+						job.getState() + delimiter + 
+						job.getInputMessage().getUsername() + delimiter + 
+						job.getExecutionStartTime().toString() + delimiter +
+						job.getExecutionEndTime().toString() + delimiter +
+						hostname);
 		
 		logger.debug("Analyser server removing job " + job.getId() + "(" + job.getState() + ")");
 		synchronized(jobsLock) {
