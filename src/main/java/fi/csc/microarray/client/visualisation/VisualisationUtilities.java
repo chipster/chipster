@@ -13,6 +13,7 @@ import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.selection.RowSelectionManager;
+import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
@@ -184,5 +185,33 @@ public class VisualisationUtilities {
 			application.reportException(new MicroarrayException("Unable to collect identifiers for annotation", exp));
 		}
 
+	}
+	
+	public static Variable[] getVariablesFiltered(DataBean dataBean, String startsWith, boolean removeStart) {
+		String exprHeader = "/column/";
+
+		LinkedList<Variable> vars = new LinkedList<Variable>();
+		try {
+			Table columns = dataBean.queryFeatures("/column/*").asTable();
+
+			for (String columnName : columns.getColumnNames()) {
+				if (columnName.startsWith(startsWith)) {
+					String chipName;
+					
+					if(removeStart){
+						chipName = columnName.substring(startsWith.length());
+					} else {
+						chipName = columnName;
+					}
+					
+					String expression = exprHeader + columnName; 
+					vars.add(new Variable(chipName, expression));
+				}
+			}
+
+		} catch (MicroarrayException e) {
+			application.reportException(new MicroarrayException("no chips to visualise"));
+		}
+		return vars.toArray(new Variable[0]);
 	}
 }

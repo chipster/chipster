@@ -1,14 +1,22 @@
 package fi.csc.microarray.client.visualisation.methods;
 
 import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Ellipse2D;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
+import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.jfree.chart.JFreeChart;
@@ -23,8 +31,11 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.OverlayLayout;
 
 import fi.csc.microarray.MicroarrayException;
+import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
+import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
+import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.databeans.DataBean;
 
 public class Volcanoplot extends Scatterplot implements ActionListener, MouseListener, MouseMotionListener, PropertyChangeListener {
@@ -32,15 +43,67 @@ public class Volcanoplot extends Scatterplot implements ActionListener, MouseLis
 	/**
 	 * Analytical expression is -log(p), where p is the first available p.* column.
 	 */
-	private static final String Y_AXIS_EXPRESSION = "neg(log(/column/p.*))";
-	/**
-	 * Fold change.
-	 */
-	private static final String X_AXIS_EXPRESSION = "/column/FC"; 
+	private static final String COLUMN_MASK = "***";
+	private static final String Y_AXIS_CONVERTER= "neg(log(***))";
+	private static final String Y_AXIS_COLUMN_HEADER = "p.";
+	private static final String X_AXIS_COLUMN_HEADER = "FC";
 
 	public Volcanoplot(VisualisationFrame frame) {
 		super(frame);
 	}
+	
+	@Override
+	public JPanel createSettingsPanel() {
+
+		settingsPanel = new JPanel();
+		settingsPanel.setLayout(new GridBagLayout());
+		settingsPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
+
+		xBox = new JComboBox();
+		yBox = new JComboBox();
+
+		useButton = new JButton("Draw");
+		useButton.addActionListener(this);
+		GridBagConstraints c = new GridBagConstraints();
+
+		c.gridy = 0;
+		c.insets.set(10, 10, 10, 10);
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weighty = 0;
+		c.weightx = 1.0;
+		settingsPanel.add(new JLabel("Fold change "), c);
+		c.gridy++;
+		settingsPanel.add(xBox, c);
+		c.gridy++;
+		settingsPanel.add(new JLabel("p-value"), c);
+		c.gridy++;
+		settingsPanel.add(yBox, c);
+		c.gridy++;
+		settingsPanel.add(useButton, c);
+		c.gridy++;
+		c.fill = GridBagConstraints.BOTH;
+		c.weighty = 1.0;
+		settingsPanel.add(new JPanel(), c);
+
+		xBox.addActionListener(this);
+		yBox.addActionListener(this);
+
+		return settingsPanel;
+	}
+	
+	protected void refreshAxisBoxes(DataBean data) {
+		if (paramPanel == null) {
+			throw new IllegalStateException("must call getParameterPanel first");
+		}
+
+		Visualisation.fillCompoBox(xBox, VisualisationUtilities.getVariablesFiltered(
+				data, X_AXIS_COLUMN_HEADER, false));
+		Visualisation.fillCompoBox(yBox, VisualisationUtilities.getVariablesFiltered(
+				data, Y_AXIS_COLUMN_HEADER, false));
+	}
+
+
 
 	@Override
 	public JComponent getVisualisation(DataBean data) throws Exception {
@@ -54,9 +117,25 @@ public class Volcanoplot extends Scatterplot implements ActionListener, MouseLis
 		}
 
 		allItems.clear();
+		
+		refreshAxisBoxes(data);
+		
+		List<Variable> vars = getFrame().getVariables();
+		
+		//If this a redraw from the settings panel, use asked columns
+		if (vars != null && vars.size() == 2) {			
+			xBox.setSelectedItem(vars.get(0));
+			yBox.setSelectedItem(vars.get(1));
+		}
 
-		Iterator<Float> xValues = data.queryFeatures(X_AXIS_EXPRESSION).asFloats().iterator();
-		Iterator<Float> yValues = data.queryFeatures(Y_AXIS_EXPRESSION).asFloats().iterator();
+		Variable xVar = (Variable) xBox.getSelectedItem();
+		Variable yVar = (Variable) yBox.getSelectedItem();
+
+		// "/column/" part of the query comes from the getExpression function
+		Iterator<Float> xValues = data.queryFeatures(
+				xVar.getExpression()).asFloats().iterator();
+		Iterator<Float> yValues = data.queryFeatures(
+				Y_AXIS_CONVERTER.replace(COLUMN_MASK, yVar.getExpression())).asFloats().iterator();
 
 		XYSeries greenSeries = new XYSeries("", false); // autosort=false, autosort would mess up selection
 		XYSeries blackSeries = new XYSeries("", false); // autosort=false, autosort would mess up selection
@@ -138,6 +217,22 @@ public class Volcanoplot extends Scatterplot implements ActionListener, MouseLis
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
 		boolean isTabular = VisualisationMethod.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
-		return isTabular && hasRows(bean) && bean.queryFeatures(Y_AXIS_EXPRESSION).exists() && bean.queryFeatures(X_AXIS_EXPRESSION).exists();
+		return isTabular && hasRows(bean) && 
+			bean.queryFeatures(Y_AXIS_CONVERTER.replace(
+					COLUMN_MASK, "/column/" + Y_AXIS_COLUMN_HEADER + "*")).exists() && 
+			bean.queryFeatures("/column/" + X_AXIS_COLUMN_HEADER + "*").exists();
+	}
+	
+	public void actionPerformed(ActionEvent e) {
+		Object source = e.getSource();
+
+		if (source == useButton) {
+			List<Variable> vars = new ArrayList<Variable>();
+			vars.add((Variable) xBox.getSelectedItem());
+			vars.add((Variable) yBox.getSelectedItem());
+
+			application.setVisualisationMethod(new VisualisationMethodChangedEvent(
+					this, VisualisationMethod.VOLCANOPLOT, vars, getFrame().getDatas(), getFrame().getType(), getFrame()));
+		}
 	}
 }
