@@ -87,7 +87,7 @@ public class LogImport {
 			String dbUrl = "jdbc:h2:nami-work-files/database/chipster-manager";
 			boolean startWebConsole = true;
 			String dbUsername = "chipster";
-		    String dbPassword = "tilastohiiri";
+		    String dbPassword = "";
 		    int webConsolePort = 8082;
 
 		    
