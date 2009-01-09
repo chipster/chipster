@@ -177,29 +177,8 @@ public class LogImport {
 	
 	
 	public static void main(String[] args) throws SQLException, IOException, OldConfigurationFormatException, ParseException {
-		MicroarrayConfiguration.loadConfiguration();
-		LogImport logImport = new LogImport();
-		logImport.importLog(new File("/home/hupponen/workspace/chipster-csc/logs/2009-01-08/corona.csc.fi_comp1.log"), "corona.csc.fi");
-		logImport.importLog(new File("/home/hupponen/workspace/chipster-csc/logs/2009-01-08/corona.csc.fi_comp2.log"), "corona.csc.fi");
-
-		logImport.importLog(new File("/home/hupponen/workspace/chipster-csc/logs/2009-01-08/chipster-comp.csc.fi_comp1.log"), "chipster-comp.csc.fi");
-		logImport.importLog(new File("/home/hupponen/workspace/chipster-csc/logs/2009-01-08/chipster-comp.csc.fi_comp2.log"), "chipster-comp.csc.fi");
-
-		logImport.importLog(new File("/home/hupponen/workspace/chipster-csc/logs/2009-01-08/murska.csc.fi_comp1.log"), "murska.csc.fi");
-		logImport.importLog(new File("/home/hupponen/workspace/chipster-csc/logs/2009-01-08/murska.csc.fi_comp2.log"), "murska.csc.fi");
-		logImport.importLog(new File("/home/hupponen/workspace/chipster-csc/logs/2009-01-08/murska.csc.fi_comp3.log"), "murska.csc.fi");
-		logImport.importLog(new File("/home/hupponen/workspace/chipster-csc/logs/2009-01-08/murska.csc.fi_comp4.log"), "murska.csc.fi");
-		
-		
-//		logImport.importLog(new File("/home/hupponen/chipster-logit/chipster-comp.csc.fi_comp1.log"), "chipster-comp.csc.fi");
-//		logImport.importLog(new File("/home/hupponen/chipster-logit/chipster-comp.csc.fi_comp2.log"), "chipster-comp.csc.fi");
-//		logImport.importLog(new File("/home/hupponen/chipster-logit/murska.csc.fi_comp1.log"), "murska.csc.fi");
-//		logImport.importLog(new File("/home/hupponen/chipster-logit/murska.csc.fi_comp2.log"), "murska.csc.fi");
-//		logImport.importLog(new File("/home/hupponen/chipster-logit/murska.csc.fi_comp3.log"), "murska.csc.fi");
-//		logImport.importLog(new File("/home/hupponen/chipster-logit/murska.csc.fi_comp4.log"), "murska.csc.fi");
-//		logImport.importLog(new File("/home/hupponen/chipster-logit/corona.csc.fi_comp1.log"), "corona.csc.fi");
-//		logImport.importLog(new File("/home/hupponen/chipster-logit/corona.csc.fi_comp2.log"), "corona.csc.fi");
-
+//		MicroarrayConfiguration.loadConfiguration();
+//		LogImport logImport = new LogImport();
 		
 	}
 
