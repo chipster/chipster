@@ -33,8 +33,25 @@ public class LogParser {
 		HashMap<String, String> result = new HashMap<String, String>();
 		
 		String[] tokens = entry.split(",");
-		result.put("toolId", tokens[0]);
-
+		
+		// check for old log files with , as delimiter, remove check
+		// after changing delimiter
+		if (tokens.length == 5) {
+			result.put("operation", tokens[0]);
+			result.put("status", tokens[1]);
+			result.put("username", tokens[2]);
+			result.put("starttime", tokens[3]);
+			result.put("endtime", tokens[4]);
+		} else if (tokens.length == 6 && tokens[0].equals("Annotation/Agilent")) {
+			result.put("operation", tokens[0] + "," + tokens[1]);
+			result.put("status", tokens[2]);
+			result.put("username", tokens[3]);
+			result.put("starttime", tokens[4]);
+			result.put("endtime", tokens[5]);
+		}
+		else {
+			throw new RuntimeException("Illegal number of tokens: " + tokens.length);
+		}
 		return result;
 	}
 
