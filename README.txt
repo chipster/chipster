@@ -13,8 +13,6 @@ Building
 
 For building options, use "ant -p" in project root directory.
 
-For compiling all Java sources, use "ant compile".
-
 For complete build, use "ant". Please note that you need to have keystore 
 available because client JAR needs to be signed. Any key will do, so 
 you can use "keytool" to generate your signing key.
@@ -31,5 +29,9 @@ also as a key password.
 Next command "ant", and the project will be built and packages are available in "dist"
 directory.
 
-
-
+If you do not want to place your keystore to project directory, you can create
+a file called alternative-keystore-path.txt and place path to your keystore into it.
+Do not enter a newline after the path! The build script will read that file and
+use the alternative path into keystore. This is strongly recommended if you do also 
+commits into the public version repository, because placing a private keystore file into 
+project directory creates a risk of publishing it by accident. 
