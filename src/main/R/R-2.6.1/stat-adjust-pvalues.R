@@ -1,5 +1,5 @@
 # ANALYSIS Statistics/"Adjust p-values" (Adjusts raw p-values in the selected column for multiple testing using a specified method.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT two-sample.tsv
+# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT adjusted-p-values.tsv
 # PARAMETER column COLUMN_SEL DEFAULT EMPTY (Data file column containing the p-values to adjust)
 # PARAMETER p.value.adjustment.method [Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method)
 
