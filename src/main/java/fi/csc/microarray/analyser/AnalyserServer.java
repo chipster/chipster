@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -35,6 +36,7 @@ import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.messaging.message.NamiMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
+import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.MemUtil;
 
 /**
@@ -221,7 +223,16 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		
 		// load descriptions of all operations, also those not supported by this instance of AS
 		// this way any AS can send the descriptions when client asks for them
-		String[] allOperations = MicroarrayConfiguration.getValues("analyser", "operations");
+		ArrayList<String> allOperations = new ArrayList<String>();
+		String[] configOperations = MicroarrayConfiguration.getValues("analyser", "operations");
+		allOperations.addAll(Arrays.asList(configOperations));
+		
+		// load additional scripts from custom-scripts
+		for (File f: Files.listFilesRecursively(customScripts)) {
+			allOperations.add(f.getAbsolutePath().replace(customScripts.getAbsolutePath(), ""));
+		}
+		
+		
 		if (allOperations != null) {
 			for (String operation : allOperations) {
 					descriptionRepository.loadOperation(operation, false);
@@ -253,7 +264,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		includedOperations = MicroarrayConfiguration.getValues("analyser", "includeOperations");
 		if (includedOperations == null) {
 			logger.debug("No includeOperations section, including all operations.");
-			includedOperations = MicroarrayConfiguration.getValues("analyser", "operations");
+			includedOperations = allOperations.toArray(new String[allOperations.size()]);
 		}
 	
 

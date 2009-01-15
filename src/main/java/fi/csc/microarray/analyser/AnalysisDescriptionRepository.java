@@ -33,8 +33,9 @@ public class AnalysisDescriptionRepository {
 	
 	public void loadOperation(String sourceResourceName, boolean hidden) throws AnalysisException {
 		AnalysisDescription description = loadDescription(sourceResourceName);
-		addDescription(description, hidden);
-		
+		if (description != null) {
+			addDescription(description, hidden);
+		}
 	}
 	
 	
@@ -45,7 +46,8 @@ public class AnalysisDescriptionRepository {
 				return handler.handle(sourceResourceName);
 			}
 		}
-		throw new IllegalArgumentException("none of the loaded handlers support " + sourceResourceName);
+		logger.warn("none of the loaded handlers support " + sourceResourceName);
+		return null;
 	}
 	
 	
@@ -72,18 +74,20 @@ public class AnalysisDescriptionRepository {
 		// check if description needs to be updated
 		if (desc != null && !desc.isUptodate()) {
 			AnalysisDescription newDescription = loadDescription(desc.getSourceResourceName());
-			synchronized(this) {
-				descriptions.remove(fullName);
-				descriptions.put(newDescription.getFullName(), newDescription);
-				assert(newDescription.getFullName().equals(fullName));
-				if (visibleDescriptions.containsKey(fullName)) {
-					visibleDescriptions.remove(fullName);
-					visibleDescriptions.put(newDescription.getFullName(), newDescription);
+			if (newDescription != null) {
+				synchronized(this) {
+					descriptions.remove(fullName);
+					descriptions.put(newDescription.getFullName(), newDescription);
+					assert(newDescription.getFullName().equals(fullName));
+					if (visibleDescriptions.containsKey(fullName)) {
+						visibleDescriptions.remove(fullName);
+						visibleDescriptions.put(newDescription.getFullName(), newDescription);
+					}
 				}
+				desc = newDescription;
 			}
-			desc = newDescription;
 		}
-		
+
 		return desc; 
 	}
 	
