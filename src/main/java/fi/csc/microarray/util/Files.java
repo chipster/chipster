@@ -13,6 +13,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.io.filefilter.AgeFileFilter;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
@@ -26,6 +28,33 @@ import org.mortbay.util.IO;
  */
 public class Files {
 
+
+	/**
+	 * Lists all files (for which isDirectory() returns false) 
+	 * under this file or directory and its subdirectories.
+	 * If called with a non-directory input, the input itself
+	 * is returned.
+	 * 
+	 * @param file directory (or file) to be recursed
+	 * 
+	 * @return list of Files
+	 */
+	public static List<File> listFilesRecursively(File file) {
+		LinkedList<File> files = new LinkedList<File>();
+		
+		if (file.isDirectory()) {
+			// dir, recurse into it and combine result lists
+			for (File subFile : file.listFiles()) {
+				files.addAll(listFilesRecursively(subFile));
+			}
+			
+		} else {
+			// file, add and return this
+			files.add(file);
+		}
+		
+		return files;		
+	}
 	
 	/**
 	 * Deletes a file or a directory recursively.
