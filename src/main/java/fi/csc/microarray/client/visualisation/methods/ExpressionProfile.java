@@ -1,11 +1,13 @@
 package fi.csc.microarray.client.visualisation.methods;
 
 import java.awt.Color;
+import java.awt.geom.Rectangle2D;
 import java.util.Collections;
 import java.util.LinkedList;
 
 import javax.swing.JComponent;
 
+import org.apache.log4j.Logger;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
@@ -22,10 +24,13 @@ import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
+import fi.csc.microarray.client.visualisation.methods.SelectableChartPanel.SelectionChangeListener;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.Table;
 
-public class ExpressionProfile extends Visualisation {
+public class ExpressionProfile extends Visualisation implements SelectionChangeListener {
+	
+	private static final Logger logger = Logger.getLogger(ExpressionProfile.class);
 
 	public ExpressionProfile(VisualisationFrame frame) {
 		super(frame);
@@ -119,6 +124,7 @@ public class ExpressionProfile extends Visualisation {
 
 		// fetch data
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+		
 		Table samples = data.queryFeatures("/column/*").asTable();
 		
 		// read through data
@@ -150,6 +156,7 @@ public class ExpressionProfile extends Visualisation {
 		}
 
 		JFreeChart chart = createProfileChart(dataset, rows, data.getName());
+		//return makeSelectablePanel(chart, this);
 		return makePanel(chart);
 	}
 
@@ -177,7 +184,10 @@ public class ExpressionProfile extends Visualisation {
         ValueAxis valueAxis = new NumberAxis("expression");
         CategoryPlot plot = new CategoryPlot(dataset, categoryAxis, valueAxis, renderer);
         plot.setOrientation(PlotOrientation.VERTICAL);
-        JFreeChart chart = new JFreeChart("Expression profile for " + name, JFreeChart.DEFAULT_TITLE_FONT, plot, false);
+        
+        JFreeChart chart = new JFreeChart("Expression profile for " + name, 
+        		JFreeChart.DEFAULT_TITLE_FONT, plot, false);
+        
 		return chart;
 	}
 
@@ -190,5 +200,16 @@ public class ExpressionProfile extends Visualisation {
 		}
 		return false;
 	}
-	
+
+	public void selectionChanged(Rectangle2D.Double selection) {
+		if(selection == null){
+			logger.debug("Empty selection");
+		} else if (selection.getWidth() == 0 && selection.getHeight() == 0){
+			logger.debug("Single click at (" + selection.getX() + ", " + selection.getY());
+		} else {
+			logger.debug("Area selection: " + 
+					selection.getMinX() + " < X < " + selection.getMaxX() + " and " + 
+					selection.getMinY() + " < Y < " + selection.getMaxY());
+		}
+	}	
 }
