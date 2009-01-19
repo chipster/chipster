@@ -11,7 +11,6 @@ import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.proto.MyPlot;
 import fi.csc.microarray.util.FloatArrayList;
 
 public class ArrayLayout extends Visualisation {
@@ -70,7 +69,7 @@ public ArrayLayout(VisualisationFrame frame) {
 		ValueAxis xAxis = new NumberAxis("x");
 		ValueAxis yAxis = new NumberAxis("y");
 
-		MyPlot plot = new MyPlot(data, xAxis, yAxis, colors);
+		ModifiedPlot plot = new ModifiedPlot(data, xAxis, yAxis, colors);
 		JFreeChart chart = new JFreeChart(plot);
 		chart.setTitle(dataBean.getName());
 		

@@ -21,11 +21,6 @@ public class Delimiter {
 	 */
 	private static final Delimiter[] delimiters = {TAB, SPACE, COMMA, SEMICOLON};
 	
-	/**
-	 * Custom delimiter
-	 */
-	public static final Delimiter CUSTOM = new Delimiter("Custom", null);
-	
 	private String name;
 	private String string;
 	

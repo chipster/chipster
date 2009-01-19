@@ -28,8 +28,6 @@ import javax.swing.Timer;
 import org.apache.log4j.Logger;
 import org.mortbay.util.IO;
 
-import bsh.EvalError;
-import bsh.Interpreter;
 import fi.csc.microarray.AdminAPI;
 import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.MicroarrayException;
@@ -639,21 +637,6 @@ public abstract class ClientApplication implements Node, WizardContext {
 		workflowManager.runScript(scriptFile, null);
 	}
 	
-	public void openScriptConsole() {
-
-		Interpreter i = workflowManager.initialiseBshEnvironment();
-		try {
-			// TODO environment initialised to interpreter i is not carried to desktop interpreters
-			i.eval("desktop()");
-		} catch (EvalError ee) {
-			throw new RuntimeException("BeanShell console failed to open: " + ee.getMessage());
-		}
-	}
-
-	public void runScriptFile(String fileName, AtEndListener atEndListener) throws IOException {
-		workflowManager.runScript(new File(fileName), atEndListener);		
-	}
-
 	public OperationDefinition locateOperationDefinition(String categoryName, String operationName) {
 		for (OperationCategory category : parsedCategories) {
 			if (category.getName().equals(categoryName)) {
@@ -665,11 +648,6 @@ public abstract class ClientApplication implements Node, WizardContext {
 			}
 		}
 		return null;
-	}
-	
-	// TODO clean out this, only for testing
-	public void loadSnapshot(File snapshotDir) throws IOException, MicroarrayException {
-		manager.loadSnapshot(snapshotDir, manager.getRootFolder(), this);
 	}
 
 	public void loadOldSnapshot() throws IOException, MicroarrayException {

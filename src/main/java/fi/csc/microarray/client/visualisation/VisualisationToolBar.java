@@ -51,8 +51,6 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 	 */
 	private static final Logger logger = Logger.getLogger(VisualisationToolBar.class);
 
-	public static final int PANEL_WIDTH = 310;
-
 	public boolean isMaximised = false;
 
 	private ClientApplication application = Session.getSession().getApplication();

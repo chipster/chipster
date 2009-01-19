@@ -23,6 +23,7 @@ import com.jgoodies.looks.plastic.theme.ExperienceBlue;
 
 public class VisualConstants {
 	
+	// FIXME removed unused icons?
 	
     // icons from Eclipse
     public static final ImageIcon PHENODATA_ICON = 

@@ -1,7 +1,6 @@
 package fi.csc.microarray.client;
 
 import java.awt.Color;
-import java.awt.Dimension;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -14,9 +13,6 @@ import javax.swing.JToggleButton;
 
 public class ToolBarComponentFactory {
 	
-	public static final Dimension TEXT_BUTTON_SIZE = new Dimension(100,22);
-	public static final Dimension COMBOBOX_SIZE = new Dimension(200,22);
-
 	public static void initialiseButton(AbstractButton button, boolean leftBorder, boolean rightBorder){
 		button.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createMatteBorder(0,leftBorder?1:0,0,rightBorder?1:0,Color.LIGHT_GRAY),

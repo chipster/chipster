@@ -27,6 +27,7 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 	 */
 	private static final Logger logger = Logger
 			.getLogger(OnDiskAnalysisJobBase.class);
+	// FIXME this is not used
 	public static final int TIMEOUT = Integer.parseInt(MicroarrayConfiguration
 			.getValue("analyser", "timeout_sec")) * 1000;
 

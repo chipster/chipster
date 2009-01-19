@@ -56,18 +56,6 @@ public class ConstantTableFeature extends BasicFeature {
 	private Map<String, Integer> columnMap = new LinkedHashMap<String, Integer>();
 	private Object[][] values;
 	
-	public static ConstantTableFeature createSingleRowTable(DataBean bean, FeatureProvider factory, Map<String, String> singleRow) {
-		String[] columns = singleRow.keySet().toArray(new String[0]);
-		String[][] values = new String[columns.length][1];
-		int i = 0;
-		for (String column : columns) {
-			System.out.println(column + ": " + singleRow.get(column));
-			values[i][0] = singleRow.get(column);
-		}
-		
-		return new ConstantTableFeature(bean, factory, columns, values);
-	}
-	
 	public ConstantTableFeature(DataBean bean, FeatureProvider factory, String[] columns, Object[][] values) {
 		super(bean, factory);
 		if (columns.length != values.length) {

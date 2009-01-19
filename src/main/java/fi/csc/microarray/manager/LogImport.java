@@ -21,7 +21,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
-import fi.csc.microarray.MicroarrayConfiguration;
+import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.util.config.ConfigurationLoader.OldConfigurationFormatException;
 
 

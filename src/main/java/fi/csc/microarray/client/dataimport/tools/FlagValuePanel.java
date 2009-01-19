@@ -84,10 +84,6 @@ public class FlagValuePanel extends JXTaskPane implements ActionListener,
     
     private ImportScreen screen;
     
-    public static final Color TOP_FLAG_COLOR = new Color(210, 255, 200); // green
-    public static final Color MIDDLE_FLAG_COLOR = new Color(255, 255, 180); // yellow
-    public static final Color BOTTOM_FLAG_COLOR = new Color(255, 210, 200); // red
-    
     public static final String DISABLED_SCALE;
     public static final String CONTINUOUS_SCALE;
     public static final String DISCRETE_SCALE;

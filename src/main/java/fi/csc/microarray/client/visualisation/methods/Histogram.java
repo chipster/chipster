@@ -88,7 +88,7 @@ public class Histogram extends ChipVisualisation {
 			JFreeChart chart = new JFreeChart(data.getName(), JFreeChart.DEFAULT_TITLE_FONT, plot, false);
 
 			visualisationPanel.removeAll();
-			visualisationPanel.add(this.makePanel(chart), BorderLayout.CENTER);
+			visualisationPanel.add(makePanel(chart), BorderLayout.CENTER);
 			visualisationPanel.validate();
 
 		} else {

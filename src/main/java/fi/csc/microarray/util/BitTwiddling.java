@@ -5,7 +5,6 @@ import java.util.Set;
 
 public class BitTwiddling {
 
-	public static final int BYTES_IN_FLOAT = Float.SIZE/Byte.SIZE;
 	public static final int BYTES_IN_INT = Integer.SIZE/Byte.SIZE;
 	public static final int MASK_TO_BYTE = 0xFF;
 	

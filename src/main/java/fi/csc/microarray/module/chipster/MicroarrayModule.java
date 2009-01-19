@@ -14,7 +14,6 @@ public class MicroarrayModule implements Module {
 
 	public static final String ANNOTATION_CAT = "Annotation";
 	public static final String ANNOTATION_NAME = "Agilent, Affymetrix or Illumina genelist";
-	public static final String ANNOTATION_RESULT = "annotations.html";
 	
 	public void plugContentTypes(DataManager manager) {
 		manager.plugContentType("application/x-treeview", true, false, "Newick formatted tree from clustering", VisualConstants.ICON_TYPE_TEXT, "tre");

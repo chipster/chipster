@@ -19,7 +19,6 @@ import javax.jms.MapMessage;
 public abstract class NamiMessage {
 
 	public static final String KEY_MESSAGE_ID = "message-id";
-	public static final String KEY_SEND_TIME = "send-time";
 	public static final String KEY_CLASS= "class";	
 	public static final String KEY_USERNAME = "username";
 	public static final String KEY_SESSION_ID = "session-id";
