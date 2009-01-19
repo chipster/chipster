@@ -63,14 +63,15 @@ if(length(dat$other$flag)==0) {
 }
 names(M)<-paste("chip.", names(M), sep="")
 names(A)<-paste("average.", names(A), sep="")
-A<-data.frame(A)
-M<-data.frame(M)
-rownames(M)<-genes
-rownames(A)<-genes
 
-# Conditional on whether flags are included or not, write the data to disk
+A<-data.frame(round(A, digits=2))
+M<-data.frame(round(M, digits=2))
+
 if(nrow(flags)!=nrow(A) | nrow(flags)!=nrow(M)) {
-   write.table(data.frame(round(M, digits=2), round(A, digits=2)), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+   D<-data.frame(M, A)
 } else {
-   write.table(data.frame(round(M, digits=2), round(A, digits=2), flags), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+   D<-data.frame(M, A, flags)
 }
+rownames(D)<-genes
+
+write.table(D, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
