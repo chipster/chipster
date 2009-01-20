@@ -102,15 +102,15 @@ public class PhenodataTest {
 		//   1. complete phenodataset
 		Assert.assertTrue(phenodata1.queryFeatures("/phenodata").exists());
 		Assert.assertTrue(phenodata1.queryFeatures("/phenodata/is-complete").exists());
-		Assert.assertEquals(phenodata1.queryFeatures("/phenodata/sample_to_name/microarray1.cel").asString(), "affy_example1.cel");
+		Assert.assertEquals(phenodata1.queryFeatures("/phenodata/describe/microarray1.cel").asString(), "affy_example1.cel");
 		//   2. incomplete phenodataset
 		Assert.assertTrue(phenodata2.queryFeatures("/phenodata").exists());
 		Assert.assertFalse(phenodata2.queryFeatures("/phenodata/is-complete").exists());
-		Assert.assertEquals(phenodata2.queryFeatures("/phenodata/sample_to_name/microarray1.cel").asString(), "microarray1.cel");
+		Assert.assertEquals(phenodata2.queryFeatures("/phenodata/describe/microarray1.cel").asString(), "microarray1.cel");
 		// 3. datasets with links to phenodata
 		Assert.assertTrue(normalised1.queryFeatures("/phenodata/linked").exists());
 		Assert.assertTrue(filtered.queryFeatures("/phenodata/linked/is-complete").exists());
-		Assert.assertEquals(normalised1.queryFeatures("/phenodata/linked/sample_to_name/microarray1.cel").asString(), "affy_example1.cel");
+		Assert.assertEquals(normalised1.queryFeatures("/phenodata/linked/describe/microarray1.cel").asString(), "affy_example1.cel");
 		Assert.assertTrue(normalised2.queryFeatures("/phenodata/linked").exists());
 
 	}

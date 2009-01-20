@@ -45,8 +45,8 @@ public class FeatureTest {
 		phenoData.addLink(Link.ANNOTATION, data);
 		Assert.assertTrue(phenoData.queryFeatures("/phenodata/").exists());
 		Assert.assertTrue(phenoData.queryFeatures("/phenodata/is_complete").exists());
-		Assert.assertEquals(phenoData.queryFeatures("/phenodata/sample_to_name/microarray1.cel").asString(), "GSM11814.cel");
-		Assert.assertEquals(phenoData.queryFeatures("/phenodata/sample_to_name/not_in_phenodata").asString(), "not_in_phenodata");
+		Assert.assertEquals(phenoData.queryFeatures("/phenodata/describe/microarray1.cel").asString(), "GSM11814.cel");
+		Assert.assertEquals(phenoData.queryFeatures("/phenodata/describe/not_in_phenodata").asString(), "not_in_phenodata");
 		
 		Assert.assertTrue(data.queryFeatures("/phenodata/linked/").exists());
 		Assert.assertTrue(data.queryFeatures("/phenodata/linked/is_complete").exists());

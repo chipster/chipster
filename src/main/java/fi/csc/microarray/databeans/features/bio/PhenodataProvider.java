@@ -20,22 +20,22 @@ import fi.csc.microarray.databeans.features.Table;
  */
 public class PhenodataProvider extends FeatureProviderBase {
 
-	private static final String CONVERSION_NAMEFRAGMENT = "_to_";
-	private static final String LINKED_PHENODATA_NAME = "linked";
+	private static final String DESCRIPTION_KEYWORD = "describe";
+	private static final String LINKED_PHENODATA_KEYWORD = "linked";
 
 	public Feature createFeature(String namePostfix, DataBean bean) {
 
 		DataBean phenoBean;
 		String namePostPostFix;
-		if (namePostfix.startsWith(LINKED_PHENODATA_NAME)) {
+		if (namePostfix.startsWith(LINKED_PHENODATA_KEYWORD)) {
 			phenoBean = LinkUtils.retrieveInherited(bean, Link.ANNOTATION);
-			namePostPostFix = namePostfix.substring(LINKED_PHENODATA_NAME.length());
+			namePostPostFix = namePostfix.substring(LINKED_PHENODATA_KEYWORD.length());
 		} else {
 			phenoBean = bean;
 			namePostPostFix = namePostfix;
 		}
 
-		if (namePostfix.contains(CONVERSION_NAMEFRAGMENT)) {
+		if (namePostfix.contains(DESCRIPTION_KEYWORD)) {
 			return createConversionFeature(namePostPostFix, phenoBean);
 		} else {
 			return createBooleanFeature(namePostPostFix, phenoBean);
@@ -82,9 +82,11 @@ public class PhenodataProvider extends FeatureProviderBase {
 
 	private Feature createConversionFeature(String namePostfix, DataBean bean) {
 
+		// parse query
 		String sampleName = namePostfix.substring(namePostfix.lastIndexOf('/') + 1);
-		String originalName = sampleName; // return the plain sample name if
-											// nothing was found
+		
+		// return the plain sample name if nothing was found
+		String originalName = sampleName; 
 
 		if (bean != null) {
 			Table table;

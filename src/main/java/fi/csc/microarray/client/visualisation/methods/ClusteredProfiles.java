@@ -70,7 +70,7 @@ public class ClusteredProfiles extends Visualisation {
 						firstSample = false;
 						rows.get(cluster-1).add(row);
 					}
-					String sampleName = data.queryFeatures("/phenodata/linked/sample_to_name/" + sample.substring("chip.".length())).asString();
+					String sampleName = data.queryFeatures("/phenodata/linked/describe/" + sample.substring("chip.".length())).asString();
 					datasets.get(cluster-1).addValue((double)samples.getFloatValue(sample), samples.getStringValue(" "), sampleName);
 					String rowName = annotationProvider.getAnnotatedRowname(samples.getStringValue(" "));
 					datasets.get(cluster-1).addValue((double)samples.getFloatValue(sample), rowName, sampleName);

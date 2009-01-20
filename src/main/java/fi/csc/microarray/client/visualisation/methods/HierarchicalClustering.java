@@ -210,7 +210,7 @@ public class HierarchicalClustering extends Visualisation {
 			for (String columnName : columns) {
 
 				String sampleName = columnName.substring("chip.".length());
-				String realName = data.queryFeatures("/phenodata/linked/sample_to_name/" + sampleName).asString();
+				String realName = data.queryFeatures("/phenodata/linked/describe/" + sampleName).asString();
 
 				if (!reversed) {
 					// column index, just use the order from the iteration

@@ -146,7 +146,7 @@ public class ExpressionProfile extends Visualisation implements SelectionChangeL
 					}
 
 					// insert into dataset 
-					String sampleName = data.queryFeatures("/phenodata/linked/sample_to_name/" + sample.substring("chip.".length())).asString();
+					String sampleName = data.queryFeatures("/phenodata/linked/describe/" + sample.substring("chip.".length())).asString();
 					String rowName = annotationProvider.getAnnotatedRowname(samples.getStringValue(" "));
 					IndividualizedColumn column = new IndividualizedColumn(sample, sampleName);
 					dataset.addValue((double)samples.getFloatValue(sample), rowName, column);
