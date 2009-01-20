@@ -125,18 +125,17 @@ public abstract class ClientApplication implements Node, WizardContext {
 	public abstract void viewHelpFor(OperationDefinition operationDefinition);
 	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal);
 	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility);
-	public abstract void deleteDatas(List<DataBean> datas, boolean confirmBeforeActing);	
-	public abstract void deleteData(DataItem data, boolean confirmBeforeActing);
+	public abstract void deleteDatas(DataItem... datas);	
 	public abstract void createLink(DataBean source, DataBean target, Link type);
 	public abstract void removeLink(DataBean source, DataBean target, Link type);
 	public abstract File saveWorkflow();
 	public abstract File openWorkflow();
-	public abstract void saveSnapshot();
+	public abstract void saveSession();
 	public abstract void flipTaskListVisibility(boolean closeIfVisible); // TODO should not be here (GUI related)
 	public abstract void setMaximisedVisualisationMode(boolean maximisedVisualisationMode);
 	public abstract VisualisationFrameManager getVisualisationFrameManager();
 	public abstract void runBlockingTask(String taskName, final Runnable runnable);
-	public abstract void loadSnapshot();
+	public abstract void loadSession();
 
 	/**
 	 * Method is called periodically to maintain state that cannot be maintained 
@@ -227,7 +226,9 @@ public abstract class ClientApplication implements Node, WizardContext {
 			taskExecutor.execute(describeOperations);
 			
 			// parse metadata
-			this.metadata = new String(describeOperations.getOutput(AnalyserServer.DESCRIPTION_OUTPUT_NAME).getContents());
+			DataBean metadataBean = describeOperations.getOutput(AnalyserServer.DESCRIPTION_OUTPUT_NAME);
+			this.metadata = new String(metadataBean.getContents());
+			manager.delete(metadataBean); // don't leave the bean hanging around
 			logger.debug("got metadata: " + this.metadata.substring(0, 50) + "...");
 			List<ParsedVVSADL> descriptions = new ChipsterVVSADLParser().parseMultiple(this.metadata);
 			this.parsedCategories = new OperationGenerator().generate(descriptions).values();
@@ -600,7 +601,9 @@ public abstract class ClientApplication implements Node, WizardContext {
 					public void onStateChange(Task job, State oldState, State newState) {
 						if (newState == State.COMPLETED) {
 							try {
-								String source = new String(describeTask.getOutput(AnalyserServer.SOURCECODE_OUTPUT_NAME).getContents());
+								DataBean sourceBean = describeTask.getOutput(AnalyserServer.SOURCECODE_OUTPUT_NAME);
+								String source = new String(sourceBean.getContents());
+								manager.delete(sourceBean); // don't leave it hanging around
 								logger.debug(source);
 								listener.updateSourceCodeAt(index, source);
 							} catch (MicroarrayException e) {

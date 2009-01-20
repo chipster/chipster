@@ -25,6 +25,7 @@ import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.VisualisationToolBar;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.wizard.WizardPlugin;
 
@@ -357,7 +358,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			deleteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
 			deleteMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					application.deleteDatas(application.getSelectionManager().getSelectedDataBeans(), true);
+					application.deleteDatas(application.getSelectionManager().getSelectedDataBeans().toArray(new DataItem[0]));
 				}
 			});
 		}
@@ -766,7 +767,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			loadSnapshotMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
-						application.loadSnapshot();
+						application.loadSession();
 
 					} catch (Exception ioe) {
 						application.reportException(ioe);
@@ -785,7 +786,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 				    Toolkit.getDefaultToolkit(  ).getMenuShortcutKeyMask(  ), false));
 			saveSnapshotMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					application.saveSnapshot();
+					application.saveSession();
 				}
 			});
 		}

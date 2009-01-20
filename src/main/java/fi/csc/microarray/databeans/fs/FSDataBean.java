@@ -241,7 +241,17 @@ public class FSDataBean extends DataBeanBase {
 		}
 		ContentChangedEvent cce = new ContentChangedEvent(this);
 		dataManager.dispatchEventIfVisible(cce);
-		
+	}
+
+	public void delete() {
+		this.contentLock.lock();
+		try {
+			this.contentFile.delete();
+			this.contentFile = null;
+			this.contentType = null;			
+		} finally {
+			this.contentLock.unlock();
+		}
 	}
 
 	

@@ -132,5 +132,12 @@ public interface DataManager {
 	 * @return the first found DataItem with given name
 	 */
 	public DataItem findDataItem(String name);
+
+	/**
+	 * Delete DataItem and its children (if any). Root folder cannot be removed.
+	 * 
+	 * @param data item to be deleted
+	 */
+	public void delete(DataItem data);
 	
 }

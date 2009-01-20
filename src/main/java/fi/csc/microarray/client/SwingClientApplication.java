@@ -21,7 +21,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
@@ -1190,135 +1189,51 @@ public class SwingClientApplication extends ClientApplication {
 		setVisualisationMethod(getDefaultVisualisationForSelection(), null, getSelectionManager().getSelectedDataBeans(), target);
 	}
 
-	/**
-	 * Deletes DataFolder and its content
-	 * 
-	 * @param folder
-	 *            DataFolder to delete
-	 * @param confirmBeforeActing
-	 *            confirm deletion?
-	 */
-	public void deleteFolder(DataFolder folder, boolean confirmBeforeActing) {
-		if (confirmBeforeActing) {
-			JLabel confirmMessage = new JLabel("Really delete folder " + folder.getName() + " and its content?");
-			if (JOptionPane.showConfirmDialog(this.mainFrame, confirmMessage, "Delete Datasets", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
-				return; // deletion was not confirmed
-			}
+	public void deleteDatas(DataItem... datas) {
+
+		// check that we have something to delete
+		if (datas.length == 0) {
+			return; // no selection, do nothing
 		}
 
-		// Delete datas
-		this.deleteDataFolder(folder);
-	}
-
-	/**
-	 * Deletes given datasets. If the parent folder is empty after the deletion
-	 * deletes the empty folder too.
-	 * 
-	 * @param datas
-	 *            Datasets to be deleted
-	 * @param confirmBeforeActing
-	 *            confirmation
-	 */
-	public void deleteDatas(List<DataBean> datas, boolean confirmBeforeActing) {
-
-		if (datas.size() == 1) {
-			this.deleteData(datas.get(0), confirmBeforeActing);
-
-		} else if (datas.size() > 1) {
-
-			if (confirmBeforeActing) {
-				JLabel confirmMessage = new JLabel("Really delete " + datas.size() + " datasets?");
-				if (JOptionPane.showConfirmDialog(this.mainFrame, confirmMessage, "Delete datasets", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
-					return; // deletion was not confirmed
-				}
-			}
-
-			// delete datas
-			for (DataItem data : datas) {
-				this.deleteData(data, false);
-			}
-
+		// choose confirm dialog message
+		JLabel confirmMessage = null;
+		if (datas.length > 1) {
+			confirmMessage = new JLabel("Really delete " + datas.length + " data items?");
+			
+		} else if (datas[0] instanceof DataFolder) {
+			confirmMessage = new JLabel("Really delete " + datas[0].getName() + " and all of its contents?");
+			
+		} else if (datas[0] instanceof DataBean) {
+			confirmMessage = new JLabel("Really delete " + datas[0].getName() + " ?");
+			
 		} else {
-			// no selected datasets => do nothing
+			throw new IllegalArgumentException("datas is illegal");
 		}
+		
+		// confirm delete
+		if (JOptionPane.showConfirmDialog(this.mainFrame, confirmMessage, "Delete items", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+			return; // deletion was not confirmed
+		}
+
+		// delete actually
+		deleteDatasWithoutConfirming(datas);
 	}
-
-	/**
-	 * Deletes the given data item. Also deletes the parent folder if the folder
-	 * is left empty after data removing
-	 */
-	@Override
-	public void deleteData(DataItem data, boolean confirmBeforeActing) {
-
-		if (confirmBeforeActing) {
-			JLabel confirmMessage = new JLabel("Really delete " + data.getName() + "?");
-			if (JOptionPane.showConfirmDialog(this.mainFrame, confirmMessage, "Delete dataset", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
-				return; // deletion was not confirmed
-			}
-		}
-
-		if (data instanceof DataBean) {
-			this.deleteDataBean((DataBean) data);
-		} else {
-			this.deleteDataFolder((DataFolder) data);
-		}
-	}
-
-	private void deleteDataBean(DataBean bean) {
-
-		logger.debug("removing bean " + bean.getName());
-
-		// remove all selections to be careful
+	
+	public void deleteDatasWithoutConfirming(DataItem... datas) {
+	
+		// check that we have something to delete
+		if (datas.length == 0) {
+			return; // no selection, do nothing
+		}		
+		
+		// remove all selections
 		getSelectionManager().clearAll(true, this);
 
-		// remove links
-		for (Link linkType : Link.values()) {
-			// Remove outgoing links
-			for (DataBean target : bean.getLinkTargets(linkType)) {
-				bean.removeLink(linkType, target);
-			}
-			// Remove incoming links
-			for (DataBean source : bean.getLinkSources(linkType)) {
-				source.removeLink(linkType, bean);
-			}
+		// do actual delete
+		for (DataItem data : datas) {
+			manager.delete(data);
 		}
-
-		// remove this bean
-		DataFolder folder = bean.getParent();
-		if (folder != null) {
-			folder.removeChild(bean);
-		}
-		getSelectionManager().clearAll(true, this);
-	}
-
-	private void deleteDataFolder(DataFolder folder) {
-
-		logger.debug("removing folder " + folder.getName());
-
-		// remove all selections to be careful
-		getSelectionManager().clearAll(true, this);
-
-		// remove children
-		Iterable<DataItem> children = folder.getChildren();
-
-		// make a copy of the children list to avoid concurrent modification
-		List<DataItem> childrenToBeRemoved = new LinkedList<DataItem>();
-		for (DataItem item : children) {
-			childrenToBeRemoved.add(item);
-		}
-
-		// remove each children
-		for (DataItem item : childrenToBeRemoved) {
-			this.deleteData(item, false); // do not ask for confirmation, just
-			// remove all contents
-		}
-
-		// remove this folder (unless root)
-		DataFolder parent = folder.getParent();
-		if (parent != null) {
-			parent.removeChild(folder);
-		}
-		getSelectionManager().selectSingle(manager.getRootFolder(), this);
 
 	}
 
@@ -1409,7 +1324,7 @@ public class SwingClientApplication extends ClientApplication {
 
 			if (returnValue == 0) {
 				try {
-					saveSnapshot();
+					saveSession();
 				} catch (Exception exp) {
 					this.showErrorDialog("Session saving failed", exp);
 					return;
@@ -1856,7 +1771,7 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	@Override
-	public void loadSnapshot() {
+	public void loadSession() {
 
 		SnapshotAccessory accessory = new SnapshotAccessory();
 		final JFileChooser fileChooser = getSnapshotFileChooser(accessory);
@@ -1887,7 +1802,7 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	@Override
-	public void saveSnapshot() {
+	public void saveSession() {
 
 		JFileChooser fileChooser = getSnapshotFileChooser(null);
 		int ret = fileChooser.showSaveDialog(this.getMainFrame());
@@ -1948,7 +1863,7 @@ public class SwingClientApplication extends ClientApplication {
 		}
 
 		if (!unsavedChanges || returnValue == 1) {
-			this.deleteFolder(manager.getRootFolder(), false);
+			this.deleteDatasWithoutConfirming(manager.getRootFolder());
 			unsavedChanges = false;
 			return true;
 		}

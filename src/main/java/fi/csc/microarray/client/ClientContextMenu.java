@@ -287,9 +287,9 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 
 		} else if (source == deleteMenuItem) {
 			if (selectedItem instanceof DataFolder) {
-				application.deleteFolder((DataFolder) selectedItem, true);
+				application.deleteDatas((DataFolder) selectedItem);
 			} else {
-				application.deleteDatas(application.getSelectionManager().getSelectedDataBeans(), true);
+				application.deleteDatas(application.getSelectionManager().getSelectedDataBeans().toArray(new DataItem[0]));
 			}
 		} else if (source == importMenuItem) {
 			try {

@@ -129,14 +129,6 @@ public class FSDataManagerTest {
 		}
 
 		@Override
-		public void deleteData(DataItem data, boolean confirmBeforeActing) {
-		}
-
-		@Override
-		public void deleteDatas(List<DataBean> datas, boolean confirmBeforeActing) {
-		}
-
-		@Override
 		public void flipTaskListVisibility(boolean closeIfVisible) {
 		}
 
@@ -160,7 +152,7 @@ public class FSDataManagerTest {
 		}
 
 		@Override
-		public void loadSnapshot() {
+		public void loadSession() {
 		}
 
 		@Override
@@ -185,7 +177,7 @@ public class FSDataManagerTest {
 		}
 
 		@Override
-		public void saveSnapshot() {
+		public void saveSession() {
 		}
 
 		@Override
@@ -278,6 +270,10 @@ public class FSDataManagerTest {
 
 		@Override
 		public void runBlockingTask(String taskName, Runnable runnable) {
+		}
+
+		@Override
+		public void deleteDatas(DataItem... datas) {
 		}		
 	}
 }

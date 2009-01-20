@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.mortbay.util.IO;
@@ -20,6 +21,7 @@ import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataItemCreatedEvent;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataManagerBase;
+import fi.csc.microarray.databeans.DataBean.Link;
 
 public class FSDataManager extends DataManagerBase {
 
@@ -221,4 +223,65 @@ public class FSDataManager extends DataManagerBase {
 		FSSnapshottingSession session = new FSSnapshottingSession(this, application);
 		return session.saveSnapshot(snapshotDir);
 	}
+
+
+	public void delete(DataItem data) {
+		
+		if (data instanceof DataFolder) {
+			deleteDataFolder((DataFolder)data);
+			
+		} else {
+			deleteDataBean((DataBean)data);
+		}		
+	}
+	
+	private void deleteDataBean(DataBean bean) {
+
+		FSDataBean fsDataBean = (FSDataBean)bean;
+		
+		// remove links
+		for (Link linkType : Link.values()) {
+			// Remove outgoing links
+			for (DataBean target : fsDataBean.getLinkTargets(linkType)) {
+				fsDataBean.removeLink(linkType, target);
+			}
+			// Remove incoming links
+			for (DataBean source : fsDataBean.getLinkSources(linkType)) {
+				source.removeLink(linkType, fsDataBean);
+			}
+		}
+
+		// remove this bean
+		DataFolder folder = fsDataBean.getParent();
+		if (folder != null) {
+			folder.removeChild(fsDataBean);
+		}
+		
+		// remove physical file
+		fsDataBean.delete();
+	}
+
+	private void deleteDataFolder(DataFolder folder) {
+
+		// remove children
+		Iterable<DataItem> children = folder.getChildren();
+
+		// make a copy of the children list to avoid concurrent modification
+		List<DataItem> childrenToBeRemoved = new LinkedList<DataItem>();
+		for (DataItem item : children) {
+			childrenToBeRemoved.add(item);
+		}
+
+		// remove all children (recursively)
+		for (DataItem item : childrenToBeRemoved) {
+			delete(item); 
+		}
+
+		// remove this folder (unless root)
+		DataFolder parent = folder.getParent();
+		if (parent != null) {
+			parent.removeChild(folder);
+		}
+	}
+
 }
