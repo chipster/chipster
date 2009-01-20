@@ -49,7 +49,8 @@ public class ConfigTool {
 			{"Fileserver host", "myhost.mydomain"},
 			{"Fileserver port", "8080"},
 			{"URL of Web Start files", "http://myhost.mydomain"},
-			{"R command", "R"}
+			{"R command", "R"},
+			{"Max. simultanous jobs (more recommended when compute service on separate node)", "3"}
 	};
 
 	private final int KEY_INDEX = 0;
@@ -62,6 +63,7 @@ public class ConfigTool {
 	private final int FILEBROKER_PORT_INDEX = 4;
 	private final int WS_CODEBASE_INDEX = 5;
 	private final int R_COMMAND_INDEX = 6;
+	private final int MAX_JOBS_INDEX = 7;
 
 	private String[][] passwords = new String[][] {
 			{"comp", ""},
@@ -307,6 +309,7 @@ public class ConfigTool {
 		updateConfigEntryValue(filebrokerModule, "port", configs[FILEBROKER_PORT_INDEX][VAL_INDEX]);
 
 		Element analyserModule = xml.getChildWithAttribute(doc.getDocumentElement(), "moduleId", "analyser");
+		updateConfigEntryValue(analyserModule, "max_jobs", configs[MAX_JOBS_INDEX][VAL_INDEX]);
 		updateConfigEntryValue(analyserModule, "RCommand", configs[R_COMMAND_INDEX][VAL_INDEX]);
 
 		writeLater(configFile, doc);
