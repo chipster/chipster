@@ -31,7 +31,7 @@ public class VVSADLDescriptionTest {
 		for (String file : files) {
 			try {
 				String vvsadl;
-				System.out.println(file);
+				System.out.println("validating " + file);
 				if (file.split("\\.").length > 2) {
 					// class
 					JavaAnalysisJobBase jobBase = (JavaAnalysisJobBase)Class.forName(file).newInstance();
@@ -39,11 +39,14 @@ public class VVSADLDescriptionTest {
 				} else { 
 					// script file
 					if (!file.contains("/old") && !file.contains("/hidden")) {
-						file = file.replace("/R", "/R/R-2.6.1"); // choose correct R script directory
+						file = file.replace("/R", "/R-2.6.1"); // choose correct R script directory
+					} else {
+						file = file.replace("/R", "");
 					}
 					VVSADLTool.ParsedRScript res = new VVSADLTool().parseRScript(getClass().getResourceAsStream(file));
 					vvsadl = res.VVSADL;
 				}
+
 				new Validator().validate(file, vvsadl);
 			} catch (Exception e) {
 				e.printStackTrace();
