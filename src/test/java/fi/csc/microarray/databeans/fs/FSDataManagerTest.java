@@ -28,7 +28,6 @@ import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
-import fi.csc.microarray.databeans.ContentType;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
@@ -144,11 +143,6 @@ public class FSDataManagerTest {
 
 		@Override
 		public void heartBeat() {
-		}
-
-		@Override
-		public DataBean importData(String dataSetName, ContentType contentType, String folderName, Object dataSource, DataBean groupMember) {
-			return null;
 		}
 
 		@Override

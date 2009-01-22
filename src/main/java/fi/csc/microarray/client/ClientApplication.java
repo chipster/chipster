@@ -56,7 +56,6 @@ import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.methods.PhenodataEditor;
 import fi.csc.microarray.client.workflow.WorkflowManager;
-import fi.csc.microarray.databeans.ContentType;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
@@ -109,7 +108,6 @@ public abstract class ClientApplication implements Node, WizardContext {
 	public abstract void reportException(Exception e);
 	public abstract void reportTaskError(Task job) throws MicroarrayException;
 	protected abstract void taskCountChanged(int newTaskCount, boolean attractAttention);	
-	public abstract DataBean importData(String dataSetName, ContentType contentType, String folderName, Object dataSource, DataBean groupMember);
 	public abstract void importGroup(Collection<ImportItem> datas, String folderName);
 	public abstract void showSourceFor(String operationName) throws TaskException;
 	public abstract void showHistoryScreenFor(DataBean data);

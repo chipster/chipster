@@ -16,7 +16,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -76,6 +75,7 @@ import fi.csc.microarray.client.dialog.SnapshotAccessory;
 import fi.csc.microarray.client.dialog.URLImportDialog;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
+import fi.csc.microarray.client.dialog.DialogInfo.Type;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationPanel;
@@ -689,118 +689,109 @@ public class SwingClientApplication extends ClientApplication {
 	@Override
 	public void importGroup(final Collection<ImportItem> datas, final String folderName) {
 
-		try {
-			runBlockingTask("importing files", new Runnable() {
+		runBlockingTask("importing files", new Runnable() {
 
-				public void run() {
-					DataBean someGroupMember = null;
-					for (ImportItem item : datas) {
-						someGroupMember = importData(ImportUtils.convertToDatasetName(item.getOutput().getName()), item.getType(), folderName, item.getInput(), someGroupMember);
-					}
-				}
+			public void run() {
+				DataBean lastGroupMember = null;
 
-			});
-
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
-	}
-
-	/**
-	 * Creates a new dataset of raw data and inserts it to the tree and graph
-	 * views, in a new folder if requested.
-	 * 
-	 * @param dataSetName
-	 *            The name for the new dataset.
-	 * @param folderName
-	 *            The name of the new folder to be created for this raw data and
-	 *            its eventual descendants. If this is null, the root folder
-	 *            will be used instead.
-	 * @param dataSource
-	 *            can be File, InputStream or ImportDataModel
-	 * 
-	 * @return the created dataBean is returned and giving it as a group member
-	 *         parameter makes these datas grouped
-	 */
-	@Override
-	public DataBean importData(final String dataSetName, final ContentType contentType, final String folderName, final Object dataSource, final DataBean groupMember) {
-
-		logger.debug("Importing dataset " + dataSetName + ". The content type is " + contentType.getDescription());
-
-		try {
-
-			// Selects folder where data is imported to, or creates a
-			// new one
-			DataFolder folder = initializeFolderForImport(folderName);
-
-			// get the InputStream for the data source
-			InputStream input;
-
-			if (dataSource instanceof File) {
-				input = new FileInputStream((File) (dataSource));
-
-			} else if (dataSource instanceof URL) {
-				// TODO Not used anymore, URL-files are saved to the
-				// temp file
-				URL url = (URL) dataSource;
 				try {
-					input = url.openStream();
 
-				} catch (FileNotFoundException fnfe) {
-					showDialog("File not found.", null, "File not found. Check that the typed URL is pointing to a valid location", Severity.ERROR, false);
-					return null;
+					for (ImportItem item : datas) {
 
-				} catch (IOException ioe) {
-					showDialog("Import failed.", null, "Error occured while importing data from URL", Severity.ERROR, false);
-					return null;
+						String dataSetName = ImportUtils.convertToDatasetName(item.getOutput().getName());
+						ContentType contentType = item.getType();
+						Object dataSource = item.getInput();
+
+
+						// Selects folder where data is imported to, or creates a
+						// new one
+						DataFolder folder = initializeFolderForImport(folderName);
+
+						// get the InputStream for the data source
+						InputStream input;
+
+						if (dataSource instanceof File) {
+							input = new FileInputStream((File) (dataSource));
+
+						} else if (dataSource instanceof URL) {
+							// TODO Not used anymore, URL-files are saved to the
+							// temp file
+							URL url = (URL) dataSource;
+							try {
+								input = url.openStream();
+
+							} catch (FileNotFoundException fnfe) {
+								SwingUtilities.invokeAndWait(new Runnable() {
+									public void run() {
+										showDialog("File not found.", null, "File not found. Check that the typed URL is pointing to a valid location", Severity.ERROR, false);
+									}
+								});
+								break;
+
+							} catch (IOException ioe) {
+								SwingUtilities.invokeAndWait(new Runnable() {
+									public void run() {
+										showDialog("Import failed.", null, "Error occured while importing data from URL", Severity.ERROR, false);
+									}
+								});
+								break;
+							}
+
+						} else if (dataSource instanceof InputStream) {
+							logger.info("loading data from a plain stream, caching can not be used!");
+							input = (InputStream) dataSource;
+
+						} else {
+							throw new IllegalArgumentException("unknown dataSource type: " + dataSource.getClass().getSimpleName());
+						}
+
+						// create new data
+						DataBean data = manager.createDataBean(dataSetName, input);
+						data.setContentType(contentType);
+
+						// add the operation (all databeans have their own import
+						// operation
+						// instance, it would be nice if they would be grouped)
+						Operation importOperation = new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data });
+						data.setOperation(importOperation);
+
+						// data is ready now, make it visible
+						folder.addChild(data);
+
+						// Create group links only if both datas are raw type
+						if (lastGroupMember != null && ChipsterInputTypes.hasRawType(lastGroupMember) && ChipsterInputTypes.hasRawType(data)) {
+
+							DataBean targetData = data;
+
+							// Link new data to all group linked datas of given cell
+							for (DataBean sourceData : lastGroupMember.traverseLinks(new Link[] { Link.GROUPING }, Traversal.BIDIRECTIONAL)) {
+								logger.debug("Created GROUPING link between " + sourceData.getName() + " and " + targetData.getName());
+								createLink(sourceData, targetData, DataBean.Link.GROUPING);
+							}
+
+							// Create link to the given cell after looping to avoid
+							// link duplication
+							createLink(lastGroupMember, targetData, DataBean.Link.GROUPING);
+						}
+
+						lastGroupMember = data;
+
+					}
+					// select data
+					final DataBean selectedBean = lastGroupMember;
+					SwingUtilities.invokeAndWait(new Runnable() {
+						public void run() {
+							getSelectionManager().selectSingle(selectedBean, this);
+						}
+					});
+
+				} catch (Exception e) {
+					throw new RuntimeException(e);
 				}
 
-			} else if (dataSource instanceof InputStream) {
-				logger.info("loading data from a plain stream, caching can not be used!");
-				input = (InputStream) dataSource;
-
-			} else {
-				throw new IllegalArgumentException("unknown dataSource type: " + dataSource.getClass().getSimpleName());
 			}
 
-			// create new data
-			DataBean data = manager.createDataBean(dataSetName, input);
-			data.setContentType(contentType);
-
-			// add the operation (all databeans have their own import
-			// operation
-			// instance, it would be nice if they would be grouped)
-			Operation importOperation = new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data });
-			data.setOperation(importOperation);
-
-			// data is ready now, make it visible
-			folder.addChild(data);
-
-			// Create group links only if both datas are raw type
-			if (groupMember != null && ChipsterInputTypes.hasRawType(groupMember) && ChipsterInputTypes.hasRawType(data)) {
-
-				DataBean targetData = data;
-
-				// Link new data to all group linked datas of given cell
-				for (DataBean sourceData : groupMember.traverseLinks(new Link[] { Link.GROUPING }, Traversal.BIDIRECTIONAL)) {
-					logger.debug("Created GROUPING link between " + sourceData.getName() + " and " + targetData.getName());
-					createLink(sourceData, targetData, DataBean.Link.GROUPING);
-				}
-
-				// Create link to the given cell after looping to avoid
-				// link duplication
-				createLink(groupMember, targetData, DataBean.Link.GROUPING);
-			}
-
-			// select data
-			getSelectionManager().selectSingle(data, this);
-			return data;
-
-		} catch (Exception e) {
-			this.reportException(e);
-			return null;
-		}
+		});
 	}
 
 	/**
@@ -1670,62 +1661,40 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	/**
-	 * Runs a blocking task in EDT-kind-of-thread and shows a wait dialog while
-	 * doing it.
+	 * <p>Run a task in background thread and block GUI in a friendly way while the task is being
+	 * run. <strong>Note!</strong> If the task modifies GUI, it must use SwingUtilities.invokeAndWait so that
+	 * modifications are done in event dispatch thread.</p>
 	 * 
 	 * @param taskName
 	 *            name of the task we will be running, like "importing" or
 	 *            "loading"
 	 * @param runnable
 	 *            the task
-	 * @return result returned by the task
-	 * @throws Exception
-	 *             exception thrown by the task
 	 */
 	public void runBlockingTask(String taskName, final Runnable runnable) {
-
-		try {
-			// the easy implementation did not work, we'll do it the old ugly way -> run always in EDT
-			if (SwingUtilities.isEventDispatchThread()) {
-				runnable.run();
-			} else {
-				SwingUtilities.invokeAndWait(runnable);
-			}
-		} catch (InterruptedException e) {
-			// ignore
-		} catch (InvocationTargetException e) {
-			reportException(e); // runnable threw exception, pass it on
-		} 
 		
-//		DialogInfo dialogInfo = new DialogInfo(Severity.INFO, "Please wait", "Please wait while " + taskName + "...", null, Type.BLOCKER);
-//		final ChipsterDialog waitDialog = new ChipsterDialog(mainFrame, dialogInfo, DetailsVisibility.DETAILS_ALWAYS_HIDDEN);
-//
-//		waitDialog.setLocationRelativeTo(mainFrame);
-//		waitDialog.setVisible(true);
-//
-//		// we have to go to other thread to call invokeLater, so that in the end stuff is run in EDT
-//		// but the message box is painted before EDT blocks
-//		new Thread(new Runnable() {
-//			public void run() {
-//				try {
-//					Thread.sleep(500); // wait so that message box gets painted...
-//					SwingUtilities.invokeAndWait(new Runnable() {
-//						public void run() {
-//							try {
-//								runnable.run();
-//
-//							} finally {
-//								waitDialog.dispose();
-//							}
-//						}
-//					});
-//				} catch (Exception e) {
-//					// ignore
-//					e.printStackTrace();
-//				} 
-//
-//			}
-//		}).start();
+		DialogInfo dialogInfo = new DialogInfo(Severity.INFO, "Please wait", "Please wait while " + taskName + "...", null, Type.BLOCKER);
+		final ChipsterDialog waitDialog = new ChipsterDialog(mainFrame, dialogInfo, DetailsVisibility.DETAILS_ALWAYS_HIDDEN);
+
+		waitDialog.setLocationRelativeTo(mainFrame);
+		waitDialog.setVisible(true);
+
+		Thread backgroundThread = new Thread(new Runnable() {
+			public void run() {
+				try {
+					runnable.run();
+				} catch (final Exception e) {
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							reportException(e);
+						}
+					});
+				} finally {
+					waitDialog.setVisible(false);
+				}
+			}
+		});
+		backgroundThread.start();
 	}
 
 	@Override
@@ -1786,13 +1755,16 @@ public class SwingClientApplication extends ClientApplication {
 				}
 				
 				runBlockingTask("loading session", new Runnable() {
-					public void run() {
-						List<DataItem> newItems;
+					public void run() {						
 						try {
-							newItems = manager.loadSnapshot(fileChooser.getSelectedFile(), manager.getRootFolder(), application);
-							getSelectionManager().selectSingle(newItems.get(newItems.size() - 1), this); // select last
+							final List<DataItem> newItems = manager.loadSnapshot(fileChooser.getSelectedFile(), manager.getRootFolder(), application);
+							SwingUtilities.invokeAndWait(new Runnable() {
+								public void run() {
+									getSelectionManager().selectSingle(newItems.get(newItems.size() - 1), this); // select last
+								}
+							});
 						} catch (Exception e) {
-							showErrorDialog("Loading session failed.", e);
+							throw new RuntimeException(e);
 						}						
 					}
 				});
@@ -1834,7 +1806,7 @@ public class SwingClientApplication extends ClientApplication {
 						try {
 							getDataManager().saveSnapshot(file, application);
 						} catch (IOException e) {
-							showErrorDialog("Saving session failed.", e);
+							throw new RuntimeException(e);
 						}
 					}
 				});
