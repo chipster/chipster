@@ -24,6 +24,10 @@ w<-image.width
 h<-image.height
 do.sample<-c("all")
 
+if(distmeth=="pearson") {
+   distmeth<-"correlation"
+}
+
 # Loads the libraries
 library(amap)
 library(ape)
@@ -99,9 +103,6 @@ if(doresample=="bootstrap"){
    write.tree(phylo.clust, "hc.tre")
    if(distmeth=="spearman" | distmeth=="manhattan") {
       stop("Resampling can only be applied if Pearson correlation or euclidian distance is used! If appropriate, change the settings accordingly.")
-   }
-   if(distmeth=="pearson") {
-      distmeth<-"cor"
    }
    dat2<-t(dat2)
    pv.clust<-pvclust(dat2, method.dist=distmeth, method.hclust=treemeth, nboot=perms, r=1)

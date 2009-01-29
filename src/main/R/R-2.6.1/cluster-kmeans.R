@@ -30,7 +30,7 @@ if(k>=nrow(dat2)) {
 # Calculates the K-means clustering result
 # Needs a parameter k, the number of clusters
 # k<-c(5)
-km<-kmeans(dat2, k, iter.max=100000)
+km<-kmeans(dat2, k, iter.max=100000, nstart=min(10, nrow(dat2)))
 
 # Plotting the clustering
 max.dat2<-max(dat2)

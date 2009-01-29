@@ -3,7 +3,7 @@
 # Other than empiricalBayes might be slow, if run on unfiltered data.)
 # INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT two-sample.tsv
 # PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER test [empiricalBayes, t-test, F-test, Mann-Whitney, LPE] DEFAULT empiricalBayes (Test type)
+# PARAMETER test [empiricalBayes, fast-t-test, t-test, F-test, Mann-Whitney, LPE] DEFAULT empiricalBayes (Test type)
 # PARAMETER p.value.adjustment.method [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method)
 # PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
 
@@ -55,6 +55,29 @@ if(meth=="empiricalBayes") {
    M<-tab$logFC[tab$adj.P.Val<=p.cut]
    dat<-dat[rows,]
    write.table(na.omit(data.frame(dat, p.adjusted=round(p, digits=4), FC=M)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+}
+
+# Fast T-test
+if(meth=="fast-t-test") {
+   fit1<-lm(t(dat2)~groups)
+   p<-rep(NA, ncol(dat2))
+   for(i in 1:ncol(dat2)) {
+      sum(fit1$residuals[,i]^2)->sse
+      sum((dat2[,i]-mean(dat2[,i]))^2)->sst
+      r2<-1-(sse/sst)
+      f<-r2/((1-r2)/(nrow(dat2)-1))
+      p[i]<-1-pf(f, 1, (nrow(dat2)-1))
+   }
+   p.raw<-p
+   if(adj.method=="none") {
+      p.adjusted<-p.raw
+   }
+   if(adj.method=="Bonferroni" | adj.method=="BH") {
+      p.adjusted<-mt.rawp2adjp(p.raw, adj.method)
+      p.adjusted<-p.adjusted$adjp[order(p.adjusted$index),][,2]
+   }
+   p.adjusted[p.adjusted>p.cut]<-NA
+   write.table(na.omit(data.frame(dat, p.adjusted=round(p.adjusted, digits=4))), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
 # T-test

@@ -1,5 +1,5 @@
 # ANALYSIS Visualisation/"Correlogram" (Plots the correlations between samples in a graph.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT corrgram.png
+# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT corrgram.png
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
@@ -21,6 +21,12 @@ dat<-read.table(file, header=T, sep="\t", row.names=1)
 # Separates expression values and flags
 calls<-dat[,grep("flag", names(dat))]
 dat2<-dat[,grep("chip", names(dat))]
+
+# Loads phenodata
+phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
+
+# Generating new labels
+colnames(dat2)<-gsub(" ", "", phenodata$description)
 
 # Plotting
 bitmap(file="corrgram.png", width=w/72, height=h/72)

@@ -28,7 +28,7 @@ if(nrow(dat2)<100) {
 km<-rep(NA, (kmax-1))
 i<-c(2)
 while(i<kmax) {
-   km[i]<-sum(kmeans(dat2, i, iter.max=20000)$withinss)
+   km[i]<-sum(kmeans(dat2, i, iter.max=20000, nstart=10)$withinss)
    if(i>=3 & km[i-1]/km[i]<=1.01) {
       i<-kmax
    } else {

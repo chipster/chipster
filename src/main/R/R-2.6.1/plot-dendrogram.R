@@ -16,7 +16,6 @@ w<-image.width
 h<-image.height
 gr<-number.of.groups 
 margin<-cluster
-do.sample<-c("all")
 
 # Loading the libraries
 library(fpc)
@@ -34,40 +33,7 @@ groups<-phenodata[,grep(column, colnames(phenodata))]
 # Separates expression values and flags
 calls<-dat[,grep("flag", names(dat))]
 dat2<-dat[,grep("chip", names(dat))]
-colnames(dat2)<-gsub("chip.(.+)", "\\1", colnames(dat2)[grep("chip", colnames(dat2))])
-
-# Takes a sample of the data
-# PARAMETER do.sample [25, 50, 75, 100, 125, 150, 175, 200, all] DEFAULT all (If the data is large, should the image be generated from a specified number of random genes)
-if(do.sample!="all") {
-   sample.size<-as.numeric(do.sample)
-   if(nrow(dat2)<sample.size) {
-      do.sample<-"all"
-   }
-   if(do.sample=="25") {
-      dat2<-dat2[sample(nrow(dat2), 25),]
-   }
-   if(do.sample=="50") {
-      dat2<-dat2[sample(nrow(dat2), 50),]
-   }
-   if(do.sample=="75") {
-      dat2<-dat2[sample(nrow(dat2), 75),]
-   }
-   if(do.sample=="100") {
-      dat2<-dat2[sample(nrow(dat2), 100),]
-   }
-   if(do.sample=="125") {
-      dat2<-dat2[sample(nrow(dat2), 125),]
-   }
-   if(do.sample=="150") {
-      dat2<-dat2[sample(nrow(dat2), 150),]
-   }
-   if(do.sample=="175") {
-      dat2<-dat2[sample(nrow(dat2), 175),]
-   }
-   if(do.sample=="200") {
-      dat2<-dat2[sample(nrow(dat2), 200),]
-   }
-}
+colnames(dat2)<-gsub(" ", "", phenodata$description)
 
 # Manipulate data depending on what to cluster
 if(margin=="chips") {

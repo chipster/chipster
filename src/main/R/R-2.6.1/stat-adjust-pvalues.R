@@ -1,7 +1,7 @@
 # ANALYSIS Statistics/"Adjust p-values" (Adjusts raw p-values in the selected column for multiple testing using a specified method.)
 # INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT adjusted-p-values.tsv
 # PARAMETER column COLUMN_SEL DEFAULT EMPTY (Data file column containing the p-values to adjust)
-# PARAMETER p.value.adjustment.method [Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method)
+# PARAMETER p.value.adjustment.method [Bonferroni, Holm, Hochberg, BH, BY, Storey-Q] DEFAULT BH (Multiple testing correction method)
 
 
 # P-value adjustment
@@ -21,8 +21,13 @@ dat<-read.table(file, header=T, sep="\t", row.names=1)
 rawp<-dat[,grep(column, colnames(dat))]
 
 # Correction
-adjp<-mt.rawp2adjp(rawp, proc=as.character(adj.method))
-adjp2<-adjp$adjp[order(adjp$index),][,2]
+if(adj.method=="Storey-Q") {
+   adjp<-qvalue(rawp)
+   adjp2<-adjp$qvalues
+} else {
+   adjp<-mt.rawp2adjp(rawp, proc=as.character(adj.method))
+   adjp2<-adjp$adjp[order(adjp$index),][,2]
+}
 
 # Small manipulations
 adjp2df<-as.data.frame(adjp2)

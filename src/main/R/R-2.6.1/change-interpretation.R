@@ -1,6 +1,6 @@
-# ANALYSIS Utilities/"Change interpretation" (Transforms the expression values between log and linear scale.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT change-interpretation.tsv
-# PARAMETER transform [log2-linear, linear-log2] DEFAULT log2-linear (From which to transform to what)
+# ANALYSIS Utilities/"Change interpretation" (Let's user to transform the expression values.)
+# INPUT GENE_EXPRS normalized.tsv OUTPUT change-interpretation.tsv
+# PARAMETER transform [log2-linear, linear-log2, log10-linear, linear-log10, ln-linear, linear-ln] DEFAULT log2-linear (From which to transform to what)
 
 
 # Change interpretation
@@ -16,13 +16,33 @@ dat<-dat[,grep("chip", names(dat))]
 
 # Transforms the data
 if(transform=="log2-linear") {
-   if(any(dat<0)) {
-      stop("Negative values in the data! Can't log-transform.")
-   }
    dat2<-2^dat
 }
 if(transform=="linear-log2") {
+   if(any(dat<0)) {
+      stop("Negative values in the data! Can't log-transform.")
+   }
    dat2<-log2(dat)
+}
+
+if(transform=="log10-linear") {
+   dat2<-10^dat
+}
+if(transform=="linear-log10") {
+   if(any(dat<0)) {
+      stop("Negative values in the data! Can't log-transform.")
+   }
+   dat2<-log10(dat)
+}
+
+if(transform=="ln-linear") {
+   dat2<-exp(dat)
+}
+if(transform=="linear-ln") {
+   if(any(dat<0)) {
+      stop("Negative values in the data! Can't log-transform.")
+   }
+   dat2<-ln(dat)
 }
 
 # Writing the data to disk
