@@ -118,7 +118,6 @@ public abstract class ClientApplication implements Node, WizardContext {
     public abstract void visualiseWithBestMethod(FrameType target);
     public abstract void reportInitialisation(String report, boolean newline);
     public abstract Icon getIconFor(DataItem data);
-	public abstract void setBusyMode(boolean busy);
 	public abstract void viewHelp(String id);
 	public abstract void viewHelpFor(OperationDefinition operationDefinition);
 	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal);

@@ -35,6 +35,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JRootPane;
 import javax.swing.JSplitPane;
 import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
@@ -75,7 +76,6 @@ import fi.csc.microarray.client.dialog.SnapshotAccessory;
 import fi.csc.microarray.client.dialog.URLImportDialog;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
-import fi.csc.microarray.client.dialog.DialogInfo.Type;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationPanel;
@@ -92,6 +92,7 @@ import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
+import fi.csc.microarray.client.waiting.WaitGlassPane;
 import fi.csc.microarray.client.workflow.WorkflowManager;
 import fi.csc.microarray.databeans.ContentType;
 import fi.csc.microarray.databeans.DataBean;
@@ -165,7 +166,8 @@ public class SwingClientApplication extends ClientApplication {
 	private AuthenticationRequestListener overridingARL;
 	private int oldTaskCount = 0;
 	private Timer blinker;
-
+	private WaitGlassPane waitPanel = new WaitGlassPane();
+	
 	private static float fontSize = VisualConstants.DEFAULT_FONT_SIZE;
 
 	private boolean unsavedChanges = false;
@@ -297,8 +299,11 @@ public class SwingClientApplication extends ClientApplication {
 		mainFrame.getContentPane().add(mainSplit, BorderLayout.CENTER);
 		mainFrame.getContentPane().add(this.getStatusBar(), BorderLayout.SOUTH);
 		mainFrame.setJMenuBar(menuBar);
-
 		menuBar.updateMenuStatus();
+
+		// add glass wait panel
+		JRootPane rootPane = SwingUtilities.getRootPane(mainFrame);
+		rootPane.setGlassPane(waitPanel);
 
 		// add shutdown listener
 		mainFrame.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -1673,12 +1678,6 @@ public class SwingClientApplication extends ClientApplication {
 	 */
 	public void runBlockingTask(String taskName, final Runnable runnable) {
 		
-		DialogInfo dialogInfo = new DialogInfo(Severity.INFO, "Please wait", "Please wait while " + taskName + "...", null, Type.BLOCKER);
-		final ChipsterDialog waitDialog = new ChipsterDialog(mainFrame, dialogInfo, DetailsVisibility.DETAILS_ALWAYS_HIDDEN);
-
-		waitDialog.setLocationRelativeTo(mainFrame);
-		waitDialog.setVisible(true);
-
 		Thread backgroundThread = new Thread(new Runnable() {
 			public void run() {
 				try {
@@ -1690,16 +1689,12 @@ public class SwingClientApplication extends ClientApplication {
 						}
 					});
 				} finally {
-					waitDialog.setVisible(false);
+					waitPanel.stopWaiting();
 				}
 			}
 		});
+		waitPanel.startWaiting("Please wait while " + taskName + "...");
 		backgroundThread.start();
-	}
-
-	@Override
-	public void setBusyMode(boolean busy) {
-		// FIXME remove this
 	}
 
 	public void viewHelpFor(OperationDefinition definition) {

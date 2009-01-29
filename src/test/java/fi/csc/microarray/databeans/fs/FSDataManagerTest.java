@@ -180,10 +180,6 @@ public class FSDataManagerTest {
 		}
 
 		@Override
-		public void setBusyMode(boolean busy) {
-		}
-
-		@Override
 		public void showDetailsFor(DataBean data) {
 		}
 
