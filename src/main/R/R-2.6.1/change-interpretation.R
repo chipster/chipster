@@ -1,4 +1,4 @@
-# ANALYSIS Utilities/"Change interpretation" (Let's user to transform the expression values.)
+# ANALYSIS Utilities/"Change interpretation" (Transforms the expression values between log and linear scale.)
 # INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT change-interpretation.tsv
 # PARAMETER transform [log2-linear, linear-log2] DEFAULT log2-linear (From which to transform to what)
 
