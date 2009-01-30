@@ -677,7 +677,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 				"", requestMessage.getReplyTo());
 		try {
 			String description = descriptionRepository.serialiseAsStringBuffer().toString();
-			resultMessage.addPayload(DESCRIPTION_OUTPUT_NAME, new ByteArrayInputStream(description.getBytes()));
+			resultMessage.addPayload(DESCRIPTION_OUTPUT_NAME, new ByteArrayInputStream(description.getBytes()), null);
 		} catch (JMSException e) {
 			logger.error("Could not send analysis descriptions", e);
 			resultMessage.setState(JobState.ERROR);
@@ -699,7 +699,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			if (bytes.length == 0) {
 				bytes = "<empty source code>".getBytes(); // zero length bytes content would hang upload
 			}
-			resultMessage.addPayload(SOURCECODE_OUTPUT_NAME, new ByteArrayInputStream(bytes));
+			resultMessage.addPayload(SOURCECODE_OUTPUT_NAME, new ByteArrayInputStream(bytes), null);
 		} catch (Exception e) {
 			logger.error("Could not send analysis source code", e);
 			resultMessage.setState(JobState.ERROR);

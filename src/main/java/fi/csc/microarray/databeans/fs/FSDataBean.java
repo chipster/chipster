@@ -27,6 +27,7 @@ import fi.csc.microarray.databeans.DataManagerBase;
 import fi.csc.microarray.databeans.LinksChangedEvent;
 import fi.csc.microarray.messaging.message.PayloadMessage;
 import fi.csc.microarray.util.Files;
+import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 
 public class FSDataBean extends DataBeanBase {
 	
@@ -285,14 +286,14 @@ public class FSDataBean extends DataBeanBase {
 	 * 
 	 * 
 	 */
-	public void updateRemoteCache(String payloadName, PayloadMessage payloadMessage) throws JMSException, MicroarrayException, IOException {
+	public void updateRemoteCache(String payloadName, PayloadMessage payloadMessage, CopyProgressListener progressListener) throws JMSException, MicroarrayException, IOException {
 		this.contentLock.lock();
 		try {
 			
 			// content has been changed
 			if (contentChanged) {
 				// create url, upload content, add to message payloads
-				this.cachedURL = payloadMessage.addPayload(payloadName, getContentByteStream());
+				this.cachedURL = payloadMessage.addPayload(payloadName, getContentByteStream(), progressListener);
 				this.contentChanged = false;
 				// TODO figure out if the checkCachedPayload should be here?
 				// maybe not, as the transfer should fail if something goes awry
@@ -310,7 +311,7 @@ public class FSDataBean extends DataBeanBase {
 				// cached copy not ok, create a new cache
 				else {
 					// create url, upload content, add to message payloads
-					this.cachedURL = payloadMessage.addPayload(payloadName, getContentByteStream());
+					this.cachedURL = payloadMessage.addPayload(payloadName, getContentByteStream(), progressListener);
 				}				
 			}
 			

@@ -12,6 +12,7 @@ import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.databeans.features.QueryResult;
 import fi.csc.microarray.messaging.message.PayloadMessage;
+import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 
 /**
  * <p>DataBean is the basic unit of databeans package. It holds a chunk
@@ -217,7 +218,7 @@ public interface DataBean extends DataItem {
 	// TODO should be integrated and hidden away
 	public void initialiseStreamStartCache() throws IOException, MicroarrayException;
 	
-	public void updateRemoteCache(String payloadName, PayloadMessage payloadMessage) throws JMSException, MicroarrayException, IOException;
+	public void updateRemoteCache(String payloadName, PayloadMessage payloadMessage, CopyProgressListener progressListener) throws JMSException, MicroarrayException, IOException;
 	
 	/**
 	 * Returns content size in bytes.

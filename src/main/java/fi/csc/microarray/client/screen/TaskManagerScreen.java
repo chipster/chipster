@@ -6,13 +6,11 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.sql.Time;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.jms.JMSException;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -37,19 +35,17 @@ import org.jdesktop.swingx.decorator.SortOrder;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.HyperlinkProvider;
 
-import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.VisualConstants;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.TaskExecutor;
-import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.util.config.ConfigurationLoader.OldConfigurationFormatException;
+import fi.csc.microarray.util.Strings;
 
 
 /**
- * @author klemela
+ * @author Petri Klemelä
  *
  */
 public class TaskManagerScreen extends ScreenBase implements ActionListener, ListSelectionListener {
@@ -290,24 +286,28 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 					if (c instanceof JComponent) {
 						JComponent jc = (JComponent)c;
 
+						Task task = tasks.get(rowIndex);
 						if (col == Column.TOOL){									
 							try {
-								jc.setToolTipText(tasks.get(rowIndex).getParameters().toString());
+								jc.setToolTipText(task.getParameters().toString());
 							} catch (Exception e) {								
 							}
 						} else if (col == Column.STATUS){
-							String status = tasks.get(rowIndex).getState().toString();
-
-							if(tasks.get(rowIndex).getStateDetail() != null && 
-									tasks.get(rowIndex).getStateDetail().length()>0){
-								status += " ( " + tasks.get(rowIndex).getStateDetail() + " )";
+							String status = task.getState().toString();
+							
+							if (task.getStateDetail() != null && 
+									task.getStateDetail().length()>0){
+								status += " ( " + task.getStateDetail() + " )";
+							} else if (tasks.get(rowIndex).getCompletionPercentage() != -1) {
+								status += " ( " + task.getCompletionPercentage() + "% )";
 							}
 							jc.setToolTipText(status); 
 
 						} else if (col == Column.TIME){
-							long longTime = tasks.get(rowIndex).getExecutionTime();
-							jc.setToolTipText("Execution time: " + 
-									(int)(longTime/1000)/60 + ":" + (int)(longTime/1000)%60);
+							long longTime = task.getExecutionTime();
+							String min = Strings.toString((int)(longTime/1000)/60, 2);
+							String sec = Strings.toString((int)(longTime/1000)%60, 2);
+							jc.setToolTipText("Execution time: " + min + ":" + sec);
 						}														
 					}
 					return c;
@@ -361,7 +361,7 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 			try {
 				// TODO Task should give the List of Parameter objects instead of Strings to show also the names of the parameters, like in DetailsPanel
 				parametersLabel.setText(task.getParameters().toString());
-			} catch (Exception e1) {
+			} catch (Exception e) {
 				parametersLabel.setText("?");
 			}
 			statusLabel.setText(task.getState().toString());
@@ -406,7 +406,7 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 
 		if (e.getSource() == detailsButton) {	
 
-			if(detailsScroller.isVisible()){
+			if (detailsScroller.isVisible()){
 				detailsScroller.setVisible(false);
 				detailsButton.setText("Show details");			
 			} else {
@@ -418,38 +418,11 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 		}		
 	}
 
-	public static class TestTaskExecutor extends TaskExecutor {
-
-		protected TestTaskExecutor(DataManager manager) throws JMSException {
-			super(manager);
-			Task task1 = new Task("Norm. 1");
-			Task task2 = new Task("Norm. 2");
-			Task task3 = new Task("Norm. 3");
-
-			task2.setStateDetail("Problem with R, wrong parameters, error in data or wrong mood.");
-
-			task1.setScreenOutput("x\n\n\n\n\n\nx\n\n\n\n\nx\tx\tx\tx\tx\tx\tx\n\n\n\nx\n\n\nx\n\n\n\n\n\n\n\n\n\n\nx\nx");
-
-			// TODO addToRunningTasks does not affect the state of the task, set it manually if needed
-
-			addToRunningTasks(task1);
-			addToRunningTasks(task2);
-			addToRunningTasks(task3);
-			removeFromRunningTasks(task1);
-		}
-	}
-
-	public static void main(String[] args) throws IOException, JMSException, OldConfigurationFormatException {
-		MicroarrayConfiguration.loadConfiguration();
-		new TaskManagerScreen(new TestTaskExecutor(null));
-	}
-
-	//Selection listener
 	public void valueChanged(ListSelectionEvent e) {
-		if(table.getSelectedRow() >= 0 && table.getSelectedRow() < tasks.size()){
+		if (table.getSelectedRow() >= 0 && table.getSelectedRow() < tasks.size()) {
 			refreshLabels(tasks.get(table.convertRowIndexToModel(table.getSelectedRow())));
 		} else {
-			refreshLabels(null);						
+			refreshLabels(null);
 		}
 	}
 

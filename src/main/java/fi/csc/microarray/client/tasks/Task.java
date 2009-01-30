@@ -103,6 +103,7 @@ public class Task {
 	
 	private State state = State.NEW;
 	private String stateDetail = "";
+	private int completionPercentage = -1;
 	private String name;
 	private long startTime;
 	private long endTime;
@@ -113,8 +114,7 @@ public class Task {
 	private boolean hasBeenRetried = false;
 	private boolean hidden = false;
 	
-	private List<TaskEventListener> listeners = new LinkedList<TaskEventListener>();
-	
+	private List<TaskEventListener> listeners = new LinkedList<TaskEventListener>();	
 	
 	public Task(String name) {
 		this.name = name;
@@ -334,5 +334,18 @@ public class Task {
 
 	public void addTaskEventListener(TaskEventListener listener) {
 		listeners.add(listener);
+	}
+
+	public int getInputCount() {
+		return inputs.size();
+	}
+
+	public void setCompletionPercentage(int completionPercentage) {
+		this.completionPercentage = completionPercentage;
+		
+	}
+
+	public int getCompletionPercentage() {
+		return completionPercentage;
 	}
 }

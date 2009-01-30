@@ -121,7 +121,7 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 			cancelCheck();
 			File outputFile = new File(jobWorkDir, fileName);
 			outputMessage.addPayload(fileName, new BufferedInputStream(
-					new FileInputStream(outputFile)));
+					new FileInputStream(outputFile)), null);
 			logger.debug("Added output file " + fileName);
 		}
 

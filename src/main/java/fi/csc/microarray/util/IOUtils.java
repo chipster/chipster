@@ -10,13 +10,15 @@ import java.net.HttpURLConnection;
 /**
  * 
  * @author Aleksi Kallio
- *
+ * 
  */
 public class IOUtils {
 
+	private static final int BUFFER_SIZE = 16*1024;
+	private static final long CALLBACK_INTERVAL = 500; 
+	
 	/**
-	 * Closes Reader if it is not null. Ignores all exceptions.
-	 * Useful for those finally-blocks.
+	 * Closes Reader if it is not null. Ignores all exceptions. Useful for those finally-blocks.
 	 */
 	public static void closeIfPossible(Reader reader) {
 		if (reader != null) {
@@ -25,12 +27,11 @@ public class IOUtils {
 			} catch (IOException e) {
 				// ignore
 			}
-		}		
+		}
 	}
 
 	/**
-	 * Closes Writer if it is not null. Ignores all exceptions.
-	 * Useful for those finally-blocks.
+	 * Closes Writer if it is not null. Ignores all exceptions. Useful for those finally-blocks.
 	 */
 	public static void closeIfPossible(Writer writer) {
 		if (writer != null) {
@@ -39,12 +40,11 @@ public class IOUtils {
 			} catch (IOException e) {
 				// ignore
 			}
-		}		
+		}
 	}
-	
+
 	/**
-	 * Closes InputStream if it is not null. Ignores all exceptions.
-	 * Useful for those finally-blocks.
+	 * Closes InputStream if it is not null. Ignores all exceptions. Useful for those finally-blocks.
 	 */
 	public static void closeIfPossible(InputStream stream) {
 		if (stream != null) {
@@ -55,10 +55,9 @@ public class IOUtils {
 			}
 		}
 	}
-	
+
 	/**
-	 * Closes OutputStream if it is not null. Ignores all exceptions.
-	 * Useful for those finally-blocks.
+	 * Closes OutputStream if it is not null. Ignores all exceptions. Useful for those finally-blocks.
 	 */
 	public static void closeIfPossible(OutputStream stream) {
 		if (stream != null) {
@@ -72,7 +71,51 @@ public class IOUtils {
 
 	public static void disconnectIfPossible(HttpURLConnection connection) {
 		if (connection != null) {
-				connection.disconnect();
-		}		
+			connection.disconnect();
+		}
+	}
+
+	public static interface CopyProgressListener {
+		public void progress(int bytes);
+	}
+	
+	/**
+	 * 
+	 * Copies contents of source to target and reports progress.
+	 * 
+	 * @param source
+	 * @param target
+	 * @param progressListener can be null
+	 * 
+	 * @throws IOException all exceptions from underlying IO are passed through
+	 */
+	public static void copy(InputStream source, OutputStream target, CopyProgressListener progressListener) throws IOException {
+		
+		// initialise
+		byte buffer[] = new byte[BUFFER_SIZE];
+		int len = BUFFER_SIZE;
+		int sum = 0;
+
+		// tell that we are in the beginning
+		if (progressListener != null) {
+			progressListener.progress(0);
+		}
+		long lastCallback = System.currentTimeMillis();
+
+		// copy while there is content
+		while (true) {
+			len = source.read(buffer, 0, BUFFER_SIZE);
+			if (len < 0) {
+				break;
+			}
+			
+			target.write(buffer, 0, len);
+			sum += len;
+			
+			// report progress every CALLBACK_INTERVAL milliseconds
+			if (progressListener != null && (lastCallback+CALLBACK_INTERVAL) < System.currentTimeMillis()) {
+				progressListener.progress(sum);
+			}
+		}
 	}
 }

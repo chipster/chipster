@@ -28,6 +28,7 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.frontend.FileBrokerConfig;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.UrlTransferUtil;
+import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 
 
 /**
@@ -180,14 +181,14 @@ public class PayloadMessage extends ParameterMessage {
 	 * @return the URL pointing to the uploaded payload on the server side
 	 * @throws JMSException
 	 */
-	public URL addPayload(String name, InputStream payload) throws JMSException {
+	public URL addPayload(String name, InputStream payload, CopyProgressListener progressListener) throws JMSException {
 		URL url = null;
 
 		logger.debug("adding payload " + name);
 		// create url and upload the payload to fileserver
 		try {
 			url = createPayloadUrl(name);
-			UrlTransferUtil.uploadStream(url, payload, useChunked ); // uploadStream flushes and closes
+			UrlTransferUtil.uploadStream(url, payload, useChunked, progressListener); // uploadStream flushes and closes
 			logger.debug("successfully uploaded " + name + " to " + url);
 
 		} catch (Exception e) {
@@ -230,9 +231,9 @@ public class PayloadMessage extends ParameterMessage {
 	 * @throws MicroarrayException
 	 * @throws IOException
 	 */
-	public void addPayload(String payloadName, DataBean dataBean) throws JMSException, MicroarrayException, IOException {
+	public void addPayload(String payloadName, DataBean dataBean, IOUtils.CopyProgressListener progressListener) throws JMSException, MicroarrayException, IOException {
 		try {
-			dataBean.updateRemoteCache(payloadName, this);
+			dataBean.updateRemoteCache(payloadName, this, progressListener);
 		} catch (Exception e) {
 			handleException(e);
 		}

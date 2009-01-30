@@ -1,8 +1,5 @@
 package fi.csc.microarray.util;
 
-import org.apache.log4j.Logger;
-import org.mortbay.util.IO;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,6 +7,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import javax.jms.JMSException;
+
+import org.apache.log4j.Logger;
 
 public class UrlTransferUtil {
 	/**
@@ -22,8 +21,19 @@ public class UrlTransferUtil {
 	public static InputStream downloadStream(URL url) throws JMSException, IOException {
 		return url.openStream();		
 	}
-	
-    public static URL uploadStream(URL url, InputStream fis, boolean useChunked) throws JMSException, IOException {
+
+	/**
+	 * Uploads a file (or similar) over HTTP.
+	 *  
+	 * @param url address to copy to
+	 * @param fis source to copy from
+	 * @param useChunked use HTTP 1.1 chunked mode?
+	 * @param progressListener can be null
+	 * @return
+	 * @throws JMSException
+	 * @throws IOException
+	 */
+    public static URL uploadStream(URL url, InputStream fis, boolean useChunked, IOUtils.CopyProgressListener progressListener) throws JMSException, IOException {
 
     	HttpURLConnection connection = null;
     	try {
@@ -41,7 +51,7 @@ public class UrlTransferUtil {
     		OutputStream os = null;
     		try {
     			os = connection.getOutputStream();
-    			IO.copy(fis, os);
+    			IOUtils.copy(fis, os, progressListener);
 
     		} finally {
     			IOUtils.closeIfPossible(os);

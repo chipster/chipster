@@ -27,11 +27,6 @@
 			<value>true</value>
 		</entry>
 
-		<!-- cache payloads on the server side -->
-		<entry entryKey="cache_payloads">
-			<value>true</value>
-		</entry>
-
 
 	</configuration-module>
 	
