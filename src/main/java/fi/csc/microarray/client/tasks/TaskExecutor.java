@@ -434,20 +434,25 @@ public class TaskExecutor {
 					logger.debug("adding inputs to job message");
 
 					updateTaskState(task, State.TRANSFERRING_INPUTS, null, -1);
+					int i = 0;
 					for (final String name : task.inputNames()) {
 
+						final int fi = i;
 						CopyProgressListener progressListener = new CopyProgressListener() {
 
 							int length = (int)task.getInput(name).getContentLength();
 
 							public void progress(int bytes) {
-								float p = ((float)bytes) / ((float)length) / ((float)task.getInputCount()) * 100f;
+								float overall = ((float)fi) / ((float)task.getInputCount());
+								float infile = ((float)bytes) / ((float)length);
+								float p = overall + (infile / ((float)task.getInputCount())) * 100f;
 								updateTaskState(task, State.TRANSFERRING_INPUTS, null, Math.round(p));
 							}
 						};
 						
 						jobMessage.addPayload(name, task.getInput(name), progressListener);
 						logger.debug("added input " + name + " to job message.");
+						i++;
 					}
 
 					updateTaskState(task, State.WAITING, null, -1);
