@@ -2,13 +2,7 @@ package fi.csc.microarray.client;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -27,19 +21,16 @@ import java.util.concurrent.TimeUnit;
 import javax.jms.JMSException;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JRootPane;
 import javax.swing.JSplitPane;
 import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -111,7 +102,6 @@ import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.util.BrowserLauncher;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.GeneralFileFilter;
-import fi.csc.microarray.util.MemUtil;
 import fi.csc.microarray.util.SplashScreen;
 import fi.csc.microarray.util.config.ConfigurationLoader.OldConfigurationFormatException;
 
@@ -128,7 +118,7 @@ public class SwingClientApplication extends ClientApplication {
 	private static final long SLOW_VISUALISATION_LIMIT = 5 * 1000;
 	private static final long VERY_SLOW_VISUALISATION_LIMIT = 20 * 1000;
 
-	/**
+	/**W
 	 * Logger for this class
 	 */
 	private static Logger logger;
@@ -139,11 +129,9 @@ public class SwingClientApplication extends ClientApplication {
 	private JSplitPane rightSplit = null;
 	private JSplitPane leftSplit = null;
 	private JSplitPane mainSplit = null;
-	private JPanel statusBar = null;
-	private JLabel statusLabel = null;
-	private JProgressBar jobStatusIndicator = null;
 	private MicroarrayMenuBar menuBar;
 	private TaskManagerScreen taskManagerScreen;
+	private StatusBar statusBar;
 
 	private SimpleInternalFrame treeFrame;
 	private SimpleInternalFrame graphFrame;
@@ -159,13 +147,9 @@ public class SwingClientApplication extends ClientApplication {
 	private VisualisationFrameManager visualisationFrameManager;
 	private HistoryScreen historyScreen;
 
-	private JProgressBar memoryIndicator;
-	private JButton jobListButton;
 	private SplashScreen splashScreen;
 	private ClientListener clientListener;
 	private AuthenticationRequestListener overridingARL;
-	private int oldTaskCount = 0;
-	private Timer blinker;
 	private WaitGlassPane waitPanel = new WaitGlassPane();
 	
 	private static float fontSize = VisualConstants.DEFAULT_FONT_SIZE;
@@ -290,6 +274,9 @@ public class SwingClientApplication extends ClientApplication {
 
 		// add menus
 		menuBar = new MicroarrayMenuBar(this);
+		
+		// create status bar
+		statusBar = new StatusBar(this);
 
 		// sets 3D-look (JGoodies property)
 		menuBar.putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.SINGLE);
@@ -297,7 +284,7 @@ public class SwingClientApplication extends ClientApplication {
 		// put everything together
 		mainFrame.getContentPane().setLayout(new BorderLayout());
 		mainFrame.getContentPane().add(mainSplit, BorderLayout.CENTER);
-		mainFrame.getContentPane().add(this.getStatusBar(), BorderLayout.SOUTH);
+		mainFrame.getContentPane().add(statusBar.getStatusPanel(), BorderLayout.SOUTH);
 		mainFrame.setJMenuBar(menuBar);
 		menuBar.updateMenuStatus();
 
@@ -355,7 +342,7 @@ public class SwingClientApplication extends ClientApplication {
 
 	}
 
-	private void updateWindowTitle(Integer jobCount) {
+	public void updateWindowTitle(Integer jobCount) {
 		String jobString = jobCount > 0 ? jobCount + " jobs / " : "";
 		this.mainFrame.setTitle(jobString + ApplicationConstants.APPLICATION_TITLE);
 	}
@@ -525,7 +512,7 @@ public class SwingClientApplication extends ClientApplication {
 		fixFileChooserFontSize(importExportFileChooser);
 
 		// Running progressBar don't care about updateUI
-		jobStatusIndicator.setFont(jobStatusIndicator.getFont().deriveFont(fontSize));
+		statusBar.setFontSize(fontSize);
 
 		Iterator<Screen> iter = childScreens.getScreenIterator();
 
@@ -543,113 +530,8 @@ public class SwingClientApplication extends ClientApplication {
 		return mainFrame;
 	}
 
-	public JPanel getStatusBar() {
-		if (statusBar == null) {
-			// add status bar
-			jobStatusIndicator = new JProgressBar();
 
-			jobStatusIndicator.setName("jobStatusIndicator");
-			jobStatusIndicator.setStringPainted(true);
 
-			memoryIndicator = new JProgressBar(0, 100);
-			memoryIndicator.setStringPainted(true);
-			memoryIndicator.setToolTipText("Shows how much of the available memory is allocated. Click the indicator to release unused memory (garbage collection).");
-			memoryIndicator.addMouseListener(new MouseListener() {
-				public void mouseClicked(MouseEvent e) {
-					garbageCollect();
-				}
-
-				public void mouseEntered(MouseEvent e) { /* do nothing */
-				}
-
-				public void mouseExited(MouseEvent e) { /* do nothing */
-				}
-
-				public void mousePressed(MouseEvent e) { /* do nothing */
-				}
-
-				public void mouseReleased(MouseEvent e) { /* do nothing */
-				}
-			});
-
-			statusLabel = new JLabel();
-			String labelText = "Connected to " + MicroarrayConfiguration.getValue("messaging", "broker_host");
-			statusLabel.setText(labelText);
-			statusLabel.setBorder(jobStatusIndicator.getBorder());
-
-			jobListButton = new JButton(VisualConstants.ARROW_UP_ICON);
-			jobListButton.setName("jobListButton");
-			jobListButton.setToolTipText("View tasks");
-
-			jobListButton.addMouseListener(new MouseListener() {
-
-				public void mouseClicked(MouseEvent e) {
-					flipTaskListVisibility(true);
-				}
-
-				public void mouseEntered(MouseEvent e) {
-				}
-
-				public void mouseExited(MouseEvent e) {
-				}
-
-				public void mousePressed(MouseEvent e) {
-				}
-
-				public void mouseReleased(MouseEvent e) {
-				}
-			});
-
-			this.taskCountChanged(0, false);
-
-			statusBar = new JPanel(new GridBagLayout());
-			GridBagConstraints c = new GridBagConstraints();
-			c.weightx = 1.0;
-			c.weighty = 1.0;
-			c.fill = GridBagConstraints.BOTH;
-			c.insets.set(0, 0, 0, 5);
-			statusBar.add(statusLabel, c);
-			c.gridx = 1;
-			c.weightx = 0.0;
-			statusBar.add(jobListButton, c);
-			c.gridx = 2;
-			statusBar.add(jobStatusIndicator, c);
-			c.insets.set(0, 0, 0, 0);
-			c.gridx = 3;
-			statusBar.add(memoryIndicator, c);
-		}
-		return statusBar;
-	}
-
-	public void flipTaskListVisibility(boolean closeIfVisible) {
-		taskManagerScreen.refreshTasks();
-		boolean wasVisible = childScreens.get("TaskList").getFrame().isVisible();
-		// boolean wasActive =
-		// childScreens.get("TaskList").getFrame().isActive();
-		boolean wasShowing = childScreens.get("TaskList").getFrame().isShowing();
-		boolean wasNotIconified = true;
-		if ((childScreens.get("TaskList").getFrame().getExtendedState() & JFrame.ICONIFIED) == 1) {
-			wasNotIconified = false;
-		}
-
-		if (wasVisible && wasShowing && wasNotIconified && closeIfVisible) {
-
-			// hide
-			childScreens.get("TaskList").getFrame().setVisible(false);
-			jobListButton.setIcon(VisualConstants.ARROW_UP_ICON);
-			jobListButton.setToolTipText("View Task manager");
-		} else {
-			// show
-			childScreens.get("TaskList").getFrame().setVisible(true);
-			childScreens.get("TaskList").getFrame().setExtendedState(JFrame.NORMAL);
-			childScreens.get("TaskList").getFrame().toFront();
-			childScreens.get("TaskList").getFrame().setFocusable(true);
-			childScreens.get("TaskList").getFrame().requestFocus();
-			childScreens.get("TaskList").getFrame().toFront();
-			jobListButton.setIcon(VisualConstants.ARROW_DOWN_ICON);
-			jobListButton.setToolTipText("Hide Task manager");
-		}
-	}
 
 	/**
 	 * Sets the folder with given name selected or creates a new folder if it
@@ -966,99 +848,6 @@ public class SwingClientApplication extends ClientApplication {
 
 	public void onException(JMSException e) {
 		reportException(e);
-	}
-
-	protected void taskCountChanged(int taskCount, boolean useBlinking) {
-
-		// update status bar
-		boolean jobStarted;
-		if (oldTaskCount < taskCount) {
-			jobStarted = true;
-		} else {
-			jobStarted = false;
-		}
-
-		oldTaskCount = taskCount;
-
-		String indicatorText;
-		if (taskCount == 0) {
-			indicatorText = "Ready";
-			jobStatusIndicator.setIndeterminate(false);
-		} else {
-			if (taskCount == 1) {
-				indicatorText = taskCount + " job running";
-			} else {
-				indicatorText = taskCount + " jobs running";
-			}
-			jobStatusIndicator.setIndeterminate(true);
-		}
-		jobStatusIndicator.setString(indicatorText);
-
-		// when starting the application logger might be null
-		if (logger != null) {
-			logger.debug("job count " + taskCount);
-		}
-
-		if (useBlinking && jobStarted) {
-			blinkProgressBar();
-		}
-
-		// update title
-		updateWindowTitle(taskCount);
-
-		// update task list
-		this.taskManagerScreen.refreshTasks();
-	}
-
-	/**
-	 * Adds a fancy blinking effect to progress bar after job is started
-	 * 
-	 */
-	private void blinkProgressBar() {
-
-		class Blinker implements ActionListener {
-
-			private boolean isBold;
-			private int repeats;
-			private int repeated;
-
-			public Blinker(int repeats) {
-				this.isBold = false;
-				this.repeats = repeats;
-				this.repeated = 0;
-			}
-
-			public void actionPerformed(ActionEvent e) {
-				if (repeated == repeats) {
-					jobStatusIndicator.setFont(jobStatusIndicator.getFont().deriveFont(Font.PLAIN));
-					((Timer) e.getSource()).stop();
-					return;
-				}
-
-				if (isBold) {
-					jobStatusIndicator.setFont(jobStatusIndicator.getFont().deriveFont(Font.PLAIN));
-					isBold = false;
-				} else {
-					jobStatusIndicator.setFont(jobStatusIndicator.getFont().deriveFont(Font.BOLD));
-					isBold = true;
-				}
-				repeated++;
-			}
-		}
-
-		if (blinker != null) {
-			blinker.stop();
-			jobStatusIndicator.setFont(jobStatusIndicator.getFont().deriveFont(Font.PLAIN));
-		}
-
-		blinker = new Timer(350, new Blinker(6));
-		blinker.start();
-
-	}
-
-	private void updateMemoryIndicator() {
-		memoryIndicator.setString(MemUtil.getMemInfo());
-		memoryIndicator.setValue((int) (((float) MemUtil.getUsed()) / ((float) Runtime.getRuntime().maxMemory()) * 100f));
 	}
 
 	public void showChildScreen(String name, boolean packed) {
@@ -1712,7 +1501,7 @@ public class SwingClientApplication extends ClientApplication {
 
 	protected void garbageCollect() {
 		System.gc();
-		updateMemoryIndicator();
+		statusBar.updateMemoryIndicator();
 	}
 
 	public TaskManagerScreen getTaskManagerScreen() {
@@ -1839,7 +1628,7 @@ public class SwingClientApplication extends ClientApplication {
 
 	@Override
 	public void heartBeat() {
-		updateMemoryIndicator();
+		statusBar.updateMemoryIndicator();
 	}
 
 	public DataManager getDataManager() {
@@ -1852,5 +1641,28 @@ public class SwingClientApplication extends ClientApplication {
 
 	public VisualisationFrameManager getVisualisationFrameManager() {
 		return visualisationFrameManager;
+	}
+
+	@Override
+	public void flipTaskListVisibility(boolean closeIfVisible) {
+		statusBar.flipTaskListVisibility(closeIfVisible);
+		
+	}
+
+	@Override
+	protected void taskCountChanged(int newTaskCount, boolean attractAttention) {
+		int completion = 0;
+		if (newTaskCount > 0) {
+			completion = taskExecutor.getTasks(true, false).iterator().next().getCompletionPercentage();
+		}
+		statusBar.taskCountChanged(newTaskCount, completion, attractAttention);		
+	}
+
+	public void refreshTaskList() {
+		this.taskManagerScreen.refreshTasks();
+	}
+
+	public Screen getTaskListScreen() {
+		return childScreens.get("TaskList");
 	}
 }

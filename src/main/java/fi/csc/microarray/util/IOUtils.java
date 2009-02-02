@@ -95,12 +95,13 @@ public class IOUtils {
 		byte buffer[] = new byte[BUFFER_SIZE];
 		int len = BUFFER_SIZE;
 		int sum = 0;
-
+		long lastCallback = Long.MAX_VALUE; 
+		
 		// tell that we are in the beginning
 		if (progressListener != null) {
 			progressListener.progress(0);
+			lastCallback = System.currentTimeMillis();
 		}
-		long lastCallback = System.currentTimeMillis();
 
 		// copy while there is content
 		while (true) {
@@ -115,6 +116,7 @@ public class IOUtils {
 			// report progress every CALLBACK_INTERVAL milliseconds
 			if (progressListener != null && (lastCallback+CALLBACK_INTERVAL) < System.currentTimeMillis()) {
 				progressListener.progress(sum);
+				lastCallback = System.currentTimeMillis();
 			}
 		}
 	}

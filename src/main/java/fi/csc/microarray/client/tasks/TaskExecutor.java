@@ -445,8 +445,8 @@ public class TaskExecutor {
 							public void progress(int bytes) {
 								float overall = ((float)fi) / ((float)task.getInputCount());
 								float infile = ((float)bytes) / ((float)length);
-								float p = overall + (infile / ((float)task.getInputCount())) * 100f;
-								updateTaskState(task, State.TRANSFERRING_INPUTS, null, Math.round(p));
+								float p = overall + (infile / ((float)task.getInputCount()));
+								updateTaskState(task, State.TRANSFERRING_INPUTS, null, Math.round(p * 100f));
 							}
 						};
 						
