@@ -8,15 +8,9 @@
     <title>Chipster </title>
     <vendor>The Finnish IT Center for Science CSC</vendor>
     <homepage href="http://chipster.csc.fi"/>
-    <description></description>
-    <description kind="short"></description>
-    <!--
-    <icon href=""/>
-    <icon kind="splash" href=""/>
-    -->
-    
-    <offline-allowed/> 
-    <shortcut online="false">
+    <description>Software for DNA microarray data analysis</description>
+    <description kind="short">Software for DNA microarray data analysis</description>
+    <shortcut>
       <desktop/>
       <menu submenu="Chipster"/>
     </shortcut>
