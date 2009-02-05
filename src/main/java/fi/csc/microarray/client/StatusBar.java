@@ -150,7 +150,7 @@ public class StatusBar {
 		jobStatusIndicator.setIndeterminate(indeterminate);
 		jobStatusIndicator.setValue(value);
 		if (value > 0) {
-			jobStatusIndicator.setForeground(normalStatusIndicatorColor.brighter());
+			jobStatusIndicator.setForeground(normalStatusIndicatorColor.darker());
 		} else {
 			jobStatusIndicator.setForeground(normalStatusIndicatorColor);
 		}
