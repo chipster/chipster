@@ -31,9 +31,9 @@ public class FileServer {
 		}
 
 		// boot up file server
-		EmbeddedJettyServer fileServer = new EmbeddedJettyServer();
+		EmbeddedJettyServer fileServer = new EmbeddedJettyServer(FILESERVER_CONTEXT_PATH);
 		int port = FileBrokerConfig.getPort();
-		fileServer.start(fileRepository.getPath(), FILESERVER_CONTEXT_PATH, port);
+		fileServer.start(fileRepository.getPath(), "/", port);
 		logger.info("fileserver is up and running [" + ApplicationConstants.NAMI_VERSION + "]");
 		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
 		

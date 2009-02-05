@@ -9,6 +9,7 @@ import org.mortbay.thread.QueuedThreadPool;
 
 import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.util.rest.RestServlet;
+import fi.csc.microarray.util.rest.WelcomeServlet;
 
 public class EmbeddedJettyServer {
 
@@ -21,13 +22,10 @@ public class EmbeddedJettyServer {
 	}
 	
 	private Server jettyInstance;
+	private String fileserverContextPath;
 	
-	public static void main(String[] args) throws Exception {
-
-		System.setProperty("DEBUG", "true");
-		EmbeddedJettyServer server = new EmbeddedJettyServer();
-		server.start("/home/akallio/eclipse-workspace/microarray/nami-work-files/file-repository/", "/fileserver", 8080);
-		server.jettyInstance.join();
+	public EmbeddedJettyServer(String fileserverContextPath) {
+		this.fileserverContextPath = fileserverContextPath;
 	}
 	
 	public void start(String resourceBase, String contextPath, int port) throws Exception {
@@ -45,7 +43,8 @@ public class EmbeddedJettyServer {
 
 		Context root = new Context(jettyInstance, contextPath, false, false);
 		root.setResourceBase(resourceBase);
-		root.addServlet(new ServletHolder(new RestServlet()), "/*");
+		root.addServlet(new ServletHolder(new RestServlet()), fileserverContextPath + "/*");
+		root.addServlet(new ServletHolder(new WelcomeServlet()), "/*");
 		jettyInstance.start();
 	}
 	
