@@ -71,7 +71,9 @@
 			<value>/R/norm-illumina-lumi.R</value>
 			<value>/R/norm-lme.R</value>
 			<value>/R/norm-illumina-SNP.R</value>
+			<value>/R/norm-prenormalized.R</value>
 			<value>/R/norm-specific-samples.R</value>
+			<value>/R/norm-specific-genes.R</value>
 
 			<!-- QUALITY CONTROL -->
 			<value>/R/qc-affy.R</value>
@@ -113,15 +115,18 @@
 			<value>/R/cluster-kmeans-testK.R</value>
 			<value>/R/cluster-qt.R</value>
 			<value>/R/cluster-som.R</value>
+			<value>/R/classification.R</value>
 			
 			<!-- ANNOTATION -->
 			<value>/R/annotate-genelist2html.R</value>
+			<value>/R/annotate-add-to-data.R</value> 
 <!--			<value>fi.csc.microarray.analyser.java.GeneCruiserAnnotationJob</value> -->
 			
 			<!-- PATHWAYS -->
 			<value>/R/stat-hyperG-GO.R</value>	
 			<value>/R/stat-hyperG-KEGG-PFAM.R</value>	
 			<value>/R/stat-hyperG-safe.R</value>
+			<value>/R/stat-hyperG-cytoband.R</value>
 			<value>/R/stat-geneset.R</value>
 <!--			<value>/R/pathway-bayesian.R</value> -->
 <!--			<value>/R/pathway-boolean-bestim.R</value> -->
@@ -150,6 +155,7 @@
 			<value>/R/extract-genes-from-clustering.R</value>
 			<value>/R/extract-samples-from-dataset.R</value>
 			<value>/R/extract-genes-from-stattest.R</value>
+			<value>/R/extract-genes.R</value>
 			<value>/R/calculate-fold-change.R</value>
 			<value>/R/average-replicates.R</value>
 			<value>/R/change-interpretation.R</value>
@@ -158,6 +164,7 @@
 			<value>/R/delete-columns.R</value>
 			<value>/R/calculate-descriptive-statistics.R</value>
 			<value>/R/sort-samples.R</value>
+			<value>/R/sort-genes.R</value>
 			<value>/R/sampling.R</value>
 			<value>/R/export-tab2mage.R</value>
 			<value>/R/export-soft.R</value>
@@ -167,7 +174,6 @@
 			<!-- MISCELLANEOUS (SEQUENCE ANALYSIS) -->
 			<value>/R/seqanal-msa.R</value>
 			<value>/R/seqanal-phylogenetics.R</value>
-			
 		</entry>
 
 		
