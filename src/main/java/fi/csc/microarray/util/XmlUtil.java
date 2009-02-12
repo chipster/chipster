@@ -2,6 +2,8 @@ package fi.csc.microarray.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
@@ -74,6 +76,10 @@ public class XmlUtil {
 			}
 		}
 		return null;
+	}
+
+	public void printXml(Document response, OutputStream out) throws UnsupportedEncodingException, TransformerException {
+		printXml(response, new OutputStreamWriter(out));		
 	}
 
 }
