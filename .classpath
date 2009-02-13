@@ -26,6 +26,9 @@
 	<classpathentry kind="lib" path="ext/lib/eclipse-icons.jar"/>
 	<classpathentry kind="lib" path="ext/lib/geronimo-servlet_2.5_spec-1.1.jar"/>
 	<classpathentry kind="lib" path="ext/lib/commons-logging-1.1.jar"/>
+	<classpathentry kind="lib" path="ext/lib/saaj-api.jar"/>
+	<classpathentry kind="lib" path="ext/lib/saaj-impl.jar"/>
+	<classpathentry kind="lib" path="ext/lib/activation.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="ext/lib/activemq-all-5.1.0.jar"/>
 	<classpathentry kind="lib" path="ext/lib/jcommon-1.0.9.jar"/>
