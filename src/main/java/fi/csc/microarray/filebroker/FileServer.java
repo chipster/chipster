@@ -1,4 +1,4 @@
-package fi.csc.microarray.frontend;
+package fi.csc.microarray.filebroker;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,10 +8,17 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.ApplicationConstants;
 import fi.csc.microarray.MicroarrayConfiguration;
+import fi.csc.microarray.messaging.MessagingEndpoint;
+import fi.csc.microarray.messaging.MessagingListener;
+import fi.csc.microarray.messaging.MessagingTopic;
+import fi.csc.microarray.messaging.NodeBase;
+import fi.csc.microarray.messaging.Topics;
+import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
+import fi.csc.microarray.messaging.message.NamiMessage;
 import fi.csc.microarray.util.FileCleanUpTimerTask;
 import fi.csc.microarray.util.MemUtil;
 
-public class FileServer {
+public class FileServer extends NodeBase implements MessagingListener {
 	/**
 	 * Logger for this class
 	 */
@@ -19,8 +26,13 @@ public class FileServer {
 
     private static final String FILESERVER_CONTEXT_PATH = "/fileserver";
 
+	private MessagingEndpoint endpoint;
+
+	private MessagingTopic managerTopic;
+
 
     public FileServer() throws Exception {
+    	
 		// check file repository
 		File fileRepository = new File(MicroarrayConfiguration.getValue("frontend", "fileServerPath"));
 		if (!fileRepository.exists()) {
@@ -45,5 +57,22 @@ public class FileServer {
 		t.schedule(new FileCleanUpTimerTask(fileRepository, cutoff), 0, cleanUpFrequency);
 		t.schedule(new JettyCheckTimerTask(fileServer), 0, checkFrequency);
 
+		// initialise messaging
+		this.endpoint = new MessagingEndpoint(this);
+		MessagingTopic urlRequestTopic = endpoint.createTopic(Topics.Name.AUTHORISED_URL_TOPIC, AccessMode.READ);
+		urlRequestTopic.setListener(this);
+		managerTopic = endpoint.createTopic(Topics.Name.MANAGER_TOPIC, AccessMode.WRITE);
+
     }
+
+
+	public String getName() {
+		return "filebroker";
+	}
+
+
+	public void onNamiMessage(NamiMessage msg) {
+		// TODO Auto-generated method stub
+		
+	}
 }

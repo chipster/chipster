@@ -1,4 +1,4 @@
-package fi.csc.microarray.frontend;
+package fi.csc.microarray.filebroker;
 
 import java.util.TimerTask;
 

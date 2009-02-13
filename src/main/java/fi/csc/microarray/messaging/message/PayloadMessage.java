@@ -25,7 +25,7 @@ import org.apache.log4j.Logger;
 import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.frontend.FileBrokerConfig;
+import fi.csc.microarray.filebroker.FileBrokerConfig;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.UrlTransferUtil;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;

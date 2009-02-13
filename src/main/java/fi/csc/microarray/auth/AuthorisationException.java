@@ -2,7 +2,7 @@
  * Created on Mar 24, 2005
  *
  */
-package fi.csc.microarray.frontend;
+package fi.csc.microarray.auth;
 
 import fi.csc.microarray.MicroarrayException;
 

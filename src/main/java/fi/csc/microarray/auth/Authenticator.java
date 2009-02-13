@@ -1,4 +1,4 @@
-package fi.csc.microarray.frontend;
+package fi.csc.microarray.auth;
 
 import java.util.UUID;
 
@@ -8,8 +8,6 @@ import javax.jms.JMSException;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.ApplicationConstants;
-import fi.csc.microarray.auth.AuthenticationProvider;
-import fi.csc.microarray.auth.JaasAuthenticationProvider;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
 import fi.csc.microarray.messaging.MessagingTopic;

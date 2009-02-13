@@ -1,17 +1,22 @@
-package fi.csc.microarray.frontend;
+package fi.csc.microarray.webstart;
 
+import org.apache.log4j.Logger;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.servlet.Context;
+import org.mortbay.jetty.servlet.DefaultServlet;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.thread.QueuedThreadPool;
 
 import fi.csc.microarray.MicroarrayConfiguration;
-import fi.csc.microarray.util.rest.RestServlet;
-import fi.csc.microarray.util.rest.WelcomeServlet;
 
-public class EmbeddedJettyServer {
+public class WebstartJettyServer {
+	private static final int PORT_NUMBER = 8081;
+	/**
+	 * Logger for this class
+	 */
+	private static Logger logger;
 
 	static {
 		try {
@@ -19,32 +24,35 @@ public class EmbeddedJettyServer {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+		logger = Logger.getLogger(WebstartJettyServer.class);
 	}
 	
 	private Server jettyInstance;
-	private String fileserverContextPath;
 	
-	public EmbeddedJettyServer(String fileserverContextPath) {
-		this.fileserverContextPath = fileserverContextPath;
+	public static void main(String[] args) throws Exception {
+
+		System.setProperty("DEBUG", "true");
+		WebstartJettyServer server = new WebstartJettyServer();
+		server.start();
+		server.jettyInstance.join();
 	}
 	
-	public void start(String resourceBase, String contextPath, int port) throws Exception {
+	public void start() throws Exception {
 		
-		if ("true".equals(MicroarrayConfiguration.getValue("filebroker", "jettyDebug"))) {
+		if (logger.isDebugEnabled()) {
 			System.setProperty("DEBUG", "true");
 		}
-		
 		jettyInstance = new Server();
 		jettyInstance.setThreadPool(new QueuedThreadPool());
 		Connector connector = new SelectChannelConnector();
 		connector.setServer(jettyInstance);
-		connector.setPort(port);
+		connector.setPort(PORT_NUMBER);
 		jettyInstance.setConnectors(new Connector[]{ connector });
+		
+		Context wsRoot = new Context(jettyInstance, "/", false, false);
+		wsRoot.setResourceBase("web-content/");
+		wsRoot.addServlet(new ServletHolder(new DefaultServlet()), "/*");
 
-		Context root = new Context(jettyInstance, contextPath, false, false);
-		root.setResourceBase(resourceBase);
-		root.addServlet(new ServletHolder(new RestServlet()), fileserverContextPath + "/*");
-		root.addServlet(new ServletHolder(new WelcomeServlet()), "/*");
 		jettyInstance.start();
 	}
 	

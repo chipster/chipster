@@ -1,4 +1,4 @@
-package fi.csc.microarray.frontend;
+package fi.csc.microarray.filebroker;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -23,11 +23,8 @@ public class FileBrokerConfig {
 			}
 		}
 	}
-	
-	/**
-	 * Selects one configured file broker by random and generates URL for given file
-	 * to that broker.
-	 */
+
+	@Deprecated
 	public static URL generateUrlToSomeFileBroker(String filename) throws MalformedURLException {
 		int i = randGenerator.nextInt(FILESERVER_URLS.length);
 		return new URL(FILESERVER_URLS[i] + filename);

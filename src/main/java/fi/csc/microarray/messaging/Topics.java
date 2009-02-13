@@ -8,20 +8,12 @@ package fi.csc.microarray.messaging;
  */
 public interface Topics {
 	
-	/**
-	 * Contains ALL topic names used in this system.
-	 * 
-	 * | *topic name*| *senders* | *receivers* | *description* |
-	 * | test-topic | unit tests | frontend | test messaging |
-	 * | request-topic | client | frontend | requests from client |
-	 * | authorised-request-topic | frontend | analyser | analysis requests authorised by front end |
-	 * | admin-topic | client | all | administrative requests |
-	 * 
-	 */
 	enum Name {
 		TEST_TOPIC("test-topic"),
 		REQUEST_TOPIC("request-topic"),
 		AUTHORISED_REQUEST_TOPIC("authorised-request-topic"),
+		URL_TOPIC("url-topic"),
+		AUTHORISED_URL_TOPIC("authorised-url-topic"),
 		ADMIN_TOPIC("admin-topic"),
 		MANAGER_TOPIC("job-log-topic"),
 		AUTH_LOG_TOPIC("auth-log-topic")
