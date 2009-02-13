@@ -88,11 +88,6 @@ public class PayloadMessage extends ParameterMessage {
 		}
 	}
 
-	private void handleException(Exception e) throws JMSException {
-		logger.info(e);
-		throw new JMSException(e.getMessage()); // converting URL related errors to JMS errors is kind of strange...
-	}
-	
 	
 	/**
 	 * Construct a MapMessage that can be used to create a new JobMessage.

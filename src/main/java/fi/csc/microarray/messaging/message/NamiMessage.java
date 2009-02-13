@@ -10,6 +10,8 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 
+import org.apache.log4j.Logger;
+
 /**
  * The base class for all messages handled by the NAMI fabric.
  * 
@@ -18,6 +20,8 @@ import javax.jms.MapMessage;
  */
 public abstract class NamiMessage {
 
+	private static final Logger logger = Logger.getLogger(NamiMessage.class);
+	
 	public static final String KEY_MESSAGE_ID = "message-id";
 	public static final String KEY_CLASS= "class";	
 	public static final String KEY_USERNAME = "username";
@@ -138,4 +142,11 @@ public abstract class NamiMessage {
 	public String getJmsMessageID() {
 		return jmsMessageID;
 	}
+
+	public void handleException(Exception e) throws JMSException {
+		logger.info(e);
+		throw new JMSException(e.getMessage()); // converting URL related errors to JMS errors is kind of strange...
+	}
+
+
 }
