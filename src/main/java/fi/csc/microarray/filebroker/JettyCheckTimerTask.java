@@ -10,9 +10,9 @@ public class JettyCheckTimerTask extends TimerTask {
 	 */
 	private static final Logger logger = Logger.getLogger(JettyCheckTimerTask.class);
 
-	private EmbeddedJettyServer jettyServer;
+	private JettyFileServer jettyServer;
 
-	public JettyCheckTimerTask(EmbeddedJettyServer jettyInstance) {
+	public JettyCheckTimerTask(JettyFileServer jettyInstance) {
 		this.jettyServer = jettyInstance; 		
 	}
 	

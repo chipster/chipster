@@ -3,6 +3,8 @@ package fi.csc.microarray.util.rest;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -14,6 +16,7 @@ import org.mortbay.util.IO;
 import org.mortbay.util.URIUtil;
 
 import sun.net.www.protocol.http.HttpURLConnection;
+import fi.csc.microarray.filebroker.AuthorisedUrlRepository;
 
 /**
 * <p>Adds support for HTTP PUT, MOVE and 
@@ -26,10 +29,14 @@ import sun.net.www.protocol.http.HttpURLConnection;
 */
 public class RestServlet extends DefaultServlet {
 
-	private File locateFile(HttpServletRequest request) {		
-		return new File(getServletContext().getRealPath(URIUtil.addPaths(request.getServletPath(),request.getPathInfo())));		
-	}
+	private AuthorisedUrlRepository urlRepository;
+	private URL rootUrl;
 
+	public RestServlet(AuthorisedUrlRepository urlRepository, URL rootUrl) {
+		this.urlRepository = urlRepository;
+		this.rootUrl = rootUrl;
+	}
+	
 	@Override
 	public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		File file = locateFile(request);
@@ -54,6 +61,17 @@ public class RestServlet extends DefaultServlet {
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if (Log.isDebugEnabled()) {
 			Log.debug("RESTful file access: PUT request for " + request.getRequestURI());
+		}
+		
+		// check that URL is authorised
+		if (!urlRepository.isAuthorised(constructUrl(request))) {
+			// deny request
+			if (Log.isDebugEnabled()) {
+				Log.debug("PUT denied for " + constructUrl(request));
+			}
+			
+			response.sendError(HttpURLConnection.HTTP_FORBIDDEN);
+			return;			
 		}
 		
 		File file = locateFile(request);
@@ -101,5 +119,14 @@ public class RestServlet extends DefaultServlet {
 		}
 	}
 	
+
+	private File locateFile(HttpServletRequest request) {		
+		return new File(getServletContext().getRealPath(URIUtil.addPaths(request.getServletPath(), request.getPathInfo())));		
+	}
+
+	private URL constructUrl(HttpServletRequest request) throws MalformedURLException {
+		return new URL(rootUrl + "/" + URIUtil.addPaths(request.getServletPath(),request.getPathInfo()));
+	}
+
 }
 

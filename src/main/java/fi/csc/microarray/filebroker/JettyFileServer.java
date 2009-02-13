@@ -1,5 +1,7 @@
 package fi.csc.microarray.filebroker;
 
+import java.net.URL;
+
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.nio.SelectChannelConnector;
@@ -11,7 +13,7 @@ import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.util.rest.RestServlet;
 import fi.csc.microarray.util.rest.WelcomeServlet;
 
-public class EmbeddedJettyServer {
+public class JettyFileServer {
 
 	static {
 		try {
@@ -23,9 +25,13 @@ public class EmbeddedJettyServer {
 	
 	private Server jettyInstance;
 	private String fileserverContextPath;
+	private AuthorisedUrlRepository urlRepository;
+	private URL rootUrl;
 	
-	public EmbeddedJettyServer(String fileserverContextPath) {
+	public JettyFileServer(String fileserverContextPath, AuthorisedUrlRepository urlRepository, URL rootUrl) {
 		this.fileserverContextPath = fileserverContextPath;
+		this.urlRepository = urlRepository;
+		this.rootUrl = rootUrl;
 	}
 	
 	public void start(String resourceBase, String contextPath, int port) throws Exception {
@@ -43,7 +49,7 @@ public class EmbeddedJettyServer {
 
 		Context root = new Context(jettyInstance, contextPath, false, false);
 		root.setResourceBase(resourceBase);
-		root.addServlet(new ServletHolder(new RestServlet()), fileserverContextPath + "/*");
+		root.addServlet(new ServletHolder(new RestServlet(urlRepository, rootUrl)), fileserverContextPath + "/*");
 		root.addServlet(new ServletHolder(new WelcomeServlet()), "/*");
 		jettyInstance.start();
 	}
