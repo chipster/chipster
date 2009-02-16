@@ -43,7 +43,7 @@ public class ConfigTool {
 	};
 
 	private String[][] configs = new String[][] {
-			{"Message broker  (ActiveMQ) host", "myhost.mydomain"},
+			{"Message broker (ActiveMQ) host", "myhost.mydomain"},
 			{"Message broker protocol", "tcp"},
 			{"Message broker port", "61616"},
 			{"File broker host", "myhost.mydomain"},
