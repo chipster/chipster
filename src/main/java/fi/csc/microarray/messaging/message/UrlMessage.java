@@ -13,6 +13,10 @@ public class UrlMessage extends NamiMessage {
 	
 	private URL url;
 	
+	public UrlMessage() {
+		super();
+	}
+	
 	public UrlMessage(URL url) {
 		super();
 		this.url = url;
@@ -33,5 +37,6 @@ public class UrlMessage extends NamiMessage {
 
 	public void marshal(MapMessage mapMessage) throws JMSException {
 		super.marshal(mapMessage);
+		mapMessage.setString(KEY_URL, this.url.toString());
 	}
 }
