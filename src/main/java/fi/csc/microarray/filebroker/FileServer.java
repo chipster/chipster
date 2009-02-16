@@ -53,8 +53,6 @@ public class FileServer extends NodeBase implements MessagingListener {
 		JettyFileServer fileServer = new JettyFileServer(FILESERVER_CONTEXT_PATH, urlRepository, rootUrl);
 		int port = FileBrokerConfig.getPort();
 		fileServer.start(fileRepository.getPath(), "/", port);
-		logger.info("fileserver is up and running [" + ApplicationConstants.NAMI_VERSION + "]");
-		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
 
 		// start scheduler
 		int cutoff = 1000 * Integer.parseInt(MicroarrayConfiguration.getValue("frontend", "fileLifeTime"));
@@ -70,6 +68,9 @@ public class FileServer extends NodeBase implements MessagingListener {
 		urlRequestTopic.setListener(this);
 		managerTopic = endpoint.createTopic(Topics.Name.MANAGER_TOPIC, AccessMode.WRITE);
 
+		// all done
+		logger.info("fileserver is up and running [" + ApplicationConstants.NAMI_VERSION + "]");
+		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
     }
 
 
