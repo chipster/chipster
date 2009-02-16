@@ -11,11 +11,6 @@
 			<value>localhost</value> <!-- MUST BE FILLED IN (MANUALLY OR BY WEBSTART) -->
 		</entry>
 
-		<!-- url(s) of filebroker(s) to connect to -->
-		<entry entryKey="filebroker_urls">
-			<value>http://localhost:8080/fileserver</value> <!-- MUST BE FILLED IN (MANUALLY OR BY WEBSTART) -->
-		</entry>
-
 		<!-- should we use chunked HTTP mode when connecting to filebroker -->
 		<!-- (warning: disabling this means all data is loaded to memory in transfer!) -->
 		<entry entryKey="use_chunked_http">
@@ -91,13 +86,22 @@
 			
 	<configuration-module moduleId="filebroker">
 	    
-	    <!-- server port to use in this filebroker instance -->
+	    <!-- url of this file broker instance -->
+		<entry entryKey="url">
+			<value></value>
+		</entry>
+		
+	    <!-- server port to use in this file broker instance -->
         <entry entryKey="port">
             <value>8080</value>
         </entry>
+
+		<!-- should Jetty web server run in debug mode (debug log to logs/wrapper.log) -->
+		<entry entryKey="jettyDebug">
+			<value>false</value>
+		</entry>
         
 	</configuration-module>
-
 
 	<!-- ANALYSER -->
     	

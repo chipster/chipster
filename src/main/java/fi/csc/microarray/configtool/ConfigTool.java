@@ -43,11 +43,11 @@ public class ConfigTool {
 	};
 
 	private String[][] configs = new String[][] {
-			{"Broker host", "myhost.mydomain"},
-			{"Broker protocol", "tcp"},
-			{"Broker port", "61616"},
-			{"Fileserver host", "myhost.mydomain"},
-			{"Fileserver port", "8080"},
+			{"Message broker  (ActiveMQ) host", "myhost.mydomain"},
+			{"Message broker protocol", "tcp"},
+			{"Message broker port", "61616"},
+			{"File broker host", "myhost.mydomain"},
+			{"File broker port", "8080"},
 			{"URL of Web Start files", "http://myhost.mydomain"},
 			{"R command", "R"},
 			{"Max. simultanous jobs (more recommended when compute service on separate node)", "3"}
@@ -243,8 +243,7 @@ public class ConfigTool {
 		Element lastArgument = (Element)arguments.item(arguments.getLength() - 1);
 		String override = "messaging/broker_host=" + configs[BROKER_HOST_INDEX][VAL_INDEX] + 
 			",messaging/broker_port=" + configs[BROKER_PORT_INDEX][VAL_INDEX] +
-			",messaging/broker_protocol=" + configs[BROKER_PROTOCOL_INDEX][VAL_INDEX] +
-			",messaging/filebroker_urls=" + createFilebrokerUrl();
+			",messaging/broker_protocol=" + configs[BROKER_PROTOCOL_INDEX][VAL_INDEX];
 		updateElementValue(lastArgument, "override argument", override);
 		writeLater(configFile, doc);
 	}
@@ -302,11 +301,9 @@ public class ConfigTool {
 		updateConfigEntryValue(messagingModule, "broker_protocol", configs[BROKER_PROTOCOL_INDEX][VAL_INDEX]);
 		updateConfigEntryValue(messagingModule, "broker_port", configs[BROKER_PORT_INDEX][VAL_INDEX]);
 
-		String filebrokerUrl = createFilebrokerUrl();  
-		updateConfigEntryValue(messagingModule, "filebroker_urls", filebrokerUrl);
-
 		Element filebrokerModule = xml.getChildWithAttribute(doc.getDocumentElement(), "moduleId", "filebroker");
 		updateConfigEntryValue(filebrokerModule, "port", configs[FILEBROKER_PORT_INDEX][VAL_INDEX]);
+		updateConfigEntryValue(filebrokerModule, "url", createFilebrokerUrl());
 
 		Element analyserModule = xml.getChildWithAttribute(doc.getDocumentElement(), "moduleId", "analyser");
 		updateConfigEntryValue(analyserModule, "max_jobs", configs[MAX_JOBS_INDEX][VAL_INDEX]);
@@ -316,8 +313,7 @@ public class ConfigTool {
 	}
 
 	private String createFilebrokerUrl() {
-		String filebrokerUrl = "http://" + configs[FILEBROKER_HOST_INDEX][VAL_INDEX] + ":" + configs[FILEBROKER_PORT_INDEX][VAL_INDEX] + "/fileserver";
-		return filebrokerUrl;
+		return "http://" + configs[FILEBROKER_HOST_INDEX][VAL_INDEX];
 	}
 
 	private void updateConfigEntryValue(Element module, String name, String newValue) {
