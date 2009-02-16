@@ -53,12 +53,12 @@
 
 		<!-- username for authenticating connection to broker -->
 		<entry entryKey="username">
-			<value>client</value>
+			<value>filebroker</value>
 		</entry>
 
 		<!-- password for authenticating connection to broker -->
 		<entry entryKey="password">
-			<value>client</value>
+			<value>filebroker</value>
 		</entry>
 	
 	</configuration-module>

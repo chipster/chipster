@@ -68,6 +68,7 @@ public class ConfigTool {
 	private String[][] passwords = new String[][] {
 			{"comp", ""},
 			{"auth", ""},
+			{"filebroker", ""},
 			{"manager", ""}
 	};
 	

@@ -47,6 +47,7 @@
            <authenticationUser username="comp" password="comp" groups="analysers,all" />
            <authenticationUser username="auth" password="auth" groups="authenticators,all" />
            <authenticationUser username="manager" password="manager" groups="managers,all" />
+           <authenticationUser username="filebroker" password="filebroker" groups="filebrokers,all" />
            <authenticationUser username="nonauth" password="nonauth" groups="clients,analysers,all" />
        
          </users>
@@ -57,6 +58,8 @@
              <authorizationEntries>
                <authorizationEntry topic="authorised-request-topic" write="authenticators" read="analysers" admin="all" />
                <authorizationEntry topic="request-topic" write="clients" read="authenticators" admin="all" />
+               <authorizationEntry topic="authorised-url-topic" write="analysers,authenticators" read="filebrokers" admin="all" />
+               <authorizationEntry topic="url-topic" write="clients" read="authenticators" admin="all" />
                <authorizationEntry topic="job-log-topic" write="analysers,authenticators" read="managers" admin="all" />
                <authorizationEntry topic="admin-topic" write="all" read="all" admin="all" />
                <authorizationEntry topic="test-topic" write="all" read="all" admin="all" />
