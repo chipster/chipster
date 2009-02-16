@@ -2,32 +2,14 @@ package fi.csc.microarray.filebroker;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Random;
 
 import fi.csc.microarray.MicroarrayConfiguration;
 
+// FIXME obsolete, should be removed
 public class FileBrokerConfig {
-	
-	private static final String URL_SEPARATOR = "/";
-	
-	private static Random randGenerator = new Random();
-	private static String[] FILESERVER_URLS;
-
-	static {
-		FILESERVER_URLS = MicroarrayConfiguration.getValues("messaging", "filebroker_urls");
-		
-		// add dir separators if they are missing
-		for (int i = 0; i < FILESERVER_URLS.length; i++) {
-			if (!FILESERVER_URLS[i].endsWith(URL_SEPARATOR)) {
-				FILESERVER_URLS[i] = FILESERVER_URLS[i] + URL_SEPARATOR;
-			}
-		}
-	}
-
 	@Deprecated
 	public static URL generateUrlToSomeFileBroker(String filename) throws MalformedURLException {
-		int i = randGenerator.nextInt(FILESERVER_URLS.length);
-		return new URL(FILESERVER_URLS[i] + filename);
+		throw new UnsupportedOperationException();
 	}
 
 	/**
