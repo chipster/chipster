@@ -43,14 +43,14 @@ public class ConfigTool {
 	};
 
 	private String[][] configs = new String[][] {
-			{"Message broker (ActiveMQ) host", "myhost.mydomain"},
-			{"Message broker protocol", "tcp"},
-			{"Message broker port", "61616"},
-			{"File broker host", "myhost.mydomain"},
-			{"File broker port", "8080"},
+			{"message broker (ActiveMQ) host", "myhost.mydomain"},
+			{"message broker protocol", "tcp"},
+			{"message broker port", "61616"},
+			{"file broker host", "myhost.mydomain"},
+			{"file broker port", "8080"},
 			{"URL of Web Start files", "http://myhost.mydomain"},
 			{"R command", "R"},
-			{"Max. simultanous jobs (more recommended when compute service on separate node)", "3"}
+			{"max. simultanous jobs (more recommended when compute service on separate node)", "3"}
 	};
 
 	private final int KEY_INDEX = 0;
