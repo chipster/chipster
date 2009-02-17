@@ -44,11 +44,51 @@ public class Authenticator extends NodeBase {
 	private static final Logger messageLogger = Logger.getLogger("messages.frontend");
 	
 	private SecureSessionPool sessionPool = new SecureSessionPool();
+	private MessagingEndpoint endpoint;
+	private MessagingTopic authorisedTopic;
+	private MessagingTopic authorisedUrlTopic;
+	private MessagingTopic testTopic;
+
+	private TestListener testListener;
+	private AuthenticationProvider authenticationProvider; 
+	
+	public Authenticator() throws Exception {
+		this.endpoint = new MessagingEndpoint(this);
+
+		// create authorised topics
+		authorisedTopic = endpoint.createTopic(Topics.Name.AUTHORISED_REQUEST_TOPIC, AccessMode.WRITE);       
+		authorisedUrlTopic = endpoint.createTopic(Topics.Name.AUTHORISED_URL_TOPIC, AccessMode.WRITE);       
+
+		// create non-authorised topics
+		RequestListener jobListener = new RequestListener(authorisedTopic);
+		MessagingTopic requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC, AccessMode.READ);		
+		requestTopic.setListener(jobListener);		
+		RequestListener urlListener = new RequestListener(authorisedUrlTopic);
+		MessagingTopic urlTopic = endpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.READ);		
+		urlTopic.setListener(urlListener);
+		
+		// create test-topic
+		testTopic = endpoint.createTopic(Topics.Name.TEST_TOPIC, AccessMode.READ_WRITE);		
+		this.testListener = new TestListener();
+		testTopic.setListener(testListener);
+		
+		// initialise JAAS authentication
+		authenticationProvider = new JaasAuthenticationProvider();
+		
+		logger.info("authenticator is up and running [" + ApplicationConstants.NAMI_VERSION + "]");
+		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
+	}
 	
 	private class RequestListener implements MessagingListener {
 
 		private static final String KEY_PENDING_MESSAGE = "pending-message";
 		private static final String KEY_USERNAME = "username";
+		
+		private MessagingTopic routeTo;
+
+		public RequestListener(MessagingTopic routeTo) {
+			this.routeTo = routeTo;
+		}
 
 		/**
 		 * Two step processing: authenticate, then route.
@@ -142,7 +182,7 @@ public class Authenticator extends NodeBase {
 					messageLogger.info(messageToBeRouted);
 					
 					messageToBeRouted.setUsername((String)session.getParameter(KEY_USERNAME));
-					authorisedTopic.sendMessage(messageToBeRouted);
+					routeTo.sendMessage(messageToBeRouted);
 					securityLogger.info("routing message " + messageToBeRouted.getMessageID() + " to authorised topic");
 				}
 				
@@ -188,37 +228,6 @@ public class Authenticator extends NodeBase {
 				logger.error(e);
 			}
 		}
-	}
-	
-	private MessagingEndpoint endpoint;
-	private MessagingTopic authorisedTopic;
-	private MessagingTopic testTopic;
-
-	private RequestListener requestListener;
-	private TestListener testListener;
-	private AuthenticationProvider authenticationProvider; 
-	
-	public Authenticator() throws Exception {
-		this.endpoint = new MessagingEndpoint(this);
-
-		// create analyse-topic
-		authorisedTopic = endpoint.createTopic(Topics.Name.AUTHORISED_REQUEST_TOPIC, AccessMode.WRITE);       
-
-		// create request-topic
-		MessagingTopic requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC, AccessMode.READ);		
-		this.requestListener = new RequestListener();
-		requestTopic.setListener(requestListener);
-		
-		// create test-topic
-		testTopic = endpoint.createTopic(Topics.Name.TEST_TOPIC, AccessMode.READ_WRITE);		
-		this.testListener = new TestListener();
-		testTopic.setListener(testListener);
-		
-		// initialise JAAS authentication
-		authenticationProvider = new JaasAuthenticationProvider();
-		
-		logger.info("authenticator is up and running [" + ApplicationConstants.NAMI_VERSION + "]");
-		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
 	}
 
 	public String getName() {
