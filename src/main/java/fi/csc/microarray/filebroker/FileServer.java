@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.ApplicationConstants;
 import fi.csc.microarray.MicroarrayConfiguration;
+import fi.csc.microarray.manager.ManagerClient;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
 import fi.csc.microarray.messaging.MessagingTopic;
@@ -28,7 +29,7 @@ public class FileServer extends NodeBase implements MessagingListener {
 	private static final Logger logger = Logger.getLogger(FileServer.class);
 
 	private MessagingEndpoint endpoint;
-	private MessagingTopic managerTopic;
+	private ManagerClient managerClient;
 	private AuthorisedUrlRepository urlRepository;
 
 
@@ -64,7 +65,7 @@ public class FileServer extends NodeBase implements MessagingListener {
 		this.endpoint = new MessagingEndpoint(this);
 		MessagingTopic urlRequestTopic = endpoint.createTopic(Topics.Name.AUTHORISED_URL_TOPIC, AccessMode.READ);
 		urlRequestTopic.setListener(this);
-		managerTopic = endpoint.createTopic(Topics.Name.MANAGER_TOPIC, AccessMode.WRITE);
+		this.managerClient = new ManagerClient(endpoint); 
 
 		// all done
 		logger.info("fileserver is up and running [" + ApplicationConstants.NAMI_VERSION + "]");
@@ -84,7 +85,7 @@ public class FileServer extends NodeBase implements MessagingListener {
 				URL url = urlRepository.createAuthorisedUrl();
 				UrlMessage reply = new UrlMessage(url);
 				endpoint.replyToMessage(msg, reply);
-				
+				managerClient.urlRequest(msg.getUsername(), url);
 			} else {
 				logger.error("message " + msg.getMessageID() + " not understood");
 			}
