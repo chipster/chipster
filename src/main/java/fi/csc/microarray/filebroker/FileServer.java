@@ -27,8 +27,6 @@ public class FileServer extends NodeBase implements MessagingListener {
 	 */
 	private static final Logger logger = Logger.getLogger(FileServer.class);
 
-    private static final String FILESERVER_CONTEXT_PATH = "/fileserver";
-
 	private MessagingEndpoint endpoint;
 	private MessagingTopic managerTopic;
 	private AuthorisedUrlRepository urlRepository;
@@ -46,13 +44,13 @@ public class FileServer extends NodeBase implements MessagingListener {
 		}
 
     	// initialise url repository
-		URL rootUrl = new URL(MicroarrayConfiguration.getValue("filebroker", "url"));
-    	this.urlRepository = new AuthorisedUrlRepository(rootUrl);
+		String host = MicroarrayConfiguration.getValue("filebroker", "url");
+		int port = FileBrokerConfig.getPort();
+    	this.urlRepository = new AuthorisedUrlRepository(host, port);
 
 		// boot up file server
-		JettyFileServer fileServer = new JettyFileServer(FILESERVER_CONTEXT_PATH, urlRepository, rootUrl);
-		int port = FileBrokerConfig.getPort();
-		fileServer.start(fileRepository.getPath(), "/", port);
+		JettyFileServer fileServer = new JettyFileServer(urlRepository);
+		fileServer.start(fileRepository.getPath(), port);
 
 		// start scheduler
 		int cutoff = 1000 * Integer.parseInt(MicroarrayConfiguration.getValue("frontend", "fileLifeTime"));

@@ -3,12 +3,9 @@ package fi.csc.microarray.util.rest;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.mortbay.jetty.servlet.DefaultServlet;
-
-public class WelcomeServlet extends DefaultServlet {
+public class WelcomePage {
 
 	private static final String WELCOME_MESSAGE = 	
 		"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"\n" + 
@@ -23,8 +20,7 @@ public class WelcomeServlet extends DefaultServlet {
 		" </body>\n" + 
 		"</html>\n";
 
-	@Override
-	public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public static void print(HttpServletResponse response) throws ServletException, IOException {
 		// write "welcome message"
 		response.getWriter().print(WELCOME_MESSAGE);
 	}

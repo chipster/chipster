@@ -30,31 +30,58 @@ import fi.csc.microarray.filebroker.AuthorisedUrlRepository;
 public class RestServlet extends DefaultServlet {
 
 	private AuthorisedUrlRepository urlRepository;
-	private URL rootUrl;
+	private String rootUrl;
 
-	public RestServlet(AuthorisedUrlRepository urlRepository, URL rootUrl) {
+	public RestServlet(AuthorisedUrlRepository urlRepository, String rootUrl) {
 		this.urlRepository = urlRepository;
 		this.rootUrl = rootUrl;
 	}
 	
 	@Override
 	public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		File file = locateFile(request);
-		if (file.isDirectory()) {
-			// directory browsing is not allowed
+
+		// check request and pass it up to super class
+		if (isValidFilename(request)) {
 			response.sendError(HttpURLConnection.HTTP_NOT_FOUND);
+			
 		} else {
 			super.service(request, response);
 		}
 	};
 	
+	private boolean isValidFilename(HttpServletRequest request) {
+		
+		// must not be directory
+		File file = locateFile(request);
+		if (file.isDirectory()) {
+			return false;
+		}
+		
+		// must point to valid filename or root (welcome page)
+		if (!isWelcomePage(request) && !urlRepository.checkFilenameSyntax(constructFilename(request))) {
+			return false;
+		}
+		
+		return true;
+	}
+
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if (Log.isDebugEnabled()) {
 			Log.debug("RESTful file access: GET request for " + request.getRequestURI());
 		}
 		
-		super.doGet(request, response);
+		// handle welcome page here, delegate rest to super class
+		if (isWelcomePage(request)) {
+			WelcomePage.print(response);
+		} else {
+			super.doGet(request, response);	
+		}
+		
+	}
+
+	private boolean isWelcomePage(HttpServletRequest request) {
+		return "/".equals(constructFilename(request));
 	}
 	
 	@Override
@@ -119,13 +146,36 @@ public class RestServlet extends DefaultServlet {
 		}
 	}
 	
-
+	@Override
+	protected void doHead(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setStatus(HttpURLConnection.HTTP_BAD_METHOD);
+	};
+	
+	@Override
+	protected void doOptions(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setStatus(HttpURLConnection.HTTP_BAD_METHOD);
+	};
+	
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setStatus(HttpURLConnection.HTTP_BAD_METHOD);
+	};
+	
+	@Override
+	protected void doTrace(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setStatus(HttpURLConnection.HTTP_BAD_METHOD);
+	};
+	
 	private File locateFile(HttpServletRequest request) {		
 		return new File(getServletContext().getRealPath(URIUtil.addPaths(request.getServletPath(), request.getPathInfo())));		
 	}
+	
+	private String constructFilename(HttpServletRequest request) {
+		return request.getPathInfo();
+	}
 
 	private URL constructUrl(HttpServletRequest request) throws MalformedURLException {
-		return new URL(rootUrl + "/" + URIUtil.addPaths(request.getServletPath(),request.getPathInfo()));
+		return new URL(rootUrl + request.getPathInfo());
 	}
 
 }

@@ -1,7 +1,5 @@
 package fi.csc.microarray.filebroker;
 
-import java.net.URL;
-
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.nio.SelectChannelConnector;
@@ -11,7 +9,6 @@ import org.mortbay.thread.QueuedThreadPool;
 
 import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.util.rest.RestServlet;
-import fi.csc.microarray.util.rest.WelcomeServlet;
 
 public class JettyFileServer {
 
@@ -24,17 +21,13 @@ public class JettyFileServer {
 	}
 	
 	private Server jettyInstance;
-	private String fileserverContextPath;
 	private AuthorisedUrlRepository urlRepository;
-	private URL rootUrl;
 	
-	public JettyFileServer(String fileserverContextPath, AuthorisedUrlRepository urlRepository, URL rootUrl) {
-		this.fileserverContextPath = fileserverContextPath;
+	public JettyFileServer(AuthorisedUrlRepository urlRepository) {
 		this.urlRepository = urlRepository;
-		this.rootUrl = rootUrl;
 	}
 	
-	public void start(String resourceBase, String contextPath, int port) throws Exception {
+	public void start(String resourceBase, int port) throws Exception {
 		
 		if ("true".equals(MicroarrayConfiguration.getValue("filebroker", "jettyDebug"))) {
 			System.setProperty("DEBUG", "true");
@@ -47,10 +40,9 @@ public class JettyFileServer {
 		connector.setPort(port);
 		jettyInstance.setConnectors(new Connector[]{ connector });
 
-		Context root = new Context(jettyInstance, contextPath, false, false);
+		Context root = new Context(jettyInstance, "/", false, false);
 		root.setResourceBase(resourceBase);
-		root.addServlet(new ServletHolder(new RestServlet(urlRepository, rootUrl)), fileserverContextPath + "/*");
-		root.addServlet(new ServletHolder(new WelcomeServlet()), "/*");
+		root.addServlet(new ServletHolder(new RestServlet(urlRepository, urlRepository.getRootUrl())), "/*");
 		jettyInstance.start();
 	}
 	

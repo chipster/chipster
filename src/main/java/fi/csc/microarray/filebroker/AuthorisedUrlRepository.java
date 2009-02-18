@@ -6,9 +6,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import fi.csc.microarray.security.CryptoKey;
 
 /**
  * Stores URL's that have been authorised to be used for PUT'ing content into. Objects
@@ -25,13 +26,15 @@ public class AuthorisedUrlRepository {
 	 */
 	private static final int URL_LIFETIME_MINUTES = 10;
 
-	private URL thisHost;
 	private HashMap<URL, Date> repository = new HashMap<URL, Date>();  
 	private Lock repositoryLock = new ReentrantLock();
+
+	private String host;
+	private int port;
 	
-	public AuthorisedUrlRepository(URL thisHost) {
-		this.thisHost = thisHost;
-		
+	public AuthorisedUrlRepository(String host, int port) {
+		this.host = host;
+		this.port = port;		
 	}
 
 	/**
@@ -48,8 +51,8 @@ public class AuthorisedUrlRepository {
 		try {
 			// create url that does not exist in the repository
 			do {
-				String filename = UUID.randomUUID().toString();
-				newUrl = new URL(thisHost.toString() + "/" + filename);
+				String filename = CryptoKey.generateRandom();
+				newUrl = new URL(host + ":" + port + "/" + filename);
 				
 			} while (repository.containsKey(newUrl));
 
@@ -90,10 +93,18 @@ public class AuthorisedUrlRepository {
 		return contains;
 	}
 	
+	public boolean checkFilenameSyntax(String filename) {
+		return CryptoKey.validateKeySyntax(filename);
+	}
+	
 	private boolean isDateValid(Date date) {
 		Calendar cal = new GregorianCalendar();
 		// go back from current time 
 		cal.add(Calendar.MINUTE, -URL_LIFETIME_MINUTES); 		
 		return cal.getTime().before(date);
+	}
+
+	public String getRootUrl() {
+		return host + ":" + port;
 	}
 }
