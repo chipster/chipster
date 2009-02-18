@@ -8,7 +8,8 @@ import java.util.UUID;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.util.SecureSessionPool.Session;
+import fi.csc.microarray.security.SecureSessionPool;
+import fi.csc.microarray.security.SecureSessionPool.Session;
 
 public class SecureSessionPoolTest  {
 	
@@ -18,9 +19,9 @@ public class SecureSessionPoolTest  {
 		Session session = ssp.createSession();
 		session.putParameter("one", 1);
 		session.putParameter("two", 2);
-		String id = session.getID().toString();
+		String id = session.getID();
 		// we could pass id as a String over network etc. 
-		Session reloadedSession = ssp.getSession(UUID.fromString(id));
+		Session reloadedSession = ssp.getSession(id);
 		Assert.assertTrue(((Integer)reloadedSession.getParameter("one")) == 1);
 		Assert.assertTrue(((Integer)reloadedSession.getParameter("two")) == 2);
 		ssp.removeSession(reloadedSession);
@@ -35,7 +36,7 @@ public class SecureSessionPoolTest  {
 		final int valCount = 1000;
 		Set<Long> numbers = new HashSet<Long>();
 		for (int i = 0; i < valCount; i++) {
-			UUID id = ssp.createSession().getID();
+			UUID id = UUID.fromString(ssp.createSession().getID());
 			long xorredValue = id.getLeastSignificantBits() ^ id.getMostSignificantBits();
 			Assert.assertFalse(numbers.contains(xorredValue), "duplicate key generated");
 			numbers.add(xorredValue);

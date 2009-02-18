@@ -1,15 +1,14 @@
-package fi.csc.microarray.util;
+package fi.csc.microarray.security;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Implementation of a session pool. Session are given cryptographically strong
  * pseudo random identifier. SecureSessionPool objects are thread-safe.
  *   
- * @author akallio
+ * @author Aleksi Kallio
  *
  */
 public class SecureSessionPool {
@@ -17,18 +16,18 @@ public class SecureSessionPool {
 	private static final long ACTIVE_TIMEOUT_IN_MILLIS = 1*60*60*1000; // 1 hour
 	private static final long TOTAL_TIMEOUT_IN_MILLIS = 14*60*60*1000; // 14 hours
 	
-	private Map<UUID, Session> sessions = new HashMap<UUID, Session>();
+	private Map<String, Session> sessions = new HashMap<String, Session>();
 	
 	public class Session {
 				
 		private long creationTimestamp;
 		private long lastUseTimestamp;
 		
-		private UUID id;
+		private String id;
 		private Map<String, Object> parameters = 
 			Collections.synchronizedMap(new HashMap<String, Object>());
 
-		public Session(UUID id) {
+		public Session(String id) {
 			this.id = id;
 			this.creationTimestamp = System.currentTimeMillis();
 			touch();
@@ -46,7 +45,7 @@ public class SecureSessionPool {
 			parameters.remove(key);
 		}
 		
-		public UUID getID() {
+		public String getID() {
 			return id;
 		}
 		
@@ -73,13 +72,13 @@ public class SecureSessionPool {
 	}
 	
 	public synchronized Session createSession() {
-		UUID id = UUID.randomUUID();
+		String id = CryptoKey.generateRandom();
 		Session session = new Session(id);
 		sessions.put(id, session);
 		return session;
 	}
 	
-	public synchronized Session getSession(UUID id) {
+	public synchronized Session getSession(String id) {
 		Session session = sessions.get(id);
 		if (session != null && isExpired(session)) {
 			// session is old

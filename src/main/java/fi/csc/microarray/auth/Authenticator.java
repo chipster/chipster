@@ -1,7 +1,5 @@
 package fi.csc.microarray.auth;
 
-import java.util.UUID;
-
 import javax.jms.Destination;
 import javax.jms.JMSException;
 
@@ -18,9 +16,9 @@ import fi.csc.microarray.messaging.message.AuthenticationMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.NamiMessage;
 import fi.csc.microarray.messaging.message.AuthenticationMessage.AuthenticationOperation;
+import fi.csc.microarray.security.SecureSessionPool;
+import fi.csc.microarray.security.SecureSessionPool.Session;
 import fi.csc.microarray.util.MemUtil;
-import fi.csc.microarray.util.SecureSessionPool;
-import fi.csc.microarray.util.SecureSessionPool.Session;
 
 /**
  * @author Aleksi Kallio
@@ -108,7 +106,7 @@ public class Authenticator extends NodeBase {
 				
 				// 1.1. try to load existing session
 				if (msg.getSessionID() != null) {
-					UUID id = UUID.fromString(msg.getSessionID());
+					String id = msg.getSessionID();
 					if (sessionPool.getSession(id) != null) {
 						session = sessionPool.getSession(id);
 						logger.debug("message " + msg.getMessageID() + " had a proper session " + session.getID());
