@@ -3,16 +3,13 @@ package fi.csc.microarray.databeans;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.Date;
 import java.util.List;
-
-import javax.jms.JMSException;
 
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.databeans.features.QueryResult;
-import fi.csc.microarray.messaging.message.PayloadMessage;
-import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 
 /**
  * <p>DataBean is the basic unit of databeans package. It holds a chunk
@@ -218,12 +215,20 @@ public interface DataBean extends DataItem {
 	// TODO should be integrated and hidden away
 	public void initialiseStreamStartCache() throws IOException, MicroarrayException;
 	
-	public void updateRemoteCache(String payloadName, PayloadMessage payloadMessage, CopyProgressListener progressListener) throws JMSException, MicroarrayException, IOException;
-	
 	/**
 	 * Returns content size in bytes.
 	 */
 	public long getContentLength();
+	
+	public void lockContent();
+	public void unlockContent();
+
+	public boolean hasContentChanged();
+	public void setContentChanged(boolean contentChanged);
+	
+	public URL getUrl();
+	public void setUrl(URL url);
+	
 	
 	
 	/**

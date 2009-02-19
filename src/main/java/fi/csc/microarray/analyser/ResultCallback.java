@@ -7,6 +7,7 @@ package fi.csc.microarray.analyser;
 
 import java.io.File;
 
+import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.messaging.message.NamiMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
 
@@ -34,4 +35,6 @@ public interface ResultCallback {
 	public ProcessPool getProcessPool();
 	
 	public void removeRunningJob(AnalysisJob job);
+	
+	public FileBrokerClient getFileBrokerClient();
 }

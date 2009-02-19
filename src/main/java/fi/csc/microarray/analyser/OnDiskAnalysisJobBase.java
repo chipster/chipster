@@ -6,14 +6,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.mortbay.util.IO;
 
 import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.messaging.message.JobMessage;
@@ -61,49 +57,26 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 
 			logger.debug("Getting input file: " + fileName);
 
-			// check that payload exists on the file server
-			URL inputURL = inputMessage.getPayloadURL(fileName);
+			// get url
+			URL inputUrl = inputMessage.getPayload(fileName);
 
-			// make sure that the payload actually is available, as
-			// jetty is sometimes a bit slow to write the payload to disk
-			int maxWaitTime = 5120;
-			int waitTime = 10;
-			HttpURLConnection connection = null;
+			// get stream
+			File outputFile;
+			BufferedInputStream inputStream = null;
+			BufferedOutputStream fileStream = null;
 			try {
-				connection  = (HttpURLConnection) inputURL.openConnection();
-				int responseCode = connection.getResponseCode();
-				while (responseCode != HttpURLConnection.HTTP_OK && waitTime <= maxWaitTime) {
-					logger.info("Waiting for payload to become available.");
-					waitTime = waitTime*2;
-					try {
-						Thread.sleep(waitTime);
-					} catch (InterruptedException e) {
-						logger.error("Interrupted while waiting for payload to become available.");
-					}
-					responseCode = connection.getResponseCode();
-				}
+				inputStream = new BufferedInputStream(resultHandler.getFileBrokerClient().getFile(inputUrl));
 
-				if (responseCode != HttpURLConnection.HTTP_OK) {
-					throw new RetryException();
-				}
+				// copy to file
+				outputFile = new File(jobWorkDir, fileName);
+				fileStream = new BufferedOutputStream(new FileOutputStream(outputFile));
+				IOUtils.copy(inputStream, fileStream);
 			} finally {
-				IOUtils.disconnectIfPossible(connection);
+				IOUtils.closeIfPossible(inputStream);
+				IOUtils.closeIfPossible(fileStream);
 			}
 
-				
-			// payload exists on the server side fetch it
-			File outputFile = new File(jobWorkDir, fileName);
-			InputStream input = new BufferedInputStream(inputMessage
-					.getPayload(fileName));
-
-			OutputStream output = new BufferedOutputStream(
-					new FileOutputStream(outputFile));
-			IO.copy(input, output);
-			input.close();
-			output.flush();
-			output.close();
-			logger.debug("Input file created: " + outputFile.getName() + " "
-					+ outputFile.length());
+			logger.debug("Input file created: " + outputFile.getName() + " " + outputFile.length());
 		}
 		logger.debug("input files written");
 	}
@@ -119,9 +92,10 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 				+ ", total of " + outputFileNames.size() + " outputfiles");
 		for (String fileName : outputFileNames) {
 			cancelCheck();
+			// copy file to file broker
 			File outputFile = new File(jobWorkDir, fileName);
-			outputMessage.addPayload(fileName, new BufferedInputStream(
-					new FileInputStream(outputFile)), null);
+			URL url = resultHandler.getFileBrokerClient().addFile(new FileInputStream(outputFile), null);
+			outputMessage.addPayload(fileName, url);
 			logger.debug("Added output file " + fileName);
 		}
 

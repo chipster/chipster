@@ -33,7 +33,7 @@ public class UrlTransferUtil {
 	 * @throws JMSException
 	 * @throws IOException
 	 */
-    public static URL uploadStream(URL url, InputStream fis, boolean useChunked, IOUtils.CopyProgressListener progressListener) throws JMSException, IOException {
+    public static URL uploadStream(URL url, InputStream fis, boolean useChunked, IOUtils.CopyProgressListener progressListener) throws IOException {
 
     	HttpURLConnection connection = null;
     	try {

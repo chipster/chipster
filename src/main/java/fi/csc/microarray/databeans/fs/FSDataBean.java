@@ -7,14 +7,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-import javax.jms.JMSException;
 
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.operation.Operation;
@@ -25,9 +20,7 @@ import fi.csc.microarray.databeans.DataBeanBase;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataManagerBase;
 import fi.csc.microarray.databeans.LinksChangedEvent;
-import fi.csc.microarray.messaging.message.PayloadMessage;
 import fi.csc.microarray.util.Files;
-import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 
 public class FSDataBean extends DataBeanBase {
 	
@@ -53,10 +46,6 @@ public class FSDataBean extends DataBeanBase {
 	private LinkedList<LinkedBean> incomingLinks = new LinkedList<LinkedBean>();
 
 	private File contentFile;
-	private Lock contentLock = new ReentrantLock();
-	private boolean contentChanged = true;
-	
-	private URL cachedURL = null;
 	
 	
 	public FSDataBean(String name, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManagerBase manager, File contentFile) {
@@ -219,8 +208,8 @@ public class FSDataBean extends DataBeanBase {
 	 * Calling this method results in disabling caching for this bean.
 	 */
 	public OutputStream getContentOutputStreamAndLockDataBean() throws MicroarrayException, IOException {
-		this.contentLock.lock();
-		this.contentChanged = true;
+		lockContent();
+		setContentChanged(true);
 		this.streamStartCache = null; // caching is disabled
 		resetContentCache();
 		OutputStream os;
@@ -238,88 +227,23 @@ public class FSDataBean extends DataBeanBase {
 		try {
 			out.close();
 		} finally {
-			this.contentLock.unlock();
+			unlockContent();
 		}
 		ContentChangedEvent cce = new ContentChangedEvent(this);
 		dataManager.dispatchEventIfVisible(cce);
 	}
 
 	public void delete() {
-		this.contentLock.lock();
+		lockContent();
 		try {
 			this.contentFile.delete();
 			this.contentFile = null;
 			this.contentType = null;			
 		} finally {
-			this.contentLock.unlock();
+			unlockContent();
 		}
-	}
-
-	
-	public void resetContentChanged() {
-		this.contentChanged = false;
 	}
 	
-	public void setCachedURL(URL cachedURL) {
-		if (contentChanged) {
-			throw new IllegalStateException("content has changed, setting cached URL could lead to data corruption");
-		}
-		this.contentLock.lock();
-		try {
-			this.cachedURL = cachedURL; // URL is immutable, this is safe
-		} finally {
-			this.contentLock.unlock();
-		}
-	}
-
-	public URL getCachedURL() {
-		this.contentLock.lock();
-		try {
-			return cachedURL;
-		} finally {
-			this.contentLock.unlock();
-		}
-	}
-
-	/**
-	 * Updates the server side copy of the contents of this DataBean.
-	 * 
-	 * 
-	 */
-	public void updateRemoteCache(String payloadName, PayloadMessage payloadMessage, CopyProgressListener progressListener) throws JMSException, MicroarrayException, IOException {
-		this.contentLock.lock();
-		try {
-			
-			// content has been changed
-			if (contentChanged) {
-				// create url, upload content, add to message payloads
-				this.cachedURL = payloadMessage.addPayload(payloadName, getContentByteStream(), progressListener);
-				this.contentChanged = false;
-				// TODO figure out if the checkCachedPayload should be here?
-				// maybe not, as the transfer should fail if something goes awry
-				if (!payloadMessage.checkCachedPayload(this.cachedURL, contentFile.length())) {
-					throw new JMSException("Could not upload payload " + payloadName);
-				}
-			} 
-
-			// content not changed
-			else { 
-				// check if cached copy really exists and content size is equal
-				if (payloadMessage.checkCachedPayload(this.cachedURL, contentFile.length())) {
-					payloadMessage.addPayload(payloadName, this.cachedURL);
-				} 
-				// cached copy not ok, create a new cache
-				else {
-					// create url, upload content, add to message payloads
-					this.cachedURL = payloadMessage.addPayload(payloadName, getContentByteStream(), progressListener);
-				}				
-			}
-			
-		} finally {
-			this.contentLock.unlock();
-		}
-	}
-
 	public long getContentLength() {
 		return contentFile.length();
 	}

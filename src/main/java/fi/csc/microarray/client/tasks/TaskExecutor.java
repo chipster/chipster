@@ -26,6 +26,8 @@ import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.filebroker.FileBrokerClient;
+import fi.csc.microarray.filebroker.FileBrokerException;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
@@ -53,6 +55,7 @@ public class TaskExecutor {
 
 	private static final Logger logger = Logger.getLogger(TaskExecutor.class);
 	private DataManager manager;
+	private FileBrokerClient fileBroker;
 
 	private MessagingTopic requestTopic;
 	private LinkedList<Task> tasks = new LinkedList<Task>();
@@ -324,7 +327,7 @@ public class TaskExecutor {
 		private void extractPayloads(ResultMessage resultMessage) throws JMSException, MicroarrayException, IOException {
 			for (String name : resultMessage.payloadNames()) {
 				logger.debug("output " + name);
-				InputStream payload = resultMessage.getPayload(name);
+				InputStream payload = fileBroker.getFile(resultMessage.getPayload(name)); 
 				DataBean bean = manager.createDataBean(name, payload);
 				pendingTask.addOutput(name, bean);
 			}
@@ -369,6 +372,7 @@ public class TaskExecutor {
 
 	public TaskExecutor(MessagingEndpoint endpoint, DataManager manager) throws JMSException {
 		this.manager = manager;
+		this.fileBroker = new FileBrokerClient(endpoint);
 		requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC, AccessMode.WRITE);
 		jobExecutorStateChangeSupport = new SwingPropertyChangeSupport(this);
 	}
@@ -431,8 +435,9 @@ public class TaskExecutor {
 			public void run() {
 				try {
 					JobMessage jobMessage = new JobMessage(task.getId(), task.getName(), task.getParameters());
-					logger.debug("adding inputs to job message");
 
+					// handle inputs
+					logger.debug("adding inputs to job message");
 					updateTaskState(task, State.TRANSFERRING_INPUTS, null, -1);
 					int i = 0;
 					for (final String name : task.inputNames()) {
@@ -450,7 +455,31 @@ public class TaskExecutor {
 							}
 						};
 						
-						jobMessage.addPayload(name, task.getInput(name), progressListener);
+						
+						// transfer input contents to file broker if needed
+						DataBean bean = task.getInput(name);
+						try {
+							bean.lockContent();
+
+							// bean modified, upload
+							if (bean.hasContentChanged()) {
+								bean.setUrl(fileBroker.addFile(bean.getContentByteStream(), progressListener)); 
+								bean.setContentChanged(false);
+							} 
+
+							// bean not modified, check cache, upload if needed
+							else if (bean.getUrl() != null && !fileBroker.checkFile(bean.getUrl(), bean.getContentLength())){
+								bean.setUrl(fileBroker.addFile(bean.getContentByteStream(), progressListener));
+							}
+
+						} finally {
+							bean.unlockContent();
+						}
+
+						// add the possibly new url to message
+						jobMessage.addPayload(name, bean.getUrl());
+						
+						
 						logger.debug("added input " + name + " to job message.");
 						i++;
 					}
@@ -658,11 +687,20 @@ public class TaskExecutor {
 		logger.debug("Message cancel thread started.");
 	}
 
-	private void resendJobMessage(Task task, Destination replyTo) throws TaskException, MicroarrayException, JMSException, IOException {
+	private void resendJobMessage(Task task, Destination replyTo) throws TaskException, MicroarrayException, JMSException, IOException, FileBrokerException {
 
 		JobMessage jobMessage = new JobMessage(task.getId(), task.getName(), task.getParameters());
 		for (String name : task.inputNames()) {
-			jobMessage.addPayload(name, task.getInput(name), null); // no progress listening on resends
+			DataBean bean = task.getInput(name);
+			try {
+				bean.lockContent();
+				bean.setUrl(fileBroker.addFile(bean.getContentByteStream(), null)); // no progress listening on resends 
+				bean.setContentChanged(false);
+			} finally {
+				bean.unlockContent();
+			}
+			
+			jobMessage.addPayload(name, bean.getUrl()); // no progress listening on resends
 		}
 		jobMessage.setReplyTo(replyTo);
 

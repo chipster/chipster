@@ -199,8 +199,8 @@ public class FSSnapshottingSession {
 			metadata.append("NOTES " + beanId + " " + bean.getNotes().replace('\n', ' ') + "\n");
 		}
 		
-		if (bean.getCachedURL() != null) {
-			metadata.append("CACHED_URL " + beanId + " " + bean.getCachedURL() + "\n");			
+		if (bean.getUrl() != null) {
+			metadata.append("CACHED_URL " + beanId + " " + bean.getUrl() + "\n");			
 		}
 		
 		saveDataItemMetadata(bean, beanId, metadata);
@@ -328,8 +328,8 @@ public class FSSnapshottingSession {
 					String id = split[1];
 					String url = split[2];
 					FSDataBean bean = (FSDataBean)fetchItem(id);
-					bean.resetContentChanged();
-					bean.setCachedURL(new URL(url));
+					bean.setContentChanged(false);
+					bean.setUrl(new URL(url));
 					
 				} else if (line.startsWith("LINK ")) {
 					String[] split = line.split(" ");

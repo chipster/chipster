@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,6 +24,7 @@ import org.apache.log4j.Logger;
 import fi.csc.microarray.ApplicationConstants;
 import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.MicroarrayException;
+import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
@@ -156,6 +158,8 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 */
 	private MessagingEndpoint endpoint;
 	private MessagingTopic managerTopic;
+	
+	private FileBrokerClient fileBroker;
 	
 	/**
 	 * Java utility for multithreading.
@@ -324,6 +328,8 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		analyseTopic.setListener(this);
 		
 		managerTopic = endpoint.createTopic(Topics.Name.MANAGER_TOPIC, AccessMode.WRITE);
+		
+		fileBroker = new FileBrokerClient(this.endpoint);
 		
 		logger.info("analyser is up and running [" + ApplicationConstants.NAMI_VERSION + "]");
 		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
@@ -539,7 +545,11 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		logger.info("result message sent (" + reply.getMessageID() + " " + reply.getState() + ")");
 	}
 
-
+	public FileBrokerClient getFileBrokerClient() {
+		return this.fileBroker;
+	}
+	
+	
 	/**
 	 * Sends the message in new thread.
 	 * @param original
@@ -677,8 +687,9 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 				"", requestMessage.getReplyTo());
 		try {
 			String description = descriptionRepository.serialiseAsStringBuffer().toString();
-			resultMessage.addPayload(DESCRIPTION_OUTPUT_NAME, new ByteArrayInputStream(description.getBytes()), null);
-		} catch (JMSException e) {
+			URL url = fileBroker.addFile(new ByteArrayInputStream(description.getBytes()), null);
+			resultMessage.addPayload(DESCRIPTION_OUTPUT_NAME, url);
+		} catch (Exception e) {
 			logger.error("Could not send analysis descriptions", e);
 			resultMessage.setState(JobState.ERROR);
 			resultMessage.setErrorMessage("Could not send analysis descriptions.");
@@ -699,7 +710,9 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			if (bytes.length == 0) {
 				bytes = "<empty source code>".getBytes(); // zero length bytes content would hang upload
 			}
-			resultMessage.addPayload(SOURCECODE_OUTPUT_NAME, new ByteArrayInputStream(bytes), null);
+			
+			URL url = fileBroker.addFile(new ByteArrayInputStream(bytes), null);
+			resultMessage.addPayload(SOURCECODE_OUTPUT_NAME, url);
 		} catch (Exception e) {
 			logger.error("Could not send analysis source code", e);
 			resultMessage.setState(JobState.ERROR);

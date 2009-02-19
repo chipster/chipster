@@ -120,4 +120,9 @@ public class IOUtils {
 			}
 		}
 	}
+	
+	public static void copy(InputStream source, OutputStream target) throws IOException {
+		copy(source, target, null);
+	}
+	
 }

@@ -2,10 +2,13 @@ package fi.csc.microarray.databeans;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
@@ -27,6 +30,11 @@ public abstract class DataBeanBase implements DataBean {
 	protected DataManagerBase dataManager;
 	protected StreamStartCache streamStartCache = null;
 	private HashMap<String, Object> contentCache = new HashMap<String, Object>();
+	
+	private URL url = null;
+	private boolean contentChanged = true;
+	private Lock contentLock = new ReentrantLock();
+	
 	
 	protected DataBeanBase(DataManagerBase dataManager) {
 		this.dataManager = dataManager;
@@ -159,4 +167,29 @@ public abstract class DataBeanBase implements DataBean {
 	protected void resetContentCache() {
 		this.contentCache.clear();
 	}
+	
+	public void lockContent() {
+		this.contentLock.lock();
+	}
+	
+	public void unlockContent() {
+		this.contentLock.unlock();
+	}
+
+	public boolean hasContentChanged() {
+		return this.contentChanged;
+	}
+
+	public void setContentChanged(boolean contentChanged) {
+		this.contentChanged = true;
+	}
+	
+	public URL getUrl() {
+		return this.url;
+	}
+	public void setUrl(URL url) {
+		this.url = url;
+	}
+	
+	
 }
