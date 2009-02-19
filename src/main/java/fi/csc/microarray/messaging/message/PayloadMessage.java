@@ -26,9 +26,6 @@ import org.apache.log4j.Logger;
  */
 public class PayloadMessage extends ParameterMessage {
 
-	/**
-	 * Logger for this class
-	 */
 	private static final Logger logger = Logger.getLogger(PayloadMessage.class);
 
 	private static final String KEY_PAYLOAD_PREFIX = "payload_";
@@ -121,18 +118,23 @@ public class PayloadMessage extends ParameterMessage {
 	}
 	
 	
+	/**
+	 * Get all payload names.
+	 * 
+	 * @return
+	 */
 	public Set<String> payloadNames() {
 		return payloads.keySet();
 	}
 
-
+	
+	/**
+	 * Get all payload URLs.
+	 *  
+	 * @return
+	 */
 	public Map<String, URL> getPayloads() {
 		return payloads;
-	}
-
-	
-	public void setPayloads(Map<String, URL> payloads) {
-		this.payloads = payloads;
 	}
 
 	
