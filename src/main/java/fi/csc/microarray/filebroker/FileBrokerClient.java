@@ -86,7 +86,7 @@ public class FileBrokerClient {
 	private MessagingTopic urlTopic;	
 	private boolean useChunked;
 	
-	public FileBrokerClient(MessagingEndpoint endpoint) throws JMSException {
+	public FileBrokerClient(MessagingTopic urlTopic) throws JMSException {
 		// read configs
 
 		// use chunked if not explicitly disabled
@@ -94,7 +94,7 @@ public class FileBrokerClient {
 		useChunked = ! (chunkedConfig != null && chunkedConfig.equals("false")); 
 		
 		// initialize messaging
-		urlTopic = endpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE);
+		this.urlTopic = urlTopic;
 	}
 	
 

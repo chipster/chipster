@@ -329,7 +329,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		
 		managerTopic = endpoint.createTopic(Topics.Name.MANAGER_TOPIC, AccessMode.WRITE);
 		
-		fileBroker = new FileBrokerClient(this.endpoint);
+		fileBroker = new FileBrokerClient(this.endpoint.createTopic(Topics.Name.AUTHORISED_URL_TOPIC, AccessMode.WRITE));
 		
 		logger.info("analyser is up and running [" + ApplicationConstants.NAMI_VERSION + "]");
 		logger.info("[mem: " + MemUtil.getMemInfo() + "]");

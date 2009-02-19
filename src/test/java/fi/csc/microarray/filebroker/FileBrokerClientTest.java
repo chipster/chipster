@@ -15,6 +15,8 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import fi.csc.microarray.messaging.MessagingTestBase;
+import fi.csc.microarray.messaging.Topics;
+import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.util.IOUtils;
 
 public class FileBrokerClientTest extends MessagingTestBase {
@@ -24,7 +26,7 @@ public class FileBrokerClientTest extends MessagingTestBase {
 	@BeforeSuite(alwaysRun = true)
 	protected void setUp() throws Exception {
 		super.setUp();
-		fbc = new FileBrokerClient(super.endpoint);
+		fbc = new FileBrokerClient(super.endpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
 	}
 
 	@AfterSuite(alwaysRun = true)

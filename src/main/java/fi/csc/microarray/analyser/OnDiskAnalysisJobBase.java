@@ -11,31 +11,33 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
 
+/**
+ * Provides functionality for transferring input files from file broker
+ * to job work directory and output files from job work directory to file 
+ * broker.
+ *
+ */
 public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 
-	/**
-	 * Logger for this class
-	 */
-	private static final Logger logger = Logger
-			.getLogger(OnDiskAnalysisJobBase.class);
-	// FIXME this is not used
-	public static final int TIMEOUT = Integer.parseInt(MicroarrayConfiguration
-			.getValue("analyser", "timeout_sec")) * 1000;
+	private static final Logger logger = Logger.getLogger(OnDiskAnalysisJobBase.class);
 
 	protected File jobWorkDir;
 
 	@Override
-	public void construct(JobMessage inputMessage,
-			AnalysisDescription analysis, ResultCallback resultHandler) {
+	public void construct(JobMessage inputMessage, AnalysisDescription analysis, ResultCallback resultHandler) {
 		super.construct(inputMessage, analysis, resultHandler);
 		this.jobWorkDir = new File(resultHandler.getWorkDir(), getId());
 	}
 
+
+	/**
+	 * Copy input files from file broker to job work directory.
+	 * 
+	 */
 	@Override
 	protected void preExecute() throws Exception {
 		cancelCheck();
@@ -43,19 +45,15 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 
 		updateStateDetail("transferring input data", true);
 
-		// create working dir
+		// create working dir for the job
 		if (!this.jobWorkDir.mkdir()) {
-			throw new IOException("Could not create work dir: "
-					+ jobWorkDir.toString());
+			throw new IOException("Could not create work dir: " + jobWorkDir.toString());
 		}
 
 		// extract input files to work dir
 		// TODO security check input file names
-		logger.debug("Starting to write input files.");
 		for (String fileName : inputMessage.payloadNames()) {
 			cancelCheck();
-
-			logger.debug("Getting input file: " + fileName);
 
 			// get url
 			URL inputUrl = inputMessage.getPayload(fileName);
@@ -76,43 +74,51 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 				IOUtils.closeIfPossible(fileStream);
 			}
 
-			logger.debug("Input file created: " + outputFile.getName() + " " + outputFile.length());
+			logger.debug("created input file: " + outputFile.getName() + " " + outputFile.length());
 		}
-		logger.debug("input files written");
 	}
 
+	
+	/**
+	 * Copy output files from job work dir to file broker.
+	 * 
+	 */
 	@Override
 	protected void postExecute() throws Exception {
 		updateStateDetail("transferring output data", true);
 		cancelCheck();
 
 		List<String> outputFileNames = analysis.getOutputFiles();
-
-		logger.debug("reading outputs of " + analysis.getFullName()
-				+ ", total of " + outputFileNames.size() + " outputfiles");
 		for (String fileName : outputFileNames) {
 			cancelCheck();
+
 			// copy file to file broker
 			File outputFile = new File(jobWorkDir, fileName);
 			URL url = resultHandler.getFileBrokerClient().addFile(new FileInputStream(outputFile), null);
-			outputMessage.addPayload(fileName, url);
-			logger.debug("Added output file " + fileName);
-		}
 
+			// put url to result message
+			outputMessage.addPayload(fileName, url);
+			logger.debug("transferred output file: " + fileName);
+		}
 		super.postExecute();
 	}
 
+
+	/**
+	 * Clear job working directory.
+	 * 
+	 */
+	@Override
 	protected void cleanUp() {
 		try {
-			// sweep working directory
+			// sweep job working directory
 			if (resultHandler.shouldSweepWorkDir()) {
 				Files.delTree(jobWorkDir);
 			}
 		} catch (Exception e) {
-			logger.error("Error in cleanUp.", e);
+			logger.error("Error when cleaning up job work dir.", e);
 		} finally {
 			super.cleanUp();
 		}
 	}
-
 }

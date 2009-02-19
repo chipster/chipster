@@ -372,7 +372,7 @@ public class TaskExecutor {
 
 	public TaskExecutor(MessagingEndpoint endpoint, DataManager manager) throws JMSException {
 		this.manager = manager;
-		this.fileBroker = new FileBrokerClient(endpoint);
+		this.fileBroker = new FileBrokerClient(endpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
 		requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC, AccessMode.WRITE);
 		jobExecutorStateChangeSupport = new SwingPropertyChangeSupport(this);
 	}
