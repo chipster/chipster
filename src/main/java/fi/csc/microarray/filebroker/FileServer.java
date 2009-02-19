@@ -33,43 +33,48 @@ public class FileServer extends NodeBase implements MessagingListener {
 	private AuthorisedUrlRepository urlRepository;
 
 
-    public FileServer() throws Exception {
-    	
-		// check file repository
-		File fileRepository = new File(MicroarrayConfiguration.getValue("frontend", "fileServerPath"));
-		if (!fileRepository.exists()) {
-			boolean ok = fileRepository.mkdir();
-			if (!ok) {
-				throw new IOException("could not create file repository at " + fileRepository);
-			}
-		}
+    public FileServer() {
 
-    	// initialise url repository
-		String host = MicroarrayConfiguration.getValue("filebroker", "url");
-		int port = FileBrokerConfig.getPort();
-    	this.urlRepository = new AuthorisedUrlRepository(host, port);
+    	try {
+    		// check file repository
+    		File fileRepository = new File(MicroarrayConfiguration.getValue("frontend", "fileServerPath"));
+    		if (!fileRepository.exists()) {
+    			boolean ok = fileRepository.mkdir();
+    			if (!ok) {
+    				throw new IOException("could not create file repository at " + fileRepository);
+    			}
+    		}
 
-		// boot up file server
-		JettyFileServer fileServer = new JettyFileServer(urlRepository);
-		fileServer.start(fileRepository.getPath(), port);
+    		// initialise url repository
+    		String host = MicroarrayConfiguration.getValue("filebroker", "url");
+    		int port = FileBrokerConfig.getPort();
+    		this.urlRepository = new AuthorisedUrlRepository(host, port);
 
-		// start scheduler
-		int cutoff = 1000 * Integer.parseInt(MicroarrayConfiguration.getValue("frontend", "fileLifeTime"));
-		int cleanUpFrequency = 1000 * Integer.parseInt(MicroarrayConfiguration.getValue("frontend", "cleanUpFrequency"));
-		int checkFrequency = 1000 * 5;
-		Timer t = new Timer("frontend-scheduled-tasks", true);
-		t.schedule(new FileCleanUpTimerTask(fileRepository, cutoff), 0, cleanUpFrequency);
-		t.schedule(new JettyCheckTimerTask(fileServer), 0, checkFrequency);
+    		// boot up file server
+    		JettyFileServer fileServer = new JettyFileServer(urlRepository);
+    		fileServer.start(fileRepository.getPath(), port);
 
-		// initialise messaging
-		this.endpoint = new MessagingEndpoint(this);
-		MessagingTopic urlRequestTopic = endpoint.createTopic(Topics.Name.AUTHORISED_URL_TOPIC, AccessMode.READ);
-		urlRequestTopic.setListener(this);
-		this.managerClient = new ManagerClient(endpoint); 
+    		// start scheduler
+    		int cutoff = 1000 * Integer.parseInt(MicroarrayConfiguration.getValue("frontend", "fileLifeTime"));
+    		int cleanUpFrequency = 1000 * Integer.parseInt(MicroarrayConfiguration.getValue("frontend", "cleanUpFrequency"));
+    		int checkFrequency = 1000 * 5;
+    		Timer t = new Timer("frontend-scheduled-tasks", true);
+    		t.schedule(new FileCleanUpTimerTask(fileRepository, cutoff), 0, cleanUpFrequency);
+    		t.schedule(new JettyCheckTimerTask(fileServer), 0, checkFrequency);
 
-		// all done
-		logger.info("fileserver is up and running [" + ApplicationConstants.NAMI_VERSION + "]");
-		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
+    		// initialise messaging
+    		this.endpoint = new MessagingEndpoint(this);
+    		MessagingTopic urlRequestTopic = endpoint.createTopic(Topics.Name.AUTHORISED_URL_TOPIC, AccessMode.READ);
+    		urlRequestTopic.setListener(this);
+    		this.managerClient = new ManagerClient(endpoint); 
+
+    		// all done
+    		logger.info("fileserver is up and running [" + ApplicationConstants.NAMI_VERSION + "]");
+    		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
+
+    	} catch (Exception e) {
+    		logger.error(e, e);
+    	}
     }
 
 
