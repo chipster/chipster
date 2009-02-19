@@ -69,7 +69,7 @@
 	<configuration-module moduleId="frontend">
 	
 		<entry entryKey="fileServerPath">
-			<value>nami-work-files/fileserver</value>
+			<value>fileroot</value>
 		</entry>
 		
 		<!-- how long files are stored in fileserver, seconds -->

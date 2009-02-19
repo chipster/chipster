@@ -233,6 +233,8 @@
 			<tarfileset dir="${ext-src}/wrapper/fileserver/nami-work-files" prefix="chipster/fileserver/nami-work-files" />
 			<tarfileset dir="${ext-src}/wrapper/logs" prefix="chipster/fileserver/logs" />
 
+			<tarfileset dir="${ext-src}/wrapper/fileroot" prefix="chipster/fileserver/fileroot" />
+
 			<!-- client -->
 			<tarfileset file="${ext-src}/wrapper/client/chipster-client-generic" filemode="755" fullpath="chipster/client/bin/chipster-client" />
 			
