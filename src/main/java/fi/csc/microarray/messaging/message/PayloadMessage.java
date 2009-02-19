@@ -19,7 +19,12 @@ import org.apache.log4j.Logger;
 
 
 /**
- * For sending jobs to back-end components.
+ * For sending messages with payloads. Payload means any data whose structure
+ * is not defined in the JMSMessage. For example data bean contents and tool
+ * descriptions are transferred as payloads.
+ * 
+ * The actual data is sent through the FileBroker and payload message only
+ * carries the URL for the data in the FileBroker.
  * 
  * @author Taavi Hupponen, Aleksi Kallio
  *
@@ -66,9 +71,6 @@ public class PayloadMessage extends ParameterMessage {
 	}
 
 	
-	/**
-	 * Construct a MapMessage that can be used to create a new JobMessage.
-	 */
 	@Override
 	public void marshal(MapMessage mapMessage) throws JMSException {
 		super.marshal(mapMessage);
@@ -142,7 +144,5 @@ public class PayloadMessage extends ParameterMessage {
 	public String toString() {
 		return super.toString() + ", payload count: " + payloadNames().size();		
 	}
-	
-
 
 }
