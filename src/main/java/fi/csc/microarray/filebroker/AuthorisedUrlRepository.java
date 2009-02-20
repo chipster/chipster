@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -77,9 +78,11 @@ public class AuthorisedUrlRepository {
 		repositoryLock.lock();
 		try {
 			// prune non-valid dates first
-			for (URL key : repository.keySet()) {
+			Iterator<URL> keyIterator = repository.keySet().iterator(); // use iterator because we are removing
+			while (keyIterator.hasNext()) {
+				URL key = keyIterator.next();
 				if (!isDateValid(repository.get(key))) {
-					repository.remove(key);
+					keyIterator.remove();
 				}
 			}
 
