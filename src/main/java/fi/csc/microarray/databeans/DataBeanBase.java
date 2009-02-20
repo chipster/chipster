@@ -176,7 +176,7 @@ public abstract class DataBeanBase implements DataBean {
 		this.contentLock.unlock();
 	}
 
-	public boolean hasContentChanged() {
+	public boolean isContentChanged() {
 		return this.contentChanged;
 	}
 

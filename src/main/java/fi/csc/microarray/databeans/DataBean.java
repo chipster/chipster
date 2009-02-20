@@ -220,13 +220,54 @@ public interface DataBean extends DataItem {
 	 */
 	public long getContentLength();
 	
+	
+	
+	/**
+	 * Acquire the lock which guards the content from being changed.
+	 * 
+	 * Needed for example when transferring contents to file broker.
+	 * 
+	 */
 	public void lockContent();
+	
+	
+	/**
+	 * Release the content lock.
+	 * 
+	 */
 	public void unlockContent();
 
-	public boolean hasContentChanged();
+	
+	/**
+	 * Indicate whether the contents have been changed since the contents
+	 * were last time uploaded to file broker.
+	 * 
+	 */
+	public boolean isContentChanged();
+	
+	/**
+	 * Set content changed status. Shoulc be called with true everytime
+	 * content is changed.
+	 * 
+	 * @param contentChanged
+	 */
 	public void setContentChanged(boolean contentChanged);
 	
+	/**
+	 * Get the location of the remote copy for the content file. 
+	 * Usually the copy is located at the file broker.
+	 * 
+	 * @return may be null
+	 */
 	public URL getUrl();
+	
+	
+	/**
+	 * Set the location of the remote copy of the content file.
+	 * Usually the copy is located at the file broker.
+	 * 
+	 * @param url
+	 */
 	public void setUrl(URL url);
 	
 	

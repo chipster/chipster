@@ -462,7 +462,7 @@ public class TaskExecutor {
 							bean.lockContent();
 
 							// bean modified, upload
-							if (bean.hasContentChanged()) {
+							if (bean.isContentChanged()) {
 								bean.setUrl(fileBroker.addFile(bean.getContentByteStream(), progressListener)); 
 								bean.setContentChanged(false);
 							} 
