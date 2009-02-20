@@ -1,4 +1,4 @@
-package fi.csc.microarray.configtool;
+package fi.csc.microarray.config;
 
 import java.io.BufferedReader;
 import java.io.File;

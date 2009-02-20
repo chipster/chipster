@@ -160,10 +160,10 @@
 
 		<jar destfile="${config-tool-jar}">
 			<manifest>
-				<attribute name="Main-Class" value="fi.csc.microarray.configtool.ConfigTool" />
+				<attribute name="Main-Class" value="fi.csc.microarray.config.ConfigTool" />
 			</manifest>
 			<fileset dir="${build}">
-				<include name="fi/csc/microarray/configtool/*" />
+				<include name="fi/csc/microarray/config/*" />
 				<include name="fi/csc/microarray/util/*" />
 			</fileset>
 		</jar>
