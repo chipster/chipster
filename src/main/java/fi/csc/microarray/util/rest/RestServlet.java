@@ -73,7 +73,7 @@ public class RestServlet extends DefaultServlet {
 		
 		// handle welcome page here, delegate rest to super class
 		if (isWelcomePage(request)) {
-			WelcomePage.print(response);
+			new WelcomePage(rootUrl).print(response);
 		} else {
 			super.doGet(request, response);	
 		}
