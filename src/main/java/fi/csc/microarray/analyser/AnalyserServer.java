@@ -22,8 +22,8 @@ import javax.jms.JMSException;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.ApplicationConstants;
-import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.MicroarrayException;
+import fi.csc.microarray.config.MicroarrayConfiguration;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.MessagingEndpoint;

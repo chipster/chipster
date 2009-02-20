@@ -18,8 +18,8 @@ import javax.security.auth.login.LoginException;
 import org.apache.log4j.Logger;
 import org.mortbay.util.IO;
 
-import fi.csc.microarray.MicroarrayConfiguration;
-import fi.csc.microarray.util.config.Configuration;
+import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.config.MicroarrayConfiguration;
 
 public class JaasAuthenticationProvider implements AuthenticationProvider {
 

@@ -7,7 +7,7 @@ import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.thread.QueuedThreadPool;
 
-import fi.csc.microarray.MicroarrayConfiguration;
+import fi.csc.microarray.config.MicroarrayConfiguration;
 import fi.csc.microarray.util.rest.RestServlet;
 
 public class JettyFileServer {

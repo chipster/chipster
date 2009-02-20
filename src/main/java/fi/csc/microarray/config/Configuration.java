@@ -1,4 +1,4 @@
-package fi.csc.microarray.util.config;
+package fi.csc.microarray.config;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -25,11 +25,11 @@ import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
-import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.dialog.DialogInfo.Type;
-import fi.csc.microarray.util.config.ConfigurationLoader.OldConfigurationFormatException;
+import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 
 public class ChipsterDialog extends JDialog {
 	

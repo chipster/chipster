@@ -5,9 +5,9 @@ import java.sql.SQLException;
 
 import javax.jms.JMSException;
 
-import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.MicroarrayException;
-import fi.csc.microarray.util.config.ConfigurationLoader.OldConfigurationFormatException;
+import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 
 /**
  * Main class for launching Manager.

@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.MicroarrayConfiguration;
+import fi.csc.microarray.config.MicroarrayConfiguration;
 /**
  * A process pool for pooling for example R processes.
  * 

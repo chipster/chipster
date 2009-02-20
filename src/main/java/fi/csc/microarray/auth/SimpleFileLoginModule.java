@@ -19,10 +19,10 @@ import javax.security.auth.callback.CallbackHandler;
 import org.apache.log4j.Logger;
 import org.mortbay.util.IO;
 
-import fi.csc.microarray.MicroarrayConfiguration;
+import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.config.MicroarrayConfiguration;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.LookaheadStringReader;
-import fi.csc.microarray.util.config.Configuration;
 
 /**
  * Login module for Chipster type user lists. They have format

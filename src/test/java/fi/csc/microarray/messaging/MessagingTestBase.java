@@ -5,7 +5,7 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 
 import fi.csc.microarray.DemoAuthenticationRequestListener;
-import fi.csc.microarray.MicroarrayConfiguration;
+import fi.csc.microarray.config.MicroarrayConfiguration;
 
 public abstract class MessagingTestBase {
 	/**

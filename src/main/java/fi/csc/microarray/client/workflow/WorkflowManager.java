@@ -14,12 +14,12 @@ import java.util.List;
 
 import bsh.EvalError;
 import bsh.Interpreter;
-import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.client.AtEndListener;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.workflow.api.WfApplication;
+import fi.csc.microarray.config.MicroarrayConfiguration;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.GeneralFileFilter;
 

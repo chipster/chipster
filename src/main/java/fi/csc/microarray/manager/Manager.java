@@ -21,8 +21,9 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import fi.csc.microarray.ApplicationConstants;
-import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.MicroarrayException;
+import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
 import fi.csc.microarray.messaging.MessagingTopic;
@@ -32,7 +33,6 @@ import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.message.JobLogMessage;
 import fi.csc.microarray.messaging.message.NamiMessage;
 import fi.csc.microarray.util.MemUtil;
-import fi.csc.microarray.util.config.ConfigurationLoader.OldConfigurationFormatException;
 
 /**
  * 

@@ -7,12 +7,12 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.MicroarrayException;
+import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.Traversal;
 import fi.csc.microarray.databeans.fs.FSDataManager;
-import fi.csc.microarray.util.config.ConfigurationLoader.OldConfigurationFormatException;
 
 public class LinkTest {
 	private DataManager manager; 

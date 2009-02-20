@@ -7,7 +7,6 @@ import java.io.InputStream;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.analyser.AnalysisDescription;
 import fi.csc.microarray.analyser.AnalysisDescriptionGenerator;
@@ -15,6 +14,7 @@ import fi.csc.microarray.analyser.AnalysisException;
 import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
 import fi.csc.microarray.analyser.ResultCallback;
+import fi.csc.microarray.config.MicroarrayConfiguration;
 import fi.csc.microarray.description.VVSADLParser.ParseException;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;

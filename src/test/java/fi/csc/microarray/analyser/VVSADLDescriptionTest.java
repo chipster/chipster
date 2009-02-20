@@ -8,10 +8,10 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
 import fi.csc.microarray.analyser.r.VVSADLTool;
+import fi.csc.microarray.config.MicroarrayConfiguration;
 import fi.csc.microarray.module.chipster.ChipsterVVSADLParser.Validator;
 
 public class VVSADLDescriptionTest {

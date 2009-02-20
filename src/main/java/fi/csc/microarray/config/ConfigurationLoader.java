@@ -1,4 +1,4 @@
-package fi.csc.microarray.util.config;
+package fi.csc.microarray.config;
 
 import java.io.File;
 import java.io.FileInputStream;

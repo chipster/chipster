@@ -49,7 +49,6 @@ import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
 import fi.csc.microarray.ApplicationConstants;
 import fi.csc.microarray.ErrorReportAsException;
-import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.dataimport.ImportScreen;
@@ -85,6 +84,8 @@ import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.waiting.WaitGlassPane;
 import fi.csc.microarray.client.workflow.WorkflowManager;
+import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 import fi.csc.microarray.databeans.ContentType;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataChangeEvent;
@@ -103,7 +104,6 @@ import fi.csc.microarray.util.BrowserLauncher;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.GeneralFileFilter;
 import fi.csc.microarray.util.SplashScreen;
-import fi.csc.microarray.util.config.ConfigurationLoader.OldConfigurationFormatException;
 
 /**
  * This class adds all GUI and Swing specific content to client functionality.

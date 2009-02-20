@@ -3,7 +3,7 @@ package fi.csc.microarray.filebroker;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import fi.csc.microarray.MicroarrayConfiguration;
+import fi.csc.microarray.config.MicroarrayConfiguration;
 
 // FIXME obsolete, should be removed
 public class FileBrokerConfig {

@@ -6,8 +6,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.MicroarrayException;
+import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 import fi.csc.microarray.databeans.ContentChangedEvent;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataChangeEvent;
@@ -17,7 +18,6 @@ import fi.csc.microarray.databeans.DataItemRemovedEvent;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.LinksChangedEvent;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.util.config.ConfigurationLoader.OldConfigurationFormatException;
 
 public class FSDataEventTest implements DataChangeListener {
 	

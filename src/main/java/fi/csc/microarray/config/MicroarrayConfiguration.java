@@ -1,4 +1,4 @@
-package fi.csc.microarray;
+package fi.csc.microarray.config;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -11,9 +11,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.mortbay.util.IO;
 import org.xml.sax.SAXException;
 
-import fi.csc.microarray.util.config.Configuration;
-import fi.csc.microarray.util.config.ConfigurationLoader;
-import fi.csc.microarray.util.config.ConfigurationLoader.OldConfigurationFormatException;
+import fi.csc.microarray.MicroarrayException;
+import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 
 public class MicroarrayConfiguration {
 

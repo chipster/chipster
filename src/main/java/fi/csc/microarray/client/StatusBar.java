@@ -16,7 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.Timer;
 
-import fi.csc.microarray.MicroarrayConfiguration;
+import fi.csc.microarray.config.MicroarrayConfiguration;
 import fi.csc.microarray.util.MemUtil;
 
 public class StatusBar {

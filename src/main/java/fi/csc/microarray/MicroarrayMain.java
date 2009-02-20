@@ -7,6 +7,8 @@ import fi.csc.microarray.analyser.AnalyserServer;
 import fi.csc.microarray.analyser.r.VVSADLTool;
 import fi.csc.microarray.auth.Authenticator;
 import fi.csc.microarray.client.SwingClientApplication;
+import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 import fi.csc.microarray.filebroker.FileServer;
 import fi.csc.microarray.manager.Manager;
 import fi.csc.microarray.messaging.MessagingEndpoint;
@@ -16,7 +18,6 @@ import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.module.chipster.ChipsterVVSADLParser.Validator;
 import fi.csc.microarray.util.CommandLineParser;
 import fi.csc.microarray.util.CommandLineParser.CommandLineException;
-import fi.csc.microarray.util.config.ConfigurationLoader.OldConfigurationFormatException;
 import fi.csc.microarray.webstart.WebstartJettyServer;
 
 /**

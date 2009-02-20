@@ -11,7 +11,7 @@ import javax.jms.JMSException;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.MicroarrayConfiguration;
+import fi.csc.microarray.config.MicroarrayConfiguration;
 import fi.csc.microarray.messaging.MessagingListener;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.message.CommandMessage;

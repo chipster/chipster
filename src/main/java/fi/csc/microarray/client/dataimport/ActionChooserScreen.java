@@ -29,7 +29,6 @@ import javax.swing.table.TableCellRenderer;
 
 import org.jdesktop.swingx.JXTable;
 
-import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.dataimport.ImportItem.Action;
@@ -41,7 +40,8 @@ import fi.csc.microarray.client.dialog.ChipsterDialog.DialogCloseListener;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.dialog.DialogInfo.Type;
 import fi.csc.microarray.client.screen.ScreenBase;
-import fi.csc.microarray.util.config.ConfigurationLoader.OldConfigurationFormatException;
+import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 
 public class ActionChooserScreen extends ScreenBase implements ActionListener, DialogCloseListener {
 

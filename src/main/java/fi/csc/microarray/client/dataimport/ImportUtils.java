@@ -21,7 +21,6 @@ import javax.swing.filechooser.FileSystemView;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
@@ -32,10 +31,11 @@ import fi.csc.microarray.client.dialog.DialogInfo;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.dialog.DialogInfo.Type;
+import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.util.IOUtils;
-import fi.csc.microarray.util.config.ConfigurationLoader.OldConfigurationFormatException;
 
 /**
  * Util class for the import dataset choosers (JFileChooser, URL import,

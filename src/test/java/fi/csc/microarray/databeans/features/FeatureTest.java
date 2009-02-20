@@ -8,16 +8,16 @@ import java.util.Iterator;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.ModulesForTesting;
 import fi.csc.microarray.TestConstants;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
+import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.fs.FSDataManager;
-import fi.csc.microarray.util.config.ConfigurationLoader.OldConfigurationFormatException;
 
 public class FeatureTest {
 

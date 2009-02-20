@@ -6,14 +6,14 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.MicroarrayConfiguration;
 import fi.csc.microarray.MicroarrayException;
+import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 import fi.csc.microarray.description.ParsedVVSADL.Input;
 import fi.csc.microarray.description.ParsedVVSADL.Parameter;
 import fi.csc.microarray.description.VVSADLSyntax.ParameterType;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;
-import fi.csc.microarray.util.config.ConfigurationLoader.OldConfigurationFormatException;
 
 public class VVSADLParserTest {
 

@@ -1,14 +1,15 @@
 package fi.csc.microarray.filebroker;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.Timer;
 
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.ApplicationConstants;
-import fi.csc.microarray.MicroarrayConfiguration;
+import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.DirectoryLayout.Type;
 import fi.csc.microarray.manager.ManagerClient;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
@@ -36,16 +37,8 @@ public class FileServer extends NodeBase implements MessagingListener {
     public FileServer() {
 
     	try {
-    		// check file repository
-    		File fileRepository = new File(MicroarrayConfiguration.getValue("frontend", "fileServerPath"));
-    		if (!fileRepository.exists()) {
-    			boolean ok = fileRepository.mkdir();
-    			if (!ok) {
-    				throw new IOException("could not create file repository at " + fileRepository);
-    			}
-    		}
-
     		// initialise url repository
+    		File fileRepository = new DirectoryLayout(Type.SERVER).getFileroot();
     		String host = MicroarrayConfiguration.getValue("filebroker", "url");
     		int port = FileBrokerConfig.getPort();
     		this.urlRepository = new AuthorisedUrlRepository(host, port);
