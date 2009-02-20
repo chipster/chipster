@@ -28,7 +28,6 @@ public class AuthenticatedTopic extends MessagingTopic {
 			.getLogger(AuthenticatedTopic.class);
 	
 	private AuthenticationRequestListener listener;
-	private String sessionID = null;
 	
 	private MessagingListener authTopicListener = new MessagingListener() {
 		public void onNamiMessage(NamiMessage msg) {
@@ -40,7 +39,7 @@ public class AuthenticatedTopic extends MessagingTopic {
 					if (authMsg.isRequestForAuthentication()) {
 						logger.debug("got request for authentication related to topic " + getName());
 
-						sessionID = msg.getSessionID(); // record session for authenticating following messages
+						getEndpoint().setSessionID(msg.getSessionID()); // record session for authenticating following messages
 
 						if (listener != null) {
 							Credentials credentials = listener.authenticationRequest();
@@ -95,6 +94,7 @@ public class AuthenticatedTopic extends MessagingTopic {
 	}
 	
 	private void attachSessionID(NamiMessage msg) {
+		String sessionID = getEndpoint().getSessionID();
 		if (sessionID != null) {
 			msg.setSessionID(sessionID);
 		}

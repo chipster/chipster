@@ -158,4 +158,9 @@ public class MessagingTopic {
 	public InputStream openJMSInputStream() throws JMSException {
 		return endpoint.createInputStream(topic);
 	}
+
+
+	public MessagingEndpoint getEndpoint() {
+		return endpoint;
+	}
 }

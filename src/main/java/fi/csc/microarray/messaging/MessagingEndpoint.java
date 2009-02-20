@@ -82,7 +82,8 @@ public class MessagingEndpoint implements MessagingListener {
 	private MessagingTopic adminTopic = null;
 	private Node master;
 	private AuthenticationRequestListener authenticationListener;
-	
+	private String sessionID = null;
+
 	/**
 	 *  Created endpoint that is used as a gateway to communication fabric.
 	 *  
@@ -245,5 +246,13 @@ public class MessagingEndpoint implements MessagingListener {
 
 	public InputStream createInputStream(Topic topic) throws JMSException {
 		return connection.createInputStream(topic);
+	}
+
+	public String getSessionID() {
+		return sessionID;
+	}
+
+	public void setSessionID(String sessionID) {
+		this.sessionID = sessionID;
 	}
 }
