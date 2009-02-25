@@ -8,7 +8,7 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import fi.csc.microarray.MicroarrayException;
-import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.Traversal;
@@ -19,7 +19,7 @@ public class LinkTest {
 	
 	@BeforeSuite(alwaysRun = true)
 	public void init() throws IOException, OldConfigurationFormatException {
-		MicroarrayConfiguration.loadConfiguration();
+		DirectoryLayout.initialiseClientLayout().getConfiguration();			
 		this.manager = new FSDataManager();
 	}
 	

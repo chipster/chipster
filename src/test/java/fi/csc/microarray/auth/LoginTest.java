@@ -13,7 +13,7 @@ import java.util.Random;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 
 public class LoginTest {
@@ -21,7 +21,7 @@ public class LoginTest {
 	@Test(groups = {"unit"} )
 	public void expirationTest() throws IOException, OldConfigurationFormatException {
 
-		MicroarrayConfiguration.loadConfiguration();
+		DirectoryLayout.initialiseClientLayout().getConfiguration();			
 		
 		String validUsername = "valid";
 		String expiredUsername = "expired";
@@ -54,7 +54,7 @@ public class LoginTest {
 	 */
 	public void manualTest(File usersFileToTest, String username, String password) throws IOException, OldConfigurationFormatException {
 
-		MicroarrayConfiguration.loadConfiguration();
+		DirectoryLayout.initialiseClientLayout().getConfiguration();			
 		
 		File testJaasConfigFile = createTestJaasConfig(usersFileToTest);
 		AuthenticationProvider authProvider = createAuthProvider(testJaasConfigFile);
@@ -64,7 +64,7 @@ public class LoginTest {
 	}
 
 	private AuthenticationProvider createAuthProvider(File testJaasConfigFile) throws IOException, OldConfigurationFormatException {
-		MicroarrayConfiguration.loadConfiguration();
+		DirectoryLayout.initialiseClientLayout().getConfiguration();			
 		AuthenticationProvider authProvider = new JaasAuthenticationProvider();
 		System.setProperty("java.security.auth.login.config", testJaasConfigFile.getPath());
 		return authProvider;

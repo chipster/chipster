@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.Configuration;
 /**
  * A process pool for pooling for example R processes.
  * 
@@ -33,12 +33,12 @@ public class ProcessPool {
 	private BlockingQueue<NamiProcess> availableProcesses;
 	private ConcurrentMap<Integer, NamiProcess> inUseProcesses;
 	
-	private static final int poolSizeMin = Integer.parseInt(MicroarrayConfiguration.getValue("analyser", "RProcessPoolSizeMin"));
-	private static final int poolSizeMax = Integer.parseInt(MicroarrayConfiguration.getValue("analyser", "RProcessPoolSizeMax"));
-	private static final int poolTimeout = Integer.parseInt(MicroarrayConfiguration.getValue("analyser", "RProcessPoolTimeout"));
-	private static final int processUseCountMax = Integer.parseInt(MicroarrayConfiguration.getValue("analyser", "RProcessPoolProcessUseCountMax"));
-	private static final int processLifetimeMax = Integer.parseInt(MicroarrayConfiguration.getValue("analyser", "RProcessPoolProcessLifetimeMax"));
-	private static String R_COMMAND = MicroarrayConfiguration.getValue("analyser", "RCommand") + " --vanilla --quiet";
+	private static final int poolSizeMin = Integer.parseInt(Configuration.getValue("analyser", "RProcessPoolSizeMin"));
+	private static final int poolSizeMax = Integer.parseInt(Configuration.getValue("analyser", "RProcessPoolSizeMax"));
+	private static final int poolTimeout = Integer.parseInt(Configuration.getValue("analyser", "RProcessPoolTimeout"));
+	private static final int processUseCountMax = Integer.parseInt(Configuration.getValue("analyser", "RProcessPoolProcessUseCountMax"));
+	private static final int processLifetimeMax = Integer.parseInt(Configuration.getValue("analyser", "RProcessPoolProcessLifetimeMax"));
+	private static String R_COMMAND = Configuration.getValue("analyser", "RCommand") + " --vanilla --quiet";
 	
 	private File workDir;
 	

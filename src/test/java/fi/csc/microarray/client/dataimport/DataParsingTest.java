@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 import fi.csc.microarray.util.MemUtil;
 
@@ -59,7 +59,7 @@ public class DataParsingTest {
 	}
 	
 	public DataParsingTest() throws IOException, OldConfigurationFormatException {
-		MicroarrayConfiguration.loadConfiguration();
+		DirectoryLayout.initialiseClientLayout().getConfiguration();			
 	}
 	
 	@Test(groups = {"stress"} ) // needs more memory than JVM default

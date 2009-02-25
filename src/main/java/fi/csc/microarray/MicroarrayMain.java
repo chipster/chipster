@@ -7,8 +7,6 @@ import fi.csc.microarray.analyser.AnalyserServer;
 import fi.csc.microarray.analyser.r.VVSADLTool;
 import fi.csc.microarray.auth.Authenticator;
 import fi.csc.microarray.client.SwingClientApplication;
-import fi.csc.microarray.config.MicroarrayConfiguration;
-import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 import fi.csc.microarray.filebroker.FileServer;
 import fi.csc.microarray.manager.Manager;
 import fi.csc.microarray.messaging.MessagingEndpoint;
@@ -47,14 +45,7 @@ public class MicroarrayMain {
 			cmdParser.addParameter("rcheck", false, true, null, "check R script syntax");
 			cmdParser.addParameter("-override", false, true, null, "comma separated list of configuration overrides (e.g. \"-override ModuleA/EntryA=val1,ModuleA/EntryB=val1;val2\")");
 			cmdParser.addParameter("-homework", false, false, null, "store work files in home instead of workdir");
-			cmdParser.addParameter("-required-analyser-count", false, true, "1", "store work files in home instead of workdir");
-			cmdParser.addParameter("-repository-url", false, true, null, "url for the fileserver repository for rest test");
-			cmdParser.addParameter("-testfile", false, true, null, "testfile for rest test");
-			cmdParser.addParameter("-threads", false, true, "1", "thread count for rest test");
-			cmdParser.addParameter("-repeat", false, true, "1", "repeat count for rest test");
-			cmdParser.addParameter("-put", false, false, null, "use put for rest test");
-			cmdParser.addParameter("-get", false, false, null, "use get count for rest test");
-			
+			cmdParser.addParameter("-required-analyser-count", false, true, "1", "required comp service count for nagios check");
 			
 			// parse commandline
 			cmdParser.parse(args);
@@ -65,28 +56,6 @@ public class MicroarrayMain {
 				System.out.println("Parameters:");
 				System.out.println(cmdParser.getDescription());
 				System.exit(0);
-			}
-
-			// load configuration, when needed
-			boolean needConfig = !(cmdParser.hasValue("rcheck")); 
-			if (needConfig) {
-				String overrides = cmdParser.getValue("-override");
-				boolean useHomeAsWorkDir = cmdParser.hasValue("-homework");
-				boolean defaultsUsed;
-				try {
-					defaultsUsed = MicroarrayConfiguration.loadConfiguration(overrides, useHomeAsWorkDir);
-				} catch (OldConfigurationFormatException e) {
-					if (!cmdParser.hasValue("authenticator") && !cmdParser.hasValue("analyser") && !cmdParser.hasValue("fileserver")) {
-						SwingClientApplication.reportOldConfigurationFormatException(e);
-						return;
-					} else {
-						throw e;
-					}
-					
-				}
-				if (defaultsUsed && !cmdParser.hasValue("nagios-check")) {
-					System.out.println("No configuration found, defaults used and new configuration file created.");
-				}
 			}
 
 			// start application
@@ -170,9 +139,6 @@ public class MicroarrayMain {
 				System.out.println("broker available");
 				System.exit(0);
 				
-//			} else if (cmdParser.hasValue("tests")) {
-//				junit.textui.TestRunner.run(JmsTests.suite());
-				
 			} else if (cmdParser.hasValue("rcheck")) {
 				boolean fails = false;
 				try {					
@@ -185,8 +151,9 @@ public class MicroarrayMain {
 				System.out.println("parse succeeded: " + !fails);
 				
 			} else {
-				SwingClientApplication.start();				
-			} 
+				SwingClientApplication.start(cmdParser.getValue("-override"), cmdParser.hasValue("-homework")); 		
+			}
+			
 		} catch (CommandLineException e) {
 			System.out.println("Illegal parameters");
 			System.out.println("  " + e.getMessage());

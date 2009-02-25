@@ -22,7 +22,8 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import fi.csc.microarray.ApplicationConstants;
 import fi.csc.microarray.MicroarrayException;
-import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
@@ -109,16 +110,18 @@ public class Manager extends MonitoredNodeBase implements MessagingListener {
 	 */
 	public Manager() throws MicroarrayException, JMSException, IOException, OldConfigurationFormatException, ClassNotFoundException, SQLException {
 		
+		// initialise dir and logging
+		DirectoryLayout.initialiseServerLayout();
 		logger = Logger.getLogger(Manager.class);
-		logger.info("Starting manager...");
 		
 		// initialize database connection
-		String dbDriver = MicroarrayConfiguration.getValue("manager", "jdbcDriver");
-		String dbUrl = MicroarrayConfiguration.getValue("manager", "databaseUrl");
-		boolean startWebConsole = "true".equals(MicroarrayConfiguration.getValue("manager", "startWebConsole"));
-		String dbUsername = MicroarrayConfiguration.getValue("manager", "databaseUsername");
-	    String dbPassword = MicroarrayConfiguration.getValue("manager", "databasePassword");
-	    int webConsolePort = Integer.parseInt(MicroarrayConfiguration.getValue("manager", "webConsolePort"));
+		logger.info("starting manager...");
+		String dbDriver = Configuration.getValue("manager", "jdbcDriver");
+		String dbUrl = Configuration.getValue("manager", "databaseUrl");
+		boolean startWebConsole = "true".equals(Configuration.getValue("manager", "startWebConsole"));
+		String dbUsername = Configuration.getValue("manager", "databaseUsername");
+	    String dbPassword = Configuration.getValue("manager", "databasePassword");
+	    int webConsolePort = Integer.parseInt(Configuration.getValue("manager", "webConsolePort"));
 
 		
 		
@@ -135,9 +138,9 @@ public class Manager extends MonitoredNodeBase implements MessagingListener {
 	    jdbcTemplate.execute(CREATE_JOBS_TABLE);
 		
 	    // schedule backups
-	    String backupDirName = MicroarrayConfiguration.getValue("manager", "backupDir");
-	    int backupInterval = Integer.parseInt(MicroarrayConfiguration.getValue("manager", "backupInterval"));
-	    String backupTimeString =  MicroarrayConfiguration.getValue("manager", "backupTime");
+	    String backupDirName = Configuration.getValue("manager", "backupDir");
+	    int backupInterval = Integer.parseInt(Configuration.getValue("manager", "backupInterval"));
+	    String backupTimeString =  Configuration.getValue("manager", "backupTime");
 	    int startHour = Integer.parseInt(backupTimeString.split(":")[0]);
 	    int startMinute = Integer.parseInt(backupTimeString.split(":")[1]);
 	    Calendar firstBackupTime = Calendar.getInstance();

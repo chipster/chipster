@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import javax.jms.JMSException;
 
 import fi.csc.microarray.MicroarrayException;
-import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 
 /**
@@ -15,22 +15,13 @@ import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatExcept
  * Needed because loading the configuration does not work very
  * well if done in the Manager class (logger problems).
  * 
- *  @author hupponen
+ *  @author Taavi Hupponen
  *
  */
 public class ManagerMain {
 
-	/**
-	 * @param args
-	 * @throws IOException 
-	 * @throws MicroarrayException 
-	 * @throws JMSException 
-	 * @throws OldConfigurationFormatException 
-	 * @throws SQLException 
-	 * @throws ClassNotFoundException 
-	 */
 	public static void main(String[] args) throws IOException, JMSException, MicroarrayException, OldConfigurationFormatException, ClassNotFoundException, SQLException {
-		MicroarrayConfiguration.loadConfiguration();
+		DirectoryLayout.initialiseServerLayout().getConfiguration();			
 		new Manager();	
 	}
 }

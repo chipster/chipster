@@ -3,7 +3,7 @@ package fi.csc.microarray.filebroker;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.Configuration;
 
 // FIXME obsolete, should be removed
 public class FileBrokerConfig {
@@ -16,6 +16,6 @@ public class FileBrokerConfig {
 	 * Returns port for this file broker instance. Should be used only by filebrokers.
 	 */
 	public static int getPort() {
-		return Integer.parseInt(MicroarrayConfiguration.getValue("filebroker", "port"));
+		return Integer.parseInt(Configuration.getValue("filebroker", "port"));
 	}
 }

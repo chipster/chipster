@@ -11,22 +11,23 @@ import org.testng.annotations.Test;
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
 import fi.csc.microarray.analyser.r.VVSADLTool;
-import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.module.chipster.ChipsterVVSADLParser.Validator;
 
 public class VVSADLDescriptionTest {
 
 	@BeforeSuite
 	protected void setUp() throws Exception {
-		MicroarrayConfiguration.loadConfiguration();
+		DirectoryLayout.initialiseClientLayout().getConfiguration();			
 	}
 
 	@Test(groups = {"smoke"} )
 	public void testDescriptions() throws FileNotFoundException, MicroarrayException {
 		
 		LinkedList<String> files = new LinkedList<String>();
-		files.addAll(Arrays.asList(MicroarrayConfiguration.getValues("analyser", "operations")));
-		files.addAll(Arrays.asList(MicroarrayConfiguration.getValues("analyser", "hidden-operations")));
+		files.addAll(Arrays.asList(Configuration.getValues("analyser", "operations")));
+		files.addAll(Arrays.asList(Configuration.getValues("analyser", "hidden-operations")));
 		
 		for (String file : files) {
 			try {

@@ -55,7 +55,7 @@ import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.methods.PhenodataEditor;
 import fi.csc.microarray.client.workflow.WorkflowManager;
-import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
@@ -178,8 +178,8 @@ public abstract class ClientApplication implements Node, WizardContext {
 		
 		// these had to be delayed as they are not available before loading configuration
 		logger = Logger.getLogger(ClientApplication.class);
-		SNAPSHOT_DIR = new File(MicroarrayConfiguration.getWorkDir().getAbsolutePath() + File.separator + "session-snapshot.zip");
-		OLD_SNAPSHOT_DIR = new File(MicroarrayConfiguration.getWorkDir().getAbsolutePath() + File.separator + "workspace-snapshot");
+		SNAPSHOT_DIR = new File(Configuration.getWorkDir().getAbsolutePath() + File.separator + "session-snapshot.zip");
+		OLD_SNAPSHOT_DIR = new File(Configuration.getWorkDir().getAbsolutePath() + File.separator + "workspace-snapshot");
 		
 		// initialise modules
 		Modules modules = new Modules();
@@ -199,7 +199,7 @@ public abstract class ClientApplication implements Node, WizardContext {
 		try {
 			// try to initialise JMS connection
 			logger.debug("Initialise JMS connection.");
-			reportInitialisation("Connecting to broker at " + MicroarrayConfiguration.getValue("messaging", "broker_host") + "...", true);
+			reportInitialisation("Connecting to broker at " + Configuration.getValue("messaging", "broker_host") + "...", true);
 			this.endpoint = new MessagingEndpoint(this, getAuthenticationRequestListener());
 			reportInitialisation(" connected", false);				
 			

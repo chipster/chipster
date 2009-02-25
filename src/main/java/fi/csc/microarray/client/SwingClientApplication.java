@@ -84,7 +84,7 @@ import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.waiting.WaitGlassPane;
 import fi.csc.microarray.client.workflow.WorkflowManager;
-import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 import fi.csc.microarray.databeans.ContentType;
 import fi.csc.microarray.databeans.DataBean;
@@ -1132,31 +1132,34 @@ public class SwingClientApplication extends ClientApplication {
 		System.exit(0);
 	}
 
-	public static void start() {
+	/**
+	 * Starts Chipster client. Configuration (logging) should be initialised
+	 * before calling this method.
+	 * @param useHomeAsWorkdir 
+	 * @param configOverride 
+	 * @throws IOException 
+	 */
+	public static void start(String configOverride, boolean useHomeAsWorkdir) throws IOException {
+
+		try {
+			DirectoryLayout.initialiseClientLayout(useHomeAsWorkdir, configOverride);			
+
+		} catch (OldConfigurationFormatException e) {
+			reportOldConfigurationFormatException(e);
+		}
+
 		ClientListener shutdownListener = new ClientListener() {
 			public void onSuccessfulInitialisation() {
 				// do nothing
 			}
-
 			public void onFailedInitialisation() {
 				System.exit(1);
-
 			}
 		};
-
-		start(shutdownListener, null);
-	}
-
-	/**
-	 * Starts Chipster client. Configuration (logging) should be initialised
-	 * before calling this method.
-	 * 
-	 * @param shutdownListener
-	 * 
-	 */
-	public static void start(final ClientListener clientListener, AuthenticationRequestListener overridingARL) {
+		
 		try {
-			new SwingClientApplication(clientListener, overridingARL);
+			new SwingClientApplication(shutdownListener, null);
+			
 		} catch (Throwable t) {
 			t.printStackTrace();
 			if (logger != null) {
@@ -1164,17 +1167,11 @@ public class SwingClientApplication extends ClientApplication {
 				logger.error(t);
 			}
 		}
+
 	}
-
+	
 	public static void main(String[] args) throws IOException {
-		try {
-			MicroarrayConfiguration.loadConfiguration();
-
-		} catch (OldConfigurationFormatException e) {
-			reportOldConfigurationFormatException(e);
-		}
-
-		start();
+		start(null, false);
 	}
 
 	public static void reportOldConfigurationFormatException(OldConfigurationFormatException e) {

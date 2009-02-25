@@ -5,7 +5,7 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 
 import fi.csc.microarray.DemoAuthenticationRequestListener;
-import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.DirectoryLayout;
 
 public abstract class MessagingTestBase {
 	/**
@@ -18,7 +18,7 @@ public abstract class MessagingTestBase {
 	
 	@BeforeSuite
 	protected void setUp() throws Exception {
-		MicroarrayConfiguration.loadConfiguration();
+		DirectoryLayout.initialiseClientLayout().getConfiguration();
 		logger = Logger.getLogger(MessagingTestBase.class);
 		logger.debug("loaded config");
 		endpoint =  new MessagingEndpoint(new NodeBase() {

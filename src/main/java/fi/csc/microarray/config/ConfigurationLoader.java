@@ -26,7 +26,7 @@ public class ConfigurationLoader {
 		}
 		
 	}
-	public static void addFromFile(Configuration configuration, File file, int requiredVersion) throws IOException, SAXException, ParserConfigurationException, OldConfigurationFormatException {
+	public static void addFromFile(ConfigurationModule configuration, File file, int requiredVersion) throws IOException, SAXException, ParserConfigurationException, OldConfigurationFormatException {
 		FileInputStream in = null;
 		
 		try {
@@ -43,12 +43,12 @@ public class ConfigurationLoader {
 		
 	}
 	
-	public static void addFromStream(Configuration configuration, InputStream stream, int requiredVersion) throws SAXException, IOException, ParserConfigurationException, OldConfigurationFormatException {
+	public static void addFromStream(ConfigurationModule configuration, InputStream stream, int requiredVersion) throws SAXException, IOException, ParserConfigurationException, OldConfigurationFormatException {
 		Document document = XmlUtil.getInstance().parseReader(new InputStreamReader(stream));
 		addFromXml(configuration, document, requiredVersion);
 	}
 	
-	public static void addFromXml(Configuration configuration, Document xml, int requiredVersion) throws OldConfigurationFormatException {
+	public static void addFromXml(ConfigurationModule configuration, Document xml, int requiredVersion) throws OldConfigurationFormatException {
 		// check version
 		if (requiredVersion > 0) {
 			String contentVersion = "";
@@ -74,7 +74,7 @@ public class ConfigurationLoader {
 		addFromNode(configuration, xml.getDocumentElement());
 	}
 	
-	private static void addFromNode(Configuration configuration, Element element) {
+	private static void addFromNode(ConfigurationModule configuration, Element element) {
 				
 		// copy values
 		NodeList entries = element.getElementsByTagName("entry");

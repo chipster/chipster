@@ -6,6 +6,7 @@ import javax.jms.JMSException;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.ApplicationConstants;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
 import fi.csc.microarray.messaging.MessagingTopic;
@@ -29,17 +30,17 @@ public class Authenticator extends NodeBase {
 	/**
 	 * Logger for this class
 	 */
-	private static final Logger logger = Logger.getLogger(Authenticator.class);
+	private static Logger logger = null;
 
 	/**
 	 * Logger for security issues
 	 */
-	private static final Logger securityLogger = Logger.getLogger("security.frontend");
+	private static Logger securityLogger = null;
 
 	/**
 	 *  Logger for message logging
 	 */
-	private static final Logger messageLogger = Logger.getLogger("messages.frontend");
+	private static Logger messageLogger = null;
 	
 	private SecureSessionPool sessionPool = new SecureSessionPool();
 	private MessagingEndpoint endpoint;
@@ -51,6 +52,14 @@ public class Authenticator extends NodeBase {
 	private AuthenticationProvider authenticationProvider; 
 	
 	public Authenticator() throws Exception {
+		
+		// initialise dir and logging
+		DirectoryLayout.initialiseServerLayout();
+		logger = Logger.getLogger(Authenticator.class);
+		securityLogger = Logger.getLogger("security.frontend");
+		messageLogger = Logger.getLogger("messages.frontend");
+		
+		// initialise communications
 		this.endpoint = new MessagingEndpoint(this);
 
 		// create authorised topics

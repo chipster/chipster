@@ -19,8 +19,8 @@ import javax.security.auth.callback.CallbackHandler;
 import org.apache.log4j.Logger;
 import org.mortbay.util.IO;
 
+import fi.csc.microarray.config.ConfigurationModule;
 import fi.csc.microarray.config.Configuration;
-import fi.csc.microarray.config.MicroarrayConfiguration;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.LookaheadStringReader;
 
@@ -69,7 +69,7 @@ public class SimpleFileLoginModule extends LoginModuleBase {
 		// relative path, search the file from work dir, if not found create the
 		// template
 		else {
-			passwdFile = new File(MicroarrayConfiguration.getWorkDir(), passwdFile.getName());
+			passwdFile = new File(Configuration.getWorkDir(), passwdFile.getName());
 			if (!passwdFile.exists()) {
 				logger.warn("Passwd file " + passwdFile.getPath() + " not found.");
 				createDefaultPasswdFile();
@@ -169,13 +169,13 @@ public class SimpleFileLoginModule extends LoginModuleBase {
 	private void createDefaultPasswdFile() {
 		try {
 
-			File defaultFile = new File(MicroarrayConfiguration.getWorkDir(), "users");
+			File defaultFile = new File(Configuration.getWorkDir(), "users");
 			if (defaultFile.exists()) {
 				return;
 			}
 
 			logger.info("Creating new default passwd file " + defaultFile.getPath());
-			InputStream defaults = Configuration.class.getResourceAsStream(DEFAULT_PASSWD_FILE);
+			InputStream defaults = ConfigurationModule.class.getResourceAsStream(DEFAULT_PASSWD_FILE);
 			OutputStream out = new FileOutputStream(defaultFile);
 			try {
 				IO.copy(defaults, out);

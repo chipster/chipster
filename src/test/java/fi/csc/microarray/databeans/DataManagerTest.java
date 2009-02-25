@@ -8,7 +8,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import fi.csc.microarray.ModulesForTesting;
-import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 import fi.csc.microarray.databeans.fs.FSDataManager;
 
@@ -18,7 +18,7 @@ public class DataManagerTest {
 	
 	@BeforeClass(alwaysRun = true)
 	public void init() throws IOException, OldConfigurationFormatException {
-		MicroarrayConfiguration.loadConfiguration();
+		DirectoryLayout.initialiseClientLayout().getConfiguration();			
 		this.manager = new FSDataManager();
 		ModulesForTesting.getModulesForTesting().plugFeatures(this.manager);
 	}

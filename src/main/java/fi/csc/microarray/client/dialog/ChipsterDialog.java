@@ -9,9 +9,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -26,10 +23,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import fi.csc.microarray.client.SwingClientApplication;
-import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.dialog.DialogInfo.Type;
-import fi.csc.microarray.config.MicroarrayConfiguration;
-import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 
 public class ChipsterDialog extends JDialog {
 	
@@ -236,13 +230,5 @@ public class ChipsterDialog extends JDialog {
 	
 	public void setDialogCloseListener(DialogCloseListener dialogCloseListener) {
 		this.dialogCloseListener = dialogCloseListener;
-	}
-	
-	public static void main(String[] args) throws IOException, OldConfigurationFormatException {
-		MicroarrayConfiguration.loadConfiguration();
-		RuntimeException runtimeException = new RuntimeException("j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j General Protection Fault General Protection Fault General Protection Fault General Protection Fault General Protection Fault General Protection Fault");
-		StringWriter stringWriter = new StringWriter();
-		runtimeException.printStackTrace(new PrintWriter(stringWriter));
-		showDialog(null, new DialogInfo(Severity.INFO, "j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j j Nytten on tapahtunut poikkeama ja sen takia meill‰ on tilanne p‰‰ll‰.", runtimeException.getMessage(), stringWriter.toString(), Type.OPTION), DetailsVisibility.DETAILS_VISIBLE, false);
-	}
+	}	
 }

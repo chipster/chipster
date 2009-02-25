@@ -20,7 +20,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.MicroarrayException;
-import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.MessagingTopic.Type;
 import fi.csc.microarray.messaging.auth.AuthenticatedTopic;
@@ -41,9 +41,9 @@ public class MessagingEndpoint implements MessagingListener {
 	
 	static {
 		// read config
-		String protocol = MicroarrayConfiguration.getValue("messaging", "broker_protocol");
-		String host = MicroarrayConfiguration.getValue("messaging", "broker_host");
-		String port = MicroarrayConfiguration.getValue("messaging", "broker_port");
+		String protocol = Configuration.getValue("messaging", "broker_protocol");
+		String host = Configuration.getValue("messaging", "broker_host");
+		String port = Configuration.getValue("messaging", "broker_port");
 		
 		// check
 		if (protocol == null || host == null || port == null) {
@@ -74,7 +74,7 @@ public class MessagingEndpoint implements MessagingListener {
 	/**
 	 * Current configuration.
 	 */
-	private static final boolean USE_RELIABLE = "true".equals(MicroarrayConfiguration.getValue("messaging", "use_reliable"));
+	private static final boolean USE_RELIABLE = "true".equals(Configuration.getValue("messaging", "use_reliable"));
 
 	private static final String DEFAULT_REPLY_CHANNEL = Topics.MultiplexName.REPLY_TO.toString();
 	
@@ -107,10 +107,10 @@ public class MessagingEndpoint implements MessagingListener {
 
 		try {
 			KeyAndTrustManager.initialise(
-					MicroarrayConfiguration.getValue("security", "keystore"),
-					MicroarrayConfiguration.getValue("security", "keypass").toCharArray(), 
-					MicroarrayConfiguration.getValue("security", "keyalias"), 
-					MicroarrayConfiguration.getValue("security", "master_keystore"));
+					Configuration.getValue("security", "keystore"),
+					Configuration.getValue("security", "keypass").toCharArray(), 
+					Configuration.getValue("security", "keyalias"), 
+					Configuration.getValue("security", "master_keystore"));
 		} catch (Exception e) {
 			throw new MicroarrayException("could not setup SSL connection", e);
 		}  
@@ -118,12 +118,12 @@ public class MessagingEndpoint implements MessagingListener {
 		String username;
 		String password;
 		try {
-			username = MicroarrayConfiguration.getValue("security", "username");
+			username = Configuration.getValue("security", "username");
 			if (username == null || username.trim().length() == 0) {
 				throw new IllegalArgumentException("Username was not available from configuration");
 			}
 
-			password = MicroarrayConfiguration.getValue("security", "password");
+			password = Configuration.getValue("security", "password");
 			if (password == null || password.trim().length() == 0) {
 				throw new IllegalArgumentException("Password was not available from configuration");
 			}

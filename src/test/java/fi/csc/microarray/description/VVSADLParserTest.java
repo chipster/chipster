@@ -7,7 +7,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import fi.csc.microarray.MicroarrayException;
-import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 import fi.csc.microarray.description.ParsedVVSADL.Input;
 import fi.csc.microarray.description.ParsedVVSADL.Parameter;
@@ -19,7 +19,7 @@ public class VVSADLParserTest {
 
 	@BeforeTest
 	public void init() throws IOException, OldConfigurationFormatException {
-		MicroarrayConfiguration.loadConfiguration();		
+		DirectoryLayout.initialiseClientLayout().getConfiguration();		
 	}
 	
 	@Test(groups = {"unit"} )
@@ -57,7 +57,7 @@ public class VVSADLParserTest {
 	}
 	
 	public static void main(String[] args) throws MicroarrayException, IOException, OldConfigurationFormatException {
-		MicroarrayConfiguration.loadConfiguration();
+		DirectoryLayout.initialiseClientLayout().getConfiguration();
 		new VVSADLParserTest().testRoundtrip();
 	}
 }

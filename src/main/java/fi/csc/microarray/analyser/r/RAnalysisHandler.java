@@ -14,7 +14,7 @@ import fi.csc.microarray.analyser.AnalysisException;
 import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
 import fi.csc.microarray.analyser.ResultCallback;
-import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.description.VVSADLParser.ParseException;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;
@@ -28,8 +28,8 @@ public class RAnalysisHandler implements AnalysisHandler {
 	static final Logger logger = Logger
 			.getLogger(RAnalysisHandler.class);
 
-	private static String R_COMMAND = MicroarrayConfiguration.getValue("analyser", "RCommand") + " --vanilla --quiet";
-	private static final String customScriptsDirName = MicroarrayConfiguration.getValue("analyser", "customScriptsDir");
+	private static String R_COMMAND = Configuration.getValue("analyser", "RCommand") + " --vanilla --quiet";
+	private static final String customScriptsDirName = Configuration.getValue("analyser", "customScriptsDir");
 	
 	public AnalysisJob createAnalysisJob(JobMessage message, AnalysisDescription description, ResultCallback resultHandler) {
 		RAnalysisJob analysisJob = new RAnalysisJob();

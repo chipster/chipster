@@ -20,7 +20,7 @@ public abstract class NodeBase implements Node {
 	/**
 	 * Logger for this class
 	 */
-	private static final Logger logger = Logger.getLogger(NodeBase.class);
+	private static Logger logger = null;
 
 	/**
 	 * Uses InetAddress to get the hostname.
@@ -34,6 +34,10 @@ public abstract class NodeBase implements Node {
 	}
 	
 	public void onException(JMSException e) {
+		// lazy init to prevent trouble with unitialised working dirs
+		if (logger == null) {
+			logger = Logger.getLogger(NodeBase.class);
+		}
 		logger.error(e, e);
 	}
 

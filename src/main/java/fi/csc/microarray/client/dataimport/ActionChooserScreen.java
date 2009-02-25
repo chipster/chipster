@@ -10,7 +10,6 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +31,6 @@ import org.jdesktop.swingx.JXTable;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.dataimport.ImportItem.Action;
-import fi.csc.microarray.client.dataimport.ImportSession.Source;
 import fi.csc.microarray.client.dialog.ChipsterDialog;
 import fi.csc.microarray.client.dialog.DialogInfo;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
@@ -40,8 +38,6 @@ import fi.csc.microarray.client.dialog.ChipsterDialog.DialogCloseListener;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.dialog.DialogInfo.Type;
 import fi.csc.microarray.client.screen.ScreenBase;
-import fi.csc.microarray.config.MicroarrayConfiguration;
-import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 
 public class ActionChooserScreen extends ScreenBase implements ActionListener, DialogCloseListener {
 
@@ -336,12 +332,5 @@ public class ActionChooserScreen extends ScreenBase implements ActionListener, D
 
 		// Close the frame
 		frame.dispose();
-	}
-
-	public static void main(String[] args) throws IOException, OldConfigurationFormatException {
-		MicroarrayConfiguration.loadConfiguration();
-		ActionChooserScreen screen = new ActionChooserScreen(new ImportSession(Source.FILES, new ArrayList<File>(), "my experiment", false));
-
-		screen.getFrame().setVisible(true);
 	}
 }

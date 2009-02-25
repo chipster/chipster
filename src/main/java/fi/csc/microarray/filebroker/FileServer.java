@@ -8,8 +8,7 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.ApplicationConstants;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.MicroarrayConfiguration;
-import fi.csc.microarray.config.DirectoryLayout.Type;
+import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.manager.ManagerClient;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
@@ -27,9 +26,9 @@ public class FileServer extends NodeBase implements MessagingListener {
 	/**
 	 * Logger for this class
 	 */
-	private static final Logger logger = Logger.getLogger(FileServer.class);
+	private static Logger logger;
 
-	private MessagingEndpoint endpoint;
+	private MessagingEndpoint endpoint;	
 	private ManagerClient managerClient;
 	private AuthorisedUrlRepository urlRepository;
 
@@ -37,9 +36,13 @@ public class FileServer extends NodeBase implements MessagingListener {
     public FileServer() {
 
     	try {
+    		// initialise dir and logging
+    		DirectoryLayout.initialiseServerLayout();
+    		logger = Logger.getLogger(FileServer.class);
+
     		// initialise url repository
-    		File fileRepository = new DirectoryLayout(Type.SERVER).getFileroot();
-    		String host = MicroarrayConfiguration.getValue("filebroker", "url");
+    		File fileRepository = DirectoryLayout.getInstance().getFileroot();
+    		String host = Configuration.getValue("filebroker", "url");
     		int port = FileBrokerConfig.getPort();
     		this.urlRepository = new AuthorisedUrlRepository(host, port);
 
@@ -48,8 +51,8 @@ public class FileServer extends NodeBase implements MessagingListener {
     		fileServer.start(fileRepository.getPath(), port);
 
     		// start scheduler
-    		int cutoff = 1000 * Integer.parseInt(MicroarrayConfiguration.getValue("frontend", "fileLifeTime"));
-    		int cleanUpFrequency = 1000 * Integer.parseInt(MicroarrayConfiguration.getValue("frontend", "cleanUpFrequency"));
+    		int cutoff = 1000 * Integer.parseInt(Configuration.getValue("frontend", "fileLifeTime"));
+    		int cleanUpFrequency = 1000 * Integer.parseInt(Configuration.getValue("frontend", "cleanUpFrequency"));
     		int checkFrequency = 1000 * 5;
     		Timer t = new Timer("frontend-scheduled-tasks", true);
     		t.schedule(new FileCleanUpTimerTask(fileRepository, cutoff), 0, cleanUpFrequency);

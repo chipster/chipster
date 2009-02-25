@@ -21,7 +21,6 @@ import javax.swing.filechooser.FileSystemView;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
@@ -31,8 +30,6 @@ import fi.csc.microarray.client.dialog.DialogInfo;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.dialog.DialogInfo.Type;
-import fi.csc.microarray.config.MicroarrayConfiguration;
-import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.util.IOUtils;
@@ -329,16 +326,5 @@ public class ImportUtils {
 			actionChooser.getFrame().setVisible(true);
 
 		}
-	}
-	
-	public static void main(String[] args) throws IOException, OldConfigurationFormatException, MicroarrayException {
-		MicroarrayConfiguration.loadConfiguration();
-		
-		DialogInfo info = new DialogInfo(Severity.INFO, "ZIP files detected", 
-				"There seems to be ZIP files on your desktop. "
-				+ "This can slow down selecting files in some Windows versions. " 
-				+ "If you experience this problem, please move the ZIP files to a subfolder.", null, Type.OK_MESSAGE); 
-		ChipsterDialog.showDialog(null, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true, null);
-
-	}
+	}	
 }

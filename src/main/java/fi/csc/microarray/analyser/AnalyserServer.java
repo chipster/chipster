@@ -23,7 +23,9 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.ApplicationConstants;
 import fi.csc.microarray.MicroarrayException;
-import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.MessagingEndpoint;
@@ -45,98 +47,30 @@ import fi.csc.microarray.util.MemUtil;
  * Executes analysis jobs and handles input&output. Uses multithreading 
  * and thread pool.
  * 
- * @author hupponen, akallio
+ * @author Taavi Hupponen, Aleksi Kallio
  */
 public class AnalyserServer extends MonitoredNodeBase implements MessagingListener, ResultCallback {
-	
-	private static int RECEIVE_TIMEOUT = Integer.parseInt(MicroarrayConfiguration.getValue("analyser", "receive_timeout"));
-	private static int SCHEDULE_TIMEOUT = Integer.parseInt(MicroarrayConfiguration.getValue("analyser", "schedule_timeout"));
-	private static int TIMEOUT_CHECK_INTERVAL = Integer.parseInt(MicroarrayConfiguration.getValue("analyser", "timeout_check_interval"));
-	
 
-	/**
-	 * The order of the jobs in the receivedJobs and scheduledJobs is FIFO. Because of synchronizations 
-	 * this does not necessarily strictly correspond to the receiveTime and scheduleTime fields of the
-	 * jobs, but is close enough.
-	 * 
-	 * As the jobs are ordered, it is enough to check the jobs until the first new enough job is found
-	 * as the following jobs are newer (almost always, see above).
-	 * 
-	 * TODO send BUSY if timeout?
-	 * 
-	 * 
-	 * @author hupponen
-	 *
-	 */
-	private class TimeoutTimerTask extends TimerTask {
-		
-		@Override
-		public void run() {
-			synchronized(jobsLock) {
-				
-				ArrayList<AnalysisJob> jobsToBeRemoved = new ArrayList<AnalysisJob>();
-
-				// get old received jobs
-				for (AnalysisJob job: receivedJobs.values()) {
-					if ((System.currentTimeMillis() - RECEIVE_TIMEOUT * 1000) > job.getReceiveTime().getTime()) {
-						jobsToBeRemoved.add(job);
-					} else {
-						break;
-					}
-				}
-				
-				// remove old received jobs
-				for (AnalysisJob job: jobsToBeRemoved) {
-					receivedJobs.remove(job.getId());
-					logger.debug("Removing old received job: " + job.getId());
-					logger.debug("Jobs received: " + receivedJobs.size() + ", scheduled: " + scheduledJobs.size() + ", running: " + runningJobs.size());
-				}
-				
-				// get old scheduled jobs
-				jobsToBeRemoved.clear();
-				for (AnalysisJob job: scheduledJobs.values()) {
-					if ((System.currentTimeMillis() - SCHEDULE_TIMEOUT * 1000) > job.getScheduleTime().getTime()) {
-						jobsToBeRemoved.add(job);
-					} else {
-						break;
-					}
-				}
-
-				// remove old scheduled jobs
-				for (AnalysisJob job: jobsToBeRemoved) {
-					scheduledJobs.remove(job.getId());
-					logger.debug("Removing old scheduled job: " + job.getId());
-					activeJobRemoved();
-					logger.debug("Jobs received: " + receivedJobs.size() + ", scheduled: " + scheduledJobs.size() + ", running: " + runningJobs.size());
-				}
-			}
-		}
-	}
-	
-	
-	
-	
 	public static final String DESCRIPTION_OUTPUT_NAME = "description";
 	public static final String SOURCECODE_OUTPUT_NAME = "sourcecode";
-
-	
 	
 	/**
 	 * Loggers.
 	 */
-	private static final Logger logger = Logger.getLogger(AnalyserServer.class);
-	private static final Logger loggerJobs = Logger.getLogger("jobs");
-	private static final Logger loggerStatus = Logger.getLogger("status");
-	
-	
+	private static Logger logger;
+	private static Logger loggerJobs;
+	private static Logger loggerStatus;
 	
 	/**
 	 * Directory for storing input and output files.
 	 */
-	private static final String workDirBase = MicroarrayConfiguration.getValue("analyser", "work_dir");
-	private static final boolean sweepWorkDir= "true".equals(MicroarrayConfiguration.getValue("analyser", "sweep_work_dir").trim());
-	
-	private static final String customScriptsDirName = MicroarrayConfiguration.getValue("analyser", "customScriptsDir");
+	private int receiveTimeout;
+	private int scheduleTimeout;
+	private int timeoutCheckInterval;
+	private String workDirBase;
+	private boolean sweepWorkDir;
+	private String customScriptsDirName;
+	private int maxJobs;
 	
 	/**
 	 * Id of the analyser server instance.
@@ -149,7 +83,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	/**
 	 * Available analysis'.
 	 */
-	private AnalysisDescriptionRepository descriptionRepository = new AnalysisDescriptionRepository();
+	private AnalysisDescriptionRepository descriptionRepository;
 	private HashSet<String> supportedOperations = new HashSet<String>();
 	
 	
@@ -171,9 +105,6 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 */
 	private ProcessPool processPool;
 
-	//
-	private int maxJobs = Integer.parseInt(MicroarrayConfiguration.getValue("analyser", "max_jobs"));
-	
 	// synchronize with this object when accessing the job maps below
 	private Object jobsLock = new Object(); 
 	private LinkedHashMap<String, AnalysisJob> receivedJobs = new LinkedHashMap<String, AnalysisJob>();
@@ -187,11 +118,27 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 * @throws JMSException
 	 * @throws IOException if creation of working directory fails.
 	 * @throws MicroarrayException
+	 * @throws OldConfigurationFormatException 
 	 */
-	public AnalyserServer() throws JMSException, IOException, MicroarrayException {
-		logger.info("Starting analyser server...");
+	public AnalyserServer() throws JMSException, IOException, MicroarrayException, OldConfigurationFormatException {
+		
+		// initialise dir, config and logging
+		DirectoryLayout.initialiseServerLayout();
+		this.descriptionRepository = new AnalysisDescriptionRepository();
+		this.receiveTimeout = Integer.parseInt(Configuration.getValue("analyser", "receive_timeout"));
+		this.scheduleTimeout = Integer.parseInt(Configuration.getValue("analyser", "schedule_timeout"));
+		this.timeoutCheckInterval = Integer.parseInt(Configuration.getValue("analyser", "timeout_check_interval"));
+		this.workDirBase = Configuration.getValue("analyser", "work_dir");
+		this.sweepWorkDir= "true".equals(Configuration.getValue("analyser", "sweep_work_dir").trim());
+		this.customScriptsDirName = Configuration.getValue("analyser", "customScriptsDir");
+		this.maxJobs  = Integer.parseInt(Configuration.getValue("analyser", "max_jobs"));		
+		logger = Logger.getLogger(AnalyserServer.class);
+		loggerJobs = Logger.getLogger("jobs");
+		loggerStatus = Logger.getLogger("status");
+
 		
 		// initialize working directory
+		logger.info("starting compute service...");
 		if (!initWorkDir()) {
 			String message  = "could not initialize working directory: " + workDirBase + File.pathSeparator + this.id;
 			logger.fatal(message);
@@ -212,7 +159,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		executorService = Executors.newCachedThreadPool();
 		
 		// initialize analysis handlers
-		for (String analysisHandler : MicroarrayConfiguration.getValues("analyser", "analysis_handlers")) {
+		for (String analysisHandler : Configuration.getValues("analyser", "analysis_handlers")) {
 			try {
 				AnalysisHandler handler = (AnalysisHandler)Class.forName(analysisHandler).newInstance();
 				descriptionRepository.addAnalysisHandler(handler);
@@ -228,7 +175,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		// load descriptions of all operations, also those not supported by this instance of AS
 		// this way any AS can send the descriptions when client asks for them
 		ArrayList<String> allOperations = new ArrayList<String>();
-		String[] configOperations = MicroarrayConfiguration.getValues("analyser", "operations");
+		String[] configOperations = Configuration.getValues("analyser", "operations");
 		allOperations.addAll(Arrays.asList(configOperations));
 		
 		// load additional scripts from custom-scripts
@@ -245,7 +192,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			logger.error("No operations found on the configuration file.");
 		}
 
-		String[] allHiddenOperations = MicroarrayConfiguration.getValues("analyser", "hidden-operations");
+		String[] allHiddenOperations = Configuration.getValues("analyser", "hidden-operations");
 		if (allHiddenOperations != null) {
 			for (String operation : allHiddenOperations) {
 				descriptionRepository.loadOperation(operation, true);
@@ -265,7 +212,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		
 		
 		// get included operations
-		includedOperations = MicroarrayConfiguration.getValues("analyser", "includeOperations");
+		includedOperations = Configuration.getValues("analyser", "includeOperations");
 		if (includedOperations == null) {
 			logger.debug("No includeOperations section, including all operations.");
 			includedOperations = allOperations.toArray(new String[allOperations.size()]);
@@ -273,7 +220,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	
 
 		// get excluded operations
-		excludedOperationsList = MicroarrayConfiguration.getValues("analyser", "excludeOperations");
+		excludedOperationsList = Configuration.getValues("analyser", "excludeOperations");
 		if (excludedOperationsList != null) {
 			for (String value : excludedOperationsList) {
 				excludedOperations.add(value);
@@ -285,7 +232,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		}
 		
 		// get hidden operations
-		hiddenOperationsList = MicroarrayConfiguration.getValues("analyser", "hidden-operations");
+		hiddenOperationsList = Configuration.getValues("analyser", "hidden-operations");
 		if (hiddenOperationsList != null) {
 			for (String value : hiddenOperationsList) {
 				hiddenOperations.add(value);
@@ -318,7 +265,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		
 		// initialize timeout checker
 		timeoutTimer = new Timer(true);
-		timeoutTimer.schedule(new TimeoutTimerTask(), TIMEOUT_CHECK_INTERVAL, TIMEOUT_CHECK_INTERVAL);
+		timeoutTimer.schedule(new TimeoutTimerTask(), timeoutCheckInterval, timeoutCheckInterval);
 		
 		
 		// initialize communications
@@ -760,4 +707,63 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		return true;
 		*/
 	}
+	
+	/**
+	 * The order of the jobs in the receivedJobs and scheduledJobs is FIFO. Because of synchronizations 
+	 * this does not necessarily strictly correspond to the receiveTime and scheduleTime fields of the
+	 * jobs, but is close enough.
+	 * 
+	 * As the jobs are ordered, it is enough to check the jobs until the first new enough job is found
+	 * as the following jobs are newer (almost always, see above).
+	 * 
+	 * TODO send BUSY if timeout?
+	 * 
+	 */
+	private class TimeoutTimerTask extends TimerTask {
+		
+		@Override
+		public void run() {
+			synchronized(jobsLock) {
+				
+				ArrayList<AnalysisJob> jobsToBeRemoved = new ArrayList<AnalysisJob>();
+
+				// get old received jobs
+				for (AnalysisJob job: receivedJobs.values()) {
+					if ((System.currentTimeMillis() - receiveTimeout * 1000) > job.getReceiveTime().getTime()) {
+						jobsToBeRemoved.add(job);
+					} else {
+						break;
+					}
+				}
+				
+				// remove old received jobs
+				for (AnalysisJob job: jobsToBeRemoved) {
+					receivedJobs.remove(job.getId());
+					logger.debug("Removing old received job: " + job.getId());
+					logger.debug("Jobs received: " + receivedJobs.size() + ", scheduled: " + scheduledJobs.size() + ", running: " + runningJobs.size());
+				}
+				
+				// get old scheduled jobs	
+
+				jobsToBeRemoved.clear();
+				for (AnalysisJob job: scheduledJobs.values()) {
+					if ((System.currentTimeMillis() - scheduleTimeout * 1000) > job.getScheduleTime().getTime()) {
+						jobsToBeRemoved.add(job);
+					} else {
+						break;
+					}
+				}
+
+				// remove old scheduled jobs
+				for (AnalysisJob job: jobsToBeRemoved) {
+					scheduledJobs.remove(job.getId());
+					logger.debug("Removing old scheduled job: " + job.getId());
+					activeJobRemoved();
+					logger.debug("Jobs received: " + receivedJobs.size() + ", scheduled: " + scheduledJobs.size() + ", running: " + runningJobs.size());
+				}
+			}
+		}
+	}
+	
+
 }

@@ -7,19 +7,11 @@ import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.thread.QueuedThreadPool;
 
-import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.util.rest.RestServlet;
 
 public class JettyFileServer {
 
-	static {
-		try {
-			MicroarrayConfiguration.loadConfiguration();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
 	private Server jettyInstance;
 	private AuthorisedUrlRepository urlRepository;
 	
@@ -29,7 +21,7 @@ public class JettyFileServer {
 	
 	public void start(String resourceBase, int port) throws Exception {
 		
-		if ("true".equals(MicroarrayConfiguration.getValue("filebroker", "jettyDebug"))) {
+		if ("true".equals(Configuration.getValue("filebroker", "jettyDebug"))) {
 			System.setProperty("DEBUG", "true");
 		}
 		

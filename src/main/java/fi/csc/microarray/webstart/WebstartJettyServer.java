@@ -10,7 +10,7 @@ import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.thread.QueuedThreadPool;
 
 import fi.csc.microarray.ApplicationConstants;
-import fi.csc.microarray.config.MicroarrayConfiguration;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.util.MemUtil;
 
 public class WebstartJettyServer {
@@ -23,7 +23,7 @@ public class WebstartJettyServer {
 
 	static {
 		try {
-			MicroarrayConfiguration.loadConfiguration();
+			DirectoryLayout.initialiseServerLayout().getConfiguration();			
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

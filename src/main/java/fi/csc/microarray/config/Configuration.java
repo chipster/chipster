@@ -1,104 +1,120 @@
 package fi.csc.microarray.config;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.mortbay.util.IO;
+import org.xml.sax.SAXException;
+
+import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 
 public class Configuration {
+
+	private static final File CONFIG_FILE = new File("nami-config.xml");	
+	private static final String STATIC_CONFIG_RESOURCENAME = "/nami-static-config.xml";
+	public static final String[] WORKDIR_PROPERTY = {null, "nami_work_dir"};	
+	private static String DEFAULT_CONFIG_FILE = "/nami-config.xml.default";	
+	private static boolean alreadyLoaded = false;	
+	private static ConfigurationModule configuration = new ConfigurationModule(true);	
 	
-	private static final String PROPERTY_REFERENCE_POSTFIX = "}";
-	private static final String PROPERTY_REFERENCE_PREFIX = "${";
+	public Configuration(String overrideString, String workDir) throws IOException, OldConfigurationFormatException {
+		
+		// guard against reloading
+		synchronized (Configuration.class) {
+			if (!alreadyLoaded) {
 
-	public Map<String, String[]> values = new HashMap<String, String[]>();
-	public Map<String, Configuration> subModules = new HashMap<String, Configuration>();
+				// if config file not available, copy defaults to it
+				File configFile = new File(workDir + File.separator + CONFIG_FILE.getName());
 
-	private boolean rewriteSystemPropertyReferences;
-	
-	public Configuration() {
-		this(false);
-	}
-	
-	public Configuration(boolean rewriteSystemPropertyReferences) {
-		this.rewriteSystemPropertyReferences = rewriteSystemPropertyReferences;
-	}
+				if (!configFile.exists()) {
+					InputStream defaults = ConfigurationModule.class.getResourceAsStream(DEFAULT_CONFIG_FILE);
+					OutputStream out = new FileOutputStream(configFile);
+					
+					try {
+						IO.copy(defaults, out);
+						
+					} finally {
+						if (defaults != null) {
+							defaults.close();
+						}
+						if (out != null) {
+							out.close();
+						}
+					}			
+				}
 
-	public String[] getValues(String name) {
-		return values.get(name);
-	}
+				// load configuration
+				try {
+					ConfigurationLoader.addFromStream(
+							configuration, Configuration.class.getResourceAsStream(STATIC_CONFIG_RESOURCENAME), 0);
+					ConfigurationLoader.addFromFile(configuration, configFile, 0);
+					
+				} catch (SAXException e) {
+					throw new IOException(e.getMessage());
+					
+				} catch (ParserConfigurationException e) {
+					throw new IOException(e.getMessage());
+					
+				} 
 
-	public String getValue(String name) {
-		if (values.get(name) == null) {
-			return null;
-			
-		} else if (values.get(name).length > 1) {
-			throw new IllegalArgumentException("multiple values found for " + name);
-			
-		} else {
-			return values.get(name)[0];
-		}		
-	}
-	
-	public Configuration getModule(String name) {
-		return subModules.get(name);
-	}
-	
-	public void putValueInSubmodule(String moduleName, String name, String value) {
-		Configuration module = getSubmoduleIfExists(moduleName);
-		module.putValue(name, value);
-	}
-
-	public void putValue(String name, String value) {
-		putValues(name, new String[] { value });
-	}
-
-	public void putValuesInSubmodule(String moduleName, String name, String[] values) {
-		Configuration module = getSubmoduleIfExists(moduleName);
-		module.putValues(name, values);
-	}
-
-	public void putValues(String name, String[] value) {
-		if (rewriteSystemPropertyReferences) {
-			for (int i = 0; i < value.length; i++) {
-				if (value[i].startsWith(PROPERTY_REFERENCE_PREFIX)) {
-					String[] split = value[i].split(PROPERTY_REFERENCE_POSTFIX);
-					String systemProperty = System.getProperty(split[0].substring(2));
-					value[i] = systemProperty + split[1];
+				// do overrides
+				configuration.putValueInSubmodule(WORKDIR_PROPERTY[0], WORKDIR_PROPERTY[1], workDir);
+				if (overrideString != null) {
+					String[] overrides = overrideString.split(",");
+					for (String override : overrides) {
+						// split to name and value parts
+						String[] parts = override.split("=");
+						
+						// parse entry name
+						String[] nameParts = parts[0].split("/");
+						String moduleName = nameParts.length > 1 ? nameParts[0] : null;
+						String entryName = nameParts.length > 1 ? nameParts[1] : nameParts[0];
+						
+						// parse entry value(s)
+						String values[] = parts[1].split(";");
+						if (values.length > 1) {
+							configuration.putValuesInSubmodule(moduleName, entryName, values);
+						} else {
+							configuration.putValueInSubmodule(moduleName, entryName, values[0]);
+						}
+					}
+					
 				}
 			}
+
+			alreadyLoaded = true;
 		}
-		values.put(name, value);
 	}
 
-	private Configuration getSubmoduleIfExists(String moduleName) {
-		Configuration module = this;
-		if (getModule(moduleName) != null) {
-			module = getModule(moduleName);
-		}
-		return module;
+	public static String[] getValues(String name) {
+		return getValues(null, name);
 	}
 	
-
-	public void createSubModule(String name) {
-		subModules.put(name, new Configuration(this.rewriteSystemPropertyReferences));
+	public static String[] getValues(String moduleName, String name) {
+		assert(alreadyLoaded);
+		ConfigurationModule module = getModule(moduleName);		
+		return module.getValues(name);
 	}
 
-	public void addValue(String name, String value) {
-		String[] oldValues = values.get(name);
-		
-		if (oldValues == null) {
-			putValue(name, value);
-			
-		} else {
-			String[] newValues = new String[oldValues.length +1];
-			for (int i = 0; i < oldValues.length; i++) {
-				newValues[i] = oldValues[i];
-			}
-			newValues[newValues.length-1] = value;
-			putValues(name, newValues);
-		}
+	public static String getValue(String name) {
+		return getValue(null, name);
+	}
+	public static String getValue(String moduleName, String name) {
+		assert(alreadyLoaded);
+		ConfigurationModule module = getModule(moduleName); 
+		return module.getValue(name);
 	}
 
-	public boolean hasSubModule(String name) {
-		return subModules.containsKey(name);
+	private static ConfigurationModule getModule(String moduleName) {
+		return moduleName != null ? configuration.getModule(moduleName) : configuration;
 	}
-
+	
+	public static File getWorkDir() {
+		return new File(getValue(WORKDIR_PROPERTY[0], WORKDIR_PROPERTY[1]));
+	}
 }
