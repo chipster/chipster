@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,6 @@ import javax.swing.JScrollPane;
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.visualisation.methods.Scatterplot;
 import fi.csc.microarray.client.visualisation.methods.threed.DataPoint;
 import fi.csc.microarray.databeans.DataBean;
 
@@ -121,13 +121,17 @@ public class AnnotateListPanel extends JPanel {
 	}
 
 	/**
+	 * TODO This method is only for 3d-scatter, as selection system is moving towards
+	 * handling only row numbers. 3d-scatter should use this convention also and this 
+	 * method could be removed after that. 
+	 * 
 	 * @param content
 	 * @param source
 	 * @param dispatchEvent
 	 * @param data
 	 *            is needed only if event is dispatched
 	 */
-	public void setSelectedListContent(Collection<DataPoint> content, Object source, boolean dispatchEvent, DataBean data) {
+	public void setSelectedListContentAsDataPoints(Collection<DataPoint> content, Object source, boolean dispatchEvent, DataBean data) {
 
 		setData(data);
 		
@@ -168,37 +172,50 @@ public class AnnotateListPanel extends JPanel {
 	}
 
 	/**
-	 * @param content
+	 * @param rows
 	 * @param source
 	 * @param dispatchEvent
 	 * @param data
 	 *            is needed only if event is dispatched
-	 * @throws MicroarrayException
 	 */
-	public void setSelectedListContentAsDataItems(Collection<Scatterplot.DataItem2D> content, Object source, boolean dispatchEvent, DataBean data) {
+	public void setSelectedRows(Set<Integer> rows, Object source, boolean dispatchEvent, DataBean data) {
 
 		setData(data);
 		TableAnnotationProvider annotationProvider;
 		try {
 			annotationProvider = new TableAnnotationProvider(data);
-			
+
 		} catch (MicroarrayException me) {
 			throw new RuntimeException(me);
 		}
 
 		selectedListModel.removeAllElements();
-		countLabel.setText(content.size() + " Genes selected");
-		annotateButton.setEnabled(content.size() > 0);
-		filterButton.setEnabled(content.size() > 0);
+		countLabel.setText(rows.size() + " Genes selected");
+		annotateButton.setEnabled(rows.size() > 0);
+		filterButton.setEnabled(rows.size() > 0);
 
-		int[] indexes = new int[content.size()];
-		int i = 0;
-		for (Scatterplot.DataItem2D row : content) {
-			selectedListModel.addElement(annotationProvider.getAnnotatedRowname(row.getName()));
-			indexes[i++] = row.getRowIndex();
+		
+		//TODO getAnnotatedRowname should allow row index arguments, as it is used generally
+		//to locate rows in chipster. After that finding these identifiers isn't necessary anymore
+		Iterator<String> ids = null;
+		try {
+			ids = data.queryFeatures("/identifier").asStrings().iterator();
+		} catch (MicroarrayException e) {
+			//Finding identifiers shouldn't be necessary at all, see TODO couple rows upwards
+			application.reportException(e);
 		}
+
+		for(int i = 0; ids.hasNext(); i++){
+			String id = ids.next();
+			
+			if(rows.contains(i)){
+				selectedListModel.addElement(annotationProvider.getAnnotatedRowname(id));
+			}
+		}
+		
 		if (dispatchEvent) {
-			application.getSelectionManager().getRowSelectionManager(data).setSelected(indexes, source);
+			application.getSelectionManager().getRowSelectionManager(data).setSelected(
+					rows, source);
 		}
 	}
 

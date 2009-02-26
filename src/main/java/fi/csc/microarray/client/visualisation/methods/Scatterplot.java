@@ -2,24 +2,18 @@ package fi.csc.microarray.client.visualisation.methods;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.Ellipse2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -30,17 +24,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.ui.OverlayLayout;
 
-import fi.csc.microarray.client.VisualConstants;
+import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.selection.RowChoiceEvent;
 import fi.csc.microarray.client.selection.RowSelectionManager;
 import fi.csc.microarray.client.visualisation.AnnotateListPanel;
@@ -49,23 +40,29 @@ import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
+import fi.csc.microarray.client.visualisation.methods.SelectableChartPanel.SelectionChangeListener;
 import fi.csc.microarray.databeans.DataBean;
 
-public class Scatterplot extends ChipVisualisation implements ActionListener, MouseListener, MouseMotionListener, PropertyChangeListener {
+public class Scatterplot extends ChipVisualisation 
+implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 
 	public Scatterplot(VisualisationFrame frame) {
 		super(frame);
 	}
 
-	protected ChartPanel chartPanel;
+	protected SelectableChartPanel selectableChartPanel;
 
 	protected JPanel paramPanel;
 	protected JPanel settingsPanel;
-	protected JPanel overlayPanel;
 	protected AnnotateListPanel list;
 
 	protected JComboBox xBox;
 	protected JComboBox yBox;
+	
+	protected Variable xVar;
+	protected Variable yVar;
+	
+	protected XYPlot plot;
 
 	protected DataBean data;
 
@@ -153,86 +150,13 @@ public class Scatterplot extends ChipVisualisation implements ActionListener, Mo
 			application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, VisualisationMethod.SCATTERPLOT, vars, getFrame().getDatas(), getFrame().getType(), getFrame()));
 		}
 	}
-
-	public class DataItem2D {
-		private Rectangle2D bounds;
-		private String name;
-		private Integer series;
-		private int seriesIndex;
-		private int rowIndex;
-
-		public DataItem2D(Rectangle2D bounds, String name, int rowIndex, int seriesIndex, int series) {
-			this.bounds = bounds;
-			this.name = name;
-			this.rowIndex = rowIndex;
-			this.seriesIndex = seriesIndex; 
-			this.series = series;
-		}
-
-		public Rectangle2D getBounds() {
-			return bounds;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public int getRowIndex() {
-			return rowIndex;
-		}
-
-		public int getSeries() {
-			return series;
-		}
-
-
-		public void setBounds(Rectangle rect) {
-			bounds = rect;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (other instanceof DataItem2D) {
-				DataItem2D otherData = (DataItem2D)other;
-				return otherData.getRowIndex() == this.getRowIndex();
-				
-			} else {			
-				return false;
-			}
-		}
-
-		// The hashSet uses also hashCode to check equality of the objects and
-		// thus overriding just the equals method isn't enought the get rid of
-		// duplicates
-		@Override
-		public int hashCode() {
-			return new Integer(rowIndex).hashCode();
-		}
-
-		public int getSeriesIndex() {
-			return seriesIndex;
-		}
-	}
-
-	protected List<DataItem2D> allItems = new LinkedList<DataItem2D>();
-	protected Set<DataItem2D> selectedItems = new HashSet<DataItem2D>();
-
-	protected TransparentPanel transparentPanel;
+	
+	protected Set<Integer> selectedIds = new HashSet<Integer>();
 
 	@Override
 	public JComponent getVisualisation(DataBean data) throws Exception {
 
 		this.data = data;
-
-		// Hide the panel if it exists already ( setting change) to avoid
-		// repaints when the
-		// allItems aren't collected yet
-
-		if (chartPanel != null) {
-			chartPanel.setVisible(false);
-		}
-
-		allItems.clear();
 
 		refreshAxisBoxes(data);
 
@@ -251,199 +175,137 @@ public class Scatterplot extends ChipVisualisation implements ActionListener, Mo
 			yBox.setSelectedItem(vars.get(1));
 		}
 
-		Variable xVar = (Variable) xBox.getSelectedItem();
-		Variable yVar = (Variable) yBox.getSelectedItem();
-
-		Iterable<Float> xValues = data.queryFeatures(xVar.getExpression()).asFloats();
-		Iterable<Float> yValues = data.queryFeatures(yVar.getExpression()).asFloats();
-
-		int i = 0;
-		for (String name : data.queryFeatures("/identifier").asStrings()) {
-			allItems.add(new DataItem2D(null, name, i, i, 0));
-			i++;
-		}
+		xVar = (Variable) xBox.getSelectedItem();
+		yVar = (Variable) yBox.getSelectedItem();
 
 		PlotDescription description = new PlotDescription(data.getName(), xVar.getName(), yVar.getName());
 
-		XYSeries series = toXYSeries(xValues, yValues);
-		XYSeriesCollection dataset = new XYSeriesCollection();
-		dataset.addSeries(series);
 		NumberAxis domainAxis = new NumberAxis(description.xTitle);
 		domainAxis.setAutoRangeIncludesZero(false);
 		NumberAxis rangeAxis = new NumberAxis(description.yTitle);
 		rangeAxis.setAutoRangeIncludesZero(false);
-		XYPlot plot = new XYPlot(dataset, domainAxis, rangeAxis, null);
+		
+		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();		
+		renderer.setLinesVisible(false);
+		renderer.setShapesVisible(true);
+		renderer.setShape(new Ellipse2D.Float(-2, -2, 4, 4));
+		renderer.setSeriesPaint(1, Color.black);
+		
+		plot = new XYPlot(new XYSeriesCollection(), domainAxis, rangeAxis, renderer);
+		
+		this.updateSelectionsFromApplication(false);		//Calls also updateXYSerieses();
+		
 		JFreeChart chart = new JFreeChart(description.plotTitle, plot);
-		chartPanel = makePanel(chart);
-		chartPanel.addMouseListener(this);
-		chartPanel.addMouseMotionListener(this);
-		chartPanel.setMouseZoomable(false);
-
-		// rendered depends on chartPanel for coordinate translations (a bit awkward...), so it cannot be created earlier
-		XYItemRenderer renderer = new PositionRecordingRenderer(StandardXYItemRenderer.SHAPES, allItems, selectedItems, chartPanel);
-		plot.setRenderer(renderer); 
-
-		overlayPanel = new JPanel(new OverlayLayout());
-		transparentPanel = new TransparentPanel();
-		overlayPanel.add(transparentPanel);
-		overlayPanel.add(chartPanel);
-
-		this.updateSelectionsFromApplication(false);
 
 		application.addPropertyChangeListener(this);
 
-		chartPanel.setVisible(true);
-
-		return overlayPanel;
+		selectableChartPanel = new SelectableChartPanel(chart, this); 
+		return selectableChartPanel;
 	}
 
-	protected class TransparentPanel extends JPanel {
 
-		private Rectangle2D area;
+	protected void updateXYSerieses() throws MicroarrayException {
 
-		public TransparentPanel() {
-			this.setOpaque(false);
-		}
-
-		@Override
-		public void paintComponent(Graphics g) {
-			super.paintComponents(g);
-
-			if (area != null) {
-				Graphics2D g2d = (Graphics2D) g;
-				g2d.setColor(Color.DARK_GRAY);
-				g2d.setStroke(VisualConstants.dashLine);
-
-				g2d.draw(area);
-			}
-		}
-
-		protected void setArea(Rectangle area) {
-			this.area = area;
-		}
-	}
-
-	/**
-	 * If x is null, enumeration from 0 is used.
-	 * 
-	 * @param x
-	 * @param y
-	 * @return
-	 */
-	protected XYSeries toXYSeries(Iterable<Float> xValues, Iterable<Float> yValues) {
-
-		XYSeries series = new XYSeries("", false); // autosort=false, autosort would mess up selection
+		Iterable<Float> xValues = data.queryFeatures(xVar.getExpression()).asFloats();
+		Iterable<Float> yValues = data.queryFeatures(yVar.getExpression()).asFloats();
+		
+		XYSeries series = new XYSeries(""); 
+		XYSeries selectionSeries = new XYSeries("");
+		
 		Iterator<Float> xIterator = xValues != null ? xValues.iterator() : null;
 		int i = 0;
 
 		for (Float y : yValues) {
-			if (xIterator != null) {
-				series.add(xIterator.next(), y);
+			if(selectedIds.contains(i)){
+				if (xIterator != null) {
+					selectionSeries.add(xIterator.next(), y);
+				} else {
+					selectionSeries.add(i, y);
+				}
 			} else {
-				series.add(i, y);
+
+				if (xIterator != null) {
+					series.add(xIterator.next(), y);
+				} else {
+					series.add(i, y);
+				}
 			}
 			i++;
 		}
-		return series;
-	}
+		
+			
+		XYSeriesCollection dataset = new XYSeriesCollection();
+		dataset.addSeries(series);
+		dataset.addSeries(selectionSeries);
 
-	public void mouseClicked(MouseEvent e) {
-		if (!e.isControlDown()) {
-			selectedItems.clear();
-		}
-		Rectangle2D r = null;
-		for (DataItem2D item : allItems) {
-			r = item.getBounds();
-			if (r != null && item != null && r.contains(e.getPoint()) && !selectedItems.contains(item)) {
-				selectedItems.add(item);
-			}
-		}
+		plot.setDataset(dataset);
 
-		this.list.setSelectedListContentAsDataItems(selectedItems, this, true, data);
-	}
-
-	public void mouseEntered(MouseEvent e) {
-	}
-
-	public void mouseExited(MouseEvent e) {
-	}
-
-	private Point startCoords;
-	private boolean isDragged = false;
-
-	public void mousePressed(MouseEvent e) {
-		startCoords = e.getPoint();
-		isDragged = false;
-	}
-
-	public void mouseReleased(MouseEvent e) {
-
-		// Hide the selection rectangle
-		transparentPanel.setArea(null);
-		transparentPanel.repaint();
-
-		if (isDragged) {
-			if (!e.isControlDown()) {
-				selectedItems.clear();
-			}
-			Rectangle2D r = null;
-			int x = (int) startCoords.getX() < e.getX() ? (int) startCoords.getX() : e.getX();
-			int y = (int) startCoords.getY() < e.getY() ? (int) startCoords.getY() : e.getY();
-			int w = Math.abs(e.getX() - (int) startCoords.getX());
-			int h = Math.abs(e.getY() - (int) startCoords.getY());
-
-			Rectangle2D selectedArea = new Rectangle(x, y, w, h);
-
-			for (DataItem2D item : allItems) {
-				r = item.getBounds();		
-
-				if (r != null && selectedArea.intersects(r)) {
-					selectedItems.add(item);
-				}
-			}
-
-			this.list.setSelectedListContentAsDataItems(selectedItems, this, true, data);
-		}
-
-		// Draw the selection frames for the dataItems
-		chartPanel.getChart().fireChartChanged();
-	}
-
-	public void mouseDragged(MouseEvent e) {
-		isDragged = true;
-
-		int x = (int) startCoords.getX() < e.getX() ? (int) startCoords.getX() : e.getX();
-		int y = (int) startCoords.getY() < e.getY() ? (int) startCoords.getY() : e.getY();
-		int w = Math.abs(e.getX() - (int) startCoords.getX());
-		int h = Math.abs(e.getY() - (int) startCoords.getY());
-
-		transparentPanel.setArea(new Rectangle(x, y, w, h));
-
-		transparentPanel.repaint();
-	}
-
-	public void mouseMoved(MouseEvent e) {
 	}
 
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt instanceof RowChoiceEvent && evt.getSource() != this && ((RowChoiceEvent) evt).getData() == data) {
 
 			updateSelectionsFromApplication(false);
-			chartPanel.repaint();
 		}
 	}
 
 	protected void updateSelectionsFromApplication(boolean dispatchEvent) {
 		RowSelectionManager manager = application.getSelectionManager().getRowSelectionManager(data);
 
-		selectedItems.clear();
-		for (Integer index : manager.getSelectedRows()) {
-			DataItem2D point = allItems.get(index);
-			if (point != null) {
-				selectedItems.add(allItems.get(index));
-			}
+		selectedIds.clear();
+		for (int i : manager.getSelectedRows()){
+			selectedIds.add(i);
 		}
 
-		list.setSelectedListContentAsDataItems(selectedItems, this, dispatchEvent, data);
+		list.setSelectedRows(selectedIds, this, dispatchEvent, data);
+		
+		try {
+			updateXYSerieses();
+		} catch (MicroarrayException e) {
+			application.reportException(e);
+		}
+	}
+
+	public void selectionChanged(Rectangle.Double newSelection) {
+		
+		if(newSelection == null){
+			selectedIds.clear();
+		} else {
+		
+			Iterator<Float> xValues;
+			Iterator<Float> yValues;
+			
+			try {								
+				
+				xValues = data.queryFeatures(xVar.getExpression()).asFloats().iterator();
+				yValues = data.queryFeatures(yVar.getExpression()).asFloats().iterator();
+
+				for (int i = 0;	xValues.hasNext() && yValues.hasNext();	i++){			
+
+					if(newSelection.contains(new Point.Double(xValues.next(), yValues.next()))){
+
+						//Contains method should work with Intgers as it uses equals to compare objects. 
+						//Usage of hash can be still a problem, as VM pools integer objects only for 
+						//integers between -256 and 256 or something like that.
+						if(selectedIds.contains(i)){
+							//Remove from selection if selected twice
+							selectedIds.remove(i);
+						} else {
+							selectedIds.add(i);
+						}
+					}
+				}		
+			} catch (MicroarrayException e) {
+				application.reportException(e);
+			}
+		}
+		
+		this.list.setSelectedRows(selectedIds, this, true, data);
+		
+		try {
+			updateXYSerieses();
+		} catch (MicroarrayException e) {
+			application.reportException(e);
+		}
 	}
 }

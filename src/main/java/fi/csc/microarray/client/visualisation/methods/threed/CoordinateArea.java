@@ -374,7 +374,7 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 				dp.selected = false;
 		}
 		selectedPoints.clear();
-		controller.getAnnotateList().setSelectedListContent(selectedPoints, this, false, controller.getFrame().getDatas().get(0));
+		controller.getAnnotateList().setSelectedListContentAsDataPoints(selectedPoints, this, false, controller.getFrame().getDatas().get(0));
 	}
 
 	private void selectOne(MouseEvent e) {
@@ -386,7 +386,7 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 				dp.selected = true;
 		}
 		
-		controller.getAnnotateList().setSelectedListContent(selectedPoints, this, true, controller.getFrame().getDatas().get(0));
+		controller.getAnnotateList().setSelectedListContentAsDataPoints(selectedPoints, this, true, controller.getFrame().getDatas().get(0));
 	}
 
 	private void addToSelections(MouseEvent e) {
@@ -404,7 +404,7 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 				}
 			}
 		}
-		controller.getAnnotateList().setSelectedListContent(selectedPoints, this, true, controller.getFrame().getDatas().get(0));
+		controller.getAnnotateList().setSelectedListContentAsDataPoints(selectedPoints, this, true, controller.getFrame().getDatas().get(0));
 	}
 
 	private void selectGroup(MouseEvent e, int x1, int y1) {
@@ -416,7 +416,7 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 			if (dp != null)
 				dp.selected = true;
 		}
-		controller.getAnnotateList().setSelectedListContent(selectedPoints, this, true, controller.getFrame().getDatas().get(0));
+		controller.getAnnotateList().setSelectedListContentAsDataPoints(selectedPoints, this, true, controller.getFrame().getDatas().get(0));
 	}
 	
 	class PopupListener extends MouseAdapter {
@@ -528,6 +528,6 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 			}
 		}
 		
-		controller.getAnnotateList().setSelectedListContent(selectedPoints, this, false, controller.getFrame().getDatas().get(0));
+		controller.getAnnotateList().setSelectedListContentAsDataPoints(selectedPoints, this, false, controller.getFrame().getDatas().get(0));
 	}
 }

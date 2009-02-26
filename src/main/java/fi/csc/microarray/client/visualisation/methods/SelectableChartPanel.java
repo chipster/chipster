@@ -45,6 +45,15 @@ public class SelectableChartPanel extends JPanel implements MouseListener, Mouse
 	private final boolean useZoomOutline = false;
 	
 	public interface SelectionChangeListener{
+		/**
+		 * Data points inside given rectangle should be added to selection if they aren't
+		 * there already and removed if they are. If the rectangle is null, selection should be 
+		 * cleared. This makes it possible to handle all situations with single logic. If selection
+		 * is made without pressing control key, this method is called first with null argument to 
+		 * clear the selection and again with new selection rectangle·
+		 * 
+		 * @param newSelection
+		 */
 		public void selectionChanged(Rectangle2D.Double newSelection);
 	}
 	
@@ -63,6 +72,18 @@ public class SelectableChartPanel extends JPanel implements MouseListener, Mouse
 		chartPanel.addMouseMotionListener(this);
 		chartPanel.setMouseZoomable(isZoomable);
 	}
+	
+	public Rectangle.Double translateToChart(Rectangle mouseCoords){
+		
+		//Screen coordinates are integers
+		Point corner1 = new Point((int)mouseCoords.getMinX(), (int)mouseCoords.getMinY());
+		Point corner2 = new Point((int)mouseCoords.getMaxX(), (int)mouseCoords.getMaxY());
+		
+		Point.Double translated1 = translateToChart(corner1);
+		Point.Double translated2 = translateToChart(corner2);
+		
+		return createOrderedRectangle(translated1, translated2);				
+	}
 
 
 	public Point2D.Double translateToChart(Point mouseCoords)
@@ -75,10 +96,7 @@ public class SelectableChartPanel extends JPanel implements MouseListener, Mouse
 		
 		Plot plot = chartPanel.getChart().getPlot();
 		
-		if (plot instanceof XYPlot) {
-			//TODO Replace hackish PositionRecordingRenderer from Scatterplot and Volcano plot 
-			// with this one. These coordinates are in original scale, and can be compared directly 
-			// to original data, so collection of rendered coordinates isn't needed anymore 
+		if (plot instanceof XYPlot) { 
 						
 			XYPlot xyPlot = (XYPlot) plot;
 			
@@ -89,10 +107,15 @@ public class SelectableChartPanel extends JPanel implements MouseListener, Mouse
 			RectangleEdge domainAxisEdge = xyPlot.getDomainAxisEdge();
 			ValueAxis rangeAxis = xyPlot.getRangeAxis();
 			RectangleEdge rangeAxisEdge = xyPlot.getRangeAxisEdge();
-
 			
-			double chartX = domainAxis.java2DToValue(p.getX(), dataArea, domainAxisEdge);
-			double chartY = rangeAxis.java2DToValue(p.getY(), dataArea, rangeAxisEdge);
+			System.out.println(chartPanel.getScaleY());
+			
+			
+			double chartX = domainAxis.java2DToValue(p.getX() *	chartPanel.getScaleX(), 
+					dataArea, domainAxisEdge);
+			
+			double chartY = rangeAxis.java2DToValue(p.getY() * chartPanel.getScaleY(), 
+					dataArea, rangeAxisEdge);
 			
 			return new Point2D.Double(chartX, chartY);
 			
@@ -128,7 +151,7 @@ public class SelectableChartPanel extends JPanel implements MouseListener, Mouse
 						
 			return new Point2D.Double(relativeX, chartY);
 		} else {
-			throw new UnsupportedOperationException("Only Category and XY plots are supported");			
+			throw new UnsupportedOperationException("Only Category and XY plots are supported until now");			
 		}
 	}
 	
@@ -150,8 +173,17 @@ public class SelectableChartPanel extends JPanel implements MouseListener, Mouse
 			setSelection(null);
 		}
 		
-		Point2D p = translateToChart(e.getPoint());		
-		setSelection(new Rectangle2D.Double(p.getX(), p.getY(), 0, 0));
+		//Rectangle made by single click is grown by couple pixels to make clicking easier.
+		//Growing should be done by screen pixels, and this is the latest point for that for now.
+		//If accurate single click detection is needed some day later, this should be moved to 
+		//SelectionChangeListeners and implement needed methods or parameters.
+		
+		Rectangle rect = new Rectangle((int)e.getPoint().getX(), (int)e.getPoint().getY(), 0 ,0);
+		rect.grow(3, 3);
+		
+		Rectangle.Double translatedRect = translateToChart(rect);
+				
+		setSelection(translatedRect);
 	}
 
 	public void mouseEntered(MouseEvent e) {
@@ -207,10 +239,6 @@ public class SelectableChartPanel extends JPanel implements MouseListener, Mouse
 					
 			setSelection(createOrderedRectangle(translatedStart, translatedEnd));
 		}
-
-		//TODO this should be done in the selection listeners
-		// Draw the selection frames for the dataItems
-		//chartPanel.getChart().fireChartChanged();
 	}
 
 	public void mouseDragged(MouseEvent e) {
@@ -240,7 +268,8 @@ public class SelectableChartPanel extends JPanel implements MouseListener, Mouse
 	
 	private void setSelection(Rectangle2D.Double selection){
 		this.selection = selection;
-		if(selectionListener != null){
+		if(selectionListener != null){						
+			
 			selectionListener.selectionChanged(this.selection);
 		}
 	}
@@ -269,5 +298,9 @@ public class SelectableChartPanel extends JPanel implements MouseListener, Mouse
 		protected void setArea(Rectangle area) {
 			this.area = area;
 		}
+	}
+
+	public ChartPanel getChartPanel() {
+		return chartPanel;
 	}
 }
