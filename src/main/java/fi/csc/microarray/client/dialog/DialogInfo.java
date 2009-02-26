@@ -22,8 +22,8 @@ public class DialogInfo {
 
 	public enum Type {
 		MESSAGE("Close"),
-		OK_MESSAGE("Ok"),
-		OPTION("Ok"),
+		OK_MESSAGE("OK"),
+		OPTION("OK"),
 		BLOCKER(null);
 		
 		private String buttonText;
