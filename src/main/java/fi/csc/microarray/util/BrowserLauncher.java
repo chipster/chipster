@@ -16,6 +16,8 @@ import java.lang.reflect.Method;
 
 public class BrowserLauncher {
 
+	private static final String[] UNIX_BROWSERS = {"firefox", "seamonkey", "mozilla", "konqueror", "opera", "epiphany", "netscape" };
+
 	public static void openURL(String url) throws Exception {
 		String osName = System.getProperty("os.name");
 
@@ -27,31 +29,25 @@ public class BrowserLauncher {
 		} else if (osName.startsWith("Windows")) {
 			Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + url);
 
-		} else { //assume Unix or Linux
-			String[] browsers = {"firefox", "opera", "konqueror", "epiphany", "mozilla", "netscape" };
+		} else { 
 			
-			String browser = null;			
-			for (int count = 0; count < browsers.length && browser == null; count++) {
-				if (Runtime.getRuntime().exec(new String[] {"which", browsers[count]}).waitFor() == 0) { 
-					browser = browsers[count];
+			// assume *nix			
+			String availableBrowser = null;
+			for (String browser : UNIX_BROWSERS) {
+				if (Runtime.getRuntime().exec(new String[] {"which", browser}).waitFor() == 0) { 
+					availableBrowser = browser;
+					break;
 				}
 			}
 			
-			if (browser == null) {
+			if (availableBrowser == null) {
 				throw new Exception("Could not find web browser");
 				
 			} else {
-				Runtime.getRuntime().exec(new String[] {browser, url});
+				Runtime.getRuntime().exec(new String[] {availableBrowser, url});
 			}
 		}
 
-	}
-	
-	/**
-	 * Test method, opens csc.fi
-	 */
-	public static void main(String[] args) throws Exception {
-		openURL("http://www.csc.fi");
 	}
 
 }
