@@ -40,11 +40,11 @@ public class BrowserLauncher {
 				}
 			}
 			
-			if (availableBrowser == null) {
-				throw new Exception("Could not find web browser");
+			if (availableBrowser != null) {
+				Runtime.getRuntime().exec(new String[] {availableBrowser, url});
 				
 			} else {
-				Runtime.getRuntime().exec(new String[] {availableBrowser, url});
+				throw new Exception("Could not find web browser");
 			}
 		}
 
