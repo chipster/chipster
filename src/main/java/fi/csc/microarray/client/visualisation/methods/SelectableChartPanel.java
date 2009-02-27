@@ -106,10 +106,7 @@ public class SelectableChartPanel extends JPanel implements MouseListener, Mouse
 			ValueAxis domainAxis = xyPlot.getDomainAxis();
 			RectangleEdge domainAxisEdge = xyPlot.getDomainAxisEdge();
 			ValueAxis rangeAxis = xyPlot.getRangeAxis();
-			RectangleEdge rangeAxisEdge = xyPlot.getRangeAxisEdge();
-			
-			System.out.println(chartPanel.getScaleY());
-			
+			RectangleEdge rangeAxisEdge = xyPlot.getRangeAxisEdge();						
 			
 			double chartX = domainAxis.java2DToValue(p.getX() *	chartPanel.getScaleX(), 
 					dataArea, domainAxisEdge);
@@ -199,7 +196,7 @@ public class SelectableChartPanel extends JPanel implements MouseListener, Mouse
 	public void mousePressed(MouseEvent e)
 	{
 		if (useZoomOutline){
-			System.out.println("mouse pressed");
+
 			chartPanel.setMouseZoomable(false,true);
 			chartPanel.mousePressed(e);			
 			chartPanel.setMouseZoomable(true,false);
