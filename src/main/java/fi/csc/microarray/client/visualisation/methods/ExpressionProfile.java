@@ -1,13 +1,22 @@
 package fi.csc.microarray.client.visualisation.methods;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
-import org.apache.log4j.Logger;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
@@ -16,10 +25,15 @@ import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.labels.StandardCategoryToolTipGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.category.DefaultCategoryItemRenderer;
+import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import fi.csc.microarray.MicroarrayException;
+import fi.csc.microarray.client.selection.RowChoiceEvent;
+import fi.csc.microarray.client.selection.RowSelectionManager;
+import fi.csc.microarray.client.visualisation.AnnotateListPanel;
 import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
@@ -28,12 +42,41 @@ import fi.csc.microarray.client.visualisation.methods.SelectableChartPanel.Selec
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.Table;
 
-public class ExpressionProfile extends Visualisation implements SelectionChangeListener {
+public class ExpressionProfile extends Visualisation implements PropertyChangeListener, SelectionChangeListener {
 	
-	private static final Logger logger = Logger.getLogger(ExpressionProfile.class);
+	//private static final Logger logger = Logger.getLogger(ExpressionProfile.class);
+	
+	private LinkedList<ProfileRow> rows;
+	private SelectableChartPanel selectableChartPanel;
+	private  JPanel paramPanel;
+	private AnnotateListPanel list;
+
+	private CategoryPlot plot;
+	
+	private DataBean data;
+	
+	//selection indexes in order of the original data
+	private Set<Integer> selectedIndexes = new HashSet<Integer>();
 
 	public ExpressionProfile(VisualisationFrame frame) {
 		super(frame);
+	}
+	
+	@Override
+	public JPanel getParameterPanel() {
+		if (paramPanel == null) {
+			paramPanel = new JPanel();
+			paramPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
+			paramPanel.setLayout(new BorderLayout());
+
+			list = new AnnotateListPanel();
+
+			JTabbedPane tabPane = new JTabbedPane();
+			tabPane.addTab("Selected", list);
+
+			paramPanel.add(tabPane, BorderLayout.CENTER);
+		}
+		return paramPanel;
 	}
 
 	// color scale red->yellow->blue
@@ -120,6 +163,19 @@ public class ExpressionProfile extends Visualisation implements SelectionChangeL
 	@Override
 	public JComponent getVisualisation(DataBean data) throws Exception {
 		
+		this.data = data;
+		
+		application.addPropertyChangeListener(this);
+		
+		JFreeChart chart = createProfileChart(createDataset(), rows,  data.getName());
+		
+		updateSelectionsFromApplication(false);
+		
+		selectableChartPanel = new SelectableChartPanel(chart, this); 
+		return selectableChartPanel;
+	}
+	
+	private CategoryDataset createDataset() throws MicroarrayException{
 		TableAnnotationProvider annotationProvider = new TableAnnotationProvider(data);
 
 		// fetch data
@@ -128,7 +184,7 @@ public class ExpressionProfile extends Visualisation implements SelectionChangeL
 		Table samples = data.queryFeatures("/column/*").asTable();
 		
 		// read through data
-		LinkedList<ProfileRow> rows = new LinkedList<ProfileRow>();
+		rows = new LinkedList<ProfileRow>();
 		int rowNumber = 0;
 		while (samples.nextRow()) {
 			boolean firstSample = true;
@@ -155,12 +211,10 @@ public class ExpressionProfile extends Visualisation implements SelectionChangeL
 			rowNumber++;
 		}
 
-		JFreeChart chart = createProfileChart(dataset, rows, data.getName());
-		//return makeSelectablePanel(chart, this);
-		return makePanel(chart);
+		return dataset;
 	}
-
-	public static JFreeChart createProfileChart(DefaultCategoryDataset dataset, LinkedList<ProfileRow> rows, String name) {
+	
+	private CategoryItemRenderer createRenderer(List<ProfileRow> rows){
 		// create renderer
         DefaultCategoryItemRenderer renderer = new DefaultCategoryItemRenderer();        
         renderer.setToolTipGenerator(new StandardCategoryToolTipGenerator());
@@ -170,19 +224,34 @@ public class ExpressionProfile extends Visualisation implements SelectionChangeL
         Collections.sort(rows);
 		float position = 0.0f;
 		float step = 1.0f / ((float)rows.size());
+			
 		for (ProfileRow row : rows) {
-			row.color = getColor(position);
-			renderer.setSeriesPaint(row.series, getColor(position));
+			if(selectedIndexes.contains(row.series)){
+				renderer.setSeriesPaint(row.series, Color.black);
+			} else {
+				row.color = getColor(position);
+				renderer.setSeriesPaint(row.series, getColor(position));
+			}
 			position += step;
 		}
+		
+		//List isn't initialised, if visualising clustered profiles
+		if(list != null){
+			list.setSelectedRows(selectedIndexes, this, false, data);
+		}
+		
+		return renderer;
+	}
 
+	public JFreeChart createProfileChart(CategoryDataset categoryDataset, List<ProfileRow> rows, String name) throws MicroarrayException {
+						
 		// draw plot
         CategoryAxis categoryAxis = new CategoryAxis("sample");
         categoryAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
         categoryAxis.setUpperMargin(0.0);
         categoryAxis.setLowerMargin(0.0);
         ValueAxis valueAxis = new NumberAxis("expression");
-        CategoryPlot plot = new CategoryPlot(dataset, categoryAxis, valueAxis, renderer);
+        plot = new CategoryPlot(categoryDataset, categoryAxis, valueAxis, createRenderer(rows));
         plot.setOrientation(PlotOrientation.VERTICAL);
         
         JFreeChart chart = new JFreeChart("Expression profile for " + name, 
@@ -201,15 +270,66 @@ public class ExpressionProfile extends Visualisation implements SelectionChangeL
 		return false;
 	}
 
+
+	@SuppressWarnings("unchecked") //Old api in JFreeChart
 	public void selectionChanged(Rectangle2D.Double selection) {
+		
 		if(selection == null){
-			logger.debug("Empty selection");
-		} else if (selection.getWidth() == 0 && selection.getHeight() == 0){
-			logger.debug("Single click at (" + selection.getX() + ", " + selection.getY());
+			selectedIndexes.clear();
 		} else {
-			logger.debug("Area selection: " + 
-					selection.getMinX() + " < X < " + selection.getMaxX() + " and " + 
-					selection.getMinY() + " < Y < " + selection.getMaxY());
+			//Goes through all the lines in profile, some optimisation can be done if 
+			//this is too slow
+
+			CategoryDataset dataset = plot.getDataset();
+			List colKeys = dataset.getColumnKeys();
+			List rowKeys = dataset.getRowKeys();
+
+			for(int x = 0; x < dataset.getColumnCount() - 1; x++){
+				for (int y = 0; y < dataset.getRowCount(); y++){
+
+					Point2D start = new Point2D.Double(x, 
+							(Double) dataset.getValue((Comparable)rowKeys.get(y), 
+									(Comparable) colKeys.get(x)));
+					
+					Point2D end = new Point2D.Double(x + 1, 
+							(Double) dataset.getValue((Comparable)rowKeys.get(y), 
+									(Comparable) colKeys.get(x + 1)));
+					
+					Line2D.Double line = new Line2D.Double(start, end);
+
+					if(selection.intersectsLine(line)){
+						if(selectedIndexes.contains(y)){
+							selectedIndexes.remove(y);
+						} else {
+							selectedIndexes.add(y);
+						}
+					}
+				}								
+			}
+		}
+		
+		this.list.setSelectedRows(selectedIndexes, this, true, data);
+		
+		plot.setRenderer(createRenderer(rows));
+	}
+
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (evt instanceof RowChoiceEvent && evt.getSource() != this && ((RowChoiceEvent) evt).getData() == data) {
+
+			updateSelectionsFromApplication(false);
 		}
 	}	
+	
+	protected void updateSelectionsFromApplication(boolean dispatchEvent) {
+		RowSelectionManager manager = application.getSelectionManager().getRowSelectionManager(data);
+
+		selectedIndexes.clear();
+		for (int i : manager.getSelectedRows()){
+			selectedIndexes.add(i);			
+		}
+
+		list.setSelectedRows(selectedIndexes, this, dispatchEvent, data);
+		
+		plot.setRenderer(createRenderer(rows));
+	}
 }

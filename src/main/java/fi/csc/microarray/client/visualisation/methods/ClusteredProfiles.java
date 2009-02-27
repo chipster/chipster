@@ -81,7 +81,8 @@ public class ClusteredProfiles extends Visualisation {
 		
 		// draw plots
 		for (int i = 0; i < clusterCount; i++) {
-			charts.add(ExpressionProfile.createProfileChart(datasets.get(i), rows.get(i), "Cluster " + (i+1)));
+			//TODO createProfileChart should allow static use
+			charts.add(new ExpressionProfile(null).createProfileChart(datasets.get(i), rows.get(i), "Cluster " + (i+1)));
 		}
 		
 		return this.makePanel(charts);

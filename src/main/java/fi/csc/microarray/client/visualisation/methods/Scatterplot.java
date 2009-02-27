@@ -151,7 +151,7 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 		}
 	}
 	
-	protected Set<Integer> selectedIds = new HashSet<Integer>();
+	protected Set<Integer> selectedIndexes = new HashSet<Integer>();
 
 	@Override
 	public JComponent getVisualisation(DataBean data) throws Exception {
@@ -216,7 +216,7 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 		int i = 0;
 
 		for (Float y : yValues) {
-			if(selectedIds.contains(i)){
+			if(selectedIndexes.contains(i)){
 				if (xIterator != null) {
 					selectionSeries.add(xIterator.next(), y);
 				} else {
@@ -252,12 +252,12 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 	protected void updateSelectionsFromApplication(boolean dispatchEvent) {
 		RowSelectionManager manager = application.getSelectionManager().getRowSelectionManager(data);
 
-		selectedIds.clear();
+		selectedIndexes.clear();
 		for (int i : manager.getSelectedRows()){
-			selectedIds.add(i);
+			selectedIndexes.add(i);
 		}
 
-		list.setSelectedRows(selectedIds, this, dispatchEvent, data);
+		list.setSelectedRows(selectedIndexes, this, dispatchEvent, data);
 		
 		try {
 			updateXYSerieses();
@@ -269,7 +269,7 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 	public void selectionChanged(Rectangle.Double newSelection) {
 		
 		if(newSelection == null){
-			selectedIds.clear();
+			selectedIndexes.clear();
 		} else {
 		
 			Iterator<Float> xValues;
@@ -287,11 +287,11 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 						//Contains method should work with Intgers as it uses equals to compare objects. 
 						//Usage of hash can be still a problem, as VM pools integer objects only for 
 						//integers between -256 and 256 or something like that.
-						if(selectedIds.contains(i)){
+						if(selectedIndexes.contains(i)){
 							//Remove from selection if selected twice
-							selectedIds.remove(i);
+							selectedIndexes.remove(i);
 						} else {
-							selectedIds.add(i);
+							selectedIndexes.add(i);
 						}
 					}
 				}		
@@ -300,7 +300,7 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 			}
 		}
 		
-		this.list.setSelectedRows(selectedIds, this, true, data);
+		this.list.setSelectedRows(selectedIndexes, this, true, data);
 		
 		try {
 			updateXYSerieses();

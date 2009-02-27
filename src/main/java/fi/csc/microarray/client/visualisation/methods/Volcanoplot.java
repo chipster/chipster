@@ -180,7 +180,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 			boolean overYThreshold = y >= -Math.log(0.05);
 			boolean overXThreshold = Math.abs(x) >= 1f;
 			
-			if( selectedIds.contains(row)){
+			if( selectedIndexes.contains(row)){
 				selectedSeries.add(new XYDataItem(x, y));
 			} else {
 
@@ -235,7 +235,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 public void selectionChanged(Rectangle.Double newSelection) {
 		
 		if(newSelection == null){
-			selectedIds.clear();
+			selectedIndexes.clear();
 		} else {
 		
 			Iterator<Float> xValues;
@@ -253,11 +253,11 @@ public void selectionChanged(Rectangle.Double newSelection) {
 						//Contains method should work with Integers as it uses equals to compare objects. 
 						//Usage of hash can be still a problem, as VM pools integer objects only for 
 						//integers between -256 and 256 or something like that.
-						if(selectedIds.contains(i)){
+						if(selectedIndexes.contains(i)){
 							//Remove from selection if selected twice
-							selectedIds.remove(i);
+							selectedIndexes.remove(i);
 						} else {
-							selectedIds.add(i);
+							selectedIndexes.add(i);
 						}
 					}
 				}		
@@ -266,7 +266,7 @@ public void selectionChanged(Rectangle.Double newSelection) {
 			}
 		}
 		
-		this.list.setSelectedRows(selectedIds, this, true, data);
+		this.list.setSelectedRows(selectedIndexes, this, true, data);
 		
 		try {
 			updateXYSerieses();
