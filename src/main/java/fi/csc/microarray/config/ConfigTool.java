@@ -317,12 +317,16 @@ public class ConfigTool {
 		updateConfigEntryValue(messagingModule, "broker_port", configs[BROKER_PORT_INDEX][VAL_INDEX]);
 
 		Element filebrokerModule = xml.getChildWithAttribute(doc.getDocumentElement(), "moduleId", "filebroker");
-		updateConfigEntryValue(filebrokerModule, "port", configs[FILEBROKER_PORT_INDEX][VAL_INDEX]);
-		updateConfigEntryValue(filebrokerModule, "url", createFilebrokerUrl());
+		if (filebrokerModule != null) {
+			updateConfigEntryValue(filebrokerModule, "port", configs[FILEBROKER_PORT_INDEX][VAL_INDEX]);
+			updateConfigEntryValue(filebrokerModule, "url", createFilebrokerUrl());
+		}
 
 		Element analyserModule = xml.getChildWithAttribute(doc.getDocumentElement(), "moduleId", "analyser");
-		updateConfigEntryValue(analyserModule, "max_jobs", configs[MAX_JOBS_INDEX][VAL_INDEX]);
-		updateConfigEntryValue(analyserModule, "RCommand", configs[R_COMMAND_INDEX][VAL_INDEX]);
+		if (analyserModule != null) {
+			updateConfigEntryValue(analyserModule, "max_jobs", configs[MAX_JOBS_INDEX][VAL_INDEX]);
+			updateConfigEntryValue(analyserModule, "RCommand", configs[R_COMMAND_INDEX][VAL_INDEX]);
+		}
 
 		writeLater(configFile, doc);
 	}

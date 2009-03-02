@@ -109,9 +109,11 @@ public class DirectoryLayout {
 	}
 	
 	private File initialise(File dir) throws IOException {
-		boolean ok = dir.mkdirs(); // create whole path if does not exist 
-		if (!ok) {
-			throw new IOException("could not create directory " + dir.getAbsolutePath());
+		if (!dir.exists()) {
+			boolean ok = dir.mkdirs(); // create whole path if does not exist 
+			if (!ok) {
+				throw new IOException("could not create directory path " + dir.getAbsolutePath());
+			}
 		}
 		return dir;
 	}

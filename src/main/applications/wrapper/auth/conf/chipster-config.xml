@@ -8,7 +8,7 @@
 
 		<!-- host of message broker (JMS server ActiveMQ) to connect to -->
 		<entry entryKey="broker_host">
-			<value>localhost</value> <!-- MUST BE FILLED IN (MANUALLY OR BY WEBSTART) -->
+			<value></value> <!-- MUST BE FILLED IN (MANUALLY OR BY WEBSTART) -->
 		</entry>
 
 		<!-- should we use chunked HTTP mode when connecting to filebroker -->
