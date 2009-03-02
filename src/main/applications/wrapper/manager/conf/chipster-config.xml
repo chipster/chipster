@@ -53,54 +53,15 @@
 
 		<!-- username for authenticating connection to broker -->
 		<entry entryKey="username">
-			<value>filebroker</value>
+			<value>manager</value>
 		</entry>
 
 		<!-- password for authenticating connection to broker -->
 		<entry entryKey="password">
-			<value>filebroker</value>
+			<value>manager</value>
 		</entry>
 	
 	</configuration-module>
 
 	
-	<!-- FILEBROKER -->
-	
-	<configuration-module moduleId="frontend">
-	
-		<entry entryKey="fileServerPath">
-			<value>fileroot</value>
-		</entry>
-		
-		<!-- how long files are stored in fileserver, seconds -->
-		<entry entryKey="fileLifeTime">
-			<value>86400</value>
-		</entry>
-
-		<!-- how often file cleanup check occurs, seconds -->
-		<entry entryKey="cleanUpFrequency">
-			<value>3600</value>
-		</entry>
-
-	</configuration-module>
-			
-	<configuration-module moduleId="filebroker">
-	    
-	    <!-- url of this file broker instance -->
-		<entry entryKey="url">
-			<value></value> <!-- MUST BE FILLED IN FOR FILE BROKER NODES -->
-		</entry>
-		
-	    <!-- server port to use in this file broker instance -->
-        <entry entryKey="port">
-            <value>8080</value>
-        </entry>
-
-		<!-- should Jetty web server run in debug mode (debug log to logs/wrapper.log) -->
-		<entry entryKey="jettyDebug">
-			<value>false</value>
-		</entry>
-        
-	</configuration-module>
-
 </configuration>
