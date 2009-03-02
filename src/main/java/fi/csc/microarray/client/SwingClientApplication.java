@@ -1139,10 +1139,10 @@ public class SwingClientApplication extends ClientApplication {
 	 * @param configOverride 
 	 * @throws IOException 
 	 */
-	public static void start(String configOverride, boolean useHomeAsWorkdir) throws IOException {
+	public static void start(String configOverride) throws IOException {
 
 		try {
-			DirectoryLayout.initialiseClientLayout(useHomeAsWorkdir, configOverride);			
+			DirectoryLayout.initialiseClientLayout(configOverride);			
 
 		} catch (OldConfigurationFormatException e) {
 			reportOldConfigurationFormatException(e);
@@ -1171,11 +1171,11 @@ public class SwingClientApplication extends ClientApplication {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		start(null, false);
+		start(null);
 	}
 
 	public static void reportOldConfigurationFormatException(OldConfigurationFormatException e) {
-		DialogInfo dialogInfo = new DialogInfo(Severity.ERROR, "Chipster configuration file not compatible", "Configuration file is from the previous version of the software. You can remove nami-work-files directory from your home directory so the new configuration is created automatically.", "Reason: " + e.getMessage());
+		DialogInfo dialogInfo = new DialogInfo(Severity.ERROR, "Chipster configuration file not compatible", "Configuration file is from the previous version of the software. You can remove Chipster application settings so that the new configuration is used.", "Reason: " + e.getMessage());
 		ChipsterDialog.showDialog(null, dialogInfo, DetailsVisibility.DETAILS_HIDDEN, true);
 		throw new RuntimeException("configuration not compatible, will not start");
 	}

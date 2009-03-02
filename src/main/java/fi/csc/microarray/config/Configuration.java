@@ -15,21 +15,21 @@ import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatExcept
 
 public class Configuration {
 
-	private static final File CONFIG_FILE = new File("nami-config.xml");	
+	public static final String CONFIG_FILENAME = "chipster-config.xml";
+	
 	private static final String STATIC_CONFIG_RESOURCENAME = "/nami-static-config.xml";
-	public static final String[] WORKDIR_PROPERTY = {null, "nami_work_dir"};	
 	private static String DEFAULT_CONFIG_FILE = "/nami-config.xml.default";	
 	private static boolean alreadyLoaded = false;	
 	private static ConfigurationModule configuration = new ConfigurationModule(true);	
 	
-	public Configuration(String overrideString, String workDir) throws IOException, OldConfigurationFormatException {
+	public Configuration(String overrideString, File workDir) throws IOException, OldConfigurationFormatException {
 		
 		// guard against reloading
 		synchronized (Configuration.class) {
 			if (!alreadyLoaded) {
 
 				// if config file not available, copy defaults to it
-				File configFile = new File(workDir + File.separator + CONFIG_FILE.getName());
+				File configFile = new File(workDir, CONFIG_FILENAME);
 
 				if (!configFile.exists()) {
 					InputStream defaults = ConfigurationModule.class.getResourceAsStream(DEFAULT_CONFIG_FILE);
@@ -63,7 +63,6 @@ public class Configuration {
 				} 
 
 				// do overrides
-				configuration.putValueInSubmodule(WORKDIR_PROPERTY[0], WORKDIR_PROPERTY[1], workDir);
 				if (overrideString != null) {
 					String[] overrides = overrideString.split(",");
 					for (String override : overrides) {
@@ -112,9 +111,5 @@ public class Configuration {
 
 	private static ConfigurationModule getModule(String moduleName) {
 		return moduleName != null ? configuration.getModule(moduleName) : configuration;
-	}
-	
-	public static File getWorkDir() {
-		return new File(getValue(WORKDIR_PROPERTY[0], WORKDIR_PROPERTY[1]));
 	}
 }

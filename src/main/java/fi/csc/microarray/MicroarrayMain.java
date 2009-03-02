@@ -151,7 +151,7 @@ public class MicroarrayMain {
 				System.out.println("parse succeeded: " + !fails);
 				
 			} else {
-				SwingClientApplication.start(cmdParser.getValue("-override"), cmdParser.hasValue("-homework")); 		
+				SwingClientApplication.start(cmdParser.getValue("-override")); 		
 			}
 			
 		} catch (CommandLineException e) {

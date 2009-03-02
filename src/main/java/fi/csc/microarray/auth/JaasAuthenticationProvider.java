@@ -19,7 +19,7 @@ import org.apache.log4j.Logger;
 import org.mortbay.util.IO;
 
 import fi.csc.microarray.config.ConfigurationModule;
-import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.config.DirectoryLayout;
 
 public class JaasAuthenticationProvider implements AuthenticationProvider {
 
@@ -107,7 +107,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider {
 	 */
 	private void initialize() throws IOException {
 		
-		File jaasConfigFile = new File(Configuration.getWorkDir() + File.separator + CONFIG_FILE);
+		File jaasConfigFile = new File(DirectoryLayout.getInstance().getConfDir() + File.separator + CONFIG_FILE);
 		
 		// if config file does not exist in the work dir, create it using the defaults
 		if (!jaasConfigFile.exists()) {

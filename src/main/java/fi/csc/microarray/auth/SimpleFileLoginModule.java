@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
 import org.mortbay.util.IO;
 
 import fi.csc.microarray.config.ConfigurationModule;
-import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.LookaheadStringReader;
 
@@ -69,7 +69,7 @@ public class SimpleFileLoginModule extends LoginModuleBase {
 		// relative path, search the file from work dir, if not found create the
 		// template
 		else {
-			passwdFile = new File(Configuration.getWorkDir(), passwdFile.getName());
+			passwdFile = new File(DirectoryLayout.getInstance().getSecurityDir(), passwdFile.getName());
 			if (!passwdFile.exists()) {
 				logger.warn("Passwd file " + passwdFile.getPath() + " not found.");
 				createDefaultPasswdFile();
@@ -169,7 +169,7 @@ public class SimpleFileLoginModule extends LoginModuleBase {
 	private void createDefaultPasswdFile() {
 		try {
 
-			File defaultFile = new File(Configuration.getWorkDir(), "users");
+			File defaultFile = new File(DirectoryLayout.getInstance().getSecurityDir(), "users");
 			if (defaultFile.exists()) {
 				return;
 			}

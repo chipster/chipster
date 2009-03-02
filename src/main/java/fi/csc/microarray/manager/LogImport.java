@@ -84,7 +84,7 @@ public class LogImport {
 //			tcpServer.start();
 			
 			String dbDriver = "org.h2.Driver";
-			String dbUrl = "jdbc:h2:nami-work-files/database/chipster-manager";
+			String dbUrl = "jdbc:h2:database/chipster-manager";
 			boolean startWebConsole = true;
 			String dbUsername = "chipster";
 		    String dbPassword = "";

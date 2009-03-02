@@ -34,12 +34,16 @@ public class ConfigTool {
 	private final String brokerDir = "activemq";
 	private final String webstartDir = "webstart";
 
-	private final String[] componentDirs = new String[] {
+	private final String[] componentDirsWithConfig = new String[] {
 			"comp",
 			"auth",
 			"fileserver",
 			"manager",
 			"client"
+	};
+
+	private final String[] componentDirsWithoutConfig = new String[] {
+			"webstart"
 	};
 
 	private String[][] configs = new String[][] {
@@ -87,15 +91,25 @@ public class ConfigTool {
 	public static void main(String[] args) throws Exception {
 		ConfigTool configTool = new ConfigTool();
 		
-		if ("configure".equals(args[0])) {
+		if (args.length == 0) {
+			fail();
+
+		} else if ("configure".equals(args[0])) {
 			configTool.configure();
 
 		} else if ("genpasswd".equals(args[0])) {
-				configTool.genpasswd();
+			configTool.genpasswd();
+
+		} else if ("migrate".equals(args[0])) {
+			configTool.migrate();
 
 		} else {
-			System.out.println("Illegal arguments! Please specify one of: configure, genpasswd");
+			fail();
 		}
+	}
+	
+	private static void fail() {
+		System.out.println("Illegal arguments! Please specify one of: configure, genpasswd, migrate");
 	}
 	
 	private void genpasswd() throws Exception {
@@ -117,15 +131,15 @@ public class ConfigTool {
 			//
 			
 			// update all Chipster configs
-			for (String componentDir : componentDirs) {
+			for (String componentDir : componentDirsWithConfig) {
 				if (new File(componentDir).exists()) {
-					File configFile = new File(componentDir + File.separator + "nami-work-files" + File.separator + "nami-config.xml");
+					File configFile = new File(componentDir + File.separator + DirectoryLayout.CONF_DIR + File.separator + Configuration.CONFIG_FILENAME);
 					updateChipsterConfigFilePasswords(configFile);
 				}
 			}
 
 			// update ActiveMQ config
-			File activemqConfigFile = new File(brokerDir + File.separator + "conf" + File.separator + "activemq.xml");
+			File activemqConfigFile = new File(brokerDir + File.separator + DirectoryLayout.CONF_DIR + File.separator + "activemq.xml");
 			if (activemqConfigFile.exists()) {
 				updateActivemqConfigFilePasswords(activemqConfigFile);
 			}
@@ -198,9 +212,9 @@ public class ConfigTool {
 			//
 			
 			// update all Chipster configs
-			for (String componentDir : componentDirs) {
+			for (String componentDir : componentDirsWithConfig) {
 				if (new File(componentDir).exists()) {
-					File configFile = new File(componentDir + File.separator + "nami-work-files" + File.separator + "nami-config.xml");
+					File configFile = new File(componentDir + File.separator + DirectoryLayout.CONF_DIR + File.separator + Configuration.CONFIG_FILENAME);
 					updateChipsterConfigFile(configFile);
 				}
 			}
@@ -348,5 +362,34 @@ public class ConfigTool {
 		return doc;
 	}
 
+	private void migrate() {
+		throw new UnsupportedOperationException("not implemented fully yet");
+		
+//		String workDir12x = "nami-work-files";
+//		String logsDir13x = "logs";
+//		moveToNewDir(workDir12x, "logs", "nami.log", "messages.log",	"jobs.log",	"security.log",	"status.log");
+//		new File("logs" + File.separator + "nami.log").renameTo(new File("logs" + File.separator + "chipster.log"));
+//		moveToNewDir(workDir12x, "security", "keystore.ks", "users");
+//		moveToNewDir(workDir12x, "conf", "nami-config.xml", "jaas.config");
+//		new File("conf" + File.separator + "nami-config.xml").renameTo(new File("conf" + File.separator + "chipster-config.xml"));
+//		// we should move the later of 32/64
+//		moveToNewDir("bin" + File.separator + "linux-x86-64", "conf", "wrapper.conf");
+//		
+//		// create if needed: fileroot, jobs-data, database 
+	}
 
+	private void moveToNewDir(String oldDir, String newDir, String... files) {
+		
+		// create new it does not exist
+		new File(newDir).mkdir();
+		
+		// move listed files to new
+		for (String file : files) {
+			File from = new File(oldDir + File.separator + file);
+			File to = new File(newDir + File.separator + file);
+			from.renameTo(to);
+			//System.out.println("i would move " + from + " to " + to);
+		}
+	}
+	
 }

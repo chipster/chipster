@@ -2,6 +2,7 @@ package fi.csc.microarray.config;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 
@@ -21,15 +22,20 @@ import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatExcept
  */
 public class DirectoryLayout {
 
-	private static final String WORKSUBDIR = "nami-work-files";
-	
+	public static final String CONF_DIR = "conf";
+	public static final String SECURITY_DIR = "security";
+	public static final String LOGS_DIR = "logs";
+
+	private static final String CONF_DIR_SYSTEM_PROPERTY = "chipster_conf_dir";
+	private static final String LOGS_DIR_SYSTEM_PROPERTY = "chipster_logs_dir";
+	private static final String SECURITY_DIR_SYSTEM_PROPERTY = "chipster_security_dir";
+
 	public enum Type {
 		CLIENT,
 		SERVER;
 	}
 
 	private Type type;
-	private File workDir;
 	private Configuration configuration;
 	private static DirectoryLayout instance;
 
@@ -38,21 +44,21 @@ public class DirectoryLayout {
 			if (DirectoryLayout.instance != null) {
 				throw new IllegalStateException("already initialised");
 			}
-			DirectoryLayout.instance = new DirectoryLayout(Type.SERVER, false, null);
+			DirectoryLayout.instance = new DirectoryLayout(Type.SERVER, null);
 			return DirectoryLayout.instance;
 		}
 	}
 
 	public static DirectoryLayout initialiseClientLayout() throws IOException, OldConfigurationFormatException {
-		return initialiseClientLayout(false, null);
+		return initialiseClientLayout(null);
 	}
 
-	public static DirectoryLayout initialiseClientLayout(boolean useHomeAsWorkDir, String overrideString) throws IOException, OldConfigurationFormatException {
+	public static DirectoryLayout initialiseClientLayout(String overrideString) throws IOException, OldConfigurationFormatException {
 		synchronized (DirectoryLayout.class) {
 			if (DirectoryLayout.instance != null) {
 				throw new IllegalStateException("already initialised");
 			}
-			DirectoryLayout.instance = new DirectoryLayout(Type.CLIENT, useHomeAsWorkDir, overrideString);
+			DirectoryLayout.instance = new DirectoryLayout(Type.CLIENT, overrideString);
 			return DirectoryLayout.instance;
 		}
 	}
@@ -66,33 +72,17 @@ public class DirectoryLayout {
 		}
 	}
 	
-	private DirectoryLayout(Type type, boolean useHomeAsWorkDir, String overrideString) throws IOException, OldConfigurationFormatException {
+	private DirectoryLayout(Type type, String overrideString) throws IOException, OldConfigurationFormatException {
 		this.type = type;
-		this.workDir = createWorkingDirectory(useHomeAsWorkDir);
-		System.setProperty(Configuration.WORKDIR_PROPERTY[1], workDir.getAbsolutePath()); // NOTE: NO LOGGING IS TO BE DONE BEFORE THIS!
-		this.configuration = new Configuration(overrideString, this.workDir.getAbsolutePath());
-	}
-
-	public File getWorkingDirectory() {
-		return this.workDir;
-	}
-	
-	private File createWorkingDirectory(boolean useHomeAsWorkDir) {
-		String workDir;
-		if (useHomeAsWorkDir) {
-			String home = System.getProperty("user.home");
-			workDir = home + File.separator + WORKSUBDIR;
-		} else {
-			workDir = new File(WORKSUBDIR).getAbsolutePath();
-		}
-		new File(workDir).mkdirs();
-
-		return new File(workDir);
+		System.setProperty(LOGS_DIR_SYSTEM_PROPERTY, getLogsDir().getAbsolutePath()); // NOTE: NO LOGGING IS TO BE DONE BEFORE THIS!
+		System.setProperty(CONF_DIR_SYSTEM_PROPERTY, getConfDir().getAbsolutePath()); 
+		System.setProperty(SECURITY_DIR_SYSTEM_PROPERTY, getSecurityDir().getAbsolutePath());
+		this.configuration = new Configuration(overrideString, getConfDir());
 	}
 
 	public File getFileroot() throws IOException, OldConfigurationFormatException {
 		if (type == Type.SERVER) {
-			File fileRepository = new File(getConfigurationValue("frontend", "fileServerPath"));
+			File fileRepository = new File(Configuration.getValue("frontend", "fileServerPath"));
 			if (!fileRepository.exists()) {
 				boolean ok = fileRepository.mkdir();
 				if (!ok) {
@@ -106,13 +96,63 @@ public class DirectoryLayout {
 		}
 	}
 	
-	private String getConfigurationValue(String module, String name) throws IOException, OldConfigurationFormatException {
-		// we cannot assume config to be loaded inside this class (because configuration is managed via this class)
-		getConfiguration();
-		return Configuration.getValue(module, name);
-	}
-
 	public Configuration getConfiguration() throws IOException, OldConfigurationFormatException {
 		return configuration;
 	}	
+
+	public File getConfDir() {
+		return initialise(new File(CONF_DIR));
+	}
+
+	public File getSecurityDir() {
+		return initialise(new File(SECURITY_DIR));
+	}
+	
+	private File initialise(File dir) {
+		dir.mkdirs(); // create whole path if does not exist 
+		return dir;
+	}
+
+	private File getLogsDir() {
+		return initialise(new File(LOGS_DIR));
+	}
+
+	public File getUserDataDir() {
+		return null;
+	}
+	
+	public File getClientSettingsDir() {
+		String osName = System.getProperty("os.name");
+
+		File dir = null;
+		if (osName.startsWith("Mac OS")) {
+			dir = null;
+
+		} else if (osName.startsWith("Windows Vista")) {
+			// %systemdrive%\ProgramData\Chipster
+			dir = null;
+
+		} else if (osName.startsWith("Windows")) {
+			//%systemdrive%\Documents and Settings\All Users\Application Data\Chipster
+			dir = null;
+
+		} 
+		if (dir != null) {
+			try {
+				dir.mkdirs();
+			} catch (SecurityException se) {
+				dir = null; // could not create, so can not use
+			}
+		}
+		
+		if (dir != null) {
+			return dir;
+			
+		} else {
+			// fall back to *nix kind of behaviour
+			return initialise(new File(System.getProperty("user.home"), ".chipster"));
+		}
+	}
+
+
 }

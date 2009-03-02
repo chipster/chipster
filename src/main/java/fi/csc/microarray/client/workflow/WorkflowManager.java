@@ -19,7 +19,7 @@ import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.workflow.api.WfApplication;
-import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.GeneralFileFilter;
 
@@ -45,7 +45,7 @@ public class WorkflowManager {
 	public static final GeneralFileFilter FILE_FILTER = 
 		new GeneralFileFilter("Workflow in BeanShell format", new String[]{ WorkflowManager.SCRIPT_EXTENSION });
 	
-	public static final File SCRIPT_DIRECTORY= new File(Configuration.getWorkDir().getAbsolutePath() + File.separator + "chipster-scripts");
+	public static final File SCRIPT_DIRECTORY= new File(DirectoryLayout.getInstance().getUserDataDir(), "chipster-scripts");
 
 	private ClientApplication application;
 

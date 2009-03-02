@@ -56,6 +56,7 @@ import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameTyp
 import fi.csc.microarray.client.visualisation.methods.PhenodataEditor;
 import fi.csc.microarray.client.workflow.WorkflowManager;
 import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
@@ -178,8 +179,8 @@ public abstract class ClientApplication implements Node, WizardContext {
 		
 		// these had to be delayed as they are not available before loading configuration
 		logger = Logger.getLogger(ClientApplication.class);
-		SNAPSHOT_DIR = new File(Configuration.getWorkDir().getAbsolutePath() + File.separator + "session-snapshot.zip");
-		OLD_SNAPSHOT_DIR = new File(Configuration.getWorkDir().getAbsolutePath() + File.separator + "workspace-snapshot");
+		SNAPSHOT_DIR = new File(DirectoryLayout.getInstance().getUserDataDir().getAbsolutePath(), "session-snapshot.zip");
+		OLD_SNAPSHOT_DIR = new File(DirectoryLayout.getInstance().getUserDataDir().getAbsolutePath(), "workspace-snapshot");
 		
 		// initialise modules
 		Modules modules = new Modules();
@@ -252,7 +253,7 @@ public abstract class ClientApplication implements Node, WizardContext {
 		} catch (Exception e) {
 			showDialog("Starting Chipster failed.", "There could be a problem with the network connection, or the remote services could be down. " +
 					"Please see the details below for more information about the problem.\n\n" + 
-					"Chipster also fails to start if there has been a version update with a change in configurations. In such case please delete the \"nami-work-files\" directory in your home directory.",
+					"Chipster also fails to start if there has been a version update with a change in configurations. In such case please delete Chipster application settings directory.",
 					e.toString(), Severity.ERROR, false);
 			
 			throw new MicroarrayException(e);

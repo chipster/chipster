@@ -110,7 +110,7 @@
 
 		<!-- directory for temporary job files --> 
 		<entry entryKey="work_dir">
-			<value>nami-work-files/analyser-work</value>
+			<value>jobs-data</value>
 		</entry>
 
 		<!-- maximum number of jobs run simultaneously -->
@@ -195,7 +195,7 @@
 		</entry>
 	
 		<entry entryKey="databaseUrl">
-			<value>jdbc:h2:nami-work-files/database/chipster-manager</value>
+			<value>jdbc:h2:database/chipster-manager</value>
 		</entry>
 
 		<entry entryKey="databaseUsername">
@@ -215,7 +215,7 @@
 		</entry>
 		
 		<entry entryKey="backupDir">
-			<value>nami-work-files/database-backups</value>
+			<value>database-backups</value>
 		</entry>
 		
 		<entry entryKey="backupTime">
