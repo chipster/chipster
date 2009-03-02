@@ -8,7 +8,7 @@ COMMAND=$2
 PLATFORM=""
 
 
-## detect arif platform not set
+## detect if platform not set
 if [ ! $PLATFORM ]; then
     ARCH=`arch`
     if [ "$ARCH" = "i686" ]; then

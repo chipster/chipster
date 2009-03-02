@@ -100,20 +100,23 @@ public class DirectoryLayout {
 		return configuration;
 	}	
 
-	public File getConfDir() {
+	public File getConfDir() throws IOException {
 		return initialise(new File(CONF_DIR));
 	}
 
-	public File getSecurityDir() {
+	public File getSecurityDir() throws IOException {
 		return initialise(new File(SECURITY_DIR));
 	}
 	
-	private File initialise(File dir) {
-		dir.mkdirs(); // create whole path if does not exist 
+	private File initialise(File dir) throws IOException {
+		boolean ok = dir.mkdirs(); // create whole path if does not exist 
+		if (!ok) {
+			throw new IOException("could not create directory " + dir.getAbsolutePath());
+		}
 		return dir;
 	}
 
-	private File getLogsDir() {
+	private File getLogsDir() throws IOException {
 		return initialise(new File(LOGS_DIR));
 	}
 
@@ -121,7 +124,7 @@ public class DirectoryLayout {
 		return null;
 	}
 	
-	public File getClientSettingsDir() {
+	public File getClientSettingsDir() throws IOException {
 		String osName = System.getProperty("os.name");
 
 		File dir = null;

@@ -69,7 +69,11 @@ public class SimpleFileLoginModule extends LoginModuleBase {
 		// relative path, search the file from work dir, if not found create the
 		// template
 		else {
-			passwdFile = new File(DirectoryLayout.getInstance().getSecurityDir(), passwdFile.getName());
+			try {
+				passwdFile = new File(DirectoryLayout.getInstance().getSecurityDir(), passwdFile.getName());
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 			if (!passwdFile.exists()) {
 				logger.warn("Passwd file " + passwdFile.getPath() + " not found.");
 				createDefaultPasswdFile();

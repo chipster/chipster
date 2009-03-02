@@ -193,77 +193,63 @@
 			
 			<!-- auth -->
 			<tarfileset file="${ext-src}/wrapper/auth/chipster-auth-generic" filemode="755" fullpath="chipster/auth/bin/chipster-auth" />
-			
+
 			<tarfileset file="${wrapper-linux-x86-32}/bin/wrapper" filemode="755" prefix="chipster/auth/bin/linux-x86-32" />
 			<tarfileset file="${ext-src}/wrapper/auth/chipster-auth" filemode="755" prefix="chipster/auth/bin/linux-x86-32" />
-			<tarfileset file="${ext-src}/wrapper/auth/wrapper.conf" prefix="chipster/auth/bin/linux-x86-32" />
 
 			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/auth/bin/linux-x86-64" />
 			<tarfileset file="${ext-src}/wrapper/auth/chipster-auth" filemode="755" prefix="chipster/auth/bin/linux-x86-64" />
-			<tarfileset file="${ext-src}/wrapper/auth/wrapper.conf" prefix="chipster/auth/bin/linux-x86-64" />
 
-			<tarfileset dir="${ext-src}/wrapper/auth/nami-work-files" prefix="chipster/auth/nami-work-files" />
-			<tarfileset dir="${ext-src}/wrapper/logs" prefix="chipster/auth/logs" />
+			<tarfileset dir="${ext-src}/wrapper/auth/conf" prefix="chipster/auth/conf" />
 
 			<!-- comp -->
 			<tarfileset file="${ext-src}/wrapper/comp/chipster-comp-generic" filemode="755" fullpath="chipster/comp/bin/chipster-comp" />
 			
 			<tarfileset file="${wrapper-linux-x86-32}/bin/wrapper" filemode="755" prefix="chipster/comp/bin/linux-x86-32" />
 			<tarfileset file="${ext-src}/wrapper/comp/chipster-comp" filemode="755" prefix="chipster/comp/bin/linux-x86-32" />
-			<tarfileset file="${ext-src}/wrapper/comp/wrapper.conf" prefix="chipster/comp/bin/linux-x86-32" />
 
 			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/comp/bin/linux-x86-64" />
 			<tarfileset file="${ext-src}/wrapper/comp/chipster-comp" filemode="755" prefix="chipster/comp/bin/linux-x86-64" />
-			<tarfileset file="${ext-src}/wrapper/comp/wrapper.conf" prefix="chipster/comp/bin/linux-x86-64" />
 
-			<tarfileset dir="${ext-src}/wrapper/comp/nami-work-files" prefix="chipster/comp/nami-work-files" />
-			<tarfileset dir="${ext-src}/wrapper/logs" prefix="chipster/comp/logs" />
+			<tarfileset dir="${ext-src}/wrapper/comp/conf" prefix="chipster/comp/conf" />
 
 			<!-- fileserver -->
 			<tarfileset file="${ext-src}/wrapper/fileserver/chipster-fileserver-generic" filemode="755" fullpath="chipster/fileserver/bin/chipster-fileserver" />
 			
 			<tarfileset file="${wrapper-linux-x86-32}/bin/wrapper" filemode="755" prefix="chipster/fileserver/bin/linux-x86-32" />
 			<tarfileset file="${ext-src}/wrapper/fileserver/chipster-fileserver" filemode="755" prefix="chipster/fileserver/bin/linux-x86-32" />
-			<tarfileset file="${ext-src}/wrapper/fileserver/wrapper.conf" prefix="chipster/fileserver/bin/linux-x86-32" />
 
 			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/fileserver/bin/linux-x86-64" />
 			<tarfileset file="${ext-src}/wrapper/fileserver/chipster-fileserver" filemode="755" prefix="chipster/fileserver/bin/linux-x86-64" />
-			<tarfileset file="${ext-src}/wrapper/fileserver/wrapper.conf" prefix="chipster/fileserver/bin/linux-x86-64" />
 
-			<tarfileset dir="${ext-src}/wrapper/fileserver/nami-work-files" prefix="chipster/fileserver/nami-work-files" />
-			<tarfileset dir="${ext-src}/wrapper/logs" prefix="chipster/fileserver/logs" />
+			<tarfileset dir="${ext-src}/wrapper/fileserver/conf" prefix="chipster/fileserver/conf" />
 
-			<tarfileset dir="${ext-src}/wrapper/fileroot" prefix="chipster/fileserver/fileroot" />
 
 			<!-- client -->
+			<!--
 			<tarfileset file="${ext-src}/wrapper/client/chipster-client-generic" filemode="755" fullpath="chipster/client/bin/chipster-client" />
 			
 			<tarfileset file="${wrapper-linux-x86-32}/bin/wrapper" filemode="755" prefix="chipster/client/bin/linux-x86-32" />
 			<tarfileset file="${ext-src}/wrapper/client/chipster-client" filemode="755" prefix="chipster/client/bin/linux-x86-32" />
-			<tarfileset file="${ext-src}/wrapper/client/wrapper.conf" prefix="chipster/client/bin/linux-x86-32" />
 
 			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/client/bin/linux-x86-64" />
 			<tarfileset file="${ext-src}/wrapper/client/chipster-client" filemode="755" prefix="chipster/client/bin/linux-x86-64" />
-			<tarfileset file="${ext-src}/wrapper/client/wrapper.conf" prefix="chipster/client/bin/linux-x86-64" />
 
-			<tarfileset dir="${ext-src}/wrapper/client/nami-work-files" prefix="chipster/client/nami-work-files" />
-			<tarfileset dir="${ext-src}/wrapper/logs" prefix="chipster/client/logs" />
-
+			<tarfileset dir="${ext-src}/wrapper/client/conf" prefix="chipster/client/conf" />
+			-->
+			
 			<!-- web start -->
 			<tarfileset file="${ext-src}/wrapper/webstart/chipster-webstart-generic" filemode="755" fullpath="chipster/webstart/bin/chipster-webstart" />
 			
 			<tarfileset file="${wrapper-linux-x86-32}/bin/wrapper" filemode="755" prefix="chipster/webstart/bin/linux-x86-32" />
 			<tarfileset file="${ext-src}/wrapper/webstart/chipster-webstart" filemode="755" prefix="chipster/webstart/bin/linux-x86-32" />
-			<tarfileset file="${ext-src}/wrapper/webstart/wrapper.conf" prefix="chipster/webstart/bin/linux-x86-32" />
 
 			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/webstart/bin/linux-x86-64" />
 			<tarfileset file="${ext-src}/wrapper/webstart/chipster-webstart" filemode="755" prefix="chipster/webstart/bin/linux-x86-64" />
-			<tarfileset file="${ext-src}/wrapper/webstart/wrapper.conf" prefix="chipster/webstart/bin/linux-x86-64" />
 
-			<tarfileset dir="${ext-src}/wrapper/webstart/nami-work-files" prefix="chipster/webstart/nami-work-files" />
-			<tarfileset dir="${ext-src}/wrapper/logs" prefix="chipster/webstart/logs" />
+			<tarfileset dir="${ext-src}/wrapper/webstart/conf" prefix="chipster/webstart/conf" />
 			
-			<tarfileset dir="${ext-src}/wrapper/webstart/web-content" prefix="chipster/webstart/web-content" />
+			<tarfileset dir="${ext-src}/wrapper/webstart/web-root" prefix="chipster/webstart/web-root" />
 			<tarfileset file="dist/microarray-${release-version}.jar" fullpath="chipster/webstart/web-content/lib/chipster-current.jar" />
 
 			<!-- manager -->
@@ -271,14 +257,11 @@
 			
 			<tarfileset file="${wrapper-linux-x86-32}/bin/wrapper" filemode="755" prefix="chipster/manager/bin/linux-x86-32" />
 			<tarfileset file="${ext-src}/wrapper/manager/chipster-manager" filemode="755" prefix="chipster/manager/bin/linux-x86-32" />
-			<tarfileset file="${ext-src}/wrapper/manager/wrapper.conf" prefix="chipster/manager/bin/linux-x86-32" />
 
 			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/manager/bin/linux-x86-64" />
 			<tarfileset file="${ext-src}/wrapper/manager/chipster-manager" filemode="755" prefix="chipster/manager/bin/linux-x86-64" />
-			<tarfileset file="${ext-src}/wrapper/manager/wrapper.conf" prefix="chipster/manager/bin/linux-x86-64" />
 
-			<tarfileset dir="${ext-src}/wrapper/manager/nami-work-files" prefix="chipster/manager/nami-work-files" />
-			<tarfileset dir="${ext-src}/wrapper/logs" prefix="chipster/manager/logs" />
+			<tarfileset dir="${ext-src}/wrapper/manager/conf" prefix="chipster/manager/conf" />
 			
 			<!-- activemq -->
 			<!-- this looks weird because tar task does not preserve file permissions and activemq has messed up with some files -->
