@@ -201,6 +201,7 @@
 			<tarfileset file="${ext-src}/wrapper/auth/chipster-auth" filemode="755" prefix="chipster/auth/bin/linux-x86-64" />
 
 			<tarfileset dir="${ext-src}/wrapper/auth/conf" prefix="chipster/auth/conf" />
+			<tarfileset dir="${ext-src}/wrapper/auth/logs" prefix="chipster/auth/logs" /> <!-- must exist for wrapper -->
 
 			<!-- comp -->
 			<tarfileset file="${ext-src}/wrapper/comp/chipster-comp-generic" filemode="755" fullpath="chipster/comp/bin/chipster-comp" />
@@ -212,6 +213,7 @@
 			<tarfileset file="${ext-src}/wrapper/comp/chipster-comp" filemode="755" prefix="chipster/comp/bin/linux-x86-64" />
 
 			<tarfileset dir="${ext-src}/wrapper/comp/conf" prefix="chipster/comp/conf" />
+			<tarfileset dir="${ext-src}/wrapper/comp/logs" prefix="chipster/comp/logs" /> <!-- must exist for wrapper -->
 
 			<!-- fileserver -->
 			<tarfileset file="${ext-src}/wrapper/fileserver/chipster-fileserver-generic" filemode="755" fullpath="chipster/fileserver/bin/chipster-fileserver" />
@@ -223,6 +225,7 @@
 			<tarfileset file="${ext-src}/wrapper/fileserver/chipster-fileserver" filemode="755" prefix="chipster/fileserver/bin/linux-x86-64" />
 
 			<tarfileset dir="${ext-src}/wrapper/fileserver/conf" prefix="chipster/fileserver/conf" />
+			<tarfileset dir="${ext-src}/wrapper/fileserver/logs" prefix="chipster/fileserver/logs" /> <!-- must exist for wrapper -->
 
 
 			<!-- client -->
@@ -236,6 +239,7 @@
 			<tarfileset file="${ext-src}/wrapper/client/chipster-client" filemode="755" prefix="chipster/client/bin/linux-x86-64" />
 
 			<tarfileset dir="${ext-src}/wrapper/client/conf" prefix="chipster/client/conf" />
+			<tarfileset dir="${ext-src}/wrapper/client/logs" prefix="chipster/client/logs" />			
 			-->
 			
 			<!-- web start -->
@@ -248,9 +252,10 @@
 			<tarfileset file="${ext-src}/wrapper/webstart/chipster-webstart" filemode="755" prefix="chipster/webstart/bin/linux-x86-64" />
 
 			<tarfileset dir="${ext-src}/wrapper/webstart/conf" prefix="chipster/webstart/conf" />
-			
+			<tarfileset dir="${ext-src}/wrapper/webstart/logs" prefix="chipster/webstart/logs" /> <!-- must exist for wrapper -->
+
 			<tarfileset dir="${ext-src}/wrapper/webstart/web-root" prefix="chipster/webstart/web-root" />
-			<tarfileset file="dist/microarray-${release-version}.jar" fullpath="chipster/webstart/web-content/lib/chipster-current.jar" />
+			<tarfileset file="dist/microarray-${release-version}.jar" fullpath="chipster/webstart/web-root/lib/chipster-current.jar" />
 
 			<!-- manager -->
 			<tarfileset file="${ext-src}/wrapper/manager/chipster-manager-generic" filemode="755" fullpath="chipster/manager/bin/chipster-manager" />
@@ -262,7 +267,8 @@
 			<tarfileset file="${ext-src}/wrapper/manager/chipster-manager" filemode="755" prefix="chipster/manager/bin/linux-x86-64" />
 
 			<tarfileset dir="${ext-src}/wrapper/manager/conf" prefix="chipster/manager/conf" />
-			
+			<tarfileset dir="${ext-src}/wrapper/manager/logs" prefix="chipster/manager/logs" /> <!-- must exist for wrapper -->
+
 			<!-- activemq -->
 			<!-- this looks weird because tar task does not preserve file permissions and activemq has messed up with some files -->
 			<tarfileset dir="${activemq-dist}" prefix="chipster/activemq" />
@@ -281,7 +287,6 @@
 			<tarfileset file="${ext-src}/activemq/activemq.xml" prefix="chipster/activemq/conf" />
 
 		</tar>
-
 
 	</target>
 

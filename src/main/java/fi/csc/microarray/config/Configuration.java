@@ -17,8 +17,8 @@ public class Configuration {
 
 	public static final String CONFIG_FILENAME = "chipster-config.xml";
 	
-	private static final String STATIC_CONFIG_RESOURCENAME = "/nami-static-config.xml";
-	private static String DEFAULT_CONFIG_FILE = "/nami-config.xml.default";	
+	private static final String STATIC_CONFIG_RESOURCENAME = "/chipster-static-config.xml";
+	private static String DEFAULT_CONFIG_FILE = "/chipster-config.xml.default";	
 	private static boolean alreadyLoaded = false;	
 	private static ConfigurationModule configuration = new ConfigurationModule(true);	
 	

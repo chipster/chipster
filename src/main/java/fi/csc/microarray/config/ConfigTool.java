@@ -39,10 +39,7 @@ public class ConfigTool {
 			"auth",
 			"fileserver",
 			"manager",
-			"client"
-	};
-
-	private final String[] componentDirsWithoutConfig = new String[] {
+			"client",
 			"webstart"
 	};
 
@@ -220,13 +217,13 @@ public class ConfigTool {
 			}
 
 			// update ActiveMQ config
-			File activemqConfigFile = new File(brokerDir + File.separator + "conf" + File.separator + "activemq.xml");
+			File activemqConfigFile = new File(brokerDir + File.separator + DirectoryLayout.CONF_DIR + File.separator + "activemq.xml");
 			if (activemqConfigFile.exists()) {
 				updateActivemqConfigFile(activemqConfigFile);
 			}
 			
 			// update Web Start config
-			File wsConfigFile = new File(webstartDir + File.separator + "web-content" + File.separator + "chipster.jnlp");
+			File wsConfigFile = new File(webstartDir + File.separator + DirectoryLayout.WEB_ROOT_DIR + File.separator + "chipster.jnlp");
 			if (wsConfigFile.exists()) {
 				updateWsConfigFile(wsConfigFile);
 			}

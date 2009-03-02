@@ -10,25 +10,16 @@ import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.thread.QueuedThreadPool;
 
 import fi.csc.microarray.ApplicationConstants;
+import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.util.MemUtil;
 
 public class WebstartJettyServer {
 	
-	private static final int PORT_NUMBER = 8081;
 	/**
 	 * Logger for this class
 	 */
 	private static Logger logger;
-
-	static {
-		try {
-			DirectoryLayout.initialiseServerLayout().getConfiguration();			
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		logger = Logger.getLogger(WebstartJettyServer.class);
-	}
 	
 	private Server jettyInstance;
 	
@@ -43,18 +34,24 @@ public class WebstartJettyServer {
 	public void start() {
 	
 		try {
+			// initialise config and logging
+			DirectoryLayout.initialiseServerLayout();
+			Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
+			logger = Logger.getLogger(WebstartJettyServer.class);
 			if (logger.isDebugEnabled()) {
 				System.setProperty("DEBUG", "true");
 			}
+
+			// initialise jetty
 			jettyInstance = new Server();
 			jettyInstance.setThreadPool(new QueuedThreadPool());
 			Connector connector = new SelectChannelConnector();
 			connector.setServer(jettyInstance);
-			connector.setPort(PORT_NUMBER);
+			connector.setPort(Integer.parseInt(configuration.getValue("webstart", "port")));
 			jettyInstance.setConnectors(new Connector[]{ connector });
 
 			Context wsRoot = new Context(jettyInstance, "/", false, false);
-			wsRoot.setResourceBase("web-content/");
+			wsRoot.setResourceBase("web-root/");
 			wsRoot.addServlet(new ServletHolder(new DefaultServlet()), "/*");
 
 			jettyInstance.start();

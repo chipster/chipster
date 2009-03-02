@@ -25,6 +25,7 @@ public class DirectoryLayout {
 	public static final String CONF_DIR = "conf";
 	public static final String SECURITY_DIR = "security";
 	public static final String LOGS_DIR = "logs";
+	public static final String WEB_ROOT_DIR = "web-root";
 
 	private static final String CONF_DIR_SYSTEM_PROPERTY = "chipster_conf_dir";
 	private static final String LOGS_DIR_SYSTEM_PROPERTY = "chipster_logs_dir";

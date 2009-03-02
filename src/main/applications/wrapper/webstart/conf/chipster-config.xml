@@ -63,4 +63,11 @@
 	
 	</configuration-module>
 
+	<configuration-module moduleId="webstart">
+	    
+        <entry entryKey="port">
+            <value>8081</value>
+        </entry>
+        
+    </configuration-module>
 </configuration>
