@@ -33,7 +33,7 @@
 
 		<!-- for SSL: keystore -->
 		<entry entryKey="keystore">
-			<value>${nami_work_dir}/keystore.ks</value>
+			<value>${chipster_security_dir}/keystore.ks</value>
 		</entry>
 
 		<!-- for SSL: master keystore -->		
@@ -53,57 +53,17 @@
 
 		<!-- username for authenticating connection to broker -->
 		<entry entryKey="username">
-			<value>auth</value>
+			<value>comp</value>
 		</entry>
 
 		<!-- password for authenticating connection to broker -->
 		<entry entryKey="password">
-			<value>auth</value>
+			<value>comp</value>
 		</entry>
 	
 	</configuration-module>
-
 	
-	<!-- FILEBROKER -->
 	
-	<configuration-module moduleId="frontend">
-	
-		<entry entryKey="fileServerPath">
-			<value>fileroot</value>
-		</entry>
-		
-		<!-- how long files are stored in fileserver, seconds -->
-		<entry entryKey="fileLifeTime">
-			<value>86400</value>
-		</entry>
-
-		<!-- how often file cleanup check occurs, seconds -->
-		<entry entryKey="cleanUpFrequency">
-			<value>3600</value>
-		</entry>
-
-	</configuration-module>
-			
-	<configuration-module moduleId="filebroker">
-	    
-	    <!-- url of this file broker instance -->
-		<entry entryKey="url">
-			<value></value>
-		</entry>
-		
-	    <!-- server port to use in this file broker instance -->
-        <entry entryKey="port">
-            <value>8080</value>
-        </entry>
-
-		<!-- should Jetty web server run in debug mode (debug log to logs/wrapper.log) -->
-		<entry entryKey="jettyDebug">
-			<value>false</value>
-		</entry>
-        
-	</configuration-module>
-
-
 	<!-- ANALYSER -->
     	
 	<configuration-module moduleId="analyser">
