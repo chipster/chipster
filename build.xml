@@ -94,6 +94,7 @@
         	<fatjar.jarsource file="${lib}/saaj-api.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/saaj-impl.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/activation.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/cron4j-1.1.5.jar" relpath=""/>
         </fatjar.build>
 
 		<!-- sign it -->

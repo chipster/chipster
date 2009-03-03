@@ -1,5 +1,7 @@
 package fi.csc.microarray.manager;
 
+import it.sauronsoftware.cron4j.Scheduler;
+
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -158,6 +160,22 @@ public class Manager extends MonitoredNodeBase implements MessagingListener {
 	    Timer timer = new Timer("chipster-manager-backup", true);
     	timer.scheduleAtFixedRate(new BackupTimerTask(backupDirName), firstBackupTime.getTime(), backupInterval*60*60*1000);
 	    
+    	
+	    // schedule additional tasks
+    	// TODO add to configs
+    	TimerTask additionalTask = null;
+    	try {
+    		additionalTask = (TimerTask) Class.forName("fi.csc.chipster.manager.AskareLogTimerTask").getConstructor(JdbcTemplate.class).newInstance(jdbcTemplate);
+    	} catch (Exception e) {
+    	}
+    	if (additionalTask != null) {
+    		Scheduler scheduler = new Scheduler();
+    		scheduler.schedule("15 0 * * *", additionalTask);
+    		scheduler.start();
+    	}
+    	
+    	
+    	
 	    
 		// initialize communications
 		this.endpoint = new MessagingEndpoint(this);
