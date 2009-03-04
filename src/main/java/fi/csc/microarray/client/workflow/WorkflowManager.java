@@ -45,25 +45,24 @@ public class WorkflowManager {
 	public static final GeneralFileFilter FILE_FILTER = 
 		new GeneralFileFilter("Workflow in BeanShell format", new String[]{ WorkflowManager.SCRIPT_EXTENSION });
 	
-	public static final File SCRIPT_DIRECTORY= new File(DirectoryLayout.getInstance().getUserDataDir(), "chipster-scripts");
+	public File scriptDirectory;
 
 	private ClientApplication application;
 
-	public WorkflowManager(ClientApplication application) {
+	public WorkflowManager(ClientApplication application) throws IOException {
 		this.application = application;
+		this.scriptDirectory = DirectoryLayout.getInstance().getUserDataDir();
 	}
 
 	public List<File> getWorkflows() {
 		LinkedList<File> workflows = new LinkedList<File>();
-		if (SCRIPT_DIRECTORY.exists()) {
-			File[] scripts = SCRIPT_DIRECTORY.listFiles(new FilenameFilter() {
-				public boolean accept(File dir, String name) {
-					return name.endsWith(SCRIPT_EXTENSION);
-				}				
-			});
-			for (File script : scripts) {
-				workflows.add(script);
-			}
+		File[] scripts = scriptDirectory.listFiles(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				return name.endsWith(SCRIPT_EXTENSION);
+			}				
+		});
+		for (File script : scripts) {
+			workflows.add(script);
 		}
 		return workflows;
 	}
@@ -138,13 +137,8 @@ public class WorkflowManager {
 			}
 		}
 	}
-	
-	public void initialiseScriptDirectory() throws IOException {
-		if (!SCRIPT_DIRECTORY.exists()) {
-			boolean ok = SCRIPT_DIRECTORY.mkdir();
-			if (!ok) {
-				throw new IOException(SCRIPT_DIRECTORY.getPath() + " could not be created");
-			}
-		}				
+
+	public File getScriptDirectory() {
+		return scriptDirectory;
 	}
 }

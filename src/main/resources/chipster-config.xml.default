@@ -11,20 +11,20 @@
 			<value></value> <!-- MUST BE FILLED IN (MANUALLY OR BY WEBSTART) -->
 		</entry>
 
-		<!-- should we use chunked HTTP mode when connecting to filebroker -->
-		<!-- (warning: disabling this means all data is loaded to memory in transfer!) -->
-		<entry entryKey="use_chunked_http">
-			<value>true</value>
-		</entry>
-
 		<!-- protocol used to connect to message broker -->
 		<entry entryKey="broker_protocol">
-			<value>ssl</value>
+			<value></value> <!-- MUST BE FILLED IN (MANUALLY OR BY WEBSTART) -->
 		</entry>
 
 		<!-- port used to connect to message broker -->
 		<entry entryKey="broker_port">
-			<value>61617</value>
+			<value></value> <!-- MUST BE FILLED IN (MANUALLY OR BY WEBSTART) -->
+		</entry>
+
+		<!-- should we use chunked HTTP mode when connecting to filebroker -->
+		<!-- (warning: disabling this means all data is loaded to memory in transfer!) -->
+		<entry entryKey="use_chunked_http">
+			<value>true</value>
 		</entry>
 		
 	</configuration-module>
@@ -33,7 +33,7 @@
 
 		<!-- for SSL: keystore -->
 		<entry entryKey="keystore">
-			<value>${nami_work_dir}/keystore.ks</value>
+			<value>${chipster_security_dir}/keystore.ks</value>
 		</entry>
 
 		<!-- for SSL: master keystore -->		

@@ -168,7 +168,7 @@ public abstract class ClientApplication implements Node, WizardContext {
 	private boolean eventsEnabled = false;
 	private PropertyChangeSupport eventSupport = new PropertyChangeSupport(this);
 
-	protected WorkflowManager workflowManager = new WorkflowManager(this);
+	protected WorkflowManager workflowManager;
 	protected TaskExecutor taskExecutor;
 	protected MessagingEndpoint endpoint;
 	protected DataManager manager;
@@ -189,6 +189,9 @@ public abstract class ClientApplication implements Node, WizardContext {
 		}
 		Session.getSession().putObject("modules", modules);
 		
+		// initialise workflows
+		this.workflowManager = new WorkflowManager(this);
+		 
 		// initialise data management
 		this.manager = new FSDataManager();
 		modules.plugFeatures(this.manager);
@@ -630,10 +633,6 @@ public abstract class ClientApplication implements Node, WizardContext {
 		ImportUtils.executeImport(importSession);
 	}
 
-	public void runWorkflow(String scriptName) {
-		runWorkflow(new File(WorkflowManager.SCRIPT_DIRECTORY.getPath() + File.separator + scriptName + "." + WorkflowManager.SCRIPT_EXTENSION));
-	}
-	
 	public void runWorkflow(File scriptFile) {
 		workflowManager.runScript(scriptFile, null);
 	}

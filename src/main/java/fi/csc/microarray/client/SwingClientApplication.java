@@ -723,7 +723,6 @@ public class SwingClientApplication extends ClientApplication {
 	public File saveWorkflow() {
 
 		try {
-			workflowManager.initialiseScriptDirectory();
 			JFileChooser fileChooser = this.getWorkflowFileChooser();
 			int ret = fileChooser.showSaveDialog(this.getMainFrame());
 			if (ret == JFileChooser.APPROVE_OPTION) {
@@ -746,22 +745,17 @@ public class SwingClientApplication extends ClientApplication {
 	@Override
 	public File openWorkflow() {
 
-		try {
-			workflowManager.initialiseScriptDirectory();
-			JFileChooser fileChooser = this.getWorkflowFileChooser();
-			int ret = fileChooser.showOpenDialog(this.getMainFrame());
-			if (ret == JFileChooser.APPROVE_OPTION) {
-				runWorkflow(fileChooser.getSelectedFile());
-				unsavedChanges = false;
-				menuBar.updateMenuStatus();
-				return fileChooser.getSelectedFile();
-			}
+		JFileChooser fileChooser = this.getWorkflowFileChooser();
+		int ret = fileChooser.showOpenDialog(this.getMainFrame());
+		if (ret == JFileChooser.APPROVE_OPTION) {
+			runWorkflow(fileChooser.getSelectedFile());
+			unsavedChanges = false;
 			menuBar.updateMenuStatus();
-
-		} catch (IOException e) {
-			reportException(e);
+			return fileChooser.getSelectedFile();
+		} else {
+			menuBar.updateMenuStatus();
+			return null;
 		}
-		return null;
 	}
 
 	public void showHistoryScreenFor(DataBean data) {
@@ -1424,7 +1418,7 @@ public class SwingClientApplication extends ClientApplication {
 
 	private JFileChooser getWorkflowFileChooser() {
 		if (workflowFileChooser == null) {
-			workflowFileChooser = ImportUtils.getFixedFileChooser(WorkflowManager.SCRIPT_DIRECTORY);
+			workflowFileChooser = ImportUtils.getFixedFileChooser(workflowManager.getScriptDirectory());
 
 			workflowFileChooser.setFileFilter(WorkflowManager.FILE_FILTER);
 			workflowFileChooser.setSelectedFile(new File("workflow.bsh"));

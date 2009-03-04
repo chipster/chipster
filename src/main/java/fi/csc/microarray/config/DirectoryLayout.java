@@ -2,7 +2,6 @@ package fi.csc.microarray.config;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 
 import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
 
@@ -81,6 +80,20 @@ public class DirectoryLayout {
 		this.configuration = new Configuration(overrideString, getConfDir());
 	}
 
+	public File getConfDir() throws IOException {
+		return initialise(new File(getBaseDir(), CONF_DIR));
+	}
+
+
+	public File getSecurityDir() throws IOException {
+		return initialise(new File(getBaseDir(), SECURITY_DIR));
+	}
+	
+
+	private File getLogsDir() throws IOException {
+		return initialise(new File(getBaseDir(), LOGS_DIR));
+	}
+
 	public File getFileroot() throws IOException, OldConfigurationFormatException {
 		if (type == Type.SERVER) {
 			File fileRepository = new File(Configuration.getValue("frontend", "fileServerPath"));
@@ -96,19 +109,70 @@ public class DirectoryLayout {
 			throw new UnsupportedOperationException();
 		}
 	}
-	
-	public Configuration getConfiguration() throws IOException, OldConfigurationFormatException {
-		return configuration;
-	}	
 
-	public File getConfDir() throws IOException {
-		return initialise(new File(CONF_DIR));
+
+	public File getUserDataDir() throws IOException {
+		if (type == Type.CLIENT) {
+
+			File dir = null;
+			File home = new File(System.getProperty("user.home"));
+
+			if (new File(home, "My Documents").exists()) {
+				dir = new File(home, "My Documents");
+
+			} else if (new File(home, "Documents").exists()) {
+				dir = new File(home, "Documents");
+
+			} else {
+				dir = home;
+			}
+
+			return dir;
+			
+		} else {
+			throw new IllegalStateException("not supported for type SERVER");
+		}
+	}
+	
+	private File getClientSettingsDir() throws IOException {
+		File dir = null;
+		String osName = System.getProperty("os.name");
+
+		// guess proper place for application settings
+		if (osName.startsWith("Mac OS")) {
+			dir = new File(System.getProperty("user.home"), "Library" + File.separator + "Application Support");
+
+		} else if (osName.startsWith("Windows")) {
+			dir = new File(System.getProperty("user.home"), "Local Settings" + File.separator + "Application Data");
+
+		} 
+		
+		// initialise it
+		if (dir != null) {
+			dir = new File(dir, "Chipster");
+			try {
+				dir.mkdirs();
+			} catch (SecurityException se) {
+				dir = null; // could not create properly, so can not use this
+			}
+		}
+		
+		// if it did not work out, fall back to *nix mode 
+		if (dir == null) {
+			dir = new File(System.getProperty("user.home"), ".chipster");
+		}
+		
+		return initialise(dir);
 	}
 
-	public File getSecurityDir() throws IOException {
-		return initialise(new File(SECURITY_DIR));
+	private File getBaseDir() throws IOException {
+		if (type == Type.CLIENT) {
+			return getClientSettingsDir(); // use OS specific dir
+		} else {
+			return new File(System.getProperty("user.dir")); // use working dir
+		}
 	}
-	
+
 	private File initialise(File dir) throws IOException {
 		if (!dir.exists()) {
 			boolean ok = dir.mkdirs(); // create whole path if does not exist 
@@ -119,46 +183,8 @@ public class DirectoryLayout {
 		return dir;
 	}
 
-	private File getLogsDir() throws IOException {
-		return initialise(new File(LOGS_DIR));
-	}
-
-	public File getUserDataDir() {
-		return null;
-	}
-	
-	public File getClientSettingsDir() throws IOException {
-		String osName = System.getProperty("os.name");
-
-		File dir = null;
-		if (osName.startsWith("Mac OS")) {
-			dir = null;
-
-		} else if (osName.startsWith("Windows Vista")) {
-			// %systemdrive%\ProgramData\Chipster
-			dir = null;
-
-		} else if (osName.startsWith("Windows")) {
-			//%systemdrive%\Documents and Settings\All Users\Application Data\Chipster
-			dir = null;
-
-		} 
-		if (dir != null) {
-			try {
-				dir.mkdirs();
-			} catch (SecurityException se) {
-				dir = null; // could not create, so can not use
-			}
-		}
-		
-		if (dir != null) {
-			return dir;
-			
-		} else {
-			// fall back to *nix kind of behaviour
-			return initialise(new File(System.getProperty("user.home"), ".chipster"));
-		}
-	}
-
+	public Configuration getConfiguration() throws IOException, OldConfigurationFormatException {
+		return configuration;
+	}	
 
 }
