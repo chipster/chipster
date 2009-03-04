@@ -105,15 +105,18 @@ public class MessagingEndpoint implements MessagingListener {
 		this.master = master;
 		this.authenticationListener = authenticationListener;
 
-		try {
-			KeyAndTrustManager.initialise(
-					Configuration.getValue("security", "keystore"),
-					Configuration.getValue("security", "keypass").toCharArray(), 
-					Configuration.getValue("security", "keyalias"), 
-					Configuration.getValue("security", "master_keystore"));
-		} catch (Exception e) {
-			throw new MicroarrayException("could not setup SSL connection", e);
-		}  
+		// setup keystore if needed
+		if ("ssl".equals(Configuration.getValue("messaging", "broker_protocol"))) {
+			try {
+				KeyAndTrustManager.initialise(
+						Configuration.getValue("security", "keystore"),
+						Configuration.getValue("security", "keypass").toCharArray(), 
+						Configuration.getValue("security", "keyalias"), 
+						Configuration.getValue("security", "master_keystore"));
+			} catch (Exception e) {
+				throw new MicroarrayException("could not access SSL keystore", e);
+			}
+		}
 		
 		String username;
 		String password;
