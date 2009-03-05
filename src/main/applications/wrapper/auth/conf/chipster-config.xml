@@ -11,20 +11,20 @@
 			<value></value> <!-- MUST BE FILLED IN (MANUALLY OR BY WEBSTART) -->
 		</entry>
 
-		<!-- should we use chunked HTTP mode when connecting to filebroker -->
-		<!-- (warning: disabling this means all data is loaded to memory in transfer!) -->
-		<entry entryKey="use_chunked_http">
-			<value>true</value>
-		</entry>
-
 		<!-- protocol used to connect to message broker -->
 		<entry entryKey="broker_protocol">
-			<value>tcp</value>
+			<value></value>
 		</entry>
 
 		<!-- port used to connect to message broker -->
 		<entry entryKey="broker_port">
-			<value>61616</value>
+			<value></value>
+		</entry>
+
+		<!-- should we use chunked HTTP mode when connecting to filebroker -->
+		<!-- (warning: disabling this means all data is loaded to memory in transfer!) -->
+		<entry entryKey="use_chunked_http">
+			<value>true</value>
 		</entry>
 		
 	</configuration-module>
