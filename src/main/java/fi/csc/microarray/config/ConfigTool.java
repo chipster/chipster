@@ -34,7 +34,7 @@ public class ConfigTool {
 	private final String brokerDir = "activemq";
 	private final String webstartDir = "webstart";
 
-	private final String[] componentDirsWithConfig = new String[] {
+	private final static String[] componentDirsWithConfig = new String[] {
 			"comp",
 			"auth",
 			"fileserver",
@@ -87,6 +87,7 @@ public class ConfigTool {
 	
 	public static void main(String[] args) throws Exception {
 		ConfigTool configTool = new ConfigTool();
+		UpgradeTool upgradeTool = new UpgradeTool();
 		
 		if (args.length == 0) {
 			fail();
@@ -97,8 +98,12 @@ public class ConfigTool {
 		} else if ("genpasswd".equals(args[0])) {
 			configTool.genpasswd();
 
-		} else if ("migrate".equals(args[0])) {
-			configTool.migrate();
+		} else if ("upgrade".equals(args[0])) {
+			if (args.length > 1) {
+				upgradeTool.upgrade(new File(args[1]));
+			} else {
+				System.out.println("Please specify location of the old installation directory as an argument (e.g., \"./upgrade.sh /opt/chipster-1.2.3\")");
+			}
 
 		} else {
 			fail();
@@ -106,7 +111,7 @@ public class ConfigTool {
 	}
 	
 	private static void fail() {
-		System.out.println("Illegal arguments! Please specify one of: configure, genpasswd, migrate");
+		System.out.println("Illegal arguments! Please specify one of: configure, genpasswd, upgrade");
 	}
 	
 	private void genpasswd() throws Exception {
@@ -128,7 +133,7 @@ public class ConfigTool {
 			//
 			
 			// update all Chipster configs
-			for (String componentDir : componentDirsWithConfig) {
+			for (String componentDir : getComponentDirsWithConfig()) {
 				if (new File(componentDir).exists()) {
 					File configFile = new File(componentDir + File.separator + DirectoryLayout.CONF_DIR + File.separator + Configuration.CONFIG_FILENAME);
 					updateChipsterConfigFilePasswords(configFile);
@@ -168,7 +173,7 @@ public class ConfigTool {
 		System.out.println("\nAll changes successfully written!");
 	}
 
-	private void verifyChanges(BufferedReader in) throws Exception {
+	public static void verifyChanges(BufferedReader in) throws Exception {
 		System.out.println("Please verify changes. Should changes be written to disk [yes/no]?");
 		String answer = in.readLine();
 		if (!"yes".equals(answer)) {
@@ -209,7 +214,7 @@ public class ConfigTool {
 			//
 			
 			// update all Chipster configs
-			for (String componentDir : componentDirsWithConfig) {
+			for (String componentDir : getComponentDirsWithConfig()) {
 				if (new File(componentDir).exists()) {
 					File configFile = new File(componentDir + File.separator + DirectoryLayout.CONF_DIR + File.separator + Configuration.CONFIG_FILENAME);
 					updateChipsterConfigFile(configFile);
@@ -363,34 +368,8 @@ public class ConfigTool {
 		return doc;
 	}
 
-	private void migrate() {
-		throw new UnsupportedOperationException("not implemented fully yet");
-		
-//		String workDir12x = "nami-work-files";
-//		String logsDir13x = "logs";
-//		moveToNewDir(workDir12x, "logs", "nami.log", "messages.log",	"jobs.log",	"security.log",	"status.log");
-//		new File("logs" + File.separator + "nami.log").renameTo(new File("logs" + File.separator + "chipster.log"));
-//		moveToNewDir(workDir12x, "security", "keystore.ks", "users");
-//		moveToNewDir(workDir12x, "conf", "nami-config.xml", "jaas.config");
-//		new File("conf" + File.separator + "nami-config.xml").renameTo(new File("conf" + File.separator + "chipster-config.xml"));
-//		// we should move the later of 32/64
-//		moveToNewDir("bin" + File.separator + "linux-x86-64", "conf", "wrapper.conf");
-//		
-//		// create if needed: fileroot, jobs-data, database 
-	}
-
-	private void moveToNewDir(String oldDir, String newDir, String... files) {
-		
-		// create new it does not exist
-		new File(newDir).mkdir();
-		
-		// move listed files to new
-		for (String file : files) {
-			File from = new File(oldDir + File.separator + file);
-			File to = new File(newDir + File.separator + file);
-			from.renameTo(to);
-			//System.out.println("i would move " + from + " to " + to);
-		}
+	public static String[] getComponentDirsWithConfig() {
+		return componentDirsWithConfig;
 	}
 	
 }

@@ -187,7 +187,7 @@
 			
 			<!-- config tool -->
 			<tarfileset file="${ext-src}/wrapper/configure.sh" filemode="755" prefix="chipster" />
-			<tarfileset file="${ext-src}/wrapper/configure.sh" filemode="755" prefix="chipster" />
+			<tarfileset file="${ext-src}/wrapper/upgrade.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/genpasswd.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/install_r_pkg.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${scripts}/${r-version}/install.R" prefix="chipster/shared/lib" />
