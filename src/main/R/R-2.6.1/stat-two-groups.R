@@ -60,13 +60,13 @@ if(meth=="empiricalBayes") {
 # Fast T-test
 if(meth=="fast-t-test") {
    fit1<-lm(t(dat2)~groups)
-   p<-rep(NA, ncol(dat2))
-   for(i in 1:ncol(dat2)) {
+   p<-rep(NA, nrow(dat2))
+   for(i in 1:nrow(dat2)) {
       sum(fit1$residuals[,i]^2)->sse
-      sum((dat2[,i]-mean(dat2[,i]))^2)->sst
+      sum((dat2[i,]-mean(as.numeric(dat2[i,])))^2)->sst
       r2<-1-(sse/sst)
-      f<-r2/((1-r2)/(nrow(dat2)-1))
-      p[i]<-1-pf(f, 1, (nrow(dat2)-1))
+      f<-r2/((1-r2)/(ncol(dat2)-1))
+      p[i]<-1-pf(f, 1, (ncol(dat2)-1))
    }
    p.raw<-p
    if(adj.method=="none") {

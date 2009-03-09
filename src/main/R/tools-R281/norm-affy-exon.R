@@ -34,17 +34,16 @@ if(chiptype=="rat" & summary.feature=="exon") {
 
 if(chiptype=="human" & summary.feature=="gene") {
    dat@cdfName<-"hsex10stv2hsentrezgcdf"
-   dat@annotation<-"hsex10stv2hsentrezgcdf"
+   dat@annotation<-"huex10stv2hsentrezg.db"
 }
 if(chiptype=="mouse" & summary.feature=="gene") {
    dat@cdfName<-"mmex10stv1mmentrezgcdf"
-   dat@annotation<-"mmex10stv1mmentrezgcdf"
+   dat@annotation<-"moex10stv1mmentrezg.db"
 }
 if(chiptype=="rat" & summary.feature=="gene") {
    dat@cdfName<-"rnex10stv1rnentrezgcdf"
-   dat@annotation<-"rnex10stv1rnentrezgcdf"
+   dat@annotation<-"raex10stv1rnentrezg.db"
 }
-
 
 # Normalizations
 dat2<-exprs(rma(dat))

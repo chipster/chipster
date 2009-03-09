@@ -17,7 +17,6 @@ dat2<-data.frame(dat[,grep("chip", names(dat))])
 # Generates the variables
 sample<-colnames(dat2)
 group<-c(rep("", ncol(dat2)))
-training<-c(rep("", ncol(dat2)))
 if(chiptype=="empty") {
    chiptype<-c("empty")
 } else {
@@ -26,4 +25,4 @@ if(chiptype=="empty") {
 
 # Writes out the data and the phenodata table
 write.table(dat, file="normalized.tsv", sep="\t", row.names=T, col.names=T, quote=F)
-write.table(data.frame(sample=sample, chiptype=chiptype, group=group, training=training), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)

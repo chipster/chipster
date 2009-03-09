@@ -2,6 +2,7 @@
 # TO USE THIS, YOU NEED TO IMPORT THE BeadSummaryData FILE DIRECTLY, NOT USING THE IMPORT TOOL.)
 # INPUT GENERIC chip.tsv OUTPUT normalized.tsv, phenodata.tsv
 # PARAMETER transformation [none, vst, log2] DEFAULT log2 (How to transform the data)
+# PARAMETER backround.correction [none, bgAdjust.affy] DEFAULT affy (Should background adjustment be applied)
 # PARAMETER normalize.chips [none, rsn, loess, quantile, vsn] DEFAULT quantile (Between arrays normalization method)
 # PARAMETER chiptype [empty, Human-6v1, HumanRef-8v1, Human-6v2, HumanRef-8v2, Mouse-6v1.0a, MouseRef-8v1.0a, RatRef-12] DEFAULT empty (chiptype)
 
@@ -41,6 +42,11 @@ x.lumi <- lumiR("chip.tsv", lib=chiptype)
 # Quality control (not run)
 # QC
 # q.lumi <- lumiQ(x.lumi)  
+
+# Background correction
+if(background.correction=="bgAdjust.affy") {
+   x.lumi<-lumiB(x.lumi, method="bgAdjust.affy")
+}
 
 # Transformation
 if(transformation=="none") {
@@ -87,6 +93,8 @@ if(chiptype!="Illumina") {
    library(chiptype, character.only=T)
    # symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "SYMBOL", sep="")))))[x.lumi@featureData@data$TargetID,])
    # genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "GENENAME", sep="")))))[x.lumi@featureData@data$TargetID,])
+   # symbol<-gsub("#", "", symbol)
+   # genename<-gsub("#", "", genename)
    # Write out expression data
    # write.table(data.frame(symbol, description=genename, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
    write.table(data.frame(dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)

@@ -147,6 +147,8 @@ if(chiptype!="empty" & class(a)!="try-error") {
    # Including gene names to data
    symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "SYMBOL", sep="")))))[rownames(dat2),])
    genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "GENENAME", sep="")))))[rownames(dat2),])
+   symbol<-gsub("#", "", symbol)
+   genename<-gsub("#", "", genename)
    # Writes the results into a file
    write.table(data.frame(symbol, description=genename, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 } 

@@ -144,6 +144,8 @@ if(chiptype!="cDNA") {
    library(chiptype, character.only=T)
    symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "SYMBOL", sep="")))))[rownames(M),])
    genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "GENENAME", sep="")))))[rownames(M),])
+   symbol<-gsub("#", "", symbol)
+   genename<-gsub("#", "", genename)
 }
 
 if(chiptype!="cDNA") {

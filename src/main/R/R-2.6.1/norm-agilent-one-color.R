@@ -3,7 +3,7 @@
 # INPUT CDNA microarray[...].tsv OUTPUT normalized.tsv, phenodata.tsv
 # PARAMETER background.treatment [none, subtract, edwards, normexp] DEFAULT normexp (Background treatment method)
 # PARAMETER background.offset [0, 50] DEFAULT 50 (Background offset)
-# PARAMETER normalize.chips [none, scale, quantile, vsn] DEFAULT none (Between arrays normalization method)
+# PARAMETER normalize.chips [none, scale, scale-75, quantile, vsn] DEFAULT none (Between arrays normalization method)
 # PARAMETER remove.control.probes [yes, no] DEFAULT no (Remove control probes from the dataset)
 # PARAMETER chiptype [empty, Human-1 (4100a), Human-2 (4101a), Human-1A (4110b), Human-1B (4111a), Human-Whole-Genome (4112a), Mouse (4104a), Mouse (4120a), Mouse (4121a), Mouse (4122a), Rat (4105a), Rat (4130a), Rat (4131), zebrafish, zebrafishV2, drosophila, rhesus, rice] DEFAULT empty (chiptype)
 
@@ -31,7 +31,17 @@ dat<-read.maimages(files=files, columns=columns, annotation=annotation, other.co
 dat2<-backgroundCorrect(dat, bg, offset=as.numeric(background.offset))
 
 # Normalization across arrays
-dat3<-normalizeBetweenArrays(dat2$R, method=normba)
+if(normba=="scale-75") {
+   dat3<-normalizeBetweenArrays(dat2$R, method="none")
+   normfact<-apply(dat3, 2, quantile)["75%",]
+   for(i in 1:ncol(dat3)) {
+      dat3[,i]<-dat3[,i]/normfact[i]
+   }
+} else {
+   dat3<-normalizeBetweenArrays(dat2$R, method=normba)
+}
+
+# Log-transforming the data
 dat3<-log2(dat3)
 
 # Writes out a phenodata table
@@ -126,6 +136,8 @@ if(chiptype!="cDNA") {
    library(chiptype, character.only=T)
    symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "SYMBOL", sep="")))))[rownames(M),])
    genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "GENENAME", sep="")))))[rownames(M),])
+   symbol<-gsub("#", "", symbol)
+   genename<-gsub("#", "", genename)
 }
 
 if(chiptype!="cDNA") {
