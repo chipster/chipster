@@ -94,7 +94,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 	
 
 	protected RAnalysisJob() {
-		rTimeout = Integer.parseInt(Configuration.getValue("analyser", "RTimeout"));
+		rTimeout = Integer.parseInt(Configuration.getValue("comp", "r-timeout"));
 	}
 
 	

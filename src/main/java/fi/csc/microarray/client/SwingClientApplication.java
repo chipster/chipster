@@ -85,7 +85,7 @@ import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameTyp
 import fi.csc.microarray.client.waiting.WaitGlassPane;
 import fi.csc.microarray.client.workflow.WorkflowManager;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.databeans.ContentType;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataChangeEvent;
@@ -1138,8 +1138,8 @@ public class SwingClientApplication extends ClientApplication {
 		try {
 			DirectoryLayout.initialiseClientLayout(configOverride);			
 
-		} catch (OldConfigurationFormatException e) {
-			reportOldConfigurationFormatException(e);
+		} catch (IllegalConfigurationException e) {
+			reportIllegalConfigurationException(e);
 		}
 
 		ClientListener shutdownListener = new ClientListener() {
@@ -1168,8 +1168,8 @@ public class SwingClientApplication extends ClientApplication {
 		start(null);
 	}
 
-	public static void reportOldConfigurationFormatException(OldConfigurationFormatException e) {
-		DialogInfo dialogInfo = new DialogInfo(Severity.ERROR, "Chipster configuration file not compatible", "Configuration file is from the previous version of the software. You can remove Chipster application settings so that the new configuration is used.", "Reason: " + e.getMessage());
+	public static void reportIllegalConfigurationException(IllegalConfigurationException e) {
+		DialogInfo dialogInfo = new DialogInfo(Severity.ERROR, "Illegal configuration", "Chipster could not start because the provided configuration file is illegal. Please contact your system administrator.", "Reason: " + e.getMessage());
 		ChipsterDialog.showDialog(null, dialogInfo, DetailsVisibility.DETAILS_HIDDEN, true);
 		throw new RuntimeException("configuration not compatible, will not start");
 	}

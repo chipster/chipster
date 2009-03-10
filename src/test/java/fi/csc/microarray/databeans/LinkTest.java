@@ -9,7 +9,7 @@ import org.testng.annotations.Test;
 
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.Traversal;
 import fi.csc.microarray.databeans.fs.FSDataManager;
@@ -18,7 +18,7 @@ public class LinkTest {
 	private DataManager manager; 
 	
 	@BeforeSuite(alwaysRun = true)
-	public void init() throws IOException, OldConfigurationFormatException {
+	public void init() throws IOException, IllegalConfigurationException {
 		DirectoryLayout.initialiseClientLayout().getConfiguration();			
 		this.manager = new FSDataManager();
 	}

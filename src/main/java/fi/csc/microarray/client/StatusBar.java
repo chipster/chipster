@@ -68,7 +68,7 @@ public class StatusBar {
 			});
 
 			statusLabel = new JLabel();
-			String labelText = "Connected to " + Configuration.getValue("messaging", "broker_host");
+			String labelText = "Connected to " + Configuration.getValue("messaging", "broker-host");
 			statusLabel.setText(labelText);
 			statusLabel.setBorder(jobStatusIndicator.getBorder());
 

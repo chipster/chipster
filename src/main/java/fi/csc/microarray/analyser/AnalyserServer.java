@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -25,7 +26,7 @@ import fi.csc.microarray.ApplicationConstants;
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.MessagingEndpoint;
@@ -118,20 +119,20 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 * @throws JMSException
 	 * @throws IOException if creation of working directory fails.
 	 * @throws MicroarrayException
-	 * @throws OldConfigurationFormatException 
+	 * @throws IllegalConfigurationException 
 	 */
-	public AnalyserServer() throws JMSException, IOException, MicroarrayException, OldConfigurationFormatException {
+	public AnalyserServer() throws JMSException, IOException, MicroarrayException, IllegalConfigurationException {
 		
 		// initialise dir, config and logging
-		DirectoryLayout.initialiseServerLayout();
+		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"comp"}));
 		this.descriptionRepository = new AnalysisDescriptionRepository();
-		this.receiveTimeout = Integer.parseInt(Configuration.getValue("analyser", "receive_timeout"));
-		this.scheduleTimeout = Integer.parseInt(Configuration.getValue("analyser", "schedule_timeout"));
-		this.timeoutCheckInterval = Integer.parseInt(Configuration.getValue("analyser", "timeout_check_interval"));
-		this.workDirBase = Configuration.getValue("analyser", "work_dir");
-		this.sweepWorkDir= "true".equals(Configuration.getValue("analyser", "sweep_work_dir").trim());
-		this.customScriptsDirName = Configuration.getValue("analyser", "customScriptsDir");
-		this.maxJobs  = Integer.parseInt(Configuration.getValue("analyser", "max_jobs"));		
+		this.receiveTimeout = Integer.parseInt(Configuration.getValue("comp", "receive-timeout"));
+		this.scheduleTimeout = Integer.parseInt(Configuration.getValue("comp", "schedule-timeout"));
+		this.timeoutCheckInterval = Integer.parseInt(Configuration.getValue("comp", "timeout-check-interval"));
+		this.workDirBase = Configuration.getValue("comp", "work-dir");
+		this.sweepWorkDir= "true".equals(Configuration.getValue("comp", "sweep-work-dir").trim());
+		this.customScriptsDirName = Configuration.getValue("comp", "custom-scripts-dir");
+		this.maxJobs  = Integer.parseInt(Configuration.getValue("comp", "max-jobs"));		
 		logger = Logger.getLogger(AnalyserServer.class);
 		loggerJobs = Logger.getLogger("jobs");
 		loggerStatus = Logger.getLogger("status");
@@ -159,7 +160,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		executorService = Executors.newCachedThreadPool();
 		
 		// initialize analysis handlers
-		for (String analysisHandler : Configuration.getValues("analyser", "analysis_handlers")) {
+		for (String analysisHandler : Configuration.getValues("comp", "analysis-handlers")) {
 			try {
 				AnalysisHandler handler = (AnalysisHandler)Class.forName(analysisHandler).newInstance();
 				descriptionRepository.addAnalysisHandler(handler);
@@ -175,7 +176,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		// load descriptions of all operations, also those not supported by this instance of AS
 		// this way any AS can send the descriptions when client asks for them
 		ArrayList<String> allOperations = new ArrayList<String>();
-		String[] configOperations = Configuration.getValues("analyser", "operations");
+		String[] configOperations = Configuration.getValues("comp", "operations");
 		allOperations.addAll(Arrays.asList(configOperations));
 		
 		// load additional scripts from custom-scripts
@@ -192,7 +193,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			logger.error("No operations found on the configuration file.");
 		}
 
-		String[] allHiddenOperations = Configuration.getValues("analyser", "hidden-operations");
+		String[] allHiddenOperations = Configuration.getValues("comp", "hidden-operations");
 		if (allHiddenOperations != null) {
 			for (String operation : allHiddenOperations) {
 				descriptionRepository.loadOperation(operation, true);
@@ -204,35 +205,23 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		// a list of supported operations
 		
 		
-		String[] includedOperations; 
-		String[] excludedOperationsList;
-		String[] hiddenOperationsList;
-		HashSet<String> excludedOperations = new HashSet<String>();
-		HashSet<String> hiddenOperations = new HashSet<String>();
-		
-		
 		// get included operations
-		includedOperations = Configuration.getValues("analyser", "includeOperations");
-		if (includedOperations == null) {
-			logger.debug("No includeOperations section, including all operations.");
+		String[] includedOperations = pruneEmptyValue(Configuration.getValues("comp", "include-operations"));
+		if (includedOperations.length == 0) {
 			includedOperations = allOperations.toArray(new String[allOperations.size()]);
 		}
 	
 
 		// get excluded operations
-		excludedOperationsList = Configuration.getValues("analyser", "excludeOperations");
-		if (excludedOperationsList != null) {
-			for (String value : excludedOperationsList) {
-				excludedOperations.add(value);
-			}
-			logger.debug("Excluded operations: " +  excludedOperations.toString());
-		
-		} else {
-			logger.debug("No excludeOperations section.");
+		HashSet<String> excludedOperations = new HashSet<String>();
+		String[] excludedOperationsList = pruneEmptyValue(Configuration.getValues("comp", "exclude-operations"));
+		for (String value : excludedOperationsList) {
+			excludedOperations.add(value);
 		}
 		
 		// get hidden operations
-		hiddenOperationsList = Configuration.getValues("analyser", "hidden-operations");
+		HashSet<String> hiddenOperations = new HashSet<String>();
+		String[] hiddenOperationsList = Configuration.getValues("comp", "hidden-operations");
 		if (hiddenOperationsList != null) {
 			for (String value : hiddenOperationsList) {
 				hiddenOperations.add(value);
@@ -243,7 +232,6 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		// add included if not excluded
 		for (String operation : includedOperations) {
 			if (!excludedOperations.contains(operation)) {
-				//descriptionRepository.loadOperation(operation, false);
 				supportedOperations.add(operation);
 			}
 		}
@@ -257,7 +245,6 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 				}
 			}
 		}
-		
 			
 		
 		// initialize process pool
@@ -282,6 +269,17 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
 	}
 	
+
+	private String[] pruneEmptyValue(String[] values) {
+		LinkedList<String> prunedValues = new LinkedList<String>();
+		for (String value : values) {
+			if (value.trim().length() > 0) {
+				prunedValues.add(value);
+			}
+		}
+		return prunedValues.toArray(new String[]{});
+	}
+
 
 	public String getName() {
 		return "analyser";

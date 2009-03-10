@@ -7,7 +7,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.util.MemUtil;
 
 public class DataParsingTest {
@@ -58,7 +58,7 @@ public class DataParsingTest {
 		}
 	}
 	
-	public DataParsingTest() throws IOException, OldConfigurationFormatException {
+	public DataParsingTest() throws IOException, IllegalConfigurationException {
 		DirectoryLayout.initialiseClientLayout().getConfiguration();			
 	}
 	

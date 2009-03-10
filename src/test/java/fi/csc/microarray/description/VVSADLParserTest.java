@@ -8,7 +8,7 @@ import org.testng.annotations.Test;
 
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.description.ParsedVVSADL.Input;
 import fi.csc.microarray.description.ParsedVVSADL.Parameter;
 import fi.csc.microarray.description.VVSADLSyntax.ParameterType;
@@ -18,7 +18,7 @@ import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;
 public class VVSADLParserTest {
 
 	@BeforeTest
-	public void init() throws IOException, OldConfigurationFormatException {
+	public void init() throws IOException, IllegalConfigurationException {
 		DirectoryLayout.initialiseClientLayout().getConfiguration();		
 	}
 	
@@ -56,7 +56,7 @@ public class VVSADLParserTest {
 		Assert.assertEquals(string, anotherString);
 	}
 	
-	public static void main(String[] args) throws MicroarrayException, IOException, OldConfigurationFormatException {
+	public static void main(String[] args) throws MicroarrayException, IOException, IllegalConfigurationException {
 		DirectoryLayout.initialiseClientLayout().getConfiguration();
 		new VVSADLParserTest().testRoundtrip();
 	}

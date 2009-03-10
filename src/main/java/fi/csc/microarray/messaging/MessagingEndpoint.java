@@ -41,9 +41,9 @@ public class MessagingEndpoint implements MessagingListener {
 	
 	static {
 		// read config
-		String protocol = Configuration.getValue("messaging", "broker_protocol");
-		String host = Configuration.getValue("messaging", "broker_host");
-		String port = Configuration.getValue("messaging", "broker_port");
+		String protocol = Configuration.getValue("messaging", "broker-protocol");
+		String host = Configuration.getValue("messaging", "broker-host");
+		String port = Configuration.getValue("messaging", "broker-port");
 		
 		// check
 		if (protocol == null || host == null || port == null) {
@@ -74,7 +74,7 @@ public class MessagingEndpoint implements MessagingListener {
 	/**
 	 * Current configuration.
 	 */
-	private static final boolean USE_RELIABLE = "true".equals(Configuration.getValue("messaging", "use_reliable"));
+	private static final boolean USE_RELIABLE = "true".equals(Configuration.getValue("messaging", "use-reliable"));
 
 	private static final String DEFAULT_REPLY_CHANNEL = Topics.MultiplexName.REPLY_TO.toString();
 	
@@ -106,13 +106,13 @@ public class MessagingEndpoint implements MessagingListener {
 		this.authenticationListener = authenticationListener;
 
 		// setup keystore if needed
-		if ("ssl".equals(Configuration.getValue("messaging", "broker_protocol"))) {
+		if ("ssl".equals(Configuration.getValue("messaging", "broker-protocol"))) {
 			try {
 				KeyAndTrustManager.initialise(
 						Configuration.getValue("security", "keystore"),
 						Configuration.getValue("security", "keypass").toCharArray(), 
 						Configuration.getValue("security", "keyalias"), 
-						Configuration.getValue("security", "master_keystore"));
+						Configuration.getValue("security", "master-keystore"));
 			} catch (Exception e) {
 				throw new MicroarrayException("could not access SSL keystore", e);
 			}

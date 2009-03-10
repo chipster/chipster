@@ -13,7 +13,7 @@ import fi.csc.microarray.ModulesForTesting;
 import fi.csc.microarray.TestConstants;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
@@ -23,7 +23,7 @@ public class FeatureTest {
 
 	private DataManager manager;
 
-	public FeatureTest() throws IOException, OldConfigurationFormatException {
+	public FeatureTest() throws IOException, IllegalConfigurationException {
 		DirectoryLayout.initialiseClientLayout().getConfiguration();
 		this.manager = new FSDataManager();
 		ModulesForTesting.getModulesForTesting().plugFeatures(this.manager);
@@ -73,7 +73,7 @@ public class FeatureTest {
 
 	}
 	
-	public static void main(String[] args) throws IOException, MicroarrayException, OldConfigurationFormatException {
+	public static void main(String[] args) throws IOException, MicroarrayException, IllegalConfigurationException {
 		new FeatureTest().testRowCount();
 	}
 

@@ -19,15 +19,15 @@ public class VVSADLDescriptionTest {
 
 	@BeforeSuite
 	protected void setUp() throws Exception {
-		DirectoryLayout.initialiseClientLayout().getConfiguration();			
+		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"comp"}));			
 	}
 
 	@Test(groups = {"smoke"} )
 	public void testDescriptions() throws FileNotFoundException, MicroarrayException {
 		
 		LinkedList<String> files = new LinkedList<String>();
-		files.addAll(Arrays.asList(Configuration.getValues("analyser", "operations")));
-		files.addAll(Arrays.asList(Configuration.getValues("analyser", "hidden-operations")));
+		files.addAll(Arrays.asList(Configuration.getValues("comp", "operations")));
+		files.addAll(Arrays.asList(Configuration.getValues("comp", "hidden-operations")));
 		
 		for (String file : files) {
 			try {

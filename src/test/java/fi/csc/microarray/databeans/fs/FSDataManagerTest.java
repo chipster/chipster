@@ -28,7 +28,7 @@ import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
@@ -40,7 +40,7 @@ import fi.csc.microarray.util.Files;
 public class FSDataManagerTest {
 
 	@BeforeSuite
-	public void init() throws IOException, OldConfigurationFormatException {
+	public void init() throws IOException, IllegalConfigurationException {
 		DirectoryLayout.initialiseClientLayout().getConfiguration();
 	}
 	

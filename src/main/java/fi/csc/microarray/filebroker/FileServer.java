@@ -2,6 +2,7 @@ package fi.csc.microarray.filebroker;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Timer;
 
 import org.apache.log4j.Logger;
@@ -37,7 +38,7 @@ public class FileServer extends NodeBase implements MessagingListener {
 
     	try {
     		// initialise dir and logging
-    		DirectoryLayout.initialiseServerLayout();
+    		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"frontend", "filebroker"}));
     		logger = Logger.getLogger(FileServer.class);
 
     		// initialise url repository
@@ -51,8 +52,8 @@ public class FileServer extends NodeBase implements MessagingListener {
     		fileServer.start(fileRepository.getPath(), port);
 
     		// start scheduler
-    		int cutoff = 1000 * Integer.parseInt(Configuration.getValue("frontend", "fileLifeTime"));
-    		int cleanUpFrequency = 1000 * Integer.parseInt(Configuration.getValue("frontend", "cleanUpFrequency"));
+    		int cutoff = 1000 * Integer.parseInt(Configuration.getValue("filebroker", "file-life-time"));
+    		int cleanUpFrequency = 1000 * Integer.parseInt(Configuration.getValue("filebroker", "clean-up-frequency"));
     		int checkFrequency = 1000 * 5;
     		Timer t = new Timer("frontend-scheduled-tasks", true);
     		t.schedule(new FileCleanUpTimerTask(fileRepository, cutoff), 0, cleanUpFrequency);

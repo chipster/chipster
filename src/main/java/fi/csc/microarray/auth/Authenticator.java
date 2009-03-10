@@ -1,5 +1,7 @@
 package fi.csc.microarray.auth;
 
+import java.util.Arrays;
+
 import javax.jms.Destination;
 import javax.jms.JMSException;
 
@@ -54,7 +56,7 @@ public class Authenticator extends NodeBase {
 	public Authenticator() throws Exception {
 		
 		// initialise dir and logging
-		DirectoryLayout.initialiseServerLayout();
+		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {}));
 		logger = Logger.getLogger(Authenticator.class);
 		securityLogger = Logger.getLogger("security.frontend");
 		messageLogger = Logger.getLogger("messages.frontend");

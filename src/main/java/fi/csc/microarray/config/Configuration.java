@@ -1,58 +1,41 @@
 package fi.csc.microarray.config;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.mortbay.util.IO;
 import org.xml.sax.SAXException;
 
-import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 
 public class Configuration {
 
 	public static final String CONFIG_FILENAME = "chipster-config.xml";
+
+	private static final int REQUIRED_CONFIGURATION_VERSION = 3;
 	
-	private static final String STATIC_CONFIG_RESOURCENAME = "/chipster-static-config.xml";
-	private static String DEFAULT_CONFIG_FILE = "/chipster-config.xml.default";	
+	private static String CONFIG_SPECIFICATION_FILE = "/chipster-config-specification.xml";	
 	private static boolean alreadyLoaded = false;	
-	private static ConfigurationModule configuration = new ConfigurationModule(true);	
+	private static ConfigurationModule rootModule = new ConfigurationModule();
+
+	private List<String> configModules;	
 	
-	public Configuration(String overrideString, File workDir) throws IOException, OldConfigurationFormatException {
+	public Configuration(String overrideString, File workDir, List<String> configModules) throws IOException, IllegalConfigurationException {
 		
 		// guard against reloading
 		synchronized (Configuration.class) {
 			if (!alreadyLoaded) {
+				
+				this.configModules = configModules;
 
-				// if config file not available, copy defaults to it
+				// load configuration spec. 
 				File configFile = new File(workDir, CONFIG_FILENAME);
-
-				if (!configFile.exists()) {
-					InputStream defaults = ConfigurationModule.class.getResourceAsStream(DEFAULT_CONFIG_FILE);
-					OutputStream out = new FileOutputStream(configFile);
-					
-					try {
-						IO.copy(defaults, out);
-						
-					} finally {
-						if (defaults != null) {
-							defaults.close();
-						}
-						if (out != null) {
-							out.close();
-						}
-					}			
-				}
-
-				// load configuration
+				ConfigurationLoader loader = new ConfigurationLoader(this, REQUIRED_CONFIGURATION_VERSION);
 				try {
-					ConfigurationLoader.addFromStream(
-							configuration, Configuration.class.getResourceAsStream(STATIC_CONFIG_RESOURCENAME), 0);
-					ConfigurationLoader.addFromFile(configuration, configFile, 0);
+					loader.addFromStream(Configuration.class.getResourceAsStream(CONFIG_SPECIFICATION_FILE), true);
+					loader.addFromFile(configFile, false);
 					
 				} catch (SAXException e) {
 					throw new IOException(e.getMessage());
@@ -62,6 +45,11 @@ public class Configuration {
 					
 				} 
 
+				List<String> missingValues = rootModule.findMissingValues();
+				if (!missingValues.isEmpty()) {
+					throw new IllegalConfigurationException("configuration values missing: " + missingValues);
+				}
+				
 				// do overrides
 				if (overrideString != null) {
 					String[] overrides = overrideString.split(",");
@@ -77,9 +65,9 @@ public class Configuration {
 						// parse entry value(s)
 						String values[] = parts[1].split(";");
 						if (values.length > 1) {
-							configuration.putValuesInSubmodule(moduleName, entryName, values);
+							rootModule.putValuesInSubmodule(moduleName, entryName, values);
 						} else {
-							configuration.putValueInSubmodule(moduleName, entryName, values[0]);
+							rootModule.putValueInSubmodule(moduleName, entryName, values[0]);
 						}
 					}
 					
@@ -90,19 +78,12 @@ public class Configuration {
 		}
 	}
 
-	public static String[] getValues(String name) {
-		return getValues(null, name);
-	}
-	
 	public static String[] getValues(String moduleName, String name) {
 		assert(alreadyLoaded);
 		ConfigurationModule module = getModule(moduleName);		
 		return module.getValues(name);
 	}
 
-	public static String getValue(String name) {
-		return getValue(null, name);
-	}
 	public static String getValue(String moduleName, String name) {
 		assert(alreadyLoaded);
 		ConfigurationModule module = getModule(moduleName); 
@@ -110,6 +91,15 @@ public class Configuration {
 	}
 
 	private static ConfigurationModule getModule(String moduleName) {
-		return moduleName != null ? configuration.getModule(moduleName) : configuration;
+		return moduleName != null ? rootModule.getModule(moduleName) : rootModule;
 	}
+	
+	public boolean isModuleEnabled(String moduleName) {
+		return this.configModules.contains(moduleName);
+	}
+
+	public ConfigurationModule getRootModule() {
+		return rootModule;
+	}
+
 }

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,7 +27,7 @@ import fi.csc.microarray.ApplicationConstants;
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
 import fi.csc.microarray.messaging.MessagingTopic;
@@ -105,25 +106,25 @@ public class Manager extends MonitoredNodeBase implements MessagingListener {
 	 * @throws IOException if creation of working directory fails.
 	 * @throws MicroarrayException
 	 * @throws JMSException 
-	 * @throws OldConfigurationFormatException 
+	 * @throws IllegalConfigurationException 
 	 * @throws IOException 
 	 * @throws ClassNotFoundException 
 	 * @throws SQLException 
 	 */
-	public Manager() throws MicroarrayException, JMSException, IOException, OldConfigurationFormatException, ClassNotFoundException, SQLException {
+	public Manager() throws MicroarrayException, JMSException, IOException, IllegalConfigurationException, ClassNotFoundException, SQLException {
 		
 		// initialise dir and logging
-		DirectoryLayout.initialiseServerLayout();
+		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"manager"}));
 		logger = Logger.getLogger(Manager.class);
 		
 		// initialize database connection
 		logger.info("starting manager...");
-		String dbDriver = Configuration.getValue("manager", "jdbcDriver");
-		String dbUrl = Configuration.getValue("manager", "databaseUrl");
-		boolean startWebConsole = "true".equals(Configuration.getValue("manager", "startWebConsole"));
-		String dbUsername = Configuration.getValue("manager", "databaseUsername");
-	    String dbPassword = Configuration.getValue("manager", "databasePassword");
-	    int webConsolePort = Integer.parseInt(Configuration.getValue("manager", "webConsolePort"));
+		String dbDriver = Configuration.getValue("manager", "jdbc-driver");
+		String dbUrl = Configuration.getValue("manager", "database-url");
+		boolean startWebConsole = "true".equals(Configuration.getValue("manager", "start-web-console"));
+		String dbUsername = Configuration.getValue("manager", "database-username");
+	    String dbPassword = Configuration.getValue("manager", "database-password");
+	    int webConsolePort = Integer.parseInt(Configuration.getValue("manager", "web-console-port"));
 
 		
 		
@@ -140,9 +141,9 @@ public class Manager extends MonitoredNodeBase implements MessagingListener {
 	    jdbcTemplate.execute(CREATE_JOBS_TABLE);
 		
 	    // schedule backups
-	    String backupDirName = Configuration.getValue("manager", "backupDir");
-	    int backupInterval = Integer.parseInt(Configuration.getValue("manager", "backupInterval"));
-	    String backupTimeString =  Configuration.getValue("manager", "backupTime");
+	    String backupDirName = Configuration.getValue("manager", "backup-dir");
+	    int backupInterval = Integer.parseInt(Configuration.getValue("manager", "backup-interval"));
+	    String backupTimeString =  Configuration.getValue("manager", "backup-time");
 	    int startHour = Integer.parseInt(backupTimeString.split(":")[0]);
 	    int startMinute = Integer.parseInt(backupTimeString.split(":")[1]);
 	    Calendar firstBackupTime = Calendar.getInstance();

@@ -33,12 +33,12 @@ public class ProcessPool {
 	private BlockingQueue<NamiProcess> availableProcesses;
 	private ConcurrentMap<Integer, NamiProcess> inUseProcesses;
 	
-	private static final int poolSizeMin = Integer.parseInt(Configuration.getValue("analyser", "RProcessPoolSizeMin"));
-	private static final int poolSizeMax = Integer.parseInt(Configuration.getValue("analyser", "RProcessPoolSizeMax"));
-	private static final int poolTimeout = Integer.parseInt(Configuration.getValue("analyser", "RProcessPoolTimeout"));
-	private static final int processUseCountMax = Integer.parseInt(Configuration.getValue("analyser", "RProcessPoolProcessUseCountMax"));
-	private static final int processLifetimeMax = Integer.parseInt(Configuration.getValue("analyser", "RProcessPoolProcessLifetimeMax"));
-	private static String R_COMMAND = Configuration.getValue("analyser", "RCommand") + " --vanilla --quiet";
+	private static final int poolSizeMin = Integer.parseInt(Configuration.getValue("comp", "r-process-pool-size-min"));
+	private static final int poolSizeMax = Integer.parseInt(Configuration.getValue("comp", "r-process-pool-size-max"));
+	private static final int poolTimeout = Integer.parseInt(Configuration.getValue("comp", "r-process-pool-timeout"));
+	private static final int processUseCountMax = Integer.parseInt(Configuration.getValue("comp", "r-process-pool-process-use-count-max"));
+	private static final int processLifetimeMax = Integer.parseInt(Configuration.getValue("comp", "r-process-pool-process-lifetime-max"));
+	private static String R_COMMAND = Configuration.getValue("comp", "r-command") + " --vanilla --quiet";
 	
 	private File workDir;
 	

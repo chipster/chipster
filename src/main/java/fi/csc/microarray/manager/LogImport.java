@@ -22,7 +22,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import fi.csc.microarray.MicroarrayException;
-import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 
 
 public class LogImport {
@@ -63,7 +63,7 @@ public class LogImport {
 		 * @throws IOException if creation of working directory fails.
 		 * @throws MicroarrayException
 		 * @throws JMSException 
-		 * @throws OldConfigurationFormatException 
+		 * @throws IllegalConfigurationException 
 		 * @throws IOException 
 		 * @throws ClassNotFoundException 
 		 * @throws SQLException 
@@ -176,7 +176,7 @@ public class LogImport {
 	
 	
 	
-	public static void main(String[] args) throws SQLException, IOException, OldConfigurationFormatException, ParseException {
+	public static void main(String[] args) throws SQLException, IOException, IllegalConfigurationException, ParseException {
 //		MicroarrayConfiguration.loadConfiguration();
 //		LogImport logImport = new LogImport();
 		

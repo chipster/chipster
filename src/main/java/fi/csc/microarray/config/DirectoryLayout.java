@@ -2,8 +2,11 @@ package fi.csc.microarray.config;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
-import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 
 
 /**
@@ -26,11 +29,12 @@ public class DirectoryLayout {
 	public static final String LOGS_DIR = "logs";
 	public static final String BIN_DIR = "bin";
 	public static final String WEB_ROOT_DIR = "web-root";
+	private static final String DEBUG_MODULE_ROOT = "debug-module-root";
 
 	private static final String CONF_DIR_SYSTEM_PROPERTY = "chipster_conf_dir";
 	private static final String LOGS_DIR_SYSTEM_PROPERTY = "chipster_logs_dir";
 	private static final String SECURITY_DIR_SYSTEM_PROPERTY = "chipster_security_dir";
-
+	
 	public enum Type {
 		CLIENT,
 		SERVER;
@@ -40,26 +44,29 @@ public class DirectoryLayout {
 	private Configuration configuration;
 	private static DirectoryLayout instance;
 
-	public static DirectoryLayout initialiseServerLayout() throws IOException, OldConfigurationFormatException {
+	public static DirectoryLayout initialiseServerLayout(List<String> specificModules) throws IOException, IllegalConfigurationException {
 		synchronized (DirectoryLayout.class) {
 			if (DirectoryLayout.instance != null) {
 				throw new IllegalStateException("already initialised");
 			}
-			DirectoryLayout.instance = new DirectoryLayout(Type.SERVER, null);
+			List<String> configModules = new LinkedList<String>(); 
+			configModules.addAll(Arrays.asList(new String[] {"messaging", "security"}));
+			configModules.addAll(specificModules);
+			DirectoryLayout.instance = new DirectoryLayout(Type.SERVER, null, configModules);
 			return DirectoryLayout.instance;
 		}
 	}
 
-	public static DirectoryLayout initialiseClientLayout() throws IOException, OldConfigurationFormatException {
+	public static DirectoryLayout initialiseClientLayout() throws IOException, IllegalConfigurationException {
 		return initialiseClientLayout(null);
 	}
 
-	public static DirectoryLayout initialiseClientLayout(String overrideString) throws IOException, OldConfigurationFormatException {
+	public static DirectoryLayout initialiseClientLayout(String overrideString) throws IOException, IllegalConfigurationException {
 		synchronized (DirectoryLayout.class) {
 			if (DirectoryLayout.instance != null) {
 				throw new IllegalStateException("already initialised");
 			}
-			DirectoryLayout.instance = new DirectoryLayout(Type.CLIENT, overrideString);
+			DirectoryLayout.instance = new DirectoryLayout(Type.CLIENT, overrideString, Arrays.asList(new String[] {"messaging", "security", "client"}));
 			return DirectoryLayout.instance;
 		}
 	}
@@ -73,12 +80,12 @@ public class DirectoryLayout {
 		}
 	}
 	
-	private DirectoryLayout(Type type, String overrideString) throws IOException, OldConfigurationFormatException {
+	private DirectoryLayout(Type type, String overrideString, List<String> configModules) throws IOException, IllegalConfigurationException {
 		this.type = type;
 		System.setProperty(LOGS_DIR_SYSTEM_PROPERTY, getLogsDir().getAbsolutePath()); // NOTE: NO LOGGING IS TO BE DONE BEFORE THIS!
 		System.setProperty(CONF_DIR_SYSTEM_PROPERTY, getConfDir().getAbsolutePath()); 
 		System.setProperty(SECURITY_DIR_SYSTEM_PROPERTY, getSecurityDir().getAbsolutePath());
-		this.configuration = new Configuration(overrideString, getConfDir());
+		this.configuration = new Configuration(overrideString, getConfDir(), configModules);
 	}
 
 	public File getConfDir() throws IOException {
@@ -95,9 +102,9 @@ public class DirectoryLayout {
 		return initialise(new File(getBaseDir(), LOGS_DIR));
 	}
 
-	public File getFileroot() throws IOException, OldConfigurationFormatException {
+	public File getFileroot() throws IOException, IllegalConfigurationException {
 		if (type == Type.SERVER) {
-			File fileRepository = new File(Configuration.getValue("frontend", "fileServerPath"));
+			File fileRepository = new File(Configuration.getValue("filebroker", "file-server-path"));
 			if (!fileRepository.exists()) {
 				boolean ok = fileRepository.mkdir();
 				if (!ok) {
@@ -169,8 +176,14 @@ public class DirectoryLayout {
 	private File getBaseDir() throws IOException {
 		if (type == Type.CLIENT) {
 			return getClientSettingsDir(); // use OS specific dir
+			
 		} else {
-			return new File(System.getProperty("user.dir")); // use working dir
+			File baseDir = new File(System.getProperty("user.dir"));
+			File debugRoot = new File(baseDir, DEBUG_MODULE_ROOT);
+			if (debugRoot.exists()) {
+				baseDir = debugRoot;
+			}
+			return baseDir; // use working dir
 		}
 	}
 
@@ -184,7 +197,7 @@ public class DirectoryLayout {
 		return dir;
 	}
 
-	public Configuration getConfiguration() throws IOException, OldConfigurationFormatException {
+	public Configuration getConfiguration() throws IOException, IllegalConfigurationException {
 		return configuration;
 	}	
 

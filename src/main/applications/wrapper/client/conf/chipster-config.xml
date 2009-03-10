@@ -1,55 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<configuration content-version="2">
+<configuration content-version="3">
 
-	<!-- COMMON PART -->
-	
 	<configuration-module moduleId="messaging">
 
 		<!-- host of message broker (JMS server ActiveMQ) to connect to -->
-		<entry entryKey="broker_host">
-			<value></value> <!-- MUST BE FILLED IN (MANUALLY OR BY WEBSTART) -->
+		<entry entryKey="broker-host">
+			<value></value>
 		</entry>
 
 		<!-- protocol used to connect to message broker -->
-		<entry entryKey="broker_protocol">
+		<entry entryKey="broker-protocol">
 			<value></value>
 		</entry>
 
 		<!-- port used to connect to message broker -->
-		<entry entryKey="broker_port">
+		<entry entryKey="broker-port">
 			<value></value>
-		</entry>
-
-		<!-- should we use chunked HTTP mode when connecting to filebroker -->
-		<!-- (warning: disabling this means all data is loaded to memory in transfer!) -->
-		<entry entryKey="use_chunked_http">
-			<value>true</value>
 		</entry>
 		
 	</configuration-module>
 
 	<configuration-module moduleId="security">
-
-		<!-- for SSL: keystore -->
-		<entry entryKey="keystore">
-			<value>${chipster_security_dir}/keystore.ks</value>
-		</entry>
-
-		<!-- for SSL: master keystore -->		
-		<entry entryKey="master_keystore">
-			<value>/keystore.ks</value>
-		</entry>
-
-		<!-- for SSL: keystore password -->		
-		<entry entryKey="keypass">
-			<value>microarray</value>
-		</entry>
-
-		<!-- for SSL: alias of key to be used -->		
-		<entry entryKey="keyalias">
-			<value>microarray</value>
-		</entry>
 
 		<!-- username for authenticating connection to broker -->
 		<entry entryKey="username">

@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.ModulesForTesting;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.LinkUtils;
@@ -24,7 +24,7 @@ public class PhenodataTest {
 	private DataManager manager; 
 	
 	@BeforeSuite(alwaysRun = true)
-	public void init() throws IOException, OldConfigurationFormatException {
+	public void init() throws IOException, IllegalConfigurationException {
 		DirectoryLayout.initialiseClientLayout().getConfiguration();			
 		this.manager = new FSDataManager();
 		ModulesForTesting.getModulesForTesting().plugFeatures(this.manager);

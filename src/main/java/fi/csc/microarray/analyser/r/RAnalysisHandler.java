@@ -28,8 +28,8 @@ public class RAnalysisHandler implements AnalysisHandler {
 	static final Logger logger = Logger
 			.getLogger(RAnalysisHandler.class);
 
-	private static String R_COMMAND = Configuration.getValue("analyser", "RCommand") + " --vanilla --quiet";
-	private static final String customScriptsDirName = Configuration.getValue("analyser", "customScriptsDir");
+	private static String R_COMMAND = Configuration.getValue("comp", "r-command") + " --vanilla --quiet";
+	private static final String customScriptsDirName = Configuration.getValue("comp", "custom-scripts-dir");
 	
 	public AnalysisJob createAnalysisJob(JobMessage message, AnalysisDescription description, ResultCallback resultHandler) {
 		RAnalysisJob analysisJob = new RAnalysisJob();

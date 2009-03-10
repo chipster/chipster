@@ -1,5 +1,7 @@
 package fi.csc.microarray.webstart;
 
+import java.util.Arrays;
+
 import org.apache.log4j.Logger;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Server;
@@ -35,7 +37,7 @@ public class WebstartJettyServer {
 	
 		try {
 			// initialise config and logging
-			DirectoryLayout.initialiseServerLayout();
+			DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"webstart"}));
 			Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 			logger = Logger.getLogger(WebstartJettyServer.class);
 			if (logger.isDebugEnabled()) {

@@ -10,6 +10,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -19,19 +20,29 @@ public class ConfigurationLoader {
 	
 	private static final String VERSION_ATTRIBUTE = "content-version";
 	
-	public static class OldConfigurationFormatException extends Exception {
+	public static class IllegalConfigurationException extends Exception {
 
-		public OldConfigurationFormatException(String string) {
+		public IllegalConfigurationException(String string) {
 			super(string);
 		}
 		
 	}
-	public static void addFromFile(ConfigurationModule configuration, File file, int requiredVersion) throws IOException, SAXException, ParserConfigurationException, OldConfigurationFormatException {
+	
+	private int requiredVersion;
+	private Configuration configuration;
+	
+	public ConfigurationLoader(Configuration configuration, int requiredVersion) {
+		
+		this.configuration = configuration;
+		this.requiredVersion = requiredVersion;
+	}
+
+	public void addFromFile(File file, boolean isSpecification) throws IOException, SAXException, ParserConfigurationException, IllegalConfigurationException {
 		FileInputStream in = null;
 		
 		try {
 			in = new FileInputStream(file); 
-			addFromStream(configuration, in, requiredVersion);
+			addFromStream(in, isSpecification);
 			
 		} finally {
 			try {
@@ -43,12 +54,12 @@ public class ConfigurationLoader {
 		
 	}
 	
-	public static void addFromStream(ConfigurationModule configuration, InputStream stream, int requiredVersion) throws SAXException, IOException, ParserConfigurationException, OldConfigurationFormatException {
+	public void addFromStream(InputStream stream, boolean isSpecification) throws SAXException, IOException, ParserConfigurationException, IllegalConfigurationException {
 		Document document = XmlUtil.getInstance().parseReader(new InputStreamReader(stream));
-		addFromXml(configuration, document, requiredVersion);
+		addFromXml(document, isSpecification);
 	}
 	
-	public static void addFromXml(ConfigurationModule configuration, Document xml, int requiredVersion) throws OldConfigurationFormatException {
+	public void addFromXml(Document xml, boolean isSpecification) throws IllegalConfigurationException {
 		// check version
 		if (requiredVersion > 0) {
 			String contentVersion = "";
@@ -56,7 +67,7 @@ public class ConfigurationLoader {
 				contentVersion = xml.getDocumentElement().getAttribute(VERSION_ATTRIBUTE);
 			}
 			if (contentVersion.equals("")) {
-				throw new OldConfigurationFormatException("version not specified");
+				throw new IllegalConfigurationException("version not specified");
 			}
 			int version;
 			try {
@@ -66,34 +77,70 @@ public class ConfigurationLoader {
 				version = -1;
 			}
 			if (version < requiredVersion) {
-				throw new OldConfigurationFormatException("too old version (" + version + " when required is " + requiredVersion + ")");
+				throw new IllegalConfigurationException("too old version (" + version + " when required is " + requiredVersion + ")");
 			}
 		}
 
 		// handle content
-		addFromNode(configuration, xml.getDocumentElement());
+		addFromNode(configuration.getRootModule(), xml.getDocumentElement(), isSpecification);
 	}
 	
-	private static void addFromNode(ConfigurationModule configuration, Element element) {
+	private void addFromNode(ConfigurationModule module, Element element, boolean isSpecification) throws IllegalConfigurationException {
 				
 		// copy values
-		NodeList entries = element.getElementsByTagName("entry");
+		NodeList entries = element.getChildNodes();
 		for (int i = 0; i < entries.getLength(); i++) {
-			String name = ((Element)entries.item(i)).getAttribute("entryKey");
-			NodeList values = ((Element)entries.item(i)).getElementsByTagName("value");
-			for (int v = 0; v < values.getLength(); v++) {
-				configuration.addValue(name, values.item(v).getTextContent());
+			Node item = entries.item(i);
+			if (item instanceof Element && "entry".equals(item.getNodeName())) {
+				Element entry = (Element)item;
+				String name = entry.getAttribute("entryKey");
+				NodeList values = entry.getElementsByTagName("value");
+
+				if (entry.getElementsByTagName("mustBeSet").getLength() > 0) {
+					if (values.getLength() > 0) {
+						throw new RuntimeException("illegal config specification: both value and mustBeSet given for " + name);
+					}
+					module.putValues(name, ConfigurationModule.VALUE_MUST_BE_SET);
+
+				} else {
+
+					
+					if (module.getValues(name) != null && module.getValues(name) != ConfigurationModule.VALUE_MUST_BE_SET && !isSpecification) {
+						System.out.println("Warning: overriding " + name);
+					}
+					
+					if (module.getValues(name) != null) {
+						// replace old valueset, possibly the special value ConfigurationModule.VALUE_MUST_BE_SET
+						module.removeValues(name);
+					} else if (!isSpecification) {
+						// is not a replace and new values are not allowed => error
+						throw new IllegalConfigurationException("unsupported entry: " + name);
+					}
+
+					for (int v = 0; v < values.getLength(); v++) {
+						module.addValue(name, values.item(v).getTextContent());
+					}
+				}
 			}
 		}
 		
 		// recurse into modules
 		NodeList modules = element.getElementsByTagName("configuration-module");
 		for (int i = 0; i < modules.getLength(); i++) {
-			String name = ((Element)modules.item(i)).getAttribute("moduleId");
-			if (!configuration.hasSubModule(name)) {
-				configuration.createSubModule(name);
+			Element submoduleElement = (Element)modules.item(i);
+			String name = submoduleElement.getAttribute("moduleId");
+			if (!configuration.isModuleEnabled(name)) {
+				if (!isSpecification) {
+					// tried to introduce extra module => error
+					throw new IllegalConfigurationException("unsupported module: " + name);
+				}
+
+				continue; // skip disabled modules
 			}
-			addFromNode(configuration.getModule(name), (Element)modules.item(i));
+			if (!module.hasSubModule(name)) {
+				module.createSubModule(name);
+			}
+			addFromNode(module.getModule(name), submoduleElement, isSpecification);
 		}		
 	}
 }

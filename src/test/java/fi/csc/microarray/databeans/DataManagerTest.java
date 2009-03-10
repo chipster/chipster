@@ -9,7 +9,7 @@ import org.testng.annotations.Test;
 
 import fi.csc.microarray.ModulesForTesting;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.databeans.fs.FSDataManager;
 
 public class DataManagerTest {
@@ -17,7 +17,7 @@ public class DataManagerTest {
 	private DataManager manager; 
 	
 	@BeforeClass(alwaysRun = true)
-	public void init() throws IOException, OldConfigurationFormatException {
+	public void init() throws IOException, IllegalConfigurationException {
 		DirectoryLayout.initialiseClientLayout().getConfiguration();			
 		this.manager = new FSDataManager();
 		ModulesForTesting.getModulesForTesting().plugFeatures(this.manager);

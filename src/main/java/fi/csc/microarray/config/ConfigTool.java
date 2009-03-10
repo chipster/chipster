@@ -50,6 +50,8 @@ public class ConfigTool {
 			{"file broker host", "myhost.mydomain"},
 			{"file broker port", "8080"},
 			{"URL of Web Start files", "http://myhost.mydomain"},
+			{"Web Start www-server port", "8081"},
+			{"manager www-console port", "8082"},
 			{"R command", "R"},
 			{"max. simultanous jobs (more recommended when compute service on separate node)", "3"}
 	};
@@ -63,8 +65,10 @@ public class ConfigTool {
 	private final int FILEBROKER_HOST_INDEX = 3;
 	private final int FILEBROKER_PORT_INDEX = 4;
 	private final int WS_CODEBASE_INDEX = 5;
-	private final int R_COMMAND_INDEX = 6;
-	private final int MAX_JOBS_INDEX = 7;
+	private final int WS_PORT = 6;
+	private final int MANAGER_PORT = 7;
+	private final int R_COMMAND_INDEX = 8;
+	private final int MAX_JOBS_INDEX = 9;
 
 	private String[][] passwords = new String[][] {
 			{"comp", ""},
@@ -314,9 +318,9 @@ public class ConfigTool {
 		Document doc = openForUpdating("Chipster", configFile);
 
 		Element messagingModule = xml.getChildWithAttribute(doc.getDocumentElement(), "moduleId", "messaging");
-		updateConfigEntryValue(messagingModule, "broker_host", configs[BROKER_HOST_INDEX][VAL_INDEX]);
-		updateConfigEntryValue(messagingModule, "broker_protocol", configs[BROKER_PROTOCOL_INDEX][VAL_INDEX]);
-		updateConfigEntryValue(messagingModule, "broker_port", configs[BROKER_PORT_INDEX][VAL_INDEX]);
+		updateConfigEntryValue(messagingModule, "broker-host", configs[BROKER_HOST_INDEX][VAL_INDEX]);
+		updateConfigEntryValue(messagingModule, "broker-protocol", configs[BROKER_PROTOCOL_INDEX][VAL_INDEX]);
+		updateConfigEntryValue(messagingModule, "broker-port", configs[BROKER_PORT_INDEX][VAL_INDEX]);
 
 		Element filebrokerModule = xml.getChildWithAttribute(doc.getDocumentElement(), "moduleId", "filebroker");
 		if (filebrokerModule != null) {
@@ -324,10 +328,20 @@ public class ConfigTool {
 			updateConfigEntryValue(filebrokerModule, "url", createFilebrokerUrl());
 		}
 
-		Element analyserModule = xml.getChildWithAttribute(doc.getDocumentElement(), "moduleId", "analyser");
+		Element analyserModule = xml.getChildWithAttribute(doc.getDocumentElement(), "moduleId", "comp");
 		if (analyserModule != null) {
-			updateConfigEntryValue(analyserModule, "max_jobs", configs[MAX_JOBS_INDEX][VAL_INDEX]);
-			updateConfigEntryValue(analyserModule, "RCommand", configs[R_COMMAND_INDEX][VAL_INDEX]);
+			updateConfigEntryValue(analyserModule, "max-jobs", configs[MAX_JOBS_INDEX][VAL_INDEX]);
+			updateConfigEntryValue(analyserModule, "r-command", configs[R_COMMAND_INDEX][VAL_INDEX]);
+		}
+		
+		Element webstartModule = xml.getChildWithAttribute(doc.getDocumentElement(), "moduleId", "webstart");
+		if (webstartModule != null) {
+			updateConfigEntryValue(webstartModule, "port", configs[WS_PORT][VAL_INDEX]);
+		}
+
+		Element managerModule = xml.getChildWithAttribute(doc.getDocumentElement(), "moduleId", "manager");
+		if (managerModule != null) {
+			updateConfigEntryValue(managerModule, "web-console-port", configs[MANAGER_PORT][VAL_INDEX]);
 		}
 
 		writeLater(configFile, doc);

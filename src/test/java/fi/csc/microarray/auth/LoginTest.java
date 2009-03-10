@@ -14,12 +14,12 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 
 public class LoginTest {
 	
 	@Test(groups = {"unit"} )
-	public void expirationTest() throws IOException, OldConfigurationFormatException {
+	public void expirationTest() throws IOException, IllegalConfigurationException {
 
 		DirectoryLayout.initialiseClientLayout().getConfiguration();			
 		
@@ -52,7 +52,7 @@ public class LoginTest {
 	/**
 	 * Utility method for testing users file anomalies.
 	 */
-	public void manualTest(File usersFileToTest, String username, String password) throws IOException, OldConfigurationFormatException {
+	public void manualTest(File usersFileToTest, String username, String password) throws IOException, IllegalConfigurationException {
 
 		DirectoryLayout.initialiseClientLayout().getConfiguration();			
 		
@@ -63,7 +63,7 @@ public class LoginTest {
 		Assert.assertTrue(authProvider.authenticate(username, password.toCharArray()));
 	}
 
-	private AuthenticationProvider createAuthProvider(File testJaasConfigFile) throws IOException, OldConfigurationFormatException {
+	private AuthenticationProvider createAuthProvider(File testJaasConfigFile) throws IOException, IllegalConfigurationException {
 		DirectoryLayout.initialiseClientLayout().getConfiguration();			
 		AuthenticationProvider authProvider = new JaasAuthenticationProvider();
 		System.setProperty("java.security.auth.login.config", testJaasConfigFile.getPath());
@@ -86,7 +86,7 @@ public class LoginTest {
 	//@Test(groups = {"stress"} )
 	// FIXME JAAS seems not to understand that we try to set up different login configs in expirationTest and stressTest
 	// (SimpleFileLoginModule gets wrong users file)
-	public void stressLoginTest() throws IOException, OldConfigurationFormatException {
+	public void stressLoginTest() throws IOException, IllegalConfigurationException {
 
 		int usernameMaxLength = 5;
 		int passwordMaxLength = 5;

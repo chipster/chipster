@@ -203,7 +203,7 @@ public abstract class ClientApplication implements Node, WizardContext {
 		try {
 			// try to initialise JMS connection
 			logger.debug("Initialise JMS connection.");
-			reportInitialisation("Connecting to broker at " + Configuration.getValue("messaging", "broker_host") + "...", true);
+			reportInitialisation("Connecting to broker at " + Configuration.getValue("messaging", "broker-host") + "...", true);
 			this.endpoint = new MessagingEndpoint(this, getAuthenticationRequestListener());
 			reportInitialisation(" connected", false);				
 			

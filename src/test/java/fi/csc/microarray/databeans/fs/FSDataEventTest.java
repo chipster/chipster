@@ -8,7 +8,7 @@ import org.testng.annotations.Test;
 
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.databeans.ContentChangedEvent;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataChangeEvent;
@@ -22,7 +22,7 @@ import fi.csc.microarray.databeans.DataBean.Link;
 public class FSDataEventTest implements DataChangeListener {
 	
 	@BeforeTest
-	public void init() throws IOException, OldConfigurationFormatException {
+	public void init() throws IOException, IllegalConfigurationException {
 		DirectoryLayout.initialiseClientLayout().getConfiguration();
 	}
 

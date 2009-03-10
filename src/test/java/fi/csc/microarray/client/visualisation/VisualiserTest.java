@@ -14,7 +14,7 @@ import fi.csc.microarray.ModulesForTesting;
 import fi.csc.microarray.TestConstants;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.OldConfigurationFormatException;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
@@ -24,7 +24,7 @@ public class VisualiserTest {
 
 	private DataManager manager;
 	
-	public VisualiserTest() throws IOException, OldConfigurationFormatException {
+	public VisualiserTest() throws IOException, IllegalConfigurationException {
 		DirectoryLayout.initialiseClientLayout().getConfiguration();			
 		this.manager = new FSDataManager();
 		ModulesForTesting.getModulesForTesting().plugFeatures(manager);
