@@ -211,6 +211,7 @@
 			<value>/R/stat-chisq-snp.R</value>
 			<value>/R/stat-adjust-pvalues.R</value>
 			<value>/R/ordination-pca.R</value>
+			<value>/R/ordination-ca.R</value>
 			<value>/R/ordination-nmds.R</value>
 			<value>/R/estimate-samplesize.R</value>
 
