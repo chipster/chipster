@@ -41,7 +41,6 @@ import fi.csc.microarray.databeans.DataBean.Link;
  * @author Aleksi Kallio
  *
  */
-// TODO it would be nicer to have 1-pass writing and 3-pass reading (or vice versa), because now you have to consider both reading and writing to find out in what order bean structures are constructed
 public class FSSnapshottingSession {
 
 	private final int DATA_BLOCK_SIZE = 2048;
@@ -76,10 +75,17 @@ public class FSSnapshottingSession {
 		cpZipOutputStream = new ZipOutputStream(fos);					
 		cpZipOutputStream.setLevel(1); // quite slow with bigger values														
 
-		// write data and gather metadata simultanously (except for links, so this is a 2-pass operation)
+		// write data and gather metadata simultanously
 		StringBuffer metadata = new StringBuffer("");
 		metadata.append("VERSION " + SNAPSHOT_VERSION + "\n");
-		int dataCount = saveRecursively((FSDataFolder)manager.getRootFolder(), cpZipOutputStream, metadata);
+		
+		// first generate all ids
+		int dataCount = generateIdsRecursively((FSDataFolder)manager.getRootFolder());
+		
+		// next write most of the metadata
+		saveRecursively((FSDataFolder)manager.getRootFolder(), cpZipOutputStream, metadata);
+		
+		// 2nd pass for links (if written in one pass, input dependent operation parameters break when reading)
 		saveLinksRecursively((FSDataFolder)manager.getRootFolder(), metadata);
 																	
 		writeFile(cpZipOutputStream, METADATA_FILENAME, 
@@ -127,16 +133,35 @@ public class FSSnapshottingSession {
 		}		
 	}
 	
-	private int saveRecursively(FSDataFolder folder, ZipOutputStream cpZipOutputStream, StringBuffer metadata) throws IOException {
+	
+	private int generateIdsRecursively(FSDataFolder folder) throws IOException {
+		
 		int dataCount = 0;
 		
-		String folderId = generateId(folder);
+		generateId(folder);
+		
+		for (DataItem data : folder.getChildren()) {
+			if (data instanceof FSDataFolder) {
+				int recDataCount = generateIdsRecursively((FSDataFolder)data);
+				dataCount += recDataCount;
+				
+			} else {
+				generateId((FSDataBean)data);
+				dataCount++;
+			}
+		}
+
+		return dataCount;
+	}
+			
+	private void saveRecursively(FSDataFolder folder, ZipOutputStream cpZipOutputStream, StringBuffer metadata) throws IOException {
+		
+		String folderId = fetchId(folder);
 		saveDataFolderMetadata(folder, folderId, metadata);
 		
 		for (DataItem data : folder.getChildren()) {
 			if (data instanceof FSDataFolder) {
-				int recDataCount = saveRecursively((FSDataFolder)data, cpZipOutputStream, metadata);
-				dataCount += recDataCount;
+				saveRecursively((FSDataFolder)data, cpZipOutputStream, metadata);
 				
 			} else {
 				FSDataBean bean = (FSDataBean)data;
@@ -145,21 +170,18 @@ public class FSSnapshottingSession {
 				writeFile(cpZipOutputStream, bean.getContentFile().getName(),  
 						new FileInputStream(bean.getContentFile()));
 
-				dataCount++;
 			}
 		}
-
-		return dataCount;
 	}
 
 
 	private void saveDataFolderMetadata(FSDataFolder folder, String folderId, StringBuffer metadata) {
 		metadata.append("DATAFOLDER " + folderId + "\n");
 		saveDataItemMetadata(folder, folderId, metadata);
-	}
+	}	
 	
 	private void saveDataBeanMetadata(FSDataBean bean, String folderId, StringBuffer metadata) {
-		String beanId = generateId(bean);
+		String beanId = fetchId(bean);
 		metadata.append("DATABEAN " + beanId + " " + bean.getContentFile().getName() + "\n");
 		
 		if (bean.getOperation() != null) {
@@ -185,6 +207,12 @@ public class FSSnapshottingSession {
 					metadata.append("OPERATION_PARAMETER " + operId + " " +  parameter.getName() + " " + parameter.getValue() + "\n");
 				}
 				
+				for (Link type : Link.values()) {
+					for (DataBean target : bean.getLinkTargets(type)) {
+						String targetId = fetchId(target);				
+						metadata.append("LINK " + type.name() + " " + beanId + " " + targetId + "\n");
+					}
+				}		
 
 			} else {
 				operId = reversedOperationIdMap.get(operation).toString();
@@ -418,11 +446,10 @@ public class FSSnapshottingSession {
 		reversedOperationIdMap.put(operation, iid);		
 	}
 
-	private String generateId(DataItem data) {
+	private void generateId(DataItem data) {
 		Integer id = itemIdCounter++;
 		itemIdMap.put(id, data);
 		reversedItemIdMap.put(data, id);
-		return id.toString();
 	}
 
 	private String generateId(Operation operation) {
