@@ -7,7 +7,7 @@ import fi.csc.microarray.client.operation.OperationDefinition;
 
 public class HelpMapping {
 
-	private static final String DEFAULT_HELP_PAGE = "chipster-manual/index.html";
+	private static final String DEFAULT_HELP_PAGE = "chipster-manual/tools.html";
 	private static Map<String, String> mappings = new HashMap<String, String>();
 
 	static {
@@ -42,6 +42,7 @@ public class HelpMapping {
 		mappings.put("Statistics/Correlate with phenodata", "chipster-manual/stat-correlate-phenodata.html");
 		mappings.put("Statistics/Linear modelling", "chipster-manual/stat-linear-modelling.html");
 		mappings.put("Statistics/SAM", "chipster-manual/stat-sam.html");
+		mappings.put("Statistics/Adjust P-values", "chipster-manual/stat-adjust-p-values.html");
 		mappings.put("Normalisation/Affymetrix exon arrays", "chipster-manual/norm-affy-exon.html");
 		mappings.put("Normalisation/Affymetrix", "chipster-manual/norm-affy.html");
 		mappings.put("Normalisation/Agilent 1-color", "chipster-manual/norm-agilent-1color.html");
@@ -50,6 +51,7 @@ public class HelpMapping {
 		mappings.put("Normalisation/Illumina", "chipster-manual/norm-illumina.html");
 		mappings.put("Normalisation/Illumina - lumi pipeline", "chipster-manual/norm-illumina-lumi.html"); 
 		mappings.put("Normalisation/Random effects", "chipster-manual/norm-lme.html");
+		mappings.put("Normalization/Normalize to specific samples", "chipster-manual/norm-specific-samples.html");
 		mappings.put("Pathways/Bayesian network", "chipster-manual/pathway-bayesian.html");
 		mappings.put("Pathways/Boolean network", "chipster-manual/pathway-boolean-bestim.html");
 		mappings.put("Pathways/Hypergeometric test for GO", "chipster-manual/pathways-hypergeometric-go.html");
@@ -91,6 +93,7 @@ public class HelpMapping {
 		mappings.put("Utilities/Merge tables", "chipster-manual/merge-tables.html");
 		mappings.put("Utilities/Sort samples", "chipster-manual/sort-samples.html");
 		mappings.put("Utilities/Delete columns", "chipster-manual/delete-columns.html");
+		mappings.put("Utilities/Combine probes to genes", "chipster-manual/combine-probes-to-genes.html");
 	}
 
 	public static String mapToHelppage(OperationDefinition definition) {

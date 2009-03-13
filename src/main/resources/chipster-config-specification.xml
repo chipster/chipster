@@ -265,6 +265,7 @@
 			<value>/R/extract-genes.R</value>
 			<value>/R/calculate-fold-change.R</value>
 			<value>/R/average-replicates.R</value>
+			<value>/R/combine-probes-to-genes.R</value>
 			<value>/R/change-interpretation.R</value>
 			<value>/R/generate-phenodata.R</value>			
 			<value>/R/filter-by-column.R</value>
@@ -276,7 +277,6 @@
 			<value>/R/export-tab2mage.R</value>
 			<value>/R/export-soft.R</value>
 			<value>/R/import-soft2.R</value>
-			<value>/R/combine-probes-to-genes.R</value>
 			
 			<!-- MISCELLANEOUS (SEQUENCE ANALYSIS) -->
 			<value>/R/seqanal-msa.R</value>
