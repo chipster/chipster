@@ -22,7 +22,7 @@ import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.analyser.AnalysisDescription;
 import fi.csc.microarray.analyser.AnalysisException;
 import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
-import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.messaging.JobState;
 
 /**
@@ -94,7 +94,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 	
 
 	protected RAnalysisJob() {
-		rTimeout = Integer.parseInt(Configuration.getValue("comp", "r-timeout"));
+		this.rTimeout = Integer.parseInt(DirectoryLayout.getInstance().getConfiguration().getValue("comp", "r-timeout"));
 	}
 
 	

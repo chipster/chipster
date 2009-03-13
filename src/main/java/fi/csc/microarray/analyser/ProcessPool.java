@@ -33,12 +33,12 @@ public class ProcessPool {
 	private BlockingQueue<NamiProcess> availableProcesses;
 	private ConcurrentMap<Integer, NamiProcess> inUseProcesses;
 	
-	private static final int poolSizeMin = Integer.parseInt(Configuration.getValue("comp", "r-process-pool-size-min"));
-	private static final int poolSizeMax = Integer.parseInt(Configuration.getValue("comp", "r-process-pool-size-max"));
-	private static final int poolTimeout = Integer.parseInt(Configuration.getValue("comp", "r-process-pool-timeout"));
-	private static final int processUseCountMax = Integer.parseInt(Configuration.getValue("comp", "r-process-pool-process-use-count-max"));
-	private static final int processLifetimeMax = Integer.parseInt(Configuration.getValue("comp", "r-process-pool-process-lifetime-max"));
-	private static String R_COMMAND = Configuration.getValue("comp", "r-command") + " --vanilla --quiet";
+	private final int poolSizeMin;
+	private final int poolSizeMax;
+	private final int poolTimeout;
+	private final int processUseCountMax;
+	private final int processLifetimeMax;
+	private final String rCommand;
 	
 	private File workDir;
 	
@@ -82,12 +82,19 @@ public class ProcessPool {
 	
 	
 	
-	public ProcessPool(File analyserWorkDir) throws IOException {
-		workDir = analyserWorkDir;
+	public ProcessPool(File analyserWorkDir, Configuration configuration) throws IOException {
+		this.workDir = analyserWorkDir;
 		
+		this.poolSizeMin = Integer.parseInt(configuration.getValue("comp", "r-process-pool-size-min"));
+		this.poolSizeMax = Integer.parseInt(configuration.getValue("comp", "r-process-pool-size-max"));
+		this.poolTimeout = Integer.parseInt(configuration.getValue("comp", "r-process-pool-timeout"));
+		this.processUseCountMax = Integer.parseInt(configuration.getValue("comp", "r-process-pool-process-use-count-max"));
+		this.processLifetimeMax = Integer.parseInt(configuration.getValue("comp", "r-process-pool-process-lifetime-max"));
+		this.rCommand = configuration.getValue("comp", "r-command") + " --vanilla --quiet";
+
 		// initialize pool structures
-		availableProcesses = new LinkedBlockingQueue<NamiProcess>(); 
-		inUseProcesses = new ConcurrentHashMap<Integer, NamiProcess>();
+		this.availableProcesses = new LinkedBlockingQueue<NamiProcess>(); 
+		this.inUseProcesses = new ConcurrentHashMap<Integer, NamiProcess>();
 	
 		// populate pool with new processes  
 		for (int i = 0; i < poolSizeMin; i++) {
@@ -239,7 +246,7 @@ public class ProcessPool {
 	private NamiProcess createProcess() throws IOException {
 
 		logger.debug("Creating a new R process.");
-		Process p = Runtime.getRuntime().exec(R_COMMAND, null, workDir);
+		Process p = Runtime.getRuntime().exec(rCommand, null, workDir);
 		return new NamiProcess(p);
 	}
 	

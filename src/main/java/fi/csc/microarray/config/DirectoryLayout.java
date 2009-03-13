@@ -2,6 +2,7 @@ package fi.csc.microarray.config;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -61,12 +62,12 @@ public class DirectoryLayout {
 		return initialiseClientLayout(null);
 	}
 
-	public static DirectoryLayout initialiseClientLayout(String overrideString) throws IOException, IllegalConfigurationException {
+	public static DirectoryLayout initialiseClientLayout(String configURL) throws IOException, IllegalConfigurationException {
 		synchronized (DirectoryLayout.class) {
 			if (DirectoryLayout.instance != null) {
 				throw new IllegalStateException("already initialised");
 			}
-			DirectoryLayout.instance = new DirectoryLayout(Type.CLIENT, overrideString, Arrays.asList(new String[] {"messaging", "security", "client"}));
+			DirectoryLayout.instance = new DirectoryLayout(Type.CLIENT, configURL, Arrays.asList(new String[] {"messaging", "security", "client"}));
 			return DirectoryLayout.instance;
 		}
 	}
@@ -80,12 +81,16 @@ public class DirectoryLayout {
 		}
 	}
 	
-	private DirectoryLayout(Type type, String overrideString, List<String> configModules) throws IOException, IllegalConfigurationException {
+	private DirectoryLayout(Type type, String configURL, List<String> configModules) throws IOException, IllegalConfigurationException {
 		this.type = type;
 		System.setProperty(LOGS_DIR_SYSTEM_PROPERTY, getLogsDir().getAbsolutePath()); // NOTE: NO LOGGING IS TO BE DONE BEFORE THIS!
 		System.setProperty(CONF_DIR_SYSTEM_PROPERTY, getConfDir().getAbsolutePath()); 
 		System.setProperty(SECURITY_DIR_SYSTEM_PROPERTY, getSecurityDir().getAbsolutePath());
-		this.configuration = new Configuration(overrideString, getConfDir(), configModules);
+		if (configURL == null) {
+			this.configuration = new Configuration(getConfDir(), configModules);
+		} else {
+			this.configuration = new Configuration(new URL(configURL), configModules);
+		}
 	}
 
 	public File getConfDir() throws IOException {
@@ -104,7 +109,7 @@ public class DirectoryLayout {
 
 	public File getFileroot() throws IOException, IllegalConfigurationException {
 		if (type == Type.SERVER) {
-			File fileRepository = new File(Configuration.getValue("filebroker", "file-server-path"));
+			File fileRepository = new File(configuration.getValue("filebroker", "file-server-path"));
 			if (!fileRepository.exists()) {
 				boolean ok = fileRepository.mkdir();
 				if (!ok) {
@@ -197,7 +202,7 @@ public class DirectoryLayout {
 		return dir;
 	}
 
-	public Configuration getConfiguration() throws IOException, IllegalConfigurationException {
+	public Configuration getConfiguration() {
 		return configuration;
 	}	
 

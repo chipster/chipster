@@ -7,7 +7,7 @@ import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.thread.QueuedThreadPool;
 
-import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.util.rest.RestServlet;
 
 public class JettyFileServer {
@@ -21,7 +21,7 @@ public class JettyFileServer {
 	
 	public void start(String resourceBase, int port) throws Exception {
 		
-		if ("true".equals(Configuration.getValue("filebroker", "jetty-debug"))) {
+		if ("true".equals(DirectoryLayout.getInstance().getConfiguration().getValue("filebroker", "jetty-debug"))) {
 			System.setProperty("DEBUG", "true");
 		}
 		

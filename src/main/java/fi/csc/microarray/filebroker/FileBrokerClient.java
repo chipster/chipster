@@ -11,7 +11,7 @@ import javax.jms.JMSException;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.messaging.MessagingListener;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.message.CommandMessage;
@@ -90,8 +90,8 @@ public class FileBrokerClient {
 		// read configs
 
 		// use chunked if not explicitly disabled
-		String chunkedConfig = Configuration.getValue("messaging", "use-chunked-http");
-		useChunked = ! (chunkedConfig != null && chunkedConfig.equals("false")); 
+		String chunkedConfig = DirectoryLayout.getInstance().getConfiguration().getValue("messaging", "use-chunked-http");
+		this.useChunked = ! (chunkedConfig != null && chunkedConfig.equals("false")); 
 		
 		// initialize messaging
 		this.urlTopic = urlTopic;

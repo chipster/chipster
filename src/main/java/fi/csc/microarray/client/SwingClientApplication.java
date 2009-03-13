@@ -160,8 +160,10 @@ public class SwingClientApplication extends ClientApplication {
 	private JFileChooser snapshotFileChooser;
 	private JFileChooser workflowFileChooser;
 
-	public SwingClientApplication(ClientListener clientListener, AuthenticationRequestListener overridingARL) throws MicroarrayException, IOException {
+	public SwingClientApplication(ClientListener clientListener, AuthenticationRequestListener overridingARL) throws MicroarrayException, IOException, IllegalConfigurationException {
 
+		super();
+		
 		this.clientListener = clientListener;
 		this.overridingARL = overridingARL;
 
@@ -1129,14 +1131,11 @@ public class SwingClientApplication extends ClientApplication {
 	/**
 	 * Starts Chipster client. Configuration (logging) should be initialised
 	 * before calling this method.
-	 * @param useHomeAsWorkdir 
-	 * @param configOverride 
-	 * @throws IOException 
 	 */
-	public static void start(String configOverride) throws IOException {
+	public static void start(String configURL) throws IOException {
 
 		try {
-			DirectoryLayout.initialiseClientLayout(configOverride);			
+			DirectoryLayout.initialiseClientLayout(configURL);			
 
 		} catch (IllegalConfigurationException e) {
 			reportIllegalConfigurationException(e);

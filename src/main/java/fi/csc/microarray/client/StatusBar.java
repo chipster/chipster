@@ -16,7 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.Timer;
 
-import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.util.MemUtil;
 
 public class StatusBar {
@@ -68,7 +68,7 @@ public class StatusBar {
 			});
 
 			statusLabel = new JLabel();
-			String labelText = "Connected to " + Configuration.getValue("messaging", "broker-host");
+			String labelText = "Connected to " + DirectoryLayout.getInstance().getConfiguration().getValue("messaging", "broker-host");
 			statusLabel.setText(labelText);
 			statusLabel.setBorder(jobStatusIndicator.getBorder());
 

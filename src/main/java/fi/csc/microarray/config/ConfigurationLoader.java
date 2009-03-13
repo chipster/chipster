@@ -1,7 +1,5 @@
 package fi.csc.microarray.config;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -37,23 +35,6 @@ public class ConfigurationLoader {
 		this.requiredVersion = requiredVersion;
 	}
 
-	public void addFromFile(File file, boolean isSpecification) throws IOException, SAXException, ParserConfigurationException, IllegalConfigurationException {
-		FileInputStream in = null;
-		
-		try {
-			in = new FileInputStream(file); 
-			addFromStream(in, isSpecification);
-			
-		} finally {
-			try {
-				in.close();
-			} catch (Exception e) {
-				// ignore
-			}
-		}
-		
-	}
-	
 	public void addFromStream(InputStream stream, boolean isSpecification) throws SAXException, IOException, ParserConfigurationException, IllegalConfigurationException {
 		Document document = XmlUtil.getInstance().parseReader(new InputStreamReader(stream));
 		addFromXml(document, isSpecification);

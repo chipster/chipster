@@ -8,7 +8,7 @@ public interface AnalysisHandler {
 	 * Creates analysis job object using the analysis description and job message, i.e., instantiates the analysis
 	 * job described by the description and parameterised by the parameters contained in job message. 
 	 */
-	public AnalysisJob createAnalysisJob(JobMessage message, AnalysisDescription description, ResultCallback resultHandler);
+	public AnalysisJob createAnalysisJob(JobMessage message, AnalysisDescription description, ResultCallback resultHandler) throws AnalysisException;
 
 	/**
 	 * Creates analysis description from a String sourceResourceName. Interpretation of sourceResourceName

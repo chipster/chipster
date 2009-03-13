@@ -106,8 +106,9 @@ public class AnalysisDescription {
 	 * @param message
 	 * @param resultHandler
 	 * @return
+	 * @throws AnalysisException 
 	 */
-	public AnalysisJob createAnalysisJob(JobMessage message, ResultCallback resultHandler) {
+	public AnalysisJob createAnalysisJob(JobMessage message, ResultCallback resultHandler) throws AnalysisException {
 		return handler.createAnalysisJob(message, this, resultHandler);		
 	}
 	

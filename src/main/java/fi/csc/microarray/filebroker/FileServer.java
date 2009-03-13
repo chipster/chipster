@@ -39,12 +39,14 @@ public class FileServer extends NodeBase implements MessagingListener {
     	try {
     		// initialise dir and logging
     		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"frontend", "filebroker"}));
+    		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
     		logger = Logger.getLogger(FileServer.class);
 
     		// initialise url repository
     		File fileRepository = DirectoryLayout.getInstance().getFileroot();
-    		String host = Configuration.getValue("filebroker", "url");
-    		int port = FileBrokerConfig.getPort();
+    		String host = configuration.getValue("filebroker", "url");
+    		int port = Integer.parseInt(configuration.getValue("filebroker", "port"));
+    		
     		this.urlRepository = new AuthorisedUrlRepository(host, port);
 
     		// boot up file server
@@ -52,8 +54,8 @@ public class FileServer extends NodeBase implements MessagingListener {
     		fileServer.start(fileRepository.getPath(), port);
 
     		// start scheduler
-    		int cutoff = 1000 * Integer.parseInt(Configuration.getValue("filebroker", "file-life-time"));
-    		int cleanUpFrequency = 1000 * Integer.parseInt(Configuration.getValue("filebroker", "clean-up-frequency"));
+    		int cutoff = 1000 * Integer.parseInt(configuration.getValue("filebroker", "file-life-time"));
+    		int cleanUpFrequency = 1000 * Integer.parseInt(configuration.getValue("filebroker", "clean-up-frequency"));
     		int checkFrequency = 1000 * 5;
     		Timer t = new Timer("frontend-scheduled-tasks", true);
     		t.schedule(new FileCleanUpTimerTask(fileRepository, cutoff), 0, cleanUpFrequency);

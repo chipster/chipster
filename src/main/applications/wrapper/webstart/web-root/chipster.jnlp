@@ -24,8 +24,7 @@
   </resources>
   <application-desc main-class="fi.csc.microarray.MicroarrayMain">
   	<argument>client</argument>
-  	<argument>-homework</argument>
-  	<argument>-override</argument>
+  	<argument>-config</argument>
   	<argument></argument>
   </application-desc>
 </jnlp> 

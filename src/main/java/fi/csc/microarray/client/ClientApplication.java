@@ -172,8 +172,15 @@ public abstract class ClientApplication implements Node, WizardContext {
 	protected TaskExecutor taskExecutor;
 	protected MessagingEndpoint endpoint;
 	protected DataManager manager;
-    protected DataSelectionManager selectionManager;      
+    protected DataSelectionManager selectionManager;
 
+    protected ClientConstants clientConstants;
+    protected Configuration configuration;      
+
+	public ClientApplication() {
+		this.configuration = DirectoryLayout.getInstance().getConfiguration();
+		this.clientConstants = new ClientConstants();
+	}
     
 	protected void initialiseApplication() throws MicroarrayException, IOException {
 		
@@ -203,7 +210,7 @@ public abstract class ClientApplication implements Node, WizardContext {
 		try {
 			// try to initialise JMS connection
 			logger.debug("Initialise JMS connection.");
-			reportInitialisation("Connecting to broker at " + Configuration.getValue("messaging", "broker-host") + "...", true);
+			reportInitialisation("Connecting to broker at " + configuration.getValue("messaging", "broker-host") + "...", true);
 			this.endpoint = new MessagingEndpoint(this, getAuthenticationRequestListener());
 			reportInitialisation(" connected", false);				
 			
@@ -373,8 +380,8 @@ public abstract class ClientApplication implements Node, WizardContext {
 		}
 		
 		// check job count
-		if (taskExecutor.getRunningTaskCount() >= ClientConstants.MAX_JOBS) {
-			showDialog("Task not started as there are maximum number of tasks already running.", "You can only run " + ClientConstants.MAX_JOBS + " tasks at the same time. Please wait for one of the currently running tasks to finish and try again.",
+		if (taskExecutor.getRunningTaskCount() >= clientConstants.MAX_JOBS) {
+			showDialog("Task not started as there are maximum number of tasks already running.", "You can only run " + clientConstants.MAX_JOBS + " tasks at the same time. Please wait for one of the currently running tasks to finish and try again.",
 						null, Severity.INFO, false);
 			return;
 		}
@@ -384,8 +391,8 @@ public abstract class ClientApplication implements Node, WizardContext {
 		for (DataBinding binding : operation.getBindings()) {
 			bytes += binding.getData().getContentLength();			
 		}
-		if (bytes > ClientConstants.MAX_JOB_SIZE) {
-			showDialog("Task not started since input datasets are too large.", "Maximum size for input datasets is " + ClientConstants.MAX_JOB_SIZE + " bytes.", "Input datasets size: " + bytes, Severity.INFO, false);
+		if (bytes > clientConstants.MAX_JOB_SIZE) {
+			showDialog("Task not started since input datasets are too large.", "Maximum size for input datasets is " + clientConstants.MAX_JOB_SIZE + " bytes.", "Input datasets size: " + bytes, Severity.INFO, false);
 			return;
 		}
 		

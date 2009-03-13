@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.MessagingTopic.Type;
 import fi.csc.microarray.messaging.auth.AuthenticatedTopic;
@@ -39,44 +40,27 @@ import fi.csc.microarray.util.KeyAndTrustManager;
  */
 public class MessagingEndpoint implements MessagingListener {
 	
-	static {
-		// read config
-		String protocol = Configuration.getValue("messaging", "broker-protocol");
-		String host = Configuration.getValue("messaging", "broker-host");
-		String port = Configuration.getValue("messaging", "broker-port");
-		
-		// check
-		if (protocol == null || host == null || port == null) {
-			throw new RuntimeException("configuration error: protocol, host or port not set");
-		}
-		if (protocol.trim().equals("") || host.trim().equals("") || port.trim().equals("")) {
-			throw new RuntimeException("configuration error: protocol, host or port empty");
-		}
-		
-		// set broker address
-		BROKER_URL =  protocol + "://" + host + ":" + port;
-	}
 	/**
 	 * Logger for this class
 	 */
 	private static final Logger logger = Logger.getLogger(MessagingEndpoint.class);
-	
+
+	/**
+	 * ActiveMQ keyword for redialling.
+	 */ 	
+	private static final String RELIABLE_CONNECTION_SPECIFIER = "failover:"; // since ActiveMQ 4.xx, "reliable" is "failover"
+
 	/**
 	 * The broker to connect to.
 	 */
-	private static final String BROKER_URL;
+	private final String brokerUrl;
 	
 	/**
-	 * Activates automatic "redialling" if connection is lost.
-	 */ 	
-	private static final String RELIABLE_CONNECTION_SPECIFIER = "failover:"; // since ActiveMQ 4.xx, "reliable" is "failover"
-	
-	/**
-	 * Current configuration.
+	 * Is redialling enabled?
 	 */
-	private static final boolean USE_RELIABLE = "true".equals(Configuration.getValue("messaging", "use-reliable"));
+	private final boolean useReliable;
 
-	private static final String DEFAULT_REPLY_CHANNEL = Topics.MultiplexName.REPLY_TO.toString();
+	private final String DEFAULT_REPLY_CHANNEL = Topics.MultiplexName.REPLY_TO.toString();
 	
 	private ActiveMQConnection connection;
 	private MessagingTopic adminTopic = null;
@@ -105,14 +89,30 @@ public class MessagingEndpoint implements MessagingListener {
 		this.master = master;
 		this.authenticationListener = authenticationListener;
 
+		// configure everything
+		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
+		
+		String protocol = configuration.getValue("messaging", "broker-protocol");
+		String host = configuration.getValue("messaging", "broker-host");
+		String port = configuration.getValue("messaging", "broker-port");
+		
+		// check that all configs were properly filled
+		if (protocol.trim().equals("") || host.trim().equals("") || port.trim().equals("")) {
+			throw new RuntimeException("configuration error: protocol, host or port empty");
+		}
+		
+		// set broker address
+		useReliable = "true".equals(configuration.getValue("messaging", "use-reliable"));
+		brokerUrl =  protocol + "://" + host + ":" + port;
+		
 		// setup keystore if needed
-		if ("ssl".equals(Configuration.getValue("messaging", "broker-protocol"))) {
+		if ("ssl".equals(configuration.getValue("messaging", "broker-protocol"))) {
 			try {
 				KeyAndTrustManager.initialise(
-						Configuration.getValue("security", "keystore"),
-						Configuration.getValue("security", "keypass").toCharArray(), 
-						Configuration.getValue("security", "keyalias"), 
-						Configuration.getValue("security", "master-keystore"));
+						configuration.getValue("security", "keystore"),
+						configuration.getValue("security", "keypass").toCharArray(), 
+						configuration.getValue("security", "keyalias"), 
+						configuration.getValue("security", "master-keystore"));
 			} catch (Exception e) {
 				throw new MicroarrayException("could not access SSL keystore", e);
 			}
@@ -121,12 +121,12 @@ public class MessagingEndpoint implements MessagingListener {
 		String username;
 		String password;
 		try {
-			username = Configuration.getValue("security", "username");
+			username = configuration.getValue("security", "username");
 			if (username == null || username.trim().length() == 0) {
 				throw new IllegalArgumentException("Username was not available from configuration");
 			}
 
-			password = Configuration.getValue("security", "password");
+			password = configuration.getValue("security", "password");
 			if (password == null || password.trim().length() == 0) {
 				throw new IllegalArgumentException("Password was not available from configuration");
 			}
@@ -136,35 +136,35 @@ public class MessagingEndpoint implements MessagingListener {
 		
 		
 		try {
-			logger.info("connecting to " + BROKER_URL);
-			String brokerUrl = BROKER_URL;
-			if (USE_RELIABLE) {
+			logger.info("connecting to " + brokerUrl);
+			String completeBrokerUrl = brokerUrl;
+			if (useReliable) {
 				// tests connecting with unreliable, so that if broker is not available, 
 				// we won't initiate retry sequence
-				logger.debug("testing connecting to " + brokerUrl);
-				TopicConnectionFactory connectionFactory = new ActiveMQConnectionFactory(username, password, brokerUrl);
+				logger.debug("testing connecting to " + completeBrokerUrl);
+				TopicConnectionFactory connectionFactory = new ActiveMQConnectionFactory(username, password, completeBrokerUrl);
 				Connection tempConnection = connectionFactory.createTopicConnection();
 				tempConnection.start();
 				tempConnection.stop();
 				tempConnection.close(); // it worked, we have a network connection
 				
 				// switch to reliable
-				brokerUrl = RELIABLE_CONNECTION_SPECIFIER + brokerUrl;
+				completeBrokerUrl = RELIABLE_CONNECTION_SPECIFIER + completeBrokerUrl;
 			}
 			
 			// create actual reliable connection
-			TopicConnectionFactory reliableConnectionFactory = new ActiveMQConnectionFactory(username, password, brokerUrl);		
+			TopicConnectionFactory reliableConnectionFactory = new ActiveMQConnectionFactory(username, password, completeBrokerUrl);		
 			connection = (ActiveMQConnection)reliableConnectionFactory.createTopicConnection();
 			connection.setExceptionListener(master);
 			connection.start();
-			logger.debug("connected to " + brokerUrl);
+			logger.debug("connected to " + completeBrokerUrl);
 			
 			// create admin topic
 			adminTopic = createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ_WRITE); // endpoint reacts to requests from admin-topic
 			adminTopic.setListener(this);
 			logger.debug("endpoint created succesfully");
 		} catch (JMSException e) {
-			throw new MicroarrayException("could not connect to message broker at " + BROKER_URL + " (" + e.getMessage() + ")", e);
+			throw new MicroarrayException("could not connect to message broker at " + brokerUrl + " (" + e.getMessage() + ")", e);
 		}
 	}
 

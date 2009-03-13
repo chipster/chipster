@@ -43,8 +43,7 @@ public class MicroarrayMain {
 			cmdParser.addParameter("system-status", false, false, null, "query and print system status");
 			cmdParser.addParameter("broker-check", false, false, null, "check broker availability");
 			cmdParser.addParameter("rcheck", false, true, null, "check R script syntax");
-			cmdParser.addParameter("-override", false, true, null, "comma separated list of configuration overrides (e.g. \"-override ModuleA/EntryA=val1,ModuleA/EntryB=val1;val2\")");
-			cmdParser.addParameter("-homework", false, false, null, "store work files in home instead of workdir");
+			cmdParser.addParameter("-config", false, true, null, "configuration file URL (chipster-config.xml)");
 			cmdParser.addParameter("-required-analyser-count", false, true, "1", "required comp service count for nagios check");
 			
 			// parse commandline
@@ -151,7 +150,7 @@ public class MicroarrayMain {
 				System.out.println("parse succeeded: " + !fails);
 				
 			} else {
-				SwingClientApplication.start(cmdParser.getValue("-override")); 		
+				SwingClientApplication.start(cmdParser.getValue("-config")); 		
 			}
 			
 		} catch (CommandLineException e) {

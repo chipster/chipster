@@ -1,8 +1,15 @@
 package fi.csc.microarray.client;
 
 import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.config.DirectoryLayout;
 
 public class ClientConstants {
-	public static int MAX_JOBS = Integer.parseInt(Configuration.getValue("client", "max-jobs"));
-	public static long MAX_JOB_SIZE = Long.parseLong(Configuration.getValue("client", "max-job-size"));
+	public final int MAX_JOBS;
+	public final long MAX_JOB_SIZE;
+	
+	public ClientConstants() {
+		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
+		MAX_JOBS = Integer.parseInt(configuration.getValue("client", "max-jobs"));
+		MAX_JOB_SIZE = Long.parseLong(configuration.getValue("client", "max-job-size"));
+	}
 }

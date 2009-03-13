@@ -12,7 +12,6 @@ import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
 import fi.csc.microarray.analyser.r.VVSADLTool;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.module.chipster.ChipsterVVSADLParser.Validator;
 
 public class VVSADLDescriptionTest {
@@ -26,8 +25,8 @@ public class VVSADLDescriptionTest {
 	public void testDescriptions() throws FileNotFoundException, MicroarrayException {
 		
 		LinkedList<String> files = new LinkedList<String>();
-		files.addAll(Arrays.asList(Configuration.getValues("comp", "operations")));
-		files.addAll(Arrays.asList(Configuration.getValues("comp", "hidden-operations")));
+		files.addAll(Arrays.asList(DirectoryLayout.getInstance().getConfiguration().getValues("comp", "operations")));
+		files.addAll(Arrays.asList(DirectoryLayout.getInstance().getConfiguration().getValues("comp", "hidden-operations")));
 		
 		for (String file : files) {
 			try {

@@ -224,6 +224,10 @@ public class ConfigTool {
 					updateChipsterConfigFile(configFile);
 				}
 			}
+			File wsClientConfigFile = new File("webstart" + File.separator + DirectoryLayout.WEB_ROOT_DIR + File.separator + Configuration.CONFIG_FILENAME);
+			if (wsClientConfigFile.exists()) {
+				updateChipsterConfigFile(wsClientConfigFile);
+			}
 
 			// update ActiveMQ config
 			File activemqConfigFile = new File(brokerDir + File.separator + DirectoryLayout.CONF_DIR + File.separator + "activemq.xml");
@@ -262,10 +266,8 @@ public class ConfigTool {
 		Element applicationDesc = (Element)jnlp.getElementsByTagName("application-desc").item(0);
 		NodeList arguments = applicationDesc.getElementsByTagName("argument");
 		Element lastArgument = (Element)arguments.item(arguments.getLength() - 1);
-		String override = "messaging/broker_host=" + configs[BROKER_HOST_INDEX][VAL_INDEX] + 
-			",messaging/broker_port=" + configs[BROKER_PORT_INDEX][VAL_INDEX] +
-			",messaging/broker_protocol=" + configs[BROKER_PROTOCOL_INDEX][VAL_INDEX];
-		updateElementValue(lastArgument, "override argument", override);
+		String url = "http://" + configs[BROKER_HOST_INDEX][VAL_INDEX] + "://" + configs[WS_PORT][VAL_INDEX] + "/" + Configuration.CONFIG_FILENAME;
+		updateElementValue(lastArgument, "configuration URL (for Web Start)", url);
 		writeLater(configFile, doc);
 	}
 

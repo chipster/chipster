@@ -241,6 +241,7 @@
 
 			<tarfileset dir="${ext-src}/wrapper/client/conf" prefix="chipster/client/conf" />
 			<tarfileset dir="${ext-src}/wrapper/client/logs" prefix="chipster/client/logs" />			
+			<tarfileset file="${ext-src}/wrapper/chipster-client-config.xml" fullpath="chipster/client/conf/chipster-config.xml" />
 			-->
 			
 			<!-- web start -->
@@ -257,6 +258,7 @@
 
 			<tarfileset dir="${ext-src}/wrapper/webstart/web-root" prefix="chipster/webstart/web-root" />
 			<tarfileset file="dist/microarray-${release-version}.jar" fullpath="chipster/webstart/web-root/lib/chipster-current.jar" />
+			<tarfileset file="${ext-src}/wrapper/chipster-client-config.xml" fullpath="chipster/webstart/web-root/chipster-config.xml" />
 
 			<!-- manager -->
 			<tarfileset file="${ext-src}/wrapper/manager/chipster-manager-generic" filemode="755" fullpath="chipster/manager/bin/chipster-manager" />

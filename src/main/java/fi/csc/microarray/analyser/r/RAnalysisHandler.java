@@ -3,6 +3,7 @@ package fi.csc.microarray.analyser.r;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.log4j.Logger;
@@ -15,6 +16,8 @@ import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
 import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.description.VVSADLParser.ParseException;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;
@@ -28,8 +31,14 @@ public class RAnalysisHandler implements AnalysisHandler {
 	static final Logger logger = Logger
 			.getLogger(RAnalysisHandler.class);
 
-	private static String R_COMMAND = Configuration.getValue("comp", "r-command") + " --vanilla --quiet";
-	private static final String customScriptsDirName = Configuration.getValue("comp", "custom-scripts-dir");
+	private final String rCommand;
+	private final String customScriptsDirName;
+	
+	public RAnalysisHandler() throws IOException, IllegalConfigurationException {
+		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
+		this.rCommand = configuration.getValue("comp", "r-command") + " --vanilla --quiet";
+		this.customScriptsDirName = configuration.getValue("comp", "custom-scripts-dir");
+	}
 	
 	public AnalysisJob createAnalysisJob(JobMessage message, AnalysisDescription description, ResultCallback resultHandler) {
 		RAnalysisJob analysisJob = new RAnalysisJob();
@@ -78,7 +87,7 @@ public class RAnalysisHandler implements AnalysisHandler {
 		ad.setVVSADL(parsedScript.VVSADL);
 
 		// add R specific stuff to AnalysisDescription
-		ad.setCommand(R_COMMAND);
+		ad.setCommand(rCommand);
 		ad.setImplementation(parsedScript.rSource); // include headers
 		ad.setSourceCode(parsedScript.rSource);
 		ad.setSourceResourceName(sourceResourceName);
