@@ -4,23 +4,20 @@
 
 	<configuration-module moduleId="messaging" description="communication">
 
-		<entry entryKey="broker-host" description="host of message broker (JMS server ActiveMQ) to connect to">
-			<mustBeSet />			
+		<entry entryKey="broker-host" type="string" mustBeSet="true" description="host of message broker (JMS server ActiveMQ) to connect to">
 		</entry>
 
-		<entry entryKey="broker-protocol" description="protocol used to connect to message broker">
-			<mustBeSet />			
+		<entry entryKey="broker-protocol" type="string" mustBeSet="true" description="protocol used to connect to message broker">
 		</entry>
 
-		<entry entryKey="broker-port" description="port used to connect to message broker">
-			<mustBeSet />			
+		<entry entryKey="broker-port" type="int" mustBeSet="true" description="port used to connect to message broker">
 		</entry>
 
-		<entry entryKey="use-chunked-http" description="should we use chunked HTTP mode when connecting to file broker, when disabled all data is loaded to memory">
+		<entry entryKey="use-chunked-http" type="boolean" description="should we use chunked HTTP mode when connecting to file broker, when disabled all data is loaded to memory">
 			<value>true</value>
 		</entry>
 
-		<entry entryKey="use-reliable" description="use reliable connections (ie. redialling)">
+		<entry entryKey="use-reliable" type="boolean" description="use reliable connections (ie. redialling)">
 			<value>true</value>
 		</entry>
 		
@@ -28,28 +25,26 @@
 
 	<configuration-module moduleId="security" description="encryption and authentication">
 
-		<entry entryKey="keystore" description="keystore for SSL">
+		<entry entryKey="keystore" type="string" description="keystore for SSL">
 			<value>${chipster_security_dir}/keystore.ks</value>
 		</entry>
 
-		<entry entryKey="master-keystore" description="master keystore for SSL">
+		<entry entryKey="master-keystore" type="string" description="master keystore for SSL">
 			<value>/keystore.ks</value>
 		</entry>
 
-		<entry entryKey="keypass" description="keystore password for SSL">
+		<entry entryKey="keypass" type="string" description="keystore password for SSL">
 			<value>microarray</value>
 		</entry>
 
-		<entry entryKey="keyalias" description="alias of key to be used for SSL">
+		<entry entryKey="keyalias" type="string" description="alias of key to be used for SSL">
 			<value>microarray</value>
 		</entry>
 
-		<entry entryKey="username" description="username for authenticating connection to broker">
-			<mustBeSet />			
+		<entry entryKey="username" type="string" mustBeSet="true" description="username for authenticating connection to broker">
 		</entry>
 
-		<entry entryKey="password" description="password for authenticating connection to broker">
-			<mustBeSet />			
+		<entry entryKey="password" type="string" description="password for authenticating connection to broker">
 		</entry>
 	
 	</configuration-module>
@@ -57,27 +52,25 @@
 	
 	<configuration-module moduleId="filebroker" description="file broker">
 	
-		<entry entryKey="file-server-path" description="path to file broker cache directory">
+		<entry entryKey="file-server-path" type="string" description="path to file broker cache directory">
 			<value>file-root</value>
 		</entry>
 		
-		<entry entryKey="file-life-time" description="how long files are stored in fileserver, seconds">
+		<entry entryKey="file-life-time" type="int" description="how long files are stored in fileserver, seconds">
 			<value>86400</value>
 		</entry>
 
-		<entry entryKey="clean-up-frequency" description="how often file cleanup check occurs, seconds">
+		<entry entryKey="clean-up-frequency" type="int" description="how often file cleanup check occurs, seconds">
 			<value>3600</value>
 		</entry>
 
-		<entry entryKey="url" description="url of this file broker instance">
-			<mustBeSet />			
+		<entry entryKey="url" type="string" mustBeSet="true" description="url of this file broker instance">
 		</entry>
 		
-        <entry entryKey="port" description="server port to use in this file broker instance">
-			<mustBeSet />			
+        <entry entryKey="port" type="int" mustBeSet="true" description="server port to use in this file broker instance">
         </entry>
 
-		<entry entryKey="jetty-debug" description="should Jetty web server run in debug mode (logs/wrapper.log)">
+		<entry entryKey="jetty-debug" type="boolean" description="should Jetty web server run in debug mode (logs/wrapper.log)">
 			<value>false</value>
 		</entry>
         
@@ -86,8 +79,7 @@
 
 	<configuration-module moduleId="webstart" description="Java Web Start service">
 	    
-        <entry entryKey="port" description="server port to use in this file broker instance">
-			<mustBeSet />			
+        <entry entryKey="port" type="int" mustBeSet="true" description="server port to use in this file broker instance">
         </entry>
         
     </configuration-module>
@@ -95,76 +87,72 @@
     
 	<configuration-module moduleId="comp" description="comp service">
 
-		<entry entryKey="work-dir" description="directory for temporary job files">
+		<entry entryKey="work-dir" type="string" description="directory for temporary job files">
 			<value>jobs-data</value>
 		</entry>
 
-		<entry entryKey="max-jobs" description="maximum number of jobs run simultaneously">
-			<mustBeSet />			
+		<entry entryKey="max-jobs" type="int" mustBeSet="true" description="maximum number of jobs run simultaneously">		
 		</entry>
 
-		<entry entryKey="receive-timeout" description="time after which a received job is removed, seconds">
+		<entry entryKey="receive-timeout" type="int" description="time after which a received job is removed, seconds">
 			<value>3600</value>
 		</entry>
 		
-		<entry entryKey="schedule-timeout" description="time after which a scheduled job is removed if there is now response from the client, seconds">
+		<entry entryKey="schedule-timeout" type="int" description="time after which a scheduled job is removed if there is now response from the client, seconds">
 			<value>10</value>
 		</entry>
 		
-		<entry entryKey="custom-scripts-dir" description="directory for overriding scripts">
+		<entry entryKey="custom-scripts-dir" type="string" description="directory for overriding scripts">
 			<value>custom-scripts</value>
 		</entry>
 
-		<entry entryKey="include-operations" description="if specified, all but listed operations are excluded">
-			<value></value>
+		<entry entryKey="include-operations" type="strings" description="if specified, all but listed operations are excluded">
 		</entry>
 		
-		<entry entryKey="exclude-operations" description="if specified, listed operations are excluded">
-			<value></value>
+		<entry entryKey="exclude-operations" type="strings" description="if specified, listed operations are excluded">
 		</entry>
 
-		<entry entryKey="sweep-work-dir" description="should job specific temporary directory be sweeped after job execution">
+		<entry entryKey="sweep-work-dir" type="boolean" description="should job specific temporary directory be sweeped after job execution">
 			<value>true</value>
 		</entry>
 		
-		<entry entryKey="r-process-pool-size-min" description="number of processes always available if possible">
-			<value>5</value>
+		<entry entryKey="r-process-pool-size-min" type="int" description="number of processes always available if possible">
+			<value>5</value>int" 
 		</entry>
 		
-		<entry entryKey="r-process-pool-size-max" description="max number of processes controlled by this pool (available and in use together)">
+		<entry entryKey="r-process-pool-size-max" type="int" description="max number of processes controlled by this pool (available and in use together)">
 			<value>20</value>
 		</entry>
 		
-		<entry entryKey="r-process-pool-timeout" description="timeout for waiting for a process to become available, seconds">
+		<entry entryKey="r-process-pool-timeout" type="int" description="timeout for waiting for a process to become available, seconds">
 			<value>360</value>
 		</entry>
 
-		<entry entryKey="r-process-pool-process-use-count-max" description="used when deciding whether a process should be recycled">
+		<entry entryKey="r-process-pool-process-use-count-max" type="int" description="used when deciding whether a process should be recycled">
 			<value>10</value>
 		</entry>
 
-		<entry entryKey="r-process-pool-process-lifetime-max" description="used when deciding whether a process should be recycled, seconds">
+		<entry entryKey="r-process-pool-process-lifetime-max" type="int" description="used when deciding whether a process should be recycled, seconds">
 			<value>36000</value>
 		</entry>
 		
-		<entry entryKey="r-timeout" description="timeout for a single R script, seconds">
+		<entry entryKey="r-timeout" type="int" description="timeout for a single R script, seconds">
 			<value>36000</value> <!-- 10 hours -->
 		</entry>
 		
-		<entry entryKey="r-command" description="the command the starts R environment">
-			<mustBeSet />	
+		<entry entryKey="r-command" type="string" mustBeSet="true" description="the command the starts R environment">
 		</entry>
 		
-		<entry entryKey="timeout-check-interval" description="receive, schedule timeout check interval, milliseconds">
+		<entry entryKey="timeout-check-interval" type="int" description="receive, schedule timeout check interval, milliseconds">
 			<value>1000</value>
 		</entry>
 
-		<entry entryKey="analysis-handlers" description="analysis handlers (i.e., supported analysis types), order is significant">
+		<entry entryKey="analysis-handlers" type="strings" description="analysis handlers (i.e., supported analysis types), order is significant">
 			<value>fi.csc.microarray.analyser.r.RAnalysisHandler</value>
 			<value>fi.csc.microarray.analyser.java.JavaAnalysisHandler</value>
 		</entry>
 		
-		<entry entryKey="operations" description="analysis script names (Java resource names, loaded with getResourceAsStream)">
+		<entry entryKey="operations" type="strings" description="analysis script names (Java resource names, loaded with getResourceAsStream)">
 		
 		    <!-- NORMALISATION -->
 			<value>/R/norm-affy.R</value>
@@ -284,7 +272,7 @@
 		</entry>
 
 		
-		<entry entryKey="hidden-operations" description="analysis script names (hidden, i.e., not shown in client">
+		<entry entryKey="hidden-operations" type="strings" description="analysis script names (hidden, i.e., not shown in client">
 			<value>fi.csc.microarray.analyser.java.FailingAnalysisJob</value>
 			<value>/R/test.R</value>
 			<value>/R/hidden/no-operation.R</value>
@@ -302,39 +290,38 @@
 	
 	<configuration-module moduleId="manager" description="manager service">
 	
-		<entry entryKey="jdbc-driver" description="driver class for JDBC">
+		<entry entryKey="jdbc-driver" type="string" description="driver class for JDBC">
 			<value>org.h2.Driver</value>
 		</entry>
 	
-		<entry entryKey="database-url" description="URL for JDBC">
+		<entry entryKey="database-url" type="string" description="URL for JDBC">
 			<value>jdbc:h2:database/chipster-manager</value>
 		</entry>
 
-		<entry entryKey="database-username" description="username for JDBC">
+		<entry entryKey="database-username" type="string" description="username for JDBC">
 			<value>chipster</value>
 		</entry>
 
-		<entry entryKey="database-password" description="password for JDBC">
+		<entry entryKey="database-password" type="string" description="password for JDBC">
 			<value></value>
 		</entry>
 
-		<entry entryKey="start-web-console" description="is web console enabled">
+		<entry entryKey="start-web-console" type="boolean" description="is web console enabled">
 			<value>true</value>
 		</entry>
 
-		<entry entryKey="web-console-port" description="HTTP port for web console">
-			<mustBeSet />			
+		<entry entryKey="web-console-port" type="int" mustBeSet="true" description="HTTP port for web console">
 		</entry>
 		
-		<entry entryKey="backup-dir" description="directory where backups are stored">
+		<entry entryKey="backup-dir" type="string" description="directory where backups are stored">
 			<value>database-backups</value>
 		</entry>
 		
-		<entry entryKey="backup-time" description="">
+		<entry entryKey="backup-time" type="string" description="">
 			<value>00:05</value>
 		</entry>
 		
-		<entry entryKey="backup-interval" description="backup interval in hours">
+		<entry entryKey="backup-interval" type="int" description="backup interval in hours">
 			<value>24</value>
 		</entry>
 			
@@ -343,12 +330,12 @@
 	
 	<configuration-module moduleId="client" description="client constants">
 
-		<entry entryKey="max-jobs" description="maximum job count">
+		<entry entryKey="max-jobs" type="int" description="maximum job count">
 			<value>10</value>
 		</entry>
 		
-		<entry entryKey="max-job-size" description="maximum job size in bytes">
-			<value>5368709120</value> <!-- 5 gigabytes -->
+		<entry entryKey="max-job-size-mb" type="int" description="maximum job size in megabytes">
+			<value>5000</value>
 		</entry>
 
 	</configuration-module>

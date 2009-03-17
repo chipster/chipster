@@ -90,7 +90,7 @@ public class FileBrokerClient {
 		// read configs
 
 		// use chunked if not explicitly disabled
-		String chunkedConfig = DirectoryLayout.getInstance().getConfiguration().getValue("messaging", "use-chunked-http");
+		String chunkedConfig = DirectoryLayout.getInstance().getConfiguration().getString("messaging", "use-chunked-http");
 		this.useChunked = ! (chunkedConfig != null && chunkedConfig.equals("false")); 
 		
 		// initialize messaging

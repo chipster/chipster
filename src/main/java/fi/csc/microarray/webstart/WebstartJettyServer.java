@@ -49,7 +49,7 @@ public class WebstartJettyServer {
 			jettyInstance.setThreadPool(new QueuedThreadPool());
 			Connector connector = new SelectChannelConnector();
 			connector.setServer(jettyInstance);
-			connector.setPort(Integer.parseInt(configuration.getValue("webstart", "port")));
+			connector.setPort(configuration.getInt("webstart", "port"));
 			jettyInstance.setConnectors(new Connector[]{ connector });
 
 			Context wsRoot = new Context(jettyInstance, "/", false, false);

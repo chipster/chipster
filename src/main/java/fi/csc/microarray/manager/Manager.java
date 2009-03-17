@@ -120,12 +120,12 @@ public class Manager extends MonitoredNodeBase implements MessagingListener {
 		
 		// initialize database connection
 		logger.info("starting manager...");
-		String dbDriver = configuration.getValue("manager", "jdbc-driver");
-		String dbUrl = configuration.getValue("manager", "database-url");
-		boolean startWebConsole = "true".equals(configuration.getValue("manager", "start-web-console"));
-		String dbUsername = configuration.getValue("manager", "database-username");
-	    String dbPassword = configuration.getValue("manager", "database-password");
-	    int webConsolePort = Integer.parseInt(configuration.getValue("manager", "web-console-port"));
+		String dbDriver = configuration.getString("manager", "jdbc-driver");
+		String dbUrl = configuration.getString("manager", "database-url");
+		boolean startWebConsole = configuration.getBoolean("manager", "start-web-console");
+		String dbUsername = configuration.getString("manager", "database-username");
+	    String dbPassword = configuration.getString("manager", "database-password");
+	    int webConsolePort = configuration.getInt("manager", "web-console-port");
 
 		
 		
@@ -142,9 +142,9 @@ public class Manager extends MonitoredNodeBase implements MessagingListener {
 	    jdbcTemplate.execute(CREATE_JOBS_TABLE);
 		
 	    // schedule backups
-	    String backupDirName = configuration.getValue("manager", "backup-dir");
-	    int backupInterval = Integer.parseInt(configuration.getValue("manager", "backup-interval"));
-	    String backupTimeString =  configuration.getValue("manager", "backup-time");
+	    String backupDirName = configuration.getString("manager", "backup-dir");
+	    int backupInterval = configuration.getInt("manager", "backup-interval");
+	    String backupTimeString = configuration.getString("manager", "backup-time");
 	    int startHour = Integer.parseInt(backupTimeString.split(":")[0]);
 	    int startMinute = Integer.parseInt(backupTimeString.split(":")[1]);
 	    Calendar firstBackupTime = Calendar.getInstance();

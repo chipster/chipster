@@ -41,10 +41,6 @@ public class ConfigurationEntry {
 	public void setValue(String[] values) throws IllegalConfigurationException {
 		
 		// pre checks
-		if (mustBeSet) {
-			throw new IllegalConfigurationException(name + " not yet set");
-		}
-		
 		if (type.isSingle() && values.length > 1) {
 			throw new IllegalConfigurationException(name + " accepts only single value");
 		}
@@ -90,10 +86,14 @@ public class ConfigurationEntry {
 					throw new IllegalConfigurationException("illegal boolean value " + values[i] + " for setting " + name);
 				}
 			}
+			break;
 
 		default:
 			throw new RuntimeException("unknown type " + type);	
 		}
+		
+		// mark this value to be set
+		this.mustBeSet = false;
 	}
 
 	public String getString() {

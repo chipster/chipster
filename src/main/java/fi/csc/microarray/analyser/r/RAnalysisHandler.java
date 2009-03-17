@@ -36,8 +36,8 @@ public class RAnalysisHandler implements AnalysisHandler {
 	
 	public RAnalysisHandler() throws IOException, IllegalConfigurationException {
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
-		this.rCommand = configuration.getValue("comp", "r-command") + " --vanilla --quiet";
-		this.customScriptsDirName = configuration.getValue("comp", "custom-scripts-dir");
+		this.rCommand = configuration.getString("comp", "r-command") + " --vanilla --quiet";
+		this.customScriptsDirName = configuration.getString("comp", "custom-scripts-dir");
 	}
 	
 	public AnalysisJob createAnalysisJob(JobMessage message, AnalysisDescription description, ResultCallback resultHandler) {

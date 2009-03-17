@@ -127,13 +127,13 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"comp"}));
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 		this.descriptionRepository = new AnalysisDescriptionRepository();
-		this.receiveTimeout = Integer.parseInt(configuration.getValue("comp", "receive-timeout"));
-		this.scheduleTimeout = Integer.parseInt(configuration.getValue("comp", "schedule-timeout"));
-		this.timeoutCheckInterval = Integer.parseInt(configuration.getValue("comp", "timeout-check-interval"));
-		this.workDirBase = configuration.getValue("comp", "work-dir");
-		this.sweepWorkDir= "true".equals(configuration.getValue("comp", "sweep-work-dir").trim());
-		this.customScriptsDirName = configuration.getValue("comp", "custom-scripts-dir");
-		this.maxJobs  = Integer.parseInt(configuration.getValue("comp", "max-jobs"));		
+		this.receiveTimeout = configuration.getInt("comp", "receive-timeout");
+		this.scheduleTimeout = configuration.getInt("comp", "schedule-timeout");
+		this.timeoutCheckInterval = configuration.getInt("comp", "timeout-check-interval");
+		this.workDirBase = configuration.getString("comp", "work-dir");
+		this.sweepWorkDir= configuration.getBoolean("comp", "sweep-work-dir");
+		this.customScriptsDirName = configuration.getString("comp", "custom-scripts-dir");
+		this.maxJobs = configuration.getInt("comp", "max-jobs");		
 		logger = Logger.getLogger(AnalyserServer.class);
 		loggerJobs = Logger.getLogger("jobs");
 		loggerStatus = Logger.getLogger("status");
@@ -161,7 +161,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		executorService = Executors.newCachedThreadPool();
 		
 		// initialize analysis handlers
-		for (String analysisHandler : configuration.getValues("comp", "analysis-handlers")) {
+		for (String analysisHandler : configuration.getStrings("comp", "analysis-handlers")) {
 			try {
 				AnalysisHandler handler = (AnalysisHandler)Class.forName(analysisHandler).newInstance();
 				descriptionRepository.addAnalysisHandler(handler);
@@ -177,7 +177,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		// load descriptions of all operations, also those not supported by this instance of AS
 		// this way any AS can send the descriptions when client asks for them
 		ArrayList<String> allOperations = new ArrayList<String>();
-		String[] configOperations = configuration.getValues("comp", "operations");
+		String[] configOperations = configuration.getStrings("comp", "operations");
 		allOperations.addAll(Arrays.asList(configOperations));
 		
 		// load additional scripts from custom-scripts
@@ -194,7 +194,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			logger.error("No operations found on the configuration file.");
 		}
 
-		String[] allHiddenOperations = configuration.getValues("comp", "hidden-operations");
+		String[] allHiddenOperations = configuration.getStrings("comp", "hidden-operations");
 		if (allHiddenOperations != null) {
 			for (String operation : allHiddenOperations) {
 				descriptionRepository.loadOperation(operation, true);
@@ -207,7 +207,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		
 		
 		// get included operations
-		String[] includedOperations = pruneEmptyValue(configuration.getValues("comp", "include-operations"));
+		String[] includedOperations = pruneEmptyValue(configuration.getStrings("comp", "include-operations"));
 		if (includedOperations.length == 0) {
 			includedOperations = allOperations.toArray(new String[allOperations.size()]);
 		}
@@ -215,14 +215,14 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 
 		// get excluded operations
 		HashSet<String> excludedOperations = new HashSet<String>();
-		String[] excludedOperationsList = pruneEmptyValue(configuration.getValues("comp", "exclude-operations"));
+		String[] excludedOperationsList = pruneEmptyValue(configuration.getStrings("comp", "exclude-operations"));
 		for (String value : excludedOperationsList) {
 			excludedOperations.add(value);
 		}
 		
 		// get hidden operations
 		HashSet<String> hiddenOperations = new HashSet<String>();
-		String[] hiddenOperationsList = configuration.getValues("comp", "hidden-operations");
+		String[] hiddenOperationsList = configuration.getStrings("comp", "hidden-operations");
 		if (hiddenOperationsList != null) {
 			for (String value : hiddenOperationsList) {
 				hiddenOperations.add(value);

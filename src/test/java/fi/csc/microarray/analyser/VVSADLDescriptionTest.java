@@ -25,8 +25,8 @@ public class VVSADLDescriptionTest {
 	public void testDescriptions() throws FileNotFoundException, MicroarrayException {
 		
 		LinkedList<String> files = new LinkedList<String>();
-		files.addAll(Arrays.asList(DirectoryLayout.getInstance().getConfiguration().getValues("comp", "operations")));
-		files.addAll(Arrays.asList(DirectoryLayout.getInstance().getConfiguration().getValues("comp", "hidden-operations")));
+		files.addAll(Arrays.asList(DirectoryLayout.getInstance().getConfiguration().getStrings("comp", "operations")));
+		files.addAll(Arrays.asList(DirectoryLayout.getInstance().getConfiguration().getStrings("comp", "hidden-operations")));
 		
 		for (String file : files) {
 			try {

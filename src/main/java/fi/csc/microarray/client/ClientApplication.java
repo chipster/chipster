@@ -210,7 +210,7 @@ public abstract class ClientApplication implements Node, WizardContext {
 		try {
 			// try to initialise JMS connection
 			logger.debug("Initialise JMS connection.");
-			reportInitialisation("Connecting to broker at " + configuration.getValue("messaging", "broker-host") + "...", true);
+			reportInitialisation("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", true);
 			this.endpoint = new MessagingEndpoint(this, getAuthenticationRequestListener());
 			reportInitialisation(" connected", false);				
 			
@@ -391,8 +391,9 @@ public abstract class ClientApplication implements Node, WizardContext {
 		for (DataBinding binding : operation.getBindings()) {
 			bytes += binding.getData().getContentLength();			
 		}
-		if (bytes > clientConstants.MAX_JOB_SIZE) {
-			showDialog("Task not started since input datasets are too large.", "Maximum size for input datasets is " + clientConstants.MAX_JOB_SIZE + " bytes.", "Input datasets size: " + bytes, Severity.INFO, false);
+		int megabytes = (int)(bytes/1000000L);
+		if (megabytes > clientConstants.MAX_JOB_SIZE_MB) {
+			showDialog("Task not started since input datasets are too large.", "Maximum size for input datasets is " + clientConstants.MAX_JOB_SIZE_MB + " megabytes.", "Input datasets size: " + megabytes, Severity.INFO, false);
 			return;
 		}
 		

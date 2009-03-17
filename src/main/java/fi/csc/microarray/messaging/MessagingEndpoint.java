@@ -92,9 +92,9 @@ public class MessagingEndpoint implements MessagingListener {
 		// configure everything
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 		
-		String protocol = configuration.getValue("messaging", "broker-protocol");
-		String host = configuration.getValue("messaging", "broker-host");
-		String port = configuration.getValue("messaging", "broker-port");
+		String protocol = configuration.getString("messaging", "broker-protocol");
+		String host = configuration.getString("messaging", "broker-host");
+		String port = configuration.getString("messaging", "broker-port");
 		
 		// check that all configs were properly filled
 		if (protocol.trim().equals("") || host.trim().equals("") || port.trim().equals("")) {
@@ -102,17 +102,17 @@ public class MessagingEndpoint implements MessagingListener {
 		}
 		
 		// set broker address
-		useReliable = "true".equals(configuration.getValue("messaging", "use-reliable"));
+		useReliable = configuration.getBoolean("messaging", "use-reliable");
 		brokerUrl =  protocol + "://" + host + ":" + port;
 		
 		// setup keystore if needed
-		if ("ssl".equals(configuration.getValue("messaging", "broker-protocol"))) {
+		if ("ssl".equals(configuration.getString("messaging", "broker-protocol"))) {
 			try {
 				KeyAndTrustManager.initialise(
-						configuration.getValue("security", "keystore"),
-						configuration.getValue("security", "keypass").toCharArray(), 
-						configuration.getValue("security", "keyalias"), 
-						configuration.getValue("security", "master-keystore"));
+						configuration.getString("security", "keystore"),
+						configuration.getString("security", "keypass").toCharArray(), 
+						configuration.getString("security", "keyalias"), 
+						configuration.getString("security", "master-keystore"));
 			} catch (Exception e) {
 				throw new MicroarrayException("could not access SSL keystore", e);
 			}
@@ -121,12 +121,12 @@ public class MessagingEndpoint implements MessagingListener {
 		String username;
 		String password;
 		try {
-			username = configuration.getValue("security", "username");
+			username = configuration.getString("security", "username");
 			if (username == null || username.trim().length() == 0) {
 				throw new IllegalArgumentException("Username was not available from configuration");
 			}
 
-			password = configuration.getValue("security", "password");
+			password = configuration.getString("security", "password");
 			if (password == null || password.trim().length() == 0) {
 				throw new IllegalArgumentException("Password was not available from configuration");
 			}

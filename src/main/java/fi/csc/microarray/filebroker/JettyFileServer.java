@@ -21,7 +21,7 @@ public class JettyFileServer {
 	
 	public void start(String resourceBase, int port) throws Exception {
 		
-		if ("true".equals(DirectoryLayout.getInstance().getConfiguration().getValue("filebroker", "jetty-debug"))) {
+		if (DirectoryLayout.getInstance().getConfiguration().getBoolean("filebroker", "jetty-debug")) {
 			System.setProperty("DEBUG", "true");
 		}
 		

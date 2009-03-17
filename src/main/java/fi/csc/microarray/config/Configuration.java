@@ -56,17 +56,37 @@ public class Configuration {
 		}
 	}
 
-	public String[] getValues(String moduleName, String name) {
-		ConfigurationModule module = getModule(moduleName);		
-		return module.getValues(name);
+	public String[] getStrings(String moduleName, String name) {
+		ConfigurationModule module = findModule(moduleName);		
+		return module.getEntry(name).getStrings();
 	}
 
-	public String getValue(String moduleName, String name) {
-		ConfigurationModule module = getModule(moduleName); 
-		return module.getValue(name);
+	public String getString(String moduleName, String name) {
+		ConfigurationModule module = findModule(moduleName); 
+		return module.getEntry(name).getString();
 	}
 
-	private static ConfigurationModule getModule(String moduleName) {
+	public int[] getInts(String moduleName, String name) {
+		ConfigurationModule module = findModule(moduleName);		
+		return module.getEntry(name).getInts();
+	}
+
+	public int getInt(String moduleName, String name) {
+		ConfigurationModule module = findModule(moduleName); 
+		return module.getEntry(name).getInt();
+	}
+
+	public boolean[] getBooleans(String moduleName, String name) {
+		ConfigurationModule module = findModule(moduleName);		
+		return module.getEntry(name).getBooleans();
+	}
+
+	public boolean getBoolean(String moduleName, String name) {
+		ConfigurationModule module = findModule(moduleName); 
+		return module.getEntry(name).getBoolean();
+	}
+	
+	private ConfigurationModule findModule(String moduleName) {
 		return moduleName != null ? rootModule.getModule(moduleName) : rootModule;
 	}
 	

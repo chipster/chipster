@@ -85,12 +85,12 @@ public class ProcessPool {
 	public ProcessPool(File analyserWorkDir, Configuration configuration) throws IOException {
 		this.workDir = analyserWorkDir;
 		
-		this.poolSizeMin = Integer.parseInt(configuration.getValue("comp", "r-process-pool-size-min"));
-		this.poolSizeMax = Integer.parseInt(configuration.getValue("comp", "r-process-pool-size-max"));
-		this.poolTimeout = Integer.parseInt(configuration.getValue("comp", "r-process-pool-timeout"));
-		this.processUseCountMax = Integer.parseInt(configuration.getValue("comp", "r-process-pool-process-use-count-max"));
-		this.processLifetimeMax = Integer.parseInt(configuration.getValue("comp", "r-process-pool-process-lifetime-max"));
-		this.rCommand = configuration.getValue("comp", "r-command") + " --vanilla --quiet";
+		this.poolSizeMin = configuration.getInt("comp", "r-process-pool-size-min");
+		this.poolSizeMax = configuration.getInt("comp", "r-process-pool-size-max");
+		this.poolTimeout = configuration.getInt("comp", "r-process-pool-timeout");
+		this.processUseCountMax = configuration.getInt("comp", "r-process-pool-process-use-count-max");
+		this.processLifetimeMax = configuration.getInt("comp", "r-process-pool-process-lifetime-max");
+		this.rCommand = configuration.getString("comp", "r-command") + " --vanilla --quiet";
 
 		// initialize pool structures
 		this.availableProcesses = new LinkedBlockingQueue<NamiProcess>(); 

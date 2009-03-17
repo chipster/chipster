@@ -75,32 +75,41 @@ public class ConfigurationLoader {
 			if (item instanceof Element && "entry".equals(item.getNodeName())) {
 				Element entry = (Element)item;
 				String name = entry.getAttribute("entryKey");
+				String type = entry.getAttribute("type");
 				NodeList values = entry.getElementsByTagName("value");
 
-				if (entry.getElementsByTagName("mustBeSet").getLength() > 0) {
-					if (values.getLength() > 0) {
-						throw new RuntimeException("illegal config specification: both value and mustBeSet given for " + name);
+				if (name == null || type == null) {
+					throw new IllegalConfigurationException("missing entryKey or type for " + name);
+				}
+
+				// locate our entry, possibly creating a new one
+				ConfigurationEntry configurationEntry;
+				if (isSpecification) {
+					configurationEntry = new ConfigurationEntry(name, type);
+					module.addEntry(configurationEntry);
+				} else {
+					configurationEntry = module.getEntry(name);
+					if (configurationEntry == null) {
+						throw new IllegalConfigurationException("unsupported entry: " + name);
 					}
-					module.putValues(name, ConfigurationModule.VALUE_MUST_BE_SET);
+				}
+				
+				// mark to be set or fill with values
+				if (entry.hasAttribute("mustBeSet") && entry.getAttribute("mustBeSet").equals("true")) {
+					if (values.getLength() > 0) {
+						throw new IllegalConfigurationException("illegal config specification: both values and mustBeSet given for " + name);
+					}
+					
+					configurationEntry.setMustBeSet(true);
 
 				} else {
 
-					
-					if (module.getValues(name) != null && module.getValues(name) != ConfigurationModule.VALUE_MUST_BE_SET && !isSpecification) {
-						System.out.println("Warning: overriding " + name);
-					}
-					
-					if (module.getValues(name) != null) {
-						// replace old valueset, possibly the special value ConfigurationModule.VALUE_MUST_BE_SET
-						module.removeValues(name);
-					} else if (!isSpecification) {
-						// is not a replace and new values are not allowed => error
-						throw new IllegalConfigurationException("unsupported entry: " + name);
-					}
-
+					String[] textValues = new String[values.getLength()];
 					for (int v = 0; v < values.getLength(); v++) {
-						module.addValue(name, values.item(v).getTextContent());
+						textValues[v] = values.item(v).getTextContent();
 					}
+					configurationEntry.setValue(textValues);
+					
 				}
 			}
 		}

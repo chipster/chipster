@@ -109,7 +109,7 @@ public class DirectoryLayout {
 
 	public File getFileroot() throws IOException, IllegalConfigurationException {
 		if (type == Type.SERVER) {
-			File fileRepository = new File(configuration.getValue("filebroker", "file-server-path"));
+			File fileRepository = new File(configuration.getString("filebroker", "file-server-path"));
 			if (!fileRepository.exists()) {
 				boolean ok = fileRepository.mkdir();
 				if (!ok) {
