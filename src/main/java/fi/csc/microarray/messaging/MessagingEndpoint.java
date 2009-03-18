@@ -94,11 +94,11 @@ public class MessagingEndpoint implements MessagingListener {
 		
 		String protocol = configuration.getString("messaging", "broker-protocol");
 		String host = configuration.getString("messaging", "broker-host");
-		String port = configuration.getString("messaging", "broker-port");
+		int port = configuration.getInt("messaging", "broker-port");
 		
 		// check that all configs were properly filled
-		if (protocol.trim().equals("") || host.trim().equals("") || port.trim().equals("")) {
-			throw new RuntimeException("configuration error: protocol, host or port empty");
+		if (protocol.trim().equals("") || host.trim().equals("")) {
+			throw new RuntimeException("configuration error: protocol or host empty");
 		}
 		
 		// set broker address

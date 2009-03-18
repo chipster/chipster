@@ -88,10 +88,7 @@ public class FileBrokerClient {
 	
 	public FileBrokerClient(MessagingTopic urlTopic) throws JMSException {
 		// read configs
-
-		// use chunked if not explicitly disabled
-		String chunkedConfig = DirectoryLayout.getInstance().getConfiguration().getString("messaging", "use-chunked-http");
-		this.useChunked = ! (chunkedConfig != null && chunkedConfig.equals("false")); 
+		this.useChunked = DirectoryLayout.getInstance().getConfiguration().getBoolean("messaging", "use-chunked-http"); 
 		
 		// initialize messaging
 		this.urlTopic = urlTopic;
