@@ -139,10 +139,10 @@ public class DirectoryLayout {
 		}
 	}
 
-	public File getJobsDataDirBase() throws IOException, IllegalConfigurationException {
+	public File getJobsDataDirBase(String id) throws IOException, IllegalConfigurationException {
 		if (type == Type.SERVER) {
 			File jobsDataDir = new File(getBaseDir(), configuration.getString("comp", "work-dir"));
-			return initialise(jobsDataDir);
+			return initialise(new File(jobsDataDir, id));
 			
 		} else {
 			throw new UnsupportedOperationException();

@@ -137,7 +137,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		
 		// initialize working directory
 		logger.info("starting compute service...");
-		this.workDir = new File(DirectoryLayout.getInstance().getJobsDataDirBase(), id);
+		this.workDir = DirectoryLayout.getInstance().getJobsDataDirBase(id);
 		
 		// initialise custom scripts dir
 		File customScripts = DirectoryLayout.getInstance().getCustomScriptsDir();
