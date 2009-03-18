@@ -266,7 +266,7 @@ public class ConfigTool {
 		Element applicationDesc = (Element)jnlp.getElementsByTagName("application-desc").item(0);
 		NodeList arguments = applicationDesc.getElementsByTagName("argument");
 		Element lastArgument = (Element)arguments.item(arguments.getLength() - 1);
-		String url = "http://" + configs[BROKER_HOST_INDEX][VAL_INDEX] + "://" + configs[WS_PORT][VAL_INDEX] + "/" + Configuration.CONFIG_FILENAME;
+		String url = "http://" + configs[BROKER_HOST_INDEX][VAL_INDEX] + ":" + configs[WS_PORT][VAL_INDEX] + "/" + Configuration.CONFIG_FILENAME;
 		updateElementValue(lastArgument, "configuration URL (for Web Start)", url);
 		writeLater(configFile, doc);
 	}
