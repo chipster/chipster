@@ -224,7 +224,7 @@ public class ConfigTool {
 					updateChipsterConfigFile(configFile);
 				}
 			}
-			File wsClientConfigFile = new File("webstart" + File.separator + DirectoryLayout.WEB_ROOT_DIR + File.separator + Configuration.CONFIG_FILENAME);
+			File wsClientConfigFile = new File("webstart" + File.separator + DirectoryLayout.WEB_ROOT + File.separator + Configuration.CONFIG_FILENAME);
 			if (wsClientConfigFile.exists()) {
 				updateChipsterConfigFile(wsClientConfigFile);
 			}
@@ -236,7 +236,7 @@ public class ConfigTool {
 			}
 			
 			// update Web Start config
-			File wsConfigFile = new File(webstartDir + File.separator + DirectoryLayout.WEB_ROOT_DIR + File.separator + "chipster.jnlp");
+			File wsConfigFile = new File(webstartDir + File.separator + DirectoryLayout.WEB_ROOT + File.separator + "chipster.jnlp");
 			if (wsConfigFile.exists()) {
 				updateWsConfigFile(wsConfigFile);
 			}

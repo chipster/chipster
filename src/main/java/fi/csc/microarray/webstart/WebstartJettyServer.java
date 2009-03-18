@@ -53,7 +53,7 @@ public class WebstartJettyServer {
 			jettyInstance.setConnectors(new Connector[]{ connector });
 
 			Context wsRoot = new Context(jettyInstance, "/", false, false);
-			wsRoot.setResourceBase("web-root/");
+			wsRoot.setResourceBase(DirectoryLayout.WEB_ROOT + "/");
 			wsRoot.addServlet(new ServletHolder(new DefaultServlet()), "/*");
 
 			jettyInstance.start();
@@ -62,6 +62,7 @@ public class WebstartJettyServer {
 			logger.info("[mem: " + MemUtil.getMemInfo() + "]");
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			logger.error(e, e);
 		}
 	}

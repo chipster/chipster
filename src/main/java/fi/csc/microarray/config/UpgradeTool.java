@@ -82,7 +82,7 @@ public class UpgradeTool {
 				moveToNewDir(workDir12x, securityDir13x, "keystore.ks", "users");
 				delayedMove(new File(workDir12x, "jaas.config"), new File(confDir13x, "jaas.config"));
 				delayedMove(new File(workDir12x, "nami-config.xml"), new File(confDir13x, "chipster-config.xml"));
-				delayedMove(new File(compDir, "web-content"), new File(compDir, DirectoryLayout.WEB_ROOT_DIR));
+				delayedMove(new File(compDir, "web-content"), new File(compDir, "web-root"));
 				delayedMove(new File(workDir12x, "fileserver"), new File(compDir, "file-root"));
 				delayedMove(new File(workDir12x, "analyser-work"), new File(compDir, "jobs-data"));
 				delayedDelete(workDir12x);

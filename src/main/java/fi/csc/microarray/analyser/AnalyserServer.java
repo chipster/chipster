@@ -68,9 +68,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	private int receiveTimeout;
 	private int scheduleTimeout;
 	private int timeoutCheckInterval;
-	private String workDirBase;
 	private boolean sweepWorkDir;
-	private String customScriptsDirName;
 	private int maxJobs;
 	
 	/**
@@ -130,9 +128,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		this.receiveTimeout = configuration.getInt("comp", "receive-timeout");
 		this.scheduleTimeout = configuration.getInt("comp", "schedule-timeout");
 		this.timeoutCheckInterval = configuration.getInt("comp", "timeout-check-interval");
-		this.workDirBase = configuration.getString("comp", "work-dir");
 		this.sweepWorkDir= configuration.getBoolean("comp", "sweep-work-dir");
-		this.customScriptsDirName = configuration.getString("comp", "custom-scripts-dir");
 		this.maxJobs = configuration.getInt("comp", "max-jobs");		
 		logger = Logger.getLogger(AnalyserServer.class);
 		loggerJobs = Logger.getLogger("jobs");
@@ -141,24 +137,13 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		
 		// initialize working directory
 		logger.info("starting compute service...");
-		if (!initWorkDir()) {
-			String message  = "could not initialize working directory: " + workDirBase + File.pathSeparator + this.id;
-			logger.fatal(message);
-			throw new IOException(message);
-		}
+		this.workDir = new File(DirectoryLayout.getInstance().getJobsDataDirBase(), id);
 		
-		// create custom scripts dir if not exits
-		File customScripts = new File(customScriptsDirName);
-		if (!customScripts.exists()) {
-			if (customScripts.mkdirs()) {
-				logger.debug("Created custom scripts dir: " + customScripts.toString());
-			} else {
-				logger.warn("Could not create custom scripts dir: " + customScripts.toString());
-			}
-		}
+		// initialise custom scripts dir
+		File customScripts = DirectoryLayout.getInstance().getCustomScriptsDir();
 		
 		// initialize executor service
-		executorService = Executors.newCachedThreadPool();
+		this.executorService = Executors.newCachedThreadPool();
 		
 		// initialize analysis handlers
 		for (String analysisHandler : configuration.getStrings("comp", "analysis-handlers")) {
@@ -682,38 +667,6 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 					", scheduled jobs: " + scheduledJobs.size() + 
 					", running jobs: " + runningJobs.size());
 		}
-	}
-	
-	private boolean initWorkDir() {
-		workDir = new File(workDirBase, id);
-		if (workDir.exists()) {
-			logger.error("Working directory " + workDir + " already exists, should be unique.");
-			return false;
-		} else {
-			return workDir.mkdirs();
-		}
-		
-		
-		/*
-		// if work dir exists, sweep it
-		if (workDir.exists()) {
-			logger.debug("working directory exists, sweeping it.");
-			
-			if (!Files.delTree(workDir)) {
-				logger.debug("could not delete the working directory.");
-				return false;
-			}
-			logger.debug("working directory deleted");
-		}
-		
-		// (re)create the work dir
-		if (!workDir.mkdir()) {
-			logger.debug("failed to create the working directory");
-			return false;
-		}
-		
-		return true;
-		*/
 	}
 	
 	/**

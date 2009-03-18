@@ -52,7 +52,7 @@
 	
 	<configuration-module moduleId="filebroker" description="file broker">
 	
-		<entry entryKey="file-server-path" type="string" description="path to file broker cache directory">
+		<entry entryKey="file-root-path" type="string" description="path to file broker cache directory">
 			<value>file-root</value>
 		</entry>
 		
@@ -81,7 +81,7 @@
 	    
         <entry entryKey="port" type="int" mustBeSet="true" description="server port to use in this file broker instance">
         </entry>
-        
+
     </configuration-module>
     
     

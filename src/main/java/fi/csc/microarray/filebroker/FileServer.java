@@ -43,7 +43,7 @@ public class FileServer extends NodeBase implements MessagingListener {
     		logger = Logger.getLogger(FileServer.class);
 
     		// initialise url repository
-    		File fileRepository = DirectoryLayout.getInstance().getFileroot();
+    		File fileRepository = DirectoryLayout.getInstance().getFileRoot();
     		String host = configuration.getString("filebroker", "url");
     		int port = configuration.getInt("filebroker", "port");
     		
@@ -72,6 +72,7 @@ public class FileServer extends NodeBase implements MessagingListener {
     		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
 
     	} catch (Exception e) {
+    		e.printStackTrace();
     		logger.error(e, e);
     	}
     }

@@ -25,11 +25,13 @@ import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationExceptio
  */
 public class DirectoryLayout {
 
-	public static final String CONF_DIR = "conf";
-	public static final String SECURITY_DIR = "security";
-	public static final String LOGS_DIR = "logs";
 	public static final String BIN_DIR = "bin";
-	public static final String WEB_ROOT_DIR = "web-root";
+	public static final String LOGS_DIR = "logs";
+	public static final String SECURITY_DIR = "security";
+	public static final String CONF_DIR = "conf";
+
+	public static final String WEB_ROOT = "web-root"; // TODO in future WEB_ROOT be configurable (not easy because needs to be understood by Jetty)
+
 	private static final String DEBUG_MODULE_ROOT = "debug-module-root";
 
 	private static final String CONF_DIR_SYSTEM_PROPERTY = "chipster_conf_dir";
@@ -107,22 +109,45 @@ public class DirectoryLayout {
 		return initialise(new File(getBaseDir(), LOGS_DIR));
 	}
 
-	public File getFileroot() throws IOException, IllegalConfigurationException {
+	public File getFileRoot() throws IOException, IllegalConfigurationException {
 		if (type == Type.SERVER) {
-			File fileRepository = new File(configuration.getString("filebroker", "file-server-path"));
-			if (!fileRepository.exists()) {
-				boolean ok = fileRepository.mkdir();
-				if (!ok) {
-					throw new IOException("could not create file root at " + fileRepository);
-				}
-			}
-			return fileRepository;
+			File fileRoot = new File(getBaseDir(), configuration.getString("filebroker", "file-root-path"));
+			return initialise(fileRoot);
 			
 		} else {
 			throw new UnsupportedOperationException();
 		}
 	}
 
+	public File getCustomScriptsDir() throws IOException, IllegalConfigurationException {
+		if (type == Type.SERVER) {
+			File customScriptsDir = new File(getBaseDir(), configuration.getString("comp", "custom-scripts-dir"));
+			return initialise(customScriptsDir);
+			
+		} else {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	public File getBackupDir() throws IOException, IllegalConfigurationException {
+		if (type == Type.SERVER) {
+			File backupDir = new File(getBaseDir(), configuration.getString("manager", "backup-dir"));
+			return initialise(backupDir);
+			
+		} else {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	public File getJobsDataDirBase() throws IOException, IllegalConfigurationException {
+		if (type == Type.SERVER) {
+			File jobsDataDir = new File(getBaseDir(), configuration.getString("comp", "work-dir"));
+			return initialise(jobsDataDir);
+			
+		} else {
+			throw new UnsupportedOperationException();
+		}
+	}
 
 	public File getUserDataDir() throws IOException {
 		if (type == Type.CLIENT) {

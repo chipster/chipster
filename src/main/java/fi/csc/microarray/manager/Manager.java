@@ -39,18 +39,19 @@ import fi.csc.microarray.messaging.message.NamiMessage;
 import fi.csc.microarray.util.MemUtil;
 
 /**
+ * Monitoring database and tool for Chipster server system.
  * 
- * @author hupponen
+ * @author Taavi Hupponen
  */
 public class Manager extends MonitoredNodeBase implements MessagingListener {
 	
 
 	private class BackupTimerTask extends TimerTask {
 
-		private String baseBackupDirName;
+		private File baseBackupDir;
 		
-		public BackupTimerTask(String baseBackupDirName) {
-			this.baseBackupDirName = baseBackupDirName;
+		public BackupTimerTask(File backupDir) {
+			this.baseBackupDir = backupDir;
 		}
 		
 		
@@ -58,7 +59,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener {
 		public void run() {
 			logger.info("Creating database backup");
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd_mm:ss.SSS");
-			String fileName = baseBackupDirName + File.separator + "chipster-manager-db-backup-" + df.format(new Date());
+			String fileName = baseBackupDir.getAbsolutePath() + File.separator + "chipster-manager-db-backup-" + df.format(new Date());
 			String sql = "SCRIPT TO '" + fileName + ".zip' COMPRESSION ZIP";
 			jdbcTemplate.execute(sql);
 		}
@@ -128,7 +129,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener {
 	    int webConsolePort = configuration.getInt("manager", "web-console-port");
 
 		
-		
+		// FIXME we should retrieve database directory from DirectoryLayout
 		DriverManagerDataSource dataSource = new DriverManagerDataSource();
 		dataSource.setDriverClassName(dbDriver);
 		dataSource.setUrl(dbUrl);
@@ -142,7 +143,6 @@ public class Manager extends MonitoredNodeBase implements MessagingListener {
 	    jdbcTemplate.execute(CREATE_JOBS_TABLE);
 		
 	    // schedule backups
-	    String backupDirName = configuration.getString("manager", "backup-dir");
 	    int backupInterval = configuration.getInt("manager", "backup-interval");
 	    String backupTimeString = configuration.getString("manager", "backup-time");
 	    int startHour = Integer.parseInt(backupTimeString.split(":")[0]);
@@ -160,7 +160,8 @@ public class Manager extends MonitoredNodeBase implements MessagingListener {
     	logger.info("Next database backup is scheduled at " + firstBackupTime.getTime().toString());
     	
 	    Timer timer = new Timer("chipster-manager-backup", true);
-    	timer.scheduleAtFixedRate(new BackupTimerTask(backupDirName), firstBackupTime.getTime(), backupInterval*60*60*1000);
+	    File backupDir = DirectoryLayout.getInstance().getBackupDir();
+    	timer.scheduleAtFixedRate(new BackupTimerTask(backupDir), firstBackupTime.getTime(), backupInterval*60*60*1000);
 	    
     	
 	    // schedule additional tasks
