@@ -1,4 +1,4 @@
-# ANALYSIS Statistics/"Sort genes" (Sort genes according to the selected column in ascending or descending order.)
+# ANALYSIS Utilities/"Sort genes" (Sort genes according to the selected column in ascending or descending order.)
 # INPUT GENE_EXPRS normalized.tsv OUTPUT sort-genes.tsv
 # PARAMETER column COLUMN_SEL DEFAULT EMPTY (Data file column containing the data to sort)
 # PARAMETER method [ascending, descending] DEFAULT ascending (Sort the genes from largest to smallest or vice versa)
@@ -16,10 +16,10 @@ dat<-read.table(file, header=T, sep="\t", row.names=1)
 groups<-dat[,grep(column, colnames(dat))]
 
 # Sorting
-if(method="ascending") {
+if(method=="ascending") {
    dat2<-dat2[,order(groups, decreasing=F)]
 } 
-if(method="descending") {
+if(method=="descending") {
    dat2<-dat2[,order(groups, decreasing=T)]
 } 
 

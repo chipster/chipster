@@ -11,7 +11,7 @@ file<-c("normalized.tsv")
 dat<-read.table(file, header=T, sep="\t", row.names=1)
 
 # Extracting the genes
-dat2<-dat[number.of.genes,]
+dat2<-dat[c(1:number.of.genes),]
 
 # Writing the data to disk
 write.table(data.frame(dat2), file="extract-genes.tsv", sep="\t", row.names=T, col.names=T, quote=F)

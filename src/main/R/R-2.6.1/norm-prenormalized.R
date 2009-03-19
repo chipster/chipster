@@ -47,6 +47,7 @@ if(chiptype!="cDNA") {
    library(chiptype, character.only=T)
    symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "SYMBOL", sep="")))))[rownames(M),])
    genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "GENENAME", sep="")))))[rownames(M),])
+   write.table(data.frame(symbol, description=genename, round(M2, digits=2)), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 }
 
 if(chiptype=="cDNA") {

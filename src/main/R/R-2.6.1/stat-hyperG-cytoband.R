@@ -59,7 +59,7 @@ if(sum(pvalues(result)<pcut)>=1) {
    write(x="<HTML>", file="hypergeo.html", append=T) 
    write(x="<BODY>", file="hypergeo.html", append=T)
    write(x="<TABLE border=1>", file="hypergeo.html", append=T)
-   write(x="<CAPTION> KEGG - test for over-representation </CAPTION>", file="hypergeo.html", append=T)
+   write(x="<CAPTION> Cytoband - test for over-representation </CAPTION>", file="hypergeo.html", append=T)
    write(x="<TR> <TH>  </TH> <TH> Cytoband </TH> <TH> Pvalue </TH> <TH> OddsRatio </TH> <TH> ExpCount </TH> <TH> Count </TH> <TH> Size </TH>  </TR>", file="hypergeo.html", append=T)
    for(i in 1:length(ID)) {
       write(x=paste("<TR> <TD> ", i, " </TD> <TD> ", ID[i], " </TD> <TD> ", round(Pvalue[i], digits=2), " </TD> <TD> ", round(OddsRatio[i], digits=2), " </TD> <TD> ", round(ExpCount[i], digits=2), " </TD> <TD> ", Count[i], " </TD> <TD> ", Size[i], " </TD> </TR>", sep=""), file="hypergeo.html", append=T)
