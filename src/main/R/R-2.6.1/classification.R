@@ -1,6 +1,6 @@
 # ANALYSIS Clustering/"Classification" (Performs a classification analysis using the selected data set.)
 # INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT classification.txt
-# PARAMETER method [knn, lda, dlda, slda, qda, rpart, svm, lvq, naiveBayes, nnet, bagging] DEFAULT knn (Analysis method)
+# PARAMETER method [knn, lda, dlda, slda, qda, rpart, svm, lvq, naiveBayes, nnet, bagging] DEFAULT KNN (Analysis method)
 # PARAMETER standardize [yes, no] DEFAULT yes (Standardize genes before analysis)
 # PARAMETER validation.type [crossvalidate, predict] DEFAULT crossvalidate (Use crossvalidation)
 # PARAMETER crossvalidation.type [LOO] DEFAULT LOO (How to crossvalidate)
@@ -16,6 +16,9 @@
 # Loads the libraries
 library(MLInterfaces)
 library(genefilter)
+
+# Transforming variable names
+feature.sel.in.crossval<-feature.selection.in.crossvalidation
 
 # Loads the data
 file<-c("normalized.tsv")
