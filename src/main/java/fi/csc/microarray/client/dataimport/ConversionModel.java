@@ -44,6 +44,8 @@ public class ConversionModel implements ConversionModelChangeSupport {
 	 */
 	private static final Logger logger = Logger.getLogger(ConversionModel.class);
 
+	private static final String SAMPLE_START = "chip.";
+
 	/**
 	 * Column delimiter
 	 */
@@ -148,6 +150,8 @@ public class ConversionModel implements ConversionModelChangeSupport {
 	private int linesRead;
 
 	private ClientApplication application = Session.getSession().getApplication();
+
+	private boolean isNormalised;
 
 	/**
 	 * Creates a conversion model without any limits
@@ -535,6 +539,10 @@ public class ConversionModel implements ConversionModelChangeSupport {
 			return linesOnFile;
 		}
 	}
+	
+	public void setNormalised(boolean isNormalised){
+		this.isNormalised = isNormalised;
+	}
 
 	/**
 	 * Writes data to file. The file writing is done by reading the file line by
@@ -546,12 +554,14 @@ public class ConversionModel implements ConversionModelChangeSupport {
 	 */
 	public void writeToFile(ProgressInformator informator) throws FileNotFoundException, IOException {
 
-		// Creates output files
+		// Creates output files (only one if data is normalised)
 		createOutputFiles(screen.getColumnTypeManager().getChipCount());
 
 		// Initialises file reader
 		initializeReader();
-
+		
+		
+		
 		// Creates writer for each chip (file)
 		List<PrintWriter> outputWriters = new ArrayList<PrintWriter>();
 		for (File outputFile : getOutputFiles()) {
@@ -574,8 +584,13 @@ public class ConversionModel implements ConversionModelChangeSupport {
 			for (int i = 0; i < isFirst.length; i++) {
 				isFirst[i] = true;
 			}
+			
+			boolean isUniqueTitles = false;
+			if(isNormalised){
+				isUniqueTitles = isUniqueTitles(columnsFilterByType(columns,ColumnType.SAMPLE_LABEL));
+			}
 
-			// Iterate through all columns and write column headers
+			// Iterate through all columns and write column titles
 			for (DataColumn column : columns) {
 				ColumnType type = column.getColumnType();
 
@@ -587,29 +602,57 @@ public class ConversionModel implements ConversionModelChangeSupport {
 				if (type.equals(ColumnType.ANNOTATION_LABEL) || type.equals(ColumnType.IDENTIFIER_LABEL)) {
 					for (int chip = 0; chip < outputWriters.size(); chip++) {
 						// Do NOT print delimiter if it is first on the line
-						if (!isFirst[chip]) {
-							// Print delimeter
-							outputWriters.get(chip).print(OUTPUT_DELIM);
-						} else {
-							// No delimeter before first value
+						if (isFirst[chip]) {
+							// No delimiter before first value
 							isFirst[chip] = false;
+						} else {
+							// Print delimiter
+							outputWriters.get(chip).print(OUTPUT_DELIM);
 						}
 
-						// Print column identifier
-						outputWriters.get(chip).print(type.getIdentifier());
+						if(isNormalised){
+							if(type.equals(ColumnType.IDENTIFIER_LABEL)){
+								outputWriters.get(chip).print(" ");
+							} else {
+								outputWriters.get(chip).print(column.getOriginalName());
+							}
+							
+						} else {
+							// Print column title
+							outputWriters.get(chip).print(type.getTitle());
+						}
 					}
 				} else {
-					// Do NOT print delimiter if it is first on the line
-					if (!isFirst[column.getChipNumber() - 1]) {
-						// Print delimeter
-						outputWriters.get(column.getChipNumber() - 1).print(OUTPUT_DELIM);
-					} else {
-						// No delimeter before first value
-						isFirst[column.getChipNumber() - 1] = false;
-					}
+					if(isNormalised){
 
-					// Print column identifier
-					outputWriters.get(column.getChipNumber() - 1).print(type.getIdentifier());
+						// Do NOT print delimiter if it is first on the line
+						if (isFirst[0]) {
+							// No delimiter before first value
+							isFirst[0] = false;
+						} else {
+							// Print delimiter
+							outputWriters.get(0).print(OUTPUT_DELIM);
+						}
+
+						int chipNumber = isUniqueTitles? -1 : column.getChipNumber();
+
+						outputWriters.get(0).print(convertToNormalised(column.getOriginalName(), 
+								chipNumber,	column.getColumnType()));
+
+					} else { //Not normalised
+						
+						// Do NOT print delimiter if it is first on the line
+						if (isFirst[column.getChipNumber() - 1]) {
+							// No delimiter before first value
+							isFirst[column.getChipNumber() - 1] = false;
+						} else {
+							// Print delimiter
+							outputWriters.get(column.getChipNumber() - 1).print(OUTPUT_DELIM);
+						}
+
+						// Print column title				
+						outputWriters.get(column.getChipNumber() - 1).print(type.getTitle());						
+					}
 				}
 			}
 
@@ -619,7 +662,7 @@ public class ConversionModel implements ConversionModelChangeSupport {
 			}
 
 			/*
-			 * Column identifiers are now written to each file, so let's write
+			 * Column titles are now written to each file, so let's write
 			 * the actual data
 			 */
 
@@ -630,7 +673,7 @@ public class ConversionModel implements ConversionModelChangeSupport {
 				// Column number of the current line
 				int columnNumber = 0;
 
-				// Initializes isFirst variables to be true
+				// Initialises isFirst variables to be true
 				for (int i = 0; i < isFirst.length; i++) {
 					isFirst[i] = true;
 				}
@@ -654,12 +697,23 @@ public class ConversionModel implements ConversionModelChangeSupport {
 						continue;
 					}
 
-					if (type.equals(ColumnType.ANNOTATION_LABEL) || type.equals(ColumnType.IDENTIFIER_LABEL)) {
+					if (type.equals(ColumnType.ANNOTATION_LABEL) || 
+							type.equals(ColumnType.IDENTIFIER_LABEL)) {
+
 						for (int chip = 0; chip < outputWriters.size(); chip++) {
-							writeSplittedLineToChipFile(chip, columnNumber, isFirst, splittedLine, outputWriters.get(chip));
+							writeSplittedLineToChipFile(chip, columnNumber, isFirst, splittedLine, 
+									outputWriters.get(chip));
 						}
 					} else {
-						writeSplittedLineToChipFile(column.getChipNumber() - 1, columnNumber, isFirst, splittedLine, outputWriters.get(column.getChipNumber() - 1));
+						if(isNormalised){							
+							writeSplittedLineToChipFile(column.getChipNumber() - 1, columnNumber, 
+									isFirst, splittedLine, 
+									outputWriters.get(0));
+						} else {
+							writeSplittedLineToChipFile(column.getChipNumber() - 1, columnNumber, 
+									isFirst, splittedLine, 
+									outputWriters.get(column.getChipNumber() - 1));
+						}
 					}
 
 					columnNumber++;
@@ -689,6 +743,73 @@ public class ConversionModel implements ConversionModelChangeSupport {
 			choppedDataMatrix = null;
 			informator.setValue(0);
 		}
+	}
+
+
+	private List<DataColumn> columnsFilterByType(List<DataColumn> columns,
+			ColumnType type) {
+		
+		List<DataColumn> filteredCols = new ArrayList<DataColumn>();
+		
+		for (DataColumn col : columns){
+			if(col.getColumnType() == type){
+				filteredCols.add(col);
+			}
+		}
+		
+		return filteredCols;
+	}
+
+	/**
+	 * Spreadsheet view seems to be unable to show two columns with the same title, and this
+	 * method can be used to notice this situation.
+	 * 
+	 * @param columns
+	 * @return
+	 */
+	private boolean isUniqueTitles(List<DataColumn> columns) {
+		
+		//If column titles are unique, they can be used as they are, else
+		//chip numbers will be appended to those later.
+		
+		for (int i = 0; i < columns.size(); i++){			
+			for (int j = i + 1; j < columns.size(); j++){
+				if(columns.get(i).getOriginalName().equals(columns.get(j).getOriginalName())){
+					return false;
+				}
+			}
+		}	
+		return true;
+	}
+
+	
+	/**
+	 * @param title
+	 * @param chipNumber negative if this should not be used in column name
+	 * @param columnType
+	 * @return
+	 */
+	private String convertToNormalised(String title, int chipNumber, ColumnType columnType) {
+		String newTitle = "";
+		if(columnType == ColumnType.SAMPLE_LABEL){
+			if(!title.startsWith(SAMPLE_START)){
+				newTitle += SAMPLE_START;
+			}
+			newTitle += title;
+			
+			if (chipNumber > 0){
+				
+				//Add placeholder zeros to chipNumber to keep alphabetical order right
+				String numberString = "000";
+				numberString += chipNumber;
+				
+				newTitle += numberString.substring(numberString.length()-3);				
+			}			
+		} else {
+			application.reportException(
+					new IllegalArgumentException("Only sample columns can be converted for now"));
+		}
+		return newTitle;
 	}
 
 	/**
@@ -1034,7 +1155,7 @@ public class ConversionModel implements ConversionModelChangeSupport {
 		//remove last file extension with a help of mystical regexp
 		String originalFileName = inputFile.getName().replaceAll ("\\.[^.]*$", "");
 		
-		if (chipCount > 1) {
+		if (chipCount > 1 && !isNormalised) {
 			
 			List<String> columns = screen.getColumnTypeManager().getOriginalChipNames();
 			
@@ -1067,8 +1188,14 @@ public class ConversionModel implements ConversionModelChangeSupport {
 	private void writeSplittedLineToChipFile(int chip, int columnNumber, boolean[] isFirst, String[] splittedLine, PrintWriter outputWriter) {
 		String OUTPUT_DELIM = "\t";
 
+		if(isNormalised){
+			//Normalised samples are put to one file, so only one of them can be the first one
+			//on the new line
+			chip = 0;
+		}
+		
 		if (isFirst[chip]) {
-			// Do not print delimeter to the first column of the row
+			// Do not print delimiter to the first column of the row
 			isFirst[chip] = false;
 		} else {
 			outputWriter.print(OUTPUT_DELIM);

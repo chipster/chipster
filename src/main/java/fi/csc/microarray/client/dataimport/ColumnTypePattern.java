@@ -111,7 +111,7 @@ public class ColumnTypePattern {
 	public String toString(){
 		StringBuffer pattern = new StringBuffer();
 		for(ColumnType column : getPattern()){
-			pattern.append(column.getIdentifier());
+			pattern.append(column.getTitle());
 			pattern.append(" - ");
 		}
 		return "Column type pattern: " + pattern.toString();

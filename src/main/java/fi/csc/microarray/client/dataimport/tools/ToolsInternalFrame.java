@@ -61,6 +61,9 @@ public class ToolsInternalFrame extends SimpleInternalFrame
 	implements ActionListener, CaretListener, ColumnTypeChangeListener, ConversionModelChangeListener{
 	
 	private static final Logger logger = Logger.getLogger(ToolsInternalFrame.class);
+
+	private static final String TYPE_RAW = "raw";
+	private static final String TYPE_NORM = "norm";
 	
 	private JXTaskPaneContainer firstStepOptionPanel;
 	private JXTaskPaneContainer secondStepOptionPanel;
@@ -78,6 +81,14 @@ public class ToolsInternalFrame extends SimpleInternalFrame
 	private JButton fillTheRestButton;
 	private JButton useCustomDelimButton;
 	private JButton undoGuessButton;
+
+	private JTextField chipTypeField;
+
+	private String DEFAULT_CHIP_TYPE = "cDNA";
+
+	private ButtonGroup dataTypeGroup;
+
+	private JLabel chipTypeLabel;
 
 	public ToolsInternalFrame(ImportScreen screen) {
 		super("Tools");
@@ -106,10 +117,11 @@ public class ToolsInternalFrame extends SimpleInternalFrame
 	public void initializeSecondStep(){
 		secondStepOptionPanel = new JXTaskPaneContainer();
 
-	
+		secondStepOptionPanel.add(this.getDataTypePanel());
 		secondStepOptionPanel.add(this.getChipCountPanel());		
 		secondStepOptionPanel.add(this.createGuessTheRestPanel());
-		secondStepOptionPanel.add(this.getFlagValuePanel());
+		//Hidden temporarily until scripts support flags
+		/*secondStepOptionPanel.add(this.getFlagValuePanel());*/this.getFlagValuePanel();//To avoid nullPointer		
 		secondStepOptionPanel.add(this.createDataTrimmingPanel());
 		JScrollPane scroll = new JScrollPane(secondStepOptionPanel);
 		scroll.setBorder(BorderFactory.createEmptyBorder());
@@ -117,6 +129,8 @@ public class ToolsInternalFrame extends SimpleInternalFrame
 	}
 	
 	
+	
+
 	// F I R S T  S T E P ////////////////////////////////////////////////////////
 
 	/**
@@ -275,6 +289,73 @@ public class ToolsInternalFrame extends SimpleInternalFrame
 	}
 
 	// S E C O N D  S T E P ///////////////////////////////////////////////////////
+	
+private JXTaskPane getDataTypePanel() {
+		
+		JXTaskPane dataTypePanel = new JXTaskPane();
+		dataTypePanel.setTitle("Data type");
+		dataTypePanel.setLayout(new BorderLayout());
+		
+		
+		dataTypePanel.setLayout(new GridBagLayout());
+		
+		dataTypeGroup = new ButtonGroup();		
+		JRadioButton rawButton = new JRadioButton("Raw data");
+		JRadioButton normButton = new JRadioButton("Normalised data");
+		rawButton.setOpaque(false);
+		normButton.setOpaque(false);
+		rawButton.setActionCommand(TYPE_RAW);
+		normButton.setActionCommand(TYPE_NORM);
+		dataTypeGroup.add(rawButton);
+		dataTypeGroup.add(normButton);
+		
+		rawButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				setNormalised(false);
+			}	
+		});
+		
+		normButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				setNormalised(true);
+			}	
+		});
+
+		chipTypeLabel = new JLabel("Chiptype:");
+		chipTypeField = new JTextField(DEFAULT_CHIP_TYPE );
+		chipTypeField.setEnabled(false);
+		chipTypeLabel.setEnabled(false);
+		rawButton.setSelected(true);	
+		
+		//chipTypeField.setMargin(new Insets(2, 2, 2, 2));
+		
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx = 0; c.gridy = 0;
+		c.gridwidth = 1;
+		c.anchor = GridBagConstraints.WEST;
+		c.weightx = 1.0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		
+		dataTypePanel.add(rawButton, c);
+		c.gridy++;
+		dataTypePanel.add(normButton, c);
+		c.gridy++;
+		c.insets.top += 5;
+		dataTypePanel.add(chipTypeLabel, c);
+		c.insets.top -= 5;
+		c.gridy++;
+		dataTypePanel.add(chipTypeField, c);
+			
+		return dataTypePanel;
+
+	}
+
+	private void setNormalised(boolean isNormalised){
+		chipTypeField.setEnabled(isNormalised);
+		chipTypeLabel.setEnabled(isNormalised);
+		
+		screen.getConversionModel().setNormalised(isNormalised);
+	}
 	
 	public ChipCountPanel getChipCountPanel() {
 		if(chipCountPanel == null){

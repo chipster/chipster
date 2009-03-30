@@ -28,7 +28,7 @@ public enum ColumnType {
 	/**
 	 * Column identifiers. The R-scripts uses these once.
 	 */
-	private String identifier;
+	private String title;
 	
 	/**
 	 * Column color when selected on the import preview table
@@ -37,7 +37,7 @@ public enum ColumnType {
 	
 	private ColumnType(String name, String identifier, Color color) {
 		this.name = name;
-		this.identifier = identifier;
+		this.title = identifier;
 		this.color = color;
 	}
 	
@@ -50,8 +50,8 @@ public enum ColumnType {
 	 * Gets column identifier. The R-scripts uses this identifier
 	 * @return column indentifier
 	 */
-	public String getIdentifier() {
-		return identifier;
+	public String getTitle() {
+		return title;
 	}
 	
 	/**

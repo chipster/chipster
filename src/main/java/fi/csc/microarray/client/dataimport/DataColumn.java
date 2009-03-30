@@ -77,7 +77,7 @@ public class DataColumn {
 	
 	@Override
 	public String toString(){
-		return "DataColumn [Type: "+getColumnType().getIdentifier()+" Chip: " + getChipNumber() + " Index: " + getColumnIndex() + "]";
+		return "DataColumn [Type: "+getColumnType().getTitle()+" Chip: " + getChipNumber() + " Index: " + getColumnIndex() + "]";
 	}
 	
 }
