@@ -10,7 +10,7 @@ PLATFORM=""
 
 ## detect if platform not set
 if [ ! $PLATFORM ]; then
-    ARCH=`arch`
+    ARCH=`uname -m`
     if [ "$ARCH" = "i686" ]; then
 	PLATFORM="linux-x86-32"
     elif [ "$ARCH" = "x86_64" ]; then
