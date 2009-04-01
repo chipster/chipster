@@ -1,5 +1,5 @@
 # ANALYSIS Normalisation/"Normalize to specific genes" (Normalizes data to specific genes.)
-# INPUT GENE_EXPRS normalized.tsv, GENE_EXPRS normalized-too.tsv OUTPUT normalized2genes.tsv
+# INPUT GENE_EXPRS normalized.tsv, GENELIST normalized-too.tsv OUTPUT normalized2genes.tsv
 
 
 # Normalize the data to specific genes
@@ -16,7 +16,12 @@ table1<-read.table(file=name1, sep="\t", header=T, row.names=1)
 table2<-read.table(file=name2, sep="\t", header=T, row.names=1)
 
 # Table2 should always hold the genelist specifying the control probes
-if(nrow(table2)>nrow(table1)) {
+if (is.vector(table2)) {
+   listLength = length(table2)
+} else {
+   listLength = nrow(table2)
+}
+if (listLength > nrow(table1)) {
    table3<-table1
    table1<-table2
    table2<-table3
