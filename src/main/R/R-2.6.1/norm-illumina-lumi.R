@@ -2,7 +2,7 @@
 # TO USE THIS, YOU NEED TO IMPORT THE BeadSummaryData FILE DIRECTLY, NOT USING THE IMPORT TOOL.)
 # INPUT GENERIC chip.tsv OUTPUT normalized.tsv, phenodata.tsv
 # PARAMETER transformation [none, vst, log2] DEFAULT log2 (How to transform the data)
-# PARAMETER background.correction [none, bgAdjust.affy] DEFAULT affy (Should background adjustment be applied)
+# PARAMETER background.correction [none, bgAdjust.affy] DEFAULT bgAdjust.affy (Should background adjustment be applied)
 # PARAMETER normalize.chips [none, rsn, loess, quantile, vsn] DEFAULT quantile (Between arrays normalization method)
 # PARAMETER chiptype [empty, Human-6v1, HumanRef-8v1, Human-6v2, HumanRef-8v2, Mouse-6v1.0a, MouseRef-8v1.0a, RatRef-12] DEFAULT empty (chiptype)
 
