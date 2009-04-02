@@ -1,4 +1,7 @@
-# ANALYSIS Normalisation/"Normalize to specific genes" (Normalizes data to specific genes.)
+# ANALYSIS Normalisation/"Normalize to specific genes" (Normalizes data to specific genes.
+# This tool requires two input files: the normalized data and a list of gene
+# identifiers. The identifier list must have a title row with text
+# "identifier" and contain the same gene identifiers used in the data file.)
 # INPUT GENE_EXPRS normalized.tsv, GENELIST normalized-too.tsv OUTPUT normalized2genes.tsv
 
 
