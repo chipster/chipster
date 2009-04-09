@@ -23,10 +23,10 @@ dat<-read.table(file, header=T, sep="\t", row.names=1)
 # Separates expression values and flags
 calls<-dat[,grep("flag", names(dat))]
 dat2<-dat[,grep("chip", names(dat))]
-colnames(dat2)<-gsub(" ", "", phenodata$description)
 
 # Loads phenodata
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
+colnames(dat2)<-gsub(" ", "", phenodata$description)
 
 # Does the clustering
 clustg<-as.dendrogram(hcluster(x=dat2, method="pearson", link="average"))

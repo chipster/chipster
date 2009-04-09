@@ -26,10 +26,20 @@ dat2<-dat[,grep("chip", names(dat))]
 s<-ceiling(sqrt(ncol(dat2)))
 titles<-gsub(" ", "", phenodata$description)
 
-bitmap(file="histogram.png", width=w/72, height=h/72)
-par(mfrow=c(s,s))
-for(i in 1:ncol(dat2)) {
-   par(mar=c(2,2,3,0))
-   hist(dat2[,i], main=titles[i], cex.main=0.80, br=100, col=1, border=1)
+if(length(titles)==ncol(dat2)) {
+   bitmap(file="histogram.png", width=w/72, height=h/72)
+   par(mfrow=c(s,s))
+   for(i in 1:ncol(dat2)) {
+      par(mar=c(2,2,3,0))
+      hist(dat2[,i], main=titles[i], cex.main=0.80, br=100, col=1, border=1)
+   }
+   dev.off()
+} else {
+   bitmap(file="histogram.png", width=w/72, height=h/72)
+   par(mfrow=c(s,s))
+   for(i in 1:ncol(dat2)) {
+      par(mar=c(2,2,3,0))
+      hist(dat2[,i], cex.main=0.80, br=100, col=1, border=1)
+   }
+   dev.off()
 }
-dev.off()
