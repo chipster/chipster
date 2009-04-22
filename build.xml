@@ -39,6 +39,7 @@
 	<property name="r-version" value="R-2.6.1" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar" />
+	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />
 	<property name="config-tool-jar" value="${dist}/chipster-config-tool.jar" />
 	<property name="client-jar" value="${dist}/microarray-${release-version}.jar" />
 
@@ -46,6 +47,7 @@
 	<property name="wrapper-dist" value="${ext-apps}/wrapper" />
 	<property name="wrapper-linux-x86-32" value="${wrapper-dist}/wrapper-linux-x86-32-3.2.3" />
 	<property name="wrapper-linux-x86-64" value="${wrapper-dist}/wrapper-linux-x86-64-3.2.3" />
+	<property name="wrapper-windows-x86-32" value="${wrapper-dist}/wrapper-windows-x86-32-3.3.3" />
 	<property name="activemq-dist" value="${ext-apps}/apache-activemq-5.1.0" />
 
 	<!-- keystore for signing -->
@@ -171,7 +173,7 @@
 	</target>
 
 	<target name="package-tar" description="Create chipster tar">
-		<tar destfile="${release-tar}" longfile="gnu">
+		<tar destfile="${release-tar}" longfile="gnu" >
 
 			<!-- shared -->
 			<tarfileset file="${release-jar}" prefix="chipster/shared/lib" />
@@ -179,6 +181,7 @@
 			<tarfileset file="${wrapper-linux-x86-32}/lib/wrapper.jar" prefix="chipster/shared/lib" />
 			<tarfileset file="${wrapper-linux-x86-32}/lib/libwrapper.so" filemode="755" fullpath="chipster/shared/lib/libwrapper-linux-x86-32.so" />
 			<tarfileset file="${wrapper-linux-x86-64}/lib/libwrapper.so" filemode="755" fullpath="chipster/shared/lib/libwrapper-linux-x86-64.so" />
+			<tarfileset file="${wrapper-windows-x86-32}/lib/wrapper.dll" fullpath="chipster/shared/lib/wrapper-windows-x86-32.dll" />
 			<tarfileset dir="${lib}" prefix="chipster/shared/lib" />
 			<tarfileset dir="${lib-src}" prefix="chipster/shared/lib-src" />
 			<tarfileset dir="${ext-src}/wrapper/shared/bin" filemode="755" prefix="chipster/shared/bin" />
@@ -187,8 +190,10 @@
 			
 			<!-- config tool -->
 			<tarfileset file="${ext-src}/wrapper/configure.sh" filemode="755" prefix="chipster" />
+			<tarfileset file="${ext-src}/wrapper/configure.bat" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/upgrade.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/genpasswd.sh" filemode="755" prefix="chipster" />
+			<tarfileset file="${ext-src}/wrapper/genpasswd.bat" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/install_r_pkg.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${scripts}/${r-version}/install.R" prefix="chipster/shared/lib" />
 			
@@ -204,6 +209,14 @@
 			<tarfileset dir="${ext-src}/wrapper/auth/conf" prefix="chipster/auth/conf" />
 			<tarfileset dir="${ext-src}/wrapper/auth/logs" prefix="chipster/auth/logs" /> <!-- must exist for wrapper -->
 
+			<tarfileset file="${wrapper-windows-x86-32}/bin/wrapper.exe" filemode="755" prefix="chipster/auth/bin/win32" />
+			<tarfileset file="${ext-src}/wrapper/win32/chipster.bat" filemode="755" fullpath="chipster/auth/bin/win32/chipster-auth.bat" />
+			<tarfileset file="${ext-src}/wrapper/win32/chipster-service.bat" filemode="755" prefix="chipster/auth/bin/win32" />
+			<tarfileset file="${ext-src}/wrapper/win32/install-service.bat" filemode="755" prefix="chipster/auth/bin/win32" />
+			<tarfileset file="${ext-src}/wrapper/win32/uninstall-service.bat" filemode="755" prefix="chipster/auth/bin/win32" />
+
+			
+			
 			<!-- comp -->
 			<tarfileset file="${ext-src}/wrapper/comp/chipster-comp-generic" filemode="755" fullpath="chipster/comp/bin/chipster-comp" />
 			
@@ -216,6 +229,14 @@
 			<tarfileset dir="${ext-src}/wrapper/comp/conf" prefix="chipster/comp/conf" />
 			<tarfileset dir="${ext-src}/wrapper/comp/logs" prefix="chipster/comp/logs" /> <!-- must exist for wrapper -->
 
+			<tarfileset file="${wrapper-windows-x86-32}/bin/wrapper.exe" filemode="755" prefix="chipster/comp/bin/win32" />
+			<tarfileset file="${ext-src}/wrapper/win32/chipster.bat" filemode="755" fullpath="chipster/comp/bin/win32/chipster-comp.bat" />
+			<tarfileset file="${ext-src}/wrapper/win32/chipster-service.bat" filemode="755" prefix="chipster/comp/bin/win32" />
+			<tarfileset file="${ext-src}/wrapper/win32/install-service.bat" filemode="755" prefix="chipster/comp/bin/win32" />
+			<tarfileset file="${ext-src}/wrapper/win32/uninstall-service.bat" filemode="755" prefix="chipster/comp/bin/win32" />
+
+			
+			
 			<!-- fileserver -->
 			<tarfileset file="${ext-src}/wrapper/fileserver/chipster-fileserver-generic" filemode="755" fullpath="chipster/fileserver/bin/chipster-fileserver" />
 			
@@ -228,6 +249,12 @@
 			<tarfileset dir="${ext-src}/wrapper/fileserver/conf" prefix="chipster/fileserver/conf" />
 			<tarfileset dir="${ext-src}/wrapper/fileserver/logs" prefix="chipster/fileserver/logs" /> <!-- must exist for wrapper -->
 
+			<tarfileset file="${wrapper-windows-x86-32}/bin/wrapper.exe" filemode="755" prefix="chipster/fileserver/bin/win32" />
+			<tarfileset file="${ext-src}/wrapper/win32/chipster.bat" filemode="755" fullpath="chipster/fileserver/bin/win32/chipster-fileserver.bat" />
+			<tarfileset file="${ext-src}/wrapper/win32/chipster-service.bat" filemode="755" prefix="chipster/fileserver/bin/win32" />
+			<tarfileset file="${ext-src}/wrapper/win32/install-service.bat" filemode="755" prefix="chipster/fileserver/bin/win32" />
+			<tarfileset file="${ext-src}/wrapper/win32/uninstall-service.bat" filemode="755" prefix="chipster/fileserver/bin/win32" />
+			
 
 			<!-- client -->
 			<!--
@@ -260,6 +287,14 @@
 			<tarfileset file="dist/microarray-${release-version}.jar" fullpath="chipster/webstart/web-root/lib/chipster-current.jar" />
 			<tarfileset file="${ext-src}/wrapper/chipster-client-config.xml" fullpath="chipster/webstart/web-root/chipster-config.xml" />
 
+			<tarfileset file="${wrapper-windows-x86-32}/bin/wrapper.exe" filemode="755" prefix="chipster/webstart/bin/win32" />
+			<tarfileset file="${ext-src}/wrapper/win32/chipster.bat" filemode="755" fullpath="chipster/webstart/bin/win32/chipster-webstart.bat" />
+			<tarfileset file="${ext-src}/wrapper/win32/chipster-service.bat" filemode="755" prefix="chipster/webstart/bin/win32" />
+			<tarfileset file="${ext-src}/wrapper/win32/install-service.bat" filemode="755" prefix="chipster/webstart/bin/win32" />
+			<tarfileset file="${ext-src}/wrapper/win32/uninstall-service.bat" filemode="755" prefix="chipster/webstart/bin/win32" />
+
+			
+			
 			<!-- manager -->
 			<tarfileset file="${ext-src}/wrapper/manager/chipster-manager-generic" filemode="755" fullpath="chipster/manager/bin/chipster-manager" />
 			
@@ -272,6 +307,13 @@
 			<tarfileset dir="${ext-src}/wrapper/manager/conf" prefix="chipster/manager/conf" />
 			<tarfileset dir="${ext-src}/wrapper/manager/logs" prefix="chipster/manager/logs" /> <!-- must exist for wrapper -->
 
+			<tarfileset file="${wrapper-windows-x86-32}/bin/wrapper.exe" filemode="755" prefix="chipster/manager/bin/win32" />
+			<tarfileset file="${ext-src}/wrapper/win32/chipster.bat" filemode="755" fullpath="chipster/manager/bin/win32/chipster-manager.bat" />
+			<tarfileset file="${ext-src}/wrapper/win32/chipster-service.bat" filemode="755" prefix="chipster/manager/bin/win32" />
+			<tarfileset file="${ext-src}/wrapper/win32/install-service.bat" filemode="755" prefix="chipster/manager/bin/win32" />
+			<tarfileset file="${ext-src}/wrapper/win32/uninstall-service.bat" filemode="755" prefix="chipster/manager/bin/win32" />
+
+			
 			<!-- activemq -->
 			<!-- this looks weird because tar task does not preserve file permissions and activemq has messed up with some files -->
 			<tarfileset dir="${activemq-dist}" prefix="chipster/activemq" />
@@ -286,13 +328,22 @@
 			<tarfileset file="${activemq-dist}/bin/macosx/wrapper" filemode="755" prefix="chipster/activemq/bin/macosx" />
 			<tarfileset file="${activemq-dist}/bin/macosx/activemq" filemode="755" prefix="chipster/activemq/bin/macosx" />
 			<tarfileset file="${activemq-dist}/bin/macosx/libwrapper.jnilib" filemode="755" prefix="chipster/activemq/bin/macosx" />
-
+			<tarfileset dir="${activemq-dist}/bin/win32" filemode="755" prefix="chipster/activemq/bin/win32" />
+			
 			<tarfileset file="${ext-src}/activemq/activemq.xml" prefix="chipster/activemq/conf" />
 
 		</tar>
 
 	</target>
 
+	<target name="package-zip" depends="package-tar" description="Create chipster zip">
+		<mkdir dir="temp"/>
+		<zip destfile="${release-zip}" compress="false" duplicate="fail" >
+		  <tarfileset src="${release-tar}" />
+		</zip>
+
+	</target>
+	
 	<target name="package" depends="package-jar, package-config-tool, package-client-jar, package-tar" description="Create jars and tar">
 		<echo>REMEMBER TO TURN DEBUG LOGGING OFF!</echo>
 	</target>
