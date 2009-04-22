@@ -28,21 +28,16 @@ import fi.csc.microarray.analyser.ws.ResultTableCollector.ResultRow;
 import fi.csc.microarray.analyser.ws.ResultTableCollector.RowFilter;
 import fi.csc.microarray.util.XmlUtil;
 
-public class CpdbWsAnalysisHandler {
+public class EnfinWsAnalysisHandler {
 
 
 	public static void main(String[] args) throws SAXException, ParserConfigurationException, TransformerException, SOAPException, IOException {
-		execute(new String[] {"TM9SF2", "FOLR3", "IER2", "TMED2", "TMEM131", "PVRL2", "MIA3"}, 0.0005d);
+		execute(new String[] {"P38398"});
 	}
 
-	private static void execute(String[] probes, final double pValueCutoff) throws SAXException, ParserConfigurationException, TransformerException, SOAPException, IOException {
+	private static void execute(String[] probes) throws SAXException, ParserConfigurationException, TransformerException, SOAPException, IOException {
 		ResultTableCollector annotations = query(probes);
-		annotations.filterRows(new RowFilter() {
-			public boolean shouldRemove(ResultRow row) {
-				return Double.parseDouble(row.getValue("ns1:pValue")) > pValueCutoff;
-			}
-		});
-		HtmlUtil.writeHtmlTable(annotations, new String[] {"ns1:pValue", "ns1:pathway", "ns1:database"});
+		HtmlUtil.writeHtmlTable(annotations, new String[] {""});
 	}
 
 	public static ResultTableCollector query(String[] genes) throws SAXException, ParserConfigurationException, TransformerException, SOAPException, IOException {

@@ -80,5 +80,24 @@ public class Strings {
 		
 		return prefix + digits;
 	}
+	
+	public static String startWithUppercase(String string) {
+		return string.substring(0, 1).toUpperCase() + string.substring(1);
+	}
+	
+	public static String separateUppercaseChars(String string, String separator) {
+		String result = "";
+		char prev = 0;
+		for (int i = 0; i < string.length(); i++) {
+			char current = string.charAt(i);
+			if (Character.isUpperCase(current) && Character.isUpperCase(prev)) {
+				result += separator;
+			} 
+			result += current;
+			prev = string.charAt(i);
+		}
+		return result;
+	}
+	
 
 }
