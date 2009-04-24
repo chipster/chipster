@@ -277,8 +277,11 @@ public class ExpressionProfile extends Visualisation implements PropertyChangeLi
 		if(selection == null){
 			selectedIndexes.clear();
 		} else {
+						
 			//Goes through all the lines in profile, some optimisation can be done if 
 			//this is too slow
+			
+			Set<Integer>  newSelection = new HashSet<Integer>();
 
 			CategoryDataset dataset = plot.getDataset();
 			List colKeys = dataset.getColumnKeys();
@@ -298,13 +301,21 @@ public class ExpressionProfile extends Visualisation implements PropertyChangeLi
 					Line2D.Double line = new Line2D.Double(start, end);
 
 					if(selection.intersectsLine(line)){
-						if(selectedIndexes.contains(y)){
-							selectedIndexes.remove(y);
-						} else {
-							selectedIndexes.add(y);
-						}
+						newSelection.add(y);
+						System.out.println(selection);
 					}
 				}								
+			}
+			
+			//New selections can't be put directly to selectedIndexes, because every other occurrence
+			//of line inside selection rectangle would undo selection
+			
+			for(Integer row: newSelection){
+				if(selectedIndexes.contains(row)){
+					selectedIndexes.remove(row);
+				} else {
+					selectedIndexes.add(row);
+				}
 			}
 		}
 		

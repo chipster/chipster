@@ -282,16 +282,20 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 
 				for (int i = 0;	xValues.hasNext() && yValues.hasNext();	i++){			
 
-					if(newSelection.contains(new Point.Double(xValues.next(), yValues.next()))){
+					double x = xValues.next();
+					double y = yValues.next();				
+					
+					if(newSelection.contains(new Point.Double(x, y))){
 
 						//Contains method should work with Intgers as it uses equals to compare objects. 
-						//Usage of hash can be still a problem, as VM pools integer objects only for 
-						//integers between -256 and 256 or something like that.
+						//Usage of hash inside equals can be still a problem, as VM pools integer 
+						//objects only for integers between -256 and 256 or something like that.
 						if(selectedIndexes.contains(i)){
 							//Remove from selection if selected twice
 							selectedIndexes.remove(i);
 						} else {
 							selectedIndexes.add(i);
+							System.out.println("x: " + x + " y: " + y + " r: " + newSelection);
 						}
 					}
 				}		

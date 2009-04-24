@@ -108,6 +108,11 @@ public class SelectableChartPanel extends JPanel implements MouseListener, Mouse
 			ValueAxis rangeAxis = xyPlot.getRangeAxis();
 			RectangleEdge rangeAxisEdge = xyPlot.getRangeAxisEdge();						
 			
+			/*multiplication by getScale to take care of the scaling of Java2D Graphics from Java2D
+			 * coordinates to screen coordinates. Function java2DToValue is used to take care of the
+			 * internal scaling of JFreeChart which scales data values to Java2D coordinates 
+			*/
+			
 			double chartX = domainAxis.java2DToValue(p.getX() *	chartPanel.getScaleX(), 
 					dataArea, domainAxisEdge);
 			
@@ -139,12 +144,19 @@ public class SelectableChartPanel extends JPanel implements MouseListener, Mouse
 					catPlot.getDomainGridlinePosition(), categoryCount - 1, categoryCount, 
 					dataArea, domainAxisEdge);
 			
+			/*multiplication by getScale to take care of the scaling of Java2D Graphics from Java2D
+			 * coordinates to screen coordinates. Function java2DToValue is used to take care of the
+			 * internal scaling of JFreeChart which scales data values to Java2D coordinates 
+			*/
 			
-			double relativeX = (p.getX() - firstCategoryX) / (lastCategoryX - firstCategoryX) * 
+			double scaledX = p.getX() * chartPanel.getScaleX();
+			double chartY = rangeAxis.java2DToValue(p.getY() * chartPanel.getScaleY(),
+					dataArea, rangeAxisEdge);
+			
+			//Category axis doesn't have integer values, so we calculate it 
+			double relativeX = (scaledX - firstCategoryX) / (lastCategoryX - firstCategoryX) * 
 				(categoryCount - 1);
-						
-			
-			double chartY = rangeAxis.java2DToValue(p.getY(), dataArea, rangeAxisEdge);
+									
 						
 			return new Point2D.Double(relativeX, chartY);
 		} else {
