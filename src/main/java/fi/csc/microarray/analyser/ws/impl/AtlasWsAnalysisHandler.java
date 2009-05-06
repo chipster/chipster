@@ -36,7 +36,7 @@ public class AtlasWsAnalysisHandler {
 
 	private static void execute(String[] probes) throws SAXException, ParserConfigurationException, TransformerException, SOAPException, IOException {
 		ResultTableCollector annotations = query(probes);
-		HtmlUtil.writeHtmlTable(annotations, new String[] {"updn", "experiment_accession", "experiment_description", "gene_name"});
+		HtmlUtil.writeHtmlTable(annotations, new String[] {"updn", "experiment_accession", "experiment_description", "gene_name"}, "ArrayExpress Atlas annotation");
 	}
 	
 	public static ResultTableCollector query(String[] genes) throws SAXException, ParserConfigurationException, TransformerException, SOAPException, IOException {
