@@ -217,6 +217,8 @@
 			<value>/R/annotate-genelist2html.R</value>
 			<value>/R/annotate-add-to-data.R</value> 
 			<value>/bsh/annotate-cpdb.bsh</value>
+			<value>/bsh/annotate-atlas.bsh</value>
+			<value>/bsh/annotate-intact.bsh</value>
 <!--			<value>fi.csc.microarray.analyser.java.GeneCruiserAnnotationJob</value> -->
 			
 			<!-- PATHWAYS -->
