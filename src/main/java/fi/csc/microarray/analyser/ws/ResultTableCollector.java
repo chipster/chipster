@@ -1,7 +1,9 @@
 package fi.csc.microarray.analyser.ws;
 
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 public class ResultTableCollector {
 	
@@ -52,10 +54,13 @@ public class ResultTableCollector {
 	}
 	
 	private LinkedList<ResultRow> resultRows = new LinkedList<ResultRow>();
+	private Set<String> fieldNames = new LinkedHashSet<String>();
+	
 	
 	public void addAnnotation(int index, String fieldName, String value) {
 		addRowsTo(index);
 		resultRows.get(index).addValue(fieldName, value);
+		fieldNames.add(fieldName);
 	}
 	
 	
@@ -93,6 +98,10 @@ public class ResultTableCollector {
 		while (resultRows.size() < (index+1)) {
 			resultRows.add(new ResultRow());
 		}
+	}
+	
+	public String[] getFieldNames() {
+		return fieldNames.toArray(new String[fieldNames.size()]);
 	}
 
 }
