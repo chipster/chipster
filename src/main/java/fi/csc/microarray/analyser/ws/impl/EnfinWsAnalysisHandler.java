@@ -2,6 +2,7 @@ package fi.csc.microarray.analyser.ws.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -38,7 +39,7 @@ public class EnfinWsAnalysisHandler {
 
 	private static void execute(String[] probes) throws SAXException, ParserConfigurationException, TransformerException, SOAPException, IOException {
 		ResultTableCollector annotations = query(probes);
-		HtmlUtil.writeHtmlTable(annotations, new String[] {"Interaction", "Participants"}, "Enfin IntAct annotation");
+		HtmlUtil.writeHtmlTable(annotations, new String[] {"Interaction", "Participants"}, "Enfin IntAct annotation", new File("test.html"));
 	}
 
 	public static ResultTableCollector query(String[] proteins) throws SAXException, ParserConfigurationException, TransformerException, SOAPException, IOException {

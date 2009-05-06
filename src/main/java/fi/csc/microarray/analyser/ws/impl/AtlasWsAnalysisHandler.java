@@ -2,6 +2,7 @@ package fi.csc.microarray.analyser.ws.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -36,7 +37,7 @@ public class AtlasWsAnalysisHandler {
 
 	private static void execute(String[] probes) throws SAXException, ParserConfigurationException, TransformerException, SOAPException, IOException {
 		ResultTableCollector annotations = query(probes);
-		HtmlUtil.writeHtmlTable(annotations, new String[] {"updn", "experiment_accession", "experiment_description", "gene_name"}, "ArrayExpress Atlas annotation");
+		HtmlUtil.writeHtmlTable(annotations, new String[] {"updn", "experiment_accession", "experiment_description", "gene_name"}, "ArrayExpress Atlas annotation", new File("test.html"));
 	}
 	
 	public static ResultTableCollector query(String[] genes) throws SAXException, ParserConfigurationException, TransformerException, SOAPException, IOException {

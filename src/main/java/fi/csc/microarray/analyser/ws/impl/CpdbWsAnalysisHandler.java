@@ -2,6 +2,7 @@ package fi.csc.microarray.analyser.ws.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -42,7 +43,7 @@ public class CpdbWsAnalysisHandler {
 				return Double.parseDouble(row.getValue("ns1:pValue")) > pValueCutoff;
 			}
 		});
-		HtmlUtil.writeHtmlTable(annotations, new String[] {"ns1:pValue", "ns1:pathway", "ns1:database"}, "ConsensusPathDB annotation");
+		HtmlUtil.writeHtmlTable(annotations, new String[] {"ns1:pValue", "ns1:pathway", "ns1:database"}, "ConsensusPathDB annotation", new File("test.html"));
 	}
 
 	public static ResultTableCollector query(String[] genes) throws SAXException, ParserConfigurationException, TransformerException, SOAPException, IOException {

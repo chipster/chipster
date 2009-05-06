@@ -1,5 +1,6 @@
 package fi.csc.microarray.analyser.ws;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
@@ -89,9 +90,9 @@ public class HtmlUtil {
 		}
 	}
 	
-	public static void writeHtmlTable(ResultTableCollector annotations, String[] columns, String title) throws FileNotFoundException {
+	public static void writeHtmlTable(ResultTableCollector annotations, String[] columns, String title, File file) throws FileNotFoundException {
 		String[][] table = annotations.asTable(columns);
-		HtmlTemplate out = new HtmlTemplate(new PrintWriter(new FileOutputStream("test.html")));
+		HtmlTemplate out = new HtmlTemplate(new PrintWriter(new FileOutputStream(file)));
 		out.openDocument(title);
 		out.heading(title);
 		out.openTable();
