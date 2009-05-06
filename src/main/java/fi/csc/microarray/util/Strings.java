@@ -82,7 +82,11 @@ public class Strings {
 	}
 	
 	public static String startWithUppercase(String string) {
-		return string.substring(0, 1).toUpperCase() + string.substring(1);
+		if (string.length() > 0) {
+			return string.substring(0, 1).toUpperCase() + string.substring(1);
+		} else {
+			return string;
+		}
 	}
 	
 	public static String separateUppercaseChars(String string, String separator) {
