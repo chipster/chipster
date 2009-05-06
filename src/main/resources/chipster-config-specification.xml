@@ -150,6 +150,7 @@
 		<entry entryKey="analysis-handlers" type="strings" description="analysis handlers (i.e., supported analysis types), order is significant">
 			<value>fi.csc.microarray.analyser.r.RAnalysisHandler</value>
 			<value>fi.csc.microarray.analyser.java.JavaAnalysisHandler</value>
+			<value>fi.csc.microarray.analyser.bsh.BeanShellHandler</value>
 		</entry>
 		
 		<entry entryKey="operations" type="strings" description="analysis script names (Java resource names, loaded with getResourceAsStream)">
@@ -215,6 +216,7 @@
 			<!-- ANNOTATION -->
 			<value>/R/annotate-genelist2html.R</value>
 			<value>/R/annotate-add-to-data.R</value> 
+			<value>/bsh/annotate-cpdb.bsh</value>
 <!--			<value>fi.csc.microarray.analyser.java.GeneCruiserAnnotationJob</value> -->
 			
 			<!-- PATHWAYS -->

@@ -12,6 +12,7 @@
 	<!-- the project folder configuration -->
 	<property name="src" location="src/main/java" />
 	<property name="scripts" location="src/main/R" />
+	<property name="bsh-scripts" location="src/main/bsh" />
 	<property name="test-src" location="src/test/java" />
 	<property name="ext-src" location="src/main/applications" />
 	<property name="lib" location="ext/lib" />
@@ -156,6 +157,8 @@
 			<fileset dir="${data}/" />
 			<tarfileset dir="${scripts}/${r-version}/" prefix="R/" />
 			<tarfileset dir="${scripts}/hidden/" prefix="R/hidden/" />
+			<tarfileset dir="${bsh-scripts}/" prefix="bsh/" />
+
 		</jar>
 	</target>
 
