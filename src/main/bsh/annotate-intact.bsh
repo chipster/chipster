@@ -1,0 +1,17 @@
+// ANALYSIS Annotation/ConsensusPathDB (ConsensusPathDB tool version 0.1)
+// INPUT GENELIST input.tsv OUTPUT cpdb-annotations.html
+// PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
+
+import fi.csc.microarray.analyser.bsh.*;
+import fi.csc.microarray.analyser.ws.*;
+import fi.csc.microarray.analyser.ws.impl.*;
+import fi.csc.microarray.analyser.ws.ResultTableCollector.RowFilter;
+import fi.csc.microarray.analyser.ws.ResultTableCollector.ResultRow;
+
+
+// query the web service
+ResultTableCollector annotations = EnfinWsAnalysisHandler.query(JavaJobUtils.getGeneNames(new File(jobInfo.workDir + "/input.tsv")));
+
+// create output files
+File file = new File(jobInfo.workDir + "/cpdb-annotations.html");
+HtmlUtil.writeHtmlTable(annotations, new String[] {"Interaction", "Participants"}, "Enfin IntAct annotation", file);
