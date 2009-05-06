@@ -1,4 +1,4 @@
-package fi.csc.microarray.analyser.r;
+package fi.csc.microarray.analyser;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,18 +25,25 @@ public class VVSADLTool {
 		public String rSource = "";
 	}
 	
-	public ParsedRScript parseRScript(InputStream rScriptSource) throws MicroarrayException {
+	public ParsedRScript parseRScript(InputStream rScriptSource, String commentString) throws MicroarrayException {
+		String comment;
+		if (commentString == null || commentString.equals("")) {
+			comment = COMMENT;
+		} else {
+			comment = commentString;
+		}
+		
 		ParsedRScript parsedScript = new ParsedRScript();		
 		BufferedReader in = null;
 		try {
 			in = new BufferedReader(new InputStreamReader(rScriptSource));
 			boolean inHeaderCommentBlock = true;
 			for (String line = in.readLine(); line != null; line = in.readLine()) {
-				if (!line.startsWith(COMMENT)) {
+				if (!line.startsWith(comment)) {
 					inHeaderCommentBlock = false;
 				}
 				if (inHeaderCommentBlock) {
-					parsedScript.VVSADL += line.substring(COMMENT.length());
+					parsedScript.VVSADL += line.substring(comment.length());
 				}
 				parsedScript.rSource += line + "\n";
 			}
@@ -51,4 +58,9 @@ public class VVSADLTool {
 		}
 		return parsedScript;
 	}
+
+	public ParsedRScript parseRScript(InputStream scriptSource) throws MicroarrayException {
+		return parseRScript(scriptSource, COMMENT);
+	}
+
 }

@@ -5,7 +5,8 @@ import java.io.ByteArrayInputStream;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.analyser.r.VVSADLTool.ParsedRScript;
+import fi.csc.microarray.analyser.VVSADLTool;
+import fi.csc.microarray.analyser.VVSADLTool.ParsedRScript;
 
 public class VVSADLToolTest {
 

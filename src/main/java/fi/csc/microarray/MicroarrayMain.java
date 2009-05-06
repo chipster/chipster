@@ -4,7 +4,7 @@ package fi.csc.microarray;
 import java.io.FileInputStream;
 
 import fi.csc.microarray.analyser.AnalyserServer;
-import fi.csc.microarray.analyser.r.VVSADLTool;
+import fi.csc.microarray.analyser.VVSADLTool;
 import fi.csc.microarray.auth.Authenticator;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.filebroker.FileServer;
