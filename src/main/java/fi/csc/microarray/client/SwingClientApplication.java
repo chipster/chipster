@@ -791,8 +791,18 @@ public class SwingClientApplication extends ClientApplication {
 
 	public void reportTaskError(Task task) throws MicroarrayException {
 		String title = "Running " + task.getNamePrettyPrinted() + " failed. ";
-		String message = "You may have used a tool or parameters which are unsuitable for the selected dataset, or\n" + "there might be a bug in the analysis tool itself.\n\n" + "The details below may provide hints about the problem. The most useful information is usually at the few last lines.";
-		DialogInfo dialogInfo = new DialogInfo(Severity.WARNING, title, message, task.getScreenOutput());
+		String message = "You may have used a tool or parameters which are unsuitable for the selected dataset, or " + "there might be a bug in the analysis tool itself.\n\n" + "The details below may provide hints about the problem. The most useful information is usually at the few last lines.";
+
+		String details = "";
+		if (task.getErrorMessage() != null) {
+			details = task.getErrorMessage();
+		}
+		if (task.getScreenOutput() != null) {
+			details = details + "\n\n" + task.getScreenOutput();
+		}
+		
+		
+		DialogInfo dialogInfo = new DialogInfo(Severity.WARNING, title, message, details);
 		ChipsterDialog.showDialog(mainFrame, dialogInfo, ChipsterDialog.DetailsVisibility.DETAILS_ALWAYS_VISIBLE, false);
 	}
 
