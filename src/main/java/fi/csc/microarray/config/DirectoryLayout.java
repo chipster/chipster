@@ -60,6 +60,11 @@ public class DirectoryLayout {
 		}
 	}
 
+	// FIXME implement WebApp directory layout 
+	public static DirectoryLayout initialiseWebappLayout() throws IOException, IllegalConfigurationException {
+		return initialiseClientLayout(null);
+	}
+	
 	public static DirectoryLayout initialiseClientLayout() throws IOException, IllegalConfigurationException {
 		return initialiseClientLayout(null);
 	}
