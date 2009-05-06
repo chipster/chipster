@@ -1,6 +1,5 @@
-// ANALYSIS Annotation/ConsensusPathDB (ConsensusPathDB tool version 0.1)
+// ANALYSIS Annotation/"Relavant experiments" (Returns experiments from ArrayExpress Atlas database where genes in the genelist are up or down regulated.)
 // INPUT GENELIST input.tsv OUTPUT cpdb-annotations.html
-// PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
 
 import fi.csc.microarray.analyser.bsh.*;
 import fi.csc.microarray.analyser.ws.*;
