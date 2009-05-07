@@ -7,10 +7,10 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.ModulesForTesting;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.databeans.fs.FSDataManager;
+import fi.csc.microarray.module.DefaultModules;
 
 public class DataManagerTest {
 
@@ -20,7 +20,7 @@ public class DataManagerTest {
 	public void init() throws IOException, IllegalConfigurationException {
 		DirectoryLayout.initialiseClientLayout().getConfiguration();			
 		this.manager = new FSDataManager();
-		ModulesForTesting.getModulesForTesting().plugFeatures(this.manager);
+		DefaultModules.getDefaultModules().plugFeatures(this.manager);
 	}
 	
 	@Test(groups = {"unit"} )

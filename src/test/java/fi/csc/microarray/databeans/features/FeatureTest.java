@@ -9,7 +9,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fi.csc.microarray.MicroarrayException;
-import fi.csc.microarray.ModulesForTesting;
 import fi.csc.microarray.TestConstants;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -18,6 +17,7 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.fs.FSDataManager;
+import fi.csc.microarray.module.DefaultModules;
 
 public class FeatureTest {
 
@@ -26,7 +26,7 @@ public class FeatureTest {
 	public FeatureTest() throws IOException, IllegalConfigurationException {
 		DirectoryLayout.initialiseClientLayout().getConfiguration();
 		this.manager = new FSDataManager();
-		ModulesForTesting.getModulesForTesting().plugFeatures(this.manager);
+		DefaultModules.getDefaultModules().plugFeatures(manager);
 	}
 
 	@Test(groups = {"unit"} )

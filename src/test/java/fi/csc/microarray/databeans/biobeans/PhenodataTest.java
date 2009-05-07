@@ -9,7 +9,6 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import fi.csc.microarray.MicroarrayException;
-import fi.csc.microarray.ModulesForTesting;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.databeans.DataBean;
@@ -18,6 +17,7 @@ import fi.csc.microarray.databeans.LinkUtils;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.table.EditableTable;
 import fi.csc.microarray.databeans.fs.FSDataManager;
+import fi.csc.microarray.module.DefaultModules;
 
 public class PhenodataTest {
 
@@ -27,7 +27,7 @@ public class PhenodataTest {
 	public void init() throws IOException, IllegalConfigurationException {
 		DirectoryLayout.initialiseClientLayout().getConfiguration();			
 		this.manager = new FSDataManager();
-		ModulesForTesting.getModulesForTesting().plugFeatures(this.manager);
+		DefaultModules.getDefaultModules().plugFeatures(manager);
 	}
 
 	@Test(groups = {"unit"} )

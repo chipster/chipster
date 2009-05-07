@@ -72,12 +72,9 @@ import fi.csc.microarray.messaging.NodeBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
-import fi.csc.microarray.module.Module;
+import fi.csc.microarray.module.DefaultModules;
 import fi.csc.microarray.module.Modules;
-import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;
-import fi.csc.microarray.module.chipster.MicroarrayModule;
-import fi.csc.microarray.module.stats.StatsModule;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.Strings;
 import fi.csc.microarray.wizard.WizardContext;
@@ -190,10 +187,7 @@ public abstract class ClientApplication implements Node, WizardContext {
 		OLD_SNAPSHOT_DIR = new File(DirectoryLayout.getInstance().getUserDataDir().getAbsolutePath(), "workspace-snapshot");
 		
 		// initialise modules
-		Modules modules = new Modules();
-		for (Module module : loadModules()) {
-			modules.addModule(module);
-		}
+		Modules modules = DefaultModules.getDefaultModules();
 		Session.getSession().putObject("modules", modules);
 		
 		// initialise workflows
@@ -270,14 +264,6 @@ public abstract class ClientApplication implements Node, WizardContext {
 		}
 
 
-	}
-	
-	private Module[] loadModules() {
-		return new Module[] {
-				new BasicModule(), 
-				new StatsModule(), 
-				new MicroarrayModule()
-		};
 	}
 	
 	/**
