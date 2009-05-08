@@ -1,9 +1,7 @@
-package fi.csc.microarray;
+package fi.csc.microarray.messaging.auth;
 
 import javax.swing.SwingUtilities;
 
-import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
-import fi.csc.microarray.messaging.auth.ClientLoginListener;
 
 public class SimpleAuthenticationRequestListener implements AuthenticationRequestListener {
 
