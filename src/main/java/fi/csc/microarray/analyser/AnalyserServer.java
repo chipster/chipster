@@ -41,6 +41,8 @@ import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.messaging.message.NamiMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
+import fi.csc.microarray.service.KeepAliveShutdownHandler;
+import fi.csc.microarray.service.ShutdownCallback;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.MemUtil;
 
@@ -50,7 +52,7 @@ import fi.csc.microarray.util.MemUtil;
  * 
  * @author Taavi Hupponen, Aleksi Kallio
  */
-public class AnalyserServer extends MonitoredNodeBase implements MessagingListener, ResultCallback {
+public class AnalyserServer extends MonitoredNodeBase implements MessagingListener, ResultCallback, ShutdownCallback {
 
 	public static final String DESCRIPTION_OUTPUT_NAME = "description";
 	public static final String SOURCECODE_OUTPUT_NAME = "sourcecode";
@@ -250,6 +252,9 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		managerTopic = endpoint.createTopic(Topics.Name.MANAGER_TOPIC, AccessMode.WRITE);
 		
 		fileBroker = new FileBrokerClient(this.endpoint.createTopic(Topics.Name.AUTHORISED_URL_TOPIC, AccessMode.WRITE));
+		
+		// create keep-alive thread and register shutdown hook
+		KeepAliveShutdownHandler.init(this);
 		
 		logger.info("analyser is up and running [" + ApplicationConstants.NAMI_VERSION + "]");
 		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
@@ -725,6 +730,18 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			}
 		}
 	}
-	
+
+	public void shutdown() {
+		logger.info("shutdown requested");
+
+		// close messaging endpoint
+		try {
+			this.endpoint.close();
+		} catch (JMSException e) {
+			logger.error("closing messaging endpoint failed", e);
+		}
+
+		logger.info("shutting down");
+	}
 
 }

@@ -36,6 +36,8 @@ import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.message.JobLogMessage;
 import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.service.KeepAliveShutdownHandler;
+import fi.csc.microarray.service.ShutdownCallback;
 import fi.csc.microarray.util.MemUtil;
 
 /**
@@ -43,7 +45,7 @@ import fi.csc.microarray.util.MemUtil;
  * 
  * @author Taavi Hupponen
  */
-public class Manager extends MonitoredNodeBase implements MessagingListener {
+public class Manager extends MonitoredNodeBase implements MessagingListener, ShutdownCallback {
 	
 
 	private class BackupTimerTask extends TimerTask {
@@ -178,8 +180,6 @@ public class Manager extends MonitoredNodeBase implements MessagingListener {
     	}
     	
     	
-    	
-	    
 		// initialize communications
 		this.endpoint = new MessagingEndpoint(this);
 		
@@ -192,6 +192,9 @@ public class Manager extends MonitoredNodeBase implements MessagingListener {
 			server = Server.createWebServer(new String[] {"-webAllowOthers",  "-webPort", String.valueOf(webConsolePort)});
 			server.start();
 		}
+		
+		// create keep-alive thread and register shutdown hook
+		KeepAliveShutdownHandler.init(this);
 		
 		logger.error("manager is up and running [" + ApplicationConstants.NAMI_VERSION + "]");
 		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
@@ -233,5 +236,17 @@ public class Manager extends MonitoredNodeBase implements MessagingListener {
 		}
 	}
 
+	public void shutdown() {
+		logger.info("shutdown requested");
 
+		// close messaging endpoint
+		try {
+			this.endpoint.close();
+		} catch (JMSException e) {
+			logger.error("closing messaging endpoint failed", e);
+		}
+
+		logger.info("shutting down");
+	}
+	
 }

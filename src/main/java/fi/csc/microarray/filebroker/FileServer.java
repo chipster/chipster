@@ -5,6 +5,8 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Timer;
 
+import javax.jms.JMSException;
+
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.ApplicationConstants;
@@ -20,10 +22,12 @@ import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.NamiMessage;
 import fi.csc.microarray.messaging.message.UrlMessage;
+import fi.csc.microarray.service.KeepAliveShutdownHandler;
+import fi.csc.microarray.service.ShutdownCallback;
 import fi.csc.microarray.util.FileCleanUpTimerTask;
 import fi.csc.microarray.util.MemUtil;
 
-public class FileServer extends NodeBase implements MessagingListener {
+public class FileServer extends NodeBase implements MessagingListener, ShutdownCallback {
 	/**
 	 * Logger for this class
 	 */
@@ -67,7 +71,10 @@ public class FileServer extends NodeBase implements MessagingListener {
     		urlRequestTopic.setListener(this);
     		this.managerClient = new ManagerClient(endpoint); 
 
-    		// all done
+    		// create keep-alive thread and register shutdown hook
+    		KeepAliveShutdownHandler.init(this);
+
+    		
     		logger.info("fileserver is up and running [" + ApplicationConstants.NAMI_VERSION + "]");
     		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
 
@@ -99,4 +106,19 @@ public class FileServer extends NodeBase implements MessagingListener {
 			logger.error(e, e);
 		}
 	}
+
+	public void shutdown() {
+		logger.info("shutdown requested");
+
+		// close messaging endpoint
+		try {
+			this.endpoint.close();
+		} catch (JMSException e) {
+			logger.error("closing messaging endpoint failed", e);
+		}
+
+		logger.info("shutting down");
+	}
+
+
 }

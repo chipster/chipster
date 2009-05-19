@@ -21,13 +21,15 @@ import fi.csc.microarray.messaging.message.NamiMessage;
 import fi.csc.microarray.messaging.message.AuthenticationMessage.AuthenticationOperation;
 import fi.csc.microarray.security.SecureSessionPool;
 import fi.csc.microarray.security.SecureSessionPool.Session;
+import fi.csc.microarray.service.KeepAliveShutdownHandler;
+import fi.csc.microarray.service.ShutdownCallback;
 import fi.csc.microarray.util.MemUtil;
 
 /**
  * @author Aleksi Kallio
  *
  */
-public class Authenticator extends NodeBase {
+public class Authenticator extends NodeBase implements ShutdownCallback {
     
 	/**
 	 * Logger for this class
@@ -83,6 +85,9 @@ public class Authenticator extends NodeBase {
 		
 		// initialise JAAS authentication
 		authenticationProvider = new JaasAuthenticationProvider();
+		
+		// create keep-alive thread and register shutdown hook
+		KeepAliveShutdownHandler.init(this);
 		
 		logger.info("authenticator is up and running [" + ApplicationConstants.NAMI_VERSION + "]");
 		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
@@ -241,5 +246,18 @@ public class Authenticator extends NodeBase {
 
 	public String getName() {
 		return "authenticator";
+	}
+
+	public void shutdown() {
+		logger.info("shutdown requested");
+
+		// close messaging endpoint
+		try {
+			this.endpoint.close();
+		} catch (JMSException e) {
+			logger.error("closing messaging endpoint failed", e);
+		}
+
+		logger.info("shutting down");
 	}
 }

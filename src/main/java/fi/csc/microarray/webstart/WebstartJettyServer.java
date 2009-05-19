@@ -14,9 +14,11 @@ import org.mortbay.thread.QueuedThreadPool;
 import fi.csc.microarray.ApplicationConstants;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.service.KeepAliveShutdownHandler;
+import fi.csc.microarray.service.ShutdownCallback;
 import fi.csc.microarray.util.MemUtil;
 
-public class WebstartJettyServer {
+public class WebstartJettyServer implements ShutdownCallback {
 	
 	/**
 	 * Logger for this class
@@ -58,6 +60,9 @@ public class WebstartJettyServer {
 
 			jettyInstance.start();
 
+			// create keep-alive thread and register shutdown hook
+			KeepAliveShutdownHandler.init(this);
+			
 			logger.info("webstart is up and running [" + ApplicationConstants.NAMI_VERSION + "]");
 			logger.info("[mem: " + MemUtil.getMemInfo() + "]");
 
@@ -70,4 +75,11 @@ public class WebstartJettyServer {
 	public boolean isRunning() {
 		return jettyInstance.isRunning();
 	}
+
+	public void shutdown() {
+		logger.info("shutdown requested");
+		logger.info("shutting down");
+	}
+
+
 }
