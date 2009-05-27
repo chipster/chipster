@@ -104,6 +104,7 @@ import fi.csc.microarray.util.BrowserLauncher;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.GeneralFileFilter;
 import fi.csc.microarray.util.SplashScreen;
+import fi.csc.microarray.util.Strings;
 
 /**
  * This class adds all GUI and Swing specific content to client functionality.
@@ -206,7 +207,7 @@ public class SwingClientApplication extends ClientApplication {
 
 		// initialize the main frame
 		mainFrame = new JFrame();
-		updateWindowTitle(0); // zero jobs at start
+		updateWindowTitle();
 		childScreens = new ChildScreenPool(mainFrame);
 
 		// Sets look 'n' feel
@@ -344,9 +345,36 @@ public class SwingClientApplication extends ClientApplication {
 
 	}
 
-	public void updateWindowTitle(Integer jobCount) {
-		String jobString = jobCount > 0 ? jobCount + " jobs / " : "";
-		this.mainFrame.setTitle(jobString + ApplicationConstants.APPLICATION_TITLE);
+	
+	private String windowTitleJobPrefix = null;
+	private String windowTitleBlockingPrefix = null;
+
+	public void updateWindowTitleJobCount(Integer jobCount) {
+		windowTitleJobPrefix = jobCount > 0 ? jobCount + " jobs / " : null;
+		updateWindowTitle();
+	}
+	
+	public void updateWindowTitleBlockingState(String operation) {
+		if (operation != null) {
+			windowTitleBlockingPrefix = Strings.startWithUppercase(operation) + " / ";
+			
+		} else {
+			windowTitleBlockingPrefix = null;
+		}	
+		updateWindowTitle();
+	}
+	
+	public void updateWindowTitle() {
+		if (windowTitleBlockingPrefix != null) {
+			this.mainFrame.setTitle(windowTitleBlockingPrefix + ApplicationConstants.APPLICATION_TITLE);
+			
+		} else if (windowTitleJobPrefix != null) {
+			this.mainFrame.setTitle(windowTitleJobPrefix + ApplicationConstants.APPLICATION_TITLE);
+			
+		} else {
+			this.mainFrame.setTitle(ApplicationConstants.APPLICATION_TITLE);
+		}
+
 	}
 
 	public SimpleInternalFrame getOperationsFrame() {
@@ -1479,10 +1507,12 @@ public class SwingClientApplication extends ClientApplication {
 					});
 				} finally {
 					waitPanel.stopWaiting();
+					updateWindowTitleBlockingState(null);
 				}
 			}
 		});
 		waitPanel.startWaiting("Please wait while " + taskName + "...");
+		updateWindowTitleBlockingState(taskName);
 		backgroundThread.start();
 	}
 

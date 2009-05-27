@@ -189,7 +189,7 @@ public class StatusBar {
 		}
 
 		// update title
-		application.updateWindowTitle(taskCount);
+		application.updateWindowTitleJobCount(taskCount);
 
 		// update task list
 		application.refreshTaskList();
