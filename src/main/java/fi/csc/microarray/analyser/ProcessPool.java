@@ -15,14 +15,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
-
-import fi.csc.microarray.config.Configuration;
 /**
  * A process pool for pooling for example R processes.
  * 
  *  
  * The maximum number of processes controlled by this pool may temporarily be exceeded, 
- * due to the synchronisation mechanisms used.
+ * due to the synchronization mechanisms used.
  * 
  *
  */
@@ -82,15 +80,14 @@ public class ProcessPool {
 	
 	
 	
-	public ProcessPool(File analyserWorkDir, Configuration configuration) throws IOException {
-		this.workDir = analyserWorkDir;
-		
-		this.poolSizeMin = configuration.getInt("comp", "r-process-pool-size-min");
-		this.poolSizeMax = configuration.getInt("comp", "r-process-pool-size-max");
-		this.poolTimeout = configuration.getInt("comp", "r-process-pool-timeout");
-		this.processUseCountMax = configuration.getInt("comp", "r-process-pool-process-use-count-max");
-		this.processLifetimeMax = configuration.getInt("comp", "r-process-pool-process-lifetime-max");
-		this.rCommand = configuration.getString("comp", "r-command") + " --vanilla --quiet";
+	public ProcessPool(File workDir, String command, int poolSizeMin, int poolSizeMax, int poolTimeout, int processUseCountMax, int processLifetimeMax) throws IOException {
+		this.workDir = workDir;
+		this.rCommand = command;
+		this.poolSizeMin = poolSizeMin;
+		this.poolSizeMax = poolSizeMax;
+		this.poolTimeout = poolTimeout;
+		this.processUseCountMax = processUseCountMax;
+		this.processLifetimeMax = processLifetimeMax;
 
 		// initialize pool structures
 		this.availableProcesses = new LinkedBlockingQueue<NamiProcess>(); 

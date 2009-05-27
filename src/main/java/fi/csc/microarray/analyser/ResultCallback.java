@@ -32,8 +32,6 @@ public interface ResultCallback {
 	public File getWorkDir();
 	public boolean shouldSweepWorkDir();
 	
-	public ProcessPool getProcessPool();
-	
 	public void removeRunningJob(AnalysisJob job);
 	
 	public FileBrokerClient getFileBrokerClient();
