@@ -13,6 +13,16 @@ import org.xml.sax.SAXException;
 
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 
+/**
+ * <p>For accessing Chipster configuration.  The configuration is loaded in two steps. 
+ * First an internal default configuration is loaded (chipster-config-specification.xml) 
+ * and then the normal configuration file chipster-config.xml.</p>
+ * 
+ * <p>See <a href="http://chipster.wiki.sourceforge.net/ConfigurationSystem">http://chipster.wiki.sourceforge.net/ConfigurationSystem</a> for a more detailed description.</p>
+ * 
+ * @author Aleksi Kallio
+ *
+ */
 public class Configuration {
 
 	public static final String CONFIG_FILENAME = "chipster-config.xml";
