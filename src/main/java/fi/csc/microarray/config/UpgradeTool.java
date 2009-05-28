@@ -1,9 +1,24 @@
 package fi.csc.microarray.config;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.StringWriter;
+import java.net.InetAddress;
 import java.util.LinkedList;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import fi.csc.microarray.util.IOUtils;
+import fi.csc.microarray.util.XmlUtil;
 
 /**
  * Simple tool for upgrading existing installation to new version.
@@ -80,8 +95,11 @@ public class UpgradeTool {
 				moveToNewDir(workDir12x, logsDir13x, "messages.log", "jobs.log", "security.log", "status.log");
 				delayedMove(new File(workDir12x, "nami.log"), new File(logsDir13x, "chipster.log"));
 				moveToNewDir(workDir12x, securityDir13x, "keystore.ks", "users");
+				delayedUsersUpgrade(new File(securityDir13x, "users"), new File(workDir12x, "users"));
+				confDir13x.mkdirs();
 				delayedMove(new File(workDir12x, "jaas.config"), new File(confDir13x, "jaas.config"));
 				delayedMove(new File(workDir12x, "nami-config.xml"), new File(confDir13x, "chipster-config.xml"));
+				delayedConfigPurge(new File(confDir13x, "chipster-config.xml"), new File(workDir12x, "nami-config.xml"), componentDir);
 				delayedMove(new File(compDir, "web-content"), new File(compDir, "web-root"));
 				delayedMove(new File(workDir12x, "fileserver"), new File(compDir, "file-root"));
 				delayedMove(new File(workDir12x, "analyser-work"), new File(compDir, "jobs-data"));
@@ -91,18 +109,19 @@ public class UpgradeTool {
 				File[] wrapperConfs = new File[] {
 						new File(binDir, "linux-x86-32"  + File.separator + "wrapper.conf"),
 						new File(binDir, "linux-x86-64"  + File.separator + "wrapper.conf")
-				};				
+				};	
+				
+				
+				File newWrapperConf = new File(confDir13x, "wrapper.conf");
 				if (wrapperConfs[0].lastModified() > wrapperConfs[1].lastModified()) {
-					delayedMove(wrapperConfs[0], confDir13x);
 					delayedDelete(wrapperConfs[1]);
+					delayedMove(wrapperConfs[0], newWrapperConf);					
 				} else {					
 					delayedDelete(wrapperConfs[0]);
-					delayedMove(wrapperConfs[1], confDir13x);
+					delayedMove(wrapperConfs[1], newWrapperConf);
 				}
-				
-				// update file content to new version
-				delayedConfigPurge(new File(confDir13x, "chipster-config.xml"), componentDir);
-				delayedUsersUpgrade(new File(securityDir13x, "users"));
+				delayedWrapperScriptUpgrade(new File(binDir, "linux-x86-32"  + File.separator + "chipster-" + componentDir));
+				delayedWrapperScriptUpgrade(new File(binDir, "linux-x86-64"  + File.separator + "chipster-" + componentDir));				
 			}
 		}
 		
@@ -171,7 +190,7 @@ public class UpgradeTool {
 				public void execute(File file, Object parameter) {
 					boolean deleted = file.delete();
 					if (!deleted) {
-						System.out.println("Warning: could not delete " + file);
+						System.out.println("Warning: could not delete " + file.getAbsolutePath());
 					}
 				}			
 			});
@@ -179,35 +198,234 @@ public class UpgradeTool {
 	}
 	
 
-	private void delayedUsersUpgrade(File file) {
-		if (file.exists()) {
-			operations.add(new Operation(file, null) {
+	private void delayedUsersUpgrade(File fileAfterUpgrade, File filebeforeUpgrade) {
+		if (filebeforeUpgrade.exists()) {
+			operations.add(new Operation(fileAfterUpgrade, null) {
 
 				public String describeExecution(File file, Object parameter) {
 					return "Updgrade file format in " + file + " (add empty expiration dates if needed)";
 				}
 
 				public void execute(File file, Object parameter) {
-					// TODO				
+					BufferedReader in = null;
+					OutputStream overwriteOut = null;
+					try {
+						StringWriter stringWriter = new StringWriter();
+						BufferedWriter out = new BufferedWriter(stringWriter);
+						in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+						
+						boolean needOverwrite = false;
+						
+						for (String line = in.readLine(); line != null; line = in.readLine()) {
+							if (line.split(":").length == 3) {
+								// has exactly two separators, need to add empty for exp. date
+								int commentSep = line.lastIndexOf(':');
+								String newLine = line.substring(0, commentSep) + ":" + line.substring(commentSep);
+								line = newLine;
+								needOverwrite = true;
+							}
+							out.write(line);
+						}
+						out.close();
+						if (needOverwrite) {
+							overwriteOut = new FileOutputStream(file);
+							IOUtils.copy(new ByteArrayInputStream(stringWriter.getBuffer().toString().getBytes()), overwriteOut);
+						}
+						
+					} catch (IOException e) {
+						e.printStackTrace();
+						System.out.println("Warning: could not upgrade users file " + file.getAbsolutePath());
+						
+					} finally {
+						IOUtils.closeIfPossible(in);
+						IOUtils.closeIfPossible(overwriteOut);
+					}
 				}			
 			});
 		}		
 	}
 
-	private void delayedConfigPurge(File file, String componentDir) {
-		if (file.exists()) {
-			operations.add(new Operation(file, componentDir) {
+	private void delayedConfigPurge(File fileAfterUpgrade, File filebeforeUpgrade, String componentDir) {
+		if (filebeforeUpgrade.exists()) {
+			operations.add(new Operation(fileAfterUpgrade, componentDir) {
 
 				public String describeExecution(File file, Object parameter) {
-					return "Purge unneeded configuration modules from " + file + " (leave only those needed for " + parameter + ")";
+					return "Upgrade and purge " + file + " (leave only those modules needed for " + parameter + ")";
 				}
 
 				public void execute(File file, Object parameter) {
-					// TODO				
+					BufferedReader in = null;
+					OutputStream overwriteOut = null;
+					try {
+						StringWriter stringWriter = new StringWriter();
+						BufferedWriter out = new BufferedWriter(stringWriter);
+						in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+						
+						Document originalDocument = XmlUtil.getInstance().parseReader(in);
+						IOUtils.closeIfPossible(in);
+						Document newDocument = XmlUtil.getInstance().newDocument();
+						newDocument.appendChild(newDocument.createElement("configuration"));
+						newDocument.getDocumentElement().setAttribute("content-version", "3");
+
+						// pick correct modules
+						moveModule("messaging", originalDocument, "messaging", newDocument);
+						moveModule("security", originalDocument, "security", newDocument);
+						if ("comp".equals(parameter)) {
+							moveModule("analyser", originalDocument, "comp", newDocument);
+							
+						} else if ("frontend".equals(parameter)) {
+							moveModule("frontend", originalDocument, "filebroker", newDocument);
+							moveModule("filebroker", originalDocument, "filebroker", newDocument);
+							
+						} else if ("fileserver".equals(parameter)) {
+							Element module = (Element)newDocument.getDocumentElement().appendChild(newDocument.createElement("configuration-module"));
+							module.setAttribute("moduleId", "filebroker");
+							addEntry(module, newDocument, "port", "8080");
+							addEntry(module, newDocument, "url", "http://" + InetAddress.getLocalHost().getHostName());
+							
+							
+						} else if ("webstart".equals(parameter)) {
+							Element module = (Element)newDocument.getDocumentElement().appendChild(newDocument.createElement("configuration-module"));
+							module.setAttribute("moduleId", "webstart");
+							addEntry(module, newDocument, "port", "8081");
+							
+						} else if ("manager".equals(parameter)) {
+							Element module = (Element)newDocument.getDocumentElement().appendChild(newDocument.createElement("configuration-module"));
+							module.setAttribute("moduleId", "manager");
+							addEntry(module, newDocument, "port", "8082");
+
+						} else {
+							moveModuleIfExists((String)parameter, originalDocument, (String)parameter, newDocument);
+						}
+						
+						// remove obsolete entries
+						NodeList entries = newDocument.getElementsByTagName("entry");
+						for (int i = 0; i < entries.getLength(); i++) {
+							Element entry = (Element)entries.item(i);
+							String oldName = entry.getAttribute("entryKey");
+							
+							if ("filebroker_urls".equals(oldName)) {
+								entry.getParentNode().removeChild(entry);
+								break;
+							}
+						}
+						
+						// fix entry names
+						entries = newDocument.getElementsByTagName("entry");
+						for (int i = 0; i < entries.getLength(); i++) {
+							Element entry = (Element)entries.item(i);
+							String oldName = entry.getAttribute("entryKey");
+
+							// rename
+							oldName = oldName.replace('_', '-');
+							String newName = "";
+							for (int c = 0; c < oldName.length(); c++) {
+								char character = oldName.charAt(c);
+								if (Character.isUpperCase(character)) {
+									newName += '-';
+									newName += Character.toLowerCase(character);
+								} else {
+									newName += character;
+								}
+							}
+							
+							if (newName.startsWith("-")) {
+								newName = newName.substring(1);
+							}
+							
+							entry.setAttribute("entryKey", newName);
+							
+						}
+												
+						// overwrite previous
+						XmlUtil.getInstance().printXml(newDocument, out);
+						out.close();
+
+						overwriteOut = new FileOutputStream(file);
+						IOUtils.copy(new ByteArrayInputStream(stringWriter.getBuffer().toString().getBytes()), overwriteOut);
+						
+					} catch (Exception e) {
+						e.printStackTrace();
+						System.out.println("Warning: could not upgrade configuration file " + file.getAbsolutePath());
+						
+					} finally {						
+						IOUtils.closeIfPossible(overwriteOut);
+					}
+				}
+
+				private void addEntry(Element module, Document document, String name, String value) {
+					Element entry = (Element)module.appendChild(document.createElement("entry"));
+					entry.setAttribute("entryKey", name);
+					Element valueElement = (Element)entry.appendChild(document.createElement("value"));
+					valueElement.setTextContent(value);
+				}
+
+				private void moveModuleIfExists(String originalModule, Document originalDocument, String newModule, Document newDocument) {
+					try {
+						moveModule(originalModule, originalDocument, newModule, newDocument);
+					} catch (IllegalArgumentException e) {
+						// module did not exist, ignore the exception 
+					}
+				}
+				private void moveModule(String originalModule, Document originalDocument, String newModule, Document newDocument) {
+					NodeList modules = originalDocument.getElementsByTagName("configuration-module");
+					for (int i = 0; i < modules.getLength(); i++) {
+						Element module = (Element)modules.item(i);
+						if (originalModule.equals(module.getAttribute("moduleId"))) {
+							Element importedElement = (Element)newDocument.importNode(module, true);
+							newDocument.getDocumentElement().appendChild(importedElement);
+							importedElement.setAttribute("moduleId", newModule);
+							return;
+						}
+					}
+					throw new IllegalArgumentException("module " + originalModule + " was not found from config");
 				}			
 			});
 		}		
 	}
+	
+	private void delayedWrapperScriptUpgrade(File file) {
+		if (file.exists()) {
+			operations.add(new Operation(file, null) {
+
+				public String describeExecution(File file, Object parameter) {
+					return "Updgrade " + file + " (change wrapper.conf path)";
+				}
+
+				public void execute(File file, Object parameter) {
+					OutputStream overwriteOut = null;
+					try {
+						String wrapperScript = fileToString(file);
+						
+						wrapperScript = wrapperScript.replace("./wrapper.conf", "../../conf/wrapper.conf");
+						
+						overwriteOut = new FileOutputStream(file);						
+						IOUtils.copy(new ByteArrayInputStream(wrapperScript.getBytes()), overwriteOut);
+						
+					} catch (IOException e) {
+						e.printStackTrace();
+						System.out.println("Warning: could not upgrade wrapper script file " + file.getAbsolutePath());
+						
+					} finally {
+						IOUtils.closeIfPossible(overwriteOut);
+					}
+				}
+				
+				public String fileToString(File file) throws IOException  {
+					StringBuffer buffer = new StringBuffer();
+					BufferedReader inputReader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+					String line;
+					for (line = inputReader.readLine(); line != null; line = inputReader.readLine()) {
+						buffer.append(line + "\n");
+					}
+					
+					return buffer.toString();
+				}
+
+			});
+		}		
+	}
+
 }
 
 
