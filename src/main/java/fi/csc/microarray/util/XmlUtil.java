@@ -78,8 +78,8 @@ public class XmlUtil {
 		return null;
 	}
 
-	public void printXml(Document response, OutputStream out) throws UnsupportedEncodingException, TransformerException {
-		printXml(response, new OutputStreamWriter(out));		
+	public void printXml(Document xml, OutputStream out) throws UnsupportedEncodingException, TransformerException {
+		printXml(xml, new OutputStreamWriter(out));		
 	}
 
 }
