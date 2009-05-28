@@ -24,7 +24,7 @@ public class FeatureTest {
 	private DataManager manager;
 
 	public FeatureTest() throws IOException, IllegalConfigurationException {
-		DirectoryLayout.initialiseClientLayout().getConfiguration();
+		DirectoryLayout.initialiseUnitTestLayout();
 		this.manager = new FSDataManager();
 		DefaultModules.getDefaultModules().plugFeatures(manager);
 	}
