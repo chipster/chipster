@@ -4,7 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.Proxy;
+import java.net.ProxySelector;
+import java.net.SocketAddress;
+import java.net.URI;
 import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.jms.JMSException;
 
@@ -37,7 +43,7 @@ public class UrlTransferUtil {
 
     	HttpURLConnection connection = null;
     	try {
-    		connection = (HttpURLConnection)url.openConnection();
+    		connection = (HttpURLConnection)url.openConnection(); // should use openConnection(Proxy.NO_PROXY) if it actually worked
     		connection.setRequestMethod("PUT");
     		connection.setDoOutput(true);
 
@@ -52,6 +58,10 @@ public class UrlTransferUtil {
     		try {
     			os = connection.getOutputStream();
     			IOUtils.copy(fis, os, progressListener);
+
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    			throw e;
 
     		} finally {
     			IOUtils.closeIfPossible(os);
@@ -72,5 +82,34 @@ public class UrlTransferUtil {
     
     private static boolean isSuccessfulCode(int responseCode) {
 		return responseCode >= 200 && responseCode < 300; // 2xx => successful
+	}
+    
+
+    /**
+     * Overrides system proxy settings (JVM level) to always bypass the proxy.
+     * This method must be called BEFORE any upload URL objects are created.
+     * It is required because JRE does not respect at all the proxy parameter
+     * given to URL.openConnection(Proxy), which would be the good solution
+     * for overriding proxies for uploads.
+     * 
+     * @see java.net.URL#openConnection(Proxy)
+     */
+	public static void disableProxies() {
+
+		ProxySelector.setDefault(new ProxySelector() {
+
+			@Override
+			public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
+				// we are not interested in this
+			}
+
+			@Override
+			public List<Proxy> select(URI uri) {
+                LinkedList<Proxy> proxies = new LinkedList<Proxy>();
+                proxies.add(Proxy.NO_PROXY);
+                return proxies;
+			}
+	    	
+	    });
 	}
 }

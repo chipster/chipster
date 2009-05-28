@@ -29,6 +29,7 @@ import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.NamiMessage;
 import fi.csc.microarray.util.KeyAndTrustManager;
+import fi.csc.microarray.util.UrlTransferUtil;
 
 
 /**
@@ -39,6 +40,11 @@ import fi.csc.microarray.util.KeyAndTrustManager;
  *
  */
 public class MessagingEndpoint implements MessagingListener {
+	
+	static {
+		// fix URL file transfer proxy policy 
+		UrlTransferUtil.disableProxies();
+	}
 	
 	/**
 	 * Logger for this class

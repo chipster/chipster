@@ -144,7 +144,8 @@ public class VisualisationUtilities {
 					newColumns.put(columnName, columns.getValue(columnName).toString());
 				}
 
-				String id = newColumns.get(" ").toString();
+				// TODO should use Feature API for this, but it is not that easy...
+				String id = newColumns.containsKey(" ") ? newColumns.get(" ") : newColumns.get("identifier");
 
 				if(!lines.containsKey(id)){
 					lines.put(id, newColumns);

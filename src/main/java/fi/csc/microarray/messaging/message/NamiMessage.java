@@ -144,7 +144,7 @@ public abstract class NamiMessage {
 	}
 
 	public void handleException(Exception e) throws JMSException {
-		logger.info(e);
+		logger.error(e);
 		throw new JMSException(e.getMessage()); // converting URL related errors to JMS errors is kind of strange...
 	}
 
