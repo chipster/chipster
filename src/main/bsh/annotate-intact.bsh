@@ -1,5 +1,5 @@
 // ANALYSIS Annotation/"Protein interactions" (Returns protein interactions from ENFIN IntAct database.)
-// INPUT GENELIST input.tsv OUTPUT cpdb-annotations.html
+// INPUT GENERIC input.tsv OUTPUT intact-annotations.html
 
 import fi.csc.microarray.analyser.bsh.*;
 import fi.csc.microarray.analyser.ws.*;
@@ -12,5 +12,5 @@ import fi.csc.microarray.analyser.ws.ResultTableCollector.ResultRow;
 ResultTableCollector annotations = EnfinWsAnalysisHandler.query(JavaJobUtils.getGeneNames(new File(jobInfo.workDir + "/input.tsv")));
 
 // create output files
-File file = new File(jobInfo.workDir + "/cpdb-annotations.html");
+File file = new File(jobInfo.workDir + "/intact-annotations.html");
 HtmlUtil.writeHtmlTable(annotations, new String[] {"Interaction", "Participants"}, "Enfin IntAct annotation", file);

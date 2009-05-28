@@ -1,5 +1,5 @@
 // ANALYSIS Annotation/"Relavant experiments" (Returns experiments from ArrayExpress Atlas database where genes in the genelist are up or down regulated.)
-// INPUT GENELIST input.tsv OUTPUT cpdb-annotations.html
+// INPUT GENERIC input.tsv OUTPUT cpdb-annotations.html
 
 import fi.csc.microarray.analyser.bsh.*;
 import fi.csc.microarray.analyser.ws.*;
