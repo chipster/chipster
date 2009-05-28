@@ -37,7 +37,7 @@ import fi.csc.microarray.databeans.DataBean;
  * showing these as options in the visualisation choice panel, as well as for
  * sending requests to visualiser components.
  * 
- * @author Janne Käki, Aleksi Kallio, Petri Klemelä
+ * @author Janne Kï¿½ki, Aleksi Kallio, Petri Klemelï¿½
  * 
  */
 public enum VisualisationMethod {
@@ -53,10 +53,24 @@ public enum VisualisationMethod {
 	// None is always present and spaces reserve space also for the longer names
 	// when they aren't present.
 	// This is the easiest found way to keep the double visualisation split
-	// steady
-	NONE("None                                   ", Empty.class, VisualConstants.EMPTY_MENUICON, 0, 0), SPREADSHEET("Spreadsheet", Spreadsheet.class, VisualConstants.SPREADSHEET_MENUICON, 2, 0.0007), PHENODATA("Phenodata editor", PhenodataEditor.class, VisualConstants.PHENODATA_MENUICON, 3, 0), ARRAY_LAYOUT("Array layout", ArrayLayout.class, VisualConstants.ARRAY_MENUICON, -1, 0.0009), HISTOGRAM("Histogram", Histogram.class, VisualConstants.HISTOGRAM_MENUICON, -1, 0.024), SCATTERPLOT("Scatterplot", Scatterplot.class, VisualConstants.SCATTER_MENUICON, -1, 0.039), SCATTERPLOT3D("3D Scatterplot", Scatterplot3D.class, VisualConstants.SCATTER3D_MENUICON, -1, 0.082), VOLCANOPLOT("Volcano plot", Volcanoplot.class, VisualConstants.VOLCANO_MENUICON, -1, 0.039), SOM("SOM", SOM.class, VisualConstants.SOM_MENUICON, 3, 0.034), HIERARCHICAL("Hierarchical clustering", HierarchicalClustering.class, VisualConstants.HC_MENUICON, 3, 0.09), EXPRESSION_PROFILE("Expression profile", ExpressionProfile.class, VisualConstants.PROFILE_MENUICON, -1, 0.1), CLUSTERED_PROFILES("Clustered profiles", ClusteredProfiles.class, VisualConstants.PROFILES_MENUICON, -1, 0.087), SHOW_IMAGE("Show image", ImageViewer.class, VisualConstants.IMAGE_MENUICON, 1, 0.015), WEBVIEW("View page", HtmlViewer.class, VisualConstants.HTML_MENUICON, 1, 0.008), VIEW_TEXT("View text", TextViewer.class, VisualConstants.TEXT_MENUICON, 1, 0.023), VENN_DIAGRAM("Venn-diagram", VennDiagram.class, VisualConstants.VENN_MENUICON, 1, VisualisationMethod.DURATION_NOT_MEASURED);
-
-	private static final int DURATION_NOT_MEASURED = 0;
+	// steady. Duration estimation 0 means unknown.
+	NONE("None                                   ", 
+			Empty.class, VisualConstants.EMPTY_MENUICON, 0, 0), 
+			SPREADSHEET("Spreadsheet", Spreadsheet.class, VisualConstants.SPREADSHEET_MENUICON, 2, 0.0007), 
+			PHENODATA("Phenodata editor", PhenodataEditor.class, VisualConstants.PHENODATA_MENUICON, 3, 0), 
+			ARRAY_LAYOUT("Array layout", ArrayLayout.class, VisualConstants.ARRAY_MENUICON, -1, 0.0009), 
+			HISTOGRAM("Histogram", Histogram.class, VisualConstants.HISTOGRAM_MENUICON, -1, 0.024), 
+			SCATTERPLOT("Scatterplot", Scatterplot.class, VisualConstants.SCATTER_MENUICON, -1, 0.039), 
+			SCATTERPLOT3D("3D Scatterplot", Scatterplot3D.class, VisualConstants.SCATTER3D_MENUICON, -1, 0.082), 
+			VOLCANOPLOT("Volcano plot", Volcanoplot.class, VisualConstants.VOLCANO_MENUICON, -1, 0.039), 
+			SOM("SOM", SOM.class, VisualConstants.SOM_MENUICON, 3, 0.034), 
+			HIERARCHICAL("Hierarchical clustering", HierarchicalClustering.class, VisualConstants.HC_MENUICON, 3, 0.09), 
+			EXPRESSION_PROFILE("Expression profile", ExpressionProfile.class, VisualConstants.PROFILE_MENUICON, -1, 0.1), 
+			CLUSTERED_PROFILES("Clustered profiles", ClusteredProfiles.class, VisualConstants.PROFILES_MENUICON, -1, 0.087), 
+			SHOW_IMAGE("Show image", ImageViewer.class, VisualConstants.IMAGE_MENUICON, 1, 0.015), 
+			WEBVIEW("View page", HtmlViewer.class, VisualConstants.HTML_MENUICON, 1, 0.008), 
+			VIEW_TEXT("View text", TextViewer.class, VisualConstants.TEXT_MENUICON, 1, 0.023), 
+			VENN_DIAGRAM("Venn-diagram", VennDiagram.class, VisualConstants.VENN_MENUICON, 1, 0);
 
 	private static LinkedList<VisualisationMethod> orderedDefaultCandidates;
 

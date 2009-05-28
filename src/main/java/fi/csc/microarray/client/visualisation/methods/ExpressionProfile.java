@@ -302,7 +302,6 @@ public class ExpressionProfile extends Visualisation implements PropertyChangeLi
 
 					if(selection.intersectsLine(line)){
 						newSelection.add(y);
-						System.out.println(selection);
 					}
 				}								
 			}

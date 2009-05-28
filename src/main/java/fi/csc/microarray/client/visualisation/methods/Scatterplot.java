@@ -295,7 +295,6 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 							selectedIndexes.remove(i);
 						} else {
 							selectedIndexes.add(i);
-							System.out.println("x: " + x + " y: " + y + " r: " + newSelection);
 						}
 					}
 				}		
