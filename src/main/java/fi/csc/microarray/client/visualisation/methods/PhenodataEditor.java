@@ -53,7 +53,7 @@ import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 /**
  * Editor for phenodata type of tabular DataBeans.
  * 
- * @author Aleksi Kallio, Petri Klemelä
+ * @author Aleksi Kallio, Petri Klemelï¿½
  *
  */
 public class PhenodataEditor extends Visualisation implements DataChangeListener {
@@ -401,34 +401,6 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 		table.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		table.setColumnControlVisible(true);
 		JScrollPane tableScroller = new JScrollPane(table);
-		
-		
-		//TODO Remove following after tested in windows
-		
-		// This code was needed to save the changes when the table lost the focus. However, it prevents
-		// the cell getting in to the full editing mode with cursor. Also I cannot reproduce the lose of changes
-		// anymore. -Petri
-		
-//		table.addFocusListener(new FocusListener() {
-//			public void focusGained(FocusEvent e) {
-//				// do nothing
-//			}
-//			
-//			/**
-//			 * Saves the changes to the cell value if the table lost 
-//			 * the focus. If user edits a cell and leaves the table without 
-//			 * pressing enter on the cell the table may lose the changes. In this 
-//			 * method the cell editor is noticed that cell editing has stoped 
-//			 * and cell the new value should be saved.
-//			 */
-//			public void focusLost(FocusEvent e) {
-//				// getCellEditor return null if user is not editing any cell							
-//				
-//				if(table.getCellEditor() != null){
-//					table.getCellEditor().stopCellEditing();
-//				}
-//			}
-//		});
         
         // adds popupmenu listener
 		table.addMouseListener(new MouseAdapter(){

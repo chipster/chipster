@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
  * Class gets the data values from the iterables and scales them to the scales that
  * are also decided here.
  * 
- * @author Petri Klemelä
+ * @author Petri Klemelï¿½
  */
 public class DataModel {
 	
@@ -79,10 +79,6 @@ public class DataModel {
 		Iterator<Float> yIter = yValues.iterator();
 		Iterator<Float> zIter = zValues.iterator();
 		Iterator<Float> cIter = cValues.iterator();
-		
-		//TODO DataBean iterator is a lot slower than manipulating data in RAM
-		//so we use some memory to have a temporary copy		
-		//List<float[]> values = new ArrayList<float[]>();
 		
 		long time = 0;
 		logger.debug((System.currentTimeMillis() - time) / 1000);

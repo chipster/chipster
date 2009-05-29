@@ -25,6 +25,7 @@ import fi.csc.microarray.client.visualisation.methods.ImageViewer;
 import fi.csc.microarray.client.visualisation.methods.PhenodataEditor;
 import fi.csc.microarray.client.visualisation.methods.SOM;
 import fi.csc.microarray.client.visualisation.methods.Scatterplot;
+import fi.csc.microarray.client.visualisation.methods.Scatterplot3DPCA;
 import fi.csc.microarray.client.visualisation.methods.Spreadsheet;
 import fi.csc.microarray.client.visualisation.methods.TextViewer;
 import fi.csc.microarray.client.visualisation.methods.VennDiagram;
@@ -62,6 +63,7 @@ public enum VisualisationMethod {
 			HISTOGRAM("Histogram", Histogram.class, VisualConstants.HISTOGRAM_MENUICON, -1, 0.024), 
 			SCATTERPLOT("Scatterplot", Scatterplot.class, VisualConstants.SCATTER_MENUICON, -1, 0.039), 
 			SCATTERPLOT3D("3D Scatterplot", Scatterplot3D.class, VisualConstants.SCATTER3D_MENUICON, -1, 0.082), 
+			SCATTERPLOT3DPCA("3D Scatterplot for PCA", Scatterplot3DPCA.class, VisualConstants.SCATTER3DPCA_MENUICON, -1, 0.082),
 			VOLCANOPLOT("Volcano plot", Volcanoplot.class, VisualConstants.VOLCANO_MENUICON, -1, 0.039), 
 			SOM("SOM", SOM.class, VisualConstants.SOM_MENUICON, 3, 0.034), 
 			HIERARCHICAL("Hierarchical clustering", HierarchicalClustering.class, VisualConstants.HC_MENUICON, 3, 0.09), 

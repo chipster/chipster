@@ -25,6 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
 
+import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.VisualConstants;
@@ -40,7 +41,7 @@ import fi.csc.microarray.databeans.DataBean;
  * Class for 3d scatterplot implementing functionality required in interface Visualisation. The
  * side panel is done and handled here, but the actual visualisation is drawn in CoordinateArea.
  * 
- * @author Petri Klemelä
+ * @author Petri Klemelï¿½
  *
  */
 public class Scatterplot3D extends ChipVisualisation implements ActionListener, KeyListener{
@@ -49,7 +50,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 		super(frame);
 	}
 
-	private JPanel paramPanel;
+	protected JPanel paramPanel;
     private JPanel settingsPanel;
     private AnnotateListPanel list;
     
@@ -66,16 +67,16 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
     private JButton toXZ = new JButton(VisualConstants.XZ_PLANE);
     private JButton toYZ = new JButton(VisualConstants.YZ_PLANE);
     
-    private JComboBox xBox;
-    private JComboBox yBox;
-    private JComboBox zBox;
-    private JComboBox colorBox;
+    protected JComboBox xBox;
+    protected JComboBox yBox;
+    protected JComboBox zBox;
+    protected JComboBox colorBox;
     
     private JButton useButton;
     
-    private final ClientApplication application = Session.getSession().getApplication();       
+    protected final ClientApplication application = Session.getSession().getApplication();       
     
-    private CoordinateArea coordinateArea;
+    protected CoordinateArea coordinateArea;
     
     private static final Cursor ROTATE_CURSOR = Toolkit.getDefaultToolkit().
 		createCustomCursor(VisualConstants.ROTATE_CURSOR_IMAGE.getImage(), 
@@ -85,9 +86,9 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 	createCustomCursor(VisualConstants.ROTATE_AND_ZOOM_CURSOR_IMAGE.getImage(), 
 			new Point(16,16), "Rotate");    
     
-    private DataModel dataModel = new DataModel();
+    protected DataModel dataModel = new DataModel();
     
-    private DataBean data;
+    protected DataBean data;
 
 	@Override
 	public JPanel getParameterPanel() {
@@ -240,7 +241,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 		toYZ.setEnabled(enabled);
 	}
 
-	private void refreshAxisBoxes(DataBean data) {
+	protected void refreshAxisBoxes(DataBean data) {
 		if (paramPanel == null) {
 			throw new IllegalStateException("must call getParameterPanel first");
 		}
@@ -250,7 +251,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 		this.updateCombo(colorBox, data);
 	}
 	
-	private void updateCombo(JComboBox box, DataBean data){
+	protected void updateCombo(JComboBox box, DataBean data){
 		Visualisation.fillCompoBox(box, this.getVariablesFor(data));
 	}
 	
@@ -269,17 +270,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 		
 		if ( source == useButton ) {
 			
-			List<Variable> vars = new ArrayList<Variable>();
-			vars.add((Variable)xBox.getSelectedItem());
-			vars.add((Variable)yBox.getSelectedItem());
-			vars.add((Variable)zBox.getSelectedItem());
-			vars.add((Variable)colorBox.getSelectedItem());
-			
-			application.setVisualisationMethod(new VisualisationMethodChangedEvent(this,
-					VisualisationMethod.SCATTERPLOT3D, vars, 
-					getFrame().getDatas(), getFrame().getType(), getFrame()));
-			
-			coordinateArea.setPaintMode(CoordinateArea.PaintMode.PIXEL);			
+			useButtonPressed();
 			
 		} else if (source == toXY){
 			stopAutoRotation();
@@ -305,6 +296,20 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 		}
 	}
 	
+	protected void useButtonPressed() {
+		List<Variable> vars = new ArrayList<Variable>();
+		vars.add((Variable)xBox.getSelectedItem());
+		vars.add((Variable)yBox.getSelectedItem());
+		vars.add((Variable)zBox.getSelectedItem());
+		vars.add((Variable)colorBox.getSelectedItem());
+		
+		application.setVisualisationMethod(new VisualisationMethodChangedEvent(this,
+				VisualisationMethod.SCATTERPLOT3D, vars, 
+				getFrame().getDatas(), getFrame().getType(), getFrame()));
+		
+		coordinateArea.setPaintMode(CoordinateArea.PaintMode.PIXEL);
+	}
+
 	public void stopAutoRotation(){
 		autoCheckBox.setSelected(false);
 		coordinateArea.movement.clearTasks();
@@ -345,6 +350,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 			if(zBox.getItemCount() >= 3){
 				zBox.setSelectedIndex(2);
 			}
+			
 			if(colorBox.getItemCount() >= 4){
 				colorBox.setSelectedIndex(3);
 			}						
@@ -366,13 +372,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 				variables.get(0) != null && variables.get(1) != null &&
 				variables.get(2) != null && variables.get(3) != null) {
 
-			Iterable<String> identifier = data.queryFeatures("/identifier").asStrings();
-			Iterable<Float> xValues = data.queryFeatures(variables.get(0).getExpression()).asFloats();
-			Iterable<Float> yValues = data.queryFeatures(variables.get(1).getExpression()).asFloats();
-			Iterable<Float> zValues = data.queryFeatures(variables.get(2).getExpression()).asFloats();
-			Iterable<Float> cValues = data.queryFeatures(variables.get(3).getExpression()).asFloats();
-			
-			dataModel.setData(identifier, xValues, yValues, zValues, cValues);
+			retrieveData(variables);
 
 	    	JPanel panel = new JPanel();
 	        panel.setLayout(new BorderLayout());
@@ -390,6 +390,16 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 		return this.getDefaultVisualisation();
 	}
 	
+	protected void retrieveData(List<Variable> variables) throws MicroarrayException {
+		Iterable<String> identifier = data.queryFeatures("/identifier").asStrings();
+		Iterable<Float> xValues = data.queryFeatures(variables.get(0).getExpression()).asFloats();
+		Iterable<Float> yValues = data.queryFeatures(variables.get(1).getExpression()).asFloats();
+		Iterable<Float> zValues = data.queryFeatures(variables.get(2).getExpression()).asFloats();
+		Iterable<Float> cValues = data.queryFeatures(variables.get(3).getExpression()).asFloats();
+		
+		dataModel.setData(identifier, xValues, yValues, zValues, cValues);
+	}
+
 	public DataModel getDataModel() {
 		return dataModel;
 	}

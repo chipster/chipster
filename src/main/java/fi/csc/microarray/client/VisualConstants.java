@@ -63,7 +63,7 @@ public class VisualConstants {
     public static final ImageIcon UNLINK_MENUICON = 
         new ImageIcon(VisualConstants.class.getResource("/eclipse/unlink.gif"));
 
-	// rest of the icons done by us (mostly by Mikko Koski & Petri Klemelä)
+	// rest of the icons done by us (mostly by Mikko Koski & Petri Klemelï¿½)
 	public static ImageIcon ZOOM_IN_ICON = 
 		new ImageIcon(VisualConstants.class.getResource("/zoom-in.png"));
 	public static ImageIcon ZOOM_OUT_ICON = 
@@ -145,6 +145,8 @@ public class VisualConstants {
 		new ImageIcon(VisualConstants.class.getResource("/listicons/volcano.png"));
     public static ImageIcon SCATTER3D_MENUICON = 
 		new ImageIcon(VisualConstants.class.getResource("/listicons/3dScatter.png"));
+    public static ImageIcon SCATTER3DPCA_MENUICON = 
+		new ImageIcon(VisualConstants.class.getResource("/listicons/3dScatterSplitted.png"));
     public static ImageIcon PHENODATA_MENUICON = 
 		new ImageIcon(VisualConstants.class.getResource("/listicons/phenodata.png"));
     public static ImageIcon IMAGE_MENUICON = 
