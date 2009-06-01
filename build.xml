@@ -107,7 +107,7 @@
     </target>
 
 	<target name="warn-about-keystore" unless="keystore-exists">
-		<fail message="Keystore file ${keystore} not found. You need to generate a key to for signing the client JAR." />
+		<fail message="Keystore file ${keystore} not found. You need to generate a key for signing the client JAR." />
 	</target>
 
 	<target name="is-keystore-available">
@@ -211,6 +211,7 @@
 
 			<tarfileset dir="${ext-src}/wrapper/auth/conf" prefix="chipster/auth/conf" />
 			<tarfileset dir="${ext-src}/wrapper/auth/logs" prefix="chipster/auth/logs" /> <!-- must exist for wrapper -->
+			<tarfileset dir="${ext-src}/wrapper/auth/security" prefix="chipster/auth/security" />
 
 			<tarfileset file="${wrapper-windows-x86-32}/bin/wrapper.exe" filemode="755" prefix="chipster/auth/bin/win32" />
 			<tarfileset file="${ext-src}/wrapper/win32/chipster.bat" filemode="755" fullpath="chipster/auth/bin/win32/chipster-auth.bat" />
