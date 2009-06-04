@@ -2,11 +2,8 @@ package fi.csc.microarray.auth;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -17,10 +14,7 @@ import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 
 import org.apache.log4j.Logger;
-import org.mortbay.util.IO;
 
-import fi.csc.microarray.config.ConfigurationModule;
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.LookaheadStringReader;
 
@@ -40,7 +34,6 @@ public class SimpleFileLoginModule extends LoginModuleBase {
 	public static final String COMMENT_CHARACTER = "#";
 	
 	private static final Logger logger = Logger.getLogger(SimpleFileLoginModule.class);
-	private static final String DEFAULT_PASSWD_FILE = "/users.default";
 
 	// configurable options
 	protected File passwdFile;
@@ -48,36 +41,13 @@ public class SimpleFileLoginModule extends LoginModuleBase {
 	public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
 		super.initialize(subject, callbackHandler, sharedState, options);
 
-		// passwd file
-
-		// if file option is not defined or is empty, create the template file
+		// check password file
 		String passwdFileName = (String) options.get("passwdFile");
-		if (passwdFileName == null || passwdFileName.equals("")) {
-			createDefaultPasswdFile();
-			return;
-		}
-
 		this.passwdFile = new File(passwdFileName);
 
-		// absolute path
-		if (passwdFile.isAbsolute()) {
-			if (!passwdFile.exists()) {
-				logger.warn("Passwd file " + passwdFile.getPath() + " not found.");
-			}
-		}
-
-		// relative path, search the file from work dir, if not found create the
-		// template
-		else {
-			try {
-				passwdFile = new File(DirectoryLayout.getInstance().getSecurityDir(), passwdFile.getName());
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-			if (!passwdFile.exists()) {
-				logger.warn("Passwd file " + passwdFile.getPath() + " not found.");
-				createDefaultPasswdFile();
-			}
+		if (!passwdFile.exists()) {
+			logger.error("Password file " + passwdFile.getPath() + " not found, simple file login module not started.");
+			throw new RuntimeException(passwdFile.getPath() + " not found");
 		}
 	}
 
@@ -168,32 +138,6 @@ public class SimpleFileLoginModule extends LoginModuleBase {
 
 		// matching line was not found
 		return false;
-	}
-
-	private void createDefaultPasswdFile() {
-		try {
-
-			File defaultFile = new File(DirectoryLayout.getInstance().getSecurityDir(), "users");
-			if (defaultFile.exists()) {
-				return;
-			}
-
-			logger.info("Creating new default passwd file " + defaultFile.getPath());
-			InputStream defaults = ConfigurationModule.class.getResourceAsStream(DEFAULT_PASSWD_FILE);
-			OutputStream out = new FileOutputStream(defaultFile);
-			try {
-				IO.copy(defaults, out);
-			} finally {
-				if (defaults != null) {
-					defaults.close();
-				}
-				if (out != null) {
-					out.close();
-				}
-			}
-		} catch (IOException ioe) {
-			logger.error("Could not create default users file.", ioe);
-		}
 	}
 
 }

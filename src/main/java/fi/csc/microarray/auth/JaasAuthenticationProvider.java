@@ -1,10 +1,8 @@
 package fi.csc.microarray.auth;
 
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -16,15 +14,12 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.apache.log4j.Logger;
-import org.mortbay.util.IO;
 
-import fi.csc.microarray.config.ConfigurationModule;
 import fi.csc.microarray.config.DirectoryLayout;
 
 public class JaasAuthenticationProvider implements AuthenticationProvider {
 
 	private static final String LOGIN_CONTEXT_NAME = "Chipster"; // login context name in JAAS configuration file
-	private static final String DEFAULT_CONFIG_FILE = "/jaas.config.default";
 	private static final String CONFIG_FILE = "jaas.config";
 	
 	private static final Logger logger = Logger.getLogger(JaasAuthenticationProvider.class);
@@ -111,21 +106,8 @@ public class JaasAuthenticationProvider implements AuthenticationProvider {
 		
 		// if config file does not exist in the work dir, create it using the defaults
 		if (!jaasConfigFile.exists()) {
-			logger.info("JAAS config file " + jaasConfigFile + " does not exist, creating default file.");
-			
-			InputStream defaults = ConfigurationModule.class.getResourceAsStream(DEFAULT_CONFIG_FILE);
-			OutputStream out = new FileOutputStream(jaasConfigFile);
-
-			try {
-				IO.copy(defaults, out);
-			} finally {
-				if (defaults != null) {
-					defaults.close();
-				}
-				if (out != null) {
-					out.close();
-				}
-			}			
+			logger.info("JAAS config file " + jaasConfigFile + " does not exist, JAAS authentication provider failed.");
+			throw new FileNotFoundException(jaasConfigFile + " not found");			
 		}
 
 		// set location of the config
