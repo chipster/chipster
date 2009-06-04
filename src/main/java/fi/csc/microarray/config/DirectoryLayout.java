@@ -71,11 +71,6 @@ public class DirectoryLayout {
 		}
 	}
 
-	// FIXME implement WebApp directory layout 
-	public static DirectoryLayout initialiseWebappLayout() throws IOException, IllegalConfigurationException {
-		return initialiseClientLayout(null);
-	}
-
 	public static DirectoryLayout initialiseClientLayout() throws IOException, IllegalConfigurationException {
 		return initialiseClientLayout(null);
 	}
@@ -239,9 +234,13 @@ public class DirectoryLayout {
 
 	private File initialise(File dir) throws IOException {
 		if (!dir.exists()) {
-			boolean ok = dir.mkdirs(); // create whole path if does not exist 
-			if (!ok) {
-				throw new IOException("could not create directory path " + dir.getAbsolutePath());
+			if (type == Type.CLIENT) {
+				boolean ok = dir.mkdirs(); // create whole path if does not exist 
+				if (!ok) {
+					throw new IOException("could not create directory path " + dir.getAbsolutePath());
+				}
+			} else {
+				throw new IOException("directory " + dir.getAbsolutePath() + " does not exist");
 			}
 		}
 		return dir;
