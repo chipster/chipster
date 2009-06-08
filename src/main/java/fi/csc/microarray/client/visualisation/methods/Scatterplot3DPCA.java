@@ -86,7 +86,6 @@ public class Scatterplot3DPCA extends Scatterplot3D{
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
 		
-		System.out.println(bean.getOperation().getDefinition().getName());
 		boolean isTabular = VisualisationMethod.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);		
 		return bean.getOperation().getDefinition().getName().equals("PCA") && 
 		isTabular && 
