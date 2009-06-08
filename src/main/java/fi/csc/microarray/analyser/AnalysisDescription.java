@@ -87,6 +87,8 @@ public class AnalysisDescription {
 	// these are needed for update check
 	/** Name of the original source script or java class or whatever */
 	private String sourceResourceName;
+	private String sourceResourceFullPath;
+	
 	private Date creationTime = new Date();
 
 	/**
@@ -162,7 +164,6 @@ public class AnalysisDescription {
 	}
 
 	public void addOutputFile(String file) {
-		logger.debug("added output file " + file);
 		outputFiles.add(file);
 	}
 
@@ -203,6 +204,15 @@ public class AnalysisDescription {
 		this.sourceResourceName = sourceResourceName;
 	}
 
+	public String getSourceResourceFullPath() {
+		return sourceResourceFullPath;
+	}
+
+	public void setSourceResourceFullPath(String sourceResourceFullPath) {
+		this.sourceResourceFullPath = sourceResourceFullPath;
+	}
+
+	
 	public long getCreationTime() {
 		return this.creationTime.getTime();
 	}
@@ -211,5 +221,9 @@ public class AnalysisDescription {
 		return this.handler.isUptodate(this);
 	}
 	
+	public AnalysisHandler getHandler() {
+		return this.handler;
+	}
+
 }
  

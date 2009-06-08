@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
@@ -14,6 +15,7 @@ import fi.csc.microarray.analyser.AnalysisDescriptionGenerator;
 import fi.csc.microarray.analyser.AnalysisException;
 import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
+import fi.csc.microarray.analyser.ProcessPool;
 import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.analyser.VVSADLTool;
 import fi.csc.microarray.config.Configuration;
@@ -33,17 +35,42 @@ public class RAnalysisHandler implements AnalysisHandler {
 			.getLogger(RAnalysisHandler.class);
 
 	private final String rCommand;
+	private final String toolPath;
 	private final String customScriptsDirName;
+	private ProcessPool processPool;
+	private boolean isDisabled = false;
 	
-	public RAnalysisHandler() throws IOException, IllegalConfigurationException {
+	
+
+	
+	
+	public RAnalysisHandler(HashMap<String, String> parameters) throws IOException, IllegalConfigurationException {
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
-		this.rCommand = configuration.getString("comp", "r-command") + " --vanilla --quiet";
+		
+		// TODO Put R options to config files
+		this.rCommand = parameters.get("command") + " --vanilla --quiet";
+		this.toolPath = parameters.get("toolPath");
 		this.customScriptsDirName = configuration.getString("comp", "custom-scripts-dir");
+	
+		// initialize process pool
+		int poolSizeMin = configuration.getInt("comp", "r-process-pool-size-min");
+		int poolSizeMax = configuration.getInt("comp", "r-process-pool-size-max");
+		int poolTimeout = configuration.getInt("comp", "r-process-pool-timeout");
+		int processUseCountMax = configuration.getInt("comp", "r-process-pool-process-use-count-max");
+		int processLifetimeMax = configuration.getInt("comp", "r-process-pool-process-lifetime-max");
+
+		try {
+			processPool = new ProcessPool(new File(parameters.get("workDir")), rCommand, poolSizeMin, poolSizeMax, 
+				poolTimeout, processUseCountMax, processLifetimeMax);
+		} catch (Exception e) {
+			this.isDisabled = true;
+		}
 	}
 	
 	public AnalysisJob createAnalysisJob(JobMessage message, AnalysisDescription description, ResultCallback resultHandler) {
 		RAnalysisJob analysisJob = new RAnalysisJob();
 		analysisJob.construct(message, description, resultHandler);
+		analysisJob.setProcessPool(this.processPool);
 		return analysisJob;
 	}
 
@@ -52,8 +79,11 @@ public class RAnalysisHandler implements AnalysisHandler {
 		
 		InputStream scriptSource;
 		
+		String scriptPath = toolPath + File.separator + sourceResourceName;
+		logger.debug("creating descriptions from " + scriptPath);
+		
 		// check for custom script file
-		File scriptFile = new File(customScriptsDirName + sourceResourceName);
+		File scriptFile = new File(customScriptsDirName + File.separator + scriptPath);
 		if (scriptFile.exists()) {
 			FileInputStream customScriptSource;
 			try {
@@ -63,15 +93,15 @@ public class RAnalysisHandler implements AnalysisHandler {
 				throw new AnalysisException("Could not load custom script: " + scriptFile);
 			}
 			scriptSource = customScriptSource;
+			logger.info("using custom-script for " + scriptPath);
 		} else {
-			scriptSource = this.getClass().getResourceAsStream(sourceResourceName);
+			scriptSource = this.getClass().getResourceAsStream(scriptPath);
 		}
 		
 		
 		// read the VVSADL from the comment block in the beginning of file
 		// and the actual source code
 		VVSADLTool.ParsedRScript parsedScript;
-		logger.info("Trying to parse " + sourceResourceName);
 		try {
 			parsedScript = new VVSADLTool().parseRScript(scriptSource);
 		} catch (MicroarrayException e) {				
@@ -92,6 +122,7 @@ public class RAnalysisHandler implements AnalysisHandler {
 		ad.setImplementation(parsedScript.rSource); // include headers
 		ad.setSourceCode(parsedScript.rSource);
 		ad.setSourceResourceName(sourceResourceName);
+		ad.setSourceResourceFullPath(scriptPath);
 		
 		return ad;
 	}
@@ -109,5 +140,9 @@ public class RAnalysisHandler implements AnalysisHandler {
 			return false;
 		}
 		return true;
+	}
+
+	public boolean isDisabled() {
+		return this.isDisabled;
 	}
 }

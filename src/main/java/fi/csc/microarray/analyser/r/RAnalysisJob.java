@@ -22,6 +22,7 @@ import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.analyser.AnalysisDescription;
 import fi.csc.microarray.analyser.AnalysisException;
 import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
+import fi.csc.microarray.analyser.ProcessPool;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.messaging.JobState;
 
@@ -40,6 +41,8 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 	private int rTimeout;
 	private CountDownLatch waitRLatch = new CountDownLatch(1);
 	
+	// injected by handler at right after creation
+	private ProcessPool processPool;
 	private Process process;
 	
 	
@@ -141,7 +144,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		// get a process
 		cancelCheck();
 		logger.debug("Getting a process.");;
-		this.process = resultHandler.getProcessPool().getProcess();
+		this.process = processPool.getProcess();
 		updateStateDetail("running R", true);
 
 		
@@ -225,7 +228,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 			// don't recycle at the moment
 			if (process != null) {
 				//this.resultHandler.getProcessPool().releaseProcess(process, getState().equals(JobState.SUCCESS));
-				this.resultHandler.getProcessPool().releaseProcess(process, false);
+				processPool.releaseProcess(process, false);
 			}
 		} catch (Exception e) {
 			logger.error("Error when releasing process. ", e);
@@ -255,4 +258,10 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		this.waitRLatch.countDown();
 		
 	}
+	
+	public void setProcessPool(ProcessPool processPool) {
+		this.processPool = processPool;
+	}
+
+	
 }

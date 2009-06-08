@@ -14,17 +14,16 @@ import fi.csc.microarray.util.IOUtils;
  * Utilities to be used by Java and BeanShell jobs.
  * 
  * 
- * @author Taavi Hupponen, Aleksi Kallio
+ * @author hupponen
  *
  */
-// TODO partly duplicates functionality in Feature API, but do we want to start using DataManager and DataBeans here?
 public class JavaJobUtils {
 
 	/**
 	 * Get the gene names from GENELIST type of input file.
 	 * 
 	 * If there is only one column, use it. If there are many columns,
-	 * search for "symbol" column, if not found, search for " " and "identifier" columns.
+	 * search for "symbol" column, if not found, search for " " column.
 	 * 
 	 * @param file
 	 * @return the gene names, empty String[] if the file is empty or gene names are not found
@@ -62,29 +61,16 @@ public class JavaJobUtils {
 				if (nameColumnIndex < 0) {
 					nameColumnIndex = Arrays.asList(columns).indexOf(" ");
 
+					// "" not found, give up
 					if (nameColumnIndex < 0) {
-						nameColumnIndex = Arrays.asList(columns).indexOf("identifier");
-
-						// "" not found, give up
-						if (nameColumnIndex < 0) {
-							return new String[0];
-						}
+						return new String[0];
 					}
 				}
 			}				
 			
 			
 			// read in the rest of the file
-			boolean firstLine = true;
 			for (line = reader.readLine(); line != null; line = reader.readLine()) {
-				if (firstLine) {
-					// check that column count is not different from header due to invisible row name column
-					if (line.split("\t").length == (columns.length + 1)) {
-						// if it is, correct for it
-						nameColumnIndex++;
-					}
-				}
-				firstLine = false;
 				names.add(line.split("\t")[nameColumnIndex]);
 			}
 		} finally {
@@ -93,4 +79,5 @@ public class JavaJobUtils {
 
 		return names.toArray(new String[names.size()]);
 	}
+
 }

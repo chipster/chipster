@@ -3,8 +3,6 @@
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="src" path="src/test/java"/>
-	<classpathentry kind="src" path="src/main/R"/>
-	<classpathentry kind="src" path="src/main/bsh"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/core-renderer.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/h2.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/spring.jar"/>

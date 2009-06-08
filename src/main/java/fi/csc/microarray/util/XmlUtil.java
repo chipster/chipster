@@ -7,6 +7,8 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -78,8 +80,35 @@ public class XmlUtil {
 		return null;
 	}
 
-	public void printXml(Document xml, OutputStream out) throws UnsupportedEncodingException, TransformerException {
-		printXml(xml, new OutputStreamWriter(out));		
+	public void printXml(Document response, OutputStream out) throws UnsupportedEncodingException, TransformerException {
+		printXml(response, new OutputStreamWriter(out));		
 	}
 
+	public static List<Element> getChildElements(Element parent, String name) {
+		List<Element> childElements = new ArrayList<Element>();
+		NodeList childNodes = parent.getChildNodes();
+		
+		for (int i = 0; i < childNodes.getLength(); i++) {
+			// get elements
+			if (childNodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
+				
+				// match element name
+				Element childElement = (Element) childNodes.item(i);
+				if (childElement.getNodeName().equals(name)) {
+					childElements.add(childElement);
+				}
+			}
+		}
+		
+		return childElements;
+	}
+
+	public static Element getChildElement(Element parent, String name) {
+		List<Element> childElements = getChildElements(parent, name);
+		if (childElements.size() != 1) {
+			throw new IllegalArgumentException("parent must contain exactly one element with the given name");
+		} 
+		
+		return childElements.get(0);	
+	}
 }

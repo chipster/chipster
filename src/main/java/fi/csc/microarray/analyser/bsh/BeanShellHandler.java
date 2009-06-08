@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
@@ -36,9 +37,11 @@ public class BeanShellHandler implements AnalysisHandler {
 	 */
 	static final Logger logger = Logger.getLogger(BeanShellHandler.class);
 
+	private final String toolPath;
 	private final String customScriptsDirName;
 	
-	public BeanShellHandler() throws IOException, IllegalConfigurationException {
+	public BeanShellHandler(HashMap<String, String> parameters) throws IOException, IllegalConfigurationException {
+		this.toolPath = parameters.get("toolPath");
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 		this.customScriptsDirName = configuration.getString("comp", "custom-scripts-dir");
 	}
@@ -54,8 +57,11 @@ public class BeanShellHandler implements AnalysisHandler {
 		
 		InputStream scriptSource;
 		
+		String scriptPath = toolPath + File.separator + sourceResourceName;
+		logger.debug("creating description from " + scriptPath);
+
 		// check for custom script file
-		File scriptFile = new File(customScriptsDirName + sourceResourceName);
+		File scriptFile = new File(customScriptsDirName + File.separator + scriptPath);
 		if (scriptFile.exists()) {
 			FileInputStream customScriptSource;
 			try {
@@ -65,8 +71,9 @@ public class BeanShellHandler implements AnalysisHandler {
 				throw new AnalysisException("Could not load custom script: " + scriptFile);
 			}
 			scriptSource = customScriptSource;
+			logger.info("using custom-script for " + scriptPath);
 		} else {
-			scriptSource = this.getClass().getResourceAsStream(sourceResourceName);
+			scriptSource = this.getClass().getResourceAsStream(scriptPath);
 		}
 		
 
@@ -74,7 +81,6 @@ public class BeanShellHandler implements AnalysisHandler {
 		// read the VVSADL from the comment block in the beginning of file
 		// and the actual source code
 		VVSADLTool.ParsedRScript parsedScript;
-		logger.info("Trying to parse " + sourceResourceName);
 		try {
 			parsedScript = new VVSADLTool().parseRScript(scriptSource, "//");
 		} catch (MicroarrayException e) {				
@@ -95,6 +101,7 @@ public class BeanShellHandler implements AnalysisHandler {
 		ad.setImplementation(parsedScript.rSource); // include headers
 		ad.setSourceCode(parsedScript.rSource);
 		ad.setSourceResourceName(sourceResourceName);
+		ad.setSourceResourceFullPath(scriptPath);
 		
 		return ad;
 	}
@@ -118,5 +125,9 @@ public class BeanShellHandler implements AnalysisHandler {
 			return false;
 		}
 		return true;
+	}
+
+	public boolean isDisabled() {
+		return false;
 	}
 }

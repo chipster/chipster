@@ -29,4 +29,12 @@ public interface AnalysisHandler {
 	 * only with supported descriptions.
 	 */
 	public boolean isUptodate(AnalysisDescription description);
+
+	/**
+	 * Returns true if the handler is unable to create jobs. Handler is still able to 
+	 * create descriptions.
+	 * 
+	 * @return
+	 */
+	public boolean isDisabled();
 }

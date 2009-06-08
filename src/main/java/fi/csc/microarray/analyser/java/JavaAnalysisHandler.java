@@ -67,4 +67,8 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 		return true;
 	}
 
+	public boolean isDisabled() {
+		return false;
+	}
+
 }

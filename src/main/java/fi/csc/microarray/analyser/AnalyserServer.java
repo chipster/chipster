@@ -2,16 +2,16 @@ package fi.csc.microarray.analyser;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -19,8 +19,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.jms.JMSException;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
+import org.xml.sax.SAXException;
 
 import fi.csc.microarray.ApplicationConstants;
 import fi.csc.microarray.MicroarrayException;
@@ -43,7 +45,6 @@ import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
-import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.MemUtil;
 
 /**
@@ -82,10 +83,9 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	
 	
 	/**
-	 * Available analysis'.
+	 * All the analysis tools.
 	 */
-	private AnalysisDescriptionRepository descriptionRepository;
-	private HashSet<String> supportedOperations = new HashSet<String>();
+	private ToolRepository toolRepository;
 	
 	
 	/**
@@ -101,10 +101,6 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 */
 	private ExecutorService executorService;
 	
-	/**
-	 * Pooling of operating system processes.
-	 */
-	private ProcessPool processPool;
 
 	// synchronize with this object when accessing the job maps below
 	private Object jobsLock = new Object(); 
@@ -120,13 +116,21 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 * @throws IOException if creation of working directory fails.
 	 * @throws MicroarrayException
 	 * @throws IllegalConfigurationException 
+	 * @throws ClassNotFoundException 
+	 * @throws NoSuchMethodException 
+	 * @throws InvocationTargetException 
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
+	 * @throws ParserConfigurationException 
+	 * @throws SAXException 
+	 * @throws SecurityException 
+	 * @throws IllegalArgumentException 
 	 */
-	public AnalyserServer() throws JMSException, IOException, MicroarrayException, IllegalConfigurationException {
+	public AnalyserServer() throws JMSException, IOException, MicroarrayException, IllegalConfigurationException, IllegalArgumentException, SecurityException, SAXException, ParserConfigurationException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException {
 		
 		// initialise dir, config and logging
 		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"comp"}));
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
-		this.descriptionRepository = new AnalysisDescriptionRepository();
 		this.receiveTimeout = configuration.getInt("comp", "receive-timeout");
 		this.scheduleTimeout = configuration.getInt("comp", "schedule-timeout");
 		this.timeoutCheckInterval = configuration.getInt("comp", "timeout-check-interval");
@@ -142,102 +146,15 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		this.workDir = DirectoryLayout.getInstance().getJobsDataDirBase(id);
 		
 		// initialise custom scripts dir
-		File customScripts = DirectoryLayout.getInstance().getCustomScriptsDir();
+		DirectoryLayout.getInstance().getCustomScriptsDir();
 		
 		// initialize executor service
 		this.executorService = Executors.newCachedThreadPool();
-		
-		// initialize analysis handlers
-		for (String analysisHandler : configuration.getStrings("comp", "analysis-handlers")) {
-			try {
-				AnalysisHandler handler = (AnalysisHandler)Class.forName(analysisHandler).newInstance();
-				descriptionRepository.addAnalysisHandler(handler);
-				logger.debug("initialised handler " + analysisHandler);
-			} catch (Exception e) {
-				// we continue, despite some stuff can not be loaded
-				logger.error(e);
-			}			
-		}
-		
-		// load analysis operation scripts/classes
-		
-		// load descriptions of all operations, also those not supported by this instance of AS
-		// this way any AS can send the descriptions when client asks for them
-		ArrayList<String> allOperations = new ArrayList<String>();
-		String[] configOperations = configuration.getStrings("comp", "operations");
-		allOperations.addAll(Arrays.asList(configOperations));
-		
-		// load additional scripts from custom-scripts
-		for (File f: Files.listFilesRecursively(customScripts)) {
-			allOperations.add(f.getAbsolutePath().replace(customScripts.getAbsolutePath(), ""));
-		}
-		
-		
-		if (allOperations != null) {
-			for (String operation : allOperations) {
-					descriptionRepository.loadOperation(operation, false);
-			}
-		} else {
-			logger.error("No operations found on the configuration file.");
-		}
 
-		String[] allHiddenOperations = configuration.getStrings("comp", "hidden-operations");
-		if (allHiddenOperations != null) {
-			for (String operation : allHiddenOperations) {
-				descriptionRepository.loadOperation(operation, true);
-			}
-		}
-
+		// initialize analysis tools
+		this.toolRepository = new ToolRepository(this.workDir);
 		
-		// read the includedOperations and excludedOperations sections to get 
-		// a list of supported operations
-		
-		
-		// get included operations
-		String[] includedOperations = pruneEmptyValue(configuration.getStrings("comp", "include-operations"));
-		if (includedOperations.length == 0) {
-			includedOperations = allOperations.toArray(new String[allOperations.size()]);
-		}
-	
-
-		// get excluded operations
-		HashSet<String> excludedOperations = new HashSet<String>();
-		String[] excludedOperationsList = pruneEmptyValue(configuration.getStrings("comp", "exclude-operations"));
-		for (String value : excludedOperationsList) {
-			excludedOperations.add(value);
-		}
-		
-		// get hidden operations
-		HashSet<String> hiddenOperations = new HashSet<String>();
-		String[] hiddenOperationsList = configuration.getStrings("comp", "hidden-operations");
-		if (hiddenOperationsList != null) {
-			for (String value : hiddenOperationsList) {
-				hiddenOperations.add(value);
-			}
-		}
-		
-		
-		// add included if not excluded
-		for (String operation : includedOperations) {
-			if (!excludedOperations.contains(operation)) {
-				supportedOperations.add(operation);
-			}
-		}
-
-		// add hidden operations
-		if (hiddenOperationsList != null) {
-			for (String operation : hiddenOperationsList) {
-				if (!excludedOperations.contains(operation)) {
-					//descriptionRepository.loadOperation(operation, true);
-					supportedOperations.add(operation);
-				}
-			}
-		}
 			
-		
-		// initialize process pool
-		processPool = new ProcessPool(this.getWorkDir(), configuration);
-		
 		// initialize timeout checker
 		timeoutTimer = new Timer(true);
 		timeoutTimer.schedule(new TimeoutTimerTask(), timeoutCheckInterval, timeoutCheckInterval);
@@ -260,17 +177,6 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
 	}
 	
-
-	private String[] pruneEmptyValue(String[] values) {
-		LinkedList<String> prunedValues = new LinkedList<String>();
-		for (String value : values) {
-			if (value.trim().length() > 0) {
-				prunedValues.add(value);
-			}
-		}
-		return prunedValues.toArray(new String[]{});
-	}
-
 
 	public String getName() {
 		return "analyser";
@@ -399,10 +305,6 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	}
 
 
-	public ProcessPool getProcessPool() {
-		return processPool;
-	}
-
 	public void removeRunningJob(AnalysisJob job) {
 		String hostname = "";
 		
@@ -522,7 +424,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		// check that we can run the requested analysis
 		AnalysisDescription description = null;
 		try {
-			description = descriptionRepository.getDescription(jobMessage.getAnalysisId());
+			description = toolRepository.getDescription(jobMessage.getAnalysisId());
 		} catch (AnalysisException e) {
 			logger.warn("Could not fetch description for " + jobMessage.getAnalysisId());
 			ResultMessage resultMessage = new ResultMessage("", JobState.ERROR, "", "Could not load operation.", 
@@ -541,7 +443,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		
 
 		// check if requested operation is supported, if not, just ignore the request
-		if (!supportedOperations.contains(description.getSourceResourceName())) {
+		if (!toolRepository.supports(description.getFullName())) {
 			logger.debug("Analysis " + jobMessage.getAnalysisId() + " ( " + description.getSourceResourceName() + " ) not supported, ignoring request.");
 			return;
 		}
@@ -631,7 +533,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		ResultMessage resultMessage = new ResultMessage("", JobState.COMPLETED, "", "", 
 				"", requestMessage.getReplyTo());
 		try {
-			String description = descriptionRepository.serialiseAsStringBuffer().toString();
+			String description = toolRepository.serialiseAsStringBuffer().toString();
 			URL url = fileBroker.addFile(new ByteArrayInputStream(description.getBytes()), null);
 			resultMessage.addPayload(DESCRIPTION_OUTPUT_NAME, url);
 		} catch (Exception e) {
@@ -649,7 +551,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		try {
 			String name = new String(requestMessage.getParameters().get(0));
 			logger.info("sending source code for " + name);
-			String sourceCode = descriptionRepository.getDescription(name).getSourceCode();
+			String sourceCode = toolRepository.getDescription(name).getSourceCode();
 			
 			byte[] bytes = sourceCode.getBytes();
 			if (bytes.length == 0) {
@@ -742,6 +644,11 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		}
 
 		logger.info("shutting down");
+	}
+	
+	
+	public static void main(String[] args) throws FileNotFoundException, SAXException, IOException, ParserConfigurationException, IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException, JMSException, MicroarrayException, IllegalConfigurationException  {
+		new AnalyserServer();
 	}
 
 }

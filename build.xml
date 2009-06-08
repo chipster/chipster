@@ -11,8 +11,6 @@
 
 	<!-- the project folder configuration -->
 	<property name="src" location="src/main/java" />
-	<property name="scripts" location="src/main/R" />
-	<property name="bsh-scripts" location="src/main/bsh" />
 	<property name="test-src" location="src/test/java" />
 	<property name="ext-src" location="src/main/applications" />
 	<property name="lib" location="ext/lib" />
@@ -20,6 +18,7 @@
 	<property name="lib-ext" location="ext/lib-ext" />
 	<property name="ext-apps" location="ext/applications" />
 	<property name="data" location="src/main/resources" />
+	<property name="tools" location="src/main/tools" />
 	<property name="build" location="bin/ant" />	
 	<property name="dist" location="dist" />
 
@@ -155,10 +154,7 @@
 			</manifest>
 			<fileset dir="${build}/" />
 			<fileset dir="${data}/" />
-			<tarfileset dir="${scripts}/${r-version}/" prefix="R/" />
-			<tarfileset dir="${scripts}/hidden/" prefix="R/hidden/" />
-			<tarfileset dir="${bsh-scripts}/" prefix="bsh/" />
-
+			<fileset dir="${tools}/" />
 		</jar>
 	</target>
 
@@ -198,7 +194,7 @@
 			<tarfileset file="${ext-src}/wrapper/genpasswd.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/genpasswd.bat" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/install_r_pkg.sh" filemode="755" prefix="chipster" />
-			<tarfileset file="${scripts}/${r-version}/install.R" prefix="chipster/shared/lib" />
+			<tarfileset file="${tools}/${r-version}/install.R" prefix="chipster/shared/lib" />
 			
 			<!-- auth -->
 			<tarfileset file="${ext-src}/wrapper/auth/chipster-auth-generic" filemode="755" fullpath="chipster/auth/bin/chipster-auth" />
