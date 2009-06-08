@@ -1,5 +1,8 @@
 package fi.csc.microarray.util;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -81,10 +84,10 @@ public class IOUtils {
 	
 	/**
 	 * 
-	 * Copies contents of source to target and reports progress.
+	 * Copies stream contents of source to target and reports progress.
 	 * 
-	 * @param source
-	 * @param target
+	 * @param source input stream
+	 * @param target output stream
 	 * @param progressListener can be null
 	 * 
 	 * @throws IOException all exceptions from underlying IO are passed through
@@ -124,5 +127,26 @@ public class IOUtils {
 	public static void copy(InputStream source, OutputStream target) throws IOException {
 		copy(source, target, null);
 	}
-	
+
+	/**
+	 * Copies a file. 
+	 * 
+	 * @param from source file
+	 * @param to destination file
+	 * 
+	 * @throws IOException if copying if file contents fails
+	 */
+	public static void copy(File from, File to) throws IOException {
+		FileInputStream in = new FileInputStream(from);
+		FileOutputStream out = new FileOutputStream(to);
+		
+		try {
+			copy(in, out, null);
+			
+		} finally {
+			closeIfPossible(in);
+			closeIfPossible(out);
+		}
+	}
+
 }

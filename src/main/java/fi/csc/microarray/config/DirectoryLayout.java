@@ -98,7 +98,9 @@ public class DirectoryLayout {
 		this.type = type;
 		this.hasConfig = hasConfig;
 		System.setProperty(LOGS_DIR_SYSTEM_PROPERTY, getLogsDir().getAbsolutePath()); // NOTE: NO LOGGING IS TO BE DONE BEFORE THIS!
-		System.setProperty(SECURITY_DIR_SYSTEM_PROPERTY, getSecurityDir().getAbsolutePath());
+		if (new File(getBaseDir(), SECURITY_DIR).exists()) {
+			System.setProperty(SECURITY_DIR_SYSTEM_PROPERTY, getSecurityDir().getAbsolutePath());
+		}
 		if (hasConfig) {
 			System.setProperty(CONF_DIR_SYSTEM_PROPERTY, getConfDir().getAbsolutePath()); 
 			if (configURL == null) {
@@ -111,17 +113,17 @@ public class DirectoryLayout {
 
 	public File getConfDir() throws IOException {
 		checkConfiguration();
-		return initialise(new File(getBaseDir(), CONF_DIR));
+		return check(new File(getBaseDir(), CONF_DIR));
 	}
 
 
 	public File getSecurityDir() throws IOException {
-		return initialise(new File(getBaseDir(), SECURITY_DIR));
+		return check(new File(getBaseDir(), SECURITY_DIR));
 	}
 	
 
 	private File getLogsDir() throws IOException {
-		return initialise(new File(getBaseDir(), LOGS_DIR));
+		return check(new File(getBaseDir(), LOGS_DIR));
 	}
 
 	public File getFileRoot() throws IOException, IllegalConfigurationException {
@@ -215,7 +217,7 @@ public class DirectoryLayout {
 			dir = new File(System.getProperty("user.home"), ".chipster");
 		}
 		
-		return initialise(dir);
+		return check(dir);
 	}
 
 	private File getBaseDir() throws IOException {
@@ -231,18 +233,21 @@ public class DirectoryLayout {
 			return baseDir; // use working dir
 		}
 	}
-
-	private File initialise(File dir) throws IOException {
+	
+	private File check(File dir) throws IOException {
 		if (!dir.exists()) {
 			if (type == Type.CLIENT) {
-				boolean ok = dir.mkdirs(); // create whole path if does not exist 
-				if (!ok) {
-					throw new IOException("could not create directory path " + dir.getAbsolutePath());
-				}
+				initialise(dir);
+				
 			} else {
 				throw new IOException("directory " + dir.getAbsolutePath() + " does not exist");
 			}
 		}
+		return dir;
+	}
+	
+	private File initialise(File dir) throws IOException {
+		dir.mkdirs(); // create whole path if does not exist 
 		return dir;
 	}
 

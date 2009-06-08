@@ -39,7 +39,8 @@ public class ConfigTool {
 			"auth",
 			"fileserver",
 			"manager",
-			"client",
+			// FIXME include client component to config tool
+//			"client",
 			"webstart"
 	};
 

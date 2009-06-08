@@ -46,8 +46,8 @@ public class SimpleFileLoginModule extends LoginModuleBase {
 		this.passwdFile = new File(passwdFileName);
 
 		if (!passwdFile.exists()) {
-			logger.error("Password file " + passwdFile.getPath() + " not found, simple file login module not started.");
-			throw new RuntimeException(passwdFile.getPath() + " not found");
+			logger.error("Password file " + passwdFile.getAbsolutePath() + " not found, simple file login module not started.");
+			throw new RuntimeException(passwdFile.getAbsolutePath() + " not found");
 		}
 	}
 
