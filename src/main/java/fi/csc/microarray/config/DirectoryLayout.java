@@ -30,9 +30,9 @@ public class DirectoryLayout {
 	public static final String SECURITY_DIR = "security";
 	public static final String CONF_DIR = "conf";
 
-	public static final String WEB_ROOT = "web-root"; // TODO in future WEB_ROOT be configurable (not easy because needs to be understood by Jetty)
+	public static final String WEB_ROOT = "web-root"; // TODO in future WEB_ROOT should be configurable (not easy because needs to be understood by Jetty)
 
-	private static final String DEBUG_MODULE_ROOT = "debug-module-root";
+	private static final String DEBUG_BASE_DIR = "debug-base-dir";
 
 	private static final String CONF_DIR_SYSTEM_PROPERTY = "chipster_conf_dir";
 	private static final String LOGS_DIR_SYSTEM_PROPERTY = "chipster_logs_dir";
@@ -222,15 +222,20 @@ public class DirectoryLayout {
 
 	private File getBaseDir() throws IOException {
 		if (type == Type.CLIENT) {
-			return getClientSettingsDir(); // use OS specific dir
+			// use OS specific dir for clients
+			return getClientSettingsDir(); 
 			
 		} else {
+			// use working dir as a base dir for server components
 			File baseDir = new File(System.getProperty("user.dir"));
-			File debugRoot = new File(baseDir, DEBUG_MODULE_ROOT);
+			
+			// switch to debug dir if exists
+			File debugRoot = new File(baseDir, DEBUG_BASE_DIR);
 			if (debugRoot.exists()) {
 				baseDir = debugRoot;
 			}
-			return baseDir; // use working dir
+			
+			return baseDir;
 		}
 	}
 	
