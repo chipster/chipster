@@ -1,19 +1,36 @@
 package fi.csc.microarray.client.visualisation.methods;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
-import java.util.HashMap;
+import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Map;
+import java.util.List;
+import java.util.Set;
 
 import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 import org.apache.log4j.Logger;
 import org.jfree.chart.BioChartFactory;
-import org.jfree.chart.ChartPanel;
+import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.entity.EntityCollection;
+import org.jfree.chart.entity.HCTreeNodeEntity;
+import org.jfree.chart.entity.HeatMapBlockEntity;
+import org.jfree.chart.event.ClusteringTreeChangeEvent;
+import org.jfree.chart.event.PlotChangeEvent;
+import org.jfree.chart.event.PlotChangeListener;
 import org.jfree.chart.labels.StandardHCToolTipGenerator;
 import org.jfree.chart.plot.GradientColorPalette;
 import org.jfree.chart.plot.HCPlot;
+import org.jfree.chart.plot.HCPlot.Selection;
+import org.jfree.chart.title.TextTitle;
 import org.jfree.data.hc.DataRange;
 import org.jfree.data.hc.DataRangeMismatchException;
 import org.jfree.data.hc.HCDataset;
@@ -22,25 +39,48 @@ import org.jfree.data.hc.HeatMap;
 
 import fi.csc.microarray.ErrorReportAsException;
 import fi.csc.microarray.MicroarrayException;
+import fi.csc.microarray.client.selection.RowChoiceEvent;
+import fi.csc.microarray.client.selection.RowSelectionManager;
+import fi.csc.microarray.client.visualisation.AnnotateListPanel;
+import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
+import fi.csc.microarray.client.visualisation.methods.SelectableChartPanel.SelectionChangeListener;
+import fi.csc.microarray.client.visualisation.methods.hc.OrderSuperviser;
 import fi.csc.microarray.cluster.ClusterBranchNode;
 import fi.csc.microarray.cluster.ClusterLeafNode;
 import fi.csc.microarray.cluster.ClusterNode;
 import fi.csc.microarray.cluster.ClusterParser;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.DataBean.Traversal;
 import fi.csc.microarray.databeans.features.QueryResult;
 import fi.csc.microarray.databeans.features.Table;
 
-public class HierarchicalClustering extends Visualisation {
+public class HierarchicalClustering extends Visualisation 
+implements PropertyChangeListener, SelectionChangeListener {
 
 	public HierarchicalClustering(VisualisationFrame frame) {
 		super(frame);
 	}
+	
+	private SelectableChartPanel selectableChartPanel;
 
 	private static final Logger logger = Logger.getLogger(HierarchicalClustering.class);
+	
+	OrderSuperviser orders;
+	
+	private  JPanel paramPanel;
+	private AnnotateListPanel list;
 
-	private Map<String, Integer> orderMap = new HashMap<String, Integer>();
+	//Selected indexes in the order of parent data bean
+	private Set<Integer> selected = new HashSet<Integer>();
+
+	private DataBean selectionBean;
+
+	private HCPlot hcPlot;
+
+	private boolean reversed;
 
 	private class MicroarrayHCToolTipGenerator extends StandardHCToolTipGenerator {
 
@@ -89,6 +129,23 @@ public class HierarchicalClustering extends Visualisation {
 
 		}
 	}
+	
+	@Override
+	public JPanel getParameterPanel() {
+		if (paramPanel == null) {
+			paramPanel = new JPanel();
+			paramPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
+			paramPanel.setLayout(new BorderLayout());
+
+			list = new AnnotateListPanel();
+
+			JTabbedPane tabPane = new JTabbedPane();
+			tabPane.addTab("Selected", list);
+
+			paramPanel.add(tabPane, BorderLayout.CENTER);
+		}
+		return paramPanel;
+	}
 
 	/**
 	 * getVisualisation method has too modes. If the genes are clustered the
@@ -101,21 +158,32 @@ public class HierarchicalClustering extends Visualisation {
 	 *             is parsing or visualisation generation fails
 	 */
 	@Override
-	public JComponent getVisualisation(DataBean data) throws MicroarrayException {
-		try {
+	public JComponent getVisualisation(DataBean data) throws MicroarrayException {				
+		
+		//There is no point to bind selections to HC data because it's not possible to visualise it
+		//with other visualisation methods. It's parent is used instead. 
+		List<DataBean> selectionBeans = data.traverseLinks(new Link[] {Link.DERIVATION}, Traversal.DIRECT);
+		
+		//First one is hc data
+		//TODO there is no point to find all ancestors
+		if(selectionBeans.size() > 1){
+			selectionBean = selectionBeans.get(1);
+		}
+		
+		try {			
 
 			String hcTree = data.queryFeatures("/clusters/hierarchical/tree").asStrings().iterator().next();
 
 			// create heatmap
 			QueryResult heatMapFeature = data.queryFeatures("/clusters/hierarchical/heatmap");			
-			//TableAnnotationProvider annotationProvider = new TableAnnotationProvider(heatMapFeature.asTable());
+			TableAnnotationProvider annotationProvider = new TableAnnotationProvider(selectionBean);
 			Table heatMapData = heatMapFeature.asTable();
 			
 			// count rows
 			int rowCount = 0;
 			while (heatMapData.nextRow()) {
 				rowCount++;
-			}
+			}						
 
 			LinkedList<String> columns = new LinkedList<String>();
 			for (String columnName : heatMapData.getColumnNames()) {
@@ -134,7 +202,7 @@ public class HierarchicalClustering extends Visualisation {
 			
 			
 			// check which way we have clustered
-			boolean reversed = hcTree.contains("chip.");
+			reversed = hcTree.contains("chip.");
 			HeatMap heatMap = null;
 			if (!reversed) {
 				rowCount = tree.getLeafCount(); // heatmap has more genes than tree (sampling done), correct for it
@@ -145,26 +213,37 @@ public class HierarchicalClustering extends Visualisation {
 
 			// go through the tree to find its biggest height (depth actually)
 			int initialHeight = getTreeHeight(tree);
-
-			orderMap.clear();
-			// read the tree and fill the orderMap
-			root = readTree(tree, 0, initialHeight);
+			
+			List<String> treeToId = new ArrayList<String>();
+			treeToId.addAll(Collections.nCopies(rowCount, (String)null));
+						
+			// read the tree and fill the treeToId map
+			root = readTree(tree, 0, initialHeight, treeToId);
+			
+			orders = new OrderSuperviser();
+			orders.setTreeToId(treeToId);
 
 			// set data to heatmap, reset the iterator
 			heatMapData = data.queryFeatures("/clusters/hierarchical/heatmap").asTable();
+			
+			List<Integer> treeToBean = new ArrayList<Integer>();			
+			treeToBean.addAll(Collections.nCopies(rowCount, -1));
+			
 			int row = -1; // This is increased to 0 in the beginning of the
 							// loop
-
+			int originalRow = 0;
+			
 			while (heatMapData.nextRow()) {
 
 				if (!reversed) {
 					// Find the row number in heatMap corresponding the name of
 					// this row
-					// TODO if there is multiple rows with same names we are in
-					// trouble
+
 					String key = translate(heatMapData.getStringValue(" "));
-					if (orderMap.containsKey(key)) {						
-						row = orderMap.get(key);
+					if (orders.idToTree(key) != -1) { //if the id is found						
+						row = orders.idToTree(key);
+						treeToBean.set(row, originalRow);
+						originalRow++;
 					} else {
 						continue;
 					}
@@ -176,14 +255,12 @@ public class HierarchicalClustering extends Visualisation {
 				}
 
 				String geneName = heatMapData.getStringValue(" ");
-				// TODO real gene names cannot be used because the visualisation does not support it
-				//geneName = annotationProvider.getAnnotatedRowname(geneName);
-				geneName = translate(geneName);
+				geneName = annotationProvider.getAnnotatedRowname(geneName);
 
 				if (!reversed) {
-					heatMap.setRowName(row, translate(heatMapData.getStringValue(" ")));
+					heatMap.setRowName(row, geneName);
 				} else {
-					heatMap.setColumnName(row, translate(heatMapData.getStringValue(" ")));
+					heatMap.setColumnName(row, geneName);
 				}
 
 				int i = -1;
@@ -193,7 +270,7 @@ public class HierarchicalClustering extends Visualisation {
 						// column index, just use the order from the iteration
 						i++;
 					} else {
-						i = orderMap.get(columnName);
+						i = orders.idToTree(columnName);
 						logger.debug("Adding a new row to heatmap (reversed), name: " + columnName + "\tto row: " + i);
 					}
 
@@ -204,6 +281,8 @@ public class HierarchicalClustering extends Visualisation {
 					}
 				}
 			}
+			
+			orders.setTreeToBean(treeToBean);
 
 			// Set column names (row names if reversed)
 			int i = -1; // increased once before action
@@ -216,7 +295,7 @@ public class HierarchicalClustering extends Visualisation {
 					// column index, just use the order from the iteration
 					i++;
 				} else {
-					i = orderMap.get(columnName);
+					i = orders.idToTree(columnName);
 					logger.debug("Adding a new row to heatmap (reversed), name: " + columnName + "\tto row: " + i);
 				}
 
@@ -241,9 +320,21 @@ public class HierarchicalClustering extends Visualisation {
 			// set special tooltips to hcChart
 			if (chart.getPlot() instanceof HCPlot) {
 				HCPlot hcPlot = (HCPlot) chart.getPlot();
+				
+				this.hcPlot = hcPlot;
+				orders.setPlot(hcPlot);
+				
+				this.hcPlot.addChangeListener(new PlotChangeListener(){
+					public void plotChanged(PlotChangeEvent event) {
+						if(event instanceof ClusteringTreeChangeEvent){
+							HierarchicalClustering.this.orders.updateVisibleIndexes();
+							HierarchicalClustering.this.updateSelectionsFromApplication(false);
+						}
+					}					
+				});
 
 				// Add more space to column and row names
-				hcPlot.setColumnNamesSize(0.2);
+				hcPlot.setColumnNamesSize(0.3);
 				hcPlot.setRowNamesSize(0.3);
 
 				// Space for the trees
@@ -268,10 +359,16 @@ public class HierarchicalClustering extends Visualisation {
 				hcPlot.setColoring(colors);
 
 			}
-
-			ChartPanel chartPanel = makePanel(chart);
-			chartPanel.addChartMouseListener((HCPlot) chart.getPlot());
-			return chartPanel;
+			
+			chart.setTitle((TextTitle)null);
+			
+			selectableChartPanel = new SelectableChartPanel(chart, this);
+			selectableChartPanel.getChartPanel().addChartMouseListener((HCPlot)chart.getPlot());
+						
+			updateSelectionsFromApplication(false);
+			application.addPropertyChangeListener(this);
+			
+			return selectableChartPanel;
 
 		} catch (Exception e) {
 			// these are very tricky, mostly caused by bad data
@@ -282,7 +379,7 @@ public class HierarchicalClustering extends Visualisation {
 	}
 
 	/**
-	 * Translates name to parenthesis tree formate. This translation is required
+	 * Translates name to parenthesis tree format. This translation is required
 	 * because R script does it.
 	 */
 	private String translate(String gene) {
@@ -300,18 +397,24 @@ public class HierarchicalClustering extends Visualisation {
 		}
 	}
 
-	private HCTreeNode readTree(ClusterNode tree, int index, int height) throws DataRangeMismatchException {
+	private HCTreeNode readTree(ClusterNode tree, int index, int height, List<String> treeToId) throws DataRangeMismatchException {	
+		 
 		if (tree instanceof ClusterLeafNode) {
 			String gene = ((ClusterLeafNode) tree).getGene();
-			orderMap.put(gene, index);
+			treeToId.set(index, gene);
 			logger.debug("LeafNode: " + ((ClusterLeafNode) tree).getGene() + "in index: " + index);
 			return new HCTreeNode(0, index); // height is zero
 
 		} else {
 			HCTreeNode node = new HCTreeNode(height);
-			HCTreeNode leftChild = readTree(((ClusterBranchNode) tree).getLeftBranch(), index, height - 1);
+			HCTreeNode leftChild = readTree(((ClusterBranchNode) tree).getLeftBranch(), 
+					index, height - 1, treeToId);
+			
 			node.setLeftChild(leftChild);
-			HCTreeNode rightChild = readTree(((ClusterBranchNode) tree).getRightBranch(), node.getDataRange().getRightBound() + 1, height - 1);
+			
+			HCTreeNode rightChild = readTree(((ClusterBranchNode) tree).getRightBranch(), 
+					node.getDataRange().getRightBound() + 1, height - 1, treeToId);
+			
 			node.setRightChild(rightChild);
 
 			return node;
@@ -347,5 +450,140 @@ public class HierarchicalClustering extends Visualisation {
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
 		return bean.isContentTypeCompatitible("application/x-treeview") && bean.queryFeatures("/clusters/hierarchical/tree").exists() && bean.queryFeatures("/clusters/hierarchical/heatmap").exists();
+	}
+
+	public void selectionChanged(Rectangle2D.Double selectionRect) {
+		
+		if(selectionRect == null){
+			selected.clear();
+		} else {					
+			
+			orders.updateVisibleIndexes();
+			
+			ChartRenderingInfo info = selectableChartPanel.getChartPanel().getChartRenderingInfo();
+
+			EntityCollection entities = info.getEntityCollection();
+			
+			Set<Integer>  newSelection = new HashSet<Integer>();
+
+			for(Object obj: entities.getEntities()){
+				
+				//Don't clear the selection if tree was clicked				
+				if(obj instanceof HCTreeNodeEntity){
+					HCTreeNodeEntity entity = (HCTreeNodeEntity)obj;					
+					if(entity.getArea().intersects(selectionRect)){						
+						return;
+					}					
+				}
+				
+				if(obj instanceof HeatMapBlockEntity){
+					HeatMapBlockEntity entity = (HeatMapBlockEntity)obj;
+					
+					if(entity.getArea().intersects(selectionRect)){
+						
+						if(!reversed){
+							newSelection.addAll(orders.visibleToBean(entity.getRow()));
+						} else {
+							newSelection.add(entity.getColumn());
+						}
+					}					
+				}
+			}
+			
+			//New selections can't be put directly to selectedIndexes, because every other occurrence
+			//of block (several in one line) inside selection rectangle would undo selection
+			
+			for(Integer row: newSelection){
+				if(selected.contains(row)){
+					selected.remove(row);
+				} else {
+					selected.add(row);
+				}
+			}
+			
+			showSelection(true);
+		}
+	}
+	
+	
+	
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (evt instanceof RowChoiceEvent && evt.getSource() != this 
+				&& ((RowChoiceEvent) evt).getData() == selectionBean) {
+
+			updateSelectionsFromApplication(false);
+		}
+	}
+	
+	protected void updateSelectionsFromApplication(boolean dispatchEvent) {
+		RowSelectionManager manager = application.getSelectionManager().getRowSelectionManager(selectionBean);
+
+		orders.updateVisibleIndexes();
+		
+		selected.clear();
+		for (int i : manager.getSelectedRows()){
+			selected.add(i);			
+		}				
+		
+		showSelection(dispatchEvent);					
+	}		
+	
+	private void showSelection(boolean dispatchEvent){
+		
+		Selection[] detailedSelection;
+		
+		if(!reversed){
+			detailedSelection = calculateRowSelectionDetails();
+		} else {
+			detailedSelection = calculateColumnSelectionDetails();
+		}		
+		
+		hcPlot.showSelection(detailedSelection, !reversed);
+			
+		list.setSelectedRows(selected, this, dispatchEvent, selectionBean);		
+	}
+	
+	private Selection[] calculateRowSelectionDetails(){
+		//Number of rows represented by each visible row
+		int[] closedRows = orders.getCountOfVisibleReferences();
+		//Number of selected in each visible row
+		int[] selectedRows = new int[closedRows.length];	
+		//Is each visible row fully, partially or not at all selected
+		Selection[] detailedSelection = new Selection[closedRows.length];
+
+
+		for(int selectedRow : selected){
+			selectedRows[orders.beanToVisible(selectedRow)]++;
+		}
+
+		for(int i = 0; i < selectedRows.length; i++){
+			if(selectedRows[i] == 0){
+				detailedSelection[i] = Selection.NO;
+
+			} else if(selectedRows[i] == closedRows[i]){
+				detailedSelection[i] = Selection.YES;
+
+			} else if(selectedRows[i] < closedRows[i]){
+				detailedSelection[i] = Selection.PARTIAL;
+			}
+		}
+		
+		return detailedSelection;		
+	}
+	
+	private Selection[] calculateColumnSelectionDetails(){
+		//Columns are already in right order, so just convert the selections to right format
+		Selection[] detailedSelection = 
+			new Selection[hcPlot.getDataset().getHeatMap().getColumnsCount()];
+
+		for(int i = 0; i < detailedSelection.length; i++){
+			if(selected.contains(i)){
+				detailedSelection[i] = Selection.YES;
+			} else { 
+				detailedSelection[i] = Selection.NO;
+			}
+		}
+
+		return detailedSelection;
 	}
 }

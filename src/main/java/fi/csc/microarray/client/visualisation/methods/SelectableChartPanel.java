@@ -14,12 +14,17 @@ import java.awt.geom.Rectangle2D;
 
 import javax.swing.JPanel;
 
+import org.jfree.chart.ChartMouseEvent;
+import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.entity.ChartEntity;
+import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.HCPlot;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.ui.OverlayLayout;
@@ -28,6 +33,13 @@ import org.jfree.ui.RectangleEdge;
 import fi.csc.microarray.client.VisualConstants;
 import fi.csc.microarray.client.visualisation.Visualisation;
 
+/**
+ * JFreeChart handles area selections with zoom whereas we wan't selection to hapen. This
+ * class wraps and extends ChartPanel functionality. 
+ * 
+ * @author klemela
+ *
+ */
 public class SelectableChartPanel extends JPanel implements MouseListener, MouseMotionListener {
 
 	private TransparentPanel transparentPanel;
@@ -50,7 +62,7 @@ public class SelectableChartPanel extends JPanel implements MouseListener, Mouse
 		 * there already and removed if they are. If the rectangle is null, selection should be 
 		 * cleared. This makes it possible to handle all situations with single logic. If selection
 		 * is made without pressing control key, this method is called first with null argument to 
-		 * clear the selection and again with new selection rectangleÂ·
+		 * clear the selection and again with new selection rectangle.
 		 * 
 		 * @param newSelection
 		 */
@@ -159,8 +171,16 @@ public class SelectableChartPanel extends JPanel implements MouseListener, Mouse
 									
 						
 			return new Point2D.Double(relativeX, chartY);
+		} else if (plot instanceof HCPlot) {		
+			//HCPlot hcPlot = (HCPlot)plot;
+			
+	        Insets chartInsets = getInsets();
+	        int x = (int) ((p.getX() - chartInsets.left) * chartPanel.getScaleX());
+	        int y = (int) ((p.getY() - chartInsets.top) * chartPanel.getScaleY());
+											
+			return new Point2D.Double(x, y);
 		} else {
-			throw new UnsupportedOperationException("Only Category and XY plots are supported until now");			
+			throw new UnsupportedOperationException("Only Category, XY and HC plots are supported until now");			
 		}
 	}
 	

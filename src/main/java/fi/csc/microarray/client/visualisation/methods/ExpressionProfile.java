@@ -42,7 +42,8 @@ import fi.csc.microarray.client.visualisation.methods.SelectableChartPanel.Selec
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.Table;
 
-public class ExpressionProfile extends Visualisation implements PropertyChangeListener, SelectionChangeListener {
+public class ExpressionProfile extends Visualisation 
+implements PropertyChangeListener, SelectionChangeListener {
 	
 	//private static final Logger logger = Logger.getLogger(ExpressionProfile.class);
 	

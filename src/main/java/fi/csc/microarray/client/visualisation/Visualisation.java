@@ -17,8 +17,6 @@ import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.VisualConstants;
-import fi.csc.microarray.client.visualisation.methods.SelectableChartPanel;
-import fi.csc.microarray.client.visualisation.methods.SelectableChartPanel.SelectionChangeListener;
 import fi.csc.microarray.databeans.DataBean;
 
 public abstract class Visualisation {
@@ -122,14 +120,9 @@ public abstract class Visualisation {
 	public static ChartPanel makePanel(JFreeChart chart) {
 
 		ChartPanel panel = new ChartPanel(chart);
-		chart.getTitle().setFont(VisualConstants.VISUALISATION_TITLE_FONT);
-		return panel;
-	}
-	
-	protected JPanel makeSelectablePanel(JFreeChart chart, SelectionChangeListener selectionListener) {
-
-		JPanel panel = new SelectableChartPanel(chart, selectionListener);
-		chart.getTitle().setFont(VisualConstants.VISUALISATION_TITLE_FONT);
+		if(chart.getTitle() != null){
+			chart.getTitle().setFont(VisualConstants.VISUALISATION_TITLE_FONT);
+		}
 		return panel;
 	}
 
