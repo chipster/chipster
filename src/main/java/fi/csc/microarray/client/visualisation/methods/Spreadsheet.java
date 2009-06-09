@@ -32,7 +32,7 @@ import fi.csc.microarray.databeans.features.Table;
  * could be used to annotate them (write some describing names and notes
  * for different genes).
  * 
- * @author Janne K�ki
+ * @author Janne KÃ¤ki
  *
  */
 

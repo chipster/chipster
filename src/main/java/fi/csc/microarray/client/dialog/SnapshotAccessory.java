@@ -13,7 +13,7 @@ import javax.swing.JPanel;
  * Accessory component for the JFileChooser to allow direct input of dataset
  * folder.
  * 
- * @author Petri Klemel�
+ * @author Petri KlemelÃ¤
  * 
  */
 public class SnapshotAccessory extends JPanel implements ActionListener {

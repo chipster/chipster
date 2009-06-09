@@ -19,7 +19,7 @@ import fi.csc.microarray.util.ThreadUtils;
 /**
  * Manages visualisation threads.
  * 
- * @author Petri Klemel�, Aleksi Kallio
+ * @author Petri KlemelÃ¤, Aleksi Kallio
  * 
  */
 public class VisualisationTaskManager {

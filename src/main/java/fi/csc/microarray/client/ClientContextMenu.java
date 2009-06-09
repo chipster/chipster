@@ -30,7 +30,7 @@ import fi.csc.microarray.databeans.DataBean.Link;
  * 
  * @see fi.csc.microarray.databeans.DataItem
  * 
- * @author Mikko Koski, Petri Klemel�, Aleksi Kallio
+ * @author Mikko Koski, Petri KlemelÃ¤, Aleksi Kallio
  */
 public class ClientContextMenu extends JPopupMenu implements ActionListener, PopupMenuListener {
 

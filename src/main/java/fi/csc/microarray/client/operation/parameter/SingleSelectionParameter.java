@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
  * A parameter that has a defined set of possible values, out of which only
  * one at a time can be selected.
  * 
- * @author Janne K�ki
+ * @author Janne KÃ¤ki
  *
  */
 public class SingleSelectionParameter extends Parameter {

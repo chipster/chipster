@@ -45,7 +45,7 @@ import fi.csc.microarray.util.Strings;
 
 
 /**
- * @author Petri Klemel�
+ * @author Petri KlemelÃ¤
  *
  */
 public class TaskManagerScreen extends ScreenBase implements ActionListener, ListSelectionListener {

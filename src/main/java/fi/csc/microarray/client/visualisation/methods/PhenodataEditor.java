@@ -53,7 +53,7 @@ import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 /**
  * Editor for phenodata type of tabular DataBeans.
  * 
- * @author Aleksi Kallio, Petri Klemel�
+ * @author Aleksi Kallio, Petri KlemelÃ¯Â¿Â½
  *
  */
 public class PhenodataEditor extends Visualisation implements DataChangeListener {

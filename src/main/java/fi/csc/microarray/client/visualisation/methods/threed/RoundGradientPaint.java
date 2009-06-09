@@ -13,7 +13,7 @@ import java.awt.image.ColorModel;
 /**
  * Class for drawing fake 3d balls.
  * 
- * @author Petri Klemel�
+ * @author Petri KlemelÃ¤
  */
 public class RoundGradientPaint
     implements Paint {

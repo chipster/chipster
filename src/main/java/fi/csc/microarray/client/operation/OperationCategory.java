@@ -10,7 +10,7 @@ import java.util.Vector;
  * Categories are used in the OperationChoicePanel to allow the selection of
  * operations by category.
  * 
- * @author Janne K�ki, Aleksi Kallio
+ * @author Janne Kï¿½ki, Aleksi Kallio
  *
  */
 public class OperationCategory {

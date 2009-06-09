@@ -42,7 +42,7 @@ import fi.csc.microarray.client.selection.DatasetChoiceEvent;
  * right one. Selecting an operation on the right side list, then, will
  * result in corresponding details being shown in the parent OperationPanel.
  * 
- * @author Janne K�ki
+ * @author Janne KÃ¤ki
  *
  */
 public class OperationChoicePanel extends JPanel

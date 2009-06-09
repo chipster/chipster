@@ -14,7 +14,7 @@ import javax.swing.JPanel;
  * An abstract superclass for all the different input components specific
  * for different types of parameters.
  * 
- * @author Janne K�ki
+ * @author Janne KÃ¤ki
  *
  */
 public abstract class ParameterInputComponent extends JPanel implements FocusListener {

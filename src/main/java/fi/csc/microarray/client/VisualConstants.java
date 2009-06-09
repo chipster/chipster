@@ -63,7 +63,7 @@ public class VisualConstants {
     public static final ImageIcon UNLINK_MENUICON = 
         new ImageIcon(VisualConstants.class.getResource("/eclipse/unlink.gif"));
 
-	// rest of the icons done by us (mostly by Mikko Koski & Petri Klemel�)
+	// rest of the icons done by us (mostly by Mikko Koski & Petri KlemelÃ¯Â¿Â½)
 	public static ImageIcon ZOOM_IN_ICON = 
 		new ImageIcon(VisualConstants.class.getResource("/zoom-in.png"));
 	public static ImageIcon ZOOM_OUT_ICON = 

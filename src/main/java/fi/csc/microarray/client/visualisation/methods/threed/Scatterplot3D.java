@@ -41,7 +41,7 @@ import fi.csc.microarray.databeans.DataBean;
  * Class for 3d scatterplot implementing functionality required in interface Visualisation. The
  * side panel is done and handled here, but the actual visualisation is drawn in CoordinateArea.
  * 
- * @author Petri Klemel�
+ * @author Petri KlemelÃ¯Â¿Â½
  *
  */
 public class Scatterplot3D extends ChipVisualisation implements ActionListener, KeyListener{

@@ -22,7 +22,7 @@ import fi.csc.microarray.databeans.DataBean.Link;
  * it has already undergone). The vertices can be selected (which will select 
  * the corresponding dataset) and moved around on the graph panel.
  * 
- * @author Janne K�ki, Mikko Koski
+ * @author Janne KÃ¤ki, Mikko Koski
  *
  */
 public class GraphVertex extends AbstractGraphVertex {

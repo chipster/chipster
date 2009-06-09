@@ -26,7 +26,7 @@ import fi.csc.microarray.client.operation.OperationPanel;
  * OperationDefinition) already exists or not. At least for now. Thought
  * it would save some memory.
  * 
- * @author Janne K�ki, Aleksi Kallio, Petri Klemel�
+ * @author Janne KÃ¤ki, Aleksi Kallio, Petri KlemelÃ¤
  *
  */
 public class ParameterPanel extends JPanel {

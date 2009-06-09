@@ -19,7 +19,7 @@ import org.apache.log4j.Logger;
  * parameter might make a choice semantically impossible - maybe this
  * possibility should be also taken into account).
  * 
- * @author Janne K�ki
+ * @author Janne KÃ¤ki
  *
  */
 public class SingleSelectionInputComponent extends ParameterInputComponent

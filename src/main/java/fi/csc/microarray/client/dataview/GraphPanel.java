@@ -60,7 +60,7 @@ import fi.csc.microarray.databeans.LinksChangedEvent;
  * dataset is represented by a graphical vertex (an instance of GraphVertex).
  * The graph is created by using the JGraph application framework.
  *
- * @author Janne K�ki, Aleksi Kallio, Petri Klemel�
+ * @author Janne KÃ¤ki, Aleksi Kallio, Petri KlemelÃ¤
  *
  */
 public class GraphPanel extends JPanel implements ActionListener, 

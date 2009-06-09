@@ -43,7 +43,7 @@ import fi.csc.microarray.description.VVSADLParser.ParseException;
  * The main panel for all operation, parameter and visualization choices in
  * the client mainframe.
  * 
- * @author Janne K�ki, Petri Klemel�
+ * @author Janne KÃ¤ki, Petri KlemelÃ¤
  *
  */
 public class OperationPanel extends JPanel

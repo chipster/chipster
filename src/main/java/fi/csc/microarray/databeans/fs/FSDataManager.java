@@ -140,7 +140,7 @@ public class FSDataManager extends DataManagerBase {
 	 */
 	public synchronized File createNewRepositoryFile(String beanName) throws IOException {
 		// check the file name 
-		String fileName = beanName.replaceAll("[^\\w������\\\\.]", "");
+		String fileName = beanName.replaceAll("[^\\wÃ¶Ã¤Ã¥ÃÃÃ\\\\.]", "");
 		if (fileName.length() < 1) {
 			fileName = "data";
 		} else if (fileName.length() > 50) {

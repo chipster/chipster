@@ -15,7 +15,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 /**
  * Takes care of the current projection parematers, as rotation and camera
  *
- * @author esa, Petri Klemel�
+ * @author esa, Petri KlemelÃ¤
  */
 public class Projection {
     DataModel dataModel;

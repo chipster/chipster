@@ -1,7 +1,7 @@
 /*
  * Worker.java
  *
- * Created on 3. kes�kuuta 2006, 21:01
+ * Created on 3. kesÃ¤kuuta 2006, 21:01
  *
  * To change this template, choose Tools | Options and locate the template under
  * the Source Creation and Management node. Right-click the template and choose

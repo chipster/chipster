@@ -19,7 +19,7 @@ import sun.nio.ch.ChannelInputStream;
  * the analyser tries to guess which is the best suitable delimeter to 
  * chop the data of the file. It also count lines on file.
  * 
- * @author Mikko Koski, Petri Klemel�
+ * @author Mikko Koski, Petri KlemelÃ¤
  *
  */
 public class FileAnalyser {

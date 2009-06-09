@@ -25,7 +25,7 @@ import fi.csc.microarray.description.VVSADLSyntax.InputType;
  * Operation are cloned from its definition object. Much other data is obtained
  * directly from the definition.
  * 
- * @author Janne K�ki, Aleksi Kallio
+ * @author Janne KÃ¤ki, Aleksi Kallio
  * 
  */
 public class Operation implements ExecutionItem {

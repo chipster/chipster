@@ -3,7 +3,7 @@ package fi.csc.microarray.client.operation.parameter;
 /**
  * A parameter which takes float values.
  * 
- * @author Janne K�ki
+ * @author Janne KÃ¤ki
  *
  */
 public class DecimalParameter extends Parameter {

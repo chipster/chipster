@@ -20,7 +20,7 @@ import javax.swing.event.ChangeListener;
  * values, but will indicate this with a red background. If the value cannot
  * be parsed to an integer at all, the input text will also be bright red.
  * 
- * @author Janne K�ki
+ * @author Janne KÃ¤ki
  *
  */
 public class IntegerInputComponent extends ParameterInputComponent

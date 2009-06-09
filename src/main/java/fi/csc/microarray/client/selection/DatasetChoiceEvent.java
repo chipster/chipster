@@ -9,7 +9,7 @@ import java.beans.PropertyChangeEvent;
  * DataSetView component. Information about the selection will then be
  * forwarded to other DataSetViews so that they can respond accordingly.
  * 
- * @author Janne K�ki, Aleksi Kallio
+ * @author Janne KÃ¤ki, Aleksi Kallio
  *
  */
 public class DatasetChoiceEvent extends PropertyChangeEvent {

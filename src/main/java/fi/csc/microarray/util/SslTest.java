@@ -24,7 +24,7 @@ public class SslTest {
 	public static void main(String[] args) {
 		try {
 			ServerSocket ss = getSecureSocket(6666);
-			ss.setSoTimeout(1); // �bershort timeout, we are just testing...
+			ss.setSoTimeout(1); // Ã¼bershort timeout, we are just testing...
 			try {
 				ss.accept();
 			} catch (SocketTimeoutException e) {

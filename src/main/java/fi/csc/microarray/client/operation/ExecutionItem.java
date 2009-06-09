@@ -9,7 +9,7 @@ import fi.csc.microarray.databeans.DataBean;
  * For now, this exists only to make things a bit smoother with the
  * operation selection lists.
  * 
- * @author Janne K�ki
+ * @author Janne KÃ¤ki
  *
  */
 public interface ExecutionItem {

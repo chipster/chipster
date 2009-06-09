@@ -42,7 +42,7 @@ import fi.csc.microarray.databeans.DataBean;
  * lower left part of the operations panel, and controls what is shown on the
  * results panel.
  * 
- * @author Janne K�ki, akallio
+ * @author Janne KÃ¤ki, akallio
  * 
  */
 public class VisualisationToolBar extends JToolBar implements ActionListener, PropertyChangeListener {

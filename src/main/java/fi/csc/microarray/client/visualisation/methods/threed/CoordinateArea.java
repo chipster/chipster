@@ -31,7 +31,7 @@ import fi.csc.microarray.client.selection.RowChoiceEvent;
  * handles selections, rotations etc. The base of the implemention is Threed-visualisation
  * from Viski library (http://www.cs.helsinki.fi/group/viski/ ).
  * 
- * @author Petri Klemel�
+ * @author Petri KlemelÃ¤
  */
 public class CoordinateArea extends JComponent 
 implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChangeListener  {

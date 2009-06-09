@@ -38,7 +38,7 @@ import fi.csc.microarray.databeans.DataBean;
  * showing these as options in the visualisation choice panel, as well as for
  * sending requests to visualiser components.
  * 
- * @author Janne K�ki, Aleksi Kallio, Petri Klemel�
+ * @author Janne KÃ¯Â¿Â½ki, Aleksi Kallio, Petri KlemelÃ¯Â¿Â½
  * 
  */
 public enum VisualisationMethod {

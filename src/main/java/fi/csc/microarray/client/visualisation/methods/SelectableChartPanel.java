@@ -50,7 +50,7 @@ public class SelectableChartPanel extends JPanel implements MouseListener, Mouse
 		 * there already and removed if they are. If the rectangle is null, selection should be 
 		 * cleared. This makes it possible to handle all situations with single logic. If selection
 		 * is made without pressing control key, this method is called first with null argument to 
-		 * clear the selection and again with new selection rectangle�
+		 * clear the selection and again with new selection rectangleÂ·
 		 * 
 		 * @param newSelection
 		 */

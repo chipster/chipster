@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
  * Class gets the data values from the iterables and scales them to the scales that
  * are also decided here.
  * 
- * @author Petri Klemel�
+ * @author Petri KlemelÃ¯Â¿Â½
  */
 public class DataModel {
 	

@@ -16,7 +16,7 @@ import fi.csc.microarray.description.VVSADLSyntax.ParameterType;
  * An abstract class representing all the different types of parameters
  * for the operations of this application.
  * 
- * @author Janne K�ki, akallio
+ * @author Janne KÃ¤ki, akallio
  *
  */
 public abstract class Parameter implements Cloneable {

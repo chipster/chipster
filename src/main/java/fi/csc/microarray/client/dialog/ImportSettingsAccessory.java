@@ -18,7 +18,7 @@ import fi.csc.microarray.client.dataimport.ImportUtils;
  * Accessory component for the JFileChooser to allow direct input of dataset
  * folder.
  * 
- * @author Petri Klemel�
+ * @author Petri KlemelÃ¤
  * 
  */
 public class ImportSettingsAccessory extends JPanel implements ActionListener {
