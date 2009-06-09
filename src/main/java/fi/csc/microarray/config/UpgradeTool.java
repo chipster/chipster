@@ -94,14 +94,12 @@ public class UpgradeTool {
 				File logsDir13x = new File(componentDir13x, DirectoryLayout.LOGS_DIR);
 				File confDir13x = new File(componentDir13x, DirectoryLayout.CONF_DIR);
 				File securityDir13x = new File(componentDir13x, DirectoryLayout.SECURITY_DIR);
-//				File binDir12x = new File(componentDir12x, DirectoryLayout.BIN_DIR);
 
 				// transform directory layout
 				copyToNewDir(workDir12x, logsDir13x, "messages.log", "jobs.log", "security.log", "status.log");
 				delayedCopy(new File(workDir12x, "nami.log"), new File(logsDir13x, "chipster.log"));
 				copyToNewDir(workDir12x, securityDir13x, "keystore.ks", "users");
 				delayedUsersUpgrade(new File(securityDir13x, "users"), new File(workDir12x, "users"));
-//				delayedCopy(new File(workDir12x, "jaas.config"), new File(confDir13x, "jaas.config"));
 				delayedCopy(new File(workDir12x, "nami-config.xml"), new File(confDir13x, "chipster-config.xml"));
 				delayedConfigPurge(new File(confDir13x, "chipster-config.xml"), new File(workDir12x, "nami-config.xml"), componentDir);
 
@@ -112,52 +110,9 @@ public class UpgradeTool {
 					delayedConfigPurge(new File(componentDir13x, "web-root" + File.separator + "chipster-config.xml"), new File(workDir12x, "nami-config.xml"), "client");
 				}
 
-//				// keep the later of 32/64 wrapper.conf's
-//				File[] wrapperConfs = new File[] {
-//						new File(binDir12x, "linux-x86-32"  + File.separator + "wrapper.conf"),
-//						new File(binDir12x, "linux-x86-64"  + File.separator + "wrapper.conf")
-//				};	
-//				
-//				
-//				File newWrapperConf = new File(confDir13x, "wrapper.conf");
-//				if (wrapperConfs[0].lastModified() > wrapperConfs[1].lastModified()) {
-//					delayedDelete(wrapperConfs[1]);
-//					delayedCopy(wrapperConfs[0], newWrapperConf);					
-//				} else {					
-//					delayedDelete(wrapperConfs[0]);
-//					delayedCopy(wrapperConfs[1], newWrapperConf);
-//				}
-//				delayedWrapperScriptUpgrade(new File(binDir12x, "linux-x86-32"  + File.separator + "chipster-" + componentDir));
-//				delayedWrapperScriptUpgrade(new File(binDir12x, "linux-x86-64"  + File.separator + "chipster-" + componentDir));				
 			}
-		}
-		
-		// replace old stuff in the old installation with new from this one
-//		File lib = new File(pathToOld, "shared" + File.separator + "lib");
-//		cleanDir(lib);
-//		moveAll(new File("shared" + File.separator + "lib"), lib);
-//		replaceFromNew("client" + File.separator + "bin" + File.separator + "chipster-current.jar", pathToOld);
-//		replaceFromNew("chipster-current.jar", new File("webstart" + File.separator + "web-root" + File.separator + "lib"), new File("webstart" + File.separator + "web-content" + File.separator + "lib"));
-//		delayedCopy(new File("webstart" + File.separator + "web-content" + File.separator + "chipster-current.jar"), new File(pathToOld + File.separator + "webstart" + File.separator + "web-root" + File.separator + "chipster-current.jar"));
-//		replaceFromNew("activemq" + File.separator + "conf" + File.separator + "activemq.xml", pathToOld);
-//		String activemqConfFile = "activemq" + File.separator + "conf" + File.separator + "activemq.xml";
-//		delayedCopy(new File(pathToOld, activemqConfFile), new File(activemqConfFile));
-
+		}		
 	}
-
-//	private void replaceFromNew(String file, File pathToOld) {
-//		delayedCopy(new File(file), new File(pathToOld,  file));
-//	}
-//
-//	private void replaceFromNew(String file, File pathToNew, File pathToOld) {
-//		delayedCopy(new File(pathToNew, file), new File(pathToOld,  file));
-//	}
-//
-//	private void moveAll(File sourceDir, File dest) {
-//		for (File file : sourceDir.listFiles()) {
-//			delayedCopy(file, new File(dest, file.getName()));
-//		}
-//	}
 
 	private void copyToNewDir(File oldDir, File newDir, String... files) {
 		
@@ -440,49 +395,6 @@ public class UpgradeTool {
 			});
 		}		
 	}
-	
-//	private void delayedWrapperScriptUpgrade(File file) {
-//		if (file.exists()) {
-//			operations.add(new Operation(file, null) {
-//
-//				public String describeExecution(File file, Object parameter) {
-//					return "Updgrade " + file + " (change wrapper.conf path)";
-//				}
-//
-//				public void execute(File file, Object parameter) {
-//					OutputStream overwriteOut = null;
-//					try {
-//						String wrapperScript = fileToString(file);
-//						
-//						wrapperScript = wrapperScript.replace("./wrapper.conf", "../../conf/wrapper.conf");
-//						
-//						overwriteOut = new FileOutputStream(file);						
-//						IOUtils.copy(new ByteArrayInputStream(wrapperScript.getBytes()), overwriteOut);
-//						
-//					} catch (IOException e) {
-//						e.printStackTrace();
-//						System.out.println("Warning: could not upgrade wrapper script file " + file.getAbsolutePath());
-//						
-//					} finally {
-//						IOUtils.closeIfPossible(overwriteOut);
-//					}
-//				}
-//				
-//				public String fileToString(File file) throws IOException  {
-//					StringBuffer buffer = new StringBuffer();
-//					BufferedReader inputReader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-//					String line;
-//					for (line = inputReader.readLine(); line != null; line = inputReader.readLine()) {
-//						buffer.append(line + "\n");
-//					}
-//					
-//					return buffer.toString();
-//				}
-//
-//			});
-//		}		
-//	}
-
 }
 
 
