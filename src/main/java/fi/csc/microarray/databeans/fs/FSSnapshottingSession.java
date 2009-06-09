@@ -311,6 +311,14 @@ public class FSSnapshottingSession {
 					if (od == null) {
 						// create local operation definition object
 						od = new OperationDefinition(opData[1], new OperationCategory(opData[0]), "", false);
+						
+						// warn if it was a real operation
+						if (!OperationCategory.isPseudoCategory(od.getCategory())) {
+							String message = "The session you opened contains a dataset which has been derived using an analysis tool which has been removed or renamed.\n\n" +
+							"The dataset contents have not changed and you can use them as before, but the obsolete operation will not be usable in workflows.";
+							String details = "Analysis tool: " + od.getCategoryName() + " / " + od.getName() + "\n";
+							warnAboutObsoleteContent(message, details, null);
+						}
 					}
 					op = new Operation(od, new DataBean[] { /* empty inputs currently */});
 					mapId(id, op);
@@ -391,15 +399,12 @@ public class FSSnapshottingSession {
 				if (parameter != null) {
 					parameter.parseValue(paramValue);
 				} else {
-					// parameter does not exist (anymore), notify user 
-					// TODO add dataset name to the dialog
-					
-					String title = "Obsolete analysis tool parameter.";
 					String message = "The session you opened contains a dataset which has been derived using an analysis tool with a parameter which has been removed or renamed.\n\n" +
 					"The dataset contents have not changed and you can use them as before, but the obsolete parameter has been removed from the history information of the dataset " +						
 					"and will not be saved in further sessions or workflows.";
-					String details = "Analysis tool: " + operation.getCategoryName() + " / " + operation.getName() + "\nObsolete parameter: " + paramName; 
-					application.showDialog(title, message, details, Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_VISIBLE);
+					String details = "Analysis tool: " + operation.getCategoryName() + " / " + operation.getName() + "\nObsolete parameter: " + paramName;
+					String dataName = operation.getBindings().size() == 1 ? operation.getBindings().get(0).getData().getName() : null;
+					warnAboutObsoleteContent(message, details, dataName);
 				}
 				
 			} else if (line.startsWith("INPUTS ")) {
@@ -424,6 +429,13 @@ public class FSSnapshottingSession {
 		}
 		
 		return newItems;		
+	}
+
+	private void warnAboutObsoleteContent(String message, String details, String dataName) {
+		String title = "Obsolete content in the session";
+		String inputDataDesc = dataName != null ? ("When loading dataset " + dataName + ":\n") : "";
+		String completeDetails = inputDataDesc + details; 
+		application.showDialog(title, message, completeDetails, Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_VISIBLE);
 	}
 
 	private static String afterNthSpace(String line, int nth) {
