@@ -5,7 +5,7 @@
 			<class>fi.csc.microarray.analyser.r.RAnalysisHandler</class> 
 			<parameter>
 				<name>command</name>
-				<value>R</value>
+				<value></value>
 			</parameter>
 			<parameter>
 				<name>toolPath</name>
@@ -15,17 +15,17 @@
 	</runtime>
 
 <!-- 
-	<runtime disabled="false">
+	<runtime>
 		<name>R-2.7.2</name>
 		<handler>
 			<class>fi.csc.microarray.analyser.r.RAnalysisHandler</class> 
 			<parameter>
 				<name>command</name>
-				<value>R</value>
+				<value>R-2.7.2</value>
 			</parameter>
 			<parameter>
 				<name>toolPath</name>
-				<value>/R-2.7.1</value>
+				<value>/R-2.7.2</value>
 			</parameter>
 		</handler>
 	</runtime>

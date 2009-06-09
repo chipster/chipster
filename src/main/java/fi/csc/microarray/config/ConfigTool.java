@@ -53,7 +53,7 @@ public class ConfigTool {
 			{"URL of Web Start files", "http://myhost.mydomain"},
 			{"Web Start www-server port", "8081"},
 			{"manager www-console port", "8082"},
-			{"R command", "R"},
+			{"R-2.6.1 command", "R"},
 			{"max. simultanous jobs (more recommended when compute service on separate node)", "3"}
 	};
 
@@ -229,7 +229,13 @@ public class ConfigTool {
 			if (wsClientConfigFile.exists()) {
 				updateChipsterConfigFile(wsClientConfigFile);
 			}
+			File runtimesConfigFile = new File("comp" + File.separator + DirectoryLayout.CONF_DIR + File.separator + "runtimes.xml");
+			if (runtimesConfigFile.exists()) {
+				updateRuntimesConfigFile(runtimesConfigFile);
+			}
 
+
+			
 			// update ActiveMQ config
 			File activemqConfigFile = new File(brokerDir + File.separator + DirectoryLayout.CONF_DIR + File.separator + "activemq.xml");
 			if (activemqConfigFile.exists()) {
@@ -334,7 +340,6 @@ public class ConfigTool {
 		Element analyserModule = xml.getChildWithAttribute(doc.getDocumentElement(), "moduleId", "comp");
 		if (analyserModule != null) {
 			updateConfigEntryValue(analyserModule, "max-jobs", configs[MAX_JOBS_INDEX][VAL_INDEX]);
-			updateConfigEntryValue(analyserModule, "r-command", configs[R_COMMAND_INDEX][VAL_INDEX]);
 		}
 		
 		Element webstartModule = xml.getChildWithAttribute(doc.getDocumentElement(), "moduleId", "webstart");
@@ -350,6 +355,35 @@ public class ConfigTool {
 		writeLater(configFile, doc);
 	}
 
+	private void updateRuntimesConfigFile(File configFile) throws SAXException, IOException, TransformerException, UnsupportedEncodingException, FileNotFoundException {
+		
+		boolean ok = false;
+		Document doc = openForUpdating("Runtimes", configFile);
+		Element runtimesElement = (Element)doc.getElementsByTagName("runtimes").item(0);
+		for (Element runtimeElement: XmlUtil.getChildElements(runtimesElement, "runtime")) {
+			String runtimeName = XmlUtil.getChildElement(runtimeElement, "name").getTextContent();
+			if (runtimeName.equals("R-2.6.1")) {
+				Element handlerElement = XmlUtil.getChildElement(runtimeElement, "handler");
+				for (Element parameterElement: XmlUtil.getChildElements(handlerElement, "parameter")) {
+					String paramName = XmlUtil.getChildElement(parameterElement, "name").getTextContent();
+					if (paramName.equals("command")) {
+						Element commandValueElement = XmlUtil.getChildElement(parameterElement, "value");
+						updateElementValue(commandValueElement, "R-2.6.1 command", configs[R_COMMAND_INDEX][VAL_INDEX]);
+						ok = true;
+					}
+				}
+			} 
+		}
+
+		if (ok) {
+			writeLater(configFile, doc);
+		} else {
+			throw new RuntimeException("Could not update R-2.6.1 command to runtimes.xml");
+		}
+	}
+
+	
+	
 	private String createFilebrokerUrl() {
 		return "http://" + configs[FILEBROKER_HOST_INDEX][VAL_INDEX];
 	}
