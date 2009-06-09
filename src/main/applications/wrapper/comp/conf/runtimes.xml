@@ -1,0 +1,43 @@
+<runtimes>
+	<runtime>
+		<name>R-2.6.1</name>
+		<handler>
+			<class>fi.csc.microarray.analyser.r.RAnalysisHandler</class> 
+			<parameter>
+				<name>command</name>
+				<value>R</value>
+			</parameter>
+			<parameter>
+				<name>toolPath</name>
+				<value>/R-2.6.1</value>
+			</parameter>
+		</handler>
+	</runtime>
+
+<!-- 
+	<runtime disabled="false">
+		<name>R-2.7.2</name>
+		<handler>
+			<class>fi.csc.microarray.analyser.r.RAnalysisHandler</class> 
+			<parameter>
+				<name>command</name>
+				<value>R</value>
+			</parameter>
+			<parameter>
+				<name>toolPath</name>
+				<value>/R-2.7.1</value>
+			</parameter>
+		</handler>
+	</runtime>
+-->
+	<runtime>
+		<name>beanshell</name>
+		<handler>
+			<class>fi.csc.microarray.analyser.bsh.BeanShellHandler</class> 
+			<parameter>
+				<name>toolPath</name>
+				<value>/bsh</value>
+			</parameter>
+		</handler>
+	</runtime>
+</runtimes>

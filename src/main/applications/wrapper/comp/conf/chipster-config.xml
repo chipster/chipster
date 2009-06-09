@@ -43,11 +43,6 @@
 			<value></value>
 		</entry>
 
-		<!--  command for R environment  -->
-		<entry entryKey="r-command">
-			<value></value>
-		</entry>		
-
 	</configuration-module>
 	
 </configuration>

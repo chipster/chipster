@@ -1,0 +1,131 @@
+<tools>
+		    <!-- NORMALISATION -->
+			<tool runtime="R-2.6.1">norm-affy.R</tool>
+			<tool runtime="R-2.6.1">norm-affy-exon.R</tool>
+			<tool runtime="R-2.6.1">norm-affy-snp.R</tool>
+			<tool runtime="R-2.6.1">norm-agilent-one-color.R</tool>
+			<tool runtime="R-2.6.1">norm-agilent.R</tool>	
+			<tool runtime="R-2.6.1">norm-cdna.R</tool>
+			<tool runtime="R-2.6.1">norm-illumina.R</tool>
+			<tool runtime="R-2.6.1">norm-illumina-lumi.R</tool>
+			<tool runtime="R-2.6.1">norm-lme.R</tool>
+			<tool runtime="R-2.6.1">norm-illumina-SNP.R</tool>
+			<tool runtime="R-2.6.1">norm-prenormalized.R</tool>
+			<tool runtime="R-2.6.1">norm-specific-samples.R</tool>
+			<tool runtime="R-2.6.1">norm-specific-genes.R</tool>
+
+			<!-- QUALITY CONTROL -->
+			<tool runtime="R-2.6.1">qc-affy.R</tool>
+			<tool runtime="R-2.6.1">qc-affy-rle-nuse.R</tool>						
+			<tool runtime="R-2.6.1">qc-cdna.R</tool>				
+			<tool runtime="R-2.6.1">qc-illumina.R</tool>
+			<tool runtime="R-2.6.1">qc-agilent.R</tool>
+			<tool runtime="R-2.6.1">qc-agilent-one-color.R</tool>
+
+			<!-- PREPROCESSING -->
+			<tool runtime="R-2.6.1">filter-expression.R</tool>
+			<tool runtime="R-2.6.1">filter-flags.R</tool>
+			<tool runtime="R-2.6.1">filter-sd.R</tool>
+			<tool runtime="R-2.6.1">filter-iqr.R</tool>
+			<tool runtime="R-2.6.1">filter-cv.R</tool>
+			<tool runtime="R-2.6.1">impute.R</tool>
+			<tool runtime="R-2.6.1">na-omitted.R</tool>			
+				
+			<!-- STATISTICS -->			
+			<tool runtime="R-2.6.1">stat-singleslide.R</tool>
+			<tool runtime="R-2.6.1">stat-one-group.R</tool>
+			<tool runtime="R-2.6.1">stat-two-groups.R</tool>
+			<tool runtime="R-2.6.1">stat-ROTS.R</tool>
+			<tool runtime="R-2.6.1">stat-sam.R</tool>			
+			<tool runtime="R-2.6.1">stat-several-groups.R</tool>
+			<tool runtime="R-2.6.1">stat-linear-modelling.R</tool>			
+			<tool runtime="R-2.6.1">stat-correlate-with-phenodata.R</tool>				
+			<tool runtime="R-2.6.1">stat-timeseries.R</tool>			
+			<tool runtime="R-2.6.1">stat-chisq-snp.R</tool>
+			<tool runtime="R-2.6.1">stat-adjust-pvalues.R</tool>
+			<tool runtime="R-2.6.1">ordination-pca.R</tool>
+			<tool runtime="R-2.6.1">ordination-ca.R</tool>
+			<tool runtime="R-2.6.1">ordination-nmds.R</tool>
+			<tool runtime="R-2.6.1">estimate-samplesize.R</tool>
+
+			<!-- CLUSTERING -->
+			<tool runtime="R-2.6.1">classification-knn.R</tool>
+			<tool runtime="R-2.6.1">cluster-hierarchical.R</tool>
+			<tool runtime="R-2.6.1">cluster-kmeans.R</tool>
+			<tool runtime="R-2.6.1">cluster-kmeans-testK.R</tool>
+			<tool runtime="R-2.6.1">cluster-qt.R</tool>
+			<tool runtime="R-2.6.1">cluster-som.R</tool>
+			<tool runtime="R-2.6.1">classification.R</tool>
+			
+			<!-- ANNOTATION -->
+			<tool runtime="R-2.6.1">annotate-genelist2html.R</tool>
+			<tool runtime="R-2.6.1">annotate-add-to-data.R</tool> 
+			<tool runtime="beanshell">annotate-cpdb.bsh</tool>
+			<tool runtime="beanshell">annotate-atlas.bsh</tool>
+			<tool runtime="beanshell">annotate-intact.bsh</tool>
+			
+			<!-- PATHWAYS -->
+			<tool runtime="R-2.6.1">stat-hyperG-GO.R</tool>	
+			<tool runtime="R-2.6.1">stat-hyperG-KEGG-PFAM.R</tool>	
+			<tool runtime="R-2.6.1">stat-hyperG-safe.R</tool>
+			<tool runtime="R-2.6.1">stat-hyperG-cytoband.R</tool>
+			<tool runtime="R-2.6.1">stat-geneset.R</tool>
+<!--			<tool runtime="R-2.6.1">pathway-bayesian.R</tool> -->
+<!--			<tool runtime="R-2.6.1">pathway-boolean-bestim.R</tool> -->
+
+			<!-- PROMOTER -->
+			<tool runtime="R-2.6.1">promoter-tfbs.R</tool>
+			<tool runtime="R-2.6.1">promoter-tfbs-cosmo.R</tool>	
+			<tool runtime="R-2.6.1">promoter-cbust.R</tool>
+			<tool runtime="R-2.6.1">promoter-retrprom.R</tool>	
+
+			<!-- VISUALISATION -->			
+			<tool runtime="R-2.6.1">plot-idiogram.R</tool>
+			<tool runtime="R-2.6.1">plot-chrom-pos.R</tool>
+			<tool runtime="R-2.6.1">plot-volcano.R</tool>
+			<tool runtime="R-2.6.1">plot-volcano-data-exists.R</tool> 
+			<tool runtime="R-2.6.1">plot-boxplot.R</tool>
+			<tool runtime="R-2.6.1">plot-dendrogram.R</tool>
+			<tool runtime="R-2.6.1">plot-histogram.R</tool>
+			<tool runtime="R-2.6.1">plot-corrgram.R</tool>
+			<tool runtime="R-2.6.1">plot-heatmap.R</tool>
+
+			<!-- UTILITIES -->
+			<tool runtime="R-2.6.1">search-correlation.R</tool>
+			<tool runtime="R-2.6.1">search-queryword.R</tool>
+			<tool runtime="R-2.6.1">merge-tables.R</tool>
+			<tool runtime="R-2.6.1">extract-genes-from-clustering.R</tool>
+			<tool runtime="R-2.6.1">extract-samples-from-dataset.R</tool>
+			<tool runtime="R-2.6.1">extract-genes-from-stattest.R</tool>
+			<tool runtime="R-2.6.1">extract-genes.R</tool>
+			<tool runtime="R-2.6.1">calculate-fold-change.R</tool>
+			<tool runtime="R-2.6.1">average-replicates.R</tool>
+			<tool runtime="R-2.6.1">combine-probes-to-genes.R</tool>
+			<tool runtime="R-2.6.1">change-interpretation.R</tool>
+			<tool runtime="R-2.6.1">generate-phenodata.R</tool>			
+			<tool runtime="R-2.6.1">filter-by-column.R</tool>
+			<tool runtime="R-2.6.1">delete-columns.R</tool>
+			<tool runtime="R-2.6.1">calculate-descriptive-statistics.R</tool>
+			<tool runtime="R-2.6.1">sort-samples.R</tool>
+			<tool runtime="R-2.6.1">sort-genes.R</tool>
+			<tool runtime="R-2.6.1">sampling.R</tool>
+			<tool runtime="R-2.6.1">export-tab2mage.R</tool>
+			<tool runtime="R-2.6.1">export-soft.R</tool>
+			<tool runtime="R-2.6.1">import-soft2.R</tool>
+			
+			<!-- MISCELLANEOUS (SEQUENCE ANALYSIS) -->
+			<tool runtime="R-2.6.1">seqanal-msa.R</tool>
+			<tool runtime="R-2.6.1">seqanal-phylogenetics.R</tool>
+			<tool runtime="R-2.6.1" hidden="true">test.R</tool>
+			<tool runtime="R-2.6.1" hidden="true">no-operation.R</tool>
+			<tool runtime="R-2.6.1" hidden="true">echo.R</tool>			
+			<tool runtime="R-2.6.1" hidden="true">fail.R</tool>			
+			<tool runtime="R-2.6.1" hidden="true">input-output.R</tool>
+			<tool runtime="R-2.6.1" hidden="true">simple-input-output.R</tool>
+			<tool runtime="R-2.6.1" hidden="true">data-throughput.R</tool>
+			<tool runtime="R-2.6.1" hidden="true">sleep.R</tool>
+			<tool runtime="R-2.6.1" hidden="true">input-sleep-output.R</tool>
+			<tool runtime="R-2.6.1" hidden="true">ws-affy-wizard.R</tool>
+</tools>
+
+
