@@ -10,7 +10,7 @@ import fi.csc.microarray.analyser.ws.ResultTableCollector.ResultRow;
 
 
 // query the web service
-ResultTableCollector annotations = CpdbWsAnalysisHandler.query(JavaJobUtils.getGeneNames(new File(jobInfo.workDir + "/input.tsv")));
+ResultTableCollector annotations = CpdbWsUtils.query(JavaJobUtils.getGeneNames(new File(jobInfo.workDir + "/input.tsv")));
 
 // filter results
 annotations.filterRows(new RowFilter() {

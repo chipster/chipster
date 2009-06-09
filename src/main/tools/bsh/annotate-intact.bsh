@@ -9,7 +9,7 @@ import fi.csc.microarray.analyser.ws.ResultTableCollector.ResultRow;
 
 
 // query the web service
-ResultTableCollector annotations = EnfinWsAnalysisHandler.query(JavaJobUtils.getGeneNames(new File(jobInfo.workDir + "/input.tsv")));
+ResultTableCollector annotations = EnfinWsUtils.queryIntact(JavaJobUtils.getGeneNames(new File(jobInfo.workDir + "/input.tsv")));
 
 // create output files
 File file = new File(jobInfo.workDir + "/intact-annotations.html");
