@@ -153,7 +153,7 @@
 			<value>fi.csc.microarray.analyser.bsh.BeanShellHandler</value>
 		</entry>
 		
-		<entry entryKey="operations" type="strings" description="analysis script names (Java resource names, loaded with getResourceAsStream)">
+		<entry entryKey="operations" type="strings" description="analysis script names (resource names, loaded with getResourceAsStream)">
 		
 		    <!-- NORMALISATION -->
 			<value>/R/norm-affy.R</value>
@@ -217,7 +217,7 @@
 			<value>/R/annotate-genelist2html.R</value>
 			<value>/R/annotate-add-to-data.R</value> 
 			<value>/bsh/annotate-cpdb.bsh</value>
-			<value>/bsh/annotate-atlas.bsh</value>
+<!--  			<value>/bsh/annotate-atlas.bsh</value> -->
 			<value>/bsh/annotate-intact.bsh</value>
 <!--			<value>fi.csc.microarray.analyser.java.GeneCruiserAnnotationJob</value> -->
 			
