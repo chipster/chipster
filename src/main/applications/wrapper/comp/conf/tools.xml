@@ -69,6 +69,7 @@
 			<tool runtime="R-2.6.1">stat-hyperG-safe.R</tool>
 			<tool runtime="R-2.6.1">stat-hyperG-cytoband.R</tool>
 			<tool runtime="R-2.6.1">stat-geneset.R</tool>
+			<tool runtime="beanshell">annotate-reactome.bsh</tool>
 
 			<!-- PROMOTER -->
 			<tool runtime="R-2.6.1">promoter-tfbs.R</tool>

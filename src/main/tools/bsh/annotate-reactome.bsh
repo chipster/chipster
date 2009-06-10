@@ -1,0 +1,14 @@
+// ANALYSIS Annotation/"Reactome pathways" (Returns pathways from Reactome database using the ENFIN web service.)
+// INPUT GENERIC input.tsv OUTPUT reactome-annotations.html
+
+import fi.csc.microarray.analyser.bsh.*;
+import fi.csc.microarray.analyser.ws.*;
+import fi.csc.microarray.analyser.ws.impl.*;
+
+
+// query the web service
+ResultTableCollector annotations = EnfinWsUtils.queryReactome(JavaJobUtils.getGeneNames(new File(jobInfo.workDir + "/input.tsv")));
+
+// create output files
+File file = new File(jobInfo.workDir + "/reactome-annotations.html");
+HtmlUtil.writeHtmlTable(annotations, new String[] {"Interaction", "Participants"}, "Reactome annotation (ENFIN)", file);

@@ -4,8 +4,6 @@
 import fi.csc.microarray.analyser.bsh.*;
 import fi.csc.microarray.analyser.ws.*;
 import fi.csc.microarray.analyser.ws.impl.*;
-import fi.csc.microarray.analyser.ws.ResultTableCollector.RowFilter;
-import fi.csc.microarray.analyser.ws.ResultTableCollector.ResultRow;
 
 
 // query the web service

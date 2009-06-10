@@ -32,14 +32,81 @@ import fi.csc.microarray.util.XmlUtil;
 
 public class EnfinWsUtils {
 
+	static interface AnnotationIdentifier {
+		boolean isAnnotation(Element setElement);
+	}
+
+	static interface AnnotationNameFinder {
+		String findAnnotationName(Element setElement);
+	}
 
 	public static void main(String[] args) throws SAXException, ParserConfigurationException, TransformerException, SOAPException, IOException {
-		String[] probes = new String[] {"201650_at", "204259_at"};
-		ResultTableCollector annotations = queryIntact(probes);
-		HtmlUtil.writeHtmlTable(annotations, new String[] {"Interaction", "Participants"}, "Enfin IntAct annotation", new File("test.html"));
+		String[] probes = new String[] {"204259_at", "1993_s_at"};
+		ResultTableCollector intactAnnotations = queryIntact(probes);
+		HtmlUtil.writeHtmlTable(intactAnnotations, new String[] {"Interaction", "Participants"}, "Enfin IntAct annotation", new File("intact.html"));
+		ResultTableCollector reactomeAnnotations = queryReactome(probes);
+		HtmlUtil.writeHtmlTable(reactomeAnnotations, new String[] {"Interaction", "Participants"}, "Enfin Reactome annotation", new File("reactome.html"));
 	}
 
 	private static ResultTableCollector queryIntact(String[] probes) throws SOAPException, MalformedURLException, SAXException, IOException, ParserConfigurationException, TransformerException {
+		
+		Document uniprotResponse = queryUniprotIds(probes);
+
+		// query IntAct with UniProt identifiers
+		SOAPMessage intactSoapMessage = initialiseSoapMessage();
+		SOAPBody intactSoapBody = initialiseSoapBody(intactSoapMessage);
+		
+		attachEnfinXml(intactSoapBody, fetchEnfinXml(uniprotResponse), "findPartners", "http://ebi.ac.uk/enfin/core/web/services/intact");
+		
+		Document intactResponse = sendSoapMessage(intactSoapMessage, new URL("http://www.ebi.ac.uk/enfin-srv/encore/intact/service"));
+		
+		return collectAnnotations(intactResponse, new AnnotationIdentifier() {
+
+			public boolean isAnnotation(Element setElement) {
+				NodeList names = setElement.getElementsByTagName("names");
+				return names.getLength() > 0 && "IntAct interaction".equals(names.item(0).getChildNodes().item(0).getTextContent());
+				}
+			
+		}, new AnnotationNameFinder() {
+
+			public String findAnnotationName(Element setElement) {
+				Element primaryRef = (Element)setElement.getElementsByTagName("xrefs").item(0).getChildNodes().item(0);
+				return primaryRef.getAttribute("id");
+			}
+			
+		});
+	}
+
+	private static ResultTableCollector queryReactome(String[] probes) throws SOAPException, MalformedURLException, SAXException, IOException, ParserConfigurationException, TransformerException {
+		
+		Document uniprotResponse = queryUniprotIds(probes);
+
+		// query IntAct with UniProt identifiers
+		SOAPMessage intactSoapMessage = initialiseSoapMessage();
+		SOAPBody intactSoapBody = initialiseSoapBody(intactSoapMessage);
+		
+		attachEnfinXml(intactSoapBody, fetchEnfinXml(uniprotResponse), "findPath", "http://ebi.ac.uk/enfin/core/web/services/reactome");
+		
+		Document reactomeResponse = sendSoapMessage(intactSoapMessage, new URL("http://www.ebi.ac.uk/enfin-srv/encore/reactome/service"));
+		
+		return collectAnnotations(reactomeResponse, new AnnotationIdentifier() {
+
+			public boolean isAnnotation(Element setElement) {
+				NodeList setTypes = setElement.getElementsByTagName("setType");
+				return setTypes.getLength() > 0 && "Reactome".equals(((Element)setTypes.item(0)).getAttribute("db"));
+			}
+			
+		}, new AnnotationNameFinder() {
+
+			public String findAnnotationName(Element setElement) {
+				Element fullName = (Element)setElement.getElementsByTagName("names").item(0).getChildNodes().item(0);
+				return fullName.getTextContent();
+			}
+			
+		});
+	}
+
+	private static Document queryUniprotIds(String[] probes) throws SOAPException, SAXException, IOException, ParserConfigurationException, MalformedURLException {
 		
 		// Step 1. Create ENFIN XML out of Affy probe list
 		SOAPMessage probeSoapMessage = initialiseSoapMessage();
@@ -61,16 +128,7 @@ public class EnfinWsUtils {
 		attachEnfinXml(uniprotSoapBody, fetchEnfinXml(probeResponse), "mapAffy2UniProt", "http://ebi.ac.uk/enfin/core/web/services/affy2uniprot");
 
 		Document uniprotResponse = sendSoapMessage(uniprotSoapMessage, new URL("http://www.ebi.ac.uk/enfin-srv/encore/affy2uniprot/service"));
-
-		// Step 3. Query IntAct with UniProt identifiers
-		SOAPMessage intactSoapMessage = initialiseSoapMessage();
-		SOAPBody intactSoapBody = initialiseSoapBody(intactSoapMessage);
-		
-		attachEnfinXml(intactSoapBody, fetchEnfinXml(uniprotResponse), "findPartners", "http://ebi.ac.uk/enfin/core/web/services/intact");
-		
-		Document intactResponse = sendSoapMessage(intactSoapMessage, new URL("http://www.ebi.ac.uk/enfin-srv/encore/intact/service"));
-		
-		return collectAnnotations(intactResponse);
+		return uniprotResponse;
 	}
 
 	private static Document fetchEnfinXml(Document response) throws ParserConfigurationException {
@@ -79,7 +137,7 @@ public class EnfinWsUtils {
 		return document;
 	}
 	
-	private static ResultTableCollector collectAnnotations(Document response) {
+	private static ResultTableCollector collectAnnotations(Document response, AnnotationIdentifier annotationIdentifier, AnnotationNameFinder annotationNameFinder) {
 		ResultTableCollector annotationCollector = new ResultTableCollector();
 		NodeList childNodes = response.getDocumentElement().getChildNodes().item(0).getChildNodes().item(0).getChildNodes().item(0).getChildNodes().item(0).getChildNodes();
 
@@ -101,10 +159,11 @@ public class EnfinWsUtils {
 		for (int i = 0; i < childNodes.getLength(); i++) {
 			if ("set".equals(childNodes.item(i).getNodeName())) {
 				Element set = (Element)childNodes.item(i);
-				NodeList names = set.getElementsByTagName("names");
-				if (names.getLength() > 0 && "IntAct interaction".equals(names.item(0).getChildNodes().item(0).getTextContent())) {
-					Element primaryRef = (Element)set.getElementsByTagName("xrefs").item(0).getChildNodes().item(0);						
-					annotationCollector.addAnnotation(index, "Interaction", primaryRef.getAttribute("id"));
+				
+				if (annotationIdentifier.isAnnotation(set)) {
+					
+					String annotationName = annotationNameFinder.findAnnotationName(set);
+					annotationCollector.addAnnotation(index, "Interaction", annotationName);
 					
 					String participantValue = "";
 					NodeList participants = set.getElementsByTagName("participant");
