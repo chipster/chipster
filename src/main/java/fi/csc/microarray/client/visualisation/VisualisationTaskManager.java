@@ -11,6 +11,7 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.databeans.features.Table;
@@ -33,7 +34,6 @@ public class VisualisationTaskManager {
 		}
 
 		public void run() {
-			try {
 				
 				long startTime = System.currentTimeMillis();
 				
@@ -59,7 +59,12 @@ public class VisualisationTaskManager {
 					long endTime = System.currentTimeMillis();								
 					Table rowCounter = null;
 					
-					rowCounter = event.getDatas().get(0).queryFeatures("/column/*").asTable();
+					try {
+						rowCounter = event.getDatas().get(0).queryFeatures("/column/*").asTable();
+					} catch (MicroarrayException e) {
+						// Only in debug mode
+						e.printStackTrace();
+					}
 					
 					int rowCount = 0;
 					
@@ -75,11 +80,6 @@ public class VisualisationTaskManager {
 							"\tTime\t" + (endTime - startTime) + 
 							"\tTime/ByteLength\t" + (endTime - startTime)/(float)event.getDatas().get(0).getContentLength() + "\t");
 				}
-
-			} catch (Exception me) {
-				application.reportException(me);
-			}
-
 		}
 	};
 

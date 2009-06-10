@@ -170,15 +170,24 @@ implements PropertyChangeListener, SelectionChangeListener {
 			selectionBean = selectionBeans.get(1);
 		}
 		
+		if(selectionBean == null){
+			throw new ErrorReportAsException("Source dataset not found", "Hierarchical clustering " +
+					"needs its source dataset.", " Select both HC and its source dataset by keeping \n" +
+					"Ctrl key pressed and right click with mouse over one of them to create \n" +
+					"derivation link from the original dataset to \n" +
+					"clustered one.");
+		}
+		
 		try {			
 
 			String hcTree = data.queryFeatures("/clusters/hierarchical/tree").asStrings().iterator().next();
 
 			// create heatmap
 			QueryResult heatMapFeature = data.queryFeatures("/clusters/hierarchical/heatmap");			
-			TableAnnotationProvider annotationProvider = new TableAnnotationProvider(selectionBean);
 			Table heatMapData = heatMapFeature.asTable();
-			
+						
+			TableAnnotationProvider annotationProvider =  new TableAnnotationProvider(selectionBean);
+						
 			// count rows
 			int rowCount = 0;
 			while (heatMapData.nextRow()) {
@@ -254,8 +263,9 @@ implements PropertyChangeListener, SelectionChangeListener {
 					row++;
 				}
 
-				String geneName = heatMapData.getStringValue(" ");
+				String geneName = heatMapData.getStringValue(" ");				
 				geneName = annotationProvider.getAnnotatedRowname(geneName);
+				
 
 				if (!reversed) {
 					heatMap.setRowName(row, geneName);
@@ -383,7 +393,61 @@ implements PropertyChangeListener, SelectionChangeListener {
 	 * because R script does it.
 	 */
 	private String translate(String gene) {
-		return gene.replace("(", "").replace(")", "-");
+		//Translation according examples below
+		while(gene.startsWith(" ") || gene.startsWith("(")){
+			gene = gene.substring(1);
+		}
+		while(gene.endsWith(" ") || gene.endsWith(")")){
+			gene = gene.substring(0, gene.length() - 1);
+		}
+		
+		
+		gene = gene.replace("(", "-").replace(")", "-").replace(" ", "_");
+		
+		while(gene.contains("--")){
+			gene = gene.replace("--", "-");
+		}
+		return gene;
+		
+//The translation of clustering script translates these:		
+//		 SPACE_ALUSSA		
+//		  2SPACEA_ALUSSA	
+//		SPACE_LOPUSSA 		
+//		2space_lopussa  	
+//		(a-sulkualussa		
+//		((2a-sulkuaalussa	
+//		)k-sulkualussa		
+//		))2k-sulkuaalussa	
+//		k-sulkulopussa)		
+//		2k-sulkualopussa))	
+//		a-sulkulopussa(		
+//		2a-sulkualopussa((	
+//		(sulut)			
+//		((2sulut))		
+//		-viivaalussa		
+//		viivalopussa-		
+//		_alaviivat_		
+		
+		// To these:
+//
+//		SPACE_ALUSSA
+//		2SPACEA_ALUSSA
+//		SPACE_LOPUSSA
+//		2space_lopussa
+//		a-sulkualussa
+//		2a-sulkuaalussa
+//		-k-sulkualussa
+//		-2k-sulkuaalussa
+//		k-sulkulopussa
+//		2k-sulkualopussa
+//		a-sulkulopussa-
+//		2a-sulkualopussa-
+//		sulut
+//		2sulut
+//		-viivaalussa		
+//		viivalopussa-
+//		_alaviivat_
+				
 	}
 
 	private int getTreeHeight(ClusterNode tree) {

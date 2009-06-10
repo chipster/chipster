@@ -99,7 +99,7 @@ public abstract class VisualisationFrame implements DataChangeListener {
 		}				
 	}
 	
-	public JComponent createVisualisation(VisualisationMethodChangedEvent e) throws Exception {
+	public JComponent createVisualisation(VisualisationMethodChangedEvent e) {
 
 		//Create new visualiser only if needed to keep the settings made in settings panel
 		if(this.datas != e.getDatas() || this.method != e.getNewMethod()){
@@ -130,26 +130,31 @@ public abstract class VisualisationFrame implements DataChangeListener {
 		
 		JComponent visualisationComponent = null;
 
-		if(visualiser.isForMultipleDatas()){
-			visualisationComponent = visualiser.getVisualisation(datas);
-		} else if(visualiser.isForSingleData()){
-			DataBean data = datas.size() > 0 ? datas.get(0) : null;
-			visualisationComponent = visualiser.getVisualisation(data);
-		}
-		
-		JComponent componentToReturn;
-		if(parametersPanel != null){
-			paramSplit.setLeftComponent(visualisationComponent);
-			componentToReturn = paramSplit;
-		} else {
-			componentToReturn = visualisationComponent;
-		}
-				
-		if(logger.isDebugEnabled()){
-			logger.debug("visualisationpanel contains following components:");		
-			for (Component component : paramSplit.getComponents()) {
-				logger.debug("\t" + component);
+		JComponent componentToReturn = null;
+		try {
+			if(visualiser.isForMultipleDatas()){
+				visualisationComponent = visualiser.getVisualisation(datas);
+			} else if(visualiser.isForSingleData()){
+				DataBean data = datas.size() > 0 ? datas.get(0) : null;
+				visualisationComponent = visualiser.getVisualisation(data);
 			}
+			
+			if(parametersPanel != null){
+				paramSplit.setLeftComponent(visualisationComponent);
+				componentToReturn = paramSplit;
+			} else {
+				componentToReturn = visualisationComponent;
+			}
+					
+			if(logger.isDebugEnabled()){
+				logger.debug("visualisationpanel contains following components:");		
+				for (Component component : paramSplit.getComponents()) {
+					logger.debug("\t" + component);
+				}
+			}
+		} catch (Exception e1) {
+			application.reportException(e1);
+			componentToReturn = visualiser.getDefaultVisualisation();
 		}
 
 		return componentToReturn;

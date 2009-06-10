@@ -19,6 +19,7 @@ public class ErrorReportAsException extends MicroarrayException {
 
 	public ErrorReportAsException(String title, String message, Exception e) {
 		this(title, message, Exceptions.getStackTrace(e));
+		this.initCause(e);
 	}
 
 

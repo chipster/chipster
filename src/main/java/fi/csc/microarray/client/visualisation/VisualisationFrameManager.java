@@ -163,7 +163,7 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 	}
 	
 
-	public JComponent createVisualisation(VisualisationMethodChangedEvent e) throws Exception {
+	public JComponent createVisualisation(VisualisationMethodChangedEvent e) {
 		
 		switch(e.getTarget()){
 		case MAIN:
