@@ -22,6 +22,7 @@ public class AnalysisDescription {
 	/**
 	 * Logger for this class
 	 */
+	@SuppressWarnings("unused")
 	private static final Logger logger = Logger
 			.getLogger(AnalysisDescription.class);
 
