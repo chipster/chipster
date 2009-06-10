@@ -1,3 +1,35 @@
+<!-- 
+	This is the Chipster runtime configuration file. A runtime specifies
+	an environment, in which a tool (often a script file) is actually run.
+	Examples of runtimes include different versions of R or the beanshell
+	runtime for running BeanShell scripts. 
+
+	In practice, a runtime configuration consists of a name and handler
+	configuration. Runtime name is used as a reference in the tools.xml and
+	the handler element specifies the class which takes care of actually 
+	running the tool. The handler parameters are specific to handler class.
+	
+	The toolPath parameter of th R-x.y.z runtimes specifies the directory
+	inside the chipster-x.y.z.jar or custom-scripts directory, where the 
+	script file specified in the tools.xml is located. 
+	
+	Each analysis tool is bound to a specific runtime in the tools.xml.
+
+	Each of the computing services connected to a same broker must know about
+	all the tools and runtimes enabled in any of the computing services. For 
+	this reason you shouldn't comment out a runtime, even if this computing 
+	service is unable to support it. Instead, if you don't want to run certain
+	tools on certain computing service, a tool can be disabled with the 
+	disabled="true" attribute on the tools.xml. The same disabled="true" can
+	also be used to disable a runtime, which causes all the tools relying on
+	this runtime to be disabled.
+	
+	In addition, if the initialization of the runtime failes, for example the
+	R binary is not found, the runtime becomes disabled.
+
+-->
+
+
 <runtimes>
 	<runtime>
 		<name>R-2.6.1</name>
@@ -6,6 +38,10 @@
 			<parameter>
 				<name>command</name>
 				<value></value>
+			</parameter>
+			<parameter>
+				<name>commandParameters</name>
+				<value>--vanilla --quiet</value>
 			</parameter>
 			<parameter>
 				<name>toolPath</name>

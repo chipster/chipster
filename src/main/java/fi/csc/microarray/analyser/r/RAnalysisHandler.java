@@ -20,7 +20,6 @@ import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.analyser.VVSADLTool;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.description.VVSADLParser.ParseException;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;
@@ -44,11 +43,20 @@ public class RAnalysisHandler implements AnalysisHandler {
 
 	
 	
-	public RAnalysisHandler(HashMap<String, String> parameters) throws IOException, IllegalConfigurationException {
+	public RAnalysisHandler(HashMap<String, String> parameters) throws IOException {
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 		
-		// TODO Put R options to config files
-		this.rCommand = parameters.get("command") + " --vanilla --quiet";
+		String command = parameters.get("command");
+		if (command == null || command.equals("")) {
+			throw new IllegalArgumentException("Illegal command string: " + command);
+		}
+		
+		String commandParameters = parameters.get("commandParameters");
+		
+		if (commandParameters != null) {
+			command += " " + commandParameters;
+		}
+		this.rCommand = command;
 		this.toolPath = parameters.get("toolPath");
 		this.customScriptsDirName = configuration.getString("comp", "custom-scripts-dir");
 	
