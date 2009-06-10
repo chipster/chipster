@@ -2,9 +2,6 @@ package fi.csc.microarray.analyser;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -19,16 +16,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.jms.JMSException;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
-import org.xml.sax.SAXException;
 
 import fi.csc.microarray.ApplicationConstants;
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.MessagingEndpoint;
@@ -112,21 +105,9 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 
 	/**
 	 * 
-	 * @throws JMSException
-	 * @throws IOException if creation of working directory fails.
-	 * @throws MicroarrayException
-	 * @throws IllegalConfigurationException 
-	 * @throws ClassNotFoundException 
-	 * @throws NoSuchMethodException 
-	 * @throws InvocationTargetException 
-	 * @throws IllegalAccessException 
-	 * @throws InstantiationException 
-	 * @throws ParserConfigurationException 
-	 * @throws SAXException 
-	 * @throws SecurityException 
-	 * @throws IllegalArgumentException 
+	 * @throws Exception 
 	 */
-	public AnalyserServer() throws JMSException, IOException, MicroarrayException, IllegalConfigurationException, IllegalArgumentException, SecurityException, SAXException, ParserConfigurationException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException {
+	public AnalyserServer() throws Exception {
 		
 		// initialise dir, config and logging
 		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"comp"}));
@@ -645,10 +626,4 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 
 		logger.info("shutting down");
 	}
-	
-	
-	public static void main(String[] args) throws FileNotFoundException, SAXException, IOException, ParserConfigurationException, IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException, JMSException, MicroarrayException, IllegalConfigurationException  {
-		new AnalyserServer();
-	}
-
 }

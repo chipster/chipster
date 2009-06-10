@@ -1,12 +1,12 @@
 package fi.csc.microarray.analyser;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
@@ -19,9 +19,15 @@ import fi.csc.microarray.util.XmlUtil;
 
 
 /**
+ * The ToolRepository manages analysis tools and runtimes. Analysis tools
+ * are visible to AnalyserServer as AnalysisDescriptions, where as runtimes
+ * are not visible outside of this class.
  * 
- * Any access to descriptions or visibleDescriptions should be use synchronized(this).
- * 
+ * After initialization, any access to descriptions maps should be use 
+ * synchronized using this, since reading descriptions may cause a
+ * description to be updated and being briefly unavailable during the
+ * update.
+ *  
  * @author hupponen
  *
  */
@@ -39,8 +45,12 @@ public class ToolRepository {
 	private HashMap<String, ToolRuntime> runtimes = new HashMap<String, ToolRuntime>();
 	
 	
-
-	public ToolRepository(File workDir) throws FileNotFoundException, IllegalArgumentException, SecurityException, SAXException, IOException, ParserConfigurationException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException {
+	/**
+	 * 
+	 * @param the root workDir for the jobs of the computing service
+	 * @throws Exception
+	 */
+	public ToolRepository(File workDir) throws Exception {
 		loadRuntimes(workDir);
 		loadTools();
 	}
@@ -48,7 +58,7 @@ public class ToolRepository {
 	
 	
 	
-	public AnalysisDescription getDescription(String fullName) throws AnalysisException {
+	public synchronized AnalysisDescription getDescription(String fullName) throws AnalysisException {
 		AnalysisDescription desc; 
 
 		// get the description
