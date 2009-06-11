@@ -117,7 +117,7 @@ public class ToolsInternalFrame extends SimpleInternalFrame
 	public void initializeSecondStep(){
 		secondStepOptionPanel = new JXTaskPaneContainer();
 
-		secondStepOptionPanel.add(this.getDataTypePanel());
+//		secondStepOptionPanel.add(this.getDataTypePanel());
 		secondStepOptionPanel.add(this.getChipCountPanel());		
 		secondStepOptionPanel.add(this.createGuessTheRestPanel());
 		//Hidden temporarily until scripts support flags
@@ -290,6 +290,13 @@ public class ToolsInternalFrame extends SimpleInternalFrame
 
 	// S E C O N D  S T E P ///////////////////////////////////////////////////////
 	
+/**
+ * Panel that should change the column headers to enable import of normalised
+ * datas in the future. For
+ * version 1.3.0 this functionality isn't ready yet and this panel is just hidden. 
+ * 
+ * @return
+ */
 private JXTaskPane getDataTypePanel() {
 		
 		JXTaskPane dataTypePanel = new JXTaskPane();
