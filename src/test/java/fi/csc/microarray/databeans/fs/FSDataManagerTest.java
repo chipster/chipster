@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 
@@ -264,6 +265,14 @@ public class FSDataManagerTest {
 
 		@Override
 		public void deleteDatas(DataItem... datas) {
+		}
+
+		@Override
+		public void loadSessionFrom(URL url) {
+		}
+
+		@Override
+		public void runWorkflow(Object workflowScript) {
 		}		
 	}
 }

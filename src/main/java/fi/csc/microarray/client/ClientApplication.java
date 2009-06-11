@@ -13,6 +13,7 @@ import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -125,12 +126,14 @@ public abstract class ClientApplication implements Node, WizardContext {
 	public abstract void removeLink(DataBean source, DataBean target, Link type);
 	public abstract File saveWorkflow();
 	public abstract File openWorkflow();
+	public abstract void loadSession();
+	public abstract void loadSessionFrom(URL url);
 	public abstract void saveSession();
+	public abstract void runWorkflow(Object workflowScript);
 	public abstract void flipTaskListVisibility(boolean closeIfVisible); // TODO should not be here (GUI related)
 	public abstract void setMaximisedVisualisationMode(boolean maximisedVisualisationMode);
 	public abstract VisualisationFrameManager getVisualisationFrameManager();
 	public abstract void runBlockingTask(String taskName, final Runnable runnable);
-	public abstract void loadSession();
 
 	/**
 	 * Method is called periodically to maintain state that cannot be maintained 
@@ -627,10 +630,6 @@ public abstract class ClientApplication implements Node, WizardContext {
 		ImportUtils.executeImport(importSession);
 	}
 
-	public void runWorkflow(File scriptFile) {
-		workflowManager.runScript(scriptFile, null);
-	}
-	
 	public OperationDefinition locateOperationDefinition(String categoryName, String operationName) {
 		for (OperationCategory category : parsedCategories) {
 			if (category.getName().equals(categoryName)) {

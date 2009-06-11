@@ -54,6 +54,8 @@ import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.dataimport.ImportScreen;
 import fi.csc.microarray.client.dataimport.ImportSession;
 import fi.csc.microarray.client.dataimport.ImportUtils;
+import fi.csc.microarray.client.dataimport.ImportUtils.FileLoaderProcess;
+import fi.csc.microarray.client.dataimport.table.InformationDialog;
 import fi.csc.microarray.client.dataview.DetailsPanel;
 import fi.csc.microarray.client.dataview.GraphPanel;
 import fi.csc.microarray.client.dataview.TreePanel;
@@ -615,7 +617,7 @@ public class SwingClientApplication extends ClientApplication {
 
 					for (ImportItem item : datas) {
 
-						String dataSetName = ImportUtils.convertToDatasetName(item.getOutput().getName());
+						String dataSetName = item.getOutput().getName();
 						ContentType contentType = item.getType();
 						Object dataSource = item.getInput();
 
@@ -771,6 +773,36 @@ public class SwingClientApplication extends ClientApplication {
 		}
 		return null;
 	}
+
+	public void runWorkflow(Object workflowScript) {
+
+		if (workflowScript instanceof File) {
+			workflowManager.runScript((File)workflowScript, null);
+			
+		} else if (workflowScript instanceof URL) {
+			
+			try {
+				URL url = (URL)workflowScript;
+				final File tempFile = ImportUtils.createTempFile(ImportUtils.URLToFilename(url), ImportUtils.getExtension(ImportUtils.URLToFilename(url)));
+				InformationDialog info = new InformationDialog("Loading workflow", "Loading workflow from the specified URL", null);
+
+				FileLoaderProcess fileLoaderProcess = new FileLoaderProcess(tempFile, url, info) {
+					@Override
+					protected void postProcess() {
+						workflowManager.runScript(tempFile, null);
+					};
+				};			
+				fileLoaderProcess.runProcess();
+				
+			} catch (IOException e) {
+				reportException(e);
+			}
+
+		} else {
+			throw new IllegalArgumentException("bad workflowScript type: " + workflowScript.getClass().getSimpleName());
+		}		
+	}
+	
 
 	@Override
 	public File openWorkflow() {
@@ -1099,7 +1131,7 @@ public class SwingClientApplication extends ClientApplication {
 		String importFolder = urlImportDlg.getSelectedFolderName();
 		if (selectedURL != null) {
 
-			File file = ImportUtils.createTempFile(ImportUtils.convertToDatasetName(ImportUtils.URLToFilename(selectedURL)), ImportUtils.getExtension(ImportUtils.URLToFilename(selectedURL)));
+			File file = ImportUtils.createTempFile(ImportUtils.URLToFilename(selectedURL), ImportUtils.getExtension(ImportUtils.URLToFilename(selectedURL)));
 
 			ImportUtils.getURLFileLoader().loadFileFromURL(selectedURL, file, importFolder, urlImportDlg.isSkipSelected());
 		}
@@ -1553,13 +1585,32 @@ public class SwingClientApplication extends ClientApplication {
 		openImportTool(importSession);
 	}
 
+
+	@Override
+	public void loadSessionFrom(URL url) {
+		try {
+			final File tempFile = ImportUtils.createTempFile(ImportUtils.URLToFilename(url), ImportUtils.getExtension(ImportUtils.URLToFilename(url)));
+			InformationDialog info = new InformationDialog("Loading session", "Loading session from the specified URL", null);
+			
+			FileLoaderProcess fileLoaderProcess = new FileLoaderProcess(tempFile, url, info) {
+				@Override
+				protected void postProcess() {
+					loadSessionImpl(tempFile);
+				};
+			};			
+			fileLoaderProcess.runProcess();
+			
+		} catch (IOException e) {
+			reportException(e);
+		}
+	}
+
 	@Override
 	public void loadSession() {
 
 		SnapshotAccessory accessory = new SnapshotAccessory();
 		final JFileChooser fileChooser = getSnapshotFileChooser(accessory);
 		int ret = fileChooser.showOpenDialog(this.getMainFrame());
-		final ClientApplication application = this; // for inner class
 		
 		if (ret == JFileChooser.APPROVE_OPTION) {
 				if (accessory.clearSession()) {
@@ -1568,25 +1619,30 @@ public class SwingClientApplication extends ClientApplication {
 					}
 				}
 				
-				runBlockingTask("loading session", new Runnable() {
-					public void run() {						
-						try {
-							final List<DataItem> newItems = manager.loadSnapshot(fileChooser.getSelectedFile(), manager.getRootFolder(), application);
-							SwingUtilities.invokeAndWait(new Runnable() {
-								public void run() {
-									getSelectionManager().selectSingle(newItems.get(newItems.size() - 1), this); // select last
-								}
-							});
-						} catch (Exception e) {
-							throw new RuntimeException(e);
-						}						
-					}
-				});
+				loadSessionImpl(fileChooser.getSelectedFile());
 		}
 		menuBar.updateMenuStatus();
 		unsavedChanges = false;
 	}
 
+	private void loadSessionImpl(final File sessionFile) {
+		final ClientApplication application = this; // for inner class
+		runBlockingTask("loading session", new Runnable() {
+			public void run() {						
+				try {
+					final List<DataItem> newItems = manager.loadSnapshot(sessionFile, manager.getRootFolder(), application);
+					SwingUtilities.invokeAndWait(new Runnable() {
+						public void run() {
+							getSelectionManager().selectSingle(newItems.get(newItems.size() - 1), this); // select last
+						}
+					});
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}						
+			}
+		});
+	}
+	
 	@Override
 	public void saveSession() {
 

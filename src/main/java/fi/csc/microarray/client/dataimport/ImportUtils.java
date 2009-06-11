@@ -150,7 +150,7 @@ public class ImportUtils {
 			logger.debug("Method loadFileFromURL started");
 			InformationDialog info = new InformationDialog("Loading file", "Loading file from the specified URL", null);
 			logger.debug("Next the download process will start");
-			new FileLoaderProcess(outputFile, url, importFolder, info, skipActionChooser).runProcess();
+			new FileLoaderImportProcess(outputFile, url, importFolder, info, skipActionChooser).runProcess();
 			logger.debug("Download process started");
 			return outputFile;
 		}
@@ -158,19 +158,15 @@ public class ImportUtils {
 
 	public static class FileLoaderProcess extends RunnableImportProcess {
 
-		private File outputFile;
-		private URL url;
-		private InformationDialog info;
-		private String importFolder;
-		private boolean skipActionChooser;
+		protected File outputFile;
+		protected URL url;
+		protected InformationDialog info;
 
-		public FileLoaderProcess(File outputFile, URL url, String importFolder, InformationDialog info, boolean skipActionChooser) {
+		public FileLoaderProcess(File outputFile, URL url, InformationDialog info) {
 			super(info);
 			this.outputFile = outputFile;
 			this.url = url;
 			this.info = info;
-			this.importFolder = importFolder;
-			this.skipActionChooser = skipActionChooser;
 		}
 
 		public void taskToDo() {
@@ -198,9 +194,10 @@ public class ImportUtils {
 				if (numWritten > 0) {
 					SwingUtilities.invokeLater(new Runnable() {
 						public void run() {
-							ImportUtils.executeImport(new ImportSession(ImportSession.Source.URL, new File[] { outputFile }, importFolder, skipActionChooser));
+							postProcess();
 						}
 					});
+					
 				} else {
 					JOptionPane.showMessageDialog(((SwingClientApplication)application).getMainFrame(), "Length of the loaded file is zero, import aborted", "File size too small", JOptionPane.ERROR_MESSAGE);
 				}
@@ -219,8 +216,31 @@ public class ImportUtils {
 				
 			} finally {
 				IOUtils.disconnectIfPossible(connection);
-			}
-			
+			}			
+		}
+		
+		/**
+		 * The default post process does nothing. Subclasses can override to further process copied files.
+		 */
+		protected void postProcess() {
+			// do nothing
+		}
+	}
+	
+	public static class FileLoaderImportProcess extends FileLoaderProcess {
+
+		protected String importFolder;
+		protected boolean skipActionChooser;
+
+		public FileLoaderImportProcess(File outputFile, URL url, String importFolder, InformationDialog info, boolean skipActionChooser) {
+			super(outputFile, url, info);
+			this.importFolder = importFolder;
+			this.skipActionChooser = skipActionChooser;
+		}
+		
+		@Override
+		protected void postProcess() {
+			ImportUtils.executeImport(new ImportSession(ImportSession.Source.URL, new File[] { outputFile }, importFolder, skipActionChooser));
 		}
 	}
 
@@ -266,23 +286,6 @@ public class ImportUtils {
 		return application.getDataManager().guessContentType(file).isSupported();
 	}
 
-	/**
-	 * @param fileName
-	 * @return fileName without file type extension
-	 */
-	// TODO Remove this or implements it in some other way. Splitting
-	// using dot is not the best way to catch the filename extension
-	public static String convertToDatasetName(String fileName) {
-		// for now, do nothing
-		return fileName;
-		/*
-		 * if(fileName.contains(".")){ return fileName.substring(0,
-		 * fileName.indexOf('.')); } else { return fileName; }
-		 */
-	}
-
-	// TODO Remove this or implements it in some other way. Splitting
-	// using dot is not the best way to catch the filename extension
 	public static String getExtension(String fileName) {
 		if (fileName.contains(".")) {
 			return fileName.substring(fileName.indexOf('.'), fileName.length());
@@ -295,7 +298,7 @@ public class ImportUtils {
 		String fileName;
 		// Removes the folder (for example /path/to/file.ext -> file.ext)
 		fileName = url.getFile().substring(url.getFile().lastIndexOf("/") + 1, url.getFile().length());
-		if (ImportUtils.convertToDatasetName(fileName).length() < 3) {
+		if (fileName.length() < 3) {
 			fileName = "url_" + fileName;
 		}
 

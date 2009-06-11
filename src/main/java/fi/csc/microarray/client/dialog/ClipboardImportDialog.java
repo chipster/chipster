@@ -132,13 +132,11 @@ public class ClipboardImportDialog extends JDialog implements ActionListener, Ca
 			
 			File file;
 			try {
-				if (ImportUtils.convertToDatasetName(this.getFileName()).length() < 3){
+				if (this.getFileName().length() < 3){
 					nameField.setText("clipboard_" + this.getFileName());
 				}
 				
-				file = ImportUtils.createTempFile(
-						ImportUtils.convertToDatasetName(this.getFileName()),
-						ImportUtils.getExtension(this.getFileName()));
+				file = ImportUtils.createTempFile(this.getFileName(), ImportUtils.getExtension(this.getFileName()));
 				
 				if (pasteToFile(file, this)){	//Only if success
 					ImportSession importSession = new ImportSession(ImportSession.Source.CLIPBOARD, new File[] { file }, folderNameCombo.getSelectedItem().toString(), true);

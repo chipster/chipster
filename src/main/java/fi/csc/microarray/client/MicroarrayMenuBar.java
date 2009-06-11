@@ -8,6 +8,7 @@ import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.net.URL;
 import java.util.List;
 
 import javax.swing.JMenu;
@@ -141,6 +142,22 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fileMenu.addSeparator();
 			fileMenu.add(getExportMenuItem());
 			fileMenu.addSeparator();
+			JMenuItem t = new JMenuItem();
+			t.setText("URLI jeejee");
+			t.addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent e) {
+					try {
+						URL url = new URL("http://chipster.csc.fi/examples/kidney.cs");
+						application.loadSessionFrom(url);
+						
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+				}
+				
+			});
+			fileMenu.add(t);
 			fileMenu.add(getLoadSnapshotMenuItem());
 			fileMenu.add(getSaveSnapshotMenuItem());
 			fileMenu.add(getClearSessionMenuItem());
