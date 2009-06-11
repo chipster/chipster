@@ -169,7 +169,7 @@ public class ToolRepository {
 			// disabled
 			if (handler.isDisabled()) {
 				runtimeDisabled = true;
-				logger.info("runtime " + runtimeName + " disabled since handler is disabled");
+				logger.info("runtime " + runtimeName + " disabled as handler is disabled");
 			}
 
 			// add to runtimes
@@ -186,9 +186,13 @@ public class ToolRepository {
 		Document document = XmlUtil.getInstance().parseReader(new FileReader(toolConfig));
 		Element toolsElement = (Element)document.getElementsByTagName("tools").item(0);
 
-		
+		int totalCount = 0;
+		int successfullyLoadedCount = 0;
+		int hiddenCount = 0;
+		int disabledCount = 0;
 		for (Element toolElement: XmlUtil.getChildElements(toolsElement, "tool")) {
-
+			totalCount++;
+			
 			// tool name
 			String sourceResourceName = toolElement.getTextContent();
 			logger.debug("loading " + sourceResourceName);
@@ -203,7 +207,7 @@ public class ToolRepository {
 			// load the tool
 			ToolRuntime runtime = runtimes.get(runtimeName);
 			if (runtime == null) {
-				logger.warn("could not find runtime " + runtimeName + " for " + sourceResourceName);
+				logger.warn("loading " + sourceResourceName + " failed, could not find runtime " + runtimeName);
 				continue;
 			}
 			
@@ -211,30 +215,35 @@ public class ToolRepository {
 			try {
 				description = runtime.getHandler().handle(sourceResourceName);
 			} catch (AnalysisException e) {
-				logger.warn("could not create description for " + sourceResourceName);
+				logger.warn("loading " + sourceResourceName + " failed, could not create description", e);
 				continue;
 			}
 
 			// add to descriptions
 			if (descriptions.containsKey(description.getFullName())) {
-				logger.warn("description with the name " + description.getFullName() + " already exists, keeping the original");
+				logger.warn("loading " + sourceResourceName + " failed, description with the name " + description.getFullName() + " already exists");
 				continue;
 			}
 			descriptions.put(description.getFullName(), description);
+			successfullyLoadedCount++;
+			
 			String disabledStatus = "";
 			if (!runtime.isDisabled() && !toolDisabled) {
 				supportedDescriptions.put(description.getFullName(), description);
 			} else {
 				disabledStatus = " DISABLED";
+				disabledCount++;
 			}
 			String hiddenStatus = "";
 			if (!toolHidden) {
 				visibleDescriptions.put(description.getFullName(), description);
 			} else {
 				hiddenStatus = " HIDDEN";
+				hiddenCount++;
 			}
 			
 			logger.info("loaded " + description.getFullName().replace("\"", "") + " " + description.getSourceResourceFullPath() + disabledStatus + hiddenStatus);
 		}
+		logger.info("loaded " + successfullyLoadedCount + "/" + totalCount + " tools, " + disabledCount + " disabled, " + hiddenCount + " hidden");
 	}
 }

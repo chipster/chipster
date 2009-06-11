@@ -1,4 +1,4 @@
-# ANALYSIS Test/SimpleInputOutput (Send prefix + input back as output)
+# ANALYSIS Test/DataThroughput (Send prefix + input back as output)
 # INPUT GENERIC input.dat OUTPUT output.dat
 
 input<-readLines("input.dat")

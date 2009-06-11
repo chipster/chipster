@@ -76,7 +76,9 @@ public class BeanShellHandler implements AnalysisHandler {
 			scriptSource = this.getClass().getResourceAsStream(scriptPath);
 		}
 		
-
+		if (scriptSource == null) {
+			throw new AnalysisException("Script source " + sourceResourceName + " not found.");
+		}
 		
 		// read the VVSADL from the comment block in the beginning of file
 		// and the actual source code
