@@ -60,6 +60,10 @@
 				<value>R-2.7.2</value>
 			</parameter>
 			<parameter>
+				<name>commandParameters</name>
+				<value>--vanilla --quiet</value>
+			</parameter>
+			<parameter>
 				<name>toolPath</name>
 				<value>/R-2.7.2</value>
 			</parameter>
