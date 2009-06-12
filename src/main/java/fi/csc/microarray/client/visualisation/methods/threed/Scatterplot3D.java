@@ -124,7 +124,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 			autoCheckBox.addActionListener(this);
 
 			JPanel settings = this.createSettingsPanel();
-			list = new AnnotateListPanel();
+			list = createListPanel();
 
 			JTabbedPane tabPane = new JTabbedPane();
 			tabPane.addTab("Settings", settings);
@@ -170,6 +170,14 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 		return paramPanel;
 	}
 	
+	
+	/**
+	 * Hook for PCA to change the word "genes"
+	 */
+	public AnnotateListPanel createListPanel() {
+		return new AnnotateListPanel();
+	}
+
 	public JPanel createSettingsPanel(){
 
 		settingsPanel =  new JPanel();

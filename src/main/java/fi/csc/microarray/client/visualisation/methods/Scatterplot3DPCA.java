@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import fi.csc.microarray.MicroarrayException;
+import fi.csc.microarray.client.visualisation.AnnotateListPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
@@ -23,6 +24,11 @@ public class Scatterplot3DPCA extends Scatterplot3D{
 
 	public Scatterplot3DPCA(VisualisationFrame frame) {
 		super(frame);
+	}
+	
+	@Override
+	public AnnotateListPanel createListPanel() {
+		return new AnnotateListPanel("Chips");
 	}
 	
 	@Override

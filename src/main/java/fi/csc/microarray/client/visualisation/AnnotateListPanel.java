@@ -35,6 +35,7 @@ public class AnnotateListPanel extends JPanel {
 	private ClientApplication application = Session.getSession().getApplication();
 
 	private JLabel countLabel;
+	private String nameOfItems = "Genes";
 
 	public AnnotateListPanel() {
 
@@ -75,6 +76,11 @@ public class AnnotateListPanel extends JPanel {
 		buttonPanel.add(filterButton, BorderLayout.SOUTH);
 		this.add(buttonPanel, BorderLayout.SOUTH);
 	}
+	
+	public AnnotateListPanel(String nameOfItems){
+		this();
+		this.nameOfItems  = nameOfItems;
+	}
 
 	public void setSelectedListContentMultipleDatas(List<String> content, Map<DataBean, Set<Integer>> indexes, Object source, boolean dispatchEvent) {
 
@@ -92,7 +98,7 @@ public class AnnotateListPanel extends JPanel {
 		}
 
 		selectedListModel.removeAllElements();
-		countLabel.setText(content.size() + " Genes selected");
+		setCount(content.size());
 		annotateButton.setEnabled(content.size() > 0);
 		filterButton.setEnabled(content.size() > 0);
 
@@ -144,7 +150,7 @@ public class AnnotateListPanel extends JPanel {
 		}		
 		
 		selectedListModel.removeAllElements();
-		countLabel.setText(content.size() + " Genes selected");
+		setCount(content.size());
 		annotateButton.setEnabled(content.size() > 0);
 		filterButton.setEnabled(content.size() > 0);
 		/*
@@ -190,7 +196,7 @@ public class AnnotateListPanel extends JPanel {
 		}
 
 		selectedListModel.removeAllElements();
-		countLabel.setText(rows.size() + " Genes selected");
+		setCount(rows.size());
 		annotateButton.setEnabled(rows.size() > 0);
 		filterButton.setEnabled(rows.size() > 0);
 
@@ -217,6 +223,10 @@ public class AnnotateListPanel extends JPanel {
 			application.getSelectionManager().getRowSelectionManager(data).setSelected(
 					rows, source);
 		}
+	}
+	
+	private void setCount(int count){
+		countLabel.setText(count + " " + nameOfItems + " selected");
 	}
 
 	/**
