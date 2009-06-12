@@ -53,7 +53,7 @@ import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 /**
  * Editor for phenodata type of tabular DataBeans.
  * 
- * @author Aleksi Kallio, Petri KlemelÃ¯Â¿Â½
+ * @author Aleksi Kallio, Petri Klemelä
  *
  */
 public class PhenodataEditor extends Visualisation implements DataChangeListener {
@@ -92,6 +92,8 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 		public PhenodataTable(DataBean data) {
 			super(data);			
 			this.setHorizontalScrollEnabled(this.getWidth() < NO_SCROLL_WIDTH);
+			this.setSortable(false);
+			
 			this.addKeyListener(new KeyListener(){
 				public void keyPressed(KeyEvent e) {
 				}
@@ -101,35 +103,40 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 
 				public void keyTyped(KeyEvent e) {										
 
-					if(getCellEditor() != null){
+					if(getCellEditor() != null){						
+						
 						int y = getEditingRow();
 						int x = getEditingColumn();												
 						
 						if(y != lastY || x != lastX){
+														
 							getCellEditor().stopCellEditing();
-							
+												
 							lastY = y;
 							lastX = x;
-							
-
+														
 							setValueAt("", y, x);
-
+							
 							boolean success = editCellAt(y, x);
+							
 							if (success) {
 								changeSelection(y, x, false, false);
 							}
 						}
 						
-						getCellEditor().addCellEditorListener(new CellEditorListener(){
-							
-							public void editingCanceled(ChangeEvent e) {
-								lastX = lastY = -1;
-							}
-							
-							public void editingStopped(ChangeEvent e) {
-								lastX = lastY = -1;	
-							}				
-						});
+						//May be null after stopCellEditing
+						if(getCellEditor() != null){
+							getCellEditor().addCellEditorListener(new CellEditorListener(){
+
+								public void editingCanceled(ChangeEvent e) {
+									lastX = lastY = -1;
+								}
+
+								public void editingStopped(ChangeEvent e) {
+									lastX = lastY = -1;
+								}
+							});
+						}
 					}
 				}				
 			});
