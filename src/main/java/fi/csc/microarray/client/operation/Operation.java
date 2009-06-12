@@ -132,7 +132,13 @@ public class Operation implements ExecutionItem {
 		}
 	}
 
+	public void clearBindings() {
+		this.bindings = null;
+	}
 
+	public List<DataBinding> getBindings() {
+		return bindings;
+	}
 
 	/**
 	 * @return The name of this operation (actually, of its definition).
@@ -240,10 +246,6 @@ public class Operation implements ExecutionItem {
 
 	public void setResultListener(ResultListener resultListener) {
 		this.resultListener = resultListener;
-	}
-
-	public List<DataBinding> getBindings() {
-		return bindings;
 	}
 
 	public DataFolder getOutputFolder() {

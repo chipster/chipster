@@ -15,6 +15,7 @@ import org.mortbay.util.IO;
 
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.ClientApplication;
+import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
@@ -239,6 +240,29 @@ public class FSDataManager extends DataManagerBase {
 
 		FSDataBean fsDataBean = (FSDataBean)bean;
 		
+		// remove from operation history
+		for (Link linkType : Link.derivationalTypes()) {
+			for (DataBean source : fsDataBean.getLinkSources(linkType)) {
+				
+				boolean isDirty = false;
+				List<DataBinding> bindings = source.getOperation().getBindings();
+				
+				if (bindings != null) {
+					for (DataBinding binding : bindings) {
+						if (binding.getData() == fsDataBean) {
+							// this operation would become dirty after removing the data
+							isDirty = true;
+							break;
+						}
+					}
+				}
+				
+				if (isDirty) {
+					source.getOperation().clearBindings();
+				}
+			}
+		}
+		
 		// remove links
 		for (Link linkType : Link.values()) {
 			// Remove outgoing links
@@ -251,7 +275,7 @@ public class FSDataManager extends DataManagerBase {
 			}
 		}
 
-		// remove this bean
+		// remove bean
 		DataFolder folder = fsDataBean.getParent();
 		if (folder != null) {
 			folder.removeChild(fsDataBean);
