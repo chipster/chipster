@@ -146,6 +146,7 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 		@Override
 		public void setModel(TableModel model){
 			super.setModel(model);
+			setColumnsComboContent();
 		}
 
 		private Color uneditableBg = getBackground();
