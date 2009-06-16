@@ -45,12 +45,12 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridy = 0;						
 		c.insets.top = 5;
-		//c.insets.left = 10;
+		c.insets.left = 10;
 		//c.insets.right = 10;
 		c.insets.bottom = 5;
-		c.anchor = GridBagConstraints.CENTER;
+		c.anchor = GridBagConstraints.LINE_START;
 		
-		JLabel title = new JLabel("How to start?");
+		JLabel title = new JLabel("Getting started");
 		title.setFont(title.getFont().deriveFont(
 				(float) (title.getFont().getSize()*1.2)));
 		title.setFont(title.getFont().deriveFont(Font.BOLD));
@@ -70,7 +70,7 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 				"or another programs.", c);
 		addLink(getExampleLink(), 
 				"to try out Chipster analyses and visualisations.", c);
-		addLink(getEmptyLink(), "", c);
+		//addLink(getEmptyLink(), "", c);
 		
 		this.setMinimumSize(new Dimension(0,0));
 		this.setPreferredSize(new Dimension(VisualConstants.LEFT_PANEL_WIDTH, VisualConstants.TREE_PANEL_HEIGHT));
@@ -94,7 +94,7 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 		}
 	}
 
-	private Component getExampleLink() {
+	private Component getExampleLink() { 
 		if (exampleLink == null){
 			exampleLink = new JXHyperlink();
 			exampleLink.setText("Open example session");
@@ -106,7 +106,7 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 	private Component getEmptyLink() {
 		if (emptyLink == null){
 			emptyLink = new JXHyperlink();
-			emptyLink.setText("Start empty Chipster session");
+			emptyLink.setText("Start empty session");
 			emptyLink.addActionListener(this);
 		}
 		return emptyLink;
@@ -115,7 +115,7 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 	private Component getImportLink() {
 		if (importLink == null){
 			importLink = new JXHyperlink();
-			importLink.setText("Import custom files");
+			importLink.setText("Import files");
 			importLink.addActionListener(this);
 		}
 		return importLink;
@@ -124,7 +124,7 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 	private Component getSessionLink() {
 		if (sessionLink == null){
 			sessionLink = new JXHyperlink();
-			sessionLink.setText("Open Chipster Session");
+			sessionLink.setText("Open session");
 			sessionLink.addActionListener(this);
 		}
 		return sessionLink;
