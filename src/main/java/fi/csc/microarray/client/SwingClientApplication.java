@@ -3,7 +3,6 @@ package fi.csc.microarray.client;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -255,7 +254,9 @@ public class SwingClientApplication extends ClientApplication {
 		leftSideContentPane.setBorder(BorderFactory.createEmptyBorder());
 
 		/* Initialize tree and graph */
-		this.tree = new TreePanel(manager.getRootFolder());
+		
+		//moved to getTreeFrame
+//		this.tree = new TreePanel(manager.getRootFolder());
 		this.graphPanel = new GraphPanel();
 
 		treeFrame = getTreeFrame();
@@ -404,7 +405,8 @@ public class SwingClientApplication extends ClientApplication {
 			CardLayout cardLayout = new CardLayout();
 			JPanel cardPanel = new JPanel(cardLayout);
 			
-			QuickLinkPanel linkPanel = new QuickLinkPanel(cardPanel, cardLayout);			
+			QuickLinkPanel linkPanel = new QuickLinkPanel(cardPanel, cardLayout);
+			this.tree = new TreePanel(manager.getRootFolder(), cardPanel, cardLayout);
 						
 			cardPanel.add(linkPanel, "LINKS");
 			cardPanel.add(tree, "TREE");

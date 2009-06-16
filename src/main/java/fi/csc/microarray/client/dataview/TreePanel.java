@@ -1,5 +1,6 @@
 package fi.csc.microarray.client.dataview;
 
+import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -167,12 +168,18 @@ public class TreePanel extends JPanel implements DataChangeListener, TreeSelecti
 	
 	private boolean disableSelectionReporting = false;
 	
+	private CardLayout cardLayout;
+	private JPanel cardParent;
+	
 	/**
 	 * Creates a new TreePanel component, initially empty with only
 	 * the default root folder present.
 	 */
-	public TreePanel(DataFolder rootFolder) {
+	public TreePanel(DataFolder rootFolder, JPanel parent, CardLayout cardLayout) {
 		super(new GridBagLayout());
+		
+		this.cardLayout = cardLayout;
+		this.cardParent = parent;
 		
 		// initialise root and data structures
 		this.rootFolder = rootFolder;
@@ -377,7 +384,12 @@ public class TreePanel extends JPanel implements DataChangeListener, TreeSelecti
         		removeData(data);
         	}
         	
-        	tree.repaint(); 
+        	if(treeModel.getChildCount(treeModel.getRoot()) >= 1){
+        		cardLayout.last(cardParent);
+        		tree.repaint();
+        	} else {
+        		cardLayout.first(cardParent);
+        	}
         }        
 	}
 
@@ -391,7 +403,7 @@ public class TreePanel extends JPanel implements DataChangeListener, TreeSelecti
 
 			// Iterate through all affected nodes
 			for (int i=0; i<paths.length; i++) {			
-				//if (e.getNewLeadSelectionPath() != null) {
+
 				DefaultMutableTreeNode node = 
 					(DefaultMutableTreeNode) paths[i].getLastPathComponent();
 
@@ -411,39 +423,7 @@ public class TreePanel extends JPanel implements DataChangeListener, TreeSelecti
 					application.getSelectionManager().deselectMultiple(item, this);
 
 				}
-//				} else {
-//				logger.debug("null path, clearing alla selections");
-//				//application.getSelectionManager().clearAll(true, this);
-//				return;
-//				}
 			}		
-			/*
-		if(e != null){
-
-
-			if (e.getNewLeadSelectionPath() == null) {
-				application.getSelectionManager().clearAll(true);
-
-			} else if(e. && e.isAddedPath(e.getNewLeadSelectionPath())){
-
-				//New dataset is added to multiple selection
-
-				DefaultMutableTreeNode node = 
-					(DefaultMutableTreeNode) e.getNewLeadSelectionPath().getLastPathComponent();
-
-				DataItem item = (DataItem) node.getUserObject();
-				application.getSelectionManager().selectMultiple(item);
-			} else {
-				//dataset is removed from the selection. SelectionManager doesn't have
-				//direct functionality for this, so it's done more arduous way.
-				DefaultMutableTreeNode node = 
-					(DefaultMutableTreeNode) e.getNewLeadSelectionPath().getLastPathComponent();
-
-				DataItem item = (DataItem) node.getUserObject();
-				application.getSelectionManager().deselectMultiple(item);
-
-			}
-		}*/
 		}
 	}
 }

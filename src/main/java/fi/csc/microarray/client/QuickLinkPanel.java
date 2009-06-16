@@ -30,13 +30,13 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 	private JXHyperlink exampleLink;
 
 	private CardLayout cardLayout;
-	private JPanel cardPrarent;
+	private JPanel cardParent;
 
 	public QuickLinkPanel(JPanel parent, CardLayout cardLayout) {
 		super(new GridBagLayout());
 		
 		this.cardLayout = cardLayout;
-		this.cardPrarent = parent;
+		this.cardParent = parent;
 		
 		application = (SwingClientApplication)Session.getSession().getApplication();
 		
@@ -48,7 +48,7 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 		c.insets.left = 10;
 		//c.insets.right = 10;
 		c.insets.bottom = 5;
-		c.anchor = GridBagConstraints.LINE_START;
+		c.anchor = GridBagConstraints.NORTHWEST;
 		
 		JLabel title = new JLabel("Getting started");
 		title.setFont(title.getFont().deriveFont(
@@ -57,7 +57,6 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 		
 		this.add(title,c);
 		
-		c.anchor = GridBagConstraints.LINE_START;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1.0;
 		c.weighty = 0.0;
@@ -71,6 +70,12 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 		addLink(getExampleLink(), 
 				"to try out Chipster analyses and visualisations.", c);
 		//addLink(getEmptyLink(), "", c);
+		
+		c.weighty = 1.0;
+		c.fill = GridBagConstraints.BOTH;
+		JPanel emptyPanel = new JPanel();
+		emptyPanel.setBackground(Color.white);
+		this.add(emptyPanel, c);
 		
 		this.setMinimumSize(new Dimension(0,0));
 		this.setPreferredSize(new Dimension(VisualConstants.LEFT_PANEL_WIDTH, VisualConstants.TREE_PANEL_HEIGHT));
@@ -150,7 +155,5 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 				application.reportException(ex);
 			}
 		}
-		
-		cardLayout.last(cardPrarent);
 	}
 }
