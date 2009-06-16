@@ -1,7 +1,9 @@
 package fi.csc.microarray.client;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -335,6 +337,7 @@ public class SwingClientApplication extends ClientApplication {
 		}
 
 		customiseFocusTraversal();
+		restoreDefaultView();
 	}
 
 	private void customiseFocusTraversal() throws MicroarrayException {
@@ -397,7 +400,18 @@ public class SwingClientApplication extends ClientApplication {
 	public SimpleInternalFrame getTreeFrame() throws MicroarrayException {
 		if (treeFrame == null) {
 			treeFrame = new SimpleInternalFrame("Datasets");
-			treeFrame.add(tree);
+						
+			CardLayout cardLayout = new CardLayout();
+			JPanel cardPanel = new JPanel(cardLayout);
+			
+			QuickLinkPanel linkPanel = new QuickLinkPanel(cardPanel, cardLayout);			
+						
+			cardPanel.add(linkPanel, "LINKS");
+			cardPanel.add(tree, "TREE");
+			
+			treeFrame.add(cardPanel);
+			cardLayout.first(cardPanel);
+			
 			return treeFrame;
 
 		} else {
