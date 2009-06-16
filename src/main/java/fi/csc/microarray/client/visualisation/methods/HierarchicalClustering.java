@@ -359,12 +359,10 @@ implements PropertyChangeListener, SelectionChangeListener {
 				// Colors
 				double min = getMinValue(dataset.getHeatMap());
 				double max = getMaxValue(dataset.getHeatMap());
-				double mid = ((min + max) / 2);
 
-				GradientColorPalette colors = new GradientColorPalette();
-				colors.addKeyColor(min, Color.GREEN);
-				colors.addKeyColor(mid, Color.BLACK);
-				colors.addKeyColor(max, Color.RED);
+				GradientColorPalette colors = new GradientColorPalette(
+						new double[] {min, max}, 
+						new Color[] {Color.GREEN, Color.BLACK, Color.RED});
 
 				hcPlot.setColoring(colors);
 
@@ -393,7 +391,7 @@ implements PropertyChangeListener, SelectionChangeListener {
 	 * because R script does it.
 	 */
 	private String translate(String gene) {
-		//Translation according examples below
+
 		while(gene.startsWith(" ") || gene.startsWith("(")){
 			gene = gene.substring(1);
 		}
@@ -407,47 +405,7 @@ implements PropertyChangeListener, SelectionChangeListener {
 		while(gene.contains("--")){
 			gene = gene.replace("--", "-");
 		}
-		return gene;
-		
-//The translation of clustering script translates these:		
-//		 SPACE_ALUSSA		
-//		  2SPACEA_ALUSSA	
-//		SPACE_LOPUSSA 		
-//		2space_lopussa  	
-//		(a-sulkualussa		
-//		((2a-sulkuaalussa	
-//		)k-sulkualussa		
-//		))2k-sulkuaalussa	
-//		k-sulkulopussa)		
-//		2k-sulkualopussa))	
-//		a-sulkulopussa(		
-//		2a-sulkualopussa((	
-//		(sulut)			
-//		((2sulut))		
-//		-viivaalussa		
-//		viivalopussa-		
-//		_alaviivat_		
-		
-		// To these:
-//
-//		SPACE_ALUSSA
-//		2SPACEA_ALUSSA
-//		SPACE_LOPUSSA
-//		2space_lopussa
-//		a-sulkualussa
-//		2a-sulkuaalussa
-//		-k-sulkualussa
-//		-2k-sulkuaalussa
-//		k-sulkulopussa
-//		2k-sulkualopussa
-//		a-sulkulopussa-
-//		2a-sulkualopussa-
-//		sulut
-//		2sulut
-//		-viivaalussa		
-//		viivalopussa-
-//		_alaviivat_
-				
+		return gene;		
 	}
 
 	private int getTreeHeight(ClusterNode tree) {
