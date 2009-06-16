@@ -2,23 +2,19 @@ package fi.csc.microarray.client;
 
 import java.awt.CardLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.net.URL;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 
 import org.jdesktop.swingx.JXHyperlink;
-
-import fi.csc.microarray.MicroarrayException;
 
 public class QuickLinkPanel extends JPanel implements ActionListener{
 	
@@ -81,25 +77,47 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 		this.setPreferredSize(new Dimension(VisualConstants.LEFT_PANEL_WIDTH, VisualConstants.TREE_PANEL_HEIGHT));
 	}
 	
-	private void addLink(Component link, String description, GridBagConstraints c){
+	private void addLink(JXHyperlink link, String description, GridBagConstraints c){
+		
+		String[] words = description.split(" ");
+		int rowChars = link.getText().length() + 1;
+		final int MAX_ROW_CHARS = 25;
+			
 		c.gridy++;
 		c.insets.left = 10;
-		c.insets.top = 5;
-		this.add(link, c);
+		c.insets.top = 15;
+		c.insets.bottom = 0;
 		
-		if(description != null){
-			c.gridy++;
-			c.insets.left = 20;
-			c.insets.top = 0;
+		JPanel row = null;
+						
+		for (int i = -1; i < words.length; i++){
+			if(i == -1 || rowChars + words[i].length() > MAX_ROW_CHARS){
+				
+				FlowLayout flow = new FlowLayout(FlowLayout.LEADING);
+				flow.setVgap(0);
+				flow.setHgap(0);				
+				row = new JPanel(flow);
+				row.setBackground(Color.white);
 
-			JTextArea text = new JTextArea(description);
-			text.setEditable(false);
-
-			this.add(text, c);
+				c.gridy++;
+				this.add(row, c);
+				c.insets.top = 0; // After first row
+				rowChars = 0;
+				
+				if(i == -1){
+					row.add(link);
+				}
+			} 
+			
+			if(i != -1){
+				JLabel text = new JLabel(" " + words[i]);				
+				row.add(text);
+				rowChars += words[i].length();
+			}
 		}
 	}
 
-	private Component getExampleLink() { 
+	private JXHyperlink getExampleLink() { 
 		if (exampleLink == null){
 			exampleLink = new JXHyperlink();
 			exampleLink.setText("Open example session");
@@ -108,7 +126,7 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 		return exampleLink;
 	}
 
-	private Component getEmptyLink() {
+	private JXHyperlink getEmptyLink() {
 		if (emptyLink == null){
 			emptyLink = new JXHyperlink();
 			emptyLink.setText("Start empty session");
@@ -117,7 +135,7 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 		return emptyLink;
 	}
 
-	private Component getImportLink() {
+	private JXHyperlink getImportLink() {
 		if (importLink == null){
 			importLink = new JXHyperlink();
 			importLink.setText("Import files");
@@ -126,7 +144,7 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 		return importLink;
 	}
 
-	private Component getSessionLink() {
+	private JXHyperlink getSessionLink() {
 		if (sessionLink == null){
 			sessionLink = new JXHyperlink();
 			sessionLink.setText("Open session");
