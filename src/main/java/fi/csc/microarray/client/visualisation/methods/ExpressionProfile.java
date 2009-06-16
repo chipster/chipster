@@ -34,15 +34,15 @@ import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.selection.RowChoiceEvent;
 import fi.csc.microarray.client.selection.RowSelectionManager;
 import fi.csc.microarray.client.visualisation.AnnotateListPanel;
+import fi.csc.microarray.client.visualisation.ChipVisualisation;
 import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
-import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.methods.SelectableChartPanel.SelectionChangeListener;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.Table;
 
-public class ExpressionProfile extends Visualisation 
+public class ExpressionProfile extends ChipVisualisation 
 implements PropertyChangeListener, SelectionChangeListener {
 	
 	//private static final Logger logger = Logger.getLogger(ExpressionProfile.class);
@@ -260,17 +260,6 @@ implements PropertyChangeListener, SelectionChangeListener {
         
 		return chart;
 	}
-
-	@Override
-	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		boolean isTabular = VisualisationMethod.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
-		if (isTabular) {
-			Table chips = bean.queryFeatures("/column/chip.*").asTable();
-			return chips != null && chips.getColumnNames().length > 1;
-		}
-		return false;
-	}
-
 
 	@SuppressWarnings("unchecked") //Old api in JFreeChart
 	public void selectionChanged(Rectangle2D.Double selection) {
