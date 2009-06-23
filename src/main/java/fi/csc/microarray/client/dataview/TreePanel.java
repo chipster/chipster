@@ -10,6 +10,7 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,6 +29,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
 import org.apache.log4j.Logger;
 
@@ -83,11 +85,7 @@ public class TreePanel extends JPanel implements DataChangeListener, TreeSelecti
         			// select all child beans
         			DataFolder folder = (DataFolder)selectedItem;
         			application.getSelectionManager().clearAll(false, this);
-        			for (DataItem item : folder.getChildren()) {
-        				if (item instanceof DataBean) {
-        					application.getSelectionManager().selectMultiple((DataBean) item, this);
-        				}
-        			}
+        			application.getSelectionManager().selectMultiple(folder.getChildren(), this);
         		}
         	} 
         }
@@ -237,6 +235,9 @@ public class TreePanel extends JPanel implements DataChangeListener, TreeSelecti
 
             tree.setCellRenderer(new CustomTreeCellRenderer());
             
+            this.tree.getSelectionModel().setSelectionMode(
+            		TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
+            
             tree.addTreeSelectionListener(this);
             tree.addMouseListener(new TreeMouseListener());                    	
         }
@@ -355,14 +356,18 @@ public class TreePanel extends JPanel implements DataChangeListener, TreeSelecti
 		logger.debug("got " + dataEvent.getClass().getSimpleName());
 		
         if (dataEvent instanceof DatasetChoiceEvent && 
-        		!(dataEvent.getSource() instanceof TreePanel)) {
+        		dataEvent.getSource() != this) {
         	
         	LinkedList<TreePath> paths = new LinkedList<TreePath>();
         	for(DataBean bean : application.getSelectionManager().getSelectedDataBeans()){
         		paths.add(new TreePath(nodeMap.get(bean).getPath()));
         	}        	
         	TreePath path[] = paths.toArray(new TreePath[paths.size()]);
+        	
+        	disableSelectionReporting  = true;
         	tree.setSelectionPaths(path);
+        	disableSelectionReporting = false;
+        	
         	if(path.length > 0){
         		tree.scrollPathToVisible(path[path.length - 1]);
         	}
@@ -395,35 +400,23 @@ public class TreePanel extends JPanel implements DataChangeListener, TreeSelecti
 
 	public void valueChanged(TreeSelectionEvent e) {
 		if(!disableSelectionReporting){
+			
+			application.getSelectionManager().clearAll(false, this);
 
-//			Get all nodes whose selection status has changed
-			TreePath[] paths = e.getPaths();
+			TreePath[] paths = tree.getSelectionPaths();
 
-			logger.debug("Path count in valueChanged: " + paths.length);
-
-			// Iterate through all affected nodes
+			Collection<DataItem> selected = new ArrayList<DataItem>();
+			
 			for (int i=0; i<paths.length; i++) {			
 
 				DefaultMutableTreeNode node = 
 					(DefaultMutableTreeNode) paths[i].getLastPathComponent();
-
-				DataItem item = (DataItem) node.getUserObject();			
-
-				if (e.isAddedPath(i)) {
-					logger.debug("Selected item: " + item);
-					// This node has been selected
-					application.getSelectionManager().selectMultiple(item, this);
-				} else {
-					// This node has been deselected
-					logger.debug("Deselected item: " + item);
-
-					//FIXME The dataChoiceEvent is generated for the deselection and after the
-					//event from the actual selection. This causes visualisations to fail 
-					//sometimes.
-					application.getSelectionManager().deselectMultiple(item, this);
-
-				}
-			}		
+				
+				selected.add((DataItem) node.getUserObject());
+				
+			}
+			
+			application.getSelectionManager().selectMultiple(selected, this);
 		}
 	}
 }

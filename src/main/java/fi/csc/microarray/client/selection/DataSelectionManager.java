@@ -1,5 +1,6 @@
 package fi.csc.microarray.client.selection;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -94,22 +95,40 @@ public class DataSelectionManager {
 		selectedDatas.clear();
 		selectMultiple(dataItem, source);		
 	}
-
+	
+    /**
+     * Next method with collection of items should be used in the future. This is 
+     * kept for now to avoid big number of change all around program. Later the logic
+     * of this method should be unified with the row selection manager to make overall 
+     * architecture clearer.
+     * 
+     * @param selectedItem
+     * @param source
+     */
     public void selectMultiple(DataItem selectedItem, Object source) {
-
-        if (!selectedDatas.contains(selectedItem)) {
-            selectedDatas.add(selectedItem);
-            client.dispatchEvent(new DatasetChoiceEvent(source));
-        }
-        
-        // print debug
-        if (logger.isDebugEnabled()) {
-        	String s = "selection contains:";
-        	for (DataItem item : selectedDatas) {
-				s += " " + item.getName();
-			}
-        	logger.debug(s);
-        }
+    	Collection<DataItem> itemCollection = new LinkedList<DataItem>();
+    	itemCollection.add(selectedItem);
+    	this.selectMultiple(itemCollection, source);
+    }
+    
+    /**
+     * Better way to give all selections with one method call and only through event in the end.
+     * 
+     * @param items
+     * @param source
+     */
+    public void selectMultiple(Iterable<DataItem> items, Object source){
+    	boolean realChange = false;
+    	for (DataItem item : items){
+    		
+    		if (!selectedDatas.contains(item)) {
+                selectedDatas.add(item);
+                realChange = true;
+            }
+    	}
+    	if(realChange){
+    		client.dispatchEvent(new DatasetChoiceEvent(source));
+    	}
     }
     
     public void deselectMultiple(DataItem selectedItem, Object source) {

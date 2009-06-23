@@ -19,7 +19,6 @@ import javax.swing.ToolTipManager;
 
 import org.apache.log4j.Logger;
 import org.jgraph.JGraph;
-import org.jgraph.graph.BasicMarqueeHandler;
 import org.jgraph.graph.CellView;
 import org.jgraph.graph.DefaultEdge;
 import org.jgraph.graph.DefaultPort;
@@ -65,8 +64,8 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	private GraphPanel graphPanel;
 	private GraphModel model;
 	
-	public MicroarrayGraph(GraphModel model, GraphLayoutCache cache, BasicMarqueeHandler mh, GraphPanel graphPanel) {
-		super(model, cache, mh);
+	public MicroarrayGraph(GraphModel model, GraphLayoutCache cache, GraphPanel graphPanel) {
+		super(model, cache);
 		
 		this.model = model;
 		this.graphPanel = graphPanel;
@@ -268,6 +267,9 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	 *
 	 */
 	public void updateSelectedCells() {
+		
+		graphPanel.setInternalSelection(true);
+		
 		List<Object> selectedCells = new ArrayList<Object>();
 		
 		for (DataBean selected : application.getSelectionManager().getSelectedDatasAsArray()) {
@@ -288,6 +290,8 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 		}
 		
 		this.repaint();
+		
+		graphPanel.setInternalSelection(false);
 	}
 
 	/**
@@ -450,7 +454,7 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	}*/
 	
 	public void propertyChange(PropertyChangeEvent event) {
-		if (event instanceof DatasetChoiceEvent) {
+		if (event instanceof DatasetChoiceEvent && event.getSource() != this) {			
 	    	updateSelectedCells();
 		}
 	}

@@ -30,6 +30,9 @@ import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
+import org.jgraph.event.GraphSelectionEvent;
+import org.jgraph.event.GraphSelectionListener;
+import org.jgraph.graph.BasicMarqueeHandler;
 import org.jgraph.graph.CellViewFactory;
 import org.jgraph.graph.DefaultCellViewFactory;
 import org.jgraph.graph.DefaultGraphModel;
@@ -46,7 +49,10 @@ import fi.csc.microarray.client.ToolBarComponentFactory;
 import fi.csc.microarray.client.VisualConstants;
 import fi.csc.microarray.client.dataviews.vertexes.AbstractGraphVertex;
 import fi.csc.microarray.client.dataviews.vertexes.GraphRenderer;
+import fi.csc.microarray.client.dataviews.vertexes.GraphVertex;
+import fi.csc.microarray.client.dataviews.vertexes.GroupVertex;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
+import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.databeans.ContentChangedEvent;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataChangeEvent;
@@ -72,8 +78,6 @@ public class GraphPanel extends JPanel implements ActionListener,
 	
 	private MicroarrayGraph graph = null;
 	
-	private SelectionTool selectionTool;
-	
 	private ClientApplication application = Session.getSession().getApplication();
 	private GraphModel model = new DefaultGraphModel(); // FIXME memory leak
 
@@ -85,8 +89,14 @@ public class GraphPanel extends JPanel implements ActionListener,
 	private JCheckBox autoZoomChecBbox;
 	
 	private JButton historyButton;
+	
+	private boolean internalSelection = false;
 
 	private static final Logger logger = Logger.getLogger(GraphPanel.class);
+	public void setInternalSelection(boolean internalSelection) {
+		this.internalSelection = internalSelection;
+	}
+
 	private static final double DEFAULT_GRID_SIZE = 10.0;
 	private static final double BIGGER_GRID_SIZE = 20.0;
 	private static final double HUGE_GRID_SIZE = 40.0;
@@ -95,11 +105,9 @@ public class GraphPanel extends JPanel implements ActionListener,
 	 * Creates a new GraphPanel with default contents and appearance.
 	 */
 	public GraphPanel() {
-		selectionTool 	 = new SelectionTool(getGraph());
 		
-		// sets tools
-		getGraph().setMarqueeHandler(selectionTool);
-		getGraph().addMouseListener(selectionTool);
+		getGraph().getSelectionModel().addGraphSelectionListener(new WorkflowSelectionListener());
+		getGraph().setMarqueeHandler(new BasicMarqueeHandler());
 		
 		//getGraph().setDebugGraphicsOptions(DebugGraphics.LOG_OPTION);
 		//getGraph().setDoubleBuffered(false);
@@ -200,7 +208,7 @@ public class GraphPanel extends JPanel implements ActionListener,
         	
         	GraphLayoutCache cache = new GraphLayoutCache(model, factory, partial);
         	
-            graph = new MicroarrayGraph(model, cache, null, this);        
+            graph = new MicroarrayGraph(model, cache, this);        
     		
     		// Adds mouse listener which opens popup menu
     		this.graph.addMouseListener(
@@ -215,6 +223,18 @@ public class GraphPanel extends JPanel implements ActionListener,
     		        public void mouseReleased(MouseEvent e) {
     		        	maybeShowPopup(e);        
     		        }
+    				
+    				public void mouseClicked(MouseEvent e){
+    				
+    				logger.debug("mouseClicked");
+    				
+    				// Double click
+    				if(SwingUtilities.isLeftMouseButton(e) && e.getClickCount() > 1){
+    					// Change the cursor back from marquee cross
+    					graph.setCursor(Cursor.getDefaultCursor());
+    					mouseButtonDoubleClicked(e);
+   					}
+    			}
     		            		    				
     			    private void maybeShowPopup(MouseEvent e) {
     			        if (e.isPopupTrigger()) {
@@ -239,6 +259,19 @@ public class GraphPanel extends JPanel implements ActionListener,
             
         }
         return graph;
+    }
+    
+    private void mouseButtonDoubleClicked(MouseEvent e){
+    	// Get the clicked cell
+    	Object cell = graph.getFirstCellForLocation(e.getX(), e.getY());
+
+    	logger.debug("Selected cell: " + cell);
+
+    	// Do not visualise collapsed group
+    	if(cell instanceof GraphVertex){
+    		
+    		application.visualiseWithBestMethod(FrameType.MAIN);
+    	} 
     }
     
     protected GraphModel getGraphModel(){
@@ -554,6 +587,42 @@ public class GraphPanel extends JPanel implements ActionListener,
 				event instanceof LinksChangedEvent ||
 				!(event instanceof DataItemCreatedEvent))){ //Handled separately after vertex creation			
 			autoZoom();			
+		}
+	}
+	
+	public class WorkflowSelectionListener implements GraphSelectionListener { 
+		
+		public void valueChanged(GraphSelectionEvent e) {
+			
+			if(!internalSelection){
+
+				boolean emptySelection = (graph.getSelectionCount() == 0);
+
+				application.getSelectionManager().clearAll(emptySelection, graph);
+
+				ArrayList<AbstractGraphVertex> vertexes = new ArrayList<AbstractGraphVertex>();
+
+				for(Object obj : graph.getSelectionCells()){
+
+					if (obj instanceof GroupVertex) {
+						GroupVertex group = (GroupVertex) obj;
+
+						vertexes.addAll(group.getChildVertexes());
+					}
+
+					if(obj instanceof GraphVertex){
+						vertexes.add((AbstractGraphVertex)obj);
+					}
+				}
+
+				ArrayList<DataItem> items = new ArrayList<DataItem>();		
+
+				for(AbstractGraphVertex vertex: vertexes){
+					items.add((DataItem)vertex.getUserObject());
+				}
+
+				application.getSelectionManager().selectMultiple(items, graph);
+			}
 		}
 	}
 }
