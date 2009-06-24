@@ -106,6 +106,9 @@ public class RAnalysisHandler implements AnalysisHandler {
 			scriptSource = this.getClass().getResourceAsStream(scriptPath);
 		}
 		
+		if (scriptSource == null) {
+			throw new AnalysisException(scriptPath + " not found");
+		}
 		
 		// read the VVSADL from the comment block in the beginning of file
 		// and the actual source code

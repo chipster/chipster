@@ -214,7 +214,7 @@ public class ToolRepository {
 			AnalysisDescription description;
 			try {
 				description = runtime.getHandler().handle(sourceResourceName);
-			} catch (AnalysisException e) {
+			} catch (Exception e) {
 				logger.warn("loading " + sourceResourceName + " failed, could not create description", e);
 				continue;
 			}
