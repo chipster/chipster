@@ -393,7 +393,7 @@ public class SwingClientApplication extends ClientApplication {
 
 	public SimpleInternalFrame getGraphFrame() throws MicroarrayException {
 		if (graphFrame == null) {
-			graphFrame = new SimpleInternalFrame("Workflow view", graphPanel.getButtonToolBar(), graphPanel.getScroller());
+			graphFrame = new SimpleInternalFrame("Workflow", graphPanel.getButtonToolBar(), graphPanel.getScroller());
 		}
 		return graphFrame;
 	}
