@@ -2,7 +2,6 @@ package fi.csc.microarray.analyser.ws.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -33,17 +32,14 @@ public class CpdbWsUtils {
 
 
 	public static void main(String[] args) throws SAXException, ParserConfigurationException, TransformerException, SOAPException, IOException {
-		execute(new String[] {"TM9SF2", "FOLR3", "IER2", "TMED2", "TMEM131", "PVRL2", "MIA3"}, 0.0005d);
-	}
-
-	private static void execute(String[] probes, final double pValueCutoff) throws SAXException, ParserConfigurationException, TransformerException, SOAPException, IOException {
+		String[] probes = new String[] {"TM9SF2", "FOLR3", "IER2", "TMED2", "TMEM131", "PVRL2", "MIA3"};
 		ResultTableCollector annotations = query(probes);
 		annotations.filterRows(new RowFilter() {
 			public boolean shouldRemove(ResultRow row) {
-				return Double.parseDouble(row.getValue("ns1:pValue")) > pValueCutoff;
+				return Double.parseDouble(row.getValue("ns1:pValue")) > 0.0005d;
 			}
 		});
-		HtmlUtil.writeHtmlTable(annotations, new String[] {"ns1:pValue", "ns1:pathway", "ns1:database"}, "ConsensusPathDB annotation", new File("test.html"));
+		HtmlUtil.writeHtmlTable(annotations, new String[] {"ns1:pValue", "ns1:pathway", "ns1:database"}, "ConsensusPathDB annotation", System.out);
 	}
 
 	public static ResultTableCollector query(String[] genes) throws SAXException, ParserConfigurationException, TransformerException, SOAPException, IOException {

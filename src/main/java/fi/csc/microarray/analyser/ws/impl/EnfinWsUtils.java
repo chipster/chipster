@@ -2,7 +2,7 @@ package fi.csc.microarray.analyser.ws.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
@@ -41,14 +41,27 @@ public class EnfinWsUtils {
 	}
 
 	public static void main(String[] args) throws SAXException, ParserConfigurationException, TransformerException, SOAPException, IOException {
-		String[] probes = new String[] {"204259_at", "1993_s_at"};
+		String[] probes = new String[] {		
+				"204704_s_at",
+				"221589_s_at",
+				"206065_s_at",
+				"209459_s_at",
+				"209460_at",
+				"206024_at",
+				"205719_s_at",
+				"205892_s_at",
+				"202036_s_at",
+				"206054_at",
+				"209443_at"
+		};
+		//String[] probes = JavaJobUtils.getProbes(new File("/home/akallio/two-sample.tsv"));
 		ResultTableCollector intactAnnotations = queryIntact(probes);
-		HtmlUtil.writeHtmlTable(intactAnnotations, new String[] {"Interaction", "Participants"}, "Enfin IntAct annotation", new File("intact.html"));
+		HtmlUtil.writeHtmlTable(intactAnnotations, new String[] {"Interaction", "Participants"}, "Enfin IntAct annotation", new FileOutputStream("intact.html"));
 		ResultTableCollector reactomeAnnotations = queryReactome(probes);
-		HtmlUtil.writeHtmlTable(reactomeAnnotations, new String[] {"Interaction", "Participants"}, "Enfin Reactome annotation", new File("reactome.html"));
+		HtmlUtil.writeHtmlTable(reactomeAnnotations, new String[] {"Pathway", "Participating proteins"}, "Reactome pathway associations (via Enfin WS)", new FileOutputStream("reactome.html"));
 	}
 
-	private static ResultTableCollector queryIntact(String[] probes) throws SOAPException, MalformedURLException, SAXException, IOException, ParserConfigurationException, TransformerException {
+	public static ResultTableCollector queryIntact(String[] probes) throws SOAPException, MalformedURLException, SAXException, IOException, ParserConfigurationException, TransformerException {
 		
 		Document uniprotResponse = queryUniprotIds(probes);
 
@@ -74,14 +87,14 @@ public class EnfinWsUtils {
 				return primaryRef.getAttribute("id");
 			}
 			
-		});
+		}, "Interaction", "Participants");
 	}
 
-	private static ResultTableCollector queryReactome(String[] probes) throws SOAPException, MalformedURLException, SAXException, IOException, ParserConfigurationException, TransformerException {
+	public static ResultTableCollector queryReactome(String[] probes) throws SOAPException, MalformedURLException, SAXException, IOException, ParserConfigurationException, TransformerException {
 		
 		Document uniprotResponse = queryUniprotIds(probes);
 
-		// query IntAct with UniProt identifiers
+		// query Reactome with UniProt identifiers
 		SOAPMessage intactSoapMessage = initialiseSoapMessage();
 		SOAPBody intactSoapBody = initialiseSoapBody(intactSoapMessage);
 		
@@ -103,7 +116,7 @@ public class EnfinWsUtils {
 				return fullName.getTextContent();
 			}
 			
-		});
+		}, "Pathway", "Participating proteins");
 	}
 
 	private static Document queryUniprotIds(String[] probes) throws SOAPException, SAXException, IOException, ParserConfigurationException, MalformedURLException {
@@ -137,7 +150,7 @@ public class EnfinWsUtils {
 		return document;
 	}
 	
-	private static ResultTableCollector collectAnnotations(Document response, AnnotationIdentifier annotationIdentifier, AnnotationNameFinder annotationNameFinder) {
+	private static ResultTableCollector collectAnnotations(Document response, AnnotationIdentifier annotationIdentifier, AnnotationNameFinder annotationNameFinder, String annotationColumnName, String participantColumnName) {
 		ResultTableCollector annotationCollector = new ResultTableCollector();
 		NodeList childNodes = response.getDocumentElement().getChildNodes().item(0).getChildNodes().item(0).getChildNodes().item(0).getChildNodes().item(0).getChildNodes();
 
@@ -163,7 +176,7 @@ public class EnfinWsUtils {
 				if (annotationIdentifier.isAnnotation(set)) {
 					
 					String annotationName = annotationNameFinder.findAnnotationName(set);
-					annotationCollector.addAnnotation(index, "Interaction", annotationName);
+					annotationCollector.addAnnotation(index, annotationColumnName, annotationName);
 					
 					String participantValue = "";
 					NodeList participants = set.getElementsByTagName("participant");
@@ -172,7 +185,7 @@ public class EnfinWsUtils {
 						String moleculeName = moleculeMap.get(participant.getAttribute("moleculeRef"));
 						participantValue += (" " + moleculeName);
 					}
-					annotationCollector.addAnnotation(index, "Participants", participantValue);
+					annotationCollector.addAnnotation(index, participantColumnName, participantValue);
 					
 					index++;
 				}						

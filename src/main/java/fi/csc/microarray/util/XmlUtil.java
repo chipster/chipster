@@ -31,13 +31,10 @@ import org.w3c.dom.NodeList;
  */
 public class XmlUtil {
     private DocumentBuilder docBuilder;
-    private static XmlUtil instance;
     
     public static synchronized XmlUtil getInstance() throws ParserConfigurationException {
-        if (instance == null) 
-            instance = new XmlUtil();
-        
-        return instance;
+    	// SAXParsers are not concurrency compatible, so always return a new instance to prevent thread issues 
+        return new XmlUtil();
     }
         
     private XmlUtil() throws ParserConfigurationException {

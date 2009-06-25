@@ -1,4 +1,4 @@
-// ANALYSIS Annotation/"Protein interactions" (Returns protein interactions from ENFIN IntAct database.)
+// ANALYSIS Pathways/"Protein interactions from IntAct" (Returns protein interactions from ENFIN IntAct database. NOTE! Supports only Affymetrix data.)
 // INPUT GENERIC input.tsv OUTPUT intact-annotations.html
 
 import fi.csc.microarray.analyser.bsh.*;
@@ -7,7 +7,7 @@ import fi.csc.microarray.analyser.ws.impl.*;
 
 
 // query the web service
-ResultTableCollector annotations = EnfinWsUtils.queryIntact(JavaJobUtils.getGeneNames(new File(jobInfo.workDir + "/input.tsv")));
+ResultTableCollector annotations = EnfinWsUtils.queryIntact(JavaJobUtils.getProbes(new File(jobInfo.workDir + "/input.tsv")));
 
 // create output files
 File file = new File(jobInfo.workDir + "/intact-annotations.html");

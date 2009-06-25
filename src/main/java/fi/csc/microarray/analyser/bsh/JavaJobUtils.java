@@ -9,34 +9,44 @@ import java.util.LinkedList;
 import java.util.List;
 
 import fi.csc.microarray.util.IOUtils;
+import fi.csc.microarray.util.LookaheadLineReader;
 
 /**
  * Utilities to be used by Java and BeanShell jobs.
  * 
  * 
- * @author hupponen
+ * @author Taavi Hupponen, Aleksi Kallio
  *
  */
+// TODO partly duplicates functionality in Feature API, but do we want to start using DataManager and DataBeans here?
 public class JavaJobUtils {
 
 	/**
 	 * Get the gene names from GENELIST type of input file.
 	 * 
 	 * If there is only one column, use it. If there are many columns,
-	 * search for "symbol" column, if not found, search for " " column.
+	 * search for "symbol" column, if not found, search for " " and "identifier" columns.
 	 * 
 	 * @param file
 	 * @return the gene names, empty String[] if the file is empty or gene names are not found
 	 * @throws IOException
 	 */
 	public static String[] getGeneNames(File file) throws IOException {
+		return getColumns(file, new String[] {"symbol", " ", "identifier"});
+	}
+
+	public static String[] getProbes(File file) throws IOException {
+		return getColumns(file, new String[] {" "});
+	}
+
+	public static String[] getColumns(File file, String[] lookForColumns) throws IOException {
 
 		List<String> names = new LinkedList<String>();
-		BufferedReader reader = new BufferedReader(new FileReader(file));
+		LookaheadLineReader reader = new LookaheadLineReader(new BufferedReader(new FileReader(file)));
+		
 		try {
 			String line;
 			String[] columns;
-			int nameColumnIndex = 0;
 			line = reader.readLine();
 
 			// empty file
@@ -47,37 +57,35 @@ public class JavaJobUtils {
 			// split first line
 			columns = line.split("\t");
 			
-			// only one column
-			if (columns.length == 1) {
-				nameColumnIndex = 0;
-			} 
-				
-			// many columns, find the gene names column
-			else if ( columns.length > 1) {
-				// search for symbol column
-				nameColumnIndex = Arrays.asList(columns).indexOf("symbol");
-
-				// symbol not found, search for "" column
-				if (nameColumnIndex < 0) {
-					nameColumnIndex = Arrays.asList(columns).indexOf(" ");
-
-					// "" not found, give up
-					if (nameColumnIndex < 0) {
-						return new String[0];
-					}
+			// check that column count is not different from header due to invisible row name column
+			if (reader.peekLine().split("\t").length == (columns.length + 1)) {
+				String[] newColumns = new String[columns.length + 1];
+				System.arraycopy(columns, 0, newColumns, 1, columns.length);
+				newColumns[0] = " "; // must be space, empty names are not allowed
+				columns = newColumns;
+			}
+		
+			int nameColumnIndex = -1;
+			for (String lookForColumn : lookForColumns) {
+				nameColumnIndex = Arrays.asList(columns).indexOf(lookForColumn);
+				if (nameColumnIndex != -1) {
+					break; // found, skip the rest
 				}
-			}				
+			}
 			
+			if (nameColumnIndex == -1) {
+				throw new IOException("data does not contain any of the required columns: " + Arrays.asList(lookForColumns));
+			}
 			
 			// read in the rest of the file
 			for (line = reader.readLine(); line != null; line = reader.readLine()) {
 				names.add(line.split("\t")[nameColumnIndex]);
 			}
+			
 		} finally {
-			IOUtils.closeIfPossible(reader);
+			IOUtils.closeIfPossible(reader.getReader());
 		}
 
 		return names.toArray(new String[names.size()]);
 	}
-
 }

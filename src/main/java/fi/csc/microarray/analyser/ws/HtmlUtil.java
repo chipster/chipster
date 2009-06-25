@@ -3,8 +3,10 @@ package fi.csc.microarray.analyser.ws;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 
+import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.Strings;
 
 public class HtmlUtil {
@@ -45,15 +47,15 @@ public class HtmlUtil {
 		}
 
 		public void openDocument(String title) {
-			out.print("<html>");
-			out.print("<head>");
-			out.print(css);
-			out.print("<title>" + title + "</title>");
-			out.print("</head>");			
+			out.println("<html>");
+			out.println("<head>");
+			out.println(css);
+			out.println("<title>" + title + "</title>");
+			out.println("</head>");			
 		}
 		
 		public void closeDocument() {
-			out.print("</html>");
+			out.println("</html>");
 		}
 		
 		public void close() {
@@ -61,38 +63,49 @@ public class HtmlUtil {
 		}
 
 		public void openTable() {
-			out.print("<table>");			
+			out.println("<table>");			
 		}
 
 		public void closeTable() {
-			out.print("</table>");			
+			out.println("</table>");			
 		}
 
 		public void openRow() {
-			out.print("<tr>");
+			out.println("<tr>");
 		}
 		
 		public void closeRow() {
-			out.print("</tr>");
+			out.println("</tr>");
 		}
 
 		public void headerCell(String name) {
-			out.print("<th>" + name + "</th>");
+			out.println("<th>" + name + "</th>");
 
 		}
 
 		public void cell(String data) {
-			out.print("<td>" + data + "</td>");
+			out.println("<td>" + data + "</td>");
 		}
 
 		public void heading(String heading) {
-			out.print("<h1>" + heading + "</h1>");			
+			out.println("<h1>" + heading + "</h1>");			
 		}
 	}
 	
-	public static void writeHtmlTable(ResultTableCollector annotations, String[] columns, String title, File file) throws FileNotFoundException {
+	public static void writeHtmlTable(ResultTableCollector annotations, String[] columns, String title, File output) throws FileNotFoundException {
+		FileOutputStream out = null;
+		try {
+			out = new FileOutputStream(output);
+			writeHtmlTable(annotations, columns, title, out);
+			
+		} finally {
+			IOUtils.closeIfPossible(out);
+		}
+		
+	}
+	public static void writeHtmlTable(ResultTableCollector annotations, String[] columns, String title, OutputStream outputStream) throws FileNotFoundException {
 		String[][] table = annotations.asTable(columns);
-		HtmlTemplate out = new HtmlTemplate(new PrintWriter(new FileOutputStream(file)));
+		HtmlTemplate out = new HtmlTemplate(new PrintWriter(outputStream));
 		out.openDocument(title);
 		out.heading(title);
 		out.openTable();

@@ -1,4 +1,4 @@
-// ANALYSIS Annotation/"Reactome pathways" (Returns pathways from Reactome database using the ENFIN web service.)
+// ANALYSIS Pathways/"Associations to Reactome pathways" (Finds pathways from the Reactome database for a specified list of proteins. The service is based on the Reactome BioMart. The returned list of pathways will be sorted by the number of specified proteins that are contained in each pathway. NOTE! Supports only Affymetrix data.)
 // INPUT GENERIC input.tsv OUTPUT reactome-annotations.html
 
 import fi.csc.microarray.analyser.bsh.*;
@@ -7,8 +7,8 @@ import fi.csc.microarray.analyser.ws.impl.*;
 
 
 // query the web service
-ResultTableCollector annotations = EnfinWsUtils.queryReactome(JavaJobUtils.getGeneNames(new File(jobInfo.workDir + "/input.tsv")));
+ResultTableCollector annotations = EnfinWsUtils.queryReactome(JavaJobUtils.getProbes(new File(jobInfo.workDir + "/input.tsv")));
 
 // create output files
 File file = new File(jobInfo.workDir + "/reactome-annotations.html");
-HtmlUtil.writeHtmlTable(annotations, new String[] {"Interaction", "Participants"}, "Reactome annotation (ENFIN)", file);
+HtmlUtil.writeHtmlTable(annotations, new String[] {"Pathway", "Participating proteins"}, "Reactome annotation (ENFIN)", file);

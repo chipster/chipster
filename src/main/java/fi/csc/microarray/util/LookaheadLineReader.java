@@ -13,6 +13,10 @@ public class LookaheadLineReader {
 		this.reader = reader;	
 	}
 	
+	public BufferedReader getReader() {
+		return reader;
+	}
+	
 	public String readLine() throws IOException {
 		if (buffer.isEmpty()) {
 			return reader.readLine();
