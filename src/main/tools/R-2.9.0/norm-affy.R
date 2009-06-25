@@ -6,7 +6,6 @@
 # PARAMETER stabilize.variance [yes, no] DEFAULT no (Variance stabilazing normalization)
 # PARAMETER custom.chiptype [empty, hs133ahsentrezg (hgu133a), hs133av2hsentrezg (hgu133av2), hs133phsentrezg (hgu133plus2), hs133bhsentrezg (hgu133b), hs95av2hsentrezg (hgu95av2), mm430ammentrezg (moe430), mm430a2mmentrezg (moe4302), mm430bmmentrezg (moe430b), mm430mmentrezg (moe430plus2), mm74av1mmentrezg (mgu74a), mm74av2mmentrezg (mgu74av2), mm74bv2mmentrezg (mgu74bv2), mm74cv2mmentrezg (mgu74cv2), rn230arnensg (rgu230a), rn230brnentrezg (rgu230b), rn230rnentrezg (rat2302), rn34arnentrezg (rgu34a)] DEFAULT empty (custom chiptype)
 
-
 # Affymetrix normalization
 # JTT 8.6.2006
 # Changes to column naming on 29.6.2006
