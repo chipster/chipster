@@ -3,6 +3,7 @@
 			<tool runtime="R-2.6.1">norm-affy.R</tool>
 			<tool runtime="R-2.6.1">norm-affy-exon.R</tool>
 			<tool runtime="R-2.6.1">norm-affy-snp.R</tool>
+			<!--<tool runtime="R-2.9.0">norm-affy-gene.R</tool>-->
 			<tool runtime="R-2.6.1">norm-agilent-one-color.R</tool>
 			<tool runtime="R-2.6.1">norm-agilent.R</tool>	
 			<tool runtime="R-2.6.1">norm-cdna.R</tool>
