@@ -17,6 +17,7 @@ import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
 import fi.csc.microarray.databeans.features.FeatureProviderBase;
 import fi.csc.microarray.databeans.features.Table;
+import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.LookaheadLineReader;
 
 
@@ -201,69 +202,75 @@ public class TableColumnProvider extends FeatureProviderBase {
 		}
 
 		public MatrixParseSettings inferSettings(DataBean bean) throws IOException, MicroarrayException {
+			BufferedReader bufferedReader = null;
+			try {
+				bufferedReader = new BufferedReader(new InputStreamReader(bean.getContentByteStream()));
+				LookaheadLineReader source = new LookaheadLineReader(bufferedReader);
+				MatrixParseSettings settings = new MatrixParseSettings();
 
-			LookaheadLineReader source = new LookaheadLineReader(new BufferedReader(new InputStreamReader(bean.getContentByteStream())));
-			MatrixParseSettings settings = new MatrixParseSettings();
+				// check what kind of matrix we are dealing with
+				if (source.peekLine() != null && source.peekLine().contains("[CEL]")) {
+					logger.debug("parsing cel type");
+					settings.headerTerminator = "CellHeader=";
+					settings.footerStarter = "\n[MASKS]";
+					settings.hasColumnNames = true;
 
-			// check what kind of matrix we are dealing with
-			if (source.peekLine() != null && source.peekLine().contains("[CEL]")) {
-				logger.debug("parsing cel type");
-				settings.headerTerminator = "CellHeader=";
-				settings.footerStarter = "\n[MASKS]";
-				settings.hasColumnNames = true;
+				} else {
+					logger.debug("parsing generic type");
+					// unknown/generic type, use defaults
 
-			} else {
-				logger.debug("parsing generic type");
-				// unknown/generic type, use defaults
-				
-				// note: it is safe to call tokeniseRow with null input				
-				logger.debug("first line has " + tokeniseRow(source.peekLine(1)).length + " tokens and is " + source.peekLine(1));
-				logger.debug("second line has " + tokeniseRow(source.peekLine(2)).length + " tokens and is " + source.peekLine(2));
-			}
-			
-			// parse away headers, if any
-			if (settings.headerTerminator != null) {
-				parseAwayHeader(source, settings);
-			}
-			
-			// parse column names
-			String [] columnNames;
-			if (settings.hasColumnNames) {
-				logger.debug("column name row " + source.peekLine());
-				columnNames = tokeniseRow(source.readLine());
-
-			} else {
-
-				logger.debug("no column names, we use numbering");
-				columnNames = new String[tokeniseRow(source.peekLine()).length];
-				for (int i = 0; i < columnNames.length; i++) {
-					columnNames[i] = "column"+i; // generate column names
+					// note: it is safe to call tokeniseRow with null input				
+					logger.debug("first line has " + tokeniseRow(source.peekLine(1)).length + " tokens and is " + source.peekLine(1));
+					logger.debug("second line has " + tokeniseRow(source.peekLine(2)).length + " tokens and is " + source.peekLine(2));
 				}
-			}
 
-			// special treatment for extra row name column, if any
-			int dataColumnCount = tokeniseRow(source.peekLine(1)).length;
-			if (dataColumnCount == (columnNames.length+1)) {
-				logger.debug("we have one column for row names");
-				// we had an unnamed counter column, add it to index 0
-				String[] newColumnNames = new String[columnNames.length + 1];
-				System.arraycopy(columnNames, 0, newColumnNames, 1, columnNames.length);
-				newColumnNames[0] = " "; // must be space, empty names are not allowed
-				columnNames = newColumnNames;
-				
-			} else if (dataColumnCount > (columnNames.length+1)) {
-				throw new MicroarrayException("table parse error: " + columnNames.length + " column names, but " + dataColumnCount + " values");
-			}
-				
-			logger.debug("parsed matrix has " + columnNames.length + " columns, column names came with data: " + settings.hasColumnNames);
+				// parse away headers, if any
+				if (settings.headerTerminator != null) {
+					parseAwayHeader(source, settings);
+				}
 
-			// create columns
-			for (String columnName : columnNames) {
-				logger.debug("added column " + columnName);
-				settings.columns.put(columnName, new Column(columnName));
+				// parse column names
+				String [] columnNames;
+				if (settings.hasColumnNames) {
+					logger.debug("column name row " + source.peekLine());
+					columnNames = tokeniseRow(source.readLine());
+
+				} else {
+
+					logger.debug("no column names, we use numbering");
+					columnNames = new String[tokeniseRow(source.peekLine()).length];
+					for (int i = 0; i < columnNames.length; i++) {
+						columnNames[i] = "column"+i; // generate column names
+					}
+				}
+
+				// special treatment for extra row name column, if any
+				int dataColumnCount = tokeniseRow(source.peekLine(1)).length;
+				if (dataColumnCount == (columnNames.length+1)) {
+					logger.debug("we have one column for row names");
+					// we had an unnamed counter column, add it to index 0
+					String[] newColumnNames = new String[columnNames.length + 1];
+					System.arraycopy(columnNames, 0, newColumnNames, 1, columnNames.length);
+					newColumnNames[0] = " "; // must be space, empty names are not allowed
+					columnNames = newColumnNames;
+
+				} else if (dataColumnCount > (columnNames.length+1)) {
+					throw new MicroarrayException("table parse error: " + columnNames.length + " column names, but " + dataColumnCount + " values");
+				}
+
+				logger.debug("parsed matrix has " + columnNames.length + " columns, column names came with data: " + settings.hasColumnNames);
+
+				// create columns
+				for (String columnName : columnNames) {
+					logger.debug("added column " + columnName);
+					settings.columns.put(columnName, new Column(columnName));
+				}
+
+				return settings;
+
+			} finally {
+				IOUtils.closeIfPossible(bufferedReader);
 			}
-			
-			return settings;
 		}
 
 		public static void parseAwayHeader(LookaheadLineReader source, MatrixParseSettings settings) throws IOException {

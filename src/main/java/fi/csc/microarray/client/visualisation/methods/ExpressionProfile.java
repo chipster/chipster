@@ -8,6 +8,7 @@ import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -179,10 +180,18 @@ implements PropertyChangeListener, SelectionChangeListener {
 	private CategoryDataset createDataset() throws MicroarrayException{
 		TableAnnotationProvider annotationProvider = new TableAnnotationProvider(data);
 
-		// fetch data
-		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 		
+		// make a lookup table for sample names
+		Table chips = data.queryFeatures("/column/chip.*").asTable();
+		HashMap<String, String> sampleNameLookup = new HashMap<String, String>();
+		for (String chip : chips.getColumnNames()) {
+			String sampleName = data.queryFeatures("/phenodata/linked/describe/" + chip.substring("chip.".length())).asString();
+			sampleNameLookup.put(chip, sampleName);
+		}
+		
+		// fetch data
 		Table samples = data.queryFeatures("/column/*").asTable();
+		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 		
 		// read through data
 		rows = new LinkedList<ProfileRow>();
@@ -203,7 +212,7 @@ implements PropertyChangeListener, SelectionChangeListener {
 					}
 
 					// insert into dataset 
-					String sampleName = data.queryFeatures("/phenodata/linked/describe/" + sample.substring("chip.".length())).asString();
+					String sampleName = sampleNameLookup.get(sample);
 					String rowName = annotationProvider.getAnnotatedRowname(samples.getStringValue(" "));
 					IndividualizedColumn column = new IndividualizedColumn(sample, sampleName);
 					dataset.addValue((double)samples.getFloatValue(sample), rowName, column);

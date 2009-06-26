@@ -43,4 +43,9 @@ public interface Table {
 	 * Returns number of columns.
 	 */
 	public int getColumnCount();
+	
+	/**
+	 * Closes underlying resources and makes the table not usable any more.
+	 */
+	public void close();
 }

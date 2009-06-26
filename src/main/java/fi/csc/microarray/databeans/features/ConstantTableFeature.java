@@ -51,6 +51,10 @@ public class ConstantTableFeature extends BasicFeature {
 		public int getColumnCount() {
 			return columnMap.keySet().size();
 		}
+
+		public void close() {
+			// we don't need to do anything			
+		}
 	}
 
 	private Map<String, Integer> columnMap = new LinkedHashMap<String, Integer>();

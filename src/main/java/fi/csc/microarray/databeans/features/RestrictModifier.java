@@ -56,6 +56,10 @@ public class RestrictModifier implements Modifier {
 			this.row++;
 			return row < RESTRICT_TO_ROWS && table.nextRow();
 		}
+
+		public void close() {
+			table.close();			
+		}
 		
 	}
 	private static class RestrictModifierFeature extends ModifiedFeature {

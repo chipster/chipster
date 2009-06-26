@@ -10,7 +10,6 @@ import fi.csc.microarray.databeans.features.BoolTrueFeature;
 import fi.csc.microarray.databeans.features.ConstantStringFeature;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProviderBase;
-import fi.csc.microarray.databeans.features.QueryResult;
 import fi.csc.microarray.databeans.features.Table;
 
 /**
@@ -47,17 +46,20 @@ public class PhenodataProvider extends FeatureProviderBase {
 		boolean isPhenodata = false;
 		boolean isComplete = false;
 
-		// check that data has everything we need
-		if (bean.queryFeatures("/column/sample").exists() && bean.queryFeatures("/column/chiptype").exists()) {
+		Table columns = null;
+		try {
+			columns = bean.queryFeatures("/column/*").asTable();
 
-			isPhenodata = true;
+			// check that data has everything we need
+			if (columns.hasColumn("sample") && columns.hasColumn("chiptype")) {
 
-			try {
+				isPhenodata = true;
+
 				boolean hasEmptyGroups = false;
-				QueryResult groupFeature = bean.queryFeatures("/column/group");
-				if (groupFeature.exists()) {
-					Iterable<String> groups = bean.queryFeatures("/column/group").asStrings();
-					for (String group : groups) {
+				if (columns.hasColumn("group")) {
+					// iterate over group values and check that all are properly filled
+					while (columns.nextRow()) {
+						String group = columns.getStringValue("group");
 						if ("".equals(group.trim())) {
 							hasEmptyGroups = true;
 							break;
@@ -65,8 +67,14 @@ public class PhenodataProvider extends FeatureProviderBase {
 					}
 					isComplete = !hasEmptyGroups;
 				}
-			} catch (MicroarrayException e) {
-				throw new RuntimeException(e);
+			}
+
+		} catch (MicroarrayException e) {
+			throw new RuntimeException(e);
+			
+		} finally {
+			if (columns != null) {
+				columns.close();
 			}
 		}
 

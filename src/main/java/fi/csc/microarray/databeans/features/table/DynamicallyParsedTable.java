@@ -11,6 +11,7 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.databeans.features.table.TableColumnProvider.MatrixParseSettings;
 import fi.csc.microarray.databeans.features.table.TableColumnProvider.TableColumn;
+import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.LookaheadLineReader;
 
 
@@ -29,6 +30,7 @@ public class DynamicallyParsedTable implements Table {
 	private HashMap<String, String> values;
 	private String[] columnNames;
 	private DataBean bean;
+	private BufferedReader reader;
 
 	public DynamicallyParsedTable(DataBean bean, MatrixParseSettings settings, LinkedList<Integer> columnNumbers) {
 		this.bean = bean;
@@ -43,7 +45,8 @@ public class DynamicallyParsedTable implements Table {
 	 */
 	public void reset() {
 		try {
-			this.source = new LookaheadLineReader(new BufferedReader(new InputStreamReader(bean.getContentByteStream())));
+			this.reader = new BufferedReader(new InputStreamReader(bean.getContentByteStream()));
+			this.source = new LookaheadLineReader(this.reader);
 			this.headerParsed = false;
 
 		} catch (Exception e) {
@@ -174,5 +177,9 @@ public class DynamicallyParsedTable implements Table {
 
 	public int getColumnCount() {
 		return columnNames.length;
+	}
+
+	public void close() {
+		IOUtils.closeIfPossible(this.reader);		
 	}
 }
