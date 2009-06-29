@@ -24,9 +24,12 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 	private JXHyperlink importLink;
 	private JXHyperlink emptyLink;
 	private JXHyperlink exampleLink;
+	private JXHyperlink importFolderLink;
+	private JXHyperlink importURLLink;
 
 	private CardLayout cardLayout;
 	private JPanel cardParent;
+
 
 	public QuickLinkPanel(JPanel parent, CardLayout cardLayout) {
 		super(new GridBagLayout());
@@ -59,12 +62,28 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 		c.insets.bottom = 0;
 		
 		addLink(getSessionLink(), 
-				"to continue analysis from the the saved situation.", c);
-		addLink(getImportLink(), 
-				"to analyse one or more data files saved in chipster \n" +
-				"or another programs.", c);
+				"to continue working on previous sessions.", c);
+		
+		JXHyperlink emptyLink = new JXHyperlink();
+		emptyLink.setText("");
+		addLink(emptyLink, 
+				"Import new data to Chipster:", c);
+		
+		c.gridy++;
+		c.insets.top = 5;
+		c.insets.left += 10;
+		
+		this.add(getImportLink(), c);
+		c.gridy++;
+		c.insets.top = 0;
+		this.add(getImportFolderLink(), c);
+		c.gridy++;
+		this.add(getImportURLLink(), c);
+		
+		c.insets.left -= 10;
+						
 		addLink(getExampleLink(), 
-				"to try out Chipster analyses and visualisations.", c);
+				"to learn more and play around.", c);
 		//addLink(getEmptyLink(), "", c);
 		
 		c.weighty = 1.0;
@@ -81,7 +100,7 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 		
 		String[] words = description.split(" ");
 		int rowChars = link.getText().length() + 1;
-		final int MAX_ROW_CHARS = 25;
+		final int MAX_ROW_CHARS = 40;
 			
 		c.gridy++;
 		c.insets.left = 10;
@@ -102,10 +121,11 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 				c.gridy++;
 				this.add(row, c);
 				c.insets.top = 0; // After first row
-				rowChars = 0;
 				
 				if(i == -1){
 					row.add(link);
+				} else {
+					rowChars = 0;					
 				}
 			} 
 			
@@ -143,6 +163,24 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 		}
 		return importLink;
 	}
+	
+	private JXHyperlink getImportFolderLink() {
+		if (importFolderLink == null){
+			importFolderLink = new JXHyperlink();
+			importFolderLink.setText("Import folder");
+			importFolderLink.addActionListener(this);
+		}
+		return importFolderLink;
+	}
+	
+	private JXHyperlink getImportURLLink() {
+		if (importURLLink == null){
+			importURLLink = new JXHyperlink();
+			importURLLink.setText("Import from URL");
+			importURLLink.addActionListener(this);
+		}
+		return importURLLink;
+	}
 
 	private JXHyperlink getSessionLink() {
 		if (sessionLink == null){
@@ -162,6 +200,14 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 			} catch (Exception ex) {
 				application.reportException(ex);
 			}
+		} else if(e.getSource() == importURLLink){
+			try {
+				application.openURLImport();
+			} catch (Exception ex) {
+				application.reportException(ex);
+			}
+		} else if(e.getSource() == importFolderLink){
+			application.openDirectoryImportDialog();
 		} else if(e.getSource() == emptyLink){
 			
 		} else if (e.getSource() == exampleLink){

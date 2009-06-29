@@ -2,6 +2,8 @@ package fi.csc.microarray.client.visualisation.methods;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -14,6 +16,7 @@ import java.util.Set;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
 import org.apache.log4j.Logger;
@@ -343,14 +346,6 @@ implements PropertyChangeListener, SelectionChangeListener {
 					}					
 				});
 
-				// Add more space to column and row names
-				hcPlot.setColumnNamesSize(0.3);
-				hcPlot.setRowNamesSize(0.3);
-
-				// Space for the trees
-				hcPlot.setRowTreeSize(0.1);
-				hcPlot.setColumnTreeSize(0.1);
-
 				// Set tooltips
 				if (tooltips) {
 					hcPlot.setToolTipGenerator(new MicroarrayHCToolTipGenerator());
@@ -369,14 +364,30 @@ implements PropertyChangeListener, SelectionChangeListener {
 			}
 			
 			chart.setTitle((TextTitle)null);
-			
-			selectableChartPanel = new SelectableChartPanel(chart, this);
+									
+			selectableChartPanel = new SelectableChartPanel(chart, this, false);
 			selectableChartPanel.getChartPanel().addChartMouseListener((HCPlot)chart.getPlot());
 						
 			updateSelectionsFromApplication(false);
 			application.addPropertyChangeListener(this);
 			
-			return selectableChartPanel;
+			int blockSize = 20;
+			
+			int width = (int)(heatMap.getColumnsCount() * blockSize + hcPlot.getRowTreeSize() + 
+				hcPlot.getRowNamesSize() + hcPlot.getLeftMarginSize() + hcPlot.getRightMarginSize());
+			
+			//Column tree not visible
+			int height = (int)(heatMap.getRowCount() * blockSize + hcPlot.getColumnNamesSize() + 
+					hcPlot.getTopMarginSize() + hcPlot.getBottomMarginSize());
+						
+			selectableChartPanel.getChartPanel().setPreferredSize(new Dimension(width, height));
+			
+			JPanel spaceFiller = new JPanel();
+			((FlowLayout)spaceFiller.getLayout()).setAlignment(FlowLayout.LEFT);
+			spaceFiller.setBackground(Color.white);
+			spaceFiller.add(selectableChartPanel);
+			
+			return new JScrollPane(spaceFiller);
 
 		} catch (Exception e) {
 			// these are very tricky, mostly caused by bad data

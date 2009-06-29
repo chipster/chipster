@@ -125,6 +125,15 @@ public abstract class Visualisation {
 		}
 		return panel;
 	}
+	
+	public static ChartPanel makenNonScalablePanel(JFreeChart chart) {
+
+		ChartPanel panel = new NonScalableChartPanel(chart);
+		if(chart.getTitle() != null){
+			chart.getTitle().setFont(VisualConstants.VISUALISATION_TITLE_FONT);
+		}
+		return panel;
+	}
 
 	public static class PlotDescription {
 		public PlotDescription(String plotTitle, String xTitle, String yTitle) {

@@ -14,15 +14,11 @@ import java.awt.geom.Rectangle2D;
 
 import javax.swing.JPanel;
 
-import org.jfree.chart.ChartMouseEvent;
-import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.entity.ChartEntity;
-import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.HCPlot;
 import org.jfree.chart.plot.Plot;
@@ -70,11 +66,19 @@ public class SelectableChartPanel extends JPanel implements MouseListener, Mouse
 	}
 	
 	public SelectableChartPanel(JFreeChart chart, SelectionChangeListener selectionListener) {
+		this(chart, selectionListener, true);
+	}
+	
+	public SelectableChartPanel(JFreeChart chart, SelectionChangeListener selectionListener, boolean scalable) {
 		super(new OverlayLayout());
 		
 		this.selectionListener = selectionListener;
 		
-		chartPanel = Visualisation.makePanel(chart);		
+		if(scalable){
+			chartPanel = Visualisation.makePanel(chart);
+		} else {
+			chartPanel = Visualisation.makenNonScalablePanel(chart);
+		}
 		transparentPanel = new TransparentPanel();
 		
 		this.add(transparentPanel);
