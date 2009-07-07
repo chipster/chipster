@@ -94,7 +94,7 @@ public class DetailsPanel extends JPanel implements PropertyChangeListener, Focu
 		// make it scrollable
         JScrollPane notesScroller = new JScrollPane(notesField);
         notesScroller.setBorder(BorderFactory.createEmptyBorder());
-        notesScroller.setPreferredSize(new Dimension(200, 50));
+        notesScroller.setPreferredSize(new Dimension(200, 20));
 
         // make main panel
         JPanel contentPane = new JPanel(new BorderLayout());
@@ -107,7 +107,7 @@ public class DetailsPanel extends JPanel implements PropertyChangeListener, Focu
         upperPanel.add(attributesField, BorderLayout.CENTER);
         contentPane.add(upperPanel, BorderLayout.NORTH);
         contentPane.add(notesScroller, BorderLayout.CENTER);
-        contentPane.setPreferredSize(new Dimension(240, VisualConstants.DETAILS_PANEL_HEIGHT - 35));
+        contentPane.setPreferredSize(new Dimension(240, VisualConstants.DETAILS_PANEL_HEIGHT - 20));
 
         // make scroller panel (main)
 		detailsScroller = new JScrollPane(contentPane);

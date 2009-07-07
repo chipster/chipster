@@ -371,7 +371,7 @@ implements PropertyChangeListener, SelectionChangeListener {
 			updateSelectionsFromApplication(false);
 			application.addPropertyChangeListener(this);
 			
-			int blockSize = 20;
+			int blockSize = 10;
 			
 			int width = (int)(heatMap.getColumnsCount() * blockSize + hcPlot.getRowTreeSize() + 
 				hcPlot.getRowNamesSize() + hcPlot.getLeftMarginSize() + hcPlot.getRightMarginSize());

@@ -405,7 +405,7 @@ public class SwingClientApplication extends ClientApplication {
 			CardLayout cardLayout = new CardLayout();
 			JPanel cardPanel = new JPanel(cardLayout);
 			
-			QuickLinkPanel linkPanel = new QuickLinkPanel(cardPanel, cardLayout);
+			QuickLinkPanel linkPanel = new QuickLinkPanel();
 			this.tree = new TreePanel(manager.getRootFolder(), cardPanel, cardLayout);
 						
 			cardPanel.add(linkPanel, "LINKS");
@@ -1643,7 +1643,7 @@ public class SwingClientApplication extends ClientApplication {
 
 	private void loadSessionImpl(final File sessionFile) {
 		final ClientApplication application = this; // for inner class
-		runBlockingTask("loading session", new Runnable() {
+		runBlockingTask("loading the session", new Runnable() {
 			public void run() {						
 				try {
 					final List<DataItem> newItems = manager.loadSnapshot(sessionFile, manager.getRootFolder(), application);

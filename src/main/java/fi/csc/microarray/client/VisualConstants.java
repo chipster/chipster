@@ -203,15 +203,21 @@ public class VisualConstants {
     public static final ImageIcon ARROW_DOWN_ICON = 
     	new ImageIcon(VisualConstants.class.getResource("/arrow_down.png"));
     public static final ImageIcon STOP_ICON = 
-        new ImageIcon(VisualConstants.class.getResource("/stop.png"));
-    
+        new ImageIcon(VisualConstants.class.getResource("/stop.png"));    
     public static final ImageIcon RUNNING_ICON = 
         new ImageIcon(VisualConstants.class.getResource("/running.gif"));
+    
+    public static final ImageIcon OPEN_SESSION_LINK_ICON = 
+        new ImageIcon(VisualConstants.class.getResource("/tree.png"));
+    public static final ImageIcon IMPORT_LINK_ICON = 
+        new ImageIcon(VisualConstants.class.getResource("/table.png"));
+    public static final ImageIcon EXAMPLE_SESSION_ICON = 
+        new ImageIcon(VisualConstants.class.getResource("/try.png"));
 
     public static final int LEFT_PANEL_WIDTH = 360;
     public static final int TREE_PANEL_HEIGHT = 250;
     public static final int GRAPH_PANEL_HEIGHT = 240;
-    public static final int DETAILS_PANEL_HEIGHT = 160;
+    public static final int DETAILS_PANEL_HEIGHT = 135;
         
     // for some child screens
     public static final Dimension DEFAULT_SCREEN_DIMENSION = new Dimension(640,480); 

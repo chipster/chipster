@@ -630,7 +630,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getLoadOldWorkspaceMenuItem() {
 		if (loadOldWorkspaceMenuItem == null) {
 			loadOldWorkspaceMenuItem = new JMenuItem();
-			loadOldWorkspaceMenuItem.setText("Open workspace (session) saved with Chipster 1.1");
+			loadOldWorkspaceMenuItem.setText("Open Chipster 1.1 workspace (session)");
 			loadOldWorkspaceMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {

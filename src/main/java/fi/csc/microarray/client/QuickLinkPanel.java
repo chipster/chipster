@@ -1,6 +1,5 @@
 package fi.csc.microarray.client;
 
-import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -10,7 +9,11 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -27,90 +30,90 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 	private JXHyperlink importFolderLink;
 	private JXHyperlink importURLLink;
 
-	private CardLayout cardLayout;
-	private JPanel cardParent;
+	private static final String LINK_WORD = "***";
 
-
-	public QuickLinkPanel(JPanel parent, CardLayout cardLayout) {
+	public QuickLinkPanel() {
 		super(new GridBagLayout());
-		
-		this.cardLayout = cardLayout;
-		this.cardParent = parent;
 		
 		application = (SwingClientApplication)Session.getSession().getApplication();
 		
 		this.setBackground(Color.white);
 		
 		GridBagConstraints c = new GridBagConstraints();
-		c.gridy = 0;						
-		c.insets.top = 5;
-		c.insets.left = 10;
-		//c.insets.right = 10;
-		c.insets.bottom = 5;
+		c.gridx = 0;
+		c.gridy = 0;		
+		c.insets.set(5, 10, 5, 10);
+		
 		c.anchor = GridBagConstraints.NORTHWEST;
+		c.gridwidth = 2;
 		
 		JLabel title = new JLabel("Getting started");
 		title.setFont(title.getFont().deriveFont(
 				(float) (title.getFont().getSize()*1.2)));
 		title.setFont(title.getFont().deriveFont(Font.BOLD));
 		
-		this.add(title,c);
+		this.add(title, c);
+		c.gridwidth = 1;		
+		c.insets.set(0, 10, 0, 0);
+				
+		addLink("*** to continue working on previous sessions.", getSessionLink(),
+				VisualConstants.OPEN_SESSION_LINK_ICON,	c);
+
+		List<JXHyperlink> importLinks = new LinkedList<JXHyperlink>();
+		importLinks.add(getImportLink());
+		importLinks.add(getImportFolderLink());
+		importLinks.add(getImportURLLink());
 		
-		c.fill = GridBagConstraints.HORIZONTAL;
+		addLink("Import new data to Chipster: \n    *** \n    *** \n    ***", importLinks,  
+				VisualConstants.IMPORT_LINK_ICON, c);
+								
+		addLink("*** to learn more and play around.", getExampleLink(), 
+				VisualConstants.EXAMPLE_SESSION_ICON, c);
+		
+		//Panels to take rest of space
+		JPanel bottomPanel = new JPanel();
+		JPanel rightPanel = new JPanel();
+		bottomPanel.setBackground(Color.white);
+		rightPanel.setBackground(Color.white);
+		
+		c.weightx = 0.0;
+		c.weighty = 1.0;	
+		c.fill = GridBagConstraints.VERTICAL;
+		c.gridx = 0;
+		c.gridy++;
+		this.add(bottomPanel, c);
 		c.weightx = 1.0;
-		c.weighty = 0.0;
-		c.insets.bottom = 0;
+		c.weighty = 0.0;	
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 3;
+		c.gridy = 0;
+		this.add(rightPanel, c);
 		
-		addLink(getSessionLink(), 
-				"to continue working on previous sessions.", c);
-		
-		JXHyperlink emptyLink = new JXHyperlink();
-		emptyLink.setText("");
-		addLink(emptyLink, 
-				"Import new data to Chipster:", c);
-		
-		c.gridy++;
-		c.insets.top = 5;
-		c.insets.left += 10;
-		
-		this.add(getImportLink(), c);
-		c.gridy++;
-		c.insets.top = 0;
-		this.add(getImportFolderLink(), c);
-		c.gridy++;
-		this.add(getImportURLLink(), c);
-		
-		c.insets.left -= 10;
-						
-		addLink(getExampleLink(), 
-				"to learn more and play around.", c);
-		//addLink(getEmptyLink(), "", c);
-		
-		c.weighty = 1.0;
-		c.fill = GridBagConstraints.BOTH;
-		JPanel emptyPanel = new JPanel();
-		emptyPanel.setBackground(Color.white);
-		this.add(emptyPanel, c);
 		
 		this.setMinimumSize(new Dimension(0,0));
 		this.setPreferredSize(new Dimension(VisualConstants.LEFT_PANEL_WIDTH, VisualConstants.TREE_PANEL_HEIGHT));
 	}
 	
-	private void addLink(JXHyperlink link, String description, GridBagConstraints c){
+	private void addLink(String description, JXHyperlink link, ImageIcon icon, GridBagConstraints c){
+		List<JXHyperlink> list = new LinkedList<JXHyperlink>();
+		list.add(link);
+		addLink(description, list, icon, c);
+	}
+	
+	private void addLink(String description, List<JXHyperlink> links, ImageIcon icon, GridBagConstraints c){
 		
 		String[] words = description.split(" ");
-		int rowChars = link.getText().length() + 1;
+		int rowChars = 0;
 		final int MAX_ROW_CHARS = 40;
+		Iterator<JXHyperlink> linkIterator = links.iterator();
+		int rowCount = 0;
 			
-		c.gridy++;
-		c.insets.left = 10;
-		c.insets.top = 15;
-		c.insets.bottom = 0;
-		
+		c.gridx = 1;
+		c.insets.top = 10;
 		JPanel row = null;
 						
-		for (int i = -1; i < words.length; i++){
-			if(i == -1 || rowChars + words[i].length() > MAX_ROW_CHARS){
+		for (int i = 0; i < words.length; i++){
+			if(row == null || rowChars + words[i].length() > MAX_ROW_CHARS || words[i].equals("\n")){
 				
 				FlowLayout flow = new FlowLayout(FlowLayout.LEADING);
 				flow.setVgap(0);
@@ -122,19 +125,30 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 				this.add(row, c);
 				c.insets.top = 0; // After first row
 				
-				if(i == -1){
-					row.add(link);
-				} else {
-					rowChars = 0;					
-				}
+				rowChars = 0;
+				rowCount++;
 			} 
-			
-			if(i != -1){
+						
+			if(words[i].equals(LINK_WORD)){
+				
+				JXHyperlink link = linkIterator.next();
+				rowChars += link.getText().length() + 1;
+				row.add(link);
+				//row.add(new JLabel(link.getText()));
+			} else if(!words[i].equals("\n")) {	
 				JLabel text = new JLabel(" " + words[i]);				
 				row.add(text);
-				rowChars += words[i].length();
+				rowChars += words[i].length() + 1;
 			}
 		}
+		
+		c.gridy -= (rowCount - 1);
+		c.gridheight = rowCount;
+		c.gridx = 0;
+		c.insets.top = 10;
+		this.add(new JLabel(icon), c);
+		c.gridy += (rowCount - 1);
+		c.gridheight = 1;
 	}
 
 	private JXHyperlink getExampleLink() { 
@@ -144,15 +158,6 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 			exampleLink.addActionListener(this);
 		}
 		return exampleLink;
-	}
-
-	private JXHyperlink getEmptyLink() {
-		if (emptyLink == null){
-			emptyLink = new JXHyperlink();
-			emptyLink.setText("Start empty session");
-			emptyLink.addActionListener(this);
-		}
-		return emptyLink;
 	}
 
 	private JXHyperlink getImportLink() {
