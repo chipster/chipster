@@ -1,9 +1,9 @@
-# ANALYSIS Utilities/"Filter using a column" (Allows the user to filter the genes on the basis of one numerical column. Altered by Mandy to include discrete values)
+# ANALYSIS Utilities/"Filter using a column" (Allows to filter the gene list based on values in the selected column. You can filter for discrete matches such as GO terms after running the tool Add annotations to the data, or for continuous values for example after running the tool Calculate descriptive statistics.)
 # INPUT GENERIC normalized.tsv OUTPUT column-filter3.tsv
 # PARAMETER column COLUMN_SEL (Data column to filter by)
-# PARAMETER Type [Discrete, Continuous] DEFAULT Continuous (Choose Discrete or Continuous)
+# PARAMETER Type [Discrete, Continuous] DEFAULT Continuous (Choosing discrete allows you to filter for example for GO terms)
 # PARAMETER cutoff DECIMAL FROM -100000 TO 100000 DEFAULT 1 (Cut-off for filtering)
-# PARAMETER discrete.match STRING DEFAULT empty (String to search for)
+# PARAMETER discrete.match STRING DEFAULT empty (Text to search for)
 # PARAMETER smaller.or.larger [equal-to, smaller-than, larger-than] DEFAULT smaller-than (Smaller or larger than the cutoff is filtered)
 
 
