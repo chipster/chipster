@@ -53,7 +53,9 @@ public class Scatterplot3DPCA extends Scatterplot3D{
 				
 				while(values.hasNext()){
 					try {
-						Integer.parseInt(values.next());
+						//Phenodata should be int type, but import tool or something
+						//changes values sometimes to floats
+						Float.parseFloat(values.next());
 					} catch (NumberFormatException e) {
 						colsToRemove.add(col);
 						break;
