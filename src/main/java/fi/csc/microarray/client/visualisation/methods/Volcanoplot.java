@@ -54,7 +54,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 	@Override
 	public JPanel createSettingsPanel() {
 
-		settingsPanel = new JPanel();
+		JPanel settingsPanel = new JPanel();
 		settingsPanel.setLayout(new GridBagLayout());
 		settingsPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
 

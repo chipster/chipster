@@ -53,7 +53,6 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 	protected SelectableChartPanel selectableChartPanel;
 
 	protected JPanel paramPanel;
-	protected JPanel settingsPanel;
 	protected AnnotateListPanel list;
 
 	protected JComboBox xBox;
@@ -89,7 +88,7 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 
 	public JPanel createSettingsPanel() {
 
-		settingsPanel = new JPanel();
+		JPanel settingsPanel = new JPanel();
 		settingsPanel.setLayout(new GridBagLayout());
 		settingsPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
 

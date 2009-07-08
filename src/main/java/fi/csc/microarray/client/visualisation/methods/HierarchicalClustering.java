@@ -4,6 +4,10 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -14,6 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -85,6 +90,16 @@ implements PropertyChangeListener, SelectionChangeListener {
 
 	private boolean reversed;
 
+	private JPanel zoomChangerPanel;
+
+	private JPanel spaceFiller;
+
+	private JScrollPane scroller;
+
+	private Dimension preferredSize;
+
+	private JCheckBox zoomCheckBox;
+
 	private class MicroarrayHCToolTipGenerator extends StandardHCToolTipGenerator {
 
 		/**
@@ -140,14 +155,48 @@ implements PropertyChangeListener, SelectionChangeListener {
 			paramPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
 			paramPanel.setLayout(new BorderLayout());
 
+			JPanel settings = this.createSettingsPanel();
 			list = new AnnotateListPanel();
 
 			JTabbedPane tabPane = new JTabbedPane();
+			tabPane.addTab("Settings", settings);
 			tabPane.addTab("Selected", list);
 
 			paramPanel.add(tabPane, BorderLayout.CENTER);
 		}
 		return paramPanel;
+	}
+	
+	public JPanel createSettingsPanel() {
+
+		JPanel settingsPanel = new JPanel();
+		settingsPanel.setLayout(new GridBagLayout());
+		settingsPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
+		
+		zoomCheckBox = new JCheckBox("Fit", true); 
+
+		zoomCheckBox.addActionListener(new ActionListener(){
+
+			public void actionPerformed(ActionEvent e) {
+				setScaledMode(zoomCheckBox.isSelected());
+			}			
+		});
+		
+		GridBagConstraints c = new GridBagConstraints();
+
+		c.gridy = 0;
+		c.insets.set(10, 10, 10, 10);
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weighty = 0;
+		c.weightx = 1.0;
+		settingsPanel.add(zoomCheckBox, c);		
+		c.gridy++;
+		c.fill = GridBagConstraints.BOTH;
+		c.weighty = 1.0;
+		settingsPanel.add(new JPanel(), c);
+
+		return settingsPanel;
 	}
 
 	/**
@@ -379,15 +428,18 @@ implements PropertyChangeListener, SelectionChangeListener {
 			//Column tree not visible
 			int height = (int)(heatMap.getRowCount() * blockSize + hcPlot.getColumnNamesSize() + 
 					hcPlot.getTopMarginSize() + hcPlot.getBottomMarginSize());
-						
-			selectableChartPanel.getChartPanel().setPreferredSize(new Dimension(width, height));
 			
-			JPanel spaceFiller = new JPanel();
+			preferredSize = new Dimension(width, height);
+									
+			zoomChangerPanel = new JPanel(new BorderLayout());
+			spaceFiller = new JPanel();
 			((FlowLayout)spaceFiller.getLayout()).setAlignment(FlowLayout.LEFT);
 			spaceFiller.setBackground(Color.white);
-			spaceFiller.add(selectableChartPanel);
+			scroller = new JScrollPane(spaceFiller);
 			
-			return new JScrollPane(spaceFiller);
+			setScaledMode(true);
+			
+			return zoomChangerPanel;
 
 		} catch (Exception e) {
 			// these are very tricky, mostly caused by bad data
@@ -395,6 +447,29 @@ implements PropertyChangeListener, SelectionChangeListener {
 			throw new ErrorReportAsException("Hierarchical clustering cannot be shown.", "The problem is probably caused by unsupported data, such as gene names that have illegal characters in them.", e);
 		}
 
+	}
+	
+	
+	public void setScaledMode(boolean scaled){
+		
+		/* Ugly way to change zoom level by changing containing panel layout and scroller
+		 * existence, but JFreeChart scaling is little bit problematic in this kind of 
+		 * usage.
+		 */
+		if(scaled){
+			spaceFiller.remove(selectableChartPanel);
+			zoomChangerPanel.remove(scroller);
+			zoomChangerPanel.add(selectableChartPanel, BorderLayout.CENTER);
+			selectableChartPanel.setPreferredSize(null);				
+		} else {			
+			spaceFiller.add(selectableChartPanel);
+			zoomChangerPanel.remove(selectableChartPanel);
+			zoomChangerPanel.add(scroller, BorderLayout.CENTER);
+			selectableChartPanel.setPreferredSize(preferredSize);				
+		}
+		
+		zoomChangerPanel.validate();
+		zoomChangerPanel.repaint();
 	}
 
 	/**
