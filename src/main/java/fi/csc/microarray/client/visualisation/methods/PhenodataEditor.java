@@ -466,8 +466,11 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 	public void dataChanged(DataChangeEvent evt) {
 		logger.debug("received " + evt.getClass().getSimpleName());
 		if (evt instanceof ContentChangedEvent) {
-			updatePhenodataTableHeaders();
-			logger.debug("phenodata headers updated");
+			ContentChangedEvent cce = (ContentChangedEvent)evt;
+			 if (this.data == cce.getDataItem()) {
+				 updatePhenodataTableHeaders();
+				 logger.debug("phenodata headers updated for " + cce.getDataItem().getName());
+			 }
 		}
 	}
 
