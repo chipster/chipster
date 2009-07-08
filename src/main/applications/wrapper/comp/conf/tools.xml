@@ -60,9 +60,9 @@
 			
 			<!-- ANNOTATION -->
 			<tool runtime="R-2.6.1">annotate-genelist2html.R</tool>
+			<!-- <tool runtime="R-2.9.0">annotate-genelist2html-genest.R</tool> -->
 			<tool runtime="R-2.6.1">annotate-add-to-data.R</tool> 
-			<tool runtime="beanshell">annotate-cpdb.bsh</tool>
-			<tool runtime="beanshell">annotate-intact.bsh</tool>
+			<tool runtime="R-2.6.1">annotate-agilent-miRNA.R</tool> 
 			
 			<!-- PATHWAYS -->
 			<tool runtime="R-2.6.1">stat-hyperG-GO.R</tool>	
@@ -70,6 +70,8 @@
 			<tool runtime="R-2.6.1">stat-hyperG-safe.R</tool>
 			<tool runtime="R-2.6.1">stat-hyperG-cytoband.R</tool>
 			<tool runtime="R-2.6.1">stat-geneset.R</tool>
+			<tool runtime="beanshell">annotate-cpdb.bsh</tool>
+			<tool runtime="beanshell">annotate-intact.bsh</tool>
 			<tool runtime="beanshell">annotate-reactome.bsh</tool>
 
 			<!-- PROMOTER -->
