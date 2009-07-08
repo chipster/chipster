@@ -91,8 +91,7 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 
 		public PhenodataTable(DataBean data) {
 			super(data);			
-			this.setHorizontalScrollEnabled(this.getWidth() < NO_SCROLL_WIDTH);
-			this.setSortable(false);
+			this.setHorizontalScrollEnabled(this.getWidth() < NO_SCROLL_WIDTH);			
 			
 			this.addKeyListener(new KeyListener(){
 				public void keyPressed(KeyEvent e) {
@@ -106,7 +105,13 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 					if(getCellEditor() != null){						
 						
 						int y = getEditingRow();
-						int x = getEditingColumn();												
+						int x = getEditingColumn();
+						
+						//Cell in sorted column can't be emptied, because this would 
+						//move the emptied cell to different place.
+						if(getSortedColumn().equals(getColumn(x))){
+							return;
+						}
 						
 						if(y != lastY || x != lastX){
 														
