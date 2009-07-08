@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import fi.csc.microarray.MicroarrayException;
+import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.client.visualisation.AnnotateListPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
@@ -41,7 +42,7 @@ public class Scatterplot3DPCA extends Scatterplot3D{
 		this.updateCombo(zBox, data);
 	
 		phenoBean = LinkUtils.retrieveInherited(data, Link.ANNOTATION);
-		List<Variable> phenoCols = Arrays.asList(VisualisationUtilities.getVariablesFiltered(phenoBean, "", false));
+		List<Variable> phenoCols = Arrays.asList(VisualisationUtilities.getVariablesFilteredInclusive(phenoBean, "", false));
 		List<Variable> colsToRemove = new ArrayList<Variable>();
 		
 		for(Variable col : phenoCols){
@@ -92,8 +93,19 @@ public class Scatterplot3DPCA extends Scatterplot3D{
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
 		
-		boolean isTabular = VisualisationMethod.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);		
-		return bean.getOperation().getDefinition().getName().equals("PCA") && 
+		boolean isTabular = VisualisationMethod.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
+		boolean isChips = false;
+		Parameter pcaOn = bean.getOperation().getParameter("do.pca.on");
+		if (pcaOn != null){
+			Object value = pcaOn.getValue();
+			if( value != null){
+				if(value.equals("chips")){
+					isChips = true;
+				}
+			}
+		}
+		return bean.getOperation().getDefinition().getName().equals("PCA") &&
+		isChips &&
 		isTabular && 
 		hasRows(bean) && 
 		bean.queryFeatures("/column/chip.*").exists();		

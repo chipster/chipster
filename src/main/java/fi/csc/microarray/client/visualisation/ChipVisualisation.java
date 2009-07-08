@@ -1,5 +1,7 @@
 package fi.csc.microarray.client.visualisation;
 
+import java.util.Arrays;
+
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.databeans.DataBean;
 
@@ -11,7 +13,18 @@ public abstract class ChipVisualisation extends Visualisation {
 
 	@Override
 	public Variable[] getVariablesFor(DataBean dataBean) {
-		return VisualisationUtilities.getVariablesFiltered(dataBean, "chip.", true);
+		return VisualisationUtilities.getVariablesFilteredInclusive(dataBean, "chip.", true);
+	}
+	
+	public Variable[] getVariablesMore(DataBean dataBean) {
+		
+		String[] banList = {
+			" ", "symbol", "description", "Probe", "Symbol", "Description", "Chromosome",
+			"GenBank", "Cytoband", "UniGene", "PubMed", "GeneOntology", "Pathway", "flag."
+		};
+		
+		return VisualisationUtilities.getVariablesFilteredExclusive(
+				dataBean, Arrays.asList(banList), true);
 	}
 			
 	@Override

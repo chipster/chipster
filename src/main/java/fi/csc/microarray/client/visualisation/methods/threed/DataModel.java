@@ -33,7 +33,7 @@ public class DataModel {
 		
 		
 		//About 0.68
-		final float BLUE_HUE = Color.RGBtoHSB(0, 0, 255,new float[3])[0];
+		final float BLUE_HUE = Color.RGBtoHSB(0, 128, 255,new float[3])[0];
 		
 		/**
 		 * @param value

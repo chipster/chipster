@@ -188,7 +188,7 @@ public class VisualisationUtilities {
 
 	}
 	
-	public static Variable[] getVariablesFiltered(DataBean dataBean, String startsWith, boolean removeStart) {
+	public static Variable[] getVariablesFilteredInclusive(DataBean dataBean, String startsWith, boolean removeStart) {
 		String exprHeader = "/column/";
 
 		LinkedList<Variable> vars = new LinkedList<Variable>();
@@ -214,5 +214,29 @@ public class VisualisationUtilities {
 			application.reportException(new MicroarrayException("no chips to visualise"));
 		}
 		return vars.toArray(new Variable[0]);
+	}
+	
+	public static Variable[] getVariablesFilteredExclusive(DataBean dataBean, Collection<String> columnsToRemove, boolean removeStart) {
+
+		LinkedList<Variable> filteredVars = new LinkedList<Variable>();
+		LinkedList<Variable> allVars = new LinkedList<Variable>();
+		allVars.addAll(Arrays.asList(getVariablesFilteredInclusive(dataBean, "", false)));
+		filteredVars.addAll(allVars);
+		
+		String hidden = "chip.";
+
+		for (Variable var : allVars) {
+			for(String colToRemove: columnsToRemove){
+				if (var.getName().startsWith(colToRemove)) {
+					filteredVars.remove(var);
+				} 
+			}
+			if(removeStart && var.getName().startsWith(hidden)){
+				String chipName = var.getName().substring(hidden.length());			
+				filteredVars.set(filteredVars.indexOf(var), 
+						new Variable(chipName, var.getExpression()));
+			}
+		}
+		return filteredVars.toArray(new Variable[0]);
 	}
 }
