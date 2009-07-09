@@ -42,23 +42,24 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0;
 		c.gridy = 0;		
-		c.insets.set(5, 10, 5, 10);
-		
 		c.anchor = GridBagConstraints.NORTHWEST;
-		c.gridwidth = 2;
 		
-		JLabel title = new JLabel("Getting started");
-		title.setFont(title.getFont().deriveFont(
-				(float) (title.getFont().getSize()*1.2)));
-		title.setFont(title.getFont().deriveFont(Font.BOLD));
+//		c.insets.set(5, 10, 5, 10);		
+//		c.gridwidth = 2;
+//		
+//		JLabel title = new JLabel("Getting started");
+//		title.setFont(title.getFont().deriveFont(
+//				(float) (title.getFont().getSize()*1.2)));
+//		title.setFont(title.getFont().deriveFont(Font.BOLD));
+//		
+//		this.add(title, c);
+//		c.gridwidth = 1;
 		
-		this.add(title, c);
-		c.gridwidth = 1;		
 		c.insets.set(0, 10, 0, 0);
 				
-		addLink("*** to continue working on previous sessions.", getSessionLink(),
-				VisualConstants.OPEN_SESSION_LINK_ICON,	c);
-
+		addLink("*** to learn more and play around.", getExampleLink(), 
+				VisualConstants.EXAMPLE_SESSION_ICON, c);
+		
 		List<JXHyperlink> importLinks = new LinkedList<JXHyperlink>();
 		importLinks.add(getImportLink());
 		importLinks.add(getImportFolderLink());
@@ -66,9 +67,9 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 		
 		addLink("Import new data to Chipster: \n    *** \n    *** \n    ***", importLinks,  
 				VisualConstants.IMPORT_LINK_ICON, c);
-								
-		addLink("*** to learn more and play around.", getExampleLink(), 
-				VisualConstants.EXAMPLE_SESSION_ICON, c);
+										
+		addLink("*** to continue working on previous sessions.", getSessionLink(),
+				VisualConstants.OPEN_SESSION_LINK_ICON,	c);
 		
 		//Panels to take rest of space
 		JPanel bottomPanel = new JPanel();

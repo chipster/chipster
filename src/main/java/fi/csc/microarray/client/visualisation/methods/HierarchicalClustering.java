@@ -23,6 +23,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 
 import org.apache.log4j.Logger;
 import org.jfree.chart.BioChartFactory;
@@ -173,7 +174,10 @@ implements PropertyChangeListener, SelectionChangeListener {
 		settingsPanel.setLayout(new GridBagLayout());
 		settingsPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
 		
-		zoomCheckBox = new JCheckBox("Fit", true); 
+		zoomCheckBox = new JCheckBox("Enable scroll bars", true);
+		JTextArea scrollHelp = new JTextArea("(Recommended for \n big datasets)");
+		scrollHelp.setEditable(false);
+		scrollHelp.setBackground(settingsPanel.getBackground());
 
 		zoomCheckBox.addActionListener(new ActionListener(){
 
@@ -185,12 +189,14 @@ implements PropertyChangeListener, SelectionChangeListener {
 		GridBagConstraints c = new GridBagConstraints();
 
 		c.gridy = 0;
-		c.insets.set(10, 10, 10, 10);
+		c.insets.set(10, 10, 0, 10);
 		c.anchor = GridBagConstraints.NORTHWEST;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weighty = 0;
 		c.weightx = 1.0;
 		settingsPanel.add(zoomCheckBox, c);		
+		c.gridy++;
+		settingsPanel.add(scrollHelp, c);
 		c.gridy++;
 		c.fill = GridBagConstraints.BOTH;
 		c.weighty = 1.0;

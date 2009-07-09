@@ -20,7 +20,8 @@ public abstract class ChipVisualisation extends Visualisation {
 		
 		String[] banList = {
 			" ", "symbol", "description", "Probe", "Symbol", "Description", "Chromosome",
-			"GenBank", "Cytoband", "UniGene", "PubMed", "GeneOntology", "Pathway", "flag."
+			"GenBank", "Cytoband", "UniGene", "PubMed", "GeneOntology", "Pathway", "flag.", "Gene", 
+			"Gene.Ontology"
 		};
 		
 		return VisualisationUtilities.getVariablesFilteredExclusive(
