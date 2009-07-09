@@ -109,7 +109,7 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 						
 						//Cell in sorted column can't be emptied, because this would 
 						//move the emptied cell to different place.
-						if(getSortedColumn().equals(getColumn(x))){
+						if(getSortedColumn() != null && getSortedColumn().equals(getColumn(x))){
 							return;
 						}
 						
