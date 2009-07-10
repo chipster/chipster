@@ -397,7 +397,16 @@ public class FSSnapshottingSession {
 				Operation operation = fetchOperation(operId);
 				Parameter parameter = operation.getParameter(paramName);
 				if (parameter != null) {
-					parameter.parseValue(paramValue);
+					try {
+						parameter.parseValue(paramValue);
+					} catch (IllegalArgumentException e) {
+						String message = "The session you opened contains a dataset with a parameter that references to an another dataset that was removed." +
+						"Typically this happens when you break the connection between phenodata and datasets that it describes. " +
+						"The dataset contents have not changed and you can use them as before, but the obsolete parameter has been removed from the history information of the dataset " +						
+						"and will not be saved in further sessions or workflows.";
+						String details = "Analysis tool: " + operation.getCategoryName() + " / " + operation.getName() + "\nParameter with obsolete reference: " + paramName;
+						warnAboutObsoleteContent(message, details, "");						
+					}
 				} else {
 					String message = "The session you opened contains a dataset which has been derived using an analysis tool with a parameter which has been removed or renamed.\n\n" +
 					"The dataset contents have not changed and you can use them as before, but the obsolete parameter has been removed from the history information of the dataset " +						
