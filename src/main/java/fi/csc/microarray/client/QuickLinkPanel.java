@@ -218,7 +218,8 @@ public class QuickLinkPanel extends JPanel implements ActionListener{
 			
 		} else if (e.getSource() == exampleLink){
 			try {
-				URL url = new URL("http://chipster.csc.fi/examples/kidney.cs");
+				//URL url = new URL("http://chipster.csc.fi/examples/kidney.cs");
+				URL url = new URL("https://extras.csc.fi/biosciences/Chipster/sessionIlluminaHuman6v1teratospermia.cs");
 				application.loadSessionFrom(url);
 				
 			} catch (Exception ex) {
