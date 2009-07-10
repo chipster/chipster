@@ -72,7 +72,7 @@
         	<fatjar.jarsource file="${lib}/concurrent.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/log4j-1.2.9.jar" relpath=""/>
             <fatjar.jarsource file="${lib}/jgraph.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/testng-5.7-jdk15.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib}/testng-5.9-jdk15.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/antlr-3.0b7.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/antlr-2.7.7.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/stringtemplate-3.0.jar" relpath=""/>
