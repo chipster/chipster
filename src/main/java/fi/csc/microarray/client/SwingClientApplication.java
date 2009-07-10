@@ -791,9 +791,13 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	public void runWorkflow(Object workflowScript) {
+		runWorkflow(workflowScript, null);
+	}
+	
+	public void runWorkflow(Object workflowScript, final AtEndListener atEndListener) {
 
 		if (workflowScript instanceof File) {
-			workflowManager.runScript((File)workflowScript, null);
+			workflowManager.runScript((File)workflowScript, atEndListener);
 			
 		} else if (workflowScript instanceof URL) {
 			
@@ -805,7 +809,7 @@ public class SwingClientApplication extends ClientApplication {
 				FileLoaderProcess fileLoaderProcess = new FileLoaderProcess(tempFile, url, info) {
 					@Override
 					protected void postProcess() {
-						workflowManager.runScript(tempFile, null);
+						workflowManager.runScript(tempFile, atEndListener);
 					};
 				};			
 				fileLoaderProcess.runProcess();

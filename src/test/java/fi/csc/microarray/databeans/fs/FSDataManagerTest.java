@@ -18,6 +18,7 @@ import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 import fi.csc.microarray.MicroarrayException;
+import fi.csc.microarray.client.AtEndListener;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
@@ -273,6 +274,13 @@ public class FSDataManagerTest {
 
 		@Override
 		public void runWorkflow(Object workflowScript) {
+		}
+
+
+		@Override
+		public void runWorkflow(Object workflowScript,
+				AtEndListener atEndListener) {
+			
 		}		
 	}
 }

@@ -130,6 +130,7 @@ public abstract class ClientApplication implements Node, WizardContext {
 	public abstract void loadSessionFrom(URL url);
 	public abstract void saveSession();
 	public abstract void runWorkflow(Object workflowScript);
+	public abstract void runWorkflow(Object workflowScript, AtEndListener atEndListener);
 	public abstract void flipTaskListVisibility(boolean closeIfVisible); // TODO should not be here (GUI related)
 	public abstract void setMaximisedVisualisationMode(boolean maximisedVisualisationMode);
 	public abstract VisualisationFrameManager getVisualisationFrameManager();
