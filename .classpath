@@ -9,7 +9,6 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/spring.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/concurrent.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/log4j-1.2.9.jar"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/jgraph.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/antlr-3.0b7.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/antlr-2.7.7.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/stringtemplate-3.0.jar"/>
@@ -34,5 +33,6 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/jcommon-1.0.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jfreechart-1.0.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/viski-chipster-1.0.1.jar"/>
+	<classpathentry kind="lib" path="ext/lib/jgraph-5.12.2.1.jar"/>
 	<classpathentry kind="output" path="bin/eclipse"/>
 </classpath>
