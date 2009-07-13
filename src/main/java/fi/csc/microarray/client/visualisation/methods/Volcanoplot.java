@@ -42,10 +42,10 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 	/**
 	 * Analytical expression is -log(p), where p is the first available p.* column.
 	 */
-	private static final String COLUMN_MASK = "***";
-	private static final String Y_AXIS_CONVERTER= "neg(log(***))";
 	private static final String Y_AXIS_COLUMN_HEADER = "p.";
 	private static final String X_AXIS_COLUMN_HEADER = "FC";
+	
+	private float ROUNDING_LIMIT;
 
 	public Volcanoplot(VisualisationFrame frame) {
 		super(frame);
@@ -125,8 +125,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 		PlotDescription description = new PlotDescription(data.getName(), "fold change", "-log(p)");
 
 		NumberAxis domainAxis = new NumberAxis(description.xTitle);
-		NumberAxis rangeAxis = new NumberAxis(description.yTitle);
-		rangeAxis.setRange(new Range(0, 16));
+		NumberAxis rangeAxis = new NumberAxis(description.yTitle);	
 		
 		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();		
 		renderer.setLinesVisible(false);
@@ -137,11 +136,17 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 		renderer.setSeriesPaint(3, Color.lightGray);
 		renderer.setShape(new Ellipse2D.Float(-2, -2, 4, 4));
 		
-		plot = new XYPlot(new XYSeriesCollection(), domainAxis, rangeAxis, renderer);
+		plot = new XYPlot(new XYSeriesCollection(), domainAxis, rangeAxis, renderer);		
 
 		this.updateSelectionsFromApplication(false);
-
+		//Rounding limit is calculated from updateSelectionsFromApplication
+		plot.getRangeAxis().setRange(new Range(0, -Math.log(ROUNDING_LIMIT)));
+		
+		System.out.println(ROUNDING_LIMIT);
+		
 		JFreeChart chart = new JFreeChart(description.plotTitle, plot);
+		
+		chart.removeLegend();
 
 		application.addPropertyChangeListener(this);
 
@@ -155,11 +160,67 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 	}
 
 	private Iterator<Float> getYValueIterator() throws MicroarrayException{
-
-		// "/column/" part of the query comes from the getExpression function		
-		return  data.queryFeatures(Y_AXIS_CONVERTER.replace(
-				COLUMN_MASK, yVar.getExpression())).asFloats().iterator();
+				
+		return new YValueIterator();				
 	}
+	
+	/**
+	 * Class tries to find out the rounding limit of y-values and 
+	 * changes zero values into this limit. Iterated values are also translated with -log(). 
+	 * 
+	 * @author klemela
+	 *
+	 */
+	private class YValueIterator implements Iterator<Float>{
+		
+		private static final float DEFAULT_ROUNDING_LIMIT = 0.0001f;
+		// "/column/" part of the query comes from the getExpression function		
+		Iterator<Float> original;
+		
+		public YValueIterator() throws MicroarrayException{
+		
+			original =  data.queryFeatures(yVar.getExpression()).asFloats().iterator();
+							
+			//Find smallest non-zero value to find out rounding limit 
+			float min = Float.MAX_VALUE;
+			
+			while(original.hasNext()){
+				
+				float y = original.next();
+				if(y < min && y > 0){
+					min = y;
+				}
+			}
+									
+			//Rounding to the nearest 1*10^-n below
+			ROUNDING_LIMIT = (float) Math.pow(10, Math.floor(Math.log10(min)));
+			
+			//Sanity check
+			if(ROUNDING_LIMIT <= 0 || ROUNDING_LIMIT > 1){
+				ROUNDING_LIMIT = DEFAULT_ROUNDING_LIMIT;
+			}
+			
+			original =  data.queryFeatures(yVar.getExpression()).asFloats().iterator();
+			
+		}
+
+		public boolean hasNext() {
+			return original.hasNext();
+		}
+
+		public Float next() {
+			float y =  original.next();
+
+			if(y < ROUNDING_LIMIT){
+				y = ROUNDING_LIMIT;
+			}
+			return (float)-Math.log(y);
+		}
+
+		public void remove() {
+			original.remove();
+		}			
+	};
 	
 	protected void updateXYSerieses() throws MicroarrayException {
 		
@@ -177,6 +238,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 			
 			float x = xValues.next();
 			float y = yValues.next();
+			
 			boolean overYThreshold = y >= -Math.log(0.05);
 			boolean overXThreshold = Math.abs(x) >= 1f;
 			
@@ -214,8 +276,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
 		boolean isTabular = VisualisationMethod.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
 		return isTabular && hasRows(bean) && 
-			bean.queryFeatures(Y_AXIS_CONVERTER.replace(
-					COLUMN_MASK, "/column/" + Y_AXIS_COLUMN_HEADER + "*")).exists() && 
+			bean.queryFeatures( "/column/" + Y_AXIS_COLUMN_HEADER + "*").exists() && 
 			bean.queryFeatures("/column/" + X_AXIS_COLUMN_HEADER + "*").exists();
 	}
 	
@@ -250,9 +311,6 @@ public void selectionChanged(Rectangle.Double newSelection) {
 
 					if(newSelection.contains(new Point.Double(xValues.next(), yValues.next()))){
 
-						//Contains method should work with Integers as it uses equals to compare objects. 
-						//Usage of hash can be still a problem, as VM pools integer objects only for 
-						//integers between -256 and 256 or something like that.
 						if(selectedIndexes.contains(i)){
 							//Remove from selection if selected twice
 							selectedIndexes.remove(i);
