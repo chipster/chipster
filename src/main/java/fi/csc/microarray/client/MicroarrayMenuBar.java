@@ -74,6 +74,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem detachMenuItem;
 	private JMenu visualisationMenu;
 	private JMenuItem loadOldWorkspaceMenuItem;
+	private JMenu openRepoWorkflowsMenu;
 
 	public MicroarrayMenuBar(SwingClientApplication application) {
 		this.application = application;
@@ -219,6 +220,41 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			});
 		}
 		return openWorkflowsMenuItem;
+	}
+	
+	private JMenu getOpenRepositoryWorkflowMenu() {
+		if (openRepoWorkflowsMenu == null) {
+			
+			String[][] flows = {
+				{"Find differentially expressed genes", "workflows/find-differentially-expressed-genes.bsh"}, 
+				{"Find genes using classification analysis", "workflows/find-genes-with-classification.bsh"}
+			};
+			
+			openRepoWorkflowsMenu = new JMenu();
+			openRepoWorkflowsMenu.setText("Run from repository");
+			
+			for(String[] flow: flows){
+				JMenuItem item = new JMenuItem(flow[0]);
+				item.addActionListener(new RepoWorkflowActionListener(flow[1]));
+				openRepoWorkflowsMenu.add(item);
+			}
+		}
+		return openRepoWorkflowsMenu;
+	}
+
+	private class RepoWorkflowActionListener implements ActionListener {
+		
+		File file;
+		
+		public RepoWorkflowActionListener(String flow){						
+            
+			file = new File(flow);
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			((SwingClientApplication)application).runWorkflow(file);
+			addRecentWorkflow(file);						
+		}
 	}
 	
 	private void addRecentWorkflow(File file){
@@ -399,7 +435,8 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (workflowsMenu == null) {
 			workflowsMenu = new JMenu();
 			workflowsMenu.setText("Workflow");			
-			workflowsMenu.add(getOpenWorkflowMenuItem());			
+			workflowsMenu.add(getOpenWorkflowMenuItem());
+			workflowsMenu.add(getOpenRepositoryWorkflowMenu());
 			workflowsMenu.add(getRecentWorkflowMenu());
 			workflowsMenu.add(getSaveWorkflowMenuItem());
 		}
