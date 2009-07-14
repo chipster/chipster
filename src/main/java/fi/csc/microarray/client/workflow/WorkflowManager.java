@@ -2,13 +2,14 @@ package fi.csc.microarray.client.workflow;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -68,21 +69,30 @@ public class WorkflowManager {
 	}
 
 	public void runScript(final File file, final AtEndListener listener) {
+		try {
+			runScript(file.toURL(), listener);			
+		} catch (MalformedURLException e) {			
+			throw new IllegalArgumentException(e);
+		}
+	}
+	
+	public void runScript(final URL workflowUrl, final AtEndListener listener) {
 
 		Runnable runnable = new Runnable() {
 			public void run() {
 				BufferedReader in = null;
 				try {
-					in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+					
+					in = new BufferedReader(new InputStreamReader(workflowUrl.openConnection().getInputStream()));
 					String line = in.readLine();
 					checkVersionHeaderLine(line);
 					in.close();
 					Interpreter i = initialiseBshEnvironment();
-					i.source(file.getPath());
+					i.eval(new InputStreamReader(workflowUrl.openConnection().getInputStream()));
 					
 				} catch (Throwable e) {
 					e.printStackTrace();
-					application.showDialog("Running workflow failed", "Running workflow " + file.getName() + " failed. Usually this is because the workflow contained operations that do not work with the data currently in use. For more information please see details below.", Exceptions.getStackTrace(e), Severity.WARNING, true);
+					application.showDialog("Running workflow failed", "Running workflow " + workflowUrl.getFile() + " failed. Usually this is because the workflow contained operations that do not work with the data currently in use. For more information please see details below.", Exceptions.getStackTrace(e), Severity.WARNING, true);
 					
 				} finally {
 					if (listener != null) {
