@@ -27,6 +27,11 @@ public class ResultBlocker implements ResultListener {
 		latch.countDown();		
 	}
 	
+	public void noResults() {
+		this.results = null;
+		latch.countDown();
+	}
+	
 	public void blockUntilDone() {
 		try {
 			latch.await();
@@ -37,6 +42,10 @@ public class ResultBlocker implements ResultListener {
 	}
 	
 	public List<DataBean> getResults() {
+		if (results == null) {
+			throw new IllegalStateException("no results");
+		}
+		
 		Iterator<DataBean> iter = results.iterator();
 		LinkedList<DataBean> beans = new LinkedList<DataBean>();
 
@@ -45,7 +54,7 @@ public class ResultBlocker implements ResultListener {
 		}
 		
 		if (enforcedResultCount != -1 && beans.size() != enforcedResultCount) {
-			throw new IllegalStateException("there are more than " + enforcedResultCount + " results");
+			throw new IllegalStateException("there are more or less than " + enforcedResultCount + " results");
 		}
 		
 		return beans;

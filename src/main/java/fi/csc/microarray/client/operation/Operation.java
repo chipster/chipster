@@ -67,6 +67,7 @@ public class Operation implements ExecutionItem {
 
 	public static interface ResultListener {
 		public void resultData(Iterable<DataBean> results);
+		public void noResults();
 	}
 
 	/**

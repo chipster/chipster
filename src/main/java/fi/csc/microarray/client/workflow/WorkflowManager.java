@@ -13,11 +13,14 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import bsh.EvalError;
 import bsh.Interpreter;
 import fi.csc.microarray.client.AtEndListener;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.workflow.api.WfApplication;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -32,7 +35,8 @@ import fi.csc.microarray.util.GeneralFileFilter;
  */
 public class WorkflowManager {
 	
-	
+	static final Logger logger = Logger.getLogger(WorkflowManager.class);
+
 	public static final String WORKFLOW_VERSION = "BSH/2";
 
 	public static void checkVersionHeaderLine(String line) throws IllegalArgumentException {
@@ -49,6 +53,7 @@ public class WorkflowManager {
 	public File scriptDirectory;
 
 	private ClientApplication application;
+
 
 	public WorkflowManager(ClientApplication application) throws IOException {
 		this.application = application;
@@ -81,6 +86,7 @@ public class WorkflowManager {
 		Runnable runnable = new Runnable() {
 			public void run() {
 				BufferedReader in = null;
+				boolean success = false;
 				try {
 					
 					in = new BufferedReader(new InputStreamReader(workflowUrl.openConnection().getInputStream()));
@@ -89,14 +95,18 @@ public class WorkflowManager {
 					in.close();
 					Interpreter i = initialiseBshEnvironment();
 					i.eval(new InputStreamReader(workflowUrl.openConnection().getInputStream()));
-					
+					success = true;
 				} catch (Throwable e) {
-					e.printStackTrace();
-					application.showDialog("Running workflow failed", "Running workflow " + workflowUrl.getFile() + " failed. Usually this is because the workflow contained operations that do not work with the data currently in use. For more information please see details below.", Exceptions.getStackTrace(e), Severity.WARNING, true);
-					
+					logger.warn("running workflow failed", e);
+					application.showDialog("Running workflow " + workflowUrl.getFile() + " failed.", 
+							"The most common reason for a workflow failure is that the data used as an input for the worklfow " + 
+							" is not compatible with the tools in the workflow. This causes one of tools to fail and aborting the rest " +
+							" of the workflow.\n\n" +
+							"To get an idea of why a tool has failed, please see the tool specific failure window.",
+							Exceptions.getStackTrace(e), Severity.WARNING, false, DetailsVisibility.DETAILS_ALWAYS_HIDDEN);
 				} finally {
 					if (listener != null) {
-						listener.atEnd();
+						listener.atEnd(success);
 					}
 					if (in != null) {
 						try {

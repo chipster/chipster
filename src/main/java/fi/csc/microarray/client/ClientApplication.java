@@ -176,7 +176,7 @@ public abstract class ClientApplication implements Node, WizardContext {
     protected DataSelectionManager selectionManager;
 
     protected ClientConstants clientConstants;
-    protected Configuration configuration;      
+    protected Configuration configuration;
 
 	public ClientApplication() {
 		this.configuration = DirectoryLayout.getInstance().getConfiguration();
@@ -416,141 +416,151 @@ public abstract class ClientApplication implements Node, WizardContext {
 	 */
 	public void onFinishedTask(Task job, Operation oper) throws MicroarrayException, IOException {
 		
-		logger.debug("operation finished, state is " + job.getState());
+		LinkedList<DataBean> newBeans = new LinkedList<DataBean>();
+		try {
 
-		// for canceled tasks, do nothing
-		if (job.getState() == State.CANCELLED) {
+			logger.debug("operation finished, state is " + job.getState());
 			
-		}
-		// for unsuccessful tasks, report failing
-		else if (!job.getState().finishedSuccesfully()) { 
-			reportTaskError(job);
-		}
-		
-		// for completed tasks, create datasets etc.
-		else {
-		
-			LinkedList<DataBean> newBeans = new LinkedList<DataBean>();
-			
-			// read operated datas
-			LinkedList<DataBean> sources = new LinkedList<DataBean>();
-			for (DataBinding binding : oper.getBindings()) {
-				// remove derivation links that start from phenodata
-				if (!binding.getData().queryFeatures("/phenodata").exists()) {
-					sources.add(binding.getData());
-					
-				}
+			// for canceled tasks, do nothing
+			if (job.getState() == State.CANCELLED) {
+
 			}
-			
-			// decide output folder
-			DataFolder folder;
-			if (oper.getOutputFolder() != null) {
-				folder = oper.getOutputFolder();
-			} else if (sources.size() > 0) {
-				folder = sources.get(0).getParent();
-			} else {
-				folder = manager.getRootFolder();
+			// for unsuccessful tasks, report failing
+			else if (!job.getState().finishedSuccesfully()) { 
+				reportTaskError(job);
 			}
-			
 
-			DataBean phenodata = null;
+			// for completed tasks, create datasets etc.
+			else {
 
-			for (String outputName : job.outputNames()) {
-				
-				DataBean result = job.getOutput(outputName);
-				result.setOperation(oper);
+				newBeans = new LinkedList<DataBean>();
 
-				if (result.queryFeatures("/phenodata").exists()) {
-					phenodata = job.getOutput(outputName);					
-				}
-				
-				// set sources
-				for (DataBean source : sources) {
-					result.addLink(Link.DERIVATION, source);
-				}
+				// read operated datas
+				LinkedList<DataBean> sources = new LinkedList<DataBean>();
+				for (DataBinding binding : oper.getBindings()) {
+					// remove derivation links that start from phenodata
+					if (!binding.getData().queryFeatures("/phenodata").exists()) {
+						sources.add(binding.getData());
 
-				// initialise cache
-				try {
-					result.initialiseStreamStartCache();
-				} catch (IOException e) {
-					throw new MicroarrayException(e);
-				}
-				
-				// connect data (events are generated and it becomes visible)
-				folder.addChild(result);
-
-				newBeans.add(result);
-			}
-			
-			if (phenodata != null) {
-				// link phenodata to other datasets
-				for (DataBean bean : newBeans) {
-					if (bean != phenodata) {
-						phenodata.addLink(Link.ANNOTATION, bean);
 					}
 				}
-				
-				// if original names are not already contained in the phenodata 
-				if (!phenodata.queryFeatures("/column/" + PhenodataEditor.PHENODATA_NAME_COLUMN).exists()) {
-					// augment phenodata with original dataset names (using parameter bindings)
-					HashSet<String> insertedNames = new HashSet<String>();
-					TableBeanEditor tableEditor = new TableBeanEditor(phenodata);
-					EditableTable editableTable = tableEditor.getEditable();
-					LinkedList<String> newColumn = new LinkedList<String>();
-					newColumn.addAll(Arrays.asList(Strings.repeatToArray("", editableTable.getRowCount())));
-					editableTable.addColumn(PhenodataEditor.PHENODATA_NAME_COLUMN, 1, newColumn); // add after sample column 
-					for (int ri = 0; ri < editableTable.getRowCount(); ri++) {
-						String sample = editableTable.getValue(PhenodataEditor.PHENODATA_SAMPLE_COLUMN, ri);
-						boolean correctRowFound = false;
-						String originalName = null;
-						for (DataBinding binding : oper.getBindings()) {
-							if (binding.getName().equals(sample)) {
-								originalName = binding.getData().getName();
-								correctRowFound = true;
-								break;
+
+				// decide output folder
+				DataFolder folder;
+				if (oper.getOutputFolder() != null) {
+					folder = oper.getOutputFolder();
+				} else if (sources.size() > 0) {
+					folder = sources.get(0).getParent();
+				} else {
+					folder = manager.getRootFolder();
+				}
+
+
+				DataBean phenodata = null;
+
+				for (String outputName : job.outputNames()) {
+
+					DataBean result = job.getOutput(outputName);
+					result.setOperation(oper);
+
+					if (result.queryFeatures("/phenodata").exists()) {
+						phenodata = job.getOutput(outputName);					
+					}
+
+					// set sources
+					for (DataBean source : sources) {
+						result.addLink(Link.DERIVATION, source);
+					}
+
+					// initialise cache
+					try {
+						result.initialiseStreamStartCache();
+					} catch (IOException e) {
+						throw new MicroarrayException(e);
+					}
+
+					// connect data (events are generated and it becomes visible)
+					folder.addChild(result);
+
+					newBeans.add(result);
+				}
+
+				if (phenodata != null) {
+					// link phenodata to other datasets
+					for (DataBean bean : newBeans) {
+						if (bean != phenodata) {
+							phenodata.addLink(Link.ANNOTATION, bean);
+						}
+					}
+
+					// if original names are not already contained in the phenodata 
+					if (!phenodata.queryFeatures("/column/" + PhenodataEditor.PHENODATA_NAME_COLUMN).exists()) {
+						// augment phenodata with original dataset names (using parameter bindings)
+						HashSet<String> insertedNames = new HashSet<String>();
+						TableBeanEditor tableEditor = new TableBeanEditor(phenodata);
+						EditableTable editableTable = tableEditor.getEditable();
+						LinkedList<String> newColumn = new LinkedList<String>();
+						newColumn.addAll(Arrays.asList(Strings.repeatToArray("", editableTable.getRowCount())));
+						editableTable.addColumn(PhenodataEditor.PHENODATA_NAME_COLUMN, 1, newColumn); // add after sample column 
+						for (int ri = 0; ri < editableTable.getRowCount(); ri++) {
+							String sample = editableTable.getValue(PhenodataEditor.PHENODATA_SAMPLE_COLUMN, ri);
+							boolean correctRowFound = false;
+							String originalName = null;
+							for (DataBinding binding : oper.getBindings()) {
+								if (binding.getName().equals(sample)) {
+									originalName = binding.getData().getName();
+									correctRowFound = true;
+									break;
+								}
 							}
-						}
-						if (!correctRowFound) {
-							originalName = sample; // just duplicate the sample name if proper is not found
-						}
-						
-						// check that original names are unique
-						if (insertedNames.contains(originalName)) {
-							final String separator = "/";
-							int i = 2;
-							while (insertedNames.contains(originalName + separator + i)) {
-								i++;
+							if (!correctRowFound) {
+								originalName = sample; // just duplicate the sample name if proper is not found
 							}
-							originalName = originalName + separator + i;
-						}
-						
-						editableTable.setValue(PhenodataEditor.PHENODATA_NAME_COLUMN, ri, originalName);
-						insertedNames.add(originalName);
 
+							// check that original names are unique
+							if (insertedNames.contains(originalName)) {
+								final String separator = "/";
+								int i = 2;
+								while (insertedNames.contains(originalName + separator + i)) {
+									i++;
+								}
+								originalName = originalName + separator + i;
+							}
+
+							editableTable.setValue(PhenodataEditor.PHENODATA_NAME_COLUMN, ri, originalName);
+							insertedNames.add(originalName);
+
+						}
+						tableEditor.write();
 					}
-					tableEditor.write();
+
+					// if chip descriptions (visualisation view names) aren't there already 
+					if (!phenodata.queryFeatures("/column/" + PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN).exists()) {
+						// copy original dataset names
+						TableBeanEditor tableEditor = new TableBeanEditor(phenodata);
+						EditableTable editableTable = tableEditor.getEditable();
+						LinkedList<String> newColumn = new LinkedList<String>();
+						newColumn.addAll(Arrays.asList(Strings.repeatToArray("", editableTable.getRowCount())));
+						editableTable.addColumn(PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN, newColumn); 
+						for (int ri = 0; ri < editableTable.getRowCount(); ri++) {
+							String sample = editableTable.getValue(PhenodataEditor.PHENODATA_NAME_COLUMN, ri);										
+							editableTable.setValue(PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN, ri, sample);
+						}
+						tableEditor.write();
+					}				
 				}
-				
-				// if chip descriptions (visualisation view names) aren't there already 
-				if (!phenodata.queryFeatures("/column/" + PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN).exists()) {
-					// copy original dataset names
-					TableBeanEditor tableEditor = new TableBeanEditor(phenodata);
-					EditableTable editableTable = tableEditor.getEditable();
-					LinkedList<String> newColumn = new LinkedList<String>();
-					newColumn.addAll(Arrays.asList(Strings.repeatToArray("", editableTable.getRowCount())));
-					editableTable.addColumn(PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN, newColumn); 
-					for (int ri = 0; ri < editableTable.getRowCount(); ri++) {
-						String sample = editableTable.getValue(PhenodataEditor.PHENODATA_NAME_COLUMN, ri);										
-						editableTable.setValue(PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN, ri, sample);
-					}
-					tableEditor.write();
-				}				
-			}
-			
+
+			}			
+	
+		} finally {
 			if (oper.getResultListener() != null) {
-				oper.getResultListener().resultData(newBeans);
+				if (job.getState().finishedSuccesfully()) {
+					oper.getResultListener().resultData(newBeans);
+				} else {
+					oper.getResultListener().noResults();
+				}
 			}
-		}			
+		}
 	}
 	
 	protected void quit() {		
@@ -688,4 +698,5 @@ public abstract class ClientApplication implements Node, WizardContext {
 	public TaskExecutor getTaskExecutor() {
 		return this.taskExecutor;
 	}
+	
 }
