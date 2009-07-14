@@ -236,26 +236,12 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			openRepoWorkflowsMenu.setText("Run from repository");
 			
 			for(String[] flow: flows){
-				JMenuItem item = new JMenuItem(flow[0]);
-				item.addActionListener(new RepoWorkflowActionListener(flow[1]));
-				openRepoWorkflowsMenu.add(item);
+							
+				URL url = MicroarrayMenuBar.class.getResource(flow[1]);
+				openRepoWorkflowsMenu.add(createRunWorkflowMenuItem(flow[0], url));				
 			}
 		}
 		return openRepoWorkflowsMenu;
-	}
-
-	private class RepoWorkflowActionListener implements ActionListener {
-		
-		URL input;
-		
-		public RepoWorkflowActionListener(String flow){						
-			input = MicroarrayMenuBar.class.getResource(flow);
-		}
-
-		public void actionPerformed(ActionEvent e) {
-			((SwingClientApplication)application).runWorkflow(input);
-			//addRecentWorkflow(url);						
-		}
 	}
 	
 	private void addRecentWorkflow(File file){
@@ -266,10 +252,45 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 				if(menuItem.getText().equals(file.getName())){
 					recentWorkflowMenu.remove(menuItem);
 				}
-
 			}
 			recentWorkflowMenu.add(createRunWorkflowMenuItem(file));
 		}
+	}
+	
+	private void addRecentWorkflow(String name, URL url){
+				
+		//Check if this exists already
+		for(int i = 0; i < recentWorkflowMenu.getItemCount(); i++){		
+			JMenuItem menuItem = recentWorkflowMenu.getItem(i);
+			if(menuItem.getText().equals(name)){
+				recentWorkflowMenu.remove(menuItem);
+			}
+		}
+		recentWorkflowMenu.add(createRunWorkflowMenuItem(name, url));		
+	}
+	
+	private JMenuItem createRunWorkflowMenuItem(final File scriptName) {
+		JMenuItem runWorkflowMenuItem = new JMenuItem();
+		runWorkflowMenuItem.setText(scriptName.getName());
+		runWorkflowMenuItem.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				application.runWorkflow(scriptName);
+			}
+		});
+		return runWorkflowMenuItem;
+	}
+	
+	private JMenuItem createRunWorkflowMenuItem(final String name, final URL url) {
+		
+		JMenuItem item = new JMenuItem(name);
+		
+		item.addActionListener(new ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				application.runWorkflow(url);
+				addRecentWorkflow(name, url);
+			}
+		});
+		return item;
 	}
 
 	private JMenuItem getImportFromClipboardMenuItem() {
@@ -437,8 +458,8 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			workflowsMenu = new JMenu();
 			workflowsMenu.setText("Workflow");			
 			workflowsMenu.add(getOpenWorkflowMenuItem());
-			workflowsMenu.add(getOpenRepositoryWorkflowMenu());
 			workflowsMenu.add(getRecentWorkflowMenu());
+			workflowsMenu.add(getOpenRepositoryWorkflowMenu());
 			workflowsMenu.add(getSaveWorkflowMenuItem());
 		}
 		return workflowsMenu;
@@ -486,17 +507,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			}
 		}
 		return recentWorkflowMenu;
-	}
-	
-	private JMenuItem createRunWorkflowMenuItem(final File scriptName) {
-		JMenuItem runWorkflowMenuItem = new JMenuItem();
-		runWorkflowMenuItem.setText(scriptName.getName());
-		runWorkflowMenuItem.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				application.runWorkflow(scriptName);
-			}
-		});
-		return runWorkflowMenuItem;
 	}
 
 	private JMenuItem getWizardMenuItem() {
