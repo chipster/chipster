@@ -8,6 +8,7 @@ import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.net.URL;
 import java.util.List;
 
 import javax.swing.JMenu;
@@ -108,8 +109,9 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		VisualisationMethod method = application.getVisualisationFrameManager().getFrame(FrameType.MAIN).getMethod();
 		visualisationMenu.setEnabled(method != null && method != VisualisationMethod.NONE);
 						
-		recentWorkflowMenu.setEnabled(normalisedDataSelected && workflowsMenu.getItemCount() > 0);
+		recentWorkflowMenu.setEnabled(normalisedDataSelected && recentWorkflowMenu.getItemCount() > 0);
 		openWorkflowsMenuItem.setEnabled(normalisedDataSelected);
+		openRepoWorkflowsMenu.setEnabled(normalisedDataSelected);
 
 		saveWorkflowMenuItem.setEnabled(normalisedDataSelected);
 				
@@ -226,8 +228,8 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (openRepoWorkflowsMenu == null) {
 			
 			String[][] flows = {
-				{"Find differentially expressed genes", "workflows/find-differentially-expressed-genes.bsh"}, 
-				{"Find genes using classification analysis", "workflows/find-genes-with-classification.bsh"}
+				{"Find differentially expressed genes", "/workflows/find-differentially-expressed-genes.bsh"}, 
+				{"Find genes using classification analysis", "/workflows/find-genes-with-classification.bsh"}
 			};
 			
 			openRepoWorkflowsMenu = new JMenu();
@@ -244,16 +246,15 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 
 	private class RepoWorkflowActionListener implements ActionListener {
 		
-		File file;
+		URL input;
 		
 		public RepoWorkflowActionListener(String flow){						
-            
-			file = new File(flow);
+			input = MicroarrayMenuBar.class.getResource(flow);
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			((SwingClientApplication)application).runWorkflow(file);
-			addRecentWorkflow(file);						
+			((SwingClientApplication)application).runWorkflow(input);
+			//addRecentWorkflow(url);						
 		}
 	}
 	

@@ -801,23 +801,8 @@ public class SwingClientApplication extends ClientApplication {
 			
 		} else if (workflowScript instanceof URL) {
 			
-			try {
-				URL url = (URL)workflowScript;
-				final File tempFile = ImportUtils.createTempFile(ImportUtils.URLToFilename(url), ImportUtils.getExtension(ImportUtils.URLToFilename(url)));
-				InformationDialog info = new InformationDialog("Loading workflow", "Loading workflow from the specified URL", null);
-
-				FileLoaderProcess fileLoaderProcess = new FileLoaderProcess(tempFile, url, info) {
-					@Override
-					protected void postProcess() {
-						workflowManager.runScript(tempFile, atEndListener);
-					};
-				};			
-				fileLoaderProcess.runProcess();
-				
-			} catch (IOException e) {
-				reportException(e);
-			}
-
+			workflowManager.runScript((URL)workflowScript, atEndListener);
+		
 		} else {
 			throw new IllegalArgumentException("bad workflowScript type: " + workflowScript.getClass().getSimpleName());
 		}		
