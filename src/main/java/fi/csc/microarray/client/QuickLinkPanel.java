@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
@@ -37,33 +38,36 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 		application = (SwingClientApplication) Session.getSession().getApplication();
 
 		this.setBackground(Color.white);
+		
+		exampleLink = createLink("Open example session ");
+		importLink = createLink("Import files ");
+		importFolderLink = createLink("Import folder ");
+		importURLLink = createLink("Import from URL ");
+		sessionLink = createLink("Open session ");			
 
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0;
 		c.gridy = 0;
 		c.anchor = GridBagConstraints.NORTHWEST;
 
-		// c.insets.set(5, 10, 5, 10);
-		// c.gridwidth = 2;
-		//		
-		// JLabel title = new JLabel("Getting started");
-		// title.setFont(title.getFont().deriveFont(
-		// (float) (title.getFont().getSize()*1.2)));
-		// title.setFont(title.getFont().deriveFont(Font.BOLD));
-		//		
-		// this.add(title, c);
-		// c.gridwidth = 1;
+		c.insets.set(5, 10, 5, 10);
+		c.gridwidth = 2;	
+		this.add(new JLabel("To start working with Chipster, you need to load in data first:"), c);		
+		c.gridwidth = 1;
+		c.gridy++;
 
 		c.insets.set(0, 10, 0, 0);
 
-		addLink("To start working with Chipster, you need to load in data first: \n \n \n *** to get familiar with Chipster.", getExampleLink(), VisualConstants.EXAMPLE_SESSION_ICON, c);
+		//addLink("To start working with Chipster, you need to load in data first:", (JXHyperlink)null, null, c);
+		
+		addLink("*** to get familiar with Chipster.", exampleLink, VisualConstants.EXAMPLE_SESSION_ICON, c);
 
-		addLink("*** to continue working on previous sessions.", getSessionLink(), VisualConstants.OPEN_SESSION_LINK_ICON, c);
+		addLink("*** to continue working on previous sessions.", sessionLink, VisualConstants.OPEN_SESSION_LINK_ICON, c);
 
 		List<JXHyperlink> importLinks = new LinkedList<JXHyperlink>();
-		importLinks.add(getImportLink());
-		importLinks.add(getImportFolderLink());
-		importLinks.add(getImportURLLink());
+		importLinks.add(importLink);
+		importLinks.add(importFolderLink);
+		importLinks.add(importURLLink);
 
 		addLink("Import new data to Chipster: \n      *** \n      *** \n      ***", importLinks, VisualConstants.IMPORT_LINK_ICON, c);
 
@@ -132,7 +136,7 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 				row.add(link);
 				// row.add(new JLabel(link.getText()));
 			} else if (!words[i].equals("\n")) {
-				JLabel text = new JLabel(" " + words[i]);
+				JLabel text = new JLabel(words[i] + " ");
 				row.add(text);
 				rowChars += words[i].length() + 1;
 			}
@@ -147,49 +151,16 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 		c.gridheight = 1;
 	}
 
-	private JXHyperlink getExampleLink() {
-		if (exampleLink == null) {
-			exampleLink = new JXHyperlink();
-			exampleLink.setText("Open example session");
-			exampleLink.addActionListener(this);
-		}
-		return exampleLink;
-	}
-
-	private JXHyperlink getImportLink() {
-		if (importLink == null) {
-			importLink = new JXHyperlink();
-			importLink.setText("Import files");
-			importLink.addActionListener(this);
-		}
-		return importLink;
-	}
-
-	private JXHyperlink getImportFolderLink() {
-		if (importFolderLink == null) {
-			importFolderLink = new JXHyperlink();
-			importFolderLink.setText("Import folder");
-			importFolderLink.addActionListener(this);
-		}
-		return importFolderLink;
-	}
-
-	private JXHyperlink getImportURLLink() {
-		if (importURLLink == null) {
-			importURLLink = new JXHyperlink();
-			importURLLink.setText("Import from URL");
-			importURLLink.addActionListener(this);
-		}
-		return importURLLink;
-	}
-
-	private JXHyperlink getSessionLink() {
-		if (sessionLink == null) {
-			sessionLink = new JXHyperlink();
-			sessionLink.setText("Open session");
-			sessionLink.addActionListener(this);
-		}
-		return sessionLink;
+	
+	
+	
+	private JXHyperlink createLink(String text){
+		JXHyperlink link = new JXHyperlink();
+		link.setText(text);
+		link.addActionListener(this);
+		link.setBorder(null);
+		link.setMargin(new Insets(0, 0, 0, 0));
+		return link;
 	}
 
 	public void actionPerformed(ActionEvent e) {
