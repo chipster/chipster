@@ -273,12 +273,12 @@ public class FSDataManagerTest {
 		}
 
 		@Override
-		public void runWorkflow(Object workflowScript) {
+		public void runWorkflow(URL workflowScript) {
 		}
 
 
 		@Override
-		public void runWorkflow(Object workflowScript,
+		public void runWorkflow(URL workflowScript,
 				AtEndListener atEndListener) {
 			
 		}		

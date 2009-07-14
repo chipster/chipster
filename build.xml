@@ -18,6 +18,7 @@
 	<property name="lib-ext" location="ext/lib-ext" />
 	<property name="ext-apps" location="ext/applications" />
 	<property name="data" location="src/main/resources" />
+	<property name="workflows" location="src/main/workflows" />
 	<property name="tools" location="src/main/tools" />
 	<property name="build" location="bin/ant" />	
 	<property name="dist" location="dist" />
@@ -68,6 +69,7 @@
             <fatjar.manifest mainclass="fi.csc.microarray.MicroarrayMain" />
         	<fatjar.filesource path="${build}" relpath=""/>
         	<fatjar.filesource path="${data}" relpath=""/>
+	    	<fatjar.filesource path="${workflows}" relpath=""/>
 
         	<fatjar.jarsource file="${lib}/concurrent.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/log4j-1.2.9.jar" relpath=""/>

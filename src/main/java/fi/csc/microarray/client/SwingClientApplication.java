@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -790,37 +791,33 @@ public class SwingClientApplication extends ClientApplication {
 		return null;
 	}
 
-	public void runWorkflow(Object workflowScript) {
+	public void runWorkflow(URL workflowScript) {
 		runWorkflow(workflowScript, null);
 	}
-	
-	public void runWorkflow(Object workflowScript, final AtEndListener atEndListener) {
 
-		if (workflowScript instanceof File) {
-			workflowManager.runScript((File)workflowScript, atEndListener);
-			
-		} else if (workflowScript instanceof URL) {
-			
-			workflowManager.runScript((URL)workflowScript, atEndListener);
-		
-		} else {
-			throw new IllegalArgumentException("bad workflowScript type: " + workflowScript.getClass().getSimpleName());
-		}		
+	public void runWorkflow(URL workflowScript, final AtEndListener atEndListener) {
+		workflowManager.runScript(workflowScript, atEndListener);
 	}
-	
+
 
 	@Override
 	public File openWorkflow() {
 
-		JFileChooser fileChooser = this.getWorkflowFileChooser();
-		int ret = fileChooser.showOpenDialog(this.getMainFrame());
-		if (ret == JFileChooser.APPROVE_OPTION) {
-			runWorkflow(fileChooser.getSelectedFile());
-			unsavedChanges = false;
-			menuBar.updateMenuStatus();
-			return fileChooser.getSelectedFile();
-		} else {
-			menuBar.updateMenuStatus();
+		try {
+			JFileChooser fileChooser = this.getWorkflowFileChooser();
+			int ret = fileChooser.showOpenDialog(this.getMainFrame());
+			if (ret == JFileChooser.APPROVE_OPTION) {
+				runWorkflow(fileChooser.getSelectedFile().toURL());
+				unsavedChanges = false;
+				menuBar.updateMenuStatus();
+				return fileChooser.getSelectedFile();
+			} else {
+				menuBar.updateMenuStatus();
+				return null;
+			}
+			
+		} catch (MalformedURLException e) {
+			reportException(e);
 			return null;
 		}
 	}

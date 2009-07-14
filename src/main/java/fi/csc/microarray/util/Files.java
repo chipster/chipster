@@ -13,6 +13,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -244,5 +246,18 @@ public class Files {
 		}
 		
 		return new String[] {path, name, extension};
+	}
+
+	/**
+	 * Converts File to URL, but does not throw checked MalformedURLException.
+	 * 
+	 * @return URL or if it is malformed, then null
+	 */
+	public static URL toUrl(File file) {
+		try {
+			return file.toURL();
+		} catch (MalformedURLException e) {
+			return null;
+		}
 	}
 }

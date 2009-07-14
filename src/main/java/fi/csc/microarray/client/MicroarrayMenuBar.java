@@ -28,6 +28,7 @@ import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameTyp
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
+import fi.csc.microarray.util.Files;
 import fi.csc.microarray.wizard.WizardPlugin;
 
 public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListener {
@@ -69,7 +70,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem clearSessionMenuItem;
 	private JMenuItem selectAllMenuItem;
 	private JMenuItem historyMenuItem;
-	//private JMenuItem duplicateMenuItem;
+	// private JMenuItem duplicateMenuItem;
 	private JMenuItem maximiseVisualisationMenuItem;
 	private JMenuItem visualiseMenuItem;
 	private JMenuItem detachMenuItem;
@@ -95,37 +96,34 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 
 		DataBean selectedDataBean = selectionManager.getSelectedDataBean();
 		boolean somethingSelected = selectionManager.getSelectedItem() != null;
-		boolean normalisedDataSelected = false; 
+		boolean normalisedDataSelected = false;
 
 		if (selectedDataBean != null) {
-			normalisedDataSelected = ChipsterInputTypes.GENE_EXPRS.isTypeOf(selectedDataBean);						
+			normalisedDataSelected = ChipsterInputTypes.GENE_EXPRS.isTypeOf(selectedDataBean);
 		}
-		
-		historyMenuItem.setEnabled(selectedDataBean != null &&
-				application.getSelectionManager().getSelectedDataBeans().size() == 1);
-		
+
+		historyMenuItem.setEnabled(selectedDataBean != null && application.getSelectionManager().getSelectedDataBeans().size() == 1);
+
 		visualiseMenuItem.setEnabled(selectedDataBean != null);
-		
+
 		VisualisationMethod method = application.getVisualisationFrameManager().getFrame(FrameType.MAIN).getMethod();
 		visualisationMenu.setEnabled(method != null && method != VisualisationMethod.NONE);
-						
-		recentWorkflowMenu.setEnabled(normalisedDataSelected);
+
+		recentWorkflowMenu.setEnabled(normalisedDataSelected && workflowsMenu.getItemCount() > 0);
 		openWorkflowsMenuItem.setEnabled(normalisedDataSelected);
-		openRepoWorkflowsMenu.setEnabled(normalisedDataSelected);
 
 		saveWorkflowMenuItem.setEnabled(normalisedDataSelected);
-				
+
 		exportMenuItem.setEnabled(somethingSelected);
 		renameMenuItem.setEnabled(somethingSelected);
 		deleteMenuItem.setEnabled(somethingSelected);
-		
-		/*
-		VisualisationToolBar visToolBar = 
-			application.getVisualisationFrameManager().getVisualisationToolBar();
 
-		duplicateMenuItem.setText(visToolBar.getSplitText());
-		//Maximisation doesn't make events and the text wont stay up to date
-		maximiseVisualisationMenuItem.setText(visToolBar.getMaximiseButtonText());*/
+		/*
+		 * VisualisationToolBar visToolBar = application.getVisualisationFrameManager().getVisualisationToolBar();
+		 * 
+		 * duplicateMenuItem.setText(visToolBar.getSplitText()); //Maximisation doesn't make events and the text wont stay up to date
+		 * maximiseVisualisationMenuItem.setText(visToolBar.getMaximiseButtonText());
+		 */
 	}
 
 	/**
@@ -173,8 +171,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (directImportMenuItem == null) {
 			directImportMenuItem = new JMenuItem();
 			directImportMenuItem.setText("Import files...");
-			directImportMenuItem.setAccelerator(KeyStroke.getKeyStroke('I',
-				    Toolkit.getDefaultToolkit(  ).getMenuShortcutKeyMask(  ), false));
+			directImportMenuItem.setAccelerator(KeyStroke.getKeyStroke('I', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			directImportMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
@@ -213,8 +210,8 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
 						File workflow = application.openWorkflow();
-						addRecentWorkflow(workflow);						
-						
+						addRecentWorkflow(workflow.getName(), Files.toUrl(workflow));
+
 					} catch (Exception me) {
 						application.reportException(me);
 					}
@@ -223,74 +220,53 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		}
 		return openWorkflowsMenuItem;
 	}
-	
+
 	private JMenu getOpenRepositoryWorkflowMenu() {
 		if (openRepoWorkflowsMenu == null) {
-			
-			String[][] flows = {
-				{"Find differentially expressed genes", "/workflows/find-differentially-expressed-genes.bsh"}, 
-				{"Find genes using classification analysis", "/workflows/find-genes-with-classification.bsh"}
-			};
-			
+
+			String[][] flows = { { "Find differentially expressed genes", "/find-differentially-expressed-genes.bsh" }, { "Find genes using classification analysis", "/find-genes-with-classification.bsh" } };
+
 			openRepoWorkflowsMenu = new JMenu();
 			openRepoWorkflowsMenu.setText("Run from repository");
-			
-			for(String[] flow: flows){
-							
-				URL url = MicroarrayMenuBar.class.getResource(flow[1]);
-				openRepoWorkflowsMenu.add(createRunWorkflowMenuItem(flow[0], url));				
+
+			for (String[] flow : flows) {
+				JMenuItem item = new JMenuItem(flow[0]);
+				item.addActionListener(new RepoWorkflowActionListener(flow[0], flow[1]));
+				openRepoWorkflowsMenu.add(item);
 			}
 		}
 		return openRepoWorkflowsMenu;
 	}
-	
-	private void addRecentWorkflow(File file){
-		if(file != null){ //if the fileChooser is cancelled		
-			//Check if this exists already
-			for(int i = 0; i < recentWorkflowMenu.getItemCount(); i++){		
+
+	private class RepoWorkflowActionListener implements ActionListener {
+
+		private String resourceName;
+		private String name;
+
+		public RepoWorkflowActionListener(String name, String resourceName) {
+			this.name = name;
+			this.resourceName = resourceName;
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			URL url = getClass().getResource(resourceName);
+			((SwingClientApplication) application).runWorkflow(url);
+			addRecentWorkflow(name, url);
+		}
+	}
+
+	private void addRecentWorkflow(String name, URL url) {
+		if (url != null) { // if the fileChooser is cancelled
+			// Check if this exists already
+			for (int i = 0; i < recentWorkflowMenu.getItemCount(); i++) {
 				JMenuItem menuItem = recentWorkflowMenu.getItem(i);
-				if(menuItem.getText().equals(file.getName())){
+				if (menuItem.getText().equals(name)) {
 					recentWorkflowMenu.remove(menuItem);
 				}
+
 			}
-			recentWorkflowMenu.add(createRunWorkflowMenuItem(file));
+			recentWorkflowMenu.add(createRunWorkflowMenuItem(name, url));
 		}
-	}
-	
-	private void addRecentWorkflow(String name, URL url){
-				
-		//Check if this exists already
-		for(int i = 0; i < recentWorkflowMenu.getItemCount(); i++){		
-			JMenuItem menuItem = recentWorkflowMenu.getItem(i);
-			if(menuItem.getText().equals(name)){
-				recentWorkflowMenu.remove(menuItem);
-			}
-		}
-		recentWorkflowMenu.add(createRunWorkflowMenuItem(name, url));		
-	}
-	
-	private JMenuItem createRunWorkflowMenuItem(final File scriptName) {
-		JMenuItem runWorkflowMenuItem = new JMenuItem();
-		runWorkflowMenuItem.setText(scriptName.getName());
-		runWorkflowMenuItem.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				application.runWorkflow(scriptName);
-			}
-		});
-		return runWorkflowMenuItem;
-	}
-	
-	private JMenuItem createRunWorkflowMenuItem(final String name, final URL url) {
-		
-		JMenuItem item = new JMenuItem(name);
-		
-		item.addActionListener(new ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				application.runWorkflow(url);
-				addRecentWorkflow(name, url);
-			}
-		});
-		return item;
 	}
 
 	private JMenuItem getImportFromClipboardMenuItem() {
@@ -314,8 +290,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (exportMenuItem == null) {
 			exportMenuItem = new JMenuItem();
 			exportMenuItem.setText("Export dataset(s) or folder...");
-			exportMenuItem.setAccelerator(KeyStroke.getKeyStroke('E',
-				    Toolkit.getDefaultToolkit(  ).getMenuShortcutKeyMask(  ), false));
+			exportMenuItem.setAccelerator(KeyStroke.getKeyStroke('E', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			// exportMenuItem.setIcon(VisualConstants.EXPORT_MENUICON);
 			exportMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -335,8 +310,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (quitMenuItem == null) {
 			quitMenuItem = new JMenuItem();
 			quitMenuItem.setText("Quit");
-			quitMenuItem.setAccelerator(KeyStroke.getKeyStroke('Q',
-				    Toolkit.getDefaultToolkit(  ).getMenuShortcutKeyMask(  ), false));
+			quitMenuItem.setAccelerator(KeyStroke.getKeyStroke('Q', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			quitMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.quit();
@@ -370,8 +344,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			historyMenuItem = new JMenuItem();
 			historyMenuItem.setText("Show history...");
 			historyMenuItem.setIcon(VisualConstants.GENERATE_HISTORY_ICON);
-			historyMenuItem.setAccelerator(KeyStroke.getKeyStroke('H',
-				    Toolkit.getDefaultToolkit(  ).getMenuShortcutKeyMask(  ), false));
+			historyMenuItem.setAccelerator(KeyStroke.getKeyStroke('H', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			historyMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					DataBean data = application.getSelectionManager().getSelectedDataBean();
@@ -393,7 +366,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (renameMenuItem == null) {
 			renameMenuItem = new JMenuItem();
 			renameMenuItem.setText("Rename selected item...");
-			renameMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0));		
+			renameMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0));
 			renameMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					new RenameDialog(application, application.getSelectionManager().getSelectedItem());
@@ -422,13 +395,12 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		}
 		return deleteMenuItem;
 	}
-	
-	private JMenuItem getSelectAllMenuItem(){
-		if(selectAllMenuItem == null) {
+
+	private JMenuItem getSelectAllMenuItem() {
+		if (selectAllMenuItem == null) {
 			selectAllMenuItem = new JMenuItem();
 			selectAllMenuItem.setText("Select all");
-			selectAllMenuItem.setAccelerator(KeyStroke.getKeyStroke('A',
-				    Toolkit.getDefaultToolkit(  ).getMenuShortcutKeyMask(  ), false));
+			selectAllMenuItem.setAccelerator(KeyStroke.getKeyStroke('A', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			selectAllMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.selectAllItems();
@@ -456,10 +428,10 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenu getWorkflowsMenu() {
 		if (workflowsMenu == null) {
 			workflowsMenu = new JMenu();
-			workflowsMenu.setText("Workflow");			
+			workflowsMenu.setText("Workflow");
 			workflowsMenu.add(getOpenWorkflowMenuItem());
-			workflowsMenu.add(getRecentWorkflowMenu());
 			workflowsMenu.add(getOpenRepositoryWorkflowMenu());
+			workflowsMenu.add(getRecentWorkflowMenu());
 			workflowsMenu.add(getSaveWorkflowMenuItem());
 		}
 		return workflowsMenu;
@@ -469,8 +441,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (taskListMenuItem == null) {
 			taskListMenuItem = new JMenuItem();
 			taskListMenuItem.setText("Tasks...");
-			taskListMenuItem.setAccelerator(KeyStroke.getKeyStroke('T',
-				    Toolkit.getDefaultToolkit(  ).getMenuShortcutKeyMask(  ), false));
+			taskListMenuItem.setAccelerator(KeyStroke.getKeyStroke('T', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			taskListMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.flipTaskListVisibility(false);
@@ -488,7 +459,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			saveWorkflowMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					File workflow = application.saveWorkflow();
-					addRecentWorkflow(workflow);
+					addRecentWorkflow(workflow.getName(), Files.toUrl(workflow));
 				}
 			});
 		}
@@ -499,22 +470,31 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (recentWorkflowMenu == null) {
 			recentWorkflowMenu = new JMenu();
 			recentWorkflowMenu.setText("Run recent");
-			
+
 			List<File> workflows = application.getWorkflows();
-			
+
 			for (File workflow : workflows) {
-				addRecentWorkflow(workflow);				
+				addRecentWorkflow(workflow.getName(), Files.toUrl(workflow));
 			}
 		}
 		return recentWorkflowMenu;
+	}
+
+	private JMenuItem createRunWorkflowMenuItem(String name, final URL workflowScript) {
+		JMenuItem runWorkflowMenuItem = new JMenuItem(name);
+		runWorkflowMenuItem.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				application.runWorkflow(workflowScript);
+			}
+		});
+		return runWorkflowMenuItem;
 	}
 
 	private JMenuItem getWizardMenuItem() {
 		if (wizardMenuItem == null) {
 			wizardMenuItem = new JMenuItem();
 			wizardMenuItem.setText("Affymetrix");
-			wizardMenuItem.setAccelerator(KeyStroke.getKeyStroke('W',
-				    Toolkit.getDefaultToolkit(  ).getMenuShortcutKeyMask(  ), false));
+			wizardMenuItem.setAccelerator(KeyStroke.getKeyStroke('W', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			wizardMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					WizardPlugin wiz = new WizardPlugin(application);
@@ -533,11 +513,11 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenu getViewMenu() {
 		if (viewMenu == null) {
 			viewMenu = new JMenu();
-			viewMenu.setText("View");			
+			viewMenu.setText("View");
 			viewMenu.add(getRestoreViewMenuItem());
 			viewMenu.addSeparator();
 			viewMenu.add(getVisualiseMenutItem());
-			viewMenu.add(getVisualisationwMenu());			
+			viewMenu.add(getVisualisationwMenu());
 			viewMenu.addSeparator();
 			viewMenu.add(getFontSize());
 			viewMenu.addSeparator();
@@ -546,93 +526,89 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		}
 		return viewMenu;
 	}
-	
+
 	private JMenu getVisualisationwMenu() {
 		if (visualisationMenu == null) {
 			visualisationMenu = new JMenu();
-			visualisationMenu.setText("Visualisation");						
+			visualisationMenu.setText("Visualisation");
 			visualisationMenu.add(getMaximiseVisualisationMenuItem());
-			//visualisationMenu.add(getDuplicateMenuItem());
-			visualisationMenu.add(getDetachMenuItem());					
+			// visualisationMenu.add(getDuplicateMenuItem());
+			visualisationMenu.add(getDetachMenuItem());
 
 		}
 		return visualisationMenu;
 	}
 
 	private JMenuItem getDetachMenuItem() {
-		if(detachMenuItem == null){
+		if (detachMenuItem == null) {
 			detachMenuItem = new JMenuItem();
 			detachMenuItem.setText("Detach");
-			detachMenuItem.setAccelerator(KeyStroke.getKeyStroke('N',
-				    Toolkit.getDefaultToolkit(  ).getMenuShortcutKeyMask(  ), false));
-			detachMenuItem.addActionListener(new ActionListener(){
+			detachMenuItem.setAccelerator(KeyStroke.getKeyStroke('N', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
+			detachMenuItem.addActionListener(new ActionListener() {
 
 				public void actionPerformed(ActionEvent e) {
-					VisualisationToolBar visToolBar = 
-						application.getVisualisationFrameManager().getVisualisationToolBar();
-					
+					VisualisationToolBar visToolBar = application.getVisualisationFrameManager().getVisualisationToolBar();
+
 					visToolBar.detach();
 				}
-				
+
 			});
 		}
-		
-		
+
 		return detachMenuItem;
 	}
 
-//	private JMenuItem getDuplicateMenuItem() {
-//		if(duplicateMenuItem == null){
-//			duplicateMenuItem = new JMenuItem();
-//			duplicateMenuItem.setText("Duplicate/Close");
-//			duplicateMenuItem.setAccelerator(KeyStroke.getKeyStroke('D',
-//				    Toolkit.getDefaultToolkit(  ).getMenuShortcutKeyMask(  ), false));
-//			duplicateMenuItem.addActionListener(new ActionListener(){
-//
-//				public void actionPerformed(ActionEvent e) {
-//					VisualisationToolBar visToolBar = 
-//						application.getVisualisationFrameManager().getVisualisationToolBar();
-//					
-//					visToolBar.split();		
-//				}
-//				
-//			});
-//		}
-//				
-//		return duplicateMenuItem;
-//	}
+	// private JMenuItem getDuplicateMenuItem() {
+	// if(duplicateMenuItem == null){
+	// duplicateMenuItem = new JMenuItem();
+	// duplicateMenuItem.setText("Duplicate/Close");
+	// duplicateMenuItem.setAccelerator(KeyStroke.getKeyStroke('D',
+	// Toolkit.getDefaultToolkit( ).getMenuShortcutKeyMask( ), false));
+	// duplicateMenuItem.addActionListener(new ActionListener(){
+	//
+	// public void actionPerformed(ActionEvent e) {
+	// VisualisationToolBar visToolBar =
+	// application.getVisualisationFrameManager().getVisualisationToolBar();
+	//					
+	// visToolBar.split();
+	// }
+	//				
+	// });
+	// }
+	//				
+	// return duplicateMenuItem;
+	// }
 
 	private JMenuItem getMaximiseVisualisationMenuItem() {
-		if(maximiseVisualisationMenuItem == null){
+		if (maximiseVisualisationMenuItem == null) {
 			maximiseVisualisationMenuItem = new JMenuItem();
 			maximiseVisualisationMenuItem.setText("Maximise/Restore");
 			maximiseVisualisationMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, 0));
-			maximiseVisualisationMenuItem.addActionListener(new ActionListener(){
+			maximiseVisualisationMenuItem.addActionListener(new ActionListener() {
 
 				public void actionPerformed(ActionEvent e) {
-					VisualisationToolBar visToolBar = 
-						application.getVisualisationFrameManager().getVisualisationToolBar();
+					VisualisationToolBar visToolBar = application.getVisualisationFrameManager().getVisualisationToolBar();
 
-					visToolBar.maximiseOrRestoreVisualisation();					
+					visToolBar.maximiseOrRestoreVisualisation();
 				}
-				
+
 			});
-		}		
-		
+		}
+
 		return maximiseVisualisationMenuItem;
 	}
 
 	private JMenuItem getVisualiseMenutItem() {
-		if(visualiseMenuItem == null){
+		if (visualiseMenuItem == null) {
 			visualiseMenuItem = new JMenuItem();
 			visualiseMenuItem.setText("Visualise selected");
 			visualiseMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
-			visualiseMenuItem.addActionListener(new ActionListener(){
+			visualiseMenuItem.addActionListener(new ActionListener() {
 
 				public void actionPerformed(ActionEvent e) {
 					application.visualiseWithBestMethod(FrameType.MAIN);
 				}
-				
+
 			});
 		}
 		return visualiseMenuItem;
@@ -658,8 +634,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	}
 
 	/**
-	 * This method initializes helpInfoMenu. Name was chosen because
-	 * getHelpMenu() causes conflict.
+	 * This method initializes helpInfoMenu. Name was chosen because getHelpMenu() causes conflict.
 	 * 
 	 * @return javax.swing.JMenu
 	 */
@@ -683,7 +658,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
 						application.loadOldSnapshot();
-					} catch (Exception exp) {						
+					} catch (Exception exp) {
 						application.reportException(exp);
 					}
 				}
@@ -737,81 +712,73 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		}
 		return aboutMenuItem;
 	}
-		
+
 	private JMenu getFontSize() {
 		if (fontSizeMenu == null) {
 			fontSizeMenu = new JMenu();
 			fontSizeMenu.setText("Text size");
-			
-			//FIXME L&F Theme is lost when the font is changed
-			//fontSizeMenu.setEnabled(false);
-			
+
+			// FIXME L&F Theme is lost when the font is changed
+			// fontSizeMenu.setEnabled(false);
+
 			JMenuItem norm = new JMenuItem("Normal");
 			JMenuItem inc = new JMenuItem("Increase");
 			JMenuItem dec = new JMenuItem("Decrease");
-			
-			inc.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS,			
-				    Toolkit.getDefaultToolkit(  ).getMenuShortcutKeyMask(  ), false));
-			dec.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS,
-				    Toolkit.getDefaultToolkit(  ).getMenuShortcutKeyMask(  ), false));
-			norm.setAccelerator(KeyStroke.getKeyStroke('0',
-				    Toolkit.getDefaultToolkit(  ).getMenuShortcutKeyMask(  ), false));
-				    
-			
-			
+
+			inc.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
+			dec.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
+			norm.setAccelerator(KeyStroke.getKeyStroke('0', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
+
 			fontSizeMenu.add(inc);
 			fontSizeMenu.add(dec);
-			fontSizeMenu.addSeparator();			
+			fontSizeMenu.addSeparator();
 			fontSizeMenu.add(norm);
-			
+
 			norm.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					application.setFontSize(
-							VisualConstants.DEFAULT_FONT_SIZE);
+					application.setFontSize(VisualConstants.DEFAULT_FONT_SIZE);
 				}
 			});
-			
+
 			dec.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					application.setFontSize(
-							application.getFontSize()-1);
+					application.setFontSize(application.getFontSize() - 1);
 				}
 			});
-			
+
 			inc.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					application.setFontSize(
-							application.getFontSize()+1);
+					application.setFontSize(application.getFontSize() + 1);
 				}
 			});
 		}
 		return fontSizeMenu;
 	}
-	
-	
+
 	private JMenuItem getClearSessionMenuItem() {
-		if(clearSessionMenuItem == null){
+		if (clearSessionMenuItem == null) {
 			clearSessionMenuItem = new JMenuItem();
 			clearSessionMenuItem.setText("New session");
-			/*clearSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('N',
-				    Toolkit.getDefaultToolkit(  ).getMenuShortcutKeyMask(  ), false));*/
-			clearSessionMenuItem.addActionListener(new ActionListener(){
+			/*
+			 * clearSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('N', Toolkit.getDefaultToolkit( ).getMenuShortcutKeyMask( ),
+			 * false));
+			 */
+			clearSessionMenuItem.addActionListener(new ActionListener() {
 
 				public void actionPerformed(ActionEvent e) {
 					application.clearSession();
 				}
-				
+
 			});
 		}
 		return clearSessionMenuItem;
 	}
-	
+
 	private JMenuItem getLoadSnapshotMenuItem() {
 		if (loadSnapshotMenuItem == null) {
 			loadSnapshotMenuItem = new JMenuItem();
 			loadSnapshotMenuItem.setText("Open session...");
-			loadSnapshotMenuItem.setAccelerator(KeyStroke.getKeyStroke('O',
-				    Toolkit.getDefaultToolkit(  ).getMenuShortcutKeyMask(  ), false));
+			loadSnapshotMenuItem.setAccelerator(KeyStroke.getKeyStroke('O', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			loadSnapshotMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
@@ -830,8 +797,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (saveSnapshotMenuItem == null) {
 			saveSnapshotMenuItem = new JMenuItem();
 			saveSnapshotMenuItem.setText("Save session...");
-			saveSnapshotMenuItem.setAccelerator(KeyStroke.getKeyStroke('S',
-				    Toolkit.getDefaultToolkit(  ).getMenuShortcutKeyMask(  ), false));
+			saveSnapshotMenuItem.setAccelerator(KeyStroke.getKeyStroke('S', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			saveSnapshotMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.saveSession();
@@ -850,8 +816,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (addDirMenuItem == null) {
 			addDirMenuItem = new JMenuItem();
 			addDirMenuItem.setText("Import folder...");
-			addDirMenuItem.setAccelerator(KeyStroke.getKeyStroke('I',
-				    Toolkit.getDefaultToolkit(  ).getMenuShortcutKeyMask(  ) | InputEvent.SHIFT_DOWN_MASK, false));
+			addDirMenuItem.setAccelerator(KeyStroke.getKeyStroke('I', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | InputEvent.SHIFT_DOWN_MASK, false));
 			addDirMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.openDirectoryImportDialog();
@@ -862,10 +827,9 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	}
 
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt instanceof DatasetChoiceEvent || 
-				evt instanceof VisualisationMethodChangedEvent) {
-			
-			updateMenuStatus();			
+		if (evt instanceof DatasetChoiceEvent || evt instanceof VisualisationMethodChangedEvent) {
+
+			updateMenuStatus();
 		}
 
 	}
