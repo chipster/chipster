@@ -145,15 +145,12 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 		c.gridy -= (rowCount - 1);
 		c.gridheight = rowCount;
 		c.gridx = 0;
-		c.insets.top = 10;
+		c.insets.top = 15;
 		this.add(new JLabel(icon), c);
 		c.gridy += (rowCount - 1);
 		c.gridheight = 1;
 	}
 
-	
-	
-	
 	private JXHyperlink createLink(String text){
 		JXHyperlink link = new JXHyperlink();
 		link.setText(text);
