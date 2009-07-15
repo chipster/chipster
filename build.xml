@@ -236,6 +236,7 @@
 
 			<tarfileset dir="${ext-src}/wrapper/comp/conf" prefix="chipster/comp/conf" />
 			<tarfileset dir="${ext-src}/wrapper/comp/logs" prefix="chipster/comp/logs" /> <!-- must exist for wrapper -->
+			<tarfileset dir="${ext-src}/wrapper/comp/security" prefix="chipster/comp/security" />
 
 			
 			
@@ -256,6 +257,7 @@
 			
 			<tarfileset dir="${ext-src}/wrapper/fileserver/conf" prefix="chipster/fileserver/conf" />
 			<tarfileset dir="${ext-src}/wrapper/fileserver/logs" prefix="chipster/fileserver/logs" /> <!-- must exist for wrapper -->
+			<tarfileset dir="${ext-src}/wrapper/fileserver/security" prefix="chipster/fileserver/security" />
 
 
 			<!-- client -->
@@ -319,6 +321,7 @@
 
 			<tarfileset dir="${ext-src}/wrapper/manager/conf" prefix="chipster/manager/conf" />
 			<tarfileset dir="${ext-src}/wrapper/manager/logs" prefix="chipster/manager/logs" /> <!-- must exist for wrapper -->
+			<tarfileset dir="${ext-src}/wrapper/manager/security" prefix="chipster/manager/security" />
 
 			
 			<!-- activemq -->

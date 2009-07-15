@@ -19,6 +19,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import fi.csc.microarray.util.IOUtils;
+import fi.csc.microarray.util.Strings;
 import fi.csc.microarray.util.XmlUtil;
 
 /**
@@ -245,14 +246,14 @@ public class UpgradeTool {
 						}
 						
 						// remove obsolete entries
+						String[] obsolete = new String[] {"filebroker_urls", "RCommand"}; 
 						NodeList entries = newDocument.getElementsByTagName("entry");
 						for (int i = 0; i < entries.getLength(); i++) {
 							Element entry = (Element)entries.item(i);
 							String oldName = entry.getAttribute("entryKey");
 							
-							if ("filebroker_urls".equals(oldName)) {
+							if (Strings.isAnyOf(oldName, false, obsolete)) {
 								entry.getParentNode().removeChild(entry);
-								break;
 							}
 						}
 						
