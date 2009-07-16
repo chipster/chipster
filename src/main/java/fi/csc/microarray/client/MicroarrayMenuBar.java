@@ -109,8 +109,9 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		VisualisationMethod method = application.getVisualisationFrameManager().getFrame(FrameType.MAIN).getMethod();
 		visualisationMenu.setEnabled(method != null && method != VisualisationMethod.NONE);
 
-		recentWorkflowMenu.setEnabled(normalisedDataSelected && workflowsMenu.getItemCount() > 0);
+		recentWorkflowMenu.setEnabled(normalisedDataSelected);
 		openWorkflowsMenuItem.setEnabled(normalisedDataSelected);
+		openRepoWorkflowsMenu.setEnabled(normalisedDataSelected);
 
 		saveWorkflowMenuItem.setEnabled(normalisedDataSelected);
 
