@@ -97,10 +97,10 @@ public class DirectoryLayout {
 	private DirectoryLayout(Type type, String configURL, List<String> configModules, boolean hasConfig) throws IOException, IllegalConfigurationException {
 		this.type = type;
 		this.hasConfig = hasConfig;
+		
 		System.setProperty(LOGS_DIR_SYSTEM_PROPERTY, getLogsDir().getAbsolutePath()); // NOTE: NO LOGGING IS TO BE DONE BEFORE THIS!
-		if (new File(getBaseDir(), SECURITY_DIR).exists()) {
-			System.setProperty(SECURITY_DIR_SYSTEM_PROPERTY, getSecurityDir().getAbsolutePath());
-		}
+		System.setProperty(SECURITY_DIR_SYSTEM_PROPERTY, getSecurityDir().getAbsolutePath());
+		
 		if (hasConfig) {
 			System.setProperty(CONF_DIR_SYSTEM_PROPERTY, getConfDir().getAbsolutePath()); 
 			if (configURL == null) {
