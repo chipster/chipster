@@ -67,7 +67,6 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 
 	public MicroarrayGraph(GraphModel model, GraphLayoutCache cache, GraphPanel graphPanel) {
 		super(model, cache);
-		checkEDT();
 
 		this.model = model;
 		this.graphPanel = graphPanel;
@@ -93,11 +92,6 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 		application.addPropertyChangeListener(this);
 	}
 
-	// FIXME remove checkEDT
-	private void checkEDT() {
-		SwingTools.checkEDT();
-	}
-
 	/**
 	 * Inserts a new DataBean to this graph.
 	 * 
@@ -105,7 +99,6 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	 *            New DataBean to be inserted to this view.
 	 */
 	public void insertData(DataBean data) {
-		checkEDT();
 
 		// check parameters
 		if (vertexMap.containsKey(data)) {
@@ -157,7 +150,6 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	 * @return True if remove succeeded, false if it failed (that is, corresponding vertex was not found in the graph).
 	 */
 	public void removeData(DataBean data) {
-		checkEDT();
 
 		// fetch vertex
 		GraphVertex vertex = vertexMap.get(data);
@@ -237,13 +229,11 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	}
 
 	public void createGroup(DataBean data) {
-		checkEDT();
 		GraphVertex groupMember = vertexMap.get(data);
 		createGroup(new GraphVertex[] { groupMember });
 	}
 
 	private GroupVertex createGroup(GraphVertex[] children) {
-		checkEDT();
 		if (children.length < 1) {
 			throw new IllegalArgumentException("vertex list is empty");
 		}
@@ -264,7 +254,6 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	}
 
 	public void scrollCellToVisibleAnimated(GraphVertex cell) {
-		checkEDT();
 		if (cell != null) {
 			new ScrollAnimator(graphPanel, cell.getBounds().getBounds());
 		}
@@ -276,7 +265,6 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	 * 
 	 */
 	public void updateSelectedCells() {
-		checkEDT();
 		graphPanel.setInternalSelection(true);
 
 		List<Object> selectedCells = new ArrayList<Object>();
@@ -308,7 +296,6 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	 */
 	@Override
 	public String getToolTipText(MouseEvent event) {
-		checkEDT();
 		Object cell = getFirstCellForLocation(event.getX(), event.getY());
 		if (cell instanceof GraphVertex) {
 			return ((GraphVertex) cell).getToolTipString();
@@ -317,7 +304,6 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	}
 
 	public Map<DataBean, GraphVertex> getVertexMap() {
-		checkEDT();
 		return vertexMap;
 	}
 
@@ -325,7 +311,6 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	 * Returns all vertexes, including invisible ones.
 	 */
 	public List<AbstractGraphVertex> getAllVertexes() {
-		checkEDT();
 		List<AbstractGraphVertex> vertexes = new ArrayList<AbstractGraphVertex>();
 		for (DataBean data : application.getAllDataBeans()) {
 			GraphVertex vertex = vertexMap.get(data);
@@ -340,7 +325,6 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	 * Gets all visible vertexes on the graph.
 	 */
 	public List<AbstractGraphVertex> getVisibleVertexes() {
-		checkEDT();
 		CellView[] views = this.getGraphLayoutCache().getCellViews();
 		List<AbstractGraphVertex> vertexes = new ArrayList<AbstractGraphVertex>();
 		for (CellView view : views) {
@@ -356,7 +340,6 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	 * Returns vertexes at selected point.
 	 */
 	public List<AbstractGraphVertex> getVertexesAtPoint(Point2D point) {
-		checkEDT();
 		int x = (int) point.getX();
 		int y = (int) point.getY();
 		List<AbstractGraphVertex> vertexes = new ArrayList<AbstractGraphVertex>();
@@ -393,7 +376,6 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	 * different from actual size of the graph, this only tells where the vertexes are situated.
 	 */
 	public Dimension getGraphSize() {
-		checkEDT();
 		Dimension dim = new Dimension(0, 0);
 
 		// find maximum dimensions of vertexes
@@ -420,7 +402,6 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	 * Uses JGraph's fromScreen method to convert dimensions from the screen coordinates.
 	 */
 	public Dimension fromScreenCoordinates(Dimension dim) {
-		checkEDT();
 		Point2D fromScreen = this.fromScreen(new Point.Double(dim.getWidth(), dim.getHeight()));
 		return new Dimension((int) fromScreen.getX(), (int) fromScreen.getY());
 	}
@@ -432,7 +413,6 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	 */
 	@Override
 	public Object getFirstCellForLocation(double x, double y) {
-		checkEDT();
 		// get cell
 		Object cell = super.getFirstCellForLocation(x, y);
 
@@ -515,7 +495,6 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	}
 
 	private void moveCloseToAnnotated(DataBean data) {
-		checkEDT();
 		List<DataBean> list = data.getLinkTargets(DataBean.Link.ANNOTATION);
 		DataBean annotatedBean = list.size() > 0 ? list.get(0) : null;
 		if (annotatedBean == null) {
@@ -558,7 +537,6 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	 * Creates a link edge between beans.
 	 */
 	public void insertLink(DataBean source, DataBean target, Link type) {
-		checkEDT();
 		logger.debug("adding link (" + type + ") from " + source.getName() + " to " + target.getName());
 
 		// check vertices
@@ -572,7 +550,6 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	}
 
 	private void insertLink(GraphVertex sourceVertex, GraphVertex targetVertex, Link type) {
-		checkEDT();
 		if (type.equals(DataBean.Link.GROUPING)) {
 
 			if (sourceVertex.getGroup() != null && targetVertex.getGroup() != null) {
@@ -633,7 +610,6 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	}
 
 	public void removeLink(DataBean source, DataBean target, Link type) {
-		checkEDT();
 		GraphVertex sourceVertex = vertexMap.get(source);
 		GraphVertex targetVertex = vertexMap.get(target);
 

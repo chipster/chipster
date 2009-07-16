@@ -105,7 +105,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 	 * Creates a new GraphPanel with default contents and appearance.
 	 */
 	public GraphPanel() {
-		checkEDT();
 		
 		getGraph().getSelectionModel().addGraphSelectionListener(new WorkflowSelectionListener());
 		getGraph().setMarqueeHandler(new BasicMarqueeHandler());
@@ -149,7 +148,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		checkEDT();
 		Object source = e.getSource();
 
 		if (source == zoomInButton) {
@@ -168,7 +166,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 	}
 
 	public void autoZoom() {
-		checkEDT();
 		if (autoZoomChecBbox.isSelected()) {
 			Dimension dim = graph.getGraphSize();
 			double xScale = graphScroller.getSize().getWidth() / (double) dim.width;
@@ -196,7 +193,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 	 * @return The graph component of this panel.
 	 */
 	public MicroarrayGraph getGraph() {
-		checkEDT();
 		if (graph == null) {
 
 			// Sets missing constructor parameter for GraphLayout
@@ -258,7 +254,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 	}
 
 	private void mouseButtonDoubleClicked(MouseEvent e) {
-		checkEDT();
 		// Get the clicked cell
 		Object cell = graph.getFirstCellForLocation(e.getX(), e.getY());
 
@@ -272,7 +267,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 	}
 
 	protected GraphModel getGraphModel() {
-		checkEDT();
 		return model;
 	}
 
@@ -283,7 +277,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 	 * @return A JScrollPane which contains the graph component with appropriate margins.
 	 */
 	private JScrollPane getGraphScroller() {
-		checkEDT();
 		if (graphScroller == null) {
 			graphScroller = new JScrollPane(this.getGraph());
 			graphScroller.setBorder(BorderFactory.createEmptyBorder());
@@ -302,7 +295,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 	private class ScrollListener implements AdjustmentListener {		
 		// FIXME check if needed still with the new version of JGraph
 		public void adjustmentValueChanged(AdjustmentEvent e) {
-			checkEDT();
 			GraphPanel.this.getGraph().repaint();
 		}
 	}
@@ -313,7 +305,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 	 * @return The history panel of this GraphPanel.
 	 */
 	public JToolBar getButtonToolBar() {
-		checkEDT();
 		if (buttonToolBar == null) {
 
 			zoomInButton = ToolBarComponentFactory.createButton(false, false);
@@ -352,7 +343,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 	}
 
 	private void initialiseToolBarButton(AbstractButton button) {
-		checkEDT();
 		button.addActionListener(this);
 		button.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 	}
@@ -365,7 +355,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 	 *            scaling has been done before calling this.
 	 */
 	public void pointToCenter(Point2D target) {
-		checkEDT();
 		Point newViewPos = new Point();
 
 		newViewPos.x = (int) (target.getX() - graphScroller.getViewport().getWidth() / 2.0);
@@ -381,7 +370,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 	 *            New View position
 	 */
 	public void setViewPosition(Point p) {
-		checkEDT();
 		Point2D p2 = graph.toScreen(p);
 
 		JScrollPane scroller = this.getScroller();
@@ -421,7 +409,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 	}
 
 	public JScrollPane getScroller() {
-		checkEDT();
 		return this.graphScroller;
 	}
 
@@ -430,7 +417,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 	 *            This is set for the scale of graph if it is between zoom limits. Returns true if the scale was appropriate.
 	 */
 	public boolean setGraphScale(double scale) {
-		checkEDT();
 		double newScale = scale;
 		if (scale > ZOOM_IN_LIMIT) {
 			newScale = ZOOM_IN_LIMIT;
@@ -452,7 +438,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 	}
 
 	private void showPopupMenu(MouseEvent e) {
-		checkEDT();
 		// right click
 		List<AbstractGraphVertex> chosenCells = graph.getVertexesAtPoint(e.getPoint());
 		if (chosenCells != null && chosenCells.size() > 0) {
@@ -478,7 +463,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 	 * @param e
 	 */
 	private void zoomInToolUsed() {
-		checkEDT();
 		// If the zoom-limit has been reached, don't do anything
 		if (this.setGraphScale(graph.getScale() * this.ZOOM_FACTOR)) {
 
@@ -524,7 +508,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 	 * Zooms out.
 	 */
 	private void zoomOutToolUsed() {
-		checkEDT();
 		if (this.setGraphScale(graph.getScale() / this.ZOOM_FACTOR)) {
 			JViewport view = this.getScroller().getViewport();
 			Point viewPos = view.getViewPosition();
@@ -544,7 +527,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 	}
 
 	private void updateGridSize() {
-		checkEDT();
 		double size = DEFAULT_GRID_SIZE;
 		if (graph.getScale() <= 0.5) {
 			size = BIGGER_GRID_SIZE;
@@ -593,7 +575,6 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 	public class WorkflowSelectionListener implements GraphSelectionListener {
 
 		public void valueChanged(GraphSelectionEvent e) {
-			checkEDT();
 			if (!internalSelection) {
 
 				boolean emptySelection = (graph.getSelectionCount() == 0);
@@ -624,10 +605,5 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 				application.getSelectionManager().selectMultiple(items, graph);
 			}
 		}
-	}
-	
-	// FIXME remove checkEDT
-	private void checkEDT() {
-		SwingTools.checkEDT();
 	}
 }
