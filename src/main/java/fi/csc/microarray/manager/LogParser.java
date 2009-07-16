@@ -26,9 +26,33 @@ public class LogParser {
 		return iterable;
 	}
 	
-	
-	
+
 	private static HashMap<String, String> parseEntry(String entry) {
+		HashMap<String, String> result = new HashMap<String, String>();
+		
+		String[] tokens = entry.split(";");
+		
+		// check for old log files with , as delimiter, remove check
+		// after changing delimiter
+		if (tokens.length == 7) {
+			result.put("id", tokens[0]);
+			result.put("operation", tokens[0]);
+			result.put("operation", tokens[1]);
+			result.put("status", tokens[2]);
+			result.put("username", tokens[3]);
+			result.put("starttime", tokens[4]);
+			result.put("endtime", tokens[5]);
+			result.put("compHost", tokens[6]);
+		} else {
+			throw new RuntimeException("Illegal number of tokens: " + tokens.length);
+		}
+		return result;
+	}
+
+	
+	
+	@SuppressWarnings("unused")
+	private static HashMap<String, String> parseOldEntry(String entry) {
 		HashMap<String, String> result = new HashMap<String, String>();
 		
 		String[] tokens = entry.split(",");
@@ -122,10 +146,9 @@ public class LogParser {
 	
 	public static void main(String[] args) throws IOException {
 		LogParser parser = new LogParser();
-		Iterable<HashMap<String, String>> entries = parser.parse(new File("/home/hupponen/jobs.log"));
+		Iterable<HashMap<String, String>> entries = parser.parse(new File("logfile.log"));
 		for (HashMap<String, String> entry: entries) {
-			System.out.println(entry.get("toolId"));
-			System.out.println("**********************");
+			System.out.println(entry.get("username"));
 		}
 	}
 	

@@ -40,15 +40,15 @@ public class LogImport {
 		private static final String CREATE_JOBS_TABLE = 
 			"CREATE TABLE IF NOT EXISTS jobs (" +
 				"id VARCHAR(100) PRIMARY KEY, " + 
-				"operation VARCHAR(100), " +
-				"status VARCHAR(20), " + 
+				"operation VARCHAR(200), " +
+				"status VARCHAR(200), " + 
 				"starttime DATETIME DEFAULT NULL, " + 
 				"endtime DATETIME DEFAULT NULL, " +
 				"wallclockTime INT DEFAULT NULL, " +
 				"errorMessage TEXT DEFAULT NULL, " +
 				"outputText TEXT DEFAULT NULL, " + 
-				"username VARCHAR(20), " +
-				"compHost VARCHAR(50)" +
+				"username VARCHAR(200), " +
+				"compHost VARCHAR(500)" +
 				"); "; //+
 //				"CREATE UNIQUE INDEX IF NOT EXISTS jobIdIndex on jobs(id); ";
 		
@@ -84,7 +84,7 @@ public class LogImport {
 //			tcpServer.start();
 			
 			String dbDriver = "org.h2.Driver";
-			String dbUrl = "jdbc:h2:database/chipster-manager";
+			String dbUrl = "jdbc:h2:~/database/chipster-manager";
 			boolean startWebConsole = true;
 			String dbUsername = "chipster";
 		    String dbPassword = "";
@@ -111,8 +111,62 @@ public class LogImport {
 			}
 		}
 
+		public void importLog(File logFile) throws IOException, ParseException {
+			DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
+			LogParser parser = new LogParser();
+			Iterable<HashMap<String, String>> entries = parser.parse(logFile);
+			int success = 0;
+			int integrityFailed = 0;
+			int usernameFailed = 0;
+			int endtimeFailed = 0;
+			int failed = 0;
+			for (HashMap<String, String> entry: entries) {
+			    try {
+			    	// some sanity checks
+			    	Date startTime = df.parse(entry.get("starttime"));
+			    	Date endTime = df.parse(entry.get("endtime"));
+			    	
+			    	if (entry.get("username").equals("null")) {
+			    		usernameFailed++;
+			    		continue;
+			    	}
+			    	
+					Map<String, Object> parameters = new HashMap<String, Object>();
+				    parameters.put("id", UUID.randomUUID().toString());
+				    parameters.put("operation", entry.get("operation"));
+					parameters.put("status", entry.get("status")); 
+					parameters.put("starttime", startTime); 
+					parameters.put("endtime", endTime);
+					parameters.put("wallclockTime", (endTime.getTime() - startTime.getTime()) / 1000);
+					parameters.put("errorMessage", null);
+					parameters.put("outputText", null); 
+					parameters.put("username", entry.get("username"));
+					parameters.put("compHost", entry.get("compHost"));
+					
+					this.insertJobTemplate.execute(parameters);
+					success++;
+			    } catch (DataIntegrityViolationException dive) {
+			    	//System.out.println(dive.toString());
+			    	integrityFailed++;
+			    }
+			    
+			    catch (Exception e) {
+			    	System.out.println(e.toString());
+			    	failed++;
+			    	
+			    }
+			}
+			System.out.println("success: " + success + 
+					", integrity failed: " + integrityFailed + 
+					", username failed: " + usernameFailed +
+					", endtime failed: " + endtimeFailed +
+					", other failed: " + failed);
+		}
 
-	public void importLog(File logFile, String compHost) throws IOException, ParseException {
+		
+		
+
+	public void importOldLog(File logFile, String compHost) throws IOException, ParseException {
 		DateFormat df = new SimpleDateFormat("E MMM d H:m:s z yyyy");
 		LogParser parser = new LogParser();
 		Iterable<HashMap<String, String>> entries = parser.parse(logFile);
@@ -178,7 +232,8 @@ public class LogImport {
 	
 	public static void main(String[] args) throws SQLException, IOException, IllegalConfigurationException, ParseException {
 //		MicroarrayConfiguration.loadConfiguration();
-//		LogImport logImport = new LogImport();
+		LogImport logImport = new LogImport();
+		logImport.importLog(new File("logfile.log"));
 		
 	}
 
