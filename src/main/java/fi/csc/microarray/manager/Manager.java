@@ -82,14 +82,14 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		"CREATE TABLE IF NOT EXISTS jobs (" +
 		"id VARCHAR(100) PRIMARY KEY, " + 
 		"operation VARCHAR(100), " +
-		"status VARCHAR(20), " + 
+		"status VARCHAR(100), " + 
 		"starttime DATETIME DEFAULT NULL, " + 
 		"endtime DATETIME DEFAULT NULL, " +
 		"wallclockTime INT DEFAULT NULL, " +
 		"errorMessage TEXT DEFAULT NULL, " +
 		"outputText TEXT DEFAULT NULL, " + 
-		"username VARCHAR(20), " +
-		"compHost VARCHAR(50)" +
+		"username VARCHAR(200), " +
+		"compHost VARCHAR(200)" +
 		"); ";
 		//"CREATE UNIQUE INDEX IF NOT EXISTS jobIdIndex on jobs(id); ";
 	
