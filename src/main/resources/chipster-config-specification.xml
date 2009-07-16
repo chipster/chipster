@@ -25,11 +25,11 @@
 
 	<configuration-module moduleId="security" description="encryption and authentication">
 
-		<entry entryKey="keystore" type="string" description="keystore for SSL">
+		<entry entryKey="keystore" type="string" description="keystore file for SSL">
 			<value>${chipster_security_dir}/keystore.ks</value>
 		</entry>
 
-		<entry entryKey="master-keystore" type="string" description="master keystore for SSL">
+		<entry entryKey="master-keystore" type="string" description="bundled keystore for SSL (inside JAR)">
 			<value>/keystore.ks</value>
 		</entry>
 
