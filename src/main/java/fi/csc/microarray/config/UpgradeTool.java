@@ -13,10 +13,13 @@ import java.io.StringWriter;
 import java.net.InetAddress;
 import java.util.LinkedList;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.Strings;
@@ -79,7 +82,7 @@ public class UpgradeTool {
 		
 	}
 	
-	public void createOperations(File pathToOld) {
+	public void createOperations(File pathToOld) throws SAXException, IOException, ParserConfigurationException {
 
 		// transform old installation components to new directory layout
 		for (String componentDir : ConfigTool.getComponentDirsWithConfig()) {
@@ -104,6 +107,10 @@ public class UpgradeTool {
 				delayedCopy(new File(workDir12x, "nami-config.xml"), new File(confDir13x, "chipster-config.xml"));
 				delayedConfigPurge(new File(confDir13x, "chipster-config.xml"), new File(workDir12x, "nami-config.xml"), componentDir);
 
+				if (componentDir.equals("comp")) {
+					delayedRCommandCopy(new File(workDir12x, "nami-config.xml"), new File(confDir13x, "runtimes.xml"));
+				}
+				
 				if (componentDir.equals("webstart")) {
 					delayedCopy(new File(componentDir12x, "web-content" + File.separator + "chipster.jnlp"), new File(componentDir13x, "web-root" + File.separator + "chipster.jnlp"));
 					delayedJnlpUpgrade(new File(componentDir13x, "web-root" + File.separator + "chipster.jnlp"), new File(componentDir12x, "web-content" + File.separator + "chipster.jnlp"));
@@ -192,6 +199,78 @@ public class UpgradeTool {
 		}		
 	}
 
+	
+	private void delayedRCommandCopy(File originalConfig, File newRuntimesConfig) throws SAXException, IOException, ParserConfigurationException {
+		if (originalConfig.exists()) {
+			BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(originalConfig)));
+			Document configXml = XmlUtil.getInstance().parseReader(in);
+			IOUtils.closeIfPossible(in);
+
+			String rCommand = null;
+			NodeList entries = configXml.getDocumentElement().getElementsByTagName("entry");
+			for (int i = 0; i < entries.getLength(); i++) {
+				Element entry = (Element)entries.item(i);
+				if ("RCommand".equals(entry.getAttribute("entryKey"))) {
+					rCommand = ((Element)entry).getElementsByTagName("value").item(0).getTextContent();
+					break;
+				}
+			}
+			if (rCommand == null) {
+				System.out.println("Warning: configuration file was missing R command: " + originalConfig.getAbsolutePath());
+				return;
+			}
+			
+			operations.add(new Operation(newRuntimesConfig, rCommand) {
+
+				public String describeExecution(File file, Object parameter) {
+					return "Copy R command from old configuration to " + file;
+				}
+
+				public void execute(File file, Object parameter) {
+					BufferedReader in = null;
+					OutputStream overwriteOut = null;
+					try {
+						StringWriter stringWriter = new StringWriter();
+						BufferedWriter out = new BufferedWriter(stringWriter);
+						in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+						
+						Document document = XmlUtil.getInstance().parseReader(in);
+						IOUtils.closeIfPossible(in);
+						
+						Element runtimesElement = (Element)document.getElementsByTagName("runtimes").item(0);
+						for (Element runtimeElement: XmlUtil.getChildElements(runtimesElement, "runtime")) {
+							String runtimeName = XmlUtil.getChildElement(runtimeElement, "name").getTextContent();
+							if (runtimeName.equals(ConfigTool.CURRENT_R_VERSION)) {
+								Element handlerElement = XmlUtil.getChildElement(runtimeElement, "handler");
+								for (Element parameterElement: XmlUtil.getChildElements(handlerElement, "parameter")) {
+									String paramName = XmlUtil.getChildElement(parameterElement, "name").getTextContent();
+									if (paramName.equals("command")) {
+										Element commandValueElement = XmlUtil.getChildElement(parameterElement, "value");
+										commandValueElement.setTextContent((String)parameter);
+									}
+								}
+							} 
+						}
+						
+						// overwrite previous
+						XmlUtil.getInstance().printXml(document, out);
+						out.close();
+
+						overwriteOut = new FileOutputStream(file);
+						IOUtils.copy(new ByteArrayInputStream(stringWriter.getBuffer().toString().getBytes()), overwriteOut);
+						
+					} catch (Exception e) {
+						e.printStackTrace();
+						System.out.println("Warning: could not upgrade runtimes configuration file " + file.getAbsolutePath());
+						
+					} finally {						
+						IOUtils.closeIfPossible(overwriteOut);
+					}
+				}
+			});
+		}					
+	}
+	
 	private void delayedConfigPurge(File fileAfterUpgrade, File filebeforeUpgrade, String componentDir) {
 		if (filebeforeUpgrade.exists()) {
 			operations.add(new Operation(fileAfterUpgrade, componentDir) {
@@ -239,7 +318,7 @@ public class UpgradeTool {
 						} else if ("manager".equals(parameter)) {
 							Element module = (Element)newDocument.getDocumentElement().appendChild(newDocument.createElement("configuration-module"));
 							module.setAttribute("moduleId", "manager");
-							addEntry(module, newDocument, "port", "8082");
+							addEntry(module, newDocument, "web-console-port", "8082");
 
 						} else {
 							moveModuleIfExists((String)parameter, originalDocument, (String)parameter, newDocument);

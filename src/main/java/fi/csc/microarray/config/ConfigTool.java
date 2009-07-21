@@ -31,6 +31,7 @@ import fi.csc.microarray.util.XmlUtil;
  */
 public class ConfigTool {
 
+	static final String CURRENT_R_VERSION = "R-2.6.1";
 	private final String brokerDir = "activemq";
 	private final String webstartDir = "webstart";
 
@@ -39,8 +40,7 @@ public class ConfigTool {
 			"auth",
 			"fileserver",
 			"manager",
-			// FIXME include client component to config tool
-//			"client",
+			"client",
 			"webstart"
 	};
 
@@ -362,7 +362,7 @@ public class ConfigTool {
 		Element runtimesElement = (Element)doc.getElementsByTagName("runtimes").item(0);
 		for (Element runtimeElement: XmlUtil.getChildElements(runtimesElement, "runtime")) {
 			String runtimeName = XmlUtil.getChildElement(runtimeElement, "name").getTextContent();
-			if (runtimeName.equals("R-2.6.1")) {
+			if (runtimeName.equals(CURRENT_R_VERSION)) {
 				Element handlerElement = XmlUtil.getChildElement(runtimeElement, "handler");
 				for (Element parameterElement: XmlUtil.getChildElements(handlerElement, "parameter")) {
 					String paramName = XmlUtil.getChildElement(parameterElement, "name").getTextContent();
