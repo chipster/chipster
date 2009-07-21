@@ -301,6 +301,7 @@
 			<tarfileset dir="${ext-src}/wrapper/webstart/web-root" prefix="chipster/webstart/web-root" />
 			<tarfileset file="dist/microarray-${release-version}.jar" fullpath="chipster/webstart/web-root/lib/chipster-current.jar" />
 			<tarfileset file="${ext-src}/wrapper/chipster-client-config.xml" fullpath="chipster/webstart/web-root/chipster-config.xml" />
+			<tarfileset dir="${ext-src}/wrapper/webstart/security" prefix="chipster/webstart/security" />
 
 			
 			
