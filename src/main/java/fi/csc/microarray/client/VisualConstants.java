@@ -23,8 +23,6 @@ import com.jgoodies.looks.plastic.theme.ExperienceBlue;
 
 public class VisualConstants {
 	
-	// FIXME removed unused icons?
-	
     // icons from Eclipse
     public static final ImageIcon PHENODATA_ICON = 
         new ImageIcon(VisualConstants.class.getResource("/eclipse/phenodata.gif"));
@@ -76,8 +74,6 @@ public class VisualConstants {
         new ImageIcon(VisualConstants.class.getResource("/circle.gif"));
     public static final ImageIcon QUERY_PARAM_INSTANCE_ICON =
         new ImageIcon(VisualConstants.class.getResource("/square.gif"));    
-    public static final ImageIcon GC_ICON =
-        new ImageIcon(VisualConstants.class.getResource("/gc.gif"));
 
     public static ImageIcon ZOOM_IN_CURSOR_IMAGE= 
 		new ImageIcon(VisualConstants.class.getResource("/zoomInCursor.png"));
@@ -95,8 +91,6 @@ public class VisualConstants {
 		new ImageIcon(VisualConstants.class.getResource("/hand.png"));
 	public static ImageIcon SHOW_ALL_ICON = 
 		new ImageIcon(VisualConstants.class.getResource("/showall.png"));
-	public static final Icon FORWARD_ICON = 
-		new ImageIcon(VisualConstants.class.getResource("/forward.gif"));
 	public static final Icon DOUBLE_FORWARD_ICON = 
 		new ImageIcon(VisualConstants.class.getResource("/forward.png"));		
 	public static final Icon DOUBLE_FORWARD_BW_ICON = 
