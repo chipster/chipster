@@ -67,8 +67,10 @@ public class WorkflowManager {
 				return name.endsWith(SCRIPT_EXTENSION);
 			}				
 		});
-		for (File script : scripts) {
-			workflows.add(script);
+		if(scripts != null){ //May be null if user's home folder isn't found
+			for (File script : scripts) {
+				workflows.add(script);
+			}
 		}
 		return workflows;
 	}
