@@ -12,7 +12,7 @@
 # PARAMETER Database.Selection [ucsc] DEFAULT ucsc (Database to query)
 # PARAMETER upstreamc INTEGER FROM 1 TO 2000 DEFAULT 500 (How many upstream)
 # PARAMETER downstreamc INTEGER FROM 0 TO 1500 DEFAULT 0 (How many downstream)
-# PARAMETER Motifs [jasper] DEFAULT jaspar ( What form you would like the motifs to be in, Jasper MAO or regular)
+# PARAMETER Motifs [jaspar] DEFAULT jaspar ( What form you would like the motifs to be in, Jasper MAO or regular)
 
 # MbyM 2-2-09
 
