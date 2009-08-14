@@ -33,6 +33,8 @@ for(i in 1:ncol(dat2)) {
 # Second round of combination
 if(produce.identifiers=="yes") {
 
+   symbol<-m$Group.1
+
    # Generating rownames
    genes<-rep(NA, length(symbol)) 
    for(i in 1:length(symbol)) {

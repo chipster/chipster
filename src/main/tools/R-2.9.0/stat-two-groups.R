@@ -54,7 +54,7 @@ if(meth=="empiricalBayes") {
    p<-tab$adj.P.Val[tab$adj.P.Val<=p.cut]
    M<-tab$logFC[tab$adj.P.Val<=p.cut]
    dat<-dat[rows,]
-   write.table(data.frame(dat, p.adjusted=round(p, digits=4), FC=M), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+   write.table(data.frame(dat, p.adjusted=round(p, digits=6), FC=M), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
 # Fast T-test
@@ -78,7 +78,7 @@ if(meth=="fast-t-test") {
    }
    dat<-dat[p.adjusted<=p.cut,]   
    p.adjusted<-p.adjusted[p.adjusted<=p.cut]
-   write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=4)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+   write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
 # T-test
@@ -99,7 +99,7 @@ if(meth=="t-test") {
    }
    dat<-dat[p.adjusted<=p.cut,]   
    p.adjusted<-p.adjusted[p.adjusted<=p.cut]
-   write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=4)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+   write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
 # F-test
@@ -121,7 +121,7 @@ if(meth=="F-test") {
    }
    dat<-dat[p.adjusted<=p.cut,]   
    p.adjusted<-p.adjusted[p.adjusted<=p.cut]
-   write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=4)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+   write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
 
@@ -145,7 +145,7 @@ if(meth=="Mann-Whitney") {
    }
    dat<-dat[p.adjusted<=p.cut,]   
    p.adjusted<-p.adjusted[p.adjusted<=p.cut]
-   write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=4)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+   write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
 if(meth=="LPE") {
@@ -173,5 +173,5 @@ if(meth=="LPE") {
    }
    dat<-dat[p.adjusted<=p.cut,]   
    p.adjusted<-p.adjusted[p.adjusted<=p.cut]
-   write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=4)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+   write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }

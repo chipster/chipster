@@ -61,7 +61,7 @@ if(meth=="empiricalBayes") {
    rows<-rows[tab$adj.P.Val<=p.cut]
    p<-tab$adj.P.Val[tab$adj.P.Val<=p.cut]
    dat<-dat[rows,]
-   write.table(data.frame(dat, p.adjusted=round(p, digits=4)), file="multiple-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+   write.table(data.frame(dat, p.adjusted=round(p, digits=6)), file="multiple-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
 # ANOVA test
@@ -82,7 +82,7 @@ if(meth=="ANOVA") {
    }
    dat<-dat[p.adjusted<=p.cut,]   
    p.adjusted<-p.adjusted[p.adjusted<=p.cut]
-   write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=4)), file="multiple-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+   write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)), file="multiple-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 
 # Kruskal-Wallis test
@@ -101,7 +101,7 @@ if(meth=="Kruskal-Wallis") {
    }
    dat<-dat[p.adjusted<=p.cut,]   
    p.adjusted<-p.adjusted[p.adjusted<=p.cut]
-   write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=4)), file="multiple-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+   write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)), file="multiple-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 }
 
@@ -161,11 +161,11 @@ if(meth=="Kruskal-Wallis") {
 }
 
 # Writing the data to disk
-if(nrow(na.omit(data.frame(dat, p.adjusted=round(p.adjusted, digits=4))))==0) {
-   dat<-data.frame(dat[order(p),], p.raw=round(p[order(p)], digits=4))
+if(nrow(na.omit(data.frame(dat, p.adjusted=round(p.adjusted, digits=6))))==0) {
+   dat<-data.frame(dat[order(p),], p.raw=round(p[order(p)], digits=6))
    dat<-dat[1:100,]
 } else {
-   dat<-na.omit(data.frame(dat, p.adjusted=round(p.adjusted, digits=4)))
+   dat<-na.omit(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)))
 }
 write.table(dat, file="multiple-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }

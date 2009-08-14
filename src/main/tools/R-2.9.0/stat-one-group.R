@@ -76,4 +76,4 @@ dat<-dat[p.adjusted<=p.cut,]
 p.adjusted<-p.adjusted[p.adjusted<=p.cut]
 
 # Writing out a table
-write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=4)), file="one-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)), file="one-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)

@@ -46,5 +46,17 @@ random<-c(rep("", nrow(pData(dat))))
 chiptype<-chiptype
 write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
-# Writes the results into a file
-write.table(dat2, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+
+# Writing out data
+a<-try(library(paste(chiptype, ".db", sep=""), character.only=T))
+if(chiptype!="empty" & class(a)!="try-error") {
+   # Including gene names to data
+   symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "SYMBOL", sep="")))))[rownames(dat2),])
+   genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "GENENAME", sep="")))))[rownames(dat2),])
+   # Writes the results into a file
+   write.table(data.frame(symbol, description=genename, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+} 
+
+if(chiptype=="empty" | class(a)=="try-error") {
+   write.table(data.frame(dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+}

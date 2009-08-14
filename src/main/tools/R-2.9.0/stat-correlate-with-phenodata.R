@@ -40,6 +40,6 @@ dat<-dat[abs(p)>=cutoff,]
 p<-p[abs(p)>=cutoff]
 
 # Saving the results
-write.table(data.frame(dat, corr=round(p, digits=4)), file="correlate-with-phenodata.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+write.table(data.frame(dat, corr=round(p, digits=6)), file="correlate-with-phenodata.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 
 
