@@ -187,8 +187,11 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 				}
 			}
 
-			// Rounding to the nearest 1*10^-n below
-			ROUNDING_LIMIT = (float) Math.pow(10, Math.floor(Math.log10(min)));
+			// Rounding to the nearest 1*10^-n
+			// plus one to hide points going into lines because of rounding
+			ROUNDING_LIMIT = (float) Math.pow(10, Math.ceil(Math.log10(min)) + 1);
+			
+			System.out.println("Min: " + min + ", Limit: " + ROUNDING_LIMIT);
 
 			// Sanity check
 			if (ROUNDING_LIMIT <= 0 || ROUNDING_LIMIT > 1) {
