@@ -64,6 +64,7 @@ public class OperationGenerator {
 			logger.debug("added " + description.inputs().size() + " inputs");
 
 			newDefinition.setOutputCount(description.outputs().size());
+			System.out.println(newDefinition.getFullName());
 			for (Parameter parameter : description.parameters()) {
 				newDefinition.addParameter(fi.csc.microarray.client.operation.parameter.Parameter.createInstance(parameter.getName(), parameter.getType(), parameter.getSelectionOptions(), parameter.getComment(), parameter.getFrom(), parameter.getTo(), parameter.getDefaultValue()));				
 			}
