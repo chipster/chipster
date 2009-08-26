@@ -12,17 +12,17 @@
 file<-c("normalized.tsv")
 dat<-read.table(file, header=T, sep="\t", row.names=1)
 
-# Extracts raw p-values
-groups<-dat[,grep(column, colnames(dat))]
+# Extracts data to be sort
+tosort<-dat[,grep(column, colnames(dat))]
 
 # Sorting
 if(method=="ascending") {
-   dat2<-dat2[,order(groups, decreasing=F)]
+   dat<-dat[order(tosort, decreasing=F),]
 } 
 if(method=="descending") {
-   dat2<-dat2[,order(groups, decreasing=T)]
+   dat<-dat[order(tosort, decreasing=T),]
 } 
 
 # Writing out data
-write.table(data.frame(dat, adjp2df), file="sort-genes.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+write.table(data.frame(dat), file="sort-genes.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 
