@@ -23,13 +23,13 @@ dat2<-dat[,grep("chip", names(dat))]
 
 # Sorting both data and phenodata
 dat2<-dat2[,order(groups)]
-if(nrow(calls)>0) {
+if(ncol(calls)>0) {
    calls<-calls[,order(groups)] 
 }
 phenodata2<-phenodata[order(groups),]
 
 # Writing data and phenodata to disk
-if(nrow(calls)>0) {
+if(ncol(calls)>0) {
    write.table(data.frame(dat2, calls), file="sort-samples.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 } else {
    write.table(data.frame(dat2), file="sort-samples.tsv", sep="\t", row.names=T, col.names=T, quote=F)
