@@ -4,7 +4,7 @@
 # PARAMETER transformation [none, vst, log2] DEFAULT log2 (How to transform the data)
 # PARAMETER background.correction [none, bgAdjust.affy] DEFAULT none (Should background adjustment be applied)
 # PARAMETER normalize.chips [none, rsn, loess, quantile, vsn] DEFAULT quantile (Between arrays normalization method)
-# PARAMETER chiptype [empty, Human-6v1, HumanRef-8v1, Human-6v2, HumanRef-8v2, Mouse-6v1.0a, MouseRef-8v1.0a, RatRef-12] DEFAULT empty (chiptype)
+# PARAMETER chiptype [empty, Human, Mouse, Rat] DEFAULT empty (chiptype)
 
 
 # Illumina data preprocessing and normalization for BeadSummaryData
@@ -21,17 +21,14 @@ library(lumi)
    if(chiptype=="empty") {
       chiptype<-c("Illumina")
    }
-   if(chiptype=="Human-6v1" | chiptype=="HumanRef-8v1") {
-      chiptype<-c("lumiHumanV1")
+   if(chiptype=="Human") {
+      chiptype<-c("lumiHumanAll")
    }
-   if(chiptype=="Human-6v2" | chiptype=="HumanRef-8v2") {
-      chiptype<-c("lumiHumanV2")
+   if(chiptype=="Mouse") {
+      chiptype<-c("lumiMouseAll")
    }
-   if(chiptype=="Mouse-6v1.0a" | chiptype=="MouseRef-8v1.0a") {
-      chiptype<-c("lumiMouseV1")
-   }
-   if(chiptype=="RatRef-12") {
-      chiptype<-c("lumiRatV1")
+   if(chiptype=="RatRef") {
+      chiptype<-c("lumiRatAll")
    }
 chiptype<-paste(chiptype, ".db", sep="")
 
