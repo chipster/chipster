@@ -8,7 +8,7 @@
 # JTT 17.7.2007
 
 # Sets up the path to the promoter sequences
-path.seq<-c("/v/linux26_x86_64/appl/molbio/weeder/seqs/")
+path.seq<-c("/opt/chipster/tools/weeder/seqs/")
 
 # Recodes the variable names
 size<-promoter.size

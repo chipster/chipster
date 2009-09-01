@@ -7,7 +7,7 @@
 
 
 # Sets the path the muscle executable
-path.muscle<-c("/v/linux26_x86_64/appl/molbio/muscle/muscle3.6/muscle")
+path.muscle<-c("/opt/chipster/tools/muscle/muscle3.6/muscle")
 
 # Sets the path the mafft executable
 path.mafft<-c("mafft")

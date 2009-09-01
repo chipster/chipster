@@ -17,7 +17,7 @@
 library(cosmo)
 
 # Sets up the path to the promoter sequences
-path.seq<-c("/v/linux26_x86_64/appl/molbio/weeder/seqs/")
+path.seq<-c("/opt/chipster/tools/weeder/seqs/")
 
 # Renaming variable
 size<-promoter.size

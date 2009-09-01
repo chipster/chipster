@@ -14,13 +14,13 @@
 # JTT 15.12.2006
 
 # Sets up the path to the promoter sequences
-path.seq<-c("/v/linux26_x86_64/appl/molbio/weeder/seqs/")
+path.seq<-c("/opt/chipster/tools/weeder/seqs/")
 
 # Sets up the path to ClusterBuster executable
-path.cbust<-c("/v/linux26_x86_64/appl/molbio/ClusterBuster/cbust-linux")
+path.cbust<-c("/opt/chipster/tools/ClusterBuster/cbust-linux")
 
 # Sets up the path to Jaspar Core matrix file
-path.jaspar<-c("/v/linux26_x86_64/appl/molbio/ClusterBuster/jaspar2005core.txt")
+path.jaspar<-c("/opt/chipster/tools/ClusterBuster/jaspar2005core.txt")
 
 # Recodes the variable names
 size<-promoter.size
