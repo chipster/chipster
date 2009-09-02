@@ -1,5 +1,6 @@
 # ANALYSIS Normalisation/"Affymetrix gene arrays" (Affymetrix RMA preprocessing for CEL-files. 
-# YOU HAVE TO SPECIFY THE CHIPTYPE.)
+# Please note that the preprocessing might take a long time, and a maximum of three human exon 
+# arrays can be processed together. YOU HAVE TO SPECIFY THE CHIPTYPE.)
 # INPUT AFFY microarray[...].cel OUTPUT normalized.tsv, phenodata.tsv 
 # PARAMETER chiptype [empty, human, mouse, rat] DEFAULT empty (Chiptype)
 
@@ -51,8 +52,9 @@ write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phe
 a<-try(library(paste(chiptype, ".db", sep=""), character.only=T))
 if(chiptype!="empty" & class(a)!="try-error") {
    # Including gene names to data
-   symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "SYMBOL", sep="")))))[rownames(dat2),])
-   genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "GENENAME", sep="")))))[rownames(dat2),])
+   lib2<-sub('.db','',chiptype)
+   symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "SYMBOL", sep="")))))[rownames(dat2),])
+   genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[rownames(dat2),])
    # Writes the results into a file
    write.table(data.frame(symbol, description=genename, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 } 

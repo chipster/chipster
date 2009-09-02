@@ -148,8 +148,9 @@ write.table(data.frame(sample=sample.names, chiptype=chiptype, group=group), fil
 if(chiptype!="Illumina.db") {
    # Including gene names to data
    library(chiptype, character.only=T)
-   symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "SYMBOL", sep="")))))[rownames(dat2),])
-   genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "GENENAME", sep="")))))[rownames(dat2),])
+   lib2<-sub('.db','',chiptype)
+   symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "SYMBOL", sep="")))))[rownames(dat2),])
+   genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[rownames(dat2),])
    symbol<-gsub("#", "", symbol)
    genename<-gsub("#", "", genename)
    # Write out expression data

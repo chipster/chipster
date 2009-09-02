@@ -121,8 +121,9 @@ rownames(M)<-genes
 if(chiptype!="cDNA") {
    # Including gene names to data
    library(chiptype, character.only=T)
-   symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "SYMBOL", sep="")))))[rownames(M),])
-   genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "GENENAME", sep="")))))[rownames(M),])
+   lib2<-sub('.db','',chiptype)
+   symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "SYMBOL", sep="")))))[rownames(M),])
+   genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[rownames(M),])
    symbol<-gsub("#", "", symbol)
    genename<-gsub("#", "", genename)
 }

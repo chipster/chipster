@@ -146,8 +146,9 @@ write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phe
 a<-try(library(paste(chiptype, ".db", sep=""), character.only=T))
 if(chiptype!="empty" & class(a)!="try-error") {
    # Including gene names to data
-   symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "SYMBOL", sep="")))))[rownames(dat2),])
-   genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "GENENAME", sep="")))))[rownames(dat2),])
+   lib2<-sub('.db','',chiptype)
+   symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "SYMBOL", sep="")))))[rownames(dat2),])
+   genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[rownames(dat2),])
    # Writes the results into a file
    write.table(data.frame(symbol, description=genename, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 } 

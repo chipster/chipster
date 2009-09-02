@@ -23,12 +23,15 @@ library(lumi)
    }
    if(chiptype=="Human") {
       chiptype<-c("lumiHumanAll")
+	library(lumiHumanIDMapping)
    }
    if(chiptype=="Mouse") {
       chiptype<-c("lumiMouseAll")
+	library(lumiMouseIDMapping)
    }
    if(chiptype=="RatRef") {
       chiptype<-c("lumiRatAll")
+	library(lumiRatIDMapping)
    }
 chiptype<-paste(chiptype, ".db", sep="")
 
