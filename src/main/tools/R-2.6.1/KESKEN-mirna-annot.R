@@ -1,5 +1,3 @@
-just testing the version control
-
 #Reads the data
 dat<-read.table("book1.txt", sep="\t", header=T)
 
