@@ -1,5 +1,4 @@
-# ANALYSIS Preprocessing/"Filter by CV" (Filter genes by their coefficient of variation. The filtering is automatically
-# performed using the median of the CV values.)
+# ANALYSIS Preprocessing/"Filter by CV" (Filter genes by their coefficient of variation.)
 # INPUT GENE_EXPRS normalized.tsv OUTPUT cv-filter.tsv
 # PARAMETER percentage.to.filter.out DECIMAL FROM 0 TO 1 DEFAULT 0.5 (Percentage to filter out)
 
