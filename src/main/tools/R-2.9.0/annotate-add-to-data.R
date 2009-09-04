@@ -1,6 +1,5 @@
 # ANALYSIS Annotation/"Add annotations to data" (Annotates the genes, and adds the results to the datafile. 
-# Currently, this function only works with Agilent, Affymetrix and Illumina data if annotation packages for the
-# used chip types are available.)
+# Currently, this function only works with Agilent, Affymetrix and Illumina data.)
 # INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT data-with-annotations.tsv
 
 
