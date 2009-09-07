@@ -41,11 +41,6 @@ import fi.csc.microarray.util.UrlTransferUtil;
  */
 public class MessagingEndpoint implements MessagingListener {
 	
-	static {
-		// fix URL file transfer proxy policy 
-		UrlTransferUtil.disableProxies();
-	}
-	
 	/**
 	 * Logger for this class
 	 */
@@ -97,7 +92,12 @@ public class MessagingEndpoint implements MessagingListener {
 
 		// configure everything
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
-		
+
+		// fix URL file transfer proxy policy
+		if (configuration.getBoolean("messaging", "disable-proxy")) {
+			UrlTransferUtil.disableProxies();
+		}
+
 		String protocol = configuration.getString("messaging", "broker-protocol");
 		String host = configuration.getString("messaging", "broker-host");
 		int port = configuration.getInt("messaging", "broker-port");
