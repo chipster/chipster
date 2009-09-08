@@ -172,10 +172,11 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
     	try {
     		additionalTask = (TimerTask) Class.forName("fi.csc.chipster.manager.AskareLogTimerTask").getConstructor(JdbcTemplate.class).newInstance(jdbcTemplate);
     	} catch (Exception e) {
+    		logger.info("could not load additional tasks");
     	}
     	if (additionalTask != null) {
     		Scheduler scheduler = new Scheduler();
-    		scheduler.schedule("15 0 * * *", additionalTask);
+    		scheduler.schedule("10 0 * * *", additionalTask);
     		scheduler.start();
     	}
     	
