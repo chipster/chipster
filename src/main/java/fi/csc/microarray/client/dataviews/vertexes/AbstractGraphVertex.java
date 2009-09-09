@@ -91,7 +91,6 @@ public abstract class AbstractGraphVertex extends DefaultGraphCell {
 	 * @param x
 	 * @param y
 	 */
-	@SuppressWarnings("unchecked")//Old api
 	public void setPosition(Point point) {
 
 		Map attrs = new Hashtable();

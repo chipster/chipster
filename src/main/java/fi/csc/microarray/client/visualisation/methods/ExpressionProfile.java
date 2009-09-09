@@ -270,7 +270,6 @@ implements PropertyChangeListener, SelectionChangeListener {
 		return chart;
 	}
 
-	@SuppressWarnings("unchecked") //Old api in JFreeChart
 	public void selectionChanged(Rectangle2D.Double selection) {
 		
 		if(selection == null){

@@ -59,7 +59,6 @@ public class GroupVertex extends AbstractGraphVertex {
 	 * 
 	 * @return child vertexes
 	 */
-	@SuppressWarnings("unchecked")//Old api
 	public List<AbstractGraphVertex> getChildVertexes(){
 		List<AbstractGraphVertex> vertexes = new ArrayList<AbstractGraphVertex>();
 		List children = this.getChildren();
