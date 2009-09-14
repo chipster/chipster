@@ -16,6 +16,7 @@ if(phenodata$chiptype[1]!="cDNA" | phenodata$chiptype[1]!="Illumina") {
    lib<-phenodata$chiptype[1]
    lib<-as.character(lib)
 }
+lib <- paste(lib, ".db", sep="")
 
 # Loads the correct annotation library
 library(package=lib, character.only=T)
