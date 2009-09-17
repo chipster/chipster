@@ -122,7 +122,7 @@ public class BeanShellHandler implements AnalysisHandler {
 	 * 
 	 */
 	public boolean isUptodate(AnalysisDescription description) {
-		File scriptFile = new File(customScriptsDirName + description.getSourceResourceName());
+		File scriptFile = new File(customScriptsDirName + description.getSourceResourceFullPath());
 		if (scriptFile.exists() && scriptFile.lastModified() > description.getCreationTime()) {
 			return false;
 		}
