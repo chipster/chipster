@@ -86,28 +86,28 @@ if(id.type=="TargetID") {
       chiptype<-c("Illumina")
    }
    if(chiptype=="Human-6v1" | chiptype=="HumanRef-8v1") {
-      chiptype<-c("illuminaHumanv1")
+      chiptype<-c("illuminaHumanv1.db")
    }
    if(chiptype=="Human-6v2" | chiptype=="HumanRef-8v2") {
-      chiptype<-c("illuminaHumanv2")
+      chiptype<-c("illuminaHumanv2.db")
    }
    if(chiptype=="Human-6v3" | chiptype=="HumanRef-8v3") {
-      chiptype<-c("illuminaHumanV3TargetID")
+      chiptype<-c("illuminaHumanv3.db")
    }
    if(chiptype=="Human-HT12") {
-      chiptype<-c("IlluminaHumanHT12")
+      chiptype<-c("IlluminaHumanHT12") # should be updated!
    }
    if(chiptype=="Mouse-6v1.0a" | chiptype=="MouseRef-8v1.0a") {
-      chiptype<-c("illuminaMousev1")
+      chiptype<-c("illuminaMousev1.db")
    }
    if(chiptype=="Mouse-6v1.1" | chiptype=="MouseRef-8v1.1") {
-      chiptype<-c("illuminaMousev1p1")
+      chiptype<-c("illuminaMousev1p1.db")
    }
    if(chiptype=="Mouse-6v2" | chiptype=="MouseRef-8v2") {
-      chiptype<-c("illuminaMouseV2TargetID")
+      chiptype<-c("illuminaMousev2.db")
    }
    if(chiptype=="RatRef-12") {
-      chiptype<-c("illuminaRatv1")
+      chiptype<-c("illuminaRatv1.db")
    }
 }
 

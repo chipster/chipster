@@ -17,12 +17,12 @@ if(phenodata$chiptype[1]!="cDNA" | phenodata$chiptype[1]!="Illumina") {
    lib<-as.character(lib)
 }
 
-
-# If the chiptype is one of the illumina designs adjust the name
-# to the new ".db" naming schemes
-if (grepl("illumina", as.character (phenodata$chiptype[1])))
-	lib <- paste(lib, ".db", sep="")
-
+# Account for the fact that annotation packages are from version 2.3 of Bioconductor
+# named with an ".db" suffix. Add the suffix when missing to support data files
+# from Chipster 1.3 and earlier. 
+if (length(grep(".db", lib)) == 0) {
+        lib <- paste(lib, ".db", sep="")
+}
 
 # Loads the correct annotation library
 library(package=lib, character.only=T)

@@ -18,27 +18,28 @@
 library(lumi)
 
 # Converting to the correct chiptype
-   if(chiptype=="empty") {
-      chiptype<-c("Illumina")
-   }
-   if(chiptype=="Human") {
-      chiptype<-c("lumiHumanAll")
-	library(lumiHumanIDMapping)
-   }
-   if(chiptype=="Mouse") {
-      chiptype<-c("lumiMouseAll")
-	library(lumiMouseIDMapping)
-   }
-   if(chiptype=="RatRef") {
-      chiptype<-c("lumiRatAll")
-	library(lumiRatIDMapping)
-   }
+if(chiptype=="empty") {
+	chiptype<-c("Illumina")
+	mapping<-c("Illumina")
+}
+if(chiptype=="Human") {
+	chiptype<-c("lumiHumanAll")
+	mapping<-c("lumiHumanIDMapping")
+}
+if(chiptype=="Mouse") {
+	chiptype<-c("lumiMouseAll")
+	mapping<-c("lumiMouseIDMapping")
+}
+if(chiptype=="RatRef") {
+	chiptype<-c("lumiRatAll")
+	mapping<-c("lumiRatIDMapping")
+}
 chiptype<-paste(chiptype, ".db", sep="")
 
 # Loading data files
 # fileName <-dir()
 # fileName<-fileName[fileName!="phenodata.tsv"]
-x.lumi <- lumiR("chip.tsv", lib=chiptype)
+x.lumi <- lumiR("chip.tsv", lib.mapping=mapping)
 
 # Quality control (not run)
 # QC

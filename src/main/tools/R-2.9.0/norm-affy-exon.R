@@ -44,6 +44,7 @@ if(chiptype=="rat" & summary.feature=="gene") {
    dat@cdfName<-"rnex10stv1rnentrezgcdf"
    dat@annotation<-"raex10stv1rnentrezg.db"
 }
+chiptype<-dat@annotation
 
 # Normalizations
 dat2<-exprs(rma(dat))
