@@ -92,10 +92,10 @@ if(id.type=="TargetID") {
       chiptype<-c("illuminaHumanv2")
    }
    if(chiptype=="Human-6v3" | chiptype=="HumanRef-8v3") {
-      chiptype<-c("illuminaHumanV3TargetID")
+      chiptype<-c("illuminaHumanv3")
    }
    if(chiptype=="Human-HT12") {
-      chiptype<-c("IlluminaHumanHT12")
+      chiptype<-c("illuminaHumanv3")
    }
    if(chiptype=="Mouse-6v1.0a" | chiptype=="MouseRef-8v1.0a") {
       chiptype<-c("illuminaMousev1")
@@ -104,7 +104,7 @@ if(id.type=="TargetID") {
       chiptype<-c("illuminaMousev1p1")
    }
    if(chiptype=="Mouse-6v2" | chiptype=="MouseRef-8v2") {
-      chiptype<-c("illuminaMouseV2TargetID")
+      chiptype<-c("illuminaMousev2")
    }
    if(chiptype=="RatRef-12") {
       chiptype<-c("illuminaRatv1")
@@ -116,28 +116,28 @@ if(id.type=="ProbeID") {
       chiptype<-c("Illumina")
    }
    if(chiptype=="Human-6v1" | chiptype=="HumanRef-8v1") {
-      chiptype<-c("illuminaHumanBCv1")
+      chiptype<-c("illuminaHumanv1BeadID")
    }
    if(chiptype=="Human-6v2" | chiptype=="HumanRef-8v2") {
-      chiptype<-c("illuminaHumanBCv2")
+      chiptype<-c("illuminaHumanv2BeadID")
    }
    if(chiptype=="Human-6v3" | chiptype=="HumanRef-8v3") {
-      chiptype<-c("illuminaHumanV3")
+      chiptype<-c("illuminaHumanv3BeadID")
    }
    if(chiptype=="Human-HT12") {
-      chiptype<-c("IlluminaHumanHT12")
+      chiptype<-c("illuminaHumanv3BeadID")
    }
    if(chiptype=="Mouse-6v1.0a" | chiptype=="MouseRef-8v1.0a") {
-      chiptype<-c("illuminaMouseBCv1")
+      chiptype<-c("illuminaMousev1BeadID")
    }
    if(chiptype=="Mouse-6v1.1" | chiptype=="MouseRef-8v1.1") {
-      chiptype<-c("illuminaMouseBCv1p1")
+      chiptype<-c("illuminaMousev1p1BeadID")
    }
    if(chiptype=="Mouse-6v2" | chiptype=="MouseRef-8v2") {
-      chiptype<-c("illuminaMouseV2")
+      chiptype<-c("illuminaMousev2BeadID")
    }
    if(chiptype=="RatRef-12") {
-      chiptype<-c("illuminaRatBCv1")
+      chiptype<-c("illuminaRatv1BeadID")
    }
 }
 lib<-paste(chiptype, ".db", sep="")
