@@ -47,6 +47,14 @@ genes<-row.names(dat)
 
 # Loads the annotation library
 lib<-as.character(chip)
+
+# Account for the fact that annotation packages are from version 2.3 of Bioconductor
+# named with an ".db" suffix. Add the suffix when missing to support data files
+# from Chipster 1.3 and earlier. 
+if (length(grep(".db", lib)) == 0) {
+        lib <- paste(lib, ".db", sep="")
+}
+
 library(package=lib, character.only=T)
 
 # Creating a list of RefSeq IDs for promoter retrieval

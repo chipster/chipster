@@ -2,10 +2,11 @@
 # or under-represented in the selected gene list.)
 # INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT safeplot.png, safe.tsv
 # PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER minimum.category.size INTEGER FROM 1 TO 100 DEFAULT 10 (Minimum size for categories to be evaluated)
 # PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+
+# disabled: PARAMETER minimum.category.size INTEGER FROM 1 TO 100 DEFAULT 10 (Minimum size for categories to be evaluated)
 
 
 #column<-"group"
@@ -59,7 +60,8 @@ if(which.ontology=="KEGG") {
    env<-paste(lib2, "PATH", sep="")
    alleg<-get(env)
    alleg<-as.list(alleg)
-   cmatrix<-getCmatrix(gene.list=alleg, present.genes=rownames(dat), min.size=minimum.category.size)
+   #cmatrix<-getCmatrix(gene.list=alleg, present.genes=rownames(dat), min.size=minimum.category.size)
+   cmatrix<-getCmatrix(gene.list=alleg, present.genes=rownames(dat))
 }
 
 if(which.ontology=="GO") {
@@ -78,6 +80,8 @@ if(which.ontology=="GO") {
 result<-safe(dat2, groups, cmatrix, alpha=p.value.threshold)
 
 # Are there any significant results?
+# The following check is not valid any more: you always get p-values, but they are just below the threshold. 
+# Instead one should check if result@C.mat exists?
 if(length(result@global.pval)==0) {
    bitmap(file="safeplot.png", width=w/72, height=h/72)
    plot(1, 1, col=0)

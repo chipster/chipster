@@ -4,7 +4,7 @@
 # for the most significant pathways works only, if the whole dataset is used, i.e, data should not be prefiltered.)
 # INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT multtest.png, globaltest-result-table.tsv
 # PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER pathway.or.genelist [KEGG, GO, current] DEFAULT current (Which gene list to test)
+# PARAMETER pathway.or.genelist [KEGG, GO, current] DEFAULT KEGG (Which gene list to test)
 # PARAMETER use.multiple.testing.correction [yes, no] DEFAULT yes (Should multiple testing correction be used)
 # PARAMETER number.of.groups.to.visualize [4, 9, 16] DEFAULT 4 (Number of most significant groups to visualize)
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
@@ -88,7 +88,7 @@ if(pathways=="KEGG") {
    split.screen(c(sqrt(x), sqrt(x)))
    for(i in 1:x) {
       y<-geneplot(test.kegg[i], plot=F, addlegend=F)
-      env2<-paste(lib, "SYMBOL", sep="")
+      env2<-paste(lib2, "SYMBOL", sep="")
       env2<-get(env2)
       names(y)<-as.list(env2)[names(y)]
       screen(i)

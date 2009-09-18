@@ -86,28 +86,28 @@ if(id.type=="TargetID") {
       chiptype<-c("Illumina")
    }
    if(chiptype=="Human-6v1" | chiptype=="HumanRef-8v1") {
-      chiptype<-c("illuminaHumanv1.db")
+      chiptype<-c("illuminaHumanv1")
    }
    if(chiptype=="Human-6v2" | chiptype=="HumanRef-8v2") {
-      chiptype<-c("illuminaHumanv2.db")
+      chiptype<-c("illuminaHumanv2")
    }
    if(chiptype=="Human-6v3" | chiptype=="HumanRef-8v3") {
-      chiptype<-c("illuminaHumanv3.db")
+      chiptype<-c("illuminaHumanV3TargetID")
    }
    if(chiptype=="Human-HT12") {
-      chiptype<-c("IlluminaHumanHT12") # should be updated!
+      chiptype<-c("IlluminaHumanHT12")
    }
    if(chiptype=="Mouse-6v1.0a" | chiptype=="MouseRef-8v1.0a") {
-      chiptype<-c("illuminaMousev1.db")
+      chiptype<-c("illuminaMousev1")
    }
    if(chiptype=="Mouse-6v1.1" | chiptype=="MouseRef-8v1.1") {
-      chiptype<-c("illuminaMousev1p1.db")
+      chiptype<-c("illuminaMousev1p1")
    }
    if(chiptype=="Mouse-6v2" | chiptype=="MouseRef-8v2") {
-      chiptype<-c("illuminaMousev2.db")
+      chiptype<-c("illuminaMouseV2TargetID")
    }
    if(chiptype=="RatRef-12") {
-      chiptype<-c("illuminaRatv1.db")
+      chiptype<-c("illuminaRatv1")
    }
 }
 
@@ -140,17 +140,16 @@ if(id.type=="ProbeID") {
       chiptype<-c("illuminaRatBCv1")
    }
 }
-chiptype<-paste(chiptype, ".db", sep="")
+lib<-paste(chiptype, ".db", sep="")
 
 # Write out a phenodata
-write.table(data.frame(sample=sample.names, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+write.table(data.frame(sample=sample.names, chiptype=lib, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
-if(chiptype!="Illumina.db") {
+if(chiptype!="Illumina") {
    # Including gene names to data
-   library(chiptype, character.only=T)
-   lib2<-sub('.db','',chiptype)
-   symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "SYMBOL", sep="")))))[rownames(dat2),])
-   genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[rownames(dat2),])
+   library(lib, character.only=T)
+   symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "SYMBOL", sep="")))))[rownames(dat2),])
+   genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "GENENAME", sep="")))))[rownames(dat2),])
    symbol<-gsub("#", "", symbol)
    genename<-gsub("#", "", genename)
    # Write out expression data
