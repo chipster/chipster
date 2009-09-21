@@ -12,15 +12,14 @@ make check
 # R contributed packages installation
 wget http://addictedtor.free.fr/packages/fpc_1.1-5.tar.gz
 wget http://addictedtor.free.fr/packages/A2R/A2R_0.0-4.tar.gz
-wget http://cran.r-project.org/src/contrib/Archive/rda/rda_1.0.1.tar.gz
+wget http://cran.r-project.org/src/contrib/Archive/rda/rda_1.0.1.tar.gzwget http://www.math.utu.fi/en/research/groups/bio/projects/ROTS_1.1.1.tar.gz
 ./bin/R
 install.packages(pkgs="fpc_1.1-5.tar.gz", repos=NULL)
 install.packages(pkgs="A2R_0.0-4.tar.gz", repos=NULL)
-install.packages(pkgs="rda_1.0.1.tar.gz", repos=NULL)
+install.packages(pkgs="rda_1.0.1.tar.gz", repos=NULL)install.packages(pkgs="ROTS_1.1.1.tar.gz", repos=NULL)
 install.packages(c("Matrix", "lme4", "amap", "ape", "flexclust", "kohonen", "e1071", "sma", "fastICA"), repos="http://cran.r-project.org", dependencies = T)
-install.packages(c("aplpack", "corrgram", "deal", "outliers", "pvclust", "zoo"), repos="http://cran.r-project.org", dependencies=T)
-install.packages(c("XML"), repos="http://cran.r-project.org", dependencies=T)
-
+install.packages(c("aplpack", "corrgram", "deal", "outliers", "pvclust", "zoo", "qvalue", "scrime"), repos="http://cran.r-project.org", dependencies=T)
+install.packages(c("XML"), repos="http://cran.r-project.org", dependencies=T)
 
 # Bioconductor software packages installation
 source("http://www.bioconductor.org/biocLite.R")
@@ -31,12 +30,11 @@ biocLite(c("cosmo", "beadarraySNP", "GEOquery", "ArrayExpress"))
 biocLite(c("GeneCycle", "GeneNet", "GenomeGraphs"))
 biocLite(c("MLInterfaces"))
 biocLite(c("PAnnBuilder", "oligoClasses"))
-biocLite(c("matchprobes"))
-
+biocLite(c("matchprobes"))biocLite(c("statmod", "vegan", "safe"))
+ 
 # Annotation packages for Affymetrix
 source("http://www.bioconductor.org/biocLite.R")
-# Select Bioconductor annotations from the menu
-setRepositories() 
-b<-available.packages()
+setRepositories() # if Tcl/Tk installed, pops up a menu... # Select Bioconductor annotations from the menu (4.)
+b<-available.packages() # if Tcl/Tk installed, pops up a menu...
 d<-b[-grep("BSgenome", rownames(b)),]
-install.packages(d)# Install BrainArray packages for Affymetrix Gene STquit(save="no")wget http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/11.0.1/entrezg.download/hugene10stv1hsentrezgcdf_11.0.1.tar.gzwget http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/11.0.1/entrezg.download/hugene10stv1hsentrezgprobe_11.0.1.tar.gzwget http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/11.0.1/entrezg.download/hugene10stv1hsentrezg.db_11.0.1.tar.gz./bin/R CMD INSTALL hugene10stv1hsentrezgcdf_11.0.1.tar.gz./bin/R CMD INSTALL hugene10stv1hsentrezgprobe_11.0.1.tar.gz./bin/R CMD INSTALL hugene10stv1hsentrezg.db_11.0.1.tar.gzwget http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/11.0.1/entrezg.download/mogene10stv1mmentrezgcdf_11.0.1.tar.gzwget http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/11.0.1/entrezg.download/mogene10stv1mmentrezgprobe_11.0.1.tar.gzwget http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/11.0.1/entrezg.download/mogene10stv1mmentrezg.db_11.0.1.tar.gz./bin/R CMD INSTALL mogene10stv1mmentrezgcdf_11.0.1.tar.gz./bin/R CMD INSTALL mogene10stv1mmentrezgprobe_11.0.1.tar.gz./bin/R CMD INSTALL mogene10stv1mmentrezg.db_11.0.1.tar.gzwget http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/11.0.1/entrezg.download/ragene10stv1rnentrezgcdf_11.0.1.tar.gzwget http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/11.0.1/entrezg.download/ragene10stv1rnentrezgprobe_11.0.1.tar.gzwget http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/11.0.1/entrezg.download/ragene10stv1rnentrezg.db_11.0.1.tar.gz./bin/R CMD INSTALL ragene10stv1rnentrezgcdf_11.0.1.tar.gz./bin/R CMD INSTALL ragene10stv1rnentrezgprobe_11.0.1.tar.gz./bin/R CMD INSTALL ragene10stv1rnentrezg.db_11.0.1.tar.gz# Done! You should remove downloaded tar.gz-files...
+install.packages(d)# Install BrainArray packages for Affymetrix Gene ST (is this needed? yes, unless the whole BrainArray is downloaded)quit(save="no")wget http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/11.0.1/entrezg.download/hugene10stv1hsentrezgcdf_11.0.1.tar.gzwget http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/11.0.1/entrezg.download/hugene10stv1hsentrezgprobe_11.0.1.tar.gzwget http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/11.0.1/entrezg.download/hugene10stv1hsentrezg.db_11.0.1.tar.gz./bin/R CMD INSTALL hugene10stv1hsentrezgcdf_11.0.1.tar.gz./bin/R CMD INSTALL hugene10stv1hsentrezgprobe_11.0.1.tar.gz./bin/R CMD INSTALL hugene10stv1hsentrezg.db_11.0.1.tar.gzwget http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/11.0.1/entrezg.download/mogene10stv1mmentrezgcdf_11.0.1.tar.gzwget http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/11.0.1/entrezg.download/mogene10stv1mmentrezgprobe_11.0.1.tar.gzwget http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/11.0.1/entrezg.download/mogene10stv1mmentrezg.db_11.0.1.tar.gz./bin/R CMD INSTALL mogene10stv1mmentrezgcdf_11.0.1.tar.gz./bin/R CMD INSTALL mogene10stv1mmentrezgprobe_11.0.1.tar.gz./bin/R CMD INSTALL mogene10stv1mmentrezg.db_11.0.1.tar.gzwget http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/11.0.1/entrezg.download/ragene10stv1rnentrezgcdf_11.0.1.tar.gzwget http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/11.0.1/entrezg.download/ragene10stv1rnentrezgprobe_11.0.1.tar.gzwget http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/11.0.1/entrezg.download/ragene10stv1rnentrezg.db_11.0.1.tar.gz./bin/R CMD INSTALL ragene10stv1rnentrezgcdf_11.0.1.tar.gz./bin/R CMD INSTALL ragene10stv1rnentrezgprobe_11.0.1.tar.gz./bin/R CMD INSTALL ragene10stv1rnentrezg.db_11.0.1.tar.gz# Done! You should remove downloaded tar.gz-files...
