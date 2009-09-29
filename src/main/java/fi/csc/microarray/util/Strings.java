@@ -3,7 +3,25 @@ package fi.csc.microarray.util;
 import java.util.StringTokenizer;
 
 public class Strings {
-
+		
+	/**
+	 * Combines strings into one string by placing a delimeter between them.
+	 * If there are no strings to combine, empty string is returned.
+	 */
+	public static String delimit(Iterable<String> strings, String delimeter) {
+		String result = "";
+		boolean first = true;
+		for (String string : strings) {
+			if (first) {
+				result = string;
+				first = false;
+			} else {
+				result += (delimeter + string);
+			}
+		}
+		return result;		
+	}
+	
 	public static String repeat(String string, int times) {
 		String result = "";
 		for ( int c = 0; c < times; c++ ) {

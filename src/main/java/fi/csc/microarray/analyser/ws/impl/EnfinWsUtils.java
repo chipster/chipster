@@ -10,7 +10,9 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.MessageFactory;
@@ -32,6 +34,7 @@ import org.xml.sax.SAXException;
 import fi.csc.microarray.analyser.ws.HtmlUtil;
 import fi.csc.microarray.analyser.ws.ResultTableCollector;
 import fi.csc.microarray.analyser.ws.HtmlUtil.ValueHtmlFormatter;
+import fi.csc.microarray.util.Strings;
 import fi.csc.microarray.util.XmlUtil;
 
 public class EnfinWsUtils {
@@ -58,7 +61,7 @@ public class EnfinWsUtils {
 				"206054_at",
 				"209443_at"
 		};
-		//String[] probes = JavaJobUtils.getProbes(new File("/home/akallio/two-sample.tsv"));
+//		String[] probes = JavaJobUtils.getProbes(new File("/tmp/two-sample.tsv"));
 		
 		ResultTableCollector intactAnnotations = queryIntact(probes);
 		writeIntactHtml(intactAnnotations, new File("intact.html"));
@@ -137,6 +140,7 @@ public class EnfinWsUtils {
 		attachEnfinXml(intactSoapBody, fetchEnfinXml(uniprotResponse), "findPath", "http://ebi.ac.uk/enfin/core/web/services/reactome");
 		
 		Document reactomeResponse = sendSoapMessage(intactSoapMessage, new URL("http://www.ebi.ac.uk/enfin-srv/encore/reactome/service"));
+//		XmlUtil.printXml(reactomeResponse, System.out);
 		
 		return collectAnnotations(reactomeResponse, new AnnotationIdentifier() {
 
@@ -232,20 +236,20 @@ public class EnfinWsUtils {
 					String annotationName = annotationNameFinder.findAnnotationName(set);
 					annotationCollector.addAnnotation(index, "Name", annotationName);
 					
-					String probeids = "";
-					String moleculeNames = "";
+					Set<String> probeids = new HashSet<String>();
+					Set<String> moleculeNames = new HashSet<String>();
 					List<Element> participants = XmlUtil.getChildElements(set, "participant");
 					for (Element participant : participants) {
 						String participantValue = participant.getAttribute("moleculeRef");
 						String moleculeName = moleculeMap.get(participantValue);
-						moleculeNames += (" " + moleculeName);
+						moleculeNames.add(moleculeName);
 						String probeName = proteinToAffyMap.get(participantValue);
 						if (probeName != null) {
-							probeids += (" " + probeName);
+							probeids.add(probeName);
 						}
 					}
-					annotationCollector.addAnnotation(index, "Probe IDs", probeids);
-					annotationCollector.addAnnotation(index, "Participants", moleculeNames);
+					annotationCollector.addAnnotation(index, "Probe IDs", Strings.delimit(probeids, " "));
+					annotationCollector.addAnnotation(index, "Participants", Strings.delimit(moleculeNames, " "));
 					
 					index++;
 				}						
@@ -255,6 +259,7 @@ public class EnfinWsUtils {
 		return annotationCollector;
 
 	}
+	
 
 	private static Document sendSoapMessage(SOAPMessage soapMessage, URL endpoint) throws SAXException, IOException, ParserConfigurationException, SOAPException {
 		soapMessage.saveChanges();
