@@ -11,4 +11,4 @@ ResultTableCollector annotations = EnfinWsUtils.queryIntact(JavaJobUtils.getProb
 
 // create output files
 File file = new File(jobInfo.workDir + "/intact-annotations.html");
-HtmlUtil.writeHtmlTable(annotations, new String[] {"Interaction", "Participants"}, "Enfin IntAct annotation", file);
+EnfinWsUtils.writeIntactHtml(annotations, file);

@@ -11,4 +11,4 @@ ResultTableCollector annotations = EnfinWsUtils.queryReactome(JavaJobUtils.getPr
 
 // create output files
 File file = new File(jobInfo.workDir + "/reactome-annotations.html");
-HtmlUtil.writeHtmlTable(annotations, new String[] {"Pathway", "Participating proteins"}, "Reactome annotation (ENFIN)", file);
+EnfinWsUtils.writeReactomeHtml(annotations, file);

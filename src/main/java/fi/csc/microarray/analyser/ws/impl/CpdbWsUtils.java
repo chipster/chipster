@@ -2,6 +2,9 @@ package fi.csc.microarray.analyser.ws.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -24,6 +27,7 @@ import org.xml.sax.SAXException;
 
 import fi.csc.microarray.analyser.ws.HtmlUtil;
 import fi.csc.microarray.analyser.ws.ResultTableCollector;
+import fi.csc.microarray.analyser.ws.HtmlUtil.ValueHtmlFormatter;
 import fi.csc.microarray.analyser.ws.ResultTableCollector.ResultRow;
 import fi.csc.microarray.analyser.ws.ResultTableCollector.RowFilter;
 import fi.csc.microarray.util.XmlUtil;
@@ -32,14 +36,42 @@ public class CpdbWsUtils {
 
 
 	public static void main(String[] args) throws SAXException, ParserConfigurationException, TransformerException, SOAPException, IOException {
-		String[] probes = new String[] {"TM9SF2", "FOLR3", "IER2", "TMED2", "TMEM131", "PVRL2", "MIA3"};
+		String[] probes = new String[] {"TM9SF2", "FOLR3", "IER2", "TMED2", "TMEM131", "PVRL2", "MIA3",};
+
 		ResultTableCollector annotations = query(probes);
 		annotations.filterRows(new RowFilter() {
 			public boolean shouldRemove(ResultRow row) {
 				return Double.parseDouble(row.getValue("ns1:pValue")) > 0.0005d;
 			}
 		});
-		HtmlUtil.writeHtmlTable(annotations, new String[] {"ns1:pValue", "ns1:pathway", "ns1:database"}, "ConsensusPathDB annotation", System.out);
+		writeHtml(annotations, new File("cpdb.html"));
+	}
+
+	public static void writeHtml(ResultTableCollector annotations, File file) throws FileNotFoundException {
+		ValueHtmlFormatter pathwayNameFormatter = new ValueHtmlFormatter() {
+			public String format(String value, String[] currentRow) {
+				value = value.replace('_', ' ');
+				
+				if ("Reactome".equals(currentRow[2])) {
+					return "<a href=\"http://www.reactome.org/cgi-bin/search2?DB=gk_current&OPERATOR=ALL&QUERY=" + value.replace(' ', '+') + "&SPECIES=&SUBMIT=Go!\">" + value + "</a>";
+
+				} else if ("KEGG".equals(currentRow[2])) {
+					String valueWithoutOrganism = value.substring(0, value.indexOf("-")).trim();
+					return "<a href=\"http://www.genome.jp/dbget-bin/www_bfind_sub?mode=bfind&max_hit=1000&serv=kegg&dbkey=kegg&keywords=" + valueWithoutOrganism.replace(' ', '+') + "\">" + value + "</a>";
+
+				} else if ("PID".equals(currentRow[2])) {
+					return "<a href=\"http://pid.nci.nih.gov/search/advanced_landing.shtml?what=graphic&svg=&jpg=true&xml=&biopax=&complex_uses=on&family_uses=on&degree=1&molecule=&pathway=" + value.replace(' ', '+') + "&macro_process=&source_id=5&evidence_code=NIL&evidence_code=IAE&evidence_code=IC&evidence_code=IDA&evidence_code=IFC&evidence_code=IGI&evidence_code=IMP&evidence_code=IOS&evidence_code=IPI&evidence_code=RCA&evidence_code=RGE&evidence_code=TAS&output-format=graphic&Submit=Go\">" + value + "</a>";
+
+				} else if ("HumanCyc".equals(currentRow[2])) {
+					return "<a href=\"http://biocyc.org/HUMAN/substring-search?type=NIL&object=" + value.replace(' ', '+') + "\">" + value + "</a>";
+
+				} else {
+					return value;
+				}
+			}
+		};
+		
+		HtmlUtil.writeHtmlTable(annotations, new String[] {"ns1:pValue", "ns1:pathway", "ns1:database"}, new String[] {"p-value", "Pathway", "Database"}, new HtmlUtil.ValueHtmlFormatter[] {HtmlUtil.NO_FORMATTING_FORMATTER, pathwayNameFormatter, HtmlUtil.NO_FORMATTING_FORMATTER}, "Over-representation analysis with ConsensusPathDB", new FileOutputStream(file));
 	}
 
 	public static ResultTableCollector query(String[] genes) throws SAXException, ParserConfigurationException, TransformerException, SOAPException, IOException {
@@ -76,7 +108,8 @@ public class CpdbWsUtils {
 			resp.writeTo(out);
 			soapConnection.close();
 			
-			Document response = XmlUtil.getInstance().parseReader(new InputStreamReader(new ByteArrayInputStream(out.toByteArray())));
+			Document response = XmlUtil.parseReader(new InputStreamReader(new ByteArrayInputStream(out.toByteArray())));
+			XmlUtil.printXml(response, System.out);
 			
 			NodeList childNodes = response.getDocumentElement().getChildNodes().item(1).getChildNodes().item(0).getChildNodes();;
 

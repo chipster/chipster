@@ -21,4 +21,4 @@ annotations.filterRows(new RowFilter() {
 
 // create output files
 File file = new File(jobInfo.workDir + "/cpdb-annotations.html");
-HtmlUtil.writeHtmlTable(annotations, new String[] {"ns1:pValue", "ns1:pathway", "ns1:database"}, "ConsensusPathDB annotation", file);
+CpdbWsUtils.writeHtml(annotations, file);

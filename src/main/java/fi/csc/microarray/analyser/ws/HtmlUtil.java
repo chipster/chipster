@@ -7,9 +7,18 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 
 import fi.csc.microarray.util.IOUtils;
-import fi.csc.microarray.util.Strings;
 
 public class HtmlUtil {
+	
+	public static interface ValueHtmlFormatter {
+		public String format(String value, String[] currentRow);		
+	}
+	
+	public static ValueHtmlFormatter NO_FORMATTING_FORMATTER = new ValueHtmlFormatter() {
+		public String format(String value, String[] currentRow) {
+			return value;
+		}		
+	};
 	
 	private static class HtmlTemplate {
 
@@ -92,35 +101,36 @@ public class HtmlUtil {
 		}
 	}
 	
-	public static void writeHtmlTable(ResultTableCollector annotations, String[] columns, String title, File output) throws FileNotFoundException {
+	public static void writeHtmlTable(ResultTableCollector annotations, String[] columnIds, String[] columnNames, ValueHtmlFormatter[] valueHtmlFormatters, String title, File output) throws FileNotFoundException {
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(output);
-			writeHtmlTable(annotations, columns, title, out);
+			writeHtmlTable(annotations, columnIds, columnNames, valueHtmlFormatters, title, out);
 			
 		} finally {
 			IOUtils.closeIfPossible(out);
 		}
 		
 	}
-	public static void writeHtmlTable(ResultTableCollector annotations, String[] columns, String title, OutputStream outputStream) throws FileNotFoundException {
-		String[][] table = annotations.asTable(columns);
+	public static void writeHtmlTable(ResultTableCollector annotations, String[] columnIds, String[] columnNames, ValueHtmlFormatter[] valueHtmlFormatters, String title, OutputStream outputStream) throws FileNotFoundException {
+		String[][] table = annotations.asTable(columnIds);
 		HtmlTemplate out = new HtmlTemplate(new PrintWriter(outputStream));
 		out.openDocument(title);
 		out.heading(title);
 		out.openTable();
 		out.openRow();
-		for (int i = 0; i < columns.length; i++) {			
-			String name = columns[i].contains(":") ? columns[i].split(":")[1] : columns[i];			
-			name = Strings.separateUppercaseChars(Strings.startWithUppercase(name), "-");
-			name = name.replaceAll("_", " ");
-			out.headerCell(name);
+		for (String columnName : columnNames) {			
+			out.headerCell(columnName);
 		}
 		out.closeRow();
 		for (int i = 0; i < table.length; i++) {
 			out.openRow();
 			for (int j = 0; j < table[i].length; j++) {
-				out.cell(table[i][j]);
+				String string = table[i][j];
+				if (valueHtmlFormatters != null) {
+					string = valueHtmlFormatters[j].format(string, table[i]);
+				}
+				out.cell(string);
 			}
 			out.closeRow();
 		}

@@ -2,12 +2,15 @@ package fi.csc.microarray.analyser.ws.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.MessageFactory;
@@ -28,6 +31,7 @@ import org.xml.sax.SAXException;
 
 import fi.csc.microarray.analyser.ws.HtmlUtil;
 import fi.csc.microarray.analyser.ws.ResultTableCollector;
+import fi.csc.microarray.analyser.ws.HtmlUtil.ValueHtmlFormatter;
 import fi.csc.microarray.util.XmlUtil;
 
 public class EnfinWsUtils {
@@ -55,10 +59,42 @@ public class EnfinWsUtils {
 				"209443_at"
 		};
 		//String[] probes = JavaJobUtils.getProbes(new File("/home/akallio/two-sample.tsv"));
+		
 		ResultTableCollector intactAnnotations = queryIntact(probes);
-		HtmlUtil.writeHtmlTable(intactAnnotations, new String[] {"Interaction", "Participants"}, "Enfin IntAct annotation", new FileOutputStream("intact.html"));
+		writeIntactHtml(intactAnnotations, new File("intact.html"));
+		
 		ResultTableCollector reactomeAnnotations = queryReactome(probes);
-		HtmlUtil.writeHtmlTable(reactomeAnnotations, new String[] {"Pathway", "Participating proteins"}, "Reactome pathway associations (via Enfin WS)", new FileOutputStream("reactome.html"));
+		writeReactomeHtml(reactomeAnnotations, new File("reactome.html"));
+	}
+
+	private static void writeIntactHtml(ResultTableCollector intactAnnotations, File file) throws FileNotFoundException {
+		ValueHtmlFormatter interactionIdFormatter = new ValueHtmlFormatter() {
+			public String format(String string, String[] currentRow) {
+				return "<a href=\"http://www.ebi.ac.uk/intact/pages/interactions/interactions.xhtml?conversationContext=1&queryTxt=" + string.replace(' ', '+') + "\">" + string + "</a>";
+			}
+		};
+		
+		ValueHtmlFormatter uniprotFormatter = new ValueHtmlFormatter() {
+			public String format(String string, String[] currentRow) {
+				String formatted = "";
+				for (String protein : string.split(" ")) {
+					formatted += "<a href=\"http://www.uniprot.org/uniprot/" + protein.replace(' ', '+') + "\">" + protein + "</a> "; 
+				}
+				return formatted;
+			}
+		};
+		
+		HtmlUtil.writeHtmlTable(intactAnnotations, new String[] {"Name", "Probe IDs", "Participants"}, new String[] {"Interaction", "Probe ID", "Interacting proteins"},  new HtmlUtil.ValueHtmlFormatter[] {interactionIdFormatter, HtmlUtil.NO_FORMATTING_FORMATTER, uniprotFormatter}, "IntAct protein interactions", new FileOutputStream(file));
+	}
+
+	public static void writeReactomeHtml(ResultTableCollector reactomeAnnotations, File htmlOutput) throws FileNotFoundException {
+		ValueHtmlFormatter pathwayNameFormatter = new ValueHtmlFormatter() {
+			public String format(String string, String[] currentRow) {
+				return "<a href=\"http://www.reactome.org/cgi-bin/search2?DB=gk_current&OPERATOR=ALL&QUERY=" + string.replace(' ', '+') + "&SPECIES=&SUBMIT=Go!\">" + string + "</a>";
+			}
+		};
+		
+		HtmlUtil.writeHtmlTable(reactomeAnnotations, new String[] { "Name", "Probe IDs" }, new String[] {"Pathway", "Probe ID's for participating proteins"}, new HtmlUtil.ValueHtmlFormatter[] {pathwayNameFormatter, HtmlUtil.NO_FORMATTING_FORMATTER}, "Reactome pathway associations", new FileOutputStream(htmlOutput));
 	}
 
 	public static ResultTableCollector queryIntact(String[] probes) throws SOAPException, MalformedURLException, SAXException, IOException, ParserConfigurationException, TransformerException {
@@ -76,18 +112,18 @@ public class EnfinWsUtils {
 		return collectAnnotations(intactResponse, new AnnotationIdentifier() {
 
 			public boolean isAnnotation(Element setElement) {
-				NodeList names = setElement.getElementsByTagName("names");
-				return names.getLength() > 0 && "IntAct interaction".equals(names.item(0).getChildNodes().item(0).getTextContent());
-				}
+				List<Element> names = XmlUtil.getChildElements(setElement, "names");
+				return !names.isEmpty() && "IntAct interaction".equals(XmlUtil.getChildElement(names.get(0), "fullName").getTextContent());
+			}
 			
 		}, new AnnotationNameFinder() {
 
 			public String findAnnotationName(Element setElement) {
-				Element primaryRef = (Element)setElement.getElementsByTagName("xrefs").item(0).getChildNodes().item(0);
+				Element primaryRef = (Element)XmlUtil.getChildElement(setElement, "xrefs").getChildNodes().item(0);
 				return primaryRef.getAttribute("id");
 			}
 			
-		}, "Interaction", "Participants");
+		});
 	}
 
 	public static ResultTableCollector queryReactome(String[] probes) throws SOAPException, MalformedURLException, SAXException, IOException, ParserConfigurationException, TransformerException {
@@ -105,18 +141,18 @@ public class EnfinWsUtils {
 		return collectAnnotations(reactomeResponse, new AnnotationIdentifier() {
 
 			public boolean isAnnotation(Element setElement) {
-				NodeList setTypes = setElement.getElementsByTagName("setType");
-				return setTypes.getLength() > 0 && "Reactome".equals(((Element)setTypes.item(0)).getAttribute("db"));
+				List<Element> setTypes = XmlUtil.getChildElements(setElement, "setType");
+				return !setTypes.isEmpty() && "Reactome".equals(setTypes.get(0).getAttribute("db"));
 			}
 			
 		}, new AnnotationNameFinder() {
 
 			public String findAnnotationName(Element setElement) {
-				Element fullName = (Element)setElement.getElementsByTagName("names").item(0).getChildNodes().item(0);
+				Element fullName = (Element)XmlUtil.getChildElement(setElement, "names").getChildNodes().item(0);
 				return fullName.getTextContent();
 			}
 			
-		}, "Pathway", "Participating proteins");
+		});
 	}
 
 	private static Document queryUniprotIds(String[] probes) throws SOAPException, SAXException, IOException, ParserConfigurationException, MalformedURLException {
@@ -145,47 +181,71 @@ public class EnfinWsUtils {
 	}
 
 	private static Document fetchEnfinXml(Document response) throws ParserConfigurationException {
-		Document document = XmlUtil.getInstance().newDocument();
+		Document document = XmlUtil.newDocument();
 		document.appendChild(document.importNode(response.getDocumentElement().getElementsByTagNameNS("http://ebi.ac.uk/enfin/core/model", "entries").item(0), true));
 		return document;
 	}
 	
-	private static ResultTableCollector collectAnnotations(Document response, AnnotationIdentifier annotationIdentifier, AnnotationNameFinder annotationNameFinder, String annotationColumnName, String participantColumnName) {
+	private static ResultTableCollector collectAnnotations(Document response, AnnotationIdentifier annotationIdentifier, AnnotationNameFinder annotationNameFinder) {
 		ResultTableCollector annotationCollector = new ResultTableCollector();
 		NodeList childNodes = response.getDocumentElement().getChildNodes().item(0).getChildNodes().item(0).getChildNodes().item(0).getChildNodes().item(0).getChildNodes();
 
 		// iterate over molecules
 		HashMap<String, String> moleculeMap = new HashMap<String, String>();
 		for (int i = 0; i < childNodes.getLength(); i++) {
-			if ("molecule".equals(childNodes.item(i).getNodeName())) {
+			if ("molecule".equals(childNodes.item(i).getLocalName())) {
 				Element molecule = (Element)childNodes.item(i);					
 				String moleculeId = molecule.getAttribute("id");
 				
-				Element primaryRef = (Element)molecule.getElementsByTagName("xrefs").item(0).getChildNodes().item(0);
+				Element primaryRef = (Element)XmlUtil.getChildElement(molecule, "xrefs").getChildNodes().item(0);
 				String moleculeName = primaryRef.getAttribute("id");
 				moleculeMap.put(moleculeId, moleculeName);		
 			}
 		}
 
+		// iterate over mappings (Affy->UniProt)
+		HashMap<String, String> proteinToAffyMap = new HashMap<String, String>();
+		for (int i = 0; i < childNodes.getLength(); i++) {
+			if ("set".equals(childNodes.item(i).getLocalName())) {
+				Element set = (Element) childNodes.item(i);
+				Element setType = XmlUtil.getChildElement(set, "setType");
+				if (setType != null && "Affymetrix ID mapped to UniProt accession(s)".equals(setType.getAttribute("term"))) {
+					List<Element> participants = XmlUtil.getChildElements(set, "participant");
+					String affyRef = moleculeMap.get(participants.get(0).getAttribute("moleculeRef"));
+					// iterate over rest
+					for (int j = 1; j < participants.size(); j++) {
+						String proteinId = participants.get(j).getAttribute("moleculeRef");
+						proteinToAffyMap.put(proteinId, affyRef);
+					}
+				}
+			}
+		}
+		
 		// iterate over interactions
 		int index = 0;
 		for (int i = 0; i < childNodes.getLength(); i++) {
-			if ("set".equals(childNodes.item(i).getNodeName())) {
+			if ("set".equals(((Element)childNodes.item(i)).getLocalName())) {
 				Element set = (Element)childNodes.item(i);
 				
 				if (annotationIdentifier.isAnnotation(set)) {
 					
 					String annotationName = annotationNameFinder.findAnnotationName(set);
-					annotationCollector.addAnnotation(index, annotationColumnName, annotationName);
+					annotationCollector.addAnnotation(index, "Name", annotationName);
 					
-					String participantValue = "";
-					NodeList participants = set.getElementsByTagName("participant");
-					for (int p = 0; p < participants.getLength(); p++) {
-						Element participant = (Element)participants.item(p);
-						String moleculeName = moleculeMap.get(participant.getAttribute("moleculeRef"));
-						participantValue += (" " + moleculeName);
+					String probeids = "";
+					String moleculeNames = "";
+					List<Element> participants = XmlUtil.getChildElements(set, "participant");
+					for (Element participant : participants) {
+						String participantValue = participant.getAttribute("moleculeRef");
+						String moleculeName = moleculeMap.get(participantValue);
+						moleculeNames += (" " + moleculeName);
+						String probeName = proteinToAffyMap.get(participantValue);
+						if (probeName != null) {
+							probeids += (" " + probeName);
+						}
 					}
-					annotationCollector.addAnnotation(index, participantColumnName, participantValue);
+					annotationCollector.addAnnotation(index, "Probe IDs", probeids);
+					annotationCollector.addAnnotation(index, "Participants", moleculeNames);
 					
 					index++;
 				}						
@@ -207,7 +267,7 @@ public class EnfinWsUtils {
 		resp.writeTo(out);
 		soapConnection.close();
 		
-		return XmlUtil.getInstance().parseReader(new InputStreamReader(new ByteArrayInputStream(out.toByteArray())));
+		return XmlUtil.parseReader(new InputStreamReader(new ByteArrayInputStream(out.toByteArray())));
 	}
 
 	private static SOAPBody initialiseSoapBody(SOAPMessage message) throws SOAPException {
@@ -224,7 +284,7 @@ public class EnfinWsUtils {
 	}
 	
 	private static void attachEnfinXml(SOAPBody soapBody, Document enfinXml, String operation, String operationNamespace) throws SOAPException, ParserConfigurationException {
-		Document document = XmlUtil.getInstance().newDocument();
+		Document document = XmlUtil.newDocument();
 		document.appendChild(document.createElementNS(operationNamespace, operation));	
 		document.getDocumentElement().appendChild(document.importNode(enfinXml.getDocumentElement(), true));		
 		soapBody.addDocument(document);

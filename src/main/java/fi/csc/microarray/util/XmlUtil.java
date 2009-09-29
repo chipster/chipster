@@ -30,32 +30,27 @@ import org.w3c.dom.NodeList;
  * @author  Aleksi Kallio
  */
 public class XmlUtil {
-    private DocumentBuilder docBuilder;
     
-    public static synchronized XmlUtil getInstance() throws ParserConfigurationException {
-    	// SAXParsers are not concurrency compatible, so always return a new instance to prevent thread issues 
+	/**
+	 * Should be deprecated some day.
+	 */
+    public static synchronized XmlUtil getInstance() {
         return new XmlUtil();
     }
         
-    private XmlUtil() throws ParserConfigurationException {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(true);
-        docBuilder = dbf.newDocumentBuilder();
+    public static Document newDocument() throws ParserConfigurationException {
+        return newDocumentBuilder().newDocument();
     }
     
-    public Document newDocument() throws ParserConfigurationException {
-        return docBuilder.newDocument();
+    public static Document parseFile(File file) throws org.xml.sax.SAXException, IOException, ParserConfigurationException {
+        return newDocumentBuilder().parse(file);
     }
     
-    public Document parseFile(File file) throws org.xml.sax.SAXException, IOException {
-        return docBuilder.parse(file);
+    public static Document parseReader(Reader reader) throws org.xml.sax.SAXException, IOException, ParserConfigurationException {
+        return newDocumentBuilder().parse(new org.xml.sax.InputSource(reader));
     }
     
-    public Document parseReader(Reader reader) throws org.xml.sax.SAXException, IOException {
-        return docBuilder.parse(new org.xml.sax.InputSource(reader));
-    }
-    
-    public void printXml(Document xml, Writer out) throws TransformerException, UnsupportedEncodingException {
+    public static void printXml(Document xml, Writer out) throws TransformerException, UnsupportedEncodingException {
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
         transformer.setOutputProperty(OutputKeys.METHOD, "xml");
         transformer.setOutputProperty(OutputKeys.INDENT, "yes");        
@@ -63,7 +58,7 @@ public class XmlUtil {
         transformer.transform(new DOMSource(xml), new StreamResult(out));        
     }
     
-	public Element getChildWithAttribute(Element parent, String attrName, String attrValue) {
+	public static Element getChildWithAttributeValue(Element parent, String attrName, String attrValue) {
 		NodeList childNodes = parent.getChildNodes();
 		for (int i = 0; i < childNodes.getLength(); i++) {
 			Node node = childNodes.item(i);
@@ -77,10 +72,29 @@ public class XmlUtil {
 		return null;
 	}
 
-	public void printXml(Document response, OutputStream out) throws UnsupportedEncodingException, TransformerException {
+	public static Element getChildWithAttribute(Element parent, String attrName) {
+		NodeList childNodes = parent.getChildNodes();
+		for (int i = 0; i < childNodes.getLength(); i++) {
+			Node node = childNodes.item(i);
+			if (node instanceof Element) {
+				Element element = (Element)node;
+				if (!"".equals(element.getAttribute(attrName))) {
+					return element;
+				}
+			}
+		}
+		return null;
+	}
+
+	public static void printXml(Document response, OutputStream out) throws UnsupportedEncodingException, TransformerException {
 		printXml(response, new OutputStreamWriter(out));		
 	}
 
+	/**
+	 * Gets the child elements of a parent element. Unlike DOM's getElementsByTagName, this does no recursion,
+	 * uses local name (namespace free) instead of tag name, result is a proper Java data structure and result
+	 * needs no casting. In other words, this method does not suck unlike DOM.  
+	 */
 	public static List<Element> getChildElements(Element parent, String name) {
 		List<Element> childElements = new ArrayList<Element>();
 		NodeList childNodes = parent.getChildNodes();
@@ -91,7 +105,7 @@ public class XmlUtil {
 				
 				// match element name
 				Element childElement = (Element) childNodes.item(i);
-				if (childElement.getNodeName().equals(name)) {
+				if (childElement.getLocalName().equals(name)) {
 					childElements.add(childElement);
 				}
 			}
@@ -101,11 +115,24 @@ public class XmlUtil {
 	}
 
 	public static Element getChildElement(Element parent, String name) {
+		return getChildElement(parent, name, false);
+	}
+	
+	public static Element getChildElement(Element parent, String name, boolean strict) {
 		List<Element> childElements = getChildElements(parent, name);
-		if (childElements.size() != 1) {
+		if (strict && childElements.size() != 1) {
 			throw new IllegalArgumentException("parent must contain exactly one element with the given name");
 		} 
 		
-		return childElements.get(0);	
+		return childElements.isEmpty() ? null : childElements.get(0);	
 	}
+	
+    private static DocumentBuilder newDocumentBuilder() throws ParserConfigurationException {
+    	// SAXParsers are not concurrency compatible, so always return a new instance to prevent thread issues 
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+        return dbf.newDocumentBuilder();
+    }
+    
+
 }
