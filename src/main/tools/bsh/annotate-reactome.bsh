@@ -1,5 +1,5 @@
 // ANALYSIS Pathways/"Associations to Reactome pathways" (Finds pathways from the Reactome database for a specified list of proteins. The service is based on the Reactome BioMart. The returned list of pathways will be sorted by the number of specified proteins that are contained in each pathway. NOTE! Supports only Affymetrix data.)
-// INPUT GENERIC input.tsv OUTPUT reactome-annotations.html
+// INPUT GENERIC input.tsv OUTPUT reactome-annotations.html, reactome-annotations.tsv
 
 import fi.csc.microarray.analyser.bsh.*;
 import fi.csc.microarray.analyser.ws.*;
@@ -10,5 +10,6 @@ import fi.csc.microarray.analyser.ws.impl.*;
 ResultTableCollector annotations = EnfinWsUtils.queryReactome(JavaJobUtils.getProbes(new File(jobInfo.workDir + "/input.tsv")));
 
 // create output files
-File file = new File(jobInfo.workDir + "/reactome-annotations.html");
-EnfinWsUtils.writeReactomeHtml(annotations, file);
+File htmlFile = new File(jobInfo.workDir + "/reactome-annotations.html");
+File textFile = new File(jobInfo.workDir + "/reactome-annotations.tsv");
+EnfinWsUtils.writeReactomeResult(annotations, htmlFile, textFile);

@@ -1,5 +1,5 @@
 // ANALYSIS Pathways/"Over-representation analysis using ConsensusPathDB" (Over-representation analysis using ConsensusPathDB)
-// INPUT GENELIST input.tsv OUTPUT cpdb-annotations.html
+// INPUT GENELIST input.tsv OUTPUT cpdb-annotations.html, cpdb-annotations.tsv
 // PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
 
 import fi.csc.microarray.analyser.bsh.*;
@@ -20,5 +20,6 @@ annotations.filterRows(new RowFilter() {
 });
 
 // create output files
-File file = new File(jobInfo.workDir + "/cpdb-annotations.html");
-CpdbWsUtils.writeHtml(annotations, file);
+File htmlFile = new File(jobInfo.workDir + "/cpdb-annotations.html");
+File textFile = new File(jobInfo.workDir + "/cpdb-annotations.tsv");
+CpdbWsUtils.writeResult(annotations, htmlFile, textFile);
