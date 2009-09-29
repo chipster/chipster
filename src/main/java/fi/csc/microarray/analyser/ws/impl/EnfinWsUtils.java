@@ -67,7 +67,7 @@ public class EnfinWsUtils {
 		writeReactomeHtml(reactomeAnnotations, new File("reactome.html"));
 	}
 
-	private static void writeIntactHtml(ResultTableCollector intactAnnotations, File file) throws FileNotFoundException {
+	public static void writeIntactHtml(ResultTableCollector intactAnnotations, File file) throws FileNotFoundException {
 		ValueHtmlFormatter interactionIdFormatter = new ValueHtmlFormatter() {
 			public String format(String string, String[] currentRow) {
 				return "<a href=\"http://www.ebi.ac.uk/intact/pages/interactions/interactions.xhtml?conversationContext=1&queryTxt=" + string.replace(' ', '+') + "\">" + string + "</a>";
