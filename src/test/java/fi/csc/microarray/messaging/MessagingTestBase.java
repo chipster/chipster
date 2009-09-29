@@ -6,6 +6,7 @@ import org.testng.annotations.BeforeSuite;
 
 import fi.csc.microarray.DemoAuthenticationRequestListener;
 import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.messaging.auth.SimpleAuthenticationRequestListener;
 
 public abstract class MessagingTestBase {
 	/**
@@ -14,11 +15,32 @@ public abstract class MessagingTestBase {
 	private static Logger logger;
 	
 	protected MessagingEndpoint endpoint;
-	protected DemoAuthenticationRequestListener authenticationListener = new DemoAuthenticationRequestListener();
+	protected SimpleAuthenticationRequestListener authenticationListener = new DemoAuthenticationRequestListener();
+	private String configURL;
 	
+	public MessagingTestBase() {
+		this.authenticationListener = new DemoAuthenticationRequestListener();
+		configURL = null;
+	}
+	
+	public MessagingTestBase(String username, String password) {
+		this.authenticationListener = new SimpleAuthenticationRequestListener(username, password);
+		configURL = null;
+	}
+
+	public MessagingTestBase(String username, String password, String configURL) {
+		this.authenticationListener = new SimpleAuthenticationRequestListener(username, password);
+		this.configURL = configURL;
+	}
+
 	@BeforeSuite
 	protected void setUp() throws Exception {
-		DirectoryLayout.initialiseClientLayout().getConfiguration();
+		if (configURL == null) {
+			DirectoryLayout.initialiseClientLayout().getConfiguration();
+		} else {
+			DirectoryLayout.initialiseClientLayout(configURL);
+		}
+		
 		logger = Logger.getLogger(MessagingTestBase.class);
 		logger.debug("loaded config");
 		endpoint =  new MessagingEndpoint(new NodeBase() {

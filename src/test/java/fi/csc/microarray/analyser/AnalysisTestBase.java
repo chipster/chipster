@@ -8,9 +8,9 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 
 import fi.csc.microarray.TestConstants;
-import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.TaskEventListener;
+import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.databeans.fs.FSDataManager;
@@ -21,6 +21,22 @@ import fi.csc.microarray.messaging.MessagingTestBase;
  *
  */
 public class AnalysisTestBase extends MessagingTestBase {
+
+	public AnalysisTestBase() {
+		super();
+	}
+	
+	public AnalysisTestBase(String username, String password) {
+		super(username, password);
+	}
+	
+	
+	
+	public AnalysisTestBase(String username, String password, String configURL) {
+		super(username, password, configURL);
+	}
+
+
 
 	protected FSDataManager manager;
 	protected TaskExecutor executor;
