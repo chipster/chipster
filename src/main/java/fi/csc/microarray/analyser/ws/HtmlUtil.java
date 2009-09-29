@@ -4,9 +4,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 import fi.csc.microarray.util.IOUtils;
+import fi.csc.microarray.util.Strings;
 
 public class HtmlUtil {
 	
@@ -113,9 +116,10 @@ public class HtmlUtil {
 		
 	}
 	public static void writeHtmlTable(ResultTableCollector annotations, String[] columnIds, String[] columnNames, ValueHtmlFormatter[] valueHtmlFormatters, String title, OutputStream outputStream) throws FileNotFoundException {
-		String[][] table = annotations.asTable(columnIds);
 		HtmlTemplate out = new HtmlTemplate(new PrintWriter(outputStream));
 		out.openDocument(title);
+		
+		// write header row
 		out.heading(title);
 		out.openTable();
 		out.openRow();
@@ -123,6 +127,9 @@ public class HtmlUtil {
 			out.headerCell(columnName);
 		}
 		out.closeRow();
+
+		// write data rows
+		String[][] table = annotations.asTable(columnIds);
 		for (int i = 0; i < table.length; i++) {
 			out.openRow();
 			for (int j = 0; j < table[i].length; j++) {
@@ -139,5 +146,21 @@ public class HtmlUtil {
 		out.close();
 	}
 	
+	public static void writeTextTable(ResultTableCollector annotations, String[] columnIds, String[] columnNames, OutputStream outputStream) throws FileNotFoundException {
+		PrintWriter out = new PrintWriter(new OutputStreamWriter(outputStream));
+		String delimeter = "\t";
+
+		// write header row
+		out.print(Strings.delimit(Arrays.asList(columnNames), delimeter));		
+		out.print("\n");
+
+		// write data rows
+		String[][] table = annotations.asTable(columnIds);
+		for (int i = 0; i < table.length; i++) {
+			out.print(Strings.delimit(Arrays.asList(table[i]), delimeter));
+			out.print("\n");
+		}
+		out.close();
+	}
 
 }

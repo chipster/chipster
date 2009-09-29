@@ -64,13 +64,13 @@ public class EnfinWsUtils {
 //		String[] probes = JavaJobUtils.getProbes(new File("/tmp/two-sample.tsv"));
 		
 		ResultTableCollector intactAnnotations = queryIntact(probes);
-		writeIntactHtml(intactAnnotations, new File("intact.html"));
+		writeIntactResult(intactAnnotations, new File("intact.html"), new File("intact.tsv"));
 		
 		ResultTableCollector reactomeAnnotations = queryReactome(probes);
-		writeReactomeHtml(reactomeAnnotations, new File("reactome.html"));
+		writeReactomeResult(reactomeAnnotations, new File("reactome.html"), new File("reactome.tsv"));
 	}
 
-	public static void writeIntactHtml(ResultTableCollector intactAnnotations, File file) throws FileNotFoundException {
+	public static void writeIntactResult(ResultTableCollector intactAnnotations, File htmlFile, File textFile) throws FileNotFoundException {
 		ValueHtmlFormatter interactionIdFormatter = new ValueHtmlFormatter() {
 			public String format(String string, String[] currentRow) {
 				return "<a href=\"http://www.ebi.ac.uk/intact/pages/interactions/interactions.xhtml?conversationContext=1&queryTxt=" + string.replace(' ', '+') + "\">" + string + "</a>";
@@ -87,17 +87,19 @@ public class EnfinWsUtils {
 			}
 		};
 		
-		HtmlUtil.writeHtmlTable(intactAnnotations, new String[] {"Name", "Probe IDs", "Participants"}, new String[] {"Interaction", "Probe ID", "Interacting proteins"},  new HtmlUtil.ValueHtmlFormatter[] {interactionIdFormatter, HtmlUtil.NO_FORMATTING_FORMATTER, uniprotFormatter}, "IntAct protein interactions", new FileOutputStream(file));
+		HtmlUtil.writeHtmlTable(intactAnnotations, new String[] {"Name", "Probe IDs", "Participants"}, new String[] {"Interaction", "Probe ID", "Interacting proteins"},  new HtmlUtil.ValueHtmlFormatter[] {interactionIdFormatter, HtmlUtil.NO_FORMATTING_FORMATTER, uniprotFormatter}, "IntAct protein interactions", new FileOutputStream(htmlFile));
+		HtmlUtil.writeTextTable(intactAnnotations, new String[] {"Name", "Probe IDs", "Participants"}, new String[] {"Interaction", "Probe ID", "Interacting proteins"}, new FileOutputStream(textFile));
 	}
 
-	public static void writeReactomeHtml(ResultTableCollector reactomeAnnotations, File htmlOutput) throws FileNotFoundException {
+	public static void writeReactomeResult(ResultTableCollector reactomeAnnotations, File htmlFile, File textFile) throws FileNotFoundException {
 		ValueHtmlFormatter pathwayNameFormatter = new ValueHtmlFormatter() {
 			public String format(String string, String[] currentRow) {
 				return "<a href=\"http://www.reactome.org/cgi-bin/search2?DB=gk_current&OPERATOR=ALL&QUERY=" + string.replace(' ', '+') + "&SPECIES=&SUBMIT=Go!\">" + string + "</a>";
 			}
 		};
 		
-		HtmlUtil.writeHtmlTable(reactomeAnnotations, new String[] { "Name", "Probe IDs" }, new String[] {"Pathway", "Probe ID's for participating proteins"}, new HtmlUtil.ValueHtmlFormatter[] {pathwayNameFormatter, HtmlUtil.NO_FORMATTING_FORMATTER}, "Reactome pathway associations", new FileOutputStream(htmlOutput));
+		HtmlUtil.writeHtmlTable(reactomeAnnotations, new String[] { "Name", "Probe IDs" }, new String[] {"Pathway", "Probe ID's for participating proteins"}, new HtmlUtil.ValueHtmlFormatter[] {pathwayNameFormatter, HtmlUtil.NO_FORMATTING_FORMATTER}, "Reactome pathway associations", new FileOutputStream(htmlFile));
+		HtmlUtil.writeTextTable(reactomeAnnotations, new String[] { "Name", "Probe IDs" }, new String[] {"Pathway", "Probe ID's for participating proteins"}, new FileOutputStream(textFile));
 	}
 
 	public static ResultTableCollector queryIntact(String[] probes) throws SOAPException, MalformedURLException, SAXException, IOException, ParserConfigurationException, TransformerException {

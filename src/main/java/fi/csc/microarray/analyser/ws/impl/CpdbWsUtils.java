@@ -44,25 +44,26 @@ public class CpdbWsUtils {
 				return Double.parseDouble(row.getValue("ns1:pValue")) > 0.0005d;
 			}
 		});
-		writeHtml(annotations, new File("cpdb.html"));
+		writeResult(annotations, new File("cpdb.html"), new File("cpdb.tsv"));
 	}
 
-	public static void writeHtml(ResultTableCollector annotations, File file) throws FileNotFoundException {
+	public static void writeResult(ResultTableCollector annotations, File htmlFile, File textFile) throws FileNotFoundException {
 		ValueHtmlFormatter pathwayNameFormatter = new ValueHtmlFormatter() {
 			public String format(String value, String[] currentRow) {
 				value = value.replace('_', ' ');
 				
-				if ("Reactome".equals(currentRow[2])) {
+				String db = currentRow[4];
+				if ("Reactome".equals(db)) {
 					return "<a href=\"http://www.reactome.org/cgi-bin/search2?DB=gk_current&OPERATOR=ALL&QUERY=" + value.replace(' ', '+') + "&SPECIES=&SUBMIT=Go!\">" + value + "</a>";
 
-				} else if ("KEGG".equals(currentRow[2])) {
+				} else if ("KEGG".equals(db)) {
 					String valueWithoutOrganism = value.substring(0, value.indexOf("-")).trim();
 					return "<a href=\"http://www.genome.jp/dbget-bin/www_bfind_sub?mode=bfind&max_hit=1000&serv=kegg&dbkey=kegg&keywords=" + valueWithoutOrganism.replace(' ', '+') + "\">" + value + "</a>";
 
-				} else if ("PID".equals(currentRow[2])) {
+				} else if ("PID".equals(db)) {
 					return "<a href=\"http://pid.nci.nih.gov/search/advanced_landing.shtml?what=graphic&svg=&jpg=true&xml=&biopax=&complex_uses=on&family_uses=on&degree=1&molecule=&pathway=" + value.replace(' ', '+') + "&macro_process=&source_id=5&evidence_code=NIL&evidence_code=IAE&evidence_code=IC&evidence_code=IDA&evidence_code=IFC&evidence_code=IGI&evidence_code=IMP&evidence_code=IOS&evidence_code=IPI&evidence_code=RCA&evidence_code=RGE&evidence_code=TAS&output-format=graphic&Submit=Go\">" + value + "</a>";
 
-				} else if ("HumanCyc".equals(currentRow[2])) {
+				} else if ("HumanCyc".equals(db)) {
 					return "<a href=\"http://biocyc.org/HUMAN/substring-search?type=NIL&object=" + value.replace(' ', '+') + "\">" + value + "</a>";
 
 				} else {
@@ -71,7 +72,8 @@ public class CpdbWsUtils {
 			}
 		};
 		
-		HtmlUtil.writeHtmlTable(annotations, new String[] {"ns1:pValue", "ns1:pathway", "ns1:database"}, new String[] {"p-value", "Pathway", "Database"}, new HtmlUtil.ValueHtmlFormatter[] {HtmlUtil.NO_FORMATTING_FORMATTER, pathwayNameFormatter, HtmlUtil.NO_FORMATTING_FORMATTER}, "Over-representation analysis with ConsensusPathDB", new FileOutputStream(file));
+		HtmlUtil.writeHtmlTable(annotations, new String[] {"ns1:pValue", "ns1:overlapSize", "ns1:pathwaySize", "ns1:pathway", "ns1:database"}, new String[] {"p-value", "Count", "Size", "Pathway", "Database"}, new HtmlUtil.ValueHtmlFormatter[] {HtmlUtil.NO_FORMATTING_FORMATTER, HtmlUtil.NO_FORMATTING_FORMATTER, HtmlUtil.NO_FORMATTING_FORMATTER, pathwayNameFormatter, HtmlUtil.NO_FORMATTING_FORMATTER}, "Over-representation analysis with ConsensusPathDB", new FileOutputStream(htmlFile));
+		HtmlUtil.writeTextTable(annotations, new String[] {"ns1:pValue", "ns1:overlapSize", "ns1:pathwaySize", "ns1:pathway", "ns1:database"}, new String[] {"p-value", "Count", "Size", "Pathway", "Database"}, new FileOutputStream(textFile));
 	}
 
 	public static ResultTableCollector query(String[] genes) throws SAXException, ParserConfigurationException, TransformerException, SOAPException, IOException {
@@ -109,7 +111,7 @@ public class CpdbWsUtils {
 			soapConnection.close();
 			
 			Document response = XmlUtil.parseReader(new InputStreamReader(new ByteArrayInputStream(out.toByteArray())));
-			XmlUtil.printXml(response, System.out);
+//			XmlUtil.printXml(response, System.out);
 			
 			NodeList childNodes = response.getDocumentElement().getChildNodes().item(1).getChildNodes().item(0).getChildNodes();;
 
