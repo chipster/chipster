@@ -14,13 +14,7 @@ import java.util.List;
 
 import javax.jms.JMSException;
 
-import org.apache.log4j.Logger;
-
 public class UrlTransferUtil {
-	/**
-	 * Logger for this class
-	 */
-	private static final Logger logger = Logger.getLogger(UrlTransferUtil.class);
 
 	private static final int CHUNK_SIZE = 2048;
 
@@ -47,7 +41,6 @@ public class UrlTransferUtil {
     		connection.setRequestMethod("PUT");
     		connection.setDoOutput(true);
 
-    		logger.debug("uploading with parameters: useChunked " + useChunked + ", CHUNK_SIZE " + CHUNK_SIZE);
     		if (useChunked) {
     			// use chunked mode or otherwise URLConnection loads everything into memory
     			// (chunked mode not supported before JRE 1.5)
