@@ -207,9 +207,9 @@ public class FSDataManager extends DataManagerBase {
 	}
 
 
-	public List<DataItem> loadSnapshot(File snapshotDir, DataFolder parentFolder, ClientApplication application) throws IOException, MicroarrayException {
+	public List<DataItem> loadSnapshot(File sessionFile, DataFolder parentFolder, ClientApplication application) throws IOException, MicroarrayException {
 		FSSnapshottingSession session = new FSSnapshottingSession(this, application);
-		List<DataItem> newItems = session.loadFromSnapshot(snapshotDir, parentFolder);
+		List<DataItem> newItems = session.loadFromSnapshot(sessionFile, parentFolder);
 		return newItems;
 	}
 
@@ -241,25 +241,24 @@ public class FSDataManager extends DataManagerBase {
 		FSDataBean fsDataBean = (FSDataBean)bean;
 		
 		// remove from operation history
-		for (Link linkType : Link.derivationalTypes()) {
-			for (DataBean source : fsDataBean.getLinkSources(linkType)) {
-				
-				boolean isDirty = false;
-				List<DataBinding> bindings = source.getOperation().getBindings();
-				
-				if (bindings != null) {
-					for (DataBinding binding : bindings) {
-						if (binding.getData() == fsDataBean) {
-							// this operation would become dirty after removing the data
-							isDirty = true;
-							break;
-						}
+		for (DataBean source : databeans()) {
+			// we must iterate all datas because links cannot be trusted (they might have been removed by user)
+
+			boolean isDirty = false;
+			List<DataBinding> bindings = source.getOperation().getBindings();
+
+			if (bindings != null) {
+				for (DataBinding binding : bindings) {
+					if (binding.getData() == fsDataBean) {
+						// this operation would become dirty after removing the data
+						isDirty = true;
+						break;
 					}
 				}
-				
-				if (isDirty) {
-					source.getOperation().clearBindings();
-				}
+			}
+
+			if (isDirty) {
+				source.getOperation().clearBindings();
 			}
 		}
 		
@@ -284,6 +283,35 @@ public class FSDataManager extends DataManagerBase {
 		// remove physical file
 		fsDataBean.delete();
 	}
+
+	public List<DataBean> databeans() {
+		
+		LinkedList<DataBean> databeans = new LinkedList<DataBean>();
+		for (DataFolder folder : folders()) {
+			for (DataItem child : folder.getChildren()) {
+				if (child instanceof DataBean) {
+					databeans.add((DataBean) child);
+				}
+			}
+		}
+		return databeans;		
+	}
+
+	public List<DataFolder> folders() {
+		return folders(getRootFolder());
+	}
+
+	public List<DataFolder> folders(DataFolder parent) {
+		LinkedList<DataFolder> folders = new LinkedList<DataFolder>();
+		folders.add(parent);
+		for (DataItem child : parent.getChildren()) {
+			if (child instanceof DataFolder) {
+				folders.addAll(folders((DataFolder) child));
+			}
+		}
+		return folders;
+	}
+
 
 	private void deleteDataFolder(DataFolder folder) {
 

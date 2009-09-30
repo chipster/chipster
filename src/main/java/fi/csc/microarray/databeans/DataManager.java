@@ -118,11 +118,25 @@ public interface DataManager {
 	public void plugContentType(String mimeType, boolean supported, boolean binary, String description, Icon icon, String... extensions);
 	
 	/**
+	 * Saves session (all data: beans, folder structure, operation metadata, links etc.) to a file.
+	 * File is a zip file with all the data files and one metadata file.
 	 * @return count of stored files
 	 */
-	public int saveSnapshot(File snapshotDir, ClientApplication application) throws IOException;
+	public int saveSnapshot(File sessionFile, ClientApplication application) throws IOException;
 
-	public List<DataItem> loadSnapshot(File snapshotDir, DataFolder parentFolder, ClientApplication application) throws IOException, MicroarrayException;
+	/**
+	 * Load session from a file.
+	 * 
+	 * @see #saveSnapshot(File, ClientApplication)
+	 */
+	public List<DataItem> loadSnapshot(File sessionFile, DataFolder parentFolder, ClientApplication application) throws IOException, MicroarrayException;
+
+	
+	/**
+	 * Load session from an old style session directory (Chipster 1.1 workspace).
+	 * 
+	 * @see #saveSnapshot(File, ClientApplication)
+	 */
 	public List<DataItem> loadOldSnapshot(File snapshotDir, DataFolder parentFolder, ClientApplication application) throws IOException, MicroarrayException;
 
 	
@@ -139,5 +153,15 @@ public interface DataManager {
 	 * @param data item to be deleted
 	 */
 	public void delete(DataItem data);
-	
+
+	/**
+	 * Return all DataBeans under this manager.
+	 */
+	public List<DataBean> databeans();
+
+	/**
+	 * Return all DataFolders under this manager.
+	 */
+	public List<DataFolder> folders();
+
 }
