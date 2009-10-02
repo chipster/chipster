@@ -93,6 +93,7 @@ public class ConfigTool {
 	public static void main(String[] args) throws Exception {
 		ConfigTool configTool = new ConfigTool();
 		UpgradeTool upgradeTool = new UpgradeTool();
+		SetupTool setupTool = new SetupTool(); 
 		
 		if (args.length == 0) {
 			fail();
@@ -103,6 +104,9 @@ public class ConfigTool {
 		} else if ("genpasswd".equals(args[0])) {
 			configTool.genpasswd();
 
+		} else if ("setup".equals(args[0])) {
+			setupTool.setup(args.length > 1 ? args[1] : "");
+				
 		} else if ("upgrade".equals(args[0])) {
 			if (args.length > 1) {
 				upgradeTool.upgrade(new File(args[1]));
@@ -266,7 +270,7 @@ public class ConfigTool {
 
 	}
 
-	private void updateWsConfigFile(File configFile) throws SAXException, IOException, TransformerException, UnsupportedEncodingException, FileNotFoundException {
+	private void updateWsConfigFile(File configFile) throws Exception {
 		Document doc = openForUpdating("Web Start", configFile);
 		Element jnlp = (Element)doc.getDocumentElement();
 		updateElementAttribute(jnlp, "codebase", configs[WS_CODEBASE_INDEX][VAL_INDEX]);
@@ -278,7 +282,7 @@ public class ConfigTool {
 		writeLater(configFile, doc);
 	}
 
-	private void updateActivemqConfigFile(File configFile) throws SAXException, IOException, TransformerException, UnsupportedEncodingException, FileNotFoundException {
+	private void updateActivemqConfigFile(File configFile) throws Exception {
 		Document doc = openForUpdating("ActiveMQ", configFile);
 		Element broker = (Element)doc.getDocumentElement().getElementsByTagName("broker").item(0);
 		
@@ -290,7 +294,7 @@ public class ConfigTool {
 		writeLater(configFile, doc);
 	}
 	
-	private void updateActivemqConfigFilePasswords(File configFile) throws SAXException, IOException, TransformerException, UnsupportedEncodingException, FileNotFoundException {
+	private void updateActivemqConfigFilePasswords(File configFile) throws Exception {
 		Document doc = openForUpdating("ActiveMQ", configFile);
 		Element broker = (Element)doc.getDocumentElement().getElementsByTagName("broker").item(0);
 			
@@ -311,8 +315,8 @@ public class ConfigTool {
 	private void updateChipsterConfigFilePasswords(File configFile) throws Exception {
 		Document doc = openForUpdating("Chipster", configFile);
 
-		Element securityModule = xml.getChildWithAttribute(doc.getDocumentElement(), "moduleId", "security");
-		Element usernameElement = xml.getChildWithAttribute(securityModule, "entryKey", "username");
+		Element securityModule = xml.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "security");
+		Element usernameElement = xml.getChildWithAttributeValue(securityModule, "entryKey", "username");
 		String username = ((Element)usernameElement.getElementsByTagName("value").item(0)).getTextContent();
 		for (int i = 0; i < passwords.length; i++) {
 			if (username.equals(passwords[i][KEY_INDEX])) {
@@ -326,28 +330,28 @@ public class ConfigTool {
 	private void updateChipsterConfigFile(File configFile) throws Exception {
 		Document doc = openForUpdating("Chipster", configFile);
 
-		Element messagingModule = xml.getChildWithAttribute(doc.getDocumentElement(), "moduleId", "messaging");
+		Element messagingModule = xml.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "messaging");
 		updateConfigEntryValue(messagingModule, "broker-host", configs[BROKER_HOST_INDEX][VAL_INDEX]);
 		updateConfigEntryValue(messagingModule, "broker-protocol", configs[BROKER_PROTOCOL_INDEX][VAL_INDEX]);
 		updateConfigEntryValue(messagingModule, "broker-port", configs[BROKER_PORT_INDEX][VAL_INDEX]);
 
-		Element filebrokerModule = xml.getChildWithAttribute(doc.getDocumentElement(), "moduleId", "filebroker");
+		Element filebrokerModule = xml.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "filebroker");
 		if (filebrokerModule != null) {
 			updateConfigEntryValue(filebrokerModule, "port", configs[FILEBROKER_PORT_INDEX][VAL_INDEX]);
 			updateConfigEntryValue(filebrokerModule, "url", createFilebrokerUrl());
 		}
 
-		Element analyserModule = xml.getChildWithAttribute(doc.getDocumentElement(), "moduleId", "comp");
+		Element analyserModule = xml.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "comp");
 		if (analyserModule != null) {
 			updateConfigEntryValue(analyserModule, "max-jobs", configs[MAX_JOBS_INDEX][VAL_INDEX]);
 		}
 		
-		Element webstartModule = xml.getChildWithAttribute(doc.getDocumentElement(), "moduleId", "webstart");
+		Element webstartModule = xml.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "webstart");
 		if (webstartModule != null) {
 			updateConfigEntryValue(webstartModule, "port", configs[WS_PORT][VAL_INDEX]);
 		}
 
-		Element managerModule = xml.getChildWithAttribute(doc.getDocumentElement(), "moduleId", "manager");
+		Element managerModule = xml.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "manager");
 		if (managerModule != null) {
 			updateConfigEntryValue(managerModule, "web-console-port", configs[MANAGER_PORT][VAL_INDEX]);
 		}
@@ -355,7 +359,7 @@ public class ConfigTool {
 		writeLater(configFile, doc);
 	}
 
-	private void updateRuntimesConfigFile(File configFile) throws SAXException, IOException, TransformerException, UnsupportedEncodingException, FileNotFoundException {
+	private void updateRuntimesConfigFile(File configFile) throws Exception {
 		
 		boolean ok = false;
 		Document doc = openForUpdating("Runtimes", configFile);
@@ -389,7 +393,7 @@ public class ConfigTool {
 	}
 
 	private void updateConfigEntryValue(Element module, String name, String newValue) {
-		Element entry = xml.getChildWithAttribute(module, "entryKey", name);
+		Element entry = xml.getChildWithAttributeValue(module, "entryKey", name);
 		Element value = (Element)entry.getElementsByTagName("value").item(0);
 		updateElementValue(value, name, newValue);
 	}
@@ -413,7 +417,7 @@ public class ConfigTool {
 		System.out.println("");
 	}
 
-	private Document openForUpdating(String name, File configFile) throws SAXException, IOException {
+	private Document openForUpdating(String name, File configFile) throws SAXException, IOException, ParserConfigurationException {
 		System.out.println("Updating " + name + " config in " + configFile.getAbsolutePath());
 		Document doc = xml.parseFile(configFile);
 		return doc;
