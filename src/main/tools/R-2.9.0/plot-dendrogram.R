@@ -40,6 +40,10 @@ if(margin=="chips") {
    dat2<-t(dat2)        
 }
 
+if (nrow(dat2) > 1000) {
+  stop("Hierarchical clustering dendrogram can be plotted on maximum 1000 of genes/samples");
+}
+
 # Does the clustering
 clust<-hcluster(x=dat2, method="pearson", link="average")
 ct<-cutree(clust, gr)

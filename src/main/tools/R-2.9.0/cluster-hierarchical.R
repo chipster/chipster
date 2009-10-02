@@ -78,6 +78,10 @@ if(margin=="chips") {
    dat2<-t(dat2)        
 }
 
+if (nrow(dat2) > 1000) {
+  stop("Hierarchical clustering can be run on maximum 1000 of genes/samples");
+}
+
 # Tree calculation, no resampling
 if(doresample=="none") {
    clust<-hcluster(x=dat2, method=distmeth, link=treemeth)
