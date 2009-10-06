@@ -431,5 +431,12 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 	public void keyTyped(KeyEvent e) {		
 		// ignore
 	}
+	
+	@Override
+	public boolean canVisualise(DataBean bean) throws MicroarrayException {
+		return super.canVisualise(bean) && 
+			!VisualisationMethod.SCATTERPLOT3DPCA.getHeadlessVisualiser().canVisualise(bean);
+		
+	}
 }
 
