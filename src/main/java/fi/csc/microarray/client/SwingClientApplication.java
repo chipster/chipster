@@ -808,7 +808,7 @@ public class SwingClientApplication extends ClientApplication {
 			int ret = fileChooser.showOpenDialog(this.getMainFrame());
 			if (ret == JFileChooser.APPROVE_OPTION) {
 				runWorkflow(fileChooser.getSelectedFile().toURL());
-				unsavedChanges = false;
+
 				menuBar.updateMenuStatus();
 				return fileChooser.getSelectedFile();
 			} else {
@@ -1619,12 +1619,11 @@ public class SwingClientApplication extends ClientApplication {
 					if (!clearSession()) {
 						return; // loading cancelled
 					}
-				}
-				
-				loadSessionImpl(fileChooser.getSelectedFile());
+				}								
+								
+				loadSessionImpl(fileChooser.getSelectedFile());		
 		}
 		menuBar.updateMenuStatus();
-		unsavedChanges = false;
 	}
 
 	private void loadSessionImpl(final File sessionFile) {
@@ -1632,12 +1631,21 @@ public class SwingClientApplication extends ClientApplication {
 		runBlockingTask("loading the session", new Runnable() {
 			public void run() {						
 				try {
+					
+					/* If there wasn't data or it was just cleared, there is no need to warn about
+					 * saving after opening session. However, if there was datasets already, combination
+					 * of them and new session can be necessary to save. This has to set after the import, because 
+					 */
+					boolean somethingToSave = getAllDataBeans().size() != 0;
+					
 					final List<DataItem> newItems = manager.loadSnapshot(sessionFile, manager.getRootFolder(), application);
 					SwingUtilities.invokeAndWait(new Runnable() {
 						public void run() {
 							getSelectionManager().selectSingle(newItems.get(newItems.size() - 1), this); // select last
 						}
 					});
+					
+					unsavedChanges = somethingToSave;
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}						
@@ -1684,7 +1692,7 @@ public class SwingClientApplication extends ClientApplication {
 				});
 				
 				menuBar.updateMenuStatus();
-				setUnsavedChanges(false);
+				unsavedChanges = false;
 				
 			} catch (Exception exp) {
 				showErrorDialog("Saving session failed.", exp);
@@ -1721,10 +1729,6 @@ public class SwingClientApplication extends ClientApplication {
 
 	public DataManager getDataManager() {
 		return manager;
-	}
-
-	public void setUnsavedChanges(boolean value) {
-		this.unsavedChanges = value;
 	}
 
 	public VisualisationFrameManager getVisualisationFrameManager() {
