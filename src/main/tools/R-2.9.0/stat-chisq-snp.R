@@ -9,6 +9,8 @@
 
 # Association analysis with normalized SNP data
 # 25.4.2008
+#
+# modified by MG, 14.10.2009
 
 # Read in data
 dat<-read.table("normalized.tsv", header=T, sep="\t", row.names=1)
@@ -60,6 +62,19 @@ if(test.for=="Hardy-Weinberg") {
 if(test.for=="association") {
    # Testing for difference between two groups
    library(scrime)
+   
+   
+############################
+# MG ADDED THESE TWO LINES #
+############################
+
+   dat2<-dat[,grep("chip", names(dat))]
+   dat2<-as.matrix(dat2)
+   
+############################
+   
+   
+   
    p<-rowChisqStats(dat2, cl=groups, compPval = TRUE)
    p<-p$rawp
 
