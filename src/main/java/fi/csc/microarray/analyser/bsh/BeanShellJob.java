@@ -17,7 +17,7 @@ import fi.csc.microarray.messaging.JobState;
  * A new BeanShell interpreter is instantiated for every job.
  * 
  * @author hupponen
- * asc
+ * 
  */
 public class BeanShellJob extends OnDiskAnalysisJobBase {
 
