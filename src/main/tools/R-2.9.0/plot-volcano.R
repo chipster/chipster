@@ -8,7 +8,7 @@
 
 
 # Volcano plot
-# JTT 19.9.2007
+# JTT 19.9.2007, modified MG 17.9.2009
 
 # Renaming variables
 w<-image.width
@@ -50,13 +50,13 @@ cols<-rep(1, length(m))
 cols[which(p.raw<=pcut & m<(-ecut))] <- 3
 cols[which(p.raw<=pcut & m>ecut)] <- 2
 
+
 # Plotting
 bitmap(file="volcanoP.png", width=w/72, height=h/72)
-plot(m, -log(p.raw), xlim=c(-max(m), max(m)), col=cols, main="Volcano plot", pch=19, xlab="Mean expression", ylab="-log(p)")
+plot(m, -log10(p.raw), xlim=c(-max(m), max(m)), ylim=c(0,ceiling (max(-log10(p.raw)))), col=cols, main="Volcano plot", pch=19, xlab="Mean expression", ylab="-log10 (p)")
 dev.off()
 
 bitmap(file="volcanoSE.png", width=w/72, height=h/72)
-symbols(m, -log(p.raw), rectangles=cbind(rep(0, length(p.raw)), s), ylim=c(0, 40), fg=cols, xlim=c(-max(m), max(m)), main="Volcano plot", xlab="Mean Expression", ylab="-log(p)")
+symbols(m, -log10(p.raw), rectangles=cbind(rep(0, length(p.raw)), s), fg=cols, xlim=c(-max(m), max(m)), ylim=c(0,ceiling (max(-log10(p.raw)))), main="Volcano plot", xlab="Mean expression", ylab="-log10 (p)")
 dev.off()
-
 
