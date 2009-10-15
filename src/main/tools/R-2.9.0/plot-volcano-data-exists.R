@@ -10,6 +10,7 @@
 
 # Volcano plot from existing results
 # JTT 8.11.2007
+# modified MG 21.9.2009
 
 # Renaming variables
 w<-image.width
@@ -36,5 +37,6 @@ pvalues<-dat[,grep(p.value.column, colnames(dat))]
 
 # Plotting
 bitmap(file="volcanoP.png", width=w/72, height=h/72)
-plot(expression, -log(pvalues), xlim=c(-max(expression), max(expression)), main="Volcano plot", pch=19, xlab="Mean expression", ylab="-log(p)")
+plot(expression, -log10(pvalues), xlim=c(-max(expression), max(expression)), main="Volcano plot", pch=19, xlab="log2 (fold change)", ylab="-log10 (p)")
 dev.off()
+
