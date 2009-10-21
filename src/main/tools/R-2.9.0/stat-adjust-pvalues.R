@@ -9,6 +9,7 @@
 
 # Loads the libraries
 library(multtest)
+library(qvalue)
 
 # Renaming variables
 adj.method<-p.value.adjustment.method
