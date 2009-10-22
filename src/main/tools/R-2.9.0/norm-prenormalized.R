@@ -4,10 +4,13 @@
 # you need to SPECIFY THE CHIPTYPE.)
 # INPUT CDNA microarray[...].tsv OUTPUT normalized.tsv, phenodata.tsv
 # PARAMETER chiptype STRING DEFAULT empty (chiptype)
+# PARAMETER keep.annotations [yes, no] DEFAULT no (Keep or discard annotation column after preprocessing)
 
 
 # Process prenormalized
 # JTT 26.1.2009
+#
+# modified MG 21.10.2009
 
 # Loads the libraries
 library(limma)
@@ -21,6 +24,12 @@ files<-dir()
 files<-files[files!="phenodata.tsv"]
 dat<-read.maimages(files=files, columns=columns, annotation=annotation, other.columns=columns.other) 
 
+# Extract annotations
+if (keep.annotations=="yes") {
+	annotation.info <- dat$other[[1]]
+	annotation.info <- as.character (annotation.info[,1])
+}
+
 # Mock normalization
 dat2<-normalizeBetweenArrays(dat$R, method="none")
 
@@ -31,25 +40,38 @@ training<-c(rep("", length(sample)))
 time<-c(rep("", length(sample)))
 random<-c(rep("", length(sample)))
 if(chiptype=="empty") {
-   chiptype<-c("cDNA")
+	chiptype<-c("cDNA")
 }
 write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
-#Preparing data for export
+# Preparing data for export
 M<-data.frame(dat2)
 colnames(M)<-paste("chip.", colnames(M), sep="")
 M2<-aggregate(M, as.list(dat$genes), mean)
 rownames(M2)<-M2$identifier
 M2<-M2[,-1]
 
-if(chiptype!="cDNA") {
-   # Including gene names to data
-   library(chiptype, character.only=T)
-   symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "SYMBOL", sep="")))))[rownames(M2),])
-   genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "GENENAME", sep="")))))[rownames(M2),])
-   write.table(data.frame(symbol, description=genename, round(M2, digits=2)), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+# Match annotations to identifiers
+
+if (keep.annotations=="yes") {
+	matching_table <- cbind (as.character (dat$genes[,1]), annotation.info)
+	rownames (matching_table) <- as.character (dat$genes[,1])
+	matching_table <- as.data.frame (matching_table)
+	annotations <- as.character (matching_table[rownames(M2),2])
 }
 
-if(chiptype=="cDNA") {
-   write.table(data.frame(round(M2, digits=2)), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+if(chiptype!="cDNA") {
+	# Including gene names to data
+	library(chiptype, character.only=T)
+	symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "SYMBOL", sep="")))))[rownames(M2),])
+	genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "GENENAME", sep="")))))[rownames(M2),])
+	write.table(data.frame(symbol, description=genename, round(M2, digits=2)), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+}
+
+if(chiptype=="cDNA" & keep.annotations=="no") {
+	write.table(data.frame(round(M2, digits=2)), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+}
+
+if(chiptype=="cDNA" & keep.annotations=="yes") {
+	write.table(data.frame(annotations, round(M2, digits=2)), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 }
