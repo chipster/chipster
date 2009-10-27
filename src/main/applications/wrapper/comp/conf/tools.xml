@@ -7,7 +7,8 @@
 			<tool runtime="R-2.9.0">norm-affy-snp.R</tool>
 			<tool runtime="R-2.9.0">norm-affy-gene.R</tool>
 			<tool runtime="R-2.9.0">norm-agilent-one-color.R</tool>
-			<tool runtime="R-2.9.0">norm-agilent.R</tool>	
+			<tool runtime="R-2.9.0">norm-agilent.R</tool>
+			<tool runtime="R-2.9.0">norm-agilent-miRNA.R</tool>	
 			<tool runtime="R-2.9.0">norm-cdna.R</tool>
 			<tool runtime="R-2.9.0">norm-illumina.R</tool>
 			<tool runtime="R-2.9.0">norm-illumina-lumi.R</tool>
