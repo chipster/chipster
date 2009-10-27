@@ -4,7 +4,7 @@
 # INPUT AFFY microarray[...].cel OUTPUT normalized.tsv, phenodata.tsv 
 # PARAMETER normalization.method [mas5, plier, rma, gcrma, li-wong] DEFAULT rma (Preprocessing method)
 # PARAMETER stabilize.variance [yes, no] DEFAULT no (Variance stabilazing normalization)
-# PARAMETER custom.chiptype [empty, hs133ahsentrezg (hgu133a), hs133av2hsentrezg (hgu133av2), hs133phsentrezg (hgu133plus2), hs133bhsentrezg (hgu133b), hs95av2hsentrezg (hgu95av2), mm430ammentrezg (moe430), mm430a2mmentrezg (moe4302), mm430bmmentrezg (moe430b), mm430mmentrezg (moe430plus2), mm74av1mmentrezg (mgu74a), mm74av2mmentrezg (mgu74av2), mm74bv2mmentrezg (mgu74bv2), mm74cv2mmentrezg (mgu74cv2), rn230arnensg (rgu230a), rn230brnentrezg (rgu230b), rn230rnentrezg (rat2302), rn34arnentrezg (rgu34a)] DEFAULT empty (custom chiptype)
+# PARAMETER custom.chiptype [empty, hgu133ahsentrezg(hgu133a), hgu133a2hsentrezg(hgu133av2), hgu133plus2hsentrezg(hgu133plus2), hgu133bhsentrezg(hgu133b), hgu95av2hsentrezg(hgu95av2), moe430ammentrezg(moe430a), mouse430a2mmentrezg(mouse4302), moe430bmmentrezg(moe430b), mouse430a2mmentrezg(mouse430plus2), mm74av1mmentrezg(mgu74a), mgu74av2mmentrezg(mgu74av2), mgu74bv2mmentrezg(mgu74bv2), mgu74cv2mmentrezg(mgu74cv2), rae230arnentrezg(rae230a), rae230brnentrezg(rae230b), rat2302rnentrezg(rat2302), rgu34arnentrezg(rgu34a), rgu34brnentrezg(rgu34b), rgu34crnentrezg(rgu34c)] DEFAULT empty (custom chiptype)
 
 
 # Affymetrix normalization
@@ -12,6 +12,9 @@
 # Changes to column naming on 29.6.2006
 # Changes to phenodata table writing on 29.1.2007
 # Modified to work with R 2.9.0 on 12th May 2009
+# Modifications by MG
+# Changes to custom.chiptype PARAMETER to account for changes in naming of custom CDF packages (version 12), 23.9.2009
+
 
 # Renaming variables
 norm<-normalization.method
