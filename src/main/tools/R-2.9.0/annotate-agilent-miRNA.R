@@ -5,12 +5,14 @@
 
 # Agilent miRNA annotation
 # JTT 20.3.2009
+# modified MG 21.10.2009
 
 #Reads the data
 dat<-read.table("normalized.tsv", sep="\t", header=T)
 
 # Extracts the identifiers
-id<-as.character(dat[,1])
+id<-as.character(rownames(dat))
+
 
 # Creates an HTML page
 id[id=="empty"]<-""
