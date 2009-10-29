@@ -5,6 +5,9 @@
 
 # Affymetrix SNP array normalization
 # JTT 24.4.2008
+#
+# modified by MG, 26.10.2009
+# to cope with Affymetrix Human SNP 5.0 and 6.0 arrays
 
 # setwd(paste(getwd(), "/affy-snp", sep=""))
 
@@ -14,6 +17,8 @@ library(pd.mapping50k.hind240)
 library(pd.mapping50k.xba240)
 library(pd.mapping250k.nsp)
 library(pd.mapping250k.sty)
+library(pd.genomewidesnp.5)
+library(pd.genomewidesnp.6)
 
 # Setting up the path to the data files
 fullFilenames <- list.celfiles(path = getwd(), full.names = TRUE)
