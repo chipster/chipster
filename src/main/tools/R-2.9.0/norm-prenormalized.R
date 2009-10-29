@@ -69,9 +69,9 @@ if(chiptype!="cDNA") {
 }
 
 if(chiptype=="cDNA" & keep.annotations=="no") {
-	write.table(data.frame(round(M2, digits=2)), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+	write.table(data.frame(round(M2, digits=8)), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 }
 
 if(chiptype=="cDNA" & keep.annotations=="yes") {
-	write.table(data.frame(annotations, round(M2, digits=2)), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+	write.table(data.frame(annotations, round(M2, digits=8)), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 }
