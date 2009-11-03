@@ -56,6 +56,9 @@ if(chiptype=="empty") {
 }
 
 # Annotation package name conversions}
+if(chiptype=="Human-miRNA(v1)") {
+	chiptype<-c("miRNA")
+}
 if(chiptype=="Human-miRNA(v2)") {
 	chiptype<-c("miRNA")
 }
