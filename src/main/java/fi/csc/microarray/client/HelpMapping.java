@@ -74,9 +74,9 @@ public class HelpMapping {
 		mappings.put("Pathways/Hypergeometric test for KEGG or PFAM", "chipster-manual/pathways-hypergeometric-kegg.html");
 		mappings.put("Pathways/SAFE test for KEGG pathway enrichment", "chipster-manual/pathways-hypergeometric-safe.html");
 		mappings.put("Pathways/Gene set test", "chipster-manual/stat-geneset.html");
-		mappings.put("Pathways/Protein interactions from IntAct", "chipster-manual/annotate-intact.html");
-		mappings.put("Pathways/Associations to Reactome pathways", "chipster-manual/annotate-reactome.html");
-		mappings.put("Pathways/Over-representation analysis using ConsensusPathDB", "chipster-manual/annotate-cpdb.html");
+		mappings.put("Pathways/Protein interactions from IntAct", "chipster-manual/pathways-intact.html");
+		mappings.put("Pathways/Associations to Reactome pathways", "chipster-manual/pathways-reactome.html");
+		mappings.put("Pathways/Over-representation analysis using ConsensusPathDB", "chipster-manual/pathways-hypergeometric-cpdb.html");
 		mappings.put("Pathways/Hypergeometric test for cytobands", "chipster-manual/pathways-hypergeometric-cytobands.html");
 		
 		mappings.put("Visualisation/Boxplot", "chipster-manual/plot-boxplot.html");
