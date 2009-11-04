@@ -5,11 +5,15 @@
 # PARAMETER background.offset [0, 50] DEFAULT 50 (Background offset)
 # PARAMETER normalize.chips [none, scale, scale-75, quantile, vsn] DEFAULT none (Between arrays normalization method)
 # PARAMETER remove.control.probes [yes, no] DEFAULT no (Remove control probes from the dataset)
-# PARAMETER chiptype [empty, Human-1 (4100a), Human-2 (4101a), Human-1A (4110b), Human-1B (4111a), Human-Whole-Genome (4112a), Mouse (4104a), Mouse (4120a), Mouse (4121a), Mouse (4122a), Rat (4105a), Rat (4130a), Rat (4131)] DEFAULT empty (chiptype)
+# PARAMETER chiptype [empty, Human-1 (4100a), Human-2 (4101a), Human-1A (4110b), Human-1B (4111a), Human-Whole-Genome (4112a), Mouse (4104a), Mouse (4120a), Mouse (4121a), Mouse (4122a), Rat (4105a), Rat (4130a), Rat (4131)]  DEFAULT empty (chiptype)
 
 
 # cDNA chip normalization
 # JTT 15.10.2007
+
+# modified
+# MG
+# 20.10.2009
 
 # Loads the libraries
 library(limma)
@@ -54,42 +58,43 @@ if(chiptype=="empty") {
    chiptype<-c("cDNA")
 }
 if(chiptype=="Human-1(4100a)") {
-   chiptype<-c("hgug4100a")
+   chiptype<-c("hgug4100a.db")
 }
 if(chiptype=="Human-2(4101a)") {
-   chiptype<-c("hgug4101a")
+   chiptype<-c("hgug4101a.db")
 }
 if(chiptype=="Human-1A(4110b)") {
-   chiptype<-c("hgug4110b")
+   chiptype<-c("hgug4110b.db")
 }
 if(chiptype=="Human-1B(4111a)") {
-   chiptype<-c("hgug4111a")
+   chiptype<-c("hgug4111a.db")
 }
 if(chiptype=="Human-Whole-Genome(4112a)") {
-   chiptype<-c("hgug4112a")
+   chiptype<-c("hgug4112a.db")
 }
 if(chiptype=="Mouse(4104a)") {
-   chiptype<-c("mgug4104a")
+   chiptype<-c("mgug4104a.db")
 }
 if(chiptype=="Mouse(4120a)") {
-   chiptype<-c("mgug4120a")
+   chiptype<-c("mgug4120a.db")
 }
 if(chiptype=="Mouse(4121a)") {
-   chiptype<-c("mgug4121a")
+   chiptype<-c("mgug4121a.db")
 }
 if(chiptype=="Mouse(4122a)") {
-   chiptype<-c("mgug4122a")
+   chiptype<-c("mgug4122a.db")
 }
 if(chiptype=="Rat(4105a)") {
-   chiptype<-c("rgug4105a")
+   chiptype<-c("rgug4105a.db")
 }
 if(chiptype=="Rat(4130a)") {
-   chiptype<-c("rgug4130a")
+   chiptype<-c("rgug4130a.db")
 }
 if(chiptype=="Rat(4131)") {
-   chiptype<-c("rgug4131unigene")
+   chiptype<-c("rgug4131unigene.db")
 }
-chiptype<-paste(chiptype, ".db", sep="")
+
+# chiptype<-paste(chiptype, ".db", sep="")
 
 write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
@@ -144,3 +149,5 @@ if(chiptype=="cDNA") {
      write.table(data.frame(round(M, digits=2), flags), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
    }
 }
+
+
