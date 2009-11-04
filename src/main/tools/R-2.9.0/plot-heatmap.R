@@ -24,6 +24,10 @@ dat<-read.table(file, header=T, sep="\t", row.names=1)
 calls<-dat[,grep("flag", names(dat))]
 dat2<-dat[,grep("chip", names(dat))]
 
+if (nrow(dat2) > 1000) {
+  stop("Hierarchical clustering can be run on maximum 1000 of genes/samples");
+}
+
 # Loads phenodata
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 colnames(dat2)<-gsub(" ", "", phenodata$description)
