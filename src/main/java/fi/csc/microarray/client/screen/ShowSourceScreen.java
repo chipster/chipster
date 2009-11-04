@@ -11,6 +11,7 @@ import javax.swing.JTextArea;
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.VisualConstants;
 
 public class ShowSourceScreen extends ScreenBase implements ClientApplication.SourceCodeListener {
 
@@ -23,13 +24,25 @@ public class ShowSourceScreen extends ScreenBase implements ClientApplication.So
 		// fetch source
 		String[] opName = new String[1];
 		opName[0] = (String)childScreenParameter;
-		try {
-			application.fetchSourceFor(opName, this);
-		} catch (MicroarrayException e) {
-			application.reportException(e);
+		childScreenParameter = null;
+		if (opName[0] != null) {
+			try {
+				application.fetchSourceFor(opName, this);
+			} catch (MicroarrayException e) {
+				application.reportException(e);
+			}
+		} else {
+			if (frame != null) {
+				return frame;
+			}
 		}
-
-		// we'll redraw the screen every time
+			
+		// a new frame is created to get it on top of everything
+		// there should be a better way for this
+		if (frame != null) {
+			frame.dispose();
+		}
+		
 		frame = new JFrame();
 		frame.setContentPane(getContentPane());
 		frame.setTitle("Source Code");
@@ -41,6 +54,7 @@ public class ShowSourceScreen extends ScreenBase implements ClientApplication.So
 		contentPane.setLayout(new BorderLayout());
 		sourceText.setText("Please wait while loading source code...");
 		sourceText.setEditable(false);
+		sourceText.setFont(VisualConstants.MONOSPACED_FONT);
 		contentPane.setPreferredSize(new Dimension(800, 400));
 		scrollPane = new JScrollPane(sourceText);
 		contentPane.add(scrollPane, BorderLayout.CENTER);
