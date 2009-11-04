@@ -137,7 +137,7 @@
 		</propertyfile>
 
 		<mkdir dir="${build}" />
-		<javac destdir="${build}" executable="javac" compiler="javac1.5" fork="yes" debug="true" failonerror="true">
+		<javac destdir="${build}" target="1.5" source="1.5" debug="true" failonerror="true">
 			<src path="${src}" />
 			<classpath>
 				<fileset dir="${lib}">
