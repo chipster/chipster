@@ -1,5 +1,5 @@
 # ANALYSIS Normalisation/"Affymetrix SNP arrays" (Affymetrix SNP array preprocessing using CEL-files. 
-# Probe sets are automatically flagged using P/M flags. YOU HAVE TO SPECIFY THE CHIPTYPE.) 
+# Probe sets are automatically flagged using P/M flags.) 
 # INPUT AFFY microarray[...].cel OUTPUT normalized.tsv, phenodata.tsv 
 
 
