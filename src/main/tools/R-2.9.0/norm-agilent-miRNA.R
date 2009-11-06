@@ -1,6 +1,6 @@
 # ANALYSIS Normalisation/"Agilent miRNA" (Agilent miRNA chip data preprocessing. Automatically averages all the rows,
 # i.e., miRNA:s that have the same name. YOU HAVE TO SPECIFY THE CHIPTYPE.
-# To be bale to remove the control probes the column labelled "ControlType" in the raw data file should be marked as
+# To be able to remove the control probes, the column labelled "ControlType" in the raw data file should be marked as
 # "Annotation" during importing.)
 # INPUT CDNA microarray[...].tsv OUTPUT normalized.tsv, phenodata.tsv
 # PARAMETER background.treatment [none, subtract, edwards, normexp] DEFAULT normexp (Background treatment method)
