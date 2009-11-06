@@ -35,7 +35,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 
 	static final Logger logger = Logger.getLogger(RAnalysisJob.class);
 	
-	private static String SCRIPT_SUCCESFUL_STRING = "nami-script-finished-succesfully";
+	private static String SCRIPT_SUCCESSFUL_STRING = "nami-script-finished-succesfully";
 	private static String SCRIPT_FAILED_STRING = "nami-script-finished-unsuccesfully";
 	
 	private int rTimeout;
@@ -70,7 +70,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 					
 					// read script successful
 					// TODO better pattern matching 
-					else if (line.contains(SCRIPT_SUCCESFUL_STRING)) {
+					else if (line.contains(SCRIPT_SUCCESSFUL_STRING)) {
 						updateState(JobState.COMPLETED, "R script finished successfully", false);
 						readMore = false;
 					}
@@ -115,8 +115,8 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		
 		List<BufferedReader> inputReaders = new ArrayList<BufferedReader>();
 
-		// load static initialiser
-		inputReaders.add(new BufferedReader(new StringReader(AnalysisDescription.getStaticInitialiser())));
+		// load handler initialiser
+		inputReaders.add(new BufferedReader(new StringReader(analysis.getInitialiser())));
 		
 		// load work dir initialiser
 		logger.debug("Job work dir: " + jobWorkDir.getPath());
@@ -133,12 +133,13 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 			i++;
 		}
 
+		
 		// load input script
 		String script = (String)analysis.getImplementation();
 		inputReaders.add(new BufferedReader(new StringReader(script)));
 		
 		// load script finished trigger
-		inputReaders.add(new BufferedReader(new StringReader("print(\"" + SCRIPT_SUCCESFUL_STRING + "\")\n")));
+		inputReaders.add(new BufferedReader(new StringReader("print(\"" + SCRIPT_SUCCESSFUL_STRING + "\")\n")));
 		
 		
 		// get a process

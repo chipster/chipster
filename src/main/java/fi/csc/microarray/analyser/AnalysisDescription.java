@@ -90,6 +90,8 @@ public class AnalysisDescription {
 	private String sourceResourceName;
 	private String sourceResourceFullPath;
 	
+	private String initialiser;
+	
 	private Date creationTime = new Date();
 
 	/**
@@ -131,10 +133,13 @@ public class AnalysisDescription {
 		parameters.add(pd);
 	}
 	
-	public static final String getStaticInitialiser() {
-		return "";
+	public String getInitialiser() {
+		return this.initialiser;
 	}
 
+	public void setInitialiser(String initialiser) {
+		this.initialiser = initialiser;
+	}
 
 	public void setCommand(String command) {
 		this.command = command;

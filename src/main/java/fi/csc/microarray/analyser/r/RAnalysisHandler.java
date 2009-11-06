@@ -33,13 +33,14 @@ public class RAnalysisHandler implements AnalysisHandler {
 	static final Logger logger = Logger
 			.getLogger(RAnalysisHandler.class);
 
-	private final String rCommand;
-	private final String toolPath;
-	private final String customScriptsDirName;
+	private String rCommand;
+	private String toolPath;
+	private String externalToolPath;
+	private String customScriptsDirName;
 	private ProcessPool processPool;
 	private boolean isDisabled = false;
 	
-	
+	private static final String DEFAULT_EXTERNAL_TOOL_PATH = "/opt/chipster/tools";
 
 	
 	
@@ -60,6 +61,12 @@ public class RAnalysisHandler implements AnalysisHandler {
 		this.toolPath = parameters.get("toolPath");
 		this.customScriptsDirName = configuration.getString("comp", "custom-scripts-dir");
 	
+		this.externalToolPath = parameters.get("externalToolPath");
+		if (externalToolPath == null) {
+			this.externalToolPath = DEFAULT_EXTERNAL_TOOL_PATH;
+		}
+		
+		
 		// initialize process pool
 		int poolSizeMin = configuration.getInt("comp", "r-process-pool-size-min");
 		int poolSizeMax = configuration.getInt("comp", "r-process-pool-size-max");
@@ -134,6 +141,7 @@ public class RAnalysisHandler implements AnalysisHandler {
 		ad.setSourceCode(parsedScript.rSource);
 		ad.setSourceResourceName(sourceResourceName);
 		ad.setSourceResourceFullPath(scriptPath);
+		ad.setInitialiser("chipster.tools.path = '" + externalToolPath + "'\n");
 		
 		return ad;
 	}
