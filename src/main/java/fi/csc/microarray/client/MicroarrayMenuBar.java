@@ -256,7 +256,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		}
 	}
 
-	private void addRecentWorkflow(String name, URL url) {
+	public void addRecentWorkflow(String name, URL url) {
 		if (url != null) { // if the fileChooser is cancelled
 			// Check if this exists already
 			for (int i = 0; i < recentWorkflowMenu.getItemCount(); i++) {

@@ -106,6 +106,7 @@ import fi.csc.microarray.messaging.auth.ClientLoginListener;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.util.BrowserLauncher;
 import fi.csc.microarray.util.Exceptions;
+import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.GeneralFileFilter;
 import fi.csc.microarray.util.SplashScreen;
 import fi.csc.microarray.util.Strings;
@@ -780,6 +781,7 @@ public class SwingClientApplication extends ClientApplication {
 
 				workflowManager.saveSelectedWorkflow(newFile);
 				unsavedChanges = false;
+				menuBar.addRecentWorkflow(newFile.getName(), Files.toUrl(newFile));
 				menuBar.updateMenuStatus();
 				return newFile;
 			}

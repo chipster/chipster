@@ -24,6 +24,7 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 
 /**
  * Context menu for set of selected DataItems.
@@ -70,6 +71,7 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 	private JMenuItem importMenuItem;
 	private JMenuItem exportMenuItem;
 	private JMenuItem historyMenuItem;
+	private JMenuItem saveWorkflowItem;
 	private JMenu linksMenu;
 	private JMenu linkToMenu;
 	private JMenu unlinkMenu;
@@ -110,12 +112,17 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 		exportMenuItem.setIcon(VisualConstants.EXPORT_MENUICON);
 		historyMenuItem = new JMenuItem("View history as text");
 		historyMenuItem.setIcon(VisualConstants.GENERATE_HISTORY_ICON);
+		saveWorkflowItem = new JMenuItem("Save workflow");
+		
+		
 		visualiseMenuItem.addActionListener(this);
 		renameMenuItem.addActionListener(this);
 		deleteMenuItem.addActionListener(this);
 		importMenuItem.addActionListener(this);
 		exportMenuItem.addActionListener(this);
 		historyMenuItem.addActionListener(this);
+		saveWorkflowItem.addActionListener(this);
+
 	}
 
 	public void setOptionsFor(List<DataItem> items) {
@@ -141,6 +148,8 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 			this.add(renameMenuItem);
 			this.add(deleteMenuItem);
 			this.addSeparator();
+			this.add(saveWorkflowItem);
+			this.addSeparator();
 			this.add(exportMenuItem);
 			this.add(historyMenuItem);
 
@@ -151,6 +160,7 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 				this.renameMenuItem.setEnabled(false);
 				this.exportMenuItem.setEnabled(true);
 				this.historyMenuItem.setEnabled(false);
+				this.saveWorkflowItem.setEnabled(false);
 
 			} else {
 				if (selectedItem instanceof DataBean) {
@@ -159,12 +169,17 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 					this.renameMenuItem.setEnabled(true);
 					this.exportMenuItem.setEnabled(true);
 					this.historyMenuItem.setEnabled(true);
+					
+					// workflow items only enabled for normalised data
+					boolean normalisedDataSelected = ChipsterInputTypes.GENE_EXPRS.isTypeOf((DataBean)selectedItem);
+					this.saveWorkflowItem.setEnabled(normalisedDataSelected);
 				} else {
 					// single selected DataFolder
 					this.visualiseMenuItem.setEnabled(false);
 					this.renameMenuItem.setEnabled(true);
 					this.exportMenuItem.setEnabled(true);
 					this.historyMenuItem.setEnabled(false);
+					this.saveWorkflowItem.setEnabled(false);
 				}
 			}
 
@@ -309,7 +324,12 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 					application.showHistoryScreenFor(data);
 				}
 			}
-		} else if (linkMap.keySet().contains(source)) {
+		} else if (source == saveWorkflowItem) {
+			application.saveWorkflow();
+		}
+		
+		
+		else if (linkMap.keySet().contains(source)) {
 			// Create link
 			// Note! The actual link direction is opposite to graph
 			// arrow directions
