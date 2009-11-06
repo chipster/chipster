@@ -176,10 +176,10 @@ public class StatusBar {
 				if (completion != -1) {
 					setProgressBar("Transferring data", false, completion);
 				} else {
-					setProgressBar(taskCount + " job running", true, 0);
+					setProgressBar(taskCount + " task running", true, 0);
 				}
 			} else {
-				setProgressBar(taskCount + " jobs running", true, 0);
+				setProgressBar(taskCount + " tasks running", true, 0);
 			}
 			
 		}		
