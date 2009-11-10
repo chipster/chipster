@@ -1,0 +1,2 @@
+yum install readline-devel
+yum groupinstall "X Software Development"
