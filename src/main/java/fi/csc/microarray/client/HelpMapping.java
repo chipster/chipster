@@ -29,9 +29,9 @@ public class HelpMapping {
 		mappings.put("Normalisation/Affymetrix exon arrays", "chipster-manual/norm-affy-exon.html");
 		mappings.put("Normalisation/Affymetrix", "chipster-manual/norm-affy.html");
 		mappings.put("Normalisation/Affymetrix SNP arrays", "chipster-manual/norm-affy-snp.html");
-		mappings.put("Normalisation/Affymetrix gene arrays", "chipster-manual/norm-affy-gene.html"); // missing
+		mappings.put("Normalisation/Affymetrix gene arrays", "chipster-manual/norm-affy-gene.html");
 		mappings.put("Normalisation/Agilent miRNA", "chipster-manual/norm-agilent-miRNA.html");		
-		mappings.put("Normalisation/Illumina SNP arrays", "chipster-manual/norm-illumina-snp.html"); // missing
+		mappings.put("Normalisation/Illumina SNP arrays", "chipster-manual/norm-illumina-snp.html");
 		mappings.put("Normalisation/Process prenormalized", "chipster-manual/norm-process-prenormalized.html");
 		mappings.put("Normalisation/Agilent 1-color", "chipster-manual/norm-agilent-1color.html");
 		mappings.put("Normalisation/Agilent 2-color", "chipster-manual/norm-agilent.html");
@@ -120,7 +120,7 @@ public class HelpMapping {
 		mappings.put("Utilities/Extract genes", "chipster-manual/extract-genes.html");
 		mappings.put("Utilities/Change interpretation",	"chipster-manual/change-interpretation.html");
 		mappings.put("Utilities/Sort genes", "chipster-manual/sort-genes.html");
-		mappings.put("Utilities/Random sampling", "chipster-manual/sampling.html"); // missing 
+		mappings.put("Utilities/Random sampling", "chipster-manual/random-sampling.html"); 
 		
 		mappings.put("Miscellaneous/Multiple sequence alignment", "chipster-manual/seqanal-msa.html");
 		mappings.put("Miscellaneous/Phylogenetics", "chipster-manual/seqanal-phylogenetics.html");
