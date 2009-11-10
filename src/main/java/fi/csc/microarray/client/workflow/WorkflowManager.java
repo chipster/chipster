@@ -106,8 +106,8 @@ public class WorkflowManager {
 					} catch (Exception we) {
 					}
 					application.showDialog("Running workflow" + workflowName + " failed.", 
-							"The most common reason for a workflow failure is that the data used as an input for the worklfow " + 
-							" is not compatible with the tools in the workflow. This causes one of tools to fail and aborting the rest " +
+							"The most common reason for a workflow failure is that the data used as an input for the workflow" + 
+							" is not compatible with the tools in the workflow. This causes one of tools to fail and aborting the rest" +
 							" of the workflow.\n\n" +
 							"To get an idea of why a tool has failed, please see the tool specific failure window.",
 							Exceptions.getStackTrace(e), Severity.WARNING, false, DetailsVisibility.DETAILS_ALWAYS_HIDDEN);
