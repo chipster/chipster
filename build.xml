@@ -190,6 +190,8 @@
 			<tarfileset file="${ext-src}/wrapper/readme.txt" prefix="chipster" />
 			
 			<!-- config tool -->
+			<tarfileset file="${ext-src}/wrapper/setup.sh" filemode="755" prefix="chipster" />
+			<tarfileset file="${ext-src}/wrapper/setup.bat" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/configure.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/configure.bat" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/upgrade.sh" filemode="755" prefix="chipster" />

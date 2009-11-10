@@ -183,7 +183,11 @@ public class ConfigTool {
 	}
 
 	public static void verifyChanges(BufferedReader in) throws Exception {
-		System.out.println("Please verify changes. Should changes be written to disk [yes/no]?");
+		verifyChanges(in, "Please verify changes. Should changes be written to disk");	
+	}
+
+	public static void verifyChanges(BufferedReader in, String question) throws Exception {
+		System.out.println(question + " [yes/no]?");
 		String answer = in.readLine();
 		if (!"yes".equals(answer)) {
 			throw new Exception("User decided to abort");

@@ -91,9 +91,21 @@ public class XmlUtil {
 	}
 
 	/**
+	 * Convenience method for getting all child elements.
+	 * 
+	 * @see #getChildElements(Element, String)
+	 */
+	public static List<Element> getChildElements(Element parent) {
+		return getChildElements(parent, null);
+	}
+	
+	/**
 	 * Gets the child elements of a parent element. Unlike DOM's getElementsByTagName, this does no recursion,
 	 * uses local name (namespace free) instead of tag name, result is a proper Java data structure and result
-	 * needs no casting. In other words, this method does not suck unlike DOM.  
+	 * needs no casting. In other words, this method does not suck unlike DOM.
+	 * 
+	 * @param parent the XML parent element
+	 * @param name name of the child elements, if null then all are returned
 	 */
 	public static List<Element> getChildElements(Element parent, String name) {
 		List<Element> childElements = new ArrayList<Element>();
@@ -105,7 +117,7 @@ public class XmlUtil {
 				
 				// match element name
 				Element childElement = (Element) childNodes.item(i);
-				if (childElement.getLocalName().equals(name)) {
+				if (name == null || childElement.getLocalName().equals(name)) {
 					childElements.add(childElement);
 				}
 			}
