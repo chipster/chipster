@@ -15,14 +15,14 @@
 
 
 # Sets up the path to the promoter sequences
-path.seq<-c("/opt/chipster/tools/weeder/seqs/")
+path.seq<-c(file.path(chipster.tools.path, "weeder", "seqs"))
 
 # Sets up the paths to weeder executables
-path.weeder.tfbs<-c("/opt/chipster/tools/weeder/Weeder1.3/weederTFBS.out")
-path.weeder.advicer<-c("/opt/chipster/tools/weeder/Weeder1.3/adviser.out")
+path.weeder.tfbs<-c(file.path(chipster.tools.path, "weeder", "Weeder1.3", "weederTFBS.out"))
+path.weeder.advicer<-c(file.path(chipster.tools.path, "weeder", "Weeder1.3", "adviser.out"))
 
 # Sets up the paths to weeder frequency files
-path.weeder.freq<-c("/opt/chipster/tools/weeder/Weeder1.3/FreqFiles/")
+path.weeder.freq<-c(file.path(chipster.tools.path, "weeder", "Weeder1.3", "FreqFiles"))
 
 # Renaming variable
 size<-promoter.size

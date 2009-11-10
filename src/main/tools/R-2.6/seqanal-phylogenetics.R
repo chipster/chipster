@@ -12,13 +12,13 @@
 # JTT 25.2.2008
 
 # Sets the path to ClustalW executable
-path.clustal<-c("/opt/chipster/tools/clustal/clustalw1.83.linux/clustalw")
+path.clustal<-c(file.path(chipster.tools.path, "clustal", "clustalw1.83.linux", "clustalw"))
 
 # Sets the path to RAxML executable
-path.raxml<-c("/opt/chipster/tools/raxml/RAxML-7.0.0/raxmlHPC")
+path.raxml<-c(file.path(chipster.tools.path, "raxml", "RAxML-7.0.0", "raxmlHPC"))
 
 # Sets the path to seqret executable
-path.seqret<-c("/opt/chipster/tools/emboss/EMBOSS-5.0.0/emboss/seqret")
+path.seqret<-c(file.path(chipster.tools.path, "emboss", "EMBOSS-5.0.0", "emboss", "seqret"))
 
 # Renaming variables
 w<-image.width
