@@ -85,11 +85,6 @@
       <package>e1071</package>
     </item>
 
-	<item installed="false" name="sma" type="r-package">
-      <repository>http://cran.r-project.org</repository>
-      <package>sma</package>
-    </item>
-
 	<item installed="false" name="fastICA" type="r-package">
       <repository>http://cran.r-project.org</repository>
       <package>fastICA</package>
@@ -325,6 +320,10 @@
 	<item installed="false" name="ROTS" type="r-package">
     	<url>http://www.math.utu.fi/en/research/groups/bio/projects/ROTS_1.1.1.tar.gz</url>
     </item>    
+    
+    <item installed="false" name="SMA" type="r-package">
+    	<url>http://www.stat.berkeley.edu/~terry/zarray/Software/SMAcode/sma_0.5.13.tar.gz</url>
+    </item>
     
   </bundle>
   
