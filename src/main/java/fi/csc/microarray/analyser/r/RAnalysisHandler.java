@@ -40,9 +40,6 @@ public class RAnalysisHandler implements AnalysisHandler {
 	private ProcessPool processPool;
 	private boolean isDisabled = false;
 	
-	private static final String DEFAULT_EXTERNAL_TOOL_PATH = "/opt/chipster/tools";
-
-	
 	
 	public RAnalysisHandler(HashMap<String, String> parameters) throws IOException {
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
@@ -63,9 +60,8 @@ public class RAnalysisHandler implements AnalysisHandler {
 	
 		this.externalToolPath = parameters.get("externalToolPath");
 		if (externalToolPath == null) {
-			this.externalToolPath = DEFAULT_EXTERNAL_TOOL_PATH;
-		}
-		
+			throw new RuntimeException("externalToolPath must be set in runtimes.xml");
+		}		
 		
 		// initialize process pool
 		int poolSizeMin = configuration.getInt("comp", "r-process-pool-size-min");
