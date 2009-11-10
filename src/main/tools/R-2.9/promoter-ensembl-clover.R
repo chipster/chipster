@@ -50,6 +50,7 @@ if (Database.Selection=="ensembl"){
    		env<-paste(chip, "REFSEQ", sep="")
 	}
 }
+env <- sub( ".db", "", env) # if chip contained ".db", remove it
 
 genes<-row.names(dat2)
 lib<-as.character(chip)

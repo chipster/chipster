@@ -47,6 +47,7 @@ if(species=="drosophila") {
 } else {
    env<-paste(chip, "REFSEQ", sep="")
 }
+env <- sub( ".db", "", env) # if chip contained ".db", remove it
 
 # Creates a list of genes
 genes<-row.names(dat)
