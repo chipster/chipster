@@ -113,6 +113,15 @@ public class FSDataBean extends DataBeanBase {
 		if (target == null) {
 			return;
 		}		
+		
+		// FIXME add more internal state validation to FSDataBean
+//		for (LinkedBean linkedBean : outgoingLinks) {
+//			if (linkedBean.bean == target && linkedBean.link == type) {
+//				throw new RuntimeException("duplicate link");
+//			}
+//		}
+
+		// make both parties aware of the link
 		((FSDataBean)target).incomingLinks.add(new LinkedBean(type, this));
 		outgoingLinks.add(new LinkedBean(type, target));
 
