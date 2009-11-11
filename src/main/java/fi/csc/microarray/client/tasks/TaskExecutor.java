@@ -327,6 +327,7 @@ public class TaskExecutor {
 		private void extractPayloads(ResultMessage resultMessage) throws JMSException, MicroarrayException, IOException {
 			for (String name : resultMessage.payloadNames()) {
 				logger.debug("output " + name);
+				// FIXME could fetch the URL directly to DataBean so that we could start to use cached copy from the beginning
 				InputStream payload = fileBroker.getFile(resultMessage.getPayload(name)); 
 				DataBean bean = manager.createDataBean(name, payload);
 				pendingTask.addOutput(name, bean);
