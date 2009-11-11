@@ -79,15 +79,15 @@ public class FSSnapshottingSession {
 		StringBuffer metadata = new StringBuffer("");
 		metadata.append("VERSION " + SNAPSHOT_VERSION + "\n");
 		
-		// first generate all ids
+		// generate all ids
 		int dataCount = generateIdsRecursively((FSDataFolder)manager.getRootFolder());
 		
-		// next write most of the metadata
+		// 1st pass, write most metadata
 		saveRecursively((FSDataFolder)manager.getRootFolder(), cpZipOutputStream, metadata);
 		
 		// 2nd pass for links (if written in one pass, input dependent operation parameters break when reading)
 		saveLinksRecursively((FSDataFolder)manager.getRootFolder(), metadata);
-																	
+
 		writeFile(cpZipOutputStream, METADATA_FILENAME, 
 				new ByteArrayInputStream(metadata.toString().getBytes()));			
 		
@@ -111,28 +111,6 @@ public class FSSnapshottingSession {
 
 		cpZipOutputStream.closeEntry() ;							
 	}
-
-
-	private void saveLinksRecursively(FSDataFolder folder, StringBuffer metadata) {
-		
-		for (DataItem data : folder.getChildren()) {
-			
-			if (data instanceof FSDataFolder) {
-				saveLinksRecursively((FSDataFolder)data, metadata);
-				
-			} else {
-				DataBean bean = (DataBean)data; 
-				for (Link type : Link.values()) {
-					for (DataBean target : bean.getLinkTargets(type)) {
-						String beanId = fetchId(bean);
-						String targetId = fetchId(target);				
-						metadata.append("LINK " + type.name() + " " + beanId + " " + targetId + "\n");
-					}
-				}		
-			}
-		}		
-	}
-	
 	
 	private int generateIdsRecursively(FSDataFolder folder) throws IOException {
 		
@@ -206,13 +184,14 @@ public class FSSnapshottingSession {
 				for (Parameter parameter : operation.getParameters()) {
 					metadata.append("OPERATION_PARAMETER " + operId + " " +  parameter.getName() + " " + parameter.getValue() + "\n");
 				}
-				
-				for (Link type : Link.values()) {
-					for (DataBean target : bean.getLinkTargets(type)) {
-						String targetId = fetchId(target);				
-						metadata.append("LINK " + type.name() + " " + beanId + " " + targetId + "\n");
-					}
-				}		
+
+				// will be written in the 2nd pass
+//				for (Link type : Link.values()) {
+//					for (DataBean target : bean.getLinkTargets(type)) {
+//						String targetId = fetchId(target);				
+//						metadata.append("LINK " + type.name() + " " + beanId + " " + targetId + "\n");
+//					}
+//				}		
 
 			} else {
 				operId = reversedOperationIdMap.get(operation).toString();
@@ -374,7 +353,21 @@ public class FSSnapshottingSession {
 					String toId = split[3];
 					DataBean from = (DataBean)fetchItem(fromId);
 					DataBean to = (DataBean)fetchItem(toId);
-					from.addLink(link, to);
+					
+					// to be compatible with older session files that have duplicate links
+					// check for duplicity here
+					boolean exists = false;
+					for (DataBean target : from.getLinkTargets(link)) {
+						if (target == to) {
+							// this link already exists, do not add it again
+							exists = true;
+							break;
+						}
+					}
+
+					if (!exists) {
+						from.addLink(link, to);
+					}
 
 				} else {
 					throw new RuntimeException("metadata error in " + snapshot.getCanonicalPath() + ": line could not be processed \"" + line + "\"");
@@ -438,6 +431,27 @@ public class FSSnapshottingSession {
 		}
 		
 		return newItems;		
+	}
+
+	
+	private void saveLinksRecursively(FSDataFolder folder, StringBuffer metadata) {
+		
+		for (DataItem data : folder.getChildren()) {
+			
+			if (data instanceof FSDataFolder) {
+				saveLinksRecursively((FSDataFolder)data, metadata);
+				
+			} else {
+				DataBean bean = (DataBean)data; 
+				for (Link type : Link.values()) {
+					for (DataBean target : bean.getLinkTargets(type)) {
+						String beanId = fetchId(bean);
+						String targetId = fetchId(target);				
+						metadata.append("LINK " + type.name() + " " + beanId + " " + targetId + "\n");
+					}
+				}		
+			}
+		}		
 	}
 
 	private void warnAboutObsoleteContent(String message, String details, String dataName) {
