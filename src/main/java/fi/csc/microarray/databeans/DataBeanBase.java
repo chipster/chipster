@@ -181,7 +181,7 @@ public abstract class DataBeanBase implements DataBean {
 	}
 
 	public void setContentChanged(boolean contentChanged) {
-		this.contentChanged = true;
+		this.contentChanged = contentChanged;
 	}
 	
 	public URL getUrl() {
