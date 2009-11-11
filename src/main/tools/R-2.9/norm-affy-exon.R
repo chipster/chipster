@@ -9,6 +9,9 @@
 # JTT 8.6.2006
 # Changes to column naming on 29.6.2006
 # Changes to phenodata table writing on 29.1.2007
+#
+# modified 11.11.2009, MG
+# Changes to CDF package names to match BRainArray version 12
 
 # Initializes analyses
 library(affy)
@@ -16,32 +19,32 @@ library(affy)
 # Reads in data
 dat<-ReadAffy()
 if(chiptype=="empty") {
-   stop("You need to specify the chiptype. Please run the script again.")
+	stop("You need to specify the chiptype. Please run the script again.")
 }
 if(chiptype=="human" & summary.feature=="exon") {
-   dat@cdfName<-"exon.pmcdf"
-   dat@annotation<-"exon.pmcdf"
+	dat@cdfName<-"exon.pmcdf"
+	dat@annotation<-"exon.pmcdf"
 }
 if(chiptype=="mouse" & summary.feature=="exon") {
-   dat@cdfName<-"mouseexonpmcdf"
-   dat@annotation<-"mouseexonpmcdf"
+	dat@cdfName<-"mouseexonpmcdf"
+	dat@annotation<-"mouseexonpmcdf"
 }
 if(chiptype=="rat" & summary.feature=="exon") {
-   dat@cdfName<-"ratexonpmcdf"
-   dat@annotation<-"ratexonpmcdf"
+	dat@cdfName<-"ratexonpmcdf"
+	dat@annotation<-"ratexonpmcdf"
 }
 
 if(chiptype=="human" & summary.feature=="gene") {
-   dat@cdfName<-"hsex10stv2hsentrezgcdf"
-   dat@annotation<-"huex10stv2hsentrezg.db"
+	dat@cdfName<-"huex10stv2hsentrezgcdf"
+	dat@annotation<-"huex10stv2hsentrezgcdf.db"
 }
 if(chiptype=="mouse" & summary.feature=="gene") {
-   dat@cdfName<-"mmex10stv1mmentrezgcdf"
-   dat@annotation<-"moex10stv1mmentrezg.db"
+	dat@cdfName<-"moex10stv1mmentrezgcdf"
+	dat@annotation<-"moex10stv1mmentrezg.db"
 }
 if(chiptype=="rat" & summary.feature=="gene") {
-   dat@cdfName<-"rnex10stv1rnentrezgcdf"
-   dat@annotation<-"raex10stv1rnentrezg.db"
+	dat@cdfName<-"raex10stv1rnentrezgcdf"
+	dat@annotation<-"raex10stv1rnentrezg.db"
 }
 chiptype<-dat@annotation
 
