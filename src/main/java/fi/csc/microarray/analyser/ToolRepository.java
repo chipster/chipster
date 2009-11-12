@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -25,8 +27,7 @@ import fi.csc.microarray.util.XmlUtil;
  * 
  * After initialization, any access to descriptions maps should be use 
  * synchronized using this, since reading descriptions may cause a
- * description to be updated and being briefly unavailable during the
- * update.
+ * description to be updated.
  *  
  * @author hupponen
  *
@@ -66,54 +67,41 @@ public class ToolRepository {
 
 		// check if description needs to be updated
 		if (desc != null && !desc.isUptodate()) {
-			AnalysisDescription newDescription = desc.getHandler().handle(desc.getSourceResourceName());
-			if (newDescription != null) {
-
-				// name (id) of the tool has not changed
-				if (desc.getFullName().equals(newDescription.getFullName())) {
-					descriptions.remove(fullName);
-					descriptions.put(newDescription.getFullName(), newDescription);
-					if (supportedDescriptions.containsKey(desc.getFullName())) {
-						supportedDescriptions.remove(desc.getFullName());
-						supportedDescriptions.put(newDescription.getFullName(), newDescription);
-					}
-					if (visibleDescriptions.containsKey(desc.getFullName())) {
-						visibleDescriptions.remove(desc.getFullName());
-						visibleDescriptions.put(newDescription.getFullName(), newDescription);
-					}
-					return newDescription;
-				} 
-
-				// name (id) of the tool has changed
-				else {
-					logger.warn("name of the tool has changed after loading from custom-scripts, keeping both old and new");
-					if (descriptions.containsKey(newDescription.getFullName())){
-						logger.warn("descriptions already contains a tool with the new name, ignoring custom-scripts");
-						return desc;
-					} 
-					// add the tool with the new name
-					descriptions.put(newDescription.getFullName(), newDescription);
-					if (supportedDescriptions.containsKey(desc.getFullName())) {
-						supportedDescriptions.put(newDescription.getFullName(), newDescription);
-					}
-					if (visibleDescriptions.containsKey(desc.getFullName())) {
-						visibleDescriptions.put(newDescription.getFullName(), newDescription);
-					}
-					return newDescription;
-				}
-			}
+			updateDescription(desc);
 		}
-		return desc; 
+		
+		// return the possibly updated description
+		return descriptions.get(fullName); 
 	}
+
+
+
+
 	
 	/**
 	 * Returns one huge VVSADL block that contains all loaded analysis 
 	 * descriptions.
 	 * @return huge block
+	 * @throws AnalysisException 
 	 */
-	public synchronized StringBuffer serialiseAsStringBuffer() {
+	public synchronized StringBuffer serialiseAsStringBuffer() throws AnalysisException {
 		StringBuffer buf = new StringBuffer();
+
+		// find descs that need to be updated (custom script available)
+		List<AnalysisDescription> descsToBeUpdated = new LinkedList<AnalysisDescription>();
 		for (AnalysisDescription description : visibleDescriptions.values()) {
+			if (!description.isUptodate()) {
+				descsToBeUpdated.add(description);
+			}
+		}
+		
+		// update (can't update in the previous loop, would cause concurrent modification)
+		for (AnalysisDescription description: descsToBeUpdated) {
+			updateDescription(description);
+		}
+		
+		// get the descriptions
+		for (AnalysisDescription description: visibleDescriptions.values()) {
 			buf.append(description.getVVSADL());
 		}
 		return buf;
@@ -123,6 +111,46 @@ public class ToolRepository {
 		return supportedDescriptions.containsKey(fullName);
 	}
 
+	
+	private void updateDescription(AnalysisDescription desc) throws AnalysisException {
+		AnalysisDescription newDescription = desc.getHandler().handle(desc.getSourceResourceName());
+		if (newDescription != null) {
+			newDescription.setUpdatedSinceStartup();
+			
+			// name (id) of the tool has not changed
+			if (desc.getFullName().equals(newDescription.getFullName())) {
+				
+				// replace the old description with the same name
+				descriptions.put(newDescription.getFullName(), newDescription);
+				if (supportedDescriptions.containsKey(desc.getFullName())) {
+					supportedDescriptions.put(newDescription.getFullName(), newDescription);
+				}
+				if (visibleDescriptions.containsKey(desc.getFullName())) {
+					visibleDescriptions.put(newDescription.getFullName(), newDescription);
+				}
+			} 
+
+			// name (id) of the tool has changed
+			else {
+				logger.warn("name of the tool has changed after loading from custom-scripts, keeping both old and new");
+				if (descriptions.containsKey(newDescription.getFullName())){
+					logger.warn("descriptions already contains a tool with the new name, ignoring custom-scripts");
+					return;
+				} 
+				// add the tool with the new name
+				descriptions.put(newDescription.getFullName(), newDescription);
+				if (supportedDescriptions.containsKey(desc.getFullName())) {
+					supportedDescriptions.put(newDescription.getFullName(), newDescription);
+				}
+				if (visibleDescriptions.containsKey(desc.getFullName())) {
+					visibleDescriptions.put(newDescription.getFullName(), newDescription);
+				}
+			}
+		}
+	}
+
+	
+	
 	private void loadRuntimes(File workDir) throws IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException, IOException, SAXException, ParserConfigurationException  { 
 		logger.info("loading runtimes");
 

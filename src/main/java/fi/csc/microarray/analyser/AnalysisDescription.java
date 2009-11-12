@@ -93,6 +93,8 @@ public class AnalysisDescription {
 	private String initialiser;
 	
 	private Date creationTime = new Date();
+	private boolean updatedSinceStartup = false;
+
 
 	/**
 	 * Initializes empty (non-usable) description.
@@ -198,7 +200,7 @@ public class AnalysisDescription {
 		if (vvsadl != null) {
 			return vvsadl;
 		} else {
-			return "ANALYSIS " + getFullName() + " (" + getComment() + ")";
+			throw new RuntimeException("vvsadl is null");
 		}
 	}
 
@@ -231,5 +233,15 @@ public class AnalysisDescription {
 		return this.handler;
 	}
 
+	public boolean isUpdatedSinceStartup() {
+		return updatedSinceStartup;
+	}
+
+	public void setUpdatedSinceStartup() {
+		this.updatedSinceStartup = true;
+	}
+
+	
+	
 }
  
