@@ -63,14 +63,25 @@ public class EnfinWsUtils {
 		};
 //		String[] probes = JavaJobUtils.getProbes(new File("/tmp/two-sample.tsv"));
 		
-		ResultTableCollector intactAnnotations = queryIntact(probes);
-		writeIntactResult(intactAnnotations, new File("intact.html"), new File("intact.tsv"));
+		ResultTableCollector intactAnnotations = queryIntact(probes, false);
+		writeIntactResult(intactAnnotations, new File("intact.html"), new File("intact.tsv"), false);
 		
-		ResultTableCollector reactomeAnnotations = queryReactome(probes);
-		writeReactomeResult(reactomeAnnotations, new File("reactome.html"), new File("reactome.tsv"));
+		ResultTableCollector reactomeAnnotations = queryReactome(probes, false);
+		writeReactomeResult(reactomeAnnotations, new File("reactome.html"), new File("reactome.tsv"), false);
+
+		String[] uniprotIds = new String[] {		
+			 	"P38398"
+		};
+
+		ResultTableCollector reactomeAnnotations2 = queryReactome(uniprotIds, true);
+		writeReactomeResult(reactomeAnnotations2, new File("reactome2.html"), new File("reactome2.tsv"), true);
+
+		ResultTableCollector intactAnnotations2 = queryIntact(uniprotIds, true);
+		writeIntactResult(intactAnnotations2, new File("intact2.html"), new File("intact2.tsv"), true);
+
 	}
 
-	public static void writeIntactResult(ResultTableCollector intactAnnotations, File htmlFile, File textFile) throws FileNotFoundException {
+	public static void writeIntactResult(ResultTableCollector intactAnnotations, File htmlFile, File textFile, boolean alreadyUniprot) throws FileNotFoundException {
 		ValueHtmlFormatter interactionIdFormatter = new ValueHtmlFormatter() {
 			public String format(String string, String[] currentRow) {
 				return "<a href=\"http://www.ebi.ac.uk/intact/pages/interactions/interactions.xhtml?conversationContext=1&queryTxt=" + string.replace(' ', '+') + "\">" + string + "</a>";
@@ -86,25 +97,46 @@ public class EnfinWsUtils {
 				return formatted;
 			}
 		};
+
+		String[] columns;
+		String[] columnTitles;
 		
-		HtmlUtil.writeHtmlTable(intactAnnotations, new String[] {"Name", "Probe IDs", "Participants"}, new String[] {"Interaction", "Probe ID", "Interacting proteins"},  new HtmlUtil.ValueHtmlFormatter[] {interactionIdFormatter, HtmlUtil.NO_FORMATTING_FORMATTER, uniprotFormatter}, "IntAct protein interactions", new FileOutputStream(htmlFile));
-		HtmlUtil.writeTextTable(intactAnnotations, new String[] {"Name", "Probe IDs", "Participants"}, new String[] {"Interaction", "Probe ID", "Interacting proteins"}, new FileOutputStream(textFile));
+		if (alreadyUniprot) {
+			columns = new String[] {"Name", "Participants"};
+			columnTitles = new String[] {"Interaction", "Interacting proteins"};
+
+		} else {
+			columns = new String[] {"Name", "Probe IDs", "Participants"};
+			columnTitles = new String[] {"Interaction", "Probe ID", "Interacting proteins"};
+		}
+		
+		HtmlUtil.writeHtmlTable(intactAnnotations, columns, columnTitles,  new HtmlUtil.ValueHtmlFormatter[] {interactionIdFormatter, HtmlUtil.NO_FORMATTING_FORMATTER, uniprotFormatter}, "IntAct protein interactions", new FileOutputStream(htmlFile));
+		HtmlUtil.writeTextTable(intactAnnotations, columns, columnTitles,  new FileOutputStream(textFile));
 	}
 
-	public static void writeReactomeResult(ResultTableCollector reactomeAnnotations, File htmlFile, File textFile) throws FileNotFoundException {
+	public static void writeReactomeResult(ResultTableCollector reactomeAnnotations, File htmlFile, File textFile, boolean alreadyUniprot) throws FileNotFoundException {
 		ValueHtmlFormatter pathwayNameFormatter = new ValueHtmlFormatter() {
 			public String format(String string, String[] currentRow) {
 				return "<a href=\"http://www.reactome.org/cgi-bin/search2?DB=gk_current&OPERATOR=ALL&QUERY=" + string.replace(' ', '+') + "&SPECIES=&SUBMIT=Go!\">" + string + "</a>";
 			}
 		};
-		
-		HtmlUtil.writeHtmlTable(reactomeAnnotations, new String[] { "Name", "Probe IDs" }, new String[] {"Pathway", "Probe ID's for participating proteins"}, new HtmlUtil.ValueHtmlFormatter[] {pathwayNameFormatter, HtmlUtil.NO_FORMATTING_FORMATTER}, "Reactome pathway associations", new FileOutputStream(htmlFile));
-		HtmlUtil.writeTextTable(reactomeAnnotations, new String[] { "Name", "Probe IDs" }, new String[] {"Pathway", "Probe ID's for participating proteins"}, new FileOutputStream(textFile));
+		String secondColumn;
+		String secondColumnTitle;
+		if (alreadyUniprot) {
+			secondColumn = "Participants";
+			secondColumnTitle = "Uniprot ID";			
+				
+		} else {
+			secondColumn = "Probe IDs";
+			secondColumnTitle = "Probe ID's for participating proteins";			
+		}
+		HtmlUtil.writeHtmlTable(reactomeAnnotations, new String[] { "Name", secondColumn }, new String[] {"Pathway", secondColumnTitle }, new HtmlUtil.ValueHtmlFormatter[] {pathwayNameFormatter, HtmlUtil.NO_FORMATTING_FORMATTER}, "Reactome pathway associations", new FileOutputStream(htmlFile));
+		HtmlUtil.writeTextTable(reactomeAnnotations, new String[] { "Name", secondColumn }, new String[] {"Pathway", secondColumnTitle }, new FileOutputStream(textFile));
 	}
 
-	public static ResultTableCollector queryIntact(String[] probes) throws SOAPException, MalformedURLException, SAXException, IOException, ParserConfigurationException, TransformerException {
+	public static ResultTableCollector queryIntact(String[] probes, boolean alreadyUniprot) throws SOAPException, MalformedURLException, SAXException, IOException, ParserConfigurationException, TransformerException {
 		
-		Document uniprotResponse = queryUniprotIds(probes);
+		Document uniprotResponse = alreadyUniprot ? convertUniprotIds(probes) : queryUniprotIds(probes);
 
 		// query IntAct with UniProt identifiers
 		SOAPMessage intactSoapMessage = initialiseSoapMessage();
@@ -131,9 +163,25 @@ public class EnfinWsUtils {
 		});
 	}
 
-	public static ResultTableCollector queryReactome(String[] probes) throws SOAPException, MalformedURLException, SAXException, IOException, ParserConfigurationException, TransformerException {
+	private static Document convertUniprotIds(String[] probes) throws SOAPException, MalformedURLException, SAXException, IOException, ParserConfigurationException {
+		// create ENFIN XML out of Uniprot ID list
+		SOAPMessage soapMessage = initialiseSoapMessage();
+		SOAPBody soapBody = initialiseSoapBody(soapMessage);
+
+		SOAPElement entries = createOperation(soapBody, "docFromUniprotList", "http://ebi.ac.uk/enfin/core/web/services/utility");
+
+		for (String probe : probes) {
+			SOAPElement arg = entries.addChildElement("parameter");
+			arg.setTextContent(probe);
+		}
 		
-		Document uniprotResponse = queryUniprotIds(probes);
+		Document response = sendSoapMessage(soapMessage, new URL("http://www.ebi.ac.uk/enfin-srv/encore/utility/service"));
+		return response;
+	}
+
+	public static ResultTableCollector queryReactome(String[] probes, boolean alreadyUniprot) throws SOAPException, MalformedURLException, SAXException, IOException, ParserConfigurationException, TransformerException {
+		
+		Document uniprotResponse = alreadyUniprot ? convertUniprotIds(probes) : queryUniprotIds(probes);
 
 		// query Reactome with UniProt identifiers
 		SOAPMessage intactSoapMessage = initialiseSoapMessage();
@@ -279,8 +327,7 @@ public class EnfinWsUtils {
 
 	private static SOAPBody initialiseSoapBody(SOAPMessage message) throws SOAPException {
 		SOAPPart soapPart = message.getSOAPPart();
-		SOAPEnvelope soapEnvelope = soapPart.getEnvelope();
-		
+		SOAPEnvelope soapEnvelope = soapPart.getEnvelope();		
 		
 		return soapEnvelope.getBody();
 	}

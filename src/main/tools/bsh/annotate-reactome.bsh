@@ -1,5 +1,6 @@
 // ANALYSIS Pathways/"Associations to Reactome pathways" (Maps the given list of genes to pathways using the Reactome database. This service is provided by the EBI. NOTE! Supports only Affymetrix data.)
 // INPUT GENERIC input.tsv OUTPUT reactome.html, reactome.tsv
+// PARAMETER input.type [affyid, uniprot] (What kind of identifiers input data contains)
 
 import fi.csc.microarray.analyser.bsh.*;
 import fi.csc.microarray.analyser.ws.*;
@@ -7,9 +8,10 @@ import fi.csc.microarray.analyser.ws.impl.*;
 
 
 // query the web service
-ResultTableCollector annotations = EnfinWsUtils.queryReactome(JavaJobUtils.getProbes(new File(jobInfo.workDir + "/input.tsv")));
+boolean alreadyUniprot = "uniprot".equals(jobInfo.parameters.get("input.type")); 
+ResultTableCollector annotations = EnfinWsUtils.queryReactome(JavaJobUtils.getProbes(new File(jobInfo.workDir + "/input.tsv")), alreadyUniprot);
 
 // create output files
 File htmlFile = new File(jobInfo.workDir + "/reactome.html");
 File textFile = new File(jobInfo.workDir + "/reactome.tsv");
-EnfinWsUtils.writeReactomeResult(annotations, htmlFile, textFile);
+EnfinWsUtils.writeReactomeResult(annotations, htmlFile, textFile, alreadyUniprot);

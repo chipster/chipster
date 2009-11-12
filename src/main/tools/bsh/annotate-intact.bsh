@@ -7,9 +7,10 @@ import fi.csc.microarray.analyser.ws.impl.*;
 
 
 // query the web service
-ResultTableCollector annotations = EnfinWsUtils.queryIntact(JavaJobUtils.getProbes(new File(jobInfo.workDir + "/input.tsv")));
+boolean alreadyUniprot = "uniprot".equals(jobInfo.parameters.get("input.type"));
+ResultTableCollector annotations = EnfinWsUtils.queryIntact(JavaJobUtils.getProbes(new File(jobInfo.workDir + "/input.tsv")), alreadyUniprot);
 
 // create output files
 File htmlFile = new File(jobInfo.workDir + "/intact.html");
 File textFile = new File(jobInfo.workDir + "/intact.tsv");
-EnfinWsUtils.writeIntactResult(annotations, htmlFile, textFile);
+EnfinWsUtils.writeIntactResult(annotations, htmlFile, textFile, alreadyUniprot);
