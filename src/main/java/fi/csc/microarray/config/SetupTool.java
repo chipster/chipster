@@ -47,10 +47,10 @@ public class SetupTool {
 	private final File ENVIRONMENT_XML = new File("comp/conf/environment.xml");
 
 	public static void main(String[] args) throws Exception {
-		new SetupTool().setup("");
+		new SetupTool().setup();
 	}
 
-	public void setup(String command) throws Exception {
+	public void setup() throws Exception {
 
 		// start
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in)); 

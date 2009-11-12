@@ -80,10 +80,7 @@ public class ConfigTool {
 	
 	private HashMap<String, Document> documentsToWrite = new HashMap<String, Document>();
 
-	private XmlUtil xml;
-
 	public ConfigTool() throws ParserConfigurationException {
-		this.xml = XmlUtil.getInstance();
 		System.out.println("Chipster ConfigTool");
 		System.out.println("");
 		System.out.println("No changes are written before you verify them");
@@ -105,7 +102,7 @@ public class ConfigTool {
 			configTool.genpasswd();
 
 		} else if ("setup".equals(args[0])) {
-			setupTool.setup(args.length > 1 ? args[1] : "");
+			setupTool.setup();
 				
 		} else if ("upgrade".equals(args[0])) {
 			if (args.length > 1) {
@@ -177,7 +174,7 @@ public class ConfigTool {
 		// write out files
 		for (String file : documentsToWrite.keySet()) {
 			System.out.println("Writing changes to " + file + "...");
-			xml.printXml(documentsToWrite.get(file), new OutputStreamWriter(new FileOutputStream(file)));
+			XmlUtil.printXml(documentsToWrite.get(file), new OutputStreamWriter(new FileOutputStream(file)));
 		}
 		System.out.println("\nAll changes successfully written!");
 	}
@@ -319,8 +316,8 @@ public class ConfigTool {
 	private void updateChipsterConfigFilePasswords(File configFile) throws Exception {
 		Document doc = openForUpdating("Chipster", configFile);
 
-		Element securityModule = xml.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "security");
-		Element usernameElement = xml.getChildWithAttributeValue(securityModule, "entryKey", "username");
+		Element securityModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "security");
+		Element usernameElement = XmlUtil.getChildWithAttributeValue(securityModule, "entryKey", "username");
 		String username = ((Element)usernameElement.getElementsByTagName("value").item(0)).getTextContent();
 		for (int i = 0; i < passwords.length; i++) {
 			if (username.equals(passwords[i][KEY_INDEX])) {
@@ -334,28 +331,28 @@ public class ConfigTool {
 	private void updateChipsterConfigFile(File configFile) throws Exception {
 		Document doc = openForUpdating("Chipster", configFile);
 
-		Element messagingModule = xml.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "messaging");
+		Element messagingModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "messaging");
 		updateConfigEntryValue(messagingModule, "broker-host", configs[BROKER_HOST_INDEX][VAL_INDEX]);
 		updateConfigEntryValue(messagingModule, "broker-protocol", configs[BROKER_PROTOCOL_INDEX][VAL_INDEX]);
 		updateConfigEntryValue(messagingModule, "broker-port", configs[BROKER_PORT_INDEX][VAL_INDEX]);
 
-		Element filebrokerModule = xml.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "filebroker");
+		Element filebrokerModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "filebroker");
 		if (filebrokerModule != null) {
 			updateConfigEntryValue(filebrokerModule, "port", configs[FILEBROKER_PORT_INDEX][VAL_INDEX]);
 			updateConfigEntryValue(filebrokerModule, "url", createFilebrokerUrl());
 		}
 
-		Element analyserModule = xml.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "comp");
+		Element analyserModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "comp");
 		if (analyserModule != null) {
 			updateConfigEntryValue(analyserModule, "max-jobs", configs[MAX_JOBS_INDEX][VAL_INDEX]);
 		}
 		
-		Element webstartModule = xml.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "webstart");
+		Element webstartModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "webstart");
 		if (webstartModule != null) {
 			updateConfigEntryValue(webstartModule, "port", configs[WS_PORT][VAL_INDEX]);
 		}
 
-		Element managerModule = xml.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "manager");
+		Element managerModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "manager");
 		if (managerModule != null) {
 			updateConfigEntryValue(managerModule, "web-console-port", configs[MANAGER_PORT][VAL_INDEX]);
 		}
@@ -397,7 +394,7 @@ public class ConfigTool {
 	}
 
 	private void updateConfigEntryValue(Element module, String name, String newValue) {
-		Element entry = xml.getChildWithAttributeValue(module, "entryKey", name);
+		Element entry = XmlUtil.getChildWithAttributeValue(module, "entryKey", name);
 		Element value = (Element)entry.getElementsByTagName("value").item(0);
 		updateElementValue(value, name, newValue);
 	}
@@ -423,7 +420,7 @@ public class ConfigTool {
 
 	private Document openForUpdating(String name, File configFile) throws SAXException, IOException, ParserConfigurationException {
 		System.out.println("Updating " + name + " config in " + configFile.getAbsolutePath());
-		Document doc = xml.parseFile(configFile);
+		Document doc = XmlUtil.parseFile(configFile);
 		return doc;
 	}
 
