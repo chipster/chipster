@@ -4,7 +4,7 @@
 # INPUT AFFY microarray[...].cel OUTPUT normalized.tsv, phenodata.tsv 
 # PARAMETER normalization.method [mas5, plier, rma, gcrma, li-wong] DEFAULT rma (Preprocessing method)
 # PARAMETER stabilize.variance [yes, no] DEFAULT no (Variance stabilazing normalization)
-# PARAMETER custom.chiptype [empty, hgu133ahsentrezg(hgu133a), hgu133a2hsentrezg(hgu133av2), hgu133plus2hsentrezg(hgu133plus2), hgu133bhsentrezg(hgu133b), hgu95av2hsentrezg(hgu95av2), moe430ammentrezg(moe430a), mouse430a2mmentrezg(mouse4302), moe430bmmentrezg(moe430b), mouse430a2mmentrezg(mouse430plus2), mm74av1mmentrezg(mgu74a), mgu74av2mmentrezg(mgu74av2), mgu74bv2mmentrezg(mgu74bv2), mgu74cv2mmentrezg(mgu74cv2), rae230arnentrezg(rae230a), rae230brnentrezg(rae230b), rat2302rnentrezg(rat2302), rgu34arnentrezg(rgu34a), rgu34brnentrezg(rgu34b), rgu34crnentrezg(rgu34c)] DEFAULT empty (custom chiptype)
+# PARAMETER custom.chiptype [empty, hgu133ahsentrezg(hgu133a), hgu133a2hsentrezg(hgu133av2), hgu133phsentrezg(hgu133plus), hgu133plus2hsentrezg(hgu133plus2), hgu133bhsentrezg(hgu133b), hgu95av2hsentrezg(hgu95av2), moe430ammentrezg(moe430a), mouse430a2mmentrezg(mouse4302), moe430bmmentrezg(moe430b), mouse430a2mmentrezg(mouse430plus2), mm74av1mmentrezg(mgu74a), mgu74av2mmentrezg(mgu74av2), mgu74bv2mmentrezg(mgu74bv2), mgu74cv2mmentrezg(mgu74cv2), rae230arnentrezg(rae230a), rae230brnentrezg(rae230b), rat2302rnentrezg(rat2302), rgu34arnentrezg(rgu34a), rgu34brnentrezg(rgu34b), rgu34crnentrezg(rgu34c)] DEFAULT empty (custom chiptype)
 
 
 # Affymetrix normalization
@@ -14,7 +14,7 @@
 # Modified to work with R 2.9.0 on 12th May 2009
 # Modifications by MG
 # Changes to custom.chiptype PARAMETER to account for changes in naming of custom CDF packages (version 12), 23.9.2009
-
+# Changes to cope with dropped custom package support for certain array types, 12.11.2009
 
 # Renaming variables
 norm<-normalization.method
@@ -36,6 +36,16 @@ if(custom.chiptype!="empty") {
    dat@cdfName<-chiptype
 } else {
    chiptype<-dat@annotation
+}
+
+# Since custom annotation packages are no longer supported for hgu133plu
+# and for mm74av1 the packages for hgu133plu2 and for mm74av2 are going to
+# be used instead
+if (chiptype=="hgu133phsentrezg") {
+	chiptype <- "hgu133plus2hsentrezg("
+}
+if (chiptype=="mm74av1mmentrezg") {
+	chiptype <- "mm74av2mmentrezg"
 }
 
 # Normalizations (MAS5, RMA, GCRMA or Li-Wong (dChip))
