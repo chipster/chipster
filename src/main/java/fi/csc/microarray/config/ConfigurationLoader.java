@@ -36,7 +36,7 @@ public class ConfigurationLoader {
 	}
 
 	public void addFromStream(InputStream stream, boolean isSpecification) throws SAXException, IOException, ParserConfigurationException, IllegalConfigurationException {
-		Document document = XmlUtil.getInstance().parseReader(new InputStreamReader(stream));
+		Document document = XmlUtil.parseReader(new InputStreamReader(stream));
 		addFromXml(document, isSpecification);
 	}
 	

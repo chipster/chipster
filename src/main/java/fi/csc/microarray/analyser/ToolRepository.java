@@ -128,7 +128,7 @@ public class ToolRepository {
 
 		File runtimeConfig = new File(DirectoryLayout.getInstance().getConfDir(), "runtimes.xml");
 
-		Document document = XmlUtil.getInstance().parseReader(new FileReader(runtimeConfig));
+		Document document = XmlUtil.parseReader(new FileReader(runtimeConfig));
 		Element runtimesElement = (Element)document.getElementsByTagName("runtimes").item(0);
 
 
@@ -183,7 +183,7 @@ public class ToolRepository {
 		
 		File toolConfig = new File(DirectoryLayout.getInstance().getConfDir(), "tools.xml");
 		
-		Document document = XmlUtil.getInstance().parseReader(new FileReader(toolConfig));
+		Document document = XmlUtil.parseReader(new FileReader(toolConfig));
 		Element toolsElement = (Element)document.getElementsByTagName("tools").item(0);
 
 		int totalCount = 0;

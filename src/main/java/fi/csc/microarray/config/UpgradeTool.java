@@ -203,7 +203,7 @@ public class UpgradeTool {
 	private void delayedRCommandCopy(File originalConfig, File newRuntimesConfig) throws SAXException, IOException, ParserConfigurationException {
 		if (originalConfig.exists()) {
 			BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(originalConfig)));
-			Document configXml = XmlUtil.getInstance().parseReader(in);
+			Document configXml = XmlUtil.parseReader(in);
 			IOUtils.closeIfPossible(in);
 
 			String rCommand = null;
@@ -234,7 +234,7 @@ public class UpgradeTool {
 						BufferedWriter out = new BufferedWriter(stringWriter);
 						in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 						
-						Document document = XmlUtil.getInstance().parseReader(in);
+						Document document = XmlUtil.parseReader(in);
 						IOUtils.closeIfPossible(in);
 						
 						Element runtimesElement = (Element)document.getElementsByTagName("runtimes").item(0);
@@ -253,7 +253,7 @@ public class UpgradeTool {
 						}
 						
 						// overwrite previous
-						XmlUtil.getInstance().printXml(document, out);
+						XmlUtil.printXml(document, out);
 						out.close();
 
 						overwriteOut = new FileOutputStream(file);
@@ -287,9 +287,9 @@ public class UpgradeTool {
 						BufferedWriter out = new BufferedWriter(stringWriter);
 						in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 						
-						Document originalDocument = XmlUtil.getInstance().parseReader(in);
+						Document originalDocument = XmlUtil.parseReader(in);
 						IOUtils.closeIfPossible(in);
-						Document newDocument = XmlUtil.getInstance().newDocument();
+						Document newDocument = XmlUtil.newDocument();
 						newDocument.appendChild(newDocument.createElement("configuration"));
 						newDocument.getDocumentElement().setAttribute("content-version", "3");
 
@@ -364,7 +364,7 @@ public class UpgradeTool {
 						}
 												
 						// overwrite previous
-						XmlUtil.getInstance().printXml(newDocument, out);
+						XmlUtil.printXml(newDocument, out);
 						out.close();
 
 						overwriteOut = new FileOutputStream(file);
@@ -439,7 +439,7 @@ public class UpgradeTool {
 						BufferedWriter out = new BufferedWriter(stringWriter);
 						in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 						
-						Document document = XmlUtil.getInstance().parseReader(in);
+						Document document = XmlUtil.parseReader(in);
 						IOUtils.closeIfPossible(in);
 										
 						Element applicationDesc = (Element)document.getElementsByTagName("application-desc").item(0);
@@ -452,7 +452,7 @@ public class UpgradeTool {
 						addArgument(document, applicationDesc, document.getDocumentElement().getAttribute("codebase") + "/chipster-config.xml");						
 						
 						// overwrite previous
-						XmlUtil.getInstance().printXml(document, out);
+						XmlUtil.printXml(document, out);
 						out.close();
 
 						overwriteOut = new FileOutputStream(file);
