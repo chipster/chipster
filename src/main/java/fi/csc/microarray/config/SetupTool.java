@@ -33,7 +33,7 @@ import fi.csc.microarray.util.XmlUtil;
 
 /**
  * Simple tool for setting up external environment for Chipster comp service. This tools install OS packages, applications (download &
- * compile) and various types of R packages.
+ * compile) and various types of R packages. In version 1.4.0 only R packages are supported.
  * 
  * @author Aleksi Kallio
  * 
@@ -230,7 +230,7 @@ public class SetupTool {
 				}
 			}
 
-			// everything was installed inside the bundle
+			// all items inside the bundle were installed => bundle is installed
 			return true;
 
 		} else {
@@ -248,8 +248,8 @@ public class SetupTool {
 		public boolean install(Element item, Element dependsOnBundle, PrintWriter infoWriter) {
 
 			// You should do stuff like gzip -d R-2.9.0.tar.gz, tar xvf R-2.9.0.tar... here
-
-			// Now we just print out comments
+			// Now we just print out instructions
+			
 			String prefix = "";
 			for (Element command : XmlUtil.getChildElements(item)) {
 				if ("dir".equals(command.getNodeName())) {
@@ -281,18 +281,22 @@ public class SetupTool {
 					return downloadAndInstall(url, rExecutable);
 
 				} else if (item.getElementsByTagName("repository").getLength() > 0) {
+					// available in CRAN repository
 					String repository = item.getElementsByTagName("repository").item(0).getTextContent().trim();
 					String packageName = item.getElementsByTagName("package").item(0).getTextContent().trim();
 					return runRCommand(rExecutable, "install.packages(c(\"" + packageName + "\"), repos=\"" + repository + "\", dependencies = T)");
 
 				} else if (item.getElementsByTagName("default-bioconductor-packages").getLength() > 0) {
+					// default BioC Lite packages available via Bioconductor installation mechanism
 					return runRCommands(rExecutable, new String[] { "source(\"http://www.bioconductor.org/biocLite.R\")", "biocLite()" });
 
 				} else if (item.getElementsByTagName("bioconductor-package").getLength() > 0) {
+					// available via Bioconductor installation mechanism
 					String packageName = item.getElementsByTagName("bioconductor-package").item(0).getTextContent().trim();
 					return runRCommands(rExecutable, new String[] { "source(\"http://www.bioconductor.org/biocLite.R\")", "biocLite(c(\"" + packageName + "\"))" });
 
 				} else if (item.getElementsByTagName("bioconductor-repository").getLength() > 0) {
+					// Bioconductor annotation repository
 					String repositoryName = item.getElementsByTagName("bioconductor-repository").item(0).getTextContent().trim();
 					return runRCommands(rExecutable, new String[] { 
 							"source(\"http://www.bioconductor.org/biocLite.R\")", 
@@ -301,6 +305,7 @@ public class SetupTool {
 					});
 
 				} else if (item.getElementsByTagName("from-web-page").getLength() > 0) {
+					// available as .tar.gz via URL's listed on web page => web crawl them
 					URL url = new URL(item.getElementsByTagName("from-web-page").item(0).getTextContent().trim());
 					String pageContents = downloadString(url);
 
@@ -359,6 +364,8 @@ public class SetupTool {
 
 	private static class OSPackageInstaller implements Installer {
 
+		// Now we just print out instructions
+		
 		public boolean install(Element item, Element dependsOnBundle, PrintWriter infoWriter) {
 			String name = XmlUtil.getChildElement(item, "package-name").getTextContent();
 			Element altName = XmlUtil.getChildElement(item, "alternative-package-name");
