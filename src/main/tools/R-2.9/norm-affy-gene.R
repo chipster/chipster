@@ -49,7 +49,7 @@ write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phe
 
 
 # Writing out data
-a<-try(library(paste(chiptype, ".db", sep=""), character.only=T))
+a<-try(library(chiptype, character.only=T))
 if(chiptype!="empty" & class(a)!="try-error") {
    # Including gene names to data
    lib2<-sub('.db','',chiptype)
