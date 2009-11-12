@@ -118,28 +118,28 @@ if(species=="yeast" & size=="large") {
 # Weeder needs frequency files - copying those in place
 system("mkdir FreqFiles")
 if(species=="human") {
-   system(paste("ln -s ", path.weeder.freq, "HS.6.freq FreqFiles/HS.6.freq", sep=""))
-   system(paste("ln -s ", path.weeder.freq, "HS.8.freq FreqFiles/HS.8.freq", sep=""))
-   system(paste("ln -s ", path.weeder.freq, "HSI.6.freq FreqFiles/HSI.6.freq", sep=""))
-   system(paste("ln -s ", path.weeder.freq, "HSI.8.freq FreqFiles/HSI.8.freq", sep=""))
+   system(paste("ln -s ", file.path(path.weeder.freq, "HS.6.freq"), " ", file.path("FreqFiles", "HS.6.freq"), sep=""))
+   system(paste("ln -s ", file.path(path.weeder.freq, "HS.8.freq"), " ", file.path("FreqFiles", "HS.8.freq"), sep=""))
+   system(paste("ln -s ", file.path(path.weeder.freq, "HSI.6.freq"), " ", file.path("FreqFiles", "HSI.6.freq"), sep=""))
+   system(paste("ln -s ", file.path(path.weeder.freq, "HSI.8.freq"), " ", file.path("FreqFiles", "HSI.8.freq"), sep=""))
 }
 if(species=="mouse") {
-   system(paste("ln -s ", path.weeder.freq, "MM.6.freq FreqFiles/MM.6.freq", sep=""))
-   system(paste("ln -s ", path.weeder.freq, "MM.8.freq FreqFiles/MM.8.freq", sep=""))
-   system(paste("ln -s ", path.weeder.freq, "MMI.6.freq FreqFiles/MMI.6.freq", sep=""))
-   system(paste("ln -s ", path.weeder.freq, "MMI.8.freq FreqFiles/MMI.8.freq", sep=""))
+   system(paste("ln -s ", file.path(path.weeder.freq, "MM.6.freq"), " ", file.path("FreqFiles", "MM.6.freq"), sep=""))
+   system(paste("ln -s ", file.path(path.weeder.freq, "MM.8.freq"), " ", file.path("FreqFiles", "MM.8.freq"), sep=""))
+   system(paste("ln -s ", file.path(path.weeder.freq, "MMI.6.freq"), " ", file.path("FreqFiles", "MMI.6.freq"), sep=""))
+   system(paste("ln -s ", file.path(path.weeder.freq, "MMI.8.freq"), " ", file.path("FreqFiles", "MMI.8.freq"), sep=""))
 }
 if(species=="rat") {
-   system(paste("ln -s ", path.weeder.freq, "RN.6.freq FreqFiles/RN.6.freq", sep=""))
-   system(paste("ln -s ", path.weeder.freq, "RN.8.freq FreqFiles/RN.8.freq", sep=""))
+   system(paste("ln -s ", file.path(path.weeder.freq, "RN.6.freq"), " ", file.path("FreqFiles", "RN.6.freq"), sep=""))
+   system(paste("ln -s ", file.path(path.weeder.freq, "RN.8.freq"), " ", file.path("FreqFiles", "RN.8.freq"), sep=""))
 }
 if(species=="drosophila") {
-   system(paste("ln -s ", path.weeder.freq, "DM.6.freq FreqFiles/RN.6.freq", sep=""))
-   system(paste("ln -s ", path.weeder.freq, "DM.8.freq FreqFiles/RN.8.freq", sep=""))
+   system(paste("ln -s ", file.path(path.weeder.freq, "DM.6.freq"), " ", file.path("FreqFiles", "RN.6.freq"), sep=""))
+   system(paste("ln -s ", file.path(path.weeder.freq, "DM.8.freq"), " ", file.path("FreqFiles", "RN.8.freq"), sep=""))
 }
 if(species=="yeast") {
-   system(paste("ln -s ", path.weeder.freq, "SC.6.freq FreqFiles/SC.6.freq", sep=""))
-   system(paste("ln -s ", path.weeder.freq, "SC.8.freq FreqFiles/SC.8.freq", sep=""))
+   system(paste("ln -s ", file.path(path.weeder.freq, "SC.6.freq"), " ", file.path("FreqFiles", "SC.6.freq"), sep=""))
+   system(paste("ln -s ", file.path(path.weeder.freq, "SC.8.freq"), " ", file.path("FreqFiles", "SC.8.freq"), sep=""))
 }
 
 # Retrieving the sequences
