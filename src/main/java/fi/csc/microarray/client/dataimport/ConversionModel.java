@@ -39,6 +39,12 @@ import fi.csc.microarray.client.dataimport.events.TitleRowChangedEvent;
  * 
  */
 public class ConversionModel implements ConversionModelChangeSupport {
+	
+	/**
+	 * Chipster assumes this separator to be used everywhere.
+	 */
+	private static final char CHIPSTER_INTERNAL_DECIMAL_SEPARATOR = '.';
+
 	/**
 	 * Logger for this class
 	 */
@@ -341,11 +347,11 @@ public class ConversionModel implements ConversionModelChangeSupport {
 			while ((splittedLine = nextLine(ignoreHeadersAndFooters, false)) != null && !Thread.interrupted()) {
 				isLimited = false;
 
-				// Sets the lenght of the line. The lenght is depending on
+				// Sets the length of the line. The length is depending on
 				// columnLimit
 				int dataLineLenghtLimit;
 				if (splittedLine.length >= columnLimit) {
-					// Limit the lenght
+					// Limit the length
 					dataLineLenghtLimit = columnLimit;
 					isLimited = true;
 				} else {
@@ -367,7 +373,7 @@ public class ConversionModel implements ConversionModelChangeSupport {
 				dataLine[0] = lineNumber;
 
 				// Start from 1 because of the first column (row number)
-				// Respects the column limit
+				// Respect the column limit
 				for (int j = 1; j < dataLineLenghtLimit; j++) {
 
 					token = new StringBuffer(splittedLine[j - 1]);
@@ -702,17 +708,17 @@ public class ConversionModel implements ConversionModelChangeSupport {
 
 						for (int chip = 0; chip < outputWriters.size(); chip++) {
 							writeSplittedLineToChipFile(chip, columnNumber, isFirst, splittedLine, 
-									outputWriters.get(chip));
+									outputWriters.get(chip), type);
 						}
 					} else {
 						if(isNormalised){							
 							writeSplittedLineToChipFile(column.getChipNumber() - 1, columnNumber, 
 									isFirst, splittedLine, 
-									outputWriters.get(0));
+									outputWriters.get(0), type);
 						} else {
 							writeSplittedLineToChipFile(column.getChipNumber() - 1, columnNumber, 
 									isFirst, splittedLine, 
-									outputWriters.get(column.getChipNumber() - 1));
+									outputWriters.get(column.getChipNumber() - 1), type);
 						}
 					}
 
@@ -1185,7 +1191,7 @@ public class ConversionModel implements ConversionModelChangeSupport {
 		return outputFiles;
 	}
 
-	private void writeSplittedLineToChipFile(int chip, int columnNumber, boolean[] isFirst, String[] splittedLine, PrintWriter outputWriter) {
+	private void writeSplittedLineToChipFile(int chip, int columnNumber, boolean[] isFirst, String[] splittedLine, PrintWriter outputWriter, ColumnType type) {
 		String OUTPUT_DELIM = "\t";
 
 		if(isNormalised){
@@ -1216,6 +1222,11 @@ public class ConversionModel implements ConversionModelChangeSupport {
 		// Do data trimming replacements
 		dataToWrite = screen.getDataTrimmer().doTrimming(dataToWrite, columnNumber + 1);
 
+		// replace decimal separators
+		if (type.isNumeric()) {
+			dataToWrite = dataToWrite.replace(this.decimalSeparator, CHIPSTER_INTERNAL_DECIMAL_SEPARATOR);
+		}
+		
 		// Get the correct outputWriter and print the data to file
 		outputWriter.print(dataToWrite);
 	}

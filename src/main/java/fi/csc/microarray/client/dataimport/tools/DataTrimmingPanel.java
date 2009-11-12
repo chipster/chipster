@@ -193,7 +193,7 @@ public class DataTrimmingPanel extends JXTaskPane implements ActionListener, Lis
 	}
 
 	public void decimalSeparatorChanged(DecimalSeparatorChangedEvent e) {
-		// Do nothign
+		// Do nothing
 		
 	}
 

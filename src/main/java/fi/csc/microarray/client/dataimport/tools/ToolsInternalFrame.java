@@ -285,6 +285,27 @@ public class ToolsInternalFrame extends SimpleInternalFrame
 		}
 	}
 
+	private void setDecimalSeparator(char separator) {
+		screen.getConversionModel().setDecimalSeparator(separator);
+		if (screen.getConversionModel().getDecimalSeparator() == 
+			screen.getConversionModel().getDelim().toString().charAt(0) &&
+			screen.getConversionModel().getDelim().toString().length() == 1) {
+			
+			JOptionPane.showMessageDialog(null,
+					new JLabel("<html>You can't use the same character<br>as both the column delimiter and the<br>decimal separator!</html>"),
+					"Error",
+					JOptionPane.ERROR_MESSAGE);
+			customDelimField.setForeground(Color.RED);
+			useCustomDelimButton.setEnabled(false);
+			
+		} else {
+		
+			this.updateDelimeterPanel();
+			customDelimField.setForeground(Color.BLACK);
+			useCustomDelimButton.setEnabled(true);				
+		}
+	}
+
 	// S E C O N D  S T E P ///////////////////////////////////////////////////////
 	
 	/**
@@ -475,9 +496,9 @@ public class ToolsInternalFrame extends SimpleInternalFrame
 	}
 
 	public void updateDelimeterPanel() {
-		char desimalSepatator = screen.getConversionModel().getDecimalSeparator();
+		char decimalSeparator = screen.getConversionModel().getDecimalSeparator();
 		Delimiter delim = screen.getConversionModel().getDelim();
-		if(desimalSepatator == '.'){
+		if(decimalSeparator == '.'){
 			dotAsDecimalSeparatorRadioButton.setSelected(true);
 			commaAsDecimalSeparatorRadioButton.setSelected(false);
 		} else {
@@ -523,8 +544,11 @@ public class ToolsInternalFrame extends SimpleInternalFrame
 		// Do nothing
 	}
 
+	/**
+	 * Updates GUI if decimal separator changed
+	 */
 	public void decimalSeparatorChanged(DecimalSeparatorChangedEvent e) {
-		// TODO Should this do something?
+		this.setDecimalSeparator(e.getNewValue().toString().charAt(0));
 	}
 
 	/**
@@ -551,7 +575,6 @@ public class ToolsInternalFrame extends SimpleInternalFrame
 	}
 
 	public void inputFileChanged(InputFileChangedEvent e) {
-		// TODO Auto-generated method stub
-		
+		// Do nothing
 	}
 }
