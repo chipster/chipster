@@ -1,5 +1,5 @@
 # ANALYSIS Normalisation/"Normalize to chip average" (Normalizes data so that the average signal of each chip becomes equal to the value of 1.)
-# INPUT GENE_EXPRS normalized.tsv, GENE_EXPRS normalized-too.tsv OUTPUT normalized2genes.tsv
+# INPUT GENE_EXPRS normalized.tsv OUTPUT normalized2chipaverage.tsv
 # PARAMETER average.method [median, mean] DEFAULT mean (Method for calculating the average)
 
 # Normalize the data on each chip to the average of the chip
