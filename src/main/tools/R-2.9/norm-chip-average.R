@@ -8,34 +8,27 @@
 # Name of the first table
 name1<-c("normalized.tsv")
 
-# Name of the second table
-name2<-c("normalized-too.tsv")
-
-# Loads the tables
+# Loads the table with data
 table1<-read.table(file=name1, sep="\t", header=T, row.names=1)
-#table2<-read.table(file=name2, sep="\t", header=T, row.names=1)
 
-# Table2 should always hold the genelist specifying the control probes
-#if(nrow(table2)>nrow(table1)) {
-#   table3<-table1
-#   table1<-table2
-#   table2<-table3
-#}
+# Get the indices for the column with expression values
+indices <- grep("chip", names(table1))
 
-# Extract the control genes/probes from the whole dataset
-#table1c<-table1[rownames(table1),]
-
-# Separates expression values
-table1cd<-table1[,grep("chip", names(table1c))]
+# Calculate chip means and medians
+chip.means <- apply(table1[,indices],FUN=mean,MARGIN=2)
+chip.medians <- apply(table1[,indices],FUN=median,MARGIN=2)
 
 # Calculating the normalization values
-means<-colMeans(table1cd)
-
-# Performing the normalization
-cols<-grep("chip", names(table1c))
-for(i in 1:length(cols)) {
-   table1[,cols[i]]<-table1[,cols[i]]-means[i]
+if (average.method=="mean") {
+	for (column in 1:length(indices)) {
+		table1[,indices[column]] <- table1[,indices[column]]/chip.means[column]
+	}
+}
+if (average.method=="median") {
+	for (column in 1:length(indices)) {
+		table1[,indices[column]] <- table1[,indices[column]]/chip.medians[column]
+	}
 }
 
 # Write out data
-write.table(table1, file="normalized2genes.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+write.table(table1, file="normalized2chipaverage.tsv", sep="\t", row.names=T, col.names=T, quote=F)
