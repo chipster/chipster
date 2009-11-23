@@ -358,7 +358,7 @@ public class SwingClientApplication extends ClientApplication {
 	private String windowTitleBlockingPrefix = null;
 
 	public void updateWindowTitleJobCount(Integer jobCount) {
-		windowTitleJobPrefix = jobCount > 0 ? jobCount + " jobs / " : null;
+		windowTitleJobPrefix = jobCount > 0 ? jobCount + " tasks / " : null;
 		updateWindowTitle();
 	}
 	
