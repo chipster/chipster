@@ -104,62 +104,64 @@ annot.table3<-merge(annot.table2, pvalues)
 saveText(annot.table3, "annotations.tsv")
 
 # KEGG and GO enrichment analysis
-library(GOstats)
-library(KEGG)
-library(GO)
-pcut<-0.05
-choisedirec<-"over"
-ontology<-"KEGG"
-env<-paste(as.character(phenodata$chiptype[1]), "ENTREZID", sep="")
-alleg<-get(env)
-alleg<-as.list(alleg)
-alleg<-unlist(alleg)
-alleg<-as.data.frame(alleg)
-myids<-unique(alleg[rownames(dat3),])
-params<-new("KEGGHyperGParams", geneIds=myids, annotation=as.character(phenodata$chiptype[1]), pvalueCutoff=pcut, testDirection=choisedirec)
-result<-hyperGTest(params)
-if(ontology=="KEGG" & sum(pvalues(result)<pcut)>=1) {
-   ID<-names(pvalues(result)[pvalues(result)<=pcut])
-   Pvalue<-pvalues(result)[pvalues(result)<=pcut]
-   OddsRatio<-oddsRatios(result)[pvalues(result)<=pcut]
-   ExpCount<-expectedCounts(result)[pvalues(result)<=pcut]
-   Count<-geneCounts(result)[pvalues(result)<=pcut]
-   Size<-universeCounts(result)[pvalues(result)<=pcut]
-   Term<-as.vector(t(as.data.frame(mget(names(result@oddsRatios[result@pvalues<=pcut]), KEGGPATHID2NAME)))[,1])   
-   write(x="<HTML>", file="hypergeo.html", append=T) 
-   write(x="<BODY>", file="hypergeo.html", append=T)
-   write(x="<TABLE border=1>", file="hypergeo.html", append=T)
-   write(x="<CAPTION> KEGG - test for over-representation </CAPTION>", file="hypergeo.html", append=T)
-   write(x="<TR> <TH>  </TH> <TH> ID </TH> <TH> Pvalue </TH> <TH> OddsRatio </TH> <TH> ExpCount </TH> <TH> Count </TH> <TH> Size </TH> <TH> Term </TH>  </TR>", file="hypergeo.html", append=T)
-   for(i in 1:length(ID)) {
-      write(x=paste("<TR> <TD> ", i, " </TD> <TD> ", ID[i], " </TD> <TD> ", round(Pvalue[i], digits=2), " </TD> <TD> ", round(OddsRatio[i], digits=2), " </TD> <TD> ", round(ExpCount[i], digits=2), " </TD> <TD> ", Count[i], " </TD> <TD> ", Size[i], " </TD> <TD> ", "<a href=", cat("\""), "http://www.genome.jp/dbget-bin/www_bfind_sub?mode=bfind&max_hit=1000&locale=en&serv=gn&dbkey=pathway&keywords=", ID[i], "&page1", cat("\""), ">", Term[i], "</a>", "</TD> </TR>", sep=""), file="hypergeo.html", append=T)
-   }
-   write(x="</BODY>", file="hypergeo.html", append=T)
-   write(x="</HTML>", file="hypergeo.html", append=T)      
-} 
-if(ontology=="KEGG" & sum(pvalues(result)<pcut)<1) {
-   write(x="<HTML>", file="hypergeo.html", append=T) 
-   write(x="<BODY>", file="hypergeo.html", append=T)
-   write(x="No significant results found! <br>", file="hypergeo.html", append=T)
-   write(x="</BODY>", file="hypergeo.html", append=T)
-   write(x="</HTML>", file="hypergeo.html", append=T)      
-}
-ontology<-"GO"
-params<-new("GOHyperGParams", geneIds=myids, annotation=as.character(phenodata$chiptype[1]), ontology="BP", pvalueCutoff=pcut, conditional=FALSE,testDirection=choisedirec)
-resultBP<-hyperGTest(params)
-params<-new("GOHyperGParams", geneIds=myids, annotation=as.character(phenodata$chiptype[1]), ontology="MF", pvalueCutoff=pcut, conditional=FALSE,testDirection=choisedirec)
-resultMF<-hyperGTest(params)
-params<-new("GOHyperGParams", geneIds=myids, annotation=as.character(phenodata$chiptype[1]), ontology="CC", pvalueCutoff=pcut, conditional=FALSE,testDirection=choisedirec)
-resultCC<-hyperGTest(params)
-if( sum(pvalues(resultCC)<pcut) + sum(pvalues(resultBP)<pcut) + sum(pvalues(resultMF)<pcut) >=1) {
-   htmlReport(resultBP, "hypergeo.html", append=T)
-   htmlReport(resultMF, "hypergeo.html", append=T)
-   htmlReport(resultCC, "hypergeo.html", append=T)
-}
-if( sum(pvalues(resultCC)<pcut) + sum(pvalues(resultBP)<pcut) + sum(pvalues(resultMF)<pcut) <1) {
-   write(x="<HTML>", file="hypergeo.html", append=T) 
-   write(x="<BODY>", file="hypergeo.html", append=T)
-   write(x="No significant results found! <br>", file="hypergeo.html", append=T)
-   write(x="</BODY>", file="hypergeo.html", append=T)
-   write(x="</HTML>", file="hypergeo.html", append=T)   
-}
+write(x="Enrichment analysis not available at the moment, will be updated soon.", file="hypergeo.html", append=T)
+
+#library(GOstats)
+#library(KEGG.db)
+#library(GO)
+#pcut<-0.05
+#choisedirec<-"over"
+#ontology<-"KEGG"
+#env<-paste(as.character(phenodata$chiptype[1]), "ENTREZID", sep="")
+#alleg<-get(env)
+#alleg<-as.list(alleg)
+#alleg<-unlist(alleg)
+#alleg<-as.data.frame(alleg)
+#myids<-unique(alleg[rownames(dat3),])
+#params<-new("KEGGHyperGParams", geneIds=myids, annotation=as.character(phenodata$chiptype[1]), pvalueCutoff=pcut, testDirection=choisedirec)
+#result<-hyperGTest(params)
+#if(ontology=="KEGG" & sum(pvalues(result)<pcut)>=1) {
+#   ID<-names(pvalues(result)[pvalues(result)<=pcut])
+#   Pvalue<-pvalues(result)[pvalues(result)<=pcut]
+#   OddsRatio<-oddsRatios(result)[pvalues(result)<=pcut]
+#   ExpCount<-expectedCounts(result)[pvalues(result)<=pcut]
+#   Count<-geneCounts(result)[pvalues(result)<=pcut]
+#   Size<-universeCounts(result)[pvalues(result)<=pcut]
+#   Term<-as.vector(t(as.data.frame(mget(names(result@oddsRatios[result@pvalues<=pcut]), KEGGPATHID2NAME)))[,1])   
+#   write(x="<HTML>", file="hypergeo.html", append=T) 
+#   write(x="<BODY>", file="hypergeo.html", append=T)
+#   write(x="<TABLE border=1>", file="hypergeo.html", append=T)
+#   write(x="<CAPTION> KEGG - test for over-representation </CAPTION>", file="hypergeo.html", append=T)
+#   write(x="<TR> <TH>  </TH> <TH> ID </TH> <TH> Pvalue </TH> <TH> OddsRatio </TH> <TH> ExpCount </TH> <TH> Count </TH> <TH> Size </TH> <TH> Term </TH>  </TR>", file="hypergeo.html", append=T)
+#   for(i in 1:length(ID)) {
+#      write(x=paste("<TR> <TD> ", i, " </TD> <TD> ", ID[i], " </TD> <TD> ", round(Pvalue[i], digits=2), " </TD> <TD> ", round(OddsRatio[i], digits=2), " </TD> <TD> ", round(ExpCount[i], digits=2), " </TD> <TD> ", Count[i], " </TD> <TD> ", Size[i], " </TD> <TD> ", "<a href=", cat("\""), "http://www.genome.jp/dbget-bin/www_bfind_sub?mode=bfind&max_hit=1000&locale=en&serv=gn&dbkey=pathway&keywords=", ID[i], "&page1", cat("\""), ">", Term[i], "</a>", "</TD> </TR>", sep=""), file="hypergeo.html", append=T)
+#   }
+#   write(x="</BODY>", file="hypergeo.html", append=T)
+#   write(x="</HTML>", file="hypergeo.html", append=T)      
+#} 
+#if(ontology=="KEGG" & sum(pvalues(result)<pcut)<1) {
+#   write(x="<HTML>", file="hypergeo.html", append=T) 
+#   write(x="<BODY>", file="hypergeo.html", append=T)
+#   write(x="No significant results found! <br>", file="hypergeo.html", append=T)
+#   write(x="</BODY>", file="hypergeo.html", append=T)
+#   write(x="</HTML>", file="hypergeo.html", append=T)      
+#}
+#ontology<-"GO"
+#params<-new("GOHyperGParams", geneIds=myids, annotation=as.character(phenodata$chiptype[1]), ontology="BP", pvalueCutoff=pcut, conditional=FALSE,testDirection=choisedirec)
+#resultBP<-hyperGTest(params)
+#params<-new("GOHyperGParams", geneIds=myids, annotation=as.character(phenodata$chiptype[1]), ontology="MF", pvalueCutoff=pcut, conditional=FALSE,testDirection=choisedirec)
+#resultMF<-hyperGTest(params)
+#params<-new("GOHyperGParams", geneIds=myids, annotation=as.character(phenodata$chiptype[1]), ontology="CC", pvalueCutoff=pcut, conditional=FALSE,testDirection=choisedirec)
+#resultCC<-hyperGTest(params)
+#if( sum(pvalues(resultCC)<pcut) + sum(pvalues(resultBP)<pcut) + sum(pvalues(resultMF)<pcut) >=1) {
+#   htmlReport(resultBP, "hypergeo.html", append=T)
+#   htmlReport(resultMF, "hypergeo.html", append=T)
+#   htmlReport(resultCC, "hypergeo.html", append=T)
+#}
+#if( sum(pvalues(resultCC)<pcut) + sum(pvalues(resultBP)<pcut) + sum(pvalues(resultMF)<pcut) <1) {
+#   write(x="<HTML>", file="hypergeo.html", append=T) 
+#   write(x="<BODY>", file="hypergeo.html", append=T)
+#   write(x="No significant results found! <br>", file="hypergeo.html", append=T)
+#   write(x="</BODY>", file="hypergeo.html", append=T)
+#   write(x="</HTML>", file="hypergeo.html", append=T)   
+#}
