@@ -19,6 +19,7 @@
 			<tool runtime="R-2.9">norm-gene-average.R</tool>
 			<tool runtime="R-2.9">norm-specific-samples.R</tool>
 			<tool runtime="R-2.9">norm-specific-genes.R</tool>
+			
 
 			<!-- QUALITY CONTROL -->
 			<tool runtime="R-2.9">qc-affy.R</tool>
