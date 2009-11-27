@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -54,7 +55,9 @@ implements ChartMouseListener, Cloneable, Serializable{ //, MouseWheelListener {
 
 	private List<View> views = new LinkedList<View>();
 
-	private View overview;;
+	private View overview;
+
+	private BufferedImage drawBuffer;;
 
 	public GenomeBrowser(){
 
@@ -357,6 +360,7 @@ implements ChartMouseListener, Cloneable, Serializable{ //, MouseWheelListener {
 		//   g2.setComposite(originalComposite);
 
 		drawOutline(g2, area);
+	
 	}
 
 	private int screenWidth;

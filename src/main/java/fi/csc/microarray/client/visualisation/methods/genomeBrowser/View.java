@@ -1,5 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.genomeBrowser;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -11,7 +12,9 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -49,6 +52,13 @@ public abstract  class View implements MouseListener, MouseMotionListener, Mouse
 	protected Float trackHeight;
 	private Point2D dragEndPoint;
 	private Point2D dragLastStartPoint;
+	private Iterator<Track> trackIter;
+	private Iterator<Drawable> drawableIter;
+	private boolean continueDrawingLater;
+	private Track track;
+	private float y;
+	private int x;
+	private BufferedImage drawBuffer;
 	
 	public View(GenomeBrowser parent, boolean movable, boolean zoomable, boolean selectable) {
 		parentPlot = parent;
@@ -69,42 +79,101 @@ public abstract  class View implements MouseListener, MouseMotionListener, Mouse
 
 		Rectangle viewClip = g.getClipBounds();
 		viewArea = viewClip;
+		
+		//System.out.println(viewArea);
+		
+		if(drawBuffer == null){
+			drawBuffer = new BufferedImage(
+					(int)viewArea.getWidth(), (int)viewArea.getHeight(), 
+					BufferedImage.TYPE_INT_RGB);
+			
+			Graphics2D bufG2 = (Graphics2D) drawBuffer.getGraphics();
+			bufG2 .setPaint(Color.white);
+			bufG2.fillRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
+		}
+		
+		Graphics2D bufG2 = (Graphics2D)drawBuffer.getGraphics();
 
-		float y = viewClip.y;	
-		int x = viewClip.x;
+		
+		if(trackIter == null) {
+			
+//			y = viewClip.y;	
+//			x = viewClip.x;
+			
+			y = 0;
+			x = 0;
+			
+			trackIter = tracks.iterator();
+			drawableIter = null;
+		}
 
-		for (Track t : tracks){
-
-			if(t.getMaxHeight() > 0){
-				//long start = System.currentTimeMillis();
-				Collection<Drawable> drawables = t.getDrawables();
-				//			//System.out.println("Get  drawables, view: " + this + ", track: " + t + ", " + (System.currentTimeMillis() - start) + " ms ");
-
-				//				g.setPaint(Color.green);
-				//				g.drawLine(0, (int)y, 800, (int)y);
-
-				//start = System.currentTimeMillis();
+		long startTime = System.currentTimeMillis();
+		continueDrawingLater = false;
+		
+		while (trackIter.hasNext() || (drawableIter != null && drawableIter.hasNext())){
+			
+			if(drawableIter == null || !drawableIter.hasNext()) {
+				track = trackIter.next();
+			}
+			
+			if(track.getMaxHeight() > 0){
 				
-				for ( Drawable drawable : drawables){
+				
+				if(drawableIter == null) {
+					Collection<Drawable> drawables = track.getDrawables();
+					drawableIter = drawables.iterator();
+				}
+				
+				while ( drawableIter.hasNext()) {
+															
+					Drawable drawable = drawableIter.next();				
 					
 					int maybeReversedY = (int)y;
 					
-					if(t.isReversed()){
+					if(track.isReversed()){
 						drawable.upsideDown();
-						maybeReversedY += Math.min(getTrackHeight(), t.getMaxHeight());
+						maybeReversedY += Math.min(getTrackHeight(), track.getMaxHeight());
 					}
 					
-					drawDrawable(g, x, maybeReversedY, drawable);
-				}			
-				//System.out.println("Draw drawables, view: " + this + ", track: " + t + ", " + (System.currentTimeMillis() - start) + " ms ");
+					drawDrawable(bufG2, x, maybeReversedY, drawable);
+					
+					if(System.currentTimeMillis() - startTime >= 1000 / FPS){
+						
+						//System.out.println("continue drawing later");
+						continueDrawingLater = true;						
+						this.redraw();
+						break;
+					}
+				}
+								
+				if(continueDrawingLater){
+					break;
+				} else {
+					drawableIter = null;
+				}
 			}
 			
-			if(t.getMaxHeight() == Integer.MAX_VALUE){
+			
+			if(track.getMaxHeight() == Integer.MAX_VALUE){
 				y += getTrackHeight();
 			} else {
-				y += t.getMaxHeight();
+				y += track.getMaxHeight();
 			}
 		}
+		
+		g.drawImage(drawBuffer, (int)viewArea.getX(), (int)viewArea.getY(),
+				(int)viewArea.getX() + drawBuffer.getWidth(), (int)viewArea.getY() + drawBuffer.getHeight(), 
+				0, 0, drawBuffer.getWidth(), drawBuffer.getHeight(), null);
+		
+		if(!continueDrawingLater){
+			//System.out.println("All drawn");
+			
+			bufG2.setPaint(Color.white);
+			bufG2.fillRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
+			trackIter = null;
+			drawableIter = null;
+		}
+		
 	}
 
 	protected abstract void drawDrawable(Graphics2D g, int x, int y, Drawable drawable);
