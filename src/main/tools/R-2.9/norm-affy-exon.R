@@ -13,9 +13,11 @@
 # modified 11.11.2009, MG
 # Changes to CDF package names to match BRainArray version 12
 # 
-# modified 12.11.2009, MG
+# modified 25.11.2009, MG
 # Gene symbols and gene names are now incorporated to the table
 # of normalized values when using "gene" as summary feature
+# but not for "exon", since the annotation packages do not
+# support this
 
 # Initializes analyses
 library(affy)
@@ -66,17 +68,20 @@ random<-c(rep("", nrow(pData(dat))))
 chiptype<-dat@annotation
 write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
-# Writes the results into a file
-#write.table(dat2, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
-
 # Writing out data
 a<-try(library(chiptype, character.only=T))
 if(chiptype!="empty" & class(a)!="try-error") {
-	# Including gene names to data
-	lib2<-sub('.db','',chiptype)
-	symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "SYMBOL", sep="")))))[rownames(dat2),])
-	genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[rownames(dat2),])
+	if (summary.feature=="exon") {
+		# Writes the results into a file
+		write.table(data.frame(dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+	}
+	if (summary.feature=="gene") {
+		# Including gene names to data
+		lib2<-sub('.db','',chiptype)
+		symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "SYMBOL", sep="")))))[rownames(dat2),])
+		genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[rownames(dat2),])
 	# Writes the results into a file
 	write.table(data.frame(symbol, description=genename, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+	}
 } 
 
