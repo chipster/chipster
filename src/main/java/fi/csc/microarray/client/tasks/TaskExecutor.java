@@ -10,6 +10,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -327,9 +328,11 @@ public class TaskExecutor {
 		private void extractPayloads(ResultMessage resultMessage) throws JMSException, MicroarrayException, IOException {
 			for (String name : resultMessage.payloadNames()) {
 				logger.debug("output " + name);
-				// FIXME could fetch the URL directly to DataBean so that we could start to use cached copy from the beginning
-				InputStream payload = fileBroker.getFile(resultMessage.getPayload(name)); 
+				URL payloadUrl = resultMessage.getPayload(name);
+				InputStream payload = fileBroker.getFile(payloadUrl); 
 				DataBean bean = manager.createDataBean(name, payload);
+				bean.setUrl(payloadUrl);
+				bean.setContentChanged(false);
 				pendingTask.addOutput(name, bean);
 			}
 		}
