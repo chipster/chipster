@@ -32,7 +32,7 @@ import fi.csc.microarray.databeans.features.Table;
  * could be used to annotate them (write some describing names and notes
  * for different genes).
  * 
- * @author Janne KÃ¤ki
+ * @author Janne KÃ¤ki, Mikko Koski, Aleksi Kallio
  *
  */
 
@@ -46,8 +46,6 @@ public class Spreadsheet extends Visualisation {
 	/**
 	 * PopupMenu for spread sheet view. Allows copy operation and annotating 
 	 * using Bioconductor
-	 * 
-	 * @author mkoski
 	 *
 	 */
 	public class SpreadsheetPopupMenu extends JPopupMenu implements ActionListener {
@@ -123,7 +121,11 @@ public class Spreadsheet extends Visualisation {
 		while (columns.nextRow()) {
 			int column = 0;
 			for (String columnName : columns.getColumnNames()) {
-				rowData[row][column] = columns.getValue(columnName);
+				Object value = columns.getValue(columnName);
+				if (value instanceof Float) {
+					value = new NicelyShowingFloat((Float)value);
+				}
+				rowData[row][column] = value;
 				column++;
 			}
 			row++;
@@ -140,8 +142,6 @@ public class Spreadsheet extends Visualisation {
 		table.setColumnControlVisible(true);
 		JScrollPane tableScroller = new JScrollPane(table);
         table.setBackground(java.awt.Color.white);
-		//table.setPreferredScrollableViewportSize(tableSize);
-//		table.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		table.setHorizontalScrollEnabled(columns.getColumnCount() > COLUMNS_REQUIRES_SCROLLING);
 		
 		// Adds popupmenu listener
@@ -173,6 +173,49 @@ public class Spreadsheet extends Visualisation {
 		return panel; 
 	}
 
+	
+	public static class NicelyShowingFloat implements Comparable {
+
+		private Float floatValue;
+		
+		public NicelyShowingFloat(Float floatValue) {
+			this.floatValue = floatValue;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof NicelyShowingFloat) {
+				return floatValue.equals(((NicelyShowingFloat)obj).floatValue);
+			}
+			throw new IllegalArgumentException("cannot compare to instance of " + obj.getClass().getSimpleName());
+		}
+
+		@Override
+		public int hashCode() {
+			return floatValue.hashCode();
+			
+		}
+		
+		@Override
+		public String toString() {
+			String s = floatValue.toString();
+			
+			if (s.endsWith(".0")) {
+				s = s.substring(0, s.length()-2);
+			}
+			
+			return s;
+		}
+		
+		public int compareTo(Object obj) {
+			if (obj instanceof NicelyShowingFloat) {
+				return floatValue.compareTo(((NicelyShowingFloat)obj).floatValue);
+			}
+			throw new IllegalArgumentException("cannot compare to instance of " + obj.getClass().getSimpleName());
+		}
+		
+	}
+	
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
 
