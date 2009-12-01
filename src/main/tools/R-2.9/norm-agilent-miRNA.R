@@ -48,7 +48,7 @@ if(normba=="scale-75") {
 dat3<-log2(dat3)
 
 # Writes out a phenodata table
-sample<-paste("chip.", colnames(dat3), sep="")
+sample<-paste(colnames(dat3), ".tsv", sep="")
 group<-c(rep("", length(sample)))
 training<-c(rep("", length(sample)))
 time<-c(rep("", length(sample)))
