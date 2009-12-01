@@ -1,4 +1,4 @@
-// ANALYSIS Pathways/"Protein interactions from IntAct" (Maps the given list of genes to protein interactions using the IntAct database. This service is provided by the EBI. NOTE! Supports only Affymetrix data.)
+// ANALYSIS Pathways/"Protein interactions from IntAct" (Maps the given list of genes to protein interactions using the IntAct database. This service is provided by the EBI. NOTE! Supports only Affymetrix and UniProt identifiers.)
 // INPUT GENERIC input.tsv OUTPUT intact.html, intact.tsv
 // PARAMETER input.type [affyid, uniprot] (What kind of identifiers input data contains)
 
