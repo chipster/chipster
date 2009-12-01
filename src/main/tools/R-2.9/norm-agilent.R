@@ -43,7 +43,7 @@ dat2<-normalizeWithinArrays(dat, method=normwa, bc.method=bg, offset=as.numeric(
 dat3<-normalizeBetweenArrays(dat2, method=normba)
 
 # Writes out a phenodata table
-sample<-paste("chip.", colnames(dat2$M), sep="")
+sample<-paste(colnames(dat2$M), ".tsv", sep="")
 group<-c(rep("", length(sample)))
 training<-c(rep("", length(sample)))
 time<-c(rep("", length(sample)))

@@ -3,7 +3,7 @@
 # INPUT CDNA microarray[...].tsv OUTPUT normalized.tsv, phenodata.tsv
 # PARAMETER background.treatment [none, subtract, edwards, normexp] DEFAULT normexp (Background treatment method)
 # PARAMETER background.offset [0, 50] DEFAULT 50 (Background offset)
-# PARAMETER normalize.chips [none, scale, scale-75, quantile, vsn] DEFAULT none (Between arrays normalization method)
+# PARAMETER normalize.chips [none, scale, scale-75, quantile, vsn] DEFAULT quantile (Between arrays normalization method)
 # PARAMETER remove.control.probes [yes, no] DEFAULT no (Remove control probes from the dataset)
 # PARAMETER chiptype [empty, Human-1 (4100a), Human-2 (4101a), Human-1A (4110b), Human-1B (4111a), Human-Whole-Genome (4112a), Mouse (4104a), Mouse (4120a), Mouse (4121a), Mouse (4122a), Rat (4105a), Rat (4130a), Rat (4131)]  DEFAULT empty (chiptype)
 
@@ -49,7 +49,7 @@ if(normba=="scale-75") {
 dat3<-log2(dat3)
 
 # Writes out a phenodata table
-sample<-paste("chip.", colnames(dat3), sep="")
+sample<-paste(colnames(dat3), ".tsv", sep="")
 group<-c(rep("", length(sample)))
 training<-c(rep("", length(sample)))
 time<-c(rep("", length(sample)))
