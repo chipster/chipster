@@ -31,7 +31,7 @@ import fi.csc.microarray.util.XmlUtil;
  */
 public class ConfigTool {
 
-	static final String CURRENT_R_VERSION = "R-2.6.1";
+	static final String CURRENT_R_VERSION = "R-2.9";
 	private final String brokerDir = "activemq";
 	private final String webstartDir = "webstart";
 
