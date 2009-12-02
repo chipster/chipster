@@ -34,11 +34,10 @@ import fi.csc.microarray.util.XmlUtil;
 
 public class CpdbWsUtils {
 
-
 	public static void main(String[] args) throws SAXException, ParserConfigurationException, TransformerException, SOAPException, IOException {
 		String[] probes = new String[] {"TM9SF2", "FOLR3", "IER2", "TMED2", "TMEM131", "PVRL2", "MIA3",};
 
-		ResultTableCollector annotations = query(probes);
+		ResultTableCollector annotations = query(probes, "hgnc");
 		annotations.filterRows(new RowFilter() {
 			public boolean shouldRemove(ResultRow row) {
 				return Double.parseDouble(row.getValue("ns1:pValue")) > 0.0005d;
@@ -76,7 +75,11 @@ public class CpdbWsUtils {
 		HtmlUtil.writeTextTable(annotations, new String[] {"ns1:pValue", "ns1:overlapSize", "ns1:pathwaySize", "ns1:pathway", "ns1:database"}, new String[] {"p-value", "Count", "Size", "Pathway", "Database"}, new FileOutputStream(textFile));
 	}
 
-	public static ResultTableCollector query(String[] genes) throws SAXException, ParserConfigurationException, TransformerException, SOAPException, IOException {
+	/**
+	 * 
+	 * @param idType must be either "hgnc" or "uniprot"
+	 */
+	public static ResultTableCollector query(String[] ids, String idType) throws SAXException, ParserConfigurationException, TransformerException, SOAPException, IOException {
 		try {
 			ResultTableCollector annotationCollector = new ResultTableCollector();
 			MessageFactory mf = MessageFactory.newInstance();
@@ -89,9 +92,9 @@ public class CpdbWsUtils {
 			SOAPElement elementORApathways = soapBody.addChildElement("ORApathways", "cpdb");
 			
 			SOAPElement elementIdType = elementORApathways.addChildElement("CPDB_idType", "cpdb");
-			elementIdType.setTextContent("hgnc");
+			elementIdType.setTextContent(idType);
 			
-			for (String gene : genes) { 
+			for (String gene : ids) { 
 				SOAPElement elementIdList1 = elementORApathways.addChildElement("CPDB_idList", "cpdb");
 				elementIdList1.setTextContent(gene);
 			}
