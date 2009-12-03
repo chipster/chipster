@@ -115,7 +115,7 @@ if (summary.feature=="transcript") {
 #go2term <- GO2df.fun(url="ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2go.gz")
 
 # Fetch links between GO id and term from locally installed files
-go2term <- read.table(file="go_id_to_go_term.txt", sep="\t")
+go2term <- read.table(.path(path.mappings, "go_id_to_go_term.txt"), sep="\t")
 
 # Define the reference list to compare against, i.e. all transcripts in tran2gomf
 if (summary.feature=="gene") {
