@@ -76,7 +76,7 @@ public class HelpMapping {
 		mappings.put("Pathways/Gene set test", "chipster-manual/stat-geneset.html");
 		mappings.put("Pathways/Protein interactions from IntAct", "chipster-manual/pathways-intact.html");
 		mappings.put("Pathways/Associations to Reactome pathways", "chipster-manual/pathways-reactome.html");
-		mappings.put("Pathways/Over-representation analysis using ConsensusPathDB", "chipster-manual/pathways-hypergeometric-cpdb.html");
+		mappings.put("Pathways/Hypergeometric test for ConsensusPathDB", "chipster-manual/pathways-hypergeometric-cpdb.html");
 		mappings.put("Pathways/Hypergeometric test for cytobands", "chipster-manual/pathways-hypergeometric-cytobands.html");
 		
 		mappings.put("Visualisation/Boxplot", "chipster-manual/plot-boxplot.html");
