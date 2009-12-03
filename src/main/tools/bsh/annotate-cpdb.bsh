@@ -1,4 +1,4 @@
-// ANALYSIS Pathways/"Hypergeometric test for ConsensusPathDB" (ConsensusPathDB created by Herwig et al. contains functional molecular interactions obtained from 13 publicly available databases, including Reactome, KEGG, BioCarta and HumanCyc. This service is provided by the Max Planck Institute for Molecular Genetics. NOTE! Supports any data with human gene symbols.)
+// ANALYSIS Pathways/"Hypergeometric test for ConsensusPathDB" (ConsensusPathDB created by Herwig et al. contains functional molecular interactions obtained from 13 publicly available databases, including Reactome, KEGG, BioCarta and HumanCyc. This service is provided by the Max Planck Institute for Molecular Genetics. NOTE! Supports any data with human gene symbols or UniProt identifiers.)
 // INPUT GENELIST input.tsv OUTPUT cpdb.html, cpdb.tsv
 // PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
 // PARAMETER input.type [gene, uniprot] (What kind of identifiers input data contains)
