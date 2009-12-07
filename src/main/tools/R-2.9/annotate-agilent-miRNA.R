@@ -22,7 +22,7 @@ write(x="<HTML>", file="annot.html", append=T)
 write(x="<BODY>", file="annot.html", append=T)
 write(x="<TABLE border=1>", file="annot.html", append=T)
 write(x="<CAPTION> Annotations </CAPTION>", file="annot.html", append=T)
-write(x="<TR> <TH>miRBase</TH> <TH>microCosm predictions</TH> <TH>TargetScan prediction</TH></TR>", file="annot.html", append=T)
+write(x="<TR> <TH>miRBase</TH> <TH>MicroCosm predictions</TH> <TH>TargetScan predictions</TH></TR>", file="annot.html", append=T)
 
 for(i in 1:length(id)) {
    mirbase<-paste("http://microrna.sanger.ac.uk/cgi-bin/sequences/mirna_entry.pl?acc=", id2[i], sep="")
