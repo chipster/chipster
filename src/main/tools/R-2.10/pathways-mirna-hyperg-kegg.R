@@ -1,8 +1,8 @@
-# ANALYSIS Pathways/"miRNA, enriched KEGG" (Performs a statistical test for enrichmens of
+# ANALYSIS Pathways/"KEGG enrichment for miRNA targets" (Performs a statistical test for enrichmens of
 # KEGG pathways in the predicted gene targets of a list of miRNA ID:s.)
 # INPUT GENE_EXPRS normalized.tsv OUTPUT hyperg_kegg.tsv
 # PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.01 (P-value threshold)
-# PARAMETER species [human, mouse, rat] DEFAULT human (the species for which the miRNA:s have been analyzed)
+# PARAMETER species [human] DEFAULT human (the species for which the miRNA:s have been analyzed)
 
 # POSSIBLE summary.feature [gene, transcript] DEFAULT gene (should the targets for the miRNA:s be transcripts or genes?)
 
@@ -14,8 +14,7 @@
 summary.feature <- "transcript"
 
 # Reads the data
-#dat<-read.table("normalized.tsv", sep="\t", header=T)
-dat<-read.table("miRtwo-sampleSepsis.tsv", sep="\t", header=T)
+dat<-read.table("normalized.tsv", sep="\t", header=T)
 
 # Extracts the identifiers
 id<-as.character(rownames(dat))
