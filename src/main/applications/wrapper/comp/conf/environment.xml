@@ -207,6 +207,18 @@
     <item installed="false" name="biomaRt" type="r-package"> 
       <bioconductor-package>biomaRt</bioconductor-package>
     </item>
+
+	<!--  Bioconductor packages required for miRNA tools (R 2.10)
+	
+    <item installed="false" name="microRNA" type="r-package"> 
+      <bioconductor-package>microRNA</bioconductor-package>
+    </item>
+
+    <item installed="false" name="RmiR" type="r-package"> 
+      <bioconductor-package>RmiR</bioconductor-package>
+    </item>
+    
+    -->
       
     <item installed="false" name="lumi" type="r-package"> 
       <bioconductor-package>lumi</bioconductor-package>
