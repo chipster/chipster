@@ -4,8 +4,8 @@
 # "Annotation" during importing.)
 # INPUT CDNA microarray[...].tsv OUTPUT normalized.tsv, phenodata.tsv
 # PARAMETER background.treatment [none, subtract, edwards, normexp] DEFAULT normexp (Background treatment method)
-# PARAMETER background.offset [0, 50] DEFAULT 0 (Background offset)
-# PARAMETER normalize.chips [none, scale, scale-75, quantile, vsn] DEFAULT none (Between arrays normalization method)
+# PARAMETER background.offset [0, 50] DEFAULT 50 (Background offset)
+# PARAMETER normalize.chips [none, scale, scale-75, quantile, vsn] DEFAULT quantile (Between arrays normalization method)
 # PARAMETER remove.control.probes [yes, no] DEFAULT no (Remove control probes from the dataset)
 # PARAMETER chiptype [empty, Human-miRNA (v1), Human-miRNA (v2), Human-miRNA (v3), Mouse-miRNA (v1), Mouse-miRNA (v2), Rat-miRNA]  DEFAULT empty (chiptype)
 
