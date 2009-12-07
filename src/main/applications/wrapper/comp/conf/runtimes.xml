@@ -39,7 +39,7 @@
 			<class>fi.csc.microarray.analyser.r.RAnalysisHandler</class> 
 			<parameter>
 				<name>command</name>
-				<value></value>
+				<value>/opt/chipster/tools/R-2.9.0/bin/R</value>
 			</parameter>
 			<parameter>
 				<name>commandParameters</name>
