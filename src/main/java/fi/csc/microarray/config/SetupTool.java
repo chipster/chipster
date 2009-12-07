@@ -44,8 +44,9 @@ public class SetupTool {
 		public boolean install(Element item, Element dependsOnBundle, PrintWriter infoWriter) throws Exception;
 	}
 
-	private final File ENVIRONMENT_XML = new File("comp/conf/environment.xml");
-
+	//private final File ENVIRONMENT_XML = new File("comp/conf/environment.xml");
+	private final File ENVIRONMENT_XML = new File("environment.xml");
+	
 	public static void main(String[] args) throws Exception {
 		new SetupTool().setup();
 	}
@@ -67,8 +68,8 @@ public class SetupTool {
 		// initialise logging
 		String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
 		String time = new SimpleDateFormat("kkmm").format(new Date());
-		File logFile = new File("install." + date + "." + time + ".log");
-		File infoFile = new File("extra.info." + date + "." + time + ".log");
+		File logFile = createLogFile("install", date, time);
+		File infoFile = createLogFile("extra.info", date, time);
 		PrintWriter logOut = null;
 		PrintWriter infoOut = null;
 		FileOutputStream xmlOut = null;
@@ -217,6 +218,16 @@ public class SetupTool {
 		}
 	}
 
+	private File createLogFile(String name, String date, String time) {
+		File file = new File(name + "." + date + "." + time + ".log");
+		int i = 2;
+		while (file.exists()) {
+			file = new File(name + "." + date + "." + time + "." + i + ".log");
+			i++;
+		}
+		return file;
+	}
+
 	private boolean isInstalled(Element element) {
 		if ("item".equals(element.getLocalName())) {
 			return "true".equals(element.getAttribute("installed"));
@@ -247,21 +258,23 @@ public class SetupTool {
 
 		public boolean install(Element item, Element dependsOnBundle, PrintWriter infoWriter) {
 
-			// You should do stuff like gzip -d R-2.9.0.tar.gz, tar xvf R-2.9.0.tar... here
-			// Now we just print out instructions
-			
-			String prefix = "";
+			// You should install and compile applications here. Now we just print out instructions			
 			for (Element command : XmlUtil.getChildElements(item)) {
 				if ("dir".equals(command.getNodeName())) {
-					prefix = ("In " + command.getTextContent() + ": ");
+					infoWriter.println("In " + command.getTextContent() + ": ");
 					
 				} else if ("comment".equals(command.getNodeName())) {
-					infoWriter.println(prefix + command.getTextContent().trim());
+					String comment = command.getTextContent().trim();
+					for (String line : comment.split("\n")) {
+						infoWriter.println("  " + line.trim());
+					}
+					
 					
 				} else {
 					throw new RuntimeException("unknown element in application item: " + command.getNodeName());
 				}
 			}
+			infoWriter.println("");
 			
 			return true;
 		}
@@ -364,9 +377,10 @@ public class SetupTool {
 
 	private static class OSPackageInstaller implements Installer {
 
-		// Now we just print out instructions
 		
 		public boolean install(Element item, Element dependsOnBundle, PrintWriter infoWriter) {
+			// Should install OS packages, but now we just print out instructions
+
 			String name = XmlUtil.getChildElement(item, "package-name").getTextContent();
 			Element altName = XmlUtil.getChildElement(item, "alternative-package-name");
 			if (altName == null) {
@@ -374,7 +388,8 @@ public class SetupTool {
 			} else {
 				infoWriter.println("Install manually OS package " + name + " (or alternatively " + altName.getTextContent() + ")");
 			}
-
+			infoWriter.println("");
+			
 			return true;
 		}
 

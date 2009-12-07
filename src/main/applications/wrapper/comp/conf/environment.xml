@@ -39,7 +39,10 @@
   
     <item installed="false" name="R" type="application">
       <dir>/opt/chipster/tools/R-2.9.0</dir>
-      <comment>Download http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-2.9.0.tar.gz and install</comment>
+      <comment>
+      	Download http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-2.9.0.tar.gz 
+      	and install.
+      </comment>
     </item>
     
   </bundle>
@@ -339,49 +342,72 @@
 
     <item installed="false" name="Weeder" type="application">
       <dir>/opt/chipster/tools/weeder</dir>
-      <unpack>Download http://159.149.109.9/modtools/downloads/weeder1.3.1.tar.gz and install</unpack>
+      <comment>
+      	Download http://159.149.109.9/modtools/downloads/weeder1.3.1.tar.gz 
+      	and install.
+      </unpack>
     </item>
 
     <item installed="false" name="ClusterBuster" type="application">
       <dir>/opt/chipster/tools/ClusterBuster</dir>
-      <comment>Download http://zlab.bu.edu/~mfrith/downloads/cbust-src.tar.gz and install</comment>
+      <comment>
+      	Download http://zlab.bu.edu/~mfrith/downloads/cbust-src.tar.gz and install.
+      </comment>
     </item>
     
 	<item installed="false" name="Jaspar motif collection" type="file">
 	  <file>/opt/chipster/tools/ClusterBuster</file>
-	  <comment>Download from http://zlab.bu.edu/clover/jaspar2 file jaspar2005core.txt</comment>
+	  <comment>
+	  	Download from http://zlab.bu.edu/clover/jaspar2 file jaspar2005core.txt.
+	  </comment>
 	</item>
 
 	<item installed="false" name="Mafft" type="application">
 	  <dir>/opt/chipster/tools/mafft</dir>
-      <unpack>Download http://align.bmr.kyushu-u.ac.jp/mafft/software/mafft-6.712-with-extensions-src.tgz and install</unpack>
+      <comment>
+      	Download http://align.bmr.kyushu-u.ac.jp/mafft/software/mafft-6.712-with-extensions-src.tgz 
+      	and install.
+      </comment>
     </item>
 
 	<item installed="false" name="Muscle" type="application">
 	  <dir>/opt/chipster/tools/weeder</dir>
-      <comment>Download http://www.drive5.com/muscle/downloads3.7/muscle3.7_src.tar.gz and install</comment>
+      <comment>
+      	Download http://www.drive5.com/muscle/downloads3.7/muscle3.7_src.tar.gz 
+      	and install.
+      </comment>
     </item>
 
 	<item installed="false" name="EMBOSS seqret" type="application">
 	  <dir>/opt/chipster/tools/emboss</dir>
-      <comment>Download from http://emboss.sourceforge.net/download/ and install seqret application to EMBOSS-5.0.0/bin</comment>
+      <comment>
+      	Download from http://emboss.sourceforge.net/download/ and install seqret 
+      	application to EMBOSS-5.0.0/bin
+      </comment>
     </item>
 
 	<item installed="false" name="clustalw2" type="application">
 	  <dir>/opt/chipster/tools/clustal</dir>
-      <comment>Download from ftp://ftp.ebi.ac.uk/pub/software/clustalw2 and install</comment>
+      <comment>
+      	Download from ftp://ftp.ebi.ac.uk/pub/software/clustalw2 and install
+      </comment>
     </item>
 
 	<item installed="false" name="RAxML" type="application">
 	  <dir>/opt/chipster/tools/raxml</dir>
-      <comment>Download from http://icwww.epfl.ch/%7Estamatak/index-Dateien/Page443.htm and install</comment>
+      <comment>
+      	Download from http://icwww.epfl.ch/%7Estamatak/index-Dateien/Page443.htm and install
+      </comment>
     </item>
 
 	<item installed="false" name="Promoter sequences" type="application">
 	  <dir>/opt/chipster/tools/weeder/seqs</dir>
       <comment>	
-      	Promoter analysis tools need the promoter sequences in a suitable format. Download the promoter sequence file for human, mouse and rat from http://hgdownload.cse.ucsc.edu/downloads.html, and for yeast from http://www.ncbi.nlm.nih.gov/CBBresearch/Landsman/Cell_cycle_data/upstream_seq.html.
-		Run the accessory script promoter-accessory.R for these sequence files. The result is a bunch of tabular files that must be placed to /opt/chipster/tools/weeder/seqs/. 
+      	Promoter analysis tools need the promoter sequences in a suitable format. Download the 
+      	promoter sequence file for human, mouse and rat from http://hgdownload.cse.ucsc.edu/downloads.html, 
+      	and for yeast from http://www.ncbi.nlm.nih.gov/CBBresearch/Landsman/Cell_cycle_data/upstream_seq.html.
+		Run the accessory script promoter-accessory.R for these sequence files. The result is a bunch of 
+		tabular files that must be placed to /opt/chipster/tools/weeder/seqs/. 
       </comment>
     </item>
 
