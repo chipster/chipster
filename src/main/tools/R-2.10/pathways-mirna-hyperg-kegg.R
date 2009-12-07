@@ -119,7 +119,7 @@ test <- corna.test.fun(
 		desc=path2name)
 
 # fetch significant pathways
-significant.kegg <- test[test$hypergeometric<=0.05,]
+significant.kegg <- test[test$hypergeometric<=p.value.threshold,]
 
 # write results table
 write.table(significant.kegg, file="hyperg_kegg.tsv", sep="\t", quote=F)
