@@ -11,6 +11,7 @@ import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
+import javax.jms.TemporaryTopic;
 import javax.jms.Topic;
 
 import org.apache.log4j.Logger;
@@ -63,13 +64,13 @@ public class MessagingTopic {
 		
 		// create consumer only if we need to read from the topic
 		if (accessMode == AccessMode.READ || accessMode == AccessMode.READ_WRITE) {
-			this.consumer = session.createConsumer(topic);
+			this.consumer = session.createConsumer(topic);	
 		}
 		this.endpoint = endpoint;
 	}
 
 	
-	protected void sendReplyableMessage(NamiMessage message, MessagingListener replyListener, MessagingListener authenticationListener) throws JMSException {
+	protected void sendReplyableMessage(NamiMessage message, TempTopicMessagingListener replyListener, MessagingListener authenticationListener) throws JMSException {
 		MessagingTopic tempTopic = new MessagingTopic(session, null, Type.TEMPORARY, AccessMode.READ_WRITE, endpoint);
 		
 		MultiplexingMessagingListener plexer = new MultiplexingMessagingListener();
@@ -79,6 +80,7 @@ public class MessagingTopic {
 		}
 		tempTopic.setListener(plexer);
 		
+		replyListener.setTempTopic(tempTopic);
 		message.setReplyTo(tempTopic.topic);
 		sendMessage(message);
 		
@@ -89,7 +91,7 @@ public class MessagingTopic {
 	 * 
 	 * @param replyListener receives replies (if any) through hidden temporary topic
 	 */
-	public void sendReplyableMessage(NamiMessage message, MessagingListener replyListener) throws JMSException {
+	public void sendReplyableMessage(NamiMessage message, TempTopicMessagingListener replyListener) throws JMSException {
 		sendReplyableMessage(message, replyListener, null);
 	}
 	
@@ -162,5 +164,17 @@ public class MessagingTopic {
 
 	public MessagingEndpoint getEndpoint() {
 		return endpoint;
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @throws JMSException
+	 */
+	public void delete() throws JMSException {
+		if (this.topic instanceof TemporaryTopic) {
+			this.consumer.close();
+			((TemporaryTopic)topic).delete();
+		}
 	}
 }

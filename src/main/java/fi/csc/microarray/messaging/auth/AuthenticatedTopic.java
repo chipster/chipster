@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;
 import fi.csc.microarray.messaging.MessagingTopic;
+import fi.csc.microarray.messaging.TempTopicMessagingListener;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener.Credentials;
 import fi.csc.microarray.messaging.message.AuthenticationMessage;
 import fi.csc.microarray.messaging.message.NamiMessage;
@@ -87,7 +88,7 @@ public class AuthenticatedTopic extends MessagingTopic {
 		super.sendMessage(message);
 	}
 	
-	public void sendReplyableMessage(NamiMessage message, MessagingListener replyListener) throws JMSException {
+	public void sendReplyableMessage(NamiMessage message, TempTopicMessagingListener replyListener) throws JMSException {
 		attachSessionID(message);
 		logger.debug("added authentication listener to message");
 		super.sendReplyableMessage(message, replyListener, authTopicListener);

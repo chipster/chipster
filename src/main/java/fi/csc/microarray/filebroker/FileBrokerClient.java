@@ -12,8 +12,8 @@ import javax.jms.JMSException;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.messaging.MessagingListener;
 import fi.csc.microarray.messaging.MessagingTopic;
+import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.NamiMessage;
 import fi.csc.microarray.messaging.message.UrlMessage;
@@ -45,7 +45,7 @@ public class FileBrokerClient {
 	 * Reply listener for the url request.
 	 * 
 	 */
-	private class UrlMessageListener implements MessagingListener {
+	private class UrlMessageListener extends TempTopicMessagingListenerBase {
 		
 		private URL newUrl;
 		private CountDownLatch latch = new CountDownLatch(1);
@@ -213,8 +213,13 @@ public class FileBrokerClient {
 		logger.debug("getting new url");
 
 		UrlMessageListener replyListener = new UrlMessageListener();  
-		urlTopic.sendReplyableMessage(new CommandMessage(CommandMessage.COMMAND_URL_REQUEST), replyListener);
-		URL url = replyListener.waitForReply(URL_REQUEST_TIMEOUT, TimeUnit.SECONDS);
+		URL url;
+		try {
+			urlTopic.sendReplyableMessage(new CommandMessage(CommandMessage.COMMAND_URL_REQUEST), replyListener);
+			url = replyListener.waitForReply(URL_REQUEST_TIMEOUT, TimeUnit.SECONDS);
+		} finally {
+			replyListener.cleanUp();
+		}
 		logger.debug("new url is: " + url);
 
 		return url;

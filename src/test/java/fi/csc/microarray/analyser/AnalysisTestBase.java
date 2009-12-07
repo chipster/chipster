@@ -70,7 +70,9 @@ public class AnalysisTestBase extends MessagingTestBase {
 
 	@AfterSuite(alwaysRun = true)
 	protected void tearDown() throws Exception {
+		System.out.println("tear down");
 		super.tearDown();
+		System.out.println("tear down done");
 	}
 
 	

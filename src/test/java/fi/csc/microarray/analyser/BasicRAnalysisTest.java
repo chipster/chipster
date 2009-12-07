@@ -47,11 +47,11 @@ public class BasicRAnalysisTest extends AnalysisTestBase {
 		Assert.assertTrue(job.getScreenOutput() != null);
 	}
 	
-	@Test(groups = { "smoke"})
+	@Test(groups = { "smoke"}, threadPoolSize = 1, invocationCount = 500)
 	public void testInputOutput() throws Exception {
 		
 		Task job = executor.createTask("\"Test\"/\"InputOutput\"");
-		DataBean input = manager.createDataBean("input.tsv", this.getClass().getResourceAsStream("/microarray.tsv"));
+		DataBean input = manager.createDataBean("input.tsv", new ByteArrayInputStream("input output test".getBytes()));
 		job.addInput("input.tsv", input);
 		
 		executeJob(job);

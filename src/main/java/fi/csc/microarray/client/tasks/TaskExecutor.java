@@ -31,8 +31,9 @@ import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.FileBrokerException;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.MessagingEndpoint;
-import fi.csc.microarray.messaging.MessagingListener;
 import fi.csc.microarray.messaging.MessagingTopic;
+import fi.csc.microarray.messaging.TempTopicMessagingListener;
+import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.message.CommandMessage;
@@ -107,8 +108,10 @@ public class TaskExecutor {
 
 	/**
 	 * For listening to temporary result Topics.
+	 *
+	 * FIXME Add cleanUp() to appropriate places.
 	 */
-	private class ResultMessageListener implements MessagingListener {
+	private class ResultMessageListener extends TempTopicMessagingListenerBase {
 
 		Task pendingTask; // TODO memory leak, this temp topic based listener
 		// should be removed
@@ -139,7 +142,7 @@ public class TaskExecutor {
 			}
 
 			// also ignore everything if task is already finished
-			// this happens if task is canceled or timeouts while we are waiting
+			// this happens if task is cancelled or timeouts while we are waiting
 			// for messages
 			if (pendingTask.getState().isFinished()) {
 				logger.debug("Task " + pendingTask.getId() + " already finished, ignoring message.");
@@ -308,12 +311,12 @@ public class TaskExecutor {
 				break;
 			}
 
-			// Check if the task has been canceled or client side timeout has occured while
+			// Check if the task has been cancelled or client side timeout has occured while
 			// processing the message.
 			//
 			// Task state can be finished without ResultListenerState being finished only
 			// if someone external to ResultListenerState has changed the state of the task.
-			// This happens when task is canceled or timeout occurs. In such cases, possibly
+			// This happens when task is cancelled or timeout occurs. In such cases, possibly
 			// created databeans are removed from the DataManager
 			if (pendingTask.getState().isFinished() && internalState != ResultListenerState.FINISHED) {
 
@@ -489,7 +492,7 @@ public class TaskExecutor {
 					}
 
 					updateTaskState(task, State.WAITING, null, -1);
-					MessagingListener replyListener = new ResultMessageListener(task);
+					TempTopicMessagingListener replyListener = new ResultMessageListener(task);
 					logger.debug("sending job message, jobId: " + jobMessage.getJobId());
 
 					requestTopic.sendReplyableMessage(jobMessage, replyListener);
