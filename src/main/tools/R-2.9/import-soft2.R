@@ -1,8 +1,8 @@
 # ANALYSIS Utilities/"Import from GEO" (Imports a SOFT-formatted datafile directly from GEO. 
 # Be sure to specify the chiptype as an Affymetrix chip name, or either Illumina or cDNA.)
 # OUTPUT normalized.tsv, phenodata.tsv 
-# PARAMETER GDS.name STRING DEFAULT GDS2 (GDS or GSE number of the experiment.)
-# PARAMETER chiptype STRING DEFAULT cDNA (Chiptype)
+# PARAMETER GDS.name STRING DEFAULT GDS858 (GDS or GSE number of the experiment.)
+# PARAMETER chiptype STRING DEFAULT hgu133a (Chiptype)
 # PARAMETER log2.transform [yes, no] DEFAULT yes (log2 transform the data)
 
 
