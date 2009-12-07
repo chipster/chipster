@@ -50,10 +50,20 @@ public class UpgradeTool {
 	}
 	
 	
-	public void upgrade(File pathToOld) throws Exception {
+	public void upgrade(File pathToOld, int toMajor) throws Exception {
 		
 		// create the transaction
-		createOperations(pathToOld);
+		if (toMajor ==3 ) {
+			System.out.println("Upgrading from version 1.2.x to version 1.3.x");
+			createOperationsFrom12xTo13x(pathToOld);
+			
+		} else if (toMajor == 4) {
+			System.out.println("Upgrading from version 1.3.x to version 1.4.x");
+			createOperationsFrom13xTo14x(pathToOld);
+			
+		} else {
+			throw new IllegalArgumentException("unknown major version " + toMajor);
+		}
 		
 		// tell what we are about to do
 		for (Operation operation : operations) {
@@ -82,7 +92,39 @@ public class UpgradeTool {
 		
 	}
 	
-	public void createOperations(File pathToOld) throws SAXException, IOException, ParserConfigurationException {
+	public void createOperationsFrom13xTo14x(File pathToOld) throws SAXException, IOException, ParserConfigurationException {
+
+		// transform old installation components to new directory layout
+		for (String componentDir : ConfigTool.getComponentDirsWithConfig()) {
+			if (new File(pathToOld, componentDir).exists()) {
+
+				// initialise paths
+				File componentDir13x = new File(pathToOld, componentDir);
+				File componentDir14x = new File(componentDir);
+				if (!componentDir14x.exists() ) {
+					throw new RuntimeException(componentDir14x.getAbsolutePath() + " not found, must be run inside complete 1.4.x installation");
+				}
+				File logsDir13x = new File(componentDir13x, DirectoryLayout.LOGS_DIR);
+				File confDir13x = new File(componentDir13x, DirectoryLayout.CONF_DIR);
+				File securityDir13x = new File(componentDir13x, DirectoryLayout.SECURITY_DIR);
+				File webroot13x = new File(componentDir13x, DirectoryLayout.WEB_ROOT);
+
+				File logsDir14x = new File(componentDir14x, DirectoryLayout.LOGS_DIR);
+				File confDir14x = new File(componentDir14x, DirectoryLayout.CONF_DIR);
+				File securityDir14x = new File(componentDir14x, DirectoryLayout.SECURITY_DIR);
+				File webroot14x = new File(componentDir14x, DirectoryLayout.WEB_ROOT);
+
+				// copy stuff from old to new, layout does not change
+				copyToNewDir(logsDir13x, logsDir14x, "nami.log", "messages.log", "jobs.log", "security.log", "status.log");
+				copyToNewDir(securityDir13x, securityDir14x, "keystore.ks", "users");
+				copyToNewDir(confDir13x, confDir14x, "chipster-config.xml"); // don't copy runtimes.xml or tools.xml
+				copyToNewDir(webroot13x, webroot14x, "chipster.jnlp", "chipster-config.xml");
+				
+			}
+		}		
+	}
+
+	public void createOperationsFrom12xTo13x(File pathToOld) throws SAXException, IOException, ParserConfigurationException {
 
 		// transform old installation components to new directory layout
 		for (String componentDir : ConfigTool.getComponentDirsWithConfig()) {
