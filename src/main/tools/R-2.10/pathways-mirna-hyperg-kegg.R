@@ -1,7 +1,8 @@
 # ANALYSIS Pathways/"KEGG enrichment for miRNA targets" (Performs a statistical test for enrichmens of
 # KEGG pathways in the predicted gene targets of a list of miRNA ID:s.)
 # INPUT GENE_EXPRS normalized.tsv OUTPUT hyperg_kegg.tsv
-# PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.01 (P-value threshold)
+# PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value threshold)
+# PARAMETER p.adjust.method [none, BH, BY] DEFAULT BH (method for adjusting the p-value in order to account for multiple testing)
 # PARAMETER species [human] DEFAULT human (the species for which the miRNA:s have been analyzed)
 
 # POSSIBLE summary.feature [gene, transcript] DEFAULT gene (should the targets for the miRNA:s be transcripts or genes?)
@@ -111,11 +112,12 @@ test <- corna.test.fun(
 		unique(gene2path$gene),
 		gene2path,
 		hypergeometric=T,
-		fisher=T,
-		chi.square=T,
+		fisher=F,
+		chi.square=F,
 		#fisher.alternative="greater",
 		min.pop=10,
-		sort="fisher",
+		sort="hypergeometric",
+		p.adjust.method=p.adjust.method,
 		desc=path2name)
 
 # fetch significant pathways
