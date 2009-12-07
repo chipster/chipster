@@ -1,7 +1,8 @@
 # ANALYSIS Pathways/"GO enrichment for miRNA targets" (Performs a statistical test for enrichments of GO terms in the predicted gene targets of a list of miRNA ID:s.)
 # INPUT GENE_EXPRS normalized.tsv OUTPUT hyperg_go.tsv
 # PARAMETER ontology [biological_process, molecular_function, cellular_component] DEFAULT biological_process (the ontology to be analyzed)
-# PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.01 (P-value threshold)
+# PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value threshold)
+# PARAMETER p.adjust.method [none, BH, BY] DEFAULT BH (method for adjusting the p-value in order to account for multiple testing)
 # PARAMETER species [human] DEFAULT human (the species for which the miRNA:s have been analyzed)
 
 # POSSIBLE summary.feature [gene, transcript] DEFAULT gene (should the targets for the miRNA:s be transcripts or genes?)
@@ -148,9 +149,10 @@ if (ontology=="molecular_function") {
 	test.mf <- corna.test.fun(sample.mf,
                 reference.list.mf,
                 tran2gomf,
-                fisher=T,
-                sort="fisher",
+                fisher=F,
+                sort="hypergeometric",
                 min.pop=5, 
+				p.adjust.method=p.adjust.method,
                 desc=go2term) 
 	significant.mf <- test.mf[test.mf$fisher <= p.value.threshold, ]
 	write.table(significant.mf, file="hyperg_go.tsv", sep="\t", quote=F)	
@@ -160,9 +162,10 @@ if (ontology=="biological_process") {
 	test.bp <- corna.test.fun(sample.bp,
                 reference.list.bp,
                 tran2gobp,
-                fisher=T,
-                sort="fisher",
-                min.pop=5, 
+                fisher=F,
+                sort="hypergeometric",
+                min.pop=5,
+				p.adjust.method=p.adjust.method,
                 desc=go2term) 
 	significant.bp <- test.bp[test.bp$fisher <= p.value.threshold, ]
 	write.table(significant.bp, file="hyperg_go.tsv", sep="\t", quote=F)
@@ -172,9 +175,10 @@ if (ontology=="cellular_component") {
 	test.cc <- corna.test.fun(sample.cc,
                 reference.list.cc,
                 tran2gocc,
-                fisher=T,
-                sort="fisher",
-                min.pop=5, 
+                fisher=F,
+                sort="hypergeometric",
+                min.pop=5,
+				p.adjust.method=p.adjust.method,
                 desc=go2term) 
 	significant.cc <- test.cc[test.cc$fisher <= p.value.threshold, ]
 	write.table(significant.cc, file="hyperg_go.tsv", sep="\t", quote=F)	
