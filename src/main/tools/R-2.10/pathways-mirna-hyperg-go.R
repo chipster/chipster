@@ -154,7 +154,7 @@ if (ontology=="molecular_function") {
                 min.pop=5, 
 				p.adjust.method=p.adjust.method,
                 desc=go2term) 
-	significant.mf <- test.mf[test.mf$fisher <= p.value.threshold, ]
+	significant.mf <- test.mf[test.mf$hypergeometric <= p.value.threshold, ]
 	write.table(significant.mf, file="hyperg_go.tsv", sep="\t", quote=F)	
 }
 	
@@ -167,7 +167,7 @@ if (ontology=="biological_process") {
                 min.pop=5,
 				p.adjust.method=p.adjust.method,
                 desc=go2term) 
-	significant.bp <- test.bp[test.bp$fisher <= p.value.threshold, ]
+	significant.bp <- test.bp[test.bp$hypergeometric <= p.value.threshold, ]
 	write.table(significant.bp, file="hyperg_go.tsv", sep="\t", quote=F)
 }
 
@@ -180,7 +180,7 @@ if (ontology=="cellular_component") {
                 min.pop=5,
 				p.adjust.method=p.adjust.method,
                 desc=go2term) 
-	significant.cc <- test.cc[test.cc$fisher <= p.value.threshold, ]
+	significant.cc <- test.cc[test.cc$hypergeometric <= p.value.threshold, ]
 	write.table(significant.cc, file="hyperg_go.tsv", sep="\t", quote=F)	
 }
 	
