@@ -168,19 +168,4 @@ if(method=="likelihood") {
 
 
 
-# Runs the parsimony analysis
-##!/bin/tcsh
-#tnt <<EOF
-#p aligned-seqs.txt
-#taxname =
-#out 0
-#hold 100
-#mult=tbr replic 100 hold 1;
-#tsave *trees.txt; save; tsave /;
-#resample=jak probability 34 frequency;
-#quit;
-#EOF
-
-
-
 
