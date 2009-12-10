@@ -53,7 +53,7 @@ public class ConfigTool {
 			{"URL of Web Start files", "http://myhost.mydomain"},
 			{"Web Start www-server port", "8081"},
 			{"manager www-console port", "8082"},
-			{"R-2.6.1 command", "R"},
+			{CURRENT_R_VERSION + ".x command", "/opt/chipster/tools/" + CURRENT_R_VERSION + ".0/"},
 			{"max. simultanous jobs (more recommended when compute service on separate node)", "3"}
 	};
 
