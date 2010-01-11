@@ -44,8 +44,7 @@ public class SetupTool {
 		public boolean install(Element item, Element dependsOnBundle, PrintWriter infoWriter) throws Exception;
 	}
 
-	//private final File ENVIRONMENT_XML = new File("comp/conf/environment.xml");
-	private final File ENVIRONMENT_XML = new File("environment.xml");
+	private final File ENVIRONMENT_XML = new File("comp/conf/environment.xml");
 	
 	public static void main(String[] args) throws Exception {
 		new SetupTool().setup();
