@@ -75,9 +75,11 @@
 			<tool runtime="R-2.9">stat-hyperG-safe.R</tool>
 			<tool runtime="R-2.9">stat-hyperG-cytoband.R</tool>
 			<tool runtime="R-2.9">stat-geneset.R</tool>
+			<!-- <tool runtime="R-2.10">correlation-analysis-mirna.R</tool> -->
 			<tool runtime="beanshell">annotate-cpdb.bsh</tool>
 			<tool runtime="beanshell">annotate-intact.bsh</tool>
 			<tool runtime="beanshell">annotate-reactome.bsh</tool>
+		    
 
 			<!-- PROMOTER -->
 			<tool runtime="R-2.9">promoter-tfbs.R</tool>

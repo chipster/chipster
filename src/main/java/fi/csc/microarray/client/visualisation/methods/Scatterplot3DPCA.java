@@ -1,9 +1,16 @@
 package fi.csc.microarray.client.visualisation.methods;
 
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeSet;
+
+import javax.swing.JComponent;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.operation.parameter.Parameter;
@@ -13,6 +20,7 @@ import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.VisualisationUtilities;
+import fi.csc.microarray.client.visualisation.methods.threed.ColorGroupsPanel;
 import fi.csc.microarray.client.visualisation.methods.threed.CoordinateArea;
 import fi.csc.microarray.client.visualisation.methods.threed.Scatterplot3D;
 import fi.csc.microarray.databeans.DataBean;
@@ -22,6 +30,8 @@ import fi.csc.microarray.databeans.DataBean.Link;
 public class Scatterplot3DPCA extends Scatterplot3D{
 	
 	DataBean phenoBean;
+	private List<String> colorGroupList;
+	private JScrollPane legendScroller;
 
 	public Scatterplot3DPCA(VisualisationFrame frame) {
 		super(frame);
@@ -29,7 +39,7 @@ public class Scatterplot3DPCA extends Scatterplot3D{
 	
 	@Override
 	public AnnotateListPanel createListPanel() {
-		return new AnnotateListPanel("Chips");
+		return new AnnotateListPanel("Chips", false);
 	}
 	
 	@Override
@@ -42,43 +52,18 @@ public class Scatterplot3DPCA extends Scatterplot3D{
 		this.updateCombo(zBox, data);
 	
 		phenoBean = LinkUtils.retrieveInherited(data, Link.ANNOTATION);
-		List<Variable> phenoCols = Arrays.asList(VisualisationUtilities.getVariablesFilteredInclusive(phenoBean, "", false));
-		List<Variable> colsToRemove = new ArrayList<Variable>();
 		
-		for(Variable col : phenoCols){
-			
-			Iterator<String> values = null;
-			try {
-				values = phenoBean.queryFeatures(col.getExpression()).asStrings().iterator();
-				
-				while(values.hasNext()){
-					try {
-						//Phenodata should be int type, but import tool or something
-						//changes values sometimes to floats
-						Float.parseFloat(values.next());
-					} catch (NumberFormatException e) {
-						colsToRemove.add(col);
-						break;
-					}
-					
-				}
-			} catch (MicroarrayException e1) {
-				application.reportException(new MicroarrayException(
-						"Unable to find phenodata, try normal 3D Scatterplot instead", e1));
-			}				
-		}
-		//java.lang.UnsupportedOperationException:
-		//phenoCols.removeAll(colsToRemove);
+		List<Variable> phenoCols;
 		
-		List<Variable> numericCols = new ArrayList<Variable>();
-		
-		for(Variable col: phenoCols){
-			if(!colsToRemove.contains(col)){
-				numericCols.add(col);
-			}				
+		if(phenoBean != null){
+			phenoCols = Arrays.asList(
+					VisualisationUtilities.getVariablesFilteredInclusive(phenoBean, "", false));
+		} else {
+			phenoCols = new LinkedList<Variable>();
+			phenoCols.add(new Variable("No phenodata", ""));
 		}
 		
-		Visualisation.fillCompoBox(colorBox, numericCols.toArray(new Variable[0])); 				
+		Visualisation.fillCompoBox(colorBox, phenoCols.toArray(new Variable[0]));
 	}
 	
 	@Override
@@ -87,7 +72,36 @@ public class Scatterplot3DPCA extends Scatterplot3D{
 		Iterable<Float> xValues = data.queryFeatures(variables.get(0).getExpression()).asFloats();
 		Iterable<Float> yValues = data.queryFeatures(variables.get(1).getExpression()).asFloats();
 		Iterable<Float> zValues = data.queryFeatures(variables.get(2).getExpression()).asFloats();
-		Iterable<Float> cValues = phenoBean.queryFeatures(variables.get(3).getExpression()).asFloats();
+		
+		String colorQuery = variables.get(3).getExpression();;
+		
+		Iterable<String> colorStrings;
+		
+		if(phenoBean != null) {
+			colorStrings = phenoBean.queryFeatures(colorQuery).asStrings();
+		} else {
+			LinkedList<String> list = new LinkedList<String>();
+					
+			Iterator<Float> iter = xValues.iterator();
+			while(iter.hasNext()) {
+				iter.next();
+				list.add("");
+			}
+			colorStrings = list;
+		}
+		
+		TreeSet<String> groups = new TreeSet<String>();
+		for(String str : colorStrings){
+			groups.add(str);			
+		}
+		
+		colorGroupList = Arrays.asList(groups.toArray(new String[0]));
+		
+		List<Float> cValues = new LinkedList<Float>();
+		
+		for(String str : colorStrings) {
+			cValues.add((float)colorGroupList.indexOf(str));
+		}
 		
 		dataModel.setData(identifier, xValues, yValues, zValues, cValues);
 	}
@@ -111,7 +125,7 @@ public class Scatterplot3DPCA extends Scatterplot3D{
 		isTabular && 
 		hasRows(bean) && 
 		bean.queryFeatures("/column/chip.*").exists();		
-	}
+		}
 	
 	protected void useButtonPressed() {
 		List<Variable> vars = new ArrayList<Variable>();
@@ -126,5 +140,24 @@ public class Scatterplot3DPCA extends Scatterplot3D{
 		
 		coordinateArea.setPaintMode(CoordinateArea.PaintMode.PIXEL);
 	}
-
+	
+	@Override
+	protected JComponent getColorLabel() {
+		
+		JTextArea label = new JTextArea("Color from\nphenodata:");
+		label.setOpaque(false);
+		//label.setText("Color from\nphenodata:");
+		label.setEditable(false);
+		
+		return label;
+	}
+	
+	protected JComponent getColorScalePanel(){
+		ColorGroupsPanel legendPanel = new ColorGroupsPanel(dataModel, colorGroupList);
+		//legendPanel.setPreferredSize(new Dimension(300,300));
+		legendScroller = new JScrollPane(legendPanel);
+		legendScroller.setPreferredSize(new Dimension(50,300));
+		//legendScroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+		return legendScroller;
+	}
 }

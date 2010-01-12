@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -57,6 +58,8 @@ public class DataModel {
 	private static final int LINE_COUNT = 4;
 
 	private float[] cScale;
+
+	private Float[] cValues;
 	
 	public DataModel(){
 		numberFormat.setMaximumFractionDigits(2);
@@ -68,7 +71,7 @@ public class DataModel {
 
 
 	public void setData(Iterable<String> identifiers, Iterable<Float> xValues, Iterable<Float> yValues,
-			Iterable<Float> zValues, Iterable<Float> cValues) {
+			Iterable<Float> zValues, Iterable<Float> cValuesIterable) {
 		
 		
 		
@@ -78,7 +81,7 @@ public class DataModel {
 		Iterator<Float> xIter = xValues.iterator();
 		Iterator<Float> yIter = yValues.iterator();
 		Iterator<Float> zIter = zValues.iterator();
-		Iterator<Float> cIter = cValues.iterator();
+		Iterator<Float> cIter = cValuesIterable.iterator();
 		
 		long time = 0;
 		logger.debug((System.currentTimeMillis() - time) / 1000);
@@ -103,7 +106,7 @@ public class DataModel {
 		xIter = xValues.iterator();
 		yIter = yValues.iterator();
 		zIter = zValues.iterator();
-		cIter = cValues.iterator();
+		cIter = cValuesIterable.iterator();
 
 		logger.debug((System.currentTimeMillis() - time) / 1000);
 		time = System.currentTimeMillis();
@@ -112,7 +115,10 @@ public class DataModel {
 		xIter = xValues.iterator();
 		yIter = yValues.iterator();
 		zIter = zValues.iterator();
-		cIter = cValues.iterator();
+		cIter = cValuesIterable.iterator();
+		
+		List<Float> cList = new LinkedList<Float>();
+		
 		for (int i = 0; identIter.hasNext() && xIter.hasNext() && yIter.hasNext() && 
 				zIter.hasNext() && cIter.hasNext(); i++) {
 			String identifier = identIter.next();
@@ -122,12 +128,16 @@ public class DataModel {
 			float c = cIter.next();
 			float[] scaled = this.convertToScaled(xScale, yScale, zScale,
 					cScale, new float[] { x, y, z, c });
-
+			
+			cList.add(c);
+			
 			Color color = colorModel.getColorFor(scaled[3]);
 
 			points.add(new DataPoint(scaled[0], scaled[1], scaled[2], color,
 					0.01, identifier, i));
 		}
+		
+		this.cValues = cList.toArray(new Float[0]);
 				
 		logger.debug((System.currentTimeMillis() - time) / 1000);
 		time = System.currentTimeMillis();
@@ -170,6 +180,10 @@ public class DataModel {
 				(original[1] - yScale[0]) / (yScale[LINE_COUNT - 1] - yScale[0]),
 				(original[2] - zScale[0]) / (zScale[LINE_COUNT - 1] - zScale[0]),
 				(original[3] - cScale[0]) / (cScale[LINE_COUNT - 1] - cScale[0]) };
+	}
+	
+	protected float convertToScaled(float scale[], float value){
+		return (value - scale[0]) / (scale[LINE_COUNT - 1] - scale[0]);
 	}
 	
 	/**
@@ -353,5 +367,8 @@ public class DataModel {
 	public float[] getColorScaleValues() {
 		return cScale;
 	}
-
+	
+	public Float[] getColorValues() {
+		return cValues;
+	}
 }

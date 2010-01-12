@@ -20,8 +20,8 @@ public class ColorScalePanel extends JPanel{
 	public ColorScalePanel(DataModel dataModel){
 		this.dataModel = dataModel;
 		this.scaleValues = dataModel.getColorScaleValues();
-		this.setSize(50, 300);
-		this.setPreferredSize(new Dimension(50, 300));
+		this.setSize(60, 300);
+		this.setPreferredSize(new Dimension(60, 300));
 		this.setBackground(Color.BLACK);
 		this.setOpaque(true);		
 	}

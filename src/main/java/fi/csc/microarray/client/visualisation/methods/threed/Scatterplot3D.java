@@ -22,6 +22,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
 
@@ -198,7 +199,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 		yLabel.setForeground(Color.GREEN.darker().darker());
 		JLabel zLabel = new JLabel("Z-axis: ");
 		zLabel.setForeground(Color.BLUE.darker().darker());
-		JLabel colorLabel = new JLabel("Color: ");
+		JComponent colorLabel = getColorLabel();
 
 		GridBagConstraints c = new GridBagConstraints();
 
@@ -236,6 +237,11 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 		return settingsPanel;
 	}
 	
+	protected JComponent getColorLabel() {
+		return new JLabel("Color: ");
+	}
+
+
 	protected AnnotateListPanel getAnnotateList() {
 		return list;
 	}
@@ -388,15 +394,31 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 	        coordinateArea = new CoordinateArea(this);
 	        coordinateArea.addKeyListener(this);
 	        coordinateArea.requestFocus();
-	        panel.add(coordinateArea, BorderLayout.CENTER);
-	        panel.add(new ColorScalePanel(dataModel), BorderLayout.WEST);
-	        panel.setCursor(ROTATE_CURSOR);
+	        
+	        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+	        split.setDividerSize(3);
+	        split.setOpaque(true);
+	        split.setRightComponent(coordinateArea);
+	        split.setLeftComponent(getColorScalePanel());
+	        split.setContinuousLayout(true);
+	        
+	        panel.add(split, BorderLayout.CENTER);
+	        
+//	        panel.add(coordinateArea, BorderLayout.CENTER);
+//	        panel.add(getColorScalePanel(), BorderLayout.WEST);
+	        
+	        coordinateArea.setCursor(ROTATE_CURSOR);
 	        this.setToolsEnabled(true);
 	        
 			return panel;
 		}
 		return this.getDefaultVisualisation();
 	}
+	
+	protected JComponent getColorScalePanel(){
+		return new ColorScalePanel(dataModel);
+	}
+	
 	
 	protected void retrieveData(List<Variable> variables) throws MicroarrayException {
 		Iterable<String> identifier = data.queryFeatures("/identifier").asStrings();

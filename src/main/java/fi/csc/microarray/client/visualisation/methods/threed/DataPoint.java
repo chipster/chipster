@@ -108,23 +108,27 @@ public class DataPoint
         	g2d.drawLine(x + w/2, y + h/2,x + w/2, y + h/2);
         	
         } else {//(CoordinateArea.getPaintMode() == CoordinateArea.PaintMode.GRADIENT){
-        	int radius = (int)(w * 0.75);
-        	radius = radius > 0 ? radius : 1;
-        	
-        	g2d.setPaint(new RoundGradientPaint(
-        		x + w / 4.0,
-        		y + h / 4.0,
-        		color,
-        		new Point( radius, radius),
-        		Color.BLACK));
-        	
-        	g2d.fillOval(x, y, w, h);
+        	paintBall(x, y, w, h, color, g2d);
         }
                               
         if (selected == true) {
         	g2d.setPaint(Color.WHITE);
         	g2d.drawOval(x-2, y-2, w+4, h+4);
         }
+    }
+    
+    public static void paintBall(int x, int y, int w, int h, Color c, Graphics2D g2d) {
+    	int radius = (int)(w * 0.75);
+    	radius = radius > 0 ? radius : 1;
+    	
+    	g2d.setPaint(new RoundGradientPaint(
+    		x + w / 4.0,
+    		y + h / 4.0,
+    		c,
+    		new Point( radius, radius),
+    		Color.BLACK));
+    	
+    	g2d.fillOval(x, y, w, h);
     }
 
     /**

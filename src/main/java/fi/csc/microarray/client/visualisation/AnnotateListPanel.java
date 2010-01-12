@@ -28,7 +28,6 @@ public class AnnotateListPanel extends JPanel {
 
 	private JList selectedList;
 	private DefaultListModel selectedListModel;
-	private JButton annotateButton;
 	private JButton filterButton;
 	private List<DataBean> datas = new ArrayList<DataBean>();
 
@@ -50,15 +49,6 @@ public class AnnotateListPanel extends JPanel {
 
 		countLabel = new JLabel();
 
-		annotateButton = new JButton("Annotate");
-		annotateButton.setToolTipText("Create dataset and annotate with Bioconductor");
-		annotateButton.setEnabled(false);
-		annotateButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				VisualisationUtilities.annotateBySelection(datas);
-			}
-		});
-
 		filterButton = new JButton("Create dataset");
 		filterButton.setToolTipText("Create new dataset from selected genes");
 		filterButton.setEnabled(false);
@@ -72,14 +62,14 @@ public class AnnotateListPanel extends JPanel {
 		this.add(new JScrollPane(selectedList), BorderLayout.CENTER);
 
 		JPanel buttonPanel = new JPanel(new BorderLayout());
-		buttonPanel.add(annotateButton, BorderLayout.NORTH);
 		buttonPanel.add(filterButton, BorderLayout.SOUTH);
 		this.add(buttonPanel, BorderLayout.SOUTH);
 	}
 	
-	public AnnotateListPanel(String nameOfItems){
+	public AnnotateListPanel(String nameOfItems, boolean filterButtonVisible){
 		this();
 		this.nameOfItems  = nameOfItems;
+		this.filterButton.setVisible(filterButtonVisible);
 	}
 
 	public void setSelectedListContentMultipleDatas(List<String> content, Map<DataBean, Set<Integer>> indexes, Object source, boolean dispatchEvent) {
@@ -99,7 +89,6 @@ public class AnnotateListPanel extends JPanel {
 
 		selectedListModel.removeAllElements();
 		setCount(content.size());
-		annotateButton.setEnabled(content.size() > 0);
 		filterButton.setEnabled(content.size() > 0);
 
 		for (String row : content) {
@@ -151,7 +140,6 @@ public class AnnotateListPanel extends JPanel {
 		
 		selectedListModel.removeAllElements();
 		setCount(content.size());
-		annotateButton.setEnabled(content.size() > 0);
 		filterButton.setEnabled(content.size() > 0);
 		/*
 		 * for(DataPoint row: content){
@@ -197,7 +185,6 @@ public class AnnotateListPanel extends JPanel {
 
 		selectedListModel.removeAllElements();
 		setCount(rows.size());
-		annotateButton.setEnabled(rows.size() > 0);
 		filterButton.setEnabled(rows.size() > 0);
 
 		

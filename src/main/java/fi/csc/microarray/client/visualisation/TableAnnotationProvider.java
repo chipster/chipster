@@ -1,6 +1,8 @@
 package fi.csc.microarray.client.visualisation;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.databeans.DataBean;
@@ -19,7 +21,10 @@ public class TableAnnotationProvider {
 	private static final String TABLE_COLUMN_QUERY = "/column/";
 	private static final String COLUMN_ALL = "*";
 	private static final String COLUMN_DESCRIPTION = "description";
-	private static final String COLUMN_SYMBOL = "symbol";
+	
+	//Ordered by descending priority 
+	private static final List<String> COLUMN_SYMBOL = Arrays.asList(
+			new String[] { "symbol", "annotations" });
 
 	private HashMap<String, String> annotatedIdentifiers = new HashMap<String, String>();
 	private HashMap<String, String> descriptions = new HashMap<String, String>();
@@ -31,9 +36,29 @@ public class TableAnnotationProvider {
 	}
 
 	public TableAnnotationProvider(Table table) throws MicroarrayException {
+		
+		/* Find the first column from the COLUMN_SYMBOL list that is found 
+		 * also from the table. 
+		 */
+		String columnSymbol = null;
+		
+		for(String nameToFind : COLUMN_SYMBOL) {
+			for(String col : table.getColumnNames()) {
+				if(col.equalsIgnoreCase(nameToFind)){
+					columnSymbol = col;
+					break;
+				}				
+			}
+			
+			if(columnSymbol != null) {
+				break;
+			}
+		}
+		
 		while (table.nextRow()) {
 			String identifier = table.getStringValue(" ");
-			String symbol = table.getStringValue(COLUMN_SYMBOL);
+			
+			String symbol = table.getStringValue(columnSymbol);
 			String actualDescription = table.getStringValue(COLUMN_DESCRIPTION);
 			String annotatedIdentifier = symbol != null ? symbol + " (" + identifier + ")" : identifier;
 			String description = actualDescription != null ? actualDescription : annotatedIdentifier;
