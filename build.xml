@@ -2,7 +2,7 @@
 
 <project name="Chipster" default="package" basedir=".">
 	<description>
-		The Chipster build script, testing yet again and again.
+		The Chipster build script
     </description>
 
 
