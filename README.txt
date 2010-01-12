@@ -1,4 +1,4 @@
-Chipster Source Package
+Chipster Source Package, testing
 -----------------------
 
 Out-of-the-box this project can be built with Ant and used with Eclipse.
