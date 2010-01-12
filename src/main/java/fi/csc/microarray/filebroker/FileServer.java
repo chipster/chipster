@@ -38,6 +38,14 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	private AuthorisedUrlRepository urlRepository;
 
 
+	public static void main(String[] args) {
+		// we should be able to specify alternative user dir for testing... and replace maybe that previous hack
+		//DirectoryLayout.getInstance(new File("chipster-userdir-fileserver")).getConfiguration();
+		
+		DirectoryLayout.getInstance().getConfiguration();
+		new FileServer();
+	}
+	
     public FileServer() {
 
     	try {
