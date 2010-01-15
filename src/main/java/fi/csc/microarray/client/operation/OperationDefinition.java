@@ -332,11 +332,21 @@ public class OperationDefinition implements ExecutionItem {
 			input.resetMulti();
 			boolean foundBinding = false;
 
+			// metadata needs not to be selected, it is fetched automatically
+			// FIXME remove the hack and enable proper check (but update scripts to use PHENODATA before that)
+			//if (input.type.isMetadata()) {					
+			if (input.name.startsWith("phenodata")) {
+				foundBinding = true; // we'll find it later on
+				unboundMetadataDefinitions.add(input);
+				continue;
+				
+			}
+
 			// find values to bind by iterating over remaining actual parameters
 			LinkedList<DataBean> removedValues = new LinkedList<DataBean>();
 			for (DataBean value : notProcessedInputValues) {
-				// try to match values to input definitions
 
+				// try to match values to input definitions
 				logger.debug("  trying to bind " + value.getName() + " to " + input.name + " (" + input.type + ")");
 				if (input.type.isTypeOf(value)) {
 
@@ -354,22 +364,11 @@ public class OperationDefinition implements ExecutionItem {
 				}
 			}
 			notProcessedInputValues.removeAll(removedValues);
+
+			// input not bound, so can give up
 			if (!foundBinding) {
-				
-				// metadata needs not to be selected, it is fetched automatically
-				// FIXME remove the hack and enable proper check (but update scripts to use PHENODATA before that)
-				//if (input.type.isMetadata()) {					
-				if (input.name.startsWith("phenodata")) {
-					foundBinding = true; // we'll find it later on
-					unboundMetadataDefinitions.add(input);
-					continue;
-					
-				} else {
-					logger.debug("  no binding found for " + input.name);
-					this.evaluatedSuitability = Suitability.NOT_ENOUGH_INPUTS;
-
-				}
-
+				logger.debug("  no binding found for " + input.name);
+				this.evaluatedSuitability = Suitability.NOT_ENOUGH_INPUTS;
 				return null;
 			}
 		}
