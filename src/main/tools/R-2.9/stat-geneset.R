@@ -14,6 +14,8 @@
 # Testing the statistical significance of several genes as a group or using KEGG or GO pathways
 # This only works with KEGG and GO for the whole normalized data (no pre-filtering allowed)
 # JTT 14.6.2006
+#
+# modified by MG 31.12.2009
 
 #column<-"group"
 #pathway.or.genelist <-"KEGG"
@@ -122,7 +124,7 @@ if(pathways=="GO") {
    split.screen(c(sqrt(x), sqrt(x)))
    for(i in 1:x) {
       y<-geneplot(test.go[1], plot=F, addlegend=F)
-      env2<-paste(lib, "SYMBOL", sep="")
+      env2<-paste(lib2, "SYMBOL", sep="")
       env2<-get(env2)
       names(y)<-as.list(env2)[names(y)]
       screen(i)

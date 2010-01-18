@@ -3,7 +3,7 @@
 # INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT dendrogram-color.png, dendrogram-bw.png
 # PARAMETER cluster [genes, chips] DEFAULT chips (What to cluster)
 # PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to color next to the tree)
-# PARAMETER number.of.groups INTEGER FROM 1 TO 20 DEFAULT 2 (How many groups to color to the tree)
+# PARAMETER number.of.groups INTEGER FROM 2 TO 20 DEFAULT 2 (How many groups to color to the tree)
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
