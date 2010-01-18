@@ -2,7 +2,7 @@
 
 <project name="Chipster" default="package" basedir=".">
 	<description>
-		The Chipster server installation package (incl. clients and everything)
+		The Chipster server installation package (incl. clients and everything)M
     </description>
 
 
