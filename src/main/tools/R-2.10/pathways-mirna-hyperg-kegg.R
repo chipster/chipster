@@ -3,13 +3,14 @@
 # INPUT GENE_EXPRS normalized.tsv OUTPUT hyperg_kegg.tsv
 # PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value threshold)
 # PARAMETER p.adjust.method [none, BH, BY] DEFAULT BH (method for adjusting the p-value in order to account for multiple testing)
-# PARAMETER species [human] DEFAULT human (the species for which the miRNA:s have been analyzed)
+# PARAMETER minimum.population INTEGER FROM 1 TO 1000000 DEFAULT 10 (minimum number of genes in in the reference list that map to a pathway)
+# PARAMETER species [human, mouse, rat] DEFAULT human (the species for which the miRNA:s have been analyzed)
 
 # POSSIBLE summary.feature [gene, transcript] DEFAULT gene (should the targets for the miRNA:s be transcripts or genes?)
 
-
 # miRNA hypergeometric test for KEGG
 # MG, 4.11.2009
+# modifed 16.12.2009 by MG
 
 # force "transcript" mode
 summary.feature <- "transcript"
@@ -20,31 +21,33 @@ dat<-read.table("normalized.tsv", sep="\t", header=T)
 # Extracts the identifiers
 id<-as.character(rownames(dat))
 
-# Translate parameter settings
-if (species=="human" & summary.feature=="gene") {
+# Translate parameter settings for biomaRt queries
+if (species=="human") {
 	dataset <- "hsapiens_gene_ensembl"
 }
-if (species=="human" & summary.feature=="transcript") {
-	dataset <- "hsapiens_transcript_ensembl"
-}
-if (species=="mouse" & summary.feature=="gene") {
+#if (species=="human" & summary.feature=="transcript") {
+#        dataset <- "hsapiens_transcript_ensembl"
+#}
+if (species=="mouse") {
 	dataset <- "mmusculus_gene_ensembl"
 }
-if (species=="mouse" & summary.feature=="transcript") {
-	dataset <- "mmusculus_transcript_ensembl"
-}
-if (species=="rat" & summary.feature=="gene") {
+#if (species=="mouse" & summary.feature=="transcript") {
+#        dataset <- "mmusculus_t_ensembl"
+#}
+if (species=="rat") {
 	dataset <- "rnorvegicus_gene_ensembl"
 }
-if (species=="rat" & summary.feature=="transcript") {
-	dataset <- "rnorvegicus_transcript_ensembl"
-}
+#if (species=="rat" & summary.feature=="transcript") {
+#        dataset <- "rnorvegicus_transcript_ensembl"
+#}
+
 
 # Read in the CORNA library, which contains the functions to map miRNA:s to targets
 # and performs hypergeometric test for enrichment of GO terms
 library(CORNA)
 
 # Download the mapping of miRNA to its targets from Sanger institute
+# Currently disabled becuse of unstable web-services
 #if (species=="human") {
 #	targets <- miRBase2df.fun(url="ftp://ftp.sanger.ac.uk/pub/mirbase/targets/v5/arch.v5.txt.homo_sapiens.zip")
 #}
@@ -52,7 +55,7 @@ library(CORNA)
 #	targets <- miRBase2df.fun(url="ftp://ftp.sanger.ac.uk/pub/mirbase/targets/v5/arch.v5.txt.mus_musculus.zip")
 #}
 #if (species=="rat") {
-#	targets <- miRBase2df.fun(url="ftp://ftp.sanger.ac.uk/pub/mirbase/targets/v5/arch.v5.txt.rattus_norvegious.zip")
+#	targets <- miRBase2df.fun(url="ftp://ftp.sanger.ac.uk/pub/mirbase/targets/v5/arch.v5.txt.rattus_norvegicus.zip")
 #}
 
 
@@ -69,7 +72,8 @@ if (species=="rat") {
 }
 
 
-# obtain a link from transcript to gene from biomart
+# obtain a link from transcript to gene from BiomaRt
+# disabled for now to avoid connection problems to BiomaRt
 #tran2gene <- BioMart2df.fun(
 #		biomart="ensembl",
 #		dataset=dataset,
@@ -78,8 +82,15 @@ if (species=="rat") {
 #		col.new=c("tran", "gene"))
 
 # obtain a link from transcript to gene from locally installed files
-#tran2gene <- read.table(file="transcripts_to_genes_hsapiens.txt", sep="\t")
-tran2gene <- read.table(file=file.path(path.mappings,"transcripts_to_genes_hsapiens.txt"), sep="\t")
+if (species=="human") {
+	tran2gene <- read.table(file=file.path(path.mappings,"transcripts_to_genes_hsapiens.txt"), sep="\t")
+}
+if (species=="mouse") {
+	tran2gene <- read.table(file=file.path(path.mappings,"transcripts_to_genes_mmusculus.txt"), sep="\t")
+}
+if (species=="rat") {
+	tran2gene <- read.table(file=file.path(path.mappings,"transcripts_to_genes_rnorvegicus.txt"), sep="\t")
+}
 
 # link microRNAs to genes instead of transcripts
 mir2gene <- corna.map.fun(targets,
@@ -93,13 +104,28 @@ sample.list <- corna.map.fun(mir2gene,
 		"mir",
 		"gene")
 
-# read pathway information from KEGG for homo sapiens
-#gene2path <- KEGG2df.fun(org="hsa")
-
-# read pathway information from local file for homo sapiens
-#gene2path <- read.table(file="genes_to_kegg_hsapiens.txt", sep="\t")
-gene2path <- read.table(file=file.path(path.mappings,"genes_to_kegg_hsapiens.txt"), sep="\t")
-
+# read pathway information from KEGG
+# disabled for now to avoid connection problems to KEGG
+#if (species="human") {
+#	gene2path <- KEGG2df.fun(org="hsa")
+#}
+#if (species="mouse") {
+#	gene2path <- KEGG2df.fun(org="mmu")
+#}
+#if (species="rat") {
+#	gene2path <- KEGG2df.fun(org="rno")
+#}
+	
+# read pathway information from local files
+if (species=="human") {
+	gene2path <- read.table(file=file.path(path.mappings,"genes_to_kegg_hsapiens.txt"), sep="\t")
+}
+if (species=="mouse") {
+	gene2path <- read.table(file=file.path(path.mappings,"genes_to_kegg_mmusculus.txt"), sep="\t")
+}
+if (species=="rat") {
+	gene2path <- read.table(file=file.path(path.mappings,"genes_to_kegg_rnorvegicus.txt"), sep="\t")
+}
 # define the sample of genes to test, i.e. only those gene targets that have pathway data
 sample.list <- intersect(sample.list, unique(gene2path$gene))
 
@@ -115,7 +141,7 @@ test <- corna.test.fun(
 		fisher=F,
 		chi.square=F,
 		#fisher.alternative="greater",
-		min.pop=10,
+		min.pop=minimum.population,
 		sort="hypergeometric",
 		p.adjust.method=p.adjust.method,
 		desc=path2name)

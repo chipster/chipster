@@ -71,9 +71,9 @@ if (Database.Selection=="ucsc"){
 }
 if(Database.Selection=="ensembl"){
 	if (species=="mouse"){
-		upstream<-read.table(paste(path.seq, "Ensemblpromodata/MouseEnsembl2000up1700down.tsv", sep=""), header=T, sep="\t")	
+		upstream<-read.table(file.path(path.seq, "Ensemblpromodata/MouseEnsembl2000up1700down.tsv"), header=T, sep="\t")	
 	}else{
-		upstream<-read.table(paste(path.seq, "Ensemblpromodata/HumanEnsembl2000up1700down.tsv", sep=""), header=T, sep="\t")
+		upstream<-read.table(file.path(path.seq, "Ensemblpromodata/HumanEnsembl2000up1700down.tsv"), header=T, sep="\t")
 	}
 	w<-c()
 	for(i in 1:length(refseq)) {
@@ -103,49 +103,49 @@ if(Database.Selection=="ensembl"){
 }else{
 
 	if(species=="human" & size=="small") {
-   		upstream<-read.table(paste(path.seq, "hg18/UCSC_Build_36.1_hg18_upstream1000.tsv", sep=""), header=T, sep="\t")
+   		upstream<-read.table(file.path(path.seq, "hg18/UCSC_Build_36.1_hg18_upstream1000.tsv"), header=T, sep="\t")
 	}
 	if(species=="human" & size=="medium") {
-   		upstream<-read.table(paste(path.seq, "hg18/UCSC_Build_36.1_hg18_upstream2000.tsv", sep=""), header=T, sep="\t")
+   		upstream<-read.table(file.path(path.seq, "hg18/UCSC_Build_36.1_hg18_upstream2000.tsv"), header=T, sep="\t")
 	}
 	if(species=="human" & size=="large") {
-   		upstream<-read.table(paste(path.seq, "hg18/UCSC_Build_36.1_hg18_upstream5000.tsv", sep=""), header=T, sep="\t")
+   		upstream<-read.table(file.path(path.seq, "hg18/UCSC_Build_36.1_hg18_upstream5000.tsv"), header=T, sep="\t")
 	}
 	if(species=="mouse" & size=="small") {
-   		upstream<-read.table(paste(path.seq, "mm8/UCSC_Build_36_mm8_upstream1000.tsv", sep=""), header=T, sep="\t")
+   		upstream<-read.table(file.path(path.seq, "mm8/UCSC_Build_36_mm8_upstream1000.tsv"), header=T, sep="\t")
 	}
 	if(species=="mouse" & size=="medium") {
-  		 upstream<-read.table(paste(path.seq, "mm8/UCSC_Build_36_mm8_upstream2000.tsv", sep=""), header=T, sep="\t")
+  		 upstream<-read.table(file.path(path.seq, "mm8/UCSC_Build_36_mm8_upstream2000.tsv"), header=T, sep="\t")
 	}
 	if(species=="mouse" & size=="large") {
-   		upstream<-read.table(paste(path.seq, "mm8/UCSC_Build_36_mm8_upstream5000.tsv", sep=""), header=T, sep="\t")
+   		upstream<-read.table(file.path(path.seq, "mm8/UCSC_Build_36_mm8_upstream5000.tsv"), header=T, sep="\t")
 	}
 	if(species=="rat" & size=="small") {
-   		upstream<-read.table(paste(path.seq, "Rat/UCSC_rn4_upstream1000.tsv", sep=""), header=T, sep="\t")
+   		upstream<-read.table(file.path(path.seq, "Rat/UCSC_rn4_upstream1000.tsv"), header=T, sep="\t")
 	}
 	if(species=="rat" & size=="medium") {
-   		upstream<-read.table(paste(path.seq, "Rat/UCSC_rn4_upstream2000.tsv", sep=""), header=T, sep="\t")
+   		upstream<-read.table(file.path(path.seq, "Rat/UCSC_rn4_upstream2000.tsv"), header=T, sep="\t")
 	}
 	if(species=="rat" & size=="large") {
-   		upstream<-read.table(paste(path.seq, "Rat/UCSC_rn4_upstream5000.tsv", sep=""), header=T, sep="\t")
+   		upstream<-read.table(file.path(path.seq, "Rat/UCSC_rn4_upstream5000.tsv"), header=T, sep="\t")
 	}
 	if(species=="drosophila" & size=="small") {
-   		upstream<-read.table(paste(path.seq, "Drosophila_upstream1000.tsv", sep=""), header=T, sep="\t")
+   		upstream<-read.table(file.path(path.seq, "Drosophila_upstream1000.tsv"), header=T, sep="\t")
 	}
 	if(species=="drosophila" & size=="medium") {
-   		upstream<-read.table(paste(path.seq, "Drosophila_upstream2000.tsv", sep=""), header=T, sep="\t")
+   		upstream<-read.table(file.path(path.seq, "Drosophila_upstream2000.tsv"), header=T, sep="\t")
 	}
 	if(species=="drosophila" & size=="large") {
-   		upstream<-read.table(paste(path.seq, "Drosophila_upstream5000.tsv", sep=""), header=T, sep="\t")
+   		upstream<-read.table(file.path(path.seq, "Drosophila_upstream5000.tsv"), header=T, sep="\t")
 	}
 	if(species=="yeast" & size=="small") {
-   		upstream<-read.table(paste(path.seq, "yeast/NCBI_sc_upstream500.tsv", sep=""), header=T, sep="\t")
+   		upstream<-read.table(file.path(path.seq, "yeast/NCBI_sc_upstream500.tsv"), header=T, sep="\t")
 	}
 	if(species=="yeast" & size=="medium") {
-   		upstream<-read.table(paste(path.seq, "yeast/NCBI_sc_upstream1000.tsv", sep=""), header=T, sep="\t")
+   		upstream<-read.table(file.path(path.seq, "yeast/NCBI_sc_upstream1000.tsv"), header=T, sep="\t")
 	}
 	if(species=="yeast" & size=="large") {
-   		upstream<-read.table(paste(path.seq, "yeast/NCBI_sc_upstream2500.tsv", sep=""), header=T, sep="\t")
+   		upstream<-read.table(file.path(path.seq, "yeast/NCBI_sc_upstream2500.tsv"), header=T, sep="\t")
 	}
 	w<-c()
 	for(i in 1:length(refseq)) {
