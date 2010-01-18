@@ -1,0 +1,66 @@
+package fi.csc.microarray.client.visualisation.methods.genomeBrowser.message;
+
+public class RegionDouble implements Comparable<RegionDouble> {
+	public Double start;
+	public double end;
+	
+	public RegionDouble(double start, double end) {
+		this.start = start;
+		this.end = end;
+	}
+
+	public RegionDouble() {
+		this(-1, -1);
+	}
+
+	public double getLength(){
+		return end - start;
+	}
+	
+	public double getMid(){
+		return (start + end) / 2; 
+	}
+	
+	
+	public String toString(){
+		return start + " - " + end;
+	}
+	
+	public RegionDouble clone(){
+		return new RegionDouble(start, end);
+	}
+	
+	public boolean intercepts(Region other){
+		return ((this.end > other.start) && this.start < other.end);
+	}
+
+	public RegionDouble intercept(Region other) {
+		return new RegionDouble( Math.max(this.start, other.start), Math.min(this.end, other.end));
+	}
+
+	public void move(double move) {
+		start += move;
+		end += move;
+	}
+
+	public int compareTo(RegionDouble o) {
+		return start.compareTo(o.start);
+	}
+	
+	@Override
+	public boolean equals(Object o){
+		if(o instanceof Region){
+			return start.equals(((Region)o).start);
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode(){
+		return start.hashCode();
+	}
+
+	public boolean contains(double point) {
+		return (point >= start && point < end);
+	}
+}

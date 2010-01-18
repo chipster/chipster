@@ -16,7 +16,9 @@ import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.Dra
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.TextDrawable;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.Region;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoordDouble;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoordRegionDouble;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.Chromosome;
 
 public class CircularView extends View{
 
@@ -192,25 +194,25 @@ public class CircularView extends View{
 		if(zoomable){
 
 
-			float pointerBp = pointToBp(new Point.Float(e.getPoint().x, e.getPoint().y));
-			float pointerRelative = (pointerBp - bpRegion.start) / bpRegion.getLength();
+			double pointerBp = pointToBp(new Point.Float(e.getPoint().x, e.getPoint().y)).bp;
+			double pointerRelative = (pointerBp - bpRegion.start.bp) / bpRegion.getLength();
 
 
 			if(e.getWheelRotation() > 0){
 				pointerRelative = 1 - pointerRelative;
 			}
 
-			pointerBp = bpRegion.start + pointerRelative * bpRegion.getLength();
+			pointerBp = bpRegion.start.bp + pointerRelative * bpRegion.getLength();
 
-			long startBp = getBpRegion().start;
-			long endBp = getBpRegion().end;
+			double startBp = getBpRegionDouble().start.bp;
+			double endBp = getBpRegionDouble().end.bp;
 
-			float width = endBp - startBp;
+			double width = endBp - startBp;
 			width *= Math.pow(ZOOM_FACTOR, e.getWheelRotation());			
 
 
-			startBp = (long)(pointerBp - width * pointerRelative);
-			endBp = (long)(pointerBp + width * (1 - pointerRelative));
+			startBp = (double)(pointerBp - width * pointerRelative);
+			endBp = (double)(pointerBp + width * (1 - pointerRelative));
 
 			if(startBp < 0){
 				endBp += -startBp;
@@ -219,7 +221,7 @@ public class CircularView extends View{
 
 			//System.out.println(startBp + ", " + endBp);
 
-			setBpRegion(new Region(startBp, endBp), false);
+			setBpRegion(new BpCoordRegionDouble(startBp, endBp, new Chromosome("chr1")), false);
 		}
 	}
 
@@ -231,7 +233,7 @@ public class CircularView extends View{
 		float a1 = getAngle(startPoint);
 		float a2 = getAngle(endPoint);
 
-		long bpMove = pointToBp(startPoint) - pointToBp(endPoint);
+		double bpMove = pointToBp(startPoint).minus(pointToBp(endPoint));
 
 		//System.out.println(bpRegion);
 
@@ -244,8 +246,8 @@ public class CircularView extends View{
 			bpMove += bpRegion.getLength();
 		}
 
-		if(bpMove < 0 && bpRegion.start < Math.abs(bpMove)){
-			bpMove = -bpRegion.start;
+		if(bpMove < 0 && bpRegion.start.bp < Math.abs(bpMove)){
+			bpMove = -bpRegion.start.bp;
 		}
 
 		bpRegion.move(bpMove);
@@ -297,8 +299,8 @@ public class CircularView extends View{
 		return a;
 	}
 
-	private long pointToBp(Point.Float p){
-		return trackToBp((long) (getAngle(p) * getWidth() / 2 / Math.PI + offset.x));
+	private BpCoordDouble pointToBp(Point.Float p){
+		return trackToBp((double) (getAngle(p) * getWidth() / 2 / Math.PI + offset.x));
 	}
 
 	private float getAngle(float x){

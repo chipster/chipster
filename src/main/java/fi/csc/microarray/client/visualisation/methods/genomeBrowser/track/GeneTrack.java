@@ -1,9 +1,7 @@
 package fi.csc.microarray.client.visualisation.methods.genomeBrowser.track;
 
 import java.awt.Color;
-import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,13 +15,15 @@ import java.util.TreeMap;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.View;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.TextDrawable;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.Content;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ReadInstructions;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.FileParser;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.Region;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.RegionContent;
 
 public class GeneTrack extends Track{
@@ -36,17 +36,6 @@ public class GeneTrack extends Track{
 	private Color color;
 
 	private int RESOLUTION = 512;
-	
-	private Point2D[] arrowPoints = new Point2D[]{
-			new Point.Double(0, 0.25),
-			new Point.Double(0.5, 0.25),
-			new Point.Double(0.5, 0),
-			new Point.Double(1, 0.5),
-			new Point.Double(0.5, 1),
-			new Point.Double(0.5, 0.75),
-			new Point.Double(0, 0.75),
-			new Point.Double(0, 0.25)						
-	};
 		
 	public enum PartColor { CDS (new Color(64, 192, 64)), UTR(new Color(192, 64, 64)), START_CODON(Color.gray);
 		public Color c;
@@ -57,9 +46,9 @@ public class GeneTrack extends Track{
 	}
 
 	public GeneTrack(View view, File file, Class<? extends AreaRequestHandler> handler, 
-			ReadInstructions<?> readInstructions, Color color, long maxBpLength)  {
+			FileParser inputParser, Color color, long maxBpLength)  {
 
-		super(view, file, handler, readInstructions);		
+		super(view, file, handler, inputParser);		
 		this.color = color;
 		this.maxBpLength = maxBpLength;
 	}
@@ -77,20 +66,21 @@ public class GeneTrack extends Track{
 
 			for(Gene gene : sortedGenes){
 
-				long minBp = Long.MAX_VALUE;
-				long maxBp = 0;
+				//Zetas to make all chromosomes to be "smaller" in alphatetical order of Strings
+				BpCoord minBp = new BpCoord(Long.MAX_VALUE, new Chromosome(Chromosome.MAX_VALUE));
+				BpCoord maxBp = new BpCoord(Long.MIN_VALUE, new Chromosome(Chromosome.MIN_VALUE));
 				String id = null;
 
 				for(RegionContent part : gene){
 
-					Object valueObj = part.values.get(Content.DESCRIPTION);
+					Object valueObj = part.values.get(ColumnType.DESCRIPTION);
 
-					minBp = Math.min(minBp, part.region.start);
-					maxBp = Math.max(maxBp, part.region.end);
-					id  = (String)part.values.get(Content.ID);
+					minBp = minBp.min(part.region.start);
+					maxBp = maxBp.max(part.region.end);
+					id  = (String)part.values.get(ColumnType.ID);
 				}
 
-				if(!(new Region(minBp, maxBp)).intercepts(getView().getBpRegion())){
+				if(!(new BpCoordRegion(minBp, maxBp)).intercepts(getView().getBpRegion())){
 					genes.remove(id);
 					continue;
 				}
@@ -124,7 +114,7 @@ public class GeneTrack extends Track{
 				rect.height = 10;
 				
 				//Draw arrow
-				if(((String)gene.first().values.get(Content.STRAND)).trim().equals("-")){
+				if(gene.first().values.get(ColumnType.STRAND) == Strand.REVERSED){
 					drawables.addAll(
 							getArrowDrawables(rect.x, rect.y, -rect.height, rect.height));
 				} else {
@@ -132,7 +122,7 @@ public class GeneTrack extends Track{
 							getArrowDrawables(rect.x + rect.width, rect.y, rect.height, rect.height));
 				}
 				
-				String geneId = ((String)gene.first().values.get(Content.ID)).split("\"")[1];
+				String geneId = ((String)gene.first().values.get(ColumnType.ID)).split("\"")[1];
 				
 				if(rect.width > geneId.length() * 7){
 					drawables.add(new TextDrawable(
@@ -149,7 +139,7 @@ public class GeneTrack extends Track{
 					} else {
 
 
-						String value = ((String) part.values.get(Content.DESCRIPTION)).trim();
+						String value = ((String) part.values.get(ColumnType.DESCRIPTION)).trim();
 						Color c;
 						int height = 0;
 
@@ -194,30 +184,11 @@ public class GeneTrack extends Track{
 		return drawables;
 	}
 
-	private Collection<? extends Drawable> getArrowDrawables(int x, int y,
-			int width, int height) {
-		
-		Collection<Drawable> parts = getEmptyDrawCollection();
-		
-		for (int i = 1; i < arrowPoints.length; i++){
-			Point2D p1 = arrowPoints[i - 1];
-			Point2D p2 = arrowPoints[i];
-			
-			Point2D p1Scaled = new Point.Double(x + p1.getX()*width, y + p1.getY()*height);
-			Point2D p2Scaled = new Point.Double(x + p2.getX()*width, y + p2.getY()*height);
-			
-			parts.add(new LineDrawable((int)p1Scaled.getX(), (int)p1Scaled.getY(), 
-					(int)p2Scaled.getX(), (int)p2Scaled.getY(), Color.black));
-		}
-		
-		return parts;
-	}
-
-	private Drawable createDrawable(long startBp, long endBp, Color c){
+	private Drawable createDrawable(BpCoord startBp, BpCoord endBp, Color c){
 		return createDrawable(startBp, endBp, 5, c);
 	}
 
-	private Drawable createDrawable(long startBp, long endBp, int height, Color c){
+	private Drawable createDrawable(BpCoord startBp, BpCoord endBp, int height, Color c){
 		Rectangle rect = new Rectangle();
 
 		rect.x = getView().bpToTrack(startBp);
@@ -245,10 +216,9 @@ public class GeneTrack extends Track{
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {		
 
-		String id = (String)areaResult.content.values.get(Content.ID);
-		boolean isForwardStrand = isForForwardStrand(areaResult);
+		String id = (String)areaResult.content.values.get(ColumnType.ID);
 
-		if(id != null && isReversed() != isForwardStrand){
+		if(id != null && areaResult.content.values.get(ColumnType.STRAND) == getStrand()){
 			if(!genes.containsKey(id)){
 				genes.put(id, new Gene());
 			}
@@ -282,8 +252,8 @@ public class GeneTrack extends Track{
 	}
 
 	@Override
-	public Collection<Content> getDefaultContents() {
-		return Arrays.asList(new Content[] { Content.DESCRIPTION, Content.STRAND, Content.ID}); 
+	public Collection<ColumnType> getDefaultContents() {
+		return Arrays.asList(new ColumnType[] { ColumnType.DESCRIPTION, ColumnType.STRAND, ColumnType.ID}); 
 	}
 
 	@Override

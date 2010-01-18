@@ -22,14 +22,19 @@ import javax.swing.Timer;
 
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.dataFetcher.QueueManager;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.Region;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.Strand;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoordDouble;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoordRegionDouble;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.RulerTrack;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.Track;
 
 public abstract  class View implements MouseListener, MouseMotionListener, MouseWheelListener{
 	
-	protected Region bpRegion;
-	public Region highlight;
+	protected BpCoordRegionDouble bpRegion;
+	public BpCoordRegion highlight;
 	
 	public Collection<Track> tracks = new LinkedList<Track>();
 	protected Rectangle viewArea = new Rectangle(0, 0, 500, 500);
@@ -45,7 +50,7 @@ public abstract  class View implements MouseListener, MouseMotionListener, Mouse
     protected boolean zoomable;
     private boolean selectable;
     
-    protected final float ZOOM_FACTOR = 1.03f;
+    protected final float ZOOM_FACTOR = 1.06f;
     
     private List<RegionListener> listeners = new LinkedList<RegionListener>();
 	public int margin = 0;
@@ -59,6 +64,8 @@ public abstract  class View implements MouseListener, MouseMotionListener, Mouse
 	private float y;
 	private int x;
 	private BufferedImage drawBuffer;
+	private long dragEventTime;
+	private long DRAG_EXPIRATION = 50; // ms;
 	
 	public View(GenomeBrowser parent, boolean movable, boolean zoomable, boolean selectable) {
 		parentPlot = parent;
@@ -74,7 +81,7 @@ public abstract  class View implements MouseListener, MouseMotionListener, Mouse
 	protected void drawView(Graphics2D g, boolean isAnimation){
 
 		if(bpRegion == null){
-			setBpRegion(new Region(0, 1024*1024*250), false);
+			setBpRegion(new BpCoordRegionDouble(0d, 1024*1024*250d, new Chromosome("chr1")), false);
 		}				
 
 		Rectangle viewClip = g.getClipBounds();
@@ -130,7 +137,7 @@ public abstract  class View implements MouseListener, MouseMotionListener, Mouse
 					
 					int maybeReversedY = (int)y;
 					
-					if(track.isReversed()){
+					if(track.getStrand() == Strand.REVERSED){
 						drawable.upsideDown();
 						maybeReversedY += Math.min(getTrackHeight(), track.getMaxHeight());
 					}
@@ -151,6 +158,8 @@ public abstract  class View implements MouseListener, MouseMotionListener, Mouse
 				} else {
 					drawableIter = null;
 				}
+			} else {
+				drawableIter = null;
 			}
 			
 			
@@ -222,7 +231,7 @@ public abstract  class View implements MouseListener, MouseMotionListener, Mouse
 	}
 
 	
-	public void setBpRegion(Region region, boolean disableDrawing) {
+	public void setBpRegion(BpCoordRegionDouble region, boolean disableDrawing) {
 		bpRegion = region;
 		
 		//Bp-region change may change visibility of tracks, calculate sizes again
@@ -237,8 +246,14 @@ public abstract  class View implements MouseListener, MouseMotionListener, Mouse
 		}
 	}
 	
-	public Region getBpRegion(){
+	public BpCoordRegionDouble getBpRegionDouble(){
 		return bpRegion;
+	}
+	
+	public BpCoordRegion getBpRegion(){
+		return new BpCoordRegion(
+				(long)(double)bpRegion.start.bp, bpRegion.start.chr,
+				(long)(double)bpRegion.end.bp, bpRegion.end.chr);
 	}
 	
 	public void mouseClicked(MouseEvent e) {
@@ -265,7 +280,8 @@ public abstract  class View implements MouseListener, MouseMotionListener, Mouse
 		//System.out.println("End: " + dragEndPoint + ", Start: " + dragLastStartPoint);
 		
 		if(dragStarted && dragEndPoint != null && dragLastStartPoint != null && 
-				Math.abs(dragEndPoint.getX() - dragLastStartPoint.getX()) > 10){
+				Math.abs(dragEndPoint.getX() - dragLastStartPoint.getX()) > 10 &&
+				System.currentTimeMillis() - dragEventTime < DRAG_EXPIRATION ){
 			
 			
 			stopAnimation();
@@ -306,6 +322,7 @@ public abstract  class View implements MouseListener, MouseMotionListener, Mouse
 			
 			dragStarted = true;
 			dragEndPoint = scale(e.getPoint());
+			dragEventTime = System.currentTimeMillis();
 			
 			handleDrag(dragStartPoint, dragEndPoint, false);
 						
@@ -319,7 +336,7 @@ public abstract  class View implements MouseListener, MouseMotionListener, Mouse
 	protected abstract void handleDrag(Point2D start, Point2D end, boolean disableDrawing);
 	
 	private Timer timer;
-	private int timerCounter;
+	//private int timerCounter;
 
 	public void mouseWheelMoved(final MouseWheelEvent e) {
 
@@ -367,18 +384,18 @@ public abstract  class View implements MouseListener, MouseMotionListener, Mouse
 				lockedX = (int)getWidth() - lockedX + getX() * 2 ;
 			}
 
-			double pointerBp = trackToBp(lockedX);
+			BpCoordDouble pointerBp = trackToBp(lockedX);
 			double pointerRelative = trackToRelative(lockedX);
 
-			long startBp = getBpRegion().start;
-			long endBp = getBpRegion().end;
+			double startBp = getBpRegionDouble().start.bp;
+			double endBp = getBpRegionDouble().end.bp;
 
 			double width = endBp - startBp;
 			width *= Math.pow(ZOOM_FACTOR, wheelRotation);			
 
 
-			startBp = (long)(pointerBp - width * pointerRelative);
-			endBp = (long)(pointerBp + width * (1 - pointerRelative));
+			startBp = (double)(pointerBp.bp - width * pointerRelative);
+			endBp = (double)(pointerBp.bp + width * (1 - pointerRelative));
 
 			if(startBp < 0){
 				endBp += -startBp;
@@ -387,20 +404,29 @@ public abstract  class View implements MouseListener, MouseMotionListener, Mouse
 
 			//System.out.println(startBp + ", " + endBp);
 
-			setBpRegion(new Region(startBp, endBp), disableDrawing);
+			setBpRegion(new BpCoordRegionDouble(
+					startBp, getBpRegionDouble().start.chr, 
+					endBp,getBpRegionDouble().end.chr), disableDrawing);
 		}		
 	}
 	
-	public int bpToTrack(long bp){
-		
-    	return (int)(((double)bp - getBpRegion().start) / (getBpRegion().end - getBpRegion().start) * getWidth()) + getX();
+	public Integer bpToTrack(BpCoord bp){
+
+		if(bpRegion.start.chr.equals(bp.chr))  {
+			return (int)(((double)bp.bp - getBpRegionDouble().start.bp) / (getBpRegionDouble().end.bp - getBpRegionDouble().start.bp) * getWidth()) + getX();
+		} else {
+			return null; 
+		}
     }
 	
-	public long trackToBp(long d){
-		return (long)(trackToRelative(d) * (getBpRegion().end - getBpRegion().start) + getBpRegion().start);
+	public BpCoordDouble trackToBp(double d){
+		return new BpCoordDouble(
+				(double)(trackToRelative(d) * (getBpRegionDouble().end.bp - 
+						getBpRegionDouble().start.bp) + getBpRegionDouble().start.bp), 
+						bpRegion.start.chr);
 	}
 	
-	public double trackToRelative(long track){
+	public double trackToRelative(double track){
 		return (double)(track - getX()) / getWidth();
 	}
 
@@ -432,7 +458,7 @@ public abstract  class View implements MouseListener, MouseMotionListener, Mouse
 	
 	public void dispatchRegionChange(){
 		for (RegionListener listener: listeners){
-			listener.RegionChanged(bpRegion);
+			listener.RegionChanged(getBpRegion());
 		}
 	}
 	

@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/svnroot/chipster/!svn/ver/609/trunk/src/main/java/fi/csc/microarray/client/visualisation/methods/genomeBrowser
+END
+GenomeBrowserStarter.java
+K 25
+svn:wc:ra_dav:version-url
+V 137
+/svnroot/chipster/!svn/ver/604/trunk/src/main/java/fi/csc/microarray/client/visualisation/methods/genomeBrowser/GenomeBrowserStarter.java
+END
+VerticalView.java
+K 25
+svn:wc:ra_dav:version-url
+V 129
+/svnroot/chipster/!svn/ver/609/trunk/src/main/java/fi/csc/microarray/client/visualisation/methods/genomeBrowser/VerticalView.java
+END
+HorizontalView.java
+K 25
+svn:wc:ra_dav:version-url
+V 131
+/svnroot/chipster/!svn/ver/609/trunk/src/main/java/fi/csc/microarray/client/visualisation/methods/genomeBrowser/HorizontalView.java
+END
+RegionListener.java
+K 25
+svn:wc:ra_dav:version-url
+V 131
+/svnroot/chipster/!svn/ver/545/trunk/src/main/java/fi/csc/microarray/client/visualisation/methods/genomeBrowser/RegionListener.java
+END
+View.java
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/svnroot/chipster/!svn/ver/609/trunk/src/main/java/fi/csc/microarray/client/visualisation/methods/genomeBrowser/View.java
+END
+CircularView.java
+K 25
+svn:wc:ra_dav:version-url
+V 129
+/svnroot/chipster/!svn/ver/609/trunk/src/main/java/fi/csc/microarray/client/visualisation/methods/genomeBrowser/CircularView.java
+END
+GenomeBrowser.java
+K 25
+svn:wc:ra_dav:version-url
+V 130
+/svnroot/chipster/!svn/ver/609/trunk/src/main/java/fi/csc/microarray/client/visualisation/methods/genomeBrowser/GenomeBrowser.java
+END

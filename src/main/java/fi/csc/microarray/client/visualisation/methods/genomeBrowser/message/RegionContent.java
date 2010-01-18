@@ -3,22 +3,22 @@ package fi.csc.microarray.client.visualisation.methods.genomeBrowser.message;
 import java.util.HashMap;
 import java.util.Map;
 
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.Content;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ColumnType;
 
 
 public class RegionContent implements Comparable<RegionContent> {
-	public Region region;
-	public Map<Content, Object> values;
+	public BpCoordRegion region;
+	public Map<ColumnType, Object> values;
 	
-	public RegionContent(Region region, Map<Content, Object> values){
+	public RegionContent(BpCoordRegion region, Map<ColumnType, Object> values){
 		this.region = region;
 		this.values = values;
 	}
 
-	public RegionContent(Region region, Object concisedValue) {
+	public RegionContent(BpCoordRegion region, Object concisedValue) {
 		this.region = region;
-		this.values = new HashMap<Content, Object>();
-		this.values.put(Content.VALUE, concisedValue);
+		this.values = new HashMap<ColumnType, Object>();
+		this.values.put(ColumnType.VALUE, concisedValue);
 	}
 
 	public int compareTo(RegionContent other) {
@@ -28,8 +28,8 @@ public class RegionContent implements Comparable<RegionContent> {
 			return regionComparison;
 		}
 		
-		Long first = (Long)values.get(Content.FILE_INDEX);
-		Long second = (Long)other.values.get(Content.FILE_INDEX);
+		Long first = (Long)values.get(ColumnType.FILE_INDEX);
+		Long second = (Long)other.values.get(ColumnType.FILE_INDEX);
 		
 		if(first == null && second == null){
 			return 0;
@@ -45,15 +45,4 @@ public class RegionContent implements Comparable<RegionContent> {
 		
 		return first.compareTo(second);	
 	}
-	
-//	@Override
-//	public int hashCode(){
-//		return region.hashCode();
-//	}
-//	
-//	@Override
-//	public boolean equals(Object o){
-//		RegionContent other = (RegionContent) o;		
-//		return region.equals(other.region);
-//	}
 }

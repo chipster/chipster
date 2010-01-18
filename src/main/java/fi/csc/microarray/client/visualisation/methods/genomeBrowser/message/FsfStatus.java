@@ -1,7 +1,7 @@
 package fi.csc.microarray.client.visualisation.methods.genomeBrowser.message;
 import java.io.File;
-import java.util.Collection;
 import java.util.HashSet;
+import java.util.Queue;
 import java.util.Set;
 
 
@@ -17,14 +17,14 @@ public class FsfStatus {
 	public boolean concise;
 	public boolean debug;
 	
-	private Set<Collection> clearedAlready = new HashSet<Collection>();
+	private Set<Object> clearedAlready = new HashSet<Object>();
 	public File file;
 	
-	public void maybeClearQueue(Collection queue){
-		if(clearQueues && !clearedAlready.contains(queue)){
+	public void maybeClearQueue(Object fileResultQueue){
+		if(clearQueues && !clearedAlready.contains(fileResultQueue)){
 
-			clearedAlready.add(queue);
-			queue.clear();			
+			clearedAlready.add(fileResultQueue);
+			((Queue<?>)fileResultQueue).clear();			
 		}
 	}
 }

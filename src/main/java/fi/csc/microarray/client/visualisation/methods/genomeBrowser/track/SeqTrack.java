@@ -13,9 +13,10 @@ import fi.csc.microarray.client.visualisation.methods.genomeBrowser.dataFetcher.
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.TextDrawable;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.Content;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ReadInstructions;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.RegionContent;
 
 public class SeqTrack extends Track{
@@ -33,9 +34,9 @@ public class SeqTrack extends Track{
 	private long maxBpLength;
 
 	public SeqTrack(View view, File file, Class<? extends AreaRequestHandler> handler, 
-			ReadInstructions<?> readInstructions, long maxBpLength)  {
+			FileParser inputParser, long maxBpLength)  {
 
-		super(view, file, handler, readInstructions);		
+		super(view, file, handler, inputParser);		
 		this.maxBpLength = maxBpLength;
 
 	}
@@ -57,10 +58,10 @@ public class SeqTrack extends Track{
 					continue;
 				}					
 				
-				long startBp = read.region.start;
-				long endBp = read.region.end;			
+				BpCoord startBp = read.region.start;
+				BpCoord endBp = read.region.end;			
 
-				String seq = ((String)read.values.get(Content.SEQUENCE));
+				String seq = ((String)read.values.get(ColumnType.SEQUENCE));
 
 				//System.out.println(seq + startBp);
 				if(seq != null){
@@ -68,7 +69,7 @@ public class SeqTrack extends Track{
 					seq = seq.trim().toUpperCase();
 				} else {
 					seq = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-						.substring(0, (int) (endBp - startBp + 1));
+						.substring(0, (int) (endBp.minus(startBp) + 1));
 				}
 				
 				drawables.addAll(getSeqDrawables(startBp, endBp, seq, 1));
@@ -97,7 +98,7 @@ public class SeqTrack extends Track{
 		return buf.toString();			
 	}
 	
-	private Collection<Drawable> getSeqDrawables(long startBb, long endBp, String seq, int yOffset){
+	private Collection<Drawable> getSeqDrawables(BpCoord startBb, BpCoord endBp, String seq, int yOffset){
 
 		Rectangle rect = new Rectangle();
 		
@@ -175,10 +176,10 @@ public class SeqTrack extends Track{
 	}
 
 	@Override
-	public Collection<Content> getDefaultContents() {
+	public Collection<ColumnType> getDefaultContents() {
 		
-		return Arrays.asList(new Content[] {
-				Content.SEQUENCE
+		return Arrays.asList(new ColumnType[] {
+				ColumnType.SEQUENCE
 		}); 
 	}
 

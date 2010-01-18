@@ -14,9 +14,10 @@ import fi.csc.microarray.client.visualisation.methods.genomeBrowser.View;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.Content;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ReadInstructions;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.RegionContent;
 
 public class BlockTrack extends Track{
@@ -32,9 +33,9 @@ public class BlockTrack extends Track{
 	private long maxBpLength;
 
 	public BlockTrack(View view, File file, Class<? extends AreaRequestHandler> handler, 
-			ReadInstructions<?> readInstructions, Color color, long minBpLength, long maxBpLength)  {
+			FileParser inputParser, Color color, long minBpLength, long maxBpLength)  {
 		
-		super(view, file, handler, readInstructions);		
+		super(view, file, handler, inputParser);		
 		this.color = color;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
@@ -57,7 +58,7 @@ public class BlockTrack extends Track{
 
 				RegionContent read = iter.next();
 				
-				Object valueObj = read.values.get(Content.VALUE);
+				Object valueObj = read.values.get(ColumnType.VALUE);
 				
 				
 				if(!read.region.intercepts(getView().getBpRegion())){
@@ -85,11 +86,11 @@ public class BlockTrack extends Track{
 		return drawables;
 	}
 
-	private Drawable createDrawable(long startBp, long endBp, Color c){
+	private Drawable createDrawable(BpCoord startBp, BpCoord endBp, Color c){
 		return createDrawable(startBp, endBp, 5, c);
 	}
 
-	private Drawable createDrawable(long startBp, long endBp, int height, Color c){
+	private Drawable createDrawable(BpCoord startBp, BpCoord endBp, int height, Color c){
 		Rectangle rect = new Rectangle();
 
 		rect.x = getView().bpToTrack(startBp);
@@ -174,8 +175,8 @@ public class BlockTrack extends Track{
 	}
 
 	@Override
-	public Collection<Content> getDefaultContents() {
-		return Arrays.asList(new Content[] {}); 
+	public Collection<ColumnType> getDefaultContents() {
+		return Arrays.asList(new ColumnType[] {}); 
 	}
 
 	@Override

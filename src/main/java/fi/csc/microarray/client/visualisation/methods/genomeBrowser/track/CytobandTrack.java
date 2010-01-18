@@ -15,9 +15,10 @@ import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.Dra
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.TextDrawable;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.Content;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ReadInstructions;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.RegionContent;
 
 public class CytobandTrack extends Track{
@@ -84,8 +85,8 @@ public class CytobandTrack extends Track{
 	}
 
 	public CytobandTrack(View view, File file, Class<? extends AreaRequestHandler> handler, 
-			ReadInstructions<?> readInstructions, boolean showText) {
-		super(view, file, handler, readInstructions);		
+			FileParser inputParser, boolean showText) {
+		super(view, file, handler, inputParser);		
 		
 		this.showText = showText;
 	}
@@ -101,14 +102,14 @@ public class CytobandTrack extends Track{
 			
 			for (RegionContent	bandRegion : bands){
 				
-				Band band = getBand((String)bandRegion.values.get(Content.VALUE));
-				String text = (String)bandRegion.values.get(Content.ID);
+				Band band = getBand((String)bandRegion.values.get(ColumnType.VALUE));
+				String text = (String)bandRegion.values.get(ColumnType.ID);
 				
 				if(text == null){
 					text = "";
 				}				
 
-				if(band.getColor() != null){
+				if(band != null && band.getColor() != null){
 					RectDrawable box = createDrawable(bandRegion.region.start, bandRegion.region.end, band.color);
 					drawables.add(box);
 					
@@ -163,7 +164,7 @@ public class CytobandTrack extends Track{
 	}
 
 
-	private RectDrawable createDrawable(long startBp, long endBp, Color c){
+	private RectDrawable createDrawable(BpCoord startBp, BpCoord endBp, Color c){
 		Rectangle rect = new Rectangle();
 
 		rect.x = getView().bpToTrack(startBp);
@@ -190,7 +191,7 @@ public class CytobandTrack extends Track{
 //			}
 //		}
 			
-			this.bands.add(areaResult.content);					
+			this.bands.add(areaResult.content);
 		
 		getView().redraw();
 		//this.reads.addAll(result.collection);
@@ -211,10 +212,10 @@ public class CytobandTrack extends Track{
 	}
 	
 	@Override
-	public Collection<Content> getDefaultContents() {
-		return Arrays.asList(new Content[] {
-				Content.VALUE,
-				Content.ID
+	public Collection<ColumnType> getDefaultContents() {
+		return Arrays.asList(new ColumnType[] {
+				ColumnType.VALUE,
+				ColumnType.ID
 		}); 
 	}
 	

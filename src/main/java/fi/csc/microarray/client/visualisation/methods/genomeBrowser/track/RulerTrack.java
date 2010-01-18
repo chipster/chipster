@@ -11,9 +11,10 @@ import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.Dra
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.TextDrawable;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.Content;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.Region;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoordRegion;
 
 public class RulerTrack extends Track{
 
@@ -30,11 +31,11 @@ public class RulerTrack extends Track{
 	public Collection<Drawable> getDrawables() {
 
 		Collection<Drawable> drawables = getEmptyDrawCollection();
-		Region region = getView().getBpRegion();
+		BpCoordRegion region = getView().getBpRegion();
 		
 		long magnitude = (long)Math.pow(10, (int)Math.log10(region.getLength()));
 
-		final long start = region.start - region.start % magnitude;
+		final long start = region.start.bp - region.start.bp % magnitude;
 		final int steps = (int)Math.ceil(region.getLength() / magnitude) + 1;
 		final long end = start + steps * magnitude;
 		
@@ -42,7 +43,7 @@ public class RulerTrack extends Track{
 		
 		for (long bp = start; bp <= end; bp += magnitude){
 
-			int x = getView().bpToTrack(bp);
+			int x = getView().bpToTrack(new BpCoord(bp, region.start.chr));
 			String text = Utils.toHumanReadable(bp);
 			
 			drawables.add(new TextDrawable( x, textY, text, Color.black));
@@ -106,8 +107,8 @@ public class RulerTrack extends Track{
 	}
 	
 	@Override
-	public Collection<Content> getDefaultContents() {
-		return Arrays.asList(new Content[] {}); 
+	public Collection<ColumnType> getDefaultContents() {
+		return Arrays.asList(new ColumnType[] {}); 
 	}
 	
 	@Override

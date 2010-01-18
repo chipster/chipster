@@ -5,17 +5,16 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ReadInstructions;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.FileRequest;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.FileResult;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.FsfStatus;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.Region;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.RowRegion;
 
 
-public class TreeThread<T> extends AreaRequestHandler {
+public class TreeThread extends AreaRequestHandler {
 
-	private TreeNode<T> rootNode;
+	private TreeNode rootNode;
 	
 	private BlockingQueue<FileRequest> fileRequestQueue = new LinkedBlockingQueue<FileRequest>();
 	private ConcurrentLinkedQueue<FileResult> fileResultQueue = new ConcurrentLinkedQueue<FileResult>();
@@ -24,7 +23,7 @@ public class TreeThread<T> extends AreaRequestHandler {
 	
 	private boolean debug = false;
 
-	private ReadInstructions<T> instructions;
+	private FileParser inputParser;
 	
 
 	private File file;
@@ -33,16 +32,16 @@ public class TreeThread<T> extends AreaRequestHandler {
 			File file, 
 			Queue<AreaRequest> areaRequestQueue,
 			AreaResultListener areaResultListener, 
-			ReadInstructions<T> instructions) {
+			FileParser inputParser) {
 		
 		super(areaRequestQueue, areaResultListener);
-		this.instructions = instructions;
+		this.inputParser = inputParser;
 		this.file = file;
 	}
 
 	
 	public synchronized void run(){
-		fileFetcher = new FileFetcherThread(fileRequestQueue, fileResultQueue, this, instructions);
+		fileFetcher = new FileFetcherThread(fileRequestQueue, fileResultQueue, this, inputParser);
 		createTree(fileFetcher.getRowCount());
 		fileFetcher.start();
 		
@@ -61,7 +60,7 @@ public class TreeThread<T> extends AreaRequestHandler {
 	
 	private void createTree(long rowCount) {
 	
-		rootNode = new TreeNode<T>(new Region(0, rowCount), this, null);
+		rootNode = new TreeNode(new RowRegion(0l, rowCount), this, null);
 	}
 
 	private void processFileResult(FileResult fileResult) {
@@ -74,15 +73,15 @@ public class TreeThread<T> extends AreaRequestHandler {
 		rootNode.processAreaRequest(areaRequest);
 	}
 
-	public void createFileRequest(AreaRequest areaRequest, Region rowRegion, TreeNode node, FsfStatus status) {
-		if(debug)System.out.println("Tree: Creating file request");
-		status.maybeClearQueue(fileRequestQueue);
+	public void createFileRequest(AreaRequest areaRequest, RowRegion rowRegion, TreeNode node) {
+		//if(debug)System.out.println("Tree: Creating file request: " + status.file);
+		areaRequest.status.maybeClearQueue(fileRequestQueue);
 				
-		fileRequestQueue.add(new FileRequest(areaRequest, rowRegion, node, status));
+		fileRequestQueue.add(new FileRequest(areaRequest, rowRegion, node, areaRequest.status));
 	}
 	
-	public ReadInstructions<T> getInstructions() {
-		return instructions;
+	public FileParser getInputParser() {
+		return inputParser;
 	}
 	
 	

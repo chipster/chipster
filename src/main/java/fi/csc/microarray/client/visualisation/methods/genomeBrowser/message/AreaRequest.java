@@ -2,15 +2,15 @@ package fi.csc.microarray.client.visualisation.methods.genomeBrowser.message;
 
 import java.util.Collection;
 
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.Content;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ColumnType;
 
 
-public class AreaRequest extends Region{
+public class AreaRequest extends BpCoordRegion {
 
 	public FsfStatus status;
-	public Collection<Content> requestedContents;
+	public Collection<ColumnType> requestedContents;
 	
-	public AreaRequest(Region region, Collection<Content> requestedContents, FsfStatus status) {
+	public AreaRequest(BpCoordRegion region, Collection<ColumnType> requestedContents, FsfStatus status) {
 		super(region.start, region.end);
 		this.requestedContents = requestedContents;
 		this.status = status;

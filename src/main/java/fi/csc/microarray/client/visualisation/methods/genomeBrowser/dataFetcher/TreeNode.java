@@ -1,73 +1,73 @@
 package fi.csc.microarray.client.visualisation.methods.genomeBrowser.dataFetcher;
 import java.util.Map;
 
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ChunkParser;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.Content;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ReadInstructions;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.FileResult;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.FsfStatus;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.RowRegion;
 
 
-public class TreeNode<T>{
+public class TreeNode {
 	private static final long RESOLUTION = 256;
-	private TreeThread<T> tree;
-	public T concisedValue;
-	public Region nodeBpRegion;
-	public Region nodeRows;
+	private TreeThread tree;
+	public RegionContent[] concisedValues;
+	public BpCoordRegion nodeBpRegion;
+	public RowRegion rowRegion;
 
-	private TreeNode<T> left;
-	private TreeNode<T> right;
-	private TreeNode<T> parent;
+	private TreeNode left;
+	private TreeNode right;
+	private TreeNode parent;
 
-	private boolean requestDistributor = false;
+	//private boolean requestDistributor = false;
 	
-	private Region subtreeRows;
+	private RowRegion subtreeRows;
 	private int maxChildCount;
-	private ReadInstructions<T> instructions;
+	private FileParser inputParser;
 
-	public TreeNode(Region subtreeReadIndexes, TreeThread<T> tree, TreeNode<T> parent) {
+	public TreeNode(RowRegion subtreeReadIndexes, TreeThread tree, TreeNode parent) {
 
 		this.tree = tree;
 		this.parent = parent;		
 		this.subtreeRows = subtreeReadIndexes;
-		this.instructions = tree.getInstructions();
+		this.inputParser = tree.getInputParser();
 
-		this.nodeRows = new Region();
-
-		this.nodeRows = instructions.chunker.getChunkMiddleOf(subtreeReadIndexes);
-		this.maxChildCount = instructions.chunker.getChildCount(subtreeReadIndexes);
+		this.rowRegion = inputParser.getChunkRegionMiddleOf(subtreeReadIndexes);
+		this.maxChildCount = inputParser.getChildCount(subtreeReadIndexes);
 
 		if(maxChildCount == 0){
-			this.nodeRows = subtreeReadIndexes;
+			this.rowRegion = subtreeReadIndexes;
 		}
 	}
 
 	private void createChildren(){
 		if(maxChildCount >= 1 && left == null){
-			left = new TreeNode<T>(new Region(subtreeRows.start, nodeRows.start - 1), tree, this);
+			left = new TreeNode(new RowRegion(subtreeRows.start, rowRegion.start - 1), tree, this);
 		}
 		if(maxChildCount == 2 && right == null){
-			right = new TreeNode<T>(new Region(nodeRows.end + 1, subtreeRows.end), tree, this);
+			right = new TreeNode(new RowRegion(rowRegion.end + 1, subtreeRows.end), tree, this);
 		}
 	}	
 
 	private void fetchConcisedContent(AreaRequest areaRequest){
-		tree.createFileRequest(areaRequest, this.nodeRows, this, areaRequest.status);
+		tree.createFileRequest(areaRequest, this.rowRegion, this);
 	}
 
-	public void resetRequestDistributor(){
-		requestDistributor = false;
-		if(left != null){
-			left.resetRequestDistributor();
-		}
-		if(right != null){
-			right.resetRequestDistributor();
-		}
-	}
+//	public void resetRequestDistributor(){
+//		requestDistributor = false;
+//		if(left != null){
+//			left.resetRequestDistributor();
+//		}
+//		if(right != null){
+//			right.resetRequestDistributor();
+//		}
+//	}
 
 
 	public void processAreaRequest(AreaRequest areaRequest) {
@@ -75,7 +75,7 @@ public class TreeNode<T>{
 
 			//System.out.println(nodeBpRegion.getLength() + ", " +  areaRequest.getLength()  + ", " +  nodeRows.getLength());
 			
-			long nonZeroLength = Math.max(nodeBpRegion.getLength(), 1);
+			//long nonZeroLength = Math.max(nodeBpRegion.getLength(), 1);
 			
 //			boolean detailNeeded = 
 //				areaRequest.getLength() / nonZeroLength < RESOLUTION;
@@ -91,7 +91,7 @@ public class TreeNode<T>{
 				} else {
 					//Concised value isn't enough, file has to be read
 					
-					tree.createFileRequest(areaRequest, nodeRows, this, areaRequest.status);
+					tree.createFileRequest(areaRequest, rowRegion, this);
 				}
 			}				
 
@@ -101,12 +101,11 @@ public class TreeNode<T>{
 					createChildren();
 				}
 
-				if(left != null && areaRequest.start <= nodeBpRegion.start){ 
+				if(left != null && areaRequest.compareTo(nodeBpRegion) <= 0) { 
 					left.processAreaRequest(areaRequest);
 				}
 
-				//Comparison to start, because datafile is sorted according to region start locations
-				if(right != null && areaRequest.end >= nodeBpRegion.start){ 
+				if(right != null && areaRequest.compareTo(nodeBpRegion) > 0){ 
 					right.processAreaRequest(areaRequest);
 				}	
 			}
@@ -119,13 +118,15 @@ public class TreeNode<T>{
 	}
 	
 	private void createConcisedResult(FsfStatus status) {
+		
+		for(RegionContent regCont : concisedValues)
 		tree.createAreaResult(new AreaResult<RegionContent>(
-				status, new RegionContent(nodeBpRegion, concisedValue)));
+				status, regCont));
 	}
 
 	private long getSubtreeBpLengthApproximation(){
 		if(parent != null && parent.nodeBpRegion != null && this.nodeBpRegion != null){
-			return Math.abs(parent.nodeBpRegion.start - this.nodeBpRegion.start) * 2;
+			return Math.abs(parent.nodeBpRegion.start.minus(this.nodeBpRegion.start) * 2);
 		} else {
 			return Long.MAX_VALUE;
 		}
@@ -140,17 +141,19 @@ public class TreeNode<T>{
 		
 		//System.out.println("ProcessFileResul");
 		
-		if(concisedValue == null || nodeBpRegion == null){
-					
-			ChunkParser parser = instructions.getParser();
-			parser.setChunk(fileResult.chunk);
+		if(concisedValues == null || nodeBpRegion == null){
 			
-			concisedValue = instructions.conciser.concise(fileResult.chunk, parser);
-			nodeBpRegion = new Region(
-					parser.getLong(fileResult.chunk.readIndex, Content.BP_START),
-					parser.getLong(
-							(fileResult.chunk.readIndex + parser.getReadCount() - 1), 
-							Content.BP_START));
+			FileParser parser = fileResult.chunkParser;
+			Long row = parser.getRowIndex();
+			
+			Chromosome chr = new Chromosome((String)parser.get(row, ColumnType.CHROMOSOME));
+			
+			BpCoord start = new BpCoord((Long)parser.get(row, ColumnType.BP_START), chr); 
+			BpCoord end = new BpCoord((Long)parser.get(row + parser.getChunkRowCount() - 1, ColumnType.BP_START), chr);
+					
+			nodeBpRegion = new BpCoordRegion(start, end);
+			
+			concisedValues = fileResult.chunkParser.concise(nodeBpRegion);
 													
 			if(fileResult.request.areaRequest != null ){
 //				System.out.println("Continue stopped area request: " + 
@@ -167,26 +170,23 @@ public class TreeNode<T>{
 			if(fileResult.status.concise){
 				createConcisedResult(fileResult.status);
 			} else {				
-				createReads(fileResult.chunk, fileResult.request.areaRequest, fileResult.status);				
+				getAllRows(fileResult.chunkParser, fileResult.request.areaRequest, fileResult.status);				
 			}
 		}
 	}
 	
-	public void createReads(ByteChunk chunk, AreaRequest areaRequest, FsfStatus status){
+	public void getAllRows(FileParser chunkParser, AreaRequest areaRequest, FsfStatus status){
 	//List<List<Object>> hits = new LinkedList<List<Object>>();
-	ChunkParser parser = instructions.getParser();
-	parser.setChunk(chunk);
-
-	for(int i = 0; i < parser.getReadCount(); i++){	
+	
+	for(int i = 0; i < chunkParser.getChunkRowCount(); i++){	
 		
-		Region readReg = instructions.conciser.getRegion(parser, i + chunk.readIndex);
-		
-		
-		Map<Content, Object> values = parser.getValues(
-				i + chunk.readIndex, areaRequest.requestedContents);
+		BpCoordRegion bpRegion = chunkParser.getBpRegion(i + chunkParser.getRowIndex());
+				
+		Map<ColumnType, Object> values = chunkParser.getValues(
+				i + chunkParser.getRowIndex(), areaRequest.requestedContents);
 		
 		//if(areaRequest.requestedContents.contains(Content.FILE_INDEX)){
-			values.put(Content.FILE_INDEX, i + chunk.readIndex);
+			values.put(ColumnType.FILE_INDEX, i + chunkParser.getRowIndex());
 		//}
 		
 				
@@ -197,7 +197,7 @@ public class TreeNode<T>{
 			
 			//hits.add(read);
 			tree.createAreaResult(new AreaResult<RegionContent>(
-					status, new RegionContent(readReg, values)));
+					status, new RegionContent(bpRegion, values)));
 //		}
 	}		
 	//tree.createAreaResult(new AreaResult<List<List<Object>>>(status, hits, instructions.fileDef));

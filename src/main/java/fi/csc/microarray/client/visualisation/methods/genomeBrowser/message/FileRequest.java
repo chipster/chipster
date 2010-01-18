@@ -6,7 +6,7 @@ import fi.csc.microarray.client.visualisation.methods.genomeBrowser.dataFetcher.
 		
 		
 
-		public FileRequest(AreaRequest areaRequest, Region rowRegion, TreeNode node, FsfStatus status) {
+		public FileRequest(AreaRequest areaRequest, RowRegion rowRegion, TreeNode node, FsfStatus status) {
 			super();
 			this.rowRegion = rowRegion;
 			this.node = node;
@@ -15,7 +15,7 @@ import fi.csc.microarray.client.visualisation.methods.genomeBrowser.dataFetcher.
 		}
 		
 		public AreaRequest areaRequest;
-		public Region rowRegion;
+		public RowRegion rowRegion;
 		public TreeNode node;
 		
 		public FsfStatus status;

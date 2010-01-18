@@ -15,9 +15,11 @@ import fi.csc.microarray.client.visualisation.methods.genomeBrowser.dataFetcher.
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.TextDrawable;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.Content;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ReadInstructions;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.FileParser;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.RegionContent;
 
 public class SeqBlockTrack extends Track{
@@ -41,9 +43,9 @@ public class SeqBlockTrack extends Track{
 	private long maxBpLength;
 
 	public SeqBlockTrack(View view, File file, Class<? extends AreaRequestHandler> handler, 
-			ReadInstructions<?> readInstructions, Color color, long minBpLength, long maxBpLength)  {
+			FileParser inputParser, Color color, long minBpLength, long maxBpLength)  {
 		
-		super(view, file, handler, readInstructions);		
+		super(view, file, handler, inputParser);		
 		this.color = color;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
@@ -68,7 +70,7 @@ public class SeqBlockTrack extends Track{
 
 				RegionContent read = iter.next();
 				
-				Object valueObj = read.values.get(Content.VALUE);
+				Object valueObj = read.values.get(ColumnType.VALUE);
 				
 				
 				if(!read.region.intercepts(getView().getBpRegion())){
@@ -94,23 +96,24 @@ public class SeqBlockTrack extends Track{
 					int height = 10; //(int) (getView().getTrackHeight() / 2 * limited / 255f);
 					//System.out.println(height);
 					
-					long startBp = read.region.start;
-					long endBp = read.region.end;			
+					BpCoord startBp = read.region.start;
+					BpCoord endBp = read.region.end;			
 					
 					
-					String seq = ((String)read.values.get(Content.SEQUENCE));
+					String seq = ((String)read.values.get(ColumnType.SEQUENCE));
 					
 					
 					if(seq != null){
 						seq = seq.trim();						
 					} else {
-						int seqLength = (int) (endBp - startBp + 1);
+						int seqLength = (int) (endBp.minus(startBp) + 1);
 						if(seqLength > 128){
 							
 							//TODO what happened?
 							seqLength = 0;
 						}
-						seq = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+						seq = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" + 
+						"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
 							.substring(0, seqLength);
 					}
 					
@@ -146,15 +149,8 @@ public class SeqBlockTrack extends Track{
 
 					//String seq = ((String)read.values.get(Content.SEQUENCE)).trim();
 					
-					String strand = ((String)read.values.get(Content.STRAND));
-					
-					if(strand != null){
-						strand = strand.trim();						
-					} else {
-						strand = "F";
-					}
-					
-					if(strand.equals("R")){
+					if((Strand)read.values.get(ColumnType.STRAND) == Strand.REVERSED){
+						
 						StringBuffer buf = new StringBuffer(seq).reverse();
 						
 //						for(int j = 0; j < seq.length(); j++){
@@ -178,11 +174,20 @@ public class SeqBlockTrack extends Track{
 						
 					} else { //Enough space to show the actual sequence
 						
+						//Draw arrow
+						if(read.values.get(ColumnType.STRAND) == Strand.REVERSED){
+							drawables.addAll(
+									getArrowDrawables(rect.x, rect.y, -rect.height, rect.height));
+						} else {
+							drawables.addAll(
+									getArrowDrawables(rect.x + rect.width, rect.y, rect.height, rect.height));
+						}
+						
+						
 						final int CHAR_WIDTH = 7;
 						
 						float x = rect.x;							
-						float increment = (rect.width)/((float)seq.length());
-						
+						float increment = (rect.width)/((float)seq.length());																		
 												
 						for(int j = 0; j < seq.length(); j++){
 							
@@ -190,7 +195,7 @@ public class SeqBlockTrack extends Track{
 							
 							if(rect.width > seq.length() * CHAR_WIDTH){
 								
-								drawables.add(new TextDrawable((int)x, rect.y + 8, 
+								drawables.add(new TextDrawable((int)x + 1, rect.y + 10, 
 										"" + letter, Color.black));
 								
 //								drawables.add(new TextDrawable((int)x, rect.y - 8, 
@@ -209,7 +214,7 @@ public class SeqBlockTrack extends Track{
 								bg = charColors[3];
 							}
 							
-							drawables.add(new RectDrawable((int)x, rect.y - 2, (int)increment , 10,bg,null));
+							drawables.add(new RectDrawable((int)x + 1, rect.y, (int)increment , 10,bg,null));
 							
 							x += increment;
 						}
@@ -245,7 +250,7 @@ public class SeqBlockTrack extends Track{
 //		} else 
 
 		if(areaResult.status.concise == isConcised() && 
-				isForForwardStrand(areaResult) != isReversed()){
+				areaResult.content.values.get(ColumnType.STRAND) == getStrand()){
 
 			this.reads.add(areaResult.content);			
 
@@ -281,9 +286,9 @@ public class SeqBlockTrack extends Track{
 	}
 
 	@Override
-	public Collection<Content> getDefaultContents() {
-		return Arrays.asList(new Content[] {
-				Content.SEQUENCE, Content.STRAND, Content.QUALITY
+	public Collection<ColumnType> getDefaultContents() {
+		return Arrays.asList(new ColumnType[] {
+				ColumnType.SEQUENCE, ColumnType.STRAND, ColumnType.QUALITY
 				}); 
 	}
 

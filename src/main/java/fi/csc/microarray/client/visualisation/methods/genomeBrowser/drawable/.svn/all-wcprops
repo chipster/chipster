@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/svnroot/chipster/!svn/ver/545/trunk/src/main/java/fi/csc/microarray/client/visualisation/methods/genomeBrowser/drawable
+END
+Drawable.java
+K 25
+svn:wc:ra_dav:version-url
+V 134
+/svnroot/chipster/!svn/ver/545/trunk/src/main/java/fi/csc/microarray/client/visualisation/methods/genomeBrowser/drawable/Drawable.java
+END
+TextDrawable.java
+K 25
+svn:wc:ra_dav:version-url
+V 138
+/svnroot/chipster/!svn/ver/545/trunk/src/main/java/fi/csc/microarray/client/visualisation/methods/genomeBrowser/drawable/TextDrawable.java
+END
+LineDrawable.java
+K 25
+svn:wc:ra_dav:version-url
+V 138
+/svnroot/chipster/!svn/ver/545/trunk/src/main/java/fi/csc/microarray/client/visualisation/methods/genomeBrowser/drawable/LineDrawable.java
+END
+RectDrawable.java
+K 25
+svn:wc:ra_dav:version-url
+V 138
+/svnroot/chipster/!svn/ver/545/trunk/src/main/java/fi/csc/microarray/client/visualisation/methods/genomeBrowser/drawable/RectDrawable.java
+END

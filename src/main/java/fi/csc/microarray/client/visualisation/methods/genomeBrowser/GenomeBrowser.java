@@ -24,17 +24,13 @@ import org.jfree.chart.plot.PlotState;
 import org.jfree.data.general.DatasetChangeEvent;
 import org.jfree.util.ObjectUtilities;
 
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.dataFetcher.StraightforwardFileParser;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.dataFetcher.TreeThread;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.BedInstructions;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.CasavaReadInstructions;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ConstantRefGeneInstructions;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.CytobandReadInstructions;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ElandReadInstructions;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.FastaFsfReadInstructions;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.FastaReadInstructions;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ReadInstructions;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.Region;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.CytobandParser;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ElandParser;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.FastaParser;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.RefGeneParser;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.Strand;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.CytobandTrack;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.EmptyTrack;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.GeneTrack;
@@ -43,7 +39,6 @@ import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.RulerT
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.SeparatorTrack;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.SeqBlockTrack;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.SeqTrack;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.Track;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.GeneTrack.PartColor;
 
 
@@ -59,20 +54,18 @@ implements ChartMouseListener, Cloneable, Serializable{ //, MouseWheelListener {
 
 	private BufferedImage drawBuffer;;
 
-	public GenomeBrowser(){
+	public GenomeBrowser() throws IOException{
 
 		overview = new HorizontalView(this, false, false, true);
 		//overview = new HorizontalView(this, false, false, true);
 		
-		File cytobandFile = new File("cytoband_hg17_sorted.txt");
+		File cytobandFile = new File("cytoband_hg17_sorted.fsf");
 
 		CytobandTrack overviewCytobands = new CytobandTrack(overview, cytobandFile, 
-				StraightforwardFileParser.class, new CytobandReadInstructions(), false);
+				TreeThread.class, new CytobandParser(), false);
 
 		overview.addTrack(overviewCytobands);
 		overviewCytobands.initializeListener();
-
-		//overview.addTrack(new RulerTrack(overview));
 
 		overview.margin = 5;
 
@@ -91,158 +84,190 @@ implements ChartMouseListener, Cloneable, Serializable{ //, MouseWheelListener {
 			dataView.margin = 20;
 			dataView.addTrack(new EmptyTrack(dataView, 30));
 		}
-
+		
+		
 		CytobandTrack cytobands = new CytobandTrack(dataView, cytobandFile, 
-				StraightforwardFileParser.class, new CytobandReadInstructions(), true);
-		
+				TreeThread.class, new CytobandParser(), true);
+
 		dataView.addTrack(cytobands);
-		cytobands.initializeListener();
-		
-//		Track annotationOverview = new BlockTrack(dataView, new File("chr1_uscs.fsf"), 
-//				TreeThread.class, new ConstantRefGeneInstructions(), PartColor.CDS.c.darker(), 
-//				10000000, Long.MAX_VALUE);
-		
-		Track annotationOverview = new IntensityTrack(dataView, new File("chr1_uscs.fsf"), 
-				TreeThread.class, new ConstantRefGeneInstructions(), PartColor.CDS.c.darker(), 
-				10000000);
-		
-		dataView.addTrack(annotationOverview);
-		annotationOverview.initializeListener();
-		
-		Track annotation = new GeneTrack(dataView, new File("chr1_uscs.fsf"), 
-				TreeThread.class, new ConstantRefGeneInstructions(), Color.DARK_GRAY, 10000000);
+		cytobands.initializeListener();			
+			
+		//Reference genes		
+		if(true) {
+			
+			// G E N E R A L ////////////////////////////////////////////////
+			
+			File annotationFile = new File("chr1_uscs.fsf");
+			RefGeneParser annotationParser = new RefGeneParser();
 
-		dataView.addTrack(annotation);
-		annotation.initializeListener();
-		
-		dataView.addTrack(new SeparatorTrack(dataView));
-		
-// Strand aware conciser not implemented yet		
-//		Track annotationOverviewReversed = new BlockTrack(dataView, new File("chr1_uscs.fsf"), 
-//				TreeThread.class, new ConstantRefGeneInstructions(), PartColor.CDS.c.darker(), 
-//				10000000, Long.MAX_VALUE);
-//		
-//		annotationOverviewReversed.setReverseStrand(true);
-//		dataView.addTrack(annotationOverviewReversed);
-//		annotationOverviewReversed.initializeListener();
-		
-		Track annotationReversed = new GeneTrack(dataView, new File("chr1_uscs.fsf"), 
-				TreeThread.class, new ConstantRefGeneInstructions(), Color.DARK_GRAY, 10000000);
+			// F O R W A R D /////////////////////////////////////////////////
 
-		annotationReversed.setReverseStrand(true);
-		dataView.addTrack(annotationReversed);
-		annotationReversed.initializeListener();
+			//Overview
+			IntensityTrack annotationOverview = new IntensityTrack(dataView, annotationFile, 
+					TreeThread.class, annotationParser, PartColor.CDS.c.darker(), 
+					10000000);
+
+			dataView.addTrack(annotationOverview);
+			annotationOverview.initializeListener();
+
+			//Detailed
+			GeneTrack annotation = new GeneTrack(dataView, annotationFile, 
+					TreeThread.class, annotationParser, Color.DARK_GRAY, 10000000);
+			
+			dataView.addTrack(annotation);
+			annotation.initializeListener();
+			
+			dataView.addTrack(new SeparatorTrack(dataView));			
+			
+			// R E V E R S E D //////////////////////////////////////////////////
+			
+			//Overview			
+			IntensityTrack annotationOverviewReversed = new IntensityTrack(dataView, annotationFile, 
+					TreeThread.class, annotationParser, PartColor.CDS.c.darker(), 
+					10000000);
+			
+			annotationOverviewReversed.setStrand(Strand.REVERSED);
+			dataView.addTrack(annotationOverviewReversed);
+			annotationOverviewReversed.initializeListener();
+
+			//Detailed
+			GeneTrack annotationReversed = new GeneTrack(dataView, annotationFile, 
+					TreeThread.class, annotationParser, Color.DARK_GRAY, 10000000);
+
+			annotationReversed.setStrand(Strand.REVERSED);
+			dataView.addTrack(annotationReversed);
+			annotationReversed.initializeListener();
+		}
 		
 		//Eland export
 		if(true){
 
+			// G E N E R A L ////////////////////////////////////////////////
+			
 			File userData = new File("eland_export.fsf");
-			ReadInstructions<Float> userDataInstructions = new ElandReadInstructions();
+			ElandParser userDataParser = new ElandParser();
+			
+			
+			// F O R W A R D  /////////////////////////////////////////////////
+			
+			//Overview
+			IntensityTrack readOverview = new IntensityTrack(dataView, userData, 
+					TreeThread.class, userDataParser, Color.gray, 1000000);
 
-
-			IntensityTrack reads2 = new IntensityTrack(dataView, userData, 
-					TreeThread.class, userDataInstructions, Color.gray, 1000000);
-
-			dataView.addTrack(reads2);
-			reads2.initializeListener();
-
+			dataView.addTrack(readOverview);
+			readOverview.initializeListener();
+			
+			//Detailed
 			SeqBlockTrack reads = new SeqBlockTrack(dataView, userData, 
-					TreeThread.class, userDataInstructions, Color.RED, 0, 1000000);
-
+					TreeThread.class, userDataParser, Color.RED, 0, 1000000);
+			
 			dataView.addTrack(reads);
 			reads.initializeListener();
 			
 			dataView.addTrack(new SeparatorTrack(dataView));
 			
+			//Separator
+			//dataView.addTrack(new SeparatorTrack(dataView));
 			
-			//Refernce sequence			
+			//Reference sequence			
 			File seqFile = new File("chr1.fsf");
-
+			
 			SeqTrack seq = new SeqTrack(dataView, seqFile, 
-					TreeThread.class, new FastaFsfReadInstructions(), 800);
-
+					TreeThread.class, new FastaParser(seqFile), 800);
+			
 			dataView.addTrack(seq);
 			seq.initializeListener();
 			
+			
+			// R E V E R S E D ///////////////////////////////////////////////////
+			
+			//Overview
+			IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData, 
+					TreeThread.class, userDataParser, Color.gray, 1000000);
+
+			readOverviewReversed.setStrand(Strand.REVERSED);
+			dataView.addTrack(readOverviewReversed);
+			readOverviewReversed.initializeListener();
+															
+			//Detailed
 			dataView.addTrack(new SeparatorTrack(dataView));
 			
 			SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData, 
-					TreeThread.class, userDataInstructions, Color.RED, 0, 1000000);
+					TreeThread.class, userDataParser, Color.RED, 0, 1000000);
 
-			readsReversed.setReverseStrand(true);
+			readsReversed.setStrand(Strand.REVERSED);
 			dataView.addTrack(readsReversed);
-			readsReversed.initializeListener();
-			
+			readsReversed.initializeListener();			
 		}
 
 		
-		//Casava file, no peaks
-		if(false){
-
-			File userData = new File("casava_chr1_filtered.fsf");
-			ReadInstructions<Float> userDataInstructions = new CasavaReadInstructions();
-
-
-			IntensityTrack reads2 = new IntensityTrack(dataView, userData, 
-					TreeThread.class, userDataInstructions, Color.gray, 1000000);
-
-			dataView.addTrack(reads2);
-			reads2.initializeListener();
-
-			SeqBlockTrack reads = new SeqBlockTrack(dataView, userData, 
-					TreeThread.class, userDataInstructions, Color.RED, 0, 1000000);
-
-			dataView.addTrack(reads);
-			reads.initializeListener();
-			
-			dataView.addTrack(new SeparatorTrack(dataView));
-			
-			
-			//Original sequence
-			
-			File seqFile = new File("chr1.fa");
-			try {
-				SeqTrack seq = new SeqTrack(dataView, seqFile, 
-						TreeThread.class, new FastaReadInstructions(seqFile), 400);
-				
-				dataView.addTrack(seq);
-				seq.initializeListener();
-				
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			
-			dataView.addTrack(new SeparatorTrack(dataView));
-			
-			SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData, 
-					TreeThread.class, userDataInstructions, Color.RED, 0, 1000000);
-
-			readsReversed.setReverseStrand(true);
-			dataView.addTrack(readsReversed);
-			readsReversed.initializeListener();
-			
-		}
+//		//Casava file, no peaks
+//		if(false){
+//
+//			File userData = new File("casava_chr1_filtered.fsf");
+//			ReadInstructions<Float> userDataInstructions = new CasavaReadInstructions();
+//
+//
+//			IntensityTrack reads2 = new IntensityTrack(dataView, userData, 
+//					TreeThread.class, userDataInstructions, Color.gray, 1000000);
+//
+//			dataView.addTrack(reads2);
+//			reads2.initializeListener();
+//
+//			SeqBlockTrack reads = new SeqBlockTrack(dataView, userData, 
+//					TreeThread.class, userDataInstructions, Color.RED, 0, 1000000);
+//
+//			dataView.addTrack(reads);
+//			reads.initializeListener();
+//			
+//			dataView.addTrack(new SeparatorTrack(dataView));
+//			
+//			
+//			//Original sequence
+//			
+//			File seqFile = new File("chr1.fa");
+//			try {
+//				SeqTrack seq = new SeqTrack(dataView, seqFile, 
+//						TreeThread.class, new FastaReadInstructions(seqFile), 400);
+//				
+//				dataView.addTrack(seq);
+//				seq.initializeListener();
+//				
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//			
+//			dataView.addTrack(new SeparatorTrack(dataView));
+//			
+//			SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData, 
+//					TreeThread.class, userDataInstructions, Color.RED, 0, 1000000);
+//
+//			readsReversed.setReverseStrand(true);
+//			dataView.addTrack(readsReversed);
+//			readsReversed.initializeListener();
+//			
+//		}
 		
 		
-		//BED file
-		if(false){
-			File userData = new File("bcell.fsf");
-			ReadInstructions<Float> userDataInstructions = new BedInstructions();
-
-
-			IntensityTrack reads2 = new IntensityTrack(dataView, userData, 
-					TreeThread.class, userDataInstructions, Color.gray, 1000000);
-
-			dataView.addTrack(reads2);
-			reads2.initializeListener();
-
-			SeqBlockTrack reads = new SeqBlockTrack(dataView, userData, 
-					TreeThread.class, userDataInstructions, Color.RED, 0, 1000000);
-
-			dataView.addTrack(reads);
-			reads.initializeListener();
-			
-		}
+//		//BED file
+//		if(false){
+//			File userData = new File("bcell.fsf");
+//			ReadInstructions<Float> userDataInstructions = new BedInstructions();
+//
+//
+//			IntensityTrack reads2 = new IntensityTrack(dataView, userData, 
+//					TreeThread.class, userDataInstructions, Color.gray, 1000000);
+//
+//			dataView.addTrack(reads2);
+//			reads2.initializeListener();
+//
+//			SeqBlockTrack reads = new SeqBlockTrack(dataView, userData, 
+//					TreeThread.class, userDataInstructions, Color.RED, 0, 1000000);
+//
+//			dataView.addTrack(reads);
+//			reads.initializeListener();
+//			
+//		}
 		
 //		IntensityTrack line = new IntensityTrack(dataView, userData, 
 //				TreeThread.class, userDataInstructions, 1024*1024);
@@ -256,7 +281,7 @@ implements ChartMouseListener, Cloneable, Serializable{ //, MouseWheelListener {
 		this.views.add(dataView);    	    	    	        
 
 		dataView.addRegionListener(new RegionListener(){
-			public void RegionChanged(Region bpRegion) {
+			public void RegionChanged(BpCoordRegion bpRegion) {
 				overview.highlight = bpRegion;				
 			}    		
 		});
