@@ -5,10 +5,13 @@
 
 # Combines two different tables using gene names
 # JTT 6.7.2006
+#
+# modified by MG 18.1.2010
 
 # Loads the normalized data
 file<-c("normalized.tsv")
-dat<-read.table(file, header=T, sep="\t", row.names=1)
+# dat<-read.table(file, header=T, sep="\t", row.names=1)
+dat<-read.table(file, header=T, sep="\t", row.names=1, nrows=1)
 
 # Separates expression values and flags
 calls<-dat[,grep("flag", names(dat))]
