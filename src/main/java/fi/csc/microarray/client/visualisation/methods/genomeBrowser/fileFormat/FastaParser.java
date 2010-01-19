@@ -26,13 +26,17 @@ public class FastaParser extends ConstantRowLengthParser{
 	private long titleLength;
 	private Chromosome chr;
 	
-	public FastaParser(File file) throws IOException {
+	public FastaParser(File file, Chromosome chr) throws IOException {
 			super(fileDef);
 			
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			
 			titleLength = reader.readLine().length() + 1;
 			rowLength = reader.readLine().length() + 1;
+			
+			reader.close();
+			
+			this.chr = chr;
 	}
 	
 	public FastaParser(long titleLength, Integer rowLength, Chromosome chr) {

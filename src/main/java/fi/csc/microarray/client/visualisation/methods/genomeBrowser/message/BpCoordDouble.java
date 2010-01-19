@@ -10,6 +10,11 @@ public class BpCoordDouble implements Comparable<BpCoordDouble> {
 		this.chr = chr;
 	}
 
+	public BpCoordDouble(BpCoord coord) {
+		this.bp = (double)(long)coord.bp;
+		this.chr = coord.chr;
+	}
+
 	public int compareTo(BpCoordDouble o) {
 
 		int chrComparison = chr.compareTo(((BpCoordDouble)o).chr);
@@ -48,6 +53,11 @@ public class BpCoordDouble implements Comparable<BpCoordDouble> {
 		return Double.NaN;
 	}
 	
+	public BpCoordDouble move(double increment) {
+		return new BpCoordDouble(bp + increment, chr); 	
+	}
+	
+	
 	public String toString(){
 		return "Bp: " + bp + ", Chr: " + chr;
 	}
@@ -59,4 +69,9 @@ public class BpCoordDouble implements Comparable<BpCoordDouble> {
 	public BpCoordDouble min(BpCoordDouble other){
 		return this.compareTo(other) > 0 ? other : this;
 	}
+	
+	public BpCoord asBpCoord() {
+		return new BpCoord((long)(double)bp, chr);
+	}
+
 }

@@ -14,7 +14,9 @@ import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.Tex
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoordDouble;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.RegionContent;
 
 public class RulerTrack extends Track{
 
@@ -49,34 +51,34 @@ public class RulerTrack extends Track{
 			drawables.add(new TextDrawable( x, textY, text, Color.black));
 		}
 			
-		drawables.addAll(getRuler(start, end, 
+		drawables.addAll(getRuler(new BpCoordRegion(start, end, region.start.chr), 
 				steps * MINOR_STEPS , start / magnitude % 2 == 1));		
 
 		return drawables;
 	}
 	
-	private Collection<Drawable> getRuler(long startBp, long endBp, int steps, boolean whiteStart){
+	private Collection<Drawable> getRuler(BpCoordRegion bpRegion, int steps, boolean whiteStart){
 
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
 		boolean isWhite = whiteStart;	
 		final int boxHeight = 5;
 		
-		double increment = (endBp - startBp) / (double)steps;
-		double boxBp = startBp;
+		double increment = bpRegion.getLength() / (double)steps;
+		BpCoordDouble boxBp = new BpCoordDouble(bpRegion.start);
 		int boxX;
-		int lastBoxX = getView().bpToTrack(startBp);
+		int lastBoxX = getView().bpToTrack(bpRegion.start);
 		
 		info.clear();
 
 		for (int i = 0; i < steps ; i++){			
 									
 			Color c = (isWhite = !isWhite) ? Color.white : Color.black;				
-			boxBp += increment;
+			boxBp = boxBp.move(increment);
 			
-			info.add((long)boxBp);
+			info.add((long)(double)boxBp.bp);
 			
-			boxX = getView().bpToTrack((long)boxBp);
+			boxX = getView().bpToTrack(boxBp.asBpCoord());
 			
 			drawables.add(new RectDrawable(lastBoxX, textY, boxX - lastBoxX, boxHeight, c, Color.black));
 					
@@ -93,7 +95,7 @@ public class RulerTrack extends Track{
 
 	}
 
-	public void processAreaResult(AreaResult areaResult) {
+	public void processAreaResult(AreaResult<RegionContent> areaResult) {
 		// No data
 	}
 

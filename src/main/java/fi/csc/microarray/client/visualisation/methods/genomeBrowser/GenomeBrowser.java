@@ -31,6 +31,7 @@ import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.F
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.RefGeneParser;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.CytobandTrack;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.EmptyTrack;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.GeneTrack;
@@ -173,7 +174,7 @@ implements ChartMouseListener, Cloneable, Serializable{ //, MouseWheelListener {
 			File seqFile = new File("chr1.fsf");
 			
 			SeqTrack seq = new SeqTrack(dataView, seqFile, 
-					TreeThread.class, new FastaParser(seqFile), 800);
+					TreeThread.class, new FastaParser(seqFile, new Chromosome("1")), 800);
 			
 			dataView.addTrack(seq);
 			seq.initializeListener();

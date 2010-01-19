@@ -23,7 +23,7 @@ public class BpCoordRegion implements Comparable<BpCoordRegion>{
 		this(null, null);
 	}
 
-	public Long getLength(){
+	public Long getLength(){		
 		return end.minus(start);
 	}
 	
@@ -41,8 +41,8 @@ public class BpCoordRegion implements Comparable<BpCoordRegion>{
 	}
 	
 	public boolean intercepts(BpCoordRegion other){
-		
-		return end.compareTo(start) > 0 && start.compareTo(end) < 0;
+
+		return other.end.compareTo(start) > 0 && other.start.compareTo(end) < 0;
 	}
 
 	public BpCoordRegion intercept(BpCoordRegion other) {
@@ -75,5 +75,17 @@ public class BpCoordRegion implements Comparable<BpCoordRegion>{
 
 	public boolean contains(BpCoord point) {
 		return point.compareTo(start) >= 0 && point.compareTo(end) < 0;
+	}
+	
+	public static void main(String[] args) {
+		BpCoordRegion one = new BpCoordRegion(0l, 100l, new Chromosome("1"));
+		BpCoordRegion other = new BpCoordRegion(120l, 200l, new Chromosome("1"));
+		
+		System.out.println(one.intercepts(other));
+		
+		one = new BpCoordRegion(0l, 100l, new Chromosome("1"));
+		other = new BpCoordRegion(50l, 200l, new Chromosome("1"));
+		
+		System.out.println(one.intercepts(other));
 	}
 }

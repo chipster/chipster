@@ -58,12 +58,13 @@ public abstract class Track implements AreaResultListener {
 		if(file != null && this.getMaxHeight() > 0){
 			FsfStatus status = new FsfStatus();
 			status.clearQueues = true;		
-			status.concise = isConcised(); 			
+			status.concise = isConcised(); 	
 			
 			Collection<ColumnType> defCont = getDefaultContents();
 			
 			//status.file = file; //Done in QueueManager
 			//System.out.println(this);
+			
 			view.getQueueManager().addAreaRequest(file, 
 					new AreaRequest(view.getBpRegion(), defCont, status), true);
 		}	
@@ -114,7 +115,7 @@ public abstract class Track implements AreaResultListener {
 			
 			parts.add(new LineDrawable((int)p1Scaled.getX(), (int)p1Scaled.getY(), 
 					(int)p2Scaled.getX(), (int)p2Scaled.getY(), Color.black));
-		}
+		}		
 		
 		return parts;
 	}

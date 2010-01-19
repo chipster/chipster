@@ -81,7 +81,7 @@ public abstract  class View implements MouseListener, MouseMotionListener, Mouse
 	protected void drawView(Graphics2D g, boolean isAnimation){
 
 		if(bpRegion == null){
-			setBpRegion(new BpCoordRegionDouble(0d, 1024*1024*250d, new Chromosome("chr1")), false);
+			setBpRegion(new BpCoordRegionDouble(0d, 1024*1024*250d, new Chromosome("1")), false);
 		}				
 
 		Rectangle viewClip = g.getClipBounds();
@@ -411,7 +411,7 @@ public abstract  class View implements MouseListener, MouseMotionListener, Mouse
 	}
 	
 	public Integer bpToTrack(BpCoord bp){
-
+		
 		if(bpRegion.start.chr.equals(bp.chr))  {
 			return (int)(((double)bp.bp - getBpRegionDouble().start.bp) / (getBpRegionDouble().end.bp - getBpRegionDouble().start.bp) * getWidth()) + getX();
 		} else {

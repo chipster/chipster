@@ -3,19 +3,20 @@ package fi.csc.microarray.client.visualisation.methods.genomeBrowser.track;
 import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.RegionContent;
 
 public class Gene extends TreeSet<RegionContent> implements Comparable<Gene>{	
 
-	public Long minBp = Long.MAX_VALUE;
-	public long maxBp = 0;
+	public BpCoord minBp = BpCoord.getMax();
+	public BpCoord maxBp = BpCoord.getMin();
 	public String id = null;	
 
 	@Override
 	public boolean add(RegionContent part){
 
-		minBp = Math.min(minBp, part.region.start);
-		maxBp = Math.max(maxBp, part.region.end);
+		minBp = minBp.min(part.region.start);
+		maxBp = maxBp.max(part.region.end);
 		id  = (String)part.values.get(ColumnType.ID);
 		return super.add(part);
 	}

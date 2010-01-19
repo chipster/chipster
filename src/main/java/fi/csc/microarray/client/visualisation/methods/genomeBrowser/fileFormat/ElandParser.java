@@ -86,7 +86,7 @@ public class ElandParser extends ConstantRowLengthParser{
 		RegionContent[] result = new RegionContent[] {
 			new RegionContent(bpRegion, totalF / (float)(maxBp - minBp)),
 			new RegionContent(bpRegion, totalR / (float)(maxBp - minBp))
-		};
+		};		
 		
 		result[0].values.put(ColumnType.STRAND, Strand.FORWARD);
 		result[1].values.put(ColumnType.STRAND, Strand.REVERSED);
@@ -99,7 +99,7 @@ public class ElandParser extends ConstantRowLengthParser{
 
 		long startBp = (Long)get(rowIndex, ColumnType.BP_START);
 		long length = ((String)get(rowIndex, ColumnType.SEQUENCE)).trim().length();
-		Chromosome chr = new Chromosome((String)get(rowIndex, ColumnType.CHROMOSOME));
+		Chromosome chr = (Chromosome)get(rowIndex, ColumnType.CHROMOSOME);
 
 		return new BpCoordRegion(startBp, startBp + length, chr);
 	}
@@ -111,5 +111,16 @@ public class ElandParser extends ConstantRowLengthParser{
 		clone.chunk = this.chunk;
 		
 		return clone;
+	}
+	
+	@Override
+	public Object get(long rowIndex, ColumnType col) {
+		
+		Object obj = super.get(rowIndex, col);
+		
+		if(col == ColumnType.CHROMOSOME) {			
+			return new Chromosome(((Chromosome)obj).toString().replace(".fa", ""));
+		}
+		return obj;
 	}
 }

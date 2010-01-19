@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.Chromosome;
+
 public abstract class ConstantRowLengthParser extends FileParser{
 
 	private FileDefinition fileDef;
@@ -56,6 +58,9 @@ public abstract class ConstantRowLengthParser extends FileParser{
 			return string.equalsIgnoreCase("r") || string.equals("-") ? 
 					Strand.REVERSED : Strand.FORWARD;
 			
+		} else if(col == ColumnType.CHROMOSOME) {
+			return new Chromosome(string.replace("chr", ""));
+
 		} else if(fieldDef.type == Type.STRING) {
 			return string;
 

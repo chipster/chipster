@@ -87,10 +87,10 @@ public class HorizontalView  extends View{
 
 	@Override
 	protected void handleDrag(Point2D start, Point2D end, boolean disableDrawing) {
-		double bpMove = trackToBp((double)start.getX()) - trackToBp((double)end.getX());
+		double bpMove = trackToBp((double)start.getX()).minus(trackToBp((double)end.getX()));
 
-		if(bpMove < 0 && bpRegion.start < Math.abs(bpMove)){
-			bpMove = -bpRegion.start;
+		if(bpMove < 0 && bpRegion.start.bp < Math.abs(bpMove)){
+			bpMove = -bpRegion.start.bp;
 		}
 
 		bpRegion.move(bpMove);

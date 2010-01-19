@@ -90,7 +90,7 @@ public class RefGeneParser extends ConstantRowLengthParser{
 
 		long startBp = (Long)get(rowIndex, ColumnType.BP_START);
 		long endBp = (Long)get(rowIndex, ColumnType.BP_END);
-		Chromosome chr = new Chromosome((String)get(rowIndex, ColumnType.CHROMOSOME));
+		Chromosome chr = (Chromosome)get(rowIndex, ColumnType.CHROMOSOME);
 		
 		return new BpCoordRegion(startBp, endBp, chr);
 	}

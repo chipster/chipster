@@ -119,9 +119,9 @@ public class TreeNode {
 	
 	private void createConcisedResult(FsfStatus status) {
 		
-		for(RegionContent regCont : concisedValues)
-		tree.createAreaResult(new AreaResult<RegionContent>(
-				status, regCont));
+		for(RegionContent regCont : concisedValues) {
+			tree.createAreaResult(new AreaResult<RegionContent>(status, regCont));
+		}
 	}
 
 	private long getSubtreeBpLengthApproximation(){
@@ -146,7 +146,7 @@ public class TreeNode {
 			FileParser parser = fileResult.chunkParser;
 			Long row = parser.getRowIndex();
 			
-			Chromosome chr = new Chromosome((String)parser.get(row, ColumnType.CHROMOSOME));
+			Chromosome chr = (Chromosome)parser.get(row, ColumnType.CHROMOSOME);
 			
 			BpCoord start = new BpCoord((Long)parser.get(row, ColumnType.BP_START), chr); 
 			BpCoord end = new BpCoord((Long)parser.get(row + parser.getChunkRowCount() - 1, ColumnType.BP_START), chr);

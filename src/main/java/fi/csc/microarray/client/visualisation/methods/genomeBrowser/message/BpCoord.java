@@ -2,12 +2,18 @@ package fi.csc.microarray.client.visualisation.methods.genomeBrowser.message;
 
 public class BpCoord implements Comparable<BpCoord> {
 
+	private static final BpCoord MAX = new BpCoord(Long.MAX_VALUE, Chromosome.MAX);
+	private static final BpCoord MIN = new BpCoord(0l, Chromosome.MIN);
 	public Long bp;
 	public Chromosome chr;
 	
 	public BpCoord(Long bp, Chromosome chr){
 		this.bp = bp;
 		this.chr = chr;
+	}
+	
+	public BpCoord clone() {
+		return new BpCoord(bp, chr);
 	}
 
 	public int compareTo(BpCoord o) {
@@ -58,5 +64,13 @@ public class BpCoord implements Comparable<BpCoord> {
 	
 	public BpCoord min(BpCoord other){
 		return this.compareTo(other) > 0 ? other : this;
+	}
+
+	public static BpCoord getMax() {
+		return MAX.clone();
+	}
+
+	public static BpCoord getMin() {
+		return MIN.clone();
 	}
 }
