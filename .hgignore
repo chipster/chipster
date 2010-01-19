@@ -1,0 +1,7 @@
+
+syntax: regexp
+^alternative-keystore-path\.txt$
+syntax: regexp
+^bin$
+syntax: regexp
+^dist/*$
