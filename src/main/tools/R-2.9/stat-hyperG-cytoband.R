@@ -53,7 +53,7 @@ myids<-unique(alleg[rownames(dat),])
 annotpkg<-lib
 
 # Runs the tests
-params<-new("ChrMapHyperGParams", geneIds=myids, annotation=annotpkg, pvalueCutoff=pcut, testDirection=choisedirec, conditional=FALSE)   
+params<-new("ChrMapHyperGParams", geneIds=myids, annotation=annotpkg, pvalueCutoff=pcut, testDirection=choisedirec, conditional=TRUE)   
 result<-hyperGTest(params)
 
 # Writes the results to an HTML file
