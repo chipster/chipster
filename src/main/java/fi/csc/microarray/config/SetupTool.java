@@ -38,6 +38,7 @@ import fi.csc.microarray.util.XmlUtil;
  * @author Aleksi Kallio
  * 
  */
+
 public class SetupTool {
 
 	private static interface Installer {
