@@ -6,12 +6,19 @@
 # Combines two different tables using gene names
 # JTT 6.7.2006
 #
-# modified by MG 18.1.2010
+# modified by MG 19.1.2010
 
-# Loads the normalized data
-file<-c("normalized.tsv")
-# dat<-read.table(file, header=T, sep="\t", row.names=1)
-dat<-read.table(file, header=T, sep="\t", row.names=1, nrows=1)
+# Figure out how the data is organized and load it
+file<-c("prenormalized.txt")
+dat <- read.table(file, header=T, sep="\t", row.names=1, nrows=1)
+ind.calls <- grep("flag", names(dat))
+ind.flags <- grep("chip", names(dat))
+ind.dat <- grep("chip", names(dat))
+colclasses <- c(rep("numeric", length(ind.dat)), rep("character", 
+				length(ind.calls)))
+number.annotations <- length(names(dat))-length(ind.calls)-length(ind.flags)
+colclasses <- append(rep("factor",1+number.annotations),colclasses)
+dat <- read.table(file, header=T, sep="\t", row.names=1, colClasses=colclasses)
 
 # Separates expression values and flags
 calls<-dat[,grep("flag", names(dat))]
