@@ -333,6 +333,7 @@ public class OperationDefinition implements ExecutionItem {
 			boolean foundBinding = false;
 
 			// metadata needs not to be selected, it is fetched automatically
+			// FIXME causes strange troubles in some environments
 			// FIXME remove the hack and enable proper check (but update scripts to use PHENODATA before that)
 			//if (input.type.isMetadata()) {					
 			if (input.name.startsWith("phenodata")) {
