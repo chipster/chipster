@@ -25,7 +25,7 @@ public class HelpMapping {
 		mappings.put("Quality control/Agilent 2-color", "chipster-manual/qc-agilent.html");
 		mappings.put("Quality control/cDNA", "chipster-manual/qc-cdna.html");
 		mappings.put("Quality control/Illumina", "chipster-manual/qc-illumina.html");
-		
+							
 		mappings.put("Normalisation/Affymetrix exon arrays", "chipster-manual/norm-affy-exon.html");
 		mappings.put("Normalisation/Affymetrix", "chipster-manual/norm-affy.html");
 		mappings.put("Normalisation/Affymetrix SNP arrays", "chipster-manual/norm-affy-snp.html");
@@ -78,7 +78,9 @@ public class HelpMapping {
 		mappings.put("Pathways/Associations to Reactome pathways", "chipster-manual/pathways-reactome.html");
 		mappings.put("Pathways/Hypergeometric test for ConsensusPathDB", "chipster-manual/pathways-hypergeometric-cpdb.html");
 		mappings.put("Pathways/Hypergeometric test for cytobands", "chipster-manual/pathways-hypergeometric-cytobands.html");
-		
+		mappings.put("Pathways/KEGG enrichment for miRNA targets", "chipster-manual/pathways-hyperg-mirna-kegg.html");
+		mappings.put("Pathways/GO enrichment for miRNA targets", "chipster-manual/pathways-hyperg-mirna-go.html");
+
 		mappings.put("Visualisation/Boxplot", "chipster-manual/plot-boxplot.html");
 		mappings.put("Visualisation/Chromosomal position", "chipster-manual/plot-chrom-pos.html");
 		mappings.put("Visualisation/Correlogram", "chipster-manual/plot-correlogram.html");
