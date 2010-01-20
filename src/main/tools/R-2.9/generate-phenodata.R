@@ -9,7 +9,7 @@
 # modified by MG 19.1.2010
 
 # Figure out how the data is organized and load it
-file<-c("prenormalized.txt")
+file<-c("normalized.tsv")
 dat <- read.table(file, header=T, sep="\t", row.names=1, nrows=1)
 ind.calls <- grep("flag", names(dat))
 ind.flags <- grep("chip", names(dat))
