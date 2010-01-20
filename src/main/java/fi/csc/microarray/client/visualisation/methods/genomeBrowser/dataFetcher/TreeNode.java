@@ -101,11 +101,11 @@ public class TreeNode {
 					createChildren();
 				}
 
-				if(left != null && areaRequest.compareTo(nodeBpRegion) <= 0) { 
+				if(left != null && areaRequest.start.compareTo(nodeBpRegion.start) <= 0) { 
 					left.processAreaRequest(areaRequest);
 				}
 
-				if(right != null && areaRequest.compareTo(nodeBpRegion) > 0){ 
+				if(right != null && areaRequest.end.compareTo(nodeBpRegion.end) > 0){ 
 					right.processAreaRequest(areaRequest);
 				}	
 			}

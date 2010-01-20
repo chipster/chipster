@@ -66,10 +66,10 @@ public class VerticalView  extends View{
 	}
 
 	protected void handleDrag(Point2D start, Point2D end, boolean disableDrawing) {
-		double bpMove = trackToBp((double) start.getY()) - trackToBp((double) end.getY());
+		double bpMove = trackToBp((double)start.getY()).minus(trackToBp((double)end.getY()));
 
-		if(bpMove < 0 && bpRegion.start < Math.abs(bpMove)){
-			bpMove = -bpRegion.start;
+		if(bpMove < 0 && bpRegion.start.bp < Math.abs(bpMove)){
+			bpMove = -bpRegion.start.bp;
 		}
 
 		bpRegion.move(bpMove);

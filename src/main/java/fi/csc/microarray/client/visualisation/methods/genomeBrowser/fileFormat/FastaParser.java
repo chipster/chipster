@@ -45,7 +45,17 @@ public class FastaParser extends ConstantRowLengthParser{
 		this.titleLength = titleLength;
 		this.rowLength = rowLength;
 		this.chr = chr;
-}
+	}
+	
+	@Override
+	public Object get(long rowIndex, ColumnType col) {
+		
+		if(col == ColumnType.CHROMOSOME) {			
+			return chr;
+		} else {		
+			return super.get(rowIndex, col);
+		}
+	}
 
 	@Override
 	public int getChunkMaxByteLength() {
