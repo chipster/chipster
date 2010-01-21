@@ -2,7 +2,6 @@ package fi.csc.microarray.client.operation;
 
 import java.awt.Color;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -323,7 +322,7 @@ public class OperationDefinition implements ExecutionItem {
 			notProcessedInputValues.add(bean);
 		}
 
-		LinkedList<InputDefinition> unboundMetadataDefinitions = new LinkedList<InputDefinition>();
+		InputDefinition unboundMetadataDefinition = null;
 
 		logger.debug("binding " + notProcessedInputValues.size() + " values to " + inputs.size() + " formal inputs");
 
@@ -359,9 +358,9 @@ public class OperationDefinition implements ExecutionItem {
 				// metadata needs not to be selected, it is fetched automatically
 				// FIXME remove the hack and enable proper check (but update scripts to use PHENODATA before that)
 				//if (input.type.isMetadata()) {					
-				if (input.name.startsWith("phenodata")) {
+				if (input.name.contains("phenodata.tsv")) {
 					foundBinding = true; // we'll find it later on
-					unboundMetadataDefinitions.add(input);
+					unboundMetadataDefinition = input;
 					continue;
 					
 				} else {
@@ -379,28 +378,25 @@ public class OperationDefinition implements ExecutionItem {
 			return null;
 		}
 
-		// automatically bind phenodata, if needed
 		logger.debug("we have " + bindings.size() + " bindings before metadata retrieval");
-		if (!unboundMetadataDefinitions.isEmpty()) {
-
-			Iterator<DataBinding> bindingIterator = bindings.iterator();
-			LinkedList<DataBinding> phenodataBindings = new LinkedList<DataBinding>(); // need this to prevent ConcurrentModificationException
-			for (InputDefinition unboundMetadata : unboundMetadataDefinitions) {
-				
-				// locate annotation (metadata) link from input bean or one of its ancestors				
-				DataBean input = bindingIterator.next().getData(); // bind inputs and phenodatas in same order
+		if (unboundMetadataDefinition != null) {
+			// locate annotation (metadata) link from input bean or one of its ancestors
+			boolean found = false;
+			if (bindings.size() == 1) {
+				DataBean input = bindings.getFirst().getData();
 				DataBean metadata = LinkUtils.retrieveInherited(input, Link.ANNOTATION);
 
 				if (metadata != null) {
-					phenodataBindings.add(new DataBinding(metadata, unboundMetadata.getName(), ChipsterInputTypes.PHENODATA));
-					
-				} else {
-					this.evaluatedSuitability = Suitability.NOT_ENOUGH_INPUTS;
-					return null;
+					bindings.add(new DataBinding(metadata, unboundMetadataDefinition.getName(), ChipsterInputTypes.PHENODATA));
+					found = true;
 				}
+
 			}
-			bindings.addAll(phenodataBindings);
-		}		
+			if (!found) {
+				this.evaluatedSuitability = Suitability.NOT_ENOUGH_INPUTS;
+				return null;
+			}
+		}
 		logger.debug("we have " + bindings.size() + " bindings after metadata retrieval");
 
 		this.evaluatedSuitability = Suitability.SUITABLE;

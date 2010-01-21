@@ -52,11 +52,11 @@ myids<-unique(alleg[rownames(dat),])
 #CHOOSE THE ANNOTATION PACKAGE
 annotpkg<-lib
 
-params<-new("GOHyperGParams", geneIds=myids, annotation=annotpkg, ontology="BP", pvalueCutoff=pcut, conditional=FALSE,testDirection=choisedirec)
+params<-new("GOHyperGParams", geneIds=myids, annotation=annotpkg, ontology="BP", pvalueCutoff=pcut, conditional=TRUE,testDirection=choisedirec)
 resultBP<-hyperGTest(params)
-params<-new("GOHyperGParams", geneIds=myids, annotation=annotpkg, ontology="MF", pvalueCutoff=pcut, conditional=FALSE,testDirection=choisedirec)
+params<-new("GOHyperGParams", geneIds=myids, annotation=annotpkg, ontology="MF", pvalueCutoff=pcut, conditional=TRUE,testDirection=choisedirec)
 resultMF<-hyperGTest(params)
-params<-new("GOHyperGParams", geneIds=myids, annotation=annotpkg, ontology="CC", pvalueCutoff=pcut, conditional=FALSE,testDirection=choisedirec)
+params<-new("GOHyperGParams", geneIds=myids, annotation=annotpkg, ontology="CC", pvalueCutoff=pcut, conditional=TRUE,testDirection=choisedirec)
 resultCC<-hyperGTest(params)
 
 if( sum(pvalues(resultCC)<pcut) + sum(pvalues(resultBP)<pcut) + sum(pvalues(resultMF)<pcut) >=1) {

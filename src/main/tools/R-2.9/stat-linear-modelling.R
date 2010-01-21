@@ -14,6 +14,7 @@
 # PARAMETER adjust.p.values [yes, no] DEFAULT yes (Should the p-values be adjusted for multiple comparisons)
 # PARAMETER p.value.adjustment.method [none, bonferroni, holm, hochberg, BH, BY] DEFAULT BH (Multiple testing correction method)
 # PARAMETER interactions [main, two-way, three-way] DEFAULT main (What to include in the model)
+
 # PARAMETER significance [main, interactions] DEFAULT main (Which p-values to return)
 
 
@@ -57,10 +58,10 @@ if((main.effect2=="EMPTY" & main.effect3=="EMPTY" & interactions=="two-way") | (
    print("Only one main effect specified with interactions! No interactions specified for the model.")
    interactions<-c("main")
 }
-if(interactions=="main" & significance=="interactions") {
-   print("Interactions can't be tested, since only main effect specified for the model!")
-   interactions<-c("main")
-}
+#if(interactions=="main" & significance=="interactions") {
+#   print("Interactions can't be tested, since only main effect specified for the model!")
+#   interactions<-c("main")
+#}
 
 # Extracting the variables from phenodata
 main1<-phenodata[,grep(main.effect1, colnames(phenodata))]
