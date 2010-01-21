@@ -15,6 +15,10 @@ public abstract class ConstantRowLengthParser extends FileParser{
 		this.fileDef = fileDef;
 	}
 	
+	public FileDefinition getFileDefinition() {
+		return fileDef;
+	}
+	
 	public int getRowByteLength() {
 
 		if(rowLength == null){
