@@ -72,7 +72,11 @@ public abstract class ConstantRowLengthParser extends FileParser{
 			return new Float(string);
 
 		} else if(fieldDef.type == Type.LONG) {
-			return new Long(string);
+			if(string.length() > 0) {
+				return new Long(string);
+			} else {
+				return Long.MIN_VALUE;
+			}
 		}
 		return null;
 	}

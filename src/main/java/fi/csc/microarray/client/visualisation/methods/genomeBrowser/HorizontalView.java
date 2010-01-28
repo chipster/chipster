@@ -26,6 +26,7 @@ public class HorizontalView  extends View{
 
 			g.setPaint(new Color(0,0,0,64));
 			Rectangle rect = g.getClip().getBounds();
+			
 			rect.x = bpToTrack(highlight.start);
 			rect.width = Math.max(1, bpToTrack(highlight.end) - rect.x);
 			g.fill(rect);

@@ -47,7 +47,7 @@ public class TsvSorter2 {
 			String chrStr = splitted.length > chrCol ? splitted[chrCol] : "";
 			String bpStr = splitted.length > bpCol ? splitted[bpCol] : "";
 			
-			chr = new Chromosome(chrStr.replace("chr", "").replace(".fa", ""));			
+                        chr = new Chromosome(chrStr.replace("chr", "").replace(".fa", ""));
 
 			if(bpStr.equals("")){
 				bp = -1l;

@@ -31,6 +31,7 @@ import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.F
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.RefGeneParser;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoordRegionDouble;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.CytobandTrack;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.EmptyTrack;
@@ -145,7 +146,7 @@ implements ChartMouseListener, Cloneable, Serializable{ //, MouseWheelListener {
 
 			// G E N E R A L ////////////////////////////////////////////////
 			
-			File userData = new File("eland_export.fsf");
+			File userData = new File("eland_result.fsf");
 			ElandParser userDataParser = new ElandParser();
 			
 			
@@ -286,6 +287,9 @@ implements ChartMouseListener, Cloneable, Serializable{ //, MouseWheelListener {
 				overview.highlight = bpRegion;				
 			}    		
 		});
+		
+		dataView.setBpRegion(new BpCoordRegionDouble(0d, 1024*1024*250d, new Chromosome("1")), false);
+		overview.setBpRegion(new BpCoordRegionDouble(0d, 1024*1024*250d, new Chromosome("1")), false);
 	}
 
 

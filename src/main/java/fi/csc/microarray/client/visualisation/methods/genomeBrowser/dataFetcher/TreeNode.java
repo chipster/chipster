@@ -125,7 +125,9 @@ public class TreeNode {
 	}
 
 	private long getSubtreeBpLengthApproximation(){
-		if(parent != null && parent.nodeBpRegion != null && this.nodeBpRegion != null){
+		if(parent != null && parent.nodeBpRegion != null && this.nodeBpRegion != null && 
+				parent.nodeBpRegion.start.chr.equals(nodeBpRegion.start.chr)){
+			
 			return Math.abs(parent.nodeBpRegion.start.minus(this.nodeBpRegion.start) * 2);
 		} else {
 			return Long.MAX_VALUE;

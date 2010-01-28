@@ -3,6 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.genomeBrowser.message;
 public class Chromosome implements Comparable<Chromosome> {
 	
 	private String chr;
+        private Integer intValue;
 	
 	//Static constants that compareTo method considers bigger and smaller than any real choromosome
 	public static final String MAX_VALUE = "ZZZZZZZZ";
@@ -14,6 +15,10 @@ public class Chromosome implements Comparable<Chromosome> {
 	public Chromosome(String chr) {
 		
 		this.chr = chr;
+                try {
+			intValue = Integer.parseInt(chr);
+		} catch (NumberFormatException e) {
+		}
 	}
 	
 	public boolean equals(Object o){
@@ -28,28 +33,15 @@ public class Chromosome implements Comparable<Chromosome> {
 		return chr.hashCode();
 	}
 
-	public int compareTo(Chromosome o){
-		
-		Integer one = null;
-		Integer other = null;
-		
-		try {		
-			one = Integer.parseInt(chr);	
-		} catch (NumberFormatException e) {			
-		}
-		
-		try {
-			other = Integer.parseInt(o.chr);	
-		} catch (NumberFormatException e) {			
-		}
+	public int compareTo(Chromosome o){		
 
-		if(one != null && other != null) {
-			return one.compareTo(other);
-		} else if ( one != null && other == null) {
+		if(intValue != null && o.intValue != null) {
+			return intValue.compareTo(o.intValue);
+		} else if ( intValue != null && o.intValue == null) {
 			
 			return -1;
 			
-		} else if ( one == null && other != null) {
+		} else if ( intValue == null && o.intValue != null) {
 			
 			return 1;
 		} else {
