@@ -11,7 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 
-import fi.csc.microarray.client.VisualConstants;
+import fi.csc.microarray.constants.VisualConstants;
 
 /**
  * Mimicks JDK 1.6 SplashScreen-class.

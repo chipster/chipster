@@ -15,7 +15,7 @@ import org.jfree.chart.JFreeChart;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.VisualConstants;
+import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 

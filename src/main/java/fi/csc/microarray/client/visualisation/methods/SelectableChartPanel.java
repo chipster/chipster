@@ -26,8 +26,8 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.ui.OverlayLayout;
 import org.jfree.ui.RectangleEdge;
 
-import fi.csc.microarray.client.VisualConstants;
 import fi.csc.microarray.client.visualisation.Visualisation;
+import fi.csc.microarray.constants.VisualConstants;
 
 /**
  * JFreeChart handles area selections with zoom whereas we wan't selection to hapen. This

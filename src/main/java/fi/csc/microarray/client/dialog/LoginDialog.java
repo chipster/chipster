@@ -20,8 +20,8 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import fi.csc.microarray.client.SwingClientApplication;
-import fi.csc.microarray.client.VisualConstants;
 import fi.csc.microarray.client.Authenticator.LoginCallback;
+import fi.csc.microarray.constants.VisualConstants;
 
 public class LoginDialog extends JDialog implements ActionListener, KeyListener {
 

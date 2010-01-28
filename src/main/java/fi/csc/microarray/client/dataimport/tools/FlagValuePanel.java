@@ -31,7 +31,6 @@ import javax.swing.text.InternationalFormatter;
 
 import org.jdesktop.swingx.JXTaskPane;
 
-import fi.csc.microarray.client.VisualConstants;
 import fi.csc.microarray.client.dataimport.ColumnType;
 import fi.csc.microarray.client.dataimport.ColumnTypeManager;
 import fi.csc.microarray.client.dataimport.DataColumn;
@@ -40,6 +39,7 @@ import fi.csc.microarray.client.dataimport.trimmer.ConditionalStringReplace;
 import fi.csc.microarray.client.dataimport.trimmer.DataTrimmingOperation;
 import fi.csc.microarray.client.dataimport.trimmer.NormalStringReplace;
 import fi.csc.microarray.client.dataimport.trimmer.NumberToStringReplace;
+import fi.csc.microarray.constants.VisualConstants;
 
 public class FlagValuePanel extends JXTaskPane implements ActionListener,
         CaretListener, ChangeListener {

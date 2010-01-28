@@ -88,6 +88,7 @@ import fi.csc.microarray.client.workflow.WorkflowManager;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.constants.ApplicationConstants;
+import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.ContentType;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataChangeEvent;

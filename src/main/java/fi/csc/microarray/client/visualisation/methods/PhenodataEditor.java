@@ -38,10 +38,10 @@ import org.apache.log4j.Logger;
 import org.jdesktop.swingx.table.ColumnHeaderRenderer;
 
 import fi.csc.microarray.client.SwingClientApplication;
-import fi.csc.microarray.client.VisualConstants;
 import fi.csc.microarray.client.visualisation.MicroarrayTable;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
+import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.ContentChangedEvent;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataChangeEvent;

@@ -10,6 +10,7 @@ import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.filebroker.FileServer;
 import fi.csc.microarray.manager.Manager;
+import fi.csc.microarray.messaging.AdminAPI;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.NodeBase;
 import fi.csc.microarray.messaging.Topics;

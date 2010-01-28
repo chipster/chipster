@@ -1,6 +1,6 @@
 package fi.csc.microarray.module.basic;
 
-import fi.csc.microarray.client.VisualConstants;
+import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.module.Module;
 

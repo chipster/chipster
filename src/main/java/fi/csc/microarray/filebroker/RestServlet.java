@@ -1,4 +1,4 @@
-package fi.csc.microarray.util.rest;
+package fi.csc.microarray.filebroker;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,7 +16,6 @@ import org.mortbay.util.IO;
 import org.mortbay.util.URIUtil;
 
 import sun.net.www.protocol.http.HttpURLConnection;
-import fi.csc.microarray.filebroker.AuthorisedUrlRepository;
 
 /**
 * <p>Adds support for HTTP PUT, MOVE and 

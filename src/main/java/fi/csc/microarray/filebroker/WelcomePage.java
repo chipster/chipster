@@ -1,4 +1,4 @@
-package fi.csc.microarray.util.rest;
+package fi.csc.microarray.filebroker;
 
 import java.io.IOException;
 

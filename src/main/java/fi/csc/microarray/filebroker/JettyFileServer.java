@@ -8,7 +8,6 @@ import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.thread.QueuedThreadPool;
 
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.util.rest.RestServlet;
 
 public class JettyFileServer {
 

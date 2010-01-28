@@ -1,4 +1,4 @@
-package fi.csc.microarray.client;
+package fi.csc.microarray.constants;
 
 import java.awt.BasicStroke;
 import java.awt.Color;

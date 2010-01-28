@@ -23,8 +23,8 @@ import javax.swing.event.MouseInputListener;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.VisualConstants;
 import fi.csc.microarray.client.selection.RowChoiceEvent;
+import fi.csc.microarray.constants.VisualConstants;
 
 /**
  * The class that takes care of the user manipulation of the scatterplot, basically

@@ -23,8 +23,8 @@ import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
-import fi.csc.microarray.client.VisualConstants;
 import fi.csc.microarray.client.dataimport.ImportUtils;
+import fi.csc.microarray.constants.VisualConstants;
 
 
 public class FileGroupPanel extends TitlePanel {

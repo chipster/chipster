@@ -19,6 +19,8 @@ import javax.swing.JPanel;
 
 import org.jdesktop.swingx.JXHyperlink;
 
+import fi.csc.microarray.constants.VisualConstants;
+
 public class QuickLinkPanel extends JPanel implements ActionListener {
 
 	private SwingClientApplication application;

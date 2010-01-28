@@ -23,7 +23,7 @@ import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import fi.csc.microarray.client.VisualConstants;
+import fi.csc.microarray.constants.VisualConstants;
 
 /**
  * This class implements a basic wizard dialog, where the programmer can

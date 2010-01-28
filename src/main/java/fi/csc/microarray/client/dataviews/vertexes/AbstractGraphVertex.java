@@ -13,9 +13,9 @@ import javax.swing.border.Border;
 import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.GraphConstants;
 
-import fi.csc.microarray.client.VisualConstants;
 import fi.csc.microarray.client.dataview.MicroarrayGraph;
 import fi.csc.microarray.client.dataview.PositionChangeAnimator;
+import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataItem;
 
 /**

@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.dialog.RenameDialog;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
+import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;

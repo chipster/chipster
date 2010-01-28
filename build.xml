@@ -136,6 +136,7 @@
 			<entry key="version.number" value="${release-version}" />
 		</propertyfile>
 
+		<delete dir="${build}" quiet="true" />
 		<mkdir dir="${build}" />
 		<javac destdir="${build}" target="1.5" source="1.5" debug="true" failonerror="true">
 			<src path="${src}" />
