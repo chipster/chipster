@@ -37,7 +37,6 @@ import javax.swing.table.TableModel;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.table.ColumnHeaderRenderer;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.VisualConstants;
 import fi.csc.microarray.client.visualisation.MicroarrayTable;
@@ -48,6 +47,7 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataChangeEvent;
 import fi.csc.microarray.databeans.DataChangeListener;
 import fi.csc.microarray.databeans.features.table.TableBeanEditor;
+import fi.csc.microarray.exception.MicroarrayException;
 
 
 /**

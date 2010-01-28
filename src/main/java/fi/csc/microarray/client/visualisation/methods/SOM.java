@@ -12,13 +12,13 @@ import org.jfree.chart.plot.SOMPlot;
 import org.jfree.data.som.SOMDataItem;
 import org.jfree.data.som.SOMDataset;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.Table;
+import fi.csc.microarray.exception.MicroarrayException;
 
 public class SOM extends Visualisation {
 

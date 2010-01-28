@@ -9,9 +9,9 @@ import javax.jms.JMSException;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.ApplicationConstants;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.manager.ManagerClient;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingListener;

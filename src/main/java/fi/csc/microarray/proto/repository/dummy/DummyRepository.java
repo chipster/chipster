@@ -15,7 +15,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
-import fi.csc.microarray.MicroarrayException;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.proto.repository.Experiment;
 import fi.csc.microarray.proto.repository.Query;
 import fi.csc.microarray.proto.repository.schema.ParameterClass;

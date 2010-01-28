@@ -11,7 +11,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.databeans.ContentChangedEvent;
 import fi.csc.microarray.databeans.ContentType;
@@ -20,6 +19,7 @@ import fi.csc.microarray.databeans.DataBeanBase;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataManagerBase;
 import fi.csc.microarray.databeans.LinksChangedEvent;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.Files;
 
 public class FSDataBean extends DataBeanBase {

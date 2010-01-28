@@ -30,7 +30,6 @@ import org.apache.log4j.Logger;
 import org.mortbay.util.IO;
 
 import fi.csc.microarray.AdminAPI;
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.analyser.AnalyserServer;
 import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.dataimport.ImportSession;
@@ -67,6 +66,7 @@ import fi.csc.microarray.databeans.features.table.EditableTable;
 import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 import fi.csc.microarray.databeans.fs.FSDataManager;
 import fi.csc.microarray.description.ParsedVVSADL;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.Node;
 import fi.csc.microarray.messaging.NodeBase;

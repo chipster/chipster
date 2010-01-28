@@ -1,6 +1,5 @@
 package fi.csc.microarray.databeans.features.bio;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.visualisation.methods.PhenodataEditor;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.LinkUtils;
@@ -11,6 +10,7 @@ import fi.csc.microarray.databeans.features.ConstantStringFeature;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProviderBase;
 import fi.csc.microarray.databeans.features.Table;
+import fi.csc.microarray.exception.MicroarrayException;
 
 /**
  * 

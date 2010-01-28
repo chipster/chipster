@@ -12,10 +12,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.VisualConstants;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationPanel;
+import fi.csc.microarray.exception.MicroarrayException;
 
 /**
  * ParameterPanel is the GUI component for showing the parameters for an

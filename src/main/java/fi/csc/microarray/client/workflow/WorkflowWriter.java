@@ -7,10 +7,10 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import fi.csc.microarray.ApplicationConstants;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.parameter.Parameter;
+import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;

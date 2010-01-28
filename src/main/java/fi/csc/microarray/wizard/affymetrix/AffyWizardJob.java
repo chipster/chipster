@@ -11,7 +11,6 @@ import java.util.Map;
 
 import com.nexes.wizard.WizardPanelDescriptor;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
@@ -24,6 +23,7 @@ import fi.csc.microarray.databeans.LinkUtils;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.table.EditableTable;
 import fi.csc.microarray.databeans.features.table.TableBeanEditor;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.wizard.ResultBlocker;
 import fi.csc.microarray.wizard.WizardContext;
 import fi.csc.microarray.wizard.WizardParameterBundle;

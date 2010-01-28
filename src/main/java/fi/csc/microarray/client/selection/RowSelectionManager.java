@@ -10,13 +10,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.exception.MicroarrayException;
 
 /**
  * Selection manager for the rows that are selected from the specific dataset.

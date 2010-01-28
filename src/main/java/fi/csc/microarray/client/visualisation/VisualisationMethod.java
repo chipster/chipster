@@ -10,7 +10,6 @@ import java.util.Map;
 
 import javax.swing.ImageIcon;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.VisualConstants;
@@ -32,6 +31,7 @@ import fi.csc.microarray.client.visualisation.methods.VennDiagram;
 import fi.csc.microarray.client.visualisation.methods.Volcanoplot;
 import fi.csc.microarray.client.visualisation.methods.threed.Scatterplot3D;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.exception.MicroarrayException;
 
 /**
  * An enumeration for all available data visualisation methods. It is used for

@@ -3,7 +3,7 @@ package fi.csc.microarray.proto.repository;
 import java.util.LinkedList;
 import java.util.Properties;
 
-import fi.csc.microarray.MicroarrayException;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.proto.repository.schema.ParameterClass;
 
 public abstract class Repository {

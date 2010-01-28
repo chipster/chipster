@@ -7,12 +7,12 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.jgraph.graph.GraphConstants;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.dataview.MicroarrayGraph;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.exception.MicroarrayException;
 
 /**
  * This class defines a vertex of the graph view. Each vertex represents one

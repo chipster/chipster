@@ -7,6 +7,7 @@ import fi.csc.microarray.analyser.AnalyserServer;
 import fi.csc.microarray.analyser.VVSADLTool;
 import fi.csc.microarray.auth.Authenticator;
 import fi.csc.microarray.client.SwingClientApplication;
+import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.filebroker.FileServer;
 import fi.csc.microarray.manager.Manager;
 import fi.csc.microarray.messaging.MessagingEndpoint;

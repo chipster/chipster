@@ -6,10 +6,10 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.parameter.SingleSelectionParameter.SelectionOption;
 import fi.csc.microarray.description.VVSADLSyntax.ParameterType;
+import fi.csc.microarray.exception.MicroarrayException;
 
 
 /**

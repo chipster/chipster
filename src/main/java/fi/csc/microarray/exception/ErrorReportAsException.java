@@ -1,4 +1,4 @@
-package fi.csc.microarray;
+package fi.csc.microarray.exception;
 
 import fi.csc.microarray.util.Exceptions;
 

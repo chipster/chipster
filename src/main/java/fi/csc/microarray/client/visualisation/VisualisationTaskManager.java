@@ -11,10 +11,10 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.databeans.features.Table;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.ThreadUtils;
 
 /**

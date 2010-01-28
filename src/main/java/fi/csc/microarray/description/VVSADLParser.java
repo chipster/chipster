@@ -6,11 +6,11 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.description.ParsedVVSADL.Input;
 import fi.csc.microarray.description.ParsedVVSADL.Parameter;
 import fi.csc.microarray.description.VVSADLSyntax.InputType;
 import fi.csc.microarray.description.VVSADLSyntax.ParameterType;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.AdvancedStringTokenizer;
 import fi.csc.microarray.util.Deseparator;
 

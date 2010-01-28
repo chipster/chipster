@@ -2,7 +2,7 @@
  * Created on Mar 24, 2005
  *
  */
-package fi.csc.microarray;
+package fi.csc.microarray.exception;
 
 /**
  * Wrapped exception for all exceptions caused by the Chipster system.

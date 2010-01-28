@@ -28,7 +28,6 @@ import org.apache.log4j.Logger;
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.ToolBarComponentFactory;
@@ -36,6 +35,7 @@ import fi.csc.microarray.client.VisualConstants;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.exception.MicroarrayException;
 
 /**
  * This panel contains the options for different data visualizations. It is a

@@ -4,7 +4,7 @@
  */
 package fi.csc.microarray.analyser;
 
-import fi.csc.microarray.MicroarrayException;
+import fi.csc.microarray.exception.MicroarrayException;
 
 /**
  * Problem when running analysis jobs.

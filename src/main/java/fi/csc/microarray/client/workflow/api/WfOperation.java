@@ -1,9 +1,9 @@
 package fi.csc.microarray.client.workflow.api;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.Operation.ResultListener;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.exception.MicroarrayException;
 
 public class WfOperation {
 

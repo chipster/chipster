@@ -1,4 +1,4 @@
-package fi.csc.microarray;
+package fi.csc.microarray.constants;
 
 import java.io.IOException;
 import java.util.Properties;

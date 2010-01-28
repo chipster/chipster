@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.databeans.features.table.TableColumnProvider.MatrixParseSettings;
 import fi.csc.microarray.databeans.features.table.TableColumnProvider.TableColumn;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.LookaheadLineReader;
 

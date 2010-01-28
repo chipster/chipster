@@ -2,11 +2,11 @@ package fi.csc.microarray.databeans.features.stat;
 
 import java.util.List;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.databeans.features.CalculatingIterable;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.ModifiedFeature;
 import fi.csc.microarray.databeans.features.CalculatingIterable.CalcOperation;
+import fi.csc.microarray.exception.MicroarrayException;
 
 public class CalcModifier {
 

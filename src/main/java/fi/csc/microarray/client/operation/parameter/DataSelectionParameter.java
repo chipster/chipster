@@ -2,9 +2,9 @@ package fi.csc.microarray.client.operation.parameter;
 
 import java.util.LinkedList;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.Table;
+import fi.csc.microarray.exception.MicroarrayException;
 
 /**
  * Parameter type for selecting some piece of data (column, dataset, metacolumn..).

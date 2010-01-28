@@ -18,12 +18,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.analyser.AnalysisDescription;
 import fi.csc.microarray.analyser.AnalysisException;
 import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
 import fi.csc.microarray.analyser.ProcessPool;
 import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.JobState;
 
 /**

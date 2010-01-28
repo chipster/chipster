@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.OperationDefinition.Suitability;
 import fi.csc.microarray.client.operation.parameter.Parameter;
@@ -18,6 +17,7 @@ import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.description.VVSADLSyntax.InputType;
+import fi.csc.microarray.exception.MicroarrayException;
 
 /**
  * Operation is a concrete representative of an OperationDefinition, one with

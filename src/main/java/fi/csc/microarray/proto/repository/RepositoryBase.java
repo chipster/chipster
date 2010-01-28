@@ -2,7 +2,7 @@ package fi.csc.microarray.proto.repository;
 
 import java.util.HashMap;
 
-import fi.csc.microarray.MicroarrayException;
+import fi.csc.microarray.exception.MicroarrayException;
 
 
 public abstract class RepositoryBase extends Repository {
