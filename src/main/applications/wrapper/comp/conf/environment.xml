@@ -357,7 +357,7 @@
       <comment>
       	Download http://159.149.109.9/modtools/downloads/weeder1.3.1.tar.gz 
       	and install.
-      </unpack>
+      </comment>
     </item>
 
     <item installed="false" name="ClusterBuster" type="application">

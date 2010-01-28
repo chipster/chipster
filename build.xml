@@ -195,6 +195,9 @@
 			<tarfileset file="${ext-src}/wrapper/configure.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/configure.bat" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/upgrade.sh" filemode="755" prefix="chipster" />
+			<tarfileset file="${ext-src}/wrapper/upgrade.bat" filemode="755" prefix="chipster" />
+			<tarfileset file="${ext-src}/wrapper/migrate.sh" filemode="755" prefix="chipster" />
+			<tarfileset file="${ext-src}/wrapper/migrate.bat" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/genpasswd.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/genpasswd.bat" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/install_r_pkg.sh" filemode="755" prefix="chipster" />

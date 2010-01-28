@@ -50,16 +50,22 @@ public class UpgradeTool {
 	}
 	
 	
-	public void upgrade(File pathToOld, int toMajor) throws Exception {
+	public void upgrade(File pathToOld, int fromMajor, int toMajor) throws Exception {
 		
 		// create the transaction
-		if (toMajor ==3 ) {
+		boolean needConfigure = false;
+		if (fromMajor == 2 && toMajor == 3) {
 			System.out.println("Upgrading from version 1.2.x to version 1.3.x");
 			createOperationsFrom12xTo13x(pathToOld);
 			
-		} else if (toMajor == 4) {
+		} else if (fromMajor == 3 && toMajor == 4) {
 			System.out.println("Upgrading from version 1.3.x to version 1.4.x");
 			createOperationsFrom13xTo14x(pathToOld);
+
+		} else if (fromMajor == 4 && toMajor == 4) {
+			System.out.println("Migrating from version 1.4.x to version 1.4.x");
+			needConfigure = true;
+			createOperationsFrom13xTo14x(pathToOld); // there have been no changes in layout, so we'll just use the old same
 			
 		} else {
 			throw new IllegalArgumentException("unknown major version " + toMajor);
@@ -87,11 +93,12 @@ public class UpgradeTool {
 		
 		// we are done
 		System.out.println("\nAll changes successfully written!");
+		if (needConfigure) {
+			System.out.println("\nYou need to configure the new installation (run configure.sh)");
+		}
 		System.out.println("\nYou need to regenerate server passwords (run genpasswd.sh)");
-		
-		
 	}
-	
+
 	public void createOperationsFrom13xTo14x(File pathToOld) throws SAXException, IOException, ParserConfigurationException {
 
 		// transform old installation components to new directory layout
@@ -115,7 +122,7 @@ public class UpgradeTool {
 				File webroot14x = new File(componentDir14x, DirectoryLayout.WEB_ROOT);
 
 				// copy stuff from old to new, layout does not change
-				copyToNewDir(logsDir13x, logsDir14x, "nami.log", "messages.log", "jobs.log", "security.log", "status.log");
+				copyToNewDir(logsDir13x, logsDir14x, "chipster.log", "messages.log", "jobs.log", "security.log", "status.log");
 				copyToNewDir(securityDir13x, securityDir14x, "keystore.ks", "users");
 				copyToNewDir(confDir13x, confDir14x, "chipster-config.xml"); // don't copy runtimes.xml or tools.xml
 				copyToNewDir(webroot13x, webroot14x, "chipster.jnlp", "chipster-config.xml");

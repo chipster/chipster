@@ -105,9 +105,11 @@ public class ConfigTool {
 			setupTool.setup();
 				
 		} else if (args[0].startsWith("upgrade")) {
-			int toMajor = Integer.parseInt(args[0].substring("upgrade".length()));
+			String[] parts = args[0].split("_");
+			int fromMajor = Integer.parseInt(parts[1]);
+			int toMajor = Integer.parseInt(parts[2]);
 			if (args.length > 1) {
-				upgradeTool.upgrade(new File(args[1]), toMajor);
+				upgradeTool.upgrade(new File(args[1]), fromMajor, toMajor);
 			} else {
 				System.out.println("Please specify location of the old installation directory as an argument (e.g., \"./upgrade.sh /opt/chipster-1.2.3\")");
 			}
@@ -118,7 +120,7 @@ public class ConfigTool {
 	}
 	
 	private static void fail() {
-		System.out.println("Illegal arguments! Please specify one of: configure, genpasswd, setup, upgrade<major version number of target>");
+		System.out.println("Illegal arguments! Please specify one of: configure, genpasswd, setup, upgrade_<major version number of source>_<major version number of target>");
 	}
 	
 	private void genpasswd() throws Exception {
@@ -428,5 +430,4 @@ public class ConfigTool {
 	public static String[] getComponentDirsWithConfig() {
 		return componentDirsWithConfig;
 	}
-	
 }
