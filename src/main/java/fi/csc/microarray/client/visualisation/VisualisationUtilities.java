@@ -13,12 +13,12 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.selection.RowSelectionManager;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
+import fi.csc.microarray.client.wizard.ResultBlocker;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.ThreadUtils;
-import fi.csc.microarray.wizard.ResultBlocker;
 
 public class VisualisationUtilities {
 

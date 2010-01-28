@@ -53,6 +53,7 @@ import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.methods.PhenodataEditor;
+import fi.csc.microarray.client.wizard.WizardContext;
 import fi.csc.microarray.client.workflow.WorkflowManager;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -78,7 +79,6 @@ import fi.csc.microarray.module.Modules;
 import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.Strings;
-import fi.csc.microarray.wizard.WizardContext;
 
 
 /**

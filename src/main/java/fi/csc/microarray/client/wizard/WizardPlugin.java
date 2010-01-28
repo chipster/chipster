@@ -1,4 +1,4 @@
-package fi.csc.microarray.wizard;
+package fi.csc.microarray.client.wizard;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -15,12 +15,12 @@ import com.nexes.wizard.Wizard;
 import com.nexes.wizard.WizardPanelDescriptor;
 
 import fi.csc.microarray.client.SwingClientApplication;
+import fi.csc.microarray.client.wizard.affymetrix.AffyWizardJob;
+import fi.csc.microarray.client.wizard.affymetrix.FileGroup;
+import fi.csc.microarray.client.wizard.affymetrix.FileGroupPanelDesc;
+import fi.csc.microarray.client.wizard.affymetrix.GroupTestPanelDesc;
+import fi.csc.microarray.client.wizard.affymetrix.NormalisationPanelDesc;
 import fi.csc.microarray.util.ThreadUtils;
-import fi.csc.microarray.wizard.affymetrix.AffyWizardJob;
-import fi.csc.microarray.wizard.affymetrix.FileGroup;
-import fi.csc.microarray.wizard.affymetrix.FileGroupPanelDesc;
-import fi.csc.microarray.wizard.affymetrix.GroupTestPanelDesc;
-import fi.csc.microarray.wizard.affymetrix.NormalisationPanelDesc;
 
 public class WizardPlugin {
 	

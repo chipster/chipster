@@ -1,4 +1,4 @@
-package fi.csc.microarray.wizard.affymetrix;
+package fi.csc.microarray.client.wizard.affymetrix;
 
 public class SelectionItem {
 	private String publicValue = null;

@@ -1,4 +1,4 @@
-package fi.csc.microarray.wizard.affymetrix;
+package fi.csc.microarray.client.wizard.affymetrix;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +15,10 @@ import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
+import fi.csc.microarray.client.wizard.ResultBlocker;
+import fi.csc.microarray.client.wizard.WizardContext;
+import fi.csc.microarray.client.wizard.WizardParameterBundle;
+import fi.csc.microarray.client.wizard.WizardPlugin;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
@@ -24,10 +28,6 @@ import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.table.EditableTable;
 import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.wizard.ResultBlocker;
-import fi.csc.microarray.wizard.WizardContext;
-import fi.csc.microarray.wizard.WizardParameterBundle;
-import fi.csc.microarray.wizard.WizardPlugin;
 
 public class AffyWizardJob {
 	
