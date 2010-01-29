@@ -11,6 +11,8 @@ import java.net.URI;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
 
 import javax.jms.JMSException;
 
@@ -33,7 +35,7 @@ public class UrlTransferUtil {
 	 * @throws JMSException
 	 * @throws IOException
 	 */
-    public static URL uploadStream(URL url, InputStream fis, boolean useChunked, IOUtils.CopyProgressListener progressListener) throws IOException {
+    public static URL uploadStream(URL url, InputStream fis, boolean useChunked, boolean compress, IOUtils.CopyProgressListener progressListener) throws IOException {
 
     	HttpURLConnection connection = null;
     	try {
@@ -49,7 +51,12 @@ public class UrlTransferUtil {
 
     		OutputStream os = null;
     		try {
-    			os = connection.getOutputStream();
+    			if (compress) {
+        			Deflater deflater = new Deflater(Deflater.BEST_SPEED);
+        			os = new DeflaterOutputStream(connection.getOutputStream(), deflater);
+    			} else {
+    				os = connection.getOutputStream();	
+    			}
     			IOUtils.copy(fis, os, progressListener);
 
     		} catch (IOException e) {

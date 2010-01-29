@@ -44,16 +44,21 @@ public class AuthorisedUrlRepository {
 	 * 
 	 *  @see #URL_LIFETIME_MINUTES
 	 */
-	public URL createAuthorisedUrl() throws MalformedURLException {
+	public URL createAuthorisedUrl(boolean useCompression) throws MalformedURLException {
 
 		URL newUrl;
+
+		String compressionSuffix = "";
+		if (useCompression) {
+			compressionSuffix = ".compressed";
+		}
 
 		repositoryLock.lock();
 		try {
 			// create url that does not exist in the repository
 			do {
 				String filename = CryptoKey.generateRandom();
-				newUrl = new URL(host + ":" + port + "/" + filename);
+				newUrl = new URL(host + ":" + port + "/" + filename + compressionSuffix);
 				
 			} while (repository.containsKey(newUrl));
 

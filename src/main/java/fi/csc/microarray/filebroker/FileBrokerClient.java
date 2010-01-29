@@ -6,6 +6,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.InflaterInputStream;
 
 import javax.jms.JMSException;
 
@@ -16,6 +17,7 @@ import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.UrlMessage;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.UrlTransferUtil;
@@ -85,10 +87,12 @@ public class FileBrokerClient {
 	
 	private MessagingTopic urlTopic;	
 	private boolean useChunked;
+	private boolean useCompression;
 	
 	public FileBrokerClient(MessagingTopic urlTopic) throws JMSException {
 		// read configs
 		this.useChunked = DirectoryLayout.getInstance().getConfiguration().getBoolean("messaging", "use-chunked-http"); 
+		this.useCompression = DirectoryLayout.getInstance().getConfiguration().getBoolean("messaging", "use-compression");
 		
 		// initialize messaging
 		this.urlTopic = urlTopic;
@@ -108,14 +112,14 @@ public class FileBrokerClient {
 	public URL addFile(InputStream content, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
 		
 		// get new url
-		URL url = getNewUrl();
+		URL url = getNewUrl(useCompression);
 		if (url == null) {
 			throw new FileBrokerException("New URL is null.");
 		}
 		
 		// upload content
 		logger.debug("uploading new file: " + url);
-		UrlTransferUtil.uploadStream(url, content, useChunked, progressListener);
+		UrlTransferUtil.uploadStream(url, content, useChunked, useCompression, progressListener);
 		logger.debug("successfully uploaded: " + url);
 		
 		return url;
@@ -158,7 +162,13 @@ public class FileBrokerClient {
 			waitTime = waitTime*2;
 		}
 
-		return payload;
+		// detect compression
+		if (url.toString().endsWith(".compressed")) {
+			return new InflaterInputStream(payload);
+		} else {
+			return payload;
+		}
+		
 	}
 
 	
@@ -209,13 +219,17 @@ public class FileBrokerClient {
 	 * if reply is not received before timeout 
 	 * @throws JMSException
 	 */
-	private URL getNewUrl() throws JMSException {
+	private URL getNewUrl(boolean useCompression) throws JMSException {
 		logger.debug("getting new url");
 
 		UrlMessageListener replyListener = new UrlMessageListener();  
 		URL url;
 		try {
-			urlTopic.sendReplyableMessage(new CommandMessage(CommandMessage.COMMAND_URL_REQUEST), replyListener);
+			CommandMessage urlRequestMessage = new CommandMessage(CommandMessage.COMMAND_URL_REQUEST);
+			if (useCompression) {
+				urlRequestMessage.addParameter(ParameterMessage.PARAMETER_USE_COMPRESSION);
+			}
+			urlTopic.sendReplyableMessage(urlRequestMessage, replyListener);
 			url = replyListener.waitForReply(URL_REQUEST_TIMEOUT, TimeUnit.SECONDS);
 		} finally {
 			replyListener.cleanUp();
