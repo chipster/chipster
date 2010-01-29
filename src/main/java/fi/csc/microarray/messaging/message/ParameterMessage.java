@@ -30,6 +30,7 @@ public abstract class ParameterMessage extends NamiMessage {
 	
 	public static final String PARAMETER_AS_ID = "as-id";
 	public static final String PARAMETER_JOB_ID = "job-id";
+	public static final String PARAMETER_USE_COMPRESSION = "use-compression";
 
 	
 	private List<String> parameters = new LinkedList<String>();

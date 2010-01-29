@@ -21,6 +21,7 @@ import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.UrlMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
@@ -102,7 +103,9 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		try {
 
 			if (msg instanceof CommandMessage && CommandMessage.COMMAND_URL_REQUEST.equals(((CommandMessage)msg).getCommand())) {
-				URL url = urlRepository.createAuthorisedUrl();
+				CommandMessage requestMessage = (CommandMessage) msg;
+				boolean useCompression = requestMessage.getParameters().contains(ParameterMessage.PARAMETER_USE_COMPRESSION);
+				URL url = urlRepository.createAuthorisedUrl(useCompression);
 				UrlMessage reply = new UrlMessage(url);
 				endpoint.replyToMessage(msg, reply);
 				managerClient.urlRequest(msg.getUsername(), url);

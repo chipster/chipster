@@ -21,7 +21,6 @@ import fi.csc.microarray.databeans.DataBean;
 
 public class BasicRAnalysisTest extends AnalysisTestBase {
 
-	
 	@Test(groups = { "smoke"})
 	public void testRNoOperation() throws Exception {
 		Task job = executor.createTask("\"Test\"/\"No-op\"");

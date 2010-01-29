@@ -55,9 +55,4 @@ public class FileBrokerClientTest extends MessagingTestBase {
 		Assert.assertEquals(file.length(), outputContentLength);
 		
 	}
-	
-
-	
-	
-	
 }

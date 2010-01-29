@@ -1,5 +1,7 @@
 package fi.csc.microarray.util;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -94,6 +96,9 @@ public class IOUtils {
 	 */
 	public static void copy(InputStream source, OutputStream target, CopyProgressListener progressListener) throws IOException {
 		
+		BufferedInputStream bSource = new BufferedInputStream(source);
+		BufferedOutputStream bTarget = new BufferedOutputStream(target);
+		
 		// initialise
 		byte buffer[] = new byte[BUFFER_SIZE];
 		int len = BUFFER_SIZE;
@@ -108,12 +113,12 @@ public class IOUtils {
 
 		// copy while there is content
 		while (true) {
-			len = source.read(buffer, 0, BUFFER_SIZE);
+			len = bSource.read(buffer, 0, BUFFER_SIZE);
 			if (len < 0) {
 				break;
 			}
 			
-			target.write(buffer, 0, len);
+			bTarget.write(buffer, 0, len);
 			sum += len;
 			
 			// report progress every CALLBACK_INTERVAL milliseconds
@@ -122,6 +127,7 @@ public class IOUtils {
 				lastCallback = System.currentTimeMillis();
 			}
 		}
+		bTarget.flush();
 	}
 	
 	public static void copy(InputStream source, OutputStream target) throws IOException {
