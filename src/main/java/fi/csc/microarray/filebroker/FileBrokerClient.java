@@ -182,6 +182,8 @@ public class FileBrokerClient {
 	 * be updated or not. 
 	 * 
 	 * TODO Check contentLength against connection.getContentLength()
+	 * TODO Checking content length may not be the best idea,
+	 * especially when using compression
 	 * 
 	 * @param url
 	 * @param contentLength
@@ -213,6 +215,8 @@ public class FileBrokerClient {
 	 * Get an URL for a new file from the file broker.
 	 * 
 	 * Talks to the file broker using JMS.
+	 * 
+	 * If useCompression is true, request an url ending with .compressed
 	 * 
 	 *  
 	 * @return the new URL, may be null if file broker sends null or
