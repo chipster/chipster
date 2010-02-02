@@ -25,7 +25,6 @@ import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.VisualisationToolBar;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
-import fi.csc.microarray.client.wizard.WizardPlugin;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataItem;
@@ -56,9 +55,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenu viewMenu = null;
 	private JMenuItem restoreViewMenuItem = null;
 	private JMenu fontSizeMenu = null;
-	private JMenu wizardMenu = null;
 	private JMenu workflowsMenu = null;
-	private JMenuItem wizardMenuItem = null;
 	private JMenu helpInfoMenu = null;
 	private JMenuItem aboutMenuItem = null;
 	private JMenuItem contentMenuItem;
@@ -84,7 +81,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		add(getFileMenu());
 		add(getEditMenu());
 		add(getViewMenu());
-		add(getWizardMenu());
 		add(getWorkflowsMenu());
 		add(getHelpInfoMenu());
 		application.addPropertyChangeListener(this);
@@ -412,21 +408,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return selectAllMenuItem;
 	}
 
-	/**
-	 * This method initializes wizardMenu
-	 * 
-	 * @return javax.swing.JMenu
-	 */
-	private JMenu getWizardMenu() {
-		if (wizardMenu == null) {
-			wizardMenu = new JMenu();
-			wizardMenu.setText("Wizard");
-			wizardMenu.setMnemonic('W');
-			wizardMenu.add(getWizardMenuItem());
-		}
-		return wizardMenu;
-	}
-
 	private JMenu getWorkflowsMenu() {
 		if (workflowsMenu == null) {
 			workflowsMenu = new JMenu();
@@ -492,20 +473,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return runWorkflowMenuItem;
 	}
 
-	private JMenuItem getWizardMenuItem() {
-		if (wizardMenuItem == null) {
-			wizardMenuItem = new JMenuItem();
-			wizardMenuItem.setText("Affymetrix");
-			wizardMenuItem.setAccelerator(KeyStroke.getKeyStroke('W', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
-			wizardMenuItem.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					WizardPlugin wiz = new WizardPlugin(application);
-					wiz.show();
-				}
-			});
-		}
-		return wizardMenuItem;
-	}
 
 	/**
 	 * This method initializes viewMenu

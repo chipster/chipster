@@ -3,7 +3,7 @@ package fi.csc.microarray.client.workflow.api;
 import java.util.LinkedList;
 import java.util.List;
 
-import fi.csc.microarray.client.wizard.ResultBlocker;
+import fi.csc.microarray.client.tasks.ResultBlocker;
 import fi.csc.microarray.databeans.DataBean;
 
 public class WfResultBlocker extends ResultBlocker {

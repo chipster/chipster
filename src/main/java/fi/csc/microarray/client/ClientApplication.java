@@ -53,7 +53,6 @@ import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.methods.PhenodataEditor;
-import fi.csc.microarray.client.wizard.WizardContext;
 import fi.csc.microarray.client.workflow.WorkflowManager;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -89,7 +88,7 @@ import fi.csc.microarray.util.Strings;
  * @author Aleksi Kallio
  *
  */
-public abstract class ClientApplication implements Node, WizardContext {
+public abstract class ClientApplication implements Node {
 	private static final int HEARTBEAT_DELAY = 2*1000;
 
 	/**
@@ -135,6 +134,7 @@ public abstract class ClientApplication implements Node, WizardContext {
 	public abstract void setMaximisedVisualisationMode(boolean maximisedVisualisationMode);
 	public abstract VisualisationFrameManager getVisualisationFrameManager();
 	public abstract void runBlockingTask(String taskName, final Runnable runnable);
+	public abstract DataManager getDataManager();
 
 	/**
 	 * Method is called periodically to maintain state that cannot be maintained 

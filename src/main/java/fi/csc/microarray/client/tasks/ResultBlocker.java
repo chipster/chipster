@@ -1,4 +1,4 @@
-package fi.csc.microarray.client.wizard;
+package fi.csc.microarray.client.tasks;
 
 import java.util.Iterator;
 import java.util.LinkedList;
