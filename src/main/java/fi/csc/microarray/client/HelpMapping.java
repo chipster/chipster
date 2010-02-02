@@ -41,6 +41,8 @@ public class HelpMapping {
 		mappings.put("Normalisation/Random effects", "chipster-manual/norm-lme.html");
 		mappings.put("Normalization/Normalize to specific samples", "chipster-manual/norm-specific-samples.html");
 		mappings.put("Normalization/Normalize to specific genes", "chipster-manual/norm-specific-genes.html");
+		mappings.put("Normalization/Normalize to chip average", "chipster-manual/norm-chip-average.html");
+		mappings.put("Normalization/Normalize to gene average", "chipster-manual/norm-gene-average.html");
 		
 		mappings.put("Statistics/Gene set test", "chipster-manual/stat-geneset.html");
 		mappings.put("Statistics/One sample tests", "chipster-manual/stat-one-group.html");
