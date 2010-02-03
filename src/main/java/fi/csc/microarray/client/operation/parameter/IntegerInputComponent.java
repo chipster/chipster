@@ -40,7 +40,7 @@ public class IntegerInputComponent extends ParameterInputComponent
 	 * 				 be placed.
 	 */
 	public IntegerInputComponent(
-			IntegerParameter param, ParameterPanel parent) {
+			IntegerParameter param, ToolParameterPanel parent) {
 		super(parent);
 		this.param = param;
 		this.state = ParameterInputComponent.INPUT_IS_INITIALIZED;

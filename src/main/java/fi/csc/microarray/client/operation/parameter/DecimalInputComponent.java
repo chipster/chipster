@@ -35,7 +35,7 @@ public class DecimalInputComponent extends ParameterInputComponent
 	 * 				 be placed.
 	 */
 	public DecimalInputComponent(
-			DecimalParameter param, ParameterPanel parent) {
+			DecimalParameter param, ToolParameterPanel parent) {
 		super(parent);
 		this.param = param;
 		this.field = new JTextField();

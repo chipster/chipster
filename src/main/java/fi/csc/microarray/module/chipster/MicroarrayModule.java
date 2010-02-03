@@ -15,6 +15,9 @@ public class MicroarrayModule implements Module {
 	public static final String ANNOTATION_CAT = "Annotation";
 	public static final String ANNOTATION_NAME = "Agilent, Affymetrix or Illumina genelist";
 	
+	public static final String IMPORT_CAT = "Utilities";
+	public static final String IMPORT_FROM_ARRAYEXPRESS_NAME = "Import from ArrayExpress";
+	
 	public void plugContentTypes(DataManager manager) {
 		manager.plugContentType("application/x-treeview", true, false, "Newick formatted tree from clustering", VisualConstants.ICON_TYPE_TEXT, "tre");
 		manager.plugContentType("application/cel", true, false, "Affymetrix CEL", VisualConstants.ICON_TYPE_RAWDATA, "cel");

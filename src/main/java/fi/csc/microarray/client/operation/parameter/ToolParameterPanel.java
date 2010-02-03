@@ -29,7 +29,7 @@ import fi.csc.microarray.exception.MicroarrayException;
  * @author Janne KÃ¤ki, Aleksi Kallio, Petri KlemelÃ¤
  *
  */
-public class ParameterPanel extends JPanel {
+public class ToolParameterPanel extends JPanel {
 
 	private Map<Parameter, ParameterInputComponent> paramMap;
 	private JScrollPane scroller;
@@ -45,7 +45,7 @@ public class ParameterPanel extends JPanel {
 	 * @param client The client that is to be informed when a job is done.
 	 * @throws MicroarrayException 
 	 */
-	public ParameterPanel(Operation operation, OperationPanel parent) throws MicroarrayException {
+	public ToolParameterPanel(Operation operation, OperationPanel parent) throws MicroarrayException {
 		super(new BorderLayout());
 		this.parent = parent;		
 		

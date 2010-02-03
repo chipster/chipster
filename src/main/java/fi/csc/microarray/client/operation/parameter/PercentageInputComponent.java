@@ -42,7 +42,7 @@ public class PercentageInputComponent extends ParameterInputComponent
 	 * 				 be placed.
 	 */
 	public PercentageInputComponent(
-			PercentageParameter param, ParameterPanel parent) {
+			PercentageParameter param, ToolParameterPanel parent) {
 		super(parent);
 		this.param = param;
 		this.state = ParameterInputComponent.INPUT_IS_INITIALIZED;

@@ -16,7 +16,7 @@ public class StringInputComponent extends ParameterInputComponent implements Car
 	private StringParameter parameter;
 	private JTextField field;
 
-	protected StringInputComponent(StringParameter parameter, ParameterPanel parent) {		
+	protected StringInputComponent(StringParameter parameter, ToolParameterPanel parent) {		
 		super(parent);
 		this.parameter = parameter;
 		this.field = new JTextField();

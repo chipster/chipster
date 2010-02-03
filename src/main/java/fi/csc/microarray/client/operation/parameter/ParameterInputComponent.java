@@ -35,7 +35,7 @@ public abstract class ParameterInputComponent extends JPanel implements FocusLis
 	
 	private JLabel label = null;
 	
-	private ParameterPanel parentPanel;
+	private ToolParameterPanel parentPanel;
 	
 	/**
 	 * Initializes the features common to all parameter input components.
@@ -43,7 +43,7 @@ public abstract class ParameterInputComponent extends JPanel implements FocusLis
 	 * 
 	 * @param parent The parameter panel to which this component is to be placed.
 	 */
-	protected ParameterInputComponent(ParameterPanel parent) {
+	protected ParameterInputComponent(ToolParameterPanel parent) {
 		super(new BorderLayout());
 		this.parentPanel = parent;
 	}
@@ -63,7 +63,7 @@ public abstract class ParameterInputComponent extends JPanel implements FocusLis
 	/**
 	 * @return The parent parameter panel to which this component is placed.
 	 */
-	public ParameterPanel getParentPanel() {
+	public ToolParameterPanel getParentPanel() {
 		return parentPanel;
 	}
 	

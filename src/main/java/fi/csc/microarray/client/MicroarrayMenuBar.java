@@ -19,8 +19,11 @@ import javax.swing.KeyStroke;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.dialog.RenameDialog;
+import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.client.selection.DataSelectionManager;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
+import fi.csc.microarray.client.tasks.ResultBlocker;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.VisualisationToolBar;
@@ -28,7 +31,9 @@ import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameTyp
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataItem;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.Files;
 
 public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListener {
@@ -45,7 +50,8 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem directImportMenuItem = null;
 	private JMenuItem importFromURLMenuItem = null;
 	private JMenuItem importFromClipboardMenuItem = null;
-	private JMenuItem importFromDatabaseMenuItem = null;
+	private JMenuItem importFromArrayExpressMenuItem = null;
+	private JMenuItem importFromGEO = null;
 	private JMenuItem openWorkflowsMenuItem = null;
 	private JMenuItem addDirMenuItem = null;
 	private JMenuItem exportMenuItem = null;
@@ -156,8 +162,10 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			importMenu = new JMenu();
 			importMenu.setText("Import from");
 			importMenu.add(getImportFromURLMenuItem());
-			importMenu.add(getImportFromDatabaseMenuItem());
 			importMenu.add(getImportFromClipboardMenuItem());
+			importMenu.addSeparator();
+			importMenu.add(getImportFromArrayExpressMenuItem());
+			
 		}
 		return importMenu;
 	}
@@ -202,21 +210,30 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return importFromURLMenuItem;
 	}
 
-	private JMenuItem getImportFromDatabaseMenuItem() {
-		if (importFromDatabaseMenuItem == null) {
-			importFromDatabaseMenuItem = new JMenuItem();
-			importFromDatabaseMenuItem.setText("database...");
-			importFromDatabaseMenuItem.addActionListener(new java.awt.event.ActionListener() {
+	private JMenuItem getImportFromArrayExpressMenuItem() {
+		if (importFromArrayExpressMenuItem == null) {
+			importFromArrayExpressMenuItem = new JMenuItem();
+			importFromArrayExpressMenuItem.setText("ArrayExpress...");
+			importFromArrayExpressMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
-						application.openURLImport();
+						Operation importOperation = new Operation(application.locateOperationDefinition(MicroarrayModule.IMPORT_CAT, MicroarrayModule.IMPORT_FROM_ARRAYEXPRESS_NAME), new DataBean[] {});
+						application.openDatabaseImport("ArrayExpress", importOperation.getDefinition());
+//						
+//						Operation importOperation = new Operation(application.locateOperationDefinition(MicroarrayModule.IMPORT_CAT, MicroarrayModule.IMPORT_FROM_ARRAYEXPRESS_NAME), new DataBean[] {});
+//						for (Parameter defaultParameter: importOperation.getDefinition().getDefaultParameters()) {
+//							importOperation.setParameter(defaultParameter.getName(), defaultParameter.getValue());
+//						}
+//							
+//						application.executeOperation(importOperation);
+
 					} catch (Exception me) {
 						application.reportException(me);
 					}
 				}
 			});
 		}
-		return importFromDatabaseMenuItem;
+		return importFromArrayExpressMenuItem;
 	}
 
 	
