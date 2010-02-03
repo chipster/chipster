@@ -45,6 +45,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem directImportMenuItem = null;
 	private JMenuItem importFromURLMenuItem = null;
 	private JMenuItem importFromClipboardMenuItem = null;
+	private JMenuItem importFromDatabaseMenuItem = null;
 	private JMenuItem openWorkflowsMenuItem = null;
 	private JMenuItem addDirMenuItem = null;
 	private JMenuItem exportMenuItem = null;
@@ -155,6 +156,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			importMenu = new JMenu();
 			importMenu.setText("Import from");
 			importMenu.add(getImportFromURLMenuItem());
+			importMenu.add(getImportFromDatabaseMenuItem());
 			importMenu.add(getImportFromClipboardMenuItem());
 		}
 		return importMenu;
@@ -200,6 +202,26 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return importFromURLMenuItem;
 	}
 
+	private JMenuItem getImportFromDatabaseMenuItem() {
+		if (importFromDatabaseMenuItem == null) {
+			importFromDatabaseMenuItem = new JMenuItem();
+			importFromDatabaseMenuItem.setText("database...");
+			importFromDatabaseMenuItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					try {
+						application.openURLImport();
+					} catch (Exception me) {
+						application.reportException(me);
+					}
+				}
+			});
+		}
+		return importFromDatabaseMenuItem;
+	}
+
+	
+	
+	
 	private JMenuItem getOpenWorkflowMenuItem() {
 		if (openWorkflowsMenuItem == null) {
 			openWorkflowsMenuItem = new JMenuItem();
