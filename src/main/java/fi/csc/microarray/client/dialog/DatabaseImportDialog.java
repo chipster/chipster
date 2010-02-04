@@ -116,11 +116,12 @@ public class DatabaseImportDialog extends JDialog implements ActionListener,
 
 		c.fill = GridBagConstraints.NONE;
 		c.insets.set(0, 10, 10, 10);
-		c.gridy++;
+		c.gridx++;
 		this.add(folderNameCombo, c);
 
 		c.insets.set(10, 10, 10, 10);
 		c.anchor = GridBagConstraints.EAST;
+		c.gridx = 0;
 		c.gridy++;
 		c.fill = GridBagConstraints.NONE;
 		// Buttons
