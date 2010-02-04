@@ -2,6 +2,7 @@ package fi.csc.microarray.client.operation.parameter;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.event.FocusEvent;
 
 import javax.swing.JComponent;
 import javax.swing.JTextField;
@@ -31,12 +32,12 @@ public class DecimalInputComponent extends ParameterInputComponent
 	 * 
 	 * @param param The DecimalParameter to be controlled.
 	 * @param enabled 
-	 * @param parent The ParameterPanel to which this component is to
+	 * @param parameterPanel The ParameterPanel to which this component is to
 	 * 				 be placed.
 	 */
 	public DecimalInputComponent(
-			DecimalParameter param, ToolParameterPanel parent) {
-		super(parent);
+			DecimalParameter param, ParameterPanel parameterPanel) {
+		super(parameterPanel);
 		this.param = param;
 		this.field = new JTextField();
 		field.setPreferredSize(ParameterInputComponent.PREFERRED_SIZE);
@@ -109,4 +110,10 @@ public class DecimalInputComponent extends ParameterInputComponent
 	public JComponent getParameterComponent() {
 		return field;
 	}
+	
+	public void focusGained(FocusEvent e) {
+		getParentPanel().setMessage(param.getDescription(), Color.black);
+	}
+
+	
 }

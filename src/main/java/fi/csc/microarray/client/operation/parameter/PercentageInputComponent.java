@@ -3,6 +3,7 @@ package fi.csc.microarray.client.operation.parameter;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.FocusEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -38,12 +39,12 @@ public class PercentageInputComponent extends ParameterInputComponent
 	 * 
 	 * @param param The PercentageParameter to be controlled.
 	 * @param enabled 
-	 * @param parent The ParameterPanel to which this component is to
+	 * @param parameterPanel The ParameterPanel to which this component is to
 	 * 				 be placed.
 	 */
 	public PercentageInputComponent(
-			PercentageParameter param, ToolParameterPanel parent) {
-		super(parent);
+			PercentageParameter param, ParameterPanel parameterPanel) {
+		super(parameterPanel);
 		this.param = param;
 		this.state = ParameterInputComponent.INPUT_IS_INITIALIZED;
 		/**
@@ -124,4 +125,10 @@ public class PercentageInputComponent extends ParameterInputComponent
 	public JComponent getParameterComponent() {
 		return slider;
 	}
+
+	public void focusGained(FocusEvent e) {
+		getParentPanel().setMessage(param.getDescription(), Color.black);
+	}
+
+
 }

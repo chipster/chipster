@@ -39,12 +39,12 @@ public class SingleSelectionInputComponent extends ParameterInputComponent
 	 * 
 	 * @param param The SingleSelectionParameter to be controlled.
 	 * @param enabled 
-	 * @param parent The ParameterPanel to which this component is to
+	 * @param parameterPanel The ParameterPanel to which this component is to
 	 * 				 be placed.
 	 */
 	public SingleSelectionInputComponent(
-			SingleSelectionParameter param, ToolParameterPanel parent) {
-		super(parent);
+			SingleSelectionParameter param, ParameterPanel parameterPanel) {
+		super(parameterPanel);
 		this.param = param;
 		this.choiceBox = new SteppedComboBox(param.getOptions());
 		Dimension preferredSize = choiceBox.getPreferredSize();

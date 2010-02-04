@@ -2,6 +2,7 @@ package fi.csc.microarray.client.operation.parameter;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.event.FocusEvent;
 
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
@@ -36,17 +37,18 @@ public class IntegerInputComponent extends ParameterInputComponent
 	 * Creates a new IntegerInputComponent.
 	 * 
 	 * @param param The IntegerParameter to be controlled.
-	 * @param parent The ParameterPanel to which this component is to
+	 * @param parameterPanel The ParameterPanel to which this component is to
 	 * 				 be placed.
 	 */
 	public IntegerInputComponent(
-			IntegerParameter param, ToolParameterPanel parent) {
-		super(parent);
+			IntegerParameter param, ParameterPanel parameterPanel) {
+		super(parameterPanel);
 		this.param = param;
 		this.state = ParameterInputComponent.INPUT_IS_INITIALIZED;
 		SpinnerModel model = new SpinnerNumberModel();
 		model.setValue(param.getIntegerValue());
 		this.spinner = new JSpinner(model);
+		spinner.addFocusListener(this);
 		spinner.setPreferredSize(ParameterInputComponent.PREFERRED_SIZE);	
 		
 		// The second parameter of NumberEditor constructor is number format
@@ -55,7 +57,6 @@ public class IntegerInputComponent extends ParameterInputComponent
 		spinner.setEditor(new JSpinner.NumberEditor(spinner, "0"));
 		
 		spinner.addChangeListener(this);
-		spinner.addFocusListener(this);
 		field = ((JSpinner.DefaultEditor)spinner.getEditor()).getTextField();
 		field.addCaretListener(this);
 		this.add(spinner, BorderLayout.CENTER);
@@ -138,4 +139,11 @@ public class IntegerInputComponent extends ParameterInputComponent
 	public JComponent getParameterComponent() {
 		return spinner;
 	}
+
+	public void focusGained(FocusEvent e) {
+		getParentPanel().setMessage(param.getDescription(), Color.black);
+	}
+
+
+
 }
