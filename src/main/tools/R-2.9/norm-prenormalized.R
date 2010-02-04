@@ -63,9 +63,9 @@ if (keep.annotations=="yes") {
 if(chiptype!="cDNA") {
 	# Including gene names to data
 	lib2<-sub('.db','',chiptype)
-	library(lib2, character.only=T)
-	symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "SYMBOL", sep="")))))[rownames(M2),])
-	genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "GENENAME", sep="")))))[rownames(M2),])
+	library(chiptype, character.only=T)
+	symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "SYMBOL", sep="")))))[rownames(M2),])
+	genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[rownames(M2),])
 	write.table(data.frame(symbol, description=genename, round(M2, digits=2)), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 }
 
