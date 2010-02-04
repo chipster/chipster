@@ -52,6 +52,12 @@ myids<-unique(alleg[rownames(dat),])
 #CHOOSE THE ANNOTATION PACKAGE
 annotpkg<-lib
 
+#Account for the fact that updated alternative CDF annotation packages for Affymetrix
+#hgu133A, hgu133A2 are no longer supported and should be replaced with hgu133plus2 
+if (annotpkg=="hgu133ahsentrezg.db" || "hgu133a2hsentrezg.db") {
+	annotpkg <- "hgu133plus2hsentrezg.db"
+}
+
 params<-new("GOHyperGParams", geneIds=myids, annotation=annotpkg, ontology="BP", pvalueCutoff=pcut, conditional=TRUE,testDirection=choisedirec)
 resultBP<-hyperGTest(params)
 params<-new("GOHyperGParams", geneIds=myids, annotation=annotpkg, ontology="MF", pvalueCutoff=pcut, conditional=TRUE,testDirection=choisedirec)
