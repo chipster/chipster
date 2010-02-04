@@ -51,7 +51,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem importFromURLMenuItem = null;
 	private JMenuItem importFromClipboardMenuItem = null;
 	private JMenuItem importFromArrayExpressMenuItem = null;
-	private JMenuItem importFromGEO = null;
+	private JMenuItem importFromGEOMenuItem = null;
 	private JMenuItem openWorkflowsMenuItem = null;
 	private JMenuItem addDirMenuItem = null;
 	private JMenuItem exportMenuItem = null;
@@ -165,6 +165,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			importMenu.add(getImportFromClipboardMenuItem());
 			importMenu.addSeparator();
 			importMenu.add(getImportFromArrayExpressMenuItem());
+			importMenu.add(getImportFromGEOMenuItem());
 			
 		}
 		return importMenu;
@@ -218,7 +219,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
 						Operation importOperation = new Operation(application.locateOperationDefinition(MicroarrayModule.IMPORT_CAT, MicroarrayModule.IMPORT_FROM_ARRAYEXPRESS_NAME), new DataBean[] {});
-						application.openDatabaseImport("ArrayExpress", importOperation.getDefinition());
+						application.openDatabaseImport("ArrayExpress", importOperation);
 //						
 //						Operation importOperation = new Operation(application.locateOperationDefinition(MicroarrayModule.IMPORT_CAT, MicroarrayModule.IMPORT_FROM_ARRAYEXPRESS_NAME), new DataBean[] {});
 //						for (Parameter defaultParameter: importOperation.getDefinition().getDefaultParameters()) {
@@ -236,6 +237,35 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return importFromArrayExpressMenuItem;
 	}
 
+	private JMenuItem getImportFromGEOMenuItem() {
+		if (importFromGEOMenuItem == null) {
+			importFromGEOMenuItem = new JMenuItem();
+			importFromGEOMenuItem.setText("GEO...");
+			importFromGEOMenuItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					try {
+						Operation importOperation = new Operation(application.locateOperationDefinition(MicroarrayModule.IMPORT_CAT, MicroarrayModule.IMPORT_FROM_GEO_NAME), new DataBean[] {});
+						application.openDatabaseImport("GEO", importOperation);
+//						
+//						Operation importOperation = new Operation(application.locateOperationDefinition(MicroarrayModule.IMPORT_CAT, MicroarrayModule.IMPORT_FROM_GEO_NAME), new DataBean[] {});
+//						for (Parameter defaultParameter: importOperation.getDefinition().getDefaultParameters()) {
+//							importOperation.setParameter(defaultParameter.getName(), defaultParameter.getValue());
+//						}
+//							
+//						application.executeOperation(importOperation);
+
+					} catch (Exception me) {
+						application.reportException(me);
+					}
+				}
+			});
+		}
+		return importFromGEOMenuItem;
+	}
+
+	
+	
+	
 	
 	
 	

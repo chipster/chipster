@@ -1147,8 +1147,8 @@ public class SwingClientApplication extends ClientApplication {
 		new ClipboardImportDialog(this);
 	}
 
-	public void openDatabaseImport(String title, OperationDefinition operationDefinition) throws MicroarrayException, IOException {
-		new DatabaseImportDialog(this, title, operationDefinition);
+	public void openDatabaseImport(String title, Operation operation) throws MicroarrayException, IOException {
+		new DatabaseImportDialog(this, title, operation);
 	}
 
 	

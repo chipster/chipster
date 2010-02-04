@@ -17,6 +17,7 @@ public class MicroarrayModule implements Module {
 	
 	public static final String IMPORT_CAT = "Utilities";
 	public static final String IMPORT_FROM_ARRAYEXPRESS_NAME = "Import from ArrayExpress";
+	public static final String IMPORT_FROM_GEO_NAME = "Import from GEO";
 	
 	public void plugContentTypes(DataManager manager) {
 		manager.plugContentType("application/x-treeview", true, false, "Newick formatted tree from clustering", VisualConstants.ICON_TYPE_TEXT, "tre");
