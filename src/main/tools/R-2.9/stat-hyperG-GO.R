@@ -6,6 +6,8 @@
 # Hypergeometrix test of gene enrichment to term categories
 # Dario Greco 7.1.2007
 # JTT 30.7.2007 (with heavy modifications) 
+#
+# modified MG 5.2.2010
 
 # Loads the libraries
 library(GOstats)
@@ -52,11 +54,27 @@ myids<-unique(alleg[rownames(dat),])
 #CHOOSE THE ANNOTATION PACKAGE
 annotpkg<-lib
 
-#Account for the fact that updated alternative CDF annotation packages for Affymetrix
-#hgu133A, hgu133A2 are no longer supported and should be replaced with hgu133plus2 
-if (annotpkg=="hgu133ahsentrezg.db" || "hgu133a2hsentrezg.db") {
-	annotpkg <- "hgu133plus2hsentrezg.db"
+#Account for the fact that updated alternative CDF annotation packages for some Affymetrix
+#arrays are no longer supported and should be replaced with their Bioconductor counterpart 
+if (annotpkg=="hgu133a2hsentrezg.db") {
+	annotpkg <- "hgu133a2.db"
 }
+if (annotpkg=="hgu133ahsentrezg.db") {
+	annotpkg <- "hgu133a.db"
+}
+if (annotpkg=="ath1121501hsentrezg.db") {
+	annotpkg <- "ath1121501.db"
+}
+if (annotpkg=="aghsentrezg.db") {
+	annotpkg <- "ag.db"
+}
+if (annotpkg=="ygs98scentrezg.db") {
+	annotpkg <- "ygs98.db"
+}
+if (annotpkg=="yeast2scentrezg.db") {
+	annotpkg <- "yeast2.db"
+}
+
 
 params<-new("GOHyperGParams", geneIds=myids, annotation=annotpkg, ontology="BP", pvalueCutoff=pcut, conditional=TRUE,testDirection=choisedirec)
 resultBP<-hyperGTest(params)
