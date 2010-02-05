@@ -15,6 +15,7 @@
 			<tool runtime="R-2.9">norm-lme.R</tool>
 			<tool runtime="R-2.9">norm-illumina-SNP.R</tool>
 			<tool runtime="R-2.9">norm-prenormalized.R</tool>
+			<tool runtime="R-2.9">norm-prenormalized-affy.R</tool>
 			<tool runtime="R-2.9">norm-chip-average.R</tool>
 			<tool runtime="R-2.9">norm-gene-average.R</tool>
 			<tool runtime="R-2.9">norm-specific-samples.R</tool>
