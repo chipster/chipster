@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -34,6 +35,7 @@ import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.parameter.ImportParameterPanel;
 import fi.csc.microarray.client.operation.parameter.Parameter;
+import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
@@ -67,6 +69,7 @@ public class DatabaseImportDialog extends JDialog implements ActionListener,
 		//this.setPreferredSize(new Dimension(500, 400));
 
 		titleLabel = new JLabel("<html><p style=\"font-weight:bold;font-size:120%\">Import data from " + databaseName + "</p></html>");
+		//titleLabel.setPreferredSize(new Dimension(300, 300));
 		descriptionLabel = new JLabel("<html>" + operation.getDescription() + "</html>");
 		
 
@@ -88,51 +91,73 @@ public class DatabaseImportDialog extends JDialog implements ActionListener,
 		c.weightx = 1.0;
 		c.weighty = 1.0;
 		c.fill = GridBagConstraints.HORIZONTAL;
+//		c.gridwidth = GridBagConstraints.REMAINDER;
 		
 		// title label
 		c.anchor = GridBagConstraints.NORTHWEST;
 		c.insets.set(10, 10, 5, 10);
 		c.gridx = 0;
 		c.gridy = 0;
+//		titleLabel.setBorder(BorderFactory.createMatteBorder(1,1,1,1,VisualConstants.OPERATION_LIST_BORDER_COLOR));
 		this.add(titleLabel, c);
 
 		// description label
 		c.anchor = GridBagConstraints.NORTHWEST;
 		c.gridy++;
+//		descriptionLabel.setBorder(BorderFactory.createMatteBorder(1,1,1,1,VisualConstants.OPERATION_LIST_BORDER_COLOR));
 		this.add(descriptionLabel, c);
 		
 		
 		// parameter panel
-		c.fill = GridBagConstraints.NONE;
+		c.weighty = 120.0;
+		c.fill = GridBagConstraints.BOTH;
 		c.insets.set(0, 10, 10, 10);
 		c.gridy++;
 		ImportParameterPanel parameterPanel = new ImportParameterPanel(operation, null);
 		this.add(parameterPanel, c);
 
-		
+		c.fill = GridBagConstraints.NONE;
 		c.insets.set(10, 10, 5, 10);
 		c.gridy++;
-		this.add(new JLabel("Insert in folder"), c);
+//		this.add(new JLabel("Insert in folder"), c);
 
 		c.fill = GridBagConstraints.NONE;
 		c.insets.set(0, 10, 10, 10);
-		c.gridx++;
-		this.add(folderNameCombo, c);
+		c.gridx = GridBagConstraints.RELATIVE;
+//		this.add(folderNameCombo, c);
 
+		JPanel folderPanel = new JPanel();
+		folderPanel.add(new JLabel("Insert in folder"));
+		folderPanel.add(folderNameCombo);
+		
+		this.add(folderPanel, c);
+		
 		c.insets.set(10, 10, 10, 10);
-		c.anchor = GridBagConstraints.EAST;
+		c.anchor = GridBagConstraints.SOUTHEAST;
 		c.gridx = 0;
 		c.gridy++;
 		c.fill = GridBagConstraints.NONE;
+
+		
 		// Buttons
 		c.insets.set(10, 10, 10, 10);
-		c.anchor = GridBagConstraints.EAST;
+		c.anchor = GridBagConstraints.SOUTHEAST;
 		c.gridy++;
+		c.weightx = 1.0;
+		c.weighty = 20.0;
+		c.fill = GridBagConstraints.NONE;
 		
+		JPanel keepButtonsRightPanel = new JPanel(new GridBagLayout());
+		keepButtonsRightPanel.setBorder(BorderFactory.createMatteBorder(1,1,1,1,VisualConstants.OPERATION_LIST_BORDER_COLOR));
+		GridBagConstraints buttonConstraints = new GridBagConstraints();
 		
-		JPanel keepButtonsRightPanel = new JPanel();
-		keepButtonsRightPanel.add(cancelButton);
-		keepButtonsRightPanel.add(okButton);
+		buttonConstraints.weightx = 1.0;
+		buttonConstraints.weighty = 1.0;
+		buttonConstraints.anchor = GridBagConstraints.EAST;
+		buttonConstraints.insets.set(10, 10, 10, 10);
+		keepButtonsRightPanel.add(cancelButton, buttonConstraints);
+		buttonConstraints.gridx = GridBagConstraints.RELATIVE;
+		keepButtonsRightPanel.add(okButton, buttonConstraints);
 		this.add(keepButtonsRightPanel, c);
 
 		if (this.isDataAvailable()) {
