@@ -64,7 +64,7 @@ public class HelpMapping {
 		
 		mappings.put("Clustering/Hierarchical", "chipster-manual/cluster-hierarchical.html");
 		mappings.put("Clustering/K-Means", "chipster-manual/cluster-kmeans.html");
-		mappings.put("Clustering/KNN classification", "chipster-manual/classification-knn.html");
+		mappings.put("Clustering/KNN classification", "chipster-manual/cluster-knn-classification.html");
 		mappings.put("Clustering/Quality Threshold (QT)", "chipster-manual/cluster-qt.html");
 		mappings.put("Clustering/Self-organizing map (SOM)", "chipster-manual/cluster-som.html");
 		mappings.put("Clustering/K-Means - estimate K", "chipster-manual/cluster-kmeans-testk.html");
