@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.LayoutManager;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,62 +31,14 @@ import fi.csc.microarray.exception.MicroarrayException;
  */
 public abstract class ParameterPanel extends JPanel {
 
-	private Map<Parameter, ParameterInputComponent> paramMap;
-	private JScrollPane scroller;
-
-	private static final int LEFT_MARGIN = 10;
-	private static final int TOP_MARGIN = 2;
+	protected Map<Parameter, ParameterInputComponent> paramMap;
 	
-	/**
-	 * Creates a new ParameterPanel for the given operation.
-	 * 
-	 * @param operation The operation which is to be started from this panel.
-	 * @param client The client that is to be informed when a job is done.
-	 * @throws MicroarrayException 
-	 */
-	public ParameterPanel(Operation operation) throws MicroarrayException {
-		super(new BorderLayout());
-		
-		JPanel paramPane = new JPanel(new GridBagLayout());
-		GridBagConstraints con = new GridBagConstraints();
-		
-		con.gridx = 0; con.gridy = 0;
-		con.gridwidth = 1;
-		con.weightx = 1.0; con.weighty = 0;
-		con.anchor = GridBagConstraints.WEST;
-		
-		
-		paramMap = new HashMap<Parameter, ParameterInputComponent>();
-		for (Parameter param : operation.getParameters()) {
-			ParameterInputComponent component = createInputComponent(param);
-			
-			paramMap.put(param, component);
-			
-			con.gridx = 0;
-			con.gridy++;
-			con.insets.top = TOP_MARGIN;
-			con.insets.left = LEFT_MARGIN;
-			con.fill = GridBagConstraints.HORIZONTAL;
-			paramPane.add(component.getLabel(), con);
-			con.gridx = 1;
-			con.anchor = GridBagConstraints.EAST;
-			con.fill = GridBagConstraints.NONE;
-			paramPane.add(component, con);
-		}
-		
-		con.weighty = 1;
-		con.weightx = 0;
-		con.gridx = 0;		
-		con.gridy++;
-		con.gridwidth = 2;
-		con.fill = GridBagConstraints.BOTH;
-		paramPane.add(new JPanel(),con);
-		
-		scroller = new JScrollPane(paramPane);
-		scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		scroller.setBorder(BorderFactory.createMatteBorder(0,0,0,1,VisualConstants.OPERATION_LIST_BORDER_COLOR));
-		
-		this.add(scroller, BorderLayout.CENTER);
+
+	public ParameterPanel(Operation operation) {
+	}
+	
+	public ParameterPanel(Operation operation, LayoutManager layoutManager) {
+		super(layoutManager);
 	}
 	
 	/**

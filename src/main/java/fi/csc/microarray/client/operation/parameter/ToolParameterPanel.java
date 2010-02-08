@@ -1,9 +1,19 @@
 package fi.csc.microarray.client.operation.parameter;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.util.HashMap;
+
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationPanel;
+import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
@@ -19,6 +29,10 @@ import fi.csc.microarray.exception.MicroarrayException;
  *
  */
 public class ToolParameterPanel extends ParameterPanel {
+	private JScrollPane scroller;
+
+	private static final int LEFT_MARGIN = 10;
+	private static final int TOP_MARGIN = 2;
 
 	private OperationPanel parent;
 	
@@ -30,8 +44,50 @@ public class ToolParameterPanel extends ParameterPanel {
 	 * @throws MicroarrayException 
 	 */
 	public ToolParameterPanel(Operation operation, OperationPanel parent) throws MicroarrayException {
-		super(operation);
+		super(operation, new BorderLayout());
 		this.parent = parent;		
+	
+		
+		JPanel paramPane = new JPanel(new GridBagLayout());
+		GridBagConstraints con = new GridBagConstraints();
+		
+		con.gridx = 0; con.gridy = 0;
+		con.gridwidth = 1;
+		con.weightx = 1.0; con.weighty = 0;
+		con.anchor = GridBagConstraints.WEST;
+		
+		
+		paramMap = new HashMap<Parameter, ParameterInputComponent>();
+		for (Parameter param : operation.getParameters()) {
+			ParameterInputComponent component = createInputComponent(param);
+			
+			paramMap.put(param, component);
+			
+			con.gridx = 0;
+			con.gridy++;
+			con.insets.top = TOP_MARGIN;
+			con.insets.left = LEFT_MARGIN;
+			con.fill = GridBagConstraints.HORIZONTAL;
+			paramPane.add(component.getLabel(), con);
+			con.gridx = 1;
+			con.anchor = GridBagConstraints.EAST;
+			con.fill = GridBagConstraints.NONE;
+			paramPane.add(component, con);
+		}
+		
+		con.weighty = 1;
+		con.weightx = 0;
+		con.gridx = 0;		
+		con.gridy++;
+		con.gridwidth = 2;
+		con.fill = GridBagConstraints.BOTH;
+		paramPane.add(new JPanel(),con);
+		
+		scroller = new JScrollPane(paramPane);
+		scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		scroller.setBorder(BorderFactory.createMatteBorder(0,0,0,1,VisualConstants.OPERATION_LIST_BORDER_COLOR));
+		
+		this.add(scroller, BorderLayout.CENTER);
 	}
 	
 	

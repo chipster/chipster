@@ -46,13 +46,13 @@ import fi.csc.microarray.module.chipster.MicroarrayModule;
  * @author pklemela
  * 
  */
-public class DatabaseImportDialog extends JDialog implements ActionListener,
-		CaretListener {
+public class DatabaseImportDialog extends JDialog implements ActionListener {
 
 	private final Dimension BUTTON_SIZE = new Dimension(70, 25);
 
 	private JLabel titleLabel;
 	private JLabel descriptionLabel;
+	private JLabel noteLabel;
 	private JButton okButton;
 	private JButton cancelButton;
 	private JComboBox folderNameCombo;
@@ -64,17 +64,16 @@ public class DatabaseImportDialog extends JDialog implements ActionListener,
 
 		this.application = application;
 		this.operation = operation;
-		this.setTitle("Import from " + databaseName);
+		this.setTitle("Import");
 		this.setModal(true);
-		//this.setPreferredSize(new Dimension(500, 400));
+		this.setPreferredSize(new Dimension(500, 300));
 
+		// initialise components
 		titleLabel = new JLabel("<html><p style=\"font-weight:bold;font-size:120%\">Import data from " + databaseName + "</p></html>");
-		//titleLabel.setPreferredSize(new Dimension(300, 300));
 		descriptionLabel = new JLabel("<html>" + operation.getDescription() + "</html>");
-		
+		noteLabel = new JLabel("<html><p style=\"font-style:italic\">It may take a while for the import task to finish.");
 
-		folderNameCombo = new JComboBox(ImportUtils.getFolderNames(true)
-				.toArray());
+		folderNameCombo = new JComboBox(ImportUtils.getFolderNames(false).toArray());
 		folderNameCombo.setEditable(true);
 
 		okButton = new JButton("Import");
@@ -85,93 +84,79 @@ public class DatabaseImportDialog extends JDialog implements ActionListener,
 		cancelButton.setPreferredSize(BUTTON_SIZE);
 		cancelButton.addActionListener(this);
 
-		GridBagConstraints c = new GridBagConstraints();
-
-		this.setLayout(new GridBagLayout());
-		c.weightx = 1.0;
-		c.weighty = 1.0;
-		c.fill = GridBagConstraints.HORIZONTAL;
-//		c.gridwidth = GridBagConstraints.REMAINDER;
-		
-		// title label
-		c.anchor = GridBagConstraints.NORTHWEST;
-		c.insets.set(10, 10, 5, 10);
-		c.gridx = 0;
-		c.gridy = 0;
-//		titleLabel.setBorder(BorderFactory.createMatteBorder(1,1,1,1,VisualConstants.OPERATION_LIST_BORDER_COLOR));
-		this.add(titleLabel, c);
-
-		// description label
-		c.anchor = GridBagConstraints.NORTHWEST;
-		c.gridy++;
-//		descriptionLabel.setBorder(BorderFactory.createMatteBorder(1,1,1,1,VisualConstants.OPERATION_LIST_BORDER_COLOR));
-		this.add(descriptionLabel, c);
-		
-		
-		// parameter panel
-		c.weighty = 120.0;
-		c.fill = GridBagConstraints.BOTH;
-		c.insets.set(0, 10, 10, 10);
-		c.gridy++;
 		ImportParameterPanel parameterPanel = new ImportParameterPanel(operation, null);
-		this.add(parameterPanel, c);
-
-		c.fill = GridBagConstraints.NONE;
-		c.insets.set(10, 10, 5, 10);
-		c.gridy++;
-//		this.add(new JLabel("Insert in folder"), c);
-
-		c.fill = GridBagConstraints.NONE;
-		c.insets.set(0, 10, 10, 10);
-		c.gridx = GridBagConstraints.RELATIVE;
-//		this.add(folderNameCombo, c);
 
 		JPanel folderPanel = new JPanel();
 		folderPanel.add(new JLabel("Insert in folder"));
 		folderPanel.add(folderNameCombo);
-		
-		this.add(folderPanel, c);
-		
-		c.insets.set(10, 10, 10, 10);
-		c.anchor = GridBagConstraints.SOUTHEAST;
-		c.gridx = 0;
-		c.gridy++;
-		c.fill = GridBagConstraints.NONE;
 
-		
-		// Buttons
-		c.insets.set(10, 10, 10, 10);
-		c.anchor = GridBagConstraints.SOUTHEAST;
-		c.gridy++;
-		c.weightx = 1.0;
-		c.weighty = 20.0;
-		c.fill = GridBagConstraints.NONE;
-		
 		JPanel keepButtonsRightPanel = new JPanel(new GridBagLayout());
-		keepButtonsRightPanel.setBorder(BorderFactory.createMatteBorder(1,1,1,1,VisualConstants.OPERATION_LIST_BORDER_COLOR));
 		GridBagConstraints buttonConstraints = new GridBagConstraints();
-		
 		buttonConstraints.weightx = 1.0;
 		buttonConstraints.weighty = 1.0;
 		buttonConstraints.anchor = GridBagConstraints.EAST;
-		buttonConstraints.insets.set(10, 10, 10, 10);
+		buttonConstraints.insets.set(0, 0, 0, 8);
 		keepButtonsRightPanel.add(cancelButton, buttonConstraints);
 		buttonConstraints.gridx = GridBagConstraints.RELATIVE;
+		buttonConstraints.insets.set(0, 0, 0, 0);
 		keepButtonsRightPanel.add(okButton, buttonConstraints);
+		
+		
+		// layout
+		GridBagConstraints c = new GridBagConstraints();
+		this.setLayout(new GridBagLayout());
+
+		// title label
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.insets.set(10, 10, 5, 10);
+		c.gridx = 0;
+		c.gridy = 0;
+		this.add(titleLabel, c);
+
+		// description label
+		c.gridy++;
+		this.add(descriptionLabel, c);
+		
+		// parameter panel
+		c.gridy++;
+		c.weighty = 120.0;
+		c.fill = GridBagConstraints.BOTH;
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.insets.set(0, 10, 10, 10);
+		this.add(parameterPanel, c);
+
+		// target folder panel
+//		c.gridy++;
+//		c.fill = GridBagConstraints.NONE;
+//		c.insets.set(0, 0, 10, 10);
+//		this.add(folderPanel, c);
+
+		// note
+		c.gridy++;
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		c.insets.set(0, 10, 10, 10);
+		c.fill = GridBagConstraints.HORIZONTAL;
+		this.add(noteLabel, c);
+		
+		// buttons
+		c.insets.set(10, 10, 10, 10);
+		c.anchor = GridBagConstraints.SOUTHEAST;
+		c.gridy++;
+		c.fill = GridBagConstraints.NONE;
 		this.add(keepButtonsRightPanel, c);
 
-		if (this.isDataAvailable()) {
 
-			this.pack();
-			this.setLocationRelativeTo(application.getMainFrame());
-			this.setVisible(true);
-		} else {
-			JOptionPane.showMessageDialog(this,
-					"There is no text content on the clipboard");
-			this.dispose();
-		}
+		// make visible
+		this.pack();
+		this.setLocationRelativeTo(application.getMainFrame());
+		this.setVisible(true);
 	}
 
+	
 	public void actionPerformed(ActionEvent e) {
 
 		// start the import task
@@ -191,38 +176,26 @@ public class DatabaseImportDialog extends JDialog implements ActionListener,
 		}
 	}
 
-	public String getSelectedFolderName() {
-		return folderNameCombo.getSelectedItem().toString();
-	}
+//	public String getSelectedFolderName() {
+//		return folderNameCombo.getSelectedItem().toString();
+//	}
 
-	/**
-	 * With this method, the dialog listens to interactions with the text
-	 * components. The main purpose is to disable OK button if one of the inputs
-	 * is empty (zero length).
-	 */
-	public void caretUpdate(CaretEvent e) {
-		this.updateEnabledStatus();
-	}
-
-	private void updateEnabledStatus() {
+//	/**
+//	 * With this method, the dialog listens to interactions with the text
+//	 * components. The main purpose is to disable OK button if one of the inputs
+//	 * is empty (zero length).
+//	 */
+//	public void caretUpdate(CaretEvent e) {
+//		this.updateEnabledStatus();
+//	}
+//
+//	private void updateEnabledStatus() {
+//		
 //		String dataSetName = nameField.getText();
 //		if (dataSetName.length() > 0) {
 //			okButton.setEnabled(true);
 //		} else {
 //			okButton.setEnabled(false);
 //		}
-	}
-
-	private boolean isDataAvailable() {
-		try {
-			Toolkit.getDefaultToolkit().getSystemClipboard().getData(
-					DataFlavor.stringFlavor);
-			return true;
-
-		} catch (HeadlessException e) {
-		} catch (UnsupportedFlavorException e) {
-		} catch (IOException e) {
-		}
-		return false;
-	}
+//	}
 }
