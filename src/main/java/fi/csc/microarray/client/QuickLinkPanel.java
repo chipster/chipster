@@ -19,7 +19,10 @@ import javax.swing.JPanel;
 
 import org.jdesktop.swingx.JXHyperlink;
 
+import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.constants.VisualConstants;
+import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 public class QuickLinkPanel extends JPanel implements ActionListener {
 
@@ -31,7 +34,10 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 	private JXHyperlink exampleLink;
 	private JXHyperlink importFolderLink;
 	private JXHyperlink importURLLink;
+	private JXHyperlink importArrayExpressLink;
+	private JXHyperlink importGEOLink;
 
+	
 	private static final String LINK_WORD = "***";
 
 	public QuickLinkPanel() {
@@ -45,6 +51,8 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 		importLink = createLink("Import files ");
 		importFolderLink = createLink("Import folder ");
 		importURLLink = createLink("Import from URL ");
+		importArrayExpressLink = createLink("Import from ArrayExpress ");
+		importGEOLink = createLink("Import from GEO ");
 		sessionLink = createLink("Open session ");			
 
 		GridBagConstraints c = new GridBagConstraints();
@@ -70,8 +78,10 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 		importLinks.add(importLink);
 		importLinks.add(importFolderLink);
 		importLinks.add(importURLLink);
+		importLinks.add(importArrayExpressLink);
+		importLinks.add(importGEOLink);
 
-		addLink("Import new data to Chipster: \n      *** \n      *** \n      ***", importLinks, VisualConstants.IMPORT_LINK_ICON, c);
+		addLink("Import new data to Chipster: \n      *** \n      *** \n      *** \n      *** \n      ***", importLinks, VisualConstants.IMPORT_LINK_ICON, c);
 
 		// Panels to take rest of space
 		JPanel bottomPanel = new JPanel();
@@ -163,33 +173,29 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == sessionLink) {
-			application.loadSession();
-		} else if (e.getSource() == importLink) {
-			try {
+		try {
+			if (e.getSource() == sessionLink) {
+				application.loadSession();
+			} else if (e.getSource() == importLink) {
 				application.openFileImport();
-			} catch (Exception ex) {
-				application.reportException(ex);
-			}
-		} else if (e.getSource() == importURLLink) {
-			try {
+			} else if (e.getSource() == importURLLink) {
 				application.openURLImport();
-			} catch (Exception ex) {
-				application.reportException(ex);
-			}
-		} else if (e.getSource() == importFolderLink) {
-			application.openDirectoryImportDialog();
-		} else if (e.getSource() == emptyLink) {
+			} else if (e.getSource() == importFolderLink) {
+				application.openDirectoryImportDialog();
+			} else if (e.getSource() == importArrayExpressLink) {
+				Operation importOperation = new Operation(application.locateOperationDefinition(MicroarrayModule.IMPORT_CAT, MicroarrayModule.IMPORT_FROM_ARRAYEXPRESS_NAME), new DataBean[] {});
+				application.openDatabaseImport("ArrayExpress", importOperation);
+			} else if (e.getSource() == importGEOLink) {
+				Operation importOperation = new Operation(application.locateOperationDefinition(MicroarrayModule.IMPORT_CAT, MicroarrayModule.IMPORT_FROM_GEO_NAME), new DataBean[] {});
+				application.openDatabaseImport("GEO", importOperation);
+			} else if (e.getSource() == emptyLink) {
 
-		} else if (e.getSource() == exampleLink) {
-			try {
-				// URL url = new URL("http://chipster.csc.fi/examples/kidney.cs");
+			} else if (e.getSource() == exampleLink) {
 				URL url = new URL("https://extras.csc.fi/biosciences/Chipster/sessionIlluminaHuman6v1teratospermia.cs");
 				application.loadSessionFrom(url);
-
-			} catch (Exception ex) {
-				application.reportException(ex);
 			}
+		} catch (Exception ex) {
+			application.reportException(ex);
 		}
 	}
 }

@@ -1,51 +1,25 @@
 package fi.csc.microarray.client.dialog;
 
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.HeadlessException;
-import java.awt.Toolkit;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.SwingClientApplication;
-import fi.csc.microarray.client.dataimport.ImportSession;
 import fi.csc.microarray.client.dataimport.ImportUtils;
 import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.parameter.ImportParameterPanel;
-import fi.csc.microarray.client.operation.parameter.Parameter;
-import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.module.chipster.MicroarrayModule;
 
-/**
- * Dialog for importing data from clipboard
- * 
- * @author pklemela
- * 
- */
+
 public class DatabaseImportDialog extends JDialog implements ActionListener {
 
 	private final Dimension BUTTON_SIZE = new Dimension(70, 25);
@@ -86,10 +60,6 @@ public class DatabaseImportDialog extends JDialog implements ActionListener {
 
 		ImportParameterPanel parameterPanel = new ImportParameterPanel(operation, null);
 
-		JPanel folderPanel = new JPanel();
-		folderPanel.add(new JLabel("Insert in folder"));
-		folderPanel.add(folderNameCombo);
-
 		JPanel keepButtonsRightPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints buttonConstraints = new GridBagConstraints();
 		buttonConstraints.weightx = 1.0;
@@ -127,12 +97,6 @@ public class DatabaseImportDialog extends JDialog implements ActionListener {
 		c.anchor = GridBagConstraints.NORTHWEST;
 		c.insets.set(0, 10, 10, 10);
 		this.add(parameterPanel, c);
-
-		// target folder panel
-//		c.gridy++;
-//		c.fill = GridBagConstraints.NONE;
-//		c.insets.set(0, 0, 10, 10);
-//		this.add(folderPanel, c);
 
 		// note
 		c.gridy++;
@@ -175,27 +139,4 @@ public class DatabaseImportDialog extends JDialog implements ActionListener {
 			this.dispose();
 		}
 	}
-
-//	public String getSelectedFolderName() {
-//		return folderNameCombo.getSelectedItem().toString();
-//	}
-
-//	/**
-//	 * With this method, the dialog listens to interactions with the text
-//	 * components. The main purpose is to disable OK button if one of the inputs
-//	 * is empty (zero length).
-//	 */
-//	public void caretUpdate(CaretEvent e) {
-//		this.updateEnabledStatus();
-//	}
-//
-//	private void updateEnabledStatus() {
-//		
-//		String dataSetName = nameField.getText();
-//		if (dataSetName.length() > 0) {
-//			okButton.setEnabled(true);
-//		} else {
-//			okButton.setEnabled(false);
-//		}
-//	}
 }
