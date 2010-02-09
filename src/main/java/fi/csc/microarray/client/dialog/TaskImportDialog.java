@@ -20,7 +20,7 @@ import fi.csc.microarray.client.operation.parameter.ImportParameterPanel;
 import fi.csc.microarray.exception.MicroarrayException;
 
 
-public class DatabaseImportDialog extends JDialog implements ActionListener {
+public class TaskImportDialog extends JDialog implements ActionListener {
 
 	private final Dimension BUTTON_SIZE = new Dimension(70, 25);
 
@@ -33,7 +33,7 @@ public class DatabaseImportDialog extends JDialog implements ActionListener {
 	private ClientApplication application;
 	private Operation operation;
 
-	public DatabaseImportDialog(SwingClientApplication application, String databaseName, Operation operation) throws MicroarrayException {
+	public TaskImportDialog(SwingClientApplication application, String databaseName, Operation operation) throws MicroarrayException {
 		super(application.getMainFrame(), true);
 
 		this.application = application;
