@@ -1,23 +1,17 @@
 package fi.csc.microarray.client.operation.parameter;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.LayoutManager;
-import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
 
 import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
+ * The class ParameterPanel class hierarchy is a mess.
+ * 
  * ParameterPanel is the GUI component for showing the parameters for an
  * operation, along with a contextual help textbox showing information about
  * the currently selected parameter and eventual errors in user input. 

@@ -6,14 +6,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.HashMap;
 
-import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
 
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationPanel;
-import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
@@ -30,9 +26,6 @@ import fi.csc.microarray.exception.MicroarrayException;
  */
 public class ImportParameterPanel extends ParameterPanel {
 
-	private OperationPanel parent;
-//	private JScrollPane scroller;
-
 	private static final int LEFT_MARGIN = 10;
 	private static final int TOP_MARGIN = 2;
 	
@@ -47,7 +40,6 @@ public class ImportParameterPanel extends ParameterPanel {
 	 */
 	public ImportParameterPanel(Operation operation, OperationPanel parent) throws MicroarrayException {
 		super(operation, new BorderLayout());
-		this.parent = parent;		
 	
 		JPanel paramPane = new JPanel(new GridBagLayout());
 		GridBagConstraints con = new GridBagConstraints();
@@ -83,10 +75,6 @@ public class ImportParameterPanel extends ParameterPanel {
 		con.gridwidth = 2;
 		con.fill = GridBagConstraints.BOTH;
 		paramPane.add(new JPanel(),con);
-		
-//		scroller = new JScrollPane(paramPane);
-//		scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-//		scroller.setBorder(BorderFactory.createMatteBorder(0,0,0,1,VisualConstants.OPERATION_LIST_BORDER_COLOR));
 		
 		this.add(paramPane, BorderLayout.WEST);
 

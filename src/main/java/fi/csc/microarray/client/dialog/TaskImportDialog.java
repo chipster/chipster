@@ -20,6 +20,14 @@ import fi.csc.microarray.client.operation.parameter.ImportParameterPanel;
 import fi.csc.microarray.exception.MicroarrayException;
 
 
+/**
+ * Dialog for running a task.
+ * 
+ * Input parameters are not checked in any way.
+ * 
+ * @author hupponen
+ *
+ */
 public class TaskImportDialog extends JDialog implements ActionListener {
 
 	private final Dimension BUTTON_SIZE = new Dimension(70, 25);
