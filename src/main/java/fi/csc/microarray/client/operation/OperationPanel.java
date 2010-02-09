@@ -31,7 +31,7 @@ import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.OperationDefinition.Suitability;
-import fi.csc.microarray.client.operation.parameter.ParameterPanel;
+import fi.csc.microarray.client.operation.parameter.ToolParameterPanel;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.constants.VisualConstants;
@@ -270,7 +270,7 @@ public class OperationPanel extends JPanel
 					throw new RuntimeException("wrong type: " + chosenOperation.getClass().getSimpleName());				
 				}
 				
-				cardPanel.add(new ParameterPanel((Operation)chosenOperation, this),PARAMETERS);
+				cardPanel.add(new ToolParameterPanel((Operation)chosenOperation, this),PARAMETERS);
 				CardLayout cl = (CardLayout)(cardPanel.getLayout());
 			    cl.show(cardPanel, PARAMETERS);
 			    isParametersVisible = true;

@@ -77,11 +77,10 @@ public abstract class ParameterInputComponent extends JPanel implements FocusLis
 	 * 		   annexed parameter, false if it's not.
 	 */
 	public abstract boolean inputIsValid();
-	
-	public void focusGained(FocusEvent e) {
+
+	public void focusLost(FocusEvent e) {
+		parentPanel.setMessage("", Color.black);
 	}
 
-    public void focusLost(FocusEvent e){
-    	getParentPanel().getOperationPanel().showOperationInfoText();
-    }
+	
 }
