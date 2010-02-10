@@ -65,6 +65,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem contentMenuItem;
 	private JMenuItem startedMenuItem;
 	private JMenuItem saveWorkflowMenuItem;
+	private JMenuItem helpWorkflowMenuItem;
 	private JMenuItem saveSnapshotMenuItem;
 	private JMenu recentWorkflowMenu;
 	private JMenuItem loadSnapshotMenuItem;
@@ -72,7 +73,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem clearSessionMenuItem;
 	private JMenuItem selectAllMenuItem;
 	private JMenuItem historyMenuItem;
-	// private JMenuItem duplicateMenuItem;
 	private JMenuItem maximiseVisualisationMenuItem;
 	private JMenuItem visualiseMenuItem;
 	private JMenuItem detachMenuItem;
@@ -245,15 +245,28 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	}
 
 	
-	
-	
-	
-	
+	private JMenuItem getHelpWorkflowMenuItem() {
+		if (helpWorkflowMenuItem == null) {
+			helpWorkflowMenuItem = new JMenuItem();
+			helpWorkflowMenuItem.setText("More information...");
+			helpWorkflowMenuItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					try {
+						application.viewHelp("chipster-manual/workflows.html#ready");
+						
+					} catch (Exception me) {
+						application.reportException(me);
+					}
+				}
+			});
+		}
+		return helpWorkflowMenuItem;
+	}
 	
 	private JMenuItem getOpenWorkflowMenuItem() {
 		if (openWorkflowsMenuItem == null) {
 			openWorkflowsMenuItem = new JMenuItem();
-			openWorkflowsMenuItem.setText("Open and run...");
+			openWorkflowsMenuItem.setText("Run...");
 			openWorkflowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
@@ -272,16 +285,26 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenu getOpenRepositoryWorkflowMenu() {
 		if (openRepoWorkflowsMenu == null) {
 
-			String[][] flows = { { "Find differentially expressed genes", "/find-differentially-expressed-genes.bsh" }, { "Find genes using classification analysis", "/find-genes-with-classification.bsh" } };
+			// add repository content
+			String[][] flows = { 
+					{ "Gene expression analysis", "/gene-expression-analysis.bsh" }, 
+					{ "Protein expression analysis", "/protein-expression-analysis.bsh" },
+					{ "miRNA expression analysis", "/mirna-expression-analysis.bsh" }
+			};
 
 			openRepoWorkflowsMenu = new JMenu();
-			openRepoWorkflowsMenu.setText("Run from repository");
+			openRepoWorkflowsMenu.setText("Run from Chipster repository");
 
 			for (String[] flow : flows) {
 				JMenuItem item = new JMenuItem(flow[0]);
 				item.addActionListener(new RepoWorkflowActionListener(flow[0], flow[1]));
 				openRepoWorkflowsMenu.add(item);
 			}
+
+			// add help
+			openRepoWorkflowsMenu.addSeparator();
+			openRepoWorkflowsMenu.add(getHelpWorkflowMenuItem());
+
 		}
 		return openRepoWorkflowsMenu;
 	}
@@ -463,8 +486,9 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			workflowsMenu = new JMenu();
 			workflowsMenu.setText("Workflow");
 			workflowsMenu.add(getOpenWorkflowMenuItem());
-			workflowsMenu.add(getOpenRepositoryWorkflowMenu());
 			workflowsMenu.add(getRecentWorkflowMenu());
+			workflowsMenu.add(getOpenRepositoryWorkflowMenu());
+			workflowsMenu.addSeparator();
 			workflowsMenu.add(getSaveWorkflowMenuItem());
 		}
 		return workflowsMenu;
