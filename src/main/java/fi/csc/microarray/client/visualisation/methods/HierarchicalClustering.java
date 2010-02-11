@@ -406,7 +406,7 @@ implements PropertyChangeListener, SelectionChangeListener {
 
 				GradientColorPalette colors = new GradientColorPalette(
 						new double[] {min, max}, 
-						new Color[] {Color.GREEN, Color.BLACK, Color.RED});
+						new Color[] {Color.BLUE, Color.BLACK, Color.RED});
 
 				hcPlot.setColoring(colors);
 
