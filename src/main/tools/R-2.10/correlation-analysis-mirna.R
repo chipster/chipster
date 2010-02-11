@@ -82,11 +82,6 @@ if(length(unique(mirna.order))!=length(unique(gene.order))) {
 # Define number of conditions
 number.conditions <- length(mirna.order)
 
-# Covert probe id:s into gene id:s
-#library(package=chip.type, character.only=T)
-#info.type <- sub(".db", "ENTREZID", chip.type) 
-#mget(genes, eval(as.name(info.type)))
-
 # Arrange the columns in the two datset so they match
 mirna.data.3 <- mirna.data.2[,order(mirna.order)]
 gene.data.3 <- gene.data.2[,order(gene.order)]
