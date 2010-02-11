@@ -7,9 +7,11 @@ import fi.csc.microarray.description.VVSADLSyntax.InputType;
 import fi.csc.microarray.description.VVSADLSyntax.ParameterType;
 
 /**
+ * Object presentation for parsed VVSADL syntax. Describes analysis tools so 
+ * that they can be used in Chipster context.
  * 
  * @author Aleksi Kallio
- *
+ * 
  */
 public class ParsedVVSADL {
 
@@ -23,6 +25,9 @@ public class ParsedVVSADL {
 	private LinkedList<String> metaOutputs = new LinkedList<String>();
 	private LinkedList<Parameter> parameters = new LinkedList<Parameter>();
 	
+	/**
+	 * Input file description.
+	 */
 	public static class Input {
 		
 		private InputType type;
@@ -30,10 +35,16 @@ public class ParsedVVSADL {
 		private String prefix;
 		private String postfix;
 		
+		/**
+		 * For creating input descriptions of regular named inputs.
+		 */
 		public static Input createInput(InputType type, String name) {
 			return new Input(type, name, null, null);
 		}
 
+		/**
+		 * For creating input descriptions of an input set (with a spliced name).
+		 */
 		public static Input createInputSet(InputType type, String prefix, String postfix) {
 			return new Input(type, null, prefix, postfix);
 		}
@@ -45,25 +56,48 @@ public class ParsedVVSADL {
 			this.postfix = postfix;
 		}
 
+		/**
+		 * The type of this input. 
+		 */
 		public InputType getType() {
 			return type;
 		}
 		
+		/**
+		 * The name of a regular input. For an input set returns null.
+		 */
 		public String getName() {
 			return name;
 		}
 		
+		/**
+		 * The prefix part of a spliced name of an input set. For a regular input 
+		 * returns null.
+		 */
 		public String getPrefix() {
 			return prefix;
 		}
+
+		/**
+		 * The postfix part of a spliced name of an input set. For a regular input 
+		 * returns null.
+		 */
 		public String getPostfix() {
 			return postfix;
 		}
+		
+		/**
+		 * Return true iff this is an input set (not a regular input).
+		 */
 		public boolean isInputSet( ) {
 			return name == null;
 		}
 	}
 	
+	/**
+	 * Analysis tool parameter description.
+	 *
+	 */
 	public static class Parameter {
 
 		private String name; 
@@ -115,6 +149,9 @@ public class ParsedVVSADL {
 		}		
 	}
 
+	/**
+	 * Returns a new (mostly empty) object presentation for parsed VVSADL. 
+	 */
 	public ParsedVVSADL(String name, String packageName, String comment) {
 		super();
 		this.name = name;
