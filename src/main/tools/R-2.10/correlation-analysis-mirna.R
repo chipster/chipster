@@ -1,4 +1,4 @@
-# ANALYSIS Pathways/"Correlation analysis of miRNA targets" (Performs a statistical test
+# ANALYSIS Statistics/"Correlate miRNA with target expression" (Performs a statistical test
 # to detect miRNA targets whose ecpression is significantly positively or negatively correlated
 # to the expression of the miRNA.)
 # INPUT GENE_EXPRS normalized_mirna.tsv, GENE_EXPRS normalized_gene.tsv, GENERIC phenodata_mirna.tsv, GENERIC phenodata_gene.tsv
