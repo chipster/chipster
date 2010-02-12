@@ -55,6 +55,7 @@ public class HelpMapping {
 		mappings.put("Statistics/PCA", "chipster-manual/ordination-pca.html");
 		mappings.put("Statistics/Sample size estimation", "chipster-manual/stat-estimate-sample-size.html");
 		mappings.put("Statistics/Correlate with phenodata", "chipster-manual/stat-correlate-phenodata.html");
+		mappings.put("Statistics/Correlate miRNA with target expression", "chipster-manual/correlate-mirna.html");
 		mappings.put("Statistics/Linear modelling", "chipster-manual/stat-linear-modelling.html");
 		mappings.put("Statistics/SAM", "chipster-manual/stat-sam.html");
 		mappings.put("Statistics/Adjust p-values", "chipster-manual/stat-adjust-p-values.html");
