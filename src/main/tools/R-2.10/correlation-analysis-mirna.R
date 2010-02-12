@@ -1,22 +1,24 @@
 # ANALYSIS Pathways/"Correlation analysis of miRNA targets" (Performs a statistical test
-# to detect miRNA targets whose ecpression is significantly negatively correlated
+# to detect miRNA targets whose ecpression is significantly positively or negatively correlated
 # to the expression of the miRNA.)
-# INPUT GENE_EXPRS normalized_gene.tsv, GENE_EXPRS normalized_mirna.tsv, GENERIC phenodata_gene.tsv, GENERIC phenodata_mirna.tsv
+# INPUT GENE_EXPRS normalized_mirna.tsv, GENE_EXPRS normalized_gene.tsv, GENERIC phenodata_mirna.tsv, GENERIC phenodata_gene.tsv
 # OUTPUT mirna-gene-positive-correlation.tsv, mirna-gene-negative-correlation.tsv
-# PARAMETER order.column.mirna METACOLUMN_SEL DEFAULT group (Phenodata column describing the order of the samples, so that the gene
+# PARAMETER order.column.mirna METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the order of the samples, so that the gene
 # expression and miRNA expression arrays can be correctly matched in the analysis. For time course
 # experiments the actual time can be used, for multiple-condition type of experiments it is
-# adviced to encode the different condition with a number, e.g. 1, 2, 3, 4 and 5 for
+# adviced to encode the different conditions with a number, e.g. 1, 2, 3, 4 and 5 for
 # an experiment where five different conditions have been assessed. NOTE: If a custom array was used
 # for assessing the gene expression it is crucial that ENTREZ gene ID or HUGO gene symbols have
 # been specified as identifier when importing the data into CHIPSTER.)
-# PARAMETER order.column.gene METACOLUMN_SEL DEFAULT group (Phenodata column describing the order of the samples, so that the gene
+# PARAMETER order.column.gene METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the order of the samples, so that the gene
 # expression and miRNA expression arrays can be correctly matched in the analysis. For time course
 # experiments the actual time can be used, for multiple-condition type of experiments it is
-# adviced to encode the different condition with a number, e.g. 1, 2, 3, 4 and 5 for
+# adviced to encode the different conditions with a number, e.g. 1, 2, 3, 4 and 5 for
 # an experiment where five different conditions have been assessed. NOTE: If a custom array was used
-# for assessing the gene expression it is crucial that ENTREZ gene ID or HUGO gene symbols have
+# for assessing the gene expression it is crucial that ENTREZ gene ID have
 # been specified as identifier when importing the data into CHIPSTER.)
+# PARAMETER id.type [probe_id, entrez_id] DEFAULT probe_id (Defines the type of gene identifier to use. For supported array types
+# from Affymetrix, Agilent or Illumina "probe_id" should be used, whereas for custom arrays "entrez_id" should be used.)
 # PARAMETER correlation.method [pearson, spearman, kendall] DEFAULT pearson (Method for calculating the correlation. Peasron's method is parametric, 
 # whereas Spearman's correlation is a non-parametric rank-based method that is less sensitive to outliers.
 # Kendall's method is suitable in those cases one is interested in the sign of the changes in expression between adjacent
@@ -24,35 +26,47 @@
 # PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
 # PARAMETER p.value.adjustment.method [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method)
 
-# setup parameters for script development
-#order.column.mirna <- "order"
-#order.column.gene <- "order"
-#correlation.method <- "pearson"
-#p.value.threshold <- "0.05"
-#p.value.adjustment.method <- "none"
-
 # Correlation analysis of miRNA targets
-# MG, 23.12.2009
+# MG, 11.2.2010
 
 # Loads the libraries
 library(RmiR)
 
-# Loads the normalized data
-mirna.data <- read.table(file="normalized_mirna.tsv", header=T, sep="\t", row.names=1)
-gene.data <- read.table(file="normalized_gene.tsv", header=T, sep="\t", row.names=1)
+# Loads the normalized data and phenodata files
+data_1 <- read.table(file="normalized_mirna.tsv", header=T, sep="\t", row.names=1)
+data_2 <- read.table(file="normalized_gene.tsv", header=T, sep="\t", row.names=1)
+phenodata_1 <- read.table("phenodata_mirna.tsv", header=T, sep="\t")
+phenodata_2 <- read.table("phenodata_gene.tsv", header=T, sep="\t")
+
+# Figure out which is the miRNA data
+if (phenodata_1$chiptype[1] == "miRNA") {
+	mirna.phenodata <- phenodata_1
+	mirna.data <- data_1
+	gene.phenodata <- phenodata_2
+	gene.data <- data_2
+}
+if (phenodata_2$chiptype[1] == "miRNA") {
+	mirna.phenodata <- phenodata_2
+	mirna.data <- data_2
+	gene.phenodata <- phenodata_1
+	gene.data <- data_1
+}
 
 # Separates expression values and flags
 mirna.data.2 <- mirna.data[,grep("chip", names(mirna.data))]
 gene.data.2 <- gene.data[,grep("chip", names(gene.data))]
 
-# Load the sample descriptions and get sample order for matching
-mirna.phenodata <- read.table("phenodata_mirna.tsv", header=T, sep="\t")
+# Get sample order for matching the datasets
 mirna.order <- mirna.phenodata[,grep(order.column.mirna, colnames(mirna.phenodata))]
-gene.phenodata <- read.table("phenodata_gene.tsv", header=T, sep="\t")
 gene.order <- mirna.phenodata[,grep(order.column.gene, colnames(gene.phenodata))]
 
 # Read the chiptype that was used for the gene expression data
-chip.type <- as.character(gene.phenodata[1,grep("chiptype", names(gene.phenodata))])
+if (id.type=="probe_id") {
+	chip.type <- as.character(gene.phenodata[1,grep("chiptype", names(gene.phenodata))])
+}
+if (id.type=="entrez_id") {
+	chip.type <- "org.Hs.eg.db"
+}
 
 # Sanity checks to make sure the experiment have enough conditions
 if(length(unique(mirna.order))==1 | length(unique(gene.order))==1) {
@@ -68,11 +82,6 @@ if(length(unique(mirna.order))!=length(unique(gene.order))) {
 # Define number of conditions
 number.conditions <- length(mirna.order)
 
-# Covert probe id:s into gene id:s
-library(package=chip.type, character.only=T)
-info.type <- sub(".db", "ENTREZID", chip.type) 
-mget(genes, eval(as.name(info.type)))
-
 # Arrange the columns in the two datset so they match
 mirna.data.3 <- mirna.data.2[,order(mirna.order)]
 gene.data.3 <- gene.data.2[,order(gene.order)]
@@ -84,9 +93,18 @@ mirna.data.4 <- as.data.frame(mirna.data.4)
 gene.data.4 <- as.data.frame(gene.data.4)
 mirna.data.4[,2] <- as.numeric(mirna.data.4[,2])
 gene.data.4[,2] <- as.numeric(gene.data.4[,2])
+# check that the gene list actually contain at least one miRNA target
+try(merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4,
+				annotation=chip.type), silent=TRUE)
+if (match("merged.table",ls(),nomatch=0)==0) {
+	stop("There were no targets found in either TarBase or PicTar databases
+for the supplied list of miRNA:s in the gene list selected.
+Try again by selecting a longer list of genes!")
+}
 merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4,
 		annotation=chip.type, verbose=TRUE)
-for (count in 2:number.samples) {
+
+for (count in 2:number.conditions) {
 	mirna.data.4 <- cbind(rownames(mirna.data.3), as.numeric(mirna.data.3[,count]))
 	gene.data.4 <- cbind(rownames(gene.data.3), as.numeric(gene.data.3[,count]))
 	mirna.data.4 <- as.data.frame(mirna.data.4)
@@ -124,8 +142,8 @@ results.negative <- results.table[results.table[,4]>=0,]
 results.negative.significant <- results.negative[results.negative[,5]<=p.value.threshold,]
 
 # Write the results to tables to be read into Chipster
-write.table(results.positive.significant, file="mirna-gene-positive-correlation.tsv", sep="\t", quote=FALSE)
-write.table(results.negative.significant, file="mirna-gene-negative-correlation.tsv", sep="\t", quote=FALSE)
+write.table(results.positive.significant, file="mirna-gene-positive-correlation.tsv", sep="\t", quote=FALSE, row.names=FALSE)
+write.table(results.negative.significant, file="mirna-gene-negative-correlation.tsv", sep="\t", quote=FALSE, row.names=FALSE)
 
 
 

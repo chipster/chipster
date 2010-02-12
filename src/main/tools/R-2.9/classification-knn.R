@@ -29,10 +29,10 @@ phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 # If training part of phenodata has not been filled, but the column (header) is present, 
 # all the chips belong to the training set
 if(grep("training", names(phenodata))>0) {
-   tr<-phenodata$training
+	tr<-phenodata$training
 } 
 if(tr[1]==" " | tr[1]=="" | any(is.na(tr))==T) {
-   tr<-rep(1, nrow(phenodata))
+	tr<-rep(1, nrow(phenodata))
 }
 
 # Separates expression values and flags
@@ -41,10 +41,10 @@ dat2<-dat[,grep("chip", names(dat))]
 
 # Are the parameter values sensical?
 if(k.no>length(dat2)) {
-   stop("The number of neighbors is larger than the number of chips!")
+	stop("The number of neighbors is larger than the number of chips!")
 }
 if(k.vote>k.no) {
-   stop("The number of votes needed to give a definitive answer is larger than the number of neighbors!")
+	stop("The number of votes needed to give a definitive answer is larger than the number of neighbors!")
 }
 
 # Which parts of the data are training and test sets?
@@ -52,19 +52,25 @@ dat3<-split(as.data.frame(t(dat2)), tr)
 train<-dat3$'1'
 test<-dat3$'2'
 
+# Which part of the phenodata are training and test set
+phenodata_training <- phenodata[phenodata$training==1,]
+if (knn.type=="predict") {
+	phenodata_test <- phenodata[phenodata$training==2,]
+}
+
 # Defines the true classification of the training set
-cl<-phenodata$group
+cl<-phenodata_training$group
 
 # Runs the KNN analysis and reports the results
 if(knn.type=="crossvalidate") {
-   knn.cross<-knn.cv(train=train, cl=cl, k=k.no, l=k.vote)
-   # Writes a table of known versus predicted classes
-   write.table(data.frame(sample=names(dat2), known.classes=cl, prediction=knn.cross), file="knn-cross-validation.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+	knn.cross<-knn.cv(train=train, cl=cl, k=k.no, l=k.vote)
+	# Writes a table of known versus predicted classes
+	write.table(data.frame(sample=rownames(train), known.classes=cl, prediction=knn.cross), file="knn-cross-validation.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 }
 
 if(knn.type=="predict") {
-   cl<-split(cl, tr)$'1'
-   knn.predict<-knn(train=train, test=test, cl=cl, k=k.no, l=k.vote)
-   # Writes a table of known versus predicted classes 
-   write.table(data.frame(sample=names(dat2), known.classes=cl, prediction=knn.cross), file="knn-cross-validation.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+	cl_test<-phenodata_test$group
+	knn.predict<-knn(train=train, test=test, cl=cl, k=k.no, l=k.vote)
+	# Writes a table of known versus predicted classes 
+	write.table(data.frame(sample=rownames(test), known.classes=cl_test, prediction=knn.predict), file="knn-cross-validation.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 }
