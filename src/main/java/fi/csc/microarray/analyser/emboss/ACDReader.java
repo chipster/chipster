@@ -23,34 +23,15 @@ public class ACDReader {
 	
 	private String filename;
 	private HashMap <String, String>appAttrs;
-	private HashMap <String, String>inputAttrs;
-	private HashMap <String, String>outputAttrs;
-	private HashMap <String, String>paramAttrs;
 	
 	public ACDReader (String filename) {
 		this.filename = filename;
 		
-		// Decide application-level attributes that we want to extract
+		// Application-level attributes that we want to extract
 		appAttrs = new HashMap<String, String>();
 		appAttrs.put("application", "");
 		appAttrs.put("documentation", "");
 		appAttrs.put("groups", "");
-		
-		// Input file attributes
-		// TODO
-		inputAttrs = new HashMap<String, String>();
-		
-		// Output file attributes
-		// TODO
-		outputAttrs = new HashMap<String, String>();
-		
-		// Parameter attributes
-		// TODO
-		paramAttrs = new HashMap<String, String>();
-		paramAttrs.put("default", "");
-		paramAttrs.put("minimum", "");
-		paramAttrs.put("maximum", "");
-		paramAttrs.put("values", "");   // For option lists
 	}
 
 	/**
@@ -99,12 +80,15 @@ public class ACDReader {
             internalRepr = new ParsedVVSADL(appAttrs.get("application"),
             								appAttrs.get("groups"),
             								appAttrs.get("documentation"));
-
+            
             // Read the sections along with parameters        
             for (int j = 0; j < numFields; j++) {
                 // Determine what field it is: section, endsection, parameter etc.
                 String fieldType = parser.getParameterAttribute(j, 0);
                 String fieldName = parser.getParamValueStr(j, 0);
+                
+                // Whether we should show in GUI
+                Boolean showInGUI = false;
 
                 if (fieldType.equals("section")) {
                     // A new section starts
@@ -115,6 +99,7 @@ public class ACDReader {
                     Integer numAttrs = parser.getNumofParams(j);
 
                     // Loop through the attributes
+                    // TODO move exp resolution to createParameter
                     for (int k = 1; k < numAttrs; k++) {
                         String attrName = parser.getParameterAttribute(j, k);
                         String attrValue = parser.getParamValueStr(j, k);
@@ -125,14 +110,21 @@ public class ACDReader {
 
                         // Store each parameter in the variable map
                         variableMap.put(fieldName + "." + attrName, attrValue);
-
-                        // TODO: detect the parameter functional group and add it
-                        //       to internalRepr (case insensitive)
-                        // TODO: choose the ones we need and store them
+                        
+                        // Decide whether we should show it in GUI
+                        showInGUI = showInGUI ||
+                                    (attrName.equals("parameter") && attrValue.equals("Y")) ||
+                                    (attrName.equals("standard") && attrValue.equals("Y")) ||
+                                    (attrName.equals("additional") && attrValue.equals("Y"));
                     }
                 }
+                
+                // Check if we need to show it in GUI
+                if (showInGUI) {
+                    ParameterCreator.createAndAdd(parser, j, internalRepr);
+                }
             }
-
+            
             inputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -197,25 +189,6 @@ public class ACDReader {
             return resolvedExp;
         }
     }
-    
-    /**
-     * Detect functional group of parameter: simple, input,
-     * selection list, output or graphics.
-     * 
-     * TODO
-     */
-    public static Integer detectFunctionalGroup(String fieldType) {
-        String typesSimple[] = {"array", "boolean", "float", "integer",
-                                "range", "string", "toggle"};
-        String typesInput[] = {"codon", "cpdb", "datafile", "directoty", "dirlist",
-                               "discretestates", "distances", "features", "filelist",
-                               "frequencies", "infile", "matrix", "matrixf", "pattern",
-                               "properties", "regexp", "scop", "sequence", "seqall", "seqset",
-                               "seqsetall", "seqsetall"};
-        String typesLists[] = {"list", "selection"};
-        // TODO
-        return 0;
-    }
 
     /**
      * Given a HashMap find a key in that HashMap that
@@ -233,5 +206,10 @@ public class ACDReader {
             }
         }
         return null;
+    }
+    
+    public static void main(String[] args) {
+        ACDReader jt = new ACDReader("/opt/EMBOSS-6.2.0/emboss/acd/twofeat.acd");
+        jt.analyseAcd();
     }
 }
