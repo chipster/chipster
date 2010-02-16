@@ -15,6 +15,9 @@ import org.mortbay.log.Log;
 import org.mortbay.util.IO;
 import org.mortbay.util.URIUtil;
 
+import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.config.DirectoryLayout;
+
 import sun.net.www.protocol.http.HttpURLConnection;
 
 /**
@@ -28,42 +31,75 @@ import sun.net.www.protocol.http.HttpURLConnection;
 */
 public class RestServlet extends DefaultServlet {
 
+	private String userDataPath;
+	private String publicDataPath;
+	
 	private AuthorisedUrlRepository urlRepository;
 	private String rootUrl;
 
 	public RestServlet(AuthorisedUrlRepository urlRepository, String rootUrl) {
 		this.urlRepository = urlRepository;
 		this.rootUrl = rootUrl;
+		
+		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
+		userDataPath = configuration.getString("filebroker", "user-data-path");
+		publicDataPath = configuration.getString("filebroker", "public-data-path");
 	}
 	
 	@Override
 	public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
 		// check request and pass it up to super class
-		if (isValidFilename(request)) {
-			response.sendError(HttpURLConnection.HTTP_NOT_FOUND);
-			
-		} else {
+		if (isValidRequest(request)) {
 			super.service(request, response);
+		} else {
+			response.sendError(HttpURLConnection.HTTP_NOT_FOUND);
 		}
 	};
 	
-	private boolean isValidFilename(HttpServletRequest request) {
-		
+	private boolean isValidRequest(HttpServletRequest request) {
+
 		// must not be directory
 		File file = locateFile(request);
 		if (file.isDirectory()) {
 			return false;
 		}
+
+		if (isWelcomePage(request) || isUserDataRequest(request) || isPublicDataRequest(request) ) {
+			return true;
+		}
 		
-		// must point to valid filename or root (welcome page)
-		if (!isWelcomePage(request) && !urlRepository.checkFilenameSyntax(constructFilename(request))) {
+		return false;
+	}
+
+	private boolean isWelcomePage(HttpServletRequest request) {
+		return "/".equals(request.getPathInfo());
+	}
+
+	private boolean isUserDataRequest(HttpServletRequest request) {
+		String path = request.getPathInfo();
+		
+		if (path == null) {
 			return false;
 		}
 		
-		return true;
+		if (!path.startsWith("/" + userDataPath + "/")) {
+			return false;
+		}
+
+		if (urlRepository.checkFilenameSyntax(path.substring(("/" + userDataPath + "/").length()))) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	private boolean isPublicDataRequest(HttpServletRequest request) {
+		String path = request.getPathInfo();
+		return (path != null && path.startsWith("/" + publicDataPath + "/"));
 	}
 
+	
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if (Log.isDebugEnabled()) {
@@ -79,9 +115,6 @@ public class RestServlet extends DefaultServlet {
 		
 	}
 
-	private boolean isWelcomePage(HttpServletRequest request) {
-		return "/".equals(constructFilename(request));
-	}
 	
 	@Override
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -169,10 +202,6 @@ public class RestServlet extends DefaultServlet {
 		return new File(getServletContext().getRealPath(URIUtil.addPaths(request.getServletPath(), request.getPathInfo())));		
 	}
 	
-	private String constructFilename(HttpServletRequest request) {
-		return request.getPathInfo();
-	}
-
 	private URL constructUrl(HttpServletRequest request) throws MalformedURLException {
 		return new URL(rootUrl + request.getPathInfo());
 	}
