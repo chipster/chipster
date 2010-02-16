@@ -1,0 +1,203 @@
+package fi.csc.microarray.analyser.emboss;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+
+import org.emboss.jemboss.parser.ParseAcd;
+
+/**
+ * Represents a single ACD file.
+ * 
+ * @author naktinis
+ * 
+ */
+
+public class ACD {
+    
+    private String name;
+    private String description;
+    private LinkedList<String> groups = new LinkedList<String>(); 
+    private LinkedList<ACDParameter> parameters = new LinkedList<ACDParameter>();
+    
+    /**
+     * Add a parameter.
+     * 
+     * @param param - parameter to be added.
+     */
+    public void addParameter(ACDParameter param) {
+        parameters.add(param);
+    }
+    
+    /**
+     * Find a parameter with given name.
+     * 
+     * @param name - name of the parameter to be searched for.
+     * @return the parameter or null if not found.
+     */
+    public ACDParameter getParameter(String name) {
+        for (ACDParameter parameter : parameters) {
+            if (parameter.getName().equals(name)) {
+                return parameter;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Find all parameters in a given section or in a
+     * section's subsection.
+     * 
+     * @param section - name of the section.
+     * @param subsection - name of the subsection or null if
+     *                     you don't care about the subsection.
+     * @param recursive - should we look into subsections all (valid only
+     *                    if subsection is not provided).
+     */
+    public LinkedList<ACDParameter> getParameters(String section,
+                                                  String subsection,
+                                                  Boolean recursive) {
+        LinkedList<ACDParameter> list = new LinkedList<ACDParameter>();
+        for (ACDParameter param : parameters) {
+            if (param.getSection().equals(section) &&
+                (subsection == null || subsection.equals(param.getSubsection())) &&
+                (subsection != null || recursive || param.getSubsection() == null)) {
+                list.add(param);
+            }
+        }
+        return list;
+    }
+    
+    /**
+     * Read an ACD file and store it in this object.
+     * 
+     * @param file - ACD file to be read.
+     */
+    public void fromFile(File file) {
+        
+        // Application-level attributes that we want to extract
+        HashMap<String, String> appAttrs = new HashMap<String, String>();
+        appAttrs.put("application", "");
+        appAttrs.put("documentation", "");
+        appAttrs.put("groups", "");        
+        
+        // Define variable map
+        LinkedHashMap<String, String> variableMap = new LinkedHashMap<String, String>();
+
+        try {
+            // Read the file
+            BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file));
+            final byte [] bytes = new byte[(int) file.length()];
+            inputStream.read(bytes);
+
+            // ACD file analysis
+            ParseAcd parser = new ParseAcd(new String(bytes), false);
+            Integer numFields = parser.getNumofFields();
+
+            // Find dependent fields (Jemboss API documentation recommends doing it)
+            parser.isDependents(null, 0, numFields);
+
+            // Read the application header
+            Integer numArgs = parser.getNumofParams(0);
+            for (int i = 0; i < numArgs; i++) {
+                String key = parser.getParameterAttribute(0, i);
+                String val = parser.getParamValueStr(0, i);
+                
+                // Get the key that starts with this prefix
+                key = (String) getKeyByPrefix(appAttrs, key);
+                if (key != null) {
+                    // Store the value
+                    appAttrs.put(key, val);
+                }
+            }
+            
+            // Write some general data to the ACD object
+            this.name = appAttrs.get("application");
+            this.description = appAttrs.get("documentation");
+            
+            // Store groups
+            String[] groups = appAttrs.get("groups").split(",");
+            for (String group : groups) {
+                this.groups.add(group.trim());
+            }
+            
+            // Read the sections along with parameters
+            String currentSection = null;
+            String currentSubsection = null;
+            for (int j = 1; j < numFields; j++) {
+                // Determine what field it is: section, endsection, parameter etc.
+                String fieldType = parser.getParameterAttribute(j, 0);
+                String fieldName = parser.getParamValueStr(j, 0);
+
+                if ("section".startsWith(fieldType)) {
+                    // A new section starts
+                    if (currentSection != null) {
+                        currentSubsection = fieldName;
+                    } else {
+                        currentSection = fieldName;
+                    }
+                    
+                } else if ("endsection".startsWith(fieldType)) {
+                    // A section ends
+                    if (currentSubsection == null) {
+                        currentSection = null;
+                    }
+                    currentSubsection = null;
+                    
+                } else if (!("application".startsWith(fieldType))) {
+                    // Initialize the parameter
+                    ACDParameter param = new ACDParameter(fieldType, fieldName, currentSection,
+                            currentSubsection);
+                    
+                    // A parameter description
+                    Integer numAttrs = parser.getNumofParams(j);
+
+                    // Loop through the attributes
+                    for (int k = 1; k < numAttrs; k++) {
+                        String attrName = parser.getParameterAttribute(j, k);
+                        String attrValue = parser.getParamValueStr(j, k);
+                        
+                        // Try to resolve dependencies where possible 
+                        //     e.g. $(param.attr) and @($(varname)+1)
+                        attrValue = ACDParameter.resolveExp(attrValue, variableMap);
+                        
+                        // Store the attribute in the parameter
+                        param.addAttribute(attrName, attrValue);
+
+                        // Store the attribute in the variable map
+                        variableMap.put(fieldName + "." + attrName, attrValue);
+                    }
+                    
+                    // Add the parameter
+                    this.addParameter(param);
+                }
+            }
+            
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Utility method. Given a HashMap find a key in that
+     * HashMap that begins with some String prefix. Return
+     * the value for the first key found.
+     * 
+     * @param map
+     * @param prefix
+     */
+    public static Object getKeyByPrefix(HashMap map, String prefix) {
+        Object[] keys = map.keySet().toArray();
+        for (Object key : keys) {
+            if (((String) key).startsWith(prefix)) {
+                return key;
+            }
+        }
+        return null;
+    }
+}

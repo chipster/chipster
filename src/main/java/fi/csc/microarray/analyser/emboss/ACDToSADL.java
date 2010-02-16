@@ -19,13 +19,13 @@ import fi.csc.microarray.description.ParsedVVSADL;
  * @author naktinis
  *
  */
-public class ACDReader {
+public class ACDToSADL {
 	
-	private String filename;
-	private HashMap <String, String>appAttrs;
+	private File inputFile;
+	private HashMap<String, String> appAttrs;
 	
-	public ACDReader (String filename) {
-		this.filename = filename;
+	public ACDToSADL(File inputFile) {
+		this.inputFile = inputFile;
 		
 		// Application-level attributes that we want to extract
 		appAttrs = new HashMap<String, String>();
@@ -50,7 +50,6 @@ public class ACDReader {
 
 		try {
 			// Read the file
-			File inputFile = new File(filename);
 			BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(inputFile));
 			final byte [] bytes = new byte[(int) inputFile.length()];
 			inputStream.read(bytes);
@@ -69,7 +68,7 @@ public class ACDReader {
                 String val = parser.getParamValueStr(0, i);
                 
                 // Get the key that starts with this prefix
-                key = (String) getKeyByPrefix(appAttrs, key);
+                key = (String) ACD.getKeyByPrefix(appAttrs, key);
                 if (key != null) {
                     // Store the value
                     appAttrs.put(key, val);
@@ -106,7 +105,7 @@ public class ACDReader {
 
                         // Try to resolve dependencies where possible 
                         //     e.g. $(param.attr) and @($(varname)+1)
-                        attrValue = resolveExp(attrValue, variableMap);
+                        attrValue = ACDParameter.resolveExp(attrValue, variableMap);
 
                         // Store each parameter in the variable map
                         variableMap.put(fieldName + "." + attrName, attrValue);
@@ -121,7 +120,7 @@ public class ACDReader {
                 
                 // Check if we need to show it in GUI
                 if (showInGUI) {
-                    ParameterCreator.createAndAdd(parser, j, internalRepr);
+                    SADLParameterCreator.createAndAdd(parser, j, internalRepr);
                 }
             }
             
@@ -131,85 +130,5 @@ public class ACDReader {
         }
         
         return internalRepr;
-    }
-
-    /**
-     * Resolve a given ACD expression.<br><br>
-     * 
-     * Example:<pre>
-     * resolveExp("$(variable)")
-     * resolveExp("@($(sequence.length)+1)")</pre>
-     * 
-     * @param exp - expression to be resolved.
-     * @param map - a map of variable values.
-     * @return resolved value.
-     */
-    public static String resolveExp(String exp, LinkedHashMap<String, String> map) {
-        // Simulate the map
-        // TODO: store some precalculated values in map (such as acdprotein)
-        // TODO: deal with calculated values (such as sequence.length)
-
-        // Regular expression for variable names like $(variable.name)
-        RE reVar = new RE("\\$\\(([\\w.]+)\\)");
-
-        // Regular expression for operation expressions @($(bool ? $(var) : 0))
-        RE reFunc = new RE("\\@\\(([\\w.+-/:?\"]+)\\)");
-
-        // Find a variable name match
-        reVar.match(exp);
-        String match = reVar.getParen(1);
-        String resolvedExp = exp;
-        if (match != null) {
-            // Find replacement string
-            String substitute = "$(" + match + ")";
-            if (map.containsKey(match)) {
-                substitute = map.get(match);
-            }
-
-            // Find position and change
-            Integer start = reVar.getParenStart(1) - 2;
-            Integer end = reVar.getParenEnd(1) + 1;
-            resolvedExp = exp.substring(0, start) +
-                          substitute +
-                          exp.substring(end, exp.length());
-        }
-
-        // Find an operation expression match
-        reFunc.match(resolvedExp);
-        match = reVar.getParen(1);
-        if (match != null) {
-            AcdFunResolve resolver = new AcdFunResolve(resolvedExp);
-            resolvedExp = resolver.getResult();
-        }
-
-        if (!(exp.equals(resolvedExp))) {
-            return resolveExp(resolvedExp, map);
-        } else {
-            // No changes were made - stop the recursion
-            return resolvedExp;
-        }
-    }
-
-    /**
-     * Given a HashMap find a key in that HashMap that
-     * begins with some String prefix. Return the value
-     * for the first key found.
-     * 
-     * @param map
-     * @param prefix
-     */
-    private Object getKeyByPrefix(HashMap map, String prefix) {
-        Object[] keys = map.keySet().toArray();
-        for (Object key : keys) {
-            if (((String) key).startsWith(prefix)) {
-                return key;
-            }
-        }
-        return null;
-    }
-    
-    public static void main(String[] args) {
-        ACDReader jt = new ACDReader("/opt/EMBOSS-6.2.0/emboss/acd/twofeat.acd");
-        jt.analyseAcd();
     }
 }

@@ -14,8 +14,10 @@ import fi.csc.microarray.description.VVSADLSyntax.ParameterType;
 /**
  * Create SADL parameters using information from ACD parser.
  * 
+ * @author naktinis
+ * 
  */
-public class ParameterCreator {
+public class SADLParameterCreator {
     
     private static final Integer PARAM_GROUP_SIMPLE = 0;
     private static final Integer PARAM_GROUP_INPUT = 1;
@@ -48,15 +50,14 @@ public class ParameterCreator {
         
         // Try to create an output
         String output = createOutput(parser, index);
-        if (input != null) {
+        if (output != null) {
             internalRepr.addOutput(output);
-            return;
         }
     }
     
     /**
-     * Parameter factory. Creates simple parameters, such as integers,
-     * strings etc.
+     * Create a parameter and add it to a given SADL object.
+     * Creates simple parameters, such as integers, strings etc.
      * 
      * @param parser - parser object.
      * @param index - index of a field to be parsed.
@@ -75,18 +76,19 @@ public class ParameterCreator {
         typeMap.put("float", ParameterType.DECIMAL);
         typeMap.put("integer", ParameterType.INTEGER);
         typeMap.put("string", ParameterType.STRING);
-        
-        // TODO
-        //typeMap.put("range", ParameterType...);
-        //typeMap.put("boolean", ParameterType...);
-        //typeMap.put("toggle", ParameterType...);
+        typeMap.put("range", ParameterType.STRING);
         
         // Read common attributes
         String fieldDefault = parser.getDefaultParamValueStr(index);
         // TODO: help attribute; comment attribute
         String fieldInfo = parser.getInfoParamValue(index);
-            
-        if (type == PARAM_GROUP_SIMPLE) {
+        
+        if (fieldType == "boolean" || fieldType == "toggle") {
+            // Boolean types need some special handling
+            String[] fieldOptions = {"Yes", "No"};
+            return new Parameter(fieldName, typeMap.get(fieldType), fieldOptions,
+                    null, null, fieldDefault, fieldInfo);
+        } else if (type == PARAM_GROUP_SIMPLE) {
             String fieldMin = parser.getMinParam(index);
             String fieldMax = parser.getMaxParam(index);
             return new Parameter(fieldName, typeMap.get(fieldType), null,
@@ -103,7 +105,8 @@ public class ParameterCreator {
     }
     
     /**
-     * Input factory. Creates objects representing input files.
+     * Create a SADL input and add it to a given object.
+     * Creates objects representing input files.
      * 
      * @param parser - parser object.
      * @param index - index of a field to be parsed.
@@ -127,8 +130,8 @@ public class ParameterCreator {
     }
     
     /**
-     * Output factory. Creates objects representing output files
-     * (currently returns a string).
+     * Create objects representing output files (currently
+     * returns a string).
      * 
      * @param parser - parser object.
      * @param index - index of a field to be parsed.
@@ -144,8 +147,11 @@ public class ParameterCreator {
         // TODO: help attribute; comment attribute
         // String fieldInfo = parser.getInfoParamValue(index);
         
-        // FIXME
-        return "";
+        if (type == PARAM_GROUP_OUTPUT) {
+            return fieldName;
+        } else {
+            return null;
+        }
     }
     
     /**
