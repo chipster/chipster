@@ -64,7 +64,7 @@ import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.table.EditableTable;
 import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 import fi.csc.microarray.databeans.fs.FSDataManager;
-import fi.csc.microarray.description.ParsedVVSADL;
+import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.AdminAPI;
 import fi.csc.microarray.messaging.MessagingEndpoint;
@@ -236,7 +236,7 @@ public abstract class ClientApplication implements Node {
 			this.metadata = new String(metadataBean.getContents());
 			manager.delete(metadataBean); // don't leave the bean hanging around
 			logger.debug("got metadata: " + this.metadata.substring(0, 50) + "...");
-			List<ParsedVVSADL> descriptions = new ChipsterVVSADLParser().parseMultiple(this.metadata);
+			List<SADLDescription> descriptions = new ChipsterVVSADLParser().parseMultiple(this.metadata);
 			this.parsedCategories = new OperationGenerator().generate(descriptions).values();
 			
 			logger.debug("created " + this.parsedCategories.size() + " operation categories");

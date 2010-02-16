@@ -6,10 +6,10 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.description.ParsedVVSADL.Input;
-import fi.csc.microarray.description.ParsedVVSADL.Parameter;
-import fi.csc.microarray.description.VVSADLSyntax.InputType;
-import fi.csc.microarray.description.VVSADLSyntax.ParameterType;
+import fi.csc.microarray.description.SADLDescription.Input;
+import fi.csc.microarray.description.SADLDescription.Parameter;
+import fi.csc.microarray.description.SADLSyntax.InputType;
+import fi.csc.microarray.description.SADLSyntax.ParameterType;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.AdvancedStringTokenizer;
 import fi.csc.microarray.util.Deseparator;
@@ -21,17 +21,17 @@ import fi.csc.microarray.util.Deseparator;
  * Simple Analysis Description Language. It is used to manage analysis 
  * description data inside the Chipster system. Parsing is event based (cf. SAX).</p>
  *  
- * @see fi.csc.microarray.description.VVSADLSyntax
+ * @see fi.csc.microarray.description.SADLSyntax
  * 
  * @author Aleksi Kallio
  */
-public class VVSADLParser {
+public class SADLParser {
 
 	
 	/**
 	 * Logger for this class (debugging).
 	 */
-	private static final Logger logger = Logger.getLogger(VVSADLParser.class);
+	private static final Logger logger = Logger.getLogger(SADLParser.class);
 
 	
 	/**
@@ -50,22 +50,22 @@ public class VVSADLParser {
 		return "\"" + category + "\"/\"" + name + "\"";
 	}
 	
-	public VVSADLParser() {
+	public SADLParser() {
 		this(null);
 	}
 	
-	public VVSADLParser(String filename) {
+	public SADLParser(String filename) {
 		this.unitName = filename;
 		addInputType(GenericInputTypes.GENERIC);
 	}
 
-	public ParsedVVSADL parse(String vvsadlString) throws ParseException {
+	public SADLDescription parse(String vvsadlString) throws ParseException {
 		AdvancedStringTokenizer tokens = getTokenizer(vvsadlString);
 		return parseAnalysis(tokens);
 	}
 
-	public List<ParsedVVSADL> parseMultiple(String vvsadlString) throws ParseException {
-		LinkedList<ParsedVVSADL> descriptions = new LinkedList<ParsedVVSADL>();
+	public List<SADLDescription> parseMultiple(String vvsadlString) throws ParseException {
+		LinkedList<SADLDescription> descriptions = new LinkedList<SADLDescription>();
 		AdvancedStringTokenizer tokens = getTokenizer(vvsadlString);
 		
 		// for avoiding excessive logging in case of parse error
@@ -95,7 +95,7 @@ public class VVSADLParser {
 	/**
 	 * Parsing is implemented with recursive descent algorithm (with 1 token look-a-head).
 	 */
-	private ParsedVVSADL parseAnalysis(AdvancedStringTokenizer tokens) throws ParseException {
+	private SADLDescription parseAnalysis(AdvancedStringTokenizer tokens) throws ParseException {
 		// read first line (analysis)
 		if (!"ANALYSIS".equals(tokens.next())) {
 			throw new ParseException("VVSADL should start with \"ANALYSIS\", not " + tokens.current(), unitName);
@@ -108,7 +108,7 @@ public class VVSADLParser {
 			this.unitName = packageName + " / " + name;
 		}
 		String comment = readComment(tokens);
-		ParsedVVSADL description = new ParsedVVSADL(name, packageName, comment);
+		SADLDescription description = new SADLDescription(name, packageName, comment);
 	
 		// read possible inputs
 		if (tokens.hasNext() && "INPUT".equals(tokens.peek())) { 
@@ -147,7 +147,7 @@ public class VVSADLParser {
 		return description;
 	}
 
-	private List<String> parseOutputs(AdvancedStringTokenizer tokens, ParsedVVSADL description) {
+	private List<String> parseOutputs(AdvancedStringTokenizer tokens, SADLDescription description) {
 		LinkedList<String> outputList = new LinkedList<String>();
 		Deseparator outputs = new Deseparator(",", tokens, 1);
 		for (String[] output : outputs) {
@@ -156,7 +156,7 @@ public class VVSADLParser {
 		return outputList;
 	}
 
-	private List<Input> parseInputs(AdvancedStringTokenizer tokens, ParsedVVSADL description) {
+	private List<Input> parseInputs(AdvancedStringTokenizer tokens, SADLDescription description) {
 		LinkedList<Input> inputList = new LinkedList<Input>();
 		Deseparator inputs = new Deseparator(",", tokens, 2);
 		for (String[] input : inputs) {

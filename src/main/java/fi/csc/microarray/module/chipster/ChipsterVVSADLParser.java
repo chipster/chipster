@@ -2,12 +2,12 @@ package fi.csc.microarray.module.chipster;
 
 import java.util.List;
 
-import fi.csc.microarray.description.ParsedVVSADL;
-import fi.csc.microarray.description.VVSADLParser;
-import fi.csc.microarray.description.ParsedVVSADL.Parameter;
-import fi.csc.microarray.description.VVSADLSyntax.ParameterType;
+import fi.csc.microarray.description.SADLDescription;
+import fi.csc.microarray.description.SADLParser;
+import fi.csc.microarray.description.SADLDescription.Parameter;
+import fi.csc.microarray.description.SADLSyntax.ParameterType;
 
-public class ChipsterVVSADLParser extends VVSADLParser {
+public class ChipsterVVSADLParser extends SADLParser {
 
 
 	public ChipsterVVSADLParser() {
@@ -27,13 +27,13 @@ public class ChipsterVVSADLParser extends VVSADLParser {
 		
 		public void validate(String filename, String vvsadl) throws ParseException {
 			ChipsterVVSADLParser parser = new ChipsterVVSADLParser(filename);
-			List<ParsedVVSADL> descriptions = parser.parseMultiple(vvsadl);
-			for (ParsedVVSADL description : descriptions) {
+			List<SADLDescription> descriptions = parser.parseMultiple(vvsadl);
+			for (SADLDescription description : descriptions) {
 				checkParsedContent(description);
 			}
 		}
 		
-		private void checkParsedContent(ParsedVVSADL description) {
+		private void checkParsedContent(SADLDescription description) {
 						
 			for (Parameter parameter : description.parameters()) {
 				if (parameter.getType() == ParameterType.ENUM) {

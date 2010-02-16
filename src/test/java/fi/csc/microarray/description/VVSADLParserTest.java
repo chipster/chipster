@@ -8,9 +8,9 @@ import org.testng.annotations.Test;
 
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
-import fi.csc.microarray.description.ParsedVVSADL.Input;
-import fi.csc.microarray.description.ParsedVVSADL.Parameter;
-import fi.csc.microarray.description.VVSADLSyntax.ParameterType;
+import fi.csc.microarray.description.SADLDescription.Input;
+import fi.csc.microarray.description.SADLDescription.Parameter;
+import fi.csc.microarray.description.SADLSyntax.ParameterType;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;
@@ -26,7 +26,7 @@ public class VVSADLParserTest {
 	public void testRoundtrip() throws MicroarrayException, IOException {
 
 		// create description
-		ParsedVVSADL description = new ParsedVVSADL("name", "package", "main comment"); 
+		SADLDescription description = new SADLDescription("name", "package", "main comment"); 
 		description.addInput(Input.createInput(ChipsterInputTypes.GENE_EXPRS, "input1"));
 		description.addInput(Input.createInputSet(ChipsterInputTypes.GENE_EXPRS, "input2", ".ext"));
 		description.addMetaInput(Input.createInput(ChipsterInputTypes.GENE_EXPRS, "metainput1"));
@@ -46,7 +46,7 @@ public class VVSADLParserTest {
 		String string = description.toString();
 		
 		// deserialise
-		ParsedVVSADL parsedDescription = new ChipsterVVSADLParser().parse(string);
+		SADLDescription parsedDescription = new ChipsterVVSADLParser().parse(string);
 		
 		// serialise again
 		String anotherString = parsedDescription.toString();

@@ -11,7 +11,7 @@ import org.apache.regexp.RE;
 import org.emboss.jemboss.parser.AcdFunResolve;
 import org.emboss.jemboss.parser.ParseAcd;
 
-import fi.csc.microarray.description.ParsedVVSADL;
+import fi.csc.microarray.description.SADLDescription;
 
 /**
  * Manipulation of ACD files which describe EMBOSS applications.
@@ -40,10 +40,10 @@ public class ACDToSADL {
 	 *
 	 * @param filename - ACD file.
 	 */
-	public ParsedVVSADL analyseAcd() {
+	public SADLDescription analyseAcd() {
 
 		// Internal application representation
-		ParsedVVSADL internalRepr = null;
+		SADLDescription internalRepr = null;
 		
 		// Define variable map
 		LinkedHashMap<String, String> variableMap = new LinkedHashMap<String, String>();
@@ -76,7 +76,7 @@ public class ACDToSADL {
             }
             
             // Initialize our internal representation object with header data
-            internalRepr = new ParsedVVSADL(appAttrs.get("application"),
+            internalRepr = new SADLDescription(appAttrs.get("application"),
             								appAttrs.get("groups"),
             								appAttrs.get("documentation"));
             

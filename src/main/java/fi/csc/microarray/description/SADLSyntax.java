@@ -4,16 +4,16 @@ import fi.csc.microarray.databeans.DataBean;
 
 
 /**
- * <p>VVSADL (Very very simple analysis description language) is a simple language for 
- * describing analysis operations so that they can be used in the NAMI system. Operations
+ * <p>SADL (Simple Analysis Description Language) is a simple language for 
+ * describing analysis operations so that they can be used in the Chipster system. Operations
  * have names and are categorised. They have both inputs and parameters. Inputs are data
  * files (large) and parameters are values (small) that user gives when calling the 
- * operation. Operations produce outputs (data files) and output text ie. what they write
+ * operation. Operations produce outputs (data files) and output text i.e. what they write
  * to sysout.</p>
  *    
  * <p>Syntax defination is below. It is in the form of rewrite rules.
  * First rule in the list is the initial rule where rewriting is started. 
- * Hyphenated texts are snippets of VVSADL. For example, ANALYSIS is a term
+ * Hyphenated texts are snippets of SADL. For example, ANALYSIS is a term
  * that is rewritten using the given rules, but "ANALYSIS" is a string that
  * should be found in the source code. Operators ?, +, * and | have their
  * common semantics. Lower case identifiers: number, string and string_no_ws (no 
@@ -26,12 +26,12 @@ import fi.csc.microarray.databeans.DataBean;
  * OPNAME -> NAMESTRING
  * NAMESTRING -> string_no_ws | """ string """
  * INPUT -> INPUTTYPE FILENAME | INPUTTYPE FILENAMESET
- * INPUTTYPE -> [see VVSADLSyntax.InputType for declaration, implementations pluggable]
+ * INPUTTYPE -> [see SADLSyntax.InputType for declaration, implementations pluggable]
  * OUTPUT -> FILENAME
  * FILENAME -> string_no_ws 
  * FILENAMESET -> string_no_ws "[...]" string_no_ws
  * PARAMETER -> NAME PARAMTYPE RANGE? DEFAULT? DESCRIPTION 
- * PARAMTYPE -> [see VVSADLSyntax.ParameterType for declaration, implementations pluggable]
+ * PARAMTYPE -> [see SADLSyntax.ParameterType for declaration, implementations pluggable]
  * RANGE -> "FROM" number "TO" number
  * DEFAULT -> "DEFAULT" number
  * DESCRIPTION -> "(" string ") 
@@ -50,14 +50,14 @@ import fi.csc.microarray.databeans.DataBean;
  * PARAMETER key COLNAME (which column we use as a key)
  * </pre>  
  * 
- * @see fi.csc.microarray.description.VVSADLParser
- * @see VVSADLSyntax.InputType 
- * @see VVSADLSyntax.ParameterType
+ * @see fi.csc.microarray.description.SADLParser
+ * @see SADLSyntax.InputType 
+ * @see SADLSyntax.ParameterType
  * 
  * @author Aleksi Kallio
  *
  */
-public class VVSADLSyntax {
+public class SADLSyntax {
 	
 	
 	public static interface InputType {

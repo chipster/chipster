@@ -37,7 +37,7 @@ import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.biobeans.BioBean;
-import fi.csc.microarray.description.VVSADLParser;
+import fi.csc.microarray.description.SADLParser;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.GeneralFileFilter;
 import fi.csc.microarray.util.Strings;
@@ -260,7 +260,7 @@ public class HistoryScreen extends ScreenBase
 			for (DataBean bean : new BioBean(data).getSourcePath()) {
 				OperationDefinition op = bean.getOperation().getDefinition();
 				if (op.hasSourceCode()) {
-					names.add(VVSADLParser.generateOperationIdentifier(op.getCategoryName(), op.getName()));
+					names.add(SADLParser.generateOperationIdentifier(op.getCategoryName(), op.getName()));
 				} else {
 					names.add(null);
 				}

@@ -6,10 +6,10 @@ import java.util.HashMap;
 import org.emboss.jemboss.parser.ParseAcd;
 
 import fi.csc.microarray.description.GenericInputTypes;
-import fi.csc.microarray.description.ParsedVVSADL;
-import fi.csc.microarray.description.ParsedVVSADL.Input;
-import fi.csc.microarray.description.ParsedVVSADL.Parameter;
-import fi.csc.microarray.description.VVSADLSyntax.ParameterType;
+import fi.csc.microarray.description.SADLDescription;
+import fi.csc.microarray.description.SADLDescription.Input;
+import fi.csc.microarray.description.SADLDescription.Parameter;
+import fi.csc.microarray.description.SADLSyntax.ParameterType;
 
 /**
  * Create SADL parameters using information from ACD parser.
@@ -33,7 +33,7 @@ public class SADLParameterCreator {
      * @param index - parameter index in the ACD Parser (to read the parameter).
      * @param internalRepr - the object to add this parameter to.
      */
-    public static void createAndAdd(ParseAcd parser, Integer index, ParsedVVSADL internalRepr) {
+    public static void createAndAdd(ParseAcd parser, Integer index, SADLDescription internalRepr) {
         // Try to create a parameter (simple types, list types)
         Parameter param = createParameter(parser, index);
         if (param != null) {

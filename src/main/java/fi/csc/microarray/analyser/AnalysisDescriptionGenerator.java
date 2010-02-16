@@ -1,14 +1,14 @@
 package fi.csc.microarray.analyser;
 
-import fi.csc.microarray.description.ParsedVVSADL;
-import fi.csc.microarray.description.ParsedVVSADL.Parameter;
+import fi.csc.microarray.description.SADLDescription;
+import fi.csc.microarray.description.SADLDescription.Parameter;
 
 /**
  * Listens to parse process and constructs description.
  */
 public class AnalysisDescriptionGenerator {
 
-	public AnalysisDescription generate(ParsedVVSADL source, AnalysisHandler analysisHandler) {
+	public AnalysisDescription generate(SADLDescription source, AnalysisHandler analysisHandler) {
 		AnalysisDescription description = new AnalysisDescription(analysisHandler);
 		
 		description.setName(source.getName());

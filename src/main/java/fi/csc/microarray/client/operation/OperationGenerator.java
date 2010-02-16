@@ -8,9 +8,9 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.description.ParsedVVSADL;
-import fi.csc.microarray.description.ParsedVVSADL.Input;
-import fi.csc.microarray.description.ParsedVVSADL.Parameter;
+import fi.csc.microarray.description.SADLDescription;
+import fi.csc.microarray.description.SADLDescription.Input;
+import fi.csc.microarray.description.SADLDescription.Parameter;
 
 public class OperationGenerator {
 	/**
@@ -18,10 +18,10 @@ public class OperationGenerator {
 	 */
 	private static final Logger logger = Logger.getLogger(OperationGenerator.class);
 
-	public Map<String, OperationCategory> generate(List<ParsedVVSADL> descriptions) {
+	public Map<String, OperationCategory> generate(List<SADLDescription> descriptions) {
 		logger.debug("generating operations from " + descriptions.size() + " descriptions");
 		LinkedHashMap<String, OperationCategory> parsedCategories = new LinkedHashMap<String, OperationCategory>();
-		for (ParsedVVSADL description : descriptions) {
+		for (SADLDescription description : descriptions) {
 			logger.debug("processing " + description.getName());
 			
 			// if the category doesn't exist yet, create it

@@ -3,17 +3,17 @@ package fi.csc.microarray.description;
 import java.util.LinkedList;
 import java.util.List;
 
-import fi.csc.microarray.description.VVSADLSyntax.InputType;
-import fi.csc.microarray.description.VVSADLSyntax.ParameterType;
+import fi.csc.microarray.description.SADLSyntax.InputType;
+import fi.csc.microarray.description.SADLSyntax.ParameterType;
 
 /**
- * Object presentation for parsed VVSADL syntax. Describes analysis tools so 
+ * SADL description for one analysis tool. Describes analysis tools so 
  * that they can be used in Chipster context.
  * 
  * @author Aleksi Kallio
  * 
  */
-public class ParsedVVSADL {
+public class SADLDescription {
 
 	private String name;
 	private String packageName; 
@@ -152,7 +152,7 @@ public class ParsedVVSADL {
 	/**
 	 * Returns a new (mostly empty) object presentation for parsed VVSADL. 
 	 */
-	public ParsedVVSADL(String name, String packageName, String comment) {
+	public SADLDescription(String name, String packageName, String comment) {
 		super();
 		this.name = name;
 		this.packageName = packageName;

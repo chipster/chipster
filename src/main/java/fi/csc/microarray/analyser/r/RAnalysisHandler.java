@@ -19,7 +19,7 @@ import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.analyser.VVSADLTool;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.description.VVSADLParser.ParseException;
+import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;

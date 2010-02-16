@@ -16,7 +16,7 @@ import fi.csc.microarray.client.tasks.TaskEventListener;
 import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
-import fi.csc.microarray.description.VVSADLSyntax.InputType;
+import fi.csc.microarray.description.SADLSyntax.InputType;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
