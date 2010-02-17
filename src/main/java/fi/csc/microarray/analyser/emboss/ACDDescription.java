@@ -17,12 +17,33 @@ import org.emboss.jemboss.parser.ParseAcd;
  * 
  */
 
-public class ACD {
+public class ACDDescription {
     
     private String name;
     private String description;
     private LinkedList<String> groups = new LinkedList<String>(); 
     private LinkedList<ACDParameter> parameters = new LinkedList<ACDParameter>();
+    
+    /**
+     * Get the name of this ACD.
+     */
+    public String getName() {
+        return name;
+    }
+    
+    /**
+     * Get short informational message of this ACD.
+     */
+    public String getDescription() {
+        return description;
+    }
+    
+    /**
+     * Get a linked list of groups this application belongs to.
+     */
+    public LinkedList<String> getGroups() {
+        return groups;
+    }
     
     /**
      * Add a parameter.
@@ -50,13 +71,17 @@ public class ACD {
     
     /**
      * Find all parameters in a given section or in a
-     * section's subsection.
+     * section's subsection. You can omit the subsection.
+     * Additionally, you can set <em>recursive</em> to true if you
+     * want to find parmeters that are in some section as well
+     * as in all its subsections.
      * 
      * @param section - name of the section.
      * @param subsection - name of the subsection or null if
      *                     you don't care about the subsection.
      * @param recursive - should we look into subsections all (valid only
      *                    if subsection is not provided).
+     * @return a list of parameters that fulfil given query.
      */
     public LinkedList<ACDParameter> getParameters(String section,
                                                   String subsection,
@@ -70,6 +95,15 @@ public class ACD {
             }
         }
         return list;
+    }
+    
+    /**
+     * Return all parameters in this ACD.
+     * 
+     * @return a linked list containing all parameters.
+     */
+    public LinkedList<ACDParameter> getParameters() {
+        return parameters;
     }
     
     /**
@@ -155,6 +189,11 @@ public class ACD {
                     
                     // A parameter description
                     Integer numAttrs = parser.getNumofParams(j);
+                    
+                    // Handle the lists exceptionally
+                    if (fieldType.equals("list") || fieldType.equals("selection")) {
+                        param.setList(parser, j);
+                    }
 
                     // Loop through the attributes
                     for (int k = 1; k < numAttrs; k++) {
@@ -166,7 +205,7 @@ public class ACD {
                         attrValue = ACDParameter.resolveExp(attrValue, variableMap);
                         
                         // Store the attribute in the parameter
-                        param.addAttribute(attrName, attrValue);
+                        param.setAttribute(attrName, attrValue);
 
                         // Store the attribute in the variable map
                         variableMap.put(fieldName + "." + attrName, attrValue);
@@ -191,7 +230,7 @@ public class ACD {
      * @param map
      * @param prefix
      */
-    public static Object getKeyByPrefix(HashMap map, String prefix) {
+    public static Object getKeyByPrefix(HashMap<String, String> map, String prefix) {
         Object[] keys = map.keySet().toArray();
         for (Object key : keys) {
             if (((String) key).startsWith(prefix)) {

@@ -1,134 +1,42 @@
 package fi.csc.microarray.analyser.emboss;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-
-import org.apache.regexp.RE;
-import org.emboss.jemboss.parser.AcdFunResolve;
-import org.emboss.jemboss.parser.ParseAcd;
+import java.util.LinkedList;
 
 import fi.csc.microarray.description.SADLDescription;
 
 /**
- * Manipulation of ACD files which describe EMBOSS applications.
+ * Conversion of ACD abstraction to SADL abstraction.
  * 
  * @author naktinis
  *
  */
 public class ACDToSADL {
 	
-	private File inputFile;
-	private HashMap<String, String> appAttrs;
+	private ACDDescription acd;
 	
-	public ACDToSADL(File inputFile) {
-		this.inputFile = inputFile;
-		
-		// Application-level attributes that we want to extract
-		appAttrs = new HashMap<String, String>();
-		appAttrs.put("application", "");
-		appAttrs.put("documentation", "");
-		appAttrs.put("groups", "");
+	public ACDToSADL(ACDDescription acd) {
+		this.acd = acd;
 	}
 
 	/**
-	 * Analyse a given ACD file and store it in some internal
-	 * format.
-	 *
-	 * @param filename - ACD file.
+	 * Analyse a given ACD object and store it as a SADL abstraction.
+	 * 
+	 * @return SADL object.
 	 */
-	public SADLDescription analyseAcd() {
-
-		// Internal application representation
-		SADLDescription internalRepr = null;
-		
-		// Define variable map
-		LinkedHashMap<String, String> variableMap = new LinkedHashMap<String, String>();
-
-		try {
-			// Read the file
-			BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(inputFile));
-			final byte [] bytes = new byte[(int) inputFile.length()];
-			inputStream.read(bytes);
-
-			// ACD file analysis
-			ParseAcd parser = new ParseAcd(new String(bytes), false);
-			Integer numFields = parser.getNumofFields();
-
-			// Find dependent fields (Jemboss API documentation recommends doing it)
-			parser.isDependents(null, 0, numFields);
-
-			// Read the application header
-            Integer numArgs = parser.getNumofParams(0);
-            for (int i = 0; i < numArgs; i++) {
-                String key = parser.getParameterAttribute(0, i);
-                String val = parser.getParamValueStr(0, i);
-                
-                // Get the key that starts with this prefix
-                key = (String) ACD.getKeyByPrefix(appAttrs, key);
-                if (key != null) {
-                    // Store the value
-                    appAttrs.put(key, val);
-                }
-            }
-            
-            // Initialize our internal representation object with header data
-            internalRepr = new SADLDescription(appAttrs.get("application"),
-            								appAttrs.get("groups"),
-            								appAttrs.get("documentation"));
-            
-            // Read the sections along with parameters        
-            for (int j = 0; j < numFields; j++) {
-                // Determine what field it is: section, endsection, parameter etc.
-                String fieldType = parser.getParameterAttribute(j, 0);
-                String fieldName = parser.getParamValueStr(j, 0);
-                
-                // Whether we should show in GUI
-                Boolean showInGUI = false;
-
-                if (fieldType.equals("section")) {
-                    // A new section starts
-                    // TODO: group the fields for later use in GUI
-
-                } else if (!("endsection".startsWith(fieldType) || "application".startsWith(fieldType))) {
-                    // A parameter description
-                    Integer numAttrs = parser.getNumofParams(j);
-
-                    // Loop through the attributes
-                    // TODO move exp resolution to createParameter
-                    for (int k = 1; k < numAttrs; k++) {
-                        String attrName = parser.getParameterAttribute(j, k);
-                        String attrValue = parser.getParamValueStr(j, k);
-
-                        // Try to resolve dependencies where possible 
-                        //     e.g. $(param.attr) and @($(varname)+1)
-                        attrValue = ACDParameter.resolveExp(attrValue, variableMap);
-
-                        // Store each parameter in the variable map
-                        variableMap.put(fieldName + "." + attrName, attrValue);
-                        
-                        // Decide whether we should show it in GUI
-                        showInGUI = showInGUI ||
-                                    (attrName.equals("parameter") && attrValue.equals("Y")) ||
-                                    (attrName.equals("standard") && attrValue.equals("Y")) ||
-                                    (attrName.equals("additional") && attrValue.equals("Y"));
-                    }
-                }
-                
-                // Check if we need to show it in GUI
-                if (showInGUI) {
-                    SADLParameterCreator.createAndAdd(parser, j, internalRepr);
-                }
-            }
-            
-            inputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+	public SADLDescription convert() {
+        SADLDescription sadl = new SADLDescription(acd.getName(), acd.getGroups().get(0),
+	                                               acd.getDescription());
+	    
+	    // Get all input parameters
+	    // We are also safe from trying to include non-input parameters in input
+	    //     section (such as toggle), since SADLParameterCreator does type-checking.
+	    // TODO: deal with non-input parameters in input and output sections
+	    
+	    LinkedList<ACDParameter> params = acd.getParameters();
+	    for (ACDParameter param : params) {
+	        SADLParameterCreator.createAndAdd(param, sadl);
         }
         
-        return internalRepr;
+	    return sadl;
     }
 }

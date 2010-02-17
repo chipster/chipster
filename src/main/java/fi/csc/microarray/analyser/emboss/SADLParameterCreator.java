@@ -3,8 +3,6 @@ package fi.csc.microarray.analyser.emboss;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import org.emboss.jemboss.parser.ParseAcd;
-
 import fi.csc.microarray.description.GenericInputTypes;
 import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.description.SADLDescription.Input;
@@ -33,23 +31,24 @@ public class SADLParameterCreator {
      * @param index - parameter index in the ACD Parser (to read the parameter).
      * @param internalRepr - the object to add this parameter to.
      */
-    public static void createAndAdd(ParseAcd parser, Integer index, SADLDescription internalRepr) {
+
+    public static void createAndAdd(ACDParameter acdParam, SADLDescription internalRepr) {
         // Try to create a parameter (simple types, list types)
-        Parameter param = createParameter(parser, index);
+        Parameter param = createParameter(acdParam);
         if (param != null) {
             internalRepr.addParameter(param);
             return;
         }
         
         // Try to create an input
-        Input input = createInput(parser, index);
+        Input input = createInput(acdParam);
         if (input != null) {
             internalRepr.addInput(input);
             return;
         }
         
         // Try to create an output
-        String output = createOutput(parser, index);
+        String output = createOutput(acdParam);
         if (output != null) {
             internalRepr.addOutput(output);
         }
@@ -63,9 +62,9 @@ public class SADLParameterCreator {
      * @param index - index of a field to be parsed.
      * @return vvsadl parameter object or null.
      */
-    public static Parameter createParameter(ParseAcd parser, Integer index) {
-        String fieldType = parser.getParameterAttribute(index, 0);
-        String fieldName = parser.getParamValueStr(index, 0);
+    public static Parameter createParameter(ACDParameter param) {
+        String fieldType = param.getType();
+        String fieldName = param.getName();
         
         // Detect the parameter functional group
         Integer type = detectParameterGroup(fieldType.toLowerCase());
@@ -79,9 +78,9 @@ public class SADLParameterCreator {
         typeMap.put("range", ParameterType.STRING);
         
         // Read common attributes
-        String fieldDefault = parser.getDefaultParamValueStr(index);
+        String fieldDefault = param.getAttribute("default");
         // TODO: help attribute; comment attribute
-        String fieldInfo = parser.getInfoParamValue(index);
+        String fieldInfo = param.getAttribute("information");
         
         if (fieldType == "boolean" || fieldType == "toggle") {
             // Boolean types need some special handling
@@ -89,15 +88,16 @@ public class SADLParameterCreator {
             return new Parameter(fieldName, typeMap.get(fieldType), fieldOptions,
                     null, null, fieldDefault, fieldInfo);
         } else if (type == PARAM_GROUP_SIMPLE) {
-            String fieldMin = parser.getMinParam(index);
-            String fieldMax = parser.getMaxParam(index);
+            String fieldMin = param.getAttribute("minimum");
+            String fieldMax = param.getAttribute("maximum");
             return new Parameter(fieldName, typeMap.get(fieldType), null,
                                  fieldMin, fieldMax, fieldDefault, fieldInfo);
         } else if (type == PARAM_GROUP_LIST) {
-            String[] fieldOptions = parser.getList(index);
+            HashMap<String, String> fieldOptions = param.getList();
+            String[] fieldValues = (String[]) fieldOptions.values().toArray();
+            
             // TODO: lists with labels
-            // System.out.println(parser.getListLabel(index, 1));
-            return new Parameter(fieldName, typeMap.get(fieldType), fieldOptions,
+            return new Parameter(fieldName, typeMap.get(fieldType), fieldValues,
                                  null, null, fieldDefault, fieldInfo);
         } else {
             return null;
@@ -112,16 +112,14 @@ public class SADLParameterCreator {
      * @param index - index of a field to be parsed.
      * @return vvsadl parameter object or null.
      */
-    public static Input createInput(ParseAcd parser, Integer index) { 
-        String fieldType = parser.getParameterAttribute(index, 0);
-        String fieldName = parser.getParamValueStr(index, 0);
+    public static Input createInput(ACDParameter param) { 
+        String fieldType = param.getType();
+        String fieldName = param.getName();
         
         // Detect the parameter functional group
         Integer type = detectParameterGroup(fieldType.toLowerCase());
         
-        // TODO: help attribute; comment attribute
-        // String fieldInfo = parser.getInfoParamValue(index);
-        
+        // TODO: help attribute; comment attribute        
         if (type == PARAM_GROUP_INPUT) {
             return Input.createInput(GenericInputTypes.GENERIC, fieldName);
         } else {
@@ -137,16 +135,14 @@ public class SADLParameterCreator {
      * @param index - index of a field to be parsed.
      * @return vvsadl parameter object or null.
      */
-    public static String createOutput(ParseAcd parser, Integer index) { 
-        String fieldType = parser.getParameterAttribute(index, 0);
-        String fieldName = parser.getParamValueStr(index, 0);
+    public static String createOutput(ACDParameter param) { 
+        String fieldType = param.getType();
+        String fieldName = param.getName();
         
         // Detect the parameter functional group
         Integer type = detectParameterGroup(fieldType.toLowerCase());
         
-        // TODO: help attribute; comment attribute
-        // String fieldInfo = parser.getInfoParamValue(index);
-        
+        // TODO: help attribute; comment attribute       
         if (type == PARAM_GROUP_OUTPUT) {
             return fieldName;
         } else {
