@@ -7,11 +7,16 @@ import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.analyser.emboss.ACDToSADL;
 
 public class ACDToSADLTest {
-    String path = "src/test/resources/";
-    
-    public void run() {
+    private static String path = "src/test/resources/";
+
+    public static ACDDescription getTestDescription() {
         ACDDescription acd = new ACDDescription();
         acd.fromFile(new File(path + "water.acd"));
+        return acd;
+    }
+
+    public void run() {
+        ACDDescription acd = getTestDescription();
         ACDToSADL converter = new ACDToSADL(acd);
         SADLDescription internal = converter.convert();
         
@@ -28,4 +33,5 @@ public class ACDToSADLTest {
     public static void main(String[] args) throws Exception {
         new ACDToSADLTest().run();
     }
+    
 }

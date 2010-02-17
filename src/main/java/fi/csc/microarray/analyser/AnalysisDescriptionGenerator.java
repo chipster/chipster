@@ -4,10 +4,18 @@ import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.description.SADLDescription.Parameter;
 
 /**
- * Listens to parse process and constructs description.
+ *  
+ * Generator for AnalysisDescription objects. AnalysisDescription objects are
+ * compute service specific versions of analysis tools descriptions.
+ * 
+ * @author Aleksi Kallio
+ *
  */
 public class AnalysisDescriptionGenerator {
 
+	/**
+	 * Converts generic SADLDescription to AnalysisDescription.
+	 */
 	public AnalysisDescription generate(SADLDescription source, AnalysisHandler analysisHandler) {
 		AnalysisDescription description = new AnalysisDescription(analysisHandler);
 		
@@ -22,6 +30,7 @@ public class AnalysisDescriptionGenerator {
 		}
 		
 		for (Parameter parameter : source.parameters()) {
+			System.out.println(parameter.getName());
 			description.addParameter(new AnalysisDescription.ParameterDescription(parameter.getName(), parameter.getComment(), parameter.getType().isNumeric()));
 		}
 		
