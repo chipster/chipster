@@ -5,9 +5,10 @@ import java.util.LinkedHashMap;
 
 import org.apache.regexp.RE;
 import org.emboss.jemboss.parser.AcdFunResolve;
+import org.emboss.jemboss.parser.ParseAcd;
 
 /**
- * Represents a single ACD parameter (simple, input, output etc.)
+ * Represents a single ACD parameter (simple, input, output, list etc.)
  * 
  * @author naktinis
  *
@@ -19,6 +20,7 @@ public class ACDParameter {
     private String name;
     private String section;
     private String subsection;
+    private HashMap<String, String> list;
     
     private HashMap<String, String> attributes = new HashMap<String, String>();
     
@@ -68,12 +70,12 @@ public class ACDParameter {
     }
        
     /**
-     * Define an attribute for this parameter.
+     * Define or update an attribute for this parameter.
      * 
      * @param name
      * @param value
      */
-    public void addAttribute(String name, String value) {
+    public void setAttribute(String name, String value) {
         attributes.put(name, value);
     }
     
@@ -88,6 +90,32 @@ public class ACDParameter {
             return attributes.get(name);
         }
         return null;
+    }
+    
+    /**
+     * Define keys and values for a list parameter. Valid only
+     * if paramter is of type "list" or "selection".
+     * 
+     * @param parser - Jemboss ParseAcd object.
+     * @param index - parameter index in parser object.
+     */
+    public void setList(ParseAcd parser, Integer index) {
+        list = new HashMap<String, String>();
+        String[] values = parser.getList(index);
+        
+        for (int i = 0; i < values.length; i++) {
+            list.put(parser.getListLabel(index, i), values[i]);
+        }
+    }
+    
+    /**
+     * Get the list HashMap for this Paramter. Valid only if
+     * parameter is of type "list" of "selection".
+     * 
+     * @return list object.
+     */
+    public HashMap<String, String> getList() {
+        return list;
     }
     
     /**
@@ -126,14 +154,18 @@ public class ACDParameter {
         return subsection;
     }
     
-    // TODO
-    
     /**
      * Determine if this parameter is required.
      * 
      * @return
      */
     public Boolean isRequired() {
+        String attrStandard = getAttribute("standard");
+        String attrParameter = getAttribute("parameter");
+        if ((attrStandard != null && attrStandard.equals("Y")) ||
+            (attrParameter != null && attrParameter.equals("Y"))) {
+            return true;
+        }
         return false;
     }
     
@@ -144,7 +176,8 @@ public class ACDParameter {
      * @return
      */
     public Boolean isAdditional() {
-        return false;
+        String attrAdditional = getAttribute("additional");
+        return attrAdditional != null && attrAdditional.equals("Y");
     }
     
     /**
@@ -154,7 +187,9 @@ public class ACDParameter {
      * @return
      */
     public Boolean isAdvanced() {
-        return false;
+        return getAttribute("standard") == null &&
+               getAttribute("parameter") == null &&
+               getAttribute("additional") == null;
     }
     
     /**
