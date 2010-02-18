@@ -6,7 +6,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.AdminAPI;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 
 public class AdminAPITest extends MessagingTestBase {

@@ -11,6 +11,7 @@
 
 	<!-- the project folder configuration -->
 	<property name="src" location="src/main/java" />
+	<property name="tools-src" location="src/main/tools/java" />
 	<property name="test-src" location="src/test/java" />
 	<property name="ext-src" location="src/main/applications" />
 	<property name="lib" location="ext/lib" />
@@ -36,7 +37,7 @@
 	<taskdef resource="testngtasks" classpath="${lib}/testng-5.9-jdk15.jar"/>
 
 	<!-- version numbering -->
-	<property name="release-version" value="1.4.1" />
+	<property name="release-version" value="1.4.2" />
 	<property name="r-version" value="R-2.9" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar" />
@@ -136,9 +137,11 @@
 			<entry key="version.number" value="${release-version}" />
 		</propertyfile>
 
+		<delete dir="${build}" quiet="true" />
 		<mkdir dir="${build}" />
 		<javac destdir="${build}" target="1.5" source="1.5" debug="true" failonerror="true">
 			<src path="${src}" />
+			<src path="${tools-src}" />
 			<classpath>
 				<fileset dir="${lib}">
 					<include name="**/*.jar" />

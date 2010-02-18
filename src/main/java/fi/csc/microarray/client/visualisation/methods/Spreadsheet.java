@@ -15,7 +15,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.table.DefaultTableModel;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.visualisation.MicroarrayTable;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
@@ -23,6 +22,7 @@ import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.RestrictModifier;
 import fi.csc.microarray.databeans.features.Table;
+import fi.csc.microarray.exception.MicroarrayException;
 
 /**
  * A GUI component for showing (and some day maybe even editing!) the

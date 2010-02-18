@@ -30,12 +30,12 @@ import org.apache.log4j.Logger;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
-import fi.csc.microarray.client.VisualConstants;
 import fi.csc.microarray.client.dataimport.table.InformationDialog;
 import fi.csc.microarray.client.dataimport.table.TableInternalFrame;
 import fi.csc.microarray.client.dataimport.tools.ToolsInternalFrame;
 import fi.csc.microarray.client.dataimport.trimmer.DataTrimmer;
 import fi.csc.microarray.client.screen.ScreenBase;
+import fi.csc.microarray.constants.VisualConstants;
 
 /**
  * The Import tool main class. Includes the GUI and also functions which 

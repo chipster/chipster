@@ -1,6 +1,6 @@
 package fi.csc.microarray.databeans.features;
 
-import fi.csc.microarray.MicroarrayException;
+import fi.csc.microarray.exception.MicroarrayException;
 
 public interface Feature {
 	

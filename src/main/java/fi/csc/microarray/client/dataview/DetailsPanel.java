@@ -25,9 +25,9 @@ import javax.swing.event.DocumentListener;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.VisualConstants;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.parameter.Parameter;
+import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataItem;
 

@@ -45,8 +45,6 @@ import org.jfree.data.hc.HCDataset;
 import org.jfree.data.hc.HCTreeNode;
 import org.jfree.data.hc.HeatMap;
 
-import fi.csc.microarray.ErrorReportAsException;
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.selection.RowChoiceEvent;
 import fi.csc.microarray.client.selection.RowSelectionManager;
 import fi.csc.microarray.client.visualisation.AnnotateListPanel;
@@ -64,6 +62,8 @@ import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.Traversal;
 import fi.csc.microarray.databeans.features.QueryResult;
 import fi.csc.microarray.databeans.features.Table;
+import fi.csc.microarray.exception.ErrorReportAsException;
+import fi.csc.microarray.exception.MicroarrayException;
 
 public class HierarchicalClustering extends Visualisation 
 implements PropertyChangeListener, SelectionChangeListener {
@@ -406,7 +406,7 @@ implements PropertyChangeListener, SelectionChangeListener {
 
 				GradientColorPalette colors = new GradientColorPalette(
 						new double[] {min, max}, 
-						new Color[] {Color.GREEN, Color.BLACK, Color.RED});
+						new Color[] {Color.BLUE, Color.BLACK, Color.RED});
 
 				hcPlot.setColoring(colors);
 

@@ -13,15 +13,14 @@ import org.mortbay.util.IO;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.exception.MicroarrayException;
 
 public class BasicRAnalysisTest extends AnalysisTestBase {
 
-	
 	@Test(groups = { "smoke"})
 	public void testRNoOperation() throws Exception {
 		Task job = executor.createTask("\"Test\"/\"No-op\"");

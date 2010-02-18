@@ -4,7 +4,7 @@
  */
 package fi.csc.microarray.auth;
 
-import fi.csc.microarray.MicroarrayException;
+import fi.csc.microarray.exception.MicroarrayException;
 
 /**
  * @author akallio

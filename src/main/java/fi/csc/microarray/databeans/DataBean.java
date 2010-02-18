@@ -7,9 +7,9 @@ import java.net.URL;
 import java.util.Date;
 import java.util.List;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.databeans.features.QueryResult;
+import fi.csc.microarray.exception.MicroarrayException;
 
 /**
  * <p>DataBean is the basic unit of databeans package. It holds a chunk

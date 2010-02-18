@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.client.VisualConstants;
+import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.description.ParsedVVSADL;
 import fi.csc.microarray.description.ParsedVVSADL.Input;
 import fi.csc.microarray.description.ParsedVVSADL.Parameter;

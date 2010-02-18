@@ -32,8 +32,8 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.VisualConstants;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
+import fi.csc.microarray.constants.VisualConstants;
 
 /**
  * The panel for two JLists: on the left side, high-level operation category

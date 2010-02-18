@@ -9,7 +9,6 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.TestConstants;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.TaskEventListener;
@@ -19,6 +18,7 @@ import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.fs.FSDataManager;
+import fi.csc.microarray.exception.MicroarrayException;
 
 /**
  *

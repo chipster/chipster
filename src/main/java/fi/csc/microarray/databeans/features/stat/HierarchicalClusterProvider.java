@@ -5,13 +5,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.biobeans.BioBean;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.BasicFeature;
 import fi.csc.microarray.databeans.features.FeatureProviderBase;
 import fi.csc.microarray.databeans.features.NonexistingFeature;
+import fi.csc.microarray.exception.MicroarrayException;
 
 public class HierarchicalClusterProvider extends FeatureProviderBase {
 

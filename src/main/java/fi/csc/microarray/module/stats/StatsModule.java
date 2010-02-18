@@ -1,6 +1,6 @@
 package fi.csc.microarray.module.stats;
 
-import fi.csc.microarray.client.VisualConstants;
+import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.features.RestrictModifier;
 import fi.csc.microarray.databeans.features.stat.LogModifier;

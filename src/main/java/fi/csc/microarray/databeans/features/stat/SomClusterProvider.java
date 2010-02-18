@@ -4,12 +4,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.ConstantTableFeature;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProviderBase;
 import fi.csc.microarray.databeans.features.NonexistingFeature;
+import fi.csc.microarray.exception.MicroarrayException;
 
 public class SomClusterProvider extends FeatureProviderBase {
 

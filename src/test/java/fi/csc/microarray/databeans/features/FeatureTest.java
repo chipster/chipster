@@ -8,7 +8,6 @@ import java.util.Iterator;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.TestConstants;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -17,6 +16,7 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.fs.FSDataManager;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.DefaultModules;
 
 public class FeatureTest {

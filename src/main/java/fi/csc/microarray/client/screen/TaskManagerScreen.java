@@ -38,9 +38,9 @@ import org.jdesktop.swingx.renderer.HyperlinkProvider;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
-import fi.csc.microarray.client.VisualConstants;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.TaskExecutor;
+import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.util.Strings;
 
 

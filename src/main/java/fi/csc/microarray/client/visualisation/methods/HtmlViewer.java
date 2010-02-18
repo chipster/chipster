@@ -4,11 +4,11 @@ import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
-import fi.csc.microarray.MicroarrayException;
-import fi.csc.microarray.client.VisualConstants;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
+import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.BrowsableHtmlPanel;
 
 public class HtmlViewer extends Visualisation {

@@ -17,7 +17,6 @@ import javax.swing.JTabbedPane;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.selection.RowChoiceEvent;
 import fi.csc.microarray.client.selection.RowSelectionManager;
 import fi.csc.microarray.client.visualisation.AnnotateListPanel;
@@ -26,6 +25,7 @@ import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.methods.VenndiPlot.AREAS;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.exception.MicroarrayException;
 
 public class VennDiagram extends Visualisation implements PropertyChangeListener {
 

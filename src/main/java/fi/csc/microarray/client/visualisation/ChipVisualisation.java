@@ -2,8 +2,8 @@ package fi.csc.microarray.client.visualisation;
 
 import java.util.Arrays;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.exception.MicroarrayException;
 
 public abstract class ChipVisualisation extends Visualisation {
 	

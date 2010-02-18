@@ -1,6 +1,6 @@
 package fi.csc.microarray.analyser.java;
 
-import fi.csc.microarray.MicroarrayException;
+import fi.csc.microarray.exception.MicroarrayException;
 
 public class FailingAnalysisJob extends JavaAnalysisJobBase {
 

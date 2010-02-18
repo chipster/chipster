@@ -23,10 +23,10 @@ import javax.swing.event.SwingPropertyChangeSupport;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.FileBrokerException;
 import fi.csc.microarray.messaging.JobState;

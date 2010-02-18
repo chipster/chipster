@@ -2,7 +2,7 @@ package fi.csc.microarray.databeans.features;
 
 import java.util.List;
 
-import fi.csc.microarray.MicroarrayException;
+import fi.csc.microarray.exception.MicroarrayException;
 
 public class ModifiedFeature extends FeatureBase {
 

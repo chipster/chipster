@@ -13,7 +13,6 @@ import java.util.List;
 
 import org.mortbay.util.IO;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.databeans.DataBean;
@@ -23,6 +22,7 @@ import fi.csc.microarray.databeans.DataItemCreatedEvent;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataManagerBase;
 import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.exception.MicroarrayException;
 
 public class FSDataManager extends DataManagerBase {
 

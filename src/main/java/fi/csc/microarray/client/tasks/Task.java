@@ -15,8 +15,8 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.exception.MicroarrayException;
 
 // TODO simplify Task, takes only input and Operation
 /**

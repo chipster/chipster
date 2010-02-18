@@ -1,11 +1,11 @@
 package fi.csc.microarray.databeans.features.table;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.ConstantFloatFeature;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProviderBase;
 import fi.csc.microarray.databeans.features.Table;
+import fi.csc.microarray.exception.MicroarrayException;
 
 
 /**

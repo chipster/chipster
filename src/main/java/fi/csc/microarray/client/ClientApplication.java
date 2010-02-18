@@ -29,8 +29,6 @@ import javax.swing.Timer;
 import org.apache.log4j.Logger;
 import org.mortbay.util.IO;
 
-import fi.csc.microarray.AdminAPI;
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.analyser.AnalyserServer;
 import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.dataimport.ImportSession;
@@ -67,6 +65,8 @@ import fi.csc.microarray.databeans.features.table.EditableTable;
 import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 import fi.csc.microarray.databeans.fs.FSDataManager;
 import fi.csc.microarray.description.ParsedVVSADL;
+import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.messaging.AdminAPI;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.Node;
 import fi.csc.microarray.messaging.NodeBase;
@@ -78,7 +78,6 @@ import fi.csc.microarray.module.Modules;
 import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.Strings;
-import fi.csc.microarray.wizard.WizardContext;
 
 
 /**
@@ -89,7 +88,7 @@ import fi.csc.microarray.wizard.WizardContext;
  * @author Aleksi Kallio
  *
  */
-public abstract class ClientApplication implements Node, WizardContext {
+public abstract class ClientApplication implements Node {
 	private static final int HEARTBEAT_DELAY = 2*1000;
 
 	/**
@@ -135,6 +134,7 @@ public abstract class ClientApplication implements Node, WizardContext {
 	public abstract void setMaximisedVisualisationMode(boolean maximisedVisualisationMode);
 	public abstract VisualisationFrameManager getVisualisationFrameManager();
 	public abstract void runBlockingTask(String taskName, final Runnable runnable);
+	public abstract DataManager getDataManager();
 
 	/**
 	 * Method is called periodically to maintain state that cannot be maintained 

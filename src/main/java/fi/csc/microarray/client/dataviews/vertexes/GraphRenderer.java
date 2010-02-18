@@ -18,7 +18,7 @@ import org.jgraph.JGraph;
 import org.jgraph.graph.CellView;
 import org.jgraph.graph.VertexRenderer;
 
-import fi.csc.microarray.client.VisualConstants;
+import fi.csc.microarray.constants.VisualConstants;
 
 /**
  * Renderer for a vertexes in MicroarrayGraph. For a collapsed group cell 

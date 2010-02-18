@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import fi.csc.microarray.MicroarrayException;
+import fi.csc.microarray.exception.MicroarrayException;
 
 /**
  * Tool for VVSADL related tasks.

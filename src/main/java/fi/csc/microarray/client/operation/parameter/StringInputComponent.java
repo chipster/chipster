@@ -2,7 +2,7 @@ package fi.csc.microarray.client.operation.parameter;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.event.FocusListener;
+import java.awt.event.FocusEvent;
 
 import javax.swing.JComponent;
 import javax.swing.JTextField;
@@ -11,14 +11,14 @@ import javax.swing.event.CaretListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-public class StringInputComponent extends ParameterInputComponent implements CaretListener, FocusListener, DocumentListener { 
+public class StringInputComponent extends ParameterInputComponent implements CaretListener, DocumentListener { 
 
-	private StringParameter parameter;
+	private StringParameter param;
 	private JTextField field;
 
-	protected StringInputComponent(StringParameter parameter, ParameterPanel parent) {		
-		super(parent);
-		this.parameter = parameter;
+	protected StringInputComponent(StringParameter parameter, ParameterPanel parameterPanel) {		
+		super(parameterPanel);
+		this.param = parameter;
 		this.field = new JTextField();
 		field.setPreferredSize(ParameterInputComponent.PREFERRED_SIZE);
 		field.setText("" + parameter.getValue());
@@ -31,7 +31,7 @@ public class StringInputComponent extends ParameterInputComponent implements Car
 	
 	@Override
 	public Parameter getParameter() {
-		return parameter;
+		return param;
 	}
 
 	@Override
@@ -40,11 +40,11 @@ public class StringInputComponent extends ParameterInputComponent implements Car
 	}
 
 	public void caretUpdate(CaretEvent e) {
-		getParentPanel().setMessage(parameter.getDescription(), Color.black);
+		getParentPanel().setMessage(param.getDescription(), Color.black);
 	}
 
 	private void updateParameter() {
-		parameter.setValue(field.getText());
+		param.setValue(field.getText());
 	}
 		
 	public void changedUpdate(DocumentEvent e) {
@@ -65,4 +65,9 @@ public class StringInputComponent extends ParameterInputComponent implements Car
 		return field;
 	}
 
+	public void focusGained(FocusEvent e) {
+		getParentPanel().setMessage(param.getDescription(), Color.black);
+	}
+
+	
 }

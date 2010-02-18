@@ -15,6 +15,7 @@
 			<tool runtime="R-2.9">norm-lme.R</tool>
 			<tool runtime="R-2.9">norm-illumina-SNP.R</tool>
 			<tool runtime="R-2.9">norm-prenormalized.R</tool>
+			<tool runtime="R-2.9">norm-prenormalized-affy.R</tool>
 			<tool runtime="R-2.9">norm-chip-average.R</tool>
 			<tool runtime="R-2.9">norm-gene-average.R</tool>
 			<tool runtime="R-2.9">norm-specific-samples.R</tool>
@@ -23,7 +24,8 @@
 
 			<!-- QUALITY CONTROL -->
 			<tool runtime="R-2.9">qc-affy.R</tool>
-			<tool runtime="R-2.9">qc-affy-rle-nuse.R</tool>						
+			<tool runtime="R-2.9">qc-affy-rle-nuse.R</tool>		
+			<tool runtime="R-2.9">qc-affy-exon-rle-nuse.R</tool>
 			<tool runtime="R-2.9">qc-cdna.R</tool>				
 			<tool runtime="R-2.9">qc-illumina.R</tool>
 			<tool runtime="R-2.9">qc-agilent.R</tool>
@@ -46,7 +48,8 @@
 			<tool runtime="R-2.9">stat-sam.R</tool>			
 			<tool runtime="R-2.9">stat-several-groups.R</tool>
 			<tool runtime="R-2.9">stat-linear-modelling.R</tool>			
-			<tool runtime="R-2.9">stat-correlate-with-phenodata.R</tool>				
+			<tool runtime="R-2.9">stat-correlate-with-phenodata.R</tool>
+			<tool runtime="R-2.10">correlation-analysis-mirna.R</tool>				
 			<tool runtime="R-2.9">stat-timeseries.R</tool>			
 			<tool runtime="R-2.9">stat-chisq-snp.R</tool>
 			<tool runtime="R-2.9">stat-adjust-pvalues.R</tool>
@@ -76,6 +79,8 @@
 			<tool runtime="R-2.9">stat-hyperG-cytoband.R</tool>
 			<tool runtime="R-2.9">stat-geneset.R</tool>
 			<!-- <tool runtime="R-2.10">correlation-analysis-mirna.R</tool> -->
+			<!-- <tool runtime="R-2.10">pathways-mirna-hyperg-go.R</tool> -->
+			<!-- <tool runtime="R-2.10">pathways-mirna-hyperg-kegg.R</tool> -->
 			<tool runtime="beanshell">annotate-cpdb.bsh</tool>
 			<tool runtime="beanshell">annotate-intact.bsh</tool>
 			<tool runtime="beanshell">annotate-reactome.bsh</tool>
@@ -120,6 +125,7 @@
 			<tool runtime="R-2.9">export-tab2mage.R</tool>
 			<tool runtime="R-2.9">export-soft.R</tool>
 			<tool runtime="R-2.9">import-soft2.R</tool>
+			<!-- <tool runtime="R-2.10">import-ArrayExpress.R</tool> -->
 			
 			<!-- MISCELLANEOUS (SEQUENCE ANALYSIS) -->
 			<tool runtime="R-2.9">seqanal-msa.R</tool>

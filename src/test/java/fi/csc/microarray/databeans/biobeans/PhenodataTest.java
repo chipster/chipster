@@ -8,7 +8,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.databeans.DataBean;
@@ -17,6 +16,7 @@ import fi.csc.microarray.databeans.LinkUtils;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.table.EditableTable;
 import fi.csc.microarray.databeans.fs.FSDataManager;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.DefaultModules;
 
 public class PhenodataTest {

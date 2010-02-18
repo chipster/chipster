@@ -1,6 +1,5 @@
 package fi.csc.microarray.databeans.features.bio;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.CalculatingIterable;
 import fi.csc.microarray.databeans.features.Feature;
@@ -9,6 +8,7 @@ import fi.csc.microarray.databeans.features.FeatureProvider;
 import fi.csc.microarray.databeans.features.FeatureProviderBase;
 import fi.csc.microarray.databeans.features.QueryResult;
 import fi.csc.microarray.databeans.features.CalculatingIterable.CalcOperation;
+import fi.csc.microarray.exception.MicroarrayException;
 
 public class NormalisedExpressionProvider extends FeatureProviderBase {
 	

@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.Table;
+import fi.csc.microarray.exception.MicroarrayException;
 
 /**
  * Reads table formatted DataBean and looks for common row annotation and description columns. 

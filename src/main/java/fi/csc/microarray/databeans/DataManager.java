@@ -7,11 +7,11 @@ import java.util.List;
 
 import javax.swing.Icon;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
 import fi.csc.microarray.databeans.features.Modifier;
+import fi.csc.microarray.exception.MicroarrayException;
 
 public interface DataManager {
 

@@ -6,6 +6,11 @@ import java.util.List;
 import fi.csc.microarray.description.VVSADLSyntax.InputType;
 import fi.csc.microarray.description.VVSADLSyntax.ParameterType;
 
+/**
+ * 
+ * @author Aleksi Kallio
+ *
+ */
 public class ParsedVVSADL {
 
 	private String name;

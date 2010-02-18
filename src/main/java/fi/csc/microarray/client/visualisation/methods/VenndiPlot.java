@@ -34,7 +34,7 @@ import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.PlotState;
 import org.jfree.util.ObjectUtilities;
 
-import fi.csc.microarray.client.VisualConstants;
+import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 
 public class VenndiPlot extends Plot implements ChartMouseListener, Cloneable, Serializable {

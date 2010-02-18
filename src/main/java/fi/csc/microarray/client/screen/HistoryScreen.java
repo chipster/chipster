@@ -28,7 +28,6 @@ import javax.swing.JTextArea;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.ClientApplication.SourceCodeListener;
@@ -39,6 +38,7 @@ import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.biobeans.BioBean;
 import fi.csc.microarray.description.VVSADLParser;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.GeneralFileFilter;
 import fi.csc.microarray.util.Strings;
 

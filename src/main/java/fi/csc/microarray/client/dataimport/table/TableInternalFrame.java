@@ -33,7 +33,6 @@ import com.jgoodies.looks.Options;
 import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
 import fi.csc.microarray.client.ToolBarComponentFactory;
-import fi.csc.microarray.client.VisualConstants;
 import fi.csc.microarray.client.dataimport.ColumnType;
 import fi.csc.microarray.client.dataimport.ImportScreen;
 import fi.csc.microarray.client.dataimport.events.ChipCountChangeEvent;
@@ -48,6 +47,7 @@ import fi.csc.microarray.client.dataimport.events.FooterChangedEvent;
 import fi.csc.microarray.client.dataimport.events.HeaderChangedEvent;
 import fi.csc.microarray.client.dataimport.events.InputFileChangedEvent;
 import fi.csc.microarray.client.dataimport.events.TitleRowChangedEvent;
+import fi.csc.microarray.constants.VisualConstants;
 
 /**
  * Class for import table (the right side of the main split pane)

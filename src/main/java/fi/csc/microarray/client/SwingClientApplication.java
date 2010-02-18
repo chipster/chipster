@@ -49,9 +49,6 @@ import com.jgoodies.looks.plastic.PlasticTheme;
 import com.jgoodies.looks.plastic.theme.ExperienceBlue;
 import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
-import fi.csc.microarray.ApplicationConstants;
-import fi.csc.microarray.ErrorReportAsException;
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.dataimport.ImportScreen;
 import fi.csc.microarray.client.dataimport.ImportSession;
@@ -63,6 +60,7 @@ import fi.csc.microarray.client.dataview.GraphPanel;
 import fi.csc.microarray.client.dataview.TreePanel;
 import fi.csc.microarray.client.dialog.ChipsterDialog;
 import fi.csc.microarray.client.dialog.ClipboardImportDialog;
+import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.dialog.DialogInfo;
 import fi.csc.microarray.client.dialog.ErrorDialogUtils;
 import fi.csc.microarray.client.dialog.ImportSettingsAccessory;
@@ -90,6 +88,8 @@ import fi.csc.microarray.client.waiting.WaitGlassPane;
 import fi.csc.microarray.client.workflow.WorkflowManager;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.constants.ApplicationConstants;
+import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.ContentType;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataChangeEvent;
@@ -101,6 +101,8 @@ import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.Traversal;
 import fi.csc.microarray.databeans.fs.FSSnapshottingSession;
 import fi.csc.microarray.description.VVSADLParser.ParseException;
+import fi.csc.microarray.exception.ErrorReportAsException;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.messaging.auth.ClientLoginListener;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
@@ -1145,6 +1147,11 @@ public class SwingClientApplication extends ClientApplication {
 		new ClipboardImportDialog(this);
 	}
 
+	public void openDatabaseImport(String title, Operation operation) throws MicroarrayException, IOException {
+		new TaskImportDialog(this, title, operation);
+	}
+
+	
 	protected void quit() {
 		int returnValue = JOptionPane.DEFAULT_OPTION;
 

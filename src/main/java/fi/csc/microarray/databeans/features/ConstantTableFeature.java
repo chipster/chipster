@@ -3,8 +3,8 @@ package fi.csc.microarray.databeans.features;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.exception.MicroarrayException;
 
 public class ConstantTableFeature extends BasicFeature {
 

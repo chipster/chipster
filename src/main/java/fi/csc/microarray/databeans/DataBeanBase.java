@@ -12,10 +12,10 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.QueryResult;
 import fi.csc.microarray.databeans.features.RequestExecuter;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.InputStreamSource;
 import fi.csc.microarray.util.StreamStartCache;
 import fi.csc.microarray.util.Strings;

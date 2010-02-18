@@ -1,7 +1,7 @@
 package fi.csc.microarray.databeans.features;
 
-import fi.csc.microarray.MicroarrayException;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.exception.MicroarrayException;
 
 public class NonexistingFeature extends BasicFeature{
 
