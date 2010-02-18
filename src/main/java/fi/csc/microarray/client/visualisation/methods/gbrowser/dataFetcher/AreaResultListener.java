@@ -1,6 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 
 public interface AreaResultListener {

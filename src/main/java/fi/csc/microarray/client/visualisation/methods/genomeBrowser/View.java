@@ -21,15 +21,15 @@ import java.util.List;
 import javax.swing.Timer;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.QueueManager;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.Strand;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoordDouble;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoordRegion;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoordRegionDouble;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.RulerTrack;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.Track;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDouble;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 
 public abstract  class View implements MouseListener, MouseMotionListener, MouseWheelListener{
 	

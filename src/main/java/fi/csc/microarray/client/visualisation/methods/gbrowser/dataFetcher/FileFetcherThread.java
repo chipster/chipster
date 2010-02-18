@@ -6,9 +6,9 @@ import java.io.RandomAccessFile;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.FileParser;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.FileRequest;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.FileResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileResult;
 
 
 public class FileFetcherThread extends Thread{

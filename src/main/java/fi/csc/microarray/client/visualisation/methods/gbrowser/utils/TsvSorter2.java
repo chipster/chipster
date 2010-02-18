@@ -1,6 +1,4 @@
-package fi.csc.chipster.tools.gbrowser;
-
-
+package fi.csc.microarray.client.visualisation.methods.gbrowser.utils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -10,23 +8,34 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 
-
-public class TsvSorter {
+public class TsvSorter2 {
 	
-	private int chrCol;
-	private int bpCol;
+	private static int chrCol;
+	private static int bpCol;
 	
-	public void sort(File in, File out, int chrCol, int bpCol) throws Exception {
+	public static void main(String[] args) throws Exception {
 		
-		this.chrCol = chrCol;
-		this.bpCol = bpCol;
-		externalSort(in, out);
+		//Eland
+		chrCol = new ElandParser().getFileDefinition().indexOf(ColumnType.CHROMOSOME);
+		bpCol = new ElandParser().getFileDefinition().indexOf(ColumnType.BP_START);
+		
+		//Casava
+//		chrCol = 10;
+//		bpCol = 12
+		
+		long s = System.currentTimeMillis();
+
+		externalSort("eland_result.txt", "sorted.txt");
+
+		System.out.println(System.currentTimeMillis() - s);
 	}
 	
-	private class Row extends BpCoord{
+	private static class Row extends BpCoord{
 		
 		public String line;
 		
@@ -48,7 +57,18 @@ public class TsvSorter {
 		}
 	}
 	
-	private void externalSort(File infile, File outfile) {
+	private static long startTime = -1;
+	
+	private static void showProgress(String message){
+		if(startTime != -1){
+			System.out.println((System.currentTimeMillis() - startTime) / 1000 + " s");
+		}
+		startTime = System.currentTimeMillis();
+		
+		System.out.println(message);
+	}
+	
+	private static void externalSort(String infile, String outfile) {
 		try {
 			BufferedReader initReader = new BufferedReader(new FileReader(infile));
 			ArrayList<Row> rowBatch = new ArrayList<Row>(500000);
@@ -96,7 +116,7 @@ public class TsvSorter {
 			
 			showProgress("Merging...");
 
-			mergeFiles(infile.getAbsolutePath(), outfile, numFiles);
+			mergeFiles(infile, outfile, numFiles);
 			
 			showProgress("DONE");
 
@@ -108,10 +128,7 @@ public class TsvSorter {
 
 	}
 
-	private void showProgress(String string) {
-	}
-
-	private void mergeFiles(String inputFilePath, File outputFilePath, int numChunkFiles) {
+	private static void mergeFiles(String inputFilePath, String outputFilePath, int numChunkFiles) {
 		try {
 			ArrayList<BufferedReader> mergefbr = new ArrayList<BufferedReader>();
 			ArrayList<Row> filerows = new ArrayList<Row>();

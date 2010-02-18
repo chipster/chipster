@@ -1,17 +1,17 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 import java.util.Map;
 
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.FileParser;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.AreaRequest;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoordRegion;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.FileResult;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.FsfStatus;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.RowRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RowRegion;
 
 
 public class TreeNode {

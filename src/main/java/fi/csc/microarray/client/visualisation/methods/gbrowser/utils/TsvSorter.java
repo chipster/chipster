@@ -1,6 +1,4 @@
-package fi.csc.chipster.tools.gbrowser;
-
-
+package fi.csc.microarray.client.visualisation.methods.gbrowser.utils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -10,45 +8,50 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-
-
 public class TsvSorter {
 	
-	private int chrCol;
-	private int bpCol;
+	private final static int col = 7;
 	
-	public void sort(File in, File out, int chrCol, int bpCol) throws Exception {
-		
-		this.chrCol = chrCol;
-		this.bpCol = bpCol;
-		externalSort(in, out);
+	public static void main(String[] args) throws Exception {
+		long s = System.currentTimeMillis();
+
+		externalSort("u_filtered.txt", "sorted.txt");
+
+		System.out.println(System.currentTimeMillis() - s);
 	}
 	
-	private class Row extends BpCoord{
+	private static class Row implements Comparable<Row>{
 		
 		public String line;
+		public Long pos;
 		
 		public Row(String line){
-			super(null, null);
-			
 			this.line = line;
-			String[] splitted = line.split("\t");
-			String chrStr = splitted.length > chrCol ? splitted[chrCol] : "";
-			String bpStr = splitted.length > bpCol ? splitted[bpCol] : "";
-			
-                        chr = new Chromosome(chrStr.replace("chr", "").replace(".fa", ""));
-
-			if(bpStr.equals("")){
-				bp = -1l;
+			String posStr = line.split("\t")[col];
+			if(posStr.equals("")){
+				this.pos = -1l;
 			} else {
-				bp = Long.parseLong(bpStr);
+				this.pos = Long.parseLong(posStr);
 			}
+		}
+
+		public int compareTo(Row other) {
+			return pos.compareTo(other.pos);
 		}
 	}
 	
-	private void externalSort(File infile, File outfile) {
+	private static long startTime = -1;
+	
+	private static void showProgress(String message){
+		if(startTime != -1){
+			System.out.println((System.currentTimeMillis() - startTime) / 1000 + " s");
+		}
+		startTime = System.currentTimeMillis();
+		
+		System.out.println(message);
+	}
+	
+	private static void externalSort(String infile, String outfile) {
 		try {
 			BufferedReader initReader = new BufferedReader(new FileReader(infile));
 			ArrayList<Row> rowBatch = new ArrayList<Row>(500000);
@@ -96,7 +99,7 @@ public class TsvSorter {
 			
 			showProgress("Merging...");
 
-			mergeFiles(infile.getAbsolutePath(), outfile, numFiles);
+			mergeFiles(infile, outfile, numFiles);
 			
 			showProgress("DONE");
 
@@ -108,10 +111,7 @@ public class TsvSorter {
 
 	}
 
-	private void showProgress(String string) {
-	}
-
-	private void mergeFiles(String inputFilePath, File outputFilePath, int numChunkFiles) {
+	private static void mergeFiles(String inputFilePath, String outputFilePath, int numChunkFiles) {
 		try {
 			ArrayList<BufferedReader> mergefbr = new ArrayList<BufferedReader>();
 			ArrayList<Row> filerows = new ArrayList<Row>();

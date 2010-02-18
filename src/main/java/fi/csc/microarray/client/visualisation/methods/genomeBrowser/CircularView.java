@@ -12,13 +12,13 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Point2D;
 
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.LineDrawable;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.TextDrawable;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoordDouble;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoordRegionDouble;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDouble;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 
 public class CircularView extends View{
 

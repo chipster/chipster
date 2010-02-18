@@ -5,10 +5,10 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.LineDrawable;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.TextDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 
 public class HorizontalView  extends View{
 

@@ -8,9 +8,9 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.FileParser;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.AreaRequest;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 
 public class QueueManager implements AreaResultListener {
 

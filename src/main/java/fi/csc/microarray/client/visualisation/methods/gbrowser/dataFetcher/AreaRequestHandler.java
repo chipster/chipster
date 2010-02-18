@@ -3,8 +3,8 @@ import java.util.Queue;
 
 import javax.swing.SwingUtilities;
 
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.AreaRequest;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 
 
 public abstract class AreaRequestHandler extends Thread{

@@ -25,26 +25,26 @@ import org.jfree.data.general.DatasetChangeEvent;
 import org.jfree.util.ObjectUtilities;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TreeThread;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.CytobandParser;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ElandParser;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.GeneParser;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.SequenceParser;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.Strand;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.TranscriptParser;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.miRNAParser;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoordRegion;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoordRegionDouble;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.BlockTrack;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.CytobandTrack;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.EmptyTrack;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.GeneTrack;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.IntensityTrack;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.RulerTrack;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.SeparatorTrack;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.SeqBlockTrack;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.SeqTrack;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.track.GeneTrack.PartColor;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SequenceParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.miRNAParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.BlockTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CytobandTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.EmptyTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GeneTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.IntensityTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeqBlockTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeqTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GeneTrack.PartColor;
 
 
 public class GenomeBrowser extends Plot 

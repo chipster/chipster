@@ -5,11 +5,11 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.FileParser;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.AreaRequest;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.FileRequest;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.FileResult;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.RowRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RowRegion;
 
 
 public class TreeThread extends AreaRequestHandler {
