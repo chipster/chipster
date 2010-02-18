@@ -7,6 +7,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
@@ -16,7 +17,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FilePa
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.View;
 
 public abstract class Track implements AreaResultListener {
 	

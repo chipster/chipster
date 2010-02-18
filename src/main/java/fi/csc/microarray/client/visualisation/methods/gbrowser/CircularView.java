@@ -1,4 +1,4 @@
-package fi.csc.microarray.client.visualisation.methods.genomeBrowser;
+package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
 import java.awt.BasicStroke;
 import java.awt.Color;

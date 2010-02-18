@@ -1,4 +1,4 @@
-package fi.csc.microarray.client.visualisation.methods.genomeBrowser;
+package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 
