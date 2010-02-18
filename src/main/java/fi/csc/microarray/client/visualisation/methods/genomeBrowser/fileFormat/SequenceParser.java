@@ -6,26 +6,29 @@ import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCo
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.RegionContent;
 
-public class CytobandParser extends ConstantRowLengthParser {
+public class SequenceParser extends ConstantRowLengthParser{
 
+	private static FileDefinition fileDef = new FileDefinition(
+			Arrays.asList(
+					new ColumnDefinition[] {
+							
+							new ColumnDefinition(ColumnType.CHROMOSOME, Type.LONG, 2),
+							new ColumnDefinition(ColumnType.BP_START, Type.LONG, 16),
+							new ColumnDefinition(ColumnType.BP_END, Type.LONG, 16),
+							new ColumnDefinition(ColumnType.STRAND, Type.STRING, 2),							
+							new ColumnDefinition(ColumnType.SEQUENCE, Type.STRING, 64),
+							new ColumnDefinition(ColumnType.SKIP, Type.NEWLINE, 1)
 
-	public CytobandParser() {
-		super(new FileDefinition(
-				Arrays.asList(
-						new ColumnDefinition[] {
-
-								new ColumnDefinition(ColumnType.CHROMOSOME, Type.STRING, 16),
-								new ColumnDefinition(ColumnType.BP_START, Type.LONG, 16),
-								new ColumnDefinition(ColumnType.BP_END, Type.LONG, 16),
-								new ColumnDefinition(ColumnType.ID, Type.STRING, 16),
-								new ColumnDefinition(ColumnType.VALUE, Type.STRING, 16),
-								new ColumnDefinition(ColumnType.SKIP, Type.NEWLINE, 1)
-						})));
+					}));
+	
+	public SequenceParser() {
+		
+			super(fileDef);
 	}
 
 	@Override
 	public int getChunkMaxByteLength() {
-		return (int)getRowByteLength() * 256;
+		return (int)getRowByteLength() * 128;
 	}
 
 	@Override
@@ -57,15 +60,15 @@ public class CytobandParser extends ConstantRowLengthParser {
 
 	@Override
 	public FileParser clone() {
-		FileParser clone = new CytobandParser();
+		FileParser clone = new SequenceParser();
 		
 		clone.chunk = this.chunk;
-		
+			
 		return clone;
 	}
 
 	@Override
 	public String getName() {
-		return "USCS Cytoband";
+		return "Chipster sequence file";
 	}
 }

@@ -64,6 +64,11 @@ public class TreeThread extends AreaRequestHandler {
 	}
 
 	private void processFileResult(FileResult fileResult) {
+		
+		if(fileResult.status.file.getName().contains("miRNA")) {
+			System.out.println("TreeThread: " + fileResult.status.file + ", " + inputParser);
+		}
+		
 		fileResult.request.node.processFileResult(fileResult);
 	}
 

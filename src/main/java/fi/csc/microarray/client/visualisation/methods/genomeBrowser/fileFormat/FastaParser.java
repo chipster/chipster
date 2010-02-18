@@ -96,4 +96,9 @@ public class FastaParser extends ConstantRowLengthParser{
 			
 		return clone;
 	}
+
+	@Override
+	public String getName() {
+		return "Fasta with coordinates";
+	}
 }

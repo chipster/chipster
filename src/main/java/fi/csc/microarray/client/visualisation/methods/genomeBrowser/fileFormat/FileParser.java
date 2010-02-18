@@ -67,4 +67,6 @@ public abstract class FileParser {
 			return 2;
 		}
 	}
+	
+	public abstract String getName();
 }

@@ -59,6 +59,10 @@ public class FileFetcherThread extends Thread{
 
 	private void processFileRequest(FileRequest fileRequest) throws IOException {
 		
+		if ( !fileRequest.status.file.equals(treeThread.getFile())) {
+			System.out.println("FileFetcherProcess: " + fileRequest.status.file + ", " + treeThread.getFile() + ", " + inputParser);
+		}
+		
 //		System.out.println("File: Got file request " + fileRequest.region.start);
 		
 		ByteChunk chunk = new ByteChunk(inputParser.getChunkMaxByteLength());			

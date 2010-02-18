@@ -216,7 +216,7 @@ public class GeneTrack extends Track{
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {		
 
-		String id = (String)areaResult.content.values.get(ColumnType.ID);
+		String id = (String)areaResult.content.values.get(ColumnType.PARENT_ID);
 
 		if(id != null && areaResult.content.values.get(ColumnType.STRAND) == getStrand()){
 			if(!genes.containsKey(id)){

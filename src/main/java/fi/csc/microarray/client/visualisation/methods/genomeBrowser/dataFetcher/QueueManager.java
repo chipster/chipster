@@ -27,6 +27,7 @@ public class QueueManager implements AreaResultListener {
 //	}		
 
 	public void createQueue(File file, Class<? extends AreaRequestHandler> dataFetcher, FileParser inputParser){
+		
 		if(!queues.containsKey(file)){
 			QueueContext context = new QueueContext();
 			context.queue = new ConcurrentLinkedQueue<AreaRequest>();		

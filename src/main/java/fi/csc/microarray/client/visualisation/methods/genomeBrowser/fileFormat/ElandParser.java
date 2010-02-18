@@ -123,4 +123,9 @@ public class ElandParser extends ConstantRowLengthParser{
 		}
 		return obj;
 	}
+
+	@Override
+	public String getName() {
+		return "Eland aligner";
+	}
 }

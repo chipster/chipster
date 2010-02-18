@@ -2,8 +2,9 @@ package fi.csc.microarray.client.visualisation.methods.genomeBrowser.utils;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-
-import com.mysql.jdbc.Statement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Statement;
 
 public class EnsemblConnector {
 
@@ -12,29 +13,85 @@ public class EnsemblConnector {
 		try {
 			Statement stmt;
 
-			//Register the JDBC driver for MySQL.
 			Class.forName("com.mysql.jdbc.Driver");
 
-			//Define URL of database server for
-			// database named mysql on the localhost
-			// with the default port number 3306.
 			String url =
 				"jdbc:mysql://ensembldb.ensembl.org:5306";
 
-			//Get a connection to the database for a
-			// user named root with a blank password.
-			// This user is the default administrator
-			// having full privileges to do anything.
 			Connection con =
 				DriverManager.getConnection(
 						url,"anonymous", "");
 
-			//Display URL and connection information
 			System.out.println("URL: " + url);
 			System.out.println("Connection: " + con);
 
-			//Get a Statement object
-			//stmt = con.createStatement();
+			stmt = con.createStatement();
+			
+			long t = System.currentTimeMillis();
+			
+			stmt.executeQuery("use homo_sapiens_core_56_37a");
+			
+			//EnsEMBL KNOWN GENES - no coding sequence, just exons and introns, 
+			//name(for example B3GALTL) and strand, this is most important
+			ResultSet resultSet = stmt.executeQuery(
+					"SELECT " +
+					"g.gene_id, " +
+					"g.seq_region_start as gene_start, " +
+					"g.seq_region_end as gene_end, " +
+					"g.seq_region_strand as strand, " +
+					"s.name as chr, " +
+					"e.seq_region_start as exon_start, " +
+					"e.seq_region_end as exon_end " +
+
+					"FROM " +
+					"gene g, seq_region s, exon_transcript et, exon e, coord_system c " +
+
+					"WHERE " + 
+					"g.status = 'KNOWN' AND " + 
+					"et.transcript_id = g.canonical_transcript_id AND " +
+					"et.exon_id = e.exon_id AND " +
+					"s.coord_system_id = c.coord_system_id AND " +
+					"c.name='chromosome' AND " +
+					"c.attrib = 'default_version' " +
+					"ORDER BY s.name, gene_start, exon_start " +
+					"LIMIT 0,100 " +
+					""
+			);
+			
+			System.out.println("" + (System.currentTimeMillis() - t) / 1000 + " seconds");
+			
+//			ResultSet resultSet = stmt.executeQuery(
+//					"SELECT " +
+//					"seq_region_start, " +
+//					"seq_region_end, " +
+//					"band, " +
+//					"stain, " +
+//					"name " +
+//					
+//					"FROM karyotype k " +
+//					"INNER JOIN seq_region s " +
+//					"ON k.seq_region_id=s.seq_region_id; "
+//			);
+			
+			
+			
+			ResultSetMetaData meta = resultSet.getMetaData();
+			
+			for(int i = 1; i <= meta.getColumnCount(); i++ ) {
+				System.out.print(meta.getColumnName(i) + "\t");
+			}
+			
+			System.out.println();
+			
+			resultSet.first();
+			
+			for(int i = 1; i <= meta.getColumnCount(); i++ ) {
+				
+				resultSet.getString(i);
+				System.out.print(resultSet.getString(i) + "\t");
+			}
+			
+			System.out.println();
 			
 			/*
 
@@ -121,7 +178,7 @@ ON k.seq_region_id=s.seq_region_id;
 			con.close();
 		}catch( Exception e ) {
 			e.printStackTrace();
-		}//end catch
-	}//end main
-}//end class Jdbc11
+		}
+	}
+}
 
