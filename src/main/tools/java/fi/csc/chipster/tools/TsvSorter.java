@@ -1,4 +1,4 @@
-package fi.csc.chipster.annotationPreparation;
+package fi.csc.chipster.tools;
 
 
 
@@ -10,8 +10,11 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.Chromosome;
 
-public class TsvSorter2 {
+
+public class TsvSorter {
 	
 	private int chrCol;
 	private int bpCol;

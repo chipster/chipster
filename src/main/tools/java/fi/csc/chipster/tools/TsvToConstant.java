@@ -1,4 +1,4 @@
-package fi.csc.chipster.annotationPreparation;
+package fi.csc.chipster.tools;
 
 
 
