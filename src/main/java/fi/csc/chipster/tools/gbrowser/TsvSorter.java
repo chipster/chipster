@@ -1,4 +1,4 @@
-package fi.csc.chipster.tools;
+package fi.csc.chipster.tools.gbrowser;
 
 
 
