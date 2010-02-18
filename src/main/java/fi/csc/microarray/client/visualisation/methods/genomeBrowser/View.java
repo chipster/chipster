@@ -20,7 +20,7 @@ import java.util.List;
 
 import javax.swing.Timer;
 
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.dataFetcher.QueueManager;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.QueueManager;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoord;

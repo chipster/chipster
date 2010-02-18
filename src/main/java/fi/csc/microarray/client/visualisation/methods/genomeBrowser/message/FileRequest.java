@@ -1,5 +1,5 @@
 package fi.csc.microarray.client.visualisation.methods.genomeBrowser.message;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.dataFetcher.TreeNode;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TreeNode;
 
 	public class FileRequest{
 		

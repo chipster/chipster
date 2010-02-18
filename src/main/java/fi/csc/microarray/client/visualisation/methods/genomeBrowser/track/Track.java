@@ -7,9 +7,9 @@ import java.io.File;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.View;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.dataFetcher.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.dataFetcher.AreaResultListener;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ColumnType;

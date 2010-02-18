@@ -24,7 +24,7 @@ import org.jfree.chart.plot.PlotState;
 import org.jfree.data.general.DatasetChangeEvent;
 import org.jfree.util.ObjectUtilities;
 
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.dataFetcher.TreeThread;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TreeThread;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.CytobandParser;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat.GeneParser;

@@ -3,7 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.genomeBrowser.fileFormat;
 import java.util.Collection;
 import java.util.Map;
 
-import fi.csc.microarray.client.visualisation.methods.genomeBrowser.dataFetcher.ByteChunk;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ByteChunk;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.genomeBrowser.message.RowRegion;
