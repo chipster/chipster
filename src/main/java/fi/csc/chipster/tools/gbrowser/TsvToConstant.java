@@ -9,15 +9,17 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import fi.csc.microarray.exception.MicroarrayException;
+
 
 public class TsvToConstant {
 
-	public static File convert(File in, File out, int[] fieldLengths) {
+	public static File convert(File in, File out, int[] fieldLengths) throws MicroarrayException {
 		
 		//File out = new File(in.getName().replace(".tsv", ".fsf"));
 		
-		System.out.print("Converting to constant column length...");
-		Long startTime = System.currentTimeMillis();
+		//System.out.print("Converting to constant column length...");
+		//Long startTime = System.currentTimeMillis();
 
 		BufferedWriter writer;
 		BufferedReader reader;
@@ -41,12 +43,11 @@ public class TsvToConstant {
 						try {
 							constLine.append(fillWithSpaces(cols[j], fieldLengths[j]));
 						} catch (StringIndexOutOfBoundsException e) {
-							System.err.println("Error in converting to constant column length file: " +
+							
+							throw new MicroarrayException("Error in converting to constant column length file: " +
 									"Column in input file is longer than defined column length. \n" +
 									"Input file: " + in.getName() + ", on row: " + i + ", column: " + j + "\n" + 
-									"Column content: " + cols[j] + ", defined length: " + fieldLengths[j]);
-							
-							throw e;									
+									"Column content: " + cols[j] + ", defined length: " + fieldLengths[j]);									
 						}
 					}
 				}

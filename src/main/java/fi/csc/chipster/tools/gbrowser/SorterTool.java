@@ -7,6 +7,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ConstantRowLengthParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileDefinition;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.JobState;
 
 public class SorterTool extends JavaAnalysisJobBase {
@@ -40,7 +41,7 @@ public class SorterTool extends JavaAnalysisJobBase {
 	}
 
 	@Override
-	protected void execute() throws Exception {
+	protected void execute() { //throws Exception {
 		updateState(JobState.RUNNING, "Sorting file", true);
 		
 		File inputFile = new File(jobWorkDir, "input.tsv");
@@ -57,8 +58,14 @@ public class SorterTool extends JavaAnalysisJobBase {
 			}
 		}		
 
-		new TsvSorter().sort(inputFile, tmpFile, 
-				def.indexOf(ColumnType.CHROMOSOME), def.indexOf(ColumnType.BP_START));
+		try {
+			new TsvSorter().sort(inputFile, tmpFile, 
+					def.indexOf(ColumnType.CHROMOSOME), def.indexOf(ColumnType.BP_START));
+			
+		} catch (Exception e) {
+			
+			updateState(JobState.FAILED, e.getMessage(), true);
+		}
 		
 		
 		
@@ -76,7 +83,13 @@ public class SorterTool extends JavaAnalysisJobBase {
 				fieldLengths[i] = def.get(i).length;
 			}
 				
-			TsvToConstant.convert(tmpFile, outputFile, fieldLengths);
+			try {
+				TsvToConstant.convert(tmpFile, outputFile, fieldLengths);
+				
+			} catch (MicroarrayException e) {
+				
+				updateState(JobState.FAILED, e.getMessage(), true);
+			}
 		}					
 		
 		updateState(JobState.RUNNING, "Sorting finished", true);		
