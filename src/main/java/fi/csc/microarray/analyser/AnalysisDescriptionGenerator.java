@@ -30,7 +30,6 @@ public class AnalysisDescriptionGenerator {
 		}
 		
 		for (Parameter parameter : source.parameters()) {
-			System.out.println(parameter.getName());
 			description.addParameter(new AnalysisDescription.ParameterDescription(parameter.getName(), parameter.getComment(), parameter.getType().isNumeric()));
 		}
 		

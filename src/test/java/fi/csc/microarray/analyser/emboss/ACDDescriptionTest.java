@@ -10,8 +10,7 @@ public class ACDDescriptionTest {
     String path = "src/test/resources/";
     
     public void run() {
-        ACDDescription acd = new ACDDescription();
-        acd.fromFile(new File(path + "emma.acd"));
+        ACDDescription acd = new ACDDescription(new File(path + "emma.acd"));
         
         // Test application description
         Assert.assertEquals(acd.getName(), "emma");

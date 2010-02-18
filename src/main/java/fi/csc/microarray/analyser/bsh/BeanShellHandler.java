@@ -30,7 +30,6 @@ import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;
  *
  */
 public class BeanShellHandler implements AnalysisHandler {
-	private static final String FILETYPE = ".bsh";
 
 	/**
 	 * Logger for this class
@@ -108,18 +107,9 @@ public class BeanShellHandler implements AnalysisHandler {
 		return ad;
 	}
 
-	
-	public boolean supports(String sourceResourceName) {
-		logger.debug("do we support " + sourceResourceName + ": " + sourceResourceName.toLowerCase().endsWith(FILETYPE));
-		return sourceResourceName.toLowerCase().endsWith(FILETYPE);
-	}
-
-
 	/**
 	 * Check if the source file has been modified since the 
 	 * AnalysisDescription was created.
-	 * 
-	 * 
 	 */
 	public boolean isUptodate(AnalysisDescription description) {
 		File scriptFile = new File(customScriptsDirName + description.getSourceResourceFullPath());

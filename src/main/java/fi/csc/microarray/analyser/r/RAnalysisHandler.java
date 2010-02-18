@@ -25,7 +25,6 @@ import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;
 
 public class RAnalysisHandler implements AnalysisHandler {
-	private static final String FILETYPE = ".r";
 
 	/**
 	 * Logger for this class
@@ -143,12 +142,6 @@ public class RAnalysisHandler implements AnalysisHandler {
 	}
 
 	
-	public boolean supports(String sourceResourceName) {
-		logger.debug("do we support " + sourceResourceName + ": " + sourceResourceName.toLowerCase().endsWith(FILETYPE));
-		return sourceResourceName.toLowerCase().endsWith(FILETYPE);
-	}
-
-
 	public boolean isUptodate(AnalysisDescription description) {
 		File scriptFile = new File(customScriptsDirName + description.getSourceResourceFullPath());
 		

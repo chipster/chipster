@@ -107,11 +107,18 @@ public class ACDDescription {
     }
     
     /**
+     * Empty constructor.
+     */
+    public ACDDescription() {
+        
+    }
+    
+    /**
      * Read an ACD file and store it in this object.
      * 
      * @param file - ACD file to be read.
      */
-    public void fromFile(File file) {
+    public ACDDescription(File file) {
         
         // Application-level attributes that we want to extract
         HashMap<String, String> appAttrs = new HashMap<String, String>();

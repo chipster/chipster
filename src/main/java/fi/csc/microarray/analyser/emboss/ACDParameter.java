@@ -2,6 +2,8 @@ package fi.csc.microarray.analyser.emboss;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.regexp.RE;
 import org.emboss.jemboss.parser.AcdFunResolve;
@@ -47,7 +49,7 @@ public class ACDParameter {
      * @param type
      */
     public void setType(String type) {
-        this.type = type;
+        this.type = type.toLowerCase();
     }
     
     /**
@@ -193,6 +195,20 @@ public class ACDParameter {
     }
     
     /**
+     * Determine if some attribute does not require additional
+     * evaluation. If parameter has a value such as "$(varname)"
+     * or "@($(varname)+1)" it is considered unevaluated.
+     * 
+     * @param attrName - attribute to be checked.
+     * @return true if attribute value does not require further
+     * evaluation.
+     */
+    public Boolean attributeIsEvaluated(String attrName) {
+        String attrValue = getAttribute(attrName);
+        return !(attrValue == null || attrValue.contains("$") || attrValue.contains("@"));
+    }
+    
+    /**
      * Resolve a given ACD expression.<br><br>
      * 
      * Example:<pre>
@@ -247,5 +263,96 @@ public class ACDParameter {
             // No changes were made - stop the recursion
             return resolvedExp;
         }
+    }
+    
+    /**
+     * Normalize given value according to this parameter.
+     * For example, if the type is "boolean", we should
+     * convert "true" to "Y" (according to ACD spec.)
+     * 
+     * @param value
+     */
+    // TODO check out what we get for ENUM, arrays etc.
+    public String normalize(String value) {
+        String type = getType();
+        value = value.toLowerCase();
+        if (type.equals("boolean")) {
+            if (value.equals("yes") || value.equals("true") || value.equals("1")) {
+                return "Y";
+            }
+            return "N";
+        }
+        return value;
+    }
+    
+    /**
+     * Check if a given value can be passed as this
+     * parameter.
+     * 
+     * @param value
+     */
+    // TODO lists, input, output files
+    public boolean validate(String value) {
+        String type = getType();
+        value = normalize(value);
+        if (type.equals("boolean") || type.equals("toggle")) {
+            
+            // Boolean
+            if (value == "Y" || value == "N") {
+                return true;
+            }
+            return false;
+        } else if (type.equals("integer")) {
+            
+            // Integer
+            try {
+                String attrMin = getAttribute("minimum");
+                String attrMax = getAttribute("maximum");
+                Integer intVal = Integer.parseInt(value);
+                
+                if (attrMin == null || attrMax == null || 
+                    attrMin.equals("") || attrMax.equals("")) {
+                    return true;
+                } else { 
+                    Integer minVal = Integer.parseInt(attrMin);
+                    Integer maxVal = Integer.parseInt(attrMax);
+                    return (intVal >= minVal && intVal <= maxVal);
+                }
+            }
+            catch(NumberFormatException nfe) {
+                return false;
+            }
+        } else if (type.equals("float")) {
+            
+            // Float
+            try {
+                String attrMin = getAttribute("minimum");
+                String attrMax = getAttribute("maximum");
+                Float floatVal = Float.parseFloat(value);
+                
+                if (attrMin == null || attrMax == null || 
+                    attrMin.equals("") || attrMax.equals("")) {
+                    return true;
+                } else { 
+                    Float minVal = Float.parseFloat(attrMin);
+                    Float maxVal = Float.parseFloat(attrMax);
+                    return (floatVal >= minVal && floatVal <= maxVal);
+                }
+            }
+            catch(NumberFormatException nfe) {
+                return false;
+            }
+        } else if (type.equals("array")) {
+            
+            // Array
+            Pattern re = Pattern.compile("^(\\d+(\\.\\d+)?[ ,])*\\d+(\\.\\d+)?$");
+            Matcher m = re.matcher(value);
+            if (!m.find()) {
+                return false;
+            }
+            return true;
+        }
+        
+        return true;
     }
 }

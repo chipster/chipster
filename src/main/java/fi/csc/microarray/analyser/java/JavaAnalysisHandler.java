@@ -50,19 +50,6 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 		return description;
 	}
 
-
-	public boolean supports(String sourceResourceName) {
-		// get the job class
-		Class<? extends Object> jobClass = null;
-		try { 
-			 jobClass = Class.forName(sourceResourceName);
-		} catch (ClassNotFoundException e) {
-			return false;
-		}
-		
-		return JavaAnalysisJobBase.class.isAssignableFrom(jobClass);
-	}
-
 	public boolean isUptodate(AnalysisDescription description) {
 		return true;
 	}
