@@ -41,6 +41,7 @@ public class TreeThread extends AreaRequestHandler {
 
 	
 	public synchronized void run(){
+		
 		fileFetcher = new FileFetcherThread(fileRequestQueue, fileResultQueue, this, inputParser);
 		createTree(fileFetcher.getRowCount());
 		fileFetcher.start();
@@ -65,14 +66,11 @@ public class TreeThread extends AreaRequestHandler {
 
 	private void processFileResult(FileResult fileResult) {
 		
-		if(fileResult.status.file.getName().contains("miRNA")) {
-			System.out.println("TreeThread: " + fileResult.status.file + ", " + inputParser);
-		}
-		
 		fileResult.request.node.processFileResult(fileResult);
 	}
 
 	protected void processAreaRequest(AreaRequest areaRequest) {
+		
 		if(debug)System.out.println("Tree: Got area request " + areaRequest);
 		
 		rootNode.processAreaRequest(areaRequest);

@@ -12,9 +12,9 @@ import java.io.IOException;
 
 public class TsvToConstant {
 
-	public static File convert(File in, int[] fieldLengths) {
+	public static File convert(File in, File out, int[] fieldLengths) {
 		
-		File out = new File(in.getName().replace(".tsv", ".fsf"));
+		//File out = new File(in.getName().replace(".tsv", ".fsf"));
 		
 		System.out.print("Converting to constant column length...");
 		Long startTime = System.currentTimeMillis();

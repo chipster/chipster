@@ -19,7 +19,9 @@ public class FileFetcherThread extends Thread{
 	private TreeThread treeThread;
 	
 	private RandomAccessFile raf;
-	private FileParser inputParser;
+	
+	//FIXME change to private after debug
+	public  FileParser inputParser;
 
 	public FileFetcherThread(BlockingQueue<FileRequest> fileRequestQueue,
 			ConcurrentLinkedQueue<FileResult> fileResultQueue, TreeThread treeThread, 
@@ -39,6 +41,7 @@ public class FileFetcherThread extends Thread{
 			e.printStackTrace();
 		}
 	}
+	
 
 	public void run() {
 		while(true){
@@ -58,10 +61,6 @@ public class FileFetcherThread extends Thread{
 	}
 
 	private void processFileRequest(FileRequest fileRequest) throws IOException {
-		
-		if ( !fileRequest.status.file.equals(treeThread.getFile())) {
-			System.out.println("FileFetcherProcess: " + fileRequest.status.file + ", " + treeThread.getFile() + ", " + inputParser);
-		}
 		
 //		System.out.println("File: Got file request " + fileRequest.region.start);
 		
