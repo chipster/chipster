@@ -26,12 +26,20 @@ public class ACDParameter {
     
     private HashMap<String, String> attributes = new HashMap<String, String>();
     
+    private final HashMap<String, ACDValidator> validators =
+        new HashMap<String, ACDValidator>();
+    
     public ACDParameter(String type, String name, String section,
                         String subsection) {
         this.setName(name);
         this.setType(type);
         this.setSection(section);
         this.setSubsection(subsection);
+        
+        validators.put("float", new FloatValidator());
+        validators.put("integer", new IntegerValidator());
+        validators.put("array", new ArrayValidator());
+        validators.put("boolean", new BooleanValidator());
     }
     
     /**
@@ -302,60 +310,39 @@ public class ACDParameter {
      * 
      * @param value
      */
-    // TODO lists, input, output files
     public boolean validate(String value) {
-        String type = getType();
-        value = normalize(value);
-        if (type.equals("boolean") || type.equals("toggle")) {
-            
-            // Boolean
+        ACDValidator validator;
+        if (validators.containsKey(getType())) {
+            validator = validators.get(getType());
+        } else {
+            validator = new VoidValidator();
+        }
+
+        return validator.accepts(normalize(value));
+    }
+    
+    // TODO: validate ranges, lists, input, output files
+    
+    /**
+     * Used for data types which are not (not yet) validated.
+     */
+    class VoidValidator extends ACDValidator {       
+        public boolean accepts(String value) {
+            return true;
+        }
+    }
+    
+    class BooleanValidator extends ACDValidator {       
+        public boolean accepts(String value) {
             if (value == "Y" || value == "N") {
                 return true;
             }
             return false;
-        } else if (type.equals("integer")) {
-            
-            // Integer
-            try {
-                String attrMin = getAttribute("minimum");
-                String attrMax = getAttribute("maximum");
-                Integer intVal = Integer.parseInt(value);
-                
-                if (attrMin == null || attrMax == null || 
-                    attrMin.equals("") || attrMax.equals("")) {
-                    return true;
-                } else { 
-                    Integer minVal = Integer.parseInt(attrMin);
-                    Integer maxVal = Integer.parseInt(attrMax);
-                    return (intVal >= minVal && intVal <= maxVal);
-                }
-            }
-            catch(NumberFormatException nfe) {
-                return false;
-            }
-        } else if (type.equals("float")) {
-            
-            // Float
-            try {
-                String attrMin = getAttribute("minimum");
-                String attrMax = getAttribute("maximum");
-                Float floatVal = Float.parseFloat(value);
-                
-                if (attrMin == null || attrMax == null || 
-                    attrMin.equals("") || attrMax.equals("")) {
-                    return true;
-                } else { 
-                    Float minVal = Float.parseFloat(attrMin);
-                    Float maxVal = Float.parseFloat(attrMax);
-                    return (floatVal >= minVal && floatVal <= maxVal);
-                }
-            }
-            catch(NumberFormatException nfe) {
-                return false;
-            }
-        } else if (type.equals("array")) {
-            
-            // Array
+        }
+    }
+    
+    class ArrayValidator extends ACDValidator {       
+        public boolean accepts(String value) {
             Pattern re = Pattern.compile("^(\\d+(\\.\\d+)?[ ,])*\\d+(\\.\\d+)?$");
             Matcher m = re.matcher(value);
             if (!m.find()) {
@@ -363,7 +350,59 @@ public class ACDParameter {
             }
             return true;
         }
-        
-        return true;
+    }
+    
+    class IntegerValidator extends ACDValidator {       
+        public boolean accepts(String value) {
+            Boolean accepts = true;
+            try {
+                String attrMin = getAttribute("minimum");
+                String attrMax = getAttribute("maximum");
+                Integer intVal = Integer.parseInt(value);
+                
+                if (attrMin != null && !attrMin.equals("")) {
+                    Integer minVal = Integer.parseInt(attrMin);
+                    accepts = accepts && (intVal >= minVal);
+                }
+                
+                if (attrMax != null && !attrMax.equals("")) {
+                    Integer maxVal = Integer.parseInt(attrMax);
+                    accepts = accepts && (intVal <= maxVal);
+                }
+                return accepts;
+            }
+            catch(NumberFormatException nfe) {
+                return false;
+            }
+        }
+    }
+    
+    class FloatValidator extends ACDValidator {       
+        public boolean accepts(String value) {
+            Boolean accepts = true;
+            try {
+                String attrMin = getAttribute("minimum");
+                String attrMax = getAttribute("maximum");
+                Float floatVal = Float.parseFloat(value);
+                
+                if (attrMin != null && !attrMin.equals("")) {
+                    Float minVal = Float.parseFloat(attrMin);
+                    accepts = accepts && (floatVal >= minVal);
+                }
+                
+                if (attrMax != null && !attrMax.equals("")) {
+                    Float maxVal = Float.parseFloat(attrMax);
+                    accepts = accepts && (floatVal <= maxVal);
+                }                
+                return accepts;
+            }
+            catch(NumberFormatException nfe) {
+                return false;
+            }
+        }
+    }
+    
+    public abstract class ACDValidator {       
+        abstract public boolean accepts(String value);
     }
 }

@@ -37,6 +37,10 @@ public class ACDDescriptionTest {
         Assert.assertTrue(acd.getParameter("sequence").isRequired());
         Assert.assertTrue(!acd.getParameter("sequence").isAdditional());
         Assert.assertTrue(!acd.getParameter("sequence").isAdvanced());
+        
+        // Test parameter validation
+        Assert.assertTrue(acd.getParameter("pwgapopen").validate("0.1"));
+        Assert.assertTrue(!acd.getParameter("pwgapopen").validate("-0.1"));
     }
     
     public static void main(String[] args) throws Exception {
