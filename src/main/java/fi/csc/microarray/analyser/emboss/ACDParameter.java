@@ -103,11 +103,22 @@ public class ACDParameter {
      */
     public void setList(ParseAcd parser, Integer index) {
         list = new HashMap<String, String>();
-        String[] values = parser.getList(index);
-        
-        for (int i = 0; i < values.length; i++) {
-            list.put(parser.getListLabel(index, i), values[i]);
+
+        // Check if it is "list" or "selection"
+        if (parser.getParameterAttribute(index, 0).equals("list")) {
+            String[] keys = parser.getList(index);
+            
+            for (int i = 0; i < keys.length; i++) {
+                list.put(keys[i], parser.getListLabel(index, i));
+            }
+        } else {
+            String[] titles = parser.getSelect(index);
+
+            for (Integer i = 0; i < parser.getSelect(index).length; i++) {
+                list.put(i.toString(), titles[i]);
+            }
         }
+
     }
     
     /**
