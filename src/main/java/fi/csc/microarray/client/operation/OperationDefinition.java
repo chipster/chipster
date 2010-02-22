@@ -2,6 +2,7 @@ package fi.csc.microarray.client.operation;
 
 import java.awt.Color;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -322,7 +323,7 @@ public class OperationDefinition implements ExecutionItem {
 			notProcessedInputValues.add(bean);
 		}
 
-		InputDefinition unboundMetadataDefinition = null;
+		LinkedList<InputDefinition> unboundMetadataDefinitions = new LinkedList<InputDefinition>();
 
 		logger.debug("binding " + notProcessedInputValues.size() + " values to " + inputs.size() + " formal inputs");
 
@@ -331,11 +332,22 @@ public class OperationDefinition implements ExecutionItem {
 			input.resetMulti();
 			boolean foundBinding = false;
 
+			// metadata needs not to be selected, it is fetched automatically
+			// FIXME causes strange troubles in some environments
+			// FIXME remove the hack and enable proper check (but update scripts to use PHENODATA before that)
+			//if (input.type.isMetadata()) {					
+			if (input.name.startsWith("phenodata")) {
+				foundBinding = true; // we'll find it later on
+				unboundMetadataDefinitions.add(input);
+				continue;
+				
+			}
+
 			// find values to bind by iterating over remaining actual parameters
 			LinkedList<DataBean> removedValues = new LinkedList<DataBean>();
 			for (DataBean value : notProcessedInputValues) {
-				// try to match values to input definitions
 
+				// try to match values to input definitions
 				logger.debug("  trying to bind " + value.getName() + " to " + input.name + " (" + input.type + ")");
 				if (input.type.isTypeOf(value)) {
 
@@ -353,22 +365,11 @@ public class OperationDefinition implements ExecutionItem {
 				}
 			}
 			notProcessedInputValues.removeAll(removedValues);
+
+			// input not bound, so can give up
 			if (!foundBinding) {
-				
-				// metadata needs not to be selected, it is fetched automatically
-				// FIXME remove the hack and enable proper check (but update scripts to use PHENODATA before that)
-				//if (input.type.isMetadata()) {					
-				if (input.name.contains("phenodata.tsv")) {
-					foundBinding = true; // we'll find it later on
-					unboundMetadataDefinition = input;
-					continue;
-					
-				} else {
-					logger.debug("  no binding found for " + input.name);
-					this.evaluatedSuitability = Suitability.NOT_ENOUGH_INPUTS;
-
-				}
-
+				logger.debug("  no binding found for " + input.name);
+				this.evaluatedSuitability = Suitability.NOT_ENOUGH_INPUTS;
 				return null;
 			}
 		}
@@ -378,25 +379,28 @@ public class OperationDefinition implements ExecutionItem {
 			return null;
 		}
 
+		// automatically bind phenodata, if needed
 		logger.debug("we have " + bindings.size() + " bindings before metadata retrieval");
-		if (unboundMetadataDefinition != null) {
-			// locate annotation (metadata) link from input bean or one of its ancestors
-			boolean found = false;
-			if (bindings.size() == 1) {
-				DataBean input = bindings.getFirst().getData();
+		if (!unboundMetadataDefinitions.isEmpty()) {
+
+			Iterator<DataBinding> bindingIterator = bindings.iterator();
+			LinkedList<DataBinding> phenodataBindings = new LinkedList<DataBinding>(); // need this to prevent ConcurrentModificationException
+			for (InputDefinition unboundMetadata : unboundMetadataDefinitions) {
+				
+				// locate annotation (metadata) link from input bean or one of its ancestors				
+				DataBean input = bindingIterator.next().getData(); // bind inputs and phenodatas in same order
 				DataBean metadata = LinkUtils.retrieveInherited(input, Link.ANNOTATION);
 
 				if (metadata != null) {
-					bindings.add(new DataBinding(metadata, unboundMetadataDefinition.getName(), ChipsterInputTypes.PHENODATA));
-					found = true;
+					phenodataBindings.add(new DataBinding(metadata, unboundMetadata.getName(), ChipsterInputTypes.PHENODATA));
+					
+				} else {
+					this.evaluatedSuitability = Suitability.NOT_ENOUGH_INPUTS;
+					return null;
 				}
-
 			}
-			if (!found) {
-				this.evaluatedSuitability = Suitability.NOT_ENOUGH_INPUTS;
-				return null;
-			}
-		}
+			bindings.addAll(phenodataBindings);
+		}		
 		logger.debug("we have " + bindings.size() + " bindings after metadata retrieval");
 
 		this.evaluatedSuitability = Suitability.SUITABLE;

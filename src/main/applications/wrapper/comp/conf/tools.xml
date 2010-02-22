@@ -15,6 +15,7 @@
 			<tool runtime="R-2.9">norm-lme.R</tool>
 			<tool runtime="R-2.9">norm-illumina-SNP.R</tool>
 			<tool runtime="R-2.9">norm-prenormalized.R</tool>
+			<tool runtime="R-2.9">norm-prenormalized-affy.R</tool>
 			<tool runtime="R-2.9">norm-chip-average.R</tool>
 			<tool runtime="R-2.9">norm-gene-average.R</tool>
 			<tool runtime="R-2.9">norm-specific-samples.R</tool>
@@ -47,7 +48,8 @@
 			<tool runtime="R-2.9">stat-sam.R</tool>			
 			<tool runtime="R-2.9">stat-several-groups.R</tool>
 			<tool runtime="R-2.9">stat-linear-modelling.R</tool>			
-			<tool runtime="R-2.9">stat-correlate-with-phenodata.R</tool>				
+			<tool runtime="R-2.9">stat-correlate-with-phenodata.R</tool>
+			<tool runtime="R-2.10">correlation-analysis-mirna.R</tool>				
 			<tool runtime="R-2.9">stat-timeseries.R</tool>			
 			<tool runtime="R-2.9">stat-chisq-snp.R</tool>
 			<tool runtime="R-2.9">stat-adjust-pvalues.R</tool>

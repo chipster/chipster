@@ -19,6 +19,7 @@ import javax.swing.KeyStroke;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.dialog.RenameDialog;
+import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.selection.DataSelectionManager;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
@@ -29,6 +30,7 @@ import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.Files;
 
 public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListener {
@@ -45,6 +47,8 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem directImportMenuItem = null;
 	private JMenuItem importFromURLMenuItem = null;
 	private JMenuItem importFromClipboardMenuItem = null;
+	private JMenuItem importFromArrayExpressMenuItem = null;
+	private JMenuItem importFromGEOMenuItem = null;
 	private JMenuItem openWorkflowsMenuItem = null;
 	private JMenuItem addDirMenuItem = null;
 	private JMenuItem exportMenuItem = null;
@@ -61,6 +65,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem contentMenuItem;
 	private JMenuItem startedMenuItem;
 	private JMenuItem saveWorkflowMenuItem;
+	private JMenuItem helpWorkflowMenuItem;
 	private JMenuItem saveSnapshotMenuItem;
 	private JMenu recentWorkflowMenu;
 	private JMenuItem loadSnapshotMenuItem;
@@ -68,7 +73,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem clearSessionMenuItem;
 	private JMenuItem selectAllMenuItem;
 	private JMenuItem historyMenuItem;
-	// private JMenuItem duplicateMenuItem;
 	private JMenuItem maximiseVisualisationMenuItem;
 	private JMenuItem visualiseMenuItem;
 	private JMenuItem detachMenuItem;
@@ -154,8 +158,12 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (importMenu == null) {
 			importMenu = new JMenu();
 			importMenu.setText("Import from");
+			importMenu.add(getImportFromArrayExpressMenuItem());
+			importMenu.add(getImportFromGEOMenuItem());
+			importMenu.addSeparator();
 			importMenu.add(getImportFromURLMenuItem());
 			importMenu.add(getImportFromClipboardMenuItem());
+			
 		}
 		return importMenu;
 	}
@@ -200,10 +208,65 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return importFromURLMenuItem;
 	}
 
+	private JMenuItem getImportFromArrayExpressMenuItem() {
+		if (importFromArrayExpressMenuItem == null) {
+			importFromArrayExpressMenuItem = new JMenuItem();
+			importFromArrayExpressMenuItem.setText("ArrayExpress...");
+			importFromArrayExpressMenuItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					try {
+						Operation importOperation = new Operation(application.locateOperationDefinition(MicroarrayModule.IMPORT_CAT, MicroarrayModule.IMPORT_FROM_ARRAYEXPRESS_NAME), new DataBean[] {});
+						application.openDatabaseImport("ArrayExpress", importOperation);
+					} catch (Exception me) {
+						application.reportException(me);
+					}
+				}
+			});
+		}
+		return importFromArrayExpressMenuItem;
+	}
+
+	private JMenuItem getImportFromGEOMenuItem() {
+		if (importFromGEOMenuItem == null) {
+			importFromGEOMenuItem = new JMenuItem();
+			importFromGEOMenuItem.setText("GEO...");
+			importFromGEOMenuItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					try {
+						Operation importOperation = new Operation(application.locateOperationDefinition(MicroarrayModule.IMPORT_CAT, MicroarrayModule.IMPORT_FROM_GEO_NAME), new DataBean[] {});
+						application.openDatabaseImport("GEO", importOperation);
+					} catch (Exception me) {
+						application.reportException(me);
+					}
+				}
+			});
+		}
+		return importFromGEOMenuItem;
+	}
+
+	
+	private JMenuItem getHelpWorkflowMenuItem() {
+		if (helpWorkflowMenuItem == null) {
+			helpWorkflowMenuItem = new JMenuItem();
+			helpWorkflowMenuItem.setText("More information...");
+			helpWorkflowMenuItem.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					try {
+						application.viewHelp("chipster-manual/workflows.html#ready");
+						
+					} catch (Exception me) {
+						application.reportException(me);
+					}
+				}
+			});
+		}
+		return helpWorkflowMenuItem;
+	}
+	
 	private JMenuItem getOpenWorkflowMenuItem() {
 		if (openWorkflowsMenuItem == null) {
 			openWorkflowsMenuItem = new JMenuItem();
-			openWorkflowsMenuItem.setText("Open and run...");
+			openWorkflowsMenuItem.setText("Run...");
 			openWorkflowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
@@ -222,16 +285,26 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenu getOpenRepositoryWorkflowMenu() {
 		if (openRepoWorkflowsMenu == null) {
 
-			String[][] flows = { { "Find differentially expressed genes", "/find-differentially-expressed-genes.bsh" }, { "Find genes using classification analysis", "/find-genes-with-classification.bsh" } };
+			// add repository content
+			String[][] flows = { 
+					{ "Gene expression analysis", "/gene-expression-analysis.bsh" }, 
+					{ "Protein expression analysis", "/protein-expression-analysis.bsh" },
+					{ "miRNA expression analysis", "/mirna-expression-analysis.bsh" }
+			};
 
 			openRepoWorkflowsMenu = new JMenu();
-			openRepoWorkflowsMenu.setText("Run from repository");
+			openRepoWorkflowsMenu.setText("Run from Chipster repository");
 
 			for (String[] flow : flows) {
 				JMenuItem item = new JMenuItem(flow[0]);
 				item.addActionListener(new RepoWorkflowActionListener(flow[0], flow[1]));
 				openRepoWorkflowsMenu.add(item);
 			}
+
+			// add help
+			openRepoWorkflowsMenu.addSeparator();
+			openRepoWorkflowsMenu.add(getHelpWorkflowMenuItem());
+
 		}
 		return openRepoWorkflowsMenu;
 	}
@@ -413,8 +486,9 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			workflowsMenu = new JMenu();
 			workflowsMenu.setText("Workflow");
 			workflowsMenu.add(getOpenWorkflowMenuItem());
-			workflowsMenu.add(getOpenRepositoryWorkflowMenu());
 			workflowsMenu.add(getRecentWorkflowMenu());
+			workflowsMenu.add(getOpenRepositoryWorkflowMenu());
+			workflowsMenu.addSeparator();
 			workflowsMenu.add(getSaveWorkflowMenuItem());
 		}
 		return workflowsMenu;
