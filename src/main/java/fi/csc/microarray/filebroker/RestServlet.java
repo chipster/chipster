@@ -21,10 +21,8 @@ import fi.csc.microarray.config.DirectoryLayout;
 import sun.net.www.protocol.http.HttpURLConnection;
 
 /**
-* <p>Adds support for HTTP PUT, MOVE and 
-* DELETE methods. If init parameters read-permission-role and write-permission-role
-* are defined then all requests are authorized using the defined roles. Also GET methods are
-* authorized. </p>
+* <p>Servlet for RESTful file access in Chipster. Extends DefaultServlet and adds support for HTTP PUT and 
+* DELETE methods. Also adds Chipster authentication and security checks.</p>
 *   
 * @author Aleksi Kallio
 *
