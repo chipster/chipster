@@ -30,10 +30,11 @@ import org.w3c.dom.Element;
 public class ToolXMLGenerator {
     
     // TODO
-    // * There are problems with 2 acd files: intconv.acd and complex.acd
-    //   They have 'relations: ' instead of the correct 'relations: ""'
-    // * There's also a problem with ensembltest.acd
-    //   It had 'default: 25' instead of 'default: "25"' 
+    // There are problems with 3 acd files: intconv.acd, complex.acd
+    // and ensembltest.acd.
+    // The first two have 'relations: ' instead of the correct
+    // 'relations: ""'. The third one (ensembltest.acd)
+    // had 'default: 25' instead of 'default: "25"' 
     
     private File acdDir;
     private File outFile;
@@ -94,7 +95,6 @@ public class ToolXMLGenerator {
                         // according to ACD specification
                         tool.setTextContent(acdFile.getName());
                         tool.setAttribute("runtime", "EMBOSS");
-                        // TODO: version attribute
                         tools.appendChild(tool);
                     }
                 }
@@ -144,9 +144,8 @@ public class ToolXMLGenerator {
         }
     }
     
-    
     public static void main(String[] args) {
         new ToolXMLGenerator("/opt/EMBOSS-6.2.0/emboss/acd",
-                             "/home/naktinis/Desktop/emboss-tools.xml").generate();
+                             "src/main/applications/wrapper/comp/conf/tools-emboss.xml").generate();
     }
 }
