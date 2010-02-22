@@ -44,7 +44,7 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 		
 		AnalysisDescription description = new AnalysisDescription(this);
 		description.setImplementation(jobClass);
-		description.setVVSADL(jobInstance.getVVSADL());
+		description.setVVSADL(jobInstance.getSADL());
 		description.setSourceResourceName(jobClass.getName());
 		
 		return description;

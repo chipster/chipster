@@ -34,7 +34,7 @@ public class VVSADLDescriptionTest {
 				if (file.split("\\.").length > 2) {
 					// class
 					JavaAnalysisJobBase jobBase = (JavaAnalysisJobBase)Class.forName(file).newInstance();
-					vvsadl = jobBase.getVVSADL();
+					vvsadl = jobBase.getSADL();
 				} else { 
 					// script file
 					if (!file.contains("/old") && !file.contains("/hidden")) {

@@ -24,5 +24,5 @@ public abstract class JavaAnalysisJobBase extends AnalysisJob {
 		// ignore by default
 	}
 
-	public abstract String getVVSADL();
+	public abstract String getSADL();
 }

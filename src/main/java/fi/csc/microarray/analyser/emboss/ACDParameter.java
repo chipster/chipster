@@ -40,6 +40,8 @@ public class ACDParameter {
         validators.put("integer", new IntegerValidator());
         validators.put("array", new ArrayValidator());
         validators.put("boolean", new BooleanValidator());
+        validators.put("list", new ListValidator());
+        validators.put("selection", new ListValidator());
     }
     
     /**
@@ -114,10 +116,10 @@ public class ACDParameter {
 
         // Check if it is "list" or "selection"
         if (parser.getParameterAttribute(index, 0).equals("list")) {
-            String[] keys = parser.getList(index);
+            String[] titles = parser.getList(index);
             
-            for (int i = 0; i < keys.length; i++) {
-                list.put(keys[i], parser.getListLabel(index, i));
+            for (int i = 0; i < titles.length; i++) {
+                list.put(parser.getListLabel(index, i), titles[i]);
             }
         } else {
             String[] titles = parser.getSelect(index);
@@ -287,7 +289,8 @@ public class ACDParameter {
     /**
      * Normalize given value according to this parameter.
      * For example, if the type is "boolean", we should
-     * convert "true" to "Y" (according to ACD spec.)
+     * convert "true" to "Y" (i.e. we convert the value
+     * according to ACD spec.)
      * 
      * @param value
      */
@@ -296,10 +299,13 @@ public class ACDParameter {
         String type = getType();
         value = value.toLowerCase();
         if (type.equals("boolean")) {
-            if (value.equals("yes") || value.equals("true") || value.equals("1")) {
+            if (value.equals("yes") || value.equals("true") || value.equals("1") ||
+                value.equals("y")) {
                 return "Y";
+            } else if (value.equals("no") || value.equals("true") || value.equals("0") ||
+                       value.equals("n")) {
+                return "N";
             }
-            return "N";
         }
         return value;
     }
@@ -321,7 +327,7 @@ public class ACDParameter {
         return validator.accepts(normalize(value));
     }
     
-    // TODO: validate ranges, lists, input, output files
+    // TODO: validate ranges, input, output files
     
     /**
      * Used for data types which are not (not yet) validated.
@@ -402,7 +408,13 @@ public class ACDParameter {
         }
     }
     
-    public abstract class ACDValidator {       
+    class ListValidator extends ACDValidator {       
+        public boolean accepts(String value) {
+            return getList().containsKey(value);
+        }
+    }
+    
+    private abstract class ACDValidator {       
         abstract public boolean accepts(String value);
     }
 }

@@ -6,7 +6,7 @@ import java.util.LinkedList;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.analyser.AnalysisJob;
+import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
 import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
 import fi.csc.microarray.messaging.JobState;
@@ -20,7 +20,7 @@ import fi.csc.microarray.messaging.message.ResultMessage;
  *
  */
 // TODO extend OnDiskAnalysisJobBase
-public class EmbossAnalysisJob extends AnalysisJob {
+public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
     
     // EMBOSS logger
     static final Logger logger = Logger.getLogger(EmbossAnalysisJob.class);
@@ -92,8 +92,9 @@ public class EmbossAnalysisJob extends AnalysisJob {
         
         // Input from the client
         JobMessage jobMessage = this.inputMessage;
-               
+        
         // TODO Processing...
+        System.out.println(this.jobWorkDir);
         
         // This is what we should produce as output
         ResultMessage outputMessage = this.outputMessage;

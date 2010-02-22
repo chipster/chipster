@@ -43,12 +43,14 @@ public class EmbossRoundtripTest {
         // Client processes SADL and generates new analysis 
         // job according to user's input
         JobMessage jobMessage = new JobMessage();
+        jobMessage.setJobId("water-1");
         jobMessage.addParameter("110.0");  // gapopen (error: greater than maximum)
         jobMessage.addParameter("10.0");   // gapextend
         jobMessage.addParameter("Y");      // brief
+        
         // TODO test input files
-        //DataBean bean = beanFromFile("sequences/human_adh6.fasta"); 
-        //jobMessage.addPayload("asequence", bean.getUrl());
+        DataBean bean = beanFromFile("sequences/human_adh6.fasta"); 
+        jobMessage.addPayload("asequence", bean.getUrl());
         
         // Process the job at compute server side
         executeJob("water.acd", jobMessage);
@@ -104,11 +106,17 @@ public class EmbossRoundtripTest {
     private ResultCallback resultCallback = new ResultCallback() {
 
         public FileBrokerClient getFileBrokerClient() {
+            // TODO: we would need a mock client here
             return null;
         }
 
         public File getWorkDir() {
-            return null;
+            // Create a temporary directory for testing purposes
+            File jobDir = new File("src/test/resources/emboss-tmp");
+            if (!jobDir.exists()) {
+                jobDir.mkdir();
+            }
+            return jobDir;
         }
 
         public void removeRunningJob(AnalysisJob job) {
@@ -122,7 +130,7 @@ public class EmbossRoundtripTest {
         }
 
         public boolean shouldSweepWorkDir() {
-            return false;
+            return true;
         }
         
     };

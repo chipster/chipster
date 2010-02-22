@@ -8,7 +8,7 @@ import org.testng.annotations.Test;
 import fi.csc.microarray.analyser.VVSADLTool;
 import fi.csc.microarray.analyser.VVSADLTool.ParsedRScript;
 
-public class VVSADLToolTest {
+public class SADLToolTest {
 
 	@Test(groups = { "unit"})
 	public void testEvilContent() throws Exception {	
@@ -20,6 +20,6 @@ public class VVSADLToolTest {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		new VVSADLToolTest().testEvilContent();
+		new SADLToolTest().testEvilContent();
 	}
 }
