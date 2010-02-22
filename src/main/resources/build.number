@@ -1,3 +1,8 @@
 #Build Number for ANT. Do not edit!
+<<<<<<< local
+#Thu Feb 18 16:12:32 EET 2010
+build.number=841
+=======
 #Fri Feb 19 13:40:44 EET 2010
 build.number=845
+>>>>>>> other
