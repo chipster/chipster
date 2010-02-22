@@ -25,7 +25,7 @@ public class CircularView extends View{
 	private Point offset;
 	private float angleOffset = (float) Math.PI;
 
-	public CircularView(GenomeBrowser parent, boolean movable,
+	public CircularView(GenomePlot parent, boolean movable,
 			boolean zoomable, boolean selectable) {
 		super(parent, movable, zoomable, selectable);
 	}

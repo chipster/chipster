@@ -42,7 +42,7 @@ public abstract  class View implements MouseListener, MouseMotionListener, Mouse
 	private Point2D dragStartPoint;
 	private boolean dragStarted;
 	
-	GenomeBrowser parentPlot;
+	GenomePlot parentPlot;
 	
 	private static final int FPS = 30;
     
@@ -67,7 +67,7 @@ public abstract  class View implements MouseListener, MouseMotionListener, Mouse
 	private long dragEventTime;
 	private long DRAG_EXPIRATION = 50; // ms;
 	
-	public View(GenomeBrowser parent, boolean movable, boolean zoomable, boolean selectable) {
+	public View(GenomePlot parent, boolean movable, boolean zoomable, boolean selectable) {
 		parentPlot = parent;
 		this.movable = movable;
 		this.zoomable = zoomable;

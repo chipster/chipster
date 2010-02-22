@@ -47,7 +47,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeqTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GeneTrack.PartColor;
 
 
-public class GenomeBrowser extends Plot 
+public class GenomePlot extends Plot 
 implements ChartMouseListener, Cloneable, Serializable{ //, MouseWheelListener {	
 
 	/** The cell information text is drawn with this font. */
@@ -59,7 +59,7 @@ implements ChartMouseListener, Cloneable, Serializable{ //, MouseWheelListener {
 
 	private BufferedImage drawBuffer;;
 
-	public GenomeBrowser() throws IOException{
+	public GenomePlot() throws IOException{
 
 		overview = new HorizontalView(this, false, false, true);
 		//overview = new HorizontalView(this, false, false, true);
@@ -542,10 +542,10 @@ implements ChartMouseListener, Cloneable, Serializable{ //, MouseWheelListener {
 		if (obj == this) {
 			return true;
 		}
-		if (!(obj instanceof GenomeBrowser)) {
+		if (!(obj instanceof GenomePlot)) {
 			return false;
 		}
-		GenomeBrowser that = (GenomeBrowser) obj;
+		GenomePlot that = (GenomePlot) obj;
 
 		//        if (!ObjectUtilities.equal(this.urlGenerator, that.urlGenerator)) {
 		//            return false;

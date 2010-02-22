@@ -12,7 +12,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDraw
 
 public class VerticalView  extends View{
 
-	public VerticalView(GenomeBrowser parent, boolean movable, boolean zoomable,
+	public VerticalView(GenomePlot parent, boolean movable, boolean zoomable,
 			boolean selectable) {
 		super(parent, movable, zoomable, selectable);		
 	}
