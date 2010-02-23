@@ -1,6 +1,7 @@
 package fi.csc.microarray.analyser;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -209,8 +210,20 @@ public class ToolRepository {
 	private void loadTools() throws IOException, SAXException, ParserConfigurationException { 
 		logger.info("loading tools");
 		
-		File toolConfig = new File(DirectoryLayout.getInstance().getConfDir(), "tools.xml");
-		
+		String [] toolFiles = new String[] { "tools.xml", "emboss-tools.xml" };
+		for (String toolFileName: toolFiles) {
+			File toolFile = new File(DirectoryLayout.getInstance().getConfDir(), toolFileName);
+			if (toolFile.exists()) {
+				logger.info("loading from " + toolFileName);
+				loadToolsFromFile(toolFile);
+			}
+		}
+	}
+
+
+	private void loadToolsFromFile(File toolFile) throws FileNotFoundException, SAXException, IOException, ParserConfigurationException {
+		File toolConfig = toolFile;
+
 		Document document = XmlUtil.parseReader(new FileReader(toolConfig));
 		Element toolsElement = (Element)document.getElementsByTagName("tools").item(0);
 
@@ -220,25 +233,25 @@ public class ToolRepository {
 		int disabledCount = 0;
 		for (Element toolElement: XmlUtil.getChildElements(toolsElement, "tool")) {
 			totalCount++;
-			
+
 			// tool name
 			String sourceResourceName = toolElement.getTextContent();
 			logger.debug("loading " + sourceResourceName);
 
 			// runtime
 			String runtimeName = toolElement.getAttribute("runtime");
-			
+
 			// disabled or hidden?
 			boolean toolDisabled = toolElement.getAttribute("disabled").equals("true");
 			boolean toolHidden = toolElement.getAttribute("hidden").equals("true");
-			
+
 			// load the tool
 			ToolRuntime runtime = runtimes.get(runtimeName);
 			if (runtime == null) {
 				logger.warn("loading " + sourceResourceName + " failed, could not find runtime " + runtimeName);
 				continue;
 			}
-			
+
 			AnalysisDescription description;
 			try {
 				description = runtime.getHandler().handle(sourceResourceName);
@@ -254,7 +267,7 @@ public class ToolRepository {
 			}
 			descriptions.put(description.getFullName(), description);
 			successfullyLoadedCount++;
-			
+
 			String disabledStatus = "";
 			if (!runtime.isDisabled() && !toolDisabled) {
 				supportedDescriptions.put(description.getFullName(), description);
@@ -269,9 +282,11 @@ public class ToolRepository {
 				hiddenStatus = " HIDDEN";
 				hiddenCount++;
 			}
-			
+
 			logger.info("loaded " + description.getFullName().replace("\"", "") + " " + description.getSourceResourceFullPath() + disabledStatus + hiddenStatus);
 		}
 		logger.info("loaded " + successfullyLoadedCount + "/" + totalCount + " tools, " + disabledCount + " disabled, " + hiddenCount + " hidden");
+
 	}
+
 }
