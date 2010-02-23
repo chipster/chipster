@@ -2,6 +2,11 @@ package fi.csc.microarray.analyser.emboss;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Random;
+
+import javax.jms.JMSException;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
@@ -11,10 +16,8 @@ import fi.csc.microarray.analyser.AnalysisDescription;
 import fi.csc.microarray.analyser.AnalysisJob;
 import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.fs.FSDataManager;
-import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.filebroker.FileBrokerClient;
+import fi.csc.microarray.filebroker.FileBrokerClientMock;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.messaging.message.NamiMessage;
@@ -28,7 +31,15 @@ public class EmbossRoundtripTest {
 
     @BeforeSuite
     protected void setUp() throws Exception {
-        DirectoryLayout.initialiseUnitTestLayout();            
+        /*
+         * MessagingEndpoint constructor requires configuration to be present.
+         * However, initialiseUnitTestLayout() assumes that there is no
+         * configuration.
+         * 
+         * MessagingTestBase actually uses initialiseClientLayout() for 
+         * accomplishing the very same task.
+         */
+        DirectoryLayout.initialiseClientLayout();            
     }
 
     /**
@@ -39,54 +50,44 @@ public class EmbossRoundtripTest {
      * @throws Exception 
      */
     @Test
-    public void testRoundtrip() throws Exception {
+    public void testRoundtripValidation() throws Exception {       
         // Client processes SADL and generates new analysis 
         // job according to user's input
         JobMessage jobMessage = new JobMessage();
-        jobMessage.setJobId("water-1");
+        jobMessage.setJobId("water-" + new Random().nextInt(1000));
         jobMessage.addParameter("110.0");  // gapopen (error: greater than maximum)
         jobMessage.addParameter("10.0");   // gapextend
         jobMessage.addParameter("Y");      // brief
-        
-        // TODO test input files
-        DataBean bean = beanFromFile("sequences/human_adh6.fasta"); 
-        jobMessage.addPayload("asequence", bean.getUrl());
         
         // Process the job at compute server side
         executeJob("water.acd", jobMessage);
         
         // Check that result is ok
-        Assert.assertTrue(!isResultOK);
+        Assert.assertFalse(isResultOK);
     }
     
-    public static void main(String[] args) throws Exception {
-        EmbossRoundtripTest test = new EmbossRoundtripTest();
-        test.setUp();
-        test.testRoundtrip();
-    }
-    
-    private DataBean beanFromFile(String filename) {
-        FileInputStream input;
-        try {
-            input = new FileInputStream(new File(path + filename));
-            DataBean bean = new FSDataManager().createDataBean(filename, input);
-            return bean;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-    
-    /**
-     * Create SADL description from given EMBOSS application name.
-     * 
-     * @param appName
-     * @return
-     */
-    private SADLDescription createSADL(String appName) {
-        ACDDescription acd = ACDToSADLTest.getTestDescription("water");
-        ACDToSADL converter = new ACDToSADL(acd);
-        return converter.convert();
+    @Test
+    public void testRoundtripExecution() throws Exception {
+        // Client processes SADL and generates new analysis 
+        // job according to user's input
+        JobMessage jobMessage = new JobMessage();
+        jobMessage.setJobId("water-" + new Random().nextInt(1000));
+        jobMessage.addParameter("100.0");  // gapopen
+        jobMessage.addParameter("10.0");   // gapextend
+        jobMessage.addParameter("Y");      // brief
+        
+        // User uploads two files for input
+        InputStream firstInput = new FileInputStream(path + "sequences/human_adh6.fasta");
+        InputStream secondInput = new FileInputStream(path + "sequences/funghi_adh6.fasta");
+        URL firstUrl = resultCallback.getFileBrokerClient().addFile(firstInput, null);
+        URL secondUrl = resultCallback.getFileBrokerClient().addFile(secondInput, null);
+        jobMessage.addPayload("asequence", firstUrl);
+        jobMessage.addPayload("bsequence", secondUrl);
+        
+        // Process the job at compute server side
+        executeJob("water.acd", jobMessage);
+        
+        // TODO: check the result
     }
     
     /**
@@ -105,14 +106,24 @@ public class EmbossRoundtripTest {
     
     private ResultCallback resultCallback = new ResultCallback() {
 
+        private FileBrokerClient fileBroker = null;
+
         public FileBrokerClient getFileBrokerClient() {
-            // TODO: we would need a mock client here
-            return null;
+            // Create a mock file broker
+            if (fileBroker == null) {
+                try {
+                    fileBroker = new FileBrokerClientMock();
+                } catch (JMSException e) {
+                    e.printStackTrace();
+                }
+            }
+            
+            return fileBroker;
         }
 
         public File getWorkDir() {
             // Create a temporary directory for testing purposes
-            File jobDir = new File("src/test/resources/emboss-tmp");
+            File jobDir = new File(path + "emboss-tmp");
             if (!jobDir.exists()) {
                 jobDir.mkdir();
             }
@@ -130,9 +141,17 @@ public class EmbossRoundtripTest {
         }
 
         public boolean shouldSweepWorkDir() {
-            return true;
+            return false;
         }
         
     };
 
+    public static void main(String[] args) throws Exception {
+        EmbossRoundtripTest test = new EmbossRoundtripTest();
+        test.setUp();
+        test.testRoundtripValidation();
+        test.testRoundtripExecution();
+        System.exit(0);
+    }
+    
 }

@@ -19,8 +19,10 @@ import fi.csc.microarray.messaging.message.ResultMessage;
  * @author naktinis, akallio
  *
  */
-// TODO extend OnDiskAnalysisJobBase
 public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
+    
+    // FIXME
+    static final String PATH_TO_RUNTIME = "/opt/EMBOSS-6.2.0/emboss/";
     
     // EMBOSS logger
     static final Logger logger = Logger.getLogger(EmbossAnalysisJob.class);
@@ -93,8 +95,40 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         // Input from the client
         JobMessage jobMessage = this.inputMessage;
         
-        // TODO Processing...
-        System.out.println(this.jobWorkDir);
+        // TODO: refactor
+        
+        // Form the parameters (including the executable)
+        LinkedList<String> params = new LinkedList<String>();
+        params.add(PATH_TO_RUNTIME + analysis.getName());
+        
+        // Parameters
+        for (EmbossQualifier qualifier : qualifiers) {
+            params.add(qualifier.toString());
+        }
+        
+        // Inputs
+        for (String name : jobMessage.payloadNames()) {
+            params.add("-" + name + " " + name);
+        }
+        
+        // Outputs
+        // TODO: add outputs according to ACD
+        params.add("-outfile " +  "output");
+        
+        String[] call = params.toArray(new String[params.size()]);
+        
+        String cmd = "";
+        for (String string : call) {
+            cmd += " " + string;
+        }
+        
+        // Processing...        
+        Process p = Runtime.getRuntime().exec(cmd, null, jobWorkDir);
+        
+        // Some information from error stream
+        byte[] b = new byte[150];
+        p.getErrorStream().read(b);
+        String errorString = new String(b);
         
         // This is what we should produce as output
         ResultMessage outputMessage = this.outputMessage;
