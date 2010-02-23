@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.security.CryptoKey;
 
 /**
@@ -26,16 +28,21 @@ public class AuthorisedUrlRepository {
 	 * i.e., PUT requests are to be rejected to that URL.
 	 */
 	private static final int URL_LIFETIME_MINUTES = 10;
+	private static final String COMPRESSION_SUFFIX = ".compressed";
 
 	private HashMap<URL, Date> repository = new HashMap<URL, Date>();  
 	private Lock repositoryLock = new ReentrantLock();
 
 	private String host;
 	private int port;
+	private String userDataPath;
 	
 	public AuthorisedUrlRepository(String host, int port) {
 		this.host = host;
-		this.port = port;		
+		this.port = port;
+		
+		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
+		userDataPath = configuration.getString("filebroker", "user-data-path");
 	}
 
 	/**
@@ -50,7 +57,7 @@ public class AuthorisedUrlRepository {
 
 		String compressionSuffix = "";
 		if (useCompression) {
-			compressionSuffix = ".compressed";
+			compressionSuffix = COMPRESSION_SUFFIX;
 		}
 
 		repositoryLock.lock();
@@ -58,7 +65,7 @@ public class AuthorisedUrlRepository {
 			// create url that does not exist in the repository
 			do {
 				String filename = CryptoKey.generateRandom();
-				newUrl = new URL(host + ":" + port + "/" + filename + compressionSuffix);
+				newUrl = new URL(host + ":" + port + "/" + userDataPath + "/" + filename + compressionSuffix);
 				
 			} while (repository.containsKey(newUrl));
 
@@ -102,7 +109,12 @@ public class AuthorisedUrlRepository {
 	}
 	
 	public boolean checkFilenameSyntax(String filename) {
-		return CryptoKey.validateKeySyntax(filename);
+		String fileNameToCheck = filename;
+		if (filename.endsWith(COMPRESSION_SUFFIX)) {
+			fileNameToCheck = filename.substring(0, filename.length() - COMPRESSION_SUFFIX.length());
+		}
+		
+		return CryptoKey.validateKeySyntax(fileNameToCheck);
 	}
 	
 	private boolean isDateValid(Date date) {
@@ -116,3 +128,5 @@ public class AuthorisedUrlRepository {
 		return host + ":" + port;
 	}
 }
+
+
