@@ -18,7 +18,7 @@ query<-query
 
 # Loads libraries
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
-if(phenodata$chiptype[1]!="cDNA" | phenodata$chiptype[1]!="Illumina" | phenodata$chiptype[1]!="miRNA" ) {
+if(phenodata$chiptype[1]!="cDNA" & phenodata$chiptype[1]!="Illumina" & phenodata$chiptype[1]!="miRNA" ) {
    lib<-phenodata$chiptype[1]
    lib<-as.character(lib)
    
