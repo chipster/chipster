@@ -146,6 +146,6 @@ public class ToolXMLGenerator {
     
     public static void main(String[] args) {
         new ToolXMLGenerator("/opt/EMBOSS-6.2.0/emboss/acd",
-                             "src/main/applications/wrapper/comp/conf/tools-emboss.xml").generate();
+                             "debug-base-dir/conf/emboss-tools.xml").generate();
     }
 }

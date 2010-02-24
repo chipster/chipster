@@ -21,8 +21,7 @@ import fi.csc.microarray.messaging.message.ResultMessage;
  */
 public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
     
-    // FIXME
-    static final String PATH_TO_RUNTIME = "/opt/EMBOSS-6.2.0/emboss/";
+    private String toolDirectory;
     
     // EMBOSS logger
     static final Logger logger = Logger.getLogger(EmbossAnalysisJob.class);
@@ -36,9 +35,14 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         // TODO Auto-generated method stub
 
     }
+    
+    public EmbossAnalysisJob(String toolDirectory) {
+        // Directory where the runnable files are stored
+        this.toolDirectory = toolDirectory;
+    }
 
     @Override
-    protected void execute() throws Exception {        
+    protected void execute() throws Exception {
       
         // Get parameter values from user's input (order is significant)
         inputParameters = new LinkedList<String>(inputMessage.getParameters());
@@ -99,7 +103,7 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         
         // Form the parameters (including the executable)
         LinkedList<String> params = new LinkedList<String>();
-        params.add(PATH_TO_RUNTIME + analysis.getName());
+        params.add(new File(toolDirectory, analysis.getName()).getAbsolutePath());
         
         // Parameters
         for (EmbossQualifier qualifier : qualifiers) {
@@ -113,7 +117,7 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         
         // Outputs
         // TODO: add outputs according to ACD
-        params.add("-outfile " +  "output");
+        params.add("-outfile " +  "outfile");
         
         String[] call = params.toArray(new String[params.size()]);
         

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Random;
 
 import javax.jms.JMSException;
@@ -97,7 +98,14 @@ public class EmbossRoundtripTest {
      * @param jobMessage
      */
     private void executeJob(String acdFileName, JobMessage jobMessage) throws Exception {
-        EmbossAnalysisHandler analysisHandler = new EmbossAnalysisHandler();
+        // Imitate a configuration file
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("externalToolPath", "/opt/chipster/tools");
+        params.put("toolPath", "/EMBOSS-6.2.0/emboss");
+        params.put("descriptionPath", "/EMBOSS-6.2.0/emboss/acd");
+        
+        // Create a job using a handler
+        EmbossAnalysisHandler analysisHandler = new EmbossAnalysisHandler(params);
         AnalysisDescription description = analysisHandler.handle(acdFileName);
         AnalysisJob analysisJob = analysisHandler.createAnalysisJob(jobMessage,
                                                                     description, resultCallback);
