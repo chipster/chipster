@@ -3,7 +3,6 @@ package fi.csc.microarray.analyser.emboss;
 import java.io.File;
 import java.util.HashMap;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.analyser.AnalysisDescription;
@@ -40,7 +39,7 @@ public class EmbossAnalysisHandler implements AnalysisHandler {
     
     public AnalysisJob createAnalysisJob(JobMessage jobMessage, AnalysisDescription description,
                                          ResultCallback resultCallback) {
-        EmbossAnalysisJob analysisJob = new EmbossAnalysisJob(toolDirectory);
+        EmbossAnalysisJob analysisJob = new EmbossAnalysisJob(toolDirectory, acdDirectory);
         analysisJob.construct(jobMessage, description, resultCallback);
         return analysisJob;
     }
@@ -55,10 +54,11 @@ public class EmbossAnalysisHandler implements AnalysisHandler {
         // Create description for computation server
         SADLDescription sadlDescription = new ACDToSADL(acdDescription).convert();
         AnalysisDescription description =
-            new AnalysisDescriptionGenerator().generate(sadlDescription, null);
+            new AnalysisDescriptionGenerator().generate(sadlDescription, this);
         
         // Fill description with Emboss-specific values
         description.setCommand("EMBOSS");
+        description.setVVSADL(sadlDescription.toString());
         description.setSourceCode("Source code not available for EMBOSS tools. " + 
                                   "See: http://emboss.sourceforge.net/ ");
         description.setSourceResourceName(acdFileName);

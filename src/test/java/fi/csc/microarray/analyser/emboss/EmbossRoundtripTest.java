@@ -32,15 +32,7 @@ public class EmbossRoundtripTest {
 
     @BeforeSuite
     protected void setUp() throws Exception {
-        /*
-         * MessagingEndpoint constructor requires configuration to be present.
-         * However, initialiseUnitTestLayout() assumes that there is no
-         * configuration.
-         * 
-         * MessagingTestBase actually uses initialiseClientLayout() for 
-         * accomplishing the very same task.
-         */
-        DirectoryLayout.initialiseClientLayout();            
+        DirectoryLayout.initialiseClientLayout();
     }
 
     /**
@@ -63,7 +55,7 @@ public class EmbossRoundtripTest {
         // Process the job at compute server side
         executeJob("water.acd", jobMessage);
         
-        // Check that result is ok
+        // Check if execution failed
         Assert.assertFalse(isResultOK);
     }
     
@@ -88,7 +80,8 @@ public class EmbossRoundtripTest {
         // Process the job at compute server side
         executeJob("water.acd", jobMessage);
         
-        // TODO: check the result
+        // Check if result is ok
+        Assert.assertTrue(isResultOK);
     }
     
     /**
@@ -131,7 +124,7 @@ public class EmbossRoundtripTest {
 
         public File getWorkDir() {
             // Create a temporary directory for testing purposes
-            File jobDir = new File(path + "emboss-tmp");
+            File jobDir = new File(path, "emboss-tmp");
             if (!jobDir.exists()) {
                 jobDir.mkdir();
             }
@@ -141,7 +134,7 @@ public class EmbossRoundtripTest {
         public void removeRunningJob(AnalysisJob job) {
         }
 
-        public void sendResultMessage(NamiMessage inputMessage, ResultMessage resultMessage) {          
+        public void sendResultMessage(NamiMessage inputMessage, ResultMessage resultMessage) {
             if (resultMessage.getState() == JobState.COMPLETED) {
                 // This is a bit ugly and might cause trouble when tests are run in parallel?
                 isResultOK = true;
@@ -149,7 +142,7 @@ public class EmbossRoundtripTest {
         }
 
         public boolean shouldSweepWorkDir() {
-            return false;
+            return true;
         }
         
     };

@@ -129,9 +129,9 @@ public class ACDToSADL {
 	        // TODO: help attribute; comment attribute
 	        String fieldInfo = param.getAttribute("information");
 	        
-	        if (fieldType == "boolean" || fieldType == "toggle") {
+	        if (fieldType.equals("boolean") || fieldType.equals("toggle")) {
 	            // Boolean types need some special handling
-	            String[] fieldOptions = {"Yes", "No"};
+	            String[] fieldOptions = {"Y", "N"};
 	            return new Parameter(fieldName, typeMap.get(fieldType), fieldOptions,
 	                    null, null, fieldDefault, fieldInfo);
 	        } else if (type == PARAM_GROUP_SIMPLE) {

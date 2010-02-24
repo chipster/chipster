@@ -10,7 +10,6 @@ import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
 import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
 import fi.csc.microarray.messaging.JobState;
-import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
 
 /**
@@ -22,6 +21,7 @@ import fi.csc.microarray.messaging.message.ResultMessage;
 public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
     
     private String toolDirectory;
+    private String descriptionDirectory;
     
     // EMBOSS logger
     static final Logger logger = Logger.getLogger(EmbossAnalysisJob.class);
@@ -36,9 +36,12 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
 
     }
     
-    public EmbossAnalysisJob(String toolDirectory) {
-        // Directory where the runnable files are stored
+    public EmbossAnalysisJob(String toolDirectory, String descriptionDirectory) {
+        // Directory where runnable files are stored
         this.toolDirectory = toolDirectory;
+        
+        // Directory where application descriptions are stored
+        this.descriptionDirectory = descriptionDirectory;
     }
 
     @Override
@@ -96,10 +99,48 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
             index++;
         }
         
-        // Input from the client
-        JobMessage jobMessage = this.inputMessage;
+        // Processing...
+        String cmd = commandLine();
+        Process p = Runtime.getRuntime().exec(cmd, null, jobWorkDir);
+        p.waitFor();
         
-        // TODO: refactor
+        // TODO: Some information from error stream
+        // byte[] b = new byte[150];
+        // p.getErrorStream().read(b);
+        // String errorString = new String(b);
+        
+        // This is what we should produce as output
+        ResultMessage outputMessage = this.outputMessage;
+        
+        // This is where results are returned 
+        ResultCallback resultHandler = this.resultHandler;
+        
+        outputMessage.setState(JobState.COMPLETED);
+        resultHandler.sendResultMessage(inputMessage, outputMessage);
+    }
+    
+    /**
+     * Parse the appropriate ACD description file.
+     * 
+     * @return ACD description object.
+     */
+    protected ACDDescription getACD() {
+        String appName = analysis.getName();
+        return new ACDDescription(new File(descriptionDirectory, appName + ".acd"));
+    }
+
+    @Override
+    protected void preExecute() throws Exception {
+        super.preExecute();
+    }
+    
+    /**
+     * Return a command line, including executable and
+     * parameters, that will be executed.
+     * 
+     * @return
+     */
+    private String commandLine() {
         
         // Form the parameters (including the executable)
         LinkedList<String> params = new LinkedList<String>();
@@ -111,55 +152,20 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         }
         
         // Inputs
-        for (String name : jobMessage.payloadNames()) {
+        for (String name : inputMessage.payloadNames()) {
             params.add("-" + name + " " + name);
         }
         
         // Outputs
         // TODO: add outputs according to ACD
         params.add("-outfile " +  "outfile");
-        
-        String[] call = params.toArray(new String[params.size()]);
-        
+               
         String cmd = "";
-        for (String string : call) {
-            cmd += " " + string;
+        for (String string : params) {
+            cmd += string + " ";
         }
         
-        // Processing...        
-        Process p = Runtime.getRuntime().exec(cmd, null, jobWorkDir);
-        
-        // Some information from error stream
-        byte[] b = new byte[150];
-        p.getErrorStream().read(b);
-        String errorString = new String(b);
-        
-        // This is what we should produce as output
-        ResultMessage outputMessage = this.outputMessage;
-        
-        // This is where results are returned 
-        ResultCallback resultHandler = this.resultHandler;
-        
-        outputMessage.setState(JobState.COMPLETED);
-        resultHandler.sendResultMessage(jobMessage, outputMessage);
-
-    }
-    
-    /**
-     * Parse the appropriate ACD description file.
-     * 
-     * @return ACD description object.
-     */
-    protected ACDDescription getACD() {
-        // TODO acd file storage path
-        String acdPath = "src/test/resources/";
-        String appName = analysis.getName(); 
-        return new ACDDescription(new File(acdPath + appName + ".acd"));
-    }
-
-    @Override
-    protected void preExecute() throws Exception {
-        super.preExecute();
+        return cmd;
     }
     
     /**
