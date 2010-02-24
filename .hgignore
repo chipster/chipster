@@ -7,3 +7,5 @@ syntax: regexp
 ^dist/*$
 syntax: regexp
 ^test-output$
+syntax: regexp
+^debug-base-dir$

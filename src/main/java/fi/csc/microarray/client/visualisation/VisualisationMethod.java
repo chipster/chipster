@@ -27,6 +27,7 @@ import fi.csc.microarray.client.visualisation.methods.Scatterplot3DPCA;
 import fi.csc.microarray.client.visualisation.methods.Spreadsheet;
 import fi.csc.microarray.client.visualisation.methods.TextViewer;
 import fi.csc.microarray.client.visualisation.methods.VennDiagram;
+import fi.csc.microarray.client.visualisation.methods.VennDiagramForSymbol;
 import fi.csc.microarray.client.visualisation.methods.Volcanoplot;
 import fi.csc.microarray.client.visualisation.methods.threed.Scatterplot3D;
 import fi.csc.microarray.constants.VisualConstants;
@@ -72,7 +73,8 @@ public enum VisualisationMethod {
 			SHOW_IMAGE("Show image", ImageViewer.class, VisualConstants.IMAGE_MENUICON, 1, 0.015), 
 			WEBVIEW("View page", HtmlViewer.class, VisualConstants.HTML_MENUICON, 1, 0.008), 
 			VIEW_TEXT("View text", TextViewer.class, VisualConstants.TEXT_MENUICON, 1, 0.023), 
-			VENN_DIAGRAM("Venn-diagram", VennDiagram.class, VisualConstants.VENN_MENUICON, 1, 0);
+			VENN_DIAGRAM("Venn-diagram", VennDiagram.class, VisualConstants.VENN_MENUICON, 1, 0),
+			VENN_DIAGRAM_SYMBOL("Venn-diagram for symbols", VennDiagramForSymbol.class, VisualConstants.VENN_MENUICON, 1, 0);
 
 	private static LinkedList<VisualisationMethod> orderedDefaultCandidates;
 

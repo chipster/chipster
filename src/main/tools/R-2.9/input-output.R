@@ -2,5 +2,5 @@
 # INPUT GENERIC input.tsv OUTPUT output.tsv
 
 #input<-read.table(c("input.tsv"), header=T, sep="\t")
-#write.table(c(1, 2, 3), file="output.tsv", quote=FALSE, col.names=FALSE, row.names=FALSE)
-system("mv input.tsv output.tsv")
+#system("mv input.tsv output.tsv")
+write.table(c(1, 2, 3), file="output.tsv", quote=FALSE, col.names=FALSE, row.names=FALSE)

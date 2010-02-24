@@ -1,8 +1,8 @@
 package fi.csc.microarray.analyser.java;
 
-import fi.csc.microarray.analyser.AnalysisJob;
+import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
 
-public abstract class JavaAnalysisJobBase extends AnalysisJob {
+public abstract class JavaAnalysisJobBase extends OnDiskAnalysisJobBase {
 
 	@Override
 	protected void preExecute() throws Exception {

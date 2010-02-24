@@ -23,6 +23,7 @@ dat<-read.table(file, header=T, sep="\t", row.names=1)
 # Separates expression values and flags
 calls<-dat[,grep("flag", names(dat))]
 dat2<-dat[,grep("chip", names(dat))]
+annotations<-dat[,grep("annotations", names(dat))]
 A<-dat[,grep("average", names(dat))]
 
 # Inf/-Inf values replaced by NAs
@@ -30,18 +31,22 @@ dat2[is.infinite(as.matrix(dat2))]<-NA
 
 # Imputation
 if(method=="mean" | method=="median") {
-   library(e1071)
-   dat.impute<-impute(dat2, method)
-   dat.impute<-data.frame(dat.impute, calls)
+	library(e1071)
+	dat.impute<-impute(dat2, method)
+	dat.impute<-data.frame(dat.impute, calls)
 }
 if(method=="knn") {
-   library(impute)
-   dat.impute<-impute.knn(as.matrix(dat2), k = K, rowmax = rmax, colmax = cmax, maxp = "p")
-   dat.impute<-data.frame(dat.impute$data, calls)
+	library(impute)
+	dat.impute<-impute.knn(as.matrix(dat2), k = K, rowmax = rmax, colmax = cmax, maxp = "p")
+	dat.impute<-data.frame(dat.impute$data, calls)
 }
 if(ncol(A)>0) {
-   dat.impute<-data.frame(dat.impute, A)
+	dat.impute<-data.frame(dat.impute, A)
 }
 
+# Add the annotations and flags back into the data table
+dat3 <- cbind(annotations,dat.impute)
+dat4 <- cbind(dat3,calls)
+
 # Writes a table 
-write.table(dat.impute, file=("imputed.tsv"), sep="\t", row.names=T, col.names=T, quote=F)
+write.table(dat4, file=("imputed.tsv"), sep="\t", row.names=T, col.names=T, quote=F)
