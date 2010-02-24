@@ -1,13 +1,16 @@
 # ANALYSIS Utilities/"Search by gene name" (Search genes using gene names, rownames or chromosome locations. 
-# Gene name must the gene's HUGO name, such as XRCC1. Rowname must the name of the gene that appears
-# on the rows of all data files. Chrosomome location must be a chromosome name, such as X.)
+# Gene name must be the gene's HUGO name, such as XRCC1. Rowname must the name of the gene that appears
+# on the rows of all data files. Chrosomome location must be a chromosome name, such as X. The "mode" option
+# determines whether the queried gene name or chromosome should be included or excluded in the output data table.)
 # INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT search.tsv
 # PARAMETER search.for [rowname, Genename, ChromosomeLocation] DEFAULT rowname (What to search with)
 # PARAMETER query STRING DEFAULT empty (Query word)
-
+# PARAMETER mode [include, exclude] DEFAULT include (Defines whether the found genes should be included or excluded from the resulting data table.)
 
 # Search genes by name, AffyID, correlation or chromosome location
 # JTT 4.7.2006
+#
+# modified, MG, 23.2.2010, to allow option to exclude query genes or chromosomes
 
 # Renaming variables
 meth<-search.for
@@ -15,7 +18,7 @@ query<-query
 
 # Loads libraries
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
-if(phenodata$chiptype[1]!="cDNA" | phenodata$chiptype[1]!="Illumina") {
+if(phenodata$chiptype[1]!="cDNA" | phenodata$chiptype[1]!="Illumina" | phenodata$chiptype[1]!="miRNA" ) {
    lib<-phenodata$chiptype[1]
    lib<-as.character(lib)
    
@@ -34,8 +37,9 @@ file<-c("normalized.tsv")
 dat<-read.table(file, header=T, sep="\t", row.names=1)
 
 if(meth=="rowname") {
-   dat2<-dat[grep(query, row.names(dat)),]
-   write.table(dat2, file=("search.tsv"), sep="\t", row.names=T, col.names=T, quote=F)
+	if(mode=="include") dat2<-dat[grep(query, row.names(dat), invert=FALSE),]
+	if(mode=="exclude") dat2<-dat[grep(query, row.names(dat), invert=TRUE),]
+	write.table(dat2, file=("search.tsv"), sep="\t", row.names=T, col.names=T, quote=F)
 }
 
 if(meth=="Genename") {
@@ -43,13 +47,11 @@ if(meth=="Genename") {
    lib2<-sub('.db','',lib)
    env<-paste(lib2, "SYMBOL", sep="")
    env2<-get(env)
-   list<-unlist(as.list(env2))[grep(query, unlist(as.list(env2)))]
-   affyid<-names(list)
-   len<-length(affyid)
-   dat2<-c()
-   for(i in 1:len) {
-      dat2<-rbind(dat2, dat[which(row.names(dat)==affyid[i]),])
-   }
+   list<-unlist(as.list(env2))[grep(query, unlist(as.list(env2)), invert=FALSE)]
+	affyid<-names(list)
+	matching_indices <- match(affyid, rownames(dat))
+	if (mode=="include") dat2 <- dat[matching_indices,]
+	if (mode=="exclude") dat2 <- dat[-matching_indices,]
    write.table(dat2, file=("search.tsv"), sep="\t", row.names=T, col.names=T, quote=F)
 }
 
@@ -57,8 +59,9 @@ if(meth=="ChromosomeLocation") {
    lib2<-sub('.db','',lib)
    env<-paste(lib2, "CHR", sep="")
    env2<-get(env)
-   affyids<-data.frame(id=names(as.list(env2))[grep(query, as.list(env2))])
-   dat2<-merge(dat, affyids, by.x="row.names", by.y="id")
+   if(mode=="include") affyids<-data.frame(id=names(as.list(env2))[grep(query, as.list(env2), invert=FALSE)])
+   if(mode=="exclude") affyids<-data.frame(id=names(as.list(env2))[grep(query, as.list(env2), invert=TRUE)])
+      dat2<-merge(dat, affyids, by.x="row.names", by.y="id")
    row.names(dat2)<-dat2$Row.names
    dat2<-dat2[,-1]
    write.table(dat2, file="search.tsv", sep="\t", row.names=T, col.names=T, quote=F)
