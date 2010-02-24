@@ -47,6 +47,7 @@ for (gene_count in 1:length(annotated_genes [,1])) {
 	result_table [gene_id==gene_entrezid,3] <- gene_symbol
 	result_table [gene_id==gene_entrezid,4] <- gene_description
 }	
+names(result_table) <- c("miRNA","entrez_id","symbol","description")
 
 # Write out the output file
 write.table(result_table, file="mirna_targets.tsv", sep="\t", quote=F, row.names=FALSE)	
