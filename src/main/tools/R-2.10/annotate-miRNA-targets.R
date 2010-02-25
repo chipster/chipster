@@ -17,7 +17,7 @@ mirna_data <- read.table("normalized_mirna.tsv", sep="\t", header=T)
 mirna_id <- as.character(rownames(mirna_data))
 
 # Fetch the complete set of target genes for a specified database
-full_database <- dbReadTable(RmiR.Hs.miRNA_dbconn(), database)[, 1:3]
+full_database <- dbReadTable(RmiR.Hs.miRNA_dbconn(), database)[, 1:2]
 target_genes <- full_database[full_database$mature_miRNA %in% mirna_id,]
 gene_id <- target_genes$gene_id
 mirna_id_2 <- target_genes$mature_miRNA
@@ -47,6 +47,7 @@ for (gene_count in 1:length(annotated_genes [,1])) {
 	result_table [gene_id==gene_entrezid,3] <- gene_symbol
 	result_table [gene_id==gene_entrezid,4] <- gene_description
 }	
+names(result_table) <- c("miRNA","entrez_id","symbol","description")
 
 # Write out the output file
 write.table(result_table, file="mirna_targets.tsv", sep="\t", quote=F, row.names=FALSE)	
