@@ -17,7 +17,7 @@ mirna_data <- read.table("normalized_mirna.tsv", sep="\t", header=T)
 mirna_id <- as.character(rownames(mirna_data))
 
 # Fetch the complete set of target genes for a specified database
-full_database <- dbReadTable(RmiR.Hs.miRNA_dbconn(), database)[, 1:3]
+full_database <- dbReadTable(RmiR.Hs.miRNA_dbconn(), database)[, 1:2]
 target_genes <- full_database[full_database$mature_miRNA %in% mirna_id,]
 gene_id <- target_genes$gene_id
 mirna_id_2 <- target_genes$mature_miRNA
