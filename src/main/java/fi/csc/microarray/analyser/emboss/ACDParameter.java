@@ -105,6 +105,20 @@ public class ACDParameter {
     }
     
     /**
+     * Check if given attribute has been set. An empty
+     * attriute (e.g. default: "") is considered not set.
+     * 
+     * @param name
+     * @return true if this attribute is present, false otherwise.
+     */
+    public Boolean hasAttribute(String name) {
+        if (attributes.containsKey(name) && !getAttribute(name).equals("")) {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
      * Define keys and values for a list parameter. Valid only
      * if paramter is of type "list" or "selection".
      * 
@@ -115,7 +129,7 @@ public class ACDParameter {
         list = new HashMap<String, String>();
 
         // Check if it is "list" or "selection"
-        if (parser.getParameterAttribute(index, 0).equals("list")) {
+        if (getType().equals("list")) {
             String[] titles = parser.getList(index);
             
             for (int i = 0; i < titles.length; i++) {
@@ -125,6 +139,29 @@ public class ACDParameter {
             String[] titles = parser.getSelect(index);
 
             for (Integer i = 0; i < parser.getSelect(index).length; i++) {
+                list.put(i.toString(), titles[i]);
+            }
+        }
+    }
+    
+    /**
+     * Define keys and values for a list parameter. Valid only
+     * if paramter is of type "list" or "selection".
+     * 
+     * @param titles - array containing titles.
+     * @param values - array containing values for corresponding titles;
+     * ignored for "selection" type.
+     */
+    public void setList(String[] titles, String[] values) {
+        list = new HashMap<String, String>();
+
+        // Check if it is "list" or "selection"
+        if (getType().equals("list")) {           
+            for (int i = 0; i < titles.length; i++) {
+                list.put(values[i], titles[i]);
+            }
+        } else {
+            for (Integer i = 0; i < titles.length; i++) {
                 list.put(i.toString(), titles[i]);
             }
         }
@@ -292,7 +329,11 @@ public class ACDParameter {
      * convert "true" to "Y" (i.e. we convert the value
      * according to ACD spec.)
      * 
-     * @param value
+     * This method should be used to convert values,
+     * entered in GUI to values that can be passed to
+     * actual EMBOSS application in command line.
+     * 
+     * @param value - ACD-unaware value.
      */
     // TODO check out what we get for ENUM, arrays etc.
     public String normalize(String value) {
@@ -305,6 +346,19 @@ public class ACDParameter {
             } else if (value.equals("no") || value.equals("true") || value.equals("0") ||
                        value.equals("n")) {
                 return "N";
+            }
+        } else if (type.equals("selection") || type.equals("list")) {
+            String defaultDelim = ",";
+            String[] choices = value.split(defaultDelim);
+            String attrDelim = hasAttribute("delimiter") ? getAttribute("delimiter") : ";";
+            
+            // Reconnect values using different delimiter
+            if (choices.length > 1 && attrDelim != defaultDelim) {
+                String normalValue = "";
+                for (String choice : choices) {
+                    normalValue = normalValue.concat(attrDelim).concat(choice);
+                }
+                return normalValue.substring(1);
             }
         }
         return value;
@@ -362,17 +416,15 @@ public class ACDParameter {
         public boolean accepts(String value) {
             Boolean accepts = true;
             try {
-                String attrMin = getAttribute("minimum");
-                String attrMax = getAttribute("maximum");
                 Integer intVal = Integer.parseInt(value);
                 
-                if (attrMin != null && !attrMin.equals("")) {
-                    Integer minVal = Integer.parseInt(attrMin);
+                if (hasAttribute("minimum")) {
+                    Integer minVal = Integer.parseInt(getAttribute("minimum"));
                     accepts = accepts && (intVal >= minVal);
                 }
                 
-                if (attrMax != null && !attrMax.equals("")) {
-                    Integer maxVal = Integer.parseInt(attrMax);
+                if (hasAttribute("maximum")) {
+                    Integer maxVal = Integer.parseInt(getAttribute("maximum"));
                     accepts = accepts && (intVal <= maxVal);
                 }
                 return accepts;
@@ -387,17 +439,15 @@ public class ACDParameter {
         public boolean accepts(String value) {
             Boolean accepts = true;
             try {
-                String attrMin = getAttribute("minimum");
-                String attrMax = getAttribute("maximum");
                 Float floatVal = Float.parseFloat(value);
                 
-                if (attrMin != null && !attrMin.equals("")) {
-                    Float minVal = Float.parseFloat(attrMin);
+                if (hasAttribute("minimum")) {
+                    Float minVal = Float.parseFloat(getAttribute("minimum"));
                     accepts = accepts && (floatVal >= minVal);
                 }
                 
-                if (attrMax != null && !attrMax.equals("")) {
-                    Float maxVal = Float.parseFloat(attrMax);
+                if (hasAttribute("maximum")) {
+                    Float maxVal = Float.parseFloat(getAttribute("maximum"));
                     accepts = accepts && (floatVal <= maxVal);
                 }                
                 return accepts;
@@ -410,7 +460,27 @@ public class ACDParameter {
     
     class ListValidator extends ACDValidator {       
         public boolean accepts(String value) {
-            return getList().containsKey(value);
+            Boolean accepts = true;
+            
+            HashMap<String, String> acceptedList = getList();
+            String attrDelim = hasAttribute("delimiter") ? getAttribute("delimiter") : ";";
+            String[] choices = value.split(attrDelim);
+            
+            if (hasAttribute("minimum")) {
+                Integer minVal = Integer.parseInt(getAttribute("minimum"));
+                accepts = accepts && (choices.length >= minVal);
+            }
+            
+            if (hasAttribute("maximum")) {
+                Integer maxVal = Integer.parseInt(getAttribute("maximum"));
+                accepts = accepts && (choices.length <= maxVal);
+            }
+            
+            for (String choice : choices) {
+                accepts = accepts && acceptedList.containsKey(choice);
+            }
+
+            return accepts;
         }
     }
     

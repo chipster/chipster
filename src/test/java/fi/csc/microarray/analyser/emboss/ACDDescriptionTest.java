@@ -58,9 +58,13 @@ public class ACDDescriptionTest {
         
         // Value normalization
         param = new ACDParameter("boolean", "param", "", null);
-        Assert.assertTrue(param.normalize("yes").equals("Y"));
-        Assert.assertTrue(param.normalize("n").equals("N"));
+        Assert.assertEquals(param.normalize("yes"), "Y");
+        Assert.assertEquals(param.normalize("n"), "N");
         Assert.assertFalse(param.normalize("taip").equals("Y"));
+        param = new ACDParameter("selection", "param", "", null);
+        Assert.assertEquals(param.normalize("1,2,3"), "1;2;3");
+        param.setAttribute("delimiter", "-");
+        Assert.assertEquals(param.normalize("1,2,3"), "1-2-3");
 
         // Array validation
         param = new ACDParameter("array", "param", "", null);
@@ -97,6 +101,15 @@ public class ACDDescriptionTest {
         param = acd.getParameter("pwmatrix");
         Assert.assertTrue(param.validate("o"));
         Assert.assertFalse(param.validate("x"));
+        param = new ACDParameter("list", "param", "", null);
+        String[] titles = {"all", "your", "base"};
+        String[] values = {"a", "y", "b"};
+        param.setList(titles, values);
+        param.setAttribute("maximum", "2");
+        Assert.assertTrue(param.validate("y"));
+        Assert.assertTrue(param.validate("b,y"));
+        Assert.assertFalse(param.validate("b,x"));
+        Assert.assertFalse(param.validate("b,y,a"));
     }
     
     public static void main(String[] args) throws Exception {

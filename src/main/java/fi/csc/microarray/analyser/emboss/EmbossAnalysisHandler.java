@@ -15,6 +15,14 @@ import fi.csc.microarray.analyser.bsh.BeanShellHandler;
 import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.messaging.message.JobMessage;
 
+/**
+ * Responsible for creating AnalysisJobs and AnalysisDescriptions
+ * for EMBOSS applications. Some parameters from configuration
+ * should be known beforehand.
+ * 
+ * @author naktinis
+ *
+ */
 public class EmbossAnalysisHandler implements AnalysisHandler {
     
     private String acdDirectory;
@@ -67,10 +75,6 @@ public class EmbossAnalysisHandler implements AnalysisHandler {
         return description;
     }
     
-    /**
-     * Check if the source file has been modified since the 
-     * AnalysisDescription was created.
-     */
     public boolean isUptodate(AnalysisDescription description) {
         return true;
     }
