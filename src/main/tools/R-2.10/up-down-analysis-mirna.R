@@ -1,4 +1,4 @@
-# ANALYSIS Pathways/"UP-DOWN analysis of miRNA targets" (Given a dataset of miRNA expression and a dataset of gene expression for a two-group comparison experiment,
+# ANALYSIS Statistics/"UP-DOWN analysis of miRNA targets" (Given a dataset of miRNA expression and a dataset of gene expression for a two-group comparison experiment,
 # this tool identifies the genes whose expression is up-regulted in response to an up-regultaed miRNA, or vice-versa. It is recommended that the two data sets have been
 # filtered to exlude low quality and/or invariable data and subjected to statistical testing for significant differences in expression between the two experiment groups.)
 # INPUT GENE_EXPRS normalized_mirna.tsv, GENE_EXPRS normalized_gene.tsv, GENERIC phenodata_mirna.tsv, GENERIC phenodata_gene.tsv
