@@ -1,6 +1,7 @@
 # ANALYSIS Statistics/"UP-DOWN analysis of miRNA targets" (Given a dataset of miRNA expression and a dataset of gene expression for a two-group comparison experiment,
 # this tool identifies the genes whose expression is up-regulted in response to an up-regultaed miRNA, or vice-versa. It is recommended that the two data sets have been
-# filtered to exlude low quality and/or invariable data and subjected to statistical testing for significant differences in expression between the two experiment groups.)
+# filtered to exlude low quality and/or invariable data and subjected to statistical testing for significant differences in expression between the two experiment groups.
+# NOTE> you need to assign a higher number to the samples belonging to the treatment grop in the column describing the experiment group for the calculations to be correct.)
 # INPUT GENE_EXPRS normalized_mirna.tsv, GENE_EXPRS normalized_gene.tsv, GENERIC phenodata_mirna.tsv, GENERIC phenodata_gene.tsv
 # OUTPUT mirna-up-gene-down.tsv, mirna-down-gene-up.tsv
 # PARAMETER average.method [mean, median] DEFAULT median (The method to calculate the average of samples in each experiment group.)
@@ -52,16 +53,16 @@ if(length(unique(gene.groups))==1 | length(unique(gene.groups))>=3) {
 }
 
 # Calculate the average expression for the different experiment groups
-mirna.average.1 <- mirna.data.2[,mirna.groups==unique(mirna.groups)[1]]
+mirna.average.1 <- mirna.data.2[,mirna.groups==sort(unique(mirna.groups), decreasing=TRUE)[1]]
 mirna.average.1 <- apply(mirna.average.1, FUN=average.method, MARGIN=1)
-mirna.average.2 <- mirna.data.2[,mirna.groups==unique(mirna.groups)[2]]
+mirna.average.2 <- mirna.data.2[,mirna.groups==sort(unique(mirna.groups), decreasing=TRUE)[2]]
 mirna.average.2 <- apply(mirna.average.2, FUN=average.method, MARGIN=1)
-mirna.ratio <- mirna.average.1/mirna.average.2
-gene.average.1 <- gene.data.2[,gene.groups==unique(gene.groups)[1]]
+mirna.ratio <- mirna.average.1-mirna.average.2
+gene.average.1 <- gene.data.2[,gene.groups==sort(unique(gene.groups), decreasing=TRUE)[1]]
 gene.average.1 <- apply(gene.average.1, FUN=average.method, MARGIN=1)
-gene.average.2 <- gene.data.2[,gene.groups==unique(gene.groups)[2]]
+gene.average.2 <- gene.data.2[,gene.groups==sort(unique(gene.groups),decreasing=TRUE)[2]]
 gene.average.2 <- apply(gene.average.2, FUN=average.method, MARGIN=1)
-gene.ratio <- gene.average.1/gene.average.2
+gene.ratio <- gene.average.1-gene.average.2
 
 # Read the chiptype that was used for the gene expression data
 if (id.type=="probe_id") {
@@ -93,8 +94,8 @@ merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4,
 # Identify the miRNA-gene pairs that are behaving oppositely
 mirna.ratio <- merged.table$mirExpr
 gene.ratio <- merged.table$geneExpr
-up.mirna.down.gene <- merged.table[(mirna.ratio>=1 & gene.ratio<1),1:5]
-down.mirna.up.gene <- merged.table[(mirna.ratio<1 & gene.ratio>=1),1:5]
+up.mirna.down.gene <- merged.table[(mirna.ratio>=0 & gene.ratio<0),1:5]
+down.mirna.up.gene <- merged.table[(mirna.ratio<0 & gene.ratio>=0),1:5]
 
 # Write the results to tables to be read into Chipster
 write.table(up.mirna.down.gene, file="mirna-up-gene-down.tsv", sep="\t", quote=FALSE, row.names=FALSE)
