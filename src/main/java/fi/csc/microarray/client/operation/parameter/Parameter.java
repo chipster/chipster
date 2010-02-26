@@ -7,7 +7,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.operation.Operation.DataBinding;
-import fi.csc.microarray.client.operation.parameter.SingleSelectionParameter.SelectionOption;
+import fi.csc.microarray.client.operation.parameter.EnumParameter.SelectionOption;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -58,9 +58,13 @@ public abstract class Parameter implements Cloneable {
 		
 		switch (type) {
 		case ENUM:
+		    // Determine how many values can be chosen
+	        int minCount = (minValue == null ? Integer.MIN_VALUE : Integer.parseInt(minValue));
+	        int maxCount = (maxValue == null ? Integer.MAX_VALUE : Integer.parseInt(maxValue));
+	        
 			int initIndex = (initValue != null ? Arrays.asList(options).indexOf(initValue) : 0);
-			SelectionOption[] optionObjects = SingleSelectionParameter.SelectionOption.convertStrings(options);
-			parameter = new SingleSelectionParameter(name, description, optionObjects, initIndex);
+			SelectionOption[] optionObjects = EnumParameter.SelectionOption.convertStrings(options);
+			parameter = new EnumParameter(name, description, optionObjects, initIndex, minCount, maxCount);
 			break;
 			
 		case COLUMN_SEL:
@@ -83,7 +87,7 @@ public abstract class Parameter implements Cloneable {
 		case DECIMAL:
 		case PERCENT:
 			
-			// treat all numbers as double
+			// Treat all numbers as double
 			float min = (minValue == null ? Float.MIN_VALUE : Float.parseFloat(minValue));
 			float max = (maxValue == null ? Float.MAX_VALUE : Float.parseFloat(maxValue));
 			float init;

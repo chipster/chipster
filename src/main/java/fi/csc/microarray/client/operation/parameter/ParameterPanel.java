@@ -57,9 +57,15 @@ public abstract class ParameterPanel extends JPanel {
 		} else if (parameter instanceof DataSelectionParameter) {
 			return new SingleSelectionInputComponent((DataSelectionParameter)parameter, this);
 			
-		} else if (parameter instanceof SingleSelectionParameter) {
-			return new SingleSelectionInputComponent((SingleSelectionParameter)parameter, this);
-			
+		} else if (parameter instanceof EnumParameter) {
+		    EnumParameter enumParam = (EnumParameter) parameter;
+		    if (enumParam.getMaxCount() > 1) {
+		        // List with multiple selections
+		        return new MultipleSelectionInputComponent(enumParam, this);
+		    } else {
+		        // List with single selection
+		        return new SingleSelectionInputComponent(enumParam, this);
+		    }
 		} else if (parameter instanceof StringParameter) {
 			return new StringInputComponent((StringParameter) parameter, this);
 			

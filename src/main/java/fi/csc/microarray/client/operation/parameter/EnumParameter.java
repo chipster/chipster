@@ -9,15 +9,17 @@ import org.apache.log4j.Logger;
  * @author Janne KÃ¤ki
  *
  */
-public class SingleSelectionParameter extends Parameter {
+public class EnumParameter extends Parameter {
 	/**
 	 * Logger for this class
 	 */
 	private static final Logger logger = Logger
-			.getLogger(SingleSelectionParameter.class);
+			.getLogger(EnumParameter.class);
 
 	private SelectionOption[] options;
 	private int selectedIndex;
+	private int minCount = 0;
+	private int maxCount = Integer.MAX_VALUE;
 	
 	public static class SelectionOption {
 		private String name;
@@ -45,16 +47,20 @@ public class SingleSelectionParameter extends Parameter {
 		}
 	}
 	/**
-	 * Creates a new SingleSelectionParameter with the given initial values.
+	 * Creates a new EnumParameter with the given initial values.
 	 * 
 	 * @param name The name of this parameter.
 	 * @param options The array of all possible value objects of this parameter.
 	 * @param selectedIndex The index of the initially selected value object.
+	 * @param minCount The minimum number of values that have to be selected.
+	 * @param maxCount The maximum number of values that can be selected,
+	 *        value larger than 0 indicates that it is represented by a multi-select
+	 *        component.
 	 * @throws IllegalArgumentException If the options array was null or empty,
 	 * 		   or if the given initial index was out of the array's bounds.
 	 */
-	public SingleSelectionParameter(
-			String name, String description, SelectionOption[] options, int selectedIndex)
+	public EnumParameter(String name, String description, SelectionOption[] options, int selectedIndex,
+	                     int minCount, int maxCount)
 					throws IllegalArgumentException {
 		super(name, description);
 		if (options == null) {
@@ -71,9 +77,11 @@ public class SingleSelectionParameter extends Parameter {
 					"for parameter " + name + " was out of array bounds!");
 		}
 		this.selectedIndex = selectedIndex;
+		setMinCount(minCount);
+		setMaxCount(maxCount);
 	}
 	
-	public SingleSelectionParameter(String name, String description) {
+	public EnumParameter(String name, String description) {
 		super(name, description);
 		this.options = null;
 		this.selectedIndex = -1;
@@ -86,6 +94,50 @@ public class SingleSelectionParameter extends Parameter {
 		assert(options != null);
 		return options;
 	}
+	
+    /**
+     * Get the minimum number of values that have to be chosen for this
+     * parameter.
+     */
+    public int getMinCount() {
+        return minCount;
+    }
+    
+    /**
+     * Get the maximum number of values that can be chosen for this
+     * parameter.
+     */
+    public int getMaxCount() {
+        return maxCount;
+    }
+    
+    /**
+     * Set the minimum number of values that have to be chosen for this
+     * parameter.
+     * 
+     * @param newMinCount
+     */
+    public void setMinCount(int newMinCount) {
+        if (newMinCount > this.maxCount) {
+            throw new IllegalArgumentException("New minimum value for " +
+                    this.getName() + " cannot exceed current maximum value.");
+        }
+        this.minCount = newMinCount;
+    }
+    
+    /**
+     * Set the maximum number of values that can be chosen for this
+     * parameter.
+     * 
+     * @param newMinValue
+     */
+    public void setMaxCount(int newMaxCount) {
+        if (newMaxCount < this.minCount) {
+            throw new IllegalArgumentException("New maximum value for " +
+                    this.getName() + " cannot fall below current minimum value.");
+        }
+        this.maxCount = newMaxCount;
+    }
 	
 	/**
 	 * @return The index of the currently selected value object.

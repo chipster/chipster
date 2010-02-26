@@ -13,7 +13,7 @@ import fi.csc.microarray.exception.MicroarrayException;
  * @author Aleksi Kallio
  *
  */
-public abstract class DataSelectionParameter extends SingleSelectionParameter {
+public abstract class DataSelectionParameter extends EnumParameter {
 
 	protected String initValue;
 	
