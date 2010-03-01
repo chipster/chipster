@@ -24,6 +24,7 @@ import fi.csc.microarray.exception.MicroarrayException;
  * @author Janne KÃ¤ki, Aleksi Kallio, Petri KlemelÃ¤
  *
  */
+@SuppressWarnings("serial")
 public class ImportParameterPanel extends ParameterPanel {
 
 	private static final int LEFT_MARGIN = 10;

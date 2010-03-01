@@ -11,6 +11,7 @@ import javax.swing.event.CaretListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+@SuppressWarnings("serial")
 public class StringInputComponent extends ParameterInputComponent implements CaretListener, DocumentListener { 
 
 	private StringParameter param;

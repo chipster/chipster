@@ -65,7 +65,11 @@ public class OperationGenerator {
 
 			newDefinition.setOutputCount(description.outputs().size());
 			for (Parameter parameter : description.parameters()) {
-				newDefinition.addParameter(fi.csc.microarray.client.operation.parameter.Parameter.createInstance(parameter.getName(), parameter.getType(), parameter.getSelectionOptions(), parameter.getComment(), parameter.getFrom(), parameter.getTo(), parameter.getDefaultValue()));				
+				newDefinition.addParameter(fi.csc.microarray.client.
+				                           operation.parameter.Parameter.createInstance(
+			        parameter.getName(), parameter.getType(), parameter.getSelectionOptions(),
+			        parameter.getComment(), parameter.getFrom(), parameter.getTo(),
+			        parameter.getDefaultValue()));		
 			}
 		}
 		

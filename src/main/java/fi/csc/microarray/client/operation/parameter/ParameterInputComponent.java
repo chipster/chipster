@@ -17,6 +17,7 @@ import javax.swing.JPanel;
  * @author Janne KÃ¤ki
  *
  */
+@SuppressWarnings("serial")
 public abstract class ParameterInputComponent extends JPanel implements FocusListener {
 
 	protected static final Color BG_VALID = Color.white;

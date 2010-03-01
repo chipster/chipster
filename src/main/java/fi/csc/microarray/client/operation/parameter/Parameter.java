@@ -1,6 +1,5 @@
 package fi.csc.microarray.client.operation.parameter;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -50,7 +49,9 @@ public abstract class Parameter implements Cloneable {
 	}
 	
 
-	public static Parameter createInstance(String name, ParameterType type, String[] options, String description, String minValue, String maxValue, String initValue) {
+	public static Parameter createInstance(String name, ParameterType type, String[] options,
+	                                       String description, String minValue, String maxValue,
+	                                       String initValue) {
 		
 		Parameter parameter = null;
 		
@@ -62,9 +63,13 @@ public abstract class Parameter implements Cloneable {
 	        int minCount = (minValue == null ? Integer.MIN_VALUE : Integer.parseInt(minValue));
 	        int maxCount = (maxValue == null ? Integer.MAX_VALUE : Integer.parseInt(maxValue));
 	        
-			int initIndex = (initValue != null ? Arrays.asList(options).indexOf(initValue) : 0);
+			// Split initValue into Strings each representing a selected option
+	        // FIXME should have two arrays, one for option values and one for titles
+	        String[] initValues = initValue.split(",");
+			List<SelectionOption> defaultOptions = new LinkedList<SelectionOption>();
+			
 			SelectionOption[] optionObjects = EnumParameter.SelectionOption.convertStrings(options);
-			parameter = new EnumParameter(name, description, optionObjects, initIndex, minCount, maxCount);
+			parameter = new EnumParameter(name, description, optionObjects, defaultOptions, minCount, maxCount);
 			break;
 			
 		case COLUMN_SEL:

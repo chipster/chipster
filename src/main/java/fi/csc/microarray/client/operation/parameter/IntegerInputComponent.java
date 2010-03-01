@@ -24,6 +24,7 @@ import javax.swing.event.ChangeListener;
  * @author Janne KÃ¤ki
  *
  */
+@SuppressWarnings("serial")
 public class IntegerInputComponent extends ParameterInputComponent
 								   implements CaretListener, ChangeListener {
 

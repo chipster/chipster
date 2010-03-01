@@ -46,6 +46,7 @@ import fi.csc.microarray.exception.MicroarrayException;
  * @author Janne KÃ¤ki, Petri KlemelÃ¤
  *
  */
+@SuppressWarnings("serial")
 public class OperationPanel extends JPanel
 							implements ActionListener, PropertyChangeListener {
 

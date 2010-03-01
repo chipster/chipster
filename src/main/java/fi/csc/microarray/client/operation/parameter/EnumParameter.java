@@ -1,100 +1,113 @@
 package fi.csc.microarray.client.operation.parameter;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
 /**
  * A parameter that has a defined set of possible values, out of which only
  * one at a time can be selected.
  * 
- * @author Janne KÃ¤ki
+ * @author Janne KÃ¤ki, naktinis
  *
  */
 public class EnumParameter extends Parameter {
-	/**
-	 * Logger for this class
-	 */
-	private static final Logger logger = Logger
-			.getLogger(EnumParameter.class);
+    /**
+     * Logger for this class
+     */
+    private static final Logger logger = Logger
+            .getLogger(EnumParameter.class);
 
-	private SelectionOption[] options;
-	private int selectedIndex;
-	private int minCount = 0;
-	private int maxCount = Integer.MAX_VALUE;
-	
-	public static class SelectionOption {
-		private String name;
-		private String value;
-		
-		public SelectionOption(String name, String value) {
-			this.name = name;
-			this.value = value;
-		}
-		
-		public String getValue() {
-			return value;
-		}
-		
-		public String toString() {
-			return name;
-		}
-		
-		public static SelectionOption[] convertStrings(String[] strings) {
-			SelectionOption[] options = new SelectionOption[strings.length];
-			for (int i = 0; i < strings.length; i++) {
-				options[i] = new SelectionOption(strings[i], strings[i]);
-			}
-			return options;
-		}
-	}
-	/**
-	 * Creates a new EnumParameter with the given initial values.
-	 * 
-	 * @param name The name of this parameter.
-	 * @param options The array of all possible value objects of this parameter.
-	 * @param selectedIndex The index of the initially selected value object.
-	 * @param minCount The minimum number of values that have to be selected.
-	 * @param maxCount The maximum number of values that can be selected,
-	 *        value larger than 0 indicates that it is represented by a multi-select
-	 *        component.
-	 * @throws IllegalArgumentException If the options array was null or empty,
-	 * 		   or if the given initial index was out of the array's bounds.
-	 */
-	public EnumParameter(String name, String description, SelectionOption[] options, int selectedIndex,
-	                     int minCount, int maxCount)
-					throws IllegalArgumentException {
-		super(name, description);
-		if (options == null) {
-			throw new IllegalArgumentException("Options array for single " +
-					"selection parameter " + name + " may not be null!");
-		}
-		if (options.length == 0) {
-			throw new IllegalArgumentException("Options array for single " +
-					"selection parameter " + name + " may not be empty!");
-		}
-		this.options = options;
-		if (selectedIndex < 0 || selectedIndex >= options.length) {
-			throw new IllegalArgumentException("Given default selection index " +
-					"for parameter " + name + " was out of array bounds!");
-		}
-		this.selectedIndex = selectedIndex;
-		setMinCount(minCount);
-		setMaxCount(maxCount);
-	}
-	
-	public EnumParameter(String name, String description) {
-		super(name, description);
-		this.options = null;
-		this.selectedIndex = -1;
-	}
-	
-	/**
-	 * @return The array containing all the possible values of this parameter.
-	 */
-	public Object[] getOptions() {
-		assert(options != null);
-		return options;
-	}
-	
+    private SelectionOption[] options;
+    private int minCount = 0;
+    private int maxCount = Integer.MAX_VALUE;
+    
+    // A list of selected options
+    private List<SelectionOption> selectedOptions = new LinkedList<SelectionOption>();
+    
+    public static class SelectionOption {
+        private String name;
+        private String value;
+        
+        public SelectionOption(String name, String value) {
+            this.name = name;
+            this.value = value;
+        }
+        
+        public String getValue() {
+            return value;
+        }
+        
+        public String toString() {
+            return name;
+        }
+        
+        public static SelectionOption[] convertStrings(String[] strings) {
+            SelectionOption[] options = new SelectionOption[strings.length];
+            for (int i = 0; i < strings.length; i++) {
+                options[i] = new SelectionOption(strings[i], strings[i]);
+            }
+            return options;
+        }
+    }
+    /**
+     * Creates a new EnumParameter with the given initial values.
+     * 
+     * @param name The name of this parameter.
+     * @param options The array of all possible value objects of this parameter.
+     * @param selectedIndex The index of the initially selected value object.
+     * @param minCount The minimum number of values that have to be selected.
+     * @param maxCount The maximum number of values that can be selected,
+     *        value larger than 0 indicates that it is represented by a multi-select
+     *        component.
+     * @throws IllegalArgumentException If the options array was null or empty,
+     *            or if the given initial index was out of the array's bounds.
+     */
+    public EnumParameter(String name, String description, SelectionOption[] options,
+                         List<SelectionOption> defaultOptions, int minCount, int maxCount)
+                    throws IllegalArgumentException {
+        super(name, description);
+        if (options == null) {
+            throw new IllegalArgumentException("Options array for a " +
+                    "selection parameter " + name + " may not be null!");
+        }
+        if (options.length == 0) {
+            throw new IllegalArgumentException("Options array for a " +
+                    "selection parameter " + name + " may not be empty!");
+        }
+        this.options = options;
+        
+        // Check if defaults are ok by finding an intersection
+        HashSet<SelectionOption> opts = new HashSet<SelectionOption>(Arrays.asList(options));
+        opts.retainAll(defaultOptions);
+        if (opts.size() != defaultOptions.size()) {
+            throw new IllegalArgumentException("Some given default options " +
+                                               "were incorrect!");            
+        }
+        
+        // Mark default values as selected
+        this.selectedOptions.addAll(defaultOptions);
+        
+        setMinCount(minCount);
+        setMaxCount(maxCount);
+    }
+    
+    public EnumParameter(String name, String description) {
+        super(name, description);
+        this.options = null;
+    }
+    
+    /**
+     * @return The array containing all the possible values of this parameter.
+     */
+    public Object[] getOptions() {
+        assert(options != null);
+        return options;
+    }
+    
     /**
      * Get the minimum number of values that have to be chosen for this
      * parameter.
@@ -138,85 +151,114 @@ public class EnumParameter extends Parameter {
         }
         this.maxCount = newMaxCount;
     }
-	
-	/**
-	 * @return The index of the currently selected value object.
-	 */
-	public int getSelectedIndex() {
-		assert(selectedIndex != -1);
-		return selectedIndex;
-	}
-	
-	@Override
-	public Object getValue() {
-		assert(selectedIndex != -1);
-		assert(options != null);
-		assert(options[selectedIndex] != null);
-		logger.debug("returning value " + options[selectedIndex].getValue() + " from index " + selectedIndex);
-		return options[selectedIndex].getValue();
-	}
+    
+    /**
+     * Set a value for this parameter. Value can be either
+     * a list of strings representing multiple option values
+     * or a SelectionOption representing a single choice.
+     * 
+     * @throws IllegalArgumentException if given element is not
+     * found.
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public void setValue(Object newValue) {
+        
+        // Remove old selections
+        selectedOptions.clear();
+        
+        // Add new selections
+        if (newValue instanceof List<?>) {
+            // Multiple selections
+            List<String> checkedList = (List<String>) newValue;
+            for (SelectionOption option : options) {
+                if (checkedList.contains(option.getValue())) {
+                    selectedOptions.add(option);
+                    logger.debug("adding value " + option.getValue());
+                }
+            }
+            return;
+        } else if (newValue instanceof SelectionOption) {
+            // Single selection
+            SelectionOption optionValue = (SelectionOption) newValue;
+            for (SelectionOption option : options) {
+                if (option.getValue().equals(optionValue.getValue())) {
+                    selectedOptions.add(option);
+                    logger.debug("new value is " + option.getValue());
+                    return;
+                }
+            }
+        }
+        throw new IllegalArgumentException("illegal value for parameter " + this.getName() + ": " + newValue.toString());
+    }
+    
+    /**
+     * Set selected options for this parameter.
+     */
+    public void setSelectedOptions(List<SelectionOption> newOptions) {
+        selectedOptions = newOptions;
+    }
+    
+    /**
+     * @return currently selected options.
+     */
+    public List<SelectionOption> getSelectedOptions() {
+        return selectedOptions;
+    }
 
-	/**
-	 * Resets the set of possible values of this parameter and selects one
-	 * of them as default.
-	 * 
-	 * @param newOptions An array of the possible value objects.
-	 * @param newSelectedIndex The index of the new selected value. 
-	 * @throws IllegalArgumentException If the suggested selection index was
-	 * 		   out of the bounds of the given value array.
-	 */
-	public void setOptions(SelectionOption[] newOptions, int newSelectedIndex)
-			throws IllegalArgumentException {
-		this.options = newOptions;
-		setSelectedIndex(newSelectedIndex);		
-	}
+    /**
+     * @return comma separated String.
+     */
+    @Override
+    public Object getValue() {
+        assert(options != null);
+        
+        String selected = "";
+        for (SelectionOption option : selectedOptions) {
+            selected += "," + option.getValue(); 
+        }
+        
+        if (!selected.equals("")) {
+            // The first character is a comma
+            selected = selected.substring(1);
+        }
+        
+        logger.debug("returning value " + selected);
+        return selected;
+    }   
 
-	/**
-	 * Sets which one of this parameter's possible values is selected.
-	 * 
-	 * @param newSelectedIndex The index of the new selected value.
-	 * @throws IllegalArgumentException If no such index is found in the
-	 * 		   set of values.
-	 */
-	public void setSelectedIndex(int newSelectedIndex) 
-			throws IllegalArgumentException {
-		if (newSelectedIndex < 0 || newSelectedIndex >= this.options.length) {
-			throw new IllegalArgumentException("given index " + newSelectedIndex + 
-					" for parameter " + this.getName() + " is out of bounds");
-		}
-		this.selectedIndex = newSelectedIndex;
-	}
-	
-	@Override
-	public void setValue(Object newValue) {
-		logger.debug("new value is " + newValue);
-		for (int i = 0; i < options.length; i++) {
-			if (options[i].getValue().equals(newValue.toString())) {
-				setSelectedIndex(i);
-				logger.debug("new index is " + i);
-				return;
-			}
-		}
-		throw new IllegalArgumentException("illegal value for parameter " + this.getName() + ": " + newValue.toString());
-	}
+    /**
+     * Resets the set of possible values of this parameter and selects one
+     * of them as default.
+     * 
+     * @param newOptions An array of the possible value objects.
+     * @param newDefaults A list of selected values. 
+     * @throws IllegalArgumentException If the suggested selection index was
+     *            out of the bounds of the given value array.
+     */
+    public void setOptions(SelectionOption[] newOptions, List<SelectionOption> newDefaults)
+            throws IllegalArgumentException {
+        this.options = newOptions;
+        setSelectedOptions(newDefaults);        
+    }
 
-	@Override
-	public boolean checkValidityOf(Object valueObject) {
-		return valueObject instanceof SelectionOption;
-	}
-	
-	public String toString() {
-		return this.getName() + ": " + options[selectedIndex].getValue();
-	}
+    @Override
+    public boolean checkValidityOf(Object valueObject) {
+        return valueObject instanceof SelectionOption;
+    }
+    
+    public String toString() {
+        return this.getName() + ": " + getValue();
+    }
 
-	@Override
-	public String getValueAsJava() {
-		return "\"" + options[selectedIndex].getValue() + "\"";
-	}
-	
-	@Override
-	public void parseValue(String stringValue) throws IllegalArgumentException {
-		setValue(stringValue); // no parsing needed
-	}
+    @Override
+    public String getValueAsJava() {
+        return "\"" + getValue() + "\"";
+    }
+    
+    @Override
+    public void parseValue(String stringValue) throws IllegalArgumentException {
+        setValue(stringValue); // no parsing needed
+    }
 
 }

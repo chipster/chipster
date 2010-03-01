@@ -52,7 +52,10 @@ public class SingleSelectionInputComponent extends ParameterInputComponent
 		choiceBox.setPreferredSize(ParameterInputComponent.PREFERRED_SIZE);
 		choiceBox.setPopupWidth(preferredSize.width);
 		choiceBox.setBackground(Color.white);
-		choiceBox.setSelectedIndex(param.getSelectedIndex());
+		
+        // This is a single selection list so there's only one default value
+		choiceBox.setSelectedItem(param.getSelectedOptions().get(0));
+        
 		choiceBox.addActionListener(this);
 		choiceBox.addFocusListener(this);
 		this.add(choiceBox, BorderLayout.CENTER);
@@ -66,10 +69,10 @@ public class SingleSelectionInputComponent extends ParameterInputComponent
 	@Override
 	public boolean inputIsValid() {
 		/**
-		 * At least for now, we assume that any of the given options
-		 * is automatically valid as an input. At least here the user
-		 * has not the chance to input whatever arbitrary data they wish,
-		 * as is the case with text fields.
+		 * Currently we assume that any of the given options is
+		 * automatically valid as an input. At least here the user
+		 * has not the chance to input whatever arbitrary data they
+		 * wish, as is the case with text fields.
 		 */
 		return true;
 	}

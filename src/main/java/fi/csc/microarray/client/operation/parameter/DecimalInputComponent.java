@@ -19,6 +19,7 @@ import javax.swing.event.CaretListener;
  * @author Janne KÃ¤ki
  *
  */
+@SuppressWarnings("serial")
 public class DecimalInputComponent extends ParameterInputComponent
 								   implements CaretListener {
 

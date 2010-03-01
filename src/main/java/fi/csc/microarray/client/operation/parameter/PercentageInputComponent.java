@@ -25,6 +25,7 @@ import javax.swing.event.ChangeListener;
  * @author Janne KÃ¤ki
  *
  */
+@SuppressWarnings("serial")
 public class PercentageInputComponent extends ParameterInputComponent
 								      implements ChangeListener {
 

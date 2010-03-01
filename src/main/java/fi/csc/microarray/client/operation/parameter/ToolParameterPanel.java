@@ -28,6 +28,7 @@ import fi.csc.microarray.exception.MicroarrayException;
  * @author Janne KÃ¤ki, Aleksi Kallio, Petri KlemelÃ¤
  *
  */
+@SuppressWarnings("serial")
 public class ToolParameterPanel extends ParameterPanel {
 	private JScrollPane scroller;
 

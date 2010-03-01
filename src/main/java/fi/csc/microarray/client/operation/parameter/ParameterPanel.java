@@ -23,6 +23,7 @@ import fi.csc.microarray.exception.MicroarrayException;
  * @author Janne KÃ¤ki, Aleksi Kallio, Petri KlemelÃ¤
  *
  */
+@SuppressWarnings("serial")
 public abstract class ParameterPanel extends JPanel {
 
 	protected Map<Parameter, ParameterInputComponent> paramMap;

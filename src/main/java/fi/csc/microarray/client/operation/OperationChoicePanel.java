@@ -45,6 +45,7 @@ import fi.csc.microarray.constants.VisualConstants;
  * @author Janne KÃ¤ki
  *
  */
+@SuppressWarnings("serial")
 public class OperationChoicePanel extends JPanel
 								  implements ListSelectionListener, PropertyChangeListener {
 	/**
