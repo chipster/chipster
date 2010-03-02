@@ -22,7 +22,7 @@ public class ACDParameter {
     private String name;
     private String section;
     private String subsection;
-    private HashMap<String, String> list;
+    private LinkedHashMap<String, String> list;
     
     private HashMap<String, String> attributes = new HashMap<String, String>();
     
@@ -126,7 +126,7 @@ public class ACDParameter {
      * @param index - parameter index in parser object.
      */
     public void setList(ParseAcd parser, Integer index) {
-        list = new HashMap<String, String>();
+        list = new LinkedHashMap<String, String>();
 
         // Check if it is "list" or "selection"
         if (getType().equals("list")) {
@@ -153,7 +153,7 @@ public class ACDParameter {
      * ignored for "selection" type.
      */
     public void setList(String[] titles, String[] values) {
-        list = new HashMap<String, String>();
+        list = new LinkedHashMap<String, String>();
 
         // Check if it is "list" or "selection"
         if (getType().equals("list")) {           

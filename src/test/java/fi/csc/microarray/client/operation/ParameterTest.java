@@ -20,9 +20,10 @@ import fi.csc.microarray.client.operation.parameter.ToolParameterPanel;
 import fi.csc.microarray.client.operation.parameter.EnumParameter.SelectionOption;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.description.SADLSyntax.ParameterType;
 import fi.csc.microarray.exception.MicroarrayException;
 
-public class TestParameters {
+public class ParameterTest {
     
     private ToolParameterPanel panel;
     private Parameter paramMulti;
@@ -39,7 +40,11 @@ public class TestParameters {
         OperationDefinition definition = new OperationDefinition("Testation",
             category, "Testationing", false);
         Operation operation;
-        try {           
+        try {
+            String[] options = {"a", "b"};
+            Parameter p = Parameter.createInstance("list", ParameterType.ENUM, options,
+                                                   "This is list", "1", "1", "a"); 
+            
             // Prepare the multi-select parameter
             SelectionOption[] optionsMulti = new SelectionOption[3];
             optionsMulti[0] = new SelectionOption("I'm worth clicking", "i");
@@ -102,11 +107,12 @@ public class TestParameters {
     }
     
     public static void main(String[] args) {
-        TestParameters test = new TestParameters();
+        ParameterTest test = new ParameterTest();
         try {
             test.setUp();            
             test.prepareComponents();
             test.runTest();
+            test.testVisually();
         } catch (Exception e) {
             e.printStackTrace();
         }

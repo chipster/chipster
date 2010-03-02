@@ -63,13 +63,36 @@ public abstract class Parameter implements Cloneable {
 	        int minCount = (minValue == null ? Integer.MIN_VALUE : Integer.parseInt(minValue));
 	        int maxCount = (maxValue == null ? Integer.MAX_VALUE : Integer.parseInt(maxValue));
 	        
-			// Split initValue into Strings each representing a selected option
-	        // FIXME should have two arrays, one for option values and one for titles
-	        String[] initValues = initValue.split(",");
-			List<SelectionOption> defaultOptions = new LinkedList<SelectionOption>();
+            
+	        // 
+            // FIXME HACK!
+            //
+	        // TODO should have two arrays, one for option values and one for titles
+	        String[] titles = new String[options.length];
+	        String[] values = new String[options.length];
+	        int i = 0; 
+	        for (String option : options) {
+                if (option.indexOf("|") == -1) {
+                    values[i] = titles[i];
+                } else {
+                    titles[i] = option.substring(0, option.indexOf("|"));
+                    values[i] = option.substring(option.indexOf("|"));
+                }
+                i++;
+            }
+	        
+	        
+            List<SelectionOption> defaultOptions = new LinkedList<SelectionOption>();
+	        if (initValue != null) {
+	            // Split initValue into Strings each representing a selected option
+	            String[] initValues = initValue.split(",");
+	            // TODO fill in defaults according to initValues
+	        }
 			
-			SelectionOption[] optionObjects = EnumParameter.SelectionOption.convertStrings(options);
-			parameter = new EnumParameter(name, description, optionObjects, defaultOptions, minCount, maxCount);
+			SelectionOption[] optionObjects = EnumParameter.SelectionOption.
+			                                    convertStrings(titles, values);
+			parameter = new EnumParameter(name, description, optionObjects,
+			                              defaultOptions, minCount, maxCount);
 			break;
 			
 		case COLUMN_SEL:

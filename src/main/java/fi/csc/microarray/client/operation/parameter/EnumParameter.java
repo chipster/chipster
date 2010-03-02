@@ -45,10 +45,10 @@ public class EnumParameter extends Parameter {
             return name;
         }
         
-        public static SelectionOption[] convertStrings(String[] strings) {
-            SelectionOption[] options = new SelectionOption[strings.length];
-            for (int i = 0; i < strings.length; i++) {
-                options[i] = new SelectionOption(strings[i], strings[i]);
+        public static SelectionOption[] convertStrings(String[] titles, String[] values) {
+            SelectionOption[] options = new SelectionOption[titles.length];
+            for (int i = 0; i < titles.length; i++) {
+                options[i] = new SelectionOption(titles[i], values[i]);
             }
             return options;
         }

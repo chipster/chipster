@@ -156,7 +156,16 @@ public class ACDToSADL {
                     fieldValues[i] = fieldValueList.get(i);                    
                 }
 	            
-	            // TODO: lists with labels
+	            // 
+	            // FIXME: HACK!
+	            //
+                // TODO: lists with labels
+	            int i = 0;
+                for (String key : fieldOptions.keySet()) {
+                    fieldValues[i] = fieldValues[i] + "|" + key;
+                    i++;
+                }	            
+	            
 	            return new Parameter(fieldName, typeMap.get(fieldType), fieldValues,
 	                                 null, null, fieldDefault, fieldInfo);
 	        } else {

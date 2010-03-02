@@ -44,7 +44,7 @@ public abstract class DataSelectionParameter extends EnumParameter {
 			}
 		}
 		String[] strings = (String[]) colNames.toArray(new String[colNames.size()]);
-		SelectionOption[] optionObjects = SelectionOption.convertStrings(strings);
+		SelectionOption[] optionObjects = SelectionOption.convertStrings(strings, strings);
 		
 		// A list of default values
 		List<SelectionOption> defaultOptions = new LinkedList<SelectionOption>();
