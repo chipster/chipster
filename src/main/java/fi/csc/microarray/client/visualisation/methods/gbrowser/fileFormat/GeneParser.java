@@ -30,7 +30,7 @@ public class GeneParser extends ConstantRowLengthParser{
 
 	@Override
 	public int getChunkMaxByteLength() {
-		return (int)getRowByteLength() * 1;
+		return (int)getRowByteLength() * 32;
 	}
 
 	@Override

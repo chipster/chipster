@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,13 +32,13 @@ public class AnnotationContents {
 		appendToFile(row.species + "\t" + row.version + "\t" + row.content + "\t" + row.file);
 	}
 
-	public Collection<Row> getContents() {
+	public List<Row> getContents(InputStream contentsStream) {
 
 		List<Row> list = new ArrayList<Row>();
 
 		try {
 
-			BufferedReader reader = new BufferedReader(new FileReader(contentsFile));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(contentsStream));
 
 			reader.readLine().equals(FILE_ID);
 
@@ -99,5 +101,6 @@ public class AnnotationContents {
 		public String content;
 		public String file;
 	}
+
 }
 

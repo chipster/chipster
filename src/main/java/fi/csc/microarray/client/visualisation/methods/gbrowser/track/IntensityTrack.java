@@ -44,7 +44,7 @@ public class IntensityTrack extends Track {
 			int x2 = getView().bpToTrack(regCont.region.end);
 			int y2 = (int)getView().getTrackHeight();
 			
-			int val = (int) Math.min(Math.log((Float)(regCont.values.get(ColumnType.VALUE)) * 100) * 5, 
+			int val = (int) Math.min((Float)(regCont.values.get(ColumnType.VALUE)) * 10 , 
 					getView().getTrackHeight()/4);
 			int y1 = (int) (-val + y2);
 
@@ -64,8 +64,9 @@ public class IntensityTrack extends Track {
 	}
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
-
-		if(areaResult.content.values.get(ColumnType.STRAND) == getStrand() && 
+		
+		if(areaResult.status.concise == this.isConcised() &&
+				areaResult.content.values.get(ColumnType.STRAND) == getStrand() && 
 				areaResult.content.values.get(ColumnType.VALUE) != null){
 			
 			values.add(areaResult.content);			

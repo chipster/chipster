@@ -19,7 +19,7 @@ public class GenomeBrowserStarter {
 	 */
 	public static void main(String[] args) throws IOException {
 		JFrame frame = new JFrame();
-		GenomePlot plot = new GenomePlot();
+		GenomePlot plot = new GenomePlot(1,true, true, true, false, true);
 		ChartPanel panel = new ChartPanel(new JFreeChart(plot));
 		panel.setPreferredSize(new Dimension(800, 600));
 		plot.chartPanel = panel;

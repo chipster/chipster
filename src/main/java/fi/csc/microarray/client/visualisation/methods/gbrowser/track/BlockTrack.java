@@ -14,8 +14,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnDefinition;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Type;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -51,14 +53,12 @@ public class BlockTrack extends Track{
 
 		if(reads != null){
 
-			
-			
 			Iterator<RegionContent> iter = reads.iterator();
 			while(iter.hasNext()){
 
 				RegionContent read = iter.next();
 				
-				Object valueObj = read.values.get(ColumnType.VALUE);
+				Object valueObj = read.values.get(ColumnType.DESCRIPTION);
 				
 				
 				if(!read.region.intercepts(getView().getBpRegion())){
@@ -66,28 +66,12 @@ public class BlockTrack extends Track{
 					iter.remove();
 					continue;
 				}
-				
-				if(valueObj == null){
-					drawables.add(createDrawable(read.region.start, read.region.end, Color.red));
-				} else {
-					
-					int limited = Math.min((int)(Math.log((Float) valueObj * 100)*50), 255);					
-					limited = Math.max(0, limited);
-					
-					//System.out.println(limited);
-					
-					Color c = new Color(color.getRed(), color.getGreen(), color.getBlue(), limited);
-					int height = 10; //(int) (getView().getTrackHeight() / 2 * limited / 255f);
-					drawables.add(createDrawable(read.region.start, read.region.end, height , c));
-				}				
+								
+				drawables.add(createDrawable(read.region.start, read.region.end, 10, color));							
 			}
 		}
 				
 		return drawables;
-	}
-
-	private Drawable createDrawable(BpCoord startBp, BpCoord endBp, Color c){
-		return createDrawable(startBp, endBp, 5, c);
 	}
 
 	private Drawable createDrawable(BpCoord startBp, BpCoord endBp, int height, Color c){
@@ -118,35 +102,13 @@ public class BlockTrack extends Track{
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {		
 
-//		if (areaResult.content instanceof List) {
-//			List<List<Object>> reads = (List<List<Object>>) areaResult.content;
-//
-//			for(List<Object> obj: reads){
-//
-//				//TODO make separate track for database genes and read and remove this hack 
-//				long start = (Long)obj.get(areaResult.fileDef.indexOf(Content.BP_START)); 
-//				long end;
-//				if(areaResult.fileDef.indexOf(Content.BP_END) >= 0){
-//					end = (Long)obj.get(areaResult.fileDef.indexOf(Content.BP_END)); 
-//				} else {
-//					end = start + ((String)obj.get(areaResult.fileDef.indexOf(Content.SEQUENCE))).length();
-//				}
-//
-//				Region reg = new Region(start, end);
-//
-//				this.reads.add(new RegionValue<Float>(reg, 100f));
-//			}			
-//			
-//		} else 
-
-		if(areaResult.status.concise == isConcised()){
+		if(areaResult.status.concise == this.isConcised() &&
+				areaResult.content.values.get(ColumnType.STRAND) == getStrand()){
 
 			this.reads.add(areaResult.content);			
 
 			getView().redraw();
 		}
-
-		//this.reads.addAll(result.collection);
 	}
 
 	private boolean wasLastConsied = true;
@@ -176,12 +138,13 @@ public class BlockTrack extends Track{
 
 	@Override
 	public Collection<ColumnType> getDefaultContents() {
-		return Arrays.asList(new ColumnType[] {}); 
+		
+		return Arrays.asList(new ColumnType[] {		 
+				ColumnType.STRAND, ColumnType.DESCRIPTION, ColumnType.VALUE }); 
 	}
 
 	@Override
 	public boolean isConcised() {
-		return getView().getBpRegion().getLength() > 1*1024*1024;
-		//return reads.size() > RESOLUTION;
+		return false;
 	}
 }

@@ -22,7 +22,9 @@ public class TranscriptParser extends ConstantRowLengthParser{
 								new ColumnDefinition(ColumnType.DESCRIPTION, Type.STRING, 32),
 								new ColumnDefinition(ColumnType.VALUE, Type.STRING, 16),							
 								new ColumnDefinition(ColumnType.PARENT_ID, Type.STRING, 32),
-								new ColumnDefinition(ColumnType.PARENT_PART, Type.LONG, 4),
+								
+								//Should be Type.LONG, but there is some quotes in current annotation file
+								new ColumnDefinition(ColumnType.PARENT_PART, Type.STRING, 4),
 								new ColumnDefinition(ColumnType.SKIP, Type.NEWLINE, 1)
 
 						})));
@@ -113,9 +115,9 @@ public class TranscriptParser extends ConstantRowLengthParser{
 		
 		Object obj = super.get(rowIndex, col);
 		
-		if(col == ColumnType.CHROMOSOME) {			
-			return new Chromosome(((Chromosome)obj).toString().replace(".fa", ""));
-		}
+//		if(col == ColumnType.CHROMOSOME) {			
+//			return new Chromosome(((Chromosome)obj).toString().replace(".fa", ""));
+//		}
 		return obj;
 	}
 

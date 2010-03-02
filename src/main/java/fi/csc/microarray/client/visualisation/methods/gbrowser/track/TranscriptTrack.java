@@ -26,7 +26,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRe
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
-public class GeneTrack extends Track{
+public class TranscriptTrack extends Track{
 
 	private Map<String, Gene> genes = 
 		new TreeMap<String, Gene>();
@@ -45,7 +45,7 @@ public class GeneTrack extends Track{
 		}
 	}
 
-	public GeneTrack(View view, File file, Class<? extends AreaRequestHandler> handler, 
+	public TranscriptTrack(View view, File file, Class<? extends AreaRequestHandler> handler, 
 			FileParser inputParser, Color color, long maxBpLength)  {
 
 		super(view, file, handler, inputParser);		
@@ -66,29 +66,16 @@ public class GeneTrack extends Track{
 
 			for(Gene gene : sortedGenes){
 
-				//Zetas to make all chromosomes to be "smaller" in alphatetical order of Strings
-				BpCoord minBp = new BpCoord(Long.MAX_VALUE, new Chromosome(Chromosome.MAX_VALUE));
-				BpCoord maxBp = new BpCoord(Long.MIN_VALUE, new Chromosome(Chromosome.MIN_VALUE));
-				String id = null;
-
-				for(RegionContent part : gene){
-
-					Object valueObj = part.values.get(ColumnType.DESCRIPTION);
-
-					minBp = minBp.min(part.region.start);
-					maxBp = maxBp.max(part.region.end);
-					id  = (String)part.values.get(ColumnType.ID);
-				}
-
-				if(!(new BpCoordRegion(minBp, maxBp)).intercepts(getView().getBpRegion())){
-					genes.remove(id);
+				if(!gene.region.intercepts(getView().getBpRegion())){
+					
+					genes.remove(gene.id);
 					continue;
 				}
 
 				Rectangle rect = new Rectangle();
 
-				rect.x = getView().bpToTrack(minBp);
-				rect.width = getView().bpToTrack(maxBp) - rect.x;
+				rect.x = getView().bpToTrack(gene.region.start);
+				rect.width = getView().bpToTrack(gene.region.end) - rect.x;
 
 				int i = 0;
 
@@ -122,7 +109,7 @@ public class GeneTrack extends Track{
 							getArrowDrawables(rect.x + rect.width, rect.y, rect.height, rect.height));
 				}
 				
-				String geneId = ((String)gene.first().values.get(ColumnType.ID)).split("\"")[1];
+				String geneId = ((String)gene.first().values.get(ColumnType.DESCRIPTION));
 				
 				if(rect.width > geneId.length() * 7){
 					drawables.add(new TextDrawable(
@@ -139,9 +126,8 @@ public class GeneTrack extends Track{
 					} else {
 
 
-						String value = ((String) part.values.get(ColumnType.DESCRIPTION)).trim();
+						String value = ((String) part.values.get(ColumnType.VALUE)).trim();
 						Color c;
-						int height = 0;
 
 						if(value.equals("CDS")){						
 							c = PartColor.CDS.c;
@@ -149,7 +135,12 @@ public class GeneTrack extends Track{
 							c = PartColor.UTR.c;
 						} else if ( value.equals("start_codon")){
 							c = PartColor.START_CODON.c;
-						} else {
+						} else if ( value.equals("stop_codon")){
+							
+							//TODO Check how this should be visualised
+							c = PartColor.UTR.c;
+						}
+						else {
 							System.out.println("Gene description not recognised: " + value);
 							c = Color.blue;
 						}												
@@ -216,11 +207,19 @@ public class GeneTrack extends Track{
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {		
 
-		String id = (String)areaResult.content.values.get(ColumnType.PARENT_ID);
-
-		if(id != null && areaResult.content.values.get(ColumnType.STRAND) == getStrand()){
+		//Genes and transcripts are ordered in the file, but to here they come in any order
+		//That's why we have to put them to Gene objects to sort them again
+		//Sorting is needed to draw partly overlapping genes in the same order every time
+		if(!areaResult.status.concise && areaResult.content.values.get(ColumnType.STRAND) == getStrand()){
+			
+			Map<ColumnType, Object> values = areaResult.content.values;
+			String id = (String)values.get(ColumnType.PARENT_ID);
+			
 			if(!genes.containsKey(id)){
-				genes.put(id, new Gene());
+				genes.put(id, new Gene(new BpCoordRegion(
+						(Long)values.get(ColumnType.PARENT_BP_START),
+						(Long)values.get(ColumnType.PARENT_BP_END),
+						(Chromosome)values.get(ColumnType.CHROMOSOME)), id));
 			}
 
 			genes.get(id).add(areaResult.content);
@@ -253,7 +252,16 @@ public class GeneTrack extends Track{
 
 	@Override
 	public Collection<ColumnType> getDefaultContents() {
-		return Arrays.asList(new ColumnType[] { ColumnType.DESCRIPTION, ColumnType.STRAND, ColumnType.ID}); 
+		return Arrays.asList(new ColumnType[] { 
+				ColumnType.CHROMOSOME,
+				ColumnType.PARENT_BP_START,		
+				ColumnType.PARENT_BP_END,
+				ColumnType.STRAND,
+				ColumnType.DESCRIPTION,
+				ColumnType.VALUE,							
+				ColumnType.PARENT_ID,
+				ColumnType.PARENT_PART
+		});
 	}
 
 	@Override

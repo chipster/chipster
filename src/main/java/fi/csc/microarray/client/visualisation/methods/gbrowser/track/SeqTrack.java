@@ -105,7 +105,7 @@ public class SeqTrack extends Track{
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
 		rect.x = getView().bpToTrack(startBb);
-		rect.width = getView().bpToTrack(endBp) - rect.x;
+		rect.width = getView().bpToTrack(new BpCoord(endBp.bp + 1, endBp.chr)) - rect.x;
 
 		rect.y = (int)(1 + yOffset);
 		rect.height = 10;	
@@ -158,6 +158,10 @@ public class SeqTrack extends Track{
 			
 				//System.out.println(startBp + ", " + seqLength + ((String)(areaResult.content.values.get(Content.SEQUENCE))));
 				//System.out.println((String)(areaResult.content.values.get(Content.SEQUENCE)) + areaResult.content.region);
+		
+				areaResult.content.region.start.bp -= 10000;
+				areaResult.content.region.end.bp -= 10000;
+		
 				this.reads.add(areaResult.content);			
 //			}
 

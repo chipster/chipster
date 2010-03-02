@@ -2,38 +2,37 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
-public class Gene extends TreeSet<RegionContent> implements Comparable<Gene>{	
-
-	public BpCoord minBp = BpCoord.getMax();
-	public BpCoord maxBp = BpCoord.getMin();
-	public String id = null;	
+public class Gene extends TreeSet<RegionContent> implements Comparable<Gene>{
+	
+	public BpCoordRegion region;
+	public String id;
+	
+	public Gene(BpCoordRegion region, String id) {
+		this.region = region;
+		this.id = id;
+	}
 
 	@Override
 	public boolean add(RegionContent part){
-
-		minBp = minBp.min(part.region.start);
-		maxBp = maxBp.max(part.region.end);
-		id  = (String)part.values.get(ColumnType.ID);
+		
 		return super.add(part);
 	}
 
 	@Override
 	public int hashCode(){
-		return minBp.hashCode();
+		return id.hashCode();
 	}
 
 	@Override
 	public boolean equals(Object o){
 		Gene other = (Gene) o;		
-		return minBp.equals(other.minBp);
+		return id.equals(other.id);
 	}
 
 	public int compareTo(Gene other) {
-		return minBp.compareTo(other.minBp);
+		return region.compareTo(other.region);
 	}
-
 }
