@@ -22,8 +22,8 @@ public class EnumParameter extends Parameter {
             .getLogger(EnumParameter.class);
 
     private SelectionOption[] options;
-    private int minCount = 0;
-    private int maxCount = Integer.MAX_VALUE;
+    private int minCount = 1;
+    private int maxCount = 1;
     
     // A list of selected options
     private List<SelectionOption> selectedOptions = new LinkedList<SelectionOption>();

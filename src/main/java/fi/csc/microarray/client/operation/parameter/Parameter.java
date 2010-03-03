@@ -60,8 +60,8 @@ public abstract class Parameter implements Cloneable {
 		switch (type) {
 		case ENUM:
 		    // Determine how many values can be chosen
-	        int minCount = (minValue == null ? Integer.MIN_VALUE : Integer.parseInt(minValue));
-	        int maxCount = (maxValue == null ? Integer.MAX_VALUE : Integer.parseInt(maxValue));
+	        int minCount = (minValue != null ? Integer.parseInt(minValue) : 0);
+	        int maxCount = (maxValue != null ? Integer.parseInt(maxValue) : 1);
 	        
             
 	        // 
@@ -76,21 +76,30 @@ public abstract class Parameter implements Cloneable {
                     values[i] = titles[i];
                 } else {
                     titles[i] = option.substring(0, option.indexOf("|"));
-                    values[i] = option.substring(option.indexOf("|"));
+                    values[i] = option.substring(option.indexOf("|") + 1);
                 }
                 i++;
             }
-	        
-	        
-            List<SelectionOption> defaultOptions = new LinkedList<SelectionOption>();
-	        if (initValue != null) {
-	            // Split initValue into Strings each representing a selected option
-	            String[] initValues = initValue.split(",");
-	            // TODO fill in defaults according to initValues
-	        }
-			
+
 			SelectionOption[] optionObjects = EnumParameter.SelectionOption.
 			                                    convertStrings(titles, values);
+            
+            List<SelectionOption> defaultOptions = new LinkedList<SelectionOption>();
+            if (initValue != null) {
+                // Split initValue into Strings each representing a selected option
+                String[] initValues = initValue.split(",");
+                
+                // Fill in defaults according to initValues
+                // TODO: not very effective (consider using HashMaps for storing SelectionOptions)
+                for (String value : initValues) {
+                    for (SelectionOption option : optionObjects) {
+                        if (value.equals(option.getValue())) {
+                            defaultOptions.add(option);
+                        }
+                    }
+                }
+            }
+            
 			parameter = new EnumParameter(name, description, optionObjects,
 			                              defaultOptions, minCount, maxCount);
 			break;
@@ -116,7 +125,7 @@ public abstract class Parameter implements Cloneable {
 		case PERCENT:
 			
 			// Treat all numbers as double
-			float min = (minValue == null ? Float.MIN_VALUE : Float.parseFloat(minValue));
+			float min = (minValue == null ? -Float.MAX_VALUE : Float.parseFloat(minValue));
 			float max = (maxValue == null ? Float.MAX_VALUE : Float.parseFloat(maxValue));
 			float init;
 			if (initValue == null) {

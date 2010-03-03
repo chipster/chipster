@@ -53,8 +53,10 @@ public class SingleSelectionInputComponent extends ParameterInputComponent
 		choiceBox.setPopupWidth(preferredSize.width);
 		choiceBox.setBackground(Color.white);
 		
-        // This is a single selection list so there's only one default value
-		choiceBox.setSelectedItem(param.getSelectedOptions().get(0));
+		if (param.getSelectedOptions().size() > 0) {
+		    // This is a single selection list so there's only one default value
+		    choiceBox.setSelectedItem(param.getSelectedOptions().get(0));
+		}
         
 		choiceBox.addActionListener(this);
 		choiceBox.addFocusListener(this);

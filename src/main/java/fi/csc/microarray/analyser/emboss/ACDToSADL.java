@@ -119,9 +119,8 @@ public class ACDToSADL {
 	        typeMap.put("selection", ParameterType.ENUM);
 	        
 	        // Read common attributes
-	        String fieldDefault = "";
 	        // Don't use attributes with variable references etc.
-	        fieldDefault = param.getAttribute("default");
+            String fieldDefault = null;
 	        if (param.attributeIsEvaluated("default")) {
 	            fieldDefault = param.getAttribute("default");
 	        }
@@ -131,12 +130,17 @@ public class ACDToSADL {
 	        
 	        if (fieldType.equals("boolean") || fieldType.equals("toggle")) {
 	            // Boolean types need some special handling
-	            String[] fieldOptions = {"Y", "N"};
+	            
+	            //
+	            // FIXME: HACK!
+	            //
+	            String[] fieldOptions = {"Yes|Y", "No|N"};
+	            
 	            return new Parameter(fieldName, typeMap.get(fieldType), fieldOptions,
 	                    null, null, fieldDefault, fieldInfo);
 	        } else if (type == PARAM_GROUP_SIMPLE) {
-	            String fieldMin = "";
-	            String fieldMax = "";
+	            String fieldMin = null;
+	            String fieldMax = null;
 	            // Don't use attributes with variable references etc.
 	            if (param.attributeIsEvaluated("minimum")) {
 	                fieldMin = param.getAttribute("minimum");
