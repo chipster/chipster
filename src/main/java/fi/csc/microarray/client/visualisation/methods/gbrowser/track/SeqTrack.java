@@ -159,8 +159,8 @@ public class SeqTrack extends Track{
 				//System.out.println(startBp + ", " + seqLength + ((String)(areaResult.content.values.get(Content.SEQUENCE))));
 				//System.out.println((String)(areaResult.content.values.get(Content.SEQUENCE)) + areaResult.content.region);
 		
-				areaResult.content.region.start.bp -= 10000;
-				areaResult.content.region.end.bp -= 10000;
+//				areaResult.content.region.start.bp -= 10000;
+//				areaResult.content.region.end.bp -= 10000;
 		
 				this.reads.add(areaResult.content);			
 //			}

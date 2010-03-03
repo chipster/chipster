@@ -66,6 +66,19 @@ public class SequenceParser extends ConstantRowLengthParser{
 			
 		return clone;
 	}
+	
+	//For some reason current sequence file starts 10k before the reads sequences
+	//Maybe different version of reference sequence?
+	@Override
+	public Object get(long rowIndex, ColumnType col) {
+		
+		Object obj = super.get(rowIndex, col);
+		
+		if(col == ColumnType.BP_START || col == ColumnType.BP_END) {			
+			return ((Long)obj) - 10137;
+		}
+		return obj;
+	}
 
 	@Override
 	public String getName() {

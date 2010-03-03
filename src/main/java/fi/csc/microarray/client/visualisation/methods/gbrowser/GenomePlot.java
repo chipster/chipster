@@ -602,15 +602,16 @@ implements ChartMouseListener, Cloneable, Serializable{ //, MouseWheelListener {
 			//Separator
 			//dataView.addTrack(new SeparatorTrack(dataView));
 			
-			//Reference sequence			
-			File seqFile = new File("annotations/Homo_sapiens.GRCh37.56_seq.fsf");
-			
-			SeqTrack seq = new SeqTrack(dataView, seqFile, 
-					TreeThread.class, new SequenceParser(), 800);
-			
-			dataView.addTrack(seq);
-			seq.initializeListener();
-			
+			if (sequence) {
+				//Reference sequence			
+				File seqFile = new File("annotations/Homo_sapiens.GRCh37.56_seq.fsf");
+
+				SeqTrack seq = new SeqTrack(dataView, seqFile, 
+						TreeThread.class, new SequenceParser(), 800);
+
+				dataView.addTrack(seq);
+				seq.initializeListener();
+			}
 			
 			// R E V E R S E D ///////////////////////////////////////////////////
 			

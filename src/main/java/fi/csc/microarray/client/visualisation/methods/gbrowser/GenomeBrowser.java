@@ -1,4 +1,3 @@
-
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
 import java.awt.Cursor;
@@ -7,10 +6,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,14 +34,11 @@ import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
-import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Row;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
-
-
 public class GenomeBrowser extends Visualisation implements ActionListener {
 	
 	public GenomeBrowser(VisualisationFrame frame) {
@@ -108,7 +104,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 		
 		try {
 			
-			InputStream contentsStream = new URL(ANNOTATION_PATH + CONTENTS_FILE).openStream();
+			//InputStream contentsStream = new URL(ANNOTATION_PATH + CONTENTS_FILE).openStream();
+			InputStream contentsStream = new FileInputStream("annotations/contents.txt");
 			
 			List<Row> contents = new AnnotationContents().getContents(contentsStream);
 			
@@ -130,8 +127,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 				trackBoxes .add(box);
 			}			
 			
-		} catch (MalformedURLException e) {
-			application.reportException(e);
+//		} catch (MalformedURLException e) {
+//			application.reportException(e);
 		} catch (IOException e) {
 			application.reportException(e);
 		}		
@@ -152,6 +149,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 		for( int i = 1; i <= 22; i++) {
 			chrBox.addItem(i);
 		}
+		
+		chrBox.setEnabled(false);
 		
 		megaLocation = new JTextArea(1, 3);
 		kiloLocation = new JTextArea(1, 3);
@@ -186,22 +185,22 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 		c.gridy++;
 		settingsPanel.add(chrBox, c);     
 		c.gridy++;
-		settingsPanel.add(new JLabel("Location"),c);
-		
-		c.gridy++;
-		c.gridwidth = 1;
-		c.insets.set(5, 10, 5, 0);
-		settingsPanel.add(megaLocation, c);
-		c.gridx++;
-		c.insets.set(5, 0, 5, 0);
-		settingsPanel.add(megaLabel, c);
-		c.gridx++;		
-		settingsPanel.add(kiloLocation, c);
-		c.gridx++;
-		settingsPanel.add(kiloLabel, c);
-		c.gridx++;
-		c.insets.set(5, 0, 5, 10);
-		settingsPanel.add(unitLocation, c);
+//		settingsPanel.add(new JLabel("Location"),c);
+//		
+//		c.gridy++;
+//		c.gridwidth = 1;
+//		c.insets.set(5, 10, 5, 0);
+//		settingsPanel.add(megaLocation, c);
+//		c.gridx++;
+//		c.insets.set(5, 0, 5, 0);
+//		settingsPanel.add(megaLabel, c);
+//		c.gridx++;		
+//		settingsPanel.add(kiloLocation, c);
+//		c.gridx++;
+//		settingsPanel.add(kiloLabel, c);
+//		c.gridx++;
+//		c.insets.set(5, 0, 5, 10);
+//		settingsPanel.add(unitLocation, c);
 		
 		c.gridx = 0;
 		c.gridwidth = 5;
@@ -303,7 +302,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 		}
 
 		ChartPanel panel = new ChartPanel(new JFreeChart(plot));
-		panel.setPreferredSize(new Dimension(800, 600));
+		//panel.setPreferredSize(new Dimension(800, 600));
 		plot.chartPanel = panel;
 		//SelectableChartPanel selPanel = new SelectableChartPanel(new JFreeChart(plot), plot);
 		//selPanel.getChartPanel().addChartMouseListener(plot);

@@ -109,17 +109,6 @@ public class TranscriptParser extends ConstantRowLengthParser{
 		
 		return clone;
 	}
-	
-	@Override
-	public Object get(long rowIndex, ColumnType col) {
-		
-		Object obj = super.get(rowIndex, col);
-		
-//		if(col == ColumnType.CHROMOSOME) {			
-//			return new Chromosome(((Chromosome)obj).toString().replace(".fa", ""));
-//		}
-		return obj;
-	}
 
 	@Override
 	public String getName() {

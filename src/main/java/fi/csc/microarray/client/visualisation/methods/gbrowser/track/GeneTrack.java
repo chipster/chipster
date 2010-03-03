@@ -99,11 +99,15 @@ public class GeneTrack extends Track{
 		rect.y = (int)(getView().getTrackHeight() - ((i + 1) * (height + 2)));
 		rect.height = height;
 		
-		if(rect.width > name.length() * 7){
-			drawables.add(new TextDrawable(rect.x, rect.y, name, Color.DARK_GRAY));
-		}
 
 		drawables.add(new RectDrawable(rect, c, null));
+		if(rect.width > name.length() * 7){
+			
+			//TODO fix the extra quote mark in file
+			name = name.replaceAll("\"", "");
+			
+			drawables.add(new TextDrawable(rect.x, rect.y + 10, name, Color.DARK_GRAY));
+		}
 	}
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {		
