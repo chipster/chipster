@@ -18,7 +18,7 @@ library(RmiR)
 
 # Loads the normalized data and phenodata files
 data_1 <- read.table(file="normalized_mirna.tsv", header=T, sep="\t", row.names=1)
-data_2 <- read.table(file="normalized_gene_2.tsv", header=T, sep="\t", row.names=1)
+data_2 <- read.table(file="normalized_gene.tsv", header=T, sep="\t", row.names=1)
 phenodata_1 <- read.table("phenodata_mirna.tsv", header=T, sep="\t")
 phenodata_2 <- read.table("phenodata_gene.tsv", header=T, sep="\t")
 
