@@ -103,7 +103,7 @@ public class ToolRepository {
 		
 		// get the descriptions
 		for (AnalysisDescription description: visibleDescriptions.values()) {
-			buf.append(description.getVVSADL());
+			buf.append(description.getVVSADL() + " ");
 		}
 		return buf;
 	}

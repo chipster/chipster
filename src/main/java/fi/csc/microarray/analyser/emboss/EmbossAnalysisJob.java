@@ -104,10 +104,19 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         Process p = Runtime.getRuntime().exec(cmd, null, jobWorkDir);
         p.waitFor();
         
-        // TODO: Some information from error stream
-        // byte[] b = new byte[150];
-        // p.getErrorStream().read(b);
-        // String errorString = new String(b);
+        // Some information from error stream
+        byte[] b = new byte[150];
+        p.getErrorStream().read(b);
+        String outputString = new String(b);
+        logger.info("Emboss application has finished with exit code " + p.exitValue() + 
+                    " and this message: " + "\"" + outputString + "\".");
+        
+        // If the exit code is non-zero, the application was not successful
+        if (p.exitValue() != 0) {
+            logger.debug("There was an error while running emboss \"" +
+                         analysis.getName() + "\" application.");
+            updateState(JobState.FAILED, "EMBOSS application failed.", false);
+        } 
         
         // This is what we should produce as output
         ResultMessage outputMessage = this.outputMessage;

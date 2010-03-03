@@ -121,9 +121,17 @@ public class ACDToSADL {
 	        // Read common attributes
 	        // Don't use attributes with variable references etc.
             String fieldDefault = null;
+            String fieldMin = null;
+            String fieldMax = null;
 	        if (param.attributeIsEvaluated("default")) {
 	            fieldDefault = param.getAttribute("default");
 	        }
+            if (param.attributeIsEvaluated("minimum")) {
+                fieldMin = param.getAttribute("minimum");
+            }
+            if (param.attributeIsEvaluated("maximum")) {
+                fieldMax = param.getAttribute("maximum");
+            }
 	        
 	        // TODO: help attribute; comment attribute
 	        String fieldInfo = param.getAttribute("information");
@@ -139,15 +147,6 @@ public class ACDToSADL {
 	            return new Parameter(fieldName, typeMap.get(fieldType), fieldOptions,
 	                    null, null, fieldDefault, fieldInfo);
 	        } else if (type == PARAM_GROUP_SIMPLE) {
-	            String fieldMin = null;
-	            String fieldMax = null;
-	            // Don't use attributes with variable references etc.
-	            if (param.attributeIsEvaluated("minimum")) {
-	                fieldMin = param.getAttribute("minimum");
-	            }
-	            if (param.attributeIsEvaluated("maximum")) {
-	                fieldMax = param.getAttribute("maximum");
-	            }
 	            return new Parameter(fieldName, typeMap.get(fieldType), null,
 	                                 fieldMin, fieldMax, fieldDefault, fieldInfo);
 	        } else if (type == PARAM_GROUP_LIST) {
@@ -171,7 +170,7 @@ public class ACDToSADL {
                 }	            
 	            
 	            return new Parameter(fieldName, typeMap.get(fieldType), fieldValues,
-	                                 null, null, fieldDefault, fieldInfo);
+	                                 fieldMin, fieldMax, fieldDefault, fieldInfo);
 	        } else {
 	            return null;
 	        }

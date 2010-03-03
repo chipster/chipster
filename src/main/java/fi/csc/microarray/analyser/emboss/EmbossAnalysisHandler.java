@@ -68,7 +68,7 @@ public class EmbossAnalysisHandler implements AnalysisHandler {
         description.setCommand("EMBOSS");
         description.setVVSADL(sadlDescription.toString());
         description.setSourceCode("Source code not available for EMBOSS tools. " + 
-                                  "See: http://emboss.sourceforge.net/ ");
+                                  "See: http://emboss.sourceforge.net/.");
         description.setSourceResourceName(acdFileName);
         description.setSourceResourceFullPath(acdFile.getAbsolutePath());
         
