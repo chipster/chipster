@@ -70,7 +70,8 @@
 			<!-- ANNOTATION -->
 			<tool runtime="R-2.9">annotate-genelist2html.R</tool>
 			<tool runtime="R-2.9">annotate-add-to-data.R</tool> 
-			<tool runtime="R-2.9">annotate-agilent-miRNA.R</tool> 
+			<tool runtime="R-2.9">annotate-agilent-miRNA.R</tool>
+			<tool runtime="R-2.9">annotate-miRNA-targets.R</tool> 
 			
 			<!-- PATHWAYS -->
 			<tool runtime="R-2.9">stat-hyperG-GO.R</tool>	
