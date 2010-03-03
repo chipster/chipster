@@ -5,8 +5,8 @@
 # INPUT GENE_EXPRS normalized_mirna.tsv, GENE_EXPRS normalized_gene.tsv, GENERIC phenodata_mirna.tsv, GENERIC phenodata_gene.tsv
 # OUTPUT mirna-up-gene-down.tsv, mirna-down-gene-up.tsv
 # PARAMETER average.method [mean, median] DEFAULT median (The method to calculate the average of samples in each experiment group.)
-# PARAMETER groups.column.mirna METACOLUMN_SEL DEFAULT group (Phenodata column describing the experiment groups of the samples in the miRNA expression dataset.
-# PARAMETER groups.column.gene METACOLUMN_SEL DEFAULT group (Phenodata column describing the experiment groups of the samples in the gene expression dataset.
+# PARAMETER groups.column.mirna METACOLUMN_SEL DEFAULT group (Phenodata column describing the experiment groups of the samples in the miRNA expression dataset.)
+# PARAMETER groups.column.gene METACOLUMN_SEL DEFAULT group (Phenodata column describing the experiment groups of the samples in the gene expression dataset.)
 # PARAMETER id.type [probe_id, entrez_id] DEFAULT probe_id (Defines the type of gene identifier to use. For supported array types
 # from Affymetrix, Agilent or Illumina "probe_id" should be used, whereas for custom arrays "entrez_id" should be used.)
 
