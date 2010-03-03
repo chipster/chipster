@@ -62,6 +62,7 @@ public class HelpMapping {
 		mappings.put("Statistics/Calculate descriptive statistics", "chipster-manual/calculate-descriptive-statistics.html");
 		mappings.put("Statistics/DCA", "chipster-manual/ordination-dca.html");
 		mappings.put("Statistics/Association analysis", "chipster-manual/stat-chisq-snp.html");
+		mappings.put("Statistics/UP-DOWN analysis of miRNA targets", "chipster-manual/up-down-analysis-mirna.html");
 		
 		mappings.put("Clustering/Hierarchical", "chipster-manual/cluster-hierarchical.html");
 		mappings.put("Clustering/K-Means", "chipster-manual/cluster-kmeans.html");

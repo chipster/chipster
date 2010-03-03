@@ -5,3 +5,5 @@ syntax: regexp
 ^bin$
 syntax: regexp
 ^dist/*$
+syntax: regexp
+^debug-base-dir$
