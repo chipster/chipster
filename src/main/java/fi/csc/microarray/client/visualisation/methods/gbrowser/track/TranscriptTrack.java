@@ -91,14 +91,14 @@ public class TranscriptTrack extends Track{
 					occupiedSpace.add(end);
 				}
 
-				rect.y = (int)(getView().getTrackHeight() - ((i + 1) * (20 + 2)));
+				rect.y = (int)(getView().getTrackHeight() - ((i + 1) * (14)));
 				rect.height = 2;
 
-				rect.y += 4;
+				rect.y += 1;
 				drawables.add(new RectDrawable(rect, Color.darkGray, null));
-				rect.y -= 4;
+				rect.y -= 1;
 				
-				rect.height = 10;
+				rect.height = 4;
 				
 				//Draw arrow
 				if(gene.first().values.get(ColumnType.STRAND) == Strand.REVERSED){
@@ -111,9 +111,9 @@ public class TranscriptTrack extends Track{
 				
 				String geneId = ((String)gene.first().values.get(ColumnType.DESCRIPTION));
 				
-				if(rect.width > geneId.length() * 7){
+				if(rect.width > geneId.length() * 5){
 					drawables.add(new TextDrawable(
-							rect.x, rect.y, geneId, 
+							rect.x, rect.y - 1, geneId, 
 							Color.DARK_GRAY));
 				}
 
@@ -147,7 +147,7 @@ public class TranscriptTrack extends Track{
 
 						rect.x = getView().bpToTrack(part.region.start);						
 						rect.width = getView().bpToTrack(part.region.end) - rect.x;
-						rect.height = 10;
+						rect.height = 4;
 
 						geneDrawables.add(new RectDrawable(rect, c, null));												
 						//drawables.add(new RectDrawable(rect, c, c));					

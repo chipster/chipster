@@ -144,13 +144,13 @@ public abstract  class View implements MouseListener, MouseMotionListener, Mouse
 					
 					drawDrawable(bufG2, x, maybeReversedY, drawable);
 					
-					if(System.currentTimeMillis() - startTime >= 1000 / FPS){
-						
-						//System.out.println("continue drawing later");
-						continueDrawingLater = true;						
-						this.redraw();
-						break;
-					}
+//					if(System.currentTimeMillis() - startTime >= 1000 / FPS){
+//						
+//						//System.out.println("continue drawing later");
+//						continueDrawingLater = true;						
+//						this.redraw();
+//						break;
+//					}
 				}
 								
 				if(continueDrawingLater){

@@ -644,8 +644,8 @@ implements ChartMouseListener, Cloneable, Serializable{ //, MouseWheelListener {
 			}    		
 		});
 		
-		dataView.setBpRegion(new BpCoordRegionDouble(0d, 1024*1024*250d, new Chromosome("" + chr)), false);
-		overview.setBpRegion(new BpCoordRegionDouble(0d, 1024*1024*250d, new Chromosome("" + chr)), false);
+		dataView.setBpRegion(new BpCoordRegionDouble(0d, 1024*1024*250d, new Chromosome("1")), false);
+		overview.setBpRegion(new BpCoordRegionDouble(0d, 1024*1024*250d, new Chromosome("1")), false);
 	}
 
 
@@ -702,7 +702,7 @@ implements ChartMouseListener, Cloneable, Serializable{ //, MouseWheelListener {
 		//Horizontal or vertical split
 		if(true){
 
-			float[] viewHeights = new float[] { 0.2f, 0.8f };
+			float[] viewHeights = new float[] { 0.1f, 0.9f };
 			int origHeight = viewArea.height;
 
 			for(int i = 0 ; i < views.size(); i++){

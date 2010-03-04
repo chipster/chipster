@@ -61,7 +61,7 @@ public class CircularView extends View{
 			for(int i = 0; i < text.text.length(); i++){
 								
 				char chr = text.text.charAt(i);
-				Point.Float p = toCircle(new Point(text.x + pixelLength , text.y + 12));
+				Point.Float p = toCircle(new Point(text.x + pixelLength , text.y - 4));
 
 				if(p != null){
 										
@@ -221,7 +221,7 @@ public class CircularView extends View{
 
 			//System.out.println(startBp + ", " + endBp);
 
-			setBpRegion(new BpCoordRegionDouble(startBp, endBp, new Chromosome("chr1")), false);
+			setBpRegion(new BpCoordRegionDouble(startBp, endBp, new Chromosome("1")), false);
 		}
 	}
 

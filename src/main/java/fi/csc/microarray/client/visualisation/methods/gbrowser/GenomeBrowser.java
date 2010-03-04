@@ -291,7 +291,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 			boolean horizontal =  ((ButtonModel)((ObjVariable)vars.get(4)).obj).equals(horizView.getModel());
 						
 			plot = new GenomePlot(
-					(Integer)((ObjVariable)vars.get(0)).obj,
+					1, //(Integer)((ObjVariable)vars.get(0)).obj,
 					horizontal,
 					((JCheckBox)((ObjVariable)vars.get(5)).obj).isSelected(),
 					((JCheckBox)((ObjVariable)vars.get(6)).obj).isSelected(),
@@ -329,7 +329,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 	
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		return true;
+		
+		return bean.getName().equals("eland_result_demo.txt");
+		//return true;
 		//return !VisualisationMethod.SCATTERPLOT3DPCA.getHeadlessVisualiser().canVisualise(bean);
 		
 	}
