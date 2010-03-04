@@ -124,7 +124,7 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         // This is where results are returned 
         ResultCallback resultHandler = this.resultHandler;
         
-        outputMessage.setState(JobState.COMPLETED);
+        outputMessage.setState(JobState.RUNNING);
         resultHandler.sendResultMessage(inputMessage, outputMessage);
     }
     
@@ -165,10 +165,18 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
             params.add("-" + name + " " + name);
         }
         
-        // Outputs
-        // TODO: add outputs according to ACD
-        params.add("-outfile " +  "outfile");
-               
+        // Simple outputs
+        for (ACDParameter param : acdDescription.getOutputParameters()) {
+            params.add("-" + param.getName() + " " + param.getOutputFilename());
+        }
+        
+        // Graphics outputs
+        for (ACDParameter param : acdDescription.getGraphicsParameters()) {
+            // Emboss automatically adds extensions for graphics files
+            params.add("-" + param.getName() + " ps");
+            params.add("-goutfile " + param.getName());
+        }
+                       
         String cmd = "";
         for (String string : params) {
             cmd += string + " ";

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.emboss.jemboss.parser.ParseAcd;
 
@@ -67,6 +68,38 @@ public class ACDDescription {
             }
         }
         return null;
+    }
+    
+    /**
+     * Find output parameters.
+     * 
+     * @return a list containing all output parameters.
+     */
+    public List<ACDParameter> getOutputParameters() {
+        List<ACDParameter> params = new LinkedList<ACDParameter>();
+        for (ACDParameter parameter : parameters) {
+            if (ACDParameter.detectParameterGroup(parameter.getType()) ==
+                ACDParameter.PARAM_GROUP_OUTPUT) {
+                params.add(parameter);
+            }
+        }
+        return params;
+    }
+    
+    /**
+     * Find graphics parameters.
+     * 
+     * @return a list containing all graphics parameters.
+     */
+    public List<ACDParameter> getGraphicsParameters() {
+        List<ACDParameter> params = new LinkedList<ACDParameter>();
+        for (ACDParameter parameter : parameters) {
+            if (ACDParameter.detectParameterGroup(parameter.getType()) ==
+                ACDParameter.PARAM_GROUP_GRAPHICS) {
+                params.add(parameter);
+            }
+        }
+        return params;
     }
     
     /**

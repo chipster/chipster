@@ -49,7 +49,6 @@ public class ToolXMLGenerator {
         // See: http://emboss.sourceforge.net/developers/acd/syntax.html#sect2214
         ignoredGroups.add("");
         ignoredGroups.add("Acd");
-        ignoredGroups.add("Information");
         ignoredGroups.add("Menus");
         ignoredGroups.add("Test");
         ignoredGroups.add("Utils");

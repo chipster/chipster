@@ -1,6 +1,5 @@
 package fi.csc.microarray.analyser.emboss;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -52,14 +51,7 @@ public class ACDToSADL {
 	 * @author naktinis
 	 * 
 	 */
-	public static class SADLParameterCreator {
-	    
-	    private static final Integer PARAM_GROUP_SIMPLE = 0;
-	    private static final Integer PARAM_GROUP_INPUT = 1;
-	    private static final Integer PARAM_GROUP_LIST = 2;
-	    private static final Integer PARAM_GROUP_OUTPUT = 3;
-	    private static final Integer PARAM_GROUP_GRAPHICS = 4;
-	    
+	public static class SADLParameterCreator {	    
 	    /**
 	     * Create a SADL parameter (Parameter, Input or Output) and
 	     * add it to a given object.
@@ -104,7 +96,7 @@ public class ACDToSADL {
 	        String fieldName = param.getName();
 	        
 	        // Detect the parameter functional group
-	        Integer type = detectParameterGroup(fieldType.toLowerCase());
+	        Integer type = ACDParameter.detectParameterGroup(fieldType.toLowerCase());
 	        
 	        // Map simple ACD parameters to SADL parameters
 	        HashMap<String, ParameterType> typeMap = new HashMap<String, ParameterType>();
@@ -146,10 +138,10 @@ public class ACDToSADL {
 	            
 	            return new Parameter(fieldName, typeMap.get(fieldType), fieldOptions,
 	                    null, null, fieldDefault, fieldInfo);
-	        } else if (type == PARAM_GROUP_SIMPLE) {
+	        } else if (type == ACDParameter.PARAM_GROUP_SIMPLE) {
 	            return new Parameter(fieldName, typeMap.get(fieldType), null,
 	                                 fieldMin, fieldMax, fieldDefault, fieldInfo);
-	        } else if (type == PARAM_GROUP_LIST) {
+	        } else if (type == ACDParameter.PARAM_GROUP_LIST) {
 	            HashMap<String, String> fieldOptions = param.getList();
                 LinkedList<String> fieldValueList = new LinkedList<String>(fieldOptions.values());
 	            String[] fieldValues = new String[fieldValueList.size()];
@@ -189,10 +181,12 @@ public class ACDToSADL {
 	        String fieldName = param.getName();
 	        
 	        // Detect the parameter functional group
-	        Integer type = detectParameterGroup(fieldType.toLowerCase());
+	        Integer type = ACDParameter.detectParameterGroup(fieldType.toLowerCase());
 	        
-	        // TODO: help attribute; comment attribute        
-	        if (type == PARAM_GROUP_INPUT) {
+	        // TODO: help attribute; comment attribute
+	        // Skip all non-required inputs
+	        if (type == ACDParameter.PARAM_GROUP_INPUT &&
+	            param.isRequired()) {
 	            return Input.createInput(GenericInputTypes.GENERIC, fieldName);
 	        } else {
 	            return null;
@@ -208,53 +202,16 @@ public class ACDToSADL {
 	     * @return vvsadl parameter object or null.
 	     */
 	    public static String createOutput(ACDParameter param) { 
-	        String fieldType = param.getType();
-	        String fieldName = param.getName();
-	        
 	        // Detect the parameter functional group
-	        Integer type = detectParameterGroup(fieldType.toLowerCase());
+	        String fieldType = param.getType();
+	        Integer type = ACDParameter.detectParameterGroup(fieldType.toLowerCase());
 	        
-	        // TODO: help attribute; comment attribute       
-	        if (type == PARAM_GROUP_OUTPUT) {
-	            return fieldName;
+	        // TODO: help attribute; comment attribute
+	        if (type == ACDParameter.PARAM_GROUP_OUTPUT ||
+	            type == ACDParameter.PARAM_GROUP_GRAPHICS) {
+	            return param.getOutputFilename();
 	        } else {
 	            return null;
-	        }
-	    }
-	    
-	    /**
-	     * Detect functional group of a parameter: simple, input,
-	     * selection list, output or graphics.
-	     * 
-	     * @param fieldType
-	     */
-	    public static Integer detectParameterGroup(String fieldType) {
-	        String typesSimple[] = {"array", "boolean", "float", "integer",
-	                                "range", "string", "toggle"};
-	        String typesInput[] = {"codon", "cpdb", "datafile", "directoty", "dirlist",
-	                               "discretestates", "distances", "features", "filelist",
-	                               "frequencies", "infile", "matrix", "matrixf", "pattern",
-	                               "properties", "regexp", "scop", "sequence", "seqall", "seqset",
-	                               "seqsetall", "seqsetall"};
-	        String typesList[] = {"list", "selection"};
-	        String typesOutput[] = {"align", "featout", "outcodon", "outcpdb", "outdata",
-	                                "outdir", "outdiscrete", "outdistance", "outfile", "outfileall",
-	                                "outfreq", "outmatrix", "outmatrixf", "outproperties", "outscop",
-	                                "outtree", "report", "seqout", "seqoutall", "seqoutset"};
-	        String typesGraphics[] = {"graph", "xygraph"};
-	        
-	        if (Arrays.asList(typesSimple).contains(fieldType)) {
-	            return PARAM_GROUP_SIMPLE;
-	        } else if (Arrays.asList(typesInput).contains(fieldType)) {
-	            return PARAM_GROUP_INPUT;
-	        } else if (Arrays.asList(typesList).contains(fieldType)) {
-	            return PARAM_GROUP_LIST;
-	        } else if (Arrays.asList(typesOutput).contains(fieldType)) {
-	            return PARAM_GROUP_OUTPUT;
-	        } else if (Arrays.asList(typesGraphics).contains(fieldType)) {
-	            return PARAM_GROUP_GRAPHICS;
-	        } else {
-	            return -1;
 	        }
 	    }
 	}

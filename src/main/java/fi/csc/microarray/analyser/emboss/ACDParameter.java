@@ -1,5 +1,6 @@
 package fi.csc.microarray.analyser.emboss;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.regex.Matcher;
@@ -17,6 +18,12 @@ import org.emboss.jemboss.parser.ParseAcd;
  */
 
 public class ACDParameter {
+    
+    static final Integer PARAM_GROUP_SIMPLE = 0;
+    static final Integer PARAM_GROUP_INPUT = 1;
+    static final Integer PARAM_GROUP_LIST = 2;
+    static final Integer PARAM_GROUP_OUTPUT = 3;
+    static final Integer PARAM_GROUP_GRAPHICS = 4;
     
     private String type;
     private String name;
@@ -119,6 +126,20 @@ public class ACDParameter {
     }
     
     /**
+     * Check if given attribute can be evaluated to True.
+     * 
+     * @param name of the attribute to check
+     * @return
+     */
+    public Boolean attributeIsTrue(String name) {
+        String attrValue = getAttribute(name);
+        if (attrValue != null) {
+            return attrValue.toLowerCase().equals("y");
+        }
+        return false;
+    }
+    
+    /**
      * Define keys and values for a list parameter. Valid only
      * if paramter is of type "list" or "selection".
      * 
@@ -178,6 +199,25 @@ public class ACDParameter {
         return list;
     }
     
+    
+    /**
+     * Return a recommended filename for an output parameter. Valid
+     * only if parameter is of some output or graph type.
+     * 
+     * @return the recommended name for output file.
+     */
+    public String getOutputFilename() {
+        String extension = "";
+        if (ACDParameter.detectParameterGroup(getType()) ==
+            ACDParameter.PARAM_GROUP_OUTPUT) {
+            extension = ".txt";
+        } else if (ACDParameter.detectParameterGroup(getType()) ==
+                   ACDParameter.PARAM_GROUP_GRAPHICS) {
+            extension = ".ps";
+        }
+        return getName() + extension;
+    }
+    
     /**
      * Set a section for parameter.
      * 
@@ -220,10 +260,9 @@ public class ACDParameter {
      * @return
      */
     public Boolean isRequired() {
-        String attrStandard = getAttribute("standard");
-        String attrParameter = getAttribute("parameter");
-        if ((attrStandard != null && attrStandard.equals("Y")) ||
-            (attrParameter != null && attrParameter.equals("Y"))) {
+        Boolean attrStandard = attributeIsTrue("standard");
+        Boolean attrParameter = attributeIsTrue("parameter");
+        if (attrStandard || attrParameter) {
             return true;
         }
         return false;
@@ -236,8 +275,7 @@ public class ACDParameter {
      * @return
      */
     public Boolean isAdditional() {
-        String attrAdditional = getAttribute("additional");
-        return attrAdditional != null && attrAdditional.equals("Y");
+        return attributeIsTrue("additional");
     }
     
     /**
@@ -320,6 +358,42 @@ public class ACDParameter {
         } else {
             // No changes were made - stop the recursion
             return resolvedExp;
+        }
+    }
+    
+    /**
+     * Detect functional group of a parameter: simple, input,
+     * selection list, output or graphics.
+     * 
+     * @param fieldType
+     */
+    public static Integer detectParameterGroup(String fieldType) {
+        String typesSimple[] = {"array", "boolean", "float", "integer",
+                                "range", "string", "toggle"};
+        String typesInput[] = {"codon", "cpdb", "datafile", "directoty", "dirlist",
+                               "discretestates", "distances", "features", "filelist",
+                               "frequencies", "infile", "matrix", "matrixf", "pattern",
+                               "properties", "regexp", "scop", "sequence", "seqall", "seqset",
+                               "seqsetall", "seqsetall"};
+        String typesList[] = {"list", "selection"};
+        String typesOutput[] = {"align", "featout", "outcodon", "outcpdb", "outdata",
+                                "outdir", "outdiscrete", "outdistance", "outfile", "outfileall",
+                                "outfreq", "outmatrix", "outmatrixf", "outproperties", "outscop",
+                                "outtree", "report", "seqout", "seqoutall", "seqoutset"};
+        String typesGraphics[] = {"graph", "xygraph"};
+        
+        if (Arrays.asList(typesSimple).contains(fieldType)) {
+            return PARAM_GROUP_SIMPLE;
+        } else if (Arrays.asList(typesInput).contains(fieldType)) {
+            return PARAM_GROUP_INPUT;
+        } else if (Arrays.asList(typesList).contains(fieldType)) {
+            return PARAM_GROUP_LIST;
+        } else if (Arrays.asList(typesOutput).contains(fieldType)) {
+            return PARAM_GROUP_OUTPUT;
+        } else if (Arrays.asList(typesGraphics).contains(fieldType)) {
+            return PARAM_GROUP_GRAPHICS;
+        } else {
+            return -1;
         }
     }
     
