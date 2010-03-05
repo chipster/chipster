@@ -115,7 +115,8 @@ public class ACDToSADL {
             String fieldDefault = null;
             String fieldMin = null;
             String fieldMax = null;
-	        if (param.attributeIsEvaluated("default")) {
+	        if (param.attributeIsEvaluated("default") &&
+	            !param.getAttribute("default").equals("")) {
 	            fieldDefault = param.getAttribute("default");
 	        }
             if (param.attributeIsEvaluated("minimum")) {

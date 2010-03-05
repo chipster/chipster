@@ -204,11 +204,17 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         }
         
         public boolean isValid() {
-            return acdParameter.validate(value);
+            // Required parameter cannot be empty
+            return acdParameter.validate(value) &&
+                   (!acdParameter.isRequired() || !value.equals(""));
         }
         
         public String toString() {
-            return "-" + acdParameter.getName() + " " + value;
+            // If value is empty, don't include this qualifier at all
+            if (!value.equals("")) {
+                return "-" + acdParameter.getName() + " " + value;
+            }
+            return "";
         }
     }
 }
