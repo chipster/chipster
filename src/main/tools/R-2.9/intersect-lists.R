@@ -1,6 +1,19 @@
 # ANALYSIS Utilities/"Intersect lists" (Performs Boolean operations on 2 or 3 data tables or lists,
 # that have one column in common, to identify the rows that intersect, are unique or form a union. The
-# results are collected in one single table with columns for each of the operations. A Venn diagram gicing
+# results are collected in one single table with columns for each of the operations. A Venn diagram giving
+# a visual interpretation of the results is also returned.)
+# INPUT GENERIC genelist[...].tsv OUTPUT intersect-lists.tsv
+# PARAMETER common.column STRING DEFAULT empty (The name of the column that is common to the data tables.)
+# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+
+# POSSIBLE PARAMETER operation [intersect, union, unique] DEFAULT intersect (Defines what to extract from the data tables. Genes that are common between
+
+# ORIGINAL below
+#
+# ANALYSIS Utilities/"Intersect lists" (Performs Boolean operations on 2 or 3 data tables or lists,
+# that have one column in common, to identify the rows that intersect, are unique or form a union. The
+# results are collected in one single table with columns for each of the operations. A Venn diagram giving
 # a visual interpretation of the results is also returned.)
 # INPUT GENERIC genelist[...].tsv OUTPUT intersect-lists.tsv
 # PARAMETER common.column STRING DEFAULT empty (The name of the column that is common to the data tables.)
@@ -10,6 +23,11 @@
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 # POSSIBLE PARAMETER operation [intersect, union, unique] DEFAULT intersect (Defines what to extract from the data tables. Genes that are common between
+
+
+
+
+
 
 #common.column <- "symbol"
 #operation <- "intersect"
