@@ -59,13 +59,13 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         // Prepare variable map with values filled in by client
         // ACD format allows $(varname) declarations where the value
         // of varname might be not known prior to user input.
-        // TODO check if we actually need this anywhere
         HashMap<String, String> varMap = new HashMap<String, String>();
         Integer index = 0;
         for (ParameterDescription param : analysis.getParameters()) {
             varMap.put(param.getName(), inputParameters.get(index));
             index++;
         }
+        acdDescription.updateVariables(varMap);
         
         // Map description parameters to ACD parameters
         HashMap<String, ACDParameter> analysisToACD = new HashMap<String, ACDParameter>();
@@ -108,6 +108,7 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         byte[] b = new byte[150];
         p.getErrorStream().read(b);
         String outputString = new String(b);
+        logger.info("Running Emboss application " + cmd);
         logger.info("Emboss application has finished with exit code " + p.exitValue() + 
                     " and this message: " + "\"" + outputString + "\".");
         
@@ -167,14 +168,14 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         
         // Simple outputs
         for (ACDParameter param : acdDescription.getOutputParameters()) {
-            params.add("-" + param.getName() + " " + param.getOutputFilename());
+            params.add("-" + param.getName() + " " + param.getOutputFilename(true));
         }
         
         // Graphics outputs
         for (ACDParameter param : acdDescription.getGraphicsParameters()) {
             // Emboss automatically adds extensions for graphics files
-            params.add("-" + param.getName() + " ps");
-            params.add("-goutfile " + param.getName());
+            params.add("-" + param.getName() + " png");
+            params.add("-goutfile " + param.getOutputFilename(false));
         }
                        
         String cmd = "";

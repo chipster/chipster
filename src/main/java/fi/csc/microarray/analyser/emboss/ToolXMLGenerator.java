@@ -1,9 +1,12 @@
 package fi.csc.microarray.analyser.emboss;
 
+import java.awt.List;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -29,17 +32,19 @@ import org.w3c.dom.Element;
  */
 public class ToolXMLGenerator {
     
-    // TODO
     // There are problems with 3 acd files: intconv.acd, complex.acd
     // and ensembltest.acd.
     // The first two have 'relations: ' instead of the correct
     // 'relations: ""'. The third one (ensembltest.acd)
-    // had 'default: 25' instead of 'default: "25"' 
+    // had 'default: 25' instead of 'default: "25"'
+    // NOTE: they have been reported and probably fixed in Emboss' cvs
     
     private File acdDir;
     private File outFile;
     private Document doc = null;
     private static final HashSet<String> ignoredGroups = new HashSet<String>();
+    private LinkedHashMap<String, LinkedList<String>> groupsMap = 
+        new LinkedHashMap<String, LinkedList<String>>();
     
     public ToolXMLGenerator(String acdDirPath, String outputFilePath) {
         acdDir = new File(acdDirPath);
@@ -82,24 +87,43 @@ public class ToolXMLGenerator {
                     inputStream.read(bytes);
                     ACDDescription acd = new ACDDescription(acdFile);
                     
+                    // Check if there are any interesting groups for this application
                     HashSet<String> acdGroups =
                         new HashSet<String>(getTopLevelGroups(acd.getGroups()));
                     acdGroups.removeAll(ignoredGroups);
+                    LinkedList<String> acdGroupList = new LinkedList<String>();
+                    acdGroupList.addAll(acdGroups);
                     
                     // Check if we are interested in this group
                     if (acdGroups.size() > 0) {
-                        // Make an entry in the XML tree
-                        Element tool = doc.createElement("tool");
-                        
-                        // The filename is more important than application name
-                        // according to ACD specification
-                        tool.setTextContent(acdFile.getName());
-                        tool.setAttribute("runtime", "EMBOSS");
-                        tools.appendChild(tool);
+                        // Add this application to group map so we can sort it 
+                        // and add to xml later.
+                        // TODO: add all groups, not only the first one
+                        if (!groupsMap.containsKey(acd.getGroups().get(0))) {
+                            groupsMap.put(acd.getGroups().get(0), new LinkedList<String>());
+                        }
+                        groupsMap.get(acd.getGroups().get(0)).add(acdFile.getName());
                     }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+        }
+        
+        // Sort groups and generate XML
+        LinkedList<String> sortedGroups = new LinkedList<String>(groupsMap.keySet());
+        Collections.sort(sortedGroups);
+        for (String group : sortedGroups) {
+            for (String appName : groupsMap.get(group)) {
+                
+                // Make an entry in the XML tree
+                Element tool = doc.createElement("tool");
+                
+                // The filename is more important than application name
+                // according to ACD specification
+                tool.setTextContent(appName);
+                tool.setAttribute("runtime", "EMBOSS");
+                tools.appendChild(tool);
             }
         }
 

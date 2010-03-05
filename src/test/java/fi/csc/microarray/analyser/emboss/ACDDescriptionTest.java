@@ -1,6 +1,8 @@
 package fi.csc.microarray.analyser.emboss;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -55,6 +57,15 @@ public class ACDDescriptionTest {
     @Test
     public void testACDParameter() {
         ACDParameter param;
+        
+        // Expression evaluation
+        param = new ACDParameter("integer", "param", "", null);
+        LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
+        map.put("foo", "n");
+        map.put("bar", "21");
+        Assert.assertEquals(ACDParameter.resolveExp("$(foo)", map), "false");
+        Assert.assertEquals(ACDParameter.resolveExp("@(!$(foo))", map), "true");
+        Assert.assertEquals(ACDParameter.resolveExp("@($(bar)+2)", map), "23");
         
         // Value normalization
         param = new ACDParameter("boolean", "param", "", null);

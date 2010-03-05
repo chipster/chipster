@@ -19,6 +19,10 @@ import org.emboss.jemboss.parser.ParseAcd;
 
 public class ACDParameter {
     
+    // ACDDescription that owns this parameter
+    ACDDescription acd = null;
+    
+    // Parameter groups according to ACD specification
     static final Integer PARAM_GROUP_SIMPLE = 0;
     static final Integer PARAM_GROUP_INPUT = 1;
     static final Integer PARAM_GROUP_LIST = 2;
@@ -49,6 +53,23 @@ public class ACDParameter {
         validators.put("boolean", new BooleanValidator());
         validators.put("list", new ListValidator());
         validators.put("selection", new ListValidator());
+    }
+    
+    /**
+     * This constructor binds this parameter to ACDDescription
+     * to which this parameter belongs. There is some functionality
+     * that expects parameter to know its parent ACDDescription.
+     * 
+     * @param acd
+     * @param type
+     * @param name
+     * @param section
+     * @param subsection
+     */
+    public ACDParameter(ACDDescription acd, String type, String name, String section,
+                        String subsection) {
+        this(type, name, section, subsection);
+        this.acd = acd;
     }
     
     /**
@@ -112,6 +133,19 @@ public class ACDParameter {
     }
     
     /**
+     * Reevaluate attributes for this parameter. E.g.
+     * user has filled in some parameters on which some
+     * attribute might depend on (e.g. $(paramname))
+     * 
+     * @param varMap - map with key/value pairs for ACD variables.
+     */
+    public void updateAttributes(LinkedHashMap<String, String> varMap) {
+       for (String key : attributes.keySet()) {
+           attributes.put(key, resolveExp(attributes.get(key), varMap));
+       }
+    }
+    
+    /**
      * Check if given attribute has been set. An empty
      * attriute (e.g. default: "") is considered not set.
      * 
@@ -134,7 +168,8 @@ public class ACDParameter {
     public Boolean attributeIsTrue(String name) {
         String attrValue = getAttribute(name);
         if (attrValue != null) {
-            return attrValue.toLowerCase().equals("y");
+            return attrValue.toLowerCase().equals("y") ||
+                   attrValue.toLowerCase().equals("true");
         }
         return false;
     }
@@ -204,18 +239,31 @@ public class ACDParameter {
      * Return a recommended filename for an output parameter. Valid
      * only if parameter is of some output or graph type.
      * 
+     * @param withExtension - append file extension to filename.
      * @return the recommended name for output file.
      */
-    public String getOutputFilename() {
+    public String getOutputFilename(Boolean withExtension) {
+        
+        // Add extension
         String extension = "";
-        if (ACDParameter.detectParameterGroup(getType()) ==
-            ACDParameter.PARAM_GROUP_OUTPUT) {
-            extension = ".txt";
-        } else if (ACDParameter.detectParameterGroup(getType()) ==
-                   ACDParameter.PARAM_GROUP_GRAPHICS) {
-            extension = ".ps";
+        if (withExtension) {
+            if (ACDParameter.detectParameterGroup(getType()) ==
+                ACDParameter.PARAM_GROUP_OUTPUT) {
+                extension = ".txt";
+            } else if (ACDParameter.detectParameterGroup(getType()) ==
+                       ACDParameter.PARAM_GROUP_GRAPHICS) {
+                // Somehow applications adds this ".1" suffix for png files
+                extension = ".1.png";
+            }
         }
-        return getName() + extension;
+        
+        // Add suffix
+        String suffix = "";
+        if (acd != null) {
+            suffix = acd.getName();
+        }
+        
+        return getName() + "." + suffix + extension;
     }
     
     /**
@@ -335,6 +383,13 @@ public class ACDParameter {
             String substitute = "$(" + match + ")";
             if (map.containsKey(match)) {
                 substitute = map.get(match);
+            }
+            
+            // Hack booleans (somehow Jemboss does not understand Y/N)
+            if (substitute.toLowerCase().equals("y")) {
+                substitute = "true";
+            } else if (substitute.toLowerCase().equals("n")) {
+                substitute = "false";
             }
 
             // Find position and change

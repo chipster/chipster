@@ -209,7 +209,7 @@ public class ACDToSADL {
 	        // TODO: help attribute; comment attribute
 	        if (type == ACDParameter.PARAM_GROUP_OUTPUT ||
 	            type == ACDParameter.PARAM_GROUP_GRAPHICS) {
-	            return param.getOutputFilename();
+	            return param.getOutputFilename(true);
 	        } else {
 	            return null;
 	        }

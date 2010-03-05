@@ -24,6 +24,7 @@ public class ACDDescription {
     private String description;
     private LinkedList<String> groups = new LinkedList<String>(); 
     private LinkedList<ACDParameter> parameters = new LinkedList<ACDParameter>();
+    private LinkedHashMap<String, String> variableMap = new LinkedHashMap<String, String>();
     
     /**
      * Get the name of this ACD.
@@ -78,8 +79,9 @@ public class ACDDescription {
     public List<ACDParameter> getOutputParameters() {
         List<ACDParameter> params = new LinkedList<ACDParameter>();
         for (ACDParameter parameter : parameters) {
-            if (ACDParameter.detectParameterGroup(parameter.getType()) ==
-                ACDParameter.PARAM_GROUP_OUTPUT) {
+            if ((ACDParameter.detectParameterGroup(parameter.getType()) ==
+                 ACDParameter.PARAM_GROUP_OUTPUT) &&
+                parameter.isRequired()) {
                 params.add(parameter);
             }
         }
@@ -94,8 +96,9 @@ public class ACDDescription {
     public List<ACDParameter> getGraphicsParameters() {
         List<ACDParameter> params = new LinkedList<ACDParameter>();
         for (ACDParameter parameter : parameters) {
-            if (ACDParameter.detectParameterGroup(parameter.getType()) ==
-                ACDParameter.PARAM_GROUP_GRAPHICS) {
+            if ((ACDParameter.detectParameterGroup(parameter.getType()) ==
+                 ACDParameter.PARAM_GROUP_GRAPHICS) &&
+                parameter.isRequired()) {
                 params.add(parameter);
             }
         }
@@ -158,9 +161,6 @@ public class ACDDescription {
         appAttrs.put("application", "");
         appAttrs.put("documentation", "");
         appAttrs.put("groups", "");        
-        
-        // Define variable map
-        LinkedHashMap<String, String> variableMap = new LinkedHashMap<String, String>();
 
         try {
             // Read the file
@@ -224,8 +224,8 @@ public class ACDDescription {
                     
                 } else if (!("application".startsWith(fieldType))) {
                     // Initialize the parameter
-                    ACDParameter param = new ACDParameter(fieldType, fieldName, currentSection,
-                            currentSubsection);
+                    ACDParameter param = new ACDParameter(this, fieldType, fieldName,
+                            currentSection, currentSubsection);
                     
                     // A parameter description
                     Integer numAttrs = parser.getNumofParams(j);
@@ -259,6 +259,21 @@ public class ACDDescription {
             inputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Update current known ACD variable values. E.g. user
+     * has filled the parameters and sent them back to the
+     * server.
+     */
+    public void updateVariables(HashMap<String, String> varMap) {
+        // Update current variable map
+        variableMap.putAll(varMap);
+        
+        // Recalculate parameter attributes
+        for (ACDParameter param : getParameters()) {
+            param.updateAttributes(variableMap);
         }
     }
 
