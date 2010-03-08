@@ -197,13 +197,13 @@ public class JobLogMessage extends NamiMessage {
 	public String toString() {
 		return 
 		
-		"operation: " + operation.toString() + "\n" + 
+		"operation: " + operation + "\n" + 
 		"state: " + state.toString() + "\n" +
-		"jobId: " + jobId.toString() + "\n" +
+		"jobId: " + jobId + "\n" +
 		"start time: " + startTime.toString() + "\n" +
 		"end time: " + endTime.toString() + "\n" +
-		"username: " + username.toString() + "\n" +
-		"compHost: " + compHost.toString() + "\n";
+		"username: " + username + "\n" +
+		"compHost: " + compHost + "\n";
 	}
 	
 
