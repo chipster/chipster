@@ -160,6 +160,25 @@ public class ACDParameter {
     }
     
     /**
+     * Check if given attribute has been set. An empty
+     * attriute (e.g. default: "") is considered not set.
+     * 
+     * @param name
+     * @param isEvaluated 9 - whether this parameter has to be
+     *        without @(x) and $(x) stuff
+     * @return true if this attribute is present, false otherwise.
+     */
+    public Boolean hasAttribute(String name, Boolean isEvaluated) {
+        isEvaluated = !isEvaluated || attributeIsEvaluated(name);
+        if (attributes.containsKey(name) &&
+            !getAttribute(name).equals("") &&
+            isEvaluated) {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
      * Check if given attribute can be evaluated to True.
      * 
      * @param name of the attribute to check
@@ -467,8 +486,8 @@ public class ACDParameter {
     // TODO check out what we get for ENUM, arrays etc.
     public String normalize(String value) {
         String type = getType();
-        value = value.toLowerCase();
         if (type.equals("boolean")) {
+            value = value.toLowerCase();
             if (value.equals("yes") || value.equals("true") || value.equals("1") ||
                 value.equals("y")) {
                 return "Y";
@@ -547,12 +566,12 @@ public class ACDParameter {
             try {
                 Integer intVal = Integer.parseInt(value);
                 
-                if (hasAttribute("minimum")) {
+                if (hasAttribute("minimum", true)) {
                     Integer minVal = Integer.parseInt(getAttribute("minimum"));
                     accepts = accepts && (intVal >= minVal);
                 }
                 
-                if (hasAttribute("maximum")) {
+                if (hasAttribute("maximum", true)) {
                     Integer maxVal = Integer.parseInt(getAttribute("maximum"));
                     accepts = accepts && (intVal <= maxVal);
                 }
@@ -570,12 +589,12 @@ public class ACDParameter {
             try {
                 Float floatVal = Float.parseFloat(value);
                 
-                if (hasAttribute("minimum")) {
+                if (hasAttribute("minimum", true)) {
                     Float minVal = Float.parseFloat(getAttribute("minimum"));
                     accepts = accepts && (floatVal >= minVal);
                 }
                 
-                if (hasAttribute("maximum")) {
+                if (hasAttribute("maximum", true)) {
                     Float maxVal = Float.parseFloat(getAttribute("maximum"));
                     accepts = accepts && (floatVal <= maxVal);
                 }                

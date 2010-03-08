@@ -137,6 +137,12 @@ public class ACDToSADL {
 	            //
 	            String[] fieldOptions = {"Yes|Y", "No|N"};
 	            
+	            // We need to have some default value for boolean, since there are
+	            // only 2 options (or consider adding a third option - "not selected")
+	            if (fieldDefault == null) {
+	                fieldDefault = "N";
+	            }
+	            
 	            return new Parameter(fieldName, typeMap.get(fieldType), fieldOptions,
 	                    null, null, fieldDefault, fieldInfo);
 	        } else if (type == ACDParameter.PARAM_GROUP_SIMPLE) {
@@ -208,8 +214,9 @@ public class ACDToSADL {
 	        Integer type = ACDParameter.detectParameterGroup(fieldType.toLowerCase());
 	        
 	        // TODO: help attribute; comment attribute
-	        if (type == ACDParameter.PARAM_GROUP_OUTPUT ||
-	            type == ACDParameter.PARAM_GROUP_GRAPHICS) {
+	        if ((type == ACDParameter.PARAM_GROUP_OUTPUT ||
+	             type == ACDParameter.PARAM_GROUP_GRAPHICS) &&
+	            (!param.isAdditional() && !param.isAdvanced())) {
 	            return param.getOutputFilename(true);
 	        } else {
 	            return null;

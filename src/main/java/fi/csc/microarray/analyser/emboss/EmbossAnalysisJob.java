@@ -93,6 +93,7 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
                 qualifiers.add(qualifier);
             } else {
                 // TODO Inform the user
+                logger.debug("Incorrect field value \"" + qualifier.getValue() + "\" for " + param.getName() + " field");
                 updateState(JobState.FAILED_USER_ERROR, "Incorrect field value: " + param.getName(), false);
                 return;
             }
@@ -201,6 +202,10 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         public EmbossQualifier(ACDParameter acdParameter, String value) {
             this.acdParameter = acdParameter;
             this.value = value;
+        }
+        
+        public String getValue() {
+            return value;
         }
         
         public boolean isValid() {
