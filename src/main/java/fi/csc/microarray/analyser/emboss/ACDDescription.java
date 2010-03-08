@@ -81,7 +81,7 @@ public class ACDDescription {
         for (ACDParameter parameter : parameters) {
             if ((ACDParameter.detectParameterGroup(parameter.getType()) ==
                  ACDParameter.PARAM_GROUP_OUTPUT) &&
-                parameter.isRequired()) {
+                !parameter.isAdvanced()) {
                 params.add(parameter);
             }
         }

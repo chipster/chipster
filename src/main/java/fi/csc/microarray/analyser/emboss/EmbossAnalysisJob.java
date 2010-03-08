@@ -92,9 +92,11 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
             if (qualifier.isValid()) {
                 qualifiers.add(qualifier);
             } else {
-                // TODO Inform the user
-                logger.debug("Incorrect field value \"" + qualifier.getValue() + "\" for " + param.getName() + " field");
+                // Inform the user
+                String errorMessage = "Incorrect value \"" + qualifier.getValue() + "\" for " + param.getName() + " parameter";
+                outputMessage.setErrorMessage(errorMessage);
                 updateState(JobState.FAILED_USER_ERROR, "Incorrect field value: " + param.getName(), false);
+                logger.debug(errorMessage);
                 return;
             }
             index++;
@@ -117,6 +119,7 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         if (p.exitValue() != 0) {
             logger.debug("There was an error while running emboss \"" +
                          analysis.getName() + "\" application.");
+            outputMessage.setErrorMessage(outputString);
             updateState(JobState.FAILED, "EMBOSS application failed.", false);
         } 
         

@@ -153,18 +153,27 @@ public class ACDToSADL {
                 LinkedList<String> fieldValueList = new LinkedList<String>(fieldOptions.values());
 	            String[] fieldValues = new String[fieldValueList.size()];
 	            
-	            // Convert to string array
-	            for (int i = 0; i < fieldValueList.size(); i++) {
-                    fieldValues[i] = fieldValueList.get(i);                    
-                }
+	            // Sometimes default value points to label instead of value
+	            if (!fieldOptions.keySet().contains(fieldDefault)) {
+	                // Find the key for this default label and store
+	                // the key instead of label
+	                for (String key : fieldOptions.keySet()) {
+	                    if (fieldOptions.get(key).equals(fieldDefault)) {
+	                        fieldDefault = key;
+	                    }
+	                }
+	            }
 	            
+                // Convert to string array
+                // NOTE: I planned adding an additional blank choice, but all
+                // of the lists in current acd files have default parameters
 	            // 
 	            // FIXME: HACK!
 	            //
                 // TODO: lists with labels
 	            int i = 0;
                 for (String key : fieldOptions.keySet()) {
-                    fieldValues[i] = fieldValues[i] + "|" + key;
+                    fieldValues[i] = fieldOptions.get(key) + "|" + key;
                     i++;
                 }	            
 	            
@@ -216,7 +225,7 @@ public class ACDToSADL {
 	        // TODO: help attribute; comment attribute
 	        if ((type == ACDParameter.PARAM_GROUP_OUTPUT ||
 	             type == ACDParameter.PARAM_GROUP_GRAPHICS) &&
-	            (!param.isAdditional() && !param.isAdvanced())) {
+	            (!param.isAdvanced())) {
 	            return param.getOutputFilename(true);
 	        } else {
 	            return null;
