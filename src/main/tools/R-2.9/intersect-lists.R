@@ -1,20 +1,17 @@
-# ANALYSIS Utilities/"Intersect lists" (Performs Boolean operations on 2 or 3 data tables or lists,
-# that have one column in common, to identify the rows that intersect, are unique or form a union. The
-# results are collected in one single table with columns for each of the operations. A Venn diagram gicing
+# ANALYSIS Utilities/"Intersect lists" (Performs Boolean operations on 2 or 3 data tables or lists
+# - that have one column in common - to identify the rows that intersect, are unique or form a union. The
+# results are collected in one single table with columns for each of the operations. A Venn diagram giving
 # a visual interpretation of the results is also returned.)
-# INPUT GENERIC genelist[...].tsv OUTPUT intersect-lists.tsv
+# INPUT GENERIC genelist[...].tsv OUTPUT intersect-lists.tsv, venn-diagram-plot.png
 # PARAMETER common.column STRING DEFAULT empty (The name of the column that is common to the data tables.)
-# the data tables are identified using the "intersect" option, genes that appear in any of the data tables are identified using the "union"
-# option, whereas genes that are unique to each of the tables are identified using the "unique" option.)
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
-# POSSIBLE PARAMETER operation [intersect, union, unique] DEFAULT intersect (Defines what to extract from the data tables. Genes that are common between
 
 #common.column <- "symbol"
 #operation <- "intersect"
-#image.width <- 600
-#image.height <- 600
+#image.width <- 5
+#image.height <- 5
 
 h <- image.height
 w <- image.width 
@@ -52,7 +49,8 @@ if (number_files==2) {
 	unique_2 <- setdiff (list_2, intersect_1_2)
 	
 	# set up plotting area
-	bmp(file="venn-diagram-plot.jpg", width=w(72, height=h/72)
+	bmp(file="venn-diagram-plot.png", width=w, height=h, res=72, units="px")
+#	bmp(file="venn-diagram-plot.png")
 	plot(-1:1, -1:1, type="n", axes = FALSE, xlab = "", ylab = "")
 	
 	# draw overlapping circles
@@ -123,7 +121,8 @@ if (number_files==3) {
 	unique_3 <- setdiff (list_3, union(union(intersect_1_3, intersect_2_3), intersect_1_2_3))
 	
 	# set up plotting area
-	bmp(file="venn-diagram-plot.jpg", width=w(72, height=h/72)
+	bmp(file="venn-diagram-plot.png", width=w, height=h, res=72, units="px")
+#	bmp(file="venn-diagram-plot.png")
 	plot(-1:1, -1.3:1, type="n", axes = FALSE, xlab = "", ylab = "")
 	
 	# draw overlapping circles
