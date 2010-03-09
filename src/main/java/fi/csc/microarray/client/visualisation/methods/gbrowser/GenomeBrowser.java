@@ -330,8 +330,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
 		
-		return bean.getName().equals("eland_result_demo.txt");
-		//return true;
+		//return bean.getName().equals("eland_result_demo.txt");
+		return true;
 		//return !VisualisationMethod.SCATTERPLOT3DPCA.getHeadlessVisualiser().canVisualise(bean);
 		
 	}
