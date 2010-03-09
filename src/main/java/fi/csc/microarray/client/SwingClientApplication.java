@@ -126,7 +126,7 @@ public class SwingClientApplication extends ClientApplication {
 	private static final long SLOW_VISUALISATION_LIMIT = 5 * 1000;
 	private static final long VERY_SLOW_VISUALISATION_LIMIT = 20 * 1000;
 
-	/**W
+	/**
 	 * Logger for this class
 	 */
 	private static Logger logger;
