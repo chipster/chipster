@@ -7,12 +7,11 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.description.SADLDescription.Input;
+import fi.csc.microarray.description.SADLDescription.AnnotatedName;
 import fi.csc.microarray.description.SADLDescription.Parameter;
 import fi.csc.microarray.description.SADLSyntax.InputType;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.util.AdvancedStringTokenizer;
-import fi.csc.microarray.util.Deseparator;
 
 
 
@@ -28,6 +27,8 @@ import fi.csc.microarray.util.Deseparator;
 public class SADLParser {
 
 	
+	private static final String INPUT_SET_DESIGNATOR = "{...}";
+	private static final String NAME_SEPARATOR = ":";
 	/**
 	 * Logger for this class (debugging).
 	 */
@@ -60,13 +61,13 @@ public class SADLParser {
 	}
 
 	public SADLDescription parse(String vvsadlString) throws ParseException {
-		AdvancedStringTokenizer tokens = getTokenizer(vvsadlString);
+		SADLTokeniser tokens = new SADLTokeniser(vvsadlString, unitName);
 		return parseAnalysis(tokens);
 	}
 
 	public List<SADLDescription> parseMultiple(String vvsadlString) throws ParseException {
 		LinkedList<SADLDescription> descriptions = new LinkedList<SADLDescription>();
-		AdvancedStringTokenizer tokens = getTokenizer(vvsadlString);
+		SADLTokeniser tokens = new SADLTokeniser(vvsadlString, unitName);
 		
 		// for avoiding excessive logging in case of parse error
 		boolean parsingPreviousSuccessful = true;
@@ -95,51 +96,46 @@ public class SADLParser {
 	/**
 	 * Parsing is implemented with recursive descent algorithm (with 1 token look-a-head).
 	 */
-	private SADLDescription parseAnalysis(AdvancedStringTokenizer tokens) throws ParseException {
+	private SADLDescription parseAnalysis(SADLTokeniser tokens) throws ParseException {
 		// read first line (analysis)
-		if (!"ANALYSIS".equals(tokens.next())) {
-			throw new ParseException("VVSADL should start with \"ANALYSIS\", not " + tokens.current(), unitName);
-		}
+		skip(tokens, "TOOL");
 
 		// read analysis stuff
-		String packageName = tokens.next();
-		String name = tokens.next();
-		if (this.unitName == null) {
-			this.unitName = packageName + " / " + name;
-		}
-		String comment = readComment(tokens);
-		SADLDescription description = new SADLDescription(name, packageName, comment);
+		AnnotatedName name = parseName(tokens);
+		String comment = tokens.next();
+		SADLDescription description = new SADLDescription(name, comment);
 	
 		// read possible inputs
-		if (tokens.hasNext() && "INPUT".equals(tokens.peek())) { 
-			tokens.next(); // skip "INPUT"
-			List<Input> inputs = parseInputs(tokens, description);
-			description.addInputs(inputs);			
+		while (nextTokenIs(tokens, "INPUT")) { 
+			skip(tokens, "INPUT");  
+			Input input = parseInput(tokens, description);
+			description.addInput(input);			
 		}
 
 		// read possible metainputs
-		if (tokens.hasNext() && "METAINPUT".equals(tokens.peek())) { 
-			tokens.next(); // skip "METAINPUT"
-			List<Input> inputs = parseInputs(tokens, description);
-			description.addMetaInputs(inputs);			
+		while (nextTokenIs(tokens, "METAINPUT")) { 
+			skip(tokens, "METAINPUT"); 
+			Input input = parseInput(tokens, description);
+			description.addMetaInput(input);			
 		}
 
 		// read possible outputs
-		if (tokens.hasNext() && "OUTPUT".equals(tokens.peek())) {
-			tokens.next(); // skip "OUTPUT"
-			List<String> outputs = parseOutputs(tokens, description);
-			description.addOutputs(outputs);
+		while (nextTokenIs(tokens, "OUTPUT")) {
+			skip(tokens, "OUTPUT"); 
+			String output = parseOutput(tokens);
+			description.addOutput(output);
 		}
 
 		// read possible metaoutputs
-		if (tokens.hasNext() && "METAOUTPUT".equals(tokens.peek())) {
-			tokens.next(); // skip "METAOUTPUT"
-			List<String> outputs = parseOutputs(tokens, description);
-			description.addMetaOutputs(outputs);
+		while (nextTokenIs(tokens, "METAOUTPUT")) {
+			skip(tokens, "METAOUTPUT");
+			String output = parseOutput(tokens);
+			description.addMetaOutput(output);
 		}
 
 		//	read possible parameters
-		while (tokens.hasNext() && "PARAMETER".equals(tokens.peek())) {
+		while (nextTokenIs(tokens, "PARAMETER")) {
+			skip(tokens, "PARAMETER");
 			Parameter parameter = parseParameter(tokens);
 			description.addParameter(parameter);
 		}
@@ -147,46 +143,87 @@ public class SADLParser {
 		return description;
 	}
 
-	private List<String> parseOutputs(AdvancedStringTokenizer tokens, SADLDescription description) {
-		LinkedList<String> outputList = new LinkedList<String>();
-		Deseparator outputs = new Deseparator(",", tokens, 1);
-		for (String[] output : outputs) {
-			outputList.add(output[0]);
+	private void skip(SADLTokeniser tokens, String token) throws ParseException {
+		String next = tokens.next();
+		if (!token.equals(next)) {
+			throw new ParseException("expected " + token + ", not " + next, unitName);
 		}
-		return outputList;
 	}
 
-	private List<Input> parseInputs(AdvancedStringTokenizer tokens, SADLDescription description) {
-		LinkedList<Input> inputList = new LinkedList<Input>();
-		Deseparator inputs = new Deseparator(",", tokens, 2);
-		for (String[] input : inputs) {
-			Input newInput;
-			if (input[1].contains("[...]")) {
-				String filePattern = input[1];
-				String prefix = filePattern.substring(0, filePattern.indexOf("[...]"));
-				String postfix = filePattern.substring(filePattern.indexOf("[...]") + "[...]".length());
-				
-				newInput = Input.createInputSet(inputTypeMap.get(input[0]), prefix, postfix); // type and spliced name
-			} else {
-				newInput = Input.createInput(inputTypeMap.get(input[0]), input[1]); // type and name
-			}
-			inputList.add(newInput);
+	private boolean nextTokenIs(SADLTokeniser tokens, String token) {
+		return tokens.hasNext() && token.equals(tokens.peek());
+	}
+
+	private AnnotatedName parseName(SADLTokeniser tokens) throws ParseException {
+		AnnotatedName name = SADLDescription.AnnotatedName.createEmptyName();
+		
+		String rawName = tokens.next();
+		
+		if (rawName.contains(INPUT_SET_DESIGNATOR)) {
+			name.setPrefix(rawName.substring(0, rawName.indexOf(INPUT_SET_DESIGNATOR)));
+			name.setPostfix(rawName.substring(rawName.indexOf(INPUT_SET_DESIGNATOR) + INPUT_SET_DESIGNATOR.length()));
+			
+		} else {
+			name.setName(rawName);
 		}
-		return inputList;
+
+		
+		if (NAME_SEPARATOR.equals(tokens.peek())) {
+			skip(tokens, NAME_SEPARATOR); // read separator
+			name.setHumanReadableName(tokens.next());
+		}
+		return name;
+	}
+
+	private String parseOutput(SADLTokeniser tokens) throws ParseException {
+		
+		if (nextTokenIs(tokens, "OPTIONAL")) {
+			skip(tokens, "OPTIONAL");
+		}
+
+		AnnotatedName name = parseName(tokens);
+		
+		return name.getName();
+	}
+
+	private Input parseInput(SADLTokeniser tokens, SADLDescription description) throws ParseException {
+		
+		Input newInput = new Input();
+		boolean isOptional = parseOptionalIfExists(tokens);
+		newInput.setOptional(isOptional);
+		
+		newInput.setName(parseName(tokens));
+		skip(tokens, "TYPE");  
+		newInput.setType(inputTypeMap.get(tokens.next()));
+				
+		return newInput;
 	}
 	
-	private Parameter parseParameter(AdvancedStringTokenizer tokens) throws ParseException {
+	private boolean parseOptionalIfExists(SADLTokeniser tokens) throws ParseException {
 		
-		if (!"PARAMETER".equals(tokens.next())) {
-			throw new ParseException("VVSADL param line should start with \"PARAMETER\", not " + tokens.current(), unitName);
+		if (nextTokenIs(tokens, "OPTIONAL")) {
+			skip(tokens, "OPTIONAL");
+			return true;
+		
+		} else {
+			return false;
 		}
+	}
 
-		String name = tokens.next();
+	private Parameter parseParameter(SADLTokeniser tokens) throws ParseException {
+		
+		boolean isOptional = parseOptionalIfExists(tokens);
+		
+		AnnotatedName name = parseName(tokens);
+		
+		skip(tokens, "TYPE");
 		ParameterType type = null;
 		String[] options = null;
-		if (tokens.peek().startsWith("[")) {
-			options = readSelectionType(tokens);
+		
+		if (nextTokenIs(tokens, "[")) {
+			options = parseEnumType(tokens);
 			type = ParameterType.ENUM;
+			
 		} else {
 			type = ParameterType.valueOf(tokens.next());
 		}
@@ -195,22 +232,22 @@ public class SADLParser {
 		String to = null;
 		String defaultValue = null; 
 
-		if ("FROM".equals(tokens.peek())) {
-			tokens.next(); // skip "FROM"
+		if (nextTokenIs(tokens, "FROM")) {
+			skip(tokens, "FROM"); 
 			from = tokens.next(); 
 		}
 
-		if ("TO".equals(tokens.peek())) {
-			tokens.next(); // skip "TO"
+		if (nextTokenIs(tokens, "TO")) {
+			skip(tokens, "TO"); 
 			to = tokens.next();
 		}
 
-		if ("DEFAULT".equals(tokens.peek())) {
-			tokens.next(); // skip "DEFAULT"
+		if (nextTokenIs(tokens, "DEFAULT")) {
+			skip(tokens, "DEFAULT"); 
 			defaultValue = tokens.next();
 		}
 
-		String comment = readComment(tokens);
+		String comment = tokens.next();
 		
 		Parameter parameter = new Parameter(name, type, options, from, to, defaultValue, comment);
 		
@@ -218,44 +255,23 @@ public class SADLParser {
 	}
 
 
-	private String readComment(AdvancedStringTokenizer tokens) throws ParseException {
-		String comment = null;
-		try {
-			comment = tokens.next().substring(1); // strip (
-			if (comment.contains(")")) {
-				return ""; // special case:it was an empty comment
-			}
-			
-			while (tokens.hasNext() && !tokens.peek().contains(")")) {
-				comment += (" " + tokens.next());
-			}
-			String lastToken = tokens.next(); 
-			comment += (" " + lastToken.substring(0, lastToken.length() - 1));		
-			return comment;
-			
-		} catch (IndexOutOfBoundsException e) {
-			logger.debug("on exception comment was: " + comment);
-			throw new ParseException("comment start or end missing", unitName);
-		}
-	}
-	
-	private String[] readSelectionType(AdvancedStringTokenizer tokens) {
-		String s = "";
-		do {
-			s += tokens.next();
-		} while (!s.endsWith("]"));
+	private String[] parseEnumType(SADLTokeniser tokens) throws ParseException {
 		
-		s = s.substring(1, s.length()-1); // strip "[" and "]"
+		skip(tokens, "[");
 		
-		AdvancedStringTokenizer options = new AdvancedStringTokenizer(s, true, false, ",");
-		LinkedList<String> list = new LinkedList<String>();
-		while (options.hasNext()) {
-			list.add(options.next());
+		LinkedList<String> list = new LinkedList<String>();		
+		while (true) {
+			list.add(parseName(tokens).getName());
+			if (nextTokenIs(tokens, "]")) {
+				break;	
+			} else {
+				skip(tokens, ",");				
+			}			
 		}
+		
+		skip(tokens, "]");
+
 		return list.toArray(new String[0]);
 	}
 	
-	private AdvancedStringTokenizer getTokenizer(String vvsadlString) {
-		return new AdvancedStringTokenizer(vvsadlString, false, true, " \t\n\r\f/");
-	}
 }

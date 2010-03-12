@@ -19,7 +19,7 @@ public class AnalysisDescriptionGenerator {
 	public AnalysisDescription generate(SADLDescription source, AnalysisHandler analysisHandler) {
 		AnalysisDescription description = new AnalysisDescription(analysisHandler);
 		
-		description.setName(source.getName());
+		description.setName(source.getAnnotatedName().getName());
 		description.setComment(source.getComment());
 		description.setCategory(source.getPackageName());
 
@@ -30,7 +30,7 @@ public class AnalysisDescriptionGenerator {
 		}
 		
 		for (Parameter parameter : source.parameters()) {
-			description.addParameter(new AnalysisDescription.ParameterDescription(parameter.getName(), parameter.getComment(), parameter.getType().isNumeric()));
+			description.addParameter(new AnalysisDescription.ParameterDescription(parameter.getAnnotatedName().getName(), parameter.getComment(), parameter.getType().isNumeric()));
 		}
 		
 		return description;

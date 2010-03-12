@@ -58,7 +58,7 @@ public class ChipCountPanel extends JXTaskPane implements ActionListener{
 		
 		for (int i = 0; i < KEYS.length; i++) {
 			if (i == 0) {
-				//Name label added separately to keep it black
+				//AnnotatedName label added separately to keep it black
 				keyColumnCheckBoxes[i] = new JCheckBox();
 				//To place the label same way as checkboxes naturally do
 				keyColumnCheckBoxes[i].setPreferredSize(new Dimension(17, 19));

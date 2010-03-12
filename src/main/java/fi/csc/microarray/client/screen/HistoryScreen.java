@@ -78,7 +78,7 @@ public class HistoryScreen extends ScreenBase
 		JPanel contentPane = new JPanel(new GridBagLayout());
 		
 		checkBoxes.put("title", new JCheckBox("Step title"));
-		checkBoxes.put("name", new JCheckBox("Dataset Name"));
+		checkBoxes.put("name", new JCheckBox("Dataset AnnotatedName"));
 		checkBoxes.put("date", new JCheckBox("Creation Date"));
 		checkBoxes.put("oper", new JCheckBox("Applied analysis tool"));
 		checkBoxes.put("param", new JCheckBox("Parameters"));

@@ -15,7 +15,7 @@ public class CasavaReadInstructions extends ConstantLengthReadInstructions{
 8. Read number (1 or 2 for paired-read analysis, blank for a single-read analysis)
 9. Read
 10.Quality string—In symbolic ASCII format (ASCII character code = quality value + 64)
-11.Match chromosome—Name of chromosome match OR code indicating why no
+11.Match chromosome—AnnotatedName of chromosome match OR code indicating why no
 match resulted
 12.Match Contig—Gives the contig name if there is a match and the match chromosome
 is split into contigs (Blank if no match found)
@@ -33,7 +33,7 @@ match found; any scores less than 4 should be considered as aligned to a repeat
 17.Paired-Read Alignment Score—Alignment score of a paired read and its partner,
 taken as a pair. Blank if no match found; any scores less than 4 should be considered
 as aligned to a repeat
-18.Partner Chromosome—Name of the chromosome if the read is paired and its partner
+18.Partner Chromosome—AnnotatedName of the chromosome if the read is paired and its partner
 aligns to another chromosome (Blank for single-read analysis)
 19.Partner Contig—Not blank if read is paired and its partner aligns to another
 chromosome and that partner is split into contigs (Blank for single-read analysis)

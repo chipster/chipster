@@ -677,7 +677,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	}
 
 	/**
-	 * This method initializes helpInfoMenu. Name was chosen because getHelpMenu() causes conflict.
+	 * This method initializes helpInfoMenu. AnnotatedName was chosen because getHelpMenu() causes conflict.
 	 * 
 	 * @return javax.swing.JMenu
 	 */

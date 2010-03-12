@@ -5,6 +5,7 @@ import java.util.LinkedList;
 
 import fi.csc.microarray.description.GenericInputTypes;
 import fi.csc.microarray.description.SADLDescription;
+import fi.csc.microarray.description.SADLDescription.AnnotatedName;
 import fi.csc.microarray.description.SADLDescription.Input;
 import fi.csc.microarray.description.SADLDescription.Parameter;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
@@ -29,7 +30,7 @@ public class ACDToSADL {
 	 * @return SADL object.
 	 */
 	public SADLDescription convert() {
-        SADLDescription sadl = new SADLDescription(acd.getName(), acd.getGroups().get(0),
+        SADLDescription sadl = new SADLDescription(AnnotatedName.createName(acd.getName(), null), acd.getGroups().get(0),
 	                                               acd.getDescription());
 	    
 	    // Get all input parameters
@@ -143,10 +144,10 @@ public class ACDToSADL {
 	                fieldDefault = "N";
 	            }
 	            
-	            return new Parameter(fieldName, typeMap.get(fieldType), fieldOptions,
+	            return new Parameter(AnnotatedName.createName(fieldName, null), typeMap.get(fieldType), fieldOptions,
 	                    null, null, fieldDefault, fieldInfo);
 	        } else if (type == ACDParameter.PARAM_GROUP_SIMPLE) {
-	            return new Parameter(fieldName, typeMap.get(fieldType), null,
+	            return new Parameter(AnnotatedName.createName(fieldName, null), typeMap.get(fieldType), null,
 	                                 fieldMin, fieldMax, fieldDefault, fieldInfo);
 	        } else if (type == ACDParameter.PARAM_GROUP_LIST) {
 	            HashMap<String, String> fieldOptions = param.getList();
@@ -177,7 +178,7 @@ public class ACDToSADL {
                     i++;
                 }	            
 	            
-	            return new Parameter(fieldName, typeMap.get(fieldType), fieldValues,
+	            return new Parameter(AnnotatedName.createName(fieldName, null), typeMap.get(fieldType), fieldValues,
 	                                 fieldMin, fieldMax, fieldDefault, fieldInfo);
 	        } else {
 	            return null;
@@ -203,7 +204,7 @@ public class ACDToSADL {
 	        // Skip all non-required inputs
 	        if (type == ACDParameter.PARAM_GROUP_INPUT &&
 	            param.isRequired()) {
-	            return Input.createInput(GenericInputTypes.GENERIC, fieldName);
+	            return new Input(GenericInputTypes.GENERIC, AnnotatedName.createName(fieldName, null));
 	        } else {
 	            return null;
 	        }

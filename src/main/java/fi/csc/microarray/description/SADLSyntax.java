@@ -93,17 +93,17 @@ public class SADLSyntax {
 		ENUM,
 		
 		/**
-		 * Name of input matrix column, for choosing columns from inputs.
+		 * AnnotatedName of input matrix column, for choosing columns from inputs.
 		 */
 		COLUMN_SEL,
 		
 		/**
-		 * Name of metainput matrix column, for choosing columns from metainputs.
+		 * AnnotatedName of metainput matrix column, for choosing columns from metainputs.
 		 */
 		METACOLUMN_SEL,
 		
 		/**
-		 * Name of input, for choosing from multiple input datasets.
+		 * AnnotatedName of input, for choosing from multiple input datasets.
 		 */
 		INPUT_SEL;
 

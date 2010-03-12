@@ -39,7 +39,7 @@ public class ChipsterVVSADLParser extends SADLParser {
 				if (parameter.getType() == ParameterType.ENUM) {
 					// check that enum is not empty
 					if (parameter.getSelectionOptions() == null || parameter.getSelectionOptions().length == 0) {
-						throw new RuntimeException("enum parameter " + parameter.getName() + " has no options");
+						throw new RuntimeException("enum parameter " + parameter.getAnnotatedName() + " has no options");
 					}
 					// check that enum default value is legal
 					if (parameter.getDefaultValue() != null) {
@@ -51,7 +51,7 @@ public class ChipsterVVSADLParser extends SADLParser {
 							}
 						}
 						if (!found) {
-							throw new RuntimeException("enum parameter " + parameter.getName() + " has undefined default value \"" + parameter.getDefaultValue() + "\"");
+							throw new RuntimeException("enum parameter " + parameter.getAnnotatedName() + " has undefined default value \"" + parameter.getDefaultValue() + "\"");
 						}
 					}
 				}

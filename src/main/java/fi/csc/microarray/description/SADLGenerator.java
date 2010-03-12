@@ -18,7 +18,7 @@ public class SADLGenerator {
 	 */
 	public String generate(SADLDescription description) {
 		
-		String string =	"ANALYSIS \"" + description.getPackageName() + "\"/\"" + description.getName() + "\" (" + description.getComment() + ")\n";
+		String string =	"ANALYSIS \"" + description.getPackageName() + "\"/\"" + description.getAnnotatedName() + "\" (" + description.getComment() + ")\n";
 		
 		string += generateInputs("INPUT", description.inputs());		
 		string += generateInputs("METAINPUT", description.metaInputs());
@@ -28,7 +28,7 @@ public class SADLGenerator {
 
 		if (!description.parameters().isEmpty()) {
 			for (Parameter parameter: description.parameters()) {
-				String paramString = "PARAMETER " + parameter.getName() + " ";
+				String paramString = "PARAMETER " + parameter.getAnnotatedName() + " ";
 				
 				if (parameter.getType() == ParameterType.ENUM) {
 					paramString += "[";
@@ -99,10 +99,10 @@ public class SADLGenerator {
 					first = false;
 				}
 				inputString += input.getType().getName() + " ";
-				if (input.isInputSet()) {
-					inputString += input.getPrefix() + "[...]" + input.getPostfix();
+				if (input.getAnnotatedName().isNameSet()) {
+					inputString += input.getAnnotatedName().getPrefix() + "[...]" + input.getAnnotatedName().getPostfix();
 				} else {
-					inputString += input.getName();
+					inputString += input.getAnnotatedName();
 				}
 			}
 			
