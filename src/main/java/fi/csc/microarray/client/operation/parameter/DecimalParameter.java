@@ -8,9 +8,9 @@ package fi.csc.microarray.client.operation.parameter;
  */
 public class DecimalParameter extends Parameter {
 
-	private float minValue;
-	private float maxValue;
-	private float value;
+	private Float minValue;
+	private Float maxValue;
+	private Float value;
 	
 	/**
 	 * Creates a new DecimalParameter with the given initial values.
@@ -24,15 +24,21 @@ public class DecimalParameter extends Parameter {
 	 * 		   or the init value is not between these limits).
 	 */
 	public DecimalParameter(
-			String name, String description, float minValue, float maxValue, float initValue)
+			String name, String description, Float minValue, Float maxValue, Float initValue)
 					throws IllegalArgumentException {
 		super(name, description);
+        
 		this.minValue = minValue;
+        this.maxValue = maxValue;
+		if (initValue == null) {
+		    this.value = initValue;
+		    return;
+		}
+
 		if (maxValue < minValue) {
 			throw new IllegalArgumentException("Minimum value for decimal parameter " +
 					this.getName() + " cannot be bigger than the maximum value.");
 		}
-		this.maxValue = maxValue;
 		if (initValue < minValue || initValue > maxValue) {
 			throw new IllegalArgumentException("Initial value for decimal parameter " +
 					this.getName() + " must be inside given limits.");

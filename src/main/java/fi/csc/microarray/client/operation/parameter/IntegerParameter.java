@@ -9,9 +9,9 @@ package fi.csc.microarray.client.operation.parameter;
  */
 public class IntegerParameter extends Parameter {
 
-	private int minValue;
-	private int maxValue;
-	private int value;
+	private Integer minValue;
+	private Integer maxValue;
+	private Integer value;
 	
 	/**
 	 * Creates a new IntegerParameter with the given initial values.
@@ -25,15 +25,23 @@ public class IntegerParameter extends Parameter {
 	 * 		   or the init value is not between these limits).
 	 */
 	public IntegerParameter(
-			String name, String description, int minValue, int maxValue, int initValue)
+			String name, String description, Integer minValue, Integer maxValue, Integer initValue)
 					throws IllegalArgumentException {
 		super(name, description);
-		this.minValue = minValue;
+		
+        this.minValue = minValue;
+        this.maxValue = maxValue;
+		
+        if (initValue == null) {
+            this.value = null;
+            return;
+        }
+	      
 		if (maxValue < minValue) {
 			throw new IllegalArgumentException("Minimum value for integer parameter " +
 					this.getName() + " cannot be bigger than the maximum value.");
 		}
-		this.maxValue = maxValue;
+		
 		setIntegerValue(initValue);  // may throw IllegalArgumentException
 	}
 	
@@ -104,9 +112,15 @@ public class IntegerParameter extends Parameter {
 
 	@Override
 	public boolean checkValidityOf(Object valueObject) {
+	    // Allow null values for unfilled fields
+	    if (valueObject == null) {
+	        return true;
+	    }
+	    
 		if (!(valueObject instanceof Integer)) {
 			return false;
 		}
+		
 		Integer intValue = (Integer) valueObject;
 		if (intValue >= this.minValue && intValue <= this.maxValue) {
 			return true;

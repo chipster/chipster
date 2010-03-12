@@ -74,7 +74,6 @@ public class ToolXMLGenerator {
         
         // Databases for these programs not supported
         ignoredPrograms.add("tfscan");
-        ignoredPrograms.add("jaspscan");
         
         // FIXME Wait until these descriptions fixed in the new EMBOSS version
         ignoredPrograms.add("complex");

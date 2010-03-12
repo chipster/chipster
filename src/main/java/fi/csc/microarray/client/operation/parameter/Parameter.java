@@ -125,18 +125,20 @@ public abstract class Parameter implements Cloneable {
 		case PERCENT:
 			
 			// Treat all numbers as double
-			float min = (minValue == null ? -Float.MAX_VALUE : Float.parseFloat(minValue));
-			float max = (maxValue == null ? Float.MAX_VALUE : Float.parseFloat(maxValue));
-			float init;
-			if (initValue == null) {
-				init = (min > 0F ? min : 0F); // default init is min or 0
-			} else {
+			Float min = (minValue == null ? -Float.MAX_VALUE : Float.parseFloat(minValue));
+			Float max = (maxValue == null ? Float.MAX_VALUE : Float.parseFloat(maxValue));
+			Float init = null;
+			Integer initInt = null;
+			if (initValue != null) {
 				init = Float.parseFloat(initValue);
+				initInt = Math.round(init);
 			}
 			
 			switch (type) {
 			case INTEGER:
-				parameter = new IntegerParameter(name, description, (int)min, (int)max, (int)init);
+
+				parameter = new IntegerParameter(name, description, Math.round(min),
+				                                 Math.round(max), initInt);
 				break;
 				
 			case DECIMAL:
@@ -147,7 +149,8 @@ public abstract class Parameter implements Cloneable {
 				// put these to [0, 100]
 				min = (min < 0F ? 0F : min);
 				max = (max > 100F ? 100F : max);
-				parameter = new PercentageParameter(name, description, (int)min, (int)max, (int)init);
+				parameter = new PercentageParameter(name, description, Math.round(min),
+                                                    Math.round(max), initInt);
 				break;
 			} 
 			break;
