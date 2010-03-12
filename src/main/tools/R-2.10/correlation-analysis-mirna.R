@@ -58,11 +58,14 @@ gene.data.2 <- gene.data[,grep("chip", names(gene.data))]
 
 # Get sample order for matching the datasets
 mirna.order <- mirna.phenodata[,grep(order.column.mirna, colnames(mirna.phenodata))]
-gene.order <- mirna.phenodata[,grep(order.column.gene, colnames(gene.phenodata))]
+gene.order <- gene.phenodata[,grep(order.column.gene, colnames(gene.phenodata))]
 
 # Read the chiptype that was used for the gene expression data
 if (id.type=="probe_id") {
 	chip.type <- as.character(gene.phenodata[1,grep("chiptype", names(gene.phenodata))])
+	if (length(grep(".db", chip.type)) == 0 & length(grep("pmcdf", chip.type)) == 0) {
+		chip.type <- paste(chip.type, ".db", sep="")
+	}
 }
 if (id.type=="entrez_id") {
 	chip.type <- "org.Hs.eg.db"

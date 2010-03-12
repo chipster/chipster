@@ -3,6 +3,8 @@
 # INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT sort-samples.tsv
 # PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column specifying how to sort)
 
+# column <- "sort_order"
+
 
 # Sort samples
 # JTT 6.2.2008
@@ -21,17 +23,31 @@ groups<-phenodata[,grep(column, colnames(phenodata))]
 calls<-dat[,grep("flag", names(dat))]
 dat2<-dat[,grep("chip", names(dat))]
 
+# Get indices
+indices_calls <- grep("flag", names(dat))
+indices_dat <- grep("chip", names(dat))
+
 # Sorting both data and phenodata
 dat2<-dat2[,order(groups)]
 if(ncol(calls)>0) {
-   calls<-calls[,order(groups)] 
+	calls<-calls[,order(groups)] 
 }
 phenodata2<-phenodata[order(groups),]
 
-# Writing data and phenodata to disk
+# Fill in the ordered data and flag values
+dat3 <- dat
+dat3[,indices_dat] <- dat2
+names(dat3) [indices_dat] <- names(dat2)
 if(ncol(calls)>0) {
-   write.table(data.frame(dat2, calls), file="sort-samples.tsv", sep="\t", row.names=T, col.names=T, quote=F)
-} else {
-   write.table(data.frame(dat2), file="sort-samples.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+	dat3[,indices_calls] <- calls
+	names(dat3) [indices_calls] <- names(calls)
 }
+
+# Writing data and phenodata to disk
+#if(ncol(calls)>0) {
+#   write.table(data.frame(dat2, calls), file="sort-samples.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+#} else {
+#   write.table(data.frame(dat2), file="sort-samples.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+#}
+write.table(dat3, file="sort-samples.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 write.table(phenodata2, file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)

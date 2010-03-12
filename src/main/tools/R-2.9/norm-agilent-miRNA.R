@@ -100,6 +100,7 @@ if(length(dat$other$flag)==0) {
    flags<-matrix(nrow=0, ncol=0)
 }
 names(M)<-paste("chip.", names(M), sep="")
+names(M)<-paste(names(M), ".tsv", sep="")
 M<-data.frame(M)
 rownames(M)<-genes
 
