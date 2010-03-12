@@ -51,8 +51,11 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 		importLink = createLink("Import files ");
 		importFolderLink = createLink("Import folder ");
 		importURLLink = createLink("Import from URL ");
-		importArrayExpressLink = createLink("Import from ArrayExpress ");
-		importGEOLink = createLink("Import from GEO ");
+//		importArrayExpressLink = createLink("Import from ArrayExpress ");
+//		importGEOLink = createLink("Import from GEO ");
+		importArrayExpressLink = createLink("Import from UniProt ");
+		importGEOLink = createLink("Import from EMBL ");
+		
 		sessionLink = createLink("Open session ");			
 
 		GridBagConstraints c = new GridBagConstraints();
