@@ -89,14 +89,14 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         for (ParameterDescription param : analysis.getParameters()) {
             EmbossQualifier qualifier = new EmbossQualifier(analysisToACD.get(param.getName()),
                                                             inputParameters.get(index));
-            if (qualifier.isValid()) {
+            EmbossQualifier.ValidityCheck check = qualifier.validate();
+            if (check.passed()) {
                 qualifiers.add(qualifier);
             } else {
                 // Inform the user
-                String errorMessage = "Incorrect value \"" + qualifier.getValue() + "\" for " + param.getName() + " parameter";
-                outputMessage.setErrorMessage(errorMessage);
+                outputMessage.setErrorMessage(check.getMessage());
                 updateState(JobState.FAILED_USER_ERROR, "Incorrect field value: " + param.getName(), false);
-                logger.debug(errorMessage);
+                logger.debug(check.getMessage());
                 return;
             }
             index++;
@@ -199,6 +199,28 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
      */
     class EmbossQualifier {
         
+        /**
+         * Represents validity check. Encapsulates check
+         * result and the error message if any.
+         */
+        class ValidityCheck {
+            private boolean passed;
+            private String message;
+            
+            public ValidityCheck(boolean passed, String message) {
+                this.passed = passed;
+                this.message = message;
+            }
+            
+            public boolean passed() {
+                return this.passed;
+            }
+            
+            public String getMessage() {
+                return this.message;
+            }
+        }
+        
         ACDParameter acdParameter;
         String value;
         
@@ -211,10 +233,16 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
             return value;
         }
         
-        public boolean isValid() {
-            // Required parameter cannot be empty
-            return acdParameter.validate(value) &&
-                   (!acdParameter.isRequired() || !value.equals(""));
+        public ValidityCheck validate() {
+            // Check if this value is ok for this parameter
+            if (acdParameter.isRequired() && value.equals("")) {
+                return new ValidityCheck(false, "Parameter \"" + acdParameter.getName() +
+                                                "\" can not be empty.");
+            } else if (!acdParameter.validate(value)) {
+                return new ValidityCheck(false, "Incorrect value \"" + getValue() +
+                                                "\" for \"" + acdParameter.getName() + "\" parameter");
+            }
+            return new ValidityCheck(true, null);
         }
         
         public String toString() {

@@ -46,15 +46,15 @@ public class DecimalParameter extends Parameter {
 		this.value = initValue;
 	}
 	
-	public float getMinValue() {
+	public Float getMinValue() {
 		return minValue;
 	}
 	
-	public float getMaxValue() {
+	public Float getMaxValue() {
 		return maxValue;
 	}
 	
-	public float getDecimalValue() {
+	public Float getDecimalValue() {
 		return value;
 	}
 	

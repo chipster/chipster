@@ -155,6 +155,10 @@ public class ACDDescription {
      * @param file - ACD file to be read.
      */
     public ACDDescription(File file) {
+        // HACK: pretend that all files are proteins for now because otherwise
+        // we would need to check input files before calculating some defaults.
+        // See: http://emboss.sourceforge.net/developers/acd/syntax.html#sect2622
+        variableMap.put("acdprotein", "Y");
         
         // Application-level attributes that we want to extract
         HashMap<String, String> appAttrs = new HashMap<String, String>();

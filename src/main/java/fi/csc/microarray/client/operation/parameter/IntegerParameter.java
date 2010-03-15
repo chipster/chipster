@@ -45,15 +45,15 @@ public class IntegerParameter extends Parameter {
 		setIntegerValue(initValue);  // may throw IllegalArgumentException
 	}
 	
-	public int getMinValue() {
+	public Integer getMinValue() {
 		return minValue;
 	}
 	
-	public int getMaxValue() {
+	public Integer getMaxValue() {
 		return maxValue;
 	}
 	
-	public int getIntegerValue() {
+	public Integer getIntegerValue() {
 		return value;
 	}
 	
