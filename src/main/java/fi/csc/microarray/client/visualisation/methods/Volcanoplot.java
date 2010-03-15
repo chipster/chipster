@@ -118,7 +118,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 		xVar = (Variable) xBox.getSelectedItem();
 		yVar = (Variable) yBox.getSelectedItem();
 
-		PlotDescription description = new PlotDescription(data.getName(), "fold change", "-log(p)");
+		PlotDescription description = new PlotDescription(data.getName(), "fold change (log2)", "-log(p)");
 
 		NumberAxis domainAxis = new NumberAxis(description.xTitle);
 		NumberAxis rangeAxis = new NumberAxis(description.yTitle);
@@ -137,8 +137,8 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 		this.updateSelectionsFromApplication(false);
 		
 		// rounding limit is calculated in updateSelectionsFromApplication
-		plot.getRangeAxis().setRange(new Range(0, -Math.log(ROUNDING_LIMIT))); 
-
+		plot.getRangeAxis().setRange(new Range(0, -Math.log10(ROUNDING_LIMIT)));
+		
 		JFreeChart chart = new JFreeChart(description.plotTitle, plot);
 
 		chart.removeLegend();
@@ -212,7 +212,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 			if (y < ROUNDING_LIMIT) {
 				y = ROUNDING_LIMIT;
 			}
-			return (float) -Math.log(y);
+			return (float) -Math.log10(y);
 		}
 
 		public void remove() {
@@ -236,7 +236,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 			float x = xValues.next();
 			float y = yValues.next();
 
-			boolean overYThreshold = y >= -Math.log(0.05);
+			boolean overYThreshold = y >= -Math.log10(0.05);
 			boolean overXThreshold = Math.abs(x) >= 1f;
 
 			if (selectedIndexes.contains(row)) {
