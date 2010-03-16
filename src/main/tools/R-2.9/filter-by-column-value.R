@@ -1,4 +1,4 @@
-# ANALYSIS Utilities/"Filter using a column value" (Allows the user to filter the genes on the basis of one numerical column.)
+# ANALYSIS Preprocessing/"Filter using a column value" (Allows the user to filter the genes on the basis of one numerical column.)
 # INPUT GENERIC normalized.tsv OUTPUT column-filter3.tsv
 # PARAMETER column COLUMN_SEL (Data column to filter by)
 # PARAMETER cutoff DECIMAL FROM -100000 TO 100000 DEFAULT 1 (Cut-off for filtering)
