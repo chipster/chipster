@@ -26,8 +26,12 @@ cgh <- segmentData(cgh)
 cgh <- postsegnormalize(cgh)
 cgh <- CGHcall(cgh, nclass=as.integer(cn.states))
 
-dat2 <- data.frame(probe=rownames(assayDataElement(cgh, "calls")), cgh@featureData@data, stringsAsFactors=FALSE)
-colnames(dat2) <- c('probe', 'chromosome', 'start', 'end')
+# dat2 <- data.frame(probe=rownames(assayDataElement(cgh, "calls")), cgh@featureData@data, stringsAsFactors=FALSE)
+# colnames(dat2) <- c('probe', 'chromosome', 'start', 'end')
+dat2 <- data.frame(cgh@featureData@data, stringsAsFactors=FALSE)
+colnames(dat2) <- c('chromosome', 'start', 'end')
+rownames(dat2) <- rownames(assayDataElement(cgh, "calls"))
+
 
 calls <- assayDataElement(cgh, 'calls')
 colnames(calls) <- sub('chip.', 'flag.', colnames(calls))
@@ -68,7 +72,10 @@ dat2$chromosome[dat2$chromosome=='23'] <- 'X'
 dat2$chromosome[dat2$chromosome=='24'] <- 'Y'
 dat2$chromosome[dat2$chromosome=='25'] <- 'MT'
 
-write.table(dat2, file='aberrations.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=FALSE)
+# write.table(dat2, file='aberrations.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=FALSE)
+write.table(dat2, file='aberrations.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
+
+
 
 bitmap(file='aberration-summary.png', width=600/72, height=600/72)
 plot.summary(cgh)

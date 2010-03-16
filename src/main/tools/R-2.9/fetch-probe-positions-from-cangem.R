@@ -9,7 +9,7 @@
 # 2010-03-11
 
 # check for valid platform accession
-dataset <- toupper(dataset)
+dataset <- toupper(platform.accession)
 if (length(grep('^CG-PLM-[0-9]+$', dataset))==0)
   stop('Not a valid platform accession: ', dataset)
 
@@ -30,7 +30,7 @@ platform$chromosome <- factor(platform$chromosome, levels=c(1:22, "X", "Y", "MT"
 
 dat2 <- cbind(platform[rownames(dat), c('chromosome', 'start', 'end')], dat)
 dat2 <- dat2[order(dat2$chromosome, dat2$start),]
-}
+
 
 write.table(dat2, file='normalized.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 

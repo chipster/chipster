@@ -103,9 +103,12 @@ if (number_files==3) {
 	intersect_1_2_3 <- intersect(intersect(list_1, list_2), list_3)
 	
 	# find out intersections between pairs
-	intersect_1_2 <- setdiff(intersect(list_1, list_2), intersect_1_2_3)
-	intersect_1_3 <- setdiff(intersect(list_1, list_3), intersect_1_2_3)
-	intersect_2_3 <- setdiff(intersect(list_2, list_3), intersect_1_2_3)
+	intersect_1_2 <- intersect(list_1, list_2)
+	intersect_1_3 <- intersect(list_1, list_3)
+	intersect_2_3 <- intersect(list_2, list_3)
+	intersect_1_2_plot <- setdiff(intersect(list_1, list_2), intersect_1_2_3)
+	intersect_1_3_plot <- setdiff(intersect(list_1, list_3), intersect_1_2_3)
+	intersect_2_3_plot <- setdiff(intersect(list_2, list_3), intersect_1_2_3)
 	
 	# find out union between pairs
 	union_1_2 <- union(list_1, list_2)
@@ -137,9 +140,9 @@ if (number_files==3) {
 	
 	# place length numbers for the intersections
 	text(0,-.15, labels=length(intersect_1_2_3), col="black", cex=1.2)
-	text(-.3,-.35, labels=length(intersect_1_3), col="black", cex=1.2)
-	text(.3,-.35, labels=length(intersect_2_3), col="black", cex=1.2)
-	text(0,.2, labels=length(intersect_1_2), col="black", cex=1.2)
+	text(-.3,-.35, labels=length(intersect_1_3_plot), col="black", cex=1.2)
+	text(.3,-.35, labels=length(intersect_2_3_plot), col="black", cex=1.2)
+	text(0,.2, labels=length(intersect_1_2_plot), col="black", cex=1.2)
 	
 	# place length numbers for the unique non-overlapping areas
 	text(0,-.8, labels=length(unique_3), col="black", cex=1.2)
@@ -156,7 +159,7 @@ if (number_files==3) {
 	
 	# output the result table
 	longest_list <- length(union_1_2_3)
-	result_table <- matrix(nrow=longest_list,ncol=13)
+	result_table <- matrix(nrow=longest_list,ncol=14)
 	list_1 <- append(as.character(list_1),rep("",longest_list-length(list_1)))
 	list_2 <- append(as.character(list_2),rep("",longest_list-length(list_2)))
 	list_3 <- append(as.character(list_3),rep("",longest_list-length(list_3)))
@@ -166,6 +169,7 @@ if (number_files==3) {
 	intersect_1_2 <- append(as.character(intersect_1_2),rep("",longest_list-length(intersect_1_2)))
 	intersect_1_3 <- append(as.character(intersect_1_3),rep("",longest_list-length(intersect_1_3)))
 	intersect_2_3 <- append(as.character(intersect_2_3),rep("",longest_list-length(intersect_2_3)))
+	intersect_1_2_3 <- append(as.character(intersect_1_2_3),rep("",longest_list-length(intersect_1_2_3)))
 	union_1_2 <- append(as.character(union_1_2),rep("",longest_list-length(union_1_2)))
 	union_1_3 <- append(as.character(union_1_3),rep("",longest_list-length(union_1_3)))
 	union_2_3 <- append(as.character(union_2_3),rep("",longest_list-length(union_2_3)))
@@ -178,10 +182,11 @@ if (number_files==3) {
 	result_table [,7] <- as.character(intersect_1_2)
 	result_table [,8] <- as.character(intersect_1_3)
 	result_table [,9] <- as.character(intersect_2_3)
-	result_table [,10] <- as.character(union_1_2)
-	result_table [,11] <- as.character(union_1_3)
-	result_table [,12] <- as.character(union_2_3)
-	result_table [,13] <- as.character(union_1_2_3)
+	result_table [,10] <- as.character(intersect_1_2_3)
+	result_table [,11] <- as.character(union_1_2)
+	result_table [,12] <- as.character(union_1_3)
+	result_table [,13] <- as.character(union_2_3)
+	result_table [,14] <- as.character(union_1_2_3)
 	rownames(result_table) <- as.character(1:longest_list)
 	colnames(result_table) <- c(
 			"list_1",
@@ -193,6 +198,7 @@ if (number_files==3) {
 			"intersect_1_2",
 			"intersect_1_3",
 			"intersect_2_3",
+			"intersect_all",		
 			"union_1_2",
 			"union_1_3",
 			"union_2_3",
