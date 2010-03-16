@@ -4,6 +4,7 @@ import java.util.List;
 
 import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.description.SADLParser;
+import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLDescription.Parameter;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
 
@@ -25,9 +26,9 @@ public class ChipsterSADLParser extends SADLParser {
 	
 	public static class Validator {
 		
-		public void validate(String filename, String vvsadl) throws ParseException {
+		public void validate(String filename, String sadl) throws ParseException {
 			ChipsterSADLParser parser = new ChipsterSADLParser(filename);
-			List<SADLDescription> descriptions = parser.parseMultiple(vvsadl);
+			List<SADLDescription> descriptions = parser.parseMultiple(sadl);
 			for (SADLDescription description : descriptions) {
 				checkParsedContent(description);
 			}
@@ -44,8 +45,8 @@ public class ChipsterSADLParser extends SADLParser {
 					// check that enum default value is legal
 					if (parameter.getDefaultValue() != null) {
 						boolean found = false;
-						for (String value : parameter.getSelectionOptions()) {
-							if (parameter.getDefaultValue().equals(value)) {
+						for (Name value : parameter.getSelectionOptions()) {
+							if (parameter.getDefaultValue().equals(value.getID())) {
 								found = true;
 								break;
 							}

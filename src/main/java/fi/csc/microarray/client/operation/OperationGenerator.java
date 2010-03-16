@@ -25,8 +25,8 @@ public class OperationGenerator {
 			logger.debug("processing " + description.getName());
 			
 			// if the category doesn't exist yet, create it
-			if (parsedCategories.get(description.getPackageName()) == null) {
-				OperationCategory op = new OperationCategory(description.getPackageName());
+			if (parsedCategories.get(description.getCategory()) == null) {
+				OperationCategory op = new OperationCategory(description.getCategory());
 				
 				// predefined colors are used normally ...
 				if (parsedCategories.size() + 1  < VisualConstants.CATEGORY_COLORS.length) {
@@ -50,7 +50,7 @@ public class OperationGenerator {
 			}
 			
 			// create the actual definition
-			OperationDefinition newDefinition = new OperationDefinition(description.getName().getID(), parsedCategories.get(description.getPackageName()), description.getComment(), true);
+			OperationDefinition newDefinition = new OperationDefinition(description.getName().getID(), parsedCategories.get(description.getCategory()), description.getComment(), true);
 			logger.debug("added operation " + newDefinition.getName() + " to " + newDefinition.getCategoryName());
 			
 			for (Input input : description.inputs()) {

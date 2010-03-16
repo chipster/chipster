@@ -4,7 +4,7 @@ package fi.csc.microarray;
 import java.io.FileInputStream;
 
 import fi.csc.microarray.analyser.AnalyserServer;
-import fi.csc.microarray.analyser.VVSADLTool;
+import fi.csc.microarray.analyser.SADLTool;
 import fi.csc.microarray.auth.Authenticator;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.constants.ApplicationConstants;
@@ -143,8 +143,8 @@ public class MicroarrayMain {
 			} else if (cmdParser.hasValue("rcheck")) {
 				boolean fails = false;
 				try {					
-					VVSADLTool.ParsedRScript res = new VVSADLTool().parseRScript(new FileInputStream(cmdParser.getValue("rcheck")));
-					new Validator().validate(cmdParser.getValue("rcheck"), res.VVSADL);
+					SADLTool.ParsedRScript res = new SADLTool().parseRScript(new FileInputStream(cmdParser.getValue("rcheck")));
+					new Validator().validate(cmdParser.getValue("rcheck"), res.SADL);
 				} catch (Exception e) {
 					System.out.println(e.getMessage());
 					fails = true;

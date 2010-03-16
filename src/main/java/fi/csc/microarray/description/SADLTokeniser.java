@@ -117,7 +117,7 @@ public class SADLTokeniser {
 
 		private boolean isOperator() {
 			char c = peek();
-			return c == ':' || c == '[' || c == ']' || c == ',';
+			return c == ':' || c == '[' || c == ']' || c == ',' || c == '/';
 		}
 
 		public char next() {

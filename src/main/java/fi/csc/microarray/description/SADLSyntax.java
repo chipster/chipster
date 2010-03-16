@@ -37,7 +37,7 @@ import fi.csc.microarray.databeans.DataBean;
  * DESCRIPTION -> "(" string ") 
  * </pre>  
  * 
- * <p>Below is an example of a VVSADL snippet.</p>
+ * <p>Below is an example of a SADL snippet.</p>
  * <pre>
  * ANALYSIS Test/test (Just a test analysis for development)
  * INPUT CDNA microarray[...].txt OUTPUT results.txt, messages.txt
@@ -61,6 +61,7 @@ public class SADLSyntax {
 	
 	public static final String INPUT_SET_DESIGNATOR = "{...}";
 	public static final String NAME_SEPARATOR = ":";
+	public static final String CATEGORY_SEPARATOR = "/";
 	
 	public static interface InputType {
 		public boolean isTypeOf(DataBean dataBean);

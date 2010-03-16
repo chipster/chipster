@@ -16,7 +16,7 @@ import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
 import fi.csc.microarray.analyser.ProcessPool;
 import fi.csc.microarray.analyser.ResultCallback;
-import fi.csc.microarray.analyser.VVSADLTool;
+import fi.csc.microarray.analyser.SADLTool;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.description.SADLParser.ParseException;
@@ -112,23 +112,23 @@ public class RAnalysisHandler implements AnalysisHandler {
 			throw new AnalysisException(scriptPath + " not found");
 		}
 		
-		// read the VVSADL from the comment block in the beginning of file
+		// read the SADL from the comment block in the beginning of file
 		// and the actual source code
-		VVSADLTool.ParsedRScript parsedScript;
+		SADLTool.ParsedRScript parsedScript;
 		try {
-			parsedScript = new VVSADLTool().parseRScript(scriptSource);
+			parsedScript = new SADLTool().parseRScript(scriptSource);
 		} catch (MicroarrayException e) {				
 			throw new AnalysisException(e);
 		}
 		
-		// parse VVSADL and create AnalysisDescription		
+		// parse SADL and create AnalysisDescription		
 		AnalysisDescription ad;
 		try {
-			ad = new AnalysisDescriptionGenerator().generate(new ChipsterSADLParser().parse(parsedScript.VVSADL), this);
+			ad = new AnalysisDescriptionGenerator().generate(new ChipsterSADLParser().parse(parsedScript.SADL), this);
 		} catch (ParseException e) {
 			throw new AnalysisException(e);
 		}
-		ad.setVVSADL(parsedScript.VVSADL);
+		ad.setSADL(parsedScript.SADL);
 
 		// add R specific stuff to AnalysisDescription
 		ad.setCommand(rCommand);

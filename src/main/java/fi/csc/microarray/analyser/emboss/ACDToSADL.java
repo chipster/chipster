@@ -31,7 +31,7 @@ public class ACDToSADL {
 	 * @return SADL object.
 	 */
 	public SADLDescription convert() {
-        SADLDescription sadl = new SADLDescription(Name.createName(acd.getName(), null), acd.getGroups().get(0),
+        SADLDescription sadl = new SADLDescription(Name.createName(acd.getName()), acd.getGroups().get(0),
 	                                               acd.getDescription());
 	    
 	    // Get all input parameters
@@ -81,7 +81,7 @@ public class ACDToSADL {
 	        // Try to create an output
 	        String output = createOutput(acdParam);
 	        if (output != null) {
-	            internalRepr.addOutput(new Output(Name.createName(output, output)));
+	            internalRepr.addOutput(new Output(Name.createName(output)));
 	        }
 	    }
 	    
@@ -91,7 +91,7 @@ public class ACDToSADL {
 	     * 
 	     * @param parser - parser object.
 	     * @param index - index of a field to be parsed.
-	     * @return vvsadl parameter object or null.
+	     * @return SADL parameter object or null.
 	     */
 	    public static Parameter createParameter(ACDParameter param) {
 	        String fieldType = param.getType();
@@ -132,12 +132,8 @@ public class ACDToSADL {
 	        String fieldInfo = param.getAttribute("information");
 	        
 	        if (fieldType.equals("boolean") || fieldType.equals("toggle")) {
-	            // Boolean types need some special handling
-	            
-	            //
-	            // FIXME: HACK!
-	            //
-	            String[] fieldOptions = {"Yes|Y", "No|N"};
+	            // Boolean types need some special handling	            
+	            Name[] fieldOptions = {Name.createName("Y", "Yes"), Name.createName("N", "No")};
 	            
 	            // We need to have some default value for boolean, since there are
 	            // only 2 options (or consider adding a third option - "not selected")
@@ -145,15 +141,15 @@ public class ACDToSADL {
 	                fieldDefault = "N";
 	            }
 	            
-	            return new Parameter(Name.createName(fieldName, null), typeMap.get(fieldType), fieldOptions,
+	            return new Parameter(Name.createName(fieldName), typeMap.get(fieldType), fieldOptions,
 	                    null, null, fieldDefault, fieldInfo);
 	        } else if (type == ACDParameter.PARAM_GROUP_SIMPLE) {
-	            return new Parameter(Name.createName(fieldName, null), typeMap.get(fieldType), null,
+	            return new Parameter(Name.createName(fieldName), typeMap.get(fieldType), null,
 	                                 fieldMin, fieldMax, fieldDefault, fieldInfo);
 	        } else if (type == ACDParameter.PARAM_GROUP_LIST) {
 	            HashMap<String, String> fieldOptions = param.getList();
                 LinkedList<String> fieldValueList = new LinkedList<String>(fieldOptions.values());
-	            String[] fieldValues = new String[fieldValueList.size()];
+	            Name[] fieldValues = new Name[fieldValueList.size()];
 	            
 	            // Sometimes default value points to label instead of value
 	            if (!fieldOptions.keySet().contains(fieldDefault)) {
@@ -169,17 +165,13 @@ public class ACDToSADL {
                 // Convert to string array
                 // NOTE: I planned adding an additional blank choice, but all
                 // of the lists in current acd files have default parameters
-	            // 
-	            // FIXME: HACK!
-	            //
-                // TODO: lists with labels
 	            int i = 0;
                 for (String key : fieldOptions.keySet()) {
-                    fieldValues[i] = fieldOptions.get(key) + "|" + key;
+                    fieldValues[i] = Name.createName(key, fieldOptions.get(key));
                     i++;
                 }	            
 	            
-	            return new Parameter(Name.createName(fieldName, null), typeMap.get(fieldType), fieldValues,
+	            return new Parameter(Name.createName(fieldName), typeMap.get(fieldType), fieldValues,
 	                                 fieldMin, fieldMax, fieldDefault, fieldInfo);
 	        } else {
 	            return null;
@@ -192,7 +184,7 @@ public class ACDToSADL {
 	     * 
 	     * @param parser - parser object.
 	     * @param index - index of a field to be parsed.
-	     * @return vvsadl parameter object or null.
+	     * @return SADL parameter object or null.
 	     */
 	    public static Input createInput(ACDParameter param) { 
 	        String fieldType = param.getType();
@@ -205,7 +197,7 @@ public class ACDToSADL {
 	        // Skip all non-required inputs
 	        if (type == ACDParameter.PARAM_GROUP_INPUT &&
 	            param.isRequired()) {
-	            return new Input(GenericInputTypes.GENERIC, Name.createName(fieldName, null));
+	            return new Input(GenericInputTypes.GENERIC, Name.createName(fieldName));
 	        } else {
 	            return null;
 	        }
@@ -217,7 +209,7 @@ public class ACDToSADL {
 	     * 
 	     * @param parser - parser object.
 	     * @param index - index of a field to be parsed.
-	     * @return vvsadl parameter object or null.
+	     * @return SADL parameter object or null.
 	     */
 	    public static String createOutput(ACDParameter param) { 
 	        // Detect the parameter functional group

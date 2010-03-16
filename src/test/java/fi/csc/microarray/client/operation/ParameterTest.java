@@ -20,6 +20,7 @@ import fi.csc.microarray.client.operation.parameter.ToolParameterPanel;
 import fi.csc.microarray.client.operation.parameter.EnumParameter.SelectionOption;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -41,7 +42,7 @@ public class ParameterTest {
             category, "Testationing", false);
         Operation operation;
         try {
-            String[] options = {"a", "b"};
+            Name[] options = {Name.createName("a"), Name.createName("b")};
             Parameter p = Parameter.createInstance("list", ParameterType.ENUM, options,
                                                    "This is list", "1", "1", "a"); 
             

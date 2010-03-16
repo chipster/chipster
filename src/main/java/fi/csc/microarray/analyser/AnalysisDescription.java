@@ -75,7 +75,7 @@ public class AnalysisDescription {
 	private List<ParameterDescription> parameters = new LinkedList<ParameterDescription>();
 	private String sourceCode;
 	private String category;
-	private String vvsadl;
+	private String sadl;
 	private AnalysisHandler handler;
 	
 	/**
@@ -190,16 +190,16 @@ public class AnalysisDescription {
 		return category;
 	}
 
-	public void setVVSADL(String vvsadl) {
-		this.vvsadl = vvsadl;
+	public void setSADL(String sadl) {
+		this.sadl = sadl;
 	}
 	
-	public String getVVSADL() {
+	public String getSADL() {
 		
-		if (vvsadl != null) {
-			return vvsadl;
+		if (sadl != null) {
+			return sadl;
 		} else {
-			throw new RuntimeException("vvsadl is null");
+			throw new RuntimeException("sadl is null");
 		}
 	}
 

@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.parameter.EnumParameter.SelectionOption;
+import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -49,7 +50,7 @@ public abstract class Parameter implements Cloneable {
 	}
 	
 
-	public static Parameter createInstance(String name, ParameterType type, String[] options,
+	public static Parameter createInstance(String name, ParameterType type, Name[] names,
 	                                       String description, String minValue, String maxValue,
 	                                       String initValue) {
 		
@@ -64,20 +65,12 @@ public abstract class Parameter implements Cloneable {
 	        int maxCount = (maxValue != null ? Integer.parseInt(maxValue) : 1);
 	        
             
-	        // 
-            // FIXME HACK!
-            //
-	        // TODO should have two arrays, one for option values and one for titles
-	        String[] titles = new String[options.length];
-	        String[] values = new String[options.length];
+	        String[] titles = new String[names.length];
+	        String[] values = new String[names.length];
 	        int i = 0; 
-	        for (String option : options) {
-                if (option.indexOf("|") == -1) {
-                    values[i] = titles[i];
-                } else {
-                    titles[i] = option.substring(0, option.indexOf("|"));
-                    values[i] = option.substring(option.indexOf("|") + 1);
-                }
+	        for (Name option : names) {
+	        	titles[i] = option.getDisplayName();
+	        	values[i] = option.getID();
                 i++;
             }
 

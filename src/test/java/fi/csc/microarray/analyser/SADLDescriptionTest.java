@@ -13,7 +13,7 @@ import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.chipster.ChipsterSADLParser.Validator;
 
-public class VVSADLDescriptionTest {
+public class SADLDescriptionTest {
 
 	@BeforeSuite
 	protected void setUp() throws Exception {
@@ -29,12 +29,12 @@ public class VVSADLDescriptionTest {
 		
 		for (String file : files) {
 			try {
-				String vvsadl;
+				String sadl;
 				System.out.println("validating " + file);
 				if (file.split("\\.").length > 2) {
 					// class
 					JavaAnalysisJobBase jobBase = (JavaAnalysisJobBase)Class.forName(file).newInstance();
-					vvsadl = jobBase.getSADL();
+					sadl = jobBase.getSADL();
 				} else { 
 					// script file
 					if (!file.contains("/old") && !file.contains("/hidden")) {
@@ -42,11 +42,11 @@ public class VVSADLDescriptionTest {
 					} else {
 						file = file.replace("/R", "");
 					}
-					VVSADLTool.ParsedRScript res = new VVSADLTool().parseRScript(getClass().getResourceAsStream(file));
-					vvsadl = res.VVSADL;
+					SADLTool.ParsedRScript res = new SADLTool().parseRScript(getClass().getResourceAsStream(file));
+					sadl = res.SADL;
 				}
 
-				new Validator().validate(file, vvsadl);
+				new Validator().validate(file, sadl);
 			} catch (Exception e) {
 				e.printStackTrace();
 				Assert.fail("when parsing " + file + ": " + e.getMessage() + " (" + e.getClass().getSimpleName() + ")");

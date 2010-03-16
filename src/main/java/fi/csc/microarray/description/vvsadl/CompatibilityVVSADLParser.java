@@ -6,17 +6,16 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.description.GenericInputTypes;
 import fi.csc.microarray.description.SADLDescription;
-import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLDescription.Input;
+import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLDescription.Output;
 import fi.csc.microarray.description.SADLDescription.Parameter;
+import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.description.SADLSyntax.InputType;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
 import fi.csc.microarray.util.AdvancedStringTokenizer;
-import fi.csc.microarray.description.vvsadl.Deseparator;
 
 
 
@@ -24,8 +23,6 @@ import fi.csc.microarray.description.vvsadl.Deseparator;
  * <p>Parses VVSADL analysis descriptions. VVSADL stands for Very Very
  * Simple Analysis Description Language. It is used to manage analysis
  * description data inside the Chipster system. Parsing is event based (cf. SAX).</p>
- *
- * @see fi.csc.microarray.description.VVSADLSyntax
  *
  * @author Aleksi Kallio
  */
@@ -37,15 +34,6 @@ public class CompatibilityVVSADLParser {
          */
         private static final Logger logger = Logger.getLogger(CompatibilityVVSADLParser.class);
 
-
-        /**
-         * Parse failure caused by illegal input data (bad VVSADL).
-         */
-        public static class ParseException extends MicroarrayException {
-                public ParseException(String msg, String filename) {
-                        super(msg + (filename != null ? (" (in " + filename + ")") : ""));
-                }
-        }
 
         private String unitName;
         private HashMap<String, InputType> inputTypeMap = new HashMap<String, InputType>();
@@ -112,7 +100,7 @@ public class CompatibilityVVSADLParser {
                         this.unitName = packageName + " / " + name;
                 }
                 String comment = readComment(tokens);
-                SADLDescription description = new SADLDescription(Name.createName(name, name), packageName, comment);
+                SADLDescription description = new SADLDescription(Name.createName(name), packageName, comment);
 
                 // read possible inputs
                 if (tokens.hasNext() && "INPUT".equals(tokens.peek())) {
@@ -188,7 +176,7 @@ public class CompatibilityVVSADLParser {
 
                 String name = tokens.next();
                 ParameterType type = null;
-                String[] options = null;
+                Name[] options = null;
                 if (tokens.peek().startsWith("[")) {
                         options = readSelectionType(tokens);
                         type = ParameterType.ENUM;
@@ -244,7 +232,7 @@ public class CompatibilityVVSADLParser {
                 }
         }
 
-        private String[] readSelectionType(AdvancedStringTokenizer tokens) {
+        private Name[] readSelectionType(AdvancedStringTokenizer tokens) {
                 String s = "";
                 do {
                         s += tokens.next();
@@ -253,11 +241,11 @@ public class CompatibilityVVSADLParser {
                 s = s.substring(1, s.length()-1); // strip "[" and "]"
 
                 AdvancedStringTokenizer options = new AdvancedStringTokenizer(s, true, false, ",");
-                LinkedList<String> list = new LinkedList<String>();
+                LinkedList<Name> list = new LinkedList<Name>();
                 while (options.hasNext()) {
-                        list.add(options.next());
+                        list.add(Name.createName(options.next()));
                 }
-                return list.toArray(new String[0]);
+                return list.toArray(new Name[0]);
         }
 
         private AdvancedStringTokenizer getTokenizer(String vvsadlString) {

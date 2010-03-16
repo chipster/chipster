@@ -239,7 +239,7 @@ public class SwingClientApplication extends ClientApplication {
 		try {
 			operationsPanel = new OperationPanel(parsedCategories);
 		} catch (ParseException e) {
-			logger.error("VVSADL parse failed", e);
+			logger.error("SADL parse failed", e);
 			throw new MicroarrayException(e);
 		}
 

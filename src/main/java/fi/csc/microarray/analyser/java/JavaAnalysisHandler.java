@@ -65,7 +65,7 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 			throw new RuntimeException(e);
 		}
 		
-		// parse VVSADL and create AnalysisDescription		
+		// parse SADL and create AnalysisDescription		
 		AnalysisDescription ad;
 		try {
 		    ad = new AnalysisDescriptionGenerator().generate(new ChipsterSADLParser().parse(jobInstance.getSADL()), this);
@@ -75,7 +75,7 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 		
 		ad.setImplementation(jobClass);
 		ad.setCommand("java");
-		ad.setVVSADL(jobInstance.getSADL());
+		ad.setSADL(jobInstance.getSADL());
 		ad.setSourceResourceName(jobClass.getName());
 		ad.setSourceResourceFullPath(jobClass.getCanonicalName());
 		ad.setSourceCode("Source code for this tool is available within Chipster source code.");

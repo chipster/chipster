@@ -23,6 +23,7 @@ public class SADLDescription {
 	private LinkedList<Input> metaInputs = new LinkedList<Input>();
 	private LinkedList<Output> metaOutputs = new LinkedList<Output>();
 	private LinkedList<Parameter> parameters = new LinkedList<Parameter>();
+	private String category;
 
 	public static class Name {
 				
@@ -35,16 +36,16 @@ public class SADLDescription {
 			return new Name(null, null, null, null);			
 		}
 
-		public static Name createName(String name, String humanReadableName) {
-			return new Name(name, null, null, humanReadableName);
+		public static Name createName(String name, String displayName) {
+			return new Name(name, null, null, displayName);
 		}
 
 		public static Name createName(String name) {
 			return new Name(name, null, null, name);
 		}
 
-		public static Name createNameSet(String prefix, String postfix, String humanReadableName) {
-			return new Name(null, prefix, postfix, humanReadableName);
+		public static Name createNameSet(String prefix, String postfix, String displayName) {
+			return new Name(null, prefix, postfix, displayName);
 		}
 
 		public static Name createNameSet(String prefix, String postfix) {
@@ -115,19 +116,27 @@ public class SADLDescription {
 				firstPart = id;
 			}
 			
-			return "\"" + firstPart + "\": \"" + displayName + "\"";
+			return hyphenate(firstPart) + ": " + hyphenate(displayName);
+		}
+		
+		private String hyphenate(String name) {
+			if (name.contains(" ")) {
+				return "\"" + name + "\"";
+			} else {
+				return name;
+			}
 		}
 
 
 	}
 	
 
-	public static class File {
+	public static class Entity {
 		
 		private Name name;
 		private boolean optional = false;
 
-		public File(Name name) {
+		public Entity(Name name) {
 			this.name = name;
 		}
 
@@ -155,7 +164,7 @@ public class SADLDescription {
 	/**
 	 * Input file description.
 	 */
-	public static class Input extends File {
+	public static class Input extends Entity {
 		
 		private InputType type;
 
@@ -180,7 +189,7 @@ public class SADLDescription {
 	/**
 	 * Output file description.
 	 */
-	public static class Output extends File {
+	public static class Output extends Entity {
 		
 		public Output(Name name) {
 			super(name);
@@ -195,20 +204,19 @@ public class SADLDescription {
 	 * Analysis tool parameter description.
 	 *
 	 */
-	public static class Parameter {
+	public static class Parameter extends Entity {
 
-		private Name name; 
 		private ParameterType type; 
-		private String[] selectionOptions; 
+		private Name[] selectionOptions; 
 		private String from;
 		private String to;
 		private String defaultValue; 
 		private String comment;
 		
 
-		public Parameter(Name name, ParameterType type, String[] selectionOptions,
+		public Parameter(Name name, ParameterType type, Name[] selectionOptions,
 				String from, String to, String defaultValue, String comment) {
-			this.name = name;
+			super(name);
 			this.type = type;
 			this.selectionOptions = selectionOptions;
 			this.from = from;
@@ -217,15 +225,11 @@ public class SADLDescription {
 			this.comment = comment;
 		}
 		
-		public Name getName() {
-			return name;
-		}
-		
 		public ParameterType getType() {
 			return type;
 		}
 		
-		public String[] getSelectionOptions() {
+		public Name[] getSelectionOptions() {
 			return selectionOptions;
 		}
 		
@@ -247,22 +251,13 @@ public class SADLDescription {
 	}
 
 	/**
-	 * Returns a new (mostly empty) object presentation for parsed VVSADL. 
+	 * Returns a new (mostly empty) object presentation for parsed SADL. 
 	 */
-	public SADLDescription(Name name, String comment) {
+	public SADLDescription(Name name, String category, String comment) {
 		super();
 		this.name = name;
 		this.comment = comment;
-	}
-
-	/**
-	 * Returns a new (mostly empty) object presentation for parsed VVSADL. 
-	 */
-	public SADLDescription(Name name, String packageName, String comment) {
-		super();
-		this.name = name;
-		this.comment = comment;
-		// skip packageName
+		this.category = category;
 	}
 
 	public void addInput(Input input) {
@@ -329,9 +324,8 @@ public class SADLDescription {
 		metaOutputs.addAll(outputCollection);		
 	}
 
-	public String getPackageName() {
-		// TODO Auto-generated method stub
-		return null;
+	public String getCategory() {
+		return this.category;
 	}
 	
 	/**
@@ -341,5 +335,5 @@ public class SADLDescription {
 	public String toString() {
 		return SADLGenerator.generate(this);
 	}
-	
+
 }

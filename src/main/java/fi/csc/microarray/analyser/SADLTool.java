@@ -8,20 +8,20 @@ import java.io.InputStreamReader;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
- * Tool for VVSADL related tasks.
+ * Tool for SADL related tasks.
  * 
  * @author Aleksi Kallio
  */
-public class VVSADLTool {
+public class SADLTool {
 
 	/**
 	 * The String that is used to begin comment lines in scripts. For parsing
-	 * VVSADL from comments.
+	 * SADL from comments.
 	 */
 	private static String COMMENT = "#";
 
 	public static class ParsedRScript {
-		public String VVSADL = "";
+		public String SADL = "";
 		public String rSource = "";
 	}
 	
@@ -43,7 +43,7 @@ public class VVSADLTool {
 					inHeaderCommentBlock = false;
 				}
 				if (inHeaderCommentBlock) {
-					parsedScript.VVSADL += line.substring(comment.length());
+					parsedScript.SADL += line.substring(comment.length());
 				}
 				parsedScript.rSource += line + "\n";
 			}

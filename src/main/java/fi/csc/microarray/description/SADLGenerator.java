@@ -3,6 +3,7 @@ package fi.csc.microarray.description;
 import java.util.List;
 
 import fi.csc.microarray.description.SADLDescription.Input;
+import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLDescription.Output;
 import fi.csc.microarray.description.SADLDescription.Parameter;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
@@ -25,7 +26,7 @@ public class SADLGenerator {
 	 */
 	public static String generate(SADLDescription sadl) {
 		
-		String string =	"TOOL " + sadl.getName() + " (" + sadl.getComment() + ")\n";
+		String string =	"TOOL \"" + sadl.getCategory() + "\" / " + sadl.getName() + " (" + sadl.getComment() + ")\n";
 		
 		string += generateInputs("INPUT", sadl.inputs());		
 		string += generateInputs("METAINPUT", sadl.metaInputs());
@@ -40,7 +41,7 @@ public class SADLGenerator {
 				if (parameter.getType() == ParameterType.ENUM) {
 					paramString += "[";
 					boolean first = true;
-					for (String option : parameter.getSelectionOptions()) {
+					for (Name option : parameter.getSelectionOptions()) {
 						if (!first) {
 							paramString += ", ";
 						} else {

@@ -22,7 +22,7 @@ public class AnalysisDescriptionGenerator {
 		
 		description.setName(source.getName().getID());
 		description.setComment(source.getComment());
-		description.setCategory(source.getPackageName());
+		description.setCategory(source.getCategory());
 
 		// not interested in inputs, they were figured out when job was submitted
 

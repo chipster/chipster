@@ -12,12 +12,13 @@ import fi.csc.microarray.description.SADLDescription.Output;
 import fi.csc.microarray.description.SADLDescription.Parameter;
 import fi.csc.microarray.description.SADLSyntax.InputType;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
+import fi.csc.microarray.description.vvsadl.CompatibilityVVSADLParser;
 import fi.csc.microarray.exception.MicroarrayException;
 
 
 
 /**
- * <p>Parses VVSADL analysis descriptions. VVSADL stands for Very Very 
+ * <p>Parses SADL analysis descriptions. SADL stands for  
  * Simple Analysis Description Language. It is used to manage analysis 
  * description data inside the Chipster system. Parsing is event based (cf. SAX).</p>
  *  
@@ -34,7 +35,7 @@ public class SADLParser {
 
 	
 	/**
-	 * Parse failure caused by illegal input data (bad VVSADL).
+	 * Parse failure caused by illegal input data (bad SADL).
 	 */
 	public static class ParseException extends MicroarrayException {
 		public ParseException(String msg, String filename) {
@@ -58,26 +59,26 @@ public class SADLParser {
 		addInputType(GenericInputTypes.GENERIC);
 	}
 
-	public SADLDescription parse(String vvsadlString) throws ParseException {
+	public SADLDescription parse(String sadlString) throws ParseException {
 		
 		// check for VVSADL compatibility mode
-		if (vvsadlString.trim().startsWith("ANALYSIS")) {
-			
+		if (sadlString.trim().startsWith("ANALYSIS")) {
+			return new CompatibilityVVSADLParser().parse(sadlString);
 		}
 		
-		SADLTokeniser tokens = new SADLTokeniser(vvsadlString, unitName);
+		SADLTokeniser tokens = new SADLTokeniser(sadlString, unitName);
 		return parseAnalysis(tokens);
 	}
 
-	public List<SADLDescription> parseMultiple(String vvsadlString) throws ParseException {
+	public List<SADLDescription> parseMultiple(String sadlString) throws ParseException {
 		
 		// check for VVSADL compatibility mode
-		if (vvsadlString.trim().startsWith("ANALYSIS")) {
-			
+		if (sadlString.trim().startsWith("ANALYSIS")) {
+			return new CompatibilityVVSADLParser().parseMultiple(sadlString);			
 		}
 		
 		LinkedList<SADLDescription> descriptions = new LinkedList<SADLDescription>();
-		SADLTokeniser tokens = new SADLTokeniser(vvsadlString, unitName);
+		SADLTokeniser tokens = new SADLTokeniser(sadlString, unitName);
 		
 		// for avoiding excessive logging in case of parse error
 		boolean parsingPreviousSuccessful = true;
@@ -111,9 +112,11 @@ public class SADLParser {
 		skip(tokens, "TOOL");
 
 		// read analysis stuff
-		Name name = parseName(tokens);
+		String category = tokens.next();
+		skip(tokens, SADLSyntax.CATEGORY_SEPARATOR);
+		Name name = parseName(tokens);		
 		String comment = tokens.next();
-		SADLDescription description = new SADLDescription(name, comment);
+		SADLDescription description = new SADLDescription(name, category, comment);
 	
 		// read possible inputs
 		while (nextTokenIs(tokens, "INPUT")) { 
@@ -226,7 +229,7 @@ public class SADLParser {
 		
 		skip(tokens, "TYPE");
 		ParameterType type = null;
-		String[] options = null;
+		Name[] options = null;
 		
 		if (nextTokenIs(tokens, "[")) {
 			options = parseEnumType(tokens);
@@ -258,18 +261,19 @@ public class SADLParser {
 		String comment = tokens.next();
 		
 		Parameter parameter = new Parameter(name, type, options, from, to, defaultValue, comment);
+		parameter.setOptional(isOptional);
 		
 		return parameter;
 	}
 
 
-	private String[] parseEnumType(SADLTokeniser tokens) throws ParseException {
+	private Name[] parseEnumType(SADLTokeniser tokens) throws ParseException {
 		
 		skip(tokens, "[");
 		
-		LinkedList<String> list = new LinkedList<String>();		
+		LinkedList<Name> list = new LinkedList<Name>();		
 		while (true) {
-			list.add(parseName(tokens).getID());
+			list.add(parseName(tokens));
 			if (nextTokenIs(tokens, "]")) {
 				break;	
 			} else {
@@ -279,7 +283,7 @@ public class SADLParser {
 		
 		skip(tokens, "]");
 
-		return list.toArray(new String[0]);
+		return list.toArray(new Name[0]);
 	}
 	
 }
