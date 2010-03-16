@@ -405,7 +405,12 @@ public class FSSnapshottingSession {
 					"The dataset contents have not changed and you can use them as before, but the obsolete parameter has been removed from the history information of the dataset " +						
 					"and will not be saved in further sessions or workflows.";
 					String details = "Analysis tool: " + operation.getCategoryName() + " / " + operation.getName() + "\nObsolete parameter: " + paramName;
-					String dataName = operation.getBindings().size() == 1 ? operation.getBindings().get(0).getData().getName() : null;
+					String dataName = null;
+					if (operation.getBindings() != null) {
+						if (operation.getBindings().size() == 1) {
+							dataName = operation.getBindings().get(0).getData().getName();
+						}
+					}
 					warnAboutObsoleteContent(message, details, dataName);
 				}
 				
