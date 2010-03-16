@@ -14,8 +14,10 @@
 library(CGHcall)
 library(intCNGEan)
 
-dat1 <- read.table('aberrations.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
-dat2 <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+# dat1 <- read.table('aberrations.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+# dat2 <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+dat1 <- read.table('aberrations.tsv', header=TRUE, sep='\t', row.names=1)
+dat2 <- read.table('normalized.tsv', header=TRUE, sep='\t', row.names=1)
 phenodata1 <- read.table("phenodata_cgh.tsv", header=T, sep="\t")
 phenodata2 <- read.table("phenodata_exp.tsv", header=T, sep="\t")
 
