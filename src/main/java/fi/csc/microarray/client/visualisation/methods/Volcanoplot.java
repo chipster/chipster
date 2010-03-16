@@ -137,8 +137,8 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 		this.updateSelectionsFromApplication(false);
 		
 		// rounding limit is calculated in updateSelectionsFromApplication
-		plot.getRangeAxis().setRange(new Range(0, -Math.log10(ROUNDING_LIMIT))); 
-
+		plot.getRangeAxis().setRange(new Range(0, -Math.log10(ROUNDING_LIMIT)));
+		
 		JFreeChart chart = new JFreeChart(description.plotTitle, plot);
 
 		chart.removeLegend();
