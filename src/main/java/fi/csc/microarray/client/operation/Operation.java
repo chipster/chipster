@@ -140,6 +140,13 @@ public class Operation implements ExecutionItem {
 	public List<DataBinding> getBindings() {
 		return bindings;
 	}
+	
+	/**
+	 * Set new input file bindings.
+	 */
+	public void setBindings(LinkedList<DataBinding> bindings) {
+	    this.bindings = bindings;
+	}
 
 	/**
 	 * @return The name of this operation (actually, of its definition).

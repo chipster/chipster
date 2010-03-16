@@ -148,7 +148,7 @@ public class OperationDefinition implements ExecutionItem {
 			this.multi = true;
 		}
 
-		private String getName() {
+		public String getName() {
 			if (!multi) {
 				return name;
 			} else {
@@ -299,6 +299,10 @@ public class OperationDefinition implements ExecutionItem {
 	public void addInput(String prefix, String postfix, InputType type) {
 		InputDefinition input = new InputDefinition(prefix, postfix, type);
 		inputs.add(input);
+	}
+	
+	public List<InputDefinition> getInputs() {
+	    return inputs;
 	}
 
 	/**
