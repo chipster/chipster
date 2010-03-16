@@ -3,8 +3,6 @@ package fi.csc.microarray.description;
 import java.util.LinkedList;
 import java.util.List;
 
-import sun.net.www.http.Hurryable;
-
 import fi.csc.microarray.description.SADLSyntax.InputType;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
 
@@ -17,38 +15,47 @@ import fi.csc.microarray.description.SADLSyntax.ParameterType;
  */
 public class SADLDescription {
 
-	private AnnotatedName name;
+	private Name name;
 	private String comment;
 	
 	private LinkedList<Input> inputs = new LinkedList<Input>();
-	private LinkedList<String> outputs = new LinkedList<String>();
+	private LinkedList<Output> outputs = new LinkedList<Output>();
 	private LinkedList<Input> metaInputs = new LinkedList<Input>();
-	private LinkedList<String> metaOutputs = new LinkedList<String>();
+	private LinkedList<Output> metaOutputs = new LinkedList<Output>();
 	private LinkedList<Parameter> parameters = new LinkedList<Parameter>();
 
-	public static class AnnotatedName {
-		private String name = null;
-		private String humanReadableName = null;
+	public static class Name {
+				
+		private String id = null;
+		private String displayName = null;
 		private String prefix;
 		private String postfix;
 
-		public static AnnotatedName createEmptyName() {
-			return new AnnotatedName(null, null, null, null);			
+		public static Name createEmptyName() {
+			return new Name(null, null, null, null);			
 		}
 
-		public static AnnotatedName createName(String name, String humanReadableName) {
-			return new AnnotatedName(name, null, null, humanReadableName);
+		public static Name createName(String name, String humanReadableName) {
+			return new Name(name, null, null, humanReadableName);
 		}
-		
-		public static AnnotatedName createNameSet(String prefix, String postfix, String humanReadableName) {
-			return new AnnotatedName(null, prefix, postfix, humanReadableName);
+
+		public static Name createName(String name) {
+			return new Name(name, null, null, name);
 		}
-		
-		private AnnotatedName(String name, String prefix, String postfix, String humanReadableName) {
-			this.name = name;
+
+		public static Name createNameSet(String prefix, String postfix, String humanReadableName) {
+			return new Name(null, prefix, postfix, humanReadableName);
+		}
+
+		public static Name createNameSet(String prefix, String postfix) {
+			return new Name(null, prefix, postfix, prefix + SADLSyntax.INPUT_SET_DESIGNATOR + postfix);
+		}
+
+		private Name(String id, String prefix, String postfix, String displayName) {
+			this.id = id;
 			this.prefix = prefix;
 			this.postfix = postfix;
-			this.humanReadableName = humanReadableName;
+			this.displayName = displayName;
 		}
 
 		public void setPrefix(String prefix) {
@@ -59,24 +66,24 @@ public class SADLDescription {
 			this.postfix = postfix;
 		}
 
-		public String getName() {
-			return name;
+		public String getID() {
+			return id;
 		}
 
-		public String getHumanReadableName() {
-			return humanReadableName;
+		public String getDisplayName() {
+			return displayName;
 		}
 
-		public void setName(String name) {
-			this.name = name;
+		public void setID(String id) {
+			this.id = id;
 		}
 
-		public void setHumanReadableName(String humanReadableName) {
-			this.humanReadableName = humanReadableName;
+		public void setDisplayName(String displayName) {
+			this.displayName = displayName;
 		}
 		
 		/**
-		 * The prefix part of a spliced name of an input set. For a regular input 
+		 * The prefix part of a spliced id of an input set. For a regular input 
 		 * returns null.
 		 */
 		public String getPrefix() {
@@ -84,7 +91,7 @@ public class SADLDescription {
 		}
 
 		/**
-		 * The postfix part of a spliced name of an input set. For a regular input 
+		 * The postfix part of a spliced id of an input set. For a regular input 
 		 * returns null.
 		 */
 		public String getPostfix() {
@@ -95,7 +102,7 @@ public class SADLDescription {
 		 * Return true iff this is an input set (not a regular input).
 		 */
 		public boolean isNameSet( ) {
-			return name == null;
+			return id == null;
 		}
 		
 		@Override
@@ -105,72 +112,92 @@ public class SADLDescription {
 			if (isNameSet()) {
 				firstPart = getPrefix() + "{...}" + getPostfix();
 			} else {
-				firstPart = name;
+				firstPart = id;
 			}
 			
-			return "\"" + firstPart + "\": \"" + humanReadableName + "\"";
+			return "\"" + firstPart + "\": \"" + displayName + "\"";
 		}
 
 
 	}
 	
-	/**
-	 * Input file description.
-	 */
-	public static class Input {
+
+	public static class File {
 		
-		private InputType type;
-		private AnnotatedName name;
+		private Name name;
 		private boolean optional = false;
 
-		public Input(InputType type, AnnotatedName name) {
-			this.type = type;
+		public File(Name name) {
 			this.name = name;
-		}
-
-		public Input() {
-			this.name = AnnotatedName.createEmptyName();
 		}
 
 		public boolean isOptional() {
 			return optional;
 		}
 
-		public void setType(InputType type) {
-			this.type = type;
-		}
-
-		public void setName(AnnotatedName name) {
+		public void setName(Name name) {
 			this.name = name;
 		}
 
-
 		/**
-		 * The type of this input. 
+		 * The id of a regular input. For an input set returns null.
 		 */
-		public InputType getType() {
-			return type;
-		}
-		
-		/**
-		 * The name of a regular input. For an input set returns null.
-		 */
-		public AnnotatedName getAnnotatedName() {
+		public Name getName() {
 			return name;
 		}
 		
 		public void setOptional(boolean optional) {
 			this.optional  = optional;
 		}		
+		
 	}
-	
+
+	/**
+	 * Input file description.
+	 */
+	public static class Input extends File {
+		
+		private InputType type;
+
+		public Input(InputType type, Name name) {
+			super(name);
+			this.type = type;
+		}
+
+		public Input() {
+			super(Name.createEmptyName());
+		}
+
+		public void setType(InputType type) {
+			this.type = type;
+		}
+
+		public InputType getType() {
+			return type;
+		}
+	}
+
+	/**
+	 * Output file description.
+	 */
+	public static class Output extends File {
+		
+		public Output(Name name) {
+			super(name);
+		}
+
+		public Output() {
+			super(Name.createEmptyName());
+		}
+	}
+
 	/**
 	 * Analysis tool parameter description.
 	 *
 	 */
 	public static class Parameter {
 
-		private AnnotatedName name; 
+		private Name name; 
 		private ParameterType type; 
 		private String[] selectionOptions; 
 		private String from;
@@ -179,7 +206,7 @@ public class SADLDescription {
 		private String comment;
 		
 
-		public Parameter(AnnotatedName name, ParameterType type, String[] selectionOptions,
+		public Parameter(Name name, ParameterType type, String[] selectionOptions,
 				String from, String to, String defaultValue, String comment) {
 			this.name = name;
 			this.type = type;
@@ -190,7 +217,7 @@ public class SADLDescription {
 			this.comment = comment;
 		}
 		
-		public AnnotatedName getAnnotatedName() {
+		public Name getName() {
 			return name;
 		}
 		
@@ -222,7 +249,7 @@ public class SADLDescription {
 	/**
 	 * Returns a new (mostly empty) object presentation for parsed VVSADL. 
 	 */
-	public SADLDescription(AnnotatedName name, String comment) {
+	public SADLDescription(Name name, String comment) {
 		super();
 		this.name = name;
 		this.comment = comment;
@@ -231,7 +258,7 @@ public class SADLDescription {
 	/**
 	 * Returns a new (mostly empty) object presentation for parsed VVSADL. 
 	 */
-	public SADLDescription(AnnotatedName name, String packageName, String comment) {
+	public SADLDescription(Name name, String packageName, String comment) {
 		super();
 		this.name = name;
 		this.comment = comment;
@@ -246,11 +273,11 @@ public class SADLDescription {
 		metaInputs.add(input);
 	}
 
-	public void addOutput(String metaOutput) {
+	public void addOutput(Output metaOutput) {
 		outputs.add(metaOutput);
 	}
 	
-	public void addMetaOutput(String metaOutput) {
+	public void addMetaOutput(Output metaOutput) {
 		metaOutputs.add(metaOutput);
 	}
 	
@@ -258,7 +285,7 @@ public class SADLDescription {
 		parameters.add(parameter);
 	}
 
-	public AnnotatedName getAnnotatedName() {
+	public Name getName() {
 		return name;
 	}
 
@@ -274,98 +301,16 @@ public class SADLDescription {
 		return metaInputs;
 	}
 	
-	public List<String> outputs() {
+	public List<Output> outputs() {
 		return outputs;		
 	}
 	
-	public List<String> metaOutputs() {
+	public List<Output> metaOutputs() {
 		return metaOutputs;	
 	}
 
 	public List<Parameter> parameters() {
 		return parameters;
-	}
-
-	/**
-	 * Creates a VVSADL source code representation of this parsed syntax object.
-	 * Due to whitespace etc. the returned code might not be identical to the original
-	 * source. However if the returned String is used to create a new parsed syntax, it 
-	 * should return the exactly same string.
-	 * 
-	 * @return VVSADL source representation
-	 */
-	@Override
-	public String toString() {
-		
-		String string =	"TOOL " + this.getAnnotatedName() + " (" + this.getComment() + ")\n";
-		
-		string += toStringForInputs("INPUT", inputs());		
-		string += toStringForInputs("METAINPUT", metaInputs());
-		
-		string += toStringForOutputs("OUTPUT", outputs());		
-		string += toStringForOutputs("METAOUTPUT", metaOutputs());
-
-		if (!parameters().isEmpty()) {
-			for (Parameter parameter: parameters()) {
-				String paramString = "PARAMETER " + parameter.getAnnotatedName() + " TYPE ";
-				
-				if (parameter.getType() == ParameterType.ENUM) {
-					paramString += "[";
-					boolean first = true;
-					for (String option : parameter.getSelectionOptions()) {
-						if (!first) {
-							paramString += ", ";
-						} else {
-							first = false;
-						}
-						paramString += option;
-					}
-					paramString += "] ";
-					
-				} else {
-					paramString += parameter.getType() + " ";
-
-					if (parameter.getFrom() != null) {
-						paramString += "FROM " + parameter.getFrom() + " "; 
-					}
-
-					if (parameter.getTo() != null) {
-						paramString += "TO " + parameter.getTo() + " "; 
-					} 
-				}	
-				
-				if (parameter.getDefaultValue() != null) {
-					paramString += "DEFAULT " + parameter.getDefaultValue() + " "; 
-				}
-				
-				paramString += "(" + parameter.getComment() + ")";
-				
-				string += paramString + "\n";
-			}			
-		}		
-		
-		return string;
-	}
-
-	private String toStringForOutputs(String header, List<String> outputList) {
-		String string = "";
-		if (!outputList.isEmpty()) {
-			for (String output : outputList) {
-				string += header + " " + output + "\n";
-			}
-		}
-		return string;
-	}
-
-	private String toStringForInputs(String header, List<Input> inputList) {
-		String string = "";
-		if (!inputList.isEmpty()) {
-			for (Input input : inputList) {
-				string += header + " " + input.getAnnotatedName().toString() + " TYPE " + input.getType().getName() + "\n";
-			}
-			
-		}
-		return string;
 	}
 
 	public void addInputs(List<Input> inputCollection) {
@@ -376,11 +321,11 @@ public class SADLDescription {
 		metaInputs.addAll(inputCollection);		
 	}
 
-	public void addOutputs(List<String> outputCollection) {
+	public void addOutputs(List<Output> outputCollection) {
 		outputs.addAll(outputCollection);		
 	}
 	
-	public void addMetaOutputs(List<String> outputCollection) {
+	public void addMetaOutputs(List<Output> outputCollection) {
 		metaOutputs.addAll(outputCollection);		
 	}
 
@@ -388,4 +333,13 @@ public class SADLDescription {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	/**
+	 * @see SADLGenerator#generate(SADLDescription)
+	 */
+	@Override
+	public String toString() {
+		return SADLGenerator.generate(this);
+	}
+	
 }

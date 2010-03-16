@@ -40,7 +40,7 @@ public class OperationCategory {
 	/**
 	 * Creates a new, empty OperationCategory.
 	 * 
-	 * @param name AnnotatedName of the category. Something general, such as
+	 * @param name Name of the category. Something general, such as
 	 * 			   "Normalization" or "Clustering" for example - this is
 	 * 			   currently used as the latter part of the name of any
 	 * 			   operation in this category.

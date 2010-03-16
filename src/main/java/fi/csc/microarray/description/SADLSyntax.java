@@ -59,6 +59,8 @@ import fi.csc.microarray.databeans.DataBean;
  */
 public class SADLSyntax {
 	
+	public static final String INPUT_SET_DESIGNATOR = "{...}";
+	public static final String NAME_SEPARATOR = ":";
 	
 	public static interface InputType {
 		public boolean isTypeOf(DataBean dataBean);
@@ -93,17 +95,17 @@ public class SADLSyntax {
 		ENUM,
 		
 		/**
-		 * AnnotatedName of input matrix column, for choosing columns from inputs.
+		 * Name of input matrix column, for choosing columns from inputs.
 		 */
 		COLUMN_SEL,
 		
 		/**
-		 * AnnotatedName of metainput matrix column, for choosing columns from metainputs.
+		 * Name of metainput matrix column, for choosing columns from metainputs.
 		 */
 		METACOLUMN_SEL,
 		
 		/**
-		 * AnnotatedName of input, for choosing from multiple input datasets.
+		 * Name of input, for choosing from multiple input datasets.
 		 */
 		INPUT_SEL;
 

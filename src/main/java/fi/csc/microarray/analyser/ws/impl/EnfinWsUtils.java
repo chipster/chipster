@@ -102,11 +102,11 @@ public class EnfinWsUtils {
 		String[] columnTitles;
 		
 		if (alreadyUniprot) {
-			columns = new String[] {"AnnotatedName", "Participants"};
+			columns = new String[] {"Name", "Participants"};
 			columnTitles = new String[] {"Interaction", "Interacting proteins"};
 
 		} else {
-			columns = new String[] {"AnnotatedName", "Probe IDs", "Participants"};
+			columns = new String[] {"Name", "Probe IDs", "Participants"};
 			columnTitles = new String[] {"Interaction", "Probe ID", "Interacting proteins"};
 		}
 		
@@ -130,8 +130,8 @@ public class EnfinWsUtils {
 			secondColumn = "Probe IDs";
 			secondColumnTitle = "Probe ID's for participating proteins";			
 		}
-		HtmlUtil.writeHtmlTable(reactomeAnnotations, new String[] { "AnnotatedName", secondColumn }, new String[] {"Pathway", secondColumnTitle }, new HtmlUtil.ValueHtmlFormatter[] {pathwayNameFormatter, HtmlUtil.NO_FORMATTING_FORMATTER}, "Reactome pathway associations", new FileOutputStream(htmlFile));
-		HtmlUtil.writeTextTable(reactomeAnnotations, new String[] { "AnnotatedName", secondColumn }, new String[] {"Pathway", secondColumnTitle }, new FileOutputStream(textFile));
+		HtmlUtil.writeHtmlTable(reactomeAnnotations, new String[] { "Name", secondColumn }, new String[] {"Pathway", secondColumnTitle }, new HtmlUtil.ValueHtmlFormatter[] {pathwayNameFormatter, HtmlUtil.NO_FORMATTING_FORMATTER}, "Reactome pathway associations", new FileOutputStream(htmlFile));
+		HtmlUtil.writeTextTable(reactomeAnnotations, new String[] { "Name", secondColumn }, new String[] {"Pathway", secondColumnTitle }, new FileOutputStream(textFile));
 	}
 
 	public static ResultTableCollector queryIntact(String[] probes, boolean alreadyUniprot) throws SOAPException, MalformedURLException, SAXException, IOException, ParserConfigurationException, TransformerException {
@@ -284,7 +284,7 @@ public class EnfinWsUtils {
 				if (annotationIdentifier.isAnnotation(set)) {
 					
 					String annotationName = annotationNameFinder.findAnnotationName(set);
-					annotationCollector.addAnnotation(index, "AnnotatedName", annotationName);
+					annotationCollector.addAnnotation(index, "Name", annotationName);
 					
 					Set<String> probeids = new HashSet<String>();
 					Set<String> moleculeNames = new HashSet<String>();

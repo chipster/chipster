@@ -14,7 +14,7 @@ import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.messaging.message.JobMessage;
-import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;
+import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 
 public class JavaAnalysisHandler implements AnalysisHandler {
 
@@ -68,7 +68,7 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 		// parse VVSADL and create AnalysisDescription		
 		AnalysisDescription ad;
 		try {
-		    ad = new AnalysisDescriptionGenerator().generate(new ChipsterVVSADLParser().parse(jobInstance.getSADL()), this);
+		    ad = new AnalysisDescriptionGenerator().generate(new ChipsterSADLParser().parse(jobInstance.getSADL()), this);
 		} catch (ParseException e) {
 			throw new AnalysisException(e);
 		}

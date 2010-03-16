@@ -15,7 +15,7 @@ import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.NodeBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
-import fi.csc.microarray.module.chipster.ChipsterVVSADLParser.Validator;
+import fi.csc.microarray.module.chipster.ChipsterSADLParser.Validator;
 import fi.csc.microarray.util.CommandLineParser;
 import fi.csc.microarray.util.CommandLineParser.CommandLineException;
 import fi.csc.microarray.webstart.WebstartJettyServer;

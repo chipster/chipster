@@ -6,8 +6,9 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLDescription.Input;
-import fi.csc.microarray.description.SADLDescription.AnnotatedName;
+import fi.csc.microarray.description.SADLDescription.Output;
 import fi.csc.microarray.description.SADLDescription.Parameter;
 import fi.csc.microarray.description.SADLSyntax.InputType;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
@@ -25,10 +26,7 @@ import fi.csc.microarray.exception.MicroarrayException;
  * @author Aleksi Kallio
  */
 public class SADLParser {
-
-	
-	private static final String INPUT_SET_DESIGNATOR = "{...}";
-	private static final String NAME_SEPARATOR = ":";
+		
 	/**
 	 * Logger for this class (debugging).
 	 */
@@ -61,11 +59,23 @@ public class SADLParser {
 	}
 
 	public SADLDescription parse(String vvsadlString) throws ParseException {
+		
+		// check for VVSADL compatibility mode
+		if (vvsadlString.trim().startsWith("ANALYSIS")) {
+			
+		}
+		
 		SADLTokeniser tokens = new SADLTokeniser(vvsadlString, unitName);
 		return parseAnalysis(tokens);
 	}
 
 	public List<SADLDescription> parseMultiple(String vvsadlString) throws ParseException {
+		
+		// check for VVSADL compatibility mode
+		if (vvsadlString.trim().startsWith("ANALYSIS")) {
+			
+		}
+		
 		LinkedList<SADLDescription> descriptions = new LinkedList<SADLDescription>();
 		SADLTokeniser tokens = new SADLTokeniser(vvsadlString, unitName);
 		
@@ -101,7 +111,7 @@ public class SADLParser {
 		skip(tokens, "TOOL");
 
 		// read analysis stuff
-		AnnotatedName name = parseName(tokens);
+		Name name = parseName(tokens);
 		String comment = tokens.next();
 		SADLDescription description = new SADLDescription(name, comment);
 	
@@ -122,15 +132,13 @@ public class SADLParser {
 		// read possible outputs
 		while (nextTokenIs(tokens, "OUTPUT")) {
 			skip(tokens, "OUTPUT"); 
-			String output = parseOutput(tokens);
-			description.addOutput(output);
+			description.addOutput(parseOutput(tokens));
 		}
 
 		// read possible metaoutputs
 		while (nextTokenIs(tokens, "METAOUTPUT")) {
 			skip(tokens, "METAOUTPUT");
-			String output = parseOutput(tokens);
-			description.addMetaOutput(output);
+			description.addMetaOutput(parseOutput(tokens));
 		}
 
 		//	read possible parameters
@@ -154,49 +162,49 @@ public class SADLParser {
 		return tokens.hasNext() && token.equals(tokens.peek());
 	}
 
-	private AnnotatedName parseName(SADLTokeniser tokens) throws ParseException {
-		AnnotatedName name = SADLDescription.AnnotatedName.createEmptyName();
+	private Name parseName(SADLTokeniser tokens) throws ParseException {
+		Name name = SADLDescription.Name.createEmptyName();
 		
 		String rawName = tokens.next();
 		
-		if (rawName.contains(INPUT_SET_DESIGNATOR)) {
-			name.setPrefix(rawName.substring(0, rawName.indexOf(INPUT_SET_DESIGNATOR)));
-			name.setPostfix(rawName.substring(rawName.indexOf(INPUT_SET_DESIGNATOR) + INPUT_SET_DESIGNATOR.length()));
+		if (rawName.contains(SADLSyntax.INPUT_SET_DESIGNATOR)) {
+			name.setPrefix(rawName.substring(0, rawName.indexOf(SADLSyntax.INPUT_SET_DESIGNATOR)));
+			name.setPostfix(rawName.substring(rawName.indexOf(SADLSyntax.INPUT_SET_DESIGNATOR) + SADLSyntax.INPUT_SET_DESIGNATOR.length()));
 			
 		} else {
-			name.setName(rawName);
+			name.setID(rawName);
 		}
 
 		
-		if (NAME_SEPARATOR.equals(tokens.peek())) {
-			skip(tokens, NAME_SEPARATOR); // read separator
-			name.setHumanReadableName(tokens.next());
+		if (SADLSyntax.NAME_SEPARATOR.equals(tokens.peek())) {
+			skip(tokens, SADLSyntax.NAME_SEPARATOR); // read separator
+			name.setDisplayName(tokens.next());
 		}
 		return name;
 	}
 
-	private String parseOutput(SADLTokeniser tokens) throws ParseException {
+	private Output parseOutput(SADLTokeniser tokens) throws ParseException {
 		
-		if (nextTokenIs(tokens, "OPTIONAL")) {
-			skip(tokens, "OPTIONAL");
-		}
+		Output output = new Output();
+		boolean isOptional = parseOptionalIfExists(tokens);
+		output.setOptional(isOptional);
 
-		AnnotatedName name = parseName(tokens);
+		output.setName(parseName(tokens));
 		
-		return name.getName();
+		return output;
 	}
 
 	private Input parseInput(SADLTokeniser tokens, SADLDescription description) throws ParseException {
 		
-		Input newInput = new Input();
+		Input input = new Input();
 		boolean isOptional = parseOptionalIfExists(tokens);
-		newInput.setOptional(isOptional);
+		input.setOptional(isOptional);
 		
-		newInput.setName(parseName(tokens));
+		input.setName(parseName(tokens));
 		skip(tokens, "TYPE");  
-		newInput.setType(inputTypeMap.get(tokens.next()));
+		input.setType(inputTypeMap.get(tokens.next()));
 				
-		return newInput;
+		return input;
 	}
 	
 	private boolean parseOptionalIfExists(SADLTokeniser tokens) throws ParseException {
@@ -214,7 +222,7 @@ public class SADLParser {
 		
 		boolean isOptional = parseOptionalIfExists(tokens);
 		
-		AnnotatedName name = parseName(tokens);
+		Name name = parseName(tokens);
 		
 		skip(tokens, "TYPE");
 		ParameterType type = null;
@@ -261,7 +269,7 @@ public class SADLParser {
 		
 		LinkedList<String> list = new LinkedList<String>();		
 		while (true) {
-			list.add(parseName(tokens).getName());
+			list.add(parseName(tokens).getID());
 			if (nextTokenIs(tokens, "]")) {
 				break;	
 			} else {

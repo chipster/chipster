@@ -22,7 +22,7 @@ import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.message.JobMessage;
-import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;
+import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 
 public class RAnalysisHandler implements AnalysisHandler {
 
@@ -124,7 +124,7 @@ public class RAnalysisHandler implements AnalysisHandler {
 		// parse VVSADL and create AnalysisDescription		
 		AnalysisDescription ad;
 		try {
-			ad = new AnalysisDescriptionGenerator().generate(new ChipsterVVSADLParser().parse(parsedScript.VVSADL), this);
+			ad = new AnalysisDescriptionGenerator().generate(new ChipsterSADLParser().parse(parsedScript.VVSADL), this);
 		} catch (ParseException e) {
 			throw new AnalysisException(e);
 		}

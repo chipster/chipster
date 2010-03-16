@@ -15,7 +15,7 @@ public interface DataItem {
 	public abstract DataFolder getParent();
 	
 	/**
-	 * AnnotatedName can be the name of a file/directory or some more user friendly name.
+	 * Name can be the name of a file/directory or some more user friendly name.
 	 */
     public abstract String getName();
     

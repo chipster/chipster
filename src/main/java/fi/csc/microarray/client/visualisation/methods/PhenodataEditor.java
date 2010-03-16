@@ -218,7 +218,7 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 							tableEditor.getEditable().containsColumn(columnNameField.getText())) {
 						JOptionPane.showMessageDialog(
 								((SwingClientApplication)application).getMainFrame(), 
-								"AnnotatedName of the column is empty or exists already.");
+								"Name of the column is empty or exists already.");
 						return;
 					}
 					try {

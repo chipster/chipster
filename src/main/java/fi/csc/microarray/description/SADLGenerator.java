@@ -3,32 +3,39 @@ package fi.csc.microarray.description;
 import java.util.List;
 
 import fi.csc.microarray.description.SADLDescription.Input;
+import fi.csc.microarray.description.SADLDescription.Output;
 import fi.csc.microarray.description.SADLDescription.Parameter;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
 
+/**
+ * Generates SADL source code from parsed objects.
+ * 
+ * @author Aleksi Kallio
+ *
+ */
 public class SADLGenerator {
 
 	/**
-	 * Creates a VVSADL source code representation of description parsed syntax object.
+	 * Creates a SADL source code representation of parsed syntax object (SADLDescription).
 	 * Due to whitespace etc. the returned code might not be identical to the original
 	 * source. However if the returned String is used to create a new parsed syntax, it 
 	 * should return the exactly same string.
 	 * 
-	 * @return VVSADL source representation
+	 * @return SADL source representation
 	 */
-	public String generate(SADLDescription description) {
+	public static String generate(SADLDescription sadl) {
 		
-		String string =	"ANALYSIS \"" + description.getPackageName() + "\"/\"" + description.getAnnotatedName() + "\" (" + description.getComment() + ")\n";
+		String string =	"TOOL " + sadl.getName() + " (" + sadl.getComment() + ")\n";
 		
-		string += generateInputs("INPUT", description.inputs());		
-		string += generateInputs("METAINPUT", description.metaInputs());
+		string += generateInputs("INPUT", sadl.inputs());		
+		string += generateInputs("METAINPUT", sadl.metaInputs());
 		
-		string += generateOutputs("OUTPUT", description.outputs());		
-		string += generateOutputs("METAOUTPUT", description.metaOutputs());
+		string += generateOutputs("OUTPUT", sadl.outputs());		
+		string += generateOutputs("METAOUTPUT", sadl.metaOutputs());
 
-		if (!description.parameters().isEmpty()) {
-			for (Parameter parameter: description.parameters()) {
-				String paramString = "PARAMETER " + parameter.getAnnotatedName() + " ";
+		if (!sadl.parameters().isEmpty()) {
+			for (Parameter parameter: sadl.parameters()) {
+				String paramString = "PARAMETER " + parameter.getName() + " TYPE ";
 				
 				if (parameter.getType() == ParameterType.ENUM) {
 					paramString += "[";
@@ -68,46 +75,26 @@ public class SADLGenerator {
 		return string;
 	}
 
-	private String generateOutputs(String header, List<String> outputList) {
+	private static String generateOutputs(String header, List<Output> outputList) {
 		String string = "";
 		if (!outputList.isEmpty()) {
-			String outputString = header + " ";
-			boolean first = true;
-			for (String output : outputList) {
-				if (!first) {
-					outputString += ", ";
-				} else {
-					first = false;
-				}
-				outputString += output;
+			for (Output output : outputList) {
+				string += header + " " + output.getName().toString() +  "\n";
 			}
-			
-			string += outputString + "\n";
 		}
 		return string;
 	}
 
-	private String generateInputs(String header, List<Input> inputList) {
+	private static String generateInputs(String header, List<Input> inputList) {
 		String string = "";
 		if (!inputList.isEmpty()) {
-			String inputString = header + " ";
-			boolean first = true;
 			for (Input input : inputList) {
-				if (!first) {
-					inputString += ", ";
-				} else {
-					first = false;
-				}
-				inputString += input.getType().getName() + " ";
-				if (input.getAnnotatedName().isNameSet()) {
-					inputString += input.getAnnotatedName().getPrefix() + "[...]" + input.getAnnotatedName().getPostfix();
-				} else {
-					inputString += input.getAnnotatedName();
-				}
+				string += header + " " + input.getName().toString() + " TYPE " + input.getType().getName() + "\n";
 			}
 			
-			string += inputString + "\n";
 		}
 		return string;
 	}
+
+
 }

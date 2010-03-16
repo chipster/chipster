@@ -22,7 +22,7 @@ public class OperationGenerator {
 		logger.debug("generating operations from " + descriptions.size() + " descriptions");
 		LinkedHashMap<String, OperationCategory> parsedCategories = new LinkedHashMap<String, OperationCategory>();
 		for (SADLDescription description : descriptions) {
-			logger.debug("processing " + description.getAnnotatedName());
+			logger.debug("processing " + description.getName());
 			
 			// if the category doesn't exist yet, create it
 			if (parsedCategories.get(description.getPackageName()) == null) {
@@ -50,14 +50,14 @@ public class OperationGenerator {
 			}
 			
 			// create the actual definition
-			OperationDefinition newDefinition = new OperationDefinition(description.getAnnotatedName().getName(), parsedCategories.get(description.getPackageName()), description.getComment(), true);
+			OperationDefinition newDefinition = new OperationDefinition(description.getName().getID(), parsedCategories.get(description.getPackageName()), description.getComment(), true);
 			logger.debug("added operation " + newDefinition.getName() + " to " + newDefinition.getCategoryName());
 			
 			for (Input input : description.inputs()) {
-				if (input.getAnnotatedName().isNameSet()) {
-					newDefinition.addInput(input.getAnnotatedName().getPrefix(), input.getAnnotatedName().getPostfix(), input.getType());
+				if (input.getName().isNameSet()) {
+					newDefinition.addInput(input.getName().getPrefix(), input.getName().getPostfix(), input.getType());
 				} else {
-					newDefinition.addInput(input.getAnnotatedName().getName(), input.getType());
+					newDefinition.addInput(input.getName().getID(), input.getType());
 				}
 			}
 			
@@ -67,7 +67,7 @@ public class OperationGenerator {
 			for (Parameter parameter : description.parameters()) {
 				newDefinition.addParameter(fi.csc.microarray.client.
 				                           operation.parameter.Parameter.createInstance(
-			        parameter.getAnnotatedName().getName(), parameter.getType(), parameter.getSelectionOptions(),
+			        parameter.getName().getID(), parameter.getType(), parameter.getSelectionOptions(),
 			        parameter.getComment(), parameter.getFrom(), parameter.getTo(),
 			        parameter.getDefaultValue()));		
 			}

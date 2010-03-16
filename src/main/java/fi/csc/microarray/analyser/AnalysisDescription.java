@@ -79,7 +79,7 @@ public class AnalysisDescription {
 	private AnalysisHandler handler;
 	
 	/**
-	 * AnnotatedName of the original source script or java class etc.
+	 * Name of the original source script or java class etc.
 	 * Needed for update checks.
 	 */
 	private String sourceResourceName;

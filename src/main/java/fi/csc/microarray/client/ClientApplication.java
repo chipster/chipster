@@ -75,7 +75,7 @@ import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.module.DefaultModules;
 import fi.csc.microarray.module.Modules;
-import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;
+import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.Strings;
 
@@ -236,7 +236,7 @@ public abstract class ClientApplication implements Node {
 			this.metadata = new String(metadataBean.getContents());
 			manager.delete(metadataBean); // don't leave the bean hanging around
 			logger.debug("got metadata: " + this.metadata.substring(0, 50) + "...");
-			List<SADLDescription> descriptions = new ChipsterVVSADLParser().parseMultiple(this.metadata);
+			List<SADLDescription> descriptions = new ChipsterSADLParser().parseMultiple(this.metadata);
 			this.parsedCategories = new OperationGenerator().generate(descriptions).values();
 			
 			logger.debug("created " + this.parsedCategories.size() + " operation categories");

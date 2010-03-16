@@ -7,14 +7,14 @@ import fi.csc.microarray.description.SADLParser;
 import fi.csc.microarray.description.SADLDescription.Parameter;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
 
-public class ChipsterVVSADLParser extends SADLParser {
+public class ChipsterSADLParser extends SADLParser {
 
 
-	public ChipsterVVSADLParser() {
+	public ChipsterSADLParser() {
 		this(null);
 	}
 	
-	public ChipsterVVSADLParser(String filename) {
+	public ChipsterSADLParser(String filename) {
 		super(filename);
 		addInputType(ChipsterInputTypes.AFFY);
 		addInputType(ChipsterInputTypes.CDNA);
@@ -26,7 +26,7 @@ public class ChipsterVVSADLParser extends SADLParser {
 	public static class Validator {
 		
 		public void validate(String filename, String vvsadl) throws ParseException {
-			ChipsterVVSADLParser parser = new ChipsterVVSADLParser(filename);
+			ChipsterSADLParser parser = new ChipsterSADLParser(filename);
 			List<SADLDescription> descriptions = parser.parseMultiple(vvsadl);
 			for (SADLDescription description : descriptions) {
 				checkParsedContent(description);
@@ -39,7 +39,7 @@ public class ChipsterVVSADLParser extends SADLParser {
 				if (parameter.getType() == ParameterType.ENUM) {
 					// check that enum is not empty
 					if (parameter.getSelectionOptions() == null || parameter.getSelectionOptions().length == 0) {
-						throw new RuntimeException("enum parameter " + parameter.getAnnotatedName() + " has no options");
+						throw new RuntimeException("enum parameter " + parameter.getName() + " has no options");
 					}
 					// check that enum default value is legal
 					if (parameter.getDefaultValue() != null) {
@@ -51,7 +51,7 @@ public class ChipsterVVSADLParser extends SADLParser {
 							}
 						}
 						if (!found) {
-							throw new RuntimeException("enum parameter " + parameter.getAnnotatedName() + " has undefined default value \"" + parameter.getDefaultValue() + "\"");
+							throw new RuntimeException("enum parameter " + parameter.getName() + " has undefined default value \"" + parameter.getDefaultValue() + "\"");
 						}
 					}
 				}
