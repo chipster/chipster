@@ -368,7 +368,7 @@
     </item>
     
 	<item installed="false" name="Jaspar motif collection" type="file">
-	  <file>/opt/chipster/tools/ClusterBuster</file>
+	  <dir>/opt/chipster/tools/ClusterBuster</dir>
 	  <comment>
 	  	Download from http://zlab.bu.edu/clover/jaspar2 file jaspar2005core.txt.
 	  </comment>
