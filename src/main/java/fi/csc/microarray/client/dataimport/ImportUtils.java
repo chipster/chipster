@@ -246,7 +246,7 @@ public class ImportUtils {
 
 	/**
 	 * Creates a new temp file, which is going to be removed when the JVM is
-	 * closed. AnnotatedName is used as a start of the filename, put some extra
+	 * closed. Name is used as a start of the filename, put some extra
 	 * characters will be appended to it.
 	 * 
 	 * @param name
