@@ -2,6 +2,7 @@ package fi.csc.microarray.description;
 
 import java.util.List;
 
+import fi.csc.microarray.description.SADLDescription.Entity;
 import fi.csc.microarray.description.SADLDescription.Input;
 import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLDescription.Output;
@@ -36,7 +37,7 @@ public class SADLGenerator {
 
 		if (!sadl.parameters().isEmpty()) {
 			for (Parameter parameter: sadl.parameters()) {
-				String paramString = "PARAMETER " + parameter.getName() + " TYPE ";
+				String paramString = "PARAMETER " + generateOptional(parameter) + parameter.getName() + " TYPE ";
 				
 				if (parameter.getType() == ParameterType.ENUM) {
 					paramString += "[";
@@ -80,7 +81,7 @@ public class SADLGenerator {
 		String string = "";
 		if (!outputList.isEmpty()) {
 			for (Output output : outputList) {
-				string += header + " " + output.getName().toString() +  "\n";
+				string += header + " " + generateOptional(output) + output.getName().toString() +  "\n";
 			}
 		}
 		return string;
@@ -90,11 +91,15 @@ public class SADLGenerator {
 		String string = "";
 		if (!inputList.isEmpty()) {
 			for (Input input : inputList) {
-				string += header + " " + input.getName().toString() + " TYPE " + input.getType().getName() + "\n";
+				string += header + " " + generateOptional(input) + input.getName().toString() + " TYPE " + input.getType().getName() + "\n";
 			}
 			
 		}
 		return string;
+	}
+	
+	private static String generateOptional(Entity entity) {
+		return entity.isOptional() ? "OPTIONAL " : "";		
 	}
 
 

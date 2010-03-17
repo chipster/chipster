@@ -165,12 +165,6 @@ public class SADLParserTest {
 		description.addParameter(new Parameter(Name.createName("parameter1", "parameter1"), ParameterType.DECIMAL, null, "1", "3", "2", "param comment 1"));
 		description.addParameter(new Parameter(Name.createName("parameter2", "parameter2"), ParameterType.ENUM, new Name[] {Name.createName("1"), Name.createName("2"), Name.createName("2")}, null, null, "2", "param comment 2"));
 		
-		// do some checks to created description
-		Assert.assertEquals(description.inputs().get(0).getName().getID(), "input1");
-		Assert.assertEquals(description.inputs().get(1).getName().getPrefix(), "input2");
-		Assert.assertEquals(description.inputs().size(), 2);
-		Assert.assertEquals(description.parameters().size(), 2);
-		
 		// serialise
 		String string = description.toString();
 		
@@ -182,6 +176,15 @@ public class SADLParserTest {
 
 		// compare the two serialised versions
 		Assert.assertEquals(string, anotherString);
+		
+		// to guard against serialisation omissions, we should do complete check between description and parsedDescription
+		// now we just do some checks
+		Assert.assertEquals(parsedDescription.inputs().get(0).getName().getID(), "input1");
+		Assert.assertTrue(parsedDescription.inputs().get(0).isOptional());
+		Assert.assertEquals(parsedDescription.inputs().get(1).getName().getPrefix(), "input2");
+		Assert.assertEquals(parsedDescription.inputs().size(), 2);
+		Assert.assertEquals(parsedDescription.parameters().size(), 2);
+		
 	}
 	
 	public static void main(String[] args) throws MicroarrayException, IOException, IllegalConfigurationException {
