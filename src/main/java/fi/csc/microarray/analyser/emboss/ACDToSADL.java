@@ -131,6 +131,8 @@ public class ACDToSADL {
 	        // TODO: help attribute; comment attribute
 	        String fieldInfo = param.getAttribute("information");
 	        
+	        // Construct a parameter
+	        Parameter sadlParam = null;
 	        if (fieldType.equals("boolean") || fieldType.equals("toggle")) {
 	            // Boolean types need some special handling	            
 	            Name[] fieldOptions = {Name.createName("Y", "Yes"), Name.createName("N", "No")};
@@ -141,10 +143,10 @@ public class ACDToSADL {
 	                fieldDefault = "N";
 	            }
 	            
-	            return new Parameter(Name.createName(fieldName), typeMap.get(fieldType), fieldOptions,
+	            sadlParam = new Parameter(Name.createName(fieldName), typeMap.get(fieldType), fieldOptions,
 	                    null, null, fieldDefault, fieldInfo);
 	        } else if (type == ACDParameter.PARAM_GROUP_SIMPLE) {
-	            return new Parameter(Name.createName(fieldName), typeMap.get(fieldType), null,
+	            sadlParam = new Parameter(Name.createName(fieldName), typeMap.get(fieldType), null,
 	                                 fieldMin, fieldMax, fieldDefault, fieldInfo);
 	        } else if (type == ACDParameter.PARAM_GROUP_LIST) {
 	            HashMap<String, String> fieldOptions = param.getList();
@@ -171,11 +173,16 @@ public class ACDToSADL {
                     i++;
                 }	            
 	            
-	            return new Parameter(Name.createName(fieldName), typeMap.get(fieldType), fieldValues,
+                sadlParam = new Parameter(Name.createName(fieldName), typeMap.get(fieldType), fieldValues,
 	                                 fieldMin, fieldMax, fieldDefault, fieldInfo);
-	        } else {
-	            return null;
 	        }
+	        
+	        // Mark as optional if needed
+	        if (!param.isRequired()) {
+	            sadlParam.setOptional(true);
+	        }
+	        
+	        return sadlParam;
 	    }
 	    
 	    /**
@@ -195,9 +202,9 @@ public class ACDToSADL {
 	        
 	        // TODO: help attribute; comment attribute
 	        // Skip all non-required inputs
-	        if (type == ACDParameter.PARAM_GROUP_INPUT &&
-	            param.isRequired()) {
-	            return new Input(GenericInputTypes.GENERIC, Name.createName(fieldName));
+	        if (type == ACDParameter.PARAM_GROUP_INPUT) {
+	            Input input = new Input(GenericInputTypes.GENERIC, Name.createName(fieldName), !param.isRequired());
+	            return input;
 	        } else {
 	            return null;
 	        }

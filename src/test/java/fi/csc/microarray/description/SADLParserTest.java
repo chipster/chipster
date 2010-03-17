@@ -156,7 +156,7 @@ public class SADLParserTest {
 
 		// create description
 		SADLDescription description = new SADLDescription(Name.createName("name", "longname"), "category", "main comment"); 
-		description.addInput(new Input(ChipsterInputTypes.GENE_EXPRS, Name.createName("input1", "input1")));
+		description.addInput(new Input(ChipsterInputTypes.GENE_EXPRS, Name.createName("input1", "input1"), true));
 		description.addInput(new Input(ChipsterInputTypes.GENE_EXPRS, Name.createNameSet("input2", ".ext", "input set 2")));
 		description.addMetaInput(new Input(ChipsterInputTypes.GENE_EXPRS, Name.createName("metainput1", "metainput1")));
 		description.addMetaInput(new Input(ChipsterInputTypes.GENE_EXPRS, Name.createNameSet("metainput2", ".ext", "meta input set 2")));

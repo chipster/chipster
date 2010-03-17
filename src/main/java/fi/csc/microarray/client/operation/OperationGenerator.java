@@ -57,7 +57,7 @@ public class OperationGenerator {
 				if (input.getName().isNameSet()) {
 					newDefinition.addInput(input.getName().getPrefix(), input.getName().getPostfix(), input.getType());
 				} else {
-					newDefinition.addInput(input.getName().getID(), input.getType());
+					newDefinition.addInput(input.getName(), input.getType());
 				}
 			}
 			
@@ -69,7 +69,7 @@ public class OperationGenerator {
 				                           operation.parameter.Parameter.createInstance(
 			        parameter.getName().getID(), parameter.getType(), parameter.getSelectionOptions(),
 			        parameter.getComment(), parameter.getFrom(), parameter.getTo(),
-			        parameter.getDefaultValue()));		
+			        parameter.getDefaultValue(), parameter.isOptional()));		
 			}
 		}
 		

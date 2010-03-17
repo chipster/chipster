@@ -1,12 +1,10 @@
 package fi.csc.microarray.client.operation;
 
 import java.awt.BorderLayout;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -15,7 +13,6 @@ import org.testng.annotations.Test;
 
 import fi.csc.microarray.client.operation.parameter.EnumParameter;
 import fi.csc.microarray.client.operation.parameter.Parameter;
-import fi.csc.microarray.client.operation.parameter.ParameterPanel;
 import fi.csc.microarray.client.operation.parameter.ToolParameterPanel;
 import fi.csc.microarray.client.operation.parameter.EnumParameter.SelectionOption;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -24,6 +21,11 @@ import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
 import fi.csc.microarray.exception.MicroarrayException;
 
+/**
+ * Test client-side parameter creation.
+ * 
+ * @author naktinis
+ */
 public class ParameterTest {
     
     private ToolParameterPanel panel;
@@ -44,7 +46,8 @@ public class ParameterTest {
         try {
             Name[] options = {Name.createName("a"), Name.createName("b")};
             Parameter p = Parameter.createInstance("list", ParameterType.ENUM, options,
-                                                   "This is list", "1", "1", "a"); 
+                                                   "This is list", "1", "1", "a", false);
+            Assert.assertFalse(p.isOptional());
             
             // Prepare the multi-select parameter
             SelectionOption[] optionsMulti = new SelectionOption[3];

@@ -52,7 +52,7 @@ public abstract class Parameter implements Cloneable {
 
 	public static Parameter createInstance(String name, ParameterType type, Name[] names,
 	                                       String description, String minValue, String maxValue,
-	                                       String initValue) {
+	                                       String initValue, boolean optional) {
 		
 		Parameter parameter = null;
 		
@@ -151,12 +151,15 @@ public abstract class Parameter implements Cloneable {
 		default:
 			throw new IllegalArgumentException("unknown type " + type);
 		}
+		
+		parameter.setOptional(optional);
 
 		return parameter;
 	}
 	
 	private String name;
 	private String description;
+	private boolean optional = false;
 	
 	/**
 	 * Constructor for initializing the name. Used by subclasses only.
@@ -247,7 +250,31 @@ public abstract class Parameter implements Cloneable {
 	 */
 	public abstract String toString();
 
+	/**
+	 * Return human-readable description for this parameter.
+	 * @return
+	 */
 	public String getDescription() {
-		return description;
+	    return description;
 	}
+	
+	/**
+     * Return human-readable description for this parameter.
+     * It might be truncated if needed.
+     * @return
+     */
+    public String getDescription(Integer maxLength) {
+        if (description.length() > maxLength) {
+            return description.substring(0, maxLength - 3) + "...";
+        }
+        return description;
+    }
+	
+	public boolean isOptional() {
+	    return optional;
+	}
+
+    public void setOptional(boolean optional) {
+        this.optional = optional;
+    }
 }

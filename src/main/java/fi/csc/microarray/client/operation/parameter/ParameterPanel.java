@@ -2,7 +2,6 @@ package fi.csc.microarray.client.operation.parameter;
 
 import java.awt.Color;
 import java.awt.LayoutManager;
-import java.util.Map;
 
 import javax.swing.JPanel;
 
@@ -25,9 +24,6 @@ import fi.csc.microarray.exception.MicroarrayException;
  */
 @SuppressWarnings("serial")
 public abstract class ParameterPanel extends JPanel {
-
-	protected Map<Parameter, ParameterInputComponent> paramMap;
-	
 
 	public ParameterPanel(Operation operation) {
 	}

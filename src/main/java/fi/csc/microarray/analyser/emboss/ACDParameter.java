@@ -384,7 +384,6 @@ public class ACDParameter {
      */
     public static String resolveExp(String exp, LinkedHashMap<String, String> map) {
         // Simulate the map
-        // TODO: store some precalculated values in map (such as acdprotein) -> server side
         // TODO: deal with calculated values (such as sequence.length) -> server side
 
         // Regular expression for variable names like $(variable.name)
@@ -483,7 +482,6 @@ public class ACDParameter {
      * 
      * @param value - ACD-unaware value.
      */
-    // TODO check out what we get for ENUM, arrays etc.
     public String normalize(String value) {
         String type = getType();
         if (type.equals("boolean")) {

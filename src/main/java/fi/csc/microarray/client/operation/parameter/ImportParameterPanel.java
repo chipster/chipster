@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.util.HashMap;
 
 import javax.swing.JPanel;
 
@@ -51,12 +50,9 @@ public class ImportParameterPanel extends ParameterPanel {
 		con.anchor = GridBagConstraints.WEST;
 		
 		
-		paramMap = new HashMap<Parameter, ParameterInputComponent>();
 		for (Parameter param : operation.getParameters()) {
 			ParameterInputComponent component = createInputComponent(param);
-			
-			paramMap.put(param, component);
-			
+					
 			con.gridx = 0;
 			con.gridy++;
 			con.insets.top = TOP_MARGIN;

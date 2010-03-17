@@ -16,6 +16,7 @@ import fi.csc.microarray.databeans.LinkUtils;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.description.SADLParser;
 import fi.csc.microarray.description.SADLSyntax;
+import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLSyntax.InputType;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.util.Strings;
@@ -124,6 +125,7 @@ public class OperationDefinition implements ExecutionItem {
 	public static class InputDefinition {
 
 		private String name;
+		private String description = null;
 		private String postfix = null;
 		private boolean multi = false;
 		private int multiCounter;
@@ -132,9 +134,10 @@ public class OperationDefinition implements ExecutionItem {
 		/**
 		 * Creates single input.
 		 */
-		public InputDefinition(String name, SADLSyntax.InputType type) {
+		public InputDefinition(Name name, SADLSyntax.InputType type) {
 			resetMulti();
-			this.name = name;
+			this.name = name.getID();
+			this.description = name.getDisplayName();
 			this.type = type;
 		}
 
@@ -155,6 +158,17 @@ public class OperationDefinition implements ExecutionItem {
 				return name + Strings.toString(multiCounter, 3) + postfix; // show always at least 3 digits 
 			}
 		}
+		
+        public String getDescription() {
+            if (description != null) {
+                return description;
+            }
+            return getName();
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
 		
 		public SADLSyntax.InputType getType() {
 		    return type;
@@ -295,7 +309,7 @@ public class OperationDefinition implements ExecutionItem {
 		return colorCount;
 	}
 
-	public void addInput(String name, InputType type) {
+	public void addInput(Name name, InputType type) {
 		InputDefinition input = new InputDefinition(name, type);
 		inputs.add(input);
 	}

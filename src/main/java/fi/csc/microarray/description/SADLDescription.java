@@ -137,10 +137,15 @@ public class SADLDescription {
 		private boolean optional = false;
 
 		public Entity(Name name) {
-			this.name = name;
+			this(name, false);
 		}
 
-		public boolean isOptional() {
+		public Entity(Name name, boolean optional) {
+            this.optional = optional;
+            this.name = name;
+        }
+
+        public boolean isOptional() {
 			return optional;
 		}
 
@@ -169,15 +174,19 @@ public class SADLDescription {
 		private InputType type;
 
 		public Input(InputType type, Name name) {
-			super(name);
-			this.type = type;
+		    this(type, name, false);
 		}
 
 		public Input() {
 			super(Name.createEmptyName());
 		}
 
-		public void setType(InputType type) {
+		public Input(InputType type, Name name, boolean optional) {
+            super(name, optional);
+            this.type = type;
+        }
+
+        public void setType(InputType type) {
 			this.type = type;
 		}
 
