@@ -148,12 +148,16 @@ public class OperationDefinition implements ExecutionItem {
 			this.multi = true;
 		}
 
-		private String getName() {
+		public String getName() {
 			if (!multi) {
 				return name;
 			} else {
 				return name + Strings.toString(multiCounter, 3) + postfix; // show always at least 3 digits 
 			}
+		}
+		
+		public SADLSyntax.InputType getType() {
+		    return type;
 		}
 
 		private void nextMulti() {
@@ -300,6 +304,10 @@ public class OperationDefinition implements ExecutionItem {
 		InputDefinition input = new InputDefinition(prefix, postfix, type);
 		inputs.add(input);
 	}
+	
+	public List<InputDefinition> getInputs() {
+	    return inputs;
+	}
 
 	/**
 	 * In a nutshell, formal inputs (as defined by the operation) are bound to
@@ -353,7 +361,7 @@ public class OperationDefinition implements ExecutionItem {
 
 					logger.debug("    bound successfully (" + value.getName() + " -> " + input.getName() + ")");
 
-					bindings.add(new DataBinding(value, input.getName(), input.type));
+					bindings.add(new DataBinding(value, input.getName(), input.getType()));
 					foundBinding = true;
 					removedValues.add(value); // mark it to be removed after iteration
 					

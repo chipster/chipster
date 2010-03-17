@@ -42,7 +42,10 @@ public class DecimalInputComponent extends ParameterInputComponent
 		this.param = param;
 		this.field = new JTextField();
 		field.setPreferredSize(ParameterInputComponent.PREFERRED_SIZE);
-		field.setText("" + param.getDecimalValue());
+		if (param.getDecimalValue() != null) {
+		    // If value is null it means the field has no default value
+		    field.setText("" + param.getDecimalValue());
+		}
 		field.addCaretListener(this);
 		field.addFocusListener(this);
 		this.add(field, BorderLayout.CENTER);
