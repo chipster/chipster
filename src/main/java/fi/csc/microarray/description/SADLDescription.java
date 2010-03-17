@@ -134,11 +134,7 @@ public class SADLDescription {
 	public static class Entity {
 		
 		private Name name;
-		private boolean optional = false;
-
-		public Entity(Name name) {
-			this(name, false);
-		}
+		private boolean optional;
 
 		public Entity(Name name, boolean optional) {
             this.optional = optional;
@@ -153,9 +149,6 @@ public class SADLDescription {
 			this.name = name;
 		}
 
-		/**
-		 * The id of a regular input. For an input set returns null.
-		 */
 		public Name getName() {
 			return name;
 		}
@@ -178,7 +171,7 @@ public class SADLDescription {
 		}
 
 		public Input() {
-			super(Name.createEmptyName());
+			super(Name.createEmptyName(), false);
 		}
 
 		public Input(InputType type, Name name, boolean optional) {
@@ -201,11 +194,11 @@ public class SADLDescription {
 	public static class Output extends Entity {
 		
 		public Output(Name name) {
-			super(name);
+			super(name, false);
 		}
 
 		public Output() {
-			super(Name.createEmptyName());
+			super(Name.createEmptyName(), false);
 		}
 	}
 
@@ -225,7 +218,7 @@ public class SADLDescription {
 
 		public Parameter(Name name, ParameterType type, Name[] selectionOptions,
 				String from, String to, String defaultValue, String comment) {
-			super(name);
+			super(name, false);
 			this.type = type;
 			this.selectionOptions = selectionOptions;
 			this.from = from;
