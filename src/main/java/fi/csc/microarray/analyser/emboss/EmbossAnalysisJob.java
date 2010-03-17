@@ -1,6 +1,8 @@
 package fi.csc.microarray.analyser.emboss;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -108,9 +110,15 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         p.waitFor();
         
         // Some information from error stream
-        byte[] b = new byte[150];
-        p.getErrorStream().read(b);
-        String outputString = new String(b);
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+        StringBuilder stringBuilder = new StringBuilder();
+        String line = null;
+        while ((line = bufferedReader.readLine()) != null) {
+            stringBuilder.append(line + "\n");
+        }
+        bufferedReader.close();
+        String outputString = stringBuilder.toString();
+        
         logger.info("Running Emboss application " + cmd);
         logger.info("Emboss application has finished with exit code " + p.exitValue() + 
                     " and this message: " + "\"" + outputString + "\".");
