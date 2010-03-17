@@ -4,32 +4,24 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.SystemColor;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
-import org.jfree.chart.block.LineBorder;
-import org.jgraph.JGraph;
 
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationPanel;
-import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.OperationDefinition.InputDefinition;
-import fi.csc.microarray.client.operation.parameter.InputFileComponent.InputFileComponentListener;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -76,14 +68,43 @@ public class ToolParameterPanel extends ParameterPanel {
         verticalLayout.setGap(0);
         paneContainer.setLayout(verticalLayout);
         
-        // FIXME loop through parameter groups
+        // Input file mappings
         JXTaskPane pane = new JXTaskPane();
+        pane.setTitle("Input datasets");
+        pane.setExpanded(false);
+        paneContainer.add(pane);
+        
+        // Grid layout for component/label pairs
+        JPanel paramPane = new JPanel(new GridBagLayout());
+        GridBagConstraints con = new GridBagConstraints();
+
+        con.gridx = 0; con.gridy = 0;
+        con.gridwidth = 1;
+        con.weightx = 1.0; con.weighty = 0;
+        con.anchor = GridBagConstraints.WEST;
+        
+        List<InputFileComponent> inputComponents = new LinkedList<InputFileComponent>();
+
+        for (InputDefinition input : operation.getDefinition().getInputs()) {
+            InputFileComponent inputComponent = new InputFileComponent(input, operation);
+            inputComponent.setListener(inputComponent.new InputFileComponentListener(inputComponents));
+            inputComponents.add(inputComponent);
+
+            addParameter(paramPane, inputComponent, inputComponent.getLabel(), con);
+        }
+              
+        // Add the inputs to the collapsable pannel
+        pane.add(paramPane);
+        
+        
+        // FIXME loop through parameter groups
+        pane = new JXTaskPane();
         pane.setTitle("Required parameters");
         
         paneContainer.add(pane);
 		
-		JPanel paramPane = new JPanel(new GridBagLayout());
-		GridBagConstraints con = new GridBagConstraints();
+		paramPane = new JPanel(new GridBagLayout());
+		con = new GridBagConstraints();
 		
 		con.gridx = 0; con.gridy = 0;
 		con.gridwidth = 1;
@@ -97,48 +118,9 @@ public class ToolParameterPanel extends ParameterPanel {
             paramMap.put(param, component);
 		}
 		
-
-		
-        // Add a bunch of parameters to the collapsible pane
+        // Add other parameters to the collapsible pane
         pane.add(paramPane);
-        
-        
-        
-        
-        // FIXME input
-        
-        // Pane
-        pane = new JXTaskPane();
-        pane.setTitle("Input files");
-        paneContainer.add(pane);
-        
-        // Grid layout for component/label pairs
-        paramPane = new JPanel(new GridBagLayout());
-        con = new GridBagConstraints();
 
-        con.gridx = 0; con.gridy = 0;
-        con.gridwidth = 1;
-        con.weightx = 1.0; con.weighty = 0;
-        con.anchor = GridBagConstraints.WEST;
-        
-        List<InputFileComponent> inputComponents = new LinkedList<InputFileComponent>();
-        InputFileComponentListener inputListener =
-            new InputFileComponentListener(inputComponents);
-
-        for (InputDefinition input : operation.getDefinition().getInputs()) {
-            InputFileComponent inputComponent = new InputFileComponent(input, operation);
-            inputComponent.setListener(inputListener);
-            inputComponents.add(inputComponent);
-
-            addParameter(paramPane, inputComponent, inputComponent.getLabel(), con);
-        }
-              
-        // Add a bunch of inputs
-        pane.add(paramPane);
-   
-        
-        
-		
 		scroller = new JScrollPane(paneContainer);
 		scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scroller.setBorder(BorderFactory.createMatteBorder(0,0,0,1,VisualConstants.OPERATION_LIST_BORDER_COLOR));

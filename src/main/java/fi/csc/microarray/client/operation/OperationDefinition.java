@@ -155,6 +155,10 @@ public class OperationDefinition implements ExecutionItem {
 				return name + Strings.toString(multiCounter, 3) + postfix; // show always at least 3 digits 
 			}
 		}
+		
+		public SADLSyntax.InputType getType() {
+		    return type;
+		}
 
 		private void nextMulti() {
 			multiCounter++;
@@ -357,7 +361,7 @@ public class OperationDefinition implements ExecutionItem {
 
 					logger.debug("    bound successfully (" + value.getName() + " -> " + input.getName() + ")");
 
-					bindings.add(new DataBinding(value, input.getName(), input.type));
+					bindings.add(new DataBinding(value, input.getName(), input.getType()));
 					foundBinding = true;
 					removedValues.add(value); // mark it to be removed after iteration
 					
