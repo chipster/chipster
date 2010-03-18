@@ -292,6 +292,34 @@
       <bioconductor-package>safe</bioconductor-package>
     </item>
       
+    <item installed="false" name="CGHbase" type="r-package"> 
+      <bioconductor-package>CGHbase</bioconductor-package>
+    </item>
+
+    <item installed="false" name="CGHcall" type="r-package"> 
+      <bioconductor-package>CGHcall</bioconductor-package>
+    </item>
+
+    <item installed="false" name="CGHregions" type="r-package"> 
+      <bioconductor-package>CGHregions</bioconductor-package>
+    </item>
+
+    <item installed="false" name="DNAcopy" type="r-package"> 
+      <bioconductor-package>DNAcopy</bioconductor-package>
+    </item>
+
+    <item installed="false" name="hgu133plus2probe" type="r-package"> 
+      <bioconductor-package>hgu133plus2probe</bioconductor-package>
+    </item>
+
+    <item installed="false" name="intCNGEan" type="r-package"> 
+      <bioconductor-package>intCNGEan</bioconductor-package>
+    </item>
+
+    <item installed="false" name="NoWaves" type="r-package"> 
+      <bioconductor-package>NoWaves</bioconductor-package>
+    </item>
+
   </bundle>
   
   <bundle depends="Basic R environment" name="Additional R packages">
