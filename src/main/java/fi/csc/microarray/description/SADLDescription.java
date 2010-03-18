@@ -194,12 +194,17 @@ public class SADLDescription {
 	public static class Output extends Entity {
 		
 		public Output(Name name) {
-			super(name, false);
+			this(name, false);
 		}
 
 		public Output() {
-			super(Name.createEmptyName(), false);
+			this(Name.createEmptyName(), false);
 		}
+		
+        public Output(Name name, boolean optional) {
+            super(name, optional);
+        }
+
 	}
 
 	/**

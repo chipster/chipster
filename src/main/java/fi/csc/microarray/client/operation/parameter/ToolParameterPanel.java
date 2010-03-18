@@ -124,6 +124,7 @@ public class ToolParameterPanel extends ParameterPanel {
         if (optionalParameters.size() > 0) {
             pane = new JXTaskPane();
             pane.setTitle("Optional parameters");
+            pane.setExpanded(false);
             paramPane = new JPanel(new GridBagLayout());
             con = prepareBagConstraints();
             for (Parameter param : optionalParameters) {

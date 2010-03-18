@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -92,13 +93,20 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 		for (String fileName : outputFileNames) {
 			cancelCheck();
 
-			// copy file to file broker
-			File outputFile = new File(jobWorkDir, fileName);
-			URL url = resultHandler.getFileBrokerClient().addFile(new FileInputStream(outputFile), null);
-
-			// put url to result message
-			outputMessage.addPayload(fileName, url);
-			logger.debug("transferred output file: " + fileName);
+			try {
+    			// Copy file to file broker
+    			File outputFile = new File(jobWorkDir, fileName);
+    			URL url = resultHandler.getFileBrokerClient().
+    			              addFile(new FileInputStream(outputFile), null);
+    
+    			// Put url to result message
+    			outputMessage.addPayload(fileName, url);
+    			logger.debug("transferred output file: " + fileName);
+			} catch (FileNotFoundException e) {
+			    // Output file not found, it might have been optional.
+			    // In future we might consider displaying an error message
+			    // when a required output was not found.
+			}
 		}
 		super.postExecute();
 	}

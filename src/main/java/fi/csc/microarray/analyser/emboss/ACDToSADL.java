@@ -79,9 +79,9 @@ public class ACDToSADL {
 	        }
 	        
 	        // Try to create an output
-	        String output = createOutput(acdParam);
+	        Output output = createOutput(acdParam);
 	        if (output != null) {
-	            internalRepr.addOutput(new Output(Name.createName(output)));
+	            internalRepr.addOutput(output);
 	        }
 	    }
 	    
@@ -178,8 +178,8 @@ public class ACDToSADL {
 	        }
 	        
 	        // Mark as optional if needed
-	        if (!param.isRequired()) {
-	            sadlParam.setOptional(true);
+	        if (sadlParam != null) {
+	            sadlParam.setOptional(!param.isRequired());
 	        }
 	        
 	        return sadlParam;
@@ -202,8 +202,9 @@ public class ACDToSADL {
 	        
 	        // TODO: help attribute; comment attribute
 	        // Skip all non-required inputs
-	        if (type == ACDParameter.PARAM_GROUP_INPUT) {
-	            Input input = new Input(GenericInputTypes.GENERIC, Name.createName(fieldName), !param.isRequired());
+	        if (type == ACDParameter.PARAM_GROUP_INPUT &&
+	            param.isRequired()) {
+	            Input input = new Input(GenericInputTypes.GENERIC, Name.createName(fieldName), true);
 	            return input;
 	        } else {
 	            return null;
@@ -218,7 +219,7 @@ public class ACDToSADL {
 	     * @param index - index of a field to be parsed.
 	     * @return SADL parameter object or null.
 	     */
-	    public static String createOutput(ACDParameter param) { 
+	    public static Output createOutput(ACDParameter param) { 
 	        // Detect the parameter functional group
 	        String fieldType = param.getType();
 	        Integer type = ACDParameter.detectParameterGroup(fieldType.toLowerCase());
@@ -227,7 +228,7 @@ public class ACDToSADL {
 	        if ((type == ACDParameter.PARAM_GROUP_OUTPUT ||
 	             type == ACDParameter.PARAM_GROUP_GRAPHICS) &&
 	            (!param.isAdvanced())) {
-	            return param.getOutputFilename(true);
+	            return new Output(Name.createName(param.getOutputFilename(true)), !param.isRequired());
 	        } else {
 	            return null;
 	        }
