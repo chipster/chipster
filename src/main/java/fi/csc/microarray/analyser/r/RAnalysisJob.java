@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -19,12 +18,13 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.analyser.AnalysisDescription;
-import fi.csc.microarray.analyser.AnalysisException;
+import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
 import fi.csc.microarray.analyser.ProcessPool;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.JobState;
+import fi.csc.microarray.util.IOUtils;
 
 /**
  * Uses R to run actual analysis operations.
@@ -48,12 +48,13 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 	
 	private class RProcessMonitor implements Runnable {
 
-		private StringBuffer output;
+		private final String ERROR_MESSAGE_TOKEN = "Error: ";
+		private ArrayList<String> outputLines;
 
 		public void run() {
 			
 			logger.debug("R process monitor started.");
-			output = new StringBuffer("");
+			outputLines = new ArrayList<String>();
 			
 			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 			
@@ -63,7 +64,6 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 					
 					// read end of stream --> error
 					if (line == null || line.contains(SCRIPT_FAILED_STRING)) {
-						logger.debug("R monitor read: " + line);
 						updateState(JobState.FAILED, "R script failed", false);
 						readMore = false;
 					} 
@@ -77,19 +77,49 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 					
 					// read normal output
 					else {
-						output.append(line + "\n");
+						outputLines.add(line);
 					}
 				}
+				
+				// read the error message
+				if (getState() == JobState.FAILED) {
+
+					// find the error token
+					int errorLineNumber = -1;
+					for (int i = outputLines.size(); i > 0 && errorLineNumber == -1; i--) {
+						if (outputLines.get(i-1).startsWith(ERROR_MESSAGE_TOKEN)) {
+							errorLineNumber = i-1;
+							logger.info("error line found: " + errorLineNumber);
+						}
+					}
+				
+					// get lines starting from the error token, except for the last "Execution halted"
+					if (errorLineNumber != -1) {
+						String errorMessage = "";
+						errorMessage += outputLines.get(errorLineNumber).substring(ERROR_MESSAGE_TOKEN.length()) + "\n";
+						for (int i = errorLineNumber + 1; i < outputLines.size() - 1; i++) {
+							errorMessage += outputLines.get(i) + "\n";
+						}
+						errorMessage = errorMessage.substring(0, errorMessage.lastIndexOf("\n"));
+						
+						outputMessage.setErrorMessage(errorMessage);
+					}
+				}
+				
 			} catch (IOException e) {
 				// also canceling the job leads here 
-				logger.debug("Error in monitoring R process.");
-				updateState(JobState.ERROR, "R monitor error", false);
+				logger.debug("error in monitoring R process.");
+				updateState(JobState.ERROR, "reading R output failed.", false);
 			}
 
 			waitRLatch.countDown();
 		}
 
 		public String getOutput() {
+			StringBuilder output = new StringBuilder();
+			for (String line: outputLines) {
+				output.append(line + "\n");
+			}
 			return output.toString();
 		}
 	
@@ -109,7 +139,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 	 * @throws MicroarrayException 
 	 * @throws InterruptedException 
 	 */
-	protected void execute() throws IOException, MicroarrayException, InterruptedException  {
+	protected void execute() throws JobCancelledException {
 		cancelCheck();
 		updateStateDetail("initialising R", true);
 		
@@ -145,7 +175,27 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		// get a process
 		cancelCheck();
 		logger.debug("Getting a process.");;
-		this.process = processPool.getProcess();
+		try {
+			this.process = processPool.getProcess();
+		} catch (Exception e) {
+			outputMessage.setErrorMessage("Starting R failed.");
+			outputMessage.setOutputText(e.toString());
+			updateState(JobState.ERROR, "", true);
+			return;
+		}
+		boolean processAlive = false;
+		try {
+			process.exitValue();
+		} catch (IllegalThreadStateException itse) {
+			processAlive = true;
+		}
+		if (!processAlive) {
+			outputMessage.setErrorMessage("Starting R failed.");
+			outputMessage.setOutputText("R already finished.");
+			updateState(JobState.ERROR, "", true);
+			return;
+		}
+		
 		updateStateDetail("running R", true);
 
 		
@@ -157,25 +207,39 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		
 		// write the input to process
 		logger.debug("Writing the input to R.");
-		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
-		for (BufferedReader reader : inputReaders) {			
-			for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-				writer.write(line);
-				writer.newLine();
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+			for (BufferedReader reader : inputReaders) {			
+				for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+					writer.write(line);
+					writer.newLine();
+				}
 			}
+			writer.flush();
+		} catch (IOException ioe) {
+			// this happens if R has died before or dies while writing the input
+			// process monitor will notice this and set state etc
+			logger.debug("writing input failed", ioe);
+		} finally {
+			IOUtils.closeIfPossible(writer);
 		}
-		writer.flush();
-
 		
 		// wait for the script to finish
 		cancelCheck();
 		logger.debug("Waiting for the script to finish.");
-		waitRLatch.await(rTimeout, TimeUnit.SECONDS);
-		
+		try {
+			waitRLatch.await(rTimeout, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			outputMessage.setErrorMessage("Running R was interrupted.");
+			outputMessage.setOutputText(e.toString());
+			updateState(JobState.ERROR, "", true);
+			return;
+		}
 		
 		// script now finished or timeout
 		cancelCheck();
-		logger.debug("Done waiting for " + analysis.getFullName() + ", state is " + getState());		
+		logger.debug("done waiting for " + analysis.getFullName() + ", state is " + getState());		
 
 		// add output to result message
 		String output = processMonitor.getOutput();
@@ -188,33 +252,32 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		
 		case RUNNING:
 			// TODO add execution time this far to the message
-			updateState(JobState.TIMEOUT, "R script exceeded timeout", false);
-			throw new AnalysisException("Timeout occured before the analysis finished.");
-		case FAILED:
-			// state already updated
-			
-			// add STDERR to the output text
-			StringWriter errorWriter = new StringWriter();
-			BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-			for (String line = errorReader.readLine(); line != null; line = errorReader.readLine()) {
-				errorWriter.write(line + "\n");
-			}
-			outputMessage.setOutputText(output + "\n" + errorWriter.toString());
-
-			throw new AnalysisException("Error occured when executing the analysis.");
+			outputMessage.setErrorMessage("R did not finish before timeout.");
+			updateState(JobState.TIMEOUT, "", true);
+			return;
 		case COMPLETED:
 			// set state back to running, notify client
 			updateState(JobState.RUNNING, "R script finished successfully", true);
-			break;			
+			return;
+		case FAILED:
+			// set error message if there is no specific message set already
+			if (outputMessage.getErrorMessage() == null || outputMessage.getErrorMessage().equals("")) {
+				outputMessage.setErrorMessage("Running R script failed.");
+			}
+			updateState(JobState.FAILED, "", true);
+			return;
+		case ERROR:
+			// ProcessMonitor error
+			outputMessage.setErrorMessage("Reading R output failed.");
+			updateState(JobState.ERROR, "", true);
+			return;
 		default: 
-				String errorString = "Unexpected process end state: " + getState().toString();
-				logger.error(this.inputMessage.getMessageID() + ": " + errorString);
-				throw new AnalysisException(errorString);
+			throw new IllegalStateException("Illegal job state: " + getState());
 		}
 	}
 
 	@Override
-	protected void preExecute() throws Exception {
+	protected void preExecute() throws JobCancelledException {
 		super.preExecute();
 	}
 	

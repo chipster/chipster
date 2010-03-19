@@ -37,10 +37,6 @@ public abstract class AnalysisJob implements Runnable {
 	private boolean toBeCanceled = false;
 	protected ResultMessage outputMessage;
 	
-	
-	
-	
-	
 	public AnalysisJob() {
 		this.state = JobState.NEW;
 		this.stateDetail = "New job created.";
@@ -68,86 +64,54 @@ public abstract class AnalysisJob implements Runnable {
 	 */
 	public void run() {
 		try {
-		if (!constructed) {
-			throw new IllegalStateException("you must call construct(...) first");
-		}
-		
-		
-			preExecute();
-			this.setExecutionStartTime(new Date());
-			execute();
-			this.setExecutionEndTime(new Date());
-			postExecute();
-			
-			// if we get here, the job has been successful
-			
-			// sanity check
-			if (!getState().equals(JobState.RUNNING)) {
-				throw new RuntimeException("Unexpected job end state: " + getState());
+			if (!constructed) {
+				throw new IllegalStateException("you must call construct(...) first");
 			}
-			
-			// update state and send results
-			updateState(JobState.COMPLETED, "", false);
-			outputMessage.setState(this.state);
-			outputMessage.setStateDetail(this.stateDetail);
-			resultHandler.sendResultMessage(inputMessage, outputMessage);
-			
+
+			// before execute
+			preExecute();
+
+			// execute
+			if (this.getState() == JobState.RUNNING) {
+				this.setExecutionStartTime(new Date());
+				execute();
+				this.setExecutionEndTime(new Date());
+			}
+
+			// after execute
+			if (this.getState() == JobState.RUNNING) {
+				postExecute();
+			}
+
+			// successful job
+			if (this.getState() == JobState.RUNNING) {
+				// update state and send results
+				updateState(JobState.COMPLETED, "", false);
+				outputMessage.setState(this.state);
+				outputMessage.setStateDetail(this.stateDetail);
+				resultHandler.sendResultMessage(inputMessage, outputMessage);
+
+			}
+
 		} 
 		// job cancelled, do nothing
 		catch (JobCancelledException jce) {
 			this.setExecutionEndTime(new Date());
-			logger.debug("Job cancelled: " + this.getId());
+			logger.debug("job cancelled: " + this.getId());
 		} 
 		
-		// send retry request for the job
-		// some of the inputs were not available in the fileserver cache
-		catch (RetryException re) {
-			this.setExecutionEndTime(new Date());
-			logger.info("Sending retry request for " + this.getId());
-			updateState(JobState.RETRY, "", false);
-			outputMessage.setState(this.state);
-			outputMessage.setStateDetail("Waiting for resend.");
-			resultHandler.sendResultMessage(inputMessage, outputMessage);
-		}
 		
-		// job error
+		// something unexpected happened
 		catch (Throwable e) {
 			this.setExecutionEndTime(new Date());
-			String msg = analysis.getFullName() + " failed: ";
-			
-			// problem with R
-			if (getState() == JobState.FAILED) {
-				msg = msg + " R finished with error";
-				logger.info(msg);
-				outputMessage.setErrorMessage(msg);
-			} 
-			
-			// problem caused by the user
-			else if (getState() == JobState.FAILED_USER_ERROR) {
-				msg = msg + " R finished with error";
-				logger.info(msg);
-				outputMessage.setErrorMessage(msg);
-			} 
-			
-			// R timeout
-			else if (getState() == JobState.TIMEOUT) {
-				msg = msg + "R running over timeout";
-				logger.info(msg);
-				outputMessage.setErrorMessage(msg);
-			}
-			
-			// unexpected server error
-			else {
-				msg = msg + "unexpected error";
-				logger.error(msg, e);
-				updateState(JobState.ERROR, "Unexpected server error", false);
-				outputMessage.setErrorMessage(e.toString());
-			}
-
+			updateState(JobState.ERROR, "running tool failed", false);
+			outputMessage.setErrorMessage("Running tool failed.");
+			outputMessage.setOutputText(e.toString());
 			outputMessage.setState(this.state);
 			outputMessage.setStateDetail(this.stateDetail);
 			resultHandler.sendResultMessage(inputMessage, outputMessage);
 		} 
+
 		// clean up
 		finally {
 			try {
@@ -247,11 +211,11 @@ public abstract class AnalysisJob implements Runnable {
 
 	
 	
-	protected abstract void execute() throws Exception;
+	protected abstract void execute() throws JobCancelledException;
 	
 	
 	
-	protected void preExecute() throws Exception {
+	protected void preExecute() throws JobCancelledException {
 		if (!constructed) {
 			throw new IllegalStateException("you must call construct(...) first");
 		}

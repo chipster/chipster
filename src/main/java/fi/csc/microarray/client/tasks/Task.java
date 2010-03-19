@@ -134,7 +134,7 @@ public class Task {
 	}
 	
 	public String getNamePrettyPrinted() {
-		return name.replaceAll("\"", "").replaceAll("/", " / ");
+		return name.replaceAll("\"", "").replaceAll("/", " - ");
 	}
 	
 	

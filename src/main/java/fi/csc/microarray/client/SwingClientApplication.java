@@ -856,9 +856,10 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	public void reportTaskError(Task task) throws MicroarrayException {
-		String title = "Running " + task.getNamePrettyPrinted() + " failed. ";
+		String title = task.getNamePrettyPrinted() + " did not finish successfully. ";
 		String message = "You may have used a tool or parameters which are unsuitable for the selected dataset, or " + "there might be a bug in the analysis tool itself.\n\n" + "The details below may provide hints about the problem. The most useful information is usually at the few last lines.";
-
+		message = task.getErrorMessage();
+		
 		String details = "";
 		if (task.getErrorMessage() != null) {
 			details = task.getErrorMessage();
@@ -868,8 +869,8 @@ public class SwingClientApplication extends ClientApplication {
 		}
 		
 		
-		DialogInfo dialogInfo = new DialogInfo(Severity.WARNING, title, message, details);
-		ChipsterDialog.showDialog(mainFrame, dialogInfo, ChipsterDialog.DetailsVisibility.DETAILS_ALWAYS_VISIBLE, false);
+		DialogInfo dialogInfo = new DialogInfo(Severity.INFO, title, message, details);
+		ChipsterDialog.showDialog(mainFrame, dialogInfo, ChipsterDialog.DetailsVisibility.DETAILS_HIDDEN, false);
 	}
 
 	public void reportException(Exception e) {

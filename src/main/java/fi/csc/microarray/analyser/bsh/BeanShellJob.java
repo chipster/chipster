@@ -6,7 +6,7 @@ import bsh.EvalError;
 import bsh.Interpreter;
 import bsh.TargetError;
 import fi.csc.microarray.analyser.AnalysisDescription;
-import fi.csc.microarray.analyser.AnalysisException;
+import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
 import fi.csc.microarray.messaging.JobState;
 
@@ -30,7 +30,7 @@ public class BeanShellJob extends OnDiskAnalysisJobBase {
 	 * 
 	 */
 	@Override
-	protected void execute() throws Exception {
+	protected void execute() throws JobCancelledException {
 		updateState(JobState.RUNNING, "preparing BeanShell", true);
 		
 		// wrap the information to be passed to bean shell
@@ -58,19 +58,21 @@ public class BeanShellJob extends OnDiskAnalysisJobBase {
 
 		// analysis failed
 		catch (TargetError te) {
-			String errorMessage = "An exception occured when running the BeanShell script.";
+			String errorMessage = "Running the BeanShell script failed.";
 			logger.warn(errorMessage, te);
-			outputMessage.setErrorMessage(errorMessage + "\n\n" + te.toString());
+			outputMessage.setErrorMessage(errorMessage);
+			outputMessage.setOutputText(te.toString());
 			updateState(JobState.FAILED, "", true);
+			return;
 		} 
 		
 		// evaluation error
 		catch (EvalError ee) {
 			String errorMessage = "The BeanShell script could not be evaluated.";
-			outputMessage.setErrorMessage(errorMessage + "\n\n" + ee.toString());
-			logger.error(errorMessage, ee);
+			outputMessage.setErrorMessage(errorMessage);
+			outputMessage.setOutputText(ee.toString());
 			updateState(JobState.ERROR, "", true);
-			throw new AnalysisException(errorMessage);
+			return;
 		}
 		updateState(JobState.RUNNING, "BeanShell finished succesfully", true);
 		
