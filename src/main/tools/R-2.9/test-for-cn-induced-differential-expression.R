@@ -9,42 +9,47 @@
 
 # test-for-cn-induced-differential-expression.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-03-11
+# 2010-03-17
 
 library(CGHcall)
 library(intCNGEan)
 
 dat1 <- read.table('aberrations.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 dat2 <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
-# dat1 <- read.table('aberrations.tsv', header=TRUE, sep='\t', row.names=1)
-# dat2 <- read.table('normalized.tsv', header=TRUE, sep='\t', row.names=1)
 phenodata1 <- read.table("phenodata_cgh.tsv", header=T, sep="\t")
 phenodata2 <- read.table("phenodata_exp.tsv", header=T, sep="\t")
 
 # determine which dataset is cgh
 if (length(grep("probnorm", names(dat1)))!=0) {
-  cgh <- dat1
-  exp <- dat2
-  phenodata_cgh <- phenodata1
-  phenodata_exp <- phenodata2
-  samples_cgh <- samples1
-  samples_exp <- samples2
+	cgh <- dat1
+	exp <- dat2
+	phenodata_cgh <- phenodata1
+	phenodata_exp <- phenodata2
+	samples_cgh <- samples1
+	samples_exp <- samples2
 } else if (length(grep("probnorm", names(dat2)))!=0) {
-  cgh <- dat2
-  exp <- dat1
-  phenodata_cgh <- phenodata2
-  phenodata_exp <- phenodata1
-  samples_cgh <- samples2
-  samples_exp <- samples1
+	cgh <- dat2
+	exp <- dat1
+	phenodata_cgh <- phenodata2
+	phenodata_exp <- phenodata1
+	samples_cgh <- samples2
+	samples_exp <- samples1
 } else {
-  stop('Could not detect the aCGH data set.')
+	stop('Could not detect the aCGH data set.')
 }
+
+# check that both data sets have the probe position information
+pos <- c('chromosome','start','end')
+if (length(setdiff(pos, colnames(cgh)))!=0)
+	stop('Both data sets must have the following columns: chromosome, start, end.')
+if (length(setdiff(pos, colnames(exp)))!=0)
+	stop('Both data sets must have the following columns: chromosome, start, end.')
 
 # check for unambiguity of sample identifiers
 if (nrow(phenodata_cgh)!=length(unique(phenodata_cgh[,samples_cgh])))
-  stop('Unambigous sample identifiers: ', paste(phenodata_cgh[,samples_cgh], collapse=', ')) 
+	stop('Unambigous sample identifiers: ', paste(phenodata_cgh[,samples_cgh], collapse=', ')) 
 if (nrow(phenodata_exp)!=length(unique(phenodata_exp[,samples_exp])))
-  stop('Unambigous sample identifiers: ', paste(phenodata_exp[,samples_exp], collapse=', ')) 
+	stop('Unambigous sample identifiers: ', paste(phenodata_exp[,samples_exp], collapse=', ')) 
 
 common.samples <- intersect(phenodata_cgh[,samples_cgh], phenodata_exp[,samples_exp])
 rownames(phenodata_cgh) <- phenodata_cgh[,samples_cgh]
@@ -68,10 +73,10 @@ probnorm <- as.matrix(cgh[,grep("probnorm", names(cgh))])[,index_cgh]
 probgain <- as.matrix(cgh[,grep("probgain", names(cgh))])[,index_cgh]
 probamp <- as.matrix(cgh[,grep("probamp", names(cgh))])
 if (ncol(probamp)==0) {
-  cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=copynumber, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=cgh$chromosome, Start=cgh$start, End=cgh$end, row.names=row.names(cgh))))
+	cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=copynumber, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=cgh$chromosome, Start=cgh$start, End=cgh$end, row.names=row.names(cgh))))
 } else {
-  probamp <- probamp[,index_cgh]
-  cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=copynumber, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain, probamp=probamp), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=cgh$chromosome, Start=cgh$start, End=cgh$end, row.names=row.names(cgh))))
+	probamp <- probamp[,index_cgh]
+	cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=copynumber, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain, probamp=probamp), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=cgh$chromosome, Start=cgh$start, End=cgh$end, row.names=row.names(cgh))))
 }
 sampleNames(cgh) <- phenodata_cgh[common.samples, samples_cgh]
 
@@ -106,10 +111,10 @@ dev.off()
 # if yes, let's take the second one.
 # if not, let's just take the first and only file.
 if (file.exists('cn-induced-expression-heatmap2.png')) {
-  file.rename('cn-induced-expression-heatmap2.png', 'cn-induced-expression-heatmap.png')
-  file.remove('cn-induced-expression-heatmap1.png')
+	file.rename('cn-induced-expression-heatmap2.png', 'cn-induced-expression-heatmap.png')
+	file.remove('cn-induced-expression-heatmap1.png')
 } else {
-  file.rename('cn-induced-expression-heatmap1.png', 'cn-induced-expression-heatmap.png')
+	file.rename('cn-induced-expression-heatmap1.png', 'cn-induced-expression-heatmap.png')
 }
 
 save(matched, tuned, result, file='cn-induced-expression.RData')
