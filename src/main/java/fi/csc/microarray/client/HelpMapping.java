@@ -16,6 +16,9 @@ public class HelpMapping {
 		mappings.put("Preprocessing/Filter by flags", "chipster-manual/filter-flags.html");
 		mappings.put("Preprocessing/Filter by interquartile range", "chipster-manual/filter-iqr.html");
 		mappings.put("Preprocessing/Filter by standard deviation", "chipster-manual/filter-sd.html");
+		mappings.put("Utilities/Filter using a column term", "chipster-manual/filter-by-column-term.html");
+		mappings.put("Utilities/Filter using a column value", "chipster-manual/filter-by-column-value.html");
+		
 		mappings.put("Preprocessing/Impute missing values", "chipster-manual/impute.html");
 		mappings.put("Preprocessing/Remove missing values", "chipster-manual/na-omit.html");
 
@@ -62,6 +65,7 @@ public class HelpMapping {
 		mappings.put("Statistics/Calculate descriptive statistics", "chipster-manual/calculate-descriptive-statistics.html");
 		mappings.put("Statistics/DCA", "chipster-manual/ordination-dca.html");
 		mappings.put("Statistics/Association analysis", "chipster-manual/stat-chisq-snp.html");
+		mappings.put("Statistics/Up-down analysis of miRNA targets", "chipster-manual/up-down-analysis-mirna.html");
 		
 		mappings.put("Clustering/Hierarchical", "chipster-manual/cluster-hierarchical.html");
 		mappings.put("Clustering/K-Means", "chipster-manual/cluster-kmeans.html");

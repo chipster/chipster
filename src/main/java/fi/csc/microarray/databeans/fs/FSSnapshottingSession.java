@@ -383,7 +383,7 @@ public class FSSnapshottingSession {
 		// 2nd pass
 		for (String line : delayedProcessing) {
 			if (line.startsWith("OPERATION_PARAMETER ")) {
-				String[] split = line.split(" ");
+				String[] split = line.split(" ", 4); // split to (max.) 4 pieces, i.e., do no skip trailing whitespace (happens when paramValue is empty)  
 				String operId = split[1];
 				String paramName = split[2];
 				String paramValue = split[3];
@@ -405,7 +405,12 @@ public class FSSnapshottingSession {
 					"The dataset contents have not changed and you can use them as before, but the obsolete parameter has been removed from the history information of the dataset " +						
 					"and will not be saved in further sessions or workflows.";
 					String details = "Analysis tool: " + operation.getCategoryName() + " / " + operation.getName() + "\nObsolete parameter: " + paramName;
-					String dataName = operation.getBindings().size() == 1 ? operation.getBindings().get(0).getData().getName() : null;
+					String dataName = null;
+					if (operation.getBindings() != null) {
+						if (operation.getBindings().size() == 1) {
+							dataName = operation.getBindings().get(0).getData().getName();
+						}
+					}
 					warnAboutObsoleteContent(message, details, dataName);
 				}
 				

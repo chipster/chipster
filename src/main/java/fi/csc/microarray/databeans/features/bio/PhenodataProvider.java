@@ -51,7 +51,7 @@ public class PhenodataProvider extends FeatureProviderBase {
 			columns = bean.queryFeatures("/column/*").asTable();
 
 			// check that data has everything we need
-			if (columns.hasColumn("sample") && columns.hasColumn("chiptype")) {
+			if (columns != null && columns.hasColumn("sample") && columns.hasColumn("chiptype")) {
 
 				isPhenodata = true;
 
