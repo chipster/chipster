@@ -220,8 +220,9 @@ public abstract class Parameter implements Cloneable {
 	/**
 	 * Checks whether the given Object
 	 * a) is of valid type to go as a value for this parameter, and
-	 * b) is within the given value limits.
-	 * If both tests succeed, the Object is judged valid, otherwise invalid.
+	 * b) is within the given value limits and
+	 * c) if it is required, it cannot be empty.
+	 * If all tests succeed, the Object is judged valid, otherwise invalid.
 	 * 
 	 * @param valueObject The Object whose validity as a value is to be checked.
 	 * @return True if argument can be accepted as a value for this parameter,

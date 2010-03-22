@@ -103,10 +103,11 @@ public class DecimalParameter extends Parameter {
 	
 	@Override
 	public void setValue(Object newValue) {
-		if (newValue instanceof Float) {
+	    if (newValue == null) {
+	        this.value = null;
+	    } else if (newValue instanceof Float) {
 			this.value = (Float) newValue;
-		}
-		if (newValue instanceof Double) {
+		} else if (newValue instanceof Double) {
 			double doubleValue = (Double) newValue;
 			this.value = (float) doubleValue;
 		} else {
@@ -117,12 +118,18 @@ public class DecimalParameter extends Parameter {
 
 	@Override
 	public boolean checkValidityOf(Object valueObject) {
+	    // Allow null values for unfilled fields
+        if (valueObject == null) {
+            return true;
+        }
+	    
 		if (valueObject instanceof Float) {
 			float floatValue = (Float) valueObject;
 			if (floatValue >= this.minValue && floatValue <= this.maxValue) {
 				return true;
 			}
 		}
+		
 		if (valueObject instanceof Double) {
 			double doubleValue = (Double) valueObject;
 			if (doubleValue >= this.minValue && doubleValue <= this.maxValue) {

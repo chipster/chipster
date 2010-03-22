@@ -82,32 +82,36 @@ public class IntegerInputComponent extends ParameterInputComponent
 		}
 	}
 	
+	/**
+     * Check if current value set in spinner is correct and
+     * set it to bound parameter object (mainly used in change
+     * listeners).
+     */
+    private void setFromSpinner() {
+        NullableSpinnerModel numberModel =
+            (NullableSpinnerModel) spinner.getModel();
+        Integer value = numberModel.getNumber();
+        if (value == null && !param.isOptional()) {
+            setState(ParameterInputComponent.INPUT_IS_REQUIRED_AND_EMPTY);
+        } else if (param.checkValidityOf(value) == true) {
+            param.setValue(value);
+            setState(ParameterInputComponent.INPUT_IS_VALID);
+        } else {
+            setState(ParameterInputComponent.INPUT_IS_OUT_OF_BOUNDS);
+        }
+    }
+    
 	public void stateChanged(ChangeEvent e) {
-		if (e.getSource() == spinner) {
-			NullableSpinnerModel numberModel =
-				(NullableSpinnerModel) spinner.getModel();
-			int value = numberModel.getNumber();
-			if (param.checkValidityOf(value) == true) {
-				param.setValue(value);
-				setState(ParameterInputComponent.INPUT_IS_VALID);
-			} else {
-				setState(ParameterInputComponent.INPUT_IS_OUT_OF_BOUNDS);
-			}
-		}
+        try {
+            setFromSpinner();
+        } catch (NumberFormatException nfe) {
+            setState(ParameterInputComponent.INPUT_IS_INCOMPREHENSIBLE);
+        }
 	}
 	
 	public void caretUpdate(CaretEvent e) {
 		try {
-			Integer value = null;
-			if(spinner.getModel() instanceof NullableSpinnerModel){
-				value = new Integer(((NullableSpinnerModel)spinner.getModel()).getNumber());
-			}
-			if (param.checkValidityOf(value) == true) {
-				setState(ParameterInputComponent.INPUT_IS_VALID);
-				param.setValue(value);
-			} else {
-				setState(ParameterInputComponent.INPUT_IS_OUT_OF_BOUNDS);
-			}
+	        setFromSpinner();
 		} catch (NumberFormatException nfe) {
 			setState(ParameterInputComponent.INPUT_IS_INCOMPREHENSIBLE);
 		}
@@ -119,13 +123,11 @@ public class IntegerInputComponent extends ParameterInputComponent
 		switch (state) {
 		case ParameterInputComponent.INPUT_IS_VALID:
 			field.setBackground(ParameterInputComponent.BG_VALID);
-			field.setForeground(Color.black);
 			message = param.getDescription();
 			getParentPanel().setMessage(message, Color.black);
 			break;
 		case ParameterInputComponent.INPUT_IS_OUT_OF_BOUNDS:
 			field.setBackground(ParameterInputComponent.BG_INVALID);
-			field.setForeground(Color.black);
 			message =
 				"Value for " + param.getName() + " must be between " +
 				param.getMinValue() + " and " + param.getMaxValue() + ".";
@@ -133,10 +135,16 @@ public class IntegerInputComponent extends ParameterInputComponent
 			break;
 		case ParameterInputComponent.INPUT_IS_INCOMPREHENSIBLE:
 			field.setBackground(ParameterInputComponent.BG_INVALID);
-			field.setForeground(Color.red);
 			message =
 				"Value for " + param.getName() + " must be a valid integer.";
 			getParentPanel().setMessage(message, Color.red);
+	        break;
+        case ParameterInputComponent.INPUT_IS_REQUIRED_AND_EMPTY:
+            field.setBackground(ParameterInputComponent.BG_INVALID);
+            message =
+                "Parameter " + param.getName() + " is required and " +
+                "can not be empty.";
+            getParentPanel().setMessage(message, Color.red);
 		}
 	}
 
@@ -192,10 +200,14 @@ public class IntegerInputComponent extends ParameterInputComponent
 	    }
 
 	    private Integer getNumber() {
+            if (value.equals("")) {
+                return null;
+            }
+            
 	        try {
 	            return new Integer(value);
 	        } catch (NumberFormatException exc) {
-	            return null;
+	            throw new NumberFormatException();
 	        }
 	    }
 	}

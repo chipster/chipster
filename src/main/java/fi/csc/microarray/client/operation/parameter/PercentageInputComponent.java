@@ -94,7 +94,7 @@ public class PercentageInputComponent extends ParameterInputComponent
 	
 	public void stateChanged(ChangeEvent e) {
 		if (e.getSource() == slider) {
-			int value = slider.getValue();
+			Integer value = slider.getValue();
 			numberLabel.setText(value + "%");
 			// slider.setToolTipText(value + "%");
 			if (param.checkValidityOf(value) == true) {
