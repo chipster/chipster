@@ -13,24 +13,22 @@ import fi.csc.microarray.databeans.DataBean;
  *    
  * <p>Syntax defination is below. It is in the form of rewrite rules.
  * First rule in the list is the initial rule where rewriting is started. 
- * Hyphenated texts are snippets of SADL. For example, ANALYSIS is a term
- * that is rewritten using the given rules, but "ANALYSIS" is a string that
+ * Hyphenated texts are snippets of SADL. For example, TOOL is a term
+ * that is rewritten using the given rules, but "TOOL" is a string that
  * should be found in the source code. Operators ?, +, * and | have their
  * common semantics. Lower case identifiers: number, string and string_no_ws (no 
  * whitespace) should be obvious.</p>
  * 
  * <pre>
- * -> ANALYSIS+
- * ANALYSIS -> "ANALYSIS" CATEGORY "/" OPNAME DESCRIPTION INPUT? OUTPUT? PARAMETER*
- * CATEGORY -> NAMESTRING
- * OPNAME -> NAMESTRING
- * NAMESTRING -> string_no_ws | """ string """
- * INPUT -> INPUTTYPE FILENAME | INPUTTYPE FILENAMESET
+ * -> TOOL+
+ * TOOL -> "TOOL" NAME "/" NAME DESCRIPTION INPUT? OUTPUT? PARAMETER*
+ * NAME -> NAME_SINGLE | NAME_SET  
+ * NAME_SINGLE -> string_no_ws | """ string """
+ * NAME_SET -> string_no_ws "[...]" string_no_ws
+ * INPUT -> "INPUT" INPUT_TYPE NAME | INPUT_TYPE FILENAMESET
  * INPUTTYPE -> [see SADLSyntax.InputType for declaration, implementations pluggable]
- * OUTPUT -> FILENAME
- * FILENAME -> string_no_ws 
- * FILENAMESET -> string_no_ws "[...]" string_no_ws
- * PARAMETER -> NAME PARAMTYPE RANGE? DEFAULT? DESCRIPTION 
+ * OUTPUT -> "OUTPUT" FILENAME
+ * PARAMETER -> "PARAMETER" NAME PARAMTYPE RANGE? DEFAULT? DESCRIPTION 
  * PARAMTYPE -> [see SADLSyntax.ParameterType for declaration, implementations pluggable]
  * RANGE -> "FROM" number "TO" number
  * DEFAULT -> "DEFAULT" number

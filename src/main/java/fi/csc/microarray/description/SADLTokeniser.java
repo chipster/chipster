@@ -35,6 +35,8 @@ public class SADLTokeniser {
 		private String sadl;
 		private int index = 0;
 		private String unitName;
+		private boolean escaped;
+		private boolean escapingEnabled;
 
 		public CharTokeniser(String sadl, String unitName) {
 			this.sadl = sadl;
@@ -55,32 +57,36 @@ public class SADLTokeniser {
 				if (peek() == '(') {
 
 					next(); // skip '('
+					setEscapingEnabled(true);
 					
-					while (!atEnd() && peek() != ')') {
+					while (!atEnd() && !isOperator(')')) {
 						token += next();
 					}
 
+					setEscapingEnabled(false);
 					next(); // skip ')'
 
 				// read special quoted block
 				} else if (peek() == '"') {
 
 					next(); // skip '"'
+					setEscapingEnabled(true);
 
-					while (!atEnd() && peek() != '"') {
+					while (!atEnd() && !isOperator('"')) {
 						token += next();
 					}
 
+					setEscapingEnabled(false);
 					next(); // skip '"'
 
-					// read special operator block
+				// read special operator block
 				} else if (isOperator()) {
 
 					while (!atEnd() && isOperator()) {
 						token += next();
 					}
 
-					// read regular block of non-whitespace
+				// read regular block of non-whitespace
 				} else {
 
 					while (!atEnd() && !isWhiteSpace() && !isOperator()) {
@@ -106,6 +112,10 @@ public class SADLTokeniser {
 			return tokens;
 		}
 
+		private void setEscapingEnabled(boolean b) {
+			this.escapingEnabled = true;
+		}
+
 		private boolean atEnd() {
 			return index >= sadl.length();
 		}
@@ -115,16 +125,37 @@ public class SADLTokeniser {
 			return Character.isWhitespace(c);
 		}
 
+		private boolean isOperator(char operator) {
+			boolean isOperator =  peek() == operator;
+			if (escaped) {
+				return false; // escaped chars are never interpreted as operators
+			}
+			return isOperator;
+		}
+		
 		private boolean isOperator() {
 			char c = peek();
+			if (escaped) {
+				return false; // escaped chars are never interpreted as operators
+			}
 			return c == ':' || c == '[' || c == ']' || c == ',' || c == '/';
 		}
 
 		public char next() {
-			return sadl.charAt(index++);
+			char c = peek();
+			index++;
+			return c;
 		}
 
 		public char peek() {
+			
+			// skip escape char and remember the we have escaped the next char
+			this.escaped = false;
+			if (escapingEnabled && sadl.charAt(index) == '\\') {
+				index++;
+				escaped = true;
+			}
+			
 			return sadl.charAt(index);
 		}
 	}
