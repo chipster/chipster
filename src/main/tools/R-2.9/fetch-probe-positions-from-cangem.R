@@ -2,11 +2,11 @@
 # INPUT GENE_EXPRS normalized.tsv
 # OUTPUT normalized.tsv
 # PARAMETER platform.accession STRING DEFAULT CG-PLM- (The accession of the platform.)
-# PARAMETER genome.build [GRCh37, NCBI36, NCBI35] DEFAULT GRCh37 (The genome build to use for adding the chromosome names and start and end base pair positions for the probes.)
+# PARAMETER genome.build [GRCh37, NCBI36, NCBI35, NCBI34] DEFAULT GRCh37 (The genome build to use for adding the chromosome names and start and end base pair positions for the probes.)
 
 # fetch-probe-positions-from-cangem.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-03-18
+# 2010-03-19
 
 # check for valid platform accession
 platform.accession <- toupper(platform.accession)
