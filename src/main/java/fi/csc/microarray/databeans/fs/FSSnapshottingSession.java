@@ -383,7 +383,7 @@ public class FSSnapshottingSession {
 		// 2nd pass
 		for (String line : delayedProcessing) {
 			if (line.startsWith("OPERATION_PARAMETER ")) {
-				String[] split = line.split(" ");
+				String[] split = line.split(" ", 4); // split to (max.) 4 pieces, i.e., do no skip trailing whitespace (happens when paramValue is empty)  
 				String operId = split[1];
 				String paramName = split[2];
 				String paramValue = split[3];
