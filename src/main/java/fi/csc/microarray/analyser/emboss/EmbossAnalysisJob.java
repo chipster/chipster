@@ -246,7 +246,7 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
             if (acdParameter.isRequired() && value.equals("")) {
                 return new ValidityCheck(false, "Parameter \"" + acdParameter.getName() +
                                                 "\" can not be empty.");
-            } else if (!acdParameter.validate(value)) {
+            } else if (!value.equals("") && !acdParameter.validate(value)) {
                 return new ValidityCheck(false, "Incorrect value \"" + getValue() +
                                                 "\" for \"" + acdParameter.getName() + "\" parameter");
             }

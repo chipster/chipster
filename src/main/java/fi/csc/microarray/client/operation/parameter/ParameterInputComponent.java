@@ -33,6 +33,8 @@ public abstract class ParameterInputComponent extends JPanel implements FocusLis
 	protected static final int INPUT_IS_VALID = 1;
 	protected static final int INPUT_IS_OUT_OF_BOUNDS = -1;
 	protected static final int INPUT_IS_INCOMPREHENSIBLE = -2;
+    protected static final int INPUT_IS_REQUIRED_AND_EMPTY = -3;
+
 	
 	private JLabel label = null;
 	
