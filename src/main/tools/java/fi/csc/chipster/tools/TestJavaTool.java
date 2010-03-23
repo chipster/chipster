@@ -2,9 +2,11 @@ package fi.csc.chipster.tools;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 
+import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
 import fi.csc.microarray.messaging.JobState;
 
@@ -19,11 +21,12 @@ public class TestJavaTool extends JavaAnalysisJobBase {
 	}
 
 	@Override
-	protected void execute() throws Exception {
-		updateState(JobState.RUNNING, "Java tool running", true);
+	protected void execute() throws JobCancelledException {
+		updateStateDetailToClient("Java tool running");
 		
 		File inputFile = new File(jobWorkDir, "input.tsv");
 		File outputFile = new File(jobWorkDir, "output.tsv");
+		try {
 		FileUtils.copyFile(inputFile, outputFile);
 
 		File commentFile = new File(jobWorkDir, "comment.txt");
@@ -32,7 +35,12 @@ public class TestJavaTool extends JavaAnalysisJobBase {
 		commentWriter.flush();
 		commentWriter.close();
 		
-		updateState(JobState.RUNNING, "Java tool finished", true);
+		} catch (IOException ioe) {
+			outputMessage.setErrorMessage("Running Java job failed.");
+			outputMessage.setOutputText(ioe.toString());
+			updateState(JobState.FAILED, "");
+		}
+		updateState(JobState.RUNNING, "Java tool finished");
 	}
 
 }
