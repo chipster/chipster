@@ -11,7 +11,7 @@ public abstract class JavaAnalysisJobBase extends AnalysisJob {
 	}
 
 	@Override
-	protected void postExecute() throws Exception {
+	protected void postExecute() throws JobCancelledException {
 		super.postExecute();
 	}
 

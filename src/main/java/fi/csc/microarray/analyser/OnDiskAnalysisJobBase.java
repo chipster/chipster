@@ -94,7 +94,7 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 	 * 
 	 */
 	@Override
-	protected void postExecute() throws Exception {
+	protected void postExecute() throws JobCancelledException {
 		updateStateDetailToClient("transferring output data");
 		cancelCheck();
 
@@ -104,7 +104,16 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 
 			// copy file to file broker
 			File outputFile = new File(jobWorkDir, fileName);
-			URL url = resultHandler.getFileBrokerClient().addFile(new FileInputStream(outputFile), null);
+			URL url;
+				try {
+					url = resultHandler.getFileBrokerClient().addFile(new FileInputStream(outputFile), null);
+				} catch (Exception e) {
+					logger.error("could not put file to file broker", e);
+					outputMessage.setErrorMessage("Could not send output file.");
+					outputMessage.setOutputText(e.toString());
+					updateState(JobState.ERROR, "");
+					return;
+				}
 
 			// put url to result message
 			outputMessage.addPayload(fileName, url);
