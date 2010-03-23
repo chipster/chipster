@@ -278,7 +278,7 @@ public abstract class AnalysisJob implements Runnable {
 		updateStateToClient(JobState.RUNNING, "initialising");
 	}
 	
-	protected void postExecute()  throws Exception {
+	protected void postExecute()  throws JobCancelledException {
 		
 	}
 

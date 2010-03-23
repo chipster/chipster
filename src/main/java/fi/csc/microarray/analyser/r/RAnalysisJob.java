@@ -291,7 +291,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		super.preExecute();
 	}
 	
-	protected void postExecute() throws Exception {
+	protected void postExecute() throws JobCancelledException {
 		super.postExecute();
 	}
 	
