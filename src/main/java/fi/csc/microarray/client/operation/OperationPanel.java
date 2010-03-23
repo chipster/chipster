@@ -35,8 +35,8 @@ import fi.csc.microarray.client.operation.parameter.ToolParameterPanel;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.description.VVSADLParser;
-import fi.csc.microarray.description.VVSADLParser.ParseException;
+import fi.csc.microarray.description.SADLParser;
+import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
@@ -46,6 +46,7 @@ import fi.csc.microarray.exception.MicroarrayException;
  * @author Janne KÃ¤ki, Petri KlemelÃ¤
  *
  */
+@SuppressWarnings("serial")
 public class OperationPanel extends JPanel
 							implements ActionListener, PropertyChangeListener {
 
@@ -106,7 +107,7 @@ public class OperationPanel extends JPanel
 		sourceButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {				
 				try {
-					application.showSourceFor(VVSADLParser.generateOperationIdentifier(chosenOperation.getCategoryName(), chosenOperation.getName()));
+					application.showSourceFor(SADLParser.generateOperationIdentifier(chosenOperation.getCategoryName(), chosenOperation.getName()));
 				} catch (TaskException je) {
 					application.reportException(je);
 				}

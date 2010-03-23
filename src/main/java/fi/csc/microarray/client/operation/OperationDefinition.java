@@ -14,9 +14,10 @@ import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.LinkUtils;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.description.VVSADLParser;
-import fi.csc.microarray.description.VVSADLSyntax;
-import fi.csc.microarray.description.VVSADLSyntax.InputType;
+import fi.csc.microarray.description.SADLParser;
+import fi.csc.microarray.description.SADLSyntax;
+import fi.csc.microarray.description.SADLDescription.Name;
+import fi.csc.microarray.description.SADLSyntax.InputType;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.util.Strings;
 
@@ -124,36 +125,53 @@ public class OperationDefinition implements ExecutionItem {
 	public static class InputDefinition {
 
 		private String name;
+		private String description = null;
 		private String postfix = null;
 		private boolean multi = false;
 		private int multiCounter;
-		private VVSADLSyntax.InputType type;
+		private SADLSyntax.InputType type;
 
 		/**
 		 * Creates single input.
 		 */
-		public InputDefinition(String name, VVSADLSyntax.InputType type) {
+		public InputDefinition(Name name, SADLSyntax.InputType type) {
 			resetMulti();
-			this.name = name;
+			this.name = name.getID();
+			this.description = name.getDisplayName();
 			this.type = type;
 		}
 
 		/**
 		 * Creates multi-input.
 		 */
-		public InputDefinition(String prefix, String postfix, VVSADLSyntax.InputType type) {
+		public InputDefinition(String prefix, String postfix, SADLSyntax.InputType type) {
 			this.name = prefix;
 			this.postfix = postfix;
 			this.type = type;
 			this.multi = true;
 		}
 
-		private String getName() {
+		public String getName() {
 			if (!multi) {
 				return name;
 			} else {
 				return name + Strings.toString(multiCounter, 3) + postfix; // show always at least 3 digits 
 			}
+		}
+		
+        public String getDescription() {
+            if (description != null) {
+                return description;
+            }
+            return getName();
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+		
+		public SADLSyntax.InputType getType() {
+		    return type;
 		}
 
 		private void nextMulti() {
@@ -255,7 +273,7 @@ public class OperationDefinition implements ExecutionItem {
 	 *         a job should be executed for this operation.
 	 */
 	public String getJobPhrase() {
-		return VVSADLParser.generateOperationIdentifier(category.getName(), name);
+		return SADLParser.generateOperationIdentifier(category.getName(), name);
 	}
 
 	/**
@@ -291,7 +309,7 @@ public class OperationDefinition implements ExecutionItem {
 		return colorCount;
 	}
 
-	public void addInput(String name, InputType type) {
+	public void addInput(Name name, InputType type) {
 		InputDefinition input = new InputDefinition(name, type);
 		inputs.add(input);
 	}
@@ -299,6 +317,10 @@ public class OperationDefinition implements ExecutionItem {
 	public void addInput(String prefix, String postfix, InputType type) {
 		InputDefinition input = new InputDefinition(prefix, postfix, type);
 		inputs.add(input);
+	}
+	
+	public List<InputDefinition> getInputs() {
+	    return inputs;
 	}
 
 	/**
@@ -353,7 +375,7 @@ public class OperationDefinition implements ExecutionItem {
 
 					logger.debug("    bound successfully (" + value.getName() + " -> " + input.getName() + ")");
 
-					bindings.add(new DataBinding(value, input.getName(), input.type));
+					bindings.add(new DataBinding(value, input.getName(), input.getType()));
 					foundBinding = true;
 					removedValues.add(value); // mark it to be removed after iteration
 					

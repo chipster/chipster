@@ -9,9 +9,9 @@ package fi.csc.microarray.client.operation.parameter;
  */
 public class IntegerParameter extends Parameter {
 
-	private int minValue;
-	private int maxValue;
-	private int value;
+	private Integer minValue;
+	private Integer maxValue;
+	private Integer value;
 	
 	/**
 	 * Creates a new IntegerParameter with the given initial values.
@@ -25,27 +25,35 @@ public class IntegerParameter extends Parameter {
 	 * 		   or the init value is not between these limits).
 	 */
 	public IntegerParameter(
-			String name, String description, int minValue, int maxValue, int initValue)
+			String name, String description, Integer minValue, Integer maxValue, Integer initValue)
 					throws IllegalArgumentException {
 		super(name, description);
-		this.minValue = minValue;
+		
+        this.minValue = minValue;
+        this.maxValue = maxValue;
+		
+        if (initValue == null) {
+            this.value = null;
+            return;
+        }
+	      
 		if (maxValue < minValue) {
 			throw new IllegalArgumentException("Minimum value for integer parameter " +
 					this.getName() + " cannot be bigger than the maximum value.");
 		}
-		this.maxValue = maxValue;
+		
 		setIntegerValue(initValue);  // may throw IllegalArgumentException
 	}
 	
-	public int getMinValue() {
+	public Integer getMinValue() {
 		return minValue;
 	}
 	
-	public int getMaxValue() {
+	public Integer getMaxValue() {
 		return maxValue;
 	}
 	
-	public int getIntegerValue() {
+	public Integer getIntegerValue() {
 		return value;
 	}
 	
@@ -77,15 +85,14 @@ public class IntegerParameter extends Parameter {
 	}
 	
 	/**
-	 * A method for setting the value as a pure integer, without the wrapping
-	 * object around it.
+	 * A method for setting the value as an Integer.
 	 * 
 	 * @param newValue The new value for this parameter.
 	 * @throws IllegalArgumentException If the suggested value was not within
 	 * 		   the defined minimum and maximum limits.
 	 */
-	public void setIntegerValue(int newValue) throws IllegalArgumentException {
-		if (newValue < minValue || newValue > maxValue) {
+	public void setIntegerValue(Integer newValue) throws IllegalArgumentException {
+		if (newValue != null && (newValue < minValue || newValue > maxValue)) {
 			throw new IllegalArgumentException("New value for integer parameter " +
 					this.getName() + " must be inside given limits.");
 		}
@@ -94,8 +101,8 @@ public class IntegerParameter extends Parameter {
 	
 	@Override
 	public void setValue(Object newValue) throws IllegalArgumentException {
-		if (newValue instanceof Integer) {
-			setIntegerValue((Integer) newValue);
+		if (newValue instanceof Integer || newValue == null) {
+		    setIntegerValue((Integer) newValue);
 		} else {
 			throw new IllegalArgumentException(newValue + " is an illegal " +
 					"value for integer parameter " + this.getName() + ".");
@@ -104,9 +111,16 @@ public class IntegerParameter extends Parameter {
 
 	@Override
 	public boolean checkValidityOf(Object valueObject) {
+	    
+	    // Allow null values for unfilled fields
+	    if (valueObject == null) {
+	        return true;
+	    }
+	    
 		if (!(valueObject instanceof Integer)) {
 			return false;
 		}
+		
 		Integer intValue = (Integer) valueObject;
 		if (intValue >= this.minValue && intValue <= this.maxValue) {
 			return true;

@@ -20,11 +20,6 @@ public interface AnalysisHandler {
 	public AnalysisDescription handle(String sourceResourceName) throws AnalysisException;
 	
 	/**
-	 * Checks if sourceResourceName is understood by this analysis handler.
-	 */
-	public boolean supports(String sourceResourceName);
-
-	/**
 	 * Checks if given analysis description is up to date. Analyser guarantees that this method is called
 	 * only with supported descriptions.
 	 */

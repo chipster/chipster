@@ -9,9 +9,9 @@ package fi.csc.microarray.client.operation.parameter;
  */
 public class PercentageParameter extends Parameter {
 
-	private final int minValue;
-	private final int maxValue;
-	private int value;
+	private final Integer minValue;
+	private final Integer maxValue;
+	private Integer value;
 	
 	/**
 	 * Creates a new PercentageParameter with the given name and init value,
@@ -40,9 +40,10 @@ public class PercentageParameter extends Parameter {
 	 * 		   values is not a valid percentage - between 0 and 100, that is).
 	 */
 	public PercentageParameter(
-			String name, String description, int minValue, int maxValue, int initValue)
+			String name, String description, Integer minValue, Integer maxValue, Integer initValue)
 					throws IllegalArgumentException {
 		super(name, description);
+		
 		if (minValue < 0) {
 			throw new IllegalArgumentException(
 					"Minimum value for percentage parameter " + this.getName() +
@@ -63,15 +64,15 @@ public class PercentageParameter extends Parameter {
 		setIntegerValue(initValue);  // may throw IllegalArgumentException
 	}
 	
-	public int getMinValue() {
+	public Integer getMinValue() {
 		return minValue;
 	}
 	
-	public int getMaxValue() {
+	public Integer getMaxValue() {
 		return maxValue;
 	}
 
-	public int getIntegerValue() {
+	public Integer getIntegerValue() {
 		return value;
 	}
 	

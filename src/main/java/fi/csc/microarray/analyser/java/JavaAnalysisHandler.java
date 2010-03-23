@@ -12,9 +12,9 @@ import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
 import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
-import fi.csc.microarray.description.VVSADLParser.ParseException;
+import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.messaging.message.JobMessage;
-import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;
+import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 
 public class JavaAnalysisHandler implements AnalysisHandler {
 
@@ -65,17 +65,17 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 			throw new RuntimeException(e);
 		}
 		
-		// parse VVSADL and create AnalysisDescription		
+		// parse SADL and create AnalysisDescription		
 		AnalysisDescription ad;
 		try {
-			ad = new AnalysisDescriptionGenerator().generate(new ChipsterVVSADLParser().parse(jobInstance.getVVSADL()), this);
+		    ad = new AnalysisDescriptionGenerator().generate(new ChipsterSADLParser().parse(jobInstance.getSADL()), this);
 		} catch (ParseException e) {
 			throw new AnalysisException(e);
 		}
 		
 		ad.setImplementation(jobClass);
 		ad.setCommand("java");
-		ad.setVVSADL(jobInstance.getVVSADL());
+		ad.setSADL(jobInstance.getSADL());
 		ad.setSourceResourceName(jobClass.getName());
 		ad.setSourceResourceFullPath(jobClass.getCanonicalName());
 		ad.setSourceCode("Source code for this tool is available within Chipster source code.");
@@ -105,3 +105,4 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 	}
 
 }
+

@@ -11,6 +11,7 @@ import javax.swing.event.CaretListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+@SuppressWarnings("serial")
 public class StringInputComponent extends ParameterInputComponent implements CaretListener, DocumentListener { 
 
 	private StringParameter param;
@@ -40,7 +41,14 @@ public class StringInputComponent extends ParameterInputComponent implements Car
 	}
 
 	public void caretUpdate(CaretEvent e) {
-		getParentPanel().setMessage(param.getDescription(), Color.black);
+	    if (!param.isOptional() && field.getText().equals("")) {
+            String message =
+                "Parameter " + param.getName() + " is required and " +
+                "can not be empty.";
+	        getParentPanel().setMessage(message, Color.red);
+	    } else {
+	        getParentPanel().setMessage(param.getDescription(), Color.black);
+	    }
 	}
 
 	private void updateParameter() {

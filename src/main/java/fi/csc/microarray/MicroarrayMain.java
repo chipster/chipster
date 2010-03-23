@@ -4,7 +4,7 @@ package fi.csc.microarray;
 import java.io.FileInputStream;
 
 import fi.csc.microarray.analyser.AnalyserServer;
-import fi.csc.microarray.analyser.VVSADLTool;
+import fi.csc.microarray.analyser.SADLTool;
 import fi.csc.microarray.auth.Authenticator;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.constants.ApplicationConstants;
@@ -15,7 +15,7 @@ import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.NodeBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
-import fi.csc.microarray.module.chipster.ChipsterVVSADLParser.Validator;
+import fi.csc.microarray.module.chipster.ChipsterSADLParser.Validator;
 import fi.csc.microarray.util.CommandLineParser;
 import fi.csc.microarray.util.CommandLineParser.CommandLineException;
 import fi.csc.microarray.webstart.WebstartJettyServer;
@@ -143,8 +143,8 @@ public class MicroarrayMain {
 			} else if (cmdParser.hasValue("rcheck")) {
 				boolean fails = false;
 				try {					
-					VVSADLTool.ParsedRScript res = new VVSADLTool().parseRScript(new FileInputStream(cmdParser.getValue("rcheck")));
-					new Validator().validate(cmdParser.getValue("rcheck"), res.VVSADL);
+					SADLTool.ParsedRScript res = new SADLTool().parseRScript(new FileInputStream(cmdParser.getValue("rcheck")));
+					new Validator().validate(cmdParser.getValue("rcheck"), res.SADL);
 				} catch (Exception e) {
 					System.out.println(e.getMessage());
 					fails = true;

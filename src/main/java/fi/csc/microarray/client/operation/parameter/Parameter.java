@@ -1,14 +1,14 @@
 package fi.csc.microarray.client.operation.parameter;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.operation.Operation.DataBinding;
-import fi.csc.microarray.client.operation.parameter.SingleSelectionParameter.SelectionOption;
-import fi.csc.microarray.description.VVSADLSyntax.ParameterType;
+import fi.csc.microarray.client.operation.parameter.EnumParameter.SelectionOption;
+import fi.csc.microarray.description.SADLDescription.Name;
+import fi.csc.microarray.description.SADLSyntax.ParameterType;
 import fi.csc.microarray.exception.MicroarrayException;
 
 
@@ -50,7 +50,9 @@ public abstract class Parameter implements Cloneable {
 	}
 	
 
-	public static Parameter createInstance(String name, ParameterType type, String[] options, String description, String minValue, String maxValue, String initValue) {
+	public static Parameter createInstance(String name, ParameterType type, Name[] names,
+	                                       String description, String minValue, String maxValue,
+	                                       String initValue, boolean optional) {
 		
 		Parameter parameter = null;
 		
@@ -58,9 +60,41 @@ public abstract class Parameter implements Cloneable {
 		
 		switch (type) {
 		case ENUM:
-			int initIndex = (initValue != null ? Arrays.asList(options).indexOf(initValue) : 0);
-			SelectionOption[] optionObjects = SingleSelectionParameter.SelectionOption.convertStrings(options);
-			parameter = new SingleSelectionParameter(name, description, optionObjects, initIndex);
+		    // Determine how many values can be chosen
+	        int minCount = (minValue != null ? Integer.parseInt(minValue) : 0);
+	        int maxCount = (maxValue != null ? Integer.parseInt(maxValue) : 1);
+	        
+            
+	        String[] titles = new String[names.length];
+	        String[] values = new String[names.length];
+	        int i = 0; 
+	        for (Name option : names) {
+	        	titles[i] = option.getDisplayName();
+	        	values[i] = option.getID();
+                i++;
+            }
+
+			SelectionOption[] optionObjects = EnumParameter.SelectionOption.
+			                                    convertStrings(titles, values);
+            
+            List<SelectionOption> defaultOptions = new LinkedList<SelectionOption>();
+            if (initValue != null) {
+                // Split initValue into Strings each representing a selected option
+                String[] initValues = initValue.split(",");
+                
+                // Fill in defaults according to initValues
+                // TODO: not very effective (consider using HashMaps for storing SelectionOptions)
+                for (String value : initValues) {
+                    for (SelectionOption option : optionObjects) {
+                        if (value.equals(option.getValue())) {
+                            defaultOptions.add(option);
+                        }
+                    }
+                }
+            }
+            
+			parameter = new EnumParameter(name, description, optionObjects,
+			                              defaultOptions, minCount, maxCount);
 			break;
 			
 		case COLUMN_SEL:
@@ -83,19 +117,21 @@ public abstract class Parameter implements Cloneable {
 		case DECIMAL:
 		case PERCENT:
 			
-			// treat all numbers as double
-			float min = (minValue == null ? Float.MIN_VALUE : Float.parseFloat(minValue));
-			float max = (maxValue == null ? Float.MAX_VALUE : Float.parseFloat(maxValue));
-			float init;
-			if (initValue == null) {
-				init = (min > 0F ? min : 0F); // default init is min or 0
-			} else {
+			// Treat all numbers as double
+			Float min = (minValue == null ? -Float.MAX_VALUE : Float.parseFloat(minValue));
+			Float max = (maxValue == null ? Float.MAX_VALUE : Float.parseFloat(maxValue));
+			Float init = null;
+			Integer initInt = null;
+			if (initValue != null) {
 				init = Float.parseFloat(initValue);
+				initInt = Math.round(init);
 			}
 			
 			switch (type) {
 			case INTEGER:
-				parameter = new IntegerParameter(name, description, (int)min, (int)max, (int)init);
+
+				parameter = new IntegerParameter(name, description, Math.round(min),
+				                                 Math.round(max), initInt);
 				break;
 				
 			case DECIMAL:
@@ -106,7 +142,8 @@ public abstract class Parameter implements Cloneable {
 				// put these to [0, 100]
 				min = (min < 0F ? 0F : min);
 				max = (max > 100F ? 100F : max);
-				parameter = new PercentageParameter(name, description, (int)min, (int)max, (int)init);
+				parameter = new PercentageParameter(name, description, Math.round(min),
+                                                    Math.round(max), initInt);
 				break;
 			} 
 			break;
@@ -114,12 +151,15 @@ public abstract class Parameter implements Cloneable {
 		default:
 			throw new IllegalArgumentException("unknown type " + type);
 		}
+		
+		parameter.setOptional(optional);
 
 		return parameter;
 	}
 	
 	private String name;
 	private String description;
+	private boolean optional = false;
 	
 	/**
 	 * Constructor for initializing the name. Used by subclasses only.
@@ -180,8 +220,9 @@ public abstract class Parameter implements Cloneable {
 	/**
 	 * Checks whether the given Object
 	 * a) is of valid type to go as a value for this parameter, and
-	 * b) is within the given value limits.
-	 * If both tests succeed, the Object is judged valid, otherwise invalid.
+	 * b) is within the given value limits and
+	 * c) if it is required, it cannot be empty.
+	 * If all tests succeed, the Object is judged valid, otherwise invalid.
 	 * 
 	 * @param valueObject The Object whose validity as a value is to be checked.
 	 * @return True if argument can be accepted as a value for this parameter,
@@ -210,7 +251,31 @@ public abstract class Parameter implements Cloneable {
 	 */
 	public abstract String toString();
 
+    /**
+	 * Return human-readable description for this parameter.
+	 * @return
+	 */
 	public String getDescription() {
-		return description;
+	    return description;
 	}
+	
+    /**
+     * Return human-readable description for this parameter.
+     * It might be truncated if needed.
+     * @return
+     */
+    public String getDescription(Integer maxLength) {
+        if (description.length() > maxLength) {
+            return description.substring(0, maxLength - 3) + "...";
+        }
+        return description;
+    }
+	
+	public boolean isOptional() {
+	    return optional;
+	}
+
+    public void setOptional(boolean optional) {
+        this.optional = optional;
+    }
 }

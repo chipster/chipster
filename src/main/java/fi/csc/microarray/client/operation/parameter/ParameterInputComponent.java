@@ -17,6 +17,7 @@ import javax.swing.JPanel;
  * @author Janne KÃ¤ki
  *
  */
+@SuppressWarnings("serial")
 public abstract class ParameterInputComponent extends JPanel implements FocusListener {
 
 	protected static final Color BG_VALID = Color.white;
@@ -32,6 +33,8 @@ public abstract class ParameterInputComponent extends JPanel implements FocusLis
 	protected static final int INPUT_IS_VALID = 1;
 	protected static final int INPUT_IS_OUT_OF_BOUNDS = -1;
 	protected static final int INPUT_IS_INCOMPREHENSIBLE = -2;
+    protected static final int INPUT_IS_REQUIRED_AND_EMPTY = -3;
+
 	
 	private JLabel label = null;
 	
@@ -52,9 +55,18 @@ public abstract class ParameterInputComponent extends JPanel implements FocusLis
 	 * @return The name label of this component.
 	 */
 	public JLabel getLabel() {
+	    // Maximum length of label
+	    int MAXLEN = 70;
+	    
 		if (label == null) {
-			label = new JLabel(getParameter().getName());
+			label = new JLabel(getParameter().getDescription(MAXLEN));
 		}
+		
+		// Dispaly tooltip only if needed
+		if (!getParameter().getDescription(MAXLEN).equals(getParameter().getDescription())) {
+	        label.setToolTipText(getParameter().getDescription());		    
+		}
+
 		return label;
 	}
 	

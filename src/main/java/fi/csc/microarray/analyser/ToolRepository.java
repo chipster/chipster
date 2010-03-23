@@ -80,7 +80,7 @@ public class ToolRepository {
 
 	
 	/**
-	 * Returns one huge VVSADL block that contains all loaded analysis 
+	 * Returns one huge SADL block that contains all loaded analysis 
 	 * descriptions.
 	 * @return huge block
 	 * @throws AnalysisException 
@@ -103,7 +103,7 @@ public class ToolRepository {
 		
 		// get the descriptions
 		for (AnalysisDescription description: visibleDescriptions.values()) {
-			buf.append(description.getVVSADL());
+			buf.append(description.getSADL() + " ");
 		}
 		return buf;
 	}

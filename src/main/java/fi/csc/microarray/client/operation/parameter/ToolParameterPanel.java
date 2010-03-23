@@ -4,15 +4,23 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 
+import org.jdesktop.swingx.JXTaskPane;
+import org.jdesktop.swingx.JXTaskPaneContainer;
+import org.jdesktop.swingx.VerticalLayout;
+
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationPanel;
+import fi.csc.microarray.client.operation.OperationDefinition.InputDefinition;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -28,6 +36,7 @@ import fi.csc.microarray.exception.MicroarrayException;
  * @author Janne KÃ¤ki, Aleksi Kallio, Petri KlemelÃ¤
  *
  */
+@SuppressWarnings("serial")
 public class ToolParameterPanel extends ParameterPanel {
 	private JScrollPane scroller;
 
@@ -44,50 +53,132 @@ public class ToolParameterPanel extends ParameterPanel {
 	 * @throws MicroarrayException 
 	 */
 	public ToolParameterPanel(Operation operation, OperationPanel parent) throws MicroarrayException {
-		super(operation, new BorderLayout());
-		this.parent = parent;		
-	
+
+	    super(operation, new BorderLayout());
+		this.parent = parent;
 		
-		JPanel paramPane = new JPanel(new GridBagLayout());
-		GridBagConstraints con = new GridBagConstraints();
-		
-		con.gridx = 0; con.gridy = 0;
-		con.gridwidth = 1;
-		con.weightx = 1.0; con.weighty = 0;
-		con.anchor = GridBagConstraints.WEST;
-		
-		
-		paramMap = new HashMap<Parameter, ParameterInputComponent>();
-		for (Parameter param : operation.getParameters()) {
-			ParameterInputComponent component = createInputComponent(param);
-			
-			paramMap.put(param, component);
-			
-			con.gridx = 0;
-			con.gridy++;
-			con.insets.top = TOP_MARGIN;
-			con.insets.left = LEFT_MARGIN;
-			con.fill = GridBagConstraints.HORIZONTAL;
-			paramPane.add(component.getLabel(), con);
-			con.gridx = 1;
-			con.anchor = GridBagConstraints.EAST;
-			con.fill = GridBagConstraints.NONE;
-			paramPane.add(component, con);
+		// Create a collapsible pane container
+        JXTaskPaneContainer paneContainer = new JXTaskPaneContainer();
+        //paneContainer.setBackground(new JXTaskPane().getBackground());
+        paneContainer.setBorder(null);
+
+        // Remove vertical gap
+        VerticalLayout verticalLayout = new VerticalLayout();
+        verticalLayout.setGap(0);
+        paneContainer.setLayout(verticalLayout);
+        
+        // Input file mappings
+        JXTaskPane pane = new JXTaskPane();
+        pane.setTitle("Input datasets");
+        pane.setExpanded(false);
+        
+        // Grid layout for component/label pairs
+        JPanel paramPane = new JPanel(new GridBagLayout());
+        GridBagConstraints con = prepareBagConstraints();
+        
+        List<InputFileComponent> inputComponents = new LinkedList<InputFileComponent>();
+
+        if (operation.getDefinition().getInputs().size() > 0) {
+            // Operation has some inputs
+            for (InputDefinition input : operation.getDefinition().getInputs()) {
+                InputFileComponent inputComponent = new InputFileComponent(input, operation);
+                inputComponent.setListener(inputComponent.new InputFileComponentListener(inputComponents));
+                inputComponents.add(inputComponent);
+                
+                addParameter(paramPane, inputComponent, inputComponent.getLabel(), con);
+            }
+                  
+            // Add the inputs to the collapsable pannel
+            pane.add(paramPane);
+            paneContainer.add(pane);
+        }
+        
+        // Divide parameters into required and optional
+        List<Parameter> requiredParameters = new LinkedList<Parameter>();
+        List<Parameter> optionalParameters = new LinkedList<Parameter>();
+        for (Parameter param : operation.getParameters()) {
+            if (param.isOptional()) {
+                optionalParameters.add(param);
+            } else {
+                requiredParameters.add(param);
+            }
+        }
+
+        // Required parameters
+        if (requiredParameters.size() > 0) {
+            pane = new JXTaskPane();
+            pane.setTitle("Required parameters");
+    		paramPane = new JPanel(new GridBagLayout());
+    		con = prepareBagConstraints(); 
+    		for (Parameter param : requiredParameters) {
+    			ParameterInputComponent component = createInputComponent(param);
+    			addParameter(paramPane, component, component.getLabel(), con);
+    		}
+    		
+            // Add required parameters to the collapsible pane
+		    pane.add(paramPane);
+	        paneContainer.add(pane);
 		}
-		
-		con.weighty = 1;
-		con.weightx = 0;
-		con.gridx = 0;		
-		con.gridy++;
-		con.gridwidth = 2;
-		con.fill = GridBagConstraints.BOTH;
-		paramPane.add(new JPanel(),con);
-		
-		scroller = new JScrollPane(paramPane);
+        
+        // Optional parameters
+        if (optionalParameters.size() > 0) {
+            pane = new JXTaskPane();
+            pane.setTitle("Optional parameters");
+            pane.setExpanded(false);
+            paramPane = new JPanel(new GridBagLayout());
+            con = prepareBagConstraints();
+            for (Parameter param : optionalParameters) {
+                ParameterInputComponent component = createInputComponent(param);
+                addParameter(paramPane, component, component.getLabel(), con);
+            }
+            
+            // Add optional parameters to the collapsible pane
+            pane.add(paramPane);
+            paneContainer.add(pane);
+        }
+
+		scroller = new JScrollPane(paneContainer);
 		scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scroller.setBorder(BorderFactory.createMatteBorder(0,0,0,1,VisualConstants.OPERATION_LIST_BORDER_COLOR));
 		
 		this.add(scroller, BorderLayout.CENTER);
+	}
+
+	/**
+	 * Routine for adding component/label pair to a panel.
+	 * 
+	 * @param panel Panel that will contain the component.
+	 * @param component Control that will be added.
+	 * @param label JLabel object defining.
+	 * @param con Constraint object that defines Control's position.
+	 */
+	private void addParameter(JPanel panel, JComponent component, JLabel label,
+	                          GridBagConstraints con) {       
+        con.gridx = 0;
+        con.gridy++;
+        con.insets.top = TOP_MARGIN;
+        con.insets.left = LEFT_MARGIN;
+        con.fill = GridBagConstraints.HORIZONTAL;
+        panel.add(label, con);
+        con.gridx = 1;
+        con.anchor = GridBagConstraints.EAST;
+        con.fill = GridBagConstraints.NONE;
+        panel.add(component, con);
+	}
+	
+	/**
+	 * Utility routine for preparing GridBagConstraints.
+	 * 
+	 * @param con
+	 * @return initialized GridBagConstraint.
+	 */
+	private GridBagConstraints prepareBagConstraints() {
+	    GridBagConstraints con = new GridBagConstraints();
+        con.gridx = 0; con.gridy = 0;
+        con.gridwidth = 1;
+        con.weightx = 1.0; con.weighty = 0;
+        con.anchor = GridBagConstraints.WEST;
+        return con;
 	}
 	
 	

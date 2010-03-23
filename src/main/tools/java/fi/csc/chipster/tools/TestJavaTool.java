@@ -13,7 +13,7 @@ import fi.csc.microarray.messaging.JobState;
 public class TestJavaTool extends JavaAnalysisJobBase {
 
 	@Override
-	public String getVVSADL() {
+	public String getSADL() {
 		return 	" ANALYSIS Test/JavaTool (Simple JavaTool test.)" + "\n" + 
 				" INPUT GENERIC input.tsv OUTPUT output.tsv, comment.txt" + "\n" +
 				" PARAMETER hyvinkö.menee [yes, no] DEFAULT yes (Hyvä parametri)";

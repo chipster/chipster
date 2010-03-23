@@ -8,9 +8,9 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.description.ParsedVVSADL;
-import fi.csc.microarray.description.ParsedVVSADL.Input;
-import fi.csc.microarray.description.ParsedVVSADL.Parameter;
+import fi.csc.microarray.description.SADLDescription;
+import fi.csc.microarray.description.SADLDescription.Input;
+import fi.csc.microarray.description.SADLDescription.Parameter;
 
 public class OperationGenerator {
 	/**
@@ -18,15 +18,15 @@ public class OperationGenerator {
 	 */
 	private static final Logger logger = Logger.getLogger(OperationGenerator.class);
 
-	public Map<String, OperationCategory> generate(List<ParsedVVSADL> descriptions) {
+	public Map<String, OperationCategory> generate(List<SADLDescription> descriptions) {
 		logger.debug("generating operations from " + descriptions.size() + " descriptions");
 		LinkedHashMap<String, OperationCategory> parsedCategories = new LinkedHashMap<String, OperationCategory>();
-		for (ParsedVVSADL description : descriptions) {
+		for (SADLDescription description : descriptions) {
 			logger.debug("processing " + description.getName());
 			
 			// if the category doesn't exist yet, create it
-			if (parsedCategories.get(description.getPackageName()) == null) {
-				OperationCategory op = new OperationCategory(description.getPackageName());
+			if (parsedCategories.get(description.getCategory()) == null) {
+				OperationCategory op = new OperationCategory(description.getCategory());
 				
 				// predefined colors are used normally ...
 				if (parsedCategories.size() + 1  < VisualConstants.CATEGORY_COLORS.length) {
@@ -50,12 +50,12 @@ public class OperationGenerator {
 			}
 			
 			// create the actual definition
-			OperationDefinition newDefinition = new OperationDefinition(description.getName(), parsedCategories.get(description.getPackageName()), description.getComment(), true);
+			OperationDefinition newDefinition = new OperationDefinition(description.getName().getID(), parsedCategories.get(description.getCategory()), description.getComment(), true);
 			logger.debug("added operation " + newDefinition.getName() + " to " + newDefinition.getCategoryName());
 			
 			for (Input input : description.inputs()) {
-				if (input.isInputSet()) {
-					newDefinition.addInput(input.getPrefix(), input.getPostfix(), input.getType());
+				if (input.getName().isNameSet()) {
+					newDefinition.addInput(input.getName().getPrefix(), input.getName().getPostfix(), input.getType());
 				} else {
 					newDefinition.addInput(input.getName(), input.getType());
 				}
@@ -65,7 +65,11 @@ public class OperationGenerator {
 
 			newDefinition.setOutputCount(description.outputs().size());
 			for (Parameter parameter : description.parameters()) {
-				newDefinition.addParameter(fi.csc.microarray.client.operation.parameter.Parameter.createInstance(parameter.getName(), parameter.getType(), parameter.getSelectionOptions(), parameter.getComment(), parameter.getFrom(), parameter.getTo(), parameter.getDefaultValue()));				
+				newDefinition.addParameter(fi.csc.microarray.client.
+				                           operation.parameter.Parameter.createInstance(
+			        parameter.getName().getID(), parameter.getType(), parameter.getSelectionOptions(),
+			        parameter.getComment(), parameter.getFrom(), parameter.getTo(),
+			        parameter.getDefaultValue(), parameter.isOptional()));		
 			}
 		}
 		

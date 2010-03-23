@@ -16,7 +16,7 @@ import fi.csc.microarray.client.tasks.TaskEventListener;
 import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
-import fi.csc.microarray.description.VVSADLSyntax.InputType;
+import fi.csc.microarray.description.SADLSyntax.InputType;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
@@ -139,6 +139,13 @@ public class Operation implements ExecutionItem {
 
 	public List<DataBinding> getBindings() {
 		return bindings;
+	}
+	
+	/**
+	 * Set new input file bindings.
+	 */
+	public void setBindings(LinkedList<DataBinding> bindings) {
+	    this.bindings = bindings;
 	}
 
 	/**

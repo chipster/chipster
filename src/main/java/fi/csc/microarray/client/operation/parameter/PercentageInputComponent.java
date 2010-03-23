@@ -25,6 +25,7 @@ import javax.swing.event.ChangeListener;
  * @author Janne KÃ¤ki
  *
  */
+@SuppressWarnings("serial")
 public class PercentageInputComponent extends ParameterInputComponent
 								      implements ChangeListener {
 
@@ -53,8 +54,11 @@ public class PercentageInputComponent extends ParameterInputComponent
 		 * a scale from 0 to 100, even if some values would be illegal.
 		 * The illegality is (hopefully) clearly indicated.
 		 */
-		this.slider = new JSlider(JSlider.HORIZONTAL,
-				0, 100, param.getIntegerValue());
+		int initValue = 0; 
+		if (param.getIntegerValue() != null) {
+		    initValue = param.getIntegerValue().intValue();
+		}
+		this.slider = new JSlider(JSlider.HORIZONTAL, 0, 100, initValue);
 		slider.setMajorTickSpacing(50);
 		slider.setMinorTickSpacing(10);
 		slider.setPaintTicks(true);
@@ -90,7 +94,7 @@ public class PercentageInputComponent extends ParameterInputComponent
 	
 	public void stateChanged(ChangeEvent e) {
 		if (e.getSource() == slider) {
-			int value = slider.getValue();
+			Integer value = slider.getValue();
 			numberLabel.setText(value + "%");
 			// slider.setToolTipText(value + "%");
 			if (param.checkValidityOf(value) == true) {

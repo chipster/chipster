@@ -101,7 +101,7 @@ import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.Traversal;
 import fi.csc.microarray.databeans.fs.FSSnapshottingSession;
-import fi.csc.microarray.description.VVSADLParser.ParseException;
+import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
@@ -240,7 +240,7 @@ public class SwingClientApplication extends ClientApplication {
 		try {
 			operationsPanel = new OperationPanel(parsedCategories);
 		} catch (ParseException e) {
-			logger.error("VVSADL parse failed", e);
+			logger.error("SADL parse failed", e);
 			throw new MicroarrayException(e);
 		}
 

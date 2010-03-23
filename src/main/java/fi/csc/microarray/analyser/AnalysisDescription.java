@@ -8,28 +8,21 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import fi.csc.microarray.messaging.message.JobMessage;
 
 
 /**
- * Describes one analysis, such as "median normalisation".
+ * Compute service specific versions of analysis tools descriptions.
+ * Content is overlapping with generic SADLDescription objects, but 
+ * some features are not here and some are extra.
  * 
- * @author hupponen, akallio 
+ * @author Taavi Hupponen, Aleksi Kallio 
  */
 public class AnalysisDescription {
-	/**
-	 * Logger for this class
-	 */
-	@SuppressWarnings("unused")
-	private static final Logger logger = Logger
-			.getLogger(AnalysisDescription.class);
 
 	/**
 	 * Describes one parameter, such as "number of iterations".
 	 * 
-	 * @author akallio
 	 */
 	public static class ParameterDescription {
 
@@ -82,12 +75,18 @@ public class AnalysisDescription {
 	private List<ParameterDescription> parameters = new LinkedList<ParameterDescription>();
 	private String sourceCode;
 	private String category;
-	private String vvsadl;
+	private String sadl;
 	private AnalysisHandler handler;
 	
-	// these are needed for update check
-	/** Name of the original source script or java class or whatever */
+	/**
+	 * Name of the original source script or java class etc.
+	 * Needed for update checks.
+	 */
 	private String sourceResourceName;
+
+	/**
+	 * Needed for update checks.
+	 */
 	private String sourceResourceFullPath;
 	
 	private String initialiser;
@@ -191,16 +190,16 @@ public class AnalysisDescription {
 		return category;
 	}
 
-	public void setVVSADL(String vvsadl) {
-		this.vvsadl = vvsadl;
+	public void setSADL(String sadl) {
+		this.sadl = sadl;
 	}
 	
-	public String getVVSADL() {
+	public String getSADL() {
 		
-		if (vvsadl != null) {
-			return vvsadl;
+		if (sadl != null) {
+			return sadl;
 		} else {
-			throw new RuntimeException("vvsadl is null");
+			throw new RuntimeException("sadl is null");
 		}
 	}
 
@@ -240,8 +239,6 @@ public class AnalysisDescription {
 	public void setUpdatedSinceStartup() {
 		this.updatedSinceStartup = true;
 	}
-
-	
 	
 }
  

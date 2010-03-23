@@ -8,9 +8,9 @@ package fi.csc.microarray.client.operation.parameter;
  */
 public class DecimalParameter extends Parameter {
 
-	private float minValue;
-	private float maxValue;
-	private float value;
+	private Float minValue;
+	private Float maxValue;
+	private Float value;
 	
 	/**
 	 * Creates a new DecimalParameter with the given initial values.
@@ -24,15 +24,21 @@ public class DecimalParameter extends Parameter {
 	 * 		   or the init value is not between these limits).
 	 */
 	public DecimalParameter(
-			String name, String description, float minValue, float maxValue, float initValue)
+			String name, String description, Float minValue, Float maxValue, Float initValue)
 					throws IllegalArgumentException {
 		super(name, description);
+        
 		this.minValue = minValue;
+        this.maxValue = maxValue;
+		if (initValue == null) {
+		    this.value = initValue;
+		    return;
+		}
+
 		if (maxValue < minValue) {
 			throw new IllegalArgumentException("Minimum value for decimal parameter " +
 					this.getName() + " cannot be bigger than the maximum value.");
 		}
-		this.maxValue = maxValue;
 		if (initValue < minValue || initValue > maxValue) {
 			throw new IllegalArgumentException("Initial value for decimal parameter " +
 					this.getName() + " must be inside given limits.");
@@ -40,15 +46,15 @@ public class DecimalParameter extends Parameter {
 		this.value = initValue;
 	}
 	
-	public float getMinValue() {
+	public Float getMinValue() {
 		return minValue;
 	}
 	
-	public float getMaxValue() {
+	public Float getMaxValue() {
 		return maxValue;
 	}
 	
-	public float getDecimalValue() {
+	public Float getDecimalValue() {
 		return value;
 	}
 	
@@ -97,10 +103,11 @@ public class DecimalParameter extends Parameter {
 	
 	@Override
 	public void setValue(Object newValue) {
-		if (newValue instanceof Float) {
+	    if (newValue == null) {
+	        this.value = null;
+	    } else if (newValue instanceof Float) {
 			this.value = (Float) newValue;
-		}
-		if (newValue instanceof Double) {
+		} else if (newValue instanceof Double) {
 			double doubleValue = (Double) newValue;
 			this.value = (float) doubleValue;
 		} else {
@@ -111,12 +118,18 @@ public class DecimalParameter extends Parameter {
 
 	@Override
 	public boolean checkValidityOf(Object valueObject) {
+	    // Allow null values for unfilled fields
+        if (valueObject == null) {
+            return true;
+        }
+	    
 		if (valueObject instanceof Float) {
 			float floatValue = (Float) valueObject;
 			if (floatValue >= this.minValue && floatValue <= this.maxValue) {
 				return true;
 			}
 		}
+		
 		if (valueObject instanceof Double) {
 			double doubleValue = (Double) valueObject;
 			if (doubleValue >= this.minValue && doubleValue <= this.maxValue) {

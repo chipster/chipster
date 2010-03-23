@@ -102,23 +102,35 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 		for (String fileName : outputFileNames) {
 			cancelCheck();
 
+		List<String> outputFileNames = analysis.getOutputFiles();
+		for (String fileName : outputFileNames) {
+			cancelCheck();
+
 			// copy file to file broker
 			File outputFile = new File(jobWorkDir, fileName);
 			URL url;
 				try {
 					url = resultHandler.getFileBrokerClient().addFile(new FileInputStream(outputFile), null);
-				} catch (Exception e) {
+					// put url to result message
+					outputMessage.addPayload(fileName, url);
+					logger.debug("transferred output file: " + fileName);
+						
+
+			} catch (FileNotFoundException e) {
+			    // FIXME need to deal missing required files
+			    // Output file not found, it might have been optional.
+			    // In future we might consider displaying an error message
+			    // when a required output was not found.
+
+			} catch (Exception e) {
+					// TODO continue or return? also note the super.postExecute()
 					logger.error("could not put file to file broker", e);
 					outputMessage.setErrorMessage("Could not send output file.");
 					outputMessage.setOutputText(e.toString());
 					updateState(JobState.ERROR, "");
 					return;
 				}
-
-			// put url to result message
-			outputMessage.addPayload(fileName, url);
-			logger.debug("transferred output file: " + fileName);
-		}
+			}
 		super.postExecute();
 	}
 
