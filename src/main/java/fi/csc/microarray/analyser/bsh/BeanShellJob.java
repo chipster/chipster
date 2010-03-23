@@ -16,6 +16,9 @@ import fi.csc.microarray.messaging.JobState;
  * 
  * A new BeanShell interpreter is instantiated for every job.
  * 
+ * TODO Add better error handling. The bean shell script should be able to 
+ * set job state, error message and output text
+ * 
  * @author hupponen
  * 
  */

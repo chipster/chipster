@@ -80,6 +80,7 @@ import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.tasks.TaskExecutor;
+import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
@@ -856,19 +857,33 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	public void reportTaskError(Task task) throws MicroarrayException {
-		String title = task.getNamePrettyPrinted() + " did not finish successfully. ";
-		String message = "You may have used a tool or parameters which are unsuitable for the selected dataset, or " + "there might be a bug in the analysis tool itself.\n\n" + "The details below may provide hints about the problem. The most useful information is usually at the few last lines.";
-		message = task.getErrorMessage();
+		String title;
+		String message;
 		
+		// user-friendly message
+		if (task.getState() == State.FAILED_USER_ERROR && task.getErrorMessage() != null && !task.getErrorMessage().equals("")) {
+			title = task.getErrorMessage();
+			message = task.getNamePrettyPrinted() + " did not complete successfully. ";
+		} 
+		
+		// generic message
+		else {
+			title = task.getNamePrettyPrinted() + " did not complete successfully. ";
+			message = "You may have used a tool or parameters which are unsuitable for the selected dataset, or " + "there might be a bug in the analysis tool itself.\n\n" + "The details below may provide hints about the problem.";
+		}		
+
+		// details
 		String details = "";
 		if (task.getErrorMessage() != null) {
-			details = task.getErrorMessage();
+			details += task.getErrorMessage() + "\n\n";
 		}
+		details += "----------------------------------------------------------------------\n";
+		
 		if (task.getScreenOutput() != null) {
-			details = details + "\n\n" + task.getScreenOutput();
+			details += task.getScreenOutput();
 		}
 		
-		
+		// show dialog
 		DialogInfo dialogInfo = new DialogInfo(Severity.INFO, title, message, details);
 		ChipsterDialog.showDialog(mainFrame, dialogInfo, ChipsterDialog.DetailsVisibility.DETAILS_HIDDEN, false);
 	}

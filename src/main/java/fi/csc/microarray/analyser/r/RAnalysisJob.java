@@ -49,6 +49,8 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 	private class RProcessMonitor implements Runnable {
 
 		private final String ERROR_MESSAGE_TOKEN = "Error: ";
+		private final String CHIPSTER_NOTE_TOKEN = "CHIPSTER-NOTE:"; 
+		
 		private ArrayList<String> outputLines;
 
 		public void run() {
@@ -81,7 +83,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 					}
 				}
 				
-				// read the error message
+				// read the error message and chipster note
 				if (getState() == JobState.FAILED) {
 
 					// find the error token
@@ -89,7 +91,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 					for (int i = outputLines.size(); i > 0 && errorLineNumber == -1; i--) {
 						if (outputLines.get(i-1).startsWith(ERROR_MESSAGE_TOKEN)) {
 							errorLineNumber = i-1;
-							logger.info("error line found: " + errorLineNumber);
+							logger.debug("error line found: " + errorLineNumber);
 						}
 					}
 				
@@ -101,6 +103,14 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 							errorMessage += outputLines.get(i) + "\n";
 						}
 						errorMessage = errorMessage.substring(0, errorMessage.lastIndexOf("\n"));
+						errorMessage = errorMessage.trim();
+						
+						// check for chipster note
+						if (errorMessage.startsWith(CHIPSTER_NOTE_TOKEN)) {
+							errorMessage = errorMessage.substring(CHIPSTER_NOTE_TOKEN.length());
+							errorMessage = errorMessage.trim();
+							updateState(JobState.FAILED_USER_ERROR, "", false);
+						}
 						
 						outputMessage.setErrorMessage(errorMessage);
 					}
@@ -265,6 +275,9 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 				outputMessage.setErrorMessage("Running R script failed.");
 			}
 			updateState(JobState.FAILED, "", true);
+			return;
+		case FAILED_USER_ERROR:
+			updateState(JobState.FAILED_USER_ERROR, "", true);
 			return;
 		case ERROR:
 			// ProcessMonitor error

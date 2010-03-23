@@ -38,7 +38,7 @@ public class Task {
 		TRANSFERRING_OUTPUTS("Transferring outputs"),
 		COMPLETED("Completed"), 
 		FAILED("Failed"),
-		FAILED_USER_ERROR("Failed, user error"),
+		FAILED_USER_ERROR("Failed, fixable"),
 		ERROR("Error"),
 		CANCELLED("Cancelled"), 
 		TIMEOUT("Timeout");
