@@ -44,12 +44,12 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 		cancelCheck();
 		super.preExecute();
 
-		updateStateDetail("transferring input data", true);
+		updateStateDetailToClient("transferring input data");
 
 		// create working dir for the job
 		if (!this.jobWorkDir.mkdir()) {
 			outputMessage.setErrorMessage("Creating working directory failed.");
-			updateState(JobState.ERROR, "", true);
+			updateState(JobState.ERROR, "");
 			return;
 		}
 
@@ -83,7 +83,7 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 		} catch (Exception e) {
 			outputMessage.setErrorMessage("Transferring input data to computing service failed.");
 			outputMessage.setOutputText(e.toString());
-			updateState(JobState.ERROR, "", true);
+			updateState(JobState.ERROR, "");
 			return;
 		}			
 	}
@@ -95,7 +95,7 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 	 */
 	@Override
 	protected void postExecute() throws Exception {
-		updateStateDetail("transferring output data", true);
+		updateStateDetailToClient("transferring output data");
 		cancelCheck();
 
 		List<String> outputFileNames = analysis.getOutputFiles();

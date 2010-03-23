@@ -34,7 +34,7 @@ public class BeanShellJob extends OnDiskAnalysisJobBase {
 	 */
 	@Override
 	protected void execute() throws JobCancelledException {
-		updateState(JobState.RUNNING, "preparing BeanShell", true);
+		updateStateDetailToClient("preparing BeanShell");
 		
 		// wrap the information to be passed to bean shell
 		BeanShellJobInfo jobInfo = new BeanShellJobInfo();
@@ -55,7 +55,7 @@ public class BeanShellJob extends OnDiskAnalysisJobBase {
 			interpreter.set("jobInfo", jobInfo);
 			
 			// run the script
-			updateState(JobState.RUNNING, "running BeanShell", true);
+			updateStateDetailToClient("running the BeanShell script");
 			interpreter.eval(analysis.getSourceCode());
 		} 
 
@@ -65,7 +65,7 @@ public class BeanShellJob extends OnDiskAnalysisJobBase {
 			logger.warn(errorMessage, te);
 			outputMessage.setErrorMessage(errorMessage);
 			outputMessage.setOutputText(te.toString());
-			updateState(JobState.FAILED, "", true);
+			updateState(JobState.FAILED, "");
 			return;
 		} 
 		
@@ -74,10 +74,10 @@ public class BeanShellJob extends OnDiskAnalysisJobBase {
 			String errorMessage = "The BeanShell script could not be evaluated.";
 			outputMessage.setErrorMessage(errorMessage);
 			outputMessage.setOutputText(ee.toString());
-			updateState(JobState.ERROR, "", true);
+			updateState(JobState.ERROR, "");
 			return;
 		}
-		updateState(JobState.RUNNING, "BeanShell finished succesfully", true);
+		updateState(JobState.RUNNING, "BeanShell finished succesfully");
 		
 	}
 

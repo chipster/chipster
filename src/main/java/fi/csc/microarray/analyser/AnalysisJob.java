@@ -12,7 +12,45 @@ import fi.csc.microarray.messaging.message.ResultMessage;
  * Interface to analysis jobs. Implementations do the actual analysis
  * operation.
  * 
- * @author akallio
+ * Notes for subclassing AnalysisJob:
+ * 
+ * Job state
+ * ---------
+ * Use updateState(...) and updateStateDetailToClient(...) for changing the 
+ * state of the job.
+ * 
+ * If there isn't a really good reason to do otherwise, the state of a 
+ * successful job should be kept as RUNNING until the AnalysisJob sets
+ * it to COMPLETED. So don't set the state as COMPLETED in a subclass.
+ * 
+ * Try to detect any error situations and set the state accordingly:
+ * 
+ * FAILED_USER_ERROR:	A situation in which the user can fix the problem
+ * 						by changing inputs or parameters. You must also
+ * 						set the error message to something which will
+ * 						tell the user what happened and how to fix it.
+ * 						The error message will be used as the header
+ * 						in the client dialog.
+ *  
+ * FAILED:				The tool failed.
+ * 
+ * ERROR:				Error in the system, not in a specific tool.
+ * 
+ * Before setting the state to one of those above, set the error message
+ * and output text, then return after updateState(...)
+ * 
+ * AnalysisJob will catch any Exceptions (and Throwables) and set the 
+ * state as ERROR (With the exception of JobCancelledException). 
+ * 
+ * Call cancelCheck() in situations where it makes sense to acknowledge
+ * that the jobs has been requested to be canceled. This will throw the
+ * JobCancelledException.
+ * 
+ * Use updateStateDetailToClient(...) for reporting meaningful state 
+ * detail changes to the client.
+ * 
+ * 
+ * @author akallio, hupponen
  */
 public abstract class AnalysisJob implements Runnable {
 
@@ -86,13 +124,16 @@ public abstract class AnalysisJob implements Runnable {
 			// successful job
 			if (this.getState() == JobState.RUNNING) {
 				// update state and send results
-				updateState(JobState.COMPLETED, "", false);
-				outputMessage.setState(this.state);
-				outputMessage.setStateDetail(this.stateDetail);
-				resultHandler.sendResultMessage(inputMessage, outputMessage);
-
+				this.state = JobState.COMPLETED;
+				this.stateDetail = "";
 			}
-
+			
+			// send the result message 
+			// for the unsuccessful jobs, the state has been set by the subclass
+			outputMessage.setState(this.state);
+			outputMessage.setStateDetail(this.stateDetail);
+			resultHandler.sendResultMessage(inputMessage, outputMessage);
+			
 		} 
 		// job cancelled, do nothing
 		catch (JobCancelledException jce) {
@@ -104,7 +145,7 @@ public abstract class AnalysisJob implements Runnable {
 		// something unexpected happened
 		catch (Throwable e) {
 			this.setExecutionEndTime(new Date());
-			updateState(JobState.ERROR, "running tool failed", false);
+			updateState(JobState.ERROR, "running tool failed");
 			outputMessage.setErrorMessage("Running tool failed.");
 			outputMessage.setOutputText(e.toString());
 			outputMessage.setState(this.state);
@@ -127,42 +168,57 @@ public abstract class AnalysisJob implements Runnable {
 		return this.inputMessage.getJobId();
 	}
 	
-	public synchronized void updateState(JobState newState, String newStateDetail, boolean sendNotification) {
+	public synchronized void updateState(JobState newState, String stateDetail) {
 
 		if (getState() == JobState.CANCELLED) {
 			return;
 		}
-
 		
 		// update state
 		this.state = newState;
-		this.stateDetail = newStateDetail;
-	
-		// send notification message
-		if (sendNotification) {
-			outputMessage.setState(this.state);
-			outputMessage.setStateDetail(this.stateDetail);
-			resultHandler.sendResultMessage(inputMessage, outputMessage);
-		}
+		this.stateDetail = stateDetail;
 	}
 
-	public synchronized void updateStateDetail(String newStateDetail, boolean sendNotification) {
-		
+	/**
+	 * Updates the state detail and also sends the state and the detail 
+	 * to the client.
+	 * 
+	 * @param newStateDetail
+	 */
+	public synchronized void updateStateDetailToClient(String newStateDetail) {
+
 		if (this.state.equals(JobState.CANCELLED)) {
+			return;
+		}
+
+		// update state
+		this.stateDetail = newStateDetail;
+
+		// send notification message
+		outputMessage.setState(this.state);
+		outputMessage.setStateDetail(this.stateDetail);
+		resultHandler.sendResultMessage(inputMessage, outputMessage);
+	}
+
+
+	public synchronized void updateStateToClient(JobState newState, String stateDetail) {
+
+		if (getState() == JobState.CANCELLED) {
 			return;
 		}
 		
 		// update state
-		this.stateDetail = newStateDetail;
-	
+		this.state = newState;
+		this.stateDetail = stateDetail;
+
 		// send notification message
-		if (sendNotification) {
-			outputMessage.setState(this.state);
-			outputMessage.setStateDetail(this.stateDetail);
-			resultHandler.sendResultMessage(inputMessage, outputMessage);
-		}
+		outputMessage.setState(this.state);
+		outputMessage.setStateDetail(this.stateDetail);
+		resultHandler.sendResultMessage(inputMessage, outputMessage);
 	}
 
+	
+	
 	
 	
 	
@@ -195,7 +251,7 @@ public abstract class AnalysisJob implements Runnable {
 	 */
 	protected void cancelCheck() throws JobCancelledException {
 		if (toBeCanceled) {
-			updateState(JobState.CANCELLED, "", false);
+			updateState(JobState.CANCELLED, "");
 			throw new JobCancelledException();
 		}
 	}
@@ -219,7 +275,7 @@ public abstract class AnalysisJob implements Runnable {
 		if (!constructed) {
 			throw new IllegalStateException("you must call construct(...) first");
 		}
-		updateState(JobState.RUNNING, "Initialising", true);
+		updateStateToClient(JobState.RUNNING, "initialising");
 	}
 	
 	protected void postExecute()  throws Exception {

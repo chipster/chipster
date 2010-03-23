@@ -9,7 +9,7 @@ public class FailingAnalysisJob extends JavaAnalysisJobBase {
 	protected void execute() throws JobCancelledException {
 		outputMessage.setErrorMessage("This job always fails.");
 		outputMessage.setOutputText("There's no way around this.");
-		updateState(JobState.FAILED, "", true);
+		updateState(JobState.FAILED, "");
 	}
 
 

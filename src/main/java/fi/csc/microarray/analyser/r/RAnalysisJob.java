@@ -66,14 +66,14 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 					
 					// read end of stream --> error
 					if (line == null || line.contains(SCRIPT_FAILED_STRING)) {
-						updateState(JobState.FAILED, "R script failed", false);
+						updateState(JobState.FAILED, "R script failed");
 						readMore = false;
 					} 
 					
 					// read script successful
 					// TODO better pattern matching 
 					else if (line.contains(SCRIPT_SUCCESSFUL_STRING)) {
-						updateState(JobState.COMPLETED, "R script finished successfully", false);
+						updateState(JobState.COMPLETED, "R script finished successfully");
 						readMore = false;
 					}
 					
@@ -109,7 +109,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 						if (errorMessage.startsWith(CHIPSTER_NOTE_TOKEN)) {
 							errorMessage = errorMessage.substring(CHIPSTER_NOTE_TOKEN.length());
 							errorMessage = errorMessage.trim();
-							updateState(JobState.FAILED_USER_ERROR, "", false);
+							updateState(JobState.FAILED_USER_ERROR, "");
 						}
 						
 						outputMessage.setErrorMessage(errorMessage);
@@ -119,7 +119,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 			} catch (IOException e) {
 				// also canceling the job leads here 
 				logger.debug("error in monitoring R process.");
-				updateState(JobState.ERROR, "reading R output failed.", false);
+				updateState(JobState.ERROR, "reading R output failed.");
 			}
 
 			waitRLatch.countDown();
@@ -151,7 +151,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 	 */
 	protected void execute() throws JobCancelledException {
 		cancelCheck();
-		updateStateDetail("initialising R", true);
+		updateStateDetailToClient("initialising R");
 		
 		List<BufferedReader> inputReaders = new ArrayList<BufferedReader>();
 
@@ -190,7 +190,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		} catch (Exception e) {
 			outputMessage.setErrorMessage("Starting R failed.");
 			outputMessage.setOutputText(e.toString());
-			updateState(JobState.ERROR, "", true);
+			updateState(JobState.ERROR, "");
 			return;
 		}
 		boolean processAlive = false;
@@ -202,11 +202,11 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		if (!processAlive) {
 			outputMessage.setErrorMessage("Starting R failed.");
 			outputMessage.setOutputText("R already finished.");
-			updateState(JobState.ERROR, "", true);
+			updateState(JobState.ERROR, "");
 			return;
 		}
 		
-		updateStateDetail("running R", true);
+		updateStateDetailToClient("running R");
 
 		
 		// launch the process monitor
@@ -243,7 +243,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		} catch (InterruptedException e) {
 			outputMessage.setErrorMessage("Running R was interrupted.");
 			outputMessage.setOutputText(e.toString());
-			updateState(JobState.ERROR, "", true);
+			updateState(JobState.ERROR, "");
 			return;
 		}
 		
@@ -263,26 +263,24 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		case RUNNING:
 			// TODO add execution time this far to the message
 			outputMessage.setErrorMessage("R did not finish before timeout.");
-			updateState(JobState.TIMEOUT, "", true);
+			updateState(JobState.TIMEOUT, "");
 			return;
 		case COMPLETED:
 			// set state back to running, notify client
-			updateState(JobState.RUNNING, "R script finished successfully", true);
+			updateState(JobState.RUNNING, "R script finished successfully");
+			updateStateDetailToClient("R script finished successfully");
 			return;
 		case FAILED:
 			// set error message if there is no specific message set already
 			if (outputMessage.getErrorMessage() == null || outputMessage.getErrorMessage().equals("")) {
 				outputMessage.setErrorMessage("Running R script failed.");
 			}
-			updateState(JobState.FAILED, "", true);
 			return;
 		case FAILED_USER_ERROR:
-			updateState(JobState.FAILED_USER_ERROR, "", true);
 			return;
 		case ERROR:
 			// ProcessMonitor error
 			outputMessage.setErrorMessage("Reading R output failed.");
-			updateState(JobState.ERROR, "", true);
 			return;
 		default: 
 			throw new IllegalStateException("Illegal job state: " + getState());
