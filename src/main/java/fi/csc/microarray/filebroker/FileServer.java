@@ -67,11 +67,14 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		fileServer.start(fileRepository.getPath(), port);
 
     		// start scheduler
+    		String userDataPath = configuration.getString("filebroker", "user-data-path");
+    		File userDataRoot = new File(fileRepository, userDataPath);
+    		
     		int cutoff = 1000 * configuration.getInt("filebroker", "file-life-time");
     		int cleanUpFrequency = 1000 * configuration.getInt("filebroker", "clean-up-frequency");
     		int checkFrequency = 1000 * 5;
     		Timer t = new Timer("frontend-scheduled-tasks", true);
-    		t.schedule(new FileCleanUpTimerTask(fileRepository, cutoff), 0, cleanUpFrequency);
+    		t.schedule(new FileCleanUpTimerTask(userDataRoot, cutoff), 0, cleanUpFrequency);
     		t.schedule(new JettyCheckTimerTask(fileServer), 0, checkFrequency);
 
     		// initialise messaging
