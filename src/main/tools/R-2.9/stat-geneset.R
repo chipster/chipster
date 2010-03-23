@@ -60,7 +60,7 @@ calls<-dat[,grep("flag", names(dat))]
 dat2<-dat[,grep("chip", names(dat))]
 
 # Needs a vector groups that specifies which sample to compare
-groups<-phenodata[,grep(column, colnames(phenodata))]
+groups<-phenodata[,pmatch(column,colnames(phenodata))]
 
 # Actual testing and plotting
 x<-as.numeric(x) 

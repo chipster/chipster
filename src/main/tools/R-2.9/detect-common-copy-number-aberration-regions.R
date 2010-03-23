@@ -1,11 +1,11 @@
-# ANALYSIS "aCGH tools (beta testing)"/"Detect common copy number aberration regions" (Reduces dimensionality of called aCGH data by identifying common breakpoints.)
+# ANALYSIS "aCGH tools (beta testing)"/"Identify common regions from called aCGH data" (Reduces dimensionality of called aCGH data by identifying common breakpoints.)
 # INPUT GENE_EXPRS aberrations.tsv
 # OUTPUT regions.tsv, aberration-regions.png, aberration-frequencies.png
 # PARAMETER max.info.loss DECIMAL DEFAULT 0.01 (Maximal information loss allowed.)
 
 # detect-common-copy-number-aberration-regions.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-03-11
+# 2010-03-19
 
 library(CGHcall)
 library(CGHregions)
@@ -26,31 +26,35 @@ probgain <- as.matrix(dat[,grep("probgain", names(dat))])
 probamp <- as.matrix(dat[,grep("probamp", names(dat))])
 
 if (ncol(probamp)==0) {
-  cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=copynumber, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
+	cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=copynumber, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
 } else {
-  cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=copynumber, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain, probamp=probamp), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
+	cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=copynumber, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain, probamp=probamp), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
 }
 
 regions <- CGHregions(cgh, max.info.loss)
 
-dat2 <- data.frame(regions@featureData@data, assayDataElement(regions, 'regions'))
+dat2 <- data.frame(regions@featureData@data)
 colnames(dat2)[1:5] <- c('chromosome', 'start', 'end', 'num.probes', 'ave.dist')
-names(dat2) <- sub('calls.', 'flag.', names(dat2))
+dat2$ave.dist <- NULL
 
 # end column contains starting positions of the last probes of a region
 # change them to the end positions of those probes
 if (nrow(dat2[dat2$chromosome %in% dat$chromosome & dat2$end %in% dat$start,]) >= nrow(dat2[dat2$chromosome %in% dat$chromosome & dat2$end %in% dat$end,]))
-  for (row in rownames(dat2))
-    dat2[row, 'end'] <- dat[dat$chromosome == dat2[row, 'chromosome'] & dat$start == dat2[row, 'end'], 'end'][1]
+	for (row in rownames(dat2))
+		dat2[row, 'end'] <- dat[dat$chromosome == dat2[row, 'chromosome'] & dat$start == dat2[row, 'end'], 'end'][1]
+
+dat2$loss.freq <- round(mean(as.data.frame(t(assayDataElement(regions, 'regions')==-1))), digits=3)
+dat2$gain.freq <- round(mean(as.data.frame(t(assayDataElement(regions, 'regions')==1))), digits=3)
+if (2 %in% assayDataElement(regions, 'regions'))
+	dat2$amp.freq <- round(mean(as.data.frame(t(assayDataElement(regions, 'regions')==2))), digits=3)
+
+dat2 <- cbind(dat2, assayDataElement(regions, 'regions'))
+names(dat2) <- sub('calls.', 'flag.', names(dat2))
 
 dat2$chromosome <- as.character(dat2$chromosome)
 dat2$chromosome[dat2$chromosome=='23'] <- 'X'
 dat2$chromosome[dat2$chromosome=='24'] <- 'Y'
 dat2$chromosome[dat2$chromosome=='25'] <- 'MT'
-
-dat2$loss.freq <- mean(as.data.frame(t(assayDataElement(regions, 'regions')==-1)))
-dat2$gain.freq <- mean(as.data.frame(t(assayDataElement(regions, 'regions')==1)))
-dat2$amp.freq <- mean(as.data.frame(t(assayDataElement(regions, 'regions')==2)))
 
 write.table(dat2, file='regions.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 

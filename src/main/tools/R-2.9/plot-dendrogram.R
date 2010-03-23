@@ -28,7 +28,7 @@ dat<-read.table(file, header=T, sep="\t", row.names=1)
 
 # Loads the phenodata
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
-groups<-phenodata[,grep(column, colnames(phenodata))]
+groups<-phenodata[,pmatch(column,colnames(phenodata))]
 
 # Separates expression values and flags
 calls<-dat[,grep("flag", names(dat))]

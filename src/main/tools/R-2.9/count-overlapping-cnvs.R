@@ -5,30 +5,36 @@
 
 # count-overlapping-cnvs.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-03-11
+# 2010-03-19
 
 dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 
 pos <- c('chromosome','start','end')
 if (length(setdiff(pos, colnames(dat)))!=0)
-  stop('This script can only be run on files that have the following columns: chromosome, start, end.')
+	stop('This script can only be run on files that have the following columns: chromosome, start, end.')
+
+first.data.col <- min(grep('chip', names(dat)), grep('flag', names(dat)))
+
+dat2 <- dat[1:first.data.col-1]
 
 # load cnvs
 if (genome.build=='NCBI35') {
-  cnv <- read.table('http://projects.tcag.ca/variation/downloads/variation.hg17.v8.aug.2009.txt', header=TRUE, sep='\t', as.is=TRUE)
+	cnv <- read.table('http://projects.tcag.ca/variation/downloads/variation.hg17.v8.aug.2009.txt', header=TRUE, sep='\t', as.is=TRUE)
 } else {
-  cnv <- read.table('http://projects.tcag.ca/variation/downloads/variation.hg18.v8.aug.2009.txt', header=TRUE, sep='\t', as.is=TRUE)
+	cnv <- read.table('http://projects.tcag.ca/variation/downloads/variation.hg18.v8.aug.2009.txt', header=TRUE, sep='\t', as.is=TRUE)
 }
 cnv <- cnv[cnv$VariationType == 'CopyNumber',]
 cnv$Chr <- substr(cnv$Chr, 4, 5)
 
-dat$cnvs <- 0
+dat2$cnvs <- 0
 for (i in rownames(dat)) {
-  dat[i, 'cnvs'] <- nrow(subset(cnv, Chr == dat[i, 'chromosome'] & 
-                                   Start <= dat[i, 'end'] & 
-                                     End >= dat[i, 'start']))
+	dat2[i, 'cnvs'] <- nrow(subset(cnv, Chr == dat[i, 'chromosome'] & 
+							Start <= dat[i, 'end'] & 
+							End >= dat[i, 'start']))
 }
 
-write.table(dat, file='normalized.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
+dat2 <- cbind(dat2, dat[,first.data.col:ncol(dat)])
+
+write.table(dat2, file='normalized.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
 # EOF

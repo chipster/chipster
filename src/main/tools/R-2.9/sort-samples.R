@@ -17,7 +17,7 @@ file<-c("normalized.tsv")
 dat<-read.table(file, header=T, sep="\t", row.names=1)
 
 # Extracts the column from phenodata
-groups<-phenodata[,grep(column, colnames(phenodata))]
+groups<-phenodata[,pmatch(column,colnames(phenodata))]
 
 # Separates expression values and flags
 calls<-dat[,grep("flag", names(dat))]
