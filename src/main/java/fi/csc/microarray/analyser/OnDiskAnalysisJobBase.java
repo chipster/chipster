@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.net.URL;
 import java.util.List;
@@ -97,10 +98,6 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 	protected void postExecute() throws JobCancelledException {
 		updateStateDetailToClient("transferring output data");
 		cancelCheck();
-
-		List<String> outputFileNames = analysis.getOutputFiles();
-		for (String fileName : outputFileNames) {
-			cancelCheck();
 
 		List<String> outputFileNames = analysis.getOutputFiles();
 		for (String fileName : outputFileNames) {

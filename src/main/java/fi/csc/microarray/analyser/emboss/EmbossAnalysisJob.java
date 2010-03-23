@@ -8,6 +8,7 @@ import java.util.LinkedList;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
 import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
@@ -47,7 +48,7 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
     }
 
     @Override
-    protected void execute() throws Exception {
+    protected void execute() throws JobCancelledException {
       
         // Get parameter values from user's input (order is significant)
         inputParameters = new LinkedList<String>(inputMessage.getParameters());
@@ -152,7 +153,7 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
     }
 
     @Override
-    protected void preExecute() throws Exception {
+    protected void preExecute() throws JobCancelledException {
         super.preExecute();
     }
     
