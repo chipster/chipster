@@ -91,7 +91,6 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 					for (int i = outputLines.size(); i > 0 && errorLineNumber == -1; i--) {
 						if (outputLines.get(i-1).startsWith(ERROR_MESSAGE_TOKEN)) {
 							errorLineNumber = i-1;
-							logger.debug("error line found: " + errorLineNumber);
 						}
 					}
 				
@@ -159,7 +158,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		inputReaders.add(new BufferedReader(new StringReader(analysis.getInitialiser())));
 		
 		// load work dir initialiser
-		logger.debug("Job work dir: " + jobWorkDir.getPath());
+		logger.debug("job work dir: " + jobWorkDir.getPath());
 		inputReaders.add(new BufferedReader(new StringReader("setwd(\"" + jobWorkDir.getName() + "\")\n")));
 		
 		
@@ -184,7 +183,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		
 		// get a process
 		cancelCheck();
-		logger.debug("Getting a process.");;
+		logger.debug("getting a process.");;
 		try {
 			this.process = processPool.getProcess();
 		} catch (Exception e) {
@@ -211,12 +210,12 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		
 		// launch the process monitor
 		cancelCheck();
-		logger.debug("About to start the R process monitor.");
+		logger.debug("about to start the R process monitor.");
 		RProcessMonitor processMonitor = new RProcessMonitor();
 		new Thread(processMonitor).start();
 		
 		// write the input to process
-		logger.debug("Writing the input to R.");
+		logger.debug("writing the input to R.");
 		BufferedWriter writer = null;
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
@@ -237,7 +236,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		
 		// wait for the script to finish
 		cancelCheck();
-		logger.debug("Waiting for the script to finish.");
+		logger.debug("waiting for the script to finish.");
 		try {
 			waitRLatch.await(rTimeout, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
@@ -306,7 +305,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 				processPool.releaseProcess(process, false);
 			}
 		} catch (Exception e) {
-			logger.error("Error when releasing process. ", e);
+			logger.error("error when releasing process. ", e);
 		} finally {
 			super.cleanUp();
 		}
