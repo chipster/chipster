@@ -77,7 +77,7 @@ public abstract class AnalysisJob implements Runnable {
 	
 	public AnalysisJob() {
 		this.state = JobState.NEW;
-		this.stateDetail = "New job created.";
+		this.stateDetail = "new job created.";
 	}
 	
 
