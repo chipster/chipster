@@ -31,6 +31,7 @@ import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.util.IOUtils;
 
 
 /**
@@ -69,32 +70,50 @@ public class FSSnapshottingSession {
 	
 	private ZipOutputStream cpZipOutputStream = null;
 
-	public int saveSnapshot(File snapshot) throws IOException {
+	public void saveSnapshot(File snapshot) throws IOException {
 																					
 		FileOutputStream fos = new FileOutputStream(snapshot);			
-		cpZipOutputStream = new ZipOutputStream(fos);					
-		cpZipOutputStream.setLevel(1); // quite slow with bigger values														
+		cpZipOutputStream = new ZipOutputStream(fos);
+		boolean createdSuccesfully = false;
+		
+		try {
 
-		// write data and gather metadata simultanously
-		StringBuffer metadata = new StringBuffer("");
-		metadata.append("VERSION " + SNAPSHOT_VERSION + "\n");
-		
-		// generate all ids
-		int dataCount = generateIdsRecursively((FSDataFolder)manager.getRootFolder());
-		
-		// 1st pass, write most metadata
-		saveRecursively((FSDataFolder)manager.getRootFolder(), cpZipOutputStream, metadata);
-		
-		// 2nd pass for links (if written in one pass, input dependent operation parameters break when reading)
-		saveLinksRecursively((FSDataFolder)manager.getRootFolder(), metadata);
+			cpZipOutputStream.setLevel(1); // quite slow with bigger values														
 
-		writeFile(cpZipOutputStream, METADATA_FILENAME, 
-				new ByteArrayInputStream(metadata.toString().getBytes()));			
-		
-		cpZipOutputStream.finish();					
-		cpZipOutputStream.close();
-		
-		return dataCount;
+			// write data and gather metadata simultanously
+			StringBuffer metadata = new StringBuffer("");
+			metadata.append("VERSION " + SNAPSHOT_VERSION + "\n");
+
+			// generate all ids
+			generateIdsRecursively((FSDataFolder)manager.getRootFolder());
+
+			// 1st pass, write most metadata
+			saveRecursively((FSDataFolder)manager.getRootFolder(), cpZipOutputStream, metadata);
+
+			// 2nd pass for links (if written in one pass, input dependent operation parameters break when reading)
+			saveLinksRecursively((FSDataFolder)manager.getRootFolder(), metadata);
+
+			writeFile(cpZipOutputStream, METADATA_FILENAME, 
+					new ByteArrayInputStream(metadata.toString().getBytes()));
+
+			cpZipOutputStream.finish();
+			cpZipOutputStream.close();
+			createdSuccesfully = true;
+			
+		} catch (RuntimeException e) {
+			// createdSuccesfully is false, so file will be deleted in finally block
+			throw e;
+			
+		} catch (IOException e) {
+			// createdSuccesfully is false, so file will be deleted in finally block
+			throw e;
+
+		} finally {
+			IOUtils.closeIfPossible(cpZipOutputStream); // called twice for normal execution, not a problem
+			if (!createdSuccesfully) {
+				snapshot.delete(); // do not leave bad session files hanging around
+			}
+		}
 	}
 	
 	private void writeFile(ZipOutputStream out, String name, InputStream in) throws IOException {
