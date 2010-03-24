@@ -12,23 +12,18 @@ public interface DataItem {
 	/**
 	 * @return superfolder of this item.
 	 */
-	public abstract DataFolder getParent();
+	public DataFolder getParent();
+	
+	public void setParent(DataFolder newParent);
 	
 	/**
 	 * Name can be the name of a file/directory or some more user friendly name.
 	 */
-    public abstract String getName();
+    public String getName();
     
     /**
      * @see #getName()
      */
-    public abstract void setName(String newName);
-    
-    /**
-     * Returns an indented textual representation of this item and its subitems.
-     * 
-     * @param level current indentation level
-     */
-	public abstract String toStringRecursively(int level);
+    public void setName(String newName);
 
 }

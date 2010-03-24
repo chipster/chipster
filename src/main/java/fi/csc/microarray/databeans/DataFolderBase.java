@@ -1,10 +1,60 @@
 package fi.csc.microarray.databeans;
 
-import fi.csc.microarray.util.Strings;
+import java.util.LinkedList;
+import java.util.List;
+
+import fi.csc.microarray.databeans.fs.FSDataManager;
 
 
-public abstract class DataFolderBase implements DataFolder {
 
+public class DataFolderBase extends DataItemBase implements DataFolder {
+	
+	public DataFolderBase(FSDataManager manager, String name) {
+		this.manager = manager;
+		this.name = name;
+	}
+	
+	private List<DataItem> children = new LinkedList<DataItem>();
+	private FSDataManager manager;
+	
+	public void addChild(DataItem child) {
+
+		// was it already connected?
+		boolean wasConnected = child.getParent() != null;
+	
+		// connect to this
+		child.setParent(this);
+		
+		// add
+		children.add(child);
+		
+		// dispatch events if needed
+		if (!wasConnected) {
+			manager.dispatchEvent(new DataItemCreatedEvent(child));
+		}
+	}
+
+	public void removeChild(DataItem child) {
+		// remove connections
+		child.setParent(null);
+		
+		// remove
+		children.remove(child);		
+
+		// dispatch events
+		manager.dispatchEvent(new DataItemRemovedEvent(child));
+	}
+
+	public Iterable<DataItem> getChildren() {
+		return children;
+	}
+
+
+	public int getChildCount() {
+		return children.size();
+	}
+
+	
 	public DataFolder getChildFolder(String name) {
 		for (DataItem child : getChildren()) {
 			if (child instanceof DataFolder && child.getName().equals(name)) {
@@ -18,14 +68,14 @@ public abstract class DataFolderBase implements DataFolder {
 		return getName();
 	}
 
-	public String toStringRecursively(int i) {
-
-		String s = (Strings.repeat("  ", i) + "[" + getName() + "]");
-		
-		for (DataItem child : getChildren()) {
-			s += ("\n" + child.toStringRecursively(i+1));
-		}
-		
-		return s;
-	}
+//	public String toStringRecursively(int i) {
+//
+//		String s = (Strings.repeat("  ", i) + "[" + getName() + "]");
+//		
+//		for (DataItem child : getChildren()) {
+//			s += ("\n" + child.toStringRecursively(i+1));
+//		}
+//		
+//		return s;
+//	}
 }

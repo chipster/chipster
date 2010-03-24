@@ -85,7 +85,10 @@ public class FSDataManagerTest {
 		// check
 		DataFolder root1 = manager1.getRootFolder();
 		DataFolder root2 = manager2.getRootFolder();
-		Assert.assertEquals(root2.toStringRecursively(0), root1.toStringRecursively(0));
+		
+		// TODO reimplement toStringRecursively here
+		Assert.assertTrue(false);
+		//Assert.assertEquals(root2.toStringRecursively(0), root1.toStringRecursively(0));
 		DataBean newBean1 = null;
 		for (DataItem item : root2.getChildren()) {
 			if (item.getName().equals(beanName1)) {

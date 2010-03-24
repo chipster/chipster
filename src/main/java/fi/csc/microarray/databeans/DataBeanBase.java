@@ -20,7 +20,7 @@ import fi.csc.microarray.util.InputStreamSource;
 import fi.csc.microarray.util.StreamStartCache;
 import fi.csc.microarray.util.Strings;
 
-public abstract class DataBeanBase implements DataBean {
+public abstract class DataBeanBase extends DataItemBase implements DataBean {
 	
 	/**
 	 * Logger for this class

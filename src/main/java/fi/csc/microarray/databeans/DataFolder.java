@@ -10,10 +10,6 @@ package fi.csc.microarray.databeans;
  */
 public interface DataFolder extends DataItem {
 
-	/**
-	 * @return A String representation (in this case, the name) of this folder.
-	 */
-	public abstract String toString();
 
 	/**
 	 * Add a bean or a subfolder to this folder.

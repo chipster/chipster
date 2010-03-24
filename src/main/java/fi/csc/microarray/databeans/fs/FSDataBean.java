@@ -41,7 +41,6 @@ public class FSDataBean extends DataBeanBase {
 	private Date date;
 	private String notes;
 	
-	private DataFolder parentFolder;
 	private LinkedList<LinkedBean> outgoingLinks = new LinkedList<LinkedBean>();
 	private LinkedList<LinkedBean> incomingLinks = new LinkedList<LinkedBean>();
 
@@ -53,7 +52,7 @@ public class FSDataBean extends DataBeanBase {
 
 		this.name = name;
 		this.date = date;
-		this.parentFolder = parentFolder;
+		this.parent = parentFolder;
 		
 		// add this as parent folders child
 		if (parentFolder != null) {
@@ -99,7 +98,7 @@ public class FSDataBean extends DataBeanBase {
 	}
 	
 	public DataFolder getParent() {
-		return this.parentFolder;
+		return this.parent;
 	}
 
 	public void setName(String newName) {
@@ -260,9 +259,4 @@ public class FSDataBean extends DataBeanBase {
 	public File getContentFile() {
 		return contentFile;
 	}
-
-	public void setParent(FSDataFolder dataFolder) {
-		this.parentFolder = dataFolder;		
-	}
-	
 }
