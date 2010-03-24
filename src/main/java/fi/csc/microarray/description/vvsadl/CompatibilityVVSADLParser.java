@@ -15,6 +15,7 @@ import fi.csc.microarray.description.SADLDescription.Parameter;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.description.SADLSyntax.InputType;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
+import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.util.AdvancedStringTokenizer;
 
 
@@ -48,7 +49,14 @@ public class CompatibilityVVSADLParser {
 
         public CompatibilityVVSADLParser(String filename) {
                 this.unitName = filename;
+                // we don't do separation between microarray and generic types here, because this is a non-permanent compatibility parser 
                 addInputType(GenericInputTypes.GENERIC);
+             	addInputType(ChipsterInputTypes.AFFY);
+        		addInputType(ChipsterInputTypes.CDNA);
+        		addInputType(ChipsterInputTypes.GENE_EXPRS);
+        		addInputType(ChipsterInputTypes.GENELIST);
+        		addInputType(ChipsterInputTypes.PHENODATA);
+
         }
 
         public SADLDescription parse(String vvsadlString) throws ParseException {
