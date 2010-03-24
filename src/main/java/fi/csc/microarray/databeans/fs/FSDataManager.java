@@ -17,7 +17,6 @@ import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
-import fi.csc.microarray.databeans.DataFolderBase;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataItemCreatedEvent;
 import fi.csc.microarray.databeans.DataManager;
@@ -47,12 +46,12 @@ public class FSDataManager extends DataManagerBase {
 	}
 
 	public DataFolder createFolder(String name) {
-		DataFolder folder = new DataFolderBase(this, name);
+		DataFolder folder = new DataFolder(this, name);
 		return folder;
 	}
 
 	public DataFolder createFolder(DataFolder root, String name) {
-		DataFolder folder = new DataFolderBase(this, name);
+		DataFolder folder = new DataFolder(this, name);
 		root.addChild(folder); // events are dispatched from here
 		return folder;
 	}

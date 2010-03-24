@@ -12,18 +12,18 @@ public interface DataItem {
 	/**
 	 * @return superfolder of this item.
 	 */
-	public DataFolder getParent();
-	
-	public void setParent(DataFolder newParent);
+	public abstract DataFolder getParent();
 	
 	/**
 	 * Name can be the name of a file/directory or some more user friendly name.
 	 */
-    public String getName();
+    public abstract String getName();
     
     /**
      * @see #getName()
      */
-    public void setName(String newName);
+    public abstract void setName(String newName);
+    
+    public abstract void setParent(DataFolder newParent);
 
 }
