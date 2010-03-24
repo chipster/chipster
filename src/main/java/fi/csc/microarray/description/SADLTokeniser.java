@@ -5,6 +5,16 @@ import java.util.List;
 
 import fi.csc.microarray.description.SADLParser.ParseException;
 
+/**
+ * Parses string into tokens, suitable for SADLParser. The tokeniser has some understating
+ * of SADL syntax so that it can produce higher level tokens and make parsing easier.
+ * Tokens can be keywords, operators, strings, hyphenated string or strings in parentheses.
+ *
+ * @see SADLParser
+ * 
+ * @author Aleksi Kallio
+ *
+ */
 public class SADLTokeniser {
 
 	private List<String> tokens;

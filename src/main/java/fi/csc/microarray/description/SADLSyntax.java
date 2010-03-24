@@ -46,7 +46,7 @@ import fi.csc.microarray.databeans.DataBean;
  * <p>There is special handling for the NAME tokens: they are tokenized normally, but parser emits a different type of name 
  * if the token contains SADLSyntax.NAME_SET_DESIGNATOR (meaning that we are dealing with name set instead of single name).</p>
  * 
- * <p>TOKEN refers to any single token produced by tokeniser (SADLTokeniser). Single tokens can be keywords, operators, 
+ * <p>TOKEN refers to any single token produced by tokeniser (SADLTokeniser). Tokens can be keywords, operators, 
  * strings, hyphenated string or strings in parentheses. String in parentheses are strongly recommended for descriptions.</p>  
  *  
  * <p>Below is an example of a SADL snippet.</p>
