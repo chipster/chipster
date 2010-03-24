@@ -16,50 +16,82 @@ import fi.csc.microarray.databeans.DataBean;
  * Hyphenated texts are snippets of SADL. For example, TOOL is a term
  * that is rewritten using the given rules, but "TOOL" is a string that
  * should be found in the source code. Operators ?, +, * and | have their
- * common semantics. Lower case identifiers: number, string and string_no_ws (no 
- * whitespace) should be obvious.</p>
+ * common semantics.</p>
  * 
  * <pre>
  * -> TOOL+
- * TOOL -> "TOOL" NAME "/" NAME DESCRIPTION INPUT? OUTPUT? PARAMETER*
- * NAME -> NAME_SINGLE | NAME_SET  
- * NAME_SINGLE -> string_no_ws | """ string """
- * NAME_SET -> string_no_ws "[...]" string_no_ws
- * INPUT -> "INPUT" INPUT_TYPE NAME | INPUT_TYPE FILENAMESET
- * INPUTTYPE -> [see SADLSyntax.InputType for declaration, implementations pluggable]
- * OUTPUT -> "OUTPUT" FILENAME
- * PARAMETER -> "PARAMETER" NAME PARAMTYPE RANGE? DEFAULT? DESCRIPTION 
- * PARAMTYPE -> [see SADLSyntax.ParameterType for declaration, implementations pluggable]
- * RANGE -> "FROM" number "TO" number
- * DEFAULT -> "DEFAULT" number
- * DESCRIPTION -> "(" string ") 
- * </pre>  
  * 
+ * TOOL -> "TOOL" CATEGORY_NAME "/" NAME DESCRIPTION INPUT* METAINPUT* OUTPUT* METAOUTPUT* PARAMETER*
+ * CATEGORY_NAME -> TOKEN
+ * INPUT -> "INPUT" INPUT_DESCRIPTION
+ * METAINPUT -> "METAINPUT" INPUT_DESCRIPTION
+ * INPUT_DESCRIPTION -> OPTIONALITY? NAME "TYPE" TYPE_NAME
+ * TYPE_NAME -> TOKEN (see SADLSyntax.ParameterType for declaration, implementations pluggable)
+ * OUTPUT -> "OUTPUT" OUTPUT_DESCRIPTION
+ * METAOUTPUT -> "METAOUTPUT" OUTPUT_DESCRIPTION
+ * OUTPUT_DESCRIPTION -> OPTIONALITY? NAME 
+ * PARAMETER -> "PARAMETER" OPTIONALITY? NAME "TYPE" PARAMETER_TYPE PARAMETER_FROM? PARAMETER_TO? PARAMETER_DEFAULT? DESCRIPTION 
+ * PARAMETER_TYPE -> TOKEN | PARAMETER_TYPE_ENUM
+ * PARAMETER_TYPE_ENUM -> "[" PARAMETER_TYPE_ENUM_ELEMENTS "]"
+ * PARAMETER_TYPE_ENUM_ELEMENTS -> NAME | NAME "," PARAMETER_TYPE_ENUM_ELEMENTS
+ * PARAMETER_FROM -> "FROM" TOKEN
+ * PARAMETER_TO -> "TO" TOKEN
+ * PARAMETER_DEFAULT -> "DEFAULT" TOKEN
+ * OPTIONALITY -> "OPTIONAL"
+ * NAME -> TOKEN | TOKEN ":" TOKEN
+ * DESCRIPTION -> TOKEN
+ * TOKEN -> any single token produced by tokeniser
+ * </pre>
+ * 
+ * <p>There is special handling for the NAME tokens: they are tokenized normally, but parser emits a different type of name 
+ * if the token contains SADLSyntax.NAME_SET_DESIGNATOR (meaning that we are dealing with name set instead of single name).</p>
+ * 
+ * <p>TOKEN refers to any single token produced by tokeniser (SADLTokeniser). Single tokens can be keywords, operators, 
+ * strings, hyphenated string or strings in parentheses. String in parentheses are strongly recommended for descriptions.</p>  
+ *  
  * <p>Below is an example of a SADL snippet.</p>
  * <pre>
- * ANALYSIS Test/test (Just a test analysis for development)
- * INPUT CDNA microarray[...].txt OUTPUT results.txt, messages.txt
- * PARAMETER value1 INTEGER FROM 0 TO 200 DEFAULT 10 (the first value of the result set)
- * PARAMETER value2 DECIMAL FROM 0 TO 200 DEFAULT 20 (the second value of the result set)
- * PARAMETER value3 DECIMAL FROM 0 TO 200 DEFAULT 30.2 (the third value of the result set)
- * PARAMETER method PERCENT DEFAULT 34 (how much we need)
- * PARAMETER method [linear, logarithmic, exponential] DEFAULT logarithmic (which method to apply)
- * PARAMETER genename STRING DEFAULT at_something (which gene we are interested in)
- * PARAMETER key COLNAME (which column we use as a key)
+ * TOOL "Test utilities" / util-test.R: "Test tool" (Just a test analysis for development. These descriptions are sometimes very
+ * long and might get hard to read.)
+ * INPUT microarray{...}.tsv: "Raw data files" TYPE CDNA
+ * INPUT phenodata.tsv: "Experiment description" TYPE GENERIC
+ * OUTPUT result{...}.txt: "Result files"
+ * OUTPUT OPTIONAL error.txt: "Error, if any"
+ * PARAMETER value1: "The first value" TYPE INTEGER FROM 0 TO 200 DEFAULT 10 (the first value of the result set)
+ * PARAMETER value2: "The second value" TYPE DECIMAL FROM 0 TO 200 DEFAULT 20 (the second value of the result set)
+ * PARAMETER OPTIONAL value3: "The third value" TYPE DECIMAL FROM 0 TO 200 DEFAULT 30.2 (the third value of the result set)
+ * PARAMETER method: "The fourth value" TYPE PERCENT DEFAULT 34 (how much we need)
+ * PARAMETER method: "The method" TYPE [linear: "Linear scale", logarithmic: "Logarithmic scale", exponential: "Exponential scale"] FROM 1 TO 2 DEFAULT logarithmic (which scale to use)
+ * PARAMETER genename: "Gene name" TYPE STRING DEFAULT at_something (which gene we are interested in)
+ * PARAMETER key: "Key column" TYPE COLUMN_SEL (which column we use as a key)
  * </pre>  
  * 
+ * @see fi.csc.microarray.description.SADLTokeniser
  * @see fi.csc.microarray.description.SADLParser
- * @see SADLSyntax.InputType 
- * @see SADLSyntax.ParameterType
  * 
  * @author Aleksi Kallio
  *
  */
 public class SADLSyntax {
-	
-	public static final String INPUT_SET_DESIGNATOR = "{...}";
+
+	public static final String KEYWORD_DEFAULT = "DEFAULT";
+	public static final String KEYWORD_TO = "TO";
+	public static final String KEYWORD_FROM = "FROM";
+	public static final String KEYWORD_OPTIONAL = "OPTIONAL";
+	public static final String KEYWORD_TYPE = "TYPE";
+	public static final String KEYWORD_PARAMETER = "PARAMETER";
+	public static final String KEYWORD_METAOUTPUT = "METAOUTPUT";
+	public static final String KEYWORD_OUTPUT = "OUTPUT";
+	public static final String KEYWORD_METAINPUT = "METAINPUT";
+	public static final String KEYWORD_INPUT = "INPUT";
+	public static final String KEYWORD_TOOL = "TOOL";
+
+	public static final String NAME_SET_DESIGNATOR = "{...}";
 	public static final String NAME_SEPARATOR = ":";
 	public static final String CATEGORY_SEPARATOR = "/";
+	public static final String ENUM_OPEN = "[";
+	public static final String ENUM_CLOSE = "]";
+	public static final String ENUM_SEPARATOR = ",";
 	
 	public static interface InputType {
 		public boolean isTypeOf(DataBean dataBean);

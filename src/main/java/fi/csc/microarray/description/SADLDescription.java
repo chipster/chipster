@@ -49,7 +49,7 @@ public class SADLDescription {
 		}
 
 		public static Name createNameSet(String prefix, String postfix) {
-			return new Name(null, prefix, postfix, prefix + SADLSyntax.INPUT_SET_DESIGNATOR + postfix);
+			return new Name(null, prefix, postfix, prefix + SADLSyntax.NAME_SET_DESIGNATOR + postfix);
 		}
 
 		private Name(String id, String prefix, String postfix, String displayName) {

@@ -67,7 +67,7 @@ public class SADLParser {
 		}
 		
 		SADLTokeniser tokens = new SADLTokeniser(sadlString, unitName);
-		return parseAnalysis(tokens);
+		return parseTool(tokens);
 	}
 
 	public List<SADLDescription> parseMultiple(String sadlString) throws ParseException {
@@ -84,7 +84,7 @@ public class SADLParser {
 		boolean parsingPreviousSuccessful = true;
 		while (tokens.hasNext()) {
 			try {
-				descriptions.add(parseAnalysis(tokens));
+				descriptions.add(parseTool(tokens));
 				parsingPreviousSuccessful = true;
 			} catch (ParseException pe) {
 				if (parsingPreviousSuccessful) {
@@ -107,9 +107,9 @@ public class SADLParser {
 	/**
 	 * Parsing is implemented with recursive descent algorithm (with 1 token look-a-head).
 	 */
-	private SADLDescription parseAnalysis(SADLTokeniser tokens) throws ParseException {
+	private SADLDescription parseTool(SADLTokeniser tokens) throws ParseException {
 		// read first line (analysis)
-		skip(tokens, "TOOL");
+		skip(tokens, SADLSyntax.KEYWORD_TOOL);
 
 		// read analysis stuff
 		String category = tokens.next();
@@ -119,34 +119,34 @@ public class SADLParser {
 		SADLDescription description = new SADLDescription(name, category, comment);
 	
 		// read possible inputs
-		while (nextTokenIs(tokens, "INPUT")) { 
-			skip(tokens, "INPUT");  
+		while (nextTokenIs(tokens, SADLSyntax.KEYWORD_INPUT)) { 
+			skip(tokens, SADLSyntax.KEYWORD_INPUT);  
 			Input input = parseInput(tokens, description);
 			description.addInput(input);			
 		}
 
 		// read possible metainputs
-		while (nextTokenIs(tokens, "METAINPUT")) { 
-			skip(tokens, "METAINPUT"); 
+		while (nextTokenIs(tokens, SADLSyntax.KEYWORD_METAINPUT)) { 
+			skip(tokens, SADLSyntax.KEYWORD_METAINPUT); 
 			Input input = parseInput(tokens, description);
 			description.addMetaInput(input);			
 		}
 
 		// read possible outputs
-		while (nextTokenIs(tokens, "OUTPUT")) {
-			skip(tokens, "OUTPUT"); 
+		while (nextTokenIs(tokens, SADLSyntax.KEYWORD_OUTPUT)) {
+			skip(tokens, SADLSyntax.KEYWORD_OUTPUT); 
 			description.addOutput(parseOutput(tokens));
 		}
 
 		// read possible metaoutputs
-		while (nextTokenIs(tokens, "METAOUTPUT")) {
-			skip(tokens, "METAOUTPUT");
+		while (nextTokenIs(tokens, SADLSyntax.KEYWORD_METAOUTPUT)) {
+			skip(tokens, SADLSyntax.KEYWORD_METAOUTPUT);
 			description.addMetaOutput(parseOutput(tokens));
 		}
 
 		//	read possible parameters
-		while (nextTokenIs(tokens, "PARAMETER")) {
-			skip(tokens, "PARAMETER");
+		while (nextTokenIs(tokens, SADLSyntax.KEYWORD_PARAMETER)) {
+			skip(tokens, SADLSyntax.KEYWORD_PARAMETER);
 			Parameter parameter = parseParameter(tokens);
 			description.addParameter(parameter);
 		}
@@ -170,9 +170,9 @@ public class SADLParser {
 		
 		String rawName = tokens.next();
 		
-		if (rawName.contains(SADLSyntax.INPUT_SET_DESIGNATOR)) {
-			name.setPrefix(rawName.substring(0, rawName.indexOf(SADLSyntax.INPUT_SET_DESIGNATOR)));
-			name.setPostfix(rawName.substring(rawName.indexOf(SADLSyntax.INPUT_SET_DESIGNATOR) + SADLSyntax.INPUT_SET_DESIGNATOR.length()));
+		if (rawName.contains(SADLSyntax.NAME_SET_DESIGNATOR)) {
+			name.setPrefix(rawName.substring(0, rawName.indexOf(SADLSyntax.NAME_SET_DESIGNATOR)));
+			name.setPostfix(rawName.substring(rawName.indexOf(SADLSyntax.NAME_SET_DESIGNATOR) + SADLSyntax.NAME_SET_DESIGNATOR.length()));
 			
 		} else {
 			name.setID(rawName);
@@ -204,7 +204,7 @@ public class SADLParser {
 		input.setOptional(isOptional);
 		
 		input.setName(parseName(tokens));
-		skip(tokens, "TYPE");  
+		skip(tokens, SADLSyntax.KEYWORD_TYPE);  
 		input.setType(inputTypeMap.get(tokens.next()));
 				
 		return input;
@@ -212,8 +212,8 @@ public class SADLParser {
 	
 	private boolean parseOptionalIfExists(SADLTokeniser tokens) throws ParseException {
 		
-		if (nextTokenIs(tokens, "OPTIONAL")) {
-			skip(tokens, "OPTIONAL");
+		if (nextTokenIs(tokens, SADLSyntax.KEYWORD_OPTIONAL)) {
+			skip(tokens, SADLSyntax.KEYWORD_OPTIONAL);
 			return true;
 		
 		} else {
@@ -227,11 +227,11 @@ public class SADLParser {
 		
 		Name name = parseName(tokens);
 		
-		skip(tokens, "TYPE");
+		skip(tokens, SADLSyntax.KEYWORD_TYPE);
 		ParameterType type = null;
 		Name[] options = null;
 		
-		if (nextTokenIs(tokens, "[")) {
+		if (nextTokenIs(tokens, SADLSyntax.ENUM_OPEN)) {
 			options = parseEnumType(tokens);
 			type = ParameterType.ENUM;
 			
@@ -243,18 +243,18 @@ public class SADLParser {
 		String to = null;
 		String defaultValue = null; 
 
-		if (nextTokenIs(tokens, "FROM")) {
-			skip(tokens, "FROM"); 
+		if (nextTokenIs(tokens, SADLSyntax.KEYWORD_FROM)) {
+			skip(tokens, SADLSyntax.KEYWORD_FROM); 
 			from = tokens.next(); 
 		}
 
-		if (nextTokenIs(tokens, "TO")) {
-			skip(tokens, "TO"); 
+		if (nextTokenIs(tokens, SADLSyntax.KEYWORD_TO)) {
+			skip(tokens, SADLSyntax.KEYWORD_TO); 
 			to = tokens.next();
 		}
 
-		if (nextTokenIs(tokens, "DEFAULT")) {
-			skip(tokens, "DEFAULT"); 
+		if (nextTokenIs(tokens, SADLSyntax.KEYWORD_DEFAULT)) {
+			skip(tokens, SADLSyntax.KEYWORD_DEFAULT); 
 			defaultValue = tokens.next();
 		}
 
@@ -269,19 +269,19 @@ public class SADLParser {
 
 	private Name[] parseEnumType(SADLTokeniser tokens) throws ParseException {
 		
-		skip(tokens, "[");
+		skip(tokens, SADLSyntax.ENUM_OPEN);
 		
 		LinkedList<Name> list = new LinkedList<Name>();		
 		while (true) {
 			list.add(parseName(tokens));
-			if (nextTokenIs(tokens, "]")) {
+			if (nextTokenIs(tokens, SADLSyntax.ENUM_CLOSE)) {
 				break;	
 			} else {
-				skip(tokens, ",");				
+				skip(tokens, SADLSyntax.ENUM_SEPARATOR);				
 			}			
 		}
 		
-		skip(tokens, "]");
+		skip(tokens, SADLSyntax.ENUM_CLOSE);
 
 		return list.toArray(new Name[0]);
 	}
