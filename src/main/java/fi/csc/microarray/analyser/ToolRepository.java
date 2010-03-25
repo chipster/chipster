@@ -54,7 +54,7 @@ public class ToolRepository {
 	 */
 	public ToolRepository(File workDir) throws Exception {
 		loadRuntimes(workDir);
-		loadTools();
+		loadModules();
 	}
 	
 	
@@ -207,86 +207,107 @@ public class ToolRepository {
 		}
 	}	
 
-	private void loadTools() throws IOException, SAXException, ParserConfigurationException { 
-		logger.info("loading tools");
+	private void loadModules() throws IOException, SAXException, ParserConfigurationException { 
+		logger.info("loading modules");
 		
-		String [] toolFiles = new String[] { "tools.xml", "emboss-tools.xml" };
-		for (String toolFileName: toolFiles) {
-			File toolFile = new File(DirectoryLayout.getInstance().getConfDir(), toolFileName);
-			if (toolFile.exists()) {
+		String [] moduleFiles = new String[] { "microarray-module.xml" };
+		for (String toolFileName: moduleFiles) {
+			File moduleFile = new File(DirectoryLayout.getInstance().getConfDir(), toolFileName);
+			if (moduleFile.exists()) {
 				logger.info("loading from " + toolFileName);
-				loadToolsFromFile(toolFile);
+				loadModule(moduleFile);
 			}
 		}
 	}
 
-
-	private void loadToolsFromFile(File toolFile) throws FileNotFoundException, SAXException, IOException, ParserConfigurationException {
+	/**
+	 * Parses a module file and loads all tools listed in it.
+	 * 
+	 * @param toolFile
+	 * @throws FileNotFoundException
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws ParserConfigurationException
+	 */
+	private void loadModule(File toolFile) throws FileNotFoundException, SAXException,
+	                                                     IOException, ParserConfigurationException {
 		File toolConfig = toolFile;
 
 		Document document = XmlUtil.parseReader(new FileReader(toolConfig));
-		Element toolsElement = (Element)document.getElementsByTagName("tools").item(0);
-
-		int totalCount = 0;
+		Element moduleElement = (Element)document.getElementsByTagName("module").item(0);
+		
+		// Stats
+	    int totalCount = 0;
 		int successfullyLoadedCount = 0;
-		int hiddenCount = 0;
-		int disabledCount = 0;
-		for (Element toolElement: XmlUtil.getChildElements(toolsElement, "tool")) {
-			totalCount++;
-
-			// tool name
-			String sourceResourceName = toolElement.getTextContent();
-			logger.debug("loading " + sourceResourceName);
-
-			// runtime
-			String runtimeName = toolElement.getAttribute("runtime");
-
-			// disabled or hidden?
-			boolean toolDisabled = toolElement.getAttribute("disabled").equals("true");
-			boolean toolHidden = toolElement.getAttribute("hidden").equals("true");
-
-			// load the tool
-			ToolRuntime runtime = runtimes.get(runtimeName);
-			if (runtime == null) {
-				logger.warn("loading " + sourceResourceName + " failed, could not find runtime " + runtimeName);
-				continue;
-			}
-
-			AnalysisDescription description;
-			try {
-				description = runtime.getHandler().handle(sourceResourceName);
-			} catch (Exception e) {
-				logger.warn("loading " + sourceResourceName + " failed, could not create description", e);
-				continue;
-			}
-
-			// add to descriptions
-			if (descriptions.containsKey(description.getFullName())) {
-				logger.warn("loading " + sourceResourceName + " failed, description with the name " + description.getFullName() + " already exists");
-				continue;
-			}
-			descriptions.put(description.getFullName(), description);
-			successfullyLoadedCount++;
-
-			String disabledStatus = "";
-			if (!runtime.isDisabled() && !toolDisabled) {
-				supportedDescriptions.put(description.getFullName(), description);
-			} else {
-				disabledStatus = " DISABLED";
-				disabledCount++;
-			}
-			String hiddenStatus = "";
-			if (!toolHidden) {
-				visibleDescriptions.put(description.getFullName(), description);
-			} else {
-				hiddenStatus = " HIDDEN";
-				hiddenCount++;
-			}
-
-			logger.info("loaded " + description.getFullName().replace("\"", "") + " " + description.getSourceResourceFullPath() + disabledStatus + hiddenStatus);
+	    int hiddenCount = 0;
+	    int disabledCount = 0;
+		
+		// Read cetegories
+		for (Element categoryElement: XmlUtil.getChildElements(moduleElement, "category")) {
+		    
+		    // Category's visibility
+		    boolean categoryHidden = categoryElement.getAttribute("hidden").equals("true");
+		    
+		    // Read tools
+		    if (!categoryHidden) {
+    		    for (Element toolElement: XmlUtil.getChildElements(categoryElement, "tool")) {
+    		        totalCount++;
+    		        
+    		        String descriptionFilename = toolElement.getTextContent();
+                    logger.debug("loading " + descriptionFilename);
+                    
+                    // Tool's visibility
+                    boolean toolDisabled = toolElement.getAttribute("disabled").equals("true");
+                    boolean toolHidden = toolElement.getAttribute("hidden").equals("true");
+                    
+                    // Runtime
+                    String runtimeName = toolElement.getAttribute("runtime");
+                    ToolRuntime runtime = runtimes.get(runtimeName);
+                    if (runtime == null) {
+                        logger.warn("loading " + descriptionFilename + " failed, could not find runtime " + runtimeName);
+                        continue;
+                    }
+                    
+                    // Description
+                    AnalysisDescription description;
+                    try {
+                        description = runtime.getHandler().handle(descriptionFilename);
+                    } catch (Exception e) {
+                        logger.warn("loading " + descriptionFilename + " failed, could not create description", e);
+                        continue;
+                    }
+                    if (descriptions.containsKey(description.getFullName())) {
+                        logger.warn("loading " + descriptionFilename + " failed, description with the name " +
+                                    description.getFullName() + " already exists");
+                        continue;
+                    }
+                    descriptions.put(description.getFullName(), description);
+                    successfullyLoadedCount++;
+                    
+                    // Supported and visible description lists
+                    String disabledStatus = "";
+                    if (!runtime.isDisabled() && !toolDisabled) {
+                        supportedDescriptions.put(description.getFullName(), description);
+                    } else {
+                        disabledStatus = " DISABLED";
+                        disabledCount++;
+                    }
+                    String hiddenStatus = "";
+                    if (!toolHidden) {
+                        visibleDescriptions.put(description.getFullName(), description);
+                    } else {
+                        hiddenStatus = " HIDDEN";
+                        hiddenCount++;
+                    }
+                    
+                    logger.info("loaded " + description.getFullName().replace("\"", "") + " " +
+                                description.getSourceResourceFullPath() + disabledStatus + hiddenStatus);
+    		    }
+		    }
 		}
-		logger.info("loaded " + successfullyLoadedCount + "/" + totalCount + " tools, " + disabledCount + " disabled, " + hiddenCount + " hidden");
-
+        
+        logger.info("loaded " + successfullyLoadedCount + "/" + totalCount +
+                    " tools, " + disabledCount + " disabled, " + hiddenCount + " hidden");
 	}
 
 }

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<module name="Gene expression">
+	<category name="Normalisation" color="">
+		<tool runtime="R-2.9">norm-affy.R</tool>
+		<tool runtime="R-2.9">norm-affy-exon.R</tool>
+		<tool runtime="R-2.9">norm-affy-snp.R</tool>
+		<tool runtime="R-2.9">norm-affy-gene.R</tool>
+		<tool runtime="R-2.9">norm-agilent-one-color.R</tool>
+		<tool runtime="R-2.9">norm-agilent.R</tool>
+		<tool runtime="R-2.9">norm-agilent-miRNA.R</tool>
+		<tool runtime="R-2.9">norm-cdna.R</tool>
+		<tool runtime="R-2.9">norm-illumina.R</tool>
+		<tool runtime="R-2.9">norm-illumina-lumi.R</tool>
+		<tool runtime="R-2.9">norm-lme.R</tool>
+		<tool runtime="R-2.9">norm-illumina-SNP.R</tool>
+		<tool runtime="R-2.9">norm-prenormalized.R</tool>
+		<tool runtime="R-2.9">norm-prenormalized-affy.R</tool>
+		<tool runtime="R-2.9">norm-chip-average.R</tool>
+		<tool runtime="R-2.9">norm-gene-average.R</tool>
+		<tool runtime="R-2.9">norm-specific-samples.R</tool>
+		<tool runtime="R-2.9">norm-specific-genes.R</tool>
+	</category>
+	
+	<category name="Quality control" color="">
+		<tool runtime="R-2.9">qc-affy.R</tool>
+		<tool runtime="R-2.9">qc-affy-rle-nuse.R</tool>
+		<tool runtime="R-2.9">qc-affy-exon-rle-nuse.R</tool>
+		<tool runtime="R-2.9">qc-cdna.R</tool>
+		<tool runtime="R-2.9">qc-illumina.R</tool>
+		<tool runtime="R-2.9">qc-agilent.R</tool>
+		<tool runtime="R-2.9">qc-agilent-one-color.R</tool>
+	</category>
+	
+	<category name="Preprocessing">
+		<tool runtime="R-2.9">filter-expression.R</tool>
+		<tool runtime="R-2.9">filter-flags.R</tool>
+		<tool runtime="R-2.9">filter-sd.R</tool>
+		<tool runtime="R-2.9">filter-iqr.R</tool>
+		<tool runtime="R-2.9">filter-cv.R</tool>
+		<tool runtime="R-2.9">filter-by-column-term.R</tool>
+		<tool runtime="R-2.9">filter-by-column-value.R</tool>
+		<tool runtime="R-2.9">impute.R</tool>
+		<tool runtime="R-2.9">na-omitted.R</tool>
+	</category>
+	
+	<category name="Statistics">
+		<tool runtime="R-2.9">stat-singleslide.R</tool>
+		<tool runtime="R-2.9">stat-one-group.R</tool>
+		<tool runtime="R-2.9">stat-two-groups.R</tool>
+		<tool runtime="R-2.9">stat-ROTS.R</tool>
+		<tool runtime="R-2.9">stat-sam.R</tool>
+		<tool runtime="R-2.9">stat-several-groups.R</tool>
+		<tool runtime="R-2.9">stat-linear-modelling.R</tool>
+		<tool runtime="R-2.9">stat-correlate-with-phenodata.R</tool>
+		<!-- <tool runtime="R-2.10">correlation-analysis-mirna.R</tool> -->
+		<tool runtime="R-2.9">stat-timeseries.R</tool>
+		<tool runtime="R-2.9">stat-chisq-snp.R</tool>
+		<tool runtime="R-2.9">stat-adjust-pvalues.R</tool>
+		<tool runtime="R-2.9">ordination-pca.R</tool>
+		<tool runtime="R-2.9">ordination-ca.R</tool>
+		<tool runtime="R-2.9">ordination-nmds.R</tool>
+		<tool runtime="R-2.9">estimate-samplesize.R</tool>
+		<!-- <tool runtime="R-2.10">up-down-analysis-mirna.R</tool> -->
+	</category>
+	
+	<category name="Clustering">
+		<tool runtime="R-2.9">classification-knn.R</tool>
+		<tool runtime="R-2.9">cluster-hierarchical.R</tool>
+		<tool runtime="R-2.9">cluster-kmeans.R</tool>
+		<tool runtime="R-2.9">cluster-kmeans-testK.R</tool>
+		<tool runtime="R-2.9">cluster-qt.R</tool>
+		<tool runtime="R-2.9">cluster-som.R</tool>
+		<tool runtime="R-2.9">classification.R</tool>
+	</category>
+	
+	<category name="Annotation">
+		<tool runtime="R-2.9">annotate-genelist2html.R</tool>
+		<tool runtime="R-2.9">annotate-add-to-data.R</tool>
+		<tool runtime="R-2.9">annotate-agilent-miRNA.R</tool>
+		<!-- <tool runtime="R-2.10">annotate-miRNA-targets.R</tool> -->
+	</category>
+	
+	<category name="Pathways">
+		<tool runtime="R-2.9">stat-hyperG-GO.R</tool>
+		<tool runtime="R-2.9">stat-hyperG-KEGG-PFAM.R</tool>
+		<tool runtime="R-2.9">stat-hyperG-safe.R</tool>
+		<tool runtime="R-2.9">stat-hyperG-cytoband.R</tool>
+		<tool runtime="R-2.9">stat-geneset.R</tool>
+		<!-- <tool runtime="R-2.10">pathways-mirna-hyperg-go.R</tool> -->
+		<!-- <tool runtime="R-2.10">pathways-mirna-hyperg-kegg.R</tool> -->
+		<!-- <tool runtime="R-2.10">correlation-analysis-mirna.R</tool> -->
+		<tool runtime="beanshell">annotate-cpdb.bsh</tool>
+		<tool runtime="beanshell">annotate-intact.bsh</tool>
+		<tool runtime="beanshell">annotate-reactome.bsh</tool>
+	</category>
+
+	<category name="Promoter analysis">
+			<!-- PROMOTER -->
+		<tool runtime="R-2.9">promoter-tfbs.R</tool>
+		<tool runtime="R-2.9">promoter-tfbs-cosmo.R</tool>
+		<tool runtime="R-2.9">promoter-cbust.R</tool>
+		<tool runtime="R-2.9">promoter-retrprom.R</tool>
+	</category>
+
+	<category name="Visualisation">
+		<tool runtime="R-2.9">plot-idiogram.R</tool>
+		<tool runtime="R-2.9">plot-chrom-pos.R</tool>
+		<tool runtime="R-2.9">plot-volcano.R</tool>
+		<tool runtime="R-2.9">plot-volcano-data-exists.R</tool>
+		<tool runtime="R-2.9">plot-boxplot.R</tool>
+		<tool runtime="R-2.9">plot-dendrogram.R</tool>
+		<tool runtime="R-2.9">plot-histogram.R</tool>
+		<tool runtime="R-2.9">plot-corrgram.R</tool>
+		<tool runtime="R-2.9">plot-heatmap.R</tool>
+	</category>
+
+	<category name="Utilities">
+		<tool runtime="R-2.9">search-correlation.R</tool>
+		<tool runtime="R-2.9">search-queryword.R</tool>
+		<tool runtime="R-2.9">merge-tables.R</tool>
+		<tool runtime="R-2.9">extract-genes-from-clustering.R</tool>
+		<tool runtime="R-2.9">extract-samples-from-dataset.R</tool>
+		<tool runtime="R-2.9">extract-genes-from-stattest.R</tool>
+		<tool runtime="R-2.9">extract-genes.R</tool>
+		<tool runtime="R-2.9">calculate-fold-change.R</tool>
+		<tool runtime="R-2.9">average-replicates.R</tool>
+		<tool runtime="R-2.9">combine-probes-to-genes.R</tool>
+		<tool runtime="R-2.9">change-interpretation.R</tool>
+		<tool runtime="R-2.9">generate-phenodata.R</tool>
+		<tool runtime="R-2.9">delete-columns.R</tool>
+		<tool runtime="R-2.9">calculate-descriptive-statistics.R</tool>
+		<tool runtime="R-2.9">sort-samples.R</tool>
+		<tool runtime="R-2.9">sort-genes.R</tool>
+		<tool runtime="R-2.9">sampling.R</tool>
+		<tool runtime="R-2.9">export-tab2mage.R</tool>
+		<tool runtime="R-2.9">export-soft.R</tool>
+		<tool runtime="R-2.9">import-soft2.R</tool>
+		<!-- <tool runtime="R-2.10">import-ArrayExpress.R</tool> -->
+		<tool runtime="R-2.9">intersect-lists.R</tool>
+	</category>
+	
+	<category name="aCGH tools (beta testing)">
+		<tool runtime="R-2.9">import-from-cangem.R</tool>
+		<tool runtime="R-2.9">detect-copy-number-aberrations.R</tool>
+		<tool runtime="R-2.9">plot-cgh-profile.R</tool>
+		<tool runtime="R-2.9">detect-common-copy-number-aberration-regions.R</tool>
+		<tool runtime="R-2.9">test-for-cn-induced-differential-expression.R</tool>
+		<tool runtime="R-2.9">plot-cn-induced-expression-profile.R</tool>
+		<tool runtime="R-2.9">plot-cn-induced-gene-expression.R</tool>
+		<tool runtime="R-2.9">fetch-probe-positions-from-cangem.R</tool>
+		<tool runtime="R-2.9">add-cytobands.R</tool>
+		<tool runtime="R-2.9">count-overlapping-cnvs.R</tool>
+	   	<tool runtime="R-2.9">sample-size-with-bh.R</tool>	
+	</category>
+	
+	<!-- TODO UI configuration -->
+	
+	
+	<!-- HIDDEN -->
+	<category name="Hidden" hidden="true">
+		<tool runtime="R-2.9" hidden="true">test.R</tool>
+		<tool runtime="R-2.9" hidden="true">no-operation.R</tool>
+		<tool runtime="R-2.9" hidden="true">echo.R</tool>
+		<tool runtime="R-2.9" hidden="true">fail.R</tool>
+		<tool runtime="R-2.9" hidden="true">input-output.R</tool>
+		<tool runtime="R-2.9" hidden="true">simple-input-output.R</tool>
+		<tool runtime="R-2.9" hidden="true">data-throughput.R</tool>
+		<tool runtime="R-2.9" hidden="true">sleep.R</tool>
+		<tool runtime="R-2.9" hidden="true">input-sleep-output.R</tool>
+	</category>
+	
+	<category name="Miscellaneous (sequence analysis)" hidden="true">
+		<tool runtime="R-2.9">seqanal-msa.R</tool> 
+		<tool runtime="R-2.9">seqanal-phylogenetics.R</tool>
+	</category>
+</module>
