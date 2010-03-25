@@ -85,13 +85,13 @@ public class FSSnapshottingSession {
 			metadata.append("VERSION " + SNAPSHOT_VERSION + "\n");
 
 			// generate all ids
-			generateIdsRecursively((FSDataFolder)manager.getRootFolder());
+			generateIdsRecursively(manager.getRootFolder());
 
 			// 1st pass, write most metadata
-			saveRecursively((FSDataFolder)manager.getRootFolder(), cpZipOutputStream, metadata);
+			saveRecursively(manager.getRootFolder(), cpZipOutputStream, metadata);
 
 			// 2nd pass for links (if written in one pass, input dependent operation parameters break when reading)
-			saveLinksRecursively((FSDataFolder)manager.getRootFolder(), metadata);
+			saveLinksRecursively(manager.getRootFolder(), metadata);
 
 			writeFile(cpZipOutputStream, METADATA_FILENAME, 
 					new ByteArrayInputStream(metadata.toString().getBytes()));
@@ -131,15 +131,15 @@ public class FSSnapshottingSession {
 		cpZipOutputStream.closeEntry() ;							
 	}
 	
-	private int generateIdsRecursively(FSDataFolder folder) throws IOException {
+	private int generateIdsRecursively(DataFolder folder) throws IOException {
 		
 		int dataCount = 0;
 		
 		generateId(folder);
 		
 		for (DataItem data : folder.getChildren()) {
-			if (data instanceof FSDataFolder) {
-				int recDataCount = generateIdsRecursively((FSDataFolder)data);
+			if (data instanceof DataFolder) {
+				int recDataCount = generateIdsRecursively((DataFolder)data);
 				dataCount += recDataCount;
 				
 			} else {
@@ -151,14 +151,14 @@ public class FSSnapshottingSession {
 		return dataCount;
 	}
 			
-	private void saveRecursively(FSDataFolder folder, ZipOutputStream cpZipOutputStream, StringBuffer metadata) throws IOException {
+	private void saveRecursively(DataFolder folder, ZipOutputStream cpZipOutputStream, StringBuffer metadata) throws IOException {
 		
 		String folderId = fetchId(folder);
 		saveDataFolderMetadata(folder, folderId, metadata);
 		
 		for (DataItem data : folder.getChildren()) {
-			if (data instanceof FSDataFolder) {
-				saveRecursively((FSDataFolder)data, cpZipOutputStream, metadata);
+			if (data instanceof DataFolder) {
+				saveRecursively((DataFolder)data, cpZipOutputStream, metadata);
 				
 			} else {
 				FSDataBean bean = (FSDataBean)data;
@@ -172,7 +172,7 @@ public class FSSnapshottingSession {
 	}
 
 
-	private void saveDataFolderMetadata(FSDataFolder folder, String folderId, StringBuffer metadata) {
+	private void saveDataFolderMetadata(DataFolder folder, String folderId, StringBuffer metadata) {
 		metadata.append("DATAFOLDER " + folderId + "\n");
 		saveDataItemMetadata(folder, folderId, metadata);
 	}	
@@ -458,12 +458,12 @@ public class FSSnapshottingSession {
 	}
 
 	
-	private void saveLinksRecursively(FSDataFolder folder, StringBuffer metadata) {
+	private void saveLinksRecursively(DataFolder folder, StringBuffer metadata) {
 		
 		for (DataItem data : folder.getChildren()) {
 			
-			if (data instanceof FSDataFolder) {
-				saveLinksRecursively((FSDataFolder)data, metadata);
+			if (data instanceof DataFolder) {
+				saveLinksRecursively((DataFolder)data, metadata);
 				
 			} else {
 				DataBean bean = (DataBean)data; 
