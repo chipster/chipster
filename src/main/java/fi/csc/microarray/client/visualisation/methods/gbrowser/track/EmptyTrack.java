@@ -8,7 +8,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 
-public class EmptyTrack extends Track{
+public class EmptyTrack extends Track {
 
 	private int height;
 
@@ -22,19 +22,20 @@ public class EmptyTrack extends Track{
 		return getEmptyDrawCollection();
 	}
 
-	public void processAreaResult(AreaResult areaResult) {		
+	public void processAreaResult(AreaResult areaResult) {
+		// ignored
 	}
-	
+
 	@Override
-	public int getMaxHeight(){
+	public int getMaxHeight() {
 		return height;
 	}
-	
+
 	@Override
 	public Collection<ColumnType> getDefaultContents() {
-		return Arrays.asList(new ColumnType[] {}); 
+		return Arrays.asList(new ColumnType[] {});
 	}
-	
+
 	@Override
 	public boolean isConcised() {
 		return false;

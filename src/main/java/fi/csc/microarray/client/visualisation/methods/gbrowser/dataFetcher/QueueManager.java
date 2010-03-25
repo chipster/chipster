@@ -11,62 +11,53 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class QueueManager implements AreaResultListener {
 
 	private class QueueContext {
 		public Queue<AreaRequest> queue;
 		public Collection<AreaResultListener> listeners = new ArrayList<AreaResultListener>();
-		public AreaRequestHandler thread;		
+		public AreaRequestHandler thread;
 	}
 
-	Map<File, QueueContext> queues = new HashMap<File, QueueContext>(); 
+	private Map<File, QueueContext> queues = new HashMap<File, QueueContext>();
 
-//	public void createQueue(File file, InputParser inputParser){
-//		createQueue(file, StraightforwardFileParser.class, inputParser);
-//	}		
+	public void createQueue(File file, Class<? extends AreaRequestHandler> dataFetcher, FileParser inputParser) {
 
-	public void createQueue(File file, Class<? extends AreaRequestHandler> dataFetcher, FileParser inputParser){
-		
-		if(!queues.containsKey(file)){
+		if (!queues.containsKey(file)) {
 			QueueContext context = new QueueContext();
-			context.queue = new ConcurrentLinkedQueue<AreaRequest>();		
+			context.queue = new ConcurrentLinkedQueue<AreaRequest>();
 			try {
-				context.thread = dataFetcher.getConstructor(
-						File.class, 
-						Queue.class, 
-						AreaResultListener.class, 
-						FileParser.class).
-						
-					newInstance(file, context.queue, this, inputParser);
+				context.thread = dataFetcher.getConstructor(File.class, Queue.class, AreaResultListener.class, FileParser.class).
+
+				newInstance(file, context.queue, this, inputParser);
 
 				queues.put(file, context);
 				context.thread.start();
-				
-			} catch (Exception e){
+
+			} catch (Exception e) {
 				e.printStackTrace();
-			}		
+			}
 		}
 	}
 
-	public void addAreaRequest(File file, AreaRequest req, boolean clearQueues){
+	public void addAreaRequest(File file, AreaRequest req, boolean clearQueues) {
 		req.status.file = file;
 		QueueContext context = queues.get(file);
-		
-		//System.out.println("File: " + file + ", queue: " + context.thread.getClass());
-		
+
 		req.status.maybeClearQueue(context.queue);
 		context.queue.add(req);
 		context.thread.notifyTree();
 	}
 
-	public void addResultListener(File file, AreaResultListener listener){
+	public void addResultListener(File file, AreaResultListener listener) {
 		queues.get(file).listeners.add(listener);
 	}
 
-	public void processAreaResult(AreaResult areaResult) {								
-		
-		for(AreaResultListener listener: queues.get(areaResult.status.file).listeners){
+	public void processAreaResult(AreaResult<RegionContent> areaResult) {
+
+		for (AreaResultListener listener : queues.get(areaResult.status.file).listeners) {
 			listener.processAreaResult(areaResult);
 		}
 	}

@@ -15,12 +15,10 @@ public class FastaParser extends ConstantRowLengthParser{
 	private static FileDefinition fileDef = new FileDefinition(
 			Arrays.asList(
 					new ColumnDefinition[] {
-
 							new ColumnDefinition(ColumnType.SEQUENCE, Type.STRING, 64),
 							new ColumnDefinition(ColumnType.BP_START, Type.LONG, 16),							
 							new ColumnDefinition(ColumnType.SKIP, Type.NEWLINE, 1),
-
-					}));
+	}));
 
 	private Integer rowLength;
 	private long titleLength;
@@ -73,10 +71,8 @@ public class FastaParser extends ConstantRowLengthParser{
 	}
 
 	@Override
-	public RegionContent[] concise(BpCoordRegion readIndexRegion) {
-
-		//Return empty table, otherwise TreeNode gets stuck in calling this again
-		return new RegionContent[0];
+	public RegionContent[] concise(BpCoordRegion readIndexRegion) {		
+		return new RegionContent[0]; // return empty table, otherwise TreeNode gets stuck in calling this again
 	}
 
 	@Override

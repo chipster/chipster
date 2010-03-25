@@ -22,11 +22,8 @@ public class IntensityTrack extends Track {
 	private long minBpLength;
 	private Color color;
 
-	public IntensityTrack(View view, File file, Class<? extends AreaRequestHandler> handler, 
-			FileParser inputParser, Color c, long maxBpLength) { 
-
+	public IntensityTrack(View view, File file, Class<? extends AreaRequestHandler> handler, FileParser inputParser, Color c, long maxBpLength) {
 		super(view, file, handler, inputParser);
-
 		this.color = c;
 		this.minBpLength = maxBpLength;
 	}
@@ -36,46 +33,40 @@ public class IntensityTrack extends Track {
 
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
-		//Collection<Region> toBeRemoved = new ArrayList<Region>();
-
-		for ( RegionContent regCont : values){			
+		for (RegionContent regCont : values) {
 
 			int x1 = getView().bpToTrack(regCont.region.start);
 			int x2 = getView().bpToTrack(regCont.region.end);
-			int y2 = (int)getView().getTrackHeight();
-			
-			int val = (int) Math.min((Float)(regCont.values.get(ColumnType.VALUE)) * 10 , 
-					getView().getTrackHeight()/4);
+			int y2 = (int) getView().getTrackHeight();
+
+			int val = (int) Math.min((Float) (regCont.values.get(ColumnType.VALUE)) * 10, getView().getTrackHeight() / 4);
 			int y1 = (int) (-val + y2);
 
 			drawables.add(new RectDrawable(x1, y1, x2 - x1, y2 - y1, color, null));
-			
+
 		}
-		
 
 		return drawables;
 	}
 
 	@Override
-	public void updateData(){
+	public void updateData() {
 
 		values.clear();
 		super.updateData();
 	}
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
-		
-		if(areaResult.status.concise == this.isConcised() &&
-				areaResult.content.values.get(ColumnType.STRAND) == getStrand() && 
-				areaResult.content.values.get(ColumnType.VALUE) != null){
-			
-			values.add(areaResult.content);			
+
+		if (areaResult.status.concise == this.isConcised() && areaResult.content.values.get(ColumnType.STRAND) == getStrand() && areaResult.content.values.get(ColumnType.VALUE) != null) {
+
+			values.add(areaResult.content);
 			getView().redraw();
 		}
 	}
 
-	public int getMaxHeight(){
-		if(getView().getBpRegion().getLength() > minBpLength){
+	public int getMaxHeight() {
+		if (getView().getBpRegion().getLength() > minBpLength) {
 			return super.getMaxHeight();
 		} else {
 			return 0;
@@ -85,12 +76,12 @@ public class IntensityTrack extends Track {
 	@Override
 	public Collection<ColumnType> getDefaultContents() {
 		return Arrays.asList(new ColumnType[] {
-				//Content.VALUE
-		}); 
+//				Content.VALUE
+		});
 	}
 
 	@Override
-	public boolean isConcised() {		
+	public boolean isConcised() {
 		return true;
 	}
 }

@@ -14,60 +14,60 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 
 public class TsvSorter2 {
-	
+
 	private static int chrCol;
 	private static int bpCol;
-	
+
 	public static void main(String[] args) throws Exception {
-		
-		//Eland
+
+		// Eland
 		chrCol = new ElandParser().getFileDefinition().indexOf(ColumnType.CHROMOSOME);
 		bpCol = new ElandParser().getFileDefinition().indexOf(ColumnType.BP_START);
-		
-		//Casava
-//		chrCol = 10;
-//		bpCol = 12
-		
+
+		// Casava
+		// chrCol = 10;
+		// bpCol = 12
+
 		long s = System.currentTimeMillis();
 
 		externalSort("eland_result.txt", "sorted.txt");
 
 		System.out.println(System.currentTimeMillis() - s);
 	}
-	
-	private static class Row extends BpCoord{
-		
+
+	private static class Row extends BpCoord {
+
 		public String line;
-		
-		public Row(String line){
+
+		public Row(String line) {
 			super(null, null);
-			
+
 			this.line = line;
 			String[] splitted = line.split("\t");
 			String chrStr = splitted.length > chrCol ? splitted[chrCol] : "";
 			String bpStr = splitted.length > bpCol ? splitted[bpCol] : "";
-			
-                        chr = new Chromosome(chrStr.replace("chr", "").replace(".fa", ""));
 
-			if(bpStr.equals("")){
+			chr = new Chromosome(chrStr.replace("chr", "").replace(".fa", ""));
+
+			if (bpStr.equals("")) {
 				bp = -1l;
 			} else {
 				bp = Long.parseLong(bpStr);
 			}
 		}
 	}
-	
+
 	private static long startTime = -1;
-	
-	private static void showProgress(String message){
-		if(startTime != -1){
+
+	private static void showProgress(String message) {
+		if (startTime != -1) {
 			System.out.println((System.currentTimeMillis() - startTime) / 1000 + " s");
 		}
 		startTime = System.currentTimeMillis();
-		
+
 		System.out.println(message);
 	}
-	
+
 	private static void externalSort(String infile, String outfile) {
 		try {
 			BufferedReader initReader = new BufferedReader(new FileReader(infile));
@@ -77,13 +77,13 @@ public class TsvSorter2 {
 			int numFiles = 0;
 
 			while (!quit) {
-				
+
 				showProgress("Reading...");
-				
+
 				// limit chunks to 200MB
 				int size = 0;
 				while (size < 200000000) {
-				//while (size < 10000000) {
+					// while (size < 10000000) {
 					String line = initReader.readLine();
 
 					if (line == null) {
@@ -96,13 +96,12 @@ public class TsvSorter2 {
 				}
 
 				showProgress("Sorting...");
-				
+
 				// Use Java's sort.
 				Collections.sort(rowBatch);
 
-				
 				showProgress("Writing...");
-				
+
 				// write to disk
 				FileWriter fw = new FileWriter(infile + "_chunk" + numFiles);
 				BufferedWriter bw = new BufferedWriter(fw);
@@ -113,14 +112,15 @@ public class TsvSorter2 {
 				numFiles++;
 				rowBatch.clear();
 			}
-			
+
 			showProgress("Merging...");
 
 			mergeFiles(infile, outfile, numFiles);
-			
+
 			showProgress("DONE");
 
 			initReader.close();
+			
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			System.exit(-1);
@@ -201,8 +201,7 @@ public class TsvSorter2 {
 					someFileStillHasRows = false;
 					if (filerows.get(i) != null) {
 						if (minIndex < 0) {
-							System.out.println("mindex lt 0 and found row not null"
-									+ filerows.get(i));
+							System.out.println("mindex lt 0 and found row not null" + filerows.get(i));
 							System.exit(-1);
 						}
 						someFileStillHasRows = true;
@@ -212,7 +211,7 @@ public class TsvSorter2 {
 
 				// check the actual files one more time
 				if (!someFileStillHasRows) {
-					//write the last one not covered above
+					// write the last one not covered above
 					for (int i = 0; i < filerows.size(); i++) {
 						if (filerows.get(i) == null) {
 							String line = mergefbr.get(i).readLine();

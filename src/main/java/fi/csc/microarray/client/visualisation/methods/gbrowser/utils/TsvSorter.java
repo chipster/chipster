@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class TsvSorter {
-	
+
 	private final static int col = 7;
-	
+
 	public static void main(String[] args) throws Exception {
 		long s = System.currentTimeMillis();
 
@@ -19,16 +19,16 @@ public class TsvSorter {
 
 		System.out.println(System.currentTimeMillis() - s);
 	}
-	
-	private static class Row implements Comparable<Row>{
-		
+
+	private static class Row implements Comparable<Row> {
+
 		public String line;
 		public Long pos;
-		
-		public Row(String line){
+
+		public Row(String line) {
 			this.line = line;
 			String posStr = line.split("\t")[col];
-			if(posStr.equals("")){
+			if (posStr.equals("")) {
 				this.pos = -1l;
 			} else {
 				this.pos = Long.parseLong(posStr);
@@ -39,18 +39,18 @@ public class TsvSorter {
 			return pos.compareTo(other.pos);
 		}
 	}
-	
+
 	private static long startTime = -1;
-	
-	private static void showProgress(String message){
-		if(startTime != -1){
+
+	private static void showProgress(String message) {
+		if (startTime != -1) {
 			System.out.println((System.currentTimeMillis() - startTime) / 1000 + " s");
 		}
 		startTime = System.currentTimeMillis();
-		
+
 		System.out.println(message);
 	}
-	
+
 	private static void externalSort(String infile, String outfile) {
 		try {
 			BufferedReader initReader = new BufferedReader(new FileReader(infile));
@@ -60,13 +60,13 @@ public class TsvSorter {
 			int numFiles = 0;
 
 			while (!quit) {
-				
+
 				showProgress("Reading...");
-				
+
 				// limit chunks to 200MB
 				int size = 0;
 				while (size < 200000000) {
-				//while (size < 10000000) {
+					// while (size < 10000000) {
 					String line = initReader.readLine();
 
 					if (line == null) {
@@ -79,13 +79,12 @@ public class TsvSorter {
 				}
 
 				showProgress("Sorting...");
-				
+
 				// Use Java's sort.
 				Collections.sort(rowBatch);
 
-				
 				showProgress("Writing...");
-				
+
 				// write to disk
 				FileWriter fw = new FileWriter(infile + "_chunk" + numFiles);
 				BufferedWriter bw = new BufferedWriter(fw);
@@ -96,14 +95,15 @@ public class TsvSorter {
 				numFiles++;
 				rowBatch.clear();
 			}
-			
+
 			showProgress("Merging...");
 
 			mergeFiles(infile, outfile, numFiles);
-			
+
 			showProgress("DONE");
 
 			initReader.close();
+			
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			System.exit(-1);
@@ -184,8 +184,7 @@ public class TsvSorter {
 					someFileStillHasRows = false;
 					if (filerows.get(i) != null) {
 						if (minIndex < 0) {
-							System.out.println("mindex lt 0 and found row not null"
-									+ filerows.get(i));
+							System.out.println("mindex lt 0 and found row not null" + filerows.get(i));
 							System.exit(-1);
 						}
 						someFileStillHasRows = true;
@@ -195,7 +194,7 @@ public class TsvSorter {
 
 				// check the actual files one more time
 				if (!someFileStillHasRows) {
-					//write the last one not covered above
+					// write the last one not covered above
 					for (int i = 0; i < filerows.size(); i++) {
 						if (filerows.get(i) == null) {
 							String line = mergefbr.get(i).readLine();

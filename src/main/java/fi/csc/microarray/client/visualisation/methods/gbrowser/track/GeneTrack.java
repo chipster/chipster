@@ -21,22 +21,20 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
-public class GeneTrack extends Track{
+public class GeneTrack extends Track {
 
 	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
-	
-	List<Integer> occupiedSpace = new ArrayList<Integer>();
-
-	private Color color;
-
-	private int RESOLUTION = 512;
+	private List<Integer> occupiedSpace = new ArrayList<Integer>();
 
 	private long maxBpLength;
+	private long minBpLength;
 
-	public GeneTrack(View view, File file, Class<? extends AreaRequestHandler> handler, 
-			FileParser inputParser, Color color, long minBpLength, long maxBpLength)  {
-		
-		super(view, file, handler, inputParser);		
+	private boolean wasLastConcised = true;
+	private Color color;
+
+
+	public GeneTrack(View view, File file, Class<? extends AreaRequestHandler> handler, FileParser inputParser, Color color, long minBpLength, long maxBpLength) {
+		super(view, file, handler, inputParser);
 		this.color = color;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
@@ -45,37 +43,32 @@ public class GeneTrack extends Track{
 	@Override
 	public Collection<Drawable> getDrawables() {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
-		
-//		Collection<Region> toBeRemoved = new ArrayList<Region>();
-		
+
 		occupiedSpace.clear();
 
-		if(reads != null){
+		if (reads != null) {
 
 			Iterator<RegionContent> iter = reads.iterator();
-			while(iter.hasNext()){
+			while (iter.hasNext()) {
 
 				RegionContent read = iter.next();
-				
-				Object valueObj = read.values.get(ColumnType.DESCRIPTION);
-				
-				
-				if(!read.region.intercepts(getView().getBpRegion())){
-					
+
+				if (!read.region.intercepts(getView().getBpRegion())) {
+
 					iter.remove();
 					continue;
 				}
-				
-				String name = ((String)read.values.get(ColumnType.DESCRIPTION));
-								
-				createDrawable(read.region.start, read.region.end, 10, color, name, drawables);							
+
+				String name = ((String) read.values.get(ColumnType.DESCRIPTION));
+
+				createDrawable(read.region.start, read.region.end, 10, color, name, drawables);
 			}
 		}
-				
+
 		return drawables;
 	}
 
-	private void createDrawable(BpCoord startBp, BpCoord endBp, int height, Color c, String name, Collection<Drawable> drawables){
+	private void createDrawable(BpCoord startBp, BpCoord endBp, int height, Color c, String name, Collection<Drawable> drawables) {
 		Rectangle rect = new Rectangle();
 
 		rect.x = getView().bpToTrack(startBp);
@@ -83,64 +76,56 @@ public class GeneTrack extends Track{
 
 		int i = 0;
 
-		while(occupiedSpace.size() > i && occupiedSpace.get(i) > rect.x + 1){
+		while (occupiedSpace.size() > i && occupiedSpace.get(i) > rect.x + 1) {
 			i++;
 		}
 
 		int end = rect.x + rect.width;
 
-		if(occupiedSpace.size() > i){
+		if (occupiedSpace.size() > i) {
 			occupiedSpace.set(i, end);
 		} else {
 			occupiedSpace.add(end);
 		}
-		
-		
-		rect.y = (int)(getView().getTrackHeight() - ((i + 1) * (height + 2)));
+
+		rect.y = (int) (getView().getTrackHeight() - ((i + 1) * (height + 2)));
 		rect.height = height;
-		
 
 		drawables.add(new RectDrawable(rect, c, null));
-		if(rect.width > name.length() * 7){
-			
-			//TODO fix the extra quote mark in file
+		if (rect.width > name.length() * 7) {
+
+			// TODO fix the extra quote mark in file
 			name = name.replaceAll("\"", "");
-			
+
 			drawables.add(new TextDrawable(rect.x, rect.y + 10, name, Color.DARK_GRAY));
 		}
 	}
 
-	public void processAreaResult(AreaResult<RegionContent> areaResult) {		
+	public void processAreaResult(AreaResult<RegionContent> areaResult) {
 
-		if(areaResult.status.concise == this.isConcised() &&
-				areaResult.content.values.get(ColumnType.STRAND) == getStrand()){
+		if (areaResult.status.concise == this.isConcised() && areaResult.content.values.get(ColumnType.STRAND) == getStrand()) {
 
-			this.reads.add(areaResult.content);			
+			this.reads.add(areaResult.content);
 
 			getView().redraw();
 		}
 	}
 
-	private boolean wasLastConsied = true;
 
-	private long minBpLength;
-	
 	@Override
-	public void updateData(){
-
-		if(wasLastConsied != isConcised()){
+	public void updateData() {
+		if (wasLastConcised != isConcised()) {
 			reads.clear();
-			wasLastConsied = isConcised();
+			wasLastConcised = isConcised();
 		}
 		super.updateData();
 	}
-	
+
 	@Override
-	public int getMaxHeight(){
-		if(getView().getBpRegion().getLength() > minBpLength && 
-				getView().getBpRegion().getLength() <= maxBpLength){
-			
+	public int getMaxHeight() {
+		if (getView().getBpRegion().getLength() > minBpLength && getView().getBpRegion().getLength() <= maxBpLength) {
 			return super.getMaxHeight();
+			
 		} else {
 			return 0;
 		}
@@ -148,9 +133,7 @@ public class GeneTrack extends Track{
 
 	@Override
 	public Collection<ColumnType> getDefaultContents() {
-		
-		return Arrays.asList(new ColumnType[] {		 
-				ColumnType.STRAND, ColumnType.DESCRIPTION, ColumnType.VALUE }); 
+		return Arrays.asList(new ColumnType[] { ColumnType.STRAND, ColumnType.DESCRIPTION, ColumnType.VALUE });
 	}
 
 	@Override

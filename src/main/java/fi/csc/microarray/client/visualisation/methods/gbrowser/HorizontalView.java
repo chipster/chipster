@@ -10,23 +10,21 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDraw
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 
-public class HorizontalView  extends View{
+public class HorizontalView extends View {
 
-	public HorizontalView(GenomePlot parent, boolean movable,
-			boolean zoomable, boolean selectable) {
+	public HorizontalView(GenomePlot parent, boolean movable, boolean zoomable, boolean selectable) {
 		super(parent, movable, zoomable, selectable);
 	}
 
 	@Override
-	protected void drawView(Graphics2D g, boolean isAnimation){
-		
+	protected void drawView(Graphics2D g, boolean isAnimation) {
+
 		super.drawView(g, isAnimation);
 
-		if(highlight != null){
-
-			g.setPaint(new Color(0,0,0,64));
+		if (highlight != null) {
+			g.setPaint(new Color(0, 0, 0, 64));
 			Rectangle rect = g.getClip().getBounds();
-			
+
 			rect.x = bpToTrack(highlight.start);
 			rect.width = Math.max(1, bpToTrack(highlight.end) - rect.x);
 			g.fill(rect);
@@ -35,7 +33,7 @@ public class HorizontalView  extends View{
 
 	protected void drawDrawable(Graphics2D g, int x, int y, Drawable drawable) {
 
-		g.setPaint(drawable.color);			
+		g.setPaint(drawable.color);
 
 		if (drawable instanceof TextDrawable) {
 			drawTextDrawable(g, x, y, drawable);
@@ -47,59 +45,57 @@ public class HorizontalView  extends View{
 			drawLineDrawable(g, x, y, drawable);
 		}
 	}
-	
+
 	protected void drawTextDrawable(Graphics2D g, int x, int y, Drawable drawable) {
-		
+
 		g.setFont(g.getFont().deriveFont(8f));
 		TextDrawable text = (TextDrawable) drawable;
-		
+
 		text.text = text.text.replaceAll("\"", "");
-		
-		g.drawString(text.text, text.x + x, text.y + y);		
+
+		g.drawString(text.text, text.x + x, text.y + y);
 	}
-	
+
 	protected void drawRectDrawable(Graphics2D g, int x, int y, Drawable drawable) {
-		
+
 		RectDrawable rect = (RectDrawable) drawable;
-		
-		if(rect.color != null){
-			
-			if(rect.lineColor == null){
+
+		if (rect.color != null) {
+
+			if (rect.lineColor == null) {
 				rect.x -= 1;
-				//rect.y -= 1;
+				// rect.y -= 1;
 				rect.width += 2;
-				//rect.height += 2;
+				// rect.height += 2;
 			}
-			
-			g.setPaint(drawable.color);			
+
+			g.setPaint(drawable.color);
 			g.fillRect(rect.x + x, rect.y + y, rect.width, rect.height);
-			
+
 		}
-		
-		//Draw outline after fill to make sure that it stays continuous			
-		if(drawable.color != null){
+
+		// Draw outline after fill to make sure that it stays continuous
+		if (drawable.color != null) {
 			g.setPaint(rect.lineColor);
 			g.drawRect(rect.x + x, rect.y + y, rect.width, rect.height);
 		}
 	}
-	
+
 	protected void drawLineDrawable(Graphics2D g, int x, int y, Drawable drawable) {
 		LineDrawable line = (LineDrawable) drawable;
-		g.drawLine(line.x + x, line.y + y, line.x2 + x, line.y2 + y);		
+		g.drawLine(line.x + x, line.y + y, line.x2 + x, line.y2 + y);
 	}
-	
-	
 
 	@Override
 	protected void handleDrag(Point2D start, Point2D end, boolean disableDrawing) {
-		double bpMove = trackToBp((double)start.getX()).minus(trackToBp((double)end.getX()));
+		double bpMove = trackToBp((double) start.getX()).minus(trackToBp((double) end.getX()));
 
-		if(bpMove < 0 && bpRegion.start.bp < Math.abs(bpMove)){
+		if (bpMove < 0 && bpRegion.start.bp < Math.abs(bpMove)) {
 			bpMove = -bpRegion.start.bp;
 		}
 
 		bpRegion.move(bpMove);
-		setBpRegion(bpRegion, disableDrawing);		
+		setBpRegion(bpRegion, disableDrawing);
 
 		parentPlot.redraw();
 	}

@@ -19,24 +19,22 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
-public class SeqTrack extends Track{
+public class SeqTrack extends Track {
 
 	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
 
-	private Color[] charColors = new Color[] {
+	private Color[] charColors = new Color[] { 
 			new Color(64, 192, 64, 128), // A
 			new Color(64, 64, 192, 128), // C
 			new Color(128, 128, 128, 128), // G
-			new Color(192, 64, 64, 128)    // T
+			new Color(192, 64, 64, 128) // T
 	};
-
 
 	private long maxBpLength;
 
-	public SeqTrack(View view, File file, Class<? extends AreaRequestHandler> handler, 
-			FileParser inputParser, long maxBpLength)  {
+	public SeqTrack(View view, File file, Class<? extends AreaRequestHandler> handler, FileParser inputParser, long maxBpLength) {
 
-		super(view, file, handler, inputParser);		
+		super(view, file, handler, inputParser);
 		this.maxBpLength = maxBpLength;
 
 	}
@@ -45,133 +43,137 @@ public class SeqTrack extends Track{
 	public Collection<Drawable> getDrawables() {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
-		if(reads != null){
+		if (reads != null) {
 
 			Iterator<RegionContent> iter = reads.iterator();
-			while(iter.hasNext()){
+			while (iter.hasNext()) {
 
 				RegionContent read = iter.next();
 
-				if(!read.region.intercepts(getView().getBpRegion())){
+				if (!read.region.intercepts(getView().getBpRegion())) {
 
 					iter.remove();
 					continue;
-				}					
-				
-				BpCoord startBp = read.region.start;
-				BpCoord endBp = read.region.end;			
-
-				String seq = ((String)read.values.get(ColumnType.SEQUENCE));
-
-				//System.out.println(seq + startBp);
-				if(seq != null){
-					
-					seq = seq.trim().toUpperCase();
-				} else {
-					seq = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-						.substring(0, (int) (endBp.minus(startBp) + 1));
 				}
-				
+
+				BpCoord startBp = read.region.start;
+				BpCoord endBp = read.region.end;
+
+				String seq = ((String) read.values.get(ColumnType.SEQUENCE));
+
+				if (seq != null) {
+					seq = seq.trim().toUpperCase();
+					
+				} else {
+					seq = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA".substring(0, (int) (endBp.minus(startBp) + 1));
+				}
+
 				drawables.addAll(getSeqDrawables(startBp, endBp, seq, 1));
 				drawables.addAll(getSeqDrawables(startBp, endBp, complement(seq), 11));
 
-				
 			}
 		}
 
 		return drawables;
 	}
 
-	private String complement(String seq){
+	private String complement(String seq) {
 
 		StringBuffer buf = new StringBuffer(seq);
 
-		for(int j = 0; j < seq.length(); j++){
-			switch(buf.charAt(j)){
-			case 'A': buf.setCharAt(j, 'T'); break;
-			case 'C': buf.setCharAt(j, 'G'); break;
-			case 'G': buf.setCharAt(j, 'C'); break;							
-			case 'T': buf.setCharAt(j, 'A'); break;
+		for (int j = 0; j < seq.length(); j++) {
+			switch (buf.charAt(j)) {
+			case 'A':
+				buf.setCharAt(j, 'T');
+				break;
+			case 'C':
+				buf.setCharAt(j, 'G');
+				break;
+			case 'G':
+				buf.setCharAt(j, 'C');
+				break;
+			case 'T':
+				buf.setCharAt(j, 'A');
+				break;
 			}
-		}											
+		}
 
-		return buf.toString();			
+		return buf.toString();
 	}
-	
-	private Collection<Drawable> getSeqDrawables(BpCoord startBb, BpCoord endBp, String seq, int yOffset){
+
+	private Collection<Drawable> getSeqDrawables(BpCoord startBb, BpCoord endBp, String seq, int yOffset) {
 
 		Rectangle rect = new Rectangle();
-		
+
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
 		rect.x = getView().bpToTrack(startBb);
 		rect.width = getView().bpToTrack(new BpCoord(endBp.bp + 1, endBp.chr)) - rect.x;
 
-		rect.y = (int)(1 + yOffset);
-		rect.height = 10;	
+		rect.y = (int) (1 + yOffset);
+		rect.height = 10;
 
 		final int CHAR_WIDTH = 7;
 
-		float x = rect.x;							
-		float increment = (rect.width)/((float)seq.length());
+		float x = rect.x;
+		float increment = (rect.width) / ((float) seq.length());
 
-		for(int j = 0; j < seq.length(); j++){
+		for (int j = 0; j < seq.length(); j++) {
 
 			char letter = seq.charAt(j);
 
-			if(rect.width > seq.length() * CHAR_WIDTH){
+			if (rect.width > seq.length() * CHAR_WIDTH) {
 
-				drawables.add(new TextDrawable((int)x, rect.y + 8, 
-						"" + letter, Color.black));
+				drawables.add(new TextDrawable((int) x, rect.y + 8, "" + letter, Color.black));
 			}
 
 			Color bg = Color.white;
-			if(letter == 'A'){
+			if (letter == 'A') {
 				bg = charColors[0];
-			} else if (letter == 'C'){
+			} else if (letter == 'C') {
 				bg = charColors[1];
-			} else if (letter == 'G'){
-				bg = charColors[2];	
-			} else if (letter == 'T'){
+			} else if (letter == 'G') {
+				bg = charColors[2];
+			} else if (letter == 'T') {
 				bg = charColors[3];
 			}
 
-			drawables.add(new RectDrawable((int)x, rect.y - 2, (int)increment , 10,bg,null));
+			drawables.add(new RectDrawable((int) x, rect.y - 2, (int) increment, 10, bg, null));
 
 			x += increment;
 		}
-		
+
 		return drawables;
 	}
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
 
-		//if(!areaResult.status.concise){
-			
-//			int seqLength = ((String)(areaResult.content.values.get(Content.SEQUENCE))).length();
-//			long startBp = (Long) areaResult.content.values.get(Content.FILE_INDEX) * seqLength - 200;
-//			
-//			
-//			areaResult.content.region = new Region(startBp, startBp + seqLength);
-			
-//			if(areaResult.content.region.intercepts(getView().getBpRegion())){
-			
-				//System.out.println(startBp + ", " + seqLength + ((String)(areaResult.content.values.get(Content.SEQUENCE))));
-				//System.out.println((String)(areaResult.content.values.get(Content.SEQUENCE)) + areaResult.content.region);
-		
-//				areaResult.content.region.start.bp -= 10000;
-//				areaResult.content.region.end.bp -= 10000;
-		
-				this.reads.add(areaResult.content);			
-//			}
+		// if(!areaResult.status.concise){
 
-			getView().redraw();
-		//}
+		// int seqLength = ((String)(areaResult.content.values.get(Content.SEQUENCE))).length();
+		// long startBp = (Long) areaResult.content.values.get(Content.FILE_INDEX) * seqLength - 200;
+		//			
+		//			
+		// areaResult.content.region = new Region(startBp, startBp + seqLength);
+
+		// if(areaResult.content.region.intercepts(getView().getBpRegion())){
+
+		// System.out.println(startBp + ", " + seqLength + ((String)(areaResult.content.values.get(Content.SEQUENCE))));
+		// System.out.println((String)(areaResult.content.values.get(Content.SEQUENCE)) + areaResult.content.region);
+
+		// areaResult.content.region.start.bp -= 10000;
+		// areaResult.content.region.end.bp -= 10000;
+
+		this.reads.add(areaResult.content);
+		// }
+
+		getView().redraw();
+		// }
 	}
 
 	@Override
-	public int getMaxHeight(){
-		if(getView().getBpRegion().getLength() <= maxBpLength){
+	public int getMaxHeight() {
+		if (getView().getBpRegion().getLength() <= maxBpLength) {
 
 			return 21;
 		} else {
@@ -181,10 +183,8 @@ public class SeqTrack extends Track{
 
 	@Override
 	public Collection<ColumnType> getDefaultContents() {
-		
-		return Arrays.asList(new ColumnType[] {
-				ColumnType.SEQUENCE
-		}); 
+
+		return Arrays.asList(new ColumnType[] { ColumnType.SEQUENCE });
 	}
 
 	@Override

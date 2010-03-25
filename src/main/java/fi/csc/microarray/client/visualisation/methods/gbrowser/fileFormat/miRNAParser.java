@@ -21,10 +21,8 @@ public class miRNAParser extends GeneParser{
 	
 	@Override
 	public FileParser clone() {
-		FileParser clone = new miRNAParser();
-		
-		clone.chunk = this.chunk;
-		
+		FileParser clone = new miRNAParser();	
+		clone.chunk = this.chunk;		
 		return clone;
 	}
 }

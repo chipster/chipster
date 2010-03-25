@@ -8,12 +8,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 
 public class CytobandParser extends ConstantRowLengthParser {
 
-
 	public CytobandParser() {
 		super(new FileDefinition(
 				Arrays.asList(
 						new ColumnDefinition[] {
-
 								new ColumnDefinition(ColumnType.CHROMOSOME, Type.STRING, 16),
 								new ColumnDefinition(ColumnType.BP_START, Type.LONG, 16),
 								new ColumnDefinition(ColumnType.BP_END, Type.LONG, 16),
@@ -40,8 +38,7 @@ public class CytobandParser extends ConstantRowLengthParser {
 
 	@Override
 	public RegionContent[] concise(BpCoordRegion readIndexRegion) {
-
-		//Return empty table, otherwise TreeNode gets stuck in calling this again
+		// return empty table, otherwise TreeNode gets stuck in calling this again
 		return new RegionContent[0];
 	}
 

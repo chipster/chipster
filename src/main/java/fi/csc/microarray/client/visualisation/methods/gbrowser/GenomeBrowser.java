@@ -1,7 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -9,7 +8,7 @@ import java.awt.event.ActionListener;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,27 +37,33 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Annotatio
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Row;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.filebroker.FileBrokerClient;
+
+
+/**
+ * @author Petri Klemelä
+ */
 public class GenomeBrowser extends Visualisation implements ActionListener {
-	
+
+	private static final int CHROMOSOME_COUNT = 22;
+
 	public GenomeBrowser(VisualisationFrame frame) {
 		super(frame);
 	}
-	
+
 	private static final String ANNOTATION_PATH = "http://chipster-devel.csc.fi:8080/public/ensembl/";
 	private static final String CONTENTS_FILE = "contents.txt";
+	private static final boolean DEBUG_MODE = true;
 
 	protected JPanel paramPanel;
-    private JPanel settingsPanel;
-    
-    private JButton useButton;
-    
-    protected final ClientApplication application = Session.getSession().getApplication();       
-    
-    protected GenomePlot plot;
+	private JPanel settingsPanel;
 
-    protected DataBean data;
-	private FileBrokerClient fileBroker;
+	private JButton useButton;
+
+	protected final ClientApplication application = Session.getSession().getApplication();
+
+	protected GenomePlot plot;
+
+	protected DataBean data;
 	private ButtonGroup views;
 	private JTextArea megaLocation;
 	private JTextArea kiloLocation;
@@ -71,13 +76,12 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 	@Override
 	public JPanel getParameterPanel() {
 
-		if(paramPanel == null || data != 
-			application.getSelectionManager().getSelectedDataBean()){
-			
+		if (paramPanel == null || data != application.getSelectionManager().getSelectedDataBean()) {
+
 			paramPanel = new JPanel();
 			paramPanel.setLayout(new GridBagLayout());
 			paramPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
-						
+
 			JPanel settings = this.createSettingsPanel();
 
 			JTabbedPane tabPane = new JTabbedPane();
@@ -92,27 +96,32 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 			c.weighty = 1.0;
 			c.weightx = 1.0;
 			c.insets.set(5, 0, 0, 0);
-			
+
 			paramPanel.add(tabPane, c);
-		
-		}				
-		
+
+		}
+
 		return paramPanel;
 	}
-	
+
 	public void createAnnotationComponents(JPanel panel, GridBagConstraints c) {
-		
+
 		try {
-			
-			//InputStream contentsStream = new URL(ANNOTATION_PATH + CONTENTS_FILE).openStream();
-			InputStream contentsStream = new FileInputStream("annotations/contents.txt");
+
+			InputStream contentsStream;
+			if (DEBUG_MODE) {
+				contentsStream = new FileInputStream("annotations/contents.txt");
+			} else {
+				contentsStream = new URL(ANNOTATION_PATH + CONTENTS_FILE).openStream();
+			}
+
 			
 			List<Row> contents = new AnnotationContents().getContents(contentsStream);
-			
+
 			boolean first = true;
 			for (Row row : contents) {
-				
-				//FIXME Check if there is other species or versions
+
+				// FIXME Check if there are other species or versions
 				if (first) {
 					first = false;
 					c.gridy++;
@@ -120,51 +129,49 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 					c.gridy++;
 					panel.add(new JLabel(row.version), c);
 				}
-				
+
 				c.gridy++;
 				JCheckBox box = new JCheckBox(row.content);
 				panel.add(box, c);
-				trackBoxes .add(box);
-			}			
-			
-//		} catch (MalformedURLException e) {
-//			application.reportException(e);
+				trackBoxes.add(box);
+			}
+
 		} catch (IOException e) {
 			application.reportException(e);
-		}		
+		}
 	}
-	
-	public JPanel createSettingsPanel(){
 
-		settingsPanel =  new JPanel();
+	public JPanel createSettingsPanel() {
+
+		settingsPanel = new JPanel();
 		settingsPanel.setLayout(new GridBagLayout());
 		settingsPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
 
 		useButton = new JButton("Draw");
 		useButton.addActionListener(this);
-		
+
 		chrBox = new JComboBox();
-		
-		//FIXME These should be read from user data file
-		for( int i = 1; i <= 22; i++) {
+
+		// FIXME These should be read from user data file
+		for (int i = 1; i <= CHROMOSOME_COUNT; i++) {
 			chrBox.addItem(i);
 		}
-		
+
 		chrBox.setEnabled(false);
-		
+
 		megaLocation = new JTextArea(1, 3);
 		kiloLocation = new JTextArea(1, 3);
 		unitLocation = new JTextArea(1, 3);
-		
+
 		JTextArea megaLabel = new JTextArea("M");
 		megaLabel.setEditable(false);
 		JTextArea kiloLabel = new JTextArea("k");
 		kiloLabel.setEditable(false);
-		
+
 		horizView = new JRadioButton("Horizontal");
 		horizView.setSelected(true);
 		circularView = new JRadioButton("Circular");
-		
+
 		views = new ButtonGroup();
 		views.add(horizView);
 		views.add(circularView);
@@ -180,160 +187,136 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 		c.weightx = 1.0;
 		c.gridx = 0;
 		c.gridwidth = 5;
-				
-		settingsPanel.add(new JLabel("Chromosome"), c);		
+
+		settingsPanel.add(new JLabel("Chromosome"), c);
 		c.gridy++;
-		settingsPanel.add(chrBox, c);     
+		settingsPanel.add(chrBox, c);
 		c.gridy++;
-//		settingsPanel.add(new JLabel("Location"),c);
-//		
-//		c.gridy++;
-//		c.gridwidth = 1;
-//		c.insets.set(5, 10, 5, 0);
-//		settingsPanel.add(megaLocation, c);
-//		c.gridx++;
-//		c.insets.set(5, 0, 5, 0);
-//		settingsPanel.add(megaLabel, c);
-//		c.gridx++;		
-//		settingsPanel.add(kiloLocation, c);
-//		c.gridx++;
-//		settingsPanel.add(kiloLabel, c);
-//		c.gridx++;
-//		c.insets.set(5, 0, 5, 10);
-//		settingsPanel.add(unitLocation, c);
-		
+		// settingsPanel.add(new JLabel("Location"),c);
+		//		
+		// c.gridy++;
+		// c.gridwidth = 1;
+		// c.insets.set(5, 10, 5, 0);
+		// settingsPanel.add(megaLocation, c);
+		// c.gridx++;
+		// c.insets.set(5, 0, 5, 0);
+		// settingsPanel.add(megaLabel, c);
+		// c.gridx++;
+		// settingsPanel.add(kiloLocation, c);
+		// c.gridx++;
+		// settingsPanel.add(kiloLabel, c);
+		// c.gridx++;
+		// c.insets.set(5, 0, 5, 10);
+		// settingsPanel.add(unitLocation, c);
+
 		c.gridx = 0;
 		c.gridwidth = 5;
 		c.insets.set(5, 10, 5, 10);
-		createAnnotationComponents(settingsPanel, c);		
-		
+		createAnnotationComponents(settingsPanel, c);
+
 		c.gridy++;
 		settingsPanel.add(new JLabel("View mode"), c);
 		c.gridy++;
 		settingsPanel.add(horizView, c);
 		c.gridy++;
 		settingsPanel.add(circularView, c);
-		
+
 		c.gridy++;
-		settingsPanel.add(useButton,c);
+		settingsPanel.add(useButton, c);
 		c.gridy++;
 		c.fill = GridBagConstraints.BOTH;
-		c.weighty = 1.0;				
-		settingsPanel.add(new JPanel(),c);
-		
+		c.weighty = 1.0;
+		settingsPanel.add(new JPanel(), c);
+
 		return settingsPanel;
 	}
-	
+
 	protected JComponent getColorLabel() {
 		return new JLabel("Color: ");
 	}
-		
-	
+
 	/**
-	 * A method defined by the ActionListener interface. Allows this panel
-	 * to listen to actions on its components.
+	 * A method defined by the ActionListener interface. Allows this panel to listen to actions on its components.
 	 */
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
-		
-		
-		
-		if ( source == useButton ) {
-			
-			useButtonPressed();
-			
-		} 
-	}
-	
-	public class ObjVariable extends Variable {
 
-		public Object obj;
-		
-		public ObjVariable(Object obj) {
-			super(null, null);
-			
-			this.obj = obj;
-		}		
+		if (source == useButton) {
+			useButtonPressed();
+		}
 	}
-	
+
 	protected void useButtonPressed() {
-		
+
 		List<Variable> vars = new ArrayList<Variable>();
 		vars.add(new ObjVariable(chrBox.getSelectedItem()));
 		vars.add(new ObjVariable(megaLocation.toString()));
 		vars.add(new ObjVariable(kiloLocation.toString()));
 		vars.add(new ObjVariable(unitLocation.toString()));
 		vars.add(new ObjVariable(views.getSelection()));
-		
-		for( JCheckBox box : trackBoxes) {
+
+		for (JCheckBox box : trackBoxes) {
 			vars.add(new ObjVariable(box));
 		}
-				
-		application.setVisualisationMethod(new VisualisationMethodChangedEvent(this,
-				VisualisationMethod.GBROWSER, vars, 
-				getFrame().getDatas(), getFrame().getType(), getFrame()));
-				
+
+		application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, VisualisationMethod.GBROWSER, vars, getFrame().getDatas(), getFrame().getType(), getFrame()));
+
 	}
 
 	@Override
 	public JComponent getVisualisation(DataBean data) throws Exception {
-		
+
 		this.data = data;
-		
+
 		GenomePlot plot;
-		
+
 		List<Variable> vars = getFrame().getVariables();
-		if(vars == null || vars.size() < 5){
-			
+		if (vars == null || vars.size() < 5) {
 			plot = new GenomePlot(1, true, false, false, false, false);
+			
 		} else {
-						
-			boolean horizontal =  ((ButtonModel)((ObjVariable)vars.get(4)).obj).equals(horizView.getModel());
-						
-			plot = new GenomePlot(
-					1, //(Integer)((ObjVariable)vars.get(0)).obj,
-					horizontal,
-					((JCheckBox)((ObjVariable)vars.get(5)).obj).isSelected(),
-					((JCheckBox)((ObjVariable)vars.get(6)).obj).isSelected(),
-					((JCheckBox)((ObjVariable)vars.get(7)).obj).isSelected(),
-					((JCheckBox)((ObjVariable)vars.get(8)).obj).isSelected());
-					
-					
+
+			boolean horizontal = ((ButtonModel) ((ObjVariable) vars.get(4)).obj).equals(horizView.getModel());
+
+			plot = new GenomePlot(1, // (Integer)((ObjVariable)vars.get(0)).obj,
+			horizontal, ((JCheckBox) ((ObjVariable) vars.get(5)).obj).isSelected(), ((JCheckBox) ((ObjVariable) vars.get(6)).obj).isSelected(), ((JCheckBox) ((ObjVariable) vars.get(7)).obj).isSelected(), ((JCheckBox) ((ObjVariable) vars.get(8)).obj).isSelected());
+
 		}
 
 		ChartPanel panel = new ChartPanel(new JFreeChart(plot));
-		//panel.setPreferredSize(new Dimension(800, 600));
+		// panel.setPreferredSize(new Dimension(800, 600));
 		plot.chartPanel = panel;
-		//SelectableChartPanel selPanel = new SelectableChartPanel(new JFreeChart(plot), plot);
-		//selPanel.getChartPanel().addChartMouseListener(plot);
-		
-		//selPanel.getChartPanel().addMouseWheelListener(plot);
-		
+		// SelectableChartPanel selPanel = new SelectableChartPanel(new JFreeChart(plot), plot);
+		// selPanel.getChartPanel().addChartMouseListener(plot);
+
+		// selPanel.getChartPanel().addMouseWheelListener(plot);
+
 		panel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		
-		//panel.addMouseWheelListener(plot);
-		
-		for (View view : plot.getViews()){
+
+		// panel.addMouseWheelListener(plot);
+
+		for (View view : plot.getViews()) {
 			panel.addMouseListener(view);
 			panel.addMouseMotionListener(view);
 			panel.addMouseWheelListener(view);
 		}
-		
-		
-	        
-			return panel;
-		//}
-			
-		//return this.getDefaultVisualisation();
-	}	
-	
+
+		return panel;
+	}
+
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		
-		//return bean.getName().equals("eland_result_demo.txt");
 		return true;
-		//return !VisualisationMethod.SCATTERPLOT3DPCA.getHeadlessVisualiser().canVisualise(bean);
-		
+	}
+	
+	public class ObjVariable extends Variable {
+
+		public Object obj;
+
+		public ObjVariable(Object obj) {
+			super(null, null);
+
+			this.obj = obj;
+		}
 	}
 }
-

@@ -4,25 +4,25 @@ public class BpCoordDouble implements Comparable<BpCoordDouble> {
 
 	public Double bp;
 	public Chromosome chr;
-	
-	public BpCoordDouble(Double bp, Chromosome chr){
+
+	public BpCoordDouble(Double bp, Chromosome chr) {
 		this.bp = bp;
 		this.chr = chr;
 	}
 
 	public BpCoordDouble(BpCoord coord) {
-		this.bp = (double)(long)coord.bp;
+		this.bp = (double) (long) coord.bp;
 		this.chr = coord.chr;
 	}
 
 	public int compareTo(BpCoordDouble o) {
 
-		int chrComparison = chr.compareTo(((BpCoordDouble)o).chr);
+		int chrComparison = chr.compareTo(((BpCoordDouble) o).chr);
 
-		if(chrComparison != 0){
+		if (chrComparison != 0) {
 			return chrComparison;
 		} else {
-			return bp.compareTo(((BpCoordDouble)o).bp);
+			return bp.compareTo(((BpCoordDouble) o).bp);
 		}
 	}
 
@@ -37,41 +37,40 @@ public class BpCoordDouble implements Comparable<BpCoordDouble> {
 
 	public int hashCode() {
 		return bp.hashCode();
-	}	
-	
-	public double minus(BpCoordDouble o){
-		if(chr.equals(o.chr)) {
+	}
+
+	public double minus(BpCoordDouble o) {
+		if (chr.equals(o.chr)) {
 			return bp - o.bp;
-		} 
+		}
 		return Double.NaN;
 	}
-	
-	public double plus(BpCoordDouble o){
-		if(chr.equals(o.chr)) {
+
+	public double plus(BpCoordDouble o) {
+		if (chr.equals(o.chr)) {
 			return bp + o.bp;
-		} 
+		}
 		return Double.NaN;
 	}
-	
+
 	public BpCoordDouble move(double increment) {
-		return new BpCoordDouble(bp + increment, chr); 	
+		return new BpCoordDouble(bp + increment, chr);
 	}
-	
-	
-	public String toString(){
+
+	public String toString() {
 		return "Bp: " + bp + ", Chr: " + chr;
 	}
-	
-	public BpCoordDouble max(BpCoordDouble other){
+
+	public BpCoordDouble max(BpCoordDouble other) {
 		return this.compareTo(other) < 0 ? other : this;
 	}
-	
-	public BpCoordDouble min(BpCoordDouble other){
+
+	public BpCoordDouble min(BpCoordDouble other) {
 		return this.compareTo(other) > 0 ? other : this;
 	}
-	
+
 	public BpCoord asBpCoord() {
-		return new BpCoord((long)(double)bp, chr);
+		return new BpCoord((long) (double) bp, chr);
 	}
 
 }

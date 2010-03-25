@@ -1,10 +1,10 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.utils;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Random;
-
 
 public class DislocationGenerator {
 
@@ -14,16 +14,16 @@ public class DislocationGenerator {
 
 		System.out.println("File generating started");
 		Long startTime = System.currentTimeMillis();
-		File file = new File("dislocations.fsf");		
+		File file = new File("dislocations.fsf");
 
 		BufferedWriter writer;
 		try {
 			writer = new BufferedWriter(new FileWriter(file));
 
-			Random rand =  new Random();
+			Random rand = new Random();
 
 			int i = 0;
-			for (int b = 0; b < MAX_BP; ){
+			for (int b = 0; b < MAX_BP;) {
 
 				long length = (long) Math.abs((rand.nextGaussian() * 1024));
 
@@ -33,26 +33,26 @@ public class DislocationGenerator {
 				long toStart = (long) (b + rand.nextGaussian() * MAX_BP / 1028);
 				String toEnd = "" + (toStart + length);
 
-				if(b > 0 && toStart > 0 && toStart < MAX_BP){
+				if (b > 0 && toStart > 0 && toStart < MAX_BP) {
 
-					id = fillWithSpaces(id, 16);				
+					id = fillWithSpaces(id, 16);
 					fromStart = fillWithSpaces(fromStart, 16);
 					fromEnd = fillWithSpaces(fromEnd, 16);
 					String toStartStr = fillWithSpaces("" + toStart, 16);
-					String toEndStr = fillWithSpaces("" + toEnd, 50);							
+					String toEndStr = fillWithSpaces("" + toEnd, 50);
 
 					writer.write(id + fromStart + fromEnd + toStartStr + toEndStr + "\n");
 				}
 
-				if( i % 100000 == 0){
-					System.out.println("" + (int)((float)b / MAX_BP * 100) + " % ");
+				if (i % 100000 == 0) {
+					System.out.println("" + (int) ((float) b / MAX_BP * 100) + " % ");
 				}
 
-				if(rand.nextFloat() > 0.01){
+				if (rand.nextFloat() > 0.01) {
 					b += Math.pow(rand.nextGaussian(), 2) * 1024;
 				} else {
-					b += rand.nextGaussian() * 1024*1024;
-				}				
+					b += rand.nextGaussian() * 1024 * 1024;
+				}
 
 				i++;
 
@@ -66,18 +66,7 @@ public class DislocationGenerator {
 		}
 	}
 
-	private static String getRandomChar(Random rand) {
-		int r = rand.nextInt(4);
-		switch(r){
-		case 0: return "A"; 
-		case 1: return "T"; 
-		case 2: return "G"; 
-		case 3: return "C"; 
-		}
-		return null;
-	}
-
-	private static String fillWithSpaces(String orig, int length){
+	private static String fillWithSpaces(String orig, int length) {
 		String spaces = "                                                                          ";
 		return orig + spaces.substring(0, length - orig.length());
 	}

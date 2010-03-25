@@ -23,9 +23,9 @@ public class GenomeBrowserStarter {
 		ChartPanel panel = new ChartPanel(new JFreeChart(plot));
 		panel.setPreferredSize(new Dimension(800, 600));
 		plot.chartPanel = panel;
+
 		//SelectableChartPanel selPanel = new SelectableChartPanel(new JFreeChart(plot), plot);
 		//selPanel.getChartPanel().addChartMouseListener(plot);
-		
 		//selPanel.getChartPanel().addMouseWheelListener(plot);
 		
 		panel.setCursor(new Cursor(Cursor.HAND_CURSOR));
