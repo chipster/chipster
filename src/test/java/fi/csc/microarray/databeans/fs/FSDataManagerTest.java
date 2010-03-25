@@ -102,7 +102,7 @@ public class FSDataManagerTest {
 	@Test(groups = {"smoke"} )
 	public void testDataBeanCreation() throws IOException, MicroarrayException {
 		FSDataManager manager = new FSDataManager();
-		FSDataBean bean = manager.createDataBean("samename.txt", new FileInputStream("examples/affy_example.cel"));
+		DataBean bean = manager.createDataBean("samename.txt", new FileInputStream("examples/affy_example.cel"));
 	
 		InputStream originalData = new BufferedInputStream(new FileInputStream("examples/affy_example.cel"));
 		InputStream beanData = new BufferedInputStream(bean.getContentByteStream());

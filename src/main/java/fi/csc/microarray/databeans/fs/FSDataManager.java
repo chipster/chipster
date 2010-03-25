@@ -72,11 +72,11 @@ public class FSDataManager extends DataManagerBase {
 		return createDataBean(name, folder, sources, contentFile);
 	}
 	
-	public FSDataBean createDataBean(String name, InputStream content) throws MicroarrayException {
+	public DataBean createDataBean(String name, InputStream content) throws MicroarrayException {
 		return createDataBean(name, content, null, new DataBean[] {});
 	}
 	
-	public FSDataBean createDataBean(String name, InputStream content, DataFolder folder, DataBean... sources) throws MicroarrayException {
+	public DataBean createDataBean(String name, InputStream content, DataFolder folder, DataBean... sources) throws MicroarrayException {
 
 		// copy the data from the input stream to the file in repository
 		File contentFile;
@@ -93,7 +93,7 @@ public class FSDataManager extends DataManagerBase {
 		}
 
 		// create and return the bean
-		FSDataBean bean = new FSDataBean(name, guessContentType(name), new Date(), sources, folder, this, contentFile);
+		DataBean bean = new DataBean(name, guessContentType(name), new Date(), sources, folder, this, contentFile);
 
 		dispatchEventIfVisible(new DataItemCreatedEvent(bean));
 		
@@ -105,7 +105,7 @@ public class FSDataManager extends DataManagerBase {
 	 * createNewRepositoryFile(String name) method.
 	 * 
 	 */
-	public FSDataBean createDataBean(String name, File contentFile) throws MicroarrayException {		
+	public DataBean createDataBean(String name, File contentFile) throws MicroarrayException {		
 		return createDataBean(name, null, new DataBean[] {}, contentFile);
 	}
 
@@ -114,9 +114,9 @@ public class FSDataManager extends DataManagerBase {
 	 * createNewRepositoryFile(String name) method.
 	 * 
 	 */
-	public FSDataBean createDataBean(String name, DataFolder folder, DataBean[] sources, File contentFile) throws MicroarrayException {
+	public DataBean createDataBean(String name, DataFolder folder, DataBean[] sources, File contentFile) throws MicroarrayException {
 
-		FSDataBean dataBean = new FSDataBean(name, guessContentType(name), new Date(), sources, folder, this, contentFile);
+		DataBean dataBean = new DataBean(name, guessContentType(name), new Date(), sources, folder, this, contentFile);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
 		return dataBean;
 	}
@@ -238,8 +238,6 @@ public class FSDataManager extends DataManagerBase {
 	
 	private void deleteDataBean(DataBean bean) {
 
-		FSDataBean fsDataBean = (FSDataBean)bean;
-		
 		// remove from operation history
 		for (DataBean source : databeans()) {
 			// we must iterate all datas because links cannot be trusted (they might have been removed by user)
@@ -249,7 +247,7 @@ public class FSDataManager extends DataManagerBase {
 
 			if (bindings != null) {
 				for (DataBinding binding : bindings) {
-					if (binding.getData() == fsDataBean) {
+					if (binding.getData() == bean) {
 						// this operation would become dirty after removing the data
 						isDirty = true;
 						break;
@@ -265,23 +263,23 @@ public class FSDataManager extends DataManagerBase {
 		// remove links
 		for (Link linkType : Link.values()) {
 			// Remove outgoing links
-			for (DataBean target : fsDataBean.getLinkTargets(linkType)) {
-				fsDataBean.removeLink(linkType, target);
+			for (DataBean target : bean.getLinkTargets(linkType)) {
+				bean.removeLink(linkType, target);
 			}
 			// Remove incoming links
-			for (DataBean source : fsDataBean.getLinkSources(linkType)) {
-				source.removeLink(linkType, fsDataBean);
+			for (DataBean source : bean.getLinkSources(linkType)) {
+				source.removeLink(linkType, bean);
 			}
 		}
 
 		// remove bean
-		DataFolder folder = fsDataBean.getParent();
+		DataFolder folder = bean.getParent();
 		if (folder != null) {
-			folder.removeChild(fsDataBean);
+			folder.removeChild(bean);
 		}
 		
 		// remove physical file
-		fsDataBean.delete();
+		bean.delete();
 	}
 
 	public List<DataBean> databeans() {

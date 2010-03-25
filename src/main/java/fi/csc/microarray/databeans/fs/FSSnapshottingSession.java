@@ -143,7 +143,7 @@ public class FSSnapshottingSession {
 				dataCount += recDataCount;
 				
 			} else {
-				generateId((FSDataBean)data);
+				generateId((DataBean)data);
 				dataCount++;
 			}
 		}
@@ -161,7 +161,7 @@ public class FSSnapshottingSession {
 				saveRecursively((DataFolder)data, cpZipOutputStream, metadata);
 				
 			} else {
-				FSDataBean bean = (FSDataBean)data;
+				DataBean bean = (DataBean)data;
 				saveDataBeanMetadata(bean, folderId, metadata);
 
 				writeFile(cpZipOutputStream, bean.getContentFile().getName(),  
@@ -177,7 +177,7 @@ public class FSSnapshottingSession {
 		saveDataItemMetadata(folder, folderId, metadata);
 	}	
 	
-	private void saveDataBeanMetadata(FSDataBean bean, String folderId, StringBuffer metadata) {
+	private void saveDataBeanMetadata(DataBean bean, String folderId, StringBuffer metadata) {
 		String beanId = fetchId(bean);
 		metadata.append("DATABEAN " + beanId + " " + bean.getContentFile().getName() + "\n");
 		
@@ -361,7 +361,7 @@ public class FSSnapshottingSession {
 					String[] split = line.split(" ");
 					String id = split[1];
 					String url = split[2];
-					FSDataBean bean = (FSDataBean)fetchItem(id);
+					DataBean bean = (DataBean)fetchItem(id);
 					bean.setContentChanged(false);
 					bean.setUrl(new URL(url));
 					
