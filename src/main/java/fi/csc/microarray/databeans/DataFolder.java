@@ -3,7 +3,6 @@ package fi.csc.microarray.databeans;
 import java.util.LinkedList;
 import java.util.List;
 
-import fi.csc.microarray.databeans.fs.FSDataManager;
 
 
 /**
@@ -16,13 +15,13 @@ import fi.csc.microarray.databeans.fs.FSDataManager;
 public class DataFolder extends DataItemBase {
 
 
-	public DataFolder(FSDataManager manager, String name) {
+	public DataFolder(DataManager manager, String name) {
 		this.manager = manager;
 		this.name = name;
 	}
 	
 	private List<DataItem> children = new LinkedList<DataItem>();
-	private FSDataManager manager;
+	private DataManager manager;
 	
 	public void addChild(DataItem child) {
 

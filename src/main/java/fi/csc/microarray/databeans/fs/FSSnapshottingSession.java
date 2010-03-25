@@ -29,6 +29,7 @@ import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
+import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.IOUtils;
@@ -52,7 +53,7 @@ public class FSSnapshottingSession {
 	
 	private static final String ROOT_FOLDER_ID = "0";
 	
-	private FSDataManager manager;
+	private DataManager manager;
 	private ClientApplication application;
 
 	private int itemIdCounter = 0;
@@ -63,7 +64,7 @@ public class FSSnapshottingSession {
 	private HashMap<Integer, Operation> operationIdMap = new HashMap<Integer, Operation>();
 	private HashMap<Operation, Integer> reversedOperationIdMap = new HashMap<Operation, Integer>();
 
-	public FSSnapshottingSession(FSDataManager manager, ClientApplication application) {
+	public FSSnapshottingSession(DataManager manager, ClientApplication application) {
 		this.manager = manager;
 		this.application = application;
 	}

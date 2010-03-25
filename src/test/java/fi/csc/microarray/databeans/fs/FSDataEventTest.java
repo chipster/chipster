@@ -28,7 +28,7 @@ public class FSDataEventTest implements DataChangeListener {
 
 	@Test(groups = {"unit"} )
 	public void testEvents() throws IOException, MicroarrayException {
-		DataManager manager = new FSDataManager();
+		DataManager manager = new DataManager();
 		manager.addDataChangeListener(this);
 		manager.setEventsEnabled(true);
 		

@@ -125,7 +125,7 @@ public class DataBean extends DataItemBase {
 	 */
 	private static final Logger logger = Logger.getLogger(DataBean.class);
 
-	protected DataManagerBase dataManager;
+	protected DataManager dataManager;
 	protected StreamStartCache streamStartCache = null;
 	private HashMap<String, Object> contentCache = new HashMap<String, Object>();
 	
@@ -148,7 +148,7 @@ public class DataBean extends DataItemBase {
 
 	
 	
-	public DataBean(String name, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManagerBase manager, File contentFile) {
+	public DataBean(String name, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManager manager, File contentFile) {
 		
 		this.dataManager = manager;
 		this.name = name;
