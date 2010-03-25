@@ -20,7 +20,7 @@ import fi.csc.microarray.messaging.JobState;
  * @author hupponen
  *
  */
-public class JobLogMessage extends NamiMessage {
+public class JobLogMessage extends ChipsterMessage {
 	/**
 	 * Logger for this class
 	 */

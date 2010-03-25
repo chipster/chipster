@@ -38,7 +38,7 @@ import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.JobMessage;
-import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
@@ -133,7 +133,7 @@ public class TaskExecutor {
 			}
 		}
 
-		public void onNamiMessage(NamiMessage msg) {
+		public void onNamiMessage(ChipsterMessage msg) {
 			logger.debug("Task " + pendingTask.getId() + " got message (" + msg.getMessageID() + ") of type " + msg.getClass().getName());
 
 			// ignore everything if we (ResultListener) are already finished

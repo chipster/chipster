@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <module name="Gene expression">
-	<category name="Normalisation" color="">
+	<category name="Normalisation" color="#c3b6a2">
 		<tool runtime="R-2.9">norm-affy.R</tool>
 		<tool runtime="R-2.9">norm-affy-exon.R</tool>
 		<tool runtime="R-2.9">norm-affy-snp.R</tool>
@@ -22,7 +22,7 @@
 		<tool runtime="R-2.9">norm-specific-genes.R</tool>
 	</category>
 	
-	<category name="Quality control" color="">
+	<category name="Quality control" color="#d5c796">
 		<tool runtime="R-2.9">qc-affy.R</tool>
 		<tool runtime="R-2.9">qc-affy-rle-nuse.R</tool>
 		<tool runtime="R-2.9">qc-affy-exon-rle-nuse.R</tool>
@@ -32,7 +32,7 @@
 		<tool runtime="R-2.9">qc-agilent-one-color.R</tool>
 	</category>
 	
-	<category name="Preprocessing">
+	<category name="Preprocessing" color="#e7df70">
 		<tool runtime="R-2.9">filter-expression.R</tool>
 		<tool runtime="R-2.9">filter-flags.R</tool>
 		<tool runtime="R-2.9">filter-sd.R</tool>
@@ -44,7 +44,7 @@
 		<tool runtime="R-2.9">na-omitted.R</tool>
 	</category>
 	
-	<category name="Statistics">
+	<category name="Statistics" color="#d59f45">
 		<tool runtime="R-2.9">stat-singleslide.R</tool>
 		<tool runtime="R-2.9">stat-one-group.R</tool>
 		<tool runtime="R-2.9">stat-two-groups.R</tool>
@@ -64,7 +64,7 @@
 		<!-- <tool runtime="R-2.10">up-down-analysis-mirna.R</tool> -->
 	</category>
 	
-	<category name="Clustering">
+	<category name="Clustering" color="#d59f45">
 		<tool runtime="R-2.9">classification-knn.R</tool>
 		<tool runtime="R-2.9">cluster-hierarchical.R</tool>
 		<tool runtime="R-2.9">cluster-kmeans.R</tool>
@@ -74,14 +74,14 @@
 		<tool runtime="R-2.9">classification.R</tool>
 	</category>
 	
-	<category name="Annotation">
+	<category name="Annotation" color="#e7881c">
 		<tool runtime="R-2.9">annotate-genelist2html.R</tool>
 		<tool runtime="R-2.9">annotate-add-to-data.R</tool>
 		<tool runtime="R-2.9">annotate-agilent-miRNA.R</tool>
 		<!-- <tool runtime="R-2.10">annotate-miRNA-targets.R</tool> -->
 	</category>
 	
-	<category name="Pathways">
+	<category name="Pathways" color="#d53833">
 		<tool runtime="R-2.9">stat-hyperG-GO.R</tool>
 		<tool runtime="R-2.9">stat-hyperG-KEGG-PFAM.R</tool>
 		<tool runtime="R-2.9">stat-hyperG-safe.R</tool>
@@ -95,7 +95,7 @@
 		<tool runtime="beanshell">annotate-reactome.bsh</tool>
 	</category>
 
-	<category name="Promoter analysis">
+	<category name="Promoter analysis" color="#80a3b7">
 			<!-- PROMOTER -->
 		<tool runtime="R-2.9">promoter-tfbs.R</tool>
 		<tool runtime="R-2.9">promoter-tfbs-cosmo.R</tool>
@@ -103,7 +103,7 @@
 		<tool runtime="R-2.9">promoter-retrprom.R</tool>
 	</category>
 
-	<category name="Visualisation">
+	<category name="Visualisation" color="#0177b7">
 		<tool runtime="R-2.9">plot-idiogram.R</tool>
 		<tool runtime="R-2.9">plot-chrom-pos.R</tool>
 		<tool runtime="R-2.9">plot-volcano.R</tool>
@@ -115,7 +115,7 @@
 		<tool runtime="R-2.9">plot-heatmap.R</tool>
 	</category>
 
-	<category name="Utilities">
+	<category name="Utilities" color="#629a9b">
 		<tool runtime="R-2.9">search-correlation.R</tool>
 		<tool runtime="R-2.9">search-queryword.R</tool>
 		<tool runtime="R-2.9">merge-tables.R</tool>
@@ -140,7 +140,7 @@
 		<tool runtime="R-2.9">intersect-lists.R</tool>
 	</category>
 	
-	<category name="aCGH tools (beta testing)">
+	<category name="aCGH tools (beta testing)" color="#a49900">
 		<tool runtime="R-2.9">import-from-cangem.R</tool>
 		<tool runtime="R-2.9">detect-copy-number-aberrations.R</tool>
 		<tool runtime="R-2.9">plot-cgh-profile.R</tool>
@@ -158,7 +158,12 @@
 	
 	
 	<!-- HIDDEN -->
-	<category name="Hidden" hidden="true">
+	<category name="Miscellaneous (sequence analysis)" hidden="true" color="#83010b">
+		<tool runtime="R-2.9">seqanal-msa.R</tool> 
+		<tool runtime="R-2.9">seqanal-phylogenetics.R</tool>
+	</category>
+	
+	<category name="Hidden" hidden="true" color="#0">
 		<tool runtime="R-2.9" hidden="true">test.R</tool>
 		<tool runtime="R-2.9" hidden="true">no-operation.R</tool>
 		<tool runtime="R-2.9" hidden="true">echo.R</tool>
@@ -170,8 +175,5 @@
 		<tool runtime="R-2.9" hidden="true">input-sleep-output.R</tool>
 	</category>
 	
-	<category name="Miscellaneous (sequence analysis)" hidden="true">
-		<tool runtime="R-2.9">seqanal-msa.R</tool> 
-		<tool runtime="R-2.9">seqanal-phylogenetics.R</tool>
-	</category>
+
 </module>

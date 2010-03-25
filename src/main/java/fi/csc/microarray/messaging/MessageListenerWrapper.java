@@ -6,7 +6,7 @@ import javax.jms.MessageListener;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 
 /**
  * For converting JMS-type messages into Nami type messages.
@@ -29,10 +29,10 @@ public class MessageListenerWrapper implements MessageListener {
 	public void onMessage(Message msg) {
 		
 		try {
-			String msgClass = msg.getStringProperty(NamiMessage.KEY_CLASS);
+			String msgClass = msg.getStringProperty(ChipsterMessage.KEY_CLASS);
 			logger.debug("message received, class is " + msgClass);
 			MapMessage mapMessage = (MapMessage)msg;
-			NamiMessage namiMessage = (NamiMessage)Class.forName(msgClass).newInstance();
+			ChipsterMessage namiMessage = (ChipsterMessage)Class.forName(msgClass).newInstance();
 			namiMessage.unmarshal(mapMessage);
 			actualListener.onNamiMessage(namiMessage);
 			

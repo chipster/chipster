@@ -5,7 +5,7 @@ import org.apache.log4j.Logger;
 import java.util.HashMap;
 import java.util.Map;
 
-import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 
 public class MultiplexingMessagingListener implements MessagingListener {
 	/**
@@ -24,7 +24,7 @@ public class MultiplexingMessagingListener implements MessagingListener {
 		channels.remove(channelName);
 	}
 	
-	public void onNamiMessage(NamiMessage msg) {
+	public void onNamiMessage(ChipsterMessage msg) {
 		String channelName = msg.getMultiplexChannel();
 		logger.debug("multiplexing to channel " + channelName);
 		if (channels.get(channelName) != null) {

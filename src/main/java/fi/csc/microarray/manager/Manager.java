@@ -35,7 +35,7 @@ import fi.csc.microarray.messaging.MonitoredNodeBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.message.JobLogMessage;
-import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
 import fi.csc.microarray.util.MemUtil;
@@ -210,7 +210,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 	/**
 	 * Process incoming message.  
 	 */
-	public void onNamiMessage(NamiMessage namiMessage) {
+	public void onNamiMessage(ChipsterMessage namiMessage) {
 		
 		if (!(namiMessage instanceof JobLogMessage)) {
 			logger.warn("Got other than JobLogMessage: " + namiMessage.toString());

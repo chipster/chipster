@@ -18,9 +18,9 @@ import org.apache.log4j.Logger;
  * @author hupponen, akallio
  *
  */
-public abstract class NamiMessage {
+public abstract class ChipsterMessage {
 
-	private static final Logger logger = Logger.getLogger(NamiMessage.class);
+	private static final Logger logger = Logger.getLogger(ChipsterMessage.class);
 	
 	public static final String KEY_MESSAGE_ID = "message-id";
 	public static final String KEY_CLASS= "class";	
@@ -36,7 +36,7 @@ public abstract class NamiMessage {
 	private String jmsMessageID;
 	
 	/**
-	 * Converts JMS MapMessage into NamiMessage. Class extenders, see marshal-method.
+	 * Converts JMS MapMessage into ChipsterMessage. Class extenders, see marshal-method.
 	 * @see #marshal(MapMessage)
 	 */
 	public void unmarshal(MapMessage from) throws JMSException {
@@ -92,7 +92,7 @@ public abstract class NamiMessage {
 	 * for sending a replyable message.
 	 *  
 	 * @see #getReplyTo()
-	 * @see fi.csc.microarray.messaging.MessagingTopic#sendReplyableMessage(NamiMessage, MessagingListener, MessagingListener)
+	 * @see fi.csc.microarray.messaging.MessagingTopic#sendReplyableMessage(ChipsterMessage, MessagingListener, MessagingListener)
 	 */
 	public void setReplyTo(Destination replyTo) {
 		this.replyTo = replyTo;
