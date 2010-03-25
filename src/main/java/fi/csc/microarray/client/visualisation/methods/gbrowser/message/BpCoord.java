@@ -2,8 +2,8 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
 public class BpCoord implements Comparable<BpCoord> {
 
-	private static final BpCoord MAX = new BpCoord(Long.MAX_VALUE, Chromosome.MAX);
-	private static final BpCoord MIN = new BpCoord(0l, Chromosome.MIN);
+	private static final BpCoord MAX = new BpCoord(Long.MAX_VALUE, null);
+	private static final BpCoord MIN = new BpCoord(0l, null);
 	public Long bp;
 	public Chromosome chr;
 

@@ -15,12 +15,17 @@ public class Chromosome implements Comparable<Chromosome> {
 	 */
 	public static final String MIN_VALUE = "0";
 
-	public static final Chromosome MAX = new Chromosome(MAX_VALUE);
-	public static final Chromosome MIN = new Chromosome(MIN_VALUE);
+//	public static final Chromosome MAX = new Chromosome(MAX_VALUE);
+//	public static final Chromosome MIN = new Chromosome(MIN_VALUE);
 
 	public Chromosome(String chr) {
 		this.chr = chr;
-		intValue = Integer.parseInt(chr);
+		try {
+			this.intValue = Integer.parseInt(chr);
+		} catch (NumberFormatException e) {
+			// was not numeric
+			this.intValue = null;
+		}
 	}
 
 	public boolean equals(Object o) {
