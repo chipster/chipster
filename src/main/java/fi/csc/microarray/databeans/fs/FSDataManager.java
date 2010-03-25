@@ -220,9 +220,9 @@ public class FSDataManager extends DataManagerBase {
 	}
 
 
-	public int saveSnapshot(File snapshotDir, ClientApplication application) throws IOException {
+	public void saveSnapshot(File snapshotDir, ClientApplication application) throws IOException {
 		FSSnapshottingSession session = new FSSnapshottingSession(this, application);
-		return session.saveSnapshot(snapshotDir);
+		session.saveSnapshot(snapshotDir);
 	}
 
 

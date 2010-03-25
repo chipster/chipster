@@ -72,10 +72,9 @@ public class FSDataManagerTest {
 		if (snap.exists()) {
 			Files.delTree(snap);
 		}		
-		int dataCount = manager1.saveSnapshot(snap, new DummyClientApplication());
+		manager1.saveSnapshot(snap, new DummyClientApplication());
 		
 		// check
-		Assert.assertTrue(dataCount == 3);
 		Assert.assertTrue(snap.exists());
 		
 		// load
