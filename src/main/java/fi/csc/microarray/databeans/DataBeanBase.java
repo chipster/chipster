@@ -73,10 +73,6 @@ public abstract class DataBeanBase extends DataItemBase implements DataBean {
 		return getName();
 	}
 	
-	public String toStringRecursively(int i) {
-		return Strings.repeat("  ", i) + toString();
-	}
-	
 	public boolean isContentTypeCompatitible(String... alternatives) {
 		for (String alternative : alternatives) {
 			if (alternative.toLowerCase().equals(getContentType().getType().toLowerCase())) {

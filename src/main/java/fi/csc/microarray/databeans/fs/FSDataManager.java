@@ -30,7 +30,7 @@ public class FSDataManager extends DataManagerBase {
 	private File repositoryRoot;
 	
 	public FSDataManager() throws IOException {
-		rootFolder = (DataFolder)createFolder(DataManager.ROOT_NAME);
+		rootFolder = createFolder(DataManager.ROOT_NAME);
 
 		// initialize repository 		
 		repositoryRoot = createRepository();
