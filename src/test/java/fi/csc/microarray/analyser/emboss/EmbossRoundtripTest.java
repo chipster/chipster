@@ -21,7 +21,7 @@ import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.filebroker.FileBrokerClientMock;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage;
-import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
 
 public class EmbossRoundtripTest {
@@ -134,7 +134,7 @@ public class EmbossRoundtripTest {
         public void removeRunningJob(AnalysisJob job) {
         }
 
-        public void sendResultMessage(NamiMessage inputMessage, ResultMessage resultMessage) {
+        public void sendResultMessage(ChipsterMessage inputMessage, ResultMessage resultMessage) {
             if (resultMessage.getState() == JobState.COMPLETED) {
                 // This is a bit ugly and might cause trouble when tests are run in parallel?
                 isResultOK = true;

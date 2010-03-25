@@ -8,7 +8,7 @@ package fi.csc.microarray.analyser;
 import java.io.File;
 
 import fi.csc.microarray.filebroker.FileBrokerClient;
-import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
 
 /**
@@ -27,7 +27,7 @@ public interface ResultCallback {
 	 * @param inputMessage
 	 * @param resultMessage
 	 */
-	public void sendResultMessage(NamiMessage inputMessage, ResultMessage resultMessage); 
+	public void sendResultMessage(ChipsterMessage inputMessage, ResultMessage resultMessage); 
 	
 	public File getWorkDir();
 	public boolean shouldSweepWorkDir();

@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.jms.JMSException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
@@ -18,6 +19,8 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.messaging.message.DescriptionMessage;
+import fi.csc.microarray.messaging.message.DescriptionMessage.Category;
 import fi.csc.microarray.util.XmlUtil;
 
 
@@ -45,6 +48,8 @@ public class ToolRepository {
 	private LinkedHashMap<String, AnalysisDescription> visibleDescriptions = new LinkedHashMap<String, AnalysisDescription>();
 	
 	private HashMap<String, ToolRuntime> runtimes = new HashMap<String, ToolRuntime>();
+	
+	private DescriptionMessage descriptionMessage = null;
 	
 	
 	/**
@@ -76,10 +81,19 @@ public class ToolRepository {
 	}
 
 
+	/** 
+	 * @return DescriptionMessage that can be sent to the client.
+	 */
+	public DescriptionMessage getDescriptionMessage() {
+	    return descriptionMessage;
+	}
 
 
 	
 	/**
+	 * 
+	 * TODO: remove this and use getDescriptionMessage instead
+	 * 
 	 * Returns one huge SADL block that contains all loaded analysis 
 	 * descriptions.
 	 * @return huge block
@@ -207,6 +221,8 @@ public class ToolRepository {
 		}
 	}	
 
+	// TODO: if we use modules we can probably remove this for now since
+	//       we send information only about one module to the client.
 	private void loadModules() throws IOException, SAXException, ParserConfigurationException { 
 		logger.info("loading modules");
 		
@@ -223,6 +239,9 @@ public class ToolRepository {
 	/**
 	 * Parses a module file and loads all tools listed in it.
 	 * 
+	 * During parsing also construct description message that
+	 * can be sent to the client.
+	 * 
 	 * @param toolFile
 	 * @throws FileNotFoundException
 	 * @throws SAXException
@@ -236,6 +255,9 @@ public class ToolRepository {
 		Document document = XmlUtil.parseReader(new FileReader(toolConfig));
 		Element moduleElement = (Element)document.getElementsByTagName("module").item(0);
 		
+		// Construct a description message
+		descriptionMessage = new DescriptionMessage(moduleElement.getAttribute("name"));
+		
 		// Stats
 	    int totalCount = 0;
 		int successfullyLoadedCount = 0;
@@ -248,8 +270,12 @@ public class ToolRepository {
 		    // Category's visibility
 		    boolean categoryHidden = categoryElement.getAttribute("hidden").equals("true");
 		    
-		    // Read tools
 		    if (!categoryHidden) {
+		          
+	            // Add to message
+		        Category category = new Category(categoryElement.getAttribute("name"),
+                                                 categoryElement.getAttribute("color"));		        
+	            // Read tools
     		    for (Element toolElement: XmlUtil.getChildElements(categoryElement, "tool")) {
     		        totalCount++;
     		        
@@ -282,6 +308,10 @@ public class ToolRepository {
                         continue;
                     }
                     descriptions.put(description.getFullName(), description);
+                    
+                    // Add to message
+                    category.addTool(description.getName(), description.getSADL());
+                    
                     successfullyLoadedCount++;
                     
                     // Supported and visible description lists
@@ -299,10 +329,13 @@ public class ToolRepository {
                         hiddenStatus = " HIDDEN";
                         hiddenCount++;
                     }
-                    
+
                     logger.info("loaded " + description.getFullName().replace("\"", "") + " " +
                                 description.getSourceResourceFullPath() + disabledStatus + hiddenStatus);
     		    }
+    		    
+                // Add to message after the tools have been read
+                descriptionMessage.addCategory(category);
 		    }
 		}
         

@@ -33,7 +33,7 @@ import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.JobLogMessage;
 import fi.csc.microarray.messaging.message.JobMessage;
-import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
@@ -170,7 +170,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 * Also operation descriptions and source codes are requested with a JobMessage. 
 	 *  
 	 */
-	public void onNamiMessage(NamiMessage namiMessage) {
+	public void onNamiMessage(ChipsterMessage namiMessage) {
 		
 		// create job, request operation descriptions or source code for operation
 		if (namiMessage instanceof JobMessage) {
@@ -355,7 +355,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 * 
 	 * 
 	 */
-	public void sendResultMessage(NamiMessage original, ResultMessage reply) {
+	public void sendResultMessage(ChipsterMessage original, ResultMessage reply) {
 		try {
 			endpoint.replyToMessage(original, reply);
 		} catch (JMSException e) {
@@ -374,7 +374,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 * @param original
 	 * @param reply
 	 */
-	private void sendReplyMessage(final NamiMessage original, final NamiMessage reply) {
+	private void sendReplyMessage(final ChipsterMessage original, final ChipsterMessage reply) {
 		new Thread(new Runnable() {
 			public void run() {
 				try {
