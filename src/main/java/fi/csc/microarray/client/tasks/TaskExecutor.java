@@ -126,14 +126,14 @@ public class TaskExecutor {
 			this.pendingTask = pendingTask;
 
 			// set the initial state, certain operations do not need to wait for offer
-			if (pendingTask.getName().equals("describe") || pendingTask.getName().equals("describe-operation")) {
+			if (pendingTask.getName().equals("describe-operation")) {
 				this.internalState = ResultListenerState.WAIT_FOR_STATUS;
 			} else {
 				this.internalState = ResultListenerState.WAIT_FOR_ACK;
 			}
 		}
 
-		public void onNamiMessage(ChipsterMessage msg) {
+		public void onChipsterMessage(ChipsterMessage msg) {
 			logger.debug("Task " + pendingTask.getId() + " got message (" + msg.getMessageID() + ") of type " + msg.getClass().getName());
 
 			// ignore everything if we (ResultListener) are already finished

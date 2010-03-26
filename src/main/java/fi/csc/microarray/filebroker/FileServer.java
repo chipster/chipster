@@ -102,7 +102,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	}
 
 
-	public void onNamiMessage(ChipsterMessage msg) {
+	public void onChipsterMessage(ChipsterMessage msg) {
 		try {
 
 			if (msg instanceof CommandMessage && CommandMessage.COMMAND_URL_REQUEST.equals(((CommandMessage)msg).getCommand())) {

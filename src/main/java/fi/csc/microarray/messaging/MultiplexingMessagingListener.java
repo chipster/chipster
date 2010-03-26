@@ -24,11 +24,11 @@ public class MultiplexingMessagingListener implements MessagingListener {
 		channels.remove(channelName);
 	}
 	
-	public void onNamiMessage(ChipsterMessage msg) {
+	public void onChipsterMessage(ChipsterMessage msg) {
 		String channelName = msg.getMultiplexChannel();
 		logger.debug("multiplexing to channel " + channelName);
 		if (channels.get(channelName) != null) {
-			channels.get(channelName).onNamiMessage(msg);
+			channels.get(channelName).onChipsterMessage(msg);
 		}
 	}
 }

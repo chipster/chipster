@@ -31,7 +31,7 @@ public class CommandMessageTest extends MessagingTestBase {
 	public void testReceive() throws JMSException, InterruptedException {
 		
 		endpoint.createTopic(Topics.Name.TEST_TOPIC, AccessMode.READ).setListener(new MessagingListener() {
-			public void onNamiMessage(ChipsterMessage msg) {
+			public void onChipsterMessage(ChipsterMessage msg) {
 				CommandMessage cmsg = (CommandMessage)msg;
 				command = cmsg.getCommand();
 			}

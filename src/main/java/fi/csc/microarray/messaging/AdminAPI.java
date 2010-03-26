@@ -63,7 +63,7 @@ public class AdminAPI {
 		
 		private Lock mutex = new ReentrantLock();
 		
-		public void onNamiMessage(ChipsterMessage msg) {
+		public void onChipsterMessage(ChipsterMessage msg) {
 			mutex.lock(); 
 			try {
 				CommandMessage cmdMsg = (CommandMessage) msg;

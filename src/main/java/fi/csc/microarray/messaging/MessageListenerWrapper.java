@@ -32,9 +32,9 @@ public class MessageListenerWrapper implements MessageListener {
 			String msgClass = msg.getStringProperty(ChipsterMessage.KEY_CLASS);
 			logger.debug("message received, class is " + msgClass);
 			MapMessage mapMessage = (MapMessage)msg;
-			ChipsterMessage namiMessage = (ChipsterMessage)Class.forName(msgClass).newInstance();
-			namiMessage.unmarshal(mapMessage);
-			actualListener.onNamiMessage(namiMessage);
+			ChipsterMessage chipsterMessage = (ChipsterMessage)Class.forName(msgClass).newInstance();
+			chipsterMessage.unmarshal(mapMessage);
+			actualListener.onChipsterMessage(chipsterMessage);
 			
 		} catch (Exception e) {
 			logger.error(e, e);

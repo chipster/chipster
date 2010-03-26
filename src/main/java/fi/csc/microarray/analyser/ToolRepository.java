@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.jms.JMSException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
@@ -338,7 +337,7 @@ public class ToolRepository {
                 descriptionMessage.addCategory(category);
 		    }
 		}
-        
+		
         logger.info("loaded " + successfullyLoadedCount + "/" + totalCount +
                     " tools, " + disabledCount + " disabled, " + hiddenCount + " hidden");
 	}

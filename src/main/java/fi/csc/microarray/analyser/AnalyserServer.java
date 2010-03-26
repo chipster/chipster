@@ -31,6 +31,7 @@ import fi.csc.microarray.messaging.MonitoredNodeBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.message.CommandMessage;
+import fi.csc.microarray.messaging.message.DescriptionMessage;
 import fi.csc.microarray.messaging.message.JobLogMessage;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
@@ -170,22 +171,15 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 * Also operation descriptions and source codes are requested with a JobMessage. 
 	 *  
 	 */
-	public void onNamiMessage(ChipsterMessage namiMessage) {
+	public void onChipsterMessage(ChipsterMessage chipsterMessage) {
 		
 		// create job, request operation descriptions or source code for operation
-		if (namiMessage instanceof JobMessage) {
+		if (chipsterMessage instanceof JobMessage) {
 			
-			JobMessage jobMessage = (JobMessage)namiMessage;
-			
-			// return the operations descriptions
-			if ("describe".equals(jobMessage.getAnalysisId())) {
-				logger.info("sending all descriptions");
-				sendReplyMessage(jobMessage, createDescriptionsMessage(jobMessage));
-				return; 
-			} 
+			JobMessage jobMessage = (JobMessage)chipsterMessage;
 			
 			// return source code for an operation
-			else if ("describe-operation".equals(jobMessage.getAnalysisId())) {
+			if ("describe-operation".equals(jobMessage.getAnalysisId())) {
 				sendReplyMessage(jobMessage, createSourceCodeMessage(jobMessage));
 				return; 
 			}
@@ -197,8 +191,8 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		}  
 		
 		// command messages
-		else if (namiMessage instanceof CommandMessage) {
-			CommandMessage commandMessage = (CommandMessage)namiMessage;
+		else if (chipsterMessage instanceof CommandMessage) {
+			CommandMessage commandMessage = (CommandMessage)chipsterMessage;
 			
 			if (CommandMessage.COMMAND_ACCEPT_OFFER.equals(commandMessage.getCommand())) {
 				
@@ -247,6 +241,14 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 				}
 			}
 			
+			// Request to send descriptions
+			else if (CommandMessage.COMMAND_DESCRIBE.equals(commandMessage.getCommand())) {
+	             logger.info("sending all descriptions");
+	             sendReplyMessage(commandMessage, createDescriptionsMessage(commandMessage));
+	             return; 
+			}
+			
+			// Request to cancel a job
 			else if (CommandMessage.COMMAND_CANCEL.equals(commandMessage.getCommand())) {
 				String jobId = commandMessage.getParameters().get(0);
 				
@@ -270,7 +272,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		
 		// unknown message
 		else {
-			logger.error("unidentified message: " + namiMessage.getMessageID());
+			logger.error("unidentified message: " + chipsterMessage.getMessageID());
 		}
 
 	}
@@ -510,7 +512,11 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	}
 	
 	
-	private ResultMessage createDescriptionsMessage(JobMessage requestMessage) {
+	private DescriptionMessage createDescriptionsMessage(CommandMessage requestMessage) {
+	    DescriptionMessage descriptions = toolRepository.getDescriptionMessage();
+	    descriptions.setReplyTo(requestMessage.getReplyTo());
+	    return descriptions;
+	    /*
 		ResultMessage resultMessage = new ResultMessage("", JobState.COMPLETED, "", "", 
 				"", requestMessage.getReplyTo());
 		try {
@@ -522,7 +528,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			resultMessage.setState(JobState.ERROR);
 			resultMessage.setErrorMessage("Could not send analysis descriptions.");
 		}
-		return resultMessage;
+		return resultMessage;*/
 	}
 
 

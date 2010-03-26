@@ -31,7 +31,7 @@ public class AuthenticatedTopic extends MessagingTopic {
 	private AuthenticationRequestListener listener;
 	
 	private MessagingListener authTopicListener = new MessagingListener() {
-		public void onNamiMessage(ChipsterMessage msg) {
+		public void onChipsterMessage(ChipsterMessage msg) {
 			
 			try {
 				if (msg instanceof AuthenticationMessage) {

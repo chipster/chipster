@@ -812,7 +812,7 @@ public class SwingClientApplication extends ClientApplication {
 			JFileChooser fileChooser = this.getWorkflowFileChooser();
 			int ret = fileChooser.showOpenDialog(this.getMainFrame());
 			if (ret == JFileChooser.APPROVE_OPTION) {
-				runWorkflow(fileChooser.getSelectedFile().toURL());
+				runWorkflow(fileChooser.getSelectedFile().toURI().toURL());
 
 				menuBar.updateMenuStatus();
 				return fileChooser.getSelectedFile();

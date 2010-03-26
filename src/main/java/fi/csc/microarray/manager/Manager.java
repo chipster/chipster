@@ -210,7 +210,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 	/**
 	 * Process incoming message.  
 	 */
-	public void onNamiMessage(ChipsterMessage namiMessage) {
+	public void onChipsterMessage(ChipsterMessage namiMessage) {
 		
 		if (!(namiMessage instanceof JobLogMessage)) {
 			logger.warn("Got other than JobLogMessage: " + namiMessage.toString());

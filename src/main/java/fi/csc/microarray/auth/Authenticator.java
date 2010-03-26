@@ -107,7 +107,7 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 		/**
 		 * Two step processing: authenticate, then route.
 		 */
-		public void onNamiMessage(ChipsterMessage msg) {
+		public void onChipsterMessage(ChipsterMessage msg) {
 			try {
 
 				logger.debug("starting to process " + msg);
@@ -227,7 +227,7 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 	}
 		
 	private class TestListener implements MessagingListener {
-		public void onNamiMessage(ChipsterMessage msg) {
+		public void onChipsterMessage(ChipsterMessage msg) {
 			logger.debug("got message on test-topic.");
 			try {
 

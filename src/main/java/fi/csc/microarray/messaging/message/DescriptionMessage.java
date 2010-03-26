@@ -10,6 +10,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import fi.csc.microarray.util.XmlUtil;
 
@@ -23,20 +24,25 @@ import fi.csc.microarray.util.XmlUtil;
 public class DescriptionMessage extends ChipsterMessage {
     
     private final static String KEY_MODULE = "module";
+    private final static String KEY_MODULE_NAME = "module-name";
     
-    private Document moduleXml;
+    public Document moduleXml;
     private String moduleName;
-    private Element moduleElement;
     private List<Category> categories = new LinkedList<Category>();
     
+    /**
+     * Empty constructor (needed for MessageListenerWrap.onMessage)
+     */
+    public DescriptionMessage() { }
+    
     public DescriptionMessage(String moduleName) throws ParserConfigurationException {
-        setModuleName(moduleName);
-        
         // Start constructing the XML
         moduleXml = XmlUtil.newDocument();
-        moduleElement = moduleXml.createElement("module");
-        moduleElement.setAttribute("name", moduleName);
-        moduleXml.appendChild(moduleElement);
+        moduleXml.appendChild(moduleXml.createElement("module"));
+        
+        // Set module's name
+        setModuleName(moduleName);
+        getFirstModule().setAttribute("name", moduleName);
     }
     
     private void setModuleName(String moduleName) {
@@ -44,13 +50,22 @@ public class DescriptionMessage extends ChipsterMessage {
     }
     
     public String getModuleName() {
-        return moduleName;
+        return this.moduleName;
     }
     
     public void addConfString(String configuration) {
         // TODO ADD to XML
     }
     
+    private Element getFirstModule() {
+        return (Element)moduleXml.getElementsByTagName("module").item(0);
+    }
+    
+    /**
+     * Store a Category object in the inner XML.
+     * 
+     * @param category
+     */
     public void addCategory(Category category) {
         Element categoryElement = moduleXml.createElement("category");
         categoryElement.setAttribute("name", category.getName());
@@ -65,22 +80,40 @@ public class DescriptionMessage extends ChipsterMessage {
             categoryElement.appendChild(toolElement);
         }
         
-        moduleElement.appendChild(categoryElement);
+        getFirstModule().appendChild(categoryElement);
     }
     
+    /**
+     * @return all categories contained in the inner XML.
+     */
     public List<Category> getCategories() {
+        NodeList categoryList = getFirstModule().getElementsByTagName("category");
+        for (int i=0; i<categoryList.getLength(); i++) {
+            Element categoryElement = (Element) categoryList.item(i);
+            Category category = new Category(categoryElement.getAttribute("name"),
+                                             categoryElement.getAttribute("color"));
+            NodeList toolList = categoryElement.getElementsByTagName("tool");
+            for (int j=0; j<toolList.getLength(); j++) {
+                Element toolElement = (Element) toolList.item(j);
+                category.addTool(toolElement.getAttribute("name"),
+                                 toolElement.getTextContent());
+            }
+            categories.add(category);
+        }
         return categories;
     }
     
     @Override
     public void unmarshal(MapMessage from) throws JMSException {
         super.unmarshal(from);
+        this.setModuleName(from.getStringProperty(KEY_MODULE_NAME));
         this.moduleXml = XmlUtil.stringToXML(from.getString(KEY_MODULE));
     }
     
     @Override
     public void marshal(MapMessage to) throws JMSException {
         super.marshal(to);
+        to.setStringProperty(KEY_MODULE_NAME, this.getModuleName());
         to.setString(KEY_MODULE, XmlUtil.xmlToString(moduleXml));
     }
     
@@ -92,6 +125,10 @@ public class DescriptionMessage extends ChipsterMessage {
         private List<Tool> tools = new LinkedList<Tool>();
         private Color color;
         
+        /**
+         * @param name - name for this category.
+         * @param color - String representing hexidecimal RGB value (e.g. "FF1122")
+         */
         public Category(String name, String color) {
             this.name = name;
             this.color = Color.decode(color);

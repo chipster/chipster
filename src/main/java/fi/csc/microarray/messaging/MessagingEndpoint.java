@@ -204,7 +204,7 @@ public class MessagingEndpoint implements MessagingListener {
 	/**
 	 * Reacts to administrative messages.
 	 */
-	public void onNamiMessage(ChipsterMessage msg) {
+	public void onChipsterMessage(ChipsterMessage msg) {
 		try {
 			CommandMessage txtMsg = (CommandMessage)msg;
 			logger.debug("got admin request " + txtMsg.getCommand());

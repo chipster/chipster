@@ -38,7 +38,6 @@ import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationCategory;
 import fi.csc.microarray.client.operation.OperationDefinition;
-import fi.csc.microarray.client.operation.OperationGenerator;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.Operation.ResultListener;
 import fi.csc.microarray.client.selection.DataSelectionManager;
@@ -64,18 +63,19 @@ import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.table.EditableTable;
 import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 import fi.csc.microarray.databeans.fs.FSDataManager;
-import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.AdminAPI;
+import fi.csc.microarray.messaging.DescriptionListener;
 import fi.csc.microarray.messaging.MessagingEndpoint;
+import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.Node;
 import fi.csc.microarray.messaging.NodeBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
+import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.module.DefaultModules;
 import fi.csc.microarray.module.Modules;
-import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.Strings;
 
@@ -162,13 +162,13 @@ public abstract class ClientApplication implements Node {
 		}
 	};
 
-	protected Collection<OperationCategory> parsedCategories;
 	protected String metadata;
 	protected CountDownLatch definitionsInitialisedLatch = new CountDownLatch(1);
 	
 	private boolean eventsEnabled = false;
 	private PropertyChangeSupport eventSupport = new PropertyChangeSupport(this);
 
+	protected Collection<OperationCategory> parsedCategories;
 	protected WorkflowManager workflowManager;
 	protected TaskExecutor taskExecutor;
 	protected MessagingEndpoint endpoint;
@@ -224,23 +224,17 @@ public abstract class ClientApplication implements Node {
 			}				
 			reportInitialisation(" all are available", false);
 			
-			// create metadata fetching job
-			reportInitialisation("Fetching analysis descriptions...", true);
-			final Task describeOperations = taskExecutor.createTask("describe", true);
-			
-			// run the job (blocking while it is progressing)
-			taskExecutor.execute(describeOperations);
-			
-			// parse metadata
-			DataBean metadataBean = describeOperations.getOutput(AnalyserServer.DESCRIPTION_OUTPUT_NAME);
-			this.metadata = new String(metadataBean.getContents());
-			manager.delete(metadataBean); // don't leave the bean hanging around
-			logger.debug("got metadata: " + this.metadata.substring(0, 50) + "...");
-			List<SADLDescription> descriptions = new ChipsterSADLParser().parseMultiple(this.metadata);
-			this.parsedCategories = new OperationGenerator().generate(descriptions).values();
-			
-			logger.debug("created " + this.parsedCategories.size() + " operation categories");
-			
+			// Fetch descriptions from compute server
+	        reportInitialisation("Fetching analysis descriptions...", true);
+		    MessagingTopic requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC,
+		                                                       AccessMode.WRITE);
+            DescriptionListener descriptionListener = new DescriptionListener();
+			requestTopic.sendReplyableMessage(new CommandMessage(CommandMessage.COMMAND_DESCRIBE),
+			                                  descriptionListener);
+			descriptionListener.waitForResponse();
+			parsedCategories = descriptionListener.getCategories();
+			logger.debug("created " + parsedCategories.size() + " operation categories");
+ 			
 			reportInitialisation(" received and processed", false);
 			definitionsInitialisedLatch.countDown();
 			

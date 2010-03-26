@@ -52,7 +52,7 @@ public class FileBrokerClient {
 		private URL newUrl;
 		private CountDownLatch latch = new CountDownLatch(1);
 		
-		public void onNamiMessage(ChipsterMessage msg) {
+		public void onChipsterMessage(ChipsterMessage msg) {
 			if (msg instanceof UrlMessage) {
 				UrlMessage urlMessage = (UrlMessage) msg;
 				this.newUrl = urlMessage.getUrl();
