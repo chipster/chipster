@@ -61,6 +61,23 @@ public class Strings {
 		return v != null;
 	}
 
+	public static boolean containsAnyOf(String toCompare, boolean caseSensitive, String... strings) {
+		if (!caseSensitive) {
+			toCompare = toCompare.toLowerCase();
+		}
+		for (String string : strings) {
+			if (!caseSensitive) {
+				string = string.toLowerCase();
+			}
+			if (toCompare.contains(string)) {
+				return true;
+			}
+			
+		}
+		return false;	}
+	
+
+
 	public static boolean isAnyOf(String toCompare, boolean caseSensitive, String... strings) {
 		if (!caseSensitive) {
 			toCompare = toCompare.toLowerCase();
@@ -120,6 +137,5 @@ public class Strings {
 		}
 		return result;
 	}
-	
 
 }
