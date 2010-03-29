@@ -13,7 +13,7 @@ import fi.csc.microarray.databeans.DataBean;
  *    
  * <p>Syntax defination is below. It is in the form of rewrite rules.
  * First rule in the list is the initial rule where rewriting is started. 
- * Hyphenated texts are snippets of SADL. For example, TOOL is a term
+ * Quoted texts are snippets of SADL. For example, TOOL is a term
  * that is rewritten using the given rules, but "TOOL" is a string that
  * should be found in the source code. Operators ?, +, * and | have their
  * common semantics.</p>
@@ -47,7 +47,7 @@ import fi.csc.microarray.databeans.DataBean;
  * if the token contains SADLSyntax.NAME_SET_DESIGNATOR (meaning that we are dealing with name set instead of single name).</p>
  * 
  * <p>TOKEN refers to any single token produced by tokeniser (SADLTokeniser). Tokens can be keywords, operators, 
- * strings, hyphenated string or strings in parentheses. String in parentheses are strongly recommended for descriptions.</p>  
+ * strings, quoted string or strings in parentheses. String in parentheses are strongly recommended for descriptions.</p>  
  *  
  * <p>Below is an example of a SADL snippet.</p>
  * <pre>
@@ -94,7 +94,7 @@ public class SADLSyntax {
 	public static final String ENUM_SEPARATOR = ",";
 	public static final String COMMENT_OPEN = "(";
 	public static final String COMMENT_CLOSE = ")";
-	public static final String HYPHEN = "\"";
+	public static final String QUOTE = "\"";
 	public static final String ESCAPE = "\\";
 	
 	public static interface InputType {

@@ -13,7 +13,7 @@ import fi.csc.microarray.databeans.DataBean;
  *
  * <p>Syntax defination is below. It is in the form of rewrite rules.
  * First rule in the list is the initial rule where rewriting is started.
- * Hyphenated texts are snippets of VVSADL. For example, ANALYSIS is a term
+ * Quoted texts are snippets of VVSADL. For example, ANALYSIS is a term
  * that is rewritten using the given rules, but "ANALYSIS" is a string that
  * should be found in the source code. Operators ?, +, * and | have their
  * common semantics. Lower case identifiers: number, string and string_no_ws (no

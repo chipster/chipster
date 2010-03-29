@@ -117,10 +117,10 @@ public class SADLDescription {
 				firstPart = id;
 			}
 			
-			return hyphenate(firstPart) + ": " + hyphenate(displayName);
+			return quoteIfNeeded(firstPart) + ": " + quoteIfNeeded(displayName);
 		}
 		
-		private String hyphenate(String name) {
+		private String quoteIfNeeded(String name) {
 			if (name.contains(" ") || Strings.containsAnyOf(name, true, SADLTokeniser.tokenEndingOperators())) {
 				return "\"" + name + "\"";
 			} else {

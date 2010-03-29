@@ -8,7 +8,7 @@ import fi.csc.microarray.description.SADLParser.ParseException;
 /**
  * Parses string into tokens, suitable for SADLParser. The tokeniser has some understating
  * of SADL syntax so that it can produce higher level tokens and make parsing easier.
- * Tokens can be keywords, operators, strings, hyphenated string or strings in parentheses.
+ * Tokens can be keywords, operators, strings, quoted string or strings in parentheses.
  *
  * @see SADLParser
  * 
@@ -87,12 +87,12 @@ public class SADLTokeniser {
 					next(); // skip ')'
 
 				// read special quoted block
-				} else if (peek() == SADLSyntax.HYPHEN.charAt(0)) {
+				} else if (peek() == SADLSyntax.QUOTE.charAt(0)) {
 
 					next(); // skip '"'
 					setEscapingEnabled(true);
 
-					while (!atEnd() && !isOperator(SADLSyntax.HYPHEN.charAt(0))) {
+					while (!atEnd() && !isOperator(SADLSyntax.QUOTE.charAt(0))) {
 						token += next();
 					}
 
