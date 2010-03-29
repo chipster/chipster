@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<module name="Gene expression">
+<module name="microarray">
 	<category name="Normalisation" color="#c3b6a2">
 		<tool runtime="R-2.9">norm-affy.R</tool>
 		<tool runtime="R-2.9">norm-affy-exon.R</tool>

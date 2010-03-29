@@ -225,13 +225,14 @@ public class ToolRepository {
 	       throws IOException, SAXException, ParserConfigurationException {
 		logger.info("loading modules");
 		
-		String [] moduleFiles = new String[] { "microarray-module.xml", "sequence-module.xml" };
-		for (String toolFileName: moduleFiles) {
-			File moduleFile = new File(DirectoryLayout.getInstance().getConfDir(), toolFileName);
-			if (moduleFile.exists()) {
-				logger.info("loading from " + toolFileName);
-				modules.add(loadModule(moduleFile));
-			}
+		for (String moduleFilename : DirectoryLayout.getInstance().getConfDir().list()) {
+		    if (moduleFilename.endsWith("-module.xml")) {
+	            File moduleFile = new File(DirectoryLayout.getInstance().getConfDir(), moduleFilename);
+	            if (moduleFile.exists()) {
+	                logger.info("loading from " + moduleFilename);
+	                modules.add(loadModule(moduleFile));
+	            }
+		    }
 		}
 	}
 

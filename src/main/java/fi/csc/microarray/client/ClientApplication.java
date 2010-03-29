@@ -167,6 +167,8 @@ public abstract class ClientApplication implements Node {
 	
 	private boolean eventsEnabled = false;
 	private PropertyChangeSupport eventSupport = new PropertyChangeSupport(this);
+	
+	private String requestedModule;
 
 	protected Collection<OperationCategory> parsedCategories;
 	protected WorkflowManager workflowManager;
@@ -228,7 +230,7 @@ public abstract class ClientApplication implements Node {
 	        reportInitialisation("Fetching analysis descriptions...", true);
 		    MessagingTopic requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC,
 		                                                       AccessMode.WRITE);
-            DescriptionListener descriptionListener = new DescriptionListener();
+            DescriptionListener descriptionListener = new DescriptionListener(getRequestedModule());
 			requestTopic.sendReplyableMessage(new CommandMessage(CommandMessage.COMMAND_DESCRIBE),
 			                                  descriptionListener);
 			descriptionListener.waitForResponse();
@@ -263,6 +265,17 @@ public abstract class ClientApplication implements Node {
 
 
 	}
+	
+	/**
+	 * @return a name of the module that user wants to be loaded.
+	 */
+	public String getRequestedModule() {
+	    return requestedModule;
+	}
+	
+    public void setRequestedModule(String requestedModule) {
+        this.requestedModule = requestedModule;
+    }
 	
 	/**
 	 * Add listener for applications state changes.

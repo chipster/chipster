@@ -169,12 +169,16 @@ public class SwingClientApplication extends ClientApplication {
 	private JFileChooser snapshotFileChooser;
 	private JFileChooser workflowFileChooser;
 
-	public SwingClientApplication(ClientListener clientListener, AuthenticationRequestListener overridingARL) throws MicroarrayException, IOException, IllegalConfigurationException {
+	public SwingClientApplication(ClientListener clientListener, AuthenticationRequestListener overridingARL, String module)
+	        throws MicroarrayException, IOException, IllegalConfigurationException {
 
 		super();
 		
 		this.clientListener = clientListener;
 		this.overridingARL = overridingARL;
+		
+        // Set the module that user wants to load
+        setRequestedModule(module);
 
 		splashScreen = new SplashScreen(VisualConstants.SPLASH_SCREEN);
 		reportInitialisation("Initialising " + ApplicationConstants.APPLICATION_TITLE, true);
@@ -1229,7 +1233,7 @@ public class SwingClientApplication extends ClientApplication {
 	 * Starts Chipster client. Configuration (logging) should be initialised
 	 * before calling this method.
 	 */
-	public static void start(String configURL) throws IOException {
+	public static void start(String configURL, String module) throws IOException {
 
 		try {
 			DirectoryLayout.initialiseClientLayout(configURL);			
@@ -1248,7 +1252,7 @@ public class SwingClientApplication extends ClientApplication {
 		};
 		
 		try {
-			new SwingClientApplication(shutdownListener, null);
+			new SwingClientApplication(shutdownListener, null, module);
 			
 		} catch (Throwable t) {
 			t.printStackTrace();
@@ -1261,7 +1265,7 @@ public class SwingClientApplication extends ClientApplication {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		start(null);
+		start(null, "microarray-module");
 	}
 
 	public static void reportIllegalConfigurationException(IllegalConfigurationException e) {

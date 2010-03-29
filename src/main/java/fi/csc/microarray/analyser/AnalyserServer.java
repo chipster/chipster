@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -525,7 +524,6 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		sendReplyMessage(job.getInputMessage(), offerMessage);
 	}
 	
-	
 	private List<DescriptionMessage>
 	        createDescriptionsMessages(CommandMessage requestMessage)
 	        throws IOException, SAXException, ParserConfigurationException {
@@ -534,21 +532,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	        descriptionMsg.setReplyTo(requestMessage.getReplyTo());
 	    }
 	    return list;
-	    /*
-		ResultMessage resultMessage = new ResultMessage("", JobState.COMPLETED, "", "", 
-				"", requestMessage.getReplyTo());
-		try {
-			String description = toolRepository.serialiseAsStringBuffer().toString();
-			URL url = fileBroker.addFile(new ByteArrayInputStream(description.getBytes()), null);
-			resultMessage.addPayload(DESCRIPTION_OUTPUT_NAME, url);
-		} catch (Exception e) {
-			logger.error("Could not send analysis descriptions", e);
-			resultMessage.setState(JobState.ERROR);
-			resultMessage.setErrorMessage("Could not send analysis descriptions.");
-		}
-		return resultMessage;*/
 	}
-
 
 	private ResultMessage createSourceCodeMessage(JobMessage requestMessage) {
 		ResultMessage resultMessage = new ResultMessage("", JobState.COMPLETED, "", "", 

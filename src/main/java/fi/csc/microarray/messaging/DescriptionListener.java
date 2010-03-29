@@ -11,8 +11,13 @@ import fi.csc.microarray.messaging.message.DescriptionMessage;
 
 public class DescriptionListener extends TempTopicMessagingListenerBase {
     
-    final CountDownLatch latch = new CountDownLatch(1);
-    Collection<OperationCategory> categories = null;
+    private final CountDownLatch latch = new CountDownLatch(1);
+    private Collection<OperationCategory> categories = null;
+    private String wantedModule;
+    
+    public DescriptionListener(String wantedModule) {
+        this.wantedModule = wantedModule;
+    }
     
     public Collection<OperationCategory> getCategories() {
         return categories;
@@ -31,7 +36,9 @@ public class DescriptionListener extends TempTopicMessagingListenerBase {
         
         // TODO change Name to Id
         // TODO check for the right module
-        if (descriptionMsg.getModuleName().equals("Sequence alignment")) {            
+        System.out.println(descriptionMsg.getModuleName());
+        System.out.println(wantedModule);
+        if (descriptionMsg.getModuleName().equals(wantedModule)) {            
             try {
                 categories = new OperationGenerator().generateFromMessage(descriptionMsg).values();
             } catch (ParseException e) {

@@ -108,7 +108,7 @@ public class ToolXMLGenerator {
         
         // Create a node for all tools
         Element module = doc.createElement("module");
-        module.setAttribute("name", "Sequence alignment");
+        module.setAttribute("name", "sequence");
         doc.appendChild(module);
         
         for (File acdFile : acdDir.listFiles()) {

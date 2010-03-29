@@ -88,15 +88,12 @@ public class DescriptionMessage extends ChipsterMessage {
      */
     public List<Category> getCategories() {
         NodeList categoryList = getFirstModule().getElementsByTagName("category");
-        System.out.println(XmlUtil.xmlToString(getFirstModule()));
         for (int i=0; i<categoryList.getLength(); i++) {
             Element categoryElement = (Element) categoryList.item(i);
             Category category = new Category(categoryElement.getAttribute("name"),
                                              categoryElement.getAttribute("color"));
             NodeList toolList = categoryElement.getElementsByTagName("tool");
-            System.out.println("READ CATEGORY");
             for (int j=0; j<toolList.getLength(); j++) {
-                System.out.println("ADDS TOOL");
                 Element toolElement = (Element) toolList.item(j);
                 category.addTool(toolElement.getAttribute("name"),
                                  toolElement.getTextContent());
