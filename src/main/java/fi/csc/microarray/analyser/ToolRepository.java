@@ -47,10 +47,8 @@ public class ToolRepository {
 	private LinkedHashMap<String, AnalysisDescription> visibleDescriptions = new LinkedHashMap<String, AnalysisDescription>();
 	
 	private HashMap<String, ToolRuntime> runtimes = new HashMap<String, ToolRuntime>();
-	
-	private DescriptionMessage descriptionMessage = null;
-	
-	
+	private List<DescriptionMessage> modules = new LinkedList<DescriptionMessage>();
+		
 	/**
 	 * 
 	 * @param the root workDir for the jobs of the computing service
@@ -58,11 +56,8 @@ public class ToolRepository {
 	 */
 	public ToolRepository(File workDir) throws Exception {
 		loadRuntimes(workDir);
-		loadModules();
+		loadModuleDescriptions();
 	}
-	
-	
-	
 	
 	public synchronized AnalysisDescription getDescription(String fullName) throws AnalysisException {
 		AnalysisDescription desc; 
@@ -78,16 +73,6 @@ public class ToolRepository {
 		// return the possibly updated description
 		return descriptions.get(fullName); 
 	}
-
-
-	/** 
-	 * @return DescriptionMessage that can be sent to the client.
-	 */
-	public DescriptionMessage getDescriptionMessage() {
-	    return descriptionMessage;
-	}
-
-
 	
 	/**
 	 * 
@@ -218,19 +203,34 @@ public class ToolRepository {
 			ToolRuntime runtime = new ToolRuntime(runtimeName, handler, runtimeDisabled); 
 			this.runtimes.put(runtimeName, runtime);
 		}
-	}	
+	}
+	
+	/**
+	 * @return a list of DescriptionMessages about available modules
+	 * that can be sent to client.
+	 */
+	public List<DescriptionMessage> getModuleDescriptions() {
+	    return modules;
+	}
 
-	// TODO: if we use modules we can probably remove this for now since
-	//       we send information only about one module to the client.
-	private void loadModules() throws IOException, SAXException, ParserConfigurationException { 
+	/**
+	 * Generate a list containing information about all modules
+	 * available in this analyser server.
+	 * 
+	 * @throws IOException
+	 * @throws SAXException
+	 * @throws ParserConfigurationException
+	 */
+	public void loadModuleDescriptions()
+	       throws IOException, SAXException, ParserConfigurationException {
 		logger.info("loading modules");
 		
-		String [] moduleFiles = new String[] { "microarray-module.xml" };
+		String [] moduleFiles = new String[] { "microarray-module.xml", "sequence-module.xml" };
 		for (String toolFileName: moduleFiles) {
 			File moduleFile = new File(DirectoryLayout.getInstance().getConfDir(), toolFileName);
 			if (moduleFile.exists()) {
 				logger.info("loading from " + toolFileName);
-				loadModule(moduleFile);
+				modules.add(loadModule(moduleFile));
 			}
 		}
 	}
@@ -247,15 +247,17 @@ public class ToolRepository {
 	 * @throws IOException
 	 * @throws ParserConfigurationException
 	 */
-	private void loadModule(File toolFile) throws FileNotFoundException, SAXException,
-	                                                     IOException, ParserConfigurationException {
+	private DescriptionMessage loadModule(File toolFile)
+	    throws FileNotFoundException, SAXException,
+	           IOException, ParserConfigurationException {
 		File toolConfig = toolFile;
 
 		Document document = XmlUtil.parseReader(new FileReader(toolConfig));
 		Element moduleElement = (Element)document.getElementsByTagName("module").item(0);
 		
 		// Construct a description message
-		descriptionMessage = new DescriptionMessage(moduleElement.getAttribute("name"));
+		DescriptionMessage descriptionMessage =
+		    new DescriptionMessage(moduleElement.getAttribute("name"));
 		
 		// Stats
 	    int totalCount = 0;
@@ -340,6 +342,8 @@ public class ToolRepository {
 		
         logger.info("loaded " + successfullyLoadedCount + "/" + totalCount +
                     " tools, " + disabledCount + " disabled, " + hiddenCount + " hidden");
+        
+        return descriptionMessage;
 	}
 
 }

@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -44,6 +45,7 @@ public class ToolXMLGenerator {
     private static final HashSet<String> ignoredGroups = new HashSet<String>();
     private static final HashSet<String> ignoredPrograms = new HashSet<String>();
     private LinkedHashMap<String, LinkedList<String>> groupsMap = new LinkedHashMap<String, LinkedList<String>>();
+    private HashMap<String, String> colors = new HashMap<String, String>();
 
     public ToolXMLGenerator(String acdDirPath, String outputFilePath) {
         acdDir = new File(acdDirPath);
@@ -79,6 +81,16 @@ public class ToolXMLGenerator {
         ignoredPrograms.add("complex");
         ignoredPrograms.add("intconv");
         ignoredPrograms.add("ensembltest");
+        
+        colors.put("alignment", "#c3b6a2");
+        colors.put("display", "#d5c796");
+        colors.put("edit", "#e7df70");
+        colors.put("enzyme kinetics", "#d59f45");
+        colors.put("feature tables", "#e7881c");
+        colors.put("information", "#d53833");
+        colors.put("nucleic", "#80a3b7");
+        colors.put("phylogeny", "#0177b7");
+        colors.put("protein", "#629a9b");
     }
 
     /**
@@ -95,8 +107,9 @@ public class ToolXMLGenerator {
         }
         
         // Create a node for all tools
-        Element tools = doc.createElement("tools");
-        doc.appendChild(tools);
+        Element module = doc.createElement("module");
+        module.setAttribute("name", "Sequence alignment");
+        doc.appendChild(module);
         
         for (File acdFile : acdDir.listFiles()) {
             try {
@@ -140,6 +153,14 @@ public class ToolXMLGenerator {
         LinkedList<String> sortedGroups = new LinkedList<String>(groupsMap.keySet());
         Collections.sort(sortedGroups);
         for (String group : sortedGroups) {
+            // Create category element
+            Element category = doc.createElement("category");
+            category.setAttribute("name", group.substring(0,1).toUpperCase() + group.substring(1));
+            String groupNormal = group.split(":")[0].trim().toLowerCase();
+            if (colors.containsKey(groupNormal)) {
+                category.setAttribute("color", colors.get(groupNormal));
+            }
+            module.appendChild(category);
             for (String appName : groupsMap.get(group)) {
                 
                 // Make an entry in the XML tree
@@ -149,7 +170,7 @@ public class ToolXMLGenerator {
                 // according to ACD specification
                 tool.setTextContent(appName);
                 tool.setAttribute("runtime", "EMBOSS");
-                tools.appendChild(tool);
+                category.appendChild(tool);
             }
         }
 
@@ -203,6 +224,6 @@ public class ToolXMLGenerator {
 
     public static void main(String[] args) {
         new ToolXMLGenerator("/opt/EMBOSS-6.2.0/emboss/acd",
-                "debug-base-dir/conf/emboss-tools.xml").generate();
+                "debug-base-dir/conf/sequence-module.xml").generate();
     }
 }

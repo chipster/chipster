@@ -31,7 +31,7 @@ public class DescriptionListener extends TempTopicMessagingListenerBase {
         
         // TODO change Name to Id
         // TODO check for the right module
-        if (descriptionMsg.getModuleName().equals("Gene expression")) {            
+        if (descriptionMsg.getModuleName().equals("Sequence alignment")) {            
             try {
                 categories = new OperationGenerator().generateFromMessage(descriptionMsg).values();
             } catch (ParseException e) {

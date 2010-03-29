@@ -2,6 +2,7 @@ package fi.csc.microarray.analyser;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -9,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -16,8 +19,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.jms.JMSException;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
+import org.xml.sax.SAXException;
 
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -237,15 +242,24 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 							activeJobRemoved();
 						}
 					}
-					
 				}
 			}
 			
 			// Request to send descriptions
 			else if (CommandMessage.COMMAND_DESCRIBE.equals(commandMessage.getCommand())) {
-	             logger.info("sending all descriptions");
-	             sendReplyMessage(commandMessage, createDescriptionsMessage(commandMessage));
-	             return; 
+	            logger.info("sending all descriptions");
+	            
+	            // Send descriptions for all available modules
+                try {
+                    List<DescriptionMessage> list;
+                    list = createDescriptionsMessages(commandMessage);
+                    for (DescriptionMessage msg : list) {
+                        sendReplyMessage(commandMessage, msg);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+	            return; 
 			}
 			
 			// Request to cancel a job
@@ -512,10 +526,14 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	}
 	
 	
-	private DescriptionMessage createDescriptionsMessage(CommandMessage requestMessage) {
-	    DescriptionMessage descriptions = toolRepository.getDescriptionMessage();
-	    descriptions.setReplyTo(requestMessage.getReplyTo());
-	    return descriptions;
+	private List<DescriptionMessage>
+	        createDescriptionsMessages(CommandMessage requestMessage)
+	        throws IOException, SAXException, ParserConfigurationException {
+	    List<DescriptionMessage> list = toolRepository.getModuleDescriptions();
+	    for (DescriptionMessage descriptionMsg : list) {
+	        descriptionMsg.setReplyTo(requestMessage.getReplyTo());
+	    }
+	    return list;
 	    /*
 		ResultMessage resultMessage = new ResultMessage("", JobState.COMPLETED, "", "", 
 				"", requestMessage.getReplyTo());
