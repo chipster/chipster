@@ -92,6 +92,10 @@ public class SADLSyntax {
 	public static final String ENUM_OPEN = "[";
 	public static final String ENUM_CLOSE = "]";
 	public static final String ENUM_SEPARATOR = ",";
+	public static final String COMMENT_OPEN = "(";
+	public static final String COMMENT_CLOSE = ")";
+	public static final String HYPHEN = "\"";
+	public static final String ESCAPE = "\\";
 	
 	public static interface InputType {
 		public boolean isTypeOf(DataBean dataBean);

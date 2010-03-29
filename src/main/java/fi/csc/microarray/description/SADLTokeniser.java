@@ -40,6 +40,16 @@ public class SADLTokeniser {
 		return tokens.get(++index);
 	}
 
+	public static String[] tokenEndingOperators() {
+		return new String[] {
+				SADLSyntax.NAME_SEPARATOR,
+				SADLSyntax.ENUM_OPEN,
+				SADLSyntax.ENUM_CLOSE,
+				SADLSyntax.ENUM_SEPARATOR,
+				SADLSyntax.CATEGORY_SEPARATOR
+		};
+	}
+	
 	private static class CharTokeniser {
 
 		private String sadl;
@@ -64,12 +74,12 @@ public class SADLTokeniser {
 				String token = "";
 
 				// read special comment block
-				if (peek() == '(') {
+				if (peek() == SADLSyntax.COMMENT_OPEN.charAt(0)) {
 
 					next(); // skip '('
 					setEscapingEnabled(true);
 					
-					while (!atEnd() && !isOperator(')')) {
+					while (!atEnd() && !isOperator(SADLSyntax.COMMENT_CLOSE.charAt(0))) {
 						token += next();
 					}
 
@@ -77,12 +87,12 @@ public class SADLTokeniser {
 					next(); // skip ')'
 
 				// read special quoted block
-				} else if (peek() == '"') {
+				} else if (peek() == SADLSyntax.HYPHEN.charAt(0)) {
 
 					next(); // skip '"'
 					setEscapingEnabled(true);
 
-					while (!atEnd() && !isOperator('"')) {
+					while (!atEnd() && !isOperator(SADLSyntax.HYPHEN.charAt(0))) {
 						token += next();
 					}
 
@@ -148,7 +158,13 @@ public class SADLTokeniser {
 			if (escaped) {
 				return false; // escaped chars are never interpreted as operators
 			}
-			return c == ':' || c == '[' || c == ']' || c == ',' || c == '/';
+			
+			for (String operator : tokenEndingOperators()) {
+				if (c == operator.charAt(0)) {
+					return true;
+				}
+			}
+			return false;
 		}
 
 		public char next() {
@@ -161,7 +177,7 @@ public class SADLTokeniser {
 			
 			// skip escape char and remember the we have escaped the next char
 			this.escaped = false;
-			if (escapingEnabled && sadl.charAt(index) == '\\') {
+			if (escapingEnabled && sadl.charAt(index) == SADLSyntax.ESCAPE.charAt(0)) {
 				index++;
 				escaped = true;
 			}

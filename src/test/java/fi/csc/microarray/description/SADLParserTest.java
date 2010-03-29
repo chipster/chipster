@@ -155,7 +155,7 @@ public class SADLParserTest {
 	public void testRoundtrip() throws MicroarrayException, IOException {
 
 		// create description
-		SADLDescription description = new SADLDescription(Name.createName("name", "longname"), "category", "main comment"); 
+		SADLDescription description = new SADLDescription(Name.createName("name", "longname/displayname"), "category", "main comment"); 
 		description.addInput(new Input(ChipsterInputTypes.GENE_EXPRS, Name.createName("input1", "input1"), true));
 		description.addInput(new Input(ChipsterInputTypes.GENE_EXPRS, Name.createNameSet("input2", ".ext", "input set 2")));
 		description.addMetaInput(new Input(ChipsterInputTypes.GENE_EXPRS, Name.createName("metainput1", "metainput1")));
