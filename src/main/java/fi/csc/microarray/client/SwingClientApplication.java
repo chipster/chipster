@@ -650,16 +650,20 @@ public class SwingClientApplication extends ClientApplication {
 						// get the InputStream for the data source
 						InputStream input;
 
-						if (dataSource instanceof File) {
-							input = new FileInputStream((File) (dataSource));
+						
+						// create the DataBean
+						DataBean data = null;
 
+						if (dataSource instanceof File) {
+							data = manager.createDataBean(dataSetName, (File) dataSource);
+							
 						} else if (dataSource instanceof URL) {
 							// TODO Not used anymore, URL-files are saved to the
 							// temp file
 							URL url = (URL) dataSource;
 							try {
 								input = url.openStream();
-
+								manager.createDataBean(dataSetName, input);
 							} catch (FileNotFoundException fnfe) {
 								SwingUtilities.invokeAndWait(new Runnable() {
 									public void run() {
@@ -685,8 +689,17 @@ public class SwingClientApplication extends ClientApplication {
 							throw new IllegalArgumentException("unknown dataSource type: " + dataSource.getClass().getSimpleName());
 						}
 
-						// create new data
-						DataBean data = manager.createDataBean(dataSetName, input);
+						// make sure that the new bean is not null
+						if (data == null) {
+							SwingUtilities.invokeAndWait(new Runnable() {
+								public void run() {
+									showDialog("Importing dataset filed.", null, "Created DataBean was null.", Severity.WARNING, false);
+								}
+							});
+							return;
+						}
+						
+						// set the content type
 						data.setContentType(contentType);
 
 						// add the operation (all databeans have their own import

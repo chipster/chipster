@@ -132,7 +132,7 @@ public class DataManager {
 	 * @throws IOException
 	 */
 	public synchronized File createNewRepositoryFile(String beanName) throws IOException {
-		// check the file name 
+		// FIXME check the file name 
 		String fileName = beanName.replaceAll("[^\\wÃ¶Ã¤Ã¥ÃÃÃ\\\\.]", "");
 		if (fileName.length() < 1) {
 			fileName = "data";
@@ -469,9 +469,14 @@ public class DataManager {
 		return bean;
 	}
 
+	
+	
+	public DataBean createDataBean(String name, File zipFile, String zipEntryName) {
+		return null;
+	}
+	
 	/**
-	 * Use this only if you have first created the new file with the
-	 * createNewRepositoryFile(String name) method.
+	 * The file is used directly, the contents are not copied anywhere.
 	 * 
 	 */
 	public DataBean createDataBean(String name, File contentFile) throws MicroarrayException {		
@@ -479,11 +484,10 @@ public class DataManager {
 	}
 
 	/**
-	 * Use this only if you have first created the new file with the
-	 * createNewRepositoryFile(String name) method.
+	 * The file is used directly, the contents are not copied anywhere.
 	 * 
 	 */
-	public DataBean createDataBean(String name, DataFolder folder, DataBean[] sources, File contentFile) throws MicroarrayException {
+	private DataBean createDataBean(String name, DataFolder folder, DataBean[] sources, File contentFile) throws MicroarrayException {
 
 		DataBean dataBean = new DataBean(name, guessContentType(name), new Date(), sources, folder, this, contentFile);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
