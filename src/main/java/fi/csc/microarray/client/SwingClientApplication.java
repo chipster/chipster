@@ -100,7 +100,7 @@ import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.Traversal;
-import fi.csc.microarray.databeans.fs.FSSnapshottingSession;
+import fi.csc.microarray.databeans.fs.SnapshottingSession;
 import fi.csc.microarray.description.VVSADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -1498,9 +1498,9 @@ public class SwingClientApplication extends ClientApplication {
 		if (snapshotFileChooser == null) {
 			snapshotFileChooser = ImportUtils.getFixedFileChooser();
 
-			String[] extensions = { FSSnapshottingSession.SNAPSHOT_EXTENSION };
+			String[] extensions = { SnapshottingSession.SNAPSHOT_EXTENSION };
 			snapshotFileChooser.setFileFilter(new GeneralFileFilter("Chipster Session", extensions));
-			snapshotFileChooser.setSelectedFile(new File("session." + FSSnapshottingSession.SNAPSHOT_EXTENSION));
+			snapshotFileChooser.setSelectedFile(new File("session." + SnapshottingSession.SNAPSHOT_EXTENSION));
 			snapshotFileChooser.setAcceptAllFileFilterUsed(false);
 			snapshotFileChooser.setMultiSelectionEnabled(false);
 
@@ -1687,7 +1687,7 @@ public class SwingClientApplication extends ClientApplication {
 		
 		if (ret == JFileChooser.APPROVE_OPTION) {
 			try {
-				final File file = fileChooser.getSelectedFile().getName().endsWith("." + FSSnapshottingSession.SNAPSHOT_EXTENSION) ? fileChooser.getSelectedFile() : new File(fileChooser.getSelectedFile().getCanonicalPath() + "." + FSSnapshottingSession.SNAPSHOT_EXTENSION);
+				final File file = fileChooser.getSelectedFile().getName().endsWith("." + SnapshottingSession.SNAPSHOT_EXTENSION) ? fileChooser.getSelectedFile() : new File(fileChooser.getSelectedFile().getCanonicalPath() + "." + SnapshottingSession.SNAPSHOT_EXTENSION);
 
 				if (file.exists()) {
 					int returnValue = JOptionPane.DEFAULT_OPTION;

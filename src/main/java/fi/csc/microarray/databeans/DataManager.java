@@ -24,7 +24,7 @@ import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
 import fi.csc.microarray.databeans.features.Modifier;
-import fi.csc.microarray.databeans.fs.FSSnapshottingSession;
+import fi.csc.microarray.databeans.fs.SnapshottingSession;
 import fi.csc.microarray.databeans.fs.OldFSSnapshottingSession;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -497,7 +497,7 @@ public class DataManager {
 	 * @see #saveSnapshot(File, ClientApplication)
 	 */
 	public List<DataItem> loadSnapshot(File sessionFile, DataFolder parentFolder, ClientApplication application) throws IOException, MicroarrayException {
-		FSSnapshottingSession session = new FSSnapshottingSession(this, application);
+		SnapshottingSession session = new SnapshottingSession(this, application);
 		List<DataItem> newItems = session.loadFromSnapshot(sessionFile, parentFolder);
 		return newItems;
 	}
@@ -520,7 +520,7 @@ public class DataManager {
 	 * @return count of stored files
 	 */
 	public void saveSnapshot(File snapshotDir, ClientApplication application) throws IOException {
-		FSSnapshottingSession session = new FSSnapshottingSession(this, application);
+		SnapshottingSession session = new SnapshottingSession(this, application);
 		session.saveSnapshot(snapshotDir);
 	}
 

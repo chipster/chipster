@@ -43,7 +43,7 @@ import fi.csc.microarray.util.IOUtils;
  * @author Aleksi Kallio
  *
  */
-public class FSSnapshottingSession {
+public class SnapshottingSession {
 
 	private final int DATA_BLOCK_SIZE = 2048;
 
@@ -64,7 +64,7 @@ public class FSSnapshottingSession {
 	private HashMap<Integer, Operation> operationIdMap = new HashMap<Integer, Operation>();
 	private HashMap<Operation, Integer> reversedOperationIdMap = new HashMap<Operation, Integer>();
 
-	public FSSnapshottingSession(DataManager manager, ClientApplication application) {
+	public SnapshottingSession(DataManager manager, ClientApplication application) {
 		this.manager = manager;
 		this.application = application;
 	}
