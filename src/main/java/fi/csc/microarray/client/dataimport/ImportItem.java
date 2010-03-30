@@ -17,7 +17,7 @@ import fi.csc.microarray.databeans.ContentType;
 public class ImportItem {
 
 	/**
-	 * An enumeration to descripe the action which will be done to file
+	 * An enumeration to describe the action which will be done to file
 	 * 
 	 * @author mkoski
 	 *
