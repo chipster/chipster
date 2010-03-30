@@ -60,6 +60,7 @@ import fi.csc.microarray.client.dataview.GraphPanel;
 import fi.csc.microarray.client.dataview.TreePanel;
 import fi.csc.microarray.client.dialog.ChipsterDialog;
 import fi.csc.microarray.client.dialog.ClipboardImportDialog;
+import fi.csc.microarray.client.dialog.CreateFromTextDialog;
 import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.dialog.DialogInfo;
 import fi.csc.microarray.client.dialog.ErrorDialogUtils;
@@ -1169,6 +1170,10 @@ public class SwingClientApplication extends ClientApplication {
 
 	public void openDatabaseImport(String title, Operation operation) throws MicroarrayException, IOException {
 		new TaskImportDialog(this, title, operation);
+	}
+	
+	public void openCreateFromTextDialog() throws MicroarrayException, IOException {
+	    new CreateFromTextDialog(this);
 	}
 
 	
