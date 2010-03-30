@@ -6,7 +6,7 @@ import fi.csc.microarray.databeans.ContentType;
 
 /**
  * Class to represent a single item (file) which will be imported. All 
- * necessarry information of the file (input file, output file, action, content 
+ * necessary information of the file (input file, output file, action, content 
  * type) are gathered together to this class. Import items are stored to 
  * list in the ImportSession.
  * 
