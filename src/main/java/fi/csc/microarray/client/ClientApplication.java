@@ -91,13 +91,15 @@ import fi.csc.microarray.util.Strings;
 public abstract class ClientApplication implements Node {
 	private static final int HEARTBEAT_DELAY = 2*1000;
 
-	/**
-	 * Logger for this class
-	 */
+	// Logger for this class
 	private static Logger logger;
 
 	public static File SNAPSHOT_DIR = null;
 	public static File OLD_SNAPSHOT_DIR = null;
+	
+	// Module names (see ToolRepository)
+	public static final String MODULE_MICROARRAY = "microarray";
+	public static final String MODULE_SEQUENCE = "sequence";
 	
     // 
 	// ABSTRACT INTERFACE
@@ -273,8 +275,20 @@ public abstract class ClientApplication implements Node {
 	    return requestedModule;
 	}
 	
+	/**
+	 * Set module that user wants loaded.
+	 * 
+	 * @param requestedModule
+	 */
     public void setRequestedModule(String requestedModule) {
         this.requestedModule = requestedModule;
+    }
+    
+    /**
+     * @return data manager for this application.
+     */
+    public DataManager getManager() {
+        return manager;
     }
 	
 	/**

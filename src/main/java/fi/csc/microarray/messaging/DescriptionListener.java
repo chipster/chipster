@@ -36,8 +36,6 @@ public class DescriptionListener extends TempTopicMessagingListenerBase {
         
         // TODO change Name to Id
         // TODO check for the right module
-        System.out.println(descriptionMsg.getModuleName());
-        System.out.println(wantedModule);
         if (descriptionMsg.getModuleName().equals(wantedModule)) {            
             try {
                 categories = new OperationGenerator().generateFromMessage(descriptionMsg).values();
