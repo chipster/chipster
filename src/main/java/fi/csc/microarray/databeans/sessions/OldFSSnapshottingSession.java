@@ -1,4 +1,4 @@
-package fi.csc.microarray.databeans.fs;
+package fi.csc.microarray.databeans.sessions;
 
 import java.awt.Color;
 import java.io.BufferedReader;

@@ -24,8 +24,8 @@ import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
 import fi.csc.microarray.databeans.features.Modifier;
-import fi.csc.microarray.databeans.fs.SnapshottingSession;
-import fi.csc.microarray.databeans.fs.OldFSSnapshottingSession;
+import fi.csc.microarray.databeans.sessions.OldFSSnapshottingSession;
+import fi.csc.microarray.databeans.sessions.SnapshottingSession;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class DataManager {

@@ -100,7 +100,7 @@ import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.Traversal;
-import fi.csc.microarray.databeans.fs.SnapshottingSession;
+import fi.csc.microarray.databeans.sessions.SnapshottingSession;
 import fi.csc.microarray.description.VVSADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;

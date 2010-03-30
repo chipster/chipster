@@ -1,4 +1,4 @@
-package fi.csc.microarray.databeans.fs;
+package fi.csc.microarray.databeans.sessions;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
