@@ -40,6 +40,13 @@ public class SADLTokeniser {
 		return tokens.get(++index);
 	}
 
+	public static String[] blockEndingOperators() {
+		return new String[] {
+				SADLSyntax.QUOTE,
+				SADLSyntax.COMMENT_CLOSE
+		};
+	}
+	
 	public static String[] tokenEndingOperators() {
 		return new String[] {
 				SADLSyntax.NAME_SEPARATOR,
@@ -49,7 +56,7 @@ public class SADLTokeniser {
 				SADLSyntax.CATEGORY_SEPARATOR
 		};
 	}
-	
+
 	private static class CharTokeniser {
 
 		private String sadl;

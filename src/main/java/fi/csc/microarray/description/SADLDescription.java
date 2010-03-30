@@ -5,7 +5,6 @@ import java.util.List;
 
 import fi.csc.microarray.description.SADLSyntax.InputType;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
-import fi.csc.microarray.util.Strings;
 
 /**
  * SADL description for one analysis tool. Describes analysis tools so 
@@ -107,28 +106,14 @@ public class SADLDescription {
 			return id == null;
 		}
 		
+		/**
+		 * @see SADLGenerator#generateName(Name)
+		 */
 		@Override
 		public String toString() {
-			
-			String firstPart;
-			if (isNameSet()) {
-				firstPart = getPrefix() + "{...}" + getPostfix();
-			} else {
-				firstPart = id;
-			}
-			
-			return quoteIfNeeded(firstPart) + ": " + quoteIfNeeded(displayName);
+			return SADLGenerator.generateName(this);
 		}
 		
-		private String quoteIfNeeded(String name) {
-			if (name.contains(" ") || Strings.containsAnyOf(name, true, SADLTokeniser.tokenEndingOperators())) {
-				return "\"" + name + "\"";
-			} else {
-				return name;
-			}
-		}
-
-
 	}
 	
 

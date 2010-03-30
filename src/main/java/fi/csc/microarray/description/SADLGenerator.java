@@ -8,6 +8,7 @@ import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLDescription.Output;
 import fi.csc.microarray.description.SADLDescription.Parameter;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
+import fi.csc.microarray.util.Strings;
 
 /**
  * Generates SADL source code from parsed objects.
@@ -27,7 +28,7 @@ public class SADLGenerator {
 	 */
 	public static String generate(SADLDescription sadl) {
 		
-		String string =	"TOOL \"" + sadl.getCategory() + "\" / " + sadl.getName() + " (" + sadl.getComment() + ")\n";
+		String string =	"TOOL " + quoteIfNeeded(sadl.getCategory()) + " / " + generateName(sadl.getName()) + " (" + escapeIfNeeded(sadl.getComment()) + ")\n";
 		
 		string += generateInputs("INPUT", sadl.inputs());		
 		string += generateInputs("METAINPUT", sadl.metaInputs());
@@ -48,7 +49,7 @@ public class SADLGenerator {
 						} else {
 							first = false;
 						}
-						paramString += option;
+						paramString += generateName(option);
 					}
 					paramString += "] ";
 					
@@ -68,7 +69,7 @@ public class SADLGenerator {
 					paramString += "DEFAULT " + parameter.getDefaultValue() + " "; 
 				}
 				
-				paramString += "(" + parameter.getComment() + ")";
+				paramString += "(" + escapeIfNeeded(parameter.getComment()) + ")";
 				
 				string += paramString + "\n";
 			}			
@@ -81,7 +82,7 @@ public class SADLGenerator {
 		String string = "";
 		if (!outputList.isEmpty()) {
 			for (Output output : outputList) {
-				string += header + " " + generateOptional(output) + output.getName().toString() +  "\n";
+				string += header + " " + generateOptional(output) + generateName(output.getName()) +  "\n";
 			}
 		}
 		return string;
@@ -91,7 +92,7 @@ public class SADLGenerator {
 		String string = "";
 		if (!inputList.isEmpty()) {
 			for (Input input : inputList) {
-				string += header + " " + generateOptional(input) + input.getName().toString() + " TYPE " + input.getType().getName() + "\n";
+				string += header + " " + generateOptional(input) + generateName(input.getName()) + " TYPE " + input.getType().getName() + "\n";
 			}
 			
 		}
@@ -100,6 +101,34 @@ public class SADLGenerator {
 	
 	private static String generateOptional(Entity entity) {
 		return entity.isOptional() ? "OPTIONAL " : "";		
+	}
+	
+	public static String generateName(Name name) {
+		
+		String firstPart;
+		if (name.isNameSet()) {
+			firstPart = name.getPrefix() + "{...}" + name.getPostfix();
+		} else {
+			firstPart = name.getID();
+		}
+		
+		return quoteIfNeeded(firstPart) + ": " + quoteIfNeeded(name.getDisplayName());
+	}
+	
+	private static String quoteIfNeeded(String string) {
+		if (string.contains(" ") || Strings.containsAnyOf(string, true, SADLTokeniser.tokenEndingOperators())) {
+			return "\"" + escapeIfNeeded(string) + "\"";
+		} else {
+			return string;
+		}
+	}
+	
+	private static String escapeIfNeeded(String string) {
+		for (String operator : SADLTokeniser.blockEndingOperators()) {
+			string = string.replace(operator, SADLSyntax.ESCAPE + operator);
+		}
+		
+		return string;
 	}
 
 
