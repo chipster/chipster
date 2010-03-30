@@ -1,14 +1,21 @@
 package fi.csc.microarray.client.dialog;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -19,6 +26,7 @@ import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
 import fi.csc.microarray.client.SwingClientApplication;
+import fi.csc.microarray.client.dataimport.ImportSession;
 import fi.csc.microarray.client.dataimport.ImportUtils;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
@@ -44,6 +52,7 @@ public class CreateFromTextDialog extends JDialog implements CaretListener, Acti
     private JButton okButton;
     private JButton cancelButton;
     private JComboBox folderNameCombo;
+    private JCheckBox importCheckBox;
     
     public CreateFromTextDialog(SwingClientApplication client) {
         super(client.getMainFrame(), true);
@@ -93,6 +102,7 @@ public class CreateFromTextDialog extends JDialog implements CaretListener, Acti
         textArea = new JTextArea(18, 43);
         textArea.setLineWrap(true);
         textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        textArea.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         textArea.addCaretListener(this);
         c.insets.set(0,10,10,10);  
         c.gridy++;
@@ -107,7 +117,14 @@ public class CreateFromTextDialog extends JDialog implements CaretListener, Acti
         cancelButton = new JButton("Cancel");
         cancelButton.setPreferredSize(BUTTON_SIZE);
         cancelButton.addActionListener(this);
-
+        
+        // Import checkbox
+        importCheckBox = new JCheckBox("Import as plain text");
+        importCheckBox.setSelected(true);
+        c.insets.set(10, 10, 5, 10);
+        c.gridy++;
+        this.add(importCheckBox, c);
+        
         // Buttons pannel
         JPanel buttonsPanel = new JPanel();
         buttonsPanel.add(okButton);
@@ -133,20 +150,26 @@ public class CreateFromTextDialog extends JDialog implements CaretListener, Acti
             String fileContent = this.textArea.getText();
             String folderName = (String) (this.folderNameCombo.getSelectedItem());
             try {
-                // Create temporary
-                ByteArrayInputStream stream = new ByteArrayInputStream(fileContent.getBytes());
-
-                // Create dataset
-                DataBean data = client.getDataManager().createDataBean(fileName, stream);
-                data.setContentType(client.getDataManager().guessContentType(fileName));
-                data.setOperation(new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data }));
-                
-                // Make it visible
-                DataFolder folder = client.initializeFolderForImport(folderName);
-                folder.addChild(data);
-                
-                // Select
-                client.getSelectionManager().selectSingle(data, this);
+                // Checkbox decides if we have to open import window
+                if (importCheckBox.isSelected()) {
+                    // Create dataset
+                    ByteArrayInputStream stream = new ByteArrayInputStream(fileContent.getBytes());
+                    DataBean data = client.getDataManager().createDataBean(fileName, stream);
+                    data.setContentType(client.getDataManager().guessContentType(fileName));
+                    data.setOperation(new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data }));
+                    
+                    // Make it visible
+                    DataFolder folder = client.initializeFolderForImport(folderName);
+                    folder.addChild(data);
+                    client.getSelectionManager().selectSingle(data, this);
+                } else {
+                    // Open import dialog
+                    File file = ImportUtils.createTempFile(fileName, ImportUtils.getExtension(fileName));
+                    FileOutputStream fileStream = new FileOutputStream(file);
+                    fileStream.write(fileContent.getBytes());
+                    ImportSession importSession = new ImportSession(ImportSession.Source.CLIPBOARD, new File[] { file }, folderNameCombo.getSelectedItem().toString(), true);
+                    ImportUtils.executeImport(importSession);
+                }
             } catch (Exception exc) {
                 exc.printStackTrace();
             }
