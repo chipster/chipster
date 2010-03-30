@@ -226,8 +226,8 @@ public class SnapshottingSession {
 			metadata.append("NOTES " + beanId + " " + bean.getNotes().replace('\n', ' ') + "\n");
 		}
 		
-		if (bean.getUrl() != null) {
-			metadata.append("CACHED_URL " + beanId + " " + bean.getUrl() + "\n");			
+		if (bean.getCacheUrl() != null) {
+			metadata.append("CACHED_URL " + beanId + " " + bean.getCacheUrl() + "\n");			
 		}
 		
 		saveDataItemMetadata(bean, beanId, metadata);
@@ -364,7 +364,7 @@ public class SnapshottingSession {
 					String url = split[2];
 					DataBean bean = (DataBean)fetchItem(id);
 					bean.setContentChanged(false);
-					bean.setUrl(new URL(url));
+					bean.setCacheUrl(new URL(url));
 					
 				} else if (line.startsWith("LINK ")) {
 					String[] split = line.split(" ");

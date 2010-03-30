@@ -129,7 +129,7 @@ public class DataBean extends DataItemBase {
 	protected StreamStartCache streamStartCache = null;
 	private HashMap<String, Object> contentCache = new HashMap<String, Object>();
 	
-	private URL url = null;
+	private URL cacheUrl = null;
 	private boolean contentChanged = true;
 	private Lock contentLock = new ReentrantLock();
 
@@ -436,8 +436,8 @@ public class DataBean extends DataItemBase {
 	 * 
 	 * @return may be null
 	 */
-	public URL getUrl() {
-		return this.url;
+	public URL getCacheUrl() {
+		return this.cacheUrl;
 	}
 	
 	/**
@@ -446,8 +446,8 @@ public class DataBean extends DataItemBase {
 	 * 
 	 * @param url
 	 */
-	public void setUrl(URL url) {
-		this.url = url;
+	public void setCacheUrl(URL url) {
+		this.cacheUrl = url;
 	}
 
 	/**
