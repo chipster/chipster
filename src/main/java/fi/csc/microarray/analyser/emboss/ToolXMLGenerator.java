@@ -161,7 +161,9 @@ public class ToolXMLGenerator {
                 category.setAttribute("color", colors.get(groupNormal));
             }
             module.appendChild(category);
-            for (String appName : groupsMap.get(group)) {
+            LinkedList<String> sortedApps = groupsMap.get(group);
+            Collections.sort(sortedApps);
+            for (String appName : sortedApps) {
                 
                 // Make an entry in the XML tree
                 Element tool = doc.createElement("tool");

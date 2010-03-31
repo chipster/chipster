@@ -24,6 +24,7 @@ import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 
+@SuppressWarnings("serial")
 public class QuickLinkPanel extends JPanel implements ActionListener {
 
 	private SwingClientApplication application;
@@ -36,8 +37,7 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 	private JXHyperlink importURLLink;
 	private JXHyperlink importArrayExpressLink;
 	private JXHyperlink importGEOLink;
-	private JXHyperlink importUniProtLink;
-	private JXHyperlink importEMBLLink;
+	private JXHyperlink importSequenceLink;
 	private JXHyperlink importTextLink;
 
 	private static final String LINK_WORD = "***";
@@ -56,8 +56,7 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 		importURLLink = createLink("Import from URL ");
 		importArrayExpressLink = createLink("Import from ArrayExpress ");
 		importGEOLink = createLink("Import from GEO ");
-		importUniProtLink = createLink("Import from UniProt ");
-		importEMBLLink = createLink("Import from EMBL ");
+		importSequenceLink = createLink("Import from UniProt, EMBL, PDB... ");
 		importTextLink = createLink("Create dataset from text ");
 		sessionLink = createLink("Open session ");			
 
@@ -94,10 +93,9 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 		}
 		
 		// Sequence links
-		linkTemplate = "\n      *** \n      *** \n      *** \n      *** \n      *** \n      ***";
+		linkTemplate = "\n      *** \n      *** \n      *** \n      *** \n      ***";
 		if (application.getRequestedModule().equals(ClientApplication.MODULE_SEQUENCE)) {
-	        importLinks.add(importUniProtLink);
-	        importLinks.add(importEMBLLink);
+	        importLinks.add(importSequenceLink);
 		    importLinks.add(importTextLink);
 		}
 
@@ -210,6 +208,8 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 				application.openDatabaseImport("GEO", importOperation);
 			} else if (e.getSource() == importTextLink) {
 			    application.openCreateFromTextDialog();
+	        } else if (e.getSource() == importSequenceLink) {
+	                application.openSequenceImportDialog();
 			} else if (e.getSource() == emptyLink) {
 
 			} else if (e.getSource() == exampleLink) {
