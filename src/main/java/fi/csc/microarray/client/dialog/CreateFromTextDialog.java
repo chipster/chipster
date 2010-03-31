@@ -20,6 +20,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.event.CaretEvent;
@@ -74,7 +75,8 @@ public class CreateFromTextDialog extends JDialog implements CaretListener, Acti
         this.add(nameLabel, c);
         
         // Name field
-        nameField = new JTextField(30);
+        nameField = new JTextField();
+        nameField.setPreferredSize(new Dimension(150, 20));
         nameField.setText("data.txt");
         nameField.addCaretListener(this);
         c.insets.set(0,10,10,10);       
@@ -83,6 +85,7 @@ public class CreateFromTextDialog extends JDialog implements CaretListener, Acti
         
         // Folder to store the file
         folderNameCombo = new JComboBox(ImportUtils.getFolderNames(true).toArray());
+        folderNameCombo.setPreferredSize(new Dimension(150, 20));
         folderNameCombo.setEditable(true);
         c.insets.set(10,10,5,10);
         c.gridy++;
@@ -99,14 +102,20 @@ public class CreateFromTextDialog extends JDialog implements CaretListener, Acti
         this.add(textLabel, c);
         
         // Text area
-        textArea = new JTextArea(18, 43);
-        textArea.setLineWrap(true);
+        textArea = new JTextArea();
         textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-        textArea.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        textArea.setBorder(BorderFactory.createEmptyBorder());
         textArea.addCaretListener(this);
+        JScrollPane areaScrollPane = new JScrollPane(textArea);
+        areaScrollPane.setVerticalScrollBarPolicy(
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        areaScrollPane.setHorizontalScrollBarPolicy(
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        areaScrollPane.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        areaScrollPane.setPreferredSize(new Dimension(570, 300));
         c.insets.set(0,10,10,10);  
         c.gridy++;
-        this.add(textArea, c);
+        this.add(areaScrollPane, c);
         
         // OK button
         okButton = new JButton("OK");
@@ -136,6 +145,7 @@ public class CreateFromTextDialog extends JDialog implements CaretListener, Acti
         
         // Show
         this.pack();
+        this.setResizable(false);
         this.setLocationRelativeTo(client.getMainFrame());
         this.setVisible(true);
     }
