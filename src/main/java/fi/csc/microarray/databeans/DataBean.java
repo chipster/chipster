@@ -22,6 +22,7 @@ import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.QueryResult;
 import fi.csc.microarray.databeans.features.RequestExecuter;
+import fi.csc.microarray.databeans.handlers.DataBeanHandler;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.InputStreamSource;
@@ -143,7 +144,10 @@ public class DataBean extends DataItemBase {
 	protected ContentType contentType;
 
 	
+	private URL contentUrl;
+	private DataBeanHandler handler;
 	
+
 	private File contentFile;
 
 	
@@ -168,7 +172,28 @@ public class DataBean extends DataItemBase {
 		this.contentType = contentType;
 	}
 
-	
+
+	public DataBean(String name, URL contentUrl, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManager manager, DataBeanHandler handler) {
+		
+		this.dataManager = manager;
+		this.name = name;
+		this.contentUrl = contentUrl;
+		this.handler = handler;
+		this.date = date;
+		this.parent = parentFolder;
+		
+		// add this as parent folders child
+		if (parentFolder != null) {
+			parentFolder.addChild(this);
+		}
+		
+		for (DataBean source : sources) {
+			source.addLink(Link.DERIVATION, this);
+		}
+
+		this.contentType = contentType;
+	}
+
 	
 	
 	
@@ -593,8 +618,12 @@ public class DataBean extends DataItemBase {
 	public InputStream getRawContentByteStream() throws MicroarrayException {
 		InputStream is;
 		try {
-			is = new FileInputStream(this.contentFile);
-		} catch (FileNotFoundException e) {
+			if (this.contentUrl != null) {
+				is = handler.getInputStream(this);
+			} else {
+				is = new FileInputStream(contentFile);
+			}
+		} catch (IOException e) {
 			throw new MicroarrayException(e);
 		}
 		return is;
@@ -670,7 +699,16 @@ public class DataBean extends DataItemBase {
 	 * Returns content size in bytes.
 	 */
 	public long getContentLength() {
-		return contentFile.length();
+		if (this.contentUrl != null) {
+			try {
+				return handler.getContentLength(this);
+			} catch (IOException e) {
+				// FIXME
+				throw new RuntimeException(e);
+			}
+		} else {
+			return contentFile.length();
+		}
 	}
 
 	public File getContentFile() {
@@ -678,6 +716,14 @@ public class DataBean extends DataItemBase {
 	}
 
 
+	public URL getContentUrl() {
+		return contentUrl;
+	}
+
+
+	public void setContentUrl(URL contentUrl) {
+		this.contentUrl = contentUrl;
+	}
 
 
 

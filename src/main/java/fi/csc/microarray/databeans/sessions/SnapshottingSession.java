@@ -283,8 +283,9 @@ public class SnapshottingSession {
 					String[] split = line.split(" ");
 					String id = split[1];
 					ZipEntry beanEntry = entryMap.get(split[2]);
-					InputStream inputStream = zipFile.getInputStream(beanEntry);
-					DataBean bean = manager.createDataBean("<empty>", inputStream);
+//					InputStream inputStream = zipFile.getInputStream(beanEntry);
+//					DataBean bean = manager.createDataBean("<empty>", inputStream);
+					DataBean bean = manager.createDataBean("<empty>", snapshot, beanEntry.getName());
 					
 					newItems.add(bean);
 					mapId(id, bean);

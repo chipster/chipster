@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -24,6 +26,9 @@ import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
 import fi.csc.microarray.databeans.features.Modifier;
+import fi.csc.microarray.databeans.handlers.DataBeanHandler;
+import fi.csc.microarray.databeans.handlers.LocalFileDataBeanHandler;
+import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.databeans.sessions.OldFSSnapshottingSession;
 import fi.csc.microarray.databeans.sessions.SnapshottingSession;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -471,8 +476,20 @@ public class DataManager {
 
 	
 	
-	public DataBean createDataBean(String name, File zipFile, String zipEntryName) {
-		return null;
+	public DataBean createDataBean(String name, File zipFile, String zipEntryName) throws MicroarrayException {
+		URL url;
+		try {
+			 url = new URL(zipFile.toURI().toURL(), "#" + zipEntryName);
+		} catch (MalformedURLException e) {
+			throw new MicroarrayException(e);
+		}
+		
+		DataBeanHandler handler = new ZipDataBeanHandler();
+		DataBean dataBean = new DataBean(name, url, guessContentType(name), new Date(), new DataBean[] {}, null, this, handler);
+		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
+		return dataBean;
+
+		
 	}
 	
 	/**
@@ -488,11 +505,19 @@ public class DataManager {
 	 * 
 	 */
 	private DataBean createDataBean(String name, DataFolder folder, DataBean[] sources, File contentFile) throws MicroarrayException {
-
-		DataBean dataBean = new DataBean(name, guessContentType(name), new Date(), sources, folder, this, contentFile);
+		URL url;
+		try {
+			 url = contentFile.toURI().toURL();
+		} catch (MalformedURLException e) {
+			throw new MicroarrayException(e);
+		}
+		
+		DataBeanHandler handler = new LocalFileDataBeanHandler();
+		DataBean dataBean = new DataBean(name, url, guessContentType(name), new Date(), sources, folder, this, handler);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
 		return dataBean;
 	}
+	
 	
 
 	/**
