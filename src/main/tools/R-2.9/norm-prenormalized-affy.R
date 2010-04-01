@@ -15,7 +15,7 @@ library(gcrma)
 
 # Reading data
 
-columns<-list(R="sample", Rb="sample", G="sample", Gb="sample")
+columns<-list(R="sample")
 annotation<-c("identifier")
 columns.other<-c("flag", "annotation")
 
@@ -41,32 +41,29 @@ training<-c(rep("", length(sample)))
 time<-c(rep("", length(sample)))
 random<-c(rep("", length(sample)))
 if(chiptype=="empty") {
-	chiptype<-c("cDNA")
+	chiptype<-"Affy"
 }
-write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+write.table(data.frame(sample=sample, chiptype=chiptype, group=group, description=sample), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
-
-# Preparing data for export
-M<-data.frame(dat2)
-colnames(M)<-paste("chip.", colnames(M), sep="")
-M2<-aggregate(M, as.list(dat$genes), mean)
-rownames(M2)<-M2$identifier
-M2<-M2[,-1]
 
 # Writing out data
 a<-try(library(chiptype, character.only=T))
 if(chiptype!="empty" & class(a)!="try-error") {
 	# Including gene names to data
 	lib2<-sub('.db','',chiptype)
-	symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "SYMBOL", sep="")))))[rownames(M2),])
-	genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[rownames(M2),])
+	symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "SYMBOL", sep="")))))[unlist(dat$genes),])
+	genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[unlist(dat$genes),])
 	# Fxes an issue introduced in BioC2.4 where the "#" character is introduced in some gene names
 	genename <- gsub("#", "", genename)
 	# Writes the results into a file
-	write.table(data.frame(symbol, description=genename, M2, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T))
+	output_table <- 	data.frame(symbol, description=genename, dat2)
+	rownames (output_table) <- unlist(dat$genes)
+	write.table(output_table, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 } 
 
 if(chiptype=="empty" | class(a)=="try-error") {
-	write.table(data.frame(M2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+	output_table <- data.frame(dat2)
+	rownames (output_table) <- unlist(dat$genes)
+	write.table(output_table, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 }
 
