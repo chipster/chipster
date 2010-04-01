@@ -15,7 +15,6 @@
 #operation <- "intersect"
 #image.width <- 5
 #image.height <- 5
-
 h <- image.height
 w <- image.width 
 
@@ -31,7 +30,7 @@ if (number_files > 3 | number_files < 2) {
 for (count in 1:number_files) {
 	assign (paste("data_", count, sep=""), read.table(files[count], header=T, sep="\t")) 
 }
-	
+
 # Extract the common columns from the input data and condense to unique values
 # to get rid of multiple entries
 for (count in 1:number_files) {
@@ -51,7 +50,7 @@ if (number_files==3) {
 }
 
 if (number_files==2) {
-
+	
 	# find out intersection between all 3 lists
 	intersect_1_2 <- intersect(list_1, list_2)
 	if (operation=="intersection") {
@@ -69,8 +68,8 @@ if (number_files==2) {
 	unique_2 <- setdiff (list_2, intersect_1_2)
 	
 	# set up plotting area
-	png(file="venn-diagram-plot.png", width=w, height=h, res=72, units="px")
-#	bmp(file="venn-diagram-plot.png")
+	png(filename="venn-diagram-plot.png", width=w, height=h, res=72, units="px")
+#	png(file="venn-diagram-plot.png")
 	plot(-1:1, -1:1, type="n", axes = FALSE, xlab = "", ylab = "")
 	
 	# draw overlapping circles
@@ -153,7 +152,7 @@ if (number_files==3) {
 	unique_3 <- setdiff (list_3, union(union(intersect_1_3, intersect_2_3), intersect_1_2_3))
 	
 	# set up plotting area
-	png(file="venn-diagram-plot.png", width=w, height=h, res=72, units="px")
+	png(filename="venn-diagram-plot.png", width=w, height=h, res=72, units="px")
 #	bmp(file="venn-diagram-plot.png")
 	plot(-1:1, -1.3:1, type="n", axes = FALSE, xlab = "", ylab = "")
 	
@@ -237,4 +236,3 @@ if (number_files==3) {
 	write.table(result_operation, file="intersect-lists-operation.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 	write.table(result_table, file="intersect-lists-summary.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
-
