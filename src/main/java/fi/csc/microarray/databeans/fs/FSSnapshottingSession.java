@@ -1,5 +1,6 @@
 package fi.csc.microarray.databeans.fs;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -68,17 +69,27 @@ public class FSSnapshottingSession {
 		this.application = application;
 	}
 	
-	private ZipOutputStream cpZipOutputStream = null;
 
-	public void saveSnapshot(File snapshot) throws IOException {
-																					
-		FileOutputStream fos = new FileOutputStream(snapshot);			
-		cpZipOutputStream = new ZipOutputStream(fos);
+	public void saveSnapshot(File sessionFile) throws IOException {
+
+		boolean replaceOldSession = sessionFile.exists();
+
+		File newSessionFile;
+		File backupFile = null;
+		if (replaceOldSession) {
+			// FIXME maybe avoid overwriting existing temp file
+			newSessionFile = new File(sessionFile.getAbsolutePath() + "-temp.cs");
+			backupFile = new File(sessionFile.getAbsolutePath() + "-backup.cs");
+		} else {
+			newSessionFile = sessionFile;
+		}
+
+		ZipOutputStream zipOutputStream = null;
 		boolean createdSuccesfully = false;
-		
 		try {
-
-			cpZipOutputStream.setLevel(1); // quite slow with bigger values														
+			
+			zipOutputStream = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(newSessionFile)));
+			zipOutputStream.setLevel(1); // quite slow with bigger values														
 
 			// write data and gather metadata simultanously
 			StringBuffer metadata = new StringBuffer("");
@@ -88,16 +99,35 @@ public class FSSnapshottingSession {
 			generateIdsRecursively((FSDataFolder)manager.getRootFolder());
 
 			// 1st pass, write most metadata
-			saveRecursively((FSDataFolder)manager.getRootFolder(), cpZipOutputStream, metadata);
+			saveRecursively((FSDataFolder)manager.getRootFolder(), zipOutputStream, metadata);
 
 			// 2nd pass for links (if written in one pass, input dependent operation parameters break when reading)
 			saveLinksRecursively((FSDataFolder)manager.getRootFolder(), metadata);
 
-			writeFile(cpZipOutputStream, METADATA_FILENAME, 
+			writeFile(zipOutputStream, METADATA_FILENAME, 
 					new ByteArrayInputStream(metadata.toString().getBytes()));
 
-			cpZipOutputStream.finish();
-			cpZipOutputStream.close();
+			zipOutputStream.finish();
+			zipOutputStream.close();
+			
+			// rename new session if replacing existing
+			if (replaceOldSession) {
+				
+				// original to backup
+				if (sessionFile.renameTo(backupFile)) {
+
+					// new to original
+					if (newSessionFile.renameTo(sessionFile)) {
+					
+						// remove new and backup
+						newSessionFile.delete();
+						backupFile.delete();
+					}
+				}
+				
+				
+			}
+			
 			createdSuccesfully = true;
 			
 		} catch (RuntimeException e) {
@@ -109,9 +139,9 @@ public class FSSnapshottingSession {
 			throw e;
 
 		} finally {
-			IOUtils.closeIfPossible(cpZipOutputStream); // called twice for normal execution, not a problem
+			IOUtils.closeIfPossible(zipOutputStream); // called twice for normal execution, not a problem
 			if (!createdSuccesfully) {
-				snapshot.delete(); // do not leave bad session files hanging around
+				sessionFile.delete(); // do not leave bad session files hanging around
 			}
 		}
 	}
@@ -120,15 +150,15 @@ public class FSSnapshottingSession {
 			
 		int byteCount;
 		ZipEntry cpZipEntry = new ZipEntry(name);
-		cpZipOutputStream.putNextEntry(cpZipEntry );
+		out.putNextEntry(cpZipEntry );
 
 		byte[] b = new byte[DATA_BLOCK_SIZE];
 
 		while ( (byteCount = in.read(b, 0, DATA_BLOCK_SIZE)) != -1 ) {
-			cpZipOutputStream.write(b, 0, byteCount);
+			out.write(b, 0, byteCount);
 		}
 
-		cpZipOutputStream.closeEntry() ;							
+		out.closeEntry() ;							
 	}
 	
 	private int generateIdsRecursively(FSDataFolder folder) throws IOException {
@@ -531,5 +561,4 @@ public class FSSnapshottingSession {
 	private String fetchId(DataItem item) {
 		return reversedItemIdMap.get(item).toString();
 	}
-
 }
