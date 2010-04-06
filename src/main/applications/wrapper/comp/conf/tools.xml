@@ -118,8 +118,8 @@
 	<tool runtime="R-2.9">combine-probes-to-genes.R</tool>
 	<tool runtime="R-2.9">change-interpretation.R</tool>
 	<tool runtime="R-2.9">generate-phenodata.R</tool>
-	<tool runtime="R-2.9">delete-columns.R</tool>
 	<tool runtime="R-2.9">filter-by-column.R</tool>
+	<tool runtime="R-2.9">delete-columns.R</tool>
 	<tool runtime="R-2.9">calculate-descriptive-statistics.R</tool>
 	<tool runtime="R-2.9">sort-samples.R</tool>
 	<tool runtime="R-2.9">sort-genes.R</tool>
