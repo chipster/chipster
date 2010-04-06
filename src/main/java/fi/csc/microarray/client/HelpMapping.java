@@ -16,6 +16,7 @@ public class HelpMapping {
 		mappings.put("Preprocessing/Filter by flags", "chipster-manual/filter-flags.html");
 		mappings.put("Preprocessing/Filter by interquartile range", "chipster-manual/filter-iqr.html");
 		mappings.put("Preprocessing/Filter by standard deviation", "chipster-manual/filter-sd.html");
+		mappings.put("Utilities/Filter using a colum", "chipster-manual/filter-by-column.html");
 		mappings.put("Utilities/Filter using a column term", "chipster-manual/filter-by-column-term.html");
 		mappings.put("Utilities/Filter using a column value", "chipster-manual/filter-by-column-value.html");
 		
