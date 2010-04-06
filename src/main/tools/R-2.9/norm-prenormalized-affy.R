@@ -1,7 +1,7 @@
 # ANALYSIS Normalisation/"Process prenormalized affy" (If you import prenormalized Affymetrix data that is not in Chipster format, you
 # need to import it through the Import Wizard, and then use this tool for preprocessing it. During data import, make sure to mark every column containing normalized
-# expression values as "Sample" and the column containing the Affymetrix probe ID:s as "Identifier". If you want to be able to use annotation,
-# you need to SPECIFY THE CHIPTYPE, e.g. "hgu133a2.db".)
+# expression values as Sample and the column containing the Affymetrix probe ID:s as Identifier. If you want to be able to use annotation,
+# you need to SPECIFY THE CHIPTYPE, e.g. hgu133a2.db.)
 # INPUT CDNA microarray[...].tsv OUTPUT normalized.tsv, phenodata.tsv
 # PARAMETER chiptype STRING DEFAULT empty (chiptype)
 
