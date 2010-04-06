@@ -1,12 +1,12 @@
 # ANALYSIS Normalisation/"Process prenormalized affy" (If you import prenormalized Affymetrix data that is not in Chipster format, you
-# need to import it through Import tool, and then use this tool for preprocessing it. Every column containing normalized
-# expression values need to be specifies as Sample in the Import tool. If you want to be able to use annotation,
-# you need to SPECIFY THE CHIPTYPE.)
+# need to import it through the Import Wizard, and then use this tool for preprocessing it. During data import, make sure to mark every column containing normalized
+# expression values as "Sample" and the column containing the Affymetrix probe ID:s as "Identifier". If you want to be able to use annotation,
+# you need to SPECIFY THE CHIPTYPE, e.g. "hgu133a2.db".)
 # INPUT CDNA microarray[...].tsv OUTPUT normalized.tsv, phenodata.tsv
 # PARAMETER chiptype STRING DEFAULT empty (chiptype)
 
 # Process prenormalized affy
-# MG 21.10.2009
+# MG 6.4.2010
 
 # Loads the libraries
 library(limma)
@@ -33,6 +33,7 @@ dat<-read.maimages(files=files, columns=columns, annotation=annotation, other.co
 
 # Mock normalization
 dat2<-normalizeBetweenArrays(dat$R, method="none")
+colnames(dat2)<-paste("chip.", colnames(dat2), sep="")
 
 # Writes out a phenodata table
 sample<-paste(colnames(dat2), ".tsv", sep="")
@@ -56,7 +57,7 @@ if(chiptype!="empty" & class(a)!="try-error") {
 	# Fxes an issue introduced in BioC2.4 where the "#" character is introduced in some gene names
 	genename <- gsub("#", "", genename)
 	# Writes the results into a file
-	output_table <- 	data.frame(symbol, description=genename, dat2)
+	output_table <- data.frame(symbol, description=genename, dat2)
 	rownames (output_table) <- unlist(dat$genes)
 	write.table(output_table, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 } 
