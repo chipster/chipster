@@ -34,12 +34,6 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
     LinkedList<String> inputParameters;
     ACDDescription acdDescription;
     
-    @Override
-    protected void cancelRequested() {
-        // TODO Auto-generated method stub
-
-    }
-    
     public EmbossAnalysisJob(String toolDirectory, String descriptionDirectory) {
         // Directory where runnable files are stored
         this.toolDirectory = toolDirectory;
@@ -47,6 +41,9 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         // Directory where application descriptions are stored
         this.descriptionDirectory = descriptionDirectory;
     }
+    
+    @Override
+    protected void cancelRequested() { }
 
     @Override
     protected void execute() throws JobCancelledException {

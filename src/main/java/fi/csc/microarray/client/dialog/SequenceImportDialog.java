@@ -21,8 +21,14 @@ import javax.swing.JTextField;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
+import org.apache.log4j.Logger;
+
+import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.dataimport.ImportUtils;
+import fi.csc.microarray.client.tasks.Task;
+import fi.csc.microarray.client.tasks.TaskExecutor;
+import fi.csc.microarray.databeans.DataBean;
 
 /**
  * 
@@ -32,8 +38,11 @@ import fi.csc.microarray.client.dataimport.ImportUtils;
 @SuppressWarnings("serial")
 public class SequenceImportDialog extends JDialog implements CaretListener, ActionListener {
     
+    private String TASK_NAME = "\"Edit\"/\"seqret\"";
+    private String OUT_FILE = "outseq";
     private final Dimension BUTTON_SIZE = new Dimension(70, 25);
     
+    private static Logger logger = Logger.getLogger(SequenceImportDialog.class);
     private SwingClientApplication client;
     
     private JLabel nameLabel;
@@ -170,14 +179,34 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
             String fileName = this.nameField.getText();
             String fileContent = this.textArea.getText();
             String folderName = (String) (this.folderNameCombo.getSelectedItem());
-            try {
-                // TODO run a job
+            try {                
+                // TODO
+                
+                // Create importing job
+                logger.info("Importing sequence...");
+                TaskExecutor taskExecutor = new TaskExecutor(client.getEndpoint(), client.getDataManager());
+                final Task importSequence = taskExecutor.createTask(TASK_NAME, true);
+                importSequence.addParameter("sequence", "swiss:CASA1_HUMAN");
+                importSequence.addParameter("feature", "Y");
+                importSequence.addParameter("firstonly", "N");
+                //importSequence.addInput(name, input)("sequence", null);
+                
+                // Run the job (blocking while it is progressing)
+                taskExecutor.execute(importSequence);
+                
+                // Parse metadata
+                DataBean metadataBean = importSequence.getOutput(OUT_FILE);
+                //this.metadata = new String(metadataBean.getContents());
+                //manager.delete(metadataBean); // don't leave the bean hanging around
+                //logger.debug("got metadata: " + this.metadata.substring(0, 50) + "...");
+                //List<SADLDescription> descriptions = new ChipsterSADLParser().parseMultiple(this.metadata);
+                //this.parsedCategories = new OperationGenerator().generate(descriptions).values();
             } catch (Exception exc) {
                 exc.printStackTrace();
             }
 
             this.dispose();
-        } else if (e.getSource() == cancelButton){
+        } else if (e.getSource() == cancelButton) {
             this.dispose();
         }
     }

@@ -93,4 +93,15 @@
 			</parameter>
 		</handler>
 	</runtime>
+	
+	<runtime>
+		<name>shell</name>
+		<handler>
+			<class>fi.csc.microarray.analyser.shell.ShellAnalysisHandler</class>
+			<parameter>
+				<name>descriptionPath</name>
+				<value>/opt/chipster/tools/shell</value>
+			</parameter>
+		</handler>
+	</runtime>
 </runtimes>

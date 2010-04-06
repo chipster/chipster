@@ -179,7 +179,7 @@ public class ACDToSADL {
 	        
 	        // Mark as optional if needed
 	        if (sadlParam != null) {
-	            sadlParam.setOptional(!param.isRequired());
+	            sadlParam.setOptional(param.isAdditional() || param.isAdvanced());
 	        }
 	        
 	        return sadlParam;

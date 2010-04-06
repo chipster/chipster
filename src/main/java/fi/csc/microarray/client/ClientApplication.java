@@ -214,7 +214,7 @@ public abstract class ClientApplication implements Node {
 			logger.debug("Initialise JMS connection.");
 			reportInitialisation("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", true);
 			this.endpoint = new MessagingEndpoint(this, getAuthenticationRequestListener());
-			reportInitialisation(" connected", false);				
+			reportInitialisation(" connected", false);
 			
 			//	put network stuff to session
 			Session.getSession().putObject("client-endpoint", endpoint);
@@ -285,10 +285,10 @@ public abstract class ClientApplication implements Node {
     }
     
     /**
-     * @return data manager for this application.
+     * @return messaging endpoint for this application.
      */
-    public DataManager getManager() {
-        return manager;
+    public MessagingEndpoint getEndpoint() {
+        return endpoint;
     }
 	
 	/**

@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import javax.jms.JMSException;
@@ -99,7 +100,8 @@ public class EmbossRoundtripTest {
         
         // Create a job using a handler
         EmbossAnalysisHandler analysisHandler = new EmbossAnalysisHandler(params);
-        AnalysisDescription description = analysisHandler.handle(acdFileName);
+        AnalysisDescription description = analysisHandler.handle(acdFileName,
+                                                                 new HashMap<String, String>());
         AnalysisJob analysisJob = analysisHandler.createAnalysisJob(jobMessage,
                                                                     description, resultCallback);
         analysisJob.run();

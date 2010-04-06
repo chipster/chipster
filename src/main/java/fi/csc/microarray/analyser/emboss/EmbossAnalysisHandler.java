@@ -2,6 +2,7 @@ package fi.csc.microarray.analyser.emboss;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -28,7 +29,7 @@ public class EmbossAnalysisHandler implements AnalysisHandler {
     private String acdDirectory;
     private String toolDirectory;
     
-    private static final Logger logger = Logger.getLogger(BeanShellHandler.class);
+    private static final Logger logger = Logger.getLogger(EmbossAnalysisHandler.class);
 
     /**
      * Constructor that takes configuration parameters
@@ -52,7 +53,8 @@ public class EmbossAnalysisHandler implements AnalysisHandler {
         return analysisJob;
     }
     
-    public AnalysisDescription handle(String acdFileName) throws AnalysisException {
+    public AnalysisDescription handle(String acdFileName,
+                                      Map<String, String> params) throws AnalysisException {
         
         // Read ACD description
         File acdFile = new File(acdDirectory, acdFileName);

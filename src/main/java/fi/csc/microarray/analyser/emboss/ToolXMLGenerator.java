@@ -167,11 +167,13 @@ public class ToolXMLGenerator {
                 
                 // Make an entry in the XML tree
                 Element tool = doc.createElement("tool");
+                Element resource = doc.createElement("resource");
                 
                 // The filename is more important than application name
                 // according to ACD specification
-                tool.setTextContent(appName);
+                resource.setTextContent(appName);
                 tool.setAttribute("runtime", "EMBOSS");
+                tool.appendChild(resource);
                 category.appendChild(tool);
             }
         }

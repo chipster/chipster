@@ -112,7 +112,9 @@ public class ToolRepository {
 
 	
 	private void updateDescription(AnalysisDescription desc) throws AnalysisException {
-		AnalysisDescription newDescription = desc.getHandler().handle(desc.getSourceResourceName());
+	    // FIXME params should not be empty
+	    HashMap<String, String> params = new HashMap<String, String>();
+		AnalysisDescription newDescription = desc.getHandler().handle(desc.getSourceResourceName(), params);
 		if (newDescription != null) {
 			newDescription.setUpdatedSinceStartup();
 			
@@ -281,7 +283,8 @@ public class ToolRepository {
     		    for (Element toolElement: XmlUtil.getChildElements(categoryElement, "tool")) {
     		        totalCount++;
     		        
-    		        String descriptionFilename = toolElement.getTextContent();
+    		        Element sourceFile = XmlUtil.getChildElement(toolElement, "resource");
+    		        String descriptionFilename = sourceFile.getTextContent();
                     logger.debug("loading " + descriptionFilename);
                     
                     // Tool's visibility
@@ -296,10 +299,17 @@ public class ToolRepository {
                         continue;
                     }
                     
+                    // Parameters
+                    HashMap<String, String> parameters = new HashMap<String, String>();
+                    for (Element parameter : XmlUtil.getChildElements(toolElement, "parameter")) {
+                        parameters.put(XmlUtil.getChildElement(parameter, "name").getTextContent(),
+                                       XmlUtil.getChildElement(parameter, "value").getTextContent());
+                    }
+                    
                     // Description
                     AnalysisDescription description;
                     try {
-                        description = runtime.getHandler().handle(descriptionFilename);
+                        description = runtime.getHandler().handle(descriptionFilename, parameters);
                     } catch (Exception e) {
                         logger.warn("loading " + descriptionFilename + " failed, could not create description", e);
                         continue;

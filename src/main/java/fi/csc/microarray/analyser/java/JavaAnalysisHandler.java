@@ -2,6 +2,7 @@ package fi.csc.microarray.analyser.java;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -44,7 +45,8 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 	}
 
 
-	public AnalysisDescription handle(String sourceResourceName) throws AnalysisException {
+	public AnalysisDescription handle(String sourceResourceName,
+	                                  Map<String, String> params) throws AnalysisException {
 		
 		// get the job class
 		Class<? extends Object> jobClass = null;

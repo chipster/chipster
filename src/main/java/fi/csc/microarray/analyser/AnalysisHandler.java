@@ -1,5 +1,7 @@
 package fi.csc.microarray.analyser;
 
+import java.util.Map;
+
 import fi.csc.microarray.messaging.message.JobMessage;
 
 public interface AnalysisHandler {
@@ -17,7 +19,8 @@ public interface AnalysisHandler {
 	 * 
 	 * @see #supports(String)
 	 */
-	public AnalysisDescription handle(String sourceResourceName) throws AnalysisException;
+	public AnalysisDescription handle(String sourceResourceName,
+	                                  Map<String, String> parameters) throws AnalysisException;
 	
 	/**
 	 * Checks if given analysis description is up to date. Analyser guarantees that this method is called
