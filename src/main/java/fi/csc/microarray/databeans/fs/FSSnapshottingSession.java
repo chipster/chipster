@@ -77,7 +77,7 @@ public class FSSnapshottingSession {
 		File newSessionFile;
 		File backupFile = null;
 		if (replaceOldSession) {
-			// FIXME maybe avoid overwriting existing temp file
+			// TODO maybe avoid overwriting existing temp file
 			newSessionFile = new File(sessionFile.getAbsolutePath() + "-temp.cs");
 			backupFile = new File(sessionFile.getAbsolutePath() + "-backup.cs");
 		} else {
@@ -85,13 +85,13 @@ public class FSSnapshottingSession {
 		}
 
 		ZipOutputStream zipOutputStream = null;
-		boolean createdSuccesfully = false;
+		boolean createdSuccessfully = false;
 		try {
 			
 			zipOutputStream = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(newSessionFile)));
 			zipOutputStream.setLevel(1); // quite slow with bigger values														
 
-			// write data and gather metadata simultanously
+			// write data and gather metadata simultaneously
 			StringBuffer metadata = new StringBuffer("");
 			metadata.append("VERSION " + SNAPSHOT_VERSION + "\n");
 
@@ -114,21 +114,33 @@ public class FSSnapshottingSession {
 			if (replaceOldSession) {
 				
 				// original to backup
-				if (sessionFile.renameTo(backupFile)) {
-
-					// new to original
-					if (newSessionFile.renameTo(sessionFile)) {
+				if (!sessionFile.renameTo(backupFile)) {
+					throw new IOException("Creating backup " + sessionFile + " -> " + backupFile + " failed.");
+				}
 					
-						// remove new and backup
-						newSessionFile.delete();
-						backupFile.delete();
+				// new to original
+				if (newSessionFile.renameTo(sessionFile)) {
+					createdSuccessfully = true;
+
+					// remove backup
+					backupFile.delete();
+				} else {
+					// try to move backup back to original
+					// TODO remove new session file?
+					if (backupFile.renameTo(sessionFile)) {
+						throw new IOException("Moving new " + newSessionFile + " -> " + sessionFile + " failed, " +
+								"restored original session file.");
+					} else {
+						throw new IOException("Moving new " + newSessionFile + " -> " + sessionFile + " failed, " +
+						"also restoring original file failed, backup of original is " + backupFile);
 					}
 				}
-				
-				
-			}
+			} 
 			
-			createdSuccesfully = true;
+			// no existing session
+			else {
+				createdSuccessfully = true;
+			}
 			
 		} catch (RuntimeException e) {
 			// createdSuccesfully is false, so file will be deleted in finally block
@@ -140,8 +152,8 @@ public class FSSnapshottingSession {
 
 		} finally {
 			IOUtils.closeIfPossible(zipOutputStream); // called twice for normal execution, not a problem
-			if (!createdSuccesfully) {
-				sessionFile.delete(); // do not leave bad session files hanging around
+			if (!replaceOldSession && !createdSuccessfully) {
+				newSessionFile.delete(); // do not leave bad session files hanging around
 			}
 		}
 	}
