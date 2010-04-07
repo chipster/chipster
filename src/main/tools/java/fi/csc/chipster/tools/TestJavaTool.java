@@ -1,10 +1,6 @@
 package fi.csc.chipster.tools;
 
-import java.io.File;
-import java.io.FileWriter;
-
-import org.apache.commons.io.FileUtils;
-
+import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
 import fi.csc.microarray.messaging.JobState;
 
@@ -19,20 +15,20 @@ public class TestJavaTool extends JavaAnalysisJobBase {
 	}
 
 	@Override
-	protected void execute() throws Exception {
-		updateState(JobState.RUNNING, "Java tool running", true);
+	protected void execute() throws JobCancelledException {
+		updateStateToClient(JobState.RUNNING, "Java tool running");
 		
-		File inputFile = new File(jobWorkDir, "input.tsv");
-		File outputFile = new File(jobWorkDir, "output.tsv");
-		FileUtils.copyFile(inputFile, outputFile);
-
-		File commentFile = new File(jobWorkDir, "comment.txt");
-		FileWriter commentWriter = new FileWriter(commentFile);
-		commentWriter.write(inputMessage.getParameters().get(0));
-		commentWriter.flush();
-		commentWriter.close();
+//		File inputFile = new File(jobWorkDir, "input.tsv");
+//		File outputFile = new File(jobWorkDir, "output.tsv");
+//		FileUtils.copyFile(inputFile, outputFile);
+//
+//		File commentFile = new File(jobWorkDir, "comment.txt");
+//		FileWriter commentWriter = new FileWriter(commentFile);
+//		commentWriter.write(inputMessage.getParameters().get(0));
+//		commentWriter.flush();
+//		commentWriter.close();
 		
-		updateState(JobState.RUNNING, "Java tool finished", true);
+		updateStateToClient(JobState.RUNNING, "Java tool finished");
 	}
 
 }
