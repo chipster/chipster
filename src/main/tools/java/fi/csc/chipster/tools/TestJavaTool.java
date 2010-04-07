@@ -1,5 +1,11 @@
 package fi.csc.chipster.tools;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
+
 import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
 import fi.csc.microarray.messaging.JobState;
@@ -18,16 +24,19 @@ public class TestJavaTool extends JavaAnalysisJobBase {
 	protected void execute() throws JobCancelledException {
 		updateStateToClient(JobState.RUNNING, "Java tool running");
 		
-//		File inputFile = new File(jobWorkDir, "input.tsv");
-//		File outputFile = new File(jobWorkDir, "output.tsv");
-//		FileUtils.copyFile(inputFile, outputFile);
-//
-//		File commentFile = new File(jobWorkDir, "comment.txt");
-//		FileWriter commentWriter = new FileWriter(commentFile);
-//		commentWriter.write(inputMessage.getParameters().get(0));
-//		commentWriter.flush();
-//		commentWriter.close();
-		
+		try {
+			File inputFile = new File(jobWorkDir, "input.tsv");
+			File outputFile = new File(jobWorkDir, "output.tsv");
+			FileUtils.copyFile(inputFile, outputFile);
+	
+			File commentFile = new File(jobWorkDir, "comment.txt");
+			FileWriter commentWriter = new FileWriter(commentFile);
+			commentWriter.write(inputMessage.getParameters().get(0));
+			commentWriter.flush();
+			commentWriter.close();
+		} catch (IOException ioew) {
+			// TODO update state, return
+		}
 		updateStateToClient(JobState.RUNNING, "Java tool finished");
 	}
 
