@@ -1,7 +1,7 @@
 package fi.csc.microarray.analyser.shell;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +16,7 @@ import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.module.chipster.ChipsterSADLParser;
+import fi.csc.microarray.util.Files;
 
 /**
  * Handles generic tools that are executed in a command line.
@@ -24,9 +25,11 @@ import fi.csc.microarray.module.chipster.ChipsterSADLParser;
  *
  */
 public class ShellAnalysisHandler implements AnalysisHandler {
+    
+    private String DIRECTORY_NAME = "shell";
 
+    private AnalysisDescription ad = null;
     private String descriptionDirectory;
-    private String toolDirectory;
     
     private static final Logger logger = Logger.getLogger(ShellAnalysisHandler.class);
     
@@ -43,7 +46,7 @@ public class ShellAnalysisHandler implements AnalysisHandler {
     public AnalysisJob createAnalysisJob(JobMessage jobMessage,
             AnalysisDescription description, ResultCallback resultCallback)
             throws AnalysisException {
-        ShellAnalysisJob analysisJob = new ShellAnalysisJob(toolDirectory, descriptionDirectory);
+        ShellAnalysisJob analysisJob = new ShellAnalysisJob(ad);
         analysisJob.construct(jobMessage, description, resultCallback);
         return analysisJob;
     }
@@ -53,13 +56,19 @@ public class ShellAnalysisHandler implements AnalysisHandler {
             throws AnalysisException {
         
         // Generate analysis description
-        AnalysisDescription ad = null;
         try {
-            // FIXME path in configuration
             File sadlFile = new File(descriptionDirectory, descriptionFilename);
-            byte[] bytes = new byte[(int) sadlFile.length()];
-            new FileInputStream(sadlFile).read(bytes);
-            String sadlString = new String(bytes);
+            String sadlString;
+            if (sadlFile.exists()) {
+                // Try opening a file using file system
+                sadlString = Files.fileToString(sadlFile);
+            } else {
+                // Open file as a resource
+                InputStream scriptSource = 
+                    this.getClass().getResourceAsStream("/" + DIRECTORY_NAME + "/"
+                                                        + descriptionFilename);
+                sadlString = Files.inputStreamToString(scriptSource);
+            }
             
             // Initiate description and set some basic values
             ad = new AnalysisDescriptionGenerator().generate(new ChipsterSADLParser().parse(sadlString), this);
@@ -67,6 +76,9 @@ public class ShellAnalysisHandler implements AnalysisHandler {
             
             // Command to be executed is stored in configuration file
             ad.setCommand(params.get("executable"));
+            
+            // Log success
+            logger.info("successfully loaded shell analysis description " + descriptionFilename);
         } catch (ParseException e) {
             throw new AnalysisException(e);
         } catch (Exception e) {
@@ -82,5 +94,4 @@ public class ShellAnalysisHandler implements AnalysisHandler {
     public boolean isUptodate(AnalysisDescription description) {
         return true;
     }
-
 }

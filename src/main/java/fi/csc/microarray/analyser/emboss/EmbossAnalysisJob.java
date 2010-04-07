@@ -105,7 +105,7 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         
         // Processing...
         try {
-            String cmd = commandLine();
+            String[] cmd = commandLine();
             Process p = Runtime.getRuntime().exec(cmd, null, jobWorkDir);
             p.waitFor();
             
@@ -119,7 +119,7 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
             bufferedReader.close();
             String outputString = stringBuilder.toString();
             
-            logger.info("Running Emboss application " + cmd);
+            logger.info("Running Emboss application " + cmd[0]);
             logger.info("Emboss application has finished with exit code " + p.exitValue() + 
                         " and this message: " + "\"" + outputString + "\".");
             
@@ -162,45 +162,49 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
     }
     
     /**
-     * Return a command line, including executable and
-     * parameters, that will be executed.
+     * Return a command line that will be executed,
+     * including executable and parameters.
      * 
      * @return
      */
-    private String commandLine() {
+    private String[] commandLine() {
         
         // Form the parameters (including the executable)
         LinkedList<String> params = new LinkedList<String>();
+
         params.add(new File(toolDirectory, analysis.getName()).getAbsolutePath());
         
         // Parameters
         for (EmbossQualifier qualifier : qualifiers) {
-            params.add(qualifier.toString());
+            if (qualifier.getValue() != "") {
+                params.add("-" + qualifier.getName());
+                params.add(qualifier.getValue());
+            }
         }
         
         // Inputs
         for (String name : inputMessage.payloadNames()) {
-            params.add("-" + name + " " + name);
+            params.add("-" + name);
+            params.add(name);
         }
         
         // Simple outputs
         for (ACDParameter param : acdDescription.getOutputParameters()) {
-            params.add("-" + param.getName() + " " + param.getOutputFilename(true));
+            params.add("-" + param.getName());
+            params.add(param.getOutputFilename(true));
         }
         
         // Graphics outputs
         for (ACDParameter param : acdDescription.getGraphicsParameters()) {
             // Emboss automatically adds extensions for graphics files
-            params.add("-" + param.getName() + " png");
-            params.add("-goutfile " + param.getOutputFilename(false));
-        }
-                       
-        String cmd = "";
-        for (String string : params) {
-            cmd += string + " ";
+            params.add("-" + param.getName());
+            params.add("png");
+            params.add("-goutfile");
+            params.add(param.getOutputFilename(false));
         }
         
-        return cmd;
+        String[] cmd = new String[0];
+        return params.toArray(cmd);
     }
     
     /**
@@ -242,6 +246,10 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
             this.value = value;
         }
         
+        public String getName() {
+            return acdParameter.getName();
+        }
+        
         public String getValue() {
             return value;
         }
@@ -256,14 +264,6 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
                                                 "\" for \"" + acdParameter.getName() + "\" parameter");
             }
             return new ValidityCheck(true, null);
-        }
-        
-        public String toString() {
-            // If value is empty, don't include this qualifier at all
-            if (!value.equals("")) {
-                return "-" + acdParameter.getName() + " " + value;
-            }
-            return "";
         }
     }
 }

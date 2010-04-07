@@ -10,7 +10,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -23,12 +22,14 @@ import javax.swing.event.CaretListener;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.dataimport.ImportUtils;
+import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataFolder;
 
 /**
  * 
@@ -38,7 +39,7 @@ import fi.csc.microarray.databeans.DataBean;
 @SuppressWarnings("serial")
 public class SequenceImportDialog extends JDialog implements CaretListener, ActionListener {
     
-    private String TASK_NAME = "\"Edit\"/\"seqret\"";
+    private String TASK_NAME = "\"Internal\"/\"importseq\"";
     private String OUT_FILE = "outseq";
     private final Dimension BUTTON_SIZE = new Dimension(70, 25);
     
@@ -55,16 +56,22 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
     private JComboBox dbNameCombo;
     
     private enum Databases {
-        PDB("PDB"),
-        EMBL("EMBL"),
-        EMBL_NEW("EMBL New"),
-        UNIPROT_SWISS("UniProt / Swiss"),
-        UNIPROT_TREMBL("UniProt / TrEMBL");
+        PDB("PDB", "pdb"),
+        EMBL("EMBL", "embl"),
+        EMBL_NEW("EMBL New", "embl"),
+        UNIPROT_SWISS("UniProt / Swiss", "swiss"),
+        UNIPROT_TREMBL("UniProt / TrEMBL", "uniprot");
         
         private String name;
+        private String value;
         
-        private Databases(String name) {
+        private Databases(String name, String value) {
             this.name = name;
+            this.value = value;
+        }
+        
+        public String getValue() {
+            return value;
         }
         
         public String toString() {
@@ -95,7 +102,6 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         nameField = new JTextField();
         nameField.setPreferredSize(new Dimension(150, 20));
         nameField.setText("data.txt");
-        nameField.addCaretListener(this);
         c.insets.set(0,10,10,10);       
         c.gridy++;
         this.add(nameField, c);
@@ -175,39 +181,67 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
     }
 
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource() == okButton){
+        if(e.getSource() == okButton) {
             String fileName = this.nameField.getText();
-            String fileContent = this.textArea.getText();
             String folderName = (String) (this.folderNameCombo.getSelectedItem());
-            try {                
-                // TODO
+            String db = ((Databases) this.dbNameCombo.getSelectedItem()).getValue();
+            String ids = this.textArea.getText();
+            
+            int separator = fileName.indexOf(".");
+            separator = separator == -1 ? fileName.length() : separator;
+            
+            // There can be multiple sequences
+            String[] sequences = ids.split("\n|;|,");
+            int index = 0;
+            for (String id : sequences) {
+                // Rename files if we have to import several
+                String name = fileName;
+                if (sequences.length > 1) {
+                    name = fileName.substring(0, separator) + "." +
+                           index + fileName.substring(separator, fileName.length());
+                    index++;
+                }
                 
-                // Create importing job
-                logger.info("Importing sequence...");
-                TaskExecutor taskExecutor = new TaskExecutor(client.getEndpoint(), client.getDataManager());
-                final Task importSequence = taskExecutor.createTask(TASK_NAME, true);
-                importSequence.addParameter("sequence", "swiss:CASA1_HUMAN");
-                importSequence.addParameter("feature", "Y");
-                importSequence.addParameter("firstonly", "N");
-                //importSequence.addInput(name, input)("sequence", null);
-                
-                // Run the job (blocking while it is progressing)
-                taskExecutor.execute(importSequence);
-                
-                // Parse metadata
-                DataBean metadataBean = importSequence.getOutput(OUT_FILE);
-                //this.metadata = new String(metadataBean.getContents());
-                //manager.delete(metadataBean); // don't leave the bean hanging around
-                //logger.debug("got metadata: " + this.metadata.substring(0, 50) + "...");
-                //List<SADLDescription> descriptions = new ChipsterSADLParser().parseMultiple(this.metadata);
-                //this.parsedCategories = new OperationGenerator().generate(descriptions).values();
-            } catch (Exception exc) {
-                exc.printStackTrace();
+                // Run import
+                runImport(name, folderName, db, id);
             }
-
             this.dispose();
         } else if (e.getSource() == cancelButton) {
             this.dispose();
+        }
+    }
+    
+    /**
+     * Run import job.
+     * 
+     * @param fileName
+     * @param folderName
+     * @param db
+     * @param id
+     */
+    private void runImport(String fileName, String folderName, String db, String id) {
+        try {               
+            // Create importing job
+            logger.info("Importing sequence...");
+            TaskExecutor taskExecutor = new TaskExecutor(client.getEndpoint(), client.getDataManager());
+            final Task importSequence = taskExecutor.createTask(TASK_NAME, true);
+            importSequence.addParameter("sequence", db + ":" + id);
+            
+            // Run the job (blocking while it is progressing)
+            taskExecutor.execute(importSequence);
+            
+            // Create a dataset
+            DataBean data = importSequence.getOutput(OUT_FILE);
+            data.setName(fileName);
+            data.setContentType(client.getDataManager().guessContentType(fileName));
+            data.setOperation(new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data }));
+            
+            // Make it visible
+            DataFolder folder = client.initializeFolderForImport(folderName);
+            folder.addChild(data);
+            client.getSelectionManager().selectSingle(data, this);
+        } catch (Exception exc) {
+            exc.printStackTrace();
         }
     }
 }
