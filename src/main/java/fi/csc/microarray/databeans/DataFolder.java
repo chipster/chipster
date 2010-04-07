@@ -1,42 +1,77 @@
 package fi.csc.microarray.databeans;
 
+import java.util.LinkedList;
+import java.util.List;
+
+
 
 /**
  * DataFolder is used to manage DataBean objects.
  * 
  * @see DataBean
- * @author Aleksi Kallio
+ * @author Aleksi Kallio, hupponen
  *
  */
-public interface DataFolder extends DataItem {
+public class DataFolder extends DataItemBase {
 
-	/**
-	 * @return A String representation (in this case, the name) of this folder.
-	 */
-	public abstract String toString();
 
-	/**
-	 * Add a bean or a subfolder to this folder.
-	 */
-	public void addChild(DataItem child);
+	public DataFolder(DataManager manager, String name) {
+		this.manager = manager;
+		this.name = name;
+	}
+	
+	private List<DataItem> children = new LinkedList<DataItem>();
+	private DataManager manager;
+	
+	public void addChild(DataItem child) {
 
-	/**
-	 * Remove a bean or a subfolder from this folder.
-	 */
-	public void removeChild(DataItem child);
+		// was it already connected?
+		boolean wasConnected = child.getParent() != null;
 	
-	/**
-	 * @return all beans and subfolders of this folder.
-	 */
-	public Iterable<DataItem> getChildren();
+		// connect to this
+		child.setParent(this);
+		
+		// add
+		children.add(child);
+		
+		// dispatch events if needed
+		if (!wasConnected) {
+			manager.dispatchEvent(new DataItemCreatedEvent(child));
+		}
+	}
+
+	public void removeChild(DataItem child) {
+		// remove connections
+		child.setParent(null);
+		
+		// remove
+		children.remove(child);		
+
+		// dispatch events
+		manager.dispatchEvent(new DataItemRemovedEvent(child));
+	}
+
+	public Iterable<DataItem> getChildren() {
+		return children;
+	}
+
+
+	public int getChildCount() {
+		return children.size();
+	}
+
 	
-	/**
-	 * @return the first subfolder with the given name
-	 */
-	public DataFolder getChildFolder(String name);
+	public DataFolder getChildFolder(String name) {
+		for (DataItem child : getChildren()) {
+			if (child instanceof DataFolder && child.getName().equals(name)) {
+				return (DataFolder)child;
+			}
+		}
+		return null;
+	}
 	
-    /**
-     * @return the count of beans and subfolders in this folder.
-     */
-    public int getChildCount();    
+	public String toString() {
+		return getName();
+	}
+
 }

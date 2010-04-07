@@ -1,6 +1,6 @@
 package fi.csc.microarray.databeans.biobeans;
 
-import java.io.IOException;
+import java.io.IOException; 
 import java.io.OutputStream;
 import java.util.ArrayList;
 
@@ -15,7 +15,6 @@ import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.LinkUtils;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.table.EditableTable;
-import fi.csc.microarray.databeans.fs.FSDataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.DefaultModules;
 
@@ -26,7 +25,7 @@ public class PhenodataTest {
 	@BeforeSuite(alwaysRun = true)
 	public void init() throws IOException, IllegalConfigurationException {
 		DirectoryLayout.initialiseClientLayout().getConfiguration();			
-		this.manager = new FSDataManager();
+		this.manager = new DataManager();
 		DefaultModules.getDefaultModules().plugFeatures(manager);
 	}
 

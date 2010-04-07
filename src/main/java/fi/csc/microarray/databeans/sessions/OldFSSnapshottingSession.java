@@ -1,4 +1,4 @@
-package fi.csc.microarray.databeans.fs;
+package fi.csc.microarray.databeans.sessions;
 
 import java.awt.Color;
 import java.io.BufferedReader;
@@ -16,6 +16,7 @@ import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
+import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -31,12 +32,12 @@ public class OldFSSnapshottingSession {
 
 	private static final String ROOT_FOLDER_ID = "0";
 	
-	private FSDataManager manager;
+	private DataManager manager;
 
 	private HashMap<Integer, DataItem> idMap = new HashMap<Integer, DataItem>();
 	private HashMap<DataItem, Integer> reversedIdMap = new HashMap<DataItem, Integer>();
 
-	public OldFSSnapshottingSession(FSDataManager manager) {
+	public OldFSSnapshottingSession(DataManager manager) {
 		this.manager = manager;
 	}
 	private File getMetadataFile(File snapshotDir) {

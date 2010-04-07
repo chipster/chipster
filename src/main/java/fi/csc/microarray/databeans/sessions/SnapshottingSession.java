@@ -1,6 +1,5 @@
-package fi.csc.microarray.databeans.fs;
+package fi.csc.microarray.databeans.sessions;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -30,6 +29,7 @@ import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
+import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.IOUtils;
@@ -43,7 +43,7 @@ import fi.csc.microarray.util.IOUtils;
  * @author Aleksi Kallio
  *
  */
-public class FSSnapshottingSession {
+public class SnapshottingSession {
 
 	private final int DATA_BLOCK_SIZE = 2048;
 
@@ -53,7 +53,7 @@ public class FSSnapshottingSession {
 	
 	private static final String ROOT_FOLDER_ID = "0";
 	
-	private FSDataManager manager;
+	private DataManager manager;
 	private ClientApplication application;
 
 	private int itemIdCounter = 0;
@@ -64,83 +64,42 @@ public class FSSnapshottingSession {
 	private HashMap<Integer, Operation> operationIdMap = new HashMap<Integer, Operation>();
 	private HashMap<Operation, Integer> reversedOperationIdMap = new HashMap<Operation, Integer>();
 
-	public FSSnapshottingSession(FSDataManager manager, ClientApplication application) {
+	public SnapshottingSession(DataManager manager, ClientApplication application) {
 		this.manager = manager;
 		this.application = application;
 	}
 	
+	private ZipOutputStream cpZipOutputStream = null;
 
-	public void saveSnapshot(File sessionFile) throws IOException {
-
-		boolean replaceOldSession = sessionFile.exists();
-
-		File newSessionFile;
-		File backupFile = null;
-		if (replaceOldSession) {
-			// TODO maybe avoid overwriting existing temp file
-			newSessionFile = new File(sessionFile.getAbsolutePath() + "-temp.cs");
-			backupFile = new File(sessionFile.getAbsolutePath() + "-backup.cs");
-		} else {
-			newSessionFile = sessionFile;
-		}
-
-		ZipOutputStream zipOutputStream = null;
-		boolean createdSuccessfully = false;
+	public void saveSnapshot(File snapshot) throws IOException {
+																					
+		FileOutputStream fos = new FileOutputStream(snapshot);			
+		cpZipOutputStream = new ZipOutputStream(fos);
+		boolean createdSuccesfully = false;
+		
 		try {
-			
-			zipOutputStream = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(newSessionFile)));
-			zipOutputStream.setLevel(1); // quite slow with bigger values														
 
-			// write data and gather metadata simultaneously
+			cpZipOutputStream.setLevel(1); // quite slow with bigger values														
+
+			// write data and gather metadata simultanously
 			StringBuffer metadata = new StringBuffer("");
 			metadata.append("VERSION " + SNAPSHOT_VERSION + "\n");
 
 			// generate all ids
-			generateIdsRecursively((FSDataFolder)manager.getRootFolder());
+			generateIdsRecursively(manager.getRootFolder());
 
 			// 1st pass, write most metadata
-			saveRecursively((FSDataFolder)manager.getRootFolder(), zipOutputStream, metadata);
+			saveRecursively(manager.getRootFolder(), cpZipOutputStream, metadata);
 
 			// 2nd pass for links (if written in one pass, input dependent operation parameters break when reading)
-			saveLinksRecursively((FSDataFolder)manager.getRootFolder(), metadata);
+			saveLinksRecursively(manager.getRootFolder(), metadata);
 
-			writeFile(zipOutputStream, METADATA_FILENAME, 
+			writeFile(cpZipOutputStream, METADATA_FILENAME, 
 					new ByteArrayInputStream(metadata.toString().getBytes()));
 
-			zipOutputStream.finish();
-			zipOutputStream.close();
-			
-			// rename new session if replacing existing
-			if (replaceOldSession) {
-				
-				// original to backup
-				if (!sessionFile.renameTo(backupFile)) {
-					throw new IOException("Creating backup " + sessionFile + " -> " + backupFile + " failed.");
-				}
-					
-				// new to original
-				if (newSessionFile.renameTo(sessionFile)) {
-					createdSuccessfully = true;
-
-					// remove backup
-					backupFile.delete();
-				} else {
-					// try to move backup back to original
-					// TODO remove new session file?
-					if (backupFile.renameTo(sessionFile)) {
-						throw new IOException("Moving new " + newSessionFile + " -> " + sessionFile + " failed, " +
-								"restored original session file.");
-					} else {
-						throw new IOException("Moving new " + newSessionFile + " -> " + sessionFile + " failed, " +
-						"also restoring original file failed, backup of original is " + backupFile);
-					}
-				}
-			} 
-			
-			// no existing session
-			else {
-				createdSuccessfully = true;
-			}
+			cpZipOutputStream.finish();
+			cpZipOutputStream.close();
+			createdSuccesfully = true;
 			
 		} catch (RuntimeException e) {
 			// createdSuccesfully is false, so file will be deleted in finally block
@@ -151,9 +110,9 @@ public class FSSnapshottingSession {
 			throw e;
 
 		} finally {
-			IOUtils.closeIfPossible(zipOutputStream); // called twice for normal execution, not a problem
-			if (!replaceOldSession && !createdSuccessfully) {
-				newSessionFile.delete(); // do not leave bad session files hanging around
+			IOUtils.closeIfPossible(cpZipOutputStream); // called twice for normal execution, not a problem
+			if (!createdSuccesfully) {
+				snapshot.delete(); // do not leave bad session files hanging around
 			}
 		}
 	}
@@ -162,30 +121,30 @@ public class FSSnapshottingSession {
 			
 		int byteCount;
 		ZipEntry cpZipEntry = new ZipEntry(name);
-		out.putNextEntry(cpZipEntry );
+		cpZipOutputStream.putNextEntry(cpZipEntry );
 
 		byte[] b = new byte[DATA_BLOCK_SIZE];
 
 		while ( (byteCount = in.read(b, 0, DATA_BLOCK_SIZE)) != -1 ) {
-			out.write(b, 0, byteCount);
+			cpZipOutputStream.write(b, 0, byteCount);
 		}
 
-		out.closeEntry() ;							
+		cpZipOutputStream.closeEntry() ;							
 	}
 	
-	private int generateIdsRecursively(FSDataFolder folder) throws IOException {
+	private int generateIdsRecursively(DataFolder folder) throws IOException {
 		
 		int dataCount = 0;
 		
 		generateId(folder);
 		
 		for (DataItem data : folder.getChildren()) {
-			if (data instanceof FSDataFolder) {
-				int recDataCount = generateIdsRecursively((FSDataFolder)data);
+			if (data instanceof DataFolder) {
+				int recDataCount = generateIdsRecursively((DataFolder)data);
 				dataCount += recDataCount;
 				
 			} else {
-				generateId((FSDataBean)data);
+				generateId((DataBean)data);
 				dataCount++;
 			}
 		}
@@ -193,17 +152,17 @@ public class FSSnapshottingSession {
 		return dataCount;
 	}
 			
-	private void saveRecursively(FSDataFolder folder, ZipOutputStream cpZipOutputStream, StringBuffer metadata) throws IOException {
+	private void saveRecursively(DataFolder folder, ZipOutputStream cpZipOutputStream, StringBuffer metadata) throws IOException {
 		
 		String folderId = fetchId(folder);
 		saveDataFolderMetadata(folder, folderId, metadata);
 		
 		for (DataItem data : folder.getChildren()) {
-			if (data instanceof FSDataFolder) {
-				saveRecursively((FSDataFolder)data, cpZipOutputStream, metadata);
+			if (data instanceof DataFolder) {
+				saveRecursively((DataFolder)data, cpZipOutputStream, metadata);
 				
 			} else {
-				FSDataBean bean = (FSDataBean)data;
+				DataBean bean = (DataBean)data;
 				saveDataBeanMetadata(bean, folderId, metadata);
 
 				writeFile(cpZipOutputStream, bean.getContentFile().getName(),  
@@ -214,12 +173,12 @@ public class FSSnapshottingSession {
 	}
 
 
-	private void saveDataFolderMetadata(FSDataFolder folder, String folderId, StringBuffer metadata) {
+	private void saveDataFolderMetadata(DataFolder folder, String folderId, StringBuffer metadata) {
 		metadata.append("DATAFOLDER " + folderId + "\n");
 		saveDataItemMetadata(folder, folderId, metadata);
 	}	
 	
-	private void saveDataBeanMetadata(FSDataBean bean, String folderId, StringBuffer metadata) {
+	private void saveDataBeanMetadata(DataBean bean, String folderId, StringBuffer metadata) {
 		String beanId = fetchId(bean);
 		metadata.append("DATABEAN " + beanId + " " + bean.getContentFile().getName() + "\n");
 		
@@ -267,8 +226,8 @@ public class FSSnapshottingSession {
 			metadata.append("NOTES " + beanId + " " + bean.getNotes().replace('\n', ' ') + "\n");
 		}
 		
-		if (bean.getUrl() != null) {
-			metadata.append("CACHED_URL " + beanId + " " + bean.getUrl() + "\n");			
+		if (bean.getCacheUrl() != null) {
+			metadata.append("CACHED_URL " + beanId + " " + bean.getCacheUrl() + "\n");			
 		}
 		
 		saveDataItemMetadata(bean, beanId, metadata);
@@ -324,8 +283,9 @@ public class FSSnapshottingSession {
 					String[] split = line.split(" ");
 					String id = split[1];
 					ZipEntry beanEntry = entryMap.get(split[2]);
-					InputStream inputStream = zipFile.getInputStream(beanEntry);
-					DataBean bean = manager.createDataBean("<empty>", inputStream);
+//					InputStream inputStream = zipFile.getInputStream(beanEntry);
+//					DataBean bean = manager.createDataBean("<empty>", inputStream);
+					DataBean bean = manager.createDataBean("<empty>", snapshot, beanEntry.getName());
 					
 					newItems.add(bean);
 					mapId(id, bean);
@@ -403,9 +363,9 @@ public class FSSnapshottingSession {
 					String[] split = line.split(" ");
 					String id = split[1];
 					String url = split[2];
-					FSDataBean bean = (FSDataBean)fetchItem(id);
+					DataBean bean = (DataBean)fetchItem(id);
 					bean.setContentChanged(false);
-					bean.setUrl(new URL(url));
+					bean.setCacheUrl(new URL(url));
 					
 				} else if (line.startsWith("LINK ")) {
 					String[] split = line.split(" ");
@@ -500,12 +460,12 @@ public class FSSnapshottingSession {
 	}
 
 	
-	private void saveLinksRecursively(FSDataFolder folder, StringBuffer metadata) {
+	private void saveLinksRecursively(DataFolder folder, StringBuffer metadata) {
 		
 		for (DataItem data : folder.getChildren()) {
 			
-			if (data instanceof FSDataFolder) {
-				saveLinksRecursively((FSDataFolder)data, metadata);
+			if (data instanceof DataFolder) {
+				saveLinksRecursively((DataFolder)data, metadata);
 				
 			} else {
 				DataBean bean = (DataBean)data; 
@@ -573,4 +533,5 @@ public class FSSnapshottingSession {
 	private String fetchId(DataItem item) {
 		return reversedItemIdMap.get(item).toString();
 	}
+
 }

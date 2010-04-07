@@ -15,7 +15,6 @@ import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationExceptio
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.fs.FSDataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.DefaultModules;
 
@@ -25,7 +24,7 @@ public class FeatureTest {
 
 	public FeatureTest() throws IOException, IllegalConfigurationException {
 		DirectoryLayout.initialiseUnitTestLayout();
-		this.manager = new FSDataManager();
+		this.manager = new DataManager();
 		DefaultModules.getDefaultModules().plugFeatures(manager);
 	}
 
