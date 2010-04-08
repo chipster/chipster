@@ -12,6 +12,8 @@
 # Principal component analysis
 # Calculates principal components, and saves them for further analyses
 # JTT 27.6.2006
+#
+# modified by MG, 29.3.2010 to enable coloring by cluster feature 
 
 # Renaming variables
 pcaon<-do.pca.on
@@ -27,52 +29,52 @@ dat2<-dat[,grep("chip", names(dat))]
 
 # PCA calculations
 if(scaling=="yes" & centering=="yes") {
-   if(pcaon=="genes") {
-      pc<-prcomp(dat2, scale=T, center=T)
-   }
-   if(pcaon=="chips") {
-      # Transpose the matrix for sample-wise PCA 
-      pc<-prcomp(t(dat2), scale=T, center=T)
-   }
+	if(pcaon=="genes") {
+		pc<-prcomp(dat2, scale=T, center=T)
+	}
+	if(pcaon=="chips") {
+		# Transpose the matrix for sample-wise PCA 
+		pc<-prcomp(t(dat2), scale=T, center=T)
+	}
 }
 if(scaling=="yes" & centering=="no") {
-   if(pcaon=="genes") {
-      pc<-prcomp(dat2, scale=T, center=F)
-   }
-   if(pcaon=="chips") {
-      # Transpose the matrix for sample-wise PCA 
-      pc<-prcomp(t(dat2), scale=T, center=F)
-   }
+	if(pcaon=="genes") {
+		pc<-prcomp(dat2, scale=T, center=F)
+	}
+	if(pcaon=="chips") {
+		# Transpose the matrix for sample-wise PCA 
+		pc<-prcomp(t(dat2), scale=T, center=F)
+	}
 }
 if(scaling=="no" & centering=="yes") {
-   if(pcaon=="genes") {
-      pc<-prcomp(dat2, scale=F, center=T)
-   }
-   if(pcaon=="chips") {
-      # Transpose the matrix for sample-wise PCA 
-      pc<-prcomp(t(dat2), scale=F, center=T)
-   }
+	if(pcaon=="genes") {
+		pc<-prcomp(dat2, scale=F, center=T)
+	}
+	if(pcaon=="chips") {
+		# Transpose the matrix for sample-wise PCA 
+		pc<-prcomp(t(dat2), scale=F, center=T)
+	}
 }
 if(scaling=="no" & centering=="no") {
-   if(pcaon=="genes") {
-      pc<-prcomp(dat2, scale=F, center=F)
-   }
-   if(pcaon=="chips") {
-      # Transpose the matrix for sample-wise PCA 
-      pc<-prcomp(t(dat2), scale=F, center=F)
-   }
+	if(pcaon=="genes") {
+		pc<-prcomp(dat2, scale=F, center=F)
+	}
+	if(pcaon=="chips") {
+		# Transpose the matrix for sample-wise PCA 
+		pc<-prcomp(t(dat2), scale=F, center=F)
+	}
 }
 
 # How many PCs to save?
 no<-as.vector(head(which(summary(pc)$importance[3,]>=(expvar/100)), n=1)[1])
 if(no<3) {
-   no<-c(3)
+	no<-c(3)
 }
 if(pcaon=="genes") {
-   pcs<-pc$x[,1:no]
+	pcs<-pc$x[,1:no]
 }
 if(pcaon=="chips") {
-   pcs<-pc$x[,1:no]
+	pcs<-pc$x[,1:no]
 }
 
 # Converting PCs from matrix format into data frame
@@ -80,6 +82,15 @@ pcs<-as.data.frame(pcs)
 
 # Giving the PC headers new names
 names(pcs)<-paste("chip.", names(pcs), sep="")
+round(pcs,digits=2)
+
+# Add expression and other column values
+if (pcaon=="genes") {
+	dat4 <- cbind(dat,pcs)
+}
+if (pcaon=="chips") {
+	dat4 <- pcs
+}
 
 # Saving the PCs with data
-write.table(data.frame(round(pcs, digits=2)), "pca.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+write.table(data.frame(dat4), "pca.tsv", sep="\t", row.names=T, col.names=T, quote=F)

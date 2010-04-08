@@ -1,12 +1,12 @@
 # ANALYSIS Normalisation/"Process prenormalized affy" (If you import prenormalized Affymetrix data that is not in Chipster format, you
-# need to import it through Import tool, and then use this tool for preprocessing it. Every column containing normalized
-# expression values need to be specifies as Sample in the Import tool. If you want to be able to use annotation,
-# you need to SPECIFY THE CHIPTYPE.)
+# need to import it through the Import Wizard, and then use this tool for preprocessing it. During data import, make sure to mark every column containing normalized
+# expression values as Sample and the column containing the Affymetrix probe ID:s as Identifier. If you want to be able to use annotation,
+# you need to SPECIFY THE CHIPTYPE, e.g. hgu133a2.db.)
 # INPUT CDNA microarray[...].tsv OUTPUT normalized.tsv, phenodata.tsv
 # PARAMETER chiptype STRING DEFAULT empty (chiptype)
 
 # Process prenormalized affy
-# MG 21.10.2009
+# MG 6.4.2010
 
 # Loads the libraries
 library(limma)
@@ -15,7 +15,7 @@ library(gcrma)
 
 # Reading data
 
-columns<-list(R="sample", Rb="sample", G="sample", Gb="sample")
+columns<-list(R="sample")
 annotation<-c("identifier")
 columns.other<-c("flag", "annotation")
 
@@ -33,6 +33,7 @@ dat<-read.maimages(files=files, columns=columns, annotation=annotation, other.co
 
 # Mock normalization
 dat2<-normalizeBetweenArrays(dat$R, method="none")
+colnames(dat2)<-paste("chip.", colnames(dat2), sep="")
 
 # Writes out a phenodata table
 sample<-paste(colnames(dat2), ".tsv", sep="")
@@ -41,32 +42,29 @@ training<-c(rep("", length(sample)))
 time<-c(rep("", length(sample)))
 random<-c(rep("", length(sample)))
 if(chiptype=="empty") {
-	chiptype<-c("cDNA")
+	chiptype<-"Affy"
 }
-write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+write.table(data.frame(sample=sample, chiptype=chiptype, group=group, description=sample), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
-
-# Preparing data for export
-M<-data.frame(dat2)
-colnames(M)<-paste("chip.", colnames(M), sep="")
-M2<-aggregate(M, as.list(dat$genes), mean)
-rownames(M2)<-M2$identifier
-M2<-M2[,-1]
 
 # Writing out data
 a<-try(library(chiptype, character.only=T))
 if(chiptype!="empty" & class(a)!="try-error") {
 	# Including gene names to data
 	lib2<-sub('.db','',chiptype)
-	symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "SYMBOL", sep="")))))[rownames(M2),])
-	genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[rownames(M2),])
+	symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "SYMBOL", sep="")))))[unlist(dat$genes),])
+	genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[unlist(dat$genes),])
 	# Fxes an issue introduced in BioC2.4 where the "#" character is introduced in some gene names
 	genename <- gsub("#", "", genename)
 	# Writes the results into a file
-	write.table(data.frame(symbol, description=genename, M2, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T))
+	output_table <- data.frame(symbol, description=genename, dat2)
+	rownames (output_table) <- unlist(dat$genes)
+	write.table(output_table, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 } 
 
 if(chiptype=="empty" | class(a)=="try-error") {
-	write.table(data.frame(M2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+	output_table <- data.frame(dat2)
+	rownames (output_table) <- unlist(dat$genes)
+	write.table(output_table, file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 }
 
