@@ -2,6 +2,7 @@ package fi.csc.microarray.client.dialog;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -49,6 +50,8 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
     private JLabel nameLabel;
     private JLabel textLabel;
     private JTextField nameField;
+    private JTextField beginField;
+    private JTextField endField;
     private JTextArea textArea;
     private JButton okButton;
     private JButton cancelButton;
@@ -123,9 +126,22 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         areaScrollPane.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         areaScrollPane.setPreferredSize(new Dimension(150, 60));
-        c.insets.set(0,10,10,10);  
+        c.insets.set(0, 10, 10, 10);  
         c.gridy++;
         this.add(areaScrollPane, c);
+        
+        // Range fields
+        beginField = new JTextField(4);
+        endField = new JTextField(4);
+        JPanel rangePanel = new JPanel();
+        rangePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        rangePanel.add(new JLabel("Start"));
+        rangePanel.add(beginField);
+        rangePanel.add(new JLabel("End"));
+        rangePanel.add(endField);
+        c.insets.set(10, 10, 5, 10);
+        c.gridy++;
+        this.add(rangePanel, c);
         
         // Name label
         nameLabel = new JLabel("Filename");
@@ -138,7 +154,7 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         nameField = new JTextField();
         nameField.setPreferredSize(new Dimension(150, 20));
         nameField.setText("data.txt");
-        c.insets.set(0,10,10,10);       
+        c.insets.set(0, 10, 10, 10);       
         c.gridy++;
         this.add(nameField, c);
         
@@ -146,13 +162,13 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         folderNameCombo = new JComboBox(ImportUtils.getFolderNames(true).toArray());
         folderNameCombo.setPreferredSize(new Dimension(150, 20));
         folderNameCombo.setEditable(true);
-        c.insets.set(10,10,5,10);
+        c.insets.set(10, 10, 5, 10);
         c.gridy++;
         this.add(new JLabel("Create in folder"), c);
-        c.insets.set(0,10,10,10);
+        c.insets.set(0, 10, 10, 10);
         c.gridy++;
-        this.add(folderNameCombo,c);
-        
+        this.add(folderNameCombo, c);
+
         // OK button
         okButton = new JButton("OK");
         okButton.setPreferredSize(BUTTON_SIZE);
@@ -229,11 +245,13 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
             TaskExecutor taskExecutor = new TaskExecutor(client.getEndpoint(), client.getDataManager());
             final Task importSequence = taskExecutor.createTask(TASK_NAME, true);
             importSequence.addParameter("sequence", db + ":" + id);
-            
+            importSequence.addParameter("sbegin", beginField.getText());
+            importSequence.addParameter("send", endField.getText());
+
             // Run the job (blocking while it is progressing)
             taskExecutor.execute(importSequence);
             
-            // Create a dataset
+            // Create a dataset or prepare for merging them later
             DataBean data = importSequence.getOutput(OUT_FILE);
             data.setName(fileName);
             data.setContentType(client.getDataManager().guessContentType(fileName));

@@ -62,8 +62,11 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
         // Parameters
         int index = 0;
         for (ParameterDescription parameter : description.getParameters()) {
-            command.add("-" + parameter.getName());
-            command.add(inputParameters.get(index));
+            String value = inputParameters.get(index);
+            if (!value.equals("")) {
+                command.add("-" + parameter.getName());
+                command.add(value);
+            }
             index++;
         }
         
