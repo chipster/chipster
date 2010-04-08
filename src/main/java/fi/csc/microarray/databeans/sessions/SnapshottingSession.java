@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -32,6 +33,7 @@ import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.IOUtils;
 
@@ -57,6 +59,11 @@ public class SnapshottingSession {
 	private DataManager manager;
 	private ClientApplication application;
 
+	// TODO initialise this
+	private File sessionFile;
+	private HashMap<DataBean, URL> newURLs;
+	private int entryCounter = 0;
+	
 	private int itemIdCounter = 0;
 	private HashMap<Integer, DataItem> itemIdMap = new HashMap<Integer, DataItem>();
 	private HashMap<DataItem, Integer> reversedItemIdMap = new HashMap<DataItem, Integer>();
@@ -70,11 +77,11 @@ public class SnapshottingSession {
 		this.application = application;
 	}
 	
-	private ZipOutputStream cpZipOutputStream = null;
-
 	
 	public void saveSnapshot(File sessionFile) throws IOException {
 
+		this.sessionFile = sessionFile;
+		this.newURLs = new HashMap<DataBean, URL>();
 		boolean replaceOldSession = sessionFile.exists();
 
 		File newSessionFile;
@@ -102,16 +109,16 @@ public class SnapshottingSession {
 			generateIdsRecursively(manager.getRootFolder());
 
 			// 1st pass, write most metadata
-			saveRecursively(manager.getRootFolder(), cpZipOutputStream, metadata);
+			saveRecursively(manager.getRootFolder(), zipOutputStream, metadata);
 
 			// 2nd pass for links (if written in one pass, input dependent operation parameters break when reading)
 			saveLinksRecursively(manager.getRootFolder(), metadata);
 
-			writeFile(cpZipOutputStream, METADATA_FILENAME, 
+			writeFile(zipOutputStream, METADATA_FILENAME, 
 					new ByteArrayInputStream(metadata.toString().getBytes()));
 
-			cpZipOutputStream.finish();
-			cpZipOutputStream.close();
+			zipOutputStream.finish();
+			zipOutputStream.close();
 			
 			// rename new session if replacing existing
 			if (replaceOldSession) {
@@ -140,10 +147,22 @@ public class SnapshottingSession {
 				}
 			} 
 			
-			// no existing session
-			else {
+			// TODO update bean urls and handlers
+			try {
+				for (DataBean bean: newURLs.keySet()) {
+					// store old for rollback
+					bean.setContentUrl(newURLs.get(bean));
+					bean.setHandler(new ZipDataBeanHandler());
+				}
+				
 				createdSuccessfully = true;
+			} catch (Exception e) {
+				// TODO rollback
+				throw new RuntimeException(e);
 			}
+			
+			
+			
 			
 		} catch (RuntimeException e) {
 			// createdSuccesfully is false, so file will be deleted in finally block
@@ -165,15 +184,15 @@ public class SnapshottingSession {
 			
 		int byteCount;
 		ZipEntry cpZipEntry = new ZipEntry(name);
-		cpZipOutputStream.putNextEntry(cpZipEntry );
+		out.putNextEntry(cpZipEntry );
 
 		byte[] b = new byte[DATA_BLOCK_SIZE];
 
 		while ( (byteCount = in.read(b, 0, DATA_BLOCK_SIZE)) != -1 ) {
-			cpZipOutputStream.write(b, 0, byteCount);
+			out.write(b, 0, byteCount);
 		}
 
-		cpZipOutputStream.closeEntry() ;							
+		out.closeEntry() ;							
 	}
 	
 	private int generateIdsRecursively(DataFolder folder) throws IOException {
@@ -207,10 +226,19 @@ public class SnapshottingSession {
 				
 			} else {
 				DataBean bean = (DataBean)data;
-				saveDataBeanMetadata(bean, folderId, metadata);
 
-				writeFile(cpZipOutputStream, bean.getContentUrl().toString(),  
-						bean.getContentByteStream());
+				// create the new URL TODO check the ref
+				String entryName = getNewEntryName();
+				URL newURL = new URL(sessionFile.toURI().toURL(), "#" + entryName);
+
+				// store the new URL temporarily
+				newURLs.put(bean, newURL);
+
+				// store metadata
+				saveDataBeanMetadata(bean, newURL, folderId, metadata);
+				
+				// write bean contents to zip
+				writeFile(cpZipOutputStream, entryName, bean.getContentByteStream());
 
 			}
 		}
@@ -222,9 +250,9 @@ public class SnapshottingSession {
 		saveDataItemMetadata(folder, folderId, metadata);
 	}	
 	
-	private void saveDataBeanMetadata(DataBean bean, String folderId, StringBuffer metadata) {
+	private void saveDataBeanMetadata(DataBean bean, URL newURL, String folderId, StringBuffer metadata) {
 		String beanId = fetchId(bean);
-		metadata.append("DATABEAN " + beanId + " " + bean.getContentUrl() + "\n");
+		metadata.append("DATABEAN " + beanId + " " + newURL + "\n");
 		
 		if (bean.getOperation() != null) {
 			Operation operation = bean.getOperation();
@@ -326,10 +354,11 @@ public class SnapshottingSession {
 				} else if (line.startsWith("DATABEAN ")) {
 					String[] split = line.split(" ");
 					String id = split[1];
-					ZipEntry beanEntry = entryMap.get(split[2]);
-//					InputStream inputStream = zipFile.getInputStream(beanEntry);
-//					DataBean bean = manager.createDataBean("<empty>", inputStream);
-					DataBean bean = manager.createDataBean("<empty>", snapshot, beanEntry.getName());
+					
+					// TODO in the future, maybe give the URL directly to the manager
+					URL url = new URL(split[2]);
+					String entryName = url.getRef();
+					DataBean bean = manager.createDataBean("<empty>", snapshot, entryName);
 					
 					newItems.add(bean);
 					mapId(id, bean);
@@ -578,4 +607,7 @@ public class SnapshottingSession {
 		return reversedItemIdMap.get(item).toString();
 	}
 
+	private String getNewEntryName() {
+		return "file-" + entryCounter++;
+	}
 }

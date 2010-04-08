@@ -721,7 +721,14 @@ public class DataBean extends DataItemBase {
 		this.contentUrl = contentUrl;
 	}
 
-
+	/**
+	 * Should only be used when saving the bean inside a session.
+	 * 
+	 * @param handler
+	 */
+	public void setHandler(DataBeanHandler handler) {
+		this.handler = handler;
+	}
 
 
 
