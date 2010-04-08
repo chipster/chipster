@@ -55,15 +55,15 @@ public class SADLGenerator {
 					
 				} else {
 					paramString += parameter.getType() + " ";
+				}
+				
+				if (parameter.getFrom() != null) {
+					paramString += "FROM " + parameter.getFrom() + " "; 
+				}
 
-					if (parameter.getFrom() != null) {
-						paramString += "FROM " + parameter.getFrom() + " "; 
-					}
-
-					if (parameter.getTo() != null) {
-						paramString += "TO " + parameter.getTo() + " "; 
-					} 
-				}	
+				if (parameter.getTo() != null) {
+					paramString += "TO " + parameter.getTo() + " "; 
+				} 
 				
 				if (parameter.getDefaultValue() != null) {
 					paramString += "DEFAULT " + parameter.getDefaultValue() + " "; 

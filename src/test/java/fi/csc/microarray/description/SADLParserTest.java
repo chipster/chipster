@@ -176,6 +176,7 @@ public class SADLParserTest {
 		Assert.assertEquals(parsedDescription.inputs().get(1).getName().getPrefix(), "input2");
 		Assert.assertEquals(parsedDescription.inputs().size(), 2);
 		Assert.assertEquals(parsedDescription.parameters().size(), 2);
+		Assert.assertEquals(parsedDescription.parameters().get(1).getFrom(), "1");
 		
 	}
 
@@ -208,7 +209,7 @@ public class SADLParserTest {
 		description.addOutput(new Output(Name.createName("output1","output1")));
 		description.addMetaOutput(new Output(Name.createName("metaoutput1", "metaoutput1")));
 		description.addParameter(new Parameter(Name.createName("parameter1", "parameter1"), ParameterType.DECIMAL, null, "1", "3", "2", "param comment 1"));
-		description.addParameter(new Parameter(Name.createName("parameter2", "parameter2"), ParameterType.ENUM, new Name[] {Name.createName("1"), Name.createName("2"), Name.createName("2")}, null, null, "2", "param comment 2"));
+		description.addParameter(new Parameter(Name.createName("parameter2", "parameter2"), ParameterType.ENUM, new Name[] {Name.createName("1"), Name.createName("2"), Name.createName("2")}, "1", "2", "2", "param comment 2"));
 		return description;
 	}
 	
