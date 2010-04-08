@@ -209,7 +209,7 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 			} else if (e.getSource() == importTextLink) {
 			    application.openCreateFromTextDialog();
 	        } else if (e.getSource() == importSequenceLink) {
-	                application.openSequenceImportDialog();
+                application.openSequenceImportDialog();
 			} else if (e.getSource() == emptyLink) {
 
 			} else if (e.getSource() == exampleLink) {

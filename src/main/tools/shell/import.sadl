@@ -1,0 +1,3 @@
+TOOL "Internal" / importseq: "Import sequence" (Import sequences using seqret tool from EMBOSS)
+OUTPUT outseq: "Generated sequence"
+PARAMETER sequence: "Accession id" TYPE STRING (accession number of sequence to be imported)

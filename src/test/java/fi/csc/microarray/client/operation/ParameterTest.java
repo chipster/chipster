@@ -45,8 +45,8 @@ public class ParameterTest {
         Operation operation;
         try {
             Name[] options = {Name.createName("a"), Name.createName("b")};
-            Parameter p = Parameter.createInstance("list", ParameterType.ENUM, options,
-                                                   "This is list", "1", "1", "a", false);
+            Parameter p = Parameter.createInstance(Name.createName("list"), ParameterType.ENUM,
+                                                   options, "This is list", "1", "1", "a", false);
             Assert.assertFalse(p.isOptional());
             
             // Prepare the multi-select parameter

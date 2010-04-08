@@ -128,9 +128,16 @@ public class ACDToSADL {
                 fieldMax = param.getAttribute("maximum");
             }
 	        
-	        // TODO: help attribute; comment attribute
-	        String fieldInfo = param.getAttribute("information");
-	        
+	        // Use help attribute if available
+            String fieldHelp = param.getAttribute("help");
+            String fieldInfo = param.getAttribute("information");
+            if (fieldHelp == null || fieldHelp == "") {
+                fieldHelp = param.getAttribute("information");
+            }
+            if (fieldHelp != null) {
+                fieldHelp = fieldHelp.replaceAll("\n", "");
+            }
+            
 	        // Construct a parameter
 	        Parameter sadlParam = null;
 	        if (fieldType.equals("boolean") || fieldType.equals("toggle")) {
@@ -143,11 +150,11 @@ public class ACDToSADL {
 	                fieldDefault = "N";
 	            }
 	            
-	            sadlParam = new Parameter(Name.createName(fieldName), typeMap.get(fieldType), fieldOptions,
-	                    null, null, fieldDefault, fieldInfo);
+	            sadlParam = new Parameter(Name.createName(fieldName, fieldInfo), typeMap.get(fieldType), fieldOptions,
+	                    null, null, fieldDefault, fieldHelp);
 	        } else if (type == ACDParameter.PARAM_GROUP_SIMPLE) {
-	            sadlParam = new Parameter(Name.createName(fieldName), typeMap.get(fieldType), null,
-	                                 fieldMin, fieldMax, fieldDefault, fieldInfo);
+	            sadlParam = new Parameter(Name.createName(fieldName, fieldInfo), typeMap.get(fieldType), null,
+	                                 fieldMin, fieldMax, fieldDefault, fieldHelp);
 	        } else if (type == ACDParameter.PARAM_GROUP_LIST) {
 	            HashMap<String, String> fieldOptions = param.getList();
                 LinkedList<String> fieldValueList = new LinkedList<String>(fieldOptions.values());
@@ -173,8 +180,8 @@ public class ACDToSADL {
                     i++;
                 }	            
 	            
-                sadlParam = new Parameter(Name.createName(fieldName), typeMap.get(fieldType), fieldValues,
-	                                 fieldMin, fieldMax, fieldDefault, fieldInfo);
+                sadlParam = new Parameter(Name.createName(fieldName, fieldInfo), typeMap.get(fieldType), fieldValues,
+	                                 fieldMin, fieldMax, fieldDefault, fieldHelp);
 	        }
 	        
 	        // Mark as optional if needed

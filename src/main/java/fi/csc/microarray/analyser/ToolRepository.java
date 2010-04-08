@@ -74,42 +74,9 @@ public class ToolRepository {
 		return descriptions.get(fullName); 
 	}
 	
-	/**
-	 * 
-	 * TODO: remove this and use getDescriptionMessage instead
-	 * 
-	 * Returns one huge SADL block that contains all loaded analysis 
-	 * descriptions.
-	 * @return huge block
-	 * @throws AnalysisException 
-	 */
-	public synchronized StringBuffer serialiseAsStringBuffer() throws AnalysisException {
-		StringBuffer buf = new StringBuffer();
-
-		// find descs that need to be updated (custom script available)
-		List<AnalysisDescription> descsToBeUpdated = new LinkedList<AnalysisDescription>();
-		for (AnalysisDescription description : visibleDescriptions.values()) {
-			if (!description.isUptodate()) {
-				descsToBeUpdated.add(description);
-			}
-		}
-		
-		// update (can't update in the previous loop, would cause concurrent modification)
-		for (AnalysisDescription description: descsToBeUpdated) {
-			updateDescription(description);
-		}
-		
-		// get the descriptions
-		for (AnalysisDescription description: visibleDescriptions.values()) {
-			buf.append(description.getSADL() + " ");
-		}
-		return buf;
-	}
-
 	public synchronized boolean supports(String fullName) {
 		return supportedDescriptions.containsKey(fullName);
 	}
-
 	
 	private void updateDescription(AnalysisDescription desc) throws AnalysisException {
 	    // FIXME params should not be empty
@@ -273,8 +240,9 @@ public class ToolRepository {
 		    
 		    // Category's visibility
 		    boolean categoryHidden = categoryElement.getAttribute("hidden").equals("true");
+		    boolean categoryDisabled = categoryElement.getAttribute("disabled").equals("true");
 		    
-		    if (!categoryHidden) {
+		    if (!categoryDisabled) {
 		          
 	            // Add to message
 		        Category category = new Category(categoryElement.getAttribute("name"),
@@ -289,7 +257,8 @@ public class ToolRepository {
                     
                     // Tool's visibility
                     boolean toolDisabled = toolElement.getAttribute("disabled").equals("true");
-                    boolean toolHidden = toolElement.getAttribute("hidden").equals("true");
+                    boolean toolHidden = toolElement.getAttribute("hidden").equals("true") ||
+                                         categoryHidden;
                     
                     // Runtime
                     String runtimeName = toolElement.getAttribute("runtime");
@@ -320,26 +289,26 @@ public class ToolRepository {
                         continue;
                     }
                     descriptions.put(description.getFullName(), description);
-                    
-                    // Add to message
-                    category.addTool(description.getName(), description.getSADL());
-                    
+                                      
                     successfullyLoadedCount++;
                     
                     // Supported and visible description lists
                     String disabledStatus = "";
+                    String hiddenStatus = "";
                     if (!runtime.isDisabled() && !toolDisabled) {
+                        // Add to supported descriptions list
                         supportedDescriptions.put(description.getFullName(), description);
+                        
+                        if (!toolHidden) {
+                            // Add to message
+                            category.addTool(description.getName(), description.getSADL());
+                        } else {
+                            hiddenStatus = " HIDDEN";
+                            hiddenCount++;
+                        }
                     } else {
                         disabledStatus = " DISABLED";
                         disabledCount++;
-                    }
-                    String hiddenStatus = "";
-                    if (!toolHidden) {
-                        visibleDescriptions.put(description.getFullName(), description);
-                    } else {
-                        hiddenStatus = " HIDDEN";
-                        hiddenCount++;
                     }
 
                     logger.info("loaded " + description.getFullName().replace("\"", "") + " " +
@@ -347,7 +316,9 @@ public class ToolRepository {
     		    }
     		    
                 // Add to message after the tools have been read
-                descriptionMessage.addCategory(category);
+    		    if (!categoryHidden) {
+    		        descriptionMessage.addCategory(category);
+    		    }
 		    }
 		}
 		

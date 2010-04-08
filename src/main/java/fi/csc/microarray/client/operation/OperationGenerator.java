@@ -16,9 +16,8 @@ import fi.csc.microarray.messaging.message.DescriptionMessage.Category;
 import fi.csc.microarray.messaging.message.DescriptionMessage.Tool;
 
 public class OperationGenerator {
-	/**
-	 * Logger for this class
-	 */
+    
+	// Logger for this class
 	private static final Logger logger = Logger.getLogger(OperationGenerator.class);
 	
 	public Map<String, OperationCategory> generateFromMessage(DescriptionMessage descriptionMsg) throws ParseException {
@@ -43,6 +42,7 @@ public class OperationGenerator {
             
             // Create operation definitions for tools in this category
             for (Tool tool : category.getTools()) {
+                
                 SADLDescription sadl = new SADLParser().parse(tool.getDescription());
                 OperationDefinition newDefinition = new OperationDefinition(sadl.getName().getID(), op,
                                                                             sadl.getComment(), true);
@@ -62,7 +62,7 @@ public class OperationGenerator {
                 for (Parameter parameter : sadl.parameters()) {
                     newDefinition.addParameter(fi.csc.microarray.client.
                                                operation.parameter.Parameter.createInstance(
-                        parameter.getName().getID(), parameter.getType(), parameter.getSelectionOptions(),
+                        parameter.getName(), parameter.getType(), parameter.getSelectionOptions(),
                         parameter.getComment(), parameter.getFrom(), parameter.getTo(),
                         parameter.getDefaultValue(), parameter.isOptional()));      
                 }

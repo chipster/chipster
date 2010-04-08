@@ -50,7 +50,7 @@ public abstract class Parameter implements Cloneable {
 	}
 	
 
-	public static Parameter createInstance(String name, ParameterType type, Name[] names,
+	public static Parameter createInstance(Name name, ParameterType type, Name[] names,
 	                                       String description, String minValue, String maxValue,
 	                                       String initValue, boolean optional) {
 		
@@ -64,10 +64,9 @@ public abstract class Parameter implements Cloneable {
 	        int minCount = (minValue != null ? Integer.parseInt(minValue) : 0);
 	        int maxCount = (maxValue != null ? Integer.parseInt(maxValue) : 1);
 	        
-            
 	        String[] titles = new String[names.length];
 	        String[] values = new String[names.length];
-	        int i = 0; 
+	        int i = 0;
 	        for (Name option : names) {
 	        	titles[i] = option.getDisplayName();
 	        	values[i] = option.getID();
@@ -93,24 +92,24 @@ public abstract class Parameter implements Cloneable {
                 }
             }
             
-			parameter = new EnumParameter(name, description, optionObjects,
+			parameter = new EnumParameter(name.getDisplayName(), description, optionObjects,
 			                              defaultOptions, minCount, maxCount);
 			break;
 			
 		case COLUMN_SEL:
-			parameter = new ColnameParameter(name, description, initValue);
+			parameter = new ColnameParameter(name.getDisplayName(), description, initValue);
 			break;
 
 		case METACOLUMN_SEL:
-			parameter = new MetaColnameParameter(name, description, initValue);
+			parameter = new MetaColnameParameter(name.getDisplayName(), description, initValue);
 			break;
 
 		case INPUT_SEL:
-			parameter = new InputSelectParameter(name, description, initValue);
+			parameter = new InputSelectParameter(name.getDisplayName(), description, initValue);
 			break;
 
 		case STRING:
-			parameter = new StringParameter(name, description, initValue);
+			parameter = new StringParameter(name.getDisplayName(), description, initValue);
 			break;
 			
 		case INTEGER:
@@ -130,19 +129,22 @@ public abstract class Parameter implements Cloneable {
 			switch (type) {
 			case INTEGER:
 
-				parameter = new IntegerParameter(name, description, Math.round(min),
+				parameter = new IntegerParameter(name.getDisplayName(), description,
+				                                 Math.round(min),
 				                                 Math.round(max), initInt);
 				break;
 				
 			case DECIMAL:
-				parameter = new DecimalParameter(name, description, min, max, init);
+				parameter = new DecimalParameter(name.getDisplayName(), description, min,
+				                                 max, init);
 				break;
 				
 			case PERCENT:
 				// put these to [0, 100]
 				min = (min < 0F ? 0F : min);
 				max = (max > 100F ? 100F : max);
-				parameter = new PercentageParameter(name, description, Math.round(min),
+				parameter = new PercentageParameter(name.getDisplayName(), description,
+				                                    Math.round(min),
                                                     Math.round(max), initInt);
 				break;
 			} 
@@ -177,6 +179,18 @@ public abstract class Parameter implements Cloneable {
 	public String getName() {
 		return name;
 	}
+ 
+    /**
+     * Return human-readable name for this parameter.
+     * It might be truncated if needed.
+     * @return
+     */
+    public String getName(Integer maxLength) {
+        if (name.length() > maxLength) {
+            return name.substring(0, maxLength - 3) + "...";
+        }
+        return name;
+    }
 	
 	/**
 	 * A method used to access a parameter's value. Each subclass must
@@ -258,18 +272,6 @@ public abstract class Parameter implements Cloneable {
 	public String getDescription() {
 	    return description;
 	}
-	
-    /**
-     * Return human-readable description for this parameter.
-     * It might be truncated if needed.
-     * @return
-     */
-    public String getDescription(Integer maxLength) {
-        if (description.length() > maxLength) {
-            return description.substring(0, maxLength - 3) + "...";
-        }
-        return description;
-    }
 	
 	public boolean isOptional() {
 	    return optional;

@@ -33,6 +33,7 @@ import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.Files;
 
+@SuppressWarnings("serial")
 public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListener {
 
 	/**
@@ -50,6 +51,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem createFromTextMenuItem = null;
 	private JMenuItem importFromArrayExpressMenuItem = null;
 	private JMenuItem importFromGEOMenuItem = null;
+	private JMenuItem importSequenceMenuItem = null;
 	private JMenuItem openWorkflowsMenuItem = null;
 	private JMenuItem addDirMenuItem = null;
 	private JMenuItem exportMenuItem = null;
@@ -161,12 +163,12 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			importMenu.setText("Import from");
 			
 			if (application.getRequestedModule().equals(ClientApplication.MODULE_MICROARRAY)) {
+	            // Import options for microarray analysis
 			    importMenu.add(getImportFromArrayExpressMenuItem());
 			    importMenu.add(getImportFromGEOMenuItem());
 			} else if (application.getRequestedModule().equals(ClientApplication.MODULE_SEQUENCE)) {
-			    // TODO: different import options for sequence analysis
-	            importMenu.add(getImportFromArrayExpressMenuItem());
-	            importMenu.add(getImportFromGEOMenuItem());
+			    // Import options for sequence analysis
+	            importMenu.add(getImportSequenceMenuItem());
 			}
 			
 			importMenu.addSeparator();
@@ -257,6 +259,23 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		}
 		return importFromGEOMenuItem;
 	}
+	
+    private JMenuItem getImportSequenceMenuItem() {
+        if (importSequenceMenuItem == null) {
+            importSequenceMenuItem = new JMenuItem();
+            importSequenceMenuItem.setText("Database...");
+            importSequenceMenuItem.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    try {
+                        application.openSequenceImportDialog();
+                    } catch (Exception me) {
+                        application.reportException(me);
+                    }
+                }
+            });
+        }
+        return importSequenceMenuItem;
+    }
 
 	private JMenuItem getCreateFromText() {
 	    if (createFromTextMenuItem == null) {

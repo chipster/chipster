@@ -120,6 +120,7 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         // Database
         dbNameCombo = new JComboBox(Databases.values());
         dbNameCombo.setPreferredSize(new Dimension(150, 20));
+        dbNameCombo.setBackground(Color.WHITE);
         c.insets.set(10,10,5,10);
         c.gridy++;
         this.add(new JLabel("Database"), c);
