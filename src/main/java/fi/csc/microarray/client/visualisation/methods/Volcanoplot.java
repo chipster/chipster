@@ -168,7 +168,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 	 */
 	private class YValueIterator implements Iterator<Float> {
 
-		private static final float DEFAULT_ROUNDING_LIMIT = 0.0001f;
+		private static final float DEFAULT_ROUNDING_LIMIT = 0.001f;
 		// "/column/" part of the query comes from the getExpression function
 		Iterator<Float> original;
 
@@ -194,7 +194,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 			System.out.println("Min: " + min + ", Limit: " + ROUNDING_LIMIT);
 
 			// Sanity check
-			if (ROUNDING_LIMIT <= 0 || ROUNDING_LIMIT > 1) {
+			if (ROUNDING_LIMIT <= 0 || ROUNDING_LIMIT > DEFAULT_ROUNDING_LIMIT) {
 				ROUNDING_LIMIT = DEFAULT_ROUNDING_LIMIT;
 			}
 

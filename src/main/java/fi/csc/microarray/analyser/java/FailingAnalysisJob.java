@@ -1,12 +1,15 @@
 package fi.csc.microarray.analyser.java;
 
-import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.analyser.JobCancelledException;
+import fi.csc.microarray.messaging.JobState;
 
 public class FailingAnalysisJob extends JavaAnalysisJobBase {
 
 	@Override
-	protected void execute() throws MicroarrayException {
-		throw new MicroarrayException("Job failed.");
+	protected void execute() throws JobCancelledException {
+		outputMessage.setErrorMessage("This job always fails.");
+		outputMessage.setOutputText("There's no way around this.");
+		updateState(JobState.FAILED, "");
 	}
 
 
