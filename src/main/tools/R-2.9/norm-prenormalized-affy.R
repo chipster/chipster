@@ -33,10 +33,11 @@ dat<-read.maimages(files=files, columns=columns, annotation=annotation, other.co
 
 # Mock normalization
 dat2<-normalizeBetweenArrays(dat$R, method="none")
+sample<-colnames(dat2)
 colnames(dat2)<-paste("chip.", colnames(dat2), sep="")
 
 # Writes out a phenodata table
-sample<-paste(colnames(dat2), ".tsv", sep="")
+# sample<-paste(sample, ".tsv", sep="")
 group<-c(rep("", length(sample)))
 training<-c(rep("", length(sample)))
 time<-c(rep("", length(sample)))
