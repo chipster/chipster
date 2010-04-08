@@ -236,6 +236,11 @@ public class VisualisationUtilities {
 				filteredVars.set(filteredVars.indexOf(var), 
 						new Variable(chipName, var.getExpression()));
 			}
+			
+			if(var.getName().equals(" ")){		
+				filteredVars.set(filteredVars.indexOf(var), 
+						new Variable("identifier", var.getExpression()));
+			}
 		}
 		return filteredVars.toArray(new Variable[0]);
 	}
