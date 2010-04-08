@@ -34,7 +34,8 @@ if (keep.annotations=="yes") {
 dat2<-normalizeBetweenArrays(dat$R, method="none")
 
 # Writes out a phenodata table
-sample<-paste(colnames(dat2), ".tsv", sep="")
+# sample<-paste(colnames(dat2), ".tsv", sep="")
+sample<-colnames(dat2)
 group<-c(rep("", length(sample)))
 training<-c(rep("", length(sample)))
 time<-c(rep("", length(sample)))
