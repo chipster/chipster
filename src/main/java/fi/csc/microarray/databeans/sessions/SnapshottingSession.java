@@ -1,5 +1,6 @@
 package fi.csc.microarray.databeans.sessions;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -71,15 +72,27 @@ public class SnapshottingSession {
 	
 	private ZipOutputStream cpZipOutputStream = null;
 
-	public void saveSnapshot(File snapshot) throws IOException {
-																					
-		FileOutputStream fos = new FileOutputStream(snapshot);			
-		cpZipOutputStream = new ZipOutputStream(fos);
-		boolean createdSuccesfully = false;
-		
-		try {
+	
+	public void saveSnapshot(File sessionFile) throws IOException {
 
-			cpZipOutputStream.setLevel(1); // quite slow with bigger values														
+		boolean replaceOldSession = sessionFile.exists();
+
+		File newSessionFile;
+		File backupFile = null;
+		if (replaceOldSession) {
+			// TODO maybe avoid overwriting existing temp file
+			newSessionFile = new File(sessionFile.getAbsolutePath() + "-temp.cs");
+			backupFile = new File(sessionFile.getAbsolutePath() + "-backup.cs");
+		} else {
+			newSessionFile = sessionFile;
+		}
+
+		ZipOutputStream zipOutputStream = null;
+		boolean createdSuccessfully = false;
+		try {
+			
+			zipOutputStream = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(newSessionFile)));
+			zipOutputStream.setLevel(1); // quite slow with bigger values														
 
 			// write data and gather metadata simultanously
 			StringBuffer metadata = new StringBuffer("");
@@ -99,7 +112,38 @@ public class SnapshottingSession {
 
 			cpZipOutputStream.finish();
 			cpZipOutputStream.close();
-			createdSuccesfully = true;
+			
+			// rename new session if replacing existing
+			if (replaceOldSession) {
+				
+				// original to backup
+				if (!sessionFile.renameTo(backupFile)) {
+					throw new IOException("Creating backup " + sessionFile + " -> " + backupFile + " failed.");
+				}
+					
+				// new to original
+				if (newSessionFile.renameTo(sessionFile)) {
+					createdSuccessfully = true;
+
+					// remove backup
+					backupFile.delete();
+				} else {
+					// try to move backup back to original
+					// TODO remove new session file?
+					if (backupFile.renameTo(sessionFile)) {
+						throw new IOException("Moving new " + newSessionFile + " -> " + sessionFile + " failed, " +
+								"restored original session file.");
+					} else {
+						throw new IOException("Moving new " + newSessionFile + " -> " + sessionFile + " failed, " +
+						"also restoring original file failed, backup of original is " + backupFile);
+					}
+				}
+			} 
+			
+			// no existing session
+			else {
+				createdSuccessfully = true;
+			}
 			
 		} catch (RuntimeException e) {
 			// createdSuccesfully is false, so file will be deleted in finally block
@@ -110,9 +154,9 @@ public class SnapshottingSession {
 			throw e;
 
 		} finally {
-			IOUtils.closeIfPossible(cpZipOutputStream); // called twice for normal execution, not a problem
-			if (!createdSuccesfully) {
-				snapshot.delete(); // do not leave bad session files hanging around
+			IOUtils.closeIfPossible(zipOutputStream); // called twice for normal execution, not a problem
+			if (!replaceOldSession && !createdSuccessfully) {
+				newSessionFile.delete(); // do not leave bad session files hanging around
 			}
 		}
 	}
@@ -165,8 +209,8 @@ public class SnapshottingSession {
 				DataBean bean = (DataBean)data;
 				saveDataBeanMetadata(bean, folderId, metadata);
 
-				writeFile(cpZipOutputStream, bean.getContentFile().getName(),  
-						new FileInputStream(bean.getContentFile()));
+				writeFile(cpZipOutputStream, bean.getContentUrl().toString(),  
+						bean.getContentByteStream());
 
 			}
 		}
@@ -180,7 +224,7 @@ public class SnapshottingSession {
 	
 	private void saveDataBeanMetadata(DataBean bean, String folderId, StringBuffer metadata) {
 		String beanId = fetchId(bean);
-		metadata.append("DATABEAN " + beanId + " " + bean.getContentFile().getName() + "\n");
+		metadata.append("DATABEAN " + beanId + " " + bean.getContentUrl() + "\n");
 		
 		if (bean.getOperation() != null) {
 			Operation operation = bean.getOperation();

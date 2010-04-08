@@ -281,7 +281,7 @@ public class DataBean extends DataItemBase {
 	 * 
 	 * @see #queryFeatures(String)
 	 */
-	public InputStream getContentByteStream() throws MicroarrayException, IOException {
+	public InputStream getContentByteStream() throws IOException {
 		if (streamStartCache != null) {
 			return streamStartCache.getInputStream();
 		} else {
@@ -615,7 +615,7 @@ public class DataBean extends DataItemBase {
 	}
 
 	
-	public InputStream getRawContentByteStream() throws MicroarrayException {
+	public InputStream getRawContentByteStream() throws IOException {
 		InputStream is;
 		try {
 			if (this.contentUrl != null) {
@@ -624,7 +624,7 @@ public class DataBean extends DataItemBase {
 				is = new FileInputStream(contentFile);
 			}
 		} catch (IOException e) {
-			throw new MicroarrayException(e);
+			throw e;
 		}
 		return is;
 	}
@@ -709,10 +709,6 @@ public class DataBean extends DataItemBase {
 		} else {
 			return contentFile.length();
 		}
-	}
-
-	public File getContentFile() {
-		return contentFile;
 	}
 
 
