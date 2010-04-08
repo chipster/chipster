@@ -56,11 +56,11 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
     private JComboBox dbNameCombo;
     
     private enum Databases {
-        PDB("PDB", "pdb"),
+        PDB("PDB", "pdb_seq"),
         EMBL("EMBL", "embl"),
-        EMBL_NEW("EMBL New", "embl"),
-        UNIPROT_SWISS("UniProt / Swiss", "swiss"),
-        UNIPROT_TREMBL("UniProt / TrEMBL", "uniprot");
+        EMBL_NEW("EMBL New", "emblnew"),
+        UNIPROT_SWISS("UniProt / SwissProt", "swiss"),
+        UNIPROT_TREMBL("UniProt / TrEMBL", "trembl");
         
         private String name;
         private String value;
@@ -83,39 +83,15 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         super(client.getMainFrame(), true);
 
         this.client = client;
-        this.setTitle("Create dataset from text");
+        this.setTitle("Import sequence");
         this.setModal(true);
         
         // Layout
         GridBagConstraints c = new GridBagConstraints();
-        this.setLayout(new GridBagLayout());
-        
-        // Name label
-        nameLabel = new JLabel("Filename");
         c.anchor = GridBagConstraints.WEST;
-        c.insets.set(10, 10, 5, 10);
         c.gridx = 0; 
         c.gridy = 0;
-        this.add(nameLabel, c);
-        
-        // Name field
-        nameField = new JTextField();
-        nameField.setPreferredSize(new Dimension(150, 20));
-        nameField.setText("data.txt");
-        c.insets.set(0,10,10,10);       
-        c.gridy++;
-        this.add(nameField, c);
-        
-        // Folder to store the file
-        folderNameCombo = new JComboBox(ImportUtils.getFolderNames(true).toArray());
-        folderNameCombo.setPreferredSize(new Dimension(150, 20));
-        folderNameCombo.setEditable(true);
-        c.insets.set(10,10,5,10);
-        c.gridy++;
-        this.add(new JLabel("Create in folder"), c);
-        c.insets.set(0,10,10,10);
-        c.gridy++;
-        this.add(folderNameCombo,c);
+        this.setLayout(new GridBagLayout());
         
         // Database
         dbNameCombo = new JComboBox(Databases.values());
@@ -150,6 +126,32 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         c.insets.set(0,10,10,10);  
         c.gridy++;
         this.add(areaScrollPane, c);
+        
+        // Name label
+        nameLabel = new JLabel("Filename");
+        c.anchor = GridBagConstraints.WEST;
+        c.insets.set(10, 10, 5, 10);
+        c.gridy++;
+        this.add(nameLabel, c);
+        
+        // Name field
+        nameField = new JTextField();
+        nameField.setPreferredSize(new Dimension(150, 20));
+        nameField.setText("data.txt");
+        c.insets.set(0,10,10,10);       
+        c.gridy++;
+        this.add(nameField, c);
+        
+        // Folder to store the file
+        folderNameCombo = new JComboBox(ImportUtils.getFolderNames(true).toArray());
+        folderNameCombo.setPreferredSize(new Dimension(150, 20));
+        folderNameCombo.setEditable(true);
+        c.insets.set(10,10,5,10);
+        c.gridy++;
+        this.add(new JLabel("Create in folder"), c);
+        c.insets.set(0,10,10,10);
+        c.gridy++;
+        this.add(folderNameCombo,c);
         
         // OK button
         okButton = new JButton("OK");

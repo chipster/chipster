@@ -142,12 +142,14 @@ public class ACDToSADL {
 	        Parameter sadlParam = null;
 	        if (fieldType.equals("boolean") || fieldType.equals("toggle")) {
 	            // Boolean types need some special handling	            
-	            Name[] fieldOptions = {Name.createName("Y", "Yes"), Name.createName("N", "No")};
+	            Name[] fieldOptions = {Name.createName(ACDParameter.UNDEFINED, " "),
+	                                   Name.createName("Y", "Yes"),
+	                                   Name.createName("N", "No")};
 	            
 	            // We need to have some default value for boolean, since there are
 	            // only 2 options (or consider adding a third option - "not selected")
 	            if (fieldDefault == null) {
-	                fieldDefault = "N";
+	                fieldDefault = ACDParameter.UNDEFINED;
 	            }
 	            
 	            sadlParam = new Parameter(Name.createName(fieldName, fieldInfo), typeMap.get(fieldType), fieldOptions,

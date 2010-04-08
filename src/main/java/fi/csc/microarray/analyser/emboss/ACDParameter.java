@@ -29,6 +29,9 @@ public class ACDParameter {
     static final Integer PARAM_GROUP_OUTPUT = 3;
     static final Integer PARAM_GROUP_GRAPHICS = 4;
     
+    // Constants
+    public static final String UNDEFINED = "<undefined>";
+    
     private String type;
     private String name;
     private String section;
@@ -492,6 +495,8 @@ public class ACDParameter {
             } else if (value.equals("no") || value.equals("true") || value.equals("0") ||
                        value.equals("n")) {
                 return "N";
+            } else if (value.equals(UNDEFINED)) {
+                return "";
             }
         } else if (type.equals("selection") || type.equals("list")) {
             String defaultDelim = ",";
@@ -540,7 +545,7 @@ public class ACDParameter {
     
     class BooleanValidator extends ACDValidator {       
         public boolean accepts(String value) {
-            if (value == "Y" || value == "N") {
+            if (value.equals("Y") || value.equals("N") || value.equals("")) {
                 return true;
             }
             return false;

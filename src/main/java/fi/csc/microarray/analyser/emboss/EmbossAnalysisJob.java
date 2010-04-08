@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -15,6 +16,7 @@ import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.ResultMessage;
+import fi.csc.microarray.util.Strings;
 
 /**
  * Runs EMBOSS applications.
@@ -120,6 +122,7 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
             String outputString = stringBuilder.toString();
             
             logger.info("Running Emboss application " + cmd[0]);
+            logger.info("Parameters: " + Strings.delimit(Arrays.asList(cmd), " "));
             logger.info("Emboss application has finished with exit code " + p.exitValue() + 
                         " and this message: " + "\"" + outputString + "\".");
             
@@ -176,7 +179,7 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         
         // Parameters
         for (EmbossQualifier qualifier : qualifiers) {
-            if (qualifier.getValue() != "") {
+            if (!qualifier.getValue().equals("")) {
                 params.add("-" + qualifier.getName());
                 params.add(qualifier.getValue());
             }
@@ -251,7 +254,7 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         }
         
         public String getValue() {
-            return value;
+            return acdParameter.normalize(value);
         }
         
         public ValidityCheck validate() {
