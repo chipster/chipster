@@ -32,7 +32,7 @@ public class HelpMapping {
 		mappings.put("Normalisation/Affymetrix", "chipster-manual/norm-affy.html");
 		mappings.put("Normalisation/Affymetrix SNP arrays", "chipster-manual/norm-affy-snp.html");
 		mappings.put("Normalisation/Affymetrix gene arrays", "chipster-manual/norm-affy-gene.html");
-		mappings.put("Normalisation/Agilent miRNA", "chipster-manual/norm-agilent-miRNA.html");		
+		mappings.put("Normalisation/Agilent miRNA", "chipster-manual/norm-agilent-mirna.html");		
 		mappings.put("Normalisation/Illumina SNP arrays", "chipster-manual/norm-illumina-snp.html");
 		mappings.put("Normalisation/Process prenormalized", "chipster-manual/norm-process-prenormalized.html");
 		mappings.put("Normalisation/Process prenormalized affy", "chipster-manual/norm-prenormalized-affy.html");
