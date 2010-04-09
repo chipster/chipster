@@ -10,7 +10,7 @@
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
-
+# INPUT GENERIC genelist[...].tsv OUTPUT intersect-lists-operation.tsv, intersect-lists-summary.tsv, venn-diagram-plot.png
 #common.column <- "symbol"
 #operation <- "intersect"
 #image.width <- 5
@@ -68,7 +68,8 @@ if (number_files==2) {
 	unique_2 <- setdiff (list_2, intersect_1_2)
 	
 	# set up plotting area
-	png(filename="venn-diagram-plot.png", width=w, height=h, res=72, units="px")
+	bitmap(file="venn-diagram-plot.png", width=w/72, height=h/72)
+#	bmp(file="venn-diagram-plot.png", width=w, height=h, res=72, units="px")
 #	png(file="venn-diagram-plot.png")
 	plot(-1:1, -1:1, type="n", axes = FALSE, xlab = "", ylab = "")
 	
@@ -152,7 +153,8 @@ if (number_files==3) {
 	unique_3 <- setdiff (list_3, union(union(intersect_1_3, intersect_2_3), intersect_1_2_3))
 	
 	# set up plotting area
-	png(filename="venn-diagram-plot.png", width=w, height=h, res=72, units="px")
+bitmap(file="venn-diagram-plot.png", width=w/72, height=h/72)
+#	bmp(file="venn-diagram-plot.png", width=w, height=h, res=72, units="px")
 #	bmp(file="venn-diagram-plot.png")
 	plot(-1:1, -1.3:1, type="n", axes = FALSE, xlab = "", ylab = "")
 	

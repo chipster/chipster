@@ -1,7 +1,7 @@
 # ANALYSIS Statistics/"Up-down analysis of miRNA targets" (Given a dataset of miRNA expression and a dataset of gene expression for a two-group comparison experiment,
-# this tool identifies the genes whose expression is upregulted in response to an upregultaed miRNA, or vice-versa. It is recommended that the two data sets have been
+# this tool identifies the genes whose expression is upregulated in response to an downregulated miRNA, or vice-versa. It is recommended that the two data sets have been
 # filtered to exclude low quality and/or invariable data and subjected to statistical testing for significant differences in expression between the two experiment groups.
-# NOTE: you need to assign a higher number to the samples belonging to the treatment grop in the column describing the experiment group for the calculations to be correct.)
+# NOTE you need to assign a higher number to the samples belonging to the treatment grop in the column describing the experiment group for the calculations to be correct.)
 # INPUT GENE_EXPRS normalized_mirna.tsv, GENE_EXPRS normalized_gene.tsv, GENERIC phenodata_mirna.tsv, GENERIC phenodata_gene.tsv
 # OUTPUT mirna-up-gene-down.tsv, mirna-down-gene-up.tsv
 # PARAMETER average.method [mean, median] DEFAULT median (The method to calculate the average of samples in each experiment group.)
