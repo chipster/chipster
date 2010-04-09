@@ -21,7 +21,7 @@ file<-c("normalized.tsv")
 dat<-read.table(file, header=T, sep="\t", row.names=1)
 
 # Sanity checks
-if(expression.column=="empty") {
+if(fold.change.column=="empty") {
    stop("CHIPSTER-NOTE: You haven't selected a column for fold change! Tool cannot be executed.")
 }
 if(p.value.column=="empty") {
