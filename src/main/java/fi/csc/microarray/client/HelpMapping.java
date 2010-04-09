@@ -35,6 +35,7 @@ public class HelpMapping {
 		mappings.put("Normalisation/Agilent miRNA", "chipster-manual/norm-agilent-miRNA.html");		
 		mappings.put("Normalisation/Illumina SNP arrays", "chipster-manual/norm-illumina-snp.html");
 		mappings.put("Normalisation/Process prenormalized", "chipster-manual/norm-process-prenormalized.html");
+		mappings.put("Normalisation/Process prenormalized affy", "chipster-manual/norm-prenormalized-affy.html");
 		mappings.put("Normalisation/Agilent 1-color", "chipster-manual/norm-agilent-1color.html");
 		mappings.put("Normalisation/Agilent 2-color", "chipster-manual/norm-agilent.html");
 		mappings.put("Normalisation/cDNA", "chipster-manual/norm-cdna.html");
@@ -104,6 +105,7 @@ public class HelpMapping {
 		mappings.put("Promoter Analysis/Cosmo", "chipster-manual/promoter-tfbs-cosmo.html");
 		
 		mappings.put("Annotation/Agilent, Affymetrix or Illumina genelist", "chipster-manual/annotate-genelist2html.html");
+		mappings.put("Annotation/Find miRNA targets", "chipster-manual/annotate-miRNA-targets.html");
 		mappings.put("Annotation/Add annotations to data", 	"chipster-manual/annotate-add-to-data.html");
 		mappings.put("Annotation/Agilent miRNA", "chipster-manual/annotate-miRNA.html");
 		
@@ -129,6 +131,8 @@ public class HelpMapping {
 		mappings.put("Utilities/Change interpretation",	"chipster-manual/change-interpretation.html");
 		mappings.put("Utilities/Sort genes", "chipster-manual/sort-genes.html");
 		mappings.put("Utilities/Random sampling", "chipster-manual/random-sampling.html"); 
+		mappings.put("Utilities/Intersect lists", "chipster-manual/intersect-lists.html"); 
+
 		
 		mappings.put("Miscellaneous/Multiple sequence alignment", "chipster-manual/seqanal-msa.html");
 		mappings.put("Miscellaneous/Phylogenetics", "chipster-manual/seqanal-phylogenetics.html");
