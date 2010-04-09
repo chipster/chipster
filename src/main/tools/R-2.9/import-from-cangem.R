@@ -204,7 +204,7 @@ rownames(dat2) <- dat2$probe
 
 if (genome.build != 'none') {
 	# load platform
-	platform <- read.table(paste('http://www.cangem.org/download.php?platform=', cangem.samples$PlatformAccession[1], '&flag', genome.build, auth, sep=''), sep='\t', header=TRUE, as.is=TRUE)
+	platform <- read.table(paste('http://www.cangem.org/download.php?platform=', cangem.samples$PlatformAccession[1], '&flag=', genome.build, auth, sep=''), sep='\t', header=TRUE, as.is=TRUE)
 	colnames(platform) <- tolower(colnames(platform))
 	colnames(platform)[colnames(platform)=='chr'] <- 'chromosome'
 	rownames(platform) <- platform[,1]

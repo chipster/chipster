@@ -312,12 +312,24 @@
       <bioconductor-package>hgu133plus2probe</bioconductor-package>
     </item>
 
+    <item installed="false" name="hgu133plus2cdf" type="r-package"> 
+      <bioconductor-package>hgu133plus2cdf</bioconductor-package>
+    </item>
+
+    <item installed="false" name="WECCA" type="r-package"> 
+      <bioconductor-package>WECCA</bioconductor-package>
+    </item>
+
     <item installed="false" name="intCNGEan" type="r-package"> 
       <bioconductor-package>intCNGEan</bioconductor-package>
     </item>
 
     <item installed="false" name="NoWaves" type="r-package"> 
       <bioconductor-package>NoWaves</bioconductor-package>
+    </item>
+
+    <item installed="false" name="moments" type="r-package"> 
+      <bioconductor-package>moments</bioconductor-package>
     </item>
 
   </bundle>

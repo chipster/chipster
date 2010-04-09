@@ -22,7 +22,7 @@ dat$end <- NULL
 dat$cytoband <- NULL
 
 # load platform
-platform <- read.table(paste('http://www.cangem.org/download.php?platform=', platform.accession, '&flag', genome.build, sep=''), sep='\t', header=TRUE, as.is=TRUE)
+platform <- read.table(paste('http://www.cangem.org/download.php?platform=', platform.accession, '&flag=', genome.build, sep=''), sep='\t', header=TRUE, as.is=TRUE)
 colnames(platform) <- tolower(colnames(platform))
 colnames(platform)[colnames(platform)=='chr'] <- 'chromosome'
 rownames(platform) <- platform[,1]
