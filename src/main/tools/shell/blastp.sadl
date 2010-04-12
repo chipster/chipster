@@ -1,0 +1,17 @@
+TOOL "BLAST" / blastp: blastp (Heuristic tool for protein sequence search.)
+INPUT query: "Query sequence" TYPE GENERIC
+OUTPUT out: "Result file"
+PARAMETER db: "Database" TYPE [nr: "NCBI non-redundant proteins", pdb: "PDB", swiss: "UniProt / Swiss", trembl: "UniProt / TrEMBL",
+	uniprot: "UniProt", uniref100: "UniRef100", uniref90: "UniRef90", uniref50: "UniRef50"] DEFAULT nr (Choose a database)
+PARAMETER OPTIONAL task: "Task to execute" TYPE [blastp: "BLASTP", blastp-short: "BLASTP short"] (Task to execute)
+PARAMETER OPTIONAL evalue: "Expectation value (E) threshold for saving hits" TYPE DECIMAL (Expectation value)
+PARAMETER OPTIONAL matrix: "Matrix" TYPE [BLOSUM45: "BLOSUM45", BLOSUM50: "BLOSUM50", BLOSUM62: "BLOSUM62",
+	BLOSUM80: "BLOSUM80", BLOSUM90: "BLOSUM90"] DEFAULT BLOSUM62 (Weight matrix)
+PARAMETER OPTIONAL gapopen: "Cost to open a gap" TYPE INTEGER FROM 0 TO 20 (Cost to open a gap)
+PARAMETER OPTIONAL gapextend: "Gap extension penalty" TYPE INTEGER FROM 0 TO 20 DEFAULT 0.5 (Gap extension penalty)
+PARAMETER OPTIONAL word_size: "Word size for wordfinder algorithm" TYPE INTEGER FROM 2 TO 10 DEFAULT 3 (Word size for wordfinder algorithm)
+PARAMETER OPTIONAL seg: "Filter query sequence with SEG" TYPE [Y: Yes, N: No] DEFAULT Y (Use filtering)
+PARAMETER OPTIONAL outfmt: "Output format type" TYPE [0: "0", 1: "1", 2: "2", 3: "3", 4: "4",
+	5: "5", 6: "6", 7: "7", 8: "8", 9: "9", 10: "10"] (Output format type)
+PARAMETER OPTIONAL num_descriptions: "Number of descriptions" TYPE INTEGER DEFAULT 500 (Number of database sequences to show one-line descriptions for)
+PARAMETER OPTIONAL num_alignments: "Number of alignments" TYPE INTEGER DEFAULT 250 (Number of database sequences to show alignments for)

@@ -28,7 +28,6 @@ public class ShellAnalysisHandler implements AnalysisHandler {
     
     private String DIRECTORY_NAME = "shell";
 
-    private AnalysisDescription ad = null;
     private String descriptionDirectory;
     
     private static final Logger logger = Logger.getLogger(ShellAnalysisHandler.class);
@@ -46,7 +45,7 @@ public class ShellAnalysisHandler implements AnalysisHandler {
     public AnalysisJob createAnalysisJob(JobMessage jobMessage,
             AnalysisDescription description, ResultCallback resultCallback)
             throws AnalysisException {
-        ShellAnalysisJob analysisJob = new ShellAnalysisJob(ad);
+        ShellAnalysisJob analysisJob = new ShellAnalysisJob(description);
         analysisJob.construct(jobMessage, description, resultCallback);
         return analysisJob;
     }
@@ -56,6 +55,7 @@ public class ShellAnalysisHandler implements AnalysisHandler {
             throws AnalysisException {
         
         // Generate analysis description
+        AnalysisDescription ad = null;
         try {
             File sadlFile = new File(descriptionDirectory, descriptionFilename);
             String sadlString;

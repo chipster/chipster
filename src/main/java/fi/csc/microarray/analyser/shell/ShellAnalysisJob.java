@@ -17,6 +17,7 @@ import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.ResultMessage;
 import fi.csc.microarray.util.Files;
+import fi.csc.microarray.util.Strings;
 
 /**
  * Job that is run as a generic shell command.
@@ -45,6 +46,7 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
         
         // Path to executable file
         this.executablePath = ad.getCommand();
+        System.out.println(this.executablePath);
     }
 
     @Override
@@ -86,6 +88,7 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
         cmd = command.toArray(cmd);
         try {
             logger.info("Running Shell application " + cmd[0]);
+            logger.info("Parameters: " + Strings.delimit(command, " "));
             
             Process p = Runtime.getRuntime().exec(cmd, null, jobWorkDir);
             p.waitFor();

@@ -12,7 +12,6 @@ import fi.csc.microarray.analyser.AnalysisException;
 import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
 import fi.csc.microarray.analyser.ResultCallback;
-import fi.csc.microarray.analyser.bsh.BeanShellHandler;
 import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.messaging.message.JobMessage;
 
