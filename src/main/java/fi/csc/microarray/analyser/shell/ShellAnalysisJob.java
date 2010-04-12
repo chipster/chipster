@@ -8,6 +8,7 @@ import fi.csc.microarray.analyser.AnalysisDescription;
 import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
 import fi.csc.microarray.analyser.ResultCallback;
+import fi.csc.microarray.analyser.AnalysisDescription.OutputDescription;
 import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
 import fi.csc.microarray.analyser.emboss.EmbossAnalysisJob;
 import fi.csc.microarray.description.SADLDescription;
@@ -79,9 +80,9 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
         }
         
         // Outputs
-        for (String output : description.getOutputFiles()) {
-            command.add("-" + output);
-            command.add(output);
+        for (OutputDescription output : description.getOutputFiles()) {
+            command.add("-" + output.getParamName());
+            command.add(output.getFileName());
         }
         
         String[] cmd = new String[0];

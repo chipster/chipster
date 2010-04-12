@@ -50,6 +50,27 @@ public class AnalysisDescription {
 	}
 	
 	/**
+	 * Describes an output (parameter name and file name). 
+	 */
+	public static class OutputDescription {
+	    private String paramName;
+        private String fileName;
+
+	    public String getParamName() {
+            return paramName;
+        }
+
+        public String getFileName() {
+            return fileName;
+        }
+	    
+	    public OutputDescription(String paramName, String fileName) {
+	        this.paramName = paramName;
+	        this.fileName = fileName;
+	    }
+	}
+	
+	/**
 	 * Actual executable that handles the analysis.
 	 */
 	private String command;
@@ -71,7 +92,7 @@ public class AnalysisDescription {
 
 	
 	
-	private List<String> outputFiles = new LinkedList<String>();
+	private List<OutputDescription> outputFiles = new LinkedList<OutputDescription>();
 	private List<ParameterDescription> parameters = new LinkedList<ParameterDescription>();
 	private String sourceCode;
 	private String category;
@@ -122,7 +143,7 @@ public class AnalysisDescription {
 		return implementation;
 	}
 	
-	public List<String> getOutputFiles() {
+	public List<OutputDescription> getOutputFiles() {
 		return outputFiles;
 	}
 	
@@ -170,8 +191,13 @@ public class AnalysisDescription {
 		this.name = name;
 	}
 
-	public void addOutputFile(String file) {
-		outputFiles.add(file);
+	/*
+	 * FIXME: paramName currently only used in ShellAnalysisJob only
+	 * AnalysisDescriptionGenerator currently passes "human readable name"
+	 * as fileName which is sort of a HACK.
+	 */
+	public void addOutputFile(String paramName, String fileName) {
+		outputFiles.add(new OutputDescription(paramName, fileName));
 	}
 
 	public void setSourceCode(String sourceCode) {
