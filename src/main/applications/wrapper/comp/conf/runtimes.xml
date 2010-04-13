@@ -67,4 +67,12 @@
 			</parameter>
 		</handler>
 	</runtime>
+	
+	<runtime>
+        <name>java</name>
+        <handler>
+            <class>fi.csc.microarray.analyser.java.JavaAnalysisHandler</class> 
+        </handler>
+    </runtime>
+	
 </runtimes>
