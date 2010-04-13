@@ -22,6 +22,15 @@ public class LocalFileDataBeanHandler implements DataBeanHandler {
 		return getFile(dataBean).length();
 	}
 
+	public void delete(DataBean dataBean) {
+		checkURL(dataBean);
+		File file = getFile(dataBean);
+		
+		// FIXME only delete from chipster temp
+		//file.delete();
+	}
+
+	
 	
 	private void checkURL(DataBean dataBean) throws IllegalArgumentException {
 		URL url = dataBean.getContentUrl();
@@ -56,5 +65,6 @@ public class LocalFileDataBeanHandler implements DataBeanHandler {
 		System.out.println(url.getUserInfo());
 		System.out.println(url.getRef());
 	}
+
 
 }

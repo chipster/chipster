@@ -10,4 +10,6 @@ public interface DataBeanHandler {
 	public InputStream getInputStream(DataBean dataBean) throws IOException;
 	
 	public long getContentLength(DataBean dataBean) throws IOException;
+	
+	public void delete(DataBean dataBean);
 }

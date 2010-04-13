@@ -333,7 +333,7 @@ public class TaskExecutor {
 				logger.debug("output " + name);
 				URL payloadUrl = resultMessage.getPayload(name);
 				InputStream payload = fileBroker.getFile(payloadUrl); 
-				DataBean bean = manager.createDataBean(name, payload);
+				DataBean bean = manager.createLocalFileDataBean(name, payload);
 				bean.setCacheUrl(payloadUrl);
 				bean.setContentChanged(false);
 				pendingTask.addOutput(name, bean);

@@ -687,8 +687,7 @@ public class DataBean extends DataItemBase {
 	public void delete() {
 		lockContent();
 		try {
-			this.contentFile.delete();
-			this.contentFile = null;
+			this.handler.delete(this);
 			this.contentType = null;			
 		} finally {
 			unlockContent();
@@ -722,7 +721,7 @@ public class DataBean extends DataItemBase {
 	}
 
 	/**
-	 * Should only be used when saving the bean inside a session.
+	 * Should only be used during saving or loading.
 	 * 
 	 * @param handler
 	 */
@@ -730,6 +729,14 @@ public class DataBean extends DataItemBase {
 		this.handler = handler;
 	}
 
+	/**
+	 * Should only be used during saving or loading.
+	 * 
+	 * @param handler
+	 */
+	public DataBeanHandler getHandler() {
+		return this.handler;
+	}
 
 
 

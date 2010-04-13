@@ -57,5 +57,8 @@ public class ZipDataBeanHandler implements DataBeanHandler {
 		return new File(dataBean.getContentUrl().getPath());
 	}
 
+	public void delete(DataBean dataBean) {
+		// do nothing for now
+	}
 	
 }

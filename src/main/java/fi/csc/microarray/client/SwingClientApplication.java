@@ -663,7 +663,7 @@ public class SwingClientApplication extends ClientApplication {
 							URL url = (URL) dataSource;
 							try {
 								input = url.openStream();
-								manager.createDataBean(dataSetName, input);
+								manager.createLocalFileDataBean(dataSetName, input);
 							} catch (FileNotFoundException fnfe) {
 								SwingUtilities.invokeAndWait(new Runnable() {
 									public void run() {

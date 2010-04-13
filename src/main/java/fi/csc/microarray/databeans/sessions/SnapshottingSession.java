@@ -33,6 +33,7 @@ import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.handlers.DataBeanHandler;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.IOUtils;
@@ -147,22 +148,15 @@ public class SnapshottingSession {
 				}
 			} 
 			
-			// TODO update bean urls and handlers
-			try {
-				for (DataBean bean: newURLs.keySet()) {
-					// store old for rollback
-					bean.setContentUrl(newURLs.get(bean));
-					bean.setHandler(new ZipDataBeanHandler());
-				}
-				
-				createdSuccessfully = true;
-			} catch (Exception e) {
-				// TODO rollback
-				throw new RuntimeException(e);
+			// session file is now saved, update the urls and handlers in the client
+			for (DataBean bean: newURLs.keySet()) {
+
+				// set new url and handler
+				bean.setContentUrl(newURLs.get(bean));
+				bean.setHandler(new ZipDataBeanHandler());
 			}
-			
-			
-			
+
+			createdSuccessfully = true;
 			
 		} catch (RuntimeException e) {
 			// createdSuccesfully is false, so file will be deleted in finally block

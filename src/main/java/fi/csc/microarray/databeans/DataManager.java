@@ -443,7 +443,7 @@ public class DataManager {
 	 * Creates a bean with content, without a parent folder and without sources. If a reference to this bean
 	 * is lost it can not be accessed any more.
 	 */
-	public DataBean createDataBean(String name, InputStream content) throws MicroarrayException {
+	private DataBean createDataBean(String name, InputStream content) throws MicroarrayException {
 		return createDataBean(name, content, null, new DataBean[] {});
 	}
 	
@@ -467,10 +467,7 @@ public class DataManager {
 		}
 
 		// create and return the bean
-		DataBean bean = new DataBean(name, guessContentType(name), new Date(), sources, folder, this, contentFile);
-
-		dispatchEventIfVisible(new DataItemCreatedEvent(bean));
-		
+		DataBean bean = createDataBean(name, folder, sources, contentFile);
 		return bean;
 	}
 
@@ -488,9 +485,13 @@ public class DataManager {
 		DataBean dataBean = new DataBean(name, url, guessContentType(name), new Date(), new DataBean[] {}, null, this, handler);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
 		return dataBean;
-
-		
 	}
+
+	
+	public DataBean createLocalFileDataBean(String name, InputStream content) throws MicroarrayException {
+		return createDataBean(name, content);
+	}
+	
 	
 	/**
 	 * The file is used directly, the contents are not copied anywhere.
