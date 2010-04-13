@@ -30,12 +30,12 @@ import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import org.apache.log4j.Logger;
-import org.jdesktop.swingx.table.ColumnHeaderRenderer;
 
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.visualisation.MicroarrayTable;
@@ -82,7 +82,8 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 	
 	
 	
-	private class PhenodataTable extends MicroarrayTable {
+	@SuppressWarnings("serial")
+    private class PhenodataTable extends MicroarrayTable {
 		private static final int NO_SCROLL_WIDTH = 400;
 		private static final int IDENTIFIER_COLUMN_WIDTH = 100;
 				
@@ -282,7 +283,8 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 	 * @author Mikko Koski
 	 *
 	 */
-	public class PhenodataPopupMenu extends JPopupMenu implements ActionListener {
+	@SuppressWarnings("serial")
+    public class PhenodataPopupMenu extends JPopupMenu implements ActionListener {
 
 		private MicroarrayTable table;
 		private JMenuItem copyMenuItem;
@@ -445,7 +447,7 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 			if (columnObject instanceof TableColumn) {
 				TableColumn tableColumn = (TableColumn) columnObject;
 				if(isGroupPhenodataColumn(tableColumn.getHeaderValue().toString())){
-					ColumnHeaderRenderer header = ColumnHeaderRenderer.createColumnHeaderRenderer();
+					DefaultTableCellRenderer header = new DefaultTableCellRenderer();
 					if(!data.queryFeatures("/phenodata/is-complete").exists()){
 						header.setIcon(VisualConstants.PHENODATA_ICON);
 						logger.debug("Header updated. Warning icon enabled.");

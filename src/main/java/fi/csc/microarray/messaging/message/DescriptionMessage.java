@@ -77,6 +77,7 @@ public class DescriptionMessage extends ChipsterMessage {
             Element toolElement = moduleXml.createElement("tool");
             toolElement.setAttribute("name", tool.getName());
             toolElement.setTextContent(tool.getDescription());
+            System.out.println(tool.getDescription());
             categoryElement.appendChild(toolElement);
         }
         

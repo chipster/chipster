@@ -64,9 +64,9 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
     private JCheckBox mergeCheckBox;
     
     private enum Databases {
-        PDB("PDB", "pdb_seq"),
         EMBL("EMBL", "embl"),
         EMBL_NEW("EMBL New", "emblnew"),
+        PDB("PDB", "pdb_seq"),
         UNIPROT_SWISS("UniProt / SwissProt", "swiss"),
         UNIPROT_TREMBL("UniProt / TrEMBL", "trembl");
         
@@ -105,6 +105,7 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         dbNameCombo = new JComboBox(Databases.values());
         dbNameCombo.setPreferredSize(new Dimension(150, 20));
         dbNameCombo.setBackground(Color.WHITE);
+        dbNameCombo.setSelectedItem(Databases.UNIPROT_SWISS);
         c.insets.set(10,10,5,10);
         c.gridy++;
         this.add(new JLabel("Database"), c);
@@ -130,14 +131,14 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         areaScrollPane.setHorizontalScrollBarPolicy(
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         areaScrollPane.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-        areaScrollPane.setPreferredSize(new Dimension(150, 60));
+        areaScrollPane.setPreferredSize(new Dimension(150, 90));
         c.insets.set(0, 10, 10, 10);  
         c.gridy++;
         this.add(areaScrollPane, c);
         
         // Range fields
-        beginField = new JTextField(4);
-        endField = new JTextField(4);
+        beginField = new JTextField(3);
+        endField = new JTextField(3);
         JPanel rangePanel = new JPanel();
         rangePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         rangePanel.add(new JLabel("Start"));
@@ -150,6 +151,7 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         
         // Checkbox for merging into one
         mergeCheckBox = new JCheckBox("Merge into one dataset");
+        mergeCheckBox.setSelected(true);
         c.insets.set(10, 10, 5, 10);
         c.gridy++;
         this.add(mergeCheckBox, c);
@@ -203,6 +205,9 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         this.pack();
         this.setResizable(false);
         this.setLocationRelativeTo(client.getMainFrame());
+        
+        // Default focus
+        textArea.requestFocusInWindow();
         this.setVisible(true);
     }
 

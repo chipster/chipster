@@ -128,7 +128,7 @@ public class ChipCountPanel extends JXTaskPane implements ActionListener{
 		}
 
 		this.setTitle("Channels");
-		this.setExpanded(false);
+		this.setCollapsed(true);
 	}
 	
 	public void updateKeyColumnCounter(int keyNumber) {

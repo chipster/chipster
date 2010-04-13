@@ -73,7 +73,7 @@ public class SteppedComboBox extends JComboBox {
 		popupWidth = 0;
 	}
 
-	public SteppedComboBox(Vector items) {
+	public SteppedComboBox(Vector<Object> items) {
 		super(items);
 		setUI(new SteppedComboBoxUI());
 		popupWidth = 0;

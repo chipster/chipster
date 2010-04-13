@@ -2,6 +2,7 @@ package fi.csc.microarray.client.operation.parameter;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.LinkedList;
@@ -59,22 +60,68 @@ public class ToolParameterPanel extends ParameterPanel {
 		
 		// Create a collapsible pane container
         JXTaskPaneContainer paneContainer = new JXTaskPaneContainer();
-        //paneContainer.setBackground(new JXTaskPane().getBackground());
+        paneContainer.setBackground(new JXTaskPane().getBackground());
         paneContainer.setBorder(null);
+        JXTaskPane pane;
+        JPanel paramPane;
+        GridBagConstraints con;
 
         // Remove vertical gap
         VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.setGap(0);
         paneContainer.setLayout(verticalLayout);
+              
+        // Divide parameters into required and optional
+        List<Parameter> requiredParameters = new LinkedList<Parameter>();
+        List<Parameter> optionalParameters = new LinkedList<Parameter>();
+        for (Parameter param : operation.getParameters()) {
+            if (param.isOptional()) {
+                optionalParameters.add(param);
+            } else {
+                requiredParameters.add(param);
+            }
+        }
+
+        // Parameters
+        pane = new JXTaskPane();
+        pane.setTitle("Parameters");
+        paramPane = new JPanel(new GridBagLayout());
+        con = prepareBagConstraints(); 
+        
+        // Required parameters
+        if (requiredParameters.size() > 0) {
+    		for (Parameter param : requiredParameters) {
+    			ParameterInputComponent component = createInputComponent(param);
+                JLabel label = component.getLabel();
+                label.setFont(label.getFont().deriveFont(label.getFont().getStyle() ^ Font.BOLD));
+    			addParameter(paramPane, component, label, con);
+    		}
+    		
+            // Add required parameters to the collapsible pane
+		    pane.add(paramPane);
+	        paneContainer.add(pane);
+		}
+        
+        // Optional parameters
+        if (optionalParameters.size() > 0) {
+            for (Parameter param : optionalParameters) {
+                ParameterInputComponent component = createInputComponent(param);
+                addParameter(paramPane, component, component.getLabel(), con);
+            }
+            
+            // Add optional parameters to the collapsible pane
+            pane.add(paramPane);
+            paneContainer.add(pane);
+        }
         
         // Input file mappings
-        JXTaskPane pane = new JXTaskPane();
+        pane = new JXTaskPane();
         pane.setTitle("Input datasets");
-        pane.setExpanded(false);
+        pane.setCollapsed(true);
         
         // Grid layout for component/label pairs
-        JPanel paramPane = new JPanel(new GridBagLayout());
-        GridBagConstraints con = prepareBagConstraints();
+        paramPane = new JPanel(new GridBagLayout());
+        con = prepareBagConstraints();
         
         List<InputFileComponent> inputComponents = new LinkedList<InputFileComponent>();
 
@@ -89,50 +136,6 @@ public class ToolParameterPanel extends ParameterPanel {
             }
                   
             // Add the inputs to the collapsable pannel
-            pane.add(paramPane);
-            paneContainer.add(pane);
-        }
-        
-        // Divide parameters into required and optional
-        List<Parameter> requiredParameters = new LinkedList<Parameter>();
-        List<Parameter> optionalParameters = new LinkedList<Parameter>();
-        for (Parameter param : operation.getParameters()) {
-            if (param.isOptional()) {
-                optionalParameters.add(param);
-            } else {
-                requiredParameters.add(param);
-            }
-        }
-
-        // Required parameters
-        if (requiredParameters.size() > 0) {
-            pane = new JXTaskPane();
-            pane.setTitle("Required parameters");
-    		paramPane = new JPanel(new GridBagLayout());
-    		con = prepareBagConstraints(); 
-    		for (Parameter param : requiredParameters) {
-    			ParameterInputComponent component = createInputComponent(param);
-    			addParameter(paramPane, component, component.getLabel(), con);
-    		}
-    		
-            // Add required parameters to the collapsible pane
-		    pane.add(paramPane);
-	        paneContainer.add(pane);
-		}
-        
-        // Optional parameters
-        if (optionalParameters.size() > 0) {
-            pane = new JXTaskPane();
-            pane.setTitle("Optional parameters");
-            pane.setExpanded(false);
-            paramPane = new JPanel(new GridBagLayout());
-            con = prepareBagConstraints();
-            for (Parameter param : optionalParameters) {
-                ParameterInputComponent component = createInputComponent(param);
-                addParameter(paramPane, component, component.getLabel(), con);
-            }
-            
-            // Add optional parameters to the collapsible pane
             pane.add(paramPane);
             paneContainer.add(pane);
         }

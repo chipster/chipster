@@ -145,6 +145,9 @@ public class CreateFromTextDialog extends JDialog implements CaretListener, Acti
         this.pack();
         this.setResizable(false);
         this.setLocationRelativeTo(client.getMainFrame());
+        
+        // Default focus
+        textArea.requestFocusInWindow();
         this.setVisible(true);
     }
 

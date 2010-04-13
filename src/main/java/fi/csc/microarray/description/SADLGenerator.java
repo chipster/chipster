@@ -66,7 +66,8 @@ public class SADLGenerator {
 				} 
 				
 				if (parameter.getDefaultValue() != null) {
-					paramString += "DEFAULT " + parameter.getDefaultValue() + " "; 
+					paramString += "DEFAULT " +
+					               quoteIfNeeded(parameter.getDefaultValue()) + " "; 
 				}
 				
 				paramString += "(" + escapeIfNeeded(parameter.getComment()) + ")";
