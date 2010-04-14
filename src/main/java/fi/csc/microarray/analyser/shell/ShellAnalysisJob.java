@@ -31,6 +31,7 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
     private AnalysisDescription description;
     private SADLDescription sadl;
     private String executablePath;
+    private String outputParameter;
     
     LinkedList<String> inputParameters;
     
@@ -47,7 +48,9 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
         
         // Path to executable file
         this.executablePath = ad.getCommand();
-        System.out.println(this.executablePath);
+        
+        // Output parameter
+        this.outputParameter = ad.getConfigParameters().get("output");
     }
 
     @Override
@@ -81,7 +84,7 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
         
         // Outputs
         for (OutputDescription output : description.getOutputFiles()) {
-            command.add("-" + output.getParamName());
+            command.add("-" + this.outputParameter);
             command.add(output.getFileName());
         }
         

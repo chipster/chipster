@@ -26,14 +26,8 @@ public class AnalysisDescriptionGenerator {
 
 		// not interested in inputs, they were figured out when job was submitted
 
-		/*
-	     * FIXME: paramName currently only used in ShellAnalysisJob only
-	     * AnalysisDescriptionGenerator currently passes "human readable name"
-	     * as fileName which is sort of a HACK.
-	     */
 		for (Output output : source.outputs()) {
-			description.addOutputFile(output.getName().getDisplayName(),
-			                          output.getName().getID());
+			description.addOutputFile(output.getName().getID());
 		}
 		
 		for (Parameter parameter : source.parameters()) {

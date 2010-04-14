@@ -7,6 +7,7 @@ package fi.csc.microarray.analyser;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import fi.csc.microarray.messaging.message.JobMessage;
 
@@ -53,19 +54,13 @@ public class AnalysisDescription {
 	 * Describes an output (parameter name and file name). 
 	 */
 	public static class OutputDescription {
-	    private String paramName;
         private String fileName;
-
-	    public String getParamName() {
-            return paramName;
-        }
 
         public String getFileName() {
             return fileName;
         }
 	    
-	    public OutputDescription(String paramName, String fileName) {
-	        this.paramName = paramName;
+	    public OutputDescription(String fileName) {
 	        this.fileName = fileName;
 	    }
 	}
@@ -98,8 +93,9 @@ public class AnalysisDescription {
 	private String category;
 	private String sadl;
 	private AnalysisHandler handler;
-	
-	/**
+	private Map<String, String> configParameters = null;
+
+    /**
 	 * Name of the original source script or java class etc.
 	 * Needed for update checks.
 	 */
@@ -191,13 +187,8 @@ public class AnalysisDescription {
 		this.name = name;
 	}
 
-	/*
-	 * FIXME: paramName currently only used in ShellAnalysisJob only
-	 * AnalysisDescriptionGenerator currently passes "human readable name"
-	 * as fileName which is sort of a HACK.
-	 */
-	public void addOutputFile(String paramName, String fileName) {
-		outputFiles.add(new OutputDescription(paramName, fileName));
+	public void addOutputFile(String fileName) {
+		outputFiles.add(new OutputDescription(fileName));
 	}
 
 	public void setSourceCode(String sourceCode) {
@@ -265,6 +256,13 @@ public class AnalysisDescription {
 	public void setUpdatedSinceStartup() {
 		this.updatedSinceStartup = true;
 	}
-	
+  
+    public Map<String, String> getConfigParameters() {
+        return configParameters;
+    }
+
+    public void setConfigParameters(Map<String, String> configParameters) {
+        this.configParameters = configParameters;
+    }
 }
  

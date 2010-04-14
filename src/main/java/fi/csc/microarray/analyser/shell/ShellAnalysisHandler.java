@@ -76,6 +76,7 @@ public class ShellAnalysisHandler implements AnalysisHandler {
             
             // Command to be executed is stored in configuration file
             ad.setCommand(params.get("executable"));
+            ad.setConfigParameters(params);
             
             // Log success
             logger.info("successfully loaded shell analysis description " + descriptionFilename);

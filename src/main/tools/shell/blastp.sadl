@@ -1,6 +1,6 @@
 TOOL "BLAST" / blastp: blastp (Heuristic tool for protein sequence search.)
 INPUT query: "Query sequence" TYPE GENERIC
-OUTPUT out.txt: "out"
+OUTPUT out.txt
 PARAMETER db: "Database" TYPE [nr: "NCBI non-redundant proteins", pdb: "PDB", swiss: "UniProt / Swiss", trembl: "UniProt / TrEMBL",
 	uniprot: "UniProt", uniref100: "UniRef100", uniref90: "UniRef90", uniref50: "UniRef50"] DEFAULT nr (Choose a database)
 PARAMETER OPTIONAL task: "Task to execute" TYPE [blastp: "BLASTP", blastp-short: "BLASTP short"] (Task to execute)
