@@ -32,6 +32,7 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.DataBean.DataBeanType;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.handlers.DataBeanHandler;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
@@ -151,7 +152,8 @@ public class SnapshottingSession {
 			// session file is now saved, update the urls and handlers in the client
 			for (DataBean bean: newURLs.keySet()) {
 
-				// set new url and handler
+				// set new url and handler and type
+				bean.setType(DataBeanType.LOCAL_SESSION);
 				bean.setContentUrl(newURLs.get(bean));
 				bean.setHandler(new ZipDataBeanHandler());
 			}
@@ -246,7 +248,7 @@ public class SnapshottingSession {
 	
 	private void saveDataBeanMetadata(DataBean bean, URL newURL, String folderId, StringBuffer metadata) {
 		String beanId = fetchId(bean);
-		metadata.append("DATABEAN " + beanId + " " + newURL + "\n");
+		metadata.append("DATABEAN " + beanId + " " + newURL + " " + bean.getType() + " " + bean.getRepositoryName() + "\n");
 		
 		if (bean.getOperation() != null) {
 			Operation operation = bean.getOperation();

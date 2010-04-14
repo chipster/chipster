@@ -8,28 +8,36 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.DataBeanType;
 
-public class ZipDataBeanHandler implements DataBeanHandler {
+public class ZipDataBeanHandler extends DataBeanHandlerBase {
 
+	public ZipDataBeanHandler() {
+		super(DataBeanType.LOCAL_SESSION);
+	}
+	
 	public long getContentLength(DataBean dataBean) throws IOException {
-		checkURL(dataBean);
+		checkCompatibility(dataBean);
 		ZipFile zipFile = new ZipFile(getFile(dataBean));		
 		ZipEntry zipEntry = zipFile.getEntry(dataBean.getContentUrl().getRef());
 		return zipEntry.getSize();
 	}
 
 	public InputStream getInputStream(DataBean dataBean) throws IOException {
+		checkCompatibility(dataBean);
 		ZipFile zipFile = new ZipFile(getFile(dataBean));
 		ZipEntry zipEntry = zipFile.getEntry(dataBean.getContentUrl().getRef());
 		return zipFile.getInputStream(zipEntry);
 	}
 
-	private void checkURL(DataBean dataBean) throws IllegalArgumentException {
+	protected void checkCompatibility(DataBean dataBean) throws IllegalArgumentException {
+		super.checkCompatibility(dataBean);
+		
 		URL url = dataBean.getContentUrl();
 		
 		// null url
 		if (url == null) {
-			throw new IllegalArgumentException("DataBean is null.");
+			throw new IllegalArgumentException("DataBean URL is null.");
 		} 
 		
 		// protocol not "file"

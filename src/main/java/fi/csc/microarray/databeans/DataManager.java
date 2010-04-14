@@ -22,6 +22,7 @@ import org.mortbay.util.IO;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
+import fi.csc.microarray.databeans.DataBean.DataBeanType;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
@@ -106,7 +107,6 @@ public class DataManager {
 	/**
 	 * Adds a listener listening to changes in beans and folders of this manager.
 	 */
-
 	public void addDataChangeListener(DataChangeListener listener) {
 		logger.debug("adding DataChangeListener: " + listener);
 		if (listener == null) {
@@ -178,9 +178,7 @@ public class DataManager {
 					throw new IOException("Could not create repository directory.");
 				}
 			}
-			
 		}
-		
 		
 		String fileName = "chipster";
 		File repository = new File(tempDir, fileName);
@@ -200,7 +198,6 @@ public class DataManager {
 		
 		repository.deleteOnExit();
 		return repository;
-		
 	}
 
 	
@@ -244,9 +241,6 @@ public class DataManager {
 	}
 
 	
-	public DataBean createDataBean(String name, DataFolder parent, DataBean source) throws MicroarrayException {
-		return createDataBean(name, parent, wrapSource(source));
-	}
 	
 	public static DataBean[] wrapSource(DataBean source) {
 		DataBean[] sources = null;
@@ -410,25 +404,11 @@ public class DataManager {
 	}
 
 	
-	
-	
-
-
-
-	
-	
 	/**
-	 * Creates a bean without content, without a parent folder and without sources. If a reference to this bean
-	 * is lost it can not be accessed any more.
+	 * Create a local temporary file DataBean without content, without a parent folder and without sources. 
+	 * If a reference to this bean is lost it can not be accessed any more.
 	 */
 	public DataBean createDataBean(String name) throws MicroarrayException {
-		return createDataBean(name, null, new DataBean[] {});
-	}
-
-	/**
-	 * Creates a bean without content, with a parent folder and with sources.
-	 */
-	public DataBean createDataBean(String name, DataFolder folder, DataBean... sources) throws MicroarrayException {
 		File contentFile;
 		try {
 			contentFile = createNewRepositoryFile(name);
@@ -436,21 +416,57 @@ public class DataManager {
 			throw new MicroarrayException(e);
 		}
 		
-		return createDataBean(name, folder, sources, contentFile);
+		return createDataBean(name, DataBeanType.LOCAL_TEMP, null, new DataBean[] {}, contentFile);
 	}
-	
+
 	/**
-	 * Creates a bean with content, without a parent folder and without sources. If a reference to this bean
+	 * Create a local temporary file DataBean with content, without a parent 
+	 * folder and without sources. If a reference to this bean
 	 * is lost it can not be accessed any more.
 	 */
-	private DataBean createDataBean(String name, InputStream content) throws MicroarrayException {
+	public DataBean createDataBean(String name, InputStream content) throws MicroarrayException {
 		return createDataBean(name, content, null, new DataBean[] {});
 	}
+
+	/**
+	 * Create a local file DataBean.
+	 * The file is used directly, the contents are not copied anywhere.
+	 * 
+	 */
+	public DataBean createDataBean(String name, File contentFile) throws MicroarrayException {		
+		return createDataBean(name, DataBeanType.LOCAL_USER, null, new DataBean[] {}, contentFile);
+	}
+
+
+	/**
+	 * Create a zip file DataBean. Bean contents are already in the zipFile and can 
+	 * be found using the zipEntryName.
+	 * 
+	 * @param name
+	 * @param zipFile
+	 * @param zipEntryName
+	 * @return
+	 * @throws MicroarrayException
+	 */
+	public DataBean createDataBean(String name, File zipFile, String zipEntryName) throws MicroarrayException {
+		URL url;
+		try {
+			 url = new URL(zipFile.toURI().toURL(), "#" + zipEntryName);
+		} catch (MalformedURLException e) {
+			throw new MicroarrayException(e);
+		}
+		
+		DataBeanHandler handler = new ZipDataBeanHandler();
+		DataBean dataBean = new DataBean(name, DataBeanType.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new DataBean[] {}, null, this, handler);
+		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
+		return dataBean;
+	}
+
 	
 	/**
-	 * Creates a bean with content, with a parent folder and with sources.
+	 * Create a local temporary file DataBean with content, with a parent folder and with sources.
 	 */
-	public DataBean createDataBean(String name, InputStream content, DataFolder folder, DataBean... sources) throws MicroarrayException {
+	private DataBean createDataBean(String name, InputStream content, DataFolder folder, DataBean... sources) throws MicroarrayException {
 
 		// copy the data from the input stream to the file in repository
 		File contentFile;
@@ -467,45 +483,17 @@ public class DataManager {
 		}
 
 		// create and return the bean
-		DataBean bean = createDataBean(name, folder, sources, contentFile);
+		DataBean bean = createDataBean(name, DataBeanType.LOCAL_TEMP, folder, sources, contentFile);
 		return bean;
 	}
-
 	
 	
-	public DataBean createDataBean(String name, File zipFile, String zipEntryName) throws MicroarrayException {
-		URL url;
-		try {
-			 url = new URL(zipFile.toURI().toURL(), "#" + zipEntryName);
-		} catch (MalformedURLException e) {
-			throw new MicroarrayException(e);
-		}
-		
-		DataBeanHandler handler = new ZipDataBeanHandler();
-		DataBean dataBean = new DataBean(name, url, guessContentType(name), new Date(), new DataBean[] {}, null, this, handler);
-		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
-		return dataBean;
-	}
-
-	
-	public DataBean createLocalFileDataBean(String name, InputStream content) throws MicroarrayException {
-		return createDataBean(name, content);
-	}
-	
-	
-	/**
-	 * The file is used directly, the contents are not copied anywhere.
-	 * 
-	 */
-	public DataBean createDataBean(String name, File contentFile) throws MicroarrayException {		
-		return createDataBean(name, null, new DataBean[] {}, contentFile);
-	}
 
 	/**
 	 * The file is used directly, the contents are not copied anywhere.
 	 * 
 	 */
-	private DataBean createDataBean(String name, DataFolder folder, DataBean[] sources, File contentFile) throws MicroarrayException {
+	private DataBean createDataBean(String name, DataBeanType type, DataFolder folder, DataBean[] sources, File contentFile) throws MicroarrayException {
 		URL url;
 		try {
 			 url = contentFile.toURI().toURL();
@@ -514,7 +502,7 @@ public class DataManager {
 		}
 		
 		DataBeanHandler handler = new LocalFileDataBeanHandler();
-		DataBean dataBean = new DataBean(name, url, guessContentType(name), new Date(), sources, folder, this, handler);
+		DataBean dataBean = new DataBean(name, type, "", url, guessContentType(name), new Date(), sources, folder, this, handler);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
 		return dataBean;
 	}

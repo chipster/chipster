@@ -5,39 +5,49 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.DataBeanType;
 
-public class LocalFileDataBeanHandler implements DataBeanHandler {
+public class LocalFileDataBeanHandler extends DataBeanHandlerBase {
 
+	public LocalFileDataBeanHandler() {
+		super(DataBeanType.LOCAL_USER, DataBeanType.LOCAL_TEMP);
+	}
+	
+	
 	public InputStream getInputStream(DataBean dataBean) throws FileNotFoundException {
-		checkURL(dataBean);
+		checkCompatibility(dataBean);
 		return new BufferedInputStream(new FileInputStream(getFile(dataBean)));
 	}
 
 	public long getContentLength(DataBean dataBean) {
-		checkURL(dataBean);
+		checkCompatibility(dataBean);
 		return getFile(dataBean).length();
 	}
 
+	/**
+	 * Only delete temporary files, never user files.
+	 */
 	public void delete(DataBean dataBean) {
-		checkURL(dataBean);
-		File file = getFile(dataBean);
-		
-		// FIXME only delete from chipster temp
-		//file.delete();
-	}
+		if (dataBean.getType().equals(DataBean.DataBeanType.LOCAL_TEMP)) {
 
+			checkCompatibility(dataBean);
+			File file = getFile(dataBean);
+			file.delete();
+		}
+	}
 	
 	
-	private void checkURL(DataBean dataBean) throws IllegalArgumentException {
+	protected void checkCompatibility(DataBean dataBean) throws IllegalArgumentException {
+		super.checkCompatibility(dataBean);
+
 		URL url = dataBean.getContentUrl();
 		
 		// null url
 		if (url == null) {
-			throw new IllegalArgumentException("DataBean is null.");
+			throw new IllegalArgumentException("DataBean url is null.");
 		} 
 		
 		// protocol not "file"
@@ -54,17 +64,5 @@ public class LocalFileDataBeanHandler implements DataBeanHandler {
 	private File getFile(DataBean dataBean) {
 		return new File(dataBean.getContentUrl().getPath());
 	}
-
-	public static void main(String[] args) throws MalformedURLException {
-		URL url1 = new URL("file:///home/hupponen/neppi.txt");
-		
-		URL url = new URL(url1, "#jepjep");
-		System.out.println(url.getProtocol());
-		System.out.println(url.getPath());
-		System.out.println(url.getFile());
-		System.out.println(url.getUserInfo());
-		System.out.println(url.getRef());
-	}
-
 
 }

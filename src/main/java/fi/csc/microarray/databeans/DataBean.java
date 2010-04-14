@@ -43,6 +43,13 @@ import fi.csc.microarray.util.StreamStartCache;
  */
 public class DataBean extends DataItemBase {
 	
+	public enum DataBeanType {
+		LOCAL_USER,
+		LOCAL_TEMP,
+		LOCAL_SESSION;
+	}
+	
+	
 	/**
 	 * Traversal specifies the way of traversing links. 
 	 *
@@ -134,6 +141,7 @@ public class DataBean extends DataItemBase {
 	private boolean contentChanged = true;
 	private Lock contentLock = new ReentrantLock();
 
+
 	private LinkedList<LinkedBean> outgoingLinks = new LinkedList<LinkedBean>();
 	private LinkedList<LinkedBean> incomingLinks = new LinkedList<LinkedBean>();
 	
@@ -144,44 +152,27 @@ public class DataBean extends DataItemBase {
 	protected ContentType contentType;
 
 	
-	private URL contentUrl;
+	private DataBeanType type;
+	private String repositoryName;
+	private URL url;
 	private DataBeanHandler handler;
 	
 
 	private File contentFile;
 
-	
-	
-	public DataBean(String name, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManager manager, File contentFile) {
+
+	public DataBean(String name, DataBeanType type, String repositoryName, URL contentUrl, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManager manager, DataBeanHandler handler) {
 		
 		this.dataManager = manager;
 		this.name = name;
-		this.date = date;
-		this.parent = parentFolder;
-		
-		// add this as parent folders child
-		if (parentFolder != null) {
-			parentFolder.addChild(this);
-		}
-		
-		for (DataBean source : sources) {
-			source.addLink(Link.DERIVATION, this);
-		}
-
-		this.contentFile = contentFile;
-		this.contentType = contentType;
-	}
-
-
-	public DataBean(String name, URL contentUrl, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManager manager, DataBeanHandler handler) {
-		
-		this.dataManager = manager;
-		this.name = name;
-		this.contentUrl = contentUrl;
+		this.url = contentUrl;
+		this.type = type;
+		this.repositoryName = repositoryName;
 		this.handler = handler;
 		this.date = date;
 		this.parent = parentFolder;
 		
+		
 		// add this as parent folders child
 		if (parentFolder != null) {
 			parentFolder.addChild(this);
@@ -195,50 +186,6 @@ public class DataBean extends DataItemBase {
 	}
 
 	
-	
-	
-	
-	
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-
-	
-
-
-
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-
-
-
 
 	/**
 	 * @return A String presentation of this dataset (in this case,
@@ -618,7 +565,7 @@ public class DataBean extends DataItemBase {
 	public InputStream getRawContentByteStream() throws IOException {
 		InputStream is;
 		try {
-			if (this.contentUrl != null) {
+			if (this.url != null) {
 				is = handler.getInputStream(this);
 			} else {
 				is = new FileInputStream(contentFile);
@@ -698,7 +645,7 @@ public class DataBean extends DataItemBase {
 	 * Returns content size in bytes.
 	 */
 	public long getContentLength() {
-		if (this.contentUrl != null) {
+		if (this.url != null) {
 			try {
 				return handler.getContentLength(this);
 			} catch (IOException e) {
@@ -712,12 +659,12 @@ public class DataBean extends DataItemBase {
 
 
 	public URL getContentUrl() {
-		return contentUrl;
+		return url;
 	}
 
 
 	public void setContentUrl(URL contentUrl) {
-		this.contentUrl = contentUrl;
+		this.url = contentUrl;
 	}
 
 	/**
@@ -738,6 +685,30 @@ public class DataBean extends DataItemBase {
 		return this.handler;
 	}
 
+	public DataBeanType getType() {
+		return type;
+	}
+
+
+
+	public void setType(DataBeanType type) {
+		this.type = type;
+	}
+
+
+
+	public String getRepositoryName() {
+		if (this.repositoryName == null) {
+			return "";
+		} else {
+			return this.repositoryName;
+		}
+	}
+
+
+	public void setRepositoryName(String repositoryName) {
+		this.repositoryName = repositoryName;
+	}
 
 
 
