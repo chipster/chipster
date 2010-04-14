@@ -241,7 +241,7 @@ public class SADLParser {
 		
 		String from = null;
 		String to = null;
-		String defaultValue = null; 
+		String[] defaultValues = null; 
 
 		if (nextTokenIs(tokens, SADLSyntax.KEYWORD_FROM)) {
 			skip(tokens, SADLSyntax.KEYWORD_FROM); 
@@ -254,16 +254,31 @@ public class SADLParser {
 		}
 
 		if (nextTokenIs(tokens, SADLSyntax.KEYWORD_DEFAULT)) {
-			skip(tokens, SADLSyntax.KEYWORD_DEFAULT); 
-			defaultValue = tokens.next();
+			skip(tokens, SADLSyntax.KEYWORD_DEFAULT);
+			defaultValues = parseDefaultValues(tokens);
 		}
 
 		String comment = tokens.next();
 		
-		Parameter parameter = new Parameter(name, type, options, from, to, defaultValue, comment);
+		Parameter parameter = new Parameter(name, type, options, from, to, defaultValues, comment);
 		parameter.setOptional(isOptional);
 		
 		return parameter;
+	}
+
+	private String[] parseDefaultValues(SADLTokeniser tokens) throws ParseException {
+		
+		LinkedList<String> list = new LinkedList<String>();		
+		while (true) {
+			list.add(tokens.next());
+			if (nextTokenIs(tokens, SADLSyntax.LIST_SEPARATOR)) {
+				skip(tokens, SADLSyntax.LIST_SEPARATOR);
+			} else {
+				break;	
+			}			
+		}
+		
+		return list.toArray(new String[0]);
 	}
 
 
@@ -277,7 +292,7 @@ public class SADLParser {
 			if (nextTokenIs(tokens, SADLSyntax.ENUM_CLOSE)) {
 				break;	
 			} else {
-				skip(tokens, SADLSyntax.ENUM_SEPARATOR);				
+				skip(tokens, SADLSyntax.LIST_SEPARATOR);				
 			}			
 		}
 		

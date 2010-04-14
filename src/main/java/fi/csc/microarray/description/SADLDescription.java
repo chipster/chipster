@@ -203,18 +203,23 @@ public class SADLDescription {
 		private Name[] selectionOptions; 
 		private String from;
 		private String to;
-		private String defaultValue; 
+		private String[] defaultValues; 
 		private String comment;
 		
 
 		public Parameter(Name name, ParameterType type, Name[] selectionOptions,
 				String from, String to, String defaultValue, String comment) {
+			this(name, type, selectionOptions, from, to, new String[] {defaultValue}, comment);
+		}
+
+		public Parameter(Name name, ParameterType type, Name[] selectionOptions,
+				String from, String to, String[] defaultValues, String comment) {
 			super(name, false);
 			this.type = type;
 			this.selectionOptions = selectionOptions;
 			this.from = from;
 			this.to = to;
-			this.defaultValue = defaultValue;
+			this.defaultValues = defaultValues;
 			this.comment = comment;
 		}
 		
@@ -235,9 +240,16 @@ public class SADLDescription {
 		}
 		
 		public String getDefaultValue() {
-			return defaultValue;
+			if (defaultValues.length != 1) {
+				throw new IllegalStateException("there needs to be 1 default value, not " + defaultValues.length);
+			}
+			return defaultValues[0];
 		}
-		
+
+		public String[] getDefaultValues() {
+			return defaultValues;
+		}
+
 		public String getComment() {
 			return comment;
 		}		

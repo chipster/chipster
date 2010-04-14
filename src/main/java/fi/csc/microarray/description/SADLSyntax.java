@@ -36,7 +36,8 @@ import fi.csc.microarray.databeans.DataBean;
  * PARAMETER_TYPE_ENUM_ELEMENTS -> NAME | NAME "," PARAMETER_TYPE_ENUM_ELEMENTS
  * PARAMETER_FROM -> "FROM" TOKEN
  * PARAMETER_TO -> "TO" TOKEN
- * PARAMETER_DEFAULT -> "DEFAULT" TOKEN
+ * PARAMETER_DEFAULT -> "DEFAULT" PARAMETER_DEFAULT_ELEMENT
+ * PARAMETER_DEFAULT_ELEMENT -> TOKEN | TOKEN "," PARAMETER_DEFAULT_ELEMENT 
  * OPTIONALITY -> "OPTIONAL"
  * NAME -> TOKEN | TOKEN ":" TOKEN
  * DESCRIPTION -> TOKEN
@@ -60,8 +61,8 @@ import fi.csc.microarray.databeans.DataBean;
  * PARAMETER value1: "The first value" TYPE INTEGER FROM 0 TO 200 DEFAULT 10 (the first value of the result set)
  * PARAMETER value2: "The second value" TYPE DECIMAL FROM 0 TO 200 DEFAULT 20 (the second value of the result set)
  * PARAMETER OPTIONAL value3: "The third value" TYPE DECIMAL FROM 0 TO 200 DEFAULT 30.2 (the third value of the result set)
- * PARAMETER method: "The fourth value" TYPE PERCENT DEFAULT 34 (how much we need)
- * PARAMETER method: "The method" TYPE [linear: "Linear scale", logarithmic: "Logarithmic scale", exponential: "Exponential scale"] FROM 1 TO 2 DEFAULT logarithmic (which scale to use)
+ * PARAMETER value4: "The fourth value" TYPE PERCENT DEFAULT 34 (how much we need)
+ * PARAMETER method: "The enumeration" TYPE [option1: "First option", option2: "Second option", option3: "Third option"] FROM 1 TO 2 DEFAULT option1, option2 (which options are selected)
  * PARAMETER genename: "Gene name" TYPE STRING DEFAULT at_something (which gene we are interested in)
  * PARAMETER key: "Key column" TYPE COLUMN_SEL (which column we use as a key)
  * </pre>  
@@ -91,7 +92,7 @@ public class SADLSyntax {
 	public static final String CATEGORY_SEPARATOR = "/";
 	public static final String ENUM_OPEN = "[";
 	public static final String ENUM_CLOSE = "]";
-	public static final String ENUM_SEPARATOR = ",";
+	public static final String LIST_SEPARATOR = ",";
 	public static final String COMMENT_OPEN = "(";
 	public static final String COMMENT_CLOSE = ")";
 	public static final String QUOTE = "\"";

@@ -52,7 +52,7 @@ public class SADLTokeniser {
 				SADLSyntax.NAME_SEPARATOR,
 				SADLSyntax.ENUM_OPEN,
 				SADLSyntax.ENUM_CLOSE,
-				SADLSyntax.ENUM_SEPARATOR,
+				SADLSyntax.LIST_SEPARATOR,
 				SADLSyntax.CATEGORY_SEPARATOR
 		};
 	}

@@ -43,17 +43,23 @@ public class ChipsterSADLParser extends SADLParser {
 						throw new RuntimeException("enum parameter " + parameter.getName() + " has no options");
 					}
 					// check that enum default value is legal
-					if (parameter.getDefaultValue() != null) {
+					for (String defaultValue : parameter.getDefaultValues()) {
 						boolean found = false;
 						for (Name value : parameter.getSelectionOptions()) {
-							if (parameter.getDefaultValue().equals(value.getID())) {
+							if (defaultValue.equals(value.getID())) {
 								found = true;
 								break;
 							}
 						}
 						if (!found) {
-							throw new RuntimeException("enum parameter " + parameter.getName() + " has undefined default value \"" + parameter.getDefaultValue() + "\"");
+							throw new RuntimeException("enum parameter " + parameter.getName() + " has undefined default value \"" + defaultValue + "\"");
 						}
+					}
+					
+				} else {
+					// check that non-enum values do not have multiple default values
+					if (parameter.getDefaultValues().length > 1) {
+						throw new RuntimeException("non-enum parameter " + parameter.getName() + " has multiple default values");
 					}
 				}
 			}

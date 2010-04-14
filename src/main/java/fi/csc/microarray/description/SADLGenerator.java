@@ -64,12 +64,17 @@ public class SADLGenerator {
 				if (parameter.getTo() != null) {
 					paramString += "TO " + parameter.getTo() + " "; 
 				} 
-				
-				if (parameter.getDefaultValue() != null) {
-					paramString += "DEFAULT " +
-					               quoteIfNeeded(parameter.getDefaultValue()) + " "; 
+
+				if (parameter.getDefaultValues().length > 0) {
+					paramString += "DEFAULT ";
+					boolean first = true;
+					for (String defaultValue : parameter.getDefaultValues()) {
+						paramString += first ? "" : ",";
+						paramString += quoteIfNeeded(defaultValue) + " ";
+						first = false;
+					}
 				}
-				
+
 				paramString += "(" + escapeIfNeeded(parameter.getComment()) + ")";
 				
 				string += paramString + "\n";

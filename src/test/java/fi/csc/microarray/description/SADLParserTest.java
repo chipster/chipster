@@ -62,8 +62,8 @@ public class SADLParserTest {
 				"PARAMETER value1: \"The first value\" TYPE INTEGER FROM 0 TO 200 DEFAULT 10 (the first value of the result set)\n" + 
 				"PARAMETER value2: \"The second value\" TYPE DECIMAL FROM 0 TO 200 DEFAULT 20 (the second value of the result set)\n" + 
 				"PARAMETER OPTIONAL value3: \"The third value\" TYPE DECIMAL FROM 0 TO 200 DEFAULT 30.2 (the third value of the result set)\n" + 
-				"PARAMETER method: \"The fourth value\" TYPE PERCENT DEFAULT 34 (how much we need)\n" + 
-				"PARAMETER method: \"The method\" TYPE [linear: \"Linear scale\", logarithmic: \"Logarithmic scale\", exponential: \"Exponential scale\"] FROM 1 TO 2 DEFAULT logarithmic (which scale to use)\n" + 
+				"PARAMETER value4: \"The fourth value\" TYPE PERCENT DEFAULT 34 (how much we need)\n" + 
+				"PARAMETER method: \"The enumeration\" TYPE [option1: \"First option\", option2: \"Second option\", option3: \"Third option\"] FROM 1 TO 2 DEFAULT option1, option2 (which options are selected)\n" + 
 				"PARAMETER genename: \"Gene name\" TYPE STRING DEFAULT at_something (which gene we are interested in)\n" + 
 				"PARAMETER key: \"Key column\" TYPE COLUMN_SEL (which column we use as a key)"; 
 		
@@ -124,21 +124,23 @@ public class SADLParserTest {
 		Assert.assertEquals(parsedDescription.parameters().get(2).getDefaultValue(), "30.2");
 		Assert.assertEquals(parsedDescription.parameters().get(2).getComment(), "the third value of the result set");
 		Assert.assertTrue(parsedDescription.parameters().get(2).isOptional());
-		Assert.assertEquals(parsedDescription.parameters().get(3).getName().toString(), "method: \"The fourth value\"");
+		Assert.assertEquals(parsedDescription.parameters().get(3).getName().toString(), "value4: \"The fourth value\"");
 		Assert.assertEquals(parsedDescription.parameters().get(3).getType(), ParameterType.PERCENT);
 		Assert.assertEquals(parsedDescription.parameters().get(3).getDefaultValue(), "34");
 		Assert.assertEquals(parsedDescription.parameters().get(3).getComment(), "how much we need");
 		Assert.assertFalse(parsedDescription.parameters().get(3).isOptional());
-		Assert.assertEquals(parsedDescription.parameters().get(4).getName().toString(), "method: \"The method\"");
+		Assert.assertEquals(parsedDescription.parameters().get(4).getName().toString(), "method: \"The enumeration\"");
 		Assert.assertEquals(parsedDescription.parameters().get(4).getType(), ParameterType.ENUM);
-		Assert.assertEquals(parsedDescription.parameters().get(4).getDefaultValue(), "logarithmic");
-		Assert.assertEquals(parsedDescription.parameters().get(4).getComment(), "which scale to use");
+		Assert.assertEquals(parsedDescription.parameters().get(4).getDefaultValues().length, 2);
+		Assert.assertEquals(parsedDescription.parameters().get(4).getDefaultValues()[0], "option1");
+		Assert.assertEquals(parsedDescription.parameters().get(4).getDefaultValues()[1], "option2");
+		Assert.assertEquals(parsedDescription.parameters().get(4).getComment(), "which options are selected");
 		Assert.assertEquals(parsedDescription.parameters().get(4).getFrom(), "1");
 		Assert.assertEquals(parsedDescription.parameters().get(4).getTo(), "2");
 		Assert.assertEquals(parsedDescription.parameters().get(4).getSelectionOptions().length, 3);
-		Assert.assertEquals(parsedDescription.parameters().get(4).getSelectionOptions()[0].toString(), "linear: \"Linear scale\"");
-		Assert.assertEquals(parsedDescription.parameters().get(4).getSelectionOptions()[1].toString(), "logarithmic: \"Logarithmic scale\"");
-		Assert.assertEquals(parsedDescription.parameters().get(4).getSelectionOptions()[2].toString(), "exponential: \"Exponential scale\"");
+		Assert.assertEquals(parsedDescription.parameters().get(4).getSelectionOptions()[0].toString(), "option1: \"First option\"");
+		Assert.assertEquals(parsedDescription.parameters().get(4).getSelectionOptions()[1].toString(), "option2: \"Second option\"");
+		Assert.assertEquals(parsedDescription.parameters().get(4).getSelectionOptions()[2].toString(), "option3: \"Third option\"");
 		Assert.assertFalse(parsedDescription.parameters().get(4).isOptional());
 		Assert.assertEquals(parsedDescription.parameters().get(5).getName().toString(), "genename: \"Gene name\"");
 		Assert.assertEquals(parsedDescription.parameters().get(5).getType(), ParameterType.STRING);
@@ -209,7 +211,7 @@ public class SADLParserTest {
 		description.addOutput(new Output(Name.createName("output1","output1")));
 		description.addMetaOutput(new Output(Name.createName("metaoutput1", "metaoutput1")));
 		description.addParameter(new Parameter(Name.createName("parameter1", "parameter1"), ParameterType.DECIMAL, null, "1", "3", "2", "param comment 1"));
-		description.addParameter(new Parameter(Name.createName("parameter2", "parameter2"), ParameterType.ENUM, new Name[] {Name.createName("1"), Name.createName("2"), Name.createName("2")}, "1", "2", "2", "param comment 2"));
+		description.addParameter(new Parameter(Name.createName("parameter2", "parameter2"), ParameterType.ENUM, new Name[] {Name.createName("1"), Name.createName("2"), Name.createName("3")}, "1", "2", new String[]{"1", "2"}, "param comment 2"));
 		return description;
 	}
 	
