@@ -156,9 +156,6 @@ public class DataBean extends DataItemBase {
 	private String repositoryName;
 	private URL url;
 	private DataBeanHandler handler;
-	
-
-	private File contentFile;
 
 
 	public DataBean(String name, DataBeanType type, String repositoryName, URL contentUrl, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManager manager, DataBeanHandler handler) {
@@ -563,17 +560,10 @@ public class DataBean extends DataItemBase {
 
 	
 	public InputStream getRawContentByteStream() throws IOException {
-		InputStream is;
-		try {
-			if (this.url != null) {
-				is = handler.getInputStream(this);
-			} else {
-				is = new FileInputStream(contentFile);
-			}
-		} catch (IOException e) {
-			throw e;
+		if (this.handler == null) {
+			throw new IllegalStateException("Handler is null.");
 		}
-		return is;
+		return handler.getInputStream(this);
 	}
 
 	/**
@@ -645,15 +635,15 @@ public class DataBean extends DataItemBase {
 	 * Returns content size in bytes.
 	 */
 	public long getContentLength() {
-		if (this.url != null) {
-			try {
-				return handler.getContentLength(this);
-			} catch (IOException e) {
-				// FIXME
-				throw new RuntimeException(e);
-			}
-		} else {
-			return contentFile.length();
+		if (this.handler == null) {
+			throw new IllegalStateException("Handler is null.");
+		}
+
+		try {
+			return handler.getContentLength(this);
+		} catch (IOException e) {
+			// FIXME what to do?
+			throw new RuntimeException(e);
 		}
 	}
 
