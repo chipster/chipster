@@ -4,8 +4,10 @@
 # PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to average)
 
 
-# Two-group parametric and non-parametric tests
+# Average replicate chips
 # JTT 30.7.2007
+#
+# modified by MG, 12.4.2010
 
 # Loads the normalized data
 file<-c("normalized.tsv")
@@ -21,14 +23,14 @@ groups<-phenodata[,pmatch(column,colnames(phenodata))]
 
 # Sanity checks
 if(length(unique(groups))==1) {
-   stop("You do not have any replicates to average!")
+   stop("CHIPSTER-NOTE: You do not have any replicates to average!")
 }
 
 # Calculating averages
 columnnames<-c()
 dat3<-matrix(nrow=nrow(dat2), ncol=length(unique(groups)), NA)
 for(i in 1:length(unique(groups))) {
-   dat3[,i]<-rowSums(dat2[,which(groups==i)])
+   dat3[,i]<-log2(rowMeans(2^(dat2[,which(groups==i)])))
    columnnames<-c(columnnames, paste("group", i, sep=""))
 }
 columnnames<-paste("chip.", columnnames, sep="")
