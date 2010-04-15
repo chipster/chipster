@@ -10,7 +10,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FilePa
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RowRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ByteRegion;
 
 public class TreeThread extends AreaRequestHandler {
 
@@ -37,7 +37,7 @@ public class TreeThread extends AreaRequestHandler {
 	public synchronized void run() {
 
 		fileFetcher = new FileFetcherThread(fileRequestQueue, fileResultQueue, this, inputParser);
-		createTree(fileFetcher.getRowCount());
+		createTree(fileFetcher.getFileLength());
 		fileFetcher.start();
 
 		super.run();
@@ -53,8 +53,8 @@ public class TreeThread extends AreaRequestHandler {
 		return fileResult != null;
 	}
 
-	private void createTree(long rowCount) {
-		rootNode = new TreeNode(new RowRegion(0l, rowCount), this, null);
+	private void createTree(long fileLength) {
+		rootNode = new TreeNode(new ByteRegion(0l, fileLength, false), this, null);
 	}
 
 	private void processFileResult(FileResult fileResult) {
@@ -68,10 +68,16 @@ public class TreeThread extends AreaRequestHandler {
 		rootNode.processAreaRequest(areaRequest);
 	}
 
-	public void createFileRequest(AreaRequest areaRequest, RowRegion rowRegion, TreeNode node) {
+	/**
+	 * @param areaRequest
+	 * @param byteRegion will be cloned to allow modifications in other thread without causing 
+	 * problems here
+	 * @param node
+	 */
+	public void createFileRequest(AreaRequest areaRequest, ByteRegion byteRegion, TreeNode node) {
 		areaRequest.status.maybeClearQueue(fileRequestQueue);
 
-		fileRequestQueue.add(new FileRequest(areaRequest, rowRegion, node, areaRequest.status));
+		fileRequestQueue.add(new FileRequest(areaRequest, byteRegion.clone(), node, areaRequest.status));
 	}
 
 	public FileParser getInputParser() {

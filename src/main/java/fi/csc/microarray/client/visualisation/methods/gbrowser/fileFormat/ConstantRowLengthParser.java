@@ -6,6 +6,7 @@ import java.util.Map;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 
+@Deprecated
 public abstract class ConstantRowLengthParser extends FileParser {
 
 	private FileDefinition fileDef;
@@ -30,7 +31,8 @@ public abstract class ConstantRowLengthParser extends FileParser {
 		return rowLength;
 	}
 
-	public Map<ColumnType, Object> getValues(long l, Collection<ColumnType> requestedContents) {
+	public Map<ColumnType, Object> getValues(long l,
+			Collection<ColumnType> requestedContents) {
 
 		Map<ColumnType, Object> values = new HashMap<ColumnType, Object>();
 
@@ -50,12 +52,15 @@ public abstract class ConstantRowLengthParser extends FileParser {
 
 		byte[] byteValue = new byte[fieldDef.length];
 
-		System.arraycopy(chunk.byteContent, (int) ((rowIndex - chunk.rowIndex) * getRowByteLength() + fieldDef.offset), byteValue, 0, byteValue.length);
+		System.arraycopy(chunk.byteContent, (int) ((rowIndex - chunk.rowIndex)
+				* getRowByteLength() + fieldDef.offset), byteValue, 0,
+				byteValue.length);
 
 		String string = new String(byteValue).trim();
 
 		if (col == ColumnType.STRAND) {
-			return string.equalsIgnoreCase("r") || string.equals("-") ? Strand.REVERSED : Strand.FORWARD;
+			return string.equalsIgnoreCase("r") || string.equals("-") ? Strand.REVERSED
+					: Strand.FORWARD;
 
 		} else if (col == ColumnType.CHROMOSOME) {
 			return new Chromosome(string.replace("chr", ""));
@@ -67,7 +72,7 @@ public abstract class ConstantRowLengthParser extends FileParser {
 			return new Float(string);
 
 		} else if (fieldDef.type == Type.LONG) {
-			
+
 			if (string.length() > 0) {
 				return new Long(string);
 			} else {

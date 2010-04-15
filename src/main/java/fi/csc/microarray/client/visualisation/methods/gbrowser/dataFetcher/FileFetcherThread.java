@@ -1,12 +1,16 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ByteRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileResult;
 
@@ -32,14 +36,14 @@ public class FileFetcherThread extends Thread {
 
 		try {
 			raf = new RandomAccessFile(treeThread.getFile(), "r");
-			
+
 		} catch (FileNotFoundException e) {
 			e.printStackTrace(); // FIXME fix exception handling
 		}
 	}
 
 	public void run() {
-		
+
 		while (true) {
 			try {
 				processFileRequest(fileRequestQueue.take());
@@ -56,12 +60,47 @@ public class FileFetcherThread extends Thread {
 
 	private void processFileRequest(FileRequest fileRequest) throws IOException {
 
-		ByteChunk chunk = new ByteChunk(inputParser.getChunkMaxByteLength());
-		chunk.rowIndex = fileRequest.rowRegion.start;
+		String chunk;
 
-		raf.seek(inputParser.getFilePosition(chunk.rowIndex));
+		raf.seek(inputParser.getFilePosition(fileRequest.byteRegion.start));
 
-		chunk.byteLength = raf.read(chunk.byteContent);
+		ByteRegion exactRegion = new ByteRegion();
+
+
+		if (fileRequest.byteRegion.exact) {
+
+			exactRegion.start = raf.getFilePointer();
+
+			byte[] byteChunk = new byte[(int)fileRequest.byteRegion.getLength()];
+							
+			raf.read(byteChunk);
+			
+			chunk = new String(byteChunk);
+
+			exactRegion = fileRequest.byteRegion;
+
+		} else {
+			
+			//Find next new line
+			if(fileRequest.byteRegion.start != 0) {
+				raf.readLine();
+			}
+
+			exactRegion.start = raf.getFilePointer();
+			
+			StringBuilder lines = new StringBuilder();
+
+			while (raf.getFilePointer() <= fileRequest.byteRegion.end) {
+
+				lines.append(raf.readLine());
+				lines.append("\n");
+			}
+
+			exactRegion.end = raf.getFilePointer() - 1;
+			exactRegion.exact = true;
+
+			chunk = lines.toString();				
+		}									
 
 		fileRequest.status.maybeClearQueue(fileResultQueue);
 		fileRequest.status.fileRequestCount = fileRequestQueue.size();
@@ -69,18 +108,21 @@ public class FileFetcherThread extends Thread {
 		FileParser inputParser = (FileParser) this.inputParser.clone();
 		inputParser.setChunk(chunk);
 
-		fileResultQueue.add(new FileResult(fileRequest, inputParser, fileRequest.status));
+		FileResult result = new FileResult(fileRequest, inputParser, exactRegion, fileRequest.status);
+
+		fileResultQueue.add(result);
 		treeThread.notifyTree();
+
 	}
 
-	public long getRowCount() {
+	public long getFileLength() {
 		if (this.isAlive()) {
 			throw new IllegalStateException("must be called before the thread is started");
 		}
 
 		try {
-			return inputParser.getRowIndex(raf.length());
-			
+			return raf.length();
+
 		} catch (IOException e) {
 			e.printStackTrace(); // FIXME fix exception handling 
 		}

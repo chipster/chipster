@@ -5,14 +5,14 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TreeN
 public class FileRequest {
 
 	public AreaRequest areaRequest;
-	public RowRegion rowRegion;
+	public ByteRegion byteRegion;
 	public TreeNode node;
 
 	public FsfStatus status;
 
-	public FileRequest(AreaRequest areaRequest, RowRegion rowRegion, TreeNode node, FsfStatus status) {
+	public FileRequest(AreaRequest areaRequest, ByteRegion rowRegion, TreeNode node, FsfStatus status) {
 		super();
-		this.rowRegion = rowRegion;
+		this.byteRegion = rowRegion;
 		this.node = node;
 		this.status = status;
 		this.areaRequest = areaRequest;

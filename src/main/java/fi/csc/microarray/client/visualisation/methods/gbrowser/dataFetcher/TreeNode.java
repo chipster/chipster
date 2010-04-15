@@ -1,60 +1,55 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 
-import java.util.Map;
-
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ByteRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RowRegion;
 
 public class TreeNode {
 	private static final long RESOLUTION = 256;
 	private TreeThread tree;
 	public RegionContent[] concisedValues;
 	public BpCoordRegion nodeBpRegion;
-	public RowRegion rowRegion;
+	public ByteRegion byteRegion;
 
 	private TreeNode left;
 	private TreeNode right;
 	private TreeNode parent;
 
-	private RowRegion subtreeRows;
+	private ByteRegion subtreeRows;
 	private int maxChildCount;
 	private FileParser inputParser;
 
-	public TreeNode(RowRegion subtreeReadIndexes, TreeThread tree, TreeNode parent) {
+	public TreeNode(ByteRegion subtreeReadIndexes, TreeThread tree, TreeNode parent) {
 
 		this.tree = tree;
 		this.parent = parent;
 		this.subtreeRows = subtreeReadIndexes;
 		this.inputParser = tree.getInputParser();
 
-		this.rowRegion = inputParser.getChunkRegionMiddleOf(subtreeReadIndexes);
+		this.byteRegion = inputParser.getChunkRegionMiddleOf(subtreeReadIndexes);
 		this.maxChildCount = inputParser.getChildCount(subtreeReadIndexes);
 
 		if (maxChildCount == 0) {
-			this.rowRegion = subtreeReadIndexes;
+			this.byteRegion = subtreeReadIndexes;
 		}
 	}
 
 	private void createChildren() {
 		if (maxChildCount >= 1 && left == null) {
-			left = new TreeNode(new RowRegion(subtreeRows.start, rowRegion.start - 1), tree, this);
+			left = new TreeNode(new ByteRegion(subtreeRows.start, byteRegion.start, false), tree, this);
 		}
 		if (maxChildCount == 2 && right == null) {
-			right = new TreeNode(new RowRegion(rowRegion.end + 1, subtreeRows.end), tree, this);
+			right = new TreeNode(new ByteRegion(byteRegion.end, subtreeRows.end, false), tree, this);
 		}
 	}
 
 	private void fetchConcisedContent(AreaRequest areaRequest) {
-		tree.createFileRequest(areaRequest, this.rowRegion, this);
+		tree.createFileRequest(areaRequest, this.byteRegion, this);
 	}
 
 //	 public void resetRequestDistributor() {
@@ -81,7 +76,7 @@ public class TreeNode {
 				} else {
 					// Concised value isn't enough, file has to be read
 
-					tree.createFileRequest(areaRequest, rowRegion, this);
+					tree.createFileRequest(areaRequest, byteRegion, this);
 				}
 			}
 
@@ -100,7 +95,7 @@ public class TreeNode {
 			}
 
 		} else {
-			// Continue recursion when to data arrives
+			// Continue recursion when the data arrives
 			fetchConcisedContent(areaRequest);
 		}
 	}
@@ -123,21 +118,18 @@ public class TreeNode {
 
 	/**
 	 * @param fileResult
-	 *            null if should be calculated from children
 	 */
 	public void processFileResult(FileResult fileResult) {
+		
+		if (byteRegion.exact == false) {
+			byteRegion = fileResult.exactRegion;
+		}
 
 		if (concisedValues == null || nodeBpRegion == null) {
 
 			FileParser parser = fileResult.chunkParser;
-			Long row = parser.getRowIndex();
 
-			Chromosome chr = (Chromosome) parser.get(row, ColumnType.CHROMOSOME);
-
-			BpCoord start = new BpCoord((Long) parser.get(row, ColumnType.BP_START), chr);
-			BpCoord end = new BpCoord((Long) parser.get(row + parser.getChunkRowCount() - 1, ColumnType.BP_START), chr);
-
-			nodeBpRegion = new BpCoordRegion(start, end);
+			nodeBpRegion = parser.getBpRegion();
 
 			concisedValues = fileResult.chunkParser.concise(nodeBpRegion);
 
@@ -160,14 +152,9 @@ public class TreeNode {
 
 	public void getAllRows(FileParser chunkParser, AreaRequest areaRequest, FsfStatus status) {
 
-		for (int i = 0; i < chunkParser.getChunkRowCount(); i++) {
+		for (RegionContent rc : chunkParser.getAll(areaRequest.requestedContents)) {
 
-			BpCoordRegion bpRegion = chunkParser.getBpRegion(i + chunkParser.getRowIndex());
-
-			Map<ColumnType, Object> values = chunkParser.getValues(i + chunkParser.getRowIndex(), areaRequest.requestedContents);
-
-			values.put(ColumnType.FILE_INDEX, i + chunkParser.getRowIndex());
-			tree.createAreaResult(new AreaResult<RegionContent>(status, new RegionContent(bpRegion, values)));
+			tree.createAreaResult(new AreaResult<RegionContent>(status, rc));
 		}
 	}
 }

@@ -6,6 +6,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRe
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+@Deprecated
 public class RefGeneParser extends ConstantRowLengthParser {
 
 	public RefGeneParser() {

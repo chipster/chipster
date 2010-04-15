@@ -24,25 +24,7 @@ public class RegionContent implements Comparable<RegionContent> {
 	public int compareTo(RegionContent other) {
 
 		int regionComparison = this.region.compareTo(other.region);
-		if (regionComparison != 0) {
-			return regionComparison;
-		}
 
-		Long first = (Long) values.get(ColumnType.FILE_INDEX);
-		Long second = (Long) other.values.get(ColumnType.FILE_INDEX);
-
-		if (first == null && second == null) {
-			return 0;
-		}
-
-		if (second == null) {
-			return 1;
-		}
-
-		if (first == null) {
-			return -1;
-		}
-
-		return first.compareTo(second);
+		return regionComparison;
 	}
 }

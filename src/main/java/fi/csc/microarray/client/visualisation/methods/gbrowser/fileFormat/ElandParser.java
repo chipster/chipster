@@ -6,97 +6,52 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRe
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
-public class ElandParser extends ConstantRowLengthParser {
+public class ElandParser extends TsvParser {
 
 	public ElandParser() {
 		super(new FileDefinition(
 				Arrays.asList(
 						new ColumnDefinition[] {
-								new ColumnDefinition(ColumnType.ID, Type.STRING, 32),
-								new ColumnDefinition(ColumnType.SEQUENCE, Type.STRING, 64),
-								new ColumnDefinition(ColumnType.QUALITY, Type.STRING, 8),
-								new ColumnDefinition(ColumnType.SKIP, Type.STRING, 8),
-								new ColumnDefinition(ColumnType.SKIP, Type.STRING, 8),
-								new ColumnDefinition(ColumnType.SKIP, Type.STRING, 8),
-								new ColumnDefinition(ColumnType.CHROMOSOME, Type.STRING, 16),
-								new ColumnDefinition(ColumnType.BP_START, Type.LONG, 16),							
-								new ColumnDefinition(ColumnType.STRAND, Type.STRING, 2),
-								new ColumnDefinition(ColumnType.SKIP, Type.NEWLINE, 1),
+								new ColumnDefinition(ColumnType.ID, Type.STRING),
+								new ColumnDefinition(ColumnType.SEQUENCE, Type.STRING),
+								new ColumnDefinition(ColumnType.QUALITY, Type.STRING),
+								new ColumnDefinition(ColumnType.SKIP, Type.STRING),
+								new ColumnDefinition(ColumnType.SKIP, Type.STRING),
+								new ColumnDefinition(ColumnType.SKIP, Type.STRING),
+								new ColumnDefinition(ColumnType.CHROMOSOME, Type.STRING),
+								new ColumnDefinition(ColumnType.BP_START, Type.LONG),							
+								new ColumnDefinition(ColumnType.STRAND, Type.STRING),
 						})));
 	}
-	
+		
 	@Override
-	public int getChunkMaxByteLength() {
-		return (int) getRowByteLength() * 32;
-	}
-
-	@Override
-	public long getFilePosition(long readIndex) {
-		return readIndex * getRowByteLength();
-	}
-
-	@Override
-	public long getRowIndex(long filePosition) {
-		return filePosition / getRowByteLength();
-	}
-
-	@Override
-	public RegionContent[] concise(BpCoordRegion bpRegion) {
-
-		ColumnType start = ColumnType.BP_START;
-		ColumnType seq = ColumnType.SEQUENCE;
+	public RegionContent[] concise(BpCoordRegion nodeBpRegion) {
 
 		long totalF = 0;
 		long totalR = 0;
+		
+		long length = ((String)get(getFirstRow(), ColumnType.SEQUENCE)).length();
+				
+		
+		for (RegionContent rc : 
+			getAll(Arrays.asList(new ColumnType[] { ColumnType.BP_START, ColumnType.SEQUENCE }))) {
 
-		int i;
-		long minBp = -1;
-		long maxBp = -1;
-
-		long rowCount = getChunkRowCount();
-
-		long length = 0;
-
-		for (i = 0; i < rowCount; i++) {
-
-			if (i == 0) {
-				length = ((String) get(i + chunk.rowIndex, seq)).length();
-			}
-
-			long startBp = (Long) get(i + chunk.rowIndex, start);
-
-			if ((Strand) get(i + chunk.rowIndex, ColumnType.STRAND) == Strand.FORWARD) {
+			if ((Strand) rc.values.get(ColumnType.STRAND) == Strand.FORWARD) {
 				totalF += length;
 
 			} else {
 				totalR += length;
 			}
-
-			if (i == 0) {
-				minBp = startBp;
-			}
-			
-			if (i == rowCount - 1) {
-				maxBp = startBp;
-			}
 		}
 
-		RegionContent[] result = new RegionContent[] { new RegionContent(bpRegion, totalF / (float) (maxBp - minBp)), new RegionContent(bpRegion, totalR / (float) (maxBp - minBp)) };
-
+		RegionContent[] result = new RegionContent[] { 
+				new RegionContent(nodeBpRegion, totalF / (float) nodeBpRegion.getLength()), 
+				new RegionContent(nodeBpRegion, totalR / (float) nodeBpRegion.getLength()) };
+		
 		result[0].values.put(ColumnType.STRAND, Strand.FORWARD);
 		result[1].values.put(ColumnType.STRAND, Strand.REVERSED);
 
 		return result;
-	}
-
-	@Override
-	public BpCoordRegion getBpRegion(long rowIndex) {
-
-		long startBp = (Long) get(rowIndex, ColumnType.BP_START);
-		long length = ((String) get(rowIndex, ColumnType.SEQUENCE)).trim().length();
-		Chromosome chr = (Chromosome) get(rowIndex, ColumnType.CHROMOSOME);
-
-		return new BpCoordRegion(startBp, startBp + length, chr);
 	}
 
 	@Override
@@ -109,9 +64,9 @@ public class ElandParser extends ConstantRowLengthParser {
 	}
 
 	@Override
-	public Object get(long rowIndex, ColumnType col) {
+	public Object get(String[] cols, ColumnType col) {
 
-		Object obj = super.get(rowIndex, col);
+		Object obj = super.get(cols, col);
 
 		if (col == ColumnType.CHROMOSOME) {
 			return new Chromosome(((Chromosome) obj).toString().replace(".fa", ""));
@@ -123,5 +78,10 @@ public class ElandParser extends ConstantRowLengthParser {
 	@Override
 	public String getName() {
 		return "eland";
+	}
+
+	@Override
+	public long getDefaulChunkLength() {
+		return 8*1024;
 	}
 }

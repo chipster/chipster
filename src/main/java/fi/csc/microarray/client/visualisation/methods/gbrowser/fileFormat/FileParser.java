@@ -1,62 +1,62 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
 import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ByteChunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ByteRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RowRegion;
 
 public abstract class FileParser {
 
-	protected ByteChunk chunk;
+	protected String chunk;
 
-	public abstract long getRowIndex(long filePosition);
-	public abstract long getFilePosition(long readIndex);
-	public abstract long getChunkRowCount();
-	public abstract Object get(long readIndex, ColumnType field);
-	public abstract Map<ColumnType, Object> getValues(long readIndex, Collection<ColumnType> requestedFields);
+	public abstract List<RegionContent> getAll(Collection<ColumnType> requestedContents);	
 	public abstract RegionContent[] concise(BpCoordRegion readIndexRegion);
-	public abstract int getChunkMaxByteLength();
-	public abstract BpCoordRegion getBpRegion(long readIndex);
-	public abstract int getRowByteLength();
+	/**
+	 * @return Region where start is the start position of the first row of chunk and the end is 
+	 * the start position of the last row of chunk 
+	 */
+	public abstract BpCoordRegion getBpRegion();
 	public abstract String getName();
 	public abstract FileParser clone();
+	public abstract long getDefaulChunkLength();
 
-	public void setChunk(ByteChunk chunk) {
+	public void setChunk(String chunk) {
 		this.chunk = chunk;
 	}
-
-	public long getRowIndex() {
-		return chunk.rowIndex;
+	
+	public void clone(FileParser copy) {
+		copy.chunk = new String(this.chunk);
+	}
+	
+	/**
+	 * @param position in content part of the file
+	 * @return position in actual file
+	 */
+	public long getFilePosition(long contentBytePosition) {
+		return contentBytePosition;
 	}
 
-	public RowRegion getChunkRegionMiddleOf(RowRegion rowIndexes) {
+	public ByteRegion getChunkRegionMiddleOf(ByteRegion byteRegion) {
 
-		RowRegion nodeRows = new RowRegion();
+		ByteRegion nodeRegion = new ByteRegion();
 
 		// round to next chunk split
-		nodeRows.start = (long) Math.ceil(rowIndexes.getMid() / getChunkMaxRowCount()) * getChunkMaxRowCount();
-		nodeRows.end = nodeRows.start + getChunkMaxRowCount() - 1;
+		nodeRegion.start = (long) Math.ceil(byteRegion.getMid() / getDefaulChunkLength()) * getDefaulChunkLength();
+		nodeRegion.end = nodeRegion.start + getDefaulChunkLength() - 1;
 
-		return nodeRows;
+		return nodeRegion;
 	}
 
-	public long getChunkMaxRowCount() {
-		return getChunkMaxByteLength() / getRowByteLength();
-	}
+	public int getChildCount(ByteRegion subtreeByteRegion) {
 
-
-	public int getChildCount(RowRegion subtreeReadIndexes) {
-
-		if (subtreeReadIndexes.getLength() <= getChunkMaxByteLength() / getRowByteLength()) {
+		if (subtreeByteRegion.getLength() <= getDefaulChunkLength()) {
 			return 0;
-		} else if (subtreeReadIndexes.getLength() <= getChunkMaxRowCount() * 2) {
+		} else if (subtreeByteRegion.getLength() <= getDefaulChunkLength() * 2) {
 			return 1;
 		} else {
 			return 2;
 		}
 	}
-
 }

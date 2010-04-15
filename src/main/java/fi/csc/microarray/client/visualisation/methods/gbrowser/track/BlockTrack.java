@@ -20,6 +20,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+@Deprecated
 public class BlockTrack extends Track {
 
 	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
