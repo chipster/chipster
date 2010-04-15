@@ -52,9 +52,14 @@ public abstract class Parameter implements Cloneable {
 
 	public static Parameter createInstance(Name name, ParameterType type, Name[] names,
 	                                       String description, String minValue, String maxValue,
-	                                       String initValue, boolean optional) {
+	                                       String[] initValues, boolean optional) {
 		
 		Parameter parameter = null;
+		
+		String initValue = null;
+		if (initValues != null) {
+		    initValue = initValues[0];
+		}
 		
 		logger.debug("creating instance of parameter type " + type.name() + " called "+ name);
 		
@@ -77,10 +82,7 @@ public abstract class Parameter implements Cloneable {
 			                                    convertStrings(titles, values);
             
             List<SelectionOption> defaultOptions = new LinkedList<SelectionOption>();
-            if (initValue != null) {
-                // Split initValue into Strings each representing a selected option
-                String[] initValues = initValue.split(",");
-                
+            if (initValue != null) {               
                 // Fill in defaults according to initValues
                 // TODO: not very effective (consider using HashMaps for storing SelectionOptions)
                 for (String value : initValues) {

@@ -209,7 +209,9 @@ public class SADLDescription {
 
 		public Parameter(Name name, ParameterType type, Name[] selectionOptions,
 				String from, String to, String defaultValue, String comment) {
-			this(name, type, selectionOptions, from, to, new String[] {defaultValue}, comment);
+			this(name, type, selectionOptions, from, to,
+			     defaultValue == null ? new String[] {} : new String[] {defaultValue},
+			     comment);
 		}
 
 		public Parameter(Name name, ParameterType type, Name[] selectionOptions,

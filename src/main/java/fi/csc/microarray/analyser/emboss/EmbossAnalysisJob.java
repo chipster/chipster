@@ -143,6 +143,12 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
             outputMessage.setState(JobState.RUNNING);
             resultHandler.sendResultMessage(inputMessage, outputMessage);
         } catch (IOException e) {
+            // Program was not found
+            logger.debug("There was an error while running emboss \"" +
+                    analysis.getName() + "\" application.");
+            outputMessage.setErrorMessage("Program " + acdDescription.getName() +
+                    " couldn't be started.");
+            updateState(JobState.FAILED, "EMBOSS application failed.");
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();

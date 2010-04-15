@@ -197,6 +197,13 @@ public class ACDParameter {
     }
     
     /**
+     * Get an array of default values defined for this parameter.
+     */
+    public String[] getDefaults() {
+        return this.getAttribute("default").split(",");
+    }
+    
+    /**
      * Define keys and values for a list parameter. Valid only
      * if paramter is of type "list" or "selection".
      * 

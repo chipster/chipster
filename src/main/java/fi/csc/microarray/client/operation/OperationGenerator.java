@@ -64,7 +64,7 @@ public class OperationGenerator {
                                                operation.parameter.Parameter.createInstance(
                         parameter.getName(), parameter.getType(), parameter.getSelectionOptions(),
                         parameter.getComment(), parameter.getFrom(), parameter.getTo(),
-                        parameter.getDefaultValue(), parameter.isOptional()));      
+                        parameter.getDefaultValues(), parameter.isOptional()));      
                 }
             }
 	    }

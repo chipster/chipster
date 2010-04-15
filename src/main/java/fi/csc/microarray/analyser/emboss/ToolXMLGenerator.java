@@ -73,6 +73,7 @@ public class ToolXMLGenerator {
         ignoredPrograms.add("dbquery");
         ignoredPrograms.add("prima");
         ignoredPrograms.add("primers");
+        ignoredPrograms.add("newcoils");
         
         // Databases for these programs not supported
         ignoredPrograms.add("tfscan");

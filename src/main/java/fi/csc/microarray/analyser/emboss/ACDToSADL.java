@@ -162,15 +162,20 @@ public class ACDToSADL {
                 LinkedList<String> fieldValueList = new LinkedList<String>(fieldOptions.values());
 	            Name[] fieldValues = new Name[fieldValueList.size()];
 	            
-	            // Sometimes default value points to label instead of value
-	            if (!fieldOptions.keySet().contains(fieldDefault)) {
-	                // Find the key for this default label and store
-	                // the key instead of label
-	                for (String key : fieldOptions.keySet()) {
-	                    if (fieldOptions.get(key).equals(fieldDefault)) {
-	                        fieldDefault = key;
-	                    }
-	                }
+	            // List can have several default values
+	            String[] fieldDefaults = param.getDefaults();
+
+                // Sometimes default value points to label instead of value
+	            for (int i = 0; i < fieldDefaults.length; i++) {
+    	            if (!fieldOptions.keySet().contains(fieldDefaults[i])) {
+    	                // Find the key for this default label and store
+    	                // the key instead of label
+    	                for (String key : fieldOptions.keySet()) {
+    	                    if (fieldOptions.get(key).equals(fieldDefaults[i])) {
+    	                        fieldDefaults[i] = key;
+    	                    }
+    	                }
+    	            }
 	            }
 	            
                 // Convert to string array
@@ -183,7 +188,7 @@ public class ACDToSADL {
                 }	            
 	            
                 sadlParam = new Parameter(Name.createName(fieldName, fieldInfo), typeMap.get(fieldType), fieldValues,
-	                                 fieldMin, fieldMax, fieldDefault, fieldHelp);
+	                                 fieldMin, fieldMax, fieldDefaults, fieldHelp);
 	        }
 	        
 	        // Mark as optional if needed
