@@ -14,6 +14,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.UIManager;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
 
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
@@ -58,9 +61,14 @@ public class ToolParameterPanel extends ParameterPanel {
 	    super(operation, new BorderLayout());
 		this.parent = parent;
 		
+		// Configure style of parameter panel
+        UIManager.put("TaskPaneContainer.background",
+            UIManager.getColor("TaskPane.background"));
+        UIManager.put("TaskPane.borderColor",
+            UIManager.getColor("TaskPane.background"));
+		
 		// Create a collapsible pane container
         JXTaskPaneContainer paneContainer = new JXTaskPaneContainer();
-        paneContainer.setBackground(new JXTaskPane().getBackground());
         paneContainer.setBorder(null);
         JXTaskPane pane;
         JPanel paramPane;
@@ -83,8 +91,6 @@ public class ToolParameterPanel extends ParameterPanel {
         }
 
         // Parameters
-        pane = new JXTaskPane();
-        pane.setTitle("Parameters");
         paramPane = new JPanel(new GridBagLayout());
         con = prepareBagConstraints(); 
         
@@ -98,8 +104,7 @@ public class ToolParameterPanel extends ParameterPanel {
     		}
     		
             // Add required parameters to the collapsible pane
-		    pane.add(paramPane);
-	        paneContainer.add(pane);
+	        paneContainer.add(paramPane);
 		}
         
         // Optional parameters
@@ -110,8 +115,7 @@ public class ToolParameterPanel extends ParameterPanel {
             }
             
             // Add optional parameters to the collapsible pane
-            pane.add(paramPane);
-            paneContainer.add(pane);
+            paneContainer.add(paramPane);
         }
         
         // Input file mappings
@@ -124,8 +128,9 @@ public class ToolParameterPanel extends ParameterPanel {
         con = prepareBagConstraints();
         
         List<InputFileComponent> inputComponents = new LinkedList<InputFileComponent>();
-
-        if (operation.getDefinition().getInputs().size() > 0) {
+        
+        // Only show input mappings in parameter panel when necessary
+        if (operation.getBindings() != null && operation.getBindings().size() > 1) {
             // Operation has some inputs
             for (InputDefinition input : operation.getDefinition().getInputs()) {
                 InputFileComponent inputComponent = new InputFileComponent(input, operation);
