@@ -614,7 +614,7 @@ public abstract class ClientApplication implements Node {
 								manager.delete(sourceBean); // don't leave it hanging around
 								logger.debug(source);
 								listener.updateSourceCodeAt(index, source);
-							} catch (MicroarrayException e) {
+							} catch (IOException e) {
 								reportException(e);
 							}
 						}

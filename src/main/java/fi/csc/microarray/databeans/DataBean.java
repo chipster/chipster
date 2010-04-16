@@ -1,9 +1,5 @@
 package fi.csc.microarray.databeans;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -13,8 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.log4j.Logger;
 
@@ -139,7 +134,7 @@ public class DataBean extends DataItemBase {
 	
 	private URL cacheUrl = null;
 	private boolean contentChanged = true;
-	private Lock contentLock = new ReentrantLock();
+	private ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 
 
 	private LinkedList<LinkedBean> outgoingLinks = new LinkedList<LinkedBean>();
@@ -211,11 +206,16 @@ public class DataBean extends DataItemBase {
 	 * Available features depend on what feature factories are plugged to DataManager.
 	 */
 	public QueryResult queryFeatures(String request) {
-		Feature feature = new RequestExecuter(dataManager).execute(request, this);
-		if (feature == null) {
-			throw new UnsupportedOperationException("request " + request + " not possible from " + this.getName());
+		try {
+			lock.readLock().lock();
+			Feature feature = new RequestExecuter(dataManager).execute(request, this);
+			if (feature == null) {
+				throw new UnsupportedOperationException("request " + request + " not possible from " + this.getName());
+			}
+			return new QueryResult(feature);
+		} finally {
+			lock.readLock().unlock();
 		}
-		return new QueryResult(feature);
 	}
 	
 	
@@ -224,8 +224,11 @@ public class DataBean extends DataItemBase {
 	 * higher level accessing.
 	 * 
 	 * @see #queryFeatures(String)
+	 * 
+	 * FIXME change name
 	 */
 	public InputStream getContentByteStream() throws IOException {
+		lock.readLock().lock();
 		if (streamStartCache != null) {
 			return streamStartCache.getInputStream();
 		} else {
@@ -240,16 +243,20 @@ public class DataBean extends DataItemBase {
 	 * @throws IOException
 	 */
 	public void initialiseStreamStartCache() throws MicroarrayException, IOException {
-
-		this.streamStartCache = new StreamStartCache(getRawContentByteStream(), new InputStreamSource() {
-			public InputStream getInputStream() {
-				try {
-					return getRawContentByteStream();
-				} catch (Exception e) {
-					throw new RuntimeException(e);
+		try {
+			this.lock.readLock().lock();
+			this.streamStartCache = new StreamStartCache(getRawContentByteStream(), new InputStreamSource() {
+				public InputStream getInputStream() {
+					try {
+						return getRawContentByteStream();
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
 				}
-			}
-		});
+			});
+		} finally {
+			this.lock.readLock().unlock();
+		}
 	}
 	
 	
@@ -339,8 +346,11 @@ public class DataBean extends DataItemBase {
 	/**
 	 * Puts named object to content cache. Content cache is a hashmap type per DataBean cache where 
 	 * objects can be stored. Cache is emptied every time bean content is changed, so it is suited
-	 * for caching results that are derived from contents of a single bean. Cache is not persistant,
+	 * for caching results that are derived from contents of a single bean. Cache is not persistent,
 	 * and generally, user should never assume cached values to be found.  
+	 *
+	 *	FIXME think about locking
+	 *
 	 */
 	public void putToContentCache(String name, Object value) {
 		this.contentCache.put(name, value);
@@ -354,34 +364,28 @@ public class DataBean extends DataItemBase {
 	 * @return
 	 */
 	public Object getFromContentCache(String name) {
-		return this.contentCache.get(name);
+		try {
+			this.lock.readLock().lock();
+
+			return this.contentCache.get(name);
+		} finally {
+			this.lock.readLock().unlock();
+		}
 	}
-	
+
+	/** 
+	 * FIXME Think about locking.
+	 */
 	protected void resetContentCache() {
 		this.contentCache.clear();
 	}
 	
-	/**
-	 * Acquire the lock which guards the content from being changed.
-	 * 
-	 * Needed for example when transferring contents to file broker.
-	 * 
-	 */
-	public void lockContent() {
-		this.contentLock.lock();
-	}
-	
-	/**
-	 * Release the content lock.
-	 * 
-	 */
-	public void unlockContent() {
-		this.contentLock.unlock();
-	}
 
 	/**
 	 * Indicate whether the contents have been changed since the contents
 	 * were last time uploaded to file broker.
+	 * 
+	 * FIXME Think about locking.
 	 * 
 	 */
 	public boolean isContentChanged() {
@@ -390,9 +394,10 @@ public class DataBean extends DataItemBase {
 
 	
 	/**
-	 * Set content changed status. Shoulc be called with true everytime
+	 * Set content changed status. Should be called with true every time
 	 * content is changed.
 	 * 
+	 * FIXME Think about locking.
 	 * @param contentChanged
 	 */
 	public void setContentChanged(boolean contentChanged) {
@@ -559,7 +564,7 @@ public class DataBean extends DataItemBase {
 	}
 
 	
-	public InputStream getRawContentByteStream() throws IOException {
+	private InputStream getRawContentByteStream() throws IOException {
 		if (this.handler == null) {
 			throw new IllegalStateException("Handler is null.");
 		}
@@ -569,14 +574,15 @@ public class DataBean extends DataItemBase {
 	/**
 	 * A convenience method for gathering streamed binary content into
 	 * a byte array.
+	 * @throws IOException 
 	 * 
 	 *   @see #getContentByteStream()
 	 */
-	public byte[] getContents() throws MicroarrayException {
+	public byte[] getContents() throws IOException {
 		try {
 			return Files.inputStreamToBytes(this.getContentByteStream());
-		} catch (IOException e) {
-			throw new MicroarrayException(e);
+		} finally {
+			// FIXME release inputstream
 		}
 		
 	}
@@ -592,16 +598,17 @@ public class DataBean extends DataItemBase {
 	 * Calling this method results in disabling caching for this bean.
 	 */
 	public OutputStream getContentOutputStreamAndLockDataBean() throws MicroarrayException, IOException {
-		lockContent();
+		this.lock.writeLock().lock();
 		setContentChanged(true);
 		this.streamStartCache = null; // caching is disabled
 		resetContentCache();
-		OutputStream os;
-		try {
-			os = new FileOutputStream(this.contentFile);
-		} catch (FileNotFoundException e) {
-			throw new MicroarrayException(e);
-		}
+		OutputStream os = null;
+//		try {
+//			this.handler.getOutputStream(this);
+//			os = new FileOutputStream(this.contentFile);
+//		} catch (FileNotFoundException e) {
+//			throw new MicroarrayException(e);
+//		}
 		return os;
 	}
 
@@ -615,19 +622,19 @@ public class DataBean extends DataItemBase {
 		try {
 			out.close();
 		} finally {
-			unlockContent();
+			this.lock.writeLock().unlock();
 		}
 		ContentChangedEvent cce = new ContentChangedEvent(this);
 		dataManager.dispatchEventIfVisible(cce);
 	}
 
 	public void delete() {
-		lockContent();
+		lock.writeLock().lock();
 		try {
 			this.handler.delete(this);
 			this.contentType = null;			
 		} finally {
-			unlockContent();
+			lock.writeLock().unlock();
 		}
 	}
 	
@@ -700,8 +707,7 @@ public class DataBean extends DataItemBase {
 		this.repositoryName = repositoryName;
 	}
 
-
-
-
-
+	public ReentrantReadWriteLock getLock() {
+		return this.lock;
+	}
 }
