@@ -53,7 +53,8 @@ public class OperationDefinition implements ExecutionItem {
 	 * 
 	 */
 	public static enum Suitability {
-		SUITABLE, IMPOSSIBLE, ALREADY_DONE, TOO_MANY_INPUTS, NOT_ENOUGH_INPUTS;
+		SUITABLE, IMPOSSIBLE, ALREADY_DONE, TOO_MANY_INPUTS, NOT_ENOUGH_INPUTS,
+		EMPTY_REQUIRED_PARAMETERS;
 
 		private static final Color GREEN = new Color(52, 196, 49);
 		private static final Color YELLOW = new Color(196, 186, 49);
@@ -100,6 +101,8 @@ public class OperationDefinition implements ExecutionItem {
 				return "Too many inputs";
 			case NOT_ENOUGH_INPUTS:
 				return "Not enough inputs";
+            case EMPTY_REQUIRED_PARAMETERS:
+                return "Some required parameters are empty";
 			default:
 				throw new RuntimeException("unknown suitability: " + this.name());
 			}
@@ -292,7 +295,7 @@ public class OperationDefinition implements ExecutionItem {
 	 * @return One of the OperationDefinition.Suitability enumeration, depending
 	 *         on how suitable the operation is judged.
 	 */
-	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data) {
+	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data) {    
 		bindInputs(data);
 		return getEvaluatedSuitability();
 	}

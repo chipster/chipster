@@ -195,7 +195,19 @@ public class Operation implements ExecutionItem {
 	 *         on how suitable the operation is judged.
 	 */
 	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data) {
-		return definition.evaluateSuitabilityFor(data);
+	    
+	    // Check suitability that can be checked in definition
+	    Suitability evaluatedSuitability = definition.evaluateSuitabilityFor(data);
+        
+        // Check parameter suitability
+        for (Parameter param : this.getParameters()) {
+            // Required parameters can not be empty
+            if (!param.isOptional() && param.getValue().equals("")) {
+                evaluatedSuitability = Suitability.EMPTY_REQUIRED_PARAMETERS;
+            }
+        }
+        
+		return evaluatedSuitability;
 	}
 
 	/**

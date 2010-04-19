@@ -17,6 +17,7 @@ import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -30,7 +31,10 @@ import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
+import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationDefinition.Suitability;
+import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.client.operation.parameter.ToolParameterPanel;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.tasks.TaskException;
@@ -223,6 +227,17 @@ public class OperationPanel extends JPanel
 		if (e.getSource() == parametersButton) {
 			parametersButtonClicked();
 		} else if (e.getSource() == executeButton ) {
+		    // Check if we can run the operation
+		    Suitability suitability = evaluateSuitability();
+		    
+		    if (!suitability.isOk()) {
+		        application.showDialog("Check parameters", suitability.toString(), "",
+		                               Severity.INFO, true,
+		                               DetailsVisibility.DETAILS_ALWAYS_HIDDEN);
+		        return;
+		    }
+		    
+		    // Run it	    
 			if (chosenOperation instanceof OperationDefinition) {
 				application.executeOperation((OperationDefinition)chosenOperation, null);
 			} else {				
@@ -265,7 +280,8 @@ public class OperationPanel extends JPanel
 					chosenOperation = (Operation)chosenOperation;
 
 				} else if (chosenOperation instanceof OperationDefinition) {
-					chosenOperation = new Operation((OperationDefinition)chosenOperation, application.getSelectionManager().getSelectedDatasAsArray());
+					chosenOperation = new Operation((OperationDefinition)chosenOperation,
+					        application.getSelectionManager().getSelectedDatasAsArray());
 
 				} else {
 					throw new RuntimeException("wrong type: " + chosenOperation.getClass().getSimpleName());				
@@ -346,8 +362,8 @@ public class OperationPanel extends JPanel
 				suitabilityLabel.setIcon(VisualConstants.INCOMPATIBLE_ICON);
 			} else if( suitability.isOk()){
 				suitabilityLabel.setIcon(VisualConstants.SUITABLE_ICON);
-			} else if( suitability.isImpossible()){
-				suitabilityLabel.setIcon(VisualConstants.SUITABILITY_WARNING_ICON);
+			} else {
+				suitabilityLabel.setIcon(VisualConstants.SUITABLE_ICON);
 			}
 					
 			suitabilityLabel.setToolTipText(" " + suitability.toString());

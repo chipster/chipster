@@ -1,7 +1,6 @@
 package fi.csc.microarray.analyser.emboss;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import org.testng.Assert;
