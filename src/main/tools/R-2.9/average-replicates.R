@@ -23,7 +23,7 @@ groups<-phenodata[,pmatch(column,colnames(phenodata))]
 
 # Sanity checks
 if(length(unique(groups))==1) {
-   stop("You do not have any replicates to average!")
+   stop("CHIPSTER-NOTE: You do not have any replicates to average!")
 }
 
 # Calculating averages

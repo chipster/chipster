@@ -9,20 +9,35 @@
 #
 # modified 3.3.2010, MG, to include symbol and description columns in the output
 # if present in the input data table
+#
+# modified 15.4.2010 MG to make the script compatile with output from "Add annotations to data" tool
 
 # Loads the file
 file<-c("normalized.tsv")
 dat<-read.table(file, header=T, sep="\t", row.names=1)
 
-# Check whether there are symbol and description columns
+# Make sure that column names for symbols and descriptions do not begin
+# with a capital letter
+colnames (dat) [colnames(dat)=="Symbol"] <- "symbol"
+colnames (dat) [colnames(dat)=="Description"] <- "description"
+
+# Check whether there are symbols at all 
 symbols <- dat[,grep("symbol", names(dat))]
-descriptions <- dat[,grep("description", names(dat))]
+descriptions <- dat[,grep("descriptions", names(dat))]
+if (length(symbols)==0) {
+	stop("CHIPSTER-NOTE: You must provide either gene symbols for this tool to
+					work! Try first to add these using the \"Add annotations to data\" tool.")
+}
+
+# Remove data rows where the there is no symbol information
+dat <- dat[symbols!="",]
+symbols <- dat[,grep("symbol", names(dat))]
 
 # Separates expression values from other data
 dat2<-dat[,grep("chip", names(dat))]
 
 # Preparations
-test1<-aggregate(dat2[,1], list(dat$symbol), mean)
+test1<-aggregate(dat2[,1], list(symbols), mean)
 dat3<-matrix(ncol=ncol(dat2), nrow=nrow(test1), data=NA)
 # dat4<-matrix(ncol=ncol(dat2), nrow=nrow(test1), data=NA)
 

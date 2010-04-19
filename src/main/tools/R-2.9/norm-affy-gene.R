@@ -1,6 +1,6 @@
 # ANALYSIS Normalisation/"Affymetrix gene arrays" (Affymetrix RMA preprocessing for CEL-files. 
-# Please note that the preprocessing might take a long time, and a maximum of three human exon 
-# arrays can be processed together. YOU HAVE TO SPECIFY THE CHIPTYPE.)
+# Please note that the preprocessing might take a long time. 
+# YOU HAVE TO SPECIFY THE CHIPTYPE.)
 # INPUT AFFY microarray[...].cel OUTPUT normalized.tsv, phenodata.tsv 
 # PARAMETER chiptype [empty, human, mouse, rat] DEFAULT empty (Chiptype)
 
@@ -14,7 +14,7 @@ library(affy)
 # Reads in data
 dat<-ReadAffy()
 if(chiptype=="empty") {
-   stop("You need to specify the chiptype. Please run the tool again.")
+   stop("CHIPSTER-NOTE: You need to specify the chiptype. Please run the tool again.")
 }
 
 if(chiptype=="human") {
