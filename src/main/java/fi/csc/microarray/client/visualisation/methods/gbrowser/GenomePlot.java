@@ -37,6 +37,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CytobandTra
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.EmptyTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GeneTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.IntensityTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.PeakTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeqBlockTrack;
@@ -216,27 +217,58 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 			annotationReversed.initializeListener();
 		}
 
-		// Eland export
+		// Peaks
 		if (true) {
 
 			// G E N E R A L ////////////////////////////////////////////////
 
-			File userData = new File(FILE_ROOT, "eland_result.fsf");
+			File peakFile = new File(FILE_ROOT, "annotations/Homo_sapiens.GRCh37.56_miRNA.fsf");
+			miRNAParser miRNAParser = new miRNAParser();
+
+			// F O R W A R D /////////////////////////////////////////////////
+
+			// Overview
+			IntensityTrack miRNAOverview = new IntensityTrack(dataView, peakFile, TreeThread.class, miRNAParser, PartColor.CDS.c.darker(), 10000000);
+
+			dataView.addTrack(miRNAOverview);
+			miRNAOverview.initializeListener();
+
+			// Detailed
+			PeakTrack annotation = new PeakTrack(dataView, peakFile, TreeThread.class, miRNAParser, Color.YELLOW, 0, Long.MAX_VALUE);
+
+			dataView.addTrack(annotation);
+			annotation.initializeListener();
+		}
+			
+
+		// Eland export
+		if (false) {
+
+			// G E N E R A L ////////////////////////////////////////////////
+
+			File userData1 = new File(FILE_ROOT, "eland_result.fsf");
+			File userData2 = new File(FILE_ROOT, "eland_result.fsf");
 			ElandParser userDataParser = new ElandParser();
 
 			// F O R W A R D /////////////////////////////////////////////////
 
 			// Overview
-			IntensityTrack readOverview = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, Color.gray, 1000000);
-
-			dataView.addTrack(readOverview);
-			readOverview.initializeListener();
+			IntensityTrack readOverview1 = new IntensityTrack(dataView, userData1, TreeThread.class, userDataParser, Color.gray, 1000000);
+			IntensityTrack readOverview2 = new IntensityTrack(dataView, userData2, TreeThread.class, userDataParser, Color.gray, 1000000);
+			
+			dataView.addTrack(readOverview1);
+			dataView.addTrack(readOverview2);
+			readOverview1.initializeListener();
+			readOverview2.initializeListener();			
 
 			// Detailed
-			SeqBlockTrack reads = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, Color.RED, 0, 1000000);
-
-			dataView.addTrack(reads);
-			reads.initializeListener();
+			SeqBlockTrack reads1 = new SeqBlockTrack(dataView, userData1, TreeThread.class, userDataParser, Color.RED, 0, 1000000);
+			SeqBlockTrack reads2 = new SeqBlockTrack(dataView, userData2, TreeThread.class, userDataParser, Color.RED, 0, 1000000);
+			
+			dataView.addTrack(reads1);
+			reads1.initializeListener();
+			dataView.addTrack(reads2);
+			reads2.initializeListener();
 
 			dataView.addTrack(new SeparatorTrack(dataView));
 
@@ -256,20 +288,28 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 			// R E V E R S E D ///////////////////////////////////////////////////
 
 			// Overview
-			IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, Color.gray, 1000000);
+			IntensityTrack readOverviewReversed1 = new IntensityTrack(dataView, userData1, TreeThread.class, userDataParser, Color.gray, 1000000);
+			IntensityTrack readOverviewReversed2 = new IntensityTrack(dataView, userData2, TreeThread.class, userDataParser, Color.gray, 1000000);
 
-			readOverviewReversed.setStrand(Strand.REVERSED);
-			dataView.addTrack(readOverviewReversed);
-			readOverviewReversed.initializeListener();
+			readOverviewReversed1.setStrand(Strand.REVERSED);
+			dataView.addTrack(readOverviewReversed1);
+			readOverviewReversed1.initializeListener();
+			readOverviewReversed2.setStrand(Strand.REVERSED);
+			dataView.addTrack(readOverviewReversed2);
+			readOverviewReversed2.initializeListener();
 
 			// Detailed
 			dataView.addTrack(new SeparatorTrack(dataView));
 
-			SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, Color.RED, 0, 1000000);
+			SeqBlockTrack readsReversed1 = new SeqBlockTrack(dataView, userData1, TreeThread.class, userDataParser, Color.RED, 0, 1000000);
+			SeqBlockTrack readsReversed2 = new SeqBlockTrack(dataView, userData2, TreeThread.class, userDataParser, Color.RED, 0, 1000000);
 
-			readsReversed.setStrand(Strand.REVERSED);
-			dataView.addTrack(readsReversed);
-			readsReversed.initializeListener();
+			readsReversed1.setStrand(Strand.REVERSED);
+			dataView.addTrack(readsReversed1);
+			readsReversed1.initializeListener();
+			readsReversed2.setStrand(Strand.REVERSED);
+			dataView.addTrack(readsReversed2);
+			readsReversed2.initializeListener();
 		}
 
 		dataView.addTrack(new RulerTrack(dataView));
