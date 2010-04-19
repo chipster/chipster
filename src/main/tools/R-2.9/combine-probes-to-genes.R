@@ -25,8 +25,7 @@ colnames (dat) [colnames(dat)=="Description"] <- "description"
 symbols <- dat[,grep("symbol", names(dat))]
 descriptions <- dat[,grep("descriptions", names(dat))]
 if (length(symbols)==0) {
-	stop("CHIPSTER-NOTE: You must provide either gene symbols for this tool to
-					work! Try first to add these using the \"Add annotations to data\" tool.")
+	stop("CHIPSTER-NOTE: You must provide gene symbols for this tool to work! Try first to add these using the \"Add annotations to data\" tool.")
 }
 
 # Remove data rows where the there is no symbol information
