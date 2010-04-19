@@ -10,7 +10,7 @@
 # modified 3.3.2010, MG, to include symbol and description columns in the output
 # if present in the input data table
 #
-# modified 15.4.2010 MG to make the script compatile with output from "Add annotations to data" tool
+# modified 15.4.2010 MG to make the script compatible with output from "Add annotations to data" tool
 
 # Loads the file
 file<-c("normalized.tsv")
