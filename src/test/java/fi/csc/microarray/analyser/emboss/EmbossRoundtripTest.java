@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
 import javax.jms.JMSException;

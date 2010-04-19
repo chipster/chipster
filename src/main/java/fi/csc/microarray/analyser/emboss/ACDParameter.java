@@ -200,7 +200,10 @@ public class ACDParameter {
      * Get an array of default values defined for this parameter.
      */
     public String[] getDefaults() {
-        return this.getAttribute("default").split(",");
+        if (this.hasAttribute("default")) {
+            return this.getAttribute("default").split(",");   
+        }
+        return new String[] {};
     }
     
     /**
