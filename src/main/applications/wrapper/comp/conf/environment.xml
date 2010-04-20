@@ -316,22 +316,6 @@
       <bioconductor-package>hgu133plus2cdf</bioconductor-package>
     </item>
 
-    <item installed="false" name="WECCA" type="r-package"> 
-      <bioconductor-package>WECCA</bioconductor-package>
-    </item>
-
-    <item installed="false" name="intCNGEan" type="r-package"> 
-      <bioconductor-package>intCNGEan</bioconductor-package>
-    </item>
-
-    <item installed="false" name="NoWaves" type="r-package"> 
-      <bioconductor-package>NoWaves</bioconductor-package>
-    </item>
-
-    <item installed="false" name="moments" type="r-package"> 
-      <bioconductor-package>moments</bioconductor-package>
-    </item>
-
   </bundle>
   
   <bundle depends="Basic R environment" name="Additional R packages">
@@ -460,6 +444,34 @@
       	and for yeast from http://www.ncbi.nlm.nih.gov/CBBresearch/Landsman/Cell_cycle_data/upstream_seq.html.
 		Run the accessory script promoter-accessory.R for these sequence files. The result is a bunch of 
 		tabular files that must be placed to /opt/chipster/tools/weeder/seqs/. 
+      </comment>
+    </item>
+
+    <item installed="false" name="WECCA" type="application"> 
+	  <dir>/opt/chipster/tools/R-(version)/libraries</dir>
+	  <comment>
+	    Download and install the WECCA R-package (required only for aCGH tools). 
+      </comment>
+    </item>
+
+    <item installed="false" name="moments" type="application"> 
+	  <dir>/opt/chipster/tools/R-(version)/libraries</dir>
+	  <comment>
+	    Download and install the moments R-package (required only for aCGH tools). 
+      </comment>
+    </item>
+
+    <item installed="false" name="NoWaves" type="application"> 
+	  <dir>/opt/chipster/tools/R-(version)/libraries</dir>
+	  <comment>
+	    Download and install the NoWaves R-package (required only for aCGH tools). 
+      </comment>
+    </item>
+
+    <item installed="false" name="intCNGEan" type="application"> 
+	  <dir>/opt/chipster/tools/R-(version)/libraries</dir>
+	  <comment>
+	    Download and install the intCNGEan R-package (required only for aCGH tools). 
       </comment>
     </item>
 
