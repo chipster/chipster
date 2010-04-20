@@ -15,8 +15,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
-import javax.swing.border.LineBorder;
-import javax.swing.border.TitledBorder;
 
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
@@ -25,7 +23,6 @@ import org.jdesktop.swingx.VerticalLayout;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationPanel;
 import fi.csc.microarray.client.operation.OperationDefinition.InputDefinition;
-import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
@@ -147,7 +144,7 @@ public class ToolParameterPanel extends ParameterPanel {
 
 		scroller = new JScrollPane(paneContainer);
 		scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		scroller.setBorder(BorderFactory.createMatteBorder(0,0,0,1,VisualConstants.OPERATION_LIST_BORDER_COLOR));
+		scroller.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 		
 		this.add(scroller, BorderLayout.CENTER);
 	}

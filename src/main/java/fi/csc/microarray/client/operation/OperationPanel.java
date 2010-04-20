@@ -17,13 +17,15 @@ import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 
 import org.apache.log4j.Logger;
 
@@ -34,7 +36,6 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationDefinition.Suitability;
-import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.client.operation.parameter.ToolParameterPanel;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.tasks.TaskException;
@@ -53,23 +54,26 @@ import fi.csc.microarray.exception.MicroarrayException;
 @SuppressWarnings("serial")
 public class OperationPanel extends JPanel
 							implements ActionListener, PropertyChangeListener {
-
+    // Logger for this class
+    private static final Logger logger = Logger.getLogger(OperationPanel.class);
+    
 	private static final String OPERATION_LIST_TITLE = "Analysis tools";
 	private static final String SHOW_PARAMETERS_TEXT = "Show parameters";
 	private static final String HIDE_PARAMETERS_TEXT = "Hide parameters";	
 	
 	private static final String OPERATIONS = "Operations";
+	private static final String OPERATIONS_FILTERED = "Filtered operations";
 	private static final String PARAMETERS = "Parameters";
-
-	/**
-	 * Logger for this class
-	 */
-	private static final Logger logger = Logger.getLogger(OperationPanel.class);
+	
+    private Object activeOperationCard;
 
 	private static final int WHOLE_PANEL_HEIGHT = 240;
 	private static final int WHOLE_PANEL_WIDTH= 660;
 	
-	private OperationChoicePanel operationChoicePanel = null;
+	private OperationChoicePanel operationChoicePanel;
+	private OperationFilterPanel operationFilterPanel;
+	private JPanel searchPanel;
+	private JTextField searchField;
 	private JPanel cardPanel = new JPanel();
 	private JTextArea detailField = new JTextArea();
 	
@@ -83,7 +87,6 @@ public class OperationPanel extends JPanel
 	
 	private ExecutionItem chosenOperation = null;
 	private ClientApplication application = Session.getSession().getApplication();
-
 	
 	/**
 	 * Creates a new OperationPanel.
@@ -95,7 +98,8 @@ public class OperationPanel extends JPanel
 		this.setPreferredSize(new Dimension(WHOLE_PANEL_WIDTH, WHOLE_PANEL_HEIGHT));
 		this.setMinimumSize(new Dimension(0,0));
 		
-		operationChoicePanel = new OperationChoicePanel(this, parsedCategories);		
+		operationChoicePanel = new OperationChoicePanel(this, parsedCategories);
+		operationFilterPanel = new OperationFilterPanel(this, parsedCategories);
 		
 		cardPanel = new JPanel(new CardLayout());
 		
@@ -104,14 +108,18 @@ public class OperationPanel extends JPanel
 		detailField.setWrapStyleWord(true);	
 		
 		detailFieldScroller = new JScrollPane(detailField);
-		detailFieldScroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);		
+		detailFieldScroller.setHorizontalScrollBarPolicy(
+		        ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);		
 
 		sourceButton.setEnabled(false);
         sourceButton.setToolTipText("View Source Code");
 		sourceButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {				
 				try {
-					application.showSourceFor(SADLParser.generateOperationIdentifier(chosenOperation.getCategoryName(), chosenOperation.getName()));
+					application.showSourceFor(
+					        SADLParser.generateOperationIdentifier(
+					                chosenOperation.getCategoryName(),
+					                chosenOperation.getName()));
 				} catch (TaskException je) {
 					application.reportException(je);
 				}
@@ -122,7 +130,10 @@ public class OperationPanel extends JPanel
 		helpButton.setToolTipText("More information about this tool");
 		helpButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				OperationDefinition od = chosenOperation instanceof OperationDefinition ? (OperationDefinition) chosenOperation : ((Operation)chosenOperation).getDefinition();
+				OperationDefinition od =
+				    chosenOperation instanceof OperationDefinition ?
+				            (OperationDefinition) chosenOperation :
+				            ((Operation)chosenOperation).getDefinition();
 				application.viewHelpFor(od);
 			}			
 		});
@@ -148,12 +159,53 @@ public class OperationPanel extends JPanel
 		detailFieldScroller.setBorder(
 				BorderFactory.createMatteBorder(1, 0, 0, 0, VisualConstants.OPERATION_LIST_BORDER_COLOR));
 		
-		cardPanel.add(operationChoicePanel,OPERATIONS);
-		
-		JPanel topLeftPanel = new JPanel(new GridBagLayout());				
-		
+		// Search bar
+		searchPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
+	    c.weighty = 1;
+	    c.fill = GridBagConstraints.BOTH;
+	    searchField = new JTextField(20);
+	    // Text field
+	    searchField.addCaretListener(new CaretListener() {
+            public void caretUpdate(CaretEvent e) {
+                // Show filtered tools
+                JTextField field = (JTextField) e.getSource();
+                if (field.getText().length() > 0) {
+                    operationFilterPanel.loadFilteredOperations(field.getText());
+                    showCard(OPERATIONS_FILTERED);
+                } else {
+                    // TODO clear selection in OperationChoicePanel
+                    selectOperation(null);
+                    showCard(OPERATIONS);
+                }
+            }
+        });
+	    // Clear search
+	    JButton showAllButton = new JButton("Show all");
+	    showAllButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                searchField.setText("");
+                // TODO clear selection in OperationChoicePanel
+                selectOperation(null);
+                showCard(OPERATIONS);
+            }
+        });
+	    searchPanel.add(new JLabel("Find a tool: "), c);
+	    searchPanel.add(searchField, c);
+		searchPanel.add(showAllButton, c);
+		searchPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
+                VisualConstants.OPERATION_LIST_BORDER_COLOR));
 		
+		// Tool selection panel
+		cardPanel.add(operationChoicePanel, OPERATIONS);
+	    cardPanel.add(operationFilterPanel, OPERATIONS_FILTERED);
+	    cardPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 1,
+	            VisualConstants.OPERATION_LIST_BORDER_COLOR));
+	    this.activeOperationCard = OPERATIONS;
+		
+	    // Help and execution panel
+		JPanel topLeftPanel = new JPanel(new GridBagLayout());
+		c = new GridBagConstraints();
 		c.gridx = 0;
 		c.gridy = 0;
 		c.gridheight = 1;
@@ -161,15 +213,13 @@ public class OperationPanel extends JPanel
 		c.weighty = 0;				
 		c.fill = GridBagConstraints.NONE;
 		c.insets.set(0,10,0,10);
-		
 		topLeftPanel.add(suitabilityLabel, c);
 		c.gridx++;
 		c.weightx = 1;
 		c.weighty = 1;				
 		c.fill = GridBagConstraints.BOTH;
 		c.insets.set(0,0,0,0);
-		topLeftPanel.add(parametersButton,c);		
-		
+		topLeftPanel.add(parametersButton,c);
 		JPanel topPanel = new JPanel(new GridLayout(1,2));
 		topPanel.add(topLeftPanel);
 		topPanel.add(executeButton);
@@ -177,16 +227,22 @@ public class OperationPanel extends JPanel
 		bottomPanel.add(helpButton);
 		bottomPanel.add(sourceButton);
 		
-		
 		c.gridx = 0;
 		c.gridy = 0;
-		c.gridheight = 3;
+		c.gridheight = 1;
+		c.insets.set(0,0,0,0);
+		c.weighty = 0;
+		this.add(searchPanel, c);
+		c.gridx = 0;
+		c.gridy = 1;
+		c.gridheight = 2;
 		c.weightx = 1;
 		c.weighty = 1;
 		c.fill = GridBagConstraints.BOTH;
 		c.insets.set(0,0,0,0);
 		this.add(cardPanel, c);
-		c.gridx++;
+		c.gridy = 0;
+		c.gridx = 1;
 		c.gridwidth = 1;
 		c.gridheight = 1;
 		c.weightx = 0;
@@ -269,40 +325,61 @@ public class OperationPanel extends JPanel
 		}
 	}
 	
+	/**
+	 * Activate a certain card in the left panel.
+	 */
+	private void showCard(String card) {
+	    if (card.equals(OPERATIONS) || card.equals(OPERATIONS_FILTERED)) {
+	        this.activeOperationCard = card;
+	    }
+	    CardLayout cl = (CardLayout)(cardPanel.getLayout());
+        cl.show(cardPanel, card);
+	}
 
 	private void showParameterPanel() {			
-			showParametersTitle(true);
-			parametersButton.setText(HIDE_PARAMETERS_TEXT);
+		showParametersTitle(true);
+		parametersButton.setText(HIDE_PARAMETERS_TEXT);
 
-			try {
+		try {
+		    // Hide search bar
+		    this.searchPanel.setVisible(false);
 
-				if (chosenOperation instanceof Operation) {
-					chosenOperation = (Operation)chosenOperation;
+		    // Display parameters for selected operation
+			if (chosenOperation instanceof Operation) {
+				chosenOperation = (Operation)chosenOperation;
 
-				} else if (chosenOperation instanceof OperationDefinition) {
-					chosenOperation = new Operation((OperationDefinition)chosenOperation,
-					        application.getSelectionManager().getSelectedDatasAsArray());
+			} else if (chosenOperation instanceof OperationDefinition) {
+				chosenOperation = new Operation((OperationDefinition)chosenOperation,
+				        application.getSelectionManager().getSelectedDatasAsArray());
 
-				} else {
-					throw new RuntimeException("wrong type: " + chosenOperation.getClass().getSimpleName());				
-				}
-				
-				cardPanel.add(new ToolParameterPanel((Operation)chosenOperation, this),PARAMETERS);
-				CardLayout cl = (CardLayout)(cardPanel.getLayout());
-			    cl.show(cardPanel, PARAMETERS);
-			    isParametersVisible = true;
+			} else {
+				throw new RuntimeException("wrong type: " + chosenOperation.getClass().getSimpleName());				
+			}
+			
+			cardPanel.add(new ToolParameterPanel((Operation)chosenOperation, this),PARAMETERS);
+			CardLayout cl = (CardLayout)(cardPanel.getLayout());
+		    cl.show(cardPanel, PARAMETERS);
+		    isParametersVisible = true;
 
-			} catch (MicroarrayException e) {
-				application.reportException(e);
-			}		
+		} catch (MicroarrayException e) {
+			application.reportException(e);
+		}
 	}
 
 	private void showOperationsPanel() {
-		showParametersTitle(false);
-		parametersButton.setText(SHOW_PARAMETERS_TEXT);
-		CardLayout cl = (CardLayout)(cardPanel.getLayout());
-		 cl.show(cardPanel, OPERATIONS);
-		 isParametersVisible = false;
+        // Show search bar
+        this.searchPanel.setVisible(true);
+        
+        showParametersTitle(false);
+        parametersButton.setText(SHOW_PARAMETERS_TEXT);
+        isParametersVisible = false;
+        
+        // Determine which panel is active
+        if (activeOperationCard.equals(OPERATIONS_FILTERED)) {
+            showCard(OPERATIONS_FILTERED);
+        } else {
+            showCard(OPERATIONS);
+        }	
 	}
 	
 	/**
@@ -441,10 +518,9 @@ public class OperationPanel extends JPanel
 	}
 	
 	private void makeButtonsEnabled(boolean enabled) {
-		if(!enabled){
-			this.showOperationsPanel();
-		}
-		//parametersButton.setEnabled(enabled);
+		//if(!enabled){
+		//	this.showOperationsPanel();
+		//}
 		setExecuteButtonEnabled(enabled);
 	}
 	
