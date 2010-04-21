@@ -25,9 +25,14 @@ public abstract class ParameterInputComponent extends JPanel implements FocusLis
 	
 	protected static final int PREFERED_WIDTH = 140;
 	protected static final int PREFERED_HEIGHT = 23;
+    protected static final int MINIMUM_WIDTH = 50;
+    protected static final int MINIMUM_HEIGHT = 23;
 	protected static final Dimension PREFERRED_SIZE = new Dimension(
 			ParameterInputComponent.PREFERED_WIDTH, 
 			ParameterInputComponent.PREFERED_HEIGHT);
+   protected static final Dimension MINIMUM_SIZE = new Dimension(
+            ParameterInputComponent.MINIMUM_WIDTH, 
+            ParameterInputComponent.MINIMUM_HEIGHT);
 	
 	protected static final int INPUT_IS_INITIALIZED = 0;
 	protected static final int INPUT_IS_VALID = 1;

@@ -21,6 +21,7 @@ public class StringInputComponent extends ParameterInputComponent implements Car
 		super(parameterPanel);
 		this.param = parameter;
 		this.field = new JTextField();
+		field.setMinimumSize(ParameterInputComponent.MINIMUM_SIZE);
 		field.setPreferredSize(ParameterInputComponent.PREFERRED_SIZE);
 		field.setText("" + parameter.getValue());
 		field.addCaretListener(this);

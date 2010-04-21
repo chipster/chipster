@@ -62,19 +62,19 @@ public class OperationPanel extends JPanel
 	private static final String HIDE_PARAMETERS_TEXT = "Hide parameters";	
 	
 	private static final String OPERATIONS = "Operations";
+	private static final String OPERATIONS_CATEGORIZED = "Categorized operations";
 	private static final String OPERATIONS_FILTERED = "Filtered operations";
 	private static final String PARAMETERS = "Parameters";
 	
-    private Object activeOperationCard;
-
 	private static final int WHOLE_PANEL_HEIGHT = 240;
 	private static final int WHOLE_PANEL_WIDTH= 660;
 	
+	private JPanel operationPanel;
+	private JPanel operationCardPanel;
 	private OperationChoicePanel operationChoicePanel;
 	private OperationFilterPanel operationFilterPanel;
-	private JPanel searchPanel;
 	private JTextField searchField;
-	private JPanel cardPanel = new JPanel();
+	private JPanel cardPanel;
 	private JTextArea detailField = new JTextArea();
 	
 	private JLabel suitabilityLabel = new JLabel();
@@ -159,49 +159,74 @@ public class OperationPanel extends JPanel
 		detailFieldScroller.setBorder(
 				BorderFactory.createMatteBorder(1, 0, 0, 0, VisualConstants.OPERATION_LIST_BORDER_COLOR));
 		
-		// Search bar
-		searchPanel = new JPanel(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-	    c.weighty = 1;
-	    c.fill = GridBagConstraints.BOTH;
-	    searchField = new JTextField(20);
-	    // Text field
-	    searchField.addCaretListener(new CaretListener() {
+	    // Search bar
+        JPanel searchPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.weighty = 1;
+        c.fill = GridBagConstraints.BOTH;
+        searchField = new JTextField(20);
+        // Text field
+        searchField.addCaretListener(new CaretListener() {
             public void caretUpdate(CaretEvent e) {
                 // Show filtered tools
                 JTextField field = (JTextField) e.getSource();
                 if (field.getText().length() > 0) {
                     operationFilterPanel.loadFilteredOperations(field.getText());
-                    showCard(OPERATIONS_FILTERED);
+                    showOperationCard(OPERATIONS_FILTERED);
                 } else {
-                    // TODO clear selection in OperationChoicePanel
-                    selectOperation(null);
-                    showCard(OPERATIONS);
+                    operationChoicePanel.deselectOperation();
+                    showOperationCard(OPERATIONS_CATEGORIZED);
                 }
             }
         });
-	    // Clear search
-	    JButton showAllButton = new JButton("Show all");
-	    showAllButton.addActionListener(new ActionListener() {
+        // Clear search
+        JButton showAllButton = new JButton("Show all");
+        showAllButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
                 searchField.setText("");
-                // TODO clear selection in OperationChoicePanel
-                selectOperation(null);
-                showCard(OPERATIONS);
+                operationChoicePanel.deselectOperation();
+                showOperationCard(OPERATIONS_CATEGORIZED);
             }
         });
-	    searchPanel.add(new JLabel("Find a tool: "), c);
-	    searchPanel.add(searchField, c);
-		searchPanel.add(showAllButton, c);
-		searchPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
+        searchPanel.add(new JLabel("Find a tool: "), c);
+        searchPanel.add(searchField, c);
+        searchPanel.add(showAllButton, c);
+        searchPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
                 VisualConstants.OPERATION_LIST_BORDER_COLOR));
 		
-		// Tool selection panel
-		cardPanel.add(operationChoicePanel, OPERATIONS);
-	    cardPanel.add(operationFilterPanel, OPERATIONS_FILTERED);
-	    cardPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 1,
-	            VisualConstants.OPERATION_LIST_BORDER_COLOR));
-	    this.activeOperationCard = OPERATIONS;
+		// Operation choice card contains two other cards:
+		// operations with categories and filtered operations
+		operationPanel = new JPanel(new GridBagLayout());
+        c = new GridBagConstraints();
+	    c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 1;
+        c.weighty = 0;
+        c.gridheight = 1;
+        c.insets.set(0,0,0,0);
+        c.fill = GridBagConstraints.BOTH;
+        searchPanel.setPreferredSize(new Dimension(10, 23));
+        searchPanel.setMinimumSize(new Dimension(10, 23));
+        searchPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        operationPanel.add(searchPanel, c);
+        operationCardPanel = new JPanel(new CardLayout());
+        c.gridy = 1;
+        c.weightx = 1;
+        c.weighty = 1;
+        c.fill = GridBagConstraints.BOTH;
+        c.insets.set(0,0,0,0);
+        operationPanel.add(operationCardPanel, c);
+        
+        // Tool selection panels inside operation card
+        operationCardPanel.add(operationChoicePanel, OPERATIONS_CATEGORIZED);
+        operationCardPanel.add(operationFilterPanel, OPERATIONS_FILTERED);
+        operationCardPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
+                VisualConstants.OPERATION_LIST_BORDER_COLOR));
+
+	    // Add operation panel
+	    cardPanel.add(operationPanel, OPERATIONS);
+        cardPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
+                VisualConstants.OPERATION_LIST_BORDER_COLOR));
 		
 	    // Help and execution panel
 		JPanel topLeftPanel = new JPanel(new GridBagLayout());
@@ -227,15 +252,10 @@ public class OperationPanel extends JPanel
 		bottomPanel.add(helpButton);
 		bottomPanel.add(sourceButton);
 		
+		// Add everything to the main panel
 		c.gridx = 0;
 		c.gridy = 0;
-		c.gridheight = 1;
-		c.insets.set(0,0,0,0);
-		c.weighty = 0;
-		this.add(searchPanel, c);
-		c.gridx = 0;
-		c.gridy = 1;
-		c.gridheight = 2;
+		c.gridheight = 3;
 		c.weightx = 1;
 		c.weighty = 1;
 		c.fill = GridBagConstraints.BOTH;
@@ -329,21 +349,26 @@ public class OperationPanel extends JPanel
 	 * Activate a certain card in the left panel.
 	 */
 	private void showCard(String card) {
-	    if (card.equals(OPERATIONS) || card.equals(OPERATIONS_FILTERED)) {
-	        this.activeOperationCard = card;
-	    }
 	    CardLayout cl = (CardLayout)(cardPanel.getLayout());
         cl.show(cardPanel, card);
 	}
+	
+	/**
+     * Activate a certain card in the operation panel.
+     * 
+     * Currently you can choose between categorized operations and
+     * a list of filtered operations.
+     */
+    private void showOperationCard(String card) {
+        CardLayout cl = (CardLayout)(operationCardPanel.getLayout());
+        cl.show(operationCardPanel, card);
+    }
 
 	private void showParameterPanel() {			
 		showParametersTitle(true);
 		parametersButton.setText(HIDE_PARAMETERS_TEXT);
 
 		try {
-		    // Hide search bar
-		    this.searchPanel.setVisible(false);
-
 		    // Display parameters for selected operation
 			if (chosenOperation instanceof Operation) {
 				chosenOperation = (Operation)chosenOperation;
@@ -357,8 +382,7 @@ public class OperationPanel extends JPanel
 			}
 			
 			cardPanel.add(new ToolParameterPanel((Operation)chosenOperation, this),PARAMETERS);
-			CardLayout cl = (CardLayout)(cardPanel.getLayout());
-		    cl.show(cardPanel, PARAMETERS);
+			showCard(PARAMETERS);
 		    isParametersVisible = true;
 
 		} catch (MicroarrayException e) {
@@ -366,20 +390,11 @@ public class OperationPanel extends JPanel
 		}
 	}
 
-	private void showOperationsPanel() {
-        // Show search bar
-        this.searchPanel.setVisible(true);
-        
+	private void showOperationsPanel() {       
         showParametersTitle(false);
         parametersButton.setText(SHOW_PARAMETERS_TEXT);
         isParametersVisible = false;
-        
-        // Determine which panel is active
-        if (activeOperationCard.equals(OPERATIONS_FILTERED)) {
-            showCard(OPERATIONS_FILTERED);
-        } else {
-            showCard(OPERATIONS);
-        }	
+        showCard(OPERATIONS);
 	}
 	
 	/**
@@ -524,12 +539,26 @@ public class OperationPanel extends JPanel
 		setExecuteButtonEnabled(enabled);
 	}
 	
+	/**
+	 * Datset selection changed.
+	 */
 	public void propertyChange(PropertyChangeEvent dataEvent) {
 		if(dataEvent instanceof DatasetChoiceEvent) {
-			logger.debug("chosen data " +  application.getSelectionManager().getSelectedDataBean() + " (possible one among many)");
-			if (application.getSelectionManager().getSelectedDataBean() != null) {
-				showOperationsPanel();
-			}
+			logger.debug("chosen data " +
+			        application.getSelectionManager().getSelectedDataBean() +
+			        " (possible one among many)");
+			
+            // Reselect operation definition, so suitability is recalculated
+			// and parameter values are set to default
+            OperationDefinition chosenOperationDefinition = 
+                    chosenOperation instanceof Operation ?
+                    ((Operation)chosenOperation).getDefinition() :
+                    (OperationDefinition)chosenOperation;
+            selectOperation(chosenOperationDefinition);
+            
+            // In case parameter panel is open, open operations panel,
+            // because we have just nulled the parameter values
+            showOperationsPanel();
 		}
 	}
 	

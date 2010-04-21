@@ -82,7 +82,6 @@ public class OperationFilterPanel extends JPanel
      * User has selected an operation.
      */
     public void valueChanged(ListSelectionEvent arg0) {
-        // TODO
         Object selected = operationList.getSelectedValue();
         if (selected instanceof ExecutionItem) {
             selectedOperation = (ExecutionItem) selected;

@@ -8,8 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +30,6 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 
 /**
  * The panel for two JLists: on the left side, high-level operation category
@@ -46,7 +43,7 @@ import fi.csc.microarray.client.selection.DatasetChoiceEvent;
  */
 @SuppressWarnings("serial")
 public class OperationChoicePanel extends JPanel
-								  implements ListSelectionListener, PropertyChangeListener {
+								  implements ListSelectionListener {
 	// Logger for this class
 	private static final Logger logger = Logger
 			.getLogger(OperationChoicePanel.class);
@@ -110,9 +107,6 @@ public class OperationChoicePanel extends JPanel
 		
 		this.add(categoryListScroller);
 		this.add(operationListScroller);
-		
-		// start listening
-		application.addPropertyChangeListener(this);
 	}
 	
 	public Vector<Component> getFocusComponents(){
@@ -122,6 +116,14 @@ public class OperationChoicePanel extends JPanel
 		return order;
 	}
 	
+	/**
+	 * Deselect operation.
+	 */
+	public void deselectOperation() {
+	    categoryList.clearSelection();
+	    operationList.clearSelection();
+	    parent.selectOperation(null);
+	}
 	
 	static class FontSizeFriendlyListRenderer extends DefaultListCellRenderer {
 		public Component getListCellRendererComponent(
@@ -251,12 +253,5 @@ public class OperationChoicePanel extends JPanel
 				parent.selectOperation(selectedOperation);
 			}
 		}
-	}
-	
-	public void propertyChange(PropertyChangeEvent evt) {
-		if( evt instanceof DatasetChoiceEvent){
-			// reselect operation with the new data
-			parent.selectOperation(selectedOperation);
-		}		
 	}
 }
