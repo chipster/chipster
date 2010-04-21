@@ -242,7 +242,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 			
 
 		// Eland export
-		if (false) {
+		if (true) {
 
 			// G E N E R A L ////////////////////////////////////////////////
 
