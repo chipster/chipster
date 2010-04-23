@@ -21,6 +21,8 @@ public class ACDToSADL {
 	
 	private ACDDescription acd;
 	
+	public static final String OUTPUT_TYPE_PREFIX = "chipster_output_type_";
+	
 	public ACDToSADL(ACDDescription acd) {
 		this.acd = acd;
 	}
@@ -36,13 +38,30 @@ public class ACDToSADL {
 	    
 	    // Get all input parameters
 	    // We are also safe from trying to include non-input parameters in input
-	    //     section (such as toggle), since SADLParameterCreator does type-checking.
-	    // TODO: deal with non-input parameters in input and output sections
-	    
+	    //     section (such as toggle), since SADLParameterCreator does type-checking.    
 	    LinkedList<ACDParameter> params = acd.getParameters();
 	    for (ACDParameter param : params) {
 	        SADLParameterCreator.createAndAdd(param, sadl);
         }
+	    
+	    // Add a special parameter for sequence outputs, so user
+	    // can choose an output format
+	    for (ACDParameter param : acd.getOutputParameters()) {
+	        if (param.getType().equals("seqout")) {
+	            Name[] fieldValues = {
+	                    Name.createName(ACDParameter.UNDEFINED, "Default"),
+                        Name.createName("fasta", "FASTA"),
+                        Name.createName("gcg", "GCG")};
+                Parameter parameter = new Parameter(
+                        Name.createName(OUTPUT_TYPE_PREFIX + param.getName(),
+                                        "Output type for " + param.getName()),
+                        ParameterType.ENUM, fieldValues,
+                        "1", "1", ACDParameter.UNDEFINED,
+                        "Choose format for output file");
+                parameter.setOptional(true);
+	            sadl.addParameter(parameter);
+	        }
+	    }
         
 	    return sadl;
     }

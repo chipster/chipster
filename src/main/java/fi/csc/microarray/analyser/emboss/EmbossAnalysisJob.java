@@ -36,6 +36,9 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
     LinkedList<String> inputParameters;
     ACDDescription acdDescription;
     
+    // Output formats specified by user
+    HashMap<String, String> outputFormats = new HashMap<String, String>();
+    
     public EmbossAnalysisJob(String toolDirectory, String descriptionDirectory) {
         // Directory where runnable files are stored
         this.toolDirectory = toolDirectory;
@@ -90,6 +93,17 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         index = 0;
         qualifiers = new LinkedList<EmbossQualifier>();
         for (ParameterDescription param : analysis.getParameters()) {
+            // Handle non-acd parameters separately
+            if (param.getName().startsWith(ACDToSADL.OUTPUT_TYPE_PREFIX)) {
+                String value = !(inputParameters.get(index).equals(ACDParameter.UNDEFINED))?
+                        inputParameters.get(index) : "";
+                outputFormats.put(
+                        param.getName().substring(ACDToSADL.OUTPUT_TYPE_PREFIX.length()),
+                        value);
+                continue;
+            }
+            
+            // Handle normal parameters
             EmbossQualifier qualifier = new EmbossQualifier(analysisToACD.get(param.getName()),
                                                             inputParameters.get(index));
             EmbossQualifier.ValidityCheck check = qualifier.validate();
@@ -199,8 +213,17 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         
         // Simple outputs
         for (ACDParameter param : acdDescription.getOutputParameters()) {
+            // User might have changed output type
+            String prefix = outputFormats.get(param.getName());
+            if (prefix == null) {
+                prefix = "";
+            } else {
+                prefix += "::";
+            }
+            
+            // Add qualifier
             params.add("-" + param.getName());
-            params.add(param.getOutputFilename(true));
+            params.add(prefix + param.getOutputFilename(true));
         }
         
         // Graphics outputs

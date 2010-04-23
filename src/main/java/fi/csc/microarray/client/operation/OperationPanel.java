@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -36,6 +37,7 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationDefinition.Suitability;
+import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.client.operation.parameter.ToolParameterPanel;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.tasks.TaskException;
@@ -413,7 +415,7 @@ public class OperationPanel extends JPanel
 			// ExecutionItem oper =
 			//	operationChoiceView.getSelectedOperation();
 			title = OPERATION_LIST_TITLE + 
-			  " - " +this.chosenOperation.getCategoryName() +
+			  " - " + this.chosenOperation.getCategoryName() +
 			  " [" + this.chosenOperation.getName() + "]";
 		} else {
 			title = OPERATION_LIST_TITLE;
@@ -567,6 +569,30 @@ public class OperationPanel extends JPanel
 			return Suitability.IMPOSSIBLE;
 		}
 		
-		return chosenOperation.evaluateSuitabilityFor(application.getSelectionManager().getSelectedDataBeans());
+		// Check input dataset suitability
+		Suitability suitability = chosenOperation.evaluateSuitabilityFor(
+		        application.getSelectionManager().getSelectedDataBeans());
+		
+		// Get parameters so we could check if required
+		// parameters aren't empty
+		List<Parameter> params;
+		if (chosenOperation instanceof Operation) {
+		    params = ((Operation)chosenOperation).getParameters();
+		} else {
+		    params = ((OperationDefinition)chosenOperation).getParameters();
+		}
+        
+        // Check parameter suitability
+        for (Parameter param : params) {
+            // Required parameters can not be empty
+            if (!param.isOptional() && (param.getValue() == null ||
+                                        param.getValue().equals(""))) {
+                if (suitability.isOk()) {
+                    return Suitability.EMPTY_REQUIRED_PARAMETERS;
+                }
+            }
+        }
+		
+		return suitability;
 	}
 }

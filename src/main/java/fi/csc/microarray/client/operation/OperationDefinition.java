@@ -284,15 +284,6 @@ public class OperationDefinition implements ExecutionItem {
     }
 
 	/**
-	 * @return An array containing the "definition parameters", ones given to
-	 *         the constructor when this definition was initiated. Should be
-	 *         cloned when an actual Operation is created.
-	 */
-	public List<Parameter> getDefaultParameters() {
-		return parameters;
-	}
-
-	/**
 	 * @return A written description of this operation's purpose and function.
 	 */
 	public String getDescription() {

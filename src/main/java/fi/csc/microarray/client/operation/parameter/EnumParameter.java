@@ -53,6 +53,7 @@ public class EnumParameter extends Parameter {
             return options;
         }
     }
+    
     /**
      * Creates a new EnumParameter with the given initial values.
      * 
@@ -93,6 +94,12 @@ public class EnumParameter extends Parameter {
         
         setMinCount(minCount);
         setMaxCount(maxCount);
+    }
+    
+    public EnumParameter clone() {
+        EnumParameter param = (EnumParameter)super.clone();
+        param.selectedOptions = new LinkedList<SelectionOption>(selectedOptions);
+        return param;
     }
     
     public EnumParameter(String name, String description) {

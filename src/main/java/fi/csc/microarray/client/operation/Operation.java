@@ -198,15 +198,7 @@ public class Operation implements ExecutionItem {
 	    
 	    // Check suitability that can be checked in definition
 	    Suitability evaluatedSuitability = definition.evaluateSuitabilityFor(data);
-        
-        // Check parameter suitability
-        for (Parameter param : this.getParameters()) {
-            // Required parameters can not be empty
-            if (!param.isOptional() && param.getValue().equals("")) {
-                evaluatedSuitability = Suitability.EMPTY_REQUIRED_PARAMETERS;
-            }
-        }
-        
+
 		return evaluatedSuitability;
 	}
 
