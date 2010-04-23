@@ -38,6 +38,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.EmptyTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GeneTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.IntensityTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.PeakTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ProfileTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeqBlockTrack;
@@ -239,7 +240,29 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 			dataView.addTrack(annotation);
 			annotation.initializeListener();
 		}
-			
+
+		// Wiggle
+		if (true) {
+
+			// G E N E R A L ////////////////////////////////////////////////
+
+			File peakFile = new File(FILE_ROOT, "annotations/Homo_sapiens.GRCh37.56_miRNA.fsf");
+			miRNAParser miRNAParser = new miRNAParser();
+
+			// F O R W A R D /////////////////////////////////////////////////
+
+			// Overview
+			IntensityTrack miRNAOverview = new IntensityTrack(dataView, peakFile, TreeThread.class, miRNAParser, PartColor.CDS.c.darker(), 10000000);
+
+			dataView.addTrack(miRNAOverview);
+			miRNAOverview.initializeListener();
+
+			// Detailed
+			ProfileTrack annotation = new ProfileTrack(dataView, peakFile, TreeThread.class, miRNAParser, Color.BLUE, 0, Long.MAX_VALUE);
+
+			dataView.addTrack(annotation);
+			annotation.initializeListener();
+		}
 
 		// Eland export
 		if (true) {
