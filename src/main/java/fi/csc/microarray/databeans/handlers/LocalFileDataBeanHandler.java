@@ -1,10 +1,14 @@
 package fi.csc.microarray.databeans.handlers;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 
 import fi.csc.microarray.databeans.DataBean;
@@ -22,6 +26,11 @@ public class LocalFileDataBeanHandler extends DataBeanHandlerBase {
 		return new BufferedInputStream(new FileInputStream(getFile(dataBean)));
 	}
 
+	public OutputStream getOutputStream(DataBean dataBean) throws IOException {
+		checkCompatibility(dataBean);
+		return new BufferedOutputStream(new FileOutputStream(getFile(dataBean)));
+	}
+	
 	public long getContentLength(DataBean dataBean) {
 		checkCompatibility(dataBean);
 		return getFile(dataBean).length();

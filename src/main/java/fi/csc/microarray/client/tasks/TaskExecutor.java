@@ -466,7 +466,7 @@ public class TaskExecutor {
 						// transfer input contents to file broker if needed
 						DataBean bean = task.getInput(name);
 						try {
-							bean.lockContent();
+							bean.getLock().readLock().lock();
 
 							// bean modified, upload
 							if (bean.isContentChanged()) {
@@ -480,7 +480,7 @@ public class TaskExecutor {
 							}
 
 						} finally {
-							bean.unlockContent();
+							bean.getLock().readLock().unlock();
 						}
 
 						// add the possibly new url to message
@@ -700,11 +700,11 @@ public class TaskExecutor {
 		for (String name : task.inputNames()) {
 			DataBean bean = task.getInput(name);
 			try {
-				bean.lockContent();
+				bean.getLock().readLock().lock();
 				bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), null)); // no progress listening on resends 
 				bean.setContentChanged(false);
 			} finally {
-				bean.unlockContent();
+				bean.getLock().readLock().unlock();
 			}
 			
 			jobMessage.addPayload(name, bean.getCacheUrl()); // no progress listening on resends

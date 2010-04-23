@@ -3,6 +3,7 @@ package fi.csc.microarray.databeans.handlers;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -67,6 +68,11 @@ public class ZipDataBeanHandler extends DataBeanHandlerBase {
 
 	public void delete(DataBean dataBean) {
 		// do nothing for now
+	}
+
+	public OutputStream getOutputStream(DataBean dataBean) throws IOException {
+		// FIXME
+		throw new UnsupportedOperationException("not supported yet");
 	}
 	
 }

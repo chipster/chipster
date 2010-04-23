@@ -180,14 +180,55 @@ public class DataBean extends DataItemBase {
 	
 
 	/**
-	 * @return A String presentation of this dataset (in this case,
-	 * 		   simply the name, to be shown on e.g. the tree).
+	 * @return The operation that has been selected for this dataset (and which
+	 * 		   may have already been done at least once to produce another
+	 * 		   dataset, or which has not yet been conducted, and maybe never
+	 * 		   will, depending on the user).
 	 */
-	public String toString() {
-		return getName();
+	public Operation getOperation() {
+		return sourceOperation;
 	}
-	
-	
+
+
+
+	/**
+	 * Associates the given operation with this DataBean.
+	 * 
+	 * @param operation to associate
+	 */
+	public void setOperation(Operation operation) {
+		this.sourceOperation = operation;
+	}
+
+
+
+	public void setNotes(String notes) {
+		this.notes = notes;		
+	}
+
+
+
+	public String getNotes() {
+		return notes;
+	}
+
+
+
+	/**
+	 * @return MIME content type of the bean.
+	 */
+	public ContentType getContentType() {
+		return contentType;
+	}
+
+
+
+	public void setContentType(ContentType contentType) {
+		this.contentType = contentType;
+	}
+
+
+
 	/**
 	 * Checks if bean's content type is any of the given alternatives. Case insensitive.
 	 */
@@ -199,7 +240,27 @@ public class DataBean extends DataItemBase {
 		}
 		return false;
 	}
+
+
+
+	/**
+	 * @return The date and time when this dataset was created.
+	 */
+	public Date getDate() {
+		return this.date;
+	}
+
+
+
+	public void setName(String newName) {
+		super.setName(newName);
 	
+		ContentChangedEvent cce = new ContentChangedEvent(this);		
+		dataManager.dispatchEventIfVisible(cce);
+	}
+
+
+
 	/**
 	 * Returns result of the feature query. Acts as a gateway to Feature API which
 	 * is the way bean contents can be used besides using the raw binary content.
@@ -217,8 +278,9 @@ public class DataBean extends DataItemBase {
 			lock.readLock().unlock();
 		}
 	}
-	
-	
+
+
+
 	/**
 	 * Returns raw binary content of this bean. Use Feature API for 
 	 * higher level accessing.
@@ -236,7 +298,144 @@ public class DataBean extends DataItemBase {
 			return getRawContentByteStream();
 		}
 	}
+
+
+
+	/**
+	 * A convenience method for gathering streamed binary content into
+	 * a byte array.
+	 * @throws IOException 
+	 * 
+	 *   @see #getContentByteStream()
+	 */
+	public byte[] getContents() throws IOException {
+		try {
+			return Files.inputStreamToBytes(this.getContentByteStream());
+		} finally {
+			// FIXME release inputstream
+		}
+		
+	}
+
+
+
+	/**
+		 * 
+		 * 	
+		 * Allows rewriting of raw bean content. Close the stream by calling closeContentOutputStream(...)
+		 * on the same bean.
+		 * @see #closeContentOutputStreamAndUnlockDataBean(OutputStream)
+		 *
+		 * Returns OutputStream that can be used to rewrite this bean's contents. 
+		 * Calling this method results in disabling caching for this bean.
+		 */
+		public OutputStream getContentOutputStreamAndLockDataBean() throws MicroarrayException, IOException {
+			this.lock.writeLock().lock();
+			setContentChanged(true);
+			this.streamStartCache = null; // caching is disabled
+			resetContentCache();
+			OutputStream os = null;
+	//		try {
+	//			this.handler.getOutputStream(this);
+	//			os = new FileOutputStream(this.contentFile);
+	//		} catch (FileNotFoundException e) {
+	//			throw new MicroarrayException(e);
+	//		}
+			return os;
+		}
+
+
+
+	/**
+	 * Closes output stream and generates required events.
+	 */
+	public void closeContentOutputStreamAndUnlockDataBean(OutputStream out)
+			throws MicroarrayException, IOException {
+		
+		try {
+			out.close();
+		} finally {
+			this.lock.writeLock().unlock();
+		}
+		ContentChangedEvent cce = new ContentChangedEvent(this);
+		dataManager.dispatchEventIfVisible(cce);
+	}
+
+
+
+	/**
+	 * Returns content size in bytes.
+	 */
+	public long getContentLength() {
+		if (this.handler == null) {
+			throw new IllegalStateException("Handler is null.");
+		}
 	
+		try {
+			return handler.getContentLength(this);
+		} catch (IOException e) {
+			// FIXME what to do?
+			throw new RuntimeException(e);
+		}
+	}
+
+
+
+	public void delete() {
+		lock.writeLock().lock();
+		try {
+			this.handler.delete(this);
+			this.contentType = null;			
+		} finally {
+			lock.writeLock().unlock();
+		}
+	}
+
+
+
+	/**
+	 * Puts named object to content cache. Content cache is a hashmap type per DataBean cache where 
+	 * objects can be stored. Cache is emptied every time bean content is changed, so it is suited
+	 * for caching results that are derived from contents of a single bean. Cache is not persistent,
+	 * and generally, user should never assume cached values to be found.  
+	 *
+	 *	FIXME think about locking
+	 *
+	 */
+	public void putToContentCache(String name, Object value) {
+		this.contentCache.put(name, value);
+	}
+
+
+
+	/**
+	 * Gets named object from content cache.
+	 * 
+	 * @see #addToContentCache(String, Object)
+	 * @param name
+	 * @return
+	 */
+	public Object getFromContentCache(String name) {
+		try {
+			this.lock.readLock().lock();
+	
+			return this.contentCache.get(name);
+		} finally {
+			this.lock.readLock().unlock();
+		}
+	}
+
+
+
+	/** 
+	 * FIXME Think about locking.
+	 */
+	protected void resetContentCache() {
+		this.contentCache.clear();
+	}
+
+
+
 	/**
 	 *  TODO should be integrated and hidden away
 	 * @throws MicroarrayException
@@ -261,6 +460,66 @@ public class DataBean extends DataItemBase {
 	
 	
 	
+	/**
+		 * Creates a link between this and target bean. Links represent relationships
+		 * between beans. Links have hardcoded types.
+		 * 
+		 * @see Link
+		 */
+		public void addLink(Link type, DataBean target) {
+			if (target == null) {
+				return;
+			}		
+			
+			// FIXME add more internal state validation to FSDataBean
+	//		for (LinkedBean linkedBean : outgoingLinks) {
+	//			if (linkedBean.bean == target && linkedBean.link == type) {
+	//				throw new RuntimeException("duplicate link");
+	//			}
+	//		}
+	
+			// make both parties aware of the link
+			target.incomingLinks.add(new LinkedBean(type, this));
+			outgoingLinks.add(new LinkedBean(type, target));
+	
+			// dispatch events only if both visible
+			if (this.getParent() != null && target.getParent() != null) {
+				LinksChangedEvent lce = new LinksChangedEvent(this, target, type, true);
+				dataManager.dispatchEvent(lce);
+			}
+	
+		}
+
+
+
+	/**
+	 * Removes a link. Does not remove links of different type between same beans.
+	 */
+	public void removeLink(Link type, DataBean target) {
+		for (LinkedBean outgoingLink : outgoingLinks) {
+			if (outgoingLink.bean == target && outgoingLink.link == type) {
+				
+				outgoingLinks.remove(outgoingLink);
+				
+				DataBean bean = outgoingLink.bean;
+				
+				for (LinkedBean incomingLink : bean.incomingLinks) {
+					if (incomingLink.bean == this && incomingLink.link == type) {
+						bean.incomingLinks.remove(incomingLink);
+						
+						// both links were found
+						LinksChangedEvent lce = new LinksChangedEvent(this, target, type, false);
+						dataManager.dispatchEventIfVisible(lce);
+						return; 
+					}
+				}
+			}
+		}
+		throw new RuntimeException("internal error: failed locate links for: " + this.getName()  + " <" + type + "> " + target.getName());
+	}
+
+
+
 	/**
 	 * Convenience method which includes all beans into result.
 	 * 
@@ -336,167 +595,6 @@ public class DataBean extends DataItemBase {
 		return selected;
 	}
 
-	private void conditionallySelect(DataBeanSelector selector, LinkedList<DataBean> selected, DataBean bean) {
-		if (!selected.contains(bean) && selector.shouldSelect(bean)) {
-			selected.add(bean);
-		}
-	}
-	
-	
-	/**
-	 * Puts named object to content cache. Content cache is a hashmap type per DataBean cache where 
-	 * objects can be stored. Cache is emptied every time bean content is changed, so it is suited
-	 * for caching results that are derived from contents of a single bean. Cache is not persistent,
-	 * and generally, user should never assume cached values to be found.  
-	 *
-	 *	FIXME think about locking
-	 *
-	 */
-	public void putToContentCache(String name, Object value) {
-		this.contentCache.put(name, value);
-	}
-	
-	/**
-	 * Gets named object from content cache.
-	 * 
-	 * @see #addToContentCache(String, Object)
-	 * @param name
-	 * @return
-	 */
-	public Object getFromContentCache(String name) {
-		try {
-			this.lock.readLock().lock();
-
-			return this.contentCache.get(name);
-		} finally {
-			this.lock.readLock().unlock();
-		}
-	}
-
-	/** 
-	 * FIXME Think about locking.
-	 */
-	protected void resetContentCache() {
-		this.contentCache.clear();
-	}
-	
-
-	/**
-	 * Indicate whether the contents have been changed since the contents
-	 * were last time uploaded to file broker.
-	 * 
-	 * FIXME Think about locking.
-	 * 
-	 */
-	public boolean isContentChanged() {
-		return this.contentChanged;
-	}
-
-	
-	/**
-	 * Set content changed status. Should be called with true every time
-	 * content is changed.
-	 * 
-	 * FIXME Think about locking.
-	 * @param contentChanged
-	 */
-	public void setContentChanged(boolean contentChanged) {
-		this.contentChanged = contentChanged;
-	}
-	
-	/**
-	 * Get the location of the remote copy for the content file. 
-	 * Usually the copy is located at the file broker.
-	 * 
-	 * @return may be null
-	 */
-	public URL getCacheUrl() {
-		return this.cacheUrl;
-	}
-	
-	/**
-	 * Set the location of the remote copy of the content file.
-	 * Usually the copy is located at the file broker.
-	 * 
-	 * @param url
-	 */
-	public void setCacheUrl(URL url) {
-		this.cacheUrl = url;
-	}
-
-	/**
-	 * @return The date and time when this dataset was created.
-	 */
-	public Date getDate() {
-		return this.date;
-	}
-	
-	public void setName(String newName) {
-		super.setName(newName);
-
-		ContentChangedEvent cce = new ContentChangedEvent(this);		
-		dataManager.dispatchEventIfVisible(cce);
-	}
-
-	
-	/**
-	 * Removes a link. Does not remove links of different type between same beans.
-	 */
-	public void removeLink(Link type, DataBean target) {
-		for (LinkedBean outgoingLink : outgoingLinks) {
-			if (outgoingLink.bean == target && outgoingLink.link == type) {
-				
-				outgoingLinks.remove(outgoingLink);
-				
-				DataBean bean = outgoingLink.bean;
-				
-				for (LinkedBean incomingLink : bean.incomingLinks) {
-					if (incomingLink.bean == this && incomingLink.link == type) {
-						bean.incomingLinks.remove(incomingLink);
-						
-						// both links were found
-						LinksChangedEvent lce = new LinksChangedEvent(this, target, type, false);
-						dataManager.dispatchEventIfVisible(lce);
-						return; 
-					}
-				}
-			}
-		}
-		throw new RuntimeException("internal error: failed locate links for: " + this.getName()  + " <" + type + "> " + target.getName());
-	}
-	
-
-	/**
-	 * Creates a link between this and target bean. Links represent relationships
-	 * between beans. Links have hardcoded types.
-	 * 
-	 * @see Link
-	 */
-	public void addLink(Link type, DataBean target) {
-		if (target == null) {
-			return;
-		}		
-		
-		// FIXME add more internal state validation to FSDataBean
-//		for (LinkedBean linkedBean : outgoingLinks) {
-//			if (linkedBean.bean == target && linkedBean.link == type) {
-//				throw new RuntimeException("duplicate link");
-//			}
-//		}
-
-		// make both parties aware of the link
-		target.incomingLinks.add(new LinkedBean(type, this));
-		outgoingLinks.add(new LinkedBean(type, target));
-
-		// dispatch events only if both visible
-		if (this.getParent() != null && target.getParent() != null) {
-			LinksChangedEvent lce = new LinksChangedEvent(this, target, type, true);
-			dataManager.dispatchEvent(lce);
-		}
-
-	}
-	
-	
 	/**
 	 * @return outgoing links of given type.
 	 */
@@ -511,150 +609,6 @@ public class DataBean extends DataItemBase {
 		return getLinkedBeans(types, incomingLinks);
 	}
 	
-	private List<DataBean> getLinkedBeans(Link[] types, LinkedList<LinkedBean> links) {
-		LinkedList<DataBean> targets = new LinkedList<DataBean>();
-		for (LinkedBean linkTarget : links) {
-			for (Link type : types) {
-				if (linkTarget.link == type) {
-					targets.add(linkTarget.bean);
-					break;
-				}
-			}
-		}
-		return targets;
-	}
-
-	/**
-	 * @return The operation that has been selected for this dataset (and which
-	 * 		   may have already been done at least once to produce another
-	 * 		   dataset, or which has not yet been conducted, and maybe never
-	 * 		   will, depending on the user).
-	 */
-	public Operation getOperation() {
-		return sourceOperation;
-	}
-
-	/**
-	 * Associates the given operation with this DataBean.
-	 * 
-	 * @param operation to associate
-	 */
-	public void setOperation(Operation operation) {
-		this.sourceOperation = operation;
-	}
-
-	
-	public void setNotes(String notes) {
-		this.notes = notes;		
-	}
-
-	public String getNotes() {
-		return notes;
-	}
-
-	/**
-	 * @return MIME content type of the bean.
-	 */
-	public ContentType getContentType() {
-		return contentType;
-	}
-
-	public void setContentType(ContentType contentType) {
-		this.contentType = contentType;
-	}
-
-	
-	private InputStream getRawContentByteStream() throws IOException {
-		if (this.handler == null) {
-			throw new IllegalStateException("Handler is null.");
-		}
-		return handler.getInputStream(this);
-	}
-
-	/**
-	 * A convenience method for gathering streamed binary content into
-	 * a byte array.
-	 * @throws IOException 
-	 * 
-	 *   @see #getContentByteStream()
-	 */
-	public byte[] getContents() throws IOException {
-		try {
-			return Files.inputStreamToBytes(this.getContentByteStream());
-		} finally {
-			// FIXME release inputstream
-		}
-		
-	}
-
-	/**
-	 * 
-	 * 	
-	 * Allows rewriting of raw bean content. Close the stream by calling closeContentOutputStream(...)
-	 * on the same bean.
-	 * @see #closeContentOutputStreamAndUnlockDataBean(OutputStream)
-	 *
-	 * Returns OutputStream that can be used to rewrite this bean's contents. 
-	 * Calling this method results in disabling caching for this bean.
-	 */
-	public OutputStream getContentOutputStreamAndLockDataBean() throws MicroarrayException, IOException {
-		this.lock.writeLock().lock();
-		setContentChanged(true);
-		this.streamStartCache = null; // caching is disabled
-		resetContentCache();
-		OutputStream os = null;
-//		try {
-//			this.handler.getOutputStream(this);
-//			os = new FileOutputStream(this.contentFile);
-//		} catch (FileNotFoundException e) {
-//			throw new MicroarrayException(e);
-//		}
-		return os;
-	}
-
-
-	/**
-	 * Closes output stream and generates required events.
-	 */
-	public void closeContentOutputStreamAndUnlockDataBean(OutputStream out)
-			throws MicroarrayException, IOException {
-		
-		try {
-			out.close();
-		} finally {
-			this.lock.writeLock().unlock();
-		}
-		ContentChangedEvent cce = new ContentChangedEvent(this);
-		dataManager.dispatchEventIfVisible(cce);
-	}
-
-	public void delete() {
-		lock.writeLock().lock();
-		try {
-			this.handler.delete(this);
-			this.contentType = null;			
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-	
-	/**
-	 * Returns content size in bytes.
-	 */
-	public long getContentLength() {
-		if (this.handler == null) {
-			throw new IllegalStateException("Handler is null.");
-		}
-
-		try {
-			return handler.getContentLength(this);
-		} catch (IOException e) {
-			// FIXME what to do?
-			throw new RuntimeException(e);
-		}
-	}
-
-
 	public URL getContentUrl() {
 		return url;
 	}
@@ -669,8 +623,8 @@ public class DataBean extends DataItemBase {
 	 * 
 	 * @param handler
 	 */
-	public void setHandler(DataBeanHandler handler) {
-		this.handler = handler;
+	public DataBeanHandler getHandler() {
+		return this.handler;
 	}
 
 	/**
@@ -678,9 +632,11 @@ public class DataBean extends DataItemBase {
 	 * 
 	 * @param handler
 	 */
-	public DataBeanHandler getHandler() {
-		return this.handler;
+	public void setHandler(DataBeanHandler handler) {
+		this.handler = handler;
 	}
+
+
 
 	public DataBeanType getType() {
 		return type;
@@ -707,7 +663,99 @@ public class DataBean extends DataItemBase {
 		this.repositoryName = repositoryName;
 	}
 
+	/**
+	 * Indicate whether the contents have been changed since the contents
+	 * were last time uploaded to file broker.
+	 * 
+	 * FIXME Think about locking.
+	 * 
+	 */
+	public boolean isContentChanged() {
+		return this.contentChanged;
+	}
+
+
+
+	/**
+	 * Set content changed status. Should be called with true every time
+	 * content is changed.
+	 * 
+	 * FIXME Think about locking.
+	 * @param contentChanged
+	 */
+	public void setContentChanged(boolean contentChanged) {
+		this.contentChanged = contentChanged;
+	}
+
+
+
+	/**
+	 * Get the location of the remote copy for the content file. 
+	 * Usually the copy is located at the file broker.
+	 * 
+	 * @return may be null
+	 */
+	public URL getCacheUrl() {
+		return this.cacheUrl;
+	}
+
+
+
+	/**
+	 * Set the location of the remote copy of the content file.
+	 * Usually the copy is located at the file broker.
+	 * 
+	 * @param url
+	 */
+	public void setCacheUrl(URL url) {
+		this.cacheUrl = url;
+	}
+
+
+
 	public ReentrantReadWriteLock getLock() {
 		return this.lock;
+	}
+
+
+
+	/**
+	 * @return A String presentation of this dataset (in this case,
+	 * 		   simply the name, to be shown on e.g. the tree).
+	 */
+	public String toString() {
+		return getName();
+	}
+
+
+
+	private void conditionallySelect(DataBeanSelector selector, LinkedList<DataBean> selected, DataBean bean) {
+		if (!selected.contains(bean) && selector.shouldSelect(bean)) {
+			selected.add(bean);
+		}
+	}
+
+
+
+	private List<DataBean> getLinkedBeans(Link[] types, LinkedList<LinkedBean> links) {
+		LinkedList<DataBean> targets = new LinkedList<DataBean>();
+		for (LinkedBean linkTarget : links) {
+			for (Link type : types) {
+				if (linkTarget.link == type) {
+					targets.add(linkTarget.bean);
+					break;
+				}
+			}
+		}
+		return targets;
+	}
+
+
+
+	private InputStream getRawContentByteStream() throws IOException {
+		if (this.handler == null) {
+			throw new IllegalStateException("Handler is null.");
+		}
+		return handler.getInputStream(this);
 	}
 }
