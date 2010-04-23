@@ -92,6 +92,7 @@ public class AnalysisDescription {
 	private String sourceCode;
 	private String category;
 	private String sadl;
+	private String helpURL = null;
 	private AnalysisHandler handler;
 	private Map<String, String> configParameters = null;
 
@@ -235,7 +236,15 @@ public class AnalysisDescription {
 	public void setSourceResourceFullPath(String sourceResourceFullPath) {
 		this.sourceResourceFullPath = sourceResourceFullPath;
 	}
+	
+	public void setHelpURL(String helpURL) {
+	    this.helpURL = helpURL;
+	}
 
+    public String getHelpURL() {
+	    return helpURL;
+	}
+    
 	
 	public long getCreationTime() {
 		return this.creationTime.getTime();

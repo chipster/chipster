@@ -76,6 +76,7 @@ public class DescriptionMessage extends ChipsterMessage {
         for (Tool tool : category.getTools()) {
             Element toolElement = moduleXml.createElement("tool");
             toolElement.setAttribute("name", tool.getName());
+            toolElement.setAttribute("helpURL", tool.getHelpURL());
             toolElement.setTextContent(tool.getDescription());
             categoryElement.appendChild(toolElement);
         }
@@ -96,7 +97,8 @@ public class DescriptionMessage extends ChipsterMessage {
             for (int j=0; j<toolList.getLength(); j++) {
                 Element toolElement = (Element) toolList.item(j);
                 category.addTool(toolElement.getAttribute("name"),
-                                 toolElement.getTextContent());
+                                 toolElement.getTextContent(),
+                                 toolElement.getAttribute("helpURL"));
             }
             categories.add(category);
         }
@@ -142,8 +144,8 @@ public class DescriptionMessage extends ChipsterMessage {
             return color;
         }
         
-        public void addTool(String name, String description) {
-            tools.add(new Tool(name, description));
+        public void addTool(String name, String description, String helpURL) {
+            tools.add(new Tool(name, description, helpURL));
         }
         
         public List<Tool> getTools() {
@@ -157,14 +159,20 @@ public class DescriptionMessage extends ChipsterMessage {
     public static class Tool {
         private String name;
         private String description;
+        private String helpURL;
         
-        public Tool(String name, String description) {
+        public Tool(String name, String description, String helpURL) {
             this.name = name;
             this.description = description;
+            this.helpURL = helpURL;
         }
         
         public String getName() {
             return name;
+        }
+        
+        public String getHelpURL() {
+            return helpURL;
         }
         
         public String getDescription() {

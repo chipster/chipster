@@ -45,7 +45,8 @@ public class OperationGenerator {
                 
                 SADLDescription sadl = new SADLParser().parse(tool.getDescription());
                 OperationDefinition newDefinition = new OperationDefinition(sadl.getName().getID(), op,
-                                                                            sadl.getComment(), true);
+                                                                            sadl.getComment(), true,
+                                                                            tool.getHelpURL());
                 logger.debug("added operation " + newDefinition.getName() + " to " + newDefinition.getCategoryName());
                 
                 for (Input input : sadl.inputs()) {

@@ -72,6 +72,9 @@ public class EmbossAnalysisHandler implements AnalysisHandler {
                                   "See: http://emboss.sourceforge.net/.");
         description.setSourceResourceName(acdFileName);
         description.setSourceResourceFullPath(acdFile.getAbsolutePath());
+        description.setHelpURL("http://emboss.sourceforge.net/apps/release/6.2" +
+                               "/emboss/apps/" + sadlDescription.getName().getID() +
+                               ".html");
         
         return description;
     }

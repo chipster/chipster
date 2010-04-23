@@ -301,7 +301,8 @@ public class ToolRepository {
                         
                         if (!toolHidden) {
                             // Add to message
-                            category.addTool(description.getName(), description.getSADL());
+                            category.addTool(description.getName(), description.getSADL(),
+                                             description.getHelpURL());
                         } else {
                             hiddenStatus = " HIDDEN";
                             hiddenCount++;

@@ -1590,13 +1590,23 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	public void viewHelpFor(OperationDefinition definition) {
-		viewHelp(HelpMapping.mapToHelppage(definition));
+        String url = definition.getHelpURL();
+	    if (url != null) {
+	        // Link is stored in operation definition
+	        url = definition.getHelpURL();
+	        viewHelp(url);
+	    } else {
+	        // Mostly for microarray
+	        // TODO: consider refactoring so that url is stored in definition
+	        // and this "else" branch is not needed
+	        String urlBase = "https://extras.csc.fi/biosciences/";
+	        viewHelp(urlBase + HelpMapping.mapToHelppage(definition));
+	    }
 	}
 
 	public void viewHelp(String page) {
 		try {
-			BrowserLauncher.openURL("https://extras.csc.fi/biosciences/" + page);
-
+			BrowserLauncher.openURL(page);
 		} catch (Exception e) {
 			reportException(e);
 		}

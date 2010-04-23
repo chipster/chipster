@@ -117,8 +117,12 @@ public class OperationDefinition implements ExecutionItem {
 	static {
 		// done here to guarantee right execution order
 		instances = new HashMap<String, OperationDefinition>();
-		IMPORT_DEFINITION = new OperationDefinition("Raw data import", OperationCategory.IMPORT_CATEGORY, "Imports raw microarray data from an external file.", false);
-		USER_MODIFICATION_DEFINITION = new OperationDefinition("User modified", OperationCategory.USER_MODIFICATION_CATEGORY, "User had edited bean content.", false);
+		IMPORT_DEFINITION = new OperationDefinition("Raw data import",
+		        OperationCategory.IMPORT_CATEGORY, "Imports raw microarray data from an external file.",
+		        false, null);
+		USER_MODIFICATION_DEFINITION = new OperationDefinition("User modified",
+		        OperationCategory.USER_MODIFICATION_CATEGORY, "User had edited bean content.",
+		        false, null);
 	}
 
 	public static OperationDefinition getInstance(String identifier) {
@@ -194,6 +198,7 @@ public class OperationDefinition implements ExecutionItem {
 	private OperationCategory category;
 	private LinkedList<Parameter> parameters = new LinkedList<Parameter>();
 	private String description;
+	private String helpURL;
 	private int colorCount;
 	private int outputCount = 0;
 	private LinkedList<InputDefinition> inputs = new LinkedList<InputDefinition>();
@@ -213,10 +218,13 @@ public class OperationDefinition implements ExecutionItem {
 	 * @param description
 	 *            A written description of this operation's purpose.
 	 */
-	public OperationDefinition(String name, OperationCategory category, String description, boolean hasSourceCode) {
+	public OperationDefinition(String name, OperationCategory category,
+	                           String description, boolean hasSourceCode,
+	                           String helpURL) {
 		this.name = name;
 		this.category = category;
 		this.hasSourceCode = hasSourceCode;
+		this.helpURL = helpURL;
 		if (category != null) {
 			category.addOperation(this);
 		}
@@ -225,6 +233,19 @@ public class OperationDefinition implements ExecutionItem {
 
 		instances.put(name + IDENTIFIER_SEPARATOR + category.getName(), this);
 	}
+
+	/**
+	 * Simplified constructor.
+	 * @param name
+	 * @param category
+	 * @param description
+	 * @param hasSourceCode
+	 * @param helpURL
+	 */
+     public OperationDefinition(String name, OperationCategory category,
+         String description, boolean hasSourceCode) {
+         this(name, category, description, hasSourceCode, null);
+     }
 
 	/**
 	 * @return The name of this operation definition.
@@ -254,6 +275,13 @@ public class OperationDefinition implements ExecutionItem {
 	public String getFullName() {
 		return getCategoryName() + " / " + getName();
 	}
+	
+	/**
+     * @return URL linking to a help page or null if not given.
+     */
+    public String getHelpURL() {
+        return helpURL;
+    }
 
 	/**
 	 * @return An array containing the "definition parameters", ones given to
