@@ -2,6 +2,9 @@ package fi.csc.microarray.client.operation;
 
 import java.awt.GridLayout;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -13,6 +16,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
+
+import sun.awt.image.IntegerComponentRaster;
 
 /**
  * A panel that lists operations filtered by a certain criterion.
@@ -61,17 +66,58 @@ public class OperationFilterPanel extends JPanel
     public void loadFilteredOperations(String filterPhrase) {
         Vector<OperationDefinition> filteredOperations =
             new Vector<OperationDefinition>();
+        LinkedList<Float> filteredOperationsWeights = new LinkedList<Float>();
         
         for (OperationCategory category : categories) {
             selectedOperation = null;
             for (OperationDefinition operation : category.getOperationList()) {
-                if (operation.getName().indexOf(filterPhrase) != -1) {
+                int indexInTitle = operation.getName().indexOf(filterPhrase);
+                int indexInDescription = operation.getDescription().indexOf(filterPhrase);
+                // Phrase found in title
+                float weightTitle = (float) Math.min(indexInTitle + 1, 1) /
+                    // Favour the beginning of the string
+                    (float) (indexInTitle + 2) /
+                    // Favour shorter matches
+                    (float) operation.getName().length() * 2;
+                // Phrase found in description
+                float weightDescription = (float) Math.min(indexInDescription + 1, 1) /
+                    (float) operation.getDescription().length();
+                
+                // Filter operations with positive weights
+                if (weightTitle + weightDescription > 0) {
                     filteredOperations.add(operation);
+                    filteredOperationsWeights.add(weightTitle + weightDescription);
                 }
+            }          
+        }
+        
+        // List comparator
+        class OperationFilterComparator implements
+              Comparator<OperationDefinition> {
+            Vector<OperationDefinition> operations;
+            LinkedList<Float> weights;
+            public OperationFilterComparator(
+                    Vector<OperationDefinition> filteredOperations,
+                    LinkedList<Float> filteredOperationsWeights) {
+                this.operations = filteredOperations;
+                this.weights = filteredOperationsWeights;
             }
             
-            parent.enableAction(false);
+            public int compare(OperationDefinition o1,
+                               OperationDefinition o2) {
+                float weight1 = weights.get(operations.indexOf(o1));
+                float weight2 = weights.get(operations.indexOf(o2));
+                return Math.round(Math.signum(weight2 - weight1));
+            }
         }
+        
+        // Sort according to weights
+        Collections.sort(filteredOperations,
+                new OperationFilterComparator(filteredOperations,
+                filteredOperationsWeights));
+        
+        parent.enableAction(false);
+        
         logger.debug("found " + filteredOperations.size() + " operations " +
                      "for phrase \"" + filterPhrase + "\"");
         operationList.setListData(filteredOperations);
