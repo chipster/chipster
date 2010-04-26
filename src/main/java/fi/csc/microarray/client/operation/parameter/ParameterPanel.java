@@ -2,7 +2,6 @@ package fi.csc.microarray.client.operation.parameter;
 
 import java.awt.Color;
 import java.awt.LayoutManager;
-import java.util.Map;
 
 import javax.swing.JPanel;
 
@@ -23,10 +22,8 @@ import fi.csc.microarray.exception.MicroarrayException;
  * @author Janne KÃ¤ki, Aleksi Kallio, Petri KlemelÃ¤
  *
  */
+@SuppressWarnings("serial")
 public abstract class ParameterPanel extends JPanel {
-
-	protected Map<Parameter, ParameterInputComponent> paramMap;
-	
 
 	public ParameterPanel(Operation operation) {
 	}
@@ -57,9 +54,15 @@ public abstract class ParameterPanel extends JPanel {
 		} else if (parameter instanceof DataSelectionParameter) {
 			return new SingleSelectionInputComponent((DataSelectionParameter)parameter, this);
 			
-		} else if (parameter instanceof SingleSelectionParameter) {
-			return new SingleSelectionInputComponent((SingleSelectionParameter)parameter, this);
-			
+		} else if (parameter instanceof EnumParameter) {
+		    EnumParameter enumParam = (EnumParameter) parameter;
+		    if (enumParam.getMaxCount() > 1) {
+		        // List with multiple selections
+		        return new MultipleSelectionInputComponent(enumParam, this);
+		    } else {
+		        // List with single selection
+		        return new SingleSelectionInputComponent(enumParam, this);
+		    }
 		} else if (parameter instanceof StringParameter) {
 			return new StringInputComponent((StringParameter) parameter, this);
 			

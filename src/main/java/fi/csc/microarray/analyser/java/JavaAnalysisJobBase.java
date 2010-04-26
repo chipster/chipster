@@ -25,5 +25,5 @@ public abstract class JavaAnalysisJobBase extends OnDiskAnalysisJobBase {
 		// ignore by default
 	}
 
-	public abstract String getVVSADL();
+	public abstract String getSADL();
 }

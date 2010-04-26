@@ -180,6 +180,8 @@ public class Task {
 			addParameter(name, (Integer)input);
 		} else if (input instanceof String) {
 			addParameter(name, (String)input);
+	    } else if (input == null) {
+	        addParameter(name, "");
 		} else {
 			throw new IllegalArgumentException("unsupported input type: " + input.getClass().getSimpleName());
 		}

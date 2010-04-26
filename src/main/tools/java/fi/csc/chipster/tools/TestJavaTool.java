@@ -13,7 +13,7 @@ import fi.csc.microarray.messaging.JobState;
 public class TestJavaTool extends JavaAnalysisJobBase {
 
 	@Override
-	public String getVVSADL() {
+	public String getSADL() {
 		return 	" ANALYSIS Test/JavaTool (Simple JavaTool test.)" + "\n" + 
 				" INPUT GENERIC input.tsv OUTPUT output.tsv, comment.txt" + "\n" +
 				" PARAMETER hyvinkö.menee [yes, no] DEFAULT yes (Hyvä parametri)";
@@ -22,22 +22,25 @@ public class TestJavaTool extends JavaAnalysisJobBase {
 
 	@Override
 	protected void execute() throws JobCancelledException {
-		updateStateToClient(JobState.RUNNING, "Java tool running");
+		updateStateDetailToClient("Java tool running");
 		
+		File inputFile = new File(jobWorkDir, "input.tsv");
+		File outputFile = new File(jobWorkDir, "output.tsv");
 		try {
-			File inputFile = new File(jobWorkDir, "input.tsv");
-			File outputFile = new File(jobWorkDir, "output.tsv");
-			FileUtils.copyFile(inputFile, outputFile);
-	
-			File commentFile = new File(jobWorkDir, "comment.txt");
-			FileWriter commentWriter = new FileWriter(commentFile);
-			commentWriter.write(inputMessage.getParameters().get(0));
-			commentWriter.flush();
-			commentWriter.close();
-		} catch (IOException ioew) {
-			// TODO update state, return
+		FileUtils.copyFile(inputFile, outputFile);
+
+		File commentFile = new File(jobWorkDir, "comment.txt");
+		FileWriter commentWriter = new FileWriter(commentFile);
+		commentWriter.write(inputMessage.getParameters().get(0));
+		commentWriter.flush();
+		commentWriter.close();
+		
+		} catch (IOException ioe) {
+			outputMessage.setErrorMessage("Running Java job failed.");
+			outputMessage.setOutputText(ioe.toString());
+			updateState(JobState.FAILED, "");
 		}
-		updateStateToClient(JobState.RUNNING, "Java tool finished");
+		updateState(JobState.RUNNING, "Java tool finished");
 	}
 
 }

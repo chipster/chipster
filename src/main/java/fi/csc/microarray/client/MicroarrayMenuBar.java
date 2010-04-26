@@ -33,6 +33,7 @@ import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.Files;
 
+@SuppressWarnings("serial")
 public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListener {
 
 	/**
@@ -47,8 +48,10 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem directImportMenuItem = null;
 	private JMenuItem importFromURLMenuItem = null;
 	private JMenuItem importFromClipboardMenuItem = null;
+	private JMenuItem createFromTextMenuItem = null;
 	private JMenuItem importFromArrayExpressMenuItem = null;
 	private JMenuItem importFromGEOMenuItem = null;
+	private JMenuItem importSequenceMenuItem = null;
 	private JMenuItem openWorkflowsMenuItem = null;
 	private JMenuItem addDirMenuItem = null;
 	private JMenuItem exportMenuItem = null;
@@ -158,9 +161,22 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (importMenu == null) {
 			importMenu = new JMenu();
 			importMenu.setText("Import from");
-			importMenu.add(getImportFromArrayExpressMenuItem());
-			importMenu.add(getImportFromGEOMenuItem());
+			
+			if (application.getRequestedModule().equals(ClientApplication.MODULE_MICROARRAY)) {
+	            // Import options for microarray analysis
+			    importMenu.add(getImportFromArrayExpressMenuItem());
+			    importMenu.add(getImportFromGEOMenuItem());
+			} else if (application.getRequestedModule().equals(ClientApplication.MODULE_SEQUENCE)) {
+			    // Import options for sequence analysis
+	            importMenu.add(getImportSequenceMenuItem());
+			}
+			
 			importMenu.addSeparator();
+			
+            if (application.getRequestedModule().equals(ClientApplication.MODULE_SEQUENCE)) {
+                importMenu.add(getCreateFromText());
+            }
+
 			importMenu.add(getImportFromURLMenuItem());
 			importMenu.add(getImportFromClipboardMenuItem());
 			
@@ -243,7 +259,40 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		}
 		return importFromGEOMenuItem;
 	}
+	
+    private JMenuItem getImportSequenceMenuItem() {
+        if (importSequenceMenuItem == null) {
+            importSequenceMenuItem = new JMenuItem();
+            importSequenceMenuItem.setText("Database...");
+            importSequenceMenuItem.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    try {
+                        application.openSequenceImportDialog();
+                    } catch (Exception me) {
+                        application.reportException(me);
+                    }
+                }
+            });
+        }
+        return importSequenceMenuItem;
+    }
 
+	private JMenuItem getCreateFromText() {
+	    if (createFromTextMenuItem == null) {
+	        createFromTextMenuItem = new JMenuItem();
+	        createFromTextMenuItem.setText("Text...");
+	        createFromTextMenuItem.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    try {
+                        application.openCreateFromTextDialog();
+                    } catch (Exception me) {
+                        application.reportException(me);
+                    }
+                }
+            });
+	    }
+	    return createFromTextMenuItem;
+	}
 	
 	private JMenuItem getHelpWorkflowMenuItem() {
 		if (helpWorkflowMenuItem == null) {
@@ -343,7 +392,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem getImportFromClipboardMenuItem() {
 		if (importFromClipboardMenuItem == null) {
 			importFromClipboardMenuItem = new JMenuItem();
-			importFromClipboardMenuItem.setText("clipboard...");
+			importFromClipboardMenuItem.setText("Clipboard...");
 			importFromClipboardMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {

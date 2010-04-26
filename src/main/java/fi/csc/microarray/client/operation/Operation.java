@@ -16,7 +16,7 @@ import fi.csc.microarray.client.tasks.TaskEventListener;
 import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
-import fi.csc.microarray.description.VVSADLSyntax.InputType;
+import fi.csc.microarray.description.SADLSyntax.InputType;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
@@ -140,6 +140,13 @@ public class Operation implements ExecutionItem {
 	public List<DataBinding> getBindings() {
 		return bindings;
 	}
+	
+	/**
+	 * Set new input file bindings.
+	 */
+	public void setBindings(LinkedList<DataBinding> bindings) {
+	    this.bindings = bindings;
+	}
 
 	/**
 	 * @return The name of this operation (actually, of its definition).
@@ -188,7 +195,11 @@ public class Operation implements ExecutionItem {
 	 *         on how suitable the operation is judged.
 	 */
 	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data) {
-		return definition.evaluateSuitabilityFor(data);
+	    
+	    // Check suitability that can be checked in definition
+	    Suitability evaluatedSuitability = definition.evaluateSuitabilityFor(data);
+
+		return evaluatedSuitability;
 	}
 
 	/**

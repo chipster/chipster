@@ -28,10 +28,11 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
 import org.apache.log4j.Logger;
-import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.action.LinkAction;
+
 import org.jdesktop.swingx.decorator.SortOrder;
+import org.jdesktop.swingx.hyperlink.LinkModel;
+import org.jdesktop.swingx.hyperlink.LinkModelAction;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.HyperlinkProvider;
 
@@ -178,7 +179,8 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 		}				
 	}
 
-	public TaskManagerScreen(TaskExecutor taskExecutor){
+	@SuppressWarnings("serial")
+    public TaskManagerScreen(TaskExecutor taskExecutor){
 
 		SwingClientApplication.setPlastic3DLookAndFeel(frame);
 		frame.setPreferredSize(new Dimension(640,480));
@@ -260,7 +262,8 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 		frame.pack();
 	}	
 
-	private JXTable getTable() {
+	@SuppressWarnings("serial")
+    private JXTable getTable() {
 		if (table == null){
 			this.tableModel = new TaskManagerTableModel();
 			this.table = new JXTable(tableModel){
@@ -326,12 +329,12 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 			table.getColumnModel().getColumn(Column.STATUS.ordinal()).setPreferredWidth(120);
 			table.getColumnModel().getColumn(Column.TIME.ordinal()).setPreferredWidth(100);
 			table.getColumnModel().getColumn(Column.ACTIONS.ordinal()).setPreferredWidth(55);
-
+			
 			table.setSortOrder(Column.TIME.ordinal(), SortOrder.DESCENDING);
 			table.setRowHeight(table.getFontMetrics(table.getFont()).getHeight() * 2);
 			table.setShowVerticalLines(false);
-
-			LinkAction<JXHyperlink> linkAction = new LinkAction<JXHyperlink>() {
+			
+			LinkModelAction<LinkModel> linkAction = new LinkModelAction<LinkModel>() {
 				public void actionPerformed(ActionEvent e) {
 					logger.debug("Canceling task: " + tasks.get(table.convertRowIndexToModel(
 							table.getSelectedRow())));

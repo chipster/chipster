@@ -12,7 +12,7 @@ import javax.swing.JComponent;
 import org.apache.log4j.Logger;
 
 /**
- * A component for controlling the value of a SingleSelectionParameter.
+ * A component for controlling the value of a EnumParameter.
  * This is done by using a JComboBox which displays all the possible
  * value objects. Thus, no erroneous selection is possible as the user
  * cannot give any undefined input (although a certain value of some other
@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
  * @author Janne KÃ¤ki
  *
  */
+@SuppressWarnings("serial")
 public class SingleSelectionInputComponent extends ParameterInputComponent
 										   implements ActionListener {
 	/**
@@ -32,18 +33,18 @@ public class SingleSelectionInputComponent extends ParameterInputComponent
 
 	private SteppedComboBox choiceBox;
 	
-	private SingleSelectionParameter param;
+	private EnumParameter param;
 	
 	/**
 	 * Creates a new SingleSelectionInputComponent.
 	 * 
-	 * @param param The SingleSelectionParameter to be controlled.
+	 * @param param The EnumParameter to be controlled.
 	 * @param enabled 
 	 * @param parameterPanel The ParameterPanel to which this component is to
 	 * 				 be placed.
 	 */
 	public SingleSelectionInputComponent(
-			SingleSelectionParameter param, ParameterPanel parameterPanel) {
+			EnumParameter param, ParameterPanel parameterPanel) {
 		super(parameterPanel);
 		this.param = param;
 		this.choiceBox = new SteppedComboBox(param.getOptions());
@@ -51,7 +52,12 @@ public class SingleSelectionInputComponent extends ParameterInputComponent
 		choiceBox.setPreferredSize(ParameterInputComponent.PREFERRED_SIZE);
 		choiceBox.setPopupWidth(preferredSize.width);
 		choiceBox.setBackground(Color.white);
-		choiceBox.setSelectedIndex(param.getSelectedIndex());
+		
+		if (param.getSelectedOptions().size() > 0) {
+		    // This is a single selection list so there's only one default value
+		    choiceBox.setSelectedItem(param.getSelectedOptions().get(0));
+		}
+        
 		choiceBox.addActionListener(this);
 		choiceBox.addFocusListener(this);
 		this.add(choiceBox, BorderLayout.CENTER);
@@ -65,10 +71,10 @@ public class SingleSelectionInputComponent extends ParameterInputComponent
 	@Override
 	public boolean inputIsValid() {
 		/**
-		 * At least for now, we assume that any of the given options
-		 * is automatically valid as an input. At least here the user
-		 * has not the chance to input whatever arbitrary data they wish,
-		 * as is the case with text fields.
+		 * Currently we assume that any of the given options is
+		 * automatically valid as an input. At least here the user
+		 * has not the chance to input whatever arbitrary data they
+		 * wish, as is the case with text fields.
 		 */
 		return true;
 	}

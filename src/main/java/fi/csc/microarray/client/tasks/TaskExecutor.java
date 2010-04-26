@@ -38,7 +38,7 @@ import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.JobMessage;
-import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
@@ -126,14 +126,14 @@ public class TaskExecutor {
 			this.pendingTask = pendingTask;
 
 			// set the initial state, certain operations do not need to wait for offer
-			if (pendingTask.getName().equals("describe") || pendingTask.getName().equals("describe-operation")) {
+			if (pendingTask.getName().equals("describe-operation")) {
 				this.internalState = ResultListenerState.WAIT_FOR_STATUS;
 			} else {
 				this.internalState = ResultListenerState.WAIT_FOR_ACK;
 			}
 		}
 
-		public void onNamiMessage(NamiMessage msg) {
+		public void onChipsterMessage(ChipsterMessage msg) {
 			logger.debug("Task " + pendingTask.getId() + " got message (" + msg.getMessageID() + ") of type " + msg.getClass().getName());
 
 			// ignore everything if we (ResultListener) are already finished

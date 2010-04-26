@@ -19,6 +19,7 @@ import javax.swing.event.CaretListener;
  * @author Janne KÃ¤ki
  *
  */
+@SuppressWarnings("serial")
 public class DecimalInputComponent extends ParameterInputComponent
 								   implements CaretListener {
 
@@ -41,7 +42,10 @@ public class DecimalInputComponent extends ParameterInputComponent
 		this.param = param;
 		this.field = new JTextField();
 		field.setPreferredSize(ParameterInputComponent.PREFERRED_SIZE);
-		field.setText("" + param.getDecimalValue());
+		if (param.getDecimalValue() != null) {
+		    // If value is null it means the field has no default value
+		    field.setText("" + param.getDecimalValue());
+		}
 		field.addCaretListener(this);
 		field.addFocusListener(this);
 		this.add(field, BorderLayout.CENTER);
@@ -56,41 +60,49 @@ public class DecimalInputComponent extends ParameterInputComponent
 	@Override
 	public boolean inputIsValid() {
 		if (state == ParameterInputComponent.INPUT_IS_INITIALIZED ||
-				state == ParameterInputComponent.INPUT_IS_VALID) {
+			state == ParameterInputComponent.INPUT_IS_VALID) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 	
-	public void caretUpdate(CaretEvent e) {
+	public void caretUpdate(CaretEvent e) {   
 		try {
-			double value = Double.parseDouble(field.getText());
-			if (param.checkValidityOf(value) == true) {
-				setState(ParameterInputComponent.INPUT_IS_VALID);
-				param.setValue(value);
-			} else {
-				setState(ParameterInputComponent.INPUT_IS_OUT_OF_BOUNDS);
-			}
+	        if (field.getText().equals("")) {
+	            // It is empty
+	            if (param.isOptional()) {
+	                param.setValue(null);
+	                setState(ParameterInputComponent.INPUT_IS_VALID);
+	            } else {
+	                setState(ParameterInputComponent.INPUT_IS_REQUIRED_AND_EMPTY);
+	            }
+	        } else {
+	            // It is a number
+    			Double value = Double.parseDouble(field.getText());
+    			if (param.checkValidityOf(value) == true) {
+                    param.setValue(value);
+    				setState(ParameterInputComponent.INPUT_IS_VALID);
+    			} else {
+    				setState(ParameterInputComponent.INPUT_IS_OUT_OF_BOUNDS);
+    			}
+	        }
 		} catch (NumberFormatException nfe) {
 			setState(ParameterInputComponent.INPUT_IS_INCOMPREHENSIBLE);
 		}
 	}
 	
 	private void setState(int newState) {
-		// if (this.state != newState) {
 		String message = null;
 		this.state = newState;
 		switch (state) {
 		case ParameterInputComponent.INPUT_IS_VALID:
 			field.setBackground(ParameterInputComponent.BG_VALID);
-			field.setForeground(Color.black);
 			message = param.getDescription();
 			getParentPanel().setMessage(message, Color.black);
 			break;
 		case ParameterInputComponent.INPUT_IS_OUT_OF_BOUNDS:
 			field.setBackground(ParameterInputComponent.BG_INVALID);
-			field.setForeground(Color.black);
 			message =
 				"Value for " + param.getName() + " must be between " +
 				param.getMinValue() + " and " + param.getMaxValue() + ".";
@@ -98,11 +110,17 @@ public class DecimalInputComponent extends ParameterInputComponent
 			break;
 		case ParameterInputComponent.INPUT_IS_INCOMPREHENSIBLE:
 			field.setBackground(ParameterInputComponent.BG_INVALID);
-			field.setForeground(Color.red);
 			message =
 				"Value for " + param.getName() + " must be a valid " +
 				"decimal number. Use a point as the decimal separator.";
 			getParentPanel().setMessage(message, Color.red);
+			break;
+		case ParameterInputComponent.INPUT_IS_REQUIRED_AND_EMPTY:
+		    field.setBackground(ParameterInputComponent.BG_INVALID);
+            message =
+                "Parameter " + param.getName() + " is required and " +
+                "can not be empty.";
+            getParentPanel().setMessage(message, Color.red);
 		}
 	}
 

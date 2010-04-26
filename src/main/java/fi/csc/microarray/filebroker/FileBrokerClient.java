@@ -16,7 +16,7 @@ import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
 import fi.csc.microarray.messaging.message.CommandMessage;
-import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.UrlMessage;
 import fi.csc.microarray.util.IOUtils;
@@ -52,7 +52,7 @@ public class FileBrokerClient {
 		private URL newUrl;
 		private CountDownLatch latch = new CountDownLatch(1);
 		
-		public void onNamiMessage(NamiMessage msg) {
+		public void onChipsterMessage(ChipsterMessage msg) {
 			if (msg instanceof UrlMessage) {
 				UrlMessage urlMessage = (UrlMessage) msg;
 				this.newUrl = urlMessage.getUrl();

@@ -17,7 +17,7 @@ import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.message.AuthenticationMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
-import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.AuthenticationMessage.AuthenticationOperation;
 import fi.csc.microarray.security.SecureSessionPool;
 import fi.csc.microarray.security.SecureSessionPool.Session;
@@ -107,13 +107,13 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 		/**
 		 * Two step processing: authenticate, then route.
 		 */
-		public void onNamiMessage(NamiMessage msg) {
+		public void onChipsterMessage(ChipsterMessage msg) {
 			try {
 
 				logger.debug("starting to process " + msg);
 				
 				// variables
-				NamiMessage messageToBeRouted = null;
+				ChipsterMessage messageToBeRouted = null;
 				Session session = null;
 
 				//
@@ -160,7 +160,7 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 								
 								if (session.getParameter(KEY_PENDING_MESSAGE) != null) {
 									// route pending message
-									messageToBeRouted = (NamiMessage)session.getParameter(KEY_PENDING_MESSAGE);
+									messageToBeRouted = (ChipsterMessage)session.getParameter(KEY_PENDING_MESSAGE);
 								}
 							} else {
 								securityLogger.info("illegal username/password (user " + authMsg.getUsername()  + ", auth. message JMS id was " + authMsg.getJmsMessageID() + ")");
@@ -209,7 +209,7 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 		}
 
 		
-		private void ackLogin(NamiMessage loginMessage, String sessionID, boolean succeeded) throws JMSException, AuthorisationException {
+		private void ackLogin(ChipsterMessage loginMessage, String sessionID, boolean succeeded) throws JMSException, AuthorisationException {
 			AuthenticationOperation operation = succeeded ? AuthenticationMessage.AuthenticationOperation.LOGIN_SUCCEEDED : AuthenticationMessage.AuthenticationOperation.LOGIN_FAILED; 
 			AuthenticationMessage request = new AuthenticationMessage(operation);
 			request.setSessionID(sessionID);
@@ -217,7 +217,7 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 			endpoint.replyToMessage(loginMessage, request, Topics.MultiplexName.AUTHORISE_TO.toString());
 		}
 		
-		private void requestAuthentication(NamiMessage msg, String sessionID) throws JMSException, AuthorisationException {
+		private void requestAuthentication(ChipsterMessage msg, String sessionID) throws JMSException, AuthorisationException {
 			AuthenticationMessage request = new AuthenticationMessage(AuthenticationMessage.AuthenticationOperation.REQUEST);
 			request.setSessionID(sessionID);
 			request.setReplyTo(msg.getReplyTo());
@@ -227,7 +227,7 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 	}
 		
 	private class TestListener implements MessagingListener {
-		public void onNamiMessage(NamiMessage msg) {
+		public void onChipsterMessage(ChipsterMessage msg) {
 			logger.debug("got message on test-topic.");
 			try {
 

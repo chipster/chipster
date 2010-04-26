@@ -2,6 +2,7 @@ package fi.csc.microarray.analyser;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -16,8 +18,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.jms.JMSException;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
+import org.xml.sax.SAXException;
 
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -31,9 +35,10 @@ import fi.csc.microarray.messaging.MonitoredNodeBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.message.CommandMessage;
+import fi.csc.microarray.messaging.message.DescriptionMessage;
 import fi.csc.microarray.messaging.message.JobLogMessage;
 import fi.csc.microarray.messaging.message.JobMessage;
-import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
@@ -170,22 +175,15 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 * Also operation descriptions and source codes are requested with a JobMessage. 
 	 *  
 	 */
-	public void onNamiMessage(NamiMessage namiMessage) {
+	public void onChipsterMessage(ChipsterMessage chipsterMessage) {
 		
 		// create job, request operation descriptions or source code for operation
-		if (namiMessage instanceof JobMessage) {
+		if (chipsterMessage instanceof JobMessage) {
 			
-			JobMessage jobMessage = (JobMessage)namiMessage;
-			
-			// return the operations descriptions
-			if ("describe".equals(jobMessage.getAnalysisId())) {
-				logger.info("sending all descriptions");
-				sendReplyMessage(jobMessage, createDescriptionsMessage(jobMessage));
-				return; 
-			} 
+			JobMessage jobMessage = (JobMessage)chipsterMessage;
 			
 			// return source code for an operation
-			else if ("describe-operation".equals(jobMessage.getAnalysisId())) {
+			if ("describe-operation".equals(jobMessage.getAnalysisId())) {
 				sendReplyMessage(jobMessage, createSourceCodeMessage(jobMessage));
 				return; 
 			}
@@ -197,8 +195,8 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		}  
 		
 		// command messages
-		else if (namiMessage instanceof CommandMessage) {
-			CommandMessage commandMessage = (CommandMessage)namiMessage;
+		else if (chipsterMessage instanceof CommandMessage) {
+			CommandMessage commandMessage = (CommandMessage)chipsterMessage;
 			
 			if (CommandMessage.COMMAND_ACCEPT_OFFER.equals(commandMessage.getCommand())) {
 				
@@ -243,10 +241,27 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 							activeJobRemoved();
 						}
 					}
-					
 				}
 			}
 			
+			// Request to send descriptions
+			else if (CommandMessage.COMMAND_DESCRIBE.equals(commandMessage.getCommand())) {
+	            logger.info("sending all descriptions");
+	            
+	            // Send descriptions for all available modules
+                try {
+                    List<DescriptionMessage> list;
+                    list = createDescriptionsMessages(commandMessage);
+                    for (DescriptionMessage msg : list) {
+                        sendReplyMessage(commandMessage, msg);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+	            return; 
+			}
+			
+			// Request to cancel a job
 			else if (CommandMessage.COMMAND_CANCEL.equals(commandMessage.getCommand())) {
 				String jobId = commandMessage.getParameters().get(0);
 				
@@ -270,7 +285,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		
 		// unknown message
 		else {
-			logger.error("unidentified message: " + namiMessage.getMessageID());
+			logger.error("unidentified message: " + chipsterMessage.getMessageID());
 		}
 
 	}
@@ -355,7 +370,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 * 
 	 * 
 	 */
-	public void sendResultMessage(NamiMessage original, ResultMessage reply) {
+	public void sendResultMessage(ChipsterMessage original, ResultMessage reply) {
 		try {
 			endpoint.replyToMessage(original, reply);
 		} catch (JMSException e) {
@@ -374,7 +389,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 * @param original
 	 * @param reply
 	 */
-	private void sendReplyMessage(final NamiMessage original, final NamiMessage reply) {
+	private void sendReplyMessage(final ChipsterMessage original, final ChipsterMessage reply) {
 		new Thread(new Runnable() {
 			public void run() {
 				try {
@@ -509,22 +524,15 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		sendReplyMessage(job.getInputMessage(), offerMessage);
 	}
 	
-	
-	private ResultMessage createDescriptionsMessage(JobMessage requestMessage) {
-		ResultMessage resultMessage = new ResultMessage("", JobState.COMPLETED, "", "", 
-				"", requestMessage.getReplyTo());
-		try {
-			String description = toolRepository.serialiseAsStringBuffer().toString();
-			URL url = fileBroker.addFile(new ByteArrayInputStream(description.getBytes()), null);
-			resultMessage.addPayload(DESCRIPTION_OUTPUT_NAME, url);
-		} catch (Exception e) {
-			logger.error("Could not send analysis descriptions", e);
-			resultMessage.setState(JobState.ERROR);
-			resultMessage.setErrorMessage("Could not send analysis descriptions.");
-		}
-		return resultMessage;
+	private List<DescriptionMessage>
+	        createDescriptionsMessages(CommandMessage requestMessage)
+	        throws IOException, SAXException, ParserConfigurationException {
+	    List<DescriptionMessage> list = toolRepository.getModuleDescriptions();
+	    for (DescriptionMessage descriptionMsg : list) {
+	        descriptionMsg.setReplyTo(requestMessage.getReplyTo());
+	    }
+	    return list;
 	}
-
 
 	private ResultMessage createSourceCodeMessage(JobMessage requestMessage) {
 		ResultMessage resultMessage = new ResultMessage("", JobState.COMPLETED, "", "", 

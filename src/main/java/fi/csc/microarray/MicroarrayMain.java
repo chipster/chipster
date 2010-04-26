@@ -4,9 +4,10 @@ package fi.csc.microarray;
 import java.io.FileInputStream;
 
 import fi.csc.microarray.analyser.AnalyserServer;
-import fi.csc.microarray.analyser.VVSADLTool;
+import fi.csc.microarray.analyser.SADLTool;
 import fi.csc.microarray.auth.Authenticator;
 import fi.csc.microarray.client.SwingClientApplication;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.filebroker.FileServer;
 import fi.csc.microarray.manager.Manager;
@@ -15,7 +16,7 @@ import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.NodeBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
-import fi.csc.microarray.module.chipster.ChipsterVVSADLParser.Validator;
+import fi.csc.microarray.module.chipster.ChipsterSADLParser.Validator;
 import fi.csc.microarray.util.CommandLineParser;
 import fi.csc.microarray.util.CommandLineParser.CommandLineException;
 import fi.csc.microarray.webstart.WebstartJettyServer;
@@ -47,6 +48,7 @@ public class MicroarrayMain {
 			cmdParser.addParameter("rcheck", false, true, null, "check R script syntax");
 			cmdParser.addParameter("-config", false, true, null, "configuration file URL (chipster-config.xml)");
 			cmdParser.addParameter("-required-analyser-count", false, true, "1", "required comp service count for nagios check");
+            cmdParser.addParameter("-module", false, true, "microarray", "client module (e.g. microarray-module)");
 			
 			// parse commandline
 			cmdParser.parse(args);
@@ -88,6 +90,7 @@ public class MicroarrayMain {
 							return "nagios-check";
 						}
 					};
+					DirectoryLayout.initialiseClientLayout().getConfiguration();       			    
 					MessagingEndpoint endpoint = new MessagingEndpoint(nodeSupport);
 					AdminAPI api = new AdminAPI(endpoint.createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ_WRITE), null);
 					api.setRequiredCountFor("analyser", requiredAnalyserCount);
@@ -143,8 +146,8 @@ public class MicroarrayMain {
 			} else if (cmdParser.hasValue("rcheck")) {
 				boolean fails = false;
 				try {					
-					VVSADLTool.ParsedRScript res = new VVSADLTool().parseRScript(new FileInputStream(cmdParser.getValue("rcheck")));
-					new Validator().validate(cmdParser.getValue("rcheck"), res.VVSADL);
+					SADLTool.ParsedRScript res = new SADLTool().parseRScript(new FileInputStream(cmdParser.getValue("rcheck")));
+					new Validator().validate(cmdParser.getValue("rcheck"), res.SADL);
 				} catch (Exception e) {
 					System.out.println(e.getMessage());
 					fails = true;
@@ -152,7 +155,7 @@ public class MicroarrayMain {
 				System.out.println("parse succeeded: " + !fails);
 				
 			} else {
-				SwingClientApplication.start(cmdParser.getValue("-config")); 		
+				SwingClientApplication.start(cmdParser.getValue("-config"), cmdParser.getValue("-module")); 		
 			}
 			
 		} catch (CommandLineException e) {

@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -15,14 +16,14 @@ import fi.csc.microarray.analyser.AnalysisException;
 import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
 import fi.csc.microarray.analyser.ResultCallback;
-import fi.csc.microarray.analyser.VVSADLTool;
+import fi.csc.microarray.analyser.SADLTool;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
-import fi.csc.microarray.description.VVSADLParser.ParseException;
+import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.message.JobMessage;
-import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;
+import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 /**
  * Handler for the BeanShell jobs.
  * 
@@ -30,7 +31,6 @@ import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;
  *
  */
 public class BeanShellHandler implements AnalysisHandler {
-	private static final String FILETYPE = ".bsh";
 
 	/**
 	 * Logger for this class
@@ -53,7 +53,8 @@ public class BeanShellHandler implements AnalysisHandler {
 	}
 
 
-	public AnalysisDescription handle(String sourceResourceName) throws AnalysisException {
+	public AnalysisDescription handle(String sourceResourceName,
+	                                  Map<String, String> params) throws AnalysisException {
 		
 		InputStream scriptSource;
 		
@@ -80,23 +81,23 @@ public class BeanShellHandler implements AnalysisHandler {
 			throw new AnalysisException("Script source " + sourceResourceName + " not found.");
 		}
 		
-		// read the VVSADL from the comment block in the beginning of file
+		// read the SADL from the comment block in the beginning of file
 		// and the actual source code
-		VVSADLTool.ParsedRScript parsedScript;
+		SADLTool.ParsedRScript parsedScript;
 		try {
-			parsedScript = new VVSADLTool().parseRScript(scriptSource, "//");
+			parsedScript = new SADLTool().parseRScript(scriptSource, "//");
 		} catch (MicroarrayException e) {				
 			throw new AnalysisException(e);
 		}
 		
-		// parse VVSADL and create AnalysisDescription		
+		// parse SADL and create AnalysisDescription		
 		AnalysisDescription ad;
 		try {
-			ad = new AnalysisDescriptionGenerator().generate(new ChipsterVVSADLParser().parse(parsedScript.VVSADL), this);
+			ad = new AnalysisDescriptionGenerator().generate(new ChipsterSADLParser().parse(parsedScript.SADL), this);
 		} catch (ParseException e) {
 			throw new AnalysisException(e);
 		}
-		ad.setVVSADL(parsedScript.VVSADL);
+		ad.setSADL(parsedScript.SADL);
 
 		// add stuff to the AnalysisDescription
 		ad.setCommand("BeanShell");
@@ -108,18 +109,9 @@ public class BeanShellHandler implements AnalysisHandler {
 		return ad;
 	}
 
-	
-	public boolean supports(String sourceResourceName) {
-		logger.debug("do we support " + sourceResourceName + ": " + sourceResourceName.toLowerCase().endsWith(FILETYPE));
-		return sourceResourceName.toLowerCase().endsWith(FILETYPE);
-	}
-
-
 	/**
 	 * Check if the source file has been modified since the 
 	 * AnalysisDescription was created.
-	 * 
-	 * 
 	 */
 	public boolean isUptodate(AnalysisDescription description) {
 		File scriptFile = new File(customScriptsDirName + description.getSourceResourceFullPath());

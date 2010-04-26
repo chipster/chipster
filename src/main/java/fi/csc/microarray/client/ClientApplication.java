@@ -38,7 +38,6 @@ import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationCategory;
 import fi.csc.microarray.client.operation.OperationDefinition;
-import fi.csc.microarray.client.operation.OperationGenerator;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.Operation.ResultListener;
 import fi.csc.microarray.client.selection.DataSelectionManager;
@@ -64,18 +63,19 @@ import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.table.EditableTable;
 import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 import fi.csc.microarray.databeans.fs.FSDataManager;
-import fi.csc.microarray.description.ParsedVVSADL;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.AdminAPI;
+import fi.csc.microarray.messaging.DescriptionListener;
 import fi.csc.microarray.messaging.MessagingEndpoint;
+import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.Node;
 import fi.csc.microarray.messaging.NodeBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
+import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.module.DefaultModules;
 import fi.csc.microarray.module.Modules;
-import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.Strings;
 
@@ -91,13 +91,15 @@ import fi.csc.microarray.util.Strings;
 public abstract class ClientApplication implements Node {
 	private static final int HEARTBEAT_DELAY = 2*1000;
 
-	/**
-	 * Logger for this class
-	 */
+	// Logger for this class
 	private static Logger logger;
 
 	public static File SNAPSHOT_DIR = null;
 	public static File OLD_SNAPSHOT_DIR = null;
+	
+	// Module names (see ToolRepository)
+	public static final String MODULE_MICROARRAY = "microarray";
+	public static final String MODULE_SEQUENCE = "sequence";
 	
     // 
 	// ABSTRACT INTERFACE
@@ -162,13 +164,15 @@ public abstract class ClientApplication implements Node {
 		}
 	};
 
-	protected Collection<OperationCategory> parsedCategories;
 	protected String metadata;
 	protected CountDownLatch definitionsInitialisedLatch = new CountDownLatch(1);
 	
 	private boolean eventsEnabled = false;
 	private PropertyChangeSupport eventSupport = new PropertyChangeSupport(this);
+	
+	private String requestedModule;
 
+	protected Collection<OperationCategory> parsedCategories;
 	protected WorkflowManager workflowManager;
 	protected TaskExecutor taskExecutor;
 	protected MessagingEndpoint endpoint;
@@ -210,7 +214,7 @@ public abstract class ClientApplication implements Node {
 			logger.debug("Initialise JMS connection.");
 			reportInitialisation("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", true);
 			this.endpoint = new MessagingEndpoint(this, getAuthenticationRequestListener());
-			reportInitialisation(" connected", false);				
+			reportInitialisation(" connected", false);
 			
 			//	put network stuff to session
 			Session.getSession().putObject("client-endpoint", endpoint);
@@ -224,23 +228,17 @@ public abstract class ClientApplication implements Node {
 			}				
 			reportInitialisation(" all are available", false);
 			
-			// create metadata fetching job
-			reportInitialisation("Fetching analysis descriptions...", true);
-			final Task describeOperations = taskExecutor.createTask("describe", true);
-			
-			// run the job (blocking while it is progressing)
-			taskExecutor.execute(describeOperations);
-			
-			// parse metadata
-			DataBean metadataBean = describeOperations.getOutput(AnalyserServer.DESCRIPTION_OUTPUT_NAME);
-			this.metadata = new String(metadataBean.getContents());
-			manager.delete(metadataBean); // don't leave the bean hanging around
-			logger.debug("got metadata: " + this.metadata.substring(0, 50) + "...");
-			List<ParsedVVSADL> descriptions = new ChipsterVVSADLParser().parseMultiple(this.metadata);
-			this.parsedCategories = new OperationGenerator().generate(descriptions).values();
-			
-			logger.debug("created " + this.parsedCategories.size() + " operation categories");
-			
+			// Fetch descriptions from compute server
+	        reportInitialisation("Fetching analysis descriptions...", true);
+		    MessagingTopic requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC,
+		                                                       AccessMode.WRITE);
+            DescriptionListener descriptionListener = new DescriptionListener(getRequestedModule());
+			requestTopic.sendReplyableMessage(new CommandMessage(CommandMessage.COMMAND_DESCRIBE),
+			                                  descriptionListener);
+			descriptionListener.waitForResponse();
+			parsedCategories = descriptionListener.getCategories();
+			logger.debug("created " + parsedCategories.size() + " operation categories");
+ 			
 			reportInitialisation(" received and processed", false);
 			definitionsInitialisedLatch.countDown();
 			
@@ -269,6 +267,29 @@ public abstract class ClientApplication implements Node {
 
 
 	}
+	
+	/**
+	 * @return a name of the module that user wants to be loaded.
+	 */
+	public String getRequestedModule() {
+	    return requestedModule;
+	}
+	
+	/**
+	 * Set module that user wants loaded.
+	 * 
+	 * @param requestedModule
+	 */
+    public void setRequestedModule(String requestedModule) {
+        this.requestedModule = requestedModule;
+    }
+    
+    /**
+     * @return messaging endpoint for this application.
+     */
+    public MessagingEndpoint getEndpoint() {
+        return endpoint;
+    }
 	
 	/**
 	 * Add listener for applications state changes.

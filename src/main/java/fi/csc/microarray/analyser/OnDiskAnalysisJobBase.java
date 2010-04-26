@@ -4,12 +4,14 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.net.URL;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.analyser.AnalysisDescription.OutputDescription;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.util.Files;
@@ -98,27 +100,35 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 		updateStateDetailToClient("transferring output data");
 		cancelCheck();
 
-		List<String> outputFileNames = analysis.getOutputFiles();
-		for (String fileName : outputFileNames) {
+		List<OutputDescription> outputFiles = analysis.getOutputFiles();
+		for (OutputDescription fileDescription : outputFiles) {
 			cancelCheck();
 
 			// copy file to file broker
-			File outputFile = new File(jobWorkDir, fileName);
+			File outputFile = new File(jobWorkDir, fileDescription.getFileName());
 			URL url;
 				try {
 					url = resultHandler.getFileBrokerClient().addFile(new FileInputStream(outputFile), null);
-				} catch (Exception e) {
+					// put url to result message
+					outputMessage.addPayload(fileDescription.getFileName(), url);
+					logger.debug("transferred output file: " + fileDescription.getFileName());
+						
+
+			} catch (FileNotFoundException e) {
+			    // FIXME need to deal missing required files
+			    // Output file not found, it might have been optional.
+			    // In future we might consider displaying an error message
+			    // when a required output was not found.
+
+			} catch (Exception e) {
+					// TODO continue or return? also note the super.postExecute()
 					logger.error("could not put file to file broker", e);
 					outputMessage.setErrorMessage("Could not send output file.");
 					outputMessage.setOutputText(e.toString());
 					updateState(JobState.ERROR, "");
 					return;
 				}
-
-			// put url to result message
-			outputMessage.addPayload(fileName, url);
-			logger.debug("transferred output file: " + fileName);
-		}
+			}
 		super.postExecute();
 	}
 

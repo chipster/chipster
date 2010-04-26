@@ -7,29 +7,23 @@ package fi.csc.microarray.analyser;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.apache.log4j.Logger;
+import java.util.Map;
 
 import fi.csc.microarray.messaging.message.JobMessage;
 
 
 /**
- * Describes one analysis, such as "median normalisation".
+ * Compute service specific versions of analysis tools descriptions.
+ * Content is overlapping with generic SADLDescription objects, but 
+ * some features are not here and some are extra.
  * 
- * @author hupponen, akallio 
+ * @author Taavi Hupponen, Aleksi Kallio 
  */
 public class AnalysisDescription {
-	/**
-	 * Logger for this class
-	 */
-	@SuppressWarnings("unused")
-	private static final Logger logger = Logger
-			.getLogger(AnalysisDescription.class);
 
 	/**
 	 * Describes one parameter, such as "number of iterations".
 	 * 
-	 * @author akallio
 	 */
 	public static class ParameterDescription {
 
@@ -57,6 +51,21 @@ public class AnalysisDescription {
 	}
 	
 	/**
+	 * Describes an output (parameter name and file name). 
+	 */
+	public static class OutputDescription {
+        private String fileName;
+
+        public String getFileName() {
+            return fileName;
+        }
+	    
+	    public OutputDescription(String fileName) {
+	        this.fileName = fileName;
+	    }
+	}
+	
+	/**
 	 * Actual executable that handles the analysis.
 	 */
 	private String command;
@@ -78,16 +87,24 @@ public class AnalysisDescription {
 
 	
 	
-	private List<String> outputFiles = new LinkedList<String>();
+	private List<OutputDescription> outputFiles = new LinkedList<OutputDescription>();
 	private List<ParameterDescription> parameters = new LinkedList<ParameterDescription>();
 	private String sourceCode;
 	private String category;
-	private String vvsadl;
+	private String sadl;
+	private String helpURL = null;
 	private AnalysisHandler handler;
-	
-	// these are needed for update check
-	/** Name of the original source script or java class or whatever */
+	private Map<String, String> configParameters = null;
+
+    /**
+	 * Name of the original source script or java class etc.
+	 * Needed for update checks.
+	 */
 	private String sourceResourceName;
+
+	/**
+	 * Needed for update checks.
+	 */
 	private String sourceResourceFullPath;
 	
 	private String initialiser;
@@ -123,7 +140,7 @@ public class AnalysisDescription {
 		return implementation;
 	}
 	
-	public List<String> getOutputFiles() {
+	public List<OutputDescription> getOutputFiles() {
 		return outputFiles;
 	}
 	
@@ -171,8 +188,8 @@ public class AnalysisDescription {
 		this.name = name;
 	}
 
-	public void addOutputFile(String file) {
-		outputFiles.add(file);
+	public void addOutputFile(String fileName) {
+		outputFiles.add(new OutputDescription(fileName));
 	}
 
 	public void setSourceCode(String sourceCode) {
@@ -191,16 +208,16 @@ public class AnalysisDescription {
 		return category;
 	}
 
-	public void setVVSADL(String vvsadl) {
-		this.vvsadl = vvsadl;
+	public void setSADL(String sadl) {
+		this.sadl = sadl;
 	}
 	
-	public String getVVSADL() {
+	public String getSADL() {
 		
-		if (vvsadl != null) {
-			return vvsadl;
+		if (sadl != null) {
+			return sadl;
 		} else {
-			throw new RuntimeException("vvsadl is null");
+			throw new RuntimeException("sadl is null");
 		}
 	}
 
@@ -219,7 +236,15 @@ public class AnalysisDescription {
 	public void setSourceResourceFullPath(String sourceResourceFullPath) {
 		this.sourceResourceFullPath = sourceResourceFullPath;
 	}
+	
+	public void setHelpURL(String helpURL) {
+	    this.helpURL = helpURL;
+	}
 
+    public String getHelpURL() {
+	    return helpURL;
+	}
+    
 	
 	public long getCreationTime() {
 		return this.creationTime.getTime();
@@ -240,8 +265,13 @@ public class AnalysisDescription {
 	public void setUpdatedSinceStartup() {
 		this.updatedSinceStartup = true;
 	}
+  
+    public Map<String, String> getConfigParameters() {
+        return configParameters;
+    }
 
-	
-	
+    public void setConfigParameters(Map<String, String> configParameters) {
+        this.configParameters = configParameters;
+    }
 }
  

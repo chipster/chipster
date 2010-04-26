@@ -14,9 +14,10 @@ import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.LinkUtils;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.description.VVSADLParser;
-import fi.csc.microarray.description.VVSADLSyntax;
-import fi.csc.microarray.description.VVSADLSyntax.InputType;
+import fi.csc.microarray.description.SADLParser;
+import fi.csc.microarray.description.SADLSyntax;
+import fi.csc.microarray.description.SADLDescription.Name;
+import fi.csc.microarray.description.SADLSyntax.InputType;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.util.Strings;
 
@@ -52,7 +53,8 @@ public class OperationDefinition implements ExecutionItem {
 	 * 
 	 */
 	public static enum Suitability {
-		SUITABLE, IMPOSSIBLE, ALREADY_DONE, TOO_MANY_INPUTS, NOT_ENOUGH_INPUTS;
+		SUITABLE, IMPOSSIBLE, ALREADY_DONE, TOO_MANY_INPUTS, NOT_ENOUGH_INPUTS,
+		EMPTY_REQUIRED_PARAMETERS;
 
 		private static final Color GREEN = new Color(52, 196, 49);
 		private static final Color YELLOW = new Color(196, 186, 49);
@@ -99,6 +101,8 @@ public class OperationDefinition implements ExecutionItem {
 				return "Too many inputs";
 			case NOT_ENOUGH_INPUTS:
 				return "Not enough inputs";
+            case EMPTY_REQUIRED_PARAMETERS:
+                return "Some required parameters are empty";
 			default:
 				throw new RuntimeException("unknown suitability: " + this.name());
 			}
@@ -113,8 +117,12 @@ public class OperationDefinition implements ExecutionItem {
 	static {
 		// done here to guarantee right execution order
 		instances = new HashMap<String, OperationDefinition>();
-		IMPORT_DEFINITION = new OperationDefinition("Raw data import", OperationCategory.IMPORT_CATEGORY, "Imports raw microarray data from an external file.", false);
-		USER_MODIFICATION_DEFINITION = new OperationDefinition("User modified", OperationCategory.USER_MODIFICATION_CATEGORY, "User had edited bean content.", false);
+		IMPORT_DEFINITION = new OperationDefinition("Raw data import",
+		        OperationCategory.IMPORT_CATEGORY, "Imports raw microarray data from an external file.",
+		        false, null);
+		USER_MODIFICATION_DEFINITION = new OperationDefinition("User modified",
+		        OperationCategory.USER_MODIFICATION_CATEGORY, "User had edited bean content.",
+		        false, null);
 	}
 
 	public static OperationDefinition getInstance(String identifier) {
@@ -124,36 +132,53 @@ public class OperationDefinition implements ExecutionItem {
 	public static class InputDefinition {
 
 		private String name;
+		private String description = null;
 		private String postfix = null;
 		private boolean multi = false;
 		private int multiCounter;
-		private VVSADLSyntax.InputType type;
+		private SADLSyntax.InputType type;
 
 		/**
 		 * Creates single input.
 		 */
-		public InputDefinition(String name, VVSADLSyntax.InputType type) {
+		public InputDefinition(Name name, SADLSyntax.InputType type) {
 			resetMulti();
-			this.name = name;
+			this.name = name.getID();
+			this.description = name.getDisplayName();
 			this.type = type;
 		}
 
 		/**
 		 * Creates multi-input.
 		 */
-		public InputDefinition(String prefix, String postfix, VVSADLSyntax.InputType type) {
+		public InputDefinition(String prefix, String postfix, SADLSyntax.InputType type) {
 			this.name = prefix;
 			this.postfix = postfix;
 			this.type = type;
 			this.multi = true;
 		}
 
-		private String getName() {
+		public String getName() {
 			if (!multi) {
 				return name;
 			} else {
 				return name + Strings.toString(multiCounter, 3) + postfix; // show always at least 3 digits 
 			}
+		}
+		
+        public String getDescription() {
+            if (description != null) {
+                return description;
+            }
+            return getName();
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+		
+		public SADLSyntax.InputType getType() {
+		    return type;
 		}
 
 		private void nextMulti() {
@@ -173,6 +198,7 @@ public class OperationDefinition implements ExecutionItem {
 	private OperationCategory category;
 	private LinkedList<Parameter> parameters = new LinkedList<Parameter>();
 	private String description;
+	private String helpURL;
 	private int colorCount;
 	private int outputCount = 0;
 	private LinkedList<InputDefinition> inputs = new LinkedList<InputDefinition>();
@@ -192,10 +218,13 @@ public class OperationDefinition implements ExecutionItem {
 	 * @param description
 	 *            A written description of this operation's purpose.
 	 */
-	public OperationDefinition(String name, OperationCategory category, String description, boolean hasSourceCode) {
+	public OperationDefinition(String name, OperationCategory category,
+	                           String description, boolean hasSourceCode,
+	                           String helpURL) {
 		this.name = name;
 		this.category = category;
 		this.hasSourceCode = hasSourceCode;
+		this.helpURL = helpURL;
 		if (category != null) {
 			category.addOperation(this);
 		}
@@ -204,6 +233,19 @@ public class OperationDefinition implements ExecutionItem {
 
 		instances.put(name + IDENTIFIER_SEPARATOR + category.getName(), this);
 	}
+
+	/**
+	 * Simplified constructor.
+	 * @param name
+	 * @param category
+	 * @param description
+	 * @param hasSourceCode
+	 * @param helpURL
+	 */
+     public OperationDefinition(String name, OperationCategory category,
+         String description, boolean hasSourceCode) {
+         this(name, category, description, hasSourceCode, null);
+     }
 
 	/**
 	 * @return The name of this operation definition.
@@ -233,15 +275,13 @@ public class OperationDefinition implements ExecutionItem {
 	public String getFullName() {
 		return getCategoryName() + " / " + getName();
 	}
-
+	
 	/**
-	 * @return An array containing the "definition parameters", ones given to
-	 *         the constructor when this definition was initiated. Should be
-	 *         cloned when an actual Operation is created.
-	 */
-	public List<Parameter> getDefaultParameters() {
-		return parameters;
-	}
+     * @return URL linking to a help page or null if not given.
+     */
+    public String getHelpURL() {
+        return helpURL;
+    }
 
 	/**
 	 * @return A written description of this operation's purpose and function.
@@ -255,7 +295,7 @@ public class OperationDefinition implements ExecutionItem {
 	 *         a job should be executed for this operation.
 	 */
 	public String getJobPhrase() {
-		return VVSADLParser.generateOperationIdentifier(category.getName(), name);
+		return SADLParser.generateOperationIdentifier(category.getName(), name);
 	}
 
 	/**
@@ -274,7 +314,7 @@ public class OperationDefinition implements ExecutionItem {
 	 * @return One of the OperationDefinition.Suitability enumeration, depending
 	 *         on how suitable the operation is judged.
 	 */
-	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data) {
+	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data) {    
 		bindInputs(data);
 		return getEvaluatedSuitability();
 	}
@@ -291,7 +331,7 @@ public class OperationDefinition implements ExecutionItem {
 		return colorCount;
 	}
 
-	public void addInput(String name, InputType type) {
+	public void addInput(Name name, InputType type) {
 		InputDefinition input = new InputDefinition(name, type);
 		inputs.add(input);
 	}
@@ -299,6 +339,10 @@ public class OperationDefinition implements ExecutionItem {
 	public void addInput(String prefix, String postfix, InputType type) {
 		InputDefinition input = new InputDefinition(prefix, postfix, type);
 		inputs.add(input);
+	}
+	
+	public List<InputDefinition> getInputs() {
+	    return inputs;
 	}
 
 	/**
@@ -353,7 +397,7 @@ public class OperationDefinition implements ExecutionItem {
 
 					logger.debug("    bound successfully (" + value.getName() + " -> " + input.getName() + ")");
 
-					bindings.add(new DataBinding(value, input.getName(), input.type));
+					bindings.add(new DataBinding(value, input.getName(), input.getType()));
 					foundBinding = true;
 					removedValues.add(value); // mark it to be removed after iteration
 					
