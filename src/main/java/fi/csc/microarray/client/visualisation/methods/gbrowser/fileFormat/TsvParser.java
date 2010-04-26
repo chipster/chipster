@@ -23,7 +23,9 @@ public abstract class TsvParser extends FileParser {
 		}
 		
 		public String[] getLastRow() {
-			return chunk.substring(chunk.lastIndexOf("\n"), chunk.length()).split("\t");
+			
+			//minus two to convert from length to index and skip the last line change
+			return chunk.substring(chunk.lastIndexOf("\n", chunk.length() - 2), chunk.length()).split("\t");
 		}
 		
 		@Override
@@ -37,6 +39,11 @@ public abstract class TsvParser extends FileParser {
 		
 		
 		public Object get(String[] cols, ColumnType col) {
+			
+			
+			if(cols.length <= 1) {
+				return null;
+			}
 			
 			String string = cols[fileDef.indexOf(col)].trim();
 
@@ -94,5 +101,11 @@ public abstract class TsvParser extends FileParser {
 
 		public FileDefinition getFileDefinition() {
 			return fileDef;
+		}
+		
+		@Override
+		public long getDefaulChunkLength() {
+
+			return 8*1024;
 		}
 }

@@ -46,7 +46,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptT
 
 public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, Serializable { // , MouseWheelListener {
 
-	private static final File FILE_ROOT = new File("/home/akallio/chipster-share/genomebrowser_data");
+	//private static final File FILE_ROOT = new File("/home/akallio/chipster-share/genomebrowser_data");
+	
+	protected static final File FILE_ROOT = new File("/home/klemela/workspace/chipster");
 
 	/** The cell information text is drawn with this font. */
 	private Font descriptionFont;
@@ -61,7 +63,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 		overview = new HorizontalView(this, false, false, true);
 
-		File cytobandFile = new File(FILE_ROOT, "annotations/cytoband_hg17_sorted.fsf");
+		File cytobandFile = new File(FILE_ROOT, "annotations/Homo_sapiens.GRCh37.57_karyotype.tsv");
 
 		CytobandTrack overviewCytobands = new CytobandTrack(overview, cytobandFile, TreeThread.class, new CytobandParser(), false);
 
@@ -94,7 +96,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 			// G E N E R A L ////////////////////////////////////////////////
 
-			File annotationFile = new File(FILE_ROOT, "annotations/Homo_sapiens.GRCh37.56_genes.fsf");
+			File annotationFile = new File(FILE_ROOT, "annotations/Homo_sapiens.GRCh37.56_genes.tsv");
 			GeneParser geneParser = new GeneParser();
 
 			// F O R W A R D /////////////////////////////////////////////////
@@ -135,7 +137,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 			// G E N E R A L ////////////////////////////////////////////////
 
-			File miRNAFile = new File(FILE_ROOT, "annotations/Homo_sapiens.GRCh37.56_miRNA.fsf");
+			File miRNAFile = new File(FILE_ROOT, "annotations/Homo_sapiens.GRCh37.56_miRNA.tsv");
 			miRNAParser miRNAParser = new miRNAParser();
 
 			// F O R W A R D /////////////////////////////////////////////////
@@ -180,7 +182,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 			// G E N E R A L ////////////////////////////////////////////////
 
-			File annotationFile = new File(FILE_ROOT, "annotations/Homo_sapiens.GRCh37.56_transcripts.fsf");
+			File annotationFile = new File(FILE_ROOT, "annotations/Homo_sapiens.GRCh37.56_transcripts.tsv");
 			TranscriptParser geneParser = new TranscriptParser();
 
 			// F O R W A R D /////////////////////////////////////////////////
@@ -217,11 +219,11 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 		}
 
 		// Eland export
-		if (true) {
+		if (false) {
 
 			// G E N E R A L ////////////////////////////////////////////////
 
-			File userData = new File(FILE_ROOT, "eland_result.fsf");
+			File userData = new File(FILE_ROOT, "eland_result.tsv");
 			ElandParser userDataParser = new ElandParser();
 
 			// F O R W A R D /////////////////////////////////////////////////
@@ -245,7 +247,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 			if (sequence) {
 				// Reference sequence
-				File seqFile = new File(FILE_ROOT, "annotations/Homo_sapiens.GRCh37.56_seq.fsf");
+				File seqFile = new File(FILE_ROOT, "annotations/Homo_sapiens.GRCh37.56_seq.tsv");
 
 				SeqTrack seq = new SeqTrack(dataView, seqFile, TreeThread.class, new SequenceParser(), 800);
 

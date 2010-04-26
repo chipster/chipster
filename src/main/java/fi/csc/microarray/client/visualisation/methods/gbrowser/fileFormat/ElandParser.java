@@ -20,7 +20,7 @@ public class ElandParser extends TsvParser {
 								new ColumnDefinition(ColumnType.SKIP, Type.STRING),
 								new ColumnDefinition(ColumnType.CHROMOSOME, Type.STRING),
 								new ColumnDefinition(ColumnType.BP_START, Type.LONG),							
-								new ColumnDefinition(ColumnType.STRAND, Type.STRING),
+								new ColumnDefinition(ColumnType.STRAND, Type.STRING)
 						})));
 	}
 		
@@ -31,10 +31,9 @@ public class ElandParser extends TsvParser {
 		long totalR = 0;
 		
 		long length = ((String)get(getFirstRow(), ColumnType.SEQUENCE)).length();
-				
-		
+						
 		for (RegionContent rc : 
-			getAll(Arrays.asList(new ColumnType[] { ColumnType.BP_START, ColumnType.SEQUENCE }))) {
+			getAll(Arrays.asList(new ColumnType[] { ColumnType.STRAND }))) {
 
 			if ((Strand) rc.values.get(ColumnType.STRAND) == Strand.FORWARD) {
 				totalF += length;
@@ -78,10 +77,5 @@ public class ElandParser extends TsvParser {
 	@Override
 	public String getName() {
 		return "eland";
-	}
-
-	@Override
-	public long getDefaulChunkLength() {
-		return 8*1024;
 	}
 }

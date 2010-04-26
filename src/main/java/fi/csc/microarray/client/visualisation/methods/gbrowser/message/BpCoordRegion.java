@@ -10,6 +10,7 @@ public class BpCoordRegion implements Comparable<BpCoordRegion> {
 	}
 
 	public BpCoordRegion(Long start, Long end, Chromosome chr) {
+		
 		this.start = new BpCoord(start, chr);
 		this.end = new BpCoord(end, chr);
 	}

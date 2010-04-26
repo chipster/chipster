@@ -9,7 +9,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 
 public abstract class FileParser {
 
-	protected String chunk;
+	public String chunk;
 
 	public abstract List<RegionContent> getAll(Collection<ColumnType> requestedContents);	
 	public abstract RegionContent[] concise(BpCoordRegion readIndexRegion);
@@ -44,7 +44,9 @@ public abstract class FileParser {
 
 		// round to next chunk split
 		nodeRegion.start = (long) Math.ceil(byteRegion.getMid() / getDefaulChunkLength()) * getDefaulChunkLength();
-		nodeRegion.end = nodeRegion.start + getDefaulChunkLength() - 1;
+		
+		Long defaultEnd = nodeRegion.start + getDefaulChunkLength() - 1;
+		nodeRegion.end = Math.min(defaultEnd, byteRegion.end);
 
 		return nodeRegion;
 	}

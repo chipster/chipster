@@ -20,31 +20,36 @@ public class TreeNode {
 	private TreeNode right;
 	private TreeNode parent;
 
-	private ByteRegion subtreeRows;
+	private ByteRegion subtreeByteRegion;
 	private int maxChildCount;
 	private FileParser inputParser;
 
-	public TreeNode(ByteRegion subtreeReadIndexes, TreeThread tree, TreeNode parent) {
+	public TreeNode(ByteRegion subtreeByteRegion, TreeThread tree, TreeNode parent) {
 
 		this.tree = tree;
 		this.parent = parent;
-		this.subtreeRows = subtreeReadIndexes;
+		this.subtreeByteRegion = subtreeByteRegion;
 		this.inputParser = tree.getInputParser();
 
-		this.byteRegion = inputParser.getChunkRegionMiddleOf(subtreeReadIndexes);
-		this.maxChildCount = inputParser.getChildCount(subtreeReadIndexes);
+		this.byteRegion = inputParser.getChunkRegionMiddleOf(subtreeByteRegion);
+		
+		if(byteRegion.end < byteRegion.start) {
+			int debug = 1;
+		}
+		
+		this.maxChildCount = inputParser.getChildCount(subtreeByteRegion);
 
 		if (maxChildCount == 0) {
-			this.byteRegion = subtreeReadIndexes;
+			this.byteRegion = subtreeByteRegion;
 		}
 	}
 
 	private void createChildren() {
 		if (maxChildCount >= 1 && left == null) {
-			left = new TreeNode(new ByteRegion(subtreeRows.start, byteRegion.start, false), tree, this);
+			left = new TreeNode(new ByteRegion(subtreeByteRegion.start, byteRegion.start, false), tree, this);
 		}
 		if (maxChildCount == 2 && right == null) {
-			right = new TreeNode(new ByteRegion(byteRegion.end, subtreeRows.end, false), tree, this);
+			right = new TreeNode(new ByteRegion(byteRegion.end, subtreeByteRegion.end, false), tree, this);
 		}
 	}
 
@@ -129,7 +134,7 @@ public class TreeNode {
 
 			FileParser parser = fileResult.chunkParser;
 
-			nodeBpRegion = parser.getBpRegion();
+			nodeBpRegion = parser.getBpRegion();			
 
 			concisedValues = fileResult.chunkParser.concise(nodeBpRegion);
 

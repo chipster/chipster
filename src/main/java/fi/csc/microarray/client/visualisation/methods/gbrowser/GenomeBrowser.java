@@ -5,6 +5,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -110,7 +111,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 
 			InputStream contentsStream;
 			if (DEBUG_MODE) {
-				contentsStream = new FileInputStream("annotations/contents.txt");
+				contentsStream = new FileInputStream(new File(GenomePlot.FILE_ROOT, "annotations/contents.txt"));
 			} else {
 				contentsStream = new URL(ANNOTATION_PATH + CONTENTS_FILE).openStream();
 			}

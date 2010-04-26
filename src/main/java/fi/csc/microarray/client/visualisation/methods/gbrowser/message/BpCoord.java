@@ -41,14 +41,15 @@ public class BpCoord implements Comparable<BpCoord> {
 	}
 
 	public Long minus(BpCoord o) {
-		if (chr.equals(o.chr)) {
+		
+		if ((chr == null && o.chr == null) || chr.equals(o.chr)) {
 			return bp - o.bp;
 		}
 		return null;
 	}
 
 	public Long plus(BpCoord o) {
-		if (chr.equals(o.chr)) {
+		if ((chr == null && o.chr == null) || chr.equals(o.chr)) {
 			return bp + o.bp;
 		}
 		return null;

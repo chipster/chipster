@@ -1,11 +1,8 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -66,7 +63,6 @@ public class FileFetcherThread extends Thread {
 
 		ByteRegion exactRegion = new ByteRegion();
 
-
 		if (fileRequest.byteRegion.exact) {
 
 			exactRegion.start = raf.getFilePointer();
@@ -100,7 +96,7 @@ public class FileFetcherThread extends Thread {
 			exactRegion.exact = true;
 
 			chunk = lines.toString();				
-		}									
+		}
 
 		fileRequest.status.maybeClearQueue(fileResultQueue);
 		fileRequest.status.fileRequestCount = fileRequestQueue.size();
