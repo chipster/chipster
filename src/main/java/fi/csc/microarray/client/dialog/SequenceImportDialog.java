@@ -9,6 +9,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.LinkedList;
 
 import javax.swing.BorderFactory;
@@ -263,8 +264,12 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
                     folder.addChild(data);
                     client.getSelectionManager().selectSingle(data, this);
                 } catch (MicroarrayException e1) {
-                    e1.printStackTrace();
-                }
+					// FIXME proper error handling 
+                	e1.printStackTrace();
+                } catch (IOException ioe) {
+					// FIXME proper error handling 
+					ioe.printStackTrace();
+				}
             } else {
                 // Make separate datasets visible
                 for (DataBean dataset : datasets) {

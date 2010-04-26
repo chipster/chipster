@@ -334,7 +334,7 @@ public class TaskExecutor {
 				URL payloadUrl = resultMessage.getPayload(name);
 				InputStream payload = fileBroker.getFile(payloadUrl); 
 				DataBean bean = manager.createDataBean(name, payload);
-				bean.setUrl(payloadUrl);
+				bean.setCacheUrl(payloadUrl);
 				bean.setContentChanged(false);
 				pendingTask.addOutput(name, bean);
 			}
@@ -466,25 +466,25 @@ public class TaskExecutor {
 						// transfer input contents to file broker if needed
 						DataBean bean = task.getInput(name);
 						try {
-							bean.lockContent();
+							bean.getLock().readLock().lock();
 
 							// bean modified, upload
 							if (bean.isContentChanged()) {
-								bean.setUrl(fileBroker.addFile(bean.getContentByteStream(), progressListener)); 
+								bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), progressListener)); 
 								bean.setContentChanged(false);
 							} 
 
 							// bean not modified, check cache, upload if needed
-							else if (bean.getUrl() != null && !fileBroker.checkFile(bean.getUrl(), bean.getContentLength())){
-								bean.setUrl(fileBroker.addFile(bean.getContentByteStream(), progressListener));
+							else if (bean.getCacheUrl() != null && !fileBroker.checkFile(bean.getCacheUrl(), bean.getContentLength())){
+								bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), progressListener));
 							}
 
 						} finally {
-							bean.unlockContent();
+							bean.getLock().readLock().unlock();
 						}
 
 						// add the possibly new url to message
-						jobMessage.addPayload(name, bean.getUrl());
+						jobMessage.addPayload(name, bean.getCacheUrl());
 						
 						
 						logger.debug("added input " + name + " to job message.");
@@ -700,14 +700,14 @@ public class TaskExecutor {
 		for (String name : task.inputNames()) {
 			DataBean bean = task.getInput(name);
 			try {
-				bean.lockContent();
-				bean.setUrl(fileBroker.addFile(bean.getContentByteStream(), null)); // no progress listening on resends 
+				bean.getLock().readLock().lock();
+				bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), null)); // no progress listening on resends 
 				bean.setContentChanged(false);
 			} finally {
-				bean.unlockContent();
+				bean.getLock().readLock().unlock();
 			}
 			
-			jobMessage.addPayload(name, bean.getUrl()); // no progress listening on resends
+			jobMessage.addPayload(name, bean.getCacheUrl()); // no progress listening on resends
 		}
 		jobMessage.setReplyTo(replyTo);
 

@@ -48,14 +48,14 @@ public class FSDataManagerTest {
 	
 	@Test
 	public void testFSDataManagerInitialisation() throws IOException {
-		new FSDataManager();
+		new DataManager();
 	}
 
 	@Test(groups = {"smoke"} )
 	public void testSnapshot() throws IOException, MicroarrayException {
 
 		// create original
-		DataManager manager1 = new FSDataManager();
+		DataManager manager1 = new DataManager();
 		String beanName1 = "My bean.txt";
 		String beanName2 = "My other bean.txt";
 		String beanName3 = "My other bean.txt"; // test beans with a same name
@@ -78,13 +78,16 @@ public class FSDataManagerTest {
 		Assert.assertTrue(snap.exists());
 		
 		// load
-		DataManager manager2 = new FSDataManager();
+		DataManager manager2 = new DataManager();
 		manager2.loadSnapshot(snap, manager2.getRootFolder(), new DummyClientApplication());
 		
 		// check
 		DataFolder root1 = manager1.getRootFolder();
 		DataFolder root2 = manager2.getRootFolder();
-		Assert.assertEquals(root2.toStringRecursively(0), root1.toStringRecursively(0));
+		
+		// TODO reimplement toStringRecursively here
+		Assert.assertTrue(false);
+		//Assert.assertEquals(root2.toStringRecursively(0), root1.toStringRecursively(0));
 		DataBean newBean1 = null;
 		for (DataItem item : root2.getChildren()) {
 			if (item.getName().equals(beanName1)) {
@@ -98,8 +101,8 @@ public class FSDataManagerTest {
 	
 	@Test(groups = {"smoke"} )
 	public void testDataBeanCreation() throws IOException, MicroarrayException {
-		FSDataManager manager = new FSDataManager();
-		FSDataBean bean = manager.createDataBean("samename.txt", new FileInputStream("examples/affy_example.cel"));
+		DataManager manager = new DataManager();
+		DataBean bean = manager.createDataBean("samename.txt", new FileInputStream("examples/affy_example.cel"));
 	
 		InputStream originalData = new BufferedInputStream(new FileInputStream("examples/affy_example.cel"));
 		InputStream beanData = new BufferedInputStream(bean.getContentByteStream());
