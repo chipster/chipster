@@ -1,4 +1,4 @@
-package fi.csc.microarray.databeans.fs;
+package fi.csc.microarray.databeans.sessions;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -30,7 +31,11 @@ import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
+import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.DataBean.DataBeanType;
 import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.handlers.DataBeanHandler;
+import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.IOUtils;
 
@@ -43,7 +48,7 @@ import fi.csc.microarray.util.IOUtils;
  * @author Aleksi Kallio
  *
  */
-public class FSSnapshottingSession {
+public class SnapshottingSession {
 
 	private final int DATA_BLOCK_SIZE = 2048;
 
@@ -53,9 +58,14 @@ public class FSSnapshottingSession {
 	
 	private static final String ROOT_FOLDER_ID = "0";
 	
-	private FSDataManager manager;
+	private DataManager manager;
 	private ClientApplication application;
 
+	// TODO initialise this
+	private File sessionFile;
+	private HashMap<DataBean, URL> newURLs;
+	private int entryCounter = 0;
+	
 	private int itemIdCounter = 0;
 	private HashMap<Integer, DataItem> itemIdMap = new HashMap<Integer, DataItem>();
 	private HashMap<DataItem, Integer> reversedItemIdMap = new HashMap<DataItem, Integer>();
@@ -64,14 +74,16 @@ public class FSSnapshottingSession {
 	private HashMap<Integer, Operation> operationIdMap = new HashMap<Integer, Operation>();
 	private HashMap<Operation, Integer> reversedOperationIdMap = new HashMap<Operation, Integer>();
 
-	public FSSnapshottingSession(FSDataManager manager, ClientApplication application) {
+	public SnapshottingSession(DataManager manager, ClientApplication application) {
 		this.manager = manager;
 		this.application = application;
 	}
 	
-
+	
 	public void saveSnapshot(File sessionFile) throws IOException {
 
+		this.sessionFile = sessionFile;
+		this.newURLs = new HashMap<DataBean, URL>();
 		boolean replaceOldSession = sessionFile.exists();
 
 		File newSessionFile;
@@ -91,18 +103,18 @@ public class FSSnapshottingSession {
 			zipOutputStream = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(newSessionFile)));
 			zipOutputStream.setLevel(1); // quite slow with bigger values														
 
-			// write data and gather metadata simultaneously
+			// write data and gather metadata simultanously
 			StringBuffer metadata = new StringBuffer("");
 			metadata.append("VERSION " + SNAPSHOT_VERSION + "\n");
 
 			// generate all ids
-			generateIdsRecursively((FSDataFolder)manager.getRootFolder());
+			generateIdsRecursively(manager.getRootFolder());
 
 			// 1st pass, write most metadata
-			saveRecursively((FSDataFolder)manager.getRootFolder(), zipOutputStream, metadata);
+			saveRecursively(manager.getRootFolder(), zipOutputStream, metadata);
 
 			// 2nd pass for links (if written in one pass, input dependent operation parameters break when reading)
-			saveLinksRecursively((FSDataFolder)manager.getRootFolder(), metadata);
+			saveLinksRecursively(manager.getRootFolder(), metadata);
 
 			writeFile(zipOutputStream, METADATA_FILENAME, 
 					new ByteArrayInputStream(metadata.toString().getBytes()));
@@ -137,10 +149,16 @@ public class FSSnapshottingSession {
 				}
 			} 
 			
-			// no existing session
-			else {
-				createdSuccessfully = true;
+			// session file is now saved, update the urls and handlers in the client
+			for (DataBean bean: newURLs.keySet()) {
+
+				// set new url and handler and type
+				bean.setType(DataBeanType.LOCAL_SESSION);
+				bean.setContentUrl(newURLs.get(bean));
+				bean.setHandler(new ZipDataBeanHandler());
 			}
+
+			createdSuccessfully = true;
 			
 		} catch (RuntimeException e) {
 			// createdSuccesfully is false, so file will be deleted in finally block
@@ -173,19 +191,19 @@ public class FSSnapshottingSession {
 		out.closeEntry() ;							
 	}
 	
-	private int generateIdsRecursively(FSDataFolder folder) throws IOException {
+	private int generateIdsRecursively(DataFolder folder) throws IOException {
 		
 		int dataCount = 0;
 		
 		generateId(folder);
 		
 		for (DataItem data : folder.getChildren()) {
-			if (data instanceof FSDataFolder) {
-				int recDataCount = generateIdsRecursively((FSDataFolder)data);
+			if (data instanceof DataFolder) {
+				int recDataCount = generateIdsRecursively((DataFolder)data);
 				dataCount += recDataCount;
 				
 			} else {
-				generateId((FSDataBean)data);
+				generateId((DataBean)data);
 				dataCount++;
 			}
 		}
@@ -193,35 +211,44 @@ public class FSSnapshottingSession {
 		return dataCount;
 	}
 			
-	private void saveRecursively(FSDataFolder folder, ZipOutputStream cpZipOutputStream, StringBuffer metadata) throws IOException {
+	private void saveRecursively(DataFolder folder, ZipOutputStream cpZipOutputStream, StringBuffer metadata) throws IOException {
 		
 		String folderId = fetchId(folder);
 		saveDataFolderMetadata(folder, folderId, metadata);
 		
 		for (DataItem data : folder.getChildren()) {
-			if (data instanceof FSDataFolder) {
-				saveRecursively((FSDataFolder)data, cpZipOutputStream, metadata);
+			if (data instanceof DataFolder) {
+				saveRecursively((DataFolder)data, cpZipOutputStream, metadata);
 				
 			} else {
-				FSDataBean bean = (FSDataBean)data;
-				saveDataBeanMetadata(bean, folderId, metadata);
+				DataBean bean = (DataBean)data;
 
-				writeFile(cpZipOutputStream, bean.getContentFile().getName(),  
-						new FileInputStream(bean.getContentFile()));
+				// create the new URL TODO check the ref
+				String entryName = getNewEntryName();
+				URL newURL = new URL(sessionFile.toURI().toURL(), "#" + entryName);
+
+				// store the new URL temporarily
+				newURLs.put(bean, newURL);
+
+				// store metadata
+				saveDataBeanMetadata(bean, newURL, folderId, metadata);
+				
+				// write bean contents to zip
+				writeFile(cpZipOutputStream, entryName, bean.getContentByteStream());
 
 			}
 		}
 	}
 
 
-	private void saveDataFolderMetadata(FSDataFolder folder, String folderId, StringBuffer metadata) {
+	private void saveDataFolderMetadata(DataFolder folder, String folderId, StringBuffer metadata) {
 		metadata.append("DATAFOLDER " + folderId + "\n");
 		saveDataItemMetadata(folder, folderId, metadata);
 	}	
 	
-	private void saveDataBeanMetadata(FSDataBean bean, String folderId, StringBuffer metadata) {
+	private void saveDataBeanMetadata(DataBean bean, URL newURL, String folderId, StringBuffer metadata) {
 		String beanId = fetchId(bean);
-		metadata.append("DATABEAN " + beanId + " " + bean.getContentFile().getName() + "\n");
+		metadata.append("DATABEAN " + beanId + " " + newURL + " " + bean.getType() + " " + bean.getRepositoryName() + "\n");
 		
 		if (bean.getOperation() != null) {
 			Operation operation = bean.getOperation();
@@ -267,8 +294,8 @@ public class FSSnapshottingSession {
 			metadata.append("NOTES " + beanId + " " + bean.getNotes().replace('\n', ' ') + "\n");
 		}
 		
-		if (bean.getUrl() != null) {
-			metadata.append("CACHED_URL " + beanId + " " + bean.getUrl() + "\n");			
+		if (bean.getCacheUrl() != null) {
+			metadata.append("CACHED_URL " + beanId + " " + bean.getCacheUrl() + "\n");			
 		}
 		
 		saveDataItemMetadata(bean, beanId, metadata);
@@ -323,9 +350,11 @@ public class FSSnapshottingSession {
 				} else if (line.startsWith("DATABEAN ")) {
 					String[] split = line.split(" ");
 					String id = split[1];
-					ZipEntry beanEntry = entryMap.get(split[2]);
-					InputStream inputStream = zipFile.getInputStream(beanEntry);
-					DataBean bean = manager.createDataBean("<empty>", inputStream);
+					
+					// TODO in the future, maybe give the URL directly to the manager
+					URL url = new URL(split[2]);
+					String entryName = url.getRef();
+					DataBean bean = manager.createDataBean("<empty>", snapshot, entryName);
 					
 					newItems.add(bean);
 					mapId(id, bean);
@@ -403,9 +432,9 @@ public class FSSnapshottingSession {
 					String[] split = line.split(" ");
 					String id = split[1];
 					String url = split[2];
-					FSDataBean bean = (FSDataBean)fetchItem(id);
+					DataBean bean = (DataBean)fetchItem(id);
 					bean.setContentChanged(false);
-					bean.setUrl(new URL(url));
+					bean.setCacheUrl(new URL(url));
 					
 				} else if (line.startsWith("LINK ")) {
 					String[] split = line.split(" ");
@@ -500,12 +529,12 @@ public class FSSnapshottingSession {
 	}
 
 	
-	private void saveLinksRecursively(FSDataFolder folder, StringBuffer metadata) {
+	private void saveLinksRecursively(DataFolder folder, StringBuffer metadata) {
 		
 		for (DataItem data : folder.getChildren()) {
 			
-			if (data instanceof FSDataFolder) {
-				saveLinksRecursively((FSDataFolder)data, metadata);
+			if (data instanceof DataFolder) {
+				saveLinksRecursively((DataFolder)data, metadata);
 				
 			} else {
 				DataBean bean = (DataBean)data; 
@@ -572,5 +601,9 @@ public class FSSnapshottingSession {
 
 	private String fetchId(DataItem item) {
 		return reversedItemIdMap.get(item).toString();
+	}
+
+	private String getNewEntryName() {
+		return "file-" + entryCounter++;
 	}
 }

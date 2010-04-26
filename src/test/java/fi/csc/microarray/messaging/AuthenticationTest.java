@@ -17,7 +17,6 @@ import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.fs.FSDataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
@@ -33,7 +32,7 @@ public class AuthenticationTest extends MessagingTestBase {
 	private DataManager manager; 
 	
 	public AuthenticationTest(String s) throws IOException {
-		this.manager = new FSDataManager();
+		this.manager = new DataManager();
 	}    
 
 	@BeforeSuite

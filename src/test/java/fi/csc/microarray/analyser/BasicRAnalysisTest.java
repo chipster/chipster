@@ -6,6 +6,7 @@ package fi.csc.microarray.analyser;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -94,7 +95,7 @@ public class BasicRAnalysisTest extends AnalysisTestBase {
 	}
 
 	@Test(groups = { "smoke"})
-	public void fetchDescriptions() throws TaskException, InterruptedException, MicroarrayException {
+	public void fetchDescriptions() throws TaskException, InterruptedException, IOException {
 		Task job = executor.createTask("describe");
 		executeJob(job);
 		String descriptions = new String(job.getOutput("description").getContents());
@@ -102,7 +103,7 @@ public class BasicRAnalysisTest extends AnalysisTestBase {
 	}
 	
 	@Test(groups = { "smoke"})
-	public void fetchSourceCode() throws TaskException, InterruptedException, MicroarrayException {
+	public void fetchSourceCode() throws TaskException, InterruptedException, IOException {
 		Task job = executor.createTask("describe-operation");
 		job.addParameter("operation-name", "\"Normalisation\"/\"Affymetrix\"");
 		executeJob(job);

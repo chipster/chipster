@@ -62,7 +62,6 @@ import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.table.EditableTable;
 import fi.csc.microarray.databeans.features.table.TableBeanEditor;
-import fi.csc.microarray.databeans.fs.FSDataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.AdminAPI;
 import fi.csc.microarray.messaging.DescriptionListener;
@@ -202,7 +201,7 @@ public abstract class ClientApplication implements Node {
 		this.workflowManager = new WorkflowManager(this);
 		 
 		// initialise data management
-		this.manager = new FSDataManager();
+		this.manager = new DataManager();
 		modules.plugFeatures(this.manager);
 		Session.getSession().putObject("data-manager", manager);
 
@@ -636,7 +635,7 @@ public abstract class ClientApplication implements Node {
 								manager.delete(sourceBean); // don't leave it hanging around
 								logger.debug(source);
 								listener.updateSourceCodeAt(index, source);
-							} catch (MicroarrayException e) {
+							} catch (IOException e) {
 								reportException(e);
 							}
 						}
