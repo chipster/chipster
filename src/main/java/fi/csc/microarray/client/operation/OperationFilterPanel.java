@@ -17,8 +17,6 @@ import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
 
-import sun.awt.image.IntegerComponentRaster;
-
 /**
  * A panel that lists operations filtered by a certain criterion.
  * 
@@ -71,8 +69,10 @@ public class OperationFilterPanel extends JPanel
         for (OperationCategory category : categories) {
             selectedOperation = null;
             for (OperationDefinition operation : category.getOperationList()) {
-                int indexInTitle = operation.getName().indexOf(filterPhrase);
-                int indexInDescription = operation.getDescription().indexOf(filterPhrase);
+                int indexInTitle = operation.getName().toLowerCase().
+                                   indexOf(filterPhrase.toLowerCase());
+                int indexInDescription = operation.getDescription().toLowerCase().
+                                   indexOf(filterPhrase.toLowerCase());
                 // Phrase found in title
                 float weightTitle = (float) Math.min(indexInTitle + 1, 1) /
                     // Favour the beginning of the string

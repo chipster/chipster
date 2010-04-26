@@ -118,7 +118,7 @@ public class ToolParameterPanel extends ParameterPanel {
         // Input file mappings
         pane = new JXTaskPane();
         pane.setTitle("Input datasets");
-        pane.setCollapsed(true);
+        pane.setCollapsed(false);
         
         // Grid layout for component/label pairs
         paramPane = new JPanel(new GridBagLayout());
