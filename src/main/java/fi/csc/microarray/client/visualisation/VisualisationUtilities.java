@@ -231,17 +231,23 @@ public class VisualisationUtilities {
 					filteredVars.remove(var);
 				} 
 			}
+
+		
 			if(removeStart && var.getName().startsWith(hidden)){
 				String chipName = var.getName().substring(hidden.length());			
 				filteredVars.set(filteredVars.indexOf(var), 
 						new Variable(chipName, var.getExpression()));
 			}
 			
-			if(var.getName().equals(" ")){		
-				filteredVars.set(filteredVars.indexOf(var), 
-						new Variable("identifier", var.getExpression()));
+			if (filteredVars.contains(var)) {
+				if(var.getName().equals(" ")){		
+					filteredVars.set(filteredVars.indexOf(var), 
+							new Variable("identifier", var.getExpression()));
+				}
 			}
-		}
+		}	
+		
+		
 		return filteredVars.toArray(new Variable[0]);
 	}
 }
