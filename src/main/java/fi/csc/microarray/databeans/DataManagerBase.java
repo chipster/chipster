@@ -64,7 +64,14 @@ public abstract class DataManagerBase implements DataManager {
 				} else {
 					logger.debug("Notifying DataChangeListener " + listener.toString());
 				}
-				listener.dataChanged(event);
+				try {
+					listener.dataChanged(event);
+					
+				} catch (RuntimeException e) {
+					// we will not let GUI problems to stop important DataBean manipulation operations
+					// and possibly lead to DataBean model corruption
+					logger.error("DataChangeEvent dispatch failed", e);
+				}
 			}
 		}
 	}

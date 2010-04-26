@@ -5,12 +5,12 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
@@ -36,46 +36,56 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 
 	/**
 	 * Copy input files from file broker to job work directory.
+	 * @throws JobCancelledException 
 	 * 
 	 */
 	@Override
-	protected void preExecute() throws Exception {
+	protected void preExecute() throws JobCancelledException {
 		cancelCheck();
 		super.preExecute();
 
-		updateStateDetail("transferring input data", true);
+		updateStateDetailToClient("transferring input data");
 
 		// create working dir for the job
 		if (!this.jobWorkDir.mkdir()) {
-			throw new IOException("Could not create work dir: " + jobWorkDir.toString());
+			outputMessage.setErrorMessage("Creating working directory failed.");
+			updateState(JobState.ERROR, "");
+			return;
 		}
 
 		// extract input files to work dir
 		// TODO security check input file names
-		for (String fileName : inputMessage.payloadNames()) {
-			cancelCheck();
+		try {
+			for (String fileName : inputMessage.payloadNames()) {
+				cancelCheck();
 
-			// get url
-			URL inputUrl = inputMessage.getPayload(fileName);
+				// get url
+				URL inputUrl = inputMessage.getPayload(fileName);
 
-			// get stream
-			File outputFile;
-			BufferedInputStream inputStream = null;
-			BufferedOutputStream fileStream = null;
-			try {
-				inputStream = new BufferedInputStream(resultHandler.getFileBrokerClient().getFile(inputUrl));
+				// get stream
+				File outputFile;
+				BufferedInputStream inputStream = null;
+				BufferedOutputStream fileStream = null;
+				try {
+					inputStream = new BufferedInputStream(resultHandler.getFileBrokerClient().getFile(inputUrl));
 
-				// copy to file
-				outputFile = new File(jobWorkDir, fileName);
-				fileStream = new BufferedOutputStream(new FileOutputStream(outputFile));
-				IOUtils.copy(inputStream, fileStream);
-			} finally {
-				IOUtils.closeIfPossible(inputStream);
-				IOUtils.closeIfPossible(fileStream);
+					// copy to file
+					outputFile = new File(jobWorkDir, fileName);
+					fileStream = new BufferedOutputStream(new FileOutputStream(outputFile));
+					IOUtils.copy(inputStream, fileStream);
+				} finally {
+					IOUtils.closeIfPossible(inputStream);
+					IOUtils.closeIfPossible(fileStream);
+				}
+
+				logger.debug("created input file: " + outputFile.getName() + " " + outputFile.length());
 			}
-
-			logger.debug("created input file: " + outputFile.getName() + " " + outputFile.length());
-		}
+		} catch (Exception e) {
+			outputMessage.setErrorMessage("Transferring input data to computing service failed.");
+			outputMessage.setOutputText(e.toString());
+			updateState(JobState.ERROR, "");
+			return;
+		}			
 	}
 
 	
@@ -84,8 +94,8 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 	 * 
 	 */
 	@Override
-	protected void postExecute() throws Exception {
-		updateStateDetail("transferring output data", true);
+	protected void postExecute() throws JobCancelledException {
+		updateStateDetailToClient("transferring output data");
 		cancelCheck();
 
 		List<String> outputFileNames = analysis.getOutputFiles();
@@ -94,7 +104,16 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 
 			// copy file to file broker
 			File outputFile = new File(jobWorkDir, fileName);
-			URL url = resultHandler.getFileBrokerClient().addFile(new FileInputStream(outputFile), null);
+			URL url;
+				try {
+					url = resultHandler.getFileBrokerClient().addFile(new FileInputStream(outputFile), null);
+				} catch (Exception e) {
+					logger.error("could not put file to file broker", e);
+					outputMessage.setErrorMessage("Could not send output file.");
+					outputMessage.setOutputText(e.toString());
+					updateState(JobState.ERROR, "");
+					return;
+				}
 
 			// put url to result message
 			outputMessage.addPayload(fileName, url);
