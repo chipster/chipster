@@ -3,7 +3,6 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 import java.util.Arrays;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class CytobandParser extends TsvParser {
@@ -21,18 +20,9 @@ public class CytobandParser extends TsvParser {
 	}
 
 	@Override
-	public RegionContent[] concise(BpCoordRegion readIndexRegion) {
+	public RegionContent[] concise(String chunk) {
 		// return empty table, otherwise TreeNode gets stuck in calling this again
 		return new RegionContent[0];
-	}
-
-	@Override
-	public FileParser clone() {
-		FileParser clone = new CytobandParser();
-		
-		clone.chunk = this.chunk;
-		
-		return clone;
 	}
 
 	@Override

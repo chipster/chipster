@@ -18,21 +18,21 @@ public abstract class TsvParser extends FileParser {
 			this.fileDef = fileDef;
 		}
 		
-		public String[] getFirstRow() {
+		public String[] getFirstRow(String chunk) {
 			return chunk.substring(0, chunk.indexOf("\n")).split("\t");
 		}
 		
-		public String[] getLastRow() {
+		public String[] getLastRow(String chunk) {
 			
 			//minus two to convert from length to index and skip the last line change
 			return chunk.substring(chunk.lastIndexOf("\n", chunk.length() - 2), chunk.length()).split("\t");
 		}
 		
 		@Override
-		public BpCoordRegion getBpRegion() {
-			Long start = (Long)get(getFirstRow(), ColumnType.BP_START);
-			Long end = (Long)get(getLastRow(), ColumnType.BP_START);
-			Chromosome chr = (Chromosome)get(getFirstRow(), ColumnType.CHROMOSOME);
+		public BpCoordRegion getBpRegion(String chunk) {
+			Long start = (Long)get(getFirstRow(chunk), ColumnType.BP_START);
+			Long end = (Long)get(getLastRow(chunk), ColumnType.BP_START);
+			Chromosome chr = (Chromosome)get(getFirstRow(chunk), ColumnType.CHROMOSOME);
 			
 			return new BpCoordRegion(start, end, chr);
 		}
@@ -74,7 +74,7 @@ public abstract class TsvParser extends FileParser {
 		}
 
 		@Override
-		public List<RegionContent> getAll(Collection<ColumnType> requestedContents) {
+		public List<RegionContent> getAll(String chunk, Collection<ColumnType> requestedContents) {
 
 			List<RegionContent> rows = new LinkedList<RegionContent>();
 			

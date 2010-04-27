@@ -4,19 +4,17 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FilePa
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ByteRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class TreeNode {
-	private static final long RESOLUTION = 256;
+
 	private TreeThread tree;
 	public RegionContent[] concisedValues;
 	
 	public BpCoord nodeBpStart;
-	public BpCoord nodeBpEnd;
 	public ByteRegion byteRegion;
 
 	private TreeNode left;
@@ -29,19 +27,16 @@ public class TreeNode {
 
 	private ByteRegion unExactByteRegion;
 	private boolean isLeaf;
-	private FileParser inputParser;
 
 	public TreeNode(ByteRegion nodeByteRegion, TreeThread tree, TreeNode parent) {
 
 		this.tree = tree;
 		this.parent = parent;
-		this.inputParser = tree.getInputParser();
 
 		this.byteRegion = nodeByteRegion.clone();
 		this.unExactByteRegion = nodeByteRegion.clone();
 
-		this.isLeaf = (nodeByteRegion.getLength() <= inputParser
-				.getDefaulChunkLength());
+		this.isLeaf = (nodeByteRegion.getLength() <= tree.getInputParser().getDefaulChunkLength());
 		
 		if (parent == null) {
 			depth = 0;
@@ -59,20 +54,18 @@ public class TreeNode {
 					.getMid(), unExactByteRegion.end, false), tree, this);
 		}
 	}
-
-	private void fetchConcisedContent(AreaRequest areaRequest) {
-		tree.createFileRequest(areaRequest, this.byteRegion, this);
+	
+	private void updateNodeBpStart(AreaRequest areaRequest, TreeNode source) {
+		if(this.isLeaf) {
+			
+			areaRequest.status.bpSearchSource = source;
+			tree.createFileRequest(areaRequest, this.byteRegion, this);
+		} else {
+			
+			createChildrenIfNecessary();
+			left.updateNodeBpStart(areaRequest, source);			
+		}
 	}
-
-//	public void resetRequestDistributor() {
-//		requestDistributor = false;
-//		if (left != null) {
-//			left.resetRequestDistributor();
-//		}
-//		if (right != null) {
-//			right.resetRequestDistributor();
-//		}
-//	}
 
 	public void processAreaRequest(AreaRequest areaRequest) {
 
@@ -80,7 +73,12 @@ public class TreeNode {
 
 			if (areaRequest.status.concise) {
 
-				createConcisedResult(areaRequest.status);
+				if(concisedValues == null) {
+					tree.createFileRequest(areaRequest, this.byteRegion, this);			
+				} else {
+					
+					createConcisedResult(areaRequest, areaRequest.status);
+				}
 			} else {
 
 				// Concised value isn't enough, file has to be read
@@ -88,105 +86,107 @@ public class TreeNode {
 			}
 		} else {
 
-			if ( (nodeBpStart == null || areaRequest.end.compareTo(nodeBpStart) >= 0) && 
-					(nodeBpEnd == null || areaRequest.start.compareTo(nodeBpEnd) <= 0)) {
+			createChildrenIfNecessary();
+			
+			if (right.nodeBpStart == null) {
+				
+				right.updateNodeBpStart(areaRequest, this);
+				
+			} else {
+									
+				if( areaRequest.start.compareTo(right.nodeBpStart) < 0 &&
+						(!areaRequest.status.concise || (depth < 10 || (requestDistributor = !requestDistributor)))) {
 
-				createChildrenIfNecessary();
-
-				if ((left.nodeBpEnd == null && right.nodeBpStart == null ) ||
-						(left.nodeBpEnd != null && areaRequest.start.compareTo(left.nodeBpEnd) <= 0) ||
-						(right.nodeBpStart != null && areaRequest.start.compareTo(right.nodeBpStart) > 0)) {
-
-					if(!areaRequest.status.concise || (depth > 10 && (requestDistributor = !requestDistributor))) {
-						left.processAreaRequest(areaRequest);
-					}
+					left.processAreaRequest(areaRequest);
 				}
 
-				if ((left.nodeBpEnd == null && right.nodeBpStart == null ) ||
-						(left.nodeBpEnd != null && areaRequest.end.compareTo(left.nodeBpEnd) > 0) ||
-						(right.nodeBpStart != null && areaRequest.end.compareTo(right.nodeBpStart) >= 0)) {
+				if( areaRequest.end.compareTo(right.nodeBpStart) > 0 &&
+						(!areaRequest.status.concise || (depth < 10 || !(requestDistributor = !requestDistributor)))) {
 
-					if(!areaRequest.status.concise || (depth > 10 && !(requestDistributor = !requestDistributor))) {
-						right.processAreaRequest(areaRequest);
-					}
-				}						
+					right.processAreaRequest(areaRequest);
+				}					
 			}
 		}
 	}
 
-	private void createConcisedResult(FsfStatus status) {
 
-		for (RegionContent regCont : concisedValues) {
-			tree
-					.createAreaResult(new AreaResult<RegionContent>(status,
-							regCont));
-		}
-	}
 
 	/**
 	 * @param fileResult
 	 */
 	public void processFileResult(FileResult fileResult) {
+		
+		if (isLeaf) {
 
-		if (fileResult.request.node == this) {
-
-			if (byteRegion.exact == false) {
+			if (byteRegion.exact) {
 				byteRegion = fileResult.exactRegion;
 			}
 
-			if (concisedValues == null || nodeBpStart == null || nodeBpEnd == null) {
+			if (concisedValues == null || nodeBpStart == null ) {
 
 				FileParser parser = fileResult.chunkParser;
 
-				nodeBpStart = parser.getBpRegion().start;
-				nodeBpEnd = parser.getBpRegion().end;
+				nodeBpStart = parser.getBpRegion(fileResult.chunk).start;
+				parent.updateNodeBpStart(this);
 
-				concisedValues = fileResult.chunkParser.concise(new BpCoordRegion(nodeBpStart, nodeBpEnd));
-
-				if (fileResult.request.areaRequest != null) {
-					// Continue stopped recursion now when bp location of this
-					// node is known
-					processAreaRequest(fileResult.request.areaRequest);
-				}
+				concisedValues = fileResult.chunkParser.concise(fileResult.chunk);
 			}
 
-			if (new BpCoordRegion(nodeBpStart, nodeBpEnd).intercepts(fileResult.request.areaRequest)) {
+			if (fileResult.request.areaRequest.intercepts(
+					fileResult.chunkParser.getBpRegion(fileResult.chunk))) {
 
 				if (fileResult.status.concise) {
-					createConcisedResult(fileResult.status);
+					createConcisedResult(fileResult.request.areaRequest, fileResult.status);
 
 				} else {
-					getAllRows(fileResult.chunkParser,
+					createAreaResultOfAllRows(fileResult.chunk, fileResult.chunkParser,
 							fileResult.request.areaRequest, fileResult.status);
 				}
-			}
+			} 
+			
 		} else {
-			updateNodeBpRegion();
+			
+			if (fileResult.status.bpSearchSource == this) {
+				
+				//fileResult.status.bpSearchSource = null;
+				
+				//Continue finding of specific place in file now when the location of this branch is known
+				processAreaRequest(fileResult.request.areaRequest);
+			}
 		}
 
 		if (parent != null) {
 			parent.processFileResult(fileResult);
 		}
 	}
-
-	private void updateNodeBpRegion() {
-
-		if (left.nodeBpStart != null) {
+	
+	private void updateNodeBpStart(TreeNode source) {
+		if (source == left) {
 			this.nodeBpStart = left.nodeBpStart;
+			if (parent != null) {
+				parent.updateNodeBpStart(this);
+			}
 		}
-		
-		if (right.nodeBpStart != null) {
-			this.nodeBpStart = right.nodeBpStart;
-		}				
+	}
+	
+	private void createConcisedResult(AreaRequest areaRequest, FsfStatus status) {
+
+		for (RegionContent regCont : concisedValues) {
+			
+			if (areaRequest.intercepts(regCont.region)) {
+				tree.createAreaResult(new AreaResult<RegionContent>(status, regCont));
+			}
+		}
 	}
 
-	public void getAllRows(FileParser chunkParser, AreaRequest areaRequest,
+	public void createAreaResultOfAllRows(String chunk, FileParser chunkParser, AreaRequest areaRequest,
 			FsfStatus status) {
 
-		for (RegionContent rc : chunkParser
-				.getAll(areaRequest.requestedContents)) {
-
-			tree.createAreaResult(new AreaResult<RegionContent>(status, rc));
-		}
+		for (RegionContent rc : chunkParser.getAll(chunk, areaRequest.requestedContents)) {
+			
+			if (areaRequest.intercepts(rc.region)) {
+				tree.createAreaResult(new AreaResult<RegionContent>(status, rc));
+			} 
+		}				
 	}
 }

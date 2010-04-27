@@ -7,7 +7,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ByteRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileResult;
@@ -102,10 +101,7 @@ public class FileFetcherThread extends Thread {
 		fileRequest.status.maybeClearQueue(fileResultQueue);
 		fileRequest.status.fileRequestCount = fileRequestQueue.size();
 
-		FileParser inputParser = (FileParser) this.inputParser.clone();
-		inputParser.setChunk(chunk);
-
-		FileResult result = new FileResult(fileRequest, inputParser, exactRegion, fileRequest.status);
+		FileResult result = new FileResult(chunk, fileRequest, inputParser, exactRegion, fileRequest.status);
 
 		fileResultQueue.add(result);
 		treeThread.notifyTree();

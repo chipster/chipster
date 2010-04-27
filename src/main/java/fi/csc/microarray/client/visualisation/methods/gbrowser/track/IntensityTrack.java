@@ -57,9 +57,13 @@ public class IntensityTrack extends Track {
 	}
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
+		
+		if (areaResult.status.concise == this.isConcised() && 
+				areaResult.content.values.get(ColumnType.STRAND) == getStrand() && 
+				areaResult.content.values.get(ColumnType.VALUE) != null &&
+				areaResult.content.region.intercepts(getView().getBpRegion())) { 
 
-		if (areaResult.status.concise == this.isConcised() && areaResult.content.values.get(ColumnType.STRAND) == getStrand() && areaResult.content.values.get(ColumnType.VALUE) != null) {
-
+			
 			values.add(areaResult.content);
 			getView().redraw();
 		}

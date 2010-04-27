@@ -2,7 +2,6 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
 import java.util.Arrays;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -25,41 +24,33 @@ public class ElandParser extends TsvParser {
 	}
 		
 	@Override
-	public RegionContent[] concise(BpCoordRegion nodeBpRegion) {
+	public RegionContent[] concise(String chunk) {
 
 		long totalF = 0;
 		long totalR = 0;
 		
-		long length = ((String)get(getFirstRow(), ColumnType.SEQUENCE)).length();
+		long readLength = ((String)get(getFirstRow(chunk), ColumnType.SEQUENCE)).length();
 						
 		for (RegionContent rc : 
-			getAll(Arrays.asList(new ColumnType[] { ColumnType.STRAND }))) {
+			getAll(chunk, Arrays.asList(new ColumnType[] { ColumnType.STRAND }))) {
 
 			if ((Strand) rc.values.get(ColumnType.STRAND) == Strand.FORWARD) {
-				totalF += length;
+				totalF += readLength;
 
 			} else {
-				totalR += length;
+				totalR += readLength;
 			}
 		}
 
-		RegionContent[] result = new RegionContent[] { 
-				new RegionContent(nodeBpRegion, totalF / (float) nodeBpRegion.getLength()), 
-				new RegionContent(nodeBpRegion, totalR / (float) nodeBpRegion.getLength()) };
+		RegionContent[] result = new RegionContent[] {
+				new RegionContent(getBpRegion(chunk), totalF / (float)getBpRegion(chunk).getLength()),
+				new RegionContent(getBpRegion(chunk), totalR / (float)getBpRegion(chunk).getLength())
+		};
 		
 		result[0].values.put(ColumnType.STRAND, Strand.FORWARD);
 		result[1].values.put(ColumnType.STRAND, Strand.REVERSED);
 
 		return result;
-	}
-
-	@Override
-	public FileParser clone() {
-		FileParser clone = new ElandParser();
-
-		clone.chunk = this.chunk;
-
-		return clone;
 	}
 
 	@Override

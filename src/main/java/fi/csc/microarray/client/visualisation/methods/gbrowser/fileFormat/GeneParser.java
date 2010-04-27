@@ -22,15 +22,6 @@ public class GeneParser extends ConcisedTsvParser{
 	}          
 
 	@Override
-	public FileParser clone() {
-		FileParser clone = new GeneParser();
-
-		clone.chunk = this.chunk;
-
-		return clone;
-	}
-
-	@Override
 	public String getName() {
 		return "Chipster gene annotation";
 	}

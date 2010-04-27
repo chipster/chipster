@@ -8,6 +8,7 @@ public class FileResult {
 	public ByteRegion exactRegion;
 	public FileParser chunkParser;
 	public FsfStatus status;
+	public String chunk;
 
 	/**
 	 * @param fileRequest
@@ -15,11 +16,12 @@ public class FileResult {
 	 * @param requestQueueSize
 	 *            only to update user interface
 	 */
-	public FileResult(FileRequest fileRequest, FileParser inputParser, ByteRegion exactRegion, FsfStatus status) {
+	public FileResult(String chunk, FileRequest fileRequest, FileParser inputParser, ByteRegion exactRegion, FsfStatus status) {
 		this.request = fileRequest;
 		this.chunkParser = inputParser;
 		this.exactRegion = exactRegion;
 		this.status = status;
+		this.chunk = chunk;
 	}
 
 }

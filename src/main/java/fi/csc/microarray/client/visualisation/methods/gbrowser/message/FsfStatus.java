@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TreeNode;
+
 public class FsfStatus {
 
 	/**
@@ -21,6 +23,8 @@ public class FsfStatus {
 
 	private Set<Object> clearedAlready = new HashSet<Object>();
 	public File file;
+
+	public TreeNode bpSearchSource;
 
 	public void maybeClearQueue(Object fileResultQueue) {
 		if (clearQueues && !clearedAlready.contains(fileResultQueue)) {
