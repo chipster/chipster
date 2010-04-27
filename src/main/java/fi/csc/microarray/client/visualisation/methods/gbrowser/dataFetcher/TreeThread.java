@@ -1,11 +1,11 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 
-import java.io.File;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileRequest;
@@ -25,9 +25,9 @@ public class TreeThread extends AreaRequestHandler {
 
 	private FileParser inputParser;
 
-	private File file;
+	private DataSource file;
 
-	public TreeThread(File file, Queue<AreaRequest> areaRequestQueue, AreaResultListener areaResultListener, FileParser inputParser) {
+	public TreeThread(DataSource file, Queue<AreaRequest> areaRequestQueue, AreaResultListener areaResultListener, FileParser inputParser) {
 
 		super(areaRequestQueue, areaResultListener);
 		this.inputParser = inputParser;
@@ -78,7 +78,7 @@ public class TreeThread extends AreaRequestHandler {
 		return inputParser;
 	}
 
-	public File getFile() {
+	public DataSource getFile() {
 		return file;
 	}
 }

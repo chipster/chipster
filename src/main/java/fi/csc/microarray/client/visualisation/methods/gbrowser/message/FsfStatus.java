@@ -1,9 +1,10 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
+
+import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 
 public class FsfStatus {
 
@@ -20,7 +21,7 @@ public class FsfStatus {
 	public boolean debug;
 
 	private Set<Object> clearedAlready = new HashSet<Object>();
-	public File file;
+	public DataSource file;
 
 	public void maybeClearQueue(Object fileResultQueue) {
 		if (clearQueues && !clearedAlready.contains(fileResultQueue)) {

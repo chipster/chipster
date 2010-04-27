@@ -1,11 +1,10 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileResult;
@@ -17,7 +16,7 @@ public class FileFetcherThread extends Thread {
 
 	private TreeThread treeThread;
 
-	private RandomAccessFile raf;
+	private DataSource dataSource;
 
 	private FileParser inputParser;
 
@@ -30,12 +29,7 @@ public class FileFetcherThread extends Thread {
 
 		this.setDaemon(true);
 
-		try {
-			raf = new RandomAccessFile(treeThread.getFile(), "r");
-			
-		} catch (FileNotFoundException e) {
-			e.printStackTrace(); // FIXME fix exception handling
-		}
+		this.dataSource = treeThread.getFile();
 	}
 
 	public void run() {
@@ -59,9 +53,9 @@ public class FileFetcherThread extends Thread {
 		ByteChunk chunk = new ByteChunk(inputParser.getChunkMaxByteLength());
 		chunk.rowIndex = fileRequest.rowRegion.start;
 
-		raf.seek(inputParser.getFilePosition(chunk.rowIndex));
+		long filePosition = inputParser.getFilePosition(chunk.rowIndex);
 
-		chunk.byteLength = raf.read(chunk.byteContent);
+		chunk.byteLength = dataSource.read(filePosition, chunk.byteContent);
 
 		fileRequest.status.maybeClearQueue(fileResultQueue);
 		fileRequest.status.fileRequestCount = fileRequestQueue.size();
@@ -79,7 +73,7 @@ public class FileFetcherThread extends Thread {
 		}
 
 		try {
-			return inputParser.getRowIndex(raf.length());
+			return inputParser.getRowIndex(dataSource.length());
 			
 		} catch (IOException e) {
 			e.printStackTrace(); // FIXME fix exception handling 

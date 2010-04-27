@@ -3,10 +3,10 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.geom.Point2D;
-import java.io.File;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
@@ -21,15 +21,15 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus
 public abstract class Track implements AreaResultListener {
 
 	private View view;
-	private File file;
+	private DataSource file;
 	private Strand strand = Strand.FORWARD;
 
-	public Track(View view, File file) {
+	public Track(View view, DataSource file) {
 		this.view = view;
 		this.file = file;
 	}
 
-	public Track(View view, File file, Class<? extends AreaRequestHandler> handler, FileParser inputParser) {
+	public Track(View view, DataSource file, Class<? extends AreaRequestHandler> handler, FileParser inputParser) {
 		this(view, file);
 		view.getQueueManager().createQueue(file, handler, inputParser);
 	}
