@@ -185,7 +185,7 @@ public class OperationPanel extends JPanel
             }
         });
         // Clear search
-        JButton showAllButton = new JButton(VisualConstants.CLOSE_ICON);
+        JButton showAllButton = new JButton(VisualConstants.CLOSE_FILE_ICON);
         showAllButton.setFocusPainted(false);
         showAllButton.setContentAreaFilled(false);
         showAllButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -197,7 +197,7 @@ public class OperationPanel extends JPanel
                 showOperationCard(OPERATIONS_CATEGORIZED);
             }
         });
-        searchPanel.add(new JLabel(VisualConstants.SEARCH_ICON));
+        searchPanel.add(new JLabel(VisualConstants.MAGNIFIER_ICON));
         searchPanel.add(searchField);
         searchField.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         searchField.setPreferredSize(new Dimension(100, 22));

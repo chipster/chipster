@@ -66,8 +66,10 @@ public class VisualConstants {
 		new ImageIcon(VisualConstants.class.getResource("/zoom-in.png"));
 	public static ImageIcon ZOOM_OUT_ICON = 
 		new ImageIcon(VisualConstants.class.getResource("/zoom-out.png"));
-	public static ImageIcon SEARCH_ICON = 
-	    new ImageIcon(VisualConstants.class.getResource("/search.png"));
+	public static ImageIcon MAGNIFIER_ICON = 
+	    new ImageIcon(VisualConstants.class.getResource("/viewmag.png"));
+    public static ImageIcon CLOSE_FILE_ICON = 
+	    new ImageIcon(VisualConstants.class.getResource("/fileclose.png"));
 	public static final ImageIcon APPLICATION_ICON =
         new ImageIcon(VisualConstants.class.getResource("/chipster_icon.png"));
 	public static final ImageIcon LOGIN_BANNER =
