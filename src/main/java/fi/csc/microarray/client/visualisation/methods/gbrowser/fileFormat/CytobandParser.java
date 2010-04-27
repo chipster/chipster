@@ -3,6 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 import java.util.Arrays;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class CytobandParser extends TsvParser {
@@ -36,6 +37,6 @@ public class CytobandParser extends TsvParser {
 
 	@Override
 	public String getName() {
-		return "USCS Cytoband";
+		return "Cytobands";
 	}
 }

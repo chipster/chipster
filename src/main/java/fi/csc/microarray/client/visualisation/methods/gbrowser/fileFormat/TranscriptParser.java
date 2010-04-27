@@ -1,13 +1,12 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
-public class TranscriptParser extends TsvParser {
+public class TranscriptParser extends ConcisedTsvParser {
 
 	public TranscriptParser() {
 		super(new FileDefinition(
@@ -22,56 +21,31 @@ public class TranscriptParser extends TsvParser {
 								new ColumnDefinition(ColumnType.DESCRIPTION, Type.STRING),
 								new ColumnDefinition(ColumnType.VALUE, Type.STRING),							
 								new ColumnDefinition(ColumnType.PARENT_ID, Type.STRING),
-								new ColumnDefinition(ColumnType.PARENT_PART, Type.STRING) // should be Type.LONG, but there are some quotes in current annotation file
+								new ColumnDefinition(ColumnType.PARENT_PART, Type.LONG) // should be Type.LONG, but there are some quotes in current annotation file
 		})));
-	}
-
-	@Override
-	public RegionContent[] concise(BpCoordRegion nodeBpRegion) {
-
-		long totalF = 0;
-		long totalR = 0;
-						
-		String[] first = getFirstRow();
-		String[] last = getLastRow();
-		
-		BpCoord start = new BpCoord((Long)get(first, ColumnType.BP_START), (Chromosome)get(first, ColumnType.CHROMOSOME));
-		BpCoord end = new BpCoord((Long)get(last, ColumnType.BP_START), (Chromosome)get(last, ColumnType.CHROMOSOME));		
-		BpCoordRegion reg = new BpCoordRegion(start, end);		
-		long length =  reg.getLength();
-		
-		for (RegionContent rc : 
-			getAll(Arrays.asList(new ColumnType[] { ColumnType.STRAND }))) {
-
-			if((Strand)rc.values.get(ColumnType.STRAND) == Strand.FORWARD) {
-				
-				totalF += length;
-				
-			} else {
-				totalR += length;
-			}			
-		}
-		
-		RegionContent[] result = new RegionContent[] {
-			new RegionContent(nodeBpRegion, totalF / (float)nodeBpRegion.getLength()),
-			new RegionContent(nodeBpRegion, totalR / (float)nodeBpRegion.getLength())
-		};		
-		
-		result[0].values.put(ColumnType.STRAND, Strand.FORWARD);
-		result[1].values.put(ColumnType.STRAND, Strand.REVERSED);
-		
-		return result;
 	}
 
 	@Override
 	public FileParser clone() {
 		FileParser clone = new TranscriptParser();
-		clone.chunk = this.chunk;
+		clone.chunk = (chunk == null ? null : new String(this.chunk));
 		return clone;
 	}
 
 	@Override
 	public String getName() {
 		return "Chipster transcript file";
+	}
+	
+	@Override
+	public Object get(String[] cols, ColumnType col) {
+		
+		return super.get(cols, col);
+	}
+
+	@Override
+	public List<RegionContent> getAll(Collection<ColumnType> requestedContents) {
+
+		return super.getAll(requestedContents); 
 	}
 }

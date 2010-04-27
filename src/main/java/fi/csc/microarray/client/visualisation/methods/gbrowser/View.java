@@ -129,6 +129,10 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 				while (drawableIter.hasNext()) {
 
 					Drawable drawable = drawableIter.next();
+					
+					if(drawable == null) {
+						continue;
+					}
 
 					int maybeReversedY = (int) y;
 

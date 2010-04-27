@@ -160,6 +160,7 @@ public class TranscriptTrack extends Track {
 				drawables.addAll(geneDrawables);
 			}
 		}
+		
 		return drawables;
 	}
 
@@ -194,6 +195,8 @@ public class TranscriptTrack extends Track {
 	}
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
+		
+		System.out.println(areaResult);
 
 		// Genes and transcripts are ordered in the file, but to here they come in any order
 		// That's why we have to put them to Gene objects to sort them again
@@ -219,7 +222,7 @@ public class TranscriptTrack extends Track {
 
 	@Override
 	public void updateData() {
-
+		
 		if (wasLastConsied != isConcised()) {
 			genes.clear();
 			wasLastConsied = isConcised();

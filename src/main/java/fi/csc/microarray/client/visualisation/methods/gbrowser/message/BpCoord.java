@@ -26,6 +26,11 @@ public class BpCoord implements Comparable<BpCoord> {
 			return bp.compareTo(o.bp);
 		}
 	}
+	
+	public int compareTo(Long o) {
+
+		return bp.compareTo(o);		
+	}
 
 	public boolean equals(Object o) {
 		if (o instanceof BpCoord) {
@@ -42,14 +47,14 @@ public class BpCoord implements Comparable<BpCoord> {
 
 	public Long minus(BpCoord o) {
 		
-		if ((chr == null && o.chr == null) || chr.equals(o.chr)) {
+		if (chr.equals(o.chr)) {
 			return bp - o.bp;
 		}
 		return null;
 	}
 
 	public Long plus(BpCoord o) {
-		if ((chr == null && o.chr == null) || chr.equals(o.chr)) {
+		if (chr.equals(o.chr)) {
 			return bp + o.bp;
 		}
 		return null;

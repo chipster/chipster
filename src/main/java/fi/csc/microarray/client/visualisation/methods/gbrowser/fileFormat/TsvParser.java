@@ -31,7 +31,7 @@ public abstract class TsvParser extends FileParser {
 		@Override
 		public BpCoordRegion getBpRegion() {
 			Long start = (Long)get(getFirstRow(), ColumnType.BP_START);
-			Long end = (Long)get(getLastRow(), ColumnType.BP_END);
+			Long end = (Long)get(getLastRow(), ColumnType.BP_START);
 			Chromosome chr = (Chromosome)get(getFirstRow(), ColumnType.CHROMOSOME);
 			
 			return new BpCoordRegion(start, end, chr);
@@ -78,9 +78,10 @@ public abstract class TsvParser extends FileParser {
 
 			List<RegionContent> rows = new LinkedList<RegionContent>();
 			
-			Map<ColumnType, Object> values = new HashMap<ColumnType, Object>();
 
 			for (String row : chunk.split("\n")) {
+				
+				Map<ColumnType, Object> values = new HashMap<ColumnType, Object>();
 				
 				String[] cols = row.split("\t");
 				
@@ -94,6 +95,7 @@ public abstract class TsvParser extends FileParser {
 				Chromosome chr = (Chromosome)get(cols, ColumnType.CHROMOSOME);
 		
 				rows.add(new RegionContent(new BpCoordRegion(start, end, chr), values));
+
 			}
 			
 			return rows;

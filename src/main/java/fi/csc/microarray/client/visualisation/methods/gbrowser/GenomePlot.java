@@ -65,10 +65,14 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 		File cytobandFile = new File(FILE_ROOT, "annotations/Homo_sapiens.GRCh37.57_karyotype.tsv");
 
-		CytobandTrack overviewCytobands = new CytobandTrack(overview, cytobandFile, TreeThread.class, new CytobandParser(), false);
+		//Cytobands
+		if (true) {
+			CytobandTrack overviewCytobands = new CytobandTrack(overview, cytobandFile, TreeThread.class, new CytobandParser(), false);
 
-		overview.addTrack(overviewCytobands);
-		overviewCytobands.initializeListener();
+			overview.addTrack(overviewCytobands);
+			overviewCytobands.initializeListener();
+
+		}
 
 		overview.margin = 0;
 
@@ -85,12 +89,15 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 			dataView.margin = 20;
 			dataView.addTrack(new EmptyTrack(dataView, 30));
 		}
+	
+		//Cytobands
+		if (true) {
+			CytobandTrack cytobands = new CytobandTrack(dataView, cytobandFile, TreeThread.class, new CytobandParser(), true);
 
-		CytobandTrack cytobands = new CytobandTrack(dataView, cytobandFile, TreeThread.class, new CytobandParser(), true);
-
-		dataView.addTrack(cytobands);
-		cytobands.initializeListener();
-
+			dataView.addTrack(cytobands);
+			cytobands.initializeListener();
+		}
+		
 		// Reference genes
 		if (genes) {
 
@@ -183,18 +190,18 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 			// G E N E R A L ////////////////////////////////////////////////
 
 			File annotationFile = new File(FILE_ROOT, "annotations/Homo_sapiens.GRCh37.56_transcripts.tsv");
-			TranscriptParser geneParser = new TranscriptParser();
+			TranscriptParser transcriptParser = new TranscriptParser();
 
 			// F O R W A R D /////////////////////////////////////////////////
 
 			// Overview
-			IntensityTrack annotationOverview = new IntensityTrack(dataView, annotationFile, TreeThread.class, geneParser, PartColor.CDS.c.darker(), 100000);
+			IntensityTrack annotationOverview = new IntensityTrack(dataView, annotationFile, TreeThread.class, transcriptParser, PartColor.CDS.c.darker(), 100000);
 
 			dataView.addTrack(annotationOverview);
 			annotationOverview.initializeListener();
 
 			// Detailed
-			TranscriptTrack annotation = new TranscriptTrack(dataView, annotationFile, TreeThread.class, geneParser, Color.DARK_GRAY, 100000);
+			TranscriptTrack annotation = new TranscriptTrack(dataView, annotationFile, TreeThread.class, transcriptParser, Color.DARK_GRAY, 100000);
 
 			dataView.addTrack(annotation);
 			annotation.initializeListener();
@@ -204,14 +211,14 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 			// R E V E R S E D //////////////////////////////////////////////////
 
 			// Overview
-			IntensityTrack annotationOverviewReversed = new IntensityTrack(dataView, annotationFile, TreeThread.class, geneParser, PartColor.CDS.c.darker(), 100000);
+			IntensityTrack annotationOverviewReversed = new IntensityTrack(dataView, annotationFile, TreeThread.class, transcriptParser, PartColor.CDS.c.darker(), 100000);
 
 			annotationOverviewReversed.setStrand(Strand.REVERSED);
 			dataView.addTrack(annotationOverviewReversed);
 			annotationOverviewReversed.initializeListener();
 
 			// Detailed
-			TranscriptTrack annotationReversed = new TranscriptTrack(dataView, annotationFile, TreeThread.class, geneParser, Color.DARK_GRAY, 100000);
+			TranscriptTrack annotationReversed = new TranscriptTrack(dataView, annotationFile, TreeThread.class, transcriptParser, Color.DARK_GRAY, 100000);
 
 			annotationReversed.setStrand(Strand.REVERSED);
 			dataView.addTrack(annotationReversed);

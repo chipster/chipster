@@ -85,7 +85,7 @@ public class CytobandTrack extends Track {
 			boolean firstGap = true;
 
 			for (RegionContent bandRegion : bands) {
-
+				
 				Band band = getBand((String) bandRegion.values.get(ColumnType.VALUE));
 				String text = (String) bandRegion.values.get(ColumnType.ID);
 
@@ -139,6 +139,7 @@ public class CytobandTrack extends Track {
 	}
 
 	private RectDrawable createDrawable(BpCoord startBp, BpCoord endBp, Color c) {
+		
 		Rectangle rect = new Rectangle();
 
 		rect.x = getView().bpToTrack(startBp);
@@ -149,7 +150,7 @@ public class CytobandTrack extends Track {
 
 		return new RectDrawable(rect, c, Color.black);
 	}
-
+  
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
 
 //		 if (areaResult.content instanceof List) {
@@ -162,8 +163,11 @@ public class CytobandTrack extends Track {
 //			}
 //		}
 
-		this.bands.add(areaResult.content);
-		getView().redraw();
+		if (getView().getBpRegion().intercepts(areaResult.content.region)) {
+
+			this.bands.add(areaResult.content);
+			getView().redraw();		
+		}
 		
 //		 this.reads.addAll(result.collection);
 	}
@@ -181,7 +185,7 @@ public class CytobandTrack extends Track {
 
 	@Override
 	public Collection<ColumnType> getDefaultContents() {
-		return Arrays.asList(new ColumnType[] { ColumnType.VALUE, ColumnType.ID });
+		return Arrays.asList(new ColumnType[] {ColumnType.ID, ColumnType.VALUE});
 	}
 
 	@Override
