@@ -48,7 +48,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptT
 
 public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, Serializable { // , MouseWheelListener {
 
-	private static final File FILE_ROOT = new File("/home/akallio/chipster-share/genomebrowser_data");
+	protected static final File FILE_ROOT = new File("/home/akallio/chipster-share/genomebrowser_data");
 
 	/** The cell information text is drawn with this font. */
 	private Font descriptionFont;
