@@ -2,12 +2,12 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
 import java.awt.Rectangle;
-import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.TreeSet;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
@@ -29,7 +29,7 @@ public class PeakTrack extends Track {
 	private Color color;
 
 
-	public PeakTrack(View view, File file, Class<? extends AreaRequestHandler> handler, FileParser inputParser, Color color, long minBpLength, long maxBpLength) {
+	public PeakTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler, FileParser inputParser, Color color, long minBpLength, long maxBpLength) {
 		super(view, file, handler, inputParser);
 		this.color = color;
 		this.minBpLength = minBpLength;

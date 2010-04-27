@@ -5,10 +5,13 @@ import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,8 +51,17 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptT
 
 public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, Serializable { // , MouseWheelListener {
 
-	protected static final File FILE_ROOT = new File("/home/akallio/chipster-share/genomebrowser_data");
+	private static final File FILE_ROOT = new File("/home/akallio/chipster-share/genomebrowser_data");
+	private static final URL URL_ROOT;
 
+	static {
+		try {
+			URL_ROOT = new URL("http://chipster-devel.csc.fi:8050/public");
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
 	/** The cell information text is drawn with this font. */
 	private Font descriptionFont;
 
@@ -59,11 +71,11 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 	public ChartPanel chartPanel;
 
-	public GenomePlot(Integer chr, boolean horizontal, boolean transcripts, boolean genes, boolean mirna, boolean sequence) {
+	public GenomePlot(Integer chr, boolean horizontal, boolean transcripts, boolean genes, boolean mirna, boolean sequence) throws FileNotFoundException, MalformedURLException {
 
 		overview = new HorizontalView(this, false, false, true);
 
-		File cytobandFile = new File(FILE_ROOT, "annotations/cytoband_hg17_sorted.fsf");
+		DataSource cytobandFile = new DataSource(URL_ROOT, "annotations/cytoband_hg17_sorted.fsf");
 
 		CytobandTrack overviewCytobands = new CytobandTrack(overview, cytobandFile, TreeThread.class, new CytobandParser(), false);
 
@@ -96,7 +108,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 			// G E N E R A L ////////////////////////////////////////////////
 
-			File annotationFile = new File(FILE_ROOT, "annotations/Homo_sapiens.GRCh37.56_genes.fsf");
+			DataSource annotationFile = new DataSource(URL_ROOT,  "annotations/Homo_sapiens.GRCh37.56_genes.fsf");
 			GeneParser geneParser = new GeneParser();
 
 			// F O R W A R D /////////////////////////////////////////////////
@@ -137,7 +149,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 			// G E N E R A L ////////////////////////////////////////////////
 
-			File miRNAFile = new File(FILE_ROOT, "annotations/Homo_sapiens.GRCh37.56_miRNA.fsf");
+			DataSource miRNAFile = new DataSource(URL_ROOT, "annotations/Homo_sapiens.GRCh37.56_miRNA.fsf");
 			miRNAParser miRNAParser = new miRNAParser();
 
 			// F O R W A R D /////////////////////////////////////////////////
@@ -182,7 +194,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 			// G E N E R A L ////////////////////////////////////////////////
 
-			File annotationFile = new File(FILE_ROOT, "annotations/Homo_sapiens.GRCh37.56_transcripts.fsf");
+			DataSource annotationFile = new DataSource(URL_ROOT, "annotations/Homo_sapiens.GRCh37.56_transcripts.fsf");
 			TranscriptParser geneParser = new TranscriptParser();
 
 			// F O R W A R D /////////////////////////////////////////////////
@@ -223,7 +235,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 			// G E N E R A L ////////////////////////////////////////////////
 
-			File peakFile = new File(FILE_ROOT, "annotations/Homo_sapiens.GRCh37.56_miRNA.fsf");
+			DataSource peakFile = new DataSource(URL_ROOT, "annotations/Homo_sapiens.GRCh37.56_miRNA.fsf");
 			miRNAParser miRNAParser = new miRNAParser();
 
 			// F O R W A R D /////////////////////////////////////////////////
@@ -246,7 +258,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 			// G E N E R A L ////////////////////////////////////////////////
 
-			File peakFile = new File(FILE_ROOT, "annotations/Homo_sapiens.GRCh37.56_miRNA.fsf");
+			DataSource peakFile = new DataSource(URL_ROOT, "annotations/Homo_sapiens.GRCh37.56_miRNA.fsf");
 			miRNAParser miRNAParser = new miRNAParser();
 
 			// F O R W A R D /////////////////////////////////////////////////
@@ -269,8 +281,8 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 			// G E N E R A L ////////////////////////////////////////////////
 
-			File userData1 = new File(FILE_ROOT, "eland_result.fsf");
-			File userData2 = new File(FILE_ROOT, "eland_result.fsf");
+			DataSource userData1 = new DataSource(FILE_ROOT, "eland_result.fsf");
+			DataSource userData2 = new DataSource(FILE_ROOT, "eland_result.fsf");
 			ElandParser userDataParser = new ElandParser();
 
 			// F O R W A R D /////////////////////////////////////////////////
@@ -300,7 +312,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 			if (sequence) {
 				// Reference sequence
-				File seqFile = new File(FILE_ROOT, "annotations/Homo_sapiens.GRCh37.56_seq.fsf");
+				DataSource seqFile = new DataSource(URL_ROOT, "annotations/Homo_sapiens.GRCh37.56_seq.fsf");
 
 				SeqTrack seq = new SeqTrack(dataView, seqFile, TreeThread.class, new SequenceParser(), 800);
 

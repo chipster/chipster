@@ -2,13 +2,13 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
 import java.awt.Rectangle;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.TreeSet;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
@@ -69,7 +69,7 @@ public class CytobandTrack extends Track {
 		return null;
 	}
 
-	public CytobandTrack(View view, File file, Class<? extends AreaRequestHandler> handler, FileParser inputParser, boolean showText) {
+	public CytobandTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler, FileParser inputParser, boolean showText) {
 		super(view, file, handler, inputParser);
 
 		this.showText = showText;

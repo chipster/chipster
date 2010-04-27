@@ -1,12 +1,12 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
-import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
@@ -22,7 +22,7 @@ public class IntensityTrack extends Track {
 	private long minBpLength;
 	private Color color;
 
-	public IntensityTrack(View view, File file, Class<? extends AreaRequestHandler> handler, FileParser inputParser, Color c, long maxBpLength) {
+	public IntensityTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler, FileParser inputParser, Color c, long maxBpLength) {
 		super(view, file, handler, inputParser);
 		this.color = c;
 		this.minBpLength = maxBpLength;

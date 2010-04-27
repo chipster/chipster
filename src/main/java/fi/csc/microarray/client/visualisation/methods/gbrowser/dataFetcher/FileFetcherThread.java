@@ -1,11 +1,10 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ByteRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileRequest;
@@ -18,7 +17,7 @@ public class FileFetcherThread extends Thread {
 
 	private TreeThread treeThread;
 
-	private RandomAccessFile raf;
+	private DataSource dataSource;
 
 	private FileParser inputParser;
 
@@ -31,12 +30,7 @@ public class FileFetcherThread extends Thread {
 
 		this.setDaemon(true);
 
-		try {
-			raf = new RandomAccessFile(treeThread.getFile(), "r");
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace(); // FIXME fix exception handling
-		}
+		this.dataSource = treeThread.getFile();
 	}
 
 	public void run() {
@@ -53,6 +47,25 @@ public class FileFetcherThread extends Thread {
 				e.printStackTrace(); // FIXME fix exception handling
 			}
 		}
+	}
+	
+	private void processFileRequestAleksi(FileRequest fileRequest) throws IOException {
+
+		ByteChunk chunk = new ByteChunk(inputParser.getChunkMaxByteLength());
+		chunk.rowIndex = fileRequest.rowRegion.start;
+
+		long filePosition = inputParser.getFilePosition(chunk.rowIndex);
+
+		chunk.byteLength = dataSource.read(filePosition, chunk.byteContent);
+
+		fileRequest.status.maybeClearQueue(fileResultQueue);
+		fileRequest.status.fileRequestCount = fileRequestQueue.size();
+
+		FileParser inputParser = (FileParser) this.inputParser.clone();
+		inputParser.setChunk(chunk);
+
+		fileResultQueue.add(new FileResult(fileRequest, inputParser, fileRequest.status));
+		treeThread.notifyTree();
 	}
 
 	private void processFileRequest(FileRequest fileRequest) throws IOException {
@@ -114,8 +127,7 @@ public class FileFetcherThread extends Thread {
 		}
 
 		try {
-			return raf.length();
-
+			return dataSource.length()
 		} catch (IOException e) {
 			e.printStackTrace(); // FIXME fix exception handling 
 		}
