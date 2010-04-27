@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import fi.csc.microarray.databeans.DataBean;
@@ -71,7 +72,13 @@ public class LocalFileDataBeanHandler extends DataBeanHandlerBase {
 	}
 	
 	private File getFile(DataBean dataBean) {
-		return new File(dataBean.getContentUrl().getPath());
+		File file;
+		try {
+			file = new File(dataBean.getContentUrl().toURI());
+		} catch (URISyntaxException use) {
+			throw new IllegalArgumentException(dataBean.getContentUrl() + " does not point to a file.");
+		}
+		return file;
 	}
 
 }
