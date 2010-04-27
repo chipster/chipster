@@ -168,7 +168,7 @@ public class OperationPanel extends JPanel
 		
 	    // Search bar
         JToolBar searchPanel = new JToolBar();
-        searchPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        searchPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 1));
         // Text field
         searchField = new JTextField(20);
         searchField.addCaretListener(new CaretListener() {
@@ -200,6 +200,7 @@ public class OperationPanel extends JPanel
         searchPanel.add(new JLabel(VisualConstants.SEARCH_ICON));
         searchPanel.add(searchField);
         searchField.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        searchField.setPreferredSize(new Dimension(100, 22));
         searchField.add(showAllButton);
         //searchPanel.add(showAllButton);
         searchPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
