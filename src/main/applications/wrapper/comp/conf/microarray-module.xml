@@ -2,7 +2,7 @@
 
 <module name="microarray">
 	<category name="Normalisation" color="#c3b6a2">
-		<tool runtime="R-2.9"><resource><resource>norm-affy.R</resource></resource></tool>
+		<tool runtime="R-2.9"><resource>norm-affy.R</resource></tool> <!-- R-2.10 -->
 		<tool runtime="R-2.9"><resource>norm-affy-exon.R</resource></tool>
 		<tool runtime="R-2.9"><resource>norm-affy-snp.R</resource></tool>
 		<tool runtime="R-2.9"><resource>norm-affy-gene.R</resource></tool>
@@ -53,7 +53,7 @@
 		<tool runtime="R-2.9"><resource>stat-several-groups.R</resource></tool>
 		<tool runtime="R-2.9"><resource>stat-linear-modelling.R</resource></tool>
 		<tool runtime="R-2.9"><resource>stat-correlate-with-phenodata.R</resource></tool>
-		<!-- <tool runtime="R-2.10"><resource>correlation-analysis-mirna.R</resource></tool> -->
+		<!-- <tool runtime="R-2.10"><resource>correlation-analysis-mirna.R</resource></tool> --> 
 		<tool runtime="R-2.9"><resource>stat-timeseries.R</resource></tool>
 		<tool runtime="R-2.9"><resource>stat-chisq-snp.R</resource></tool>
 		<tool runtime="R-2.9"><resource>stat-adjust-pvalues.R</resource></tool>
@@ -78,7 +78,7 @@
 		<tool runtime="R-2.9"><resource>annotate-genelist2html.R</resource></tool>
 		<tool runtime="R-2.9"><resource>annotate-add-to-data.R</resource></tool>
 		<tool runtime="R-2.9"><resource>annotate-agilent-miRNA.R</resource></tool>
-		<!-- <tool runtime="R-2.10"><resource>annotate-miRNA-targets.R</resource></tool> -->
+		<!-- <tool runtime="R-2.10"><resource>annotate-miRNA-targets.R</resource></tool> --> 
 	</category>
 	
 	<category name="Pathways" color="#80a3b7">
@@ -87,16 +87,14 @@
 		<tool runtime="R-2.9"><resource>stat-hyperG-safe.R</resource></tool>
 		<tool runtime="R-2.9"><resource>stat-hyperG-cytoband.R</resource></tool>
 		<tool runtime="R-2.9"><resource>stat-geneset.R</resource></tool>
-		<!-- <tool runtime="R-2.10"><resource>pathways-mirna-hyperg-go.R</resource></tool> -->
-		<!-- <tool runtime="R-2.10"><resource>pathways-mirna-hyperg-kegg.R</resource></tool> -->
-		<!-- <tool runtime="R-2.10"><resource>correlation-analysis-mirna.R</resource></tool> -->
+		<!-- <tool runtime="R-2.10"><resource>pathways-mirna-hyperg-go.R</resource></tool> --> 
+		<!-- <tool runtime="R-2.10"><resource>pathways-mirna-hyperg-kegg.R</resource></tool> --> 
 		<tool runtime="beanshell"><resource>annotate-cpdb.bsh</resource></tool>
 		<tool runtime="beanshell"><resource>annotate-intact.bsh</resource></tool>
 		<tool runtime="beanshell"><resource>annotate-reactome.bsh</resource></tool>
 	</category>
 
 	<category name="Promoter analysis" color="#0177b7">
-			<!-- PROMOTER -->
 		<tool runtime="R-2.9"><resource>promoter-tfbs.R</resource></tool>
 		<tool runtime="R-2.9"><resource>promoter-tfbs-cosmo.R</resource></tool>
 		<tool runtime="R-2.9"><resource>promoter-cbust.R</resource></tool>
@@ -117,7 +115,7 @@
 
 	<category name="Utilities" color="#a49900">
 		<tool runtime="R-2.9"><resource>search-correlation.R</resource></tool>
-		<tool runtime="R-2.9"><resource>search-queryword.R</resource></tool>
+		<tool runtime="R-2.10"><resource>search-queryword.R</resource></tool>
 		<tool runtime="R-2.9"><resource>merge-tables.R</resource></tool>
 		<tool runtime="R-2.9"><resource>extract-genes-from-clustering.R</resource></tool>
 		<tool runtime="R-2.9"><resource>extract-samples-from-dataset.R</resource></tool>
@@ -128,6 +126,7 @@
 		<tool runtime="R-2.9"><resource>combine-probes-to-genes.R</resource></tool>
 		<tool runtime="R-2.9"><resource>change-interpretation.R</resource></tool>
 		<tool runtime="R-2.9"><resource>generate-phenodata.R</resource></tool>
+        <tool runtime="R-2.9"><resource>filter-by-column.R</resource></tool>
 		<tool runtime="R-2.9"><resource>delete-columns.R</resource></tool>
 		<tool runtime="R-2.9"><resource>calculate-descriptive-statistics.R</resource></tool>
 		<tool runtime="R-2.9"><resource>sort-samples.R</resource></tool>
@@ -158,10 +157,12 @@
 	
 	
 	<!-- HIDDEN -->
+        <!--
 	<category name="Miscellaneous (sequence analysis)" hidden="true" color="#c0d2de">
 		<tool runtime="R-2.9"><resource>seqanal-msa.R</resource></tool> 
 		<tool runtime="R-2.9"><resource>seqanal-phylogenetics.R</resource></tool>
 	</category>
+        -->
 	
 	<category name="Hidden" hidden="true" color="#0">
 		<tool runtime="R-2.9" hidden="true"><resource>test.R</resource></tool>

@@ -241,7 +241,7 @@ public class SADLParser {
 		
 		String from = null;
 		String to = null;
-		String[] defaultValues = null; 
+		String[] defaultValues = new String[0]; 
 
 		if (nextTokenIs(tokens, SADLSyntax.KEYWORD_FROM)) {
 			skip(tokens, SADLSyntax.KEYWORD_FROM); 

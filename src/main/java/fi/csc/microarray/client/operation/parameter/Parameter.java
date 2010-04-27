@@ -57,7 +57,7 @@ public abstract class Parameter implements Cloneable {
 		Parameter parameter = null;
 		
 		String initValue = null;
-		if (initValues != null) {
+		if (initValues.length > 0) {
 		    initValue = initValues[0];
 		}
 		
