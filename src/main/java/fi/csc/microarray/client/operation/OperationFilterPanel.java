@@ -1,5 +1,6 @@
 package fi.csc.microarray.client.operation;
 
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,6 +18,8 @@ import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.constants.VisualConstants;
+
 /**
  * A panel that lists operations filtered by a certain criterion.
  * 
@@ -33,28 +36,45 @@ public class OperationFilterPanel extends JPanel
     
     private OperationPanel parent;
     private Collection<OperationCategory> categories;
+    private OperationCategory[] categoryItem = new OperationCategory[1];
     
+    private JList categoryList;
     private JList operationList;
     
     private ExecutionItem selectedOperation;
     
     public OperationFilterPanel(OperationPanel parent,
            Collection<OperationCategory> categories) {
-        super(new GridLayout(1, 1));
+        super(new GridLayout(1, 2));
         this.parent = parent;
         this.categories = categories;
         
+        // Category list has only one item
+        categoryItem[0] = new OperationCategory("Found items");
+        categoryItem[0].setColor(new Color(70, 160, 70));
+        categoryList = new JList(categoryItem);
+        categoryList.setSelectedIndex(0);
+        categoryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        categoryList.addListSelectionListener(this);
+        categoryList.setCellRenderer(new OperationChoicePanel.CategoryListRenderer());
+        categoryList.getInsets().right = 1;
+        categoryList.setName("categoryList");
+        
+        // Operation list shows the results
         operationList = new JList();
         operationList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         operationList.addListSelectionListener(this);
         operationList.setCellRenderer(new OperationChoicePanel.FontSizeFriendlyListRenderer());
-        //operationList.addMouseListener(new MouseClickListener());
         operationList.getInsets().right = 1;
         operationList.setName("operationList");
         
+        JScrollPane categoryListScroller = new JScrollPane(categoryList);       
         JScrollPane operationListScroller = new JScrollPane(operationList);
+        categoryListScroller.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
+                VisualConstants.OPERATION_LIST_BORDER_COLOR));
         operationListScroller.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        
+
+        this.add(categoryListScroller);
         this.add(operationListScroller);        
     }
     
@@ -115,6 +135,9 @@ public class OperationFilterPanel extends JPanel
         Collections.sort(filteredOperations,
                 new OperationFilterComparator(filteredOperations,
                 filteredOperationsWeights));
+        
+        // Update category list
+        categoryItem[0].setName("Tools found for " + "\"" + filterPhrase + "\"");
         
         parent.enableAction(false);
         

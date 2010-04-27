@@ -101,6 +101,32 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         c.gridy = 0;
         this.setLayout(new GridBagLayout());
         
+        // Name label
+        nameLabel = new JLabel("Filename");
+        c.anchor = GridBagConstraints.WEST;
+        c.insets.set(10, 10, 5, 10);
+        c.gridy++;
+        this.add(nameLabel, c);
+        
+        // Name field
+        nameField = new JTextField();
+        nameField.setPreferredSize(new Dimension(150, 20));
+        nameField.setText("data.txt");
+        c.insets.set(0, 10, 10, 10);       
+        c.gridy++;
+        this.add(nameField, c);
+        
+        // Folder to store the file
+        folderNameCombo = new JComboBox(ImportUtils.getFolderNames(true).toArray());
+        folderNameCombo.setPreferredSize(new Dimension(150, 20));
+        folderNameCombo.setEditable(true);
+        c.insets.set(10, 10, 5, 10);
+        c.gridy++;
+        this.add(new JLabel("Create in folder"), c);
+        c.insets.set(0, 10, 10, 10);
+        c.gridy++;
+        this.add(folderNameCombo, c);
+        
         // Database
         dbNameCombo = new JComboBox(Databases.values());
         dbNameCombo.setPreferredSize(new Dimension(150, 20));
@@ -131,7 +157,7 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         areaScrollPane.setHorizontalScrollBarPolicy(
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         areaScrollPane.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-        areaScrollPane.setPreferredSize(new Dimension(150, 90));
+        areaScrollPane.setPreferredSize(new Dimension(400, 90));
         c.insets.set(0, 10, 10, 10);  
         c.gridy++;
         this.add(areaScrollPane, c);
@@ -156,32 +182,6 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         c.gridy++;
         this.add(mergeCheckBox, c);
         
-        // Name label
-        nameLabel = new JLabel("Filename");
-        c.anchor = GridBagConstraints.WEST;
-        c.insets.set(10, 10, 5, 10);
-        c.gridy++;
-        this.add(nameLabel, c);
-        
-        // Name field
-        nameField = new JTextField();
-        nameField.setPreferredSize(new Dimension(150, 20));
-        nameField.setText("data.txt");
-        c.insets.set(0, 10, 10, 10);       
-        c.gridy++;
-        this.add(nameField, c);
-        
-        // Folder to store the file
-        folderNameCombo = new JComboBox(ImportUtils.getFolderNames(true).toArray());
-        folderNameCombo.setPreferredSize(new Dimension(150, 20));
-        folderNameCombo.setEditable(true);
-        c.insets.set(10, 10, 5, 10);
-        c.gridy++;
-        this.add(new JLabel("Create in folder"), c);
-        c.insets.set(0, 10, 10, 10);
-        c.gridy++;
-        this.add(folderNameCombo, c);
-
         // OK button
         okButton = new JButton("OK");
         okButton.setPreferredSize(BUTTON_SIZE);
