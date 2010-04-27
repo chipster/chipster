@@ -118,7 +118,7 @@ public class TreeNode {
 		
 		if (isLeaf) {
 
-			if (byteRegion.exact) {
+			if (byteRegion.exact && fileResult.exactRegion != null) {
 				byteRegion = fileResult.exactRegion;
 			}
 
@@ -180,7 +180,7 @@ public class TreeNode {
 	}
 
 	public void createAreaResultOfAllRows(String chunk, FileParser chunkParser, AreaRequest areaRequest,
-			FsfStatus status) {
+			FsfStatus status) {		
 
 		for (RegionContent rc : chunkParser.getAll(chunk, areaRequest.requestedContents)) {
 			

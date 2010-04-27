@@ -49,66 +49,50 @@ public class FileFetcherThread extends Thread {
 		}
 	}
 	
-	private void processFileRequestAleksi(FileRequest fileRequest) throws IOException {
-
-		ByteChunk chunk = new ByteChunk(inputParser.getChunkMaxByteLength());
-		chunk.rowIndex = fileRequest.rowRegion.start;
-
-		long filePosition = inputParser.getFilePosition(chunk.rowIndex);
-
-		chunk.byteLength = dataSource.read(filePosition, chunk.byteContent);
-
-		fileRequest.status.maybeClearQueue(fileResultQueue);
-		fileRequest.status.fileRequestCount = fileRequestQueue.size();
-
-		FileParser inputParser = (FileParser) this.inputParser.clone();
-		inputParser.setChunk(chunk);
-
-		fileResultQueue.add(new FileResult(fileRequest, inputParser, fileRequest.status));
-		treeThread.notifyTree();
-	}
-
 	private void processFileRequest(FileRequest fileRequest) throws IOException {
 
 		String chunk;
-
-		raf.seek(inputParser.getFilePosition(fileRequest.byteRegion.start));
-
-		ByteRegion exactRegion = new ByteRegion();
-
+		ByteRegion exactRegion = null;
+		
 		if (fileRequest.byteRegion.exact) {
-
-			exactRegion.start = raf.getFilePointer();
+			
+			dataSource.seek(fileRequest.byteRegion.start);
 
 			byte[] byteChunk = new byte[(int)fileRequest.byteRegion.getLength()];
-							
-			raf.read(byteChunk);
+				
+			dataSource.read(byteChunk);			
 			
 			chunk = new String(byteChunk);
-
-			exactRegion = fileRequest.byteRegion;
+			
+			dataSource.clean();
 
 		} else {
 			
+			dataSource.seek(inputParser.getFilePosition(fileRequest.byteRegion.start));
+			
+			exactRegion = new ByteRegion();
+			
 			//Find next new line
 			if(fileRequest.byteRegion.start != 0) {
-				raf.readLine();
+				dataSource.readLine();
 			}
 
-			exactRegion.start = raf.getFilePointer();
+			exactRegion.start = dataSource.getPosition();
 			
 			StringBuilder lines = new StringBuilder();
 
-			while (raf.getFilePointer() <= fileRequest.byteRegion.end) {
+			while (dataSource.getPosition() <= fileRequest.byteRegion.end) {
 
-				lines.append(raf.readLine());
+				lines.append(dataSource.readLine());
 				lines.append("\n");
 			}
 
-			exactRegion.end = raf.getFilePointer() - 1;
+			exactRegion.end = dataSource.getPosition() - 1;
 			exactRegion.exact = true;
 
 			chunk = lines.toString();				
+			
+			dataSource.clean();
 		}
 
 		fileRequest.status.maybeClearQueue(fileResultQueue);
@@ -127,7 +111,7 @@ public class FileFetcherThread extends Thread {
 		}
 
 		try {
-			return dataSource.length()
+			return dataSource.length();
 		} catch (IOException e) {
 			e.printStackTrace(); // FIXME fix exception handling 
 		}

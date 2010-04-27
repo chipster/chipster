@@ -5,7 +5,6 @@ import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -52,7 +51,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptT
 public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, Serializable { // , MouseWheelListener {
 
 	private static final File FILE_ROOT = new File("/home/akallio/chipster-share/genomebrowser_data");
-	private static final URL URL_ROOT;
+	protected static final URL URL_ROOT;
 
 	static {
 		try {
@@ -71,11 +70,11 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 	public ChartPanel chartPanel;
 
-	public GenomePlot(Integer chr, boolean horizontal, boolean transcripts, boolean genes, boolean mirna, boolean sequence) throws FileNotFoundException, MalformedURLException {
+	public GenomePlot(Integer chr, boolean horizontal, boolean transcripts, boolean genes, boolean mirna, boolean sequence) throws IOException {
 
 		overview = new HorizontalView(this, false, false, true);
-
-		DataSource cytobandFile = new DataSource(URL_ROOT, "annotations/cytoband_hg17_sorted.fsf");
+		
+		DataSource cytobandFile = new DataSource(URL_ROOT, "annotations/Homo_sapiens.GRCh37.57_karyotype.tsv");
 
 		CytobandTrack overviewCytobands = new CytobandTrack(overview, cytobandFile, TreeThread.class, new CytobandParser(), false);
 
@@ -108,7 +107,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 			// G E N E R A L ////////////////////////////////////////////////
 
-			DataSource annotationFile = new DataSource(URL_ROOT,  "annotations/Homo_sapiens.GRCh37.56_genes.fsf");
+			DataSource annotationFile = new DataSource(URL_ROOT,  "annotations/Homo_sapiens.GRCh37.56_genes.tsv");
 			GeneParser geneParser = new GeneParser();
 
 			// F O R W A R D /////////////////////////////////////////////////
@@ -149,7 +148,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 			// G E N E R A L ////////////////////////////////////////////////
 
-			DataSource miRNAFile = new DataSource(URL_ROOT, "annotations/Homo_sapiens.GRCh37.56_miRNA.fsf");
+			DataSource miRNAFile = new DataSource(URL_ROOT, "annotations/Homo_sapiens.GRCh37.56_miRNA.tsv");
 			miRNAParser miRNAParser = new miRNAParser();
 
 			// F O R W A R D /////////////////////////////////////////////////
@@ -194,7 +193,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 			// G E N E R A L ////////////////////////////////////////////////
 
-			DataSource annotationFile = new DataSource(URL_ROOT, "annotations/Homo_sapiens.GRCh37.56_transcripts.fsf");
+			DataSource annotationFile = new DataSource(URL_ROOT, "annotations/Homo_sapiens.GRCh37.56_transcripts.tsv");
 			TranscriptParser geneParser = new TranscriptParser();
 
 			// F O R W A R D /////////////////////////////////////////////////
@@ -235,7 +234,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 			// G E N E R A L ////////////////////////////////////////////////
 
-			DataSource peakFile = new DataSource(URL_ROOT, "annotations/Homo_sapiens.GRCh37.56_miRNA.fsf");
+			DataSource peakFile = new DataSource(URL_ROOT, "annotations/Homo_sapiens.GRCh37.56_miRNA.tsv");
 			miRNAParser miRNAParser = new miRNAParser();
 
 			// F O R W A R D /////////////////////////////////////////////////
@@ -258,7 +257,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 			// G E N E R A L ////////////////////////////////////////////////
 
-			DataSource peakFile = new DataSource(URL_ROOT, "annotations/Homo_sapiens.GRCh37.56_miRNA.fsf");
+			DataSource peakFile = new DataSource(URL_ROOT, "annotations/Homo_sapiens.GRCh37.56_miRNA.tsv");
 			miRNAParser miRNAParser = new miRNAParser();
 
 			// F O R W A R D /////////////////////////////////////////////////
@@ -277,7 +276,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 		}
 
 		// Eland export
-		if (true) {
+		if (false) {
 
 			// G E N E R A L ////////////////////////////////////////////////
 
