@@ -83,7 +83,7 @@ public class FileFetcherThread extends Thread {
 
 			while (dataSource.getPosition() <= fileRequest.byteRegion.end) {
 
-				lines.append(dataSource.readLine());
+				lines.append(dataSource.readLine()); // FIXME out of mem
 				lines.append("\n");
 			}
 
