@@ -96,10 +96,18 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
             
             Process p = Runtime.getRuntime().exec(cmd, null, jobWorkDir);
             p.waitFor();
+            String outputString = Files.inputStreamToString(p.getErrorStream());
             
             logger.info("Shell application has finished with exit code " + p.exitValue() + 
-                        " and this message: " + "\"" +
-                        Files.inputStreamToString(p.getErrorStream()) + "\".");
+                        " and this message: " + "\"" + outputString + "\".");
+            
+            // If the exit code is non-zero, the application was not successful
+            if (p.exitValue() != 0) {
+                logger.debug("There was an error while running \"" +
+                        analysis.getName() + "\" application.");
+                outputMessage.setErrorMessage(outputString);
+                updateState(JobState.FAILED, "Application failed.");
+            } 
             
             // This is what we should produce as output
             ResultMessage outputMessage = this.outputMessage;

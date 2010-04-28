@@ -1,7 +1,11 @@
 TOOL "BLAST" / blastn: blastn (Heuristic tool for protein sequence search.)
 INPUT query: "Query sequence" TYPE GENERIC
 OUTPUT out.txt
-PARAMETER db: "Database" TYPE [nr: "NCBI non-redundant nucleotide database", embl_others: "EMBL excluding the EST, GSS and HTG divisions, and the WGS sets", embl_est: "EMBL EST division", embl_gss: "EMBL GSS division", embl_htg: "EMBL GSS division", emblnew: "EMBL updates", refseq: "NCBI RefSeq RNA database", refseq_con: "NCBI RefSeq human contigs"] DEFAULT nt (Choose a database)
+PARAMETER db: "Database" TYPE [nr: "NCBI non-redundant nucleotide database",
+	embl_others: "EMBL excluding the EST, GSS and HTG divisions, and the WGS sets",
+	embl_est: "EMBL EST division", embl_gss: "EMBL GSS division",
+	embl_htg: "EMBL GSS division", emblnew: "EMBL updates", refseq: "NCBI RefSeq RNA database",
+	refseq_con: "NCBI RefSeq human contigs"] DEFAULT nr (Choose a database)
 PARAMETER OPTIONAL task: "Task to execute" TYPE [blastn: "BLASTN: Traditional BLASTN requiring an exact match of 11", blastn-short: "BLASTN short: BLASTN program optimized for sequences shorter than 50 bases", dc-medablast: "Discontiguous megablast:  used to find more distant (e.g., interspecies) sequences", megablast: "megablast: Traditional megablast used to find very similar (e.g., intraspecies or closely related species) sequences"] DEFAULT blastn (Task to execute)
 PARAMETER OPTIONAL evalue: "Expectation value (E) threshold for saving hits" TYPE DECIMAL (Expectation value)
 PARAMETER OPTIONAL gapopen: "Cost to open a gap" TYPE INTEGER FROM 0 TO 20 (Cost to open a gap)

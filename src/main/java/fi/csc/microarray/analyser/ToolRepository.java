@@ -279,6 +279,7 @@ public class ToolRepository {
                     AnalysisDescription description;
                     try {
                         description = runtime.getHandler().handle(descriptionFilename, parameters);
+                        description.setCategory(category.getName());
                     } catch (Exception e) {
                         logger.warn("loading " + descriptionFilename + " failed, could not create description", e);
                         continue;
