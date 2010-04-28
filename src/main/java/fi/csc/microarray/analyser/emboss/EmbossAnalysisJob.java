@@ -214,16 +214,20 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         // Simple outputs
         for (ACDParameter param : acdDescription.getOutputParameters()) {
             // User might have changed output type
-            String prefix = outputFormats.get(param.getName());
-            if (prefix == null) {
-                prefix = "";
-            } else {
-                prefix += "::";
+            String format = outputFormats.get(param.getName());
+            if (format != null) {
+                // Add additional qualifier for defining format
+                if (param.getType().equals("align")) {
+                    params.add("-aformat");
+                } else {
+                    params.add("-osformat");
+                }
+                params.add(format);
             }
             
             // Add qualifier
             params.add("-" + param.getName());
-            params.add(prefix + param.getOutputFilename(true));
+            params.add(param.getOutputFilename(true));
         }
         
         // Graphics outputs

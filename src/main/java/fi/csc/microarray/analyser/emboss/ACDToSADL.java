@@ -47,11 +47,16 @@ public class ACDToSADL {
 	    // Add a special parameter for sequence outputs, so user
 	    // can choose an output format
 	    for (ACDParameter param : acd.getOutputParameters()) {
-	        if (param.getType().equals("seqout")) {
+	        if (param.getType().equals("seqout") ||
+	            param.getType().equals("seqoutall") ||
+	            param.getType().equals("seqoutset") ||
+	            param.getType().equals("align")) {
 	            Name[] fieldValues = {
 	                    Name.createName(ACDParameter.UNDEFINED, "Default"),
                         Name.createName("fasta", "FASTA"),
-                        Name.createName("gcg", "GCG")};
+                        Name.createName("ncbi", "NCBI"),
+                        Name.createName("clustal", "ClustalW"),
+                        Name.createName("phylip", "Phylip"),};
                 Parameter parameter = new Parameter(
                         Name.createName(OUTPUT_TYPE_PREFIX + param.getName(),
                                         "Output type for " + param.getName()),
