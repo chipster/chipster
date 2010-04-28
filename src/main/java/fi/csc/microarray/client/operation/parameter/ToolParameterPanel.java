@@ -118,7 +118,7 @@ public class ToolParameterPanel extends ParameterPanel {
         // Input file mappings
         pane = new JXTaskPane();
         pane.setTitle("Input datasets");
-        pane.setCollapsed(true);
+        pane.setCollapsed(false);
         
         // Grid layout for component/label pairs
         paramPane = new JPanel(new GridBagLayout());
@@ -127,7 +127,7 @@ public class ToolParameterPanel extends ParameterPanel {
         List<InputFileComponent> inputComponents = new LinkedList<InputFileComponent>();
         
         // Only show input mappings in parameter panel when necessary
-        if (operation.getBindings() != null && operation.getBindings().size() > 1) {
+        if (operation.getDefinition().getInputs().size() > 1) {
             // Operation has some inputs
             for (InputDefinition input : operation.getDefinition().getInputs()) {
                 InputFileComponent inputComponent = new InputFileComponent(input, operation);

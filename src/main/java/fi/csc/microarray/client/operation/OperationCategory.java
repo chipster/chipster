@@ -53,6 +53,13 @@ public class OperationCategory {
 	}
 	
 	/**
+     * Set name of this category.
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+	
+	/**
 	 * @return The name of this category.
 	 */
 	public String getName() {

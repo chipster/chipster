@@ -30,6 +30,7 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.constants.VisualConstants;
 
 /**
  * The panel for two JLists: on the left side, high-level operation category
@@ -85,7 +86,6 @@ public class OperationChoicePanel extends JPanel
 		categoryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		categoryList.addListSelectionListener(this);
 		categoryList.setCellRenderer(new CategoryListRenderer());
-		//categoryList.setPreferredSize(new Dimension(130, 0));
 		categoryList.getInsets().right = 1;
 		categoryList.setName("categoryList");
 		
@@ -94,7 +94,6 @@ public class OperationChoicePanel extends JPanel
 		operationList.addListSelectionListener(this);
 		operationList.setCellRenderer(new FontSizeFriendlyListRenderer());
 		operationList.addMouseListener(new MouseClickListener());
-		//operationList.setPreferredSize(new Dimension(200, 0));
 		operationList.getInsets().right = 1;
 		operationList.setName("operationList");
 		
@@ -102,7 +101,8 @@ public class OperationChoicePanel extends JPanel
 		JScrollPane operationListScroller = new JScrollPane(operationList);
 		
 		//Remove useless borders
-		categoryListScroller.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+		categoryListScroller.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
+		        VisualConstants.OPERATION_LIST_BORDER_COLOR));
 		operationListScroller.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 		
 		this.add(categoryListScroller);
@@ -141,7 +141,7 @@ public class OperationChoicePanel extends JPanel
 	}
 	
 
-	class CategoryListRenderer extends FontSizeFriendlyListRenderer {
+	static class CategoryListRenderer extends FontSizeFriendlyListRenderer {
 
 		public Component getListCellRendererComponent(
 				JList list, Object value, int index,

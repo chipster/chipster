@@ -3,7 +3,9 @@ package fi.csc.microarray.client.operation;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -23,6 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JToolBar;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.event.CaretEvent;
@@ -30,6 +33,8 @@ import javax.swing.event.CaretListener;
 
 import org.apache.log4j.Logger;
 
+import com.jgoodies.looks.HeaderStyle;
+import com.jgoodies.looks.Options;
 import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
 import fi.csc.microarray.client.ClientApplication;
@@ -162,12 +167,10 @@ public class OperationPanel extends JPanel
 				BorderFactory.createMatteBorder(1, 0, 0, 0, VisualConstants.OPERATION_LIST_BORDER_COLOR));
 		
 	    // Search bar
-        JPanel searchPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
-        c.weighty = 1;
-        c.fill = GridBagConstraints.BOTH;
-        searchField = new JTextField(20);
+        JToolBar searchPanel = new JToolBar();
+        searchPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 1));
         // Text field
+        searchField = new JTextField(20);
         searchField.addCaretListener(new CaretListener() {
             public void caretUpdate(CaretEvent e) {
                 // Show filtered tools
@@ -182,7 +185,11 @@ public class OperationPanel extends JPanel
             }
         });
         // Clear search
-        JButton showAllButton = new JButton("Show all");
+        JButton showAllButton = new JButton(VisualConstants.CLOSE_FILE_ICON);
+        showAllButton.setFocusPainted(false);
+        showAllButton.setContentAreaFilled(false);
+        showAllButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        showAllButton.setBorder(null);
         showAllButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
                 searchField.setText("");
@@ -190,16 +197,19 @@ public class OperationPanel extends JPanel
                 showOperationCard(OPERATIONS_CATEGORIZED);
             }
         });
-        searchPanel.add(new JLabel("Find a tool: "), c);
-        searchPanel.add(searchField, c);
-        searchPanel.add(showAllButton, c);
+        searchPanel.add(new JLabel(VisualConstants.MAGNIFIER_ICON));
+        searchPanel.add(searchField);
+        searchField.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        searchField.setPreferredSize(new Dimension(100, 22));
+        searchField.add(showAllButton);
+        //searchPanel.add(showAllButton);
         searchPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
                 VisualConstants.OPERATION_LIST_BORDER_COLOR));
 		
 		// Operation choice card contains two other cards:
 		// operations with categories and filtered operations
 		operationPanel = new JPanel(new GridBagLayout());
-        c = new GridBagConstraints();
+		GridBagConstraints c = new GridBagConstraints();
 	    c.gridx = 0;
         c.gridy = 0;
         c.weightx = 1;
@@ -210,6 +220,7 @@ public class OperationPanel extends JPanel
         searchPanel.setPreferredSize(new Dimension(10, 23));
         searchPanel.setMinimumSize(new Dimension(10, 23));
         searchPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        searchPanel.putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.SINGLE);
         operationPanel.add(searchPanel, c);
         operationCardPanel = new JPanel(new CardLayout());
         c.gridy = 1;
