@@ -1,0 +1,15 @@
+TOOL "BLAST" / blastn: blastn (Heuristic tool for protein sequence search.)
+INPUT query: "Query sequence" TYPE GENERIC
+OUTPUT out.txt
+PARAMETER db: "Database" TYPE [nr: "NCBI non-redundant nucleotide database", embl_others: "EMBL excluding the EST, GSS and HTG divisions, and the WGS sets", embl_est: "EMBL EST division", embl_gss: "EMBL GSS division", embl_htg: "EMBL GSS division", emblnew: "EMBL updates", refseq: "NCBI RefSeq RNA database", refseq_con: "NCBI RefSeq human contigs"] DEFAULT nt (Choose a database)
+PARAMETER OPTIONAL task: "Task to execute" TYPE [blastn: "BLASTN: Traditional BLASTN requiring an exact match of 11", blastn-short: "BLASTN short: BLASTN program optimized for sequences shorter than 50 bases", dc-medablast: "Discontiguous megablast:  used to find more distant (e.g., interspecies) sequences", megablast: "megablast: Traditional megablast used to find very similar (e.g., intraspecies or closely related species) sequences"] DEFAULT blastn (Task to execute)
+PARAMETER OPTIONAL evalue: "Expectation value (E) threshold for saving hits" TYPE DECIMAL (Expectation value)
+PARAMETER OPTIONAL gapopen: "Cost to open a gap" TYPE INTEGER FROM 0 TO 20 (Cost to open a gap)
+PARAMETER OPTIONAL gapextend: "Gap extension penalty" TYPE INTEGER FROM 0 TO 20 DEFAULT 0.5 (Gap extension penalty)
+PARAMETER OPTIONAL word_size: "Word size for wordfinder algorithm" TYPE INTEGER FROM 4 TO 100 (Word size for wordfinder algorithm.Integer value ranging from 4 to 100 )
+PARAMETER OPTIONAL penalty: "Penalty for a nucleotide mismatch" TYPE INTEGER FROM -100 TO 0 (Penalty for a nucleotide mismatch.Integer value ranging form 0 to -100)
+PARAMETER OPTIONAL reward: "Reward for a nucleotide match" TYPE INTEGER FROM 0 TO 100 (Reward for a nucleotide match.Integer value ranging form 0 to 100 )
+PARAMETER OPTIONAL dust: "Filter query sequence with DUST" TYPE [yes: Yes, no: No] DEFAULT Y (Use filtering)
+PARAMETER OPTIONAL outfmt: "Output format type" TYPE [0: "Normal BLAST raport with pairwise alignments", 1: "Query-anchored alignments showing identities", 2: "Query-anchored alignments with no identities", 3: "Flat query-anchored, show identities", 4: "flat query-anchored, no identities", 5: "XML Blast output", 6: "Tabular", 7: "Tabular with comment lines", 8: "Text ASN.1", 9: "Binary ASN.1", 10: "Comma-separated values"] (Output format type)
+PARAMETER OPTIONAL num_descriptions: "Number of descriptions" TYPE INTEGER DEFAULT 500 (Number of database sequences to show one-line descriptions for)
+PARAMETER OPTIONAL num_alignments: "Number of alignments" TYPE INTEGER DEFAULT 250 (Number of database sequences to show alignments for)
