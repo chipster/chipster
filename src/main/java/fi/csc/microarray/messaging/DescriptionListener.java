@@ -3,6 +3,8 @@ package fi.csc.microarray.messaging;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 
+import org.apache.log4j.Logger;
+
 import fi.csc.microarray.client.operation.OperationCategory;
 import fi.csc.microarray.client.operation.OperationGenerator;
 import fi.csc.microarray.description.SADLParser.ParseException;
@@ -11,9 +13,12 @@ import fi.csc.microarray.messaging.message.DescriptionMessage;
 
 public class DescriptionListener extends TempTopicMessagingListenerBase {
     
-    private final CountDownLatch latch = new CountDownLatch(1);
+	private static final Logger logger = Logger.getLogger(DescriptionListener.class);
+    
+	private final CountDownLatch latch = new CountDownLatch(1);
     private Collection<OperationCategory> categories = null;
     private String wantedModule;
+    private boolean finished = false;
     
     public DescriptionListener(String wantedModule) {
         this.wantedModule = wantedModule;
@@ -27,23 +32,29 @@ public class DescriptionListener extends TempTopicMessagingListenerBase {
         try {
             latch.await();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.warn("interrupted while waiting for descriptions message", e);
         }
     }
     
     public void onChipsterMessage(ChipsterMessage msg) {
-        DescriptionMessage descriptionMsg = (DescriptionMessage) msg;
+        if (finished) {
+        	return;
+        }
+    	
+    	DescriptionMessage descriptionMsg = (DescriptionMessage) msg;
         
         // TODO change Name to Id
         // TODO check for the right module
-        if (descriptionMsg.getModuleName().equals(wantedModule)) {            
-            try {
+    	// only wait for one description message for the correct module
+    	if (descriptionMsg.getModuleName().equals(wantedModule)) {            
+        	try {
                 categories = new OperationGenerator().generateFromMessage(descriptionMsg).values();
             } catch (ParseException e) {
-                e.printStackTrace();
+                logger.warn("parsing descriptions message failed", e);
+            } finally {
+                finished = true;
+                latch.countDown();
             }
-            
-            latch.countDown();
         }
     }
 };

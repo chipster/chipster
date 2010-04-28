@@ -232,9 +232,13 @@ public abstract class ClientApplication implements Node {
 		    MessagingTopic requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC,
 		                                                       AccessMode.WRITE);
             DescriptionListener descriptionListener = new DescriptionListener(getRequestedModule());
-			requestTopic.sendReplyableMessage(new CommandMessage(CommandMessage.COMMAND_DESCRIBE),
-			                                  descriptionListener);
-			descriptionListener.waitForResponse();
+			try {
+	            requestTopic.sendReplyableMessage(new CommandMessage(CommandMessage.COMMAND_DESCRIBE),
+				                                  descriptionListener);
+				descriptionListener.waitForResponse();
+			} finally {
+				descriptionListener.cleanUp();
+			}
 			parsedCategories = descriptionListener.getCategories();
 			logger.debug("created " + parsedCategories.size() + " operation categories");
  			
