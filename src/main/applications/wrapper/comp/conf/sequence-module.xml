@@ -1,0 +1,677 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<module name="sequence">
+
+	<!-- EMBOSS -->
+	<category color="#c3b6a2" name="Alignment:Consensus">
+		<tool runtime="EMBOSS">
+			<resource>cons.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>consambig.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>megamerger.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>merger.acd</resource>
+		</tool>
+	</category>
+	<category color="#c3b6a2" name="Alignment:Differences">
+		<tool runtime="EMBOSS">
+			<resource>diffseq.acd</resource>
+		</tool>
+	</category>
+	<category color="#c3b6a2" name="Alignment:Dot plots">
+		<tool runtime="EMBOSS">
+			<resource>dotmatcher.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>dotpath.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>dottup.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>polydot.acd</resource>
+		</tool>
+	</category>
+	<category color="#c3b6a2" name="Alignment:Global">
+		<tool runtime="EMBOSS">
+			<resource>est2genome.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>needle.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>needleall.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>stretcher.acd</resource>
+		</tool>
+	</category>
+	<category color="#c3b6a2" name="Alignment:Local">
+		<tool runtime="EMBOSS">
+			<resource>matcher.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>seqmatchall.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>supermatcher.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>water.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>wordfinder.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>wordmatch.acd</resource>
+		</tool>
+	</category>
+	<category color="#c3b6a2" name="Alignment:Multiple">
+		<tool runtime="EMBOSS">
+			<resource>edialign.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>emma.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>infoalign.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>plotcon.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>prettyplot.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>showalign.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>tranalign.acd</resource>
+		</tool>
+	</category>
+	<category color="#d5c796" name="Display">
+		<tool runtime="EMBOSS">
+			<resource>abiview.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>cirdna.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>lindna.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>pepnet.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>pepwheel.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>prettyseq.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>remap.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>seealso.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>showdb.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>showfeat.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>showpep.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>showseq.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>sixpack.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>textsearch.acd</resource>
+		</tool>
+	</category>
+	<category color="#e7df70" name="Edit">
+		<tool runtime="EMBOSS">
+			<resource>aligncopy.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>aligncopypair.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>biosed.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>codcopy.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>cutseq.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>degapseq.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>descseq.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>entret.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>extractalign.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>extractfeat.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>extractseq.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>featcopy.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>featreport.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>listor.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>makenucseq.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>makeprotseq.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>maskambignuc.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>maskambigprot.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>maskfeat.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>maskseq.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>newseq.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>nohtml.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>noreturn.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>nospace.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>notab.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>notseq.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>nthseq.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>nthseqset.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>origsplitter.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>origunion.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>pasteseq.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>revseq.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>seqret.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>seqretall.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>seqretset.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>seqretsetall.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>seqretsplit.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>seqrettype.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>sizeseq.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>skipredundant.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>skipseq.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>splitsource.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>splitter.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>trimest.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>trimseq.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>trimspace.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>union.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>vectorstrip.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>yank.acd</resource>
+		</tool>
+	</category>
+	<category color="#d59f45" name="Enzyme Kinetics">
+		<tool runtime="EMBOSS">
+			<resource>findkm.acd</resource>
+		</tool>
+	</category>
+	<category color="#e7881c" name="Feature tables">
+		<tool runtime="EMBOSS">
+			<resource>coderet.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>twofeat.acd</resource>
+		</tool>
+	</category>
+	<category color="#d53833" name="Information">
+		<tool runtime="EMBOSS">
+			<resource>infobase.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>inforesidue.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>infoseq.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>tfm.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>whichdb.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>wossname.acd</resource>
+		</tool>
+	</category>
+	<category color="#80a3b7" name="Nucleic:Codon usage">
+		<tool runtime="EMBOSS">
+			<resource>cai.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>chips.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>codcmp.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>cusp.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>syco.acd</resource>
+		</tool>
+	</category>
+	<category color="#80a3b7" name="Nucleic:Composition">
+		<tool runtime="EMBOSS">
+			<resource>banana.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>btwisted.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>chaos.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>compseq.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>dan.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>density.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>freak.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>isochore.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>sirna.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>wordcount.acd</resource>
+		</tool>
+	</category>
+	<category color="#80a3b7" name="Nucleic:CpG Islands">
+		<tool runtime="EMBOSS">
+			<resource>cpgplot.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>cpgreport.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>geecee.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>newcpgreport.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>newcpgseek.acd</resource>
+		</tool>
+	</category>
+	<category color="#80a3b7" name="Nucleic:Gene finding">
+		<tool runtime="EMBOSS">
+			<resource>getorf.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>marscan.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>plotorf.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>showorf.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>tcode.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>wobble.acd</resource>
+		</tool>
+	</category>
+	<category color="#80a3b7" name="Nucleic:Motifs">
+		<tool runtime="EMBOSS">
+			<resource>dreg.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>fuzznuc.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>fuzztran.acd</resource>
+		</tool>
+	</category>
+	<category color="#80a3b7" name="Nucleic:Mutation">
+		<tool runtime="EMBOSS">
+			<resource>msbar.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>shuffleseq.acd</resource>
+		</tool>
+	</category>
+	<category color="#80a3b7" name="Nucleic:Primers">
+		<tool runtime="EMBOSS">
+			<resource>eprimer3.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>primersearch.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>stssearch.acd</resource>
+		</tool>
+	</category>
+	<category color="#80a3b7" name="Nucleic:Profiles">
+		<tool runtime="EMBOSS">
+			<resource>profit.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>prophecy.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>prophet.acd</resource>
+		</tool>
+	</category>
+	<category color="#80a3b7" name="Nucleic:Repeats">
+		<tool runtime="EMBOSS">
+			<resource>einverted.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>equicktandem.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>etandem.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>palindrome.acd</resource>
+		</tool>
+	</category>
+	<category color="#80a3b7" name="Nucleic:Restriction">
+		<tool runtime="EMBOSS">
+			<resource>recoder.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>redata.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>restover.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>restrict.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>silent.acd</resource>
+		</tool>
+	</category>
+	<category color="#80a3b7" name="Nucleic:Transcription">
+		<tool runtime="EMBOSS">
+			<resource>jaspscan.acd</resource>
+		</tool>
+	</category>
+	<category color="#80a3b7" name="Nucleic:Translation">
+		<tool runtime="EMBOSS">
+			<resource>backtranambig.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>backtranseq.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>transeq.acd</resource>
+		</tool>
+	</category>
+	<category color="#0177b7" name="Phylogeny:Molecular sequence">
+		<tool runtime="EMBOSS">
+			<resource>distmat.acd</resource>
+		</tool>
+	</category>
+	<category color="#629a9b" name="Protein:2D Structure">
+		<tool runtime="EMBOSS">
+			<resource>garnier.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>helixturnhelix.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>hmoment.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>newcoils.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>pepcoil.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>tmap.acd</resource>
+		</tool>
+	</category>
+	<category color="#629a9b" name="Protein:Composition">
+		<tool runtime="EMBOSS">
+			<resource>charge.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>checktrans.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>emowse.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>iep.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>mwcontam.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>mwfilter.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>octanol.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>pepinfo.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>pepstats.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>pepwindow.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>pepwindowall.acd</resource>
+		</tool>
+	</category>
+	<category color="#629a9b" name="Protein:Motifs">
+		<tool runtime="EMBOSS">
+			<resource>antigenic.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>digest.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>epestfind.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>fuzzpro.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>oddcomp.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>patmatdb.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>patmatmotifs.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>preg.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>pscan.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>sigcleave.acd</resource>
+		</tool>
+	</category>
+	<category color="#629a9b" name="Protein:3D structure">
+		<tool runtime="EMBOSS">
+			<resource>psiphi.acd</resource>
+		</tool>
+	</category>
+	
+	<!-- BLAST -->
+	<category color="#629a9b" name="BLAST">
+		<tool runtime="shell">
+			<resource>blastp.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/opt/blast/blastp</value>
+			</parameter>
+			<parameter>
+				<name>output</name>
+				<value>out</value>
+			</parameter>
+		</tool>
+		<tool runtime="shell">
+			<resource>blastn.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/opt/blast/blastn</value>
+			</parameter>
+			<parameter>
+				<name>output</name>
+				<value>out</value>
+			</parameter>
+		</tool>
+		<tool runtime="shell">
+			<resource>blastx.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/opt/blast/blastx</value>
+			</parameter>
+			<parameter>
+				<name>output</name>
+				<value>out</value>
+			</parameter>
+		</tool>
+		<tool runtime="shell">
+			<resource>tblastn.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/opt/blast/tblastn</value>
+			</parameter>
+			<parameter>
+				<name>output</name>
+				<value>out</value>
+			</parameter>
+		</tool>
+		<tool runtime="shell">
+			<resource>tblastx.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/opt/blast/tblastx</value>
+			</parameter>
+			<parameter>
+				<name>output</name>
+				<value>out</value>
+			</parameter>
+		</tool>
+		<tool runtime="shell">
+			<resource>blastdbcmd.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/opt/blast/blastdbcmd</value>
+			</parameter>
+			<parameter>
+				<name>output</name>
+				<value>out</value>
+			</parameter>
+		</tool>
+	</category>
+	
+	<!-- INTERNAL TOOLS, NOT VISIBLE TO USER -->
+	<category color="#629a9b" name="Internal" hidden="true">
+		<tool runtime="shell">
+			<resource>import.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/opt/EMBOSS-6.2.0/emboss/seqret</value>
+			</parameter>
+			<parameter>
+				<name>output</name>
+				<value>outseq</value>
+			</parameter>
+		</tool>
+	</category>
+</module>

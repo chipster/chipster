@@ -4,7 +4,7 @@ OUTPUT out.txt
 PARAMETER db: "Database" TYPE [nr: "NCBI non-redundant proteins", pdb: "PDB", swiss: "UniProt / Swiss", trembl: "UniProt / TrEMBL",
 	uniprot: "UniProt", uniref100: "UniRef100", uniref90: "UniRef90", uniref50: "UniRef50"] DEFAULT nr (Choose a database)
 PARAMETER OPTIONAL task: "Task to execute" TYPE [blastp: "BLASTP", blastp-short: "BLASTP short: for queries shorter than 30 residues"] (Task to execute)
-PARAMETER OPTIONAL query_loc "Location on the query sequence" TYPE STRING (Location of the serach region on the query sequence. Format: start-stop, for example: 23-66.  Default: the whole query sequence) 
+PARAMETER OPTIONAL query_loc: "Location on the query sequence" TYPE STRING (Location of the serach region on the query sequence. Format: start-stop, for example: 23-66.  Default: the whole query sequence) 
 PARAMETER OPTIONAL evalue: "Expectation value (E) threshold for saving hits" TYPE DECIMAL (Expectation value)
 PARAMETER OPTIONAL matrix: "Matrix" TYPE [BLOSUM45: "BLOSUM45", BLOSUM50: "BLOSUM50", BLOSUM62: "BLOSUM62",
 	BLOSUM80: "BLOSUM80", BLOSUM90: "BLOSUM90"] DEFAULT BLOSUM62 (Weight matrix)
