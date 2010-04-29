@@ -4,14 +4,12 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,342 +23,108 @@ import org.jfree.chart.plot.PlotState;
 import org.jfree.data.general.DatasetChangeEvent;
 import org.jfree.util.ObjectUtilities;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TreeThread;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SequenceParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.miRNAParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CytobandTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.EmptyTrack;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GeneTrack;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.IntensityTrack;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.PeakTrack;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ProfileTrack;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeqBlockTrack;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeqTrack;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptTrack;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptTrack.PartColor;
 
+/**
+ * @author Petri Klemelä, Aleksi Kallio
+ */
 public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, Serializable { // , MouseWheelListener {
 
-	private static final File FILE_ROOT = new File("/home/akallio/chipster-share/genomebrowser_data");
-	private static final URL URL_ROOT;
+//	private static final File FILE_ROOT = new File("/home/akallio/chipster-share/genomebrowser_data");
+//	private static final URL URL_ROOT;
+//
+//	static {
+//		try {
+//			URL_ROOT = new URL("http://chipster-devel.csc.fi:8050/public/space_separated_annotations");
+//		} catch (MalformedURLException e) {
+//			throw new RuntimeException(e);
+//		}
+//	}
 
-	static {
-		try {
-			URL_ROOT = new URL("http://chipster-devel.csc.fi:8050/public");
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
 	/** The cell information text is drawn with this font. */
 	private Font descriptionFont;
 
 	private List<View> views = new LinkedList<View>();
+	private View dataView = null;
 
-	private View overview;
+	public View getDataView() {
+		return dataView;
+	}
+
+	public View getOverviewView() {
+		return overviewView;
+	}
+
+	private View overviewView = null;
 
 	public ChartPanel chartPanel;
 
-	public GenomePlot(Integer chr, boolean horizontal, boolean transcripts, boolean genes, boolean mirna, boolean sequence) throws FileNotFoundException, MalformedURLException {
+	public GenomePlot(boolean horizontal) throws FileNotFoundException, MalformedURLException {
 
-		overview = new HorizontalView(this, false, false, true);
+		// add overview view
+		this.overviewView = new HorizontalView(this, false, false, true);
+		this.overviewView.margin = 0;
+		this.views.add(overviewView);
 
-		DataSource cytobandFile = new DataSource(URL_ROOT, "annotations/cytoband_hg17_sorted.fsf");
-
-		CytobandTrack overviewCytobands = new CytobandTrack(overview, cytobandFile, TreeThread.class, new CytobandParser(), false);
-
-		overview.addTrack(overviewCytobands);
-		overviewCytobands.initializeListener();
-
-		overview.margin = 0;
-
-		this.views.add(overview);
-
-		View dataView = null;
-
-		// Horizontal or circular?
+		// add horizontal or circular data view
 		if (horizontal) {
-			dataView = new HorizontalView(this, true, true, false);
+			this.dataView = new HorizontalView(this, true, true, false);
 
 		} else {
-			dataView = new CircularView(this, true, true, false);
-			dataView.margin = 20;
-			dataView.addTrack(new EmptyTrack(dataView, 30));
+			this.dataView = new CircularView(this, true, true, false);
+			this.dataView.margin = 20;
+			this.dataView.addTrack(new EmptyTrack(dataView, 30));
 		}
-
-		CytobandTrack cytobands = new CytobandTrack(dataView, cytobandFile, TreeThread.class, new CytobandParser(), true);
-
-		dataView.addTrack(cytobands);
-		cytobands.initializeListener();
-
-		// Reference genes
-		if (genes) {
-
-			// G E N E R A L ////////////////////////////////////////////////
-
-			DataSource annotationFile = new DataSource(URL_ROOT,  "annotations/Homo_sapiens.GRCh37.56_genes.fsf");
-			GeneParser geneParser = new GeneParser();
-
-			// F O R W A R D /////////////////////////////////////////////////
-
-			// Overview
-			IntensityTrack annotationOverview = new IntensityTrack(dataView, annotationFile, TreeThread.class, geneParser, PartColor.CDS.c, 10000000);
-
-			dataView.addTrack(annotationOverview);
-			annotationOverview.initializeListener();
-
-			// Detailed
-			GeneTrack annotation = new GeneTrack(dataView, annotationFile, TreeThread.class, geneParser, PartColor.CDS.c, 0, 10000000);
-
-			dataView.addTrack(annotation);
-			annotation.initializeListener();
-
-			dataView.addTrack(new SeparatorTrack(dataView));
-
-			// R E V E R S E D //////////////////////////////////////////////////
-
-			// Overview
-			IntensityTrack annotationOverviewReversed = new IntensityTrack(dataView, annotationFile, TreeThread.class, geneParser, PartColor.CDS.c, 10000000);
-
-			annotationOverviewReversed.setStrand(Strand.REVERSED);
-			dataView.addTrack(annotationOverviewReversed);
-			annotationOverviewReversed.initializeListener();
-
-			// Detailed
-			GeneTrack annotationReversed = new GeneTrack(dataView, annotationFile, TreeThread.class, geneParser, PartColor.CDS.c, 0, 10000000);
-
-			annotationReversed.setStrand(Strand.REVERSED);
-			dataView.addTrack(annotationReversed);
-			annotationReversed.initializeListener();
-		}
-
-		// miRNA genes
-		if (mirna) {
-
-			// G E N E R A L ////////////////////////////////////////////////
-
-			DataSource miRNAFile = new DataSource(URL_ROOT, "annotations/Homo_sapiens.GRCh37.56_miRNA.fsf");
-			miRNAParser miRNAParser = new miRNAParser();
-
-			// F O R W A R D /////////////////////////////////////////////////
-
-			// Overview
-			// IntensityTrack miRNAOverview = new IntensityTrack(dataView, miRNAFile,
-			// TreeThread.class, miRNAParser, PartColor.CDS.c.darker(),
-			// 10000000);
-			//
-			// dataView.addTrack(miRNAOverview);
-			// miRNAOverview.initializeListener();
-
-			// Detailed
-			GeneTrack annotation = new GeneTrack(dataView, miRNAFile, TreeThread.class, miRNAParser, PartColor.CDS.c.darker(), 0, Long.MAX_VALUE);
-
-			dataView.addTrack(annotation);
-			annotation.initializeListener();
-
-			dataView.addTrack(new SeparatorTrack(dataView));
-
-			// R E V E R S E D //////////////////////////////////////////////////
-
-			// Overview
-			// IntensityTrack miRNAOverviewReversed = new IntensityTrack(dataView, miRNAFile,
-			// TreeThread.class, miRNAParser, PartColor.CDS.c.darker(),
-			// 10000000);
-			//			
-			// miRNAOverviewReversed.setStrand(Strand.REVERSED);
-			// dataView.addTrack(miRNAOverviewReversed);
-			// miRNAOverviewReversed.initializeListener();
-
-			// Detailed
-			GeneTrack annotationReversed = new GeneTrack(dataView, miRNAFile, TreeThread.class, miRNAParser, PartColor.CDS.c.darker(), 0, Long.MAX_VALUE);
-
-			annotationReversed.setStrand(Strand.REVERSED);
-			dataView.addTrack(annotationReversed);
-			annotationReversed.initializeListener();
-		}
-
-		// Reference transcripts
-		if (transcripts) {
-
-			// G E N E R A L ////////////////////////////////////////////////
-
-			DataSource annotationFile = new DataSource(URL_ROOT, "annotations/Homo_sapiens.GRCh37.56_transcripts.fsf");
-			TranscriptParser geneParser = new TranscriptParser();
-
-			// F O R W A R D /////////////////////////////////////////////////
-
-			// Overview
-			IntensityTrack annotationOverview = new IntensityTrack(dataView, annotationFile, TreeThread.class, geneParser, PartColor.CDS.c.darker(), 100000);
-
-			dataView.addTrack(annotationOverview);
-			annotationOverview.initializeListener();
-
-			// Detailed
-			TranscriptTrack annotation = new TranscriptTrack(dataView, annotationFile, TreeThread.class, geneParser, Color.DARK_GRAY, 100000);
-
-			dataView.addTrack(annotation);
-			annotation.initializeListener();
-
-			dataView.addTrack(new SeparatorTrack(dataView));
-
-			// R E V E R S E D //////////////////////////////////////////////////
-
-			// Overview
-			IntensityTrack annotationOverviewReversed = new IntensityTrack(dataView, annotationFile, TreeThread.class, geneParser, PartColor.CDS.c.darker(), 100000);
-
-			annotationOverviewReversed.setStrand(Strand.REVERSED);
-			dataView.addTrack(annotationOverviewReversed);
-			annotationOverviewReversed.initializeListener();
-
-			// Detailed
-			TranscriptTrack annotationReversed = new TranscriptTrack(dataView, annotationFile, TreeThread.class, geneParser, Color.DARK_GRAY, 100000);
-
-			annotationReversed.setStrand(Strand.REVERSED);
-			dataView.addTrack(annotationReversed);
-			annotationReversed.initializeListener();
-		}
-
-		// Peaks
-		if (true) {
-
-			// G E N E R A L ////////////////////////////////////////////////
-
-			DataSource peakFile = new DataSource(URL_ROOT, "annotations/Homo_sapiens.GRCh37.56_miRNA.fsf");
-			miRNAParser miRNAParser = new miRNAParser();
-
-			// F O R W A R D /////////////////////////////////////////////////
-
-			// Overview
-			IntensityTrack miRNAOverview = new IntensityTrack(dataView, peakFile, TreeThread.class, miRNAParser, PartColor.CDS.c.darker(), 10000000);
-
-			dataView.addTrack(miRNAOverview);
-			miRNAOverview.initializeListener();
-
-			// Detailed
-			PeakTrack annotation = new PeakTrack(dataView, peakFile, TreeThread.class, miRNAParser, Color.YELLOW, 0, Long.MAX_VALUE);
-
-			dataView.addTrack(annotation);
-			annotation.initializeListener();
-		}
-
-		// Wiggle
-		if (true) {
-
-			// G E N E R A L ////////////////////////////////////////////////
-
-			DataSource peakFile = new DataSource(URL_ROOT, "annotations/Homo_sapiens.GRCh37.56_miRNA.fsf");
-			miRNAParser miRNAParser = new miRNAParser();
-
-			// F O R W A R D /////////////////////////////////////////////////
-
-			// Overview
-			IntensityTrack miRNAOverview = new IntensityTrack(dataView, peakFile, TreeThread.class, miRNAParser, PartColor.CDS.c.darker(), 10000000);
-
-			dataView.addTrack(miRNAOverview);
-			miRNAOverview.initializeListener();
-
-			// Detailed
-			ProfileTrack annotation = new ProfileTrack(dataView, peakFile, TreeThread.class, miRNAParser, Color.BLUE, 0, Long.MAX_VALUE);
-
-			dataView.addTrack(annotation);
-			annotation.initializeListener();
-		}
-
-		// Eland export
-		if (true) {
-
-			// G E N E R A L ////////////////////////////////////////////////
-
-			DataSource userData1 = new DataSource(FILE_ROOT, "eland_result.fsf");
-			DataSource userData2 = new DataSource(FILE_ROOT, "eland_result.fsf");
-			ElandParser userDataParser = new ElandParser();
-
-			// F O R W A R D /////////////////////////////////////////////////
-
-			// Overview
-			IntensityTrack readOverview1 = new IntensityTrack(dataView, userData1, TreeThread.class, userDataParser, Color.gray, 1000000);
-			IntensityTrack readOverview2 = new IntensityTrack(dataView, userData2, TreeThread.class, userDataParser, Color.gray, 1000000);
-			
-			dataView.addTrack(readOverview1);
-			dataView.addTrack(readOverview2);
-			readOverview1.initializeListener();
-			readOverview2.initializeListener();			
-
-			// Detailed
-			SeqBlockTrack reads1 = new SeqBlockTrack(dataView, userData1, TreeThread.class, userDataParser, Color.RED, 0, 1000000);
-			SeqBlockTrack reads2 = new SeqBlockTrack(dataView, userData2, TreeThread.class, userDataParser, Color.RED, 0, 1000000);
-			
-			dataView.addTrack(reads1);
-			reads1.initializeListener();
-			dataView.addTrack(reads2);
-			reads2.initializeListener();
-
-			dataView.addTrack(new SeparatorTrack(dataView));
-
-			// Separator
-			// dataView.addTrack(new SeparatorTrack(dataView));
-
-			if (sequence) {
-				// Reference sequence
-				DataSource seqFile = new DataSource(URL_ROOT, "annotations/Homo_sapiens.GRCh37.56_seq.fsf");
-
-				SeqTrack seq = new SeqTrack(dataView, seqFile, TreeThread.class, new SequenceParser(), 800);
-
-				dataView.addTrack(seq);
-				seq.initializeListener();
-			}
-
-			// R E V E R S E D ///////////////////////////////////////////////////
-
-			// Overview
-			IntensityTrack readOverviewReversed1 = new IntensityTrack(dataView, userData1, TreeThread.class, userDataParser, Color.gray, 1000000);
-			IntensityTrack readOverviewReversed2 = new IntensityTrack(dataView, userData2, TreeThread.class, userDataParser, Color.gray, 1000000);
-
-			readOverviewReversed1.setStrand(Strand.REVERSED);
-			dataView.addTrack(readOverviewReversed1);
-			readOverviewReversed1.initializeListener();
-			readOverviewReversed2.setStrand(Strand.REVERSED);
-			dataView.addTrack(readOverviewReversed2);
-			readOverviewReversed2.initializeListener();
-
-			// Detailed
-			dataView.addTrack(new SeparatorTrack(dataView));
-
-			SeqBlockTrack readsReversed1 = new SeqBlockTrack(dataView, userData1, TreeThread.class, userDataParser, Color.RED, 0, 1000000);
-			SeqBlockTrack readsReversed2 = new SeqBlockTrack(dataView, userData2, TreeThread.class, userDataParser, Color.RED, 0, 1000000);
-
-			readsReversed1.setStrand(Strand.REVERSED);
-			dataView.addTrack(readsReversed1);
-			readsReversed1.initializeListener();
-			readsReversed2.setStrand(Strand.REVERSED);
-			dataView.addTrack(readsReversed2);
-			readsReversed2.initializeListener();
-		}
-
-		dataView.addTrack(new RulerTrack(dataView));
 
 		this.views.add(dataView);
 
 		dataView.addRegionListener(new RegionListener() {
 			public void RegionChanged(BpCoordRegion bpRegion) {
-				overview.highlight = bpRegion;
+				overviewView.highlight = bpRegion;
 			}
 		});
-
-		dataView.setBpRegion(new BpCoordRegionDouble(0d, 1024 * 1024 * 250d, new Chromosome("1")), false);
-		overview.setBpRegion(new BpCoordRegionDouble(0d, 1024 * 1024 * 250d, new Chromosome("1")), false);
 	}
 
+//	public void jee(boolean horizontal, boolean transcripts, boolean genes, boolean mirna, boolean sequence) throws FileNotFoundException, MalformedURLException {
+//
+//		// cytobands
+//		TrackFactory.addCytobandTracks(overviewView, dataView, new DataSource(URL_ROOT, "cytoband_hg17_sorted.fsf"));
+//
+//		// Reference genes
+//		if (genes) {
+//			TrackFactory.addGeneTracks(this, new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_genes.fsf"));
+//		}
+//
+//		// miRNA genes
+//		if (mirna) {
+//			TrackFactory.addMirnaTracks(dataView, new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_miRNA.fsf"));
+//		}
+//
+//		// Reference transcripts
+//		if (transcripts) {
+//			TrackFactory.addTranscriptTracks(dataView, new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_transcripts.fsf"));
+//		}
+//
+//		// Peaks
+//		TrackFactory.addPeakTracks(dataView, new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_miRNA.fsf"));
+//
+//		// Wiggle
+//		TrackFactory.addWigTrack(dataView, new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_miRNA.fsf"));
+//
+//		// Eland export
+//		TrackFactory.addReadTracks(dataView, new DataSource(FILE_ROOT, "eland_result.fsf"), new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_seq.fsf"));
+//
+//		TrackFactory.addRulerTrack(dataView);
+//
+//	}
+
+	public void start(String chromosome) {
+		dataView.setBpRegion(new BpCoordRegionDouble(0d, 1024 * 1024 * 250d, new Chromosome(chromosome)), false);
+		overviewView.setBpRegion(new BpCoordRegionDouble(0d, 1024 * 1024 * 250d, new Chromosome(chromosome)), false);
+	}
 	public String getPlotType() {
 		return "GeneBrowser";
 	}
@@ -422,7 +186,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 				g2.setClip(viewArea);
 				views.get(i).drawView(g2, false);
 			}
-			
+
 		} else {
 			float[] viewWidths = new float[] { 0.05f, 0.95f };
 			Rectangle lastArea = null;
