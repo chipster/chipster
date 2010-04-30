@@ -1,11 +1,16 @@
 # ANALYSIS Preprocessing/"Filter by expression" (Filtering the genes by their expression. 
-# Note that chips are by default first scaled to have a mean of zero, regardless of the previous normalizations.)
+# Note that chips are by default NOT scaled to have a mean of zero, which is most appropriate when applied to 1-color data,
+# where this tool can be used for filtering out low quality or saturated probes. For 2-color data, the tool is most useful for
+# filtering out invariant genes.)
 # INPUT GENE_EXPRS normalized.tsv OUTPUT expression-filter.tsv
-# PARAMETER over.expressed.cutoff DECIMAL FROM -100000 TO 100000 DEFAULT 1 (Cut-off for over-expressed genes)
-# PARAMETER under.expressed.cutoff DECIMAL FROM -100000 TO 100000 DEFAULT -1 (Cut-off for under-expressed genes)
-# PARAMETER number.of.chips INTEGER FROM 1 TO 10000 DEFAULT 2 (Number of chips)
-# PARAMETER scale.to.same.mean [yes, no] DEFAULT yes (Scale the data to the same mean before filtering)
-# PARAMETER included.genes [outside-the-range, inside-the-range] DEFAULT outside-the-range (Filtering method)
+# PARAMETER over.expressed.cutoff DECIMAL FROM -100000 TO 100000 DEFAULT 100 (Cut-off for over-expressed genes. For 1-color data this value should be a positive number,
+# useful for excluding probes whoose expression level has reached the saturation limit. For 2-color data this threshold can be used to determine the lowest level of up-regulation.)
+# PARAMETER under.expressed.cutoff DECIMAL FROM -100000 TO 100000 DEFAULT 5 (Cut-off for under-expressed genes. For 1-color data this value should be a positive number,
+# useful for excluding probes whoose expression level is under or near background level. For 2-color data this threshold can be used to determine the lowest level of down-regulation.)
+# PARAMETER number.of.chips INTEGER FROM 1 TO 10000 DEFAULT 1 (Number of chips)
+# PARAMETER scale.to.same.mean [yes, no] DEFAULT no (Scale the data to the same mean before filtering. Scaling to the mean is only recommended for 2-color arrays,
+# where this filtering tool can be used to filter out invariant genes.)
+# PARAMETER included.genes [outside-the-range, inside-the-range] DEFAULT inside-the-range (Filtering method)
 
 
 #over.expressed.cutoff <-1
