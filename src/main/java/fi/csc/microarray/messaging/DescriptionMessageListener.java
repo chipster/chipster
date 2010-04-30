@@ -9,13 +9,13 @@ import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.DescriptionMessage;
 
-public class DescriptionListener extends TempTopicMessagingListenerBase {
+public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
     
     private final CountDownLatch latch = new CountDownLatch(1);
     private Collection<OperationCategory> categories = null;
     private String wantedModule;
     
-    public DescriptionListener(String wantedModule) {
+    public DescriptionMessageListener(String wantedModule) {
         this.wantedModule = wantedModule;
     }
     

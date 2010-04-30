@@ -30,7 +30,6 @@ import fi.csc.microarray.databeans.features.Modifier;
 import fi.csc.microarray.databeans.handlers.DataBeanHandler;
 import fi.csc.microarray.databeans.handlers.LocalFileDataBeanHandler;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
-import fi.csc.microarray.databeans.sessions.OldFSSnapshottingSession;
 import fi.csc.microarray.databeans.sessions.SnapshottingSession;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -517,17 +516,6 @@ public class DataManager {
 	public List<DataItem> loadSnapshot(File sessionFile, DataFolder parentFolder, ClientApplication application) throws IOException, MicroarrayException {
 		SnapshottingSession session = new SnapshottingSession(this, application);
 		List<DataItem> newItems = session.loadFromSnapshot(sessionFile, parentFolder);
-		return newItems;
-	}
-
-	/**
-	 * Load session from an old style session directory (Chipster 1.1 workspace).
-	 * 
-	 * @see #saveSnapshot(File, ClientApplication)
-	 */
-	public List<DataItem> loadOldSnapshot(File snapshotDir, DataFolder parentFolder, ClientApplication application) throws IOException, MicroarrayException {
-		OldFSSnapshottingSession session = new OldFSSnapshottingSession(this);
-		List<DataItem> newItems = session.loadFromSnapshot(snapshotDir, parentFolder);
 		return newItems;
 	}
 

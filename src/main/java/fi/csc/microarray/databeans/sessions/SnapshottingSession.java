@@ -258,7 +258,7 @@ public class SnapshottingSession {
 			if (!operationIdMap.containsValue(operation) ) {
 				
 				operId = generateId(operation);
-				metadata.append("OPERATION " + operId + " " + operation.getCategoryName() + "/" + operation.getName() + "\n");
+				metadata.append("OPERATION " + operId + " " + operation.getCategoryName() + "/" + operation.getID() + "\n");
 
 				// some parameters need inputs at loading time => write these first
 				if (operation.getBindings() != null) {
@@ -375,17 +375,20 @@ public class SnapshottingSession {
 					String[] split = line.split(" ");
 					String id = split[1];
 					String[] opData = afterNthSpace(line, 2).split("/");	
-					OperationDefinition od = application.locateOperationDefinition(opData[0], opData[1]);
+					// FIXME use operation id
+					//OperationDefinition od = application.getOperationDefinition(opData[0], opData[1]);
+					OperationDefinition od = application.getOperationDefinition(opData[0]);
 					Operation op = null;
 					if (od == null) {
 						// create local operation definition object
-						od = new OperationDefinition(opData[1], new OperationCategory(opData[0]), "", false);
+						// FIXME also load the display name
+						od = new OperationDefinition(opData[1], null, new OperationCategory(opData[0]), "", false);
 						
 						// warn if it was a real operation
 						if (!OperationCategory.isPseudoCategory(od.getCategory())) {
 							String message = "The session you opened contains a dataset which has been derived using an analysis tool which has been removed or renamed.\n\n" +
 							"The dataset contents have not changed and you can use them as before, but the obsolete operation will not be usable in workflows.";
-							String details = "Analysis tool: " + od.getCategoryName() + " / " + od.getName() + "\n";
+							String details = "Analysis tool: " + od.getCategoryName() + " / " + od.getID() + "\n";
 							warnAboutObsoleteContent(message, details, null);
 						}
 					}
@@ -487,14 +490,14 @@ public class SnapshottingSession {
 						"Typically this happens when you break the connection between phenodata and datasets that it describes. " +
 						"The dataset contents have not changed and you can use them as before, but the obsolete parameter has been removed from the history information of the dataset " +						
 						"and will not be saved in further sessions or workflows.";
-						String details = "Analysis tool: " + operation.getCategoryName() + " / " + operation.getName() + "\nParameter with obsolete reference: " + paramName;
+						String details = "Analysis tool: " + operation.getCategoryName() + " / " + operation.getID() + "\nParameter with obsolete reference: " + paramName;
 						warnAboutObsoleteContent(message, details, "");						
 					}
 				} else {
 					String message = "The session you opened contains a dataset which has been derived using an analysis tool with a parameter which has been removed or renamed.\n\n" +
 					"The dataset contents have not changed and you can use them as before, but the obsolete parameter has been removed from the history information of the dataset " +						
 					"and will not be saved in further sessions or workflows.";
-					String details = "Analysis tool: " + operation.getCategoryName() + " / " + operation.getName() + "\nObsolete parameter: " + paramName;
+					String details = "Analysis tool: " + operation.getCategoryName() + " / " + operation.getID() + "\nObsolete parameter: " + paramName;
 					String dataName = null;
 					if (operation.getBindings() != null) {
 						if (operation.getBindings().size() == 1) {

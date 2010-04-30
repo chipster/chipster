@@ -111,7 +111,7 @@ public class WorkflowWriter {
 		dataString.append("\n};\n");
 		script.append(dataString);
 
-		script.append("op = new WfOperation(app.locateOperationDefinition(\"" + operation.getCategoryName() + "\", \"" + operation.getName() + "\"), datas);\n");
+		script.append("op = new WfOperation(app.locateOperationDefinition(\"" + operation.getCategoryName() + "\", \"" + operation.getID() + "\"), datas);\n");
 
 		for (Parameter parameter : operation.getParameters()) {
 			script.append("op.setParameter(\"" + parameter.getName() + "\", " + parameter.getValueAsJava() + ");\n");

@@ -1,10 +1,8 @@
 package fi.csc.microarray.analyser;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,13 +32,14 @@ import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.MonitoredNodeBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.DescriptionMessage;
 import fi.csc.microarray.messaging.message.JobLogMessage;
 import fi.csc.microarray.messaging.message.JobMessage;
-import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
+import fi.csc.microarray.messaging.message.SourceMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
 import fi.csc.microarray.util.MemUtil;
@@ -177,21 +176,10 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 */
 	public void onChipsterMessage(ChipsterMessage chipsterMessage) {
 		
-		// create job, request operation descriptions or source code for operation
+		// job message
 		if (chipsterMessage instanceof JobMessage) {
-			
 			JobMessage jobMessage = (JobMessage)chipsterMessage;
-			
-			// return source code for an operation
-			if ("describe-operation".equals(jobMessage.getAnalysisId())) {
-				sendReplyMessage(jobMessage, createSourceCodeMessage(jobMessage));
-				return; 
-			}
-			
-			//  job message
-			else {
-				receiveJob(jobMessage);
-			}
+			receiveJob(jobMessage);
 		}  
 		
 		// command messages
@@ -217,7 +205,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	
 							// run the job
 							executorService.execute(job);
-							logger.info("Executing job " + job.analysis.getFullName() + ", "+ job.getId() + ", " + job.getInputMessage().getUsername()) ;
+							logger.info("Executing job " + job.analysis.getFullDisplayName() + "(" + job.analysis.getID() + ")" + ", "+ job.getId() + ", " + job.getInputMessage().getUsername()) ;
 						} else {
 							logger.warn("Got ACCEPT_OFFER for job which is not scheduled.");
 						}
@@ -256,10 +244,20 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
                         sendReplyMessage(commandMessage, msg);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("sending descriptions message failed", e);
                 }
 	            return; 
 			}
+
+			// source code request
+			else if (CommandMessage.COMMAND_GET_SOURCE.equals(commandMessage.getCommand())) {
+	            logger.info("sending source code");
+				SourceMessage sourceMessage = createSourceCodeMessage(commandMessage);
+	            if (sourceMessage != null) {
+					sendReplyMessage(commandMessage, sourceMessage);
+	            }
+	            return;
+			}			
 			
 			// Request to cancel a job
 			else if (CommandMessage.COMMAND_CANCEL.equals(commandMessage.getCommand())) {
@@ -439,7 +437,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		
 
 		// check if requested operation is supported, if not, just ignore the request
-		if (!toolRepository.supports(description.getFullName())) {
+		if (!toolRepository.supports(description.getID())) {
 			logger.debug("Analysis " + jobMessage.getAnalysisId() + " ( " + description.getSourceResourceName() + " ) not supported, ignoring request.");
 			return;
 		}
@@ -534,27 +532,20 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	    return list;
 	}
 
-	private ResultMessage createSourceCodeMessage(JobMessage requestMessage) {
-		ResultMessage resultMessage = new ResultMessage("", JobState.COMPLETED, "", "", 
-				"", requestMessage.getReplyTo());
-		try {
-			String name = new String(requestMessage.getParameters().get(0));
-			logger.info("sending source code for " + name);
-			String sourceCode = toolRepository.getDescription(name).getSourceCode();
-			
-			byte[] bytes = sourceCode.getBytes();
-			if (bytes.length == 0) {
-				bytes = "<empty source code>".getBytes(); // zero length bytes content would hang upload
+	private SourceMessage createSourceCodeMessage(CommandMessage requestMessage) {
+			String toolID = new String(requestMessage.getParameters().get(0));
+			logger.info("sending source code for " + toolID);
+			String sourceCode;
+			try {
+				sourceCode = toolRepository.getDescription(toolID).getSourceCode();
+			} catch (AnalysisException ae) {
+				return null;
 			}
-			
-			URL url = fileBroker.addFile(new ByteArrayInputStream(bytes), null);
-			resultMessage.addPayload(SOURCECODE_OUTPUT_NAME, url);
-		} catch (Exception e) {
-			logger.error("Could not send analysis source code", e);
-			resultMessage.setState(JobState.ERROR);
-			resultMessage.setErrorMessage("Could not send analysis source code.");
-		}
-		return resultMessage;
+			if (sourceCode != null) {
+				return new SourceMessage(sourceCode);
+			} else {
+				return null;
+			}
 	}
 	
 	private void updateStatus() {

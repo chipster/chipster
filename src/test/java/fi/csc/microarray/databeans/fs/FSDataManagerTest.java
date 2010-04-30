@@ -119,9 +119,10 @@ public class FSDataManagerTest {
 	private static class DummyClientApplication extends ClientApplication {
 
 		@Override
-		public OperationDefinition locateOperationDefinition(String categoryName, String operationName) {
+		public OperationDefinition getOperationDefinition(String operationID) {
 			// dummy implementation
-			return new OperationDefinition("name", new OperationCategory("cat. name"), "description", false);
+			// FIXME only fixed signature to use operationID
+			return new OperationDefinition("id", "display name", new OperationCategory("cat. name"), "description", false);
 		}
 			
 

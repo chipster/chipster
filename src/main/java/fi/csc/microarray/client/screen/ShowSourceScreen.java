@@ -22,12 +22,12 @@ public class ShowSourceScreen extends ScreenBase implements ClientApplication.So
 	
 	public JFrame getFrame() {
 		// fetch source
-		String[] opName = new String[1];
-		opName[0] = (String)childScreenParameter;
+		String[] opID = new String[1];
+		opID[0] = (String)childScreenParameter;
 		childScreenParameter = null;
-		if (opName[0] != null) {
+		if (opID[0] != null) {
 			try {
-				application.fetchSourceFor(opName, this);
+				application.fetchSourceFor(opID, this);
 			} catch (MicroarrayException e) {
 				application.reportException(e);
 			}

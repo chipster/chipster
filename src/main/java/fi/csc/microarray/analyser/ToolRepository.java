@@ -59,11 +59,11 @@ public class ToolRepository {
 		loadModuleDescriptions();
 	}
 	
-	public synchronized AnalysisDescription getDescription(String fullName) throws AnalysisException {
+	public synchronized AnalysisDescription getDescription(String id) throws AnalysisException {
 		AnalysisDescription desc; 
 
 		// get the description
-		desc = descriptions.get(fullName);
+		desc = descriptions.get(id);
 
 		// check if description needs to be updated
 		if (desc != null && !desc.isUptodate()) {
@@ -71,11 +71,11 @@ public class ToolRepository {
 		}
 		
 		// return the possibly updated description
-		return descriptions.get(fullName); 
+		return descriptions.get(id); 
 	}
 	
-	public synchronized boolean supports(String fullName) {
-		return supportedDescriptions.containsKey(fullName);
+	public synchronized boolean supports(String id) {
+		return supportedDescriptions.containsKey(id);
 	}
 	
 	private void updateDescription(AnalysisDescription desc) throws AnalysisException {
@@ -86,32 +86,32 @@ public class ToolRepository {
 			newDescription.setUpdatedSinceStartup();
 			
 			// name (id) of the tool has not changed
-			if (desc.getFullName().equals(newDescription.getFullName())) {
+			if (desc.getID().equals(newDescription.getID())) {
 				
 				// replace the old description with the same name
-				descriptions.put(newDescription.getFullName(), newDescription);
-				if (supportedDescriptions.containsKey(desc.getFullName())) {
-					supportedDescriptions.put(newDescription.getFullName(), newDescription);
+				descriptions.put(newDescription.getID(), newDescription);
+				if (supportedDescriptions.containsKey(desc.getID())) {
+					supportedDescriptions.put(newDescription.getID(), newDescription);
 				}
-				if (visibleDescriptions.containsKey(desc.getFullName())) {
-					visibleDescriptions.put(newDescription.getFullName(), newDescription);
+				if (visibleDescriptions.containsKey(desc.getID())) {
+					visibleDescriptions.put(newDescription.getID(), newDescription);
 				}
 			} 
 
 			// name (id) of the tool has changed
 			else {
 				logger.warn("name of the tool has changed after loading from custom-scripts, keeping both old and new");
-				if (descriptions.containsKey(newDescription.getFullName())){
+				if (descriptions.containsKey(newDescription.getID())){
 					logger.warn("descriptions already contains a tool with the new name, ignoring custom-scripts");
 					return;
 				} 
 				// add the tool with the new name
-				descriptions.put(newDescription.getFullName(), newDescription);
-				if (supportedDescriptions.containsKey(desc.getFullName())) {
-					supportedDescriptions.put(newDescription.getFullName(), newDescription);
+				descriptions.put(newDescription.getID(), newDescription);
+				if (supportedDescriptions.containsKey(desc.getID())) {
+					supportedDescriptions.put(newDescription.getID(), newDescription);
 				}
-				if (visibleDescriptions.containsKey(desc.getFullName())) {
-					visibleDescriptions.put(newDescription.getFullName(), newDescription);
+				if (visibleDescriptions.containsKey(desc.getID())) {
+					visibleDescriptions.put(newDescription.getID(), newDescription);
 				}
 			}
 		}
@@ -283,12 +283,12 @@ public class ToolRepository {
                         logger.warn("loading " + descriptionFilename + " failed, could not create description", e);
                         continue;
                     }
-                    if (descriptions.containsKey(description.getFullName())) {
-                        logger.warn("loading " + descriptionFilename + " failed, description with the name " +
-                                    description.getFullName() + " already exists");
+                    if (descriptions.containsKey(description.getID())) {
+                        logger.warn("loading " + descriptionFilename + " failed, description with the id " +
+                                    description.getID() + " already exists");
                         continue;
                     }
-                    descriptions.put(description.getFullName(), description);
+                    descriptions.put(description.getID(), description);
                                       
                     successfullyLoadedCount++;
                     
@@ -297,11 +297,11 @@ public class ToolRepository {
                     String hiddenStatus = "";
                     if (!runtime.isDisabled() && !toolDisabled) {
                         // Add to supported descriptions list
-                        supportedDescriptions.put(description.getFullName(), description);
+                        supportedDescriptions.put(description.getID(), description);
                         
                         if (!toolHidden) {
                             // Add to message
-                            category.addTool(description.getName(), description.getSADL(),
+                            category.addTool(description.getDisplayName(), description.getSADL(),
                                              description.getHelpURL());
                         } else {
                             hiddenStatus = " HIDDEN";
@@ -312,7 +312,7 @@ public class ToolRepository {
                         disabledCount++;
                     }
 
-                    logger.info("loaded " + description.getFullName().replace("\"", "") + " " +
+                    logger.info("loaded " + description.getID() + " " + description.getFullDisplayName().replace("\"", "") + " " +
                                 description.getSourceResourceFullPath() + disabledStatus + hiddenStatus);
     		    }
     		    

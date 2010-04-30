@@ -201,10 +201,10 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 			} else if (e.getSource() == importFolderLink) {
 				application.openDirectoryImportDialog();
 			} else if (e.getSource() == importArrayExpressLink) {
-				Operation importOperation = new Operation(application.locateOperationDefinition(MicroarrayModule.IMPORT_CAT, MicroarrayModule.IMPORT_FROM_ARRAYEXPRESS_NAME), new DataBean[] {});
+				Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_ARRAYEXPRESS_ID), new DataBean[] {});
 				application.openDatabaseImport("ArrayExpress", importOperation);
 			} else if (e.getSource() == importGEOLink) {
-				Operation importOperation = new Operation(application.locateOperationDefinition(MicroarrayModule.IMPORT_CAT, MicroarrayModule.IMPORT_FROM_GEO_NAME), new DataBean[] {});
+				Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_GEO_ID), new DataBean[] {});
 				application.openDatabaseImport("GEO", importOperation);
 			} else if (e.getSource() == importTextLink) {
 			    application.openCreateFromTextDialog();

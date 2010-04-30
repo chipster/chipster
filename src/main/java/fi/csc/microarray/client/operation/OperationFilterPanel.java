@@ -65,7 +65,7 @@ public class OperationFilterPanel extends JPanel
         for (OperationCategory category : categories) {
             selectedOperation = null;
             for (OperationDefinition operation : category.getOperationList()) {
-                if (operation.getName().indexOf(filterPhrase) != -1) {
+                if (operation.getID().indexOf(filterPhrase) != -1) {
                     filteredOperations.add(operation);
                 }
             }
