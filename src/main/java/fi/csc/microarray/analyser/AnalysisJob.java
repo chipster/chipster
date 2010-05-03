@@ -1,6 +1,7 @@
 package fi.csc.microarray.analyser;
 
 import java.util.Date;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.log4j.Logger;
 
@@ -333,4 +334,22 @@ public abstract class AnalysisJob implements Runnable {
 		this.executionEndTime = executionEndTime;
 	}
 
+    /**
+     * A simple thread that waits for an operating system
+     * process to finish and reduces a given latch by one.
+     * 
+     * @author naktinis
+     *
+     */
+    protected class ProcessWaiter extends Thread {
+        public ProcessWaiter(Process process, CountDownLatch latch) {
+            try {
+                process.waitFor();
+                latch.countDown();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            
+        }
+    }
 }

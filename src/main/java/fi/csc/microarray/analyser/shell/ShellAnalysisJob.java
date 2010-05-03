@@ -1,6 +1,7 @@
 package fi.csc.microarray.analyser.shell;
 
 import java.util.LinkedList;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.log4j.Logger;
 
@@ -35,7 +36,14 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
     
     LinkedList<String> inputParameters;
     
+    // Logger for this class
     static final Logger logger = Logger.getLogger(EmbossAnalysisJob.class);
+    
+    // Latch for cancelling or finishing a job
+    private CountDownLatch latch = new CountDownLatch(1);
+    
+    // Operating system process
+    private Process process = null;
     
     public ShellAnalysisJob(AnalysisDescription ad) {
         // Store descriptions
@@ -53,8 +61,23 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
         this.outputParameter = ad.getConfigParameters().get("output");
     }
 
+    /**
+     * User decided to cancel this job.
+     */
     @Override
-    protected void cancelRequested() { }
+    protected void cancelRequested() {
+        latch.countDown();
+    }
+    
+    /**
+     * Destroy operating system process if it is still
+     * running.
+     */
+    @Override
+    protected void cleanUp() {
+        super.cleanUp();
+        process.destroy();
+    }
 
     @Override
     protected void execute() throws JobCancelledException {
@@ -94,15 +117,22 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
             logger.info("Running Shell application " + cmd[0]);
             logger.info("Parameters: " + Strings.delimit(command, " "));
             
-            Process p = Runtime.getRuntime().exec(cmd, null, jobWorkDir);
-            p.waitFor();
-            String outputString = Files.inputStreamToString(p.getErrorStream());
+            process = Runtime.getRuntime().exec(cmd, null, jobWorkDir);
             
-            logger.info("Shell application has finished with exit code " + p.exitValue() + 
-                        " and this message: " + "\"" + outputString + "\".");
+            // Start a new thread to listen to OS process status
+            new ProcessWaiter(process, latch).start();
+            
+            // Job finished successfully or was cancelled
+            latch.await();
+            
+            String outputString = Files.inputStreamToString(process.getErrorStream());
+            
+            logger.info("Shell application has finished with exit code " +
+                        process.exitValue() + " and this message: " +
+                        "\"" + outputString + "\".");
             
             // If the exit code is non-zero, the application was not successful
-            if (p.exitValue() != 0) {
+            if (process.exitValue() != 0) {
                 logger.debug("There was an error while running \"" +
                         analysis.getName() + "\" application.");
                 outputMessage.setErrorMessage(outputString);
