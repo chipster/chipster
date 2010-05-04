@@ -171,7 +171,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	/**
 	 * Process incoming message. JobMessage for submitting a job, CommandMessage for canceling one.
 	 * 
-	 * Also operation descriptions and source codes are requested with a JobMessage. 
+	 *  
 	 *  
 	 */
 	public void onChipsterMessage(ChipsterMessage chipsterMessage) {

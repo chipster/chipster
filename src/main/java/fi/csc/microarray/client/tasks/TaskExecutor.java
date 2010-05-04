@@ -437,7 +437,7 @@ public class TaskExecutor {
 		new Thread(new Runnable() {
 			public void run() {
 				try {
-					JobMessage jobMessage = new JobMessage(task.getId(), task.getName(), task.getParameters());
+					JobMessage jobMessage = new JobMessage(task.getId(), task.getOperationID(), task.getParameters());
 
 					// handle inputs
 					logger.debug("adding inputs to job message");
@@ -692,7 +692,7 @@ public class TaskExecutor {
 
 	private void resendJobMessage(Task task, Destination replyTo) throws TaskException, MicroarrayException, JMSException, IOException, FileBrokerException {
 
-		JobMessage jobMessage = new JobMessage(task.getId(), task.getName(), task.getParameters());
+		JobMessage jobMessage = new JobMessage(task.getId(), task.getOperationID(), task.getParameters());
 		for (String name : task.getInputNames()) {
 			DataBean bean = task.getInput(name);
 			try {

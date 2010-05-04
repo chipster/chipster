@@ -37,7 +37,7 @@ public class MessageListenerWrapper implements MessageListener {
 			actualListener.onChipsterMessage(chipsterMessage);
 			
 		} catch (Exception e) {
-			logger.error(e, e);
+			logger.error("Exception when handling a message.", e);
 		} 
 	}
 

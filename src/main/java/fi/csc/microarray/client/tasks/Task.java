@@ -122,6 +122,7 @@ public class Task {
 	
 	public Task(Operation operation) {
 		this.operation = operation;
+		this.id = generateId();
 	}
 	
 	/**
@@ -154,6 +155,16 @@ public class Task {
 			return name;
 		}
 	}
+	
+	public String getOperationID() {
+		if (operation != null) {
+			return operation.getID();
+		} else {
+			throw new IllegalStateException("Operation is null.");
+		}
+	}
+	
+	
 	
 	public String getNamePrettyPrinted() {
 		if (operation != null) {
@@ -228,7 +239,7 @@ public class Task {
 		}
 
 		List<String> parameterList = new LinkedList<String>();
-		for (Object value : parameters) {
+		for (Object value : parameterValues) {
 			if (value instanceof String) {
 				parameterList.add((String)value);
 			} else {

@@ -25,17 +25,14 @@ public class ShowSourceScreen extends ScreenBase implements ClientApplication.So
 		String[] opID = new String[1];
 		opID[0] = (String)childScreenParameter;
 		childScreenParameter = null;
-		if (opID[0] != null) {
-			try {
-				application.fetchSourceFor(opID, this);
-			} catch (MicroarrayException e) {
-				application.reportException(e);
-			}
-		} else {
+		
+		// TODO this is weird and should be fixed
+		if (opID[0] == null) {
 			if (frame != null) {
 				return frame;
 			}
 		}
+		
 			
 		// a new frame is created to get it on top of everything
 		// there should be a better way for this
@@ -46,6 +43,15 @@ public class ShowSourceScreen extends ScreenBase implements ClientApplication.So
 		frame = new JFrame();
 		frame.setContentPane(getContentPane());
 		frame.setTitle("Source Code");
+		// fetch the source
+		if (opID[0] != null) {
+			try {
+				application.fetchSourceFor(opID, this);
+			} catch (MicroarrayException e) {
+				application.reportException(e);
+			}
+		}
+		
 		return frame;
 	}
 

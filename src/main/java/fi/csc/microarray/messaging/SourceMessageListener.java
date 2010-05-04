@@ -11,7 +11,12 @@ public class SourceMessageListener extends TempTopicMessagingListenerBase {
     private CountDownLatch latch = new CountDownLatch(1);
     private String source = null;
     
-    
+    /**
+     * 
+     * @param timeout
+     * @param unit
+     * @return the source
+     */
     public String waitForResponse(long timeout, TimeUnit unit) {
         try {
             latch.await(timeout, unit);
