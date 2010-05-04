@@ -2,7 +2,7 @@
 <module name="sequence">
 
 	<!-- EMBOSS -->
-	<category color="#c3b6a2" name="Alignment:Consensus">
+	<category color="#a2c3b1" name="Alignment:Consensus">
 		<tool runtime="EMBOSS">
 			<resource>cons.acd</resource>
 		</tool>
@@ -16,12 +16,12 @@
 			<resource>merger.acd</resource>
 		</tool>
 	</category>
-	<category color="#c3b6a2" name="Alignment:Differences">
+	<category color="#a2c3b1" name="Alignment:Differences">
 		<tool runtime="EMBOSS">
 			<resource>diffseq.acd</resource>
 		</tool>
 	</category>
-	<category color="#c3b6a2" name="Alignment:Dot plots">
+	<category color="#a2c3b1" name="Alignment:Dot plots">
 		<tool runtime="EMBOSS">
 			<resource>dotmatcher.acd</resource>
 		</tool>
@@ -35,7 +35,7 @@
 			<resource>polydot.acd</resource>
 		</tool>
 	</category>
-	<category color="#c3b6a2" name="Alignment:Global">
+	<category color="#a2c3b1" name="Alignment:Global">
 		<tool runtime="EMBOSS">
 			<resource>est2genome.acd</resource>
 		</tool>
@@ -49,7 +49,7 @@
 			<resource>stretcher.acd</resource>
 		</tool>
 	</category>
-	<category color="#c3b6a2" name="Alignment:Local">
+	<category color="#a2c3b1" name="Alignment:Local">
 		<tool runtime="EMBOSS">
 			<resource>matcher.acd</resource>
 		</tool>
@@ -69,7 +69,7 @@
 			<resource>wordmatch.acd</resource>
 		</tool>
 	</category>
-	<category color="#c3b6a2" name="Alignment:Multiple">
+	<category color="#a2c3b1" name="Alignment:Multiple">
 		<tool runtime="EMBOSS">
 			<resource>edialign.acd</resource>
 		</tool>

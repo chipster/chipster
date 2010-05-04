@@ -67,7 +67,7 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
      */
     @Override
     protected void execute() throws JobCancelledException {
-      
+        
         // Get parameter values from user's input (order is significant)
         inputParameters = new LinkedList<String>(inputMessage.getParameters());
         
@@ -137,6 +137,12 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         // Processing...
         try {
             String[] cmd = commandLine();
+            
+            // Log that we are about to run this
+            logger.info("Running Emboss application " + cmd[0]);
+            logger.info("Parameters: " + Strings.delimit(Arrays.asList(cmd), " "));
+            
+            // Start a process on the operating system
             process = Runtime.getRuntime().exec(cmd, null, jobWorkDir);
             
             // Start a new thread to listen to OS process status
@@ -154,10 +160,7 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
                 stringBuilder.append(line + "\n");
             }
             bufferedReader.close();
-            String outputString = stringBuilder.toString();
-            
-            logger.info("Running Emboss application " + cmd[0]);
-            logger.info("Parameters: " + Strings.delimit(Arrays.asList(cmd), " "));
+            String outputString = stringBuilder.toString();          
             logger.info("Emboss application has finished with exit code " +
                         process.exitValue() + " and this message: " +
                         "\"" + outputString + "\".");

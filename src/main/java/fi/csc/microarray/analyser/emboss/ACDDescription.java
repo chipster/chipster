@@ -253,6 +253,11 @@ public class ACDDescription {
 
                         // Store the attribute in the variable map
                         variableMap.put(fieldName + "." + attrName, attrValue);
+                        
+                        // If a default value is given, store it as field's value
+                        if ("default".equals(attrName)) {
+                            variableMap.put(fieldName, attrValue);
+                        }
                     }
                     
                     // Add the parameter
