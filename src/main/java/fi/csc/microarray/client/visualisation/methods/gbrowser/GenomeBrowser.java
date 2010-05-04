@@ -122,13 +122,12 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 		try {
 			// parse what annotations we have available
 			contentsStream = new URL(ANNOTATION_PATH + "/" + CONTENTS_FILE).openStream();
-			List<Row> contents = new AnnotationContents().getContents(contentsStream);
+			AnnotationContents annotationContentFile = new AnnotationContents();
+			annotationContentFile.parseFrom(contentsStream);
+			List<Row> contents = annotationContentFile.getRows(); 
 
 			// read genome name and version for each annotation file
-			LinkedHashSet<String> genomes = new LinkedHashSet<String>();
-			for (Row row : contents) {
-				genomes.add(row.species + " " + row.version);
-			}
+			LinkedHashSet<String> genomes = annotationContentFile.getGenomes();
 
 			// detect the genome that is used here
 			String genome = genomes.iterator().next(); // just pick the first
