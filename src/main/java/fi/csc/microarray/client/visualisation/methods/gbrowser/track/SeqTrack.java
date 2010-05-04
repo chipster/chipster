@@ -165,7 +165,7 @@ public class SeqTrack extends Track {
 		// areaResult.content.region.end.bp -= 10000;
 
 		this.reads.add(areaResult.content);
-		// }
+		// } 
 
 		getView().redraw();
 		// }
