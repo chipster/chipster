@@ -50,7 +50,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptT
 
 public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, Serializable { // , MouseWheelListener {
 
-	private static final File FILE_ROOT = new File("/home/akallio/chipster-share/genomebrowser_data");
+	//private static final File FILE_ROOT = new File("/home/akallio/chipster-share/genome_browser");
+	private static final File FILE_ROOT = new File("/home/klemela/chipster-share/genome_browser");
 	protected static final URL URL_ROOT;
 
 	static {
@@ -276,12 +277,13 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 		}
 
 		// Eland export
-		if (false) {
+		if (true) {
 
 			// G E N E R A L ////////////////////////////////////////////////
 
-			DataSource userData1 = new DataSource(FILE_ROOT, "eland_result.fsf");
-			DataSource userData2 = new DataSource(FILE_ROOT, "eland_result.fsf");
+			DataSource userData1 = new DataSource(FILE_ROOT, "eland_result_sorted.tsv");
+			DataSource userData2 = new DataSource(FILE_ROOT, "eland_result_sorted.tsv");
+			
 			ElandParser userDataParser = new ElandParser();
 
 			// F O R W A R D /////////////////////////////////////////////////
@@ -311,7 +313,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 			if (sequence) {
 				// Reference sequence
-				DataSource seqFile = new DataSource(URL_ROOT, "annotations/Homo_sapiens.GRCh37.56_seq.fsf");
+				DataSource seqFile = new DataSource(URL_ROOT, "annotations/Homo_sapiens.GRCh37.56_seq.tsv");
 
 				SeqTrack seq = new SeqTrack(dataView, seqFile, TreeThread.class, new SequenceParser(), 800);
 

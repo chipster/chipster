@@ -50,49 +50,68 @@ public class FileFetcherThread extends Thread {
 	}
 	
 	private void processFileRequest(FileRequest fileRequest) throws IOException {
-
+		
 		String chunk;
 		ByteRegion exactRegion = null;
 		
 		if (fileRequest.byteRegion.exact) {
-			
-			dataSource.seek(fileRequest.byteRegion.start);
 
 			byte[] byteChunk = new byte[(int)fileRequest.byteRegion.getLength()];
 				
-			dataSource.read(byteChunk);			
+			dataSource.read(fileRequest.byteRegion.start, byteChunk);			
 			
 			chunk = new String(byteChunk);
-			
-			dataSource.clean();
 
 		} else {
 			
-			dataSource.seek(inputParser.getFilePosition(fileRequest.byteRegion.start));
+			//some extra to get the last line fully
+			byte[] byteChunk = new byte[(int)fileRequest.byteRegion.getLength() + 1000];
+			
+			int length = dataSource.read(fileRequest.byteRegion.start, byteChunk);
+			
+			String file = new String(byteChunk).substring(0, length);		
 			
 			exactRegion = new ByteRegion();
+			int i = 0;
 			
-			//Find next new line
 			if(fileRequest.byteRegion.start != 0) {
-				dataSource.readLine();
+				for (; ; i++) {
+					
+					if ( i >= file.length()) {
+						//not a single new line found, source file is broken
+						return;
+					}
+					
+					if (file.charAt(i) == '\n') {
+						i++;
+						exactRegion.start = fileRequest.byteRegion.start + i;
+						break;
+					}
+				}
 			}
-
-			exactRegion.start = dataSource.getPosition();
 			
-			StringBuilder lines = new StringBuilder();
-
-			while (dataSource.getPosition() <= fileRequest.byteRegion.end) {
-
-				lines.append(dataSource.readLine()); // FIXME out of mem
-				lines.append("\n");
+			StringBuffer lines = new StringBuffer();
+			
+			for (; ; i++) {
+				
+				
+				lines.append(file.charAt(i));		
+				
+				if (file.charAt(i) == '\n' && i >= fileRequest.byteRegion.getLength()) {
+					break;
+				}
+				
+				if ( i >= file.length() - 1) {	
+					
+					//TODO buffer ended before the new line chracter, discard the last line 
+					return;
+				}
 			}
-
-			exactRegion.end = dataSource.getPosition() - 1;
+			
+			exactRegion.end = fileRequest.byteRegion.start + i;			
 			exactRegion.exact = true;
 
 			chunk = lines.toString();				
-			
-			dataSource.clean();
 		}
 
 		fileRequest.status.maybeClearQueue(fileResultQueue);

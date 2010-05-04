@@ -24,8 +24,14 @@ public abstract class TsvParser extends FileParser {
 		
 		public String[] getLastRow(String chunk) {
 			
+			int lineStartIndex = chunk.lastIndexOf("\n", chunk.length() - 2);
+			
+			if (lineStartIndex < 0) {
+				lineStartIndex = 0;
+			}
+			
 			//minus two to convert from length to index and skip the last line change
-			return chunk.substring(chunk.lastIndexOf("\n", chunk.length() - 2), chunk.length()).split("\t");
+			return chunk.substring(lineStartIndex, chunk.length() - 1).split("\t");
 		}
 		
 		@Override
@@ -108,6 +114,6 @@ public abstract class TsvParser extends FileParser {
 		@Override
 		public long getDefaulChunkLength() {
 
-			return 8*1024;
+			return 2*1024;
 		}
 }

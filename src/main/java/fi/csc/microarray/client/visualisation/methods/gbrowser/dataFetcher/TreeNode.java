@@ -127,7 +127,10 @@ public class TreeNode {
 				FileParser parser = fileResult.chunkParser;
 
 				nodeBpStart = parser.getBpRegion(fileResult.chunk).start;
-				parent.updateNodeBpStart(this);
+				
+				if (parent != null) {
+					parent.updateNodeBpStart(this);
+				}
 
 				concisedValues = fileResult.chunkParser.concise(fileResult.chunk);
 			}

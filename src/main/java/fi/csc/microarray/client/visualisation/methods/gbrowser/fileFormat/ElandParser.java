@@ -1,7 +1,13 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -51,6 +57,34 @@ public class ElandParser extends TsvParser {
 		result[1].values.put(ColumnType.STRAND, Strand.REVERSED);
 
 		return result;
+	}
+	
+	@Override
+	public List<RegionContent> getAll(String chunk, Collection<ColumnType> requestedContents) {
+
+		List<RegionContent> rows = new LinkedList<RegionContent>();
+		
+		long readLength = ((String)get(getFirstRow(chunk), ColumnType.SEQUENCE)).length();
+
+		for (String row : chunk.split("\n")) {
+			
+			Map<ColumnType, Object> values = new HashMap<ColumnType, Object>();
+			
+			String[] cols = row.split("\t");
+			
+			for (ColumnType requestedContent : requestedContents) {
+						
+				values.put(requestedContent, this.get(cols, requestedContent));					
+			}
+			
+			Long start = (Long)get(cols, ColumnType.BP_START);
+			Chromosome chr = (Chromosome)get(cols, ColumnType.CHROMOSOME);
+	
+			rows.add(new RegionContent(new BpCoordRegion(start, start + readLength, chr), values));
+
+		}
+		
+		return rows;
 	}
 
 	@Override

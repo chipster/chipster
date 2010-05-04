@@ -5,6 +5,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -106,8 +107,11 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 		try {
 
 			DataSource file = new DataSource(GenomePlot.URL_ROOT, "annotations/contents.txt");
+			
+			byte[] bytes = new byte[(int)file.length()];
+			file.read(0, bytes);
 							
-			List<Row> contents = new AnnotationContents().getContents(file.getStream());
+			List<Row> contents = new AnnotationContents().getContents(new ByteArrayInputStream(bytes));
 
 			boolean first = true;
 			for (Row row : contents) {

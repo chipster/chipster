@@ -89,13 +89,19 @@ public class SeqBlockTrack extends Track {
 					if (seq != null) {
 						seq = seq.trim();
 					} else {
+						
 						int seqLength = (int) (endBp.minus(startBp) + 1);
+						
+						System.out.println(startBp + ", " + endBp + ", " + seqLength);
+						
 						if (seqLength > 128) {
 
 							// TODO what happened?
 							seqLength = 0;
 						}
-						seq = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA".substring(0, seqLength);
+						seq = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" + 
+							  "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+						      "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA".substring(0, seqLength);
 					}
 
 					// if(((String)read.values.get(Content.STRAND)).trim().equals("R")){
