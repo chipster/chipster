@@ -13,9 +13,7 @@ import fi.csc.microarray.util.IOUtils;
 public class DataSource {
 
 	private RandomAccessFile file = null;
-	
-	//public for debug
-	public URL url = null;
+	private URL url = null;
 	
 	public DataSource(URL url) throws FileNotFoundException {
 		this.url = url;
@@ -48,11 +46,6 @@ public class DataSource {
 				connection = (HttpURLConnection)url.openConnection();
 				connection.setRequestProperty("Range", "bytes=" + filePosition + "-" + (filePosition + chunk.length));
 				int bytes = connection.getInputStream().read(chunk);
-
-				if(url.getFile().endsWith("seq.tsv")) {
-				System.out.println(url);
-				System.out.println(new String(chunk).substring(0, new String(chunk).indexOf('\n')));
-				}
 				
 				return bytes;
 				
@@ -71,8 +64,7 @@ public class DataSource {
 			HttpURLConnection connection = null;
 			try {
 				connection = (HttpURLConnection)url.openConnection();
-				int length = connection.getContentLength();
-				return length;
+				return Long.parseLong(connection.getHeaderField("content-length")); // connection.getContentLength() returns int, which is not enough
 			} finally {
 				IOUtils.disconnectIfPossible(connection);
 			}
