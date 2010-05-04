@@ -4,11 +4,7 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
@@ -21,8 +17,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class SeqTrack extends Track {
@@ -169,8 +163,6 @@ public class SeqTrack extends Track {
 
 		// areaResult.content.region.start.bp -= 10000;
 		// areaResult.content.region.end.bp -= 10000;
-		
-		System.out.println(areaResult.content.region + ", " +  areaResult.content.values);
 
 		this.reads.add(areaResult.content);
 		// }

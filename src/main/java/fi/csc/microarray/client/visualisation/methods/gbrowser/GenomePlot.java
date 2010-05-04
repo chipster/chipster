@@ -1,40 +1,37 @@
 	package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
 	import java.awt.Color;
-	import java.awt.Font;
-	import java.awt.Rectangle;
-	import java.awt.Shape;
-	import java.io.FileNotFoundException;
-	import java.io.IOException;
-	import java.io.ObjectInputStream;
-	import java.io.ObjectOutputStream;
-	import java.io.Serializable;
-	import java.net.MalformedURLException;
-	import java.util.Collection;
-	import java.util.LinkedList;
-	import java.util.List;
+import java.awt.Font;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
-	import org.jfree.chart.ChartMouseEvent;
-	import org.jfree.chart.ChartMouseListener;
-	import org.jfree.chart.ChartPanel;
-	import org.jfree.chart.plot.Plot;
-	import org.jfree.chart.plot.PlotRenderingInfo;
-	import org.jfree.chart.plot.PlotState;
-	import org.jfree.data.general.DatasetChangeEvent;
-	import org.jfree.util.ObjectUtilities;
+import org.jfree.chart.ChartMouseEvent;
+import org.jfree.chart.ChartMouseListener;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.plot.Plot;
+import org.jfree.chart.plot.PlotRenderingInfo;
+import org.jfree.chart.plot.PlotState;
+import org.jfree.data.general.DatasetChangeEvent;
+import org.jfree.util.ObjectUtilities;
 
-	import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
-	import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
-	import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-	import fi.csc.microarray.client.visualisation.methods.gbrowser.track.EmptyTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.EmptyTrack;
 
 	/**
 	 * @author Petri Klemelä, Aleksi Kallio
 	 */
 	public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, Serializable { // , MouseWheelListener {
-
-		//private static final File FILE_ROOT = new File("/home/akallio/chipster-share/genome_browser");
-		private static final File FILE_ROOT = new File("/home/klemela/chipster-share/genome_browser");
 
 //		private static final URL URL_ROOT;
 	//
