@@ -138,7 +138,7 @@ public class TaskManagerScreen extends ScreenBase implements ActionListener, Lis
 
 			} else if (col == Column.ACTIONS){
 				if (!tasks.get(row).getState().isFinished()) {
-					return "Cancel";
+					return new LinkModel("Cancel");
 				} else {
 					return null;
 				}
