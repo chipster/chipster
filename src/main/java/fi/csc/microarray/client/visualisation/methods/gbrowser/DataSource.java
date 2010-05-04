@@ -60,8 +60,7 @@ public class DataSource {
 			HttpURLConnection connection = null;
 			try {
 				connection = (HttpURLConnection)url.openConnection();
-				int length = connection.getContentLength();
-				return length;
+				return Long.parseLong(connection.getHeaderField("content-length")); // connection.getContentLength() returns int, which is not enough
 			} finally {
 				IOUtils.disconnectIfPossible(connection);
 			}
