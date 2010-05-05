@@ -40,11 +40,11 @@ public class OperationDefinition implements ExecutionItem {
 	 * but rather a dummy substitute, without any parameters.
 	 */
 	
-	private static final String IMPORT_DEFINITION_ID = "static-operation-definition-id-import";
-	private static final String USER_MODIFICATION_DEFINITION_ID = "static-operation-definition-id-user-modification";
+	public static final String IMPORT_DEFINITION_ID = "operation-definition-id-import";
+	public static final String CREATE_DEFINITION_ID = "operation-definition-id-user-modification";
 	
 	public static final OperationDefinition IMPORT_DEFINITION;
-	public static final OperationDefinition USER_MODIFICATION_DEFINITION;
+	public static final OperationDefinition CREATE_DEFINITION;
 
 	/**
 	 * An enumeration containing all possible results when evaluating an
@@ -115,11 +115,11 @@ public class OperationDefinition implements ExecutionItem {
 	
 	static {
 		// done here to guarantee right execution order
-		IMPORT_DEFINITION = new OperationDefinition(IMPORT_DEFINITION_ID, "Raw data import",
-		        OperationCategory.IMPORT_CATEGORY, "Imports raw microarray data from an external file.",
+		IMPORT_DEFINITION = new OperationDefinition(IMPORT_DEFINITION_ID, "Import data",
+		        OperationCategory.IMPORT_CATEGORY, "Import data.",
 		        false, null);
-		USER_MODIFICATION_DEFINITION = new OperationDefinition(USER_MODIFICATION_DEFINITION_ID, "User modified",
-		        OperationCategory.USER_MODIFICATION_CATEGORY, "User had edited bean content.",
+		CREATE_DEFINITION = new OperationDefinition(CREATE_DEFINITION_ID, "Create a dataset",
+		        OperationCategory.CREATE_CATEGORY, "Create a new dataset.",
 		        false, null);
 	}
 

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.zip.ZipEntry;
@@ -20,14 +21,14 @@ public class ZipDataBeanHandler extends DataBeanHandlerBase {
 	
 	public long getContentLength(DataBean dataBean) throws IOException {
 		checkCompatibility(dataBean);
-		ZipFile zipFile = new ZipFile(getFile(dataBean));		
+		ZipFile zipFile = new ZipFile(getZipFile(dataBean));		
 		ZipEntry zipEntry = zipFile.getEntry(dataBean.getContentUrl().getRef());
 		return zipEntry.getSize();
 	}
 
 	public InputStream getInputStream(DataBean dataBean) throws IOException {
 		checkCompatibility(dataBean);
-		ZipFile zipFile = new ZipFile(getFile(dataBean));
+		ZipFile zipFile = new ZipFile(getZipFile(dataBean));
 		ZipEntry zipEntry = zipFile.getEntry(dataBean.getContentUrl().getRef());
 		return zipFile.getInputStream(zipEntry);
 	}
@@ -53,7 +54,7 @@ public class ZipDataBeanHandler extends DataBeanHandlerBase {
 		}
 		
 		// needs to be .cs
-		else if (!getFile(dataBean).getName().endsWith(".cs")) {
+		else if (!getZipFile(dataBean).getName().endsWith(".cs")) {
 			throw new IllegalArgumentException("Not a session file.");
 		}
 		
@@ -63,14 +64,17 @@ public class ZipDataBeanHandler extends DataBeanHandlerBase {
 		}
 	}
 	
-	private File getFile(DataBean dataBean) {
-		File file;
+	private File getZipFile(DataBean dataBean) {
+		File zipFile;
 		try {
-			file = new File(dataBean.getContentUrl().toURI());
+			// remove fragment before converting to File
+			URI beanURI = dataBean.getContentUrl().toURI();
+			URI zipURI = new URI(beanURI.getScheme(), beanURI.getSchemeSpecificPart(), null);
+			zipFile = new File(zipURI);
 		} catch (URISyntaxException use) {
 			throw new IllegalArgumentException(dataBean.getContentUrl() + " does not point to a file.");
 		}
-		return file;
+		return zipFile;
 	}
 
 	public void delete(DataBean dataBean) {

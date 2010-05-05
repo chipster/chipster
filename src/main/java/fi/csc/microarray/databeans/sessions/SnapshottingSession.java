@@ -4,12 +4,10 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -24,7 +22,6 @@ import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.operation.OperationCategory;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.parameter.Parameter;
@@ -34,7 +31,6 @@ import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.DataBeanType;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.handlers.DataBeanHandler;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.IOUtils;
@@ -258,7 +254,7 @@ public class SnapshottingSession {
 			if (!operationIdMap.containsValue(operation) ) {
 				
 				operId = generateId(operation);
-				metadata.append("OPERATION " + operId + " " + operation.getCategoryName() + "/" + operation.getID() + "\n");
+				metadata.append("OPERATION " + operId + " " + operation.getID() + "\n");
 
 				// some parameters need inputs at loading time => write these first
 				if (operation.getBindings() != null) {
@@ -374,24 +370,15 @@ public class SnapshottingSession {
 				} else if (line.startsWith("OPERATION ")) {
 					String[] split = line.split(" ");
 					String id = split[1];
-					String[] opData = afterNthSpace(line, 2).split("/");	
-					// FIXME use operation id
-					//OperationDefinition od = application.getOperationDefinition(opData[0], opData[1]);
-					OperationDefinition od = application.getOperationDefinition(opData[0]);
-					Operation op = null;
+					String operationID = afterNthSpace(line, 2);
+					OperationDefinition od = application.getOperationDefinition(operationID);
 					if (od == null) {
-						// create local operation definition object
-						// FIXME also load the display name
-						od = new OperationDefinition(opData[1], null, new OperationCategory(opData[0]), "", false);
-						
-						// warn if it was a real operation
-						if (!OperationCategory.isPseudoCategory(od.getCategory())) {
-							String message = "The session you opened contains a dataset which has been derived using an analysis tool which has been removed or renamed.\n\n" +
-							"The dataset contents have not changed and you can use them as before, but the obsolete operation will not be usable in workflows.";
-							String details = "Analysis tool: " + od.getCategoryName() + " / " + od.getID() + "\n";
-							warnAboutObsoleteContent(message, details, null);
-						}
+						String message = "The session you opened contains a dataset which has been derived using an analysis tool which has been removed or renamed.\n\n" +
+						"The dataset contents have not changed and you can use them as before, but the obsolete operation will not be usable in workflows.";
+						String details = "Analysis tool: " + id + "\n";
+						warnAboutObsoleteContent(message, details, null);
 					}
+					Operation op = null;
 					op = new Operation(od, new DataBean[] { /* empty inputs currently */});
 					mapId(id, op);
 

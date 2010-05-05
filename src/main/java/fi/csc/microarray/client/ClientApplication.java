@@ -42,7 +42,6 @@ import fi.csc.microarray.client.operation.OperationCategory;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.Operation.ResultListener;
-import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.client.selection.DataSelectionManager;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.TaskEventListener;
@@ -178,6 +177,7 @@ public abstract class ClientApplication implements Node {
 	// TODO wrap these to some kind of repository
 	protected Collection<OperationCategory> parsedCategories;
 	protected Map<String, OperationDefinition> operationDefinitions;
+	protected Map<String, OperationDefinition> internalOperationDefinitions;
 
 	protected WorkflowManager workflowManager;
 	protected TaskExecutor taskExecutor;
@@ -249,10 +249,15 @@ public abstract class ClientApplication implements Node {
 					operationDefinitions.put(operationDefinition.getID(), operationDefinition);
 				}
 			}
-			
 			logger.debug("created " + parsedCategories.size() + " operation categories");
- 			
 			reportInitialisation(" received and processed", false);
+
+			// load internal operation definitions
+			internalOperationDefinitions = new HashMap<String, OperationDefinition>();
+			internalOperationDefinitions.put(OperationDefinition.IMPORT_DEFINITION.getID(), OperationDefinition.IMPORT_DEFINITION);
+			internalOperationDefinitions.put(OperationDefinition.CREATE_DEFINITION.getID(), OperationDefinition.CREATE_DEFINITION);
+
+			// all operation definitions loaded
 			definitionsInitialisedLatch.countDown();
 			
 			// start listening to job events
@@ -678,8 +683,17 @@ public abstract class ClientApplication implements Node {
 		ImportUtils.executeImport(importSession);
 	}
 
+	/**
+	 * 
+	 * @param operationDefinitionID
+	 * @return null if operation definition is not found
+	 */
 	public OperationDefinition getOperationDefinition(String operationDefinitionID) {
-		return operationDefinitions.get(operationDefinitionID);
+		OperationDefinition definition = operationDefinitions.get(operationDefinitionID); 
+		if (definition == null) {
+			definition = internalOperationDefinitions.get(operationDefinitionID);
+		}
+		return definition;
 	}
 
 	
