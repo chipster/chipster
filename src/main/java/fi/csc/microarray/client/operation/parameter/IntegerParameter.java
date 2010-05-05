@@ -149,4 +149,9 @@ public class IntegerParameter extends Parameter {
 		}
 	}
 
+	@Override
+	public String getValueAsString() {
+		return value.toString();
+	}
+
 }

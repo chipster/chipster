@@ -41,4 +41,9 @@ public class StringParameter extends Parameter {
 	public void parseValue(String stringValue) throws IllegalArgumentException {
 		setValue(stringValue); // no parsing needed
 	}
+
+	@Override
+	public String getValueAsString() {
+		return value;
+	}
 }

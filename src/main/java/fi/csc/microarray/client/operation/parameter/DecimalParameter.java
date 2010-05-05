@@ -157,4 +157,9 @@ public class DecimalParameter extends Parameter {
 			throw new IllegalArgumentException("cannot parse String value \"" + stringValue + "\"");
 		}
 	}
+
+	@Override
+	public String getValueAsString() {
+		return value.toString();
+	}
 }

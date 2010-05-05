@@ -13,25 +13,17 @@ import java.util.UUID;
 
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
-
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 
-// TODO simplify Task, takes only input and Operation
 /**
- * @author Aleksi Kallio
+ * @author Aleksi Kallio, Taavi Hupponen
  *
  */
 public class Task {
-	/**
-	 * Logger for this class
-	 */
-	private static final Logger logger = Logger.getLogger(Task.class);
-	
 
 	public enum State {
 		NEW("New"), 
@@ -173,44 +165,6 @@ public class Task {
 		else {
 			return name.replaceAll("\"", "").replaceAll("/", " - ");
 		}
-	}
-	
-	
-	/**
-	 * A generic input method. Infers correct addInput-method to call by using 
-	 * the type of input. Please use type-specific addInput-methods where 
-	 * possible. 
-	 * 
-	 * @throws IllegalArgumentException if parameter input is of unsupported type
-	 * @param name
-	 * @param input
-	 */
-	public void addParameter(String name, Object input) {
-		if (input instanceof Float) {
-			addParameter(name, (Float)input);
-		} else if (input instanceof Integer) {
-			addParameter(name, (Integer)input);
-		} else if (input instanceof String) {
-			addParameter(name, (String)input);
-	    } else if (input == null) {
-	        addParameter(name, "");
-		} else {
-			throw new IllegalArgumentException("unsupported input type: " + input.getClass().getSimpleName());
-		}
-	}
-	
-	public void addParameter(String name, Integer input) {
-		addParameter(name, input.toString()); // we handle Integer internally as a String
-	}
-	
-	public void addParameter(String name, Float input) {
-		addParameter(name, input.toString()); // we handle Float internally as a String
-	}
-	
-	public void addParameter(String name, String input) {
-		// we don't actually need the name now, order is enough
-		logger.debug("added parameter " + name + " -> " + input);
-		parameters.add(input);
 	}
 	
 	public Iterable<DataBean> getInputs() {

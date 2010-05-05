@@ -33,7 +33,7 @@ public class BasicRAnalysisTest extends AnalysisTestBase {
 		Task job = executor.createTask("\"Test\"/\"Echo\"");
 		String input = "Haloo!";
 		
-		job.addParameter("echoParameter", input);
+		// FIXME rewrite job.addParameter("echoParameter", input);
 		executeJob(job);
 		
 		System.out.println("Output: " + job.getScreenOutput());
@@ -105,7 +105,7 @@ public class BasicRAnalysisTest extends AnalysisTestBase {
 	@Test(groups = { "smoke"})
 	public void fetchSourceCode() throws TaskException, InterruptedException, IOException {
 		Task job = executor.createTask("describe-operation");
-		job.addParameter("operation-name", "\"Normalisation\"/\"Affymetrix\"");
+		// FIXME rewrite job.addParameter("operation-name", "\"Normalisation\"/\"Affymetrix\"");
 		executeJob(job);
 		String sourceCode = new String(job.getOutput("sourcecode").getContents());
 		Assert.assertTrue(sourceCode.contains("Affymetrix normalization"));

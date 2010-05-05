@@ -276,4 +276,9 @@ public class EnumParameter extends Parameter {
         setValue(stringValue); // no parsing needed
     }
 
+	@Override
+	public String getValueAsString() {
+		return (String)getValue(); // getValue always returns String
+	}
+
 }

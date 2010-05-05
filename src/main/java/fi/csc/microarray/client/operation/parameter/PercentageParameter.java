@@ -139,4 +139,9 @@ public class PercentageParameter extends Parameter {
 		}
 	}
 
+	@Override
+	public String getValueAsString() {
+		return value.toString();
+	}
+
 }

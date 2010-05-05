@@ -209,7 +209,14 @@ public abstract class Parameter implements Cloneable {
 	 * @return a representation of the value that can be inserted directly into Java code
 	 */
 	public abstract String getValueAsJava();
-	
+
+	/**
+	 * Return String presentation of the value.
+	 * 
+	 * @return a representation of the value that can be used to communicate and reproduce the value
+	 */
+	public abstract String getValueAsString();
+
 	
 	/**
 	 * A method used to set the value of a parameter. Each subclass must
