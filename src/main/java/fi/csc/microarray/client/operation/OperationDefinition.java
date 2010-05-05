@@ -12,7 +12,6 @@ import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.LinkUtils;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.description.SADLParser;
 import fi.csc.microarray.description.SADLSyntax;
 import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLSyntax.InputType;
