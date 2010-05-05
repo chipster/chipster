@@ -289,14 +289,6 @@ public class OperationDefinition implements ExecutionItem {
 	}
 
 	/**
-	 * @return The "job phrase", a code word that tells the server what kind of
-	 *         a job should be executed for this operation.
-	 */
-	public String getJobPhrase() {
-		return SADLParser.generateOperationIdentifier(category.getName(), id);
-	}
-
-	/**
 	 * @return A String representation (actually, just the name) of this
 	 *         operation definition, used for showing this on the list.
 	 */
