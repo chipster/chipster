@@ -11,7 +11,7 @@ import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.DescriptionMessage;
 
-public class DescriptionListener extends TempTopicMessagingListenerBase {
+public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
     
 	private static final Logger logger = Logger.getLogger(DescriptionListener.class);
     
@@ -20,7 +20,7 @@ public class DescriptionListener extends TempTopicMessagingListenerBase {
     private String wantedModule;
     private boolean finished = false;
     
-    public DescriptionListener(String wantedModule) {
+    public DescriptionMessageListener(String wantedModule) {
         this.wantedModule = wantedModule;
     }
     

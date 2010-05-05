@@ -20,7 +20,8 @@ public class AnalysisDescriptionGenerator {
 	public AnalysisDescription generate(SADLDescription source, AnalysisHandler analysisHandler) {
 		AnalysisDescription description = new AnalysisDescription(analysisHandler);
 		
-		description.setName(source.getName().getID());
+		description.setID(source.getName().getID());
+		description.setDisplayName(source.getName().getDisplayName());
 		description.setComment(source.getComment());
 		description.setCategory(source.getCategory());
 

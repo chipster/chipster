@@ -12,12 +12,10 @@ import fi.csc.microarray.module.Module;
 
 public class MicroarrayModule implements Module {
 
-	public static final String ANNOTATION_CAT = "Annotation";
-	public static final String ANNOTATION_NAME = "Agilent, Affymetrix or Illumina genelist";
+	public static final String ANNOTATION_ID = "annotate-genelist2html.R";
 	
-	public static final String IMPORT_CAT = "Utilities";
-	public static final String IMPORT_FROM_ARRAYEXPRESS_NAME = "Import from ArrayExpress";
-	public static final String IMPORT_FROM_GEO_NAME = "Import from GEO";
+	public static final String IMPORT_FROM_ARRAYEXPRESS_ID = "import-from-ArrayExpress.R";
+	public static final String IMPORT_FROM_GEO_ID = "import-soft2.R";
 	
 	public void plugContentTypes(DataManager manager) {
 		manager.plugContentType("application/x-treeview", true, false, "Newick formatted tree from clustering", VisualConstants.ICON_TYPE_TEXT, "tre");

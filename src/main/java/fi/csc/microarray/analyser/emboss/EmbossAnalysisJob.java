@@ -168,7 +168,7 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
             // If the exit code is non-zero, the application was not successful
             if (process.exitValue() != 0) {
                 logger.debug("There was an error while running emboss \"" +
-                             analysis.getName() + "\" application.");
+                             analysis.getDisplayName() + "\" application.");
                 outputMessage.setErrorMessage(outputString);
                 updateState(JobState.FAILED, "EMBOSS application failed.");
             } 
@@ -184,7 +184,7 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         } catch (IOException e) {
             // Program was not found
             logger.debug("There was an error while running emboss \"" +
-                    analysis.getName() + "\" application.");
+                    analysis.getDisplayName() + "\" application.");
             outputMessage.setErrorMessage("Program " + acdDescription.getName() +
                     " couldn't be started.");
             updateState(JobState.FAILED, "EMBOSS application failed.");
@@ -200,7 +200,7 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
      * @return ACD description object.
      */
     protected ACDDescription getACD() {
-        String appName = analysis.getName();
+        String appName = analysis.getDisplayName();
         return new ACDDescription(new File(descriptionDirectory, appName + ".acd"));
     }
     
@@ -230,7 +230,7 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         // Form the parameters (including the executable)
         LinkedList<String> params = new LinkedList<String>();
 
-        params.add(new File(toolDirectory, analysis.getName()).getAbsolutePath());
+        params.add(new File(toolDirectory, analysis.getDisplayName()).getAbsolutePath());
         
         // Parameters
         for (EmbossQualifier qualifier : qualifiers) {

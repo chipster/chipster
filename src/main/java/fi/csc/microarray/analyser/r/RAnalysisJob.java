@@ -248,7 +248,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		
 		// script now finished or timeout
 		cancelCheck();
-		logger.debug("done waiting for " + analysis.getFullName() + ", state is " + getState());		
+		logger.debug("done waiting for " + analysis.getID() + ", state is " + getState());		
 
 		// add output to result message
 		String output = processMonitor.getOutput();

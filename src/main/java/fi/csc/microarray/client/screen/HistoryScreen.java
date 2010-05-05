@@ -206,7 +206,7 @@ public class HistoryScreen extends ScreenBase
 				Operation oper = listData.getOperation();
 				historyText.append("Created with operation: ");
 				if (oper != null) {
-					historyText.append(oper.getName() + "\n");
+					historyText.append(oper.getID() + "\n");
 					if (checkBoxes.get("param").isSelected()) {
                         LinkedList<Parameter> params = oper.getParameters();
 						if (params != null && params.size() > 0) {
@@ -256,22 +256,22 @@ public class HistoryScreen extends ScreenBase
 		if (sourceCodes == null) {
 			
 			// make list of wanted source codes
-			List<String> names = new LinkedList<String>();
+			List<String> ids = new LinkedList<String>();
 			for (DataBean bean : new BioBean(data).getSourcePath()) {
 				OperationDefinition op = bean.getOperation().getDefinition();
 				if (op.hasSourceCode()) {
-					names.add(SADLParser.generateOperationIdentifier(op.getCategoryName(), op.getName()));
+					ids.add(op.getID());
 				} else {
-					names.add(null);
+					ids.add(null);
 				}
-				logger.debug("added source path " + names.get(names.size()-1));
+				logger.debug("added source path " + ids.get(ids.size()-1));
 			}
 			
 			// initialise data structure that is used in result gathering 
-			sourceCodes = new String[names.size()];
+			sourceCodes = new String[ids.size()];
 
 			// start source code fetching
-			application.fetchSourceFor(names.toArray(new String[1]), this);
+			application.fetchSourceFor(ids.toArray(new String[1]), this);
 		}
 		return sourceCodes;
 	}

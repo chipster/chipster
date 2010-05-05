@@ -20,6 +20,7 @@ public class CommandMessage extends ParameterMessage {
 	public final static String COMMAND_OFFER = "offer";
 	public final static String COMMAND_ACCEPT_OFFER = "choose";
 	public final static String COMMAND_DESCRIBE = "describe";
+	public final static String COMMAND_GET_SOURCE = "get-source";
 
 	public final static String COMMAND_URL_REQUEST ="url-request";
 	

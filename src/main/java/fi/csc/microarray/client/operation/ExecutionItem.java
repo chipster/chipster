@@ -17,7 +17,7 @@ public interface ExecutionItem {
 	/**
 	 * @return The name of this ExecutionItem.
 	 */
-	public String getName();
+	public String getID();
 	
 	/**
 	 * @return The category name of this ExecutionItem (either the name of an

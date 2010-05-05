@@ -65,6 +65,10 @@ public class AnalysisDescription {
 	    }
 	}
 	
+
+	private String id;
+	
+
 	/**
 	 * Actual executable that handles the analysis.
 	 */
@@ -78,7 +82,7 @@ public class AnalysisDescription {
 	/**
 	 * Analysis name (used in GUI etc.)
 	 */
-	private String name;
+	private String displayName;
 	
 	/**
 	 * Description.
@@ -176,18 +180,26 @@ public class AnalysisDescription {
 		this.comment = comment;
 	}
 
-	public String getFullName() {
-		return "\"" + getCategory() + "\"/\"" + getName() + "\""; 
+	public String getID() {
+		 return this.id;
 	}
 	
-	public String getName() {
-		return name;
+	public String getFullDisplayName() {
+		return "\"" + getCategory() + "\"/\"" + getDisplayName() + "\"";
+	}
+	
+	public String getDisplayName() {
+		if (displayName == null) {
+			return id;
+		} else {
+			return displayName;
+		}
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
 	}
-
+	
 	public void addOutputFile(String fileName) {
 		outputFiles.add(new OutputDescription(fileName));
 	}
@@ -273,5 +285,11 @@ public class AnalysisDescription {
     public void setConfigParameters(Map<String, String> configParameters) {
         this.configParameters = configParameters;
     }
+
+	public void setID(String id) {
+		this.id = id;
+	}
+
+
 }
  

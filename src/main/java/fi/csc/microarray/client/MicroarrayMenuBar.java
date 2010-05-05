@@ -80,7 +80,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem visualiseMenuItem;
 	private JMenuItem detachMenuItem;
 	private JMenu visualisationMenu;
-	private JMenuItem loadOldWorkspaceMenuItem;
 	private JMenu openRepoWorkflowsMenu;
 
 	public MicroarrayMenuBar(SwingClientApplication application) {
@@ -150,7 +149,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			fileMenu.add(getLoadSnapshotMenuItem());
 			fileMenu.add(getSaveSnapshotMenuItem());
 			fileMenu.add(getClearSessionMenuItem());
-			fileMenu.add(getLoadOldWorkspaceMenuItem());
 			fileMenu.addSeparator();
 			fileMenu.add(getQuitMenuItem());
 		}
@@ -231,7 +229,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			importFromArrayExpressMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
-						Operation importOperation = new Operation(application.locateOperationDefinition(MicroarrayModule.IMPORT_CAT, MicroarrayModule.IMPORT_FROM_ARRAYEXPRESS_NAME), new DataBean[] {});
+						Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_ARRAYEXPRESS_ID), new DataBean[] {});
 						application.openDatabaseImport("ArrayExpress", importOperation);
 					} catch (Exception me) {
 						application.reportException(me);
@@ -249,7 +247,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			importFromGEOMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
-						Operation importOperation = new Operation(application.locateOperationDefinition(MicroarrayModule.IMPORT_CAT, MicroarrayModule.IMPORT_FROM_GEO_NAME), new DataBean[] {});
+						Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_GEO_ID), new DataBean[] {});
 						application.openDatabaseImport("GEO", importOperation);
 					} catch (Exception me) {
 						application.reportException(me);
@@ -742,22 +740,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return helpInfoMenu;
 	}
 
-	private JMenuItem getLoadOldWorkspaceMenuItem() {
-		if (loadOldWorkspaceMenuItem == null) {
-			loadOldWorkspaceMenuItem = new JMenuItem();
-			loadOldWorkspaceMenuItem.setText("Open Chipster 1.1 workspace (session)");
-			loadOldWorkspaceMenuItem.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					try {
-						application.loadOldSnapshot();
-					} catch (Exception exp) {
-						application.reportException(exp);
-					}
-				}
-			});
-		}
-		return loadOldWorkspaceMenuItem;
-	}
 
 	private JMenuItem getContentMenuItem() {
 		if (contentMenuItem == null) {

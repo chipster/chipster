@@ -40,7 +40,7 @@ public class ParameterTest {
     @BeforeClass
     public void prepareComponents() {
         OperationCategory category = new OperationCategory("Testational");
-        OperationDefinition definition = new OperationDefinition("Testation",
+        OperationDefinition definition = new OperationDefinition("Testation id", null,
             category, "Testationing", false);
         Operation operation;
         try {

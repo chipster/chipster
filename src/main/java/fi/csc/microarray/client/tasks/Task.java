@@ -15,6 +15,9 @@ import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.client.operation.Operation.DataBinding;
+import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -96,10 +99,11 @@ public class Task {
 
 	
 	
-	
+	private Operation operation;
 	
 	private Map<String, DataBean> inputs = new HashMap<String, DataBean>();
 	private List<Object> parameters = new LinkedList<Object>();
+	
 	
 	private State state = State.NEW;
 	private String stateDetail = "";
@@ -116,11 +120,26 @@ public class Task {
 	
 	private List<TaskEventListener> listeners = new LinkedList<TaskEventListener>();	
 	
+	public Task(Operation operation) {
+		this.operation = operation;
+		this.id = generateId();
+	}
+	
+	/**
+	 * For now should only be used for testing.
+	 * 
+	 * @param name
+	 */
 	public Task(String name) {
 		this.name = name;
 		this.id = generateId();
 	}
 
+	/**
+	 * For now should only be used for testing.
+	 * 
+	 * @param name
+	 */
 	public Task(String name, boolean hidden) {
 		this(name);
 		this.hidden = hidden;
@@ -130,39 +149,32 @@ public class Task {
 	 * @return Returns the name.
 	 */
 	public String getName() {
-		return name;
+		if (operation != null) {
+			return operation.getDefinition().getFullName();
+		} else {
+			return name;
+		}
 	}
+	
+	public String getOperationID() {
+		if (operation != null) {
+			return operation.getID();
+		} else {
+			throw new IllegalStateException("Operation is null.");
+		}
+	}
+	
+	
 	
 	public String getNamePrettyPrinted() {
-		return name.replaceAll("\"", "").replaceAll("/", " - ");
+		if (operation != null) {
+			return operation.getDefinition().getFullName();
+		}
+		else {
+			return name.replaceAll("\"", "").replaceAll("/", " - ");
+		}
 	}
 	
-	
-	/**
-	 * Set the state of the Task. Also clear stateDetail field.
-	 * 
-	 * Listeners are notified of the state change.
-	 * 
-	 * Note: Only Task and TaskExecutor classes should use this method.
-	 * 
-	 * 
-	 * 
-	 * @param state
-	 */
-	public synchronized void  setState(State newState) {
-		State oldState = this.state;
-		this.state = newState;
-		this.stateDetail = "";
-		
-		// register change event to be invoked later
-		TaskStateChangeNotifier changeNotifier = new TaskStateChangeNotifier(oldState, newState);
-		SwingUtilities.invokeLater(changeNotifier);
-	}
-
-
-	public synchronized State getState() {
-		return state; 
-	}
 	
 	/**
 	 * A generic input method. Infers correct addInput-method to call by using 
@@ -201,22 +213,42 @@ public class Task {
 		parameters.add(input);
 	}
 	
-	public DataBean getInput(String name) {
-		return inputs.get(name);
+	public Iterable<DataBean> getInputs() {
+		if (operation != null) {
+			LinkedList<DataBean> beans = new LinkedList<DataBean>();
+			for (DataBinding binding : operation.getBindings()) {
+				beans.add(binding.getData());
+			}
+			return beans;
+		} else {
+			return inputs.values();
+		}
 	}
 	
 	
 	public List<String> getParameters() throws TaskException, MicroarrayException {
-		List<String> inputArray = new LinkedList<String>();
-		for (Object input : parameters) {
-			if (input instanceof String) {
-				inputArray.add((String)input);
+		
+		List<Object> parameterValues;
+		if (operation != null) {
+			parameterValues = new LinkedList<Object>();
+			for (Parameter parameter: operation.getParameters()) {
+				parameterValues.add(parameter.getValue());
+			}
+		} else {
+			parameterValues = parameters;
+		}
+
+		List<String> parameterList = new LinkedList<String>();
+		for (Object value : parameterValues) {
+			if (value instanceof String) {
+				parameterList.add((String)value);
 			} else {
-				throw new TaskException("do not know how to encode" + input.getClass().getName());
+				throw new TaskException("do not know how to encode" + value.getClass().getName());
 			}
 		}
-		return inputArray;
+		return parameterList;
 	}
+
 	
 	public void addOutput(String name, DataBean output) throws IOException, MicroarrayException {
 		outputs.put(name, output);
@@ -230,9 +262,64 @@ public class Task {
 		this.inputs.put(name, input);
 	}
 
-	public Iterable<String> inputNames() {
-		return inputs.keySet();		
+	public DataBean getInput(String name) {
+		if (operation != null) {
+			DataBinding binding = operation.getBinding(name);
+			if (binding != null) {
+				return binding.getData();
+			} else {
+				return null;
+			}
+		} else {
+			return inputs.get(name);
+		}
 	}
+	
+	public Iterable<String> getInputNames() {
+		if (operation != null) {
+			LinkedList<String> bindingNames = new LinkedList<String>();
+			for (DataBinding binding : operation.getBindings()) {
+				bindingNames.add(binding.getName());
+			}
+			return bindingNames;
+		}
+		else {
+			return inputs.keySet();		
+		}
+	}
+
+	public int getInputCount() {
+		return inputs.size();
+	}
+	
+	
+	/**
+	 * Set the state of the Task. Also clear stateDetail field.
+	 * 
+	 * Listeners are notified of the state change.
+	 * 
+	 * Note: Only Task and TaskExecutor classes should use this method.
+	 * 
+	 * 
+	 * 
+	 * @param state
+	 */
+	public synchronized void  setState(State newState) {
+		State oldState = this.state;
+		this.state = newState;
+		this.stateDetail = "";
+		
+		// register change event to be invoked later
+		TaskStateChangeNotifier changeNotifier = new TaskStateChangeNotifier(oldState, newState);
+		SwingUtilities.invokeLater(changeNotifier);
+	}
+
+
+	public synchronized State getState() {
+		return state; 
+	}
+
+	
 	
 	public void setErrorMessage(String message) {
 		this.errorMessage = message;
@@ -338,9 +425,6 @@ public class Task {
 		listeners.add(listener);
 	}
 
-	public int getInputCount() {
-		return inputs.size();
-	}
 
 	public void setCompletionPercentage(int completionPercentage) {
 		this.completionPercentage = completionPercentage;

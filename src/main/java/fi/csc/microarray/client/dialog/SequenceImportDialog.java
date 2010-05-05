@@ -31,8 +31,6 @@ import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.dataimport.ImportUtils;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
-import fi.csc.microarray.client.tasks.Task;
-import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -45,12 +43,12 @@ import fi.csc.microarray.exception.MicroarrayException;
 @SuppressWarnings("serial")
 public class SequenceImportDialog extends JDialog implements CaretListener, ActionListener {
     
-    private String TASK_NAME = "\"Internal\"/\"importseq\"";
-    private String OUT_FILE = "outseq";
+    private static final String OPERATION_ID = "import.sadl";
+    private static final String OUT_FILE = "outseq";
     private final Dimension BUTTON_SIZE = new Dimension(70, 25);
     
     private static Logger logger = Logger.getLogger(SequenceImportDialog.class);
-    private SwingClientApplication client;
+    private SwingClientApplication application;
     
     private JLabel nameLabel;
     private JLabel textLabel;
@@ -88,10 +86,10 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         }
     }
     
-    public SequenceImportDialog(SwingClientApplication client) {
-        super(client.getMainFrame(), true);
+    public SequenceImportDialog(SwingClientApplication application) {
+        super(application.getMainFrame(), true);
 
-        this.client = client;
+        this.application = application;
         this.setTitle("Import sequence");
         this.setModal(true);
         
@@ -205,7 +203,7 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         // Show
         this.pack();
         this.setResizable(false);
-        this.setLocationRelativeTo(client.getMainFrame());
+        this.setLocationRelativeTo(application.getMainFrame());
         
         // Default focus
         textArea.requestFocusInWindow();
@@ -255,14 +253,14 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
                     
                     // Create single dataset for all input data
                     ByteArrayInputStream stream = new ByteArrayInputStream(content.getBytes());
-                    DataBean data = client.getDataManager().createDataBean(fileName, stream);
-                    data.setContentType(client.getDataManager().guessContentType(fileName));
+                    DataBean data = application.getDataManager().createDataBean(fileName, stream);
+                    data.setContentType(application.getDataManager().guessContentType(fileName));
                     data.setOperation(new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data }));
                     
                     // Make it visible
-                    DataFolder folder = client.initializeFolderForImport(folderName);
+                    DataFolder folder = application.initializeFolderForImport(folderName);
                     folder.addChild(data);
-                    client.getSelectionManager().selectSingle(data, this);
+                    application.getSelectionManager().selectSingle(data, this);
                 } catch (MicroarrayException e1) {
 					// FIXME proper error handling 
                 	e1.printStackTrace();
@@ -273,9 +271,9 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
             } else {
                 // Make separate datasets visible
                 for (DataBean dataset : datasets) {
-                    DataFolder folder = client.initializeFolderForImport(folderName);
+                    DataFolder folder = application.initializeFolderForImport(folderName);
                     folder.addChild(dataset);
-                    client.getSelectionManager().selectSingle(dataset, this);
+                    application.getSelectionManager().selectSingle(dataset, this);
                 }
             }
             
@@ -299,22 +297,24 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         try {               
             // Create importing job
             logger.info("Importing sequence...");
-            TaskExecutor taskExecutor = new TaskExecutor(client.getEndpoint(), client.getDataManager());
-            final Task importSequence = taskExecutor.createTask(TASK_NAME, true);
-            importSequence.addParameter("sequence", db + ":" + id);
-            importSequence.addParameter("sbegin", beginField.getText());
-            importSequence.addParameter("send", endField.getText());
-
-            // Run the job (blocking while it is progressing)
-            taskExecutor.execute(importSequence);
             
-            // Create a dataset or prepare for merging them later
-            data = importSequence.getOutput(OUT_FILE);
-            data.setName(fileName);
-            data.setContentType(client.getDataManager().guessContentType(fileName));
-            data.setOperation(new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data }));
+            Operation operation = new Operation(application.getOperationDefinition(OPERATION_ID), new DataBean[] {});
+            operation.setParameter("sequence", db + ":" + id);
+            operation.setParameter("sbegin", beginField.getText());
+            operation.setParameter("send", endField.getText());
+            
+            // Run the job (blocking while it is progressing)
+            application.executeOperation(operation);
+
+            // should not be done like this
+//            // Create a dataset or prepare for merging them later
+//            data = importSequence.getOutput(OUT_FILE);
+//            data.setName(fileName);
+//            data.setContentType(client.getDataManager().guessContentType(fileName));
+//            data.setOperation(new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data }));
         } catch (Exception exc) {
-            exc.printStackTrace();
+            // FIXME proper error handling
+        	exc.printStackTrace();
         }
         return data;
     }

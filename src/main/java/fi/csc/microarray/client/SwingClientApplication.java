@@ -7,7 +7,6 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -1298,8 +1297,8 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	@Override
-	public void showSourceFor(String operationName) throws TaskException {
-		childScreens.show("ShowSource", true, operationName);
+	public void showSourceFor(String operationID) throws TaskException {
+		childScreens.show("ShowSource", true, operationID);
 	}
 
 	/**

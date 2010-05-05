@@ -329,19 +329,12 @@ public class DataBean extends DataItemBase {
 		 * Returns OutputStream that can be used to rewrite this bean's contents. 
 		 * Calling this method results in disabling caching for this bean.
 		 */
-		public OutputStream getContentOutputStreamAndLockDataBean() throws MicroarrayException, IOException {
-			this.lock.writeLock().lock();
+		public OutputStream getContentOutputStreamAndLockDataBean() throws IOException {
+//			this.lock.writeLock().lock();
 			setContentChanged(true);
 			this.streamStartCache = null; // caching is disabled
 			resetContentCache();
-			OutputStream os = null;
-	//		try {
-	//			this.handler.getOutputStream(this);
-	//			os = new FileOutputStream(this.contentFile);
-	//		} catch (FileNotFoundException e) {
-	//			throw new MicroarrayException(e);
-	//		}
-			return os;
+			return this.handler.getOutputStream(this);
 		}
 
 
@@ -355,7 +348,7 @@ public class DataBean extends DataItemBase {
 		try {
 			out.close();
 		} finally {
-			this.lock.writeLock().unlock();
+//			this.lock.writeLock().unlock();
 		}
 		ContentChangedEvent cce = new ContentChangedEvent(this);
 		dataManager.dispatchEventIfVisible(cce);
@@ -382,12 +375,12 @@ public class DataBean extends DataItemBase {
 
 
 	public void delete() {
-		lock.writeLock().lock();
+//		lock.writeLock().lock();
 		try {
 			this.handler.delete(this);
 			this.contentType = null;			
 		} finally {
-			lock.writeLock().unlock();
+//			lock.writeLock().unlock();
 		}
 	}
 
@@ -417,11 +410,11 @@ public class DataBean extends DataItemBase {
 	 */
 	public Object getFromContentCache(String name) {
 		try {
-			this.lock.readLock().lock();
+//			this.lock.readLock().lock();
 	
 			return this.contentCache.get(name);
 		} finally {
-			this.lock.readLock().unlock();
+//			this.lock.readLock().unlock();
 		}
 	}
 
@@ -443,7 +436,7 @@ public class DataBean extends DataItemBase {
 	 */
 	public void initialiseStreamStartCache() throws MicroarrayException, IOException {
 		try {
-			this.lock.readLock().lock();
+//			this.lock.readLock().lock();
 			this.streamStartCache = new StreamStartCache(getRawContentByteStream(), new InputStreamSource() {
 				public InputStream getInputStream() {
 					try {
@@ -454,7 +447,7 @@ public class DataBean extends DataItemBase {
 				}
 			});
 		} finally {
-			this.lock.readLock().unlock();
+//			this.lock.readLock().unlock();
 		}
 	}
 	

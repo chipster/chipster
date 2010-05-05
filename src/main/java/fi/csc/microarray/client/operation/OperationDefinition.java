@@ -1,11 +1,9 @@
 package fi.csc.microarray.client.operation;
 
 import java.awt.Color;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -41,9 +39,12 @@ public class OperationDefinition implements ExecutionItem {
 	 * actual operation (in the sense that it would be possible to execute it)
 	 * but rather a dummy substitute, without any parameters.
 	 */
+	
+	public static final String IMPORT_DEFINITION_ID = "operation-definition-id-import";
+	public static final String CREATE_DEFINITION_ID = "operation-definition-id-user-modification";
+	
 	public static final OperationDefinition IMPORT_DEFINITION;
-
-	public static final OperationDefinition USER_MODIFICATION_DEFINITION;
+	public static final OperationDefinition CREATE_DEFINITION;
 
 	/**
 	 * An enumeration containing all possible results when evaluating an
@@ -111,22 +112,15 @@ public class OperationDefinition implements ExecutionItem {
 
 	public static String IDENTIFIER_SEPARATOR = "/";
 
-	private static Map<String, OperationDefinition> instances;
-
 	
 	static {
 		// done here to guarantee right execution order
-		instances = new HashMap<String, OperationDefinition>();
-		IMPORT_DEFINITION = new OperationDefinition("Raw data import",
-		        OperationCategory.IMPORT_CATEGORY, "Imports raw microarray data from an external file.",
+		IMPORT_DEFINITION = new OperationDefinition(IMPORT_DEFINITION_ID, "Import data",
+		        OperationCategory.IMPORT_CATEGORY, "Import data.",
 		        false, null);
-		USER_MODIFICATION_DEFINITION = new OperationDefinition("User modified",
-		        OperationCategory.USER_MODIFICATION_CATEGORY, "User had edited bean content.",
+		CREATE_DEFINITION = new OperationDefinition(CREATE_DEFINITION_ID, "Create a dataset",
+		        OperationCategory.CREATE_CATEGORY, "Create a new dataset.",
 		        false, null);
-	}
-
-	public static OperationDefinition getInstance(String identifier) {
-		return instances.get(identifier);
 	}
 
 	public static class InputDefinition {
@@ -194,7 +188,7 @@ public class OperationDefinition implements ExecutionItem {
 		}
 	}
 
-	private String name;
+	private String id;
 	private OperationCategory category;
 	private LinkedList<Parameter> parameters = new LinkedList<Parameter>();
 	private String description;
@@ -202,7 +196,7 @@ public class OperationDefinition implements ExecutionItem {
 	private int colorCount;
 	private int outputCount = 0;
 	private LinkedList<InputDefinition> inputs = new LinkedList<InputDefinition>();
-	Suitability evaluatedSuitability = null;
+	private Suitability evaluatedSuitability = null;
 
 	private boolean hasSourceCode;
 
@@ -218,10 +212,10 @@ public class OperationDefinition implements ExecutionItem {
 	 * @param description
 	 *            A written description of this operation's purpose.
 	 */
-	public OperationDefinition(String name, OperationCategory category,
+	public OperationDefinition(String id, String displayName, OperationCategory category,
 	                           String description, boolean hasSourceCode,
 	                           String helpURL) {
-		this.name = name;
+		this.id = id;
 		this.category = category;
 		this.hasSourceCode = hasSourceCode;
 		this.helpURL = helpURL;
@@ -230,8 +224,6 @@ public class OperationDefinition implements ExecutionItem {
 		}
 
 		this.description = description;
-
-		instances.put(name + IDENTIFIER_SEPARATOR + category.getName(), this);
 	}
 
 	/**
@@ -242,16 +234,16 @@ public class OperationDefinition implements ExecutionItem {
 	 * @param hasSourceCode
 	 * @param helpURL
 	 */
-     public OperationDefinition(String name, OperationCategory category,
+     public OperationDefinition(String name, String displayName, OperationCategory category,
          String description, boolean hasSourceCode) {
-         this(name, category, description, hasSourceCode, null);
+         this(name, displayName, category, description, hasSourceCode, null);
      }
 
 	/**
 	 * @return The name of this operation definition.
 	 */
-	public String getName() {
-		return name;
+	public String getID() {
+		return id;
 	}
 
 	/**
@@ -273,7 +265,7 @@ public class OperationDefinition implements ExecutionItem {
 	 * @return categoryName / operationName
 	 */
 	public String getFullName() {
-		return getCategoryName() + " / " + getName();
+		return getCategoryName() + " / " + getID();
 	}
 	
 	/**
@@ -295,7 +287,7 @@ public class OperationDefinition implements ExecutionItem {
 	 *         a job should be executed for this operation.
 	 */
 	public String getJobPhrase() {
-		return SADLParser.generateOperationIdentifier(category.getName(), name);
+		return SADLParser.generateOperationIdentifier(category.getName(), id);
 	}
 
 	/**
@@ -303,7 +295,7 @@ public class OperationDefinition implements ExecutionItem {
 	 *         operation definition, used for showing this on the list.
 	 */
 	public String toString() {
-		return name;
+		return id;
 	}
 
 	/**
@@ -469,9 +461,5 @@ public class OperationDefinition implements ExecutionItem {
 
 	public boolean hasSourceCode() {
 		return hasSourceCode;
-	}
-
-	public void setSourceCode(boolean hasSourceCode) {
-		this.hasSourceCode = hasSourceCode;
 	}
 }

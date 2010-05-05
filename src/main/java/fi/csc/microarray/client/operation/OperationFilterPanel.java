@@ -147,6 +147,7 @@ public class OperationFilterPanel extends JPanel
         parent.selectOperation(null);
     }
 
+
     /**
      * User has selected an operation.
      */
