@@ -148,7 +148,7 @@ public class DetailsPanel extends JPanel implements PropertyChangeListener, Focu
 	
 	private String getNameText() {
 		if (currentData != null) {
-			return currentData.getOperation().getID();
+			return currentData.getOperation().getDefinition().getFullName();
 			
 		} else {			
 			return null;

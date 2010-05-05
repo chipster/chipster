@@ -271,7 +271,7 @@ public class OperationDefinition implements ExecutionItem {
 	 * @return categoryName / operationName
 	 */
 	public String getFullName() {
-		return getCategoryName() + " / " + getID();
+		return getCategoryName() + " / " + getDisplayName();
 	}
 	
 	/**

@@ -1,7 +1,5 @@
 package fi.csc.microarray.client.screen;
 
-import org.apache.log4j.Logger;
-
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -28,6 +26,8 @@ import javax.swing.JTextArea;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
+import org.apache.log4j.Logger;
+
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.ClientApplication.SourceCodeListener;
@@ -37,7 +37,6 @@ import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.biobeans.BioBean;
-import fi.csc.microarray.description.SADLParser;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.GeneralFileFilter;
 import fi.csc.microarray.util.Strings;
@@ -206,7 +205,7 @@ public class HistoryScreen extends ScreenBase
 				Operation oper = listData.getOperation();
 				historyText.append("Created with operation: ");
 				if (oper != null) {
-					historyText.append(oper.getID() + "\n");
+					historyText.append(oper.getDefinition().getFullName() + "\n");
 					if (checkBoxes.get("param").isSelected()) {
                         LinkedList<Parameter> params = oper.getParameters();
 						if (params != null && params.size() > 0) {
