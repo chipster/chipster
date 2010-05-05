@@ -89,7 +89,7 @@ public class OperationFilterPanel extends JPanel
         for (OperationCategory category : categories) {
             selectedOperation = null;
             for (OperationDefinition operation : category.getOperationList()) {
-                int indexInTitle = operation.getName().toLowerCase().
+                int indexInTitle = operation.getDisplayName().toLowerCase().
                                    indexOf(filterPhrase.toLowerCase());
                 int indexInDescription = operation.getDescription().toLowerCase().
                                    indexOf(filterPhrase.toLowerCase());
@@ -98,7 +98,7 @@ public class OperationFilterPanel extends JPanel
                     // Favour the beginning of the string
                     (float) (indexInTitle + 2) /
                     // Favour shorter matches
-                    (float) operation.getName().length() * 2;
+                    (float) operation.getDisplayName().length() * 2;
                 // Phrase found in description
                 float weightDescription = (float) Math.min(indexInDescription + 1, 1) /
                     (float) operation.getDescription().length();

@@ -13,7 +13,7 @@ import fi.csc.microarray.messaging.message.DescriptionMessage;
 
 public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
     
-	private static final Logger logger = Logger.getLogger(DescriptionListener.class);
+	private static final Logger logger = Logger.getLogger(DescriptionMessageListener.class);
     
 	private final CountDownLatch latch = new CountDownLatch(1);
     private Collection<OperationCategory> categories = null;

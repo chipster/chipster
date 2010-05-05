@@ -134,7 +134,7 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
             // If the exit code is non-zero, the application was not successful
             if (process.exitValue() != 0) {
                 logger.debug("There was an error while running \"" +
-                        analysis.getName() + "\" application.");
+                        analysis.getDisplayName() + "\" application.");
                 outputMessage.setErrorMessage(outputString);
                 updateState(JobState.FAILED, "Application failed.");
             } 

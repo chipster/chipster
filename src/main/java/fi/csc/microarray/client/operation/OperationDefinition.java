@@ -189,6 +189,7 @@ public class OperationDefinition implements ExecutionItem {
 	}
 
 	private String id;
+	private String displayName;
 	private OperationCategory category;
 	private LinkedList<Parameter> parameters = new LinkedList<Parameter>();
 	private String description;
@@ -216,6 +217,7 @@ public class OperationDefinition implements ExecutionItem {
 	                           String description, boolean hasSourceCode,
 	                           String helpURL) {
 		this.id = id;
+		this.displayName = displayName;
 		this.category = category;
 		this.hasSourceCode = hasSourceCode;
 		this.helpURL = helpURL;
@@ -246,6 +248,10 @@ public class OperationDefinition implements ExecutionItem {
 		return id;
 	}
 
+	public String getDisplayName() {
+		return displayName;
+	}
+	
 	/**
 	 * @return The category to which this operation definition belongs.
 	 */
