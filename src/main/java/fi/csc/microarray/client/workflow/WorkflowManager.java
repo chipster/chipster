@@ -77,7 +77,7 @@ public class WorkflowManager {
 
 	public void runScript(final File file, final AtEndListener listener) {
 		try {
-			runScript(file.toURL(), listener);			
+			runScript(file.toURI().toURL(), listener);			
 		} catch (MalformedURLException e) {			
 			throw new IllegalArgumentException(e);
 		}
