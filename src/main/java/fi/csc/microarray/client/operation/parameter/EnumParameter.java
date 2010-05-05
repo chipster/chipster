@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
  * A parameter that has a defined set of possible values, out of which only
  * one at a time can be selected.
  * 
- * @author Janne KÃ¤ki, naktinis
+ * @author Janne KÃ¤ki, Rimvydas Naktinis, Aleksi Kallio
  *
  */
 public class EnumParameter extends Parameter {
@@ -21,11 +21,19 @@ public class EnumParameter extends Parameter {
     private static final Logger logger = Logger
             .getLogger(EnumParameter.class);
 
-    private SelectionOption[] options;
     private int minCount = 1;
     private int maxCount = 1;
-    
-    // A list of selected options
+
+    /**
+     * All selectable values of the parameter.
+     */
+    private SelectionOption[] options;
+
+    /**
+     * Currently selected values (subset of all selectable values)
+     * 
+     * @see #options
+     */
     private List<SelectionOption> selectedOptions = new LinkedList<SelectionOption>();
     
     public static class SelectionOption {
@@ -185,11 +193,11 @@ public class EnumParameter extends Parameter {
                 }
             }
             return;
-        } else if (newValue instanceof SelectionOption) {
-            // Single selection
-            SelectionOption optionValue = (SelectionOption) newValue;
+        } else if (newValue instanceof SelectionOption || newValue instanceof String) {
+            // Single selection (preprocessed SelectionOption or raw String)
+            String optionValue = newValue instanceof SelectionOption ? ((SelectionOption) newValue).getValue() : (String) newValue;
             for (SelectionOption option : options) {
-                if (option.getValue().equals(optionValue.getValue())) {
+                if (option.getValue().equals(optionValue)) {
                     selectedOptions.add(option);
                     logger.debug("new value is " + option.getValue());
                     return;
