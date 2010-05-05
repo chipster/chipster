@@ -39,7 +39,6 @@ public class DataSource {
 			
 		} else {
 			
-			
 			HttpURLConnection connection = null;
 			try {
 				
@@ -69,5 +68,15 @@ public class DataSource {
 				IOUtils.disconnectIfPossible(connection);
 			}
 		}
+	}
+	
+	@Override
+	public String toString() {
+		if (file != null) {
+			return file.toString();
+		} else {
+			return url.toString();
+		}
+
 	}
 }
