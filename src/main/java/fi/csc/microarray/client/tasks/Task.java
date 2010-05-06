@@ -92,21 +92,15 @@ public class Task {
 	
 	
 	private Operation operation;
-	
-	private Map<String, DataBean> inputs = new HashMap<String, DataBean>();
-	private List<Object> parameters = new LinkedList<Object>();
-	
-	
+	private String id; 
 	private State state = State.NEW;
 	private String stateDetail = "";
 	private int completionPercentage = -1;
-	private String name;
 	private long startTime;
 	private long endTime;
 	private String errorMessage;
 	private String screenOutput;
 	private Map<String, DataBean> outputs = new HashMap<String, DataBean>();
-	private String id; 
 	private boolean hasBeenRetried = false;
 	private boolean hidden = false;
 	
@@ -118,132 +112,66 @@ public class Task {
 	}
 	
 	/**
-	 * For now should only be used for testing.
-	 * 
-	 * @param name
-	 */
-	public Task(String name) {
-		this.name = name;
-		this.id = generateId();
-	}
-
-	/**
-	 * For now should only be used for testing.
-	 * 
-	 * @param name
-	 */
-	public Task(String name, boolean hidden) {
-		this(name);
-		this.hidden = hidden;
-	}
-
-	/**
 	 * @return Returns the name.
 	 */
 	public String getName() {
-		if (operation != null) {
-			return operation.getDefinition().getFullName();
-		} else {
-			return name;
-		}
-	}
-	
+		return operation.getDefinition().getFullName();
+	}	
+
 	public String getOperationID() {
-		if (operation != null) {
-			return operation.getID();
-		} else {
-			throw new IllegalStateException("Operation is null.");
-		}
+		return operation.getID();
 	}
-	
 	
 	
 	public String getNamePrettyPrinted() {
-		if (operation != null) {
-			return operation.getDefinition().getFullName();
-		}
-		else {
-			return name.replaceAll("\"", "").replaceAll("/", " - ");
-		}
+		return operation.getDefinition().getFullName();
 	}
 	
 	public Iterable<DataBean> getInputs() {
-		if (operation != null) {
-			LinkedList<DataBean> beans = new LinkedList<DataBean>();
-			for (DataBinding binding : operation.getBindings()) {
-				beans.add(binding.getData());
-			}
-			return beans;
-		} else {
-			return inputs.values();
+		LinkedList<DataBean> beans = new LinkedList<DataBean>();
+		for (DataBinding binding : operation.getBindings()) {
+			beans.add(binding.getData());
 		}
+		return beans;
 	}
 	
 	
 	public List<String> getParameters() throws TaskException, MicroarrayException {
-		
-		List<Object> parameterValues;
-		if (operation != null) {
-			parameterValues = new LinkedList<Object>();
-			for (Parameter parameter: operation.getParameters()) {
-				parameterValues.add(parameter.getValue());
-			}
-		} else {
-			parameterValues = parameters;
+		List<String> parameterStrings;
+		parameterStrings = new LinkedList<String>();
+		for (Parameter parameter: operation.getParameters()) {
+			parameterStrings.add(parameter.getValueAsString());
 		}
-
-		List<String> parameterList = new LinkedList<String>();
-		for (Object value : parameterValues) {
-			if (value instanceof String) {
-				parameterList.add((String)value);
-			} else {
-				throw new TaskException("do not know how to encode" + value.getClass().getName());
-			}
-		}
-		return parameterList;
-	}
-
-	
-	public void addOutput(String name, DataBean output) throws IOException, MicroarrayException {
-		outputs.put(name, output);
+		return parameterStrings;
 	}
 	
 	public DataBean getOutput(String name) {
 		return outputs.get(name);
 	}
 	
-	public void addInput(String name, DataBean input) {
-		this.inputs.put(name, input);
-	}
-
 	public DataBean getInput(String name) {
-		if (operation != null) {
-			DataBinding binding = operation.getBinding(name);
-			if (binding != null) {
-				return binding.getData();
-			} else {
-				return null;
-			}
+		DataBinding binding = operation.getBinding(name);
+		if (binding != null) {
+			return binding.getData();
 		} else {
-			return inputs.get(name);
+			return null;
 		}
 	}
 	
 	public Iterable<String> getInputNames() {
-		if (operation != null) {
-			LinkedList<String> bindingNames = new LinkedList<String>();
-			for (DataBinding binding : operation.getBindings()) {
-				bindingNames.add(binding.getName());
-			}
-			return bindingNames;
+		LinkedList<String> bindingNames = new LinkedList<String>();
+		for (DataBinding binding : operation.getBindings()) {
+			bindingNames.add(binding.getName());
 		}
-		else {
-			return inputs.keySet();		
-		}
+		return bindingNames;
 	}
 
 	public int getInputCount() {
-		return inputs.size();
+		return operation.getBindings().size();
+	}
+	
+	public void addOutput(String outputName, DataBean bean) {
+		this.outputs.put(outputName, bean);
 	}
 	
 	

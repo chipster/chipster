@@ -387,11 +387,6 @@ public class TaskExecutor {
 		jobExecutorStateChangeSupport = new SwingPropertyChangeSupport(this);
 	}
 
-	public Task createTask(String name) {
-		Task task = new Task(name, false);
-		return task;
-	}
-	
 	public Task createTask(Operation operation) {
 		return new Task(operation);
 	}
