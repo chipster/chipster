@@ -112,6 +112,10 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 				UrlMessage reply = new UrlMessage(url);
 				endpoint.replyToMessage(msg, reply);
 				managerClient.urlRequest(msg.getUsername(), url);
+				
+			} else if (msg instanceof CommandMessage && CommandMessage.PUBLIC_URL_REQUEST.equals(((CommandMessage)msg).getCommand())) {
+				jeejee!
+
 			} else {
 				logger.error("message " + msg.getMessageID() + " not understood");
 			}
