@@ -151,7 +151,7 @@ public class TreeNode {
 			
 			if (fileResult.status.bpSearchSource == this) {
 				
-				//fileResult.status.bpSearchSource = null;
+				fileResult.status.bpSearchSource = null;
 				
 				//Continue finding of specific place in file now when the location of this branch is known
 				processAreaRequest(fileResult.request.areaRequest);
