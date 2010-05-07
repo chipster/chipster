@@ -21,7 +21,6 @@ import fi.csc.microarray.analyser.SADLTool;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.description.SADLParser.ParseException;
-import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 
@@ -92,7 +91,7 @@ public class RAnalysisHandler implements AnalysisHandler {
 		InputStream scriptSource;
 		
 		String scriptPath = toolPath + File.separator + sourceResourceName;
-		logger.debug("creating descriptions from " + scriptPath);
+		logger.debug("creating description from " + scriptPath);
 		
 		// check for custom script file
 		File scriptFile = new File(customScriptsDirName + File.separator + scriptPath);
@@ -119,7 +118,7 @@ public class RAnalysisHandler implements AnalysisHandler {
 		SADLTool.ParsedRScript parsedScript;
 		try {
 			parsedScript = new SADLTool().parseRScript(scriptSource);
-		} catch (MicroarrayException e) {				
+		} catch (IOException e) {				
 			throw new AnalysisException(e);
 		}
 		

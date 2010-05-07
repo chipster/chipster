@@ -343,4 +343,31 @@ public class SADLDescription {
 		return SADLGenerator.generate(this);
 	}
 
+	public String toStringVerbose() {
+		String s = "";
+		s += "-------------- sadl description --------------\n";
+		s += this.getName().getID() + "\n";
+		s += this.getName().getDisplayName() + "\n";
+		s += this.getCategory() + "\n";
+		
+		for (SADLDescription.Input input: this.inputs()) {
+			s += input.getName().getID() + " " + input.getName().getDisplayName() + " " + input.getType() + "\n";
+		}
+		for (SADLDescription.Input input: this.metaInputs()) {
+			s += input.getName().getID() + " " + input.getName().getDisplayName() + " " + input.getType() + "\n";
+		}
+
+		
+		
+		for (SADLDescription.Output output: this.outputs()) {
+			s += output.getName().getID() + " " + output.getName().getDisplayName() + " " + output.isOptional() + "\n";
+		}
+		for (SADLDescription.Parameter parameter: this.parameters()) {
+			s += parameter.getName().getID() + " " + parameter.getName().getDisplayName() + " " + parameter.getType() + "\n";
+		}
+		
+		s += "-------------- sadl description --------------\n";
+		return s;
+	}
+	
 }

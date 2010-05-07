@@ -9,7 +9,7 @@ import fi.csc.microarray.client.operation.OperationCategory;
 import fi.csc.microarray.client.operation.OperationGenerator;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
-import fi.csc.microarray.messaging.message.DescriptionMessage;
+import fi.csc.microarray.messaging.message.ModuleDescriptionMessage;
 
 public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
     
@@ -41,7 +41,7 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
         	return;
         }
     	
-    	DescriptionMessage descriptionMsg = (DescriptionMessage) msg;
+    	ModuleDescriptionMessage descriptionMsg = (ModuleDescriptionMessage) msg;
         
         // TODO change Name to Id
         // TODO check for the right module

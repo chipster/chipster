@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.util.IOUtils;
 
 /**
  * Tool for SADL related tasks.
@@ -25,7 +25,7 @@ public class SADLTool {
 		public String rSource = "";
 	}
 	
-	public ParsedRScript parseRScript(InputStream rScriptSource, String commentString) throws MicroarrayException {
+	public ParsedRScript parseRScript(InputStream rScriptSource, String commentString) throws IOException {
 		String comment;
 		if (commentString == null || commentString.equals("")) {
 			comment = COMMENT;
@@ -43,23 +43,21 @@ public class SADLTool {
 					inHeaderCommentBlock = false;
 				}
 				if (inHeaderCommentBlock) {
-					parsedScript.SADL += line.substring(comment.length());
+					String strippedLine = line.substring(comment.length());
+					if (strippedLine.startsWith(" ")) {
+						strippedLine = strippedLine.substring(1); // remove space after comment symbol
+					}
+					parsedScript.SADL += strippedLine + "\n";
 				}
 				parsedScript.rSource += line + "\n";
 			}
-		} catch (IOException e) {
-			throw new MicroarrayException(e);
 		} finally {
-			try {
-				in.close();
-			} catch (Exception e) {
-				// ignore
-			}
+			IOUtils.closeIfPossible(in);
 		}
 		return parsedScript;
 	}
 
-	public ParsedRScript parseRScript(InputStream scriptSource) throws MicroarrayException {
+	public ParsedRScript parseRScript(InputStream scriptSource) throws IOException {
 		return parseRScript(scriptSource, COMMENT);
 	}
 

@@ -205,7 +205,12 @@ public class SADLParser {
 		
 		input.setName(parseName(tokens));
 		skip(tokens, SADLSyntax.KEYWORD_TYPE);  
-		input.setType(inputTypeMap.get(tokens.next()));
+		String inputTypeName = tokens.next();
+		InputType inputType = inputTypeMap.get(inputTypeName);
+		if (inputType == null) {
+			throw new ParseException("Invalid input type: " + inputTypeName, description.getName().getID());
+		}
+		input.setType(inputTypeMap.get(inputTypeName));
 				
 		return input;
 	}
