@@ -21,7 +21,6 @@ import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.description.SADLParser.ParseException;
-import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 /**
@@ -86,7 +85,7 @@ public class BeanShellHandler implements AnalysisHandler {
 		SADLTool.ParsedRScript parsedScript;
 		try {
 			parsedScript = new SADLTool().parseRScript(scriptSource, "//");
-		} catch (MicroarrayException e) {				
+		} catch (IOException e) {				
 			throw new AnalysisException(e);
 		}
 		

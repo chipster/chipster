@@ -21,7 +21,7 @@ import fi.csc.microarray.util.XmlUtil;
  * @author naktinis
  *
  */
-public class DescriptionMessage extends ChipsterMessage {
+public class ModuleDescriptionMessage extends ChipsterMessage {
     
     private final static String KEY_MODULE = "module";
     private final static String KEY_MODULE_NAME = "module-name";
@@ -33,9 +33,9 @@ public class DescriptionMessage extends ChipsterMessage {
     /**
      * Empty constructor (needed for MessageListenerWrap.onMessage)
      */
-    public DescriptionMessage() { }
+    public ModuleDescriptionMessage() { }
     
-    public DescriptionMessage(String moduleName) throws ParserConfigurationException {
+    public ModuleDescriptionMessage(String moduleName) throws ParserConfigurationException {
         // Start constructing the XML
         moduleXml = XmlUtil.newDocument();
         moduleXml.appendChild(moduleXml.createElement("module"));
@@ -75,7 +75,6 @@ public class DescriptionMessage extends ChipsterMessage {
         
         for (Tool tool : category.getTools()) {
             Element toolElement = moduleXml.createElement("tool");
-            toolElement.setAttribute("name", tool.getName());
             toolElement.setAttribute("helpURL", tool.getHelpURL());
             toolElement.setTextContent(tool.getDescription());
             categoryElement.appendChild(toolElement);
@@ -96,8 +95,7 @@ public class DescriptionMessage extends ChipsterMessage {
             NodeList toolList = categoryElement.getElementsByTagName("tool");
             for (int j=0; j<toolList.getLength(); j++) {
                 Element toolElement = (Element) toolList.item(j);
-                category.addTool(toolElement.getAttribute("name"),
-                                 toolElement.getTextContent(),
+                category.addTool(toolElement.getTextContent(),
                                  toolElement.getAttribute("helpURL"));
             }
             categories.add(category);
@@ -144,8 +142,8 @@ public class DescriptionMessage extends ChipsterMessage {
             return color;
         }
         
-        public void addTool(String name, String description, String helpURL) {
-            tools.add(new Tool(name, description, helpURL));
+        public void addTool(String description, String helpURL) {
+            tools.add(new Tool(description, helpURL));
         }
         
         public List<Tool> getTools() {
@@ -157,18 +155,12 @@ public class DescriptionMessage extends ChipsterMessage {
      * Single analysis tool.
      */
     public static class Tool {
-        private String name;
         private String description;
         private String helpURL;
         
-        public Tool(String name, String description, String helpURL) {
-            this.name = name;
+        public Tool(String description, String helpURL) {
             this.description = description;
             this.helpURL = helpURL;
-        }
-        
-        public String getName() {
-            return name;
         }
         
         public String getHelpURL() {

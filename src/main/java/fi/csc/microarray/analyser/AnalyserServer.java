@@ -34,7 +34,7 @@ import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
-import fi.csc.microarray.messaging.message.DescriptionMessage;
+import fi.csc.microarray.messaging.message.ModuleDescriptionMessage;
 import fi.csc.microarray.messaging.message.JobLogMessage;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
@@ -238,9 +238,9 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	            
 	            // Send descriptions for all available modules
                 try {
-                    List<DescriptionMessage> list;
+                    List<ModuleDescriptionMessage> list;
                     list = createDescriptionsMessages(commandMessage);
-                    for (DescriptionMessage msg : list) {
+                    for (ModuleDescriptionMessage msg : list) {
                         sendReplyMessage(commandMessage, msg);
                     }
                 } catch (Exception e) {
@@ -522,11 +522,11 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		sendReplyMessage(job.getInputMessage(), offerMessage);
 	}
 	
-	private List<DescriptionMessage>
+	private List<ModuleDescriptionMessage>
 	        createDescriptionsMessages(CommandMessage requestMessage)
 	        throws IOException, SAXException, ParserConfigurationException {
-	    List<DescriptionMessage> list = toolRepository.getModuleDescriptions();
-	    for (DescriptionMessage descriptionMsg : list) {
+	    List<ModuleDescriptionMessage> list = toolRepository.getModuleDescriptions();
+	    for (ModuleDescriptionMessage descriptionMsg : list) {
 	        descriptionMsg.setReplyTo(requestMessage.getReplyTo());
 	    }
 	    return list;

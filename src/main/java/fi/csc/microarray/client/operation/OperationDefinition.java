@@ -292,7 +292,7 @@ public class OperationDefinition implements ExecutionItem {
 	 *         operation definition, used for showing this on the list.
 	 */
 	public String toString() {
-		return id;
+		return getDisplayName();
 	}
 
 	/**
@@ -459,4 +459,28 @@ public class OperationDefinition implements ExecutionItem {
 	public boolean hasSourceCode() {
 		return hasSourceCode;
 	}
+	
+	public String toStringVerbose() {
+		String s = "\n-------------- operation definition --------------\n";
+		s += getCategoryName() + " / ";
+		s += getDisplayName() + " ";
+		s += "(" + getID() + ")\n";
+		for (InputDefinition input: inputs) {
+			String type;
+			if (input.getType() != null) {
+				type = input.getType().getName();
+			} else {
+				type = "null";
+			}
+			s += input.getName() + " " + type + " " + input.getDescription() + "\n";
+		}
+		for (Parameter parameter: parameters) {
+			s += parameter.getName() + " " + parameter.getValueAsString() + "\n";
+		}
+
+		s += "\n-------------- operation definition --------------\n";
+		
+		return s;
+	}
+	
 }

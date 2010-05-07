@@ -6,21 +6,23 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.description.SADLParser;
 import fi.csc.microarray.description.SADLDescription.Input;
 import fi.csc.microarray.description.SADLDescription.Parameter;
 import fi.csc.microarray.description.SADLParser.ParseException;
-import fi.csc.microarray.messaging.message.DescriptionMessage;
-import fi.csc.microarray.messaging.message.DescriptionMessage.Category;
-import fi.csc.microarray.messaging.message.DescriptionMessage.Tool;
+import fi.csc.microarray.messaging.message.ModuleDescriptionMessage;
+import fi.csc.microarray.messaging.message.ModuleDescriptionMessage.Category;
+import fi.csc.microarray.messaging.message.ModuleDescriptionMessage.Tool;
+import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 
 public class OperationGenerator {
     
 	// Logger for this class
 	private static final Logger logger = Logger.getLogger(OperationGenerator.class);
 	
-	public Map<String, OperationCategory> generateFromMessage(DescriptionMessage descriptionMsg) throws ParseException {
+	public Map<String, OperationCategory> generateFromMessage(ModuleDescriptionMessage descriptionMsg) throws ParseException {
         LinkedHashMap<String, OperationCategory> parsedCategories =
                             new LinkedHashMap<String, OperationCategory>();
 	    // Fetch descriptions from the DescriptionMessage
@@ -43,13 +45,13 @@ public class OperationGenerator {
             // Create operation definitions for tools in this category
             for (Tool tool : category.getTools()) {
                 
-                SADLDescription sadl = new SADLParser().parse(tool.getDescription());
+                SADLDescription sadl = new ChipsterSADLParser().parse(tool.getDescription());
+                logger.debug(sadl.toStringVerbose());
+                
                 OperationDefinition newDefinition = new OperationDefinition(sadl.getName().getID(), 
                 															sadl.getName().getDisplayName(), op,
                                                                             sadl.getComment(), true,
                                                                             tool.getHelpURL());
-                logger.debug("added operation " + newDefinition.getID() + " to " + newDefinition.getCategoryName());
-                
                 for (Input input : sadl.inputs()) {
                     if (input.getName().isNameSet()) {
                         newDefinition.addInput(input.getName().getPrefix(), input.getName().getPostfix(), input.getType());
@@ -57,8 +59,6 @@ public class OperationGenerator {
                         newDefinition.addInput(input.getName(), input.getType());
                     }
                 }
-                
-                logger.debug("added " + sadl.inputs().size() + " inputs");
     
                 newDefinition.setOutputCount(sadl.outputs().size());
                 for (Parameter parameter : sadl.parameters()) {
@@ -68,6 +68,7 @@ public class OperationGenerator {
                         parameter.getComment(), parameter.getFrom(), parameter.getTo(),
                         parameter.getDefaultValues(), parameter.isOptional()));      
                 }
+                logger.debug(newDefinition.toStringVerbose());
             }
 	    }
 
