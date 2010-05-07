@@ -22,6 +22,7 @@ public class CommandMessage extends ParameterMessage {
 	public final static String COMMAND_DESCRIBE = "describe";
 
 	public final static String COMMAND_URL_REQUEST ="url-request";
+	public final static String COMMAND_PUBLIC_URL_REQUEST ="public-url-request";
 	
 	private String command;
 	

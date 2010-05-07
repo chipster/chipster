@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -37,6 +36,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Annotatio
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Row;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.filebroker.FileBrokerClient;
+import fi.csc.microarray.messaging.MessagingEndpoint;
+import fi.csc.microarray.messaging.Topics;
+import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.util.IOUtils;
 
 
@@ -51,18 +54,19 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 	private static final String CONTENTS_FILE = "contents.txt";
 
 	private static final File FILE_ROOT = new File("/home/akallio/chipster-share/genomebrowser_data");
-	private static final URL URL_ROOT;
 
-	static {
-		try {
-			URL_ROOT = new URL("http://chipster-devel.csc.fi:8050/public/space_separated_annotations");
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+	private URL annotationUrl;
 
 	public GenomeBrowser(VisualisationFrame frame) {
 		super(frame);
+		try {
+			MessagingEndpoint messagingEndpoint = Session.getSession().getMessagingEndpoint("client-endpoint");
+			FileBrokerClient fileBrokerClient = new FileBrokerClient(messagingEndpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
+			this.annotationUrl = new URL(fileBrokerClient.getPublicUrl(), "space_separated_annotations");
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
 	}
 
 	protected JPanel paramPanel;
@@ -285,11 +289,11 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 
 		List<Variable> vars = getFrame().getVariables();
 		GenomePlot plot = new GenomePlot(true);
-		TrackFactory.addCytobandTracks(plot, new DataSource(URL_ROOT, "cytoband_hg17_sorted.fsf"));
-		TrackFactory.addGeneTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_genes.fsf"));
-		TrackFactory.addPeakTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_miRNA.fsf"));
-		TrackFactory.addWigTrack(plot, new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_miRNA.fsf"));
-		TrackFactory.addReadTracks(plot, new DataSource(FILE_ROOT, "eland_result.fsf"), new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_seq.fsf"));
+		TrackFactory.addCytobandTracks(plot, new DataSource(annotationUrl, "cytoband_hg17_sorted.fsf"));
+		TrackFactory.addGeneTracks(plot, new DataSource(annotationUrl, "Homo_sapiens.GRCh37.56_genes.fsf"));
+		TrackFactory.addPeakTracks(plot, new DataSource(annotationUrl, "Homo_sapiens.GRCh37.56_miRNA.fsf"));
+		TrackFactory.addWigTrack(plot, new DataSource(annotationUrl, "Homo_sapiens.GRCh37.56_miRNA.fsf"));
+		TrackFactory.addReadTracks(plot, new DataSource(FILE_ROOT, "eland_result.fsf"), new DataSource(annotationUrl, "Homo_sapiens.GRCh37.56_seq.fsf"));
 		TrackFactory.addRulerTrack(plot);
 		plot.start("1");
 		

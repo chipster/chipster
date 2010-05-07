@@ -50,6 +50,7 @@ public abstract class Parameter implements Cloneable {
 	}
 	
 
+	// FIXME implementation could be made nicer with Class<? extends Parameter>, see VisualisationMethod.getVisualiser
 	public static Parameter createInstance(Name name, ParameterType type, Name[] names,
 	                                       String description, String minValue, String maxValue,
 	                                       String[] initValues, boolean optional) {
