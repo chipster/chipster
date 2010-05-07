@@ -20,4 +20,8 @@ public class ManagerClient {
 		
 	}
 
+	public void publicUrlRequest(String username, URL url) {
+		
+	}
+
 }
