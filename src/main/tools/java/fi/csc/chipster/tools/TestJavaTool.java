@@ -27,14 +27,14 @@ public class TestJavaTool extends JavaAnalysisJobBase {
 		File inputFile = new File(jobWorkDir, "input.tsv");
 		File outputFile = new File(jobWorkDir, "output.tsv");
 		try {
-		FileUtils.copyFile(inputFile, outputFile);
+			FileUtils.copyFile(inputFile, outputFile);
 
-		File commentFile = new File(jobWorkDir, "comment.txt");
-		FileWriter commentWriter = new FileWriter(commentFile);
-		commentWriter.write(inputMessage.getParameters().get(0));
-		commentWriter.flush();
-		commentWriter.close();
-		
+			File commentFile = new File(jobWorkDir, "comment.txt");
+			FileWriter commentWriter = new FileWriter(commentFile);
+			commentWriter.write(inputMessage.getParameters().get(0));
+			commentWriter.flush();
+			commentWriter.close();
+
 		} catch (IOException ioe) {
 			outputMessage.setErrorMessage("Running Java job failed.");
 			outputMessage.setOutputText(ioe.toString());

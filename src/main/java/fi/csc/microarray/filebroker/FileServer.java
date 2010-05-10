@@ -1,6 +1,7 @@
 package fi.csc.microarray.filebroker;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Timer;
@@ -38,6 +39,10 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	private ManagerClient managerClient;
 	private AuthorisedUrlRepository urlRepository;
 
+	private String publicDataPath;
+	private String host;
+	private int port;
+
 
 	public static void main(String[] args) {
 		// we should be able to specify alternative user dir for testing... and replace maybe that previous hack
@@ -57,10 +62,11 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 
     		// initialise url repository
     		File fileRepository = DirectoryLayout.getInstance().getFileRoot();
-    		String host = configuration.getString("filebroker", "url");
-    		int port = configuration.getInt("filebroker", "port");
+    		this.host = configuration.getString("filebroker", "url");
+    		this.port = configuration.getInt("filebroker", "port");
     		
     		this.urlRepository = new AuthorisedUrlRepository(host, port);
+    		this.publicDataPath = configuration.getString("filebroker", "public-data-path");
 
     		// boot up file server
     		JettyFileServer fileServer = new JettyFileServer(urlRepository);
@@ -112,6 +118,13 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 				UrlMessage reply = new UrlMessage(url);
 				endpoint.replyToMessage(msg, reply);
 				managerClient.urlRequest(msg.getUsername(), url);
+				
+			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_PUBLIC_URL_REQUEST.equals(((CommandMessage)msg).getCommand())) {
+				URL url = getPublicUrL();
+				UrlMessage reply = new UrlMessage(url);
+				endpoint.replyToMessage(msg, reply);
+				managerClient.publicUrlRequest(msg.getUsername(), url);
+
 			} else {
 				logger.error("message " + msg.getMessageID() + " not understood");
 			}
@@ -134,5 +147,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		logger.info("shutting down");
 	}
 
-
+	public URL getPublicUrL() throws MalformedURLException {
+		return new URL(host + ":" + port + "/" + publicDataPath);		
+	}
 }
