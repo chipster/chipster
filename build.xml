@@ -37,7 +37,7 @@
 	<taskdef resource="testngtasks" classpath="${lib}/testng-5.9-jdk15.jar"/>
 
 	<!-- version numbering -->
-	<property name="release-version" value="2.0" />
+	<property name="release-version" value="2.0.0" />
 	<property name="r-version" value="R-2.9" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar" />
@@ -357,7 +357,7 @@
 
 	<target name="package-zip" depends="package-tar" description="Create chipster zip">
 		<mkdir dir="temp"/>
-		<zip destfile="${release-zip}" compress="false" duplicate="fail" >
+		<zip destfile="${release-zip}" compress="false" duplicate="fail" >	<property name="release-version" value="2.0" />
 		  <tarfileset src="${release-tar}" />
 		</zip>
 

@@ -79,7 +79,6 @@ public class AuthorisedUrlRepository {
 		return newUrl;
 	}
 	
-	
 	/**
 	 * Checks if repository contains valid (not outdated) copy of the URL. 
 	 */
