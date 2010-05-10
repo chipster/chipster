@@ -49,7 +49,7 @@ public class SADLGenerator {
 						} else {
 							first = false;
 						}
-						paramString += generateName(option);
+						paramString += option;
 					}
 					paramString += "] ";
 					
@@ -118,10 +118,12 @@ public class SADLGenerator {
 			firstPart = name.getID();
 		}
 		
+		System.out.println(name.getID());
 		return quoteIfNeeded(firstPart) + ": " + quoteIfNeeded(name.getDisplayName());
 	}
 	
 	private static String quoteIfNeeded(String string) {
+		System.out.println(string);
 		if (string.contains(" ") || Strings.containsAnyOf(string, true, SADLTokeniser.tokenEndingOperators())) {
 			return "\"" + escapeIfNeeded(string) + "\"";
 		} else {

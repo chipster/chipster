@@ -2,7 +2,6 @@
 # file with genotype calls. Typically such a file is created using GenCall software from Illumina.) 
 # INPUT GENERAL chip.txt OUTPUT normalized.tsv, phenodata.tsv 
 
-
 # Illumina SNP array normalization
 # JTT 22.10.2008
 

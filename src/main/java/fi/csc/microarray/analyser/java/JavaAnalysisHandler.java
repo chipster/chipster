@@ -13,6 +13,8 @@ import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
 import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.description.SADLDescription;
+import fi.csc.microarray.description.SADLGenerator;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.module.chipster.ChipsterSADLParser;
@@ -67,17 +69,24 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 			throw new RuntimeException(e);
 		}
 		
-		// parse SADL and create AnalysisDescription		
-		AnalysisDescription ad;
+		// parse SADL		
+		SADLDescription sadlDescription;
 		try {
-		    ad = new AnalysisDescriptionGenerator().generate(new ChipsterSADLParser().parse(jobInstance.getSADL()), this);
+			sadlDescription = new ChipsterSADLParser().parse(jobInstance.getSADL());
 		} catch (ParseException e) {
 			throw new AnalysisException(e);
 		}
 		
+		// create analysis description
+		AnalysisDescription ad;
+		ad = new AnalysisDescriptionGenerator().generate(sadlDescription, this);
+		
+		// SADL back to string
+		SADLGenerator.generate(sadlDescription);
+		ad.setSADL(SADLGenerator.generate(sadlDescription));
+		
 		ad.setImplementation(jobClass);
 		ad.setCommand("java");
-		ad.setSADL(jobInstance.getSADL());
 		ad.setSourceResourceName(jobClass.getName());
 		ad.setSourceResourceFullPath(jobClass.getCanonicalName());
 		ad.setSourceCode("Source code for this tool is available within Chipster source code.");
