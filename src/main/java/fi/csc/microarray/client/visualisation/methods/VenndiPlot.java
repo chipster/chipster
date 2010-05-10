@@ -40,7 +40,7 @@ import fi.csc.microarray.databeans.DataBean;
 public class VenndiPlot extends Plot implements ChartMouseListener, Cloneable, Serializable {
 	
 	public class VennDataset {
-		private String[][] datas;
+		private String[][] idsBySection;
 		private List<DataBean> datasets;
 		private Map<DataBean, Map<String, Integer>> indexMaps;
 		
@@ -50,17 +50,17 @@ public class VenndiPlot extends Plot implements ChartMouseListener, Cloneable, S
 		 * listed in enum VenndiPlot.AREAS. Other dimension lists all the identifiers for those
 		 * areas.
 		 * 
-		 * @param data
+		 * @param idsBySection
 		 * @param ids 
 		 */
-		public VennDataset (String[][] data, List<DataBean> datas, Map<DataBean, Map<String, Integer>> indexMaps2){
-			this.datas = data;
+		public VennDataset (String[][] idsBySection, List<DataBean> datas, Map<DataBean, Map<String, Integer>> indexMaps2){
+			this.idsBySection = idsBySection;
 			this.datasets = datas;
 			this.indexMaps = indexMaps2;
 		}
 
 		public int getCount(VenndiPlot.AREAS area){
-			return datas[area.ordinal()].length; 
+			return idsBySection[area.ordinal()].length; 
 		}
 		
 		public String getDatasetName(AREAS area) {
@@ -75,7 +75,7 @@ public class VenndiPlot extends Plot implements ChartMouseListener, Cloneable, S
 		}
 
 		public Collection<String> getIdentifiers(AREAS areas) {
-			return Arrays.asList(datas[areas.ordinal()]);
+			return Arrays.asList(idsBySection[areas.ordinal()]);
 		}
 		
 		public Map<DataBean, Set<Integer>> getIndexes(AREAS area){
@@ -202,7 +202,9 @@ public class VenndiPlot extends Plot implements ChartMouseListener, Cloneable, S
         Shape savedClip = g2.getClip();
         g2.clip(area);
 /*
-        Composite originalComposite = g2.getComposite();
+        Composite originalComposite = g2.getComposite();		public Collection<String> getIdentifiers(AREAS areas) {
+			return Arrays.asList(datas[areas.ordinal()]);
+		}
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 
                 getForegroundAlpha()));
 */

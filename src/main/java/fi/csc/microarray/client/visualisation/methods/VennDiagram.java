@@ -1,16 +1,25 @@
 package fi.csc.microarray.client.visualisation.methods;
 
 import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
@@ -23,11 +32,13 @@ import fi.csc.microarray.client.visualisation.AnnotateListPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
+import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
+import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.client.visualisation.methods.VenndiPlot.AREAS;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 
-public class VennDiagram extends Visualisation implements PropertyChangeListener {
+public class VennDiagram extends Visualisation implements PropertyChangeListener, ActionListener {
 
 	private static final String IDENTIFIER_COLUMN = "/identifier";
 
@@ -40,6 +51,9 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 
 	private JPanel paramPanel;
 	private AnnotateListPanel list;
+	private JButton useButton;
+	private JComboBox colBox;
+	private Variable colVar;
 
 	@Override
 	public JPanel getParameterPanel() {
@@ -48,14 +62,49 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 			paramPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
 			paramPanel.setLayout(new BorderLayout());
 
-			list = new AnnotateListPanel();
+			JPanel settings = this.createSettingsPane1l();
+			list = new AnnotateListPanel("Unique", true);
 
 			JTabbedPane tabPane = new JTabbedPane();
+			
+			tabPane.addTab("Settings", settings);			
 			tabPane.addTab("Selected", list);
 
 			paramPanel.add(tabPane, BorderLayout.CENTER);
 		}
 		return paramPanel;
+	}
+
+	private JPanel createSettingsPane1l() {
+		JPanel settingsPanel = new JPanel();
+		settingsPanel.setLayout(new GridBagLayout());
+		settingsPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
+
+		colBox = new JComboBox();
+
+		useButton = new JButton("Draw");
+		useButton.addActionListener(this);
+		GridBagConstraints c = new GridBagConstraints();
+
+		c.gridy = 0;
+		c.insets.set(10, 10, 10, 10);
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weighty = 0;
+		c.weightx = 1.0;
+		settingsPanel.add(new JLabel("Column to compare: "), c);
+		c.gridy++;
+		settingsPanel.add(colBox, c);
+		c.gridy++;		
+		settingsPanel.add(useButton, c);
+		c.gridy++;
+		c.fill = GridBagConstraints.BOTH;
+		c.weighty = 1.0;
+		settingsPanel.add(new JPanel(), c);
+
+		colBox.addActionListener(this);
+
+		return settingsPanel;
 	}
 
 	@Override
@@ -64,25 +113,37 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 		if (datas.size() < 2 || datas.size() > 3) {
 			throw new IllegalArgumentException("Venn Diagram can be used only with two or three datasets");
 		}
+		
+		this.refreshColumnBox(datas);
+		
+		List<Variable> vars = getFrame().getVariables();
+		if (vars != null && vars.size() == 1) {
+			colBox.setSelectedItem((Object)vars.get(0));
+		}
 
+		colVar = (Variable) colBox.getSelectedItem();
+		
 		Map<String, Integer> A = new HashMap<String, Integer>();
 		Map<String, Integer> B = new HashMap<String, Integer>();
 		Map<String, Integer> C = new HashMap<String, Integer>();
 
+		
+		//xValues = data.queryFeatures(xVar.getExpression()).asFloats().iterator();
+		
 		int i = 0;
-		for (String name : datas.get(0).queryFeatures(IDENTIFIER_COLUMN).asStrings()) {
+		for (String name : datas.get(0).queryFeatures(colVar.getExpression()).asStrings()) {
 			A.put(name, i++);
 
 		}
 
 		i = 0;
-		for (String name : datas.get(1).queryFeatures(IDENTIFIER_COLUMN).asStrings()) {
+		for (String name : datas.get(1).queryFeatures(colVar.getExpression()).asStrings()) {
 			B.put(name, i++);
 		}
 
 		i = 0;
 		if (datas.size() == 3) {
-			for (String name : datas.get(2).queryFeatures(IDENTIFIER_COLUMN).asStrings()) {
+			for (String name : datas.get(2).queryFeatures(colVar.getExpression()).asStrings()) {
 				C.put(name, i++);
 			}
 		}
@@ -224,6 +285,52 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 	 */
 	public void setSelectedListContent(List<String> ids, Map<DataBean, Set<Integer>> indexes, VenndiPlot venndiPlot, boolean dispatchEvent) {
 
-		list.setSelectedListContentMultipleDatas(ids, indexes, this, dispatchEvent);
+		list.setSelectedListContentMultipleDatas(ids, indexes, this, colVar.getName().equals("identifier"), dispatchEvent);
+	}
+
+	public void actionPerformed(ActionEvent e) {
+		Object source = e.getSource();
+		
+		if ( source == useButton ) {
+			useButtonPressed();		
+		}
+	}
+	
+	protected void useButtonPressed() {
+		List<Variable> vars = new ArrayList<Variable>();
+		vars.add((Variable)colBox.getSelectedItem());
+		
+		application.setVisualisationMethod(new VisualisationMethodChangedEvent(this,
+				VisualisationMethod.VENN_DIAGRAM, vars, 
+				getFrame().getDatas(), getFrame().getType(), getFrame()));
+	}
+	
+	protected void refreshColumnBox(List<DataBean> datas) {
+		if (paramPanel == null) {
+			throw new IllegalStateException("must call getParameterPanel first");
+		}
+		
+		List<Variable> colsA = Arrays.asList(this.getVariablesFor(datas.get(0)));
+		List<Variable> colsB = Arrays.asList(this.getVariablesFor(datas.get(1)));		
+		List<Variable> colsC = null;
+		
+		List<Variable> commonCols = new LinkedList<Variable>();
+		commonCols.addAll(colsA);
+		commonCols.retainAll(colsB);
+		
+		if (datas.size() > 2) {
+			colsC = Arrays.asList(this.getVariablesFor(datas.get(2)));
+			commonCols.retainAll(colsC);
+		}
+							
+		Visualisation.fillCompoBox(colBox, commonCols.toArray());
+	}
+	
+	@Override
+	public Variable[] getVariablesFor(DataBean data) {
+		
+		String[] banList = { "chip.", "flag." };
+		
+		return VisualisationUtilities.getVariablesFilteredExclusive(data, Arrays.asList(banList), false);
 	}
 }

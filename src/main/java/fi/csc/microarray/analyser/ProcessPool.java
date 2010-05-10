@@ -243,7 +243,11 @@ public class ProcessPool {
 	private NamiProcess createProcess() throws IOException {
 
 		logger.debug("Creating a new R process.");
-		Process p = Runtime.getRuntime().exec(rCommand, null, workDir);
+		ProcessBuilder builder = new ProcessBuilder(rCommand.split(" "));
+		//Process p = Runtime.getRuntime().exec(rCommand, null, workDir);
+		builder.directory(workDir);
+		builder.redirectErrorStream(true);
+		Process p = builder.start();
 		return new NamiProcess(p);
 	}
 	
