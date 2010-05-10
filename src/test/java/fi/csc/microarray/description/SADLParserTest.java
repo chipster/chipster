@@ -222,5 +222,6 @@ public class SADLParserTest {
 		new SADLParserTest().testRoundtrip();
 		new SADLParserTest().testEscapes();
 		new SADLParserTest().testVVSADLCompatibility();
+		System.out.println("SADLParser ok");
 	}
 }

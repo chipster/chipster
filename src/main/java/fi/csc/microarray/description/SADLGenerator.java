@@ -118,7 +118,15 @@ public class SADLGenerator {
 			firstPart = name.getID();
 		}
 		
-		return quoteIfNeeded(firstPart) + ": " + quoteIfNeeded(name.getDisplayName());
+		String secondPart;
+		if (name.getDisplayName() != null) {
+			secondPart = ": " + quoteIfNeeded(name.getDisplayName());
+			
+		} else {
+			secondPart = "";
+		}
+		
+		return quoteIfNeeded(firstPart) + secondPart; 
 	}
 	
 	private static String quoteIfNeeded(String string) {
