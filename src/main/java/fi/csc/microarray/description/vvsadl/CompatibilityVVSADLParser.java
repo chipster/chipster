@@ -156,7 +156,7 @@ public class CompatibilityVVSADLParser {
                 return outputList;
         }
 
-        private List<Input> parseInputs(AdvancedStringTokenizer tokens, SADLDescription description) {
+        private List<Input> parseInputs(AdvancedStringTokenizer tokens, SADLDescription description) throws ParseException {
                 LinkedList<Input> inputList = new LinkedList<Input>();
                 Deseparator inputs = new Deseparator(",", tokens, 2);
                 for (String[] input : inputs) {
@@ -171,6 +171,12 @@ public class CompatibilityVVSADLParser {
                         	
                                 newInput = new Input(inputTypeMap.get(input[0]), Name.createName(input[1]));
                         }
+                        
+                        // type check
+                		if (newInput.getType() == null) {
+                			throw new ParseException("Invalid input type: " + input[0], description.getName().getID());
+                		}
+
                         inputList.add(newInput);
                 }
                 return inputList;
