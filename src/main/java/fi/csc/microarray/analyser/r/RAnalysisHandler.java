@@ -20,6 +20,8 @@ import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.analyser.SADLTool;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.description.SADLDescription;
+import fi.csc.microarray.description.SADLGenerator;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.module.chipster.ChipsterSADLParser;
@@ -122,14 +124,21 @@ public class RAnalysisHandler implements AnalysisHandler {
 			throw new AnalysisException(e);
 		}
 		
-		// parse SADL and create AnalysisDescription		
-		AnalysisDescription ad;
+		// parse SADL		
+		SADLDescription sadlDescription;
 		try {
-			ad = new AnalysisDescriptionGenerator().generate(new ChipsterSADLParser().parse(parsedScript.SADL), this);
+			sadlDescription = new ChipsterSADLParser().parse(parsedScript.SADL);
 		} catch (ParseException e) {
 			throw new AnalysisException(e);
 		}
-		ad.setSADL(parsedScript.SADL);
+		
+		// create analysis description
+		AnalysisDescription ad;
+		ad = new AnalysisDescriptionGenerator().generate(sadlDescription, this);
+		
+		// SADL back to string
+		SADLGenerator.generate(sadlDescription);
+		ad.setSADL(SADLGenerator.generate(sadlDescription));
 
 		// add R specific stuff to AnalysisDescription
 		ad.setCommand(rCommand);

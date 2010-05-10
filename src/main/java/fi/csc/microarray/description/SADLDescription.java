@@ -351,19 +351,28 @@ public class SADLDescription {
 		s += this.getCategory() + "\n";
 		
 		for (SADLDescription.Input input: this.inputs()) {
-			s += input.getName().getID() + " " + input.getName().getDisplayName() + " " + input.getType() + "\n";
+			String inputID = input.getName().getID();
+			if (inputID == null) {
+				inputID = input.getName().getPrefix() + input.getName().getPostfix();
+			}
+			System.out.println(this.getName().getID());
+			System.out.println(inputID);
+			System.out.println(input.getType());
+			
+			s += inputID + ", " + input.getName().getDisplayName() + ", " + input.getType().getName() + "\n";
+			
 		}
-		for (SADLDescription.Input input: this.metaInputs()) {
-			s += input.getName().getID() + " " + input.getName().getDisplayName() + " " + input.getType() + "\n";
-		}
-
-		
 		
 		for (SADLDescription.Output output: this.outputs()) {
-			s += output.getName().getID() + " " + output.getName().getDisplayName() + " " + output.isOptional() + "\n";
+			String outputID = output.getName().getID();
+			if (outputID == null) {
+				outputID = output.getName().getPrefix() + output.getName().getPostfix();
+			}
+
+			s += outputID + ", " + output.getName().getDisplayName() + ", " + output.isOptional() + "\n";
 		}
 		for (SADLDescription.Parameter parameter: this.parameters()) {
-			s += parameter.getName().getID() + " " + parameter.getName().getDisplayName() + " " + parameter.getType() + "\n";
+			s += parameter.getName().getID() + ", " + parameter.getName().getDisplayName() + ", " + parameter.getType() + "\n";
 		}
 		
 		s += "-------------- sadl description --------------\n";

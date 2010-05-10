@@ -49,7 +49,7 @@ public class SADLGenerator {
 						} else {
 							first = false;
 						}
-						paramString += generateName(option);
+						paramString += option;
 					}
 					paramString += "] ";
 					

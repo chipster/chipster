@@ -38,6 +38,10 @@ public class SADLParser {
 	 * Parse failure caused by illegal input data (bad SADL).
 	 */
 	public static class ParseException extends MicroarrayException {
+		public ParseException(String msg) {
+			super(msg);
+		}
+		
 		public ParseException(String msg, String filename) {
 			super(msg + (filename != null ? (" (in " + filename + ")") : ""));
 		}
@@ -177,12 +181,20 @@ public class SADLParser {
 		} else {
 			name.setID(rawName);
 		}
-
 		
 		if (SADLSyntax.NAME_SEPARATOR.equals(tokens.peek())) {
 			skip(tokens, SADLSyntax.NAME_SEPARATOR); // read separator
 			name.setDisplayName(tokens.next());
 		}
+		
+		// check 
+		if (name == null) {
+			throw new ParseException("name is null");
+		}
+		if (name.getID() == null && (name.getPrefix() == null && name.getPostfix() == null)) {
+			throw new ParseException("id, prefix and postfix are all null");
+		}
+		
 		return name;
 	}
 
@@ -210,7 +222,7 @@ public class SADLParser {
 		if (inputType == null) {
 			throw new ParseException("Invalid input type: " + inputTypeName, description.getName().getID());
 		}
-		input.setType(inputTypeMap.get(inputTypeName));
+		input.setType(inputType);
 				
 		return input;
 	}
