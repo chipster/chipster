@@ -1,7 +1,18 @@
-# ANALYSIS Statistics/"Find ChIP-seq peaks using MACS" (This tool will search for statistically significantly enriched
-# genomic regions in sequencing data from a ChIP-seq experiment. The analysis can be performed on one or more treatment
-# samples alone, or relative to one or more control samples.)
-# INPUT SHORT_READS sequence[...].tsv
+TOOL "Statistics" / find_peaks_using_MACS.R: "Find ChIP-seq peaks using MACS" (This tool will search for statistically significantly enriched
+genomic regions in sequencing data from a ChIP-seq experiment. The analysis can be performed on one or more treatment
+samples alone, or relative to one or more control samples.)
+INPUT sequence[...].tsv: "Sequence data files" TYPE SEQ_FILE
+OUTPUT positive_peaks.tsv: "True enriched peaks"
+OUTPUT analysis_summary.tsv: "Summary of analysis settings and results"
+OUTPUT peak_model.pdf: "A plot of the fitted peak model"
+OUTPUT OPTIONAL negative_peaks.tsv: "The false enriched peaks"
+PARAMETER groups.column: "Column with group labels" TYPE NETACOLUMN_SEL DEDAULT gtoup (Phenodata column describing the experiment groups of the samples. Use "2" for treatment and "1" for control.)
+PARAMETER treatment.group: "The group label used for the treatment samples" TYPE STRING DEFAULT "empty"
+PARAMETER control.group: "The group label used for the control samples" TYPE STRING DEFAULT "empty"
+PARAMETER file.format: "The format of the sequence files" TYPE STRING [ELAND, SAM, BAM, BED] DEFAULT ELAND
+PAMATER produce.wiggle: "Should wiggle files be produced?" TYPE STRING DEFAULT "no"
+
+
 # OUTPUT positive_peaks.tsv, negative_peaks.tsv, analysis_summary.tsv, peak_model.pdf
 # PARAMETER groups.column METACOLUMN_SEL DEFAULT group (Phenodata column describing the experiment groups of the samples. Use "2" for treatment and "1" for control.)
 # PARAMETER file.format [ELAND, BED, SAM, BAM] DEFAULT ELAND (The format of the sequence files.)
@@ -13,6 +24,21 @@
 # PARAMETER p.value.threshold
 # PARAMETER m.fold
 
+
+TOOL "Test utilities" / util-test.R: "Test tool" (Just a test analysis for development. These descriptions are sometimes very
+long and might get hard to read. (Note that certain operators must be escaped.\))
+INPUT microarray{...}.tsv: "Raw data files" TYPE CDNA
+INPUT phenodata.tsv: "Experiment description" TYPE GENERIC
+OUTPUT result{...}.txt: "Result files"
+OUTPUT OPTIONAL error.txt: "Error, if any"
+PARAMETER value1: "The first value" TYPE INTEGER FROM 0 TO 200 DEFAULT 10 (the first value of the result set)
+PARAMETER value2: "The second value" TYPE DECIMAL FROM 0 TO 200 DEFAULT 20 (the second value of the result set)
+PARAMETER OPTIONAL value3: "The third value" TYPE DECIMAL FROM 0 TO 200 DEFAULT 30.2 (the third value of the result set)
+PARAMETER method: "The fourth value" TYPE PERCENT DEFAULT 34 (how much we need)
+PARAMETER method: "The method" TYPE [linear: "Linear scale", logarithmic: "Logarithmic scale", exponential: "Exponential scale"] FROM 1 TO 2 DEFAULT logarithmic (which scale to use)
+PARAMETER genename: "Gene name" TYPE STRING DEFAULT at_something (which gene we are interested in)
+PARAMETER key: "Key column" TYPE COLUMN_SEL (which column we use as a key)
+
 # find_peals_using_MACS.R
 # MG, 22.4.2010
 
@@ -20,8 +46,8 @@
 
 
 # Loads the normalized data and phenodata files
-data_1 <- read.table(file="normalized_mirna.tsv", header=T, sep="\t", row.names=1)
-phenodata_1 <- read.table("phenodata_mirna.tsv", header=T, sep="\t")
+#data_1 <- read.table(file="normalized_mirna.tsv", header=T, sep="\t", row.names=1)
+#phenodata_1 <- read.table("phenodata_mirna.tsv", header=T, sep="\t")
 
 # If multiple samples per experiment group merge into one single file
 
