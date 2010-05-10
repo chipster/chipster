@@ -1287,7 +1287,7 @@ public class SwingClientApplication extends ClientApplication {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		start(null, "microarray-module");
+		start(null, "microarray");
 	}
 
 	public static void reportIllegalConfigurationException(IllegalConfigurationException e) {
