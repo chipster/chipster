@@ -31,7 +31,7 @@ colno<-ncol(dat2)
 g.mean <- rowSums(dat2)/colno
 g.sd <- rowSds(dat2)
 g.cv <- g.sd / g.mean
-sel<-(g.cv>quantile(g.cv,percentage))
+sel<-(g.cv>quantile(g.cv,percentage,na.rm=TRUE))
 set<-dat[sel, ]
 
 # Saving the results

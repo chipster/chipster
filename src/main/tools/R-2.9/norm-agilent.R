@@ -82,7 +82,10 @@ if(chiptype=="Rat(4130a)") {
 if(chiptype=="Rat(4131)") {
 	chiptype<-c("rgug4131unigene")
 }
-chiptype<-paste(chiptype, ".db", sep="")
+if(chiptype!="cDNA") {
+	chiptype<-paste(chiptype, ".db", sep="")
+}
+# chiptype<-paste(chiptype, ".db", sep="")
 
 write.table(data.frame(sample=sample, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 

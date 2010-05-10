@@ -8,7 +8,7 @@
 
 # Loads the normalized data
 file<-c("normalized.tsv")
-dat<-read.table(file, header=T, sep="\t", row.names=1)
+dat<-read.table(file, header=T, sep="\t", row.names=1, comment.char="")
 dat2<-dat[grep(match.term, dat[,(as.vector(grep(column,names(dat))))]),]
 write.table(dat2, "column-filter3.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 
