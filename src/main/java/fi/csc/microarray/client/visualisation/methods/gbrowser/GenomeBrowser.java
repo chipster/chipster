@@ -50,23 +50,12 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 
 	private static final int CHROMOSOME_COUNT = 22;
 
-	private static final String ANNOTATION_PATH = "http://chipster-devel.csc.fi:8050/public/space_separated_annotations";
 	private static final String CONTENTS_FILE = "contents.txt";
 
 	private static final File FILE_ROOT = new File("/home/akallio/chipster-share/genomebrowser_data");
 
-	private URL annotationUrl;
-
 	public GenomeBrowser(VisualisationFrame frame) {
 		super(frame);
-		try {
-			MessagingEndpoint messagingEndpoint = Session.getSession().getMessagingEndpoint("client-endpoint");
-			FileBrokerClient fileBrokerClient = new FileBrokerClient(messagingEndpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
-			this.annotationUrl = new URL(fileBrokerClient.getPublicUrl(), "space_separated_annotations");
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
 	}
 
 	protected JPanel paramPanel;
@@ -125,7 +114,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 
 		try {
 			// parse what annotations we have available
-			contentsStream = new URL(ANNOTATION_PATH + "/" + CONTENTS_FILE).openStream();
+			contentsStream = new URL(fetchAnnotationUrl() + "/" + CONTENTS_FILE).openStream();
 			AnnotationContents annotationContentFile = new AnnotationContents();
 			annotationContentFile.parseFrom(contentsStream);
 			List<Row> contents = annotationContentFile.getRows(); 
@@ -287,6 +276,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 
 		this.data = data;
 
+		URL annotationUrl = fetchAnnotationUrl();
+
 		List<Variable> vars = getFrame().getVariables();
 		GenomePlot plot = new GenomePlot(true);
 		TrackFactory.addCytobandTracks(plot, new DataSource(annotationUrl, "cytoband_hg17_sorted.fsf"));
@@ -317,6 +308,17 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 		}
 
 		return panel;
+	}
+
+	private URL fetchAnnotationUrl() {
+		try {
+			MessagingEndpoint messagingEndpoint = Session.getSession().getMessagingEndpoint("client-endpoint");
+			FileBrokerClient fileBrokerClient = new FileBrokerClient(messagingEndpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
+			URL annotationUrl = new URL(fileBrokerClient.getPublicUrl() + "/" + "space_separated_annotations");
+			return annotationUrl;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
