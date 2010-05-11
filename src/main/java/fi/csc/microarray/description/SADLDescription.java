@@ -355,9 +355,6 @@ public class SADLDescription {
 			if (inputID == null) {
 				inputID = input.getName().getPrefix() + input.getName().getPostfix();
 			}
-			System.out.println(this.getName().getID());
-			System.out.println(inputID);
-			System.out.println(input.getType());
 			
 			s += inputID + ", " + input.getName().getDisplayName() + ", " + input.getType().getName() + "\n";
 			
