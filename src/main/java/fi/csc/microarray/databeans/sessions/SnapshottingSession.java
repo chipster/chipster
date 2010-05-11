@@ -266,7 +266,7 @@ public class SnapshottingSession {
 				}
 
 				for (Parameter parameter : operation.getParameters()) {
-					metadata.append("OPERATION_PARAMETER " + operId + " " +  parameter.getName() + " " + parameter.getValue() + "\n");
+					metadata.append("OPERATION_PARAMETER " + operId + " " +  parameter.getID() + " " + parameter.getValue() + "\n");
 				}
 
 				// will be written in the 2nd pass

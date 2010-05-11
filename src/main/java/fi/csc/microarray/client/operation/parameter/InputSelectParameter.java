@@ -7,8 +7,8 @@ import fi.csc.microarray.client.operation.Operation.DataBinding;
 
 public class InputSelectParameter extends DataSelectionParameter {
 
-	protected InputSelectParameter(String name, String description, String initValue) {
-		super(name, description, initValue);
+	protected InputSelectParameter(String id, String displayName, String description, String initValue) {
+		super(id, displayName, description, initValue);
 	}
 
 	public void setDataBindings(List<DataBinding> bindings) {

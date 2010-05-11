@@ -24,9 +24,9 @@ public class DecimalParameter extends Parameter {
 	 * 		   or the init value is not between these limits).
 	 */
 	public DecimalParameter(
-			String name, String description, Float minValue, Float maxValue, Float initValue)
+			String id, String displayName, String description, Float minValue, Float maxValue, Float initValue)
 					throws IllegalArgumentException {
-		super(name, description);
+		super(id, displayName, description);
         
 		this.minValue = minValue;
         this.maxValue = maxValue;
@@ -37,11 +37,11 @@ public class DecimalParameter extends Parameter {
 
 		if (maxValue < minValue) {
 			throw new IllegalArgumentException("Minimum value for decimal parameter " +
-					this.getName() + " cannot be bigger than the maximum value.");
+					this.getID() + " cannot be bigger than the maximum value.");
 		}
 		if (initValue < minValue || initValue > maxValue) {
 			throw new IllegalArgumentException("Initial value for decimal parameter " +
-					this.getName() + " must be inside given limits.");
+					this.getID() + " must be inside given limits.");
 		}
 		this.value = initValue;
 	}
@@ -66,7 +66,7 @@ public class DecimalParameter extends Parameter {
 	public void setMinValue(float newMinValue) throws IllegalArgumentException {
 		if (newMinValue > this.maxValue) {
 			throw new IllegalArgumentException("New minimum value for " +
-					this.getName() + " cannot exceed current maximum value.");
+					this.getID() + " cannot exceed current maximum value.");
 		}
 		this.minValue = newMinValue;
 		if (this.value < this.minValue) {
@@ -77,7 +77,7 @@ public class DecimalParameter extends Parameter {
 	public void setMaxValue(float newMaxValue) throws IllegalArgumentException {
 		if (newMaxValue < this.minValue) {
 			throw new IllegalArgumentException("New maximum value for " +
-					this.getName() + " cannot fall below current minimum value.");
+					this.getID() + " cannot fall below current minimum value.");
 		}
 		this.maxValue = newMaxValue;
 		if (this.value > this.maxValue) {
@@ -96,7 +96,7 @@ public class DecimalParameter extends Parameter {
 	public void setDecimalValue(float newValue) throws IllegalArgumentException {
 		if (newValue < minValue || newValue > maxValue) {
 			throw new IllegalArgumentException("New value for decimal parameter " +
-					this.getName() + " must be inside given limits.");
+					this.getID() + " must be inside given limits.");
 		}
 		this.value = newValue;
 	}
@@ -112,7 +112,7 @@ public class DecimalParameter extends Parameter {
 			this.value = (float) doubleValue;
 		} else {
 			throw new IllegalArgumentException(newValue + " is an illegal " +
-					"value for decimal parameter " + this.getName() + ".");
+					"value for decimal parameter " + this.getID() + ".");
 		}
 	}
 
@@ -140,7 +140,7 @@ public class DecimalParameter extends Parameter {
 	}
 
 	public String toString() {
-		return this.getName() + ": " + value;
+		return this.getID() + ": " + value;
 	}
 
 	@Override

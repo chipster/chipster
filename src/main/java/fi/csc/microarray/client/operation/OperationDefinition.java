@@ -475,7 +475,7 @@ public class OperationDefinition implements ExecutionItem {
 			s += input.getName() + " " + type + " " + input.getDescription() + "\n";
 		}
 		for (Parameter parameter: parameters) {
-			s += parameter.getName() + " " + parameter.getValueAsString() + "\n";
+			s += parameter.getID() + " " + parameter.getValueAsString() + "\n";
 		}
 
 		s += "\n-------------- operation definition --------------\n";

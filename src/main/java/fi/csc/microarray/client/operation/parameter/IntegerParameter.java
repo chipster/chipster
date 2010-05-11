@@ -25,9 +25,9 @@ public class IntegerParameter extends Parameter {
 	 * 		   or the init value is not between these limits).
 	 */
 	public IntegerParameter(
-			String name, String description, Integer minValue, Integer maxValue, Integer initValue)
+			String id, String displayName, String description, Integer minValue, Integer maxValue, Integer initValue)
 					throws IllegalArgumentException {
-		super(name, description);
+		super(id, displayName, description);
 		
         this.minValue = minValue;
         this.maxValue = maxValue;
@@ -39,7 +39,7 @@ public class IntegerParameter extends Parameter {
 	      
 		if (maxValue < minValue) {
 			throw new IllegalArgumentException("Minimum value for integer parameter " +
-					this.getName() + " cannot be bigger than the maximum value.");
+					this.getID() + " cannot be bigger than the maximum value.");
 		}
 		
 		setIntegerValue(initValue);  // may throw IllegalArgumentException
@@ -65,7 +65,7 @@ public class IntegerParameter extends Parameter {
 	public void setMinValue(int newMinValue) {
 		if (newMinValue > this.maxValue) {
 			throw new IllegalArgumentException("New minimum value for " +
-					this.getName() + " cannot exceed current maximum value.");
+					this.getID() + " cannot exceed current maximum value.");
 		}
 		this.minValue = newMinValue;
 		if (this.value < this.minValue) {
@@ -76,7 +76,7 @@ public class IntegerParameter extends Parameter {
 	public void setMaxValue(int newMaxValue) {
 		if (newMaxValue < this.minValue) {
 			throw new IllegalArgumentException("New maximum value for " +
-					this.getName() + " cannot fall below current minimum value.");
+					this.getID() + " cannot fall below current minimum value.");
 		}
 		this.maxValue = newMaxValue;
 		if (this.value > this.maxValue) {
@@ -94,7 +94,7 @@ public class IntegerParameter extends Parameter {
 	public void setIntegerValue(Integer newValue) throws IllegalArgumentException {
 		if (newValue != null && (newValue < minValue || newValue > maxValue)) {
 			throw new IllegalArgumentException("New value for integer parameter " +
-					this.getName() + " must be inside given limits.");
+					this.getID() + " must be inside given limits.");
 		}
 		this.value = newValue;
 	}
@@ -105,7 +105,7 @@ public class IntegerParameter extends Parameter {
 		    setIntegerValue((Integer) newValue);
 		} else {
 			throw new IllegalArgumentException(newValue + " is an illegal " +
-					"value for integer parameter " + this.getName() + ".");
+					"value for integer parameter " + this.getID() + ".");
 		}
 	}
 
@@ -131,7 +131,7 @@ public class IntegerParameter extends Parameter {
 
 	@Override
 	public String toString() {
-		return this.getName() + ": " + value;
+		return this.getID() + ": " + value;
 	}
 
 	@Override

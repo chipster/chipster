@@ -225,7 +225,7 @@ public class Operation implements ExecutionItem {
 
 	public Parameter getParameter(String name) {
 		for (Parameter parameter : parameters) {
-			if (parameter.getName().equals(name)) {
+			if (parameter.getID().equals(name)) {
 				return parameter;
 			}
 		}

@@ -64,12 +64,12 @@ public abstract class ParameterInputComponent extends JPanel implements FocusLis
 	    int MAXLEN = 70;
 	    
 		if (label == null) {
-			label = new JLabel(getParameter().getName(MAXLEN));
+			label = new JLabel(getParameter().getDisplayName(MAXLEN));
 		}
 		
 		// Dispaly tooltip only if needed
-		if (!getParameter().getName(MAXLEN).equals(getParameter().getName())) {
-	        label.setToolTipText(getParameter().getName());		    
+		if (!getParameter().getDisplayName(MAXLEN).equals(getParameter().getID())) {
+	        label.setToolTipText(getParameter().getID());		    
 		}
 
 		return label;
