@@ -240,7 +240,9 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
                 try {
                     List<ModuleDescriptionMessage> list;
                     list = createDescriptionsMessages(commandMessage);
+
                     for (ModuleDescriptionMessage msg : list) {
+        	            logger.info("sending descriptions for module " + msg.getModuleName());
                         sendReplyMessage(commandMessage, msg);
                     }
                 } catch (Exception e) {
