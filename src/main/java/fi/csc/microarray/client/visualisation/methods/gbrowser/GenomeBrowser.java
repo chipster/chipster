@@ -35,6 +35,7 @@ import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Row;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.handlers.LocalFileDataBeanHandler;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.messaging.MessagingEndpoint;
@@ -48,11 +49,13 @@ import fi.csc.microarray.util.IOUtils;
  */
 public class GenomeBrowser extends Visualisation implements ActionListener {
 
+	private static final String ANNOTATION_URL_PATH = "annotations";
+
 	private static final int CHROMOSOME_COUNT = 22;
 
 	private static final String CONTENTS_FILE = "contents.txt";
 
-	private static final File FILE_ROOT = new File("/home/akallio/chipster-share/genomebrowser_data");
+	private static final File FILE_ROOT = new File("/home/akallio/chipster-share/genome_browser");
 
 	public GenomeBrowser(VisualisationFrame frame) {
 		super(frame);
@@ -276,15 +279,19 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 
 		this.data = data;
 
+		// local data
+		LocalFileDataBeanHandler handler = (LocalFileDataBeanHandler)data.getHandler();
+		
+		// remote annotation data
 		URL annotationUrl = fetchAnnotationUrl();
 
 		List<Variable> vars = getFrame().getVariables();
 		GenomePlot plot = new GenomePlot(true);
-		TrackFactory.addCytobandTracks(plot, new DataSource(annotationUrl, "cytoband_hg17_sorted.fsf"));
-		TrackFactory.addGeneTracks(plot, new DataSource(annotationUrl, "Homo_sapiens.GRCh37.56_genes.fsf"));
-		TrackFactory.addPeakTracks(plot, new DataSource(annotationUrl, "Homo_sapiens.GRCh37.56_miRNA.fsf"));
-		TrackFactory.addWigTrack(plot, new DataSource(annotationUrl, "Homo_sapiens.GRCh37.56_miRNA.fsf"));
-		TrackFactory.addReadTracks(plot, new DataSource(FILE_ROOT, "eland_result.fsf"), new DataSource(annotationUrl, "Homo_sapiens.GRCh37.56_seq.fsf"));
+		TrackFactory.addCytobandTracks(plot, new DataSource(annotationUrl, "Homo_sapiens.GRCh37.57_karyotype.tsv"));
+		TrackFactory.addGeneTracks(plot, new DataSource(annotationUrl, "Homo_sapiens.GRCh37.56_genes.tsv"));
+		TrackFactory.addPeakTracks(plot, new DataSource(annotationUrl, "Homo_sapiens.GRCh37.56_miRNA.tsv"));
+		TrackFactory.addWigTrack(plot, new DataSource(annotationUrl, "Homo_sapiens.GRCh37.56_miRNA.tsv"));
+		TrackFactory.addReadTracks(plot, new DataSource(handler.getFile(data)), new DataSource(annotationUrl, "Homo_sapiens.GRCh37.56_seq.tsv"));
 		TrackFactory.addRulerTrack(plot);
 		plot.start("1");
 		
@@ -314,7 +321,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 		try {
 			MessagingEndpoint messagingEndpoint = Session.getSession().getMessagingEndpoint("client-endpoint");
 			FileBrokerClient fileBrokerClient = new FileBrokerClient(messagingEndpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
-			URL annotationUrl = new URL(fileBrokerClient.getPublicUrl() + "/" + "space_separated_annotations");
+			URL annotationUrl = new URL(fileBrokerClient.getPublicUrl() + "/" + ANNOTATION_URL_PATH);
 			return annotationUrl;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
