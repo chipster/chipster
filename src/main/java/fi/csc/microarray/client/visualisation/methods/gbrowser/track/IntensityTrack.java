@@ -14,6 +14,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDraw
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class IntensityTrack extends Track {

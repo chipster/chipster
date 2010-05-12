@@ -16,6 +16,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
 
 public abstract class Track implements AreaResultListener {
@@ -101,5 +103,9 @@ public abstract class Track implements AreaResultListener {
 		}
 
 		return parts;
+	}
+
+	public BpCoord getMaxBp(Chromosome chr) {
+		return null;
 	}
 }
