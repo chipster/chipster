@@ -2,7 +2,6 @@ package fi.csc.microarray.databeans;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
@@ -315,43 +314,6 @@ public class DataBean extends DataItemBase {
 			// FIXME release inputstream
 		}
 		
-	}
-
-
-
-	/**
-		 * 
-		 * 	
-		 * Allows rewriting of raw bean content. Close the stream by calling closeContentOutputStream(...)
-		 * on the same bean.
-		 * @see #closeContentOutputStreamAndUnlockDataBean(OutputStream)
-		 *
-		 * Returns OutputStream that can be used to rewrite this bean's contents. 
-		 * Calling this method results in disabling caching for this bean.
-		 */
-		public OutputStream getContentOutputStreamAndLockDataBean() throws IOException {
-//			this.lock.writeLock().lock();
-			setContentChanged(true);
-			this.streamStartCache = null; // caching is disabled
-			resetContentCache();
-			return this.handler.getOutputStream(this);
-		}
-
-
-
-	/**
-	 * Closes output stream and generates required events.
-	 */
-	public void closeContentOutputStreamAndUnlockDataBean(OutputStream out)
-			throws MicroarrayException, IOException {
-		
-		try {
-			out.close();
-		} finally {
-//			this.lock.writeLock().unlock();
-		}
-		ContentChangedEvent cce = new ContentChangedEvent(this);
-		dataManager.dispatchEventIfVisible(cce);
 	}
 
 

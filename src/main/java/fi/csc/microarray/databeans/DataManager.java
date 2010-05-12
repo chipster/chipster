@@ -645,8 +645,8 @@ public class DataManager {
 			
 			// TODO think about that name
 			// copy contents to new file
-			File newContentFile = this.createNewRepositoryFile(bean.getName());
-			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(newContentFile));
+			File newFile = this.createNewRepositoryFile(bean.getName());
+			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(newFile));
 			BufferedInputStream in = new BufferedInputStream(bean.getContentByteStream());
 			try {
 				IOUtils.copy(in, out);
@@ -654,10 +654,45 @@ public class DataManager {
 				IOUtils.closeIfPossible(in);
 				IOUtils.closeIfPossible(out);
 			}
-				// update url, type and handler in the bean
+			// update url, type and handler in the bean
+			URL newURL = newFile.toURI().toURL();
 			
+			bean.setContentUrl(newURL);
+			bean.setType(DataBeanType.LOCAL_TEMP);
+			bean.setHandler(new LocalFileDataBeanHandler());
+			bean.setContentChanged(true);
+			
+			return bean.getHandler().getOutputStream(bean);
 		}
 	}
+
+	/**
+	 * FIXME locks
+	 * 
+	 * @param bean
+	 * @param out
+	 * @throws MicroarrayException
+	 * @throws IOException
+	 */
+	public void closeContentOutputStreamAndUnlockDataBean(DataBean bean, OutputStream out)
+			throws MicroarrayException, IOException {
+		try {
+			out.close();
+		} finally {
+//			this.lock.writeLock().unlock();
+		}
+		ContentChangedEvent cce = new ContentChangedEvent(bean);
+		this.dispatchEventIfVisible(cce);
+	}
+
+	
+	
+	
+	
+	
+	
+	
+	
 	private void deleteDataFolder(DataFolder folder) {
 
 		// remove children
