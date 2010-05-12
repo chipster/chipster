@@ -127,7 +127,7 @@ public class RAnalysisHandler implements AnalysisHandler {
 		// parse SADL		
 		SADLDescription sadlDescription;
 		try {
-			sadlDescription = new ChipsterSADLParser().parse(parsedScript.SADL);
+			sadlDescription = new ChipsterSADLParser().parse(parsedScript.SADL, sourceResourceName);
 		} catch (ParseException e) {
 			throw new AnalysisException(e);
 		}
