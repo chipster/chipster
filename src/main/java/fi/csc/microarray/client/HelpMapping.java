@@ -16,9 +16,8 @@ public class HelpMapping {
 		mappings.put("Preprocessing/Filter by flags", "chipster-manual/filter-flags.html");
 		mappings.put("Preprocessing/Filter by interquartile range", "chipster-manual/filter-iqr.html");
 		mappings.put("Preprocessing/Filter by standard deviation", "chipster-manual/filter-sd.html");
-		mappings.put("Utilities/Filter using a column term", "chipster-manual/filter-by-column-term.html");
-		mappings.put("Utilities/Filter using a column value", "chipster-manual/filter-by-column-value.html");
-		
+		mappings.put("Preprocessing/Filter using a column term", "chipster-manual/filter-by-column-term.html");
+		mappings.put("Preprocessing/Filter using a column value", "chipster-manual/filter-by-column-value.html");
 		mappings.put("Preprocessing/Impute missing values", "chipster-manual/impute.html");
 		mappings.put("Preprocessing/Remove missing values", "chipster-manual/na-omit.html");
 
@@ -33,9 +32,10 @@ public class HelpMapping {
 		mappings.put("Normalisation/Affymetrix", "chipster-manual/norm-affy.html");
 		mappings.put("Normalisation/Affymetrix SNP arrays", "chipster-manual/norm-affy-snp.html");
 		mappings.put("Normalisation/Affymetrix gene arrays", "chipster-manual/norm-affy-gene.html");
-		mappings.put("Normalisation/Agilent miRNA", "chipster-manual/norm-agilent-miRNA.html");		
+		mappings.put("Normalisation/Agilent miRNA", "chipster-manual/norm-agilent-mirna.html");		
 		mappings.put("Normalisation/Illumina SNP arrays", "chipster-manual/norm-illumina-snp.html");
 		mappings.put("Normalisation/Process prenormalized", "chipster-manual/norm-process-prenormalized.html");
+		mappings.put("Normalisation/Process prenormalized affy", "chipster-manual/norm-prenormalized-affy.html");
 		mappings.put("Normalisation/Agilent 1-color", "chipster-manual/norm-agilent-1color.html");
 		mappings.put("Normalisation/Agilent 2-color", "chipster-manual/norm-agilent.html");
 		mappings.put("Normalisation/cDNA", "chipster-manual/norm-cdna.html");
@@ -105,6 +105,7 @@ public class HelpMapping {
 		mappings.put("Promoter Analysis/Cosmo", "chipster-manual/promoter-tfbs-cosmo.html");
 		
 		mappings.put("Annotation/Agilent, Affymetrix or Illumina genelist", "chipster-manual/annotate-genelist2html.html");
+		mappings.put("Annotation/Find miRNA targets", "chipster-manual/annotate-miRNA-targets.html");
 		mappings.put("Annotation/Add annotations to data", 	"chipster-manual/annotate-add-to-data.html");
 		mappings.put("Annotation/Agilent miRNA", "chipster-manual/annotate-miRNA.html");
 		
@@ -114,7 +115,6 @@ public class HelpMapping {
 		mappings.put("Utilities/Extract genes from clustering", "chipster-manual/extract-genes-from-clustering.html");
 		mappings.put("Utilities/Extract genes using a p-value", "chipster-manual/extract-genes-from-stattest.html");
 		mappings.put("Utilities/Extract samples from dataset", "chipster-manual/extract-samples-from-dataset.html");
-		mappings.put("Utilities/Filter using a column", "chipster-manual/filter-by-column.html");
 		mappings.put("Utilities/Average replicate chips", "chipster-manual/average-replicates.html");
 		mappings.put("Utilities/Calculate fold change", "chipster-manual/calculate-fold-change.html");
 		mappings.put("Utilities/Generate phenodata", "chipster-manual/generate-phenodata.html");
@@ -125,11 +125,14 @@ public class HelpMapping {
 		mappings.put("Utilities/Merge tables", "chipster-manual/merge-tables.html");
 		mappings.put("Utilities/Sort samples", "chipster-manual/sort-samples.html");
 		mappings.put("Utilities/Delete columns", "chipster-manual/delete-columns.html");
+		mappings.put("Utilities/Filter using a column", "chipster-manual/filter-by-column.html");
 		mappings.put("Utilities/Combine probes to genes", "chipster-manual/combine-probes-to-genes.html");
 		mappings.put("Utilities/Extract genes", "chipster-manual/extract-genes.html");
 		mappings.put("Utilities/Change interpretation",	"chipster-manual/change-interpretation.html");
 		mappings.put("Utilities/Sort genes", "chipster-manual/sort-genes.html");
 		mappings.put("Utilities/Random sampling", "chipster-manual/random-sampling.html"); 
+		mappings.put("Utilities/Intersect lists", "chipster-manual/intersect-lists.html"); 
+
 		
 		mappings.put("Miscellaneous/Multiple sequence alignment", "chipster-manual/seqanal-msa.html");
 		mappings.put("Miscellaneous/Phylogenetics", "chipster-manual/seqanal-phylogenetics.html");
