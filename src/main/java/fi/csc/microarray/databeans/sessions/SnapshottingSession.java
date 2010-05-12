@@ -244,7 +244,9 @@ public class SnapshottingSession {
 	
 	private void saveDataBeanMetadata(DataBean bean, URL newURL, String folderId, StringBuffer metadata) {
 		String beanId = fetchId(bean);
-		metadata.append("DATABEAN " + beanId + " " + newURL + " " + bean.getType() + " " + bean.getRepositoryName() + "\n");
+		
+		// for now all data content goes to session --> type is local session
+		metadata.append("DATABEAN " + beanId + " " + newURL + " " + DataBeanType.LOCAL_SESSION + " " + bean.getRepositoryName() + "\n");
 		
 		if (bean.getOperation() != null) {
 			Operation operation = bean.getOperation();

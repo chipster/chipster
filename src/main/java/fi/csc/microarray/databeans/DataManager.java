@@ -32,6 +32,7 @@ import fi.csc.microarray.databeans.handlers.LocalFileDataBeanHandler;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.databeans.sessions.SnapshottingSession;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.util.IOUtils;
 
 public class DataManager {
 
@@ -625,7 +626,38 @@ public class DataManager {
 		return folders;
 	}
 
-
+	/**
+	 * FIXME add locking
+	 * 
+	 * @param bean
+	 * @return
+	 * @throws IOException 
+	 */
+	public OutputStream getContentOutputStreamAndLockDataBean(DataBean bean) throws IOException {
+		
+		// for local temp beans, just get the output stream
+		if (bean.getType().equals(DataBeanType.LOCAL_TEMP)) {
+			return bean.getHandler().getOutputStream(bean);
+		}
+		// for other bean types, convert to local bean
+		else {
+			// lock bean
+			
+			// TODO think about that name
+			// copy contents to new file
+			File newContentFile = this.createNewRepositoryFile(bean.getName());
+			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(newContentFile));
+			BufferedInputStream in = new BufferedInputStream(bean.getContentByteStream());
+			try {
+				IOUtils.copy(in, out);
+			} finally {
+				IOUtils.closeIfPossible(in);
+				IOUtils.closeIfPossible(out);
+			}
+				// update url, type and handler in the bean
+			
+		}
+	}
 	private void deleteDataFolder(DataFolder folder) {
 
 		// remove children
