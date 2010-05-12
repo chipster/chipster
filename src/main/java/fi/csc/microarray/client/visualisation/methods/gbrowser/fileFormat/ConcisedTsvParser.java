@@ -1,6 +1,10 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
+import com.sun.xml.internal.messaging.saaj.packaging.mime.internet.ContentType;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
@@ -14,39 +18,62 @@ public abstract class ConcisedTsvParser extends TsvParser{
 	
 	@Override
 	public RegionContent[] concise(String chunk) {
-
-		long totalF = 0;
-		long totalR = 0;
 		
 		Long start = (Long)get(getFirstRow(chunk), ColumnType.BP_START);
 		Long end = (Long)get(getLastRow(chunk), ColumnType.BP_START);
-		Chromosome chr = (Chromosome)get(getFirstRow(chunk), ColumnType.CHROMOSOME);
+		Chromosome startChr = (Chromosome)get(getFirstRow(chunk), ColumnType.CHROMOSOME);
+		Chromosome endChr = (Chromosome)get(getLastRow(chunk), ColumnType.CHROMOSOME);
+				
+		Long readLength =  (new BpCoordRegion(start, end, startChr)).getLength();
+		
+		final long binSize = 1000;
+		
+		long firstBin = (long)Math.floor(start / binSize) * binSize;
+		long lastBin = (long)Math.floor(end / binSize) * binSize;
+		
+		int binCount = (int) ((lastBin - firstBin) / binSize + 1);
+		
 
-		Long readLength =  (new BpCoordRegion(start, end, chr)).getLength();
-
-		if(readLength != null) {
+		if(readLength != null && startChr.equals(endChr) && binCount > 0) {
+			
+			long[] fBins = new long[binCount];
+			long[] rBins = new long[binCount];
 
 			for (RegionContent rc : 
-				getAll(chunk, Arrays.asList(new ColumnType[] { ColumnType.STRAND }))) {
-
+				getAll(chunk, Arrays.asList(new ColumnType[] { ColumnType.STRAND, ColumnType.BP_START }))) {
+				
+				long readStart = (Long)rc.values.get(ColumnType.BP_START);
+				int bin = (int) ((readStart - firstBin) / binSize);
+				
 				if((Strand)rc.values.get(ColumnType.STRAND) == Strand.FORWARD) {
 
-					totalF += readLength;
+					fBins[bin] += readLength;
 
 				} else {
-					totalR += readLength;
+					rBins[bin] += readLength;
 				}
 			}
+			
+			List<RegionContent> results = new LinkedList<RegionContent>();
+			
+			for (int i = 0; i < binCount; i ++) {
+				
+				long binStart = firstBin + i * binSize;
+				long binEnd = binStart + binSize - 1;
+				
+				RegionContent fRc = new RegionContent(new BpCoordRegion(binStart, binEnd, startChr), fBins[i] / (float)binSize);
+				RegionContent rRc = new RegionContent(new BpCoordRegion(binStart, binEnd, startChr), rBins[i] / (float)binSize);
+				
+				fRc.values.put(ColumnType.STRAND, Strand.FORWARD);
+				rRc.values.put(ColumnType.STRAND, Strand.REVERSED);
+				
+				//System.out.println(fRc.region + ", " + fRc.values.get(ColumnType.VALUE));
+				
+				results.add(fRc);
+				results.add(rRc);
+			}
 
-			RegionContent[] result = new RegionContent[] {
-					new RegionContent(getBpRegion(chunk), totalF / (float)getBpRegion(chunk).getLength()),
-					new RegionContent(getBpRegion(chunk), totalR / (float)getBpRegion(chunk).getLength())
-			};		
-
-			result[0].values.put(ColumnType.STRAND, Strand.FORWARD);
-			result[1].values.put(ColumnType.STRAND, Strand.REVERSED);
-
-			return result;
+			return results.toArray(new RegionContent[results.size()]);
 		} else {
 			
 			//FIXME Length of region can't be calculated, because it contains two or more chromosomes, do something wise

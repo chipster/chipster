@@ -52,13 +52,15 @@ public class TrackFactory {
 		ElandParser userDataParser = new ElandParser();
 		View dataView = plot.getDataView();
 		
+		final long overviewLimit = 100000;
+		
 		// FORWARD
 		// Overview
-		IntensityTrack readOverview = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, Color.gray, 1000000);
+		IntensityTrack readOverview = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, Color.gray, overviewLimit);
 		addTrack(dataView, readOverview);
 
 		// Detailed
-		SeqBlockTrack reads = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, Color.RED, 0, 1000000);
+		SeqBlockTrack reads = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, Color.RED, 0, overviewLimit);
 		addTrack(dataView, reads);
 
 		dataView.addTrack(new SeparatorTrack(dataView));
@@ -71,7 +73,7 @@ public class TrackFactory {
 
 		// R E V E R S E D ///////////////////////////////////////////////////
 		// Overview
-		IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, Color.gray, 1000000);
+		IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, Color.gray, overviewLimit);
 
 		readOverviewReversed.setStrand(Strand.REVERSED);
 		addTrack(dataView, readOverviewReversed);
@@ -79,7 +81,7 @@ public class TrackFactory {
 		// Detailed
 		dataView.addTrack(new SeparatorTrack(dataView));
 
-		SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, Color.RED, 0, 1000000);
+		SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, Color.RED, 0, overviewLimit);
 		readsReversed.setStrand(Strand.REVERSED);
 		addTrack(dataView, readOverviewReversed);
 	}

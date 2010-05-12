@@ -26,9 +26,9 @@ public class GeneParser extends ConcisedTsvParser{
 		return "Chipster gene annotation";
 	}
 	
-	@Override
-	public long getDefaulChunkLength() {
-
-		return 128;
-	}
+//	@Override
+//	public long getDefaulChunkLength() {
+//
+//		return 128;
+//	}
 }
