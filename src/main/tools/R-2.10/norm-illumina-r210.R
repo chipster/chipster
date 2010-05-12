@@ -1,9 +1,11 @@
-# ANALYSIS Normalisation/"Illumina R-2.10" (Illumina preprocessing using individual files. Every file includes data for one
-# array, i.e., the data that has been imported through Import tool. YOU HAVE TO SPECIFY THE CHIPTYPE.)
+# ANALYSIS Normalisation/"Illumina R-2.10" (Illumina normalization for Mouse 6v1.0a
+# array. For other arrays, please use the Normalization / Illumina tool.
+# The samples need to be in individual data files, so please use the Import tool
+# for importing the raw data to Chipster.)
 # INPUT CDNA microarray[...].tsv OUTPUT normalized.tsv, phenodata.tsv
 # PARAMETER normalize.chips [none, scale, quantile, vsn] DEFAULT quantile (Between arrays normalization method)
 # PARAMETER beadstudio.version [1, 2, 3] DEFAULT 1 (BeadStudio version number) 
-# PARAMETER chiptype [empty, Mouse-6v1.0a] DEFAULT empty (chiptype)
+# PARAMETER chiptype [empty, Mouse-6v1.0a] DEFAULT Mouse-6v1.0a (chiptype)
 # PARAMETER id.type [TargetID, ProbeID] DEFAULT TargetID (Which annotations to use) 
 # PARAMETER produce.flags [yes, no] DEFAULT no (Automatic recoding of Detection-value as flags)
 
