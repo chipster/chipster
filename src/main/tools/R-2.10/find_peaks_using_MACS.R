@@ -165,12 +165,12 @@ if (control.group != "empty") {
 	}
 }
 
-# Run MACS with default parameters for FoxA1 test data set
-runMACS(treatment="/fs/local/users/chipster/tools/Seq_data/FoxA1/Input_tags.bed", 
-		control="/fs/local/users/chipster/tools/Seq_data/FoxA1/Treatment_tags.bed", 
-		name="/fs/local/users/chipster/tools/Seq_data/FoxA1/MACS_results/FoxA1_t30_b175_p1e5_m10", 
-		format = "BED", 
-		verbose=3, logFile="/fs/local/users/chipster/tools/Seq_data/FoxA1/MACS_results/FoxA1_t30_b175_p1e5_m10.log", 
+# Run MACS with default parameters for the data set
+runMACS(treatment="./treatment_3.txt", 
+		control="control_3.txt", 
+		name="./results", 
+		format = "ELAND", 
+		verbose=3, logFile="./results.log", 
 		nomodel=TRUE, help=F, version=FALSE)
 
 # Read in and parse the results
