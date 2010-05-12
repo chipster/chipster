@@ -24,6 +24,7 @@ import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 
+@SuppressWarnings("serial")
 public class QuickLinkPanel extends JPanel implements ActionListener {
 
 	private SwingClientApplication application;
@@ -36,10 +37,11 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 	private JXHyperlink importURLLink;
 	private JXHyperlink importArrayExpressLink;
 	private JXHyperlink importGEOLink;
+	private JXHyperlink importSequenceLink;
+	private JXHyperlink importTextLink;
 
-	
 	private static final String LINK_WORD = "***";
-
+	
 	public QuickLinkPanel() {
 		super(new GridBagLayout());
 
@@ -47,12 +49,15 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 
 		this.setBackground(Color.white);
 		
+		// Prepare all available links
 		exampleLink = createLink("Open example session ");
 		importLink = createLink("Import files ");
 		importFolderLink = createLink("Import folder ");
 		importURLLink = createLink("Import from URL ");
 		importArrayExpressLink = createLink("Import from ArrayExpress ");
 		importGEOLink = createLink("Import from GEO ");
+		importSequenceLink = createLink("Import from UniProt, EMBL, PDB... ");
+		importTextLink = createLink("Create dataset from text ");
 		sessionLink = createLink("Open session ");			
 
 		GridBagConstraints c = new GridBagConstraints();
@@ -74,14 +79,27 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 
 		addLink("*** to continue working on previous sessions.", sessionLink, VisualConstants.OPEN_SESSION_LINK_ICON, c);
 
+		// Common links
 		List<JXHyperlink> importLinks = new LinkedList<JXHyperlink>();
 		importLinks.add(importLink);
 		importLinks.add(importFolderLink);
 		importLinks.add(importURLLink);
-		importLinks.add(importArrayExpressLink);
-		importLinks.add(importGEOLink);
+		
+		// Microarray links
+		String linkTemplate = "\n      *** \n      *** \n      *** \n      *** \n      ***";
+		if (application.getRequestedModule().equals(ClientApplication.MODULE_MICROARRAY)) {
+		    importLinks.add(importArrayExpressLink);
+		    importLinks.add(importGEOLink);
+		}
+		
+		// Sequence links
+		linkTemplate = "\n      *** \n      *** \n      *** \n      *** \n      ***";
+		if (application.getRequestedModule().equals(ClientApplication.MODULE_SEQUENCE)) {
+	        importLinks.add(importSequenceLink);
+		    importLinks.add(importTextLink);
+		}
 
-		addLink("Import new data to Chipster: \n      *** \n      *** \n      *** \n      *** \n      ***", importLinks, VisualConstants.IMPORT_LINK_ICON, c);
+		addLink("Import new data to Chipster: " + linkTemplate, importLinks, VisualConstants.IMPORT_LINK_ICON, c);
 
 		// Panels to take rest of space
 		JPanel bottomPanel = new JPanel();
@@ -183,11 +201,15 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 			} else if (e.getSource() == importFolderLink) {
 				application.openDirectoryImportDialog();
 			} else if (e.getSource() == importArrayExpressLink) {
-				Operation importOperation = new Operation(application.locateOperationDefinition(MicroarrayModule.IMPORT_CAT, MicroarrayModule.IMPORT_FROM_ARRAYEXPRESS_NAME), new DataBean[] {});
+				Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_ARRAYEXPRESS_ID), new DataBean[] {});
 				application.openDatabaseImport("ArrayExpress", importOperation);
 			} else if (e.getSource() == importGEOLink) {
-				Operation importOperation = new Operation(application.locateOperationDefinition(MicroarrayModule.IMPORT_CAT, MicroarrayModule.IMPORT_FROM_GEO_NAME), new DataBean[] {});
+				Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_GEO_ID), new DataBean[] {});
 				application.openDatabaseImport("GEO", importOperation);
+			} else if (e.getSource() == importTextLink) {
+			    application.openCreateFromTextDialog();
+	        } else if (e.getSource() == importSequenceLink) {
+                application.openSequenceImportDialog();
 			} else if (e.getSource() == emptyLink) {
 
 			} else if (e.getSource() == exampleLink) {

@@ -19,8 +19,8 @@ public class WfApplication {
 		this.application.executeOperation(operation.getWrapped());
 	}
 	
-	public WfOperationDefinition locateOperationDefinition(String categoryName, String operationName) {
-		OperationDefinition operationDefinition = this.application.locateOperationDefinition(categoryName, operationName);
+	public WfOperationDefinition getOperationDefinition(String operationID) {
+		OperationDefinition operationDefinition = this.application.getOperationDefinition(operationID);
 		return new WfOperationDefinition(operationDefinition);
 	}
 

@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.messaging.AdminAPI.NodeStatus.Status;
 import fi.csc.microarray.messaging.message.CommandMessage;
-import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 
 /**
  * AdminAPI objects should be used only from a one thread.
@@ -63,7 +63,7 @@ public class AdminAPI {
 		
 		private Lock mutex = new ReentrantLock();
 		
-		public void onNamiMessage(NamiMessage msg) {
+		public void onChipsterMessage(ChipsterMessage msg) {
 			mutex.lock(); 
 			try {
 				CommandMessage cmdMsg = (CommandMessage) msg;

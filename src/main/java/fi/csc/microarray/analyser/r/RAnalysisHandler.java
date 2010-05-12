@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -16,16 +17,16 @@ import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
 import fi.csc.microarray.analyser.ProcessPool;
 import fi.csc.microarray.analyser.ResultCallback;
-import fi.csc.microarray.analyser.VVSADLTool;
+import fi.csc.microarray.analyser.SADLTool;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.description.VVSADLParser.ParseException;
-import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.description.SADLDescription;
+import fi.csc.microarray.description.SADLGenerator;
+import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.messaging.message.JobMessage;
-import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;
+import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 
 public class RAnalysisHandler implements AnalysisHandler {
-	private static final String FILETYPE = ".r";
 
 	/**
 	 * Logger for this class
@@ -86,12 +87,13 @@ public class RAnalysisHandler implements AnalysisHandler {
 	}
 
 
-	public AnalysisDescription handle(String sourceResourceName) throws AnalysisException {
+	public AnalysisDescription handle(String sourceResourceName,
+	                                  Map<String, String> params) throws AnalysisException {
 		
 		InputStream scriptSource;
 		
 		String scriptPath = toolPath + File.separator + sourceResourceName;
-		logger.debug("creating descriptions from " + scriptPath);
+		logger.debug("creating description from " + scriptPath);
 		
 		// check for custom script file
 		File scriptFile = new File(customScriptsDirName + File.separator + scriptPath);
@@ -113,23 +115,30 @@ public class RAnalysisHandler implements AnalysisHandler {
 			throw new AnalysisException(scriptPath + " not found");
 		}
 		
-		// read the VVSADL from the comment block in the beginning of file
+		// read the SADL from the comment block in the beginning of file
 		// and the actual source code
-		VVSADLTool.ParsedRScript parsedScript;
+		SADLTool.ParsedRScript parsedScript;
 		try {
-			parsedScript = new VVSADLTool().parseRScript(scriptSource);
-		} catch (MicroarrayException e) {				
+			parsedScript = new SADLTool().parseRScript(scriptSource);
+		} catch (IOException e) {				
 			throw new AnalysisException(e);
 		}
 		
-		// parse VVSADL and create AnalysisDescription		
-		AnalysisDescription ad;
+		// parse SADL		
+		SADLDescription sadlDescription;
 		try {
-			ad = new AnalysisDescriptionGenerator().generate(new ChipsterVVSADLParser().parse(parsedScript.VVSADL), this);
+			sadlDescription = new ChipsterSADLParser().parse(parsedScript.SADL);
 		} catch (ParseException e) {
 			throw new AnalysisException(e);
 		}
-		ad.setVVSADL(parsedScript.VVSADL);
+		
+		// create analysis description
+		AnalysisDescription ad;
+		ad = new AnalysisDescriptionGenerator().generate(sadlDescription, this);
+		
+		// SADL back to string
+		SADLGenerator.generate(sadlDescription);
+		ad.setSADL(SADLGenerator.generate(sadlDescription));
 
 		// add R specific stuff to AnalysisDescription
 		ad.setCommand(rCommand);
@@ -143,12 +152,6 @@ public class RAnalysisHandler implements AnalysisHandler {
 	}
 
 	
-	public boolean supports(String sourceResourceName) {
-		logger.debug("do we support " + sourceResourceName + ": " + sourceResourceName.toLowerCase().endsWith(FILETYPE));
-		return sourceResourceName.toLowerCase().endsWith(FILETYPE);
-	}
-
-
 	public boolean isUptodate(AnalysisDescription description) {
 		File scriptFile = new File(customScriptsDirName + description.getSourceResourceFullPath());
 		

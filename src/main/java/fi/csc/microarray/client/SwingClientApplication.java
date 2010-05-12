@@ -7,7 +7,6 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,6 +59,8 @@ import fi.csc.microarray.client.dataview.GraphPanel;
 import fi.csc.microarray.client.dataview.TreePanel;
 import fi.csc.microarray.client.dialog.ChipsterDialog;
 import fi.csc.microarray.client.dialog.ClipboardImportDialog;
+import fi.csc.microarray.client.dialog.CreateFromTextDialog;
+import fi.csc.microarray.client.dialog.SequenceImportDialog;
 import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.dialog.DialogInfo;
 import fi.csc.microarray.client.dialog.ErrorDialogUtils;
@@ -100,8 +101,8 @@ import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.Traversal;
-import fi.csc.microarray.databeans.fs.FSSnapshottingSession;
-import fi.csc.microarray.description.VVSADLParser.ParseException;
+import fi.csc.microarray.databeans.sessions.SnapshottingSession;
+import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
@@ -169,12 +170,16 @@ public class SwingClientApplication extends ClientApplication {
 	private JFileChooser snapshotFileChooser;
 	private JFileChooser workflowFileChooser;
 
-	public SwingClientApplication(ClientListener clientListener, AuthenticationRequestListener overridingARL) throws MicroarrayException, IOException, IllegalConfigurationException {
+	public SwingClientApplication(ClientListener clientListener, AuthenticationRequestListener overridingARL, String module)
+	        throws MicroarrayException, IOException, IllegalConfigurationException {
 
 		super();
 		
 		this.clientListener = clientListener;
 		this.overridingARL = overridingARL;
+		
+        // Set the module that user wants to load
+        setRequestedModule(module);
 
 		splashScreen = new SplashScreen(VisualConstants.SPLASH_SCREEN);
 		reportInitialisation("Initialising " + ApplicationConstants.APPLICATION_TITLE, true);
@@ -240,7 +245,7 @@ public class SwingClientApplication extends ClientApplication {
 		try {
 			operationsPanel = new OperationPanel(parsedCategories);
 		} catch (ParseException e) {
-			logger.error("VVSADL parse failed", e);
+			logger.error("SADL parse failed", e);
 			throw new MicroarrayException(e);
 		}
 
@@ -650,16 +655,20 @@ public class SwingClientApplication extends ClientApplication {
 						// get the InputStream for the data source
 						InputStream input;
 
-						if (dataSource instanceof File) {
-							input = new FileInputStream((File) (dataSource));
+						
+						// create the DataBean
+						DataBean data = null;
 
+						if (dataSource instanceof File) {
+							data = manager.createDataBean(dataSetName, (File) dataSource);
+							
 						} else if (dataSource instanceof URL) {
 							// TODO Not used anymore, URL-files are saved to the
 							// temp file
 							URL url = (URL) dataSource;
 							try {
 								input = url.openStream();
-
+								manager.createDataBean(dataSetName, input);
 							} catch (FileNotFoundException fnfe) {
 								SwingUtilities.invokeAndWait(new Runnable() {
 									public void run() {
@@ -685,8 +694,17 @@ public class SwingClientApplication extends ClientApplication {
 							throw new IllegalArgumentException("unknown dataSource type: " + dataSource.getClass().getSimpleName());
 						}
 
-						// create new data
-						DataBean data = manager.createDataBean(dataSetName, input);
+						// make sure that the new bean is not null
+						if (data == null) {
+							SwingUtilities.invokeAndWait(new Runnable() {
+								public void run() {
+									showDialog("Importing dataset filed.", null, "Created DataBean was null.", Severity.WARNING, false);
+								}
+							});
+							return;
+						}
+						
+						// set the content type
 						data.setContentType(contentType);
 
 						// add the operation (all databeans have their own import
@@ -812,7 +830,7 @@ public class SwingClientApplication extends ClientApplication {
 			JFileChooser fileChooser = this.getWorkflowFileChooser();
 			int ret = fileChooser.showOpenDialog(this.getMainFrame());
 			if (ret == JFileChooser.APPROVE_OPTION) {
-				runWorkflow(fileChooser.getSelectedFile().toURL());
+				runWorkflow(fileChooser.getSelectedFile().toURI().toURL());
 
 				menuBar.updateMenuStatus();
 				return fileChooser.getSelectedFile();
@@ -1166,6 +1184,14 @@ public class SwingClientApplication extends ClientApplication {
 	public void openDatabaseImport(String title, Operation operation) throws MicroarrayException, IOException {
 		new TaskImportDialog(this, title, operation);
 	}
+	
+	public void openCreateFromTextDialog() throws MicroarrayException, IOException {
+	    new CreateFromTextDialog(this);
+	}
+	
+    public void openSequenceImportDialog() throws MicroarrayException, IOException {
+        new SequenceImportDialog(this);
+    }
 
 	
 	protected void quit() {
@@ -1229,7 +1255,7 @@ public class SwingClientApplication extends ClientApplication {
 	 * Starts Chipster client. Configuration (logging) should be initialised
 	 * before calling this method.
 	 */
-	public static void start(String configURL) throws IOException {
+	public static void start(String configURL, String module) throws IOException {
 
 		try {
 			DirectoryLayout.initialiseClientLayout(configURL);			
@@ -1248,7 +1274,7 @@ public class SwingClientApplication extends ClientApplication {
 		};
 		
 		try {
-			new SwingClientApplication(shutdownListener, null);
+			new SwingClientApplication(shutdownListener, null, module);
 			
 		} catch (Throwable t) {
 			t.printStackTrace();
@@ -1261,7 +1287,7 @@ public class SwingClientApplication extends ClientApplication {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		start(null);
+		start(null, "microarray");
 	}
 
 	public static void reportIllegalConfigurationException(IllegalConfigurationException e) {
@@ -1271,8 +1297,8 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	@Override
-	public void showSourceFor(String operationName) throws TaskException {
-		childScreens.show("ShowSource", true, operationName);
+	public void showSourceFor(String operationID) throws TaskException {
+		childScreens.show("ShowSource", true, operationID);
 	}
 
 	/**
@@ -1498,9 +1524,9 @@ public class SwingClientApplication extends ClientApplication {
 		if (snapshotFileChooser == null) {
 			snapshotFileChooser = ImportUtils.getFixedFileChooser();
 
-			String[] extensions = { FSSnapshottingSession.SNAPSHOT_EXTENSION };
+			String[] extensions = { SnapshottingSession.SNAPSHOT_EXTENSION };
 			snapshotFileChooser.setFileFilter(new GeneralFileFilter("Chipster Session", extensions));
-			snapshotFileChooser.setSelectedFile(new File("session." + FSSnapshottingSession.SNAPSHOT_EXTENSION));
+			snapshotFileChooser.setSelectedFile(new File("session." + SnapshottingSession.SNAPSHOT_EXTENSION));
 			snapshotFileChooser.setAcceptAllFileFilterUsed(false);
 			snapshotFileChooser.setMultiSelectionEnabled(false);
 
@@ -1576,13 +1602,23 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	public void viewHelpFor(OperationDefinition definition) {
-		viewHelp(HelpMapping.mapToHelppage(definition));
+        String url = definition.getHelpURL();
+	    if (url != null) {
+	        // Link is stored in operation definition
+	        url = definition.getHelpURL();
+	        viewHelp(url);
+	    } else {
+	        // Mostly for microarray
+	        // TODO: consider refactoring so that url is stored in definition
+	        // and this "else" branch is not needed
+	        String urlBase = "https://extras.csc.fi/biosciences/";
+	        viewHelp(urlBase + HelpMapping.mapToHelppage(definition));
+	    }
 	}
 
 	public void viewHelp(String page) {
 		try {
-			BrowserLauncher.openURL("https://extras.csc.fi/biosciences/" + page);
-
+			BrowserLauncher.openURL(page);
 		} catch (Exception e) {
 			reportException(e);
 		}
@@ -1687,7 +1723,7 @@ public class SwingClientApplication extends ClientApplication {
 		
 		if (ret == JFileChooser.APPROVE_OPTION) {
 			try {
-				final File file = fileChooser.getSelectedFile().getName().endsWith("." + FSSnapshottingSession.SNAPSHOT_EXTENSION) ? fileChooser.getSelectedFile() : new File(fileChooser.getSelectedFile().getCanonicalPath() + "." + FSSnapshottingSession.SNAPSHOT_EXTENSION);
+				final File file = fileChooser.getSelectedFile().getName().endsWith("." + SnapshottingSession.SNAPSHOT_EXTENSION) ? fileChooser.getSelectedFile() : new File(fileChooser.getSelectedFile().getCanonicalPath() + "." + SnapshottingSession.SNAPSHOT_EXTENSION);
 
 				if (file.exists()) {
 					int returnValue = JOptionPane.DEFAULT_OPTION;

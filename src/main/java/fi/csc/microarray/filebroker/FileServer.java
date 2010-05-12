@@ -1,6 +1,7 @@
 package fi.csc.microarray.filebroker;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Timer;
@@ -20,7 +21,7 @@ import fi.csc.microarray.messaging.NodeBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.message.CommandMessage;
-import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.UrlMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
@@ -37,6 +38,10 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	private MessagingEndpoint endpoint;	
 	private ManagerClient managerClient;
 	private AuthorisedUrlRepository urlRepository;
+
+	private String publicDataPath;
+	private String host;
+	private int port;
 
 
 	public static void main(String[] args) {
@@ -57,21 +62,25 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 
     		// initialise url repository
     		File fileRepository = DirectoryLayout.getInstance().getFileRoot();
-    		String host = configuration.getString("filebroker", "url");
-    		int port = configuration.getInt("filebroker", "port");
+    		this.host = configuration.getString("filebroker", "url");
+    		this.port = configuration.getInt("filebroker", "port");
     		
     		this.urlRepository = new AuthorisedUrlRepository(host, port);
+    		this.publicDataPath = configuration.getString("filebroker", "public-data-path");
 
     		// boot up file server
     		JettyFileServer fileServer = new JettyFileServer(urlRepository);
     		fileServer.start(fileRepository.getPath(), port);
 
     		// start scheduler
+    		String userDataPath = configuration.getString("filebroker", "user-data-path");
+    		File userDataRoot = new File(fileRepository, userDataPath);
+    		
     		int cutoff = 1000 * configuration.getInt("filebroker", "file-life-time");
     		int cleanUpFrequency = 1000 * configuration.getInt("filebroker", "clean-up-frequency");
     		int checkFrequency = 1000 * 5;
     		Timer t = new Timer("frontend-scheduled-tasks", true);
-    		t.schedule(new FileCleanUpTimerTask(fileRepository, cutoff), 0, cleanUpFrequency);
+    		t.schedule(new FileCleanUpTimerTask(userDataRoot, cutoff), 0, cleanUpFrequency);
     		t.schedule(new JettyCheckTimerTask(fileServer), 0, checkFrequency);
 
     		// initialise messaging
@@ -99,7 +108,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 	}
 
 
-	public void onNamiMessage(NamiMessage msg) {
+	public void onChipsterMessage(ChipsterMessage msg) {
 		try {
 
 			if (msg instanceof CommandMessage && CommandMessage.COMMAND_URL_REQUEST.equals(((CommandMessage)msg).getCommand())) {
@@ -109,6 +118,13 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 				UrlMessage reply = new UrlMessage(url);
 				endpoint.replyToMessage(msg, reply);
 				managerClient.urlRequest(msg.getUsername(), url);
+				
+			} else if (msg instanceof CommandMessage && CommandMessage.COMMAND_PUBLIC_URL_REQUEST.equals(((CommandMessage)msg).getCommand())) {
+				URL url = getPublicUrL();
+				UrlMessage reply = new UrlMessage(url);
+				endpoint.replyToMessage(msg, reply);
+				managerClient.publicUrlRequest(msg.getUsername(), url);
+
 			} else {
 				logger.error("message " + msg.getMessageID() + " not understood");
 			}
@@ -131,5 +147,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		logger.info("shutting down");
 	}
 
-
+	public URL getPublicUrL() throws MalformedURLException {
+		return new URL(host + ":" + port + "/" + publicDataPath);		
+	}
 }

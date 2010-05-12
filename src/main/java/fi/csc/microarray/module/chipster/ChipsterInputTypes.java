@@ -2,7 +2,7 @@ package fi.csc.microarray.module.chipster;
 
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.Table;
-import fi.csc.microarray.description.VVSADLSyntax.InputType;
+import fi.csc.microarray.description.SADLSyntax.InputType;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class ChipsterInputTypes {

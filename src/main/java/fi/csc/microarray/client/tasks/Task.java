@@ -13,22 +13,17 @@ import java.util.UUID;
 
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
-
+import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.client.operation.Operation.DataBinding;
+import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 
-// TODO simplify Task, takes only input and Operation
 /**
- * @author Aleksi Kallio
+ * @author Aleksi Kallio, Taavi Hupponen
  *
  */
 public class Task {
-	/**
-	 * Logger for this class
-	 */
-	private static final Logger logger = Logger.getLogger(Task.class);
-	
 
 	public enum State {
 		NEW("New"), 
@@ -96,45 +91,87 @@ public class Task {
 
 	
 	
-	
-	
-	private Map<String, DataBean> inputs = new HashMap<String, DataBean>();
-	private List<Object> parameters = new LinkedList<Object>();
-	
+	private Operation operation;
+	private String id; 
 	private State state = State.NEW;
 	private String stateDetail = "";
 	private int completionPercentage = -1;
-	private String name;
 	private long startTime;
 	private long endTime;
 	private String errorMessage;
 	private String screenOutput;
 	private Map<String, DataBean> outputs = new HashMap<String, DataBean>();
-	private String id; 
 	private boolean hasBeenRetried = false;
 	private boolean hidden = false;
 	
 	private List<TaskEventListener> listeners = new LinkedList<TaskEventListener>();	
 	
-	public Task(String name) {
-		this.name = name;
+	public Task(Operation operation) {
+		this.operation = operation;
 		this.id = generateId();
 	}
-
-	public Task(String name, boolean hidden) {
-		this(name);
-		this.hidden = hidden;
-	}
-
+	
 	/**
 	 * @return Returns the name.
 	 */
 	public String getName() {
-		return name;
+		return operation.getDefinition().getFullName();
+	}	
+
+	public String getOperationID() {
+		return operation.getID();
 	}
 	
+	
 	public String getNamePrettyPrinted() {
-		return name.replaceAll("\"", "").replaceAll("/", " - ");
+		return operation.getDefinition().getFullName();
+	}
+	
+	public Iterable<DataBean> getInputs() {
+		LinkedList<DataBean> beans = new LinkedList<DataBean>();
+		for (DataBinding binding : operation.getBindings()) {
+			beans.add(binding.getData());
+		}
+		return beans;
+	}
+	
+	
+	public List<String> getParameters() throws TaskException, MicroarrayException {
+		List<String> parameterStrings;
+		parameterStrings = new LinkedList<String>();
+		for (Parameter parameter: operation.getParameters()) {
+			parameterStrings.add(parameter.getValueAsString());
+		}
+		return parameterStrings;
+	}
+	
+	public DataBean getOutput(String name) {
+		return outputs.get(name);
+	}
+	
+	public DataBean getInput(String name) {
+		DataBinding binding = operation.getBinding(name);
+		if (binding != null) {
+			return binding.getData();
+		} else {
+			return null;
+		}
+	}
+	
+	public Iterable<String> getInputNames() {
+		LinkedList<String> bindingNames = new LinkedList<String>();
+		for (DataBinding binding : operation.getBindings()) {
+			bindingNames.add(binding.getName());
+		}
+		return bindingNames;
+	}
+
+	public int getInputCount() {
+		return operation.getBindings().size();
+	}
+	
+	public void addOutput(String outputName, DataBean bean) {
+		this.outputs.put(outputName, bean);
 	}
 	
 	
@@ -163,74 +200,8 @@ public class Task {
 	public synchronized State getState() {
 		return state; 
 	}
-	
-	/**
-	 * A generic input method. Infers correct addInput-method to call by using 
-	 * the type of input. Please use type-specific addInput-methods where 
-	 * possible. 
-	 * 
-	 * @throws IllegalArgumentException if parameter input is of unsupported type
-	 * @param name
-	 * @param input
-	 */
-	public void addParameter(String name, Object input) {
-		if (input instanceof Float) {
-			addParameter(name, (Float)input);
-		} else if (input instanceof Integer) {
-			addParameter(name, (Integer)input);
-		} else if (input instanceof String) {
-			addParameter(name, (String)input);
-		} else {
-			throw new IllegalArgumentException("unsupported input type: " + input.getClass().getSimpleName());
-		}
-	}
-	
-	public void addParameter(String name, Integer input) {
-		addParameter(name, input.toString()); // we handle Integer internally as a String
-	}
-	
-	public void addParameter(String name, Float input) {
-		addParameter(name, input.toString()); // we handle Float internally as a String
-	}
-	
-	public void addParameter(String name, String input) {
-		// we don't actually need the name now, order is enough
-		logger.debug("added parameter " + name + " -> " + input);
-		parameters.add(input);
-	}
-	
-	public DataBean getInput(String name) {
-		return inputs.get(name);
-	}
-	
-	
-	public List<String> getParameters() throws TaskException, MicroarrayException {
-		List<String> inputArray = new LinkedList<String>();
-		for (Object input : parameters) {
-			if (input instanceof String) {
-				inputArray.add((String)input);
-			} else {
-				throw new TaskException("do not know how to encode" + input.getClass().getName());
-			}
-		}
-		return inputArray;
-	}
-	
-	public void addOutput(String name, DataBean output) throws IOException, MicroarrayException {
-		outputs.put(name, output);
-	}
-	
-	public DataBean getOutput(String name) {
-		return outputs.get(name);
-	}
-	
-	public void addInput(String name, DataBean input) {
-		this.inputs.put(name, input);
-	}
 
-	public Iterable<String> inputNames() {
-		return inputs.keySet();		
-	}
+	
 	
 	public void setErrorMessage(String message) {
 		this.errorMessage = message;
@@ -336,9 +307,6 @@ public class Task {
 		listeners.add(listener);
 	}
 
-	public int getInputCount() {
-		return inputs.size();
-	}
 
 	public void setCompletionPercentage(int completionPercentage) {
 		this.completionPercentage = completionPercentage;

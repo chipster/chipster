@@ -15,8 +15,8 @@ import org.apache.log4j.Logger;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
-import fi.csc.microarray.messaging.message.NamiMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.UrlMessage;
 import fi.csc.microarray.util.IOUtils;
@@ -52,7 +52,7 @@ public class FileBrokerClient {
 		private URL newUrl;
 		private CountDownLatch latch = new CountDownLatch(1);
 		
-		public void onNamiMessage(NamiMessage msg) {
+		public void onChipsterMessage(ChipsterMessage msg) {
 			if (msg instanceof UrlMessage) {
 				UrlMessage urlMessage = (UrlMessage) msg;
 				this.newUrl = urlMessage.getUrl();
@@ -220,7 +220,8 @@ public class FileBrokerClient {
 	 * 
 	 *  
 	 * @return the new URL, may be null if file broker sends null or
-	 * if reply is not received before timeout 
+	 * if reply is not received before timeout
+	 * 
 	 * @throws JMSException
 	 */
 	private URL getNewUrl(boolean useCompression) throws JMSException {
@@ -242,5 +243,28 @@ public class FileBrokerClient {
 
 		return url;
 	}
-	
+
+	/**
+	 * Retrieves the root of the public file area from the file broker. Method blocks until result is
+	 * retrieved or timeout. Talks to the file broker using JMS.
+	 * 
+	 * @return the new URL, may be null if file broker sends null or if reply is not received before timeout
+	 *  
+	 * @throws JMSException
+	 */
+	public URL getPublicUrl() throws JMSException {
+
+		UrlMessageListener replyListener = new UrlMessageListener();  
+		URL url;
+		try {
+			CommandMessage urlRequestMessage = new CommandMessage(CommandMessage.COMMAND_PUBLIC_URL_REQUEST);
+			urlTopic.sendReplyableMessage(urlRequestMessage, replyListener);
+			url = replyListener.waitForReply(URL_REQUEST_TIMEOUT, TimeUnit.SECONDS);
+		} finally {
+			replyListener.cleanUp();
+		}
+
+		return url;
+	}
+
 }

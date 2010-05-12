@@ -17,6 +17,7 @@ import javax.swing.JPanel;
  * @author Janne KÃ¤ki
  *
  */
+@SuppressWarnings("serial")
 public abstract class ParameterInputComponent extends JPanel implements FocusListener {
 
 	protected static final Color BG_VALID = Color.white;
@@ -24,14 +25,21 @@ public abstract class ParameterInputComponent extends JPanel implements FocusLis
 	
 	protected static final int PREFERED_WIDTH = 140;
 	protected static final int PREFERED_HEIGHT = 23;
+    protected static final int MINIMUM_WIDTH = 50;
+    protected static final int MINIMUM_HEIGHT = 23;
 	protected static final Dimension PREFERRED_SIZE = new Dimension(
 			ParameterInputComponent.PREFERED_WIDTH, 
 			ParameterInputComponent.PREFERED_HEIGHT);
+   protected static final Dimension MINIMUM_SIZE = new Dimension(
+            ParameterInputComponent.MINIMUM_WIDTH, 
+            ParameterInputComponent.MINIMUM_HEIGHT);
 	
 	protected static final int INPUT_IS_INITIALIZED = 0;
 	protected static final int INPUT_IS_VALID = 1;
 	protected static final int INPUT_IS_OUT_OF_BOUNDS = -1;
 	protected static final int INPUT_IS_INCOMPREHENSIBLE = -2;
+    protected static final int INPUT_IS_REQUIRED_AND_EMPTY = -3;
+
 	
 	private JLabel label = null;
 	
@@ -52,9 +60,18 @@ public abstract class ParameterInputComponent extends JPanel implements FocusLis
 	 * @return The name label of this component.
 	 */
 	public JLabel getLabel() {
+	    // Maximum length of label
+	    int MAXLEN = 70;
+	    
 		if (label == null) {
-			label = new JLabel(getParameter().getName());
+			label = new JLabel(getParameter().getDisplayName(MAXLEN));
 		}
+		
+		// Dispaly tooltip only if needed
+		if (!getParameter().getDisplayName(MAXLEN).equals(getParameter().getID())) {
+	        label.setToolTipText(getParameter().getID());		    
+		}
+
 		return label;
 	}
 	

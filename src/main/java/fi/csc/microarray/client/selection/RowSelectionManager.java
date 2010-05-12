@@ -14,6 +14,7 @@ import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
+import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -96,7 +97,8 @@ public class RowSelectionManager {
 
 		writer.flush();
 		newData.closeContentOutputStreamAndUnlockDataBean(outputStream);
-		newData.setOperation(new Operation(OperationDefinition.USER_MODIFICATION_DEFINITION, new DataBean[] { newData }));
+		// TODO get the operation definition from the application
+		newData.setOperation(new Operation(OperationDefinition.CREATE_DEFINITION, new DataBean[] { newData }));
 
 		
 		// set metadata

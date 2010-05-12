@@ -1,6 +1,6 @@
 package fi.csc.microarray.databeans;
 
-import java.io.IOException;
+import java.io.IOException; 
 import java.util.List;
 
 import org.testng.Assert;
@@ -11,7 +11,6 @@ import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.Traversal;
-import fi.csc.microarray.databeans.fs.FSDataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class LinkTest {
@@ -20,7 +19,7 @@ public class LinkTest {
 	@BeforeSuite(alwaysRun = true)
 	public void init() throws IOException, IllegalConfigurationException {
 		DirectoryLayout.initialiseClientLayout().getConfiguration();			
-		this.manager = new FSDataManager();
+		this.manager = new DataManager();
 	}
 	
 	@Test(groups = {"unit"} )

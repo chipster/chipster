@@ -1,7 +1,5 @@
 package fi.csc.microarray.client.screen;
 
-import org.apache.log4j.Logger;
-
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -28,6 +26,8 @@ import javax.swing.JTextArea;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
+import org.apache.log4j.Logger;
+
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.ClientApplication.SourceCodeListener;
@@ -37,7 +37,6 @@ import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.biobeans.BioBean;
-import fi.csc.microarray.description.VVSADLParser;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.GeneralFileFilter;
 import fi.csc.microarray.util.Strings;
@@ -78,12 +77,12 @@ public class HistoryScreen extends ScreenBase
 		JPanel contentPane = new JPanel(new GridBagLayout());
 		
 		checkBoxes.put("title", new JCheckBox("Step title"));
-		checkBoxes.put("name", new JCheckBox("Dataset Name"));
-		checkBoxes.put("date", new JCheckBox("Creation Date"));
+		checkBoxes.put("name", new JCheckBox("Dataset name"));
+		checkBoxes.put("date", new JCheckBox("Creation date"));
 		checkBoxes.put("oper", new JCheckBox("Applied analysis tool"));
 		checkBoxes.put("param", new JCheckBox("Parameters"));
-		checkBoxes.put("notes", new JCheckBox("User Notes"));
-		checkBoxes.put("code", new JCheckBox("Source Code"));
+		checkBoxes.put("notes", new JCheckBox("User notes"));
+		checkBoxes.put("code", new JCheckBox("Source code"));
 
 		for (JCheckBox box : checkBoxes.values()) {
 			box.setSelected(true);
@@ -206,12 +205,12 @@ public class HistoryScreen extends ScreenBase
 				Operation oper = listData.getOperation();
 				historyText.append("Created with operation: ");
 				if (oper != null) {
-					historyText.append(oper.getName() + "\n");
+					historyText.append(oper.getDefinition().getFullName() + "\n");
 					if (checkBoxes.get("param").isSelected()) {
                         LinkedList<Parameter> params = oper.getParameters();
 						if (params != null && params.size() > 0) {
 							for (Parameter param : params) {
-								historyText.append("Parameter " + param.getName() + ": " +
+								historyText.append("Parameter " + param.getDisplayName() + ": " +
 										param.getValue() + "\n");
 							}
 						} 
@@ -256,22 +255,22 @@ public class HistoryScreen extends ScreenBase
 		if (sourceCodes == null) {
 			
 			// make list of wanted source codes
-			List<String> names = new LinkedList<String>();
+			List<String> ids = new LinkedList<String>();
 			for (DataBean bean : new BioBean(data).getSourcePath()) {
 				OperationDefinition op = bean.getOperation().getDefinition();
 				if (op.hasSourceCode()) {
-					names.add(VVSADLParser.generateOperationIdentifier(op.getCategoryName(), op.getName()));
+					ids.add(op.getID());
 				} else {
-					names.add(null);
+					ids.add(null);
 				}
-				logger.debug("added source path " + names.get(names.size()-1));
+				logger.debug("added source path " + ids.get(ids.size()-1));
 			}
 			
 			// initialise data structure that is used in result gathering 
-			sourceCodes = new String[names.size()];
+			sourceCodes = new String[ids.size()];
 
 			// start source code fetching
-			application.fetchSourceFor(names.toArray(new String[1]), this);
+			application.fetchSourceFor(ids.toArray(new String[1]), this);
 		}
 		return sourceCodes;
 	}

@@ -17,10 +17,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
 import javax.swing.Icon;
@@ -29,7 +32,6 @@ import javax.swing.Timer;
 import org.apache.log4j.Logger;
 import org.mortbay.util.IO;
 
-import fi.csc.microarray.analyser.AnalyserServer;
 import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.dataimport.ImportSession;
 import fi.csc.microarray.client.dataimport.ImportUtils;
@@ -38,7 +40,6 @@ import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationCategory;
 import fi.csc.microarray.client.operation.OperationDefinition;
-import fi.csc.microarray.client.operation.OperationGenerator;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.Operation.ResultListener;
 import fi.csc.microarray.client.selection.DataSelectionManager;
@@ -63,19 +64,20 @@ import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.table.EditableTable;
 import fi.csc.microarray.databeans.features.table.TableBeanEditor;
-import fi.csc.microarray.databeans.fs.FSDataManager;
-import fi.csc.microarray.description.ParsedVVSADL;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.AdminAPI;
+import fi.csc.microarray.messaging.DescriptionMessageListener;
 import fi.csc.microarray.messaging.MessagingEndpoint;
+import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.Node;
 import fi.csc.microarray.messaging.NodeBase;
+import fi.csc.microarray.messaging.SourceMessageListener;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
+import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.module.DefaultModules;
 import fi.csc.microarray.module.Modules;
-import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.Strings;
 
@@ -91,13 +93,15 @@ import fi.csc.microarray.util.Strings;
 public abstract class ClientApplication implements Node {
 	private static final int HEARTBEAT_DELAY = 2*1000;
 
-	/**
-	 * Logger for this class
-	 */
+	// Logger for this class
 	private static Logger logger;
 
 	public static File SNAPSHOT_DIR = null;
 	public static File OLD_SNAPSHOT_DIR = null;
+	
+	// Module names (see ToolRepository)
+	public static final String MODULE_MICROARRAY = "microarray";
+	public static final String MODULE_SEQUENCE = "sequence";
 	
     // 
 	// ABSTRACT INTERFACE
@@ -162,16 +166,23 @@ public abstract class ClientApplication implements Node {
 		}
 	};
 
-	protected Collection<OperationCategory> parsedCategories;
 	protected String metadata;
 	protected CountDownLatch definitionsInitialisedLatch = new CountDownLatch(1);
 	
 	private boolean eventsEnabled = false;
 	private PropertyChangeSupport eventSupport = new PropertyChangeSupport(this);
+	
+	private String requestedModule;
+
+	// TODO wrap these to some kind of repository
+	protected Collection<OperationCategory> parsedCategories;
+	protected Map<String, OperationDefinition> operationDefinitions;
+	protected Map<String, OperationDefinition> internalOperationDefinitions;
 
 	protected WorkflowManager workflowManager;
 	protected TaskExecutor taskExecutor;
 	protected MessagingEndpoint endpoint;
+	protected MessagingTopic requestTopic;
 	protected DataManager manager;
     protected DataSelectionManager selectionManager;
 
@@ -198,7 +209,7 @@ public abstract class ClientApplication implements Node {
 		this.workflowManager = new WorkflowManager(this);
 		 
 		// initialise data management
-		this.manager = new FSDataManager();
+		this.manager = new DataManager();
 		modules.plugFeatures(this.manager);
 		Session.getSession().putObject("data-manager", manager);
 
@@ -210,7 +221,8 @@ public abstract class ClientApplication implements Node {
 			logger.debug("Initialise JMS connection.");
 			reportInitialisation("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", true);
 			this.endpoint = new MessagingEndpoint(this, getAuthenticationRequestListener());
-			reportInitialisation(" connected", false);				
+			reportInitialisation(" connected", false);
+		    this.requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC,AccessMode.WRITE);
 			
 			//	put network stuff to session
 			Session.getSession().putObject("client-endpoint", endpoint);
@@ -224,24 +236,29 @@ public abstract class ClientApplication implements Node {
 			}				
 			reportInitialisation(" all are available", false);
 			
-			// create metadata fetching job
-			reportInitialisation("Fetching analysis descriptions...", true);
-			final Task describeOperations = taskExecutor.createTask("describe", true);
-			
-			// run the job (blocking while it is progressing)
-			taskExecutor.execute(describeOperations);
-			
-			// parse metadata
-			DataBean metadataBean = describeOperations.getOutput(AnalyserServer.DESCRIPTION_OUTPUT_NAME);
-			this.metadata = new String(metadataBean.getContents());
-			manager.delete(metadataBean); // don't leave the bean hanging around
-			logger.debug("got metadata: " + this.metadata.substring(0, 50) + "...");
-			List<ParsedVVSADL> descriptions = new ChipsterVVSADLParser().parseMultiple(this.metadata);
-			this.parsedCategories = new OperationGenerator().generate(descriptions).values();
-			
-			logger.debug("created " + this.parsedCategories.size() + " operation categories");
-			
+			// Fetch descriptions from compute server
+	        reportInitialisation("Fetching analysis descriptions...", true);
+            DescriptionMessageListener descriptionListener = new DescriptionMessageListener(getRequestedModule());
+			this.requestTopic.sendReplyableMessage(new CommandMessage(CommandMessage.COMMAND_DESCRIBE),
+			                                  descriptionListener);
+			// FIXME needs cleanup?
+			descriptionListener.waitForResponse();
+			parsedCategories = descriptionListener.getCategories();
+			operationDefinitions = new HashMap<String, OperationDefinition>();
+			for (OperationCategory category: parsedCategories) {
+				for (OperationDefinition operationDefinition: category.getOperationList()) {
+					operationDefinitions.put(operationDefinition.getID(), operationDefinition);
+				}
+			}
+			logger.debug("created " + parsedCategories.size() + " operation categories");
 			reportInitialisation(" received and processed", false);
+
+			// load internal operation definitions
+			internalOperationDefinitions = new HashMap<String, OperationDefinition>();
+			internalOperationDefinitions.put(OperationDefinition.IMPORT_DEFINITION.getID(), OperationDefinition.IMPORT_DEFINITION);
+			internalOperationDefinitions.put(OperationDefinition.CREATE_DEFINITION.getID(), OperationDefinition.CREATE_DEFINITION);
+
+			// all operation definitions loaded
 			definitionsInitialisedLatch.countDown();
 			
 			// start listening to job events
@@ -269,6 +286,29 @@ public abstract class ClientApplication implements Node {
 
 
 	}
+	
+	/**
+	 * @return a name of the module that user wants to be loaded.
+	 */
+	public String getRequestedModule() {
+	    return requestedModule;
+	}
+	
+	/**
+	 * Set module that user wants loaded.
+	 * 
+	 * @param requestedModule
+	 */
+    public void setRequestedModule(String requestedModule) {
+        this.requestedModule = requestedModule;
+    }
+    
+    /**
+     * @return messaging endpoint for this application.
+     */
+    public MessagingEndpoint getEndpoint() {
+        return endpoint;
+    }
 	
 	/**
 	 * Add listener for applications state changes.
@@ -362,6 +402,7 @@ public abstract class ClientApplication implements Node {
 		}
 	}
 	
+
 	public void executeOperation(final Operation operation) {
 
 		// check operation (relevant only for workflows)
@@ -387,18 +428,26 @@ public abstract class ClientApplication implements Node {
 			return;
 		}
 		
-		// execute the job
-		operation.execute(new TaskEventListener() {
+		// start executing the task
+		Task task = taskExecutor.createTask(operation);
+		task.addTaskEventListener(new TaskEventListener() {
 			public void onStateChange(Task job, State oldState, State newState) {
 				if (newState.isFinished()) {
 					try {
+						// FIXME there should be no need to pass the operation as it goes within the task
 						onFinishedTask(job, operation);
 					} catch (Exception e) {
 						reportException(e);
 					}
 				}
 			}
-		});				
+		});
+
+		try {
+			taskExecutor.startExecuting(task);
+		} catch (TaskException te) {
+			reportException(te);
+		}
 	}
 	
 	/**
@@ -593,38 +642,32 @@ public abstract class ClientApplication implements Node {
 		public void updateSourceCodeAt(int index, String sourceCode);
 	}
 	
-	public void fetchSourceFor(String[] operationNames, final SourceCodeListener listener) throws MicroarrayException {
-		try {
-			int i = -1;		
-			for (String name : operationNames) {
-				i++;
-				logger.debug("describe operation " + name);
-				if (name == null) {
-					listener.updateSourceCodeAt(i, null);
-					continue;
-				}
-				final Task describeTask = taskExecutor.createTask("describe-operation", true);
-				final int index = i;
-				describeTask.addParameter("name", name);
-				describeTask.addTaskEventListener(new TaskEventListener() {
-					public void onStateChange(Task job, State oldState, State newState) {
-						if (newState == State.COMPLETED) {
-							try {
-								DataBean sourceBean = describeTask.getOutput(AnalyserServer.SOURCECODE_OUTPUT_NAME);
-								String source = new String(sourceBean.getContents());
-								manager.delete(sourceBean); // don't leave it hanging around
-								logger.debug(source);
-								listener.updateSourceCodeAt(index, source);
-							} catch (MicroarrayException e) {
-								reportException(e);
-							}
-						}
-					}
-				});
-				taskExecutor.startExecuting(describeTask);
+	public void fetchSourceFor(String[] operationIDs, final SourceCodeListener listener) throws MicroarrayException {
+		int i = -1;		
+		for (String id : operationIDs) {
+			i++;
+			logger.debug("describe operation " + id);
+			if (id == null) {
+				listener.updateSourceCodeAt(i, null);
+				continue;
 			}
-		} catch (TaskException e) {
-			throw new MicroarrayException(e);
+			final int index = i;
+
+			SourceMessageListener sourceListener = new SourceMessageListener();
+			CommandMessage commandMessage = new CommandMessage(CommandMessage.COMMAND_GET_SOURCE);
+			commandMessage.addParameter(id);
+			String source;
+			try {
+				this.requestTopic.sendReplyableMessage(commandMessage, sourceListener);
+				source = sourceListener.waitForResponse(60, TimeUnit.SECONDS);
+				// source could be null
+				listener.updateSourceCodeAt(index, source);
+			} catch (JMSException jmse) {
+				throw new MicroarrayException(jmse);
+			} finally {
+				sourceListener.cleanUp();
+			}
+			
 		}
 	}
 		
@@ -641,33 +684,19 @@ public abstract class ClientApplication implements Node {
 		ImportUtils.executeImport(importSession);
 	}
 
-	public OperationDefinition locateOperationDefinition(String categoryName, String operationName) {
-		for (OperationCategory category : parsedCategories) {
-			if (category.getName().equals(categoryName)) {
-				for (OperationDefinition definition : category.getOperationList()) {
-					if (definition.getName().equals(operationName)) {
-						return definition;
-					}
-				}
-			}
+	/**
+	 * 
+	 * @param operationDefinitionID
+	 * @return null if operation definition is not found
+	 */
+	public OperationDefinition getOperationDefinition(String operationDefinitionID) {
+		OperationDefinition definition = operationDefinitions.get(operationDefinitionID); 
+		if (definition == null) {
+			definition = internalOperationDefinitions.get(operationDefinitionID);
 		}
-		return null;
+		return definition;
 	}
 
-	public void loadOldSnapshot() throws IOException, MicroarrayException {
-		manager.loadOldSnapshot(OLD_SNAPSHOT_DIR, manager.getRootFolder(), this);
-	}
-
-	public Iterable<OperationDefinition> getOperationDefinitions() {
-		LinkedList<OperationDefinition> definitions = new LinkedList<OperationDefinition>();
-		
-		for (OperationCategory category: parsedCategories) {
-			for (OperationDefinition operationDefinition: category.getOperationList()) {
-				definitions.add(operationDefinition);
-			}
-		}
-		return definitions;
-	}
 	
 	protected void exportToFile(final DataBean data, final File selectedFile) {
 		runBlockingTask("exporting file", new Runnable() {

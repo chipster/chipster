@@ -1,28 +1,38 @@
 package fi.csc.microarray.analyser;
 
-import fi.csc.microarray.description.ParsedVVSADL;
-import fi.csc.microarray.description.ParsedVVSADL.Parameter;
+import fi.csc.microarray.description.SADLDescription;
+import fi.csc.microarray.description.SADLDescription.Output;
+import fi.csc.microarray.description.SADLDescription.Parameter;
 
 /**
- * Listens to parse process and constructs description.
+ *  
+ * Generator for AnalysisDescription objects. AnalysisDescription objects are
+ * compute service specific versions of analysis tools descriptions.
+ * 
+ * @author Aleksi Kallio
+ *
  */
 public class AnalysisDescriptionGenerator {
 
-	public AnalysisDescription generate(ParsedVVSADL source, AnalysisHandler analysisHandler) {
+	/**
+	 * Converts generic SADLDescription to AnalysisDescription.
+	 */
+	public AnalysisDescription generate(SADLDescription source, AnalysisHandler analysisHandler) {
 		AnalysisDescription description = new AnalysisDescription(analysisHandler);
 		
-		description.setName(source.getName());
+		description.setID(source.getName().getID());
+		description.setDisplayName(source.getName().getDisplayName());
 		description.setComment(source.getComment());
-		description.setCategory(source.getPackageName());
+		description.setCategory(source.getCategory());
 
 		// not interested in inputs, they were figured out when job was submitted
 
-		for (String output : source.outputs()) {
-			description.addOutputFile(output);
+		for (Output output : source.outputs()) {
+			description.addOutputFile(output.getName().getID());
 		}
 		
 		for (Parameter parameter : source.parameters()) {
-			description.addParameter(new AnalysisDescription.ParameterDescription(parameter.getName(), parameter.getComment(), parameter.getType().isNumeric()));
+			description.addParameter(new AnalysisDescription.ParameterDescription(parameter.getName().getID(), parameter.getComment(), parameter.getType().isNumeric()));
 		}
 		
 		return description;
