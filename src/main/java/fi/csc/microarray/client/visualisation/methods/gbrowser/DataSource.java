@@ -20,6 +20,7 @@ public class DataSource {
 	}
 
 	public DataSource(File file) throws FileNotFoundException {
+
 		this.file = new RandomAccessFile(file, "r");
 	}
 	

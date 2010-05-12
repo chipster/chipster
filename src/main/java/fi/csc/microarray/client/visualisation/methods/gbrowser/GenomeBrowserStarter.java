@@ -16,8 +16,8 @@ import org.jfree.chart.JFreeChart;
 
 public class GenomeBrowserStarter {
 
-	private static final File FILE_ROOT = new File("/home/akallio/chipster-share/genome_browser");
-//	private static final File FILE_ROOT = new File("/home/klemela/chipster-share/genome_browser");
+//	private static final File FILE_ROOT = new File("/home/akallio/chipster-share/genome_browser");
+	private static final File FILE_ROOT = new File("/home/klemela/chipster-share/genome_browser");
 	private static final URL URL_ROOT;
 
 	static {
@@ -38,7 +38,11 @@ public class GenomeBrowserStarter {
 //		TrackFactory.addWigTrack(plot, new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_miRNA.fsf"));
 //		TrackFactory.addReadTracks(plot, new DataSource(FILE_ROOT, "treatmentdata_FoxA1_sorted_spaced.dat"), new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_seq.tsv"));
 //		TrackFactory.addReadTracks(plot, new DataSource(FILE_ROOT, "treatmentdata_FoxA1_sorted_spaced.dat"), new DataSource(FILE_ROOT, "../genomebrowser_data/annotations/Homo_sapiens.GRCh37.56_seq.fsf"));
-		TrackFactory.addReadTracks(plot, new DataSource(FILE_ROOT, "eland_result_sorted.tsv"), new DataSource(new File("/home/akallio/chipster-share/genomebrowser_data/tsv_annotations/Homo_sapiens.GRCh37.55_seq.tsv")));
+//		TrackFactory.addReadTracks(plot, new DataSource(FILE_ROOT, "eland_result_sorted.tsv"), 
+//				new DataSource(new File("/home/akallio/chipster-share/genomebrowser_data/tsv_annotations/Homo_sapiens.GRCh37.55_seq.tsv")));
+		TrackFactory.addReadTracks(plot, new DataSource(FILE_ROOT, "eland_result_sorted.tsv"), 
+				new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_seq.tsv"));
+		
 		TrackFactory.addRulerTrack(plot);
 		plot.start("1");
 		
