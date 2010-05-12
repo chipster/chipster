@@ -1,7 +1,7 @@
 TOOL "Statistics" / find_peaks_using_MACS.R: "Find ChIP-seq peaks using MACS" (This tool will search for statistically significantly enriched
 genomic regions in sequencing data from a ChIP-seq experiment. The analysis can be performed on one or more treatment
 samples alone, or relative to one or more control samples.)
-INPUT sequence[...].tsv: "Sequence data files" TYPE SEQ_FILE
+INPUT sequence[...].txt: "Sequence data files" TYPE SEQ_FILE
 OUTPUT positive_peaks.tsv: "True enriched peaks"
 OUTPUT analysis_summary.tsv: "Summary of analysis settings and results"
 OUTPUT peak_model.pdf: "A plot of the fitted peak model"
@@ -10,48 +10,109 @@ PARAMETER groups.column: "Column with group labels" TYPE NETACOLUMN_SEL DEDAULT 
 PARAMETER treatment.group: "The group label used for the treatment samples" TYPE STRING DEFAULT "empty"
 PARAMETER control.group: "The group label used for the control samples" TYPE STRING DEFAULT "empty"
 PARAMETER file.format: "The format of the sequence files" TYPE STRING [ELAND, SAM, BAM, BED] DEFAULT ELAND
-PAMATER produce.wiggle: "Should wiggle files be produced?" TYPE STRING DEFAULT "no"
+PARAMETER produce.wiggle: "Should wiggle files be produced?" TYPE STRING DEFAULT "no" (Determines if WIGGLE type files should be output or not.
+By default this option is turned off due to the significantly longer run times it causes. However, for
+displaying p-values in one track of the Genome Browser, this paramter needs to be "yes".)
+PARAMETER read.length: "The length in nucleotides of the sequence reads" TYPE INTEGER FROM 1 TO 200 DEFAULT 30
+PARAMETER band.with: "The scanning window size, typically half the average DNA fragment length" TYPE INTEGER FROM 1 TO 1000 DEFAULT 200
+PARAMETER p.value.threshold: "The unadjusted p-value cutoff for statistical significance" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05
+PARAMETER m.fold: "Sets the m-fold threshold for model building" TYPE INTEGER FROM 1 TO 100 DEFAULT 32
 
+groups.column <- "group"
+treatment.group <- "1"
+control.group <- "2"
+file.format <- "ELAND"
+produce.wiggle <- "no"
+read.length <- 25
+band.with <- 250
+p.value.threshold <- 0.05
+m.fold <- 32
 
-# OUTPUT positive_peaks.tsv, negative_peaks.tsv, analysis_summary.tsv, peak_model.pdf
-# PARAMETER groups.column METACOLUMN_SEL DEFAULT group (Phenodata column describing the experiment groups of the samples. Use "2" for treatment and "1" for control.)
-# PARAMETER file.format [ELAND, BED, SAM, BAM] DEFAULT ELAND (The format of the sequence files.)
-# PARAMETER produce.WIGGLE [yes, no] DEFAULT no (Determines if WIGGLE type files should be output or not.
-# By default this option is turned off due to the significantly longer run times it causes. However, for
-# displaying p-values in one track of the Genome Browser, this paramter needs to be "yes".)
-# PARAMETER read.length
-# PARAMETER band.with
-# PARAMETER p.value.threshold
-# PARAMETER m.fold
-
-
-TOOL "Test utilities" / util-test.R: "Test tool" (Just a test analysis for development. These descriptions are sometimes very
-long and might get hard to read. (Note that certain operators must be escaped.\))
-INPUT microarray{...}.tsv: "Raw data files" TYPE CDNA
-INPUT phenodata.tsv: "Experiment description" TYPE GENERIC
-OUTPUT result{...}.txt: "Result files"
-OUTPUT OPTIONAL error.txt: "Error, if any"
-PARAMETER value1: "The first value" TYPE INTEGER FROM 0 TO 200 DEFAULT 10 (the first value of the result set)
-PARAMETER value2: "The second value" TYPE DECIMAL FROM 0 TO 200 DEFAULT 20 (the second value of the result set)
-PARAMETER OPTIONAL value3: "The third value" TYPE DECIMAL FROM 0 TO 200 DEFAULT 30.2 (the third value of the result set)
-PARAMETER method: "The fourth value" TYPE PERCENT DEFAULT 34 (how much we need)
-PARAMETER method: "The method" TYPE [linear: "Linear scale", logarithmic: "Logarithmic scale", exponential: "Exponential scale"] FROM 1 TO 2 DEFAULT logarithmic (which scale to use)
-PARAMETER genename: "Gene name" TYPE STRING DEFAULT at_something (which gene we are interested in)
-PARAMETER key: "Key column" TYPE COLUMN_SEL (which column we use as a key)
 
 # find_peals_using_MACS.R
-# MG, 22.4.2010
+# MG, 11.5.2010
 
 # Loads the libraries
 
+# Reading data
+# files<-dir()
+# files<-files[files!="phenodata.tsv"]
+# dat<- read.maimages(files=files, columns=columns, annotation=annotation, other.columns=columns.other) 
 
-# Loads the normalized data and phenodata files
-#data_1 <- read.table(file="normalized_mirna.tsv", header=T, sep="\t", row.names=1)
-#phenodata_1 <- read.table("phenodata_mirna.tsv", header=T, sep="\t")
+
+# Loads the  phenodata files
+phenodata <- read.table("phenodata.tsv", header=T, sep="\t")
+groups<-phenodata[,pmatch(groups.column,colnames(phenodata))]
+indices <- seq(1,length(groups),step=1)
+treatment.indices <- indices[groups==treatment.group]
+if (control.group != "empty") {
+	control.indices <- indices[groups==control.group]
+}
+
+
+# Sanity checks
+# if(length(unique(groups))==1 | length(unique(groups))>=3) {
+#	stop("You need to have exactly two groups to run this analysis")
+#}
+
 
 # If multiple samples per experiment group merge into one single file
+if (length(treatment.indices) > 1) {
+	command <- "cat"
+	command <- paste (command, paste("sequence",treatment.indices[1], sep=""))
+	command <- paste(command, ".txt", sep="")
+	for (count in 2:length(treatment.indices)) {
+		command <- paste(command, " ", sep="")
+		command_2 <- paste("sequence", treatment.indices[count], sep="")
+		command_2 <- paste(command_2, ".txt", sep="")
+		command <- paste(command, command_2, sep="")
+	#	assign (paste("data_", count, sep=""), read.table(files[count], header=T, sep="\t")) 
+	}
+	command <- paste (command, "> treatment.txt")
+	system (command)
+}
+if (length(treatment.indices) == 1) {
+	command <- "mv"
+	command <- paste(command, paste("sequence", treatment.indices[1], sep=""))
+	command <- paste (command, "> treatment.txt")
+	system*command()
+}
+if (length(control.indices) > 1) {
+	command <- "cat"
+	command <- paste (command, paste("sequence",control.indices[1], sep=""))
+	command <- paste(command, ".txt", sep="")
+	for (count in 2:length(control.indices)) {
+		command <- paste(command, " ", sep="")
+		command_2 <- paste("sequence", control.indices[count], sep="")
+		command_2 <- paste(command_2, ".txt", sep="")
+		command <- paste(command, command_2, sep="")
+		#	assign (paste("data_", count, sep=""), read.table(files[count], header=T, sep="\t")) 
+	}
+	command <- paste (command, "> control.txt")
+	system (command)
+}
+if (length(control.indices) == 1) {
+	command <- "mv"
+	command <- paste(command, paste("sequence", control.indices[1], sep=""))
+	command <- paste (command, "> control.txt")
+	system(command)
+}
 
 # Trim off any unwanted reads (ambiguous and low quality)
+# if (file.format == "ELAND") {
+# }
+
+# Remove unmappable reads belonging to random chromosomes or hapmap
+system("grep -v random treatment.txt > treatment_2.txt")
+system("grep -v hap treatment.txt > treatment_3.txt")
+system ("rm -f treatment.txt")
+system("rm -f treatment_2.txt")
+if (control.group != "empty") {
+	system("grep -v random control.txt > control_2.txt")
+	system("grep -v hap control.txt > control_3.txt")
+	system ("rm -f control.txt")
+	system("rm -f control_2.txt")
+}
 
 # Define function for running MACS
  runMACS <- function(..., logFile="/dev/null") {
