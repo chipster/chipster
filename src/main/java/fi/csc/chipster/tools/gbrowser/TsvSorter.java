@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileDefinition;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -215,5 +218,10 @@ public class TsvSorter {
 			File f = new File(inputFilePath + "_chunk" + i);
 			f.delete();
 		}
+	}
+	
+	public static void main(String[] args) throws Exception {
+		FileDefinition def = new ElandParser().getFileDefinition();
+		new TsvSorter().sort(new File("infile.txt"), new File("infile.txt"), def.indexOf(ColumnType.CHROMOSOME), def.indexOf(ColumnType.BP_START));
 	}
 }
