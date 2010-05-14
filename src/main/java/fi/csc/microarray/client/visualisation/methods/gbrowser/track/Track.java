@@ -22,9 +22,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus
 
 public abstract class Track implements AreaResultListener {
 
-	private View view;
-	private DataSource file;
-	private Strand strand = Strand.FORWARD;
+	protected View view;
+	protected DataSource file;
+	protected Strand strand = Strand.FORWARD;
 
 	public Track(View view, DataSource file) {
 		this.view = view;
