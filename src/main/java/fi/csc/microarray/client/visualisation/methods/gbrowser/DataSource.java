@@ -14,14 +14,16 @@ public class DataSource {
 
 	private RandomAccessFile file = null;
 	private URL url = null;
+	private String name;
 	
 	public DataSource(URL url) throws FileNotFoundException {
 		this.url = url;
+		this.name = url.toString(); 
 	}
 
 	public DataSource(File file) throws FileNotFoundException {
-
 		this.file = new RandomAccessFile(file, "r");
+		this.name = file.toString();
 	}
 	
 	public DataSource(URL urlRoot, String path) throws FileNotFoundException, MalformedURLException {
@@ -73,11 +75,6 @@ public class DataSource {
 	
 	@Override
 	public String toString() {
-		if (file != null) {
-			return file.toString();
-		} else {
-			return url.toString();
-		}
-
+		return name;
 	}
 }
