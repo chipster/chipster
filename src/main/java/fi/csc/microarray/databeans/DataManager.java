@@ -122,7 +122,7 @@ public interface DataManager {
 	 * File is a zip file with all the data files and one metadata file.
 	 * @return count of stored files
 	 */
-	public int saveSnapshot(File sessionFile, ClientApplication application) throws IOException;
+	public void saveSnapshot(File sessionFile, ClientApplication application) throws IOException;
 
 	/**
 	 * Load session from a file.
