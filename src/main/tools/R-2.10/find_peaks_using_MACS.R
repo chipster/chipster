@@ -144,13 +144,13 @@ if (control.group != "empty") {
 		}
 		
 		# Command
-		command <- paste("macs", paste(flags, params, collapse=" "))
+		command <- paste("/v/users/chipster/tools/bin/macs", paste(flags, params, collapse=" "))
 		if (!is.null(switchOnParams)) {
 			switchOnParams <-  paste(switchOnParams, collapse=" ")
 			command <- paste(command, switchOnParams)
 		}
 		# Environment
-		environment <- "export PYTHONPATH /v/users/chipster/tools/lib/python2.6/site-packages ; export PATH ${PATH}:/v/users/chipster/tools/bin ; "
+		environment <- "export PYTHONPATH=/v/users/chipster/tools/lib/python2.6/site-packages ; export PATH=/v/users/chipster/tools/bin"
 		# Run macs. Macs writes its output to stderr (stream number 2)
 		# &> redirects both stderr and stdout
 		# Iterates through mfold values to find low enough that works
