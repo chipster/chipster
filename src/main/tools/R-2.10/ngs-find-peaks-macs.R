@@ -1,22 +1,22 @@
-TOOL "Statistics" / find_peaks_using_MACS.R: "Find ChIP-seq peaks using MACS" (This tool will search for statistically significantly enriched
-genomic regions in sequencing data from a ChIP-seq experiment. The analysis can be performed on one or more treatment
-samples alone, or relative to one or more control samples.)
-INPUT sequence[...].txt: "Sequence data files" TYPE SEQ_FILE
-OUTPUT positive_peaks.tsv: "True enriched peaks"
-OUTPUT analysis_summary.tsv: "Summary of analysis settings and results"
-OUTPUT peak_model.pdf: "A plot of the fitted peak model"
-OUTPUT OPTIONAL negative_peaks.tsv: "The false enriched peaks"
-PARAMETER groups.column: "Column with group labels" TYPE NETACOLUMN_SEL DEDAULT gtoup (Phenodata column describing the experiment groups of the samples. Use "2" for treatment and "1" for control.)
-PARAMETER treatment.group: "The group label used for the treatment samples" TYPE STRING DEFAULT "empty"
-PARAMETER control.group: "The group label used for the control samples" TYPE STRING DEFAULT "empty"
-PARAMETER file.format: "The format of the sequence files" TYPE STRING [ELAND, SAM, BAM, BED] DEFAULT ELAND
-PARAMETER produce.wiggle: "Should wiggle files be produced?" TYPE STRING DEFAULT "no" (Determines if WIGGLE type files should be output or not.
-By default this option is turned off due to the significantly longer run times it causes. However, for
-displaying p-values in one track of the Genome Browser, this paramter needs to be "yes".)
-PARAMETER read.length: "The length in nucleotides of the sequence reads" TYPE INTEGER FROM 1 TO 200 DEFAULT 30
-PARAMETER band.with: "The scanning window size, typically half the average DNA fragment length" TYPE INTEGER FROM 1 TO 1000 DEFAULT 200
-PARAMETER p.value.threshold: "The unadjusted p-value cutoff for statistical significance" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05
-PARAMETER m.fold: "Sets the m-fold threshold for model building" TYPE INTEGER FROM 1 TO 100 DEFAULT 32
+# TOOL "Statistics" / find_peaks_using_MACS.R: "Find ChIP-seq peaks using MACS" (This tool will search for statistically significantly enriched
+# genomic regions in sequencing data from a ChIP-seq experiment. The analysis can be performed on one or more treatment
+# samples alone, or relative to one or more control samples.)
+# INPUT sequence[...].txt: "Sequence data files" TYPE SEQ_FILE
+# OUTPUT positive_peaks.tsv: "True enriched peaks"
+# OUTPUT analysis_summary.tsv: "Summary of analysis settings and results"
+# OUTPUT peak_model.pdf: "A plot of the fitted peak model"
+# OUTPUT OPTIONAL negative_peaks.tsv: "The false enriched peaks"
+# PARAMETER groups.column: "Column with group labels" TYPE NETACOLUMN_SEL DEDAULT gtoup (Phenodata column describing the experiment groups of the samples. Use "2" for treatment and "1" for control.)
+# PARAMETER treatment.group: "The group label used for the treatment samples" TYPE STRING DEFAULT "empty"
+# PARAMETER control.group: "The group label used for the control samples" TYPE STRING DEFAULT "empty"
+# PARAMETER file.format: "The format of the sequence files" TYPE STRING [ELAND, SAM, BAM, BED] DEFAULT ELAND
+# PARAMETER produce.wiggle: "Should wiggle files be produced?" TYPE STRING DEFAULT "no" (Determines if WIGGLE type files should be output or not.
+# By default this option is turned off due to the significantly longer run times it causes. However, for
+# displaying p-values in one track of the Genome Browser, this paramter needs to be "yes".)
+# PARAMETER read.length: "The length in nucleotides of the sequence reads" TYPE INTEGER FROM 1 TO 200 DEFAULT 30
+# PARAMETER band.with: "The scanning window size, typically half the average DNA fragment length" TYPE INTEGER FROM 1 TO 1000 DEFAULT 200
+# PARAMETER p.value.threshold: "The unadjusted p-value cutoff for statistical significance" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05
+# PARAMETER m.fold: "Sets the m-fold threshold for model building" TYPE INTEGER FROM 1 TO 100 DEFAULT 32
 
 groups.column <- "group"
 treatment.group <- "1"
@@ -30,7 +30,7 @@ m.fold <- 32
 
 
 # find_peals_using_MACS.R
-# MG, 11.5.2010
+# MG, 17.5.2010
 
 # Loads the libraries!
 
@@ -115,7 +115,7 @@ if (control.group != "empty") {
 }
 
 # Define function for running MACS
- runMACS <- function(..., logFile="/dev/null") {
+runMACS <- function(..., logFile="/dev/null") {
 	
 	# Parameter values (character vector)
 	params <- c(...) ## Nice :)
@@ -150,13 +150,18 @@ if (control.group != "empty") {
 			command <- paste(command, switchOnParams)
 		}
 		# Environment
-		environment <- "export PYTHONPATH=/v/users/chipster/tools/lib/python2.6/site-packages ; export PATH=/v/users/chipster/tools/bin"
+		environment <- "export PYTHONPATH=/v/users/chipster/tools/lib/python2.6/site-packages ; export PATH=${PATH}:/v/users/akallio/bin ;"
+		
+#	system ("setenv PYTHONPATH=/v/users/chipster/tools/lib/python2.6/site-packages")
+#	setenv PATH=${PATH}:/v/users/chipster/tools/bin
+		
+		
 		# Run macs. Macs writes its output to stderr (stream number 2)
 		# &> redirects both stderr and stdout
 		# Iterates through mfold values to find low enough that works
 		for (mfold in list(32, 24, 16, 8)) {
-#			system.output <- system(paste(environment, command, paste("--mfold=", mfold, sep=""), "2>", logFile))
-			system.output <- system(paste(command, paste("--mfold=", mfold, sep=""), "2>", logFile))
+			system.output <- system(paste(environment, command, paste("--mfold=", mfold, sep=""), "2>", logFile))
+#			system.output <- system(paste(command, paste("--mfold=", mfold, sep=""), "2>", logFile))
 			if (system.output == 0) {
 				break; # was succesfull, don't lower mfold value any more
 			}
