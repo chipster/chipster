@@ -32,7 +32,7 @@ m.fold <- 32
 # find_peals_using_MACS.R
 # MG, 11.5.2010
 
-# Loads the libraries
+# Loads the libraries!
 
 # Reading data
 # files<-dir()
