@@ -698,6 +698,12 @@ public abstract class ClientApplication implements Node {
 	}
 
 	
+	/**
+	 * FIXME Better handling for existing file
+	 * 
+	 * @param data
+	 * @param selectedFile
+	 */
 	protected void exportToFile(final DataBean data, final File selectedFile) {
 		runBlockingTask("exporting file", new Runnable() {
 
@@ -716,7 +722,7 @@ public abstract class ClientApplication implements Node {
 					IO.copy(data.getContentByteStream(), out);
 					out.close();
 				} catch (Exception e) {
-					throw new RuntimeException();
+					throw new RuntimeException(e);
 				}
 			}
 			

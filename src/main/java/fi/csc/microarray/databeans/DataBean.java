@@ -286,16 +286,18 @@ public class DataBean extends DataItemBase {
 	 * 
 	 * @see #queryFeatures(String)
 	 * 
-	 * FIXME change name
+	 * FIXME change name, locks stream start cache
 	 */
 	public InputStream getContentByteStream() throws IOException {
-		lock.readLock().lock();
-		if (streamStartCache != null) {
-			return streamStartCache.getInputStream();
-		} else {
-			logger.debug("using non-cached stream");
-			return getRawContentByteStream();
-		}
+		return getRawContentByteStream();
+
+		//lock.readLock().lock();
+//		if (streamStartCache != null) {
+//			return streamStartCache.getInputStream();
+//		} else {
+//			logger.debug("using non-cached stream");
+//			return getRawContentByteStream();
+//		}
 	}
 
 
