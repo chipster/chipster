@@ -17,6 +17,7 @@ import org.jfree.chart.JFreeChart;
 public class GenomeBrowserStarter {
 
 	private static final File ELAND_DATA_FILE = new File("/home/akallio/Desktop/STAT1/STAT1_treatment_aggregated_filtered_chr1_sorted.txt");
+	private static final File MACS_DATA_FILE = new File("/home/akallio/Desktop/STAT1/STAT1_peaks_sorted.bed");
 	private static final URL URL_ROOT;
 
 	static {
@@ -33,12 +34,9 @@ public class GenomeBrowserStarter {
 		TrackFactory.addGeneTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_genes.tsv"));
 //		TrackFactory.addMirnaTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_miRNA.tsv"));
 		TrackFactory.addTranscriptTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_transcripts.tsv"));
-//		TrackFactory.addPeakTracks(plot, new DataSource(FILE_ROOT, "results_ar_dht_I_and_II_vs_rigg_combined_p1e5_m10_bw175_ts30_peaks.bed"));
-//		TrackFactory.addWigTrack(plot, new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_miRNA.fsf"));
-//		TrackFactory.addReadTracks(plot, new DataSource(FILE_ROOT, "treatmentdata_FoxA1_sorted_spaced.dat"), new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_seq.tsv"));
-//		TrackFactory.addReadTracks(plot, new DataSource(FILE_ROOT, "treatmentdata_FoxA1_sorted_spaced.dat"), new DataSource(FILE_ROOT, "../genomebrowser_data/annotations/Homo_sapiens.GRCh37.56_seq.fsf"));
-//		TrackFactory.addReadTracks(plot, new DataSource(FILE_ROOT, "eland_result_sorted.tsv"), 
-//				new DataSource(new File("/home/akallio/chipster-share/genomebrowser_data/tsv_annotations/Homo_sapiens.GRCh37.55_seq.tsv")));
+		
+		TrackFactory.addPeakTracks(plot, new DataSource(MACS_DATA_FILE));
+		
 		TrackFactory.addReadTracks(plot, new DataSource(ELAND_DATA_FILE), 
 				new DataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_seq.tsv"));
 		
