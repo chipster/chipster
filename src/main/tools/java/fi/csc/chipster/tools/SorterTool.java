@@ -83,8 +83,8 @@ public class SorterTool extends JavaAnalysisJobBase {
 //			for (InputDescription input: analysis.getInputFiles()) {
 //				writer.write(input.getFileName() + "\t" + "\n");
 //			}
-			writer.write("in-treatment.tsv" + "\t\t" + "treatment" + "\n");
-			writer.write("in-control.tsv" + "\t\t" + "control" + "\n");
+			writer.write("treatment.tsv" + "\t\t" + "treatment" + "\n");
+			writer.write("control.tsv" + "\t\t" + "control" + "\n");
 
 			
 		} catch (IOException e) {
