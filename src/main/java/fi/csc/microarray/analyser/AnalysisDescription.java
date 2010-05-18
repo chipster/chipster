@@ -66,6 +66,24 @@ public class AnalysisDescription {
 	}
 	
 
+	/**
+	 * Describes an input (parameter name and file name). 
+	 */
+	public static class InputDescription {
+        private String fileName;
+
+        public String getFileName() {
+            return fileName;
+        }
+	    
+	    public InputDescription(String fileName) {
+	        this.fileName = fileName;
+	    }
+	}
+
+	
+	
+	
 	private String id;
 	
 
@@ -90,7 +108,8 @@ public class AnalysisDescription {
 	private String comment;
 
 	
-	
+
+	private List<InputDescription> inputFiles = new LinkedList<InputDescription>();
 	private List<OutputDescription> outputFiles = new LinkedList<OutputDescription>();
 	private List<ParameterDescription> parameters = new LinkedList<ParameterDescription>();
 	private String sourceCode;
@@ -142,6 +161,11 @@ public class AnalysisDescription {
 	
 	public Object getImplementation() {
 		return implementation;
+	}
+	
+
+	public List<InputDescription> getInputFiles() {
+		return inputFiles;
 	}
 	
 	public List<OutputDescription> getOutputFiles() {
@@ -198,6 +222,11 @@ public class AnalysisDescription {
 
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
+	}
+	
+
+	public void addInputFile(String fileName) {
+		inputFiles.add(new InputDescription(fileName));
 	}
 	
 	public void addOutputFile(String fileName) {
