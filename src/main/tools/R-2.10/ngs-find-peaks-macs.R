@@ -1,22 +1,28 @@
 # TOOL "Statistics" / find_peaks_using_macs.R: "Find ChIP-seq peaks using MACS" (This tool will search for statistically significantly enriched
 # genomic regions in sequencing data from a ChIP-seq experiment. The analysis can be performed on one or more treatment
 # samples alone, or relative to one or more control samples.)
-# INPUT sequence{...}.txt: "Sequence data files" TYPE GENERIC
+# INPUT treatment.tsv: "Treatment data file" TYPE GENERIC
+# INPUT control.tsv: "Control data file" TYPE GENERIC
 # OUTPUT positive_peaks.tsv: "True enriched peaks"
 # OUTPUT analysis_summary.tsv: "Summary of analysis settings and results"
 # OUTPUT peak_model.pdf: "A plot of the fitted peak model"
 # OUTPUT OPTIONAL negative_peaks.tsv: "The false enriched peaks"
-# PARAMETER groups.column: "Column with group labels" TYPE METACOLUMN_SEL DEFAULT groups (Phenodata column describing the experiment groups of the samples. Use "2" for treatment and "1" for control.)
-# PARAMETER treatment.group: "The group label used for the treatment samples" TYPE STRING DEFAULT "empty"
-# PARAMETER control.group: "The group label used for the control samples" TYPE STRING DEFAULT "empty"
 # PARAMETER file.format: "The format of the sequence files" TYPE [ELAND, SAM, BAM, BED] DEFAULT ELAND
 # PARAMETER produce.wiggle: "Should wiggle files be produced?" TYPE STRING DEFAULT "no" (Determines if WIGGLE type files should be output or not.
 # By default this option is turned off due to the significantly longer run times it causes. However, for
 # displaying p-values in one track of the Genome Browser, this paramter needs to be "yes".)
+# PARAMETER species: "The species of the analyzed samples" TYOE STRING [human] DEFAULT human
 # PARAMETER read.length: "The length in nucleotides of the sequence reads" TYPE INTEGER FROM 1 TO 200 DEFAULT 30
 # PARAMETER band.with: "The scanning window size, typically half the average DNA fragment length" TYPE INTEGER FROM 1 TO 1000 DEFAULT 200
 # PARAMETER p.value.threshold: "The unadjusted p-value cutoff for statistical significance" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05
 # PARAMETER m.fold: "Sets the m-fold threshold for model building" TYPE INTEGER FROM 1 TO 100 DEFAULT 32
+
+# ALTERNATIVE SETUP
+# INPUT sequence{...}.txt: "Sequence data files" TYPE GENERIC
+# INPUT phenodata.tsv: "The file containing pehnotype data" TYPE GENERIC
+# PARAMETER groups.column: "Column with group labels" TYPE METACOLUMN_SEL DEFAULT groups (Phenodata column describing the experiment groups of the samples. Use "2" for treatment and "1" for control.)
+# PARAMETER treatment.group: "The group label used for the treatment samples" TYPE STRING DEFAULT "empty"
+# PARAMETER control.group: "The group label used for the control samples" TYPE STRING DEFAULT "empty"
 
 groups.column <- "group"
 treatment.group <- "1"
@@ -187,7 +193,21 @@ runMACS(treatment="./treatment_3.txt",
 
 parseMACSResultsPOS <- function(name, final=FALSE){
 	if( final ){
-		output <- read.table(file=paste(name, "_peaks.xls", sep=""), skip=3, header=TRUE, stringsAsFactors=FALSE)
+		output <- read.table(file=paste(name, "_peaks.xls", sep=""), skip=0, header=TRUE, stringsAsFactors=FALSE)
+		## Choose columns
+		output <- output[c("chr","start","end","fold_enrichment", "X.10.log10.pvalue.","tags","summit")]
+		## Fix colnames
+		colnames(output)[5] <- "-10xlog10pvalue"
+		## Sort the result according to the -10xlog10(pvalue)
+		output <- output[ order(output[,5], decreasing=TRUE), ]
+		return(output)
+	}
+}
+
+
+parseMACSResultsNEG <- function(name, final=FALSE){
+	if( final ){
+		output <- read.table(file=paste(name, "_negative_peaks.xls", sep=""), skip=0, header=TRUE, stringsAsFactors=FALSE)
 		## Choose columns
 		output <- output[c("chr","start","end","fold_enrichment", "X.10.log10.pvalue.","tags","summit")]
 		## Fix colnames
@@ -199,10 +219,15 @@ parseMACSResultsPOS <- function(name, final=FALSE){
 }
 
 ## Read in the results for the TRUE peaks
-results_TRUE <- parseMACSResultsPOS (name="/fs/local/users/chipster/tools/Seq_data/FoxA1/MACS_results/FoxA1_t30_b175_p1e5_m10",
-		final=TRUE)
+results_TRUE <- parseMACSResultsPOS (name="results",final=TRUE)
 
 ## Read in the results for the FALSE, or NEGATIVE, peaks
-results_TRUE <- parseMACSResultsPOS (name="/fs/local/users/chipster/tools/Seq_data/FoxA1/MACS_results/FoxA1_t30_b175_p1e5_m10",
-		final=TRUE)
+results_FALSE <- parseMACSResultsNEG (name="results", final=TRUE)
+
+
+# Write the results to tables to be read into Chipster
+write.table(results_TRUE, file="positive-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
+write.table(results_FALSE, file="negative-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
+
+
 
