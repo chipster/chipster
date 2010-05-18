@@ -210,7 +210,7 @@ public class HistoryScreen extends ScreenBase
                         LinkedList<Parameter> params = oper.getParameters();
 						if (params != null && params.size() > 0) {
 							for (Parameter param : params) {
-								historyText.append("Parameter " + param.getName() + ": " +
+								historyText.append("Parameter " + param.getDisplayName() + ": " +
 										param.getValue() + "\n");
 							}
 						} 

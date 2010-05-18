@@ -1,6 +1,7 @@
 package fi.csc.microarray.analyser;
 
 import fi.csc.microarray.description.SADLDescription;
+import fi.csc.microarray.description.SADLDescription.Input;
 import fi.csc.microarray.description.SADLDescription.Output;
 import fi.csc.microarray.description.SADLDescription.Parameter;
 
@@ -26,7 +27,11 @@ public class AnalysisDescriptionGenerator {
 		description.setCategory(source.getCategory());
 
 		// not interested in inputs, they were figured out when job was submitted
-
+		// I'm interested in inputs in java jobs
+		for (Input input : source.inputs()) {
+			description.addInputFile(input.getName().getID());
+		}
+		
 		for (Output output : source.outputs()) {
 			description.addOutputFile(output.getName().getID());
 		}

@@ -44,7 +44,7 @@ public class StringInputComponent extends ParameterInputComponent implements Car
 	public void caretUpdate(CaretEvent e) {
 	    if (!param.isOptional() && field.getText().equals("")) {
             String message =
-                "Parameter " + param.getName() + " is required and " +
+                "Parameter " + param.getID() + " is required and " +
                 "can not be empty.";
 	        getParentPanel().setMessage(message, Color.red);
 	    } else {

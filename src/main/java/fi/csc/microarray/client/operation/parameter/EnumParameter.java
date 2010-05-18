@@ -50,7 +50,11 @@ public class EnumParameter extends Parameter {
         }
         
         public String toString() {
-            return name;
+            if (name != null && !name.isEmpty()) {
+            	return name;
+            } else {
+            	return value;
+            }
         }
         
         public static SelectionOption[] convertStrings(String[] titles, String[] values) {
@@ -75,17 +79,17 @@ public class EnumParameter extends Parameter {
      * @throws IllegalArgumentException If the options array was null or empty,
      *            or if the given initial index was out of the array's bounds.
      */
-    public EnumParameter(String name, String description, SelectionOption[] options,
+    public EnumParameter(String id, String displayName, String description, SelectionOption[] options,
                          List<SelectionOption> defaultOptions, int minCount, int maxCount)
                     throws IllegalArgumentException {
-        super(name, description);
+        super(id, displayName, description);
         if (options == null) {
             throw new IllegalArgumentException("Options array for a " +
-                    "selection parameter " + name + " may not be null!");
+                    "selection parameter " + displayName + " may not be null!");
         }
         if (options.length == 0) {
             throw new IllegalArgumentException("Options array for a " +
-                    "selection parameter " + name + " may not be empty!");
+                    "selection parameter " + displayName + " may not be empty!");
         }
         this.options = options;
         
@@ -110,8 +114,8 @@ public class EnumParameter extends Parameter {
         return param;
     }
     
-    public EnumParameter(String name, String description) {
-        super(name, description);
+    public EnumParameter(String id, String displayName, String description) {
+        super(id, displayName, description);
         this.options = null;
     }
     
@@ -148,7 +152,7 @@ public class EnumParameter extends Parameter {
     public void setMinCount(int newMinCount) {
         if (newMinCount > this.maxCount) {
             throw new IllegalArgumentException("New minimum value for " +
-                    this.getName() + " cannot exceed current maximum value.");
+                    this.getID() + " cannot exceed current maximum value.");
         }
         this.minCount = newMinCount;
     }
@@ -162,7 +166,7 @@ public class EnumParameter extends Parameter {
     public void setMaxCount(int newMaxCount) {
         if (newMaxCount < this.minCount) {
             throw new IllegalArgumentException("New maximum value for " +
-                    this.getName() + " cannot fall below current minimum value.");
+                    this.getID() + " cannot fall below current minimum value.");
         }
         this.maxCount = newMaxCount;
     }
@@ -204,7 +208,7 @@ public class EnumParameter extends Parameter {
                 }
             }
         }
-        throw new IllegalArgumentException("illegal value for parameter " + this.getName() + ": " + newValue.toString());
+        throw new IllegalArgumentException("illegal value for parameter " + this.getID() + ": " + newValue.toString());
     }
     
     /**
@@ -263,7 +267,7 @@ public class EnumParameter extends Parameter {
     }
     
     public String toString() {
-        return this.getName() + ": " + getValue();
+        return this.getID() + ": " + getValue();
     }
 
     @Override

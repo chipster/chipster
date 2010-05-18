@@ -104,21 +104,21 @@ public class DecimalInputComponent extends ParameterInputComponent
 		case ParameterInputComponent.INPUT_IS_OUT_OF_BOUNDS:
 			field.setBackground(ParameterInputComponent.BG_INVALID);
 			message =
-				"Value for " + param.getName() + " must be between " +
+				"Value for " + param.getID() + " must be between " +
 				param.getMinValue() + " and " + param.getMaxValue() + ".";
 			getParentPanel().setMessage(message, Color.red);
 			break;
 		case ParameterInputComponent.INPUT_IS_INCOMPREHENSIBLE:
 			field.setBackground(ParameterInputComponent.BG_INVALID);
 			message =
-				"Value for " + param.getName() + " must be a valid " +
+				"Value for " + param.getID() + " must be a valid " +
 				"decimal number. Use a point as the decimal separator.";
 			getParentPanel().setMessage(message, Color.red);
 			break;
 		case ParameterInputComponent.INPUT_IS_REQUIRED_AND_EMPTY:
 		    field.setBackground(ParameterInputComponent.BG_INVALID);
             message =
-                "Parameter " + param.getName() + " is required and " +
+                "Parameter " + param.getID() + " is required and " +
                 "can not be empty.";
             getParentPanel().setMessage(message, Color.red);
 		}

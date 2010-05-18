@@ -4,8 +4,8 @@ public class StringParameter extends Parameter {
 
 	private String value = "";
 	
-	protected StringParameter(String name, String description, String initValue) {
-		super(name, description);
+	protected StringParameter(String id, String displayName, String description, String initValue) {
+		super(id, displayName, description);
 		if (initValue != null) {
 			setValue(initValue);
 		}

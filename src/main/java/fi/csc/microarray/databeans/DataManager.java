@@ -32,6 +32,7 @@ import fi.csc.microarray.databeans.handlers.LocalFileDataBeanHandler;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.databeans.sessions.SnapshottingSession;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.util.IOUtils;
 
 public class DataManager {
 
@@ -625,7 +626,73 @@ public class DataManager {
 		return folders;
 	}
 
+	/**
+	 * FIXME add locking
+	 * 
+	 * @param bean
+	 * @return
+	 * @throws IOException 
+	 */
+	public OutputStream getContentOutputStreamAndLockDataBean(DataBean bean) throws IOException {
+		
+		// for local temp beans, just get the output stream
+		if (bean.getType().equals(DataBeanType.LOCAL_TEMP)) {
+			return bean.getHandler().getOutputStream(bean);
+		}
+		// for other bean types, convert to local bean
+		else {
+			// lock bean
+			
+			// TODO think about that name
+			// copy contents to new file
+			File newFile = this.createNewRepositoryFile(bean.getName());
+			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(newFile));
+			BufferedInputStream in = new BufferedInputStream(bean.getContentByteStream());
+			try {
+				IOUtils.copy(in, out);
+			} finally {
+				IOUtils.closeIfPossible(in);
+				IOUtils.closeIfPossible(out);
+			}
+			// update url, type and handler in the bean
+			URL newURL = newFile.toURI().toURL();
+			
+			bean.setContentUrl(newURL);
+			bean.setType(DataBeanType.LOCAL_TEMP);
+			bean.setHandler(new LocalFileDataBeanHandler());
+			bean.setContentChanged(true);
+			
+			return bean.getHandler().getOutputStream(bean);
+		}
+	}
 
+	/**
+	 * FIXME locks
+	 * 
+	 * @param bean
+	 * @param out
+	 * @throws MicroarrayException
+	 * @throws IOException
+	 */
+	public void closeContentOutputStreamAndUnlockDataBean(DataBean bean, OutputStream out)
+			throws MicroarrayException, IOException {
+		try {
+			out.close();
+		} finally {
+//			this.lock.writeLock().unlock();
+		}
+		ContentChangedEvent cce = new ContentChangedEvent(bean);
+		this.dispatchEventIfVisible(cce);
+	}
+
+	
+	
+	
+	
+	
+	
+	
+	
 	private void deleteDataFolder(DataFolder folder) {
 
 		// remove children

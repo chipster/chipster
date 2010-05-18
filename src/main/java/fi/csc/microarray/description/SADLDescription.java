@@ -375,5 +375,11 @@ public class SADLDescription {
 		s += "-------------- sadl description --------------\n";
 		return s;
 	}
+
+	// FIXME remove after not using VVSADL anymore
+	public void setID(String id) {
+		this.name.setID(id);
+		
+	}
 	
 }

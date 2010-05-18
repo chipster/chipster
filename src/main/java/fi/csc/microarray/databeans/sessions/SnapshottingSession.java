@@ -244,7 +244,9 @@ public class SnapshottingSession {
 	
 	private void saveDataBeanMetadata(DataBean bean, URL newURL, String folderId, StringBuffer metadata) {
 		String beanId = fetchId(bean);
-		metadata.append("DATABEAN " + beanId + " " + newURL + " " + bean.getType() + " " + bean.getRepositoryName() + "\n");
+		
+		// for now all data content goes to session --> type is local session
+		metadata.append("DATABEAN " + beanId + " " + newURL + " " + DataBeanType.LOCAL_SESSION + " " + bean.getRepositoryName() + "\n");
 		
 		if (bean.getOperation() != null) {
 			Operation operation = bean.getOperation();
@@ -266,7 +268,7 @@ public class SnapshottingSession {
 				}
 
 				for (Parameter parameter : operation.getParameters()) {
-					metadata.append("OPERATION_PARAMETER " + operId + " " +  parameter.getName() + " " + parameter.getValue() + "\n");
+					metadata.append("OPERATION_PARAMETER " + operId + " " +  parameter.getID() + " " + parameter.getValue() + "\n");
 				}
 
 				// will be written in the 2nd pass
