@@ -31,9 +31,9 @@ public class GenomeBrowserStarter {
 	public static void main(String[] args) throws IOException {
 		GenomePlot plot = new GenomePlot(true);
 		TrackFactory.addCytobandTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.57_karyotype.tsv"));
-		TrackFactory.addGeneTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_genes.tsv"));
-//		TrackFactory.addMirnaTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_miRNA.tsv"));
-		TrackFactory.addTranscriptTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_transcripts.tsv"));
+		TrackFactory.addGeneTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_genes.tsv"));
+//		TrackFactory.addMirnaTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_miRNA.tsv"));
+		TrackFactory.addTranscriptTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_transcripts.tsv"));
 		
 		TrackFactory.addPeakTracks(plot, new DataSource(MACS_DATA_FILE));
 		
