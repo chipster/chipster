@@ -1,15 +1,15 @@
-# TOOL "Statistics" / find_peaks_using_MACS.R: "Find ChIP-seq peaks using MACS" (This tool will search for statistically significantly enriched
+# TOOL "Statistics" / find_peaks_using_macs.R: "Find ChIP-seq peaks using MACS" (This tool will search for statistically significantly enriched
 # genomic regions in sequencing data from a ChIP-seq experiment. The analysis can be performed on one or more treatment
 # samples alone, or relative to one or more control samples.)
-# INPUT sequence[...].txt: "Sequence data files" TYPE SEQ_FILE
+# INPUT sequence{...}.txt: "Sequence data files" TYPE GENERIC
 # OUTPUT positive_peaks.tsv: "True enriched peaks"
 # OUTPUT analysis_summary.tsv: "Summary of analysis settings and results"
 # OUTPUT peak_model.pdf: "A plot of the fitted peak model"
 # OUTPUT OPTIONAL negative_peaks.tsv: "The false enriched peaks"
-# PARAMETER groups.column: "Column with group labels" TYPE NETACOLUMN_SEL DEDAULT gtoup (Phenodata column describing the experiment groups of the samples. Use "2" for treatment and "1" for control.)
+# PARAMETER groups.column: "Column with group labels" TYPE METACOLUMN_SEL DEFAULT groups (Phenodata column describing the experiment groups of the samples. Use "2" for treatment and "1" for control.)
 # PARAMETER treatment.group: "The group label used for the treatment samples" TYPE STRING DEFAULT "empty"
 # PARAMETER control.group: "The group label used for the control samples" TYPE STRING DEFAULT "empty"
-# PARAMETER file.format: "The format of the sequence files" TYPE STRING [ELAND, SAM, BAM, BED] DEFAULT ELAND
+# PARAMETER file.format: "The format of the sequence files" TYPE [ELAND, SAM, BAM, BED] DEFAULT ELAND
 # PARAMETER produce.wiggle: "Should wiggle files be produced?" TYPE STRING DEFAULT "no" (Determines if WIGGLE type files should be output or not.
 # By default this option is turned off due to the significantly longer run times it causes. However, for
 # displaying p-values in one track of the Genome Browser, this paramter needs to be "yes".)
