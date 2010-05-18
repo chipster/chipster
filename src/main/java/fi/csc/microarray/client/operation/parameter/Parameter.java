@@ -186,7 +186,7 @@ public abstract class Parameter implements Cloneable {
 	}
  
 	public String getDisplayName() {
-		if (this.displayName != null) {
+		if (this.displayName != null && !this.displayName.isEmpty()) {
 			return this.displayName;
 		} else {
 			return this.id;
