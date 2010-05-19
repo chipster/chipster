@@ -55,12 +55,16 @@ public class TrackFactory {
 		int switchViewsAt = 50000;
 		
 		
+		final long overviewLimit = 100000;
+		
 		// FORWARD
 		// Overview
+		IntensityTrack readOverview = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, Color.gray, overviewLimit);
 		IntensityTrack readOverview = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, Color.gray, switchViewsAt);
 		addTrack(dataView, readOverview);
 
 		// Detailed
+		SeqBlockTrack reads = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, Color.RED, 0, overviewLimit);
 		SeqBlockTrack reads = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, Color.RED, 0, switchViewsAt);
 		addTrack(dataView, reads);
 
@@ -74,6 +78,7 @@ public class TrackFactory {
 
 		// R E V E R S E D ///////////////////////////////////////////////////
 		// Overview
+		IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, Color.gray, overviewLimit);
 		IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, Color.gray, switchViewsAt);
 
 		readOverviewReversed.setStrand(Strand.REVERSED);
@@ -82,6 +87,7 @@ public class TrackFactory {
 		// Detailed
 		dataView.addTrack(new SeparatorTrack(dataView));
 
+		SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, Color.RED, 0, overviewLimit);
 		SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, Color.RED, 0, switchViewsAt);
 		readsReversed.setStrand(Strand.REVERSED);
 		addTrack(dataView, readOverviewReversed);
