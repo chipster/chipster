@@ -6,9 +6,10 @@
 # OUTPUT positive_peaks.tsv: "True enriched peaks"
 # OUTPUT analysis_summary.tsv: "Summary of analysis settings and results"
 # OUTPUT peak_model.pdf: "A plot of the fitted peak model"
-# OUTPUT OPTIONAL negative_peaks.tsv: "The false enriched peaks"
-# PARAMETER produce.wiggle: "Should wiggle files be produced" TYPE STRING [yes, no] DEFAULT no (Determines if WIGGLE type files should be output or not. By default this option is turned off due to the significantly longer run times it causes. However, for displaying p-values in one track of the Genome Browser, this paramter needs to be yes.)
-# PARAMETER species: "The species of the analyzed samples" TYPE STRING [human] DEFAULT human (the species of the samples.)
+# OUTPUT negative_peaks.tsv: "The false enriched peaks"
+# PARAMETER file.format: "The format of the sequence files" TYPE [ELAND, SAM, BAM, BED] DEFAULT ELAND (The format of the input files.)
+# PARAMETER produce.wiggle: "Should wiggle files be produced" TYPE [yes, no] DEFAULT no (Determines if WIGGLE type files should be output or not. By default this option is turned off due to the significantly longer run times it causes. However, for displaying p-values in one track of the Genome Browser, this paramter needs to be yes.)
+# PARAMETER species: "The species of the analyzed samples" TYPE [human] DEFAULT human (the species of the samples.)
 # PARAMETER read.length: "The length in nucleotides of the sequence reads" TYPE INTEGER FROM 1 TO 200 DEFAULT 30
 # PARAMETER band.with: "The scanning window size, typically half the average DNA fragment length" TYPE INTEGER FROM 1 TO 1000 DEFAULT 200
 # PARAMETER p.value.threshold: "The unadjusted p-value cutoff for statistical significance" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05
