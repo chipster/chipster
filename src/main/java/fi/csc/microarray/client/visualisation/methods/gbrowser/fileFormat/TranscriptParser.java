@@ -17,21 +17,9 @@ public class TranscriptParser extends ConcisedTsvParser {
 								new ColumnDefinition(ColumnType.DESCRIPTION, Type.STRING),
 								new ColumnDefinition(ColumnType.VALUE, Type.STRING),							
 								new ColumnDefinition(ColumnType.PARENT_ID, Type.STRING),
-								new ColumnDefinition(ColumnType.PARENT_PART, Type.LONG) // should be Type.LONG, but there are some quotes in current annotation file
+								new ColumnDefinition(ColumnType.PARENT_PART, Type.STRING)
 		})));
 	}
-	
-//	public Object get(String[] cols, ColumnType col) {
-//		
-//		return super.get(cols, col);
-//	}
-//
-//	@Override
-//	public List<RegionContent> getAll(String chunk, Collection<ColumnType> requestedContents) {
-//
-//		return super.getAll(chunk, requestedContents);
-//	}
-
 
 	@Override
 	public String getName() {
@@ -40,7 +28,6 @@ public class TranscriptParser extends ConcisedTsvParser {
 	
 	@Override
 	public long getDefaulChunkLength() {
-
 		return 512;
 	}
 }
