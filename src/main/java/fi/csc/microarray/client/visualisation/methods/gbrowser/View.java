@@ -50,6 +50,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	protected boolean zoomable;
 
 	protected final float ZOOM_FACTOR = 1.06f;
+	protected final float MIN_PIXELS_PER_NUCLEOTIDE = 10f;
 
 	private List<RegionListener> listeners = new LinkedList<RegionListener>();
 	public int margin = 0;
@@ -67,7 +68,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	private static final long DRAG_EXPIRATION_TIME_MS = 50;
 
 	public View(GenomePlot parent, boolean movable, boolean zoomable, boolean selectable) {
-		parentPlot = parent;
+		this.parentPlot = parent;
 		this.movable = movable;
 		this.zoomable = zoomable;
 	}
@@ -381,9 +382,10 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	private void zoom(int lockedX, int wheelRotation, boolean disableDrawing) {
 
+		// not all views are zoomed (e.g., the overview with cytoband) 
 		if (zoomable) {
 			
-			
+			// zoom out
 			if (wheelRotation > 0) {
 				lockedX = (int) getWidth() - lockedX + getX() * 2;
 			}
@@ -392,14 +394,14 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			double pointerRelative = trackToRelative(lockedX);
 
 			double startBp = getBpRegionDouble().start.bp;
-			double endBp = getBpRegionDouble().end.bp;
-			
+			double endBp = getBpRegionDouble().end.bp;			
 						
 			double width = endBp - startBp;
 			width *= Math.pow(ZOOM_FACTOR, wheelRotation);
-			
-			if (width < 20) {
-				width = 20;
+
+			int minBpWidth = (int)(((float)parentPlot.chartPanel.getPreferredSize().getSize().width) / MIN_PIXELS_PER_NUCLEOTIDE);
+			if (width < minBpWidth) {
+				width = minBpWidth;
 			}
 
 			startBp = (double) (pointerBp.bp - width * pointerRelative);
@@ -418,7 +420,6 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			
 			
 			if (endBp > maxBp) {
-				
 				startBp -= endBp - maxBp;
 				endBp = maxBp;
 				
