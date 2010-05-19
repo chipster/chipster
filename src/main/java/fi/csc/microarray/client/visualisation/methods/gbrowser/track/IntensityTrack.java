@@ -37,12 +37,14 @@ public class IntensityTrack extends Track {
 
 			int x1 = getView().bpToTrack(regCont.region.start);
 			int x2 = getView().bpToTrack(regCont.region.end);
-			int y2 = (int) getView().getTrackHeight();
+			int y2 = (int) getView().getTrackHeight();						
 
-			int val = (int) Math.min((Float) (regCont.values.get(ColumnType.VALUE)) * 10, getView().getTrackHeight() / 4);
+			int val = (int) Math.min(Math.log((Float) (regCont.values.get(ColumnType.VALUE)) * 10)* 2, getView().getTrackHeight() / 4);
 			int y1 = (int) (-val + y2);
 
-			drawables.add(new RectDrawable(x1, y1, x2 - x1, y2 - y1, color, null));
+			int width = x2 - x1;
+			int height = y2 - y1;
+			drawables.add(new RectDrawable(x1, y1, width, height, color, null));
 
 		}
 

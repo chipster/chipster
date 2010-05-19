@@ -37,4 +37,10 @@ public class TranscriptParser extends ConcisedTsvParser {
 	public String getName() {
 		return "Chipster transcript file";
 	}
+	
+	@Override
+	public long getDefaulChunkLength() {
+
+		return 512;
+	}
 }

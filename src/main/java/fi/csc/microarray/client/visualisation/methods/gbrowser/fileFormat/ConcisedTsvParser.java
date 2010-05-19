@@ -19,7 +19,7 @@ public abstract class ConcisedTsvParser extends TsvParser{
 		long totalR = 0;
 		
 		Long start = (Long)get(getFirstRow(chunk), ColumnType.BP_START);
-		Long end = (Long)get(getFirstRow(chunk), ColumnType.BP_START);
+		Long end = (Long)get(getLastRow(chunk), ColumnType.BP_START);
 		Chromosome chr = (Chromosome)get(getFirstRow(chunk), ColumnType.CHROMOSOME);
 
 		Long readLength =  (new BpCoordRegion(start, end, chr)).getLength();

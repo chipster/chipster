@@ -9,6 +9,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 
 public class HorizontalView extends View {
 
@@ -92,6 +93,12 @@ public class HorizontalView extends View {
 
 		if (bpMove < 0 && bpRegion.start.bp < Math.abs(bpMove)) {
 			bpMove = -bpRegion.start.bp;
+		}
+		
+		BpCoord maxBp = getMaxBp();
+		
+		if (maxBp != null && bpRegion.end.bp + bpMove > maxBp.bp) {
+			bpMove = maxBp.bp - bpRegion.end.bp;
 		}
 
 		bpRegion.move(bpMove);

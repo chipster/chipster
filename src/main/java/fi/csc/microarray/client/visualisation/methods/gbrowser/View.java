@@ -78,6 +78,25 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	public void addTrack(Track t) {
 		tracks.add(t);
 	}
+	
+	public BpCoord getMaxBp() {
+		
+		BpCoord max = null;
+		
+		for (Track t : tracks) {
+			
+			BpCoord trackMax = t.getMaxBp(bpRegion.start.chr);
+			
+			if (trackMax != null && (max == null || max.compareTo(trackMax) > 0)) {
+				max = trackMax;
+			}
+		}
+		
+		//Little bit empty space to the end
+		max.bp += 10000;
+		
+		return max;
+	}
 
 	protected void drawView(Graphics2D g, boolean isAnimation) {
 
@@ -364,6 +383,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 		if (zoomable) {
 			
+			
 			if (wheelRotation > 0) {
 				lockedX = (int) getWidth() - lockedX + getX() * 2;
 			}
@@ -373,16 +393,38 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 			double startBp = getBpRegionDouble().start.bp;
 			double endBp = getBpRegionDouble().end.bp;
-
+			
+						
 			double width = endBp - startBp;
 			width *= Math.pow(ZOOM_FACTOR, wheelRotation);
+			
+			if (width < 20) {
+				width = 20;
+			}
 
 			startBp = (double) (pointerBp.bp - width * pointerRelative);
 			endBp = (double) (pointerBp.bp + width * (1 - pointerRelative));
+			
+			long maxBp = getMaxBp().bp;
+			
+			if (wheelRotation < 0 && startBp == 0 && endBp == maxBp) {
+				return;
+			}
 
 			if (startBp < 0) {
 				endBp += -startBp;
 				startBp = 0;
+			}
+			
+			
+			if (endBp > maxBp) {
+				
+				startBp -= endBp - maxBp;
+				endBp = maxBp;
+				
+				if (startBp < 0) {
+					startBp = 0;
+				}
 			}
 
 			setBpRegion(new BpCoordRegionDouble(startBp, getBpRegionDouble().start.chr, endBp, getBpRegionDouble().end.chr), disableDrawing);
