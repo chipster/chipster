@@ -101,7 +101,7 @@ public class PeakTrack extends Track {
 
 	@Override
 	public Collection<ColumnType> getDefaultContents() {
-		return Arrays.asList(new ColumnType[] { });
+		return Arrays.asList(new ColumnType[] { ColumnType.CHROMOSOME, ColumnType.BP_START, ColumnType.BP_END});
 	}
 
 	@Override

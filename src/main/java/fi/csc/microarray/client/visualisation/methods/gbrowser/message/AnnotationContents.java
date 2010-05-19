@@ -100,7 +100,7 @@ public class AnnotationContents {
 	public LinkedHashSet<String> getGenomes() {
 		LinkedHashSet<String> genomes = new LinkedHashSet<String>();
 		for (Row row : rows) {
-			genomes.add(row.species + " " + row.version);
+			genomes.add(row.version);
 		}
 		return genomes;
 	}
