@@ -1,7 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.io.FileNotFoundException;
@@ -21,7 +20,6 @@ import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.PlotState;
 import org.jfree.data.general.DatasetChangeEvent;
-import org.jfree.util.ObjectUtilities;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
@@ -34,9 +32,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.EmptyTrack;
  * @author Petri Klemelä, Aleksi Kallio
  */
 public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, Serializable {
-
-	/** The cell information text is drawn with this font. */
-	private Font descriptionFont;
 
 	private List<View> views = new LinkedList<View>();
 	private View dataView = null;
@@ -84,10 +79,6 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 	public String getPlotType() {
 		return "GeneBrowser";
-	}
-
-	public Font getDescriptionFont() {
-		return this.descriptionFont;
 	}
 
 	/**
@@ -196,11 +187,6 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 			return true;
 		}
 		if (!(obj instanceof GenomePlot)) {
-			return false;
-		}
-		GenomePlot that = (GenomePlot) obj;
-
-		if (!ObjectUtilities.equal(this.descriptionFont, that.descriptionFont)) {
 			return false;
 		}
 
