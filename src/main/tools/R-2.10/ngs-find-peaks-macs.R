@@ -1,4 +1,4 @@
-# TOOL "Statistics" / find-peaks-using-macs.R: "Find ChIP-seq peaks using MACS" (This tool will search for statistically significantly enriched
+# TOOL "Statistics" / ngs-find-peaks-macs.R: "Find ChIP-seq peaks using MACS" (This tool will search for statistically significantly enriched
 # genomic regions in sequencing data from a ChIP-seq experiment. The analysis can be performed on one or more treatment
 # samples alone, or relative to one or more control samples.)
 # INPUT treatment.tsv: "Treatment data file" TYPE GENERIC
@@ -7,7 +7,6 @@
 # OUTPUT analysis_summary.tsv: "Summary of analysis settings and results"
 # OUTPUT peak_model.pdf: "A plot of the fitted peak model"
 # OUTPUT OPTIONAL negative_peaks.tsv: "The false enriched peaks"
-# PARAMETER file.format: "The format of the sequence files" TYPE STRING [ELAND, SAM, BAM, BED] DEFAULT ELAND (The format of the input files.)
 # PARAMETER produce.wiggle: "Should wiggle files be produced" TYPE STRING [yes, no] DEFAULT no (Determines if WIGGLE type files should be output or not. By default this option is turned off due to the significantly longer run times it causes. However, for displaying p-values in one track of the Genome Browser, this paramter needs to be yes.)
 # PARAMETER species: "The species of the analyzed samples" TYPE STRING [human] DEFAULT human (the species of the samples.)
 # PARAMETER read.length: "The length in nucleotides of the sequence reads" TYPE INTEGER FROM 1 TO 200 DEFAULT 30
@@ -16,6 +15,7 @@
 # PARAMETER m.fold: "Sets the m-fold threshold for model building" TYPE INTEGER FROM 1 TO 100 DEFAULT 32
 
 # ALTERNATIVE SETUP
+# PARAMETER file.format: "The format of the sequence files" TYPE STRING [ELAND, SAM, BAM, BED] DEFAULT ELAND (The format of the input files.)
 # INPUT sequence{...}.txt: "Sequence data files" TYPE GENERIC
 # INPUT phenodata.tsv: "The file containing pehnotype data" TYPE GENERIC
 # PARAMETER groups.column: "Column with group labels" TYPE METACOLUMN_SEL DEFAULT groups (Phenodata column describing the experiment groups of the samples. Use "2" for treatment and "1" for control.)
