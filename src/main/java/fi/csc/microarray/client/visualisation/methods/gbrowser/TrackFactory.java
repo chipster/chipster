@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TreeThread;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
@@ -51,16 +52,20 @@ public class TrackFactory {
 	public static void addReadTracks(GenomePlot plot, DataSource userData, DataSource seqFile) throws FileNotFoundException, MalformedURLException {
 		ElandParser userDataParser = new ElandParser();
 		View dataView = plot.getDataView();
+		int switchViewsAt = 50000;
+		
 		
 		final long overviewLimit = 100000;
 		
 		// FORWARD
 		// Overview
 		IntensityTrack readOverview = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, Color.gray, overviewLimit);
+		IntensityTrack readOverview = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, Color.gray, switchViewsAt);
 		addTrack(dataView, readOverview);
 
 		// Detailed
 		SeqBlockTrack reads = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, Color.RED, 0, overviewLimit);
+		SeqBlockTrack reads = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, Color.RED, 0, switchViewsAt);
 		addTrack(dataView, reads);
 
 		dataView.addTrack(new SeparatorTrack(dataView));
@@ -74,6 +79,7 @@ public class TrackFactory {
 		// R E V E R S E D ///////////////////////////////////////////////////
 		// Overview
 		IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, Color.gray, overviewLimit);
+		IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, Color.gray, switchViewsAt);
 
 		readOverviewReversed.setStrand(Strand.REVERSED);
 		addTrack(dataView, readOverviewReversed);
@@ -82,6 +88,7 @@ public class TrackFactory {
 		dataView.addTrack(new SeparatorTrack(dataView));
 
 		SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, Color.RED, 0, overviewLimit);
+		SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, Color.RED, 0, switchViewsAt);
 		readsReversed.setStrand(Strand.REVERSED);
 		addTrack(dataView, readOverviewReversed);
 	}
@@ -91,19 +98,12 @@ public class TrackFactory {
 		ProfileTrack annotation = new ProfileTrack(plot.getDataView(), peakFile, TreeThread.class, miRNAParser, Color.BLUE, 0, Long.MAX_VALUE);
 		addTrack(plot.getDataView(), annotation);
 	}
-
+	
 	public static void addPeakTracks(GenomePlot plot, DataSource peakFile) {
-		miRNAParser miRNAParser = new miRNAParser();
+		BEDParser bedParser = new BEDParser();
 		View dataView = plot.getDataView();
 
-		// F O R W A R D /////////////////////////////////////////////////
-
-		// Overview
-		IntensityTrack miRNAOverview = new IntensityTrack(dataView, peakFile, TreeThread.class, miRNAParser, PartColor.CDS.c.darker(), 10000000);
-		addTrack(dataView, miRNAOverview);
-
-		// Detailed
-		PeakTrack annotation = new PeakTrack(dataView, peakFile, TreeThread.class, miRNAParser, Color.YELLOW, 0, Long.MAX_VALUE);
+		PeakTrack annotation = new PeakTrack(dataView, peakFile, TreeThread.class, bedParser, Color.YELLOW, 0, Long.MAX_VALUE);
 		addTrack(dataView, annotation);
 	}
 
