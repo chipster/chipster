@@ -74,7 +74,6 @@ public class TrackFactory {
 		// R E V E R S E D ///////////////////////////////////////////////////
 		// Overview
 		IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, Color.gray, switchViewsAt);
-
 		readOverviewReversed.setStrand(Strand.REVERSED);
 		addTrack(dataView, readOverviewReversed);
 
@@ -83,7 +82,7 @@ public class TrackFactory {
 
 		SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, Color.RED, 0, switchViewsAt);
 		readsReversed.setStrand(Strand.REVERSED);
-		addTrack(dataView, readOverviewReversed);
+		addTrack(dataView, readsReversed);
 	}
 
 	public static void addWigTrack(GenomePlot plot, DataSource peakFile) {
