@@ -72,11 +72,25 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 		return overviewView;
 	}
 
-	public void start(String chromosome) {
-		dataView.setBpRegion(new BpCoordRegionDouble(0d, 1024 * 1024 * 250d, new Chromosome(chromosome)), false);
-		overviewView.setBpRegion(new BpCoordRegionDouble(0d, 1024 * 1024 * 250d, new Chromosome(chromosome)), false);
+	public void start(String chromosome, Double chromosomeSizeBp) {
+		overviewView.setBpRegion(new BpCoordRegionDouble(0d, chromosomeSizeBp, new Chromosome(chromosome)), false);
+		dataView.setBpRegion(new BpCoordRegionDouble(0d, chromosomeSizeBp, new Chromosome(chromosome)), false);
 	}
 
+	public void moveDataBpRegion(Long moveTo) {
+		
+		BpCoordRegionDouble bpCoordRegion = new BpCoordRegionDouble(
+				new Double(moveTo - (dataView.getBpRegion().getLength()/2)),
+				new Double(moveTo + (dataView.getBpRegion().getLength()/2)), 
+				dataView.getBpRegion().start.chr
+		);
+		dataView.setBpRegion(bpCoordRegion, false);
+	}
+	
+	public void addDataRegionListener(RegionListener regionListener) {
+		dataView.addRegionListener(regionListener);		
+	}
+	
 	public String getPlotType() {
 		return "GeneBrowser";
 	}

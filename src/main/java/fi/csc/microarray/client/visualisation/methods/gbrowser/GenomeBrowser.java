@@ -5,6 +5,9 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyVetoException;
+import java.beans.VetoableChangeListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -20,6 +23,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -31,6 +35,7 @@ import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Row;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.handlers.LocalFileDataBeanHandler;
@@ -45,7 +50,7 @@ import fi.csc.microarray.util.IOUtils;
 /**
  * @author Petri Klemelä, Aleksi Kallio
  */
-public class GenomeBrowser extends Visualisation implements ActionListener {
+public class GenomeBrowser extends Visualisation implements ActionListener, RegionListener, VetoableChangeListener {
 
 	private static final String ANNOTATION_URL_PATH = "annotations";
 
@@ -68,9 +73,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 
 	protected DataBean data;
 	private ButtonGroup views;
-//	private JTextArea megaLocation;
-//	private JTextArea kiloLocation;
-//	private JTextArea unitLocation;
+	private JTextArea megaLocation;
+	private JTextArea kiloLocation;
+	private JTextArea unitLocation;
 	private JComboBox chrBox;
 	private JComboBox genomeBox;
 //	private JRadioButton horizView;
@@ -184,31 +189,32 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 		c.gridx = 0;
 		c.gridwidth = 5;
 		
-//		megaLocation = new JTextArea(1, 3);
-//		kiloLocation = new JTextArea(1, 3);
-//		unitLocation = new JTextArea(1, 3);
-//
-//		JTextArea megaLabel = new JTextArea("M");
-//		megaLabel.setEditable(false);
-//		JTextArea kiloLabel = new JTextArea("k");
-//		kiloLabel.setEditable(false);
-//
-//		settingsPanel.add(new JLabel("Location"),c);
-//
-//		c.gridy++;
-//		c.gridwidth = 1;
-//		c.insets.set(5, 10, 5, 0);
-//		settingsPanel.add(megaLocation, c);
-//		c.gridx++;
-//		c.insets.set(5, 0, 5, 0);
-//		settingsPanel.add(megaLabel, c);
-//		c.gridx++;
-//		settingsPanel.add(kiloLocation, c);
-//		c.gridx++;
-//		settingsPanel.add(kiloLabel, c);
-//		c.gridx++;
-//		c.insets.set(5, 0, 5, 10);
-//		settingsPanel.add(unitLocation, c);
+		megaLocation = new JTextArea(1, 3);
+		megaLocation.addVetoableChangeListener(this);
+		kiloLocation = new JTextArea(1, 3);
+		unitLocation = new JTextArea(1, 3);
+
+		JTextArea megaLabel = new JTextArea("M");
+		megaLabel.setEditable(false);
+		JTextArea kiloLabel = new JTextArea("k");
+		kiloLabel.setEditable(false);
+
+		settingsPanel.add(new JLabel("Location"),c);
+
+		c.gridy++;
+		c.gridwidth = 1;
+		c.insets.set(5, 10, 5, 0);
+		settingsPanel.add(megaLocation, c);
+		c.gridx++;
+		c.insets.set(5, 0, 5, 0);
+		settingsPanel.add(megaLabel, c);
+		c.gridx++;
+		settingsPanel.add(kiloLocation, c);
+		c.gridx++;
+		settingsPanel.add(kiloLabel, c);
+		c.gridx++;
+		c.insets.set(5, 0, 5, 10);
+		settingsPanel.add(unitLocation, c);
 
 		c.gridx = 0;
 		c.gridwidth = 5;
@@ -287,9 +293,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 		GenomePlot plot = new GenomePlot(true);
 		TrackFactory.addCytobandTracks(plot, new DataSource(annotationUrl, "Homo_sapiens.GRCh37.57_karyotype.tsv")); // using always the same
 		TrackFactory.addGeneTracks(plot, new DataSource(annotationUrl, "Homo_sapiens." + genome + "_genes.tsv"));
-		TrackFactory.addReadTracks(plot, new DataSource(handler.getFile(data)), new DataSource(annotationUrl, "Homo_sapiens." + genome + "_seq.tsv"));
+		TrackFactory.addReadTracks(plot, new DataSource[] { new DataSource(handler.getFile(data))}, new DataSource(annotationUrl, "Homo_sapiens." + genome + "_seq.tsv"));
 		TrackFactory.addRulerTrack(plot);
-		plot.start("1");
+		plot.start("1", 1024 * 1024 * 250d);
+		plot.addDataRegionListener(this);
 
 		ChartPanel panel = new ChartPanel(new JFreeChart(plot));
 		// panel.setPreferredSize(new Dimension(800, 600));
@@ -336,6 +343,25 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 			super(null, null);
 
 			this.obj = obj;
+		}
+	}
+
+	@Override
+	public void RegionChanged(BpCoordRegion bpRegion) {
+		long location = bpRegion.getMid();
+		megaLocation.setText("" + (location/1000000));
+		kiloLocation.setText("" + (location % 1000000) / 1000);
+		unitLocation.setText("" + (location % 1000));
+	}
+
+	@Override
+	public void vetoableChange(PropertyChangeEvent evt)
+			throws PropertyVetoException {
+		Object source = evt.getSource();
+		if (source == megaLocation || source == kiloLocation || source == unitLocation) {
+			plot.moveDataBpRegion(Long.parseLong(megaLocation.getText())*1000000 +
+					Long.parseLong(megaLocation.getText())*1000 +
+					Long.parseLong(megaLocation.getText()));
 		}
 	}
 }

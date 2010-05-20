@@ -243,14 +243,13 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	}
 
 	public void setBpRegion(BpCoordRegionDouble region, boolean disableDrawing) {
-		bpRegion = region;
+		this.bpRegion = region;
 
 		// Bp-region change may change visibility of tracks, calculate sizes again
 		trackHeight = null;
 
 		if (!disableDrawing) {
 			for (Track t : tracks) {
-
 				t.updateData();
 			}
 			dispatchRegionChange();
