@@ -1,15 +1,15 @@
 # TOOL "Statistics" / ngs-find-peaks-macs.R: "Find ChIP-seq peaks using MACS" (This tool will search for statistically significantly enriched
 # genomic regions in sequencing data from a ChIP-seq experiment. The analysis can be performed on one or more treatment
 # samples alone, or relative to one or more control samples.)
-# INPUT treatment.tsv: "Treatment data file" TYPE GENERIC
-# INPUT control.tsv: "Control data file" TYPE GENERIC
+# INPUT treatment.txt: "Treatment data file" TYPE GENERIC
+# INPUT control.txt: "Control data file" TYPE GENERIC
 # OUTPUT positive_peaks.tsv: "True enriched peaks"
 # OUTPUT analysis_summary.tsv: "Summary of analysis settings and results"
 # OUTPUT peak_model.pdf: "A plot of the fitted peak model"
-# OUTPUT negative_peaks.tsv: "The false enriched peaks"
+# OUTPUT OPTIONAL negative_peaks.tsv: "The false enriched peaks"
 # PARAMETER file.format: "The format of the sequence files" TYPE [ELAND, SAM, BAM, BED] DEFAULT ELAND (The format of the input files.)
 # PARAMETER produce.wiggle: "Should wiggle files be produced" TYPE [yes, no] DEFAULT no (Determines if WIGGLE type files should be output or not. By default this option is turned off due to the significantly longer run times it causes. However, for displaying p-values in one track of the Genome Browser, this paramter needs to be yes.)
-# PARAMETER species: "The species of the analyzed samples" TYPE [human] DEFAULT human (the species of the samples.)
+# PARAMETER species: "The species of the analyzed samples" TYPE [human, mouse, rat] DEFAULT human (the species of the samples.)
 # PARAMETER read.length: "The length in nucleotides of the sequence reads" TYPE INTEGER FROM 1 TO 200 DEFAULT 30
 # PARAMETER band.with: "The scanning window size, typically half the average DNA fragment length" TYPE INTEGER FROM 1 TO 1000 DEFAULT 200
 # PARAMETER p.value.threshold: "The unadjusted p-value cutoff for statistical significance" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05
@@ -23,19 +23,30 @@
 # PARAMETER treatment.group: "The group label used for the treatment samples" TYPE STRING DEFAULT "empty"
 # PARAMETER control.group: "The group label used for the control samples" TYPE STRING DEFAULT "empty"
 
-groups.column <- "group"
-treatment.group <- "1"
-control.group <- "2"
-file.format <- "ELAND"
-produce.wiggle <- "no"
-read.length <- 25
-band.with <- 250
-p.value.threshold <- 0.05
-m.fold <- 32
+# groups.column <- "group"
+# treatment.group <- "1"
+# control.group <- "2"
+# file.format <- "ELAND"
+# produce.wiggle <- "no"
+# read.length <- 25
+# band.with <- 250
+# p.value.threshold <- 0.05
+# m.fold <- 32
 
 
 # find_peals_using_MACS.R
 # MG, 17.5.2010
+
+# Set up approximate mappable genome size depending on species
+if (species == "human") {
+	genome.size <- 2.7e+9
+}
+if (species == "mouse") {
+	genome.size <- 2.7e+9
+}
+if (species == "rat") {
+	genome.size <- 2.7e+9
+}
 
 # Loads the libraries!
 
@@ -45,79 +56,83 @@ m.fold <- 32
 # dat<- read.maimages(files=files, columns=columns, annotation=annotation, other.columns=columns.other) 
 
 
-# Loads the  phenodata files
-phenodata <- read.table("phenodata.tsv", header=T, sep="\t")
-groups<-phenodata[,pmatch(groups.column,colnames(phenodata))]
-indices <- seq(1,length(groups),step=1)
-treatment.indices <- indices[groups==treatment.group]
-if (control.group != "empty") {
-	control.indices <- indices[groups==control.group]
-}
-
-
+# Loads the  phenodata file and set up groups (for mulitple treatment and control files approach)
+# phenodata <- read.table("phenodata.tsv", header=T, sep="\t")
+# groups<-phenodata[,pmatch(groups.column,colnames(phenodata))]
+# indices <- seq(1,length(groups),step=1)
+# treatment.indices <- indices[groups==treatment.group]
+# if (control.group != "empty") {
+#	control.indices <- indices[groups==control.group]
+#}
 # Sanity checks
 # if(length(unique(groups))==1 | length(unique(groups))>=3) {
 #	stop("You need to have exactly two groups to run this analysis")
 #}
-
-
 # If multiple samples per experiment group merge into one single file
-if (length(treatment.indices) > 1) {
-	command <- "cat"
-	command <- paste (command, paste("sequence",treatment.indices[1], sep=""))
-	command <- paste(command, ".txt", sep="")
-	for (count in 2:length(treatment.indices)) {
-		command <- paste(command, " ", sep="")
-		command_2 <- paste("sequence", treatment.indices[count], sep="")
-		command_2 <- paste(command_2, ".txt", sep="")
-		command <- paste(command, command_2, sep="")
-	#	assign (paste("data_", count, sep=""), read.table(files[count], header=T, sep="\t")) 
-	}
-	command <- paste (command, "> treatment.txt")
-	system (command)
-}
-if (length(treatment.indices) == 1) {
-	command <- "mv"
-	command <- paste(command, paste("sequence", treatment.indices[1], sep=""))
-	command <- paste (command, "> treatment.txt")
-	system*command()
-}
-if (length(control.indices) > 1) {
-	command <- "cat"
-	command <- paste (command, paste("sequence",control.indices[1], sep=""))
-	command <- paste(command, ".txt", sep="")
-	for (count in 2:length(control.indices)) {
-		command <- paste(command, " ", sep="")
-		command_2 <- paste("sequence", control.indices[count], sep="")
-		command_2 <- paste(command_2, ".txt", sep="")
-		command <- paste(command, command_2, sep="")
-		#	assign (paste("data_", count, sep=""), read.table(files[count], header=T, sep="\t")) 
-	}
-	command <- paste (command, "> control.txt")
-	system (command)
-}
-if (length(control.indices) == 1) {
-	command <- "mv"
-	command <- paste(command, paste("sequence", control.indices[1], sep=""))
-	command <- paste (command, "> control.txt")
-	system(command)
-}
+#if (length(treatment.indices) > 1) {
+#	command <- "cat"
+#	command <- paste (command, paste("sequence",treatment.indices[1], sep=""))
+#	command <- paste(command, ".txt", sep="")
+#	for (count in 2:length(treatment.indices)) {
+#		command <- paste(command, " ", sep="")
+#		command_2 <- paste("sequence", treatment.indices[count], sep="")
+#		command_2 <- paste(command_2, ".txt", sep="")
+#		command <- paste(command, command_2, sep="")
+#	#	assign (paste("data_", count, sep=""), read.table(files[count], header=T, sep="\t")) 
+#	}
+#	command <- paste (command, "> treatment.txt")
+#	system (command)
+#}
+#if (length(treatment.indices) == 1) {
+#	command <- "mv"
+#	command <- paste(command, paste("sequence", treatment.indices[1], sep=""))
+#	command <- paste (command, "> treatment.txt")
+#	system*command()
+#}
+#if (length(control.indices) > 1) {
+#	command <- "cat"
+#	command <- paste (command, paste("sequence",control.indices[1], sep=""))
+#	command <- paste(command, ".txt", sep="")
+#	for (count in 2:length(control.indices)) {
+#		command <- paste(command, " ", sep="")
+#		command_2 <- paste("sequence", control.indices[count], sep="")
+#		command_2 <- paste(command_2, ".txt", sep="")
+#		command <- paste(command, command_2, sep="")
+#		#	assign (paste("data_", count, sep=""), read.table(files[count], header=T, sep="\t")) 
+#	}
+#	command <- paste (command, "> control.txt")
+#	system (command)
+#}
+#if (length(control.indices) == 1) {
+#	command <- "mv"
+#	command <- paste(command, paste("sequence", control.indices[1], sep=""))
+#	command <- paste (command, "> control.txt")
+#	system(command)
+#}
 
-# Trim off any unwanted reads (ambiguous and low quality)
-# if (file.format == "ELAND") {
-# }
-
-# Remove unmappable reads belonging to random chromosomes or hapmap
+# Remove unmappable reads belonging to random chromosomes or hapmap (single file approach)
 system("grep -v random treatment.txt > treatment_2.txt")
 system("grep -v hap treatment.txt > treatment_3.txt")
 system ("rm -f treatment.txt")
 system("rm -f treatment_2.txt")
-if (control.group != "empty") {
+if (length(grep ("control.txt",dir())) != 0) {
 	system("grep -v random control.txt > control_2.txt")
 	system("grep -v hap control.txt > control_3.txt")
 	system ("rm -f control.txt")
 	system("rm -f control_2.txt")
 }
+
+# Remove unmappable reads belonging to random chromosomes or hapmap (multiple file approach)
+#system("grep -v random treatment.txt > treatment_2.txt")
+#system("grep -v hap treatment.txt > treatment_3.txt")
+#system ("rm -f treatment.txt")
+#system("rm -f treatment_2.txt")
+#if (control.group != "empty") {
+#	system("grep -v random control.txt > control_2.txt")
+#	system("grep -v hap control.txt > control_3.txt")
+#	system ("rm -f control.txt")
+#	system("rm -f control_2.txt")
+#}
 
 # Define function for running MACS
 runMACS <- function(..., logFile="/dev/null") {
@@ -176,12 +191,20 @@ runMACS <- function(..., logFile="/dev/null") {
 }
 
 # Run MACS with default parameters for the data set
-runMACS(treatment="./treatment_3.txt", 
+runMACS(treatment="treatment_3.txt", 
 		control="control_3.txt", 
-		name="./results", 
-		format = "ELAND", 
-		verbose=3, logFile="./results.log", 
-		nomodel=TRUE, help=F, version=FALSE)
+		name="results", 
+		format = file.format,
+		bw=band.with,
+		pvalue=p.value.threshold,
+		mfold=m.fold,
+		tsize=read.length,
+		gsize=genome.size,
+		verbose=3, 
+		logFile="results.log", 
+		nomodel=FALSE, 
+		help=F, 
+		version=FALSE)
 
 # Read in and parse the results
 
