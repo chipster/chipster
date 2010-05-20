@@ -437,6 +437,20 @@ public class DataManager {
 		return createDataBean(name, DataBeanType.LOCAL_USER, null, new DataBean[] {}, contentFile);
 	}
 
+	/**
+	 * For now, only file URLs are supported.
+	 * 
+	 */
+	public DataBean createDataBean(String name, URL url) throws MicroarrayException {
+		File contentFile;
+		try {
+			contentFile = new File(url.toURI());
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Could not convert " + url + " to a file");
+		}
+		
+		return createDataBean(name, DataBeanType.LOCAL_USER, null, new DataBean[] {}, contentFile);
+	}
 
 	/**
 	 * Create a zip file DataBean. Bean contents are already in the zipFile and can 
