@@ -4,8 +4,8 @@
 # INPUT treatment.txt: "Treatment data file" TYPE GENERIC
 # INPUT control.txt: "Control data file" TYPE GENERIC
 # OUTPUT positive-peaks.tsv: "True enriched peaks"
-# OUTPUT analysis_summary.tsv: "Summary of analysis settings and results"
-# OUTPUT peak_model.pdf: "A plot of the fitted peak model"
+# OUTPUT analysis-summary.tsv: "Summary of analysis settings and results"
+# OUTPUT peak-model.pdf: "A plot of the fitted peak model"
 # OUTPUT OPTIONAL negative-peaks.tsv: "The false enriched peaks"
 # PARAMETER file.format: "The format of the sequence files" TYPE [ELAND, SAM, BAM, BED] DEFAULT ELAND (The format of the input files.)
 # PARAMETER produce.wiggle: "Produce wiggle" TYPE [yes, no] DEFAULT no (Determines if WIGGLE type files should be output or not. By default this option is turned off due to the significantly longer run times it causes. However, for displaying p-values in one track of the Genome Browser, this paramter needs to be yes.)
@@ -247,6 +247,9 @@ results_TRUE <- parseMACSResultsPOS (name="results",final=TRUE)
 ## Read in the results for the FALSE, or NEGATIVE, peaks
 results_FALSE <- parseMACSResultsNEG (name="results", final=TRUE)
 
+# Read summary info of results
+analysis_summary <- readLines ("results.log",n=11)
+write.table(file="analysis-summary.tsv", unlist(analysis_summary)), sep="", row.names=F, quote=F)
 
 # Write the results to tables to be read into Chipster
 write.table(results_TRUE, file="positive-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
@@ -256,6 +259,7 @@ write.table(results_FALSE, file="negative-peaks.tsv", sep="\t", quote=FALSE, row
 #output_2 <- read.table(file="results_negative_peaks.xls", sep="")
 #write.table(output_1, file="positive-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
 #write.table(output_2, file="negative-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
+
 
 
 
