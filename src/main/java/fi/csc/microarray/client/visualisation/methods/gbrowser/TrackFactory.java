@@ -90,7 +90,7 @@ public class TrackFactory {
 			// Detailed
 			SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, Color.RED, 0, switchViewsAt);
 			readsReversed.setStrand(Strand.REVERSED);
-			addTrack(dataView, readOverviewReversed);
+			addTrack(dataView, readsReversed);
 		}
 	}
 

@@ -1,5 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
+import java.awt.CardLayout;
 import java.awt.Cursor;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -15,7 +16,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -32,8 +32,6 @@ import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
-import fi.csc.microarray.client.visualisation.VisualisationMethod;
-import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Row;
@@ -58,20 +56,22 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 
 	private static final String CONTENTS_FILE = "contents.txt";
 
-	public GenomeBrowser(VisualisationFrame frame) {
-		super(frame);
-	}
+	final static String WAITPANEL = "waitpanel";
+	final static String PLOTPANEL = "plotpanel";
 
-	protected JPanel paramPanel;
+	private JPanel paramPanel;
 	private JPanel settingsPanel;
+	private JPanel plotPanel = new JPanel(new CardLayout());
+		
+	private JButton drawButton;
 
-	private JButton useButton;
+	private final ClientApplication application = Session.getSession().getApplication();
 
-	protected final ClientApplication application = Session.getSession().getApplication();
+	private final ClientApplication application = Session.getSession().getApplication();
 
-	protected GenomePlot plot;
+	private GenomePlot plot;
 
-	protected DataBean data;
+	private DataBean data;
 	private ButtonGroup views;
 	private JTextArea megaLocation;
 	private JTextArea kiloLocation;
@@ -81,6 +81,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 //	private JRadioButton horizView;
 //	private JRadioButton circularView;
 	private List<JCheckBox> trackBoxes = new ArrayList<JCheckBox>();
+
+	public GenomeBrowser(VisualisationFrame frame) {
+		super(frame);
+	}
 
 	@Override
 	public JPanel getParameterPanel() {
@@ -140,10 +144,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 
 			// FIXME These should be read from user data file
 			for (int i = 1; i <= CHROMOSOME_COUNT; i++) {
-				chrBox.addItem(i);
+				chrBox.addItem(""+i);
 			}
-
-			chrBox.setEnabled(false);
 
 			c.gridy++;
 			settingsPanel.add(new JLabel("Chromosome"), c);
@@ -174,8 +176,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		settingsPanel.setLayout(new GridBagLayout());
 		settingsPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
 
-		useButton = new JButton("Draw");
-		useButton.addActionListener(this);
+		drawButton = new JButton("Draw");
+		drawButton.addActionListener(this);
 
 		GridBagConstraints c = new GridBagConstraints();
 
@@ -237,7 +239,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 //		settingsPanel.add(circularView, c);
 
 		c.gridy++;
-		settingsPanel.add(useButton, c);
+		settingsPanel.add(drawButton, c);
 		c.gridy++;
 		c.fill = GridBagConstraints.BOTH;
 		c.weighty = 1.0;
@@ -256,67 +258,65 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
 
-		if (source == useButton) {
-			useButtonPressed();
+		if (source == drawButton) {
+			showVisualisation();
 		}
-	}
-
-	protected void useButtonPressed() {
-
-		List<Variable> vars = new ArrayList<Variable>();
-		vars.add(new ObjVariable(chrBox.getSelectedItem()));
-//		vars.add(new ObjVariable(megaLocation.toString()));
-//		vars.add(new ObjVariable(kiloLocation.toString()));
-//		vars.add(new ObjVariable(unitLocation.toString()));
-		vars.add(new ObjVariable(views.getSelection()));
-
-		for (JCheckBox box : trackBoxes) {
-			vars.add(new ObjVariable(box));
-		}
-
-		application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, VisualisationMethod.GBROWSER, vars, getFrame().getDatas(), getFrame().getType(), getFrame()));
-
 	}
 
 	@Override
 	public JComponent getVisualisation(DataBean data) throws Exception {
-
 		this.data = data;
-
-		// local data
-		LocalFileDataBeanHandler handler = (LocalFileDataBeanHandler)data.getHandler();
 		
-		// remote annotation data
-		URL annotationUrl = fetchAnnotationUrl();
-		String genome = (String)genomeBox.getSelectedItem();
+		// create panel with card layout and put message panel there
+		JPanel waitPanel = new JPanel();
+		waitPanel.add(new JLabel("Please select parameters"));
+		plotPanel.add(waitPanel, WAITPANEL);
 		
-		GenomePlot plot = new GenomePlot(true);
-		TrackFactory.addCytobandTracks(plot, new DataSource(annotationUrl, "Homo_sapiens.GRCh37.57_karyotype.tsv")); // using always the same
-		TrackFactory.addGeneTracks(plot, new DataSource(annotationUrl, "Homo_sapiens." + genome + "_genes.tsv"));
-		TrackFactory.addReadTracks(plot, new DataSource[] { new DataSource(handler.getFile(data))}, new DataSource(annotationUrl, "Homo_sapiens." + genome + "_seq.tsv"));
-		TrackFactory.addRulerTrack(plot);
-		plot.start("1", 1024 * 1024 * 250d);
-		plot.addDataRegionListener(this);
+		return plotPanel;	
+	}
 
-		ChartPanel panel = new ChartPanel(new JFreeChart(plot));
-		// panel.setPreferredSize(new Dimension(800, 600));
-		plot.chartPanel = panel;
-		// SelectableChartPanel selPanel = new SelectableChartPanel(new JFreeChart(plot), plot);
-		// selPanel.getChartPanel().addChartMouseListener(plot);
+	private void showVisualisation() {
 
-		// selPanel.getChartPanel().addMouseWheelListener(plot);
+		try {
+			// get local data
+			LocalFileDataBeanHandler handler = (LocalFileDataBeanHandler)data.getHandler();
 
-		panel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+			// fetch emote annotation data
+			URL annotationUrl = fetchAnnotationUrl();
+			String genome = (String)genomeBox.getSelectedItem();
 
-		// panel.addMouseWheelListener(plot);
+			// create the plot
+			GenomePlot plot = new GenomePlot(true);
+			TrackFactory.addCytobandTracks(plot, new DataSource(annotationUrl, "Homo_sapiens.GRCh37.57_karyotype.tsv")); // using always the same
+			TrackFactory.addGeneTracks(plot, new DataSource(annotationUrl, "Homo_sapiens." + genome + "_genes.tsv"));
+			TrackFactory.addReadTracks(plot, new DataSource[] { new DataSource(handler.getFile(data))}, new DataSource(annotationUrl, "Homo_sapiens." + genome + "_seq.tsv"));
+			TrackFactory.addRulerTrack(plot);
+			plot.start("1", 1024 * 1024 * 250d);
+			plot.addDataRegionListener(this);
+			
+			// wrap it in a panel
+			ChartPanel panel = new ChartPanel(new JFreeChart(plot));
+			plot.chartPanel = panel;
+			panel.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-		for (View view : plot.getViews()) {
-			panel.addMouseListener(view);
-			panel.addMouseMotionListener(view);
-			panel.addMouseWheelListener(view);
+			// add mouse listeners
+			for (View view : plot.getViews()) {
+				panel.addMouseListener(view);
+				panel.addMouseMotionListener(view);
+				panel.addMouseWheelListener(view);
+			}
+
+			// put panel on top of card layout
+			if (plotPanel.getComponentCount() == 2) {
+				plotPanel.remove(1);
+			}
+			plotPanel.add(panel, PLOTPANEL);
+		    CardLayout cl = (CardLayout)(plotPanel.getLayout());
+		    cl.show(plotPanel, PLOTPANEL);
+
+		} catch (Exception e) {
+			application.reportException(e);
 		}
-
-		return panel;
 	}
 
 	private URL fetchAnnotationUrl() {
