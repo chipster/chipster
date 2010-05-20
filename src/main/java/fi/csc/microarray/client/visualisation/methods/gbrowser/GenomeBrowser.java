@@ -285,7 +285,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 		String genome = (String)genomeBox.getSelectedItem();
 		
 		GenomePlot plot = new GenomePlot(true);
-		TrackFactory.addCytobandTracks(plot, new DataSource(annotationUrl, "Homo_sapiens.GRCh37.57_karyotype.tsv"));
+		TrackFactory.addCytobandTracks(plot, new DataSource(annotationUrl, "Homo_sapiens.GRCh37.57_karyotype.tsv")); // using always the same
 		TrackFactory.addGeneTracks(plot, new DataSource(annotationUrl, "Homo_sapiens." + genome + "_genes.tsv"));
 		TrackFactory.addReadTracks(plot, new DataSource(handler.getFile(data)), new DataSource(annotationUrl, "Homo_sapiens." + genome + "_seq.tsv"));
 		TrackFactory.addRulerTrack(plot);
