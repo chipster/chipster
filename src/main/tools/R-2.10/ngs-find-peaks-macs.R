@@ -3,17 +3,18 @@
 # samples alone, or relative to one or more control samples.)
 # INPUT treatment.txt: "Treatment data file" TYPE GENERIC
 # INPUT control.txt: "Control data file" TYPE GENERIC
-# OUTPUT positive_peaks.tsv: "True enriched peaks"
+# OUTPUT positive-peaks.tsv: "True enriched peaks"
 # OUTPUT analysis_summary.tsv: "Summary of analysis settings and results"
 # OUTPUT peak_model.pdf: "A plot of the fitted peak model"
-# OUTPUT OPTIONAL negative_peaks.tsv: "The false enriched peaks"
+# OUTPUT OPTIONAL negative-peaks.tsv: "The false enriched peaks"
 # PARAMETER file.format: "The format of the sequence files" TYPE [ELAND, SAM, BAM, BED] DEFAULT ELAND (The format of the input files.)
-# PARAMETER produce.wiggle: "Should wiggle files be produced" TYPE [yes, no] DEFAULT no (Determines if WIGGLE type files should be output or not. By default this option is turned off due to the significantly longer run times it causes. However, for displaying p-values in one track of the Genome Browser, this paramter needs to be yes.)
-# PARAMETER species: "The species of the analyzed samples" TYPE [human, mouse, rat] DEFAULT human (the species of the samples.)
-# PARAMETER read.length: "The length in nucleotides of the sequence reads" TYPE INTEGER FROM 1 TO 200 DEFAULT 30
-# PARAMETER band.with: "The scanning window size, typically half the average DNA fragment length" TYPE INTEGER FROM 1 TO 1000 DEFAULT 200
-# PARAMETER p.value.threshold: "The unadjusted p-value cutoff for statistical significance" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05
-# PARAMETER m.fold: "Sets the m-fold threshold for model building" TYPE INTEGER FROM 1 TO 100 DEFAULT 32
+# PARAMETER produce.wiggle: "Produce wiggle" TYPE [yes, no] DEFAULT no (Determines if WIGGLE type files should be output or not. By default this option is turned off due to the significantly longer run times it causes. However, for displaying p-values in one track of the Genome Browser, this paramter needs to be yes.)
+# PARAMETER species: "Species" TYPE [human, mouse, rat] DEFAULT human (the species of the samples.)
+# PARAMETER test: "Only for testing" TYPE INTEGER FROM 1 TO 10 DEFAULT 5 (Just for testing)
+# PARAMETER read.length: "Read length" TYPE INTEGER FROM 1 TO 200 DEFAULT 30 (The length of in nucleotides of the sequence reads)
+# PARAMETER band.with: "TBand with" TYPE INTEGER FROM 1 TO 1000 DEFAULT 200 (The scanning window size, typically half the average fragment size of the DNA)
+# PARAMETER p.value.threshold: "P-value threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for statistical significance. Since the p-values are not adjusted to account for multiple testing correction the cutoff needs to be substantially more conservative than what is usually applied.)
+# PARAMETER m.fold: "M-fold cutoff" TYPE INTEGER FROM 1 TO 100 DEFAULT 32 (Sets the cutoff used to determine peak regions for model building. A too high value may result in not enough peaks being identified for building the model.)
 
 # ALTERNATIVE SETUP
 # PARAMETER file.format: "The format of the sequence files" TYPE STRING [ELAND, SAM, BAM, BED] DEFAULT ELAND (The format of the input files.)
@@ -39,13 +40,13 @@
 
 # Set up approximate mappable genome size depending on species
 if (species == "human") {
-	genome.size <- 2.7e+9
+	genome.size <- "2700000000"
 }
 if (species == "mouse") {
-	genome.size <- 2.7e+9
+	genome.size <- "2700000000"
 }
 if (species == "rat") {
-	genome.size <- 2.7e+9
+	genome.size <- "2700000000"
 }
 
 # Loads the libraries!
@@ -250,6 +251,11 @@ results_FALSE <- parseMACSResultsNEG (name="results", final=TRUE)
 # Write the results to tables to be read into Chipster
 write.table(results_TRUE, file="positive-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
 write.table(results_FALSE, file="negative-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
+
+#output_1 <- read.table(file="results_peaks.xls", sep="")
+#output_2 <- read.table(file="results_negative_peaks.xls", sep="")
+#write.table(output_1, file="positive-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
+#write.table(output_2, file="negative-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
 
 
 
