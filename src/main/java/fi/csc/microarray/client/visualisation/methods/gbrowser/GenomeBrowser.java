@@ -67,12 +67,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 
 	private final ClientApplication application = Session.getSession().getApplication();
 
-	private final ClientApplication application = Session.getSession().getApplication();
-
 	private GenomePlot plot;
 
 	private DataBean data;
-	private ButtonGroup views;
 	private JTextArea megaLocation;
 	private JTextArea kiloLocation;
 	private JTextArea unitLocation;
