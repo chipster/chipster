@@ -5,6 +5,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -33,7 +34,6 @@ import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Row;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.handlers.LocalFileDataBeanHandler;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.messaging.MessagingEndpoint;
@@ -278,7 +278,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 		this.data = data;
 
 		// local data
-		LocalFileDataBeanHandler handler = (LocalFileDataBeanHandler)data.getHandler();
+		File dataFile = Session.getSession().getDataManager().getLocalFile(data);
 		
 		// remote annotation data
 		URL annotationUrl = fetchAnnotationUrl();
@@ -287,7 +287,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 		GenomePlot plot = new GenomePlot(true);
 		TrackFactory.addCytobandTracks(plot, new DataSource(annotationUrl, "Homo_sapiens.GRCh37.57_karyotype.tsv"));
 		TrackFactory.addGeneTracks(plot, new DataSource(annotationUrl, "Homo_sapiens." + genome + "_genes.tsv"));
-		TrackFactory.addReadTracks(plot, new DataSource(handler.getFile(data)), new DataSource(annotationUrl, "Homo_sapiens." + genome + "_seq.tsv"));
+		TrackFactory.addReadTracks(plot, new DataSource(dataFile), new DataSource(annotationUrl, "Homo_sapiens." + genome + "_seq.tsv"));
 		TrackFactory.addRulerTrack(plot);
 		plot.start("1");
 

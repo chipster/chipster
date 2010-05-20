@@ -655,27 +655,7 @@ public class DataManager {
 		}
 		// for other bean types, convert to local bean
 		else {
-			// lock bean
-			
-			// TODO think about that name
-			// copy contents to new file
-			File newFile = this.createNewRepositoryFile(bean.getName());
-			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(newFile));
-			BufferedInputStream in = new BufferedInputStream(bean.getContentByteStream());
-			try {
-				IOUtils.copy(in, out);
-			} finally {
-				IOUtils.closeIfPossible(in);
-				IOUtils.closeIfPossible(out);
-			}
-			// update url, type and handler in the bean
-			URL newURL = newFile.toURI().toURL();
-			
-			bean.setContentUrl(newURL);
-			bean.setType(DataBeanType.LOCAL_TEMP);
-			bean.setHandler(new LocalFileDataBeanHandler());
-			bean.setContentChanged(true);
-			
+			this.convertToLocalFileDataBean(bean);
 			return bean.getHandler().getOutputStream(bean);
 		}
 	}
@@ -699,9 +679,40 @@ public class DataManager {
 		this.dispatchEventIfVisible(cce);
 	}
 
+	public File getLocalFile(DataBean bean) throws IOException {
+		// convert non local file beans to local file beans
+		if (!(bean.getHandler() instanceof LocalFileDataBeanHandler)) {
+			this.convertToLocalFileDataBean(bean);
+		}
+		
+		// get the file
+		LocalFileDataBeanHandler handler = (LocalFileDataBeanHandler) bean.getHandler();
+		return handler.getFile(bean);
+	}
 	
 	
-	
+	private void convertToLocalFileDataBean(DataBean bean) throws IOException {
+		// FIXME lock bean
+		
+		// TODO think about that name
+		// copy contents to new file
+		File newFile = this.createNewRepositoryFile(bean.getName());
+		BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(newFile));
+		BufferedInputStream in = new BufferedInputStream(bean.getContentByteStream());
+		try {
+			IOUtils.copy(in, out);
+		} finally {
+			IOUtils.closeIfPossible(in);
+			IOUtils.closeIfPossible(out);
+		}
+		// update url, type and handler in the bean
+		URL newURL = newFile.toURI().toURL();
+		
+		bean.setContentUrl(newURL);
+		bean.setType(DataBeanType.LOCAL_TEMP);
+		bean.setHandler(new LocalFileDataBeanHandler());
+		bean.setContentChanged(true);
+	}
 	
 	
 	
