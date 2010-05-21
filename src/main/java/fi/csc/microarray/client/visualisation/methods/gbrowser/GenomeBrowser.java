@@ -1,6 +1,7 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -286,7 +287,13 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			GenomePlot plot = new GenomePlot(true);
 			TrackFactory.addCytobandTracks(plot, new DataSource(annotationUrl, "Homo_sapiens.GRCh37.57_karyotype.tsv")); // using always the same
 			TrackFactory.addGeneTracks(plot, new DataSource(annotationUrl, "Homo_sapiens." + genome + "_genes.tsv"));
-			TrackFactory.addReadTracks(plot, new DataSource[] { new DataSource(handler.getFile(data))}, new DataSource(annotationUrl, "Homo_sapiens." + genome + "_seq.tsv"));
+			TrackFactory.addReadTracks(
+					plot, 
+					new DataSource[] { new DataSource(handler.getFile(data))},
+					new Color[] { Color.blue },
+					new Color[] { Color.black },
+					new DataSource(annotationUrl, "Homo_sapiens." + genome + "_seq.tsv"
+			));
 			TrackFactory.addRulerTrack(plot);
 			plot.start("1", 1024 * 1024 * 250d);
 			plot.addDataRegionListener(this);
