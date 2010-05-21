@@ -307,7 +307,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 				UserTrackType interpretation = interpretations.get(i);
 				
 				// get the actual file
-				File file = ((LocalFileDataBeanHandler)datas.get(i).getHandler()).getFile(datas.get(i));
+				File file = Session.getSession().getDataManager().getLocalFile(datas.get(i));
 				
 				// put it in right list
 				switch (interpretation) {
