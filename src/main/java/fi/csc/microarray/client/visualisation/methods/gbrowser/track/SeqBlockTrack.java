@@ -24,23 +24,28 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 
 public class SeqBlockTrack extends Track {
 
-	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
-
-	List<Integer> occupiedSpace = new ArrayList<Integer>();
-
-	private Color[] charColors = new Color[] { 
+	private static final Color[] charColors = new Color[] { 
 			new Color(64, 192, 64, 128), // A
 			new Color(64, 64, 192, 128), // C
 			new Color(128, 128, 128, 128), // G
 			new Color(192, 64, 64, 128) // T
 	};
 
-	private long maxBpLength;
+	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
+	private List<Integer> occupiedSpace = new ArrayList<Integer>();
 
-	public SeqBlockTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler, FileParser inputParser, Color color, long minBpLength, long maxBpLength) {
+	private long maxBpLength;
+	private long minBpLength;
+	private Color fontColor;
+
+	private boolean wasLastConsised = true;
+
+
+	public SeqBlockTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler, FileParser inputParser, Color fontColor, long minBpLength, long maxBpLength) {
 		super(view, file, handler, inputParser);
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
+		this.fontColor = fontColor;
 	}
 
 	@Override
@@ -175,7 +180,7 @@ public class SeqBlockTrack extends Track {
 
 							if (rect.width > seq.length() * CHAR_WIDTH) {
 
-								drawables.add(new TextDrawable((int) x + 1, rect.y + 10, "" + letter, Color.black));
+								drawables.add(new TextDrawable((int) x + 1, rect.y + 10, "" + letter, fontColor));
 
 								// drawables.add(new TextDrawable((int)x, rect.y - 8,
 								// "" + letter, Color.black));
@@ -236,16 +241,12 @@ public class SeqBlockTrack extends Track {
 //		 this.reads.addAll(result.collection);
 	}
 
-	private boolean wasLastConsied = true;
-
-	private long minBpLength;
-
 	@Override
 	public void updateData() {
 
-		if (wasLastConsied != isConcised()) {
+		if (wasLastConsised != isConcised()) {
 			reads.clear();
-			wasLastConsied = isConcised();
+			wasLastConsised = isConcised();
 		}
 		super.updateData();
 	}

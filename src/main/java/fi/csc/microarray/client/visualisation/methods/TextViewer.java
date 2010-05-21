@@ -32,7 +32,7 @@ public class TextViewer extends Visualisation {
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		return bean.isContentTypeCompatitible("text/plain", "chemical/x-fasta");
+		return bean.isContentTypeCompatitible("text/plain", "chemical/x-fasta", "text/wig");
 	}
 
 }

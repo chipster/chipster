@@ -53,7 +53,7 @@ public abstract class TsvParser extends FileParser {
 					return null;
 				}
 
-				String string = cols[fileDef.indexOf(col)].trim(); // FIXME array index out of bounds
+				String string = cols[fileDef.indexOf(col)].trim();
 
 				ColumnDefinition fieldDef = fileDef.getFieldDef(col);
 
@@ -73,7 +73,7 @@ public abstract class TsvParser extends FileParser {
 				} else if (fieldDef.type == Type.LONG) {
 
 					if (string.length() > 0) {
-						return new Long(string); // FIXME number format exception (cytoband "q21.1"...)
+						return new Long(string);
 					} else {
 						return Long.MIN_VALUE;
 					}
