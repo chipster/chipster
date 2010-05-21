@@ -4,19 +4,19 @@
 # INPUT treatment.txt: "Treatment data file" TYPE GENERIC
 # INPUT control.txt: "Control data file" TYPE GENERIC
 # OUTPUT positive-peaks.tsv: "True enriched peaks"
-# OUTPUT analysis-summary.tsv: "Summary of analysis settings and results"
-# OUTPUT peak-model.pdf: "A plot of the fitted peak model"
+# OUTPUT analysis-summary.txt: "Summary of analysis settings and results"
+# OUTPUT results_model.png: "A plot of the fitted peak model"
 # OUTPUT OPTIONAL negative-peaks.tsv: "The false enriched peaks"
 # PARAMETER file.format: "The format of the sequence files" TYPE [ELAND, SAM, BAM, BED] DEFAULT ELAND (The format of the input files.)
-# PARAMETER produce.wiggle: "Produce wiggle" TYPE [yes, no] DEFAULT no (Determines if WIGGLE type files should be output or not. By default this option is turned off due to the significantly longer run times it causes. However, for displaying p-values in one track of the Genome Browser, this paramter needs to be yes.)
+# PARAMETER produce.wiggle: "Produce wiggle" TYPE DEFAULT no (Determines if WIGGLE type files should be output or not. By default this option is turned off due to the significantly longer run times it causes. However, for displaying p-values in one track of the Genome Browser, this paramter should be set to indicate the chromosome for which to produce the wiggle file.)
 # PARAMETER species: "Species" TYPE [human, mouse, rat] DEFAULT human (the species of the samples.)
-# PARAMETER test: "Only for testing" TYPE INTEGER FROM 1 TO 10 DEFAULT 5 (Just for testing)
-# PARAMETER read.length: "Read length" TYPE INTEGER FROM 1 TO 200 DEFAULT 30 (The length of in nucleotides of the sequence reads)
-# PARAMETER band.with: "TBand with" TYPE INTEGER FROM 1 TO 1000 DEFAULT 200 (The scanning window size, typically half the average fragment size of the DNA)
-# PARAMETER p.value.threshold: "P-value threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for statistical significance. Since the p-values are not adjusted to account for multiple testing correction the cutoff needs to be substantially more conservative than what is usually applied.)
+# PARAMETER read.length: "Read length" TYPE INTEGER FROM 1 TO 200 DEFAULT 30 (The length in nucleotides of the sequence reads)
+# PARAMETER band.with: "Band with" TYPE INTEGER FROM 1 TO 1000 DEFAULT 200 (The scanning window size, typically half the average fragment size of the DNA)
+# PARAMETER p.value.threshold: "P-value threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.00001 (The cutoff for statistical significance. Since the p-values are not adjusted to account for multiple testing correction the cutoff needs to be substantially more conservative than what is usually applied.)
 # PARAMETER m.fold: "M-fold cutoff" TYPE INTEGER FROM 1 TO 100 DEFAULT 32 (Sets the cutoff used to determine peak regions for model building. A too high value may result in not enough peaks being identified for building the model.)
 
 # ALTERNATIVE SETUP
+# PARAMETER build.model: "Build model" TYPE [yes, no] DEFAULT yes (Determines whether to build the peak shift model from the data or not.)
 # PARAMETER file.format: "The format of the sequence files" TYPE STRING [ELAND, SAM, BAM, BED] DEFAULT ELAND (The format of the input files.)
 # INPUT sequence{...}.txt: "Sequence data files" TYPE GENERIC
 # INPUT phenodata.tsv: "The file containing pehnotype data" TYPE GENERIC
@@ -113,12 +113,12 @@ if (species == "rat") {
 
 # Remove unmappable reads belonging to random chromosomes or hapmap (single file approach)
 system("grep -v random treatment.txt > treatment_2.txt")
-system("grep -v hap treatment.txt > treatment_3.txt")
+system("grep -v hap treatment_2.txt > treatment_3.txt")
 system ("rm -f treatment.txt")
 system("rm -f treatment_2.txt")
 if (length(grep ("control.txt",dir())) != 0) {
 	system("grep -v random control.txt > control_2.txt")
-	system("grep -v hap control.txt > control_3.txt")
+	system("grep -v hap control_2.txt > control_3.txt")
 	system ("rm -f control.txt")
 	system("rm -f control_2.txt")
 }
@@ -191,7 +191,7 @@ runMACS <- function(..., logFile="/dev/null") {
 	}
 }
 
-# Run MACS with default parameters for the data set
+# Run MACS with specified parameters for the data set
 runMACS(treatment="treatment_3.txt", 
 		control="control_3.txt", 
 		name="results", 
@@ -204,7 +204,7 @@ runMACS(treatment="treatment_3.txt",
 		verbose=3, 
 		logFile="results.log", 
 		nomodel=FALSE, 
-		help=F, 
+		help=FALSE, 
 		version=FALSE)
 
 # Read in and parse the results
@@ -215,7 +215,7 @@ runMACS(treatment="treatment_3.txt",
 ## 10xlog10(pvalue) values are sorted decreasingly"
 
 parseMACSResultsPOS <- function(name, final=FALSE){
-	if( final ){
+	if( final ) {
 		output <- read.table(file=paste(name, "_peaks.xls", sep=""), skip=0, header=TRUE, stringsAsFactors=FALSE)
 		## Choose columns
 		output <- output[c("chr","start","end","fold_enrichment", "X.10.log10.pvalue.","tags","summit")]
@@ -229,7 +229,7 @@ parseMACSResultsPOS <- function(name, final=FALSE){
 
 
 parseMACSResultsNEG <- function(name, final=FALSE){
-	if( final ){
+	if( final ) {
 		output <- read.table(file=paste(name, "_negative_peaks.xls", sep=""), skip=0, header=TRUE, stringsAsFactors=FALSE)
 		## Choose columns
 		output <- output[c("chr","start","end","fold_enrichment", "X.10.log10.pvalue.","tags","summit")]
@@ -249,17 +249,15 @@ results_FALSE <- parseMACSResultsNEG (name="results", final=TRUE)
 
 # Read summary info of results
 analysis_summary <- readLines ("results.log",n=11)
-write.table(file="analysis-summary.tsv", unlist(analysis_summary)), sep="", row.names=F, quote=F)
+write.table(file="analysis-summary.txt", unlist(analysis_summary), sep="", row.names=F, quote=F)
 
 # Write the results to tables to be read into Chipster
 write.table(results_TRUE, file="positive-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
 write.table(results_FALSE, file="negative-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
 
-#output_1 <- read.table(file="results_peaks.xls", sep="")
-#output_2 <- read.table(file="results_negative_peaks.xls", sep="")
-#write.table(output_1, file="positive-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
-#write.table(output_2, file="negative-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
-
+# Source the R code for plotting the MACS model and convert the PDF file to PNG
+source("results_model.r")
+system("convert results_model.pdf results_model.png")
 
 
 
