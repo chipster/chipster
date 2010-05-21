@@ -2,13 +2,13 @@
 # genomic regions in sequencing data from a ChIP-seq experiment. The analysis can be performed on one or more treatment
 # samples alone, or relative to one or more control samples.)
 # INPUT treatment.txt: "Treatment data file" TYPE GENERIC
-# INPUT control.txt: "Control data file" TYPE GENERIC
+# INPUT OPTIONAL control.txt: "Control data file" TYPE GENERIC
 # OUTPUT positive-peaks.tsv: "True enriched peaks"
 # OUTPUT analysis-summary.txt: "Summary of analysis settings and results"
 # OUTPUT results_model.png: "A plot of the fitted peak model"
 # OUTPUT OPTIONAL negative-peaks.tsv: "The false enriched peaks"
 # PARAMETER file.format: "The format of the sequence files" TYPE [ELAND, SAM, BAM, BED] DEFAULT ELAND (The format of the input files.)
-# PARAMETER produce.wiggle: "Produce wiggle" TYPE DEFAULT no (Determines if WIGGLE type files should be output or not. By default this option is turned off due to the significantly longer run times it causes. However, for displaying p-values in one track of the Genome Browser, this paramter should be set to indicate the chromosome for which to produce the wiggle file.)
+# PARAMETER produce.wiggle: "Produce wiggle" TYPE STRING DEFAULT no (Determines if WIGGLE type files should be output or not. By default this option is turned off due to the significantly longer run times it causes. However, for displaying p-values in one track of the Genome Browser, this paramter should be set to indicate the chromosome for which to produce the wiggle file.)
 # PARAMETER species: "Species" TYPE [human, mouse, rat] DEFAULT human (the species of the samples.)
 # PARAMETER read.length: "Read length" TYPE INTEGER FROM 1 TO 200 DEFAULT 30 (The length in nucleotides of the sequence reads)
 # PARAMETER band.with: "Band with" TYPE INTEGER FROM 1 TO 1000 DEFAULT 200 (The scanning window size, typically half the average fragment size of the DNA)
