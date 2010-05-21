@@ -58,7 +58,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 		this.views.add(dataView);
 
 		dataView.addRegionListener(new RegionListener() {
-			public void RegionChanged(BpCoordRegion bpRegion) {
+			public void regionChanged(BpCoordRegion bpRegion) {
 				overviewView.highlight = bpRegion;
 			}
 		});
