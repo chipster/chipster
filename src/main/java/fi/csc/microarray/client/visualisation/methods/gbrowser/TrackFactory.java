@@ -3,6 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser;
 import java.awt.Color;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
+import java.util.List;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TreeThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
@@ -49,22 +50,25 @@ public class TrackFactory {
 	}
 
 	
-	public static void addReadTracks(GenomePlot plot, DataSource[] userDatas, Color[] histogramColors, Color[] fontColors, DataSource seqFile) throws FileNotFoundException, MalformedURLException {
+	public static void addReadTracks(GenomePlot plot, List<DataSource> treatments, List<DataSource> controls, DataSource seqFile) throws FileNotFoundException, MalformedURLException {
 		ElandParser userDataParser = new ElandParser();
 		View dataView = plot.getDataView();
 		int switchViewsAt = 50000;
 
-		// forward tracks
-		for (int i = 0; i < userDatas.length; i++) {
+		// forward tracks, iterate over both arrays 
+		for (int i = 0; i < (treatments.size() + controls.size()); i++) {
 
-			DataSource userData = userDatas[i];
-
+			boolean isTreatment = i < treatments.size();
+			DataSource userData = isTreatment ? treatments.get(i) : controls.get(i-treatments.size());
+			Color histogramColor = isTreatment ? Color.blue : Color.gray;
+			Color fontColor = Color.black;
+			
 			// Overview
-			IntensityTrack readOverview = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, histogramColors[i], switchViewsAt);
+			IntensityTrack readOverview = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, histogramColor, switchViewsAt);
 			addTrack(dataView, readOverview);
 
 			// Detailed
-			SeqBlockTrack reads = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, fontColors[i], 0, switchViewsAt);
+			SeqBlockTrack reads = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, fontColor, 0, switchViewsAt);
 			addTrack(dataView, reads);
 
 			// separator
@@ -80,20 +84,23 @@ public class TrackFactory {
 		}
 
 		// reverse tracks
-		for (int i = userDatas.length-1; i >= 0; i--) {
+		for (int i = (treatments.size() + controls.size()-1); i >= 0; i--) {
 			
-			DataSource userData = userDatas[i];
+			boolean isTreatment = i < treatments.size();
+			DataSource userData = isTreatment ? treatments.get(i) : controls.get(i-treatments.size());
+			Color histogramColor = isTreatment ? Color.blue : Color.gray;
+			Color fontColor = Color.black;
 
 			// separator
 			dataView.addTrack(new SeparatorTrack(dataView));
 
 			// Overview
-			IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, histogramColors[i], switchViewsAt);
+			IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, histogramColor, switchViewsAt);
 			readOverviewReversed.setStrand(Strand.REVERSED);
 			addTrack(dataView, readOverviewReversed);
 
 			// Detailed
-			SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, fontColors[i], 0, switchViewsAt);
+			SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, fontColor, 0, switchViewsAt);
 			readsReversed.setStrand(Strand.REVERSED);
 			addTrack(dataView, readsReversed);
 		}
@@ -105,12 +112,14 @@ public class TrackFactory {
 		addTrack(plot.getDataView(), annotation);
 	}
 	
-	public static void addPeakTracks(GenomePlot plot, DataSource peakFile) {
+	public static void addPeakTracks(GenomePlot plot, List<DataSource> peakSources) {
 		BEDParser bedParser = new BEDParser();
 		View dataView = plot.getDataView();
 
-		PeakTrack annotation = new PeakTrack(dataView, peakFile, TreeThread.class, bedParser, Color.YELLOW, 0, Long.MAX_VALUE);
-		addTrack(dataView, annotation);
+		for (DataSource peaks : peakSources) {
+			PeakTrack annotation = new PeakTrack(dataView, peaks, TreeThread.class, bedParser, Color.YELLOW, 0, Long.MAX_VALUE);
+			addTrack(dataView, annotation);
+		}
 	}
 
 	public static void addTranscriptTracks(GenomePlot plot, DataSource annotationFile) {

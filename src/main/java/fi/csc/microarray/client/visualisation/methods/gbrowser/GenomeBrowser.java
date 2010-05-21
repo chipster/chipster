@@ -1,7 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
 import java.awt.CardLayout;
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -10,11 +9,14 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -51,15 +53,19 @@ import fi.csc.microarray.util.IOUtils;
  */
 public class GenomeBrowser extends Visualisation implements ActionListener, RegionListener, VetoableChangeListener {
 
-	private static final String ANNOTATION_URL_PATH = "annotations";
-
 	private static final int CHROMOSOME_COUNT = 22;
-
+	private static final String ANNOTATION_URL_PATH = "annotations";
 	private static final String CONTENTS_FILE = "contents.txt";
 
 	final static String WAITPANEL = "waitpanel";
 	final static String PLOTPANEL = "plotpanel";
 
+	private static enum UserTrackType {
+		TREATMENT_READS,
+		CONTROL_READS,
+		PEAKS
+	}
+	
 	private JPanel paramPanel;
 	private JPanel settingsPanel;
 	private JPanel plotPanel = new JPanel(new CardLayout());
@@ -70,7 +76,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 
 	private GenomePlot plot;
 
-	private DataBean data;
+	private List<DataBean> datas;
 	private JTextArea megaLocation;
 	private JTextArea kiloLocation;
 	private JTextArea unitLocation;
@@ -87,7 +93,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	@Override
 	public JPanel getParameterPanel() {
 
-		if (paramPanel == null || data != application.getSelectionManager().getSelectedDataBean()) {
+		// FIXME should the following check be enabled?
+		if (paramPanel == null /*|| data != application.getSelectionManager().getSelectedDataBean()*/) {
 
 			paramPanel = new JPanel();
 			paramPanel.setLayout(new GridBagLayout());
@@ -263,7 +270,12 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 
 	@Override
 	public JComponent getVisualisation(DataBean data) throws Exception {
-		this.data = data;
+		return getVisualisation(Arrays.asList(new DataBean[] { data }));
+	}
+
+	@Override
+	public JComponent getVisualisation(java.util.List<DataBean> datas) throws Exception {
+		this.datas = datas;
 		
 		// create panel with card layout and put message panel there
 		JPanel waitPanel = new JPanel();
@@ -272,14 +284,11 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		
 		return plotPanel;	
 	}
-
+	
 	private void showVisualisation() {
 
 		try {
-			// get local data
-			LocalFileDataBeanHandler handler = (LocalFileDataBeanHandler)data.getHandler();
-
-			// fetch emote annotation data
+			// fetch remote annotation data
 			URL annotationUrl = fetchAnnotationUrl();
 			String genome = (String)genomeBox.getSelectedItem();
 
@@ -287,14 +296,51 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			GenomePlot plot = new GenomePlot(true);
 			TrackFactory.addCytobandTracks(plot, new DataSource(annotationUrl, "Homo_sapiens.GRCh37.57_karyotype.tsv")); // using always the same
 			TrackFactory.addGeneTracks(plot, new DataSource(annotationUrl, "Homo_sapiens." + genome + "_genes.tsv"));
-			TrackFactory.addReadTracks(
-					plot, 
-					new DataSource[] { new DataSource(handler.getFile(data))},
-					new Color[] { Color.blue },
-					new Color[] { Color.black },
-					new DataSource(annotationUrl, "Homo_sapiens." + genome + "_seq.tsv"
-			));
+
+			// interpret user data files
+			List<UserTrackType> interpretations = interpretUserDatas(datas);
+			LinkedList<DataSource> treatments = new LinkedList<DataSource>();
+			LinkedList<DataSource> controls = new LinkedList<DataSource>();
+			LinkedList<DataSource> peaks = new LinkedList<DataSource>();
+
+			for (int i = 0; i < interpretations.size(); i++ ) {
+				
+				UserTrackType interpretation = interpretations.get(i);
+				
+				// get the actual file
+				File file = ((LocalFileDataBeanHandler)datas.get(i).getHandler()).getFile(datas.get(i));
+				
+				// put it in right list
+				switch (interpretation) {
+				case TREATMENT_READS:
+					treatments.add(new DataSource(file));
+					break;
+				case CONTROL_READS:
+					controls.add(new DataSource(file));
+					break;
+				case PEAKS:
+					peaks.add(new DataSource(file));
+					break;
+				}
+			}
+
+			// add user tracks
+			if (!peaks.isEmpty()) {
+				TrackFactory.addPeakTracks(plot, peaks);
+			}			
+			if (!treatments.isEmpty() || !controls.isEmpty()) {
+				TrackFactory.addReadTracks(
+						plot,
+						treatments,
+						controls,
+						new DataSource(annotationUrl, "Homo_sapiens." + genome + "_seq.tsv"
+				));
+			}
+			
+			// add rest of generic tracks
 			TrackFactory.addRulerTrack(plot);
+			
+			// initialise the plot
 			plot.start("1", 1024 * 1024 * 250d);
 			plot.addDataRegionListener(this);
 			
@@ -329,23 +375,28 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			FileBrokerClient fileBrokerClient = new FileBrokerClient(messagingEndpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
 			URL annotationUrl = new URL(fileBrokerClient.getPublicUrl() + "/" + ANNOTATION_URL_PATH);
 			return annotationUrl;
+			
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
-	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		return true;
+	public boolean canVisualise(DataBean data) throws MicroarrayException {
+		return canVisualise(Arrays.asList(new DataBean[] { data }));
 	}
-	
+
+	@Override
+	public boolean canVisualise(java.util.List<DataBean> datas) throws MicroarrayException {
+		return interpretUserDatas(datas) != null;
+	}
+
 	public class ObjVariable extends Variable {
 
 		public Object obj;
 
 		public ObjVariable(Object obj) {
 			super(null, null);
-
 			this.obj = obj;
 		}
 	}
@@ -367,5 +418,42 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 					Long.parseLong(megaLocation.getText())*1000 +
 					Long.parseLong(megaLocation.getText()));
 		}
+	}
+	
+	private List<UserTrackType> interpretUserDatas(List<DataBean> datas) {
+		LinkedList<UserTrackType> interpretations = new LinkedList<UserTrackType>();
+		
+		// try to find interpretation for all selected datas
+		for (DataBean data : datas) {
+			
+			if (data.isContentTypeCompatitible("text/plain")) {
+				// reads
+				if (data.getName().contains("control")) {
+					interpretations.add(UserTrackType.CONTROL_READS);
+				} else {
+					interpretations.add(UserTrackType.TREATMENT_READS);
+				}
+				
+			} else if (data.isContentTypeCompatitible("text/bed")) {
+				// peaks
+				interpretations.add(UserTrackType.PEAKS);
+				
+			} else {
+				// cannot interpret, visualisation not available for this selection
+				return null;
+			}
+		}
+		
+		return interpretations;
+	}
+	
+	@Override
+	public boolean isForSingleData() {
+		return true;
+	}
+
+	@Override
+	public boolean isForMultipleDatas() {
+		return true;
 	}
 }

@@ -1,12 +1,12 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
@@ -23,7 +23,7 @@ public class GenomeBrowserStarter {
 
 	static {
 		try {
-			URL_ROOT = new URL("http://chipster-devel.csc.fi:8050/public/annotations");
+			URL_ROOT = new URL("http://chipster-filebroker.csc.fi:8050/public/annotations");
 			
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
@@ -37,13 +37,12 @@ public class GenomeBrowserStarter {
 //		TrackFactory.addMirnaTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_miRNA.tsv"));
 		TrackFactory.addTranscriptTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_transcripts.tsv"));
 		
-		TrackFactory.addPeakTracks(plot, new DataSource(MACS_DATA_FILE));
+		TrackFactory.addPeakTracks(plot, Arrays.asList(new DataSource[] { new DataSource(MACS_DATA_FILE) }));
 		
 		TrackFactory.addReadTracks(
 				plot, 
-				new DataSource[] { new DataSource(ELAND_DATA_FILE), new DataSource(ELAND_DATA_FILE) },
-				new Color[] { Color.gray, Color.blue },
-				new Color[] { Color.black, Color.black },
+				Arrays.asList(new DataSource[] { new DataSource(ELAND_DATA_FILE) }),
+				Arrays.asList(new DataSource[] { new DataSource(ELAND_DATA_FILE) }),
 				new DataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_seq.tsv")
 		);
 		
