@@ -124,6 +124,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 			settingsPanel.add(new JLabel("Genome"), c);			
 			c.gridy++;
 			genomeBox = new JComboBox();
+			genomeBox.addActionListener(this);
 			for (String genome : genomes) {
 				genomeBox.addItem(genome);
 			}
@@ -131,6 +132,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 
 			// list available chromosomes
 			chrBox = new JComboBox();
+			chrBox.addActionListener(this);
 
 			// FIXME These should be read from user data file
 			for (int i = 1; i <= CHROMOSOME_COUNT; i++) {
@@ -248,7 +250,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener {
 		Object source = e.getSource();
 
 		if (source == drawButton) {
+			drawButton.setEnabled(false);
 			showVisualisation();
+			
+		} else if (source == chrBox) {
+			drawButton.setEnabled(true); // there's something to redraw
+			
+		} else if (source == genomeBox) {
+			drawButton.setEnabled(true); // there's something to redraw
 		}
 	}
 

@@ -7,7 +7,7 @@ import java.util.Set;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TreeNode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 
-public class FsfStatus {
+public class FsfStatus implements Cloneable {
 
 	/**
 	 * All threads should send this forward and end themselves
@@ -32,4 +32,12 @@ public class FsfStatus {
 			((Queue<?>) fileResultQueue).clear();
 		}
 	}
+	
+	@Override
+	public FsfStatus clone() throws CloneNotSupportedException {
+		FsfStatus status = (FsfStatus)super.clone();
+		status.clearedAlready = new HashSet<Object>(this.clearedAlready);
+		return status;
+	}
+	
 }

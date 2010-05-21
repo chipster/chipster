@@ -65,24 +65,24 @@ public class TrackFactory {
 
 		dataView.addTrack(new SeparatorTrack(dataView));
 
-		if (seqFile != null) {
-			// Reference sequence
-			SeqTrack seq = new SeqTrack(dataView, seqFile, TreeThread.class, new SequenceParser(), 800);
-			addTrack(dataView, seq);
-		}
-
-		// R E V E R S E D ///////////////////////////////////////////////////
-		// Overview
-		IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, Color.gray, switchViewsAt);
-		readOverviewReversed.setStrand(Strand.REVERSED);
-		addTrack(dataView, readOverviewReversed);
-
-		// Detailed
-		dataView.addTrack(new SeparatorTrack(dataView));
-
-		SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, Color.RED, 0, switchViewsAt);
-		readsReversed.setStrand(Strand.REVERSED);
-		addTrack(dataView, readsReversed);
+//		if (seqFile != null) {
+//			// Reference sequence
+//			SeqTrack seq = new SeqTrack(dataView, seqFile, TreeThread.class, new SequenceParser(), 800);
+//			addTrack(dataView, seq);
+//		}
+//
+//		// R E V E R S E D ///////////////////////////////////////////////////
+//		// Overview
+//		IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, Color.gray, switchViewsAt);
+//		readOverviewReversed.setStrand(Strand.REVERSED);
+//		addTrack(dataView, readOverviewReversed);
+//
+//		// Detailed
+//		dataView.addTrack(new SeparatorTrack(dataView));
+//
+//		SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, Color.RED, 0, switchViewsAt);
+//		readsReversed.setStrand(Strand.REVERSED);
+//		addTrack(dataView, readsReversed);
 	}
 
 	public static void addWigTrack(GenomePlot plot, DataSource peakFile) {
