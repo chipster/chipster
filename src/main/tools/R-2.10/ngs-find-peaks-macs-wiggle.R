@@ -1,4 +1,4 @@
-# TOOL "Statistics" / ngs-find-peaks-macs-wiggle.R: "Find ChIP-seq peaks using MACS" (This tool will search for statistically significantly enriched
+# TOOL "Statistics" / ngs-find-peaks-macs-wiggle.R: "Produce wiggle files using MACS" (This tool will search for statistically significantly enriched
 # genomic regions in sequencing data from a ChIP-seq experiment. The analysis can be performed on one or more treatment
 # samples alone, or relative to one or more control samples.)
 # INPUT treatment.txt: "Treatment data file" TYPE GENERIC
