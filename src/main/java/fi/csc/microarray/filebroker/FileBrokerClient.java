@@ -190,7 +190,7 @@ public class FileBrokerClient {
 	 * @return true if file exists and contentLength matches
 	 * @throws IOException 
 	 */
-	public boolean checkFile(URL url, long contentLength) throws IOException {
+	public boolean checkFile(URL url, long contentLength) {
 
 		HttpURLConnection connection = null;
 		try {
@@ -204,6 +204,9 @@ public class FileBrokerClient {
 			
 			// check content length
 
+		} catch (IOException e) {
+			// file broker may have changes
+			return false;
 		} finally {
 			IOUtils.disconnectIfPossible(connection);
 		}
