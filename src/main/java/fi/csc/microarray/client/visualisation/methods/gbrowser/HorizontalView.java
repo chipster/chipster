@@ -49,7 +49,7 @@ public class HorizontalView extends View {
 
 	protected void drawTextDrawable(Graphics2D g, int x, int y, Drawable drawable) {
 
-		g.setFont(g.getFont().deriveFont(8f));
+		g.setFont(g.getFont().deriveFont(10f));
 		TextDrawable text = (TextDrawable) drawable;
 
 		text.text = text.text.replaceAll("\"", "");
