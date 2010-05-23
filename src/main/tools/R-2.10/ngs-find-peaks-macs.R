@@ -1,11 +1,11 @@
-# TOOL "Statistics" / ngs-find-peaks-macs.R: "Find ChIP-seq peaks using MACS" (This tool will search for statistically significantly enriched
-# genomic regions in sequencing data from a ChIP-seq experiment. The analysis can be performed on one or more treatment
-# samples alone, or relative to one or more control samples.)
+# TOOL "Statistics" / ngs-find-peaks-macs.R: "Find peaks using MACS, treatment vs. control" (This tool will search for statistically significantly enriched
+# genomic regions in sequencing data from a ChIP-seq experiment. The analysis is performed on one or more treatment
+# samples relative to one or more control samples.)
 # INPUT treatment.txt: "Treatment data file" TYPE GENERIC
 # INPUT control.txt: "Control data file" TYPE GENERIC
 # OUTPUT positive-peaks.tsv: "True enriched peaks"
 # OUTPUT positive-peaks-bed.tsv: "True enriched peaks in a format compatible with the Genome Browser"
-# OUTPUT model-plot.png: "A plot of the fitted peak model"
+# OUTPUT OPTIONAL model-plot.png: "A plot of the fitted peak model"
 # OUTPUT OPTIONAL negative-peaks.tsv: "The false enriched peaks"
 # OUTPUT analysis-log.txt: "Summary of analysis settings and run"
 # PARAMETER file.format: "The format of the sequence files" TYPE [ELAND, SAM, BAM, BED] DEFAULT ELAND (The format of the input files.)
@@ -14,7 +14,7 @@
 # PARAMETER read.length: "Read length" TYPE INTEGER FROM 1 TO 200 DEFAULT 25 (The length in nucleotides of the sequence reads)
 # PARAMETER band.with: "Band with" TYPE INTEGER FROM 1 TO 1000 DEFAULT 200 (The scanning window size, typically half the average fragment size of the DNA)
 # PARAMETER p.value.threshold: "P-value threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.00001 (The cutoff for statistical significance. Since the p-values are not adjusted to account for multiple testing correction the cutoff needs to be substantially more conservative than what is usually applied.)
-# PARAMTER build.model: "Build peak model" TYPE [yes, no] DEFAULT yes (If enabled, a peak model is built from the data. Disabling model building means the shiftsize has to be guessed. In Chipster the shift size is set to half the band with.)
+# PARAMETER build.model: "Build peak model" TYPE [yes, no] DEFAULT yes (If enabled, a peak model is built from the data. Disabling model building means the shiftsize has to be guessed. In Chipster the shift size is set to half the band with.)
 # PARAMETER m.fold: "M-fold cutoff" TYPE INTEGER FROM 1 TO 100 DEFAULT 32 (Sets the cutoff used to determine peak regions for model building. A too high value may result in not enough peaks being identified for building the model. Notice that if the peak model is disabled this parameter has no effect.)
 # PARAMETER adjust.mfold: "Adjust m-fold" TYPE [yes, no] DEFAULT yes (Enabling this option, when building peak model is selected, the m-fold cutoff is automatically adjusted down in case the user-selected value is to stringent for finding peaks for modeling.)
 
@@ -57,13 +57,13 @@
 
 # Set up approximate mappable genome size depending on species
 if (species == "human") {
-	genome.size <- "2700000000"
+	genome.size <- as.character(3.5e+9*0.978*.9)
 }
 if (species == "mouse") {
-	genome.size <- "2700000000"
+	genome.size <- as.character(3.25e+9*0.978*.9)
 }
 if (species == "rat") {
-	genome.size <- "2700000000"
+	genome.size <- as.character(3.05e+9*0.978*.9)
 }
 
 # Check whether control sample is available
@@ -74,7 +74,13 @@ if (length(grep ("control.txt",dir())) != 0) {
 
 # Set up some parameters in case building peak model is disabled
 if (build.model == "no") {
+	no.model <- TRUE
 	shift.size <- band.with / 2
+}
+
+# Set up some parameters in case building peak model is enabled
+if (build.model == "yes") {
+	no.model <- FALSE
 }
 
 ####################################################
@@ -82,6 +88,10 @@ if (build.model == "no") {
 # The following code could be used if reading the  #
 # the experiment setup from the phenodata file,    #
 # like is done for microarray data.                #
+#                                                  #
+# The code allows multiple samples per treatment   #
+# group and will automatically merge all samples   #
+# into a single file per treatment group.          #
 #                                                  #
 ####################################################
 
@@ -138,6 +148,19 @@ if (build.model == "no") {
 #	command <- paste (command, "> control.txt")
 #	system(command)
 #}
+#
+# Remove unmappable reads belonging to random chromosomes or hapmap (multiple file approach)
+#system("grep -v random treatment.txt > treatment_2.txt")
+#system("grep -v hap treatment.txt > treatment_3.txt")
+#system ("rm -f treatment.txt")
+#system("rm -f treatment_2.txt")
+#if (control.group != "empty") {
+#	system("grep -v random control.txt > control_2.txt")
+#	system("grep -v hap control.txt > control_3.txt")
+#	system ("rm -f control.txt")
+#	system("rm -f control_2.txt")
+#}
+
 
 # Remove unmappable reads belonging to random chromosomes or hapmap (single file approach)
 system("grep -v random treatment.txt > treatment_2.txt")
@@ -150,18 +173,6 @@ if (control.available == "yes") {
 	system ("rm -f control.txt")
 	system("rm -f control_2.txt")
 }
-
-# Remove unmappable reads belonging to random chromosomes or hapmap (multiple file approach)
-#system("grep -v random treatment.txt > treatment_2.txt")
-#system("grep -v hap treatment.txt > treatment_3.txt")
-#system ("rm -f treatment.txt")
-#system("rm -f treatment_2.txt")
-#if (control.group != "empty") {
-#	system("grep -v random control.txt > control_2.txt")
-#	system("grep -v hap control.txt > control_3.txt")
-#	system ("rm -f control.txt")
-#	system("rm -f control_2.txt")
-#}
 
 # Define function for running MACS
 runMACS <- function(..., logFile="/dev/null") {
@@ -201,26 +212,37 @@ runMACS <- function(..., logFile="/dev/null") {
 		# Environment
 		environment <- "export PYTHONPATH=/v/users/chipster/tools/lib/python2.6/site-packages ; export PATH=${PATH}:/v/users/akallio/bin ;"
 		
-#	system ("setenv PYTHONPATH=/v/users/chipster/tools/lib/python2.6/site-packages")
-#	setenv PATH=${PATH}:/v/users/chipster/tools/bin
-		
-		
 		# Run macs. Macs writes its output to stderr (stream number 2)
 		# &> redirects both stderr and stdout
 		# Iterates through mfold values to find low enough that works
-		for (mfold in list(32, 24, 16, 8)) {
-			system.output <- system(paste(environment, command, paste("--mfold=", mfold, sep=""), "2>", logFile))
-#			system.output <- system(paste(command, paste("--mfold=", mfold, sep=""), "2>", logFile))
-			if (system.output == 0) {
-				break; # was succesfull, don't lower mfold value any more
+		if (build.model == "yes" & adjust.mfold == "yes") {
+			for (mfold in list(32, 24, 16, 8)) {
+				system.output <- system(paste(environment, command, paste("--mfold=", mfold, sep=""), "2>", logFile))
+#				system.output <- system(paste(command, paste("--mfold=", mfold, sep=""), "2>", logFile))
+				if (system.output == 0) {
+					break; # was succesfull, don't lower mfold value any more
+				}
 			}
-		}		
+		}
+		if (build.model == "yes" & adjust.mfold == "no") {
+			system.output <- system(paste(environment, command, "2>", logFile))
+			if (system.output != 0) {
+				stop("CHIPSTER-NOTE: Building the peak model failed. Retry by lowering the m-fold value or enabling the automatic m-fold adjustment.") 
+			}
+		}
+		if (build.model == "no") {
+			system.output <- system(paste(environment, command, "2>", logFile))
+			if (system.output != 0) {
+				stop("CHIPSTER-NOTE: Building the peak model failed. Retry by lowering the m-fold value or enabling the automatic m-fold adjustment.") 
+			}
+		}
 		return(invisible(system.output))
 	}
 }
 
 # Run MACS with specified parameters for the data set
-runMACS(treatment="treatment_3.txt", 
+if (build.model == "no") {
+	runMACS(treatment="treatment_3.txt", 
 		control="control_3.txt", 
 		name="results", 
 		format = file.format,
@@ -231,9 +253,28 @@ runMACS(treatment="treatment_3.txt",
 		gsize=genome.size,
 		verbose=3, 
 		logFile="results.log", 
-		nomodel=FALSE, 
+		nomodel=no.model,
+		shiftsize=shift.size,
 		help=FALSE, 
 		version=FALSE)
+}
+if (build.model == "yes") {
+	runMACS(treatment="treatment_3.txt", 
+			control="control_3.txt", 
+			name="results", 
+			format = file.format,
+			bw=band.with,
+			pvalue=p.value.threshold,
+			mfold=m.fold,
+			tsize=read.length,
+			gsize=genome.size,
+			verbose=3, 
+			logFile="results.log", 
+			nomodel=no.model,
+			help=FALSE, 
+			version=FALSE)
+}
+
 
 # Read in and parse the results
 
@@ -291,6 +332,8 @@ system("mv results.log analysis-log.txt")
 system ("mv results_peak.bed positive-peaks-bed.tsv")
 
 # Source the R code for plotting the MACS model and convert the PDF file to PNG
-source("results_model.r")
-system("convert results_model.pdf model-plot.png")
+if (build.model == "yes") {
+	source("results_model.r")
+	system("convert results_model.pdf model-plot.png")
+}
 
