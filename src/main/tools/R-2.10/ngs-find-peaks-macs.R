@@ -4,39 +4,56 @@
 # INPUT treatment.txt: "Treatment data file" TYPE GENERIC
 # INPUT control.txt: "Control data file" TYPE GENERIC
 # OUTPUT positive-peaks.tsv: "True enriched peaks"
-# OUTPUT analysis-summary.txt: "Summary of analysis settings and results"
-# OUTPUT results_model.png: "A plot of the fitted peak model"
+# OUTPUT positive-peaks-bed.tsv: "True enriched peaks in a format compatible with the Genome Browser"
+# OUTPUT model-plot.png: "A plot of the fitted peak model"
 # OUTPUT OPTIONAL negative-peaks.tsv: "The false enriched peaks"
+# OUTPUT analysis-log.txt: "Summary of analysis settings and run"
 # PARAMETER file.format: "The format of the sequence files" TYPE [ELAND, SAM, BAM, BED] DEFAULT ELAND (The format of the input files.)
 # PARAMETER produce.wiggle: "Produce wiggle" TYPE [yes, no] DEFAULT no (Determines if WIGGLE type files should be output or not. By default this option is turned off due to the significantly longer run times it causes. However, for displaying p-values in one track of the Genome Browser, this paramter should be set to indicate the chromosome for which to produce the wiggle file.)
 # PARAMETER species: "Species" TYPE [human, mouse, rat] DEFAULT human (the species of the samples.)
-# PARAMETER read.length: "Read length" TYPE INTEGER FROM 1 TO 200 DEFAULT 30 (The length in nucleotides of the sequence reads)
+# PARAMETER read.length: "Read length" TYPE INTEGER FROM 1 TO 200 DEFAULT 25 (The length in nucleotides of the sequence reads)
 # PARAMETER band.with: "Band with" TYPE INTEGER FROM 1 TO 1000 DEFAULT 200 (The scanning window size, typically half the average fragment size of the DNA)
 # PARAMETER p.value.threshold: "P-value threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.00001 (The cutoff for statistical significance. Since the p-values are not adjusted to account for multiple testing correction the cutoff needs to be substantially more conservative than what is usually applied.)
-# PARAMETER m.fold: "M-fold cutoff" TYPE INTEGER FROM 1 TO 100 DEFAULT 32 (Sets the cutoff used to determine peak regions for model building. A too high value may result in not enough peaks being identified for building the model.)
+# PARAMTER build.model: "Build peak model" TYPE [yes, no] DEFAULT yes (If enabled, a peak model is built from the data. Disabling model building means the shiftsize has to be guessed. In Chipster the shift size is set to half the band with.)
+# PARAMETER m.fold: "M-fold cutoff" TYPE INTEGER FROM 1 TO 100 DEFAULT 32 (Sets the cutoff used to determine peak regions for model building. A too high value may result in not enough peaks being identified for building the model. Notice that if the peak model is disabled this parameter has no effect.)
+# PARAMETER adjust.mfold: "Adjust m-fold" TYPE [yes, no] DEFAULT yes (Enabling this option, when building peak model is selected, the m-fold cutoff is automatically adjusted down in case the user-selected value is to stringent for finding peaks for modeling.)
 
-# ALTERNATIVE SETUP
-# PARAMETER build.model: "Build model" TYPE [yes, no] DEFAULT yes (Determines whether to build the peak shift model from the data or not.)
-# PARAMETER file.format: "The format of the sequence files" TYPE STRING [ELAND, SAM, BAM, BED] DEFAULT ELAND (The format of the input files.)
+
+#####################################################
+#                                                   #
+# The following inputs and parameters are needed    #
+# if determining the experiment setup from the      #
+# phenodata file, like is done for microarray data. #
+#                                                   #
+#####################################################
+
 # INPUT sequence{...}.txt: "Sequence data files" TYPE GENERIC
 # INPUT phenodata.tsv: "The file containing pehnotype data" TYPE GENERIC
 # PARAMETER groups.column: "Column with group labels" TYPE METACOLUMN_SEL DEFAULT groups (Phenodata column describing the experiment groups of the samples. Use "2" for treatment and "1" for control.)
 # PARAMETER treatment.group: "The group label used for the treatment samples" TYPE STRING DEFAULT "empty"
 # PARAMETER control.group: "The group label used for the control samples" TYPE STRING DEFAULT "empty"
 
+##################################
+#                                #
+# PARAMETER SETTINGS FOR TESTING #
+#                                #
+##################################
+
 # groups.column <- "group"
 # treatment.group <- "1"
 # control.group <- "2"
 # file.format <- "ELAND"
 # produce.wiggle <- "no"
+# species <- "human"
 # read.length <- 25
 # band.with <- 250
 # p.value.threshold <- 0.05
+# build.model <- "yes"
 # m.fold <- 32
-
+# adjust.mfold <- "yes"
 
 # find_peals_using_MACS.R
-# MG, 17.5.2010
+# MG, 22.5.2010
 
 # Set up approximate mappable genome size depending on species
 if (species == "human") {
@@ -49,13 +66,24 @@ if (species == "rat") {
 	genome.size <- "2700000000"
 }
 
-# Loads the libraries!
+# Check whether control sample is available
+control.available <- "no"
+if (length(grep ("control.txt",dir())) != 0) {
+	control.available <- "yes"
+}
 
-# Reading data
-# files<-dir()
-# files<-files[files!="phenodata.tsv"]
-# dat<- read.maimages(files=files, columns=columns, annotation=annotation, other.columns=columns.other) 
+# Set up some parameters in case building peak model is disabled
+if (build.model == "no") {
+	shift.size <- band.with / 2
+}
 
+####################################################
+#                                                  #
+# The following code could be used if reading the  #
+# the experiment setup from the phenodata file,    #
+# like is done for microarray data.                #
+#                                                  #
+####################################################
 
 # Loads the  phenodata file and set up groups (for mulitple treatment and control files approach)
 # phenodata <- read.table("phenodata.tsv", header=T, sep="\t")
@@ -116,7 +144,7 @@ system("grep -v random treatment.txt > treatment_2.txt")
 system("grep -v hap treatment_2.txt > treatment_3.txt")
 system ("rm -f treatment.txt")
 system("rm -f treatment_2.txt")
-if (length(grep ("control.txt",dir())) != 0) {
+if (control.available == "yes") {
 	system("grep -v random control.txt > control_2.txt")
 	system("grep -v hap control_2.txt > control_3.txt")
 	system ("rm -f control.txt")
@@ -247,17 +275,22 @@ results_TRUE <- parseMACSResultsPOS (name="results",final=TRUE)
 ## Read in the results for the FALSE, or NEGATIVE, peaks
 results_FALSE <- parseMACSResultsNEG (name="results", final=TRUE)
 
+
 # Read summary info of results
-analysis_summary <- readLines ("results.log",n=11)
-write.table(file="analysis-summary.txt", unlist(analysis_summary), sep="", row.names=F, quote=F)
+# analysis_summary <- readLines ("results.log",n=11)
+# write.table(file="analysis-summary.txt", unlist(analysis_summary), sep="", row.names=F, quote=F)
 
 # Write the results to tables to be read into Chipster
 write.table(results_TRUE, file="positive-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
-write.table(results_FALSE, file="negative-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
+if (control.available == "yes") {
+	write.table(results_FALSE, file="negative-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
+}
+
+# Convert the name of some files to make it compatible with chipster output
+system("mv results.log analysis-log.txt")
+system ("mv results_peak.bed positive-peaks-bed.tsv")
 
 # Source the R code for plotting the MACS model and convert the PDF file to PNG
 source("results_model.r")
-system("convert results_model.pdf results_model.png")
-
-
+system("convert results_model.pdf model-plot.png")
 
