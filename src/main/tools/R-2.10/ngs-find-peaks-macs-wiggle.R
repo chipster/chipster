@@ -3,7 +3,7 @@
 # samples alone, without taking into account control control samples.)
 # INPUT treatment.txt: "Treatment data file" TYPE GENERIC
 # OUTPUT positive-peaks.tsv: "True enriched peaks"
-# OUTPUT positive-peaks-bed.txt: "True enriched peaks in a format compatible with the Genome Browser"
+# OUTPUT positive-peaks.bed: "True enriched peaks in a format compatible with the Genome Browser"
 # OUTPUT OPTIONAL model-plot.png: "A plot of the fitted peak model"
 # OUTPUT OPTIONAL negative-peaks.tsv: "The false enriched peaks"
 # OUTPUT analysis-log.txt: "Summary of analysis settings and run"
@@ -327,7 +327,7 @@ if (control.available == "yes") {
 
 # Convert the name of some files to make it compatible with chipster output
 system("mv results.log analysis-log.txt")
-system ("mv results_peak.bed positive-peaks-bed.txt")
+system ("mv results_peak.bed positive-peaks.bed")
 
 # Source the R code for plotting the MACS model and convert the PDF file to PNG
 if (build.model == "yes") {
