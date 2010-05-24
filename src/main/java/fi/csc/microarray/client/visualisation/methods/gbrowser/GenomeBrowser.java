@@ -2,7 +2,6 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
 import java.awt.CardLayout;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -36,6 +35,7 @@ import org.jfree.chart.JFreeChart;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents;
@@ -65,17 +65,17 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		TREATMENT_READS, CONTROL_READS, PEAKS
 	}
 
-	private static class Track {
-		TrackType type;
-		boolean enabled = true;
-		String name;
-		DataBean userData;
-	}
+//	private static class Track {
+//		TrackType type;
+//		boolean enabled = true;
+//		String name;
+//		DataBean userData;
+//	}
 
 	private final ClientApplication application = Session.getSession().getApplication();
 
 	private List<DataBean> datas;
-	private List<Track> tracks = new LinkedList<Track>();
+//	private List<Track> tracks = new LinkedList<Track>();
 
 	private GenomePlot plot;
 
@@ -357,11 +357,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			plot.start("1", 1024 * 1024 * 250d);
 			
 			// wrap it in a panel
-			ChartPanel chartPanel = new ChartPanel(new JFreeChart(plot));
+			ChartPanel chartPanel =  new NonScalableChartPanel(new JFreeChart(plot));
 			plot.chartPanel = chartPanel;
 			chartPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-			chartPanel.setPreferredSize(new Dimension(800, 200));
-
+			
 			// add mouse listeners
 			for (View view : plot.getViews()) {
 				chartPanel.addMouseListener(view);
@@ -376,7 +375,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			plotPanel.add(chartPanel, PLOTPANEL);
 			CardLayout cl = (CardLayout) (plotPanel.getLayout());
 			cl.show(plotPanel, PLOTPANEL);
-
+			
 		} catch (Exception e) {
 			application.reportException(e);
 		}
