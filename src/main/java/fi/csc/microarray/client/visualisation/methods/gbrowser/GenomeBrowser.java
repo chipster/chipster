@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -62,20 +61,32 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	final static String PLOTPANEL = "plotpanel";
 
 	private static enum TrackType {
-		TREATMENT_READS, CONTROL_READS, PEAKS
+		CYTOBANDS, GENES, TRANSCRIPTS, TREATMENT_READS, CONTROL_READS, PEAKS, REFERENCE
 	}
 
-//	private static class Track {
-//		TrackType type;
-//		boolean enabled = true;
-//		String name;
-//		DataBean userData;
-//	}
+	private static class Track {
+		
+		TrackType type;
+		JCheckBox checkBox; 
+		String name;
+		DataBean userData;
+
+		public Track(String name, TrackType type) {
+			this.name = name;
+			this.type = type;
+			
+		}
+
+		public Track(String name, TrackType type, DataBean userData) {
+			this(name, type);
+			this.userData = userData;
+		}
+	}
 
 	private final ClientApplication application = Session.getSession().getApplication();
 
 	private List<DataBean> datas;
-//	private List<Track> tracks = new LinkedList<Track>();
+	private List<Track> tracks = new LinkedList<Track>();
 
 	private GenomePlot plot;
 
@@ -92,8 +103,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	private JComboBox genomeBox = new JComboBox();
 	// private JRadioButton horizView;
 	// private JRadioButton circularView;
-	private List<JCheckBox> trackBoxes = new ArrayList<JCheckBox>();
 	private boolean locationEventsEnabled = true;
+	private GridBagConstraints settingsGridBagConstraints;
+	private List<Row> contents;
 
 	public GenomeBrowser(VisualisationFrame frame) {
 		super(frame);
@@ -131,54 +143,53 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		return paramPanel;
 	}
 
-	public void createAnnotationComponents(JPanel panel, GridBagConstraints c) {
-
-		InputStream contentsStream = null;
-
-		try {
-			// parse what annotations we have available
-			contentsStream = new URL(fetchAnnotationUrl() + "/" + CONTENTS_FILE).openStream();
-			AnnotationContents annotationContentFile = new AnnotationContents();
-			annotationContentFile.parseFrom(contentsStream);
-			List<Row> contents = annotationContentFile.getRows();
-
-			// read genome name and version for each annotation file
-			LinkedHashSet<String> genomes = annotationContentFile.getGenomes();
-			c.gridy++;
-			settingsPanel.add(new JLabel("Genome"), c);
-			c.gridy++;
-			for (String genome : genomes) {
-				genomeBox.addItem(genome);
-			}
-			panel.add(genomeBox, c);
-
-			// list available chromosomes
-			// FIXME These should be read from user data file
-			for (int i = 1; i <= CHROMOSOME_COUNT; i++) {
-				chrBox.addItem("" + i);
-			}
-
-			c.gridy++;
-			settingsPanel.add(new JLabel("Chromosome"), c);
-			c.gridy++;
-			settingsPanel.add(chrBox, c);
-
-			// list available track types for the genome
-			for (Row row : contents) {
-				if (genomeBox.getSelectedItem().equals(row.version)) {
-					c.gridy++;
-					JCheckBox box = new JCheckBox(row.content);
-					panel.add(box, c);
-					trackBoxes.add(box);
+	private void createAvailableTracks() {
+		
+		String genome = (String)genomeBox.getSelectedItem();
+		
+		// list available track types for the genome
+		for (Row row : contents) {
+			if (genome.equals(row.version)) {
+				TrackType type;
+				if (row.content.contains("Genes")) {
+					type = TrackType.GENES;					
+				} else if (row.content.contains("Transcripts")) {
+					type = TrackType.TRANSCRIPTS;
+				} else if (row.content.contains("Cytobands")) {
+					type = TrackType.CYTOBANDS;
+				} else if (row.content.contains("Reference")) {
+					continue; // track not directly supported, skip
+				} else {
+					continue; // track not supported, skip
 				}
+
+				tracks.add(new Track(row.content, type));
 			}
-
-		} catch (IOException e) {
-			application.reportException(e);
-
-		} finally {
-			IOUtils.closeIfPossible(contentsStream);
 		}
+		
+		List<TrackType> interpretations = interpretUserDatas(this.datas);
+
+		for (int i = 0; i < interpretations.size(); i++) {
+			TrackType interpretation = interpretations.get(i);
+			tracks.add(new Track(datas.get(i).getName(), interpretation, datas.get(i)));
+		}
+
+		// list available track types for the genome
+		for (Track track : tracks) {
+			this.settingsGridBagConstraints.gridy++;
+			JCheckBox box = new JCheckBox(track.name, true);
+			settingsPanel.add(box, this.settingsGridBagConstraints);
+			track.checkBox = box;
+		}
+		
+		GridBagConstraints c = this.settingsGridBagConstraints;
+		c.gridy++;
+		settingsPanel.add(drawButton, c);
+		c.gridy++;
+		c.fill = GridBagConstraints.BOTH;
+		c.weighty = 1.0;
+		settingsPanel.add(new JPanel(), c);
+
 	}
 
 	public JPanel createSettingsPanel() {
@@ -242,7 +253,42 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		c.gridx = 0;
 		c.gridwidth = 5;
 		c.insets.set(5, 10, 5, 10);
-		createAnnotationComponents(settingsPanel, c);
+		InputStream contentsStream = null;
+		
+		try {
+			// parse what annotations we have available
+			contentsStream = new URL(fetchAnnotationUrl() + "/" + CONTENTS_FILE).openStream();
+			AnnotationContents annotationContentFile = new AnnotationContents();
+			annotationContentFile.parseFrom(contentsStream);
+			this.contents = annotationContentFile.getRows();
+		
+			// read genome name and version for each annotation file
+			LinkedHashSet<String> genomes = annotationContentFile.getGenomes();
+			c.gridy++;
+			settingsPanel.add(new JLabel("Genome"), c);
+			c.gridy++;
+			for (String genome : genomes) {
+				genomeBox.addItem(genome);
+			}
+			settingsPanel.add(genomeBox, c);
+		
+			// list available chromosomes
+			// FIXME These should be read from user data file
+			for (int i = 1; i <= CHROMOSOME_COUNT; i++) {
+				chrBox.addItem("" + i);
+			}
+		
+			c.gridy++;
+			settingsPanel.add(new JLabel("Chromosome"), c);
+			c.gridy++;
+			settingsPanel.add(chrBox, c);
+			
+		} catch (IOException e) {
+			application.reportException(e);
+		
+		} finally {
+			IOUtils.closeIfPossible(contentsStream);
+		}
 
 		// horizView = new JRadioButton("Horizontal");
 		// horizView.setSelected(true);
@@ -259,13 +305,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		// c.gridy++;
 		// settingsPanel.add(circularView, c);
 
-		c.gridy++;
-		settingsPanel.add(drawButton, c);
-		c.gridy++;
-		c.fill = GridBagConstraints.BOTH;
-		c.weighty = 1.0;
-		settingsPanel.add(new JPanel(), c);
+		this.settingsGridBagConstraints = c;
+		
 
+		
 		return settingsPanel;
 	}
 
@@ -292,7 +335,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	@Override
 	public JComponent getVisualisation(java.util.List<DataBean> datas) throws Exception {
 		this.datas = datas;
-
+		createAvailableTracks(); // we can create tracks now that we know the data
+		
 		// create panel with card layout and put message panel there
 		JPanel waitPanel = new JPanel();
 		waitPanel.add(new JLabel("Please select parameters"));
@@ -310,46 +354,48 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 
 			// create the plot
 			this.plot = new GenomePlot(true);
-			TrackFactory.addCytobandTracks(plot, new DataSource(annotationUrl, "Homo_sapiens.GRCh37.57_karyotype.tsv")); // using always the
-																															// same
-			TrackFactory.addGeneTracks(plot, new DataSource(annotationUrl, "Homo_sapiens." + genome + "_genes.tsv"));
 
-			// interpret user data files
-			List<TrackType> interpretations = interpretUserDatas(datas);
+			// add selected tracks
 			LinkedList<DataSource> treatments = new LinkedList<DataSource>();
 			LinkedList<DataSource> controls = new LinkedList<DataSource>();
 			LinkedList<DataSource> peaks = new LinkedList<DataSource>();
-
-			for (int i = 0; i < interpretations.size(); i++) {
-
-				TrackType interpretation = interpretations.get(i);
-
-				// get the actual file
-				File file = Session.getSession().getDataManager().getLocalFile(datas.get(i));
-
-				// put it in right list
-				switch (interpretation) {
-				case TREATMENT_READS:
-					treatments.add(new DataSource(file));
-					break;
-				case CONTROL_READS:
-					controls.add(new DataSource(file));
-					break;
-				case PEAKS:
-					peaks.add(new DataSource(file));
-					break;
+			
+			for (Track track : tracks) {
+				if (track.checkBox.isSelected()) {
+					File file = track.userData == null ? null : Session.getSession().getDataManager().getLocalFile(track.userData);
+					switch (track.type) {
+					case CYTOBANDS:
+						TrackFactory.addCytobandTracks(plot, new DataSource(annotationUrl, "Homo_sapiens.GRCh37.57_karyotype.tsv")); // using always the
+						break;
+					case GENES:
+						TrackFactory.addGeneTracks(plot, new DataSource(annotationUrl, "Homo_sapiens." + genome + "_genes.tsv"));
+						break;
+					case REFERENCE:
+						// integrated into peaks
+						break;
+					case TRANSCRIPTS:
+						TrackFactory.addTranscriptTracks(plot, new DataSource(annotationUrl, "Homo_sapiens." + genome + "_transcripts.tsv"));
+						break;
+					case PEAKS:
+						peaks.add(new DataSource(file));
+						break;
+					case TREATMENT_READS:
+						treatments.add(new DataSource(file));
+						break;
+					case CONTROL_READS:
+						controls.add(new DataSource(file));
+						break;
+					}
 				}
 			}
 
-			// add user tracks
+			// add user tracks and ruler
 			if (!peaks.isEmpty()) {
 				TrackFactory.addPeakTracks(plot, peaks);
 			}
 			if (!treatments.isEmpty() || !controls.isEmpty()) {
 				TrackFactory.addReadTracks(plot, treatments, controls, new DataSource(annotationUrl, "Homo_sapiens." + genome + "_seq.tsv"));
 			}
-
-			// add rest of generic tracks
 			TrackFactory.addRulerTrack(plot);
 
 			// initialise the plot
