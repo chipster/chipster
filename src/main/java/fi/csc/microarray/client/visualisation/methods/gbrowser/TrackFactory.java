@@ -10,6 +10,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDPar
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.PeakParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SequenceParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
@@ -118,6 +119,16 @@ public class TrackFactory {
 
 		for (DataSource peaks : peakSources) {
 			PeakTrack annotation = new PeakTrack(dataView, peaks, TreeThread.class, bedParser, Color.YELLOW, 0, Long.MAX_VALUE);
+			addTrack(dataView, annotation);
+		}
+	}
+
+	public static void addPeakTracks2(GenomePlot plot, List<DataSource> peakSources) {
+		PeakParser peakParser = new PeakParser();
+		View dataView = plot.getDataView();
+
+		for (DataSource peaks : peakSources) {
+			PeakTrack annotation = new PeakTrack(dataView, peaks, TreeThread.class, peakParser, Color.YELLOW, 0, Long.MAX_VALUE);
 			addTrack(dataView, annotation);
 		}
 	}
