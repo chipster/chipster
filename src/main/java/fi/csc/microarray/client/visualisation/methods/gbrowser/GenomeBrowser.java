@@ -53,7 +53,59 @@ import fi.csc.microarray.util.IOUtils;
  */
 public class GenomeBrowser extends Visualisation implements ActionListener, RegionListener, DocumentListener {
 
-	private static final int CHROMOSOME_COUNT = 22;
+	private static final String[] CHROMOSOMES = new String[] {
+		"1",
+		"2",
+		"3",
+		"4",
+		"5",
+		"6",
+		"7",
+		"8",
+		"9",
+		"10",
+		"11",
+		"12",
+		"13",
+		"14",
+		"15",
+		"16",
+		"17",
+		"18",
+		"19",
+		"20",
+		"21",
+		"22",
+		"X",
+		"Y",
+	};
+	
+	private static final long[] CHROMOSOME_SIZES = new long[] {
+		247199719L,	
+		242751149L,
+		199446827L,
+		191263063L,
+		180837866L,
+		170896993L,
+		158821424L,
+		146274826L, 	
+		140442298L,
+		135374737L,
+		134452384L,
+		132289534L, 	
+		114127980L,
+		106360585L,
+		100338915L,
+		88822254L, 	
+		78654742L,
+		76117153L,
+		63806651L,
+		62435965L,
+		46944323L,
+		49528953L,
+		154913754L,
+		57741652L, 	
+	};
 	private static final String ANNOTATION_URL_PATH = "annotations";
 	private static final String CONTENTS_FILE = "contents.txt";
 
@@ -274,8 +326,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		
 			// list available chromosomes
 			// FIXME These should be read from user data file
-			for (int i = 1; i <= CHROMOSOME_COUNT; i++) {
-				chrBox.addItem("" + i);
+			for (String chromosome : CHROMOSOMES) {
+				chrBox.addItem(chromosome);
 			}
 		
 			c.gridy++;
@@ -400,7 +452,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 
 			// initialise the plot
 			plot.addDataRegionListener(this);
-			plot.start("1", 1024 * 1024 * 250d);
+			plot.start((String)chrBox.getSelectedItem(), (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
 			
 			// wrap it in a panel
 			ChartPanel chartPanel =  new NonScalableChartPanel(new JFreeChart(plot));
