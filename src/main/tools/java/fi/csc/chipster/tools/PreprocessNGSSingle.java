@@ -36,10 +36,8 @@ public class PreprocessNGSSingle extends JavaAnalysisJobBase {
 		return 	"TOOL \"Preprocess\" / PreprocessNGSSingle.java: \"Preprocess NGS, treatment only\" (Sort primarily using chromosome and secondarily using start " +
 				"location of the feature. File format is used to find columns containing " +
 				"chromosome and start location. )" + "\n" +
-				"INPUT in-treatment.tsv: \"Treatment\" TYPE GENERIC" + "\n" +
-				"INPUT in-control.tsv: \"Control\" TYPE GENERIC" + "\n" +
-				"OUTPUT treatment.tsv: \"Treatment\"" + "\n" +
-				"OUTPUT control.tsv: \"Control\"" + "\n" +
+				"INPUT in-treatment.txt: \"Treatment\" TYPE GENERIC" + "\n" +
+				"OUTPUT treatment.txt: \"Treatment\"" + "\n" +
 				"OUTPUT phenodata.tsv: \"Phenodata\"" + "\n" +
 				"PARAMETER file.format: \"Data format\" TYPE [" + fileFormats + "] DEFAULT " + parsers[0].getName() + " (Format of the data)" + "\n";
  	}
@@ -63,7 +61,8 @@ public class PreprocessNGSSingle extends JavaAnalysisJobBase {
 		for (InputDescription input: analysis.getInputFiles()) {
 			File inputFile = new File(jobWorkDir, input.getFileName()); 
 			File outputFile = new File(jobWorkDir, input.getFileName().substring("in-".length()));		
-		
+
+			
 			// run sorter
 			try {
 				new TsvSorter().sort(inputFile, outputFile, 
@@ -83,8 +82,7 @@ public class PreprocessNGSSingle extends JavaAnalysisJobBase {
 //			for (InputDescription input: analysis.getInputFiles()) {
 //				writer.write(input.getFileName() + "\t" + "\n");
 //			}
-			writer.write("treatment.tsv" + "\t\t" + "treatment" + "\n");
-			writer.write("control.tsv" + "\t\t" + "control" + "\n");
+			writer.write("treatment.txt" + "\t\t" + "treatment" + "\n");
 
 			
 		} catch (IOException e) {

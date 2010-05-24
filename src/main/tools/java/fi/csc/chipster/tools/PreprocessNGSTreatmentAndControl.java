@@ -36,8 +36,10 @@ public class PreprocessNGSTreatmentAndControl extends JavaAnalysisJobBase {
 		return 	"TOOL \"Preprocess\" / PreprocessNGSTreatmentAndControl.java: \"Preprocess NGS, treatment and control\" (Sort primarily using chromosome and secondarily using start " +
 				"location of the feature. File format is used to find columns containing " +
 				"chromosome and start location. )" + "\n" +
-				"INPUT in-treatment.tsv: \"Treatment\" TYPE GENERIC" + "\n" +
-				"OUTPUT treatment.tsv: \"Treatment\"" + "\n" +
+				"INPUT in-treatment.txt: \"Treatment\" TYPE GENERIC" + "\n" +
+				"INPUT in-control.txt: \"Control\" TYPE GENERIC" + "\n" +
+				"OUTPUT treatment.txt: \"Treatment\"" + "\n" +
+				"OUTPUT control.txt: \"Control\"" + "\n" +
 				"OUTPUT phenodata.tsv: \"Phenodata\"" + "\n" +
 				"PARAMETER file.format: \"Data format\" TYPE [" + fileFormats + "] DEFAULT " + parsers[0].getName() + " (Format of the data)" + "\n";
  	}
@@ -81,7 +83,8 @@ public class PreprocessNGSTreatmentAndControl extends JavaAnalysisJobBase {
 //			for (InputDescription input: analysis.getInputFiles()) {
 //				writer.write(input.getFileName() + "\t" + "\n");
 //			}
-			writer.write("treatment.tsv" + "\t\t" + "treatment" + "\n");
+			writer.write("treatment.txt" + "\t\t" + "treatment" + "\n");
+			writer.write("control.txt" + "\t\t" + "control" + "\n");
 
 			
 		} catch (IOException e) {
