@@ -119,7 +119,7 @@ public class PercentageInputComponent extends ParameterInputComponent
 		case ParameterInputComponent.INPUT_IS_OUT_OF_BOUNDS:
 			numberLabel.setForeground(Color.red);
 			message =
-				"Value for " + param.getName() + " must be between " +
+				"Value for " + param.getID() + " must be between " +
 				param.getMinValue() + "% and " + param.getMaxValue() + "%.";
 			getParentPanel().setMessage(message, Color.red);
 		}

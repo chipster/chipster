@@ -22,9 +22,9 @@ public class PercentageParameter extends Parameter {
 	 * @throws IllegalArgumentException If the initial value was not a valid
 	 * 		   percentage (between 0 and 100).
 	 */
-	public PercentageParameter(String name, int initValue)
+	public PercentageParameter(String id, String displayName, int initValue)
 			throws IllegalArgumentException {
-		this(name, name, 0, 100, initValue);
+		this(id, displayName, displayName, 0, 100, initValue);
 	}
 	
 	/**
@@ -40,24 +40,24 @@ public class PercentageParameter extends Parameter {
 	 * 		   values is not a valid percentage - between 0 and 100, that is).
 	 */
 	public PercentageParameter(
-			String name, String description, Integer minValue, Integer maxValue, Integer initValue)
+			String id, String displayName, String description, Integer minValue, Integer maxValue, Integer initValue)
 					throws IllegalArgumentException {
-		super(name, description);
+		super(id, displayName, description);
 		
 		if (minValue < 0) {
 			throw new IllegalArgumentException(
-					"Minimum value for percentage parameter " + this.getName() +
+					"Minimum value for percentage parameter " + this.getID() +
 					" cannot be less than zero.");
 		}
 		if (maxValue > 100) {
 			throw new IllegalArgumentException(
-					"Maximum value for percentage parameter " + this.getName() +
+					"Maximum value for percentage parameter " + this.getID() +
 					" cannot be over 100.");
 		}
 		this.minValue = minValue;
 		if (maxValue < minValue) {
 			throw new IllegalArgumentException(
-					"Minimum value for percentage parameter " + this.getName() +
+					"Minimum value for percentage parameter " + this.getID() +
 					" cannot be bigger than the maximum value.");
 		}
 		this.maxValue = maxValue;
@@ -92,7 +92,7 @@ public class PercentageParameter extends Parameter {
 	public void setIntegerValue(int newValue) {
 		if (newValue < minValue || newValue > maxValue) {
 			throw new IllegalArgumentException("Initial value for percentage " +
-					"parameter " + this.getName() + " must be within given limits.");
+					"parameter " + this.getID() + " must be within given limits.");
 		}
 		this.value = newValue;
 	}
@@ -104,7 +104,7 @@ public class PercentageParameter extends Parameter {
 			return;
 		}
 		throw new IllegalArgumentException(newValue + " is an illegal " +
-				"value for percentage parameter \"" + this.getName() + "\" (" + this.minValue + " ... " + this.maxValue + ")");
+				"value for percentage parameter \"" + this.getID() + "\" (" + this.minValue + " ... " + this.maxValue + ")");
 	}
 
 	@Override
@@ -121,7 +121,7 @@ public class PercentageParameter extends Parameter {
 	}
 
 	public String toString() {
-		return this.getName() + ": " + value + "%";
+		return this.getID() + ": " + value + "%";
 	}
 
 	@Override

@@ -67,7 +67,7 @@ public abstract class ParameterPanel extends JPanel {
 			return new StringInputComponent((StringParameter) parameter, this);
 			
 		} else {		
-			throw new IllegalArgumentException("The given Parameter object, " + parameter.getName() + ", was not of recognized type!");
+			throw new IllegalArgumentException("The given Parameter object, " + parameter.getID() + ", was not of recognized type!");
 		}
 	}
 	

@@ -3,6 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser;
 import java.awt.Color;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
+import java.util.List;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TreeThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
@@ -49,40 +50,60 @@ public class TrackFactory {
 	}
 
 	
-	public static void addReadTracks(GenomePlot plot, DataSource userData, DataSource seqFile) throws FileNotFoundException, MalformedURLException {
+	public static void addReadTracks(GenomePlot plot, List<DataSource> treatments, List<DataSource> controls, DataSource seqFile) throws FileNotFoundException, MalformedURLException {
 		ElandParser userDataParser = new ElandParser();
 		View dataView = plot.getDataView();
 		int switchViewsAt = 50000;
+
+		// forward tracks, iterate over both arrays 
+		for (int i = 0; i < (treatments.size() + controls.size()); i++) {
+
+			boolean isTreatment = i < treatments.size();
+			DataSource userData = isTreatment ? treatments.get(i) : controls.get(i-treatments.size());
+			Color histogramColor = isTreatment ? Color.blue : Color.gray;
+			Color fontColor = Color.black;
+			
+			// Overview
+			IntensityTrack readOverview = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, histogramColor, switchViewsAt);
+			addTrack(dataView, readOverview);
+
+			// Detailed
+			SeqBlockTrack reads = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, fontColor, 0, switchViewsAt);
+			addTrack(dataView, reads);
+
+			// separator
+			dataView.addTrack(new SeparatorTrack(dataView));
+		}
+
 		
-		// FORWARD
-		// Overview
-		IntensityTrack readOverview = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, Color.gray, switchViewsAt);
-		addTrack(dataView, readOverview);
+		// reference sequence
+		if (seqFile != null) {
+			// Reference sequence
+			SeqTrack seq = new SeqTrack(dataView, seqFile, TreeThread.class, new SequenceParser(), 800);
+			addTrack(dataView, seq);
+		}
 
-		// Detailed
-		SeqBlockTrack reads = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, Color.RED, 0, switchViewsAt);
-		addTrack(dataView, reads);
+		// reverse tracks
+		for (int i = (treatments.size() + controls.size()-1); i >= 0; i--) {
+			
+			boolean isTreatment = i < treatments.size();
+			DataSource userData = isTreatment ? treatments.get(i) : controls.get(i-treatments.size());
+			Color histogramColor = isTreatment ? Color.blue : Color.gray;
+			Color fontColor = Color.black;
 
-		dataView.addTrack(new SeparatorTrack(dataView));
+			// separator
+			dataView.addTrack(new SeparatorTrack(dataView));
 
-//		if (seqFile != null) {
-//			// Reference sequence
-//			SeqTrack seq = new SeqTrack(dataView, seqFile, TreeThread.class, new SequenceParser(), 800);
-//			addTrack(dataView, seq);
-//		}
-//
-//		// R E V E R S E D ///////////////////////////////////////////////////
-//		// Overview
-//		IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, Color.gray, switchViewsAt);
-//		readOverviewReversed.setStrand(Strand.REVERSED);
-//		addTrack(dataView, readOverviewReversed);
-//
-//		// Detailed
-//		dataView.addTrack(new SeparatorTrack(dataView));
-//
-//		SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, Color.RED, 0, switchViewsAt);
-//		readsReversed.setStrand(Strand.REVERSED);
-//		addTrack(dataView, readsReversed);
+			// Overview
+			IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, histogramColor, switchViewsAt);
+			readOverviewReversed.setStrand(Strand.REVERSED);
+			addTrack(dataView, readOverviewReversed);
+
+			// Detailed
+			SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, fontColor, 0, switchViewsAt);
+			readsReversed.setStrand(Strand.REVERSED);
+			addTrack(dataView, readsReversed);
+		}
 	}
 
 	public static void addWigTrack(GenomePlot plot, DataSource peakFile) {
@@ -91,12 +112,14 @@ public class TrackFactory {
 		addTrack(plot.getDataView(), annotation);
 	}
 	
-	public static void addPeakTracks(GenomePlot plot, DataSource peakFile) {
+	public static void addPeakTracks(GenomePlot plot, List<DataSource> peakSources) {
 		BEDParser bedParser = new BEDParser();
 		View dataView = plot.getDataView();
 
-		PeakTrack annotation = new PeakTrack(dataView, peakFile, TreeThread.class, bedParser, Color.YELLOW, 0, Long.MAX_VALUE);
-		addTrack(dataView, annotation);
+		for (DataSource peaks : peakSources) {
+			PeakTrack annotation = new PeakTrack(dataView, peaks, TreeThread.class, bedParser, Color.YELLOW, 0, Long.MAX_VALUE);
+			addTrack(dataView, annotation);
+		}
 	}
 
 	public static void addTranscriptTracks(GenomePlot plot, DataSource annotationFile) {

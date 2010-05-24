@@ -95,24 +95,24 @@ public abstract class Parameter implements Cloneable {
                 }
             }
             
-			parameter = new EnumParameter(name.getDisplayName(), description, optionObjects,
+			parameter = new EnumParameter(name.getID(), name.getDisplayName(), description, optionObjects,
 			                              defaultOptions, minCount, maxCount);
 			break;
 			
 		case COLUMN_SEL:
-			parameter = new ColnameParameter(name.getDisplayName(), description, initValue);
+			parameter = new ColnameParameter(name.getID(), name.getDisplayName(), description, initValue);
 			break;
 
 		case METACOLUMN_SEL:
-			parameter = new MetaColnameParameter(name.getDisplayName(), description, initValue);
+			parameter = new MetaColnameParameter(name.getID(), name.getDisplayName(), description, initValue);
 			break;
 
 		case INPUT_SEL:
-			parameter = new InputSelectParameter(name.getDisplayName(), description, initValue);
+			parameter = new InputSelectParameter(name.getID(), name.getDisplayName(), description, initValue);
 			break;
 
 		case STRING:
-			parameter = new StringParameter(name.getDisplayName(), description, initValue);
+			parameter = new StringParameter(name.getID(), name.getDisplayName(), description, initValue);
 			break;
 			
 		case INTEGER:
@@ -132,13 +132,13 @@ public abstract class Parameter implements Cloneable {
 			switch (type) {
 			case INTEGER:
 
-				parameter = new IntegerParameter(name.getDisplayName(), description,
+				parameter = new IntegerParameter(name.getID(), name.getDisplayName(), description,
 				                                 Math.round(min),
 				                                 Math.round(max), initInt);
 				break;
 				
 			case DECIMAL:
-				parameter = new DecimalParameter(name.getDisplayName(), description, min,
+				parameter = new DecimalParameter(name.getID(), name.getDisplayName(), description, min,
 				                                 max, init);
 				break;
 				
@@ -146,7 +146,7 @@ public abstract class Parameter implements Cloneable {
 				// put these to [0, 100]
 				min = (min < 0F ? 0F : min);
 				max = (max > 100F ? 100F : max);
-				parameter = new PercentageParameter(name.getDisplayName(), description,
+				parameter = new PercentageParameter(name.getID(), name.getDisplayName(), description,
 				                                    Math.round(min),
                                                     Math.round(max), initInt);
 				break;
@@ -162,7 +162,8 @@ public abstract class Parameter implements Cloneable {
 		return parameter;
 	}
 	
-	private String name;
+	private String id;
+	private String displayName;
 	private String description;
 	private boolean optional = false;
 	
@@ -171,28 +172,38 @@ public abstract class Parameter implements Cloneable {
 	 * 
 	 * @param name The name of this parameter.
 	 */
-	protected Parameter(String name, String description) {
-		this.name = name;
+	protected Parameter(String id, String displayName, String description) {
+		this.id = id;
+		this.displayName = displayName;
 		this.description = description;
 	}
 	
 	/**
 	 * @return The name of this parameter.
 	 */
-	public String getName() {
-		return name;
+	public String getID() {
+		return id;
 	}
  
+	public String getDisplayName() {
+		if (this.displayName != null && !this.displayName.isEmpty()) {
+			return this.displayName;
+		} else {
+			return this.id;
+		}
+	}
+	
+	
     /**
      * Return human-readable name for this parameter.
      * It might be truncated if needed.
      * @return
      */
-    public String getName(Integer maxLength) {
-        if (name.length() > maxLength) {
-            return name.substring(0, maxLength - 3) + "...";
+    public String getDisplayName(Integer maxLength) {
+        if (getDisplayName().length() > maxLength) {
+            return getDisplayName().substring(0, maxLength - 3) + "...";
         }
-        return name;
+        return getDisplayName();
     }
 	
 	/**

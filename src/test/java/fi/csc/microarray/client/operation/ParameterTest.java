@@ -58,7 +58,7 @@ public class ParameterTest {
             List<SelectionOption> defaultOptions = new LinkedList<SelectionOption>();
             defaultOptions.add(optionsMulti[0]);
             defaultOptions.add(optionsMulti[2]);
-            paramMulti = new EnumParameter("multi", "Enum parameter", optionsMulti, defaultOptions, 1, 2);
+            paramMulti = new EnumParameter("multi", "Enum parameter", "Enum parameter", optionsMulti, defaultOptions, 1, 2);
             definition.addParameter(paramMulti);
             
             // Prepare a single-select parameter
@@ -67,7 +67,7 @@ public class ParameterTest {
             optionsSingle[1] = new SelectionOption("Choose me", "m");
             defaultOptions = new LinkedList<SelectionOption>();
             defaultOptions.add(optionsSingle[1]);
-            paramSingle = new EnumParameter("single", "Enum parameter", optionsSingle, defaultOptions, 1, 1);
+            paramSingle = new EnumParameter("single", "Enum parameter", "Enum parameter", optionsSingle, defaultOptions, 1, 1);
             definition.addParameter(paramSingle);
             
             // Initialize some mock context

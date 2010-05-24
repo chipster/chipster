@@ -18,8 +18,8 @@ public abstract class DataSelectionParameter extends EnumParameter {
 
 	protected String initValue;
 	
-	public DataSelectionParameter(String name, String description, String initValue) {
-		super(name, description);
+	public DataSelectionParameter(String id, String displayName, String description, String initValue) {
+		super(id, displayName, description);
 		this.initValue = initValue;
 	}
 	
