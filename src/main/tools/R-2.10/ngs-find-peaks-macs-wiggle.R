@@ -1,10 +1,9 @@
-# TOOL "Statistics" / ngs-find-peaks-macs.R: "Find peaks using MACS, treatment vs. control" (This tool will search for statistically significantly enriched
+# TOOL "Statistics" / ngs-find-peaks-macs-wiggle.R: "Find peaks using MACS, treatment only" (This tool will search for statistically significantly enriched
 # genomic regions in sequencing data from a ChIP-seq experiment. The analysis is performed on one or more treatment
-# samples relative to one or more control samples.)
+# samples alone, without taking into account control control samples.)
 # INPUT treatment.txt: "Treatment data file" TYPE GENERIC
-# INPUT control.txt: "Control data file" TYPE GENERIC
 # OUTPUT positive-peaks.tsv: "True enriched peaks"
-# OUTPUT positive-peaks-bed.tsv: "True enriched peaks in a format compatible with the Genome Browser"
+# OUTPUT positive-peaks-bed.txt: "True enriched peaks in a format compatible with the Genome Browser"
 # OUTPUT OPTIONAL model-plot.png: "A plot of the fitted peak model"
 # OUTPUT OPTIONAL negative-peaks.tsv: "The false enriched peaks"
 # OUTPUT analysis-log.txt: "Summary of analysis settings and run"
@@ -240,27 +239,26 @@ runMACS <- function(..., logFile="/dev/null") {
 	}
 }
 
+
 # Run MACS with specified parameters for the data set
 if (build.model == "no") {
 	runMACS(treatment="treatment_3.txt", 
-		control="control_3.txt", 
-		name="results", 
-		format = file.format,
-		bw=band.with,
-		pvalue=p.value.threshold,
-		mfold=m.fold,
-		tsize=read.length,
-		gsize=genome.size,
-		verbose=3, 
-		logFile="results.log", 
-		nomodel=no.model,
-		shiftsize=shift.size,
-		help=FALSE, 
-		version=FALSE)
+			name="results", 
+			format = file.format,
+			bw=band.with,
+			pvalue=p.value.threshold,
+			mfold=m.fold,
+			tsize=read.length,
+			gsize=genome.size,
+			verbose=3, 
+			logFile="results.log", 
+			nomodel=no.model,
+			shiftsize=shift.size,
+			help=FALSE, 
+			version=FALSE)
 }
 if (build.model == "yes") {
 	runMACS(treatment="treatment_3.txt", 
-			control="control_3.txt", 
 			name="results", 
 			format = file.format,
 			bw=band.with,
@@ -274,7 +272,6 @@ if (build.model == "yes") {
 			help=FALSE, 
 			version=FALSE)
 }
-
 
 # Read in and parse the results
 
@@ -314,8 +311,9 @@ parseMACSResultsNEG <- function(name, final=FALSE){
 results_TRUE <- parseMACSResultsPOS (name="results",final=TRUE)
 
 ## Read in the results for the FALSE, or NEGATIVE, peaks
-results_FALSE <- parseMACSResultsNEG (name="results", final=TRUE)
-
+if (control.available == "yes") {
+	results_FALSE <- parseMACSResultsNEG (name="results", final=TRUE)
+}
 
 # Read summary info of results
 # analysis_summary <- readLines ("results.log",n=11)
@@ -329,7 +327,7 @@ if (control.available == "yes") {
 
 # Convert the name of some files to make it compatible with chipster output
 system("mv results.log analysis-log.txt")
-system ("mv results_peak.bed positive-peaks-bed.tsv")
+system ("mv results_peak.bed positive-peaks-bed.txt")
 
 # Source the R code for plotting the MACS model and convert the PDF file to PNG
 if (build.model == "yes") {
