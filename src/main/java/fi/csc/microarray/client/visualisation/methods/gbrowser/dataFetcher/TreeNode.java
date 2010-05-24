@@ -68,12 +68,9 @@ public class TreeNode {
 
 	public void processAreaRequest(AreaRequest areaRequest) {
 
-//		if (areaRequest.requestedContents.size() == 0) {			System.out.println(depth);s			}
-			
 		// if on leaf, do not recurse down but read file (if needed) and return result
 		if (this.isLeaf) {
 
-			if (areaRequest.requestedContents.size() == 0) {System.out.println("LEAF");}
 			if (areaRequest.status.concise) {
 
 				if (concisedValues == null) {
@@ -97,27 +94,18 @@ public class TreeNode {
 
 			} else {
 				// recurse down
-				//				if (areaRequest.requestedContents.size() == 0) {System.out.println(depth);}
-
-				if (areaRequest.requestedContents.size() == 0 && this.parent != null && this.parent.left == this) {	System.out.println("doing left");}
-
-//				boolean originalDistributor = requestDistributor;
 
 				try {
-					if (areaRequest.start.compareTo(right.nodeBpStart) < 0 /*&& 
-						(!areaRequest.status.concise || (depth < 10 || originalDistributor))*/) {
+					if (areaRequest.start.compareTo(right.nodeBpStart) < 0) {
 
 						left.processAreaRequest(areaRequest.clone());
 						requestDistributor = !requestDistributor;
-//						if (areaRequest.requestedContents.size() == 0) {System.out.println("left");}
 					}
 
-					if (areaRequest.end.compareTo(right.nodeBpStart) > 0 /*&& 
-						(!areaRequest.status.concise || (depth < 10 || !originalDistributor))*/) {
+					if (areaRequest.end.compareTo(right.nodeBpStart) > 0) {
 
 						right.processAreaRequest(areaRequest.clone());
 						requestDistributor = !requestDistributor;
-//						if (areaRequest.requestedContents.size() == 0) {System.out.println("right");}
 					}
 				} catch (CloneNotSupportedException e) {
 					throw new RuntimeException(e);

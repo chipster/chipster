@@ -21,7 +21,11 @@ public class FsfStatus implements Cloneable {
 	public boolean concise;
 	public boolean debug;
 
-	private Set<Object> clearedAlready = new HashSet<Object>();
+	/**
+	 * All objects originating from a single area request share the same instance of this Set.
+	 */
+	private static Set<Object> clearedAlready = new HashSet<Object>();
+	
 	public DataSource file;
 
 	public TreeNode bpSearchSource;
@@ -36,7 +40,7 @@ public class FsfStatus implements Cloneable {
 	@Override
 	public FsfStatus clone() throws CloneNotSupportedException {
 		FsfStatus status = (FsfStatus)super.clone();
-		status.clearedAlready = new HashSet<Object>(this.clearedAlready);
+		// do not clone clearedAlready, it must be shared between clones
 		return status;
 	}
 	
