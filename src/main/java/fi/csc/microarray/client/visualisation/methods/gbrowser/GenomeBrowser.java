@@ -2,6 +2,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
 import java.awt.CardLayout;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -60,9 +61,23 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	final static String WAITPANEL = "waitpanel";
 	final static String PLOTPANEL = "plotpanel";
 
-	private static enum UserTrackType {
+	private static enum TrackType {
 		TREATMENT_READS, CONTROL_READS, PEAKS
 	}
+
+	private static class Track {
+		TrackType type;
+		boolean enabled = true;
+		String name;
+		DataBean userData;
+	}
+
+	private final ClientApplication application = Session.getSession().getApplication();
+
+	private List<DataBean> datas;
+	private List<Track> tracks = new LinkedList<Track>();
+
+	private GenomePlot plot;
 
 	private JPanel paramPanel;
 	private JPanel settingsPanel = new JPanel();
@@ -70,11 +85,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 
 	private JButton drawButton = new JButton("Draw");
 
-	private final ClientApplication application = Session.getSession().getApplication();
-
-	private GenomePlot plot;
-
-	private List<DataBean> datas;
 	private JTextField megaLocation = new JTextField(4);
 	private JTextField kiloLocation = new JTextField(4);
 	private JTextField unitLocation = new JTextField(4);
@@ -305,14 +315,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			TrackFactory.addGeneTracks(plot, new DataSource(annotationUrl, "Homo_sapiens." + genome + "_genes.tsv"));
 
 			// interpret user data files
-			List<UserTrackType> interpretations = interpretUserDatas(datas);
+			List<TrackType> interpretations = interpretUserDatas(datas);
 			LinkedList<DataSource> treatments = new LinkedList<DataSource>();
 			LinkedList<DataSource> controls = new LinkedList<DataSource>();
 			LinkedList<DataSource> peaks = new LinkedList<DataSource>();
 
 			for (int i = 0; i < interpretations.size(); i++) {
 
-				UserTrackType interpretation = interpretations.get(i);
+				TrackType interpretation = interpretations.get(i);
 
 				// get the actual file
 				File file = Session.getSession().getDataManager().getLocalFile(datas.get(i));
@@ -345,24 +355,25 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			// initialise the plot
 			plot.addDataRegionListener(this);
 			plot.start("1", 1024 * 1024 * 250d);
-
+			
 			// wrap it in a panel
-			ChartPanel panel = new ChartPanel(new JFreeChart(plot));
-			plot.chartPanel = panel;
-			panel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+			ChartPanel chartPanel = new ChartPanel(new JFreeChart(plot));
+			plot.chartPanel = chartPanel;
+			chartPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+			chartPanel.setPreferredSize(new Dimension(800, 200));
 
 			// add mouse listeners
 			for (View view : plot.getViews()) {
-				panel.addMouseListener(view);
-				panel.addMouseMotionListener(view);
-				panel.addMouseWheelListener(view);
+				chartPanel.addMouseListener(view);
+				chartPanel.addMouseMotionListener(view);
+				chartPanel.addMouseWheelListener(view);
 			}
 
 			// put panel on top of card layout
 			if (plotPanel.getComponentCount() == 2) {
 				plotPanel.remove(1);
 			}
-			plotPanel.add(panel, PLOTPANEL);
+			plotPanel.add(chartPanel, PLOTPANEL);
 			CardLayout cl = (CardLayout) (plotPanel.getLayout());
 			cl.show(plotPanel, PLOTPANEL);
 
@@ -416,8 +427,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		}
 	}
 
-	private List<UserTrackType> interpretUserDatas(List<DataBean> datas) {
-		LinkedList<UserTrackType> interpretations = new LinkedList<UserTrackType>();
+	private List<TrackType> interpretUserDatas(List<DataBean> datas) {
+		LinkedList<TrackType> interpretations = new LinkedList<TrackType>();
 
 		// try to find interpretation for all selected datas
 		for (DataBean data : datas) {
@@ -425,14 +436,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			if (data.isContentTypeCompatitible("text/plain")) {
 				// reads
 				if (data.getName().contains("control")) {
-					interpretations.add(UserTrackType.CONTROL_READS);
+					interpretations.add(TrackType.CONTROL_READS);
 				} else {
-					interpretations.add(UserTrackType.TREATMENT_READS);
+					interpretations.add(TrackType.TREATMENT_READS);
 				}
 
 			} else if (data.isContentTypeCompatitible("text/bed")) {
 				// peaks
-				interpretations.add(UserTrackType.PEAKS);
+				interpretations.add(TrackType.PEAKS);
 
 			} else {
 				// cannot interpret, visualisation not available for this selection
