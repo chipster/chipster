@@ -24,7 +24,7 @@ public class FsfStatus implements Cloneable {
 	/**
 	 * All objects originating from a single area request share the same instance of this Set.
 	 */
-	private static Set<Object> clearedAlready = new HashSet<Object>();
+	private Set<Object> clearedAlready = new HashSet<Object>();
 	
 	public DataSource file;
 
@@ -32,6 +32,9 @@ public class FsfStatus implements Cloneable {
 
 	public void maybeClearQueue(Object fileResultQueue) {
 		if (clearQueues && !clearedAlready.contains(fileResultQueue)) {
+			
+			//System.out.println(fileResultQueue + "cleared...");
+			
 			clearedAlready.add(fileResultQueue);
 			((Queue<?>) fileResultQueue).clear();
 		}
