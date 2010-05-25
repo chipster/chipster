@@ -6,6 +6,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -26,8 +28,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
@@ -56,7 +56,7 @@ import fi.csc.microarray.util.IOUtils;
 /**
  * @author Petri Klemelä, Aleksi Kallio
  */
-public class GenomeBrowser extends Visualisation implements ActionListener, RegionListener, DocumentListener {
+public class GenomeBrowser extends Visualisation implements ActionListener, RegionListener, FocusListener {
 
 	private static final String[] CHROMOSOMES = new String[] {
 		"1",
@@ -151,6 +151,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	private JPanel settingsPanel = new JPanel();
 	private JPanel plotPanel = new JPanel(new CardLayout());
 
+	private JButton gotoButton = new JButton("Go to location");
 	private JButton drawButton = new JButton("Draw");
 
 	private JTextField megaLocation = new JTextField(4);
@@ -160,13 +161,13 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	private JComboBox genomeBox = new JComboBox();
 	// private JRadioButton horizView;
 	// private JRadioButton circularView;
-	private boolean locationEventsEnabled = true;
 	private GridBagConstraints settingsGridBagConstraints;
 	private List<Row> contents;
 
 	private String localAnnotationPath;
 
 	private URL annotationUrl;
+
 
 	public GenomeBrowser(VisualisationFrame frame) {
 		super(frame);
@@ -282,8 +283,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 					super.insertString(offs, str, a);
 				}
 			};			
-			fieldContents.addDocumentListener(this);
 			field.setDocument(fieldContents);
+			field.addFocusListener(this);
 		}
 
 		settingsPanel.add(new JLabel("Location"), c);
@@ -312,8 +313,13 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		settingsPanel.add(unitLocation, c);
 
 		c.gridx = 0;
-		c.gridwidth = 5;
+		c.gridwidth = 5;		
+		c.gridy++;
 		c.insets.set(5, 10, 5, 10);
+		settingsPanel.add(gotoButton , c);
+		gotoButton.addActionListener(this);
+		gotoButton.setEnabled(false);
+
 		InputStream contentsStream = null;
 		
 		try {
@@ -396,6 +402,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 
 		if (source == drawButton) {
 			showVisualisation();
+		} else if (source == gotoButton) {
+			gotoButton.setEnabled(false);
+			locationChanged();
 		}
 	}
 
@@ -539,14 +548,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	@Override
 	public void regionChanged(BpCoordRegion bpRegion) {
 		long location = bpRegion.getMid();
-		locationEventsEnabled = false;
-		try {
-			megaLocation.setText("" + (location / 1000000));
-			kiloLocation.setText("" + (location % 1000000) / 1000);
-			unitLocation.setText("" + (location % 1000));
-		} finally {
-			locationEventsEnabled = true;
-		}
+		megaLocation.setText("" + (location / 1000000));
+		kiloLocation.setText("" + (location % 1000000) / 1000);
+		unitLocation.setText("" + (location % 1000));
+		gotoButton.setEnabled(false);
 	}
 
 	private List<TrackType> interpretUserDatas(List<DataBean> datas) {
@@ -586,26 +591,17 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		return true;
 	}
 
-	@Override
-	public void changedUpdate(DocumentEvent e) {
-		locationChanged();		
-		
-	}
-
-	@Override
-	public void insertUpdate(DocumentEvent e) {
-		locationChanged();		
-		
-	}
-
-	@Override
-	public void removeUpdate(DocumentEvent e) {
-		locationChanged();		
-	}
-	
 	private void locationChanged() {
-		if (locationEventsEnabled ) {
-			plot.moveDataBpRegion(Long.parseLong(megaLocation.getText()) * 1000000 + Long.parseLong(kiloLocation.getText()) * 1000 + Long.parseLong(unitLocation.getText()));
-		}
+		plot.moveDataBpRegion(Long.parseLong(megaLocation.getText()) * 1000000 + Long.parseLong(kiloLocation.getText()) * 1000 + Long.parseLong(unitLocation.getText()));
+	}
+
+	@Override
+	public void focusGained(FocusEvent e) {
+		gotoButton.setEnabled(true);		
+	}
+
+	@Override
+	public void focusLost(FocusEvent e) {
+		// skip		
 	}
 }
