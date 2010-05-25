@@ -32,6 +32,9 @@ public class FsfStatus implements Cloneable {
 
 	public void maybeClearQueue(Object fileResultQueue) {
 		if (clearQueues && !clearedAlready.contains(fileResultQueue)) {
+			
+			//System.out.println(fileResultQueue + "cleared...");
+			
 			clearedAlready.add(fileResultQueue);
 			((Queue<?>) fileResultQueue).clear();
 		}
