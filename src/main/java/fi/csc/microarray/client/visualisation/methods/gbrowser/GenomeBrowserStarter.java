@@ -4,8 +4,6 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Arrays;
 
 import javax.swing.JFrame;
@@ -13,6 +11,7 @@ import javax.swing.WindowConstants;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+
 
 
 public class GenomeBrowserStarter {
@@ -31,7 +30,9 @@ public class GenomeBrowserStarter {
 		TrackFactory.addGeneTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_genes.tsv"));
 //		TrackFactory.addMirnaTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_miRNA.tsv"));
 		TrackFactory.addTranscriptTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_transcripts.tsv"));
-		
+
+		// Example peak: choromosome 21 in front of IFNAR2 gene (location 33,525,000)
+		// Example peak: choromosome 21 in front of IFNAR1 gene (location 33,620,000)
 		TrackFactory.addPeakTrack(plot, new DataSource(MACS_DATA_FILE));
 		
 		TrackFactory.addReadTracks(
