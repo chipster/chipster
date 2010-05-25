@@ -83,8 +83,8 @@ public class ToolParameterPanel extends ParameterPanel {
             if (param.isOptional()) {
                 optionalParameters.add(param);
             } else {
-                requiredParameters.add(param);
             }
+            requiredParameters.add(param);
         }
 
         // Parameters
@@ -119,6 +119,9 @@ public class ToolParameterPanel extends ParameterPanel {
         pane = new JXTaskPane();
         pane.setTitle("Input datasets");
         pane.setCollapsed(false);
+        pane.getContentPane().setBackground(pane.getForeground());
+        
+        
         
         // Grid layout for component/label pairs
         paramPane = new JPanel(new GridBagLayout());
