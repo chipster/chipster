@@ -195,12 +195,6 @@ public class TranscriptTrack extends Track {
 	}
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
-		
-		String geneId = ((String) areaResult.content.values.get(ColumnType.DESCRIPTION));
-		
-		if (geneId.contains("C1orf226")) {
-			System.out.println("-");
-		}
 
 		// Genes and transcripts are ordered in the file, but to here they come in any order
 		// That's why we have to put them to Gene objects to sort them again
