@@ -320,14 +320,20 @@ if (control.available == "yes") {
 # write.table(file="analysis-summary.txt", unlist(analysis_summary), sep="", row.names=F, quote=F)
 
 # Write the results to tables to be read into Chipster
-write.table(results_TRUE, file="positive-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
+results_TRUE$chr <- sub(".fa", "", results_TRUE$chr)
+results_TRUE$chr <- sub("chr", "", results_TRUE$chr)
+results_TRUE_ordered <- results_TRUE[order(results_TRUE$chr, results_TRUE$start),]
+write.table(results_TRUE_ordered, file="positive-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
 if (control.available == "yes") {
-	write.table(results_FALSE, file="negative-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
+	results_FALSE$chr <- sub(".fa", "", results_FALSE$chr)
+	results_FALSE$chr <- sub("chr", "", results_FALSE$chr)
+	results_FALSE_ordered <- results_FALSE[order(results_FALSE$chr, results_FALSE$start),]
+	write.table(results_FALSE_ordered, file="negative-peaks.tsv", sep="\t", quote=FALSE, row.names=FALSE)
 }
 
 # Convert the name of some files to make it compatible with chipster output
 system("mv results.log analysis-log.txt")
-system ("mv results_peak.bed positive-peaks.bed")
+system ("mv results_peaks.bed positive-peaks.bed")
 
 # Source the R code for plotting the MACS model and convert the PDF file to PNG
 if (build.model == "yes") {
