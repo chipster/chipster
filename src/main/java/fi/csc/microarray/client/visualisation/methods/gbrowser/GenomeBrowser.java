@@ -7,8 +7,11 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -40,6 +43,8 @@ import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Row;
+import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
@@ -158,6 +163,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	private boolean locationEventsEnabled = true;
 	private GridBagConstraints settingsGridBagConstraints;
 	private List<Row> contents;
+
+	private String localAnnotationPath;
+
+	private URL annotationUrl;
 
 	public GenomeBrowser(VisualisationFrame frame) {
 		super(frame);
@@ -309,7 +318,20 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		
 		try {
 			// parse what annotations we have available
-			contentsStream = new URL(fetchAnnotationUrl() + "/" + CONTENTS_FILE).openStream();
+			Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
+    		String configuredLocalPath = configuration.getString("client", "local-annotation-path");
+			if (configuredLocalPath.trim().isEmpty()) {
+				System.out.println("remove");
+				this.localAnnotationPath = null;
+				this.annotationUrl = fetchAnnotationUrl();
+				contentsStream = new URL(annotationUrl + "/" + CONTENTS_FILE).openStream();
+			} else {
+				System.out.println("local");
+				this.localAnnotationPath = configuredLocalPath;
+				this.annotationUrl = null;
+				contentsStream = new FileInputStream(localAnnotationPath + File.separator + CONTENTS_FILE);
+			}
+			
 			AnnotationContents annotationContentFile = new AnnotationContents();
 			annotationContentFile.parseFrom(contentsStream);
 			this.contents = annotationContentFile.getRows();
@@ -400,11 +422,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	private void showVisualisation() {
 
 		try {
-			// fetch remote annotation data
-			URL annotationUrl = fetchAnnotationUrl();
-			String genome = (String) genomeBox.getSelectedItem();
-
 			// create the plot
+			String genome = (String) genomeBox.getSelectedItem();
 			this.plot = new GenomePlot(true);
 
 			// add selected tracks
@@ -417,16 +436,16 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 					File file = track.userData == null ? null : Session.getSession().getDataManager().getLocalFile(track.userData);
 					switch (track.type) {
 					case CYTOBANDS:
-						TrackFactory.addCytobandTracks(plot, new DataSource(annotationUrl, "Homo_sapiens.GRCh37.57_karyotype.tsv")); // using always the
+						TrackFactory.addCytobandTracks(plot, createAnnotationDataSource("Homo_sapiens.GRCh37.57_karyotype.tsv")); // using always the
 						break;
 					case GENES:
-						TrackFactory.addGeneTracks(plot, new DataSource(annotationUrl, "Homo_sapiens." + genome + "_genes.tsv"));
+						TrackFactory.addGeneTracks(plot, createAnnotationDataSource("Homo_sapiens." + genome + "_genes.tsv"));
 						break;
 					case REFERENCE:
 						// integrated into peaks
 						break;
 					case TRANSCRIPTS:
-						TrackFactory.addTranscriptTracks(plot, new DataSource(annotationUrl, "Homo_sapiens." + genome + "_transcripts.tsv"));
+						TrackFactory.addTranscriptTracks(plot, createAnnotationDataSource("Homo_sapiens." + genome + "_transcripts.tsv"));
 						break;
 					case PEAKS:
 						peaks.add(new DataSource(file));
@@ -446,7 +465,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 				TrackFactory.addPeakTracks(plot, peaks);
 			}
 			if (!treatments.isEmpty() || !controls.isEmpty()) {
-				TrackFactory.addReadTracks(plot, treatments, controls, new DataSource(annotationUrl, "Homo_sapiens." + genome + "_seq.tsv"));
+				TrackFactory.addReadTracks(plot, treatments, controls, createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv"));
 			}
 			TrackFactory.addRulerTrack(plot);
 
@@ -476,6 +495,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			
 		} catch (Exception e) {
 			application.reportException(e);
+		}
+	}
+
+	private DataSource createAnnotationDataSource(String file) throws FileNotFoundException, MalformedURLException {
+		if (this.annotationUrl != null) {
+			return new DataSource(this.annotationUrl, file);
+		} else {
+			return new DataSource(new File(this.localAnnotationPath), file);
 		}
 	}
 
