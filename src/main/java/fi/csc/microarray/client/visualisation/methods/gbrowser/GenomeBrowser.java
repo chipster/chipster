@@ -118,7 +118,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	final static String PLOTPANEL = "plotpanel";
 
 	private static enum TrackType {
-		CYTOBANDS, GENES, TRANSCRIPTS, TREATMENT_READS, CONTROL_READS, PEAKS, REFERENCE
+		CYTOBANDS, GENES, TRANSCRIPTS, TREATMENT_READS, CONTROL_READS, PEAKS, REFERENCE, PEAKS_WITH_HEADER
 	}
 
 	private static class Track {
@@ -436,7 +436,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			// add selected tracks
 			LinkedList<DataSource> treatments = new LinkedList<DataSource>();
 			LinkedList<DataSource> controls = new LinkedList<DataSource>();
-			LinkedList<DataSource> peaks = new LinkedList<DataSource>();
 			
 			for (Track track : tracks) {
 				if (track.checkBox.isSelected()) {
@@ -455,7 +454,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 						TrackFactory.addTranscriptTracks(plot, createAnnotationDataSource("Homo_sapiens." + genome + "_transcripts.tsv"));
 						break;
 					case PEAKS:
-						peaks.add(new DataSource(file));
+						TrackFactory.addPeakTracks(plot, new DataSource(file));
+						break;
+					case PEAKS_WITH_HEADER:
+						TrackFactory.addHeaderPeakTracks(plot, new DataSource(file));
 						break;
 					case TREATMENT_READS:
 						treatments.add(new DataSource(file));
@@ -467,10 +469,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 				}
 			}
 
-			// add user tracks and ruler
-			if (!peaks.isEmpty()) {
-				TrackFactory.addPeakTracks(plot, peaks);
-			}
 			if (!treatments.isEmpty() || !controls.isEmpty()) {
 				TrackFactory.addReadTracks(plot, treatments, controls, createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv"));
 			}
@@ -571,6 +569,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			} else if (data.isContentTypeCompatitible("text/bed")) {
 				// peaks
 				interpretations.add(TrackType.PEAKS);
+
+			} else if (data.isContentTypeCompatitible("text/tab")) {
+				// peaks (with header in the file)
+				interpretations.add(TrackType.PEAKS_WITH_HEADER);
 
 			} else {
 				// cannot interpret, visualisation not available for this selection

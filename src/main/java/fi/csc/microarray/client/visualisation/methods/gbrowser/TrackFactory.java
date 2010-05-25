@@ -117,24 +117,20 @@ public class TrackFactory {
 		addTrack(plot.getDataView(), annotation);
 	}
 	
-	public static void addPeakTracks(GenomePlot plot, List<DataSource> peakSources) {
+	public static void addPeakTracks(GenomePlot plot, DataSource peaks) {
 		BEDParser bedParser = new BEDParser();
 		View dataView = plot.getDataView();
 
-		for (DataSource peaks : peakSources) {
-			PeakTrack annotation = new PeakTrack(dataView, peaks, TreeThread.class, bedParser, Color.YELLOW, 0, Long.MAX_VALUE);
-			addTrack(dataView, annotation);
-		}
+		PeakTrack annotation = new PeakTrack(dataView, peaks, TreeThread.class, bedParser, Color.YELLOW, 0, Long.MAX_VALUE);
+		addTrack(dataView, annotation);
 	}
 
-	public static void addHeaderPeakTracks(GenomePlot plot, List<DataSource> peakSources) {
+	public static void addHeaderPeakTracks(GenomePlot plot, DataSource peaks) {
 		HeaderTsvParser headerTsvParser = new HeaderTsvParser();
 		View dataView = plot.getDataView();
 
-		for (DataSource peaks : peakSources) {
-			PeakTrack annotation = new PeakTrack(dataView, peaks, TreeThread.class, headerTsvParser, Color.YELLOW, 0, Long.MAX_VALUE);
-			addTrack(dataView, annotation);
-		}
+		PeakTrack annotation = new PeakTrack(dataView, peaks, TreeThread.class, headerTsvParser, Color.YELLOW, 0, Long.MAX_VALUE);
+		addTrack(dataView, annotation);
 	}
 
 	public static void addTranscriptTracks(GenomePlot plot, DataSource annotationFile) {
