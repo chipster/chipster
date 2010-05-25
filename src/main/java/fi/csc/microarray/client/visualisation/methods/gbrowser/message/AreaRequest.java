@@ -14,4 +14,9 @@ public class AreaRequest extends BpCoordRegion {
 		this.requestedContents = requestedContents;
 		this.status = status;
 	}
+	
+	@Override
+	public AreaRequest clone() throws CloneNotSupportedException {
+		return new AreaRequest(this, this.requestedContents, this.status.clone());
+	}
 }

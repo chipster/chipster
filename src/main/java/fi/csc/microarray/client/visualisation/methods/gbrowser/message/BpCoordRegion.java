@@ -36,7 +36,7 @@ public class BpCoordRegion implements Comparable<BpCoordRegion> {
 		return "Region [" + start + " - " + end + "]";
 	}
 
-	public BpCoordRegion clone() {
+	public BpCoordRegion clone() throws CloneNotSupportedException {
 		return new BpCoordRegion(start, end);
 	}
 

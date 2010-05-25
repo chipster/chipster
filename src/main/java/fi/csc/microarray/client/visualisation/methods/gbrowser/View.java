@@ -477,7 +477,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	public void dispatchRegionChange() {
 		for (RegionListener listener : listeners) {
-			listener.RegionChanged(getBpRegion());
+			listener.regionChanged(getBpRegion());
 		}
 	}
 

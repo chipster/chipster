@@ -45,9 +45,11 @@ public class TreeNode {
 		}
 	}
 
+	/**
+	 * If this is leaf and at least one children is null, create children and split the area for them.
+	 */
 	private void createChildrenIfNecessary() {
 		if (!isLeaf && (left == null || right == null)) {
-
 			left = new TreeNode(new ByteRegion(unExactByteRegion.start, (long) unExactByteRegion.getMid() - 1, false), tree, this);
 			right = new TreeNode(new ByteRegion((long) unExactByteRegion.getMid(), unExactByteRegion.end, false), tree, this);
 		}
@@ -55,11 +57,10 @@ public class TreeNode {
 
 	private void updateNodeBpStart(AreaRequest areaRequest, TreeNode source) {
 		if (this.isLeaf) {
-
 			areaRequest.status.bpSearchSource = source;
 			tree.createFileRequest(areaRequest, this.byteRegion, this);
+			
 		} else {
-
 			createChildrenIfNecessary();
 			left.updateNodeBpStart(areaRequest, source);
 		}
@@ -67,39 +68,47 @@ public class TreeNode {
 
 	public void processAreaRequest(AreaRequest areaRequest) {
 
+		// if on leaf, do not recurse down but read file (if needed) and return result
 		if (this.isLeaf) {
 
 			if (areaRequest.status.concise) {
 
 				if (concisedValues == null) {
 					tree.createFileRequest(areaRequest, this.byteRegion, this);
+					
 				} else {
-
 					createConcisedResult(areaRequest, areaRequest.status);
 				}
+				
 			} else {
-
-				// Concised value isn't enough, file has to be read
+				// non-concised result wanted
 				tree.createFileRequest(areaRequest, byteRegion, this);
 			}
 		} else {
 
 			createChildrenIfNecessary();
 
-			if (right.nodeBpStart == null) {
 
+			if (right.nodeBpStart == null) {
 				right.updateNodeBpStart(areaRequest, this);
 
 			} else {
+				// recurse down
 
-				if (areaRequest.start.compareTo(right.nodeBpStart) < 0 && (!areaRequest.status.concise || (depth < 10 || (requestDistributor = !requestDistributor)))) {
+				try {
+					if (areaRequest.start.compareTo(right.nodeBpStart) < 0) {
 
-					left.processAreaRequest(areaRequest);
-				}
+						left.processAreaRequest(areaRequest.clone());
+						requestDistributor = !requestDistributor;
+					}
 
-				if (areaRequest.end.compareTo(right.nodeBpStart) > 0 && (!areaRequest.status.concise || (depth < 10 || !(requestDistributor = !requestDistributor)))) {
+					if (areaRequest.end.compareTo(right.nodeBpStart) > 0) {
 
-					right.processAreaRequest(areaRequest);
+						right.processAreaRequest(areaRequest.clone());
+						requestDistributor = !requestDistributor;
+					}
+				} catch (CloneNotSupportedException e) {
+					throw new RuntimeException(e);
 				}
 			}
 		}
@@ -151,6 +160,7 @@ public class TreeNode {
 		}
 
 		if (parent != null) {
+			//TODO might be useless after the bpSeachSource has been found
 			parent.processFileResult(fileResult);
 		}
 	}
@@ -168,7 +178,6 @@ public class TreeNode {
 	private void createConcisedResult(AreaRequest areaRequest, FsfStatus status) {
 
 		for (RegionContent regCont : concisedValues) {
-
 			if (areaRequest.intercepts(regCont.region)) {
 				tree.createAreaResult(new AreaResult<RegionContent>(status, regCont));
 			}
