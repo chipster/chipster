@@ -59,10 +59,18 @@ public class TrackFactory {
 		// forward tracks, iterate over both arrays 
 		for (int i = 0; i < (treatments.size() + controls.size()); i++) {
 
+			//
+			// Initialise
+			// 
+			
 			boolean isTreatment = i < treatments.size();
 			DataSource userData = isTreatment ? treatments.get(i) : controls.get(i-treatments.size());
 			Color histogramColor = isTreatment ? Color.blue : Color.gray;
 			Color fontColor = Color.black;
+						
+			// 
+			// Forward
+			//
 			
 			// Overview
 			IntensityTrack readOverview = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, histogramColor, switchViewsAt);
@@ -74,27 +82,23 @@ public class TrackFactory {
 
 			// separator
 			dataView.addTrack(new SeparatorTrack(dataView));
-		}
 
-		
-		// reference sequence
-		if (seqFile != null) {
+			//
 			// Reference sequence
-			SeqTrack seq = new SeqTrack(dataView, seqFile, TreeThread.class, new SequenceParser(), 800);
-			addTrack(dataView, seq);
-		}
-
-		// reverse tracks
-		for (int i = (treatments.size() + controls.size()-1); i >= 0; i--) {
+			//
 			
-			boolean isTreatment = i < treatments.size();
-			DataSource userData = isTreatment ? treatments.get(i) : controls.get(i-treatments.size());
-			Color histogramColor = isTreatment ? Color.blue : Color.gray;
-			Color fontColor = Color.black;
+			if (seqFile != null) {
+				// Reference sequence
+				SeqTrack seq = new SeqTrack(dataView, seqFile, TreeThread.class, new SequenceParser(), 800);
+				addTrack(dataView, seq);
+				// separator
+				dataView.addTrack(new SeparatorTrack(dataView));
+			}
 
-			// separator
-			dataView.addTrack(new SeparatorTrack(dataView));
-
+			//
+			// Reverse
+			//
+			
 			// Overview
 			IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, histogramColor, switchViewsAt);
 			readOverviewReversed.setStrand(Strand.REVERSED);
@@ -104,6 +108,7 @@ public class TrackFactory {
 			SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, fontColor, 0, switchViewsAt);
 			readsReversed.setStrand(Strand.REVERSED);
 			addTrack(dataView, readsReversed);
+
 		}
 	}
 
