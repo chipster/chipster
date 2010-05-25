@@ -536,7 +536,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		}
 	}
 
-	@Override
+	//@Override
 	public void regionChanged(BpCoordRegion bpRegion) {
 		long location = bpRegion.getMid();
 		locationEventsEnabled = false;
@@ -586,19 +586,19 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		return true;
 	}
 
-	@Override
+//	@Override
 	public void changedUpdate(DocumentEvent e) {
 		locationChanged();		
 		
 	}
 
-	@Override
+//	@Override
 	public void insertUpdate(DocumentEvent e) {
 		locationChanged();		
 		
 	}
 
-	@Override
+//	@Override
 	public void removeUpdate(DocumentEvent e) {
 		locationChanged();		
 	}
