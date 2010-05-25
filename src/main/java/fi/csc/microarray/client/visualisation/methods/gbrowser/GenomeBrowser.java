@@ -321,12 +321,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
     		String configuredLocalPath = configuration.getString("client", "local-annotation-path");
 			if (configuredLocalPath.trim().isEmpty()) {
-				System.out.println("remove");
 				this.localAnnotationPath = null;
 				this.annotationUrl = fetchAnnotationUrl();
 				contentsStream = new URL(annotationUrl + "/" + CONTENTS_FILE).openStream();
 			} else {
-				System.out.println("local");
 				this.localAnnotationPath = configuredLocalPath;
 				this.annotationUrl = null;
 				contentsStream = new FileInputStream(localAnnotationPath + File.separator + CONTENTS_FILE);
