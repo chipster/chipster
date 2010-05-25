@@ -5,6 +5,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ByteRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileRequest;
@@ -103,8 +104,9 @@ public class FileFetcherThread extends Thread {
 				
 				if ( i >= file.length() - 1) {	
 					
-					//TODO buffer ended before the new line chracter, discard the last line 
-					return;
+					//buffer ended before the new line character, discard the last line 
+					lines.setLength(lines.lastIndexOf("\n") + 1);
+					break;
 				}
 			}
 			

@@ -37,20 +37,23 @@ public abstract class ConcisedTsvParser extends TsvParser{
 					totalR += readLength;
 				}
 			}
-
-			RegionContent[] result = new RegionContent[] {
-					new RegionContent(getBpRegion(chunk), totalF / (float)getBpRegion(chunk).getLength()),
-					new RegionContent(getBpRegion(chunk), totalR / (float)getBpRegion(chunk).getLength())
-			};		
-
-			result[0].values.put(ColumnType.STRAND, Strand.FORWARD);
-			result[1].values.put(ColumnType.STRAND, Strand.REVERSED);
-
-			return result;
-		} else {
 			
-			//FIXME Length of region can't be calculated, because it contains two or more chromosomes, do something wise
-			return new  RegionContent[] {};
-		}
+			Long regionLength = getBpRegion(chunk).getLength();
+
+			if (regionLength != null) {
+				RegionContent[] result = new RegionContent[] {
+						new RegionContent(getBpRegion(chunk), totalF / (float)regionLength),
+						new RegionContent(getBpRegion(chunk), totalR / (float)regionLength)
+				};		
+
+				result[0].values.put(ColumnType.STRAND, Strand.FORWARD);
+				result[1].values.put(ColumnType.STRAND, Strand.REVERSED);
+
+				return result;
+			}
+		} 			
+		//FIXME Length of region can't be calculated, because it contains two or more chromosomes, do something wise
+		return new  RegionContent[] {};
+		
 	}
 }
