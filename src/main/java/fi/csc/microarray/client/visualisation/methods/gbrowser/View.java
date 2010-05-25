@@ -93,10 +93,14 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			}
 		}
 		
-		//Little bit empty space to the end
-		max.bp += 10000;
-		
-		return max;
+		if (max != null) {
+			//Little bit empty space to the end
+			max.bp += 10000;
+			return max;
+			
+		} else {
+			return null;
+		}
 	}
 
 	protected void drawView(Graphics2D g, boolean isAnimation) {
@@ -406,27 +410,31 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			startBp = (double) (pointerBp.bp - width * pointerRelative);
 			endBp = (double) (pointerBp.bp + width * (1 - pointerRelative));
 			
-			long maxBp = getMaxBp().bp;
+			BpCoord maxBp = getMaxBp();
 			
-			if (wheelRotation < 0 && startBp == 0 && endBp == maxBp) {
-				return;
-			}
+			if (maxBp != null) {
+				// check bounds
+				long maxBpVal = maxBp.bp;
 
-			if (startBp < 0) {
-				endBp += -startBp;
-				startBp = 0;
-			}
-			
-			
-			if (endBp > maxBp) {
-				startBp -= endBp - maxBp;
-				endBp = maxBp;
-				
+				if (wheelRotation < 0 && startBp == 0 && endBp == maxBpVal) {
+					return;
+				}
+
 				if (startBp < 0) {
+					endBp += -startBp;
 					startBp = 0;
 				}
-			}
 
+
+				if (endBp > maxBpVal) {
+					startBp -= endBp - maxBpVal;
+					endBp = maxBpVal;
+
+					if (startBp < 0) {
+						startBp = 0;
+					}
+				}
+			}
 			setBpRegion(new BpCoordRegionDouble(startBp, getBpRegionDouble().start.chr, endBp, getBpRegionDouble().end.chr), disableDrawing);
 		}
 	}

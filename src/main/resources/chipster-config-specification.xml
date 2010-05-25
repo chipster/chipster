@@ -211,6 +211,10 @@
 			<value>5000</value>
 		</entry>
 
+		<entry entryKey="local-annotation-path" type="string" description="path of the local annotation repository, if any">
+			<value></value>
+		</entry>
+		
 	</configuration-module>
 	
 

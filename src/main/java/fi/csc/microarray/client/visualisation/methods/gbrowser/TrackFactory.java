@@ -10,6 +10,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDPar
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.HeaderTsvParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SequenceParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
@@ -58,10 +59,18 @@ public class TrackFactory {
 		// forward tracks, iterate over both arrays 
 		for (int i = 0; i < (treatments.size() + controls.size()); i++) {
 
+			//
+			// Initialise
+			// 
+			
 			boolean isTreatment = i < treatments.size();
 			DataSource userData = isTreatment ? treatments.get(i) : controls.get(i-treatments.size());
 			Color histogramColor = isTreatment ? Color.blue : Color.gray;
 			Color fontColor = Color.black;
+						
+			// 
+			// Forward
+			//
 			
 			// Overview
 			IntensityTrack readOverview = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, histogramColor, switchViewsAt);
@@ -73,27 +82,23 @@ public class TrackFactory {
 
 			// separator
 			dataView.addTrack(new SeparatorTrack(dataView));
-		}
 
-		
-		// reference sequence
-		if (seqFile != null) {
+			//
 			// Reference sequence
-			SeqTrack seq = new SeqTrack(dataView, seqFile, TreeThread.class, new SequenceParser(), 800);
-			addTrack(dataView, seq);
-		}
-
-		// reverse tracks
-		for (int i = (treatments.size() + controls.size()-1); i >= 0; i--) {
+			//
 			
-			boolean isTreatment = i < treatments.size();
-			DataSource userData = isTreatment ? treatments.get(i) : controls.get(i-treatments.size());
-			Color histogramColor = isTreatment ? Color.blue : Color.gray;
-			Color fontColor = Color.black;
+			if (seqFile != null) {
+				// Reference sequence
+				SeqTrack seq = new SeqTrack(dataView, seqFile, TreeThread.class, new SequenceParser(), 800);
+				addTrack(dataView, seq);
+				// separator
+				dataView.addTrack(new SeparatorTrack(dataView));
+			}
 
-			// separator
-			dataView.addTrack(new SeparatorTrack(dataView));
-
+			//
+			// Reverse
+			//
+			
 			// Overview
 			IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, histogramColor, switchViewsAt);
 			readOverviewReversed.setStrand(Strand.REVERSED);
@@ -118,6 +123,16 @@ public class TrackFactory {
 
 		for (DataSource peaks : peakSources) {
 			PeakTrack annotation = new PeakTrack(dataView, peaks, TreeThread.class, bedParser, Color.YELLOW, 0, Long.MAX_VALUE);
+			addTrack(dataView, annotation);
+		}
+	}
+
+	public static void addHeaderPeakTracks(GenomePlot plot, List<DataSource> peakSources) {
+		HeaderTsvParser headerTsvParser = new HeaderTsvParser();
+		View dataView = plot.getDataView();
+
+		for (DataSource peaks : peakSources) {
+			PeakTrack annotation = new PeakTrack(dataView, peaks, TreeThread.class, headerTsvParser, Color.YELLOW, 0, Long.MAX_VALUE);
 			addTrack(dataView, annotation);
 		}
 	}
