@@ -157,6 +157,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	private JTextField megaLocation = new JTextField(4);
 	private JTextField kiloLocation = new JTextField(4);
 	private JTextField unitLocation = new JTextField(4);
+	private JTextField zoomField = new JTextField(10);
 	private JComboBox chrBox = new JComboBox();
 	private JComboBox genomeBox = new JComboBox();
 	// private JRadioButton horizView;
@@ -167,6 +168,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	private String localAnnotationPath;
 
 	private URL annotationUrl;
+
 
 
 	public GenomeBrowser(VisualisationFrame frame) {
@@ -316,6 +318,15 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		c.gridwidth = 5;		
 		c.gridy++;
 		c.insets.set(5, 10, 5, 10);
+		settingsPanel.add(new JLabel("Zoom"), c);
+		c.gridwidth = 4;		
+		c.gridy++;
+		settingsPanel.add(this.zoomField , c);
+		this.zoomField.addFocusListener(this);
+		
+		c.gridx = 0;
+		c.gridwidth = 5;		
+		c.gridy++;
 		settingsPanel.add(gotoButton , c);
 		gotoButton.addActionListener(this);
 		gotoButton.setEnabled(false);
@@ -549,6 +560,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		megaLocation.setText("" + (location / 1000000));
 		kiloLocation.setText("" + (location % 1000000) / 1000);
 		unitLocation.setText("" + (location % 1000));
+		zoomField.setText("" + bpRegion.getLength());
 		gotoButton.setEnabled(false);
 	}
 
@@ -594,7 +606,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	}
 
 	private void locationChanged() {
-		plot.moveDataBpRegion(Long.parseLong(megaLocation.getText()) * 1000000 + Long.parseLong(kiloLocation.getText()) * 1000 + Long.parseLong(unitLocation.getText()));
+		plot.moveDataBpRegion(Long.parseLong(megaLocation.getText()) * 1000000 + Long.parseLong(kiloLocation.getText()) * 1000 + Long.parseLong(unitLocation.getText()), Long.parseLong(zoomField.getText()));
 	}
 
 	@Override
