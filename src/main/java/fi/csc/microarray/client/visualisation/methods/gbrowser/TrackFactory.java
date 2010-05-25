@@ -10,7 +10,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDPar
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.PeakParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.HeaderTsvParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SequenceParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
@@ -108,7 +108,6 @@ public class TrackFactory {
 			SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, fontColor, 0, switchViewsAt);
 			readsReversed.setStrand(Strand.REVERSED);
 			addTrack(dataView, readsReversed);
-
 		}
 	}
 
@@ -128,12 +127,12 @@ public class TrackFactory {
 		}
 	}
 
-	public static void addPeakTracks2(GenomePlot plot, List<DataSource> peakSources) {
-		PeakParser peakParser = new PeakParser();
+	public static void addHeaderPeakTracks(GenomePlot plot, List<DataSource> peakSources) {
+		HeaderTsvParser headerTsvParser = new HeaderTsvParser();
 		View dataView = plot.getDataView();
 
 		for (DataSource peaks : peakSources) {
-			PeakTrack annotation = new PeakTrack(dataView, peaks, TreeThread.class, peakParser, Color.YELLOW, 0, Long.MAX_VALUE);
+			PeakTrack annotation = new PeakTrack(dataView, peaks, TreeThread.class, headerTsvParser, Color.YELLOW, 0, Long.MAX_VALUE);
 			addTrack(dataView, annotation);
 		}
 	}
