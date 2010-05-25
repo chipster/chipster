@@ -117,7 +117,7 @@ public class TrackFactory {
 		addTrack(plot.getDataView(), annotation);
 	}
 	
-	public static void addPeakTracks(GenomePlot plot, DataSource peaks) {
+	public static void addPeakTrack(GenomePlot plot, DataSource peaks) {
 		BEDParser bedParser = new BEDParser();
 		View dataView = plot.getDataView();
 
@@ -125,7 +125,7 @@ public class TrackFactory {
 		addTrack(dataView, annotation);
 	}
 
-	public static void addHeaderPeakTracks(GenomePlot plot, DataSource peaks) {
+	public static void addHeaderPeakTrack(GenomePlot plot, DataSource peaks) {
 		HeaderTsvParser headerTsvParser = new HeaderTsvParser();
 		View dataView = plot.getDataView();
 

@@ -465,10 +465,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 						TrackFactory.addTranscriptTracks(plot, createAnnotationDataSource("Homo_sapiens." + genome + "_transcripts.tsv"));
 						break;
 					case PEAKS:
-						TrackFactory.addPeakTracks(plot, new DataSource(file));
+						TrackFactory.addPeakTrack(plot, new DataSource(file));
 						break;
 					case PEAKS_WITH_HEADER:
-						TrackFactory.addHeaderPeakTracks(plot, new DataSource(file));
+						TrackFactory.addHeaderPeakTrack(plot, new DataSource(file));
 						break;
 					case TREATMENT_READS:
 						treatments.add(new DataSource(file));
