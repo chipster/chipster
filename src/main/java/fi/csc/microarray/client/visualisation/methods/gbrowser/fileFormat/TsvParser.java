@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.PatternSyntaxException;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
@@ -80,7 +81,7 @@ public abstract class TsvParser extends FileParser {
 				}
 				return null;
 				
-			} catch (Exception e) {
+			} catch (PatternSyntaxException e) {
 				throw new RuntimeException("error parsing columns: " + Arrays.toString(cols), e);
 			}
 		}
