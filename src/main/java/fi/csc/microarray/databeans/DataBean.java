@@ -1,5 +1,6 @@
 package fi.csc.microarray.databeans;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -316,6 +317,19 @@ public class DataBean extends DataItemBase {
 			// FIXME release inputstream
 		}
 		
+	}
+	
+	public byte[] getContents(long maxLength) throws IOException {
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		InputStream in = this.getContentByteStream();
+		long readCount = 0;
+		
+		for (int b = in.read(); b != -1 && readCount < maxLength; b = in.read()) {
+			outputStream.write(b);
+			readCount++;
+		}
+		
+		return outputStream.toByteArray();
 	}
 
 

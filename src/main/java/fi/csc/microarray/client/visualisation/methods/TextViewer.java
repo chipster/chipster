@@ -13,13 +13,15 @@ import fi.csc.microarray.exception.MicroarrayException;
 
 public class TextViewer extends Visualisation {
 
+	private static long CONTENT_SIZE_LIMIT = 1024*1024*10;
+	
 	public TextViewer(VisualisationFrame frame) {
 		super(frame);
 	}
 
 	@Override
 	public JComponent getVisualisation(DataBean data) throws Exception {
-		byte[] txt = data.getContents();
+		byte[] txt = data.getContents(CONTENT_SIZE_LIMIT);
 
 		if (txt != null) {
 			JTextPane txtPane = new JTextPane();
