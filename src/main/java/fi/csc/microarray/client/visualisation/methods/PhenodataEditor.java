@@ -403,6 +403,7 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 		//Dimension tableSize = size;
 		//tableSize.setSize(tableSize.getWidth()-MARGIN, tableSize.getHeight()-MARGIN);
 		table.setUneditableBackground(VisualConstants.PHENODATA_TABLE_UNEDITABLE_CELL_BACKGROUND);
+	
 		table.setModel(tableModel);
 		table.getColumn(0).setPreferredWidth(PhenodataTable.IDENTIFIER_COLUMN_WIDTH);		
 		
@@ -456,6 +457,10 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 						logger.debug("Header updated. Warning icon disabled.");
 						
 					}
+					
+					// FIXME hackhack
+					header.setBackground(VisualConstants.TEXTAREA_UNEDITABLE_BACKGROUND);
+	
 					header.repaint();
 					table.getTableHeader().repaint();
 
