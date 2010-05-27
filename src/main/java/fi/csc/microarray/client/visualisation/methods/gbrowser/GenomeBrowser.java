@@ -486,7 +486,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			// initialise the plot
 			plot.addDataRegionListener(this);
 			plot.start((String)chrBox.getSelectedItem(), (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
-			
+			plot.moveDataBpRegion(100000L, 100000L);
+
 			// wrap it in a panel
 			ChartPanel chartPanel =  new NonScalableChartPanel(new JFreeChart(plot));
 			plot.chartPanel = chartPanel;
