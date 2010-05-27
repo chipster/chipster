@@ -20,6 +20,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 
 public class PeakTrack extends Track {
 
+	private static final int PEAK_SYMBOL_HEIGHT = 5;
+
 	private Collection<RegionContent> peaks = new TreeSet<RegionContent>();
 
 	private long maxBpLength;
@@ -52,7 +54,7 @@ public class PeakTrack extends Track {
 					continue;
 				}
 
-				createDrawable(peak.region.start, peak.region.end, 10, color, drawables);
+				createDrawable(peak.region.start, peak.region.end, PEAK_SYMBOL_HEIGHT, color, drawables);
 			}
 		}
 
@@ -92,8 +94,8 @@ public class PeakTrack extends Track {
 	@Override
 	public int getMaxHeight() {
 		if (getView().getBpRegion().getLength() > minBpLength && getView().getBpRegion().getLength() <= maxBpLength) {
+//			return PEAK_SYMBOL_HEIGHT * 2;
 			return super.getMaxHeight();
-			
 		} else {
 			return 0;
 		}
