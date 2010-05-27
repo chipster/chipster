@@ -80,6 +80,7 @@ public class CytobandTrack extends Track {
 
 	@Override
 	public Collection<Drawable> getDrawables() {
+		
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 		occupiedSpace.clear();
 
@@ -165,6 +166,7 @@ public class CytobandTrack extends Track {
 //				this.bands.add(new BandRegion(band, reg));
 //			}
 //		}
+		
 		
 		if (getView().getBpRegion().start.chr.equals(areaResult.content.region.start.chr)) {					
 			
