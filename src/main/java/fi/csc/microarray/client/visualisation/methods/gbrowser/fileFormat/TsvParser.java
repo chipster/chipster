@@ -81,7 +81,7 @@ public abstract class TsvParser extends FileParser {
 				}
 				return null;
 				
-			} catch (PatternSyntaxException e) {
+			} catch (Exception e) {
 				throw new RuntimeException("error parsing columns: " + Arrays.toString(cols), e);
 			}
 		}
