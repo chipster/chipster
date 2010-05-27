@@ -125,7 +125,7 @@ public class TranscriptTrack extends Track {
 							c = PartColor.CDS.c;
 						} else if (value.equals("exon")) {
 							c = PartColor.UTR.c;
-						} else if (value.equals("start_codon")) {
+						} else if (value.contains("start_codon")) {
 							c = PartColor.START_CODON.c;
 						} else if (value.equals("stop_codon")) {
 

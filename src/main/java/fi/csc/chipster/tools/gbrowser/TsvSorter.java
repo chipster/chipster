@@ -11,9 +11,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileDefinition;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.HeaderTsvParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -221,8 +221,14 @@ public class TsvSorter {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		FileDefinition def = new BEDParser().getFileDefinition();
-		new TsvSorter().sort(new File("/home/akallio/Desktop/STAT1/STAT1_peaks.bed"), new File("/home/akallio/Desktop/STAT1/STAT1_peaks_sorted.bed"), def.indexOf(ColumnType.CHROMOSOME), def.indexOf(ColumnType.BP_START));
+		
+		String filename = "/home/akallio/Desktop/cisREDgroup_contents_for_40193-STAT1_trimmed.tsv";
+		String resultFilename = filename + ".sorted";
+		FileDefinition def = new HeaderTsvParser().getFileDefinition();
+		new TsvSorter().sort(new File(filename), new File(resultFilename), def.indexOf(ColumnType.CHROMOSOME), def.indexOf(ColumnType.BP_START));
+
+		//		FileDefinition def = new BEDParser().getFileDefinition();
+//		new TsvSorter().sort(new File("/home/akallio/Desktop/STAT1/STAT1_peaks.bed"), new File("/home/akallio/Desktop/STAT1/STAT1_peaks_sorted.bed"), def.indexOf(ColumnType.CHROMOSOME), def.indexOf(ColumnType.BP_START));
 
 //		FileDefinition def = new ElandParser().getFileDefinition();
 //		new TsvSorter().sort(new File("infile.txt"), new File("infile.txt"), def.indexOf(ColumnType.CHROMOSOME), def.indexOf(ColumnType.BP_START));

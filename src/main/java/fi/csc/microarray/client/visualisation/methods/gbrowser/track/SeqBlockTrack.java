@@ -14,7 +14,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
@@ -24,7 +23,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 
 public class SeqBlockTrack extends Track {
 
-	private static final Color[] charColors = new Color[] { 
+	private static final int SPACE_BETWEEN_READS = 2;
+
+	private static final Color[] charColors = new Color[] {
 			new Color(64, 192, 64, 128), // A
 			new Color(64, 64, 192, 128), // C
 			new Color(128, 128, 128, 128), // G
@@ -40,8 +41,10 @@ public class SeqBlockTrack extends Track {
 
 	private boolean wasLastConsised = true;
 
-
-	public SeqBlockTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler, FileParser inputParser, Color fontColor, long minBpLength, long maxBpLength) {
+	public SeqBlockTrack(View view, DataSource file,
+			Class<? extends AreaRequestHandler> handler,
+			FileParser inputParser, Color fontColor, long minBpLength,
+			long maxBpLength) {
 		super(view, file, handler, inputParser);
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
@@ -54,154 +57,127 @@ public class SeqBlockTrack extends Track {
 
 		occupiedSpace.clear();
 
+		// iterate over RegionContent objects (one object corresponds to one read)
 		if (reads != null) {
-
 			Iterator<RegionContent> iter = reads.iterator();
+
 			while (iter.hasNext()) {
 
 				RegionContent read = iter.next();
 
-//				Object valueObj = read.values.get(ColumnType.VALUE);
-
+				// remove those that are not in this view
 				if (!read.region.intercepts(getView().getBpRegion())) {
-
 					iter.remove();
 					continue;
 				}
-				//				
-				// if(valueObj == null){
-				//					
-				// System.out.println("null value obj");
-				// drawables.add(createDrawable(read.region.start, read.region.end, Color.red));
-				// } else
-				{
 
-					// int limited = Math.min((int)(Math.log((Float) valueObj * 10)*50), 255);
-					// limited = Math.max(0, limited);
-					//					
-					// //System.out.println(limited);
-					//					
-					// Color c = new Color(color.getRed(), color.getGreen(), color.getBlue(), limited);
-					Color c = Color.gray;
-					int height = 10; // (int) (getView().getTrackHeight() / 2 * limited / 255f);
-					// System.out.println(height);
+				// collect relevant data for this read
+				Color blockColor = Color.gray;
+				int height = 2; // (int) (getView().getTrackHeight() / 2 * limited / 255f);
+				BpCoord startBp = read.region.start;
+				BpCoord endBp = read.region.end;
+				String seq = ((String) read.values.get(ColumnType.SEQUENCE));
 
-					BpCoord startBp = read.region.start;
-					BpCoord endBp = read.region.end;
+				if (seq != null) {
+					// we have sequence
+					seq = seq.trim();
+					
+				} else {
+					// we don't have a sequence, generate something
+					int seqLength = (int) (endBp.minus(startBp) + 1);
+					
+					if (seqLength > 128) {
+						// TODO what happened?
+						seqLength = 0;
+					}
+					
+					seq = ("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+							+ "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+							+ "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+							.substring(0, seqLength);
+				}
 
-					String seq = ((String) read.values.get(ColumnType.SEQUENCE));
+				// create rectangle covering the correct screen area (x-axis)
+				Rectangle rect = new Rectangle();
+				rect.x = getView().bpToTrack(startBp);
+				rect.width = getView().bpToTrack(endBp) - rect.x;
 
-					if (seq != null) {
-						seq = seq.trim();
+				// reads are drawn in order and placed in layers
+				int layer = 0;
+				while (occupiedSpace.size() > layer
+						&& occupiedSpace.get(layer) > rect.x + 1) {
+					layer++;
+				}
+
+				// read reserves the space of the layer from end to left corner of the screen
+				int end = rect.x + rect.width;
+				if (occupiedSpace.size() > layer) {
+					occupiedSpace.set(layer, end);
+				} else {
+					occupiedSpace.add(end);
+				}
+
+				// now we can decide the y-axis
+				rect.y = (int) (getView().getTrackHeight() - ((layer + 1) * (height + SPACE_BETWEEN_READS)));
+				rect.height = height;
+
+				// reverse the read if on reverse strand
+				if ((Strand) read.values.get(ColumnType.STRAND) == Strand.REVERSED) {
+					StringBuffer buf = new StringBuffer(seq).reverse();
+					seq = buf.toString();
+				}
+
+				
+				if (rect.width < seq.length()) {
+					// no space to draw actual sequence
+					drawables.add(new RectDrawable(rect, blockColor, null));
+
+				} else { 
+					// enough space to show the actual sequence
+
+					// draw arrow
+					if (read.values.get(ColumnType.STRAND) == Strand.REVERSED) {
+						drawables.addAll(getArrowDrawables(rect.x, rect.y,
+								-rect.height, rect.height));
 					} else {
-						
-						int seqLength = (int) (endBp.minus(startBp) + 1);
-						
-						if (seqLength > 128) {
-
-							// TODO what happened?
-							seqLength = 0;
-						}
-						seq = ("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" + 
-							  "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
-						      "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA").substring(0, seqLength);
+						drawables.addAll(getArrowDrawables(rect.x + rect.width,
+								rect.y, rect.height, rect.height));
 					}
 
-					// if(((String)read.values.get(Content.STRAND)).trim().equals("R")){
-					// startBp -= seq.length();
-					// endBp -= seq.length();
-					// }
+					// prepare to draw single nucleotides
+					float x = rect.x;
+					float increment = (rect.width) / ((float) seq.length());
 
-					Rectangle rect = new Rectangle();
+					// draw something for each nucleotide
+					for (int j = 0; j < seq.length(); j++) {
 
-					rect.x = getView().bpToTrack(startBp);
-					rect.width = getView().bpToTrack(endBp) - rect.x;
+						char letter = seq.charAt(j);
 
-					// System.out.println(startBp + ", " + endBp + ", " + seq + ", " + rect.width);
-
-					int i = 0;
-
-					while (occupiedSpace.size() > i && occupiedSpace.get(i) > rect.x + 1) {
-						i++;
-					}
-
-					int end = rect.x + rect.width;
-
-					if (occupiedSpace.size() > i) {
-						occupiedSpace.set(i, end);
-					} else {
-						occupiedSpace.add(end);
-					}
-
-					rect.y = (int) (getView().getTrackHeight() - ((i + 1) * (height + 2)));
-					rect.height = height;
-
-					// String seq = ((String)read.values.get(Content.SEQUENCE)).trim();
-
-					if ((Strand) read.values.get(ColumnType.STRAND) == Strand.REVERSED) {
-
-						StringBuffer buf = new StringBuffer(seq).reverse();
-
-						// for(int j = 0; j < seq.length(); j++){
-						// switch(buf.charAt(j)){
-						// case 'A': buf.setCharAt(j, 'T'); break;
-						// case 'C': buf.setCharAt(j, 'G'); break;
-						// case 'G': buf.setCharAt(j, 'C'); break;
-						// case 'T': buf.setCharAt(j, 'A'); break;
-						// }
+						// if (rect.width > seq.length() * CHAR_WIDTH) {
+						//
+						// drawables.add(new TextDrawable((int) x + 1, rect.y +
+						// 10, "" + letter, fontColor));
+						//
+						// // drawables.add(new TextDrawable((int)x, rect.y - 8,
+						// // "" + letter, Color.black));
+						//
 						// }
 
-						seq = buf.toString();
-
-						// seq = (String)read.values.get(Content.QUALITY);
-
-					}
-
-					if (rect.width < seq.length()) {
-						drawables.add(new RectDrawable(rect, c, null));
-
-					} else { // Enough space to show the actual sequence
-
-						// Draw arrow
-						if (read.values.get(ColumnType.STRAND) == Strand.REVERSED) {
-							drawables.addAll(getArrowDrawables(rect.x, rect.y, -rect.height, rect.height));
-						} else {
-							drawables.addAll(getArrowDrawables(rect.x + rect.width, rect.y, rect.height, rect.height));
+						Color bg = Color.white;
+						if (letter == 'A') {
+							bg = charColors[0];
+						} else if (letter == 'C') {
+							bg = charColors[1];
+						} else if (letter == 'G') {
+							bg = charColors[2];
+						} else if (letter == 'T') {
+							bg = charColors[3];
 						}
 
-						final int CHAR_WIDTH = 7;
+						drawables.add(new RectDrawable((int) x + 1, rect.y,
+								(int) increment, height, bg, null));
 
-						float x = rect.x;
-						float increment = (rect.width) / ((float) seq.length());
-
-						for (int j = 0; j < seq.length(); j++) {
-
-							char letter = seq.charAt(j);
-
-							if (rect.width > seq.length() * CHAR_WIDTH) {
-
-								drawables.add(new TextDrawable((int) x + 1, rect.y + 10, "" + letter, fontColor));
-
-								// drawables.add(new TextDrawable((int)x, rect.y - 8,
-								// "" + letter, Color.black));
-
-							}
-
-							Color bg = Color.white;
-							if (letter == 'A') {
-								bg = charColors[0];
-							} else if (letter == 'C') {
-								bg = charColors[1];
-							} else if (letter == 'G') {
-								bg = charColors[2];
-							} else if (letter == 'T') {
-								bg = charColors[3];
-							}
-
-							drawables.add(new RectDrawable((int) x + 1, rect.y, (int) increment, 10, bg, null));
-
-							x += increment;
-						}
+						x += increment;
 					}
 				}
 			}
@@ -212,33 +188,15 @@ public class SeqBlockTrack extends Track {
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
 
-//		 if (areaResult.content instanceof List) {
-//			List<List<Object>> reads = (List<List<Object>>) areaResult.content;
-//
-//			for (List<Object> obj : reads) {
-//
-//				// TODO make separate track for database genes and read and remove this hack
-//				long start = (Long) obj.get(areaResult.fileDef.indexOf(Content.BP_START));
-//				long end;
-//				if (areaResult.fileDef.indexOf(Content.BP_END) >= 0) {
-//					end = (Long) obj.get(areaResult.fileDef.indexOf(Content.BP_END));
-//				} else {
-//					end = start + ((String) obj.get(areaResult.fileDef.indexOf(Content.SEQUENCE))).length();
-//				}
-//
-//				Region reg = new Region(start, end);
-//
-//				this.reads.add(new RegionValue<Float>(reg, 100f));
-//			}
-//
-//		} else
-
-		if (areaResult.status.concise == isConcised() && areaResult.content.values.get(ColumnType.STRAND) == getStrand()) {
+		// check that areaResult has same concised status (currently always false)
+		// and correct strand
+		if (areaResult.status.concise == isConcised()
+				&& areaResult.content.values.get(ColumnType.STRAND) == getStrand()) {
+			
+			// add this to queue of RegionContents to be processed
 			this.reads.add(areaResult.content);
 			getView().redraw();
 		}
-
-//		 this.reads.addAll(result.collection);
 	}
 
 	@Override
@@ -253,9 +211,13 @@ public class SeqBlockTrack extends Track {
 
 	@Override
 	public int getMaxHeight() {
-		if (getView().getBpRegion().getLength() > minBpLength && getView().getBpRegion().getLength() <= maxBpLength) {
+
+		// the track is hidden if outside given bp length boundaries
+		if (getView().getBpRegion().getLength() > minBpLength
+				&& getView().getBpRegion().getLength() <= maxBpLength) {
 
 			return super.getMaxHeight();
+			
 		} else {
 			return 0;
 		}
@@ -263,11 +225,12 @@ public class SeqBlockTrack extends Track {
 
 	@Override
 	public Collection<ColumnType> getDefaultContents() {
-		return Arrays.asList(new ColumnType[] { ColumnType.SEQUENCE, ColumnType.STRAND, ColumnType.QUALITY });
+		return Arrays.asList(new ColumnType[] { ColumnType.SEQUENCE,
+				ColumnType.STRAND, ColumnType.QUALITY });
 	}
 
 	@Override
 	public boolean isConcised() {
-		return getView().getBpRegion().getLength() > 1 * 1024 * 1024;
+		return false;
 	}
 }

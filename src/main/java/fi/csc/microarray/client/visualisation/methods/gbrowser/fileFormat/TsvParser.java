@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.PatternSyntaxException;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
@@ -39,9 +40,10 @@ public abstract class TsvParser extends FileParser {
 		public BpCoordRegion getBpRegion(String chunk) {
 			Long start = (Long)get(getFirstRow(chunk), ColumnType.BP_START);
 			Long end = (Long)get(getLastRow(chunk), ColumnType.BP_START);
-			Chromosome chr = (Chromosome)get(getFirstRow(chunk), ColumnType.CHROMOSOME);
+			Chromosome startChr = (Chromosome)get(getFirstRow(chunk), ColumnType.CHROMOSOME);
+			Chromosome endChr = (Chromosome)get(getLastRow(chunk), ColumnType.CHROMOSOME);
 			
-			return new BpCoordRegion(start, end, chr);
+			return new BpCoordRegion(start, startChr, end, endChr);
 		}
 		
 		
