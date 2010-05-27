@@ -4,6 +4,8 @@
 # INPUT results.tsv: "Results data file" TYPE GENERIC
 # OUTPUT motif-analysis-summary.txt: "A lot of analysis information collected in one single file"
 # OUTPUT logo-plot-[...].png: "Logo plots for each consensus motif"
+# PARAMETER p.value.cutoff: "P-value cutoff" TYPE DECIMAL 0 TO 1 DEFAULT 0.0002 (This parameter controls the false positive rate when searching for consensus sequence motifs. Lower the value for increased stringency.)
+# PARAMETER e.value.cutoff: "E-value cutoff" TYPE DECIMAL 0 TO 100 DEFAULT 0.01 (This parameter controls the alignment stringency, where a lower value means better alignment.)
 # PARAMETER genome: "Genome" TYPE [BSgenome.Hsapiens.UCSC.hg17, BSgenome.Hsapiens.UCSC.hg18, BSgenome.Hsapiens.UCSC.hg19, BSgenome.Mmusculus.UCSC.mm8, BSgenome.Mmusculus.UCSC.mm9, BSgenome.Rnorvegicus.UCSC.rn4] DEFAULT BSgenome.Hsapiens.UCSC.hg18 (The genome and version used when aligning the sequences.)
 
 # OUTPUT consensus-motifs.txt: "List of weight matrices for the consensus sequences"
@@ -26,7 +28,7 @@
 # Load the required libraries
 library(MotIV)
 library(rGADEM)
-library(genome)
+library(package=genome, character.only=TRUE)
 
 # Covert genome name to fit requirements from rGADEM package
 if (genome == "BSgenome.Hsapiens.UCSC.hg17" | genome == "BSgenome.Hsapiens.UCSC.hg18" | genome == "BSgenome.Hsapiens.UCSC.hg19") {
@@ -48,13 +50,31 @@ results_bed[,1] <- paste("chr",results_bed[,1], sep="")
 results_ranged <- IRanges(start=results_bed[,2], end=results_bed[,3])
 results_sequences <- RangedData(results_ranged, space=results_bed[,1])
 
-# Perform unseeded GADEM analysis with default values
-results_gadem <- GADEM(
-		results_sequences,
-		verbose=1,
-		genome=genome,
-		pValue=0.0002,
-		eValue=0.0)
+# Perform unseeded GADEM analysis with default values for specific genome
+if (genome == "BSgenome.Hsapiens.UCSC.hg17" | genome == "BSgenome.Hsapiens.UCSC.hg18" | genome == "BSgenome.Hsapiens.UCSC.hg19") {
+	results_gadem <- GADEM(
+			results_sequences,
+			verbose=1,
+			genome=Hsapiens,
+			pValue=p.value.cutoff,
+			eValue=e.value.cutoff)
+}
+if (genome == "BSgenome.Mmusculus.UCSC.mm8" | genome == "BSgenome.Mmusculus.UCSC.mm9") {
+	results_gadem <- GADEM(
+			results_sequences,
+			verbose=1,
+			genome=Mmusculus,
+			pValue=p.value.cutoff,
+			eValue=e.value.cutoff)
+}
+if (genome == "BSgenome.Rnorvegicus.UCSC.rn4") {
+	results_gadem <- GADEM(
+			results_sequences,
+			verbose=1,
+			genome=Rnorvegicus,
+			pValue=p.value.cutoff,
+			eValue=e.value.cutoff)
+}
 
 # Read in Jaspar database
 # path_jaspar <- system.file(package="rGADEM")
@@ -69,7 +89,7 @@ results_gadem <- GADEM(
 results_motifs <- viewPWM(results_gadem)
 
 # Find out how many consensus motifs were discovered
-number_motifs <- length(result_motifs)
+number_motifs <- length(results_motifs)
 
 # Find our how many occurrences of each motif
 number_occurrences <- nOccurrences (results_gadem)
@@ -82,7 +102,7 @@ names <- character (number_motifs)
 for (count in 1:number_motifs) {
 	names [count] <- paste("motif", count, sep=" ")
 }
-names (motifs_unseeded) <- names
+names (results_motifs) <- names
 
 # Perform a MotIV analysis of alignment with TF:s from JASPAR, only the top 10 matches for each motif are collected
 results_alignment <- motifMatch(
@@ -94,10 +114,10 @@ results_alignment <- motifMatch(
 		top=10)
 
 # Get a list of the TF that matched any of the motifs
-matching_tf_list <- viewMotifs (results_alignemt)
+matching_tf_list <- viewMotifs (results_alignment)
 
 # Get a summary of the results and settings
-results_summary <- summary (results_alignemnt)
+results_summary <- summary (results_alignment)
 
 # Write out a results summary file
 # print out a summary of the results
@@ -112,7 +132,7 @@ sink(file="analysis-summary.txt")
 	consensus_sequences
 	print("", quote=FALSE)
 	print("", quote=FALSE)
-	print ("Number of occurrences of each consensus among motifs", quote=FALSE)
+	print ("Number of occurrences of consensus sequence for each motif", quote=FALSE)
 	print("", quote=FALSE)
 	number_occurrences
 	print("", quote=FALSE)
@@ -126,7 +146,8 @@ sink()
 for (count in 1:number_motifs) {
 	file_name <- paste("logo-plot-",count,".png", sep="")
 	png(width=1000, height=1000, file=file_name)
-	plot_name <- consensus(macs_gadem_short) [count]
-	plot (motif_analysis[count], top=10, main=paste("Top ten TF matches for motif\n", plot_name, sep=""))
+	plot_name <- consensus(results_gadem) [count]
+	plot (results_alignment[count], top=10, main=paste("Top ten TF matches for motif\n", plot_name, sep=""))
 	dev.off()
 }
+
