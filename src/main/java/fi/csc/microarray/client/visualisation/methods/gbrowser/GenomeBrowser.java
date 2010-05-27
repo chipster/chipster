@@ -43,7 +43,6 @@ import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Row;
-import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -165,7 +164,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	private GridBagConstraints settingsGridBagConstraints;
 	private List<Row> contents;
 
-	private String localAnnotationPath;
+	private File localAnnotationPath;
 
 	private URL annotationUrl;
 
@@ -335,14 +334,13 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		
 		try {
 			// parse what annotations we have available
-			Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
-    		String configuredLocalPath = configuration.getString("client", "local-annotation-path");
-			if (configuredLocalPath.trim().isEmpty()) {
+			File localAnnotationDir = DirectoryLayout.getInstance().getLocalAnnotationDir();
+			if (!localAnnotationDir.exists()) {
 				this.localAnnotationPath = null;
 				this.annotationUrl = fetchAnnotationUrl();
 				contentsStream = new URL(annotationUrl + "/" + CONTENTS_FILE).openStream();
 			} else {
-				this.localAnnotationPath = configuredLocalPath;
+				this.localAnnotationPath = localAnnotationDir;
 				this.annotationUrl = null;
 				contentsStream = new FileInputStream(localAnnotationPath + File.separator + CONTENTS_FILE);
 			}
@@ -488,7 +486,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			// initialise the plot
 			plot.addDataRegionListener(this);
 			plot.start((String)chrBox.getSelectedItem(), (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
-			
+			plot.moveDataBpRegion(100000L, 100000L);
+
 			// wrap it in a panel
 			ChartPanel chartPanel =  new NonScalableChartPanel(new JFreeChart(plot));
 			plot.chartPanel = chartPanel;
@@ -518,7 +517,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		if (this.annotationUrl != null) {
 			return new DataSource(this.annotationUrl, file);
 		} else {
-			return new DataSource(new File(this.localAnnotationPath), file);
+			return new DataSource(this.localAnnotationPath, file);
 		}
 	}
 

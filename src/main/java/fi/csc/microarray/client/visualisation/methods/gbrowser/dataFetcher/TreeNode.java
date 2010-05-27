@@ -23,8 +23,6 @@ public class TreeNode {
 
 	private int depth;
 
-	private boolean requestDistributor;
-
 	private ByteRegion unExactByteRegion;
 	private boolean isLeaf;
 
@@ -96,17 +94,27 @@ public class TreeNode {
 				// recurse down
 
 				try {
+					// limit search tree splitting to certain depth
+//					boolean dontSplit = areaRequest.depthToGo <= 0;
+//					boolean alreadySplit = false;
+					
+					// recurse to left
 					if (areaRequest.start.compareTo(right.nodeBpStart) < 0) {
-
-						left.processAreaRequest(areaRequest.clone());
-						requestDistributor = !requestDistributor;
+						AreaRequest clone = areaRequest.clone();
+						clone.depthToGo--;
+						left.processAreaRequest(clone);
+//						alreadySplit = true;
 					}
 
+					// recurse to right
 					if (areaRequest.end.compareTo(right.nodeBpStart) > 0) {
-
-						right.processAreaRequest(areaRequest.clone());
-						requestDistributor = !requestDistributor;
+//						if (!(dontSplit && alreadySplit)) {
+							AreaRequest clone = areaRequest.clone();
+							clone.depthToGo--;
+							right.processAreaRequest(clone);
+//						}
 					}
+					
 				} catch (CloneNotSupportedException e) {
 					throw new RuntimeException(e);
 				}
