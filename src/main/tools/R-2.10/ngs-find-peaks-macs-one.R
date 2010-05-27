@@ -1,4 +1,4 @@
-# TOOL "Statistics" / ngs-find-peaks-macs-two.R: "Find peaks using MACS, treatment only" (This tool will search for statistically significantly enriched
+# TOOL "Statistics" / ngs-find-peaks-macs-one.R: "Find peaks using MACS, treatment only" (This tool will search for statistically significantly enriched
 # genomic regions in sequencing data from a ChIP-seq experiment. The analysis is performed on one or more treatment
 # samples alone, without taking into account control control samples.)
 # INPUT treatment.txt: "Treatment data file" TYPE GENERIC
