@@ -221,8 +221,11 @@ public class TsvSorter {
 	}
 	
 	public static void main(String[] args) throws Exception {
+		
+		String filename = "/home/akallio/Desktop/cisREDgroup_contents_for_40193-STAT1_trimmed.tsv";
+		String resultFilename = filename + ".sorted";
 		FileDefinition def = new HeaderTsvParser().getFileDefinition();
-		new TsvSorter().sort(new File("/home/akallio/chipster-share/ngs/STAT1/positive_peaks.tsv"), new File("/home/akallio/chipster-share/ngs/STAT1/positive_peaks_sorted.tsv"), def.indexOf(ColumnType.CHROMOSOME), def.indexOf(ColumnType.BP_START));
+		new TsvSorter().sort(new File(filename), new File(resultFilename), def.indexOf(ColumnType.CHROMOSOME), def.indexOf(ColumnType.BP_START));
 
 		//		FileDefinition def = new BEDParser().getFileDefinition();
 //		new TsvSorter().sort(new File("/home/akallio/Desktop/STAT1/STAT1_peaks.bed"), new File("/home/akallio/Desktop/STAT1/STAT1_peaks_sorted.bed"), def.indexOf(ColumnType.CHROMOSOME), def.indexOf(ColumnType.BP_START));
