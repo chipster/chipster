@@ -217,7 +217,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 				if (row.content.contains("Genes")) {
 					type = TrackType.GENES;					
 				} else if (row.content.contains("Transcripts")) {
-					type = TrackType.TRANSCRIPTS;
+					continue; // track not directly supported, skip
 				} else if (row.content.contains("Cytobands")) {
 					type = TrackType.CYTOBANDS;
 				} else if (row.content.contains("Reference")) {
@@ -454,13 +454,13 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 						TrackFactory.addCytobandTracks(plot, createAnnotationDataSource("Homo_sapiens.GRCh37.57_karyotype.tsv")); // using always the
 						break;
 					case GENES:
-						TrackFactory.addGeneTracks(plot, createAnnotationDataSource("Homo_sapiens." + genome + "_genes.tsv"));
+						TrackFactory.addGeneTracks(plot, createAnnotationDataSource("Homo_sapiens." + genome + "_genes.tsv"), createAnnotationDataSource("Homo_sapiens." + genome + "_transcripts.tsv"));
 						break;
 					case REFERENCE:
 						// integrated into peaks
 						break;
 					case TRANSCRIPTS:
-						TrackFactory.addTranscriptTracks(plot, createAnnotationDataSource("Homo_sapiens." + genome + "_transcripts.tsv"));
+						// integrated into genes
 						break;
 					case PEAKS:
 						TrackFactory.addPeakTrack(plot, new DataSource(file));

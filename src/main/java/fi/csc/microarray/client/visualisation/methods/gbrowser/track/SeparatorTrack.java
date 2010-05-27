@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.Arrays;
 import java.util.Collection;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
@@ -12,14 +13,25 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 
 public class SeparatorTrack extends Track {
 
-	public SeparatorTrack(View view) {
+	private Color color;
+	private int thickness;
+	
+	public SeparatorTrack(View view, Color color, int thickness) {
 		super(view, null);
+		this.color = color;
+		this.thickness = thickness;
+	}
+
+	public SeparatorTrack(View view) {
+		this(view, Color.gray, 1);
 	}
 
 	@Override
 	public Collection<Drawable> getDrawables() {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
-		drawables.add(new LineDrawable(0, 1, getView().getWidth(), 1, Color.gray));
+		for (int i = 0; i < thickness; i++) {
+			drawables.add(new LineDrawable(0, 1+i, getView().getWidth(), 1+i, color));
+		}
 
 		return drawables;
 	}
