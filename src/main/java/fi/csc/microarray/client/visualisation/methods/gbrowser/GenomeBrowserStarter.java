@@ -47,7 +47,7 @@ public class GenomeBrowserStarter {
 		);
 		
 		TrackFactory.addRulerTrack(plot);
-		plot.start("Y", 1024 * 1024 * 250d);
+		plot.start("21", 1024 * 1024 * 250d);
 		plot.moveDataBpRegion(10000L, 10000L);
 		
 		ChartPanel panel = new ChartPanel(new JFreeChart(plot));
