@@ -7,13 +7,13 @@
 # OUTPUT OPTIONAL model-plot.png: "A plot of the fitted peak model"
 # OUTPUT OPTIONAL negative-peaks.tsv: "The false enriched peaks"
 # OUTPUT analysis-log.txt: "Summary of analysis settings and run"
-# PARAMETER file.format: "The format of the sequence files" TYPE [ELAND, SAM, BAM, BED] DEFAULT ELAND (The format of the input files.)
+# PARAMETER file.format: "File format" TYPE [ELAND, SAM, BAM, BED] DEFAULT ELAND (The format of the input files.)
 # PARAMETER produce.wiggle: "Produce wiggle" TYPE [yes, no] DEFAULT no (Determines if WIGGLE type files should be output or not. By default this option is turned off due to the significantly longer run times it causes. However, for displaying p-values in one track of the Genome Browser, this paramter should be set to indicate the chromosome for which to produce the wiggle file.)
-# PARAMETER species: "Species" TYPE [human, mouse, rat] DEFAULT human (the species of the samples.)
+# PARAMETER species: "Genome" TYPE [human, mouse, rat] DEFAULT human (the species of the samples.)
 # PARAMETER read.length: "Read length" TYPE INTEGER FROM 1 TO 200 DEFAULT 25 (The length in nucleotides of the sequence reads)
-# PARAMETER band.with: "Band with" TYPE INTEGER FROM 1 TO 1000 DEFAULT 200 (The scanning window size, typically half the average fragment size of the DNA)
-# PARAMETER p.value.threshold: "P-value threshold" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.00001 (The cutoff for statistical significance. Since the p-values are not adjusted to account for multiple testing correction the cutoff needs to be substantially more conservative than what is usually applied.)
-# PARAMETER build.model: "Build peak model" TYPE [yes, no] DEFAULT yes (If enabled, a peak model is built from the data. Disabling model building means the shiftsize has to be guessed. In Chipster the shift size is set to half the band with.)
+# PARAMETER band.with: "Band width" TYPE INTEGER FROM 1 TO 1000 DEFAULT 200 (The scanning window size, typically half the average fragment size of the DNA)
+# PARAMETER p.value.threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.00001 (The cutoff for statistical significance. Since the p-values are not adjusted to account for multiple testing correction the cutoff needs to be substantially more conservative than what is usually applied.)
+# PARAMETER build.model: "Peak model" TYPE [yes, no] DEFAULT yes (If enabled, a peak model is built from the data. Disabling model building means the shiftsize has to be guessed. In Chipster the shift size is set to half the band with.)
 # PARAMETER m.fold: "M-fold cutoff" TYPE INTEGER FROM 1 TO 100 DEFAULT 32 (Sets the cutoff used to determine peak regions for model building. A too high value may result in not enough peaks being identified for building the model. Notice that if the peak model is disabled this parameter has no effect.)
 # PARAMETER adjust.mfold: "Adjust m-fold" TYPE [yes, no] DEFAULT yes (Enabling this option, when building peak model is selected, the m-fold cutoff is automatically adjusted down in case the user-selected value is to stringent for finding peaks for modeling.)
 
