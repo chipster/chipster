@@ -24,6 +24,10 @@ public class BpCoordRegion implements Comparable<BpCoordRegion> {
 		this(null, null);
 	}
 
+	public BpCoordRegion(BpCoordRegion bpRegion) {
+		this(new BpCoord(bpRegion.start), new BpCoord(bpRegion.end));
+	}
+
 	public Long getLength() {
 		return end.minus(start);
 	}

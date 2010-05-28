@@ -17,6 +17,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FilePa
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
 
@@ -61,8 +62,16 @@ public abstract class Track implements AreaResultListener {
 			status.concise = isConcised();
 
 			Collection<ColumnType> defCont = getDefaultContents();
+			
+			BpCoordRegion requestRegion = new BpCoordRegion(view.getBpRegion());
+			requestRegion.start.bp -= 1000;
+			requestRegion.end.bp += 1000;
+			
+			if (requestRegion.start.bp < 0) {
+				requestRegion.start.bp = 0l;
+			}
 
-			view.getQueueManager().addAreaRequest(file, new AreaRequest(view.getBpRegion(), defCont, status), true);
+			view.getQueueManager().addAreaRequest(file, new AreaRequest(requestRegion, defCont, status), true);
 		}
 	}
 
