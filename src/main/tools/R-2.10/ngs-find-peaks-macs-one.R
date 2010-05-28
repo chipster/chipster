@@ -306,7 +306,7 @@ parseMACSResultsPOS <- function(name, final=FALSE){
 		## Choose columns
 	#	output <- output[c("chr","start","end","fold_enrichment", "X.10.log10.pvalue.","tags","summit")]
 		## Fix colnames
-		colnames(output)[5] <- "neg10xlog10pvalue"
+		colnames(output)[7] <- "neg10xlog10pvalue"
 		## Sort the result according to the -10xlog10(pvalue)
 		output <- output[ order(output[,5], decreasing=TRUE), ]
 		return(output)
@@ -320,7 +320,7 @@ parseMACSResultsNEG <- function(name, final=FALSE){
 		## Choose columns
 	#	output <- output[c("chr","start","end","fold_enrichment", "X.10.log10.pvalue.","tags","summit")]
 		## Fix colnames
-		colnames(output)[5] <- "neg10xlog10pvalue"
+		colnames(output)[7] <- "neg10xlog10pvalue"
 		## Sort the result according to the -10xlog10(pvalue)
 		output <- output[ order(output[,5], decreasing=TRUE), ]
 		return(output)
