@@ -457,9 +457,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			this.plot = new GenomePlot(true);
 
 			// add selected tracks
-			LinkedList<DataSource> treatments = new LinkedList<DataSource>();
-			LinkedList<DataSource> controls = new LinkedList<DataSource>();
-			
 			for (Track track : tracks) {
 				if (track.checkBox.isSelected()) {
 					File file = track.userData == null ? null : Session.getSession().getDataManager().getLocalFile(track.userData);
@@ -484,19 +481,15 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 						TrackFactory.addHeaderPeakTrack(plot, new DataSource(file));
 						break;
 					case TREATMENT_READS:
-						treatments.add(new DataSource(file));
+						TrackFactory.addReadTracks(plot, new DataSource(file), createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv"), true);
 						break;
 					case CONTROL_READS:
-						controls.add(new DataSource(file));
+						TrackFactory.addReadTracks(plot, new DataSource(file), createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv"), false);
 						break;
 					}
 				}
 			}
 
-			if (!treatments.isEmpty() || !controls.isEmpty()) {
-				TrackFactory.addThickSeparatorTrack(plot);
-				TrackFactory.addReadTracks(plot, treatments, controls, createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv"));
-			}
 			TrackFactory.addRulerTrack(plot);
 
 			// fill in initial positions if not filled in
