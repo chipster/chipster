@@ -77,11 +77,11 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 		dataView.setBpRegion(new BpCoordRegionDouble(0d, chromosomeSizeBp, new Chromosome(chromosome)), false);
 	}
 
-	public void moveDataBpRegion(Long moveTo) {
+	public void moveDataBpRegion(Long moveTo, Long length) {
 		
 		BpCoordRegionDouble bpCoordRegion = new BpCoordRegionDouble(
-				new Double(moveTo - (dataView.getBpRegion().getLength()/2)),
-				new Double(moveTo + (dataView.getBpRegion().getLength()/2)), 
+				new Double(moveTo - (length/2)),
+				new Double(moveTo + (length/2)), 
 				dataView.getBpRegion().start.chr
 		);
 		dataView.setBpRegion(bpCoordRegion, false);

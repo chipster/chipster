@@ -6,13 +6,17 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 
 public class AreaRequest extends BpCoordRegion {
 
+	private static int MAX_RECURSION_DEPTH = 2;
+	
 	public FsfStatus status;
 	public Collection<ColumnType> requestedContents;
+	public int depthToGo;
 
 	public AreaRequest(BpCoordRegion region, Collection<ColumnType> requestedContents, FsfStatus status) {
 		super(region.start, region.end);
 		this.requestedContents = requestedContents;
 		this.status = status;
+		this.depthToGo = MAX_RECURSION_DEPTH;
 	}
 	
 	@Override

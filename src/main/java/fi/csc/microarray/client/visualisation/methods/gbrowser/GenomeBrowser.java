@@ -6,9 +6,14 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -23,8 +28,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
@@ -40,6 +43,7 @@ import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Row;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
@@ -51,7 +55,7 @@ import fi.csc.microarray.util.IOUtils;
 /**
  * @author Petri Klemelä, Aleksi Kallio
  */
-public class GenomeBrowser extends Visualisation implements ActionListener, RegionListener, DocumentListener {
+public class GenomeBrowser extends Visualisation implements ActionListener, RegionListener, FocusListener {
 
 	private static final String[] CHROMOSOMES = new String[] {
 		"1",
@@ -113,7 +117,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	final static String PLOTPANEL = "plotpanel";
 
 	private static enum TrackType {
-		CYTOBANDS, GENES, TRANSCRIPTS, TREATMENT_READS, CONTROL_READS, PEAKS, REFERENCE
+		CYTOBANDS, GENES, TRANSCRIPTS, TREATMENT_READS, CONTROL_READS, PEAKS, REFERENCE, PEAKS_WITH_HEADER
 	}
 
 	private static class Track {
@@ -146,18 +150,25 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	private JPanel settingsPanel = new JPanel();
 	private JPanel plotPanel = new JPanel(new CardLayout());
 
+	private JButton gotoButton = new JButton("Go to location");
 	private JButton drawButton = new JButton("Draw");
 
 	private JTextField megaLocation = new JTextField(4);
 	private JTextField kiloLocation = new JTextField(4);
 	private JTextField unitLocation = new JTextField(4);
+	private JTextField zoomField = new JTextField(10);
 	private JComboBox chrBox = new JComboBox();
 	private JComboBox genomeBox = new JComboBox();
 	// private JRadioButton horizView;
 	// private JRadioButton circularView;
-	private boolean locationEventsEnabled = true;
 	private GridBagConstraints settingsGridBagConstraints;
 	private List<Row> contents;
+
+	private File localAnnotationPath;
+
+	private URL annotationUrl;
+
+
 
 	public GenomeBrowser(VisualisationFrame frame) {
 		super(frame);
@@ -206,7 +217,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 				if (row.content.contains("Genes")) {
 					type = TrackType.GENES;					
 				} else if (row.content.contains("Transcripts")) {
-					type = TrackType.TRANSCRIPTS;
+					continue; // track not directly supported, skip
 				} else if (row.content.contains("Cytobands")) {
 					type = TrackType.CYTOBANDS;
 				} else if (row.content.contains("Reference")) {
@@ -273,8 +284,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 					super.insertString(offs, str, a);
 				}
 			};			
-			fieldContents.addDocumentListener(this);
 			field.setDocument(fieldContents);
+			field.addFocusListener(this);
 		}
 
 		settingsPanel.add(new JLabel("Location"), c);
@@ -303,13 +314,37 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		settingsPanel.add(unitLocation, c);
 
 		c.gridx = 0;
-		c.gridwidth = 5;
+		c.gridwidth = 5;		
+		c.gridy++;
 		c.insets.set(5, 10, 5, 10);
+		settingsPanel.add(new JLabel("Zoom"), c);
+		c.gridwidth = 4;		
+		c.gridy++;
+		settingsPanel.add(this.zoomField , c);
+		this.zoomField.addFocusListener(this);
+		
+		c.gridx = 0;
+		c.gridwidth = 5;		
+		c.gridy++;
+		settingsPanel.add(gotoButton , c);
+		gotoButton.addActionListener(this);
+		gotoButton.setEnabled(false);
+
 		InputStream contentsStream = null;
 		
 		try {
 			// parse what annotations we have available
-			contentsStream = new URL(fetchAnnotationUrl() + "/" + CONTENTS_FILE).openStream();
+			File localAnnotationDir = DirectoryLayout.getInstance().getLocalAnnotationDir();
+			if (!localAnnotationDir.exists()) {
+				this.localAnnotationPath = null;
+				this.annotationUrl = fetchAnnotationUrl();
+				contentsStream = new URL(annotationUrl + "/" + CONTENTS_FILE).openStream();
+			} else {
+				this.localAnnotationPath = localAnnotationDir;
+				this.annotationUrl = null;
+				contentsStream = new FileInputStream(localAnnotationPath + File.separator + CONTENTS_FILE);
+			}
+			
 			AnnotationContents annotationContentFile = new AnnotationContents();
 			annotationContentFile.parseFrom(contentsStream);
 			this.contents = annotationContentFile.getRows();
@@ -376,6 +411,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 
 		if (source == drawButton) {
 			showVisualisation();
+		} else if (source == gotoButton) {
+			gotoButton.setEnabled(false);
+			locationChanged();
 		}
 	}
 
@@ -400,36 +438,35 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	private void showVisualisation() {
 
 		try {
-			// fetch remote annotation data
-			URL annotationUrl = fetchAnnotationUrl();
-			String genome = (String) genomeBox.getSelectedItem();
-
 			// create the plot
+			String genome = (String) genomeBox.getSelectedItem();
 			this.plot = new GenomePlot(true);
 
 			// add selected tracks
 			LinkedList<DataSource> treatments = new LinkedList<DataSource>();
 			LinkedList<DataSource> controls = new LinkedList<DataSource>();
-			LinkedList<DataSource> peaks = new LinkedList<DataSource>();
 			
 			for (Track track : tracks) {
 				if (track.checkBox.isSelected()) {
 					File file = track.userData == null ? null : Session.getSession().getDataManager().getLocalFile(track.userData);
 					switch (track.type) {
 					case CYTOBANDS:
-						TrackFactory.addCytobandTracks(plot, new DataSource(annotationUrl, "Homo_sapiens.GRCh37.57_karyotype.tsv")); // using always the
+						TrackFactory.addCytobandTracks(plot, createAnnotationDataSource("Homo_sapiens.GRCh37.57_karyotype.tsv")); // using always the
 						break;
 					case GENES:
-						TrackFactory.addGeneTracks(plot, new DataSource(annotationUrl, "Homo_sapiens." + genome + "_genes.tsv"));
+						TrackFactory.addGeneTracks(plot, createAnnotationDataSource("Homo_sapiens." + genome + "_genes.tsv"), createAnnotationDataSource("Homo_sapiens." + genome + "_transcripts.tsv"));
 						break;
 					case REFERENCE:
 						// integrated into peaks
 						break;
 					case TRANSCRIPTS:
-						TrackFactory.addTranscriptTracks(plot, new DataSource(annotationUrl, "Homo_sapiens." + genome + "_transcripts.tsv"));
+						// integrated into genes
 						break;
 					case PEAKS:
-						peaks.add(new DataSource(file));
+						TrackFactory.addPeakTrack(plot, new DataSource(file));
+						break;
+					case PEAKS_WITH_HEADER:
+						TrackFactory.addHeaderPeakTrack(plot, new DataSource(file));
 						break;
 					case TREATMENT_READS:
 						treatments.add(new DataSource(file));
@@ -441,19 +478,16 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 				}
 			}
 
-			// add user tracks and ruler
-			if (!peaks.isEmpty()) {
-				TrackFactory.addPeakTracks(plot, peaks);
-			}
 			if (!treatments.isEmpty() || !controls.isEmpty()) {
-				TrackFactory.addReadTracks(plot, treatments, controls, new DataSource(annotationUrl, "Homo_sapiens." + genome + "_seq.tsv"));
+				TrackFactory.addReadTracks(plot, treatments, controls, createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv"));
 			}
 			TrackFactory.addRulerTrack(plot);
 
 			// initialise the plot
 			plot.addDataRegionListener(this);
 			plot.start((String)chrBox.getSelectedItem(), (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
-			
+			plot.moveDataBpRegion(100000L, 100000L);
+
 			// wrap it in a panel
 			ChartPanel chartPanel =  new NonScalableChartPanel(new JFreeChart(plot));
 			plot.chartPanel = chartPanel;
@@ -476,6 +510,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			
 		} catch (Exception e) {
 			application.reportException(e);
+		}
+	}
+
+	private DataSource createAnnotationDataSource(String file) throws FileNotFoundException, MalformedURLException {
+		if (this.annotationUrl != null) {
+			return new DataSource(this.annotationUrl, file);
+		} else {
+			return new DataSource(this.localAnnotationPath, file);
 		}
 	}
 
@@ -514,14 +556,11 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	@Override
 	public void regionChanged(BpCoordRegion bpRegion) {
 		long location = bpRegion.getMid();
-		locationEventsEnabled = false;
-		try {
-			megaLocation.setText("" + (location / 1000000));
-			kiloLocation.setText("" + (location % 1000000) / 1000);
-			unitLocation.setText("" + (location % 1000));
-		} finally {
-			locationEventsEnabled = true;
-		}
+		megaLocation.setText("" + (location / 1000000));
+		kiloLocation.setText("" + (location % 1000000) / 1000);
+		unitLocation.setText("" + (location % 1000));
+		zoomField.setText("" + bpRegion.getLength());
+		gotoButton.setEnabled(false);
 	}
 
 	private List<TrackType> interpretUserDatas(List<DataBean> datas) {
@@ -542,6 +581,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 				// peaks
 				interpretations.add(TrackType.PEAKS);
 
+			} else if (data.isContentTypeCompatitible("text/tab")) {
+				// peaks (with header in the file)
+				interpretations.add(TrackType.PEAKS_WITH_HEADER);
+
 			} else {
 				// cannot interpret, visualisation not available for this selection
 				return null;
@@ -561,26 +604,17 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		return true;
 	}
 
-	@Override
-	public void changedUpdate(DocumentEvent e) {
-		locationChanged();		
-		
-	}
-
-	@Override
-	public void insertUpdate(DocumentEvent e) {
-		locationChanged();		
-		
-	}
-
-	@Override
-	public void removeUpdate(DocumentEvent e) {
-		locationChanged();		
-	}
-	
 	private void locationChanged() {
-		if (locationEventsEnabled ) {
-			plot.moveDataBpRegion(Long.parseLong(megaLocation.getText()) * 1000000 + Long.parseLong(kiloLocation.getText()) * 1000 + Long.parseLong(unitLocation.getText()));
-		}
+		plot.moveDataBpRegion(Long.parseLong(megaLocation.getText()) * 1000000 + Long.parseLong(kiloLocation.getText()) * 1000 + Long.parseLong(unitLocation.getText()), Long.parseLong(zoomField.getText()));
+	}
+
+	@Override
+	public void focusGained(FocusEvent e) {
+		gotoButton.setEnabled(true);		
+	}
+
+	@Override
+	public void focusLost(FocusEvent e) {
+		// skip		
 	}
 }

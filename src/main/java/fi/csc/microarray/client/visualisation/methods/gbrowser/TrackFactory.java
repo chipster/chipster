@@ -10,7 +10,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDPar
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.PeakParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.HeaderTsvParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SequenceParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
@@ -30,24 +30,59 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptT
 
 public class TrackFactory {
 	
-	public static void addGeneTracks(GenomePlot genomePlot, DataSource annotationFile) {
+	public static void addGeneTracks(GenomePlot genomePlot, DataSource geneAnnotationFile, DataSource transcriptAnnotationFile) {
 
-		// initialise data source file
+		// initialise data source files
 		GeneParser geneParser = new GeneParser();
+		TranscriptParser transcriptParser = new TranscriptParser();
+		View dataView = genomePlot.getDataView();
 		
-		// add tracks for both strands
+		// Gene, overview, forward 
+		IntensityTrack annotationOverview = new IntensityTrack(genomePlot.getDataView(), geneAnnotationFile, TreeThread.class, geneParser, PartColor.CDS.c, 10000000);
+		annotationOverview.setStrand(Strand.FORWARD);
+		addTrack(dataView, annotationOverview);
+
+		// Gene, detailed, forward
+		GeneTrack annotation = new GeneTrack(genomePlot.getDataView(), geneAnnotationFile, TreeThread.class, geneParser, PartColor.CDS.c, 0, 10000000);
+		annotation.setStrand(Strand.FORWARD);
+		addTrack(dataView, annotation);
+		
+		// Add Transcript tracks for both strands
 		for (Strand strand : Strand.values()) {
 
-			// overview
-			IntensityTrack annotationOverviewReversed = new IntensityTrack(genomePlot.getDataView(), annotationFile, TreeThread.class, geneParser, PartColor.CDS.c, 10000000);
-			annotationOverviewReversed.setStrand(strand);
-			addTrack(genomePlot.getDataView(), annotationOverviewReversed);
+			// Transcript, overview
+			IntensityTrack transcriptOverview = new IntensityTrack(dataView, transcriptAnnotationFile, TreeThread.class, transcriptParser, PartColor.CDS.c.darker(), 100000);
+			transcriptOverview.setStrand(strand);
+			addTrack(dataView, transcriptOverview);
 
-			// detailed
-			GeneTrack annotationReversed = new GeneTrack(genomePlot.getDataView(), annotationFile, TreeThread.class, geneParser, PartColor.CDS.c, 0, 10000000);
-			annotationReversed.setStrand(strand);
-			addTrack(genomePlot.getDataView(), annotationReversed);
+			// Transcript, detailed
+			TranscriptTrack trancsript = new TranscriptTrack(dataView, transcriptAnnotationFile, TreeThread.class, transcriptParser, Color.DARK_GRAY, 100000);
+			trancsript.setStrand(strand);
+			addTrack(dataView, trancsript);
+
+			if (strand == Strand.FORWARD) {
+				addSeparatorTrack(dataView);
+			}
 		}
+		
+		// Gene, overview, reverse 
+		IntensityTrack annotationOverviewReversed = new IntensityTrack(genomePlot.getDataView(), geneAnnotationFile, TreeThread.class, geneParser, PartColor.CDS.c, 10000000);
+		annotationOverviewReversed.setStrand(Strand.REVERSED);
+		addTrack(dataView, annotationOverviewReversed);
+
+		// Gene, detailed, reverse
+		GeneTrack annotationReversed = new GeneTrack(genomePlot.getDataView(), geneAnnotationFile, TreeThread.class, geneParser, PartColor.CDS.c, 0, 10000000);
+		annotationReversed.setStrand(Strand.REVERSED);
+		addTrack(dataView, annotationReversed);
+	}
+
+
+	private static void addSeparatorTrack(View dataView) {
+		dataView.addTrack(new SeparatorTrack(dataView));
+	}
+
+	static void addThickSeparatorTrack(View dataView) {
+		dataView.addTrack(new SeparatorTrack(dataView, Color.black, 2));
 	}
 
 	
@@ -59,10 +94,18 @@ public class TrackFactory {
 		// forward tracks, iterate over both arrays 
 		for (int i = 0; i < (treatments.size() + controls.size()); i++) {
 
+			//
+			// Initialise
+			// 
+			
 			boolean isTreatment = i < treatments.size();
 			DataSource userData = isTreatment ? treatments.get(i) : controls.get(i-treatments.size());
 			Color histogramColor = isTreatment ? Color.blue : Color.gray;
 			Color fontColor = Color.black;
+						
+			// 
+			// Forward
+			//
 			
 			// Overview
 			IntensityTrack readOverview = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, histogramColor, switchViewsAt);
@@ -72,29 +115,23 @@ public class TrackFactory {
 			SeqBlockTrack reads = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, fontColor, 0, switchViewsAt);
 			addTrack(dataView, reads);
 
-			// separator
-			dataView.addTrack(new SeparatorTrack(dataView));
-		}
+			addSeparatorTrack(dataView);
 
-		
-		// reference sequence
-		if (seqFile != null) {
+			//
 			// Reference sequence
-			SeqTrack seq = new SeqTrack(dataView, seqFile, TreeThread.class, new SequenceParser(), 800);
-			addTrack(dataView, seq);
-		}
-
-		// reverse tracks
-		for (int i = (treatments.size() + controls.size()-1); i >= 0; i--) {
+			//
 			
-			boolean isTreatment = i < treatments.size();
-			DataSource userData = isTreatment ? treatments.get(i) : controls.get(i-treatments.size());
-			Color histogramColor = isTreatment ? Color.blue : Color.gray;
-			Color fontColor = Color.black;
+			if (seqFile != null) {
+				// Reference sequence
+				SeqTrack seq = new SeqTrack(dataView, seqFile, TreeThread.class, new SequenceParser(), 800);
+				addTrack(dataView, seq);
+				addSeparatorTrack(dataView);
+			}
 
-			// separator
-			dataView.addTrack(new SeparatorTrack(dataView));
-
+			//
+			// Reverse
+			//
+			
 			// Overview
 			IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData, TreeThread.class, userDataParser, histogramColor, switchViewsAt);
 			readOverviewReversed.setStrand(Strand.REVERSED);
@@ -113,46 +150,24 @@ public class TrackFactory {
 		addTrack(plot.getDataView(), annotation);
 	}
 	
-	public static void addPeakTracks(GenomePlot plot, List<DataSource> peakSources) {
+	public static void addPeakTrack(GenomePlot plot, DataSource peaks) {
 		BEDParser bedParser = new BEDParser();
 		View dataView = plot.getDataView();
 
-		for (DataSource peaks : peakSources) {
-			PeakTrack annotation = new PeakTrack(dataView, peaks, TreeThread.class, bedParser, Color.YELLOW, 0, Long.MAX_VALUE);
-			addTrack(dataView, annotation);
-		}
+		PeakTrack annotation = new PeakTrack(dataView, peaks, TreeThread.class, bedParser, Color.YELLOW, 0, Long.MAX_VALUE);
+		addTrack(dataView, annotation);
 	}
 
-	public static void addPeakTracks2(GenomePlot plot, List<DataSource> peakSources) {
-		PeakParser peakParser = new PeakParser();
+	public static void addHeaderPeakTrack(GenomePlot plot, DataSource peaks) {
+		HeaderTsvParser headerTsvParser = new HeaderTsvParser();
 		View dataView = plot.getDataView();
 
-		for (DataSource peaks : peakSources) {
-			PeakTrack annotation = new PeakTrack(dataView, peaks, TreeThread.class, peakParser, Color.YELLOW, 0, Long.MAX_VALUE);
-			addTrack(dataView, annotation);
-		}
+		PeakTrack annotation = new PeakTrack(dataView, peaks, TreeThread.class, headerTsvParser, Color.YELLOW, 0, Long.MAX_VALUE);
+		addTrack(dataView, annotation);
 	}
 
-	public static void addTranscriptTracks(GenomePlot plot, DataSource annotationFile) {
-		TranscriptParser geneParser = new TranscriptParser();
-		View dataView = plot.getDataView();
+	public static void addTranscriptTracks(GenomePlot plot, DataSource transcriptAnnotationFile) {
 
-		for (Strand strand : Strand.values()) {
-
-			// Overview
-			IntensityTrack annotationOverview = new IntensityTrack(dataView, annotationFile, TreeThread.class, geneParser, PartColor.CDS.c.darker(), 100000);
-			annotationOverview.setStrand(strand);
-			addTrack(dataView, annotationOverview);
-
-			// Detailed
-			TranscriptTrack annotation = new TranscriptTrack(dataView, annotationFile, TreeThread.class, geneParser, Color.DARK_GRAY, 100000);
-			annotation.setStrand(strand);
-			addTrack(dataView, annotation);
-
-			if (strand == Strand.FORWARD) {
-				dataView.addTrack(new SeparatorTrack(dataView));
-			}
-		}
 	}
 
 	public static void addMirnaTracks(GenomePlot plot, DataSource miRNAFile) {
@@ -167,7 +182,7 @@ public class TrackFactory {
 			track.initializeListener();
 
 			if (strand == Strand.FORWARD) {
-				dataView.addTrack(new SeparatorTrack(dataView));
+				addSeparatorTrack(dataView);
 			}
 		}
 	}
