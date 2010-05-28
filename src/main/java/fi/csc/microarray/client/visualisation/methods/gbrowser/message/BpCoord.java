@@ -12,6 +12,10 @@ public class BpCoord implements Comparable<BpCoord> {
 		this.chr = chr;
 	}
 
+	public BpCoord(BpCoord o) {
+		this(new Long(o.bp), new Chromosome(o.chr));
+	}
+
 	public BpCoord clone() {
 		return new BpCoord(bp, chr);
 	}

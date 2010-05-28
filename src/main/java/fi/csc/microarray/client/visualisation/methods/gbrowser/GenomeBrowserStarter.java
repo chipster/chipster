@@ -16,12 +16,12 @@ import org.jfree.chart.JFreeChart;
 
 public class GenomeBrowserStarter {
 
-	private static final File ELAND_DATA_FILE = new File("/home/klemela/chipster-share/ngs/STAT1/STAT1_treatment_aggregated_filtered_sorted_chr1.txt");
-	private static final File MACS_DATA_FILE = new File("/home/klemela/chipster-share/ngs/STAT1/STAT1_peaks_sorted.bed");
+	private static final File ELAND_DATA_FILE = new File("/Users/admin/Desktop/ngs/STAT1/STAT1_treatment_aggregated_filtered_sorted_chr1.txt");
+	private static final File MACS_DATA_FILE = new File("/Users/admin/Desktop/ngs/STAT1/STAT1_peaks_sorted.bed");
 	private static final File URL_ROOT;
 
 	static {
-			URL_ROOT = new File("/home/klemela/chipster-share/ngs/annotations");
+			URL_ROOT = new File("/Users/admin/Desktop/ngs/annotations");
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -47,7 +47,7 @@ public class GenomeBrowserStarter {
 		);
 		
 		TrackFactory.addRulerTrack(plot);
-		plot.start("21", 1024 * 1024 * 250d);
+		plot.start("1", 1024 * 1024 * 250d);
 		plot.moveDataBpRegion(10000L, 10000L);
 		
 		ChartPanel panel = new ChartPanel(new JFreeChart(plot));

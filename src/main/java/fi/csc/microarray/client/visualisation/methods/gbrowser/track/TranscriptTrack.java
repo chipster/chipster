@@ -62,7 +62,7 @@ public class TranscriptTrack extends Track {
 			Collections.sort(sortedGenes);
 
 			for (Gene gene : sortedGenes) {
-
+				
 				if (!gene.region.intercepts(getView().getBpRegion())) {
 
 					genes.remove(gene.id);
@@ -195,6 +195,8 @@ public class TranscriptTrack extends Track {
 	}
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
+		
+
 
 		// Genes and transcripts are ordered in the file, but to here they come in any order
 		// That's why we have to put them to Gene objects to sort them again
