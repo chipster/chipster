@@ -33,11 +33,11 @@ public class GenomeBrowserStarter {
 		// Example peak: choromosome 21 in front of IFNAR2 gene (location 33,525,000)
 		// Example peak: choromosome 21 in front of IFNAR1 gene (location 33,620,000)
 		
-		TrackFactory.addThickSeparatorTrack(plot.getDataView());
+		TrackFactory.addThickSeparatorTrack(plot);
 		
 		TrackFactory.addPeakTrack(plot, new DataSource(MACS_DATA_FILE));
 
-		TrackFactory.addThickSeparatorTrack(plot.getDataView());
+		TrackFactory.addThickSeparatorTrack(plot);
 
 		TrackFactory.addReadTracks(
 				plot, 
