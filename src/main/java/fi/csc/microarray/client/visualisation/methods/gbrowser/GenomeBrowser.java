@@ -456,15 +456,16 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			String genome = (String) genomeBox.getSelectedItem();
 			this.plot = new GenomePlot(true);
 
-			// add selected tracks
+			// add selected annotation tracks
 			for (Track track : tracks) {
 				if (track.checkBox.isSelected()) {
-					File file = track.userData == null ? null : Session.getSession().getDataManager().getLocalFile(track.userData);
 					switch (track.type) {
 					case CYTOBANDS:
 						TrackFactory.addCytobandTracks(plot, createAnnotationDataSource("Homo_sapiens.GRCh37.57_karyotype.tsv")); // using always the
 						break;
 					case GENES:
+						TrackFactory.addThickSeparatorTrack(plot);
+						TrackFactory.addTitleTrack(plot, "Annotations");
 						TrackFactory.addGeneTracks(plot, createAnnotationDataSource("Homo_sapiens." + genome + "_genes.tsv"), createAnnotationDataSource("Homo_sapiens." + genome + "_transcripts.tsv"));
 						break;
 					case REFERENCE:
@@ -473,23 +474,59 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 					case TRANSCRIPTS:
 						// integrated into genes
 						break;
-					case PEAKS:
-						TrackFactory.addThickSeparatorTrack(plot);
-						TrackFactory.addPeakTrack(plot, new DataSource(file));
-						break;
-					case PEAKS_WITH_HEADER:
-						TrackFactory.addHeaderPeakTrack(plot, new DataSource(file));
-						break;
+					}
+				}
+			}
+
+			// add selected treatment read tracks
+			for (Track track : tracks) {
+				if (track.checkBox.isSelected()) {
+					File file = track.userData == null ? null : Session.getSession().getDataManager().getLocalFile(track.userData);
+					switch (track.type) {
+
 					case TREATMENT_READS:
+						TrackFactory.addThickSeparatorTrack(plot);
+						TrackFactory.addTitleTrack(plot, file.getName());
 						TrackFactory.addReadTracks(plot, new DataSource(file), createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv"), true);
-						break;
-					case CONTROL_READS:
-						TrackFactory.addReadTracks(plot, new DataSource(file), createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv"), false);
 						break;
 					}
 				}
 			}
 
+			// add selected control read tracks
+			for (Track track : tracks) {
+				if (track.checkBox.isSelected()) {
+					File file = track.userData == null ? null : Session.getSession().getDataManager().getLocalFile(track.userData);
+					switch (track.type) {
+
+					case CONTROL_READS:
+						TrackFactory.addThickSeparatorTrack(plot);
+						TrackFactory.addTitleTrack(plot, file.getName());
+						TrackFactory.addReadTracks(plot, new DataSource(file), createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv"), false);
+						break;
+					}
+				}
+			}
+			// add selected peak tracks
+			for (Track track : tracks) {
+				if (track.checkBox.isSelected()) {
+					File file = track.userData == null ? null : Session.getSession().getDataManager().getLocalFile(track.userData);
+					switch (track.type) {
+					case PEAKS:
+						TrackFactory.addThickSeparatorTrack(plot);
+						TrackFactory.addTitleTrack(plot, file.getName());
+						TrackFactory.addPeakTrack(plot, new DataSource(file));
+						break;
+					case PEAKS_WITH_HEADER:
+						TrackFactory.addThickSeparatorTrack(plot);
+						TrackFactory.addTitleTrack(plot, file.getName());
+						TrackFactory.addHeaderPeakTrack(plot, new DataSource(file));
+						break;
+					}
+				}
+			}
+
+			// finally, the ruler
 			TrackFactory.addRulerTrack(plot);
 
 			// fill in initial positions if not filled in
