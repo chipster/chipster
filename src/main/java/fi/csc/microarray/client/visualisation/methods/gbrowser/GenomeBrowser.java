@@ -499,10 +499,26 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			}
 			TrackFactory.addRulerTrack(plot);
 
+			// fill in initial positions if not filled in
+			System.out.println("[" + megaLocation.getText() + "]");
+			if (megaLocation.getText().trim().isEmpty()) {
+				megaLocation.setText("1");
+			}
+			if (kiloLocation.getText().trim().isEmpty()) {
+				kiloLocation.setText("0");
+			}
+			if (unitLocation.getText().trim().isEmpty()) {
+				unitLocation.setText("0");
+			}
+			if (zoomField.getText().trim().isEmpty()) {
+				zoomField.setText("100000");
+			}
+
 			// initialise the plot
-			plot.addDataRegionListener(this);
 			plot.start((String)chrBox.getSelectedItem(), (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
-			plot.moveDataBpRegion(10000000L, 100000L);
+			plot.addDataRegionListener(this);
+			locationChanged();
+			
 
 			// wrap it in a panel
 			ChartPanel chartPanel =  new NonScalableChartPanel(new JFreeChart(plot));
