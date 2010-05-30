@@ -15,6 +15,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -72,8 +73,10 @@ public class TranscriptTrack extends Track {
 				Rectangle rect = new Rectangle();
 
 				rect.x = getView().bpToTrack(gene.region.start);
+				int x = rect.x;
 				rect.width = getView().bpToTrack(gene.region.end) - rect.x;
-
+				int x2 = getView().bpToTrack(gene.region.end);
+				
 				int i = 0;
 
 				while (occupiedSpace.size() > i && occupiedSpace.get(i) > rect.x) {
@@ -89,10 +92,11 @@ public class TranscriptTrack extends Track {
 				}
 
 				rect.y = (int) (getView().getTrackHeight() - ((i + 1) * (14)));
+				int y = rect.y + 2;
 				rect.height = 2;
 
 				rect.y += 1;
-				drawables.add(new RectDrawable(rect, Color.darkGray, null));
+				drawables.add(new LineDrawable(x, y, x2, y, Color.darkGray));
 				rect.y -= 1;
 
 				rect.height = 4;
