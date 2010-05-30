@@ -1,5 +1,6 @@
 package fi.csc.microarray.databeans;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -286,16 +287,18 @@ public class DataBean extends DataItemBase {
 	 * 
 	 * @see #queryFeatures(String)
 	 * 
-	 * FIXME change name
+	 * FIXME change name, locks stream start cache
 	 */
 	public InputStream getContentByteStream() throws IOException {
-		lock.readLock().lock();
-		if (streamStartCache != null) {
-			return streamStartCache.getInputStream();
-		} else {
-			logger.debug("using non-cached stream");
-			return getRawContentByteStream();
-		}
+		return getRawContentByteStream();
+
+		//lock.readLock().lock();
+//		if (streamStartCache != null) {
+//			return streamStartCache.getInputStream();
+//		} else {
+//			logger.debug("using non-cached stream");
+//			return getRawContentByteStream();
+//		}
 	}
 
 
@@ -314,6 +317,19 @@ public class DataBean extends DataItemBase {
 			// FIXME release inputstream
 		}
 		
+	}
+	
+	public byte[] getContents(long maxLength) throws IOException {
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		InputStream in = this.getContentByteStream();
+		long readCount = 0;
+		
+		for (int b = in.read(); b != -1 && readCount < maxLength; b = in.read()) {
+			outputStream.write(b);
+			readCount++;
+		}
+		
+		return outputStream.toByteArray();
 	}
 
 

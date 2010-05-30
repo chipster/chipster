@@ -50,6 +50,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	protected boolean zoomable;
 
 	protected final float ZOOM_FACTOR = 1.06f;
+	protected final float MIN_PIXELS_PER_NUCLEOTIDE = 10f;
 
 	private List<RegionListener> listeners = new LinkedList<RegionListener>();
 	public int margin = 0;
@@ -67,7 +68,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	private static final long DRAG_EXPIRATION_TIME_MS = 50;
 
 	public View(GenomePlot parent, boolean movable, boolean zoomable, boolean selectable) {
-		parentPlot = parent;
+		this.parentPlot = parent;
 		this.movable = movable;
 		this.zoomable = zoomable;
 	}
@@ -77,6 +78,29 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	public void addTrack(Track t) {
 		tracks.add(t);
+	}
+	
+	public BpCoord getMaxBp() {
+		
+		BpCoord max = null;
+		
+		for (Track t : tracks) {
+			
+			BpCoord trackMax = t.getMaxBp(bpRegion.start.chr);
+			
+			if (trackMax != null && (max == null || max.compareTo(trackMax) > 0)) {
+				max = trackMax;
+			}
+		}
+		
+		if (max != null) {
+			//Little bit empty space to the end
+			max.bp += 10000;
+			return max;
+			
+		} else {
+			return null;
+		}
 	}
 
 	protected void drawView(Graphics2D g, boolean isAnimation) {
@@ -223,14 +247,13 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	}
 
 	public void setBpRegion(BpCoordRegionDouble region, boolean disableDrawing) {
-		bpRegion = region;
+		this.bpRegion = region;
 
 		// Bp-region change may change visibility of tracks, calculate sizes again
 		trackHeight = null;
 
 		if (!disableDrawing) {
 			for (Track t : tracks) {
-
 				t.updateData();
 			}
 			dispatchRegionChange();
@@ -362,8 +385,10 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	private void zoom(int lockedX, int wheelRotation, boolean disableDrawing) {
 
+		// not all views are zoomed (e.g., the overview with cytoband) 
 		if (zoomable) {
 			
+			// zoom out
 			if (wheelRotation > 0) {
 				lockedX = (int) getWidth() - lockedX + getX() * 2;
 			}
@@ -372,19 +397,44 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			double pointerRelative = trackToRelative(lockedX);
 
 			double startBp = getBpRegionDouble().start.bp;
-			double endBp = getBpRegionDouble().end.bp;
-
+			double endBp = getBpRegionDouble().end.bp;			
+						
 			double width = endBp - startBp;
 			width *= Math.pow(ZOOM_FACTOR, wheelRotation);
 
-			startBp = (double) (pointerBp.bp - width * pointerRelative);
-			endBp = (double) (pointerBp.bp + width * (1 - pointerRelative));
-
-			if (startBp < 0) {
-				endBp += -startBp;
-				startBp = 0;
+			int minBpWidth = (int)(((float)parentPlot.chartPanel.getPreferredSize().getSize().width) / MIN_PIXELS_PER_NUCLEOTIDE);
+			if (width < minBpWidth) {
+				width = minBpWidth;
 			}
 
+			startBp = (double) (pointerBp.bp - width * pointerRelative);
+			endBp = (double) (pointerBp.bp + width * (1 - pointerRelative));
+			
+			BpCoord maxBp = getMaxBp();
+			
+			if (maxBp != null) {
+				// check bounds
+				long maxBpVal = maxBp.bp;
+
+				if (wheelRotation < 0 && startBp == 0 && endBp == maxBpVal) {
+					return;
+				}
+
+				if (startBp < 0) {
+					endBp += -startBp;
+					startBp = 0;
+				}
+
+
+				if (endBp > maxBpVal) {
+					startBp -= endBp - maxBpVal;
+					endBp = maxBpVal;
+
+					if (startBp < 0) {
+						startBp = 0;
+					}
+				}
+			}
 			setBpRegion(new BpCoordRegionDouble(startBp, getBpRegionDouble().start.chr, endBp, getBpRegionDouble().end.chr), disableDrawing);
 		}
 	}
@@ -435,7 +485,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	public void dispatchRegionChange() {
 		for (RegionListener listener : listeners) {
-			listener.RegionChanged(getBpRegion());
+			listener.regionChanged(getBpRegion());
 		}
 	}
 

@@ -71,7 +71,7 @@ public class LocalFileDataBeanHandler extends DataBeanHandlerBase {
 		} 
 	}
 	
-	private File getFile(DataBean dataBean) {
+	public File getFile(DataBean dataBean) {
 		File file;
 		try {
 			file = new File(dataBean.getContentUrl().toURI());

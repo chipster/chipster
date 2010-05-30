@@ -19,6 +19,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class CytobandTrack extends Track {
@@ -26,6 +27,8 @@ public class CytobandTrack extends Track {
 	private static final int THICKNESS = 10;
 
 	private static final int MARGIN = 2;
+	
+	private BpCoord maxBp;
 
 	private Collection<RegionContent> bands = new TreeSet<RegionContent>();
 
@@ -77,6 +80,7 @@ public class CytobandTrack extends Track {
 
 	@Override
 	public Collection<Drawable> getDrawables() {
+		
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 		occupiedSpace.clear();
 
@@ -162,6 +166,14 @@ public class CytobandTrack extends Track {
 //				this.bands.add(new BandRegion(band, reg));
 //			}
 //		}
+		
+		
+		if (getView().getBpRegion().start.chr.equals(areaResult.content.region.start.chr)) {					
+			
+			if (maxBp == null || maxBp.compareTo(areaResult.content.region.start) < 0) {
+				maxBp = areaResult.content.region.end;
+			}
+		}				
 
 		if (getView().getBpRegion().intercepts(areaResult.content.region)) {
 
@@ -191,5 +203,11 @@ public class CytobandTrack extends Track {
 	@Override
 	public boolean isConcised() {
 		return false;
+	}
+
+	@Override
+	public BpCoord getMaxBp(Chromosome chr) {
+		
+		return maxBp;
 	}
 }

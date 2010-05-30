@@ -50,7 +50,11 @@ public class EnumParameter extends Parameter {
         }
         
         public String toString() {
-            return name;
+            if (name != null && !name.isEmpty()) {
+            	return name;
+            } else {
+            	return value;
+            }
         }
         
         public static SelectionOption[] convertStrings(String[] titles, String[] values) {

@@ -557,6 +557,7 @@ public abstract class ClientApplication implements Node {
 							String originalName = null;
 							for (DataBinding binding : oper.getBindings()) {
 								if (binding.getName().equals(sample)) {
+									System.out.println("binding: " + binding.getName() + "sample: " + sample);
 									originalName = binding.getData().getName();
 									correctRowFound = true;
 									break;
@@ -698,6 +699,12 @@ public abstract class ClientApplication implements Node {
 	}
 
 	
+	/**
+	 * FIXME Better handling for existing file
+	 * 
+	 * @param data
+	 * @param selectedFile
+	 */
 	protected void exportToFile(final DataBean data, final File selectedFile) {
 		runBlockingTask("exporting file", new Runnable() {
 
@@ -716,7 +723,7 @@ public abstract class ClientApplication implements Node {
 					IO.copy(data.getContentByteStream(), out);
 					out.close();
 				} catch (Exception e) {
-					throw new RuntimeException();
+					throw new RuntimeException(e);
 				}
 			}
 			

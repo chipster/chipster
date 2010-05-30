@@ -23,6 +23,7 @@ import org.jdesktop.swingx.VerticalLayout;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationPanel;
 import fi.csc.microarray.client.operation.OperationDefinition.InputDefinition;
+import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
@@ -83,8 +84,8 @@ public class ToolParameterPanel extends ParameterPanel {
             if (param.isOptional()) {
                 optionalParameters.add(param);
             } else {
-                requiredParameters.add(param);
             }
+            requiredParameters.add(param);
         }
 
         // Parameters
@@ -119,6 +120,8 @@ public class ToolParameterPanel extends ParameterPanel {
         pane = new JXTaskPane();
         pane.setTitle("Input datasets");
         pane.setCollapsed(false);
+        pane.getContentPane().setBackground(this.getBackground());
+        
         
         // Grid layout for component/label pairs
         paramPane = new JPanel(new GridBagLayout());
