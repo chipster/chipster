@@ -2,10 +2,8 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
 import java.awt.Rectangle;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
@@ -27,12 +25,10 @@ public class CytobandTrack extends Track {
 	private static final int THICKNESS = 10;
 
 	private static final int MARGIN = 2;
-	
+
 	private BpCoord maxBp;
 
 	private Collection<RegionContent> bands = new TreeSet<RegionContent>();
-
-	List<Integer> occupiedSpace = new ArrayList<Integer>();
 
 	private boolean showText;
 
@@ -44,7 +40,8 @@ public class CytobandTrack extends Track {
 		DARK_GRAY("gpos75", Color.darkGray), 
 		BLACK("gpos100", Color.black), 
 		GAP("acen", null), 
-		OTHER("gvar", Color.white);
+		OTHER("gvar", Color.white),
+		STALK("stalk", null);
 
 		private String id;
 		private Color color;
@@ -80,16 +77,15 @@ public class CytobandTrack extends Track {
 
 	@Override
 	public Collection<Drawable> getDrawables() {
-		
+
 		Collection<Drawable> drawables = getEmptyDrawCollection();
-		occupiedSpace.clear();
 
 		if (bands != null) {
 
 			boolean firstGap = true;
 
 			for (RegionContent bandRegion : bands) {
-				
+
 				Band band = getBand((String) bandRegion.values.get(ColumnType.VALUE));
 				String text = (String) bandRegion.values.get(ColumnType.ID);
 
@@ -118,7 +114,7 @@ public class CytobandTrack extends Track {
 						}
 					}
 					firstGap = true;
-					
+
 				} else if (band == Band.GAP) {
 
 					int y = (int) getMaxHeight() - (THICKNESS + MARGIN);
@@ -136,6 +132,18 @@ public class CytobandTrack extends Track {
 					drawables.add(new LineDrawable(sideX, y, cornerX, y + THICKNESS / 2, Color.black));
 
 					drawables.add(new LineDrawable(sideX, y + THICKNESS, cornerX, y + THICKNESS / 2, Color.black));
+
+				} else if (band == Band.STALK) {
+					
+					Rectangle rect = new Rectangle();
+
+					rect.x = getView().bpToTrack(bandRegion.region.start);
+					rect.width = getView().bpToTrack(bandRegion.region.end) - rect.x;
+
+					rect.y = (int) (getMaxHeight() - (THICKNESS + MARGIN)) + THICKNESS / 4;
+					rect.height = THICKNESS - THICKNESS / 2;
+
+					drawables.add(new RectDrawable(rect, Color.gray, Color.gray));
 				}
 			}
 		}
@@ -143,7 +151,7 @@ public class CytobandTrack extends Track {
 	}
 
 	private RectDrawable createDrawable(BpCoord startBp, BpCoord endBp, Color c) {
-		
+
 		Rectangle rect = new Rectangle();
 
 		rect.x = getView().bpToTrack(startBp);
@@ -154,23 +162,12 @@ public class CytobandTrack extends Track {
 
 		return new RectDrawable(rect, c, Color.black);
 	}
-  
+
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
 
-//		 if (areaResult.content instanceof List) {
-//			List<List<Object>> reads = (List<List<Object>>) areaResult.content;
-//
-//			for (List<Object> obj : reads) {
-//				Region reg = new Region((Long) obj.get(areaResult.fileDef.indexOf(Content.BP_START)), (Long) obj.get(areaResult.fileDef.indexOf(Content.BP_END)));
-//
-//				this.bands.add(new BandRegion(band, reg));
-//			}
-//		}
-		
-		
 		if (getView().getBpRegion().start.chr.equals(areaResult.content.region.start.chr)) {					
-			
-			if (maxBp == null || maxBp.compareTo(areaResult.content.region.start) < 0) {
+
+			if (maxBp == null || maxBp.compareTo(areaResult.content.region.end) < 0) {
 				maxBp = areaResult.content.region.end;
 			}
 		}				
@@ -180,8 +177,8 @@ public class CytobandTrack extends Track {
 			this.bands.add(areaResult.content);
 			getView().redraw();		
 		}
-		
-//		 this.reads.addAll(result.collection);
+
+		//		 this.reads.addAll(result.collection);
 	}
 
 	@Override
@@ -207,7 +204,7 @@ public class CytobandTrack extends Track {
 
 	@Override
 	public BpCoord getMaxBp(Chromosome chr) {
-		
+
 		return maxBp;
 	}
 }

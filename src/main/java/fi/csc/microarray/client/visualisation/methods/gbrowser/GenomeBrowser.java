@@ -117,7 +117,20 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	final static String PLOTPANEL = "plotpanel";
 
 	private static enum TrackType {
-		CYTOBANDS, GENES, TRANSCRIPTS, TREATMENT_READS, CONTROL_READS, PEAKS, REFERENCE, PEAKS_WITH_HEADER
+		CYTOBANDS(false), 
+		GENES(true), 
+		TRANSCRIPTS(true), 
+		TREATMENT_READS(true),
+		CONTROL_READS(true),
+		PEAKS(true),
+		REFERENCE(true),
+		PEAKS_WITH_HEADER(true);
+		
+		private boolean isToggleable;
+		
+		private TrackType(boolean toggleable) {
+			this.isToggleable = toggleable;
+		}
 	}
 
 	private static class Track {
@@ -241,8 +254,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		for (Track track : tracks) {
 			this.settingsGridBagConstraints.gridy++;
 			JCheckBox box = new JCheckBox(track.name, true);
+			box.setEnabled(track.type.isToggleable);
 			settingsPanel.add(box, this.settingsGridBagConstraints);
-			track.checkBox = box;
+			track.checkBox = box;			
 		}
 		
 		GridBagConstraints c = this.settingsGridBagConstraints;
@@ -273,62 +287,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		c.weightx = 1.0;
 		c.gridx = 0;
 		c.gridwidth = 5;
-
-		for (JTextField field : new JTextField[] {megaLocation, kiloLocation, unitLocation}) {
-			PlainDocument fieldContents = new PlainDocument() {
-				@Override
-				public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
-					if (str != null && str.length() > 3) {
-						return; // was too long
-					}
-					super.insertString(offs, str, a);
-				}
-			};			
-			field.setDocument(fieldContents);
-			field.addFocusListener(this);
-		}
-
-		settingsPanel.add(new JLabel("Location"), c);
-
-		c.anchor = GridBagConstraints.SOUTH;
-		JLabel megaLabel = new JLabel("M");
-		JLabel kiloLabel = new JLabel("k");
-		c.gridy++;
-		c.gridwidth = 1;
-		c.insets.set(5, 10, 5, 0);
-		c.weightx = 1.0;
-		settingsPanel.add(megaLocation, c);
-		c.gridx++;
-		c.insets.set(5, 0, 5, 0);
-		c.weightx = 0.0;
-		settingsPanel.add(megaLabel, c);
-		c.gridx++;
-		c.weightx = 1.0;
-		settingsPanel.add(kiloLocation, c);
-		c.gridx++;
-		c.weightx = 0.0;
-		settingsPanel.add(kiloLabel, c);
-		c.gridx++;
-		c.insets.set(5, 0, 5, 10);
-		c.weightx = 1.0;
-		settingsPanel.add(unitLocation, c);
-
-		c.gridx = 0;
-		c.gridwidth = 5;		
-		c.gridy++;
-		c.insets.set(5, 10, 5, 10);
-		settingsPanel.add(new JLabel("Zoom"), c);
-		c.gridwidth = 4;		
-		c.gridy++;
-		settingsPanel.add(this.zoomField , c);
-		this.zoomField.addFocusListener(this);
-		
-		c.gridx = 0;
-		c.gridwidth = 5;		
-		c.gridy++;
-		settingsPanel.add(gotoButton , c);
-		gotoButton.addActionListener(this);
-		gotoButton.setEnabled(false);
 
 		InputStream contentsStream = null;
 		
@@ -369,7 +327,63 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			settingsPanel.add(new JLabel("Chromosome"), c);
 			c.gridy++;
 			settingsPanel.add(chrBox, c);
+
+			for (JTextField field : new JTextField[] {megaLocation, kiloLocation, unitLocation}) {
+				PlainDocument fieldContents = new PlainDocument() {
+					@Override
+					public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
+						if (str != null && str.length() > 3) {
+							return; // was too long
+						}
+						super.insertString(offs, str, a);
+					}
+				};			
+				field.setDocument(fieldContents);
+				field.addFocusListener(this);
+			}
+
+			settingsPanel.add(new JLabel("Location"), c);
+
+			c.anchor = GridBagConstraints.SOUTH;
+			JLabel megaLabel = new JLabel("M");
+			JLabel kiloLabel = new JLabel("k");
+			c.gridy++;
+			c.gridwidth = 1;
+			c.insets.set(5, 10, 5, 0);
+			c.weightx = 1.0;
+			settingsPanel.add(megaLocation, c);
+			c.gridx++;
+			c.insets.set(5, 0, 5, 0);
+			c.weightx = 0.0;
+			settingsPanel.add(megaLabel, c);
+			c.gridx++;
+			c.weightx = 1.0;
+			settingsPanel.add(kiloLocation, c);
+			c.gridx++;
+			c.weightx = 0.0;
+			settingsPanel.add(kiloLabel, c);
+			c.gridx++;
+			c.insets.set(5, 0, 5, 10);
+			c.weightx = 1.0;
+			settingsPanel.add(unitLocation, c);
+
+			c.gridx = 0;
+			c.gridwidth = 5;		
+			c.gridy++;
+			c.insets.set(5, 10, 5, 10);
+			settingsPanel.add(new JLabel("Zoom"), c);
+			c.gridwidth = 4;		
+			c.gridy++;
+			settingsPanel.add(this.zoomField , c);
+			this.zoomField.addFocusListener(this);
 			
+			c.gridx = 0;
+			c.gridwidth = 5;		
+			c.gridy++;
+			settingsPanel.add(gotoButton , c);
+			gotoButton.addActionListener(this);
+			gotoButton.setEnabled(false);
+
 		} catch (IOException e) {
 			application.reportException(e);
 		
@@ -442,18 +456,16 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			String genome = (String) genomeBox.getSelectedItem();
 			this.plot = new GenomePlot(true);
 
-			// add selected tracks
-			LinkedList<DataSource> treatments = new LinkedList<DataSource>();
-			LinkedList<DataSource> controls = new LinkedList<DataSource>();
-			
+			// add selected annotation tracks
 			for (Track track : tracks) {
 				if (track.checkBox.isSelected()) {
-					File file = track.userData == null ? null : Session.getSession().getDataManager().getLocalFile(track.userData);
 					switch (track.type) {
 					case CYTOBANDS:
 						TrackFactory.addCytobandTracks(plot, createAnnotationDataSource("Homo_sapiens.GRCh37.57_karyotype.tsv")); // using always the
 						break;
 					case GENES:
+						TrackFactory.addThickSeparatorTrack(plot);
+						TrackFactory.addTitleTrack(plot, "Annotations");
 						TrackFactory.addGeneTracks(plot, createAnnotationDataSource("Homo_sapiens." + genome + "_genes.tsv"), createAnnotationDataSource("Homo_sapiens." + genome + "_transcripts.tsv"));
 						break;
 					case REFERENCE:
@@ -462,31 +474,79 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 					case TRANSCRIPTS:
 						// integrated into genes
 						break;
-					case PEAKS:
-						TrackFactory.addPeakTrack(plot, new DataSource(file));
-						break;
-					case PEAKS_WITH_HEADER:
-						TrackFactory.addHeaderPeakTrack(plot, new DataSource(file));
-						break;
+					}
+				}
+			}
+
+			// add selected treatment read tracks
+			for (Track track : tracks) {
+				if (track.checkBox.isSelected()) {
+					File file = track.userData == null ? null : Session.getSession().getDataManager().getLocalFile(track.userData);
+					switch (track.type) {
+
 					case TREATMENT_READS:
-						treatments.add(new DataSource(file));
-						break;
-					case CONTROL_READS:
-						controls.add(new DataSource(file));
+						TrackFactory.addThickSeparatorTrack(plot);
+						TrackFactory.addTitleTrack(plot, file.getName());
+						TrackFactory.addReadTracks(plot, new DataSource(file), createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv"), true);
 						break;
 					}
 				}
 			}
 
-			if (!treatments.isEmpty() || !controls.isEmpty()) {
-				TrackFactory.addReadTracks(plot, treatments, controls, createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv"));
+			// add selected control read tracks
+			for (Track track : tracks) {
+				if (track.checkBox.isSelected()) {
+					File file = track.userData == null ? null : Session.getSession().getDataManager().getLocalFile(track.userData);
+					switch (track.type) {
+
+					case CONTROL_READS:
+						TrackFactory.addThickSeparatorTrack(plot);
+						TrackFactory.addTitleTrack(plot, file.getName());
+						TrackFactory.addReadTracks(plot, new DataSource(file), createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv"), false);
+						break;
+					}
+				}
 			}
+			// add selected peak tracks
+			for (Track track : tracks) {
+				if (track.checkBox.isSelected()) {
+					File file = track.userData == null ? null : Session.getSession().getDataManager().getLocalFile(track.userData);
+					switch (track.type) {
+					case PEAKS:
+						TrackFactory.addThickSeparatorTrack(plot);
+						TrackFactory.addTitleTrack(plot, file.getName());
+						TrackFactory.addPeakTrack(plot, new DataSource(file));
+						break;
+					case PEAKS_WITH_HEADER:
+						TrackFactory.addThickSeparatorTrack(plot);
+						TrackFactory.addTitleTrack(plot, file.getName());
+						TrackFactory.addHeaderPeakTrack(plot, new DataSource(file));
+						break;
+					}
+				}
+			}
+
+			// finally, the ruler
 			TrackFactory.addRulerTrack(plot);
 
+			// fill in initial positions if not filled in
+			if (megaLocation.getText().trim().isEmpty()) {
+				megaLocation.setText("1");
+			}
+			if (kiloLocation.getText().trim().isEmpty()) {
+				kiloLocation.setText("0");
+			}
+			if (unitLocation.getText().trim().isEmpty()) {
+				unitLocation.setText("0");
+			}
+			if (zoomField.getText().trim().isEmpty()) {
+				zoomField.setText("100000");
+			}
+
 			// initialise the plot
-			plot.addDataRegionListener(this);
 			plot.start((String)chrBox.getSelectedItem(), (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
-			plot.moveDataBpRegion(100000L, 100000L);
+			plot.addDataRegionListener(this);
+			locationChanged();
 
 			// wrap it in a panel
 			ChartPanel chartPanel =  new NonScalableChartPanel(new JFreeChart(plot));
