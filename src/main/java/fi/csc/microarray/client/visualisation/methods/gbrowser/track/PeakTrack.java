@@ -67,7 +67,7 @@ public class PeakTrack extends Track {
 		rect.x = getView().bpToTrack(startBp);
 		rect.width = getView().bpToTrack(endBp) - rect.x;
 
-		rect.y = (int) (getView().getTrackHeight() - height + 2);
+		rect.y = (int) (getView().getTrackHeight() / 2);
 		rect.height = height;
 
 		drawables.add(new RectDrawable(rect, c, c.darker()));
