@@ -25,4 +25,10 @@ public class GeneParser extends ConcisedTsvParser{
 	public String getName() {
 		return "Chipster gene annotation";
 	}
+	
+//	@Override
+//	public long getDefaulChunkLength() {
+//
+//		return 128;
+//	}
 }

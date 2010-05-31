@@ -13,13 +13,15 @@ import fi.csc.microarray.exception.MicroarrayException;
 
 public class TextViewer extends Visualisation {
 
+	private static long CONTENT_SIZE_LIMIT = 1024*1024*1;
+	
 	public TextViewer(VisualisationFrame frame) {
 		super(frame);
 	}
 
 	@Override
 	public JComponent getVisualisation(DataBean data) throws Exception {
-		byte[] txt = data.getContents();
+		byte[] txt = data.getContents(CONTENT_SIZE_LIMIT);
 
 		if (txt != null) {
 			JTextPane txtPane = new JTextPane();
@@ -32,7 +34,7 @@ public class TextViewer extends Visualisation {
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		return bean.isContentTypeCompatitible("text/plain", "chemical/x-fasta");
+		return bean.isContentTypeCompatitible("text/plain", "chemical/x-fasta", "text/wig");
 	}
 
 }

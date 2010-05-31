@@ -18,6 +18,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.log4j.Logger;
+
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
@@ -46,6 +48,8 @@ import fi.csc.microarray.util.IOUtils;
  */
 public class SnapshottingSession {
 
+	private static final Logger logger = Logger.getLogger(SnapshottingSession.class);
+	
 	private final int DATA_BLOCK_SIZE = 2048;
 
 	private static final String METADATA_FILENAME = "snapshot_metadata.txt";
@@ -352,7 +356,31 @@ public class SnapshottingSession {
 					// TODO in the future, maybe give the URL directly to the manager
 					URL url = new URL(split[2]);
 					String entryName = url.getRef();
-					DataBean bean = manager.createDataBean("<empty>", snapshot, entryName);
+					
+					String typeString = split[3];
+					DataBeanType type;
+					try {
+						type = DataBeanType.valueOf(typeString);
+					} catch (IllegalArgumentException iae) {
+						//  FIXME 
+						logger.warn("unknown data bean type: " + typeString);
+						continue;
+					}
+					
+					DataBean bean;
+					switch (type) {
+					case LOCAL_SESSION:
+						bean = manager.createDataBean("<empty>", snapshot, entryName);
+						break;
+					case LOCAL_USER:
+						bean = manager.createDataBean("<empty>", url);
+						break;
+					default:
+						// FIXME 
+						logger.warn("illegal data bean type in session: " + type.toString());
+						continue;
+					}
+					
 					
 					newItems.add(bean);
 					mapId(id, bean);
