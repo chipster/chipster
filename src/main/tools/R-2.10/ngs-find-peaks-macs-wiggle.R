@@ -1,6 +1,5 @@
-# TOOL "Statistics" / ngs-find-peaks-macs.R: "Find peaks using MACS, treatment vs. control" (This tool will search for statistically significantly enriched genomic regions in sequencing data from a ChIP-seq experiment. The analysis is performed on one or more treatment samples relative to one or more control samples.)
+# TOOL "Statistics" / ngs-find-peaks-macs-wiggle.R: "Find peaks using MACS, treatment only" (This tool will search for statistically significantly enriched genomic regions in sequencing data from a ChIP-seq experiment. The analysis is performed on one or more treatment samples alone, without taking into account control control samples.)
 # INPUT treatment.txt: "Treatment data file" TYPE GENERIC
-# INPUT control.txt: "Control data file" TYPE GENERIC
 # OUTPUT positive-peaks.tsv: "True enriched peaks"
 # OUTPUT positive-peaks.bed: "True enriched peaks in a format compatible with the Genome Browser"
 # OUTPUT OPTIONAL model-plot.png: "A plot of the fitted peak model"
@@ -238,27 +237,26 @@ runMACS <- function(..., logFile="/dev/null") {
 	}
 }
 
+
 # Run MACS with specified parameters for the data set
 if (build.model == "no") {
 	runMACS(treatment="treatment_3.txt", 
-		control="control_3.txt", 
-		name="results", 
-		format = file.format,
-		bw=band.with,
-		pvalue=p.value.threshold,
-		mfold=m.fold,
-		tsize=read.length,
-		gsize=genome.size,
-		verbose=3, 
-		logFile="results.log", 
-		nomodel=no.model,
-		shiftsize=shift.size,
-		help=FALSE, 
-		version=FALSE)
+			name="results", 
+			format = file.format,
+			bw=band.with,
+			pvalue=p.value.threshold,
+			mfold=m.fold,
+			tsize=read.length,
+			gsize=genome.size,
+			verbose=3, 
+			logFile="results.log", 
+			nomodel=no.model,
+			shiftsize=shift.size,
+			help=FALSE, 
+			version=FALSE)
 }
 if (build.model == "yes") {
 	runMACS(treatment="treatment_3.txt", 
-			control="control_3.txt", 
 			name="results", 
 			format = file.format,
 			bw=band.with,
@@ -272,7 +270,6 @@ if (build.model == "yes") {
 			help=FALSE, 
 			version=FALSE)
 }
-
 
 # Read in and parse the results
 
@@ -312,14 +309,15 @@ parseMACSResultsNEG <- function(name, final=FALSE){
 results_TRUE <- parseMACSResultsPOS (name="results",final=TRUE)
 
 ## Read in the results for the FALSE, or NEGATIVE, peaks
-results_FALSE <- parseMACSResultsNEG (name="results", final=TRUE)
-
+if (control.available == "yes") {
+	results_FALSE <- parseMACSResultsNEG (name="results", final=TRUE)
+}
 
 # Read summary info of results
 # analysis_summary <- readLines ("results.log",n=11)
 # write.table(file="analysis-summary.txt", unlist(analysis_summary), sep="", row.names=F, quote=F)
 
-# Write the results to tables to be read into Chipster but first order the rows to physical location
+# Write the results to tables to be read into Chipster
 results_TRUE$chr <- sub(".fa", "", results_TRUE$chr)
 results_TRUE$chr <- sub("chr", "", results_TRUE$chr)
 results_TRUE_ordered <- results_TRUE[order(results_TRUE$chr, results_TRUE$start),]

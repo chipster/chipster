@@ -1603,7 +1603,7 @@ public class SwingClientApplication extends ClientApplication {
 
 	public void viewHelpFor(OperationDefinition definition) {
         String url = definition.getHelpURL();
-	    if (url != null) {
+	    if (url != null && !url.isEmpty()) {
 	        // Link is stored in operation definition
 	        url = definition.getHelpURL();
 	        viewHelp(url);
