@@ -13,6 +13,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Header
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SequenceParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.miRNAParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CytobandTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GeneTrack;
@@ -90,9 +91,13 @@ public class TrackFactory {
 		dataView.addTrack(new SeparatorTrack(dataView, Color.gray.brighter(), 4, 0, Long.MAX_VALUE));
 	}
 
-	
+
 	public static void addReadTracks(GenomePlot genomePlot, DataSource userData, DataSource seqFile, boolean isTreatment) throws FileNotFoundException, MalformedURLException {
-		ElandParser userDataParser = new ElandParser();
+		addReadTracks(genomePlot, userData, seqFile, isTreatment, new ElandParser());
+	}
+
+	public static void addReadTracks(GenomePlot genomePlot, DataSource userData, DataSource seqFile, boolean isTreatment, TsvParser userDataParser) throws FileNotFoundException, MalformedURLException {
+	
 		View dataView = genomePlot.getDataView();
 		int switchViewsAt = 50000;
 		Color histogramColor = isTreatment ? Color.blue : Color.gray;

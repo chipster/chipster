@@ -4,7 +4,6 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
@@ -16,6 +15,7 @@ import org.jfree.chart.JFreeChart;
 
 public class GenomeBrowserStarter {
 
+//	private static final File BED_READ_DATA_FILE = new File("/home/akallio/Desktop/Bcell_expression.reads");
 	private static final File ELAND_DATA_FILE = new File("/home/akallio/chipster-share/ngs/STAT1/STAT1_treatment_aggregated_filtered_sorted_chr1.txt");
 	private static final File MACS_DATA_FILE = new File("/home/akallio/chipster-share/ngs/STAT1/STAT1_peaks_sorted.bed");
 	private static final File URL_ROOT;
@@ -52,12 +52,13 @@ public class GenomeBrowserStarter {
 				true
 		);
 
-		TrackFactory.addReadTracks(
-				plot, 
-				new DataSource(ELAND_DATA_FILE),
-				new DataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_seq.tsv"),
-				false
-		);
+//		TrackFactory.addReadTracks(
+//				plot, 
+//				new DataSource(BED_READ_DATA_FILE),
+//				new DataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_seq.tsv"),
+//				true,
+//				new BEDReadParser()
+//		);
 
 		TrackFactory.addRulerTrack(plot);
 		plot.start("1", 1024 * 1024 * 250d);
