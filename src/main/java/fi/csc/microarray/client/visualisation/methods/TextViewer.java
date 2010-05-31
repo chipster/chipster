@@ -13,7 +13,7 @@ import fi.csc.microarray.exception.MicroarrayException;
 
 public class TextViewer extends Visualisation {
 
-	private static long CONTENT_SIZE_LIMIT = 1024*1024*10;
+	private static long CONTENT_SIZE_LIMIT = 1024*1024*1;
 	
 	public TextViewer(VisualisationFrame frame) {
 		super(frame);
