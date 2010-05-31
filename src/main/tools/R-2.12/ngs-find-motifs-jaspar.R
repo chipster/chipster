@@ -1,6 +1,4 @@
-# TOOL "NGS tools" / ngs-find-motifs-jaspar.R: "Find common motifs and match to Jaspar" (This tool scans a sey of genomic regions for consensus sequence motifs,
-# calculates the alignment score against transcription factors in the Jaspar database and finds the 10 highest ranking for each motif.)
-# ranking trascription factors
+# TOOL "NGS tools" / ngs-find-motifs-jaspar.R: "Find common motifs and match to Jaspar" (This tool scans a set of genomic regions for consensus sequence motifs, calculates the alignment score against transcription factors in the Jaspar database and finds the 10 highest ranking for each motif.)
 # INPUT results.tsv: "Results data file" TYPE GENERIC
 # OUTPUT motif-analysis-summary.txt: "A lot of analysis information collected in one single file"
 # OUTPUT logo-plot-[...].png: "Logo plots for each consensus motif"
