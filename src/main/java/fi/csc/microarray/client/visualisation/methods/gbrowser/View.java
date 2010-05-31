@@ -412,19 +412,14 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			
 			BpCoord maxBp = getMaxBp();
 			
+			if (startBp < 0) {
+				endBp += -startBp;
+				startBp = 0;
+			}
+			
 			if (maxBp != null) {
 				// check bounds
 				long maxBpVal = maxBp.bp;
-
-				if (wheelRotation < 0 && startBp == 0 && endBp == maxBpVal) {
-					return;
-				}
-
-				if (startBp < 0) {
-					endBp += -startBp;
-					startBp = 0;
-				}
-
 
 				if (endBp > maxBpVal) {
 					startBp -= endBp - maxBpVal;

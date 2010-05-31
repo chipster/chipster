@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
@@ -14,6 +15,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDraw
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
@@ -165,7 +167,9 @@ public class CytobandTrack extends Track {
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
 
-		if (getView().getBpRegion().start.chr.equals(areaResult.content.region.start.chr)) {					
+		if (areaResult.content.values.containsKey(ColumnType.METADATA) &&
+				((Map<?, ?>)(areaResult.content.values.get(ColumnType.METADATA))).containsKey(CytobandParser.LAST_ROW_OF_CHROMOSOME) && 
+				getView().getBpRegion().start.chr.equals(areaResult.content.region.start.chr)) {					
 
 			if (maxBp == null || maxBp.compareTo(areaResult.content.region.end) < 0) {
 				maxBp = new BpCoord(areaResult.content.region.end);
