@@ -168,7 +168,7 @@ public class CytobandTrack extends Track {
 		if (getView().getBpRegion().start.chr.equals(areaResult.content.region.start.chr)) {					
 
 			if (maxBp == null || maxBp.compareTo(areaResult.content.region.end) < 0) {
-				maxBp = areaResult.content.region.end;
+				maxBp = new BpCoord(areaResult.content.region.end);
 			}
 		}				
 
