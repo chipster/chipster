@@ -55,7 +55,7 @@ public enum VisualisationMethod {
 	// None is always present and spaces reserve space also for the longer names
 	// when they aren't present.
 	// This is the easiest found way to keep things
-	// steady. Duration estimation 0 means unknown.
+	// steady. Duration estimation 0 means no limit.
 	NONE("None                                   ", 
 			Empty.class, VisualConstants.EMPTY_MENUICON, 0, 0), 
 			SPREADSHEET("Spreadsheet", Spreadsheet.class, VisualConstants.SPREADSHEET_MENUICON, 2, 0.0007), 
@@ -72,7 +72,7 @@ public enum VisualisationMethod {
 			CLUSTERED_PROFILES("Clustered profiles", ClusteredProfiles.class, VisualConstants.PROFILES_MENUICON, -1, 0.087), 
 			SHOW_IMAGE("Show image", ImageViewer.class, VisualConstants.IMAGE_MENUICON, 1, 0.015), 
 			WEBVIEW("View page", HtmlViewer.class, VisualConstants.HTML_MENUICON, 1, 0.008), 
-			VIEW_TEXT("View text", TextViewer.class, VisualConstants.TEXT_MENUICON, 1, 0.023), 
+			VIEW_TEXT("View text", TextViewer.class, VisualConstants.TEXT_MENUICON, 1, 0), 
 			VENN_DIAGRAM("Venn-diagram", VennDiagram.class, VisualConstants.VENN_MENUICON, 1, 0),
 			GBROWSER("Genome browser", GenomeBrowser.class, VisualConstants.SCATTER_MENUICON, 1, 0);
 
