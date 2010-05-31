@@ -2,8 +2,8 @@
 # INPUT results.tsv: "Results data file" TYPE GENERIC
 # OUTPUT motif-analysis-summary.txt: "A lot of analysis information collected in one single file"
 # OUTPUT logo-plot-{...}.png: "Logo plots for each consensus motif"
-# PARAMETER p.value.cutoff: "P-value cutoff" TYPE DECIMAL 0 TO 1 DEFAULT 0.0002 (This parameter controls the false positive rate when searching for consensus sequence motifs. Lower the value for increased stringency.)
-# PARAMETER e.value.cutoff: "E-value cutoff" TYPE DECIMAL 0 TO 100 DEFAULT 0.01 (This parameter controls the alignment stringency, where a lower value means better alignment.)
+# PARAMETER p.value.cutoff: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.0002 (This parameter controls the false positive rate when searching for consensus sequence motifs. Lower the value for increased stringency.)
+# PARAMETER e.value.cutoff: "E-value cutoff" TYPE DECIMAL FROM 0 TO 100 DEFAULT 0.01 (This parameter controls the alignment stringency, where a lower value means better alignment.)
 # PARAMETER genome: "Genome" TYPE [BSgenome.Hsapiens.UCSC.hg17, BSgenome.Hsapiens.UCSC.hg18, BSgenome.Hsapiens.UCSC.hg19, BSgenome.Mmusculus.UCSC.mm8, BSgenome.Mmusculus.UCSC.mm9, BSgenome.Rnorvegicus.UCSC.rn4] DEFAULT BSgenome.Hsapiens.UCSC.hg18 (The genome and version used when aligning the sequences.)
 
 # OUTPUT consensus-motifs.txt: "List of weight matrices for the consensus sequences"
