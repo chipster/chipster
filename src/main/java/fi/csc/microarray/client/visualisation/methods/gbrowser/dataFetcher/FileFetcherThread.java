@@ -55,6 +55,8 @@ public class FileFetcherThread extends Thread {
 		ByteRegion exactRegion = null;
 		
 		if (fileRequest.byteRegion.exact) {
+			
+			//FIXME This is never used
 
 			byte[] byteChunk = new byte[(int)fileRequest.byteRegion.getLength()];
 				
@@ -97,7 +99,7 @@ public class FileFetcherThread extends Thread {
 				
 				lines.append(file.charAt(i));		
 				
-				if (file.charAt(i) == '\n' && i >= fileRequest.byteRegion.getLength()) {
+				if (file.charAt(i) == '\n' && i > fileRequest.byteRegion.getLength()) {
 					break;
 				}
 				
@@ -112,7 +114,8 @@ public class FileFetcherThread extends Thread {
 			exactRegion.end = fileRequest.byteRegion.start + i;			
 			exactRegion.exact = true;
 
-			chunk = lines.toString();				
+			chunk = lines.toString();
+
 		}
 
 		fileRequest.status.maybeClearQueue(fileResultQueue);

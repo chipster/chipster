@@ -4,7 +4,6 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
@@ -12,16 +11,18 @@ import javax.swing.WindowConstants;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
+import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
+
 
 
 public class GenomeBrowserStarter {
 
-	private static final File ELAND_DATA_FILE = new File("/home/akallio/chipster-share/ngs/STAT1/STAT1_treatment_aggregated_filtered_sorted_chr1.txt");
-	private static final File MACS_DATA_FILE = new File("/home/akallio/chipster-share/ngs/STAT1/STAT1_peaks_sorted.bed");
+	private static final File ELAND_DATA_FILE = new File("/home/klemela/chipster-share/ngs/STAT1/STAT1_treatment_aggregated_filtered_sorted_chr1.txt");
+	private static final File MACS_DATA_FILE = new File("/home/klemela/chipster-share/ngs/STAT1/STAT1_peaks_sorted.bed");
 	private static final File URL_ROOT;
 
 	static {
-			URL_ROOT = new File("/home/akallio/chipster-share/ngs/annotations");
+			URL_ROOT = new File("/home/klemela/chipster-share/ngs/annotations");
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -63,8 +64,9 @@ public class GenomeBrowserStarter {
 		plot.start("1", 1024 * 1024 * 250d);
 		plot.moveDataBpRegion(1000000L, 100000L);
 		
-		ChartPanel panel = new ChartPanel(new JFreeChart(plot));
-		panel.setPreferredSize(new Dimension(800, 600));
+		//ChartPanel panel = new ChartPanel(new JFreeChart(plot));
+		ChartPanel panel = new NonScalableChartPanel(new JFreeChart(plot));
+		panel.setPreferredSize(new Dimension(800, 2000));
 		plot.chartPanel = panel;
 
 		panel.setCursor(new Cursor(Cursor.HAND_CURSOR));
