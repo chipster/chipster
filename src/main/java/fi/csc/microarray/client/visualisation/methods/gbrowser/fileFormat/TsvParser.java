@@ -1,10 +1,12 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.PatternSyntaxException;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
@@ -38,45 +40,51 @@ public abstract class TsvParser extends FileParser {
 		public BpCoordRegion getBpRegion(String chunk) {
 			Long start = (Long)get(getFirstRow(chunk), ColumnType.BP_START);
 			Long end = (Long)get(getLastRow(chunk), ColumnType.BP_START);
-			Chromosome chr = (Chromosome)get(getFirstRow(chunk), ColumnType.CHROMOSOME);
+			Chromosome startChr = (Chromosome)get(getFirstRow(chunk), ColumnType.CHROMOSOME);
+			Chromosome endChr = (Chromosome)get(getLastRow(chunk), ColumnType.CHROMOSOME);
 			
-			return new BpCoordRegion(start, end, chr);
+			return new BpCoordRegion(start, startChr, end, endChr);
 		}
 		
 		
 		public Object get(String[] cols, ColumnType col) {
-			
-			
-			if(cols.length <= 1) {
-				return null;
-			}
-			
-			String string = cols[fileDef.indexOf(col)].trim(); // FIXME array index out of bounds
 
-			ColumnDefinition fieldDef = fileDef.getFieldDef(col);
-			
-			if (col == ColumnType.STRAND) {
-				return string.equalsIgnoreCase("r") || string.equals("-") ? Strand.REVERSED
-						: Strand.FORWARD;
+			try {
 
-			} else if (col == ColumnType.CHROMOSOME) {
-				return new Chromosome(string.replace("chr", ""));
-
-			} else if (fieldDef.type == Type.STRING) {
-				return string;
-
-			} else if (fieldDef.type == Type.FLOAT) {
-				return new Float(string);
-
-			} else if (fieldDef.type == Type.LONG) {
-
-				if (string.length() > 0) {
-					return new Long(string); // FIXME number format exception (cytoband "q21.1"...)
-				} else {
-					return Long.MIN_VALUE;
+				if (cols.length <= 1) {
+					return null;
 				}
+
+				String string = cols[fileDef.indexOf(col)].trim();
+
+				ColumnDefinition fieldDef = fileDef.getFieldDef(col);
+
+				if (col == ColumnType.STRAND) {
+					return string.equalsIgnoreCase("r") || string.equals("-") ? Strand.REVERSED
+							: Strand.FORWARD;
+
+				} else if (col == ColumnType.CHROMOSOME) {
+					return new Chromosome(string.replace("chr", ""));
+
+				} else if (fieldDef.type == Type.STRING) {
+					return string;
+
+				} else if (fieldDef.type == Type.FLOAT) {
+					return new Float(string);
+
+				} else if (fieldDef.type == Type.LONG) {
+
+					if (string.length() > 0) {
+						return new Long(string);
+					} else {
+						return Long.MIN_VALUE;
+					}
+				}
+				return null;
+				
+			} catch (Exception e) {
+				throw new RuntimeException("error parsing columns: " + Arrays.toString(cols), e);
 			}
-			return null;
 		}
 
 		@Override

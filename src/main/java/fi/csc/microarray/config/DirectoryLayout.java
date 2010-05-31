@@ -29,7 +29,8 @@ public class DirectoryLayout {
 	public static final String LOGS_DIR = "logs";
 	public static final String SECURITY_DIR = "security";
 	public static final String CONF_DIR = "conf";
-
+	public static final String LOCAL_ANNOTATION_DIR = "annotations";
+	
 	public static final String WEB_ROOT = "web-root"; // TODO in future WEB_ROOT should be configurable (not easy because needs to be understood by Jetty)
 
 	private static final String DEBUG_BASE_DIR = "debug-base-dir";
@@ -114,6 +115,10 @@ public class DirectoryLayout {
 	public File getConfDir() throws IOException {
 		checkConfiguration();
 		return check(new File(getBaseDir(), CONF_DIR));
+	}
+
+	public File getLocalAnnotationDir() throws IOException {
+		return new File(getBaseDir(), LOCAL_ANNOTATION_DIR);
 	}
 
 

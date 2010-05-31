@@ -423,7 +423,7 @@ public class OperationPanel extends JPanel
 			//	operationChoiceView.getSelectedOperation();
 			title = OPERATION_LIST_TITLE + 
 			  " - " + this.chosenOperation.getCategoryName() +
-			  " [" + this.chosenOperation.getID() + "]";
+			  " - " + this.chosenOperation.getDisplayName();
 		} else {
 			title = OPERATION_LIST_TITLE;
 		}

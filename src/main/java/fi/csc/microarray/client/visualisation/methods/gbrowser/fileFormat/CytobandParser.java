@@ -2,7 +2,6 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
 import java.util.Arrays;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class CytobandParser extends TsvParser {

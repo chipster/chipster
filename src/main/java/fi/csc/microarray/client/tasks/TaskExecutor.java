@@ -445,7 +445,7 @@ public class TaskExecutor {
 
 							int length = (int)task.getInput(name).getContentLength();
 
-							public void progress(int bytes) {
+							public void progress(long bytes) {
 								float overall = ((float)fi) / ((float)task.getInputCount());
 								float infile = ((float)bytes) / ((float)length);
 								float p = overall + (infile / ((float)task.getInputCount()));

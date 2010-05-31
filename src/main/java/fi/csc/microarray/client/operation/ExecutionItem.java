@@ -19,6 +19,9 @@ public interface ExecutionItem {
 	 */
 	public String getID();
 	
+	public String getDisplayName();
+	
+	
 	/**
 	 * @return The category name of this ExecutionItem (either the name of an
 	 * 		   OperationCategory or, for workflows, simply "Workflow".

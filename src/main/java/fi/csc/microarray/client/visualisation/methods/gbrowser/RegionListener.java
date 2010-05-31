@@ -4,5 +4,5 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRe
 
 public interface RegionListener {
 	
-	public void RegionChanged(BpCoordRegion bpRegion);
+	public void regionChanged(BpCoordRegion bpRegion);
 }

@@ -25,6 +25,22 @@ public class RegionContent implements Comparable<RegionContent> {
 
 		int regionComparison = this.region.compareTo(other.region);
 
-		return regionComparison;
+		if (regionComparison != 0) {
+			return regionComparison;					
+		} else {
+			return values.toString().compareTo(other.values.toString());
+		}
+	}
+	
+	@Override
+	public int hashCode() {
+		return region.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		RegionContent other = (RegionContent) o;
+		
+		return region.equals(region) && values.toString().equals(other.values.toString());		
 	}
 }

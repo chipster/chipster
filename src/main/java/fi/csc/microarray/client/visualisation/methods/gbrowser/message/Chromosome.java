@@ -28,6 +28,10 @@ public class Chromosome implements Comparable<Chromosome> {
 		}
 	}
 
+	public Chromosome(Chromosome chr2) {
+		this(chr2.chr);
+	}
+
 	public boolean equals(Object o) {
 		if (o instanceof Chromosome) {
 			Chromosome other = (Chromosome) o;
