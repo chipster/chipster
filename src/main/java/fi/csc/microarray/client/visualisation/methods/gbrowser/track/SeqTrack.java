@@ -62,7 +62,7 @@ public class SeqTrack extends Track {
 				String seq = ((String) read.values.get(ColumnType.SEQUENCE));
 
 				if (seq != null) {
-					seq = seq.trim().toUpperCase();
+					seq = seq.trim();
 					
 				} else {
 					seq = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA".substring(0, (int) (endBp.minus(startBp) + 1));
@@ -94,6 +94,18 @@ public class SeqTrack extends Track {
 				break;
 			case 'T':
 				buf.setCharAt(j, 'A');
+				break;
+			case 'a':
+				buf.setCharAt(j, 't');
+				break;
+			case 'c':
+				buf.setCharAt(j, 'g');
+				break;
+			case 'g':
+				buf.setCharAt(j, 'c');
+				break;
+			case 't':
+				buf.setCharAt(j, 'a');
 				break;
 			}
 		}
@@ -128,17 +140,18 @@ public class SeqTrack extends Track {
 			}
 
 			Color bg = Color.white;
-			if (letter == 'A') {
+			
+			if (letter == 'A' || letter == 'a') {
 				bg = charColors[0];
-			} else if (letter == 'C') {
+			} else if (letter == 'C' || letter == 'c') {
 				bg = charColors[1];
-			} else if (letter == 'G') {
+			} else if (letter == 'G' || letter == 'g') {
 				bg = charColors[2];
-			} else if (letter == 'T') {
+			} else if (letter == 'T' || letter == 't') {
 				bg = charColors[3];
 			}
 
-			drawables.add(new RectDrawable((int) x, rect.y - 2, (int) increment, 10, bg, null));
+			drawables.add(new RectDrawable((int) x, rect.y - 1, (int) increment, 10, bg, null));
 
 			x += increment;
 		}
