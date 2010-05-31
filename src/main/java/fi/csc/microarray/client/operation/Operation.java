@@ -251,4 +251,9 @@ public class Operation implements ExecutionItem {
 	public void setOutputFolder(DataFolder outputFolder) {
 		this.outputFolder = outputFolder;
 	}
+
+	@Override
+	public String getDisplayName() {
+		return definition.getDisplayName();
+	}
 }

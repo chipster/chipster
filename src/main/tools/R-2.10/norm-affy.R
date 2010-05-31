@@ -1,6 +1,4 @@
-# TOOL "Normalisation" / norm-affy.R: "Affymetrix" (Affymetrix preprocessing using CEL-files. Probe sets are automatically flagged 
-# using P/A/M flags. Variance stabilization can be applied only with MAS5 or Plier preprocessing methods. Custom
-# chiptype can't be used with Plier preprocessing.)
+# TOOL "Normalisation" / norm-affy.R: "Affymetrix" (Affymetrix preprocessing using CEL-files. Probe sets are automatically flagged using P/A/M flags. Variance stabilization can be applied only with MAS5 or Plier preprocessing methods. Custom chiptype can't be used with Plier preprocessing.)
 # INPUT microarray{...}.cel: "CEL files" TYPE AFFY
 # OUTPUT normalized.tsv: "Normalised dataset"
 # OUTPUT phenodata.tsv: "Phenodata describing the experiment"

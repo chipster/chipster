@@ -81,7 +81,7 @@ public class IOUtils {
 	}
 
 	public static interface CopyProgressListener {
-		public void progress(int bytes);
+		public void progress(long bytes);
 	}
 	
 	/**
@@ -102,7 +102,7 @@ public class IOUtils {
 		// initialise
 		byte buffer[] = new byte[BUFFER_SIZE];
 		int len = BUFFER_SIZE;
-		int sum = 0;
+		long sum = 0;
 		long lastCallback = Long.MAX_VALUE; 
 		
 		// tell that we are in the beginning
