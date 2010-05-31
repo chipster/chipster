@@ -40,6 +40,7 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDReadParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Row;
@@ -124,7 +125,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		CONTROL_READS(true),
 		PEAKS(true),
 		REFERENCE(true),
-		PEAKS_WITH_HEADER(true);
+		PEAKS_WITH_HEADER(true), 
+		TREATMENT_BED_READS(true);
 		
 		private boolean isToggleable;
 		
@@ -489,6 +491,12 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 						TrackFactory.addTitleTrack(plot, file.getName());
 						TrackFactory.addReadTracks(plot, new DataSource(file), createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv"), true);
 						break;
+
+					case TREATMENT_BED_READS:
+						TrackFactory.addThickSeparatorTrack(plot);
+						TrackFactory.addTitleTrack(plot, file.getName());
+						TrackFactory.addReadTracks(plot, new DataSource(file), createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv"), true, new BEDReadParser());
+						break;
 					}
 				}
 			}
@@ -640,6 +648,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			} else if (data.isContentTypeCompatitible("text/bed")) {
 				// peaks
 				interpretations.add(TrackType.PEAKS);
+
+			} else if (data.isContentTypeCompatitible("text/bed-reads")) {
+				// peaks
+				interpretations.add(TrackType.TREATMENT_BED_READS);
 
 			} else if (data.isContentTypeCompatitible("text/tab")) {
 				// peaks (with header in the file)

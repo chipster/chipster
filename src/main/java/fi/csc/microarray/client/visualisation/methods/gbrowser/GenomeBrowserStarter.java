@@ -17,12 +17,13 @@ import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 
 public class GenomeBrowserStarter {
 
-	private static final File ELAND_DATA_FILE = new File("/home/klemela/chipster-share/ngs/STAT1/STAT1_treatment_aggregated_filtered_sorted_chr1.txt");
-	private static final File MACS_DATA_FILE = new File("/home/klemela/chipster-share/ngs/STAT1/STAT1_peaks_sorted.bed");
+//	private static final File BED_READ_DATA_FILE = new File("/home/akallio/Desktop/Bcell_expression.reads");
+	private static final File ELAND_DATA_FILE = new File("/home/akallio/chipster-share/ngs/STAT1/STAT1_treatment_aggregated_filtered_sorted_chr1.txt");
+	private static final File MACS_DATA_FILE = new File("/home/akallio/chipster-share/ngs/STAT1/STAT1_peaks_sorted.bed");
 	private static final File URL_ROOT;
 
 	static {
-			URL_ROOT = new File("/home/klemela/chipster-share/ngs/annotations");
+			URL_ROOT = new File("/home/akallio/chipster-share/ngs/annotations");
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -53,12 +54,13 @@ public class GenomeBrowserStarter {
 				true
 		);
 
-		TrackFactory.addReadTracks(
-				plot, 
-				new DataSource(ELAND_DATA_FILE),
-				new DataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_seq.tsv"),
-				false
-		);
+//		TrackFactory.addReadTracks(
+//				plot, 
+//				new DataSource(BED_READ_DATA_FILE),
+//				new DataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_seq.tsv"),
+//				true,
+//				new BEDReadParser()
+//		);
 
 		TrackFactory.addRulerTrack(plot);
 		plot.start("1", 1024 * 1024 * 250d);

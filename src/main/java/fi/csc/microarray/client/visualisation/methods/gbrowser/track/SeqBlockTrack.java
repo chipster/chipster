@@ -24,6 +24,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 
 public class SeqBlockTrack extends Track {
 
+	public static final String DUMMY_SEQUENCE = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+								+ "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+								+ "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+
 	private static final int SPACE_BETWEEN_READS = 2;
 
 	private static final Color[] charColors = new Color[] {
@@ -92,10 +96,7 @@ public class SeqBlockTrack extends Track {
 						seqLength = 0;
 					}
 					
-					seq = ("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-							+ "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-							+ "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-							.substring(0, seqLength);
+					seq = DUMMY_SEQUENCE.substring(0, seqLength);
 				}
 
 				// create rectangle covering the correct screen area (x-axis)

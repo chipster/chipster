@@ -82,7 +82,7 @@ public abstract class TsvParser extends FileParser {
 				return null;
 				
 			} catch (Exception e) {
-				throw new RuntimeException("error parsing columns: " + Arrays.toString(cols), e);
+				throw new RuntimeException("error parsing columns: " + Arrays.toString(cols) + " (looking for: " + col + ")", e);
 			}
 		}
 
@@ -120,7 +120,6 @@ public abstract class TsvParser extends FileParser {
 		
 		@Override
 		public long getDefaulChunkLength() {
-
 			return 2*1024;
 		}
 }
