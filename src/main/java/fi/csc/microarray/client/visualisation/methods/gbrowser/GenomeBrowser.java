@@ -539,10 +539,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 
 			// fill in initial positions if not filled in
 			if (megaLocation.getText().trim().isEmpty()) {
-				megaLocation.setText("33");
+				megaLocation.setText("1");
 			}
 			if (kiloLocation.getText().trim().isEmpty()) {
-				kiloLocation.setText("550");
+				kiloLocation.setText("0");
 			}
 			if (unitLocation.getText().trim().isEmpty()) {
 				unitLocation.setText("0");
