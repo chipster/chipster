@@ -7,7 +7,7 @@
 
 # plot-cgh-profile.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-03-19
+# 2010-04-20
 
 library(CGHcall)
 
@@ -20,12 +20,12 @@ samples <- gsub('[^0-9,-]', ',', samples)
 items <- strsplit(samples, ',')[[1]]
 to.plot <- integer()
 for (item in items) {
-	item <- item[item!='']
-	if (length(item)==0) next
-	range <- strsplit(item, '-')[[1]]
-	range <- range[range!='']
-	if (length(range)==0) next
-	to.plot <- c(to.plot, seq(range[1], range[length(range)]))
+  item <- item[item!='']
+  if (length(item)==0) next
+  range <- strsplit(item, '-')[[1]]
+  range <- range[range!='']
+  if (length(range)==0) next
+  to.plot <- c(to.plot, seq(range[1], range[length(range)]))
 }
 to.plot <- unique(to.plot)
 
@@ -34,7 +34,7 @@ to.plot <- to.plot[to.plot<=nrow(phenodata)]
 
 # check that we have something to plot
 if (length(to.plot)==0)
-	stop('Nothing to plot.')
+  stop('CHIPSTER-NOTE: Nothing to plot.')
 
 # build a cghCall object from the data
 dat$chromosome[dat$chromosome=='X'] <- 23
@@ -51,23 +51,23 @@ probgain <- as.matrix(dat[,grep("probgain", names(dat))])
 probamp <- as.matrix(dat[,grep("probamp", names(dat))])
 
 if (ncol(probamp)==0) {
-	cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=copynumber, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
+  cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=copynumber, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
 } else {
-	cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=copynumber, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain, probamp=probamp), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
+  cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=copynumber, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain, probamp=probamp), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
 }
 sampleNames(cgh) <- phenodata$description
 
 # plot
 bitmap(file='cgh-profile.png', width=image.width/72, height=image.height/72)
 if (length(to.plot)==1) {
-	plot(cgh[,to.plot]) # dotres=10 -> every 10th log2-ratio is plotted
+  plot(cgh[,to.plot]) # dotres=10 -> every 10th log2-ratio is plotted
 } else {
-	sq <- sqrt(length(to.plot))
-	rows <- ceiling(sq)
-	cols <- ceiling(length(to.plot)/rows)
-	par(mfrow=c(rows,cols))
-	for (sample in to.plot)
-		plot(cgh[,sample]) # dotres=10 -> every 10th log2-ratio is plotted
+  sq <- sqrt(length(to.plot))
+  rows <- ceiling(sq)
+  cols <- ceiling(length(to.plot)/rows)
+  par(mfrow=c(rows,cols))
+  for (sample in to.plot)
+    plot(cgh[,sample]) # dotres=10 -> every 10th log2-ratio is plotted
 }
 dev.off()
 

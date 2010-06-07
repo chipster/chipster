@@ -648,6 +648,8 @@ public class DataManager {
 	 * @throws IOException 
 	 */
 	public OutputStream getContentOutputStreamAndLockDataBean(DataBean bean) throws IOException {
+		// FIXME find correct place for this
+		bean.setContentChanged(true);
 		
 		// for local temp beans, just get the output stream
 		if (bean.getType().equals(DataBeanType.LOCAL_TEMP)) {
