@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
@@ -15,16 +16,17 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class ProfileTrack extends Track {
 
-	private Collection<RegionContent> peaks = new TreeSet<RegionContent>();
-
 	private long maxBpLength;
 	private long minBpLength;
 
-	private boolean wasLastConcised = true;
+	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
+	private TreeMap<Long, Long> collector = new TreeMap<Long, Long>();
+	private boolean wasLastConsised = true;
 	private Color color;
 
 
@@ -39,61 +41,90 @@ public class ProfileTrack extends Track {
 	public Collection<Drawable> getDrawables() {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
-		if (peaks != null) {
+		collector.clear();
 
-			Iterator<RegionContent> iter = peaks.iterator();
-			RegionContent last = null;
+		// iterate over RegionContent objects (one object corresponds to one read)
+		if (reads != null) {
+			Iterator<RegionContent> iter = reads.iterator();
+			Chromosome lastChromosome = null;
+			
 			while (iter.hasNext()) {
 
-				RegionContent value = iter.next();
+				RegionContent read = iter.next();
 
-				if (!value.region.intercepts(getView().getBpRegion())) {
+				// remove those that are not in this view
+				if (!read.region.intercepts(getView().getBpRegion())) {
 					iter.remove();
 					continue;
 				}
+
+				// collect relevant data for this read
+				BpCoord startBp = read.region.start;
+				BpCoord endBp = read.region.end;
+				lastChromosome = read.region.start.chr;
 				
-				if (last != null) {
-					createDrawable(value.region.start, value.region.start.bp.intValue() % 10, last.region.start, last.region.start.bp.intValue() % 10, color, drawables);
+				int seqLength = (int) (endBp.minus(startBp) + 1);
+
+				for (Long i = read.region.start.bp; i <= (read.region.start.bp + seqLength); i++) {
+					if (collector.containsKey(i)) {
+						collector.put(i, collector.get(i) + 1);
+					} else {
+						collector.put(i, 1L);
+					}
 				}
-				last = value;
 			}
+
+			Iterator<Long> bpLocations = collector.keySet().iterator();
+			if (bpLocations.hasNext()) {
+				Long lastBpLocation = bpLocations.next();
+				while (bpLocations.hasNext()) {
+					Long currentBpLocation = bpLocations.next();
+
+					long startX = getView().bpToTrack(new BpCoord(lastBpLocation, lastChromosome));
+					long endX = getView().bpToTrack(new BpCoord(currentBpLocation, lastChromosome));
+					long startY = collector.get(lastBpLocation);
+					long endY = collector.get(currentBpLocation);
+
+					drawables.add(new LineDrawable((int)startX, (int)-startY*2, (int)endX, (int)-endY*2, color));
+					lastBpLocation = currentBpLocation;
+				}
+			}
+			
 		}
 
 		return drawables;
 	}
 
-	private void createDrawable(BpCoord startBp, int h, BpCoord endBp, int h2, Color c, Collection<Drawable> drawables) {
-
-		int x = getView().bpToTrack(startBp);
-		int x2 = getView().bpToTrack(endBp);
-
-		int y = (int) (getView().getTrackHeight()) + h;
-		int y2 = (int) (getView().getTrackHeight()) + h2;
-
-		drawables.add(new LineDrawable(x, y, x2, y2, c));
-	}
-
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
 
-		if (areaResult.status.concise == this.isConcised()) {
-			this.peaks.add(areaResult.content);
+		// check that areaResult has same concised status (currently always false)
+		// and correct strand
+		if (areaResult.status.concise == isConcised()
+				&& areaResult.content.values.get(ColumnType.STRAND) == getStrand()) {
+			
+			// add this to queue of RegionContents to be processed
+			this.reads.add(areaResult.content);
 			getView().redraw();
 		}
 	}
 
-
 	@Override
 	public void updateData() {
-		if (wasLastConcised != isConcised()) {
-			peaks.clear();
-			wasLastConcised = isConcised();
+
+		if (wasLastConsised != isConcised()) {
+			reads.clear();
+			wasLastConsised = isConcised();
 		}
 		super.updateData();
 	}
 
 	@Override
 	public int getMaxHeight() {
-		if (getView().getBpRegion().getLength() > minBpLength && getView().getBpRegion().getLength() <= maxBpLength) {
+
+		// the track is hidden if outside given bp length boundaries
+		if (getView().getBpRegion().getLength() > minBpLength
+				&& getView().getBpRegion().getLength() <= maxBpLength) {
+
 			return super.getMaxHeight();
 			
 		} else {
@@ -103,7 +134,8 @@ public class ProfileTrack extends Track {
 
 	@Override
 	public Collection<ColumnType> getDefaultContents() {
-		return Arrays.asList(new ColumnType[] { });
+		return Arrays.asList(new ColumnType[] { ColumnType.SEQUENCE,
+				ColumnType.STRAND, ColumnType.QUALITY });
 	}
 
 	@Override
