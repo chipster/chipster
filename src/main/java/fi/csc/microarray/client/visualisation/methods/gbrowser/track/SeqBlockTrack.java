@@ -14,7 +14,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
@@ -23,6 +22,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class SeqBlockTrack extends Track {
+
+	private static final int MAX_STACKING_DEPTH = 10;
 
 	public static final String DUMMY_SEQUENCE = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
 								+ "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -119,6 +120,12 @@ public class SeqBlockTrack extends Track {
 					occupiedSpace.add(end);
 				}
 
+				// check maximum stacking depth
+				if (layer > MAX_STACKING_DEPTH) {
+					System.out.println("jorma");
+					continue; 
+				}
+				
 				// now we can decide the y-axis
 				rect.y = (int) (getView().getTrackHeight() - ((layer + 1) * (height + SPACE_BETWEEN_READS)));
 				rect.height = height;
@@ -131,8 +138,15 @@ public class SeqBlockTrack extends Track {
 
 				
 				if (rect.width < seq.length()) {
+					
+					Color color = blockColor;
+					// mark last line that will be drawn
+					if (layer == MAX_STACKING_DEPTH) {
+						color = color.darker();
+					}
+
 					// no space to draw actual sequence
-					drawables.add(new RectDrawable(rect, blockColor, null));
+					drawables.add(new RectDrawable(rect, color, null));
 
 				} else { 
 					// enough space to show the actual sequence
@@ -174,6 +188,11 @@ public class SeqBlockTrack extends Track {
 							bg = charColors[2];
 						} else if (letter == 'T') {
 							bg = charColors[3];
+						}
+						
+						// mark last line that will be drawn
+						if (layer == MAX_STACKING_DEPTH) {
+							bg = bg.darker();
 						}
 
 						drawables.add(new RectDrawable((int) x + 1, rect.y,
