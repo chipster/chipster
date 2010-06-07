@@ -7,14 +7,19 @@
 
 # plot-cn-induced-gene-expression.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-05-26
+# 2010-06-04
 
 library(intCNGEan)
 
 # read input file
 dat <- read.table('cn-induced-expression.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 
-# deal here with the extra columns of the regional output when they are added
+# if testing was done with analysis.type='regional', the resulting table contains four more columns
+# those are removed so that we can calculate the number of samples from the number of columns
+dat$reg.id <- NULL
+dat$begin.reg <- NULL
+dat$end.reg <- NULL
+dat$shrinkage <- NULL
 
 # return the data to the original order
 # not sure if necessary, but just in case

@@ -2,12 +2,12 @@
 # INPUT GENE_EXPRS matched-cn-and-expression.tsv
 # OUTPUT cn-induced-expression.tsv
 # PARAMETER test.statistic [wcvm, wmw] DEFAULT wcvm (The test statistic to use.)
-# PARAMETER analysis.type [univariate] DEFAULT univariate (The type of the analysis.)
+# PARAMETER analysis.type [univariate, regional] DEFAULT univariate (The type of the analysis.)
 # PARAMETER nperm INTEGER DEFAULT 10000 (The number of permutations used for the p-value calculation.)
 
 # test-for-cn-induced-differential-expression.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-05-26
+# 2010-06-04
 
 library(CGHcall)
 library(intCNGEan)
@@ -49,12 +49,10 @@ matched <- list(CNdata.matched=cgh, GEdata.matched=exp)
 tuned <- intCNGEan.tune(matched$CNdata.matched, matched$GEdata.matched, test.statistic=test.statistic)
 result <- intCNGEan.test(tuned, analysis.type=analysis.type, test.statistic=test.statistic, nperm=nperm)
 
-#if (any(rownames(tuned$ann) != rownames(result)))
-if (nrow(tuned$ann) != nrow(result))
-  stop('CHIPSTER-NOTE: The number of rows for the objects tuned and result do not match. Please report this to Ilari Scheinin.')
+if (any(rownames(tuned$ann) != rownames(result)))
+  stop('CHIPSTER-NOTE: The rownames for the objects tuned and result do not match. Please report this to Ilari Scheinin.')
 
 # format and write result table
-rownames(result) <- rownames(tuned$ann)
 colnames(result)[1:3] <- tolower(colnames(result)[1:3])
 result$probes <- rownames(tuned$datafortest)
 arrays <- colnames(tuned$datafortest)[(2*tuned$nosamp+1):(3*tuned$nosamp)]

@@ -5,7 +5,7 @@
 
 # detect-common-copy-number-aberration-regions.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-03-20
+# 2010-06-06
 
 library(CGHcall)
 library(CGHregions)
@@ -51,7 +51,6 @@ if (2 %in% assayDataElement(regions, 'regions'))
 dat2 <- cbind(dat2, assayDataElement(regions, 'regions'))
 colnames(dat2) <- sub('calls\\.', 'flag\\.', colnames(dat2))
 
-probe.ratios <- cbind()
 region.medians <- assayDataElement(regions, 'regions')
 for (row in rownames(region.medians)) {
     region.medians[row,] <- apply(copynumber[cgh@featureData@data$Chromosome == regions@featureData@data[row, "Chromosome"] &
