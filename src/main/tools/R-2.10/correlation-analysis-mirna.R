@@ -126,7 +126,8 @@ for (mirna.count in 1:number.mirna) {
 	correlation.p.value <- cor.test (as.numeric(mirna.expression[mirna.count,]),as.numeric(gene.expression[mirna.count,]), method=correlation.method)
 	correlation.p.value <- correlation.p.value$p.value
 	results.table[mirna.count,4] <- correlation.coefficient
-	results.table[mirna.count,5] <- correlation.p.value
+	results.table[mirna.count,5] <- p.adjust(correlation.p.value, method=p.value.adjustment.method)
+#	results.table[mirna.count,5] <- correlation.p.value
 }
 
 # Find genes with statistically significant positive correlation
