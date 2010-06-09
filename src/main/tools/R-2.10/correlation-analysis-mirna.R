@@ -24,7 +24,7 @@
 # Kendall's method is suitable in those cases one is interested in the sign of the changes in expression between adjacent
 # data points, rather than the magnitude.)
 # PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
-# PARAMETER p.value.adjustment.method [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method)
+# PARAMETER p.value.adjustment.method [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT none (Multiple testing correction method)
 
 # Correlation analysis of miRNA targets
 # MG, 11.2.2010
@@ -126,9 +126,9 @@ for (mirna.count in 1:number.mirna) {
 	correlation.p.value <- cor.test (as.numeric(mirna.expression[mirna.count,]),as.numeric(gene.expression[mirna.count,]), method=correlation.method)
 	correlation.p.value <- correlation.p.value$p.value
 	results.table[mirna.count,4] <- correlation.coefficient
-	results.table[mirna.count,5] <- p.adjust(correlation.p.value, method=p.value.adjustment.method)
-#	results.table[mirna.count,5] <- correlation.p.value
+	results.table[mirna.count,5] <- correlation.p.value
 }
+results.table[,5] <- p.adjust(results.table[,5], method=p.value.adjustment.method)
 
 # Find genes with statistically significant positive correlation
 results.positive <- results.table[results.table[,4]>0,]
