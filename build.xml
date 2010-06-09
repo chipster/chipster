@@ -2,7 +2,7 @@
 
 <project name="Chipster" default="package" basedir=".">
 	<description>
-		The Chipster server installation package (incl. clients and everything)Ö
+		The Chipster server installation package (incl. clients and everything)
     </description>
 
 
@@ -36,7 +36,7 @@
 	<taskdef resource="testngtasks" classpath="${lib}/testng-5.9-jdk15.jar"/>
 
 	<!-- version numbering -->
-	<property name="release-version" value="1.4.3" />
+	<property name="release-version" value="1.4.4" />
 	<property name="r-version" value="R-2.9" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar" />
