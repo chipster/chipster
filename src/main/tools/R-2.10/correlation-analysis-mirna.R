@@ -28,6 +28,7 @@
 
 # Correlation analysis of miRNA targets
 # MG, 11.2.2010
+# IS, 8.6.2010 bugfix
 
 # Loads the libraries
 library(RmiR)
@@ -90,30 +91,22 @@ mirna.data.3 <- mirna.data.2[,order(mirna.order)]
 gene.data.3 <- gene.data.2[,order(gene.order)]
 
 # Create data set appropriate for correlation testing
-mirna.data.4 <- cbind(rownames(mirna.data.3), as.numeric(mirna.data.3[,1]))
-gene.data.4 <- cbind(rownames(gene.data.3), as.numeric(gene.data.3[,1]))
-mirna.data.4 <- as.data.frame(mirna.data.4)
-gene.data.4 <- as.data.frame(gene.data.4)
-mirna.data.4[,2] <- as.numeric(mirna.data.4[,2])
-gene.data.4[,2] <- as.numeric(gene.data.4[,2])
+mirna.data.4 <- data.frame(mirna=rownames(mirna.data.3), exprs=mirna.data.3[,1])
+gene.data.4 <- data.frame(gene=rownames(gene.data.3), exprs=gene.data.3[,1])
 # check that the gene list actually contain at least one miRNA target
 try(merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4,
 				annotation=chip.type), silent=TRUE)
 if (match("merged.table",ls(),nomatch=0)==0) {
 	stop("There were no targets found in either TarBase or PicTar databases
-for the supplied list of miRNA:s in the gene list selected.
-Try again by selecting a longer list of genes!")
+					for the supplied list of miRNA:s in the gene list selected.
+					Try again by selecting a longer list of genes!")
 }
 merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4,
 		annotation=chip.type, verbose=TRUE)
 
 for (count in 2:number.conditions) {
-	mirna.data.4 <- cbind(rownames(mirna.data.3), as.numeric(mirna.data.3[,count]))
-	gene.data.4 <- cbind(rownames(gene.data.3), as.numeric(gene.data.3[,count]))
-	mirna.data.4 <- as.data.frame(mirna.data.4)
-	gene.data.4 <- as.data.frame(gene.data.4)
-	mirna.data.4[,2] <- as.numeric(mirna.data.4[,2])
-	gene.data.4[,2] <- as.numeric(gene.data.4[,2])
+	mirna.data.4 <- data.frame(mirna=rownames(mirna.data.3), exprs=mirna.data.3[,count])
+	gene.data.4 <- data.frame(gene=rownames(gene.data.3), exprs=gene.data.3[,count])
 	temp.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4,
 			annotation=chip.type, verbose=TRUE)
 	temp.table
@@ -133,15 +126,16 @@ for (mirna.count in 1:number.mirna) {
 	correlation.p.value <- cor.test (as.numeric(mirna.expression[mirna.count,]),as.numeric(gene.expression[mirna.count,]), method=correlation.method)
 	correlation.p.value <- correlation.p.value$p.value
 	results.table[mirna.count,4] <- correlation.coefficient
-	results.table[mirna.count,5] <- correlation.p.value
+	results.table[mirna.count,5] <- p.adjust(correlation.p.value, method=p.value.adjustment.method)
+#	results.table[mirna.count,5] <- correlation.p.value
 }
 
 # Find genes with statistically significant positive correlation
-results.positive <- results.table[results.table[,4]<0,]
+results.positive <- results.table[results.table[,4]>0,]
 results.positive.significant <- results.positive[results.positive[,5]<=p.value.threshold,]
 
 # Find genes with statistically significant negative correlation
-results.negative <- results.table[results.table[,4]>=0,]
+results.negative <- results.table[results.table[,4]<=0,]
 results.negative.significant <- results.negative[results.negative[,5]<=p.value.threshold,]
 
 # Write the results to tables to be read into Chipster

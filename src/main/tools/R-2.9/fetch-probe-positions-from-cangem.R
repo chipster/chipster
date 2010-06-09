@@ -6,12 +6,12 @@
 
 # fetch-probe-positions-from-cangem.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-03-19
+# 2010-04-20
 
 # check for valid platform accession
 platform.accession <- toupper(platform.accession)
 if (length(grep('^CG-PLM-[0-9]+$', platform.accession))==0)
-	stop('Not a valid platform accession: ', platform.accession)
+  stop('CHIPSTER-NOTE: Not a valid platform accession: ', platform.accession)
 
 dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 
