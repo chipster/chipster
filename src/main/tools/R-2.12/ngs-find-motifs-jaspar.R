@@ -29,15 +29,15 @@ library(rGADEM)
 library(package=genome, character.only=TRUE)
 
 # Covert genome name to fit requirements from rGADEM package
-if (genome == "BSgenome.Hsapiens.UCSC.hg17" | genome == "BSgenome.Hsapiens.UCSC.hg18" | genome == "BSgenome.Hsapiens.UCSC.hg19") {
-		genome <- "Hsapiens"
-}
-if (genome == "BSgenome.Mmusculus.UCSC.mm8" | genome == "BSgenome.Mmusculus.UCSC.mm9") {
-	genome <- "Mmusculus"
-}
-if (genome == "BSgenome.Rnorvegicus.UCSC.rn4") {
-	genome <- "Rnorvegicus"
-}
+#if (genome == "BSgenome.Hsapiens.UCSC.hg17" | genome == "BSgenome.Hsapiens.UCSC.hg18" | genome == "BSgenome.Hsapiens.UCSC.hg19") {
+#		genome <- "Hsapiens"
+#}
+#if (genome == "BSgenome.Mmusculus.UCSC.mm8" | genome == "BSgenome.Mmusculus.UCSC.mm9") {
+#	genome <- "Mmusculus"
+#}
+#if (genome == "BSgenome.Rnorvegicus.UCSC.rn4") {
+#	genome <- "Rnorvegicus"
+#}
 
 # Read in data and convert to BED format
 results_file <- read.table (file="results.tsv", sep="\t", header=T)
