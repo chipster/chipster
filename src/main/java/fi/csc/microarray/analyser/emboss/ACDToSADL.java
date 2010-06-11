@@ -119,9 +119,9 @@ public class ACDToSADL {
 	     */
 	    public static Parameter createParameter(ACDParameter param) {
 	        // Parameter should not be shown to a user
-	        if (param.isAdvanced()) {
-	            return null;
-	        }
+	        //if (param.isAdvanced()) {
+	        //    return null;
+	        //}
 	        
 	        String fieldType = param.getType();
 	        String fieldName = param.getName();

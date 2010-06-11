@@ -475,7 +475,14 @@ public class OperationDefinition implements ExecutionItem {
 			s += input.getName() + " " + type + " " + input.getDescription() + "\n";
 		}
 		for (Parameter parameter: parameters) {
-			s += parameter.getID() + " " + parameter.getValueAsString() + "\n";
+		    // Some parameters don't have default values
+		    String value;
+		    if (parameter.getValue() == null) {
+		        value = "[no default value]";
+		    } else {
+		        value = parameter.getValueAsString();
+		    }
+			s += parameter.getID() + " " + value + "\n";
 		}
 
 		s += "\n-------------- operation definition --------------\n";
