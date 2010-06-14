@@ -27,7 +27,7 @@ if (session != 'empty' && session != '') {
 } else auth <- ''
 
 # fetch list of arrays from CanGEM
-cangem.samples <- read.table(paste('http://www.cangem.org/scripts/listhybs.php?dataset=', accession, auth, sep=''), sep='\t', header=TRUE, as.is=TRUE)
+cangem.samples <- read.table(paste('http://www.cangem.org/scripts/listhybs.php?accession=', accession, auth, sep=''), sep='\t', header=TRUE, as.is=TRUE)
 
 # check that we did get some results
 if (nrow(cangem.samples)==0)
