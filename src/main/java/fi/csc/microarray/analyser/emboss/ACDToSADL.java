@@ -118,11 +118,6 @@ public class ACDToSADL {
 	     * @return SADL parameter object or null.
 	     */
 	    public static Parameter createParameter(ACDParameter param) {
-	        // Parameter should not be shown to a user
-	        //if (param.isAdvanced()) {
-	        //    return null;
-	        //}
-	        
 	        String fieldType = param.getType();
 	        String fieldName = param.getName();
 	        
@@ -221,6 +216,7 @@ public class ACDToSADL {
 	        }
 	        
 	        // Mark as optional if needed
+	        // Advanced parameters are considered optional
 	        if (sadlParam != null) {
 	            sadlParam.setOptional(!param.isRequired());
 	        }
