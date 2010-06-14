@@ -6,6 +6,10 @@ import java.util.List;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * Generic file parser. Information is divided into chunks.
+ *
+ */
 public abstract class FileParser {
 
 	public abstract List<RegionContent> getAll(String chunk, Collection<ColumnType> requestedContents);	

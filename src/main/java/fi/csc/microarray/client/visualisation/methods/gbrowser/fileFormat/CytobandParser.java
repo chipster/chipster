@@ -11,6 +11,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRe
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * Parser for cytoband description files using tab-separated values.
+ *
+ */
 public class CytobandParser extends TsvParser {
 
 	public static final String LAST_ROW_OF_CHROMOSOME = "lastRowOfChromosome";
@@ -39,7 +43,7 @@ public class CytobandParser extends TsvParser {
 		return "Cytobands";
 	}
 	
-	/* 
+	/**
 	 * Overridden to notice the chromosome changes. This information is needed to find out the last
 	 * part of each chromosome to set the scroll limits. If the chromosome change happens to 
 	 * be between chunks, it won't be noticed and that chromosome doesn't get limited.

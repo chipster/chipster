@@ -11,6 +11,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRe
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * Generic parser for tab-separated value files.
+ *
+ */
 public abstract class TsvParser extends FileParser {
 
 		private FileDefinition fileDef;
@@ -45,7 +49,13 @@ public abstract class TsvParser extends FileParser {
 			return new BpCoordRegion(start, startChr, end, endChr);
 		}
 		
-		
+		/**
+		 * Fetch values of given column type from given array of rows.
+		 * 
+		 * @param cols - an array of rows (as Strings).
+		 * @param col - column type.
+		 * @return
+		 */
 		public Object get(String[] cols, ColumnType col) {
 
 			try {
@@ -85,7 +95,14 @@ public abstract class TsvParser extends FileParser {
 				throw new RuntimeException("error parsing columns: " + Arrays.toString(cols) + " (looking for: " + col + ")", e);
 			}
 		}
-
+		
+	    /**
+         * Fetch all columns of given column types that are in a given chunk.
+         * 
+         * @param chunk - string chunk from a file.
+         * @param requestedContents - a collection of column types to be fetched.
+         * @return
+         */
 		@Override
 		public List<RegionContent> getAll(String chunk, Collection<ColumnType> requestedContents) {
 

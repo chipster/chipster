@@ -6,6 +6,13 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeqBlockTrack;
 
+/**
+ * Parser for a BED-like format that describes annotations. Values
+ * are tab-separated.
+ * 
+ * @see BEDParser
+ *
+ */
 public class BEDReadParser extends TsvParser {
 
 	public BEDReadParser() {

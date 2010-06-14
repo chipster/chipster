@@ -1,5 +1,9 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
+/**
+ * Column in tab-separated value file. 
+ *
+ */
 public class ColumnDefinition {
 
 	public static final int TAB_DELIM = -1;

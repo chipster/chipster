@@ -11,6 +11,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRe
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * File produced by ELAND (Efficient Large-scale Alignment of Nucleotide
+ * Databases) program.
+ *
+ */
 public class ElandParser extends TsvParser {
 
 	public ElandParser() {

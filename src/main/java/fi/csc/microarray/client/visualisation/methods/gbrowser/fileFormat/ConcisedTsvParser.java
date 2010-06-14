@@ -6,6 +6,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRe
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * DOCME Describe the difference between regular tsv parser and this one.
+ *
+ */
 public abstract class ConcisedTsvParser extends TsvParser{
 
 	public ConcisedTsvParser(FileDefinition fileDef) {
