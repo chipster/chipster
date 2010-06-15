@@ -211,6 +211,14 @@ public class ToolRepository {
 	 * During parsing also construct description message that
 	 * can be sent to the client.
 	 * 
+	 * Disabled tools are not available in this analyser instance,
+	 * but are available in some other instances running, so the
+	 * client still has to be informed about them.
+	 * 
+	 * Hidden tools are available in this instance, but are not
+	 * shown in the normal operation list in user interface. Still,
+	 * we should pass them to the client.
+	 * 
 	 * @param toolFile
 	 * @throws FileNotFoundException
 	 * @throws SAXException
@@ -266,10 +274,10 @@ public class ToolRepository {
 			}
 			
 		    // visibility
-		    boolean categoryHidden = categoryElement.getAttribute("hidden").equals("true");
+		    boolean categoryHidden = Boolean.valueOf(categoryElement.getAttribute("hidden"));
 
 		    // add category to the module description message
-		    Category category = new Category(categoryName, categoryColor);
+		    Category category = new Category(categoryName, categoryColor, categoryHidden);
 		    
 		    // load tools
 		    for (Element toolElement: XmlUtil.getChildElements(categoryElement, "tool")) {
@@ -287,8 +295,9 @@ public class ToolRepository {
 		    	}
 
 		    	// tool visibility
+		    	// currently tools can be hidden only if their category is hidden
 		    	boolean toolDisabled = toolElement.getAttribute("disabled").equals("true");
-		    	boolean toolHidden = toolElement.getAttribute("hidden").equals("true") || categoryHidden;
+		    	boolean toolHidden = categoryHidden;
 
 		    	// runtime
 		    	String runtimeName = toolElement.getAttribute("runtime");
@@ -352,12 +361,12 @@ public class ToolRepository {
 		    		disabledCount++;
 		    	}
 
-		    	// hidden or not
-		    	String hiddenStatus = "";
-		    	if (!toolHidden) {
-		    		// add to category, which gets sent to the client
-		    		category.addTool(description.getSADL(), description.getHelpURL());
-		    	} else {
+	    		// add to category, which gets sent to the client
+	    		category.addTool(description.getSADL(), description.getHelpURL());
+	    		
+                // hidden or not    		
+                String hiddenStatus = "";
+		    	if (toolHidden) {
 		    		hiddenStatus = " HIDDEN";
 		    		hiddenCount++;
 		    	}
@@ -367,9 +376,7 @@ public class ToolRepository {
 		    }
 
 		    // add the category to the module description message
-		    if (!categoryHidden) {
-		    	moduleDescriptionMessage.addCategory(category);
-		    }
+		    moduleDescriptionMessage.addCategory(category);
 		}
 
 		logger.info("loaded " + moduleName + " " + successfullyLoadedCount + "/" + totalCount +

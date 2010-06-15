@@ -43,8 +43,7 @@ import fi.csc.microarray.exception.MicroarrayException;
 @SuppressWarnings("serial")
 public class SequenceImportDialog extends JDialog implements CaretListener, ActionListener {
     
-    private static final String OPERATION_ID = "import.sadl";
-    private static final String OUT_FILE = "outseq";
+    private static final String OPERATION_ID = "importseq";
     private final Dimension BUTTON_SIZE = new Dimension(70, 25);
     
     private static Logger logger = Logger.getLogger(SequenceImportDialog.class);
@@ -175,11 +174,11 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         this.add(rangePanel, c);
         
         // Checkbox for merging into one
-        mergeCheckBox = new JCheckBox("Merge into one dataset");
-        mergeCheckBox.setSelected(true);
-        c.insets.set(10, 10, 5, 10);
-        c.gridy++;
-        this.add(mergeCheckBox, c);
+//        mergeCheckBox = new JCheckBox("Merge into one dataset");
+//        mergeCheckBox.setSelected(true);
+//        c.insets.set(10, 10, 5, 10);
+//        c.gridy++;
+//        this.add(mergeCheckBox, c);
         
         // OK button
         okButton = new JButton("OK");
@@ -225,7 +224,6 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
             separator = separator == -1 ? fileName.length() : separator;
             
             // There can be multiple sequences
-            LinkedList<DataBean> datasets = new LinkedList<DataBean>();
             String[] sequences = ids.split("\n|;|,");
             int index = 0;
             for (String id : sequences) {
@@ -238,45 +236,45 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
                 }
                 
                 // Run import
-                datasets.add(runImport(name, folderName, db, id));
+                runImport(name, folderName, db, id);
             }
             
             // Create datasets
-            if (mergeCheckBox.isSelected() && datasets.size() > 0) {
-                // Merge all imported datasets into one
-                try {
-                    StringBuilder sb = new StringBuilder();
-                    for (DataBean dataset : datasets) {
-                        sb.append(new String(dataset.getContents()));
-                    }
-                    String content = sb.toString();
-                    
-                    // Create single dataset for all input data
-                    ByteArrayInputStream stream = new ByteArrayInputStream(content.getBytes());
-                    DataBean data = application.getDataManager().createDataBean(fileName, stream);
-                    data.setContentType(application.getDataManager().guessContentType(fileName));
-                    data.setOperation(new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data }));
-                    
-                    // Make it visible
-                    DataFolder folder = application.initializeFolderForImport(folderName);
-                    folder.addChild(data);
-                    application.getSelectionManager().selectSingle(data, this);
-                } catch (MicroarrayException e1) {
-					// FIXME proper error handling 
-                	e1.printStackTrace();
-                } catch (IOException ioe) {
-					// FIXME proper error handling 
-					ioe.printStackTrace();
-				}
-            } else {
-                // Make separate datasets visible
-                for (DataBean dataset : datasets) {
-                    DataFolder folder = application.initializeFolderForImport(folderName);
-                    folder.addChild(dataset);
-                    application.getSelectionManager().selectSingle(dataset, this);
-                }
-            }
-            
+            // TODO ability to merge datasets
+//            if (mergeCheckBox.isSelected() && datasets.size() > 0) {
+//                // Merge all imported datasets into one
+//                try {
+//                    StringBuilder sb = new StringBuilder();
+//                    for (DataBean dataset : datasets) {
+//                        sb.append(new String(dataset.getContents()));
+//                    }
+//                    String content = sb.toString();
+//                    
+//                    // Create single dataset for all input data
+//                    ByteArrayInputStream stream = new ByteArrayInputStream(content.getBytes());
+//                    DataBean data = application.getDataManager().createDataBean(fileName, stream);
+//                    data.setContentType(application.getDataManager().guessContentType(fileName));
+//                    data.setOperation(new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data }));
+//                    
+//                    // Make it visible
+//                    DataFolder folder = application.initializeFolderForImport(folderName);
+//                    folder.addChild(data);
+//                    application.getSelectionManager().selectSingle(data, this);
+//                } catch (MicroarrayException e1) {
+//					// FIXME proper error handling 
+//                	e1.printStackTrace();
+//                } catch (IOException ioe) {
+//					// FIXME proper error handling 
+//					ioe.printStackTrace();
+//				}
+//            } else {
+//                // Make separate datasets visible
+//                for (DataBean dataset : datasets) {
+//                    DataFolder folder = application.initializeFolderForImport(folderName);
+//                    folder.addChild(dataset);
+//                    application.getSelectionManager().selectSingle(dataset, this);
+//                }
+//            }
             
             this.dispose();
         } else if (e.getSource() == cancelButton) {
@@ -292,30 +290,38 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
      * @param db
      * @param id
      */
-    private DataBean runImport(String fileName, String folderName, String db, String id) {
-        DataBean data = null;
+    private void runImport(String fileName, String folderName, String db, String id) {
         try {               
             // Create importing job
             logger.info("Importing sequence...");
             
+            // Prepare parameters
+            Integer sbegin;
+            try {
+                sbegin = Integer.parseInt(beginField.getText());
+            } catch (NumberFormatException e) {
+                sbegin = null;
+            }
+            Integer send;
+            try {
+                send = Integer.parseInt(endField.getText());
+            } catch (NumberFormatException e) {
+                send = null;
+            }
+
+            // Create operation
             Operation operation = new Operation(application.getOperationDefinition(OPERATION_ID), new DataBean[] {});
             operation.setParameter("sequence", db + ":" + id);
-            operation.setParameter("sbegin", beginField.getText());
-            operation.setParameter("send", endField.getText());
+            operation.setParameter("sbegin", sbegin);
+            operation.setParameter("send", send);
             
             // Run the job (blocking while it is progressing)
             application.executeOperation(operation);
-
-            // should not be done like this
-//            // Create a dataset or prepare for merging them later
-//            data = importSequence.getOutput(OUT_FILE);
-//            data.setName(fileName);
-//            data.setContentType(client.getDataManager().guessContentType(fileName));
-//            data.setOperation(new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data }));
+            
+            // TODO ability to merge datasets
+            
         } catch (Exception exc) {
-            // FIXME proper error handling
-        	exc.printStackTrace();
+            application.reportException(exc);
         }
-        return data;
     }
 }

@@ -38,7 +38,6 @@ public class OperationDefinition implements ExecutionItem {
 	 * actual operation (in the sense that it would be possible to execute it)
 	 * but rather a dummy substitute, without any parameters.
 	 */
-	
 	public static final String IMPORT_DEFINITION_ID = "operation-definition-id-import";
 	public static final String CREATE_DEFINITION_ID = "operation-definition-id-user-modification";
 	
@@ -203,7 +202,7 @@ public class OperationDefinition implements ExecutionItem {
 	/**
 	 * Creates a new operation definition with the given initial values.
 	 * 
-	 * @param name
+	 * @param id
 	 *            The name of this operation. Should be something that extends
 	 *            the corresponding category name to be more specific (for
 	 *            example, in the category "Normalization", "Lowess" might be a
@@ -235,9 +234,9 @@ public class OperationDefinition implements ExecutionItem {
 	 * @param hasSourceCode
 	 * @param helpURL
 	 */
-     public OperationDefinition(String name, String displayName, OperationCategory category,
+     public OperationDefinition(String id, String displayName, OperationCategory category,
          String description, boolean hasSourceCode) {
-         this(name, displayName, category, description, hasSourceCode, null);
+         this(id, displayName, category, description, hasSourceCode, null);
      }
 
 	/**

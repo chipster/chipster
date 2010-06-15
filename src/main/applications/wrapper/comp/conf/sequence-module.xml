@@ -663,7 +663,7 @@
 	<!-- INTERNAL TOOLS, NOT VISIBLE TO USER -->
 	<category color="#629a9b" name="Internal" hidden="true">
 		<tool runtime="shell">
-			<resource>import.sadl</resource>
+			<resource>import-sequence.sadl</resource>
 			<parameter>
 				<name>executable</name>
 				<value>/opt/EMBOSS-6.2.0/emboss/seqret</value>

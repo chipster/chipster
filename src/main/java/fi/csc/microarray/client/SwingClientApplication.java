@@ -214,7 +214,7 @@ public class SwingClientApplication extends ClientApplication {
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
-		if (parsedCategories == null) {
+		if (visibleCategories == null) {
 			throw new MicroarrayException("metadata was not received (analyser not functional?)");
 		}
 
@@ -243,7 +243,7 @@ public class SwingClientApplication extends ClientApplication {
 
 		// create operation panel using metadata
 		try {
-			operationsPanel = new OperationPanel(parsedCategories);
+			operationsPanel = new OperationPanel(visibleCategories);
 		} catch (ParseException e) {
 			logger.error("SADL parse failed", e);
 			throw new MicroarrayException(e);
