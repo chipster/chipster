@@ -21,10 +21,10 @@ import org.apache.log4j.Logger;
 import fi.csc.microarray.client.dialog.RenameDialog;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
-import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.Dataset.Link;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 
 /**
@@ -39,21 +39,21 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 	private static final Logger logger = Logger.getLogger(ClientContextMenu.class);
 
 	private static class LinkInfo {
-		private DataBean source;
-		private DataBean target;
+		private Dataset source;
+		private Dataset target;
 		private Link link;
 
-		public LinkInfo(DataBean source, DataBean target, Link link) {
+		public LinkInfo(Dataset source, Dataset target, Link link) {
 			this.source = source;
 			this.target = target;
 			this.link = link;
 		}
 
-		public DataBean getSource() {
+		public Dataset getSource() {
 			return source;
 		}
 
-		public DataBean getTarget() {
+		public Dataset getTarget() {
 			return target;
 		}
 
@@ -164,7 +164,7 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 				this.saveWorkflowItem.setEnabled(false);
 
 			} else {
-				if (selectedItem instanceof DataBean) {
+				if (selectedItem instanceof Dataset) {
 					// single selected DataBean
 					this.visualiseMenuItem.setEnabled(true);
 					this.renameMenuItem.setEnabled(true);
@@ -172,7 +172,7 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 					this.historyMenuItem.setEnabled(true);
 					
 					// workflow items only enabled for normalised data
-					boolean normalisedDataSelected = ChipsterInputTypes.GENE_EXPRS.isTypeOf((DataBean)selectedItem);
+					boolean normalisedDataSelected = ChipsterInputTypes.GENE_EXPRS.isTypeOf((Dataset)selectedItem);
 					this.saveWorkflowItem.setEnabled(normalisedDataSelected);
 				} else {
 					// single selected DataFolder
@@ -196,13 +196,13 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 	private void updateLinkMenus(List<DataItem> items) {
 		
 		// do we have exactly two beans (normal linking)
-		if (items.size() == 2 && items.get(0) != null && items.get(0) instanceof DataBean && items.get(1) != null && items.get(1) instanceof DataBean) {
+		if (items.size() == 2 && items.get(0) != null && items.get(0) instanceof Dataset && items.get(1) != null && items.get(1) instanceof Dataset) {
 
 			this.metadataLinkMenu.setEnabled(false);
 			this.linksMenu.setEnabled(true);
 
-			DataBean one = (DataBean) items.get(0);
-			DataBean other = (DataBean) items.get(1);
+			Dataset one = (Dataset) items.get(0);
+			Dataset other = (Dataset) items.get(1);
 
 			linkToMenu.removeAll();
 
@@ -210,7 +210,7 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 			createRemoveLinkMenu(one, other);
 
 		// do we have exactly one bean (phenodata shortcut linking)
-		} else if (items.size() == 1 && items.get(0) != null && items.get(0) instanceof DataBean) {
+		} else if (items.size() == 1 && items.get(0) != null && items.get(0) instanceof Dataset) {
 
 			this.metadataLinkMenu.setEnabled(true);
 			this.linksMenu.setEnabled(false);
@@ -218,18 +218,18 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 			int itemsCreated = 0;
 			
 			// phenodata cannot link to phenodata
-			if (!((DataBean) items.get(0)).queryFeatures("/phenodata").exists()) {
+			if (!((Dataset) items.get(0)).queryFeatures("/phenodata").exists()) {
 
-				List<DataBean> allDatas = application.getAllDataBeans();
+				List<Dataset> allDatas = application.getAllDataBeans();
 
 				allDatas.remove(selectedItem); // cannot link to itself
 
 				// gather annotating beans
-				for (DataBean data : allDatas) {
+				for (Dataset data : allDatas) {
 					if (data.queryFeatures("/phenodata").exists()) {				
 						JMenuItem annotateMenuItem = new JMenuItem(getBeanText(data));
 						metadataLinkMenu.add(annotateMenuItem);
-						linkMap.put(annotateMenuItem, new LinkInfo((DataBean)selectedItem, data, Link.ANNOTATION));
+						linkMap.put(annotateMenuItem, new LinkInfo((Dataset)selectedItem, data, Link.ANNOTATION));
 						annotateMenuItem.addActionListener(this);
 						itemsCreated++;
 					}
@@ -248,7 +248,7 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 		}
 	}
 
-	private void createRemoveLinkMenu(DataBean one, DataBean other) {
+	private void createRemoveLinkMenu(Dataset one, Dataset other) {
 
 		this.unlinkMenu.setEnabled(false);
 
@@ -262,14 +262,14 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 		}
 	}
 
-	private String getBeanText(DataBean one) {
+	private String getBeanText(Dataset one) {
 		return one.getName();
 	}
 
-	private void createNewLinkMenu(DataBean one, DataBean other) {
-		DataBean.Link[] links = DataBean.Link.userEditableValues();
+	private void createNewLinkMenu(Dataset one, Dataset other) {
+		Dataset.Link[] links = Dataset.Link.userEditableValues();
 
-		for (DataBean.Link link : links) {
+		for (Dataset.Link link : links) {
 			JMenu linkMenu = new JMenu(link.toString());
 			linkToMenu.add(linkMenu);
 
@@ -285,7 +285,7 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 		}
 	}
 
-	private String getLinkText(DataBean one, DataBean other, boolean reversed) {
+	private String getLinkText(Dataset one, Dataset other, boolean reversed) {
 		//Unicode characters didn't work in windows
 		//String arrow = reversed ? " \u2190 " : " \u2192 ";
 		String arrow = !reversed ? "  ->  " : "  <-  ";
@@ -318,9 +318,9 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 			application.exportSelectedItems();
 		} else if (source == historyMenuItem) {
 			// Don't do for the folders
-			if (selectedItem instanceof DataBean) {
+			if (selectedItem instanceof Dataset) {
 				logger.debug("History activated");
-				DataBean data = (DataBean) this.selectedItem;
+				Dataset data = (Dataset) this.selectedItem;
 				if (data != null) {
 					application.showHistoryScreenFor(data);
 				}
@@ -342,7 +342,7 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 			LinkInfo connector = unlinkMap.get((JMenuItem) source);
 
 			logger.debug("Removing link from " + connector.getSource());
-			printLinksForData((DataBean) selectedItem);
+			printLinksForData((Dataset) selectedItem);
 
 			application.removeLink(connector.getSource(), connector.getTarget(), connector.getLink());
 		}
@@ -358,26 +358,26 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 	}
 
 	public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-		if (selectedItem instanceof DataBean) {
+		if (selectedItem instanceof Dataset) {
 			historyMenuItem.setEnabled(true);
 		} else {
 			historyMenuItem.setEnabled(false);
 		}
 	}
 
-	private static List<LinkInfo> getSharedLinks(DataBean one, DataBean other) {
+	private static List<LinkInfo> getSharedLinks(Dataset one, Dataset other) {
 
 		List<LinkInfo> sharedLinks = new ArrayList<LinkInfo>();
 
 		for (Link linkType : Link.values()) {
 
-			for (DataBean target : one.getLinkTargets(linkType)) {
+			for (Dataset target : one.getLinkTargets(linkType)) {
 				if (other == target) {
 					sharedLinks.add(new LinkInfo(one, target, linkType));
 				}
 			}
 
-			for (DataBean target : other.getLinkTargets(linkType)) {
+			for (Dataset target : other.getLinkTargets(linkType)) {
 				if (one == target) {
 					sharedLinks.add(new LinkInfo(other, target, linkType));
 				}
@@ -394,14 +394,14 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 		return sharedLinks;
 	}
 
-	public static void printLinksForData(DataBean data) {
+	public static void printLinksForData(Dataset data) {
 		for (Link type : Link.values()) {
-			for (DataBean source : data.getLinkSources(type)) {
+			for (Dataset source : data.getLinkSources(type)) {
 				logger.debug(source.getName() + " <" + type + "> " + data.getName());
 			}
 		}
 		for (Link type : Link.values()) {
-			for (DataBean target : data.getLinkTargets(type)) {
+			for (Dataset target : data.getLinkTargets(type)) {
 				logger.debug(data.getName() + " <" + type + "> " + target.getName());
 			}
 		}

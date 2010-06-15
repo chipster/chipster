@@ -8,7 +8,7 @@ import javax.swing.JTextPane;
 
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class TextViewer extends Visualisation {
@@ -20,7 +20,7 @@ public class TextViewer extends Visualisation {
 	}
 
 	@Override
-	public JComponent getVisualisation(DataBean data) throws Exception {
+	public JComponent getVisualisation(Dataset data) throws Exception {
 		byte[] txt = data.getContents(CONTENT_SIZE_LIMIT);
 
 		if (txt != null) {
@@ -33,7 +33,7 @@ public class TextViewer extends Visualisation {
 	}
 
 	@Override
-	public boolean canVisualise(DataBean bean) throws MicroarrayException {
+	public boolean canVisualise(Dataset bean) throws MicroarrayException {
 		return bean.isContentTypeCompatitible("text/plain", "chemical/x-fasta", "text/wig");
 	}
 

@@ -9,9 +9,9 @@ import org.jgraph.graph.GraphConstants;
 
 import fi.csc.microarray.client.dataview.MicroarrayGraph;
 import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataFolder;
-import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.Dataset.Link;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
@@ -48,7 +48,7 @@ public class GraphVertex extends AbstractGraphVertex {
 	 * @param data Dataset which this vertex is to represent on the graph.
 	 * @throws NullPointerException If the provided DataBean is null.
 	 */
-	public GraphVertex(int x, int y, DataBean data, MicroarrayGraph graph) {
+	public GraphVertex(int x, int y, Dataset data, MicroarrayGraph graph) {
 		super(x, y, data, graph);
 		
 		children = new ArrayList<GraphVertex>();
@@ -97,10 +97,10 @@ public class GraphVertex extends AbstractGraphVertex {
 	 * 
 	 * @return user specified data
 	 */
-	public DataBean getData() {
+	public Dataset getData() {
 		Object userObject = this.getUserObject();
-		assert (userObject instanceof DataBean);
-		return (DataBean) userObject;
+		assert (userObject instanceof Dataset);
+		return (Dataset) userObject;
 	}
 
 	/**
@@ -203,8 +203,8 @@ public class GraphVertex extends AbstractGraphVertex {
 		return roots;
 	}
 	
-	private void findRoots(DataBean data, List<GraphVertex> roots) {
-		for (DataBean source : data.getLinkTargets(Link.DERIVATION, Link.MODIFICATION)) {
+	private void findRoots(Dataset data, List<GraphVertex> roots) {
+		for (Dataset source : data.getLinkTargets(Link.DERIVATION, Link.MODIFICATION)) {
 			if(source.getLinkTargets(Link.DERIVATION, Link.MODIFICATION).size() == 0) {
 				GraphVertex vertex = (GraphVertex)(graph.getVertexMap().get(source));
 				if(!roots.contains(vertex)){

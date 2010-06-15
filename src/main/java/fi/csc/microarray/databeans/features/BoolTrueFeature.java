@@ -1,10 +1,10 @@
 package fi.csc.microarray.databeans.features;
 
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 
 public class BoolTrueFeature extends ConstantStringFeature  {
 
-	public BoolTrueFeature(DataBean bean, FeatureProvider factory) {
+	public BoolTrueFeature(Dataset bean, FeatureProvider factory) {
 		super(bean, factory, "true");
 	}
 	

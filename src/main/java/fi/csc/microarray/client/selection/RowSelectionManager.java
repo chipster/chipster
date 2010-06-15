@@ -14,9 +14,9 @@ import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.Dataset.Link;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
@@ -32,10 +32,10 @@ public class RowSelectionManager {
 	// private static final Logger logger =
 	// Logger.getLogger(RowSelectionManager.class);
 	private ClientApplication client;
-	private DataBean data;
+	private Dataset data;
 	private int[] selectedRows = new int[0];
 
-	public RowSelectionManager(ClientApplication client, DataBean data) {
+	public RowSelectionManager(ClientApplication client, Dataset data) {
 		this.client = client;
 		this.data = data;
 	}
@@ -83,10 +83,10 @@ public class RowSelectionManager {
 		return lines;
 	}
 		
-	public static DataBean createDataset(Iterable<String> lines, DataBean... sources) throws Exception {
+	public static Dataset createDataset(Iterable<String> lines, Dataset... sources) throws Exception {
 		DataManager dataManager = Session.getSession().getApplication().getDataManager();
 		
-		DataBean newData = dataManager.createDataBean("user_edited.tsv");
+		Dataset newData = dataManager.createDataBean("user_edited.tsv");
 		
 		// write data
 		OutputStream outputStream = dataManager.getContentOutputStreamAndLockDataBean(newData);
@@ -100,13 +100,13 @@ public class RowSelectionManager {
 		writer.flush();
 		dataManager.closeContentOutputStreamAndUnlockDataBean(newData, outputStream);
 		// TODO get the operation definition from the application
-		newData.setOperation(new Operation(OperationDefinition.CREATE_DEFINITION, new DataBean[] { newData }));
+		newData.setOperation(new Operation(OperationDefinition.CREATE_DEFINITION, new Dataset[] { newData }));
 
 		
 		// set metadata
-		DataBean primarySource = sources[0]; // use the first source as the primary source		
+		Dataset primarySource = sources[0]; // use the first source as the primary source		
 		newData.setContentType(primarySource.getContentType());
-		for (DataBean data : sources) {
+		for (Dataset data : sources) {
 			newData.addLink(Link.MODIFICATION, data);
 		}
 		primarySource.getParent().addChild(newData);

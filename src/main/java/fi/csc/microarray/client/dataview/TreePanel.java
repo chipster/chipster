@@ -38,7 +38,7 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataChangeEvent;
 import fi.csc.microarray.databeans.DataChangeListener;
 import fi.csc.microarray.databeans.DataFolder;
@@ -78,7 +78,7 @@ public class TreePanel extends JPanel implements DataChangeListener, TreeSelecti
         		
         		DataItem selectedItem = this.getSelectedElementFrom(e);
         		
-        		if (selectedItem instanceof DataBean) {        			
+        		if (selectedItem instanceof Dataset) {        			
         			application.visualiseWithBestMethod(FrameType.MAIN);
         			
         		} else if (selectedItem instanceof DataFolder) {
@@ -122,7 +122,7 @@ public class TreePanel extends JPanel implements DataChangeListener, TreeSelecti
          			
          		} else {
          			List<DataItem> items = new ArrayList<DataItem>();
-         			for (DataBean bean : application.getSelectionManager().getSelectedDataBeans()) {
+         			for (Dataset bean : application.getSelectionManager().getSelectedDataBeans()) {
          				items.add(bean);
          			}
          			application.showPopupMenuFor(e, items);
@@ -261,7 +261,7 @@ public class TreePanel extends JPanel implements DataChangeListener, TreeSelecti
 		
 		if (data.getParent() == null || nodeMap.containsKey(data.getParent())) {
 
-			if (data instanceof DataBean) {
+			if (data instanceof Dataset) {
 				DefaultMutableTreeNode node = createNode(data);
 				nodeMap.put(data, node);				
 
@@ -359,7 +359,7 @@ public class TreePanel extends JPanel implements DataChangeListener, TreeSelecti
         		dataEvent.getSource() != this) {
         	
         	LinkedList<TreePath> paths = new LinkedList<TreePath>();
-        	for(DataBean bean : application.getSelectionManager().getSelectedDataBeans()){
+        	for(Dataset bean : application.getSelectionManager().getSelectedDataBeans()){
         		paths.add(new TreePath(nodeMap.get(bean).getPath()));
         	}        	
         	TreePath path[] = paths.toArray(new TreePath[paths.size()]);

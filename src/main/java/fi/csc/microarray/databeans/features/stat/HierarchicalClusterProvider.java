@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.biobeans.BioBean;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.BasicFeature;
@@ -15,10 +15,10 @@ import fi.csc.microarray.exception.MicroarrayException;
 
 public class HierarchicalClusterProvider extends FeatureProviderBase {
 
-	public Feature createFeature(String namePostfix, final DataBean bean) {
+	public Feature createFeature(String namePostfix, final Dataset bean) {
 		
 		if ("heatmap".equals(namePostfix)) {
-			DataBean source = new BioBean(bean).getProperSource();
+			Dataset source = new BioBean(bean).getProperSource();
 			if (source != null) {
 				return source.queryFeatures("/column/*").asFeature();
 			} else {

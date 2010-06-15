@@ -3,7 +3,7 @@ package fi.csc.microarray.databeans.features.bio;
 import java.io.IOException;
 import java.io.InputStream;
 
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.features.BoolFalseFeature;
 import fi.csc.microarray.databeans.features.BoolTrueFeature;
 import fi.csc.microarray.databeans.features.Feature;
@@ -21,7 +21,7 @@ public class EmbeddedBinaryProvider extends FeatureProviderBase {
 
 	private static final byte[] CEL4_HEADER = {	0x40, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00};
 	
-	public Feature createFeature(String namePostfix, DataBean bean) {
+	public Feature createFeature(String namePostfix, Dataset bean) {
 		
 		if (!"".equals(namePostfix)) {
 			throw new RuntimeException("unknown name postfix: " + namePostfix);

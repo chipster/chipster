@@ -27,12 +27,12 @@ import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.parameter.Parameter;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataBean.DataBeanType;
-import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.Dataset.DataBeanType;
+import fi.csc.microarray.databeans.Dataset.Link;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.IOUtils;
@@ -63,7 +63,7 @@ public class SnapshottingSession {
 
 	// TODO initialise this
 	private File sessionFile;
-	private HashMap<DataBean, URL> newURLs;
+	private HashMap<Dataset, URL> newURLs;
 	private int entryCounter = 0;
 	
 	private int itemIdCounter = 0;
@@ -83,7 +83,7 @@ public class SnapshottingSession {
 	public void saveSnapshot(File sessionFile) throws IOException {
 
 		this.sessionFile = sessionFile;
-		this.newURLs = new HashMap<DataBean, URL>();
+		this.newURLs = new HashMap<Dataset, URL>();
 		boolean replaceOldSession = sessionFile.exists();
 
 		File newSessionFile;
@@ -150,7 +150,7 @@ public class SnapshottingSession {
 			} 
 			
 			// session file is now saved, update the urls and handlers in the client
-			for (DataBean bean: newURLs.keySet()) {
+			for (Dataset bean: newURLs.keySet()) {
 
 				// set new url and handler and type
 				bean.setType(DataBeanType.LOCAL_SESSION);
@@ -203,7 +203,7 @@ public class SnapshottingSession {
 				dataCount += recDataCount;
 				
 			} else {
-				generateId((DataBean)data);
+				generateId((Dataset)data);
 				dataCount++;
 			}
 		}
@@ -221,7 +221,7 @@ public class SnapshottingSession {
 				saveRecursively((DataFolder)data, cpZipOutputStream, metadata);
 				
 			} else {
-				DataBean bean = (DataBean)data;
+				Dataset bean = (Dataset)data;
 
 				// create the new URL TODO check the ref
 				String entryName = getNewEntryName();
@@ -246,7 +246,7 @@ public class SnapshottingSession {
 		saveDataItemMetadata(folder, folderId, metadata);
 	}	
 	
-	private void saveDataBeanMetadata(DataBean bean, URL newURL, String folderId, StringBuffer metadata) {
+	private void saveDataBeanMetadata(Dataset bean, URL newURL, String folderId, StringBuffer metadata) {
 		String beanId = fetchId(bean);
 		
 		// for now all data content goes to session --> type is local session
@@ -367,7 +367,7 @@ public class SnapshottingSession {
 						continue;
 					}
 					
-					DataBean bean;
+					Dataset bean;
 					switch (type) {
 					case LOCAL_SESSION:
 						bean = manager.createDataBean("<empty>", snapshot, entryName);
@@ -391,9 +391,9 @@ public class SnapshottingSession {
 					String name = afterNthSpace(line, 2);
 					DataItem item = fetchItem(id);
 					item.setName(name);
-					if (item instanceof DataBean) {
+					if (item instanceof Dataset) {
 						// update content type now that we have the real filename available (this is needed!)
-						DataBean bean = (DataBean)item;
+						Dataset bean = (Dataset)item;
 						bean.setContentType(manager.guessContentType(name));
 					}
 					
@@ -409,7 +409,7 @@ public class SnapshottingSession {
 						warnAboutObsoleteContent(message, details, null);
 					}
 					Operation op = null;
-					op = new Operation(od, new DataBean[] { /* empty inputs currently */});
+					op = new Operation(od, new Dataset[] { /* empty inputs currently */});
 					mapId(id, op);
 
 				} else if (line.startsWith("OPERATION_PARAMETER ")) {
@@ -420,7 +420,7 @@ public class SnapshottingSession {
 					String operId = split[1];
 					Operation operation = fetchOperation(operId);
 					String beanId = split[2];
-					DataBean bean = (DataBean)fetchItem(beanId);
+					Dataset bean = (Dataset)fetchItem(beanId);
 					bean.setOperation(operation);
 
 				} else if (line.startsWith("INPUTS ")) {
@@ -445,14 +445,14 @@ public class SnapshottingSession {
 					String[] split = line.split(" ");
 					String id = split[1];
 					String notes = afterNthSpace(line, 2);
-					DataBean item = (DataBean)fetchItem(id);
+					Dataset item = (Dataset)fetchItem(id);
 					item.setNotes(notes);
 
 				} else if (line.startsWith("CACHED_URL ")) {
 					String[] split = line.split(" ");
 					String id = split[1];
 					String url = split[2];
-					DataBean bean = (DataBean)fetchItem(id);
+					Dataset bean = (Dataset)fetchItem(id);
 					bean.setContentChanged(false);
 					bean.setCacheUrl(new URL(url));
 					
@@ -461,13 +461,13 @@ public class SnapshottingSession {
 					Link link= Link.valueOf(split[1]);
 					String fromId = split[2];
 					String toId = split[3];
-					DataBean from = (DataBean)fetchItem(fromId);
-					DataBean to = (DataBean)fetchItem(toId);
+					Dataset from = (Dataset)fetchItem(fromId);
+					Dataset to = (Dataset)fetchItem(toId);
 					
 					// to be compatible with older session files that have duplicate links
 					// check for duplicity here
 					boolean exists = false;
-					for (DataBean target : from.getLinkTargets(link)) {
+					for (Dataset target : from.getLinkTargets(link)) {
 						if (target == to) {
 							// this link already exists, do not add it again
 							exists = true;
@@ -529,16 +529,16 @@ public class SnapshottingSession {
 				String operId = split[1];
 				Operation operation = fetchOperation(operId);
 
-				LinkedList<DataBean> inputs = new LinkedList<DataBean>();
+				LinkedList<Dataset> inputs = new LinkedList<Dataset>();
 				for (int i = 2; i < split.length; i++) {
 					String beanId = split[i];
-					DataBean bean = (DataBean)fetchItem(beanId);
+					Dataset bean = (Dataset)fetchItem(beanId);
 					if (bean.queryFeatures("/phenodata/").exists()) {
 						continue; // skip phenodata, it is bound automatically
 					}
 					inputs.add(bean);
 				}
-				operation.bindInputs(inputs.toArray(new DataBean[] {}));
+				operation.bindInputs(inputs.toArray(new Dataset[] {}));
 
 			} else {
 				throw new RuntimeException("internal error, cannot parse: " + line);
@@ -557,9 +557,9 @@ public class SnapshottingSession {
 				saveLinksRecursively((DataFolder)data, metadata);
 				
 			} else {
-				DataBean bean = (DataBean)data; 
+				Dataset bean = (Dataset)data; 
 				for (Link type : Link.values()) {
-					for (DataBean target : bean.getLinkTargets(type)) {
+					for (Dataset target : bean.getLinkTargets(type)) {
 						String beanId = fetchId(bean);
 						String targetId = fetchId(target);				
 						metadata.append("LINK " + type.name() + " " + beanId + " " + targetId + "\n");

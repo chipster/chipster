@@ -1,25 +1,25 @@
 package fi.csc.microarray.databeans;
 
-import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.Dataset.Link;
 
 public class LinksChangedEvent extends DataChangeEvent {
 
 	private Link type;
-	private DataBean target;
+	private Dataset target;
 	private boolean isCreation;
 
-	public LinksChangedEvent(DataBean source, DataBean target, Link type, boolean isCreation) {
+	public LinksChangedEvent(Dataset source, Dataset target, Link type, boolean isCreation) {
 		super(source);
 		this.target = target;
 		this.type = type;
 		this.isCreation = isCreation;
 	}
 	
-	public DataBean getSource() {
-		return (DataBean)getDataItem();
+	public Dataset getSource() {
+		return (Dataset)getDataItem();
 	}
 	
-	public DataBean getTarget() {
+	public Dataset getTarget() {
 		return target;
 	}
 	

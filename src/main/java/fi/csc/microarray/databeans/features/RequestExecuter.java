@@ -2,7 +2,7 @@ package fi.csc.microarray.databeans.features;
 
 import java.util.LinkedList;
 
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.util.LookaheadStringReader;
 
@@ -14,7 +14,7 @@ public class RequestExecuter {
 		this.manager = manager;
 	}
 	
-	public Feature execute(String request, DataBean data) {
+	public Feature execute(String request, Dataset data) {
 		
 		if (request.startsWith("/")) {
 			return executeFeature(request, data);
@@ -23,7 +23,7 @@ public class RequestExecuter {
 		}
 	}
 
-	private Feature executeModifier(String request, DataBean data) {
+	private Feature executeModifier(String request, Dataset data) {
 		LookaheadStringReader requestReader = new LookaheadStringReader(request);
 		
 		String modifierName = requestReader.readTo("(");
@@ -47,7 +47,7 @@ public class RequestExecuter {
 		return modifier.getOutput();
 	}
 
-	private Feature executeFeature(String request, DataBean data) {
+	private Feature executeFeature(String request, Dataset data) {
 		return manager.fetchFeature(request, data);
 	}
 }

@@ -1,6 +1,6 @@
 package fi.csc.microarray.description.vvsadl;
 
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 
 
 /**
@@ -61,7 +61,7 @@ public class CompatibilityVVSADLSyntax {
 
 
         public static interface InputType {
-                public boolean isTypeOf(DataBean dataBean);
+                public boolean isTypeOf(Dataset dataBean);
                 public String getName();
                 public boolean isMetadata();
         }

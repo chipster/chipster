@@ -1,20 +1,20 @@
 package fi.csc.microarray.databeans.features;
 
 
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public abstract class BasicFeature extends FeatureBase implements Feature {
 	
-	private DataBean bean;
+	private Dataset bean;
 	private FeatureProvider factory;
 	
-	protected BasicFeature(DataBean bean, FeatureProvider factory) {
+	protected BasicFeature(Dataset bean, FeatureProvider factory) {
 		this.bean = bean;
 		this.factory = factory;
 	}
 	
-	protected DataBean getDataBean() {
+	protected Dataset getDataBean() {
 		return bean;
 	}
 	

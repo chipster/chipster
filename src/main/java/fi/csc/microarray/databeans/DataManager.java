@@ -22,8 +22,8 @@ import org.mortbay.util.IO;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
-import fi.csc.microarray.databeans.DataBean.DataBeanType;
-import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.Dataset.DataBeanType;
+import fi.csc.microarray.databeans.Dataset.Link;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
 import fi.csc.microarray.databeans.features.Modifier;
@@ -242,14 +242,14 @@ public class DataManager {
 
 	
 	
-	public static DataBean[] wrapSource(DataBean source) {
-		DataBean[] sources = null;
+	public static Dataset[] wrapSource(Dataset source) {
+		Dataset[] sources = null;
 		
 		if (source != null) {
-			sources = new DataBean[1];
+			sources = new Dataset[1];
 			sources[0] = source;
 		} else {
-			sources = new DataBean[0];
+			sources = new Dataset[0];
 		}
 		
 		return sources;
@@ -345,7 +345,7 @@ public class DataManager {
 		return modifiers.get(modifierName);
 	}
 	
-	public Feature fetchFeature(String featureName, DataBean bean) {
+	public Feature fetchFeature(String featureName, Dataset bean) {
 		String bestMatch = null; 		
 		for (String feature : factories.keySet()) {
 			if (featureName.startsWith(feature)) {
@@ -408,7 +408,7 @@ public class DataManager {
 	 * Create a local temporary file DataBean without content, without a parent folder and without sources. 
 	 * If a reference to this bean is lost it can not be accessed any more.
 	 */
-	public DataBean createDataBean(String name) throws MicroarrayException {
+	public Dataset createDataBean(String name) throws MicroarrayException {
 		File contentFile;
 		try {
 			contentFile = createNewRepositoryFile(name);
@@ -416,7 +416,7 @@ public class DataManager {
 			throw new MicroarrayException(e);
 		}
 		
-		return createDataBean(name, DataBeanType.LOCAL_TEMP, null, new DataBean[] {}, contentFile);
+		return createDataBean(name, DataBeanType.LOCAL_TEMP, null, new Dataset[] {}, contentFile);
 	}
 
 	/**
@@ -424,8 +424,8 @@ public class DataManager {
 	 * folder and without sources. If a reference to this bean
 	 * is lost it can not be accessed any more.
 	 */
-	public DataBean createDataBean(String name, InputStream content) throws MicroarrayException {
-		return createDataBean(name, content, null, new DataBean[] {});
+	public Dataset createDataBean(String name, InputStream content) throws MicroarrayException {
+		return createDataBean(name, content, null, new Dataset[] {});
 	}
 
 	/**
@@ -433,15 +433,15 @@ public class DataManager {
 	 * The file is used directly, the contents are not copied anywhere.
 	 * 
 	 */
-	public DataBean createDataBean(String name, File contentFile) throws MicroarrayException {		
-		return createDataBean(name, DataBeanType.LOCAL_USER, null, new DataBean[] {}, contentFile);
+	public Dataset createDataBean(String name, File contentFile) throws MicroarrayException {		
+		return createDataBean(name, DataBeanType.LOCAL_USER, null, new Dataset[] {}, contentFile);
 	}
 
 	/**
 	 * For now, only file URLs are supported.
 	 * 
 	 */
-	public DataBean createDataBean(String name, URL url) throws MicroarrayException {
+	public Dataset createDataBean(String name, URL url) throws MicroarrayException {
 		File contentFile;
 		try {
 			contentFile = new File(url.toURI());
@@ -449,7 +449,7 @@ public class DataManager {
 			throw new IllegalArgumentException("Could not convert " + url + " to a file");
 		}
 		
-		return createDataBean(name, DataBeanType.LOCAL_USER, null, new DataBean[] {}, contentFile);
+		return createDataBean(name, DataBeanType.LOCAL_USER, null, new Dataset[] {}, contentFile);
 	}
 
 	/**
@@ -462,7 +462,7 @@ public class DataManager {
 	 * @return
 	 * @throws MicroarrayException
 	 */
-	public DataBean createDataBean(String name, File zipFile, String zipEntryName) throws MicroarrayException {
+	public Dataset createDataBean(String name, File zipFile, String zipEntryName) throws MicroarrayException {
 		URL url;
 		try {
 			 url = new URL(zipFile.toURI().toURL(), "#" + zipEntryName);
@@ -471,7 +471,7 @@ public class DataManager {
 		}
 		
 		DataBeanHandler handler = new ZipDataBeanHandler();
-		DataBean dataBean = new DataBean(name, DataBeanType.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new DataBean[] {}, null, this, handler);
+		Dataset dataBean = new Dataset(name, DataBeanType.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new Dataset[] {}, null, this, handler);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
 		return dataBean;
 	}
@@ -480,7 +480,7 @@ public class DataManager {
 	/**
 	 * Create a local temporary file DataBean with content, with a parent folder and with sources.
 	 */
-	private DataBean createDataBean(String name, InputStream content, DataFolder folder, DataBean... sources) throws MicroarrayException {
+	private Dataset createDataBean(String name, InputStream content, DataFolder folder, Dataset... sources) throws MicroarrayException {
 
 		// copy the data from the input stream to the file in repository
 		File contentFile;
@@ -497,7 +497,7 @@ public class DataManager {
 		}
 
 		// create and return the bean
-		DataBean bean = createDataBean(name, DataBeanType.LOCAL_TEMP, folder, sources, contentFile);
+		Dataset bean = createDataBean(name, DataBeanType.LOCAL_TEMP, folder, sources, contentFile);
 		return bean;
 	}
 	
@@ -507,7 +507,7 @@ public class DataManager {
 	 * The file is used directly, the contents are not copied anywhere.
 	 * 
 	 */
-	private DataBean createDataBean(String name, DataBeanType type, DataFolder folder, DataBean[] sources, File contentFile) throws MicroarrayException {
+	private Dataset createDataBean(String name, DataBeanType type, DataFolder folder, Dataset[] sources, File contentFile) throws MicroarrayException {
 		URL url;
 		try {
 			 url = contentFile.toURI().toURL();
@@ -516,7 +516,7 @@ public class DataManager {
 		}
 		
 		DataBeanHandler handler = new LocalFileDataBeanHandler();
-		DataBean dataBean = new DataBean(name, type, "", url, guessContentType(name), new Date(), sources, folder, this, handler);
+		Dataset dataBean = new Dataset(name, type, "", url, guessContentType(name), new Date(), sources, folder, this, handler);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
 		return dataBean;
 	}
@@ -556,14 +556,14 @@ public class DataManager {
 			deleteDataFolder((DataFolder)data);
 			
 		} else {
-			deleteDataBean((DataBean)data);
+			deleteDataBean((Dataset)data);
 		}		
 	}
 	
-	private void deleteDataBean(DataBean bean) {
+	private void deleteDataBean(Dataset bean) {
 
 		// remove from operation history
-		for (DataBean source : databeans()) {
+		for (Dataset source : databeans()) {
 			// we must iterate all datas because links cannot be trusted (they might have been removed by user)
 
 			boolean isDirty = false;
@@ -587,11 +587,11 @@ public class DataManager {
 		// remove links
 		for (Link linkType : Link.values()) {
 			// Remove outgoing links
-			for (DataBean target : bean.getLinkTargets(linkType)) {
+			for (Dataset target : bean.getLinkTargets(linkType)) {
 				bean.removeLink(linkType, target);
 			}
 			// Remove incoming links
-			for (DataBean source : bean.getLinkSources(linkType)) {
+			for (Dataset source : bean.getLinkSources(linkType)) {
 				source.removeLink(linkType, bean);
 			}
 		}
@@ -609,13 +609,13 @@ public class DataManager {
 	/**
 	 * Return all DataBeans under this manager.
 	 */
-	public List<DataBean> databeans() {
+	public List<Dataset> databeans() {
 		
-		LinkedList<DataBean> databeans = new LinkedList<DataBean>();
+		LinkedList<Dataset> databeans = new LinkedList<Dataset>();
 		for (DataFolder folder : folders()) {
 			for (DataItem child : folder.getChildren()) {
-				if (child instanceof DataBean) {
-					databeans.add((DataBean) child);
+				if (child instanceof Dataset) {
+					databeans.add((Dataset) child);
 				}
 			}
 		}
@@ -647,7 +647,7 @@ public class DataManager {
 	 * @return
 	 * @throws IOException 
 	 */
-	public OutputStream getContentOutputStreamAndLockDataBean(DataBean bean) throws IOException {
+	public OutputStream getContentOutputStreamAndLockDataBean(Dataset bean) throws IOException {
 		// FIXME find correct place for this
 		bean.setContentChanged(true);
 		
@@ -670,7 +670,7 @@ public class DataManager {
 	 * @throws MicroarrayException
 	 * @throws IOException
 	 */
-	public void closeContentOutputStreamAndUnlockDataBean(DataBean bean, OutputStream out)
+	public void closeContentOutputStreamAndUnlockDataBean(Dataset bean, OutputStream out)
 			throws MicroarrayException, IOException {
 		try {
 			out.close();
@@ -681,7 +681,7 @@ public class DataManager {
 		this.dispatchEventIfVisible(cce);
 	}
 
-	public File getLocalFile(DataBean bean) throws IOException {
+	public File getLocalFile(Dataset bean) throws IOException {
 		// convert non local file beans to local file beans
 		if (!(bean.getHandler() instanceof LocalFileDataBeanHandler)) {
 			this.convertToLocalFileDataBean(bean);
@@ -693,7 +693,7 @@ public class DataManager {
 	}
 	
 	
-	private void convertToLocalFileDataBean(DataBean bean) throws IOException {
+	private void convertToLocalFileDataBean(Dataset bean) throws IOException {
 		// FIXME lock bean
 		
 		// TODO think about that name

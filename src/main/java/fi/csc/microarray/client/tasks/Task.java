@@ -16,7 +16,7 @@ import javax.swing.SwingUtilities;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.parameter.Parameter;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
@@ -100,7 +100,7 @@ public class Task {
 	private long endTime;
 	private String errorMessage;
 	private String screenOutput;
-	private Map<String, DataBean> outputs = new HashMap<String, DataBean>();
+	private Map<String, Dataset> outputs = new HashMap<String, Dataset>();
 	private boolean hasBeenRetried = false;
 	private boolean hidden = false;
 	
@@ -127,8 +127,8 @@ public class Task {
 		return operation.getDefinition().getFullName();
 	}
 	
-	public Iterable<DataBean> getInputs() {
-		LinkedList<DataBean> beans = new LinkedList<DataBean>();
+	public Iterable<Dataset> getInputs() {
+		LinkedList<Dataset> beans = new LinkedList<Dataset>();
 		for (DataBinding binding : operation.getBindings()) {
 			beans.add(binding.getData());
 		}
@@ -145,11 +145,11 @@ public class Task {
 		return parameterStrings;
 	}
 	
-	public DataBean getOutput(String name) {
+	public Dataset getOutput(String name) {
 		return outputs.get(name);
 	}
 	
-	public DataBean getInput(String name) {
+	public Dataset getInput(String name) {
 		DataBinding binding = operation.getBinding(name);
 		if (binding != null) {
 			return binding.getData();
@@ -170,7 +170,7 @@ public class Task {
 		return operation.getBindings().size();
 	}
 	
-	public void addOutput(String outputName, DataBean bean) {
+	public void addOutput(String outputName, Dataset bean) {
 		this.outputs.put(outputName, bean);
 	}
 	
@@ -215,7 +215,7 @@ public class Task {
 		return outputs.keySet();
 	}
 
-	public Iterable<DataBean> outputs() {
+	public Iterable<Dataset> outputs() {
 		return outputs.values();
 	}
 

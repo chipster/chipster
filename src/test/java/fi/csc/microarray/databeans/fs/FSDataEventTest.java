@@ -9,14 +9,14 @@ import org.testng.annotations.Test;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.databeans.ContentChangedEvent;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataChangeEvent;
 import fi.csc.microarray.databeans.DataChangeListener;
 import fi.csc.microarray.databeans.DataItemCreatedEvent;
 import fi.csc.microarray.databeans.DataItemRemovedEvent;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.LinksChangedEvent;
-import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.Dataset.Link;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class FSDataEventTest implements DataChangeListener {
@@ -32,10 +32,10 @@ public class FSDataEventTest implements DataChangeListener {
 		manager.addDataChangeListener(this);
 		manager.setEventsEnabled(true);
 		
-		DataBean bean1 = manager.createDataBean("My bean.txt");
+		Dataset bean1 = manager.createDataBean("My bean.txt");
 		assertNoEvent();
 		
-		DataBean bean2 = manager.createDataBean("My other bean.txt");
+		Dataset bean2 = manager.createDataBean("My other bean.txt");
 		assertNoEvent();
 		
 		bean1.addLink(Link.DERIVATION, bean2);

@@ -5,16 +5,16 @@ import java.util.List;
 
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 
 
 public class VisualisationMethodChangedEvent extends PropertyChangeEvent {
 	
-	private List<DataBean> datas;
+	private List<Dataset> datas;
 	private List<Variable> variables;
 	private VisualisationFrame targetFrameInstance;
 	
-	public List<DataBean> getDatas() {
+	public List<Dataset> getDatas() {
 		return datas;
 	}
 
@@ -39,7 +39,7 @@ public class VisualisationMethodChangedEvent extends PropertyChangeEvent {
 	private FrameType target;
 
 	public VisualisationMethodChangedEvent(Object source, VisualisationMethod newMethod, 
-			List<Variable> variables, List<DataBean> datas, FrameType target ) {
+			List<Variable> variables, List<Dataset> datas, FrameType target ) {
 		
 		super(source, null, null, newMethod);
 		this.datas = datas;
@@ -59,7 +59,7 @@ public class VisualisationMethodChangedEvent extends PropertyChangeEvent {
 	 * @param frameInstance
 	 */
 	public VisualisationMethodChangedEvent(Object source, VisualisationMethod newMethod, 
-			List<Variable> variables, List<DataBean> datas, FrameType target, 
+			List<Variable> variables, List<Dataset> datas, FrameType target, 
 			VisualisationFrame frameInstance ) {
 		
 		this(source, newMethod, variables, datas, target);

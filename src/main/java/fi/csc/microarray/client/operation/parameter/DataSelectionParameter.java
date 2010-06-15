@@ -3,7 +3,7 @@ package fi.csc.microarray.client.operation.parameter;
 import java.util.LinkedList;
 import java.util.List;
 
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -26,7 +26,7 @@ public abstract class DataSelectionParameter extends EnumParameter {
 	/**
 	 * Option "EMPTY" is always added as the last one.
 	 */
-	protected void loadOptionsFromColumnNames(DataBean data) throws MicroarrayException {
+	protected void loadOptionsFromColumnNames(Dataset data) throws MicroarrayException {
 		int initIndex = 0;
 		LinkedList<String> colNames = new LinkedList<String>();
 		

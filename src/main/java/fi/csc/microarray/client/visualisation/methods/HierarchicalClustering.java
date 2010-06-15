@@ -57,9 +57,9 @@ import fi.csc.microarray.cluster.ClusterBranchNode;
 import fi.csc.microarray.cluster.ClusterLeafNode;
 import fi.csc.microarray.cluster.ClusterNode;
 import fi.csc.microarray.cluster.ClusterParser;
-import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.DataBean.Traversal;
+import fi.csc.microarray.databeans.Dataset;
+import fi.csc.microarray.databeans.Dataset.Link;
+import fi.csc.microarray.databeans.Dataset.Traversal;
 import fi.csc.microarray.databeans.features.QueryResult;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.ErrorReportAsException;
@@ -84,7 +84,7 @@ implements PropertyChangeListener, SelectionChangeListener {
 	//Selected indexes in the order of parent data bean
 	private Set<Integer> selected = new HashSet<Integer>();
 
-	private DataBean selectionBean;
+	private Dataset selectionBean;
 
 	private HCPlot hcPlot;
 
@@ -210,11 +210,11 @@ implements PropertyChangeListener, SelectionChangeListener {
 	 *             is parsing or visualisation generation fails
 	 */
 	@Override
-	public JComponent getVisualisation(DataBean data) throws MicroarrayException {				
+	public JComponent getVisualisation(Dataset data) throws MicroarrayException {				
 		
 		//There is no point to bind selections to HC data because it's not possible to visualise it
 		//with other visualisation methods. It's parent is used instead. 
-		List<DataBean> selectionBeans = data.traverseLinks(new Link[] {Link.DERIVATION}, Traversal.DIRECT);
+		List<Dataset> selectionBeans = data.traverseLinks(new Link[] {Link.DERIVATION}, Traversal.DIRECT);
 		
 		//First one is hc data
 		//TODO there is no point to find all ancestors
@@ -556,7 +556,7 @@ implements PropertyChangeListener, SelectionChangeListener {
 	}
 
 	@Override
-	public boolean canVisualise(DataBean bean) throws MicroarrayException {
+	public boolean canVisualise(Dataset bean) throws MicroarrayException {
 		return bean.isContentTypeCompatitible("application/x-treeview") && bean.queryFeatures("/clusters/hierarchical/tree").exists() && bean.queryFeatures("/clusters/hierarchical/heatmap").exists();
 	}
 

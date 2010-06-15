@@ -19,7 +19,7 @@ import fi.csc.microarray.client.visualisation.MicroarrayTable;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationUtilities;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.features.RestrictModifier;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -98,7 +98,7 @@ public class Spreadsheet extends Visualisation {
 	 * @throws MicroarrayException 
 	 */
 	@Override
-	public JComponent getVisualisation(DataBean data) throws Exception {
+	public JComponent getVisualisation(Dataset data) throws Exception {
 		JPanel panel = new JPanel(new BorderLayout());				
 	
 		Table rowCounter = data.queryFeatures("/column/*").asTable();
@@ -217,7 +217,7 @@ public class Spreadsheet extends Visualisation {
 	}
 	
 	@Override
-	public boolean canVisualise(DataBean bean) throws MicroarrayException {
+	public boolean canVisualise(Dataset bean) throws MicroarrayException {
 
 		if (bean.isContentTypeCompatitible("text/tab", "text/csv")) {
 			return true; // clearly tabular

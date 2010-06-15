@@ -39,7 +39,7 @@ import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.methods.SelectableChartPanel.SelectionChangeListener;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -55,7 +55,7 @@ implements PropertyChangeListener, SelectionChangeListener {
 
 	private CategoryPlot plot;
 	
-	private DataBean data;
+	private Dataset data;
 	
 	//selection indexes in order of the original data
 	private Set<Integer> selectedIndexes = new HashSet<Integer>();
@@ -163,7 +163,7 @@ implements PropertyChangeListener, SelectionChangeListener {
 	}
 	
 	@Override
-	public JComponent getVisualisation(DataBean data) throws Exception {
+	public JComponent getVisualisation(Dataset data) throws Exception {
 		
 		this.data = data;
 		

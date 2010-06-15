@@ -1,6 +1,6 @@
 package fi.csc.microarray.databeans.features.table;
 
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.features.ConstantFloatFeature;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProviderBase;
@@ -15,7 +15,7 @@ public class RowCountProvider extends FeatureProviderBase {
 
 	private static final String AT_LEAST_ROWS_CACHENAME = "at-least-rows";
 
-	public Feature createFeature(String namePostfix, DataBean bean) {
+	public Feature createFeature(String namePostfix, Dataset bean) {
 		
 		try {
 			

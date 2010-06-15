@@ -93,14 +93,14 @@ import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationExceptio
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.ContentType;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataChangeEvent;
 import fi.csc.microarray.databeans.DataChangeListener;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.DataBean.Traversal;
+import fi.csc.microarray.databeans.Dataset.Link;
+import fi.csc.microarray.databeans.Dataset.Traversal;
 import fi.csc.microarray.databeans.sessions.SnapshottingSession;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
@@ -637,7 +637,7 @@ public class SwingClientApplication extends ClientApplication {
 		runBlockingTask("importing files", new Runnable() {
 
 			public void run() {
-				DataBean lastGroupMember = null;
+				Dataset lastGroupMember = null;
 
 				try {
 
@@ -657,7 +657,7 @@ public class SwingClientApplication extends ClientApplication {
 
 						
 						// create the DataBean
-						DataBean data = null;
+						Dataset data = null;
 
 						if (dataSource instanceof File) {
 							data = manager.createDataBean(dataSetName, (File) dataSource);
@@ -710,7 +710,7 @@ public class SwingClientApplication extends ClientApplication {
 						// add the operation (all databeans have their own import
 						// operation
 						// instance, it would be nice if they would be grouped)
-						Operation importOperation = new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data });
+						Operation importOperation = new Operation(OperationDefinition.IMPORT_DEFINITION, new Dataset[] { data });
 						data.setOperation(importOperation);
 
 						// data is ready now, make it visible
@@ -719,24 +719,24 @@ public class SwingClientApplication extends ClientApplication {
 						// Create group links only if both datas are raw type
 						if (lastGroupMember != null && ChipsterInputTypes.hasRawType(lastGroupMember) && ChipsterInputTypes.hasRawType(data)) {
 
-							DataBean targetData = data;
+							Dataset targetData = data;
 
 							// Link new data to all group linked datas of given cell
-							for (DataBean sourceData : lastGroupMember.traverseLinks(new Link[] { Link.GROUPING }, Traversal.BIDIRECTIONAL)) {
+							for (Dataset sourceData : lastGroupMember.traverseLinks(new Link[] { Link.GROUPING }, Traversal.BIDIRECTIONAL)) {
 								logger.debug("Created GROUPING link between " + sourceData.getName() + " and " + targetData.getName());
-								createLink(sourceData, targetData, DataBean.Link.GROUPING);
+								createLink(sourceData, targetData, Dataset.Link.GROUPING);
 							}
 
 							// Create link to the given cell after looping to avoid
 							// link duplication
-							createLink(lastGroupMember, targetData, DataBean.Link.GROUPING);
+							createLink(lastGroupMember, targetData, Dataset.Link.GROUPING);
 						}
 
 						lastGroupMember = data;
 
 					}
 					// select data
-					final DataBean selectedBean = lastGroupMember;
+					final Dataset selectedBean = lastGroupMember;
 					SwingUtilities.invokeAndWait(new Runnable() {
 						public void run() {
 							getSelectionManager().selectSingle(selectedBean, this);
@@ -845,12 +845,12 @@ public class SwingClientApplication extends ClientApplication {
 		}
 	}
 
-	public void showHistoryScreenFor(DataBean data) {
+	public void showHistoryScreenFor(Dataset data) {
 		historyScreen.setData(data);
 		childScreens.show("History", true);
 	}
 
-	public void showDetailsFor(DataBean data) {
+	public void showDetailsFor(Dataset data) {
 		details.setViewedData(data);
 	}
 
@@ -858,7 +858,7 @@ public class SwingClientApplication extends ClientApplication {
 		if (element instanceof DataFolder) {
 			return VisualConstants.ICON_TYPE_FOLDER;
 		} else {
-			DataBean bean = (DataBean) element;
+			Dataset bean = (Dataset) element;
 			if (bean.queryFeatures("/phenodata").exists()) {
 				return VisualConstants.ICON_TYPE_PHENODATA;
 			} else {
@@ -1018,7 +1018,7 @@ public class SwingClientApplication extends ClientApplication {
 		}
 
 		try {
-			List<DataBean> beans = getSelectionManager().getSelectedDataBeans();
+			List<Dataset> beans = getSelectionManager().getSelectedDataBeans();
 
 			if (beans.size() == 1) {
 				return VisualisationMethod.getDefaultVisualisationFor(beans.get(0));
@@ -1095,7 +1095,7 @@ public class SwingClientApplication extends ClientApplication {
 		} else if (datas[0] instanceof DataFolder) {
 			confirmMessage = new JLabel("Really delete " + datas[0].getName() + " and all of its contents?");
 			
-		} else if (datas[0] instanceof DataBean) {
+		} else if (datas[0] instanceof Dataset) {
 			confirmMessage = new JLabel("Really delete " + datas[0].getName() + " ?");
 			
 		} else {
@@ -1335,11 +1335,11 @@ public class SwingClientApplication extends ClientApplication {
 	 */
 	private void exportDataFolder(DataFolder source, File dir) throws IOException, MicroarrayException {
 		for (DataItem child : source.getChildren()) {
-			if (child instanceof DataBean) {
-				String filename = createFilename((DataBean) child);
+			if (child instanceof Dataset) {
+				String filename = createFilename((Dataset) child);
 				filename = dir.getAbsolutePath() + File.separator + filename;
 				logger.debug("Exporting dataBean " + child.getName() + " into " + filename);
-				exportToFile((DataBean) child, new File(filename));
+				exportToFile((Dataset) child, new File(filename));
 
 			} else if (child instanceof DataFolder) {
 				logger.debug("Exporting dataFolder " + child.getName());
@@ -1352,7 +1352,7 @@ public class SwingClientApplication extends ClientApplication {
 		}
 	}
 
-	public void exportDataset(DataBean data) throws MicroarrayException, IOException {
+	public void exportDataset(Dataset data) throws MicroarrayException, IOException {
 		JFileChooser fc = this.getImportExportFileChooser();
 		fc.setDialogType(JFileChooser.SAVE_DIALOG);
 		String proposedName = createFilename(data);
@@ -1364,7 +1364,7 @@ public class SwingClientApplication extends ClientApplication {
 		}
 	}
 
-	private String createFilename(DataBean data) {
+	private String createFilename(Dataset data) {
 		String proposedName = data.getName().replace(" ", "_");
 		/*
 		 * TODO does not work with mime content types if
@@ -1408,7 +1408,7 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	@Override
-	public void setVisualisationMethod(VisualisationMethod method, List<Variable> variables, List<DataBean> datas, FrameType target) {
+	public void setVisualisationMethod(VisualisationMethod method, List<Variable> variables, List<Dataset> datas, FrameType target) {
 
 		if (method == null || datas == null) {
 			super.setVisualisationMethod(VisualisationMethod.NONE, null, null, target);
@@ -1448,8 +1448,8 @@ public class SwingClientApplication extends ClientApplication {
 		try {
 
 			for (DataItem item : getSelectionManager().getSelectedDataItems()) {
-				if (item instanceof DataBean) {
-					exportDataset((DataBean) item);
+				if (item instanceof Dataset) {
+					exportDataset((Dataset) item);
 				} else if (item instanceof DataFolder) {
 					exportFolder((DataFolder) item);
 				}
@@ -1634,11 +1634,11 @@ public class SwingClientApplication extends ClientApplication {
 		return new TaskManagerScreen(jobExecutor);
 	}
 
-	public void createLink(DataBean source, DataBean target, Link type) {
+	public void createLink(Dataset source, Dataset target, Link type) {
 		source.addLink(type, target);
 	}
 
-	public void removeLink(DataBean source, DataBean target, Link type) {
+	public void removeLink(Dataset source, Dataset target, Link type) {
 		source.removeLink(type, target);
 	}
 

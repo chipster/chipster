@@ -30,11 +30,11 @@ import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.Dataset.Link;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.util.Files;
@@ -59,9 +59,9 @@ public class FSDataManagerTest {
 		String beanName1 = "My bean.txt";
 		String beanName2 = "My other bean.txt";
 		String beanName3 = "My other bean.txt"; // test beans with a same name
-		DataBean bean1 = manager1.createDataBean(beanName1);
-		DataBean bean2 = manager1.createDataBean(beanName2);
-		DataBean bean3 = manager1.createDataBean(beanName3);
+		Dataset bean1 = manager1.createDataBean(beanName1);
+		Dataset bean2 = manager1.createDataBean(beanName2);
+		Dataset bean3 = manager1.createDataBean(beanName3);
 		bean1.addLink(Link.DERIVATION, bean2);
 		manager1.getRootFolder().addChild(bean1);
 		manager1.getRootFolder().addChild(bean2);
@@ -88,10 +88,10 @@ public class FSDataManagerTest {
 		// TODO reimplement toStringRecursively here
 		Assert.assertTrue(false);
 		//Assert.assertEquals(root2.toStringRecursively(0), root1.toStringRecursively(0));
-		DataBean newBean1 = null;
+		Dataset newBean1 = null;
 		for (DataItem item : root2.getChildren()) {
 			if (item.getName().equals(beanName1)) {
-				newBean1 = (DataBean)item;
+				newBean1 = (Dataset)item;
 				break;
 			}
 		}
@@ -102,7 +102,7 @@ public class FSDataManagerTest {
 	@Test(groups = {"smoke"} )
 	public void testDataBeanCreation() throws IOException, MicroarrayException {
 		DataManager manager = new DataManager();
-		DataBean bean = manager.createDataBean("samename.txt", new FileInputStream("examples/affy_example.cel"));
+		Dataset bean = manager.createDataBean("samename.txt", new FileInputStream("examples/affy_example.cel"));
 	
 		InputStream originalData = new BufferedInputStream(new FileInputStream("examples/affy_example.cel"));
 		InputStream beanData = new BufferedInputStream(bean.getContentByteStream());
@@ -129,7 +129,7 @@ public class FSDataManagerTest {
 		// REST OF THE CLASS IS JUST EMPTY IMPLEMENTATIONS
 				
 		@Override
-		public void createLink(DataBean source, DataBean target, Link type) {
+		public void createLink(Dataset source, Dataset target, Link type) {
 		}
 
 		@Override
@@ -160,7 +160,7 @@ public class FSDataManagerTest {
 		}
 
 		@Override
-		public void removeLink(DataBean source, DataBean target, Link type) {
+		public void removeLink(Dataset source, Dataset target, Link type) {
 		}
 
 		@Override
@@ -185,7 +185,7 @@ public class FSDataManagerTest {
 		}
 
 		@Override
-		public void showDetailsFor(DataBean data) {
+		public void showDetailsFor(Dataset data) {
 		}
 
 		@Override
@@ -197,7 +197,7 @@ public class FSDataManagerTest {
 		}
 
 		@Override
-		public void showHistoryScreenFor(DataBean data) {
+		public void showHistoryScreenFor(Dataset data) {
 		}
 
 		@Override

@@ -22,14 +22,14 @@ import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.client.visualisation.methods.threed.ColorGroupsPanel;
 import fi.csc.microarray.client.visualisation.methods.threed.CoordinateArea;
 import fi.csc.microarray.client.visualisation.methods.threed.Scatterplot3D;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.LinkUtils;
-import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.Dataset.Link;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class Scatterplot3DPCA extends Scatterplot3D{
 	
-	DataBean phenoBean;
+	Dataset phenoBean;
 	private List<String> colorGroupList;
 	private JScrollPane legendScroller;
 
@@ -43,7 +43,7 @@ public class Scatterplot3DPCA extends Scatterplot3D{
 	}
 	
 	@Override
-	protected void refreshAxisBoxes(DataBean data) {
+	protected void refreshAxisBoxes(Dataset data) {
 		if (paramPanel == null) {
 			throw new IllegalStateException("must call getParameterPanel first");
 		}
@@ -107,7 +107,7 @@ public class Scatterplot3DPCA extends Scatterplot3D{
 	}
 	
 	@Override
-	public boolean canVisualise(DataBean bean) throws MicroarrayException {
+	public boolean canVisualise(Dataset bean) throws MicroarrayException {
 		
 		boolean isTabular = VisualisationMethod.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
 		boolean isChips = false;

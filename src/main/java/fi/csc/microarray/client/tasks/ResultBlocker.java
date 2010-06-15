@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import fi.csc.microarray.client.operation.Operation.ResultListener;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 
 public class ResultBlocker implements ResultListener {
 
 	private CountDownLatch latch = new CountDownLatch(1);
-	private Iterable<DataBean> results;
+	private Iterable<Dataset> results;
 	private int enforcedResultCount;
 
 	public ResultBlocker() {
@@ -22,7 +22,7 @@ public class ResultBlocker implements ResultListener {
 		this.enforcedResultCount = enforcedResultCount;
 	}
 	
-	public void resultData(Iterable<DataBean> results) {
+	public void resultData(Iterable<Dataset> results) {
 		this.results = results;
 		latch.countDown();		
 	}
@@ -41,13 +41,13 @@ public class ResultBlocker implements ResultListener {
 		}
 	}
 	
-	public List<DataBean> getResults() {
+	public List<Dataset> getResults() {
 		if (results == null) {
 			throw new IllegalStateException("no results");
 		}
 		
-		Iterator<DataBean> iter = results.iterator();
-		LinkedList<DataBean> beans = new LinkedList<DataBean>();
+		Iterator<Dataset> iter = results.iterator();
+		LinkedList<Dataset> beans = new LinkedList<Dataset>();
 
 		while (iter.hasNext()) {
 			beans.add(iter.next());

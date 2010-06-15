@@ -3,7 +3,7 @@ package fi.csc.microarray.client.operation.parameter;
 import java.util.List;
 
 import fi.csc.microarray.client.operation.Operation.DataBinding;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 
@@ -14,7 +14,7 @@ public class ColnameParameter extends DataSelectionParameter {
 	}
 
 	public void setDataBindings(List<DataBinding> bindings) throws MicroarrayException {
-		DataBean data = null;
+		Dataset data = null;
 		for (DataBinding binding : bindings) {
 			if (binding.getInputType() != ChipsterInputTypes.PHENODATA) {
 				data = binding.getData();

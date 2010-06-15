@@ -36,7 +36,7 @@ import fi.csc.microarray.util.StreamStartCache;
  * @author Aleksi Kallio
  *
  */
-public class DataBean extends DataItemBase {
+public class Dataset extends DataItemBase {
 	
 	public enum DataBeanType {
 		LOCAL_USER,
@@ -113,20 +113,20 @@ public class DataBean extends DataItemBase {
 	
 	private static class LinkedBean {
 		
-		LinkedBean(Link link, DataBean bean) {
+		LinkedBean(Link link, Dataset bean) {
 			this.link = link;
 			this.bean = bean;			
 		}
 		
 		Link link;
-		DataBean bean;
+		Dataset bean;
 	}
 	
 	
 	/**
 	 * Logger for this class
 	 */
-	private static final Logger logger = Logger.getLogger(DataBean.class);
+	private static final Logger logger = Logger.getLogger(Dataset.class);
 
 	protected DataManager dataManager;
 	protected StreamStartCache streamStartCache = null;
@@ -153,7 +153,7 @@ public class DataBean extends DataItemBase {
 	private DataBeanHandler handler;
 
 
-	public DataBean(String name, DataBeanType type, String repositoryName, URL contentUrl, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManager manager, DataBeanHandler handler) {
+	public Dataset(String name, DataBeanType type, String repositoryName, URL contentUrl, ContentType contentType, Date date, Dataset[] sources, DataFolder parentFolder, DataManager manager, DataBeanHandler handler) {
 		
 		this.dataManager = manager;
 		this.name = name;
@@ -170,7 +170,7 @@ public class DataBean extends DataItemBase {
 			parentFolder.addChild(this);
 		}
 		
-		for (DataBean source : sources) {
+		for (Dataset source : sources) {
 			source.addLink(Link.DERIVATION, this);
 		}
 
@@ -437,7 +437,7 @@ public class DataBean extends DataItemBase {
 		 * 
 		 * @see Link
 		 */
-		public void addLink(Link type, DataBean target) {
+		public void addLink(Link type, Dataset target) {
 			if (target == null) {
 				return;
 			}		
@@ -466,13 +466,13 @@ public class DataBean extends DataItemBase {
 	/**
 	 * Removes a link. Does not remove links of different type between same beans.
 	 */
-	public void removeLink(Link type, DataBean target) {
+	public void removeLink(Link type, Dataset target) {
 		for (LinkedBean outgoingLink : outgoingLinks) {
 			if (outgoingLink.bean == target && outgoingLink.link == type) {
 				
 				outgoingLinks.remove(outgoingLink);
 				
-				DataBean bean = outgoingLink.bean;
+				Dataset bean = outgoingLink.bean;
 				
 				for (LinkedBean incomingLink : bean.incomingLinks) {
 					if (incomingLink.bean == this && incomingLink.link == type) {
@@ -494,15 +494,15 @@ public class DataBean extends DataItemBase {
 	/**
 	 * Convenience method which includes all beans into result.
 	 * 
-	 * @see #traverseLinks(fi.csc.microarray.databeans.DataBean.Link, fi.csc.microarray.databeans.DataBean.Traversal, DataBeanSelector)
+	 * @see #traverseLinks(fi.csc.microarray.databeans.Dataset.Link, fi.csc.microarray.databeans.Dataset.Traversal, DataBeanSelector)
 	 */
-	public List<DataBean> traverseLinks(Link[] types, Traversal traversal) {
+	public List<Dataset> traverseLinks(Link[] types, Traversal traversal) {
 		
 		DataBeanSelector acceptAllSelector = new DataBeanSelector() {
-			public boolean shouldSelect(DataBean bean) {
+			public boolean shouldSelect(Dataset bean) {
 				return true;
 			}
-			public boolean shouldTraverse(DataBean bean) {
+			public boolean shouldTraverse(Dataset bean) {
 				return true;
 			}
 		};
@@ -523,18 +523,18 @@ public class DataBean extends DataItemBase {
 	 * @param selector
 	 * @return
 	 */
-	public List<DataBean> traverseLinks(Link[] types, Traversal traversal, DataBeanSelector selector) {
-		LinkedList<DataBean> selected = new LinkedList<DataBean>();
-		LinkedList<DataBean> traversed = new LinkedList<DataBean>();
+	public List<Dataset> traverseLinks(Link[] types, Traversal traversal, DataBeanSelector selector) {
+		LinkedList<Dataset> selected = new LinkedList<Dataset>();
+		LinkedList<Dataset> traversed = new LinkedList<Dataset>();
 		traversed.add(this);
 		conditionallySelect(selector, selected, this);
 		
-		LinkedHashSet<DataBean> newBeans;
+		LinkedHashSet<Dataset> newBeans;
 		do {
-			newBeans = new LinkedHashSet<DataBean>();
+			newBeans = new LinkedHashSet<Dataset>();
 		
-			for (DataBean bean : traversed) {
-				LinkedHashSet<DataBean> linkedBeans = new LinkedHashSet<DataBean>();
+			for (Dataset bean : traversed) {
+				LinkedHashSet<Dataset> linkedBeans = new LinkedHashSet<Dataset>();
 				
 				if (traversal.isDirect()) {
 					for (Link type : types) {
@@ -548,14 +548,14 @@ public class DataBean extends DataItemBase {
 					}
 				}
 			
-				for (DataBean linkedBean : linkedBeans) {
+				for (Dataset linkedBean : linkedBeans) {
 					if (!traversed.contains(linkedBean) && selector.shouldTraverse(linkedBean)) {
 						newBeans.add(linkedBean);
 					}
 				}
 			}
 			
-			for (DataBean newBean : newBeans) {
+			for (Dataset newBean : newBeans) {
 				traversed.add(newBean);
 				conditionallySelect(selector, selected, newBean);
 
@@ -569,14 +569,14 @@ public class DataBean extends DataItemBase {
 	/**
 	 * @return outgoing links of given type.
 	 */
-	public List<DataBean> getLinkTargets(Link... types) {
+	public List<Dataset> getLinkTargets(Link... types) {
 		return getLinkedBeans(types, outgoingLinks);
 	}
 
 	/**
 	 * @return incoming links of given type.
 	 */
-	public List<DataBean> getLinkSources(Link... types) {
+	public List<Dataset> getLinkSources(Link... types) {
 		return getLinkedBeans(types, incomingLinks);
 	}
 	
@@ -700,7 +700,7 @@ public class DataBean extends DataItemBase {
 
 
 
-	private void conditionallySelect(DataBeanSelector selector, LinkedList<DataBean> selected, DataBean bean) {
+	private void conditionallySelect(DataBeanSelector selector, LinkedList<Dataset> selected, Dataset bean) {
 		if (!selected.contains(bean) && selector.shouldSelect(bean)) {
 			selected.add(bean);
 		}
@@ -708,8 +708,8 @@ public class DataBean extends DataItemBase {
 
 
 
-	private List<DataBean> getLinkedBeans(Link[] types, LinkedList<LinkedBean> links) {
-		LinkedList<DataBean> targets = new LinkedList<DataBean>();
+	private List<Dataset> getLinkedBeans(Link[] types, LinkedList<LinkedBean> links) {
+		LinkedList<Dataset> targets = new LinkedList<Dataset>();
 		for (LinkedBean linkTarget : links) {
 			for (Link type : types) {
 				if (linkTarget.link == type) {

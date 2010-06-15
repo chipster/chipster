@@ -3,8 +3,8 @@ package fi.csc.microarray.databeans.handlers;
 import java.util.HashSet;
 import java.util.Set;
 
-import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataBean.DataBeanType;
+import fi.csc.microarray.databeans.Dataset;
+import fi.csc.microarray.databeans.Dataset.DataBeanType;
 
 public abstract class DataBeanHandlerBase implements DataBeanHandler {
 
@@ -17,7 +17,7 @@ public abstract class DataBeanHandlerBase implements DataBeanHandler {
 		}
 	}
 
-	protected void checkCompatibility(DataBean dataBean) {
+	protected void checkCompatibility(Dataset dataBean) {
 		if (dataBean == null) {
 			throw new IllegalArgumentException("DataBean is null.");
 		}

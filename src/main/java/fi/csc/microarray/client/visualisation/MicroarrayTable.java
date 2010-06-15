@@ -28,7 +28,7 @@ import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.selection.RowChoiceEvent;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 
 /**
  * Table class which allows highlighting only the selected cell not the entire
@@ -47,9 +47,9 @@ public class MicroarrayTable extends JXTable implements ActionListener, Property
 	private static Logger logger = Logger.getLogger(MicroarrayTable.class);
 
 	private boolean doNotDispatchEvents = true;
-	private DataBean data;
+	private Dataset data;
 
-	public MicroarrayTable(DataBean data) {
+	public MicroarrayTable(Dataset data) {
 
 		this.data = data;
 

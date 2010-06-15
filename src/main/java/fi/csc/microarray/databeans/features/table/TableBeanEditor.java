@@ -9,7 +9,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -23,10 +23,10 @@ public class TableBeanEditor {
 
 	
 	private static final String COLUMNS_FEATURE = "/column/*";
-	private DataBean bean;
+	private Dataset bean;
 	private EditableTable editableTable;
 
-	public TableBeanEditor(DataBean bean) throws MicroarrayException {
+	public TableBeanEditor(Dataset bean) throws MicroarrayException {
 		if (!bean.queryFeatures(COLUMNS_FEATURE).exists()) {
 			throw new RuntimeException("bean " + bean.getName() + " is not tabular");
 		}

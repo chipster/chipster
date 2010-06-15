@@ -16,7 +16,7 @@ import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.client.operation.parameter.ToolParameterPanel;
 import fi.csc.microarray.client.operation.parameter.EnumParameter.SelectionOption;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -71,7 +71,7 @@ public class ParameterTest {
             definition.addParameter(paramSingle);
             
             // Initialize some mock context
-            DataBean[] dataBeans = new DataBean[0];
+            Dataset[] dataBeans = new Dataset[0];
             operation = new Operation(definition, dataBeans);
             
             // Create the panel which maps Parameters to InputComponents

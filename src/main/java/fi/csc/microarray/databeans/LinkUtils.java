@@ -2,8 +2,8 @@ package fi.csc.microarray.databeans;
 
 import java.util.List;
 
-import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.DataBean.Traversal;
+import fi.csc.microarray.databeans.Dataset.Link;
+import fi.csc.microarray.databeans.Dataset.Traversal;
 
 public class LinkUtils {
 
@@ -17,15 +17,15 @@ public class LinkUtils {
 	 * the annotating dataset so that annotations are inherited.</p>
 	 *  
 	 */
-	public static DataBean retrieveInherited(DataBean input, final Link linkType) {
+	public static Dataset retrieveInherited(Dataset input, final Link linkType) {
 		
-		List<DataBean> inheritedBeans = input.traverseLinks(Link.derivationalTypes(), Traversal.DIRECT, new DataBeanSelector() {
+		List<Dataset> inheritedBeans = input.traverseLinks(Link.derivationalTypes(), Traversal.DIRECT, new DataBeanSelector() {
 			
-			public boolean shouldSelect(DataBean bean) {				
+			public boolean shouldSelect(Dataset bean) {				
 				return bean.getLinkSources(linkType).size() > 0; // check if it is annotation
 			}
 			
-			public boolean shouldTraverse(DataBean bean) {
+			public boolean shouldTraverse(Dataset bean) {
 				return true;
 			}
 		});

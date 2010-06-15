@@ -29,7 +29,7 @@ import fi.csc.microarray.client.dataimport.ImportSession;
 import fi.csc.microarray.client.dataimport.ImportUtils;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataFolder;
 
 /**
@@ -165,9 +165,9 @@ public class CreateFromTextDialog extends JDialog implements CaretListener, Acti
                 if (importCheckBox.isSelected()) {
                     // Create dataset
                     ByteArrayInputStream stream = new ByteArrayInputStream(fileContent.getBytes());
-                    DataBean data = client.getDataManager().createDataBean(fileName, stream);
+                    Dataset data = client.getDataManager().createDataBean(fileName, stream);
                     data.setContentType(client.getDataManager().guessContentType(fileName));
-                    data.setOperation(new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data }));
+                    data.setOperation(new Operation(OperationDefinition.IMPORT_DEFINITION, new Dataset[] { data }));
                     
                     // Make it visible
                     DataFolder folder = client.initializeFolderForImport(folderName);

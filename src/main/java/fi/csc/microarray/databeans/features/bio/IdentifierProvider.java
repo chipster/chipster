@@ -1,6 +1,6 @@
 package fi.csc.microarray.databeans.features.bio;
 
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProviderBase;
 import fi.csc.microarray.databeans.features.NonexistingFeature;
@@ -17,7 +17,7 @@ public class IdentifierProvider extends FeatureProviderBase {
 	private static final String NAMED_IDENTIFIER_COLUMN = "/column/identifier";
 	private static final String ROW_NAME_COLUMN = "/column/ ";
 
-	public Feature createFeature(String namePostfix, DataBean bean) {
+	public Feature createFeature(String namePostfix, Dataset bean) {
 
 		if (bean.queryFeatures(ROW_NAME_COLUMN).exists()) {
 			return bean.queryFeatures(ROW_NAME_COLUMN).asFeature();

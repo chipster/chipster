@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class ImageViewer extends Visualisation implements MouseListener {
@@ -129,7 +129,7 @@ public class ImageViewer extends Visualisation implements MouseListener {
 
 
 	@Override
-	public JComponent getVisualisation(DataBean data) throws Exception {
+	public JComponent getVisualisation(Dataset data) throws Exception {
 		byte[] bytes = data.getContents();
 		if (bytes != null) {
 			this.original = new ImageIcon(bytes).getImage();
@@ -145,7 +145,7 @@ public class ImageViewer extends Visualisation implements MouseListener {
 	
 
 	@Override
-	public boolean canVisualise(DataBean bean) throws MicroarrayException {
+	public boolean canVisualise(Dataset bean) throws MicroarrayException {
 		return bean.isContentTypeCompatitible("image/jpeg", "image/png", "image/gif");
 	}
 }

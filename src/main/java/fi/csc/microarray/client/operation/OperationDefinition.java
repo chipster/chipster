@@ -9,9 +9,9 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.parameter.Parameter;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.LinkUtils;
-import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.Dataset.Link;
 import fi.csc.microarray.description.SADLSyntax;
 import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLSyntax.InputType;
@@ -303,7 +303,7 @@ public class OperationDefinition implements ExecutionItem {
 	 * @return One of the OperationDefinition.Suitability enumeration, depending
 	 *         on how suitable the operation is judged.
 	 */
-	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data) {    
+	public Suitability evaluateSuitabilityFor(Iterable<Dataset> data) {    
 		bindInputs(data);
 		return getEvaluatedSuitability();
 	}
@@ -347,12 +347,12 @@ public class OperationDefinition implements ExecutionItem {
 	 *            no changes are made to this parameter
 	 * @return null when binding could not be done
 	 */
-	public LinkedList<DataBinding> bindInputs(Iterable<DataBean> inputValues) {
+	public LinkedList<DataBinding> bindInputs(Iterable<Dataset> inputValues) {
 
 		// initialise
 		LinkedList<DataBinding> bindings = new LinkedList<DataBinding>();
-		LinkedList<DataBean> notProcessedInputValues = new LinkedList<DataBean>();
-		for (DataBean bean : inputValues) {
+		LinkedList<Dataset> notProcessedInputValues = new LinkedList<Dataset>();
+		for (Dataset bean : inputValues) {
 			notProcessedInputValues.add(bean);
 		}
 
@@ -377,8 +377,8 @@ public class OperationDefinition implements ExecutionItem {
 			}
 
 			// find values to bind by iterating over remaining actual parameters
-			LinkedList<DataBean> removedValues = new LinkedList<DataBean>();
-			for (DataBean value : notProcessedInputValues) {
+			LinkedList<Dataset> removedValues = new LinkedList<Dataset>();
+			for (Dataset value : notProcessedInputValues) {
 
 				// try to match values to input definitions
 				logger.debug("  trying to bind " + value.getName() + " to " + input.name + " (" + input.type + ")");
@@ -421,8 +421,8 @@ public class OperationDefinition implements ExecutionItem {
 			for (InputDefinition unboundMetadata : unboundMetadataDefinitions) {
 				
 				// locate annotation (metadata) link from input bean or one of its ancestors				
-				DataBean input = bindingIterator.next().getData(); // bind inputs and phenodatas in same order
-				DataBean metadata = LinkUtils.retrieveInherited(input, Link.ANNOTATION);
+				Dataset input = bindingIterator.next().getData(); // bind inputs and phenodatas in same order
+				Dataset metadata = LinkUtils.retrieveInherited(input, Link.ANNOTATION);
 
 				if (metadata != null) {
 					phenodataBindings.add(new DataBinding(metadata, unboundMetadata.getName(), ChipsterInputTypes.PHENODATA));

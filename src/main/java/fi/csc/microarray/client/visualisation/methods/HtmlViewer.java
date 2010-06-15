@@ -7,7 +7,7 @@ import javax.swing.JTextPane;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.BrowsableHtmlPanel;
 
@@ -18,7 +18,7 @@ public class HtmlViewer extends Visualisation {
 	}
 
 	@Override
-	public JComponent getVisualisation(DataBean data) throws Exception {
+	public JComponent getVisualisation(Dataset data) throws Exception {
 		byte[] html = data.getContents();
 		if (html != null) {
 			JTextPane htmlPane = BrowsableHtmlPanel.createHtmlPanel();			
@@ -32,7 +32,7 @@ public class HtmlViewer extends Visualisation {
 	}
 
 	@Override
-	public boolean canVisualise(DataBean bean) throws MicroarrayException {
+	public boolean canVisualise(Dataset bean) throws MicroarrayException {
 		return bean.isContentTypeCompatitible("text/html");
 	}
 

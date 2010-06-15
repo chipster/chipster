@@ -45,7 +45,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Annotatio
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Row;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.messaging.MessagingEndpoint;
@@ -140,7 +140,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		TrackType type;
 		JCheckBox checkBox; 
 		String name;
-		DataBean userData;
+		Dataset userData;
 
 		public Track(String name, TrackType type) {
 			this.name = name;
@@ -148,7 +148,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			
 		}
 
-		public Track(String name, TrackType type, DataBean userData) {
+		public Track(String name, TrackType type, Dataset userData) {
 			this(name, type);
 			this.userData = userData;
 		}
@@ -156,7 +156,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 
 	private final ClientApplication application = Session.getSession().getApplication();
 
-	private List<DataBean> datas;
+	private List<Dataset> datas;
 	private List<Track> tracks = new LinkedList<Track>();
 
 	private GenomePlot plot;
@@ -434,12 +434,12 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	}
 
 	@Override
-	public JComponent getVisualisation(DataBean data) throws Exception {
-		return getVisualisation(Arrays.asList(new DataBean[] { data }));
+	public JComponent getVisualisation(Dataset data) throws Exception {
+		return getVisualisation(Arrays.asList(new Dataset[] { data }));
 	}
 
 	@Override
-	public JComponent getVisualisation(java.util.List<DataBean> datas) throws Exception {
+	public JComponent getVisualisation(java.util.List<Dataset> datas) throws Exception {
 		this.datas = datas;
 		createAvailableTracks(); // we can create tracks now that we know the data
 		
@@ -602,12 +602,12 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	}
 
 	@Override
-	public boolean canVisualise(DataBean data) throws MicroarrayException {
-		return canVisualise(Arrays.asList(new DataBean[] { data }));
+	public boolean canVisualise(Dataset data) throws MicroarrayException {
+		return canVisualise(Arrays.asList(new Dataset[] { data }));
 	}
 
 	@Override
-	public boolean canVisualise(java.util.List<DataBean> datas) throws MicroarrayException {
+	public boolean canVisualise(java.util.List<Dataset> datas) throws MicroarrayException {
 		return interpretUserDatas(datas) != null;
 	}
 
@@ -631,11 +631,11 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		gotoButton.setEnabled(false);
 	}
 
-	private List<TrackType> interpretUserDatas(List<DataBean> datas) {
+	private List<TrackType> interpretUserDatas(List<Dataset> datas) {
 		LinkedList<TrackType> interpretations = new LinkedList<TrackType>();
 
 		// try to find interpretation for all selected datas
-		for (DataBean data : datas) {
+		for (Dataset data : datas) {
 
 			if (data.isContentTypeCompatitible("text/plain")) {
 				// reads

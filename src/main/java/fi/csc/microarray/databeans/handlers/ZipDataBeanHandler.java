@@ -10,8 +10,8 @@ import java.net.URL;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataBean.DataBeanType;
+import fi.csc.microarray.databeans.Dataset;
+import fi.csc.microarray.databeans.Dataset.DataBeanType;
 
 public class ZipDataBeanHandler extends DataBeanHandlerBase {
 
@@ -19,21 +19,21 @@ public class ZipDataBeanHandler extends DataBeanHandlerBase {
 		super(DataBeanType.LOCAL_SESSION);
 	}
 	
-	public long getContentLength(DataBean dataBean) throws IOException {
+	public long getContentLength(Dataset dataBean) throws IOException {
 		checkCompatibility(dataBean);
 		ZipFile zipFile = new ZipFile(getZipFile(dataBean));		
 		ZipEntry zipEntry = zipFile.getEntry(dataBean.getContentUrl().getRef());
 		return zipEntry.getSize();
 	}
 
-	public InputStream getInputStream(DataBean dataBean) throws IOException {
+	public InputStream getInputStream(Dataset dataBean) throws IOException {
 		checkCompatibility(dataBean);
 		ZipFile zipFile = new ZipFile(getZipFile(dataBean));
 		ZipEntry zipEntry = zipFile.getEntry(dataBean.getContentUrl().getRef());
 		return zipFile.getInputStream(zipEntry);
 	}
 
-	protected void checkCompatibility(DataBean dataBean) throws IllegalArgumentException {
+	protected void checkCompatibility(Dataset dataBean) throws IllegalArgumentException {
 		super.checkCompatibility(dataBean);
 		
 		URL url = dataBean.getContentUrl();
@@ -64,7 +64,7 @@ public class ZipDataBeanHandler extends DataBeanHandlerBase {
 		}
 	}
 	
-	private File getZipFile(DataBean dataBean) {
+	private File getZipFile(Dataset dataBean) {
 		File zipFile;
 		try {
 			// remove fragment before converting to File
@@ -77,11 +77,11 @@ public class ZipDataBeanHandler extends DataBeanHandlerBase {
 		return zipFile;
 	}
 
-	public void delete(DataBean dataBean) {
+	public void delete(Dataset dataBean) {
 		// do nothing for now
 	}
 
-	public OutputStream getOutputStream(DataBean dataBean) throws IOException {
+	public OutputStream getOutputStream(Dataset dataBean) throws IOException {
 		// FIXME
 		throw new UnsupportedOperationException("not supported yet");
 	}

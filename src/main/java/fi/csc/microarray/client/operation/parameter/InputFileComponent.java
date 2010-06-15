@@ -17,7 +17,7 @@ import org.apache.log4j.Logger;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.OperationDefinition.InputDefinition;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 
 /**
  * User can remap input files to appropriate input
@@ -46,15 +46,15 @@ public class InputFileComponent extends JPanel {
         // Check current bindings and generate choices
         List<DataBinding> bindings = operation.getBindings();
         HashMap<String, String> bindingMap = new HashMap<String, String>();
-        DataBean[] dataBeans = new DataBean[0];
-        DataBean currentBean = null;
+        Dataset[] dataBeans = new Dataset[0];
+        Dataset currentBean = null;
         Boolean enabled = false;
         Integer index = 0;
         if (bindings != null) {
             
             // User has already selected the input files
             enabled = true;
-            dataBeans = new DataBean[bindings.size()];
+            dataBeans = new Dataset[bindings.size()];
             for (DataBinding binding : bindings) {
                 dataBeans[index++] = binding.getData();
                 bindingMap.put(binding.getName(), binding.getData().getName());
@@ -152,7 +152,7 @@ public class InputFileComponent extends JPanel {
                     }
                     
                     // Rebind input datasets                    
-                    DataBean selectedBean = (DataBean) component.getChoiceBox().getSelectedItem();
+                    Dataset selectedBean = (Dataset) component.getChoiceBox().getSelectedItem();
                     newBindings.add(new DataBinding(selectedBean,
                                                     component.getInput().getName(),
                                                     component.getInput().getType()));

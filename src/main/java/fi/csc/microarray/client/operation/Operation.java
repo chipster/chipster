@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.operation.OperationDefinition.Suitability;
 import fi.csc.microarray.client.operation.parameter.Parameter;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.description.SADLSyntax.InputType;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -31,17 +31,17 @@ public class Operation implements ExecutionItem {
 
 	public static class DataBinding {
 
-		private DataBean data;
+		private Dataset data;
 		private String name;
 		private InputType inputType;
 
-		public DataBinding(DataBean data, String name, InputType inputType) {
+		public DataBinding(Dataset data, String name, InputType inputType) {
 			this.data = data;
 			this.name = name;
 			this.inputType = inputType;
 		}
 
-		public DataBean getData() {
+		public Dataset getData() {
 			return data;
 		}
 
@@ -61,7 +61,7 @@ public class Operation implements ExecutionItem {
 	private DataFolder outputFolder;
 
 	public static interface ResultListener {
-		public void resultData(Iterable<DataBean> results);
+		public void resultData(Iterable<Dataset> results);
 		public void noResults();
 	}
 
@@ -74,7 +74,7 @@ public class Operation implements ExecutionItem {
 	 * @throws MicroarrayException
 	 * @throws MicroarrayException
 	 */
-	public Operation(OperationDefinition definition, DataBean[] beans) throws MicroarrayException {
+	public Operation(OperationDefinition definition, Dataset[] beans) throws MicroarrayException {
 		logger.debug("created operation from definition " + definition.getID());
 		this.definition = definition;
 		this.parameters = Parameter.cloneParameters(definition.getParameters());
@@ -115,7 +115,7 @@ public class Operation implements ExecutionItem {
 	 * @param beans operation input beans to bind
 	 * @throws MicroarrayException 
 	 */
-	public void bindInputs(DataBean[] beans) throws MicroarrayException {
+	public void bindInputs(Dataset[] beans) throws MicroarrayException {
 		this.bindings = definition.bindInputs(Arrays.asList(beans));
 
 		// update bindings to parameters
@@ -203,7 +203,7 @@ public class Operation implements ExecutionItem {
 	 * @return One of the OperationDefinition.Suitability enumeration, depending
 	 *         on how suitable the operation is judged.
 	 */
-	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data) {
+	public Suitability evaluateSuitabilityFor(Iterable<Dataset> data) {
 	    
 	    // Check suitability that can be checked in definition
 	    Suitability evaluatedSuitability = definition.evaluateSuitabilityFor(data);

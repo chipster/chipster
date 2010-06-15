@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.databeans.features.table.TableColumnProvider.MatrixParseSettings;
 import fi.csc.microarray.databeans.features.table.TableColumnProvider.TableColumn;
@@ -29,10 +29,10 @@ public class DynamicallyParsedTable implements Table {
 	private LinkedList<Integer> columnNumbers;
 	private HashMap<String, String> values;
 	private String[] columnNames;
-	private DataBean bean;
+	private Dataset bean;
 	private BufferedReader reader;
 
-	public DynamicallyParsedTable(DataBean bean, MatrixParseSettings settings, LinkedList<Integer> columnNumbers) {
+	public DynamicallyParsedTable(Dataset bean, MatrixParseSettings settings, LinkedList<Integer> columnNumbers) {
 		this.bean = bean;
 		this.settings = settings;
 		this.columnNumbers = columnNumbers;

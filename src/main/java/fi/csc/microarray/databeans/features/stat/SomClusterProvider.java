@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.features.ConstantTableFeature;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProviderBase;
@@ -20,7 +20,7 @@ public class SomClusterProvider extends FeatureProviderBase {
 		String values = "";
 	}
 	
-	public Feature createFeature(String namePostfix, DataBean bean) {
+	public Feature createFeature(String namePostfix, Dataset bean) {
 		// check that data has everything we need
 		if (!bean.queryFeatures("/column/colours").exists() || !bean.queryFeatures("/column/distance2first").exists() ||
 				!bean.queryFeatures("/column/cluster").exists() || !bean.queryFeatures("/identifier").exists() ||

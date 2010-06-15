@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * DataFolder is used to manage DataBean objects.
  * 
- * @see DataBean
+ * @see Dataset
  * @author Aleksi Kallio, hupponen
  *
  */

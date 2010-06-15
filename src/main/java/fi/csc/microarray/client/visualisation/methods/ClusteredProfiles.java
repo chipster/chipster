@@ -17,7 +17,7 @@ import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.methods.ExpressionProfile.ProfileRow;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -28,7 +28,7 @@ public class ClusteredProfiles extends Visualisation {
 	}
 
 	@Override
-	public JComponent getVisualisation(DataBean data) throws Exception {
+	public JComponent getVisualisation(Dataset data) throws Exception {
 
 		// count clusters
 		int clusterCount = 0;
@@ -109,7 +109,7 @@ public class ClusteredProfiles extends Visualisation {
 	}
 
 	@Override
-	public boolean canVisualise(DataBean bean) throws MicroarrayException {
+	public boolean canVisualise(Dataset bean) throws MicroarrayException {
 		boolean isTabular = VisualisationMethod.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
 		if (isTabular) {
 			Table chips = bean.queryFeatures("/column/chip.*").asTable();

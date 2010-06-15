@@ -21,7 +21,7 @@ import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 @SuppressWarnings("serial")
@@ -201,10 +201,10 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 			} else if (e.getSource() == importFolderLink) {
 				application.openDirectoryImportDialog();
 			} else if (e.getSource() == importArrayExpressLink) {
-				Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_ARRAYEXPRESS_ID), new DataBean[] {});
+				Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_ARRAYEXPRESS_ID), new Dataset[] {});
 				application.openDatabaseImport("ArrayExpress", importOperation);
 			} else if (e.getSource() == importGEOLink) {
-				Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_GEO_ID), new DataBean[] {});
+				Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_GEO_ID), new Dataset[] {});
 				application.openDatabaseImport("GEO", importOperation);
 			} else if (e.getSource() == importTextLink) {
 			    application.openCreateFromTextDialog();

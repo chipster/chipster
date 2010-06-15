@@ -10,8 +10,8 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.dataviews.vertexes.AbstractGraphVertex;
 import fi.csc.microarray.client.dataviews.vertexes.GraphVertex;
-import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.Dataset;
+import fi.csc.microarray.databeans.Dataset.Link;
 
 /**
  * Class for some  methods which are iterating through
@@ -87,7 +87,7 @@ public class LayoutManager {
 		List<Integer> sourceXs = new ArrayList<Integer>();	
 
 		// check sources
-		for (DataBean sourceBean : vertex.getData().getLinkTargets(Link.derivationalTypes())) {										
+		for (Dataset sourceBean : vertex.getData().getLinkTargets(Link.derivationalTypes())) {										
 			GraphVertex source = graph.getVertexMap().get(sourceBean);
 			
 			// find the farthest source from the left					

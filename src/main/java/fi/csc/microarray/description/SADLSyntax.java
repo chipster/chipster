@@ -1,6 +1,6 @@
 package fi.csc.microarray.description;
 
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 
 
 /**
@@ -99,7 +99,7 @@ public class SADLSyntax {
 	public static final String ESCAPE = "\\";
 	
 	public static interface InputType {
-		public boolean isTypeOf(DataBean dataBean);
+		public boolean isTypeOf(Dataset dataBean);
 		public String getName();
 		public boolean isMetadata();
 	}

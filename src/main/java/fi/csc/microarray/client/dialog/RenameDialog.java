@@ -17,7 +17,7 @@ import javax.swing.event.CaretListener;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.SwingClientApplication;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataItem;
 
 /**
@@ -46,7 +46,7 @@ public class RenameDialog extends JDialog implements ActionListener, CaretListen
 	 */
 	public RenameDialog(SwingClientApplication client, DataItem data) {
 		super(client.getMainFrame(),                
-                data instanceof DataBean ? "Rename Data Item" : "Rename Data Folder",
+                data instanceof Dataset ? "Rename Data Item" : "Rename Data Folder",
                 true);
 		
 		this.client = client;

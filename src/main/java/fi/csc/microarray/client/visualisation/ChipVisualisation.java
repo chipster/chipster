@@ -2,7 +2,7 @@ package fi.csc.microarray.client.visualisation;
 
 import java.util.Arrays;
 
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public abstract class ChipVisualisation extends Visualisation {
@@ -12,11 +12,11 @@ public abstract class ChipVisualisation extends Visualisation {
 	}
 
 	@Override
-	public Variable[] getVariablesFor(DataBean dataBean) {
+	public Variable[] getVariablesFor(Dataset dataBean) {
 		return VisualisationUtilities.getVariablesFilteredInclusive(dataBean, "chip.", true);
 	}
 	
-	public Variable[] getVariablesMore(DataBean dataBean) {
+	public Variable[] getVariablesMore(Dataset dataBean) {
 		
 		String[] banList = {
 			" ", "symbol", "description", "Probe", "Symbol", "Description", "Chromosome",
@@ -29,12 +29,12 @@ public abstract class ChipVisualisation extends Visualisation {
 	}
 			
 	@Override
-	public boolean canVisualise(DataBean bean) throws MicroarrayException {
+	public boolean canVisualise(Dataset bean) throws MicroarrayException {
 		boolean isTabular = VisualisationMethod.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
 		return isTabular && hasRows(bean) && bean.queryFeatures("/column/chip.*").exists();
 	}
 	
-	protected boolean hasRows(DataBean dataBean) throws MicroarrayException {
+	protected boolean hasRows(Dataset dataBean) throws MicroarrayException {
 		return dataBean.queryFeatures("/rowcount/max/1").asFloat() >= 1;
 	}	
 }

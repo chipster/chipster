@@ -16,7 +16,7 @@ import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -33,7 +33,7 @@ public class SOM extends Visualisation {
 	 * from the deSelectAll-method of the SOMDataSet class).
 	 */
 	@Override
-	public JComponent getVisualisation(DataBean data) throws Exception {
+	public JComponent getVisualisation(Dataset data) throws Exception {
 
 		// iterate over input data to find out the dimensions of the table
 		Table som = data.queryFeatures("/clusters/som").asTable();
@@ -112,7 +112,7 @@ public class SOM extends Visualisation {
 	}
 
 	@Override
-	public boolean canVisualise(DataBean bean) throws MicroarrayException {
+	public boolean canVisualise(Dataset bean) throws MicroarrayException {
 		boolean isTabular = VisualisationMethod.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
 		return isTabular && bean.queryFeatures("/clusters/som").exists();
 	}

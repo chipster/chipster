@@ -1,16 +1,16 @@
 package fi.csc.microarray.client.workflow.api;
 
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 
 public class WfDataBean {
 
-	private DataBean dataBean;
+	private Dataset dataBean;
 
-	public WfDataBean(DataBean dataBean) {
+	public WfDataBean(Dataset dataBean) {
 		this.dataBean = dataBean;
 	}
 
-	public DataBean getWrapped() {
+	public Dataset getWrapped() {
 		return dataBean;
 	}
 

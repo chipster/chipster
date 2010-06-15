@@ -5,8 +5,8 @@ import java.util.LinkedList;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.Dataset;
+import fi.csc.microarray.databeans.Dataset.Link;
 
 // TODO at some point BioBean should be obsoleted...
 public class BioBean {
@@ -16,9 +16,9 @@ public class BioBean {
 	private static final Logger logger = Logger.getLogger(BioBean.class);
 	
 	
-	private DataBean dataBean;
+	private Dataset dataBean;
 	
-	public BioBean(DataBean dataBean) {
+	public BioBean(Dataset dataBean) {
 		this.dataBean = dataBean;
 	}
 	
@@ -26,7 +26,7 @@ public class BioBean {
 	/**
 	 * Selects the proper source dataset ie. the dataset that is not a hidden phenodata dataset.
 	 */
-	public DataBean getProperSource() {
+	public Dataset getProperSource() {
 		
 		logger.debug(dataBean == null ? "databean is null" : ("getting proper source of " + dataBean.getName() + ", source count is " + dataBean.getLinkTargets(Link.DERIVATION).size()));
 		
@@ -37,8 +37,8 @@ public class BioBean {
 			return dataBean.getLinkTargets(Link.DERIVATION).iterator().next();
 			
 		} else {
-			LinkedList<DataBean> sourceCollector = new LinkedList<DataBean>();
-			for (DataBean source : dataBean.getLinkTargets(Link.DERIVATION)) {
+			LinkedList<Dataset> sourceCollector = new LinkedList<Dataset>();
+			for (Dataset source : dataBean.getLinkTargets(Link.DERIVATION)) {
 				if (source.queryFeatures("/phenodata").exists()) {
 					sourceCollector.add(source);
 				}
@@ -60,12 +60,12 @@ public class BioBean {
 	 * 
 	 * @return The chronologically ascending list of dataset history wrappers.
 	 */
-	public DataBean[] getSourcePath() {
-		LinkedList<DataBean> list = new LinkedList<DataBean>();
+	public Dataset[] getSourcePath() {
+		LinkedList<Dataset> list = new LinkedList<Dataset>();
 		if (getProperSource() != null) {
 			list.addAll(Arrays.asList(new BioBean(getProperSource()).getSourcePath()));
 		}
 		list.add(dataBean);
-		return list.toArray(new DataBean[0]);
+		return list.toArray(new Dataset[0]);
 	}	
 }

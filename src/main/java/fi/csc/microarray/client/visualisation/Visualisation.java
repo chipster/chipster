@@ -16,7 +16,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public abstract class Visualisation {
@@ -25,13 +25,13 @@ public abstract class Visualisation {
 
 	private VisualisationFrame frame;
 
-	public abstract JComponent getVisualisation(DataBean data) throws Exception;
+	public abstract JComponent getVisualisation(Dataset data) throws Exception;
 
 	// public to be able to use this also in implementations of this class and
 	// in their inner classes
 	public final ClientApplication application = Session.getSession().getApplication();
 
-	public abstract boolean canVisualise(DataBean bean) throws MicroarrayException;
+	public abstract boolean canVisualise(Dataset bean) throws MicroarrayException;
 
 	public Visualisation(VisualisationFrame frame) {
 		this.frame = frame;
@@ -50,7 +50,7 @@ public abstract class Visualisation {
 	 * NotImplementedException if this is called for the visualisation that
 	 * doesn't override this method.
 	 */
-	public JComponent getVisualisation(List<DataBean> data) throws Exception {
+	public JComponent getVisualisation(List<Dataset> data) throws Exception {
 		throw new NotImplementedException();
 	}
 
@@ -111,7 +111,7 @@ public abstract class Visualisation {
 		}
 	}
 	
-	public Variable[] getVariablesFor(DataBean dataBean) {
+	public Variable[] getVariablesFor(Dataset dataBean) {
 		// return empty variable list
 		LinkedList<Variable> vars = new LinkedList<Variable>();
 		return vars.toArray(new Variable[0]);
@@ -147,7 +147,7 @@ public abstract class Visualisation {
 		public String yTitle;
 	}
 
-	public boolean canVisualise(List<DataBean> beans) throws MicroarrayException {
+	public boolean canVisualise(List<Dataset> beans) throws MicroarrayException {
 		throw new NotImplementedException();
 	}
 

@@ -6,7 +6,7 @@ import java.util.List;
 import org.jgraph.graph.GraphConstants;
 
 import fi.csc.microarray.client.dataview.MicroarrayGraph;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 
 /**
  * Graph vertex for phenodata. Basicly the PhenodataVertex is just like 
@@ -27,7 +27,7 @@ import fi.csc.microarray.databeans.DataBean;
  */
 public class PhenodataVertex extends GraphVertex {
 
-	public PhenodataVertex(int x, int y, DataBean data, MicroarrayGraph graph) {
+	public PhenodataVertex(int x, int y, Dataset data, MicroarrayGraph graph) {
 		super(x, y, data, graph);
 		GraphConstants.setSelectable(this.getAttributes(), true);
 	}

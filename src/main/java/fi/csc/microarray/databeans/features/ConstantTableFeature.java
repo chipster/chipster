@@ -3,7 +3,7 @@ package fi.csc.microarray.databeans.features;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class ConstantTableFeature extends BasicFeature {
@@ -60,7 +60,7 @@ public class ConstantTableFeature extends BasicFeature {
 	private Map<String, Integer> columnMap = new LinkedHashMap<String, Integer>();
 	private Object[][] values;
 	
-	public ConstantTableFeature(DataBean bean, FeatureProvider factory, String[] columns, Object[][] values) {
+	public ConstantTableFeature(Dataset bean, FeatureProvider factory, String[] columns, Object[][] values) {
 		super(bean, factory);
 		if (columns.length != values.length) {
 			throw new IllegalArgumentException("columns and values do not match in size");

@@ -1,9 +1,9 @@
 package fi.csc.microarray.databeans.features.bio;
 
 import fi.csc.microarray.client.visualisation.methods.PhenodataEditor;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.LinkUtils;
-import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.Dataset.Link;
 import fi.csc.microarray.databeans.features.BoolFalseFeature;
 import fi.csc.microarray.databeans.features.BoolTrueFeature;
 import fi.csc.microarray.databeans.features.ConstantStringFeature;
@@ -22,9 +22,9 @@ public class PhenodataProvider extends FeatureProviderBase {
 	private static final String DESCRIPTION_KEYWORD = "describe";
 	private static final String LINKED_PHENODATA_KEYWORD = "linked";
 
-	public Feature createFeature(String namePostfix, DataBean bean) {
+	public Feature createFeature(String namePostfix, Dataset bean) {
 
-		DataBean phenoBean;
+		Dataset phenoBean;
 		String namePostPostFix;
 		if (namePostfix.startsWith(LINKED_PHENODATA_KEYWORD)) {
 			phenoBean = LinkUtils.retrieveInherited(bean, Link.ANNOTATION);
@@ -41,7 +41,7 @@ public class PhenodataProvider extends FeatureProviderBase {
 		}
 	}
 
-	private Feature createBooleanFeature(String namePostfix, DataBean bean) {
+	private Feature createBooleanFeature(String namePostfix, Dataset bean) {
 
 		boolean isPhenodata = false;
 		boolean isComplete = false;
@@ -88,7 +88,7 @@ public class PhenodataProvider extends FeatureProviderBase {
 		return returnValue ? new BoolTrueFeature(bean, this) : new BoolFalseFeature(bean, this);
 	}
 
-	private Feature createConversionFeature(String namePostfix, DataBean bean) {
+	private Feature createConversionFeature(String namePostfix, Dataset bean) {
 
 		// parse query
 		String sampleName = namePostfix.substring(namePostfix.lastIndexOf('/') + 1);

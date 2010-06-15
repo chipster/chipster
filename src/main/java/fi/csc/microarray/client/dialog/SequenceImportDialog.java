@@ -31,7 +31,7 @@ import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.dataimport.ImportUtils;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -225,7 +225,7 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
             separator = separator == -1 ? fileName.length() : separator;
             
             // There can be multiple sequences
-            LinkedList<DataBean> datasets = new LinkedList<DataBean>();
+            LinkedList<Dataset> datasets = new LinkedList<Dataset>();
             String[] sequences = ids.split("\n|;|,");
             int index = 0;
             for (String id : sequences) {
@@ -246,16 +246,16 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
                 // Merge all imported datasets into one
                 try {
                     StringBuilder sb = new StringBuilder();
-                    for (DataBean dataset : datasets) {
+                    for (Dataset dataset : datasets) {
                         sb.append(new String(dataset.getContents()));
                     }
                     String content = sb.toString();
                     
                     // Create single dataset for all input data
                     ByteArrayInputStream stream = new ByteArrayInputStream(content.getBytes());
-                    DataBean data = application.getDataManager().createDataBean(fileName, stream);
+                    Dataset data = application.getDataManager().createDataBean(fileName, stream);
                     data.setContentType(application.getDataManager().guessContentType(fileName));
-                    data.setOperation(new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data }));
+                    data.setOperation(new Operation(OperationDefinition.IMPORT_DEFINITION, new Dataset[] { data }));
                     
                     // Make it visible
                     DataFolder folder = application.initializeFolderForImport(folderName);
@@ -270,7 +270,7 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
 				}
             } else {
                 // Make separate datasets visible
-                for (DataBean dataset : datasets) {
+                for (Dataset dataset : datasets) {
                     DataFolder folder = application.initializeFolderForImport(folderName);
                     folder.addChild(dataset);
                     application.getSelectionManager().selectSingle(dataset, this);
@@ -292,13 +292,13 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
      * @param db
      * @param id
      */
-    private DataBean runImport(String fileName, String folderName, String db, String id) {
-        DataBean data = null;
+    private Dataset runImport(String fileName, String folderName, String db, String id) {
+        Dataset data = null;
         try {               
             // Create importing job
             logger.info("Importing sequence...");
             
-            Operation operation = new Operation(application.getOperationDefinition(OPERATION_ID), new DataBean[] {});
+            Operation operation = new Operation(application.getOperationDefinition(OPERATION_ID), new Dataset[] {});
             operation.setParameter("sequence", db + ":" + id);
             operation.setParameter("sbegin", beginField.getText());
             operation.setParameter("send", endField.getText());

@@ -27,7 +27,7 @@ import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.VisualisationToolBar;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
@@ -97,7 +97,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		logger.debug("updating menubar when selected is " + application.getSelectionManager().getSelectedItem());
 		DataSelectionManager selectionManager = application.getSelectionManager();
 
-		DataBean selectedDataBean = selectionManager.getSelectedDataBean();
+		Dataset selectedDataBean = selectionManager.getSelectedDataBean();
 		boolean somethingSelected = selectionManager.getSelectedItem() != null;
 		boolean normalisedDataSelected = false;
 
@@ -229,7 +229,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			importFromArrayExpressMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
-						Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_ARRAYEXPRESS_ID), new DataBean[] {});
+						Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_ARRAYEXPRESS_ID), new Dataset[] {});
 						application.openDatabaseImport("ArrayExpress", importOperation);
 					} catch (Exception me) {
 						application.reportException(me);
@@ -247,7 +247,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			importFromGEOMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
-						Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_GEO_ID), new DataBean[] {});
+						Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_GEO_ID), new Dataset[] {});
 						application.openDatabaseImport("GEO", importOperation);
 					} catch (Exception me) {
 						application.reportException(me);
@@ -465,7 +465,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			historyMenuItem.setAccelerator(KeyStroke.getKeyStroke('H', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			historyMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					DataBean data = application.getSelectionManager().getSelectedDataBean();
+					Dataset data = application.getSelectionManager().getSelectedDataBean();
 					if (data != null) {
 						application.showHistoryScreenFor(data);
 					}

@@ -35,7 +35,7 @@ import fi.csc.microarray.client.dataimport.ImportUtils;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.parameter.Parameter;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.biobeans.BioBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.GeneralFileFilter;
@@ -65,7 +65,7 @@ public class HistoryScreen extends ScreenBase
 	private Map<String, JCheckBox> checkBoxes= new HashMap<String, JCheckBox>();
 	private JButton saveButton;
 	private JButton closeButton;
-	private DataBean data;
+	private Dataset data;
 	private String[] sourceCodes = null;
 	private JFileChooser chooser = null;
 	
@@ -167,7 +167,7 @@ public class HistoryScreen extends ScreenBase
 	 * 
 	 * @param data
 	 */
-	public void setData(DataBean data) {
+	public void setData(Dataset data) {
 		this.data = data;
 		this.sourceCodes = null; // refresh source codes
 		refreshText();
@@ -189,7 +189,7 @@ public class HistoryScreen extends ScreenBase
 		}
 		StringBuffer historyText = new StringBuffer();
 		int i = 0;
-		for (DataBean listData : new BioBean(data).getSourcePath()) {
+		for (Dataset listData : new BioBean(data).getSourcePath()) {
 			if (checkBoxes.get("title").isSelected()) {
 				String title = "Step " + (i+1);
 				historyText.append(title + "\n");
@@ -256,7 +256,7 @@ public class HistoryScreen extends ScreenBase
 			
 			// make list of wanted source codes
 			List<String> ids = new LinkedList<String>();
-			for (DataBean bean : new BioBean(data).getSourcePath()) {
+			for (Dataset bean : new BioBean(data).getSourcePath()) {
 				OperationDefinition op = bean.getOperation().getDefinition();
 				if (op.hasSourceCode()) {
 					ids.add(op.getID());

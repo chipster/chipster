@@ -12,8 +12,8 @@ import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataBean.DataBeanType;
+import fi.csc.microarray.databeans.Dataset;
+import fi.csc.microarray.databeans.Dataset.DataBeanType;
 
 public class LocalFileDataBeanHandler extends DataBeanHandlerBase {
 
@@ -22,17 +22,17 @@ public class LocalFileDataBeanHandler extends DataBeanHandlerBase {
 	}
 	
 	
-	public InputStream getInputStream(DataBean dataBean) throws FileNotFoundException {
+	public InputStream getInputStream(Dataset dataBean) throws FileNotFoundException {
 		checkCompatibility(dataBean);
 		return new BufferedInputStream(new FileInputStream(getFile(dataBean)));
 	}
 
-	public OutputStream getOutputStream(DataBean dataBean) throws IOException {
+	public OutputStream getOutputStream(Dataset dataBean) throws IOException {
 		checkCompatibility(dataBean);
 		return new BufferedOutputStream(new FileOutputStream(getFile(dataBean)));
 	}
 	
-	public long getContentLength(DataBean dataBean) {
+	public long getContentLength(Dataset dataBean) {
 		checkCompatibility(dataBean);
 		return getFile(dataBean).length();
 	}
@@ -40,8 +40,8 @@ public class LocalFileDataBeanHandler extends DataBeanHandlerBase {
 	/**
 	 * Only delete temporary files, never user files.
 	 */
-	public void delete(DataBean dataBean) {
-		if (dataBean.getType().equals(DataBean.DataBeanType.LOCAL_TEMP)) {
+	public void delete(Dataset dataBean) {
+		if (dataBean.getType().equals(Dataset.DataBeanType.LOCAL_TEMP)) {
 
 			checkCompatibility(dataBean);
 			File file = getFile(dataBean);
@@ -50,7 +50,7 @@ public class LocalFileDataBeanHandler extends DataBeanHandlerBase {
 	}
 	
 	
-	protected void checkCompatibility(DataBean dataBean) throws IllegalArgumentException {
+	protected void checkCompatibility(Dataset dataBean) throws IllegalArgumentException {
 		super.checkCompatibility(dataBean);
 
 		URL url = dataBean.getContentUrl();
@@ -71,7 +71,7 @@ public class LocalFileDataBeanHandler extends DataBeanHandlerBase {
 		} 
 	}
 	
-	public File getFile(DataBean dataBean) {
+	public File getFile(Dataset dataBean) {
 		File file;
 		try {
 			file = new File(dataBean.getContentUrl().toURI());

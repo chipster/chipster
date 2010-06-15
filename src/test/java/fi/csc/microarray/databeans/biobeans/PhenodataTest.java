@@ -10,10 +10,10 @@ import org.testng.annotations.Test;
 
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.LinkUtils;
-import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.Dataset.Link;
 import fi.csc.microarray.databeans.features.table.EditableTable;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.DefaultModules;
@@ -31,9 +31,9 @@ public class PhenodataTest {
 
 	@Test(groups = {"unit"} )
 	public void testPhenodataRetrieval() throws MicroarrayException, IOException {
-		DataBean normalised = manager.createDataBean("normalised.tsv");
-		DataBean filtered = manager.createDataBean("filtered.tsv");
-		DataBean phenodata = manager.createDataBean("phenodata.tsv");
+		Dataset normalised = manager.createDataBean("normalised.tsv");
+		Dataset filtered = manager.createDataBean("filtered.tsv");
+		Dataset phenodata = manager.createDataBean("phenodata.tsv");
 		
 		filtered.addLink(Link.DERIVATION, normalised);
 		phenodata.addLink(Link.ANNOTATION, normalised);
@@ -46,14 +46,14 @@ public class PhenodataTest {
 	@Test(groups = {"unit"} )
 	public void testPhenodataGeneration() throws MicroarrayException, IOException {
 
-		DataBean normalised1 = manager.createDataBean("normalised.tsv");
-		DataBean phenodata1 = manager.createDataBean("phenodata.tsv");
-		DataBean filtered = manager.createDataBean("filtered.tsv");
+		Dataset normalised1 = manager.createDataBean("normalised.tsv");
+		Dataset phenodata1 = manager.createDataBean("phenodata.tsv");
+		Dataset filtered = manager.createDataBean("filtered.tsv");
 		filtered.addLink(Link.DERIVATION, normalised1);
 		phenodata1.addLink(Link.ANNOTATION, normalised1);
 
-		DataBean normalised2 = manager.createDataBean("normalised.tsv");
-		DataBean phenodata2 = manager.createDataBean("phenodata.tsv");
+		Dataset normalised2 = manager.createDataBean("normalised.tsv");
+		Dataset phenodata2 = manager.createDataBean("phenodata.tsv");
 		phenodata2.addLink(Link.ANNOTATION, normalised2);
 				
 		ArrayList<String> samples = new ArrayList<String>();

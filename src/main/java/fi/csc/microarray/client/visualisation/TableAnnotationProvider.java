@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -29,9 +29,9 @@ public class TableAnnotationProvider {
 	private HashMap<String, String> annotatedIdentifiers = new HashMap<String, String>();
 	private HashMap<String, String> descriptions = new HashMap<String, String>();
 	
-	private DataBean data; //Just to check validity of this instance 
+	private Dataset data; //Just to check validity of this instance 
 	
-	public TableAnnotationProvider(DataBean bean) throws MicroarrayException {
+	public TableAnnotationProvider(Dataset bean) throws MicroarrayException {
 		this(bean.queryFeatures(TABLE_COLUMN_QUERY + COLUMN_ALL).asTable());		
 	}
 
@@ -82,7 +82,7 @@ public class TableAnnotationProvider {
 		return descriptions.get(rowIdentifier);
 	}
 	
-	public boolean isForData(DataBean data){
+	public boolean isForData(Dataset data){
 		return this.data != null ? this.data.equals(data) : false;
 	}
 }

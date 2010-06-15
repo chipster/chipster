@@ -9,8 +9,8 @@ import org.testng.annotations.Test;
 
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
-import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.DataBean.Traversal;
+import fi.csc.microarray.databeans.Dataset.Link;
+import fi.csc.microarray.databeans.Dataset.Traversal;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class LinkTest {
@@ -24,9 +24,9 @@ public class LinkTest {
 	
 	@Test(groups = {"unit"} )
 	public void testLinks() throws MicroarrayException {
-		DataBean bean1 = manager.createDataBean("test1");
-		DataBean bean2 = manager.createDataBean("test2");
-		DataBean bean3 = manager.createDataBean("test3");
+		Dataset bean1 = manager.createDataBean("test1");
+		Dataset bean2 = manager.createDataBean("test2");
+		Dataset bean3 = manager.createDataBean("test3");
 		
 		bean1.addLink(Link.ANNOTATION, bean3);
 		bean1.addLink(Link.DERIVATION, bean2);
@@ -59,9 +59,9 @@ public class LinkTest {
 	
 	@Test(groups = {"unit"} )
 	public void testTraversal() throws MicroarrayException {
-		final DataBean bean1 = manager.createDataBean("test1");
-		final DataBean bean2 = manager.createDataBean("test2");
-		final DataBean bean3 = manager.createDataBean("test3");
+		final Dataset bean1 = manager.createDataBean("test1");
+		final Dataset bean2 = manager.createDataBean("test2");
+		final Dataset bean3 = manager.createDataBean("test3");
 		
 		bean1.addLink(Link.DERIVATION, bean2);
 		bean1.addLink(Link.DERIVATION, bean3);
@@ -74,11 +74,11 @@ public class LinkTest {
 		Assert.assertTrue(bean2.traverseLinks(Link.derivationalTypes(), Traversal.REVERSED).contains(bean1));
 		Assert.assertTrue(bean2.traverseLinks(Link.derivationalTypes(), Traversal.BIDIRECTIONAL).size() == 3);
 		
-		List<DataBean> selected = bean2.traverseLinks(Link.derivationalTypes(), Traversal.BIDIRECTIONAL, new DataBeanSelector() {
-			public boolean shouldSelect(DataBean bean) {
+		List<Dataset> selected = bean2.traverseLinks(Link.derivationalTypes(), Traversal.BIDIRECTIONAL, new DataBeanSelector() {
+			public boolean shouldSelect(Dataset bean) {
 				return bean == bean2;
 			}
-			public boolean shouldTraverse(DataBean bean) {
+			public boolean shouldTraverse(Dataset bean) {
 				return true;
 			}
 		});

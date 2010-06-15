@@ -57,11 +57,11 @@ import fi.csc.microarray.client.visualisation.methods.PhenodataEditor;
 import fi.csc.microarray.client.workflow.WorkflowManager;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.Dataset.Link;
 import fi.csc.microarray.databeans.features.table.EditableTable;
 import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -112,8 +112,8 @@ public abstract class ClientApplication implements Node {
 	protected abstract void taskCountChanged(int newTaskCount, boolean attractAttention);	
 	public abstract void importGroup(Collection<ImportItem> datas, String folderName);
 	public abstract void showSourceFor(String operationName) throws TaskException;
-	public abstract void showHistoryScreenFor(DataBean data);
-    public abstract void showDetailsFor(DataBean data);
+	public abstract void showHistoryScreenFor(Dataset data);
+    public abstract void showDetailsFor(Dataset data);
     public abstract void showPopupMenuFor(MouseEvent e, DataItem data);
     public abstract void showPopupMenuFor(MouseEvent e, List<DataItem> datas);
     public abstract void showImportToolFor(File file, String destinationFolder, boolean skipActionChooser);	
@@ -125,8 +125,8 @@ public abstract class ClientApplication implements Node {
 	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal);
 	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility);
 	public abstract void deleteDatas(DataItem... datas);	
-	public abstract void createLink(DataBean source, DataBean target, Link type);
-	public abstract void removeLink(DataBean source, DataBean target, Link type);
+	public abstract void createLink(Dataset source, Dataset target, Link type);
+	public abstract void removeLink(Dataset source, Dataset target, Link type);
 	public abstract File saveWorkflow();
 	public abstract File openWorkflow();
 	public abstract void loadSession();
@@ -324,8 +324,8 @@ public abstract class ClientApplication implements Node {
         eventSupport.removePropertyChangeListener(listener);       
     }
     
-    public List<DataBean> getAllDataBeans(){
-		List<DataBean> datas = new ArrayList<DataBean>();
+    public List<Dataset> getAllDataBeans(){
+		List<Dataset> datas = new ArrayList<Dataset>();
 		// The depth of the file structure is max 2, so we don't need recursion
 		
 		// Iterate the folders
@@ -335,8 +335,8 @@ public abstract class ClientApplication implements Node {
 				
 				// Iterate the datas
 				for(DataItem item2 : folder.getChildren()){
-					if(item2 instanceof DataBean){
-						DataBean bean = (DataBean)item2;
+					if(item2 instanceof Dataset){
+						Dataset bean = (Dataset)item2;
 						datas.add(bean);
 					}
 				}
@@ -350,15 +350,15 @@ public abstract class ClientApplication implements Node {
     }
     
     public void selectAllItems(){
-		List<DataBean> datas = getAllDataBeans();
-		for (DataBean data : datas) {
+		List<Dataset> datas = getAllDataBeans();
+		for (Dataset data : datas) {
 			
 			selectionManager.selectMultiple(data, this);
 			
 		}
     }
 
-	public void setVisualisationMethod(VisualisationMethod method, List<Variable> variables, List<DataBean> datas, FrameType target ) {
+	public void setVisualisationMethod(VisualisationMethod method, List<Variable> variables, List<Dataset> datas, FrameType target ) {
 		dispatchVisualisationEvent(new VisualisationMethodChangedEvent(this, method, variables, datas, target));
 	}
 	
@@ -465,7 +465,7 @@ public abstract class ClientApplication implements Node {
 	 */
 	public void onFinishedTask(Task job, Operation oper) throws MicroarrayException, IOException {
 		
-		LinkedList<DataBean> newBeans = new LinkedList<DataBean>();
+		LinkedList<Dataset> newBeans = new LinkedList<Dataset>();
 		try {
 
 			logger.debug("operation finished, state is " + job.getState());
@@ -482,10 +482,10 @@ public abstract class ClientApplication implements Node {
 			// for completed tasks, create datasets etc.
 			else {
 
-				newBeans = new LinkedList<DataBean>();
+				newBeans = new LinkedList<Dataset>();
 
 				// read operated datas
-				LinkedList<DataBean> sources = new LinkedList<DataBean>();
+				LinkedList<Dataset> sources = new LinkedList<Dataset>();
 				for (DataBinding binding : oper.getBindings()) {
 					// remove derivation links that start from phenodata
 					if (!binding.getData().queryFeatures("/phenodata").exists()) {
@@ -505,11 +505,11 @@ public abstract class ClientApplication implements Node {
 				}
 
 
-				DataBean phenodata = null;
+				Dataset phenodata = null;
 
 				for (String outputName : job.outputNames()) {
 
-					DataBean result = job.getOutput(outputName);
+					Dataset result = job.getOutput(outputName);
 					result.setOperation(oper);
 
 					if (result.queryFeatures("/phenodata").exists()) {
@@ -517,7 +517,7 @@ public abstract class ClientApplication implements Node {
 					}
 
 					// set sources
-					for (DataBean source : sources) {
+					for (Dataset source : sources) {
 						result.addLink(Link.DERIVATION, source);
 					}
 
@@ -536,7 +536,7 @@ public abstract class ClientApplication implements Node {
 
 				if (phenodata != null) {
 					// link phenodata to other datasets
-					for (DataBean bean : newBeans) {
+					for (Dataset bean : newBeans) {
 						if (bean != phenodata) {
 							phenodata.addLink(Link.ANNOTATION, bean);
 						}
@@ -705,7 +705,7 @@ public abstract class ClientApplication implements Node {
 	 * @param data
 	 * @param selectedFile
 	 */
-	protected void exportToFile(final DataBean data, final File selectedFile) {
+	protected void exportToFile(final Dataset data, final File selectedFile) {
 		runBlockingTask("exporting file", new Runnable() {
 
 			public void run() {

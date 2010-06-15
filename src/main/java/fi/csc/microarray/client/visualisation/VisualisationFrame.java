@@ -24,7 +24,7 @@ import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataChangeEvent;
 import fi.csc.microarray.databeans.DataChangeListener;
 import fi.csc.microarray.databeans.DataItemRemovedEvent;
@@ -51,7 +51,7 @@ public abstract class VisualisationFrame implements DataChangeListener {
 
 	private List<Variable> variables;
 
-	private List<DataBean> datas;
+	private List<Dataset> datas;
 
 	private FrameType type;
 
@@ -80,7 +80,7 @@ public abstract class VisualisationFrame implements DataChangeListener {
 
 		// show empty panel
 		try {
-			this.showVisualisationComponent(VisualisationMethod.NONE.getVisualiser(this).getVisualisation(new ArrayList<DataBean>()));
+			this.showVisualisationComponent(VisualisationMethod.NONE.getVisualiser(this).getVisualisation(new ArrayList<Dataset>()));
 		} catch (Exception e) {
 			application.reportException(e);
 		}
@@ -135,7 +135,7 @@ public abstract class VisualisationFrame implements DataChangeListener {
 			if(visualiser.isForMultipleDatas()){
 				visualisationComponent = visualiser.getVisualisation(datas);
 			} else if(visualiser.isForSingleData()){
-				DataBean data = datas.size() > 0 ? datas.get(0) : null;
+				Dataset data = datas.size() > 0 ? datas.get(0) : null;
 				visualisationComponent = visualiser.getVisualisation(data);
 			}
 			
@@ -170,7 +170,7 @@ public abstract class VisualisationFrame implements DataChangeListener {
 		
 		if(panel == null){
 			try {
-				panel = VisualisationMethod.NONE.getVisualiser(this).getVisualisation(new ArrayList<DataBean>());
+				panel = VisualisationMethod.NONE.getVisualiser(this).getVisualisation(new ArrayList<Dataset>());
 			} catch (Exception e) {
 				application.reportException(e);
 			}
@@ -240,7 +240,7 @@ public abstract class VisualisationFrame implements DataChangeListener {
 	public List<Variable> getVariables() {
 		return variables;
 	}
-	public List<DataBean> getDatas() {
+	public List<Dataset> getDatas() {
 		return datas;
 	}
 	public FrameType getType() {

@@ -28,7 +28,7 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataItem;
 
 /**
@@ -63,7 +63,7 @@ public class DetailsPanel extends JPanel implements PropertyChangeListener, Focu
 	private JButton showButton = new JButton("Show");
 	private JScrollPane detailsScroller;
 	private JPanel panelChanger = new JPanel(new CardLayout());
-	private DataBean currentData;
+	private Dataset currentData;
 	private ClientApplication application = Session.getSession().getApplication();
 	
 	JComponent parent;
@@ -190,8 +190,8 @@ public class DetailsPanel extends JPanel implements PropertyChangeListener, Focu
     
     public void setViewedData(DataItem data) {
     	
-        if (data != null && data instanceof DataBean) {
-            DataBean dataBean = (DataBean)data;
+        if (data != null && data instanceof Dataset) {
+            Dataset dataBean = (Dataset)data;
             this.currentData = dataBean;
             nameField.setText(getNameText());
             attributesField.setText(getAttributeText());

@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.features.BasicFeature;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
@@ -37,7 +37,7 @@ public class TableColumnProvider extends FeatureProviderBase {
 	private static final Pattern ROW_TOKENISER_REGEX = Pattern.compile("\t");
 
 
-	public Feature createFeature(String namePostfix, DataBean bean) {
+	public Feature createFeature(String namePostfix, Dataset bean) {
 		try {
 			return new TableColumn(namePostfix, bean, this);
 		} catch (Exception e) {
@@ -58,13 +58,13 @@ public class TableColumnProvider extends FeatureProviderBase {
 		private boolean convertToFloats;
 		private String columnName;
 		private MatrixParseSettings settings;
-		private DataBean dataBean;
+		private Dataset dataBean;
 		private LinkedList<Integer> columnIndex;
 
 		/**
 		 * @param columnIndex list containing the single column index 
 		 */
-		public TableColumnIterable(DataBean dataBean, MatrixParseSettings settings, LinkedList<Integer> columnIndex, String columnName, boolean convertToFloats) {
+		public TableColumnIterable(Dataset dataBean, MatrixParseSettings settings, LinkedList<Integer> columnIndex, String columnName, boolean convertToFloats) {
 			this.dataBean = dataBean;
 			this.settings = settings;
 			this.columnIndex = columnIndex;
@@ -144,7 +144,7 @@ public class TableColumnProvider extends FeatureProviderBase {
 		LinkedList<Integer> indexCollector = new LinkedList<Integer>(); 
 		LinkedList<String> nameCollector = new LinkedList<String>();
 		
-		public TableColumn(String namePostfix, DataBean bean, FeatureProvider factory) throws IOException, MicroarrayException {
+		public TableColumn(String namePostfix, Dataset bean, FeatureProvider factory) throws IOException, MicroarrayException {
 			super(bean, factory);
 
 			this.settings = inferSettings(bean);
@@ -201,7 +201,7 @@ public class TableColumnProvider extends FeatureProviderBase {
 			}
 		}
 
-		public MatrixParseSettings inferSettings(DataBean bean) throws IOException, MicroarrayException {
+		public MatrixParseSettings inferSettings(Dataset bean) throws IOException, MicroarrayException {
 			BufferedReader bufferedReader = null;
 			try {
 				bufferedReader = new BufferedReader(new InputStreamReader(bean.getContentByteStream()));

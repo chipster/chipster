@@ -34,7 +34,7 @@ import fi.csc.microarray.client.ToolBarComponentFactory;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
@@ -146,7 +146,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 		});
 	}
 
-	private void refreshVisualisationList(VisualisationMethod method, List<DataBean> datas) {
+	private void refreshVisualisationList(VisualisationMethod method, List<Dataset> datas) {
 
 		// update maximise button
 		maximiseButton.setEnabled(datas != null && datas.size() > 0);
@@ -296,8 +296,8 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 				}
 			}
 		} else if (event instanceof DatasetChoiceEvent) {
-			List<DataBean> currentDatas = application.getSelectionManager().getSelectedDataBeans();
-			List<DataBean> newDatas = application.getVisualisationFrameManager().getFrame(FrameType.MAIN).getDatas();
+			List<Dataset> currentDatas = application.getSelectionManager().getSelectedDataBeans();
+			List<Dataset> newDatas = application.getVisualisationFrameManager().getFrame(FrameType.MAIN).getDatas();
 
 			// If same
 			if (currentDatas == null || newDatas == null || !(currentDatas.containsAll(newDatas) && newDatas.containsAll(currentDatas))) {
@@ -309,7 +309,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 		}
 	}
 
-	public void fillMethodsFor(List<DataBean> datas) {
+	public void fillMethodsFor(List<Dataset> datas) {
 		// Arrays.asList doesn't support removing, so we need a new one
 		List<VisualisationMethod> applicableVisualisations = new ArrayList<VisualisationMethod>();
 		applicableVisualisations.addAll(Arrays.asList(VisualisationMethod.values()));

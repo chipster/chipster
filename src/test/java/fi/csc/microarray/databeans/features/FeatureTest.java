@@ -12,9 +12,9 @@ import fi.csc.microarray.TestConstants;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.Dataset.Link;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.DefaultModules;
 
@@ -30,8 +30,8 @@ public class FeatureTest {
 
 	@Test(groups = {"unit"} )
 	public void testEmbeddedBinary() throws IOException, MicroarrayException {
-		DataBean affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
-		DataBean binAffyMicroarray = manager.createDataBean("bin_affy.cel", new FileInputStream(TestConstants.BIN_AFFY_RESOURCE));
+		Dataset affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
+		Dataset binAffyMicroarray = manager.createDataBean("bin_affy.cel", new FileInputStream(TestConstants.BIN_AFFY_RESOURCE));
 		
 		Assert.assertFalse(affyMicroarray.queryFeatures("/embedded-binary-content/").exists());
 		Assert.assertTrue(binAffyMicroarray.queryFeatures("/embedded-binary-content/").exists());
@@ -39,8 +39,8 @@ public class FeatureTest {
 
 	@Test(groups = {"unit"} )
 	public void testPhenodataFeatures() throws IOException, MicroarrayException {
-		DataBean data = manager.createDataBean("filtered.tsv", new FileInputStream(TestConstants.FOUR_CHIPS_RESOURCE));
-		DataBean phenoData= manager.createDataBean("phenodata.tsv", new FileInputStream(TestConstants.FOUR_CHIPS_PHENODATA_RESOURCE));
+		Dataset data = manager.createDataBean("filtered.tsv", new FileInputStream(TestConstants.FOUR_CHIPS_RESOURCE));
+		Dataset phenoData= manager.createDataBean("phenodata.tsv", new FileInputStream(TestConstants.FOUR_CHIPS_PHENODATA_RESOURCE));
 		phenoData.addLink(Link.ANNOTATION, data);
 		Assert.assertTrue(phenoData.queryFeatures("/phenodata/").exists());
 		Assert.assertTrue(phenoData.queryFeatures("/phenodata/is_complete").exists());
@@ -53,7 +53,7 @@ public class FeatureTest {
 
 	@Test(groups = {"unit"} )
 	public void testModifiers() throws IOException, MicroarrayException {
-		DataBean affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
+		Dataset affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
 		QueryResult feature = affyMicroarray.queryFeatures("log(/normalised-expression)");
 		Assert.assertTrue(feature.exists());
 
@@ -78,14 +78,14 @@ public class FeatureTest {
 
 	@Test(groups = {"unit"} )
 	public void testRowCount() throws MicroarrayException, FileNotFoundException {
-		DataBean affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
+		Dataset affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
 		Assert.assertEquals(affyMicroarray.queryFeatures("/rowcount/max/10").asFloat(), 10f);
 		Assert.assertEquals(affyMicroarray.queryFeatures("/rowcount/max/1000000").asFloat(), 15876f);
 	}
 	
 	@Test(groups = {"unit"} )
 	public void testTableColumnIterable() throws MicroarrayException, FileNotFoundException {
-		DataBean affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
+		Dataset affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
 		QueryResult mean = affyMicroarray.queryFeatures("/column/MEAN");
 		Iterable[] iterables = new Iterable[] {
 				mean.asFloats(),
@@ -106,7 +106,7 @@ public class FeatureTest {
 	
 	@Test(groups = {"unit"} )
 	public void testFeatures() throws MicroarrayException, IOException {
-		DataBean affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
+		Dataset affyMicroarray = manager.createDataBean("affy.cel", new FileInputStream(TestConstants.AFFY_RESOURCE));
 		for (String feature : new String [] {"/normalised-expression", "/column/MEAN"}) {			
 			Assert.assertNotNull(affyMicroarray.queryFeatures(feature).asFloats(),"error in " + feature);
 			for (float f : affyMicroarray.queryFeatures(feature).asFloats()) {
@@ -122,7 +122,7 @@ public class FeatureTest {
 		Assert.assertTrue(VisualisationMethod.ARRAY_LAYOUT.isApplicableTo(affyMicroarray));
 
 		// SOM
-		DataBean somData = manager.createDataBean("som.tsv", new FileInputStream(TestConstants.SOM_CLUSTERED_RESOURCE));
+		Dataset somData = manager.createDataBean("som.tsv", new FileInputStream(TestConstants.SOM_CLUSTERED_RESOURCE));
 
 		Assert.assertTrue(VisualisationMethod.SOM.isApplicableTo(somData));
 		Table som = somData.queryFeatures("/clusters/som").asTable();
@@ -130,9 +130,9 @@ public class FeatureTest {
 		Assert.assertEquals(som.getColumnCount(), 5); 
 		
 		// hierarchical clustering
-		DataBean hcTree = manager.createDataBean("hs.tre", new FileInputStream(TestConstants.HIERARCHICAL_CLUSTERED_RESOURCE));
+		Dataset hcTree = manager.createDataBean("hs.tre", new FileInputStream(TestConstants.HIERARCHICAL_CLUSTERED_RESOURCE));
 		
-		DataBean hcHeatmap = manager.createDataBean("hc.tsv", new FileInputStream(TestConstants.HIERARCHICAL_CLUSTERED_HEATMAP_RESOURCE));
+		Dataset hcHeatmap = manager.createDataBean("hc.tsv", new FileInputStream(TestConstants.HIERARCHICAL_CLUSTERED_HEATMAP_RESOURCE));
 		
 
 		hcTree.addLink(Link.DERIVATION, hcHeatmap);

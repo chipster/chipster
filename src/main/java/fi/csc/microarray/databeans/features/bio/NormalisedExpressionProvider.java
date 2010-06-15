@@ -1,6 +1,6 @@
 package fi.csc.microarray.databeans.features.bio;
 
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.features.CalculatingIterable;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.BasicFeature;
@@ -12,7 +12,7 @@ import fi.csc.microarray.exception.MicroarrayException;
 
 public class NormalisedExpressionProvider extends FeatureProviderBase {
 	
-	public Feature createFeature(String postfix, DataBean bean) {
+	public Feature createFeature(String postfix, Dataset bean) {
 		return new NormalisedExpression(bean, this);
 	}
 	
@@ -26,7 +26,7 @@ public class NormalisedExpressionProvider extends FeatureProviderBase {
 		private static final String GREEN_CHANNEL_BACKGROUND = "/column/controlbg";
 		private static final String AFFY_INTENSITY = "/column/MEAN";
 
-		public NormalisedExpression(DataBean bean, FeatureProvider factory) {
+		public NormalisedExpression(Dataset bean, FeatureProvider factory) {
 			super(bean, factory);
 		}
 

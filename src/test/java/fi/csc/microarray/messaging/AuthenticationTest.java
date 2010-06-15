@@ -15,7 +15,7 @@ import fi.csc.microarray.client.tasks.TaskEventListener;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.client.tasks.Task.State;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -28,7 +28,7 @@ public class AuthenticationTest extends MessagingTestBase {
 	
 	private boolean gotData = false;
 	private TaskExecutor executor;
-	private DataBean microarray;
+	private Dataset microarray;
 	private DataManager manager; 
 	
 	public AuthenticationTest(String s) throws IOException {

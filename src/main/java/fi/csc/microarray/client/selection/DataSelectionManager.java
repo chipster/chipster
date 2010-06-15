@@ -9,7 +9,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.ClientApplication;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 
@@ -35,7 +35,7 @@ public class DataSelectionManager {
      * @param data
      * @return
      */
-    public RowSelectionManager getRowSelectionManager(DataBean data){
+    public RowSelectionManager getRowSelectionManager(Dataset data){
     	RowSelectionManager manager;
     	manager = rowSelectionManagers.get(data);
     	
@@ -58,28 +58,28 @@ public class DataSelectionManager {
      * Returns selected DataBean or last selected if in multiple
      * selection mode. Returns null if something else than DataBean is selected.
      */
-    public DataBean getSelectedDataBean() {
+    public Dataset getSelectedDataBean() {
     	DataItem selectedItem = getSelectedItem();
         if (selectedItem instanceof DataFolder) {
             return null; // folder is selected, so there is no selected data
         } else {
-            return (DataBean) selectedItem;
+            return (Dataset) selectedItem;
         }
     }
     
-    public DataBean[] getSelectedDatasAsArray() {
-        LinkedList<DataBean> beans = new LinkedList<DataBean>();
-    	for (DataBean bean : getSelectedDataBeans()) {
+    public Dataset[] getSelectedDatasAsArray() {
+        LinkedList<Dataset> beans = new LinkedList<Dataset>();
+    	for (Dataset bean : getSelectedDataBeans()) {
     		beans.add(bean);
     	}
-    	return beans.toArray(new DataBean[0]);    	
+    	return beans.toArray(new Dataset[0]);    	
     }
     
-    public List<DataBean> getSelectedDataBeans() {
-		LinkedList<DataBean> list = new LinkedList<DataBean>();
+    public List<Dataset> getSelectedDataBeans() {
+		LinkedList<Dataset> list = new LinkedList<Dataset>();
 		for (DataItem item : selectedDatas) {
-			if (item instanceof DataBean) {
-				list.add((DataBean) item);
+			if (item instanceof Dataset) {
+				list.add((Dataset) item);
 			}
 		}
     	return list;

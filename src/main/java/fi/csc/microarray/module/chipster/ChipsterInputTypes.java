@@ -1,6 +1,6 @@
 package fi.csc.microarray.module.chipster;
 
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.description.SADLSyntax.InputType;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -14,7 +14,7 @@ public class ChipsterInputTypes {
 			return "CDNA";
 		}
 
-		public boolean isTypeOf(DataBean dataBean) {
+		public boolean isTypeOf(Dataset dataBean) {
 			return dataBean.queryFeatures("/column/sample").exists();
 		}
 
@@ -31,7 +31,7 @@ public class ChipsterInputTypes {
 			return "AFFY";
 		}
 
-		public boolean isTypeOf(DataBean dataBean) {
+		public boolean isTypeOf(Dataset dataBean) {
 			return dataBean.isContentTypeCompatitible("application/cel");
 		}
 
@@ -47,7 +47,7 @@ public class ChipsterInputTypes {
 			return "GENE_EXPRS";
 		}
 
-		public boolean isTypeOf(DataBean dataBean) {
+		public boolean isTypeOf(Dataset dataBean) {
 			try {
 				Table chips = dataBean.queryFeatures("/column/chip.*").asTable();
 				return chips != null && chips.getColumnCount() > 0;
@@ -68,7 +68,7 @@ public class ChipsterInputTypes {
 			return "GENELIST";
 		}
 
-		public boolean isTypeOf(DataBean dataBean) {
+		public boolean isTypeOf(Dataset dataBean) {
 			return dataBean.queryFeatures("/identifier").exists();
 		}
 
@@ -84,7 +84,7 @@ public class ChipsterInputTypes {
 			return "PHENODATA";
 		}
 
-		public boolean isTypeOf(DataBean dataBean) {
+		public boolean isTypeOf(Dataset dataBean) {
 			return dataBean.queryFeatures("/phenodata").exists();
 		}
 		
@@ -93,7 +93,7 @@ public class ChipsterInputTypes {
 		}
 	};
 
-	public static boolean hasRawType(DataBean data) {
+	public static boolean hasRawType(Dataset data) {
 		return AFFY.isTypeOf(data) || CDNA.isTypeOf(data);
 	}
 }

@@ -9,7 +9,7 @@ import org.jgraph.graph.GraphConstants;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dataview.MicroarrayGraph;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 
 
 /**
@@ -71,13 +71,13 @@ public class GroupVertex extends AbstractGraphVertex {
 		
 	}
 
-	public List<DataBean> getChildrenData() {
-		List<DataBean> childData = new ArrayList<DataBean>();
+	public List<Dataset> getChildrenData() {
+		List<Dataset> childData = new ArrayList<Dataset>();
 		for (Object child : this.getChildren()) {
 			if(child instanceof GraphVertex){
 				GraphVertex vertex = (GraphVertex)child;
-				assert(vertex.getData() instanceof DataBean);
-				childData.add((DataBean)vertex.getData());
+				assert(vertex.getData() instanceof Dataset);
+				childData.add((Dataset)vertex.getData());
 			}
 		}
 		return childData;
@@ -132,14 +132,14 @@ public class GroupVertex extends AbstractGraphVertex {
 	}
 		
 	public boolean isAllChildrenSelected(){
-		List<DataBean> selectedDatas = application.getSelectionManager().getSelectedDataBeans();
+		List<Dataset> selectedDatas = application.getSelectionManager().getSelectedDataBeans();
 		
 		// No selected data at all
 		if(selectedDatas.size() == 0){
 			return false;
 		}
 		
-		for (DataBean childData : this.getChildrenData()) {
+		for (Dataset childData : this.getChildrenData()) {
 			if(!selectedDatas.contains(childData)){
 				return false;
 			}

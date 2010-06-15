@@ -35,7 +35,7 @@ import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
@@ -89,7 +89,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
     
     protected DataModel dataModel = new DataModel();
     
-    protected DataBean data;
+    protected Dataset data;
 
 	@Override
 	public JPanel getParameterPanel() {
@@ -255,7 +255,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 		toYZ.setEnabled(enabled);
 	}
 
-	protected void refreshAxisBoxes(DataBean data) {
+	protected void refreshAxisBoxes(Dataset data) {
 		if (paramPanel == null) {
 			throw new IllegalStateException("must call getParameterPanel first");
 		}
@@ -265,7 +265,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 		Visualisation.fillCompoBox(colorBox, this.getVariablesMore(data));
 	}
 	
-	protected void updateCombo(JComboBox box, DataBean data){
+	protected void updateCombo(JComboBox box, Dataset data){
 		Visualisation.fillCompoBox(box, this.getVariablesFor(data));
 	}
 	
@@ -347,7 +347,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 	}
 
 	@Override
-	public JComponent getVisualisation(DataBean data) throws Exception {
+	public JComponent getVisualisation(Dataset data) throws Exception {
 		
 		this.data = data;
 		
@@ -455,7 +455,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 	}
 	
 	@Override
-	public boolean canVisualise(DataBean bean) throws MicroarrayException {
+	public boolean canVisualise(Dataset bean) throws MicroarrayException {
 		return super.canVisualise(bean) && 
 			!VisualisationMethod.SCATTERPLOT3DPCA.getHeadlessVisualiser().canVisualise(bean);
 		

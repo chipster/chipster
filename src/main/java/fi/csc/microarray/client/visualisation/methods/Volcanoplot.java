@@ -34,7 +34,7 @@ import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.client.visualisation.methods.SelectableChartPanel.SelectionChangeListener;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class Volcanoplot extends Scatterplot implements ActionListener, PropertyChangeListener, SelectionChangeListener {
@@ -91,7 +91,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 		return settingsPanel;
 	}
 
-	protected void refreshAxisBoxes(DataBean data) {
+	protected void refreshAxisBoxes(Dataset data) {
 		if (paramPanel == null) {
 			throw new IllegalStateException("must call getParameterPanel first");
 		}
@@ -101,7 +101,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 	}
 
 	@Override
-	public JComponent getVisualisation(DataBean data) throws Exception {
+	public JComponent getVisualisation(Dataset data) throws Exception {
 
 		this.data = data;
 
@@ -270,7 +270,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 	}
 
 	@Override
-	public boolean canVisualise(DataBean bean) throws MicroarrayException {
+	public boolean canVisualise(Dataset bean) throws MicroarrayException {
 		boolean isTabular = VisualisationMethod.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
 		return isTabular && hasRows(bean) && bean.queryFeatures("/column/" + Y_AXIS_COLUMN_HEADER + "*").exists() && bean.queryFeatures("/column/" + X_AXIS_COLUMN_HEADER + "*").exists();
 	}

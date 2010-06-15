@@ -34,14 +34,14 @@ import fi.csc.microarray.client.dataviews.vertexes.GroupVertex;
 import fi.csc.microarray.client.dataviews.vertexes.PhenodataVertex;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.databeans.ContentChangedEvent;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataChangeEvent;
 import fi.csc.microarray.databeans.DataChangeListener;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataItemCreatedEvent;
 import fi.csc.microarray.databeans.DataItemRemovedEvent;
 import fi.csc.microarray.databeans.LinksChangedEvent;
-import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.Dataset.Link;
 import fi.csc.microarray.util.SwingTools;
 
 /**
@@ -59,7 +59,7 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	/**
 	 * Maps dataset vertexes and datas together
 	 */
-	private Map<DataBean, GraphVertex> vertexMap = new HashMap<DataBean, GraphVertex>();
+	private Map<Dataset, GraphVertex> vertexMap = new HashMap<Dataset, GraphVertex>();
 	private List<GroupVertex> groups = new ArrayList<GroupVertex>();
 	private LayoutManager layoutManager = new LayoutManager(this);
 	private GraphPanel graphPanel;
@@ -98,7 +98,7 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	 * @param data
 	 *            New DataBean to be inserted to this view.
 	 */
-	public void insertData(DataBean data) {
+	public void insertData(Dataset data) {
 
 		// check parameters
 		if (vertexMap.containsKey(data)) {
@@ -122,7 +122,7 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 
 		// create derivational (DERIVATION/MODIFICATION) links
 		for (Link type : Link.derivationalTypes()) {
-			for (DataBean targetBean : data.getLinkTargets(type)) {
+			for (Dataset targetBean : data.getLinkTargets(type)) {
 				GraphVertex parent = vertexMap.get(targetBean);
 				// Note that PARENT is the TARGET of derivational link and the
 				// child is the SOURCE
@@ -149,7 +149,7 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	 *            Dataset to be removed.
 	 * @return True if remove succeeded, false if it failed (that is, corresponding vertex was not found in the graph).
 	 */
-	public void removeData(DataBean data) {
+	public void removeData(Dataset data) {
 
 		// fetch vertex
 		GraphVertex vertex = vertexMap.get(data);
@@ -228,7 +228,7 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 		this.repaint();
 	}
 
-	public void createGroup(DataBean data) {
+	public void createGroup(Dataset data) {
 		GraphVertex groupMember = vertexMap.get(data);
 		createGroup(new GraphVertex[] { groupMember });
 	}
@@ -269,7 +269,7 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 
 		List<Object> selectedCells = new ArrayList<Object>();
 
-		for (DataBean selected : application.getSelectionManager().getSelectedDatasAsArray()) {
+		for (Dataset selected : application.getSelectionManager().getSelectedDatasAsArray()) {
 			selectedCells.add(this.getVertexMap().get(selected));
 		}
 
@@ -303,7 +303,7 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 		return null;
 	}
 
-	public Map<DataBean, GraphVertex> getVertexMap() {
+	public Map<Dataset, GraphVertex> getVertexMap() {
 		return vertexMap;
 	}
 
@@ -312,7 +312,7 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	 */
 	public List<AbstractGraphVertex> getAllVertexes() {
 		List<AbstractGraphVertex> vertexes = new ArrayList<AbstractGraphVertex>();
-		for (DataBean data : application.getAllDataBeans()) {
+		for (Dataset data : application.getAllDataBeans()) {
 			GraphVertex vertex = vertexMap.get(data);
 			if (vertex != null) {
 				vertexes.add(vertex);
@@ -476,14 +476,14 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 				} else if (event instanceof DataChangeEvent) {
 
 					DataItem data = ((DataChangeEvent) event).getDataItem();
-					if (data instanceof DataBean) {
+					if (data instanceof Dataset) {
 						// only beans are shown in graph
 
 						if (event instanceof DataItemCreatedEvent) {
-							insertData((DataBean) data);
+							insertData((Dataset) data);
 
 						} else if (event instanceof DataItemRemovedEvent) {
-							removeData((DataBean) data);
+							removeData((Dataset) data);
 						}
 
 						repaint();
@@ -494,9 +494,9 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 
 	}
 
-	private void moveCloseToAnnotated(DataBean data) {
-		List<DataBean> list = data.getLinkTargets(DataBean.Link.ANNOTATION);
-		DataBean annotatedBean = list.size() > 0 ? list.get(0) : null;
+	private void moveCloseToAnnotated(Dataset data) {
+		List<Dataset> list = data.getLinkTargets(Dataset.Link.ANNOTATION);
+		Dataset annotatedBean = list.size() > 0 ? list.get(0) : null;
 		if (annotatedBean == null) {
 			throw new IllegalArgumentException(data.getName() + " must have ANNOTATION link target(s)");
 		}
@@ -536,7 +536,7 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	/**
 	 * Creates a link edge between beans.
 	 */
-	public void insertLink(DataBean source, DataBean target, Link type) {
+	public void insertLink(Dataset source, Dataset target, Link type) {
 		logger.debug("adding link (" + type + ") from " + source.getName() + " to " + target.getName());
 
 		// check vertices
@@ -550,7 +550,7 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 	}
 
 	private void insertLink(GraphVertex sourceVertex, GraphVertex targetVertex, Link type) {
-		if (type.equals(DataBean.Link.GROUPING)) {
+		if (type.equals(Dataset.Link.GROUPING)) {
 
 			if (sourceVertex.getGroup() != null && targetVertex.getGroup() != null) {
 				// both are grouped
@@ -574,7 +574,7 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 
 			}
 
-		} else if (type.equals(DataBean.Link.ANNOTATION) || type.equals(DataBean.Link.DERIVATION) || type.equals(DataBean.Link.MODIFICATION)) {
+		} else if (type.equals(Dataset.Link.ANNOTATION) || type.equals(Dataset.Link.DERIVATION) || type.equals(Dataset.Link.MODIFICATION)) {
 
 			DefaultEdge linkEdge = new NoLabelEdge(type);
 			linkEdge.setSource(sourceVertex.getChildAt(0));
@@ -594,13 +594,13 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 
 			this.getGraphLayoutCache().insert(linkEdge);
 
-			if (type.equals(DataBean.Link.DERIVATION) || type.equals(DataBean.Link.MODIFICATION)) {
+			if (type.equals(Dataset.Link.DERIVATION) || type.equals(Dataset.Link.MODIFICATION)) {
 				layoutManager.updateLayout(sourceVertex); // update position if this was made child of other bean
 				graphPanel.autoZoom();
 				scrollCellToVisibleAnimated(sourceVertex);
 				repaint();
 
-			} else if (type.equals(DataBean.Link.ANNOTATION)) {
+			} else if (type.equals(Dataset.Link.ANNOTATION)) {
 				moveCloseToAnnotated(sourceVertex.getData());
 			}
 
@@ -609,7 +609,7 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 		}
 	}
 
-	public void removeLink(DataBean source, DataBean target, Link type) {
+	public void removeLink(Dataset source, Dataset target, Link type) {
 		GraphVertex sourceVertex = vertexMap.get(source);
 		GraphVertex targetVertex = vertexMap.get(target);
 

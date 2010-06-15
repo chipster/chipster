@@ -37,7 +37,7 @@ import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.FloatArrayList;
 
@@ -52,10 +52,10 @@ public class Histogram extends ChipVisualisation {
 	private JSpinner barCountSpinner = new JSpinner(new SpinnerNumberModel(20, 1, Integer.MAX_VALUE, 1));
 	private JButton updateButton;
 	private JComboBox chipBox;
-	private DataBean data;
+	private Dataset data;
 
 	@Override
-	public JComponent getVisualisation(DataBean data) throws Exception {
+	public JComponent getVisualisation(Dataset data) throws Exception {
 
 		this.data = data;
 		updateHistogram();

@@ -35,14 +35,14 @@ import org.jfree.chart.plot.PlotState;
 import org.jfree.util.ObjectUtilities;
 
 import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 
 public class VenndiPlot extends Plot implements ChartMouseListener, Cloneable, Serializable {
 	
 	public class VennDataset {
 		private String[][] idsBySection;
-		private List<DataBean> datasets;
-		private Map<DataBean, Map<String, Integer>> indexMaps;
+		private List<Dataset> datasets;
+		private Map<Dataset, Map<String, Integer>> indexMaps;
 		
 		
 		/**
@@ -53,7 +53,7 @@ public class VenndiPlot extends Plot implements ChartMouseListener, Cloneable, S
 		 * @param idsBySection
 		 * @param ids 
 		 */
-		public VennDataset (String[][] idsBySection, List<DataBean> datas, Map<DataBean, Map<String, Integer>> indexMaps2){
+		public VennDataset (String[][] idsBySection, List<Dataset> datas, Map<Dataset, Map<String, Integer>> indexMaps2){
 			this.idsBySection = idsBySection;
 			this.datasets = datas;
 			this.indexMaps = indexMaps2;
@@ -70,7 +70,7 @@ public class VenndiPlot extends Plot implements ChartMouseListener, Cloneable, S
 			return "";
 		}
 		
-		public List<DataBean> getDataBeans(){
+		public List<Dataset> getDataBeans(){
 			return datasets;
 		}
 
@@ -78,11 +78,11 @@ public class VenndiPlot extends Plot implements ChartMouseListener, Cloneable, S
 			return Arrays.asList(idsBySection[areas.ordinal()]);
 		}
 		
-		public Map<DataBean, Set<Integer>> getIndexes(AREAS area){
+		public Map<Dataset, Set<Integer>> getIndexes(AREAS area){
 			
-			Map<DataBean, Set<Integer>> indexes = new HashMap<DataBean, Set<Integer>>();
+			Map<Dataset, Set<Integer>> indexes = new HashMap<Dataset, Set<Integer>>();
 			
-			for(DataBean data : datasets){
+			for(Dataset data : datasets){
 				indexes.put(data, new HashSet<Integer>());
 				
 				for(String id : getIdentifiers(area)){					
@@ -111,7 +111,7 @@ public class VenndiPlot extends Plot implements ChartMouseListener, Cloneable, S
         = ResourceBundle.getBundle("org.jfree.chart.plot.LocalizationBundle");
     
     
-    public VenndiPlot(String[][] idTable, List<DataBean> datas, Map<DataBean, Map<String, Integer>> indexMaps, VennDiagram parent) throws NullPointerException {
+    public VenndiPlot(String[][] idTable, List<Dataset> datas, Map<Dataset, Map<String, Integer>> indexMaps, VennDiagram parent) throws NullPointerException {
     	this.dataset = new VennDataset(idTable, datas, indexMaps);
     	
         this.visualisation = parent;
@@ -394,14 +394,14 @@ public class VenndiPlot extends Plot implements ChartMouseListener, Cloneable, S
 		
     	List<String> ids = new ArrayList<String>();
     	// The rowSelectionManager needs row indexes
-    	Map<DataBean, Set<Integer>> indexes = new HashMap<DataBean, Set<Integer>>();
+    	Map<Dataset, Set<Integer>> indexes = new HashMap<Dataset, Set<Integer>>();
     	
     	// Due to multiple datas the row indexes are meaningful only within one specific data
     	for(int i = 0; i < areas.length; i++){
     		if(selected.contains(areas[i])){    		
     			ids.addAll(dataset.getIdentifiers(AREAS.values()[i]));
-    			Map<DataBean, Set<Integer>> map = dataset.getIndexes(AREAS.values()[i]);
-    			for(DataBean data: map.keySet()){
+    			Map<Dataset, Set<Integer>> map = dataset.getIndexes(AREAS.values()[i]);
+    			for(Dataset data: map.keySet()){
     				if(!indexes.containsKey(data)){
     					indexes.put(data, new HashSet<Integer>());
     				}

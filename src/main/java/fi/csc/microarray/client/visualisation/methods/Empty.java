@@ -6,7 +6,7 @@ import javax.swing.JComponent;
 
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 
 public class Empty extends Visualisation {
 	public Empty(VisualisationFrame frame) {
@@ -14,22 +14,22 @@ public class Empty extends Visualisation {
 	}
 
 	@Override
-	public JComponent getVisualisation(DataBean datas) {
+	public JComponent getVisualisation(Dataset datas) {
 		return this.getDefaultVisualisation();		
 	}
 	
 	@Override
-	public JComponent getVisualisation(List<DataBean> beans) {
+	public JComponent getVisualisation(List<Dataset> beans) {
 		return this.getDefaultVisualisation();		
 	}
 
 	@Override
-	public boolean canVisualise(DataBean bean) {
+	public boolean canVisualise(Dataset bean) {
 		return true;
 	}
 	
 	@Override
-	public boolean canVisualise(List<DataBean> beans) {
+	public boolean canVisualise(List<Dataset> beans) {
 		return true;
 	}
 	

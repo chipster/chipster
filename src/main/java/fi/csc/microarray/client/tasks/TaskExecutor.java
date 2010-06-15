@@ -25,7 +25,7 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.tasks.Task.State;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
@@ -328,7 +328,7 @@ public class TaskExecutor {
 				logger.debug("output " + name);
 				URL payloadUrl = resultMessage.getPayload(name);
 				InputStream payload = fileBroker.getFile(payloadUrl); 
-				DataBean bean = manager.createDataBean(name, payload);
+				Dataset bean = manager.createDataBean(name, payload);
 				bean.setCacheUrl(payloadUrl);
 				bean.setContentChanged(false);
 				pendingTask.addOutput(name, bean);
@@ -455,7 +455,7 @@ public class TaskExecutor {
 						
 						
 						// transfer input contents to file broker if needed
-						DataBean bean = task.getInput(name);
+						Dataset bean = task.getInput(name);
 						try {
 							bean.getLock().readLock().lock();
 
@@ -689,7 +689,7 @@ public class TaskExecutor {
 
 		JobMessage jobMessage = new JobMessage(task.getId(), task.getOperationID(), task.getParameters());
 		for (String name : task.getInputNames()) {
-			DataBean bean = task.getInput(name);
+			Dataset bean = task.getInput(name);
 			try {
 				bean.getLock().readLock().lock();
 				bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), null)); // no progress listening on resends 

@@ -43,7 +43,7 @@ import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.ContentChangedEvent;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataChangeEvent;
 import fi.csc.microarray.databeans.DataChangeListener;
 import fi.csc.microarray.databeans.features.table.TableBeanEditor;
@@ -90,7 +90,7 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 		private int lastX = -1;
 		private int lastY = -1;
 
-		public PhenodataTable(DataBean data) {
+		public PhenodataTable(Dataset data) {
 			super(data);			
 			this.setHorizontalScrollEnabled(this.getWidth() < NO_SCROLL_WIDTH);			
 			
@@ -385,13 +385,13 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 
 	private static final Logger logger = Logger.getLogger(PhenodataEditor.class);
 
-	private DataBean data;
+	private Dataset data;
 	private PhenodataTable table;
 	private TableBeanEditor tableEditor;
 	private PhenodataTableModel tableModel;
 	
 	@Override
-	public JComponent getVisualisation(DataBean data) throws Exception {
+	public JComponent getVisualisation(Dataset data) throws Exception {
 			
 		// initialise data
 		this.data = data;
@@ -482,7 +482,7 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 	}
 
 	@Override
-	public boolean canVisualise(DataBean bean) throws MicroarrayException {
+	public boolean canVisualise(Dataset bean) throws MicroarrayException {
 		return bean.queryFeatures("/phenodata").exists();
 	}
 	

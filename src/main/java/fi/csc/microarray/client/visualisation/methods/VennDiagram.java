@@ -35,7 +35,7 @@ import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.client.visualisation.methods.VenndiPlot.AREAS;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class VennDiagram extends Visualisation implements PropertyChangeListener, ActionListener {
@@ -108,7 +108,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 	}
 
 	@Override
-	public JComponent getVisualisation(List<DataBean> datas) throws Exception {
+	public JComponent getVisualisation(List<Dataset> datas) throws Exception {
 
 		if (datas.size() < 2 || datas.size() > 3) {
 			throw new IllegalArgumentException("Venn Diagram can be used only with two or three datasets");
@@ -190,7 +190,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 			idTable[area.ordinal()] = sortedIds.get(area).toArray(new String[0]);
 		}
 
-		Map<DataBean, Map<String, Integer>> indexMaps = new HashMap<DataBean, Map<String, Integer>>();
+		Map<Dataset, Map<String, Integer>> indexMaps = new HashMap<Dataset, Map<String, Integer>>();
 
 		indexMaps.put(datas.get(0), A);
 		indexMaps.put(datas.get(1), B);
@@ -212,17 +212,17 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 	}
 
 	@Override
-	public boolean canVisualise(DataBean bean) throws MicroarrayException {
+	public boolean canVisualise(Dataset bean) throws MicroarrayException {
 		return false;
 	}
 
 	@Override
-	public boolean canVisualise(List<DataBean> beans) throws MicroarrayException {
+	public boolean canVisualise(List<Dataset> beans) throws MicroarrayException {
 		if (beans.size() < 2 || beans.size() > 3) {
 			return false;
 		}
 
-		for (DataBean data : beans) {
+		for (Dataset data : beans) {
 			boolean isTabular = VisualisationMethod.SPREADSHEET.getHeadlessVisualiser().canVisualise(data);
 
 			if (!(isTabular && data.queryFeatures(IDENTIFIER_COLUMN).exists())) {
@@ -254,7 +254,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 		List<String> selected = new ArrayList<String>();
 		try {
 
-			for (DataBean data : plot.getDataset().getDataBeans()) {
+			for (Dataset data : plot.getDataset().getDataBeans()) {
 				RowSelectionManager manager = application.getSelectionManager().getRowSelectionManager(data);
 				selected.addAll(manager.getSelectedIdentifiers());
 			}
@@ -270,7 +270,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 	}
 
 	@Override
-	public JComponent getVisualisation(DataBean data) throws Exception {
+	public JComponent getVisualisation(Dataset data) throws Exception {
 		throw new MicroarrayException("Venn Diagram can be used only with two or three datasets");
 	}
 
@@ -283,7 +283,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 	 * @param venndiPlot
 	 * @param dispatchEvent
 	 */
-	public void setSelectedListContent(List<String> ids, Map<DataBean, Set<Integer>> indexes, VenndiPlot venndiPlot, boolean dispatchEvent) {
+	public void setSelectedListContent(List<String> ids, Map<Dataset, Set<Integer>> indexes, VenndiPlot venndiPlot, boolean dispatchEvent) {
 
 		list.setSelectedListContentMultipleDatas(ids, indexes, this, colVar.getName().equals("identifier"), dispatchEvent);
 	}
@@ -305,7 +305,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 				getFrame().getDatas(), getFrame().getType(), getFrame()));
 	}
 	
-	protected void refreshColumnBox(List<DataBean> datas) {
+	protected void refreshColumnBox(List<Dataset> datas) {
 		if (paramPanel == null) {
 			throw new IllegalStateException("must call getParameterPanel first");
 		}
@@ -327,7 +327,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 	}
 	
 	@Override
-	public Variable[] getVariablesFor(DataBean data) {
+	public Variable[] getVariablesFor(Dataset data) {
 		
 		String[] banList = { "chip.", "flag." };
 		

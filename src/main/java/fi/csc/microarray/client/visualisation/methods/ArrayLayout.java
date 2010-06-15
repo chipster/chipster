@@ -9,7 +9,7 @@ import org.jfree.chart.axis.ValueAxis;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.FloatArrayList;
 
@@ -22,7 +22,7 @@ public ArrayLayout(VisualisationFrame frame) {
 	//	@SuppressWarnings("all") // deprecated JFreeChart API in use...
 	@SuppressWarnings("deprecation")
 	@Override
-	public JComponent getVisualisation(DataBean dataBean) throws Exception {
+	public JComponent getVisualisation(Dataset dataBean) throws Exception {
 		
 		// get intensities
 		FloatArrayList transformedIntensities = new FloatArrayList();
@@ -88,7 +88,7 @@ public ArrayLayout(VisualisationFrame frame) {
 	}
 
 	@Override
-	public boolean canVisualise(DataBean bean) throws MicroarrayException {
+	public boolean canVisualise(Dataset bean) throws MicroarrayException {
 		boolean isTabular = VisualisationMethod.SPREADSHEET.isApplicableTo(bean);
 		return isTabular && bean.queryFeatures("/column/MEAN").exists();
 	}

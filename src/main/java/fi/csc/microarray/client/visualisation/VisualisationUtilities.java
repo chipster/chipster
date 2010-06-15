@@ -14,7 +14,7 @@ import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.selection.RowSelectionManager;
 import fi.csc.microarray.client.tasks.ResultBlocker;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
@@ -24,7 +24,7 @@ public class VisualisationUtilities {
 
 	private static final ClientApplication application = Session.getSession().getApplication();
 
-	public static DataBean filterBySelection(List<DataBean> datas) {
+	public static Dataset filterBySelection(List<Dataset> datas) {
 		try {
 			
 			//Doing this with multiple datas isn't pretty, so here is simple solution
@@ -32,14 +32,14 @@ public class VisualisationUtilities {
 				
 			if(datas.size() == 1){
 				Collection<String> lines = application.getSelectionManager().getRowSelectionManager(datas.get(0)).getSelectedLines();
-				return RowSelectionManager.createDataset(lines, datas.toArray(new DataBean[datas.size()]));
+				return RowSelectionManager.createDataset(lines, datas.toArray(new Dataset[datas.size()]));
 			} else {
 
 				
 				List<String[]> allColumns = new LinkedList<String[]>();
 				
 				//Get list of columns names from every dataset
-				for(DataBean data : datas){
+				for(Dataset data : datas){
 					if(application.getSelectionManager().getRowSelectionManager(data).
 							getSelectedRows().length > 0){
 						
@@ -109,7 +109,7 @@ public class VisualisationUtilities {
 					lines.add(newLine);
 				}
 				
-				return RowSelectionManager.createDataset(lines, datas.toArray(new DataBean[datas.size()]));
+				return RowSelectionManager.createDataset(lines, datas.toArray(new Dataset[datas.size()]));
 			}
 
 		} catch (Exception exp) {
@@ -118,14 +118,14 @@ public class VisualisationUtilities {
 		}
 	}
 	
-	public static Map<String, Map<String, String>> getSelectedFromMultipleDatas(List<DataBean> datas) throws Exception {
+	public static Map<String, Map<String, String>> getSelectedFromMultipleDatas(List<Dataset> datas) throws Exception {
 
 		//Maps identifiers to row map, where row map maps column names to values 
 		Map<String, Map<String, String>> lines = new HashMap<String, Map<String, String>>();
 		
 		//Collect all rows to row maps, add all columns of duplicate identifiers to same row map
 		
-		for(DataBean data : datas){
+		for(Dataset data : datas){
 			Table columns = data.queryFeatures("/column/*").asTable();
 			
 			int[] indexes = application.getSelectionManager().getRowSelectionManager(data).getSelectedRows();
@@ -161,17 +161,17 @@ public class VisualisationUtilities {
 	
 
 
-	public static void annotateBySelection(List<DataBean> datas) {
+	public static void annotateBySelection(List<Dataset> datas) {
 
 		try {
-			final DataBean filterBySelection = filterBySelection(datas);
+			final Dataset filterBySelection = filterBySelection(datas);
 
 			Thread thread = ThreadUtils.getBackgroundThread(new Runnable() {
 				public void run() {
 					try {
 
 						// run normalisation
-						Operation normOp = new Operation(application.getOperationDefinition(MicroarrayModule.ANNOTATION_ID), new DataBean[] { filterBySelection });
+						Operation normOp = new Operation(application.getOperationDefinition(MicroarrayModule.ANNOTATION_ID), new Dataset[] { filterBySelection });
 						ResultBlocker normBlocker = new ResultBlocker(2);
 						normOp.setResultListener(normBlocker);
 						application.executeOperation(normOp);
@@ -188,7 +188,7 @@ public class VisualisationUtilities {
 
 	}
 	
-	public static Variable[] getVariablesFilteredInclusive(DataBean dataBean, String startsWith, boolean removeStart) {
+	public static Variable[] getVariablesFilteredInclusive(Dataset dataBean, String startsWith, boolean removeStart) {
 		String exprHeader = "/column/";
 
 		LinkedList<Variable> vars = new LinkedList<Variable>();
@@ -216,7 +216,7 @@ public class VisualisationUtilities {
 		return vars.toArray(new Variable[0]);
 	}
 	
-	public static Variable[] getVariablesFilteredExclusive(DataBean dataBean, Collection<String> columnsToRemove, boolean removeStart) {
+	public static Variable[] getVariablesFilteredExclusive(Dataset dataBean, Collection<String> columnsToRemove, boolean removeStart) {
 
 		LinkedList<Variable> filteredVars = new LinkedList<Variable>();
 		LinkedList<Variable> allVars = new LinkedList<Variable>();

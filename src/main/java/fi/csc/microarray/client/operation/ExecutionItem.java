@@ -1,7 +1,7 @@
 package fi.csc.microarray.client.operation;
 
 import fi.csc.microarray.client.operation.OperationDefinition.Suitability;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 
 /**
  * A common interface for Operations, OperationDefinitions (which eventually
@@ -41,5 +41,5 @@ public interface ExecutionItem {
 	 * @return One of the OperationDefinition.Suitability enumeration,
 	 * 		   depending on how suitable the operation is judged.
 	 */
-	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data);
+	public Suitability evaluateSuitabilityFor(Iterable<Dataset> data);
 }

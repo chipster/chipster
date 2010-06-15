@@ -2,14 +2,14 @@ package fi.csc.microarray.databeans.features;
 
 import java.util.LinkedList;
 
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class ConstantStringFeature extends BasicFeature {
 
 	private LinkedList<String> stringList = new LinkedList<String>();
 
-	public ConstantStringFeature(DataBean bean, FeatureProvider factory, String string) {
+	public ConstantStringFeature(Dataset bean, FeatureProvider factory, String string) {
 		super(bean, factory);
 		this.stringList.add(string);
 	}

@@ -54,7 +54,7 @@ import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.ContentChangedEvent;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.databeans.DataChangeEvent;
 import fi.csc.microarray.databeans.DataChangeListener;
 import fi.csc.microarray.databeans.DataItem;
@@ -443,13 +443,13 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 		if (chosenCells != null && chosenCells.size() > 0) {
 
 			List<DataItem> items = new ArrayList<DataItem>();
-			for (DataBean bean : application.getSelectionManager().getSelectedDataBeans()) {
+			for (Dataset bean : application.getSelectionManager().getSelectedDataBeans()) {
 				items.add(bean);
 			}
 			application.showPopupMenuFor(e, items);
 
 		} else {
-			DataBean nullBean = null;
+			Dataset nullBean = null;
 			application.showPopupMenuFor(e, nullBean);
 		}
 	}
@@ -550,12 +550,12 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 			SwingTools.runInEventDispatchThread(new Runnable() {
 				public void run() {
 					if (application.getSelectionManager().getSelectedDataBean() != null) {
-						DataBean bean = application.getSelectionManager().getSelectedDataBean();
+						Dataset bean = application.getSelectionManager().getSelectedDataBean();
 						graph.scrollCellToVisibleAnimated(graph.getVertexMap().get(bean));
 					}
 
 					graph.repaint();
-					historyButton.setEnabled(application.getSelectionManager().getSelectedItem() instanceof DataBean);
+					historyButton.setEnabled(application.getSelectionManager().getSelectedItem() instanceof Dataset);
 				}
 			});
 

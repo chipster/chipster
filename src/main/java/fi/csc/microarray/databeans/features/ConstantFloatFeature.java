@@ -2,14 +2,14 @@ package fi.csc.microarray.databeans.features;
 
 import java.util.LinkedList;
 
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class ConstantFloatFeature extends BasicFeature {
 
 	private LinkedList<Float> floatList = new LinkedList<Float>();
 
-	public ConstantFloatFeature(DataBean bean, FeatureProvider factory, float floatValue) {
+	public ConstantFloatFeature(Dataset bean, FeatureProvider factory, float floatValue) {
 		super(bean, factory);
 		this.floatList.add(floatValue);
 	}

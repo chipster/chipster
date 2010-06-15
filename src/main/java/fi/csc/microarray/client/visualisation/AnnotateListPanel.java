@@ -21,7 +21,7 @@ import javax.swing.JScrollPane;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.visualisation.methods.threed.DataPoint;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class AnnotateListPanel extends JPanel {
@@ -29,7 +29,7 @@ public class AnnotateListPanel extends JPanel {
 	private JList selectedList;
 	private DefaultListModel selectedListModel;
 	private JButton filterButton;
-	private List<DataBean> datas = new ArrayList<DataBean>();
+	private List<Dataset> datas = new ArrayList<Dataset>();
 
 	private ClientApplication application = Session.getSession().getApplication();
 
@@ -72,7 +72,7 @@ public class AnnotateListPanel extends JPanel {
 		this.filterButton.setVisible(filterButtonVisible);
 	}
 
-	public void setSelectedListContentMultipleDatas(List<String> content, Map<DataBean, Set<Integer>> indexes, Object source, boolean showAnnotations, boolean dispatchEvent) {
+	public void setSelectedListContentMultipleDatas(List<String> content, Map<Dataset, Set<Integer>> indexes, Object source, boolean showAnnotations, boolean dispatchEvent) {
 
 		setData(indexes.keySet());
 
@@ -84,7 +84,7 @@ public class AnnotateListPanel extends JPanel {
 			List<TableAnnotationProvider> annotationProviders = new LinkedList<TableAnnotationProvider>();
 			try {
 				int i = 0;
-				for(DataBean data : indexes.keySet()){
+				for(Dataset data : indexes.keySet()){
 					annotationProviders.add(new TableAnnotationProvider(data));
 				}
 				i++;			
@@ -117,7 +117,7 @@ public class AnnotateListPanel extends JPanel {
 
 
 		if (dispatchEvent) {
-			for (DataBean data : indexes.keySet()) {
+			for (Dataset data : indexes.keySet()) {
 				application.getSelectionManager().getRowSelectionManager(data).setSelected(indexes.get(data), source);
 			}
 		}
@@ -134,7 +134,7 @@ public class AnnotateListPanel extends JPanel {
 	 * @param data
 	 *            is needed only if event is dispatched
 	 */
-	public void setSelectedListContentAsDataPoints(Collection<DataPoint> content, Object source, boolean dispatchEvent, DataBean data) {
+	public void setSelectedListContentAsDataPoints(Collection<DataPoint> content, Object source, boolean dispatchEvent, Dataset data) {
 
 		setData(data);
 
@@ -180,7 +180,7 @@ public class AnnotateListPanel extends JPanel {
 	 * @param data
 	 *            is needed only if event is dispatched
 	 */
-	public void setSelectedRows(Set<Integer> rows, Object source, boolean dispatchEvent, DataBean data) {
+	public void setSelectedRows(Set<Integer> rows, Object source, boolean dispatchEvent, Dataset data) {
 
 		setData(data);
 		TableAnnotationProvider annotationProvider;
@@ -231,14 +231,14 @@ public class AnnotateListPanel extends JPanel {
 	 * 
 	 * @param data
 	 */
-	private void setData(DataBean data) {
+	private void setData(Dataset data) {
 		datas.clear();
 		datas.add(data);
 	}
 
-	private void setData(Set<DataBean> set) {
+	private void setData(Set<Dataset> set) {
 		datas.clear();
-		for (DataBean data : set) {
+		for (Dataset data : set) {
 			datas.add(data);
 		}
 	}

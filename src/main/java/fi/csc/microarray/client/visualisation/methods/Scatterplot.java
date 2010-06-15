@@ -40,7 +40,7 @@ import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.methods.SelectableChartPanel.SelectionChangeListener;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class Scatterplot extends ChipVisualisation 
@@ -63,7 +63,7 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 	
 	protected XYPlot plot;
 
-	protected DataBean data;
+	protected Dataset data;
 
 	protected JButton useButton;
 
@@ -125,7 +125,7 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 		return settingsPanel;
 	}
 
-	protected void refreshAxisBoxes(DataBean data) {
+	protected void refreshAxisBoxes(Dataset data) {
 		if (paramPanel == null) {
 			throw new IllegalStateException("must call getParameterPanel first");
 		}
@@ -153,7 +153,7 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 	protected Set<Integer> selectedIndexes = new HashSet<Integer>();
 
 	@Override
-	public JComponent getVisualisation(DataBean data) throws Exception {
+	public JComponent getVisualisation(Dataset data) throws Exception {
 
 		this.data = data;
 

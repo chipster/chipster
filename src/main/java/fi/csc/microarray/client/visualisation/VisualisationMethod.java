@@ -31,7 +31,7 @@ import fi.csc.microarray.client.visualisation.methods.Volcanoplot;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowser;
 import fi.csc.microarray.client.visualisation.methods.threed.Scatterplot3D;
 import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.Dataset;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
@@ -159,16 +159,16 @@ public enum VisualisationMethod {
 	 * @return long estimated duration of this visualisation in millisecond for
 	 *         the given datasets
 	 */
-	public long estimateDuration(List<DataBean> datas) {
+	public long estimateDuration(List<Dataset> datas) {
 		if (datas.size() > 0) {
 			return (long) (datas.get(0).getContentLength() * durationEstimationFactor * datas.size());
 		}
 		return -1;
 	}
 
-	Map<DataBean, Boolean> canVisualiseCache = new HashMap<DataBean, Boolean>();
+	Map<Dataset, Boolean> canVisualiseCache = new HashMap<Dataset, Boolean>();
 
-	public boolean isApplicableTo(DataBean bean) throws MicroarrayException {
+	public boolean isApplicableTo(Dataset bean) throws MicroarrayException {
 
 		// The results of the canVisualise are saved to map to speed up
 		// the selection of datasets. The maps are emptied only when the client
@@ -186,7 +186,7 @@ public enum VisualisationMethod {
 		return false;
 	}
 
-	public boolean isApplicableTo(List<DataBean> beans) throws MicroarrayException {
+	public boolean isApplicableTo(List<Dataset> beans) throws MicroarrayException {
 		if (!this.getHeadlessVisualiser().isForMultipleDatas()) {
 			return false;
 		} else {
@@ -198,7 +198,7 @@ public enum VisualisationMethod {
 		return orderedDefaultCandidates;
 	}
 	
-	public static VisualisationMethod getDefaultVisualisationFor(DataBean dataBean) throws IOException, MicroarrayException {
+	public static VisualisationMethod getDefaultVisualisationFor(Dataset dataBean) throws IOException, MicroarrayException {
 		for (VisualisationMethod method : VisualisationMethod.orderedDefaultCandidates()) {
 			if (method != VisualisationMethod.NONE && method.isApplicableTo(dataBean)) {
 				return method;
