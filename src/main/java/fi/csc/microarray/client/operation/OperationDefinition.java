@@ -299,12 +299,51 @@ public class OperationDefinition implements ExecutionItem {
 	 * 
 	 * @param data
 	 *            The dataset for which to evaluate.
+	 * @param parametersSuitability is either null - indicating that the
+	 *        parameter suitability has not been checked yet or Suitability
+	 *        object defining the suitability of parameters in an encapsulating
+	 *        Operation object that calls this method.
 	 * @return One of the OperationDefinition.Suitability enumeration, depending
 	 *         on how suitable the operation is judged.
 	 */
-	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data) {    
-		bindInputs(data);
+	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data,
+	        Suitability parameterSuitability) {
+	       
+        // Input suitability gets checked while trying to bind the data
+        bindInputs(data);
+	    
+	    if (parameterSuitability == null) {
+	        // Parameter suitability has not been checked yet
+	        parameterSuitability =
+	                OperationDefinition.parameterSuitability(getParameters());
+	    }
+	    
+	    // Report only either input or parameter suitability
+	    if (evaluatedSuitability.isOk()) {
+	        evaluatedSuitability = parameterSuitability;
+	    }
+		
 		return getEvaluatedSuitability();
+	}
+	
+	/**
+	 * Check suitability of a given parameter list. The parameter
+	 * list can also come from the Operation object that encapsulates
+	 * this definition.
+	 * 
+	 * @param params
+	 * @return
+	 */
+	public static Suitability parameterSuitability(List<Parameter> params) {
+        for (Parameter param : params) {
+            // Required parameters can not be empty
+            if (!param.isOptional() && (param.getValue() == null ||
+                                        param.getValue().equals(""))) {
+                return Suitability.EMPTY_REQUIRED_PARAMETERS;
+            }
+        }
+        
+        return Suitability.SUITABLE;
 	}
 
 	public LinkedList<Parameter> getParameters() {
