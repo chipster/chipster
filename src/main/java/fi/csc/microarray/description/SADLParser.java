@@ -73,28 +73,19 @@ public class SADLParser {
 		SADLTokeniser tokens = new SADLTokeniser(sadlString, unitName);
 		return parseTool(tokens);
 	}
-
 	
-	/**
-	 * FIXME remove after no longer using VVSADL
-	 * @param sadlString
-	 * @param id
-	 * @return
-	 * @throws ParseException
-	 */
-	public SADLDescription parse(String sadlString, String id) throws ParseException {
-		
-		// check for VVSADL compatibility mode
-		if (sadlString.trim().startsWith("ANALYSIS")) {
-			SADLDescription desc = new CompatibilityVVSADLParser().parse(sadlString); 
-			desc.setID(id);
-			return desc;
-		}
-		
-		SADLTokeniser tokens = new SADLTokeniser(sadlString, unitName);
-		return parseTool(tokens);
-	}
-	
+    public SADLDescription parse(String sadlString, String id) throws ParseException {
+        
+        // check for VVSADL compatibility mode
+        if (sadlString.trim().startsWith("ANALYSIS")) {
+            SADLDescription sadl = new CompatibilityVVSADLParser().parse(sadlString);
+            sadl.setID(id);
+            return sadl;
+        }
+        
+        SADLTokeniser tokens = new SADLTokeniser(sadlString, unitName);
+        return parseTool(tokens);
+    }
 	
 	public List<SADLDescription> parseMultiple(String sadlString) throws ParseException {
 		

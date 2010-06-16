@@ -43,7 +43,7 @@ import fi.csc.microarray.exception.MicroarrayException;
 @SuppressWarnings("serial")
 public class SequenceImportDialog extends JDialog implements CaretListener, ActionListener {
     
-    private static final String OPERATION_ID = "importseq";
+    private static final String OPERATION_ID = "importseq.sadl";
     private final Dimension BUTTON_SIZE = new Dimension(70, 25);
     
     private static Logger logger = Logger.getLogger(SequenceImportDialog.class);
@@ -100,30 +100,30 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         this.setLayout(new GridBagLayout());
         
         // Name label
-        nameLabel = new JLabel("Filename");
-        c.anchor = GridBagConstraints.WEST;
-        c.insets.set(10, 10, 5, 10);
-        c.gridy++;
-        this.add(nameLabel, c);
+//        nameLabel = new JLabel("Filename");
+//        c.anchor = GridBagConstraints.WEST;
+//        c.insets.set(10, 10, 5, 10);
+//        c.gridy++;
+//        this.add(nameLabel, c);
         
         // Name field
-        nameField = new JTextField();
-        nameField.setPreferredSize(new Dimension(150, 20));
-        nameField.setText("data.txt");
-        c.insets.set(0, 10, 10, 10);       
-        c.gridy++;
-        this.add(nameField, c);
+//        nameField = new JTextField();
+//        nameField.setPreferredSize(new Dimension(150, 20));
+//        nameField.setText("data.txt");
+//        c.insets.set(0, 10, 10, 10);       
+//        c.gridy++;
+//        this.add(nameField, c);
         
         // Folder to store the file
-        folderNameCombo = new JComboBox(ImportUtils.getFolderNames(true).toArray());
-        folderNameCombo.setPreferredSize(new Dimension(150, 20));
-        folderNameCombo.setEditable(true);
-        c.insets.set(10, 10, 5, 10);
-        c.gridy++;
-        this.add(new JLabel("Create in folder"), c);
-        c.insets.set(0, 10, 10, 10);
-        c.gridy++;
-        this.add(folderNameCombo, c);
+//        folderNameCombo = new JComboBox(ImportUtils.getFolderNames(true).toArray());
+//        folderNameCombo.setPreferredSize(new Dimension(150, 20));
+//        folderNameCombo.setEditable(true);
+//        c.insets.set(10, 10, 5, 10);
+//        c.gridy++;
+//        this.add(new JLabel("Create in folder"), c);
+//        c.insets.set(0, 10, 10, 10);
+//        c.gridy++;
+//        this.add(folderNameCombo, c);
         
         // Database
         dbNameCombo = new JComboBox(Databases.values());
@@ -215,28 +215,28 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
 
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == okButton) {
-            String fileName = this.nameField.getText();
-            String folderName = (String) (this.folderNameCombo.getSelectedItem());
+            //String fileName = this.nameField.getText();
+            //String folderName = (String) (this.folderNameCombo.getSelectedItem());
             String db = ((Databases) this.dbNameCombo.getSelectedItem()).getValue();
             String ids = this.textArea.getText();
             
-            int separator = fileName.indexOf(".");
-            separator = separator == -1 ? fileName.length() : separator;
+//            int separator = fileName.indexOf(".");
+//            separator = separator == -1 ? fileName.length() : separator;
             
             // There can be multiple sequences
             String[] sequences = ids.split("\n|;|,");
             int index = 0;
             for (String id : sequences) {
-                // Rename files if we have to import several
-                String name = fileName;
-                if (sequences.length > 1) {
-                    name = fileName.substring(0, separator) + "." +
-                           index + fileName.substring(separator, fileName.length());
-                    index++;
-                }
+                // TODO Rename files if we have to import several
+//                String name = fileName;
+//                if (sequences.length > 1) {
+//                    name = fileName.substring(0, separator) + "." +
+//                           index + fileName.substring(separator, fileName.length());
+//                    index++;
+//                }
                 
                 // Run import
-                runImport(name, folderName, db, id);
+                runImport("", "", db, id);
             }
             
             // Create datasets

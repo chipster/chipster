@@ -56,7 +56,6 @@ public class ToolRepository {
 	 */
 	public ToolRepository(File workDir) throws Exception {
 		loadRuntimes(workDir);
-		loadModuleDescriptions();
 	}
 	
 	public synchronized AnalysisDescription getDescription(String id) throws AnalysisException {
@@ -117,8 +116,11 @@ public class ToolRepository {
 		}
 	}
 
-	
-	
+	/**
+	 * Load available runtimes.
+	 * 
+	 * @param workDir
+	 */
 	private void loadRuntimes(File workDir) throws IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException, IOException, SAXException, ParserConfigurationException  { 
 		logger.info("loading runtimes");
 
@@ -177,8 +179,13 @@ public class ToolRepository {
 	/**
 	 * @return a list of DescriptionMessages about available modules
 	 * that can be sent to client.
+	 * @throws ParserConfigurationException
+	 * @throws SAXException
+     * @throws IOException
 	 */
-	public List<ModuleDescriptionMessage> getModuleDescriptions() {
+	public List<ModuleDescriptionMessage> getModuleDescriptions()
+	        throws ParserConfigurationException, SAXException, IOException {
+        loadModuleDescriptions();
 	    return modules;
 	}
 
@@ -336,15 +343,17 @@ public class ToolRepository {
 		    	// create the analysis description
 		    	AnalysisDescription description;
 		    	try {
-		    		description = runtime.getHandler().handle(resourceName, parameters);
+		    	    // checked cached descriptions
+		    	    // cached descriptions are updated when needed
+		    	    AnalysisDescription cachedDescription = getDescription(resourceName);
+		    	    if (cachedDescription != null) {
+		    	        description = cachedDescription;
+		    	    } else {
+		                description = runtime.getHandler().handle(resourceName, parameters);
+		    	    }
 		    		description.setCategory(category.getName());
 		    	} catch (Exception e) {
 		    		logger.warn("loading " + resourceName + " failed, could not create description", e);
-		    		continue;
-		    	}
-		    	if (descriptions.containsKey(description.getID())) {
-		    		logger.warn("loading " + resourceName + " failed, description with the id " +
-		    				description.getID() + " already exists");
 		    		continue;
 		    	}
 		    	descriptions.put(description.getID(), description);

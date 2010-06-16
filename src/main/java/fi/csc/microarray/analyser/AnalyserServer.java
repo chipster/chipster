@@ -421,6 +421,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		AnalysisDescription description = null;
 		try {
 			description = toolRepository.getDescription(jobMessage.getAnalysisId());
+			System.out.println(jobMessage.getAnalysisId());
 		} catch (AnalysisException e) {
 			logger.warn("Could not fetch description for " + jobMessage.getAnalysisId());
 			ResultMessage resultMessage = new ResultMessage("", JobState.ERROR, "", "Could not load operation.", 

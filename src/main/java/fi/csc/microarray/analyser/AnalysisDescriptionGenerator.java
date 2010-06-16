@@ -42,5 +42,4 @@ public class AnalysisDescriptionGenerator {
 		
 		return description;
 	}
-
 }
