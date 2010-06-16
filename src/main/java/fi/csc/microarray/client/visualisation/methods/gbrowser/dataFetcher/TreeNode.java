@@ -11,6 +11,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 
 public class TreeNode {
 
+	private static final boolean DEPTH_LIMIT_ACTIVE = false;
+	
 	private TreeThread tree;
 	public RegionContent[] concisedValues;
 
@@ -26,6 +28,9 @@ public class TreeNode {
 	private ByteRegion unExactByteRegion;
 	private boolean isLeaf;
 
+	/**
+	 * DOCME what does this do?
+	 */
 	public TreeNode(ByteRegion nodeByteRegion, TreeThread tree, TreeNode parent) {
 
 		this.tree = tree;
@@ -95,24 +100,32 @@ public class TreeNode {
 
 				try {
 					// limit search tree splitting to certain depth
-//					boolean dontSplit = areaRequest.depthToGo <= 0;
-//					boolean alreadySplit = false;
+					boolean canSplit = !DEPTH_LIMIT_ACTIVE || areaRequest.depthToGo > 0;
+					boolean recurseLeft = areaRequest.start.compareTo(right.nodeBpStart) < 0; 
+					boolean recurseRight = areaRequest.end.compareTo(right.nodeBpStart) > 0;
+					
+					// solve conflicts with dice
+					if (!canSplit && recurseLeft && recurseLeft) {
+						// can't recurse to both directions because splitting forbidden
+						if (Math.random() < 0.5d) {
+							recurseLeft = false;
+						} else {
+							recurseRight = false;
+						}
+					}
 					
 					// recurse to left
-					if (areaRequest.start.compareTo(right.nodeBpStart) < 0) {
+					if (recurseLeft) {
 						AreaRequest clone = areaRequest.clone();
 						clone.depthToGo--;
 						left.processAreaRequest(clone);
-//						alreadySplit = true;
 					}
 
 					// recurse to right
-					if (areaRequest.end.compareTo(right.nodeBpStart) > 0) {
-//						if (!(dontSplit && alreadySplit)) {
-							AreaRequest clone = areaRequest.clone();
-							clone.depthToGo--;
-							right.processAreaRequest(clone);
-//						}
+					if (recurseRight) {
+						AreaRequest clone = areaRequest.clone();
+						clone.depthToGo--;
+						right.processAreaRequest(clone);
 					}
 					
 				} catch (CloneNotSupportedException e) {

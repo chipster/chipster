@@ -122,7 +122,6 @@ public class SeqBlockTrack extends Track {
 
 				// check maximum stacking depth
 				if (layer > MAX_STACKING_DEPTH) {
-					System.out.println("jorma");
 					continue; 
 				}
 				
