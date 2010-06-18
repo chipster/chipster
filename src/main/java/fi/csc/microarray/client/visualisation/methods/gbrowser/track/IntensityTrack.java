@@ -36,6 +36,7 @@ public class IntensityTrack extends Track {
 	@Override
 	public Collection<Drawable> getDrawables() {
 
+		// FIXME should not empty drawables, because causes flickering when more clever data fetching is used
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
 		for (RegionContent regCont : values) {
