@@ -14,7 +14,11 @@ import org.jfree.chart.JFreeChart;
 import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 
 
-
+/**
+ * Quick started utility for developing genome browser. Might evolve into standalone version of
+ * the browser some day.
+ *
+ */
 public class GenomeBrowserStarter {
 
 	private static final File ELAND_DATA_FILE = new File("/home/akallio/chipster-share/ngs/STAT1/STAT1_treatment_aggregated_filtered_sorted_chr1.txt");

@@ -7,6 +7,9 @@ import java.util.Set;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TreeNode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 
+/**
+ * A generic status field that travels with all requests. It is used to synchronise the different parts of the system. 
+ */
 public class FsfStatus implements Cloneable {
 
 	/**

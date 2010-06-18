@@ -1,5 +1,10 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
+/**
+ * Region of genome (similar to BpCoordRegion), but mapped to byte object (file). Used for bookkeeping
+ * when searching the file for correct position.  
+ *
+ */
 public class ByteRegion implements Comparable<ByteRegion> {
 	public Long start;
 	public Long end;

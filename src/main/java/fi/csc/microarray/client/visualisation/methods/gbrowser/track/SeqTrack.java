@@ -19,6 +19,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * Track for showing the reference sequence. Useful only for low zoom levels.
+ *
+ */
 public class SeqTrack extends Track {
 
 	private Collection<RegionContent> reads = new TreeSet<RegionContent>();

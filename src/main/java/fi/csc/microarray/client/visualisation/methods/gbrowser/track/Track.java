@@ -20,6 +20,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
 
+/**
+ * Single track inside a view. Typically multiple Track instances are used to construct what user perceives as a track. 
+ *
+ */
 public abstract class Track implements AreaResultListener {
 
 	protected View view;

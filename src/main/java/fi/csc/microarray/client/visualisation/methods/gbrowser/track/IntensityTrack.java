@@ -16,6 +16,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FilePa
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * Generic track for showing high level distribution of items (genes, transcripts, reads...) on the genome.
+ * The result is an approximation.
+ *
+ */
 public class IntensityTrack extends Track {
 
 	private SortedSet<RegionContent> values = new TreeSet<RegionContent>();

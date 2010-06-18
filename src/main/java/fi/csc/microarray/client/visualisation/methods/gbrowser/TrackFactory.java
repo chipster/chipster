@@ -29,6 +29,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptTrack.PartColor;
 
+/**
+ * Utility for creating predefined track groups.  
+ *
+ */
 public class TrackFactory {
 	
 	public static void addGeneTracks(GenomePlot genomePlot, DataSource geneAnnotationFile, DataSource transcriptAnnotationFile) {

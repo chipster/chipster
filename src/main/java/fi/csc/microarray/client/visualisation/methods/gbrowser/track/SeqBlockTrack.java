@@ -21,6 +21,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * Track that shows actual content of reads. At high level, values of nucleotides are not shown. At low level, they are
+ * shown.
+ *
+ */
 public class SeqBlockTrack extends Track {
 
 	private static final int MAX_STACKING_DEPTH = 10;
@@ -168,6 +173,8 @@ public class SeqBlockTrack extends Track {
 
 						char letter = seq.charAt(j);
 
+						// character drawing commented away:
+						//
 						// if (rect.width > seq.length() * CHAR_WIDTH) {
 						//
 						// drawables.add(new TextDrawable((int) x + 1, rect.y +
