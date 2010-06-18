@@ -11,6 +11,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDraw
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 
+/**
+ * The basic view of genome browser. 
+ *
+ */
 public class HorizontalView extends View {
 
 	public HorizontalView(GenomePlot parent, boolean movable, boolean zoomable, boolean selectable) {

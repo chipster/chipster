@@ -19,6 +19,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * Track for showing the coverage of reads. Profile is drawn by calculating the number of nucleotides hitting each
+ * basepair location. Should look similar to IntensityTrack, but is exact.
+ *
+ *@see IntensityTrack
+ */
 public class ProfileTrack extends Track {
 
 	private long maxBpLength;

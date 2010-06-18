@@ -10,6 +10,11 @@ import java.net.URL;
 
 import fi.csc.microarray.util.IOUtils;
 
+/**
+ * One source of genomic content, typically corresponding to one track. Abstraction hides
+ * the physical data source, that can be either a file or a URL accessed via HTTP.
+ *
+ */
 public class DataSource {
 
 	private RandomAccessFile file = null;

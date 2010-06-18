@@ -54,6 +54,8 @@ import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.util.IOUtils;
 
 /**
+ * Chipster style visualisation for genome browser.
+ * 
  * @author Petri Klemelä, Aleksi Kallio
  */
 public class GenomeBrowser extends Visualisation implements ActionListener, RegionListener, FocusListener {

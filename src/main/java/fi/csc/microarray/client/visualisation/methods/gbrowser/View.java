@@ -31,6 +31,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 
+/**
+ * Combines track to create a single synchronised view. All tracks within one view move hand-in-hand. View is responsible
+ * for allocating space and taking care of actual drawing.
+ *
+ */
 public abstract class View implements MouseListener, MouseMotionListener, MouseWheelListener {
 
 	protected BpCoordRegionDouble bpRegion;

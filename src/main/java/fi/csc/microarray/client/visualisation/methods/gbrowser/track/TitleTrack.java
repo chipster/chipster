@@ -10,6 +10,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDraw
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 
+/**
+ * Track for placing title texts on top of other tracks.
+ *
+ */
 public class TitleTrack extends Track {
 
 	private Color color;

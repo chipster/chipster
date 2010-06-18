@@ -10,6 +10,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDraw
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 
+/**
+ * Line that separates real tracks.
+ *
+ */
 public class SeparatorTrack extends Track {
 
 	private Color color;

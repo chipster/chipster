@@ -100,12 +100,19 @@ public class TreeNode {
 
 				try {
 					// limit search tree splitting to certain depth
-					boolean canSplit = !DEPTH_LIMIT_ACTIVE || areaRequest.depthToGo > 0;
+					boolean canSplit;
+					if (areaRequest.status.concise) {
+						canSplit = !DEPTH_LIMIT_ACTIVE || areaRequest.depthToGo > 0;
+					} else {
+						canSplit = true;
+					}
+					
 					boolean recurseLeft = areaRequest.start.compareTo(right.nodeBpStart) < 0; 
 					boolean recurseRight = areaRequest.end.compareTo(right.nodeBpStart) > 0;
+					boolean recurseBoth = recurseLeft && recurseRight;
 					
 					// solve conflicts with dice
-					if (!canSplit && recurseLeft && recurseLeft) {
+					if (!canSplit && recurseBoth) {
 						// can't recurse to both directions because splitting forbidden
 						if (Math.random() < 0.5d) {
 							recurseLeft = false;
@@ -117,14 +124,18 @@ public class TreeNode {
 					// recurse to left
 					if (recurseLeft) {
 						AreaRequest clone = areaRequest.clone();
-						clone.depthToGo--;
+						if (recurseBoth) {
+							clone.depthToGo--;
+						}
 						left.processAreaRequest(clone);
 					}
 
 					// recurse to right
 					if (recurseRight) {
 						AreaRequest clone = areaRequest.clone();
-						clone.depthToGo--;
+						if (recurseBoth) {
+							clone.depthToGo--;
+						}
 						right.processAreaRequest(clone);
 					}
 					

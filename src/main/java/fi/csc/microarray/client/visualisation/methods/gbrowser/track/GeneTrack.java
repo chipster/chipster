@@ -21,6 +21,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * Track for genes.
+ *
+ */
 public class GeneTrack extends Track {
 
 	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
@@ -53,8 +57,8 @@ public class GeneTrack extends Track {
 
 				RegionContent read = iter.next();
 
+				// FIXME this and all the other incarnations of the same 3 lines should be refactored up to Track or something
 				if (!read.region.intercepts(getView().getBpRegion())) {
-
 					iter.remove();
 					continue;
 				}

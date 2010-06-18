@@ -8,6 +8,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 
+/**
+ * Empty track can be used for padding.
+ *
+ */
 public class EmptyTrack extends Track {
 
 	public EmptyTrack(View view, int height) {

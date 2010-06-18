@@ -2,6 +2,10 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 
+/**
+ * Result containing file contents. Used by the file layer to return content to the tree layer. 
+ *
+ */
 public class FileResult {
 
 	public FileRequest request;

@@ -18,6 +18,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * Track for showing the location of predicted peaks. Peaks cannot overlap. 
+ *
+ */
 public class PeakTrack extends Track {
 
 	private static final int PEAK_SYMBOL_HEIGHT = 5;

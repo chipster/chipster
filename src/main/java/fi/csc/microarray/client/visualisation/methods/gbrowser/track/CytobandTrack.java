@@ -22,6 +22,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**  
+ * The appearance of a chromosome. Used for high level navigation.
+ */
 public class CytobandTrack extends Track {
 
 	private static final int THICKNESS = 10;

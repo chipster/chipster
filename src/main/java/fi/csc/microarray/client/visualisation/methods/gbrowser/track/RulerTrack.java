@@ -18,6 +18,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDo
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * Ruler that shows coordinates.
+ *
+ */
 public class RulerTrack extends Track {
 
 	private static final int textY = 10;
