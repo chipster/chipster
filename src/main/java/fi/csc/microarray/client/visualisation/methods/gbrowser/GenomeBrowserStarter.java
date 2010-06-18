@@ -17,7 +17,6 @@ import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 
 public class GenomeBrowserStarter {
 
-//	private static final File BED_READ_DATA_FILE = new File("/home/akallio/Desktop/Bcell_expression.reads");
 	private static final File ELAND_DATA_FILE = new File("/home/akallio/chipster-share/ngs/STAT1/STAT1_treatment_aggregated_filtered_sorted_chr1.txt");
 	private static final File MACS_DATA_FILE = new File("/home/akallio/chipster-share/ngs/STAT1/STAT1_peaks_sorted.bed");
 	private static final File URL_ROOT;
@@ -55,19 +54,10 @@ public class GenomeBrowserStarter {
 				true
 		);
 
-//		TrackFactory.addReadTracks(
-//				plot, 
-//				new DataSource(BED_READ_DATA_FILE),
-//				new DataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_seq.tsv"),
-//				true,
-//				new BEDReadParser()
-//		);
 
 		TrackFactory.addRulerTrack(plot);
 		plot.start("1", 1024 * 1024 * 250d);
-		if (horizontal) {
-			plot.moveDataBpRegion(1000000L, 100000L);
-		}
+		plot.moveDataBpRegion(1000000L, 100000L);
 		
 		ChartPanel panel = new NonScalableChartPanel(new JFreeChart(plot));
 		panel.setPreferredSize(new Dimension(800, 2000));
