@@ -52,12 +52,20 @@ public abstract class Track implements AreaResultListener {
 		}
 	}
 
+	/**
+	 * The method where the actual work of a track typically happens. Each track needs to manage drawables, possibly
+	 * caching them.
+	 */
 	public abstract Collection<Drawable> getDrawables();
 
+	/**
+	 * The view under which this track operates.
+	 */
 	protected View getView() {
 		return view;
 	}
 
+	// DOCME what does this do?
 	public void updateData() {
 		if (file != null && this.getMaxHeight() > 0) {
 			FsfStatus status = new FsfStatus();
@@ -70,10 +78,19 @@ public abstract class Track implements AreaResultListener {
 		}
 	}
 
+	/**
+	 * Returns the contents (fields) that this track needs to operate.
+	 */
 	public abstract Collection<ColumnType> getDefaultContents();
 
+	/**
+	 * If track is concised, it is not showing exact data but approximations calculated from the data.
+	 */
 	public abstract boolean isConcised();
 
+	/**
+	 * Utility method, return empty Drawable collection.
+	 */
 	public Collection<Drawable> getEmptyDrawCollection() {
 		return new LinkedList<Drawable>();
 	}
@@ -92,6 +109,7 @@ public abstract class Track implements AreaResultListener {
 
 	private Point2D[] arrowPoints = new Point2D[] { new Point.Double(0, 0.25), new Point.Double(0.5, 0.25), new Point.Double(0.5, 0), new Point.Double(1, 0.5), new Point.Double(0.5, 1), new Point.Double(0.5, 0.75), new Point.Double(0, 0.75), new Point.Double(0, 0.25) };
 
+	// DOCME what is this?
 	protected Collection<? extends Drawable> getArrowDrawables(int x, int y, int width, int height) {
 
 		Collection<Drawable> parts = getEmptyDrawCollection();
@@ -109,6 +127,7 @@ public abstract class Track implements AreaResultListener {
 		return parts;
 	}
 
+	// FIXME remove this, it is never overridden
 	public BpCoord getMaxBp(Chromosome chr) {
 		return null;
 	}
