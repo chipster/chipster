@@ -21,4 +21,9 @@ public class LineDrawable extends Drawable {
 	public String toString() {
 		return "LineDrawable (" + x + ", " + y + ") - (" + x2 + ", " + y2 + ")";
 	}
+	
+	@Override
+	public int getMaxY() {
+        return Math.max(y, y2);
+    }
 }

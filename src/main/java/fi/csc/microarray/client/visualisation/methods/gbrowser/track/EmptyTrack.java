@@ -10,8 +10,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 
 public class EmptyTrack extends Track {
 
-	private int height;
-
 	public EmptyTrack(View view, int height) {
 		super(view, null);
 		this.height = height;
@@ -25,10 +23,15 @@ public class EmptyTrack extends Track {
 	public void processAreaResult(AreaResult areaResult) {
 		// ignored
 	}
+	
+    @Override
+    public Integer getHeight() {
+        return height;
+    }
 
 	@Override
-	public int getMaxHeight() {
-		return height;
+	public boolean isStretchable () {
+		return false;
 	}
 
 	@Override

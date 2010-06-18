@@ -119,7 +119,7 @@ public class CytobandTrack extends Track {
 
 				} else if (band == Band.GAP) {
 
-					int y = (int) getMaxHeight() - (THICKNESS + MARGIN);
+					int y = (int) getHeight() - (THICKNESS + MARGIN);
 
 					int sideX = getView().bpToTrack(bandRegion.region.end);
 					int cornerX = getView().bpToTrack(bandRegion.region.start);
@@ -142,7 +142,7 @@ public class CytobandTrack extends Track {
 					rect.x = getView().bpToTrack(bandRegion.region.start);
 					rect.width = getView().bpToTrack(bandRegion.region.end) - rect.x;
 
-					rect.y = (int) (getMaxHeight() - (THICKNESS + MARGIN)) + THICKNESS / 4;
+					rect.y = (int) (getHeight() - (THICKNESS + MARGIN)) + THICKNESS / 4;
 					rect.height = THICKNESS - THICKNESS / 2;
 
 					drawables.add(new RectDrawable(rect, Color.gray, Color.gray));
@@ -159,7 +159,7 @@ public class CytobandTrack extends Track {
 		rect.x = getView().bpToTrack(startBp);
 		rect.width = getView().bpToTrack(endBp) - rect.x;
 
-		rect.y = (int) (getMaxHeight() - (THICKNESS + MARGIN));
+		rect.y = (int) (getHeight() - (THICKNESS + MARGIN));
 		rect.height = THICKNESS;
 
 		return new RectDrawable(rect, c, Color.black);
@@ -192,9 +192,14 @@ public class CytobandTrack extends Track {
 	}
 
 	@Override
-	public int getMaxHeight() {
+	public Integer getHeight() {
 		return showText ? 40 : 20;
 	}
+	
+    @Override
+    public boolean isStretchable() {
+        return false;
+    }
 
 	@Override
 	public Collection<ColumnType> getDefaultContents() {

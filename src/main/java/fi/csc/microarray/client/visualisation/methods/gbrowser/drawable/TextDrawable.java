@@ -16,4 +16,10 @@ public class TextDrawable extends Drawable {
 		super.upsideDown();
 		y += TEXT_HEIGHT;
 	}
+	   
+    @Override
+    public int getMaxY() {
+        // FIXME y is actually the baseline
+        return y;
+    }
 }

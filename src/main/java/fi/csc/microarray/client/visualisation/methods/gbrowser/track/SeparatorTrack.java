@@ -37,21 +37,29 @@ public class SeparatorTrack extends Track {
 
 	public void processAreaResult(AreaResult areaResult) {
 		// ignore
-	}
+	}  
 
-	@Override
-	public int getMaxHeight() {
-
-		// the track is hidden if outside given bp length boundaries
-		if (getView().getBpRegion().getLength() > minBpLength
-				&& getView().getBpRegion().getLength() <= maxBpLength) {
-
-			return 3;
-
-		} else {
-			return 0;
-		}
-	}
+    @Override
+    public Integer getHeight() {
+        if (isVisible()) {
+            return 3;
+        } else {
+            return 0;
+        }
+    }
+    
+    @Override
+    public boolean isStretchable() {
+        return false;
+    }
+    
+    @Override
+    public boolean isVisible() {
+        // visible region is not suitable
+        return (super.isVisible() &&
+                getView().getBpRegion().getLength() > minBpLength &&
+                getView().getBpRegion().getLength() <= maxBpLength);
+    }    
 
 	@Override
 	public Collection<ColumnType> getDefaultContents() {

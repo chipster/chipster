@@ -25,6 +25,8 @@ public abstract class Track implements AreaResultListener {
 	protected View view;
 	protected DataSource file;
 	protected Strand strand = Strand.FORWARD;
+	protected Integer height;
+	protected boolean visible = true;
 
 	public Track(View view, DataSource file) {
 		this.view = view;
@@ -55,7 +57,7 @@ public abstract class Track implements AreaResultListener {
 	}
 
 	public void updateData() {
-		if (file != null && this.getMaxHeight() > 0) {
+		if (file != null && this.isVisible()) {
 			FsfStatus status = new FsfStatus();
 			status.clearQueues = true;
 			status.concise = isConcised();
@@ -73,10 +75,40 @@ public abstract class Track implements AreaResultListener {
 	public Collection<Drawable> getEmptyDrawCollection() {
 		return new LinkedList<Drawable>();
 	}
-
-	public int getMaxHeight() {
-		return Integer.MAX_VALUE;
+	
+	/**
+	 * Each track has individual height. If it is not set explicitly,
+	 * the default height is taken from View.
+	 * 
+	 * @return height of this track in pixels.
+	 */
+	public Integer getHeight() {
+	    return height;
 	}
+	
+	/**
+	 * Set height of this track.
+	 */
+    public void setHeight(Integer height) {
+        this.height = height;
+    }
+
+	/**
+	 * Determine if the track can be resized vertically.
+	 * 
+	 * @return true if track can be resized, false if it has
+	 * static height.
+	 */
+	public abstract boolean isStretchable();
+	
+    /**
+     * Determine if the track is visible.
+     * 
+     * @return false.
+     */
+    public boolean isVisible() {
+        return visible;
+    }
 
 	public void setStrand(Strand s) {
 		this.strand = s;

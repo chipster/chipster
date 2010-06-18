@@ -185,14 +185,25 @@ public class SeqTrack extends Track {
 	}
 
 	@Override
-	public int getMaxHeight() {
-		if (getView().getBpRegion().getLength() <= maxBpLength) {
-
+	public Integer getHeight() {
+		if (isVisible()) {
 			return 21;
 		} else {
 			return 0;
 		}
 	}
+	   
+    @Override
+    public boolean isStretchable() {
+        return false;
+    }
+    
+    @Override
+    public boolean isVisible() {
+        // visible region is not suitable
+        return (super.isVisible() &&
+                getView().getBpRegion().getLength() <= maxBpLength);
+    }
 
 	@Override
 	public Collection<ColumnType> getDefaultContents() {

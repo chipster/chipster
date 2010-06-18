@@ -69,13 +69,26 @@ public class IntensityTrack extends Track {
 		}
 	}
 
-	public int getMaxHeight() {
-		if (getView().getBpRegion().getLength() > minBpLength) {
-			return super.getMaxHeight();
+	public Integer getHeight() {
+		if (isVisible()) {
+			return super.getHeight();
 		} else {
 			return 0;
 		}
 	}
+	   
+    @Override
+    public boolean isStretchable() {
+        // stretchable unless hidden
+        return isVisible();
+    }
+    
+    @Override
+    public boolean isVisible() {
+        // visible region is not suitable
+        return (super.isVisible() &&
+                getView().getBpRegion().getLength() > minBpLength);
+    }
 
 	@Override
 	public Collection<ColumnType> getDefaultContents() {

@@ -229,19 +229,28 @@ public class SeqBlockTrack extends Track {
 		super.updateData();
 	}
 
-	@Override
-	public int getMaxHeight() {
-
-		// the track is hidden if outside given bp length boundaries
-		if (getView().getBpRegion().getLength() > minBpLength
-				&& getView().getBpRegion().getLength() <= maxBpLength) {
-
-			return super.getMaxHeight();
-			
-		} else {
-			return 0;
-		}
-	}
+    @Override
+    public Integer getHeight() {
+        if (isVisible()) {
+            return super.getHeight();
+        } else {
+            return 0;
+        }
+    }
+    
+    @Override
+    public boolean isStretchable() {
+        // stretchable unless hidden
+        return isVisible();
+    }
+    
+    @Override
+    public boolean isVisible() {
+        // visible region is not suitable
+        return (super.isVisible() &&
+                getView().getBpRegion().getLength() > minBpLength &&
+                getView().getBpRegion().getLength() <= maxBpLength);
+    }
 
 	@Override
 	public Collection<ColumnType> getDefaultContents() {

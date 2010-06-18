@@ -33,9 +33,14 @@ public class TitleTrack extends Track {
 	}
 
 	@Override
-	public int getMaxHeight() {
+	public Integer getHeight() {
 		return 10;
 	}
+	   
+    @Override
+    public boolean isStretchable() {
+        return false;
+    }
 
 	@Override
 	public Collection<ColumnType> getDefaultContents() {

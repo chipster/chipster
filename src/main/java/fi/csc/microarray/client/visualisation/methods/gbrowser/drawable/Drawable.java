@@ -17,4 +17,11 @@ public class Drawable {
 	public void upsideDown() {
 		y = -y;
 	}
+	
+	/**
+	 * @return maximum y value of all pixels drawn.
+	 */
+	public int getMaxY() {
+	    return y;
+	}
 }

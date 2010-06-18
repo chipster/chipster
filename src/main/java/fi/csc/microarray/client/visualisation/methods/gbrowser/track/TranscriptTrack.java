@@ -232,13 +232,26 @@ public class TranscriptTrack extends Track {
 		super.updateData();
 	}
 
-	public int getMaxHeight() {
-		if (getView().getBpRegion().getLength() <= maxBpLength) {
-			return super.getMaxHeight();
+	public Integer getHeight() {
+		if (isVisible()) {
+			return super.getHeight();
 		} else {
 			return 0;
 		}
 	}
+	   
+    @Override
+    public boolean isStretchable() {
+        // stretchable unless hidden
+        return isVisible();
+    }
+    
+    @Override
+    public boolean isVisible() {
+        // hide if visible region is too large
+        return (super.isVisible() &&
+                getView().getBpRegion().getLength() <= maxBpLength);
+    }
 
 	@Override
 	public Collection<ColumnType> getDefaultContents() {

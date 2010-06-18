@@ -92,14 +92,27 @@ public class PeakTrack extends Track {
 	}
 
 	@Override
-	public int getMaxHeight() {
-		if (getView().getBpRegion().getLength() > minBpLength && getView().getBpRegion().getLength() <= maxBpLength) {
-//			return PEAK_SYMBOL_HEIGHT * 2;
-			return super.getMaxHeight();
+	public Integer getHeight() {
+		if (isVisible()) {
+			return super.getHeight();
 		} else {
 			return 0;
 		}
 	}
+    
+    @Override
+    public boolean isStretchable() {
+        // stretchable unless hidden
+        return isVisible();
+    }
+    
+    @Override
+    public boolean isVisible() {
+        // visible region is not suitable
+        return (super.isVisible() &&
+                getView().getBpRegion().getLength() > minBpLength &&
+                getView().getBpRegion().getLength() <= maxBpLength);
+    }
 
 	@Override
 	public Collection<ColumnType> getDefaultContents() {

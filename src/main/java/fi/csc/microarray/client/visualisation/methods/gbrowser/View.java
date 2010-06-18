@@ -104,10 +104,13 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	}
 
 	protected void drawView(Graphics2D g, boolean isAnimation) {
-
+	    
 		if (bpRegion == null) {
 			setBpRegion(new BpCoordRegionDouble(0d, 1024 * 1024 * 250d, new Chromosome("1")), false);
 		}
+		
+        // Recalculate track heights
+		updateTrackHeights();
 
 		Rectangle viewClip = g.getClipBounds();
 		viewArea = viewClip;
@@ -134,16 +137,21 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			drawableIter = null;
 		}
 
-//		long startTime = System.currentTimeMillis();
+		//long startTime = System.currentTimeMillis();
 		continueDrawingLater = false;
 
+		// draw all tracks
 		while (trackIter.hasNext() || (drawableIter != null && drawableIter.hasNext())) {
 
 			if (drawableIter == null || !drawableIter.hasNext()) {
 				track = trackIter.next();
 			}
 
-			if (track.getMaxHeight() > 0) {
+			// draw drawable objects for visible tracks
+			if (track.isVisible()) {
+			    
+			    // create view context for this track
+			    TrackContext trackContext = new TrackContext(track);
 
 				if (drawableIter == null) {
 					Collection<Drawable> drawables = track.getDrawables();
@@ -162,7 +170,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 					if (track.getStrand() == Strand.REVERSED) {
 						drawable.upsideDown();
-						maybeReversedY += Math.min(getTrackHeight(), track.getMaxHeight());
+						maybeReversedY += track.getHeight();
 					}
 
 					drawDrawable(bufG2, x, maybeReversedY, drawable);
@@ -184,15 +192,14 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			} else {
 				drawableIter = null;
 			}
-
-			if (track.getMaxHeight() == Integer.MAX_VALUE) {
-				y += getTrackHeight();
-			} else {
-				y += track.getMaxHeight();
-			}
+			
+			y += track.getHeight();
 		}
 
-		g.drawImage(drawBuffer, (int) viewArea.getX(), (int) viewArea.getY(), (int) viewArea.getX() + drawBuffer.getWidth(), (int) viewArea.getY() + drawBuffer.getHeight(), 0, 0, drawBuffer.getWidth(), drawBuffer.getHeight(), null);
+		g.drawImage(drawBuffer, (int) viewArea.getX(), (int) viewArea.getY(),
+		            (int) viewArea.getX() + drawBuffer.getWidth(),
+		            (int) viewArea.getY() + drawBuffer.getHeight(), 0, 0,
+		            drawBuffer.getWidth(), drawBuffer.getHeight(), null);
 
 		if (!continueDrawingLater) {
 			bufG2.setPaint(Color.white);
@@ -202,32 +209,47 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		}
 
 	}
+	
+	/**
+	 * Update heights of tracks after zoom, resize etc.
+	 */
+	private void updateTrackHeights() {
+        // Calculate height of stretchable tracks
+        for (Track t : tracks) {
+            if (t.isStretchable()) {
+                t.setHeight(Math.round(getTrackHeight()));
+            }
+        }
+	}
 
 	public float getTrackHeight() {
 
 		if (trackHeight == null) {
-			trackHeight = (getHeight() - getMaxTrackHeightTotal()) / (float) getStretchableTrackCount();
+			trackHeight = (getHeight() - getStaticTrackHeightTotal()) / (float) getStretchableTrackCount();
 		}
 		
 		return trackHeight;
 	}
 
-	protected int getMaxTrackHeightTotal() {
-		int maxHeightTotal = 0;
+	/**
+	 * @return sum of heights of tracks with static heights.
+	 */
+	protected int getStaticTrackHeightTotal() {
+		int staticHeightTotal = 0;
 
 		for (Track track : tracks) {
-			if (track.getMaxHeight() != Integer.MAX_VALUE) {
-				maxHeightTotal += track.getMaxHeight();
+			if (!track.isStretchable()) {
+				staticHeightTotal += track.getHeight();
 			}
 		}
-		return maxHeightTotal;
+		return staticHeightTotal;
 	}
 
 	protected int getStretchableTrackCount() {
 		int stretchableCount = 0;
 
 		for (Track track : tracks) {
-			if (track.getMaxHeight() == Integer.MAX_VALUE) {
+			if (track.isStretchable()) {
 				stretchableCount++;
 			}
 		}
@@ -253,9 +275,10 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		trackHeight = null;
 
 		if (!disableDrawing) {
-			for (Track t : tracks) {
-				t.updateData();
+			for (Track t : tracks) {               
+                t.updateData();
 			}
+            
 			dispatchRegionChange();
 		}
 	}

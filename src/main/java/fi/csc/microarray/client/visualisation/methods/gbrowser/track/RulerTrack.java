@@ -81,7 +81,7 @@ public class RulerTrack extends Track {
 
 			Color lineColor = (i % MINOR_STEPS == MINOR_STEPS - 1) ? new Color(0, 0, 0, 64) : new Color(0, 0, 0, 32);
 
-			drawables.add(new LineDrawable(boxX, -getView().getHeight() + getMaxHeight(), boxX, getMaxHeight(), lineColor));
+			drawables.add(new LineDrawable(boxX, -getView().getHeight() + getHeight(), boxX, getHeight(), lineColor));
 
 			lastBoxX = boxX;
 		}
@@ -96,10 +96,15 @@ public class RulerTrack extends Track {
 	public List<Long> getRulerInfo() {
 		return info;
 	}
+	
+    @Override
+    public Integer getHeight() {
+        return textY * 2;
+    }
 
 	@Override
-	public int getMaxHeight() {
-		return textY * 2;
+	public boolean isStretchable () {
+		return false;
 	}
 
 	@Override
