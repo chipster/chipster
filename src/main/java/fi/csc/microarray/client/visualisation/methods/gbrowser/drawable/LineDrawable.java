@@ -2,6 +2,8 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.drawable;
 
 import java.awt.Color;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.TrackContext;
+
 public class LineDrawable extends Drawable {
 
 	public int x2;
@@ -21,9 +23,19 @@ public class LineDrawable extends Drawable {
 	public String toString() {
 		return "LineDrawable (" + x + ", " + y + ") - (" + x2 + ", " + y2 + ")";
 	}
-	
-	@Override
-	public int getMaxY() {
-        return Math.max(y, y2);
+
+    @Override
+    public int getMinY() {
+        return Math.min(y, y2);
+    }
+    
+    @Override
+    public void expand(TrackContext context) {
+        // firstly coordinates are converted from user coordinate space to
+        // euclidian space, then multiplied by expansion ratio and converted back
+        this.y = context.trackHeight - Math.round((-this.y + context.trackHeight) *
+                context.expansionRatio);
+        this.y2 = context.trackHeight - Math.round((-this.y2 + context.trackHeight) *
+                context.expansionRatio);
     }
 }

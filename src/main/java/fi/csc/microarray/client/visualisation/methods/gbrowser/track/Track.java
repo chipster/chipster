@@ -138,6 +138,24 @@ public abstract class Track implements AreaResultListener {
 	public Strand getStrand() {
 		return strand;
 	}
+	
+	/**
+	 * Determine if this track represents a reverse strand.
+	 * 
+	 * @return true if this track represents a reverse strand,
+	 * false otherwise.
+	 */
+    public boolean isReversed() {
+        return strand == Strand.REVERSED;
+    }
+    
+    /**
+     * Determine if drawable elements inside this track can be
+     * expanded to stretch across all available height. 
+     */
+    public boolean canExpandDrawables() {
+        return false;
+    }
 
 	private Point2D[] arrowPoints = new Point2D[] { new Point.Double(0, 0.25), new Point.Double(0.5, 0.25), new Point.Double(0.5, 0), new Point.Double(1, 0.5), new Point.Double(0.5, 1), new Point.Double(0.5, 0.75), new Point.Double(0, 0.75), new Point.Double(0, 0.25) };
 

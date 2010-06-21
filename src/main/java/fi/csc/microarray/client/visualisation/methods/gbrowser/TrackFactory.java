@@ -119,8 +119,10 @@ public class TrackFactory {
 		SeqBlockTrack reads = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, fontColor, 0, switchViewsAt);
 		addTrack(dataView, reads);
 
-//		ProfileTrack reads2 = new ProfileTrack(dataView, userData, TreeThread.class, userDataParser, fontColor, 0, Long.MAX_VALUE);
-//		addTrack(dataView, reads2);
+		// Profile
+	    //addSeparatorTrack(genomePlot);
+		//ProfileTrack reads2 = new ProfileTrack(dataView, userData, TreeThread.class, userDataParser, fontColor, 0, Long.MAX_VALUE);
+		//addTrack(dataView, reads2);
 
 		addSeparatorTrack(genomePlot);
 

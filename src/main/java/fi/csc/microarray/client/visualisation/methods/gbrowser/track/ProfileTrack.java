@@ -20,10 +20,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
- * Track for showing the coverage of reads. Profile is drawn by calculating the number of nucleotides hitting each
- * basepair location. Should look similar to IntensityTrack, but is exact.
+ * Track for showing the coverage of reads. Profile is drawn by calculating
+ * the number of nucleotides hitting each basepair location. Should look
+ * similar to IntensityTrack, but is exact.
  *
- *@see IntensityTrack
+ * @see IntensityTrack
  */
 public class ProfileTrack extends Track {
 
@@ -91,12 +92,20 @@ public class ProfileTrack extends Track {
 					long endX = getView().bpToTrack(new BpCoord(currentBpLocation, lastChromosome));
 					long startY = collector.get(lastBpLocation);
 					long endY = collector.get(currentBpLocation);
-
-					drawables.add(new LineDrawable((int)startX, (int)-startY*2, (int)endX, (int)-endY*2, color));
+	                   
+                    // TODO could be approximated using natural cubic spline interpolation,
+                    //      then having a formula S(x) for each interval we could draw
+                    //      several lines approximating the S(x)
+					
+					// join adjacent bp locations with a line
+					if (currentBpLocation - lastBpLocation == 1) {
+					    drawables.add(new LineDrawable((int)startX, (int)(this.getHeight() - startY),
+					            (int)endX, (int)(this.getHeight() - endY), color));
+					}
+					
 					lastBpLocation = currentBpLocation;
 				}
 			}
-			
 		}
 
 		return drawables;
@@ -158,4 +167,9 @@ public class ProfileTrack extends Track {
 	public boolean isConcised() {
 		return false;
 	}
+	
+	@Override
+    public boolean canExpandDrawables() {
+        return true;
+    }
 }

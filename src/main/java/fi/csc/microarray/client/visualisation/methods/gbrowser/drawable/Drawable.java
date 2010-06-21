@@ -2,6 +2,8 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.drawable;
 
 import java.awt.Color;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.TrackContext;
+
 public class Drawable {
 
 	public int x;
@@ -19,9 +21,14 @@ public class Drawable {
 	}
 	
 	/**
-	 * @return maximum y value of all pixels drawn.
-	 */
-	public int getMaxY() {
-	    return y;
-	}
+     * @return minimum y value of all pixels drawn.
+     */
+    public int getMinY() {
+        return y;
+    }
+    
+    /**
+     * Expand this drawable to fit into given context.
+     */
+    public void expand(TrackContext context) { }
 }

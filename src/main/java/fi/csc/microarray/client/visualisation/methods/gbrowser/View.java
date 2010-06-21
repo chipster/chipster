@@ -22,12 +22,14 @@ import javax.swing.Timer;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.QueueManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ProfileTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 
@@ -158,10 +160,13 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			    // create view context for this track
 			    TrackContext trackContext = new TrackContext(track);
 
-				if (drawableIter == null) {
+			    if (drawableIter == null) {
 					Collection<Drawable> drawables = track.getDrawables();
 					drawableIter = drawables.iterator();
 				}
+			    
+			    // decide if we will expand drawable for this track
+			    boolean expandDrawables = track.canExpandDrawables();
 
 				while (drawableIter.hasNext()) {
 
@@ -170,14 +175,20 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 					if(drawable == null) {
 						continue;
 					}
+					
+					// expand drawables to stretch across all height if necessary
+	                if (expandDrawables) {
+	                    drawable.expand(trackContext);
+	                }
 
-					int maybeReversedY = (int) y;
-
-					if (track.getStrand() == Strand.REVERSED) {
+					// Recalculate position for reversed strands
+	                int maybeReversedY = (int) y;
+					if (track.isReversed()) {
 						drawable.upsideDown();
 						maybeReversedY += track.getHeight();
 					}
 
+					// Draw an object onto the buffer
 					drawDrawable(bufG2, x, maybeReversedY, drawable);
 
 //					if (System.currentTimeMillis() - startTime >= 1000 / FPS) {
