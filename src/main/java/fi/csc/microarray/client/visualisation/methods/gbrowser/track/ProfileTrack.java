@@ -80,31 +80,64 @@ public class ProfileTrack extends Track {
 					}
 				}
 			}
+			
+			// width of a single bp in pixels
+	        int bpWidth = (int) (getView().getWidth() / getView().getBpRegion().getLength());
 
 			// prepare lines that make up the profile for drawing
 			Iterator<Long> bpLocations = collector.keySet().iterator();
 			if (bpLocations.hasNext()) {
 				Long lastBpLocation = bpLocations.next();
+				
+				// draw a line from the beginning of the graph to the first location
+                int startX = getView().bpToTrack(new BpCoord(lastBpLocation, lastChromosome));
+                long startY = collector.get(lastBpLocation);
+                drawables.add(new LineDrawable(0, this.getHeight(),
+                        (int)(startX - bpWidth), this.getHeight(), color));
+                drawables.add(new LineDrawable((int)(startX - bpWidth), this.getHeight(),
+                        startX, (int)(this.getHeight() - startY), color));
+
+                // draw lines for each bp region that has some items
 				while (bpLocations.hasNext()) {
 					Long currentBpLocation = bpLocations.next();
 
-					long startX = getView().bpToTrack(new BpCoord(lastBpLocation, lastChromosome));
-					long endX = getView().bpToTrack(new BpCoord(currentBpLocation, lastChromosome));
-					long startY = collector.get(lastBpLocation);
+	                startX = getView().bpToTrack(new BpCoord(lastBpLocation, lastChromosome));
+	                startY = collector.get(lastBpLocation);
+					int endX = getView().bpToTrack(new BpCoord(currentBpLocation, lastChromosome));
 					long endY = collector.get(currentBpLocation);
 	                   
                     // TODO could be approximated using natural cubic spline interpolation,
                     //      then having a formula S(x) for each interval we could draw
                     //      several lines approximating the S(x)
 					
-					// join adjacent bp locations with a line
 					if (currentBpLocation - lastBpLocation == 1) {
-					    drawables.add(new LineDrawable((int)startX, (int)(this.getHeight() - startY),
-					            (int)endX, (int)(this.getHeight() - endY), color));
+		                // join adjacent bp locations with a line
+					    drawables.add(new LineDrawable(startX, (int)(this.getHeight() - startY),
+					            endX, (int)(this.getHeight() - endY), color));
+					} else {
+					    // join locations that are more than one bp apart
+                        drawables.add(new LineDrawable((int)startX, (int)(this.getHeight() - startY),
+                                (int)(startX + bpWidth), this.getHeight(), color));
+                        drawables.add(new LineDrawable((int)(startX + bpWidth), this.getHeight(),
+                                (int)(endX - bpWidth), this.getHeight(), color));
+                        drawables.add(new LineDrawable((int)(endX - bpWidth), this.getHeight(),
+                                (int)endX, (int)(this.getHeight() - endY), color));
 					}
 					
 					lastBpLocation = currentBpLocation;
 				}
+
+                // draw a line from the last location to the end of the graph
+                int endX = getView().bpToTrack(new BpCoord(lastBpLocation, lastChromosome));
+                long endY = collector.get(lastBpLocation);
+                drawables.add(new LineDrawable(endX, (int)(this.getHeight() - endY),
+                        (int)(endX + bpWidth), this.getHeight(), color));
+                drawables.add(new LineDrawable((int)(endX + bpWidth), this.getHeight(),
+                        getView().getWidth(), this.getHeight(), color));
+			} else {
+			    // there are no items, draw a straight line at zero
+                drawables.add(new LineDrawable(0, this.getHeight(),
+                        getView().getWidth(), this.getHeight(), color));
 			}
 		}
 
