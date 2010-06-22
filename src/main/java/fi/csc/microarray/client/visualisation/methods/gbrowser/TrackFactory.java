@@ -16,6 +16,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Transc
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.miRNAParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CytobandTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GelTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GeneTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.IntensityTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.PeakTrack;
@@ -118,11 +119,16 @@ public class TrackFactory {
 		// Detailed
 		SeqBlockTrack reads = new SeqBlockTrack(dataView, userData, TreeThread.class, userDataParser, fontColor, 0, switchViewsAt);
 		addTrack(dataView, reads);
+		
+	    // Gel
+        //addSeparatorTrack(genomePlot);
+        //GelTrack reads2 = new GelTrack(dataView, userData, TreeThread.class, userDataParser, Color.GREEN, 0, Long.MAX_VALUE);
+        //addTrack(dataView, reads2);
 
 		// Profile
-	    //addSeparatorTrack(genomePlot);
-		//ProfileTrack reads2 = new ProfileTrack(dataView, userData, TreeThread.class, userDataParser, fontColor, 0, Long.MAX_VALUE);
-		//addTrack(dataView, reads2);
+	    addSeparatorTrack(genomePlot);
+		ProfileTrack reads2 = new ProfileTrack(dataView, userData, TreeThread.class, userDataParser, fontColor, 0, Long.MAX_VALUE);
+		addTrack(dataView, reads2);
 
 		addSeparatorTrack(genomePlot);
 

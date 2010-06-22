@@ -22,14 +22,11 @@ import javax.swing.Timer;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.QueueManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ProfileTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 
@@ -146,6 +143,9 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 		//long startTime = System.currentTimeMillis();
 		continueDrawingLater = false;
+		
+		// prepare context object
+        TrackContext trackContext = null;
 
 		// draw all tracks
 		while (trackIter.hasNext() || (drawableIter != null && drawableIter.hasNext())) {
@@ -156,17 +156,20 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 			// draw drawable objects for visible tracks
 			if (track.isVisible()) {
+	             
+                // decide if we will expand drawable for this track
+                boolean expandDrawables = track.canExpandDrawables();
 			    
-			    // create view context for this track
-			    TrackContext trackContext = new TrackContext(track);
+			    // create view context for this track only if we will use it
+			    if (expandDrawables) {
+			        trackContext = new TrackContext(track);
+			    }
 
+			    // get drawable iterator
 			    if (drawableIter == null) {
 					Collection<Drawable> drawables = track.getDrawables();
 					drawableIter = drawables.iterator();
 				}
-			    
-			    // decide if we will expand drawable for this track
-			    boolean expandDrawables = track.canExpandDrawables();
 
 				while (drawableIter.hasNext()) {
 
@@ -181,14 +184,14 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	                    drawable.expand(trackContext);
 	                }
 
-					// Recalculate position for reversed strands
+					// recalculate position for reversed strands
 	                int maybeReversedY = (int) y;
 					if (track.isReversed()) {
 						drawable.upsideDown();
 						maybeReversedY += track.getHeight();
 					}
 
-					// Draw an object onto the buffer
+					// draw an object onto the buffer
 					drawDrawable(bufG2, x, maybeReversedY, drawable);
 
 //					if (System.currentTimeMillis() - startTime >= 1000 / FPS) {
