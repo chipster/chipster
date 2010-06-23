@@ -27,7 +27,8 @@ public class IntensityTrack extends Track {
 	private long minBpLength;
 	private Color color;
 
-	public IntensityTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler, FileParser inputParser, Color c, long maxBpLength) {
+	public IntensityTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
+	        FileParser inputParser, Color c, long maxBpLength) {
 		super(view, file, handler, inputParser);
 		this.color = c;
 		this.minBpLength = maxBpLength;
@@ -48,9 +49,8 @@ public class IntensityTrack extends Track {
 			int val = (int) Math.min(Math.log((Float) (regCont.values.get(ColumnType.VALUE)))* 2, getView().getTrackHeight() / 4);
 			int y1 = (int) (-val + y2);
 
-			// DOCME why is the height negative?
-			// DOCME why y1 > y2? y2 is the height of track, so if y1 > y2, then y1
-			//       is outside the track.
+			// FIXME implement overlaying tracks; currently is drawn above the track,
+			//       so it would merge with the previous track
 			// FIXME when region content value is close to zero, y1 can be something
 			//       like -2147483605, which we probably don't want to plot
 			drawables.add(new RectDrawable(x1, y1, x2 - x1, y2 - y1, color, null));

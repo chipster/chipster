@@ -29,9 +29,11 @@ public class QueueManager implements AreaResultListener {
 			QueueContext context = new QueueContext();
 			context.queue = new ConcurrentLinkedQueue<AreaRequest>();
 			try {
-				context.thread = dataFetcher.getConstructor(DataSource.class, Queue.class, AreaResultListener.class, FileParser.class).
-
-				newInstance(file, context.queue, this, inputParser);
+			    // create a thread which is an instance of class which is passed
+			    // as data fetcher to this method
+				context.thread = dataFetcher.getConstructor(DataSource.class,
+				        Queue.class, AreaResultListener.class, FileParser.class).
+				        newInstance(file, context.queue, this, inputParser);
 
 				queues.put(file, context);
 				context.thread.start();

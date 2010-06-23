@@ -27,7 +27,8 @@ public class TreeThread extends AreaRequestHandler {
 
 	private DataSource file;
 
-	public TreeThread(DataSource file, Queue<AreaRequest> areaRequestQueue, AreaResultListener areaResultListener, FileParser inputParser) {
+	public TreeThread(DataSource file, Queue<AreaRequest> areaRequestQueue,
+	        AreaResultListener areaResultListener, FileParser inputParser) {
 
 		super(areaRequestQueue, areaResultListener);
 		this.inputParser = inputParser;

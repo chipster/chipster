@@ -147,6 +147,10 @@ public class TreeNode {
 	}
 
 	/**
+	 * DOCME
+	 * 
+	 * DOCME: what is a chunk?
+	 * 
 	 * @param fileResult
 	 */
 	public void processFileResult(FileResult fileResult) {
