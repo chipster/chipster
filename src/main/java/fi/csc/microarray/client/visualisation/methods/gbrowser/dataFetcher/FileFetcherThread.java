@@ -10,6 +10,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ByteRegio
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileResult;
 
+/**
+ * DOCME
+ */
 public class FileFetcherThread extends Thread {
 
 	private BlockingQueue<FileRequest> fileRequestQueue;
@@ -51,6 +54,13 @@ public class FileFetcherThread extends Thread {
 		}
 	}
 	
+	/**
+	 * FIXME looks like this is file format-specific. Shouldn't this
+	 * be a part of a parser?
+	 * 
+	 * @param fileRequest
+	 * @throws IOException
+	 */
 	private void processFileRequest(FileRequest fileRequest) throws IOException {
 		
 		String chunk;
@@ -58,7 +68,7 @@ public class FileFetcherThread extends Thread {
 		
 		if (fileRequest.byteRegion.exact) {
 			
-			//FIXME This is never used
+			// FIXME This is never used
 
 			byte[] byteChunk = new byte[(int)fileRequest.byteRegion.getLength()];
 				
@@ -68,7 +78,7 @@ public class FileFetcherThread extends Thread {
 
 		} else {
 			
-			//some extra to get the last line fully
+			// some extra to get the last line fully
 			byte[] byteChunk = new byte[(int)fileRequest.byteRegion.getLength() + 1000];
 			
 			int length = dataSource.read(fileRequest.byteRegion.start, byteChunk);
@@ -107,7 +117,7 @@ public class FileFetcherThread extends Thread {
 				
 				if ( i >= file.length() - 1) {	
 					
-					//buffer ended before the new line character, discard the last line 
+					// buffer ended before the new line character, discard the last line 
 					lines.setLength(lines.lastIndexOf("\n") + 1);
 					break;
 				}

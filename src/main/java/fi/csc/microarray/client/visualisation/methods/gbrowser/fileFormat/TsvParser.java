@@ -50,9 +50,9 @@ public abstract class TsvParser extends FileParser {
 		}
 		
 		/**
-		 * Fetch values of given column type from given array of rows.
+		 * Fetch values of given column type from given array of columns.
 		 * 
-		 * @param cols - an array of rows (as Strings).
+		 * @param cols - an array of columns in a row (as Strings).
 		 * @param col - column type.
 		 * @return
 		 */
