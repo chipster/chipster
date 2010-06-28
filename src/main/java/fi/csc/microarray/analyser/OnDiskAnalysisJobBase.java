@@ -6,15 +6,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.h2.store.fs.FileSystem;
-
-import com.sun.corba.se.spi.orbutil.threadpool.Work;
 
 import fi.csc.microarray.analyser.AnalysisDescription.OutputDescription;
 import fi.csc.microarray.messaging.JobState;
