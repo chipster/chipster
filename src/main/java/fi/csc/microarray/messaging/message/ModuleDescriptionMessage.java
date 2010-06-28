@@ -72,6 +72,7 @@ public class ModuleDescriptionMessage extends ChipsterMessage {
         String colorString = Integer.toHexString(category.getColor().getRGB());
         colorString = "#" + colorString.substring(2, colorString.length());
         categoryElement.setAttribute("color", colorString);
+        categoryElement.setAttribute("hidden", category.isHidden().toString());
         
         for (Tool tool : category.getTools()) {
             Element toolElement = moduleXml.createElement("tool");
@@ -91,12 +92,13 @@ public class ModuleDescriptionMessage extends ChipsterMessage {
         for (int i=0; i<categoryList.getLength(); i++) {
             Element categoryElement = (Element) categoryList.item(i);
             Category category = new Category(categoryElement.getAttribute("name"),
-                                             categoryElement.getAttribute("color"));
+                    categoryElement.getAttribute("color"),
+                    Boolean.valueOf(categoryElement.getAttribute("hidden")));
             NodeList toolList = categoryElement.getElementsByTagName("tool");
             for (int j=0; j<toolList.getLength(); j++) {
                 Element toolElement = (Element) toolList.item(j);
                 category.addTool(toolElement.getTextContent(),
-                                 toolElement.getAttribute("helpURL"));
+                        toolElement.getAttribute("helpURL"));
             }
             categories.add(category);
         }
@@ -124,14 +126,16 @@ public class ModuleDescriptionMessage extends ChipsterMessage {
         private String name;
         private List<Tool> tools = new LinkedList<Tool>();
         private Color color;
+        private Boolean hidden;
         
         /**
          * @param name - name for this category.
          * @param color - String representing hexidecimal RGB value (e.g. "FF1122")
          */
-        public Category(String name, String color) {
+        public Category(String name, String color, Boolean hidden) {
             this.name = name;
             this.color = Color.decode(color);
+            this.hidden = hidden;
         }
         
         public String getName() {
@@ -140,6 +144,10 @@ public class ModuleDescriptionMessage extends ChipsterMessage {
         
         public Color getColor() {
             return color;
+        }
+        
+        public Boolean isHidden() {
+            return hidden;
         }
         
         public void addTool(String description, String helpURL) {

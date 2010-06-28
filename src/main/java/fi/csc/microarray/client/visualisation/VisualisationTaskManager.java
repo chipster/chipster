@@ -47,39 +47,7 @@ public class VisualisationTaskManager {
 					application.reportException(e);
 				} catch (InvocationTargetException e) {
 					application.reportException(e);
-				}
-				
-/*				logger.debug("Duration, estimated: " + method.estimateDuration(datas) + 
-						"\treal: " + (System.currentTimeMillis() - startTime));*/ //NullPointer if method == null
-				
-				//Enable debug messages to collect stats from visualisation durations
-				if(logger.isDebugEnabled() && event.getDatas().size() > 0 && 
-						event.getNewMethod() != VisualisationMethod.NONE){ //Possible nullPointers, just for debug
-					
-					long endTime = System.currentTimeMillis();								
-					Table rowCounter = null;
-					
-					try {
-						rowCounter = event.getDatas().get(0).queryFeatures("/column/*").asTable();
-					} catch (MicroarrayException e) {
-						// Only in debug mode
-						e.printStackTrace();
-					}
-					
-					int rowCount = 0;
-					
-					// 15 000 rows is still reasonably fast, but 500 000 isn't
-					while (rowCounter.nextRow()) {
-						rowCount++;
-					}				
-
-					logger.debug("\tMethod\t" + event.getNewMethod() + 
-							"\tDatas\t" + event.getDatas().size() + 
-							"\tRows\t" + rowCount + 
-							"\tByteLength\t" + event.getDatas().get(0).getContentLength() + 
-							"\tTime\t" + (endTime - startTime) + 
-							"\tTime/ByteLength\t" + (endTime - startTime)/(float)event.getDatas().get(0).getContentLength() + "\t");
-				}
+				}				
 		}
 	};
 

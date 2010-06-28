@@ -30,6 +30,7 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.operation.OperationDefinition.Suitability;
 import fi.csc.microarray.constants.VisualConstants;
 
 /**
@@ -187,7 +188,9 @@ public class OperationChoicePanel extends JPanel
 							application.getSelectionManager().getSelectedDataBeans().size() > 0) {
 						
 						OperationDefinition operationDefinition = (OperationDefinition)selected;
-						if (!operationDefinition.evaluateSuitabilityFor(application.getSelectionManager().getSelectedDataBeans()).isImpossible()) {
+						if (!operationDefinition.evaluateSuitabilityFor(
+						        application.getSelectionManager().getSelectedDataBeans(),
+						                Suitability.SUITABLE).isImpossible()) {
 							application.executeOperation(operationDefinition, null);
 						}
 					}

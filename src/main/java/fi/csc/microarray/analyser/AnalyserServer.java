@@ -436,7 +436,6 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			sendReplyMessage(jobMessage, resultMessage);
 			return;
 		}
-		
 
 		// check if requested operation is supported, if not, just ignore the request
 		if (!toolRepository.supports(description.getID())) {

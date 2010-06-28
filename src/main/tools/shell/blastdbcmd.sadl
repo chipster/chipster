@@ -1,4 +1,4 @@
-TOOL "BLAST" / blastdbcmd: blastdbcmd (Heuristic tool for nucleotide sequence search.)
+TOOL "BLAST" / blastdbcmd.sadl: blastdbcmd (Heuristic tool for nucleotide sequence search.)
 INPUT entry_batch: "Sequence ID:s to retrieve" TYPE GENERIC
 OUTPUT out.txt
 PARAMETER db: "Database" TYPE [nr: "NCBI non-redundant proteins", pdb: "PDB", swiss: "UniProt / Swiss", trembl: "UniProt / TrEMBL",

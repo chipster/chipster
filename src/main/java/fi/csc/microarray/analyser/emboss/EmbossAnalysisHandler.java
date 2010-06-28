@@ -60,10 +60,10 @@ public class EmbossAnalysisHandler implements AnalysisHandler {
         ACDDescription acdDescription = new ACDDescription(acdFile);
         logger.debug("creating description from " + acdFile.getAbsolutePath());
         
-        // Create description for computation server
-        SADLDescription sadlDescription = new ACDToSADL(acdDescription).convert();
+        // Create description for analysis server
+        SADLDescription sadlDescription = ACDToSADL.convert(acdDescription, acdFile.getName());
         AnalysisDescription description =
-            new AnalysisDescriptionGenerator().generate(sadlDescription, this);
+                new AnalysisDescriptionGenerator().generate(sadlDescription, this);
         
         // Fill description with Emboss-specific values
         description.setCommand("EMBOSS");

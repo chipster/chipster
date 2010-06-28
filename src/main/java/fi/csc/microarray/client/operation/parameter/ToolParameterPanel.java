@@ -85,8 +85,8 @@ public class ToolParameterPanel extends ParameterPanel {
             if (param.isOptional()) {
                 optionalParameters.add(param);
             } else {
+                requiredParameters.add(param);
             }
-            requiredParameters.add(param);
         }
 
         // Parameters

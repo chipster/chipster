@@ -154,7 +154,7 @@ public class IntegerParameter extends Parameter {
 		if (value != null) {
 			return value.toString();
 		} else {
-			return null;
+			return "";
 		}
 	}
 

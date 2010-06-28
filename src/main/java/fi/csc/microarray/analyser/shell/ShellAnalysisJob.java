@@ -108,7 +108,7 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
         // Outputs
         for (OutputDescription output : description.getOutputFiles()) {
             command.add("-" + this.outputParameter);
-            command.add(output.getFileName());
+            command.add(output.getFileName().getID());
         }
         
         String[] cmd = new String[0];

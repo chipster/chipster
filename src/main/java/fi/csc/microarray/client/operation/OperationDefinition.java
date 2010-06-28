@@ -38,7 +38,6 @@ public class OperationDefinition implements ExecutionItem {
 	 * actual operation (in the sense that it would be possible to execute it)
 	 * but rather a dummy substitute, without any parameters.
 	 */
-	
 	public static final String IMPORT_DEFINITION_ID = "operation-definition-id-import";
 	public static final String CREATE_DEFINITION_ID = "operation-definition-id-user-modification";
 	
@@ -203,7 +202,7 @@ public class OperationDefinition implements ExecutionItem {
 	/**
 	 * Creates a new operation definition with the given initial values.
 	 * 
-	 * @param name
+	 * @param id
 	 *            The name of this operation. Should be something that extends
 	 *            the corresponding category name to be more specific (for
 	 *            example, in the category "Normalization", "Lowess" might be a
@@ -235,9 +234,9 @@ public class OperationDefinition implements ExecutionItem {
 	 * @param hasSourceCode
 	 * @param helpURL
 	 */
-     public OperationDefinition(String name, String displayName, OperationCategory category,
+     public OperationDefinition(String id, String displayName, OperationCategory category,
          String description, boolean hasSourceCode) {
-         this(name, displayName, category, description, hasSourceCode, null);
+         this(id, displayName, category, description, hasSourceCode, null);
      }
 
 	/**
@@ -300,12 +299,51 @@ public class OperationDefinition implements ExecutionItem {
 	 * 
 	 * @param data
 	 *            The dataset for which to evaluate.
+	 * @param parametersSuitability is either null - indicating that the
+	 *        parameter suitability has not been checked yet or Suitability
+	 *        object defining the suitability of parameters in an encapsulating
+	 *        Operation object that calls this method.
 	 * @return One of the OperationDefinition.Suitability enumeration, depending
 	 *         on how suitable the operation is judged.
 	 */
-	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data) {    
-		bindInputs(data);
+	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data,
+	        Suitability parameterSuitability) {
+	       
+        // Input suitability gets checked while trying to bind the data
+        bindInputs(data);
+	    
+	    if (parameterSuitability == null) {
+	        // Parameter suitability has not been checked yet
+	        parameterSuitability =
+	                OperationDefinition.parameterSuitability(getParameters());
+	    }
+	    
+	    // Report only either input or parameter suitability
+	    if (evaluatedSuitability.isOk()) {
+	        evaluatedSuitability = parameterSuitability;
+	    }
+		
 		return getEvaluatedSuitability();
+	}
+	
+	/**
+	 * Check suitability of a given parameter list. The parameter
+	 * list can also come from the Operation object that encapsulates
+	 * this definition.
+	 * 
+	 * @param params
+	 * @return
+	 */
+	public static Suitability parameterSuitability(List<Parameter> params) {
+        for (Parameter param : params) {
+            // Required parameters can not be empty
+            if (!param.isOptional() && (param.getValue() == null ||
+                                        param.getValue().equals(""))) {
+                return Suitability.EMPTY_REQUIRED_PARAMETERS;
+            }
+        }
+        
+        return Suitability.SUITABLE;
 	}
 
 	public LinkedList<Parameter> getParameters() {
@@ -475,7 +513,14 @@ public class OperationDefinition implements ExecutionItem {
 			s += input.getName() + " " + type + " " + input.getDescription() + "\n";
 		}
 		for (Parameter parameter: parameters) {
-			s += parameter.getID() + " " + parameter.getValueAsString() + "\n";
+		    // Some parameters don't have default values
+		    String value;
+		    if (parameter.getValue() == null) {
+		        value = "[no default value]";
+		    } else {
+		        value = parameter.getValueAsString();
+		    }
+			s += parameter.getID() + " " + value + "\n";
 		}
 
 		s += "\n-------------- operation definition --------------\n";

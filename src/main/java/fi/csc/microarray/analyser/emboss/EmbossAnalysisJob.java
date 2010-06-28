@@ -200,8 +200,8 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
      * @return ACD description object.
      */
     protected ACDDescription getACD() {
-        String appName = analysis.getDisplayName();
-        return new ACDDescription(new File(descriptionDirectory, appName + ".acd"));
+        String appName = analysis.getID();
+        return new ACDDescription(new File(descriptionDirectory, appName));
     }
     
     /**

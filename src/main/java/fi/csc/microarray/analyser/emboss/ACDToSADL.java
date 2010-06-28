@@ -19,21 +19,16 @@ import fi.csc.microarray.description.SADLSyntax.ParameterType;
  */
 public class ACDToSADL {
 	
-	private ACDDescription acd;
-	
 	public static final String OUTPUT_TYPE_PREFIX = "chipster_output_type_";
-	
-	public ACDToSADL(ACDDescription acd) {
-		this.acd = acd;
-	}
 
 	/**
 	 * Analyse a given ACD object and store it as a SADL abstraction.
 	 * 
 	 * @return SADL object.
 	 */
-	public SADLDescription convert() {
-        SADLDescription sadl = new SADLDescription(Name.createName(acd.getName()), acd.getGroups().get(0),
+	public static SADLDescription convert(ACDDescription acd, String id) {
+        SADLDescription sadl = new SADLDescription(Name.createName(id, acd.getName()),
+                                                   acd.getGroups().get(0),
 	                                               acd.getDescription());
 	    
 	    // Get all input parameters
@@ -118,11 +113,6 @@ public class ACDToSADL {
 	     * @return SADL parameter object or null.
 	     */
 	    public static Parameter createParameter(ACDParameter param) {
-	        // Parameter should not be shown to a user
-	        if (param.isAdvanced()) {
-	            return null;
-	        }
-	        
 	        String fieldType = param.getType();
 	        String fieldName = param.getName();
 	        
@@ -221,6 +211,7 @@ public class ACDToSADL {
 	        }
 	        
 	        // Mark as optional if needed
+	        // Advanced parameters are considered optional
 	        if (sadlParam != null) {
 	            sadlParam.setOptional(!param.isRequired());
 	        }
