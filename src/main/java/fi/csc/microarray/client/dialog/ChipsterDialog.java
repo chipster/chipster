@@ -13,7 +13,6 @@ import java.awt.event.ActionListener;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -47,12 +46,16 @@ public class ChipsterDialog extends JDialog {
 	private static final int DETAIL_AREA_WIDTH = 400;
 
 	private JPanel detailsPanel = new JPanel();
+	private SwingClientApplication application;
 	
 	private DetailsVisibility detailsVisibility;
 	private DialogCloseListener dialogCloseListener;
 	
-	public ChipsterDialog(JFrame parent, DialogInfo dialogInfo, DetailsVisibility detailsVisibility) {
-		super(parent);
+	public ChipsterDialog(SwingClientApplication app, DialogInfo dialogInfo, 
+	        DetailsVisibility detailsVisibility) {
+	    
+        super(app != null ? app.getMainFrame() : null);
+	    this.application = app;
 		this.detailsVisibility = detailsVisibility;
 		
 		// initialise dialog layout
@@ -125,8 +128,20 @@ public class ChipsterDialog extends JDialog {
 				detailsVisibility == DetailsVisibility.DETAILS_HIDDEN) {
 			mainPanel.add(getDetailsButton(), g);
 		}
-		g.gridx++;
-
+		
+        g.gridx++;
+		if (dialogInfo.getFeedbackVisible()) {
+		    JButton feedbackButton = new JButton("Send a report");
+		    feedbackButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    FeedbackDialog feedback = new FeedbackDialog(application);
+                    feedback.showDialog();
+                }
+            });
+		    mainPanel.add(feedbackButton, g);
+		}
+		
+        g.gridx++;
 		if (dialogInfo.getType() == Type.OPTION) {
 			g.anchor = GridBagConstraints.EAST;
 			JButton cancelButton = new JButton("Cancel");
@@ -159,7 +174,7 @@ public class ChipsterDialog extends JDialog {
 		g.gridy++;
 		g.gridx = 1;
 		g.fill = GridBagConstraints.BOTH;
-		g.gridwidth = 3;
+		g.gridwidth = 4;
 		g.weighty = 1.0;
 		
 		detailsPanel.setLayout(new CardLayout());
@@ -208,12 +223,17 @@ public class ChipsterDialog extends JDialog {
 	    this.pack();
 	}
 	
-	public static void showDialog(JFrame parent, DialogInfo dialogInfo, DetailsVisibility detailsVisibility, boolean modal) {
-		showDialog(parent, dialogInfo, detailsVisibility, modal, null);
+	public static void showDialog(SwingClientApplication application,
+	        DialogInfo dialogInfo, DetailsVisibility detailsVisibility,
+	        boolean modal) {
+		showDialog(application, dialogInfo, detailsVisibility, modal, null);
 	}
 	
-	public static void showDialog(JFrame parent, DialogInfo dialogInfo, DetailsVisibility detailsVisibility, boolean modal, DialogCloseListener dialogCloseListener) {
-		ChipsterDialog dialog = new ChipsterDialog(parent, dialogInfo, detailsVisibility);
+	public static void showDialog(SwingClientApplication application,
+	        DialogInfo dialogInfo, DetailsVisibility detailsVisibility,
+	        boolean modal, DialogCloseListener dialogCloseListener) {
+	    
+		ChipsterDialog dialog = new ChipsterDialog(application, dialogInfo, detailsVisibility);
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		dialog.setModal(modal);
 		dialog.setDialogCloseListener(dialogCloseListener);

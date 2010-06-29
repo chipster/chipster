@@ -6,21 +6,23 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.jms.JMSException;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import fi.csc.microarray.client.SwingClientApplication;
-import fi.csc.microarray.client.dialog.DialogInfo.Severity;
+import fi.csc.microarray.messaging.MessagingTopic;
+import fi.csc.microarray.messaging.Topics;
+import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
+import fi.csc.microarray.messaging.message.FeedbackMessage;
 
 /**
  * Dialog for user to give feedback, report an error etc.
- * 
- * FIXME: currently not used, should be shown in error dialogs
- * after clicking "Send Report".
  * 
  * @author naktinis
  *
@@ -39,8 +41,7 @@ public class FeedbackDialog extends JDialog implements ActionListener {
         super(application.getMainFrame(), true);
 
         this.application = application;
-        this.setTitle("Send Report");
-        this.setModal(true);
+        this.setTitle("Send a report");
         
         // Layout
         this.setLayout(new GridBagLayout());
@@ -87,21 +88,48 @@ public class FeedbackDialog extends JDialog implements ActionListener {
         c.insets.set(10, 10, 5, 10);
         c.gridy++;
         this.add(buttonsPanel, c);
-        
-        // Show
-        this.pack();
-        this.setResizable(false);
+    }
+    
+    public void showDialog() {
         this.setLocationRelativeTo(application.getMainFrame());
+        this.setResizable(false);
+        this.pack();
+        this.setModal(true);
         this.setVisible(true);
     }
 
     @Override
     public void actionPerformed(ActionEvent event) {
-        // check mandatory fields
-        if (detailArea.getText().length() == 0) {
-            application.showDialog("Please, provide some details.", Severity.INFO, true);
+        if (event.getSource() == okButton) {
+            // check mandatory fields
+            if (detailArea.getText().length() == 0) {
+                JOptionPane.showMessageDialog(this.getParent(),
+                        "Please, provide some details.",
+                        "Info", JOptionPane.INFORMATION_MESSAGE);
+            }
+            
+            // send feedback message using manager topic
+            try {
+                FeedbackMessage message = new FeedbackMessage(detailArea.getText(), emailField.getText());
+                MessagingTopic requestTopic = application.getEndpoint().createTopic(Topics.Name.FEEDBACK_TOPIC,
+                        AccessMode.WRITE);
+                // TODO store interesting information in the file broker
+                // create a temporary session file
+                // File.createTempFile(arg0, arg1)
+                // getDataManager().saveSnapshot(file, application);
+                // save it with the file broker
+                // this.fileBroker = new FileBrokerClient(endpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
+                // fileBroker.addFile(bean.getContentByteStream(), progressListener);
+                // TODO delete temp file
+                requestTopic.sendMessage(message);
+                this.dispose();
+            } catch (JMSException e) {
+                application.reportException(e);
+            }
+            
+        } else {
+            // close
+            this.dispose();
         }
-        
-        // TODO send feedback message using manager topic
     }
 }

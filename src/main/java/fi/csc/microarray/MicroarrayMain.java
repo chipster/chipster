@@ -63,7 +63,7 @@ public class MicroarrayMain {
 
 			// start application
 			if (cmdParser.hasValue("authenticator")) {
-				new Authenticator();
+				new Authenticator(cmdParser.getValue("-config"));
 				
 			} else if (cmdParser.hasValue("analyser")) {
 				new AnalyserServer();
@@ -75,7 +75,7 @@ public class MicroarrayMain {
 				new WebstartJettyServer().start();
 			
 			} else if (cmdParser.hasValue("manager")) {
-				new Manager();
+				new Manager(cmdParser.getValue("-config"));
 
 			} else if (cmdParser.hasValue("nagios-check") || cmdParser.hasValue("system-status")) {
 				
@@ -155,7 +155,8 @@ public class MicroarrayMain {
 				System.out.println("parse succeeded: " + !fails);
 				
 			} else {
-				SwingClientApplication.start(cmdParser.getValue("-config"), cmdParser.getValue("-module")); 		
+				SwingClientApplication.start(cmdParser.getValue("-config"),
+				                             cmdParser.getValue("-module"));		
 			}
 			
 		} catch (CommandLineException e) {

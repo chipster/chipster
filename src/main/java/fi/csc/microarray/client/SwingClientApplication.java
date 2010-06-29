@@ -787,7 +787,7 @@ public class SwingClientApplication extends ClientApplication {
 	 */
 	public void showDialog(String title, String message, String details, Severity severity, boolean modal, ChipsterDialog.DetailsVisibility detailsVisibility) {
 		DialogInfo dialogInfo = new DialogInfo(severity, title, message, details);
-		ChipsterDialog.showDialog(mainFrame, dialogInfo, detailsVisibility, modal);
+		ChipsterDialog.showDialog(this, dialogInfo, detailsVisibility, modal);
 	}
 
 	@Override
@@ -903,13 +903,16 @@ public class SwingClientApplication extends ClientApplication {
 		
 		// show dialog
 		DialogInfo dialogInfo = new DialogInfo(Severity.INFO, title, message, details);
-		ChipsterDialog.showDialog(mainFrame, dialogInfo, ChipsterDialog.DetailsVisibility.DETAILS_HIDDEN, false);
+		ChipsterDialog.showDialog(this, dialogInfo, ChipsterDialog.DetailsVisibility.DETAILS_HIDDEN, false);
 	}
 
 	public void reportException(Exception e) {
 
 		// collect error information to dialogInfo
-		DialogInfo dialogInfo = new DialogInfo(Severity.ERROR, "An error has occurred and the action was not performed successfully.", "If problem persist, please check that your data is valid. For more information open the details panel below.", null);
+		DialogInfo dialogInfo = new DialogInfo(Severity.ERROR,
+		        "An error has occurred and the action was not performed successfully.",
+		        "If problem persist, please check that your data is valid. For more information open the details panel below.", null);
+		dialogInfo.setFeedbackVisible(true);
 
 		// exception has extra info
 		if (e instanceof ErrorReportAsException) {
@@ -942,7 +945,7 @@ public class SwingClientApplication extends ClientApplication {
 		}
 
 		// show dialog
-		ChipsterDialog.showDialog(this.mainFrame, dialogInfo, ChipsterDialog.DetailsVisibility.DETAILS_HIDDEN, false);
+		ChipsterDialog.showDialog(this, dialogInfo, ChipsterDialog.DetailsVisibility.DETAILS_HIDDEN, false);
 
 		// we'll always output these to console and log for traceability and
 		// easier IDE navigation

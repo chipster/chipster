@@ -19,17 +19,18 @@ public class FeedbackMessage extends PayloadMessage {
     
     private static final String KEY_DETAILS = "details";
     private static final String KEY_EMAIL = "email";
-    private static final String KEY_USER = "user";
     
     private String details;
     private String email;
-    private String user;
     
-    public FeedbackMessage(String details, String email, String user) {
+    public FeedbackMessage() {
+        super();
+    }
+    
+    public FeedbackMessage(String details, String email) {
         super();
         this.details = details;
         this.email = email;
-        this.user = user;
     }
     
     @Override
@@ -39,10 +40,8 @@ public class FeedbackMessage extends PayloadMessage {
         // load details
         this.details = from.getString(KEY_DETAILS);
         this.email = from.getString(KEY_EMAIL);
-        this.email = from.getString(KEY_USER);
         logger.debug("Unmarshalled " + KEY_DETAILS + " : " + details);
         logger.debug("Unmarshalled " + KEY_EMAIL + " : " + email);
-        logger.debug("Unmarshalled " + KEY_USER + " : " + user);
     }
     
     @Override
@@ -51,12 +50,10 @@ public class FeedbackMessage extends PayloadMessage {
         
         logger.debug("Marshalling: " + KEY_DETAILS + " : " + details);
         logger.debug("Marshalling: " + KEY_EMAIL + " : " + email);
-        logger.debug("Marshalling: " + KEY_USER + " : " + user);
         
         // add details
         to.setString(KEY_DETAILS, details);
         to.setString(KEY_EMAIL, email);
-        to.setString(KEY_USER, user);
     }
     
     public String getDetails() {
@@ -65,10 +62,6 @@ public class FeedbackMessage extends PayloadMessage {
     
     public String getEmail() {
         return email;
-    }
-    
-    public String getUser() {
-        return user;
     }
     
 }
