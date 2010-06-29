@@ -151,7 +151,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		MessagingTopic analyseTopic = endpoint.createTopic(Topics.Name.AUTHORISED_REQUEST_TOPIC, AccessMode.READ);
 		analyseTopic.setListener(this);
 		
-		managerTopic = endpoint.createTopic(Topics.Name.MANAGER_TOPIC, AccessMode.WRITE);
+		managerTopic = endpoint.createTopic(Topics.Name.JOB_LOG_TOPIC, AccessMode.WRITE);
 		
 		fileBroker = new FileBrokerClient(this.endpoint.createTopic(Topics.Name.AUTHORISED_URL_TOPIC, AccessMode.WRITE));
 		
@@ -417,24 +417,18 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 
 		
 		
-		// check that we can run the requested analysis
+		// try to find the requested operation in tool repository
 		AnalysisDescription description = null;
 		try {
 			description = toolRepository.getDescription(jobMessage.getAnalysisId());
 		} catch (AnalysisException e) {
 			logger.warn("Could not fetch description for " + jobMessage.getAnalysisId());
-			ResultMessage resultMessage = new ResultMessage("", JobState.ERROR, "", "Could not load operation.", 
-					"", jobMessage.getReplyTo());
-			sendReplyMessage(jobMessage, resultMessage);
 			return;
 		}
 
+		// check if this instance has the requested operation
 		if (description == null) {
-			logger.info("Analysis " + jobMessage.getAnalysisId() + " not found.");
-			ResultMessage resultMessage = new ResultMessage("", JobState.ERROR, "", "Operation not found.", 
-					"", jobMessage.getReplyTo());
-			sendReplyMessage(jobMessage, resultMessage);
-			return;
+		    return;
 		}
 
 		// check if requested operation is supported, if not, just ignore the request
