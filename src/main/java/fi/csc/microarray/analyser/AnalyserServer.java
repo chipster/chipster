@@ -111,10 +111,11 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 * 
 	 * @throws Exception 
 	 */
-	public AnalyserServer() throws Exception {
+	public AnalyserServer(String configURL) throws Exception {
 		
 		// initialise dir, config and logging
-		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"comp"}));
+		DirectoryLayout.initialiseServerLayout(
+		        Arrays.asList(new String[] {"comp"}), configURL);
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 		this.receiveTimeout = configuration.getInt("comp", "receive-timeout");
 		this.scheduleTimeout = configuration.getInt("comp", "schedule-timeout");

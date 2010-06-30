@@ -69,7 +69,7 @@ public class MicroarrayMain {
 				new Authenticator(configURL);
 				
 			} else if (cmdParser.hasValue("analyser")) {
-				new AnalyserServer();
+				new AnalyserServer(configURL);
 
 			} else if (cmdParser.hasValue("fileserver")) {
 				new FileServer(configURL);
