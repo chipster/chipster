@@ -39,6 +39,7 @@ import fi.csc.microarray.messaging.message.JobLogMessage;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
+import fi.csc.microarray.util.Emails;
 import fi.csc.microarray.util.MemUtil;
 
 /**
@@ -77,6 +78,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 
     private JdbcTemplate jdbcTemplate;
     private SimpleJdbcInsert insertJobTemplate;
+    private String feedbackEmail;
 
 	// TODO index, unique keys
 	private static final String CREATE_JOBS_TABLE = 
@@ -123,6 +125,9 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"manager"}), configURL);
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 		logger = Logger.getLogger(Manager.class);
+		
+		// email for sending feedback
+		feedbackEmail = configuration.getString("manager", "admin-email");
 		
 		// initialize database connection
 		logger.info("starting manager...");
@@ -242,9 +247,25 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 	        }
 		} else if (chipsterMessage instanceof FeedbackMessage) {
 		    // user gives feedback after seeing an error message
-		    // TODO store it somewhere
 		    FeedbackMessage feedback = (FeedbackMessage) chipsterMessage;
 		    logger.info("Feedback received: " + feedback.getDetails());
+		    
+		    // formulate an email
+		    String replyEmail = !feedback.getEmail().equals("") ?
+		            feedback.getEmail() : "[not available]";
+		    String sessURL = !feedback.getSessionURL().equals("") ? 
+		            feedback.getSessionURL() : "[not available]";
+		    String emailBody =
+		        feedback.getDetails() + "\n\n" +
+		        "Email: " + replyEmail + "\n" +
+		        "Session file: " + sessURL + "\n";		    
+		    for (String[] log : feedback.getLogs()) {
+                emailBody += log[0] + ": " + log[1] + "\n";
+            }
+		    // send the email
+		    Emails.sendEmail(feedbackEmail,
+		            !feedback.getEmail().equals("") ? feedback.getEmail() : null,
+		            "User report", emailBody);
 		} else {
 	        logger.warn("Got other than JobLogMessage: " + chipsterMessage.toString());
 	        return; 

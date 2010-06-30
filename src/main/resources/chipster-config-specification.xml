@@ -197,6 +197,9 @@
 		<entry entryKey="backup-interval" type="int" description="backup interval in hours">
 			<value>24</value>
 		</entry>
+		
+		<entry entryKey="admin-email" type="string" description="admin email">
+		</entry>
 			
 	</configuration-module>
 	

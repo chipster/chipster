@@ -903,6 +903,7 @@ public class SwingClientApplication extends ClientApplication {
 		
 		// show dialog
 		DialogInfo dialogInfo = new DialogInfo(Severity.INFO, title, message, details);
+		dialogInfo.setFeedbackVisible(true);
 		ChipsterDialog.showDialog(this, dialogInfo, ChipsterDialog.DetailsVisibility.DETAILS_HIDDEN, false);
 	}
 

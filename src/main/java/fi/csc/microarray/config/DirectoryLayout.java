@@ -133,7 +133,7 @@ public class DirectoryLayout {
 	}
 	
 
-	private File getLogsDir() throws IOException {
+	public File getLogsDir() throws IOException {
 		return check(new File(getBaseDir(), LOGS_DIR));
 	}
 
@@ -206,7 +206,7 @@ public class DirectoryLayout {
 		}
 	}
 	
-	private File getClientSettingsDir() throws IOException {
+	public File getClientSettingsDir() throws IOException {
 		File dir = null;
 		String osName = System.getProperty("os.name");
 
