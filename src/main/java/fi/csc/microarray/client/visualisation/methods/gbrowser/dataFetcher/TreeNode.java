@@ -13,7 +13,7 @@ public class TreeNode {
 
 	private static final boolean DEPTH_LIMIT_ACTIVE = false;
 	
-	private TreeThread tree;
+	private TSVHandlerThread tree;
 	public RegionContent[] concisedValues;
 
 	public BpCoord nodeBpStart;
@@ -31,7 +31,7 @@ public class TreeNode {
 	/**
 	 * DOCME what does this do?
 	 */
-	public TreeNode(ByteRegion nodeByteRegion, TreeThread tree, TreeNode parent) {
+	public TreeNode(ByteRegion nodeByteRegion, TSVHandlerThread tree, TreeNode parent) {
 
 		this.tree = tree;
 		this.parent = parent;

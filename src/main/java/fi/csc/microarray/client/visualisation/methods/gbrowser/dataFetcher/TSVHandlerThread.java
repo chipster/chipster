@@ -12,7 +12,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileReque
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ByteRegion;
 
-public class TreeThread extends AreaRequestHandler {
+public class TSVHandlerThread extends AreaRequestHandler {
 
 	private TreeNode rootNode;
 
@@ -27,7 +27,7 @@ public class TreeThread extends AreaRequestHandler {
 
 	private DataSource file;
 
-	public TreeThread(DataSource file, Queue<AreaRequest> areaRequestQueue,
+	public TSVHandlerThread(DataSource file, Queue<AreaRequest> areaRequestQueue,
 	        AreaResultListener areaResultListener, FileParser inputParser) {
 
 		super(areaRequestQueue, areaResultListener);

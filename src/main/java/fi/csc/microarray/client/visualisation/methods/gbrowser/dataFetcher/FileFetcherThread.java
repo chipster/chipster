@@ -18,7 +18,7 @@ public class FileFetcherThread extends Thread {
 	private BlockingQueue<FileRequest> fileRequestQueue;
 	private ConcurrentLinkedQueue<FileResult> fileResultQueue;
 
-	private TreeThread treeThread;
+	private TSVHandlerThread treeThread;
 
 	private DataSource dataSource;
 
@@ -26,7 +26,7 @@ public class FileFetcherThread extends Thread {
 
 	public FileFetcherThread(BlockingQueue<FileRequest> fileRequestQueue,
 	        ConcurrentLinkedQueue<FileResult> fileResultQueue,
-	        TreeThread treeThread, FileParser inputParser) {
+	        TSVHandlerThread treeThread, FileParser inputParser) {
 
 		this.fileRequestQueue = fileRequestQueue;
 		this.fileResultQueue = fileResultQueue;
