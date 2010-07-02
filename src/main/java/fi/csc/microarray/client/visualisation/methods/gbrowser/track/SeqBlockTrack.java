@@ -48,7 +48,6 @@ public class SeqBlockTrack extends Track {
 
 	private long maxBpLength;
 	private long minBpLength;
-	private Color fontColor;
 
 	private boolean wasLastConsised = true;
 
@@ -59,7 +58,6 @@ public class SeqBlockTrack extends Track {
 		super(view, file, handler, inputParser);
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
-		this.fontColor = fontColor;
 	}
 
 	@Override
@@ -198,7 +196,7 @@ public class SeqBlockTrack extends Track {
 						
 						// mark last line that will be drawn
 						if (layer == MAX_STACKING_DEPTH) {
-							bg = bg.darker();
+							bg = bg.brighter();
 						}
 
 						drawables.add(new RectDrawable((int) x + 1, rect.y,
