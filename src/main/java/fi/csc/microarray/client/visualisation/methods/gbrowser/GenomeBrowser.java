@@ -40,7 +40,16 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDReadParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.HeaderTsvParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SequenceParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Row;
@@ -465,12 +474,15 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 				if (track.checkBox.isSelected()) {
 					switch (track.type) {
 					case CYTOBANDS:
-						TrackFactory.addCytobandTracks(plot, createAnnotationDataSource("Homo_sapiens.GRCh37.57_karyotype.tsv")); // using always the
+						TrackFactory.addCytobandTracks(plot,
+						        createAnnotationDataSource("Homo_sapiens.GRCh37.57_karyotype.tsv", new CytobandParser()));
 						break;
 					case GENES:
 						TrackFactory.addThickSeparatorTrack(plot);
 						TrackFactory.addTitleTrack(plot, "Annotations");
-						TrackFactory.addGeneTracks(plot, createAnnotationDataSource("Homo_sapiens." + genome + "_genes.tsv"), createAnnotationDataSource("Homo_sapiens." + genome + "_transcripts.tsv"));
+						TrackFactory.addGeneTracks(plot,
+						        createAnnotationDataSource("Homo_sapiens." + genome + "_genes.tsv", new GeneParser()),
+						        createAnnotationDataSource("Homo_sapiens." + genome + "_transcripts.tsv", new TranscriptParser()));
 						break;
 					case REFERENCE:
 						// integrated into peaks
@@ -486,18 +498,27 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			for (Track track : tracks) {
 				if (track.checkBox.isSelected()) {
 					File file = track.userData == null ? null : Session.getSession().getDataManager().getLocalFile(track.userData);
+					DataSource treatmentData;
 					switch (track.type) {
 
 					case TREATMENT_READS:
+					    treatmentData = new ChunkDataSource(file, new ElandParser());
 						TrackFactory.addThickSeparatorTrack(plot);
 						TrackFactory.addTitleTrack(plot, file.getName());
-						TrackFactory.addReadTracks(plot, new DataSource(file), createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv"), true);
+						TrackFactory.addReadTracks(plot, treatmentData,
+						        // FIXME Decide correct handler thread
+						        ChunkTreeHandlerThread.class,
+						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv", new SequenceParser()), true);
 						break;
 
 					case TREATMENT_BED_READS:
+					    treatmentData = new ChunkDataSource(file, new BEDReadParser());
 						TrackFactory.addThickSeparatorTrack(plot);
 						TrackFactory.addTitleTrack(plot, file.getName());
-						TrackFactory.addReadTracks(plot, new DataSource(file), createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv"), true, new BEDReadParser());
+						TrackFactory.addReadTracks(plot, treatmentData,
+                                // FIXME Decide correct handler thread
+						        ChunkTreeHandlerThread.class,
+						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv", new SequenceParser()), true);
 						break;
 					}
 				}
@@ -507,12 +528,16 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			for (Track track : tracks) {
 				if (track.checkBox.isSelected()) {
 					File file = track.userData == null ? null : Session.getSession().getDataManager().getLocalFile(track.userData);
+					DataSource controlData = new ChunkDataSource(file, new ElandParser());
 					switch (track.type) {
 
 					case CONTROL_READS:
 						TrackFactory.addThickSeparatorTrack(plot);
 						TrackFactory.addTitleTrack(plot, file.getName());
-						TrackFactory.addReadTracks(plot, new DataSource(file), createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv"), false);
+						TrackFactory.addReadTracks(plot, controlData,
+                                // FIXME Decide correct handler thread
+						        ChunkTreeHandlerThread.class,
+						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv", new SequenceParser()), false);
 						break;
 					}
 				}
@@ -521,16 +546,19 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			for (Track track : tracks) {
 				if (track.checkBox.isSelected()) {
 					File file = track.userData == null ? null : Session.getSession().getDataManager().getLocalFile(track.userData);
+	                DataSource peakData;
 					switch (track.type) {
 					case PEAKS:
+					    peakData = new ChunkDataSource(file, new BEDParser());
 						TrackFactory.addThickSeparatorTrack(plot);
 						TrackFactory.addTitleTrack(plot, file.getName());
-						TrackFactory.addPeakTrack(plot, new DataSource(file));
+						TrackFactory.addPeakTrack(plot, peakData);
 						break;
 					case PEAKS_WITH_HEADER:
+					    peakData = new ChunkDataSource(file, new HeaderTsvParser());
 						TrackFactory.addThickSeparatorTrack(plot);
 						TrackFactory.addTitleTrack(plot, file.getName());
-						TrackFactory.addHeaderPeakTrack(plot, new DataSource(file));
+						TrackFactory.addHeaderPeakTrack(plot, peakData);
 						break;
 					}
 				}
@@ -583,11 +611,13 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		}
 	}
 
-	private DataSource createAnnotationDataSource(String file) throws FileNotFoundException, MalformedURLException {
+	private ChunkDataSource createAnnotationDataSource(String file, TsvParser fileParser)
+	        throws FileNotFoundException, MalformedURLException {
+	    
 		if (this.annotationUrl != null) {
-			return new DataSource(this.annotationUrl, file);
+			return new ChunkDataSource(this.annotationUrl, file, fileParser);
 		} else {
-			return new DataSource(this.localAnnotationPath, file);
+			return new ChunkDataSource(this.localAnnotationPath, file, fileParser);
 		}
 	}
 

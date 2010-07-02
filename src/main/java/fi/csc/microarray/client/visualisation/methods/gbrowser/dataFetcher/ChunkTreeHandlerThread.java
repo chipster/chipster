@@ -6,38 +6,39 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ByteRegion;
 
-public class TSVHandlerThread extends AreaRequestHandler {
+public class ChunkTreeHandlerThread extends AreaRequestHandler {
 
 	private TreeNode rootNode;
 
 	private BlockingQueue<FileRequest> fileRequestQueue = new LinkedBlockingQueue<FileRequest>();
 	private ConcurrentLinkedQueue<FileResult> fileResultQueue = new ConcurrentLinkedQueue<FileResult>();
 
-	private FileFetcherThread fileFetcher;
+	private ChunkFileFetcherThread fileFetcher;
 
 	private static final boolean DEBUG = false;
 
 	private FileParser inputParser;
 
-	private DataSource file;
+	private ChunkDataSource file;
 
-	public TSVHandlerThread(DataSource file, Queue<AreaRequest> areaRequestQueue,
-	        AreaResultListener areaResultListener, FileParser inputParser) {
-
+	public ChunkTreeHandlerThread(DataSource file, Queue<AreaRequest> areaRequestQueue,
+	        AreaResultListener areaResultListener) {
+	    
 		super(areaRequestQueue, areaResultListener);
-		this.inputParser = inputParser;
-		this.file = file;
+		this.file = (ChunkDataSource) file;
+		this.inputParser = this.file.getFileParser();
 	}
 
 	public synchronized void run() {
 
-		fileFetcher = new FileFetcherThread(fileRequestQueue, fileResultQueue, this, inputParser);
+		fileFetcher = new ChunkFileFetcherThread(fileRequestQueue, fileResultQueue, this, inputParser);
 		createTree(fileFetcher.getFileLength());
 		fileFetcher.start();
 
@@ -85,7 +86,7 @@ public class TSVHandlerThread extends AreaRequestHandler {
 		return inputParser;
 	}
 
-	public DataSource getFile() {
+	public ChunkDataSource getFile() {
 		return file;
 	}
 }

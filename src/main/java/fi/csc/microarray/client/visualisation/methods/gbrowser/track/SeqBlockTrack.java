@@ -15,7 +15,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaR
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
@@ -52,11 +51,11 @@ public class SeqBlockTrack extends Track {
 
 	private boolean wasLastConsised = true;
 
-	public SeqBlockTrack(View view, DataSource file,
+	public SeqBlockTrack(View view, DataSource file, 
 			Class<? extends AreaRequestHandler> handler,
-			FileParser inputParser, Color fontColor, long minBpLength,
+			Color fontColor, long minBpLength,
 			long maxBpLength) {
-		super(view, file, handler, inputParser);
+		super(view, file, handler);
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
 		this.fontColor = fontColor;
@@ -262,7 +261,7 @@ public class SeqBlockTrack extends Track {
 	@Override
 	public Collection<ColumnType> getDefaultContents() {
 		return Arrays.asList(new ColumnType[] { ColumnType.SEQUENCE,
-				ColumnType.STRAND, ColumnType.QUALITY });
+				ColumnType.STRAND });
 	}
 
 	@Override

@@ -14,7 +14,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -36,9 +35,9 @@ public class SeqTrack extends Track {
 
 	private long maxBpLength;
 
-	public SeqTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler, FileParser inputParser, long maxBpLength) {
+	public SeqTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler, long maxBpLength) {
 
-		super(view, file, handler, inputParser);
+		super(view, file, handler);
 		this.maxBpLength = maxBpLength;
 
 	}

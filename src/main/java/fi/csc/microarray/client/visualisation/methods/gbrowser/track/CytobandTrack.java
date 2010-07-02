@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
@@ -16,7 +16,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDraw
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
@@ -74,8 +73,9 @@ public class CytobandTrack extends Track {
 		return null;
 	}
 
-	public CytobandTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler, FileParser inputParser, boolean showText) {
-		super(view, file, handler, inputParser);
+	public CytobandTrack(View view, ChunkDataSource file,
+	        Class<? extends AreaRequestHandler> handler, boolean showText) {
+		super(view, file, handler);
 
 		this.showText = showText;
 	}

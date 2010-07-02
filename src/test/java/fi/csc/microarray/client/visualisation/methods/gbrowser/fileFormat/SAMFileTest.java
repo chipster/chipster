@@ -1,14 +1,17 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
 import java.io.File;
-
-import org.testng.Assert;
-
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import java.util.Arrays;
 
 import net.sf.samtools.SAMFileHeader;
 import net.sf.samtools.SAMFileReader;
+
+import org.testng.Assert;
+
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
 
 public class SAMFileTest {
     private static String path = "src/test/resources/sam/";
@@ -35,8 +38,11 @@ public class SAMFileTest {
         // Parse using our internal abstraction
         bamFile = new File(path + "indexTest.bam");
         SAMFile sam = new SAMFile(bamFile);
+        BpCoordRegion region = new BpCoordRegion((long)0, (long)300000,
+                new Chromosome("M"));
         Assert.assertEquals(
-                sam.getReads(new BpCoordRegion((long)0, (long)300000,
-                new Chromosome("M"))).size(), 23);
+                sam.getReads(new AreaRequest(region,
+                        Arrays.asList(new ColumnType[] {ColumnType.SEQUENCE, ColumnType.STRAND}),
+                        new FsfStatus())).size(), 23);
     }
 }

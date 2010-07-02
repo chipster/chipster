@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ByteRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileRequest;
@@ -13,20 +13,20 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileResul
 /**
  * DOCME
  */
-public class FileFetcherThread extends Thread {
+public class ChunkFileFetcherThread extends Thread {
 
 	private BlockingQueue<FileRequest> fileRequestQueue;
 	private ConcurrentLinkedQueue<FileResult> fileResultQueue;
 
-	private TSVHandlerThread treeThread;
+	private ChunkTreeHandlerThread treeThread;
 
-	private DataSource dataSource;
+	private ChunkDataSource dataSource;
 
 	private FileParser inputParser;
 
-	public FileFetcherThread(BlockingQueue<FileRequest> fileRequestQueue,
+	public ChunkFileFetcherThread(BlockingQueue<FileRequest> fileRequestQueue,
 	        ConcurrentLinkedQueue<FileResult> fileResultQueue,
-	        TSVHandlerThread treeThread, FileParser inputParser) {
+	        ChunkTreeHandlerThread treeThread, FileParser inputParser) {
 
 		this.fileRequestQueue = fileRequestQueue;
 		this.fileResultQueue = fileResultQueue;

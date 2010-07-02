@@ -13,7 +13,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaR
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
@@ -37,9 +36,9 @@ public abstract class Track implements AreaResultListener {
 		this.file = file;
 	}
 
-	public Track(View view, DataSource file, Class<? extends AreaRequestHandler> handler, FileParser inputParser) {
+	public Track(View view, DataSource file, Class<? extends AreaRequestHandler> handler) {
 		this(view, file);
-		view.getQueueManager().createQueue(file, handler, inputParser);
+		view.getQueueManager().createQueue(file, handler);
 	}
 
 	/**

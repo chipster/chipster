@@ -48,9 +48,10 @@ public class TranscriptTrack extends Track {
 		}
 	}
 
-	public TranscriptTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler, FileParser inputParser, Color color, long maxBpLength) {
+	public TranscriptTrack(View view, DataSource file,
+	        Class<? extends AreaRequestHandler> handler, Color color, long maxBpLength) {
 
-		super(view, file, handler, inputParser);
+		super(view, file, handler);
 		this.color = color;
 		this.maxBpLength = maxBpLength;
 	}

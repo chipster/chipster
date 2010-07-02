@@ -4,17 +4,9 @@ import java.awt.Color;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TSVHandlerThread;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.HeaderTsvParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SequenceParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.miRNAParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CytobandTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GelTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GeneTrack;
@@ -36,20 +28,20 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptT
  */
 public class TrackFactory {
 	
-	public static void addGeneTracks(GenomePlot genomePlot, DataSource geneAnnotationFile, DataSource transcriptAnnotationFile) {
+	public static void addGeneTracks(GenomePlot genomePlot, ChunkDataSource geneAnnotationFile,
+	        DataSource transcriptAnnotationFile) {
 
-		// initialise data source files
-		GeneParser geneParser = new GeneParser();
-		TranscriptParser transcriptParser = new TranscriptParser();
 		View dataView = genomePlot.getDataView();
 		
 		// Gene, overview, forward 
-		IntensityTrack annotationOverview = new IntensityTrack(genomePlot.getDataView(), geneAnnotationFile, TSVHandlerThread.class, geneParser, PartColor.CDS.c, 10000000);
+		IntensityTrack annotationOverview = new IntensityTrack(genomePlot.getDataView(),
+		        geneAnnotationFile, ChunkTreeHandlerThread.class, PartColor.CDS.c, 10000000);
 		annotationOverview.setStrand(Strand.FORWARD);
 		addTrack(dataView, annotationOverview);
 
 		// Gene, detailed, forward
-		GeneTrack annotation = new GeneTrack(genomePlot.getDataView(), geneAnnotationFile, TSVHandlerThread.class, geneParser, PartColor.CDS.c, 0, 10000000);
+		GeneTrack annotation = new GeneTrack(genomePlot.getDataView(), geneAnnotationFile,
+		        ChunkTreeHandlerThread.class, PartColor.CDS.c, 0, 10000000);
 		annotation.setStrand(Strand.FORWARD);
 		addTrack(dataView, annotation);
 		
@@ -57,12 +49,14 @@ public class TrackFactory {
 		for (Strand strand : Strand.values()) {
 
 			// Transcript, overview
-			IntensityTrack transcriptOverview = new IntensityTrack(dataView, transcriptAnnotationFile, TSVHandlerThread.class, transcriptParser, PartColor.CDS.c.darker(), 100000);
+			IntensityTrack transcriptOverview = new IntensityTrack(dataView, transcriptAnnotationFile,
+			        ChunkTreeHandlerThread.class, PartColor.CDS.c.darker(), 100000);
 			transcriptOverview.setStrand(strand);
 			addTrack(dataView, transcriptOverview);
 
 			// Transcript, detailed
-			TranscriptTrack trancsript = new TranscriptTrack(dataView, transcriptAnnotationFile, TSVHandlerThread.class, transcriptParser, Color.DARK_GRAY, 100000);
+			TranscriptTrack trancsript = new TranscriptTrack(dataView, transcriptAnnotationFile,
+			        ChunkTreeHandlerThread.class, Color.DARK_GRAY, 100000);
 			trancsript.setStrand(strand);
 			addTrack(dataView, trancsript);
 
@@ -72,12 +66,14 @@ public class TrackFactory {
 		}
 		
 		// Gene, overview, reverse 
-		IntensityTrack annotationOverviewReversed = new IntensityTrack(genomePlot.getDataView(), geneAnnotationFile, TSVHandlerThread.class, geneParser, PartColor.CDS.c, 10000000);
+		IntensityTrack annotationOverviewReversed = new IntensityTrack(genomePlot.getDataView(),
+		        geneAnnotationFile, ChunkTreeHandlerThread.class, PartColor.CDS.c, 10000000);
 		annotationOverviewReversed.setStrand(Strand.REVERSED);
 		addTrack(dataView, annotationOverviewReversed);
 
 		// Gene, detailed, reverse
-		GeneTrack annotationReversed = new GeneTrack(genomePlot.getDataView(), geneAnnotationFile, TSVHandlerThread.class, geneParser, PartColor.CDS.c, 0, 10000000);
+		GeneTrack annotationReversed = new GeneTrack(genomePlot.getDataView(), geneAnnotationFile,
+		        ChunkTreeHandlerThread.class, PartColor.CDS.c, 0, 10000000);
 		annotationReversed.setStrand(Strand.REVERSED);
 		addTrack(dataView, annotationReversed);
 	}
@@ -96,12 +92,10 @@ public class TrackFactory {
 		dataView.addTrack(new SeparatorTrack(dataView, Color.gray.brighter(), 4, 0, Long.MAX_VALUE));
 	}
 
-
-	public static void addReadTracks(GenomePlot genomePlot, DataSource userData, DataSource seqFile, boolean isTreatment) throws FileNotFoundException, MalformedURLException {
-		addReadTracks(genomePlot, userData, seqFile, isTreatment, new ElandParser());
-	}
-
-	public static void addReadTracks(GenomePlot genomePlot, DataSource userData, DataSource seqFile, boolean isTreatment, TsvParser userDataParser) throws FileNotFoundException, MalformedURLException {
+	public static void addReadTracks(GenomePlot genomePlot, DataSource userData,
+	        Class<? extends AreaRequestHandler> userDataHandler,
+	        DataSource seqFile, boolean isTreatment)
+	        throws FileNotFoundException, MalformedURLException {
 	
 		View dataView = genomePlot.getDataView();
 		int switchViewsAt = 50000;
@@ -113,21 +107,21 @@ public class TrackFactory {
 		//
 
 		// Overview
-		IntensityTrack readOverview = new IntensityTrack(dataView, userData, TSVHandlerThread.class, userDataParser, histogramColor, switchViewsAt);
+		IntensityTrack readOverview = new IntensityTrack(dataView, userData, userDataHandler, histogramColor, switchViewsAt);
 		addTrack(dataView, readOverview);
 
 		// Detailed
-		SeqBlockTrack reads = new SeqBlockTrack(dataView, userData, TSVHandlerThread.class, userDataParser, fontColor, 0, switchViewsAt);
+		SeqBlockTrack reads = new SeqBlockTrack(dataView, userData, userDataHandler, fontColor, 0, switchViewsAt);
 		addTrack(dataView, reads);
 		
 	    // Gel
         addSeparatorTrack(genomePlot);
-        GelTrack reads2 = new GelTrack(dataView, userData, TSVHandlerThread.class, userDataParser, Color.GREEN, 0, Long.MAX_VALUE);
+        GelTrack reads2 = new GelTrack(dataView, userData, userDataHandler, Color.GREEN, 0, Long.MAX_VALUE);
         addTrack(dataView, reads2);
 
 		// Profile
 	    addSeparatorTrack(genomePlot);
-		ProfileTrack reads3 = new ProfileTrack(dataView, userData, TSVHandlerThread.class, userDataParser, fontColor, 0, Long.MAX_VALUE);
+		ProfileTrack reads3 = new ProfileTrack(dataView, userData, userDataHandler, fontColor, 0, Long.MAX_VALUE);
 		addTrack(dataView, reads3);
 
 		addSeparatorTrack(genomePlot);
@@ -138,7 +132,7 @@ public class TrackFactory {
 
 		if (seqFile != null) {
 			// Reference sequence
-			SeqTrack seq = new SeqTrack(dataView, seqFile, TSVHandlerThread.class, new SequenceParser(), 800);
+			SeqTrack seq = new SeqTrack(dataView, seqFile, ChunkTreeHandlerThread.class, 800);
 			addTrack(dataView, seq);
 			addSeparatorTrack(genomePlot, 800);
 		}
@@ -148,35 +142,34 @@ public class TrackFactory {
 		//
 
 		// Overview
-		IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData, TSVHandlerThread.class, userDataParser, histogramColor, switchViewsAt);
+		IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData, userDataHandler, histogramColor, switchViewsAt);
 		readOverviewReversed.setStrand(Strand.REVERSED);
 		addTrack(dataView, readOverviewReversed);
 
 		// Detailed
-		SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData, TSVHandlerThread.class, userDataParser, fontColor, 0, switchViewsAt);
+		SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData, userDataHandler, fontColor, 0, switchViewsAt);
 		readsReversed.setStrand(Strand.REVERSED);
 		addTrack(dataView, readsReversed);
 	}
 
+	// FIXME Currently not used, used miRNAParser
 	public static void addWigTrack(GenomePlot plot, DataSource peakFile) {
-		miRNAParser miRNAParser = new miRNAParser();
-		ProfileTrack annotation = new ProfileTrack(plot.getDataView(), peakFile, TSVHandlerThread.class, miRNAParser, Color.BLUE, 0, Long.MAX_VALUE);
+		ProfileTrack annotation = new ProfileTrack(plot.getDataView(), peakFile,
+		        ChunkTreeHandlerThread.class, Color.BLUE, 0, Long.MAX_VALUE);
 		addTrack(plot.getDataView(), annotation);
 	}
 	
 	public static void addPeakTrack(GenomePlot plot, DataSource peaks) {
-		BEDParser bedParser = new BEDParser();
 		View dataView = plot.getDataView();
 
-		PeakTrack annotation = new PeakTrack(dataView, peaks, TSVHandlerThread.class, bedParser, Color.YELLOW, 0, Long.MAX_VALUE);
+		PeakTrack annotation = new PeakTrack(dataView, peaks, ChunkTreeHandlerThread.class, Color.YELLOW, 0, Long.MAX_VALUE);
 		addTrack(dataView, annotation);
 	}
 
 	public static void addHeaderPeakTrack(GenomePlot plot, DataSource peaks) {
-		HeaderTsvParser headerTsvParser = new HeaderTsvParser();
 		View dataView = plot.getDataView();
 
-		PeakTrack annotation = new PeakTrack(dataView, peaks, TSVHandlerThread.class, headerTsvParser, Color.YELLOW, 0, Long.MAX_VALUE);
+		PeakTrack annotation = new PeakTrack(dataView, peaks, ChunkTreeHandlerThread.class, Color.YELLOW, 0, Long.MAX_VALUE);
 		addTrack(dataView, annotation);
 	}
 
@@ -184,13 +177,14 @@ public class TrackFactory {
 
 	}
 
-	public static void addMirnaTracks(GenomePlot genomePlot, DataSource miRNAFile) {
-		miRNAParser miRNAParser = new miRNAParser();
+	// FIXME Currently not used, used miRNAParser
+	public static void addMirnaTracks(GenomePlot genomePlot, ChunkDataSource miRNAFile) {
 		View dataView = genomePlot.getDataView();
 
 		for (Strand strand : Strand.values()) {
 
-			GeneTrack track = new GeneTrack(dataView, miRNAFile, TSVHandlerThread.class, miRNAParser, PartColor.CDS.c.darker(), 0, Long.MAX_VALUE);
+			GeneTrack track = new GeneTrack(dataView, miRNAFile, ChunkTreeHandlerThread.class,
+			        PartColor.CDS.c.darker(), 0, Long.MAX_VALUE);
 			track.setStrand(strand);
 			dataView.addTrack(track);
 			track.initializeListener();
@@ -201,11 +195,11 @@ public class TrackFactory {
 		}
 	}
 
-	public static void addCytobandTracks(GenomePlot plot, DataSource cytobandFile) {
-		CytobandTrack overviewCytobands = new CytobandTrack(plot.getOverviewView(), cytobandFile, TSVHandlerThread.class, new CytobandParser(), false);
+	public static void addCytobandTracks(GenomePlot plot, ChunkDataSource cytobandData) {
+		CytobandTrack overviewCytobands = new CytobandTrack(plot.getOverviewView(), cytobandData, ChunkTreeHandlerThread.class, false);
 		addTrack(plot.getOverviewView(), overviewCytobands);
 
-		CytobandTrack cytobands = new CytobandTrack(plot.getDataView(), cytobandFile, TSVHandlerThread.class, new CytobandParser(), true);
+		CytobandTrack cytobands = new CytobandTrack(plot.getDataView(), cytobandData, ChunkTreeHandlerThread.class, true);
 		addTrack(plot.getDataView(), cytobands);
 	}
 

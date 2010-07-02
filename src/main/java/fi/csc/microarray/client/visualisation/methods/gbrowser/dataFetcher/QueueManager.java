@@ -8,7 +8,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -23,7 +22,7 @@ public class QueueManager implements AreaResultListener {
 
 	private Map<DataSource, QueueContext> queues = new HashMap<DataSource, QueueContext>();
 
-	public void createQueue(DataSource file, Class<? extends AreaRequestHandler> dataFetcher, FileParser inputParser) {
+	public void createQueue(DataSource file, Class<? extends AreaRequestHandler> dataFetcher) {
 
 		if (!queues.containsKey(file)) {
 			QueueContext context = new QueueContext();
@@ -32,8 +31,8 @@ public class QueueManager implements AreaResultListener {
 			    // create a thread which is an instance of class which is passed
 			    // as data fetcher to this method
 				context.thread = dataFetcher.getConstructor(DataSource.class,
-				        Queue.class, AreaResultListener.class, FileParser.class).
-				        newInstance(file, context.queue, this, inputParser);
+				        Queue.class, AreaResultListener.class).
+				        newInstance(file, context.queue, this);
 
 				queues.put(file, context);
 				context.thread.start();

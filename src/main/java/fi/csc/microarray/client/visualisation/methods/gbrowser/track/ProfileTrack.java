@@ -13,7 +13,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaR
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
@@ -37,8 +36,9 @@ public class ProfileTrack extends Track {
 	private Color color;
 
 
-	public ProfileTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler, FileParser inputParser, Color color, long minBpLength, long maxBpLength) {
-		super(view, file, handler, inputParser);
+	public ProfileTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
+	        Color color, long minBpLength, long maxBpLength) {
+		super(view, file, handler);
 		this.color = color;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
@@ -193,7 +193,7 @@ public class ProfileTrack extends Track {
 	@Override
 	public Collection<ColumnType> getDefaultContents() {
 		return Arrays.asList(new ColumnType[] { ColumnType.SEQUENCE,
-				ColumnType.STRAND, ColumnType.QUALITY });
+				ColumnType.STRAND });
 	}
 
 	@Override

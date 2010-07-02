@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -37,10 +38,12 @@ public class SAMFile {
             // Create an index file if it is missing
             try {
                 // FIXME Number of references
-                // FIXME Generated indices don't work
+                // FIXME Slow...
                 BAMFileIndexWriter bamIndex = new BAMFileIndexWriter(
-                        new File(samFile.getAbsolutePath() + ".bai"), 70000);
+                        new File(samFile.getAbsolutePath() + ".bai"), 1000);
+                bamIndex.createIndex(samFile, false, true);
                 bamIndex.writeBinary(true, samFile.length());
+                bamIndex.close();
                 // Reread the file
                 reader.close();
                 reader = new SAMFileReader(samFile);
@@ -50,32 +53,41 @@ public class SAMFile {
         }
     }
     
-    public List<RegionContent> getReads(BpCoordRegion region) {
+    public List<RegionContent> getReads(AreaRequest request) {
         List<RegionContent> responseList = new LinkedList<RegionContent>();
         
         // Read the given region
         CloseableIterator<SAMRecord> iterator =
-                reader.query("chr" + region.start.chr.toString(),
-                region.start.bp.intValue(), region.end.bp.intValue(), false);
+                reader.query("chr" + request.start.chr.toString(),
+                request.start.bp.intValue(), request.end.bp.intValue(), false);
         for(Iterator<SAMRecord> i = iterator; i.hasNext(); ) {
             SAMRecord record = i.next();
             // Region for this read
+            // FIXME What happens if it spans across several chromosomes?
             BpCoordRegion recordRegion =
                 new BpCoordRegion((long)record.getAlignmentStart(),
                         (long)record.getAlignmentEnd(),
-                        region.start.chr);
+                        request.start.chr);
             // Values for this read
             HashMap<ColumnType, Object> values = new HashMap<ColumnType, Object>();
             
             // TODO Deal with "=" and "N" in read string
-            values.put(ColumnType.SEQUENCE, record.getReadString());
-            values.put(ColumnType.STRAND,
-                    record.getReadNegativeStrandFlag() ?
-                    Strand.REVERSED : Strand.FORWARD);
+            if (request.requestedContents.contains(ColumnType.SEQUENCE)) {
+                values.put(ColumnType.SEQUENCE, record.getReadString());
+            }
+            
+            if (request.requestedContents.contains(ColumnType.STRAND)) {
+                values.put(ColumnType.STRAND,
+                        record.getReadNegativeStrandFlag() ?
+                        Strand.REVERSED : Strand.FORWARD);
+            }
+            
+            // TODO Add cigar data to values
             
             responseList.add(new RegionContent(recordRegion, values));
         }
 
+        iterator.close();
         return responseList;
     }
 }
