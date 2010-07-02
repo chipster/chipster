@@ -36,6 +36,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptT
  */
 public class TrackFactory {
 	
+	private static final int CHANGE_TRACKS_ZOOM_THRESHOLD2 = 10000000;
+	private static final int CHANGE_TRACKS_ZOOM_THRESHOLD1 = 100000;
+
 	public static void addGeneTracks(GenomePlot genomePlot, DataSource geneAnnotationFile, DataSource transcriptAnnotationFile) {
 
 		// initialise data source files
@@ -43,43 +46,38 @@ public class TrackFactory {
 		TranscriptParser transcriptParser = new TranscriptParser();
 		View dataView = genomePlot.getDataView();
 		
+		// Transcript, detailed, forward
+		TranscriptTrack trancsript = new TranscriptTrack(dataView, transcriptAnnotationFile, TSVHandlerThread.class, transcriptParser, Color.DARK_GRAY, CHANGE_TRACKS_ZOOM_THRESHOLD1);
+		trancsript.setStrand(Strand.FORWARD);
+		addTrack(dataView, trancsript);
+
 		// Gene, overview, forward 
-		IntensityTrack annotationOverview = new IntensityTrack(genomePlot.getDataView(), geneAnnotationFile, TSVHandlerThread.class, geneParser, PartColor.CDS.c, 10000000);
+		IntensityTrack annotationOverview = new IntensityTrack(genomePlot.getDataView(), geneAnnotationFile, TSVHandlerThread.class, geneParser, PartColor.CDS.c, CHANGE_TRACKS_ZOOM_THRESHOLD2);
 		annotationOverview.setStrand(Strand.FORWARD);
 		addTrack(dataView, annotationOverview);
 
 		// Gene, detailed, forward
-		GeneTrack annotation = new GeneTrack(genomePlot.getDataView(), geneAnnotationFile, TSVHandlerThread.class, geneParser, PartColor.CDS.c, 0, 10000000);
+		GeneTrack annotation = new GeneTrack(genomePlot.getDataView(), geneAnnotationFile, TSVHandlerThread.class, geneParser, PartColor.CDS.c, CHANGE_TRACKS_ZOOM_THRESHOLD1, CHANGE_TRACKS_ZOOM_THRESHOLD2);
 		annotation.setStrand(Strand.FORWARD);
 		addTrack(dataView, annotation);
 		
-		// Add Transcript tracks for both strands
-		for (Strand strand : Strand.values()) {
+		// Separator line
+		addRulerTrack(genomePlot);
 
-			// Transcript, overview
-			IntensityTrack transcriptOverview = new IntensityTrack(dataView, transcriptAnnotationFile, TSVHandlerThread.class, transcriptParser, PartColor.CDS.c.darker(), 100000);
-			transcriptOverview.setStrand(strand);
-			addTrack(dataView, transcriptOverview);
-
-			// Transcript, detailed
-			TranscriptTrack trancsript = new TranscriptTrack(dataView, transcriptAnnotationFile, TSVHandlerThread.class, transcriptParser, Color.DARK_GRAY, 100000);
-			trancsript.setStrand(strand);
-			addTrack(dataView, trancsript);
-
-			if (strand == Strand.FORWARD) {
-				addSeparatorTrack(genomePlot);
-			}
-		}
-		
 		// Gene, overview, reverse 
-		IntensityTrack annotationOverviewReversed = new IntensityTrack(genomePlot.getDataView(), geneAnnotationFile, TSVHandlerThread.class, geneParser, PartColor.CDS.c, 10000000);
+		IntensityTrack annotationOverviewReversed = new IntensityTrack(genomePlot.getDataView(), geneAnnotationFile, TSVHandlerThread.class, geneParser, PartColor.CDS.c, CHANGE_TRACKS_ZOOM_THRESHOLD2);
 		annotationOverviewReversed.setStrand(Strand.REVERSED);
 		addTrack(dataView, annotationOverviewReversed);
 
 		// Gene, detailed, reverse
-		GeneTrack annotationReversed = new GeneTrack(genomePlot.getDataView(), geneAnnotationFile, TSVHandlerThread.class, geneParser, PartColor.CDS.c, 0, 10000000);
+		GeneTrack annotationReversed = new GeneTrack(genomePlot.getDataView(), geneAnnotationFile, TSVHandlerThread.class, geneParser, PartColor.CDS.c, CHANGE_TRACKS_ZOOM_THRESHOLD1, CHANGE_TRACKS_ZOOM_THRESHOLD2);
 		annotationReversed.setStrand(Strand.REVERSED);
 		addTrack(dataView, annotationReversed);
+
+		// Transcript, detailed, reverse
+		TranscriptTrack trancsriptReverse = new TranscriptTrack(dataView, transcriptAnnotationFile, TSVHandlerThread.class, transcriptParser, Color.DARK_GRAY, CHANGE_TRACKS_ZOOM_THRESHOLD1);
+		trancsriptReverse.setStrand(Strand.REVERSED);
+		addTrack(dataView, trancsriptReverse);
 	}
 
 	private static void addSeparatorTrack(GenomePlot genomePlot) {

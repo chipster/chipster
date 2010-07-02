@@ -25,7 +25,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 public class RulerTrack extends Track {
 
 	private static final int textY = 10;
-	private final static int MINOR_STEPS = 5;
+	private final static int MINOR_STEPS = 10;
 
 	List<Long> info = new ArrayList<Long>();
 
