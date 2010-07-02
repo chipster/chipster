@@ -7,7 +7,7 @@
 # MG 29.5.2010
 
 # Loads the normalized data
-file<-c("normalized.tsv")
+file<-c("annotations.tsv")
 dat <- read.table(file, header=T, sep="\t", comment.char="")
 
 # Extract the data from the column in question

@@ -24,7 +24,7 @@
 # Kendall's method is suitable in those cases one is interested in the sign of the changes in expression between adjacent
 # data points, rather than the magnitude.)
 # PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
-# PARAMETER p.value.adjustment.method [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method)
+# PARAMETER p.value.adjustment.method [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT none (Multiple testing correction method)
 
 # Correlation analysis of miRNA targets
 # MG, 11.2.2010
@@ -98,8 +98,8 @@ try(merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4,
 				annotation=chip.type), silent=TRUE)
 if (match("merged.table",ls(),nomatch=0)==0) {
 	stop("There were no targets found in either TarBase or PicTar databases
-for the supplied list of miRNA:s in the gene list selected.
-Try again by selecting a longer list of genes!")
+					for the supplied list of miRNA:s in the gene list selected.
+					Try again by selecting a longer list of genes!")
 }
 merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4,
 		annotation=chip.type, verbose=TRUE)
@@ -128,6 +128,7 @@ for (mirna.count in 1:number.mirna) {
 	results.table[mirna.count,4] <- correlation.coefficient
 	results.table[mirna.count,5] <- correlation.p.value
 }
+results.table[,5] <- p.adjust(results.table[,5], method=p.value.adjustment.method)
 
 # Find genes with statistically significant positive correlation
 results.positive <- results.table[results.table[,4]>0,]
@@ -140,6 +141,3 @@ results.negative.significant <- results.negative[results.negative[,5]<=p.value.t
 # Write the results to tables to be read into Chipster
 write.table(results.positive.significant, file="mirna-gene-positive-correlation.tsv", sep="\t", quote=FALSE, row.names=FALSE)
 write.table(results.negative.significant, file="mirna-gene-negative-correlation.tsv", sep="\t", quote=FALSE, row.names=FALSE)
-
-
-
