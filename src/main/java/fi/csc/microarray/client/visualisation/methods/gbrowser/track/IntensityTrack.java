@@ -3,6 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -36,11 +37,20 @@ public class IntensityTrack extends Track {
 	@Override
 	public Collection<Drawable> getDrawables() {
 
-		// FIXME should not empty drawables, because causes flickering when more clever data fetching is used
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
-		for (RegionContent regCont : values) {
+		Iterator<RegionContent> iterator = values.iterator();
+		while (iterator.hasNext()) {
 
+			RegionContent regCont = iterator.next();
+			
+			// remove values that have gone out of view
+			if (!regCont.region.intercepts(getView().getBpRegion())) {
+				iterator.remove();
+				continue;
+			}
+			
+			// do the plotting for this consised value
 			int x1 = getView().bpToTrack(regCont.region.start);
 			int x2 = getView().bpToTrack(regCont.region.end);
 			int y2 = (int) getView().getTrackHeight();						
@@ -62,7 +72,6 @@ public class IntensityTrack extends Track {
 	@Override
 	public void updateData() {
 
-		values.clear();
 		super.updateData();
 	}
 

@@ -12,6 +12,13 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
 import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SequenceParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
 
 
 /**
@@ -32,12 +39,15 @@ public class GenomeBrowserStarter {
 	public static void main(String[] args) throws IOException {
 		boolean horizontal = true;
 		GenomePlot plot = new GenomePlot(horizontal);
-		TrackFactory.addCytobandTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.57_karyotype.tsv"));
+		TrackFactory.addCytobandTracks(plot,
+		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.GRCh37.57_karyotype.tsv", new CytobandParser()));
 		
 		TrackFactory.addThickSeparatorTrack(plot);
 		TrackFactory.addTitleTrack(plot, "Annotations");
 		
-		TrackFactory.addGeneTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_genes.tsv"), new DataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_transcripts.tsv"));
+		TrackFactory.addGeneTracks(plot,
+		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_genes.tsv", new GeneParser()),
+		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_transcripts.tsv", new TranscriptParser()));
 //		TrackFactory.addMirnaTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_miRNA.tsv"));
 
 		// Example peak: choromosome 21 in front of IFNAR2 gene (location 33,525,000)
@@ -46,15 +56,17 @@ public class GenomeBrowserStarter {
 		TrackFactory.addThickSeparatorTrack(plot);
 		TrackFactory.addTitleTrack(plot, "Peaks");
 		
-		TrackFactory.addPeakTrack(plot, new DataSource(MACS_DATA_FILE));
+		TrackFactory.addPeakTrack(plot,
+		        new ChunkDataSource(MACS_DATA_FILE, new BEDParser()));
 
 		TrackFactory.addThickSeparatorTrack(plot);
 		TrackFactory.addTitleTrack(plot, "Reads");
 
 		TrackFactory.addReadTracks(
 				plot, 
-				new DataSource(ELAND_DATA_FILE),
-				new DataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_seq.tsv"),
+				new ChunkDataSource(ELAND_DATA_FILE, new ElandParser()),
+				ChunkTreeHandlerThread.class,
+				new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_seq.tsv", new SequenceParser()),
 				true
 		);
 

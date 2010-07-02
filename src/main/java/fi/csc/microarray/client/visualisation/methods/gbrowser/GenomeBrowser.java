@@ -564,9 +564,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 				}
 			}
 
-			// finally, the ruler
-			TrackFactory.addRulerTrack(plot);
-
 			// fill in initial positions if not filled in
 			if (megaLocation.getText().trim().isEmpty()) {
 				megaLocation.setText("1");
