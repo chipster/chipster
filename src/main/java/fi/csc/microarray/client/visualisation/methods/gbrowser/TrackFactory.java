@@ -105,23 +105,15 @@ public class TrackFactory {
 		//
 
 		// Overview
-		IntensityTrack readOverview = new IntensityTrack(dataView, userData, userDataHandler, histogramColor, switchViewsAt);
+		IntensityTrack readOverview = new IntensityTrack(dataView, userData,
+		        userDataHandler, histogramColor, switchViewsAt);
 		addTrack(dataView, readOverview);
 
 		// Detailed
-		SeqBlockTrack reads = new SeqBlockTrack(dataView, userData, userDataHandler, fontColor, 0, switchViewsAt);
+		SeqBlockTrack reads = new SeqBlockTrack(dataView, userData,
+		        userDataHandler, fontColor, 0, switchViewsAt);
 		addTrack(dataView, reads);
 		
-	    // Gel
-        addSeparatorTrack(genomePlot);
-        GelTrack reads2 = new GelTrack(dataView, userData, userDataHandler, Color.GREEN, 0, Long.MAX_VALUE);
-        addTrack(dataView, reads2);
-
-		// Profile
-	    addSeparatorTrack(genomePlot);
-		ProfileTrack reads3 = new ProfileTrack(dataView, userData, userDataHandler, fontColor, 0, Long.MAX_VALUE);
-		addTrack(dataView, reads3);
-
 		addSeparatorTrack(genomePlot);
 
 		//
@@ -140,20 +132,37 @@ public class TrackFactory {
 		//
 
 		// Overview
-		IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData, userDataHandler, histogramColor, switchViewsAt);
+		IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData,
+		        userDataHandler, histogramColor, switchViewsAt);
 		readOverviewReversed.setStrand(Strand.REVERSED);
 		addTrack(dataView, readOverviewReversed);
 
 		// Detailed
-		SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData, userDataHandler, fontColor, 0, switchViewsAt);
+		SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData,
+		        userDataHandler, fontColor, 0, switchViewsAt);
 		readsReversed.setStrand(Strand.REVERSED);
 		addTrack(dataView, readsReversed);
+
+        // Profile
+        addSeparatorTrack(genomePlot);
+        ProfileTrack profileTrack = new ProfileTrack(dataView, userData, userDataHandler,
+                Color.BLACK, PartColor.CDS.c, 0, Long.MAX_VALUE);
+        profileTrack.setStrand(Strand.BOTH);
+        addTrack(dataView, profileTrack);
+        
+        // Gel
+        addSeparatorTrack(genomePlot);
+        GelTrack gelTrack = new GelTrack(dataView, userData, userDataHandler,
+                Color.WHITE, 0, Long.MAX_VALUE);
+        gelTrack.setStrand(Strand.BOTH);
+        addTrack(dataView, gelTrack);
+
 	}
 
 	// FIXME Currently not used, used miRNAParser
 	public static void addWigTrack(GenomePlot plot, DataSource peakFile) {
 		ProfileTrack annotation = new ProfileTrack(plot.getDataView(), peakFile,
-		        ChunkTreeHandlerThread.class, Color.BLUE, 0, Long.MAX_VALUE);
+		        ChunkTreeHandlerThread.class, Color.BLACK, Color.BLUE, 0, Long.MAX_VALUE);
 		addTrack(plot.getDataView(), annotation);
 	}
 	

@@ -36,7 +36,30 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 	private List<View> views = new LinkedList<View>();
 	private View dataView = null;
 	private View overviewView = null;
-	public ChartPanel chartPanel;
+	private ReadScale readScale = ReadScale.AUTO;
+    public ChartPanel chartPanel;
+	
+	/**
+	 * Scale for visualising reads as profiles, gel etc.
+	 */
+    public enum ReadScale {
+        SMALL("Small", 15),
+        MEDIUM("Medium", 120),
+        LARGE("Large", 500),
+        AUTO("Automatic", 0);
+        
+        private String name;
+        public Integer numReads;
+        
+        private ReadScale(String name, Integer numReads) {
+            this.name = name;
+            this.numReads = numReads;
+        }
+        
+        public String toString() {
+            return name;
+        }
+    }
 
 	public GenomePlot(boolean horizontal) throws FileNotFoundException, MalformedURLException {
 
@@ -247,4 +270,12 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 	public Collection<View> getViews() {
 		return views;
 	}
+	
+    public ReadScale getReadScale() {
+        return readScale;
+    }
+
+    public void setReadScale(ReadScale readScale) {
+        this.readScale = readScale;
+    }
 }

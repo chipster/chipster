@@ -40,6 +40,7 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDReadParser;
@@ -189,6 +190,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	// private JRadioButton circularView;
 	private GridBagConstraints settingsGridBagConstraints;
 	private List<Row> contents;
+	private JComboBox profileScaleBox = new JComboBox();
 
 	private File localAnnotationPath;
 
@@ -390,10 +392,22 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			settingsPanel.add(this.zoomField , c);
 			this.zoomField.addFocusListener(this);
 			
+			// scale options for profile track
+            c.gridx = 0;
+            c.gridwidth = 5;        
+            c.gridy++;
+            c.insets.set(5, 10, 5, 10);
+            settingsPanel.add(new JLabel("Profile scale"), c);
+			profileScaleBox = new JComboBox(GenomePlot.ReadScale.values());
+	        c.gridx = 0;
+	        c.gridwidth = 5;        
+	        c.gridy++;
+            settingsPanel.add(profileScaleBox, c);
+			
 			c.gridx = 0;
 			c.gridwidth = 5;		
 			c.gridy++;
-			settingsPanel.add(gotoButton , c);
+			settingsPanel.add(gotoButton, c);
 			gotoButton.addActionListener(this);
 			gotoButton.setEnabled(false);
 
@@ -468,6 +482,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			// create the plot
 			String genome = (String) genomeBox.getSelectedItem();
 			this.plot = new GenomePlot(true);
+			
+			// set scale of profile track containing reads information
+			this.plot.setReadScale((ReadScale) this.profileScaleBox.getSelectedItem());
 
 			// add selected annotation tracks
 			for (Track track : tracks) {
@@ -528,10 +545,11 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			for (Track track : tracks) {
 				if (track.checkBox.isSelected()) {
 					File file = track.userData == null ? null : Session.getSession().getDataManager().getLocalFile(track.userData);
-					DataSource controlData = new ChunkDataSource(file, new ElandParser());
+                    DataSource controlData;
 					switch (track.type) {
 
 					case CONTROL_READS:
+		                controlData = new ChunkDataSource(file, new ElandParser());
 						TrackFactory.addThickSeparatorTrack(plot);
 						TrackFactory.addTitleTrack(plot, file.getName());
 						TrackFactory.addReadTracks(plot, controlData,

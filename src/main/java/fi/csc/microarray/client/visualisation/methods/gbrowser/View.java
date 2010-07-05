@@ -20,6 +20,7 @@ import java.util.List;
 
 import javax.swing.Timer;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.QueueManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
@@ -27,6 +28,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDo
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ProfileTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 
@@ -161,8 +163,15 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
                 boolean expandDrawables = track.canExpandDrawables();
 			    
 			    // create view context for this track only if we will use it
-			    if (expandDrawables) {
-			        trackContext = new TrackContext(track);
+                // currently only used for tracks that contain information
+                // about reads
+			    if (expandDrawables && track instanceof ProfileTrack) {
+			        if (parentPlot.getReadScale() == ReadScale.AUTO) {
+		                trackContext = new TrackContext(track);
+			        } else {
+                        // FIXME ReadScale is in "number of reads" and context takes "number of pixels"
+			            trackContext = new TrackContext(track, Math.max(0, track.getHeight() - parentPlot.getReadScale().numReads));
+			        }
 			    }
 
 			    // get drawable iterator

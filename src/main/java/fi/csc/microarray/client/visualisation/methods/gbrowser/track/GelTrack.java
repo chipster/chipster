@@ -14,6 +14,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaR
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
@@ -40,7 +41,7 @@ public class GelTrack extends Track {
     private boolean wasLastConsised = true;
     private Color color;
     
-    private Color BACKGROUND = Color.BLACK;
+    private Color BACKGROUND = Color.WHITE;
 
     public GelTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
             Color color, long minBpLength, long maxBpLength) {
@@ -111,8 +112,8 @@ public class GelTrack extends Track {
                     // choose lightness
                     Color c;
                     if (currentBpLocation - lastBpLocation == 1) {
-                        c = Color.getHSBColor(hue, (float)0.5,
-                                collector.get(currentBpLocation)/(float)maxItems);
+                        c = Color.getHSBColor(hue, 0,
+                                1-collector.get(currentBpLocation)/(float)maxItems);
                     } else {
                         c = BACKGROUND;
                     }
@@ -134,7 +135,8 @@ public class GelTrack extends Track {
         // check that areaResult has same concised status (currently always false)
         // and correct strand
         if (areaResult.status.concise == isConcised()
-                && areaResult.content.values.get(ColumnType.STRAND) == getStrand()) {
+                && (getStrand() == areaResult.content.values.get(ColumnType.STRAND) ||
+                    getStrand() == Strand.BOTH)) {
             
             // add this to queue of RegionContents to be processed
             this.reads.add(areaResult.content);
