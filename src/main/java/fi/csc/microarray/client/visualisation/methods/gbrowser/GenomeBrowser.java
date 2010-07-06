@@ -28,9 +28,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.PlainDocument;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -68,7 +65,8 @@ import fi.csc.microarray.util.IOUtils;
  * 
  * @author Petri Klemelä, Aleksi Kallio
  */
-public class GenomeBrowser extends Visualisation implements ActionListener, RegionListener, FocusListener {
+public class GenomeBrowser extends Visualisation implements
+        ActionListener, RegionListener, FocusListener {
 
 	private static final String[] CHROMOSOMES = new String[] {
 		"1",
@@ -180,9 +178,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	private JButton gotoButton = new JButton("Go to location");
 	private JButton drawButton = new JButton("Draw");
 
-	private JTextField megaLocation = new JTextField(4);
-	private JTextField kiloLocation = new JTextField(4);
-	private JTextField unitLocation = new JTextField(4);
+	private JTextField locationField = new JTextField();
 	private JTextField zoomField = new JTextField(10);
 	private JComboBox chrBox = new JComboBox();
 	private JComboBox genomeBox = new JComboBox();
@@ -321,7 +317,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			AnnotationContents annotationContentFile = new AnnotationContents();
 			annotationContentFile.parseFrom(contentsStream);
 			this.contents = annotationContentFile.getRows();
-		
+            
 			// read genome name and version for each annotation file
 			LinkedHashSet<String> genomes = annotationContentFile.getGenomes();
 			c.gridy++;
@@ -342,47 +338,17 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			settingsPanel.add(new JLabel("Chromosome"), c);
 			c.gridy++;
 			settingsPanel.add(chrBox, c);
+			
+			// location
+            c.gridy++;
+            settingsPanel.add(new JLabel("Location"), c);
+            c.gridy++;
+            settingsPanel.add(new JLabel("(gene or position)"), c);
+            c.gridy++;
+            settingsPanel.add(locationField, c);
 
-			for (JTextField field : new JTextField[] {megaLocation, kiloLocation, unitLocation}) {
-				PlainDocument fieldContents = new PlainDocument() {
-					@Override
-					public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
-						if (str != null && str.length() > 3) {
-							return; // was too long
-						}
-						super.insertString(offs, str, a);
-					}
-				};			
-				field.setDocument(fieldContents);
-				field.addFocusListener(this);
-			}
-
-			settingsPanel.add(new JLabel("Location"), c);
-
-			c.anchor = GridBagConstraints.SOUTH;
-			JLabel megaLabel = new JLabel("M");
-			JLabel kiloLabel = new JLabel("k");
-			c.gridy++;
-			c.gridwidth = 1;
-			c.insets.set(5, 10, 5, 0);
-			c.weightx = 1.0;
-			settingsPanel.add(megaLocation, c);
-			c.gridx++;
-			c.insets.set(5, 0, 5, 0);
-			c.weightx = 0.0;
-			settingsPanel.add(megaLabel, c);
-			c.gridx++;
-			c.weightx = 1.0;
-			settingsPanel.add(kiloLocation, c);
-			c.gridx++;
-			c.weightx = 0.0;
-			settingsPanel.add(kiloLabel, c);
-			c.gridx++;
-			c.insets.set(5, 0, 5, 10);
-			c.weightx = 1.0;
-			settingsPanel.add(unitLocation, c);
-
-			c.gridx = 0;
+            // zoom
+            c.gridx = 0;
 			c.gridwidth = 5;		
 			c.gridy++;
 			c.insets.set(5, 10, 5, 10);
@@ -404,10 +370,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	        c.gridy++;
             settingsPanel.add(profileScaleBox, c);
 			
-			c.gridx = 0;
-			c.gridwidth = 5;		
-			c.gridy++;
-			settingsPanel.add(gotoButton, c);
 			gotoButton.addActionListener(this);
 			gotoButton.setEnabled(false);
 
@@ -445,16 +407,31 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 	}
 
 	/**
-	 * A method defined by the ActionListener interface. Allows this panel to listen to actions on its components.
+	 * A method defined by the ActionListener interface.
+	 * Allows this panel to listen to actions on its components.
 	 */
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
 
 		if (source == drawButton) {
+		    
 			showVisualisation();
-		} else if (source == gotoButton) {
-			gotoButton.setEnabled(false);
-			locationChanged();
+			
+// FIXME cleanup
+//		} else if (source == gotoButton) {
+//			gotoButton.setEnabled(false);
+//			locationChanged();
+//		} else if (source == goGeneButton) {
+//		    // FIXME hardcoded, use indexed database
+//            if (geneName.getText().equals("A2M")) {
+//                chrBox.setSelectedItem(CHROMOSOMES[11]);
+//                showVisualisation();
+//                plot.moveDataBpRegion(9 * 1000000 + 128 * 1000 + 912L, 74000L);
+//            } else if (geneName.getText().equals("IFNAR1")) {
+//                chrBox.setSelectedItem(CHROMOSOMES[20]);
+//                showVisualisation();
+//                plot.moveDataBpRegion(33 * 1000000 + 633 * 1000 + 627L, 74000L);                
+//            }
 		}
 	}
 
@@ -583,23 +560,16 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 			}
 
 			// fill in initial positions if not filled in
-			if (megaLocation.getText().trim().isEmpty()) {
-				megaLocation.setText("1");
-			}
-			if (kiloLocation.getText().trim().isEmpty()) {
-				kiloLocation.setText("0");
-			}
-			if (unitLocation.getText().trim().isEmpty()) {
-				unitLocation.setText("0");
+			if (locationField.getText().trim().isEmpty()) {
+				locationField.setText("1000000");
 			}
 			if (zoomField.getText().trim().isEmpty()) {
 				zoomField.setText("100000");
 			}
 
 			// initialise the plot
-			plot.start((String)chrBox.getSelectedItem(), (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
+			updateLocation();
 			plot.addDataRegionListener(this);
-			locationChanged();
 
 			// wrap it in a panel
 			ChartPanel chartPanel =  new NonScalableChartPanel(new JFreeChart(plot));
@@ -670,10 +640,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 
 	@Override
 	public void regionChanged(BpCoordRegion bpRegion) {
-		long location = bpRegion.getMid();
-		megaLocation.setText("" + (location / 1000000));
-		kiloLocation.setText("" + (location % 1000000) / 1000);
-		unitLocation.setText("" + (location % 1000));
+	    locationField.setText(bpRegion.getMid().toString());
 		zoomField.setText("" + bpRegion.getLength());
 		gotoButton.setEnabled(false);
 	}
@@ -723,8 +690,26 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 		return true;
 	}
 
-	private void locationChanged() {
-		plot.moveDataBpRegion(Long.parseLong(megaLocation.getText()) * 1000000 + Long.parseLong(kiloLocation.getText()) * 1000 + Long.parseLong(unitLocation.getText()), Long.parseLong(zoomField.getText()));
+	private void updateLocation() {
+        
+        // FIXME hardcoded, use indexed database
+        if (locationField.getText().equals("A2M")) {
+            chrBox.setSelectedItem(CHROMOSOMES[11]);
+            plot.start((String)chrBox.getSelectedItem(),
+                    (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
+            plot.moveDataBpRegion(9 * 1000000 + 128 * 1000 + 912L, 74000L);
+        } else if (locationField.getText().equals("IFNAR1")) {
+            chrBox.setSelectedItem(CHROMOSOMES[20]);
+            plot.start((String)chrBox.getSelectedItem(),
+                    (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
+            plot.moveDataBpRegion(33 * 1000000 + 633 * 1000 + 627L, 74000L);                
+        } else {
+            // TODO check format
+            plot.start((String)chrBox.getSelectedItem(),
+                    (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
+            plot.moveDataBpRegion(Long.parseLong(locationField.getText()),
+                    Long.parseLong(zoomField.getText()));
+        }
 	}
 
 	@Override
