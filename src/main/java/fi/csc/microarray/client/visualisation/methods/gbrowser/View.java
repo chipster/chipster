@@ -48,7 +48,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	private Point2D dragStartPoint;
 	private boolean dragStarted;
 
-	GenomePlot parentPlot;
+	public GenomePlot parentPlot;
 
 	private static final int FPS = 30;
 

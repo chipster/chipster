@@ -10,6 +10,7 @@ import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
@@ -111,16 +112,20 @@ public class GelTrack extends Track {
                     
                     // choose lightness
                     Color c;
-                    if (currentBpLocation - lastBpLocation == 1) {
-                        c = Color.getHSBColor(hue, 0,
-                                1-collector.get(currentBpLocation)/(float)maxItems);
+                    float lightness;
+                    if (view.parentPlot.getReadScale() == ReadScale.AUTO) {
+                        lightness = collector.get(currentBpLocation)/(float)maxItems; 
                     } else {
-                        c = BACKGROUND;
+                        lightness = Math.min(collector.get(currentBpLocation)/
+                                    (float)view.parentPlot.getReadScale().numReads, 1);
                     }
-                    
-                    // draw a rectangle for each region
-                    drawables.add(new RectDrawable(new Rectangle((int)startX, 0,
-                            (int)(endX-startX), this.getHeight()), c, c));
+                    if (currentBpLocation - lastBpLocation == 1) {
+                        c = Color.getHSBColor(hue, 0, 1-lightness);
+                        
+                        // draw a rectangle for each region
+                        drawables.add(new RectDrawable(new Rectangle((int)startX, 0,
+                                (int)(endX-startX), this.getHeight()), c, c));
+                    }
                     
                     lastBpLocation = currentBpLocation;
                 }

@@ -8,7 +8,6 @@ import java.util.List;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -42,7 +41,7 @@ public class RulerTrack extends Track {
 		long magnitude = (long) Math.pow(10, (int) Math.log10(region.getLength()));
 
 		final long start = region.start.bp - region.start.bp % magnitude;
-		final int steps = (int) Math.ceil(region.getLength() / magnitude) + 1;
+		final int steps = (int) Math.ceil(region.getLength() / (double)magnitude) + 1;
 		final long end = start + steps * magnitude;
 
 		for (long bp = start; bp <= end; bp += magnitude) {
@@ -83,9 +82,9 @@ public class RulerTrack extends Track {
 
 			drawables.add(new RectDrawable(lastBoxX, textY, boxX - lastBoxX, boxHeight, c, Color.black));
 
-			Color lineColor = (i % MINOR_STEPS == MINOR_STEPS - 1) ? new Color(0, 0, 0, 64) : new Color(0, 0, 0, 32);
-
-			drawables.add(new LineDrawable(boxX, -getView().getHeight() + getHeight(), boxX, getHeight(), lineColor));
+			// TODO remove these guidelines if not used
+			// Color lineColor = (i % MINOR_STEPS == MINOR_STEPS - 1) ? new Color(0, 0, 0, 64) : new Color(0, 0, 0, 32);
+			// drawables.add(new LineDrawable(boxX, -getView().getHeight() + getHeight(), boxX, getHeight(), lineColor));
 
 			lastBoxX = boxX;
 		}

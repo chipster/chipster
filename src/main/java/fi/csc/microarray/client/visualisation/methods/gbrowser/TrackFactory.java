@@ -97,7 +97,7 @@ public class TrackFactory {
 	
 		View dataView = genomePlot.getDataView();
 		int switchViewsAt = 50000;
-		Color histogramColor = isTreatment ? Color.blue : Color.gray;
+		Color histogramColor = Color.gray;
 		Color fontColor = Color.black;
 							
 		// 

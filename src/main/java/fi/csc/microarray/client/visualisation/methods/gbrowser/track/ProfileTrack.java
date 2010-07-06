@@ -33,7 +33,6 @@ public class ProfileTrack extends Track {
 
 	private Collection<RegionContent> forwardReads = new TreeSet<RegionContent>();
 	private Collection<RegionContent> backwardReads = new TreeSet<RegionContent>();
-	private TreeMap<Long, Long> collector = new TreeMap<Long, Long>();
 	private boolean wasLastConsised = true;
 	private Color forwardColor;
 	private Color backwardColor;
@@ -56,6 +55,7 @@ public class ProfileTrack extends Track {
 	private Collection<Drawable> getDrawableReads(Collection<RegionContent> reads, Color color) {
         Collection<Drawable> drawables = getEmptyDrawCollection();
         
+        TreeMap<Long, Long> collector = new TreeMap<Long, Long>();
         Iterator<RegionContent> iter = reads.iterator();
         Chromosome lastChromosome = null;
         
@@ -139,11 +139,9 @@ public class ProfileTrack extends Track {
                     (int)(endX + bpWidth), this.getHeight(), color));
             drawables.add(new LineDrawable((int)(endX + bpWidth), this.getHeight(),
                     getView().getWidth(), this.getHeight(), color));
-        } else {
-            // there are no items, draw a straight line at zero
-            drawables.add(new LineDrawable(0, this.getHeight(),
-                    getView().getWidth(), this.getHeight(), color));
         }
+        
+        collector.clear();
         
         return drawables;
 	}
@@ -151,8 +149,6 @@ public class ProfileTrack extends Track {
 	@Override
 	public Collection<Drawable> getDrawables() {
         Collection<Drawable> drawables = getEmptyDrawCollection();
-
-        collector.clear();
 
         // add drawables from both reads (if present)
 		drawables.addAll(getDrawableReads(forwardReads, forwardColor));
