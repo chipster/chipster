@@ -11,7 +11,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 
 public class TreeNode {
 
-	private static final boolean DEPTH_LIMIT_ACTIVE = true;
+	private static final boolean DEPTH_LIMIT_ACTIVE = false;
 	
 	private ChunkTreeHandlerThread tree;
 	public RegionContent[] concisedValues;

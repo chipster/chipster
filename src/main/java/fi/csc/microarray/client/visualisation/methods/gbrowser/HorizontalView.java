@@ -26,12 +26,14 @@ public class HorizontalView extends View {
 
 		super.drawView(g, isAnimation);
 
+		// show current position on top of chromosome
 		if (highlight != null) {
 			g.setPaint(new Color(0, 0, 0, 64));
 			Rectangle rect = g.getClip().getBounds();
 
 			rect.x = bpToTrack(highlight.start);
 			rect.width = Math.max(1, bpToTrack(highlight.end) - rect.x);
+			rect.height = 24;
 			g.fill(rect);
 		}
 	}

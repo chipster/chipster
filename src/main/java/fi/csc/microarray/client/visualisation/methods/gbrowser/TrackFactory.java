@@ -144,16 +144,16 @@ public class TrackFactory {
 		addTrack(dataView, readsReversed);
 
         // Profile
-        addSeparatorTrack(genomePlot);
+        addSeparatorTrack(genomePlot, switchViewsAt);
         ProfileTrack profileTrack = new ProfileTrack(dataView, userData, userDataHandler,
-                Color.BLACK, PartColor.CDS.c, 0, Long.MAX_VALUE);
+                Color.BLACK, PartColor.CDS.c, 0, switchViewsAt);
         profileTrack.setStrand(Strand.BOTH);
         addTrack(dataView, profileTrack);
         
         // Gel
-        addSeparatorTrack(genomePlot);
+        addSeparatorTrack(genomePlot, switchViewsAt);
         GelTrack gelTrack = new GelTrack(dataView, userData, userDataHandler,
-                Color.WHITE, 0, Long.MAX_VALUE);
+                Color.WHITE, 0, switchViewsAt);
         gelTrack.setStrand(Strand.BOTH);
         addTrack(dataView, gelTrack);
 
@@ -206,8 +206,8 @@ public class TrackFactory {
 		CytobandTrack overviewCytobands = new CytobandTrack(plot.getOverviewView(), cytobandData, ChunkTreeHandlerThread.class, false);
 		addTrack(plot.getOverviewView(), overviewCytobands);
 
-		CytobandTrack cytobands = new CytobandTrack(plot.getDataView(), cytobandData, ChunkTreeHandlerThread.class, true);
-		addTrack(plot.getDataView(), cytobands);
+		//CytobandTrack cytobands = new CytobandTrack(plot.getDataView(), cytobandData, ChunkTreeHandlerThread.class, true);
+		//addTrack(plot.getDataView(), cytobands);
 	}
 
 	public static void addRulerTrack(GenomePlot plot) {

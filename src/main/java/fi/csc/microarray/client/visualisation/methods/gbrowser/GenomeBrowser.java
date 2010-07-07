@@ -6,6 +6,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.File;
@@ -66,7 +68,7 @@ import fi.csc.microarray.util.IOUtils;
  * @author Petri Klemelä, Aleksi Kallio
  */
 public class GenomeBrowser extends Visualisation implements
-        ActionListener, RegionListener, FocusListener {
+        ActionListener, RegionListener, FocusListener, ComponentListener {
 
 	private static final String[] CHROMOSOMES = new String[] {
 		"1",
@@ -414,24 +416,7 @@ public class GenomeBrowser extends Visualisation implements
 		Object source = e.getSource();
 
 		if (source == drawButton) {
-		    
 			showVisualisation();
-			
-// FIXME cleanup
-//		} else if (source == gotoButton) {
-//			gotoButton.setEnabled(false);
-//			locationChanged();
-//		} else if (source == goGeneButton) {
-//		    // FIXME hardcoded, use indexed database
-//            if (geneName.getText().equals("A2M")) {
-//                chrBox.setSelectedItem(CHROMOSOMES[11]);
-//                showVisualisation();
-//                plot.moveDataBpRegion(9 * 1000000 + 128 * 1000 + 912L, 74000L);
-//            } else if (geneName.getText().equals("IFNAR1")) {
-//                chrBox.setSelectedItem(CHROMOSOMES[20]);
-//                showVisualisation();
-//                plot.moveDataBpRegion(33 * 1000000 + 633 * 1000 + 627L, 74000L);                
-//            }
 		}
 	}
 
@@ -588,6 +573,7 @@ public class GenomeBrowser extends Visualisation implements
 				plotPanel.remove(1);
 			}
 			plotPanel.add(chartPanel, PLOTPANEL);
+            plotPanel.addComponentListener(this);
 			CardLayout cl = (CardLayout) (plotPanel.getLayout());
 			cl.show(plotPanel, PLOTPANEL);
 			
@@ -721,4 +707,24 @@ public class GenomeBrowser extends Visualisation implements
 	public void focusLost(FocusEvent e) {
 		// skip		
 	}
+
+    @Override
+    public void componentHidden(ComponentEvent arg0) {
+        // skip
+    }
+
+    @Override
+    public void componentMoved(ComponentEvent arg0) {
+        // skip
+    }
+
+    @Override
+    public void componentResized(ComponentEvent arg0) {
+        this.showVisualisation();
+    }
+
+    @Override
+    public void componentShown(ComponentEvent arg0) {
+        // skip
+    }
 }

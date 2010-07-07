@@ -66,6 +66,8 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 		// add overview view
 		this.overviewView = new HorizontalView(this, false, false, true);
 		this.overviewView.margin = 0;
+		this.overviewView.setStaticHeight(true);
+		this.overviewView.setHeight(25);
 		this.views.add(overviewView);
 
 		// add horizontal or circular data view
@@ -154,15 +156,22 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 		// Horizontal or vertical split
 		if (true) {
 
-			float[] viewHeights = new float[] { 0.1f, 0.9f };
-
 			for (int i = 0; i < views.size(); i++) {
+			    View view = views.get(i);
+			    
 				if (i > 0) {
 					viewArea.y += viewArea.height;
 				}
-				viewArea.height = (int) (area.getBounds().getHeight() * viewHeights[i]);
+				
+				if (view.hasStaticHeight()) {
+				    viewArea.height = (int) (view.getHeight());
+				} else {
+				    viewArea.height = (int) (area.getBounds().getHeight() -
+				            sumStaticViewHeights()) / countStaticViews();
+				}
+
 				g2.setClip(viewArea);
-				views.get(i).drawView(g2, false);
+				view.drawView(g2, false);
 			}
 
 		} else {
@@ -277,5 +286,31 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
     public void setReadScale(ReadScale readScale) {
         this.readScale = readScale;
+    }
+    
+    /**
+     * Sum heights of all views in this plot that have constant heights.
+     */
+    private int sumStaticViewHeights() {
+        int heightSum = 0;
+        for (View view : views) {
+            if (view.hasStaticHeight()) {
+                heightSum += view.getHeight();
+            }
+        }
+        return heightSum;
+    }
+    
+    /**
+     * Return a number of views that have static heights.
+     */
+    private int countStaticViews() {
+        int count = 0;
+        for (View view : views) {
+            if (view.hasStaticHeight()) {
+                count += 1;
+            }
+        }
+        return count;
     }
 }

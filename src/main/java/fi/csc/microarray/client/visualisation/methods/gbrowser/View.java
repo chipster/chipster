@@ -71,6 +71,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	private int x;
 	private BufferedImage drawBuffer;
 	private long dragEventTime;
+    private boolean isStatic;
 	private static final long DRAG_EXPIRATION_TIME_MS = 50;
 
 	public View(GenomePlot parent, boolean movable, boolean zoomable, boolean selectable) {
@@ -122,7 +123,8 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		viewArea = viewClip;
 
 		if (drawBuffer == null) {
-			drawBuffer = new BufferedImage((int) viewArea.getWidth(), (int) viewArea.getHeight(), BufferedImage.TYPE_INT_RGB);
+			drawBuffer = new BufferedImage((int) viewArea.getWidth(),
+			        (int) viewArea.getHeight(), BufferedImage.TYPE_INT_RGB);
 
 			Graphics2D bufG2 = (Graphics2D) drawBuffer.getGraphics();
 			bufG2.setPaint(Color.white);
@@ -251,11 +253,8 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	}
 
 	public float getTrackHeight() {
-
-		if (trackHeight == null) {
-			trackHeight = (getHeight() - getStaticTrackHeightTotal()) / (float) getStretchableTrackCount();
-		}
-		
+		trackHeight = (getHeight() - getStaticTrackHeightTotal()) /
+		        (float) getStretchableTrackCount();		
 		return trackHeight;
 	}
 
@@ -290,6 +289,18 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	public int getHeight() {
 		return this.viewArea.height;
+	}
+	
+    public void setHeight(int height) {
+        this.viewArea.height = height;
+    }
+	
+	public boolean hasStaticHeight() {
+        return isStatic;
+	}
+	
+	public void setStaticHeight(boolean isStatic) {
+	    this.isStatic = isStatic;
 	}
 
 	public QueueManager getQueueManager() {
