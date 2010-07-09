@@ -34,6 +34,11 @@ import org.jfree.chart.JFreeChart;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
+import fi.csc.microarray.client.dialog.ChipsterDialog;
+import fi.csc.microarray.client.dialog.DialogInfo;
+import fi.csc.microarray.client.dialog.DialogInfo.Severity;
+import fi.csc.microarray.client.dialog.DialogInfo.Type;
 import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
@@ -55,6 +60,8 @@ import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
+import fi.csc.microarray.gbrowser.index.GeneIndexActions;
+import fi.csc.microarray.gbrowser.index.GeneIndexDataType;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
@@ -691,25 +698,49 @@ public class GenomeBrowser extends Visualisation implements
 	}
 
 	private void updateLocation() {
+        GeneIndexActions gia = new GeneIndexActions();
+        GeneIndexDataType gidt = new GeneIndexDataType();
         
-        // FIXME hardcoded, use indexed database
-        if (locationField.getText().equals("A2M")) {
-            chrBox.setSelectedItem(CHROMOSOMES[11]);
-            plot.start((String)chrBox.getSelectedItem(),
-                    (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
-            plot.moveDataBpRegion(9 * 1000000 + 128 * 1000 + 912L, 74000L);
-        } else if (locationField.getText().equals("IFNAR1")) {
-            chrBox.setSelectedItem(CHROMOSOMES[20]);
-            plot.start((String)chrBox.getSelectedItem(),
-                    (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
-            plot.moveDataBpRegion(33 * 1000000 + 633 * 1000 + 627L, 74000L);                
-        } else {
-            // TODO check format
+        if (gia.checkIfNumber(locationField.getText()) == false){
+		    gia.connect();
+		    gidt = gia.getLocation(locationField.getText().toUpperCase());
+		    gia.closeConnection();
+		    
+		    if (gidt == null){
+		    	application.showDialog("Error", "Gene with such name was not found", null, Severity.INFO, false, DetailsVisibility.DETAILS_ALWAYS_HIDDEN);
+		    }
+		    else {
+		    	chrBox.setSelectedItem(gidt.chromosome.toString());
+			    plot.start((String)chrBox.getSelectedItem(),
+			            (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
+			    plot.moveDataBpRegion((gidt.bpend+gidt.bpstart)/2, (gidt.bpend - gidt.bpstart)*2);
+		    }
+        }
+        else{
+	        // FIXME hardcoded, use indexed database
+	        /*if (locationField.getText().equals("A2M")) {
+	            chrBox.setSelectedItem(CHROMOSOMES[11]);
+	            plot.start((String)chrBox.getSelectedItem(),
+	                    (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
+	            plot.moveDataBpRegion(9 * 1000000 + 128 * 1000 + 912L, 74000L);
+	        } else if (locationField.getText().equals("IFNAR1")) {
+	            chrBox.setSelectedItem(CHROMOSOMES[20]);
+	            plot.start((String)chrBox.getSelectedItem(),
+	                    (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
+	            plot.moveDataBpRegion(33 * 1000000 + 633 * 1000 + 627L, 74000L);                
+	        } else {*/
+	            // TODO check format
+        	try{
             plot.start((String)chrBox.getSelectedItem(),
                     (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
             plot.moveDataBpRegion(Long.parseLong(locationField.getText()),
                     Long.parseLong(zoomField.getText()));
+        	}
+        	catch (NumberFormatException e){
+        		application.reportException(e);
+        	}
         }
+        /*}*/
 	}
 
 	@Override
