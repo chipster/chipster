@@ -17,6 +17,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.utils.Sequence;
 
 /**
  * Track for showing the reference sequence. Useful only for low zoom levels.
@@ -72,48 +73,12 @@ public class SeqTrack extends Track {
 				}
 
 				drawables.addAll(getSeqDrawables(startBp, endBp, seq, 1));
-				drawables.addAll(getSeqDrawables(startBp, endBp, complement(seq), 11));
+				drawables.addAll(getSeqDrawables(startBp, endBp, Sequence.complement(seq), 11));
 
 			}
 		}
 
 		return drawables;
-	}
-
-	private String complement(String seq) {
-
-		StringBuffer buf = new StringBuffer(seq);
-
-		for (int j = 0; j < seq.length(); j++) {
-			switch (buf.charAt(j)) {
-			case 'A':
-				buf.setCharAt(j, 'T');
-				break;
-			case 'C':
-				buf.setCharAt(j, 'G');
-				break;
-			case 'G':
-				buf.setCharAt(j, 'C');
-				break;
-			case 'T':
-				buf.setCharAt(j, 'A');
-				break;
-			case 'a':
-				buf.setCharAt(j, 't');
-				break;
-			case 'c':
-				buf.setCharAt(j, 'g');
-				break;
-			case 'g':
-				buf.setCharAt(j, 'c');
-				break;
-			case 't':
-				buf.setCharAt(j, 'a');
-				break;
-			}
-		}
-
-		return buf.toString();
 	}
 
 	private Collection<Drawable> getSeqDrawables(BpCoord startBb, BpCoord endBp, String seq, int yOffset) {

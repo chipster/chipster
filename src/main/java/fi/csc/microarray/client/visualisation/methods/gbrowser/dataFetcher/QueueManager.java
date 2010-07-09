@@ -42,6 +42,15 @@ public class QueueManager implements AreaResultListener {
 			}
 		}
 	}
+	
+	/**
+	 * Remove queue for the given data source.
+	 * 
+	 * @param file
+	 */
+	public void removeQueue(DataSource file) {
+	    queues.remove(file);
+	}
 
 	public void addAreaRequest(DataSource file, AreaRequest req, boolean clearQueues) {
 		req.status.file = file;

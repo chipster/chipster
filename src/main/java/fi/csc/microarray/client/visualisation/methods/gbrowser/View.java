@@ -451,9 +451,10 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		if (zoomable) {
 			
 			// zoom out
-			if (wheelRotation > 0) {
-				lockedX = (int) getWidth() - lockedX + getX() * 2;
-			}
+			//if (wheelRotation > 0) {
+		    // DOCME why?
+			//	lockedX = (int) getWidth() - lockedX + getX() * 2;
+			//}
 
 			BpCoordDouble pointerBp = trackToBp(lockedX);
 			double pointerRelative = trackToRelative(lockedX);
