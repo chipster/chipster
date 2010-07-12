@@ -439,7 +439,11 @@ public class ACDParameter {
             resolvedExp = resolver.getResult();
         }
 
-        if (!(exp.equals(resolvedExp))) {
+        if (!(exp.equals(resolvedExp))) {            
+            // Hack booleans back
+            resolvedExp = resolvedExp.equals("true") ? "Y" : resolvedExp;
+            resolvedExp = resolvedExp.equals("false") ? "N" : resolvedExp;
+                
             return resolveExp(resolvedExp, map);
         } else {
             // No changes were made - stop the recursion

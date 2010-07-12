@@ -141,9 +141,17 @@ public class IntegerParameter extends Parameter {
 	
 	@Override
 	public void parseValue(String stringValue) throws IllegalArgumentException {
+	       
+        // Empty string means that no value is set
+	    // This is possible for non-required parameters
+        if (stringValue == null || stringValue.equals("")) {
+            setValue(null);
+            return;
+        }
+        
+        // Otherwise string should represent an integer
 		try {
 			setValue(Integer.parseInt(stringValue));
-			
 		} catch (NumberFormatException e) {
 			throw new IllegalArgumentException("cannot parse String value \"" + stringValue + "\"");
 		}

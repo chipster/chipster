@@ -277,7 +277,9 @@ public class EnumParameter extends Parameter {
     
     @Override
     public void parseValue(String stringValue) throws IllegalArgumentException {
-        setValue(stringValue); // no parsing needed
+        // TODO stringValue can be a comma-separated list as returned by getValue
+        // split it and make sure setValue can accept it
+        setValue(stringValue);
     }
 
 	@Override
