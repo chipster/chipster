@@ -28,7 +28,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.utils.Sequence;
  */
 public class SeqBlockTrack extends Track {
 
-	private static final int MAX_STACKING_DEPTH = 10;
+	private static final int MAX_STACKING_DEPTH = 12;
 
 	public static final String DUMMY_SEQUENCE = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
 								+ "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -89,7 +89,7 @@ public class SeqBlockTrack extends Track {
 
 			// collect relevant data for this read
 			Color blockColor = Color.gray;
-			int height = 2; // (int) (getView().getTrackHeight() / 2 * limited / 255f);
+			int height = 4;
 			BpCoord startBp = read.region.start;
 			BpCoord endBp = read.region.end;
 			String seq = ((String) read.values.get(ColumnType.SEQUENCE));
@@ -109,11 +109,14 @@ public class SeqBlockTrack extends Track {
 				
 				seq = DUMMY_SEQUENCE.substring(0, seqLength);
 			}
+			
+            // width in bp, sequence length not always equal to endBp - startBp + 1
+            int widthBp = seq.length();
 
 			// create rectangle covering the correct screen area (x-axis)
 			Rectangle rect = new Rectangle();
 			rect.x = getView().bpToTrack(startBp);
-			rect.width = getView().bpToTrack(endBp) - rect.x;
+			rect.width = (int) Math.round(getView().bpWidth() * widthBp);
 
 			// reads are drawn in order and placed in layers
 			int layer = 0;
@@ -171,8 +174,9 @@ public class SeqBlockTrack extends Track {
 				}
 
 				// prepare to draw single nucleotides
-				float x = rect.x;
-				float increment = (rect.width) / ((float) seq.length());
+				float x = getView().bpToTrackDouble(startBp);
+				float increment = (float) getView().bpWidth();
+				float nextX;
 
 				// draw something for each nucleotide
 				for (int j = 0; j < seq.length(); j++) {
@@ -216,10 +220,10 @@ public class SeqBlockTrack extends Track {
 						bg = bg.brighter();
 					}
 
-					drawables.add(new RectDrawable((int) x + 1, rect.y,
-							(int) increment, height, bg, null));
-
-					x += increment;
+					nextX = x + increment;
+					drawables.add(new RectDrawable(Math.round(x), rect.y,
+					        Math.round(nextX) - Math.round(x), height, bg, null));
+					x = nextX;
 				}
 			}
 		}

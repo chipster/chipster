@@ -67,22 +67,14 @@ public class HorizontalView extends View {
 
 		RectDrawable rect = (RectDrawable) drawable;
 
+		// Draw fill
 		if (rect.color != null) {
-
-			if (rect.lineColor == null) {
-				rect.x -= 1;
-				// rect.y -= 1;
-				rect.width += 2;
-				// rect.height += 2;
-			}
-
-			g.setPaint(drawable.color);
+			g.setPaint(rect.color);
 			g.fillRect(rect.x + x, rect.y + y, rect.width, rect.height);
-
 		}
 
 		// Draw outline after fill to make sure that it stays continuous
-		if (drawable.color != null) {
+		if (rect.lineColor != null) {
 			g.setPaint(rect.lineColor);
 			g.drawRect(rect.x + x, rect.y + y, rect.width, rect.height);
 		}

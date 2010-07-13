@@ -172,7 +172,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		                trackContext = new TrackContext(track);
 			        } else {
                         // FIXME ReadScale is in "number of reads" and context takes "number of pixels"
-			            trackContext = new TrackContext(track, Math.max(0, track.getHeight() - parentPlot.getReadScale().numReads));
+			            trackContext = new TrackContext(track, track.getHeight() - parentPlot.getReadScale().numReads);
 			        }
 			    }
 
@@ -498,13 +498,39 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	}
 
 	public Integer bpToTrack(BpCoord bp) {
-
 		if (bpRegion.start.chr.equals(bp.chr)) {
-			return (int) (((double) bp.bp - getBpRegionDouble().start.bp) / (getBpRegionDouble().end.bp - getBpRegionDouble().start.bp) * getWidth()) + getX();
+			return (int) Math.round(((bp.bp - getBpRegionDouble().start.bp) * bpWidth()) + getX());
 			
 		} else {
 			return null;
 		}
+	}
+
+	/**
+	 * Precisely convert bp coordinate to pixel position in this view.
+	 * Rounding should be performed just before drawing.
+	 * 
+	 * @param bp
+	 * @return
+	 */
+    public Float bpToTrackDouble(BpCoord bp) {
+        if (bpRegion.start.chr.equals(bp.chr)) {
+            return (float) ((bp.bp - getBpRegionDouble().start.bp) * bpWidth()) + getX();
+            
+        } else {
+            return null;
+        }
+    }
+	
+	/**
+	 * Calculates width of a single bp in pixels for this view.
+	 * Number is double, so the rounding should be performed just
+	 * before drawing.
+	 * 
+	 * @return width of a single bp in pixels for this view.
+	 */
+	public Float bpWidth() {
+	    return getWidth() / (float) getBpRegionDouble().getLength();
 	}
 
 	public BpCoordDouble trackToBp(double d) {

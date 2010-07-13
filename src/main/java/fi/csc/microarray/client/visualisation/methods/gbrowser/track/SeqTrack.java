@@ -81,13 +81,13 @@ public class SeqTrack extends Track {
 		return drawables;
 	}
 
-	private Collection<Drawable> getSeqDrawables(BpCoord startBb, BpCoord endBp, String seq, int yOffset) {
+	private Collection<Drawable> getSeqDrawables(BpCoord startBp, BpCoord endBp, String seq, int yOffset) {
 
 		Rectangle rect = new Rectangle();
 
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
-		rect.x = getView().bpToTrack(startBb);
+		rect.x = getView().bpToTrack(startBp);
 		rect.width = getView().bpToTrack(new BpCoord(endBp.bp + 1, endBp.chr)) - rect.x;
 
 		rect.y = (int) (1 + yOffset);
@@ -97,6 +97,7 @@ public class SeqTrack extends Track {
 
 		float x = rect.x;
 		float increment = (rect.width) / ((float) seq.length());
+		float nextX;
 
 		for (int j = 0; j < seq.length(); j++) {
 
@@ -119,9 +120,10 @@ public class SeqTrack extends Track {
 				bg = charColors[3];
 			}
 
-			drawables.add(new RectDrawable((int) x, rect.y - 1, (int) increment, 10, bg, null));
-
-			x += increment;
+            nextX = x + increment;
+            drawables.add(new RectDrawable(Math.round(x), rect.y - 1,
+                    Math.round(nextX) - Math.round(x), 10, bg, null));
+            x = nextX;
 		}
 
 		return drawables;

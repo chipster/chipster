@@ -52,7 +52,7 @@ public class IntensityTrack extends Track {
 			
 			// do the plotting for this consised value
 			int x1 = getView().bpToTrack(regCont.region.start);
-			int x2 = getView().bpToTrack(regCont.region.end);
+			int x2 = getView().bpToTrack(regCont.region.end) + 2;
 			int y2 = (int) getView().getTrackHeight();						
 			
 			int val = (int) Math.min(Math.log((Float) (regCont.values.get(ColumnType.VALUE))) * 4, getView().getTrackHeight() / 4);
