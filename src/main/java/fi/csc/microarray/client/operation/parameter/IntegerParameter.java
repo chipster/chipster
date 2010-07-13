@@ -159,11 +159,6 @@ public class IntegerParameter extends Parameter {
 
 	@Override
 	public String getValueAsString() {
-		if (value != null) {
-			return value.toString();
-		} else {
-			return "";
-		}
+	    return value != null ? value.toString() : "";
 	}
-
 }

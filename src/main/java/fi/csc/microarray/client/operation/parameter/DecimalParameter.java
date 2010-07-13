@@ -153,8 +153,14 @@ public class DecimalParameter extends Parameter {
         
         // Empty string means that no value is set
         // This is possible for non-required parameters
+	    System.out.print(this.getID() + " ");
+	    System.out.print (stringValue + " ");
+	    System.out.println(stringValue == null || stringValue.equals(""));
+	    System.out.print ("--");
         if (stringValue == null || stringValue.equals("")) {
+            
             setValue(null);
+            
             return;
         }
         
@@ -168,10 +174,6 @@ public class DecimalParameter extends Parameter {
 
 	@Override
 	public String getValueAsString() {
-	    if (value != null) {
-	        return value.toString();
-	    } else {
-	        return "";
-	    }
+	    return value != null ? value.toString() : "";
 	}
 }

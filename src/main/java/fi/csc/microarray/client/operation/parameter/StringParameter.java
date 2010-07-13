@@ -47,6 +47,6 @@ public class StringParameter extends Parameter {
 
 	@Override
 	public String getValueAsString() {
-		return value;
+		return value != null ? value : "";
 	}
 }
