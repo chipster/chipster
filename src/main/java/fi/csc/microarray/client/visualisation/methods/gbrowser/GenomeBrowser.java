@@ -62,6 +62,7 @@ import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
 import fi.csc.microarray.gbrowser.index.GeneIndexDataType;
+import fi.csc.microarray.gbrowser.index.GetGeneIndexData;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
@@ -112,7 +113,7 @@ public class GenomeBrowser extends Visualisation implements
 		158821424L,
 		146274826L, 	
 		140442298L,
-		135374737L,
+		135374737L,        
 		134452384L,
 		132289534L, 	
 		114127980L,
@@ -198,8 +199,11 @@ public class GenomeBrowser extends Visualisation implements
 	private File localAnnotationPath;
 
 	private URL annotationUrl;
-
-
+	
+    GeneIndexDataType gidt = new GeneIndexDataType();
+    GetGeneIndexData gdata = new GetGeneIndexData();
+    GeneIndexActions gia = new GeneIndexActions();
+	
 
 	public GenomeBrowser(VisualisationFrame frame) {
 		super(frame);
@@ -288,7 +292,7 @@ public class GenomeBrowser extends Visualisation implements
 	}
 
 	public JPanel createSettingsPanel() {
-
+		
 		settingsPanel.setLayout(new GridBagLayout());
 		settingsPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
 
@@ -598,6 +602,8 @@ public class GenomeBrowser extends Visualisation implements
 			CardLayout cl = (CardLayout) (plotPanel.getLayout());
 			cl.show(plotPanel, PLOTPANEL);
 			
+			
+			
 		} catch (Exception e) {
 			application.reportException(e);
 		}
@@ -698,13 +704,15 @@ public class GenomeBrowser extends Visualisation implements
 	}
 
 	private void updateLocation() {
-        GeneIndexActions gia = new GeneIndexActions();
-        GeneIndexDataType gidt = new GeneIndexDataType();
+		
+		//TODO move this
+		if (gia.getInitialized() == false){
+			gia.initialize(gdata.read());
+		}
         
         if (gia.checkIfNumber(locationField.getText()) == false){
-		    gia.connect();
+
 		    gidt = gia.getLocation(locationField.getText().toUpperCase());
-		    gia.closeConnection();
 		    
 		    if (gidt == null){
 		    	application.showDialog("Error", "Gene with such name was not found", null, Severity.INFO, false, DetailsVisibility.DETAILS_ALWAYS_HIDDEN);
@@ -717,28 +725,16 @@ public class GenomeBrowser extends Visualisation implements
 		    }
         }
         else{
-	        // FIXME hardcoded, use indexed database
-	        /*if (locationField.getText().equals("A2M")) {
-	            chrBox.setSelectedItem(CHROMOSOMES[11]);
+	        // TODO check format
+            try{
 	            plot.start((String)chrBox.getSelectedItem(),
 	                    (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
-	            plot.moveDataBpRegion(9 * 1000000 + 128 * 1000 + 912L, 74000L);
-	        } else if (locationField.getText().equals("IFNAR1")) {
-	            chrBox.setSelectedItem(CHROMOSOMES[20]);
-	            plot.start((String)chrBox.getSelectedItem(),
-	                    (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
-	            plot.moveDataBpRegion(33 * 1000000 + 633 * 1000 + 627L, 74000L);                
-	        } else {*/
-	            // TODO check format
-        	try{
-            plot.start((String)chrBox.getSelectedItem(),
-                    (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
-            plot.moveDataBpRegion(Long.parseLong(locationField.getText()),
-                    Long.parseLong(zoomField.getText()));
-        	}
-        	catch (NumberFormatException e){
-        		application.reportException(e);
-        	}
+	            plot.moveDataBpRegion(Long.parseLong(locationField.getText()),
+	                    Long.parseLong(zoomField.getText()));
+	        	}
+	        	catch (NumberFormatException e){
+	        		application.reportException(e);
+	        	}
         }
         /*}*/
 	}
