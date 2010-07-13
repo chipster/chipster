@@ -13,6 +13,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GeneTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.IntensityTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.PeakTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ProfileTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RepeatMaskerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeqBlockTrack;
@@ -121,6 +122,10 @@ public class TrackFactory {
 		//
 
 		if (seqFile != null) {
+			
+			RepeatMaskerTrack rmt = new RepeatMaskerTrack(dataView, seqFile, ChunkTreeHandlerThread.class, Color.WHITE, 0, 800);
+			addTrack(dataView, rmt);
+			addSeparatorTrack(genomePlot);
 			// Reference sequence
 			SeqTrack seq = new SeqTrack(dataView, seqFile, ChunkTreeHandlerThread.class, 800);
 			addTrack(dataView, seq);
