@@ -123,7 +123,7 @@ public class TrackFactory {
 
 		if (seqFile != null) {
 			
-			RepeatMaskerTrack rmt = new RepeatMaskerTrack(dataView, seqFile, ChunkTreeHandlerThread.class, Color.WHITE, 0, 800);
+			RepeatMaskerTrack rmt = new RepeatMaskerTrack(dataView, seqFile, ChunkTreeHandlerThread.class, 0, 800);
 			addTrack(dataView, rmt);
 			addSeparatorTrack(genomePlot);
 			// Reference sequence
