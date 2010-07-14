@@ -200,9 +200,7 @@ public class GenomeBrowser extends Visualisation implements
 
 	private URL annotationUrl;
 	
-    GeneIndexDataType gidt = new GeneIndexDataType();
-    GetGeneIndexData gdata = new GetGeneIndexData();
-    GeneIndexActions gia = new GeneIndexActions();
+    GeneIndexActions gia = GeneIndexActions.getInstance();
 	
 
 	public GenomeBrowser(VisualisationFrame frame) {
@@ -705,11 +703,7 @@ public class GenomeBrowser extends Visualisation implements
 
 	private void updateLocation() {
 		
-		//TODO move this
-		if (gia.getInitialized() == false){
-			gia.initialize(gdata.read());
-		}
-        
+		GeneIndexDataType gidt = new GeneIndexDataType();
         if (gia.checkIfNumber(locationField.getText()) == false){
 
 		    gidt = gia.getLocation(locationField.getText().toUpperCase());

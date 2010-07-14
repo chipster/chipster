@@ -14,23 +14,17 @@ public class GeneIndexActions {
 
 	private Connection conn;
 	private Statement st;
-	private boolean initialized = false;
+	private static GeneIndexActions gia;
+	private GetGeneIndexData getData;
 	
-	public GeneIndexActions(){
-		
-	}
-    
-	/*
-	 * creates database in memory, table, updates table with gene indexes
-	 */
-	public void initialize(List<RegionContent> data){
+	private GeneIndexActions(){
 		try {
+			getData = new GetGeneIndexData();
         	Class.forName("org.h2.Driver");
         	conn = DriverManager.getConnection("jdbc:h2:mem:GeneIndex", "sa", "");
         	st = conn.createStatement();
         	createTable();
-        	updateTable(data);
-        	initialized = true;
+        	updateTable(getData.read());
         } catch (ClassNotFoundException e) {
         	// TODO Auto-generated catch block
         	e.printStackTrace();
@@ -39,9 +33,15 @@ public class GeneIndexActions {
         	e.printStackTrace();
         }
 	}
-	
-	public boolean getInitialized(){
-		return initialized;
+    
+	/*
+	 * creates database in memory, table, updates table with gene indexes
+	 */
+	public static GeneIndexActions getInstance(){
+		if (gia == null){
+			gia = new GeneIndexActions();
+		}
+		return gia;
 	}
 	
 	/*
@@ -79,6 +79,9 @@ public class GeneIndexActions {
 		}
     }
     
+    /*
+     * getting location of a gene
+     */
     public GeneIndexDataType getLocation(String name){
     	try {
 			st = conn.createStatement();
@@ -91,7 +94,7 @@ public class GeneIndexActions {
 			return null;
 		}
     }
-    
+        
     public boolean checkIfNumber(String name){
     	try {
 			Integer.parseInt(name);
