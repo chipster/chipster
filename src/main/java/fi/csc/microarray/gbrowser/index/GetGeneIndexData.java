@@ -1,5 +1,9 @@
 package fi.csc.microarray.gbrowser.index;
 
+/*
+ * Getting genes information for indexing from a file
+ */
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;

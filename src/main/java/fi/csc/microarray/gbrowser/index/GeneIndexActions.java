@@ -1,5 +1,11 @@
 package fi.csc.microarray.gbrowser.index;
 
+/*
+ * Gene name search actions (creating database in memory, creating table,
+ * updating it with gene information (chromosome, bp_start, bp_end, name),
+ * getting gene coordinates by its name 
+ */
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;

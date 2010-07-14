@@ -1,5 +1,9 @@
 package fi.csc.microarray.gbrowser.index;
 
+/*
+ * This is for GeneIndexActions, for saving gene's location 
+ */
+
 //TODO if there are chromosomes with X,Y values, then chromosome type should be changed
 public class GeneIndexDataType {
 	public Long chromosome = null;
