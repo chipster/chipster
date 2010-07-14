@@ -28,12 +28,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Transc
  */
 public class GenomeBrowserStarter {
 
-	private static final File ELAND_DATA_FILE = new File("/home/naktinis/chipster-share/ngs/STAT1/STAT1_treatment_aggregated_filtered_sorted_chr1.txt");
-	private static final File MACS_DATA_FILE = new File("/home/naktinis/chipster-share/ngs/STAT1/STAT1_peaks_sorted.bed");
+	private static final File ELAND_DATA_FILE = new File("/home/zukauska/chipster-share/ngs/STAT1/STAT1_treatment_aggregated_filtered_sorted_chr1.txt");
+	private static final File MACS_DATA_FILE = new File("/home/zukauska/chipster-share/ngs/STAT1/STAT1_peaks_sorted.bed");
 	private static final File URL_ROOT;
 
 	static {
-			URL_ROOT = new File("/home/naktinis/chipster-share/ngs/annotations");
+			URL_ROOT = new File("/home/zukauska/chipster-share/ngs/annotations");
 	}
 
 	public static void main(String[] args) throws IOException {
