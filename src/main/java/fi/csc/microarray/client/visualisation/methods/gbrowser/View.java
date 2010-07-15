@@ -513,7 +513,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	 * @param bp
 	 * @return
 	 */
-    public Float bpToTrackDouble(BpCoord bp) {
+    public Float bpToTrackFloat(BpCoord bp) {
         if (bpRegion.start.chr.equals(bp.chr)) {
             return (float) ((bp.bp - getBpRegionDouble().start.bp) * bpWidth()) + getX();
             
@@ -524,7 +524,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	
 	/**
 	 * Calculates width of a single bp in pixels for this view.
-	 * Number is double, so the rounding should be performed just
+	 * Number is a float, so the rounding should be performed just
 	 * before drawing.
 	 * 
 	 * @return width of a single bp in pixels for this view.

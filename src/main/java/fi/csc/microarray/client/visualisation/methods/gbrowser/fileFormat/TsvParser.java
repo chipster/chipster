@@ -41,10 +41,19 @@ public abstract class TsvParser extends FileParser {
 		
 		@Override
 		public BpCoordRegion getBpRegion(String chunk) {
-			Long start = (Long)get(getFirstRow(chunk), ColumnType.BP_START);
-			Long end = (Long)get(getLastRow(chunk), ColumnType.BP_START);
-			Chromosome startChr = (Chromosome)get(getFirstRow(chunk), ColumnType.CHROMOSOME);
-			Chromosome endChr = (Chromosome)get(getLastRow(chunk), ColumnType.CHROMOSOME);
+		    String[] firstRow = getFirstRow(chunk);
+		    String[] lastRow = getLastRow(chunk);
+			Long start = (Long)get(firstRow, ColumnType.BP_START);
+			Long end;
+			try {
+			    // Check if end is given
+		        end = (Long)get(lastRow, ColumnType.BP_END);
+			} catch (RuntimeException e) {
+			    // Calculate from sequence
+			    end = start + (long)((String)get(lastRow, ColumnType.SEQUENCE)).length();
+			}
+			Chromosome startChr = (Chromosome)get(firstRow, ColumnType.CHROMOSOME);
+			Chromosome endChr = (Chromosome)get(lastRow, ColumnType.CHROMOSOME);
 			
 			return new BpCoordRegion(start, startChr, end, endChr);
 		}

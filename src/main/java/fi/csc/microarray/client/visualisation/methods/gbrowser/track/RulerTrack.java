@@ -67,7 +67,7 @@ public class RulerTrack extends Track {
 		double increment = bpRegion.getLength() / (double) steps;
 		BpCoordDouble boxBp = new BpCoordDouble(bpRegion.start);
 		
-        float lastBoxX = getView().bpToTrackDouble(bpRegion.start);
+        float lastBoxX = getView().bpToTrackFloat(bpRegion.start);
 		float boxX;
 
 		info.clear();
@@ -79,7 +79,7 @@ public class RulerTrack extends Track {
 
 			info.add((long) (double) boxBp.bp);
 
-			boxX = getView().bpToTrackDouble(boxBp.asBpCoord());
+			boxX = getView().bpToTrackFloat(boxBp.asBpCoord());
 
 			drawables.add(new RectDrawable(Math.round(lastBoxX), textY,
 			        Math.round(boxX) - Math.round(lastBoxX), boxHeight, c, Color.black));

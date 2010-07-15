@@ -49,7 +49,7 @@ public class BpCoordRegion implements Comparable<BpCoordRegion> {
 	}
 
 	public boolean intercepts(BpCoordRegion other) {
-		return other.end.compareTo(start) > 0 && other.start.compareTo(end) < 0;
+		return other.end.compareTo(start) >= 0 && other.start.compareTo(end) <= 0;
 	}
 
 	public BpCoordRegion intercept(BpCoordRegion other) {
