@@ -53,6 +53,7 @@ public class ConfigTool {
 			{"URL of Web Start files", "http://myhost.mydomain"},
 			{"Web Start www-server port", "8081"},
 			{"manager www-console port", "8082"},
+			{"admin e-mail address", "chipster-admin@mydomain"},
 			{CURRENT_R_VERSION + ".x command", "/opt/chipster/tools/" + CURRENT_R_VERSION + ".0/"},
 			{"max. simultanous jobs (more recommended when compute service on separate node)", "3"}
 	};
@@ -68,8 +69,9 @@ public class ConfigTool {
 	private final int WS_CODEBASE_INDEX = 5;
 	private final int WS_PORT = 6;
 	private final int MANAGER_PORT = 7;
-	private final int R_COMMAND_INDEX = 8;
-	private final int MAX_JOBS_INDEX = 9;
+	private final int MANAGER_EMAIL = 8;
+	private final int R_COMMAND_INDEX = 9;
+	private final int MAX_JOBS_INDEX = 10;
 
 	private String[][] passwords = new String[][] {
 			{"comp", ""},
@@ -358,6 +360,7 @@ public class ConfigTool {
 		Element managerModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "manager");
 		if (managerModule != null) {
 			updateConfigEntryValue(managerModule, "web-console-port", configs[MANAGER_PORT][VAL_INDEX]);
+			updateConfigEntryValue(managerModule, "admin-email", configs[MANAGER_EMAIL][VAL_INDEX]);
 		}
 
 		writeLater(configFile, doc);
