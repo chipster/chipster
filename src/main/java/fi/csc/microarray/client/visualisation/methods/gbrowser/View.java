@@ -31,6 +31,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ProfileTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 
 /**
  * Combines track to create a single synchronised view. All tracks within one view move hand-in-hand. View is responsible
@@ -42,7 +43,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	protected BpCoordRegionDouble bpRegion;
 	public BpCoordRegion highlight;
 
-	public Collection<Track> tracks = new LinkedList<Track>();
+	public Collection<TrackGroup> trackGroups = new LinkedList<TrackGroup>();
 	protected Rectangle viewArea = new Rectangle(0, 0, 500, 500);
 	private QueueManager queueManager = new QueueManager();
 	private Point2D dragStartPoint;
@@ -82,16 +83,42 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	protected abstract void drawDrawable(Graphics2D g, int x, int y, Drawable drawable);
 
+	/**
+	 * Add a single track to this view.
+	 * 
+	 * A track group with a single track is created.
+	 * 
+	 * @param track
+	 */
+    public void addTrack(Track track) {
+	    trackGroups.add(new TrackGroup(track));
+	}
 
-	public void addTrack(Track t) {
-		tracks.add(t);
+    /**
+     * Add a track group containing one or several tracks.
+     * 
+     * @param group
+     */
+	public void addTrackGroup(TrackGroup group) {
+		trackGroups.add(group);
+	}
+	
+	/**
+	 * Get tracks contained in track groups as a linear collection.
+	 */
+	public Collection<Track> getTracks() {
+	    Collection<Track> tracks = new LinkedList<Track>();
+        for (TrackGroup trackGroup : trackGroups) {
+            tracks.addAll(trackGroup.getTracks());
+        }
+        return tracks;
 	}
 	
 	public BpCoord getMaxBp() {
 		
 		BpCoord max = null;
 		
-		for (Track t : tracks) {
+		for (Track t : getTracks()) {
 			
 			BpCoord trackMax = t.getMaxBp(bpRegion.start.chr);
 			
@@ -132,120 +159,125 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		}
 
 		Graphics2D bufG2 = (Graphics2D) drawBuffer.getGraphics();
-
-		if (trackIter == null) {
-
-			// y = viewClip.y;
-			// x = viewClip.x;
-
-			y = 0;
-			x = 0;
-
-			trackIter = tracks.iterator();
-			drawableIter = null;
-		}
-
-		//long startTime = System.currentTimeMillis();
-		continueDrawingLater = false;
 		
-		// prepare context object
+
+		// DOCME what is this continueDrawingLater for?
+        // long startTime = System.currentTimeMillis();
+        continueDrawingLater = false;
+        
+        // prepare context object
         TrackContext trackContext = null;
 
-		// draw all tracks
-		while (trackIter.hasNext() || (drawableIter != null && drawableIter.hasNext())) {
+        // prepare coordinates
+        y = 0;
+        x = 0;
 
-			if (drawableIter == null || !drawableIter.hasNext()) {
-				track = trackIter.next();
-			}
+        // track group contains one or several logically-related tracks
+        for (TrackGroup group : trackGroups) {
+            trackIter = group.getTracks().iterator();
+            drawableIter = null;
+            
+            // draw side menu
+            if (group.isMenuVisible()) {
+                group.menu.setBounds((int) (viewArea.getX() + viewArea.getWidth()) - TrackGroup.MENU_WIDTH,
+                                     (int) (viewArea.getY() + y), TrackGroup.MENU_WIDTH, group.getHeight());
+            }
 
-			// draw drawable objects for visible tracks
-			if (track.isVisible()) {
-	             
-                // decide if we will expand drawable for this track
-                boolean expandDrawables = track.canExpandDrawables();
-			    
-			    // create view context for this track only if we will use it
-                // currently only used for tracks that contain information
-                // about reads
-			    if (expandDrawables && track instanceof ProfileTrack) {
-			        if (parentPlot.getReadScale() == ReadScale.AUTO) {
-		                trackContext = new TrackContext(track);
-			        } else {
-                        // FIXME ReadScale is in "number of reads" and context takes "number of pixels"
-			            trackContext = new TrackContext(track, track.getHeight() - parentPlot.getReadScale().numReads);
-			        }
-			    }
+            // draw all tracks
+            while (trackIter.hasNext() || (drawableIter != null && drawableIter.hasNext())) {
+    
+                if (drawableIter == null || !drawableIter.hasNext()) {
+                    track = trackIter.next();
+                }
+    
+                // draw drawable objects for visible tracks
+                if (track.isVisible()) {
+                     
+                    // decide if we will expand drawable for this track
+                    boolean expandDrawables = track.canExpandDrawables();
+                                       
+                    // create view context for this track only if we will use it
+                    // currently only used for tracks that contain information
+                    // about reads
+                    if (expandDrawables && track instanceof ProfileTrack) {
+                        if (parentPlot.getReadScale() == ReadScale.AUTO) {
+                            trackContext = new TrackContext(track);
+                        } else {
+                            // FIXME ReadScale is in "number of reads" and context takes "number of pixels"
+                            trackContext = new TrackContext(track, track.getHeight() - parentPlot.getReadScale().numReads);
+                        }
+                    }
+    
+                    // get drawable iterator
+                    if (drawableIter == null) {
+                        Collection<Drawable> drawables = track.getDrawables();
+                        drawableIter = drawables.iterator();
+                    }
+    
+                    while (drawableIter.hasNext()) {
+    
+                        Drawable drawable = drawableIter.next();
+                        
+                        if(drawable == null) {
+                            continue;
+                        }
+                        
+                        // expand drawables to stretch across all height if necessary
+                        if (expandDrawables) {
+                            drawable.expand(trackContext);
+                        }
+    
+                        // recalculate position for reversed strands
+                        int maybeReversedY = (int) y;
+                        if (track.isReversed()) {
+                            drawable.upsideDown();
+                            maybeReversedY += track.getHeight();
+                        }
+    
+                        // draw an object onto the buffer
+                        drawDrawable(bufG2, x, maybeReversedY, drawable);
+    
+    //                    if (System.currentTimeMillis() - startTime >= 1000 / FPS) {
+    //                        continueDrawingLater = true;
+    //                        this.redraw();
+    //                        break;
+    //                    }
+                    }
+    
+                    if (continueDrawingLater) {
+                        break;
+                        
+                    } else {
+                        drawableIter = null;
+                    }
+                    
+                } else {
+                    drawableIter = null;
+                }
+                
+                y += track.getHeight();
+            }
+        }
+        
+        g.drawImage(drawBuffer, (int) viewArea.getX(), (int) viewArea.getY(),
+                (int) viewArea.getX() + drawBuffer.getWidth(),
+                (int) viewArea.getY() + drawBuffer.getHeight(), 0, 0,
+                drawBuffer.getWidth(), drawBuffer.getHeight(), null);
 
-			    // get drawable iterator
-			    if (drawableIter == null) {
-					Collection<Drawable> drawables = track.getDrawables();
-					drawableIter = drawables.iterator();
-				}
-
-				while (drawableIter.hasNext()) {
-
-					Drawable drawable = drawableIter.next();
-					
-					if(drawable == null) {
-						continue;
-					}
-					
-					// expand drawables to stretch across all height if necessary
-	                if (expandDrawables) {
-	                    drawable.expand(trackContext);
-	                }
-
-					// recalculate position for reversed strands
-	                int maybeReversedY = (int) y;
-					if (track.isReversed()) {
-						drawable.upsideDown();
-						maybeReversedY += track.getHeight();
-					}
-
-					// draw an object onto the buffer
-					drawDrawable(bufG2, x, maybeReversedY, drawable);
-
-//					if (System.currentTimeMillis() - startTime >= 1000 / FPS) {
-//						continueDrawingLater = true;
-//						this.redraw();
-//						break;
-//					}
-				}
-
-				if (continueDrawingLater) {
-					break;
-					
-				} else {
-					drawableIter = null;
-				}
-				
-			} else {
-				drawableIter = null;
-			}
-			
-			y += track.getHeight();
-		}
-
-		g.drawImage(drawBuffer, (int) viewArea.getX(), (int) viewArea.getY(),
-		            (int) viewArea.getX() + drawBuffer.getWidth(),
-		            (int) viewArea.getY() + drawBuffer.getHeight(), 0, 0,
-		            drawBuffer.getWidth(), drawBuffer.getHeight(), null);
-
-		if (!continueDrawingLater) {
-			bufG2.setPaint(Color.white);
-			bufG2.fillRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
-			trackIter = null;
-			drawableIter = null;
-		}
-
+        if (!continueDrawingLater) {
+            bufG2.setPaint(Color.white);
+            bufG2.fillRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
+            trackIter = null;
+            drawableIter = null;
+        }
 	}
 	
 	/**
 	 * Update heights of tracks after zoom, resize etc.
 	 */
 	private void updateTrackHeights() {
-        // Calculate height of stretchable tracks
-        for (Track t : tracks) {
+        // Calculate height of stretchable tracks    
+        for (Track t : getTracks()) {
             if (t.isStretchable()) {
                 t.setHeight(Math.round(getTrackHeight()));
             }
@@ -264,7 +296,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	protected int getStaticTrackHeightTotal() {
 		int staticHeightTotal = 0;
 
-		for (Track track : tracks) {
+		for (Track track : getTracks()) {
 			if (!track.isStretchable()) {
 				staticHeightTotal += track.getHeight();
 			}
@@ -275,7 +307,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	protected int getStretchableTrackCount() {
 		int stretchableCount = 0;
 
-		for (Track track : tracks) {
+		for (Track track : getTracks()) {
 			if (track.isStretchable()) {
 				stretchableCount++;
 			}
@@ -314,7 +346,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		trackHeight = null;
 
 		if (!disableDrawing) {
-			for (Track t : tracks) {               
+			for (Track t : getTracks()) {               
                 t.updateData();
 			}
             
@@ -554,7 +586,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	}
 
 	public List<Long> getRulerInfo() {
-		for (Track t : tracks) {
+		for (Track t : getTracks()) {
 			if (t instanceof RulerTrack) {
 				RulerTrack ruler = (RulerTrack) t;
 				return ruler.getRulerInfo();

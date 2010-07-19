@@ -20,7 +20,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
 
 /**
- * Single track inside a view. Typically multiple Track instances are used to construct what user perceives as a track. 
+ * Single track inside a view. Typically multiple Track instances
+ * are used to construct what user perceives as a track. 
  *
  */
 public abstract class Track implements AreaResultListener {
@@ -30,8 +31,8 @@ public abstract class Track implements AreaResultListener {
 	protected Strand strand = Strand.FORWARD;
 	protected Integer height;
 	protected boolean visible = true;
-
-	public Track(View view, DataSource file) {
+	
+    public Track(View view, DataSource file) {
 		this.view = view;
 		this.file = file;
 	}
@@ -64,6 +65,13 @@ public abstract class Track implements AreaResultListener {
 	 */
 	protected View getView() {
 		return view;
+	}
+	
+	/**
+	 * Check if this track has data.
+	 */
+	public boolean hasData() {
+	    return file != null;
 	}
 
 	// DOCME what does this do?

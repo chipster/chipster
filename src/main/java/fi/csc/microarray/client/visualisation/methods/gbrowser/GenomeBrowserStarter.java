@@ -38,7 +38,8 @@ public class GenomeBrowserStarter {
 
 	public static void main(String[] args) throws IOException {
 		boolean horizontal = true;
-		GenomePlot plot = new GenomePlot(horizontal);
+        ChartPanel panel = new NonScalableChartPanel();
+		GenomePlot plot = new GenomePlot(panel, horizontal);
 		TrackFactory.addCytobandTracks(plot,
 		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.GRCh37.57_karyotype.tsv", new CytobandParser()));
 		
@@ -75,10 +76,8 @@ public class GenomeBrowserStarter {
 		plot.start("1", 1024 * 1024 * 250d);
 		plot.moveDataBpRegion(1000000L, 100000L);
 		
-		ChartPanel panel = new NonScalableChartPanel(new JFreeChart(plot));
+		panel.setChart(new JFreeChart(plot));
 		panel.setPreferredSize(new Dimension(800, 2000));
-		plot.chartPanel = panel;
-
 		panel.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		
 		for (View view : plot.getViews()){

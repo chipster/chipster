@@ -443,7 +443,8 @@ public class GenomeBrowser extends Visualisation implements
 		try {
 			// create the plot
 			String genome = (String) genomeBox.getSelectedItem();
-			this.plot = new GenomePlot(true);
+			ChartPanel chartPanel = new NonScalableChartPanel();
+			this.plot = new GenomePlot(chartPanel, true);
 			
 			// set scale of profile track containing reads information
 			this.plot.setReadScale((ReadScale) this.profileScaleBox.getSelectedItem());
@@ -557,8 +558,7 @@ public class GenomeBrowser extends Visualisation implements
 			plot.addDataRegionListener(this);
 
 			// wrap it in a panel
-			ChartPanel chartPanel =  new NonScalableChartPanel(new JFreeChart(plot));
-			plot.chartPanel = chartPanel;
+			chartPanel.setChart(new JFreeChart(plot));
 			chartPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
 			
 			// add mouse listeners

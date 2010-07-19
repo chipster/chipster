@@ -8,7 +8,7 @@ import java.net.URL;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SAMFile;
 
 /**
- * Handler for files accessing SAM files.
+ * Handler for accessing SAM files.
  * 
  * @author naktinis
  *

@@ -61,7 +61,11 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
         }
     }
 
-	public GenomePlot(boolean horizontal) throws FileNotFoundException, MalformedURLException {
+	public GenomePlot(ChartPanel panel, boolean horizontal) throws FileNotFoundException, MalformedURLException {
+	    
+	    // set chart panel
+	    chartPanel = panel;
+	    chartPanel.setLayout(null);
 
 		// add overview view
 		this.overviewView = new HorizontalView(this, false, false, true);

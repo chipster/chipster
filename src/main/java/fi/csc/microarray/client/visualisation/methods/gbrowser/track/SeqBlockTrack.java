@@ -175,7 +175,7 @@ public class SeqBlockTrack extends Track {
 
 				// prepare to draw single nucleotides
 				float x = getView().bpToTrackFloat(startBp);
-				float increment = (float) getView().bpWidth();
+				float increment = getView().bpWidth();
 				float nextX;
 
 				// draw something for each nucleotide
