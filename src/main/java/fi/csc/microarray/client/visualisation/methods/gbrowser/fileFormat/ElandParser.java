@@ -69,8 +69,6 @@ public class ElandParser extends TsvParser {
 
 		List<RegionContent> rows = new LinkedList<RegionContent>();
 		
-		long readLength = ((String)get(getFirstRow(chunk), ColumnType.SEQUENCE)).length();
-
 		for (String row : chunk.split("\n")) {
 			
 			Map<ColumnType, Object> values = new HashMap<ColumnType, Object>();
@@ -84,6 +82,7 @@ public class ElandParser extends TsvParser {
 			
 			Long start = (Long)get(cols, ColumnType.BP_START);
 			Chromosome chr = (Chromosome)get(cols, ColumnType.CHROMOSOME);
+			long readLength = ((String)get(cols, ColumnType.SEQUENCE)).length();
 	
 			rows.add(new RegionContent(new BpCoordRegion(start, start + readLength, chr), values));
 
