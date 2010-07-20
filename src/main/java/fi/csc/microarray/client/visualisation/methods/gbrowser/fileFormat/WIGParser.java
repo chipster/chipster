@@ -63,60 +63,9 @@ public class WIGParser extends TsvParser {
 				line = reader.readLine();
 			}
 			
-			cols = reader.readLine().split(" ");//splitting line (variableStep chrom=chr1 ..)			
-
-			switch (cols.length) {
-				case 2:
-					type = cols[0];//variable step
-					chr = cols[1].replace("chrom=chr", "");
-					setFileDefinition(new FileDefinition(Arrays.asList(
-							new ColumnDefinition[] { 
-									new ColumnDefinition(ColumnType.BP_START, Type.LONG), 
-									new ColumnDefinition(ColumnType.VALUE, Type.FLOAT), }
-							)));
-					break;
-				case 3:
-					type = cols[0];//variable step
-					chr = cols[1].replace("chrom=chr", "");
-					span = Long.parseLong(cols[2].replace("span=", ""));
-					setFileDefinition(new FileDefinition(Arrays.asList(
-							new ColumnDefinition[] { 
-									new ColumnDefinition(ColumnType.BP_START, Type.LONG), 
-									new ColumnDefinition(ColumnType.VALUE, Type.FLOAT), }
-							)));
-					break;
-				case 4:
-					type = cols[0];//fixed step
-					chr = cols[1].replace("chrom=chr", "");
-					startPosition = Long.parseLong(cols[2].replace("start=", ""));
-					step = Long.parseLong(cols[3].replace("step=", ""));
-					setFileDefinition(new FileDefinition(Arrays.asList(
-							new ColumnDefinition[] { 
-									new ColumnDefinition(ColumnType.VALUE, Type.FLOAT), }
-							)));
-					break;
-				case 5:
-					type = cols[0];//fixed step
-					chr = cols[1].replace("chrom=chr", "");
-					startPosition = Long.parseLong(cols[2].replace("start=", ""));
-					step = Long.parseLong(cols[3].replace("step=", ""));
-					span = Long.parseLong(cols[4].replace("span=", ""));
-					setFileDefinition(new FileDefinition(Arrays.asList(
-							new ColumnDefinition[] { 
-									new ColumnDefinition(ColumnType.VALUE, Type.FLOAT), }
-							)));
-					break;
-				default: 
-					break;
-			}
-		} catch (NumberFormatException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			setParser(reader.readLine());
+			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -201,31 +150,16 @@ public class WIGParser extends TsvParser {
 					
 					setParser(row);
 				} else {
-					
-					//bp_start,bp_end,chromosome,value
-					String[] cols2 = new String[4];
-					cols2[0] = chr;
-					cols2[1] = String.valueOf(startPosition + nextPosition*step); //bp_start
-					cols2[2] = row;//value
-					
-					//bp_end
-					if (span != 1) {
-						cols2[3] = String.valueOf(startPosition + nextPosition*step
-								+ span-1);
-					} else {
-						cols2[3] = String.valueOf(startPosition + nextPosition*step);
-					}
+					// Calculate start and end positions
+					Long start = Long.valueOf(startPosition + nextPosition * step);
+					Long end = Long.valueOf(startPosition + nextPosition * step + span - 1);
 					
 					for (ColumnType requestedContent : requestedContents) {
-						
-						values.put(requestedContent, this.get(cols2, requestedContent));
+						values.put(requestedContent, this.get(cols, requestedContent));
 					}
 					
-					Long start = (Long)get(cols2, ColumnType.BP_START);
-					Long end = (Long)get(cols2, ColumnType.BP_END);
-					Chromosome chr = (Chromosome)get(cols2, ColumnType.CHROMOSOME);
-			
-					rows.add(new RegionContent(new BpCoordRegion(start, end, chr), values));
+					rows.add(new RegionContent(new BpCoordRegion(
+							start, end, new Chromosome(chr)), values));
 				}
 				nextPosition++;
 			}
@@ -237,36 +171,22 @@ public class WIGParser extends TsvParser {
 				Map<ColumnType, Object> values = new HashMap<ColumnType, Object>();
 				
 				String[] cols = row.split("\t");
+				Long start = Long.parseLong(cols[0]);
+				Long end = Long.valueOf(Integer.parseInt(cols[0]) + span-1);
+				
 				if (cols.length <2) {
 					
 					setParser(row);
 				} else {
-					
-					//two values(bp_start, value) plus chromosome, and bp_end
-					String[] cols2 = new String[4];
-					cols2[0] = chr;
-					cols2[1] = cols[0];
-					cols2[2] = cols[1];
-					
-					if (span != 1) {
-						cols2[3] = String.valueOf(Integer.parseInt(cols[0]) + span-1);
-					} else {
-						cols2[3] = cols[0];
-					}
-					
+
 					for (ColumnType requestedContent : requestedContents) {
-						
-						values.put(requestedContent, this.get(cols2, requestedContent));
+						values.put(requestedContent, this.get(cols, requestedContent));
 					}
-					
-					Long start = (Long)get(cols2, ColumnType.BP_START);
-					Long end = (Long)get(cols2, ColumnType.BP_END);
-					Chromosome chr = (Chromosome)get(cols2, ColumnType.CHROMOSOME);
 			
-					rows.add(new RegionContent(new BpCoordRegion(start, end, chr), values));			
+					rows.add(new RegionContent(new BpCoordRegion(
+							start, end, new Chromosome(chr)), values));			
 				}
-			}
-			
+			}	
 		}
 		
 		return rows;
@@ -324,34 +244,22 @@ public class WIGParser extends TsvParser {
 		
 		try {
 
-			if (cols.length <= 1) {
+			if (cols.length == 0) {
 				return null;
 			}
+			
+			string = cols[getFileDefinition().indexOf(col)].trim();
+			fieldDef = getFileDefinition().getFieldDef(col);
+			
+			if (fieldDef.type == Type.FLOAT) {
+				return new Float(string);
 
-			if (col == ColumnType.CHROMOSOME) {
-				return new Chromosome(cols[0].replace("chr", ""));
+			} else if (fieldDef.type == Type.LONG) {
 
-			} else if (col == ColumnType.BP_END){
-				return new Long(cols[3]);
-				
-			} else if (col == ColumnType.BP_START){
-				return new Long(cols[1]);
-				
-			} else {
-				string = cols[getFileDefinition().indexOf(col)].trim();
-				fieldDef = getFileDefinition().getFieldDef(col);
-				
-				if (fieldDef.type == Type.FLOAT) {
-				
-					return new Float(string);
-
-				} else if (fieldDef.type == Type.LONG) {
-	
-					if (string.length() > 0) {
-						return new Long(string);
-					} else {
-						return Long.MIN_VALUE;
-					}
+				if (string.length() > 0) {
+					return new Long(string);
+				} else {
+					return Long.MIN_VALUE;
 				}
 			}
 			return null;
@@ -359,7 +267,73 @@ public class WIGParser extends TsvParser {
 		} catch (Exception e) {
 			throw new RuntimeException("error parsing columns: " + Arrays.toString(cols) + " (looking for: " + col + ")", e);
 		}
-		
 	}
+	
+	@Override
+	public BpCoordRegion getBpRegion(String chunk) {
+		
+		Long start;
+		Long end;
+		String startChr = chr;
+		String endChr;
+		String[] header = getLastHeader(chunk);
+		
+		try {
+			endChr = header[0].replace("chrom=chr", "");
+		} catch (Exception e) {
+			endChr = chr;
+		}
+						
+		if (type.compareTo("variableStep") == 0) {
+			
+			start = Long.valueOf(getFirstRow(chunk)[0]);
+			end = Long.valueOf(getLastRow(chunk)[0])+span-1;
+			
+		} else {
+			
+			start = startPosition;
+			try {
+				end = Long.parseLong(header[1].replace("start=", "")) + 
+				getFixedStepEnd(chunk) * step + span - 1;
+				
+			} catch (Exception e) {
+				end = startPosition + getFixedStepEnd(chunk) * step + span - 1;
+			}
+		}
 
+		return new BpCoordRegion(start, new Chromosome(startChr), end, new Chromosome(endChr));
+	}
+	
+	public String[] getLastHeader(String chunk) {
+		
+		int lineStartIndex;
+		try {
+			lineStartIndex = chunk.lastIndexOf("chrom", chunk.length() - 2);
+		} catch (Exception e) {
+			lineStartIndex = -1;
+		}
+		
+		if (lineStartIndex < 0) {
+			return null;
+		}
+		
+		//minus two to convert from length to index and skip the last line change
+		return chunk.substring(lineStartIndex, chunk.length() - 1).split(" ");
+	}
+	
+	public Long getFixedStepEnd(String chunk) {
+		
+		int i = 0;
+		
+		for (String line : chunk.split("\n")) {
+			if (line.contains("chrom")) {
+				i=0;
+			} else {
+				i++;
+			}
+			
+		}
+		
+		return new Long(i)-1;
+	}
 }
