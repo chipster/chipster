@@ -1,5 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -64,9 +65,9 @@ public abstract class TsvParser extends FileParser {
 					return null;
 				}
 
-				String string = cols[fileDef.indexOf(col)].trim();
+				String string = cols[getFileDefinition().indexOf(col)].trim();
 
-				ColumnDefinition fieldDef = fileDef.getFieldDef(col);
+				ColumnDefinition fieldDef = getFileDefinition().getFieldDef(col);
 
 				if (col == ColumnType.STRAND) {
 					return string.equalsIgnoreCase("r") || string.equals("-") ? Strand.REVERSED
@@ -130,6 +131,10 @@ public abstract class TsvParser extends FileParser {
 			
 			return rows;
 		}
+		
+		public void setFileDefinition(FileDefinition fileDef) {
+			this.fileDef = fileDef;
+		}
 
 		public FileDefinition getFileDefinition() {
 			return fileDef;
@@ -138,5 +143,9 @@ public abstract class TsvParser extends FileParser {
 		@Override
 		public long getDefaulChunkLength() {
 			return 2*1024;
+		}
+
+		public long getHeaderLength(File file) {
+			return 0;
 		}
 }

@@ -48,11 +48,8 @@ public class WIGParser extends TsvParser {
 	}
 	
 	/**
-	 * this chunk is WIG file header info (two lines)
-	 * for example 
-	 *  track type=wiggle_0 name="H9 Oct4 replicate 2" description="H9 Oct4/
-	 *   replicate 2 in reads per million" visibility=full autoScale=on color=0,0,0
-	 *   variableStep chrom=chr1 span=25
+	 * reading file header info
+	 * @param file
 	 */
 	public void setParser(File file) {
 		
@@ -60,20 +57,14 @@ public class WIGParser extends TsvParser {
 			FileReader fileReader = new FileReader(file);
 			BufferedReader reader = new BufferedReader(fileReader);
 			String[] cols = null;
-			//TODO change
-//			reader.readLine(); //reading browser position chr1:0-1000000 
-//			reader.readLine(); //reading browser full refGene 
-//			reader.readLine(); //reading line track type=wiggle_0..
 			String line = reader.readLine();
 			
-			if (line.contains("track")){
-				cols = reader.readLine().split(" ");//splitting line (variableStep chrom=chr1 ..)
-				
-			} else if (line.contains("chrom=")){
-				//splitting line 
-				cols = line.split(" ");
+			while (!line.contains("track")){
+				line = reader.readLine();
 			}
 			
+			cols = reader.readLine().split(" ");//splitting line (variableStep chrom=chr1 ..)			
+
 			switch (cols.length) {
 				case 2:
 					type = cols[0];//variable step
@@ -130,6 +121,13 @@ public class WIGParser extends TsvParser {
 		}
 	}
 
+	/**
+	 * this chunk is WIG file header info in the middle of data
+	 * 
+	 * for example
+	 *  variableStep chrom=chr1 span=25
+	 *   
+	 */
 	public void setParser(String chunk) {
 	
 		try {
@@ -278,27 +276,44 @@ public class WIGParser extends TsvParser {
 	public long getHeaderLength(File file) {
 		
 		FileReader f;
+		int lines = 0;
 		try {
 			
 			f = new FileReader(file);
-			LineNumberReader l = new LineNumberReader(f);
+			BufferedReader reader = new BufferedReader(f);
 			String str = "";
+			String line = "";
 			try {
-				//TODO change
-				str += l.readLine();
-				str += l.readLine();
 				
-				return str.length() + 2;//two \n
+				line = reader.readLine();
+				while (!isNumber(line.charAt(0))){
+					str += line;
+					lines++;
+					line = reader.readLine();
+				}
+				
+				return str.length() + lines;
 				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}			
+			}
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return 0;
+	}
+	
+	private boolean isNumber(char c){
+		try {
+			Integer.parseInt(String.valueOf(c));
+			return true;
+			
+		} catch (NumberFormatException e) {
+			
+			return false;
+		}
 	}
 	
 	@Override
@@ -317,7 +332,6 @@ public class WIGParser extends TsvParser {
 				return new Chromosome(cols[0].replace("chr", ""));
 
 			} else if (col == ColumnType.BP_END){
-				//System.out.println(cols[3]);
 				return new Long(cols[3]);
 				
 			} else if (col == ColumnType.BP_START){
