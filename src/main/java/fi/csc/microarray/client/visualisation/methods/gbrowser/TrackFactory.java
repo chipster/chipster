@@ -13,6 +13,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GeneTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.IntensityTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.PeakTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ProfileTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadTrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeqBlockTrack;
@@ -101,69 +102,10 @@ public class TrackFactory {
 	        throws FileNotFoundException, MalformedURLException {
 	
 		View dataView = genomePlot.getDataView();
-		int switchViewsAt = 50000;
-		Color histogramColor = Color.gray;
-		Color fontColor = Color.black;
 		
 		// Group containing tracks for this data source
-		TrackGroup readGroup = new TrackGroup(dataView);
-							
-		// 
-		// Forward
-		//
-
-		// Overview
-		IntensityTrack readOverview = new IntensityTrack(dataView, userData,
-		        userDataHandler, histogramColor, switchViewsAt);
-		readGroup.addTrack(readOverview);
-
-		// Detailed
-		SeqBlockTrack reads = new SeqBlockTrack(dataView, userData,
-		        userDataHandler, fontColor, 0, switchViewsAt);
-		readGroup.addTrack(reads);
-		
-		addSeparatorTrack(readGroup, Long.MAX_VALUE);
-
-		//
-		// Reference sequence
-		//
-
-		if (seqFile != null) {
-			// Reference sequence
-			SeqTrack seq = new SeqTrack(dataView, seqFile, ChunkTreeHandlerThread.class, 800);
-		    readGroup.addTrack(seq);
-			addSeparatorTrack(readGroup, 800);
-		}
-
-		//
-		// Reverse
-		//
-
-		// Overview
-		IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData,
-		        userDataHandler, histogramColor, switchViewsAt);
-		readOverviewReversed.setStrand(Strand.REVERSED);
-        readGroup.addTrack(readOverviewReversed);
-
-		// Detailed
-		SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData,
-		        userDataHandler, fontColor, 0, switchViewsAt);
-		readsReversed.setStrand(Strand.REVERSED);
-        readGroup.addTrack(readsReversed);
-
-        // Profile
-        addSeparatorTrack(readGroup, switchViewsAt);
-        ProfileTrack profileTrack = new ProfileTrack(dataView, userData, userDataHandler,
-                Color.BLACK, PartColor.CDS.c, 0, switchViewsAt);
-        profileTrack.setStrand(Strand.BOTH);
-        readGroup.addTrack(profileTrack);
-        
-        // Gel
-        addSeparatorTrack(readGroup, switchViewsAt);
-        GelTrack gelTrack = new GelTrack(dataView, userData, userDataHandler,
-                Color.WHITE, 0, switchViewsAt);
-        gelTrack.setStrand(Strand.BOTH);
-        readGroup.addTrack(gelTrack);
+		TrackGroup readGroup = new ReadTrackGroup(dataView, userData,
+		        userDataHandler, seqFile);
         
         addGroup(dataView, readGroup);
 	}
