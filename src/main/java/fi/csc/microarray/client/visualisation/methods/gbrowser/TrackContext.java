@@ -26,7 +26,8 @@ public class TrackContext {
         this.minDrawableY = Integer.MAX_VALUE;
         
         for (Drawable drawable : track.getDrawables()) {
-            this.minDrawableY = Math.min(drawable.getMinY(), this.minDrawableY);
+            // Drawables can only be drawn between 0 and height-1
+            this.minDrawableY = Math.min(drawable.getMinY(), this.minDrawableY) + 1;
         }
                
         this.trackHeight = track.getHeight();

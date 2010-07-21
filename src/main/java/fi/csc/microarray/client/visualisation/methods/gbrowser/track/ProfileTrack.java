@@ -88,6 +88,9 @@ public class ProfileTrack extends Track {
         
         // width of a single bp in pixels
         int bpWidth = (int) (getView().getWidth() / getView().getBpRegion().getLength());
+        
+        // maximum y coordinate
+        int maxY = this.getHeight() - 1;
 
         // prepare lines that make up the profile for drawing
         Iterator<Long> bpLocations = collector.keySet().iterator();
@@ -97,10 +100,10 @@ public class ProfileTrack extends Track {
             // draw a line from the beginning of the graph to the first location
             int startX = getView().bpToTrack(new BpCoord(lastBpLocation, lastChromosome));
             long startY = collector.get(lastBpLocation);
-            drawables.add(new LineDrawable(0, this.getHeight(),
-                    (int)(startX - bpWidth), this.getHeight(), color));
-            drawables.add(new LineDrawable((int)(startX - bpWidth), this.getHeight(),
-                    startX, (int)(this.getHeight() - startY), color));
+            drawables.add(new LineDrawable(0, maxY,
+                    (int)(startX - bpWidth), maxY, color));
+            drawables.add(new LineDrawable((int)(startX - bpWidth), maxY,
+                    startX, (int)(maxY - startY), color));
 
             // draw lines for each bp region that has some items
             while (bpLocations.hasNext()) {
@@ -117,16 +120,16 @@ public class ProfileTrack extends Track {
                 
                 if (currentBpLocation - lastBpLocation == 1) {
                     // join adjacent bp locations with a line
-                    drawables.add(new LineDrawable(startX, (int)(this.getHeight() - startY),
-                            endX, (int)(this.getHeight() - endY), color));
+                    drawables.add(new LineDrawable(startX, (int)(maxY - startY),
+                            endX, (int)(maxY - endY), color));
                 } else {
                     // join locations that are more than one bp apart
-                    drawables.add(new LineDrawable((int)startX, (int)(this.getHeight() - startY),
-                            (int)(startX + bpWidth), this.getHeight(), color));
-                    drawables.add(new LineDrawable((int)(startX + bpWidth), this.getHeight(),
-                            (int)(endX - bpWidth), this.getHeight(), color));
-                    drawables.add(new LineDrawable((int)(endX - bpWidth), this.getHeight(),
-                            (int)endX, (int)(this.getHeight() - endY), color));
+                    drawables.add(new LineDrawable((int)startX, (int)(maxY - startY),
+                            (int)(startX + bpWidth), maxY, color));
+                    drawables.add(new LineDrawable((int)(startX + bpWidth), maxY,
+                            (int)(endX - bpWidth), maxY, color));
+                    drawables.add(new LineDrawable((int)(endX - bpWidth), maxY,
+                            (int)endX, (int)(maxY - endY), color));
                 }
                 
                 lastBpLocation = currentBpLocation;
@@ -135,10 +138,10 @@ public class ProfileTrack extends Track {
             // draw a line from the last location to the end of the graph
             int endX = getView().bpToTrack(new BpCoord(lastBpLocation, lastChromosome));
             long endY = collector.get(lastBpLocation);
-            drawables.add(new LineDrawable(endX, (int)(this.getHeight() - endY),
-                    (int)(endX + bpWidth), this.getHeight(), color));
-            drawables.add(new LineDrawable((int)(endX + bpWidth), this.getHeight(),
-                    getView().getWidth(), this.getHeight(), color));
+            drawables.add(new LineDrawable(endX, (int)(maxY - endY),
+                    (int)(endX + bpWidth), maxY, color));
+            drawables.add(new LineDrawable((int)(endX + bpWidth), maxY,
+                    getView().getWidth(), maxY, color));
         }
         
         collector.clear();
@@ -212,8 +215,7 @@ public class ProfileTrack extends Track {
 
 	@Override
 	public Collection<ColumnType> getDefaultContents() {
-		return Arrays.asList(new ColumnType[] { ColumnType.SEQUENCE,
-				ColumnType.STRAND });
+		return Arrays.asList(new ColumnType[] { ColumnType.STRAND });
 	}
 
 	@Override

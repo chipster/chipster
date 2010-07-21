@@ -92,6 +92,9 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
         this.menu.add(showGel);
         this.menu.add(showProfile);
         this.menu.add(showSNP);
+        showGel.setBounds(5, 5, 100, 20);
+        showProfile.setBounds(5, 30, 100, 20);
+        showSNP.setBounds(5, 55, 100, 20);
         showGel.addActionListener(this);
         showProfile.addActionListener(this);
         showSNP.addActionListener(this);
@@ -147,6 +150,7 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
                 reads.disableSNPHiglight(seqFile);
                 readsReversed.disableSNPHiglight(seqFile);
             }
+            // TODO make a region request somehow
             view.redraw();
         }
     }

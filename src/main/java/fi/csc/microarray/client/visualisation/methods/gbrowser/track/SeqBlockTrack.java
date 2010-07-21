@@ -201,7 +201,7 @@ public class SeqBlockTrack extends Track {
 					if (highlightSNP &&
 					    posInRef >= 0 &&
 					    posInRef < refSeq.length &&
-					    refSeq[posInRef] == letter) {
+					    Character.toLowerCase(refSeq[posInRef]) == Character.toLowerCase(letter)) {
 					    bg = Color.gray;
 					} else {
     					if (letter == 'A') {
