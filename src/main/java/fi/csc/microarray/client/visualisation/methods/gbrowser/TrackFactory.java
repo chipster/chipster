@@ -8,7 +8,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaR
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CytobandTrack;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GelTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GeneTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.IntensityTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.PeakTrack;
@@ -16,8 +15,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ProfileTrac
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadTrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeqBlockTrack;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeqTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TitleTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
@@ -86,10 +83,6 @@ public class TrackFactory {
 		View dataView = genomePlot.getDataView();
 		dataView.addTrack(new SeparatorTrack(dataView, Color.gray, 1, 0, maxBpLength));
 	}
-	
-    private static void addSeparatorTrack(TrackGroup group, long maxBpLength) {
-        group.addTrack(new SeparatorTrack(group.getView(), Color.gray, 1, 0, maxBpLength));
-    }
 
 	static void addThickSeparatorTrack(GenomePlot genomePlot) {
 		View dataView = genomePlot.getDataView();
@@ -98,14 +91,14 @@ public class TrackFactory {
 
 	public static void addReadTracks(GenomePlot genomePlot, DataSource userData,
 	        Class<? extends AreaRequestHandler> userDataHandler,
-	        DataSource seqFile, boolean isTreatment)
+	        DataSource seqFile, String title)
 	        throws FileNotFoundException, MalformedURLException {
 	
 		View dataView = genomePlot.getDataView();
 		
 		// Group containing tracks for this data source
 		TrackGroup readGroup = new ReadTrackGroup(dataView, userData,
-		        userDataHandler, seqFile);
+		        userDataHandler, seqFile, title);
         
         addGroup(dataView, readGroup);
 	}

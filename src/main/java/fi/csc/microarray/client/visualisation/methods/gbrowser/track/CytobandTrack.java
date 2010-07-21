@@ -26,7 +26,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  */
 public class CytobandTrack extends Track {
 
-	private static final int THICKNESS = 10;
+	private static final int THICKNESS = 11;
 
 	private static final int MARGIN = 2;
 
@@ -136,7 +136,7 @@ public class CytobandTrack extends Track {
 
 					drawables.add(new LineDrawable(sideX, y, cornerX, y + THICKNESS / 2, Color.black));
 
-					drawables.add(new LineDrawable(sideX, y + THICKNESS, cornerX, y + THICKNESS / 2, Color.black));
+					drawables.add(new LineDrawable(sideX, y + THICKNESS - 1, cornerX, y + THICKNESS / 2, Color.black));
 
 				} else if (band == Band.STALK) {
 					
@@ -159,7 +159,8 @@ public class CytobandTrack extends Track {
 
 		Rectangle rect = new Rectangle();
 
-		rect.x = getView().bpToTrack(startBp);
+		// Compensate for border
+		rect.x = getView().bpToTrack(startBp) - 1;
 		rect.width = getView().bpToTrack(endBp) - rect.x;
 
 		rect.y = (int) (getHeight() - (THICKNESS + MARGIN));

@@ -3,6 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
@@ -23,13 +24,14 @@ public class TrackGroup {
     public JPanel menu;
     
     // Width of side menu in pixels
-    public static final int MENU_WIDTH = 70;
+    public static final int MENU_WIDTH = 110;
 
     public TrackGroup(View view) {
         this.view = view;
         
         // Add side menu
         menu = new JPanel();
+        menu.setLayout(new BoxLayout(menu, BoxLayout.PAGE_AXIS));
         this.view.parentPlot.chartPanel.add(menu);
     }
     

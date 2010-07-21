@@ -484,21 +484,21 @@ public class GenomeBrowser extends Visualisation implements
 					case TREATMENT_READS:
 					    treatmentData = new ChunkDataSource(file, new ElandParser());
 						TrackFactory.addThickSeparatorTrack(plot);
-						TrackFactory.addTitleTrack(plot, file.getName());
 						TrackFactory.addReadTracks(plot, treatmentData,
 						        // FIXME Decide correct handler thread
 						        ChunkTreeHandlerThread.class,
-						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv", new SequenceParser()), true);
+						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv",
+						        new SequenceParser()), file.getName());
 						break;
 
 					case TREATMENT_BED_READS:
 					    treatmentData = new ChunkDataSource(file, new BEDReadParser());
 						TrackFactory.addThickSeparatorTrack(plot);
-						TrackFactory.addTitleTrack(plot, file.getName());
 						TrackFactory.addReadTracks(plot, treatmentData,
                                 // FIXME Decide correct handler thread
 						        ChunkTreeHandlerThread.class,
-						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv", new SequenceParser()), true);
+						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv",
+						        new SequenceParser()), file.getName());
 						break;
 					}
 				}
@@ -514,11 +514,11 @@ public class GenomeBrowser extends Visualisation implements
 					case CONTROL_READS:
 		                controlData = new ChunkDataSource(file, new ElandParser());
 						TrackFactory.addThickSeparatorTrack(plot);
-						TrackFactory.addTitleTrack(plot, file.getName());
 						TrackFactory.addReadTracks(plot, controlData,
                                 // FIXME Decide correct handler thread
 						        ChunkTreeHandlerThread.class,
-						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv", new SequenceParser()), false);
+						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv",
+						        new SequenceParser()), file.getName());
 						break;
 					}
 				}

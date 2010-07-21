@@ -137,6 +137,13 @@ public abstract class Track implements AreaResultListener {
     public boolean isVisible() {
         return visible;
     }
+    
+    /**
+     * Set track visibility.
+     */
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
 
 	public void setStrand(Strand s) {
 		this.strand = s;

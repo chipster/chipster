@@ -68,7 +68,7 @@ public class RulerTrack extends Track {
 		BpCoordDouble boxBp = new BpCoordDouble(bpRegion.start);
 		
         float lastBoxX = getView().bpToTrackFloat(bpRegion.start);
-		float boxX;
+		float boxX = 0;
 
 		info.clear();
 
@@ -82,7 +82,7 @@ public class RulerTrack extends Track {
 			boxX = getView().bpToTrackFloat(boxBp.asBpCoord());
 
 			drawables.add(new RectDrawable(Math.round(lastBoxX), textY,
-			        Math.round(boxX) - Math.round(lastBoxX), boxHeight, c, Color.black));
+			        Math.round(boxX) - Math.round(lastBoxX), boxHeight, c, null));
 
 			// TODO remove these guidelines if not used
 			// Color lineColor = (i % MINOR_STEPS == MINOR_STEPS - 1) ? new Color(0, 0, 0, 64) : new Color(0, 0, 0, 32);
@@ -90,6 +90,14 @@ public class RulerTrack extends Track {
 
 			lastBoxX = boxX;
 		}
+		
+		// Draw a single border
+		float startX = getView().bpToTrackFloat(bpRegion.start);
+		float endX = boxX;
+        drawables.add(new RectDrawable(
+                Math.round(startX), textY,
+                Math.round(endX) - Math.round(startX), boxHeight, null, Color.black));		
+		
 		return drawables;
 
 	}

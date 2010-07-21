@@ -318,9 +318,6 @@ public class SeqBlockTrack extends Track {
     public void disableSNPHiglight(DataSource file) {
         // turn off highlighting mode
         highlightSNP = false;
-        
-        // remove queue
-        view.getQueueManager().removeQueue(refData);
     }
     
     /**

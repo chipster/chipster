@@ -76,7 +76,7 @@ public class HorizontalView extends View {
 		// Draw outline after fill to make sure that it stays continuous
 		if (rect.lineColor != null) {
 			g.setPaint(rect.lineColor);
-			g.drawRect(rect.x + x, rect.y + y, rect.width, rect.height);
+			g.drawRect(rect.x + x, rect.y + y, rect.width-1, rect.height-1);
 		}
 	}
 

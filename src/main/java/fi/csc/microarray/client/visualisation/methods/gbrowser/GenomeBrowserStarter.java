@@ -61,14 +61,12 @@ public class GenomeBrowserStarter {
 		        new ChunkDataSource(MACS_DATA_FILE, new BEDParser()));
 
 		TrackFactory.addThickSeparatorTrack(plot);
-		TrackFactory.addTitleTrack(plot, "Reads");
-
 		TrackFactory.addReadTracks(
 				plot, 
 				new ChunkDataSource(ELAND_DATA_FILE, new ElandParser()),
 				ChunkTreeHandlerThread.class,
 				new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_seq.tsv", new SequenceParser()),
-				true
+				"Reads"
 		);
 
 

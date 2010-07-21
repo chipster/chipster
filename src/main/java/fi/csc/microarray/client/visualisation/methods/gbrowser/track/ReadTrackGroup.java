@@ -1,8 +1,12 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.swing.JCheckBox;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
@@ -11,13 +15,14 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptTrack.PartColor;
 
-public class ReadTrackGroup extends TrackGroup {
+public class ReadTrackGroup extends TrackGroup implements ActionListener {
     
     // Constants
     int SWITCH_VIEWS_AT = 50000;
     int SHOW_REFERENCE_AT = 800;
     
     // Tracks
+    protected TitleTrack titleTrack;
     protected IntensityTrack readOverview;
     protected SeqBlockTrack reads;
     protected SeqTrack seq;
@@ -26,15 +31,25 @@ public class ReadTrackGroup extends TrackGroup {
     protected ProfileTrack profileTrack;
     protected GelTrack gelTrack;
     
+    // Track switches
+    private JCheckBox showGel = new JCheckBox("Gel track", true);
+    private JCheckBox showProfile = new JCheckBox("Profile track", true);
+    private JCheckBox showSNP = new JCheckBox("Highlight SNP", false);
+    
+    // Reference sequence
+    private DataSource seqFile;
     private boolean hasReference = false;
 
     public ReadTrackGroup(View view, DataSource userData,
             Class<? extends AreaRequestHandler> userDataHandler,
-            DataSource seqFile) {
+            DataSource seqFile, String title) {
         super(view);
         
         Color histogramColor = Color.gray;
         Color fontColor = Color.black;
+        
+        // Title
+        titleTrack = new TitleTrack(view, title, Color.black);
         
         // Overview
         readOverview = new IntensityTrack(view, userData,
@@ -48,6 +63,7 @@ public class ReadTrackGroup extends TrackGroup {
         if (seqFile != null) {
             // Reference sequence
             hasReference = true;
+            this.seqFile = seqFile;
             seq = new SeqTrack(view, seqFile,
                     ChunkTreeHandlerThread.class, SHOW_REFERENCE_AT);
         }
@@ -71,16 +87,27 @@ public class ReadTrackGroup extends TrackGroup {
         gelTrack = new GelTrack(view, userData, userDataHandler,
                 Color.WHITE, 0, SWITCH_VIEWS_AT);
         gelTrack.setStrand(Strand.BOTH);
+        
+        // Add switches
+        this.menu.add(showGel);
+        this.menu.add(showProfile);
+        this.menu.add(showSNP);
+        showGel.addActionListener(this);
+        showProfile.addActionListener(this);
+        showSNP.addActionListener(this);
+        this.setMenuVisible(true);
     }
     
     @Override
     public List<Track> getTracks() {
         // Construct the list according to visibility
         List<Track> tracks = new LinkedList<Track>();
+        tracks.add(titleTrack);
         tracks.add(readOverview);
         tracks.add(reads);
         tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, Long.MAX_VALUE));
         
+        // Only draw reference sequence if data is present
         if (hasReference) {
             tracks.add(seq);
             tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SHOW_REFERENCE_AT));
@@ -88,13 +115,40 @@ public class ReadTrackGroup extends TrackGroup {
 
         tracks.add(readOverviewReversed);
         tracks.add(readsReversed);
-        tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT));
         
-        tracks.add(profileTrack);
-        tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT));
-        tracks.add(gelTrack);
+        // Only draw separator if profile track is visible
+        if (showProfile.isSelected()) {
+            tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT));
+            tracks.add(profileTrack);
+        }
+        
+        // Only draw separator if gel track is visible
+        if (showGel.isSelected()) {
+            tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT));
+            tracks.add(gelTrack);
+        }
 
         return tracks;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == showGel) {
+            gelTrack.setVisible(showGel.isSelected());
+            view.redraw();
+        } else if (e.getSource() == showProfile) {
+            profileTrack.setVisible(showProfile.isSelected());
+            view.redraw();
+        } else if (e.getSource() == showSNP && hasReference) {
+            if (showSNP.isSelected()) {
+                reads.enableSNPHighlight(seqFile, ChunkTreeHandlerThread.class);
+                readsReversed.enableSNPHighlight(seqFile, ChunkTreeHandlerThread.class);
+            } else {
+                reads.disableSNPHiglight(seqFile);
+                readsReversed.disableSNPHiglight(seqFile);
+            }
+            view.redraw();
+        }
     }
 
 }
