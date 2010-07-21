@@ -25,6 +25,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 
 public class WIGParser extends TsvParser {
 	
+	private final String VARIABLE_STEP = "variableStep";
+	private final String FIXED_STEP = "fixedStep";
+	
+	
 	String type;//variableStep or fixedStep
 	String chr;
 	Long span;
@@ -137,7 +141,7 @@ public class WIGParser extends TsvParser {
 
 		List<RegionContent> rows = new LinkedList<RegionContent>();
 
-		if (type.compareTo("fixedStep") == 0) {
+		if (type.equals(FIXED_STEP)) {
 			//fixed step
 			
 			int nextPosition = 0;
@@ -248,6 +252,12 @@ public class WIGParser extends TsvParser {
 				return null;
 			}
 			
+			if (col.equals(ColumnType.SEQUENCE)){
+				return new String("GGG");
+			} else if (col.equals(ColumnType.STRAND)){
+				return Strand.BOTH;
+			}
+			
 			string = cols[getFileDefinition().indexOf(col)].trim();
 			fieldDef = getFileDefinition().getFieldDef(col);
 			
@@ -284,7 +294,7 @@ public class WIGParser extends TsvParser {
 			endChr = chr;
 		}
 						
-		if (type.compareTo("variableStep") == 0) {
+		if (type.equals(VARIABLE_STEP)) {
 			
 			start = Long.valueOf(getFirstRow(chunk)[0]);
 			end = Long.valueOf(getLastRow(chunk)[0])+span-1;
@@ -317,7 +327,6 @@ public class WIGParser extends TsvParser {
 			return null;
 		}
 		
-		//minus two to convert from length to index and skip the last line change
 		return chunk.substring(lineStartIndex, chunk.length() - 1).split(" ");
 	}
 	
