@@ -45,13 +45,14 @@ public abstract class TsvParser extends FileParser {
 		    String[] lastRow = getLastRow(chunk);
 			Long start = (Long)get(firstRow, ColumnType.BP_START);
 			Long end;
-			try {
-			    // Check if end is given
-		        end = (Long)get(lastRow, ColumnType.BP_END);
-			} catch (RuntimeException e) {
-			    // Calculate from sequence
-			    end = start + (long)((String)get(lastRow, ColumnType.SEQUENCE)).length();
-			}
+            try {
+                // Check if end is given
+                end = (Long)get(lastRow, ColumnType.BP_END);
+            } catch (RuntimeException e) {
+                // Calculate from sequence
+                end = (Long)get(lastRow, ColumnType.BP_START) +
+                      (long)((String)get(lastRow, ColumnType.SEQUENCE)).length();
+            }
 			Chromosome startChr = (Chromosome)get(firstRow, ColumnType.CHROMOSOME);
 			Chromosome endChr = (Chromosome)get(lastRow, ColumnType.CHROMOSOME);
 			
