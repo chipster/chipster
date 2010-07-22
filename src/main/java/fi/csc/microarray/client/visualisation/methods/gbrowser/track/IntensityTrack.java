@@ -1,9 +1,12 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -109,12 +112,13 @@ public class IntensityTrack extends Track {
                 getView().getBpRegion().getLength() > minBpLength);
     }
 
-	@Override
-	public Collection<ColumnType> getDefaultContents() {
-		return Arrays.asList(new ColumnType[] {
-//				Content.VALUE
-		});
-	}
+    @Override
+    public Map<DataSource, Set<ColumnType>> requestedData() {
+        HashMap<DataSource, Set<ColumnType>> datas = new
+                HashMap<DataSource, Set<ColumnType>>();
+        datas.put(file, new HashSet<ColumnType>());
+        return datas;
+    }
 
 	@Override
 	public boolean isConcised() {

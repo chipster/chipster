@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -14,20 +15,27 @@ import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.Timer;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.QueueManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ProfileTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
@@ -159,6 +167,9 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		}
 
 		Graphics2D bufG2 = (Graphics2D) drawBuffer.getGraphics();
+		bufG2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+
 		
 
 		// DOCME what is this continueDrawingLater for?
@@ -338,6 +349,67 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	public QueueManager getQueueManager() {
 		return queueManager;
 	}
+	
+	/**
+	 * Fire area requests for all tracks in this view.
+	 * 
+	 * Only fire one request for a single file. If two tracks ask
+	 * for the same file and one of them wants concise data while
+	 * the other want wants precise, we should fire separate
+	 * requests for them.
+	 */
+	public void fireAreaRequests() {
+	    // Concise data
+        Map<DataSource, Set<ColumnType>> conciseDatas = new
+                HashMap<DataSource, Set<ColumnType>>();
+        // Precise data
+        Map<DataSource, Set<ColumnType>> preciseDatas = new
+                HashMap<DataSource, Set<ColumnType>>();
+        
+        // Add all requested columns for each requested file 
+        for (Track t : getTracks()) {
+            Map<DataSource, Set<ColumnType>> trackDatas = t.requestedData();
+            
+            // Don't do anything for hidden tracks or tracks without data
+            if (trackDatas == null || !t.isVisible()) {
+                continue;
+            }
+            
+            for (DataSource file : trackDatas.keySet()) {
+                if (file != null) {
+                    // Handle concise and precise requests separately
+                    Map<DataSource, Set<ColumnType>> datas;
+                    datas = preciseDatas;
+                    if (t.isConcised()) {
+                        datas = conciseDatas;
+                    }
+                    // Add columns for this requested file
+                    Set<ColumnType> columns = datas.get(file);
+                    columns = columns != null ? columns : new HashSet<ColumnType>();
+                    columns.addAll(trackDatas.get(file));
+                    datas.put(file, columns);
+                }
+            }
+        }
+        
+        // Fire area requests for concise requests
+        for (DataSource file : conciseDatas.keySet()) {
+            FsfStatus status = new FsfStatus();
+            status.clearQueues = true;
+            status.concise = true;
+            getQueueManager().addAreaRequest(file,
+                    new AreaRequest(getBpRegion(), conciseDatas.get(file), status), true);
+        }
+        
+        // Fire area requests for precise requests
+        for (DataSource file : preciseDatas.keySet()) {
+            FsfStatus status = new FsfStatus();
+            status.clearQueues = true;
+            status.concise = false;
+            getQueueManager().addAreaRequest(file,
+                    new AreaRequest(getBpRegion(), preciseDatas.get(file), status), true);
+        }
+	}
 
 	public void setBpRegion(BpCoordRegionDouble region, boolean disableDrawing) {
 		this.bpRegion = region;
@@ -346,10 +418,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		trackHeight = null;
 
 		if (!disableDrawing) {
-			for (Track t : getTracks()) {               
-                t.updateData();
-			}
-            
+		    fireAreaRequests();            
 			dispatchRegionChange();
 		}
 	}

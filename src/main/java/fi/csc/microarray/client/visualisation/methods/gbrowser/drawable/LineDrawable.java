@@ -33,7 +33,7 @@ public class LineDrawable extends Drawable {
     public void expand(TrackContext context) {
         // firstly coordinates are converted from user coordinate space to
         // euclidian space, then multiplied by expansion ratio and converted back
-        int maxY = context.trackHeight - 1;
+        int maxY = context.trackHeight-1;
         this.y = Math.max(maxY - Math.round((-this.y + maxY) *
                 context.expansionRatio), 0);
         this.y2 = Math.max(maxY - Math.round((-this.y2 + maxY) *

@@ -150,7 +150,7 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
                 reads.disableSNPHiglight(seqFile);
                 readsReversed.disableSNPHiglight(seqFile);
             }
-            // TODO make a region request somehow
+            view.fireAreaRequests();
             view.redraw();
         }
     }

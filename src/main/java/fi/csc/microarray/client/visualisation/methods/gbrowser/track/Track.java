@@ -5,6 +5,8 @@ import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
@@ -14,10 +16,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
 
 /**
  * Single track inside a view. Typically multiple Track instances
@@ -75,22 +75,16 @@ public abstract class Track implements AreaResultListener {
 	}
 
 	// DOCME what does this do?
-	public void updateData() {
-		if (file != null && this.isVisible()) {
-			FsfStatus status = new FsfStatus();
-			status.clearQueues = true;
-			status.concise = isConcised();
-
-			Collection<ColumnType> defCont = getDefaultContents();
-
-			view.getQueueManager().addAreaRequest(file, new AreaRequest(view.getBpRegion(), defCont, status), true);
-		}
-	}
-
-	/**
-	 * Returns the contents (fields) that this track needs to operate.
-	 */
-	public abstract Collection<ColumnType> getDefaultContents();
+	// FIXME deprecated, remove
+	public void updateData() { }
+	
+    /**
+     * Get a map of data sources and column types that this
+     * track needs to operate.
+     * 
+     * Can also return null if this track does not need any data.
+     */
+	public abstract Map<DataSource, Set<ColumnType>> requestedData();
 
 	/**
 	 * If track is concised, it is not showing exact data but approximations calculated from the data.

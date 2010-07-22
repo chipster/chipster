@@ -9,6 +9,10 @@ import java.net.URL;
  * One source of genomic content, typically corresponding to one track. Abstraction hides
  * the physical data source, that can be either a file or a URL accessed via HTTP.
  *
+ * TODO: add comparison methods so that when DataSource is used as a key
+ * in a hash map, data sources with identical urls or file paths would be
+ * considered the same
+ *
  */
 public abstract class DataSource {
 

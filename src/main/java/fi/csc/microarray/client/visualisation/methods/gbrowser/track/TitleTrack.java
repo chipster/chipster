@@ -1,9 +1,11 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
@@ -46,10 +48,10 @@ public class TitleTrack extends Track {
         return false;
     }
 
-	@Override
-	public Collection<ColumnType> getDefaultContents() {
-		return Arrays.asList(new ColumnType[] {});
-	}
+    @Override
+    public Map<DataSource, Set<ColumnType>> requestedData() {
+        return null;
+    }
 
 	@Override
 	public boolean isConcised() {

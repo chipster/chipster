@@ -101,17 +101,31 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 		return overviewView;
 	}
 
-	public void start(String chromosome, Double chromosomeSizeBp) {
+	/**
+	 * Start genome plot by moving both overview and data views to some location.
+	 * 
+	 * @param chromosome chromosome identifier
+	 * @param chromosomeSizeBp chromosome size in base pairs
+	 * @param position which bp should be in the middle
+	 * @param length number of visible base pairs (zoom)
+	 */
+	public void start(String chromosome, Double chromosomeSizeBp, Long position, Long length) {
 		overviewView.setBpRegion(new BpCoordRegionDouble(0d, chromosomeSizeBp, new Chromosome(chromosome)), false);
-		dataView.setBpRegion(new BpCoordRegionDouble(0d, chromosomeSizeBp, new Chromosome(chromosome)), false);
+		moveDataBpRegion(new Chromosome(chromosome), position, length);
 	}
 
-	public void moveDataBpRegion(Long moveTo, Long length) {
-		
+    /**
+     * Move data view to a certain location in the genome.
+     * 
+     * @param moveToChr
+     * @param moveToBp
+     * @param length
+     */
+	public void moveDataBpRegion(Chromosome moveToChr, Long moveToBp, Long length) {
 		BpCoordRegionDouble bpCoordRegion = new BpCoordRegionDouble(
-				new Double(moveTo - (length/2)),
-				new Double(moveTo + (length/2)), 
-				dataView.getBpRegion().start.chr
+				new Double(moveToBp - (length/2)),
+				new Double(moveToBp + (length/2)), 
+				moveToChr
 		);
 		dataView.setBpRegion(bpCoordRegion, false);
 	}

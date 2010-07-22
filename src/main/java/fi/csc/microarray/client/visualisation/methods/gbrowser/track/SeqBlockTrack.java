@@ -5,8 +5,12 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
@@ -236,7 +240,8 @@ public class SeqBlockTrack extends Track {
 
 		// check that areaResult has same concised status (currently always false)
 		// and correct strand
-		if (areaResult.status.concise == isConcised() &&
+		if (areaResult.status.file == file &&
+		    areaResult.status.concise == isConcised() &&
 			areaResult.content.values.get(ColumnType.STRAND) == getStrand()) {
 			
 			// add this to queue of RegionContents to be processed
@@ -252,7 +257,6 @@ public class SeqBlockTrack extends Track {
 
 	@Override
 	public void updateData() {
-
 		if (wasLastConsised != isConcised()) {
 			reads.clear();
 			wasLastConsised = isConcised();
@@ -284,9 +288,20 @@ public class SeqBlockTrack extends Track {
     }
 
 	@Override
-	public Collection<ColumnType> getDefaultContents() {
-		return Arrays.asList(new ColumnType[] { ColumnType.SEQUENCE,
-				ColumnType.STRAND });
+	public Map<DataSource, Set<ColumnType>> requestedData() {
+        HashMap<DataSource, Set<ColumnType>> datas = new
+                HashMap<DataSource, Set<ColumnType>>();
+        datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+                ColumnType.SEQUENCE,
+                ColumnType.STRAND })));
+        
+        // We might also need reference sequence data
+        if (highlightSNP) {
+            datas.put(refData, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+                    ColumnType.SEQUENCE })));
+        }
+            
+        return datas;
 	}
 
 	@Override

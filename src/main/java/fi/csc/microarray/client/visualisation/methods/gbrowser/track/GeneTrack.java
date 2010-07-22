@@ -5,11 +5,16 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
@@ -148,10 +153,16 @@ public class GeneTrack extends Track {
                 getView().getBpRegion().getLength() <= maxBpLength);
     }    
 
-	@Override
-	public Collection<ColumnType> getDefaultContents() {
-		return Arrays.asList(new ColumnType[] { ColumnType.STRAND, ColumnType.DESCRIPTION, ColumnType.VALUE });
-	}
+    @Override
+    public Map<DataSource, Set<ColumnType>> requestedData() {
+        HashMap<DataSource, Set<ColumnType>> datas = new
+        HashMap<DataSource, Set<ColumnType>>();
+        datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+                ColumnType.STRAND,
+                ColumnType.DESCRIPTION,
+                ColumnType.VALUE })));
+        return datas;
+    }
 
 	@Override
 	public boolean isConcised() {
