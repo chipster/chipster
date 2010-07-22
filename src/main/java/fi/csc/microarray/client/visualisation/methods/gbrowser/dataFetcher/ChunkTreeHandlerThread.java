@@ -56,7 +56,7 @@ public class ChunkTreeHandlerThread extends AreaRequestHandler {
 	}
 
 	private void createTree(long fileLength) {
-		rootNode = new TreeNode(new ByteRegion(0l, fileLength, false), this, null);
+		rootNode = new TreeNode(new ByteRegion(file.headerLength(), fileLength, false), this, null);
 	}
 
 	private void processFileResult(FileResult fileResult) {

@@ -1,5 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,14 +30,14 @@ public abstract class TsvParser extends FileParser {
 		
 		public String[] getLastRow(String chunk) {
 			
+			//minus two to convert from length to index and skip the last line change
 			int lineStartIndex = chunk.lastIndexOf("\n", chunk.length() - 2);
 			
 			if (lineStartIndex < 0) {
 				lineStartIndex = 0;
 			}
 			
-			//minus two to convert from length to index and skip the last line change
-			return chunk.substring(lineStartIndex, chunk.length() - 1).split("\t");
+			return chunk.substring(lineStartIndex+1, chunk.length()).split("\t");
 		}
 		
 		@Override
@@ -74,9 +75,9 @@ public abstract class TsvParser extends FileParser {
 					return null;
 				}
 
-				String string = cols[fileDef.indexOf(col)].trim();
+				String string = cols[getFileDefinition().indexOf(col)].trim();
 
-				ColumnDefinition fieldDef = fileDef.getFieldDef(col);
+				ColumnDefinition fieldDef = getFileDefinition().getFieldDef(col);
 
 				if (col == ColumnType.STRAND) {
 					return string.equalsIgnoreCase("r") || string.equals("-") ? Strand.REVERSED
@@ -140,6 +141,10 @@ public abstract class TsvParser extends FileParser {
 			
 			return rows;
 		}
+		
+		public void setFileDefinition(FileDefinition fileDef) {
+			this.fileDef = fileDef;
+		}
 
 		public FileDefinition getFileDefinition() {
 			return fileDef;
@@ -148,5 +153,9 @@ public abstract class TsvParser extends FileParser {
 		@Override
 		public long getDefaulChunkLength() {
 			return 2*1024;
+		}
+
+		public long getHeaderLength(File file) {
+			return 0;
 		}
 }

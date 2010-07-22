@@ -8,16 +8,18 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaR
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CytobandTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GelTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GeneTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.IntensityTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.PeakTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ProfileTrack;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadTrackGroup;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RepeatMaskerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeqBlockTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeqTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TitleTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptTrack.PartColor;
 
@@ -91,16 +93,75 @@ public class TrackFactory {
 
 	public static void addReadTracks(GenomePlot genomePlot, DataSource userData,
 	        Class<? extends AreaRequestHandler> userDataHandler,
-	        DataSource seqFile, String title)
+	        DataSource seqFile, boolean isTreatment)
 	        throws FileNotFoundException, MalformedURLException {
 	
 		View dataView = genomePlot.getDataView();
+		int switchViewsAt = 50000;
+		Color histogramColor = Color.gray;
+		Color fontColor = Color.black;
+							
+		// 
+		// Forward
+		//
+
+		// Overview
+		IntensityTrack readOverview = new IntensityTrack(dataView, userData,
+		        userDataHandler, histogramColor, switchViewsAt);
+		addTrack(dataView, readOverview);
+
+		// Detailed
+		SeqBlockTrack reads = new SeqBlockTrack(dataView, userData,
+		        userDataHandler, fontColor, 0, switchViewsAt);
+		addTrack(dataView, reads);
 		
-		// Group containing tracks for this data source
-		TrackGroup readGroup = new ReadTrackGroup(dataView, userData,
-		        userDataHandler, seqFile, title);
+		addSeparatorTrack(genomePlot);
+
+		//
+		// Reference sequence
+		//
+
+		if (seqFile != null) {
+			
+			RepeatMaskerTrack rmt = new RepeatMaskerTrack(dataView, seqFile, ChunkTreeHandlerThread.class, 0, 800);
+			addTrack(dataView, rmt);
+			addSeparatorTrack(genomePlot);
+			// Reference sequence
+			SeqTrack seq = new SeqTrack(dataView, seqFile, ChunkTreeHandlerThread.class, 800);
+			addTrack(dataView, seq);
+			addSeparatorTrack(genomePlot, 800);
+		}
+
+		//
+		// Reverse
+		//
+
+		// Overview
+		IntensityTrack readOverviewReversed = new IntensityTrack(dataView, userData,
+		        userDataHandler, histogramColor, switchViewsAt);
+		readOverviewReversed.setStrand(Strand.REVERSED);
+		addTrack(dataView, readOverviewReversed);
+
+		// Detailed
+		SeqBlockTrack readsReversed = new SeqBlockTrack(dataView, userData,
+		        userDataHandler, fontColor, 0, switchViewsAt);
+		readsReversed.setStrand(Strand.REVERSED);
+		addTrack(dataView, readsReversed);
+
+        // Profile
+        addSeparatorTrack(genomePlot, switchViewsAt);
+        ProfileTrack profileTrack = new ProfileTrack(dataView, userData, userDataHandler,
+                Color.BLACK, PartColor.CDS.c, 0, switchViewsAt);
+        profileTrack.setStrand(Strand.BOTH);
+        addTrack(dataView, profileTrack);
         
-        addGroup(dataView, readGroup);
+        // Gel
+        addSeparatorTrack(genomePlot, switchViewsAt);
+        GelTrack gelTrack = new GelTrack(dataView, userData, userDataHandler,
+                Color.WHITE, 0, switchViewsAt);
+        gelTrack.setStrand(Strand.BOTH);
+        addTrack(dataView, gelTrack);
+
 	}
 
 	// FIXME Currently not used, used miRNAParser
@@ -162,20 +223,11 @@ public class TrackFactory {
 		view.addTrack(track);
 		track.initializeListener();
 	}
-	
-    private static void addGroup(View view, TrackGroup group) {
-        view.addTrackGroup(group);
-        
-        for (Track track : group.getTracks()) {
-            if (track.hasData()) {
-                track.initializeListener();
-            }
-        }
-    }
 
 	public static void addTitleTrack(GenomePlot genomePlot, String title) {
 		View dataView = genomePlot.getDataView();
 		dataView.addTrack(new TitleTrack(dataView, title, Color.black));
 	}
 	
+
 }
