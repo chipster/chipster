@@ -52,6 +52,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Transc
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Row;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
@@ -193,6 +194,8 @@ public class GenomeBrowser extends Visualisation implements
 	private File localAnnotationPath;
 
 	private URL annotationUrl;
+
+    private boolean visualised;
 
 
 
@@ -416,7 +419,11 @@ public class GenomeBrowser extends Visualisation implements
 		Object source = e.getSource();
 
 		if (source == drawButton) {
-			showVisualisation();
+		    if (!visualised) {
+		        showVisualisation();
+		    } else {
+		        updateLocation();
+		    }
 		}
 	}
 
@@ -439,7 +446,10 @@ public class GenomeBrowser extends Visualisation implements
 	}
 
 	private void showVisualisation() {
-
+	    
+	    // Create tracks only once
+	    visualised = true;
+	    
 		try {
 			// create the plot
 			String genome = (String) genomeBox.getSelectedItem();
@@ -554,7 +564,10 @@ public class GenomeBrowser extends Visualisation implements
 			}
 
 			// initialise the plot
-			updateLocation();
+            plot.start((String)chrBox.getSelectedItem(),
+                    (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()],
+                    Long.parseLong(locationField.getText()),
+                    Long.parseLong(zoomField.getText()));
 			plot.addDataRegionListener(this);
 
 			// wrap it in a panel
@@ -681,21 +694,26 @@ public class GenomeBrowser extends Visualisation implements
         // FIXME hardcoded, use indexed database
         if (locationField.getText().equals("A2M")) {
             chrBox.setSelectedItem(CHROMOSOMES[11]);
-            plot.start((String)chrBox.getSelectedItem(),
-                    (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
-            plot.moveDataBpRegion(9 * 1000000 + 128 * 1000 + 912L, 74000L);
+            plot.moveDataBpRegion(
+                    new Chromosome((String)chrBox.getSelectedItem()),
+                    9 * 1000000 + 128 * 1000 + 912L, 74000L);
         } else if (locationField.getText().equals("IFNAR1")) {
             chrBox.setSelectedItem(CHROMOSOMES[20]);
-            plot.start((String)chrBox.getSelectedItem(),
-                    (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
-            plot.moveDataBpRegion(33 * 1000000 + 633 * 1000 + 627L, 74000L);                
+            plot.moveDataBpRegion(
+                    new Chromosome((String)chrBox.getSelectedItem()),
+                    33 * 1000000 + 633 * 1000 + 627L, 74000L);                
         } else {
             // TODO check format
-            plot.start((String)chrBox.getSelectedItem(),
-                    (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
-            plot.moveDataBpRegion(Long.parseLong(locationField.getText()),
+            plot.moveDataBpRegion(
+                    new Chromosome((String)chrBox.getSelectedItem()),
+                    Long.parseLong(locationField.getText()),
                     Long.parseLong(zoomField.getText()));
         }
+        
+        // set scale of profile track containing reads information
+        this.plot.setReadScale((ReadScale) this.profileScaleBox.getSelectedItem());
+        
+        // TODO: should also be able to enable/disable track groups for data files
 	}
 
 	@Override
