@@ -21,7 +21,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 
 public class RepeatMaskerTrack extends Track {
 	
-	private long minBpLength;
 	private long maxBpLength;
 	private LinkedList<Long> collector = new LinkedList<Long>();
 	private final Color UPPER_COLOR = Color.BLUE;
@@ -30,10 +29,9 @@ public class RepeatMaskerTrack extends Track {
 	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
 	
 	public RepeatMaskerTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler, 
-			long minBpLength, long maxBpLength){
+			long maxBpLength){
 		
 		super(view,file,handler);
-		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
 	}
 
@@ -45,6 +43,8 @@ public class RepeatMaskerTrack extends Track {
 		
 		// case of the first character in the first read
 		Boolean firstCase = null;
+		Boolean lastChar = null;
+		Long lastCharCoord = null;
 		                  	
 		if (reads != null) {
 
@@ -74,6 +74,9 @@ public class RepeatMaskerTrack extends Track {
                 
                 int seqLength = (int) (endBp.minus(startBp)-0);
                 
+                System.out.println(seq);
+                System.out.println(" --- ");
+                
                 // assign true for uppercase letters, false for lowercase
                 boolean lastCase = Character.isUpperCase(seq.charAt(0));
                 
@@ -81,6 +84,12 @@ public class RepeatMaskerTrack extends Track {
                 	firstCase = lastCase;
                 }
                 
+                if (lastChar != null){
+                	if (lastChar != lastCase){
+                		collector.add(lastCharCoord);                		
+                	}
+                }
+                                
                 // add positions where letter case changes
                 int j = 0;
                 for (Long i = read.region.start.bp + 1; i <= (read.region.start.bp + seqLength); i++) {
@@ -90,6 +99,8 @@ public class RepeatMaskerTrack extends Track {
                 	}
                 	j += 1;
 				}
+                lastChar = Character.isUpperCase(seq.charAt(seq.length()-1));
+                lastCharCoord = read.region.start.bp + seqLength+1;
 			}
 			
 			if (read != null) {
@@ -157,7 +168,6 @@ public class RepeatMaskerTrack extends Track {
     public boolean isVisible() {
         // visible region is not suitable
         return (super.isVisible() &&
-                getView().getBpRegion().getLength() > minBpLength &&
                 getView().getBpRegion().getLength() <= maxBpLength);
     }
 	
