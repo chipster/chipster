@@ -89,12 +89,13 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
         gelTrack.setStrand(Strand.BOTH);
         
         // Add switches
-        this.menu.add(showGel);
-        this.menu.add(showProfile);
-        this.menu.add(showSNP);
-        showGel.setBounds(5, 5, 100, 20);
-        showProfile.setBounds(5, 30, 100, 20);
-        showSNP.setBounds(5, 55, 100, 20);
+        this.menu.addItem(showGel);
+        this.menu.addItem(showProfile);
+        this.menu.addItem(showSNP);
+        //int startDrawing = 25;
+        //showGel.setBounds(5, startDrawing, 100, 20);
+        //showProfile.setBounds(5, startDrawing + 25, 100, 20);
+        //showSNP.setBounds(5, startDrawing + 50, 100, 20);
         showGel.addActionListener(this);
         showProfile.addActionListener(this);
         showSNP.addActionListener(this);

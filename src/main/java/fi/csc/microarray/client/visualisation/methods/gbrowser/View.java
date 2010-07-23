@@ -190,8 +190,8 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
             
             // draw side menu
             if (group.isMenuVisible()) {
-                group.menu.setBounds((int) (viewArea.getX() + viewArea.getWidth()) - TrackGroup.MENU_WIDTH,
-                                     (int) (viewArea.getY() + y), TrackGroup.MENU_WIDTH, group.getHeight());
+                group.menu.setPosition((int) (viewArea.getX() + viewArea.getWidth()),
+                        (int) (viewArea.getY() + y));
             }
 
             // draw all tracks
