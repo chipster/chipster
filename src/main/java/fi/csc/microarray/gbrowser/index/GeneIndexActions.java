@@ -40,8 +40,8 @@ public class GeneIndexActions {
         }
 	}
     
-	/*
-	 * creates database in memory, table, updates table with gene indexes
+	/**
+	 * creates database, table, updates table with gene indexes
 	 */
 	public static GeneIndexActions getInstance(){
 		if (gia == null){
@@ -59,7 +59,7 @@ public class GeneIndexActions {
     		st = conn.createStatement();
 			st.execute("CREATE TABLE index(" +
 					"ID INT PRIMARY KEY auto_increment," +
-					"chromosome INT," +
+					"chromosome VARCHAR(2)," +
 					"bp_start INT," +
 					"bp_end INT," +
 					"NAME VARCHAR(255),);" +
@@ -70,7 +70,6 @@ public class GeneIndexActions {
 		}
     }
     
-    //TODO if there are chromosomes with X,Y values, h2 table should be modified
     private void updateTable(List<RegionContent> indexList){
     	try {
 			st = conn.createStatement();
@@ -93,7 +92,7 @@ public class GeneIndexActions {
 			st = conn.createStatement();
 			ResultSet rs = st.executeQuery("select chromosome,bp_start,bp_end from index where name ='" + name + "'");
 			rs.next();
-			return new GeneIndexDataType(rs.getLong(1), rs.getLong(2), rs.getLong(3));
+			return new GeneIndexDataType(rs.getString(1), rs.getLong(2), rs.getLong(3));
 			
 		} catch (SQLException e) {
 			e.printStackTrace();

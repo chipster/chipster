@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
+
+
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
@@ -18,6 +20,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+
+/**
+ * 
+ * Track for marking the DNA sequencing 
+ *
+ */
 
 public class RepeatMaskerTrack extends Track {
 	
@@ -73,9 +81,6 @@ public class RepeatMaskerTrack extends Track {
 				}
                 
                 int seqLength = (int) (endBp.minus(startBp)-0);
-                
-                System.out.println(seq);
-                System.out.println(" --- ");
                 
                 // assign true for uppercase letters, false for lowercase
                 boolean lastCase = Character.isUpperCase(seq.charAt(0));

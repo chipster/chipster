@@ -1,9 +1,5 @@
 package fi.csc.microarray.gbrowser.index;
 
-/*
- * Getting genes information for indexing from a file
- */
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -15,12 +11,16 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * Getting genes information for indexing from a file
+ */
+
 public class GetGeneIndexData {
 	
 	private static final File URL_ROOT;
 
 	static {
-			URL_ROOT = new File("/home/zukauska/chipster-share/ngs/annotations");
+		URL_ROOT = new File("/home/zukauska/chipster-share/ngs/annotations");
 	}
 	
 	public GetGeneIndexData (){
