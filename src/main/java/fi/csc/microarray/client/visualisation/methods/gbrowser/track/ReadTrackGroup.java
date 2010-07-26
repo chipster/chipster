@@ -30,6 +30,7 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
     protected SeqBlockTrack readsReversed;
     protected ProfileTrack profileTrack;
     protected GelTrack gelTrack;
+    protected RepeatMaskerTrack repeatTrack;
     
     // Track switches
     private JCheckBox showGel = new JCheckBox("Gel track", true);
@@ -66,6 +67,7 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
             this.seqFile = seqFile;
             seq = new SeqTrack(view, seqFile,
                     ChunkTreeHandlerThread.class, SHOW_REFERENCE_AT);
+            repeatTrack = new RepeatMaskerTrack(view, seqFile, ChunkTreeHandlerThread.class, SHOW_REFERENCE_AT); 
         }
         
         // Overview
@@ -113,6 +115,8 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
         
         // Only draw reference sequence if data is present
         if (hasReference) {
+        	tracks.add(repeatTrack);
+        	tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SHOW_REFERENCE_AT));
             tracks.add(seq);
             tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SHOW_REFERENCE_AT));
         }

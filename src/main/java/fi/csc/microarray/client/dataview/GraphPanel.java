@@ -418,14 +418,14 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 	 */
 	public boolean setGraphScale(double scale) {
 		double newScale = scale;
-		if (scale > ZOOM_IN_LIMIT) {
+		if (scale >= ZOOM_IN_LIMIT) {
 			newScale = ZOOM_IN_LIMIT;
 			zoomInButton.setEnabled(false);
 		} else {
 			zoomInButton.setEnabled(true);
 		}
 
-		if (scale < ZOOM_OUT_LIMIT) {
+		if (scale <= ZOOM_OUT_LIMIT) {
 			newScale = ZOOM_OUT_LIMIT;
 			zoomOutButton.setEnabled(false);
 		} else {

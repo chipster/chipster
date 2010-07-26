@@ -19,6 +19,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandP
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SequenceParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.WIGParser;
 
 
 /**
@@ -28,12 +29,13 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Transc
  */
 public class GenomeBrowserStarter {
 
-	private static final File ELAND_DATA_FILE = new File("/home/naktinis/chipster-share/ngs/STAT1/STAT1_treatment_aggregated_filtered_sorted_chr1.txt");
-	private static final File MACS_DATA_FILE = new File("/home/naktinis/chipster-share/ngs/STAT1/STAT1_peaks_sorted.bed");
+	private static final File ELAND_DATA_FILE = new File("/home/zukauska/chipster-share/ngs/STAT1/STAT1_treatment_aggregated_filtered_sorted_chr1.txt");
+	private static final File MACS_DATA_FILE = new File("/home/zukauska/chipster-share/ngs/STAT1/STAT1_peaks_sorted.bed");
+	private static final File WIG_DATA_FILE = new File("/home/zukauska/GSM545202.wig");
 	private static final File URL_ROOT;
 
 	static {
-			URL_ROOT = new File("/home/naktinis/chipster-share/ngs/annotations");
+			URL_ROOT = new File("/home/zukauska/chipster-share/ngs/annotations");
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -53,6 +55,11 @@ public class GenomeBrowserStarter {
 
 		// Example peak: choromosome 21 in front of IFNAR2 gene (location 33,525,000)
 		// Example peak: choromosome 21 in front of IFNAR1 gene (location 33,620,000)
+		TrackFactory.addThickSeparatorTrack(plot);
+		TrackFactory.addTitleTrack(plot, "WIG");
+		
+		TrackFactory.addWigTrack(plot,
+		        new ChunkDataSource(WIG_DATA_FILE, new WIGParser(WIG_DATA_FILE)));
 		
 		TrackFactory.addThickSeparatorTrack(plot);
 		TrackFactory.addTitleTrack(plot, "Peaks");

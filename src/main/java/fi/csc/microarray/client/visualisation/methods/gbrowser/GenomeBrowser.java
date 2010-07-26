@@ -58,6 +58,9 @@ import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
+import fi.csc.microarray.gbrowser.index.GeneIndexActions;
+import fi.csc.microarray.gbrowser.index.GeneIndexDataType;
+import fi.csc.microarray.gbrowser.index.GetGeneIndexData;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
@@ -194,10 +197,11 @@ public class GenomeBrowser extends Visualisation implements
 	private File localAnnotationPath;
 
 	private URL annotationUrl;
+	
+    GeneIndexActions gia = GeneIndexActions.getInstance();
+	
 
     private boolean visualised;
-
-
 
 	public GenomeBrowser(VisualisationFrame frame) {
 		super(frame);
@@ -690,9 +694,9 @@ public class GenomeBrowser extends Visualisation implements
 	}
 
 	private void updateLocation() {
-        
-        // FIXME hardcoded, use indexed database
-        if (locationField.getText().equals("A2M")) {
+		
+		/*
+if (locationField.getText().equals("A2M")) {
             chrBox.setSelectedItem(CHROMOSOMES[11]);
             plot.moveDataBpRegion(
                     new Chromosome((String)chrBox.getSelectedItem()),
@@ -708,7 +712,36 @@ public class GenomeBrowser extends Visualisation implements
                     new Chromosome((String)chrBox.getSelectedItem()),
                     Long.parseLong(locationField.getText()),
                     Long.parseLong(zoomField.getText()));
+        }*/
+		
+		GeneIndexDataType gidt = new GeneIndexDataType();
+        if (gia.checkIfNumber(locationField.getText()) == false){
+
+		    gidt = gia.getLocation(locationField.getText().toUpperCase());
+		    
+		    if (gidt == null){
+		    	application.showDialog("Error", "Gene with such name was not found", null, Severity.INFO, false, DetailsVisibility.DETAILS_ALWAYS_HIDDEN);
+		    }
+		    else {
+		    	chrBox.setSelectedItem(gidt.chromosome.toString());
+			    plot.start((String)chrBox.getSelectedItem(),
+			            (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
+			    plot.moveDataBpRegion((gidt.bpend+gidt.bpstart)/2, (gidt.bpend - gidt.bpstart)*2);
+		    }
         }
+        else{
+	        // TODO check format
+            try{
+	            plot.start((String)chrBox.getSelectedItem(),
+	                    (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
+	            plot.moveDataBpRegion(Long.parseLong(locationField.getText()),
+	                    Long.parseLong(zoomField.getText()));
+	        	}
+	        	catch (NumberFormatException e){
+	        		application.reportException(e);
+	        	}
+        }
+        /*}*/
         
         // set scale of profile track containing reads information
         this.plot.setReadScale((ReadScale) this.profileScaleBox.getSelectedItem());

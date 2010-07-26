@@ -83,6 +83,10 @@ public class ChunkDataSource extends DataSource {
             }
         }
     }
+    
+	public long headerLength() {
+		return fileParser.getHeaderLength(file);
+	}
 
     public TsvParser getFileParser() {
         return fileParser;

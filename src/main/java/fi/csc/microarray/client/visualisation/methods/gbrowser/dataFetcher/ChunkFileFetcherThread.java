@@ -22,6 +22,7 @@ public class ChunkFileFetcherThread extends Thread {
 
 	private ChunkDataSource dataSource;
 
+	//TODO Is this useless here?
 	private FileParser inputParser;
 
 	public ChunkFileFetcherThread(BlockingQueue<FileRequest> fileRequestQueue,

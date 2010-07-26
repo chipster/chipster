@@ -20,6 +20,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptTrack.PartColor;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.WIGTrack;
 
 /**
  * Utility for creating predefined track groups.  
@@ -103,10 +104,9 @@ public class TrackFactory {
         addGroup(dataView, readGroup);
 	}
 
-	// FIXME Currently not used, used miRNAParser
 	public static void addWigTrack(GenomePlot plot, DataSource peakFile) {
-		ProfileTrack annotation = new ProfileTrack(plot.getDataView(), peakFile,
-		        ChunkTreeHandlerThread.class, Color.BLACK, Color.BLUE, 0, Long.MAX_VALUE);
+		WIGTrack annotation = new WIGTrack(plot.getDataView(), peakFile,
+		        ChunkTreeHandlerThread.class, Color.BLUE, 0, Long.MAX_VALUE);
 		addTrack(plot.getDataView(), annotation);
 	}
 	
