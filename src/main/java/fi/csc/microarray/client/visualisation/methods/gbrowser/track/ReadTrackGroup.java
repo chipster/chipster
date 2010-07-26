@@ -135,7 +135,6 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
         return tracks;
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == showGel) {
             gelTrack.setVisible(showGel.isSelected());
