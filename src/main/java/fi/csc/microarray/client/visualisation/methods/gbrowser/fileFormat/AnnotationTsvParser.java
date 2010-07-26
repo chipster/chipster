@@ -7,12 +7,14 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
- * DOCME Describe the difference between regular tsv parser and this one.
+ * DOCME
+ * 
+ * Subclass of Tsv parser implementing the concised method for our own Annotation file format.
  *
  */
-public abstract class ConcisedTsvParser extends TsvParser{
+public abstract class AnnotationTsvParser extends TsvParser{
 
-	public ConcisedTsvParser(FileDefinition fileDef) {
+	public AnnotationTsvParser(FileDefinition fileDef) {
 		super(fileDef);
 	}
 	
