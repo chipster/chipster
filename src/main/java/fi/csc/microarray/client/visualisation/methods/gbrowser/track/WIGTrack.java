@@ -3,8 +3,11 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.TreeMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
@@ -14,7 +17,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
@@ -29,7 +31,6 @@ public class WIGTrack extends Track{
 	private long minBpLength;
 	
 	private Collection<RegionContent> values = new TreeSet<RegionContent>();
-	TreeMap<Long, Float> collector = new TreeMap<Long, Float>();
 	private Color color;
 
 	public WIGTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler, 
@@ -44,7 +45,6 @@ public class WIGTrack extends Track{
 	public Collection<Drawable> getDrawables() {
 		
 		Collection<Drawable> drawables = getEmptyDrawCollection();
-		collector.clear();
 		
 		Iterator<RegionContent> iter = values.iterator();
 		
@@ -54,7 +54,6 @@ public class WIGTrack extends Track{
 		
         if (values != null) {
         	
-        	System.out.println(values.size());
 	        while (iter.hasNext()) {
 	        	
 	            RegionContent value = iter.next();
@@ -77,6 +76,7 @@ public class WIGTrack extends Track{
 	        }
         }
 
+        //finish the line till the end of the screen
         drawables.add(new LineDrawable((int)lastX, getHeight() - (int)lastY,
         		getView().getWidth(),
         		getHeight()-1, color));
@@ -86,13 +86,9 @@ public class WIGTrack extends Track{
 	
 	@Override
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
+		System.out.println("asdf");
 		this.values.add(areaResult.content);
         getView().redraw();
-	}
-
-	@Override
-	public Collection<ColumnType> getDefaultContents() {
-		return Arrays.asList(new ColumnType[] { ColumnType.VALUE });
 	}
 
 	@Override
@@ -121,5 +117,14 @@ public class WIGTrack extends Track{
             return 0;
         }
     }
+
+	@Override
+	public Map<DataSource, Set<ColumnType>> requestedData() {
+		HashMap<DataSource, Set<ColumnType>> datas = new
+        HashMap<DataSource, Set<ColumnType>>();
+        datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+                ColumnType.VALUE })));
+        return datas;
+	}
 
 }

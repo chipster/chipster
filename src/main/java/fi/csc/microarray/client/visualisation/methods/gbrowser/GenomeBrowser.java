@@ -695,46 +695,24 @@ public class GenomeBrowser extends Visualisation implements
 
 	private void updateLocation() {
 		
-		/*
-if (locationField.getText().equals("A2M")) {
-            chrBox.setSelectedItem(CHROMOSOMES[11]);
-            plot.moveDataBpRegion(
-                    new Chromosome((String)chrBox.getSelectedItem()),
-                    9 * 1000000 + 128 * 1000 + 912L, 74000L);
-        } else if (locationField.getText().equals("IFNAR1")) {
-            chrBox.setSelectedItem(CHROMOSOMES[20]);
-            plot.moveDataBpRegion(
-                    new Chromosome((String)chrBox.getSelectedItem()),
-                    33 * 1000000 + 633 * 1000 + 627L, 74000L);                
-        } else {
-            // TODO check format
-            plot.moveDataBpRegion(
-                    new Chromosome((String)chrBox.getSelectedItem()),
-                    Long.parseLong(locationField.getText()),
-                    Long.parseLong(zoomField.getText()));
-        }*/
-		
 		GeneIndexDataType gidt = new GeneIndexDataType();
         if (gia.checkIfNumber(locationField.getText()) == false){
 
 		    gidt = gia.getLocation(locationField.getText().toUpperCase());
 		    
 		    if (gidt == null){
-		    	application.showDialog("Error", "Gene with such name was not found", null, Severity.INFO, false, DetailsVisibility.DETAILS_ALWAYS_HIDDEN);
+		    	application.showDialog("Error", "Gene with such name was not found", null, null, false, null);
 		    }
 		    else {
 		    	chrBox.setSelectedItem(gidt.chromosome.toString());
-			    plot.start((String)chrBox.getSelectedItem(),
-			            (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
-			    plot.moveDataBpRegion((gidt.bpend+gidt.bpstart)/2, (gidt.bpend - gidt.bpstart)*2);
+			    plot.moveDataBpRegion(new Chromosome((String)chrBox.getSelectedItem()),
+			    		(gidt.bpend+gidt.bpstart)/2, (gidt.bpend - gidt.bpstart)*2);
 		    }
         }
         else{
 	        // TODO check format
             try{
-	            plot.start((String)chrBox.getSelectedItem(),
-	                    (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()]);
-	            plot.moveDataBpRegion(Long.parseLong(locationField.getText()),
+	            plot.moveDataBpRegion(new Chromosome((String)chrBox.getSelectedItem()), Long.parseLong(locationField.getText()),
 	                    Long.parseLong(zoomField.getText()));
 	        	}
 	        	catch (NumberFormatException e){

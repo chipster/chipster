@@ -4,8 +4,12 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 
@@ -136,12 +140,7 @@ public class RepeatMaskerTrack extends Track {
 		
 		return drawables;
 	}
-	
-	@Override
-	public Collection<ColumnType> getDefaultContents() {
-		return Arrays.asList(new ColumnType[] { ColumnType.SEQUENCE });
-	}
-	
+		
 	@Override
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
 		this.reads.add(areaResult.content);
@@ -175,5 +174,14 @@ public class RepeatMaskerTrack extends Track {
         return (super.isVisible() &&
                 getView().getBpRegion().getLength() <= maxBpLength);
     }
+
+	@Override
+	public Map<DataSource, Set<ColumnType>> requestedData() {
+		HashMap<DataSource, Set<ColumnType>> datas = new
+        HashMap<DataSource, Set<ColumnType>>();
+        datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+                ColumnType.SEQUENCE })));
+        return datas;
+	}
 	
 }
