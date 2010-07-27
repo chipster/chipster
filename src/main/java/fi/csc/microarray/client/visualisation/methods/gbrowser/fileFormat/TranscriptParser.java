@@ -6,7 +6,7 @@ import java.util.Arrays;
  * File format for storing transcription information.
  *
  */
-public class TranscriptParser extends ConcisedTsvParser {
+public class TranscriptParser extends AnnotationTsvParser {
 
 	public TranscriptParser() {
 		super(new FileDefinition(
