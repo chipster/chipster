@@ -2,7 +2,6 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
@@ -12,6 +11,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class WIGParserTest {
@@ -33,7 +33,7 @@ public class WIGParserTest {
 				ColumnType.VALUE});
 		
 		//wigFile = new File(path, "fixedStep.wig");
-		List<RegionContent> abc = data.getFileParser().getAll(new String(fileChunk), columns);
+		List<RegionContent> abc = data.getFileParser().getAll(new Chunk(new String(fileChunk)), columns);
 		Assert.assertEquals(abc.get(0).region.end.bp, new Long(200));
 		Assert.assertEquals(abc.get(6).values.get(ColumnType.VALUE).toString(), "1.1013745");
 		Assert.assertEquals(wig.getBpRegion(getData(wigFile)).end.bp, new Long(3400));
@@ -42,7 +42,7 @@ public class WIGParserTest {
 		
 	}
 	
-	public String getData(File file) throws IOException {
+	public Chunk getData(File file) throws IOException {
 		
 		FileReader fReader = new FileReader(file);
 		BufferedReader reader = new BufferedReader(fReader);
@@ -59,7 +59,7 @@ public class WIGParserTest {
 			
 		}
 		
-		return string;
+		return new Chunk(string);
 	}
 	
 	public void testVariableStep() throws IOException {
@@ -76,7 +76,7 @@ public class WIGParserTest {
 				ColumnType.VALUE});
 		
 		//wigFile = new File(path, "variableStep.wig");
-		List<RegionContent> abc = data.getFileParser().getAll(new String(fileChunk), columns);
+		List<RegionContent> abc = data.getFileParser().getAll(new Chunk(new String(fileChunk)), columns);
 		Assert.assertEquals(abc.get(0).region.end.bp, new Long(830099));
 		Assert.assertEquals(abc.get(6).values.get(ColumnType.VALUE).toString(), "1.27");
 		Assert.assertEquals(wig.getBpRegion(getData(wigFile)).end.bp, new Long(851424));

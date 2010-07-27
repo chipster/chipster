@@ -3,6 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 import java.util.Collection;
 import java.util.List;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -28,7 +29,7 @@ public abstract class FileParser {
 	 * @param requestedContents
 	 * @return list of RegionContent objects containing the requested columns from the chunk data
 	 */
-	public abstract List<RegionContent> getAll(String chunk, Collection<ColumnType> requestedContents);
+	public abstract List<RegionContent> getAll(Chunk chunk, Collection<ColumnType> requestedContents);
 	
 	/**
 	 * Method for getting a summary of data in the chunk. These summaries will be used, when the 
@@ -45,13 +46,13 @@ public abstract class FileParser {
 	 * @param chunk
 	 * @return 
 	 */
-	public abstract RegionContent[] concise(String chunk);
+	public abstract RegionContent[] concise(Chunk chunk);
 	
 	/**
 	 * @return Region where start is the start position of the first row of chunk and the end is 
 	 * the start position of the last row of chunk 
 	 */
-	public abstract BpCoordRegion getBpRegion(String chunk);
+	public abstract BpCoordRegion getBpRegion(Chunk chunk);
 
 	/**
 	 * @return Human readable name of the file format.

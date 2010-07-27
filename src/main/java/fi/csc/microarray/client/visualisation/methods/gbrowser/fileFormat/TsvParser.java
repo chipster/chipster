@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -24,24 +25,24 @@ public abstract class TsvParser extends FileParser {
 			this.fileDef = fileDef;
 		}
 		
-		public String[] getFirstRow(String chunk) {
-			return chunk.substring(0, chunk.indexOf("\n")).split("\t");
+		public String[] getFirstRow(Chunk chunk) {
+			return chunk.getContent().substring(0, chunk.getContent().indexOf("\n")).split("\t");
 		}
 		
-		public String[] getLastRow(String chunk) {
+		public String[] getLastRow(Chunk chunk) {
 			
 			//minus two to convert from length to index and skip the last line change
-			int lineStartIndex = chunk.lastIndexOf("\n", chunk.length() - 2);
+			int lineStartIndex = chunk.getContent().lastIndexOf("\n", chunk.getContent().length() - 2);
 			
 			if (lineStartIndex < 0) {
 				lineStartIndex = 0;
 			}
 			
-			return chunk.substring(lineStartIndex+1, chunk.length()).split("\t");
+			return chunk.getContent().substring(lineStartIndex+1, chunk.getContent().length()).split("\t");
 		}
 		
 		@Override
-		public BpCoordRegion getBpRegion(String chunk) {
+		public BpCoordRegion getBpRegion(Chunk chunk) {
 		    String[] firstRow = getFirstRow(chunk);
 		    String[] lastRow = getLastRow(chunk);
 			Long start = (Long)get(firstRow, ColumnType.BP_START);
@@ -115,12 +116,12 @@ public abstract class TsvParser extends FileParser {
          * @return
          */
 		@Override
-		public List<RegionContent> getAll(String chunk, Collection<ColumnType> requestedContents) {
+		public List<RegionContent> getAll(Chunk chunk, Collection<ColumnType> requestedContents) {
 
 			List<RegionContent> rows = new LinkedList<RegionContent>();
 			
 
-			for (String row : chunk.split("\n")) {
+			for (String row : chunk.getContent().split("\n")) {
 				
 				Map<ColumnType, Object> values = new HashMap<ColumnType, Object>();
 				

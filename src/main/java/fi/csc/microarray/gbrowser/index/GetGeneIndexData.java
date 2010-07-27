@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -42,7 +43,7 @@ public class GetGeneIndexData {
 					ColumnType.BP_END,
 					ColumnType.DESCRIPTION});
 			
-			return  data.getFileParser().getAll(new String(fileChunk), columns);
+			return  data.getFileParser().getAll(new Chunk(new String(fileChunk)), columns);
 			
 		} catch (FileNotFoundException e) {
 			return null;

@@ -29,13 +29,20 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.WIGPar
  */
 public class GenomeBrowserStarter {
 
-	private static final File ELAND_DATA_FILE = new File("/home/zukauska/chipster-share/ngs/STAT1/STAT1_treatment_aggregated_filtered_sorted_chr1.txt");
-	private static final File MACS_DATA_FILE = new File("/home/zukauska/chipster-share/ngs/STAT1/STAT1_peaks_sorted.bed");
-	private static final File WIG_DATA_FILE = new File("/home/zukauska/GSM545202.wig");
+	private static final File ELAND_DATA_FILE;
+	private static final File MACS_DATA_FILE;
+	private static final File WIG_DATA_FILE;
 	private static final File URL_ROOT;
 
 	static {
-			URL_ROOT = new File("/home/zukauska/chipster-share/ngs/annotations");
+		
+		String annotationPath = "/home/" + System.getProperty("user.name") + "/chipster-share/";
+		
+		ELAND_DATA_FILE = new File(annotationPath, "/ngs/STAT1/STAT1_treatment_aggregated_filtered_sorted_chr1.txt");
+		MACS_DATA_FILE = new File(annotationPath, "/ngs/STAT1/STAT1_peaks_sorted.bed");
+		URL_ROOT = new File(annotationPath, "/ngs/annotations");
+		
+		WIG_DATA_FILE = new File("/home/zukauska/GSM545202.wig");
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -58,8 +65,8 @@ public class GenomeBrowserStarter {
 		TrackFactory.addThickSeparatorTrack(plot);
 		TrackFactory.addTitleTrack(plot, "WIG");
 		
-		TrackFactory.addWigTrack(plot,
-		        new ChunkDataSource(WIG_DATA_FILE, new WIGParser(WIG_DATA_FILE)));
+//		TrackFactory.addWigTrack(plot,
+//		        new ChunkDataSource(WIG_DATA_FILE, new WIGParser(WIG_DATA_FILE)));
 		
 		TrackFactory.addThickSeparatorTrack(plot);
 		TrackFactory.addTitleTrack(plot, "Peaks");

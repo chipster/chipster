@@ -78,7 +78,7 @@ public class ChunkFileFetcherThread extends Thread {
 	 */
 	private void processFileRequest(FileRequest fileRequest) throws IOException {
 		
-		String chunk;
+		Chunk chunk = new Chunk();
 		ByteRegion exactRegion = null;
 		
 		
@@ -93,7 +93,7 @@ public class ChunkFileFetcherThread extends Thread {
 				
 			dataSource.read(fileRequest.byteRegion.start, byteChunk);			
 			
-			chunk = new String(byteChunk);
+			chunk.setContent(new String(byteChunk));
 
 		/* fileRequest.byteRegion.exact isn't set and the location of line changes isn't known. 
 		 * The returned chunk should contain only full lines starting from the line just after
@@ -132,6 +132,8 @@ public class ChunkFileFetcherThread extends Thread {
 						break;
 					}
 				}
+			} else {
+				exactRegion.start = 0l;
 			}
 			
 			StringBuffer lines = new StringBuffer();
@@ -156,8 +158,8 @@ public class ChunkFileFetcherThread extends Thread {
 			exactRegion.end = fileRequest.byteRegion.start + i;			
 			exactRegion.exact = true;
 
-			chunk = lines.toString();
-
+			chunk.setContent(lines.toString());
+			chunk.setByteLocation(exactRegion.start);
 		}
 
 		fileRequest.status.maybeClearQueue(fileResultQueue);

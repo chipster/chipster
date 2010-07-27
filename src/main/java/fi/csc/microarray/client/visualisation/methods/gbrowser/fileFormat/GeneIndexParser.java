@@ -3,6 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
 import java.util.Arrays;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class GeneIndexParser extends TsvParser{
@@ -21,7 +22,7 @@ public class GeneIndexParser extends TsvParser{
 	}
 
 	@Override
-	public RegionContent[] concise(String chunk) {
+	public RegionContent[] concise(Chunk chunk) {
 		return null;
 	}
 

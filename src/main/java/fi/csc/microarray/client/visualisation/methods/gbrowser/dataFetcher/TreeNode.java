@@ -295,7 +295,7 @@ public class TreeNode {
 	 * @param areaRequest
 	 * @param status
 	 */
-	public void createAreaResultOfAllRows(String chunk, FileParser chunkParser, AreaRequest areaRequest, FsfStatus status) {
+	public void createAreaResultOfAllRows(Chunk chunk, FileParser chunkParser, AreaRequest areaRequest, FsfStatus status) {
 
 		for (RegionContent rc : chunkParser.getAll(chunk, areaRequest.requestedContents)) {
 
