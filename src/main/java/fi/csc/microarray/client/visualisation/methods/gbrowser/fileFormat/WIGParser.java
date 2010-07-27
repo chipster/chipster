@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,11 +31,22 @@ public class WIGParser extends TsvParser {
 	private final String FIXED_STEP = "fixedStep";
 	
 	
-	String type;//variableStep or fixedStep
-	String chr;
-	Long span;
-	Long startPosition;
-	Long step;
+//	String type;//variableStep or fixedStep
+//	String chr;
+//	Long span;
+//	Long startPosition;
+//	Long step;
+	List<headerDefinition> headers = new ArrayList<headerDefinition>();
+	
+	private class headerDefinition {
+		
+		String type;//variableStep or fixedStep
+		String chr;
+		Long span;
+		Long startPosition;
+		Long step;
+		Long headerPosition;
+	}
 	
 	//fileDefinition is set in the setParser method
 	public WIGParser(File file){
@@ -52,21 +65,31 @@ public class WIGParser extends TsvParser {
 	}
 	
 	/**
-	 * reading file header info
+	 * reading file headers info
 	 * @param file
 	 */
 	public void setParser(File file) {
 		
+		headerDefinition header = new headerDefinition();
+		
 		try {
-			FileReader fileReader = new FileReader(file);
-			BufferedReader reader = new BufferedReader(fileReader);
+			RandomAccessFile reader = new RandomAccessFile(file, "r");
 			String line = reader.readLine();
-			
+						
 			while (!line.contains("track")){
 				line = reader.readLine();
 			}
 			
-			setParser(reader.readLine());
+			Long fileLength = reader.length();
+			//setting headers
+			while (reader.getFilePointer() != fileLength) {				
+				line = reader.readLine();
+				if (line.contains("Step")) {
+					header = setHeader(line);
+					header.headerPosition = reader.getFilePointer();
+					headers.add(header);
+				}
+			}
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -80,67 +103,61 @@ public class WIGParser extends TsvParser {
 	 *  variableStep chrom=chr1 span=25
 	 *   
 	 */
-	public void setParser(String chunk) {
-	
+	public headerDefinition setHeader(String chunk) {
+
+		headerDefinition header = new headerDefinition();
+		
 		try {
+			
+			if (chunk.indexOf("\n") != -1){
+				chunk = chunk.substring(0, chunk.indexOf("\n"));
+			}
 			String[] cols = chunk.split(" ");
 			
 			switch (cols.length) {
 				case 2:
-					type = cols[0];//variable step
-					chr = cols[1].replace("chrom=chr", "");
-					setFileDefinition(new FileDefinition(Arrays.asList(
-							new ColumnDefinition[] { 
-									new ColumnDefinition(ColumnType.BP_START, Type.LONG), 
-									new ColumnDefinition(ColumnType.VALUE, Type.FLOAT), }
-							)));
+					header.type = cols[0];//variable step
+					header.chr = cols[1].replace("chrom=chr", "");
+					
 					break;
 				case 3:
-					type = cols[0];//variable step
-					chr = cols[1].replace("chrom=chr", "");
-					span = Long.parseLong(cols[2].replace("span=", ""));
-					setFileDefinition(new FileDefinition(Arrays.asList(
-							new ColumnDefinition[] { 
-									new ColumnDefinition(ColumnType.BP_START, Type.LONG), 
-									new ColumnDefinition(ColumnType.VALUE, Type.FLOAT), }
-							)));
+					header.type = cols[0];//variable step
+					header.chr = cols[1].replace("chrom=chr", "");
+					header.span = Long.parseLong(cols[2].replace("span=", ""));
 					break;
 				case 4:
-					type = cols[0];//fixed step
-					chr = cols[1].replace("chrom=chr", "");
-					startPosition = Long.parseLong(cols[2].replace("start=", ""));
-					step = Long.parseLong(cols[3].replace("step=", ""));
-					setFileDefinition(new FileDefinition(Arrays.asList(
-							new ColumnDefinition[] { 
-									new ColumnDefinition(ColumnType.VALUE, Type.FLOAT), }
-							)));
+					header.type = cols[0];//fixed step
+					header.chr = cols[1].replace("chrom=chr", "");
+					header.startPosition = Long.parseLong(cols[2].replace("start=", ""));
+					header.step = Long.parseLong(cols[3].replace("step=", ""));
 					break;
 				case 5:
-					type = cols[0];//fixed step
-					chr = cols[1].replace("chrom=chr", "");
-					startPosition = Long.parseLong(cols[2].replace("start=", ""));
-					step = Long.parseLong(cols[3].replace("step=", ""));
-					span = Long.parseLong(cols[4].replace("span=", ""));
-					setFileDefinition(new FileDefinition(Arrays.asList(
-							new ColumnDefinition[] { 
-									new ColumnDefinition(ColumnType.VALUE, Type.FLOAT), }
-							)));
+					header.type = cols[0];//fixed step
+					header.chr = cols[1].replace("chrom=chr", "");
+					header.startPosition = Long.parseLong(cols[2].replace("start=", ""));
+					header.step = Long.parseLong(cols[3].replace("step=", ""));
+					header.span = Long.parseLong(cols[4].replace("span=", ""));
 					break;
 				default: 
 					break;
 			}
+			
+			return header;
 		} catch (NumberFormatException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return null;
 		} 
-}
+	}
 	
 	@Override
 	public List<RegionContent> getAll(Chunk chunk, Collection<ColumnType> requestedContents) {
 
 		List<RegionContent> rows = new LinkedList<RegionContent>();
+		headerDefinition header = getHeader(chunk.getByteLocation());
+		setFileDefinition(header);
 
-		if (type.equals(FIXED_STEP)) {
+		if (header.type.equals(FIXED_STEP)) {
 			//fixed step
 			
 			int nextPosition = 0;
@@ -151,18 +168,18 @@ public class WIGParser extends TsvParser {
 				
 				if (cols.length > 1) {
 					
-					setParser(row);
+					setHeader(row);
 				} else {
 					// Calculate start and end positions
-					Long start = Long.valueOf(startPosition + nextPosition * step);
-					Long end = Long.valueOf(startPosition + nextPosition * step + span - 1);
+					Long start = header.startPosition + nextPosition * header.step;
+					Long end = header.startPosition + nextPosition * header.step + header.span - 1;
 					
 					for (ColumnType requestedContent : requestedContents) {
 						values.put(requestedContent, this.get(cols, requestedContent));
 					}
 					
 					rows.add(new RegionContent(new BpCoordRegion(
-							start, end, new Chromosome(chr)), values));
+							start, end, new Chromosome(header.chr)), values));
 				}
 				nextPosition++;
 			}
@@ -177,17 +194,17 @@ public class WIGParser extends TsvParser {
 				
 				if (cols.length <2) {
 					
-					setParser(row);
+					setHeader(row);
 				} else {
 
 					Long start = Long.parseLong(cols[0]);
-					Long end = Long.valueOf(Integer.parseInt(cols[0]) + span-1);
+					Long end = Long.valueOf(Integer.parseInt(cols[0]) + header.span-1);
 					for (ColumnType requestedContent : requestedContents) {
 						values.put(requestedContent, this.get(cols, requestedContent));
 					}
 			
 					rows.add(new RegionContent(new BpCoordRegion(
-							start, end, new Chromosome(chr)), values));			
+							start, end, new Chromosome(header.chr)), values));
 				}
 			}	
 		}
@@ -283,44 +300,45 @@ public class WIGParser extends TsvParser {
 		
 		Long start = 0l;
 		Long end = 0l;
-		String startChr = chr;
-		String endChr;
-		String[] header = getLastHeader(chunk);
+		headerDefinition firstHeader = getHeader(chunk.getByteLocation());
+		String startChr = firstHeader.chr;
+		String endChr = firstHeader.chr;
+		headerDefinition lastHeader = getLastHeader(chunk);
 		
-		try {
-			endChr = header[0].replace("chrom=chr", "");
-		} catch (Exception e) {
-			endChr = chr;
+		if (lastHeader.chr != null){
+			endChr = lastHeader.chr;
 		}
-						
-		if (type.equals(VARIABLE_STEP)) {
+		
+		if (firstHeader.type.equals(VARIABLE_STEP)) {
 			
 			try {
 				start = Long.valueOf(getFirstRow(chunk)[0]);
-				end = Long.valueOf(getLastRow(chunk)[0])+span-1;
-			} catch (NumberFormatException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				end = Long.valueOf(getLastRow(chunk)[0]) + lastHeader.span - 1;
+			} catch (Exception e) {
+				end = Long.valueOf(getLastRow(chunk)[0]) + firstHeader.span - 1;
 			}
 			
 		} else {
 			
-			start = startPosition;
 			try {
-				end = Long.parseLong(header[1].replace("start=", "")) + 
-				getFixedStepEnd(chunk) * step + span - 1;
+				start = lastHeader.startPosition;
+				end = lastHeader.startPosition + 
+				getFixedStepEnd(chunk) * lastHeader.step + lastHeader.span - 1;
 				
 			} catch (Exception e) {
-				end = startPosition + getFixedStepEnd(chunk) * step + span - 1;
+				start = firstHeader.startPosition;
+				end = firstHeader.startPosition + getFixedStepEnd(chunk) * firstHeader.step
+				+ firstHeader.span - 1;
 			}
 		}
 
 		return new BpCoordRegion(start, new Chromosome(startChr), end, new Chromosome(endChr));
 	}
 	
-	public String[] getLastHeader(Chunk chunk) {
+	public headerDefinition getLastHeader(Chunk chunk) {
 		
 		String content = chunk.getContent();
+		headerDefinition header = new headerDefinition();
 		
 		int lineStartIndex;
 		try {
@@ -332,8 +350,10 @@ public class WIGParser extends TsvParser {
 		if (lineStartIndex < 0) {
 			return null;
 		}
+
+		header = setHeader(content);
 		
-		return content.substring(lineStartIndex, content.length() - 1).split(" ");
+		return header;
 	}
 	
 	public Long getFixedStepEnd(Chunk chunk) {
@@ -366,4 +386,48 @@ public class WIGParser extends TsvParser {
 			
 		}
 	}
+
+	public headerDefinition getHeader(Long location) {
+		for (int i = 0; i<headers.size(); i++) {
+			if (headers.get(i).headerPosition > location) {
+				return headers.get(i-1);
+			}
+		}
+		return null;
+	}
+	
+	@Override
+	public String[] getLastRow(Chunk chunk) {
+		//TODO if the last row is header, then the last-1 row should be taken
+		
+		//minus two to convert from length to index and skip the last line change
+		int lineStartIndex = chunk.getContent().lastIndexOf("\n", chunk.getContent().length() - 2);
+		
+		if (lineStartIndex < 0) {
+			lineStartIndex = 0;
+		}
+		
+		return chunk.getContent().substring(lineStartIndex+1, chunk.getContent().length()).split("\t");
+	}
+	
+	public void setFileDefinition(headerDefinition header) {
+		
+		if (header.type.equals(VARIABLE_STEP)) {
+			
+			setFileDefinition(new FileDefinition(Arrays.asList(
+					new ColumnDefinition[] { 
+							new ColumnDefinition(ColumnType.BP_START, Type.LONG), 
+							new ColumnDefinition(ColumnType.VALUE, Type.FLOAT), }
+					)));
+			
+		} else {
+			
+			setFileDefinition(new FileDefinition(Arrays.asList(
+					new ColumnDefinition[] { 
+							new ColumnDefinition(ColumnType.VALUE, Type.FLOAT), }
+					)));
+			
+		}
+	}
+	
 }
