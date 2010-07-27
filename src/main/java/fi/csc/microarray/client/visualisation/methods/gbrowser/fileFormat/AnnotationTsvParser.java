@@ -2,6 +2,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
 import java.util.Arrays;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -19,7 +20,7 @@ public abstract class AnnotationTsvParser extends TsvParser{
 	}
 	
 	@Override
-	public RegionContent[] concise(String chunk) {
+	public RegionContent[] concise(Chunk chunk) {
 
 		long totalF = 0;
 		long totalR = 0;

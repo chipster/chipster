@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -35,7 +36,7 @@ public class ElandParser extends TsvParser {
 	}
 		
 	@Override
-	public RegionContent[] concise(String chunk) {
+	public RegionContent[] concise(Chunk chunk) {
 
 		long totalF = 0;
 		long totalR = 0;
@@ -65,11 +66,11 @@ public class ElandParser extends TsvParser {
 	}
 	
 	@Override
-	public List<RegionContent> getAll(String chunk, Collection<ColumnType> requestedContents) {
+	public List<RegionContent> getAll(Chunk chunk, Collection<ColumnType> requestedContents) {
 
 		List<RegionContent> rows = new LinkedList<RegionContent>();
 		
-		for (String row : chunk.split("\n")) {
+		for (String row : chunk.getContent().split("\n")) {
 			
 			Map<ColumnType, Object> values = new HashMap<ColumnType, Object>();
 			

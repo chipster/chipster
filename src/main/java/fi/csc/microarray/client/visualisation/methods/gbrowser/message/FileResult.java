@@ -1,5 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 
 /**
@@ -12,16 +13,7 @@ public class FileResult {
 	public ByteRegion exactRegion;
 	public FileParser chunkParser;
 	public FsfStatus status;
-	
-	/**
-	 * DOCME
-	 * 
-	 * Chunk is a part of file containing only full lines. The default length of the chunk can be 
-	 * defined in the parser classes, but the exact length will be only in the some order of 
-	 * magnitude and the exact length depends on how the lines happen to become divided between 
-	 * these chunks. 
-	 */
-	public String chunk;
+	public Chunk chunk;
 
 	/**
 	 * @param fileRequest
@@ -29,7 +21,7 @@ public class FileResult {
 	 * @param requestQueueSize
 	 *            only to update user interface
 	 */
-	public FileResult(String chunk, FileRequest fileRequest, FileParser inputParser, ByteRegion exactRegion, FsfStatus status) {
+	public FileResult(Chunk chunk, FileRequest fileRequest, FileParser inputParser, ByteRegion exactRegion, FsfStatus status) {
 		this.request = fileRequest;
 		this.chunkParser = inputParser;
 		this.exactRegion = exactRegion;

@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -41,7 +42,7 @@ public class WIGParser extends TsvParser {
 	}
 
 	@Override
-	public RegionContent[] concise(String chunk) {
+	public RegionContent[] concise(Chunk chunk) {
 		return new RegionContent[] {};
 	}
 
@@ -135,7 +136,7 @@ public class WIGParser extends TsvParser {
 }
 	
 	@Override
-	public List<RegionContent> getAll(String chunk, Collection<ColumnType> requestedContents) {
+	public List<RegionContent> getAll(Chunk chunk, Collection<ColumnType> requestedContents) {
 
 		List<RegionContent> rows = new LinkedList<RegionContent>();
 
@@ -143,7 +144,7 @@ public class WIGParser extends TsvParser {
 			//fixed step
 			
 			int nextPosition = 0;
-			for (String row : chunk.split("\n")) {
+			for (String row : chunk.getContent().split("\n")) {
 				Map<ColumnType, Object> values = new HashMap<ColumnType, Object>();
 				
 				String[] cols = row.split(" ");
@@ -168,7 +169,7 @@ public class WIGParser extends TsvParser {
 			
 		} else {
 			//variable step
-			for (String row : chunk.split("\n")) {
+			for (String row : chunk.getContent().split("\n")) {
 				
 				Map<ColumnType, Object> values = new HashMap<ColumnType, Object>();
 				
@@ -278,7 +279,7 @@ public class WIGParser extends TsvParser {
 	}
 	
 	@Override
-	public BpCoordRegion getBpRegion(String chunk) {
+	public BpCoordRegion getBpRegion(Chunk chunk) {
 		
 		Long start = 0l;
 		Long end = 0l;
@@ -317,11 +318,13 @@ public class WIGParser extends TsvParser {
 		return new BpCoordRegion(start, new Chromosome(startChr), end, new Chromosome(endChr));
 	}
 	
-	public String[] getLastHeader(String chunk) {
+	public String[] getLastHeader(Chunk chunk) {
+		
+		String content = chunk.getContent();
 		
 		int lineStartIndex;
 		try {
-			lineStartIndex = chunk.lastIndexOf("chrom", chunk.length() - 2);
+			lineStartIndex = content.lastIndexOf("chrom", content.length() - 2);
 		} catch (Exception e) {
 			lineStartIndex = -1;
 		}
@@ -330,14 +333,14 @@ public class WIGParser extends TsvParser {
 			return null;
 		}
 		
-		return chunk.substring(lineStartIndex, chunk.length() - 1).split(" ");
+		return content.substring(lineStartIndex, content.length() - 1).split(" ");
 	}
 	
-	public Long getFixedStepEnd(String chunk) {
+	public Long getFixedStepEnd(Chunk chunk) {
 		
 		int i = 0;
 		
-		for (String line : chunk.split("\n")) {
+		for (String line : chunk.getContent().split("\n")) {
 			if (line.contains("chrom")) {
 				i=0;
 			} else {
@@ -350,14 +353,16 @@ public class WIGParser extends TsvParser {
 	}
 	
 	@Override
-	public String[] getFirstRow(String chunk) {
+	public String[] getFirstRow(Chunk chunk) {
 		
-		if (chunk.startsWith("variableStep")) {
-			chunk = chunk.substring(chunk.indexOf("\n")+1, chunk.length());
-			return chunk.substring(0, chunk.indexOf("\n")).split("\t");
+		String content = chunk.getContent();
+		
+		if (content.startsWith("variableStep")) {
+			String row = content.substring(content.indexOf("\n")+1, content.length());
+			return content.substring(0, row.indexOf("\n")).split("\t");
 			
 		} else {
-			return chunk.substring(0, chunk.indexOf("\n")).split("\t");
+			return content.substring(0, content.indexOf("\n")).split("\t");
 			
 		}
 	}
