@@ -11,6 +11,7 @@ import net.sf.samtools.SAMFileWriterFactory;
 import net.sf.samtools.SAMRecord;
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
@@ -101,12 +102,12 @@ public class NGSPreprocessorTool extends JavaAnalysisJobBase {
 	    long filePosition = 0,
 	         bytesRead = 1;
 	    int increment = 200000;
-	    byte[] chunk;
+	    byte[] chunkBytes;
 	    while (bytesRead > 0) {
 	        // Read some data from ELAND
-	        chunk = new byte[increment];
-	        bytesRead = elandData.read(filePosition, chunk);
-	        String chunkString = new String(chunk);
+	        chunkBytes = new byte[increment];
+	        bytesRead = elandData.read(filePosition, chunkBytes);
+	        String chunkString = new String(chunkBytes);
 	        int lastNewLine = chunkString.lastIndexOf("\n");
 	        
 	        if (lastNewLine == -1) {
@@ -114,8 +115,8 @@ public class NGSPreprocessorTool extends JavaAnalysisJobBase {
 	        }
 	        
 	        // Read chunk to a region list
-	        chunkString = chunkString.substring(0, lastNewLine);
-	        List<RegionContent> contents = elandData.getFileParser().getAll(chunkString,
+	        Chunk chunk = new Chunk(chunkString.substring(0, lastNewLine));
+	        List<RegionContent> contents = elandData.getFileParser().getAll(chunk,
 	                Arrays.asList(new ColumnType[] {
 	                    ColumnType.ID, ColumnType.CHROMOSOME,
 	                    ColumnType.BP_START, ColumnType.STRAND,
