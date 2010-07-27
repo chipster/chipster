@@ -86,7 +86,6 @@ public class WIGTrack extends Track{
 	
 	@Override
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
-		System.out.println("asdf");
 		this.values.add(areaResult.content);
         getView().redraw();
 	}

@@ -280,8 +280,8 @@ public class WIGParser extends TsvParser {
 	@Override
 	public BpCoordRegion getBpRegion(String chunk) {
 		
-		Long start;
-		Long end;
+		Long start = 0l;
+		Long end = 0l;
 		String startChr = chr;
 		String endChr;
 		String[] header = getLastHeader(chunk);
@@ -294,8 +294,13 @@ public class WIGParser extends TsvParser {
 						
 		if (type.equals(VARIABLE_STEP)) {
 			
-			start = Long.valueOf(getFirstRow(chunk)[0]);
-			end = Long.valueOf(getLastRow(chunk)[0])+span-1;
+			try {
+				start = Long.valueOf(getFirstRow(chunk)[0]);
+				end = Long.valueOf(getLastRow(chunk)[0])+span-1;
+			} catch (NumberFormatException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 		} else {
 			
@@ -342,5 +347,18 @@ public class WIGParser extends TsvParser {
 		}
 		
 		return new Long(i)-1;
+	}
+	
+	@Override
+	public String[] getFirstRow(String chunk) {
+		
+		if (chunk.startsWith("variableStep")) {
+			chunk = chunk.substring(chunk.indexOf("\n")+1, chunk.length());
+			return chunk.substring(0, chunk.indexOf("\n")).split("\t");
+			
+		} else {
+			return chunk.substring(0, chunk.indexOf("\n")).split("\t");
+			
+		}
 	}
 }
