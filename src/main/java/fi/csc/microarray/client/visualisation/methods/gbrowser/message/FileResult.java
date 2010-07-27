@@ -13,15 +13,6 @@ public class FileResult {
 	public ByteRegion exactRegion;
 	public FileParser chunkParser;
 	public FsfStatus status;
-	
-	/**
-	 * DOCME
-	 * 
-	 * Chunk is a part of file containing only full lines. The default length of the chunk can be 
-	 * defined in the parser classes, but the exact length will be only in the some order of 
-	 * magnitude and the exact length depends on how the lines happen to become divided between 
-	 * these chunks. 
-	 */
 	public Chunk chunk;
 
 	/**
