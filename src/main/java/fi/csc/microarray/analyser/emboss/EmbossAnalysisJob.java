@@ -111,7 +111,7 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
             // Handle non-acd parameters separately
             if (param.getName().startsWith(ACDToSADL.OUTPUT_TYPE_PREFIX)) {
                 String value = !(inputParameters.get(index).equals(ACDParameter.UNDEFINED))?
-                        inputParameters.get(index) : "";
+                        inputParameters.get(index) : null;
                 outputFormats.put(
                         param.getName().substring(ACDToSADL.OUTPUT_TYPE_PREFIX.length()),
                         value);
