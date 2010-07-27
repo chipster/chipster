@@ -641,7 +641,6 @@ public class GenomeBrowser extends Visualisation implements
 		}
 	}
 
-	@Override
 	public void regionChanged(BpCoordRegion bpRegion) {
 	    locationField.setText(bpRegion.getMid().toString());
 		zoomField.setText("" + bpRegion.getLength());
@@ -727,32 +726,26 @@ public class GenomeBrowser extends Visualisation implements
         // TODO: should also be able to enable/disable track groups for data files
 	}
 
-	@Override
 	public void focusGained(FocusEvent e) {
 		gotoButton.setEnabled(true);		
 	}
 
-	@Override
 	public void focusLost(FocusEvent e) {
 		// skip		
 	}
 
-    @Override
     public void componentHidden(ComponentEvent arg0) {
         // skip
     }
 
-    @Override
     public void componentMoved(ComponentEvent arg0) {
         // skip
     }
 
-    @Override
     public void componentResized(ComponentEvent arg0) {
         this.showVisualisation();
     }
 
-    @Override
     public void componentShown(ComponentEvent arg0) {
         // skip
     }

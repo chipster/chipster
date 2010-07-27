@@ -6,9 +6,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.client.Session;
 import fi.csc.microarray.description.SADLDescription;
-import fi.csc.microarray.description.SADLParser;
 import fi.csc.microarray.description.SADLDescription.Input;
 import fi.csc.microarray.description.SADLDescription.Parameter;
 import fi.csc.microarray.description.SADLParser.ParseException;

@@ -102,7 +102,6 @@ public class TrackGroup {
             setPosition(x, y);
         }
 
-        @Override
         public void actionPerformed(ActionEvent event) {
             if (event.getSource() == resize) {
                 menuCollapsed = !menuCollapsed;
