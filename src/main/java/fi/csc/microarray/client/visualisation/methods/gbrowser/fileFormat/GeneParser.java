@@ -6,7 +6,7 @@ import java.util.Arrays;
  * DOCME What is this for?
  *
  */
-public class GeneParser extends ConcisedTsvParser{
+public class GeneParser extends AnnotationTsvParser{
 
 	public GeneParser() {
 		super(new FileDefinition(
