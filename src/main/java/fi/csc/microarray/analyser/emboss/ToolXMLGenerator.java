@@ -79,9 +79,11 @@ public class ToolXMLGenerator {
         ignoredPrograms.add("tfscan");
         
         // FIXME Wait until these descriptions fixed in the new EMBOSS version
-        ignoredPrograms.add("complex");
-        ignoredPrograms.add("intconv");
-        ignoredPrograms.add("ensembltest");
+        ignoredPrograms.add("dbxstat");
+        ignoredPrograms.add("emiraest");
+        ignoredPrograms.add("ememetext");
+        ignoredPrograms.add("emira");
+        ignoredPrograms.add("vrnafoldpf");        
         
         colors.put("alignment", "#c3b6a2");
         colors.put("display", "#d5c796");
@@ -113,6 +115,7 @@ public class ToolXMLGenerator {
         doc.appendChild(module);
         
         for (File acdFile : acdDir.listFiles()) {
+            System.out.println(acdFile.getName());
             try {
                 if (acdFile.getName().endsWith(".acd")) {
                     // Feed file content to the parser
@@ -120,12 +123,14 @@ public class ToolXMLGenerator {
                         new BufferedInputStream(new FileInputStream(acdFile));
                     final byte [] bytes = new byte[(int) acdFile.length()];
                     inputStream.read(bytes);
-                    ACDDescription acd = new ACDDescription(acdFile);
                     
                     // Check if this program is not ignored
-                    if (ignoredPrograms.contains(acd.getName())) {
+                    if (ignoredPrograms.contains(
+                            acdFile.getName().substring(0, acdFile.getName().indexOf(".")))) {
                         continue;
                     }
+                    
+                    ACDDescription acd = new ACDDescription(acdFile);
                     
                     // Check if there are any interesting groups for this application
                     HashSet<String> acdGroups =
@@ -228,7 +233,7 @@ public class ToolXMLGenerator {
     }
 
     public static void main(String[] args) {
-        new ToolXMLGenerator("/opt/EMBOSS-6.2.0/emboss/acd",
+        new ToolXMLGenerator("/home/naktinis/acd",
                 "debug-base-dir/conf/sequence-module.xml").generate();
     }
 }
