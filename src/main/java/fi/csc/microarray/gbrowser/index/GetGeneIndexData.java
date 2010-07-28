@@ -1,12 +1,12 @@
 package fi.csc.microarray.gbrowser.index;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
@@ -18,24 +18,18 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 
 public class GetGeneIndexData {
 	
-	private static final File URL_ROOT;
-
-	static {
-		URL_ROOT = new File("/home/zukauska/chipster-share/ngs/annotations");
-	}
+	private GenomeBrowser genomeBrowser;
 	
-	public GetGeneIndexData (){
-		
+	public GetGeneIndexData(GenomeBrowser genomeBrowser) {
+		this.genomeBrowser = genomeBrowser;
 	}
 	
 	public List<RegionContent> read(){
         
         try {
-        	File geneFile = new File(URL_ROOT+"/Homo_sapiens.NCBI36.54_genes.tsv");
-			ChunkDataSource data = new ChunkDataSource(
-					geneFile,
-					new GeneParser());
-			byte[] fileChunk = new byte[(int)geneFile.length()];
+			ChunkDataSource data = genomeBrowser.createAnnotationDataSource(
+			        "Homo_sapiens.NCBI36.54_genes.tsv", new GeneParser());
+			byte[] fileChunk = new byte[(int)data.getFile().length()];
 			data.read(0, fileChunk);
 			List<ColumnType> columns = Arrays.asList(new ColumnType[] {
 					ColumnType.CHROMOSOME,

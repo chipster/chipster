@@ -60,7 +60,6 @@ import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
 import fi.csc.microarray.gbrowser.index.GeneIndexDataType;
-import fi.csc.microarray.gbrowser.index.GetGeneIndexData;
 import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
@@ -198,13 +197,32 @@ public class GenomeBrowser extends Visualisation implements
 
 	private URL annotationUrl;
 	
-    GeneIndexActions gia = GeneIndexActions.getInstance();
-	
+    GeneIndexActions gia;
 
     private boolean visualised;
+    InputStream contentsStream = null;
 
 	public GenomeBrowser(VisualisationFrame frame) {
 		super(frame);
+		
+        // Find annotation locations
+		try {
+            File localAnnotationDir = DirectoryLayout.getInstance().getLocalAnnotationDir();
+            if (!localAnnotationDir.exists()) {
+                this.localAnnotationPath = null;
+                this.annotationUrl = fetchAnnotationUrl();
+                contentsStream = new URL(annotationUrl + "/" + CONTENTS_FILE).openStream();
+            } else {
+                this.localAnnotationPath = localAnnotationDir;
+                this.annotationUrl = null;
+                contentsStream = new FileInputStream(localAnnotationPath + File.separator + CONTENTS_FILE);
+            }
+		} catch (IOException e) {
+            application.reportException(e);
+        }
+        
+        // Create gene name index
+        gia = GeneIndexActions.getInstance(this);
 	}
 
 	@Override
@@ -307,22 +325,8 @@ public class GenomeBrowser extends Visualisation implements
 		c.weightx = 1.0;
 		c.gridx = 0;
 		c.gridwidth = 5;
-
-		InputStream contentsStream = null;
-		
+	
 		try {
-			// parse what annotations we have available
-			File localAnnotationDir = DirectoryLayout.getInstance().getLocalAnnotationDir();
-			if (!localAnnotationDir.exists()) {
-				this.localAnnotationPath = null;
-				this.annotationUrl = fetchAnnotationUrl();
-				contentsStream = new URL(annotationUrl + "/" + CONTENTS_FILE).openStream();
-			} else {
-				this.localAnnotationPath = localAnnotationDir;
-				this.annotationUrl = null;
-				contentsStream = new FileInputStream(localAnnotationPath + File.separator + CONTENTS_FILE);
-			}
-			
 			AnnotationContents annotationContentFile = new AnnotationContents();
 			annotationContentFile.parseFrom(contentsStream);
 			this.contents = annotationContentFile.getRows();
@@ -381,9 +385,6 @@ public class GenomeBrowser extends Visualisation implements
 			
 			gotoButton.addActionListener(this);
 			gotoButton.setEnabled(false);
-
-		} catch (IOException e) {
-			application.reportException(e);
 		
 		} finally {
 			IOUtils.closeIfPossible(contentsStream);
@@ -599,7 +600,7 @@ public class GenomeBrowser extends Visualisation implements
 		}
 	}
 
-	private ChunkDataSource createAnnotationDataSource(String file, TsvParser fileParser)
+	public ChunkDataSource createAnnotationDataSource(String file, TsvParser fileParser)
 	        throws FileNotFoundException, MalformedURLException {
 	    
 		if (this.annotationUrl != null) {

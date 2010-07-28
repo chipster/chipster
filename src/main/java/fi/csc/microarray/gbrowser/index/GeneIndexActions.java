@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -23,12 +24,11 @@ public class GeneIndexActions {
 	private static GeneIndexActions gia;
 	private GetGeneIndexData getData;
 	
-	private GeneIndexActions(){
+	private GeneIndexActions(GenomeBrowser genomeBrowser){
 		try {
-			getData = new GetGeneIndexData();
+			getData = new GetGeneIndexData(genomeBrowser);
         	Class.forName("org.h2.Driver");
         	conn = DriverManager.getConnection("jdbc:h2:mem:GeneIndex", "sa", "");
-        	st = conn.createStatement();
         	createTable();
         	updateTable(getData.read());
         } catch (ClassNotFoundException e) {
@@ -43,9 +43,9 @@ public class GeneIndexActions {
 	/**
 	 * creates database, table, updates table with gene indexes
 	 */
-	public static GeneIndexActions getInstance(){
+	public static GeneIndexActions getInstance(GenomeBrowser genomeBrowser) {
 		if (gia == null){
-			gia = new GeneIndexActions();
+			gia = new GeneIndexActions(genomeBrowser);
 		}
 		return gia;
 	}

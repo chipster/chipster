@@ -91,4 +91,8 @@ public class ChunkDataSource extends DataSource {
     public TsvParser getFileParser() {
         return fileParser;
     }
+    
+    public RandomAccessFile getFile() {
+        return raFile;
+    }
 }
