@@ -29,6 +29,7 @@
 # Correlation analysis of miRNA targets
 # MG, 11.2.2010
 # IS, 8.6.2010 bugfix
+# IS, 28.7.2010 now allows additional samples in the two data sets, but only those ones with a pair are used in the analysis
 
 # Loads the libraries
 library(RmiR)
@@ -58,8 +59,23 @@ mirna.data.2 <- mirna.data[,grep("chip", names(mirna.data))]
 gene.data.2 <- gene.data[,grep("chip", names(gene.data))]
 
 # Get sample order for matching the datasets
-mirna.order <- mirna.phenodata[,grep(order.column.mirna, colnames(mirna.phenodata))]
-gene.order <- gene.phenodata[,grep(order.column.gene, colnames(gene.phenodata))]
+#mirna.order <- mirna.phenodata[,grep(order.column.mirna, colnames(mirna.phenodata))]
+#gene.order <- gene.phenodata[,grep(order.column.gene, colnames(gene.phenodata))]
+
+# check for unambiguity of sample identifiers
+if (nrow(mirna.phenodata)!=length(unique(mirna.phenodata[,order.column.mirna])))
+  stop('CHIPSTER-NOTE: Unambigous sample identifiers: ', paste(mirna.phenodata[,order.column.mirna], collapse=', ')) 
+if (nrow(gene.phenodata)!=length(unique(gene.phenodata[,order.column.gene])))
+  stop('CHIPSTER-NOTE: Unambigous sample identifiers: ', paste(gene.phenodata[,order.column.gene], collapse=', ')) 
+
+# pick those samples that do have a matching pair
+common.samples <- intersect(mirna.phenodata[,order.column.mirna], gene.phenodata[,order.column.gene])
+rownames(mirna.phenodata) <- mirna.phenodata[,order.column.mirna]
+rownames(gene.phenodata) <- gene.phenodata[,order.column.gene]
+mirna.phenodata$n <- 1:nrow(mirna.phenodata)
+gene.phenodata$n <- 1:nrow(gene.phenodata)
+mirna.order <- mirna.phenodata[common.samples, 'n']
+gene.order <- gene.phenodata[common.samples, 'n']
 
 # Read the chiptype that was used for the gene expression data
 if (id.type=="probe_id") {
@@ -141,6 +157,3 @@ results.negative.significant <- results.negative[results.negative[,5]<=p.value.t
 # Write the results to tables to be read into Chipster
 write.table(results.positive.significant, file="mirna-gene-positive-correlation.tsv", sep="\t", quote=FALSE, row.names=FALSE)
 write.table(results.negative.significant, file="mirna-gene-negative-correlation.tsv", sep="\t", quote=FALSE, row.names=FALSE)
-
-
-

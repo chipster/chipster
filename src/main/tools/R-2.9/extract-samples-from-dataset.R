@@ -1,6 +1,7 @@
 # ANALYSIS Utilities/"Extract samples from dataset" (Extracts samples from a dataset. Saves the extracted samples as a
-# new dataset. The samples to be extracted are coded with 1 in one column of the phenodata. The samples to be deleted
-# are coded with 0 in the same column.)
+# new dataset. If there are missing values in the specified phenodata column, the samples that do have a value are
+# extracted. If there are no missing values, the samples to be extracted have to be coded with 1, and the samples to
+# be deleted with 0 in the same column.)
 # INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT extract.tsv, phenodata.tsv
 # PARAMETER column.extract METACOLUMN_SEL DEFAULT group (Phenodata column containing the samples to be extracted)
 
@@ -8,6 +9,10 @@
 # JTT 19.10.2007
 #
 # modified, MG, 20.4.2010 to include annotation info
+
+# Modified to first filter out samples with missing values. And in the case of no missing values, follow
+# the earlier behaviour of coding samples to be extracted with 1 and samples to be removed with 0.
+# IS 28.7.2010
 
 # Loads the data file
 file<-c("normalized.tsv")
@@ -30,6 +35,12 @@ phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 extract<-phenodata[,pmatch(column.extract,colnames(phenodata))]
 
 # extract<-phenodata[,grep(column.extract, colnames(phenodata))]
+
+# If there are samples with missing values, extract the ones that do have values.
+if (length(extract[is.na(extract)])>0) {
+   extract[!is.na(extract)] <- 1
+   extract[is.na(extract)] <- 0
+}
 
 # Sanity checks
 if(length(unique(extract))>2) {
