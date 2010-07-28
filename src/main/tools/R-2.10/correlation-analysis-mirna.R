@@ -113,9 +113,7 @@ gene.data.4 <- data.frame(gene=rownames(gene.data.3), exprs=gene.data.3[,1])
 try(merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4,
 				annotation=chip.type), silent=TRUE)
 if (match("merged.table",ls(),nomatch=0)==0) {
-	stop("There were no targets found in either TarBase or PicTar databases
-					for the supplied list of miRNA:s in the gene list selected.
-					Try again by selecting a longer list of genes!")
+	stop("There were no targets found in either TarBase or PicTar databases for the supplied list of miRNA:s in the gene list selected. Try again by selecting a longer list of genes!")
 }
 merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4,
 		annotation=chip.type, verbose=TRUE)
@@ -142,9 +140,10 @@ for (mirna.count in 1:number.mirna) {
 	correlation.p.value <- cor.test (as.numeric(mirna.expression[mirna.count,]),as.numeric(gene.expression[mirna.count,]), method=correlation.method)
 	correlation.p.value <- correlation.p.value$p.value
 	results.table[mirna.count,4] <- correlation.coefficient
-	results.table[mirna.count,5] <- p.adjust(correlation.p.value, method=p.value.adjustment.method)
-#	results.table[mirna.count,5] <- correlation.p.value
+	results.table[mirna.count,5] <- correlation.p.value
 }
+results.table[,5] <- p.adjust(results.table[,5], method=p.value.adjustment.method)
+
 
 # Find genes with statistically significant positive correlation
 results.positive <- results.table[results.table[,4]>0,]
