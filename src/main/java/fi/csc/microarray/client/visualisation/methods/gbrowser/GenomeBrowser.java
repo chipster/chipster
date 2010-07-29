@@ -569,10 +569,7 @@ public class GenomeBrowser extends Visualisation implements
 			}
 
 			// initialise the plot
-            plot.start((String)chrBox.getSelectedItem(),
-                    (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()],
-                    Long.parseLong(locationField.getText()),
-                    Long.parseLong(zoomField.getText()));
+			updateLocation();
 			plot.addDataRegionListener(this);
 
 			// wrap it in a panel
@@ -719,7 +716,6 @@ public class GenomeBrowser extends Visualisation implements
 	        		application.reportException(e);
 	        	}
         }
-        /*}*/
         
         // set scale of profile track containing reads information
         this.plot.setReadScale((ReadScale) this.profileScaleBox.getSelectedItem());
