@@ -101,7 +101,7 @@ public class RepeatMaskerTrack extends Track {
                                 
                 // add positions where letter case changes
                 int j = 0;
-                for (Long i = read.region.start.bp + 1; i <= (read.region.start.bp + seqLength); i++) {
+                for (Long i = read.region.start.bp + 1; i <= (read.region.start.bp + seqLength+1); i++) {
                 	if (Character.isUpperCase(seq.charAt(j)) != lastCase) {
                 		lastCase = Character.isUpperCase(seq.charAt(j));
                 		collector.add(i - 1);
