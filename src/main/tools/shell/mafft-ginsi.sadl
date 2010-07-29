@@ -1,0 +1,3 @@
+TOOL "Alignment:Multiple" / mafft-ginsi.sadl: mafft-ginsi.sadl (Iterative refinement method incorporating global pairwise alignment information. This alignment method is suitable for sequences of similar lengths. It is not recommended for more than 200 sequences)
+INPUT : "Sequences to align" TYPE GENERIC
+OUTPUT out.txt
