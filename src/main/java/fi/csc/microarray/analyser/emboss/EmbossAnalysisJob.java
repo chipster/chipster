@@ -274,6 +274,9 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
             params.add(param.getOutputFilename(false));
         }
         
+        // Turn off prompts
+        params.add("-auto");
+        
         String[] cmd = new String[0];
         return params.toArray(cmd);
     }

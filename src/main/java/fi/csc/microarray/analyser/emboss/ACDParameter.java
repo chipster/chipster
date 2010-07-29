@@ -10,6 +10,8 @@ import org.apache.regexp.RE;
 import org.emboss.jemboss.parser.AcdFunResolve;
 import org.emboss.jemboss.parser.ParseAcd;
 
+import fi.csc.microarray.description.SADLDescription.Name;
+
 /**
  * Represents a single ACD parameter (simple, input, output, list etc.)
  * 
@@ -282,10 +284,6 @@ public class ACDParameter {
             if (ACDParameter.detectParameterGroup(getType()) ==
                 ACDParameter.PARAM_GROUP_OUTPUT) {
                 extension = ".txt";
-            } else if (ACDParameter.detectParameterGroup(getType()) ==
-                       ACDParameter.PARAM_GROUP_GRAPHICS) {
-                // Somehow applications adds this ".1" suffix for png files
-                extension = ".1.png";
             }
         }
         
@@ -296,6 +294,23 @@ public class ACDParameter {
         }
         
         return getName() + "." + suffix + extension;
+    }
+    
+    /**
+     * Return a name object for some graphics parameter. This
+     * is useful because sometimes a program can generate
+     * several graphics files for one parameter.
+     * 
+     * Valid only for parameters of some graph type.
+     * 
+     * @return Name object if this is a graph parameter, null otherwise.
+     */
+    public Name getGraphicsName() {
+        if (ACDParameter.detectParameterGroup(getType()) ==
+            ACDParameter.PARAM_GROUP_GRAPHICS) {
+            return Name.createNameSet(getName(), ".png");
+        }
+        return null;
     }
     
     /**

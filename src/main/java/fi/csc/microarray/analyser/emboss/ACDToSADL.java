@@ -259,13 +259,15 @@ public class ACDToSADL {
 	        Integer type = ACDParameter.detectParameterGroup(fieldType.toLowerCase());
 	        
 	        // TODO: help attribute; comment attribute
-	        if ((type == ACDParameter.PARAM_GROUP_OUTPUT ||
-	             type == ACDParameter.PARAM_GROUP_GRAPHICS) &&
-	            (!param.isAdvanced())) {
-	            return new Output(Name.createName(param.getOutputFilename(true)), !param.isRequired());
-	        } else {
-	            return null;
-	        }
+           if (!param.isAdvanced()) {
+               if (type == ACDParameter.PARAM_GROUP_OUTPUT) {
+                   return new Output(Name.createName(param.getOutputFilename(true)), !param.isRequired());
+               } else if (type == ACDParameter.PARAM_GROUP_GRAPHICS) {
+                   return new Output(param.getGraphicsName(), !param.isRequired());
+               }
+           }
+           
+           return null;
 	    }
 	}
 }
