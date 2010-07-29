@@ -22,7 +22,7 @@ public class WIGParserTest {
 	public void testFixedStep() throws IOException {
 		
 		File wigFile = new File(path, "fixedStep.wig");
-		WIGParser wig = new WIGParser(wigFile);
+		WIGParser wig = new WIGParser();
 		
 		Assert.assertEquals(wig.getHeaderLength(new File(path, "fixedStep.wig")), 86, "incorrect header length");
 		
@@ -65,7 +65,7 @@ public class WIGParserTest {
 	public void testVariableStep() throws IOException {
 		
 		File wigFile = new File(path, "variableStep.wig");
-		WIGParser wig = new WIGParser(wigFile);
+		WIGParser wig = new WIGParser();
 		
 		Assert.assertEquals(wig.getHeaderLength(new File(path, "variableStep.wig")), 175, "incorrect header length");
 		

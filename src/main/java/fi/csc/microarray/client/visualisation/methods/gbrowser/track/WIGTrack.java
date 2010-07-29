@@ -66,7 +66,7 @@ public class WIGTrack extends Track{
 	                        	
 	            float x = (getView().bpToTrackFloat(value.region.start) +
 	                       getView().bpToTrackFloat(value.region.end)) / 2;
-	            float y = (Float)value.values.get(ColumnType.VALUE);
+	            float y = Float.parseFloat((String)value.values.get(ColumnType.VALUE));
 	                        
                 drawables.add(new LineDrawable((int)lastX, getHeight() - (int)lastY,
                 		(int)x, getHeight() - (int)y, color));

@@ -7,6 +7,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.jdesktop.swingx.JXFrame.StartPosition;
+
 /**
  * 
  * simple wig format converting tool
@@ -14,6 +16,9 @@ import java.io.IOException;
  */
 
 public class WIGConvertingTool {
+	
+	private static final String VARIABLE_STEP = "variableStep";
+	private static final String FIXED_STEP = "fixedStep";
 	
 	private class HeaderDefinition {
 		
@@ -25,11 +30,14 @@ public class WIGConvertingTool {
 	}
 	
 	HeaderDefinition header;
+	float value = -1;
 	
 	public void convert(File file) {
 		
 		String line = "";
-		int linesCount = 0;
+		String previousLine = "";
+		String output;
+		int linesCount = 1;
 		
 		FileReader fReader;
 		BufferedWriter writer;
@@ -43,17 +51,58 @@ public class WIGConvertingTool {
 				line = reader.readLine();
 			}
 			
+			//read the first header, and the first value line
+			
+			line = reader.readLine();
+			header = setHeader(line);
+			line = reader.readLine();
+			if (header.type.equals(VARIABLE_STEP)) {
+				header.startPosition = Long.parseLong(line.split("\t")[0]);
+			}
+			
+			value = getValue(line);
+			
 			while (reader.ready()) {
+				previousLine = line;
 				line = reader.readLine();
 				if (line.contains("Step")) {
+					
+					if (linesCount != 0) {
+						output = formLine(previousLine, linesCount-1);
+						writer.write(output);
+					}
 					header = setHeader(line);
 					linesCount = 0;
+					
+					previousLine = line;
+					line = reader.readLine();
+					if (header.type.equals(VARIABLE_STEP)) {
+						header.startPosition = Long.parseLong(line.split("\t")[0]);
+						value = getValue(line);
+						
+					} else {
+						value = Long.parseLong(line);
+						
+					}
+					
 				} else {
-					line = formLine(line, linesCount);
-					writer.write(line);
+					if (header.type.equals(FIXED_STEP)) {
+						if (value != getValue(line)) {
+							output = formLine(previousLine, linesCount);
+							writer.write(output);
+							header.startPosition = header.startPosition + linesCount * header.step;
+							linesCount = 0;
+							value = getValue(line);
+						}
+					} else {
+						//TODO variableStep mode
+					}
 					linesCount++;
 				}
 			}
+
+			output = formLine(line, linesCount);
+			writer.write(output);
 			
 			writer.close();
 		} catch (IOException e) {
@@ -117,9 +166,21 @@ public class WIGConvertingTool {
 			return header.chr + "\t" + splitted[0] + "\t" + 
 			Long.parseLong(splitted[0]) + header.span + "\t" + splitted[1] + "\n";  
 		} else {
-			return header.chr + "\t" + (header.startPosition + linesCount * header.step) +
-			"\t" + (header.startPosition + linesCount * header.step + header.span - 1) + "\t" +
+			return header.chr + "\t" + header.startPosition +
+			"\t" + (header.startPosition + linesCount * header.span - 1) + "\t" +
 			line + "\n";
+		}
+	}
+	
+	public float getValue(String value){
+		String[] splitted = value.split("\t"); 
+		switch (splitted.length) {
+		case 1:
+			return Float.parseFloat(splitted[0]);
+		case 2:
+			return Float.parseFloat(splitted[1]);
+		default:
+			return (Float)null;
 		}
 	}
 
