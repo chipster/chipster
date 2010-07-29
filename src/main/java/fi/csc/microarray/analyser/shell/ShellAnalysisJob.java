@@ -1,5 +1,10 @@
 package fi.csc.microarray.analyser.shell;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.PipedOutputStream;
 import java.util.LinkedList;
 import java.util.concurrent.CountDownLatch;
 
@@ -32,7 +37,8 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
     private AnalysisDescription description;
     private SADLDescription sadl;
     private String executablePath;
-    private String outputParameter;
+    private Boolean useStdout;
+    private String outputParameter = null;
     
     LinkedList<String> inputParameters;
     
@@ -55,10 +61,16 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
         }
         
         // Path to executable file
-        this.executablePath = ad.getCommand();
+        executablePath = ad.getCommand();
         
-        // Output parameter
-        this.outputParameter = ad.getConfigParameters().get("output");
+        // Output method
+        useStdout = ad.getConfigParameters().get("stdout").
+                toLowerCase().equals("yes");
+        
+        if (!useStdout) {    
+            // If program creates a normal file, we need an output parameter
+            outputParameter = ad.getConfigParameters().get("output");
+        }
     }
 
     /**
@@ -104,9 +116,10 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
             command.add("-" + input.getName().getID());
             command.add(input.getName().getID());
         }
-        
-        // Outputs
-        for (OutputDescription output : description.getOutputFiles()) {
+
+        // Outputs to a file (currently we only support a single output)
+        if (outputParameter != null) {
+            OutputDescription output = description.getOutputFiles().get(0);
             command.add("-" + this.outputParameter);
             command.add(output.getFileName().getID());
         }
@@ -137,7 +150,25 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
                         analysis.getDisplayName() + "\" application.");
                 outputMessage.setErrorMessage(outputString);
                 updateState(JobState.FAILED, "Application failed.");
-            } 
+            } else {
+                if (useStdout) {
+                    // Take output data from stdout
+                    InputStream stdoutStream =
+                            new BufferedInputStream(process.getInputStream());
+                    OutputDescription output = description.getOutputFiles().get(0);
+                    File outputFile = new File(jobWorkDir, output.getFileName().getID());
+                    FileOutputStream fileStream = new FileOutputStream(outputFile);
+                    
+                    // Write from program's stdout to output file
+                    byte[] buffer = new byte[4096];  
+                    int bytesRead;  
+                    while ((bytesRead = stdoutStream.read(buffer)) != -1) {  
+                        fileStream.write(buffer, 0, bytesRead);  
+                    }  
+                    stdoutStream.close();
+                    fileStream.close();
+                }
+            }
             
             // This is what we should produce as output
             ResultMessage outputMessage = this.outputMessage;

@@ -94,6 +94,7 @@ public class ToolXMLGenerator {
         colors.put("nucleic", "#80a3b7");
         colors.put("phylogeny", "#0177b7");
         colors.put("protein", "#629a9b");
+        colors.put("hmm", "#77aa77");
     }
 
     /**
