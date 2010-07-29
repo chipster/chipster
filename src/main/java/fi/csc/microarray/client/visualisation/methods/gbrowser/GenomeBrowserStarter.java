@@ -42,7 +42,7 @@ public class GenomeBrowserStarter {
 		MACS_DATA_FILE = new File(annotationPath, "/ngs/STAT1/STAT1_peaks_sorted.bed");
 		URL_ROOT = new File(annotationPath, "/ngs/annotations");
 		
-		WIG_DATA_FILE = new File("/home/zukauska/GSM545202.wig");
+		WIG_DATA_FILE = new File(annotationPath, "/ngs/wig/GSM529979_chr1.wig");//variableStep - GSM545202.wig; fixedStep - GSM529979.wig
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -65,8 +65,8 @@ public class GenomeBrowserStarter {
 		TrackFactory.addThickSeparatorTrack(plot);
 		TrackFactory.addTitleTrack(plot, "WIG");
 		
-//		TrackFactory.addWigTrack(plot,
-//		        new ChunkDataSource(WIG_DATA_FILE, new WIGParser(WIG_DATA_FILE)));
+		TrackFactory.addWigTrack(plot,
+		        new ChunkDataSource(WIG_DATA_FILE, new WIGParser(WIG_DATA_FILE)));
 		
 		TrackFactory.addThickSeparatorTrack(plot);
 		TrackFactory.addTitleTrack(plot, "Peaks");
