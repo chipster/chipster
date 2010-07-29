@@ -464,7 +464,7 @@ public class ACDParameter {
                                "discretestates", "distances", "features", "filelist",
                                "frequencies", "infile", "matrix", "matrixf", "pattern",
                                "properties", "regexp", "scop", "sequence", "seqall", "seqset",
-                               "seqsetall", "seqsetall"};
+                               "seqsetall", "seqsetall", "tree"};
         String typesList[] = {"list", "selection"};
         String typesOutput[] = {"align", "featout", "outcodon", "outcpdb", "outdata",
                                 "outdir", "outdiscrete", "outdistance", "outfile", "outfileall",
