@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SequenceParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CytobandTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GeneTrack;
@@ -13,6 +14,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.IntensityTr
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.PeakTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ProfileTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadTrackGroup;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RepeatMaskerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TitleTrack;
@@ -32,7 +34,7 @@ public class TrackFactory {
 	private static final int CHANGE_TRACKS_ZOOM_THRESHOLD1 = 100000;
 
     public static void addGeneTracks(GenomePlot genomePlot, ChunkDataSource geneAnnotationFile,
-	        DataSource transcriptAnnotationFile) {
+	        DataSource transcriptAnnotationFile, ChunkDataSource refSource) throws FileNotFoundException {
 
 		View dataView = genomePlot.getDataView();
 		
@@ -56,6 +58,7 @@ public class TrackFactory {
 		
 		// Separator line
 		addRulerTrack(genomePlot);
+		addRepeatMaskerTrack(genomePlot, refSource);
 		
 		// Gene, overview, reverse 
 		IntensityTrack annotationOverviewReversed = new IntensityTrack(genomePlot.getDataView(),
@@ -158,6 +161,11 @@ public class TrackFactory {
 		plot.getDataView().addTrack(new RulerTrack(plot.getDataView()));
 	}
 	
+	public static void addRepeatMaskerTrack(GenomePlot plot, ChunkDataSource data) {
+		RepeatMaskerTrack repeatMasker = new RepeatMaskerTrack(plot.getDataView(), data, ChunkTreeHandlerThread.class, Long.MAX_VALUE);
+		addTrack(plot.getDataView(), repeatMasker);
+	}
+		
 	private static void addTrack(View view, Track track) {
 		view.addTrack(track);
 		track.initializeListener();

@@ -477,7 +477,8 @@ public class GenomeBrowser extends Visualisation implements
 						TrackFactory.addTitleTrack(plot, "Annotations");
 						TrackFactory.addGeneTracks(plot,
 						        createAnnotationDataSource("Homo_sapiens." + genome + "_genes.tsv", new GeneParser()),
-						        createAnnotationDataSource("Homo_sapiens." + genome + "_transcripts.tsv", new TranscriptParser()));
+						        createAnnotationDataSource("Homo_sapiens." + genome + "_transcripts.tsv", new TranscriptParser()),
+						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv", new SequenceParser()));
 						break;
 					case REFERENCE:
 						// integrated into peaks

@@ -42,7 +42,7 @@ public class GenomeBrowserStarter {
 		MACS_DATA_FILE = new File(annotationPath, "/ngs/STAT1/STAT1_peaks_sorted.bed");
 		URL_ROOT = new File(annotationPath, "/ngs/annotations");
 		
-		WIG_DATA_FILE = new File(annotationPath, "/ngs/wig/GSM529979_chr1.wig");//variableStep - GSM545202.wig; fixedStep - GSM529979.wig
+		WIG_DATA_FILE = new File(annotationPath, "/ngs/wig/GSM529979_chr1.wig.out");//variableStep - GSM545202.wig; fixedStep - GSM529979.wig
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -57,7 +57,8 @@ public class GenomeBrowserStarter {
 		
 		TrackFactory.addGeneTracks(plot,
 		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_genes.tsv", new GeneParser()),
-		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_transcripts.tsv", new TranscriptParser()));
+		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_transcripts.tsv", new TranscriptParser()),
+		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_seq.tsv", new SequenceParser()));
 //		TrackFactory.addMirnaTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_miRNA.tsv"));
 
 		// Example peak: choromosome 21 in front of IFNAR2 gene (location 33,525,000)
@@ -66,7 +67,7 @@ public class GenomeBrowserStarter {
 		TrackFactory.addTitleTrack(plot, "WIG");
 		
 		TrackFactory.addWigTrack(plot,
-		        new ChunkDataSource(WIG_DATA_FILE, new WIGParser(WIG_DATA_FILE)));
+		        new ChunkDataSource(WIG_DATA_FILE, new WIGParser()));
 		
 		TrackFactory.addThickSeparatorTrack(plot);
 		TrackFactory.addTitleTrack(plot, "Peaks");
@@ -82,7 +83,6 @@ public class GenomeBrowserStarter {
 				new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_seq.tsv", new SequenceParser()),
 				"Reads"
 		);
-
 
 		TrackFactory.addRulerTrack(plot);
 		plot.start("1", 1024 * 1024 * 250d, 1000000L, 100000L);
@@ -103,4 +103,5 @@ public class GenomeBrowserStarter {
 		frame.pack();
 		frame.setVisible(true);
 	}
+	
 }
