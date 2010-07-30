@@ -165,7 +165,12 @@ public class AdminAPI {
 	private boolean areAlreadyUp() {
 		errorStatus = "";
 		boolean areUp = true;
-		
+
+		if (nodeStatuses.get("filebroker").status != NodeStatus.Status.UP) {
+			errorStatus += " filebroker(s) not up ";
+			areUp = false;
+		} 
+
 		if (nodeStatuses.get("analyser").status != NodeStatus.Status.UP) {
 			errorStatus += " analyser(s) not up ";
 			areUp = false;
