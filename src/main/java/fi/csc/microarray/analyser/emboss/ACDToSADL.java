@@ -51,7 +51,10 @@ public class ACDToSADL {
                         Name.createName("fasta", "FASTA"),
                         Name.createName("ncbi", "NCBI"),
                         Name.createName("clustal", "ClustalW"),
-                        Name.createName("phylip", "Phylip"),};
+                        Name.createName("phylip", "Phylip"),
+                        Name.createName("fastq", "FASTQ"),
+                        Name.createName("sam", "SAM"),
+                        Name.createName("bam", "BAM")};
                 Parameter parameter = new Parameter(
                         Name.createName(OUTPUT_TYPE_PREFIX + param.getName(),
                                         "Output type for " + param.getName()),
