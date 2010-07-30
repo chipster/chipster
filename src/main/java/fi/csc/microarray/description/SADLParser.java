@@ -195,7 +195,7 @@ public class SADLParser {
 			name.setID(rawName);
 		}
 		
-		if (SADLSyntax.NAME_SEPARATOR.equals(tokens.peek())) {
+		if (tokens.hasNext() && SADLSyntax.NAME_SEPARATOR.equals(tokens.peek())) {
 			skip(tokens, SADLSyntax.NAME_SEPARATOR); // read separator
 			name.setDisplayName(tokens.next());
 		}
