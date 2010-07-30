@@ -7,8 +7,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import org.jdesktop.swingx.JXFrame.StartPosition;
-
 /**
  * 
  * simple wig format converting tool
@@ -31,14 +29,13 @@ public class WIGConvertingTool {
 	
 	HeaderDefinition header;
 	float value = -1;
+	String line = "";
+	String previousLine = "";
+	String output;
+	int linesCount = 1;
 	
 	public void convert(File file) {
-		
-		String line = "";
-		String previousLine = "";
-		String output;
-		int linesCount = 1;
-		
+				
 		FileReader fReader;
 		BufferedWriter writer;
 		try {
@@ -56,12 +53,15 @@ public class WIGConvertingTool {
 			line = reader.readLine();
 			header = setHeader(line);
 			line = reader.readLine();
+			
 			if (header.type.equals(VARIABLE_STEP)) {
-				header.startPosition = Long.parseLong(line.split("\t")[0]);
+                header.startPosition = Long.parseLong(line.split("\t")[0]);
 			}
+
 			
 			value = getValue(line);
 			
+			//TODO optimize
 			while (reader.ready()) {
 				previousLine = line;
 				line = reader.readLine();
@@ -95,7 +95,22 @@ public class WIGConvertingTool {
 							value = getValue(line);
 						}
 					} else {
-						//TODO variableStep mode
+						
+						if (getVarStepPos(line) != (getVarStepPos(previousLine) + header.span)) { 
+							output = formLine(previousLine, linesCount);
+							writer.write(output);
+							linesCount = 0;
+							value = getValue(line);
+							header.startPosition = getVarStepPos(line);
+						} else {
+							if (value != getValue(line)) {
+								output = formLine(previousLine, linesCount);
+								writer.write(output);
+								linesCount = 0;
+								value = getValue(line);
+								header.startPosition = getVarStepPos(line);
+							}
+						}
 					}
 					linesCount++;
 				}
@@ -163,12 +178,12 @@ public class WIGConvertingTool {
 		
 		if (header.type.startsWith("variable")) {
 			String[] splitted = line.split("\t");
-			return header.chr + "\t" + splitted[0] + "\t" + 
-			Long.parseLong(splitted[0]) + header.span + "\t" + splitted[1] + "\n";  
+			
+			return header.chr + "\t" + header.startPosition + "\t" + 
+			(Long.parseLong(splitted[0]) + header.span - 1) + "\t" + splitted[1] + "\n";  
 		} else {
-			return header.chr + "\t" + header.startPosition +
-			"\t" + (header.startPosition + linesCount * header.span - 1) + "\t" +
-			line + "\n";
+			return header.chr + "\t" + header.startPosition + "\t" + 
+			(header.startPosition + linesCount * header.span - 1) + "\t" + line + "\n";
 		}
 	}
 	
@@ -182,6 +197,10 @@ public class WIGConvertingTool {
 		default:
 			return (Float)null;
 		}
+	}
+	
+	public long getVarStepPos(String value) {
+		return Long.parseLong(value.split("\t")[0]);
 	}
 
 }
