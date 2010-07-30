@@ -1,6 +1,6 @@
-TOOL "BLAST" / my_blastn.sadl: pb blastn (Heuristic tool to search hits for a nucleotide sequence from a nucleotide sequence set.)
+TOOL "BLAST" / my_blastn.sadl: my_blastn (Heuristic tool to search hits for a nucleotide sequence from a nucleotide sequence set.)
 INPUT query: "Query sequences" TYPE GENERIC
-INPUT db_nuc
+INPUT dbnuc: "Database" TYPE GENERIC
 OUTPUT out.txt
 PARAMETER OPTIONAL task: "Task to execute" TYPE [blastn: "BLASTN",
 	blastn-short: "BLASTN short: BLASTN program optimized for sequences shorter than 50 bases",

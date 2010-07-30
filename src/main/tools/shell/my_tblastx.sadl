@@ -1,6 +1,6 @@
-TOOL "BLAST" / my_tblastx.sadl : pb tblastx (Heuristic tool for nucleotide sequence search using protein translations of both query and the database sequece set.)
+TOOL "BLAST" / my_tblastx.sadl : my_tblastx (Heuristic tool for nucleotide sequence search using protein translations of both query and the database sequece set.)
 INPUT query: "Query sequence" TYPE GENERIC
-INPUT db_nuc: "Database sequences" TYPE GENERIC
+INPUT dbnuc: "Database sequences" TYPE GENERIC
 OUTPUT out.txt
 PARAMETER OPTIONAL query_loc: "Location on the query sequence" TYPE STRING (Location of the serach region on the query sequence. Format: start-stop, for example: 23-66.  Default: the whole query sequence) 
 PARAMETER OPTIONAL strand: "Query strand" TYPE [both: Both, minus: Minus, plus: Plus] DEFAULT both ( Query strand or strands to search against the database.  Default: both strands.)

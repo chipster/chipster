@@ -1,6 +1,6 @@
-TOOL "BLAST" / my_tblastn.sadl: pb tblastn (Heuristic tool to search hits for a protein sequence from nucleotide database.)
+TOOL "BLAST" / my_tblastn.sadl: my_tblastn (Heuristic tool to search hits for a protein sequence from nucleotide database.)
 INPUT query: "Query sequence" TYPE GENERIC
-INPUT db_nuc: "Database sequences" TYPE GENERIC
+INPUT dbnuc: "Database sequences" TYPE GENERIC
 OUTPUT out.txt
 PARAMETER OPTIONAL query_loc: "Location on the query sequence" TYPE STRING (Location of the serach region on the query sequence. Format: start-stop, for example: 23-66.  Default: the whole query sequence) 
 PARAMETER OPTIONAL evalue: "Expectation value (E) threshold for saving hits" TYPE DECIMAL (Expectation value)

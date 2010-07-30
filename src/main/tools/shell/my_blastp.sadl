@@ -1,6 +1,6 @@
-TOOL "BLAST" / my_blastp.sadl: pb blastp (Heuristic tool to search hits for a protein sequence from users own protein sequece set.)
+TOOL "BLAST" / my_blastp.sadl: my_blastp (Heuristic tool to search hits for a protein sequence from users own protein sequece set.)
 INPUT query: "Query sequences" TYPE GENERIC
-INPUT db_prot: "Database sequences" TYPE GENERIC
+INPUT dbprot: "Database sequences" TYPE GENERIC
 OUTPUT out.txt
 PARAMETER OPTIONAL task: "Task to execute" TYPE [blastp: "BLASTP", blastp-short: "BLASTP short: for queries shorter than 30 residues"] (Task to execute)
 PARAMETER OPTIONAL query_loc: "Location on the query sequence" TYPE STRING (Location of the serach region on the query sequence. Format: start-stop, for example: 23-66.  Default: the whole query sequence) 
