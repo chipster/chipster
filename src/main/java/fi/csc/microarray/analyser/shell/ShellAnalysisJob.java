@@ -4,7 +4,6 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.PipedOutputStream;
 import java.util.LinkedList;
 import java.util.concurrent.CountDownLatch;
 
@@ -28,6 +27,14 @@ import fi.csc.microarray.util.Strings;
 
 /**
  * Job that is run as a generic shell command.
+ * <p>
+ * Parameters that could be given in the tool configuration:
+ *  <ul>
+ *  <li> output - name of the parameter for passing output files
+ *  <li> stdout - if equals to "yes", the output is read from stdout
+ *  <li> input - if equals to "last", then input is given without parameter
+ *               name and as the last parameter
+ *  </ul>
  * 
  * @author naktinis
  *
@@ -38,6 +45,7 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
     private SADLDescription sadl;
     private String executablePath;
     private Boolean useStdout;
+    private Boolean inputLast;
     private String outputParameter = null;
     
     LinkedList<String> inputParameters;
@@ -64,8 +72,12 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
         executablePath = ad.getCommand();
         
         // Output method
-        useStdout = ad.getConfigParameters().get("stdout").
-                toLowerCase().equals("yes");
+        useStdout = ad.getConfigParameters().get("stdout") != null &&
+                ad.getConfigParameters().get("stdout").toLowerCase().equals("yes");
+        
+        // Input parameter
+        inputLast = ad.getConfigParameters().get("input") != null &&
+                ad.getConfigParameters().get("input").toLowerCase().equals("last");
         
         if (!useStdout) {    
             // If program creates a normal file, we need an output parameter
@@ -110,18 +122,21 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
             }
             index++;
         }
-        
-        // Inputs
-        for (Input input : sadl.inputs()) {
-            command.add("-" + input.getName().getID());
-            command.add(input.getName().getID());
-        }
 
         // Outputs to a file (currently we only support a single output)
         if (outputParameter != null) {
             OutputDescription output = description.getOutputFiles().get(0);
             command.add("-" + this.outputParameter);
             command.add(output.getFileName().getID());
+        }
+        
+        // Inputs
+        for (Input input : sadl.inputs()) {
+            if (!inputLast) {
+                // Input is a named parameter
+                command.add("-" + input.getName().getID());
+            }
+            command.add(input.getName().getID());
         }
         
         String[] cmd = new String[0];
@@ -150,24 +165,23 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
                         analysis.getDisplayName() + "\" application.");
                 outputMessage.setErrorMessage(outputString);
                 updateState(JobState.FAILED, "Application failed.");
-            } else {
-                if (useStdout) {
-                    // Take output data from stdout
-                    InputStream stdoutStream =
-                            new BufferedInputStream(process.getInputStream());
-                    OutputDescription output = description.getOutputFiles().get(0);
-                    File outputFile = new File(jobWorkDir, output.getFileName().getID());
-                    FileOutputStream fileStream = new FileOutputStream(outputFile);
-                    
-                    // Write from program's stdout to output file
-                    byte[] buffer = new byte[4096];  
-                    int bytesRead;  
-                    while ((bytesRead = stdoutStream.read(buffer)) != -1) {  
-                        fileStream.write(buffer, 0, bytesRead);  
-                    }  
-                    stdoutStream.close();
-                    fileStream.close();
-                }
+            } else if (useStdout) {
+                // FIXME not tested yet
+                // Take output data from stdout
+                InputStream stdoutStream =
+                        new BufferedInputStream(process.getInputStream());
+                OutputDescription output = description.getOutputFiles().get(0);
+                File outputFile = new File(jobWorkDir, output.getFileName().getID());
+                FileOutputStream fileStream = new FileOutputStream(outputFile);
+                
+                // Write from program's stdout to output file
+                byte[] buffer = new byte[4096];  
+                int bytesRead;  
+                while ((bytesRead = stdoutStream.read(buffer)) != -1) {  
+                    fileStream.write(buffer, 0, bytesRead);  
+                }  
+                stdoutStream.close();
+                fileStream.close();
             }
             
             // This is what we should produce as output
