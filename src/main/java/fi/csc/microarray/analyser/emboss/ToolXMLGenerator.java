@@ -26,6 +26,9 @@ import org.w3c.dom.Element;
 /**
  * Generate an XML file with information about
  * tools available in EMBOSS package.
+ * <p>
+ * TODO: check if a binary file exists for a given
+ * acd file.
  * 
  * @author naktinis
  *

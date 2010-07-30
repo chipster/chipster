@@ -34,6 +34,8 @@ import fi.csc.microarray.util.Strings;
  *  <li> stdout - if equals to "yes", the output is read from stdout
  *  <li> input - if equals to "last", then input is given without parameter
  *               name and as the last parameter
+ *  <li> arguments - comma-separated list of arguments that will get passed
+ *               as the first arguments for the command.   
  *  </ul>
  * 
  * @author naktinis
@@ -46,6 +48,7 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
     private String executablePath;
     private Boolean useStdout;
     private Boolean inputLast;
+    private String[] extraArguments;
     private String outputParameter = null;
     
     LinkedList<String> inputParameters;
@@ -79,6 +82,11 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
         inputLast = ad.getConfigParameters().get("input") != null &&
                 ad.getConfigParameters().get("input").toLowerCase().equals("last");
         
+        // Additional arguments
+        String arguments = ad.getConfigParameters().get("arguments");
+        extraArguments = (arguments != null && !arguments.equals("")) ?
+                arguments.split(",") : new String[] {};
+        
         if (!useStdout) {    
             // If program creates a normal file, we need an output parameter
             outputParameter = ad.getConfigParameters().get("output");
@@ -111,6 +119,11 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
         // Generate the command to be executed
         LinkedList<String> command = new LinkedList<String>();
         command.add(executablePath);
+        
+        // Prepend arguments defined in the configuration file
+        for (String arg : extraArguments) {
+            command.add(arg);
+        }
         
         // Parameters
         int index = 0;
