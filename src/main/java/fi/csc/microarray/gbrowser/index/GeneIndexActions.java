@@ -57,13 +57,13 @@ public class GeneIndexActions {
     	
     	try {
     		st = conn.createStatement();
-			st.execute("CREATE TABLE index(" +
+			st.execute("CREATE TABLE gene_name_index(" +
 					"ID INT PRIMARY KEY auto_increment," +
 					"chromosome VARCHAR(2)," +
 					"bp_start INT," +
 					"bp_end INT," +
 					"NAME VARCHAR(255),);" +
-					"create index geneName on index(name);");
+					"create index geneName on gene_name_index(name);");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -74,7 +74,7 @@ public class GeneIndexActions {
     	try {
 			st = conn.createStatement();
 			for (RegionContent id : indexList) {
-				st.executeUpdate("insert into index values (null," + 
+				st.executeUpdate("insert into gene_name_index values (null," + 
 						id.values.get(ColumnType.CHROMOSOME) + "," + id.values.get(ColumnType.BP_START) + "," +
 						id.values.get(ColumnType.BP_END) + ",'" + id.values.get(ColumnType.DESCRIPTION) + "' )");
 			}
@@ -90,7 +90,7 @@ public class GeneIndexActions {
     public GeneIndexDataType getLocation(String name){
     	try {
 			st = conn.createStatement();
-			ResultSet rs = st.executeQuery("select chromosome,bp_start,bp_end from index where name ='" + name + "'");
+			ResultSet rs = st.executeQuery("select chromosome,bp_start,bp_end from gene_name_index where name ='" + name + "'");
 			rs.next();
 			return new GeneIndexDataType(rs.getString(1), rs.getLong(2), rs.getLong(3));
 			

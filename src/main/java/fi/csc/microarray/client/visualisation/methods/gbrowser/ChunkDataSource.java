@@ -92,6 +92,35 @@ public class ChunkDataSource extends DataSource {
         return fileParser;
     }
     
+    /*
+     * get size of the file
+     */
+    public long getSize() {
+    	try {
+	        if (raFile != null) {
+	            return raFile.length();
+	        } else {
+	        	
+	        	//TODO getting fileSize through connection 
+	            HttpURLConnection connection = null;
+	            try {
+	                
+	                connection = (HttpURLConnection)url.openConnection();
+	                connection.setRequestMethod("HEAD");
+	                int size = connection.getHeaderFieldInt("Content-Length", 0);
+	                
+	                return size;
+	                
+	            } finally {
+	                IOUtils.disconnectIfPossible(connection);
+	            }
+	        }
+    	} catch (IOException e) {
+    		e.printStackTrace();
+    	}
+    	return 0;
+    }
+    
     public RandomAccessFile getFile() {
         return raFile;
     }
