@@ -1255,6 +1255,43 @@ public class SwingClientApplication extends ClientApplication {
 		System.exit(0);
 	}
 
+	
+	public static void startStandalone() throws IOException {
+		try {
+			DirectoryLayout.initialiseStandaloneClientLayout();
+
+		} catch (IllegalConfigurationException e) {
+			reportIllegalConfigurationException(e);
+		}
+
+		ClientListener shutdownListener = getShutdownListener();
+		
+		try {
+			new SwingClientApplication(shutdownListener, null, null);
+			
+		} catch (Throwable t) {
+			t.printStackTrace();
+			if (logger != null) {
+				logger.error(t.getMessage());
+				logger.error(t);
+			}
+		}
+
+	}
+
+	private static ClientListener getShutdownListener() {
+		ClientListener shutdownListener = new ClientListener() {
+			public void onSuccessfulInitialisation() {
+				// do nothing
+			}
+			public void onFailedInitialisation() {
+				System.exit(1);
+			}
+		};
+		return shutdownListener;
+	}
+	
+
 	/**
 	 * Starts Chipster client. Configuration (logging) should be initialised
 	 * before calling this method.
@@ -1268,14 +1305,7 @@ public class SwingClientApplication extends ClientApplication {
 			reportIllegalConfigurationException(e);
 		}
 
-		ClientListener shutdownListener = new ClientListener() {
-			public void onSuccessfulInitialisation() {
-				// do nothing
-			}
-			public void onFailedInitialisation() {
-				System.exit(1);
-			}
-		};
+		ClientListener shutdownListener = getShutdownListener();
 		
 		try {
 			new SwingClientApplication(shutdownListener, null, module);

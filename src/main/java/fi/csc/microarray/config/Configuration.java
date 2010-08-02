@@ -41,16 +41,22 @@ public class Configuration {
 	public Configuration(File workDir, List<String> configModules) throws IOException, IllegalConfigurationException {
 		this(new FileInputStream(new File(workDir, CONFIG_FILENAME)), configModules);
 	}
-	
+
+	public Configuration(List<String> configModules) throws IOException, IllegalConfigurationException {
+		this((InputStream)null, configModules);
+	}
+
 	public Configuration(InputStream configXml, List<String> configModules) throws IOException, IllegalConfigurationException {
 
 		this.configModules = configModules;
 
-		// load configuration specification and actual configuration XML		
+		// load configuration specification and actual configuration XML (if present)		
 		ConfigurationLoader loader = new ConfigurationLoader(this, REQUIRED_CONFIGURATION_VERSION);
 		try {
 			loader.addFromStream(Configuration.class.getResourceAsStream(CONFIG_SPECIFICATION_FILE), true);
-			loader.addFromStream(configXml, false);
+			if (configXml != null) {
+				loader.addFromStream(configXml, false);
+			}
 
 		} catch (SAXException e) {
 			throw new IOException(e.getMessage());
