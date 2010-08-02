@@ -1,11 +1,11 @@
-# ANALYSIS "aCGH tools (beta testing)"/"Import from CanGEM" (Load a microarray data set from the CanGEM database.)
+# ANALYSIS "aCGH tools (beta testing)"/"Import from CanGEM" (Load a microarray data set from the CanGEM database, perform background-correction and normalization, and append chromosomal locations of the microarray probes. For miRNA arrays, the output is per-miRNA, not per-probe, and probe-based values are converted using the RMA algorithm.)
 # OUTPUT normalized.tsv, phenodata.tsv
 # PARAMETER accession STRING DEFAULT CG- (Accession of either a data set, an experiment, a series, or single microarray results.)
 # PARAMETER username STRING DEFAULT empty (Username, in case the data is password-protected. WARNING: This will store your username/password in the Chipster history files. To avoid this, use the session parameter.)
 # PARAMETER password STRING DEFAULT empty (Password, in case the data is password-protected. WARNING: This will store your username/password in the Chipster history files. To avoid this, use the session parameter.)
 # PARAMETER session STRING DEFAULT empty (Session ID. To avoid saving your username/password in Chipster history files, log in at http://www.cangem.org/ using a web browser, then copy&paste your session ID from the lower right corner of the CanGEM website. This will allow Chipster to access your password-protected data until you log out of the web site (or the session times out).)
 # PARAMETER agilent.filtering [yes, no] DEFAULT yes (Whether to filter outliers from Agilent 2-color arrays. Will be ignored, if downloaded files are 1-color arrays, or not in Agilent file format. Check the help file for details about the filtering function.)
-# PARAMETER background.treatment [none, subtract, normexp] DEFAULT normexp (Background treatment method.)
+# PARAMETER background.treatment [none, subtract, normexp, RMA] DEFAULT normexp (Background treatment method. RMA is available only for one-color arrays.)
 # PARAMETER background.offset [0, 50] DEFAULT 0 (Background offset.)
 # PARAMETER intra.array.normalization [none, median, loess] DEFAULT loess (Intra-array normalization method for Agilent arrays. Will be ignored, if downloaded files are not in Agilent file format.)
 # PARAMETER inter.array.normalization [none, quantile, scale] DEFAULT none (Inter-array normalization method for Agilent arrays. Will be ignored, if downloaded files are not in Agilent file format.)
@@ -14,7 +14,7 @@
 
 # import-from-cangem.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-07-28
+# 2010-07-30
 
 # check for valid accession
 accession <- toupper(accession)
@@ -46,6 +46,7 @@ if (length(unique(cangem.samples$Format)) > 1)
 microarrays <- sprintf('microarray%.3i', 1:nrow(cangem.samples)) # or .cel/.tsv ???
 chips <- paste('chip.', microarrays, sep='')
 arrays <- list()
+probes.to.genes <- data.frame()
 onecolor <- FALSE
 if (cangem.samples$Format[1] == 'agilent') {
   library(limma)
@@ -114,10 +115,12 @@ if (cangem.samples$Format[1] == 'agilent') {
     if (prob) {
        stop('CHIPSTER-NOTE: Could not read file ', cangem.samples[i, 'Name'])
     }
-    array.bg <- backgroundCorrect(array.raw, method=background.treatment, normexp.method='mle', offset=as.numeric(background.offset))
+    if (background.treatment == 'RMA') {
+      array.bg <- backgroundCorrect(array.raw, method='none')
+    } else
+      array.bg <- backgroundCorrect(array.raw, method=background.treatment, normexp.method='mle', offset=as.numeric(background.offset))
     if (onecolor) {
-      array <- array.bg$R
-      array <- log2(array)
+      array <- as.vector(array.bg$R)
     } else {
       array.ma <- normalizeWithinArrays(array.bg, method=intra.array.normalization)
       array <- as.vector(array.ma$M)
@@ -125,16 +128,19 @@ if (cangem.samples$Format[1] == 'agilent') {
       if (cangem.samples[i, 'SampleChannel'] == 'Cy3')
         array <- -array
     }
-    names(array) <- array.bg$genes[,cangem.samples[i,'ProbeNames']]
+    #names(array) <- array.bg$genes[,cangem.samples[i,'ProbeNames']]
+    names(array) <- array.bg$genes[,'ProbeName']
     # average replicate probes
     replicate.probes <- unique(names(array)[duplicated(names(array))])
     array.uniques <- array[!names(array) %in% replicate.probes]
     array.replicates <- array[names(array) %in% replicate.probes]
-    array.replicates.avg <- aggregate(array.replicates, list(probe=names(array.replicates)), mean, na.rm=TRUE)
+    array.replicates.avg <- aggregate(array.replicates, list(probe=names(array.replicates)), median, na.rm=TRUE)
     array.replicates <- array.replicates.avg$x
     names(array.replicates) <- array.replicates.avg$probe
     array <- c(array.uniques, array.replicates)
     arrays[[i]] <- array
+    if (cangem.samples[i,'ProbeNames'] != 'ProbeName')
+      probes.to.genes <- unique(rbind(probes.to.genes, array.bg$genes[,c('ProbeName', cangem.samples[i,'ProbeNames'])]))
   }
   # go through all the loaded arrays and build a list of all probes found.
   all.probes <- character()
@@ -144,8 +150,34 @@ if (cangem.samples$Format[1] == 'agilent') {
   dat <- matrix(nrow=length(all.probes), ncol=length(chips), dimnames=list(all.probes, chips))
   for (i in 1:length(arrays))
     dat[,chips[i]] <- arrays[[i]][all.probes]
-  # normalize between arrays
+  # if the background treatment method is RMA, perform it now.
+  # otherwise it has been performed already.
+  if (background.treatment == 'RMA') {
+    if (!onecolor)
+      stop('CHIPSTER-NOTE: RMA background treatment method is only available for one-color arrays.')
+    library(preprocessCore)
+    dat <- rma.background.correct(dat, copy=TRUE)
+    dat <- dat + abs(min(dat)) + 2
+    rownames(dat) <- all.probes
+    colnames(dat) <- chips
+  }
+  # in case of one-color arrays perform log2 transformation.
+  # otherwise it has been perfomed as part of normalizeWithinArrays
+  if (onecolor)
+    dat <- log2(dat)
+  # normalize between arrays.
   dat <- normalizeBetweenArrays(dat, method=inter.array.normalization)
+  # average from probes to genes if needed
+  if (cangem.samples[1,'ProbeNames'] != 'ProbeName') {
+    library(affy)
+    dat <- 2^dat
+    rownames(probes.to.genes) <- probes.to.genes$ProbeName
+    pNList <- probes.to.genes[rownames(dat), cangem.samples[1,'ProbeNames']]
+    ngenes <- length(unique(pNList))
+    pNList <- split(0:(length(pNList) - 1), pNList)
+    dat <- .Call("rma_c_complete_copy", dat, pNList, ngenes, normalize=FALSE, background=FALSE, bgversion=2, verbose=TRUE, PACKAGE="affy")
+    colnames(dat) <- chips
+  }
   dat <- round(dat, digits=2)
   dat <- as.data.frame(dat)
   chiptype <- cangem.samples$BioconductorPackage[1]
