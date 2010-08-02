@@ -1,16 +1,20 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 
+/**
+ * Empty track can be used for padding.
+ *
+ */
 public class EmptyTrack extends Track {
-
-	private int height;
 
 	public EmptyTrack(View view, int height) {
 		super(view, null);
@@ -25,16 +29,21 @@ public class EmptyTrack extends Track {
 	public void processAreaResult(AreaResult areaResult) {
 		// ignored
 	}
+	
+    @Override
+    public Integer getHeight() {
+        return height;
+    }
 
 	@Override
-	public int getMaxHeight() {
-		return height;
+	public boolean isStretchable () {
+		return false;
 	}
 
-	@Override
-	public Collection<ColumnType> getDefaultContents() {
-		return Arrays.asList(new ColumnType[] {});
-	}
+    @Override
+    public Map<DataSource, Set<ColumnType>> requestedData() {
+        return null;
+    }
 
 	@Override
 	public boolean isConcised() {

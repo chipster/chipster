@@ -2,7 +2,11 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
 import java.util.Arrays;
 
-public class GeneParser extends ConcisedTsvParser{
+/**
+ * DOCME What is this for?
+ *
+ */
+public class GeneParser extends AnnotationTsvParser{
 
 	public GeneParser() {
 		super(new FileDefinition(

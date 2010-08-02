@@ -4,9 +4,13 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
@@ -16,15 +20,17 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDraw
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**  
+ * The appearance of a chromosome. Used for high level navigation.
+ */
 public class CytobandTrack extends Track {
 
-	private static final int THICKNESS = 10;
+	private static final int THICKNESS = 11;
 
 	private static final int MARGIN = 2;
 
@@ -71,8 +77,9 @@ public class CytobandTrack extends Track {
 		return null;
 	}
 
-	public CytobandTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler, FileParser inputParser, boolean showText) {
-		super(view, file, handler, inputParser);
+	public CytobandTrack(View view, ChunkDataSource file,
+	        Class<? extends AreaRequestHandler> handler, boolean showText) {
+		super(view, file, handler);
 
 		this.showText = showText;
 	}
@@ -119,7 +126,7 @@ public class CytobandTrack extends Track {
 
 				} else if (band == Band.GAP) {
 
-					int y = (int) getMaxHeight() - (THICKNESS + MARGIN);
+					int y = (int) getHeight() - (THICKNESS + MARGIN);
 
 					int sideX = getView().bpToTrack(bandRegion.region.end);
 					int cornerX = getView().bpToTrack(bandRegion.region.start);
@@ -133,7 +140,7 @@ public class CytobandTrack extends Track {
 
 					drawables.add(new LineDrawable(sideX, y, cornerX, y + THICKNESS / 2, Color.black));
 
-					drawables.add(new LineDrawable(sideX, y + THICKNESS, cornerX, y + THICKNESS / 2, Color.black));
+					drawables.add(new LineDrawable(sideX, y + THICKNESS - 1, cornerX, y + THICKNESS / 2, Color.black));
 
 				} else if (band == Band.STALK) {
 					
@@ -142,7 +149,7 @@ public class CytobandTrack extends Track {
 					rect.x = getView().bpToTrack(bandRegion.region.start);
 					rect.width = getView().bpToTrack(bandRegion.region.end) - rect.x;
 
-					rect.y = (int) (getMaxHeight() - (THICKNESS + MARGIN)) + THICKNESS / 4;
+					rect.y = (int) (getHeight() - (THICKNESS + MARGIN)) + THICKNESS / 4;
 					rect.height = THICKNESS - THICKNESS / 2;
 
 					drawables.add(new RectDrawable(rect, Color.gray, Color.gray));
@@ -156,10 +163,11 @@ public class CytobandTrack extends Track {
 
 		Rectangle rect = new Rectangle();
 
-		rect.x = getView().bpToTrack(startBp);
+		// Compensate for border
+		rect.x = getView().bpToTrack(startBp) - 1;
 		rect.width = getView().bpToTrack(endBp) - rect.x;
 
-		rect.y = (int) (getMaxHeight() - (THICKNESS + MARGIN));
+		rect.y = (int) (getHeight() - (THICKNESS + MARGIN));
 		rect.height = THICKNESS;
 
 		return new RectDrawable(rect, c, Color.black);
@@ -192,14 +200,24 @@ public class CytobandTrack extends Track {
 	}
 
 	@Override
-	public int getMaxHeight() {
+	public Integer getHeight() {
 		return showText ? 40 : 20;
 	}
+	
+    @Override
+    public boolean isStretchable() {
+        return false;
+    }
 
-	@Override
-	public Collection<ColumnType> getDefaultContents() {
-		return Arrays.asList(new ColumnType[] {ColumnType.ID, ColumnType.VALUE});
-	}
+    @Override
+    public Map<DataSource, Set<ColumnType>> requestedData() {
+        HashMap<DataSource, Set<ColumnType>> datas = new
+        HashMap<DataSource, Set<ColumnType>>();
+        datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+                ColumnType.ID,
+                ColumnType.VALUE })));
+        return datas;
+    }
 
 	@Override
 	public boolean isConcised() {

@@ -7,10 +7,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * Parser for cytoband description files using tab-separated values.
+ *
+ */
 public class CytobandParser extends TsvParser {
 
 	public static final String LAST_ROW_OF_CHROMOSOME = "lastRowOfChromosome";
@@ -29,7 +34,7 @@ public class CytobandParser extends TsvParser {
 	}
 
 	@Override
-	public RegionContent[] concise(String chunk) {
+	public RegionContent[] concise(Chunk chunk) {
 		// return empty table, otherwise TreeNode gets stuck in calling this again
 		return new RegionContent[0];
 	}
@@ -39,7 +44,7 @@ public class CytobandParser extends TsvParser {
 		return "Cytobands";
 	}
 	
-	/* 
+	/**
 	 * Overridden to notice the chromosome changes. This information is needed to find out the last
 	 * part of each chromosome to set the scroll limits. If the chromosome change happens to 
 	 * be between chunks, it won't be noticed and that chromosome doesn't get limited.
@@ -47,14 +52,14 @@ public class CytobandParser extends TsvParser {
 	 * @see fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser#getAll(java.lang.String, java.util.Collection)
 	 */
 	@Override
-	public List<RegionContent> getAll(String chunk, Collection<ColumnType> requestedContents) {
+	public List<RegionContent> getAll(Chunk chunk, Collection<ColumnType> requestedContents) {
 
 		List<RegionContent> rows = new LinkedList<RegionContent>();
 		
 
 		Chromosome lastChr = null;
 		
-		for (String row : chunk.split("\n")) {
+		for (String row : chunk.getContent().split("\n")) {
 			
 			Map<ColumnType, Object> values = new HashMap<ColumnType, Object>();
 			

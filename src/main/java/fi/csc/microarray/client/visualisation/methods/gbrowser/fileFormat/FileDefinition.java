@@ -3,6 +3,11 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 import java.util.Collection;
 import java.util.LinkedList;
 
+/**
+ * Define file format as a list of columns.
+ * 
+ */
+@SuppressWarnings("serial")
 public class FileDefinition extends LinkedList<ColumnDefinition> {
 
 	public FileDefinition(Collection<ColumnDefinition> content) {

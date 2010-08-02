@@ -16,7 +16,8 @@ import fi.csc.microarray.util.IOUtils;
 
 /**
  * 
- * Class for saving and loading contents file.
+ * Class for saving and loading contents file. The contents file describes what annotation data files we have
+ * available at the annotation repository.
  * 
  * @author Petri Klemelä
  * 

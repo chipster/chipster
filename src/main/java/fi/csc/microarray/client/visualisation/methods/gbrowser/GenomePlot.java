@@ -36,13 +36,42 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 	private List<View> views = new LinkedList<View>();
 	private View dataView = null;
 	private View overviewView = null;
-	public ChartPanel chartPanel;
+	private ReadScale readScale = ReadScale.AUTO;
+    public ChartPanel chartPanel;
+	
+	/**
+	 * Scale for visualising reads as profiles, gel etc.
+	 */
+    public enum ReadScale {
+        SMALL("Small", 15),
+        MEDIUM("Medium", 120),
+        LARGE("Large", 500),
+        AUTO("Automatic", 0);
+        
+        private String name;
+        public Integer numReads;
+        
+        private ReadScale(String name, Integer numReads) {
+            this.name = name;
+            this.numReads = numReads;
+        }
+        
+        public String toString() {
+            return name;
+        }
+    }
 
-	public GenomePlot(boolean horizontal) throws FileNotFoundException, MalformedURLException {
+	public GenomePlot(ChartPanel panel, boolean horizontal) throws FileNotFoundException, MalformedURLException {
+	    
+	    // set chart panel
+	    chartPanel = panel;
+	    chartPanel.setLayout(null);
 
 		// add overview view
 		this.overviewView = new HorizontalView(this, false, false, true);
 		this.overviewView.margin = 0;
+		this.overviewView.setStaticHeight(true);
+		this.overviewView.setHeight(25);
 		this.views.add(overviewView);
 
 		// add horizontal or circular data view
@@ -72,17 +101,31 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 		return overviewView;
 	}
 
-	public void start(String chromosome, Double chromosomeSizeBp) {
+	/**
+	 * Start genome plot by moving both overview and data views to some location.
+	 * 
+	 * @param chromosome chromosome identifier
+	 * @param chromosomeSizeBp chromosome size in base pairs
+	 * @param position which bp should be in the middle
+	 * @param length number of visible base pairs (zoom)
+	 */
+	public void start(String chromosome, Double chromosomeSizeBp, Long position, Long length) {
 		overviewView.setBpRegion(new BpCoordRegionDouble(0d, chromosomeSizeBp, new Chromosome(chromosome)), false);
-		dataView.setBpRegion(new BpCoordRegionDouble(0d, chromosomeSizeBp, new Chromosome(chromosome)), false);
+		moveDataBpRegion(new Chromosome(chromosome), position, length);
 	}
 
-	public void moveDataBpRegion(Long moveTo, Long length) {
-		
+    /**
+     * Move data view to a certain location in the genome.
+     * 
+     * @param moveToChr
+     * @param moveToBp
+     * @param length
+     */
+	public void moveDataBpRegion(Chromosome moveToChr, Long moveToBp, Long length) {
 		BpCoordRegionDouble bpCoordRegion = new BpCoordRegionDouble(
-				new Double(moveTo - (length/2)),
-				new Double(moveTo + (length/2)), 
-				dataView.getBpRegion().start.chr
+				new Double(moveToBp - (length/2)),
+				new Double(moveToBp + (length/2)), 
+				moveToChr
 		);
 		dataView.setBpRegion(bpCoordRegion, false);
 	}
@@ -131,15 +174,22 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 		// Horizontal or vertical split
 		if (true) {
 
-			float[] viewHeights = new float[] { 0.1f, 0.9f };
-
 			for (int i = 0; i < views.size(); i++) {
+			    View view = views.get(i);
+			    
 				if (i > 0) {
 					viewArea.y += viewArea.height;
 				}
-				viewArea.height = (int) (area.getBounds().getHeight() * viewHeights[i]);
+				
+				if (view.hasStaticHeight()) {
+				    viewArea.height = (int) (view.getHeight());
+				} else {
+				    viewArea.height = (int) (area.getBounds().getHeight() -
+				            sumStaticViewHeights()) / countStaticViews();
+				}
+
 				g2.setClip(viewArea);
-				views.get(i).drawView(g2, false);
+				view.drawView(g2, false);
 			}
 
 		} else {
@@ -247,4 +297,38 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 	public Collection<View> getViews() {
 		return views;
 	}
+	
+    public ReadScale getReadScale() {
+        return readScale;
+    }
+
+    public void setReadScale(ReadScale readScale) {
+        this.readScale = readScale;
+    }
+    
+    /**
+     * Sum heights of all views in this plot that have constant heights.
+     */
+    private int sumStaticViewHeights() {
+        int heightSum = 0;
+        for (View view : views) {
+            if (view.hasStaticHeight()) {
+                heightSum += view.getHeight();
+            }
+        }
+        return heightSum;
+    }
+    
+    /**
+     * Return a number of views that have static heights.
+     */
+    private int countStaticViews() {
+        int count = 0;
+        for (View view : views) {
+            if (view.hasStaticHeight()) {
+                count += 1;
+            }
+        }
+        return count;
+    }
 }

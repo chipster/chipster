@@ -5,6 +5,8 @@ import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
@@ -13,27 +15,31 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaR
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
 
+/**
+ * Single track inside a view. Typically multiple Track instances
+ * are used to construct what user perceives as a track. 
+ *
+ */
 public abstract class Track implements AreaResultListener {
 
 	protected View view;
 	protected DataSource file;
 	protected Strand strand = Strand.FORWARD;
-
-	public Track(View view, DataSource file) {
+	protected Integer height;
+	protected boolean visible = true;
+	
+    public Track(View view, DataSource file) {
 		this.view = view;
 		this.file = file;
 	}
 
-	public Track(View view, DataSource file, Class<? extends AreaRequestHandler> handler, FileParser inputParser) {
+	public Track(View view, DataSource file, Class<? extends AreaRequestHandler> handler) {
 		this(view, file);
-		view.getQueueManager().createQueue(file, handler, inputParser);
+		view.getQueueManager().createQueue(file, handler);
 	}
 
 	/**
@@ -48,35 +54,90 @@ public abstract class Track implements AreaResultListener {
 		}
 	}
 
+	/**
+	 * The method where the actual work of a track typically happens. Each track needs to manage drawables, possibly
+	 * caching them.
+	 */
 	public abstract Collection<Drawable> getDrawables();
 
+	/**
+	 * The view under which this track operates.
+	 */
 	protected View getView() {
 		return view;
 	}
-
-	public void updateData() {
-		if (file != null && this.getMaxHeight() > 0) {
-			FsfStatus status = new FsfStatus();
-			status.clearQueues = true;
-			status.concise = isConcised();
-
-			Collection<ColumnType> defCont = getDefaultContents();
-
-			view.getQueueManager().addAreaRequest(file, new AreaRequest(view.getBpRegion(), defCont, status), true);
-		}
+	
+	/**
+	 * Check if this track has data.
+	 */
+	public boolean hasData() {
+	    return file != null;
 	}
 
-	public abstract Collection<ColumnType> getDefaultContents();
+	// DOCME what does this do?
+	// FIXME deprecated, remove
+	public void updateData() { }
+	
+    /**
+     * Get a map of data sources and column types that this
+     * track needs to operate.
+     * 
+     * Can also return null if this track does not need any data.
+     */
+	public abstract Map<DataSource, Set<ColumnType>> requestedData();
 
+	/**
+	 * If track is concised, it is not showing exact data but approximations calculated from the data.
+	 */
 	public abstract boolean isConcised();
 
+	/**
+	 * Utility method, return empty Drawable collection.
+	 */
 	public Collection<Drawable> getEmptyDrawCollection() {
 		return new LinkedList<Drawable>();
 	}
-
-	public int getMaxHeight() {
-		return Integer.MAX_VALUE;
+	
+	/**
+	 * Each track has individual height. If it is not set explicitly,
+	 * the default height is taken from View.
+	 * 
+	 * @return height of this track in pixels.
+	 */
+	public Integer getHeight() {
+	    return height;
 	}
+	
+	/**
+	 * Set height of this track.
+	 */
+    public void setHeight(Integer height) {
+        this.height = height;
+    }
+
+	/**
+	 * Determine if the track can be resized vertically.
+	 * 
+	 * @return true if track can be resized, false if it has
+	 * static height.
+	 */
+	public abstract boolean isStretchable();
+	
+    /**
+     * Determine if the track is visible.
+     * 
+     * @return false.
+     */
+    public boolean isVisible() {
+        return visible;
+    }
+    
+    /**
+     * Set track visibility.
+     */
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
 
 	public void setStrand(Strand s) {
 		this.strand = s;
@@ -85,9 +146,28 @@ public abstract class Track implements AreaResultListener {
 	public Strand getStrand() {
 		return strand;
 	}
+	
+	/**
+	 * Determine if this track represents a reverse strand.
+	 * 
+	 * @return true if this track represents a reverse strand,
+	 * false otherwise.
+	 */
+    public boolean isReversed() {
+        return strand == Strand.REVERSED;
+    }
+    
+    /**
+     * Determine if drawable elements inside this track can be
+     * expanded to stretch across all available height. 
+     */
+    public boolean canExpandDrawables() {
+        return false;
+    }
 
 	private Point2D[] arrowPoints = new Point2D[] { new Point.Double(0, 0.25), new Point.Double(0.5, 0.25), new Point.Double(0.5, 0), new Point.Double(1, 0.5), new Point.Double(0.5, 1), new Point.Double(0.5, 0.75), new Point.Double(0, 0.75), new Point.Double(0, 0.25) };
 
+	// DOCME what is this?
 	protected Collection<? extends Drawable> getArrowDrawables(int x, int y, int width, int height) {
 
 		Collection<Drawable> parts = getEmptyDrawCollection();
@@ -105,6 +185,7 @@ public abstract class Track implements AreaResultListener {
 		return parts;
 	}
 
+	// FIXME remove this, it is never overridden
 	public BpCoord getMaxBp(Chromosome chr) {
 		return null;
 	}
