@@ -53,6 +53,10 @@ public class SAMFile {
         }
     }
     
+    public SAMFile(File samFile, File indexFile) {
+        reader = new SAMFileReader(samFile, indexFile);
+    }
+    
     public List<RegionContent> getReads(AreaRequest request) {
         List<RegionContent> responseList = new LinkedList<RegionContent>();
         

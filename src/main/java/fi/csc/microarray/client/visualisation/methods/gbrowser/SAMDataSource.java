@@ -2,7 +2,6 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SAMFile;
@@ -23,19 +22,14 @@ public class SAMDataSource extends DataSource {
         super(url);
     }
 
+    public SAMDataSource(File file, File indexFile) throws FileNotFoundException {
+        super(file);
+        samFile = new SAMFile(file, indexFile);
+    }
+    
     public SAMDataSource(File file) throws FileNotFoundException {
         super(file);
         samFile = new SAMFile(file);
-    }
-    
-    public SAMDataSource(URL urlRoot, String path)
-            throws FileNotFoundException, MalformedURLException {
-        super(urlRoot, path);
-    }
-
-    public SAMDataSource(File fileRoot, String path)
-            throws FileNotFoundException, MalformedURLException {
-        this(new File(fileRoot, path));
     }
     
     public SAMFile getSAM() {
