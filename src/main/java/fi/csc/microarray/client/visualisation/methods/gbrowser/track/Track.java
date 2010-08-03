@@ -73,10 +73,6 @@ public abstract class Track implements AreaResultListener {
 	public boolean hasData() {
 	    return file != null;
 	}
-
-	// DOCME what does this do?
-	// FIXME deprecated, remove
-	public void updateData() { }
 	
     /**
      * Get a map of data sources and column types that this
@@ -167,7 +163,20 @@ public abstract class Track implements AreaResultListener {
 
 	private Point2D[] arrowPoints = new Point2D[] { new Point.Double(0, 0.25), new Point.Double(0.5, 0.25), new Point.Double(0.5, 0), new Point.Double(1, 0.5), new Point.Double(0.5, 1), new Point.Double(0.5, 0.75), new Point.Double(0, 0.75), new Point.Double(0, 0.25) };
 
-	// DOCME what is this?
+	/**
+	 * DOCME
+	 * 
+	 * Utility method for gettting drawable objects for an arrow figure. The x and y parameters set 
+	 * the upper left corner coordinates of the figure and width and height the size of the figure.
+	 * This method was placed here to be able to use similar arrows in every track, but more
+	 * versatile and separate collection of drawable utilities might be better place in the future.
+	 * 
+	 * @param x
+	 * @param y
+	 * @param width
+	 * @param height
+	 * @return
+	 */
 	protected Collection<? extends Drawable> getArrowDrawables(int x, int y, int width, int height) {
 
 		Collection<Drawable> parts = getEmptyDrawCollection();
