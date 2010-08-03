@@ -520,11 +520,8 @@ public abstract class ClientApplication implements Node {
 					result.setOperation(oper);
 
 					// check if this is phenodata
-					// FIXME fix hacky phenodata check
-					if (outputName.startsWith("phenodata")) {
-						if (result.queryFeatures("/phenodata").exists()) {
-							phenodata = job.getOutput(outputName);					
-						}
+					if (result.queryFeatures("/phenodata").exists()) {
+						phenodata = job.getOutput(outputName);					
 					}
 
 					// set sources
