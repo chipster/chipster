@@ -38,6 +38,7 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/viski-chipster-1.0.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jgraph-5.12.2.1.jar"/>
 	<classpathentry kind="lib" path="ext/lib/swingx-1.0.jar"/>
+	<classpathentry kind="lib" path="ext/lib/sam-1.23.jar"/>
 	<classpathentry kind="lib" path="ext/lib/mail.jar"/>
 	<classpathentry kind="output" path="bin/eclipse"/>
 </classpath>

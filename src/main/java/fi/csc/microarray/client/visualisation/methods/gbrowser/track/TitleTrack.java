@@ -1,15 +1,21 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 
+/**
+ * Track for placing title texts on top of other tracks.
+ *
+ */
 public class TitleTrack extends Track {
 
 	private Color color;
@@ -33,14 +39,19 @@ public class TitleTrack extends Track {
 	}
 
 	@Override
-	public int getMaxHeight() {
+	public Integer getHeight() {
 		return 10;
 	}
+	   
+    @Override
+    public boolean isStretchable() {
+        return false;
+    }
 
-	@Override
-	public Collection<ColumnType> getDefaultContents() {
-		return Arrays.asList(new ColumnType[] {});
-	}
+    @Override
+    public Map<DataSource, Set<ColumnType>> requestedData() {
+        return null;
+    }
 
 	@Override
 	public boolean isConcised() {

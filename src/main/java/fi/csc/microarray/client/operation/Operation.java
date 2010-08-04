@@ -258,7 +258,6 @@ public class Operation implements ExecutionItem {
 		this.outputFolder = outputFolder;
 	}
 
-	@Override
 	public String getDisplayName() {
 		return definition.getDisplayName();
 	}
