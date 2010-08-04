@@ -194,12 +194,6 @@ public class CytobandTrack extends Track {
 	}
 
 	@Override
-	public void updateData() {
-		// bands.clear();
-		super.updateData();
-	}
-
-	@Override
 	public Integer getHeight() {
 		return showText ? 40 : 20;
 	}

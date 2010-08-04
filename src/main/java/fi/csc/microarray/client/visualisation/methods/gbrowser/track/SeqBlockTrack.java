@@ -53,8 +53,6 @@ public class SeqBlockTrack extends Track {
 	private long maxBpLength;
 	private long minBpLength;
 
-	private boolean wasLastConsised = true;
-	
 	private DataSource refData;
 	private Collection<RegionContent> refReads = new TreeSet<RegionContent>();
 	
@@ -253,15 +251,6 @@ public class SeqBlockTrack extends Track {
 		if (areaResult.status.file == refData) {
 		    this.refReads.add(areaResult.content);
 		}
-	}
-
-	@Override
-	public void updateData() {
-		if (wasLastConsised != isConcised()) {
-			reads.clear();
-			wasLastConsised = isConcised();
-		}
-		super.updateData();
 	}
 
     @Override
