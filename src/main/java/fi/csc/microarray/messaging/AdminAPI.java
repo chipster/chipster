@@ -102,6 +102,8 @@ public class AdminAPI {
 		adminTopic.setListener(adminListener);
 		this.nodeStatuses.put("authenticator", new NodeStatus("authenticator"));
 		this.nodeStatuses.put("analyser", new NodeStatus("analyser"));
+		this.nodeStatuses.put("filebroker", new NodeStatus("filebroker"));
+		this.nodeStatuses.put("manager", new NodeStatus("manager"));
 		this.nodeStatuses.put("client", new NodeStatus("client"));
 	}
 
