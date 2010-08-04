@@ -88,6 +88,7 @@ import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.waiting.WaitGlassPane;
 import fi.csc.microarray.client.workflow.WorkflowManager;
+import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.constants.ApplicationConstants;
@@ -1259,7 +1260,13 @@ public class SwingClientApplication extends ClientApplication {
 	public static void startStandalone() throws IOException {
 		try {
 			DirectoryLayout.initialiseStandaloneClientLayout();
-
+			Configuration config = DirectoryLayout.getInstance().getConfiguration();
+			config.getRootModule().getModule("messaging").getEntry("broker-host").setValue("(none)");
+			config.getRootModule().getModule("messaging").getEntry("broker-protocol").setValue("");
+			config.getRootModule().getModule("messaging").getEntry("broker-port").setValue("0");
+			config.getRootModule().getModule("security").getEntry("username").setValue("");
+			config.getRootModule().getModule("security").getEntry("password").setValue("");
+					
 		} catch (IllegalConfigurationException e) {
 			reportIllegalConfigurationException(e);
 		}

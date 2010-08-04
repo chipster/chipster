@@ -180,12 +180,10 @@ public abstract class ClientApplication implements Node {
 	protected Map<String, OperationDefinition> internalOperationDefinitions;
 
 	protected WorkflowManager workflowManager;
-	protected TaskExecutor taskExecutor;
-	protected MessagingEndpoint endpoint;
-	protected MessagingTopic requestTopic;
 	protected DataManager manager;
     protected DataSelectionManager selectionManager;
-
+    protected ServiceAccessor serviceAccessor;
+    
     protected ClientConstants clientConstants;
     protected Configuration configuration;
 

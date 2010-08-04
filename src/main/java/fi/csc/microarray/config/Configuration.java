@@ -66,9 +66,11 @@ public class Configuration {
 
 		} 
 
-		List<String> missingValues = rootModule.findMissingValues();
-		if (!missingValues.isEmpty()) {
-			throw new IllegalConfigurationException("configuration values missing: " + missingValues);
+		if (configXml != null) {
+			List<String> missingValues = rootModule.findMissingValues();
+			if (!missingValues.isEmpty()) {
+				throw new IllegalConfigurationException("configuration values missing: " + missingValues);
+			}
 		}
 	}
 
