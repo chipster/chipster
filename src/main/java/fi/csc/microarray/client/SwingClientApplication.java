@@ -1671,8 +1671,8 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	public TaskManagerScreen getTaskManagerScreen() {
-		TaskExecutor jobExecutor = Session.getSession().
-		return new TaskManagerScreen(jobExecutor);
+		TaskExecutor taskExecutor = Session.getSession().getServiceAccessor().getTaskExecutor();
+		return new TaskManagerScreen(taskExecutor);
 	}
 
 	public void createLink(DataBean source, DataBean target, Link type) {

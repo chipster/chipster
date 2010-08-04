@@ -7,9 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 
-import javax.jms.JMSException;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -19,13 +17,11 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import fi.csc.microarray.client.ServiceAccessor;
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.filebroker.FileBrokerClient;
-import fi.csc.microarray.filebroker.FileBrokerException;
-import fi.csc.microarray.messaging.MessagingTopic;
-import fi.csc.microarray.messaging.Topics;
-import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.message.FeedbackMessage;
 
 /**
@@ -132,15 +128,15 @@ public class FeedbackDialog extends JDialog implements ActionListener {
             }
             
             // send feedback message using manager topic
-            try {               
+            try {              
+            	ServiceAccessor serviceAccessor = Session.getSession().getServiceAccessor();
                 String sessionURL;
                 if (attachSessionBox.isSelected()) {
                     // create a temporary session file
                     File tmpSession = File.createTempFile("session", null);
                     application.getDataManager().saveSnapshot(tmpSession, application);
                     // save it with the file broker
-                    FileBrokerClient fileBroker = new FileBrokerClient(application.getEndpoint().
-                            createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
+                	FileBrokerClient fileBroker = serviceAccessor.getFileBrokerClient();
                     sessionURL = fileBroker.addFile(new FileInputStream(tmpSession), null).toString();
                     // delete temp file
                     tmpSession.delete();
@@ -158,24 +154,17 @@ public class FeedbackDialog extends JDialog implements ActionListener {
                     File logDir = DirectoryLayout.getInstance().getLogsDir();
                     for (File logFile : logDir.listFiles()) {
                         // save it with the file broker
-                        FileBrokerClient fileBroker = new FileBrokerClient(application.getEndpoint().
-                                createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
+                    	FileBrokerClient fileBroker = serviceAccessor.getFileBrokerClient();
                         String logURL = fileBroker.addFile(new FileInputStream(logFile), null).toString();
                         message.addLog(logFile.getName(), logURL);
                     }
                 }
                 
                 // send feedback message to manager
-                MessagingTopic requestTopic = application.getEndpoint().
-                        createTopic(Topics.Name.FEEDBACK_TOPIC,
-                        AccessMode.WRITE);
-                requestTopic.sendMessage(message);
+                serviceAccessor.sendFeedbackMessage(message);
                 this.dispose();
-            } catch (JMSException e) {
-                application.reportException(e);
-            } catch (IOException e) {
-                application.reportException(e);
-            } catch (FileBrokerException e) {
+                
+            } catch (Exception e) {
                 application.reportException(e);
             }
             

@@ -4,23 +4,26 @@
  */
 package fi.csc.microarray.client;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.module.Modules;
 
 
 
 /**
- * Simple holder for 
+ * Simple global access point for client session related objects.
+ *  
  * @author Aleksi Kallio
  *
  */
 public class Session {
+	
 	private static Session instance = new Session();	
-	private Map<String, Object> sessionBoundObjects = new HashMap<String, Object>(); 
-
+	
+	private ClientApplication clientApplication;
+	private DataManager dataManager;
+	private ServiceAccessor serviceAccessor;
+	private Modules modules;
+	
 	/**
 	 * 
 	 * @return the singleton object
@@ -31,24 +34,37 @@ public class Session {
 	
 	private Session() {
 	}
-	
-	public void putObject(String name, Object endpoint) {
-		sessionBoundObjects.put(name, endpoint);
-	}
 
 	public ClientApplication getApplication() {
-		return (ClientApplication)sessionBoundObjects.get("application");
+		return clientApplication;
 	}
-	
+
 	public DataManager getDataManager() {
-		return (DataManager)sessionBoundObjects.get("data-manager");
+		return dataManager;
 	}
 
 	public ServiceAccessor getServiceAccessor() {
-		return (ServiceAccessor)sessionBoundObjects.get("service-accessor");		
+		return serviceAccessor;
 	}
 
 	public Modules getModules() {
-		return (Modules)sessionBoundObjects.get("modules");
+		return modules;
 	}
+
+	public void setClientApplication(ClientApplication clientApplication) {
+		this.clientApplication = clientApplication;
+	}
+
+	public void setDataManager(DataManager dataManager) {
+		this.dataManager = dataManager;
+	}
+
+	public void setServiceAccessor(ServiceAccessor serviceAccessor) {
+		this.serviceAccessor = serviceAccessor;
+	}
+
+	public void setModules(Modules modules) {
+		this.modules = modules;
+	}
+	
 }

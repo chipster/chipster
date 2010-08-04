@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import javax.jms.JMSException;
 import javax.swing.Icon;
 import javax.swing.Timer;
 
@@ -65,12 +64,8 @@ import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.table.EditableTable;
 import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.messaging.DescriptionMessageListener;
-import fi.csc.microarray.messaging.MessagingEndpoint;
-import fi.csc.microarray.messaging.NodeBase;
 import fi.csc.microarray.messaging.SourceMessageListener;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
-import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.module.DefaultModules;
 import fi.csc.microarray.module.Modules;
 import fi.csc.microarray.util.Files;
@@ -181,6 +176,7 @@ public abstract class ClientApplication {
 	public ClientApplication() {
 		this.configuration = DirectoryLayout.getInstance().getConfiguration();
 		this.clientConstants = new ClientConstants();
+		this.serviceAccessor = new RemoteServiceAccessor();
 	}
     
 	protected void initialiseApplication() throws MicroarrayException, IOException {
@@ -192,18 +188,18 @@ public abstract class ClientApplication {
 		
 		// initialise modules
 		Modules modules = DefaultModules.getDefaultModules();
-		Session.getSession().putObject("modules", modules);
+		Session.getSession().setModules(modules);
 		
 		// initialise workflows
 		this.workflowManager = new WorkflowManager(this);
 		 
 		// initialise data management
 		this.manager = new DataManager();
+		Session.getSession().setDataManager(manager);
 		modules.plugFeatures(this.manager);
-		Session.getSession().putObject("data-manager", manager);
 
         this.selectionManager = new DataSelectionManager(this);
-		Session.getSession().putObject("application", this);
+		Session.getSession().setClientApplication(this);
 		
 		try {
 			// try to initialise JMS connection (or standalone services)
@@ -211,7 +207,7 @@ public abstract class ClientApplication {
 			reportInitialisation("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", true);
 			serviceAccessor.initialise(manager, getAuthenticationRequestListener());
 			this.taskExecutor = serviceAccessor.getTaskExecutor();
-			Session.getSession().putObject("service-accessor", serviceAccessor);
+			Session.getSession().setServiceAccessor(serviceAccessor);
 			reportInitialisation(" connected", false);
 
 			// check services
@@ -224,7 +220,7 @@ public abstract class ClientApplication {
 			
 			// Fetch descriptions from compute server
 	        reportInitialisation("Fetching analysis descriptions...", true);
-	        serviceAccessor.fetchDescriptions(getRequestedModule())
+	        serviceAccessor.fetchDescriptions(getRequestedModule());
 			this.visibleCategories = serviceAccessor.getVisibleCategories();
 			
 			// create GUI elements from descriptions
@@ -294,13 +290,6 @@ public abstract class ClientApplication {
         this.requestedModule = requestedModule;
     }
     
-    /**
-     * @return messaging endpoint for this application.
-     */
-    public MessagingEndpoint getEndpoint() {
-        return endpoint;
-    }
-	
 	/**
 	 * Add listener for applications state changes.
 	 */
@@ -600,8 +589,8 @@ public abstract class ClientApplication {
 		logger.debug("quitting client");
 		
 		try {
-			endpoint.close();
-		} catch (JMSException je) {
+			serviceAccessor.close();
+		} catch (Exception e) {
 			// do nothing
 		}
 	}
@@ -635,21 +624,20 @@ public abstract class ClientApplication {
 				listener.updateSourceCodeAt(i, null);
 				continue;
 			}
-			final int index = i;
-
-			SourceMessageListener sourceListener = new SourceMessageListener();
-			CommandMessage commandMessage = new CommandMessage(CommandMessage.COMMAND_GET_SOURCE);
-			commandMessage.addParameter(id);
-			String source;
+			
+			SourceMessageListener sourceListener = null;
 			try {
-				this.requestTopic.sendReplyableMessage(commandMessage, sourceListener);
-				source = sourceListener.waitForResponse(60, TimeUnit.SECONDS);
-				// source could be null
-				listener.updateSourceCodeAt(index, source);
-			} catch (JMSException jmse) {
-				throw new MicroarrayException(jmse);
+				sourceListener = serviceAccessor.retrieveSourceCode(id);
+				String source = sourceListener.waitForResponse(60, TimeUnit.SECONDS);
+				listener.updateSourceCodeAt(i, source); // source can be null
+				
+			} catch (Exception e) {
+				throw new MicroarrayException(e);
+				
 			} finally {
-				sourceListener.cleanUp();
+				if (sourceListener != null) {
+					sourceListener.cleanUp();
+				}
 			}
 			
 		}
