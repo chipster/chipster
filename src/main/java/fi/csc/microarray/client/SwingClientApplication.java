@@ -88,6 +88,7 @@ import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.waiting.WaitGlassPane;
 import fi.csc.microarray.client.workflow.WorkflowManager;
+import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.constants.ApplicationConstants;
@@ -1255,6 +1256,49 @@ public class SwingClientApplication extends ClientApplication {
 		System.exit(0);
 	}
 
+	
+	public static void startStandalone() throws IOException {
+		try {
+			DirectoryLayout.initialiseStandaloneClientLayout();
+			Configuration config = DirectoryLayout.getInstance().getConfiguration();
+			config.getRootModule().getModule("messaging").getEntry("broker-host").setValue("(none)");
+			config.getRootModule().getModule("messaging").getEntry("broker-protocol").setValue("");
+			config.getRootModule().getModule("messaging").getEntry("broker-port").setValue("0");
+			config.getRootModule().getModule("security").getEntry("username").setValue("");
+			config.getRootModule().getModule("security").getEntry("password").setValue("");
+					
+		} catch (IllegalConfigurationException e) {
+			reportIllegalConfigurationException(e);
+		}
+
+		ClientListener shutdownListener = getShutdownListener();
+		
+		try {
+			new SwingClientApplication(shutdownListener, null, null);
+			
+		} catch (Throwable t) {
+			t.printStackTrace();
+			if (logger != null) {
+				logger.error(t.getMessage());
+				logger.error(t);
+			}
+		}
+
+	}
+
+	private static ClientListener getShutdownListener() {
+		ClientListener shutdownListener = new ClientListener() {
+			public void onSuccessfulInitialisation() {
+				// do nothing
+			}
+			public void onFailedInitialisation() {
+				System.exit(1);
+			}
+		};
+		return shutdownListener;
+	}
+	
+
 	/**
 	 * Starts Chipster client. Configuration (logging) should be initialised
 	 * before calling this method.
@@ -1268,14 +1312,7 @@ public class SwingClientApplication extends ClientApplication {
 			reportIllegalConfigurationException(e);
 		}
 
-		ClientListener shutdownListener = new ClientListener() {
-			public void onSuccessfulInitialisation() {
-				// do nothing
-			}
-			public void onFailedInitialisation() {
-				System.exit(1);
-			}
-		};
+		ClientListener shutdownListener = getShutdownListener();
 		
 		try {
 			new SwingClientApplication(shutdownListener, null, module);
@@ -1634,8 +1671,8 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	public TaskManagerScreen getTaskManagerScreen() {
-		TaskExecutor jobExecutor = Session.getSession().getJobExecutor("client-job-executor");
-		return new TaskManagerScreen(jobExecutor);
+		TaskExecutor taskExecutor = Session.getSession().getServiceAccessor().getTaskExecutor();
+		return new TaskManagerScreen(taskExecutor);
 	}
 
 	public void createLink(DataBean source, DataBean target, Link type) {

@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import javax.jms.JMSException;
 import javax.swing.Icon;
 import javax.swing.Timer;
 
@@ -65,17 +64,8 @@ import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.table.EditableTable;
 import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.messaging.AdminAPI;
-import fi.csc.microarray.messaging.DescriptionMessageListener;
-import fi.csc.microarray.messaging.MessagingEndpoint;
-import fi.csc.microarray.messaging.MessagingTopic;
-import fi.csc.microarray.messaging.Node;
-import fi.csc.microarray.messaging.NodeBase;
 import fi.csc.microarray.messaging.SourceMessageListener;
-import fi.csc.microarray.messaging.Topics;
-import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
-import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.module.DefaultModules;
 import fi.csc.microarray.module.Modules;
 import fi.csc.microarray.util.Files;
@@ -90,7 +80,8 @@ import fi.csc.microarray.util.Strings;
  * @author Aleksi Kallio
  *
  */
-public abstract class ClientApplication implements Node {
+public abstract class ClientApplication {
+
 	private static final int HEARTBEAT_DELAY = 2*1000;
 
 	// Logger for this class
@@ -160,12 +151,6 @@ public abstract class ClientApplication implements Node {
 		}		
 	};
 	
-	private NodeBase nodeSupport = new NodeBase() {
-		public String getName() {
-			return "client";
-		}
-	};
-
 	protected String metadata;
 	protected CountDownLatch definitionsInitialisedLatch = new CountDownLatch(1);
 	
@@ -180,11 +165,10 @@ public abstract class ClientApplication implements Node {
 	protected Map<String, OperationDefinition> internalOperationDefinitions;
 
 	protected WorkflowManager workflowManager;
-	protected TaskExecutor taskExecutor;
-	protected MessagingEndpoint endpoint;
-	protected MessagingTopic requestTopic;
 	protected DataManager manager;
     protected DataSelectionManager selectionManager;
+    protected ServiceAccessor serviceAccessor;
+	protected TaskExecutor taskExecutor;
 
     protected ClientConstants clientConstants;
     protected Configuration configuration;
@@ -192,6 +176,7 @@ public abstract class ClientApplication implements Node {
 	public ClientApplication() {
 		this.configuration = DirectoryLayout.getInstance().getConfiguration();
 		this.clientConstants = new ClientConstants();
+		this.serviceAccessor = new RemoteServiceAccessor();
 	}
     
 	protected void initialiseApplication() throws MicroarrayException, IOException {
@@ -203,48 +188,43 @@ public abstract class ClientApplication implements Node {
 		
 		// initialise modules
 		Modules modules = DefaultModules.getDefaultModules();
-		Session.getSession().putObject("modules", modules);
+		Session.getSession().setModules(modules);
 		
 		// initialise workflows
 		this.workflowManager = new WorkflowManager(this);
 		 
 		// initialise data management
 		this.manager = new DataManager();
+		Session.getSession().setDataManager(manager);
 		modules.plugFeatures(this.manager);
-		Session.getSession().putObject("data-manager", manager);
 
         this.selectionManager = new DataSelectionManager(this);
-		Session.getSession().putObject("application", this);
+		Session.getSession().setClientApplication(this);
 		
 		try {
-			// try to initialise JMS connection
+			// try to initialise JMS connection (or standalone services)
 			logger.debug("Initialise JMS connection.");
 			reportInitialisation("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", true);
-			this.endpoint = new MessagingEndpoint(this, getAuthenticationRequestListener());
+			serviceAccessor.initialise(manager, getAuthenticationRequestListener());
+			this.taskExecutor = serviceAccessor.getTaskExecutor();
+			Session.getSession().setServiceAccessor(serviceAccessor);
 			reportInitialisation(" connected", false);
-		    this.requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC,AccessMode.WRITE);
-			
-			//	put network stuff to session
-			Session.getSession().putObject("client-endpoint", endpoint);
-			taskExecutor = new TaskExecutor(endpoint, manager);
-			Session.getSession().putObject("client-job-executor", taskExecutor);
-			
-			reportInitialisation("Checking remote services...", true);				
-			AdminAPI api = new AdminAPI(endpoint.createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ_WRITE), null);
-			if (!api.areAllServicesUp(true)) {
-				throw new Exception("required services are not available (" + api.getErrorStatus() + ")");
-			}				
+
+			// check services
+			reportInitialisation("Checking remote services...", true);
+			String status = serviceAccessor.checkRemoveServices();
+			if (!ServiceAccessor.ALL_SERVICES_OK.equals(status)) {
+				throw new Exception(status);
+			}
 			reportInitialisation(" all are available", false);
 			
 			// Fetch descriptions from compute server
 	        reportInitialisation("Fetching analysis descriptions...", true);
-            DescriptionMessageListener descriptionListener = new DescriptionMessageListener(getRequestedModule());
-			this.requestTopic.sendReplyableMessage(new CommandMessage(CommandMessage.COMMAND_DESCRIBE),
-			                                  descriptionListener);
-			// Get categories and operation definitions
-			descriptionListener.waitForResponse();
-			visibleCategories = descriptionListener.getVisibleCategories();
-			operationDefinitions = new HashMap<String, OperationDefinition>();
+	        serviceAccessor.fetchDescriptions(getRequestedModule());
+			this.visibleCategories = serviceAccessor.getVisibleCategories();
+			
+			// create GUI elements from descriptions
+			this.operationDefinitions = new HashMap<String, OperationDefinition>();
 			for (OperationCategory category: visibleCategories) {
 				for (OperationDefinition operationDefinition: category.getOperationList()) {
 					operationDefinitions.put(operationDefinition.getID(), operationDefinition);
@@ -259,7 +239,7 @@ public abstract class ClientApplication implements Node {
 	                OperationDefinition.IMPORT_DEFINITION);
 	        internalOperationDefinitions.put(OperationDefinition.CREATE_DEFINITION.getID(),
 	                OperationDefinition.CREATE_DEFINITION);
-			for (OperationCategory category : descriptionListener.getHiddenCategories()) {
+			for (OperationCategory category : serviceAccessor.getHiddenCategories()) {
 			    for (OperationDefinition operationDefinition : category.getOperationList()) {
 			        internalOperationDefinitions.put(operationDefinition.getID(), operationDefinition);
 			    }
@@ -310,13 +290,6 @@ public abstract class ClientApplication implements Node {
         this.requestedModule = requestedModule;
     }
     
-    /**
-     * @return messaging endpoint for this application.
-     */
-    public MessagingEndpoint getEndpoint() {
-        return endpoint;
-    }
-	
 	/**
 	 * Add listener for applications state changes.
 	 */
@@ -378,14 +351,6 @@ public abstract class ClientApplication implements Node {
 		taskExecutor.setEventsEnabled(eventsEnabled);			
 	}
 	
-	public String getName() {
-		return nodeSupport.getName();
-	}
-	
-	public String getHost() {
-		return nodeSupport.getHost();
-	}
-
 	/**
 	 * Renames the given dataset with the given name and updates the change
 	 * on screen.
@@ -625,8 +590,8 @@ public abstract class ClientApplication implements Node {
 		logger.debug("quitting client");
 		
 		try {
-			endpoint.close();
-		} catch (JMSException je) {
+			serviceAccessor.close();
+		} catch (Exception e) {
 			// do nothing
 		}
 	}
@@ -660,21 +625,20 @@ public abstract class ClientApplication implements Node {
 				listener.updateSourceCodeAt(i, null);
 				continue;
 			}
-			final int index = i;
-
-			SourceMessageListener sourceListener = new SourceMessageListener();
-			CommandMessage commandMessage = new CommandMessage(CommandMessage.COMMAND_GET_SOURCE);
-			commandMessage.addParameter(id);
-			String source;
+			
+			SourceMessageListener sourceListener = null;
 			try {
-				this.requestTopic.sendReplyableMessage(commandMessage, sourceListener);
-				source = sourceListener.waitForResponse(60, TimeUnit.SECONDS);
-				// source could be null
-				listener.updateSourceCodeAt(index, source);
-			} catch (JMSException jmse) {
-				throw new MicroarrayException(jmse);
+				sourceListener = serviceAccessor.retrieveSourceCode(id);
+				String source = sourceListener.waitForResponse(60, TimeUnit.SECONDS);
+				listener.updateSourceCodeAt(i, source); // source can be null
+				
+			} catch (Exception e) {
+				throw new MicroarrayException(e);
+				
 			} finally {
-				sourceListener.cleanUp();
+				if (sourceListener != null) {
+					sourceListener.cleanUp();
+				}
 			}
 			
 		}

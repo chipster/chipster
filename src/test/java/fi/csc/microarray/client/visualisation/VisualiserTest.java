@@ -24,7 +24,7 @@ public class VisualiserTest {
 	private DataManager manager;
 	
 	public VisualiserTest() throws IOException, IllegalConfigurationException {
-		DirectoryLayout.initialiseClientLayout().getConfiguration();			
+		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
 		this.manager = new DataManager();
 		DefaultModules.getDefaultModules().plugFeatures(manager);
 	}
