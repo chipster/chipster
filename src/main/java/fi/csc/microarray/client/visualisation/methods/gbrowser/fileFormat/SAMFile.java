@@ -53,12 +53,16 @@ public class SAMFile {
         }
     }
     
+    public SAMFile(File samFile, File indexFile) {
+        reader = new SAMFileReader(samFile, indexFile);
+    }
+    
     public List<RegionContent> getReads(AreaRequest request) {
         List<RegionContent> responseList = new LinkedList<RegionContent>();
         
         // Read the given region
         CloseableIterator<SAMRecord> iterator =
-                reader.query("chr" + request.start.chr.toString(),
+                reader.query(request.start.chr.toString(),
                 request.start.bp.intValue(), request.end.bp.intValue(), false);
         for(Iterator<SAMRecord> i = iterator; i.hasNext(); ) {
             SAMRecord record = i.next();

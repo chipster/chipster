@@ -34,7 +34,6 @@ public class PeakTrack extends Track {
 	private long maxBpLength;
 	private long minBpLength;
 
-	private boolean wasLastConcised = true;
 	private Color color;
 
 
@@ -86,16 +85,6 @@ public class PeakTrack extends Track {
 			this.peaks.add(areaResult.content);
 			getView().redraw();
 		}
-	}
-
-
-	@Override
-	public void updateData() {
-		if (wasLastConcised != isConcised()) {
-			peaks.clear();
-			wasLastConcised = isConcised();
-		}
-		super.updateData();
 	}
 
 	@Override

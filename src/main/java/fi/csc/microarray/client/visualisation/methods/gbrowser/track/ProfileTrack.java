@@ -37,7 +37,6 @@ public class ProfileTrack extends Track {
 
 	private Collection<RegionContent> forwardReads = new TreeSet<RegionContent>();
 	private Collection<RegionContent> backwardReads = new TreeSet<RegionContent>();
-	private boolean wasLastConsised = true;
 	private Color forwardColor;
 	private Color backwardColor;
 
@@ -181,17 +180,6 @@ public class ProfileTrack extends Track {
 	            getView().redraw();
 	        }
 	    }
-	}
-
-	@Override
-	public void updateData() {
-
-		if (wasLastConsised != isConcised()) {
-			forwardReads.clear();
-			backwardReads.clear();
-			wasLastConsised = isConcised();
-		}
-		super.updateData();
 	}
 
     @Override

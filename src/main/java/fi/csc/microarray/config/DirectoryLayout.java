@@ -48,8 +48,14 @@ public class DirectoryLayout {
 	private Configuration configuration = null;
 	private boolean hasConfig;
 	private static DirectoryLayout instance;
+	
+	public static DirectoryLayout initialiseServerLayout(List<String> specificModules)
+	        throws IOException, IllegalConfigurationException {
+	    return initialiseServerLayout(specificModules, null);
+	}
 
-	public static DirectoryLayout initialiseServerLayout(List<String> specificModules) throws IOException, IllegalConfigurationException {
+	public static DirectoryLayout initialiseServerLayout(List<String> specificModules,
+	        String configURL) throws IOException, IllegalConfigurationException {
 		synchronized (DirectoryLayout.class) {
 			if (DirectoryLayout.instance != null) {
 				throw new IllegalStateException("already initialised");
@@ -57,7 +63,7 @@ public class DirectoryLayout {
 			List<String> configModules = new LinkedList<String>(); 
 			configModules.addAll(Arrays.asList(new String[] {"messaging", "security"}));
 			configModules.addAll(specificModules);
-			DirectoryLayout.instance = new DirectoryLayout(Type.SERVER, null, configModules, true);
+			DirectoryLayout.instance = new DirectoryLayout(Type.SERVER, configURL, configModules, true);
 			return DirectoryLayout.instance;
 		}
 	}
@@ -127,7 +133,7 @@ public class DirectoryLayout {
 	}
 	
 
-	private File getLogsDir() throws IOException {
+	public File getLogsDir() throws IOException {
 		return check(new File(getBaseDir(), LOGS_DIR));
 	}
 
@@ -200,7 +206,7 @@ public class DirectoryLayout {
 		}
 	}
 	
-	private File getClientSettingsDir() throws IOException {
+	public File getClientSettingsDir() throws IOException {
 		File dir = null;
 		String osName = System.getProperty("os.name");
 

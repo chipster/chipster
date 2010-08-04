@@ -550,12 +550,6 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 		// not all views are zoomed (e.g., the overview with cytoband) 
 		if (zoomable) {
-			
-			// zoom out
-			//if (wheelRotation > 0) {
-		    // DOCME why?
-			//	lockedX = (int) getWidth() - lockedX + getX() * 2;
-			//}
 
 			BpCoordDouble pointerBp = trackToBp(lockedX);
 			double pointerRelative = trackToRelative(lockedX);

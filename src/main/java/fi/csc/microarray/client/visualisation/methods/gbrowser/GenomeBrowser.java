@@ -40,7 +40,9 @@ import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.SAMHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDReadParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
@@ -100,7 +102,7 @@ public class GenomeBrowser extends Visualisation implements
 		"Y",
 	};
 	
-	private static final long[] CHROMOSOME_SIZES = new long[] {
+	public static final long[] CHROMOSOME_SIZES = new long[] {
 		247199719L,	
 		242751149L,
 		199446827L,
@@ -493,16 +495,16 @@ public class GenomeBrowser extends Visualisation implements
 			// add selected treatment read tracks
 			for (Track track : tracks) {
 				if (track.checkBox.isSelected()) {
-					File file = track.userData == null ? null : Session.getSession().getDataManager().getLocalFile(track.userData);
+
+				    File file = track.userData == null ? null : Session.getSession().getDataManager().getLocalFile(track.userData);
 					DataSource treatmentData;
 					switch (track.type) {
 
 					case TREATMENT_READS:
-					    treatmentData = new ChunkDataSource(file, new ElandParser());
+					    treatmentData = createReadDataSource(track.userData);
 						TrackFactory.addThickSeparatorTrack(plot);
 						TrackFactory.addReadTracks(plot, treatmentData,
-						        // FIXME Decide correct handler thread
-						        ChunkTreeHandlerThread.class,
+						        createReadHandler(file),
 						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv",
 						        new SequenceParser()), file.getName());
 						break;
@@ -528,11 +530,10 @@ public class GenomeBrowser extends Visualisation implements
 					switch (track.type) {
 
 					case CONTROL_READS:
-		                controlData = new ChunkDataSource(file, new ElandParser());
+		                controlData = createReadDataSource(track.userData);
 						TrackFactory.addThickSeparatorTrack(plot);
 						TrackFactory.addReadTracks(plot, controlData,
-                                // FIXME Decide correct handler thread
-						        ChunkTreeHandlerThread.class,
+                                createReadHandler(file),
 						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv",
 						        new SequenceParser()), file.getName());
 						break;
@@ -597,6 +598,49 @@ public class GenomeBrowser extends Visualisation implements
 			application.reportException(e);
 		}
 	}
+	
+	/**
+	 * Create DataSource either for SAM/BAM or ELAND data files.
+	 * 
+	 * @param file
+	 * @return
+	 */
+	public DataSource createReadDataSource(DataBean data) {
+	    DataSource dataSource = null;
+
+	    try {
+	        // Convert data bean into file
+	        File file = data == null ? null : Session.getSession().getDataManager().getLocalFile(data);
+	        
+	        if (file.getName().contains(".bam") || file.getName().contains(".sam")) {
+	            // Find the index file from the operation
+	            // FIXME what about index files for bam files that are not
+	            //       created during preprocessing?
+	            DataBean indexBean = null;
+	            // FIXME
+	            File indexFile = Session.getSession().getDataManager().getLocalFile(indexBean);
+	            dataSource = new SAMDataSource(file, indexFile);
+	        } else {
+	            dataSource = new ChunkDataSource(file, new ElandParser());
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	    return dataSource;
+	}
+	
+    /**
+     * Create AreaRequestHandler either for SAM/BAM or ELAND data files.
+     * 
+     * @param file
+     * @return
+     */
+    public Class<?extends AreaRequestHandler> createReadHandler(File file) {
+        if (file.getName().contains(".bam") || file.getName().contains(".sam")) {
+            return SAMHandlerThread.class;
+        }
+        return ChunkTreeHandlerThread.class;
+    }
 
 	public ChunkDataSource createAnnotationDataSource(String file, TsvParser fileParser)
 	        throws FileNotFoundException, MalformedURLException {
@@ -654,6 +698,7 @@ public class GenomeBrowser extends Visualisation implements
 
 			if (data.isContentTypeCompatitible("text/plain")) {
 				// reads
+			    // FIXME does it really have to be named "control" and "treatment"?
 				if (data.getName().contains("control")) {
 					interpretations.add(TrackType.CONTROL_READS);
 				} else {
@@ -672,9 +717,13 @@ public class GenomeBrowser extends Visualisation implements
 				// peaks (with header in the file)
 				interpretations.add(TrackType.PEAKS_WITH_HEADER);
 
+			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
+			           (data.getName().contains(".bam") || data.getName().contains(".sam"))) {
+	            // FIXME does not have to be "control"
+                interpretations.add(TrackType.CONTROL_READS);
 			} else {
-				// cannot interpret, visualisation not available for this selection
-				return null;
+	             // cannot interpret, visualisation not available for this selection
+	             return null;
 			}
 		}
 

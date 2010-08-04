@@ -175,7 +175,7 @@ public abstract class ClientApplication implements Node {
 	private String requestedModule;
 
 	// TODO wrap these to some kind of repository
-	protected Collection<OperationCategory> parsedCategories;
+	protected Collection<OperationCategory> visibleCategories;
 	protected Map<String, OperationDefinition> operationDefinitions;
 	protected Map<String, OperationDefinition> internalOperationDefinitions;
 
@@ -241,22 +241,29 @@ public abstract class ClientApplication implements Node {
             DescriptionMessageListener descriptionListener = new DescriptionMessageListener(getRequestedModule());
 			this.requestTopic.sendReplyableMessage(new CommandMessage(CommandMessage.COMMAND_DESCRIBE),
 			                                  descriptionListener);
-			// FIXME needs cleanup?
+			// Get categories and operation definitions
 			descriptionListener.waitForResponse();
-			parsedCategories = descriptionListener.getCategories();
+			visibleCategories = descriptionListener.getVisibleCategories();
 			operationDefinitions = new HashMap<String, OperationDefinition>();
-			for (OperationCategory category: parsedCategories) {
+			for (OperationCategory category: visibleCategories) {
 				for (OperationDefinition operationDefinition: category.getOperationList()) {
 					operationDefinitions.put(operationDefinition.getID(), operationDefinition);
 				}
 			}
-			logger.debug("created " + parsedCategories.size() + " operation categories");
+			logger.debug("created " + visibleCategories.size() + " operation categories");
 			reportInitialisation(" received and processed", false);
 
 			// load internal operation definitions
 			internalOperationDefinitions = new HashMap<String, OperationDefinition>();
-			internalOperationDefinitions.put(OperationDefinition.IMPORT_DEFINITION.getID(), OperationDefinition.IMPORT_DEFINITION);
-			internalOperationDefinitions.put(OperationDefinition.CREATE_DEFINITION.getID(), OperationDefinition.CREATE_DEFINITION);
+	        internalOperationDefinitions.put(OperationDefinition.IMPORT_DEFINITION.getID(),
+	                OperationDefinition.IMPORT_DEFINITION);
+	        internalOperationDefinitions.put(OperationDefinition.CREATE_DEFINITION.getID(),
+	                OperationDefinition.CREATE_DEFINITION);
+			for (OperationCategory category : descriptionListener.getHiddenCategories()) {
+			    for (OperationDefinition operationDefinition : category.getOperationList()) {
+			        internalOperationDefinitions.put(operationDefinition.getID(), operationDefinition);
+			    }
+			}
 
 			// all operation definitions loaded
 			definitionsInitialisedLatch.countDown();
@@ -512,6 +519,7 @@ public abstract class ClientApplication implements Node {
 					DataBean result = job.getOutput(outputName);
 					result.setOperation(oper);
 
+					// check if this is phenodata
 					if (result.queryFeatures("/phenodata").exists()) {
 						phenodata = job.getOutput(outputName);					
 					}

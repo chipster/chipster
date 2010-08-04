@@ -43,7 +43,6 @@ public class GelTrack extends Track {
 
     private Collection<RegionContent> reads = new TreeSet<RegionContent>();
     private TreeMap<Long, Long> collector = new TreeMap<Long, Long>();
-    private boolean wasLastConsised = true;
     private Color color;
     
     private Color BACKGROUND = Color.WHITE;
@@ -151,16 +150,6 @@ public class GelTrack extends Track {
             this.reads.add(areaResult.content);
             getView().redraw();
         }
-    }
-
-    @Override
-    public void updateData() {
-
-        if (wasLastConsised != isConcised()) {
-            reads.clear();
-            wasLastConsised = isConcised();
-        }
-        super.updateData();
     }
 
     @Override

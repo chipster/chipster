@@ -39,11 +39,14 @@ public class StringParameter extends Parameter {
 	
 	@Override
 	public void parseValue(String stringValue) throws IllegalArgumentException {
-		setValue(stringValue); // no parsing needed
+	    // Allow empty values for optional parameters
+	    stringValue = stringValue == null ? "" : stringValue;
+	    
+		setValue(stringValue);
 	}
 
 	@Override
 	public String getValueAsString() {
-		return value;
+		return value != null ? value : "";
 	}
 }

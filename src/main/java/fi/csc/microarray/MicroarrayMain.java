@@ -53,6 +53,9 @@ public class MicroarrayMain {
 			// parse commandline
 			cmdParser.parse(args);
 			
+			// configuration file path
+			String configURL = cmdParser.getValue("-config");
+			
 			// give help, if needed
 			if (cmdParser.userAskedHelp()) {
 				System.out.println("Chipster " + ApplicationConstants.NAMI_VERSION);
@@ -63,19 +66,19 @@ public class MicroarrayMain {
 
 			// start application
 			if (cmdParser.hasValue("authenticator")) {
-				new Authenticator();
+				new Authenticator(configURL);
 				
 			} else if (cmdParser.hasValue("analyser")) {
-				new AnalyserServer();
+				new AnalyserServer(configURL);
 
 			} else if (cmdParser.hasValue("fileserver")) {
-				new FileServer();
+				new FileServer(configURL);
 			
 			} else if (cmdParser.hasValue("webstart")) {
 				new WebstartJettyServer().start();
 			
 			} else if (cmdParser.hasValue("manager")) {
-				new Manager();
+				new Manager(configURL);
 
 			} else if (cmdParser.hasValue("nagios-check") || cmdParser.hasValue("system-status")) {
 				
@@ -155,7 +158,7 @@ public class MicroarrayMain {
 				System.out.println("parse succeeded: " + !fails);
 				
 			} else {
-				SwingClientApplication.start(cmdParser.getValue("-config"), cmdParser.getValue("-module")); 		
+				SwingClientApplication.start(configURL, cmdParser.getValue("-module"));		
 			}
 			
 		} catch (CommandLineException e) {

@@ -33,7 +33,7 @@ public class AnalysisDescriptionGenerator {
 		}
 		
 		for (Output output : source.outputs()) {
-			description.addOutputFile(output.getName().getID());
+			description.addOutputFile(output.getName(), output.isOptional());
 		}
 		
 		for (Parameter parameter : source.parameters()) {
@@ -42,5 +42,4 @@ public class AnalysisDescriptionGenerator {
 		
 		return description;
 	}
-
 }

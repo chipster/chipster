@@ -165,15 +165,15 @@
         -->
 	
 	<category name="Hidden" hidden="true" color="#0">
-		<tool runtime="R-2.9" hidden="true"><resource>test.R</resource></tool>
-		<tool runtime="R-2.9" hidden="true"><resource>no-operation.R</resource></tool>
-		<tool runtime="R-2.9" hidden="true"><resource>echo.R</resource></tool>
-		<tool runtime="R-2.9" hidden="true"><resource>fail.R</resource></tool>
-		<tool runtime="R-2.9" hidden="true"><resource>input-output.R</resource></tool>
-		<tool runtime="R-2.9" hidden="true"><resource>simple-input-output.R</resource></tool>
-		<tool runtime="R-2.9" hidden="true"><resource>data-throughput.R</resource></tool>
-		<tool runtime="R-2.9" hidden="true"><resource>sleep.R</resource></tool>
-		<tool runtime="R-2.9" hidden="true"><resource>input-sleep-output.R</resource></tool>
+		<tool runtime="R-2.9"><resource>test.R</resource></tool>
+		<tool runtime="R-2.9"><resource>no-operation.R</resource></tool>
+		<tool runtime="R-2.9"><resource>echo.R</resource></tool>
+		<tool runtime="R-2.9"><resource>fail.R</resource></tool>
+		<tool runtime="R-2.9"><resource>input-output.R</resource></tool>
+		<tool runtime="R-2.9"><resource>simple-input-output.R</resource></tool>
+		<tool runtime="R-2.9"><resource>data-throughput.R</resource></tool>
+		<tool runtime="R-2.9"><resource>sleep.R</resource></tool>
+		<tool runtime="R-2.9"><resource>input-sleep-output.R</resource></tool>
 	</category>
 	
 

@@ -72,12 +72,6 @@ public class IntensityTrack extends Track {
 		return drawables;
 	}
 
-	@Override
-	public void updateData() {
-
-		super.updateData();
-	}
-
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
 		
 		if (areaResult.status.concise == this.isConcised() && 
