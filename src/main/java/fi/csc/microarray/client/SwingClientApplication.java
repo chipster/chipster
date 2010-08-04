@@ -1671,7 +1671,7 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	public TaskManagerScreen getTaskManagerScreen() {
-		TaskExecutor jobExecutor = Session.getSession().getJobExecutor("client-job-executor");
+		TaskExecutor jobExecutor = Session.getSession().
 		return new TaskManagerScreen(jobExecutor);
 	}
 

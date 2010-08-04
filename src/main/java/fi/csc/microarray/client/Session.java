@@ -7,15 +7,14 @@ package fi.csc.microarray.client;
 import java.util.HashMap;
 import java.util.Map;
 
-import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.module.Modules;
 
 
 
 /**
- * @author akallio
+ * Simple holder for 
+ * @author Aleksi Kallio
  *
  */
 public class Session {
@@ -37,14 +36,6 @@ public class Session {
 		sessionBoundObjects.put(name, endpoint);
 	}
 
-	public MessagingEndpoint getMessagingEndpoint(String name) {
-		return (MessagingEndpoint)sessionBoundObjects.get(name);
-	}
-		
-	public TaskExecutor getJobExecutor(String name) {
-		return (TaskExecutor)sessionBoundObjects.get(name);
-	}
-
 	public ClientApplication getApplication() {
 		return (ClientApplication)sessionBoundObjects.get("application");
 	}
@@ -52,7 +43,11 @@ public class Session {
 	public DataManager getDataManager() {
 		return (DataManager)sessionBoundObjects.get("data-manager");
 	}
-	
+
+	public ServiceAccessor getServiceAccessor() {
+		return (ServiceAccessor)sessionBoundObjects.get("service-accessor");		
+	}
+
 	public Modules getModules() {
 		return (Modules)sessionBoundObjects.get("modules");
 	}
