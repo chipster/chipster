@@ -494,12 +494,13 @@ public class GenomeBrowser extends Visualisation implements
 			// add selected treatment read tracks
 			for (Track track : tracks) {
 				if (track.checkBox.isSelected()) {
-					File file = track.userData == null ? null : Session.getSession().getDataManager().getLocalFile(track.userData);
+
+				    File file = track.userData == null ? null : Session.getSession().getDataManager().getLocalFile(track.userData);
 					DataSource treatmentData;
 					switch (track.type) {
 
 					case TREATMENT_READS:
-					    treatmentData = createReadDataSource(file);
+					    treatmentData = createReadDataSource(track.userData);
 						TrackFactory.addThickSeparatorTrack(plot);
 						TrackFactory.addReadTracks(plot, treatmentData,
 						        createReadHandler(file),
@@ -528,7 +529,7 @@ public class GenomeBrowser extends Visualisation implements
 					switch (track.type) {
 
 					case CONTROL_READS:
-		                controlData = createReadDataSource(file);
+		                controlData = createReadDataSource(track.userData);
 						TrackFactory.addThickSeparatorTrack(plot);
 						TrackFactory.addReadTracks(plot, controlData,
                                 createReadHandler(file),
@@ -606,12 +607,20 @@ public class GenomeBrowser extends Visualisation implements
 	 * @param file
 	 * @return
 	 */
-	public DataSource createReadDataSource(File file) {
+	public DataSource createReadDataSource(DataBean data) {
 	    DataSource dataSource = null;
+
 	    try {
-	        if (file.getName().endsWith(".bam")) {
-	            File indexFile = new File(file.getName().substring(0,
-	                    file.getName().lastIndexOf(".")) + ".bai");
+	        // Convert data bean into file
+	        File file = data == null ? null : Session.getSession().getDataManager().getLocalFile(data);
+	        
+	        if (file.getName().contains(".bam") || file.getName().contains(".sam")) {
+	            // Find the index file from the operation
+	            // FIXME what about index files for bam files that are not
+	            //       created during preprocessing?
+	            DataBean indexBean = null;
+	            // FIXME
+	            File indexFile = Session.getSession().getDataManager().getLocalFile(indexBean);
 	            dataSource = new SAMDataSource(file, indexFile);
 	        } else {
 	            dataSource = new ChunkDataSource(file, new ElandParser());
@@ -629,7 +638,7 @@ public class GenomeBrowser extends Visualisation implements
      * @return
      */
     public Class<?extends AreaRequestHandler> createReadHandler(File file) {
-        if (file.getName().endsWith(".bam")) {
+        if (file.getName().contains(".bam") || file.getName().contains(".sam")) {
             return SAMHandlerThread.class;
         }
         return ChunkTreeHandlerThread.class;
@@ -711,7 +720,7 @@ public class GenomeBrowser extends Visualisation implements
 				interpretations.add(TrackType.PEAKS_WITH_HEADER);
 
 			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
-			           (data.getName().endsWith(".bam") || data.getName().endsWith(".sam"))) {
+			           (data.getName().contains(".bam") || data.getName().contains(".sam"))) {
 	            // FIXME does not have to be "control"
                 interpretations.add(TrackType.CONTROL_READS);
 			} else {
