@@ -15,9 +15,6 @@ import net.sf.samtools.SAMFileWriterImpl;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.SAMSequenceRecord;
 import net.sf.samtools.SAMFileHeader.SortOrder;
-
-import org.apache.log4j.Logger;
-
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowser;
@@ -31,13 +28,16 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 import fi.csc.microarray.messaging.JobState;
 
 /**
- * Tool for preprocessing ELAND and BAM data: converts to BAM, sorts and
+ * Tool for preprocessing ELAND read files: converts to BAM, sorts and
  * creates an index.
+ * 
+ * TODO: similar tool should be created for processing SAM and BAM files.
+ * It should simply sort it by coordinates and create an index. If SAM is
+ * given, should also convert to BAM. Also, note the naming of chromosomes.
+ * Currently SAMFile assumes that they are named "1", "2" etc.
  */
-public class NGSPreprocessorTool extends JavaAnalysisJobBase {
-    
-    private static final Logger logger = Logger.getLogger(JavaAnalysisJobBase.class);
-    
+public class ElandPreprocessorTool extends JavaAnalysisJobBase {
+       
     int MAX_RECORDS_IN_RAM = 100000;
     int INDEX_NUM_REFERENCES = 1000;
 
@@ -158,8 +158,7 @@ public class NGSPreprocessorTool extends JavaAnalysisJobBase {
                 "(Convert ELAND file to BAM, sort it and create an index.)"  + "\n" +
                 "INPUT input.tsv TYPE GENERIC" + "\n" +
                 "OUTPUT output.bam" + "\n" +
-                "OUTPUT output.bai" + "\n" +
-                "PARAMETER file.format TYPE [" + fileFormats + "] DEFAULT " + parsers[0].getName() + " ()" + "\n";
+                "OUTPUT output.bai" + "\n";
      }
 
     @Override

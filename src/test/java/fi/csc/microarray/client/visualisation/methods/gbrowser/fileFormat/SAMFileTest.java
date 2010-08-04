@@ -37,9 +37,10 @@ public class SAMFileTest {
         
         // Parse using our internal abstraction
         bamFile = new File(path + "indexTest.bam");
-        SAMFile sam = new SAMFile(bamFile);
+        File indexFile = new File(path + "indexTest.bam.bai");
+        SAMFile sam = new SAMFile(bamFile, indexFile);
         BpCoordRegion region = new BpCoordRegion((long)0, (long)300000,
-                new Chromosome("M"));
+                new Chromosome("chrM"));
         Assert.assertEquals(
                 sam.getReads(new AreaRequest(region,
                         Arrays.asList(new ColumnType[] {ColumnType.SEQUENCE, ColumnType.STRAND}),

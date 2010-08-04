@@ -6,7 +6,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.SAMDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class SAMHandlerThread extends AreaRequestHandler {
@@ -20,13 +19,21 @@ public class SAMHandlerThread extends AreaRequestHandler {
         samData = (SAMDataSource) file;
     }
 
+    /**
+     * Handles normal and concised area requests by using SAMFile.
+     */
     @Override
-    protected void processAreaRequest(AreaRequest areaRequest) {     
-        FsfStatus status = areaRequest.status;
-        
-        // Create a result for each read
-        for (RegionContent content : samData.getSAM().getReads(areaRequest)) {
-            createAreaResult(new AreaResult<RegionContent>(status, content));
+    protected void processAreaRequest(AreaRequest areaRequest) {       
+        if (areaRequest.status.concise) {
+            // Create concise results
+            for (RegionContent content : samData.getSAM().getConciseReads(areaRequest)) {
+                createAreaResult(new AreaResult<RegionContent>(areaRequest.status, content));
+            }
+        } else {
+            // Create a result for each read
+            for (RegionContent content : samData.getSAM().getReads(areaRequest)) {
+                createAreaResult(new AreaResult<RegionContent>(areaRequest.status, content));
+            }            
         }
     }
 

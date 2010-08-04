@@ -58,6 +58,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Row;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.LinkUtils;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
@@ -571,7 +572,10 @@ public class GenomeBrowser extends Visualisation implements
 			}
 
 			// initialise the plot
-			updateLocation();
+            plot.start((String)chrBox.getSelectedItem(),
+                    (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()],
+                    Long.parseLong(locationField.getText()),
+                    Long.parseLong(zoomField.getText()));
 			plot.addDataRegionListener(this);
 
 			// wrap it in a panel
@@ -617,7 +621,11 @@ public class GenomeBrowser extends Visualisation implements
 	            // FIXME what about index files for bam files that are not
 	            //       created during preprocessing?
 	            DataBean indexBean = null;
-	            // FIXME
+	            for (DataBean bean : LinkUtils.retrieveOutputSet(data)) {
+	                if (bean.getName().endsWith(".bai")) {
+	                    indexBean = bean;
+	                }
+	            }
 	            File indexFile = Session.getSession().getDataManager().getLocalFile(indexBean);
 	            dataSource = new SAMDataSource(file, indexFile);
 	        } else {
@@ -766,6 +774,7 @@ public class GenomeBrowser extends Visualisation implements
 	        		application.reportException(e);
 	        	}
         }
+        /*}*/
         
         // set scale of profile track containing reads information
         this.plot.setReadScale((ReadScale) this.profileScaleBox.getSelectedItem());

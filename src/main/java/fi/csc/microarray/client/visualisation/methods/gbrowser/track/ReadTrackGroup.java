@@ -15,6 +15,13 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptTrack.PartColor;
 
+/**
+ * Tracks containing information about reads: sequences themselves, gel,
+ * profile etc.
+ * 
+ * @author naktinis
+ *
+ */
 public class ReadTrackGroup extends TrackGroup implements ActionListener {
     
     // Constants

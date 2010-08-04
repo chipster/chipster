@@ -153,6 +153,10 @@
 	   	<tool runtime="R-2.9"><resource>sample-size-with-bh.R</resource></tool>	
 	</category>
 	
+	<category name="NGS tools" color="#83010b">
+		<tool runtime="java"><resource>fi.csc.chipster.tools.ElandPreprocessorTool</resource></tool>
+	</category>
+	
 	<!-- TODO UI configuration -->
 	
 	
