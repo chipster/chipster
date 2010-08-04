@@ -33,13 +33,16 @@ public class PhenodataTest {
 	public void testPhenodataRetrieval() throws MicroarrayException, IOException {
 		DataBean normalised = manager.createDataBean("normalised.tsv");
 		DataBean filtered = manager.createDataBean("filtered.tsv");
+		DataBean filtered2 = manager.createDataBean("filtered2.tsv");
 		DataBean phenodata = manager.createDataBean("phenodata.tsv");
 		
 		filtered.addLink(Link.DERIVATION, normalised);
+		filtered2.addLink(Link.DERIVATION, normalised);
 		phenodata.addLink(Link.ANNOTATION, normalised);
 		
 		Assert.assertEquals(phenodata, LinkUtils.retrieveInherited(normalised, Link.ANNOTATION));
 		Assert.assertEquals(phenodata, LinkUtils.retrieveInherited(filtered, Link.ANNOTATION));
+		Assert.assertEquals(2, LinkUtils.retrieveOutputSet(filtered).length);
 	}
 	
 	
