@@ -66,4 +66,4 @@ if(ncol(calls)>=1) {
 } else {
    write.table(data.frame(dat2), file="extract.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
-write.table(phenodata2, file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+write.table(phenodata2, file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F, na='')

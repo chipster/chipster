@@ -140,6 +140,7 @@
 
 	<!-- ACGH TOOLS (BETA TESTING) -->
 	<tool runtime="R-2.9">import-from-cangem.R</tool>
+	<tool runtime="R-2.9">smooth-acgh.R</tool>
 	<tool runtime="R-2.9">detect-copy-number-aberrations.R</tool>
 	<tool runtime="R-2.9">plot-cgh-profile.R</tool>
 	<tool runtime="R-2.9">convert-cn-probes-to-genes.R</tool>
