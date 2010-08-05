@@ -48,7 +48,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
  */
 public abstract class View implements MouseListener, MouseMotionListener, MouseWheelListener {
 
-	protected BpCoordRegionDouble bpRegion;
+	public BpCoordRegionDouble bpRegion;
 	public BpCoordRegion highlight;
 
 	public Collection<TrackGroup> trackGroups = new LinkedList<TrackGroup>();
@@ -113,11 +113,16 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	
 	/**
 	 * Get tracks contained in track groups as a linear collection.
+	 * 
+	 * Only return tracks within visible groups.
 	 */
 	public Collection<Track> getTracks() {
 	    Collection<Track> tracks = new LinkedList<Track>();
         for (TrackGroup trackGroup : trackGroups) {
-            tracks.addAll(trackGroup.getTracks());
+            // Only return tracks within visible groups
+            if (trackGroup.isVisible()) {
+                tracks.addAll(trackGroup.getTracks());
+            }
         }
         return tracks;
 	}
@@ -187,6 +192,10 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
         for (TrackGroup group : trackGroups) {
             trackIter = group.getTracks().iterator();
             drawableIter = null;
+            
+            if (!group.isVisible()) {
+                continue;
+            }
             
             // draw side menu
             if (group.isMenuVisible()) {

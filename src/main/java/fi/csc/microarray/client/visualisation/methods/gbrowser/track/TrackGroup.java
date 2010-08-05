@@ -169,10 +169,14 @@ public class TrackGroup {
      */
     public void setVisible(boolean visible) {
         this.visible = visible;
-        for (Track track : getTracks()) {
-            track.setVisible(visible);
-        }
         menu.setVisible(visible);
+    }
+    
+    /**
+     * Get visibility of this group.
+     */
+    public boolean isVisible() {
+        return visible;
     }
     
     /**

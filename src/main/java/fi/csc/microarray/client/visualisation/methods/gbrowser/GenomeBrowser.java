@@ -199,6 +199,9 @@ public class GenomeBrowser extends Visualisation implements
 	private JTextField zoomField = new JTextField(10);
 	private JComboBox chrBox = new JComboBox();
 	private JComboBox genomeBox = new JComboBox();
+	
+	private Object lastChromosome;
+	
 	// private JRadioButton horizView;
 	// private JRadioButton circularView;
 	private GridBagConstraints settingsGridBagConstraints;
@@ -588,6 +591,9 @@ public class GenomeBrowser extends Visualisation implements
                     Long.parseLong(locationField.getText()),
                     Long.parseLong(zoomField.getText()));
 			plot.addDataRegionListener(this);
+			
+			// remember the chromosome, so we know if it has changed
+            lastChromosome = chrBox.getSelectedItem();
 
 			// wrap it in a panel
 			chartPanel.setChart(new JFreeChart(plot));
@@ -759,8 +765,26 @@ public class GenomeBrowser extends Visualisation implements
 		return true;
 	}
 
+	/**
+	 * Update genome browser to location given in the location panel.
+	 * 
+	 * If chromosome changes, reinitialize everything (because some old
+	 * information is left inside the tracks). Otherwise, simply move
+	 * currently viewed bp region.
+	 * 
+	 * TODO Instead of showVisualisation, clean track contents. This is
+	 * nicer because we don't have to reinitialize the tracks and track
+	 * group options are saved.
+	 */
 	private void updateLocation() {
-		
+
+        // Chromosome changed - redraw (alternatively we could clean track contents)
+        if (lastChromosome != chrBox.getSelectedItem()) {
+            showVisualisation();
+            return;
+        }
+        
+        // Only position within chromosome changed
 		GeneIndexDataType gidt = new GeneIndexDataType();
         if (!gia.checkIfNumber(locationField.getText())) {
 
@@ -768,27 +792,25 @@ public class GenomeBrowser extends Visualisation implements
 		    
 		    if (gidt == null) {
 		    	application.showDialog("Error", "Gene with such name was not found", null, null, false, null);
-		    }
-		    else {
+		    } else {
 		    	chrBox.setSelectedItem(gidt.chromosome.toString());
 			    plot.moveDataBpRegion(new Chromosome((String)chrBox.getSelectedItem()),
 			    		(gidt.bpend+gidt.bpstart)/2, (gidt.bpend - gidt.bpstart)*2);
 		    }
-        }
-        else {
-            try{
-	            plot.moveDataBpRegion(new Chromosome((String)chrBox.getSelectedItem()), Long.parseLong(locationField.getText()),
-	                    Long.parseLong(zoomField.getText()));
-	        	}
-	        	catch (NumberFormatException e){
-	        		application.reportException(e);
-	        	}
+        } else {
+            try {
+                plot.moveDataBpRegion(new Chromosome((String)chrBox.getSelectedItem()),
+                        Long.parseLong(locationField.getText()),
+                        Long.parseLong(zoomField.getText()));
+	        } catch (NumberFormatException e) {
+                application.reportException(e);
+	        }
         }
         
-        // set scale of profile track containing reads information
+        // Set scale of profile track containing reads information
         this.plot.setReadScale((ReadScale) this.profileScaleBox.getSelectedItem());
         
-        // TODO: should also be able to enable/disable track groups for data files
+        // Enable/disable track groups for data files
         for (Track track : tracks) {
             if (track.getTrackGroup() != null) {
                 track.getTrackGroup().setVisible(track.checkBox.isSelected());
@@ -813,7 +835,8 @@ public class GenomeBrowser extends Visualisation implements
     }
 
     public void componentResized(ComponentEvent arg0) {
-        this.showVisualisation();
+        this.updateLocation();
+        plot.redraw();
     }
 
     public void componentShown(ComponentEvent arg0) {
