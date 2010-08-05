@@ -76,7 +76,7 @@ public class WIGTrack extends Track{
 	        }
         }
 
-        //finish the line till the end of the screen
+        // finish the line till the end of the screen
         drawables.add(new LineDrawable((int)lastX, getHeight() - (int)lastY,
         		getView().getWidth(),
         		getHeight()-1, color));

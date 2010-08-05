@@ -203,7 +203,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
     
                 // draw drawable objects for visible tracks
                 if (track.isVisible()) {
-                     
+                    
                     // decide if we will expand drawable for this track
                     boolean expandDrawables = track.canExpandDrawables();
                                        
@@ -262,11 +262,11 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
                         drawableIter = null;
                     }
                     
+                    y += track.getHeight();
+                    
                 } else {
                     drawableIter = null;
-                }
-                
-                y += track.getHeight();
+                }               
             }
         }
         
@@ -308,7 +308,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		int staticHeightTotal = 0;
 
 		for (Track track : getTracks()) {
-			if (!track.isStretchable()) {
+			if (track.isVisible() && !track.isStretchable()) {
 				staticHeightTotal += track.getHeight();
 			}
 		}

@@ -56,6 +56,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Annotatio
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Row;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.LinkUtils;
@@ -159,17 +160,25 @@ public class GenomeBrowser extends Visualisation implements
 		JCheckBox checkBox; 
 		String name;
 		DataBean userData;
+		TrackGroup trackGroup = null;
 
 		public Track(String name, TrackType type) {
 			this.name = name;
 			this.type = type;
-			
 		}
 
 		public Track(String name, TrackType type, DataBean userData) {
 			this(name, type);
 			this.userData = userData;
 		}
+		
+		public void setTrackGroup(TrackGroup trackGroup) {
+		    this.trackGroup = trackGroup;
+		}
+		
+        public TrackGroup getTrackGroup() {
+            return trackGroup;
+        }
 	}
 
 	private final ClientApplication application = Session.getSession().getApplication();
@@ -476,12 +485,11 @@ public class GenomeBrowser extends Visualisation implements
 						        createAnnotationDataSource("Homo_sapiens.GRCh37.57_karyotype.tsv", new CytobandParser()));
 						break;
 					case GENES:
-						TrackFactory.addThickSeparatorTrack(plot);
-						TrackFactory.addTitleTrack(plot, "Annotations");
-						TrackFactory.addGeneTracks(plot,
+						TrackGroup geneGroup = TrackFactory.addGeneTracks(plot,
 						        createAnnotationDataSource("Homo_sapiens." + genome + "_genes.tsv", new GeneParser()),
 						        createAnnotationDataSource("Homo_sapiens." + genome + "_transcripts.tsv", new TranscriptParser()),
 						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv", new SequenceParser()));
+						track.setTrackGroup(geneGroup);
 						break;
 					case REFERENCE:
 						// integrated into peaks
@@ -494,6 +502,7 @@ public class GenomeBrowser extends Visualisation implements
 			}
 
 			// add selected treatment read tracks
+			// TODO is there actually any difference for us if reads are "treatment" or "control"?
 			for (Track track : tracks) {
 				if (track.checkBox.isSelected()) {
 
@@ -503,14 +512,16 @@ public class GenomeBrowser extends Visualisation implements
 
 					case TREATMENT_READS:
 					    treatmentData = createReadDataSource(track.userData);
-						TrackFactory.addThickSeparatorTrack(plot);
-						TrackFactory.addReadTracks(plot, treatmentData,
+						TrackGroup readGroup = TrackFactory.addReadTracks(plot, treatmentData,
 						        createReadHandler(file),
 						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv",
 						        new SequenceParser()), file.getName());
+						track.setTrackGroup(readGroup);
 						break;
 
 					case TREATMENT_BED_READS:
+					    // TODO Is this still used? If yes, update this code (according
+					    //      to TREATMENT_READS case)
 					    treatmentData = new ChunkDataSource(file, new BEDReadParser());
 						TrackFactory.addThickSeparatorTrack(plot);
 						TrackFactory.addReadTracks(plot, treatmentData,
@@ -532,11 +543,11 @@ public class GenomeBrowser extends Visualisation implements
 
 					case CONTROL_READS:
 		                controlData = createReadDataSource(track.userData);
-						TrackFactory.addThickSeparatorTrack(plot);
-						TrackFactory.addReadTracks(plot, controlData,
+						TrackGroup readGroup = TrackFactory.addReadTracks(plot, controlData,
                                 createReadHandler(file),
 						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv",
 						        new SequenceParser()), file.getName());
+                        track.setTrackGroup(readGroup);
 						break;
 					}
 				}
@@ -751,11 +762,11 @@ public class GenomeBrowser extends Visualisation implements
 	private void updateLocation() {
 		
 		GeneIndexDataType gidt = new GeneIndexDataType();
-        if (gia.checkIfNumber(locationField.getText()) == false){
+        if (!gia.checkIfNumber(locationField.getText())) {
 
 		    gidt = gia.getLocation(locationField.getText().toUpperCase());
 		    
-		    if (gidt == null){
+		    if (gidt == null) {
 		    	application.showDialog("Error", "Gene with such name was not found", null, null, false, null);
 		    }
 		    else {
@@ -764,8 +775,7 @@ public class GenomeBrowser extends Visualisation implements
 			    		(gidt.bpend+gidt.bpstart)/2, (gidt.bpend - gidt.bpstart)*2);
 		    }
         }
-        else{
-	        // TODO check format
+        else {
             try{
 	            plot.moveDataBpRegion(new Chromosome((String)chrBox.getSelectedItem()), Long.parseLong(locationField.getText()),
 	                    Long.parseLong(zoomField.getText()));
@@ -774,12 +784,16 @@ public class GenomeBrowser extends Visualisation implements
 	        		application.reportException(e);
 	        	}
         }
-        /*}*/
         
         // set scale of profile track containing reads information
         this.plot.setReadScale((ReadScale) this.profileScaleBox.getSelectedItem());
         
         // TODO: should also be able to enable/disable track groups for data files
+        for (Track track : tracks) {
+            if (track.getTrackGroup() != null) {
+                track.getTrackGroup().setVisible(track.checkBox.isSelected());
+            }
+        }
 	}
 
 	public void focusGained(FocusEvent e) {

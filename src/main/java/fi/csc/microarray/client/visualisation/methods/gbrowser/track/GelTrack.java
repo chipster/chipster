@@ -33,6 +33,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  * Basically this track shows the same information as ProfileTrack, but in a
  * different format.
  * 
+ * If track's strand is set to Strand.BOTH, number of reads on both strands
+ * are summed up.
+ * 
  * @author naktinis
  *
  */

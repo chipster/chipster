@@ -27,6 +27,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  * Track for showing the coverage of reads. Profile is drawn by calculating
  * the number of nucleotides hitting each basepair location. Should look
  * similar to IntensityTrack, but is exact.
+ * 
+ * If track's strand is set to Strand.BOTH, two profiles are drawn, one for
+ * each strand.
  *
  * @see IntensityTrack
  */

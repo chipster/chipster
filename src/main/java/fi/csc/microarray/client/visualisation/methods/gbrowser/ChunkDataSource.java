@@ -13,8 +13,6 @@ import fi.csc.microarray.util.IOUtils;
 
 /**
  * Handler for files accessed directly (e.g. tab-separated files).
- * 
- * @author naktinis
  *
  */
 public class ChunkDataSource extends DataSource {

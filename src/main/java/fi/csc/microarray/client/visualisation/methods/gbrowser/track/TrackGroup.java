@@ -18,7 +18,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
  * A collection of tracks representing a single data source or
  * related in any other logical way and displayed one after
  * another.
- *  
+ * 
+ * The track group is also responsible for drawing the side menu,
+ * switching tracks inside the group and changing properties of
+ * individual groups.
+ * 
  * @author naktinis
  *
  */
@@ -27,6 +31,7 @@ public class TrackGroup {
     protected List<Track> tracks = new LinkedList<Track>();
     protected View view;
     protected boolean menuVisible = false;
+    protected boolean visible = true;
     public SideMenu menu;
     private JButton resize;
         
@@ -160,12 +165,23 @@ public class TrackGroup {
     }
     
     /**
+     * Set visibility of this group.
+     */
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+        for (Track track : getTracks()) {
+            track.setVisible(visible);
+        }
+        menu.setVisible(visible);
+    }
+    
+    /**
      * Determine if a side menu should be shown for this track.
      * 
      * @return true if a menu should be shown, false otherwise.
      */
     public boolean isMenuVisible() {
-        return menuVisible;
+        return visible && menuVisible;
     }
     
     /**

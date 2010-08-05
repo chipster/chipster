@@ -7,7 +7,7 @@ import java.net.URL;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SAMFile;
 
 /**
- * Handler for accessing SAM files.
+ * Data source for SAM files.
  * 
  * @author naktinis
  *
@@ -22,14 +22,16 @@ public class SAMDataSource extends DataSource {
         super(url);
     }
 
+    /**
+     * Generally we would like to have both data and index files,
+     * because otherwise we could not access random locations.
+     * 
+     * @param file
+     * @throws FileNotFoundException
+     */
     public SAMDataSource(File file, File indexFile) throws FileNotFoundException {
         super(file);
         samFile = new SAMFile(file, indexFile);
-    }
-    
-    public SAMDataSource(File file) throws FileNotFoundException {
-        super(file);
-        samFile = new SAMFile(file);
     }
     
     public SAMFile getSAM() {

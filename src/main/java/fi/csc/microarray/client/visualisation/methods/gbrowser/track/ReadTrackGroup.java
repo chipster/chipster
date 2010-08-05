@@ -4,11 +4,11 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedList;
-import java.util.List;
 
 import javax.swing.JCheckBox;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.TrackFactory;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
@@ -95,24 +95,24 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
                 Color.WHITE, 0, SWITCH_VIEWS_AT);
         gelTrack.setStrand(Strand.BOTH);
         
+        // Add tracks to this group
+        addTracks();
+        
         // Add switches
         this.menu.addItem(showGel);
         this.menu.addItem(showProfile);
         this.menu.addItem(showSNP);
-        //int startDrawing = 25;
-        //showGel.setBounds(5, startDrawing, 100, 20);
-        //showProfile.setBounds(5, startDrawing + 25, 100, 20);
-        //showSNP.setBounds(5, startDrawing + 50, 100, 20);
         showGel.addActionListener(this);
         showProfile.addActionListener(this);
         showSNP.addActionListener(this);
         this.setMenuVisible(true);
     }
     
-    @Override
-    public List<Track> getTracks() {
+    private void addTracks() {
         // Construct the list according to visibility
-        List<Track> tracks = new LinkedList<Track>();
+        this.tracks = new LinkedList<Track>();
+        // Top separator
+        tracks.add(TrackFactory.createThickSeparatorTrack(view));
         tracks.add(titleTrack);
         tracks.add(readOverview);
         tracks.add(reads);
@@ -138,8 +138,6 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
             tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT));
             tracks.add(gelTrack);
         }
-
-        return tracks;
     }
 
     public void actionPerformed(ActionEvent e) {
