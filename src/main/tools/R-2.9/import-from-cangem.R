@@ -6,7 +6,7 @@
 # PARAMETER session STRING DEFAULT empty (Session ID. To avoid saving your username/password in Chipster history files, log in at http://www.cangem.org/ using a web browser, then copy&paste your session ID from the lower right corner of the CanGEM website. This will allow Chipster to access your password-protected data until you log out of the web site (or the session times out).)
 # PARAMETER agilent.filtering [yes, no] DEFAULT yes (Whether to filter outliers from Agilent 2-color arrays. Will be ignored, if downloaded files are 1-color arrays, or not in Agilent file format. Check the help file for details about the filtering function.)
 # PARAMETER background.treatment [none, subtract, normexp, RMA] DEFAULT normexp (Background treatment method. RMA is available only for one-color arrays.)
-# PARAMETER background.offset [0, 50] DEFAULT 0 (Background offset.)
+# PARAMETER background.offset [0, 50] DEFAULT 50 (Background offset.)
 # PARAMETER intra.array.normalization [none, median, loess] DEFAULT loess (Intra-array normalization method for Agilent arrays. Will be ignored, if downloaded files are not in Agilent file format.)
 # PARAMETER inter.array.normalization [none, quantile, scale] DEFAULT none (Inter-array normalization method for Agilent arrays. Will be ignored, if downloaded files are not in Agilent file format.)
 # PARAMETER affymetrix.normalization [gcrma, rma, mas5] DEFAULT gcrma (Normalization method for Affymetrix arrays. Will be ignored, if downloaded files are not in Affymetrix file format.)
@@ -14,7 +14,7 @@
 
 # import-from-cangem.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-07-30
+# 2010-08-04
 
 # check for valid accession
 accession <- toupper(accession)
