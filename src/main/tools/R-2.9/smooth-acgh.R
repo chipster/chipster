@@ -4,7 +4,7 @@
 
 # smooth-acgh.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-08-05
+# 2010-08-06
 
 library(CGHcall)
 library(NoWaves)
@@ -27,25 +27,25 @@ dat2$chromosome[dat2$chromosome=='X'] <- 23
 dat2$chromosome[dat2$chromosome=='Y'] <- 24
 dat2$chromosome[dat2$chromosome=='MT'] <- 25
 dat2$chromosome <- as.integer(dat2$chromosome)
-calib <- make_cghRaw(calib)
+calib <- make_cghRaw(dat2)
 calib <- preprocess(calib, nchrom=23)
 calib <- data.frame(Probe=rownames(calib@featureData@data), calib@featureData@data, assayDataElement(calib, 'copynumber'))
 
 # dewave tumor data
-library(NoWaves)
 calib <- SmoothNormals(calib)
 dewaved <- CorrectTumors(cgh, calib)
 
+# format for output
 rownames(dewaved) <- dewaved[,1]
+colnames(dewaved) <- colnames(dat)
 dewaved <- dewaved[,-1]
-colnames(dewaved) <- colnames(cgh)
 dewaved$chromosome <- as.character(dewaved$chromosome)
 dewaved$chromosome[dewaved$chromosome=='23'] <- 'X'
 dewaved$chromosome[dewaved$chromosome=='24'] <- 'Y'
 dewaved$chromosome[dewaved$chromosome=='25'] <- 'MT'
-
 dewaved[,-(1:4)] <- round(dewaved[,-(1:4)], digits=2)
 
+# write results
 write.table(dewaved, file='smoothed.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
 # EOF
