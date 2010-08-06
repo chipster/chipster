@@ -18,6 +18,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  * SAM and BAM file abstraction. Uses picard library for actual
  * parsing. This is just a facade.
  * 
+ * TODO Check how and when we could close the files.
+ * 
  * @author naktinis
  * @see <a href="http://samtools.sourceforge.net/">SAMtools</a>
  * @see fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SAMFileTest SAMFileTest
@@ -101,9 +103,7 @@ public class SAMFile {
                         Strand.REVERSED : Strand.FORWARD);
             }
             
-            // TODO Add cigar data to values
-            
-            // TODO
+            // TODO Add cigar and pair data to values
             
             responseList.add(new RegionContent(recordRegion, values));
         }
