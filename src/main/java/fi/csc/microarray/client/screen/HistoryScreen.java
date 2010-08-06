@@ -211,7 +211,7 @@ public class HistoryScreen extends ScreenBase
 						if (params != null && params.size() > 0) {
 							for (Parameter param : params) {
 								historyText.append("Parameter " + param.getDisplayName() + ": " +
-										param.getValue() + "\n");
+										param.getValueAsString() + "\n");
 							}
 						} 
 					} else {

@@ -51,7 +51,10 @@ public class ACDToSADL {
                         Name.createName("fasta", "FASTA"),
                         Name.createName("ncbi", "NCBI"),
                         Name.createName("clustal", "ClustalW"),
-                        Name.createName("phylip", "Phylip"),};
+                        Name.createName("phylip", "Phylip"),
+                        Name.createName("fastq", "FASTQ"),
+                        Name.createName("sam", "SAM"),
+                        Name.createName("bam", "BAM")};
                 Parameter parameter = new Parameter(
                         Name.createName(OUTPUT_TYPE_PREFIX + param.getName(),
                                         "Output type for " + param.getName()),
@@ -259,13 +262,15 @@ public class ACDToSADL {
 	        Integer type = ACDParameter.detectParameterGroup(fieldType.toLowerCase());
 	        
 	        // TODO: help attribute; comment attribute
-	        if ((type == ACDParameter.PARAM_GROUP_OUTPUT ||
-	             type == ACDParameter.PARAM_GROUP_GRAPHICS) &&
-	            (!param.isAdvanced())) {
-	            return new Output(Name.createName(param.getOutputFilename(true)), !param.isRequired());
-	        } else {
-	            return null;
-	        }
+           if (!param.isAdvanced()) {
+               if (type == ACDParameter.PARAM_GROUP_OUTPUT) {
+                   return new Output(Name.createName(param.getOutputFilename(true)), !param.isRequired());
+               } else if (type == ACDParameter.PARAM_GROUP_GRAPHICS) {
+                   return new Output(param.getGraphicsName(), !param.isRequired());
+               }
+           }
+           
+           return null;
 	    }
 	}
 }

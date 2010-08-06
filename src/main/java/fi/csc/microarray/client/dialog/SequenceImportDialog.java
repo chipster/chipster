@@ -66,7 +66,8 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         EMBL_NEW("EMBL New", "emblnew"),
         PDB("PDB", "pdb_seq"),
         UNIPROT_SWISS("UniProt / SwissProt", "swiss"),
-        UNIPROT_TREMBL("UniProt / TrEMBL", "trembl");
+        UNIPROT_TREMBL("UniProt / TrEMBL", "trembl"),
+        ENSEMBL("Ensembl", "ensembl");
         
         private String name;
         private String value;

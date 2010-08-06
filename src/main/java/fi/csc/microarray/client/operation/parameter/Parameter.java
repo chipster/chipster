@@ -62,7 +62,8 @@ public abstract class Parameter implements Cloneable {
 		    initValue = initValues[0];
 		}
 		
-		logger.debug("creating instance of parameter type " + type.name() + " called "+ name);
+		logger.debug("creating instance of " + type.name() + " parameter called " +
+		             name + ", value: " + initValue);
 		
 		switch (type) {
 		case ENUM:
@@ -245,7 +246,12 @@ public abstract class Parameter implements Cloneable {
 	 * Tries to convert String representation to an Object that is valid value
 	 * for this type of parameters and calls setValue to update the parameter
 	 * values.
-	 * 
+	 * <p>
+	 * TODO It would be more beautiful to use two methods: serializeValue and
+	 * deserializeValue (or marshal/demarshal), because e.g. SnapshottingSession
+	 * now uses getValue for marshalling and getValue is not supposed to always
+	 * return Strings.
+	 * <p>
 	 * @see #setValue(Object)
 	 * @param stringValue String representation of parameter value
 	 * @throws IllegalArgumentException thrown if conversion fails

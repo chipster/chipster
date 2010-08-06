@@ -519,6 +519,7 @@ public abstract class ClientApplication implements Node {
 					DataBean result = job.getOutput(outputName);
 					result.setOperation(oper);
 
+					// check if this is phenodata
 					if (result.queryFeatures("/phenodata").exists()) {
 						phenodata = job.getOutput(outputName);					
 					}

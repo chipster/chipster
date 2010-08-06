@@ -1,11 +1,7 @@
-TOOL "BLAST" / blastn.sadl: blastn (Heuristic tool for nucleotide sequence search from a nucleotode sequence database.)
-INPUT query: "Query sequence" TYPE GENERIC
+TOOL "BLAST" / my_blastn.sadl: my_blastn (Heuristic tool to search hits for a nucleotide sequence from a nucleotide sequence set.)
+INPUT query: "Query sequences" TYPE GENERIC
+INPUT dbnuc: "Database" TYPE GENERIC
 OUTPUT out.txt
-PARAMETER db: "Database" TYPE [nt: "NCBI non-redundant nucleotide database",
-	embl_others: "EMBL excluding the EST, GSS and HTG divisions, and the WGS sets",
-	embl_est: "EMBL EST division", embl_gss: "EMBL GSS division",
-	embl_htg: "EMBL GSS division", emblnew: "EMBL updates", refseq: "NCBI RefSeq RNA database",
-	refseq_con: "NCBI RefSeq human contigs"] DEFAULT nt (Choose a database)
 PARAMETER OPTIONAL task: "Task to execute" TYPE [blastn: "BLASTN",
 	blastn-short: "BLASTN short: BLASTN program optimized for sequences shorter than 50 bases",
 	dc-medablast: "Discontiguous megablast, used to find more distant sequences",
