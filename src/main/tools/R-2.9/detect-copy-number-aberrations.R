@@ -34,7 +34,7 @@ dat2$chromosome <- as.integer(dat2$chromosome)
 cgh <- make_cghRaw(dat2)
 cgh <- preprocess(cgh, nchrom=chromosomes)
 cgh <- normalize(cgh, method=normalization)
-cgh <- segmentData(cgh, min.width=as.numeric(min.width))
+cgh <- segmentData(cgh, min.width=as.integer(min.width))
 cgh <- postsegnormalize(cgh)
 cgh <- CGHcall(cgh, nclass=as.integer(cn.states))
 
