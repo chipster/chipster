@@ -144,7 +144,6 @@
 	<tool runtime="R-2.9">detect-copy-number-aberrations.R</tool>
 	<tool runtime="R-2.9">plot-cgh-profile.R</tool>
 	<tool runtime="R-2.9">convert-cn-probes-to-genes.R</tool>
-	<tool runtime="R-2.9">detect-common-copy-number-aberration-regions.R</tool>	
 	<tool runtime="R-2.9">detect-common-copy-number-aberration-regions.R</tool>
 	<tool runtime="R-2.9">match-cn-and-expression-probes.R</tool>
 	<tool runtime="R-2.9">plot-cn-induced-expression-profile.R</tool>
