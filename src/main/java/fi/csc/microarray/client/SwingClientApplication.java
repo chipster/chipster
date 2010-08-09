@@ -68,6 +68,7 @@ import fi.csc.microarray.client.dialog.SnapshotAccessory;
 import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.dialog.URLImportDialog;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
+import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
@@ -175,24 +176,44 @@ public class SwingClientApplication extends ClientApplication {
 		super(isStandalone, overridingARL);
 		
 		this.clientListener = clientListener;
-		
-        // Set the module that user wants to load
+
+		// this had to be delayed as logging is not available before loading configuration
+		logger = Logger.getLogger(SwingClientApplication.class);
+
+        // set the module that user wants to load
         setRequestedModule(module);
 
+        // show splash screen
 		splashScreen = new SplashScreen(VisualConstants.SPLASH_SCREEN);
 		reportInitialisation("Initialising " + ApplicationConstants.APPLICATION_TITLE, true);
 
-		// we want to close the splash screen when exception occurs
+		// try to initialise and handle exceptions gracefully
 		try {
 			initialiseApplication();
+			
 		} catch (Exception e) {
-			splashScreen.close();
-			throw new MicroarrayException(e);
-		}
+			showDialog("Starting Chipster failed.", "There could be a problem with the network connection, or the remote services could be down. " +
+					"Please see the details below for more information about the problem.\n\n" + 
+					"Chipster also fails to start if there has been a version update with a change in configurations. In such case please delete Chipster application settings directory.",
+					Exceptions.getStackTrace(e), Severity.ERROR, false, ChipsterDialog.DetailsVisibility.DETAILS_HIDDEN,
+					new PluginButton() {
+						@Override
+						public void actionPerformed() {
+							try {
+								new SwingClientApplication(getShutdownListener(), null, null, true);
 
-		// this had to be delayed as logging is not available before loading
-		// configuration
-		logger = Logger.getLogger(SwingClientApplication.class);
+							} catch (Exception e) {
+								// ignore
+							}
+						}
+						@Override
+						public String getText() {
+							return "Start standalone";
+						}
+					});
+			splashScreen.close();
+			logger.error(e);
+		}
 	}
 
 	public void reportInitialisation(String report, boolean newline) {
@@ -769,7 +790,7 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	public void showDialog(String title, String message, String details, Severity severity, boolean modal) {
-		showDialog(title, message, details, severity, modal, ChipsterDialog.DetailsVisibility.DETAILS_HIDDEN);
+		showDialog(title, message, details, severity, modal, ChipsterDialog.DetailsVisibility.DETAILS_HIDDEN, null);
 	}
 
 	/**
@@ -783,9 +804,9 @@ public class SwingClientApplication extends ClientApplication {
 	 * @param severity
 	 *            severity level, affects icon choice
 	 */
-	public void showDialog(String title, String message, String details, Severity severity, boolean modal, ChipsterDialog.DetailsVisibility detailsVisibility) {
+	public void showDialog(String title, String message, String details, Severity severity, boolean modal, ChipsterDialog.DetailsVisibility detailsVisibility, PluginButton button) {
 		DialogInfo dialogInfo = new DialogInfo(severity, title, message, details);
-		ChipsterDialog.showDialog(this, dialogInfo, detailsVisibility, modal);
+		ChipsterDialog.showDialog(this, dialogInfo, detailsVisibility, modal, null, button);
 	}
 
 	@Override

@@ -35,6 +35,7 @@ import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.dataimport.ImportSession;
 import fi.csc.microarray.client.dataimport.ImportUtils;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
+import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationCategory;
@@ -115,7 +116,7 @@ public abstract class ClientApplication {
 	public abstract void viewHelp(String id);
 	public abstract void viewHelpFor(OperationDefinition operationDefinition);
 	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal);
-	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility);
+	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility, PluginButton button);
 	public abstract void deleteDatas(DataItem... datas);	
 	public abstract void createLink(DataBean source, DataBean target, Link type);
 	public abstract void removeLink(DataBean source, DataBean target, Link type);
@@ -257,9 +258,10 @@ public abstract class ClientApplication {
 			// start listening to job events
 			taskExecutor.addChangeListener(jobExecutorChangeListener);
 
-			// client is now initialised
+			// definitions are now initialised
 			definitionsInitialisedLatch.countDown();
 			
+			// we can initialise graphical parts of the system
 			initialiseGUI();
 
 			// start heartbeat
@@ -275,11 +277,6 @@ public abstract class ClientApplication {
 
 			
 		} catch (Exception e) {
-			showDialog("Starting Chipster failed.", "There could be a problem with the network connection, or the remote services could be down. " +
-					"Please see the details below for more information about the problem.\n\n" + 
-					"Chipster also fails to start if there has been a version update with a change in configurations. In such case please delete Chipster application settings directory.",
-					e.toString(), Severity.ERROR, false);
-			
 			throw new MicroarrayException(e);
 		}
 

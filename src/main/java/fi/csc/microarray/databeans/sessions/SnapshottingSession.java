@@ -574,7 +574,7 @@ public class SnapshottingSession {
 		String title = "Obsolete content in the session";
 		String inputDataDesc = dataName != null ? ("When loading dataset " + dataName + ":\n") : "";
 		String completeDetails = inputDataDesc + details; 
-		application.showDialog(title, message, completeDetails, Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_VISIBLE);
+		application.showDialog(title, message, completeDetails, Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_VISIBLE, null);
 	}
 
 	private static String afterNthSpace(String line, int nth) {

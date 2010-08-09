@@ -21,6 +21,7 @@ import fi.csc.microarray.client.AtEndListener;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
+import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationCategory;
 import fi.csc.microarray.client.operation.OperationDefinition;
@@ -193,7 +194,7 @@ public class FSDataManagerTest {
 		}
 
 		@Override
-		public void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility) {
+		public void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility, PluginButton button) {
 		}
 
 		@Override
