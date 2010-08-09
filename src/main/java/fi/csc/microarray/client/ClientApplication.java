@@ -66,6 +66,7 @@ import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.SourceMessageListener;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
+import fi.csc.microarray.messaging.auth.ClientLoginListener;
 import fi.csc.microarray.module.DefaultModules;
 import fi.csc.microarray.module.Modules;
 import fi.csc.microarray.util.Files;
@@ -97,10 +98,10 @@ public abstract class ClientApplication {
     // 
 	// ABSTRACT INTERFACE
 	//
-	protected abstract AuthenticationRequestListener getAuthenticationRequestListener();
+	protected abstract void initialiseGUI() throws MicroarrayException, IOException;
+	protected abstract void taskCountChanged(int newTaskCount, boolean attractAttention);	
 	public abstract void reportException(Exception e);
 	public abstract void reportTaskError(Task job) throws MicroarrayException;
-	protected abstract void taskCountChanged(int newTaskCount, boolean attractAttention);	
 	public abstract void importGroup(Collection<ImportItem> datas, String folderName);
 	public abstract void showSourceFor(String operationName) throws TaskException;
 	public abstract void showHistoryScreenFor(DataBean data);
@@ -169,14 +170,22 @@ public abstract class ClientApplication {
     protected DataSelectionManager selectionManager;
     protected ServiceAccessor serviceAccessor;
 	protected TaskExecutor taskExecutor;
+	protected boolean isStandalone;
+	private AuthenticationRequestListener overridingARL;
 
     protected ClientConstants clientConstants;
     protected Configuration configuration;
 
 	public ClientApplication() {
+		this(false, null);
+	}
+
+	public ClientApplication(boolean isStandalone, AuthenticationRequestListener overridingARL) {
 		this.configuration = DirectoryLayout.getInstance().getConfiguration();
 		this.clientConstants = new ClientConstants();
-		this.serviceAccessor = new RemoteServiceAccessor();
+		this.serviceAccessor = isStandalone ? new LocalServiceAccessor() : new RemoteServiceAccessor();
+		this.isStandalone = isStandalone;
+		this.overridingARL = overridingARL;
 	}
     
 	protected void initialiseApplication() throws MicroarrayException, IOException {
@@ -245,12 +254,14 @@ public abstract class ClientApplication {
 			    }
 			}
 
-			// all operation definitions loaded
-			definitionsInitialisedLatch.countDown();
-			
 			// start listening to job events
 			taskExecutor.addChangeListener(jobExecutorChangeListener);
+
+			// client is now initialised
+			definitionsInitialisedLatch.countDown();
 			
+			initialiseGUI();
+
 			// start heartbeat
 			final Timer timer = new Timer(HEARTBEAT_DELAY, new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -261,6 +272,7 @@ public abstract class ClientApplication {
 			timer.setRepeats(true);
 			timer.setInitialDelay(0);
 			timer.start();
+
 			
 		} catch (Exception e) {
 			showDialog("Starting Chipster failed.", "There could be a problem with the network connection, or the remote services could be down. " +
@@ -705,6 +717,33 @@ public abstract class ClientApplication {
 
 	public TaskExecutor getTaskExecutor() {
 		return this.taskExecutor;
+	}
+	
+	protected AuthenticationRequestListener getAuthenticationRequestListener() {
+
+		AuthenticationRequestListener authenticator;
+
+		if (overridingARL != null) {
+			authenticator = overridingARL;
+		} else {
+			authenticator = new Authenticator();
+		}
+
+		authenticator.setLoginListener(new ClientLoginListener() {
+			public void firstLogin() {
+				try {
+					//initialiseGUI();
+				} catch (Exception e) {
+					reportException(e);
+				}
+			}
+
+			public void loginCancelled() {
+				System.exit(1);
+			}
+		});
+
+		return authenticator;
 	}
 	
 }

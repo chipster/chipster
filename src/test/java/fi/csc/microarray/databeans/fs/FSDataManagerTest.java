@@ -82,7 +82,7 @@ public class FSDataManagerTest {
 		manager2.loadSnapshot(snap, manager2.getRootFolder(), new DummyClientApplication());
 		
 		// check
-		DataFolder root1 = manager1.getRootFolder();
+//		DataFolder root1 = manager1.getRootFolder();
 		DataFolder root2 = manager2.getRootFolder();
 		
 		// TODO reimplement toStringRecursively here
@@ -284,6 +284,11 @@ public class FSDataManagerTest {
 		public void runWorkflow(URL workflowScript,
 				AtEndListener atEndListener) {
 			
+		}
+
+
+		@Override
+		protected void initialiseGUI() throws MicroarrayException, IOException {
 		}		
 	}
 }

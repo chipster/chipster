@@ -60,12 +60,12 @@ import fi.csc.microarray.client.dataview.TreePanel;
 import fi.csc.microarray.client.dialog.ChipsterDialog;
 import fi.csc.microarray.client.dialog.ClipboardImportDialog;
 import fi.csc.microarray.client.dialog.CreateFromTextDialog;
-import fi.csc.microarray.client.dialog.SequenceImportDialog;
-import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.dialog.DialogInfo;
 import fi.csc.microarray.client.dialog.ErrorDialogUtils;
 import fi.csc.microarray.client.dialog.ImportSettingsAccessory;
+import fi.csc.microarray.client.dialog.SequenceImportDialog;
 import fi.csc.microarray.client.dialog.SnapshotAccessory;
+import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.dialog.URLImportDialog;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
@@ -107,7 +107,6 @@ import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
-import fi.csc.microarray.messaging.auth.ClientLoginListener;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.util.BrowserLauncher;
 import fi.csc.microarray.util.Exceptions;
@@ -160,7 +159,6 @@ public class SwingClientApplication extends ClientApplication {
 
 	private SplashScreen splashScreen;
 	private ClientListener clientListener;
-	private AuthenticationRequestListener overridingARL;
 	private WaitGlassPane waitPanel = new WaitGlassPane();
 	
 	private static float fontSize = VisualConstants.DEFAULT_FONT_SIZE;
@@ -171,13 +169,12 @@ public class SwingClientApplication extends ClientApplication {
 	private JFileChooser snapshotFileChooser;
 	private JFileChooser workflowFileChooser;
 
-	public SwingClientApplication(ClientListener clientListener, AuthenticationRequestListener overridingARL, String module)
+	public SwingClientApplication(ClientListener clientListener, AuthenticationRequestListener overridingARL, String module, boolean isStandalone)
 	        throws MicroarrayException, IOException, IllegalConfigurationException {
 
-		super();
+		super(isStandalone, overridingARL);
 		
 		this.clientListener = clientListener;
-		this.overridingARL = overridingARL;
 		
         // Set the module that user wants to load
         setRequestedModule(module);
@@ -185,7 +182,7 @@ public class SwingClientApplication extends ClientApplication {
 		splashScreen = new SplashScreen(VisualConstants.SPLASH_SCREEN);
 		reportInitialisation("Initialising " + ApplicationConstants.APPLICATION_TITLE, true);
 
-		// we want to close the splash screen exception occurs
+		// we want to close the splash screen when exception occurs
 		try {
 			initialiseApplication();
 		} catch (Exception e) {
@@ -1274,7 +1271,7 @@ public class SwingClientApplication extends ClientApplication {
 		ClientListener shutdownListener = getShutdownListener();
 		
 		try {
-			new SwingClientApplication(shutdownListener, null, null);
+			new SwingClientApplication(shutdownListener, null, null, true);
 			
 		} catch (Throwable t) {
 			t.printStackTrace();
@@ -1315,7 +1312,7 @@ public class SwingClientApplication extends ClientApplication {
 		ClientListener shutdownListener = getShutdownListener();
 		
 		try {
-			new SwingClientApplication(shutdownListener, null, module);
+			new SwingClientApplication(shutdownListener, null, module, false);
 			
 		} catch (Throwable t) {
 			t.printStackTrace();
@@ -1413,34 +1410,6 @@ public class SwingClientApplication extends ClientApplication {
 		 * proposedName + "." + data.getContentType(); }
 		 */
 		return proposedName;
-	}
-
-	@Override
-	protected AuthenticationRequestListener getAuthenticationRequestListener() {
-
-		AuthenticationRequestListener authenticator;
-
-		if (overridingARL != null) {
-			authenticator = overridingARL;
-		} else {
-			authenticator = new Authenticator();
-		}
-
-		authenticator.setLoginListener(new ClientLoginListener() {
-			public void firstLogin() {
-				try {
-					initialiseGUI();
-				} catch (Exception e) {
-					reportException(e);
-				}
-			}
-
-			public void loginCancelled() {
-				System.exit(1);
-			}
-		});
-
-		return authenticator;
 	}
 
 	@Override

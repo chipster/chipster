@@ -8,9 +8,9 @@ import javax.jms.JMSException;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.databeans.DataManager;
 
-public class StandaloneTaskExecutor extends TaskExecutor {
+public class LocalTaskExecutor extends TaskExecutor {
 
-	protected StandaloneTaskExecutor(DataManager manager) throws JMSException {
+	public LocalTaskExecutor(DataManager manager) throws JMSException {
 		super(manager);
 	}
 
