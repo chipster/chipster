@@ -160,18 +160,18 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			importMenu = new JMenu();
 			importMenu.setText("Import from");
 			
-			if (application.getRequestedModule().equals(ClientApplication.MODULE_MICROARRAY)) {
+			if (ClientApplication.MODULE_MICROARRAY.equals(application.getRequestedModule())) {
 	            // Import options for microarray analysis
 			    importMenu.add(getImportFromArrayExpressMenuItem());
 			    importMenu.add(getImportFromGEOMenuItem());
-			} else if (application.getRequestedModule().equals(ClientApplication.MODULE_SEQUENCE)) {
+			} else if (ClientApplication.MODULE_SEQUENCE.equals(application.getRequestedModule())) {
 			    // Import options for sequence analysis
 	            importMenu.add(getImportSequenceMenuItem());
 			}
 			
 			importMenu.addSeparator();
 			
-            if (application.getRequestedModule().equals(ClientApplication.MODULE_SEQUENCE)) {
+            if (ClientApplication.MODULE_SEQUENCE.equals(application.getRequestedModule())) {
                 importMenu.add(getCreateFromText());
             }
 

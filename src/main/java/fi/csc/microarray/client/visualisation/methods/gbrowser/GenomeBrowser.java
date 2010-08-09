@@ -48,9 +48,6 @@ import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
-import fi.csc.microarray.messaging.MessagingEndpoint;
-import fi.csc.microarray.messaging.Topics;
-import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -591,9 +588,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener, Regi
 
 	private URL fetchAnnotationUrl() {
 		try {
-			MessagingEndpoint messagingEndpoint = Session.getSession().getMessagingEndpoint("client-endpoint");
-			FileBrokerClient fileBrokerClient = new FileBrokerClient(messagingEndpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
-			URL annotationUrl = new URL(fileBrokerClient.getPublicUrl() + "/" + ANNOTATION_URL_PATH);
+        	FileBrokerClient fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
+			URL annotationUrl = new URL(fileBroker.getPublicUrl() + "/" + ANNOTATION_URL_PATH);
 			return annotationUrl;
 
 		} catch (Exception e) {

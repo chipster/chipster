@@ -20,7 +20,7 @@ public class ACDToSADLTest {
     
     @BeforeSuite
     protected void setUp() throws Exception {
-        DirectoryLayout.initialiseClientLayout();
+        DirectoryLayout.initialiseSimpleLayout();
     }
 
     public static ACDDescription getTestDescription(String appName) {

@@ -102,6 +102,8 @@ public class AdminAPI {
 		adminTopic.setListener(adminListener);
 		this.nodeStatuses.put("authenticator", new NodeStatus("authenticator"));
 		this.nodeStatuses.put("analyser", new NodeStatus("analyser"));
+		this.nodeStatuses.put("filebroker", new NodeStatus("filebroker"));
+		this.nodeStatuses.put("manager", new NodeStatus("manager"));
 		this.nodeStatuses.put("client", new NodeStatus("client"));
 	}
 
@@ -165,7 +167,12 @@ public class AdminAPI {
 	private boolean areAlreadyUp() {
 		errorStatus = "";
 		boolean areUp = true;
-		
+
+		if (nodeStatuses.get("filebroker").status != NodeStatus.Status.UP) {
+			errorStatus += " filebroker(s) not up ";
+			areUp = false;
+		} 
+
 		if (nodeStatuses.get("analyser").status != NodeStatus.Status.UP) {
 			errorStatus += " analyser(s) not up ";
 			areUp = false;

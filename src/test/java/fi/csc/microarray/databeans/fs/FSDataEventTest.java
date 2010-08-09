@@ -23,7 +23,7 @@ public class FSDataEventTest implements DataChangeListener {
 	
 	@BeforeTest
 	public void init() throws IOException, IllegalConfigurationException {
-		DirectoryLayout.initialiseClientLayout().getConfiguration();
+		DirectoryLayout.initialiseSimpleLayout().getConfiguration();
 	}
 
 	@Test(groups = {"unit"} )

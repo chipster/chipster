@@ -318,7 +318,7 @@ public class OperationPanel extends JPanel
 		    if (!suitability.isOk()) {
 		        application.showDialog("Check parameters", suitability.toString(), "",
 		                               Severity.INFO, true,
-		                               DetailsVisibility.DETAILS_ALWAYS_HIDDEN);
+		                               DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
 		        return;
 		    }
 		    
