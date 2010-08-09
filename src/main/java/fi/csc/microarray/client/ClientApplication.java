@@ -731,11 +731,6 @@ public abstract class ClientApplication {
 
 		authenticator.setLoginListener(new ClientLoginListener() {
 			public void firstLogin() {
-				try {
-					//initialiseGUI();
-				} catch (Exception e) {
-					reportException(e);
-				}
 			}
 
 			public void loginCancelled() {
