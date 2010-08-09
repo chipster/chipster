@@ -106,7 +106,7 @@ public class ImportUtils {
 						"There seems to be ZIP files on your desktop. "
 						+ "This can slow down selecting files in some Windows versions. " 
 						+ "If you experience this problem, please move the ZIP files to a subfolder.", null, Type.OK_MESSAGE); 
-				ChipsterDialog.showDialog(null, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true, null);
+				ChipsterDialog.showDialog(null, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true, null, null);
 				zipDialogShown = true;
 			}
 		}

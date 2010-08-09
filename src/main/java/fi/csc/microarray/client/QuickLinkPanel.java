@@ -86,15 +86,16 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 		importLinks.add(importURLLink);
 		
 		// Microarray links
-		String linkTemplate = "\n      *** \n      *** \n      *** \n      *** \n      ***";
-		if (application.getRequestedModule().equals(ClientApplication.MODULE_MICROARRAY)) {
+		String linkTemplate = "\n      *** \n      *** \n      ***";
+		if (ClientApplication.MODULE_MICROARRAY.equals(application.getRequestedModule())) {
+			linkTemplate = "\n      *** \n      *** \n      *** \n      *** \n      ***";
 		    importLinks.add(importArrayExpressLink);
 		    importLinks.add(importGEOLink);
 		}
 		
 		// Sequence links
-		linkTemplate = "\n      *** \n      *** \n      *** \n      *** \n      ***";
-		if (application.getRequestedModule().equals(ClientApplication.MODULE_SEQUENCE)) {
+		if (ClientApplication.MODULE_SEQUENCE.equals(application.getRequestedModule())) {
+			linkTemplate = "\n      *** \n      *** \n      *** \n      *** \n      ***";
 	        importLinks.add(importSequenceLink);
 		    importLinks.add(importTextLink);
 		}

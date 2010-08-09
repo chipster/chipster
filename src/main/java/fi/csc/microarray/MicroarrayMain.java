@@ -36,6 +36,7 @@ public class MicroarrayMain {
 			// create args descriptions
 			CommandLineParser cmdParser = new CommandLineParser();
 			cmdParser.addParameter("client", false, false, null, "start client (default)");
+			cmdParser.addParameter("standalone", false, false, null, "start standalone client");
 			cmdParser.addParameter("authenticator", false, false, null, "start authenticator");
 			cmdParser.addParameter("fileserver", false, false, null, "start fileserver");
 			cmdParser.addParameter("analyser", false, false, null, "start analyser");
@@ -80,6 +81,9 @@ public class MicroarrayMain {
 			} else if (cmdParser.hasValue("manager")) {
 				new Manager(configURL);
 
+			} else if (cmdParser.hasValue("standalone")) {
+				SwingClientApplication.startStandalone();		
+				
 			} else if (cmdParser.hasValue("nagios-check") || cmdParser.hasValue("system-status")) {
 				
 				// query status
@@ -93,7 +97,7 @@ public class MicroarrayMain {
 							return "nagios-check";
 						}
 					};
-					DirectoryLayout.initialiseClientLayout().getConfiguration();       			    
+					DirectoryLayout.initialiseSimpleLayout().getConfiguration();       			    
 					MessagingEndpoint endpoint = new MessagingEndpoint(nodeSupport);
 					AdminAPI api = new AdminAPI(endpoint.createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ_WRITE), null);
 					api.setRequiredCountFor("analyser", requiredAnalyserCount);
