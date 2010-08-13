@@ -18,8 +18,8 @@ import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.client.dialog.ClipboardImportDialog;
 import fi.csc.microarray.client.dialog.RenameDialog;
-import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.selection.DataSelectionManager;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
@@ -29,8 +29,8 @@ import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameTyp
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataItem;
+import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
-import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.Files;
 
 @SuppressWarnings("serial")
@@ -48,10 +48,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenuItem directImportMenuItem = null;
 	private JMenuItem importFromURLMenuItem = null;
 	private JMenuItem importFromClipboardMenuItem = null;
-	private JMenuItem createFromTextMenuItem = null;
-	private JMenuItem importFromArrayExpressMenuItem = null;
-	private JMenuItem importFromGEOMenuItem = null;
-	private JMenuItem importSequenceMenuItem = null;
 	private JMenuItem openWorkflowsMenuItem = null;
 	private JMenuItem addDirMenuItem = null;
 	private JMenuItem exportMenuItem = null;
@@ -160,24 +156,11 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			importMenu = new JMenu();
 			importMenu.setText("Import from");
 			
-			if (ClientApplication.MODULE_MICROARRAY.equals(application.getRequestedModule())) {
-	            // Import options for microarray analysis
-			    importMenu.add(getImportFromArrayExpressMenuItem());
-			    importMenu.add(getImportFromGEOMenuItem());
-			} else if (ClientApplication.MODULE_SEQUENCE.equals(application.getRequestedModule())) {
-			    // Import options for sequence analysis
-	            importMenu.add(getImportSequenceMenuItem());
-			}
-			
-			importMenu.addSeparator();
-			
-            if (ClientApplication.MODULE_SEQUENCE.equals(application.getRequestedModule())) {
-                importMenu.add(getCreateFromText());
-            }
+			Module primaryModule = Session.getSession().getModules().getPrimaryModule();
+			primaryModule.addImportMenuItems(importMenu);
 
 			importMenu.add(getImportFromURLMenuItem());
 			importMenu.add(getImportFromClipboardMenuItem());
-			
 		}
 		return importMenu;
 	}
@@ -222,76 +205,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return importFromURLMenuItem;
 	}
 
-	private JMenuItem getImportFromArrayExpressMenuItem() {
-		if (importFromArrayExpressMenuItem == null) {
-			importFromArrayExpressMenuItem = new JMenuItem();
-			importFromArrayExpressMenuItem.setText("ArrayExpress...");
-			importFromArrayExpressMenuItem.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					try {
-						Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_ARRAYEXPRESS_ID), new DataBean[] {});
-						application.openDatabaseImport("ArrayExpress", importOperation);
-					} catch (Exception me) {
-						application.reportException(me);
-					}
-				}
-			});
-		}
-		return importFromArrayExpressMenuItem;
-	}
-
-	private JMenuItem getImportFromGEOMenuItem() {
-		if (importFromGEOMenuItem == null) {
-			importFromGEOMenuItem = new JMenuItem();
-			importFromGEOMenuItem.setText("GEO...");
-			importFromGEOMenuItem.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					try {
-						Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_GEO_ID), new DataBean[] {});
-						application.openDatabaseImport("GEO", importOperation);
-					} catch (Exception me) {
-						application.reportException(me);
-					}
-				}
-			});
-		}
-		return importFromGEOMenuItem;
-	}
-	
-    private JMenuItem getImportSequenceMenuItem() {
-        if (importSequenceMenuItem == null) {
-            importSequenceMenuItem = new JMenuItem();
-            importSequenceMenuItem.setText("Database...");
-            importSequenceMenuItem.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                    try {
-                        application.openSequenceImportDialog();
-                    } catch (Exception me) {
-                        application.reportException(me);
-                    }
-                }
-            });
-        }
-        return importSequenceMenuItem;
-    }
-
-	private JMenuItem getCreateFromText() {
-	    if (createFromTextMenuItem == null) {
-	        createFromTextMenuItem = new JMenuItem();
-	        createFromTextMenuItem.setText("Text...");
-	        createFromTextMenuItem.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                    try {
-                        application.openCreateFromTextDialog();
-                    } catch (Exception me) {
-                        application.reportException(me);
-                    }
-                }
-            });
-	    }
-	    return createFromTextMenuItem;
-	}
-	
 	private JMenuItem getHelpWorkflowMenuItem() {
 		if (helpWorkflowMenuItem == null) {
 			helpWorkflowMenuItem = new JMenuItem();
@@ -394,7 +307,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			importFromClipboardMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
-						application.openClipboardImport();
+						new ClipboardImportDialog(Session.getSession().getApplication());
 					} catch (Exception me) {
 						application.reportException(me);
 					}

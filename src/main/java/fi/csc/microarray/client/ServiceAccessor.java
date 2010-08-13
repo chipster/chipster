@@ -9,6 +9,7 @@ import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.messaging.SourceMessageListener;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.messaging.message.FeedbackMessage;
+import fi.csc.microarray.module.Module;
 
 /**
  * Interface that client uses to access services of the underlying infrastructure.
@@ -26,7 +27,7 @@ public interface ServiceAccessor {
 
 	public String checkRemoveServices() throws Exception;
 
-	public void fetchDescriptions(String module) throws Exception;
+	public void fetchDescriptions(Module primaryModule) throws Exception;
 
 	public Collection<OperationCategory> getVisibleCategories();
 

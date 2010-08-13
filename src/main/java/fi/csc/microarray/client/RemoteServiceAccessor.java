@@ -20,6 +20,7 @@ import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.FeedbackMessage;
+import fi.csc.microarray.module.Module;
 
 public class RemoteServiceAccessor implements ServiceAccessor {
 
@@ -59,8 +60,8 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 	}
 
 	@Override
-	public void fetchDescriptions(String module) throws Exception {
-        DescriptionMessageListener descriptionListener = new DescriptionMessageListener(module);
+	public void fetchDescriptions(Module module) throws Exception {
+        DescriptionMessageListener descriptionListener = new DescriptionMessageListener(module.getServerModuleName());
 		this.requestTopic.sendReplyableMessage(new CommandMessage(CommandMessage.COMMAND_DESCRIBE), descriptionListener);
 		descriptionListener.waitForResponse();
 		this.visibleCategories = descriptionListener.getVisibleCategories();

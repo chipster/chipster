@@ -31,7 +31,7 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataBean.DataBeanType;
+import fi.csc.microarray.databeans.DataBean.StorageMethod;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -153,7 +153,7 @@ public class SnapshottingSession {
 			for (DataBean bean: newURLs.keySet()) {
 
 				// set new url and handler and type
-				bean.setType(DataBeanType.LOCAL_SESSION);
+				bean.setStorageMethod(StorageMethod.LOCAL_SESSION);
 				bean.setContentUrl(newURLs.get(bean));
 				bean.setHandler(new ZipDataBeanHandler());
 			}
@@ -250,7 +250,7 @@ public class SnapshottingSession {
 		String beanId = fetchId(bean);
 		
 		// for now all data content goes to session --> type is local session
-		metadata.append("DATABEAN " + beanId + " " + newURL + " " + DataBeanType.LOCAL_SESSION + " " + bean.getRepositoryName() + "\n");
+		metadata.append("DATABEAN " + beanId + " " + newURL + " " + StorageMethod.LOCAL_SESSION + " " + bean.getRepositoryName() + "\n");
 		
 		if (bean.getOperation() != null) {
 			Operation operation = bean.getOperation();
@@ -359,9 +359,9 @@ public class SnapshottingSession {
 					String entryName = url.getRef();
 					
 					String typeString = split[3];
-					DataBeanType type;
+					StorageMethod type;
 					try {
-						type = DataBeanType.valueOf(typeString);
+						type = StorageMethod.valueOf(typeString);
 					} catch (IllegalArgumentException iae) {
 						//  FIXME 
 						logger.warn("unknown data bean type: " + typeString);

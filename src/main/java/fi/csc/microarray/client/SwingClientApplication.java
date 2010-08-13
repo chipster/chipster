@@ -181,7 +181,7 @@ public class SwingClientApplication extends ClientApplication {
 		logger = Logger.getLogger(SwingClientApplication.class);
 
         // set the module that user wants to load
-        setRequestedModule(module);
+        this.requestedModule = module;
 
         // show splash screen
 		splashScreen = new SplashScreen(VisualConstants.SPLASH_SCREEN);
@@ -238,9 +238,11 @@ public class SwingClientApplication extends ClientApplication {
 		}
 
 		// initialize the main frame
-		mainFrame = new JFrame();
+		this.mainFrame = new JFrame();
 		updateWindowTitle();
 		childScreens = new ChildScreenPool(mainFrame);
+		Frames frames = new Frames(mainFrame);
+		Session.getSession().setFrames(frames);
 
 		// Sets look 'n' feel
 		setPlastic3DLookAndFeel(mainFrame);
@@ -1199,23 +1201,6 @@ public class SwingClientApplication extends ClientApplication {
 			ImportUtils.getURLFileLoader().loadFileFromURL(selectedURL, file, importFolder, urlImportDlg.isSkipSelected());
 		}
 	}
-
-	public void openClipboardImport() throws MicroarrayException, IOException {
-		new ClipboardImportDialog(this);
-	}
-
-	public void openDatabaseImport(String title, Operation operation) throws MicroarrayException, IOException {
-		new TaskImportDialog(this, title, operation);
-	}
-	
-	public void openCreateFromTextDialog() throws MicroarrayException, IOException {
-	    new CreateFromTextDialog(this);
-	}
-	
-    public void openSequenceImportDialog() throws MicroarrayException, IOException {
-        new SequenceImportDialog(this);
-    }
-
 	
 	protected void quit() {
 		int returnValue = JOptionPane.DEFAULT_OPTION;

@@ -4,15 +4,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataBean.DataBeanType;
+import fi.csc.microarray.databeans.DataBean.StorageMethod;
 
 public abstract class DataBeanHandlerBase implements DataBeanHandler {
 
-	protected Set<DataBeanType> supportedDataBeanTypes;
+	protected Set<StorageMethod> supportedDataBeanTypes;
 	
-	protected DataBeanHandlerBase(DataBeanType... supportedTypes) {
-		this.supportedDataBeanTypes = new HashSet<DataBeanType>();
-		for (DataBeanType type: supportedTypes) {
+	protected DataBeanHandlerBase(StorageMethod... supportedTypes) {
+		this.supportedDataBeanTypes = new HashSet<StorageMethod>();
+		for (StorageMethod type: supportedTypes) {
 			this.supportedDataBeanTypes.add(type);
 		}
 	}
@@ -22,8 +22,8 @@ public abstract class DataBeanHandlerBase implements DataBeanHandler {
 			throw new IllegalArgumentException("DataBean is null.");
 		}
 		
-		if (!supportedDataBeanTypes.contains(dataBean.getType())) {
-			throw new IllegalArgumentException("Unsupported DataBean type: " + dataBean.getType());
+		if (!supportedDataBeanTypes.contains(dataBean.getStorageMethod())) {
+			throw new IllegalArgumentException("Unsupported DataBean type: " + dataBean.getStorageMethod());
 		}
 	}
 

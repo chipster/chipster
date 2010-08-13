@@ -17,16 +17,16 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.module.DefaultModules;
+import fi.csc.microarray.module.Modules;
 
 public class VisualiserTest {
 
 	private DataManager manager;
 	
-	public VisualiserTest() throws IOException, IllegalConfigurationException {
+	public VisualiserTest() throws IOException, IllegalConfigurationException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
 		this.manager = new DataManager();
-		DefaultModules.getDefaultModules().plugFeatures(manager);
+		new Modules("fi.csc.microarray.module.chipster.MicroarrayModule").plugFeatures(manager);
 	}
 
 	public static void main(String[] args) throws IOException, Exception {

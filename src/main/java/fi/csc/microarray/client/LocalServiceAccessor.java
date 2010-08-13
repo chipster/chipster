@@ -13,6 +13,7 @@ import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.messaging.SourceMessageListener;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.messaging.message.FeedbackMessage;
+import fi.csc.microarray.module.Module;
 
 public class LocalServiceAccessor implements ServiceAccessor {
 
@@ -29,7 +30,7 @@ public class LocalServiceAccessor implements ServiceAccessor {
 	}
 
 	@Override
-	public void fetchDescriptions(String module) throws Exception {
+	public void fetchDescriptions(Module primaryModule) throws Exception {
 		// do nothing
 	}
 
