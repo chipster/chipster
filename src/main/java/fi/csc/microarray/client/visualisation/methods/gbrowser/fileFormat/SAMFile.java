@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.sf.samtools.BAMFileIndexWriter;
 import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.util.CloseableIterator;
@@ -28,33 +27,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 public class SAMFile {
     
     private SAMFileReader reader;
-    
-    /**
-     * FIXME: deprecated, but used in GenomeBrowserStarter.
-     * 
-     * @param samFile
-     */
-    public SAMFile(File samFile) {
-        reader = new SAMFileReader(samFile);
-        if (!reader.hasIndex()) {
-            // Create an index file if it is missing
-            try {
-                // FIXME Number of references
-                // FIXME Slow...
-                BAMFileIndexWriter bamIndex = new BAMFileIndexWriter(
-                        new File(samFile.getAbsolutePath() + ".bai"), 1000);
-                bamIndex.createIndex(samFile, false, true);
-                bamIndex.writeBinary(true, samFile.length());
-                bamIndex.close();
-                // Reread the file
-                reader.close();
-                reader = new SAMFileReader(samFile);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-    
+
     /**
      * @param samFile - SAM or BAM file.
      * @param indexFile - SAM index file (usually with .bai extension).
@@ -137,6 +110,7 @@ public class SAMFile {
         int step = request.getLength().intValue() / SAMPLE_GRANULARITY;
         int sampleSize = (int)(step * SAMPLE_FRACTION);
         
+        System.out.println("going to iterate");
         for (long pos = request.start.bp; pos < request.end.bp; pos += step) {
             CloseableIterator<SAMRecord> iterator =
                 reader.query(request.start.chr.toString(),
