@@ -1,5 +1,9 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
+/**
+ * Result with content for some view area. The tree layers uses these results to send content back to view layer.
+ *
+ */
 public class AreaResult<T> {
 
 	public FsfStatus status;

@@ -11,6 +11,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDraw
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 
+/**
+ * The basic view of genome browser. 
+ *
+ */
 public class HorizontalView extends View {
 
 	public HorizontalView(GenomePlot parent, boolean movable, boolean zoomable, boolean selectable) {
@@ -22,12 +26,14 @@ public class HorizontalView extends View {
 
 		super.drawView(g, isAnimation);
 
+		// show current position on top of chromosome
 		if (highlight != null) {
 			g.setPaint(new Color(0, 0, 0, 64));
 			Rectangle rect = g.getClip().getBounds();
 
 			rect.x = bpToTrack(highlight.start);
 			rect.width = Math.max(1, bpToTrack(highlight.end) - rect.x);
+			rect.height = 24;
 			g.fill(rect);
 		}
 	}
@@ -61,24 +67,16 @@ public class HorizontalView extends View {
 
 		RectDrawable rect = (RectDrawable) drawable;
 
+		// Draw fill
 		if (rect.color != null) {
-
-			if (rect.lineColor == null) {
-				rect.x -= 1;
-				// rect.y -= 1;
-				rect.width += 2;
-				// rect.height += 2;
-			}
-
-			g.setPaint(drawable.color);
+			g.setPaint(rect.color);
 			g.fillRect(rect.x + x, rect.y + y, rect.width, rect.height);
-
 		}
 
 		// Draw outline after fill to make sure that it stays continuous
-		if (drawable.color != null) {
+		if (rect.lineColor != null) {
 			g.setPaint(rect.lineColor);
-			g.drawRect(rect.x + x, rect.y + y, rect.width, rect.height);
+			g.drawRect(rect.x + x, rect.y + y, rect.width-1, rect.height-1);
 		}
 	}
 

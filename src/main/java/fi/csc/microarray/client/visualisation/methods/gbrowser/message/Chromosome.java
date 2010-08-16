@@ -1,5 +1,8 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
+/**
+ * Chrosome coordinate. 
+ */
 public class Chromosome implements Comparable<Chromosome> {
 
 	private String chr;

@@ -5,10 +5,15 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
@@ -16,11 +21,14 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * Track for genes.
+ *
+ */
 public class GeneTrack extends Track {
 
 	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
@@ -29,12 +37,12 @@ public class GeneTrack extends Track {
 	private long maxBpLength;
 	private long minBpLength;
 
-	private boolean wasLastConcised = true;
 	private Color color;
 
 
-	public GeneTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler, FileParser inputParser, Color color, long minBpLength, long maxBpLength) {
-		super(view, file, handler, inputParser);
+	public GeneTrack(View view, ChunkDataSource file, Class<? extends AreaRequestHandler> handler,
+	        Color color, long minBpLength, long maxBpLength) {
+		super(view, file, handler);
 		this.color = color;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
@@ -53,8 +61,8 @@ public class GeneTrack extends Track {
 
 				RegionContent read = iter.next();
 
+				// FIXME this and all the other incarnations of the same 3 lines should be refactored up to Track or something
 				if (!read.region.intercepts(getView().getBpRegion())) {
-
 					iter.remove();
 					continue;
 				}
@@ -111,30 +119,39 @@ public class GeneTrack extends Track {
 		}
 	}
 
-
 	@Override
-	public void updateData() {
-		if (wasLastConcised != isConcised()) {
-			reads.clear();
-			wasLastConcised = isConcised();
-		}
-		super.updateData();
-	}
-
-	@Override
-	public int getMaxHeight() {
-		if (getView().getBpRegion().getLength() > minBpLength && getView().getBpRegion().getLength() <= maxBpLength) {
-			return super.getMaxHeight();
-			
+	public Integer getHeight() {
+		if (isVisible()) {
+			return super.getHeight();
 		} else {
 			return 0;
 		}
 	}
+	   
+    @Override
+    public boolean isStretchable() {
+        // stretchable unless hidden
+        return isVisible();
+    }
+    
+    @Override
+    public boolean isVisible() {
+        // visible region is not suitable
+        return (super.isVisible() &&
+                getView().getBpRegion().getLength() > minBpLength &&
+                getView().getBpRegion().getLength() <= maxBpLength);
+    }    
 
-	@Override
-	public Collection<ColumnType> getDefaultContents() {
-		return Arrays.asList(new ColumnType[] { ColumnType.STRAND, ColumnType.DESCRIPTION, ColumnType.VALUE });
-	}
+    @Override
+    public Map<DataSource, Set<ColumnType>> requestedData() {
+        HashMap<DataSource, Set<ColumnType>> datas = new
+        HashMap<DataSource, Set<ColumnType>>();
+        datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+                ColumnType.STRAND,
+                ColumnType.DESCRIPTION,
+                ColumnType.VALUE })));
+        return datas;
+    }
 
 	@Override
 	public boolean isConcised() {

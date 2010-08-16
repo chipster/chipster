@@ -8,7 +8,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -23,15 +22,17 @@ public class QueueManager implements AreaResultListener {
 
 	private Map<DataSource, QueueContext> queues = new HashMap<DataSource, QueueContext>();
 
-	public void createQueue(DataSource file, Class<? extends AreaRequestHandler> dataFetcher, FileParser inputParser) {
+	public void createQueue(DataSource file, Class<? extends AreaRequestHandler> dataFetcher) {
 
 		if (!queues.containsKey(file)) {
 			QueueContext context = new QueueContext();
 			context.queue = new ConcurrentLinkedQueue<AreaRequest>();
 			try {
-				context.thread = dataFetcher.getConstructor(DataSource.class, Queue.class, AreaResultListener.class, FileParser.class).
-
-				newInstance(file, context.queue, this, inputParser);
+			    // create a thread which is an instance of class which is passed
+			    // as data fetcher to this method
+				context.thread = dataFetcher.getConstructor(DataSource.class,
+				        Queue.class, AreaResultListener.class).
+				        newInstance(file, context.queue, this);
 
 				queues.put(file, context);
 				context.thread.start();
@@ -40,6 +41,15 @@ public class QueueManager implements AreaResultListener {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	/**
+	 * Remove queue for the given data source.
+	 * 
+	 * @param file
+	 */
+	public void removeQueue(DataSource file) {
+	    queues.remove(file);
 	}
 
 	public void addAreaRequest(DataSource file, AreaRequest req, boolean clearQueues) {

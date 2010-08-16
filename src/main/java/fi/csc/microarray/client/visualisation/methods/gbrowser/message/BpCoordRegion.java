@@ -1,5 +1,9 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
+/**
+ * Region of genome limited by two BpCoord locations. 
+ *
+ */
 public class BpCoordRegion implements Comparable<BpCoordRegion> {
 	public BpCoord start;
 	public BpCoord end;
@@ -45,7 +49,7 @@ public class BpCoordRegion implements Comparable<BpCoordRegion> {
 	}
 
 	public boolean intercepts(BpCoordRegion other) {
-		return other.end.compareTo(start) > 0 && other.start.compareTo(end) < 0;
+		return other.end.compareTo(start) >= 0 && other.start.compareTo(end) <= 0;
 	}
 
 	public BpCoordRegion intercept(BpCoordRegion other) {
