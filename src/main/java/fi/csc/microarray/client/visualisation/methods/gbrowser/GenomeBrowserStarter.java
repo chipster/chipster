@@ -12,10 +12,9 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
 import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.SAMHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SequenceParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
@@ -33,10 +32,11 @@ public class GenomeBrowserStarter {
 	private static final File MACS_DATA_FILE;
 	private static final File WIG_DATA_FILE;
 	private static final File URL_ROOT;
-
+	private static final String annotationPath;
+	
 	static {
 		
-		String annotationPath = "/home/" + System.getProperty("user.name") + "/chipster-share/";
+		annotationPath = "/home/" + System.getProperty("user.name") + "/chipster-share/";
 		
 		ELAND_DATA_FILE = new File(annotationPath, "/ngs/STAT1/STAT1_treatment_aggregated_filtered_sorted_chr1.txt");
 		MACS_DATA_FILE = new File(annotationPath, "/ngs/STAT1/STAT1_peaks_sorted.bed");
@@ -78,8 +78,8 @@ public class GenomeBrowserStarter {
 		TrackFactory.addThickSeparatorTrack(plot);
 		TrackFactory.addReadTracks(
 				plot, 
-				new ChunkDataSource(ELAND_DATA_FILE, new ElandParser()),
-				ChunkTreeHandlerThread.class,
+				new SAMDataSource(new File(annotationPath + "/ngs/RNA-seq/pairedEnd_Berger/501Mel.sorted.bam"), new File(annotationPath + "/ngs/RNA-seq/pairedEnd_Berger/501Mel.sorted.bam.bai")),
+				SAMHandlerThread.class,
 				new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_seq.tsv", new SequenceParser()),
 				"Reads"
 		);
