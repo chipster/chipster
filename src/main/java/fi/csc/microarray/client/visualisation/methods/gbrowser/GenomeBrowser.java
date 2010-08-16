@@ -787,7 +787,7 @@ public class GenomeBrowser extends Visualisation implements
 		    gidt = gia.getLocation(locationField.getText().toUpperCase());
 		    
 		    if (gidt == null) {
-		    	application.showDialog("Error", "Gene with such name was not found", null, null, false, null);
+		    	application.showDialog("Error", "Gene with such name was not found", null, null, false, null, null);
 		    } else {
 		    	chrBox.setSelectedItem(gidt.chromosome.toString());
 			    plot.moveDataBpRegion(new Chromosome((String)chrBox.getSelectedItem()),
