@@ -7,7 +7,7 @@
 
 # convert-cn-probes-to-genes.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-06-07
+# 2010-08-16
 
 dat <- read.table('aberrations.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 
@@ -19,6 +19,9 @@ if (length(setdiff(pos, colnames(dat)))!=0)
 genes <- read.table(paste('http://www.cangem.org/download.php?platform=CG-PLM-26&flag=', genome.build, sep=''), sep='\t', header=TRUE, row.names=1, as.is=TRUE)
 colnames(genes) <- tolower(colnames(genes))
 colnames(genes)[colnames(genes)=='chr'] <- 'chromosome'
+
+# remove genes from chromosomes not present in the array data
+genes <- genes[genes$chromosome %in% dat$chromosome,]
 
 # define the functions for calculating gene copy numbers from probe copy numbers
 unambiguous <- function(values) {
