@@ -1,6 +1,7 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
 /**
+ * Possible column types.
  * 
  * @author Petri Klemelä
  * 

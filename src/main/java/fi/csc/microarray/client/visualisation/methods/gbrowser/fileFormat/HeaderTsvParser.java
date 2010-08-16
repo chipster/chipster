@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -28,7 +29,7 @@ public class HeaderTsvParser extends TsvParser {
 	}
 
 	@Override
-	public String[] getFirstRow(String chunk) {
+	public String[] getFirstRow(Chunk chunk) {
 		return super.getFirstRow(filterChunk(chunk));
 	}
 
@@ -43,7 +44,7 @@ public class HeaderTsvParser extends TsvParser {
 	}
 
 	@Override
-	public RegionContent[] concise(String chunk) {
+	public RegionContent[] concise(Chunk chunk) {
 		return new RegionContent[] {};
 	}
 
@@ -60,28 +61,31 @@ public class HeaderTsvParser extends TsvParser {
 	}
 	
 	@Override
-	public List<RegionContent> getAll(String chunk, Collection<ColumnType> requestedContents) {
+	public List<RegionContent> getAll(Chunk chunk, Collection<ColumnType> requestedContents) {
 		return super.getAll(filterChunk(chunk), requestedContents);
 	}
 
 	@Override
-	public BpCoordRegion getBpRegion(String chunk) {
+	public BpCoordRegion getBpRegion(Chunk chunk) {
 		return super.getBpRegion(filterChunk(chunk));
 	};
 	
 	@Override
-	public String[] getLastRow(String chunk) {
+	public String[] getLastRow(Chunk chunk) {
 		return super.getLastRow(filterChunk(chunk));
 	};
 	
 	
-	private String filterChunk(String chunk) {
-		String newChunk = "";
-		for (String row : chunk.split("\n")) {
+	private Chunk filterChunk(Chunk chunk) {
+		String filtered = "";
+		for (String row : chunk.getContent().split("\n")) {
 			if (!row.startsWith("chr\tstart")) {
-				newChunk += (row + "\n");
+				filtered += (row + "\n");
 			}
 		}
+		
+		Chunk newChunk = chunk.clone();
+		newChunk.setContent(filtered);
 		return newChunk;
 	}
 }

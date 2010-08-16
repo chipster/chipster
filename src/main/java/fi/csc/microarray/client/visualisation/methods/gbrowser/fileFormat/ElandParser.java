@@ -7,10 +7,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * File produced by ELAND (Efficient Large-scale Alignment of Nucleotide
+ * Databases) program.
+ *
+ */
 public class ElandParser extends TsvParser {
 
 	public ElandParser() {
@@ -30,7 +36,7 @@ public class ElandParser extends TsvParser {
 	}
 		
 	@Override
-	public RegionContent[] concise(String chunk) {
+	public RegionContent[] concise(Chunk chunk) {
 
 		long totalF = 0;
 		long totalR = 0;
@@ -60,13 +66,11 @@ public class ElandParser extends TsvParser {
 	}
 	
 	@Override
-	public List<RegionContent> getAll(String chunk, Collection<ColumnType> requestedContents) {
+	public List<RegionContent> getAll(Chunk chunk, Collection<ColumnType> requestedContents) {
 
 		List<RegionContent> rows = new LinkedList<RegionContent>();
 		
-		long readLength = ((String)get(getFirstRow(chunk), ColumnType.SEQUENCE)).length();
-
-		for (String row : chunk.split("\n")) {
+		for (String row : chunk.getContent().split("\n")) {
 			
 			Map<ColumnType, Object> values = new HashMap<ColumnType, Object>();
 			
@@ -79,6 +83,7 @@ public class ElandParser extends TsvParser {
 			
 			Long start = (Long)get(cols, ColumnType.BP_START);
 			Chromosome chr = (Chromosome)get(cols, ColumnType.CHROMOSOME);
+			long readLength = ((String)get(cols, ColumnType.SEQUENCE)).length();
 	
 			rows.add(new RegionContent(new BpCoordRegion(start, start + readLength, chr), values));
 
