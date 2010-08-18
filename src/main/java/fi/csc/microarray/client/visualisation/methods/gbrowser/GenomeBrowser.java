@@ -693,6 +693,7 @@ public class GenomeBrowser extends Visualisation implements
 
 	private void updateLocation() {
 		
+		
 		GeneIndexDataType gidt = new GeneIndexDataType();
         if (gia.checkIfNumber(locationField.getText()) == false){
 
