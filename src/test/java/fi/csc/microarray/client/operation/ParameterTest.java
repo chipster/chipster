@@ -34,7 +34,7 @@ public class ParameterTest {
     
     @BeforeSuite
     protected void setUp() throws Exception {
-        DirectoryLayout.initialiseClientLayout();
+        DirectoryLayout.initialiseSimpleLayout();
     }
     
     @BeforeClass

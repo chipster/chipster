@@ -150,9 +150,23 @@ public class DecimalParameter extends Parameter {
 
 	@Override
 	public void parseValue(String stringValue) throws IllegalArgumentException {
+        
+        // Empty string means that no value is set
+        // This is possible for non-required parameters
+	    System.out.print(this.getID() + " ");
+	    System.out.print (stringValue + " ");
+	    System.out.println(stringValue == null || stringValue.equals(""));
+	    System.out.print ("--");
+        if (stringValue == null || stringValue.equals("")) {
+            
+            setValue(null);
+            
+            return;
+        }
+        
+        // Otherwise string should represent a decimal
 		try {
 			setValue(Double.parseDouble(stringValue));
-			
 		} catch (NumberFormatException e) {
 			throw new IllegalArgumentException("cannot parse String value \"" + stringValue + "\"");
 		}
@@ -160,6 +174,6 @@ public class DecimalParameter extends Parameter {
 
 	@Override
 	public String getValueAsString() {
-		return value.toString();
+	    return value != null ? value.toString() : "";
 	}
 }

@@ -33,6 +33,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  * Basically this track shows the same information as ProfileTrack, but in a
  * different format.
  * 
+ * If track's strand is set to Strand.BOTH, number of reads on both strands
+ * are summed up.
+ * 
  * @author naktinis
  *
  */
@@ -43,7 +46,6 @@ public class GelTrack extends Track {
 
     private Collection<RegionContent> reads = new TreeSet<RegionContent>();
     private TreeMap<Long, Long> collector = new TreeMap<Long, Long>();
-    private boolean wasLastConsised = true;
     private Color color;
     
     private Color BACKGROUND = Color.WHITE;
@@ -154,19 +156,9 @@ public class GelTrack extends Track {
     }
 
     @Override
-    public void updateData() {
-
-        if (wasLastConsised != isConcised()) {
-            reads.clear();
-            wasLastConsised = isConcised();
-        }
-        super.updateData();
-    }
-
-    @Override
     public Integer getHeight() {
         if (isVisible()) {
-            return super.getHeight();
+            return 16;
         } else {
             return 0;
         }

@@ -36,6 +36,7 @@ public class MicroarrayMain {
 			// create args descriptions
 			CommandLineParser cmdParser = new CommandLineParser();
 			cmdParser.addParameter("client", false, false, null, "start client (default)");
+			cmdParser.addParameter("standalone", false, false, null, "start standalone client");
 			cmdParser.addParameter("authenticator", false, false, null, "start authenticator");
 			cmdParser.addParameter("fileserver", false, false, null, "start fileserver");
 			cmdParser.addParameter("analyser", false, false, null, "start analyser");
@@ -53,6 +54,9 @@ public class MicroarrayMain {
 			// parse commandline
 			cmdParser.parse(args);
 			
+			// configuration file path
+			String configURL = cmdParser.getValue("-config");
+			
 			// give help, if needed
 			if (cmdParser.userAskedHelp()) {
 				System.out.println("Chipster " + ApplicationConstants.NAMI_VERSION);
@@ -63,20 +67,23 @@ public class MicroarrayMain {
 
 			// start application
 			if (cmdParser.hasValue("authenticator")) {
-				new Authenticator();
+				new Authenticator(configURL);
 				
 			} else if (cmdParser.hasValue("analyser")) {
-				new AnalyserServer();
+				new AnalyserServer(configURL);
 
 			} else if (cmdParser.hasValue("fileserver")) {
-				new FileServer();
+				new FileServer(configURL);
 			
 			} else if (cmdParser.hasValue("webstart")) {
 				new WebstartJettyServer().start();
 			
 			} else if (cmdParser.hasValue("manager")) {
-				new Manager();
+				new Manager(configURL);
 
+			} else if (cmdParser.hasValue("standalone")) {
+				SwingClientApplication.startStandalone();		
+				
 			} else if (cmdParser.hasValue("nagios-check") || cmdParser.hasValue("system-status")) {
 				
 				// query status
@@ -90,7 +97,7 @@ public class MicroarrayMain {
 							return "nagios-check";
 						}
 					};
-					DirectoryLayout.initialiseClientLayout().getConfiguration();       			    
+					DirectoryLayout.initialiseSimpleLayout().getConfiguration();       			    
 					MessagingEndpoint endpoint = new MessagingEndpoint(nodeSupport);
 					AdminAPI api = new AdminAPI(endpoint.createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ_WRITE), null);
 					api.setRequiredCountFor("analyser", requiredAnalyserCount);
@@ -155,7 +162,7 @@ public class MicroarrayMain {
 				System.out.println("parse succeeded: " + !fails);
 				
 			} else {
-				SwingClientApplication.start(cmdParser.getValue("-config"), cmdParser.getValue("-module")); 		
+				SwingClientApplication.start(configURL, cmdParser.getValue("-module"));		
 			}
 			
 		} catch (CommandLineException e) {

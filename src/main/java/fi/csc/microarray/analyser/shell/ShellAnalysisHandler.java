@@ -71,7 +71,8 @@ public class ShellAnalysisHandler implements AnalysisHandler {
             }
             
             // Initiate description and set some basic values
-            ad = new AnalysisDescriptionGenerator().generate(new ChipsterSADLParser().parse(sadlString, descriptionFilename), this);
+            ad = new AnalysisDescriptionGenerator().generate(
+                    new ChipsterSADLParser().parse(sadlString), this);
             ad.setSADL(sadlString);
             
             // Command to be executed is stored in configuration file

@@ -187,16 +187,10 @@ public class CytobandTrack extends Track {
 		if (getView().getBpRegion().intercepts(areaResult.content.region)) {
 
 			this.bands.add(areaResult.content);
-			getView().redraw();		
+			getView().redraw();
 		}
 
 		//		 this.reads.addAll(result.collection);
-	}
-
-	@Override
-	public void updateData() {
-		// bands.clear();
-		super.updateData();
 	}
 
 	@Override

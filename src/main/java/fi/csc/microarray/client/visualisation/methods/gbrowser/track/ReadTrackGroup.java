@@ -4,17 +4,24 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedList;
-import java.util.List;
 
 import javax.swing.JCheckBox;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.TrackFactory;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptTrack.PartColor;
 
+/**
+ * Tracks containing information about reads: sequences themselves, gel,
+ * profile etc.
+ * 
+ * @author naktinis
+ *
+ */
 public class ReadTrackGroup extends TrackGroup implements ActionListener {
     
     // Constants
@@ -29,11 +36,13 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
     protected IntensityTrack readOverviewReversed;
     protected SeqBlockTrack readsReversed;
     protected ProfileTrack profileTrack;
+    protected AcidProfile acidTrack;
     protected GelTrack gelTrack;
     
     // Track switches
     private JCheckBox showGel = new JCheckBox("Gel track", true);
     private JCheckBox showProfile = new JCheckBox("Profile track", true);
+    private JCheckBox showAcid = new JCheckBox("Nucleic acids", true);
     private JCheckBox showSNP = new JCheckBox("Highlight SNP", false);
     
     // Reference sequence
@@ -83,29 +92,37 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
                 Color.BLACK, PartColor.CDS.c, 0, SWITCH_VIEWS_AT);
         profileTrack.setStrand(Strand.BOTH);
         
+        // Acid profile
+        acidTrack = new AcidProfile(view, userData, userDataHandler,
+                0, SHOW_REFERENCE_AT);
+        acidTrack.setStrand(Strand.FORWARD);        
+        
+        
         // Gel
         gelTrack = new GelTrack(view, userData, userDataHandler,
                 Color.WHITE, 0, SWITCH_VIEWS_AT);
         gelTrack.setStrand(Strand.BOTH);
         
+        // Add tracks to this group
+        addTracks();
+        
         // Add switches
         this.menu.addItem(showGel);
         this.menu.addItem(showProfile);
+        this.menu.addItem(showAcid);
         this.menu.addItem(showSNP);
-        //int startDrawing = 25;
-        //showGel.setBounds(5, startDrawing, 100, 20);
-        //showProfile.setBounds(5, startDrawing + 25, 100, 20);
-        //showSNP.setBounds(5, startDrawing + 50, 100, 20);
         showGel.addActionListener(this);
         showProfile.addActionListener(this);
+        showAcid.addActionListener(this);
         showSNP.addActionListener(this);
         this.setMenuVisible(true);
     }
     
-    @Override
-    public List<Track> getTracks() {
+    private void addTracks() {
         // Construct the list according to visibility
-        List<Track> tracks = new LinkedList<Track>();
+        this.tracks = new LinkedList<Track>();
+        // Top separator
+        tracks.add(TrackFactory.createThickSeparatorTrack(view));
         tracks.add(titleTrack);
         tracks.add(readOverview);
         tracks.add(reads);
@@ -126,13 +143,16 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
             tracks.add(profileTrack);
         }
         
+        if (showAcid.isSelected()) {
+        	tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT));
+            tracks.add(acidTrack);
+        }
+        
         // Only draw separator if gel track is visible
         if (showGel.isSelected()) {
             tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT));
             tracks.add(gelTrack);
         }
-
-        return tracks;
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -141,6 +161,9 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
             view.redraw();
         } else if (e.getSource() == showProfile) {
             profileTrack.setVisible(showProfile.isSelected());
+            view.redraw();
+        } else if (e.getSource() == showAcid) {
+            acidTrack.setVisible(showAcid.isSelected());
             view.redraw();
         } else if (e.getSource() == showSNP && hasReference) {
             if (showSNP.isSelected()) {

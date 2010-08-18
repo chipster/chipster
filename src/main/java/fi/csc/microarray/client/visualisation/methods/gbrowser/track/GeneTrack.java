@@ -37,7 +37,6 @@ public class GeneTrack extends Track {
 	private long maxBpLength;
 	private long minBpLength;
 
-	private boolean wasLastConcised = true;
 	private Color color;
 
 
@@ -118,16 +117,6 @@ public class GeneTrack extends Track {
 
 			getView().redraw();
 		}
-	}
-
-
-	@Override
-	public void updateData() {
-		if (wasLastConcised != isConcised()) {
-			reads.clear();
-			wasLastConcised = isConcised();
-		}
-		super.updateData();
 	}
 
 	@Override

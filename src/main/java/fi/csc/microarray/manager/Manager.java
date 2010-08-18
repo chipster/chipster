@@ -34,10 +34,12 @@ import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.MonitoredNodeBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
+import fi.csc.microarray.messaging.message.FeedbackMessage;
 import fi.csc.microarray.messaging.message.JobLogMessage;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
+import fi.csc.microarray.util.Emails;
 import fi.csc.microarray.util.MemUtil;
 
 /**
@@ -76,6 +78,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 
     private JdbcTemplate jdbcTemplate;
     private SimpleJdbcInsert insertJobTemplate;
+    private String feedbackEmail;
 
 	// TODO index, unique keys
 	private static final String CREATE_JOBS_TABLE = 
@@ -114,12 +117,17 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 	 * @throws ClassNotFoundException 
 	 * @throws SQLException 
 	 */
-	public Manager() throws MicroarrayException, JMSException, IOException, IllegalConfigurationException, ClassNotFoundException, SQLException {
+	public Manager(String configURL) throws MicroarrayException, JMSException,
+	        IOException, IllegalConfigurationException,
+	        ClassNotFoundException, SQLException {
 		
 		// initialise dir and logging
-		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"manager"}));
+		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"manager"}), configURL);
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 		logger = Logger.getLogger(Manager.class);
+		
+		// email for sending feedback
+		feedbackEmail = configuration.getString("manager", "admin-email");
 		
 		// initialize database connection
 		logger.info("starting manager...");
@@ -184,8 +192,13 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		// initialize communications
 		this.endpoint = new MessagingEndpoint(this);
 		
-		MessagingTopic managerTopic = endpoint.createTopic(Topics.Name.MANAGER_TOPIC, AccessMode.READ);
-		managerTopic.setListener(this);
+		// listen for job log messages
+		MessagingTopic jobLogTopic = endpoint.createTopic(Topics.Name.JOB_LOG_TOPIC, AccessMode.READ);
+		jobLogTopic.setListener(this);
+		
+	    // listen for feedback messages
+        MessagingTopic feedbackTopic = endpoint.createTopic(Topics.Name.FEEDBACK_TOPIC, AccessMode.READ);
+        feedbackTopic.setListener(this);
 
 		// start web console
 		Server server;
@@ -210,30 +223,52 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 	/**
 	 * Process incoming message.  
 	 */
-	public void onChipsterMessage(ChipsterMessage namiMessage) {
+	public void onChipsterMessage(ChipsterMessage chipsterMessage) {
 		
-		if (!(namiMessage instanceof JobLogMessage)) {
-			logger.warn("Got other than JobLogMessage: " + namiMessage.toString());
-			return;
-		}
-		
-		JobLogMessage jobLogMessage = (JobLogMessage)namiMessage;
-		try {
-		    Map<String, Object> parameters = new HashMap<String, Object>();
-		    parameters.put("id", jobLogMessage.getJobId());
-		    parameters.put("operation", jobLogMessage.getOperation());
-			parameters.put("status", jobLogMessage.getState().toString()); 
-			parameters.put("starttime", jobLogMessage.getStartTime()); 
-			parameters.put("endtime", jobLogMessage.getEndTime());
-			parameters.put("wallclockTime", (jobLogMessage.getEndTime().getTime() - jobLogMessage.getStartTime().getTime()) / 1000);
-			parameters.put("errorMessage", jobLogMessage.getErrorMessage());
-			parameters.put("outputText", jobLogMessage.getOutputText()); 
-			parameters.put("username", jobLogMessage.getUsername());
-			parameters.put("compHost", jobLogMessage.getCompHost());
-			
-			this.insertJobTemplate.execute(parameters);
-		} catch (Exception e) {
-			logger.error("Could not insert log entry", e);
+		if (chipsterMessage instanceof JobLogMessage) {
+		    // log information about some job ran by a user
+	        JobLogMessage jobLogMessage = (JobLogMessage)chipsterMessage;
+	        try {
+	            Map<String, Object> parameters = new HashMap<String, Object>();
+	            parameters.put("id", jobLogMessage.getJobId());
+	            parameters.put("operation", jobLogMessage.getOperation());
+	            parameters.put("status", jobLogMessage.getState().toString()); 
+	            parameters.put("starttime", jobLogMessage.getStartTime()); 
+	            parameters.put("endtime", jobLogMessage.getEndTime());
+	            parameters.put("wallclockTime", (jobLogMessage.getEndTime().getTime() - jobLogMessage.getStartTime().getTime()) / 1000);
+	            parameters.put("errorMessage", jobLogMessage.getErrorMessage());
+	            parameters.put("outputText", jobLogMessage.getOutputText()); 
+	            parameters.put("username", jobLogMessage.getUsername());
+	            parameters.put("compHost", jobLogMessage.getCompHost());
+	            
+	            this.insertJobTemplate.execute(parameters);
+	        } catch (Exception e) {
+	            logger.error("Could not insert log entry", e);
+	        }
+		} else if (chipsterMessage instanceof FeedbackMessage) {
+		    // user gives feedback after seeing an error message
+		    FeedbackMessage feedback = (FeedbackMessage) chipsterMessage;
+		    logger.info("Feedback received: " + feedback.getDetails());
+		    
+		    // formulate an email
+		    String replyEmail = !feedback.getEmail().equals("") ?
+		            feedback.getEmail() : "[not available]";
+		    String sessURL = !feedback.getSessionURL().equals("") ? 
+		            feedback.getSessionURL() : "[not available]";
+		    String emailBody =
+		        feedback.getDetails() + "\n\n" +
+		        "Email: " + replyEmail + "\n" +
+		        "Session file: " + sessURL + "\n";		    
+		    for (String[] log : feedback.getLogs()) {
+                emailBody += log[0] + ": " + log[1] + "\n";
+            }
+		    // send the email
+		    Emails.sendEmail(feedbackEmail,
+		            !feedback.getEmail().equals("") ? feedback.getEmail() : null,
+		            "User report", emailBody);
+		} else {
+	        logger.warn("Got other than JobLogMessage: " + chipsterMessage.toString());
+	        return; 
 		}
 	}
 

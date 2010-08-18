@@ -30,6 +30,10 @@ public class BpCoordRegionDouble implements Comparable<BpCoordRegionDouble> {
 		this(null, null);
 	}
 
+	public BpCoordRegionDouble(BpCoordRegion reg) {
+		this((double)reg.start.bp, reg.start.chr, (double)reg.end.bp, reg.end.chr);
+	}
+
 	public double getLength() {
 		return end.minus(start);
 	}

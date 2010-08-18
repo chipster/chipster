@@ -21,6 +21,7 @@ import fi.csc.microarray.client.AtEndListener;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
+import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationCategory;
 import fi.csc.microarray.client.operation.OperationDefinition;
@@ -43,7 +44,7 @@ public class FSDataManagerTest {
 
 	@BeforeSuite
 	public void init() throws IOException, IllegalConfigurationException {
-		DirectoryLayout.initialiseClientLayout().getConfiguration();
+		DirectoryLayout.initialiseSimpleLayout().getConfiguration();
 	}
 	
 	@Test
@@ -82,7 +83,7 @@ public class FSDataManagerTest {
 		manager2.loadSnapshot(snap, manager2.getRootFolder(), new DummyClientApplication());
 		
 		// check
-		DataFolder root1 = manager1.getRootFolder();
+//		DataFolder root1 = manager1.getRootFolder();
 		DataFolder root2 = manager2.getRootFolder();
 		
 		// TODO reimplement toStringRecursively here
@@ -193,7 +194,7 @@ public class FSDataManagerTest {
 		}
 
 		@Override
-		public void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility) {
+		public void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility, PluginButton button) {
 		}
 
 		@Override
@@ -284,6 +285,11 @@ public class FSDataManagerTest {
 		public void runWorkflow(URL workflowScript,
 				AtEndListener atEndListener) {
 			
+		}
+
+
+		@Override
+		protected void initialiseGUI() throws MicroarrayException, IOException {
 		}		
 	}
 }

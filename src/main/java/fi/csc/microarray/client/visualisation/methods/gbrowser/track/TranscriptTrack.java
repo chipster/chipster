@@ -225,19 +225,7 @@ public class TranscriptTrack extends Track {
 		}
 	}
 
-	private boolean wasLastConsied = true;
-
 	private long maxBpLength;
-
-	@Override
-	public void updateData() {
-		
-		if (wasLastConsied != isConcised()) {
-			genes.clear();
-			wasLastConsied = isConcised();
-		}
-		super.updateData();
-	}
 
 	public Integer getHeight() {
 		if (isVisible()) {

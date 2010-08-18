@@ -40,7 +40,9 @@ import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.SAMHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDReadParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
@@ -54,15 +56,14 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Annotatio
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Row;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.LinkUtils;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
 import fi.csc.microarray.gbrowser.index.GeneIndexDataType;
-import fi.csc.microarray.messaging.MessagingEndpoint;
-import fi.csc.microarray.messaging.Topics;
-import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -100,7 +101,7 @@ public class GenomeBrowser extends Visualisation implements
 		"Y",
 	};
 	
-	private static final long[] CHROMOSOME_SIZES = new long[] {
+	public static final long[] CHROMOSOME_SIZES = new long[] {
 		247199719L,	
 		242751149L,
 		199446827L,
@@ -156,17 +157,25 @@ public class GenomeBrowser extends Visualisation implements
 		JCheckBox checkBox; 
 		String name;
 		DataBean userData;
+		TrackGroup trackGroup = null;
 
 		public Track(String name, TrackType type) {
 			this.name = name;
 			this.type = type;
-			
 		}
 
 		public Track(String name, TrackType type, DataBean userData) {
 			this(name, type);
 			this.userData = userData;
 		}
+		
+		public void setTrackGroup(TrackGroup trackGroup) {
+		    this.trackGroup = trackGroup;
+		}
+		
+        public TrackGroup getTrackGroup() {
+            return trackGroup;
+        }
 	}
 
 	private final ClientApplication application = Session.getSession().getApplication();
@@ -187,6 +196,9 @@ public class GenomeBrowser extends Visualisation implements
 	private JTextField zoomField = new JTextField(10);
 	private JComboBox chrBox = new JComboBox();
 	private JComboBox genomeBox = new JComboBox();
+	
+	private Object lastChromosome;
+	
 	// private JRadioButton horizView;
 	// private JRadioButton circularView;
 	private GridBagConstraints settingsGridBagConstraints;
@@ -473,12 +485,11 @@ public class GenomeBrowser extends Visualisation implements
 						        createAnnotationDataSource("Homo_sapiens.GRCh37.57_karyotype.tsv", new CytobandParser()));
 						break;
 					case GENES:
-						TrackFactory.addThickSeparatorTrack(plot);
-						TrackFactory.addTitleTrack(plot, "Annotations");
-						TrackFactory.addGeneTracks(plot,
+						TrackGroup geneGroup = TrackFactory.addGeneTracks(plot,
 						        createAnnotationDataSource("Homo_sapiens." + genome + "_genes.tsv", new GeneParser()),
 						        createAnnotationDataSource("Homo_sapiens." + genome + "_transcripts.tsv", new TranscriptParser()),
 						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv", new SequenceParser()));
+						track.setTrackGroup(geneGroup);
 						break;
 					case REFERENCE:
 						// integrated into peaks
@@ -491,23 +502,26 @@ public class GenomeBrowser extends Visualisation implements
 			}
 
 			// add selected treatment read tracks
+			// TODO is there actually any difference for us if reads are "treatment" or "control"?
 			for (Track track : tracks) {
 				if (track.checkBox.isSelected()) {
-					File file = track.userData == null ? null : Session.getSession().getDataManager().getLocalFile(track.userData);
+
+				    File file = track.userData == null ? null : Session.getSession().getDataManager().getLocalFile(track.userData);
 					DataSource treatmentData;
 					switch (track.type) {
 
 					case TREATMENT_READS:
-					    treatmentData = new ChunkDataSource(file, new ElandParser());
-						TrackFactory.addThickSeparatorTrack(plot);
-						TrackFactory.addReadTracks(plot, treatmentData,
-						        // FIXME Decide correct handler thread
-						        ChunkTreeHandlerThread.class,
+					    treatmentData = createReadDataSource(track.userData);
+						TrackGroup readGroup = TrackFactory.addReadTracks(plot, treatmentData,
+						        createReadHandler(file),
 						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv",
 						        new SequenceParser()), file.getName());
+						track.setTrackGroup(readGroup);
 						break;
 
 					case TREATMENT_BED_READS:
+					    // TODO Is this still used? If yes, update this code (according
+					    //      to TREATMENT_READS case)
 					    treatmentData = new ChunkDataSource(file, new BEDReadParser());
 						TrackFactory.addThickSeparatorTrack(plot);
 						TrackFactory.addReadTracks(plot, treatmentData,
@@ -528,13 +542,12 @@ public class GenomeBrowser extends Visualisation implements
 					switch (track.type) {
 
 					case CONTROL_READS:
-		                controlData = new ChunkDataSource(file, new ElandParser());
-						TrackFactory.addThickSeparatorTrack(plot);
-						TrackFactory.addReadTracks(plot, controlData,
-                                // FIXME Decide correct handler thread
-						        ChunkTreeHandlerThread.class,
+		                controlData = createReadDataSource(track.userData);
+						TrackGroup readGroup = TrackFactory.addReadTracks(plot, controlData,
+                                createReadHandler(file),
 						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv",
 						        new SequenceParser()), file.getName());
+                        track.setTrackGroup(readGroup);
 						break;
 					}
 				}
@@ -572,6 +585,9 @@ public class GenomeBrowser extends Visualisation implements
 			// initialise the plot
 			updateLocation();
 			plot.addDataRegionListener(this);
+			
+			// remember the chromosome, so we know if it has changed
+            lastChromosome = chrBox.getSelectedItem();
 
 			// wrap it in a panel
 			chartPanel.setChart(new JFreeChart(plot));
@@ -597,6 +613,53 @@ public class GenomeBrowser extends Visualisation implements
 			application.reportException(e);
 		}
 	}
+	
+	/**
+	 * Create DataSource either for SAM/BAM or ELAND data files.
+	 * 
+	 * @param file
+	 * @return
+	 */
+	public DataSource createReadDataSource(DataBean data) {
+	    DataSource dataSource = null;
+
+	    try {
+	        // Convert data bean into file
+	        File file = data == null ? null : Session.getSession().getDataManager().getLocalFile(data);
+	        
+	        if (file.getName().contains(".bam") || file.getName().contains(".sam")) {
+	            // Find the index file from the operation
+	            // FIXME what about index files for bam files that are not
+	            //       created during preprocessing?
+	            DataBean indexBean = null;
+	            for (DataBean bean : LinkUtils.retrieveOutputSet(data)) {
+	                if (bean.getName().endsWith(".bai")) {
+	                    indexBean = bean;
+	                }
+	            }
+	            File indexFile = Session.getSession().getDataManager().getLocalFile(indexBean);
+	            dataSource = new SAMDataSource(file, indexFile);
+	        } else {
+	            dataSource = new ChunkDataSource(file, new ElandParser());
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	    return dataSource;
+	}
+	
+    /**
+     * Create AreaRequestHandler either for SAM/BAM or ELAND data files.
+     * 
+     * @param file
+     * @return
+     */
+    public Class<?extends AreaRequestHandler> createReadHandler(File file) {
+        if (file.getName().contains(".bam") || file.getName().contains(".sam")) {
+            return SAMHandlerThread.class;
+        }
+        return ChunkTreeHandlerThread.class;
+    }
 
 	public ChunkDataSource createAnnotationDataSource(String file, TsvParser fileParser)
 	        throws FileNotFoundException, MalformedURLException {
@@ -610,9 +673,8 @@ public class GenomeBrowser extends Visualisation implements
 
 	private URL fetchAnnotationUrl() {
 		try {
-			MessagingEndpoint messagingEndpoint = Session.getSession().getMessagingEndpoint("client-endpoint");
-			FileBrokerClient fileBrokerClient = new FileBrokerClient(messagingEndpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
-			URL annotationUrl = new URL(fileBrokerClient.getPublicUrl() + "/" + ANNOTATION_URL_PATH);
+        	FileBrokerClient fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
+			URL annotationUrl = new URL(fileBroker.getPublicUrl() + "/" + ANNOTATION_URL_PATH);
 			return annotationUrl;
 
 		} catch (Exception e) {
@@ -654,6 +716,7 @@ public class GenomeBrowser extends Visualisation implements
 
 			if (data.isContentTypeCompatitible("text/plain")) {
 				// reads
+			    // FIXME does it really have to be named "control" and "treatment"?
 				if (data.getName().contains("control")) {
 					interpretations.add(TrackType.CONTROL_READS);
 				} else {
@@ -672,9 +735,13 @@ public class GenomeBrowser extends Visualisation implements
 				// peaks (with header in the file)
 				interpretations.add(TrackType.PEAKS_WITH_HEADER);
 
+			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
+			           (data.getName().contains(".bam") || data.getName().contains(".sam"))) {
+	            // FIXME does not have to be "control"
+                interpretations.add(TrackType.CONTROL_READS);
 			} else {
-				// cannot interpret, visualisation not available for this selection
-				return null;
+	             // cannot interpret, visualisation not available for this selection
+	             return null;
 			}
 		}
 
@@ -691,38 +758,57 @@ public class GenomeBrowser extends Visualisation implements
 		return true;
 	}
 
+	/**
+	 * Update genome browser to location given in the location panel.
+	 * 
+	 * If chromosome changes, reinitialize everything (because some old
+	 * information is left inside the tracks). Otherwise, simply move
+	 * currently viewed bp region.
+	 * 
+	 * TODO Instead of showVisualisation, clean track contents. This is
+	 * nicer because we don't have to reinitialize the tracks and track
+	 * group options are saved.
+	 */
 	private void updateLocation() {
-		
-		
+
+        // Chromosome changed - redraw (alternatively we could clean track contents)
+        if (lastChromosome != chrBox.getSelectedItem()) {
+            showVisualisation();
+            return;
+        }
+        
+        // Only position within chromosome changed
 		GeneIndexDataType gidt = new GeneIndexDataType();
-        if (gia.checkIfNumber(locationField.getText()) == false){
+        if (!gia.checkIfNumber(locationField.getText())) {
 
 		    gidt = gia.getLocation(locationField.getText().toUpperCase());
 		    
-		    if (gidt == null){
-		    	application.showDialog("Error", "Gene with such name was not found", null, null, false, null);
-		    }
-		    else {
+		    if (gidt == null) {
+		    	application.showDialog("Error", "Gene with such name was not found", null, null, false, null, null);
+		    } else {
 		    	chrBox.setSelectedItem(gidt.chromosome.toString());
 			    plot.moveDataBpRegion(new Chromosome((String)chrBox.getSelectedItem()),
 			    		(gidt.bpend+gidt.bpstart)/2, (gidt.bpend - gidt.bpstart)*2);
 		    }
-        }
-        else{
-	        // TODO check format
-            try{
-	            plot.moveDataBpRegion(new Chromosome((String)chrBox.getSelectedItem()), Long.parseLong(locationField.getText()),
-	                    Long.parseLong(zoomField.getText()));
-	        	}
-	        	catch (NumberFormatException e){
-	        		application.reportException(e);
-	        	}
+        } else {
+            try {
+                plot.moveDataBpRegion(new Chromosome((String)chrBox.getSelectedItem()),
+                        Long.parseLong(locationField.getText()),
+                        Long.parseLong(zoomField.getText()));
+	        } catch (NumberFormatException e) {
+                application.reportException(e);
+	        }
         }
         
-        // set scale of profile track containing reads information
+        // Set scale of profile track containing reads information
         this.plot.setReadScale((ReadScale) this.profileScaleBox.getSelectedItem());
         
-        // TODO: should also be able to enable/disable track groups for data files
+        // Enable/disable track groups for data files
+        for (Track track : tracks) {
+            if (track.getTrackGroup() != null) {
+                track.getTrackGroup().setVisible(track.checkBox.isSelected());
+            }
+        }
 	}
 
 	public void focusGained(FocusEvent e) {
@@ -742,7 +828,8 @@ public class GenomeBrowser extends Visualisation implements
     }
 
     public void componentResized(ComponentEvent arg0) {
-        this.showVisualisation();
+        this.updateLocation();
+        plot.redraw();
     }
 
     public void componentShown(ComponentEvent arg0) {

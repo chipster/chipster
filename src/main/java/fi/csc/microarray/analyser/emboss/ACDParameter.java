@@ -10,6 +10,8 @@ import org.apache.regexp.RE;
 import org.emboss.jemboss.parser.AcdFunResolve;
 import org.emboss.jemboss.parser.ParseAcd;
 
+import fi.csc.microarray.description.SADLDescription.Name;
+
 /**
  * Represents a single ACD parameter (simple, input, output, list etc.)
  * 
@@ -282,10 +284,6 @@ public class ACDParameter {
             if (ACDParameter.detectParameterGroup(getType()) ==
                 ACDParameter.PARAM_GROUP_OUTPUT) {
                 extension = ".txt";
-            } else if (ACDParameter.detectParameterGroup(getType()) ==
-                       ACDParameter.PARAM_GROUP_GRAPHICS) {
-                // Somehow applications adds this ".1" suffix for png files
-                extension = ".1.png";
             }
         }
         
@@ -296,6 +294,23 @@ public class ACDParameter {
         }
         
         return getName() + "." + suffix + extension;
+    }
+    
+    /**
+     * Return a name object for some graphics parameter. This
+     * is useful because sometimes a program can generate
+     * several graphics files for one parameter.
+     * 
+     * Valid only for parameters of some graph type.
+     * 
+     * @return Name object if this is a graph parameter, null otherwise.
+     */
+    public Name getGraphicsName() {
+        if (ACDParameter.detectParameterGroup(getType()) ==
+            ACDParameter.PARAM_GROUP_GRAPHICS) {
+            return Name.createNameSet(getName(), ".png");
+        }
+        return null;
     }
     
     /**
@@ -439,7 +454,11 @@ public class ACDParameter {
             resolvedExp = resolver.getResult();
         }
 
-        if (!(exp.equals(resolvedExp))) {
+        if (!(exp.equals(resolvedExp))) {            
+            // Hack booleans back
+            resolvedExp = resolvedExp.equals("true") ? "Y" : resolvedExp;
+            resolvedExp = resolvedExp.equals("false") ? "N" : resolvedExp;
+                
             return resolveExp(resolvedExp, map);
         } else {
             // No changes were made - stop the recursion
@@ -460,7 +479,7 @@ public class ACDParameter {
                                "discretestates", "distances", "features", "filelist",
                                "frequencies", "infile", "matrix", "matrixf", "pattern",
                                "properties", "regexp", "scop", "sequence", "seqall", "seqset",
-                               "seqsetall", "seqsetall"};
+                               "seqsetall", "seqsetall", "tree"};
         String typesList[] = {"list", "selection"};
         String typesOutput[] = {"align", "featout", "outcodon", "outcpdb", "outdata",
                                 "outdir", "outdiscrete", "outdistance", "outfile", "outfileall",

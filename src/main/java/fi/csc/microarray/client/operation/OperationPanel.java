@@ -318,7 +318,7 @@ public class OperationPanel extends JPanel
 		    if (!suitability.isOk()) {
 		        application.showDialog("Check parameters", suitability.toString(), "",
 		                               Severity.INFO, true,
-		                               DetailsVisibility.DETAILS_ALWAYS_HIDDEN);
+		                               DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
 		        return;
 		    }
 		    
@@ -571,6 +571,12 @@ public class OperationPanel extends JPanel
 		}
 	}
 	
+	/**
+	 * Reevaluate the sutability of parameter values
+	 * and inputs.
+	 * 
+	 * @return
+	 */
 	private Suitability evaluateSuitability() {
 		if (chosenOperation == null) {
 			return Suitability.IMPOSSIBLE;
@@ -578,27 +584,8 @@ public class OperationPanel extends JPanel
 		
 		// Check input dataset suitability
 		Suitability suitability = chosenOperation.evaluateSuitabilityFor(
-		        application.getSelectionManager().getSelectedDataBeans());
-		
-		// Get parameters so we could check if required
-		// parameters aren't empty
-		List<Parameter> params;
-		if (chosenOperation instanceof Operation) {
-		    params = ((Operation)chosenOperation).getParameters();
-		} else {
-		    params = ((OperationDefinition)chosenOperation).getParameters();
-		}
-        
-        // Check parameter suitability
-        for (Parameter param : params) {
-            // Required parameters can not be empty
-            if (!param.isOptional() && (param.getValue() == null ||
-                                        param.getValue().equals(""))) {
-                if (suitability.isOk()) {
-                    return Suitability.EMPTY_REQUIRED_PARAMETERS;
-                }
-            }
-        }
+		        application.getSelectionManager().getSelectedDataBeans(),
+		        Suitability.SUITABLE);
 		
 		return suitability;
 	}

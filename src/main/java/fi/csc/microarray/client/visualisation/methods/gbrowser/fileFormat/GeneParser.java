@@ -3,7 +3,12 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 import java.util.Arrays;
 
 /**
- * DOCME What is this for?
+ * DOCME
+ * 
+ * Parser class for reading the gene annotation files in our internal format. Only the number and
+ * content of columns is different between these annotation files. That's why all the functionality
+ * of parser is implemented already in the super classes and this class contains only the
+ * description of columns.
  *
  */
 public class GeneParser extends AnnotationTsvParser{

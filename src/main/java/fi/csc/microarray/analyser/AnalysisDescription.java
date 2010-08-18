@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.messaging.message.JobMessage;
 
 
@@ -54,14 +55,20 @@ public class AnalysisDescription {
 	 * Describes an output (parameter name and file name). 
 	 */
 	public static class OutputDescription {
-        private String fileName;
+        private Name fileName;
+        private boolean optional;
 
-        public String getFileName() {
+        public Name getFileName() {
             return fileName;
         }
+        
+        public boolean isOptional() {
+            return optional;
+        }
 	    
-	    public OutputDescription(String fileName) {
+	    public OutputDescription(Name fileName, boolean optional) {
 	        this.fileName = fileName;
+	        this.optional = optional;
 	    }
 	}
 	
@@ -229,8 +236,8 @@ public class AnalysisDescription {
 		inputFiles.add(new InputDescription(fileName));
 	}
 	
-	public void addOutputFile(String fileName) {
-		outputFiles.add(new OutputDescription(fileName));
+	public void addOutputFile(Name fileName, boolean optional) {
+		outputFiles.add(new OutputDescription(fileName, optional));
 	}
 
 	public void setSourceCode(String sourceCode) {

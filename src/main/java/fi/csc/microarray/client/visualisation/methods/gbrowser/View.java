@@ -48,7 +48,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
  */
 public abstract class View implements MouseListener, MouseMotionListener, MouseWheelListener {
 
-	protected BpCoordRegionDouble bpRegion;
+	public BpCoordRegionDouble bpRegion;
 	public BpCoordRegion highlight;
 
 	public Collection<TrackGroup> trackGroups = new LinkedList<TrackGroup>();
@@ -113,11 +113,16 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	
 	/**
 	 * Get tracks contained in track groups as a linear collection.
+	 * 
+	 * Only return tracks within visible groups.
 	 */
 	public Collection<Track> getTracks() {
 	    Collection<Track> tracks = new LinkedList<Track>();
         for (TrackGroup trackGroup : trackGroups) {
-            tracks.addAll(trackGroup.getTracks());
+            // Only return tracks within visible groups
+            if (trackGroup.isVisible()) {
+                tracks.addAll(trackGroup.getTracks());
+            }
         }
         return tracks;
 	}
@@ -126,12 +131,14 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		
 		BpCoord max = null;
 		
-		for (Track t : getTracks()) {
-			
-			BpCoord trackMax = t.getMaxBp(bpRegion.start.chr);
-			
-			if (trackMax != null && (max == null || max.compareTo(trackMax) > 0)) {
-				max = trackMax;
+		if (bpRegion != null) {
+			for (Track t : getTracks()) {
+
+				BpCoord trackMax = t.getMaxBp(bpRegion.start.chr);
+
+				if (trackMax != null && (max == null || max.compareTo(trackMax) > 0)) {
+					max = trackMax;
+				}
 			}
 		}
 		
@@ -188,6 +195,10 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
             trackIter = group.getTracks().iterator();
             drawableIter = null;
             
+            if (!group.isVisible()) {
+                continue;
+            }
+            
             // draw side menu
             if (group.isMenuVisible()) {
                 group.menu.setPosition((int) (viewArea.getX() + viewArea.getWidth()),
@@ -203,7 +214,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
     
                 // draw drawable objects for visible tracks
                 if (track.isVisible()) {
-                     
+                    
                     // decide if we will expand drawable for this track
                     boolean expandDrawables = track.canExpandDrawables();
                                        
@@ -262,11 +273,11 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
                         drawableIter = null;
                     }
                     
+                    y += track.getHeight();
+                    
                 } else {
                     drawableIter = null;
-                }
-                
-                y += track.getHeight();
+                }               
             }
         }
         
@@ -308,7 +319,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		int staticHeightTotal = 0;
 
 		for (Track track : getTracks()) {
-			if (!track.isStretchable()) {
+			if (track.isVisible() && !track.isStretchable()) {
 				staticHeightTotal += track.getHeight();
 			}
 		}
@@ -412,6 +423,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	}
 
 	public void setBpRegion(BpCoordRegionDouble region, boolean disableDrawing) {
+		
 		this.bpRegion = region;
 
 		// Bp-region change may change visibility of tracks, calculate sizes again
@@ -452,7 +464,11 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	public void mouseReleased(MouseEvent e) {
 
-		if (dragStarted && dragEndPoint != null && dragLastStartPoint != null && Math.abs(dragEndPoint.getX() - dragLastStartPoint.getX()) > 10 && System.currentTimeMillis() - dragEventTime < DRAG_EXPIRATION_TIME_MS) {
+		if (dragStarted && 
+				dragEndPoint != null && 
+				dragLastStartPoint != null && 
+				Math.abs(dragEndPoint.getX() - dragLastStartPoint.getX()) > 10 
+				&& System.currentTimeMillis() - dragEventTime < DRAG_EXPIRATION_TIME_MS) {
 
 			stopAnimation();
 
@@ -488,7 +504,10 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	public void mouseDragged(MouseEvent e) {
 		
-		if (movable) {
+		if (movable && 
+				((dragStartPoint != null && viewArea.contains(dragStartPoint) || 
+						viewArea.contains(e.getPoint() )))) {
+			
 			dragStarted = true;
 			dragEndPoint = scale(e.getPoint());
 			dragEventTime = System.currentTimeMillis();
@@ -550,12 +569,6 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 		// not all views are zoomed (e.g., the overview with cytoband) 
 		if (zoomable) {
-			
-			// zoom out
-			//if (wheelRotation > 0) {
-		    // DOCME why?
-			//	lockedX = (int) getWidth() - lockedX + getX() * 2;
-			//}
 
 			BpCoordDouble pointerBp = trackToBp(lockedX);
 			double pointerRelative = trackToRelative(lockedX);

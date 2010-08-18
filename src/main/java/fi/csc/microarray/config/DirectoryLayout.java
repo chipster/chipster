@@ -43,13 +43,25 @@ public class DirectoryLayout {
 		CLIENT,
 		SERVER;
 	}
+	
+	public enum AvailableConfiguration {
+		NONE,
+		DEFAULTS,
+		FULL
+	}
 
 	private Type type;
 	private Configuration configuration = null;
-	private boolean hasConfig;
+	private AvailableConfiguration availableConfiguration;
 	private static DirectoryLayout instance;
+	
+	public static DirectoryLayout initialiseServerLayout(List<String> specificModules)
+	        throws IOException, IllegalConfigurationException {
+	    return initialiseServerLayout(specificModules, null);
+	}
 
-	public static DirectoryLayout initialiseServerLayout(List<String> specificModules) throws IOException, IllegalConfigurationException {
+	public static DirectoryLayout initialiseServerLayout(List<String> specificModules,
+	        String configURL) throws IOException, IllegalConfigurationException {
 		synchronized (DirectoryLayout.class) {
 			if (DirectoryLayout.instance != null) {
 				throw new IllegalStateException("already initialised");
@@ -57,7 +69,7 @@ public class DirectoryLayout {
 			List<String> configModules = new LinkedList<String>(); 
 			configModules.addAll(Arrays.asList(new String[] {"messaging", "security"}));
 			configModules.addAll(specificModules);
-			DirectoryLayout.instance = new DirectoryLayout(Type.SERVER, null, configModules, true);
+			DirectoryLayout.instance = new DirectoryLayout(Type.SERVER, configURL, configModules, AvailableConfiguration.FULL);
 			return DirectoryLayout.instance;
 		}
 	}
@@ -67,13 +79,23 @@ public class DirectoryLayout {
 			if (DirectoryLayout.instance != null) {
 				throw new IllegalStateException("already initialised");
 			}
-			DirectoryLayout.instance = new DirectoryLayout(Type.CLIENT, null, Arrays.asList(new String[] {"messaging", "security"}), false);
+			DirectoryLayout.instance = new DirectoryLayout(Type.CLIENT, null, Arrays.asList(new String[] {"messaging", "security"}), AvailableConfiguration.NONE);
 			return DirectoryLayout.instance;
 		}
 	}
 
-	public static DirectoryLayout initialiseClientLayout() throws IOException, IllegalConfigurationException {
+	public static DirectoryLayout initialiseSimpleLayout() throws IOException, IllegalConfigurationException {
 		return initialiseClientLayout(null);
+	}
+
+	public static DirectoryLayout initialiseStandaloneClientLayout() throws IOException, IllegalConfigurationException {
+		synchronized (DirectoryLayout.class) {
+			if (DirectoryLayout.instance != null) {
+				throw new IllegalStateException("already initialised");
+			}
+			DirectoryLayout.instance = new DirectoryLayout(Type.CLIENT, null, Arrays.asList(new String[] {"messaging", "security", "client"}), AvailableConfiguration.DEFAULTS);
+			return DirectoryLayout.instance;
+		}
 	}
 
 	public static DirectoryLayout initialiseClientLayout(String configURL) throws IOException, IllegalConfigurationException {
@@ -81,7 +103,7 @@ public class DirectoryLayout {
 			if (DirectoryLayout.instance != null) {
 				throw new IllegalStateException("already initialised");
 			}
-			DirectoryLayout.instance = new DirectoryLayout(Type.CLIENT, configURL, Arrays.asList(new String[] {"messaging", "security", "client"}), true);
+			DirectoryLayout.instance = new DirectoryLayout(Type.CLIENT, configURL, Arrays.asList(new String[] {"messaging", "security", "client"}), AvailableConfiguration.FULL);
 			return DirectoryLayout.instance;
 		}
 	}
@@ -95,20 +117,31 @@ public class DirectoryLayout {
 		}
 	}
 	
-	private DirectoryLayout(Type type, String configURL, List<String> configModules, boolean hasConfig) throws IOException, IllegalConfigurationException {
+	private DirectoryLayout(Type type, String configURL, List<String> configModules, AvailableConfiguration availableConfiguration) throws IOException, IllegalConfigurationException {
 		this.type = type;
-		this.hasConfig = hasConfig;
+		this.availableConfiguration = availableConfiguration;
 		
 		System.setProperty(LOGS_DIR_SYSTEM_PROPERTY, getLogsDir().getAbsolutePath()); // NOTE: NO LOGGING IS TO BE DONE BEFORE THIS!
 		System.setProperty(SECURITY_DIR_SYSTEM_PROPERTY, getSecurityDir().getAbsolutePath());
 		
-		if (hasConfig) {
-			System.setProperty(CONF_DIR_SYSTEM_PROPERTY, getConfDir().getAbsolutePath()); 
-			if (configURL == null) {
-				this.configuration = new Configuration(getConfDir(), configModules);
-			} else {
-				this.configuration = new Configuration(new URL(configURL), configModules);
-			}
+		switch (availableConfiguration) {
+			case DEFAULTS:
+				this.configuration = new Configuration(configModules);
+				break;
+				
+			case FULL:
+				// check if config comes from file or from URL
+				if (configURL == null) {
+					System.setProperty(CONF_DIR_SYSTEM_PROPERTY, getConfDir().getAbsolutePath()); 
+					this.configuration = new Configuration(getConfDir(), configModules);
+				} else {
+					this.configuration = new Configuration(new URL(configURL), configModules);
+				}
+				break;
+				
+			case NONE:
+				// do nothing
+				break;
 		}
 	}
 
@@ -127,7 +160,7 @@ public class DirectoryLayout {
 	}
 	
 
-	private File getLogsDir() throws IOException {
+	public File getLogsDir() throws IOException {
 		return check(new File(getBaseDir(), LOGS_DIR));
 	}
 
@@ -200,7 +233,7 @@ public class DirectoryLayout {
 		}
 	}
 	
-	private File getClientSettingsDir() throws IOException {
+	public File getClientSettingsDir() throws IOException {
 		File dir = null;
 		String osName = System.getProperty("os.name");
 
@@ -273,7 +306,7 @@ public class DirectoryLayout {
 	}	
 
 	private void checkConfiguration() {
-		if (!hasConfig) {
+		if (availableConfiguration == AvailableConfiguration.NONE) {
 			throw new IllegalStateException("directory layout has no configuration");
 		}
 	}

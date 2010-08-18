@@ -14,7 +14,7 @@ public class SADLTokeniserTest {
 
 	@BeforeTest
 	public void init() throws IOException, IllegalConfigurationException {
-		DirectoryLayout.initialiseClientLayout().getConfiguration();		
+		DirectoryLayout.initialiseSimpleLayout().getConfiguration();		
 	}
 
 	@Test(groups = {"unit"} )
@@ -29,7 +29,7 @@ public class SADLTokeniserTest {
 	
 
 	public static void main(String[] args) throws MicroarrayException, IOException, IllegalConfigurationException {
-		DirectoryLayout.initialiseClientLayout().getConfiguration();
+		DirectoryLayout.initialiseSimpleLayout().getConfiguration();
 		new SADLTokeniserTest().testTokenising();
 	}
 }

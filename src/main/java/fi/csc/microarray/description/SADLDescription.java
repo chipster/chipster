@@ -25,6 +25,18 @@ public class SADLDescription {
 	private LinkedList<Parameter> parameters = new LinkedList<Parameter>();
 	private String category;
 
+	/**
+	 * Name for some description entity. Name consists of two major parts:
+	 * identifier and display name. The latter should be used when parameter
+	 * name is shown to an end-user.
+	 * <p>
+	 * Name can also contain a prefix and a postfix. This way a single name
+	 * can describe a set of names that begin with a certain prefix and at
+	 * the same time end with a certain postfix.
+	 * 
+	 * @author Aleksi Kallio
+	 *
+	 */
 	public static class Name {
 				
 		private String id = null;
@@ -100,9 +112,19 @@ public class SADLDescription {
 		}
 		
 		/**
+		 * Determine if this name defines a set of similar names by using
+		 * prefixes and postfixes.
+		 * 
+		 * @return true if this name defines a set of names, false otherwise.
+		 */
+		public boolean isSpliced() {
+		    return (getPrefix() != null) || (getPostfix() != null); 
+		}
+		
+		/**
 		 * Return true iff this is an input set (not a regular input).
 		 */
-		public boolean isNameSet( ) {
+		public boolean isNameSet() {
 			return id == null;
 		}
 		
@@ -376,10 +398,12 @@ public class SADLDescription {
 		return s;
 	}
 
-	// FIXME remove after not using VVSADL anymore
+	/**
+	 * Deprecated
+	 */
+    // FIXME remove after not using VVSADL anymore
 	public void setID(String id) {
 		this.name.setID(id);
-		
 	}
 	
 }

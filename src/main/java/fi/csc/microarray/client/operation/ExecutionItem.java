@@ -38,8 +38,11 @@ public interface ExecutionItem {
 	 * Evaluates the suitability of this ExecutionItem for the given dataset.
 	 * 
 	 * @param data The dataset for which to evaluate.
+	 * @param currentSuitability Suitability known prior to execution
+	 *        of this method. It can be overridden by this evaluation.
 	 * @return One of the OperationDefinition.Suitability enumeration,
 	 * 		   depending on how suitable the operation is judged.
 	 */
-	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data);
+	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data,
+	        Suitability currentSuitability);
 }

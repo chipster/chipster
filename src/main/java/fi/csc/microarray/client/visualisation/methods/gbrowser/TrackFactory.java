@@ -6,13 +6,11 @@ import java.net.MalformedURLException;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SequenceParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CytobandTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GeneTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.IntensityTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.PeakTrack;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ProfileTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadTrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RepeatMaskerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
@@ -21,8 +19,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TitleTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptTrack;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptTrack.PartColor;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.WIGTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptTrack.PartColor;
 
 /**
  * Utility for creating predefined track groups.  
@@ -33,50 +31,66 @@ public class TrackFactory {
 	private static final int CHANGE_TRACKS_ZOOM_THRESHOLD2 = 10000000;
 	private static final int CHANGE_TRACKS_ZOOM_THRESHOLD1 = 100000;
 
-    public static void addGeneTracks(GenomePlot genomePlot, ChunkDataSource geneAnnotationFile,
+    public static TrackGroup addGeneTracks(GenomePlot genomePlot, ChunkDataSource geneAnnotationFile,
 	        DataSource transcriptAnnotationFile, ChunkDataSource refSource) throws FileNotFoundException {
-
+        
 		View dataView = genomePlot.getDataView();
+		
+		// Group containing gene-related tracks
+        TrackGroup geneGroup = new TrackGroup(dataView);
+        
+        // Top separator and title
+        geneGroup.addTrack(createThickSeparatorTrack(dataView));
+        geneGroup.addTrack(new TitleTrack(dataView, "Annotations", Color.black));
 		
 		// Transcript, detailed, forward
 		TranscriptTrack trancsript = new TranscriptTrack(dataView, transcriptAnnotationFile, ChunkTreeHandlerThread.class,
 		        Color.DARK_GRAY, CHANGE_TRACKS_ZOOM_THRESHOLD1);
 		trancsript.setStrand(Strand.FORWARD);
-		addTrack(dataView, trancsript);
+		geneGroup.addTrack(trancsript);
 
 		// Gene, overview, forward 
 		IntensityTrack annotationOverview = new IntensityTrack(genomePlot.getDataView(),
 		        geneAnnotationFile, ChunkTreeHandlerThread.class, PartColor.CDS.c, CHANGE_TRACKS_ZOOM_THRESHOLD2);
 		annotationOverview.setStrand(Strand.FORWARD);
-		addTrack(dataView, annotationOverview);
+		geneGroup.addTrack(annotationOverview);
 
 		// Gene, detailed, forward
 		GeneTrack annotation = new GeneTrack(genomePlot.getDataView(), geneAnnotationFile,
 		        ChunkTreeHandlerThread.class, PartColor.CDS.c, CHANGE_TRACKS_ZOOM_THRESHOLD1, CHANGE_TRACKS_ZOOM_THRESHOLD2);
 		annotation.setStrand(Strand.FORWARD);
-		addTrack(dataView, annotation);
+		geneGroup.addTrack(annotation);
+			
+		// Ruler track
+		geneGroup.addTrack(new RulerTrack(dataView));
+		  
+        // Repeat masker track
+        RepeatMaskerTrack repeatMasker =
+            new RepeatMaskerTrack(dataView, refSource, ChunkTreeHandlerThread.class, CHANGE_TRACKS_ZOOM_THRESHOLD1);
+        geneGroup.addTrack(repeatMasker);
 		
-		// Separator line
-		addRulerTrack(genomePlot);
-		addRepeatMaskerTrack(genomePlot, refSource);
-		
-		// Gene, overview, reverse 
+		// Gene, overview, reverse
 		IntensityTrack annotationOverviewReversed = new IntensityTrack(genomePlot.getDataView(),
 		        geneAnnotationFile, ChunkTreeHandlerThread.class, PartColor.CDS.c, CHANGE_TRACKS_ZOOM_THRESHOLD2);
 		annotationOverviewReversed.setStrand(Strand.REVERSED);
-		addTrack(dataView, annotationOverviewReversed);
+        geneGroup.addTrack(annotationOverviewReversed);
 
 		// Gene, detailed, reverse
 		GeneTrack annotationReversed = new GeneTrack(genomePlot.getDataView(), geneAnnotationFile,
 		        ChunkTreeHandlerThread.class, PartColor.CDS.c, CHANGE_TRACKS_ZOOM_THRESHOLD1, CHANGE_TRACKS_ZOOM_THRESHOLD2);
 		annotationReversed.setStrand(Strand.REVERSED);
-		addTrack(dataView, annotationReversed);
-		
+        geneGroup.addTrack(annotationReversed);
+	
 		// Transcript, detailed, reverse
 		TranscriptTrack trancsriptReverse = new TranscriptTrack(dataView, transcriptAnnotationFile, ChunkTreeHandlerThread.class,
 		        Color.DARK_GRAY, CHANGE_TRACKS_ZOOM_THRESHOLD1);
 		trancsriptReverse.setStrand(Strand.REVERSED);
-		addTrack(dataView, trancsriptReverse);
+		geneGroup.addTrack(trancsriptReverse);
+		
+		// Add gene group to data view
+	    addGroup(dataView, geneGroup);
+	    
+	    return geneGroup;
 	}
 
 	private static void addSeparatorTrack(GenomePlot genomePlot) {
@@ -90,10 +104,14 @@ public class TrackFactory {
 
 	static void addThickSeparatorTrack(GenomePlot genomePlot) {
 		View dataView = genomePlot.getDataView();
-		dataView.addTrack(new SeparatorTrack(dataView, Color.gray.brighter(), 4, 0, Long.MAX_VALUE));
+		dataView.addTrack(createThickSeparatorTrack(dataView));
 	}
+	
+    public static Track createThickSeparatorTrack(View view) {
+        return new SeparatorTrack(view, Color.gray.brighter(), 4, 0, Long.MAX_VALUE);
+    }
 
-	public static void addReadTracks(GenomePlot genomePlot, DataSource userData,
+	public static TrackGroup addReadTracks(GenomePlot genomePlot, DataSource userData,
 	        Class<? extends AreaRequestHandler> userDataHandler,
 	        DataSource seqFile, String title)
 	        throws FileNotFoundException, MalformedURLException {
@@ -105,6 +123,8 @@ public class TrackFactory {
 		        userDataHandler, seqFile, title);
         
         addGroup(dataView, readGroup);
+        
+        return readGroup;
 	}
 
 	public static void addWigTrack(GenomePlot plot, DataSource peakFile) {
@@ -159,11 +179,6 @@ public class TrackFactory {
 
 	public static void addRulerTrack(GenomePlot plot) {
 		plot.getDataView().addTrack(new RulerTrack(plot.getDataView()));
-	}
-	
-	public static void addRepeatMaskerTrack(GenomePlot plot, ChunkDataSource data) {
-		RepeatMaskerTrack repeatMasker = new RepeatMaskerTrack(plot.getDataView(), data, ChunkTreeHandlerThread.class, Long.MAX_VALUE);
-		addTrack(plot.getDataView(), repeatMasker);
 	}
 		
 	private static void addTrack(View view, Track track) {

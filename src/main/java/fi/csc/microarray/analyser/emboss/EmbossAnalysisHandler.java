@@ -60,10 +60,10 @@ public class EmbossAnalysisHandler implements AnalysisHandler {
         ACDDescription acdDescription = new ACDDescription(acdFile);
         logger.debug("creating description from " + acdFile.getAbsolutePath());
         
-        // Create description for computation server
-        SADLDescription sadlDescription = new ACDToSADL(acdDescription).convert();
+        // Create description for analysis server
+        SADLDescription sadlDescription = ACDToSADL.convert(acdDescription, acdFile.getName());
         AnalysisDescription description =
-            new AnalysisDescriptionGenerator().generate(sadlDescription, this);
+                new AnalysisDescriptionGenerator().generate(sadlDescription, this);
         
         // Fill description with Emboss-specific values
         description.setCommand("EMBOSS");
@@ -72,9 +72,8 @@ public class EmbossAnalysisHandler implements AnalysisHandler {
                                   "See: http://emboss.sourceforge.net/.");
         description.setSourceResourceName(acdFileName);
         description.setSourceResourceFullPath(acdFile.getAbsolutePath());
-        description.setHelpURL("http://emboss.sourceforge.net/apps/release/6.2" +
-                               "/emboss/apps/" + sadlDescription.getName().getID() +
-                               ".html");
+        description.setHelpURL("https://extras.csc.fi/emboss/doc/programs/html/" +
+                               sadlDescription.getName().getDisplayName() + ".html");
         
         return description;
     }

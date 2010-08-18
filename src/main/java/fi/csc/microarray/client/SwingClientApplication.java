@@ -60,14 +60,15 @@ import fi.csc.microarray.client.dataview.TreePanel;
 import fi.csc.microarray.client.dialog.ChipsterDialog;
 import fi.csc.microarray.client.dialog.ClipboardImportDialog;
 import fi.csc.microarray.client.dialog.CreateFromTextDialog;
-import fi.csc.microarray.client.dialog.SequenceImportDialog;
-import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.dialog.DialogInfo;
 import fi.csc.microarray.client.dialog.ErrorDialogUtils;
 import fi.csc.microarray.client.dialog.ImportSettingsAccessory;
+import fi.csc.microarray.client.dialog.SequenceImportDialog;
 import fi.csc.microarray.client.dialog.SnapshotAccessory;
+import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.dialog.URLImportDialog;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
+import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
@@ -88,6 +89,7 @@ import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.waiting.WaitGlassPane;
 import fi.csc.microarray.client.workflow.WorkflowManager;
+import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.constants.ApplicationConstants;
@@ -106,7 +108,6 @@ import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
-import fi.csc.microarray.messaging.auth.ClientLoginListener;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.util.BrowserLauncher;
 import fi.csc.microarray.util.Exceptions;
@@ -159,7 +160,6 @@ public class SwingClientApplication extends ClientApplication {
 
 	private SplashScreen splashScreen;
 	private ClientListener clientListener;
-	private AuthenticationRequestListener overridingARL;
 	private WaitGlassPane waitPanel = new WaitGlassPane();
 	
 	private static float fontSize = VisualConstants.DEFAULT_FONT_SIZE;
@@ -170,31 +170,50 @@ public class SwingClientApplication extends ClientApplication {
 	private JFileChooser snapshotFileChooser;
 	private JFileChooser workflowFileChooser;
 
-	public SwingClientApplication(ClientListener clientListener, AuthenticationRequestListener overridingARL, String module)
+	public SwingClientApplication(ClientListener clientListener, AuthenticationRequestListener overridingARL, String module, boolean isStandalone)
 	        throws MicroarrayException, IOException, IllegalConfigurationException {
 
-		super();
+		super(isStandalone, overridingARL);
 		
 		this.clientListener = clientListener;
-		this.overridingARL = overridingARL;
-		
-        // Set the module that user wants to load
+
+		// this had to be delayed as logging is not available before loading configuration
+		logger = Logger.getLogger(SwingClientApplication.class);
+
+        // set the module that user wants to load
         setRequestedModule(module);
 
+        // show splash screen
 		splashScreen = new SplashScreen(VisualConstants.SPLASH_SCREEN);
 		reportInitialisation("Initialising " + ApplicationConstants.APPLICATION_TITLE, true);
 
-		// we want to close the splash screen exception occurs
+		// try to initialise and handle exceptions gracefully
 		try {
 			initialiseApplication();
+			
 		} catch (Exception e) {
-			splashScreen.close();
-			throw new MicroarrayException(e);
-		}
+			showDialog("Starting Chipster failed.", "There could be a problem with the network connection, or the remote services could be down. " +
+					"Please see the details below for more information about the problem.\n\n" + 
+					"Chipster also fails to start if there has been a version update with a change in configurations. In such case please delete Chipster application settings directory.",
+					Exceptions.getStackTrace(e), Severity.ERROR, false, ChipsterDialog.DetailsVisibility.DETAILS_HIDDEN,
+					new PluginButton() {
+						@Override
+						public void actionPerformed() {
+							try {
+								new SwingClientApplication(getShutdownListener(), null, null, true);
 
-		// this had to be delayed as logging is not available before loading
-		// configuration
-		logger = Logger.getLogger(SwingClientApplication.class);
+							} catch (Exception e) {
+								// ignore
+							}
+						}
+						@Override
+						public String getText() {
+							return "Start standalone";
+						}
+					});
+			splashScreen.close();
+			logger.error(e);
+		}
 	}
 
 	public void reportInitialisation(String report, boolean newline) {
@@ -214,7 +233,7 @@ public class SwingClientApplication extends ClientApplication {
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
-		if (parsedCategories == null) {
+		if (visibleCategories == null) {
 			throw new MicroarrayException("metadata was not received (analyser not functional?)");
 		}
 
@@ -243,7 +262,7 @@ public class SwingClientApplication extends ClientApplication {
 
 		// create operation panel using metadata
 		try {
-			operationsPanel = new OperationPanel(parsedCategories);
+			operationsPanel = new OperationPanel(visibleCategories);
 		} catch (ParseException e) {
 			logger.error("SADL parse failed", e);
 			throw new MicroarrayException(e);
@@ -771,7 +790,7 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	public void showDialog(String title, String message, String details, Severity severity, boolean modal) {
-		showDialog(title, message, details, severity, modal, ChipsterDialog.DetailsVisibility.DETAILS_HIDDEN);
+		showDialog(title, message, details, severity, modal, ChipsterDialog.DetailsVisibility.DETAILS_HIDDEN, null);
 	}
 
 	/**
@@ -785,9 +804,9 @@ public class SwingClientApplication extends ClientApplication {
 	 * @param severity
 	 *            severity level, affects icon choice
 	 */
-	public void showDialog(String title, String message, String details, Severity severity, boolean modal, ChipsterDialog.DetailsVisibility detailsVisibility) {
+	public void showDialog(String title, String message, String details, Severity severity, boolean modal, ChipsterDialog.DetailsVisibility detailsVisibility, PluginButton button) {
 		DialogInfo dialogInfo = new DialogInfo(severity, title, message, details);
-		ChipsterDialog.showDialog(mainFrame, dialogInfo, detailsVisibility, modal);
+		ChipsterDialog.showDialog(this, dialogInfo, detailsVisibility, modal, null, button);
 	}
 
 	@Override
@@ -903,13 +922,17 @@ public class SwingClientApplication extends ClientApplication {
 		
 		// show dialog
 		DialogInfo dialogInfo = new DialogInfo(Severity.INFO, title, message, details);
-		ChipsterDialog.showDialog(mainFrame, dialogInfo, ChipsterDialog.DetailsVisibility.DETAILS_HIDDEN, false);
+		dialogInfo.setFeedbackVisible(true);
+		ChipsterDialog.showDialog(this, dialogInfo, ChipsterDialog.DetailsVisibility.DETAILS_HIDDEN, false);
 	}
 
 	public void reportException(Exception e) {
 
 		// collect error information to dialogInfo
-		DialogInfo dialogInfo = new DialogInfo(Severity.ERROR, "An error has occurred and the action was not performed successfully.", "If problem persist, please check that your data is valid. For more information open the details panel below.", null);
+		DialogInfo dialogInfo = new DialogInfo(Severity.ERROR,
+		        "An error has occurred and the action was not performed successfully.",
+		        "If problem persist, please check that your data is valid. For more information open the details panel below.", null);
+		dialogInfo.setFeedbackVisible(true);
 
 		// exception has extra info
 		if (e instanceof ErrorReportAsException) {
@@ -942,7 +965,7 @@ public class SwingClientApplication extends ClientApplication {
 		}
 
 		// show dialog
-		ChipsterDialog.showDialog(this.mainFrame, dialogInfo, ChipsterDialog.DetailsVisibility.DETAILS_HIDDEN, false);
+		ChipsterDialog.showDialog(this, dialogInfo, ChipsterDialog.DetailsVisibility.DETAILS_HIDDEN, false);
 
 		// we'll always output these to console and log for traceability and
 		// easier IDE navigation
@@ -1251,6 +1274,49 @@ public class SwingClientApplication extends ClientApplication {
 		System.exit(0);
 	}
 
+	
+	public static void startStandalone() throws IOException {
+		try {
+			DirectoryLayout.initialiseStandaloneClientLayout();
+			Configuration config = DirectoryLayout.getInstance().getConfiguration();
+			config.getRootModule().getModule("messaging").getEntry("broker-host").setValue("(none)");
+			config.getRootModule().getModule("messaging").getEntry("broker-protocol").setValue("");
+			config.getRootModule().getModule("messaging").getEntry("broker-port").setValue("0");
+			config.getRootModule().getModule("security").getEntry("username").setValue("");
+			config.getRootModule().getModule("security").getEntry("password").setValue("");
+					
+		} catch (IllegalConfigurationException e) {
+			reportIllegalConfigurationException(e);
+		}
+
+		ClientListener shutdownListener = getShutdownListener();
+		
+		try {
+			new SwingClientApplication(shutdownListener, null, null, true);
+			
+		} catch (Throwable t) {
+			t.printStackTrace();
+			if (logger != null) {
+				logger.error(t.getMessage());
+				logger.error(t);
+			}
+		}
+
+	}
+
+	private static ClientListener getShutdownListener() {
+		ClientListener shutdownListener = new ClientListener() {
+			public void onSuccessfulInitialisation() {
+				// do nothing
+			}
+			public void onFailedInitialisation() {
+				System.exit(1);
+			}
+		};
+		return shutdownListener;
+	}
+	
+
 	/**
 	 * Starts Chipster client. Configuration (logging) should be initialised
 	 * before calling this method.
@@ -1264,17 +1330,10 @@ public class SwingClientApplication extends ClientApplication {
 			reportIllegalConfigurationException(e);
 		}
 
-		ClientListener shutdownListener = new ClientListener() {
-			public void onSuccessfulInitialisation() {
-				// do nothing
-			}
-			public void onFailedInitialisation() {
-				System.exit(1);
-			}
-		};
+		ClientListener shutdownListener = getShutdownListener();
 		
 		try {
-			new SwingClientApplication(shutdownListener, null, module);
+			new SwingClientApplication(shutdownListener, null, module, false);
 			
 		} catch (Throwable t) {
 			t.printStackTrace();
@@ -1372,34 +1431,6 @@ public class SwingClientApplication extends ClientApplication {
 		 * proposedName + "." + data.getContentType(); }
 		 */
 		return proposedName;
-	}
-
-	@Override
-	protected AuthenticationRequestListener getAuthenticationRequestListener() {
-
-		AuthenticationRequestListener authenticator;
-
-		if (overridingARL != null) {
-			authenticator = overridingARL;
-		} else {
-			authenticator = new Authenticator();
-		}
-
-		authenticator.setLoginListener(new ClientLoginListener() {
-			public void firstLogin() {
-				try {
-					initialiseGUI();
-				} catch (Exception e) {
-					reportException(e);
-				}
-			}
-
-			public void loginCancelled() {
-				System.exit(1);
-			}
-		});
-
-		return authenticator;
 	}
 
 	@Override
@@ -1630,8 +1661,8 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	public TaskManagerScreen getTaskManagerScreen() {
-		TaskExecutor jobExecutor = Session.getSession().getJobExecutor("client-job-executor");
-		return new TaskManagerScreen(jobExecutor);
+		TaskExecutor taskExecutor = Session.getSession().getServiceAccessor().getTaskExecutor();
+		return new TaskManagerScreen(taskExecutor);
 	}
 
 	public void createLink(DataBean source, DataBean target, Link type) {
