@@ -2,6 +2,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
 import java.util.Arrays;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class SequenceParser extends TsvParser {
@@ -21,7 +22,7 @@ public class SequenceParser extends TsvParser {
 	}
 
 	@Override
-	public RegionContent[] concise(String chunk) {
+	public RegionContent[] concise(Chunk chunk) {
 
 		// Return empty table, otherwise TreeNode gets stuck in calling this again
 		return new RegionContent[0];

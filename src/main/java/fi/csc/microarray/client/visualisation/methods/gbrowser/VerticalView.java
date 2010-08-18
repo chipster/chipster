@@ -78,7 +78,9 @@ public class VerticalView extends View {
 
 	@Override
 	public float getTrackHeight() {
-		return this.getHeight() / (float) tracks.size();
+	    // FIXME is this view still in use?
+		//return this.getHeight() / (float) tracks.size();
+	    return 0;
 	}
 
 	@Override

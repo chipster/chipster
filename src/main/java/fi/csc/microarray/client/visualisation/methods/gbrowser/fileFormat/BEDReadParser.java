@@ -2,10 +2,18 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
 import java.util.Arrays;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeqBlockTrack;
 
+/**
+ * Parser for a BED-like format that describes annotations. Values
+ * are tab-separated.
+ * 
+ * @see BEDParser
+ *
+ */
 public class BEDReadParser extends TsvParser {
 
 	public BEDReadParser() {
@@ -36,7 +44,7 @@ public class BEDReadParser extends TsvParser {
 	}
 
 	@Override
-	public RegionContent[] concise(String chunk) {
+	public RegionContent[] concise(Chunk chunk) {
 		return new RegionContent[] {};
 	}
 

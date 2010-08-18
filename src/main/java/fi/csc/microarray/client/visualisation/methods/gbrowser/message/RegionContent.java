@@ -5,6 +5,11 @@ import java.util.Map;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 
+/**
+ * Content for given genomic region. Content is data dependent, but basically it is data parsed from tabular data. All the 
+ * rows fall within the genomic region.
+ *
+ */
 public class RegionContent implements Comparable<RegionContent> {
 	
 	public BpCoordRegion region;

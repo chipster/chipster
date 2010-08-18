@@ -1,5 +1,11 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
+/**
+ * Floating-point version of BpCoord. Used when floating point precision is needed in calculations.
+ * 
+ * @see BpCoord
+ *
+ */
 public class BpCoordDouble implements Comparable<BpCoordDouble> {
 
 	public Double bp;
