@@ -131,6 +131,9 @@ public class RepeatMaskerTrack extends Track {
                     // only draw rectangles when letter case changes
             		drawables.add(new RectDrawable(new Rectangle((int)startX, 0,
                             (int)(endX-startX), this.getHeight()), c, c));
+            		
+            		drawables.add(new RectDrawable(new Rectangle((int)startX, 0,
+                            (int)(endX-startX), this.getHeight()), c, c));
                     
                     lastBpLocation = currentBpLocation;
                 	c = (c == UPPER_COLOR) ? LOWER_COLOR : UPPER_COLOR;

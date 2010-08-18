@@ -36,11 +36,13 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
     protected IntensityTrack readOverviewReversed;
     protected SeqBlockTrack readsReversed;
     protected ProfileTrack profileTrack;
+    protected AcidProfile acidTrack;
     protected GelTrack gelTrack;
     
     // Track switches
     private JCheckBox showGel = new JCheckBox("Gel track", true);
     private JCheckBox showProfile = new JCheckBox("Profile track", true);
+    private JCheckBox showAcid = new JCheckBox("Nucleic acids", true);
     private JCheckBox showSNP = new JCheckBox("Highlight SNP", false);
     
     // Reference sequence
@@ -90,6 +92,12 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
                 Color.BLACK, PartColor.CDS.c, 0, SWITCH_VIEWS_AT);
         profileTrack.setStrand(Strand.BOTH);
         
+        // Acid profile
+        acidTrack = new AcidProfile(view, userData, userDataHandler,
+                0, SHOW_REFERENCE_AT);
+        acidTrack.setStrand(Strand.FORWARD);        
+        
+        
         // Gel
         gelTrack = new GelTrack(view, userData, userDataHandler,
                 Color.WHITE, 0, SWITCH_VIEWS_AT);
@@ -101,9 +109,11 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
         // Add switches
         this.menu.addItem(showGel);
         this.menu.addItem(showProfile);
+        this.menu.addItem(showAcid);
         this.menu.addItem(showSNP);
         showGel.addActionListener(this);
         showProfile.addActionListener(this);
+        showAcid.addActionListener(this);
         showSNP.addActionListener(this);
         this.setMenuVisible(true);
     }
@@ -133,6 +143,11 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
             tracks.add(profileTrack);
         }
         
+        if (showAcid.isSelected()) {
+        	tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT));
+            tracks.add(acidTrack);
+        }
+        
         // Only draw separator if gel track is visible
         if (showGel.isSelected()) {
             tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT));
@@ -146,6 +161,9 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
             view.redraw();
         } else if (e.getSource() == showProfile) {
             profileTrack.setVisible(showProfile.isSelected());
+            view.redraw();
+        } else if (e.getSource() == showAcid) {
+            acidTrack.setVisible(showAcid.isSelected());
             view.redraw();
         } else if (e.getSource() == showSNP && hasReference) {
             if (showSNP.isSelected()) {
