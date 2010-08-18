@@ -72,9 +72,11 @@ public enum VisualisationMethod {
 			CLUSTERED_PROFILES("Clustered profiles", ClusteredProfiles.class, VisualConstants.PROFILES_MENUICON, -1, 0.087), 
 			SHOW_IMAGE("Show image", ImageViewer.class, VisualConstants.IMAGE_MENUICON, 1, 0.015), 
 			WEBVIEW("View page", HtmlViewer.class, VisualConstants.HTML_MENUICON, 1, 0.008), 
-			VIEW_TEXT("View text", TextViewer.class, VisualConstants.TEXT_MENUICON, 1, 0), 
+			PDFVIEW("View PDF", PDFViewer.class, VisualConstants.IMAGE_MENUICON, 1, 0), 
 			VENN_DIAGRAM("Venn-diagram", VennDiagram.class, VisualConstants.VENN_MENUICON, 1, 0),
-			GBROWSER("Genome browser", GenomeBrowser.class, VisualConstants.SCATTER_MENUICON, 1, 0);
+			GBROWSER("Genome browser", GenomeBrowser.class, VisualConstants.SCATTER_MENUICON, 1, 0),
+			VIEW_TEXT("View text", TextViewer.class, VisualConstants.TEXT_MENUICON, 1, 0), 
+			EXTERNAL_BROWSER("Open in external web browser", ExternalBrowserViewer.class, VisualConstants.EMPTY_MENUICON, 1, 0); 
 
 	private static LinkedList<VisualisationMethod> orderedDefaultCandidates;
 

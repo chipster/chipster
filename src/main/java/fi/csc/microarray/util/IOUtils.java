@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.HttpURLConnection;
@@ -153,6 +154,16 @@ public class IOUtils {
 			closeIfPossible(in);
 			closeIfPossible(out);
 		}
+	}
+
+	public static void closeIfPossible(RandomAccessFile raf) {
+		if (raf != null) {
+			try {
+				raf.close();
+			} catch (IOException e) {
+				// ignore
+			}
+		}		
 	}
 
 }
