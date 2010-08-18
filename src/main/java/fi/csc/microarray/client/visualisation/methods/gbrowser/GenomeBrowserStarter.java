@@ -78,14 +78,14 @@ public class GenomeBrowserStarter {
 		TrackFactory.addThickSeparatorTrack(plot);
 		TrackFactory.addReadTracks(
 				plot, 
-				new SAMDataSource(new File(annotationPath + "/ngs/RNA-seq/pairedEnd_Berger/501Mel.sorted.bam"), new File(annotationPath + "/ngs/RNA-seq/pairedEnd_Berger/501Mel.sorted.bam.bai")),
+				new SAMDataSource(new File("/home/akallio/Desktop/501Mel.sorted.chr12.bam"), new File("/home/akallio/Desktop/501Mel.sorted.chr12.bam.bai")),
 				SAMHandlerThread.class,
 				new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_seq.tsv", new SequenceParser()),
 				"Reads"
 		);
 
 		TrackFactory.addRulerTrack(plot);
-		plot.start("1", 1024 * 1024 * 250d, 1000000L, 100000L);
+		plot.start("12", 1024 * 1024 * 250d, 1000000L, 100000L);
 		
 		panel.setChart(new JFreeChart(plot));
 		panel.setPreferredSize(new Dimension(800, 2000));
