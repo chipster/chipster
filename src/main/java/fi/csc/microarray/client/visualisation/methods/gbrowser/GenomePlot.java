@@ -35,7 +35,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 	private List<View> views = new LinkedList<View>();
 	private View dataView = null;
-	private View overviewView = null;
+	private OverviewHorizontalView overviewView = null;
 	private ReadScale readScale = ReadScale.AUTO;
     public ChartPanel chartPanel;
 	
@@ -68,7 +68,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 	    chartPanel.setLayout(null);
 
 		// add overview view
-		this.overviewView = new HorizontalView(this, false, false, true);
+		this.overviewView = new OverviewHorizontalView(this);
 		this.overviewView.margin = 0;
 		this.overviewView.setStaticHeight(true);
 		this.overviewView.setHeight(25);
@@ -90,6 +90,14 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 			public void regionChanged(BpCoordRegion bpRegion) {
 				overviewView.highlight = bpRegion;
 			}
+		});
+		
+		overviewView.addOverviewRegionListener(new RegionListener() {
+
+			@Override
+			public void regionChanged(BpCoordRegion bpRegion) {
+				dataView.setBpRegion(new BpCoordRegionDouble(bpRegion), false);
+			}		
 		});
 	}
 

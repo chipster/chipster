@@ -66,7 +66,7 @@ public class TrackFactory {
 		  
         // Repeat masker track
         RepeatMaskerTrack repeatMasker =
-            new RepeatMaskerTrack(dataView, refSource, ChunkTreeHandlerThread.class, Long.MAX_VALUE);
+            new RepeatMaskerTrack(dataView, refSource, ChunkTreeHandlerThread.class, CHANGE_TRACKS_ZOOM_THRESHOLD1);
         geneGroup.addTrack(repeatMasker);
 		
 		// Gene, overview, reverse

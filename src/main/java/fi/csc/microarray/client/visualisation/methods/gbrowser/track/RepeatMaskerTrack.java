@@ -35,8 +35,8 @@ public class RepeatMaskerTrack extends Track {
 	
 	private long maxBpLength;
 	private LinkedList<Long> collector = new LinkedList<Long>();
-	private final Color UPPER_COLOR = new Color(0, 77, 255, 155);
-	private final Color LOWER_COLOR = Color.WHITE;
+	private final Color UPPER_COLOR = Color.white;
+	private final Color LOWER_COLOR = new Color(192,192,192);
     
 	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
 	
@@ -162,7 +162,7 @@ public class RepeatMaskerTrack extends Track {
 	@Override
     public Integer getHeight() {
         if (isVisible()) {
-            return 16;
+            return 4;
         } else {
             return 0;
         }
