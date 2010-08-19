@@ -450,10 +450,9 @@ public class GenomeBrowser extends Visualisation implements
 		} catch (IOException e) {
             application.reportException(e);
         }
-		
-		//FIXME
+				
         // Create gene name index
-        //gia = GeneIndexActions.getInstance(this);
+        gia = GeneIndexActions.getInstance(this);
 	}
 
 	@Override
@@ -795,19 +794,19 @@ public class GenomeBrowser extends Visualisation implements
         }
         
         // Only position within chromosome changed
-//		GeneIndexDataType gidt = new GeneIndexDataType();
-//        if (!gia.checkIfNumber(locationField.getText())) {
-//
-//		    gidt = gia.getLocation(locationField.getText().toUpperCase());
-//		    
-//		    if (gidt == null) {
-//		    	application.showDialog("Not found", "Gene with such name was not found", null, Severity.INFO, false, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
-//		    } else {
-//		    	chrBox.setSelectedItem(gidt.chromosome);
-//			    plot.moveDataBpRegion((Chromosome)chrBox.getSelectedItem(),
-//			    		(gidt.bpend+gidt.bpstart)/2, (gidt.bpend - gidt.bpstart)*2);
-//		    }
-//        } else {
+		GeneIndexDataType gidt = new GeneIndexDataType();
+        if (!gia.checkIfNumber(locationField.getText())) {
+
+		    gidt = gia.getLocation(locationField.getText().toUpperCase());
+		    
+		    if (gidt == null) {
+		    	application.showDialog("Not found", "Gene with such name was not found", null, Severity.INFO, false, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
+		    } else {
+		    	chrBox.setSelectedItem(gidt.chromosome);
+			    plot.moveDataBpRegion((Chromosome)chrBox.getSelectedItem(),
+			    		(gidt.bpend+gidt.bpstart)/2, (gidt.bpend - gidt.bpstart)*2);
+		    }
+        } else {
             try {
                 plot.moveDataBpRegion((Chromosome)chrBox.getSelectedItem(),
                         Long.parseLong(locationField.getText()),
@@ -815,7 +814,7 @@ public class GenomeBrowser extends Visualisation implements
 	        } catch (NumberFormatException e) {
                 application.reportException(e);
 	        }
-        //}
+        }
         
         // Set scale of profile track containing reads information
         this.plot.setReadScale((ReadScale) this.profileScaleBox.getSelectedItem());

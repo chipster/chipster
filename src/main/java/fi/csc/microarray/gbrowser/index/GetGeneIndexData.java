@@ -29,8 +29,8 @@ public class GetGeneIndexData {
         try {
 			ChunkDataSource data = genomeBrowser.createAnnotationDataSource(
 			        "Homo_sapiens.NCBI36.54_genes.tsv", new GeneParser());
-			byte[] fileChunk = new byte[(int)data.getSize()];
-			data.read(0, fileChunk);
+			byte[] fileChunk = data.readAll();
+			;
 			List<ColumnType> columns = Arrays.asList(new ColumnType[] {
 					ColumnType.CHROMOSOME,
 					ColumnType.BP_START,
