@@ -42,7 +42,7 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
     // Track switches
     private JCheckBox showGel = new JCheckBox("Gel track", true);
     private JCheckBox showProfile = new JCheckBox("Profile track", true);
-    private JCheckBox showAcid = new JCheckBox("Nucleic acids", true);
+    private JCheckBox showAcid = new JCheckBox("Nucleic acids", false);
     private JCheckBox showSNP = new JCheckBox("Highlight SNP", false);
     
     // Reference sequence

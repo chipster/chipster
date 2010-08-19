@@ -104,10 +104,11 @@ public class ChunkDataSource extends DataSource {
 	            try {
 	                
 	                connection = (HttpURLConnection)url.openConnection();
-	                connection.setRequestMethod("HEAD");
-	                int size = connection.getHeaderFieldInt("Content-Length", 0);
+
+//	                connection.setRequestMethod("HEAD");
+//	                int size = connection.getHeaderFieldInt("Content-Length", 0);
 	                
-	                return size;
+	                return connection.getContentLength();
 	                
 	            } finally {
 	                IOUtils.disconnectIfPossible(connection);
