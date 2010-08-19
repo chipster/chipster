@@ -5,7 +5,7 @@
 
 # count-overlapping-cnvs.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-04-20
+# 2010-08-13
 
 dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 
@@ -34,6 +34,9 @@ for (i in rownames(dat)) {
                                     Start <= dat[i, 'end'] & 
                                       End >= dat[i, 'start']))
 }
+
+# calculate density of CNVs per Mb
+dat2$cnv.density <- dat2$cnvs / (dat2$end - dat2$start + 1) * 1000000
 
 dat2 <- cbind(dat2, dat[,first.data.col:ncol(dat)])
 
