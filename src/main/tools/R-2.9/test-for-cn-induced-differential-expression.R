@@ -7,7 +7,7 @@
 
 # test-for-cn-induced-differential-expression.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-06-04
+# 2010-08-05
 
 library(CGHcall)
 library(intCNGEan)
@@ -49,10 +49,11 @@ matched <- list(CNdata.matched=cgh, GEdata.matched=exp)
 tuned <- intCNGEan.tune(matched$CNdata.matched, matched$GEdata.matched, test.statistic=test.statistic)
 result <- intCNGEan.test(tuned, analysis.type=analysis.type, test.statistic=test.statistic, nperm=nperm)
 
-if (any(rownames(tuned$ann) != rownames(result)))
-  stop('CHIPSTER-NOTE: The rownames for the objects tuned and result do not match. Please report this to Ilari Scheinin.')
+if (nrow(tuned$ann) != nrow(result))
+  stop('CHIPSTER-NOTE: The number of rows for the objects tuned and result do not match. Please report this to Ilari Scheinin.')
 
 # format and write result table
+rownames(result) <- rownames(tuned$ann)
 colnames(result)[1:3] <- tolower(colnames(result)[1:3])
 result$probes <- rownames(tuned$datafortest)
 arrays <- colnames(tuned$datafortest)[(2*tuned$nosamp+1):(3*tuned$nosamp)]

@@ -76,12 +76,17 @@ if(chiptype!="empty" & class(a)!="try-error") {
 		write.table(data.frame(dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 	}
 	if (summary.feature=="gene") {
+		
 		# Including gene names to data
 		lib2<-sub('.db','',chiptype)
 		symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "SYMBOL", sep="")))))[rownames(dat2),])
 		genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[rownames(dat2),])
-	# Writes the results into a file
-	write.table(data.frame(symbol, description=genename, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+		
+		# Fixes an issue introduced in BioC2.4 where the "#" character is introduced in some gene names
+		genename <- gsub("#", "", genename)
+		
+		# Writes the results into a file
+		write.table(data.frame(symbol, description=genename, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 	}
 } 
 
