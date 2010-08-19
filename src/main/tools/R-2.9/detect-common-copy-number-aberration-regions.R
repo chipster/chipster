@@ -5,7 +5,7 @@
 
 # detect-common-copy-number-aberration-regions.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-06-06
+# 2010-08-13
 
 library(CGHcall)
 library(CGHregions)
@@ -19,18 +19,22 @@ dat$chromosome <- as.integer(dat$chromosome)
 
 calls <- as.matrix(dat[,grep("flag", names(dat))])
 copynumber <- as.matrix(dat[,grep("chip", names(dat))])
-segmented <- as.matrix(dat[,grep("segmented", names(dat))])
-probloss <- as.matrix(dat[,grep("probloss", names(dat))])
-probnorm <- as.matrix(dat[,grep("probnorm", names(dat))])
-probgain <- as.matrix(dat[,grep("probgain", names(dat))])
-probamp <- as.matrix(dat[,grep("probamp", names(dat))])
 
-if (ncol(probamp)==0) {
-  cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=copynumber, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
-} else {
-  cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=copynumber, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain, probamp=probamp), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
+if (length(grep("segmented", names(dat))>0)) { # input contains probabilities (is a CGHcall object)
+  segmented <- as.matrix(dat[,grep("segmented", names(dat))])
+  probloss <- as.matrix(dat[,grep("probloss", names(dat))])
+  probnorm <- as.matrix(dat[,grep("probnorm", names(dat))])
+  probgain <- as.matrix(dat[,grep("probgain", names(dat))])
+  probamp <- as.matrix(dat[,grep("probamp", names(dat))])
+
+  if (ncol(probamp)==0) {
+    cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=copynumber, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
+  } else {
+    cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=copynumber, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain, probamp=probamp), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
+  }
+} else { # input contains only calls and logratios, no probabilities
+  cgh <- data.frame(Probe=row.names(dat), Chromosome=dat$chromosome, Start=dat$start, End=dat$end, calls)
 }
-
 regions <- CGHregions(cgh, max.info.loss)
 
 dat2 <- data.frame(regions@featureData@data)
@@ -53,9 +57,9 @@ colnames(dat2) <- sub('calls\\.', 'flag\\.', colnames(dat2))
 
 region.medians <- assayDataElement(regions, 'regions')
 for (row in rownames(region.medians)) {
-    region.medians[row,] <- apply(copynumber[cgh@featureData@data$Chromosome == regions@featureData@data[row, "Chromosome"] &
-                                             cgh@featureData@data$Start >= regions@featureData@data[row, "Start"] &
-                                             cgh@featureData@data$Start <= regions@featureData@data[row, "End"],
+    region.medians[row,] <- apply(copynumber[dat$chromosome == regions@featureData@data[row, "Chromosome"] &
+                                             dat$start >= regions@featureData@data[row, "Start"] &
+                                             dat$start <= regions@featureData@data[row, "End"],
                                             ], 2, median)
 }
 colnames(region.medians) <- sub('flag\\.', 'chip\\.', colnames(region.medians))
