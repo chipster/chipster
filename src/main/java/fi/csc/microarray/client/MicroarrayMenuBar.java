@@ -30,7 +30,6 @@ import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.module.Module;
-import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.util.Files;
 
 @SuppressWarnings("serial")
@@ -95,10 +94,10 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 
 		DataBean selectedDataBean = selectionManager.getSelectedDataBean();
 		boolean somethingSelected = selectionManager.getSelectedItem() != null;
-		boolean normalisedDataSelected = false;
+		boolean workflowCompatibleDataSelected = false;
 
 		if (selectedDataBean != null) {
-			normalisedDataSelected = ChipsterInputTypes.GENE_EXPRS.isTypeOf(selectedDataBean);
+			workflowCompatibleDataSelected = Session.getSession().getModules().getPrimaryModule().isWorkflowCompatible(selectedDataBean);
 		}
 
 		historyMenuItem.setEnabled(selectedDataBean != null && application.getSelectionManager().getSelectedDataBeans().size() == 1);
@@ -108,11 +107,11 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		VisualisationMethod method = application.getVisualisationFrameManager().getFrame(FrameType.MAIN).getMethod();
 		visualisationMenu.setEnabled(method != null && method != VisualisationMethod.NONE);
 
-		recentWorkflowMenu.setEnabled(normalisedDataSelected);
-		openWorkflowsMenuItem.setEnabled(normalisedDataSelected);
-		openRepoWorkflowsMenu.setEnabled(normalisedDataSelected);
+		recentWorkflowMenu.setEnabled(workflowCompatibleDataSelected);
+		openWorkflowsMenuItem.setEnabled(workflowCompatibleDataSelected);
+		openRepoWorkflowsMenu.setEnabled(workflowCompatibleDataSelected);
 
-		saveWorkflowMenuItem.setEnabled(normalisedDataSelected);
+		saveWorkflowMenuItem.setEnabled(workflowCompatibleDataSelected);
 
 		exportMenuItem.setEnabled(somethingSelected);
 		renameMenuItem.setEnabled(somethingSelected);

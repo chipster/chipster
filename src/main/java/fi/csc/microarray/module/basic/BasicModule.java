@@ -8,6 +8,7 @@ import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.constants.VisualConstants;
+import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.TypeTag;
 import fi.csc.microarray.databeans.features.RestrictModifier;
@@ -73,5 +74,10 @@ public class BasicModule implements Module {
 	@Override
 	public boolean isImportToolSupported() {
 		return false;
+	}
+
+	@Override
+	public boolean isWorkflowCompatible(DataBean data) {
+		return true; // we have to assume that all operations are workflow compatible
 	}
 }

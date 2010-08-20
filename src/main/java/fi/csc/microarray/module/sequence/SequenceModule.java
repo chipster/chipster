@@ -14,6 +14,7 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.CreateFromTextDialog;
 import fi.csc.microarray.client.dialog.SequenceImportDialog;
 import fi.csc.microarray.constants.VisualConstants;
+import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.module.Module;
 
@@ -119,6 +120,11 @@ public class SequenceModule implements Module {
 	@Override
 	public boolean isImportToolSupported() {
 		return false;
+	}
+
+	@Override
+	public boolean isWorkflowCompatible(DataBean data) {
+		return true; // all operations should be workflow compatible
 	}
 
 }

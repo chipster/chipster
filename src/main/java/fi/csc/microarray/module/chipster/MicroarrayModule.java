@@ -136,4 +136,9 @@ public class MicroarrayModule implements Module {
 		return true;
 	}
 
+	@Override
+	public boolean isWorkflowCompatible(DataBean data) {
+		return ChipsterInputTypes.GENE_EXPRS.isTypeOf(data);
+	}
+
 }

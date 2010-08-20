@@ -7,6 +7,7 @@ import javax.swing.JMenu;
 import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.QuickLinkPanel;
+import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 
 public interface Module {
@@ -19,4 +20,5 @@ public interface Module {
 	public void addImportMenuItems(JMenu importMenu);
 	public void addImportLinks(QuickLinkPanel quickLinkPanel, List<JXHyperlink> importLinks);
 	public boolean isImportToolSupported();
+	public boolean isWorkflowCompatible(DataBean data);
 }
