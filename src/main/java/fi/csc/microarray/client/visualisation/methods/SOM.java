@@ -15,10 +15,10 @@ import org.jfree.data.som.SOMDataset;
 import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
-import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.basic.BasicModule;
 
 public class SOM extends Visualisation {
 
@@ -113,7 +113,7 @@ public class SOM extends Visualisation {
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		boolean isTabular = VisualisationMethod.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
+		boolean isTabular = BasicModule.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
 		return isTabular && bean.queryFeatures("/clusters/som").exists();
 	}
 }

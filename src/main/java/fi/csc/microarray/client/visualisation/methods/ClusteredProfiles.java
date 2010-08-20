@@ -15,11 +15,11 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
-import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.methods.ExpressionProfile.ProfileRow;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.basic.BasicModule;
 
 public class ClusteredProfiles extends Visualisation {
 
@@ -110,7 +110,7 @@ public class ClusteredProfiles extends Visualisation {
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		boolean isTabular = VisualisationMethod.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
+		boolean isTabular = BasicModule.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
 		if (isTabular) {
 			Table chips = bean.queryFeatures("/column/chip.*").asTable();
 			boolean hasProfiles = chips != null && chips.getColumnNames().length > 1;

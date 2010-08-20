@@ -1042,9 +1042,9 @@ public class SwingClientApplication extends ClientApplication {
 			List<DataBean> beans = getSelectionManager().getSelectedDataBeans();
 
 			if (beans.size() == 1) {
-				return VisualisationMethod.getDefaultVisualisationFor(beans.get(0));
+				return Session.getSession().getVisualisations().getDefaultVisualisationFor(beans.get(0));
 			} else if (beans.size() > 1)
-				for (VisualisationMethod method : VisualisationMethod.orderedDefaultCandidates()) {
+				for (VisualisationMethod method : Session.getSession().getVisualisations().getOrderedDefaultCandidates()) {
 					if (method == VisualisationMethod.NONE || !method.getHeadlessVisualiser().isForMultipleDatas()) {
 						continue;
 					}

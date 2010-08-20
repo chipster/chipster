@@ -204,7 +204,8 @@ public abstract class ClientApplication {
 			// initialise data management
 			this.manager = new DataManager();
 			Session.getSession().setDataManager(manager);
-			modules.plugFeatures(this.manager);
+			modules.plugAll(this.manager, Session.getSession());
+			
 
 			this.selectionManager = new DataSelectionManager(this);
 			Session.getSession().setClientApplication(this);

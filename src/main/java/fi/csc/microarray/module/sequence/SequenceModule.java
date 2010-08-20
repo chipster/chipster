@@ -13,6 +13,7 @@ import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.CreateFromTextDialog;
 import fi.csc.microarray.client.dialog.SequenceImportDialog;
+import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
@@ -125,6 +126,11 @@ public class SequenceModule implements Module {
 	@Override
 	public boolean isWorkflowCompatible(DataBean data) {
 		return true; // all operations should be workflow compatible
+	}
+
+	@Override
+	public VisualisationMethod[] getVisualisationMethods() {
+		return new VisualisationMethod[] {};
 	}
 
 }

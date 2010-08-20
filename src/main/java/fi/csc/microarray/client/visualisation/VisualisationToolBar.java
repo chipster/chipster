@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
@@ -36,6 +35,7 @@ import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameTyp
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.basic.BasicModule;
 
 /**
  * This panel contains the options for different data visualizations. It is a
@@ -272,7 +272,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 			if (e.getTarget() == FrameType.MAIN) {
 				
 				// update help button
-				if (e.getNewMethod() == VisualisationMethod.PHENODATA) {
+				if (e.getNewMethod() == BasicModule.PHENODATA) {
 					setHelpAddress("chipster-manual/visualisation-phenodata.html");
 				} else {
 					setHelpAddress(null);
@@ -312,14 +312,14 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 	public void fillMethodsFor(List<DataBean> datas) {
 		// Arrays.asList doesn't support removing, so we need a new one
 		List<VisualisationMethod> applicableVisualisations = new ArrayList<VisualisationMethod>();
-		applicableVisualisations.addAll(Arrays.asList(VisualisationMethod.values()));
+		applicableVisualisations.addAll(Session.getSession().getVisualisations().getVisualisationMethods());
 
 		List<VisualisationMethod> onlyNoneList = new ArrayList<VisualisationMethod>();
 		onlyNoneList.add(VisualisationMethod.NONE);
 
 		if (datas != null) {
 
-			for (VisualisationMethod method : VisualisationMethod.values()) {
+			for (VisualisationMethod method : Session.getSession().getVisualisations().getVisualisationMethods()) {
 
 				try {
 

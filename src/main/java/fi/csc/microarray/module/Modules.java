@@ -3,6 +3,7 @@ package fi.csc.microarray.module;
 import java.util.LinkedList;
 import java.util.List;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.module.basic.BasicModule;
 
@@ -31,12 +32,15 @@ public class Modules {
 		}
 	}
 	
-	public void plugFeatures(DataManager manager) {
+	public void plugAll(DataManager manager, Session session) {
 		for (Module module : this.modules) {
 			module.plugFeatures(manager);
 			module.plugModifiers(manager);
 			module.plugContentTypes(manager);
 			module.plugTypeTags(manager);
+			if (session != null) {
+				session.getVisualisations().addVisualisationMethods(module.getVisualisationMethods());
+			}
 		}
 	}
 

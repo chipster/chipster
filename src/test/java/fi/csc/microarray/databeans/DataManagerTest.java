@@ -19,7 +19,7 @@ public class DataManagerTest {
 	public void init() throws IOException, IllegalConfigurationException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
 		this.manager = new DataManager();
-		new Modules("fi.csc.microarray.module.chipster.MicroarrayModule").plugFeatures(this.manager);
+		new Modules("fi.csc.microarray.module.chipster.MicroarrayModule").plugAll(this.manager, null);
 	}
 	
 	@Test(groups = {"unit"} )
