@@ -116,4 +116,9 @@ public class SequenceModule implements Module {
 		}
 	}
 
+	@Override
+	public boolean isImportToolSupported() {
+		return false;
+	}
+
 }

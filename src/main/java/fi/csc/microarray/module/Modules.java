@@ -25,6 +25,9 @@ public class Modules {
 			Module primaryModule = (Module)Class.forName(primaryModuleClass).newInstance();
 			this.primaryModule = primaryModule;
 			modules.add(primaryModule);
+			
+		} else {
+			this.primaryModule = modules.getLast(); // use the last default module as primary
 		}
 	}
 	

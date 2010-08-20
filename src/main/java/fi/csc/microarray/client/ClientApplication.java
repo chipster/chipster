@@ -274,6 +274,7 @@ public abstract class ClientApplication {
 
 			
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new MicroarrayException(e);
 		}
 

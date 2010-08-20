@@ -81,9 +81,6 @@ public class MicroarrayMain {
 			} else if (cmdParser.hasValue("manager")) {
 				new Manager(configURL);
 
-			} else if (cmdParser.hasValue("standalone")) {
-				SwingClientApplication.startStandalone();		
-				
 			} else if (cmdParser.hasValue("nagios-check") || cmdParser.hasValue("system-status")) {
 				
 				// query status
@@ -160,6 +157,9 @@ public class MicroarrayMain {
 					fails = true;
 				}
 				System.out.println("parse succeeded: " + !fails);
+
+			} else if (cmdParser.hasValue("standalone")) {
+				SwingClientApplication.startStandalone(cmdParser.getValue("-module"));		
 				
 			} else {
 				SwingClientApplication.start(configURL, cmdParser.getValue("-module"));		

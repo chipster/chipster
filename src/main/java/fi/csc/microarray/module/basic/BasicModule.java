@@ -11,6 +11,7 @@ import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.TypeTag;
 import fi.csc.microarray.databeans.features.RestrictModifier;
+import fi.csc.microarray.databeans.features.bio.PhenodataProvider;
 import fi.csc.microarray.databeans.features.stat.LogModifier;
 import fi.csc.microarray.databeans.features.stat.NegModifier;
 import fi.csc.microarray.databeans.features.table.RowCountProvider;
@@ -48,5 +49,29 @@ public class BasicModule implements Module {
 	@Override
 	public void addImportLinks(QuickLinkPanel quickLinkPanel, List<JXHyperlink> importLinks) {
 		// do nothing
+	}
+
+	@Override
+	public void plugFeatures(DataManager manager) {
+		manager.plugFeatureFactory("/phenodata", new PhenodataProvider()); // FIXME should be in microarray module, but phenodata checks must be fixed first
+		manager.plugFeatureFactory("/column", new TableColumnProvider());
+		manager.plugFeatureFactory("/rowcount", new RowCountProvider());
+	}
+
+	@Override
+	public void plugModifiers(DataManager manager) {
+		manager.plugModifier("log", new LogModifier());
+		manager.plugModifier("neg", new NegModifier());
+		manager.plugModifier("restrict", new RestrictModifier());
+	}
+
+	@Override
+	public void plugTypeTags(DataManager manager) {
+		manager.plugTypeTag(new TypeTag("table-without-header"));
+	}
+
+	@Override
+	public boolean isImportToolSupported() {
+		return false;
 	}
 }

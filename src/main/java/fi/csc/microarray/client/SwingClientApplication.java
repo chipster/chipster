@@ -58,14 +58,10 @@ import fi.csc.microarray.client.dataview.DetailsPanel;
 import fi.csc.microarray.client.dataview.GraphPanel;
 import fi.csc.microarray.client.dataview.TreePanel;
 import fi.csc.microarray.client.dialog.ChipsterDialog;
-import fi.csc.microarray.client.dialog.ClipboardImportDialog;
-import fi.csc.microarray.client.dialog.CreateFromTextDialog;
 import fi.csc.microarray.client.dialog.DialogInfo;
 import fi.csc.microarray.client.dialog.ErrorDialogUtils;
 import fi.csc.microarray.client.dialog.ImportSettingsAccessory;
-import fi.csc.microarray.client.dialog.SequenceImportDialog;
 import fi.csc.microarray.client.dialog.SnapshotAccessory;
-import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.dialog.URLImportDialog;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
@@ -1260,7 +1256,7 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	
-	public static void startStandalone() throws IOException {
+	public static void startStandalone(String module) throws IOException {
 		try {
 			DirectoryLayout.initialiseStandaloneClientLayout();
 			Configuration config = DirectoryLayout.getInstance().getConfiguration();
@@ -1277,7 +1273,7 @@ public class SwingClientApplication extends ClientApplication {
 		ClientListener shutdownListener = getShutdownListener();
 		
 		try {
-			new SwingClientApplication(shutdownListener, null, null, true);
+			new SwingClientApplication(shutdownListener, null, module, true);
 			
 		} catch (Throwable t) {
 			t.printStackTrace();

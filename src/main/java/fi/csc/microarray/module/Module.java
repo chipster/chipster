@@ -18,4 +18,5 @@ public interface Module {
 	public String getServerModuleName();
 	public void addImportMenuItems(JMenu importMenu);
 	public void addImportLinks(QuickLinkPanel quickLinkPanel, List<JXHyperlink> importLinks);
+	public boolean isImportToolSupported();
 }

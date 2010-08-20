@@ -120,7 +120,7 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 		primaryModule.addImportLinks(this, importLinks);
 		
 		String linkTemplate = Strings.repeat("\n      *** ", importLinks.size());
-		addLink("Import new data to Chipster: " + linkTemplate, importLinks, VisualConstants.IMPORT_LINK_ICON, c);
+		addLinks("Import new data to Chipster: " + linkTemplate, importLinks, VisualConstants.IMPORT_LINK_ICON, c);
 
 		// Panels to take rest of space
 		JPanel bottomPanel = new JPanel();
@@ -148,10 +148,10 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 	private void addLink(String description, JXHyperlink link, ImageIcon icon, GridBagConstraints c) {
 		List<JXHyperlink> list = new LinkedList<JXHyperlink>();
 		list.add(link);
-		addLink(description, list, icon, c);
+		addLinks(description, list, icon, c);
 	}
 
-	private void addLink(String description, List<JXHyperlink> links, ImageIcon icon, GridBagConstraints c) {
+	private void addLinks(String description, List<JXHyperlink> links, ImageIcon icon, GridBagConstraints c) {
 
 		String[] words = description.split(" ");
 		int rowChars = 0;
@@ -204,11 +204,11 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 
 	public JXHyperlink createLink(String text, Action action) {
 		JXHyperlink link = new JXHyperlink();
-		link.setText(text);
 		link.addActionListener(this);
 		link.setBorder(null);
 		link.setMargin(new Insets(0, 0, 0, 0));
 		link.setAction(action);
+		link.setText(text); // must be after setAction
 		return link;
 	}
 

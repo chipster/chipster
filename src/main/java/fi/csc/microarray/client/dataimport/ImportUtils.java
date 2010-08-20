@@ -315,7 +315,9 @@ public class ImportUtils {
 
 		List<File> files = importSession.getInputFiles();
 
-		if (importSession.isSkipActionChooser() && !ImportUtils.containsUnsupportedTypes(files.toArray(new File[files.size()]))) {
+		boolean importToolSupported = Session.getSession().getModules().getPrimaryModule().isImportToolSupported();
+		
+		if (!importToolSupported || (importSession.isSkipActionChooser() && !ImportUtils.containsUnsupportedTypes(files.toArray(new File[files.size()])))) {
 			// skip requested and all of the files are supported => import directly and don't show action chooser			
 			application.importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
 			
