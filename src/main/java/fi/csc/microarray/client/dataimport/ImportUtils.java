@@ -306,14 +306,10 @@ public class ImportUtils {
 	}
 
 	/**
-	 * Imports given files if they all are supported type or launches
-	 * ActionChooserScreen if not.
-	 * 
-	 * @param files
-	 *            as File objects
-	 * @param skipActionChooser
-	 * @param importFolder
-	 *            Folder to where imported data is put
+	 * Imports given files if they all are supported type and 
+	 * skip is requested (by default it is). Otherwise launches
+	 * ActionChooserScreen. If module does not support import
+	 * tools then files are always imported directly.
 	 */
 	public static void executeImport(ImportSession importSession) {
 
