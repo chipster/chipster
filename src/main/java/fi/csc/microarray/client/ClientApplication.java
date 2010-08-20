@@ -68,7 +68,6 @@ import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.SourceMessageListener;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.messaging.auth.ClientLoginListener;
-import fi.csc.microarray.module.DefaultModules;
 import fi.csc.microarray.module.Modules;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.Strings;
@@ -91,11 +90,7 @@ public abstract class ClientApplication {
 
 	public static File SNAPSHOT_DIR = null;
 	public static File OLD_SNAPSHOT_DIR = null;
-	
-	// Module names (see ToolRepository)
-	public static final String MODULE_MICROARRAY = "microarray";
-	public static final String MODULE_SEQUENCE = "sequence";
-	
+		
     // 
 	// ABSTRACT INTERFACE
 	//
@@ -104,6 +99,7 @@ public abstract class ClientApplication {
 	public abstract void reportException(Exception e);
 	public abstract void reportTaskError(Task job) throws MicroarrayException;
 	public abstract void importGroup(Collection<ImportItem> datas, String folderName);
+	public abstract DataFolder initializeFolderForImport(String folderName);
 	public abstract void showSourceFor(String operationName) throws TaskException;
 	public abstract void showHistoryScreenFor(DataBean data);
     public abstract void showDetailsFor(DataBean data);
@@ -159,7 +155,7 @@ public abstract class ClientApplication {
 	private boolean eventsEnabled = false;
 	private PropertyChangeSupport eventSupport = new PropertyChangeSupport(this);
 	
-	private String requestedModule;
+	protected String requestedModule;
 
 	// TODO wrap these to some kind of repository
 	protected Collection<OperationCategory> visibleCategories;
@@ -195,23 +191,24 @@ public abstract class ClientApplication {
 		logger = Logger.getLogger(ClientApplication.class);
 		SNAPSHOT_DIR = new File(DirectoryLayout.getInstance().getUserDataDir().getAbsolutePath(), "session-snapshot.zip");
 		OLD_SNAPSHOT_DIR = new File(DirectoryLayout.getInstance().getUserDataDir().getAbsolutePath(), "workspace-snapshot");
-		
-		// initialise modules
-		Modules modules = DefaultModules.getDefaultModules();
-		Session.getSession().setModules(modules);
-		
-		// initialise workflows
-		this.workflowManager = new WorkflowManager(this);
-		 
-		// initialise data management
-		this.manager = new DataManager();
-		Session.getSession().setDataManager(manager);
-		modules.plugFeatures(this.manager);
 
-        this.selectionManager = new DataSelectionManager(this);
-		Session.getSession().setClientApplication(this);
-		
 		try {
+
+			// initialise modules
+			Modules modules = new Modules(requestedModule);
+			Session.getSession().setModules(modules);
+
+			// initialise workflows
+			this.workflowManager = new WorkflowManager(this);
+
+			// initialise data management
+			this.manager = new DataManager();
+			Session.getSession().setDataManager(manager);
+			modules.plugFeatures(this.manager);
+
+			this.selectionManager = new DataSelectionManager(this);
+			Session.getSession().setClientApplication(this);
+		
 			// try to initialise JMS connection (or standalone services)
 			logger.debug("Initialise JMS connection.");
 			reportInitialisation("Connecting to broker at " + configuration.getString("messaging", "broker-host") + "...", true);
@@ -230,7 +227,7 @@ public abstract class ClientApplication {
 			
 			// Fetch descriptions from compute server
 	        reportInitialisation("Fetching analysis descriptions...", true);
-	        serviceAccessor.fetchDescriptions(getRequestedModule());
+	        serviceAccessor.fetchDescriptions(modules.getPrimaryModule());
 			this.visibleCategories = serviceAccessor.getVisibleCategories();
 			
 			// create GUI elements from descriptions
@@ -282,23 +279,7 @@ public abstract class ClientApplication {
 
 
 	}
-	
-	/**
-	 * @return a name of the module that user wants to be loaded.
-	 */
-	public String getRequestedModule() {
-	    return requestedModule;
-	}
-	
-	/**
-	 * Set module that user wants loaded.
-	 * 
-	 * @param requestedModule
-	 */
-    public void setRequestedModule(String requestedModule) {
-        this.requestedModule = requestedModule;
-    }
-    
+
 	/**
 	 * Add listener for applications state changes.
 	 */

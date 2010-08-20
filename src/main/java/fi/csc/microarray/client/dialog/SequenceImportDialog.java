@@ -8,13 +8,9 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.LinkedList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -27,13 +23,10 @@ import javax.swing.event.CaretListener;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.client.SwingClientApplication;
-import fi.csc.microarray.client.dataimport.ImportUtils;
+import fi.csc.microarray.client.ClientApplication;
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataFolder;
-import fi.csc.microarray.exception.MicroarrayException;
 
 /**
  * 
@@ -47,19 +40,15 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
     private final Dimension BUTTON_SIZE = new Dimension(70, 25);
     
     private static Logger logger = Logger.getLogger(SequenceImportDialog.class);
-    private SwingClientApplication application;
+    private ClientApplication application;
     
-    private JLabel nameLabel;
     private JLabel textLabel;
-    private JTextField nameField;
     private JTextField beginField;
     private JTextField endField;
     private JTextArea textArea;
     private JButton okButton;
     private JButton cancelButton;
-    private JComboBox folderNameCombo;
     private JComboBox dbNameCombo;
-    private JCheckBox mergeCheckBox;
     
     private enum Databases {
         EMBL("EMBL", "embl"),
@@ -86,10 +75,10 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         }
     }
     
-    public SequenceImportDialog(SwingClientApplication application) {
-        super(application.getMainFrame(), true);
+    public SequenceImportDialog(ClientApplication clientApplication) {
+        super(Session.getSession().getFrames().getMainFrame(), true);
 
-        this.application = application;
+        this.application = clientApplication;
         this.setTitle("Import sequence");
         this.setModal(true);
         
@@ -203,7 +192,7 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         // Show
         this.pack();
         this.setResizable(false);
-        this.setLocationRelativeTo(application.getMainFrame());
+        Session.getSession().getFrames().setLocationRelativeToMainFrame(this);
         
         // Default focus
         textArea.requestFocusInWindow();
@@ -226,7 +215,7 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
             
             // There can be multiple sequences
             String[] sequences = ids.split("\n|;|,");
-            int index = 0;
+//            int index = 0;
             for (String id : sequences) {
                 // TODO Rename files if we have to import several
 //                String name = fileName;

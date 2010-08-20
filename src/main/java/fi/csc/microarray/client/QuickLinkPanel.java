@@ -13,16 +13,17 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.jdesktop.swingx.JXHyperlink;
 
-import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.module.chipster.MicroarrayModule;
+import fi.csc.microarray.module.Module;
+import fi.csc.microarray.util.Strings;
 
 @SuppressWarnings("serial")
 public class QuickLinkPanel extends JPanel implements ActionListener {
@@ -31,34 +32,63 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 
 	private JXHyperlink sessionLink;
 	private JXHyperlink importLink;
-	private JXHyperlink emptyLink;
 	private JXHyperlink exampleLink;
 	private JXHyperlink importFolderLink;
 	private JXHyperlink importURLLink;
-	private JXHyperlink importArrayExpressLink;
-	private JXHyperlink importGEOLink;
-	private JXHyperlink importSequenceLink;
-	private JXHyperlink importTextLink;
 
 	private static final String LINK_WORD = "***";
-	
+
 	public QuickLinkPanel() {
 		super(new GridBagLayout());
 
 		application = (SwingClientApplication) Session.getSession().getApplication();
 
 		this.setBackground(Color.white);
-		
+
 		// Prepare all available links
-		exampleLink = createLink("Open example session ");
-		importLink = createLink("Import files ");
-		importFolderLink = createLink("Import folder ");
-		importURLLink = createLink("Import from URL ");
-		importArrayExpressLink = createLink("Import from ArrayExpress ");
-		importGEOLink = createLink("Import from GEO ");
-		importSequenceLink = createLink("Import from UniProt, EMBL, PDB... ");
-		importTextLink = createLink("Create dataset from text ");
-		sessionLink = createLink("Open session ");			
+		exampleLink = createLink("Open example session ", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					URL url = new URL("http://chipster.csc.fi/examples/ExampleSessionChipsterV2.cs");
+					application.loadSessionFrom(url);
+				} catch (Exception exception) {
+					application.reportException(exception);
+				}
+			}
+		});
+		importLink = createLink("Import files ", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					application.openFileImport();
+				} catch (Exception exception) {
+					application.reportException(exception);
+				}
+			}
+		});
+		importFolderLink = createLink("Import folder ", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				application.openDirectoryImportDialog();
+			}
+		});
+		importURLLink = createLink("Import from URL ", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					application.openURLImport();
+				} catch (Exception exception) {
+					application.reportException(exception);
+				}
+			}
+		});
+		sessionLink = createLink("Open session ", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				application.loadSession();
+			}
+		});
 
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0;
@@ -66,40 +96,30 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 		c.anchor = GridBagConstraints.NORTHWEST;
 
 		c.insets.set(5, 10, 5, 10);
-		c.gridwidth = 2;	
-		this.add(new JLabel("To start working with Chipster, you need to load in data first:"), c);		
+		c.gridwidth = 2;
+		this.add(new JLabel("To start working with Chipster, you need to load in data first:"), c);
 		c.gridwidth = 1;
 		c.gridy++;
 
 		c.insets.set(0, 10, 0, 0);
 
-		//addLink("To start working with Chipster, you need to load in data first:", (JXHyperlink)null, null, c);
-		
+		// addLink("To start working with Chipster, you need to load in data first:", (JXHyperlink)null, null, c);
+
 		addLink("*** to get familiar with Chipster.", exampleLink, VisualConstants.EXAMPLE_SESSION_ICON, c);
 
 		addLink("*** to continue working on previous sessions.", sessionLink, VisualConstants.OPEN_SESSION_LINK_ICON, c);
 
-		// Common links
+		// common links
 		List<JXHyperlink> importLinks = new LinkedList<JXHyperlink>();
 		importLinks.add(importLink);
 		importLinks.add(importFolderLink);
 		importLinks.add(importURLLink);
-		
-		// Microarray links
-		String linkTemplate = "\n      *** \n      *** \n      ***";
-		if (ClientApplication.MODULE_MICROARRAY.equals(application.getRequestedModule())) {
-			linkTemplate = "\n      *** \n      *** \n      *** \n      *** \n      ***";
-		    importLinks.add(importArrayExpressLink);
-		    importLinks.add(importGEOLink);
-		}
-		
-		// Sequence links
-		if (ClientApplication.MODULE_SEQUENCE.equals(application.getRequestedModule())) {
-			linkTemplate = "\n      *** \n      *** \n      *** \n      *** \n      ***";
-	        importLinks.add(importSequenceLink);
-		    importLinks.add(importTextLink);
-		}
 
+		// module specific links
+		Module primaryModule = Session.getSession().getModules().getPrimaryModule();
+		primaryModule.addImportLinks(this, importLinks);
+		
+		String linkTemplate = Strings.repeat("\n      *** ", importLinks.size());
 		addLink("Import new data to Chipster: " + linkTemplate, importLinks, VisualConstants.IMPORT_LINK_ICON, c);
 
 		// Panels to take rest of space
@@ -182,43 +202,20 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 		c.gridheight = 1;
 	}
 
-	private JXHyperlink createLink(String text){
+	public JXHyperlink createLink(String text, Action action) {
 		JXHyperlink link = new JXHyperlink();
 		link.setText(text);
 		link.addActionListener(this);
 		link.setBorder(null);
 		link.setMargin(new Insets(0, 0, 0, 0));
+		link.setAction(action);
 		return link;
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		try {
-			if (e.getSource() == sessionLink) {
-				application.loadSession();
-			} else if (e.getSource() == importLink) {
-				application.openFileImport();
-			} else if (e.getSource() == importURLLink) {
-				application.openURLImport();
-			} else if (e.getSource() == importFolderLink) {
-				application.openDirectoryImportDialog();
-			} else if (e.getSource() == importArrayExpressLink) {
-				Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_ARRAYEXPRESS_ID), new DataBean[] {});
-				application.openDatabaseImport("ArrayExpress", importOperation);
-			} else if (e.getSource() == importGEOLink) {
-				Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_GEO_ID), new DataBean[] {});
-				application.openDatabaseImport("GEO", importOperation);
-			} else if (e.getSource() == importTextLink) {
-			    application.openCreateFromTextDialog();
-	        } else if (e.getSource() == importSequenceLink) {
-                application.openSequenceImportDialog();
-			} else if (e.getSource() == emptyLink) {
-
-			} else if (e.getSource() == exampleLink) {
-				URL url = new URL("http://chipster.csc.fi/examples/ExampleSessionChipsterV2.cs");
-				application.loadSessionFrom(url);
-			}
-		} catch (Exception ex) {
-			application.reportException(ex);
+		if (e.getSource() instanceof JXHyperlink) {
+			JXHyperlink link = (JXHyperlink) e.getSource();
+			link.getAction().actionPerformed(e);
 		}
 	}
 }

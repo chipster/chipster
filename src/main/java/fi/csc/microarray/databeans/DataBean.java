@@ -11,8 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.log4j.Logger;
-
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.QueryResult;
@@ -33,12 +31,17 @@ import fi.csc.microarray.util.StreamStartCache;
  * <p>DataBean stores two kinds of relationships: hierarchical relationships 
  * of DataBeans and DataFolders and link relationships of related beans.</p>
  * 
+ * <p>The complete type of a bean is made up from the MIME content type and 
+ * the set of type tags. No other information should be used in typing
+ * the beans, such as when deciding what operations can be applied to 
+ * some particular bean.</p>  
+ * 
  * @author Aleksi Kallio
  *
  */
 public class DataBean extends DataItemBase {
 	
-	public enum DataBeanType {
+	public enum StorageMethod {
 		LOCAL_USER,
 		LOCAL_TEMP,
 		LOCAL_SESSION;
@@ -121,12 +124,6 @@ public class DataBean extends DataItemBase {
 		Link link;
 		DataBean bean;
 	}
-	
-	
-	/**
-	 * Logger for this class
-	 */
-	private static final Logger logger = Logger.getLogger(DataBean.class);
 
 	protected DataManager dataManager;
 	protected StreamStartCache streamStartCache = null;
@@ -136,9 +133,10 @@ public class DataBean extends DataItemBase {
 	private boolean contentChanged = true;
 	private ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 
-
 	private LinkedList<LinkedBean> outgoingLinks = new LinkedList<LinkedBean>();
 	private LinkedList<LinkedBean> incomingLinks = new LinkedList<LinkedBean>();
+
+	private LinkedList<TypeTag> tags = new LinkedList<TypeTag>();
 	
 	protected Date date;
 	private Operation sourceOperation;
@@ -147,18 +145,18 @@ public class DataBean extends DataItemBase {
 	protected ContentType contentType;
 
 	
-	private DataBeanType type;
+	private StorageMethod storageMethod;
 	private String repositoryName;
 	private URL url;
 	private DataBeanHandler handler;
 
 
-	public DataBean(String name, DataBeanType type, String repositoryName, URL contentUrl, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManager manager, DataBeanHandler handler) {
+	public DataBean(String name, StorageMethod type, String repositoryName, URL contentUrl, ContentType contentType, Date date, DataBean[] sources, DataFolder parentFolder, DataManager manager, DataBeanHandler handler) {
 		
 		this.dataManager = manager;
 		this.name = name;
 		this.url = contentUrl;
-		this.type = type;
+		this.storageMethod = type;
 		this.repositoryName = repositoryName;
 		this.handler = handler;
 		this.date = date;
@@ -518,7 +516,7 @@ public class DataBean extends DataItemBase {
 	 * further. Selected beans are returned in the order (breadth first) they were encountered.
 	 * No duplicate beans are returned.
 	 * 
-	 * @param type
+	 * @param storageMethod
 	 * @param traversal
 	 * @param selector
 	 * @return
@@ -580,6 +578,60 @@ public class DataBean extends DataItemBase {
 		return getLinkedBeans(types, incomingLinks);
 	}
 	
+	/**
+	 * Attaches a type tag to this data bean, if not already
+	 * attached. Type tag represents an aspect of this databean's type.
+	 * 
+	 * @param tag type tag to be attach
+	 * 
+	 * @see TypeTag
+	 */
+	public void addTypeTag(TypeTag tag) {
+		if (!tags.contains(tag)) {
+			tags.add(tag);
+		}
+	}
+	
+	/**
+	 * Removes type tag from this databean.
+	 * If tag is not attached nothing is done.
+	 * 
+	 * @param tag tag to be removed
+	 * 
+	 * @see TypeTag
+	 */
+	public void removeTypeTag(TypeTag tag) {
+		tags.remove(tag);
+	}
+	
+	/**
+	 * Gets all type tags attached to this databean.
+	 * The set of type tags and MIME content type forms the
+	 * complete type of the bean.
+	 * 
+	 * @return attached type tags
+	 * 
+	 * @see TypeTag
+	 * @see #getContentType()
+	 */
+	public List<TypeTag> getTypeTags() {
+		return tags;
+	}
+	
+	/**
+	 * Checks if a tag is attached to this databean.
+	 * 
+	 * @param tag type tag to check 
+	 * 
+	 * @return true iff tag is attached
+	 * 
+	 * @see TypeTag
+	 */
+	public boolean hasTypeTag(TypeTag tag) {
+		return tags.contains(tag);
+	}
+	
+	
 	public URL getContentUrl() {
 		return url;
 	}
@@ -609,14 +661,14 @@ public class DataBean extends DataItemBase {
 
 
 
-	public DataBeanType getType() {
-		return type;
+	public StorageMethod getStorageMethod() {
+		return storageMethod;
 	}
 
 
 
-	public void setType(DataBeanType type) {
-		this.type = type;
+	public void setStorageMethod(StorageMethod storageMethod) {
+		this.storageMethod = storageMethod;
 	}
 
 

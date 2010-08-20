@@ -24,7 +24,8 @@ import javax.swing.JTextField;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
-import fi.csc.microarray.client.SwingClientApplication;
+import fi.csc.microarray.client.ClientApplication;
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dataimport.ImportSession;
 import fi.csc.microarray.client.dataimport.ImportUtils;
 import fi.csc.microarray.client.operation.Operation;
@@ -42,7 +43,7 @@ public class CreateFromTextDialog extends JDialog implements CaretListener, Acti
     
     private final Dimension BUTTON_SIZE = new Dimension(70, 25);
     
-    private SwingClientApplication client;
+    private ClientApplication client;
     
     private JLabel nameLabel;
     private JLabel textLabel;
@@ -53,10 +54,9 @@ public class CreateFromTextDialog extends JDialog implements CaretListener, Acti
     private JComboBox folderNameCombo;
     private JCheckBox importCheckBox;
     
-    public CreateFromTextDialog(SwingClientApplication client) {
-        super(client.getMainFrame(), true);
+    public CreateFromTextDialog(ClientApplication clientApplication) {
+        super(Session.getSession().getFrames().getMainFrame(), true);
 
-        this.client = client;
         this.setTitle("Create dataset from text");
         this.setModal(true);
         
@@ -144,7 +144,7 @@ public class CreateFromTextDialog extends JDialog implements CaretListener, Acti
         // Show
         this.pack();
         this.setResizable(false);
-        this.setLocationRelativeTo(client.getMainFrame());
+        Session.getSession().getFrames().setLocationRelativeToMainFrame(this);
         
         // Default focus
         textArea.requestFocusInWindow();

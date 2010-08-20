@@ -1,35 +1,52 @@
 package fi.csc.microarray.module.basic;
 
+import java.util.List;
+
+import javax.swing.JMenu;
+
+import org.jdesktop.swingx.JXHyperlink;
+
+import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.TypeTag;
+import fi.csc.microarray.databeans.features.RestrictModifier;
+import fi.csc.microarray.databeans.features.stat.LogModifier;
+import fi.csc.microarray.databeans.features.stat.NegModifier;
+import fi.csc.microarray.databeans.features.table.RowCountProvider;
+import fi.csc.microarray.databeans.features.table.TableColumnProvider;
 import fi.csc.microarray.module.Module;
 
 public class BasicModule implements Module {
 
 	public void plugContentTypes(DataManager manager) {
+
+		manager.plugContentType("text/plain", false, false, "plain text", VisualConstants.ICON_TYPE_TEXT, "txt", "dat", "wee");
+		manager.plugContentType("application/octet-stream", false, true, "binary", VisualConstants.ICON_TYPE_BINARY, "");
+		
+		manager.plugContentType("text/tab", false, false, "tab separated values", VisualConstants.ICON_TYPE_TABLE, "tsv");
+		manager.plugContentType("text/csv", false, false, "comma separated values", VisualConstants.ICON_TYPE_TABLE, "csv");
+
 		manager.plugContentType("image/png", true, true, "PNG image", VisualConstants.ICON_TYPE_IMAGE, "png");
 		manager.plugContentType("image/gif", true, true, "GIF image", VisualConstants.ICON_TYPE_IMAGE, "gif");
 		manager.plugContentType("image/jpeg", true, true, "JPEG image", VisualConstants.ICON_TYPE_IMAGE, "jpg", "jpeg");
 		
 		manager.plugContentType("text/html", true, false, "HTML document", VisualConstants.ICON_TYPE_HTML, "html", "htm");
-		manager.plugContentType("application/pdf", true, true, "PDF document", VisualConstants.ICON_TYPE_IMAGE, "pdf");
-		
-		manager.plugContentType("text/plain", false, false, "plain text", VisualConstants.ICON_TYPE_TEXT, "txt", "dat", "wee");
-		manager.plugContentType("application/octet-stream", false, true, "binary", VisualConstants.ICON_TYPE_BINARY, "");
-		
-		// FIXME should be separated into different module
-		manager.plugContentType("chemical/x-fasta", true, false, "FASTA", VisualConstants.ICON_TYPE_TEXT, "fasta", "fa", "fna", "fsa", "mpfa");
-		manager.plugContentType("text/wig", true, false, "WIG", VisualConstants.ICON_TYPE_TEXT, "wig");
-		manager.plugContentType("text/bed", true, false, "BED", VisualConstants.ICON_TYPE_TEXT, "bed");
-		manager.plugContentType("text/bed-reads", true, false, "READS", VisualConstants.ICON_TYPE_TEXT, "reads");
+		manager.plugContentType("application/pdf", true, true, "PDF document", VisualConstants.ICON_TYPE_IMAGE, "pdf");		
 	}
 
-	public void plugFeatures(DataManager manager) {
-		// nothing to plug
+	@Override
+	public String getServerModuleName() {
+		return null;
 	}
 
-	public void plugModifiers(DataManager manager) {
-		// nothing to plug
+	@Override
+	public void addImportMenuItems(JMenu importMenu) {
+		// do nothing
 	}
 
+	@Override
+	public void addImportLinks(QuickLinkPanel quickLinkPanel, List<JXHyperlink> importLinks) {
+		// do nothing
+	}
 }

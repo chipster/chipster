@@ -22,7 +22,7 @@ import org.mortbay.util.IO;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
-import fi.csc.microarray.databeans.DataBean.DataBeanType;
+import fi.csc.microarray.databeans.DataBean.StorageMethod;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
@@ -53,15 +53,15 @@ public class DataManager {
 	
 	/** Mapping file extensions to content types */
 	private Map<String, String> extensionMap = new HashMap<String, String>();
+	private HashMap<String, TypeTag> tagMap = new HashMap<String, TypeTag>();
 	
 	private LinkedList<DataChangeListener> listeners = new LinkedList<DataChangeListener>();
 	
 	private boolean eventsEnabled = false;
 
-	
-	
 	private DataFolder rootFolder;	
 	private File repositoryRoot;
+
 	
 	public DataManager() throws IOException {
 		rootFolder = createFolder(DataManager.ROOT_NAME);
@@ -416,7 +416,7 @@ public class DataManager {
 			throw new MicroarrayException(e);
 		}
 		
-		return createDataBean(name, DataBeanType.LOCAL_TEMP, null, new DataBean[] {}, contentFile);
+		return createDataBean(name, StorageMethod.LOCAL_TEMP, null, new DataBean[] {}, contentFile);
 	}
 
 	/**
@@ -434,7 +434,7 @@ public class DataManager {
 	 * 
 	 */
 	public DataBean createDataBean(String name, File contentFile) throws MicroarrayException {		
-		return createDataBean(name, DataBeanType.LOCAL_USER, null, new DataBean[] {}, contentFile);
+		return createDataBean(name, StorageMethod.LOCAL_USER, null, new DataBean[] {}, contentFile);
 	}
 
 	/**
@@ -449,7 +449,7 @@ public class DataManager {
 			throw new IllegalArgumentException("Could not convert " + url + " to a file");
 		}
 		
-		return createDataBean(name, DataBeanType.LOCAL_USER, null, new DataBean[] {}, contentFile);
+		return createDataBean(name, StorageMethod.LOCAL_USER, null, new DataBean[] {}, contentFile);
 	}
 
 	/**
@@ -471,7 +471,7 @@ public class DataManager {
 		}
 		
 		DataBeanHandler handler = new ZipDataBeanHandler();
-		DataBean dataBean = new DataBean(name, DataBeanType.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new DataBean[] {}, null, this, handler);
+		DataBean dataBean = new DataBean(name, StorageMethod.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new DataBean[] {}, null, this, handler);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
 		return dataBean;
 	}
@@ -497,7 +497,7 @@ public class DataManager {
 		}
 
 		// create and return the bean
-		DataBean bean = createDataBean(name, DataBeanType.LOCAL_TEMP, folder, sources, contentFile);
+		DataBean bean = createDataBean(name, StorageMethod.LOCAL_TEMP, folder, sources, contentFile);
 		return bean;
 	}
 	
@@ -507,7 +507,7 @@ public class DataManager {
 	 * The file is used directly, the contents are not copied anywhere.
 	 * 
 	 */
-	private DataBean createDataBean(String name, DataBeanType type, DataFolder folder, DataBean[] sources, File contentFile) throws MicroarrayException {
+	private DataBean createDataBean(String name, StorageMethod type, DataFolder folder, DataBean[] sources, File contentFile) throws MicroarrayException {
 		URL url;
 		try {
 			 url = contentFile.toURI().toURL();
@@ -652,7 +652,7 @@ public class DataManager {
 		bean.setContentChanged(true);
 		
 		// for local temp beans, just get the output stream
-		if (bean.getType().equals(DataBeanType.LOCAL_TEMP)) {
+		if (bean.getStorageMethod().equals(StorageMethod.LOCAL_TEMP)) {
 			return bean.getHandler().getOutputStream(bean);
 		}
 		// for other bean types, convert to local bean
@@ -711,7 +711,7 @@ public class DataManager {
 		URL newURL = newFile.toURI().toURL();
 		
 		bean.setContentUrl(newURL);
-		bean.setType(DataBeanType.LOCAL_TEMP);
+		bean.setStorageMethod(StorageMethod.LOCAL_TEMP);
 		bean.setHandler(new LocalFileDataBeanHandler());
 		bean.setContentChanged(true);
 	}
@@ -756,6 +756,14 @@ public class DataManager {
 				return npf;
 			}
 		}
+	}
+
+	public void plugTypeTag(TypeTag typeTag) {
+		this.tagMap.put(typeTag.getName(), typeTag);
+	}
+	
+	public TypeTag getTypeTag(String name) {
+		return this.tagMap.get(name);
 	}
 
 }

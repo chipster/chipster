@@ -23,6 +23,8 @@ public class Session {
 	private DataManager dataManager;
 	private ServiceAccessor serviceAccessor;
 	private Modules modules;
+	private Frames frames;
+	
 	
 	/**
 	 * 
@@ -66,5 +68,12 @@ public class Session {
 	public void setModules(Modules modules) {
 		this.modules = modules;
 	}
-	
+
+	public Frames getFrames() {
+		return frames;
+	}
+
+	public void setFrames(Frames frames) {
+		this.frames = frames;
+	}
 }
