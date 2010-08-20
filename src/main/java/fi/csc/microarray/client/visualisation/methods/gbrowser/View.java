@@ -131,12 +131,14 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		
 		BpCoord max = null;
 		
-		for (Track t : getTracks()) {
-			
-			BpCoord trackMax = t.getMaxBp(bpRegion.start.chr);
-			
-			if (trackMax != null && (max == null || max.compareTo(trackMax) > 0)) {
-				max = trackMax;
+		if (bpRegion != null) {
+			for (Track t : getTracks()) {
+
+				BpCoord trackMax = t.getMaxBp(bpRegion.start.chr);
+
+				if (trackMax != null && (max == null || max.compareTo(trackMax) > 0)) {
+					max = trackMax;
+				}
 			}
 		}
 		
@@ -421,6 +423,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	}
 
 	public void setBpRegion(BpCoordRegionDouble region, boolean disableDrawing) {
+		
 		this.bpRegion = region;
 
 		// Bp-region change may change visibility of tracks, calculate sizes again
@@ -461,7 +464,11 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	public void mouseReleased(MouseEvent e) {
 
-		if (dragStarted && dragEndPoint != null && dragLastStartPoint != null && Math.abs(dragEndPoint.getX() - dragLastStartPoint.getX()) > 10 && System.currentTimeMillis() - dragEventTime < DRAG_EXPIRATION_TIME_MS) {
+		if (dragStarted && 
+				dragEndPoint != null && 
+				dragLastStartPoint != null && 
+				Math.abs(dragEndPoint.getX() - dragLastStartPoint.getX()) > 10 
+				&& System.currentTimeMillis() - dragEventTime < DRAG_EXPIRATION_TIME_MS) {
 
 			stopAnimation();
 
@@ -497,7 +504,10 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	public void mouseDragged(MouseEvent e) {
 		
-		if (movable) {
+		if (movable && 
+				((dragStartPoint != null && viewArea.contains(dragStartPoint) || 
+						viewArea.contains(e.getPoint() )))) {
+			
 			dragStarted = true;
 			dragEndPoint = scale(e.getPoint());
 			dragEventTime = System.currentTimeMillis();

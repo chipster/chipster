@@ -10,6 +10,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDraw
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
 
 /**
  * The basic view of genome browser. 
@@ -89,19 +90,31 @@ public class HorizontalView extends View {
 	protected void handleDrag(Point2D start, Point2D end, boolean disableDrawing) {
 		double bpMove = trackToBp((double) start.getX()).minus(trackToBp((double) end.getX()));
 
-		if (bpMove < 0 && bpRegion.start.bp < Math.abs(bpMove)) {
-			bpMove = -bpRegion.start.bp;
-		}
-		
-		BpCoord maxBp = getMaxBp();
-		
-		if (maxBp != null && bpRegion.end.bp + bpMove > maxBp.bp) {
-			bpMove = maxBp.bp - bpRegion.end.bp;
-		}
-
 		bpRegion.move(bpMove);
 		setBpRegion(bpRegion, disableDrawing);
 
 		parentPlot.redraw();
+	}
+	
+	@Override
+	public void setBpRegion(BpCoordRegionDouble region, boolean disableDrawing) {
+		
+		BpCoord maxBp = getMaxBp();
+		
+		if (maxBp != null && region.getLength() > maxBp.bp) {
+			region.start.bp = 0.0;
+			region.end.bp = (double)maxBp.bp;
+		} else {
+			if (region.start.bp < 0 ) {
+				region.move(-region.start.bp);
+			}
+
+			if (maxBp != null && region.end.bp > maxBp.bp) {				
+				double delta = region.end.bp - (double)maxBp.bp;
+				region.move(-delta);
+			}
+		}
+		
+		super.setBpRegion(region, disableDrawing);
 	}
 }
