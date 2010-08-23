@@ -214,7 +214,14 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 			} else if (e.getSource() == emptyLink) {
 
 			} else if (e.getSource() == exampleLink) {
-				URL url = new URL("http://chipster.csc.fi/examples/ExampleSessionChipsterV2.cs");
+
+				// HACK HACK
+				URL url;
+				if (ClientApplication.MODULE_SEQUENCE.equals(application.getRequestedModule())) {
+					url = new URL("http://chipster.csc.fi/examples/embster.cs");
+				} else {
+					url = new URL("http://chipster.csc.fi/examples/ExampleSessionChipsterV2.cs");
+				}
 				application.loadSessionFrom(url);
 			}
 		} catch (Exception ex) {
