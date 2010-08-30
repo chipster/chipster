@@ -156,7 +156,7 @@
    	<tool runtime="R-2.9">sample-size-with-bh.R</tool>
    	<tool runtime="R-2.9">merge-datasets.R</tool>
    	<tool runtime="R-2.9">calculate-aberration-frequencies.R</tool>
-   	<tool runtime="R-2.9">pathways-acgh-hyperg-go.R</tool>
+   	<tool runtime="R-2.10">pathways-acgh-hyperg-go.R</tool>
 
 	<!-- HIDDEN -->
 	<tool runtime="R-2.9" hidden="true">test.R</tool>
