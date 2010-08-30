@@ -40,8 +40,12 @@ if (!column %in% colnames(dat))
 # extract the list of frequently aberrated genes
 selected.genes <- unique(unlist(ensembl.to.entrez[rownames(dat[dat[,column] >= frequency.threshold,])]))
 
+# check that we have a list of genes to test
+if (length(reference.genes)==0)
+  stop('CHIPSTER-NOTE: There were no aberrated genes above the selected threshold (', frequency.threshold, '). Please choose a lower threshold.')
+
 # define output variables
-output <- data.frame(ontology=character(0), direction=character(0), p.value=numeric(0), odds.ratio=numeric(0), expected.count=numeric(0), count=integer(0), size=integer(0), term=character(0))
+output <- data.frame(p.value=numeric(0), odds.ratio=numeric(0), expected.count=numeric(0), count=integer(0), size=integer(0), term=character(0), ontology=character(0), direction=character(0))
 ontology.labels <- c('BP'='biological process', 'MF'='molecular function', 'CC'='cellular component')
 direction.labels <- c('over'='over-represented', 'under'='under-represented')
 
@@ -56,7 +60,8 @@ for (ontology in ontologies) {
     if (nrow(go.table)>0) {
       rownames(go.table) <- go.table[,1]
       go.table[,1] <- NULL
-      go.table <- data.frame(ontology=ontology.labels[ontology], direction=direction.labels[testDirection], go.table, row.names=row.names(go.table))
+      go.table$ontology <- ontology.labels[ontology]
+      go.table$direction <- direction.labels[testDirection]
       colnames(go.table) <- colnames(output)
       output <- rbind(output, go.table)
       htmlReport(go, file='hypergeo-go.html', append=TRUE)
