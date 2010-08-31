@@ -3,12 +3,14 @@
 # OUTPUT aberrations.tsv, aberration-summary.png
 # PARAMETER chromosomes INTEGER DEFAULT 23 (Number of chromosomes. Usually 23 for sex-matched reference samples and 22 otherwise.)
 # PARAMETER normalization [median, mode, none] DEFAULT none (Normalization method.)
-# PARAMETER cn.states [3, 4] DEFAULT 3 (Whether to call loss/normal/gain or loss/normal/gain/amplification.)
+# PARAMETER cn.states [3, 4] DEFAULT 3 (Whether to call loss vs. normal vs. gain or loss vs. normal vs. gain vs. amplification.)
 # PARAMETER min.width [2, 3, 4, 5] DEFAULT 2 (Minimum number of probes per segment.)
+# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 # detect-copy-number-aberrations.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-08-06
+# 2010-08-31
 
 library(CGHcall)
 
@@ -87,7 +89,7 @@ dat3$chromosome[dat3$chromosome=='25'] <- 'MT'
 
 write.table(dat3, file='aberrations.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
-bitmap(file='aberration-summary.png', width=600/72, height=600/72)
+bitmap(file='aberration-summary.png', width=image.width/72, height=image.height/72)
 plot.summary(cgh)
 dev.off()
 

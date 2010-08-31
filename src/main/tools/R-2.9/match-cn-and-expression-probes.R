@@ -9,7 +9,7 @@
 
 # match-cn-and-expression-probes.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-06-01
+# 2010-08-31
 
 library(CGHcall)
 library(intCNGEan)
@@ -47,9 +47,9 @@ if (length(setdiff(pos, colnames(exp)))!=0)
 
 # check for unambiguity of sample identifiers
 if (nrow(phenodata_cgh)!=length(unique(phenodata_cgh[,samples_cgh])))
-  stop('CHIPSTER-NOTE: Unambigous sample identifiers: ', paste(phenodata_cgh[,samples_cgh], collapse=', ')) 
+  stop('CHIPSTER-NOTE: Unambigous aCGH sample identifiers: ', paste(phenodata_cgh[duplicated(phenodata_cgh[,samples_cgh]),samples_cgh], collapse=', ')) 
 if (nrow(phenodata_exp)!=length(unique(phenodata_exp[,samples_exp])))
-  stop('CHIPSTER-NOTE: Unambigous sample identifiers: ', paste(phenodata_exp[,samples_exp], collapse=', ')) 
+  stop('CHIPSTER-NOTE: Unambigous expression sample identifiers: ', paste(phenodata_exp[duplicated(phenodata_exp[,samples_exp]),samples_exp], collapse=', ')) 
 
 common.samples <- intersect(phenodata_cgh[,samples_cgh], phenodata_exp[,samples_exp])
 rownames(phenodata_cgh) <- phenodata_cgh[,samples_cgh]
