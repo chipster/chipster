@@ -61,6 +61,9 @@ public class StreamStartCache implements InputStreamSource {
 	public StreamStartCache(InputStream initialiser, InputStreamSource source) throws IOException {
 		byte[] tempCache = new byte[CACHE_SIZE];
 		int read = initialiser.read(tempCache);
+		if (read == -1) {
+			read = 0; // if EOF, zero bytes were read
+		}
 		this.cache = new byte[read];
 		System.arraycopy(tempCache, 0, cache, 0, read);
 		
