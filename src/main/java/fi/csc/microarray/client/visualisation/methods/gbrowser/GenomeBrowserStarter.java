@@ -28,7 +28,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.WIGPar
  */
 public class GenomeBrowserStarter {
 
-	private static final File ELAND_DATA_FILE;
+//	private static final File ELAND_DATA_FILE;
+	private static final File BAM_DATA_FILE;
+	private static final File BAI_DATA_FILE;
+
 	private static final File MACS_DATA_FILE;
 	private static final File WIG_DATA_FILE;
 	private static final File URL_ROOT;
@@ -38,7 +41,10 @@ public class GenomeBrowserStarter {
 		
 		annotationPath = "/home/" + System.getProperty("user.name") + "/chipster-share/";
 		
-		ELAND_DATA_FILE = new File(annotationPath, "/ngs/STAT1/STAT1_treatment_aggregated_filtered_sorted_chr1.txt");
+//		ELAND_DATA_FILE = new File(annotationPath, "/ngs/STAT1/STAT1_treatment_aggregated_filtered_sorted_chr1.txt");
+		BAM_DATA_FILE = new File(annotationPath + "/ngs/RNA-seq/pairedEnd_Berger/501Mel.sorted.bam");
+		BAI_DATA_FILE = new File(annotationPath + "/ngs/RNA-seq/pairedEnd_Berger/501Mel.sorted.bam.bai");
+
 		MACS_DATA_FILE = new File(annotationPath, "/ngs/STAT1/STAT1_peaks_sorted.bed");
 		URL_ROOT = new File(annotationPath, "/ngs/annotations");
 		
@@ -78,14 +84,14 @@ public class GenomeBrowserStarter {
 		TrackFactory.addThickSeparatorTrack(plot);
 		TrackFactory.addReadTracks(
 				plot, 
-				new SAMDataSource(new File("/home/akallio/Desktop/501Mel.sorted.chr12.bam"), new File("/home/akallio/Desktop/501Mel.sorted.chr12.bam.bai")),
+				new SAMDataSource(BAM_DATA_FILE, BAI_DATA_FILE),
 				SAMHandlerThread.class,
 				new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_seq.tsv", new SequenceParser()),
 				"Reads"
 		);
 
 		TrackFactory.addRulerTrack(plot);
-		plot.start("12", 1024 * 1024 * 250d, 1000000L, 100000L);
+		plot.start("1", 1024 * 1024 * 250d, 1000000L, 100000L);
 		
 		panel.setChart(new JFreeChart(plot));
 		panel.setPreferredSize(new Dimension(800, 2000));

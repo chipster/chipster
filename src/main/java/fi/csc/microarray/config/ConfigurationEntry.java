@@ -38,6 +38,10 @@ public class ConfigurationEntry {
 		this.name = name;
 	}
 	
+	public void setValue(String value) throws IllegalConfigurationException {
+		setValue(new String[] { value });
+	}
+	
 	public void setValue(String[] values) throws IllegalConfigurationException {
 		
 		// pre checks

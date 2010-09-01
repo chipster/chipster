@@ -78,6 +78,7 @@ public class GeneIndexActions {
 						id.values.get(ColumnType.CHROMOSOME) + "," + id.values.get(ColumnType.BP_START) + "," +
 						id.values.get(ColumnType.BP_END) + ",'" + id.values.get(ColumnType.DESCRIPTION) + "' )");
 			}
+			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

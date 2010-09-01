@@ -3,6 +3,8 @@
 # INPUT results.tsv: "Results data file" TYPE GENERIC
 # OUTPUT motif-analysis-summary.txt: "A lot of analysis information collected in one single file"
 # OUTPUT logo-plot-(...).png: "Logo plots for each consensus motif"
+# OUTPUT test_plot_(...).png: "testing optional plots"
+# OUTPUT testplot.png: "testing optional plots"
 # PARAMETER p.value.cutoff: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.0002 (This parameter controls the false positive rate when searching for consensus sequence motifs. Lower the value for increased stringency.)
 # PARAMETER e.value.cutoff: "E-value cutoff" TYPE DECIMAL FROM 0 TO 100 DEFAULT 0.01 (This parameter controls the alignment stringency, where a lower value means better alignment.)
 # PARAMETER genome: "Genome" TYPE [BSgenome.Hsapiens.UCSC.hg17, BSgenome.Hsapiens.UCSC.hg18, BSgenome.Hsapiens.UCSC.hg19, BSgenome.Mmusculus.UCSC.mm8, BSgenome.Mmusculus.UCSC.mm9, BSgenome.Rnorvegicus.UCSC.rn4] DEFAULT BSgenome.Hsapiens.UCSC.hg18 (The genome and version used when aligning the sequences.)
@@ -29,15 +31,15 @@ library(rGADEM)
 library(package=genome, character.only=TRUE)
 
 # Covert genome name to fit requirements from rGADEM package
-if (genome == "BSgenome.Hsapiens.UCSC.hg17" | genome == "BSgenome.Hsapiens.UCSC.hg18" | genome == "BSgenome.Hsapiens.UCSC.hg19") {
-		genome <- "Hsapiens"
-}
-if (genome == "BSgenome.Mmusculus.UCSC.mm8" | genome == "BSgenome.Mmusculus.UCSC.mm9") {
-	genome <- "Mmusculus"
-}
-if (genome == "BSgenome.Rnorvegicus.UCSC.rn4") {
-	genome <- "Rnorvegicus"
-}
+#if (genome == "BSgenome.Hsapiens.UCSC.hg17" | genome == "BSgenome.Hsapiens.UCSC.hg18" | genome == "BSgenome.Hsapiens.UCSC.hg19") {
+#		genome <- "Hsapiens"
+#}
+#if (genome == "BSgenome.Mmusculus.UCSC.mm8" | genome == "BSgenome.Mmusculus.UCSC.mm9") {
+#	genome <- "Mmusculus"
+#}
+#if (genome == "BSgenome.Rnorvegicus.UCSC.rn4") {
+#	genome <- "Rnorvegicus"
+#}
 
 # Read in data and convert to BED format
 results_file <- read.table (file="results.tsv", sep="\t", header=T)
@@ -119,7 +121,7 @@ results_summary <- summary (results_alignment)
 
 # Write out a results summary file
 # print out a summary of the results
-sink(file="analysis-summary.txt")
+sink(file="motif-analysis-summary.txt")
 	print("Summary of MotIV analysis", quote=FALSE)
 	print("", quote=FALSE)
 	summary(results_alignment)
@@ -140,10 +142,24 @@ sink(file="analysis-summary.txt")
 	results_motifs
 sink()
 
+# testing optional plots
+x <- rnorm (100,50,10)
+y <- rnorm (100,25,5)
+bitmap(file="test_plot_1.png", width=1000/72, height=1000/72)
+plot(x,y)
+dev.off()
+bitmap(file="test_plot_2.png", width=1000/72, height=1000/72)
+plot(y,x)
+dev.off()
+bitmap(file="testplot.png", width=1000/72, height=1000/72)
+plot(y,x)
+dev.off()
+
 # Plot the logo of the motifs and corresponding TF:s
 for (count in 1:number_motifs) {
 	file_name <- paste("logo-plot-",count,".png", sep="")
-	png(width=1000, height=1000, file=file_name)
+	bitmap(file=file_name, width=1000, height=1000)
+#	png(width=1000, height=1000, file=file_name)
 	plot_name <- consensus(results_gadem) [count]
 	plot (results_alignment[count], top=10, main=paste("Top ten TF matches for motif\n", plot_name, sep=""))
 	dev.off()

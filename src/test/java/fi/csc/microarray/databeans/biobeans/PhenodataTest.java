@@ -24,7 +24,7 @@ public class PhenodataTest {
 	
 	@BeforeSuite(alwaysRun = true)
 	public void init() throws IOException, IllegalConfigurationException {
-		DirectoryLayout.initialiseClientLayout().getConfiguration();			
+		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
 		this.manager = new DataManager();
 		DefaultModules.getDefaultModules().plugFeatures(manager);
 	}

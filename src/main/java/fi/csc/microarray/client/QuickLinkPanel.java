@@ -86,15 +86,16 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 		importLinks.add(importURLLink);
 		
 		// Microarray links
-		String linkTemplate = "\n      *** \n      *** \n      *** \n      *** \n      ***";
-		if (application.getRequestedModule().equals(ClientApplication.MODULE_MICROARRAY)) {
+		String linkTemplate = "\n      *** \n      *** \n      ***";
+		if (ClientApplication.MODULE_MICROARRAY.equals(application.getRequestedModule())) {
+			linkTemplate = "\n      *** \n      *** \n      *** \n      *** \n      ***";
 		    importLinks.add(importArrayExpressLink);
 		    importLinks.add(importGEOLink);
 		}
 		
 		// Sequence links
-		linkTemplate = "\n      *** \n      *** \n      *** \n      *** \n      ***";
-		if (application.getRequestedModule().equals(ClientApplication.MODULE_SEQUENCE)) {
+		if (ClientApplication.MODULE_SEQUENCE.equals(application.getRequestedModule())) {
+			linkTemplate = "\n      *** \n      *** \n      *** \n      *** \n      ***";
 	        importLinks.add(importSequenceLink);
 		    importLinks.add(importTextLink);
 		}
@@ -213,7 +214,14 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 			} else if (e.getSource() == emptyLink) {
 
 			} else if (e.getSource() == exampleLink) {
-				URL url = new URL("http://chipster.csc.fi/examples/ExampleSessionChipsterV2.cs");
+
+				// HACK HACK
+				URL url;
+				if (ClientApplication.MODULE_SEQUENCE.equals(application.getRequestedModule())) {
+					url = new URL("http://chipster.csc.fi/examples/embster.cs");
+				} else {
+					url = new URL("http://chipster.csc.fi/examples/ExampleSessionChipsterV2.cs");
+				}
 				application.loadSessionFrom(url);
 			}
 		} catch (Exception ex) {

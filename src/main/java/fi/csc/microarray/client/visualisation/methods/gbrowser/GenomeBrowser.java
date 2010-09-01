@@ -36,6 +36,8 @@ import org.jfree.chart.JFreeChart;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
+import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
@@ -64,9 +66,6 @@ import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
 import fi.csc.microarray.gbrowser.index.GeneIndexDataType;
-import fi.csc.microarray.messaging.MessagingEndpoint;
-import fi.csc.microarray.messaging.Topics;
-import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -219,25 +218,6 @@ public class GenomeBrowser extends Visualisation implements
 
 	public GenomeBrowser(VisualisationFrame frame) {
 		super(frame);
-		
-        // Find annotation locations
-		try {
-            File localAnnotationDir = DirectoryLayout.getInstance().getLocalAnnotationDir();
-            if (!localAnnotationDir.exists()) {
-                this.localAnnotationPath = null;
-                this.annotationUrl = fetchAnnotationUrl();
-                contentsStream = new URL(annotationUrl + "/" + CONTENTS_FILE).openStream();
-            } else {
-                this.localAnnotationPath = localAnnotationDir;
-                this.annotationUrl = null;
-                contentsStream = new FileInputStream(localAnnotationPath + File.separator + CONTENTS_FILE);
-            }
-		} catch (IOException e) {
-            application.reportException(e);
-        }
-        
-        // Create gene name index
-        gia = GeneIndexActions.getInstance(this);
 	}
 
 	@Override
@@ -245,6 +225,8 @@ public class GenomeBrowser extends Visualisation implements
 
 		// FIXME should the following check be enabled?
 		if (paramPanel == null /* || data != application.getSelectionManager().getSelectedDataBean() */) {
+			
+			initAnnotations();
 
 			paramPanel = new JPanel();
 			paramPanel.setLayout(new GridBagLayout());
@@ -359,7 +341,7 @@ public class GenomeBrowser extends Visualisation implements
 			// list available chromosomes
 			// FIXME These should be read from user data file
 			for (String chromosome : CHROMOSOMES) {
-				chrBox.addItem(chromosome);
+				chrBox.addItem(new Chromosome(chromosome));
 			}
 		
 			c.gridy++;
@@ -451,10 +433,32 @@ public class GenomeBrowser extends Visualisation implements
 	public JComponent getVisualisation(DataBean data) throws Exception {
 		return getVisualisation(Arrays.asList(new DataBean[] { data }));
 	}
+	
+	private void initAnnotations() {
+        // Find annotation locations
+		try {
+            File localAnnotationDir = DirectoryLayout.getInstance().getLocalAnnotationDir();
+            if (!localAnnotationDir.exists()) {
+                this.localAnnotationPath = null;
+                this.annotationUrl = fetchAnnotationUrl();
+                contentsStream = new URL(annotationUrl + "/" + CONTENTS_FILE).openStream();
+            } else {
+                this.localAnnotationPath = localAnnotationDir;
+                this.annotationUrl = null;
+                contentsStream = new FileInputStream(localAnnotationPath + File.separator + CONTENTS_FILE);
+            }
+		} catch (IOException e) {
+            application.reportException(e);
+        }
+				
+        // Create gene name index
+        gia = GeneIndexActions.getInstance(this);
+	}
 
 	@Override
 	public JComponent getVisualisation(java.util.List<DataBean> datas) throws Exception {
 		this.datas = datas;
+		
 		createAvailableTracks(); // we can create tracks now that we know the data
 		
 		// create panel with card layout and put message panel there
@@ -586,14 +590,20 @@ public class GenomeBrowser extends Visualisation implements
 			}
 
 			// initialise the plot
-            plot.start((String)chrBox.getSelectedItem(),
-                    (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()],
-                    Long.parseLong(locationField.getText()),
-                    Long.parseLong(zoomField.getText()));
+			
+//            plot.start((String)chrBox.getSelectedItem(),
+//                    (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()],
+//                    Long.parseLong(locationField.getText()),
+//                    Long.parseLong(zoomField.getText()));
+			
+			
 			plot.addDataRegionListener(this);
 			
 			// remember the chromosome, so we know if it has changed
             lastChromosome = chrBox.getSelectedItem();
+            
+            updateLocation();
+            
 
 			// wrap it in a panel
 			chartPanel.setChart(new JFreeChart(plot));
@@ -679,9 +689,8 @@ public class GenomeBrowser extends Visualisation implements
 
 	private URL fetchAnnotationUrl() {
 		try {
-			MessagingEndpoint messagingEndpoint = Session.getSession().getMessagingEndpoint("client-endpoint");
-			FileBrokerClient fileBrokerClient = new FileBrokerClient(messagingEndpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
-			URL annotationUrl = new URL(fileBrokerClient.getPublicUrl() + "/" + ANNOTATION_URL_PATH);
+        	FileBrokerClient fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
+			URL annotationUrl = new URL(fileBroker.getPublicUrl() + "/" + ANNOTATION_URL_PATH);
 			return annotationUrl;
 
 		} catch (Exception e) {
@@ -791,15 +800,15 @@ public class GenomeBrowser extends Visualisation implements
 		    gidt = gia.getLocation(locationField.getText().toUpperCase());
 		    
 		    if (gidt == null) {
-		    	application.showDialog("Error", "Gene with such name was not found", null, null, false, null);
+		    	application.showDialog("Not found", "Gene with such name was not found", null, Severity.INFO, false, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
 		    } else {
-		    	chrBox.setSelectedItem(gidt.chromosome.toString());
-			    plot.moveDataBpRegion(new Chromosome((String)chrBox.getSelectedItem()),
+		    	chrBox.setSelectedItem(gidt.chromosome);
+			    plot.moveDataBpRegion((Chromosome)chrBox.getSelectedItem(),
 			    		(gidt.bpend+gidt.bpstart)/2, (gidt.bpend - gidt.bpstart)*2);
 		    }
         } else {
             try {
-                plot.moveDataBpRegion(new Chromosome((String)chrBox.getSelectedItem()),
+                plot.moveDataBpRegion((Chromosome)chrBox.getSelectedItem(),
                         Long.parseLong(locationField.getText()),
                         Long.parseLong(zoomField.getText()));
 	        } catch (NumberFormatException e) {

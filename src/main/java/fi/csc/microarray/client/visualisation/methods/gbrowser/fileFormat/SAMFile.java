@@ -1,6 +1,7 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -9,8 +10,11 @@ import java.util.List;
 import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.util.CloseableIterator;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ConcisedValueCache.Counts;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
@@ -26,14 +30,17 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  */
 public class SAMFile {
     
-    private SAMFileReader reader;
+    private static final String CHROMOSOME_PREFIX = "chr";
+	
+	private ConcisedValueCache cache = new ConcisedValueCache();
+	public SAMFileReader reader;
 
-    /**
+	/**
      * @param samFile - SAM or BAM file.
      * @param indexFile - SAM index file (usually with .bai extension).
      */
     public SAMFile(File samFile, File indexFile) {
-        reader = new SAMFileReader(samFile, indexFile);
+        this.reader = new SAMFileReader(samFile, indexFile);
     }
     
     /**
@@ -48,11 +55,14 @@ public class SAMFile {
      * @return
      */
     public List<RegionContent> getReads(AreaRequest request) {
-        List<RegionContent> responseList = new LinkedList<RegionContent>();
+
+        fixChromosomeNames(request);
+
+    	List<RegionContent> responseList = new LinkedList<RegionContent>();
         
         // Read the given region
         CloseableIterator<SAMRecord> iterator =
-                reader.query(request.start.chr.toString(),
+                this.reader.query(request.start.chr.toString(),
                 request.start.bp.intValue(), request.end.bp.intValue(), false);
         for (Iterator<SAMRecord> i = iterator; i.hasNext();) {
             SAMRecord record = i.next();
@@ -61,7 +71,7 @@ public class SAMFile {
             BpCoordRegion recordRegion =
                 new BpCoordRegion((long)record.getAlignmentStart(),
                         (long)record.getAlignmentEnd(),
-                        request.start.chr);
+                        cleanChromosomeName(request.start.chr));
             // Values for this read
             HashMap<ColumnType, Object> values = new HashMap<ColumnType, Object>();
             
@@ -84,6 +94,16 @@ public class SAMFile {
         iterator.close();
         return responseList;
     }
+
+	private Chromosome cleanChromosomeName(Chromosome chr) {
+		return new Chromosome(chr.toString().substring(CHROMOSOME_PREFIX.length()));
+	}
+
+	private void fixChromosomeNames(AreaRequest request) {
+		// fix chromosome names
+        request.start.chr = new Chromosome(CHROMOSOME_PREFIX + request.start.chr.toString());
+        request.end.chr = new Chromosome(CHROMOSOME_PREFIX + request.end.chr.toString());
+	}
     
     /**
      * Return approximation of reads in a given range.
@@ -99,7 +119,10 @@ public class SAMFile {
      * @return
      */
     public List<RegionContent> getConciseReads(AreaRequest request) {
-        List<RegionContent> responseList = new LinkedList<RegionContent>();
+
+        fixChromosomeNames(request);
+
+    	List<RegionContent> responseList = new LinkedList<RegionContent>();
         
         // How many times file is read
         int SAMPLE_GRANULARITY = 40;
@@ -110,42 +133,76 @@ public class SAMFile {
         int step = request.getLength().intValue() / SAMPLE_GRANULARITY;
         int sampleSize = (int)(step * SAMPLE_FRACTION);
         
-        System.out.println("going to iterate");
+        int cacheHits = 0;
+        int cacheMisses = 0;
+        
         for (long pos = request.start.bp; pos < request.end.bp; pos += step) {
-            CloseableIterator<SAMRecord> iterator =
-                reader.query(request.start.chr.toString(),
-                (int)pos, (int)pos + sampleSize, false);
-            
-            // Count reads in this sample area
-            int countReverse = 0;
-            int countForward = 0;
-            for (Iterator<SAMRecord> i = iterator; i.hasNext();) {
-                SAMRecord record = i.next();
-                if (record.getReadNegativeStrandFlag()) {
-                    countReverse++;
-                } else {
-                    countForward++;
-                }
-            }
-            
-            iterator.close();
-            
-            // Create two approximated response objects: one for each strand
-            BpCoordRegion recordRegion =
-                new BpCoordRegion(pos, pos + step, request.start.chr);
-            
-            // Forward
-            HashMap<ColumnType, Object> values = new HashMap<ColumnType, Object>();
-            values.put(ColumnType.VALUE, (float)countForward);
-            values.put(ColumnType.STRAND, Strand.FORWARD);
-            responseList.add(new RegionContent(recordRegion, values));
-            
-            // Reverse
-            values = new HashMap<ColumnType, Object>();
-            values.put(ColumnType.VALUE, (float)countReverse);
-            values.put(ColumnType.STRAND, Strand.REVERSED);
-            responseList.add(new RegionContent(recordRegion, values));
+        	
+        	BpCoord from = new BpCoord(pos, request.start.chr);
+        	BpCoord to = new BpCoord(pos + sampleSize, request.start.chr);
+
+        	// Count number of reads in a sample from this area (sample size must be always the same)
+    		int countForward = 0;
+    		int countReverse = 0;
+
+        	// Use cached content, if exists for this region
+        	Collection<Counts> indexedValues = cache.subMap(from, to).values();
+        	if (!indexedValues.isEmpty()) {
+        		
+        		cacheHits++;
+        		
+        		for (Counts value : indexedValues) {
+        			countForward += value.forwardCount;
+        			countReverse += value.reverseCount;
+        		}
+        		
+        		countForward /= indexedValues.size();
+        		countReverse /= indexedValues.size();
+        		
+        		
+        	} else {
+        		
+        		cacheMisses++;
+        		
+        		// Fetch new content
+        		CloseableIterator<SAMRecord> iterator =
+        			this.reader.query(request.start.chr.toString(),
+        					(int)pos, (int)pos + sampleSize, false);
+
+        		// Count reads in this sample area
+        		for (Iterator<SAMRecord> i = iterator; i.hasNext();) {
+        			SAMRecord record = i.next();
+        			if (record.getReadNegativeStrandFlag()) {
+        				countReverse++;
+        			} else {
+        				countForward++;
+        			}
+        		}
+
+        		iterator.close();
+        	}
+
+        	// Create two approximated response objects: one for each strand
+        	BpCoordRegion recordRegion =
+        		new BpCoordRegion(pos, pos + step, cleanChromosomeName(request.start.chr));
+
+        	// Forward
+        	HashMap<ColumnType, Object> values = new HashMap<ColumnType, Object>();
+        	values.put(ColumnType.VALUE, (float)countForward);
+        	values.put(ColumnType.STRAND, Strand.FORWARD);
+        	responseList.add(new RegionContent(recordRegion, values));
+
+        	// Reverse
+        	values = new HashMap<ColumnType, Object>();
+        	values.put(ColumnType.VALUE, (float)countReverse);
+        	values.put(ColumnType.STRAND, Strand.REVERSED);
+        	responseList.add(new RegionContent(recordRegion, values));
+        	
+        	// Store value in cache
+        	cache.store(new BpCoord(pos, request.start.chr), countForward, countReverse);
         }
+        
+//        System.out.println("Cache hits: " + cacheHits + ", misses: " + cacheMisses);
         return responseList;
     }
 }
