@@ -8,6 +8,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -45,18 +46,30 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 
 		this.setBackground(Color.white);
 
+		//
 		// Prepare all available links
-		exampleLink = createLink("Open example session ", new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				try {
-					URL url = new URL("http://chipster.csc.fi/examples/ExampleSessionChipsterV2.cs");
-					application.loadSessionFrom(url);
-				} catch (Exception exception) {
-					application.reportException(exception);
-				}
+		//
+		
+		// Check if example session is available
+		exampleLink = null;
+		try {
+			final URL url = Session.getSession().getModules().getPrimaryModule().getExampleSessionUrl();
+			if (url != null) {
+				exampleLink = createLink("Open example session ", new AbstractAction() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						try {
+							application.loadSessionFrom(url);
+						} catch (Exception exception) {
+							application.reportException(exception);
+						}
+					}
+				});
 			}
-		});
+		} catch (MalformedURLException mue) {
+			// ignore and let exampleLink be null
+		}
+
 		importLink = createLink("Import files ", new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -103,10 +116,10 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 
 		c.insets.set(0, 10, 0, 0);
 
-		// addLink("To start working with Chipster, you need to load in data first:", (JXHyperlink)null, null, c);
-
-		addLink("*** to get familiar with Chipster.", exampleLink, VisualConstants.EXAMPLE_SESSION_ICON, c);
-
+		if (exampleLink != null) {
+			addLink("*** to get familiar with Chipster.", exampleLink, VisualConstants.EXAMPLE_SESSION_ICON, c);
+		}
+		
 		addLink("*** to continue working on previous sessions.", sessionLink, VisualConstants.OPEN_SESSION_LINK_ICON, c);
 
 		// common links

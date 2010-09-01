@@ -1,6 +1,8 @@
 package fi.csc.microarray.module.sequence;
 
 import java.awt.event.ActionEvent;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -21,6 +23,7 @@ import fi.csc.microarray.module.Module;
 
 public class SequenceModule implements Module {
 
+	private static final String EXAMPLE_SESSION_URL = "https://extras.csc.fi/biosciences/chipster-manual/embster.cs";
 	public static final String SERVER_MODULE_SEQUENCE = "sequence";
 
 	@Override
@@ -131,6 +134,11 @@ public class SequenceModule implements Module {
 	@Override
 	public VisualisationMethod[] getVisualisationMethods() {
 		return new VisualisationMethod[] {};
+	}
+
+	@Override
+	public URL getExampleSessionUrl() throws MalformedURLException {
+		return new URL(EXAMPLE_SESSION_URL);
 	}
 
 }
