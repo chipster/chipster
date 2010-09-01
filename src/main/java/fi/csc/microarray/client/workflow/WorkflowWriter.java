@@ -84,7 +84,7 @@ public class WorkflowWriter {
 	 */
 	private void generateStep(StringBuffer script, Operation operation, LinkedList<DataBean> results) {
 		if (operation.getBindings() == null) {
-			// not enough data (i.e. bindings) available (this was import data, source data was deleted etc.)
+			// not enough data (i.e. bindings) available (this was imported data, source data was deleted etc.)
 			writeWarnings.add("Operation " + operation.getDefinition().getFullName() + " was skipped.");
 			return;
 		}

@@ -58,14 +58,10 @@ import fi.csc.microarray.client.dataview.DetailsPanel;
 import fi.csc.microarray.client.dataview.GraphPanel;
 import fi.csc.microarray.client.dataview.TreePanel;
 import fi.csc.microarray.client.dialog.ChipsterDialog;
-import fi.csc.microarray.client.dialog.ClipboardImportDialog;
-import fi.csc.microarray.client.dialog.CreateFromTextDialog;
 import fi.csc.microarray.client.dialog.DialogInfo;
 import fi.csc.microarray.client.dialog.ErrorDialogUtils;
 import fi.csc.microarray.client.dialog.ImportSettingsAccessory;
-import fi.csc.microarray.client.dialog.SequenceImportDialog;
 import fi.csc.microarray.client.dialog.SnapshotAccessory;
-import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.dialog.URLImportDialog;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
@@ -181,7 +177,7 @@ public class SwingClientApplication extends ClientApplication {
 		logger = Logger.getLogger(SwingClientApplication.class);
 
         // set the module that user wants to load
-        setRequestedModule(module);
+        this.requestedModule = module;
 
         // show splash screen
 		splashScreen = new SplashScreen(VisualConstants.SPLASH_SCREEN);
@@ -238,9 +234,11 @@ public class SwingClientApplication extends ClientApplication {
 		}
 
 		// initialize the main frame
-		mainFrame = new JFrame();
+		this.mainFrame = new JFrame();
 		updateWindowTitle();
 		childScreens = new ChildScreenPool(mainFrame);
+		Frames frames = new Frames(mainFrame);
+		Session.getSession().setFrames(frames);
 
 		// Sets look 'n' feel
 		setPlastic3DLookAndFeel(mainFrame);
@@ -1044,9 +1042,9 @@ public class SwingClientApplication extends ClientApplication {
 			List<DataBean> beans = getSelectionManager().getSelectedDataBeans();
 
 			if (beans.size() == 1) {
-				return VisualisationMethod.getDefaultVisualisationFor(beans.get(0));
+				return Session.getSession().getVisualisations().getDefaultVisualisationFor(beans.get(0));
 			} else if (beans.size() > 1)
-				for (VisualisationMethod method : VisualisationMethod.orderedDefaultCandidates()) {
+				for (VisualisationMethod method : Session.getSession().getVisualisations().getOrderedDefaultCandidates()) {
 					if (method == VisualisationMethod.NONE || !method.getHeadlessVisualiser().isForMultipleDatas()) {
 						continue;
 					}
@@ -1199,23 +1197,6 @@ public class SwingClientApplication extends ClientApplication {
 			ImportUtils.getURLFileLoader().loadFileFromURL(selectedURL, file, importFolder, urlImportDlg.isSkipSelected());
 		}
 	}
-
-	public void openClipboardImport() throws MicroarrayException, IOException {
-		new ClipboardImportDialog(this);
-	}
-
-	public void openDatabaseImport(String title, Operation operation) throws MicroarrayException, IOException {
-		new TaskImportDialog(this, title, operation);
-	}
-	
-	public void openCreateFromTextDialog() throws MicroarrayException, IOException {
-	    new CreateFromTextDialog(this);
-	}
-	
-    public void openSequenceImportDialog() throws MicroarrayException, IOException {
-        new SequenceImportDialog(this);
-    }
-
 	
 	protected void quit() {
 		int returnValue = JOptionPane.DEFAULT_OPTION;
@@ -1275,7 +1256,7 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	
-	public static void startStandalone() throws IOException {
+	public static void startStandalone(String module) throws IOException {
 		try {
 			DirectoryLayout.initialiseStandaloneClientLayout();
 			Configuration config = DirectoryLayout.getInstance().getConfiguration();
@@ -1292,7 +1273,7 @@ public class SwingClientApplication extends ClientApplication {
 		ClientListener shutdownListener = getShutdownListener();
 		
 		try {
-			new SwingClientApplication(shutdownListener, null, null, true);
+			new SwingClientApplication(shutdownListener, null, module, true);
 			
 		} catch (Throwable t) {
 			t.printStackTrace();

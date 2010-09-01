@@ -8,8 +8,8 @@
     <title>Chipster </title>
     <vendor>The Finnish IT Center for Science CSC</vendor>
     <homepage href="http://chipster.csc.fi"/>
-    <description>Software for DNA microarray data analysis</description>
-    <description kind="short">Software for DNA microarray data analysis</description>
+    <description>Software for life science data analysis</description>
+    <description kind="short">Software for life science data analysis</description>
     <shortcut>
       <desktop/>
       <menu submenu="Chipster"/>
@@ -24,6 +24,8 @@
   </resources>
   <application-desc main-class="fi.csc.microarray.MicroarrayMain">
   	<argument>client</argument>
+  	<argument>-module</argument>
+  	<argument>microarray</argument> <!-- alternative value: sequence -->
   	<argument>-config</argument>
   	<argument></argument>
   </application-desc>

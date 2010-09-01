@@ -4,10 +4,11 @@
 # PARAMETER chromosomes INTEGER DEFAULT 23 (Number of chromosomes. Usually 23 for sex-matched reference samples and 22 otherwise.)
 # PARAMETER normalization [median, mode, none] DEFAULT none (Normalization method.)
 # PARAMETER cn.states [3, 4] DEFAULT 3 (Whether to call loss/normal/gain or loss/normal/gain/amplification.)
+# PARAMETER min.width [2, 3, 4, 5] DEFAULT 2 (Minimum number of probes per segment.)
 
 # detect-copy-number-aberrations.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-04-20
+# 2010-08-06
 
 library(CGHcall)
 
@@ -33,7 +34,7 @@ dat2$chromosome <- as.integer(dat2$chromosome)
 cgh <- make_cghRaw(dat2)
 cgh <- preprocess(cgh, nchrom=chromosomes)
 cgh <- normalize(cgh, method=normalization)
-cgh <- segmentData(cgh)
+cgh <- segmentData(cgh, min.width=as.integer(min.width))
 cgh <- postsegnormalize(cgh)
 cgh <- CGHcall(cgh, nclass=as.integer(cn.states))
 

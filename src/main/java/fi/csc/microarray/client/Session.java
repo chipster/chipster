@@ -4,6 +4,7 @@
  */
 package fi.csc.microarray.client;
 
+import fi.csc.microarray.client.visualisation.VisualisationMethodRepository;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.module.Modules;
 
@@ -23,6 +24,8 @@ public class Session {
 	private DataManager dataManager;
 	private ServiceAccessor serviceAccessor;
 	private Modules modules;
+	private Frames frames;
+	private VisualisationMethodRepository visualisations = new VisualisationMethodRepository();
 	
 	/**
 	 * 
@@ -66,5 +69,16 @@ public class Session {
 	public void setModules(Modules modules) {
 		this.modules = modules;
 	}
-	
+
+	public Frames getFrames() {
+		return frames;
+	}
+
+	public void setFrames(Frames frames) {
+		this.frames = frames;
+	}
+
+	public VisualisationMethodRepository getVisualisations() {
+		return visualisations;
+	}
 }
