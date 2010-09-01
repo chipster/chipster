@@ -93,15 +93,6 @@ public class TrackFactory {
 	    return geneGroup;
 	}
 
-	private static void addSeparatorTrack(GenomePlot genomePlot) {
-		addSeparatorTrack(genomePlot, Long.MAX_VALUE);
-	}
-	
-	private static void addSeparatorTrack(GenomePlot genomePlot, long maxBpLength) {
-		View dataView = genomePlot.getDataView();
-		dataView.addTrack(new SeparatorTrack(dataView, Color.gray, 1, 0, maxBpLength));
-	}
-
 	static void addThickSeparatorTrack(GenomePlot genomePlot) {
 		View dataView = genomePlot.getDataView();
 		dataView.addTrack(createThickSeparatorTrack(dataView));
@@ -151,30 +142,9 @@ public class TrackFactory {
 
 	}
 
-	// FIXME Currently not used, used miRNAParser
-	public static void addMirnaTracks(GenomePlot genomePlot, ChunkDataSource miRNAFile) {
-		View dataView = genomePlot.getDataView();
-
-		for (Strand strand : Strand.values()) {
-
-			GeneTrack track = new GeneTrack(dataView, miRNAFile, ChunkTreeHandlerThread.class,
-			        PartColor.CDS.c.darker(), 0, Long.MAX_VALUE);
-			track.setStrand(strand);
-			dataView.addTrack(track);
-			track.initializeListener();
-
-			if (strand == Strand.FORWARD) {
-				addSeparatorTrack(genomePlot);
-			}
-		}
-	}
-
 	public static void addCytobandTracks(GenomePlot plot, ChunkDataSource cytobandData) {
 		CytobandTrack overviewCytobands = new CytobandTrack(plot.getOverviewView(), cytobandData, ChunkTreeHandlerThread.class, false);
 		addTrack(plot.getOverviewView(), overviewCytobands);
-
-		//CytobandTrack cytobands = new CytobandTrack(plot.getDataView(), cytobandData, ChunkTreeHandlerThread.class, true);
-		//addTrack(plot.getDataView(), cytobands);
 	}
 
 	public static void addRulerTrack(GenomePlot plot) {
