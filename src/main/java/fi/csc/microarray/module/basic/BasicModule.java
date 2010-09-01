@@ -1,5 +1,7 @@
 package fi.csc.microarray.module.basic;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 import javax.swing.JMenu;
@@ -109,5 +111,10 @@ public class BasicModule implements Module {
 				VIEW_TEXT,
 				EXTERNAL_BROWSER
 		};
+	}
+
+	@Override
+	public URL getExampleSessionUrl() throws MalformedURLException {
+		return null;
 	}
 }

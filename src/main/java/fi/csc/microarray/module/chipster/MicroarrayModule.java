@@ -1,6 +1,8 @@
 package fi.csc.microarray.module.chipster;
 
 import java.awt.event.ActionEvent;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -39,6 +41,7 @@ import fi.csc.microarray.module.Module;
 
 public class MicroarrayModule implements Module {
 
+	private static final String EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/ExampleSessionChipsterV2.cs";
 	public static VisualisationMethod ARRAY_LAYOUT = new VisualisationMethod("Array layout", ArrayLayout.class, VisualConstants.ARRAY_MENUICON, -1, 0.0009);
 	public static VisualisationMethod HISTOGRAM = new VisualisationMethod("Histogram", Histogram.class, VisualConstants.HISTOGRAM_MENUICON, -1, 0.024);
 	public static VisualisationMethod SCATTERPLOT = new VisualisationMethod("Scatterplot", Scatterplot.class, VisualConstants.SCATTER_MENUICON, -1, 0.039);
@@ -183,6 +186,11 @@ public class MicroarrayModule implements Module {
 				VENN_DIAGRAM,
 				GBROWSER
 		};
+	}
+
+	@Override
+	public URL getExampleSessionUrl() throws MalformedURLException {
+		return new URL(EXAMPLE_SESSION_URL);
 	}
 
 }
