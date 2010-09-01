@@ -92,11 +92,7 @@ public class AcidProfile extends Track {
             }
 
             // collect relevant data for this read
-            BpCoord startBp = read.region.start;
-            BpCoord endBp = read.region.end;
             lastChromosome = read.region.start.chr;
-            
-            
             
 			String seq = ((String) read.values.get(ColumnType.SEQUENCE));
 			
