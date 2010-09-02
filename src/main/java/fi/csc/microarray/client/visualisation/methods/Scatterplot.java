@@ -37,11 +37,11 @@ import fi.csc.microarray.client.visualisation.AnnotateListPanel;
 import fi.csc.microarray.client.visualisation.ChipVisualisation;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
-import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.methods.SelectableChartPanel.SelectionChangeListener;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 public class Scatterplot extends ChipVisualisation 
 implements ActionListener, PropertyChangeListener, SelectionChangeListener {
@@ -146,7 +146,7 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 			vars.add((Variable) xBox.getSelectedItem());
 			vars.add((Variable) yBox.getSelectedItem());
 
-			application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, VisualisationMethod.SCATTERPLOT, vars, getFrame().getDatas(), getFrame().getType(), getFrame()));
+			application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, MicroarrayModule.SCATTERPLOT, vars, getFrame().getDatas(), getFrame().getType(), getFrame()));
 		}
 	}
 	

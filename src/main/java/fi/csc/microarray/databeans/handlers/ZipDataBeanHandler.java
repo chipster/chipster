@@ -11,12 +11,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataBean.DataBeanType;
+import fi.csc.microarray.databeans.DataBean.StorageMethod;
 
 public class ZipDataBeanHandler extends DataBeanHandlerBase {
 
 	public ZipDataBeanHandler() {
-		super(DataBeanType.LOCAL_SESSION);
+		super(StorageMethod.LOCAL_SESSION);
 	}
 	
 	public long getContentLength(DataBean dataBean) throws IOException {

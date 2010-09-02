@@ -4,20 +4,11 @@
  */
 package fi.csc.microarray.analyser;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
-import org.mortbay.util.IO;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.TaskException;
-import fi.csc.microarray.client.tasks.Task.State;
-import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class BasicRAnalysisTest extends AnalysisTestBase {

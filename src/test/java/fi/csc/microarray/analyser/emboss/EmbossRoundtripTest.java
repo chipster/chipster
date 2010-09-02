@@ -32,7 +32,7 @@ public class EmbossRoundtripTest {
 
     @BeforeSuite
     protected void setUp() throws Exception {
-        DirectoryLayout.initialiseClientLayout();
+        DirectoryLayout.initialiseSimpleLayout();
     }
 
     /**

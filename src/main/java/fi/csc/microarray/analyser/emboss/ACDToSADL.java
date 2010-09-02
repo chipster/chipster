@@ -19,21 +19,16 @@ import fi.csc.microarray.description.SADLSyntax.ParameterType;
  */
 public class ACDToSADL {
 	
-	private ACDDescription acd;
-	
 	public static final String OUTPUT_TYPE_PREFIX = "chipster_output_type_";
-	
-	public ACDToSADL(ACDDescription acd) {
-		this.acd = acd;
-	}
 
 	/**
 	 * Analyse a given ACD object and store it as a SADL abstraction.
 	 * 
 	 * @return SADL object.
 	 */
-	public SADLDescription convert() {
-        SADLDescription sadl = new SADLDescription(Name.createName(acd.getName()), acd.getGroups().get(0),
+	public static SADLDescription convert(ACDDescription acd, String id) {
+        SADLDescription sadl = new SADLDescription(Name.createName(id, acd.getName()),
+                                                   acd.getGroups().get(0),
 	                                               acd.getDescription());
 	    
 	    // Get all input parameters
@@ -56,7 +51,10 @@ public class ACDToSADL {
                         Name.createName("fasta", "FASTA"),
                         Name.createName("ncbi", "NCBI"),
                         Name.createName("clustal", "ClustalW"),
-                        Name.createName("phylip", "Phylip"),};
+                        Name.createName("phylip", "Phylip"),
+                        Name.createName("fastq", "FASTQ"),
+                        Name.createName("sam", "SAM"),
+                        Name.createName("bam", "BAM")};
                 Parameter parameter = new Parameter(
                         Name.createName(OUTPUT_TYPE_PREFIX + param.getName(),
                                         "Output type for " + param.getName()),
@@ -118,11 +116,6 @@ public class ACDToSADL {
 	     * @return SADL parameter object or null.
 	     */
 	    public static Parameter createParameter(ACDParameter param) {
-	        // Parameter should not be shown to a user
-	        if (param.isAdvanced()) {
-	            return null;
-	        }
-	        
 	        String fieldType = param.getType();
 	        String fieldName = param.getName();
 	        
@@ -221,6 +214,7 @@ public class ACDToSADL {
 	        }
 	        
 	        // Mark as optional if needed
+	        // Advanced parameters are considered optional
 	        if (sadlParam != null) {
 	            sadlParam.setOptional(!param.isRequired());
 	        }
@@ -268,13 +262,15 @@ public class ACDToSADL {
 	        Integer type = ACDParameter.detectParameterGroup(fieldType.toLowerCase());
 	        
 	        // TODO: help attribute; comment attribute
-	        if ((type == ACDParameter.PARAM_GROUP_OUTPUT ||
-	             type == ACDParameter.PARAM_GROUP_GRAPHICS) &&
-	            (!param.isAdvanced())) {
-	            return new Output(Name.createName(param.getOutputFilename(true)), !param.isRequired());
-	        } else {
-	            return null;
-	        }
+           if (!param.isAdvanced()) {
+               if (type == ACDParameter.PARAM_GROUP_OUTPUT) {
+                   return new Output(Name.createName(param.getOutputFilename(true)), !param.isRequired());
+               } else if (type == ACDParameter.PARAM_GROUP_GRAPHICS) {
+                   return new Output(param.getGraphicsName(), !param.isRequired());
+               }
+           }
+           
+           return null;
 	    }
 	}
 }

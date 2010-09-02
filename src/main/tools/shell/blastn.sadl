@@ -1,4 +1,4 @@
-TOOL "BLAST" / blastn: blastn (Heuristic tool for nucleotide sequence search.)
+TOOL "BLAST" / blastn.sadl: blastn (Heuristic tool for nucleotide sequence search from a nucleotode sequence database.)
 INPUT query: "Query sequence" TYPE GENERIC
 OUTPUT out.txt
 PARAMETER db: "Database" TYPE [nt: "NCBI non-redundant nucleotide database",
@@ -14,8 +14,8 @@ PARAMETER OPTIONAL task: "Task to execute" TYPE [blastn: "BLASTN",
 PARAMETER OPTIONAL query_loc: "Location on the query sequence" TYPE STRING (Location of the serach region on the query sequence. Format: start-stop, for example: 23-66.  Default: the whole query sequence)
 PARAMETER OPTIONAL strand: "Query strand" TYPE [both: Both, minus: Minus, plus: Plus] DEFAULT both ( Query strand or strands to search against the database.  Default: both strands.) 
 PARAMETER OPTIONAL evalue: "Expectation value (E) threshold for saving hits" TYPE DECIMAL (Expectation value)
-PARAMETER OPTIONAL gapopen: "Cost to open a gap" TYPE INTEGER FROM 0 TO 20 (Cost to open a gap)
-PARAMETER OPTIONAL gapextend: "Gap extension penalty" TYPE INTEGER FROM 0 TO 20 (Gap extension penalty)
+PARAMETER OPTIONAL gapopen: "Gap opening penalty" TYPE INTEGER FROM 0 TO 20 (Cost to open a gap. Integer value 0 and 20. The default value if this parameter depends on the selected scoring matrix. Note that if you assign this value, you must define also the gap extension penalty )
+PARAMETER OPTIONAL gapextend: "Gap extension penalty" TYPE INTEGER FROM 0 TO 20 (Gap extension penalty  Integer value 0 and 20.The default value if this parameter depends on the selected scoring matrix. Note that if you assign this value, you must define also the gap extension penalty )
 PARAMETER OPTIONAL word_size: "Word size for wordfinder algorithm" TYPE INTEGER FROM 4 TO 100 (Word size for wordfinder algorithm.Integer value ranging from 4 to 100 )
 PARAMETER OPTIONAL penalty: "Penalty for a nucleotide mismatch" TYPE INTEGER FROM -100 TO 0 (Penalty for a nucleotide mismatch.Integer value ranging form 0 to -100)
 PARAMETER OPTIONAL reward: "Reward for a nucleotide match" TYPE INTEGER FROM 0 TO 100 (Reward for a nucleotide match.Integer value ranging form 0 to 100 )

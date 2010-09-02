@@ -4,10 +4,11 @@
 # PARAMETER chromosomes INTEGER DEFAULT 23 (Number of chromosomes. Usually 23 for sex-matched reference samples and 22 otherwise.)
 # PARAMETER normalization [median, mode, none] DEFAULT none (Normalization method.)
 # PARAMETER cn.states [3, 4] DEFAULT 3 (Whether to call loss/normal/gain or loss/normal/gain/amplification.)
+# PARAMETER min.width [2, 3, 4, 5] DEFAULT 2 (Minimum number of probes per segment.)
 
 # detect-copy-number-aberrations.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-03-20
+# 2010-08-06
 
 library(CGHcall)
 
@@ -15,15 +16,15 @@ dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names
 
 pos <- c('chromosome','start','end')
 if (length(setdiff(pos, colnames(dat)))!=0)
-	stop('This script can only be run on files that have the following columns: chromosome, start, end.')
+  stop('CHIPSTER-NOTE: This script can only be run on files that have the following columns: chromosome, start, end.')
 
 dat2 <- data.frame(probe=rownames(dat), dat[,c('chromosome', 'start', 'end')], dat[,grep("chip", names(dat))], stringsAsFactors=FALSE)
 chips <- colnames(dat)[grep("chip", names(dat))]
 
 if (ncol(dat2)==4)
-	stop('No array data found. The input file must have columns labeled with "chip.".')
+  stop('CHIPSTER-NOTE: No array data found. The input file must have columns labeled with "chip.".')
 if (ncol(dat2)==5)
-	colnames(dat2)[5] <- chips[1]
+  colnames(dat2)[5] <- chips[1]
 
 dat2$chromosome[dat2$chromosome=='X'] <- 23
 dat2$chromosome[dat2$chromosome=='Y'] <- 24
@@ -33,7 +34,7 @@ dat2$chromosome <- as.integer(dat2$chromosome)
 cgh <- make_cghRaw(dat2)
 cgh <- preprocess(cgh, nchrom=chromosomes)
 cgh <- normalize(cgh, method=normalization)
-cgh <- segmentData(cgh)
+cgh <- segmentData(cgh, min.width=as.integer(min.width))
 cgh <- postsegnormalize(cgh)
 cgh <- CGHcall(cgh, nclass=as.integer(cn.states))
 
@@ -41,13 +42,13 @@ dat3 <- data.frame(cgh@featureData@data)
 colnames(dat3) <- c('chromosome', 'start', 'end')
 
 for (col in c('cytoband', 'symbol', 'description', 'cnvs'))
-	if (col %in% colnames(dat))
-		dat3[,col] <- dat[rownames(dat3), col]
+  if (col %in% colnames(dat))
+    dat3[,col] <- dat[rownames(dat3), col]
 
 dat3$loss.freq <- round(mean(as.data.frame(t(assayDataElement(cgh, "calls")==-1))), digits=3)
 dat3$gain.freq <- round(mean(as.data.frame(t(assayDataElement(cgh, "calls")==1))), digits=3)
 if (cn.states=='4' && 2 %in% assayDataElement(cgh, 'calls'))
-	dat3$amp.freq <- round(mean(as.data.frame(t(assayDataElement(cgh, "calls")==2))), digits=3)
+  dat3$amp.freq <- round(mean(as.data.frame(t(assayDataElement(cgh, "calls")==2))), digits=3)
 
 calls <- assayDataElement(cgh, 'calls')
 colnames(calls) <- sub('chip.', 'flag.', chips)
@@ -74,9 +75,9 @@ colnames(probgain) <- sub('chip.', 'probgain.', chips)
 dat3 <- cbind(dat3, probgain)
 
 if (cn.states=='4') {
-	probamp <- assayDataElement(cgh, 'probamp')
-	colnames(probamp) <- sub('chip.', 'probamp.', chips)
-	dat3 <- cbind(dat3, probamp)
+  probamp <- assayDataElement(cgh, 'probamp')
+  colnames(probamp) <- sub('chip.', 'probamp.', chips)
+  dat3 <- cbind(dat3, probamp)
 }
 
 dat3$chromosome <- as.character(dat3$chromosome)

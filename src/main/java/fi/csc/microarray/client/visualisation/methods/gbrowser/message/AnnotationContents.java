@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,7 +16,8 @@ import fi.csc.microarray.util.IOUtils;
 
 /**
  * 
- * Class for saving and loading contents file.
+ * Class for saving and loading contents file. The contents file describes what annotation data files we have
+ * available at the annotation repository.
  * 
  * @author Petri Klemelä
  * 
@@ -51,18 +51,18 @@ public class AnnotationContents {
 
 	public void parseFrom(InputStream contentsStream) {
 
-		List<Row> list = new ArrayList<Row>();
-
 		try {
 
 			BufferedReader reader = new BufferedReader(new InputStreamReader(contentsStream));
 
-			reader.readLine().equals(FILE_ID);
+			if (!reader.readLine().equals(FILE_ID)) {
+				throw new IllegalArgumentException("annotation stream does not start with " + FILE_ID);
+			}
 
 			String line;
 			while ((line = reader.readLine()) != null) {
 				String[] splitted = line.split("\t");
-				list.add(new Row(splitted[0], splitted[1], splitted[2], splitted[3]));
+				rows.add(new Row(splitted[0], splitted[1], splitted[2], splitted[3]));
 			}
 
 		} catch (FileNotFoundException e) {
@@ -101,7 +101,7 @@ public class AnnotationContents {
 	public LinkedHashSet<String> getGenomes() {
 		LinkedHashSet<String> genomes = new LinkedHashSet<String>();
 		for (Row row : rows) {
-			genomes.add(row.species + " " + row.version);
+			genomes.add(row.version);
 		}
 		return genomes;
 	}

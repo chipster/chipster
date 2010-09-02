@@ -21,6 +21,10 @@ public abstract class AreaRequestHandler extends Thread {
 		this.setDaemon(true);
 	}
 
+	/**
+	 * Constantly look for new area requests in the request queue
+	 * and pass all incoming requests to request processor.
+	 */
 	public synchronized void run() {
 
 		while (true) {
@@ -55,6 +59,11 @@ public abstract class AreaRequestHandler extends Thread {
 
 	protected abstract void processAreaRequest(AreaRequest areaRequest);
 
+	/**
+	 * Pass the result to be visualised in GUI.
+	 * 
+	 * @param areaResult
+	 */
 	public void createAreaResult(final AreaResult<RegionContent> areaResult) {
 
 		SwingUtilities.invokeLater(new Runnable() {

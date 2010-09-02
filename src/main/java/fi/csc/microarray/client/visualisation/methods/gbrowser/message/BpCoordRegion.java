@@ -1,5 +1,9 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
+/**
+ * Region of genome limited by two BpCoord locations. 
+ *
+ */
 public class BpCoordRegion implements Comparable<BpCoordRegion> {
 	public BpCoord start;
 	public BpCoord end;
@@ -24,6 +28,10 @@ public class BpCoordRegion implements Comparable<BpCoordRegion> {
 		this(null, null);
 	}
 
+	public BpCoordRegion(BpCoordRegion bpRegion) {
+		this(new BpCoord(bpRegion.start), new BpCoord(bpRegion.end));
+	}
+
 	public Long getLength() {
 		return end.minus(start);
 	}
@@ -36,12 +44,12 @@ public class BpCoordRegion implements Comparable<BpCoordRegion> {
 		return "Region [" + start + " - " + end + "]";
 	}
 
-	public BpCoordRegion clone() {
+	public BpCoordRegion clone() throws CloneNotSupportedException {
 		return new BpCoordRegion(start, end);
 	}
 
 	public boolean intercepts(BpCoordRegion other) {
-		return other.end.compareTo(start) > 0 && other.start.compareTo(end) < 0;
+		return other.end.compareTo(start) >= 0 && other.start.compareTo(end) <= 0;
 	}
 
 	public BpCoordRegion intercept(BpCoordRegion other) {
@@ -49,7 +57,8 @@ public class BpCoordRegion implements Comparable<BpCoordRegion> {
 	}
 
 	public int compareTo(BpCoordRegion o) {
-		int startComparison = start.compareTo(start);
+		
+		int startComparison = start.compareTo(o.start);
 
 		if (startComparison != 0) {
 			return startComparison;

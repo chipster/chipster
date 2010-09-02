@@ -9,12 +9,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
-
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.databeans.features.Table;
-import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.ThreadUtils;
 
 /**
@@ -35,7 +31,7 @@ public class VisualisationTaskManager {
 
 		public void run() {
 				
-				long startTime = System.currentTimeMillis();
+//				long startTime = System.currentTimeMillis();
 				
 				// do the actual work (if needed)
 				final JComponent visualisation = event.getNewMethod() != null ? frameManager.createVisualisation(event) : null;
@@ -47,39 +43,7 @@ public class VisualisationTaskManager {
 					application.reportException(e);
 				} catch (InvocationTargetException e) {
 					application.reportException(e);
-				}
-				
-/*				logger.debug("Duration, estimated: " + method.estimateDuration(datas) + 
-						"\treal: " + (System.currentTimeMillis() - startTime));*/ //NullPointer if method == null
-				
-				//Enable debug messages to collect stats from visualisation durations
-				if(logger.isDebugEnabled() && event.getDatas().size() > 0 && 
-						event.getNewMethod() != VisualisationMethod.NONE){ //Possible nullPointers, just for debug
-					
-					long endTime = System.currentTimeMillis();								
-					Table rowCounter = null;
-					
-					try {
-						rowCounter = event.getDatas().get(0).queryFeatures("/column/*").asTable();
-					} catch (MicroarrayException e) {
-						// Only in debug mode
-						e.printStackTrace();
-					}
-					
-					int rowCount = 0;
-					
-					// 15 000 rows is still reasonably fast, but 500 000 isn't
-					while (rowCounter.nextRow()) {
-						rowCount++;
-					}				
-
-					logger.debug("\tMethod\t" + event.getNewMethod() + 
-							"\tDatas\t" + event.getDatas().size() + 
-							"\tRows\t" + rowCount + 
-							"\tByteLength\t" + event.getDatas().get(0).getContentLength() + 
-							"\tTime\t" + (endTime - startTime) + 
-							"\tTime/ByteLength\t" + (endTime - startTime)/(float)event.getDatas().get(0).getContentLength() + "\t");
-				}
+				}				
 		}
 	};
 
@@ -137,8 +101,6 @@ public class VisualisationTaskManager {
 		}		
 	}
 	
-	private static final Logger logger = Logger.getLogger(VisualisationTaskManager.class);
-
 	private LinkedList<Runnable> workQueue = new LinkedList<Runnable>();
 	private Lock workQueueLock = new ReentrantLock();
 	private Condition guiWorkAvailable = workQueueLock.newCondition();

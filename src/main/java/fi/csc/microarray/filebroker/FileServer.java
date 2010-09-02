@@ -49,14 +49,16 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
 		//DirectoryLayout.getInstance(new File("chipster-userdir-fileserver")).getConfiguration();
 		
 		DirectoryLayout.getInstance().getConfiguration();
-		new FileServer();
+		new FileServer(null);
 	}
 	
-    public FileServer() {
+    public FileServer(String configURL) {
 
     	try {
     		// initialise dir and logging
-    		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"frontend", "filebroker"}));
+    		DirectoryLayout.initialiseServerLayout(
+    		        Arrays.asList(new String[] {"frontend", "filebroker"}),
+    		        configURL);
     		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
     		logger = Logger.getLogger(FileServer.class);
 

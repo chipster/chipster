@@ -16,7 +16,6 @@ import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.client.visualisation.AnnotateListPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
-import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.client.visualisation.methods.threed.ColorGroupsPanel;
@@ -26,6 +25,8 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.LinkUtils;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.basic.BasicModule;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 public class Scatterplot3DPCA extends Scatterplot3D{
 	
@@ -109,7 +110,7 @@ public class Scatterplot3DPCA extends Scatterplot3D{
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
 		
-		boolean isTabular = VisualisationMethod.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
+		boolean isTabular = BasicModule.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
 		boolean isChips = false;
 		Parameter pcaOn = bean.getOperation().getParameter("do.pca.on");
 		if (pcaOn != null){
@@ -135,7 +136,7 @@ public class Scatterplot3DPCA extends Scatterplot3D{
 		vars.add((Variable)colorBox.getSelectedItem());
 		
 		application.setVisualisationMethod(new VisualisationMethodChangedEvent(this,
-				VisualisationMethod.SCATTERPLOT3DPCA, vars, 
+				MicroarrayModule.SCATTERPLOT3DPCA, vars, 
 				getFrame().getDatas(), getFrame().getType(), getFrame()));
 		
 		coordinateArea.setPaintMode(CoordinateArea.PaintMode.PIXEL);

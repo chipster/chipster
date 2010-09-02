@@ -72,7 +72,8 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 		// parse SADL		
 		SADLDescription sadlDescription;
 		try {
-			sadlDescription = new ChipsterSADLParser().parse(jobInstance.getSADL(), sourceResourceName);
+			sadlDescription = new ChipsterSADLParser().parse(jobInstance.getSADL(),
+			        sourceResourceName);
 		} catch (ParseException e) {
 			throw new AnalysisException(e);
 		}

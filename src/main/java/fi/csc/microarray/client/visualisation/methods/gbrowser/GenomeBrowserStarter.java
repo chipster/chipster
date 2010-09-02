@@ -4,8 +4,6 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
@@ -13,39 +11,84 @@ import javax.swing.WindowConstants;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
+import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SequenceParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.WIGParser;
 
+
+/**
+ * Quick started utility for developing genome browser. Might evolve into standalone version of
+ * the browser some day.
+ *
+ */
 public class GenomeBrowserStarter {
 
-	private static final File FILE_ROOT = new File("/home/akallio/chipster-share/genome_browser");
-//	private static final File FILE_ROOT = new File("/home/klemela/chipster-share/genome_browser");
-	private static final URL URL_ROOT;
+	private static final File ELAND_DATA_FILE;
+	private static final File MACS_DATA_FILE;
+	private static final File WIG_DATA_FILE;
+	private static final File URL_ROOT;
 
 	static {
-		try {
-			URL_ROOT = new URL("http://chipster-devel.csc.fi:8050/public/annotations");
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
+		
+		String annotationPath = "/home/" + System.getProperty("user.name") + "/chipster-share/";
+		
+		ELAND_DATA_FILE = new File(annotationPath, "/ngs/STAT1/STAT1_treatment_aggregated_filtered_sorted_chr1.txt");
+		MACS_DATA_FILE = new File(annotationPath, "/ngs/STAT1/STAT1_peaks_sorted.bed");
+		URL_ROOT = new File(annotationPath, "/ngs/annotations");
+		
+		WIG_DATA_FILE = new File(annotationPath, "/ngs/wig/GSM529979_chr1.wig.out");//variableStep - GSM545202.wig; fixedStep - GSM529979.wig
 	}
 
 	public static void main(String[] args) throws IOException {
-		GenomePlot plot = new GenomePlot(true);
-		TrackFactory.addCytobandTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.57_karyotype.tsv"));
-		TrackFactory.addGeneTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_genes.tsv"));
-//		TrackFactory.addMirnaTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_miRNA.tsv"));
-		TrackFactory.addTranscriptTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_transcripts.tsv"));
-//		TrackFactory.addPeakTracks(plot, new DataSource(FILE_ROOT, "results_ar_dht_I_and_II_vs_rigg_combined_p1e5_m10_bw175_ts30_peaks.bed"));
-//		TrackFactory.addWigTrack(plot, new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_miRNA.fsf"));
-//		TrackFactory.addReadTracks(plot, new DataSource(FILE_ROOT, "treatmentdata_FoxA1_sorted_spaced.dat"), new DataSource(URL_ROOT, "Homo_sapiens.GRCh37.56_seq.tsv"));
-//		TrackFactory.addReadTracks(plot, new DataSource(FILE_ROOT, "treatmentdata_FoxA1_sorted_spaced.dat"), new DataSource(FILE_ROOT, "../genomebrowser_data/annotations/Homo_sapiens.GRCh37.56_seq.fsf"));
-		TrackFactory.addReadTracks(plot, new DataSource(FILE_ROOT, "eland_result_sorted.tsv"), new DataSource(new File("/home/akallio/chipster-share/genomebrowser_data/tsv_annotations/Homo_sapiens.GRCh37.55_seq.tsv")));
-		TrackFactory.addRulerTrack(plot);
-		plot.start("1");
+		boolean horizontal = true;
+        ChartPanel panel = new NonScalableChartPanel();
+		GenomePlot plot = new GenomePlot(panel, horizontal);
+		TrackFactory.addCytobandTracks(plot,
+		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.GRCh37.57_karyotype.tsv", new CytobandParser()));
 		
-		ChartPanel panel = new ChartPanel(new JFreeChart(plot));
-		panel.setPreferredSize(new Dimension(800, 600));
-		plot.chartPanel = panel;
+		TrackFactory.addThickSeparatorTrack(plot);
+		TrackFactory.addTitleTrack(plot, "Annotations");
+		
+		TrackFactory.addGeneTracks(plot,
+		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_genes.tsv", new GeneParser()),
+		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_transcripts.tsv", new TranscriptParser()),
+		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_seq.tsv", new SequenceParser()));
+//		TrackFactory.addMirnaTracks(plot, new DataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_miRNA.tsv"));
 
+		// Example peak: choromosome 21 in front of IFNAR2 gene (location 33,525,000)
+		// Example peak: choromosome 21 in front of IFNAR1 gene (location 33,620,000)
+		TrackFactory.addThickSeparatorTrack(plot);
+		TrackFactory.addTitleTrack(plot, "WIG");
+		
+		TrackFactory.addWigTrack(plot,
+		        new ChunkDataSource(WIG_DATA_FILE, new WIGParser()));
+		
+		TrackFactory.addThickSeparatorTrack(plot);
+		TrackFactory.addTitleTrack(plot, "Peaks");
+		
+		TrackFactory.addPeakTrack(plot,
+		        new ChunkDataSource(MACS_DATA_FILE, new BEDParser()));
+
+		TrackFactory.addThickSeparatorTrack(plot);
+		TrackFactory.addReadTracks(
+				plot, 
+				new ChunkDataSource(ELAND_DATA_FILE, new ElandParser()),
+				ChunkTreeHandlerThread.class,
+				new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_seq.tsv", new SequenceParser()),
+				"Reads"
+		);
+
+		TrackFactory.addRulerTrack(plot);
+		plot.start("1", 1024 * 1024 * 250d, 1000000L, 100000L);
+		
+		panel.setChart(new JFreeChart(plot));
+		panel.setPreferredSize(new Dimension(800, 2000));
 		panel.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		
 		for (View view : plot.getViews()){
@@ -60,4 +103,5 @@ public class GenomeBrowserStarter {
 		frame.pack();
 		frame.setVisible(true);
 	}
+	
 }

@@ -1,5 +1,9 @@
 package fi.csc.microarray.analyser.shell;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.concurrent.CountDownLatch;
 
@@ -23,6 +27,16 @@ import fi.csc.microarray.util.Strings;
 
 /**
  * Job that is run as a generic shell command.
+ * <p>
+ * Parameters that could be given in the tool configuration:
+ *  <ul>
+ *  <li> output - name of the parameter for passing output files
+ *  <li> stdout - if equals to "yes", the output is read from stdout
+ *  <li> input - if equals to "last", then input is given without parameter
+ *               name and as the last parameter
+ *  <li> arguments - comma-separated list of arguments that will get passed
+ *               as the first arguments for the command.   
+ *  </ul>
  * 
  * @author naktinis
  *
@@ -32,7 +46,10 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
     private AnalysisDescription description;
     private SADLDescription sadl;
     private String executablePath;
-    private String outputParameter;
+    private Boolean useStdout;
+    private Boolean inputLast;
+    private String[] extraArguments;
+    private String outputParameter = null;
     
     LinkedList<String> inputParameters;
     
@@ -55,10 +72,25 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
         }
         
         // Path to executable file
-        this.executablePath = ad.getCommand();
+        executablePath = ad.getCommand();
         
-        // Output parameter
-        this.outputParameter = ad.getConfigParameters().get("output");
+        // Output method
+        useStdout = ad.getConfigParameters().get("stdout") != null &&
+                ad.getConfigParameters().get("stdout").toLowerCase().equals("yes");
+        
+        // Input parameter
+        inputLast = ad.getConfigParameters().get("input") != null &&
+                ad.getConfigParameters().get("input").toLowerCase().equals("last");
+        
+        // Additional arguments
+        String arguments = ad.getConfigParameters().get("arguments");
+        extraArguments = (arguments != null && !arguments.equals("")) ?
+                arguments.split(",") : new String[] {};
+        
+        if (!useStdout) {    
+            // If program creates a normal file, we need an output parameter
+            outputParameter = ad.getConfigParameters().get("output");
+        }
     }
 
     /**
@@ -88,6 +120,11 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
         LinkedList<String> command = new LinkedList<String>();
         command.add(executablePath);
         
+        // Prepend arguments defined in the configuration file
+        for (String arg : extraArguments) {
+            command.add(arg);
+        }
+        
         // Parameters
         int index = 0;
         for (ParameterDescription parameter : description.getParameters()) {
@@ -98,17 +135,21 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
             }
             index++;
         }
+
+        // Outputs to a file (currently we only support a single output)
+        if (outputParameter != null) {
+            OutputDescription output = description.getOutputFiles().get(0);
+            command.add("-" + this.outputParameter);
+            command.add(output.getFileName().getID());
+        }
         
         // Inputs
         for (Input input : sadl.inputs()) {
-            command.add("-" + input.getName().getID());
+            if (!inputLast) {
+                // Input is a named parameter
+                command.add("-" + input.getName().getID());
+            }
             command.add(input.getName().getID());
-        }
-        
-        // Outputs
-        for (OutputDescription output : description.getOutputFiles()) {
-            command.add("-" + this.outputParameter);
-            command.add(output.getFileName());
         }
         
         String[] cmd = new String[0];
@@ -137,7 +178,24 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
                         analysis.getDisplayName() + "\" application.");
                 outputMessage.setErrorMessage(outputString);
                 updateState(JobState.FAILED, "Application failed.");
-            } 
+            } else if (useStdout) {
+                // FIXME not tested yet
+                // Take output data from stdout
+                InputStream stdoutStream =
+                        new BufferedInputStream(process.getInputStream());
+                OutputDescription output = description.getOutputFiles().get(0);
+                File outputFile = new File(jobWorkDir, output.getFileName().getID());
+                FileOutputStream fileStream = new FileOutputStream(outputFile);
+                
+                // Write from program's stdout to output file
+                byte[] buffer = new byte[4096];  
+                int bytesRead;  
+                while ((bytesRead = stdoutStream.read(buffer)) != -1) {  
+                    fileStream.write(buffer, 0, bytesRead);  
+                }  
+                stdoutStream.close();
+                fileStream.close();
+            }
             
             // This is what we should produce as output
             ResultMessage outputMessage = this.outputMessage;

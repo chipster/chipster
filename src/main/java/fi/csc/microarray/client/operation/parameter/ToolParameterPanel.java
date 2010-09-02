@@ -75,7 +75,9 @@ public class ToolParameterPanel extends ParameterPanel {
         VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.setGap(0);
         paneContainer.setLayout(verticalLayout);
-              
+        paneContainer.setBackground(this.getBackground());
+	    
+        
         // Divide parameters into required and optional
         List<Parameter> requiredParameters = new LinkedList<Parameter>();
         List<Parameter> optionalParameters = new LinkedList<Parameter>();
@@ -119,9 +121,15 @@ public class ToolParameterPanel extends ParameterPanel {
         pane = new JXTaskPane();
         pane.setTitle("Input datasets");
         pane.setCollapsed(false);
+
+        pane.getContentPane().setBackground(this.getBackground());
+        pane.setBackground(this.getBackground());
         
         // Grid layout for component/label pairs
         paramPane = new JPanel(new GridBagLayout());
+        paramPane.setBackground(this.getBackground());
+        paramPane.setBorder(BorderFactory.createEmptyBorder());
+
         con = prepareBagConstraints();
         
         List<InputFileComponent> inputComponents = new LinkedList<InputFileComponent>();
@@ -140,12 +148,15 @@ public class ToolParameterPanel extends ParameterPanel {
             // Add the inputs to the collapsable pannel
             pane.add(paramPane);
             paneContainer.add(pane);
+            
         }
 
 		scroller = new JScrollPane(paneContainer);
 		scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		scroller.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 		
+		
+		scroller.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+	    
 		this.add(scroller, BorderLayout.CENTER);
 	}
 

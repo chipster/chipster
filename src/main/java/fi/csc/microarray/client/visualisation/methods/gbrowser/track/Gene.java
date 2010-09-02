@@ -5,6 +5,10 @@ import java.util.TreeSet;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * Struct for holding information for a gene.
+ *
+ */
 public class Gene extends TreeSet<RegionContent> implements Comparable<Gene> {
 
 	public BpCoordRegion region;

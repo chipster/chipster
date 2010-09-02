@@ -111,7 +111,7 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
             // Handle non-acd parameters separately
             if (param.getName().startsWith(ACDToSADL.OUTPUT_TYPE_PREFIX)) {
                 String value = !(inputParameters.get(index).equals(ACDParameter.UNDEFINED))?
-                        inputParameters.get(index) : "";
+                        inputParameters.get(index) : null;
                 outputFormats.put(
                         param.getName().substring(ACDToSADL.OUTPUT_TYPE_PREFIX.length()),
                         value);
@@ -200,8 +200,8 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
      * @return ACD description object.
      */
     protected ACDDescription getACD() {
-        String appName = analysis.getDisplayName();
-        return new ACDDescription(new File(descriptionDirectory, appName + ".acd"));
+        String appName = analysis.getID();
+        return new ACDDescription(new File(descriptionDirectory, appName));
     }
     
     /**
@@ -273,6 +273,9 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
             params.add("-goutfile");
             params.add(param.getOutputFilename(false));
         }
+        
+        // Turn off prompts
+        params.add("-auto");
         
         String[] cmd = new String[0];
         return params.toArray(cmd);

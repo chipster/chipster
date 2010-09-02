@@ -196,19 +196,25 @@ public class Operation implements ExecutionItem {
 	}
 
 	/**
-	 * Evaluates the suitability of this operation for the given dataset.
+	 * Evaluates the suitability of this operation for the given dataset
+	 * and current parameter values.
 	 * 
 	 * @param data
 	 *            The dataset for which to evaluate.
 	 * @return One of the OperationDefinition.Suitability enumeration, depending
 	 *         on how suitable the operation is judged.
 	 */
-	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data) {
+	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data,
+	        Suitability currentSuitability) {
 	    
+	    // Check parameter suitability
+	    Suitability suitability = 
+	        OperationDefinition.parameterSuitability(getParameters());
+        
 	    // Check suitability that can be checked in definition
-	    Suitability evaluatedSuitability = definition.evaluateSuitabilityFor(data);
-
-		return evaluatedSuitability;
+	    suitability = definition.evaluateSuitabilityFor(data, suitability);
+	    
+		return suitability;
 	}
 
 
@@ -250,5 +256,9 @@ public class Operation implements ExecutionItem {
 
 	public void setOutputFolder(DataFolder outputFolder) {
 		this.outputFolder = outputFolder;
+	}
+
+	public String getDisplayName() {
+		return definition.getDisplayName();
 	}
 }

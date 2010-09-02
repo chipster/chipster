@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.messaging.message.JobMessage;
 
 
@@ -54,18 +55,42 @@ public class AnalysisDescription {
 	 * Describes an output (parameter name and file name). 
 	 */
 	public static class OutputDescription {
+        private Name fileName;
+        private boolean optional;
+
+        public Name getFileName() {
+            return fileName;
+        }
+        
+        public boolean isOptional() {
+            return optional;
+        }
+	    
+	    public OutputDescription(Name fileName, boolean optional) {
+	        this.fileName = fileName;
+	        this.optional = optional;
+	    }
+	}
+	
+
+	/**
+	 * Describes an input (parameter name and file name). 
+	 */
+	public static class InputDescription {
         private String fileName;
 
         public String getFileName() {
             return fileName;
         }
 	    
-	    public OutputDescription(String fileName) {
+	    public InputDescription(String fileName) {
 	        this.fileName = fileName;
 	    }
 	}
-	
 
+	
+	
+	
 	private String id;
 	
 
@@ -90,7 +115,8 @@ public class AnalysisDescription {
 	private String comment;
 
 	
-	
+
+	private List<InputDescription> inputFiles = new LinkedList<InputDescription>();
 	private List<OutputDescription> outputFiles = new LinkedList<OutputDescription>();
 	private List<ParameterDescription> parameters = new LinkedList<ParameterDescription>();
 	private String sourceCode;
@@ -142,6 +168,11 @@ public class AnalysisDescription {
 	
 	public Object getImplementation() {
 		return implementation;
+	}
+	
+
+	public List<InputDescription> getInputFiles() {
+		return inputFiles;
 	}
 	
 	public List<OutputDescription> getOutputFiles() {
@@ -200,8 +231,13 @@ public class AnalysisDescription {
 		this.displayName = displayName;
 	}
 	
-	public void addOutputFile(String fileName) {
-		outputFiles.add(new OutputDescription(fileName));
+
+	public void addInputFile(String fileName) {
+		inputFiles.add(new InputDescription(fileName));
+	}
+	
+	public void addOutputFile(Name fileName, boolean optional) {
+		outputFiles.add(new OutputDescription(fileName, optional));
 	}
 
 	public void setSourceCode(String sourceCode) {

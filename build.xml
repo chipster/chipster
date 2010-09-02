@@ -96,10 +96,14 @@
         	<fatjar.jarsource file="${lib}/geronimo-servlet_2.5_spec-1.1.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/activemq-all-5.3.1.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/commons-logging-1.1.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib}/sam-1.23.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/saaj-api.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/saaj-impl.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/activation.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/cron4j-1.1.5.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/PDFRenderer.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/pdfviewer.jar" relpath=""/>
+		    	
         </fatjar.build>
 
 		<!-- sign it -->

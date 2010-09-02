@@ -50,7 +50,11 @@ public class EnumParameter extends Parameter {
         }
         
         public String toString() {
-            return name;
+            if (name != null && !name.isEmpty()) {
+            	return name;
+            } else {
+            	return value;
+            }
         }
         
         public static SelectionOption[] convertStrings(String[] titles, String[] values) {
@@ -183,9 +187,10 @@ public class EnumParameter extends Parameter {
         selectedOptions.clear();
         
         // Add new selections
-        if (newValue instanceof List<?>) {
+        if (newValue instanceof List<?> || newValue instanceof String[]) {
             // Multiple selections
-            List<String> checkedList = (List<String>) newValue;
+            List<String> checkedList = (List<String>) (newValue instanceof List<?> ?
+                    newValue : Arrays.asList(newValue));
             for (SelectionOption option : options) {
                 if (checkedList.contains(option.getValue())) {
                     selectedOptions.add(option);
@@ -195,7 +200,8 @@ public class EnumParameter extends Parameter {
             return;
         } else if (newValue instanceof SelectionOption || newValue instanceof String) {
             // Single selection (preprocessed SelectionOption or raw String)
-            String optionValue = newValue instanceof SelectionOption ? ((SelectionOption) newValue).getValue() : (String) newValue;
+            String optionValue = newValue instanceof SelectionOption ?
+                    ((SelectionOption) newValue).getValue() : (String) newValue;
             for (SelectionOption option : options) {
                 if (option.getValue().equals(optionValue)) {
                     selectedOptions.add(option);
@@ -271,9 +277,15 @@ public class EnumParameter extends Parameter {
         return "\"" + getValue() + "\"";
     }
     
+    /**
+     * Takes a comma-separated value list and selects them
+     * for this parameter.
+     */
     @Override
     public void parseValue(String stringValue) throws IllegalArgumentException {
-        setValue(stringValue); // no parsing needed
+        // Try splitting stringValue and pass it to setValue
+        String[] stringValues = stringValue.split(",");
+        setValue(stringValues);
     }
 
 	@Override
