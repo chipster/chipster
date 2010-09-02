@@ -23,7 +23,7 @@ import fi.csc.microarray.module.Module;
 
 public class SequenceModule implements Module {
 
-	private static final String EXAMPLE_SESSION_URL = "https://extras.csc.fi/biosciences/chipster-manual/embster.cs";
+	private static final String EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/embster.cs";
 	public static final String SERVER_MODULE_SEQUENCE = "sequence";
 
 	@Override
