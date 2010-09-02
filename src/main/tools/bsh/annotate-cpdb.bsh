@@ -3,6 +3,8 @@
 // PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
 // PARAMETER input.type [gene, uniprot] (What kind of identifiers input data contains)
 
+// taavi testing
+
 import fi.csc.microarray.analyser.bsh.*;
 import fi.csc.microarray.analyser.ws.*;
 import fi.csc.microarray.analyser.ws.impl.*;
