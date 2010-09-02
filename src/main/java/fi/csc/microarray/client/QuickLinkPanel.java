@@ -7,7 +7,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
@@ -27,7 +26,7 @@ import fi.csc.microarray.module.Module;
 import fi.csc.microarray.util.Strings;
 
 @SuppressWarnings("serial")
-public class QuickLinkPanel extends JPanel implements ActionListener {
+public class QuickLinkPanel extends JPanel {
 
 	private SwingClientApplication application;
 
@@ -217,18 +216,10 @@ public class QuickLinkPanel extends JPanel implements ActionListener {
 
 	public JXHyperlink createLink(String text, Action action) {
 		JXHyperlink link = new JXHyperlink();
-		link.addActionListener(this);
 		link.setBorder(null);
 		link.setMargin(new Insets(0, 0, 0, 0));
 		link.setAction(action);
 		link.setText(text); // must be after setAction
 		return link;
-	}
-
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() instanceof JXHyperlink) {
-			JXHyperlink link = (JXHyperlink) e.getSource();
-			link.getAction().actionPerformed(e);
-		}
 	}
 }
