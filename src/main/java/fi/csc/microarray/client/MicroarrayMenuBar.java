@@ -77,6 +77,8 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenu visualisationMenu;
 	private JMenu openRepoWorkflowsMenu;
 
+	private boolean hasRepoWorkflows;
+
 	public MicroarrayMenuBar(SwingClientApplication application) {
 		this.application = application;
 		add(getFileMenu());
@@ -109,7 +111,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 
 		recentWorkflowMenu.setEnabled(workflowCompatibleDataSelected);
 		openWorkflowsMenuItem.setEnabled(workflowCompatibleDataSelected);
-		openRepoWorkflowsMenu.setEnabled(workflowCompatibleDataSelected);
+		openRepoWorkflowsMenu.setEnabled(workflowCompatibleDataSelected && hasRepoWorkflows);
 
 		saveWorkflowMenuItem.setEnabled(workflowCompatibleDataSelected);
 
@@ -244,26 +246,24 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenu getOpenRepositoryWorkflowMenu() {
 		if (openRepoWorkflowsMenu == null) {
 
-			// add repository content
-			String[][] flows = { 
-					{ "Gene expression analysis", "/gene-expression-analysis.bsh" }, 
-					{ "Protein expression analysis", "/protein-expression-analysis.bsh" },
-					{ "miRNA expression analysis", "/mirna-expression-analysis.bsh" }
-			};
+			// Load repository content
+			String[][] repoWorkflows = Session.getSession().getModules().getPrimaryModule().getRepositoryWorkflows();
+			this.hasRepoWorkflows = repoWorkflows.length > 0;
 
 			openRepoWorkflowsMenu = new JMenu();
 			openRepoWorkflowsMenu.setText("Run from Chipster repository");
 
-			for (String[] flow : flows) {
+			// Add repository content
+			for (String[] flow : repoWorkflows) {
 				JMenuItem item = new JMenuItem(flow[0]);
 				item.addActionListener(new RepoWorkflowActionListener(flow[0], flow[1]));
 				openRepoWorkflowsMenu.add(item);
 			}
 
-			// add help
+			// Add help
 			openRepoWorkflowsMenu.addSeparator();
 			openRepoWorkflowsMenu.add(getHelpWorkflowMenuItem());
-
+			
 		}
 		return openRepoWorkflowsMenu;
 	}

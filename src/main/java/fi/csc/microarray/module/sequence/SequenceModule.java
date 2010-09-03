@@ -141,4 +141,9 @@ public class SequenceModule implements Module {
 		return new URL(EXAMPLE_SESSION_URL);
 	}
 
+	@Override
+	public String[][] getRepositoryWorkflows() {
+		return new String[0][0];
+	}
+
 }
