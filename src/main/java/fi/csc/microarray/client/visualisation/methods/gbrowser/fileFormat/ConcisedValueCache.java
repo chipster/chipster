@@ -35,7 +35,13 @@ public class ConcisedValueCache {
 	private LinkedList<BpCoord> storageOrder = new LinkedList<BpCoord>();
 
 	public SortedMap<BpCoord, Counts> subMap(BpCoord from, BpCoord to) {
-		return tree.subMap(from, to);
+		
+		// Use tree to find the submap
+		SortedMap<BpCoord, Counts> subMap = tree.subMap(from, to);
+		
+		// FIXME Touch returned values
+
+		return subMap;
 	}
 
 	public void store(BpCoord bpCoord, int countForward, int countReverse) {
@@ -44,6 +50,10 @@ public class ConcisedValueCache {
 		shrink();
 	}
 
+	/**
+	 * Shrinks cache enough to make it fit to maximum limit. Records are removed in FIFO
+	 * order.
+	 */
 	private void shrink() {
 		while (tree.size() > CACHE_MAX_SIZE) {
 			BpCoord oldest = storageOrder.pop();

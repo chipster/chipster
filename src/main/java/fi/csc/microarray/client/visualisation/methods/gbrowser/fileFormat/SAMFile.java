@@ -125,13 +125,9 @@ public class SAMFile {
     	List<RegionContent> responseList = new LinkedList<RegionContent>();
         
         // How many times file is read
-        int SAMPLE_GRANULARITY = 40;
-        
-        // How many basepairs are read each time (1/2 means half of sample size)
-        float SAMPLE_FRACTION = 1 / 40f;
-        
-        int step = request.getLength().intValue() / SAMPLE_GRANULARITY;
-        int sampleSize = (int)(step * SAMPLE_FRACTION);
+        int SAMPLING_GRANULARITY = 40;
+        int step = request.getLength().intValue() / SAMPLING_GRANULARITY;
+        int SAMPLE_SIZE = 100; // FIXME: issue, can be bigger then step size 
         
         int cacheHits = 0;
         int cacheMisses = 0;
@@ -139,9 +135,9 @@ public class SAMFile {
         for (long pos = request.start.bp; pos < request.end.bp; pos += step) {
         	
         	BpCoord from = new BpCoord(pos, request.start.chr);
-        	BpCoord to = new BpCoord(pos + sampleSize, request.start.chr);
+        	BpCoord to = new BpCoord(pos + step, request.start.chr);
 
-        	// Count number of reads in a sample from this area (sample size must be always the same)
+        	// Count number of reads in a sample from this area
     		int countForward = 0;
     		int countReverse = 0;
 
@@ -151,11 +147,13 @@ public class SAMFile {
         		
         		cacheHits++;
         		
+        		// sum all
         		for (Counts value : indexedValues) {
         			countForward += value.forwardCount;
         			countReverse += value.reverseCount;
         		}
         		
+        		// divide to get mean
         		countForward /= indexedValues.size();
         		countReverse /= indexedValues.size();
         		
@@ -164,10 +162,11 @@ public class SAMFile {
         		
         		cacheMisses++;
         		
-        		// Fetch new content
+        		// Fetch new content by taking sample from the middle of this area
+        		int stepMiddlepoint = (int)pos + step/2;
         		CloseableIterator<SAMRecord> iterator =
         			this.reader.query(request.start.chr.toString(),
-        					(int)pos, (int)pos + sampleSize, false);
+        					stepMiddlepoint - SAMPLE_SIZE/2, stepMiddlepoint + SAMPLE_SIZE/2, false);
 
         		// Count reads in this sample area
         		for (Iterator<SAMRecord> i = iterator; i.hasNext();) {
@@ -200,9 +199,9 @@ public class SAMFile {
         	
         	// Store value in cache
         	cache.store(new BpCoord(pos, request.start.chr), countForward, countReverse);
-        }
+        }	
         
-//        System.out.println("Cache hits: " + cacheHits + ", misses: " + cacheMisses);
+        System.out.println("Cache hits: " + cacheHits + ", misses: " + cacheMisses);
         return responseList;
     }
 }
