@@ -108,6 +108,12 @@ public class DirectoryLayout {
 		}
 	}
 
+	public static boolean isInitialised() {
+		synchronized (DirectoryLayout.class) {
+			return DirectoryLayout.instance != null;
+		}
+	}
+		
 	public static DirectoryLayout getInstance() {
 		synchronized (DirectoryLayout.class) {
 			if (DirectoryLayout.instance == null) {
