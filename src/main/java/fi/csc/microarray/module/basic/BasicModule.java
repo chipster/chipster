@@ -117,4 +117,9 @@ public class BasicModule implements Module {
 	public URL getExampleSessionUrl() throws MalformedURLException {
 		return null;
 	}
+
+	@Override
+	public String[][] getRepositoryWorkflows() {
+		return new String[0][0];
+	}
 }

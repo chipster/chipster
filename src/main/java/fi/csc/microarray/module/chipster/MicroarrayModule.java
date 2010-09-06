@@ -193,4 +193,13 @@ public class MicroarrayModule implements Module {
 		return new URL(EXAMPLE_SESSION_URL);
 	}
 
+	@Override
+	public String[][] getRepositoryWorkflows() {
+		return new String[][] { 
+				{ "Gene expression analysis", "/gene-expression-analysis.bsh" }, 
+				{ "Protein expression analysis", "/protein-expression-analysis.bsh" },
+				{ "miRNA expression analysis", "/mirna-expression-analysis.bsh" }
+		};
+	}
+
 }
