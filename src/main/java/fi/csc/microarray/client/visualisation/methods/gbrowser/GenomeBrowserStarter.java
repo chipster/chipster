@@ -55,30 +55,30 @@ public class GenomeBrowserStarter {
 		boolean horizontal = true;
         ChartPanel panel = new NonScalableChartPanel();
 		GenomePlot plot = new GenomePlot(panel, horizontal);
-//		TrackFactory.addCytobandTracks(plot,
-//		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.GRCh37.57_karyotype.tsv", new CytobandParser()));
-//		
-//		TrackFactory.addThickSeparatorTrack(plot);
-//		TrackFactory.addTitleTrack(plot, "Annotations");
-//		
-//		TrackFactory.addGeneTracks(plot,
-//		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_genes.tsv", new GeneParser()),
-//		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_transcripts.tsv", new TranscriptParser()),
-//		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_seq.tsv", new SequenceParser()));
-//
-//		TrackFactory.addThickSeparatorTrack(plot);
-//		TrackFactory.addTitleTrack(plot, "WIG");
-//		
-//		TrackFactory.addWigTrack(plot,
-//		        new ChunkDataSource(WIG_DATA_FILE, new WIGParser()));
-//		
-//		TrackFactory.addThickSeparatorTrack(plot);
-//		TrackFactory.addTitleTrack(plot, "Peaks");
-//		
-//		TrackFactory.addPeakTrack(plot,
-//		        new ChunkDataSource(MACS_DATA_FILE, new BEDParser()));
-//
-//		TrackFactory.addThickSeparatorTrack(plot);
+		TrackFactory.addCytobandTracks(plot,
+		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.GRCh37.57_karyotype.tsv", new CytobandParser()));
+		
+		TrackFactory.addThickSeparatorTrack(plot);
+		TrackFactory.addTitleTrack(plot, "Annotations");
+		
+		TrackFactory.addGeneTracks(plot,
+		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_genes.tsv", new GeneParser()),
+		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_transcripts.tsv", new TranscriptParser()),
+		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_seq.tsv", new SequenceParser()));
+
+		TrackFactory.addThickSeparatorTrack(plot);
+		TrackFactory.addTitleTrack(plot, "WIG");
+		
+		TrackFactory.addWigTrack(plot,
+		        new ChunkDataSource(WIG_DATA_FILE, new WIGParser()));
+		
+		TrackFactory.addThickSeparatorTrack(plot);
+		TrackFactory.addTitleTrack(plot, "Peaks");
+		
+		TrackFactory.addPeakTrack(plot,
+		        new ChunkDataSource(MACS_DATA_FILE, new BEDParser()));
+
+		TrackFactory.addThickSeparatorTrack(plot);
 		TrackFactory.addReadTracks(
 				plot, 
 				new SAMDataSource(BAM_DATA_FILE, BAI_DATA_FILE),
