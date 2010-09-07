@@ -32,8 +32,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.utils.Sequence;
  */
 public class SeqBlockTrack extends Track {
 
-	private static final int MAX_STACKING_DEPTH = 12;
-
 	public static final String DUMMY_SEQUENCE = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
 								+ "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
 								+ "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
@@ -135,14 +133,17 @@ public class SeqBlockTrack extends Track {
 				occupiedSpace.add(end);
 			}
 
-			// check maximum stacking depth
-			if (layer > MAX_STACKING_DEPTH) {
-				continue; 
-			}
 			
 			// now we can decide the y-axis
-			rect.y = (int) (getView().getTrackHeight() - ((layer + 1) * (height + SPACE_BETWEEN_READS)));
+			rect.y = getYCoord(layer, height);
 			rect.height = height;
+			
+			boolean lastBeforeMaxStackingDepthCut = getYCoord(layer + 1, height) < 0;
+			
+			// check maximum stacking depth
+			if (rect.y < 0) {
+				continue;
+			}
 
 			// reverse the read if on reverse strand
 			if ((Strand) read.values.get(ColumnType.STRAND) == Strand.REVERSED) {
@@ -156,7 +157,7 @@ public class SeqBlockTrack extends Track {
 			    
 				Color color = blockColor;
 				// mark last line that will be drawn
-				if (layer == MAX_STACKING_DEPTH) {
+				if (lastBeforeMaxStackingDepthCut) {
 					color = color.darker();
 				}
 
@@ -218,7 +219,7 @@ public class SeqBlockTrack extends Track {
 					}
 					
 					// mark last line that will be drawn
-					if (layer == MAX_STACKING_DEPTH) {
+					if (lastBeforeMaxStackingDepthCut) {
 						bg = bg.brighter();
 					}
 
@@ -232,6 +233,10 @@ public class SeqBlockTrack extends Track {
 		
 
 		return drawables;
+	}
+	
+	private int getYCoord(int layer, int height) {
+		return (int) (getView().getTrackHeight() - ((layer + 1) * (height + SPACE_BETWEEN_READS)));
 	}
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {

@@ -31,12 +31,13 @@ import fi.csc.microarray.client.selection.RowSelectionManager;
 import fi.csc.microarray.client.visualisation.AnnotateListPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
-import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.client.visualisation.methods.VenndiPlot.AREAS;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.basic.BasicModule;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 public class VennDiagram extends Visualisation implements PropertyChangeListener, ActionListener {
 
@@ -223,7 +224,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 		}
 
 		for (DataBean data : beans) {
-			boolean isTabular = VisualisationMethod.SPREADSHEET.getHeadlessVisualiser().canVisualise(data);
+			boolean isTabular = BasicModule.SPREADSHEET.getHeadlessVisualiser().canVisualise(data);
 
 			if (!(isTabular && data.queryFeatures(IDENTIFIER_COLUMN).exists())) {
 				return false;
@@ -301,7 +302,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 		vars.add((Variable)colBox.getSelectedItem());
 		
 		application.setVisualisationMethod(new VisualisationMethodChangedEvent(this,
-				VisualisationMethod.VENN_DIAGRAM, vars, 
+				MicroarrayModule.VENN_DIAGRAM, vars, 
 				getFrame().getDatas(), getFrame().getType(), getFrame()));
 	}
 	

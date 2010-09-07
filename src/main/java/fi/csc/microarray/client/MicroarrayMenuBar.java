@@ -30,7 +30,6 @@ import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.module.Module;
-import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.util.Files;
 
 @SuppressWarnings("serial")
@@ -78,6 +77,8 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenu visualisationMenu;
 	private JMenu openRepoWorkflowsMenu;
 
+	private boolean hasRepoWorkflows;
+
 	public MicroarrayMenuBar(SwingClientApplication application) {
 		this.application = application;
 		add(getFileMenu());
@@ -95,10 +96,10 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 
 		DataBean selectedDataBean = selectionManager.getSelectedDataBean();
 		boolean somethingSelected = selectionManager.getSelectedItem() != null;
-		boolean normalisedDataSelected = false;
+		boolean workflowCompatibleDataSelected = false;
 
 		if (selectedDataBean != null) {
-			normalisedDataSelected = ChipsterInputTypes.GENE_EXPRS.isTypeOf(selectedDataBean);
+			workflowCompatibleDataSelected = Session.getSession().getModules().getPrimaryModule().isWorkflowCompatible(selectedDataBean);
 		}
 
 		historyMenuItem.setEnabled(selectedDataBean != null && application.getSelectionManager().getSelectedDataBeans().size() == 1);
@@ -108,11 +109,11 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		VisualisationMethod method = application.getVisualisationFrameManager().getFrame(FrameType.MAIN).getMethod();
 		visualisationMenu.setEnabled(method != null && method != VisualisationMethod.NONE);
 
-		recentWorkflowMenu.setEnabled(normalisedDataSelected);
-		openWorkflowsMenuItem.setEnabled(normalisedDataSelected);
-		openRepoWorkflowsMenu.setEnabled(normalisedDataSelected);
+		recentWorkflowMenu.setEnabled(workflowCompatibleDataSelected);
+		openWorkflowsMenuItem.setEnabled(workflowCompatibleDataSelected);
+		openRepoWorkflowsMenu.setEnabled(workflowCompatibleDataSelected && hasRepoWorkflows);
 
-		saveWorkflowMenuItem.setEnabled(normalisedDataSelected);
+		saveWorkflowMenuItem.setEnabled(workflowCompatibleDataSelected);
 
 		exportMenuItem.setEnabled(somethingSelected);
 		renameMenuItem.setEnabled(somethingSelected);
@@ -245,26 +246,24 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	private JMenu getOpenRepositoryWorkflowMenu() {
 		if (openRepoWorkflowsMenu == null) {
 
-			// add repository content
-			String[][] flows = { 
-					{ "Gene expression analysis", "/gene-expression-analysis.bsh" }, 
-					{ "Protein expression analysis", "/protein-expression-analysis.bsh" },
-					{ "miRNA expression analysis", "/mirna-expression-analysis.bsh" }
-			};
+			// Load repository content
+			String[][] repoWorkflows = Session.getSession().getModules().getPrimaryModule().getRepositoryWorkflows();
+			this.hasRepoWorkflows = repoWorkflows.length > 0;
 
 			openRepoWorkflowsMenu = new JMenu();
 			openRepoWorkflowsMenu.setText("Run from Chipster repository");
 
-			for (String[] flow : flows) {
+			// Add repository content
+			for (String[] flow : repoWorkflows) {
 				JMenuItem item = new JMenuItem(flow[0]);
 				item.addActionListener(new RepoWorkflowActionListener(flow[0], flow[1]));
 				openRepoWorkflowsMenu.add(item);
 			}
 
-			// add help
+			// Add help
 			openRepoWorkflowsMenu.addSeparator();
 			openRepoWorkflowsMenu.add(getHelpWorkflowMenuItem());
-
+			
 		}
 		return openRepoWorkflowsMenu;
 	}

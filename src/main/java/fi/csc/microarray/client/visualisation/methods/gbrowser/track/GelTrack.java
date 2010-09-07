@@ -158,7 +158,7 @@ public class GelTrack extends Track {
     @Override
     public Integer getHeight() {
         if (isVisible()) {
-            return super.getHeight();
+            return 16;
         } else {
             return 0;
         }

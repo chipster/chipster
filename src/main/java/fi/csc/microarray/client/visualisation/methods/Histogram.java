@@ -35,10 +35,10 @@ import org.jfree.ui.TextAnchor;
 import fi.csc.microarray.client.visualisation.ChipVisualisation;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
-import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.FloatArrayList;
 
 public class Histogram extends ChipVisualisation {
@@ -115,7 +115,7 @@ public class Histogram extends ChipVisualisation {
 						List<Variable> variables = new ArrayList<Variable>();
 						variables.add((Variable) chipBox.getSelectedItem());
 
-						application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, VisualisationMethod.HISTOGRAM, variables, getFrame().getDatas(), getFrame().getType(), getFrame()));
+						application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, MicroarrayModule.HISTOGRAM, variables, getFrame().getDatas(), getFrame().getType(), getFrame()));
 
 					} catch (Exception exp) {
 						application.reportException(exp);

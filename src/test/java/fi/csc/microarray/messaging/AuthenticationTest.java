@@ -4,19 +4,11 @@ import java.io.IOException;
 
 import javax.jms.JMSException;
 
-import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.TestConstants;
-import fi.csc.microarray.client.tasks.Task;
-import fi.csc.microarray.client.tasks.TaskEventListener;
 import fi.csc.microarray.client.tasks.TaskException;
-import fi.csc.microarray.client.tasks.TaskExecutor;
-import fi.csc.microarray.client.tasks.Task.State;
-import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
@@ -26,20 +18,20 @@ import fi.csc.microarray.exception.MicroarrayException;
 
 public class AuthenticationTest extends MessagingTestBase {
 	
-	private boolean gotData = false;
-	private TaskExecutor executor;
-	private DataBean microarray;
-	private DataManager manager; 
+//	private boolean gotData = false;
+//	private TaskExecutor executor;
+//	private DataBean microarray;
+//	private DataManager manager; 
 	
 	public AuthenticationTest(String s) throws IOException {
-		this.manager = new DataManager();
+//		this.manager = new DataManager();
 	}    
 
 	@BeforeSuite
 	protected void setUp() throws Exception {
 		super.setUp();
-		microarray = manager.createDataBean("microarray1.tsv", this.getClass().getResourceAsStream("/microarray.tsv"));
-		this.executor = new TaskExecutor(super.endpoint, manager);
+//		microarray = manager.createDataBean("microarray1.tsv", this.getClass().getResourceAsStream("/microarray.tsv"));
+//		this.executor = new TaskExecutor(super.endpoint, manager);
 	}
 	
 	@AfterSuite

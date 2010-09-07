@@ -1,5 +1,7 @@
 package fi.csc.microarray.module.basic;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 import javax.swing.JMenu;
@@ -7,7 +9,16 @@ import javax.swing.JMenu;
 import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.QuickLinkPanel;
+import fi.csc.microarray.client.visualisation.ExternalBrowserViewer;
+import fi.csc.microarray.client.visualisation.PDFViewer;
+import fi.csc.microarray.client.visualisation.VisualisationMethod;
+import fi.csc.microarray.client.visualisation.methods.HtmlViewer;
+import fi.csc.microarray.client.visualisation.methods.ImageViewer;
+import fi.csc.microarray.client.visualisation.methods.PhenodataEditor;
+import fi.csc.microarray.client.visualisation.methods.Spreadsheet;
+import fi.csc.microarray.client.visualisation.methods.TextViewer;
 import fi.csc.microarray.constants.VisualConstants;
+import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.TypeTag;
 import fi.csc.microarray.databeans.features.RestrictModifier;
@@ -20,6 +31,14 @@ import fi.csc.microarray.module.Module;
 
 public class BasicModule implements Module {
 
+	public static VisualisationMethod SPREADSHEET = new VisualisationMethod("Spreadsheet", Spreadsheet.class, VisualConstants.SPREADSHEET_MENUICON, 2, 0.0007);
+	public static VisualisationMethod PHENODATA = new VisualisationMethod("Phenodata editor", PhenodataEditor.class, VisualConstants.PHENODATA_MENUICON, 3, 0);
+	public static VisualisationMethod SHOW_IMAGE = new VisualisationMethod("Show image", ImageViewer.class, VisualConstants.IMAGE_MENUICON, 1, 0.015); 
+	public static VisualisationMethod WEBVIEW = new VisualisationMethod("View page", HtmlViewer.class, VisualConstants.HTML_MENUICON, 1, 0.008); 
+	public static VisualisationMethod PDFVIEW = new VisualisationMethod("View PDF", PDFViewer.class, VisualConstants.IMAGE_MENUICON, 1, 0);
+	public static VisualisationMethod VIEW_TEXT = new VisualisationMethod("View text", TextViewer.class, VisualConstants.TEXT_MENUICON, 1, 0);
+	public static VisualisationMethod EXTERNAL_BROWSER = new VisualisationMethod("Open in external web browser", ExternalBrowserViewer.class, VisualConstants.EMPTY_MENUICON, 1, -1);
+	
 	public void plugContentTypes(DataManager manager) {
 
 		manager.plugContentType("text/plain", false, false, "plain text", VisualConstants.ICON_TYPE_TEXT, "txt", "dat", "wee");
@@ -73,5 +92,34 @@ public class BasicModule implements Module {
 	@Override
 	public boolean isImportToolSupported() {
 		return false;
+	}
+
+	@Override
+	public boolean isWorkflowCompatible(DataBean data) {
+		return true; // we have to assume that all operations are workflow compatible
+	}
+
+	@Override
+	public VisualisationMethod[] getVisualisationMethods() {
+		
+		return new VisualisationMethod[] {
+				SPREADSHEET,
+				PHENODATA,
+				SHOW_IMAGE, 
+				WEBVIEW, 
+				PDFVIEW,
+				VIEW_TEXT,
+				EXTERNAL_BROWSER
+		};
+	}
+
+	@Override
+	public URL getExampleSessionUrl() throws MalformedURLException {
+		return null;
+	}
+
+	@Override
+	public String[][] getRepositoryWorkflows() {
+		return new String[0][0];
 	}
 }

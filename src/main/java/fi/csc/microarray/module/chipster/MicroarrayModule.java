@@ -1,6 +1,8 @@
 package fi.csc.microarray.module.chipster;
 
 import java.awt.event.ActionEvent;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -14,6 +16,19 @@ import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.client.visualisation.VisualisationMethod;
+import fi.csc.microarray.client.visualisation.methods.ArrayLayout;
+import fi.csc.microarray.client.visualisation.methods.ClusteredProfiles;
+import fi.csc.microarray.client.visualisation.methods.ExpressionProfile;
+import fi.csc.microarray.client.visualisation.methods.HierarchicalClustering;
+import fi.csc.microarray.client.visualisation.methods.Histogram;
+import fi.csc.microarray.client.visualisation.methods.SOM;
+import fi.csc.microarray.client.visualisation.methods.Scatterplot;
+import fi.csc.microarray.client.visualisation.methods.Scatterplot3DPCA;
+import fi.csc.microarray.client.visualisation.methods.VennDiagram;
+import fi.csc.microarray.client.visualisation.methods.Volcanoplot;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowser;
+import fi.csc.microarray.client.visualisation.methods.threed.Scatterplot3D;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
@@ -25,6 +40,20 @@ import fi.csc.microarray.databeans.features.stat.SomClusterProvider;
 import fi.csc.microarray.module.Module;
 
 public class MicroarrayModule implements Module {
+
+	private static final String EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/ExampleSessionChipsterV2.cs";
+	public static VisualisationMethod ARRAY_LAYOUT = new VisualisationMethod("Array layout", ArrayLayout.class, VisualConstants.ARRAY_MENUICON, -1, 0.0009);
+	public static VisualisationMethod HISTOGRAM = new VisualisationMethod("Histogram", Histogram.class, VisualConstants.HISTOGRAM_MENUICON, -1, 0.024);
+	public static VisualisationMethod SCATTERPLOT = new VisualisationMethod("Scatterplot", Scatterplot.class, VisualConstants.SCATTER_MENUICON, -1, 0.039);
+	public static VisualisationMethod SCATTERPLOT3D = new VisualisationMethod("3D Scatterplot", Scatterplot3D.class, VisualConstants.SCATTER3D_MENUICON, -1, 0.082);
+	public static VisualisationMethod SCATTERPLOT3DPCA = new VisualisationMethod("3D Scatterplot for PCA", Scatterplot3DPCA.class, VisualConstants.SCATTER3DPCA_MENUICON, -1, 0.082);
+	public static VisualisationMethod VOLCANOPLOT = new VisualisationMethod("Volcano plot", Volcanoplot.class, VisualConstants.VOLCANO_MENUICON, -1, 0.039); 
+	public static VisualisationMethod SOM = new VisualisationMethod("SOM", SOM.class, VisualConstants.SOM_MENUICON, 3, 0.034);
+	public static VisualisationMethod HIERARCHICAL = new VisualisationMethod("Hierarchical clustering", HierarchicalClustering.class, VisualConstants.HC_MENUICON, 3, 0.09);
+	public static VisualisationMethod EXPRESSION_PROFILE = new VisualisationMethod("Expression profile", ExpressionProfile.class, VisualConstants.PROFILE_MENUICON, -1, 0.1);
+	public static VisualisationMethod CLUSTERED_PROFILES = new VisualisationMethod("Clustered profiles", ClusteredProfiles.class, VisualConstants.PROFILES_MENUICON, -1, 0.087);
+	public static VisualisationMethod VENN_DIAGRAM = new VisualisationMethod("Venn-diagram", VennDiagram.class, VisualConstants.VENN_MENUICON, 1, -1);
+	public static VisualisationMethod GBROWSER = new VisualisationMethod("Genome browser", GenomeBrowser.class, VisualConstants.SCATTER_MENUICON, 1, -1);
 
 	public static final String SERVER_MODULE_MICROARRAY = "microarray";
 
@@ -134,6 +163,43 @@ public class MicroarrayModule implements Module {
 	@Override
 	public boolean isImportToolSupported() {
 		return true;
+	}
+
+	@Override
+	public boolean isWorkflowCompatible(DataBean data) {
+		return ChipsterInputTypes.GENE_EXPRS.isTypeOf(data);
+	}
+
+	@Override
+	public VisualisationMethod[] getVisualisationMethods() {
+		return new VisualisationMethod[] {
+				ARRAY_LAYOUT,
+				HISTOGRAM,
+				SCATTERPLOT,
+				SCATTERPLOT3D,
+				SCATTERPLOT3DPCA,
+				VOLCANOPLOT,
+				SOM,
+				HIERARCHICAL,
+				EXPRESSION_PROFILE,
+				CLUSTERED_PROFILES,
+				VENN_DIAGRAM,
+				GBROWSER
+		};
+	}
+
+	@Override
+	public URL getExampleSessionUrl() throws MalformedURLException {
+		return new URL(EXAMPLE_SESSION_URL);
+	}
+
+	@Override
+	public String[][] getRepositoryWorkflows() {
+		return new String[][] { 
+				{ "Gene expression analysis", "/gene-expression-analysis.bsh" }, 
+				{ "Protein expression analysis", "/protein-expression-analysis.bsh" },
+				{ "miRNA expression analysis", "/mirna-expression-analysis.bsh" }
+		};
 	}
 
 }

@@ -1,6 +1,8 @@
 package fi.csc.microarray.module.sequence;
 
 import java.awt.event.ActionEvent;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -13,12 +15,15 @@ import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.CreateFromTextDialog;
 import fi.csc.microarray.client.dialog.SequenceImportDialog;
+import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.constants.VisualConstants;
+import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.module.Module;
 
 public class SequenceModule implements Module {
 
+	private static final String EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/embster.cs";
 	public static final String SERVER_MODULE_SEQUENCE = "sequence";
 
 	@Override
@@ -119,6 +124,26 @@ public class SequenceModule implements Module {
 	@Override
 	public boolean isImportToolSupported() {
 		return false;
+	}
+
+	@Override
+	public boolean isWorkflowCompatible(DataBean data) {
+		return false; // all operations should be workflow compatible
+	}
+
+	@Override
+	public VisualisationMethod[] getVisualisationMethods() {
+		return new VisualisationMethod[] {};
+	}
+
+	@Override
+	public URL getExampleSessionUrl() throws MalformedURLException {
+		return new URL(EXAMPLE_SESSION_URL);
+	}
+
+	@Override
+	public String[][] getRepositoryWorkflows() {
+		return new String[0][0];
 	}
 
 }

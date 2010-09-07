@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.basic.BasicModule;
 
 public abstract class ChipVisualisation extends Visualisation {
 	
@@ -30,7 +31,7 @@ public abstract class ChipVisualisation extends Visualisation {
 			
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		boolean isTabular = VisualisationMethod.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
+		boolean isTabular = BasicModule.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
 		return isTabular && hasRows(bean) && bean.queryFeatures("/column/chip.*").exists();
 	}
 	
