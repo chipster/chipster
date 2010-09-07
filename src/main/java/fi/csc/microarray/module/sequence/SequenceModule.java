@@ -23,7 +23,7 @@ import fi.csc.microarray.module.Module;
 
 public class SequenceModule implements Module {
 
-	private static final String EXAMPLE_SESSION_URL = "https://extras.csc.fi/biosciences/chipster-manual/embster.cs";
+	private static final String EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/embster.cs";
 	public static final String SERVER_MODULE_SEQUENCE = "sequence";
 
 	@Override
@@ -128,7 +128,7 @@ public class SequenceModule implements Module {
 
 	@Override
 	public boolean isWorkflowCompatible(DataBean data) {
-		return true; // all operations should be workflow compatible
+		return false; // all operations should be workflow compatible
 	}
 
 	@Override
@@ -139,6 +139,11 @@ public class SequenceModule implements Module {
 	@Override
 	public URL getExampleSessionUrl() throws MalformedURLException {
 		return new URL(EXAMPLE_SESSION_URL);
+	}
+
+	@Override
+	public String[][] getRepositoryWorkflows() {
+		return new String[0][0];
 	}
 
 }

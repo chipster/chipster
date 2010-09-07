@@ -97,8 +97,18 @@ public interface Module {
 	
 	/**
 	 * Return URL to example session file or null, if not available.
+	 * 
 	 * @return url or null
 	 * @throws MalformedURLException
 	 */
 	public URL getExampleSessionUrl() throws MalformedURLException;
+
+	/**
+	 * If module is bundled with a repository of workflows, returns them.
+	 * Workflows are represented by a String array of two cells:
+	 * display name and resource name of the bundled workflow file.
+	 * 
+	 * @return array of String arrays, zero length if none available
+	 */
+	public String[][] getRepositoryWorkflows();
 }
