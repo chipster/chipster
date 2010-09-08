@@ -224,7 +224,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 		}
 
 		for (DataBean data : beans) {
-			boolean isTabular = BasicModule.SPREADSHEET.getHeadlessVisualiser().canVisualise(data);
+			boolean isTabular = BasicModule.VisualisationMethods.SPREADSHEET.getHeadlessVisualiser().canVisualise(data);
 
 			if (!(isTabular && data.queryFeatures(IDENTIFIER_COLUMN).exists())) {
 				return false;
@@ -302,7 +302,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 		vars.add((Variable)colBox.getSelectedItem());
 		
 		application.setVisualisationMethod(new VisualisationMethodChangedEvent(this,
-				MicroarrayModule.VENN_DIAGRAM, vars, 
+				MicroarrayModule.VisualisationMethods.VENN_DIAGRAM, vars, 
 				getFrame().getDatas(), getFrame().getType(), getFrame()));
 	}
 	

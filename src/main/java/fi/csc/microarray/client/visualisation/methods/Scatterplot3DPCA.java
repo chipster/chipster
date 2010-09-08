@@ -110,7 +110,7 @@ public class Scatterplot3DPCA extends Scatterplot3D{
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
 		
-		boolean isTabular = BasicModule.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
+		boolean isTabular = BasicModule.VisualisationMethods.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
 		boolean isChips = false;
 		Parameter pcaOn = bean.getOperation().getParameter("do.pca.on");
 		if (pcaOn != null){
@@ -136,7 +136,7 @@ public class Scatterplot3DPCA extends Scatterplot3D{
 		vars.add((Variable)colorBox.getSelectedItem());
 		
 		application.setVisualisationMethod(new VisualisationMethodChangedEvent(this,
-				MicroarrayModule.SCATTERPLOT3DPCA, vars, 
+				MicroarrayModule.VisualisationMethods.SCATTERPLOT3DPCA, vars, 
 				getFrame().getDatas(), getFrame().getType(), getFrame()));
 		
 		coordinateArea.setPaintMode(CoordinateArea.PaintMode.PIXEL);

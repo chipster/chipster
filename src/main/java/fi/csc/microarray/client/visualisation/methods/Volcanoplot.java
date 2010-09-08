@@ -272,7 +272,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		boolean isTabular = BasicModule.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
+		boolean isTabular = BasicModule.VisualisationMethods.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
 		return isTabular && hasRows(bean) && bean.queryFeatures("/column/" + Y_AXIS_COLUMN_HEADER + "*").exists() && bean.queryFeatures("/column/" + X_AXIS_COLUMN_HEADER + "*").exists();
 	}
 
@@ -284,7 +284,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 			vars.add((Variable) xBox.getSelectedItem());
 			vars.add((Variable) yBox.getSelectedItem());
 
-			application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, MicroarrayModule.VOLCANOPLOT, vars, getFrame().getDatas(), getFrame().getType(), getFrame()));
+			application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, MicroarrayModule.VisualisationMethods.VOLCANOPLOT, vars, getFrame().getDatas(), getFrame().getType(), getFrame()));
 		}
 	}
 

@@ -115,7 +115,7 @@ public class Histogram extends ChipVisualisation {
 						List<Variable> variables = new ArrayList<Variable>();
 						variables.add((Variable) chipBox.getSelectedItem());
 
-						application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, MicroarrayModule.HISTOGRAM, variables, getFrame().getDatas(), getFrame().getType(), getFrame()));
+						application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, MicroarrayModule.VisualisationMethods.HISTOGRAM, variables, getFrame().getDatas(), getFrame().getType(), getFrame()));
 
 					} catch (Exception exp) {
 						application.reportException(exp);

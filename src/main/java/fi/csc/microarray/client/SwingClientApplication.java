@@ -104,6 +104,7 @@ import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
+import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.util.BrowserLauncher;
 import fi.csc.microarray.util.Exceptions;
@@ -1327,7 +1328,7 @@ public class SwingClientApplication extends ClientApplication {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		start(null, "microarray");
+		start(null, "fi.csc.microarray.module.chipster.MicroarrayModule");
 	}
 
 	public static void reportIllegalConfigurationException(IllegalConfigurationException e) {
@@ -1680,6 +1681,41 @@ public class SwingClientApplication extends ClientApplication {
 		}
 	}
 
+	
+	private void hackExampleSessionWithTypeTags() {
+		DataFolder folder = getDataManager().getRootFolder().getChildFolder("IlluminaTeratospermiaHuman6v1_BS1");
+		
+		// TODO Affymetrix CEL: binary or not? if binary, then no TABLE_WITH_HEADER tag, otherwise the same
+		
+		for (DataItem item : folder.getChildren()) {
+			if (item.getName().equals("phenodata.tsv")) {
+				((DataBean)item).addTypeTag(BasicModule.TypeTags.PHENODATA);
+				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER);
+			}
+			if (item.getName().equals("sd-filter.tsv")) {
+				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER);
+			}
+			if (item.getName().equals("two-sample.tsv")) {
+				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER);
+			}
+			if (item.getName().equals("k-means.tsv")) {
+				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER);
+			}
+			if (item.getName().equals("extract.tsv")) {
+				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER);
+			}
+			if (item.getName().equals("globaltest-result-table.tsv")) {
+				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER);
+			}
+			if (item.getName().equals("annotations.tsv")) {
+				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER);
+			}
+
+		}
+		
+	}
+
+
 	@Override
 	public void loadSession() {
 
@@ -1712,6 +1748,7 @@ public class SwingClientApplication extends ClientApplication {
 					boolean somethingToSave = getAllDataBeans().size() != 0;
 					
 					final List<DataItem> newItems = manager.loadSnapshot(sessionFile, manager.getRootFolder(), application);
+					hackExampleSessionWithTypeTags();
 					SwingUtilities.invokeAndWait(new Runnable() {
 						public void run() {
 							getSelectionManager().selectSingle(newItems.get(newItems.size() - 1), this); // select last

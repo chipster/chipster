@@ -22,11 +22,7 @@ import javax.swing.JPanel;
 import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataFolder;
-import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.module.Module;
-import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.util.Strings;
 
 @SuppressWarnings("serial")
@@ -63,7 +59,6 @@ public class QuickLinkPanel extends JPanel {
 					public void actionPerformed(ActionEvent e) {
 						try {
 							application.loadSessionFrom(url);
-							hackExampleSessionWithTypeTags();
 						} catch (Exception exception) {
 							application.reportException(exception);
 						}
@@ -227,16 +222,4 @@ public class QuickLinkPanel extends JPanel {
 		link.setText(text); // must be after setAction
 		return link;
 	}
-	
-	private void hackExampleSessionWithTypeTags() {
-		DataFolder folder = application.getDataManager().getRootFolder().getChildFolder("IlluminaTeratospermiaHuman6v1_BS1");
-		
-		for (DataItem item : folder.getChildren()) {
-			if (item instanceof DataBean) {
-				((DataBean)item).addTypeTag(BasicModule.TABLE_WITHOUT_HEADER_TT);
-			}
-		}
-		
-	}
-
 }

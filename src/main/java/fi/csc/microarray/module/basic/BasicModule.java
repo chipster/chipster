@@ -31,14 +31,23 @@ import fi.csc.microarray.module.Module;
 
 public class BasicModule implements Module {
 
-	public static final TypeTag TABLE_WITHOUT_HEADER_TT = new TypeTag("table-without-header");
-	public static VisualisationMethod SPREADSHEET = new VisualisationMethod("Spreadsheet", Spreadsheet.class, VisualConstants.SPREADSHEET_MENUICON, 2, 0.0007);
-	public static VisualisationMethod PHENODATA = new VisualisationMethod("Phenodata editor", PhenodataEditor.class, VisualConstants.PHENODATA_MENUICON, 3, 0);
-	public static VisualisationMethod SHOW_IMAGE = new VisualisationMethod("Show image", ImageViewer.class, VisualConstants.IMAGE_MENUICON, 1, 0.015); 
-	public static VisualisationMethod WEBVIEW = new VisualisationMethod("View page", HtmlViewer.class, VisualConstants.HTML_MENUICON, 1, 0.008); 
-	public static VisualisationMethod PDFVIEW = new VisualisationMethod("View PDF", PDFViewer.class, VisualConstants.IMAGE_MENUICON, 1, 0);
-	public static VisualisationMethod VIEW_TEXT = new VisualisationMethod("View text", TextViewer.class, VisualConstants.TEXT_MENUICON, 1, 0);
-	public static VisualisationMethod EXTERNAL_BROWSER = new VisualisationMethod("Open in external web browser", ExternalBrowserViewer.class, VisualConstants.EMPTY_MENUICON, 1, -1);
+	private static final String SERVER_MODULE_NAME = "basic";
+
+	public static class TypeTags {
+		public static final TypeTag TABLE_WITHOUT_HEADER = new TypeTag(SERVER_MODULE_NAME, "table-without-header");
+		public static final TypeTag TABLE_WITH_HEADER = new TypeTag(SERVER_MODULE_NAME, "table-without-header");
+		public static final TypeTag PHENODATA = new TypeTag(SERVER_MODULE_NAME, "table-without-header");
+	}
+	
+	public static class VisualisationMethods {
+		public static VisualisationMethod SPREADSHEET = new VisualisationMethod("Spreadsheet", Spreadsheet.class, VisualConstants.SPREADSHEET_MENUICON, 2, 0.0007);
+		public static VisualisationMethod PHENODATA = new VisualisationMethod("Phenodata editor", PhenodataEditor.class, VisualConstants.PHENODATA_MENUICON, 3, 0);
+		public static VisualisationMethod SHOW_IMAGE = new VisualisationMethod("Show image", ImageViewer.class, VisualConstants.IMAGE_MENUICON, 1, 0.015); 
+		public static VisualisationMethod WEBVIEW = new VisualisationMethod("View page", HtmlViewer.class, VisualConstants.HTML_MENUICON, 1, 0.008); 
+		public static VisualisationMethod PDFVIEW = new VisualisationMethod("View PDF", PDFViewer.class, VisualConstants.IMAGE_MENUICON, 1, 0);
+		public static VisualisationMethod VIEW_TEXT = new VisualisationMethod("View text", TextViewer.class, VisualConstants.TEXT_MENUICON, 1, 0);
+		public static VisualisationMethod EXTERNAL_BROWSER = new VisualisationMethod("Open in external web browser", ExternalBrowserViewer.class, VisualConstants.EMPTY_MENUICON, 1, -1);
+	}
 	
 	public void plugContentTypes(DataManager manager) {
 
@@ -58,7 +67,7 @@ public class BasicModule implements Module {
 
 	@Override
 	public String getServerModuleName() {
-		return null;
+		return SERVER_MODULE_NAME;
 	}
 
 	@Override
@@ -87,7 +96,7 @@ public class BasicModule implements Module {
 
 	@Override
 	public void plugTypeTags(DataManager manager) {
-		manager.plugTypeTag(TABLE_WITHOUT_HEADER_TT);
+		manager.plugTypeTag(TypeTags.TABLE_WITHOUT_HEADER);
 	}
 
 	@Override
@@ -104,13 +113,13 @@ public class BasicModule implements Module {
 	public VisualisationMethod[] getVisualisationMethods() {
 		
 		return new VisualisationMethod[] {
-				SPREADSHEET,
-				PHENODATA,
-				SHOW_IMAGE, 
-				WEBVIEW, 
-				PDFVIEW,
-				VIEW_TEXT,
-				EXTERNAL_BROWSER
+				VisualisationMethods.SPREADSHEET,
+				VisualisationMethods.PHENODATA,
+				VisualisationMethods.SHOW_IMAGE, 
+				VisualisationMethods.WEBVIEW, 
+				VisualisationMethods.PDFVIEW,
+				VisualisationMethods.VIEW_TEXT,
+				VisualisationMethods.EXTERNAL_BROWSER
 		};
 	}
 

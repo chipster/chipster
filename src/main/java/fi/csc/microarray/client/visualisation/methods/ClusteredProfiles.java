@@ -110,7 +110,7 @@ public class ClusteredProfiles extends Visualisation {
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		boolean isTabular = BasicModule.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
+		boolean isTabular = BasicModule.VisualisationMethods.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
 		if (isTabular) {
 			Table chips = bean.queryFeatures("/column/chip.*").asTable();
 			boolean hasProfiles = chips != null && chips.getColumnNames().length > 1;

@@ -318,7 +318,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 		vars.add((Variable)colorBox.getSelectedItem());
 		
 		application.setVisualisationMethod(new VisualisationMethodChangedEvent(this,
-				MicroarrayModule.SCATTERPLOT3D, vars, 
+				MicroarrayModule.VisualisationMethods.SCATTERPLOT3D, vars, 
 				getFrame().getDatas(), getFrame().getType(), getFrame()));
 		
 		coordinateArea.setPaintMode(CoordinateArea.PaintMode.PIXEL);
@@ -457,7 +457,7 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
 		return super.canVisualise(bean) && 
-			!MicroarrayModule.SCATTERPLOT3DPCA.getHeadlessVisualiser().canVisualise(bean);
+			!MicroarrayModule.VisualisationMethods.SCATTERPLOT3DPCA.getHeadlessVisualiser().canVisualise(bean);
 		
 	}
 }

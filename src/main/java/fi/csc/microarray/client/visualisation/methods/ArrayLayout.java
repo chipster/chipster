@@ -89,7 +89,7 @@ public ArrayLayout(VisualisationFrame frame) {
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		boolean isTabular = BasicModule.SPREADSHEET.isApplicableTo(bean);
+		boolean isTabular = BasicModule.VisualisationMethods.SPREADSHEET.isApplicableTo(bean);
 		return isTabular && bean.queryFeatures("/column/MEAN").exists();
 	}
 

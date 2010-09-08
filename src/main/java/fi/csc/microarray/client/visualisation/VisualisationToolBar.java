@@ -272,7 +272,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 			if (e.getTarget() == FrameType.MAIN) {
 				
 				// update help button
-				if (e.getNewMethod() == BasicModule.PHENODATA) {
+				if (e.getNewMethod() == BasicModule.VisualisationMethods.PHENODATA) {
 					setHelpAddress("chipster-manual/visualisation-phenodata.html");
 				} else {
 					setHelpAddress(null);

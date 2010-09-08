@@ -146,7 +146,7 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 			vars.add((Variable) xBox.getSelectedItem());
 			vars.add((Variable) yBox.getSelectedItem());
 
-			application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, MicroarrayModule.SCATTERPLOT, vars, getFrame().getDatas(), getFrame().getType(), getFrame()));
+			application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, MicroarrayModule.VisualisationMethods.SCATTERPLOT, vars, getFrame().getDatas(), getFrame().getType(), getFrame()));
 		}
 	}
 	
