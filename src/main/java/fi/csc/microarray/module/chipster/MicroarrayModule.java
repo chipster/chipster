@@ -32,6 +32,7 @@ import fi.csc.microarray.client.visualisation.methods.threed.Scatterplot3D;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.TypeTag;
 import fi.csc.microarray.databeans.features.bio.EmbeddedBinaryProvider;
 import fi.csc.microarray.databeans.features.bio.IdentifierProvider;
 import fi.csc.microarray.databeans.features.bio.NormalisedExpressionProvider;
@@ -44,6 +45,7 @@ public class MicroarrayModule implements Module {
 	private static final String EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/ExampleSessionChipsterV2.cs";
 	
 	public static class TypeTags {
+		public static final TypeTag NORMALISED_EXPRESSION_VALUES = new TypeTag(SERVER_MODULE_NAME, "normalised-expression-values");
 	}
 	
 	public static class VisualisationMethods {
@@ -61,7 +63,7 @@ public class MicroarrayModule implements Module {
 		public static VisualisationMethod GBROWSER = new VisualisationMethod("Genome browser", GenomeBrowser.class, VisualConstants.SCATTER_MENUICON, 1, -1);
 	}
 	
-	public static final String SERVER_MODULE_MICROARRAY = "microarray";
+	public static final String SERVER_MODULE_NAME = "microarray";
 
 	public static final String ANNOTATION_ID = "annotate-genelist2html.R";
 
@@ -93,7 +95,7 @@ public class MicroarrayModule implements Module {
 
 	@Override
 	public String getServerModuleName() {
-		return SERVER_MODULE_MICROARRAY;
+		return SERVER_MODULE_NAME;
 	}
 
 	@Override

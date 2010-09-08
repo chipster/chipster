@@ -106,6 +106,7 @@ import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.BrowserLauncher;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;
@@ -1694,23 +1695,28 @@ public class SwingClientApplication extends ClientApplication {
 			}
 			if (item.getName().equals("sd-filter.tsv")) {
 				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER);
+				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
 			}
 			if (item.getName().equals("two-sample.tsv")) {
 				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER);
+				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
 			}
-			if (item.getName().equals("k-means.tsv")) {
+			if (item.getName().equals("kmeans.tsv")) {
 				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER);
+				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
 			}
 			if (item.getName().equals("extract.tsv")) {
 				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER);
+				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
 			}
 			if (item.getName().equals("globaltest-result-table.tsv")) {
 				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER);
+				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
 			}
 			if (item.getName().equals("annotations.tsv")) {
 				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER);
+				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
 			}
-
 		}
 		
 	}

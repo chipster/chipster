@@ -273,7 +273,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
 		boolean isTabular = BasicModule.VisualisationMethods.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
-		return isTabular && hasRows(bean) && bean.queryFeatures("/column/" + Y_AXIS_COLUMN_HEADER + "*").exists() && bean.queryFeatures("/column/" + X_AXIS_COLUMN_HEADER + "*").exists();
+		return isTabular && bean.queryFeatures("/column/" + Y_AXIS_COLUMN_HEADER + "*").exists() && bean.queryFeatures("/column/" + X_AXIS_COLUMN_HEADER + "*").exists();
 	}
 
 	public void actionPerformed(ActionEvent e) {

@@ -124,9 +124,8 @@ public class Scatterplot3DPCA extends Scatterplot3D{
 		return bean.getOperation().getDefinition().getID().equals("PCA") &&
 		isChips &&
 		isTabular && 
-		hasRows(bean) && 
 		bean.queryFeatures("/column/chip.*").exists();		
-		}
+	}
 	
 	protected void useButtonPressed() {
 		List<Variable> vars = new ArrayList<Variable>();
