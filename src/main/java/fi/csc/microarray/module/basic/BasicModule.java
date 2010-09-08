@@ -31,6 +31,7 @@ import fi.csc.microarray.module.Module;
 
 public class BasicModule implements Module {
 
+	public static final TypeTag TABLE_WITHOUT_HEADER_TT = new TypeTag("table-without-header");
 	public static VisualisationMethod SPREADSHEET = new VisualisationMethod("Spreadsheet", Spreadsheet.class, VisualConstants.SPREADSHEET_MENUICON, 2, 0.0007);
 	public static VisualisationMethod PHENODATA = new VisualisationMethod("Phenodata editor", PhenodataEditor.class, VisualConstants.PHENODATA_MENUICON, 3, 0);
 	public static VisualisationMethod SHOW_IMAGE = new VisualisationMethod("Show image", ImageViewer.class, VisualConstants.IMAGE_MENUICON, 1, 0.015); 
@@ -86,7 +87,7 @@ public class BasicModule implements Module {
 
 	@Override
 	public void plugTypeTags(DataManager manager) {
-		manager.plugTypeTag(new TypeTag("table-without-header"));
+		manager.plugTypeTag(TABLE_WITHOUT_HEADER_TT);
 	}
 
 	@Override
