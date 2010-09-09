@@ -66,6 +66,7 @@ import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
 import fi.csc.microarray.gbrowser.index.GeneIndexDataType;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -705,7 +706,13 @@ public class GenomeBrowser extends Visualisation implements
 
 	@Override
 	public boolean canVisualise(java.util.List<DataBean> datas) throws MicroarrayException {
-		return interpretUserDatas(datas) != null;
+		// Check if there's non-compatible data  
+		for (DataBean data : datas) {
+			if (!data.hasTypeTag(MicroarrayModule.TypeTags.ORDERED_GENOMIC_ENTITIES)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public class ObjVariable extends Variable {
@@ -755,9 +762,9 @@ public class GenomeBrowser extends Visualisation implements
 			           (data.getName().contains(".bam") || data.getName().contains(".sam"))) {
 	            // FIXME does not have to be "control"
                 interpretations.add(TrackType.CONTROL_READS);
+                
 			} else {
-	             // cannot interpret, visualisation not available for this selection
-	             return null;
+	             throw new RuntimeException("cannot visualise: " + data.getName());
 			}
 		}
 

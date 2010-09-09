@@ -1692,6 +1692,8 @@ public class SwingClientApplication extends ClientApplication {
 
 		// TODO PCA: genewise or chipwise
 		
+		// TODO clustered-expression-values: has column cluster
+		
 		
 		for (DataItem item : folder.getChildren()) {
 			if (item.getName().equals("phenodata.tsv")) {
@@ -1705,22 +1707,23 @@ public class SwingClientApplication extends ClientApplication {
 			if (item.getName().equals("two-sample.tsv")) {
 				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
+				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.SIGNIFICANT_EXPRESSION_FOLD_CHANGES);
 			}
 			if (item.getName().equals("kmeans.tsv")) {
 				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
+				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.SIGNIFICANT_EXPRESSION_FOLD_CHANGES);
 			}
 			if (item.getName().equals("extract.tsv")) {
 				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
+				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.SIGNIFICANT_EXPRESSION_FOLD_CHANGES);
 			}
 			if (item.getName().equals("globaltest-result-table.tsv")) {
 				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
-				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
 			}
 			if (item.getName().equals("annotations.tsv")) {
 				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
-				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
 			}
 		}
 		
