@@ -221,7 +221,7 @@ public class Spreadsheet extends Visualisation {
 	
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		return bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER) || bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_HEADER);
+		return bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES) || bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
 	}
 	
 	@Override

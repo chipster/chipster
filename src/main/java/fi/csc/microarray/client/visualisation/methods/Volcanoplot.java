@@ -35,7 +35,6 @@ import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.client.visualisation.methods.SelectableChartPanel.SelectionChangeListener;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 public class Volcanoplot extends Scatterplot implements ActionListener, PropertyChangeListener, SelectionChangeListener {
@@ -272,8 +271,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		boolean isTabular = BasicModule.VisualisationMethods.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
-		return isTabular && bean.queryFeatures("/column/" + Y_AXIS_COLUMN_HEADER + "*").exists() && bean.queryFeatures("/column/" + X_AXIS_COLUMN_HEADER + "*").exists();
+		return super.canVisualise(bean) && bean.hasTypeTag(MicroarrayModule.TypeTags.SIGNIFICANT_EXPRESSION_FOLD_CHANGES) ;
 	}
 
 	public void actionPerformed(ActionEvent e) {

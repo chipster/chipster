@@ -1688,33 +1688,38 @@ public class SwingClientApplication extends ClientApplication {
 		
 		// TODO Affymetrix CEL: binary or not? if binary, then no TABLE_WITH_HEADER tag, otherwise the same
 		
+		// TODO significant expression fold change always when data has "p." "FC";
+
+		// TODO PCA: genewise or chipwise
+		
+		
 		for (DataItem item : folder.getChildren()) {
 			if (item.getName().equals("phenodata.tsv")) {
 				((DataBean)item).addTypeTag(BasicModule.TypeTags.PHENODATA);
-				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER);
+				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 			}
 			if (item.getName().equals("sd-filter.tsv")) {
-				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER);
+				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
 			}
 			if (item.getName().equals("two-sample.tsv")) {
-				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER);
+				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
 			}
 			if (item.getName().equals("kmeans.tsv")) {
-				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER);
+				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
 			}
 			if (item.getName().equals("extract.tsv")) {
-				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER);
+				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
 			}
 			if (item.getName().equals("globaltest-result-table.tsv")) {
-				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER);
+				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
 			}
 			if (item.getName().equals("annotations.tsv")) {
-				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_HEADER);
+				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
 			}
 		}

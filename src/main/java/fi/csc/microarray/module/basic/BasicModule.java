@@ -34,9 +34,9 @@ public class BasicModule implements Module {
 	private static final String SERVER_MODULE_NAME = "basic";
 
 	public static class TypeTags {
-		public static final TypeTag TABLE_WITHOUT_HEADER = new TypeTag(SERVER_MODULE_NAME, "table-without-header");
-		public static final TypeTag TABLE_WITH_HEADER = new TypeTag(SERVER_MODULE_NAME, "table-without-header");
-		public static final TypeTag PHENODATA = new TypeTag(SERVER_MODULE_NAME, "table-without-header");
+		public static final TypeTag TABLE_WITHOUT_COLUMN_NAMES = new TypeTag(SERVER_MODULE_NAME, "table-without-column-names", "first row is the first data row");
+		public static final TypeTag TABLE_WITH_COLUMN_NAMES = new TypeTag(SERVER_MODULE_NAME, "table-without-column-names", "first row is the column name row");
+		public static final TypeTag PHENODATA = new TypeTag(SERVER_MODULE_NAME, "phenodata", "phenodata table");
 	}
 	
 	public static class VisualisationMethods {
@@ -96,7 +96,7 @@ public class BasicModule implements Module {
 
 	@Override
 	public void plugTypeTags(DataManager manager) {
-		manager.plugTypeTag(TypeTags.TABLE_WITHOUT_HEADER);
+		manager.plugTypeTag(TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
 	}
 
 	@Override
