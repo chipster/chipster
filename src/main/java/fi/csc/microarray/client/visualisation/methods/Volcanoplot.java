@@ -191,8 +191,6 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 			// plus one to hide points going into lines because of rounding
 			ROUNDING_LIMIT = (float) Math.pow(10, Math.ceil(Math.log10(min)) + 1);
 			
-			System.out.println("Min: " + min + ", Limit: " + ROUNDING_LIMIT);
-
 			// Sanity check
 			if (ROUNDING_LIMIT <= 0 || ROUNDING_LIMIT > DEFAULT_ROUNDING_LIMIT) {
 				ROUNDING_LIMIT = DEFAULT_ROUNDING_LIMIT;
