@@ -19,6 +19,13 @@ import javax.jms.JMSException;
 
 import org.apache.log4j.Logger;
 import org.h2.tools.Server;
+import org.mortbay.jetty.Connector;
+import org.mortbay.jetty.nio.SelectChannelConnector;
+import org.mortbay.jetty.servlet.Context;
+import org.mortbay.jetty.servlet.DefaultServlet;
+import org.mortbay.jetty.servlet.ServletHolder;
+import org.mortbay.jetty.webapp.WebAppContext;
+import org.mortbay.thread.QueuedThreadPool;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -107,19 +114,12 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 
 	/**
 	 * 
-	 * @throws MicroarrayException 
-	 * @throws JMSException
-	 * @throws IOException if creation of working directory fails.
 	 * @throws MicroarrayException
 	 * @throws JMSException 
-	 * @throws IllegalConfigurationException 
 	 * @throws IOException 
-	 * @throws ClassNotFoundException 
-	 * @throws SQLException 
+	 * @throws Exception 
 	 */
-	public Manager(String configURL) throws MicroarrayException, JMSException,
-	        IOException, IllegalConfigurationException,
-	        ClassNotFoundException, SQLException {
+	public Manager(String configURL) throws Exception {
 		
 		// initialise dir and logging
 		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"manager"}), configURL);
@@ -200,12 +200,31 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
         MessagingTopic feedbackTopic = endpoint.createTopic(Topics.Name.FEEDBACK_TOPIC, AccessMode.READ);
         feedbackTopic.setListener(this);
 
-		// start web console
-		Server server;
+		// start h2 web console
+		Server h2WebConsoleServer;
 		if (startWebConsole) {
-			server = Server.createWebServer(new String[] {"-webAllowOthers",  "-webPort", String.valueOf(webConsolePort)});
-			server.start();
+			h2WebConsoleServer = Server.createWebServer(new String[] {"-webAllowOthers",  "-webPort", String.valueOf(webConsolePort)});
+			h2WebConsoleServer.start();
 		}
+		
+		// start manager web console
+		org.mortbay.jetty.Server managerWebConsoleServer = new org.mortbay.jetty.Server();
+		managerWebConsoleServer.setThreadPool(new QueuedThreadPool());
+		Connector connector = new SelectChannelConnector();
+		connector.setServer(managerWebConsoleServer);
+//		connector.setPort(configuration.getInt("webstart", "port"));
+		connector.setPort(8033);
+		managerWebConsoleServer.setConnectors(new Connector[]{ connector });
+		
+        WebAppContext webapp = new WebAppContext();
+        //webapp.setExtractWAR(false);
+        webapp.setContextPath("/");
+        webapp.setWar("webapps/chipster-manager-console.war");
+        //webapp.setDefaultsDescriptor(jetty_home+"/etc/webdefault.xml");
+        
+        managerWebConsoleServer.setHandler(webapp);
+        managerWebConsoleServer.start();
+        
 		
 		// create keep-alive thread and register shutdown hook
 		KeepAliveShutdownHandler.init(this);
