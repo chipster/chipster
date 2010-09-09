@@ -95,7 +95,7 @@ public class FileServer extends NodeBase implements MessagingListener, ShutdownC
     		KeepAliveShutdownHandler.init(this);
 
     		
-    		logger.info("fileserver is up and running [" + ApplicationConstants.NAMI_VERSION + "]");
+    		logger.info("fileserver is up and running [" + ApplicationConstants.VERSION + "]");
     		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
 
     	} catch (Exception e) {
