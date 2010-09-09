@@ -6,17 +6,18 @@ public class Strings {
 		
 	/**
 	 * Combines strings into one string by placing a delimeter between them.
+	 * Works with objects by calling toString() for them.
 	 * If there are no strings to combine, empty string is returned.
 	 */
-	public static String delimit(Iterable<String> strings, String delimeter) {
+	public static String delimit(Iterable<? extends Object> objects, String delimeter) {
 		String result = "";
 		boolean first = true;
-		for (String string : strings) {
+		for (Object object : objects) {
 			if (first) {
-				result = string;
+				result = object.toString();
 				first = false;
 			} else {
-				result += (delimeter + string);
+				result += (delimeter + object);
 			}
 		}
 		return result;		

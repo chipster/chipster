@@ -159,7 +159,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		// create keep-alive thread and register shutdown hook
 		KeepAliveShutdownHandler.init(this);
 		
-		logger.info("analyser is up and running [" + ApplicationConstants.NAMI_VERSION + "]");
+		logger.info("analyser is up and running [" + ApplicationConstants.VERSION + "]");
 		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
 	}
 	
