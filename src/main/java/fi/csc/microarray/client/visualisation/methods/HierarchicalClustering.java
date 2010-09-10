@@ -557,6 +557,7 @@ implements PropertyChangeListener, SelectionChangeListener {
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
+//		DataBean parentBean 
 		return bean.isContentTypeCompatitible("application/x-treeview") && bean.queryFeatures("/clusters/hierarchical/tree").exists() && bean.queryFeatures("/clusters/hierarchical/heatmap").exists();
 	}
 

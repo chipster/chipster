@@ -18,6 +18,7 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.basic.BasicModule;
 
 public abstract class Visualisation {
 
@@ -179,4 +180,15 @@ public abstract class Visualisation {
 	 */
 	public void removeVisualisation() {
 	}
+
+	/**
+	 * Convenience class for checking tabularity of data.
+	 * 
+	 * @param bean data to check
+	 * @return true iff data has known tabular MIME type
+	 */
+	protected boolean isTabular(DataBean bean) {
+		return bean.isContentTypeCompatitible("text/tab", "application/cel", "text/csv") && bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES, BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
+	}
+
 }

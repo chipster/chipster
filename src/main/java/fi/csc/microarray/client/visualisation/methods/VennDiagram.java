@@ -36,7 +36,6 @@ import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.client.visualisation.methods.VenndiPlot.AREAS;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 public class VennDiagram extends Visualisation implements PropertyChangeListener, ActionListener {
@@ -224,9 +223,8 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 		}
 
 		for (DataBean data : beans) {
-			boolean isTabular = BasicModule.VisualisationMethods.SPREADSHEET.getHeadlessVisualiser().canVisualise(data);
 
-			if (!(isTabular && data.queryFeatures(IDENTIFIER_COLUMN).exists())) {
+			if (!(isTabular(data) && data.queryFeatures(IDENTIFIER_COLUMN).exists())) {
 				return false;
 			}
 		}

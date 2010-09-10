@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 public abstract class ChipVisualisation extends Visualisation {
@@ -32,7 +31,6 @@ public abstract class ChipVisualisation extends Visualisation {
 			
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		boolean isTabular = bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES) || bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
-		return isTabular && bean.hasTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES) ;
+		return isTabular(bean) && bean.hasTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES) ;
 	}
 }

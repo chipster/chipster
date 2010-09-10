@@ -10,7 +10,7 @@ import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.module.basic.BasicModule;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.FloatArrayList;
 
 public class ArrayLayout extends Visualisation {
@@ -89,8 +89,8 @@ public ArrayLayout(VisualisationFrame frame) {
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		boolean isTabular = BasicModule.VisualisationMethods.SPREADSHEET.isApplicableTo(bean);
-		return isTabular && bean.queryFeatures("/column/MEAN").exists();
+		// we can do this for text CEL files only, i.e., must be tabular and Affymetrix
+		return isTabular(bean) && bean.hasTypeTag(MicroarrayModule.TypeTags.RAW_AFFYMETRIX_EXPRESSION_VALUES);
 	}
 
 }

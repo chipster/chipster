@@ -33,7 +33,7 @@ import fi.csc.microarray.module.basic.BasicModule;
  * could be used to annotate them (write some describing names and notes
  * for different genes).
  * 
- * @author Janne KÃ¤ki, Mikko Koski, Aleksi Kallio
+ * @author Janne Käki, Mikko Koski, Aleksi Kallio
  *
  */
 
