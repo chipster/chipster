@@ -136,6 +136,7 @@ public class SAMFile {
         	
         	BpCoord from = new BpCoord(pos, request.start.chr);
         	BpCoord to = new BpCoord(pos + step, request.start.chr);
+    		int stepMiddlepoint = (int)pos + step/2;
 
         	// Count number of reads in a sample from this area
     		int countForward = 0;
@@ -157,13 +158,11 @@ public class SAMFile {
         		countForward /= indexedValues.size();
         		countReverse /= indexedValues.size();
         		
-        		
         	} else {
         		
         		cacheMisses++;
         		
         		// Fetch new content by taking sample from the middle of this area
-        		int stepMiddlepoint = (int)pos + step/2;
         		CloseableIterator<SAMRecord> iterator =
         			this.reader.query(request.start.chr.toString(),
         					stepMiddlepoint - SAMPLE_SIZE/2, stepMiddlepoint + SAMPLE_SIZE/2, false);
@@ -179,6 +178,9 @@ public class SAMFile {
         		}
 
         		iterator.close();
+        		
+            	// Store value in cache
+            	cache.store(new BpCoord((long)stepMiddlepoint, request.start.chr), countForward, countReverse);
         	}
 
         	// Create two approximated response objects: one for each strand
@@ -196,12 +198,9 @@ public class SAMFile {
         	values.put(ColumnType.VALUE, (float)countReverse);
         	values.put(ColumnType.STRAND, Strand.REVERSED);
         	responseList.add(new RegionContent(recordRegion, values));
-        	
-        	// Store value in cache
-        	cache.store(new BpCoord(pos, request.start.chr), countForward, countReverse);
         }	
         
-        System.out.println("Cache hits: " + cacheHits + ", misses: " + cacheMisses);
+//        System.out.println("Cache hits: " + cacheHits + ", misses: " + cacheMisses);
         return responseList;
     }
 }

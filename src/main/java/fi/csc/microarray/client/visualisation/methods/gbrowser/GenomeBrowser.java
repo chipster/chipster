@@ -802,7 +802,7 @@ public class GenomeBrowser extends Visualisation implements
 		    if (gidt == null) {
 		    	application.showDialog("Not found", "Gene with such name was not found", null, Severity.INFO, false, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
 		    } else {
-		    	chrBox.setSelectedItem(gidt.chromosome);
+		    	chrBox.setSelectedItem(new Chromosome(gidt.chromosome));
 			    plot.moveDataBpRegion((Chromosome)chrBox.getSelectedItem(),
 			    		(gidt.bpend+gidt.bpstart)/2, (gidt.bpend - gidt.bpstart)*2);
 		    }

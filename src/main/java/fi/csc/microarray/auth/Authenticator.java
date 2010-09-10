@@ -89,7 +89,7 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 		// create keep-alive thread and register shutdown hook
 		KeepAliveShutdownHandler.init(this);
 		
-		logger.info("authenticator is up and running [" + ApplicationConstants.NAMI_VERSION + "]");
+		logger.info("authenticator is up and running [" + ApplicationConstants.VERSION + "]");
 		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
 	}
 	
