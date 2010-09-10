@@ -40,8 +40,6 @@ import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 public class VennDiagram extends Visualisation implements PropertyChangeListener, ActionListener {
 
-	private static final String IDENTIFIER_COLUMN = "/identifier";
-
 	public VennDiagram(VisualisationFrame frame) {
 		super(frame);
 	}
@@ -218,13 +216,15 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 
 	@Override
 	public boolean canVisualise(List<DataBean> beans) throws MicroarrayException {
+		
+		// VENN diagram can be be used for 2 or 3 datasets
 		if (beans.size() < 2 || beans.size() > 3) {
 			return false;
 		}
 
+		// check that all datasets have gene name column
 		for (DataBean data : beans) {
-
-			if (!(isTabular(data) && data.queryFeatures(IDENTIFIER_COLUMN).exists())) {
+			if (!(isTabular(data) && data.hasTypeTag(MicroarrayModule.TypeTags.GENENAMES))) {
 				return false;
 			}
 		}

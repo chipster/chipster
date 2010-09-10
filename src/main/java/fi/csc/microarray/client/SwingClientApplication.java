@@ -1685,14 +1685,14 @@ public class SwingClientApplication extends ClientApplication {
 	
 	private void hackExampleSessionWithTypeTags() {
 		DataFolder folder = getDataManager().getRootFolder().getChildFolder("IlluminaTeratospermiaHuman6v1_BS1");
+
+		// Here's some not obvious things to check when updating code that sets the tags in place
 		
 		// TODO Affymetrix CEL: binary or not? if binary, then no TABLE_WITH_HEADER tag, otherwise the same
 		
 		// TODO significant expression fold change always when data has "p." "FC";
 
 		// TODO PCA: genewise or chipwise
-		
-		// TODO clustered-expression-values: has column cluster
 		
 		
 		for (DataItem item : folder.getChildren()) {
@@ -1703,20 +1703,24 @@ public class SwingClientApplication extends ClientApplication {
 			if (item.getName().equals("sd-filter.tsv")) {
 				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
+				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.GENENAMES);
 			}
 			if (item.getName().equals("two-sample.tsv")) {
 				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
+				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.GENENAMES);
 				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.SIGNIFICANT_EXPRESSION_FOLD_CHANGES);
 			}
 			if (item.getName().equals("kmeans.tsv")) {
 				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
+				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.GENENAMES);
 				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.SIGNIFICANT_EXPRESSION_FOLD_CHANGES);
 			}
 			if (item.getName().equals("extract.tsv")) {
 				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
+				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.GENENAMES);
 				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.SIGNIFICANT_EXPRESSION_FOLD_CHANGES);
 			}
 			if (item.getName().equals("globaltest-result-table.tsv")) {
