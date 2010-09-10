@@ -383,6 +383,9 @@ public class GenomeBrowser extends Visualisation implements
 			gotoButton.addActionListener(this);
 			gotoButton.setEnabled(false);
 		
+		} catch (IOException e) {
+			application.reportException(e);
+			
 		} finally {
 			IOUtils.closeIfPossible(contentsStream);
 		}
