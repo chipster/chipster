@@ -200,6 +200,21 @@
 		
 		<entry entryKey="admin-email" type="string" description="admin email">
 		</entry>
+	
+		<entry entryKey="manager-web-console-port" type="int" description="">
+			<value>8083</value>
+		</entry>
+	
+	    <entry entryKey="manager-web-console-username" type="string" description="">
+			<value>chipster</value>
+		</entry>
+
+	    <entry entryKey="manager-web-console-password" type="string" description="">
+			<value>chipster</value>
+		</entry>
+
+
+	
 			
 	</configuration-module>
 	

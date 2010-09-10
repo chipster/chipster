@@ -59,7 +59,7 @@ public class MicroarrayMain {
 			
 			// give help, if needed
 			if (cmdParser.userAskedHelp()) {
-				System.out.println("Chipster " + ApplicationConstants.NAMI_VERSION);
+				System.out.println("Chipster " + ApplicationConstants.VERSION);
 				System.out.println("Parameters:");
 				System.out.println(cmdParser.getDescription());
 				System.exit(0);

@@ -183,7 +183,7 @@ public class SwingClientApplication extends ClientApplication {
 
         // show splash screen
 		splashScreen = new SplashScreen(VisualConstants.SPLASH_SCREEN);
-		reportInitialisation("Initialising " + ApplicationConstants.APPLICATION_TITLE, true);
+		reportInitialisation("Initialising " + ApplicationConstants.TITLE, true);
 
 		// try to initialise and handle exceptions gracefully
 		try {
@@ -401,13 +401,13 @@ public class SwingClientApplication extends ClientApplication {
 	
 	public void updateWindowTitle() {
 		if (windowTitleBlockingPrefix != null) {
-			this.mainFrame.setTitle(windowTitleBlockingPrefix + ApplicationConstants.APPLICATION_TITLE);
+			this.mainFrame.setTitle(windowTitleBlockingPrefix + ApplicationConstants.TITLE);
 			
 		} else if (windowTitleJobPrefix != null) {
-			this.mainFrame.setTitle(windowTitleJobPrefix + ApplicationConstants.APPLICATION_TITLE);
+			this.mainFrame.setTitle(windowTitleJobPrefix + ApplicationConstants.TITLE);
 			
 		} else {
-			this.mainFrame.setTitle(ApplicationConstants.APPLICATION_TITLE);
+			this.mainFrame.setTitle(ApplicationConstants.TITLE);
 		}
 
 	}
