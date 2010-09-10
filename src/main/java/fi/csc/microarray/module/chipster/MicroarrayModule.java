@@ -3,6 +3,8 @@ package fi.csc.microarray.module.chipster;
 import java.awt.event.ActionEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -33,6 +35,7 @@ import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.TypeTag;
+import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.bio.EmbeddedBinaryProvider;
 import fi.csc.microarray.databeans.features.bio.IdentifierProvider;
 import fi.csc.microarray.databeans.features.bio.NormalisedExpressionProvider;
@@ -217,5 +220,51 @@ public class MicroarrayModule implements Module {
 				{ "miRNA expression analysis", "/mirna-expression-analysis.bsh" }
 		};
 	}
+	
+	
+	/**
+	 * Selects the proper source dataset ie. the dataset that is not a hidden phenodata dataset.
+	 */
+	public static DataBean getProperSource(DataBean dataBean) {
+		
+		if (dataBean == null || dataBean.getLinkTargets(Link.DERIVATION).size() == 0) {
+			return null;
+			
+		} else if (dataBean.getLinkTargets(Link.DERIVATION).size() == 1) {
+			return dataBean.getLinkTargets(Link.DERIVATION).iterator().next();
+			
+		} else {
+			LinkedList<DataBean> sourceCollector = new LinkedList<DataBean>();
+			for (DataBean source : dataBean.getLinkTargets(Link.DERIVATION)) {
+				if (source.queryFeatures("/phenodata").exists()) {
+					sourceCollector.add(source);
+				}
+			}
+			if (sourceCollector.size() == 0 || sourceCollector.size() > 1) {
+				return null; // no definite source was found
+			}
+			
+			return sourceCollector.getFirst(); // return the one and only proper source
+		}
+	}
+	
+	/**
+	 * Gets the operation history of this dataset as a chronological list
+	 * (implemented as vector) of DataSetHistoryWrapper objects, which
+	 * practically are DataSets with a slightly altered toString output.
+	 * The list will contain all the datasets on the workflow, starting
+	 * from raw data and ending at current dataset.
+	 * 
+	 * @return The chronologically ascending list of dataset history wrappers.
+	 */
+	public static DataBean[] getSourcePath(DataBean dataBean) {
+		LinkedList<DataBean> list = new LinkedList<DataBean>();
+		if (getProperSource(dataBean) != null) {
+			list.addAll(Arrays.asList(getSourcePath(getProperSource(dataBean))));
+		}
+		list.add(dataBean);
+		return list.toArray(new DataBean[0]);
+	}	
+
 
 }

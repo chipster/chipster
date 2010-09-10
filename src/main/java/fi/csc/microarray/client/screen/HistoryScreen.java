@@ -36,8 +36,8 @@ import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.biobeans.BioBean;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.GeneralFileFilter;
 import fi.csc.microarray.util.Strings;
 
@@ -189,7 +189,7 @@ public class HistoryScreen extends ScreenBase
 		}
 		StringBuffer historyText = new StringBuffer();
 		int i = 0;
-		for (DataBean listData : new BioBean(data).getSourcePath()) {
+		for (DataBean listData : MicroarrayModule.getSourcePath(data)) {
 			if (checkBoxes.get("title").isSelected()) {
 				String title = "Step " + (i+1);
 				historyText.append(title + "\n");
@@ -256,7 +256,7 @@ public class HistoryScreen extends ScreenBase
 			
 			// make list of wanted source codes
 			List<String> ids = new LinkedList<String>();
-			for (DataBean bean : new BioBean(data).getSourcePath()) {
+			for (DataBean bean : MicroarrayModule.getSourcePath(data)) {
 				OperationDefinition op = bean.getOperation().getDefinition();
 				if (op.hasSourceCode()) {
 					ids.add(op.getID());
