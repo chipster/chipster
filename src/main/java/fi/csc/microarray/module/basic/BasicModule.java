@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.List;
 
 import javax.swing.JMenu;
+import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXHyperlink;
 
@@ -121,5 +122,10 @@ public class BasicModule implements Module {
 	@Override
 	public String[][] getRepositoryWorkflows() {
 		return new String[0][0];
+	}
+
+	@Override
+	public FileFilter[] getImportFileFilter() {
+		return new FileFilter[] {};
 	}
 }

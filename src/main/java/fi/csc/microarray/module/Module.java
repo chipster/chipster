@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.List;
 
 import javax.swing.JMenu;
+import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXHyperlink;
 
@@ -111,4 +112,12 @@ public interface Module {
 	 * @return array of String arrays, zero length if none available
 	 */
 	public String[][] getRepositoryWorkflows();
+
+	/**
+	 * Returns file filters that user can choose from when importing data.
+	 * File types are those that are relevant for the current module.
+	 * 
+	 * @return array of file filters
+	 */
+	public FileFilter[] getImportFileFilter();
 }

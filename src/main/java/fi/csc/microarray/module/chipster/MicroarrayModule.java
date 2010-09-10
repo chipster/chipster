@@ -8,6 +8,7 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXHyperlink;
 
@@ -38,6 +39,7 @@ import fi.csc.microarray.databeans.features.bio.NormalisedExpressionProvider;
 import fi.csc.microarray.databeans.features.stat.HierarchicalClusterProvider;
 import fi.csc.microarray.databeans.features.stat.SomClusterProvider;
 import fi.csc.microarray.module.Module;
+import fi.csc.microarray.util.GeneralFileFilter;
 
 public class MicroarrayModule implements Module {
 
@@ -199,6 +201,16 @@ public class MicroarrayModule implements Module {
 				{ "Gene expression analysis", "/gene-expression-analysis.bsh" }, 
 				{ "Protein expression analysis", "/protein-expression-analysis.bsh" },
 				{ "miRNA expression analysis", "/mirna-expression-analysis.bsh" }
+		};
+	}
+
+	@Override
+	public FileFilter[] getImportFileFilter() {
+		return new FileFilter[] {
+				new GeneralFileFilter("Affymetrix CEL", new String[] {"cel"}),
+				new GeneralFileFilter("Spot files", new String[] {"spot"}),
+				new GeneralFileFilter("GenePix", new String[] {"gpr"}),
+				new GeneralFileFilter("Tab separated (incl. Illumina)", new String[] {"txt", "csv", "tsv"})
 		};
 	}
 
