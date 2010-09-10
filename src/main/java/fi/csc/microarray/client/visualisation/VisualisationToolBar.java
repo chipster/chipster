@@ -42,7 +42,7 @@ import fi.csc.microarray.module.basic.BasicModule;
  * lower left part of the operations panel, and controls what is shown on the
  * results panel.
  * 
- * @author Janne KÃ¤ki, akallio
+ * @author Janne Käki, akallio
  * 
  */
 public class VisualisationToolBar extends JToolBar implements ActionListener, PropertyChangeListener {

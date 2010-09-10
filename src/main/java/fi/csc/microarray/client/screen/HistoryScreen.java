@@ -46,7 +46,7 @@ import fi.csc.microarray.util.Strings;
  * Allows the user to copypaste it to another application or save it as
  * a text file.
  * 
- * @author Janne KÃ¤ki
+ * @author Janne Käki
  *
  */
 public class HistoryScreen extends ScreenBase

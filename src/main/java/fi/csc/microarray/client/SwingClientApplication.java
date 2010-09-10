@@ -117,7 +117,7 @@ import fi.csc.microarray.util.Strings;
 /**
  * This class adds all GUI and Swing specific content to client functionality.
  * 
- * @author Aleksi Kallio, Janne KÃ¤ki
+ * @author Aleksi Kallio, Janne Käki
  * 
  */
 public class SwingClientApplication extends ClientApplication {

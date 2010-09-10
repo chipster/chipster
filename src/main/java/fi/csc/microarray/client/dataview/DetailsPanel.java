@@ -39,7 +39,7 @@ import fi.csc.microarray.databeans.DataItem;
  * (for the user's personal notes). Both are placed together in one
  * JScrollPane, so that the length of the notes is not limited.
  * 
- * @author Janne KÃ¤ki
+ * @author Janne Käki
  *
  */
 public class DetailsPanel extends JPanel implements PropertyChangeListener, FocusListener, ActionListener, DocumentListener {

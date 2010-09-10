@@ -13,7 +13,7 @@ import fi.csc.microarray.util.Strings;
  * A parameter that has a defined set of possible values, out of which only
  * one at a time can be selected.
  * 
- * @author Janne KÃ¤ki, Rimvydas Naktinis, Aleksi Kallio
+ * @author Janne Käki, Rimvydas Naktinis, Aleksi Kallio
  *
  */
 public class EnumParameter extends Parameter {

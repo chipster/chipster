@@ -32,7 +32,7 @@ import fi.csc.microarray.module.chipster.ChipsterInputTypes;
  * 
  * @see fi.csc.microarray.databeans.DataItem
  * 
- * @author Mikko Koski, Petri KlemelÃ¤, Aleksi Kallio
+ * @author Mikko Koski, Petri Klemelä, Aleksi Kallio
  */
 public class ClientContextMenu extends JPopupMenu implements ActionListener, PopupMenuListener {
 

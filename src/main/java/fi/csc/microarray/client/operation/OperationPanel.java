@@ -52,7 +52,7 @@ import fi.csc.microarray.exception.MicroarrayException;
  * The main panel for all operation, parameter and visualization choices in
  * the client mainframe.
  * 
- * @author Janne KÃ¤ki, Petri KlemelÃ¤
+ * @author Janne Käki, Petri Klemelä
  *
  */
 @SuppressWarnings("serial")
