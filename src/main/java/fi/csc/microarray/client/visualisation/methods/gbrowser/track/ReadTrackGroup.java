@@ -40,6 +40,7 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
     protected GelTrack gelTrack;
     
     // Track switches
+    private JCheckBox showReads = new JCheckBox("Reads", true);
     private JCheckBox showGel = new JCheckBox("Gel track", true);
     private JCheckBox showProfile = new JCheckBox("Profile track", true);
     private JCheckBox showAcid = new JCheckBox("Nucleic acids", false);
@@ -107,10 +108,12 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
         addTracks();
         
         // Add switches
+        this.menu.addItem(showReads);
         this.menu.addItem(showGel);
         this.menu.addItem(showProfile);
         this.menu.addItem(showAcid);
         this.menu.addItem(showSNP);
+        showReads.addActionListener(this);
         showGel.addActionListener(this);
         showProfile.addActionListener(this);
         showAcid.addActionListener(this);
@@ -175,6 +178,10 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
             }
             view.fireAreaRequests();
             view.redraw();
+        } else if (e.getSource() == showReads) {
+        	reads.setVisible(showReads.isSelected());
+        	readsReversed.setVisible(showReads.isSelected());
+        	view.redraw();
         }
     }
 

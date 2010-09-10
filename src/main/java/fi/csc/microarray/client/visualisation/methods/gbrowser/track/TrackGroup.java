@@ -71,7 +71,7 @@ public class TrackGroup {
 
             // Panel with controls
             controls.setLayout(new BoxLayout(controls, BoxLayout.PAGE_AXIS));
-            controls.setBounds(5, startControlsAt, 100, 100);
+            controls.setBounds(5, startControlsAt, 100, 150);
             controls.setVisible(!menuCollapsed);
             add(controls);
             
