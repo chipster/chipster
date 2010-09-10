@@ -210,7 +210,7 @@ public class MicroarrayModule implements Module {
 				new GeneralFileFilter("Affymetrix CEL", new String[] {"cel"}),
 				new GeneralFileFilter("Spot files", new String[] {"spot"}),
 				new GeneralFileFilter("GenePix", new String[] {"gpr"}),
-				new GeneralFileFilter("Tab separated (incl. Illumina)", new String[] {"txt", "csv", "tsv"}),
+				new GeneralFileFilter("Illumina", new String[] {"txt", "csv"}),
 				new GeneralFileFilter("SAM and BAM", new String[] {"sam", "bam"}),
 		};
 	}
