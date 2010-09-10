@@ -21,6 +21,7 @@ import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.module.Module;
+import fi.csc.microarray.util.GeneralFileFilter;
 
 public class SequenceModule implements Module {
 
@@ -149,6 +150,8 @@ public class SequenceModule implements Module {
 	
 	@Override
 	public FileFilter[] getImportFileFilter() {
-		return new FileFilter[] {};
+		return new FileFilter[] {
+				new GeneralFileFilter("SAM and BAM", new String[] {"sam", "bam"}),
+		};
 	}
 }
