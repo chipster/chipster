@@ -4,7 +4,6 @@ import it.sauronsoftware.cron4j.Scheduler;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -19,13 +18,16 @@ import javax.jms.JMSException;
 
 import org.apache.log4j.Logger;
 import org.h2.tools.Server;
+import org.mortbay.jetty.Connector;
+import org.mortbay.jetty.nio.SelectChannelConnector;
+import org.mortbay.jetty.webapp.WebAppContext;
+import org.mortbay.thread.QueuedThreadPool;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.MessagingEndpoint;
@@ -34,9 +36,9 @@ import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.MonitoredNodeBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.FeedbackMessage;
 import fi.csc.microarray.messaging.message.JobLogMessage;
-import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
 import fi.csc.microarray.util.Emails;
@@ -107,19 +109,12 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 
 	/**
 	 * 
-	 * @throws MicroarrayException 
-	 * @throws JMSException
-	 * @throws IOException if creation of working directory fails.
 	 * @throws MicroarrayException
 	 * @throws JMSException 
-	 * @throws IllegalConfigurationException 
 	 * @throws IOException 
-	 * @throws ClassNotFoundException 
-	 * @throws SQLException 
+	 * @throws Exception 
 	 */
-	public Manager(String configURL) throws MicroarrayException, JMSException,
-	        IOException, IllegalConfigurationException,
-	        ClassNotFoundException, SQLException {
+	public Manager(String configURL) throws Exception {
 		
 		// initialise dir and logging
 		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"manager"}), configURL);
@@ -200,17 +195,36 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
         MessagingTopic feedbackTopic = endpoint.createTopic(Topics.Name.FEEDBACK_TOPIC, AccessMode.READ);
         feedbackTopic.setListener(this);
 
-		// start web console
-		Server server;
+		// start h2 web console
+		Server h2WebConsoleServer;
 		if (startWebConsole) {
-			server = Server.createWebServer(new String[] {"-webAllowOthers",  "-webPort", String.valueOf(webConsolePort)});
-			server.start();
+			h2WebConsoleServer = Server.createWebServer(new String[] {"-webAllowOthers",  "-webPort", String.valueOf(webConsolePort)});
+			h2WebConsoleServer.start();
 		}
+		
+		// start manager web console
+		org.mortbay.jetty.Server managerWebConsoleServer = new org.mortbay.jetty.Server();
+		managerWebConsoleServer.setThreadPool(new QueuedThreadPool());
+		Connector connector = new SelectChannelConnector();
+		connector.setServer(managerWebConsoleServer);
+//		connector.setPort(configuration.getInt("webstart", "port"));
+		connector.setPort(8033);
+		managerWebConsoleServer.setConnectors(new Connector[]{ connector });
+		
+        WebAppContext webapp = new WebAppContext();
+        //webapp.setExtractWAR(false);
+        webapp.setContextPath("/");
+        webapp.setWar("webapps/chipster-manager-console.war");
+        //webapp.setDefaultsDescriptor(jetty_home+"/etc/webdefault.xml");
+        
+        managerWebConsoleServer.setHandler(webapp);
+        managerWebConsoleServer.start();
+        
 		
 		// create keep-alive thread and register shutdown hook
 		KeepAliveShutdownHandler.init(this);
 		
-		logger.error("manager is up and running [" + ApplicationConstants.NAMI_VERSION + "]");
+		logger.error("manager is up and running [" + ApplicationConstants.VERSION + "]");
 		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
 	}
 	

@@ -63,7 +63,7 @@ public class WebstartJettyServer implements ShutdownCallback {
 			// create keep-alive thread and register shutdown hook
 			KeepAliveShutdownHandler.init(this);
 			
-			logger.info("webstart is up and running [" + ApplicationConstants.NAMI_VERSION + "]");
+			logger.info("webstart is up and running [" + ApplicationConstants.VERSION + "]");
 			logger.info("[mem: " + MemUtil.getMemInfo() + "]");
 
 		} catch (Exception e) {

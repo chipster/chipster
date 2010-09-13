@@ -61,7 +61,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Annotatio
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.LinkUtils;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
@@ -144,7 +143,8 @@ public class GenomeBrowser extends Visualisation implements
 		PEAKS(true),
 		REFERENCE(true),
 		PEAKS_WITH_HEADER(true), 
-		TREATMENT_BED_READS(true);
+		TREATMENT_BED_READS(true),
+		HIDDEN(false);
 		
 		private boolean isToggleable;
 		
@@ -383,6 +383,9 @@ public class GenomeBrowser extends Visualisation implements
 			gotoButton.addActionListener(this);
 			gotoButton.setEnabled(false);
 		
+		} catch (IOException e) {
+			application.reportException(e);
+			
 		} finally {
 			IOUtils.closeIfPossible(contentsStream);
 		}
@@ -518,7 +521,7 @@ public class GenomeBrowser extends Visualisation implements
 					switch (track.type) {
 
 					case TREATMENT_READS:
-					    treatmentData = createReadDataSource(track.userData);
+					    treatmentData = createReadDataSource(track.userData, tracks);
 						TrackGroup readGroup = TrackFactory.addReadTracks(plot, treatmentData,
 						        createReadHandler(file),
 						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv",
@@ -549,7 +552,7 @@ public class GenomeBrowser extends Visualisation implements
 					switch (track.type) {
 
 					case CONTROL_READS:
-		                controlData = createReadDataSource(track.userData);
+		                controlData = createReadDataSource(track.userData, tracks);
 						TrackGroup readGroup = TrackFactory.addReadTracks(plot, controlData,
                                 createReadHandler(file),
 						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv",
@@ -590,20 +593,11 @@ public class GenomeBrowser extends Visualisation implements
 			}
 
 			// initialise the plot
-			
-//            plot.start((String)chrBox.getSelectedItem(),
-//                    (double)CHROMOSOME_SIZES[chrBox.getSelectedIndex()],
-//                    Long.parseLong(locationField.getText()),
-//                    Long.parseLong(zoomField.getText()));
-			
-			
 			plot.addDataRegionListener(this);
 			
 			// remember the chromosome, so we know if it has changed
             lastChromosome = chrBox.getSelectedItem();
-            
             updateLocation();
-            
 
 			// wrap it in a panel
 			chartPanel.setChart(new JFreeChart(plot));
@@ -620,6 +614,7 @@ public class GenomeBrowser extends Visualisation implements
 			if (plotPanel.getComponentCount() == 2) {
 				plotPanel.remove(1);
 			}
+			
 			plotPanel.add(chartPanel, PLOTPANEL);
             plotPanel.addComponentListener(this);
 			CardLayout cl = (CardLayout) (plotPanel.getLayout());
@@ -632,35 +627,40 @@ public class GenomeBrowser extends Visualisation implements
 	
 	/**
 	 * Create DataSource either for SAM/BAM or ELAND data files.
+	 * @param tracks 
 	 * 
 	 * @param file
 	 * @return
+	 * @throws MicroarrayException if index file is not selected properly 
+	 * @throws IOException if opening data files fails
 	 */
-	public DataSource createReadDataSource(DataBean data) {
+	public DataSource createReadDataSource(DataBean data, List<Track> tracks) throws MicroarrayException, IOException {
 	    DataSource dataSource = null;
 
-	    try {
-	        // Convert data bean into file
-	        File file = data == null ? null : Session.getSession().getDataManager().getLocalFile(data);
-	        
-	        if (file.getName().contains(".bam") || file.getName().contains(".sam")) {
-	            // Find the index file from the operation
-	            // FIXME what about index files for bam files that are not
-	            //       created during preprocessing?
-	            DataBean indexBean = null;
-	            for (DataBean bean : LinkUtils.retrieveOutputSet(data)) {
-	                if (bean.getName().endsWith(".bai")) {
-	                    indexBean = bean;
-	                }
-	            }
-	            File indexFile = Session.getSession().getDataManager().getLocalFile(indexBean);
-	            dataSource = new SAMDataSource(file, indexFile);
-	        } else {
-	            dataSource = new ChunkDataSource(file, new ElandParser());
-	        }
-	    } catch (Exception e) {
-	        e.printStackTrace();
+	    // Convert data bean into file
+	    File file = data == null ? null : Session.getSession().getDataManager().getLocalFile(data);
+
+	    if (file.getName().contains(".bam") || file.getName().contains(".sam")) {
+	    	// Find the index file from the operation
+	    	DataBean indexBean = null;
+	    	for (Track track : tracks) {
+	    		if (track.type == GenomeBrowser.TrackType.HIDDEN) {
+	    			DataBean bean = track.userData;
+	    			if (bean.getName().endsWith(".bai") && bean.getName().startsWith(data.getName())) {
+	    				indexBean = bean;
+	    			}
+	    		}
+	    	}
+	    	if (indexBean == null) {
+	    		throw new MicroarrayException("Index file not selected for SAM/BAM file " + data.getName());
+	    	}
+	    	File indexFile = Session.getSession().getDataManager().getLocalFile(indexBean);
+	    	dataSource = new SAMDataSource(file, indexFile);
+
+	    } else {
+	    	dataSource = new ChunkDataSource(file, new ElandParser());
 	    }
+
 	    return dataSource;
 	}
 	
@@ -752,9 +752,13 @@ public class GenomeBrowser extends Visualisation implements
 				interpretations.add(TrackType.PEAKS_WITH_HEADER);
 
 			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
-			           (data.getName().contains(".bam") || data.getName().contains(".sam"))) {
-	            // FIXME does not have to be "control"
-                interpretations.add(TrackType.CONTROL_READS);
+			           (data.getName().endsWith(".bam") || data.getName().endsWith(".sam"))) {
+                interpretations.add(TrackType.TREATMENT_READS);
+                
+			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
+			           (data.getName().endsWith(".bai"))) {
+				interpretations.add(TrackType.HIDDEN);
+
 			} else {
 	             // cannot interpret, visualisation not available for this selection
 	             return null;
@@ -802,7 +806,7 @@ public class GenomeBrowser extends Visualisation implements
 		    if (gidt == null) {
 		    	application.showDialog("Not found", "Gene with such name was not found", null, Severity.INFO, false, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
 		    } else {
-		    	chrBox.setSelectedItem(gidt.chromosome);
+		    	chrBox.setSelectedItem(new Chromosome(gidt.chromosome));
 			    plot.moveDataBpRegion((Chromosome)chrBox.getSelectedItem(),
 			    		(gidt.bpend+gidt.bpstart)/2, (gidt.bpend - gidt.bpstart)*2);
 		    }

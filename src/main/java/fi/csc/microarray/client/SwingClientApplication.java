@@ -104,6 +104,7 @@ import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
+import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.util.BrowserLauncher;
 import fi.csc.microarray.util.Exceptions;
@@ -181,7 +182,7 @@ public class SwingClientApplication extends ClientApplication {
 
         // show splash screen
 		splashScreen = new SplashScreen(VisualConstants.SPLASH_SCREEN);
-		reportInitialisation("Initialising " + ApplicationConstants.APPLICATION_TITLE, true);
+		reportInitialisation("Initialising " + ApplicationConstants.TITLE, true);
 
 		// try to initialise and handle exceptions gracefully
 		try {
@@ -399,13 +400,13 @@ public class SwingClientApplication extends ClientApplication {
 	
 	public void updateWindowTitle() {
 		if (windowTitleBlockingPrefix != null) {
-			this.mainFrame.setTitle(windowTitleBlockingPrefix + ApplicationConstants.APPLICATION_TITLE);
+			this.mainFrame.setTitle(windowTitleBlockingPrefix + ApplicationConstants.TITLE);
 			
 		} else if (windowTitleJobPrefix != null) {
-			this.mainFrame.setTitle(windowTitleJobPrefix + ApplicationConstants.APPLICATION_TITLE);
+			this.mainFrame.setTitle(windowTitleJobPrefix + ApplicationConstants.TITLE);
 			
 		} else {
-			this.mainFrame.setTitle(ApplicationConstants.APPLICATION_TITLE);
+			this.mainFrame.setTitle(ApplicationConstants.TITLE);
 		}
 
 	}
@@ -1504,25 +1505,20 @@ public class SwingClientApplication extends ClientApplication {
 
 		}
 
-		// FIXME All files to default filter and other as a single file
-		// filters
-		String description = "Common microarray filetypes (cel, spot, gpr, txt, csv, tsv)";
-		String[] extensions = { "cel", // affymetrix
-		"spot", // SPOT files
-		"gpr", // GenePix
-		"txt", "csv", // illumina
-		"tsv" // chipster
-		};
-
+		// remove previous filters, otherwise they duplicate
 		for (FileFilter filter : importExportFileChooser.getChoosableFileFilters()) {
 			importExportFileChooser.removeChoosableFileFilter(filter);
 		}
 
 		importExportFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		importExportFileChooser.setAcceptAllFileFilterUsed(true);
-		FileFilter filter = new GeneralFileFilter(description, extensions);
-		importExportFileChooser.addChoosableFileFilter(filter);
-		importExportFileChooser.setFileFilter(filter);
+		
+		for (Module module : Session.getSession().getModules().getModules()) {
+			for (FileFilter filter : module.getImportFileFilter()) {
+				importExportFileChooser.addChoosableFileFilter(filter);
+				importExportFileChooser.setFileFilter(filter);
+			}
+		}
 
 		ImportSettingsAccessory access = new ImportSettingsAccessory(importExportFileChooser);
 		importExportFileChooser.setAccessory(access);

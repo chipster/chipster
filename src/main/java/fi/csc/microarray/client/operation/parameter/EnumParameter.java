@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.util.Strings;
+
 /**
  * A parameter that has a defined set of possible values, out of which only
  * one at a time can be selected.
@@ -233,19 +235,9 @@ public class EnumParameter extends Parameter {
     @Override
     public Object getValue() {
         assert(options != null);
-        
-        String selected = "";
-        for (SelectionOption option : selectedOptions) {
-            selected += "," + option.getValue(); 
-        }
-        
-        if (!selected.equals("")) {
-            // The first character is a comma
-            selected = selected.substring(1);
-        }
-        
-        logger.debug("returning value " + selected);
-        return selected;
+
+        // create comma separated string of selected values
+        return Strings.delimit(selectedOptions, ",");
     }   
 
     /**
@@ -268,6 +260,7 @@ public class EnumParameter extends Parameter {
         return valueObject instanceof SelectionOption;
     }
     
+    @Override
     public String toString() {
         return this.getID() + ": " + getValue();
     }
