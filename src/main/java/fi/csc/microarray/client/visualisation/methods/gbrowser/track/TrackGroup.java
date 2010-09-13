@@ -71,7 +71,7 @@ public class TrackGroup {
 
             // Panel with controls
             controls.setLayout(new BoxLayout(controls, BoxLayout.PAGE_AXIS));
-            controls.setBounds(5, startControlsAt, 100, 150);
+            controls.setBounds(5, startControlsAt, 100, 100);
             controls.setVisible(!menuCollapsed);
             add(controls);
             
@@ -193,5 +193,14 @@ public class TrackGroup {
      */
     public void setMenuVisible(boolean isVisible) {
         menuVisible = isVisible;
+    }
+    
+    public String getName() {
+    	return "Track Group";
+    }
+    
+    
+    public void showOrHide(String track, boolean state) {
+    	
     }
 }

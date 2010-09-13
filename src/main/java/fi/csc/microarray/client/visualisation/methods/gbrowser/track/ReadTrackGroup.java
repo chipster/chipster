@@ -118,7 +118,7 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
         showProfile.addActionListener(this);
         showAcid.addActionListener(this);
         showSNP.addActionListener(this);
-        this.setMenuVisible(true);
+        this.setMenuVisible(false);
     }
     
     private void addTracks() {
@@ -157,6 +157,38 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
             tracks.add(gelTrack);
         }
     }
+    
+    public void setVisibleGetTrack(boolean b) {
+    	gelTrack.setVisible(b);
+    	view.redraw();
+    }
+    
+    public void setVisibleProfileTrack(boolean b) {
+    	profileTrack.setVisible(b);
+    	view.redraw();
+    }
+    
+    public void setVisibleAcidTrack(boolean b) {
+    	acidTrack.setVisible(b);
+    	view.redraw();
+    }
+    
+    public void setVisibleReads(boolean b) {
+    	reads.setVisible(b);
+    	readsReversed.setVisible(b);
+    	view.redraw();
+    }
+    public void setVisibleSNP(boolean b) {
+    	if (showSNP.isSelected()) {
+            reads.enableSNPHighlight(seqFile, ChunkTreeHandlerThread.class);
+            readsReversed.enableSNPHighlight(seqFile, ChunkTreeHandlerThread.class);
+        } else {
+            reads.disableSNPHiglight(seqFile);
+            readsReversed.disableSNPHiglight(seqFile);
+        }
+        view.fireAreaRequests();
+        view.redraw();
+    }
 
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == showGel) {
@@ -185,4 +217,23 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
         }
     }
 
+    @Override
+    public String getName() {
+    	return "Read Track Group";
+    }
+    
+    @Override
+    public void showOrHide(String track, boolean state) {
+    	if (track.equals("reads")) {
+    		setVisibleReads(state);
+    	} else if (track.equals("gel")) {
+    		setVisibleGetTrack(state);
+    	} else if (track.equals("profile")) {
+    		setVisibleProfileTrack(state);
+    	} else if (track.equals("acid")) {
+    		setVisibleAcidTrack(state);
+    	} else if (track.equals("snp")) {
+    		setVisibleSNP(state);
+    	}
+    }
 }
