@@ -522,7 +522,6 @@ public abstract class ClientApplication {
 							String originalName = null;
 							for (DataBinding binding : oper.getBindings()) {
 								if (binding.getName().equals(sample)) {
-									System.out.println("binding: " + binding.getName() + "sample: " + sample);
 									originalName = binding.getData().getName();
 									correctRowFound = true;
 									break;

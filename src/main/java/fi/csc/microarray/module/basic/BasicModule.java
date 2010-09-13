@@ -105,6 +105,7 @@ public class BasicModule implements Module {
 	public VisualisationMethod[] getVisualisationMethods() {
 		
 		return new VisualisationMethod[] {
+				VisualisationMethod.NONE,
 				SPREADSHEET,
 				PHENODATA,
 				SHOW_IMAGE, 
