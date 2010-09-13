@@ -30,7 +30,7 @@ import fi.csc.microarray.exception.MicroarrayException;
 public class VisualisationMethod {
 
 	/**
-	 * Method None is always present and spaces reserve space also for the longer names
+	 * Method None can be always available and spaces reserve space also for the longer names
 	 * when they aren't present. This is the easiest found way to keep things
 	 * steady. Duration estimation 0 means no limit.
 	 */
