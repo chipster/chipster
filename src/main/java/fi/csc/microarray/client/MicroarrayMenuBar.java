@@ -118,13 +118,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		exportMenuItem.setEnabled(somethingSelected);
 		renameMenuItem.setEnabled(somethingSelected);
 		deleteMenuItem.setEnabled(somethingSelected);
-
-		/*
-		 * VisualisationToolBar visToolBar = application.getVisualisationFrameManager().getVisualisationToolBar();
-		 * 
-		 * duplicateMenuItem.setText(visToolBar.getSplitText()); //Maximisation doesn't make events and the text wont stay up to date
-		 * maximiseVisualisationMenuItem.setText(visToolBar.getMaximiseButtonText());
-		 */
 	}
 
 	/**
@@ -166,11 +159,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return importMenu;
 	}
 
-	/**
-	 * This method initializes importMenuItem
-	 * 
-	 * @return javax.swing.JMenuItem
-	 */
 	private JMenuItem getDirectImportMenuItem() {
 		if (directImportMenuItem == null) {
 			directImportMenuItem = new JMenuItem();
@@ -321,7 +309,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			exportMenuItem = new JMenuItem();
 			exportMenuItem.setText("Export dataset(s) or folder...");
 			exportMenuItem.setAccelerator(KeyStroke.getKeyStroke('E', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
-			// exportMenuItem.setIcon(VisualConstants.EXPORT_MENUICON);
 			exportMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					application.exportSelectedItems();
@@ -331,11 +318,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return exportMenuItem;
 	}
 
-	/**
-	 * This method initializes quitMenuItem
-	 * 
-	 * @return javax.swing.JMenuItem
-	 */
 	private JMenuItem getQuitMenuItem() {
 		if (quitMenuItem == null) {
 			quitMenuItem = new JMenuItem();
@@ -350,11 +332,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return quitMenuItem;
 	}
 
-	/**
-	 * This method initializes editMenu
-	 * 
-	 * @return javax.swing.JMenu
-	 */
 	private JMenu getEditMenu() {
 		if (editMenu == null) {
 			editMenu = new JMenu();
@@ -387,11 +364,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return historyMenuItem;
 	}
 
-	/**
-	 * This method initializes renameMenuItem
-	 * 
-	 * @return javax.swing.JMenuItem
-	 */
 	private JMenuItem getRenameMenuItem() {
 		if (renameMenuItem == null) {
 			renameMenuItem = new JMenuItem();
@@ -406,11 +378,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return renameMenuItem;
 	}
 
-	/**
-	 * This method initializes deleteMenuItem
-	 * 
-	 * @return javax.swing.JMenuItem
-	 */
 	private JMenuItem getDeleteMenuItem() {
 		if (deleteMenuItem == null) {
 			deleteMenuItem = new JMenuItem();
@@ -507,11 +474,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 	}
 
 
-	/**
-	 * This method initializes viewMenu
-	 * 
-	 * @return javax.swing.JMenu
-	 */
 	private JMenu getViewMenu() {
 		if (viewMenu == null) {
 			viewMenu = new JMenu();
@@ -534,7 +496,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			visualisationMenu = new JMenu();
 			visualisationMenu.setText("Visualisation");
 			visualisationMenu.add(getMaximiseVisualisationMenuItem());
-			// visualisationMenu.add(getDuplicateMenuItem());
 			visualisationMenu.add(getDetachMenuItem());
 
 		}
@@ -559,27 +520,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 
 		return detachMenuItem;
 	}
-
-	// private JMenuItem getDuplicateMenuItem() {
-	// if(duplicateMenuItem == null){
-	// duplicateMenuItem = new JMenuItem();
-	// duplicateMenuItem.setText("Duplicate/Close");
-	// duplicateMenuItem.setAccelerator(KeyStroke.getKeyStroke('D',
-	// Toolkit.getDefaultToolkit( ).getMenuShortcutKeyMask( ), false));
-	// duplicateMenuItem.addActionListener(new ActionListener(){
-	//
-	// public void actionPerformed(ActionEvent e) {
-	// VisualisationToolBar visToolBar =
-	// application.getVisualisationFrameManager().getVisualisationToolBar();
-	//					
-	// visToolBar.split();
-	// }
-	//				
-	// });
-	// }
-	//				
-	// return duplicateMenuItem;
-	// }
 
 	private JMenuItem getMaximiseVisualisationMenuItem() {
 		if (maximiseVisualisationMenuItem == null) {
@@ -616,11 +556,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return visualiseMenuItem;
 	}
 
-	/**
-	 * This method initializes restoreViewMenuItem
-	 * 
-	 * @return javax.swing.JMenuItem
-	 */
 	private JMenuItem getRestoreViewMenuItem() {
 		if (restoreViewMenuItem == null) {
 			restoreViewMenuItem = new JMenuItem();
@@ -637,8 +572,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 
 	/**
 	 * This method initializes helpInfoMenu. Name was chosen because getHelpMenu() causes conflict.
-	 * 
-	 * @return javax.swing.JMenu
 	 */
 	private JMenu getHelpInfoMenu() {
 		if (helpInfoMenu == null) {
@@ -681,11 +614,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return startedMenuItem;
 	}
 
-	/**
-	 * This method initializes aboutMenuItem
-	 * 
-	 * @return javax.swing.JMenuItem
-	 */
 	private JMenuItem getAboutMenuItem() {
 		if (aboutMenuItem == null) {
 			aboutMenuItem = new JMenuItem();
@@ -745,10 +673,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (clearSessionMenuItem == null) {
 			clearSessionMenuItem = new JMenuItem();
 			clearSessionMenuItem.setText("New session");
-			/*
-			 * clearSessionMenuItem.setAccelerator(KeyStroke.getKeyStroke('N', Toolkit.getDefaultToolkit( ).getMenuShortcutKeyMask( ),
-			 * false));
-			 */
 			clearSessionMenuItem.addActionListener(new ActionListener() {
 
 				public void actionPerformed(ActionEvent e) {
@@ -793,11 +717,6 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		return saveSnapshotMenuItem;
 	}
 
-	/**
-	 * This method initializes jMenuItem
-	 * 
-	 * @return javax.swing.JMenuItem
-	 */
 	private JMenuItem getAddDirMenuItem() {
 		if (addDirMenuItem == null) {
 			addDirMenuItem = new JMenuItem();
