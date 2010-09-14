@@ -1,24 +1,22 @@
 # ANALYSIS Pathways/"Hypergeometric test for GO" (Finds GO ontology classes that are over- or under-represented.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT hypergeo.html
+# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv
+# OUTPUT hypergeo.tsv, hypergeo.html
+# PARAMETER ontology [all, biological_process, molecular_function, cellular_component] DEFAULT biological_process (the ontology to be analyzed)
 # PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value threshold)
-# PARAMETER over.or.under.representation [over, under] DEFAULT over (Should over- or under-represented classes be seeked?)
+# PARAMETER over.or.under.representation [over, under] DEFAULT over (Should over or under-represented classes be seeked?)
 
 # Hypergeometrix test of gene enrichment to term categories
 # Dario Greco 7.1.2007
 # JTT 30.7.2007 (with heavy modifications) 
 #
 # modified MG 5.2.2010
+# modified IS 14.9.2010
 
 # Loads the libraries
 library(GOstats)
 
-# Renaming variables
-pcut<-p.value.threshold
-choisedirec<-over.or.under.representation
-
 # Loads the normalized data
-file<-c("normalized.tsv")
-dat<-read.table(file, header=T, sep="\t", row.names=1)
+dat<-read.table("normalized.tsv", header=TRUE, sep="\t", row.names=1)
 
 # Separates expression values and flags
 calls<-dat[,grep("flag", names(dat))]
@@ -75,24 +73,54 @@ if (annotpkg=="yeast2scentrezg.db") {
 	annotpkg <- "yeast2.db"
 }
 
+# define the output variable
+output <- data.frame(total=integer(0), expectation=numeric(0), observation=integer(0), p.value=numeric(0), description=character(0), ontology=character(0))
 
-params<-new("GOHyperGParams", geneIds=myids, annotation=annotpkg, ontology="BP", pvalueCutoff=pcut, conditional=TRUE,testDirection=choisedirec)
-resultBP<-hyperGTest(params)
-params<-new("GOHyperGParams", geneIds=myids, annotation=annotpkg, ontology="MF", pvalueCutoff=pcut, conditional=TRUE,testDirection=choisedirec)
-resultMF<-hyperGTest(params)
-params<-new("GOHyperGParams", geneIds=myids, annotation=annotpkg, ontology="CC", pvalueCutoff=pcut, conditional=TRUE,testDirection=choisedirec)
-resultCC<-hyperGTest(params)
-
-if( sum(pvalues(resultCC)<pcut) + sum(pvalues(resultBP)<pcut) + sum(pvalues(resultMF)<pcut) >=1) {
-   htmlReport(resultBP, "hypergeo.html", append=T)
-   htmlReport(resultMF, "hypergeo.html", append=T)
-   htmlReport(resultCC, "hypergeo.html", append=T)
+if (ontology == 'biological_process' || ontology == 'all') {
+  params<-new("GOHyperGParams", geneIds=myids, annotation=annotpkg, ontology="BP", pvalueCutoff=p.value.threshold, conditional=TRUE,testDirection=over.or.under.representation)
+  go <- hyperGTest(params)
+  go.table <- summary(go)
+  if (nrow(go.table)>0) {
+    rownames(go.table) <- go.table[,1]
+    go.table <- go.table[,c(6, 4, 5, 2, 7)]
+    go.table$ontology <- 'biological process'
+    colnames(go.table) <- colnames(output)
+    output <- rbind(output, go.table)
+    htmlReport(go, file='hypergeo.html', append=TRUE)
+  }
 }
 
-if( sum(pvalues(resultCC)<pcut) + sum(pvalues(resultBP)<pcut) + sum(pvalues(resultMF)<pcut) <1) {
-   write(x="<HTML>", file="hypergeo.html", append=T) 
-   write(x="<BODY>", file="hypergeo.html", append=T)
-   write(x="No significant results found! <br>", file="hypergeo.html", append=T)
-   write(x="</BODY>", file="hypergeo.html", append=T)
-   write(x="</HTML>", file="hypergeo.html", append=T)   
+if (ontology == 'molecular_function' || ontology == 'all') {
+  params<-new("GOHyperGParams", geneIds=myids, annotation=annotpkg, ontology="MF", pvalueCutoff=p.value.threshold, conditional=TRUE,testDirection=over.or.under.representation)
+  go <- hyperGTest(params)
+  go.table <- summary(go)
+  if (nrow(go.table)>0) {
+    rownames(go.table) <- go.table[,1]
+    go.table <- go.table[,c(6, 4, 5, 2, 7)]
+    go.table$ontology <- 'molecular function'
+    colnames(go.table) <- colnames(output)
+    output <- rbind(output, go.table)
+    htmlReport(go, file='hypergeo.html', append=TRUE)
+  }
 }
+
+if (ontology == 'cellular_component' || ontology == 'all') {
+  params<-new("GOHyperGParams", geneIds=myids, annotation=annotpkg, ontology="CC", pvalueCutoff=p.value.threshold, conditional=TRUE,testDirection=over.or.under.representation)
+  go <- hyperGTest(params)
+  go.table <- summary(go)
+  if (nrow(go.table)>0) {
+    rownames(go.table) <- go.table[,1]
+    go.table <- go.table[,c(6, 4, 5, 2, 7)]
+    go.table$ontology <- 'cellular component'
+    colnames(go.table) <- colnames(output)
+    output <- rbind(output, go.table)
+    htmlReport(go, file='hypergeo.html', append=TRUE)
+  }
+}
+
+# write outputs
+write.table(output, file='hypergeo.tsv', quote=FALSE, sep='\t')
+if (nrow(output)==0)
+  write('<html>\n\t<body>\n\t\tNo significant results found!</br />\n\t</body>\n</html>', file='hypergeo.html')
+
+# EOF

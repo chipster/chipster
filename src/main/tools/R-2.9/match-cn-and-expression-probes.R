@@ -1,8 +1,8 @@
 # ANALYSIS "aCGH tools (beta testing)"/"Match copy number and expression probes" (Matches the probes of a copy number data set with probes of an expression data set, using their chromosomal locations. Running this module is a prerequisite for testing copy-number-induced effects on expression.)
 # INPUT GENE_EXPRS aberrations.tsv, GENE_EXPRS normalized.tsv, GENERIC phenodata_cgh.tsv, GENERIC phenodata_exp.tsv
 # OUTPUT matched-cn-and-expression.tsv, matched-cn-and-expression-heatmap.png
-# PARAMETER samples1 METACOLUMN_SEL DEFAULT EMPTY (The phenodata column for data set 1 used to link the two data sets together.)
-# PARAMETER samples2 METACOLUMN_SEL DEFAULT EMPTY (The phenodata column for data set 2 used to link the two data sets together.)
+# PARAMETER samples1 METACOLUMN_SEL DEFAULT Sample (The phenodata column for data set 1 used to link the two data sets together.)
+# PARAMETER samples2 METACOLUMN_SEL DEFAULT Sample (The phenodata column for data set 2 used to link the two data sets together.)
 # PARAMETER method [distance, overlap, overlapplus] DEFAULT distance (The method for linking copy number and expression probes together.)
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)

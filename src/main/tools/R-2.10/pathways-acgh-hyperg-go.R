@@ -1,9 +1,11 @@
 # ANALYSIS "aCGH tools (beta testing)"/"GO enrichment for copy number aberrations" (Performs a statistical test for enrichment of GO terms in frequently aberrated genes. The input should be the output from the module Convert called aCGH data from probes to genes.)
 # INPUT GENE_EXPRS gene-aberrations.tsv
 # OUTPUT hypergeo-go.tsv, hypergeo-go.html
-# PARAMETER aberrations [losses, gains, amplifications] DEFAULT losses (Whether to test enrichment of GO terms in frequently lost, gained or amplified genes.)
+# PARAMETER aberrations [losses, gains, amplifications, gains_and_amplifications] DEFAULT losses (Whether to test enrichment of GO terms in frequently lost, gained or amplified genes.)
 # PARAMETER frequency.threshold DECIMAL DEFAULT 0.5 (The minimum proportion of samples containing the particular type of aberration.)
+# PARAMETER ontology [all, biological_process, molecular_function, cellular_component] DEFAULT biological_process (the ontology to be analyzed)
 # PARAMETER p.value.threshold DECIMAL DEFAULT 0.05 (P-value threshold.)
+# PARAMETER over.or.under.representation [over, under] DEFAULT over (Should over or under-represented classes be seeked?)
 
 # pathways-acgh-hyperg-go.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
@@ -25,7 +27,10 @@ if (length(reference.genes)==0)
   stop('CHIPSTER-NOTE: The input file should contain a list of Ensembl Gene IDs. Usually as a result of running the module Convert called aCGH data from probes to genes.')
 
 # detect the frequency column to use
-if (aberrations == 'amplifications') {
+if (aberrations == 'gains_and_amplifications') {
+  dat$gain.freq <- dat$gain.freq + dat$amp.freq
+  column <- 'gain.freq'
+} else if (aberrations == 'amplifications') {
   column <- 'amp.freq'
 } else if (aberrations == 'gains') {
   column <- 'gain.freq'
@@ -44,28 +49,48 @@ selected.genes <- unique(unlist(ensembl.to.entrez[rownames(dat[dat[,column] >= f
 if (length(reference.genes)==0)
   stop('CHIPSTER-NOTE: There were no aberrated genes above the selected threshold (', frequency.threshold, '). Please choose a lower threshold.')
 
-# define output variables
-output <- data.frame(p.value=numeric(0), odds.ratio=numeric(0), expected.count=numeric(0), count=integer(0), size=integer(0), term=character(0), ontology=character(0), direction=character(0))
-ontology.labels <- c('BP'='biological process', 'MF'='molecular function', 'CC'='cellular component')
-direction.labels <- c('over'='over-represented', 'under'='under-represented')
+# define the output variable
+output <- data.frame(total=integer(0), expectation=numeric(0), observation=integer(0), p.value=numeric(0), description=character(0), ontology=character(0))
 
-# run all six tests
-ontologies <- c('BP', 'MF', 'CC')
-testDirections <- c('over', 'under')
-for (ontology in ontologies) {
-  for (testDirection in testDirections) {
-    params <- new('GOHyperGParams', geneIds=selected.genes, universeGeneIds=reference.genes, annotation='org.Hs.eg.db', ontology=ontology, pvalueCutoff=p.value.threshold, conditional=TRUE, testDirection=testDirection)
-    go <- hyperGTest(params)
-    go.table <- summary(go)
-    if (nrow(go.table)>0) {
-      rownames(go.table) <- go.table[,1]
-      go.table[,1] <- NULL
-      go.table$ontology <- ontology.labels[ontology]
-      go.table$direction <- direction.labels[testDirection]
-      colnames(go.table) <- colnames(output)
-      output <- rbind(output, go.table)
-      htmlReport(go, file='hypergeo-go.html', append=TRUE)
-    }
+if (ontology == 'biological_process' || ontology == 'all') {
+  params <- new('GOHyperGParams', geneIds=selected.genes, universeGeneIds=reference.genes, annotation='org.Hs.eg.db', ontology='BP', pvalueCutoff=p.value.threshold, conditional=TRUE, testDirection=over.or.under.representation)
+  go <- hyperGTest(params)
+  go.table <- summary(go)
+  if (nrow(go.table)>0) {
+    rownames(go.table) <- go.table[,1]
+    go.table <- go.table[,c(6, 4, 5, 2, 7)]
+    go.table$ontology <- 'biological process'
+    colnames(go.table) <- colnames(output)
+    output <- rbind(output, go.table)
+    htmlReport(go, file='hypergeo-go.html', append=TRUE)
+  }
+}
+
+if (ontology == 'molecular_function' || ontology == 'all') {
+  params <- new('GOHyperGParams', geneIds=selected.genes, universeGeneIds=reference.genes, annotation='org.Hs.eg.db', ontology='MF', pvalueCutoff=p.value.threshold, conditional=TRUE, testDirection=over.or.under.representation)
+  go <- hyperGTest(params)
+  go.table <- summary(go)
+  if (nrow(go.table)>0) {
+    rownames(go.table) <- go.table[,1]
+    go.table <- go.table[,c(6, 4, 5, 2, 7)]
+    go.table$ontology <- 'molecular function'
+    colnames(go.table) <- colnames(output)
+    output <- rbind(output, go.table)
+    htmlReport(go, file='hypergeo-go.html', append=TRUE)
+  }
+}
+
+if (ontology == 'cellular_component' || ontology == 'all') {
+  params <- new('GOHyperGParams', geneIds=selected.genes, universeGeneIds=reference.genes, annotation='org.Hs.eg.db', ontology='CC', pvalueCutoff=p.value.threshold, conditional=TRUE, testDirection=over.or.under.representation)
+  go <- hyperGTest(params)
+  go.table <- summary(go)
+  if (nrow(go.table)>0) {
+    rownames(go.table) <- go.table[,1]
+    go.table <- go.table[,c(6, 4, 5, 2, 7)]
+    go.table$ontology <- 'cellular component'
+    colnames(go.table) <- colnames(output)
+    output <- rbind(output, go.table)
+    htmlReport(go, file='hypergeo-go.html', append=TRUE)
   }
 }
 

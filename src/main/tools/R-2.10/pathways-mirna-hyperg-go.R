@@ -1,8 +1,9 @@
 # ANALYSIS Pathways/"GO enrichment for miRNA targets" (Performs a statistical test for enrichments of GO terms in the predicted gene targets of a list of miRNA ID:s.)
 # INPUT GENE_EXPRS normalized.tsv OUTPUT hyperg_go.tsv
-# PARAMETER ontology [biological_process, molecular_function, cellular_component] DEFAULT biological_process (the ontology to be analyzed)
+# PARAMETER ontology [all, biological_process, molecular_function, cellular_component] DEFAULT biological_process (the ontology to be analyzed)
 # PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value threshold)
 # PARAMETER p.adjust.method [none, BH, BY] DEFAULT BH (method for adjusting the p-value in order to account for multiple testing)
+# PARAMETER over.or.under.representation [over, under] DEFAULT over (Should over or under-represented classes be seeked?)
 # PARAMETER minimum.population INTEGER FROM 1 TO 1000000 DEFAULT 5 (minimum number of genes in in the reference list that map to a pathway)
 # PARAMETER species [human, mouse, rat] DEFAULT human (the species for which the miRNA:s have been analyzed)
 
@@ -159,42 +160,72 @@ sample.mf <- intersect(targets.list[,2], reference.list.mf)
 sample.bp <- intersect(targets.list[,2], reference.list.bp)
 sample.cc <- intersect(targets.list[,2], reference.list.cc)
 
-# Run the hypergeometric test for over-representation
-if (ontology=="molecular_function") {
-	test.mf <- corna.test.fun(sample.mf,
+# define the output variable
+output <- data.frame(total=integer(0), expectation=numeric(0), observation=integer(0), p.value=numeric(0), description=character(0), ontology=character(0))
+
+# test for over or under-represented categories
+if (over.or.under.representation=='under') {
+  hyper.lower.tail <- TRUE
+} else {
+  hyper.lower.tail <- FALSE
+}
+
+# Run the hypergeometric tests
+if (ontology=="biological_process" || ontology=='all') {
+  test.bp <- corna.test.fun(sample.bp,
+                reference.list.bp,
+                tran2gobp,
+                hyper.lower.tail=hyper.lower.tail,
+                fisher=F,
+                sort="hypergeometric",
+                min.pop=minimum.population,
+                p.adjust.method=p.adjust.method,
+                desc=go2term) 
+  significant.bp <- test.bp[test.bp$hypergeometric <= p.value.threshold, ]
+  if(nrow(significant.bp)>0) {
+    significant.bp$ontology <- 'biological process'
+    colnames(significant.bp) <- colnames(output)
+    output <- rbind(output, significant.bp)
+  }
+}
+
+if (ontology=="molecular_function" || ontology=='all') {
+  test.mf <- corna.test.fun(sample.mf,
                 reference.list.mf,
                 tran2gomf,
+                hyper.lower.tail=hyper.lower.tail,
                 fisher=F,
                 sort="hypergeometric",
                 min.pop=minimum.population, 
-				p.adjust.method=p.adjust.method,
+                p.adjust.method=p.adjust.method,
                 desc=go2term) 
-	significant.mf <- test.mf[test.mf$hypergeometric <= p.value.threshold, ]
-	write.table(significant.mf, file="hyperg_go.tsv", sep="\t", quote=F)	
-}
-	
-if (ontology=="biological_process") {
-	test.bp <- corna.test.fun(sample.bp,
-                reference.list.bp,
-                tran2gobp,
-                fisher=F,
-                sort="hypergeometric",
-                min.pop=minimum.population,
-				p.adjust.method=p.adjust.method,
-                desc=go2term) 
-	significant.bp <- test.bp[test.bp$hypergeometric <= p.value.threshold, ]
-	write.table(significant.bp, file="hyperg_go.tsv", sep="\t", quote=F)
+  significant.mf <- test.mf[test.mf$hypergeometric <= p.value.threshold, ]
+  if(nrow(significant.mf)>0) {
+    significant.mf$ontology <- 'molecular function'
+    colnames(significant.mf) <- colnames(output)
+    output <- rbind(output, significant.mf)
+  }
 }
 
-if (ontology=="cellular_component") {
-	test.cc <- corna.test.fun(sample.cc,
+if (ontology=="cellular_component" || ontology=='all') {
+  test.cc <- corna.test.fun(sample.cc,
                 reference.list.cc,
                 tran2gocc,
+                hyper.lower.tail=hyper.lower.tail,
                 fisher=F,
                 sort="hypergeometric",
                 min.pop=minimum.population,
-				p.adjust.method=p.adjust.method,
+                p.adjust.method=p.adjust.method,
                 desc=go2term) 
-	significant.cc <- test.cc[test.cc$hypergeometric <= p.value.threshold, ]
-	write.table(significant.cc, file="hyperg_go.tsv", sep="\t", quote=F)	
+  significant.cc <- test.cc[test.cc$hypergeometric <= p.value.threshold, ]
+  if(nrow(significant.cc)>0) {
+    significant.cc$ontology <- 'cellular component'
+    colnames(significant.cc) <- colnames(output)
+    output <- rbind(output, significant.cc)
+  }
 }
+
+# write output
+write.table(output, file="hyperg_go.tsv", sep="\t", quote=FALSE)
+
+# EOF
