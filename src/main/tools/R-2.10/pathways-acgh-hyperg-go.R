@@ -2,12 +2,12 @@
 # INPUT GENE_EXPRS gene-aberrations.tsv
 # OUTPUT hypergeo-go.tsv, hypergeo-go.html
 # PARAMETER aberrations [losses, gains, amplifications] DEFAULT losses (Whether to test enrichment of GO terms in frequently lost, gained or amplified genes.)
-# PARAMETER frequency.threshold DECIMAL DEFAULT 0.3 (The minimum proportion of samples containing the particular type of aberration.)
+# PARAMETER frequency.threshold DECIMAL DEFAULT 0.5 (The minimum proportion of samples containing the particular type of aberration.)
 # PARAMETER p.value.threshold DECIMAL DEFAULT 0.05 (P-value threshold.)
 
 # pathways-acgh-hyperg-go.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-08-30
+# 2010-08-31
 
 # load packages
 library(org.Hs.eg.db)
