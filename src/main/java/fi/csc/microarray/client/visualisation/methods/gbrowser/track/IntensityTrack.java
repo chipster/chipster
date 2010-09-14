@@ -74,8 +74,14 @@ public class IntensityTrack extends Track {
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
 		
+		if (areaResult.content.values.get(ColumnType.VALUE) instanceof Integer && 
+				((Integer)areaResult.content.values.get(ColumnType.VALUE)) == 128) {
+			
+			System.out.println("" + areaResult.content.values + areaResult.content.region);
+		}
+		
 		if (areaResult.status.concise == this.isConcised() && 
-				areaResult.content.values.get(ColumnType.STRAND) == getStrand() && 
+				areaResult.content.values.get(ColumnType.STRAND) == null || areaResult.content.values.get(ColumnType.STRAND) == getStrand() && 
 				areaResult.content.values.get(ColumnType.VALUE) != null &&
 				areaResult.content.region.intercepts(getView().getBpRegion())) { 
 
@@ -116,6 +122,6 @@ public class IntensityTrack extends Track {
 
 	@Override
 	public boolean isConcised() {
-		return true;
+		return false;
 	}
 }
