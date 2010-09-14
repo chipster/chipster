@@ -64,7 +64,7 @@ import fi.csc.microarray.messaging.SourceMessageListener;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.messaging.auth.ClientLoginListener;
 import fi.csc.microarray.module.Module;
-import fi.csc.microarray.module.Modules;
+import fi.csc.microarray.module.ModuleManager;
 import fi.csc.microarray.util.Files;
 
 
@@ -190,8 +190,8 @@ public abstract class ClientApplication {
 		try {
 
 			// initialise modules
-			Modules modules = new Modules(requestedModule);
-			Session.getSession().setModules(modules);
+			ModuleManager modules = new ModuleManager(requestedModule);
+			Session.getSession().setModuleManager(modules);
 
 			// initialise workflows
 			this.workflowManager = new WorkflowManager(this);
@@ -441,7 +441,7 @@ public abstract class ClientApplication {
 				newBeans = new LinkedList<DataBean>();
 
 				// read operated datas
-				Module primaryModule = Session.getSession().getModules().getPrimaryModule();
+				Module primaryModule = Session.getSession().getPrimaryModule();
 				LinkedList<DataBean> sources = new LinkedList<DataBean>();
 				for (DataBinding binding : oper.getBindings()) {
 					// do not create derivation links for metadata datasets

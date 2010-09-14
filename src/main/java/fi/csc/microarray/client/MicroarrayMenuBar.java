@@ -99,7 +99,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		boolean workflowCompatibleDataSelected = false;
 
 		if (selectedDataBean != null) {
-			workflowCompatibleDataSelected = Session.getSession().getModules().getPrimaryModule().isWorkflowCompatible(selectedDataBean);
+			workflowCompatibleDataSelected = Session.getSession().getPrimaryModule().isWorkflowCompatible(selectedDataBean);
 		}
 
 		historyMenuItem.setEnabled(selectedDataBean != null && application.getSelectionManager().getSelectedDataBeans().size() == 1);
@@ -157,7 +157,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			importMenu = new JMenu();
 			importMenu.setText("Import from");
 			
-			Module primaryModule = Session.getSession().getModules().getPrimaryModule();
+			Module primaryModule = Session.getSession().getPrimaryModule();
 			primaryModule.addImportMenuItems(importMenu);
 
 			importMenu.add(getImportFromURLMenuItem());
@@ -247,7 +247,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		if (openRepoWorkflowsMenu == null) {
 
 			// Load repository content
-			String[][] repoWorkflows = Session.getSession().getModules().getPrimaryModule().getRepositoryWorkflows();
+			String[][] repoWorkflows = Session.getSession().getPrimaryModule().getRepositoryWorkflows();
 			this.hasRepoWorkflows = repoWorkflows.length > 0;
 
 			openRepoWorkflowsMenu = new JMenu();
