@@ -230,11 +230,15 @@ public class MicroarrayModule implements Module {
 
 	@Override
 	public boolean isMetadata(DataBean data) {
+		// FIXME how this should actually work in the new type system?
 		return data.queryFeatures("/phenodata").exists();
 	}
 
 	@Override
 	public void postProcessOutputMetadata(Operation oper, DataBean metadataOutput) throws MicroarrayException, IOException {
+		
+		// FIXME how this should actually work in the new type system?
+		
 		// if original names are not already contained in the phenodata
 		if (!metadataOutput.queryFeatures("/column/" + PhenodataEditor.PHENODATA_NAME_COLUMN).exists()) {
 			// augment phenodata with original dataset names (using parameter bindings)
