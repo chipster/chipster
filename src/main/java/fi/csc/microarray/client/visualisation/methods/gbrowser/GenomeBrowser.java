@@ -45,6 +45,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadSc
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.SAMHandlerThread;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TabixHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDReadParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
@@ -144,6 +145,7 @@ public class GenomeBrowser extends Visualisation implements
 		REFERENCE(true),
 		PEAKS_WITH_HEADER(true), 
 		TREATMENT_BED_READS(true),
+		TREATMENT_SUMMARY(true),
 		HIDDEN(false);
 		
 		private boolean isToggleable;
@@ -528,6 +530,13 @@ public class GenomeBrowser extends Visualisation implements
 						        new SequenceParser()), file.getName());
 						track.setTrackGroup(readGroup);
 						break;
+						
+					case TREATMENT_SUMMARY:
+					    treatmentData = createReadDataSource(track.userData, tracks);
+						TrackGroup readGroup1 = TrackFactory.addReadSummaryTracks(plot, treatmentData,
+						        createReadHandler(file), file.getName());
+						track.setTrackGroup(readGroup1);
+						break;
 
 					case TREATMENT_BED_READS:
 					    // TODO Is this still used? If yes, update this code (according
@@ -639,8 +648,10 @@ public class GenomeBrowser extends Visualisation implements
 
 	    // Convert data bean into file
 	    File file = data == null ? null : Session.getSession().getDataManager().getLocalFile(data);
-
-	    if (file.getName().contains(".bam") || file.getName().contains(".sam")) {
+	    
+	    if (file.getName().contains(".bam-summary")) {
+	    	dataSource = new TabixDataSource(file);
+	    } else if (file.getName().contains(".bam") || file.getName().contains(".sam")) {
 	    	// Find the index file from the operation
 	    	DataBean indexBean = null;
 	    	for (Track track : tracks) {
@@ -656,7 +667,7 @@ public class GenomeBrowser extends Visualisation implements
 	    	}
 	    	File indexFile = Session.getSession().getDataManager().getLocalFile(indexBean);
 	    	dataSource = new SAMDataSource(file, indexFile);
-
+	    	
 	    } else {
 	    	dataSource = new ChunkDataSource(file, new ElandParser());
 	    }
@@ -671,6 +682,11 @@ public class GenomeBrowser extends Visualisation implements
      * @return
      */
     public Class<?extends AreaRequestHandler> createReadHandler(File file) {
+    	
+    	if (file.getName().contains(".bam-summary")) {
+    		return TabixHandlerThread.class;
+    	}
+    	
         if (file.getName().contains(".bam") || file.getName().contains(".sam")) {
             return SAMHandlerThread.class;
         }
@@ -752,12 +768,17 @@ public class GenomeBrowser extends Visualisation implements
 				interpretations.add(TrackType.PEAKS_WITH_HEADER);
 
 			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
+					(data.getName().contains(".bam-summary"))) {
+				interpretations.add(TrackType.TREATMENT_SUMMARY);
+				
+			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
 			           (data.getName().endsWith(".bam") || data.getName().endsWith(".sam"))) {
                 interpretations.add(TrackType.TREATMENT_READS);
                 
 			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
 			           (data.getName().endsWith(".bai"))) {
 				interpretations.add(TrackType.HIDDEN);
+				
 
 			} else {
 	             // cannot interpret, visualisation not available for this selection
