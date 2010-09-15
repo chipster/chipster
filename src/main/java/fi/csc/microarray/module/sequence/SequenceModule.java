@@ -132,7 +132,7 @@ public class SequenceModule implements Module {
 
 	@Override
 	public boolean isWorkflowCompatible(DataBean data) {
-		return false; // all operations should be workflow compatible
+		return true; // all operations should be workflow compatible
 	}
 
 	@Override
