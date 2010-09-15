@@ -34,7 +34,13 @@ dat2<-dat[,grep("chip", names(dat))]
 
 # Sanity checks
 if(ncol(as.data.frame(calls))==0) {
-	stop("You do not have any flags!")
+	stop("CHIPSTER-NOTE: You do not have any flags!")
+}
+if(number.of.chips==0) {
+	stop("CHIPSTER-NOTE: You must specify at least one array where the flag condition is fulfilled!")
+}
+if(number.of.chips>ncol(as.data.frame(calls))) {
+	p <- ncol(as.data.frame(calls))
 }
 
 # Converting the data to data frames
