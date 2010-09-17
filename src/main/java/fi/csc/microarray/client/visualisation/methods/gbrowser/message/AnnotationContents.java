@@ -2,7 +2,6 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,28 +48,23 @@ public class AnnotationContents {
 		}
 	}
 
-	public void parseFrom(InputStream contentsStream) {
+	public void parseFrom(InputStream contentsStream) throws IOException {
 
-		try {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(contentsStream));
 
-			BufferedReader reader = new BufferedReader(new InputStreamReader(contentsStream));
-
-			if (!reader.readLine().equals(FILE_ID)) {
-				throw new IllegalArgumentException("annotation stream does not start with " + FILE_ID);
-			}
-
-			String line;
-			while ((line = reader.readLine()) != null) {
-				String[] splitted = line.split("\t");
-				rows.add(new Row(splitted[0], splitted[1], splitted[2], splitted[3]));
-			}
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace(); // TODO fix exception handling
-			
-		} catch (IOException e) {
-			e.printStackTrace(); // TODO fix exception handling
+		if (!reader.readLine().equals(FILE_ID)) {
+			throw new IllegalArgumentException("annotation stream does not start with " + FILE_ID);
 		}
+
+		String line;
+		while ((line = reader.readLine()) != null) {
+			if (line.trim().equals("")) {
+				continue;
+			}
+			String[] splitted = line.split("\t");
+			rows.add(new Row(splitted[0], splitted[1], splitted[2], splitted[3]));
+		}
+
 	}
 
 

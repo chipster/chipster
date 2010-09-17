@@ -30,7 +30,7 @@ import fi.csc.microarray.exception.MicroarrayException;
 public class VisualisationMethod {
 
 	/**
-	 * Method None is always present and spaces reserve space also for the longer names
+	 * Method None can be always available and spaces reserve space also for the longer names
 	 * when they aren't present. This is the easiest found way to keep things
 	 * steady. Duration estimation 0 means no limit.
 	 */
@@ -46,9 +46,11 @@ public class VisualisationMethod {
 	private Class<? extends Visualisation> visualiser;
 	private ImageIcon icon;
 	private int orderNumber;
-	// Estimated visualisation duration (in milliseconds) per byte of the data
-	// length
+	/**
+	 * Estimated visualisation duration (in milliseconds) per byte of the data length
+	 */
 	private double durationEstimationFactor;
+	private String helpAddress = null;
 
 	public VisualisationMethod(String name, Class<? extends Visualisation> visualiser, ImageIcon icon, int orderNumber, double durationEstimationFactor) {
 		this.name = name;
@@ -58,6 +60,11 @@ public class VisualisationMethod {
 		this.durationEstimationFactor = durationEstimationFactor;
 	}
 
+	public VisualisationMethod(String name, Class<? extends Visualisation> visualiser, ImageIcon icon, int orderNumber, double durationEstimationFactor, String helpAddress) {
+		this(name, visualiser, icon, orderNumber, durationEstimationFactor);
+		this.helpAddress = helpAddress;
+	}
+	
 	public String toString() {
 		return this.name;
 	}
@@ -143,4 +150,7 @@ public class VisualisationMethod {
 		}
 	}
 
+	public String getHelpAddress() {
+		return helpAddress;
+	}
 }

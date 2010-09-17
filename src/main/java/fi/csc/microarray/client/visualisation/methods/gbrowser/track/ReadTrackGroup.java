@@ -106,19 +106,7 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
         
         // Add tracks to this group
         addTracks();
-        
-        // Add switches
-        this.menu.addItem(showReads);
-        this.menu.addItem(showGel);
-        this.menu.addItem(showProfile);
-        this.menu.addItem(showAcid);
-        this.menu.addItem(showSNP);
-        showReads.addActionListener(this);
-        showGel.addActionListener(this);
-        showProfile.addActionListener(this);
-        showAcid.addActionListener(this);
-        showSNP.addActionListener(this);
-        this.setMenuVisible(false);
+
     }
     
     private void addTracks() {

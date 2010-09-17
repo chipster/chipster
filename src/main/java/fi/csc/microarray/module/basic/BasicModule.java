@@ -1,20 +1,22 @@
 package fi.csc.microarray.module.basic;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
 import javax.swing.JMenu;
+import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.QuickLinkPanel;
+import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.visualisation.ExternalBrowserViewer;
 import fi.csc.microarray.client.visualisation.PDFViewer;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.methods.HtmlViewer;
 import fi.csc.microarray.client.visualisation.methods.ImageViewer;
-import fi.csc.microarray.client.visualisation.methods.PhenodataEditor;
 import fi.csc.microarray.client.visualisation.methods.Spreadsheet;
 import fi.csc.microarray.client.visualisation.methods.TextViewer;
 import fi.csc.microarray.constants.VisualConstants;
@@ -27,12 +29,13 @@ import fi.csc.microarray.databeans.features.stat.LogModifier;
 import fi.csc.microarray.databeans.features.stat.NegModifier;
 import fi.csc.microarray.databeans.features.table.RowCountProvider;
 import fi.csc.microarray.databeans.features.table.TableColumnProvider;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.Module;
+import fi.csc.microarray.util.GeneralFileFilter;
 
 public class BasicModule implements Module {
 
 	public static VisualisationMethod SPREADSHEET = new VisualisationMethod("Spreadsheet", Spreadsheet.class, VisualConstants.SPREADSHEET_MENUICON, 2, 0.0007);
-	public static VisualisationMethod PHENODATA = new VisualisationMethod("Phenodata editor", PhenodataEditor.class, VisualConstants.PHENODATA_MENUICON, 3, 0);
 	public static VisualisationMethod SHOW_IMAGE = new VisualisationMethod("Show image", ImageViewer.class, VisualConstants.IMAGE_MENUICON, 1, 0.015); 
 	public static VisualisationMethod WEBVIEW = new VisualisationMethod("View page", HtmlViewer.class, VisualConstants.HTML_MENUICON, 1, 0.008); 
 	public static VisualisationMethod PDFVIEW = new VisualisationMethod("View PDF", PDFViewer.class, VisualConstants.IMAGE_MENUICON, 1, 0);
@@ -103,8 +106,8 @@ public class BasicModule implements Module {
 	public VisualisationMethod[] getVisualisationMethods() {
 		
 		return new VisualisationMethod[] {
+				VisualisationMethod.NONE,
 				SPREADSHEET,
-				PHENODATA,
 				SHOW_IMAGE, 
 				WEBVIEW, 
 				PDFVIEW,
@@ -121,5 +124,22 @@ public class BasicModule implements Module {
 	@Override
 	public String[][] getRepositoryWorkflows() {
 		return new String[0][0];
+	}
+
+	@Override
+	public FileFilter[] getImportFileFilter() {
+		return new FileFilter[] {
+				new GeneralFileFilter("Tab or comma separated tables", new String[] {"csv", "tsv"}),
+		};
+	}
+
+	@Override
+	public boolean isMetadata(DataBean data) {
+		return false; // we don't use metadata
+	}
+
+	@Override
+	public void postProcessOutputMetadata(Operation operation, DataBean metadataOutput) throws MicroarrayException, IOException {
+		// do nothing, we don't use metadata
 	}
 }

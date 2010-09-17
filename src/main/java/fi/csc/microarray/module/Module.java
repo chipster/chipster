@@ -1,17 +1,21 @@
 package fi.csc.microarray.module;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
 import javax.swing.JMenu;
+import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.QuickLinkPanel;
+import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.exception.MicroarrayException;
 
 /**
  * Client side module. Encapsulates all application area specific logic, e.g., DNA microarray module
@@ -89,6 +93,28 @@ public interface Module {
 	public boolean isWorkflowCompatible(DataBean data);
 	
 	/**
+	 * Checks if data bean is metadata. Metadata
+	 * datasets are not considered to be part of the normal 
+	 * workflow ancestor relations, but instead they 
+	 * are considered to be annotations that are linked
+	 * to real datasets.
+	 * 
+	 * @param data data bean to check
+	 * @return true iff data bean is metadata 
+	 */
+	public boolean isMetadata(DataBean data);
+	
+	/**
+	 * Post-processes metadata datasets after they have been created by finished tasks.
+	 * 
+	 * @param operation operation that generated the output metadata 
+	 * @param metadataOutput the metadata output to post-process
+	 * @throws MicroarrayException
+	 * @throws IOException
+	 */
+	public void postProcessOutputMetadata(Operation operation, DataBean metadataOutput) throws MicroarrayException, IOException;
+	
+	/**
 	 * Returns visualisation methods of this module.
 	 * 
 	 * @return array of visualisation methods
@@ -111,4 +137,12 @@ public interface Module {
 	 * @return array of String arrays, zero length if none available
 	 */
 	public String[][] getRepositoryWorkflows();
+
+	/**
+	 * Returns file filters that user can choose from when importing data.
+	 * File types are those that are relevant for the current module.
+	 * 
+	 * @return array of file filters
+	 */
+	public FileFilter[] getImportFileFilter();
 }

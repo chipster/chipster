@@ -49,7 +49,6 @@ public class LocalServiceAccessor implements ServiceAccessor {
 		try {
 			return new LocalTaskExecutor(manager);
 		} catch (JMSException e) {
-			// TODO Auto-generated catch block
 			throw new RuntimeException(e);
 		}
 	}
