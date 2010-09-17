@@ -158,7 +158,7 @@ dev.off()
 # Plot the logo of the motifs and corresponding TF:s
 for (count in 1:number_motifs) {
 	file_name <- paste("logo-plot-",count,".png", sep="")
-	bitmap(file=file_name, width=1000, height=1000)
+	bitmap(file=file_name, width=1000/72, height=1000/72)
 #	png(width=1000, height=1000, file=file_name)
 	plot_name <- consensus(results_gadem) [count]
 	plot (results_alignment[count], top=10, main=paste("Top ten TF matches for motif\n", plot_name, sep=""))
