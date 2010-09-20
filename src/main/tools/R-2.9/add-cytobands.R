@@ -5,16 +5,16 @@
 
 # add-cytobands.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-03-11
+# 2010-04-20
 
 dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 
 pos <- c('chromosome','start','end')
 if (length(setdiff(pos, colnames(dat)))!=0)
-  stop('This script can only be run on files that have the following columns: chromosome, start, end.')
+  stop('CHIPSTER-NOTE: This script can only be run on files that have the following columns: chromosome, start, end.')
 
 # load cytobands
-bands <- read.table(paste('http://www.cangem.org/download.php?platform=CG-PLM-6&flag', genome.build, sep=''), sep='\t', header=TRUE, as.is=TRUE)
+bands <- read.table(paste('http://www.cangem.org/download.php?platform=CG-PLM-6&flag=', genome.build, sep=''), sep='\t', header=TRUE, as.is=TRUE)
 colnames(bands) <- tolower(colnames(bands))
 colnames(bands)[colnames(bands)=='chr'] <- 'chromosome'
 rownames(bands) <- bands[,1]
