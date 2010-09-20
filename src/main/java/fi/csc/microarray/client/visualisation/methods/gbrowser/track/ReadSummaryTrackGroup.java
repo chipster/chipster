@@ -23,7 +23,7 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
         
     // Tracks
     protected TitleTrack titleTrack;
-    protected IntensityTrack readOverview;
+    protected TabixIntensityTrack readOverview;
     protected SeqBlockTrack reads;
     protected ProfileTrack profileTrack;
     protected GelTrack gelTrack;
@@ -39,22 +39,22 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
         titleTrack = new TitleTrack(view, title, Color.black);
         
         // Overview
-        readOverview = new IntensityTrack(view, userData,
-                userDataHandler, histogramColor, Long.MAX_VALUE);
+        readOverview = new TabixIntensityTrack(view, userData,
+                userDataHandler, histogramColor, 0, Long.MAX_VALUE);
         
-        // Detailed
-        reads = new SeqBlockTrack(view, userData,
-                userDataHandler, fontColor, 0, Long.MAX_VALUE);      
-        
-        // Profile
-        profileTrack = new ProfileTrack(view, userData, userDataHandler,
-                Color.BLACK, PartColor.CDS.c, 0, Long.MAX_VALUE);
-        profileTrack.setStrand(Strand.BOTH);
-        
-        // Gel
-        gelTrack = new GelTrack(view, userData, userDataHandler,
-                Color.WHITE, 0, Long.MAX_VALUE);
-        gelTrack.setStrand(Strand.BOTH);
+//        // Detailed
+//        reads = new SeqBlockTrack(view, userData,
+//                userDataHandler, fontColor, 0, Long.MAX_VALUE);      
+//        
+//        // Profile
+//        profileTrack = new ProfileTrack(view, userData, userDataHandler,
+//                Color.BLACK, PartColor.CDS.c, 0, Long.MAX_VALUE);
+//        profileTrack.setStrand(Strand.BOTH);
+//        
+//        // Gel
+//        gelTrack = new GelTrack(view, userData, userDataHandler,
+//                Color.WHITE, 0, Long.MAX_VALUE);
+//        gelTrack.setStrand(Strand.BOTH);
         
         // Add tracks to this group
         addTracks();
@@ -69,12 +69,12 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
         tracks.add(TrackFactory.createThickSeparatorTrack(view));
         tracks.add(titleTrack);
         tracks.add(readOverview);
-        tracks.add(reads);
-        tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, Long.MAX_VALUE));
-        tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, Long.MAX_VALUE));
-        tracks.add(profileTrack);
-        tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, Long.MAX_VALUE));
-        tracks.add(gelTrack);
+//        tracks.add(reads);
+//        tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, Long.MAX_VALUE));
+//        tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, Long.MAX_VALUE));
+//        tracks.add(profileTrack);
+//        tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, Long.MAX_VALUE));
+//        tracks.add(gelTrack);
     }
 
     public void actionPerformed(ActionEvent e) {
