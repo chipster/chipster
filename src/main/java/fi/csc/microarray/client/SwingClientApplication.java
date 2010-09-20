@@ -1513,7 +1513,7 @@ public class SwingClientApplication extends ClientApplication {
 		importExportFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		importExportFileChooser.setAcceptAllFileFilterUsed(true);
 		
-		for (Module module : Session.getSession().getModules().getModules()) {
+		for (Module module : Session.getSession().getModules()) {
 			for (FileFilter filter : module.getImportFileFilter()) {
 				importExportFileChooser.addChoosableFileFilter(filter);
 				importExportFileChooser.setFileFilter(filter);

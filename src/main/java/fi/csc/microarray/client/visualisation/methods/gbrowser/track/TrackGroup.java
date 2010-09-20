@@ -194,4 +194,13 @@ public class TrackGroup {
     public void setMenuVisible(boolean isVisible) {
         menuVisible = isVisible;
     }
+    
+    public String getName() {
+    	return "Track Group";
+    }
+    
+    
+    public void showOrHide(String track, boolean state) {
+    	
+    }
 }

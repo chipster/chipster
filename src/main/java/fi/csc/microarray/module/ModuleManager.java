@@ -7,16 +7,16 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.module.basic.BasicModule;
 
-public class Modules {
+public class ModuleManager {
 	
 	private LinkedList<Module> modules = new LinkedList<Module>();
 	private Module primaryModule = null;
 	
-	public Modules() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+	public ModuleManager() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		this(null);
 	}
 	
-	public Modules(String primaryModuleClass) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+	public ModuleManager(String primaryModuleClass) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 
 		// load default module
 		modules.add(new BasicModule());
