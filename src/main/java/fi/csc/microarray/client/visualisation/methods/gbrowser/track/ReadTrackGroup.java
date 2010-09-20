@@ -38,8 +38,15 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
     protected ProfileTrack profileTrack;
     protected AcidProfile acidTrack;
     protected GelTrack gelTrack;
+    protected Track sepTrackTitle;
+    protected SeparatorTrack sepTrackReads;
+    protected SeparatorTrack sepTrackSeq;
+    protected SeparatorTrack sepTrackProfile;
+    protected SeparatorTrack sepTrackAcid;
+    protected SeparatorTrack sepTrackGel;
     
     // Track switches
+    private JCheckBox showReads = new JCheckBox("Reads", true);
     private JCheckBox showGel = new JCheckBox("Gel track", true);
     private JCheckBox showProfile = new JCheckBox("Profile track", true);
     private JCheckBox showAcid = new JCheckBox("Nucleic acids", false);
@@ -105,33 +112,26 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
         
         // Add tracks to this group
         addTracks();
-        
-        // Add switches
-        this.menu.addItem(showGel);
-        this.menu.addItem(showProfile);
-        this.menu.addItem(showAcid);
-        this.menu.addItem(showSNP);
-        showGel.addActionListener(this);
-        showProfile.addActionListener(this);
-        showAcid.addActionListener(this);
-        showSNP.addActionListener(this);
-        this.setMenuVisible(true);
+
     }
     
     private void addTracks() {
         // Construct the list according to visibility
         this.tracks = new LinkedList<Track>();
         // Top separator
-        tracks.add(TrackFactory.createThickSeparatorTrack(view));
+        sepTrackTitle = TrackFactory.createThickSeparatorTrack(view); 
+        tracks.add(sepTrackTitle);
         tracks.add(titleTrack);
         tracks.add(readOverview);
         tracks.add(reads);
-        tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, Long.MAX_VALUE));
+        sepTrackReads = new SeparatorTrack(view, Color.gray, 1, 0, Long.MAX_VALUE); 
+        tracks.add(sepTrackReads);
         
         // Only draw reference sequence if data is present
         if (hasReference) {
             tracks.add(seq);
-            tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SHOW_REFERENCE_AT));
+            sepTrackSeq = new SeparatorTrack(view, Color.gray, 1, 0, SHOW_REFERENCE_AT); 
+            tracks.add(sepTrackSeq);
         }
 
         tracks.add(readOverviewReversed);
@@ -139,43 +139,76 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
         
         // Only draw separator if profile track is visible
         if (showProfile.isSelected()) {
-            tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT));
+        	sepTrackProfile = new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT); 
+            tracks.add(sepTrackProfile);
             tracks.add(profileTrack);
         }
         
         if (showAcid.isSelected()) {
-        	tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT));
+        	sepTrackAcid = new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT); 
+        	tracks.add(sepTrackAcid);
             tracks.add(acidTrack);
         }
         
         // Only draw separator if gel track is visible
         if (showGel.isSelected()) {
-            tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT));
+        	sepTrackGel = new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT); 
+            tracks.add(sepTrackGel);
             tracks.add(gelTrack);
         }
     }
-
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == showGel) {
-            gelTrack.setVisible(showGel.isSelected());
-            view.redraw();
-        } else if (e.getSource() == showProfile) {
-            profileTrack.setVisible(showProfile.isSelected());
-            view.redraw();
-        } else if (e.getSource() == showAcid) {
-            acidTrack.setVisible(showAcid.isSelected());
-            view.redraw();
-        } else if (e.getSource() == showSNP && hasReference) {
-            if (showSNP.isSelected()) {
-                reads.enableSNPHighlight(seqFile, ChunkTreeHandlerThread.class);
-                readsReversed.enableSNPHighlight(seqFile, ChunkTreeHandlerThread.class);
-            } else {
-                reads.disableSNPHiglight(seqFile);
-                readsReversed.disableSNPHiglight(seqFile);
-            }
-            view.fireAreaRequests();
-            view.redraw();
+    
+    public void setVisibleGetTrack(boolean b) {
+    	gelTrack.setVisible(b);
+    	sepTrackGel.setVisible(b);
+    	view.redraw();
+    }
+    
+    public void setVisibleProfileTrack(boolean b) {
+    	profileTrack.setVisible(b);
+    	sepTrackProfile.setVisible(b);
+    	view.redraw();
+    }
+    
+    public void setVisibleAcidTrack(boolean b) {
+    	acidTrack.setVisible(b);
+    	sepTrackAcid.setVisible(b);
+    	view.redraw();
+    }
+    
+    public void setVisibleReads(boolean b) {
+    	reads.setVisible(b);
+    	readsReversed.setVisible(b);
+    	sepTrackReads.setVisible(b);
+    	view.redraw();
+    }
+    public void setVisibleSNP(boolean b) {
+    	if (b) {
+            reads.enableSNPHighlight(seqFile, ChunkTreeHandlerThread.class);
+            readsReversed.enableSNPHighlight(seqFile, ChunkTreeHandlerThread.class);
+        } else {
+            reads.disableSNPHiglight(seqFile);
+            readsReversed.disableSNPHiglight(seqFile);
         }
+        view.fireAreaRequests();
+        view.redraw();
     }
 
+    public void actionPerformed(ActionEvent e) {
+        
+    }
+
+    @Override
+    public String getName() {
+    	return "Read Track Group";
+    }
+    
+    @Override
+    public void showOrHide(String name, boolean state) {
+    	super.showOrHide(name, state);
+    	if (name.equals("highlightSNP")) {
+    		setVisibleSNP(state);
+    	}
+    }
+    
 }

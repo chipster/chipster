@@ -4,6 +4,7 @@ import java.awt.CardLayout;
 import java.awt.Cursor;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -18,16 +19,19 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
@@ -59,6 +63,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Annotatio
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Row;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GelTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ProfileTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadTrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
@@ -217,6 +224,13 @@ public class GenomeBrowser extends Visualisation implements
 
     private boolean visualised;
     InputStream contentsStream = null;
+    
+    //tracks switches
+    private JCheckBox showReads = new JCheckBox("Reads", true);
+    private JCheckBox showGel = new JCheckBox("Gel track", true);
+    private JCheckBox showProfile = new JCheckBox("Profile track", true);
+    private JCheckBox showAcid = new JCheckBox("Nucleic acids", false);
+    private JCheckBox showSNP = new JCheckBox("Highlight SNP", false);
 
 	public GenomeBrowser(VisualisationFrame frame) {
 		super(frame);
@@ -302,10 +316,44 @@ public class GenomeBrowser extends Visualisation implements
 		c.gridy++;
 		c.fill = GridBagConstraints.BOTH;
 		c.weighty = 1.0;
-		settingsPanel.add(new JPanel(), c);
-
+		
+		createTracksSwitches();
+		
 	}
+	
+	public void createTracksSwitches() {
+		
+		GridBagConstraints c = this.settingsGridBagConstraints;
 
+		showReads.setEnabled(false);
+		showGel.setEnabled(false);
+		showProfile.setEnabled(false);
+		showAcid.setEnabled(false);
+		showSNP.setEnabled(false);
+		
+		JPanel menu = new JPanel();
+		JScrollPane menuu = new JScrollPane(menu);
+		menuu.setBorder(BorderFactory.createEmptyBorder());
+		menu.setLayout(new GridLayout(5,1));
+		menu.add(showReads);
+		menu.add(showProfile);
+		menu.add(showGel);
+        menu.add(showAcid);
+        menu.add(showSNP);
+        
+        showReads.addActionListener(this);
+        showGel.addActionListener(this);
+        showProfile.addActionListener(this);
+        showAcid.addActionListener(this);
+        showSNP.addActionListener(this);
+		settingsPanel.add(menuu, c);
+		
+		c.gridy++;
+		c.fill = GridBagConstraints.BOTH;
+		c.weighty = 1.0;
+		
+	}
+	
 	public JPanel createSettingsPanel() {
 
 		settingsPanel.setLayout(new GridBagLayout());
@@ -428,9 +476,45 @@ public class GenomeBrowser extends Visualisation implements
 		if (source == drawButton) {
 		    if (!visualised) {
 		        showVisualisation();
+		        showReads.setEnabled(true);
+				showGel.setEnabled(true);
+				showProfile.setEnabled(true);
+				showAcid.setEnabled(true);
+				showSNP.setEnabled(true);
 		    } else {
 		        updateLocation();
 		    }
+		} else if (source == showReads) {
+			for (Track track : tracks) {
+				if (track.trackGroup != null) {
+					track.trackGroup.showOrHide("SeqBlockTrack", showReads.isSelected());
+				}
+			}
+		} else if (source == showGel) {
+			for (Track track : tracks) {
+				if (track.trackGroup != null) {
+					track.trackGroup.showOrHide("GelTrack", showGel.isSelected());
+				}
+			}
+			
+		} else if (source == showProfile) {
+			for (Track track : tracks) {
+				if (track.trackGroup != null) {
+					track.trackGroup.showOrHide("ProfileTrack", showProfile.isSelected());
+				}
+			}
+		} else if (source == showAcid) {
+			for (Track track : tracks) {
+				if (track.trackGroup != null) {
+					track.trackGroup.showOrHide("AcidProfile", showAcid.isSelected());
+				}
+			}
+		} else if (source == showSNP) {
+			for (Track track : tracks) {
+				if (track.trackGroup != null) {
+					track.trackGroup.showOrHide("highlightSNP", showSNP.isSelected());
+				}
+			}
 		}
 	}
 

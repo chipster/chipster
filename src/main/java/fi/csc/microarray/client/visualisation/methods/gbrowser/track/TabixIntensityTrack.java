@@ -14,7 +14,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -24,19 +24,19 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  * The result is an approximation.
  *
  */
-public class IntensityTrack extends Track {
+public class TabixIntensityTrack extends Track {
 
 	private SortedSet<RegionContent> values = new TreeSet<RegionContent>();
 	private long minBpLength;
+	private long maxBpLength;
 	private Color color;
 
-	public IntensityTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
-	        Color c, long maxBpLength) {
+	public TabixIntensityTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
+	        Color c, long minBpLength, long maxBpLength) {
 		super(view, file, handler);
 		this.color = c;
-		
-		//FIXME
-		this.minBpLength = maxBpLength;
+		this.minBpLength = minBpLength;
+		this.maxBpLength = maxBpLength;
 	}
 
 	@Override
@@ -45,6 +45,10 @@ public class IntensityTrack extends Track {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
 		Iterator<RegionContent> iterator = values.iterator();
+		
+		int lastX = 0;
+		int lastY = (int) getView().getTrackHeight();
+		
 		while (iterator.hasNext()) {
 
 			RegionContent regCont = iterator.next();
@@ -57,36 +61,30 @@ public class IntensityTrack extends Track {
 			
 			// do the plotting for this consised value
 			int x1 = getView().bpToTrack(regCont.region.start);
-			int x2 = getView().bpToTrack(regCont.region.end) + 2;
+			//int x2 = getView().bpToTrack(regCont.region.end) + 2;
 			int y2 = (int) getView().getTrackHeight();						
-
-			int val = (int) Math.min(Math.log((Float) (regCont.values.get(ColumnType.VALUE))) * 4, getView().getTrackHeight() / 4);
+			
+			int val = (int) Math.min( (Math.log((Float)regCont.values.get(ColumnType.VALUE)) / regCont.region.getLength() * 1000), 
+					getView().getTrackHeight());
+			
 			int y1 = (int) (-val + y2);
-
-			// FIXME implement overlaying tracks; currently is drawn above the track,
-			//       so it would merge with the previous track
-			// FIXME when region content value is close to zero, y1 can be something
-			//       like -2147483605, which we probably don't want to plot
-			drawables.add(new RectDrawable(x1, y1, x2 - x1, y2 - y1, color, null));
-
+			
+			drawables.add(new LineDrawable(lastX, lastY, x1, y1, color));
+			
+			lastX = x1;
+			lastY = y1;
 		}
 
 		return drawables;
 	}
 
-	public void processAreaResult(AreaResult<RegionContent> areaResult) {		
+	public void processAreaResult(AreaResult<RegionContent> areaResult) {
 		
-		if (areaResult.content.values.get(ColumnType.VALUE) instanceof Integer && 
-				((Integer)areaResult.content.values.get(ColumnType.VALUE)) == 128) {
-			
-			System.out.println("" + areaResult.content.values + areaResult.content.region);
-		}
 		
 		if (areaResult.status.concise == this.isConcised() && 
-				areaResult.content.values.get(ColumnType.STRAND) == null || areaResult.content.values.get(ColumnType.STRAND) == getStrand() && 
 				areaResult.content.values.get(ColumnType.VALUE) != null &&
+				areaResult.content.values.get(ColumnType.VALUE) instanceof Float &&
 				areaResult.content.region.intercepts(getView().getBpRegion())) { 
-
 			
 			values.add(areaResult.content);
 			getView().redraw();
@@ -111,7 +109,8 @@ public class IntensityTrack extends Track {
     public boolean isVisible() {
         // visible region is not suitable
         return (super.isVisible() &&
-                getView().getBpRegion().getLength() > minBpLength);
+                getView().getBpRegion().getLength() > minBpLength &&
+                getView().getBpRegion().getLength() < maxBpLength);
     }
 
     @Override

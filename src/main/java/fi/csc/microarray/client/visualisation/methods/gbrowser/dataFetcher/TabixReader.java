@@ -37,8 +37,6 @@ public class TabixReader {
 
 		// read the output from the command
 		while ((s = stdInput.readLine()) != null) {
-
-			System.out.println(" * " + s);
 			
 			String[] splitted = s.split("\t");
 
@@ -47,10 +45,10 @@ public class TabixReader {
 			long start = Long.parseLong(splitted[1]);
 			long end = Long.parseLong(splitted[2]);
 
-			int value = Integer.parseInt(splitted[3]);
+			float value = Float.parseFloat(splitted[3]);
 
 			Map<ColumnType, Object> values = new HashMap<ColumnType, Object>();
-			values.put(ColumnType.VALUE, new Integer(value));
+			values.put(ColumnType.VALUE, new Float(value));
 
 			RegionContent reg = new RegionContent(
 					new BpCoordRegion(start, end, lineChr), values);
