@@ -1,6 +1,7 @@
 package fi.csc.microarray.module.sequence;
 
 import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -16,10 +17,12 @@ import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.CreateFromTextDialog;
 import fi.csc.microarray.client.dialog.SequenceImportDialog;
+import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.Module;
 
 public class SequenceModule implements Module {
@@ -129,7 +132,7 @@ public class SequenceModule implements Module {
 
 	@Override
 	public boolean isWorkflowCompatible(DataBean data) {
-		return false; // all operations should be workflow compatible
+		return true; // all operations should be workflow compatible
 	}
 
 	@Override
@@ -151,5 +154,15 @@ public class SequenceModule implements Module {
 	public FileFilter[] getImportFileFilter() {
 		return new FileFilter[] {
 		};
+	}
+
+	@Override
+	public boolean isMetadata(DataBean data) {
+		return false; // we don't use metadata
+	}
+
+	@Override
+	public void postProcessOutputMetadata(Operation operation, DataBean metadataOutput) throws MicroarrayException, IOException {
+		// do nothing, we don't use metadata
 	}
 }

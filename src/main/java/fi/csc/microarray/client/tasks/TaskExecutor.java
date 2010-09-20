@@ -375,8 +375,8 @@ public class TaskExecutor {
 	public TaskExecutor(MessagingEndpoint endpoint, DataManager manager) throws JMSException {
 		this.manager = manager;
 		this.fileBroker = new FileBrokerClient(endpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
-		requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC, AccessMode.WRITE);
-		jobExecutorStateChangeSupport = new SwingPropertyChangeSupport(this);
+		this.requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC, AccessMode.WRITE);
+		this.jobExecutorStateChangeSupport = new SwingPropertyChangeSupport(this);
 	}
 
 	/**
@@ -384,7 +384,7 @@ public class TaskExecutor {
 	 */
 	protected TaskExecutor(DataManager manager) throws JMSException {
 		this.manager = manager;
-		jobExecutorStateChangeSupport = new SwingPropertyChangeSupport(this);
+		this.jobExecutorStateChangeSupport = new SwingPropertyChangeSupport(this);
 	}
 
 	public Task createTask(Operation operation) {
@@ -487,8 +487,8 @@ public class TaskExecutor {
 					logger.debug("sending job message, jobId: " + jobMessage.getJobId());
 
 					requestTopic.sendReplyableMessage(jobMessage, replyListener);
+					
 				} catch (Exception e) {
-
 					// could not send job message --> task fails
 					logger.error("Could not send job message.", e);
 					updateTaskState(task, State.ERROR, "Sending message failed", -1);
