@@ -63,6 +63,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Annotatio
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Row;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GelTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ProfileTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadTrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
@@ -485,32 +486,33 @@ public class GenomeBrowser extends Visualisation implements
 		    }
 		} else if (source == showReads) {
 			for (Track track : tracks) {
-				if ((track.trackGroup != null) && track.trackGroup.getName().equals("Read Track Group")) {
-					track.trackGroup.showOrHide("reads", showReads.isSelected());
+				if (track.trackGroup != null) {
+					track.trackGroup.showOrHide("SeqBlockTrack", showReads.isSelected());
 				}
 			}
 		} else if (source == showGel) {
 			for (Track track : tracks) {
-				if ((track.trackGroup != null) && track.trackGroup.getName().equals("Read Track Group")) {
-					track.trackGroup.showOrHide("gel", showGel.isSelected());
+				if (track.trackGroup != null) {
+					track.trackGroup.showOrHide("GelTrack", showGel.isSelected());
 				}
 			}
+			
 		} else if (source == showProfile) {
 			for (Track track : tracks) {
-				if ((track.trackGroup != null) && track.trackGroup.getName().equals("Read Track Group")) {
-					track.trackGroup.showOrHide("profile", showProfile.isSelected());
+				if (track.trackGroup != null) {
+					track.trackGroup.showOrHide("ProfileTrack", showProfile.isSelected());
 				}
 			}
 		} else if (source == showAcid) {
 			for (Track track : tracks) {
-				if ((track.trackGroup != null) && track.trackGroup.getName().equals("Read Track Group")) {
-					track.trackGroup.showOrHide("acid", showAcid.isSelected());
+				if (track.trackGroup != null) {
+					track.trackGroup.showOrHide("AcidProfile", showAcid.isSelected());
 				}
 			}
 		} else if (source == showSNP) {
 			for (Track track : tracks) {
-				if ((track.trackGroup != null) && track.trackGroup.getName().equals("Read Track Group")) {
-					track.trackGroup.showOrHide("snp", showSNP.isSelected());
+				if (track.trackGroup != null) {
+					track.trackGroup.showOrHide("highlightSNP", showSNP.isSelected());
 				}
 			}
 		}

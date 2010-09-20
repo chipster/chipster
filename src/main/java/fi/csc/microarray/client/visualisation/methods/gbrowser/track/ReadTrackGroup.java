@@ -121,7 +121,6 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
         // Top separator
         sepTrackTitle = TrackFactory.createThickSeparatorTrack(view); 
         tracks.add(sepTrackTitle);
-        titleTrack.setHeight(0);
         tracks.add(titleTrack);
         tracks.add(readOverview);
         tracks.add(reads);
@@ -205,17 +204,11 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
     }
     
     @Override
-    public void showOrHide(String track, boolean state) {
-    	if (track.equals("reads")) {
-    		setVisibleReads(state);
-    	} else if (track.equals("gel")) {
-    		setVisibleGetTrack(state);
-    	} else if (track.equals("profile")) {
-    		setVisibleProfileTrack(state);
-    	} else if (track.equals("acid")) {
-    		setVisibleAcidTrack(state);
-    	} else if (track.equals("snp") && hasReference) {
+    public void showOrHide(String name, boolean state) {
+    	super.showOrHide(name, state);
+    	if (name.equals("highlightSNP")) {
     		setVisibleSNP(state);
     	}
     }
+    
 }

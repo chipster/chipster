@@ -198,4 +198,8 @@ public abstract class Track implements AreaResultListener {
 	public BpCoord getMaxBp(Chromosome chr) {
 		return null;
 	}
+	
+	public String getName() {
+		return "Track";
+	}
 }
