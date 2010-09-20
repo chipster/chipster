@@ -333,8 +333,8 @@ public class GenomeBrowser extends Visualisation implements
 		menuu.setBorder(BorderFactory.createEmptyBorder());
 		menu.setLayout(new GridLayout(5,1));
 		menu.add(showReads);
-        menu.add(showGel);
-        menu.add(showProfile);
+		menu.add(showProfile);
+		menu.add(showGel);
         menu.add(showAcid);
         menu.add(showSNP);
         
