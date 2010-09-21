@@ -11,6 +11,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CytobandTra
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GeneTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.IntensityTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.PeakTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadSummaryTrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadTrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RepeatMaskerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
@@ -112,6 +113,21 @@ public class TrackFactory {
 		// Group containing tracks for this data source
 		TrackGroup readGroup = new ReadTrackGroup(dataView, userData,
 		        userDataHandler, seqFile, title);
+        
+        addGroup(dataView, readGroup);
+        
+        return readGroup;
+	}
+	
+	public static TrackGroup addReadSummaryTracks(GenomePlot genomePlot, DataSource userData,
+	        Class<? extends AreaRequestHandler> userDataHandler, String title)
+	        throws FileNotFoundException, MalformedURLException {
+	
+		View dataView = genomePlot.getDataView();
+		
+		// Group containing tracks for this data source
+		TrackGroup readGroup = new ReadSummaryTrackGroup(dataView, userData,
+		        userDataHandler, title);
         
         addGroup(dataView, readGroup);
         
