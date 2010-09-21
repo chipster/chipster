@@ -21,7 +21,7 @@ import fi.csc.microarray.exception.MicroarrayException;
 
 public abstract class Visualisation {
 
-	public static final Dimension PARAMETER_SIZE = new Dimension(150, 500);
+	public static final Dimension PARAMETER_SIZE = new Dimension(200, 500);
 
 	private VisualisationFrame frame;
 
