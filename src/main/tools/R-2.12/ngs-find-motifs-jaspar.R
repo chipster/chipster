@@ -2,9 +2,7 @@
 # calculates the alignment score against transcription factors in the Jaspar database and finds the 10 highest ranking for each motif.)
 # INPUT results.tsv: "Results data file" TYPE GENERIC
 # OUTPUT motif-analysis-summary.txt: "A lot of analysis information collected in one single file"
-# OUTPUT logo-plot-(...).png: "Logo plots for each consensus motif"
-# OUTPUT test_plot_(...).png: "testing optional plots"
-# OUTPUT testplot.png: "testing optional plots"
+# OUTPUT logo-plot-{...}.png: "Logo plots for each consensus motif"
 # PARAMETER p.value.cutoff: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.0002 (This parameter controls the false positive rate when searching for consensus sequence motifs. Lower the value for increased stringency.)
 # PARAMETER e.value.cutoff: "E-value cutoff" TYPE DECIMAL FROM 0 TO 100 DEFAULT 0.01 (This parameter controls the alignment stringency, where a lower value means better alignment.)
 # PARAMETER genome: "Genome" TYPE [BSgenome.Hsapiens.UCSC.hg17, BSgenome.Hsapiens.UCSC.hg18, BSgenome.Hsapiens.UCSC.hg19, BSgenome.Mmusculus.UCSC.mm8, BSgenome.Mmusculus.UCSC.mm9, BSgenome.Rnorvegicus.UCSC.rn4] DEFAULT BSgenome.Hsapiens.UCSC.hg18 (The genome and version used when aligning the sequences.)
@@ -24,6 +22,8 @@
 #                                                   #
 #####################################################
 
+# OUTPUT test-plot-{...}.png: "testing optional plots"
+# OUTPUT testplot.png: "testing optional plots"
 
 # Load the required libraries
 library(MotIV)
@@ -143,19 +143,20 @@ sink(file="motif-analysis-summary.txt")
 sink()
 
 # testing optional plots
-x <- rnorm (100,50,10)
-y <- rnorm (100,25,5)
-bitmap(file="test_plot_1.png", width=1000/72, height=1000/72)
-plot(x,y)
-dev.off()
-bitmap(file="test_plot_2.png", width=1000/72, height=1000/72)
-plot(y,x)
-dev.off()
-bitmap(file="testplot.png", width=1000/72, height=1000/72)
-plot(y,x)
-dev.off()
+#x <- rnorm (100,50,10)
+#y <- rnorm (100,25,5)
+#bitmap(file="testplot.png", width=1000/72, height=1000/72)
+#plot(y,x)
+#dev.off()
+#bitmap(file="test-plot-1.png", width=1000/72, height=1000/72)
+#plot(x,y)
+#dev.off()
+#bitmap(file="test-plot-2.png", width=1000/72, height=1000/72)
+#plot(y,x)
+#dev.off()
 
-# Plot the logo of the motifs and corresponding TF:s
+
+## Plot the logo of the motifs and corresponding TF:s
 for (count in 1:number_motifs) {
 	file_name <- paste("logo-plot-",count,".png", sep="")
 	bitmap(file=file_name, width=1000/72, height=1000/72)
