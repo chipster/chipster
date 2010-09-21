@@ -118,6 +118,6 @@ public class IntensityTrack extends Track {
 
 	@Override
 	public boolean isConcised() {
-		return false;
+		return true;
 	}
 }
