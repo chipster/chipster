@@ -183,8 +183,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
     
     //tracks switches
     private JCheckBox showReads = new JCheckBox("Reads", true);
-    private JCheckBox showGel = new JCheckBox("Gel track", true);
-    private JCheckBox showProfile = new JCheckBox("Profile track", true);
+    private JCheckBox showGel = new JCheckBox("Gel track", false);
+    private JCheckBox showProfile = new JCheckBox("Profile track", false);
     private JCheckBox showAcid = new JCheckBox("Nucleic acids", false);
     private JCheckBox showSNP = new JCheckBox("Highlight SNP", false);
 
@@ -423,6 +423,18 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	protected JComponent getColorLabel() {
 		return new JLabel("Color: ");
 	}
+	
+	public void setShowOrHideTracks() {
+		for (Track track : tracks) {
+			if (track.trackGroup != null) {
+				track.trackGroup.showOrHide("SeqBlockTrack", showReads.isSelected());
+				track.trackGroup.showOrHide("GelTrack", showGel.isSelected());
+				track.trackGroup.showOrHide("ProfileTrack", showProfile.isSelected());
+				track.trackGroup.showOrHide("AcidProfile", showAcid.isSelected());
+				track.trackGroup.showOrHide("highlightSNP", showSNP.isSelected());
+			}
+		}
+	}
 
 	/**
 	 * A method defined by the ActionListener interface. Allows this panel to
@@ -439,8 +451,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				showProfile.setEnabled(true);
 				showAcid.setEnabled(true);
 				showSNP.setEnabled(true);
+				
+				setShowOrHideTracks();
+				
 		    } else {
 		        updateLocation();
+		        
+		        //leave the same values
+		        setShowOrHideTracks();
 		    }
 		} else if (source == showReads) {
 			for (Track track : tracks) {
