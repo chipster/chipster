@@ -46,11 +46,11 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
     protected SeparatorTrack sepTrackGel;
     
     // Track switches
-    private JCheckBox showReads = new JCheckBox("Reads", true);
+//    private JCheckBox showReads = new JCheckBox("Reads", true);
     private JCheckBox showGel = new JCheckBox("Gel track", true);
     private JCheckBox showProfile = new JCheckBox("Profile track", true);
     private JCheckBox showAcid = new JCheckBox("Nucleic acids", false);
-    private JCheckBox showSNP = new JCheckBox("Highlight SNP", false);
+//    private JCheckBox showSNP = new JCheckBox("Highlight SNP", false);
     
     // Reference sequence
     private DataSource seqFile;

@@ -9,8 +9,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.TrackFactory;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptTrack.PartColor;
 
 /**
  * Tracks containing information about reads: sequences themselves, gel,
@@ -33,7 +31,7 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
         super(view);
         
         Color histogramColor = Color.gray;
-        Color fontColor = Color.black;
+//        Color fontColor = Color.black;
         
         // Title
         titleTrack = new TitleTrack(view, title, Color.black);

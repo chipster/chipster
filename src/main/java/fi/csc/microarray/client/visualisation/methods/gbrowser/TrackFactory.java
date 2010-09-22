@@ -15,6 +15,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadSummary
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadTrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RepeatMaskerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SNPTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TitleTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
@@ -185,6 +186,11 @@ public class TrackFactory {
 	public static void addTitleTrack(GenomePlot genomePlot, String title) {
 		View dataView = genomePlot.getDataView();
 		dataView.addTrack(new TitleTrack(dataView, title, Color.black));
+	}
+	
+	public static void addSNPTrack(GenomePlot genomePlot, DataSource file) {
+		SNPTrack snpTrack = new SNPTrack(genomePlot.getDataView(), file, ChunkTreeHandlerThread.class);
+		addTrack(genomePlot.getDataView(), snpTrack);
 	}
 	
 }
