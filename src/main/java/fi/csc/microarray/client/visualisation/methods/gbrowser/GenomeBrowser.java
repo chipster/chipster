@@ -519,8 +519,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			application.reportException(e);
 		}
 
-		// Create gene name index
-		gia = GeneIndexActions.getInstance(this);
 	}
 
 	@Override
@@ -545,6 +543,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		visualised = true;
 
 		try {
+			// Create gene name index
+			gia = GeneIndexActions.getInstance(this, (Genome)genomeBox.getSelectedItem());
+			
 			// create the plot
 			Genome genome = (Genome) genomeBox.getSelectedItem();
 			ChartPanel chartPanel = new NonScalableChartPanel();
@@ -981,5 +982,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 	public void componentShown(ComponentEvent arg0) {
 		// skip
+	}
+	
+	public ClientApplication getClientApplication() {
+		return application;
 	}
 }
