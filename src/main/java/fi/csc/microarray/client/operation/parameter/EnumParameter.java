@@ -10,8 +10,7 @@ import org.apache.log4j.Logger;
 import fi.csc.microarray.util.Strings;
 
 /**
- * A parameter that has a defined set of possible values, out of which only
- * one at a time can be selected.
+ * A parameter that has a defined set of possible values
  * 
  * @author Janne KÃ¤ki, Rimvydas Naktinis, Aleksi Kallio
  *
@@ -236,8 +235,14 @@ public class EnumParameter extends Parameter {
     public Object getValue() {
         assert(options != null);
 
+        // gather selected option values
+        LinkedList<String> selectedValues = new LinkedList<String>();
+        for (SelectionOption selectedOption : selectedOptions) {
+        	selectedValues.add(selectedOption.getValue());
+        }
+        
         // create comma separated string of selected values
-        return Strings.delimit(selectedOptions, ",");
+        return Strings.delimit(selectedValues, ",");
     }   
 
     /**
