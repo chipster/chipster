@@ -19,10 +19,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptT
  * Tracks containing information about reads: sequences themselves, gel,
  * profile etc.
  * 
- * @author naktinis
+ * @author naktinis, zukauska
  *
  */
-public class ReadTrackGroup extends TrackGroup implements ActionListener {
+public class ReadTrackGroup extends TrackGroup {
     
     // Constants
     int SWITCH_VIEWS_AT = 50000;
@@ -44,13 +44,6 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
     protected SeparatorTrack sepTrackProfile;
     protected SeparatorTrack sepTrackAcid;
     protected SeparatorTrack sepTrackGel;
-    
-    // Track switches
-//    private JCheckBox showReads = new JCheckBox("Reads", true);
-    private JCheckBox showGel = new JCheckBox("Gel track", true);
-    private JCheckBox showProfile = new JCheckBox("Profile track", true);
-    private JCheckBox showAcid = new JCheckBox("Nucleic acids", false);
-//    private JCheckBox showSNP = new JCheckBox("Highlight SNP", false);
     
     // Reference sequence
     private DataSource seqFile;
@@ -138,50 +131,20 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
         tracks.add(readsReversed);
         
         // Only draw separator if profile track is visible
-        if (showProfile.isSelected()) {
-        	sepTrackProfile = new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT); 
-            tracks.add(sepTrackProfile);
-            tracks.add(profileTrack);
-        }
+    	sepTrackProfile = new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT); 
+        tracks.add(sepTrackProfile);
+        tracks.add(profileTrack);
         
-        if (showAcid.isSelected()) {
-        	sepTrackAcid = new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT); 
-        	tracks.add(sepTrackAcid);
-            tracks.add(acidTrack);
-        }
+    	sepTrackAcid = new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT); 
+    	tracks.add(sepTrackAcid);
+        tracks.add(acidTrack);
         
         // Only draw separator if gel track is visible
-        if (showGel.isSelected()) {
-        	sepTrackGel = new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT); 
-            tracks.add(sepTrackGel);
-            tracks.add(gelTrack);
-        }
+    	sepTrackGel = new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT); 
+        tracks.add(sepTrackGel);
+        tracks.add(gelTrack);
     }
     
-    public void setVisibleGetTrack(boolean b) {
-    	gelTrack.setVisible(b);
-    	sepTrackGel.setVisible(b);
-    	view.redraw();
-    }
-    
-    public void setVisibleProfileTrack(boolean b) {
-    	profileTrack.setVisible(b);
-    	sepTrackProfile.setVisible(b);
-    	view.redraw();
-    }
-    
-    public void setVisibleAcidTrack(boolean b) {
-    	acidTrack.setVisible(b);
-    	sepTrackAcid.setVisible(b);
-    	view.redraw();
-    }
-    
-    public void setVisibleReads(boolean b) {
-    	reads.setVisible(b);
-    	readsReversed.setVisible(b);
-    	sepTrackReads.setVisible(b);
-    	view.redraw();
-    }
     public void setVisibleSNP(boolean b) {
     	if (b) {
             reads.enableSNPHighlight(seqFile, ChunkTreeHandlerThread.class);
@@ -194,9 +157,6 @@ public class ReadTrackGroup extends TrackGroup implements ActionListener {
         view.redraw();
     }
 
-    public void actionPerformed(ActionEvent e) {
-        
-    }
 
     @Override
     public String getName() {
