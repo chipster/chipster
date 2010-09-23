@@ -19,6 +19,8 @@ import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Genome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class GeneIndexActions {
@@ -103,12 +105,17 @@ public class GeneIndexActions {
     /**
      * getting location of a gene
      */
-    public GeneIndexDataType getLocation(String name){
+    public BpCoordRegion getLocation(String name, Chromosome chromosome){
     	try {
 			st = conn.createStatement();
-			ResultSet rs = st.executeQuery("select chromosome,bp_start,bp_end from gene_name_index where name ='" + name + "'");
-			rs.next();
-			return new GeneIndexDataType(rs.getString(1), rs.getLong(2), rs.getLong(3));
+			ResultSet rs = st.executeQuery("select chromosome, bp_start,bp_end from gene_name_index " +
+					"where name ='" + name + "' and chromosome ='" + chromosome.toString() + "'");
+			if (!rs.next()) {
+				st = conn.createStatement();
+				rs = st.executeQuery("select chromosome, bp_start,bp_end from gene_name_index " +
+						"where name ='" + name + "'");
+			}
+			return new BpCoordRegion(rs.getLong(2), rs.getLong(3), new Chromosome(rs.getString(1)));
 			
 		} catch (SQLException e) {
 			application.reportException(e);

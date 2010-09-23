@@ -55,6 +55,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Cytoba
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.HeaderTsvParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SNPParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SequenceParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
@@ -69,7 +70,6 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
-import fi.csc.microarray.gbrowser.index.GeneIndexDataType;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -187,6 +187,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
     private JCheckBox showProfile = new JCheckBox("Profile track", false);
     private JCheckBox showAcid = new JCheckBox("Nucleic acids", false);
     private JCheckBox showSNP = new JCheckBox("Highlight SNP", false);
+    private JCheckBox changeSNP = new JCheckBox("Change SNP view", false);
 
 	public GenomeBrowser(VisualisationFrame frame) {
 		super(frame);
@@ -290,6 +291,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		showProfile.setEnabled(false);
 		showAcid.setEnabled(false);
 		showSNP.setEnabled(false);
+		changeSNP.setEnabled(false);
 		
 		JPanel menu = new JPanel();
 		JScrollPane menuu = new JScrollPane(menu);
@@ -300,12 +302,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		menu.add(showGel);
         //menu.add(showAcid);
         menu.add(showSNP);
+        menu.add(changeSNP);
         
         showReads.addActionListener(this);
         showGel.addActionListener(this);
         showProfile.addActionListener(this);
         showAcid.addActionListener(this);
         showSNP.addActionListener(this);
+        changeSNP.addActionListener(this);
 		settingsPanel.add(menuu, c);
 		
 		c.gridy++;
@@ -432,6 +436,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				track.trackGroup.showOrHide("ProfileTrack", showProfile.isSelected());
 				track.trackGroup.showOrHide("AcidProfile", showAcid.isSelected());
 				track.trackGroup.showOrHide("highlightSNP", showSNP.isSelected());
+				track.trackGroup.showOrHide("changeSNP", changeSNP.isSelected());
 			}
 		}
 	}
@@ -451,6 +456,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				showProfile.setEnabled(true);
 				showAcid.setEnabled(true);
 				showSNP.setEnabled(true);
+				changeSNP.setEnabled(true);
 				
 				setShowOrHideTracks();
 				
@@ -489,6 +495,12 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			for (Track track : tracks) {
 				if (track.trackGroup != null) {
 					track.trackGroup.showOrHide("highlightSNP", showSNP.isSelected());
+				}
+			}
+		} else if (source == changeSNP) {
+			for (Track track : tracks) {
+				if (track.trackGroup != null) {
+					track.trackGroup.showOrHide("changeSNP", changeSNP.isSelected());
 				}
 			}
 		}
@@ -576,7 +588,13 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 										new TranscriptParser()),
 								createAnnotationDataSource(annotationContents.getRow(
 										genome, AnnotationContents.Content.REFERENCE).file,
-										new SequenceParser()));
+										new SequenceParser()),
+//								createAnnotationDataSource(annotationContents.getRow(
+//										genome, AnnotationContents.Content.GENES).file,
+//										new SNPParser())
+										new ChunkDataSource(new File("/home/zukauska/" +
+										"chipster-share/ngs/SNP_annotations_test/martquery_0921112736_856.txt"), new SNPParser())
+										);
 						track.setTrackGroup(geneGroup);
 						break;
 					case REFERENCE:
@@ -921,21 +939,21 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		}
 
 		// Only position within chromosome changed
-		GeneIndexDataType gidt = new GeneIndexDataType();
+		BpCoordRegion geneLocation;
 		if (!gia.checkIfNumber(locationField.getText())) {
 
-			gidt = gia.getLocation(locationField.getText().toUpperCase());
+			geneLocation = gia.getLocation(locationField.getText().toUpperCase(), (Chromosome)chrBox.getSelectedItem());
 
-			if (gidt == null) {
+			if (geneLocation == null) {
 				application.showDialog("Not found",
 						"Gene with such name was not found", null,
 						Severity.INFO, false,
 						DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
 			} else {
-				chrBox.setSelectedItem(new Chromosome(gidt.chromosome));
+				chrBox.setSelectedItem(new Chromosome(geneLocation.start.chr));
 				plot.moveDataBpRegion((Chromosome) chrBox.getSelectedItem(),
-						(gidt.bpend + gidt.bpstart) / 2,
-						(gidt.bpend - gidt.bpstart) * 2);
+						(geneLocation.end.bp + geneLocation.start.bp) / 2,
+						(geneLocation.end.bp - geneLocation.start.bp) * 2);
 			}
 		} else {
 			try {
