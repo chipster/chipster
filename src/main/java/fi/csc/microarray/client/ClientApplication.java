@@ -211,7 +211,7 @@ public abstract class ClientApplication {
 			serviceAccessor.initialise(manager, getAuthenticationRequestListener());
 			this.taskExecutor = serviceAccessor.getTaskExecutor();
 			Session.getSession().setServiceAccessor(serviceAccessor);
-			reportInitialisation(" connected", false);
+			reportInitialisation(" ok", false);
 
 			// check services
 			reportInitialisation("Checking remote services...", true);
@@ -219,7 +219,7 @@ public abstract class ClientApplication {
 			if (!ServiceAccessor.ALL_SERVICES_OK.equals(status)) {
 				throw new Exception(status);
 			}
-			reportInitialisation(" all are available", false);
+			reportInitialisation(" ok", false);
 			
 			// Fetch descriptions from compute server
 	        reportInitialisation("Fetching analysis descriptions...", true);
@@ -234,7 +234,7 @@ public abstract class ClientApplication {
 				}
 			}
 			logger.debug("created " + visibleCategories.size() + " operation categories");
-			reportInitialisation(" received and processed", false);
+			reportInitialisation(" ok", false);
 
 			// load internal operation definitions
 			internalOperationDefinitions = new HashMap<String, OperationDefinition>();

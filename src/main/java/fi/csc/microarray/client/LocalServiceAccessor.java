@@ -40,16 +40,25 @@ public class LocalServiceAccessor implements ServiceAccessor {
 		// do nothing
 	}
 
+
+	/**
+	 * FIXME get tool list from configs
+	 * FIXME put the code for creating the OperatioinDefinition to a place where both this and
+	 * DescriptionMessageListener can use it
+	 * 
+	 */
 	@Override
 	public void fetchDescriptions(Module primaryModule) throws Exception {
 		this.visibleCategories = new LinkedList<OperationCategory>();
 		this.hiddenCategories = new LinkedList<OperationCategory>();
 		
+		// tools list
 		PreprocessNGSSingle tool = new PreprocessNGSSingle();
 		
+		// for each tool, parse the SADL and create the OperationDefinition
         SADLDescription sadl = new ChipsterSADLParser().parse(tool.getSADL());
 		OperationCategory category = new OperationCategory(sadl.getCategory());
-		this.visibleCategories.add(category);
+		this.hiddenCategories.add(category);
 		
         OperationDefinition od = new OperationDefinition(sadl.getName().getID(), 
                                                                     sadl.getName().getDisplayName(), category,
@@ -73,6 +82,7 @@ public class LocalServiceAccessor implements ServiceAccessor {
         }
 	}
 
+	
 	@Override
 	public FileBrokerClient getFileBrokerClient() throws Exception {
 		throw new UnsupportedOperationException("not supported in standalone mode");
