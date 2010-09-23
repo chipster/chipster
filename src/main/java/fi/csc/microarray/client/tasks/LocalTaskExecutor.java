@@ -22,7 +22,9 @@ public class LocalTaskExecutor extends TaskExecutor {
 	
 	@Override
 	public void startExecuting(Task task) throws TaskException {
-		throw new UnsupportedOperationException();
+		System.out.println(task.getOperationID());
+		System.out.println(task.getInputCount());
+		//throw new UnsupportedOperationException();
 	}
 	
 	@Override
