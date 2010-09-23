@@ -66,6 +66,11 @@ public class SNPParser extends TsvParser{
 			
 			String[] cols = row.split("\t");
 			for (ColumnType requestedContent : requestedContents) {
+				
+				if (requestedContent.equals(ColumnType.CONSEQUENCE_TO_TRANSCRIPT)) {
+					
+				}
+				
 				values.put(requestedContent, this.get(cols, requestedContent));					
 			}
 			
@@ -78,22 +83,68 @@ public class SNPParser extends TsvParser{
 		}
 		return rows;
 	}
+	
+	@Override
+	public Object get(String[] cols, ColumnType col) {
+
+		try {
+
+			if (cols.length <= 1) {
+				return null;
+			}
+
+			String string = cols[getFileDefinition().indexOf(col)].trim();
+
+			ColumnDefinition fieldDef = getFileDefinition().getFieldDef(col);
+
+			if (col == ColumnType.STRAND) {
+				return string.equals("2") || string.equalsIgnoreCase("r") 
+				|| string.equals("-") ? Strand.REVERSED	: Strand.FORWARD;
+
+			} else if (col == ColumnType.CHROMOSOME) {
+				return new Chromosome(string.replace("chr", ""));
+
+			} else if (fieldDef.type == Type.STRING) {
+				return string;
+
+			} else if (fieldDef.type == Type.FLOAT) {
+				return new Float(string);
+
+			} else if (fieldDef.type == Type.LONG) {
+
+				if (string.length() > 0) {
+					return new Long(string);
+				} else {
+					return Long.MIN_VALUE;
+				}
+			}
+			return null;
+			
+		} catch (IndexOutOfBoundsException e) {
+			if (col == ColumnType.CONSEQUENCE_TO_TRANSCRIPT) {
+				return "NONE";
+			} else {
+				throw new RuntimeException("error parsing columns: " + Arrays.toString(cols) + " (looking for: " + col + ")", e);
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("error parsing columns: " + Arrays.toString(cols) + " (looking for: " + col + ")", e);
+		}
+	}
 
 	@Override
 	public long getHeaderLength(File file) {
-//		try {
-//			FileReader fileReader = new FileReader(file);
-//			BufferedReader reader = new BufferedReader(fileReader);
-//			try {
-//				System.out.println(reader.readLine().length());
-//				return reader.readLine().length();
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		}
+		try {
+			FileReader fileReader = new FileReader(file);
+			BufferedReader reader = new BufferedReader(fileReader);
+			try {
+				return reader.readLine().length();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 		return 0;
 	}
 }
