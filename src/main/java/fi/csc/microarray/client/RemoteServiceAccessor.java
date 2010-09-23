@@ -50,7 +50,7 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 	}
 	
 	@Override
-	public String checkRemoveServices() throws Exception {
+	public String checkRemoteServices() throws Exception {
 		AdminAPI api = new AdminAPI(endpoint.createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ_WRITE), null);
 		if (api.areAllServicesUp(true)) {
 			return ALL_SERVICES_OK;

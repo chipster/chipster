@@ -215,7 +215,7 @@ public abstract class ClientApplication {
 
 			// check services
 			reportInitialisation("Checking remote services...", true);
-			String status = serviceAccessor.checkRemoveServices();
+			String status = serviceAccessor.checkRemoteServices();
 			if (!ServiceAccessor.ALL_SERVICES_OK.equals(status)) {
 				throw new Exception(status);
 			}

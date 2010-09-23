@@ -31,7 +31,7 @@ public class LocalServiceAccessor implements ServiceAccessor {
 	
 	
 	@Override
-	public String checkRemoveServices() throws Exception {
+	public String checkRemoteServices() throws Exception {
 		return ServiceAccessor.ALL_SERVICES_OK;
 	}
 
