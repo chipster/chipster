@@ -494,7 +494,7 @@ public class GenomeBrowser extends Visualisation implements
 					switch (track.type) {
 					case CYTOBANDS:
 						TrackFactory.addCytobandTracks(plot,
-						        createAnnotationDataSource("Homo_sapiens.GRCh37.57_karyotype.tsv", new CytobandParser()));
+						        createAnnotationDataSource("Homo_sapiens.GRCh37.59_karyotype.tsv", new CytobandParser()));
 						break;
 					case GENES:
 						TrackGroup geneGroup = TrackFactory.addGeneTracks(plot,

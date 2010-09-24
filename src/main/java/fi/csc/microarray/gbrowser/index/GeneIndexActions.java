@@ -74,9 +74,9 @@ public class GeneIndexActions {
     	try {
 			st = conn.createStatement();
 			for (RegionContent id : indexList) {
-				st.executeUpdate("insert into gene_name_index values (null," + 
-						id.values.get(ColumnType.CHROMOSOME) + "," + id.values.get(ColumnType.BP_START) + "," +
-						id.values.get(ColumnType.BP_END) + ",'" + id.values.get(ColumnType.DESCRIPTION) + "' )");
+//				st.executeUpdate("insert into gene_name_index values (null," + 
+//						id.values.get(ColumnType.CHROMOSOME) + "," + id.values.get(ColumnType.BP_START) + "," +
+//						id.values.get(ColumnType.BP_END) + ",'" + id.values.get(ColumnType.DESCRIPTION) + "' )");
 			}
 			
 		} catch (SQLException e) {

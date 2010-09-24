@@ -15,16 +15,42 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 
 public class TabixReader {
 
+	
 	public static List<RegionContent> query(String file, String chr, String startBp, String endBp) throws IOException {
+
+		long[][] lengthToLevel = new long[7][2];
+		lengthToLevel[0][0] = 0L; lengthToLevel[0][1] = 2L;
+		lengthToLevel[1][0] = 5000L; lengthToLevel[1][1] = 4L;
+		lengthToLevel[2][0] = 10000L; lengthToLevel[2][1] = 8L;
+		lengthToLevel[3][0] = 30000L; lengthToLevel[3][1] = 16L;
+		lengthToLevel[4][0] = 50000L; lengthToLevel[4][1] = 32L;
+		lengthToLevel[5][0] = 100000L; lengthToLevel[5][1] = 64L;
+		lengthToLevel[6][0] = 1000000L; lengthToLevel[6][1] = 128L;
 
 		String s = null;
 		List<RegionContent> results = new LinkedList<RegionContent>();
 		
+		long length = Long.parseLong(endBp) - Long.parseLong(startBp);
 		
+		// hack the generic part of name
+		String prefix = file;
+		while (Character.isDigit(prefix.charAt(prefix.length()-1))) {
+			prefix = prefix.substring(0, prefix.length()-1);
+		}
+
+		// decide summary level 
+		long level = lengthToLevel[0][1];
+		for (int i = 1; i < lengthToLevel.length; i++) {
+			if (length > lengthToLevel[i][0]) {
+				level = lengthToLevel[i][1];
+			}
+		}
+		file = prefix + level;
+		               
 		//FIXME replace with real Java library for tabix, for example 
 		//https://genomeview.svn.sourceforge.net/svnroot/genomeview/jannot/trunk/net/sf/jannot/tabix/
 		Process p = Runtime.getRuntime().exec(
-				"/home/klemela/tabix-0.2.2/tabix " + 
+				"/home/" + System.getProperty("user.name") + "/tabix-0.2.2/tabix " + 
 				file + " " + 
 				chr + ":" + 
 				startBp + "-" + endBp);
