@@ -661,4 +661,8 @@ public abstract class ClientApplication {
 		return authenticator;
 	}
 	
+	public boolean isStandalone() {
+		return this.isStandalone;
+	}
+	
 }
