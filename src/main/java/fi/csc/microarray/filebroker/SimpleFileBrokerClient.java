@@ -13,6 +13,8 @@ import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 /**
  * Simple file broker client for the standalone mode.
  * 
+ * Only supports getPublicUrl() for now.
+ * 
  * @author hupponen
  *
  */
