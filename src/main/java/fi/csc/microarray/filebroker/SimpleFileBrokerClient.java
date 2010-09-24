@@ -10,6 +10,12 @@ import javax.jms.JMSException;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 
+/**
+ * Simple file broker client for the standalone mode.
+ * 
+ * @author hupponen
+ *
+ */
 public class SimpleFileBrokerClient implements FileBrokerClient {
 
 	@Override
