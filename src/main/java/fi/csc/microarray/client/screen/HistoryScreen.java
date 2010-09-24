@@ -93,7 +93,7 @@ public class HistoryScreen extends ScreenBase
 		checkBoxes.get("date").setSelected(false);
 		checkBoxes.get("code").setSelected(false);
 		checkBoxes.get("param").setEnabled(checkBoxes.get("oper").isSelected());
-        checkBoxes.get("code").setEnabled(checkBoxes.get("oper").isSelected());
+        checkBoxes.get("code").setEnabled(checkBoxes.get("oper").isSelected() && !application.isStandalone());
 		
 		saveButton = new JButton("Save...");
 		saveButton.setPreferredSize(BUTTON_SIZE);
@@ -134,7 +134,7 @@ public class HistoryScreen extends ScreenBase
 		//c.insets.set(1, 20, 0, 2);
 		contentPane.add(checkBoxes.get("param"), c);
         c.gridy++;
-        contentPane.add(checkBoxes.get("code"), c);
+      	contentPane.add(checkBoxes.get("code"), c);
         c.gridx++; c.gridy = 1;
         c.insets.set(1, 2, 0, 2);
         contentPane.add(checkBoxes.get("notes"), c);
@@ -328,7 +328,7 @@ public class HistoryScreen extends ScreenBase
 		if (source instanceof JCheckBox) {
 			if (source == checkBoxes.get("oper")) {
 				checkBoxes.get("param").setEnabled(checkBoxes.get("oper").isSelected());
-                checkBoxes.get("code").setEnabled(checkBoxes.get("oper").isSelected());
+                checkBoxes.get("code").setEnabled(checkBoxes.get("oper").isSelected() && !application.isStandalone());
 			}
 			textArea.setText(getHistoryText());
 		} else if (source == saveButton) {
