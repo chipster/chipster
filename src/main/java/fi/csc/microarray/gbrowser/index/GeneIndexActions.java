@@ -114,11 +114,11 @@ public class GeneIndexActions {
 				st = conn.createStatement();
 				rs = st.executeQuery("select chromosome, bp_start,bp_end from gene_name_index " +
 						"where name ='" + name + "'");
+				rs.next();
 			}
 			return new BpCoordRegion(rs.getLong(2), rs.getLong(3), new Chromosome(rs.getString(1)));
 			
 		} catch (SQLException e) {
-			application.reportException(e);
 			return null;
 		}
     }
