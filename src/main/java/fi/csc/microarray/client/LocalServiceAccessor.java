@@ -15,6 +15,7 @@ import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.description.SADLDescription.Input;
 import fi.csc.microarray.description.SADLDescription.Parameter;
 import fi.csc.microarray.filebroker.FileBrokerClient;
+import fi.csc.microarray.filebroker.SimpleFileBrokerClient;
 import fi.csc.microarray.messaging.SourceMessageListener;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.messaging.message.FeedbackMessage;
@@ -85,9 +86,10 @@ public class LocalServiceAccessor implements ServiceAccessor {
 	
 	@Override
 	public FileBrokerClient getFileBrokerClient() throws Exception {
-		throw new UnsupportedOperationException("not supported in standalone mode");
+		return new SimpleFileBrokerClient();
 	}
 
+	
 	@Override
 	public TaskExecutor getTaskExecutor() {
 		try {

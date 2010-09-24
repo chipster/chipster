@@ -41,7 +41,7 @@ import fi.csc.microarray.util.IOUtils.CopyProgressListener;
  * @author hupponen
  *
  */
-public class FileBrokerClient {
+public class JMSFileBrokerClient implements FileBrokerClient {
 
 	/**
 	 * Reply listener for the url request.
@@ -82,14 +82,14 @@ public class FileBrokerClient {
 	private static final int URL_REQUEST_TIMEOUT = 30; // seconds
 	private static final int FILE_AVAILABLE_TIMEOUT = 10; // seconds 
 	
-	private static final Logger logger = Logger.getLogger(FileBrokerClient.class);
+	private static final Logger logger = Logger.getLogger(JMSFileBrokerClient.class);
 	
 	
 	private MessagingTopic urlTopic;	
 	private boolean useChunked;
 	private boolean useCompression;
 	
-	public FileBrokerClient(MessagingTopic urlTopic) throws JMSException {
+	public JMSFileBrokerClient(MessagingTopic urlTopic) throws JMSException {
 		// read configs
 		this.useChunked = DirectoryLayout.getInstance().getConfiguration().getBoolean("messaging", "use-chunked-http"); 
 		this.useCompression = DirectoryLayout.getInstance().getConfiguration().getBoolean("messaging", "use-compression");
@@ -99,15 +99,8 @@ public class FileBrokerClient {
 	}
 	
 
-	/**
-	 * Add file to file broker.
-	 * 
-	 * @param content
-	 * @param progressListener may be null
-	 * @return url to the added file
-	 * @throws FileBrokerException if url from file broker is null or getting url timeouts
-	 * @throws JMSException
-	 * @throws IOException
+	/* (non-Javadoc)
+	 * @see fi.csc.microarray.filebroker.FileBrokerClient#addFile(java.io.InputStream, fi.csc.microarray.util.IOUtils.CopyProgressListener)
 	 */
 	public URL addFile(InputStream content, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
 		
@@ -126,22 +119,8 @@ public class FileBrokerClient {
 	}
 	
 	
-	/**
- 	 *  Get the InputStream for a while form the FileBroker.
- 	 *  
- 	 *  If payload is not available right a way, wait for awhile for
- 	 *  the payload to become available. 
- 	 *  
- 	 *  This is useful if getFile is called immediately after addFile, 
- 	 *  since jetty is sometimes a bit slow to write the payload 
- 	 *  to the disk on the server side.
- 	 *  
- 	 *  Unfortunately, the waiting slows down getting the InputStream for
- 	 *  empty files. Empty files are not too common though.
-	 * 
-	 * @param url
-	 * @return
-	 * @throws IOException
+	/* (non-Javadoc)
+	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getFile(java.net.URL)
 	 */
 	public InputStream getFile(URL url) throws IOException {
 		InputStream payload = null;
@@ -172,23 +151,8 @@ public class FileBrokerClient {
 	}
 
 	
-	/**
-	 * Check if a file exists at the file broker.
-	 * 
-	 * This method should only be used to check if a cached file has been
-	 * removed on the server side.
-	 * 
-	 * This method should not be used to figuring out if a cached file should
-	 * be updated or not. 
-	 * 
-	 * TODO Check contentLength against connection.getContentLength()
-	 * TODO Checking content length may not be the best idea,
-	 * especially when using compression
-	 * 
-	 * @param url
-	 * @param contentLength
-	 * @return true if file exists and contentLength matches
-	 * @throws IOException 
+	/* (non-Javadoc)
+	 * @see fi.csc.microarray.filebroker.FileBrokerClient#checkFile(java.net.URL, long)
 	 */
 	public boolean checkFile(URL url, long contentLength) {
 
@@ -247,13 +211,8 @@ public class FileBrokerClient {
 		return url;
 	}
 
-	/**
-	 * Retrieves the root of the public file area from the file broker. Method blocks until result is
-	 * retrieved or timeout. Talks to the file broker using JMS.
-	 * 
-	 * @return the new URL, may be null if file broker sends null or if reply is not received before timeout
-	 *  
-	 * @throws JMSException
+	/* (non-Javadoc)
+	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getPublicUrl()
 	 */
 	public URL getPublicUrl() throws JMSException {
 

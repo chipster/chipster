@@ -18,7 +18,7 @@ import fi.csc.microarray.util.IOUtils.CopyProgressListener;
  * @author naktinis
  *
  */
-public class FileBrokerClientMock extends FileBrokerClient {
+public class FileBrokerClientMock extends JMSFileBrokerClient {
     
     // Store all files in an array of streams
     HashMap<String, InputStream> files = new HashMap<String, InputStream>();
