@@ -7,15 +7,11 @@ import javax.jms.JMSException;
 import fi.csc.chipster.tools.gbrowser.TsvSorter;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileDefinition;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.messaging.TempTopicMessagingListener;
-import fi.csc.microarray.messaging.message.JobMessage;
-import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 
 public class LocalTaskExecutor extends TaskExecutor {
 
