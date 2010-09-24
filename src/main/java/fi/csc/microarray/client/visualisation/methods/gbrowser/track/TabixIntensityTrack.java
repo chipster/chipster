@@ -22,8 +22,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 
 /**
  * Generic track for showing high level distribution of items (genes, transcripts, reads...) on the genome.
- * The result is an approximation.
- *
  */
 public class TabixIntensityTrack extends Track {
 

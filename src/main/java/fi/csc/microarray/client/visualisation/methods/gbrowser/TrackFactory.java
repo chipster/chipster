@@ -120,14 +120,14 @@ public class TrackFactory {
 	}
 	
 	public static TrackGroup addReadSummaryTracks(GenomePlot genomePlot, DataSource userData,
-	        Class<? extends AreaRequestHandler> userDataHandler, String title)
+	        Class<? extends AreaRequestHandler> userDataHandler, DataSource seqFile, String filename)
 	        throws FileNotFoundException, MalformedURLException {
 	
 		View dataView = genomePlot.getDataView();
 		
 		// Group containing tracks for this data source
 		TrackGroup readGroup = new ReadSummaryTrackGroup(dataView, userData,
-		        userDataHandler, title);
+		        userDataHandler, seqFile, filename);
         
         addGroup(dataView, readGroup);
         

@@ -534,7 +534,10 @@ public class GenomeBrowser extends Visualisation implements
 					case TREATMENT_SUMMARY:
 					    treatmentData = createReadDataSource(track.userData, tracks);
 						TrackGroup readGroup1 = TrackFactory.addReadSummaryTracks(plot, treatmentData,
-						        createReadHandler(file), file.getName());
+						        createReadHandler(file),
+						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv",
+								        new SequenceParser()),
+						        file.getAbsolutePath());
 						track.setTrackGroup(readGroup1);
 						break;
 
@@ -651,6 +654,7 @@ public class GenomeBrowser extends Visualisation implements
 	    
 	    if (file.getName().contains(".bam-summary")) {
 	    	dataSource = new TabixDataSource(file);
+	    	
 	    } else if (file.getName().contains(".bam") || file.getName().contains(".sam")) {
 	    	// Find the index file from the operation
 	    	DataBean indexBean = null;
@@ -773,7 +777,7 @@ public class GenomeBrowser extends Visualisation implements
 				
 			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
 			           (data.getName().endsWith(".bam") || data.getName().endsWith(".sam"))) {
-                interpretations.add(TrackType.TREATMENT_READS);
+                interpretations.add(TrackType.TREATMENT_SUMMARY);
                 
 			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
 			           (data.getName().endsWith(".bai"))) {

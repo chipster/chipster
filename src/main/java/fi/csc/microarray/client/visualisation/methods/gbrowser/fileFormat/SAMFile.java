@@ -30,7 +30,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  */
 public class SAMFile {
     
-    private static final String CHROMOSOME_PREFIX = "chr";
+    private static final String CHROMOSOME_PREFIX = "";
 	
 	private ConcisedValueCache cache = new ConcisedValueCache();
 	public SAMFileReader reader;
