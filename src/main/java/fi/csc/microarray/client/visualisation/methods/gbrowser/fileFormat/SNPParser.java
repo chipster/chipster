@@ -76,10 +76,6 @@ public class SNPParser extends TsvParser{
 			String[] cols = row.split("\t");
 			for (ColumnType requestedContent : requestedContents) {
 				
-				if (requestedContent.equals(ColumnType.CONSEQUENCE_TO_TRANSCRIPT)) {
-					
-				}
-				
 				values.put(requestedContent, this.get(cols, requestedContent));					
 			}
 			
@@ -110,8 +106,37 @@ public class SNPParser extends TsvParser{
 				return string.equals("2") || string.equalsIgnoreCase("r") 
 				|| string.equals("-") ? Strand.REVERSED	: Strand.FORWARD;
 
-			} else if (col == ColumnType.CHROMOSOME) {
+			} else if (col == ColumnType.CHROMOSOME) { 
 				return new Chromosome(string.replace("chr", ""));
+			} else if (col == ColumnType.CONSEQUENCE_TO_TRANSCRIPT) {
+				if (string.startsWith("3PRIME")) {
+					return "PRIME3_UTR";
+				} else if (string.startsWith("5PRIME")) {
+					return "PRIME5_UTR";
+				} else if (string.startsWith("STOP_GAINED,FRAMESHIFT")) {
+					return "STOP_GAINED_FRAMESHIFT_CODING";
+				} else if (string.startsWith("STOP_GAINED,SPLICE_SITE")) {
+					return "STOP_GAINED_SPLICED_SITE";
+				} else if (string.startsWith("STOP_LOST,SPLICE_SITE")) {
+					return "STOP_LOST_SPLICE_SITE";
+				} else if (string.startsWith("FRAMESHIFT_CODING,SPLICE_SITE")) {
+					return "FRAMESHIFT_CODING_SPLICE_SITE";
+				} else if (string.startsWith("STOP_GAINED,FRAMESHIFT_CODING,SPLICE_SITE")) {
+					return "STOP_GAINED_FRAMESHIFT_CODING_SPLICE_SITE";
+				} else if (string.startsWith("NON_SYNONYMOUS_CODING,SPLICE_SITE")) {
+					return "NON_SYNONYMOUS_CODING_SPLICE_SITE";
+				} else if (string.startsWith("SPLICE_SITE,SYNONYMOUS_CODING")) {
+					return "SPLICE_SITE_SYNOYMOUS_CODING";
+				} else if (string.startsWith("SPLICE_SITE,5PRIME_UTR")) {
+					return "SPLICE_SITE_5PRIME_UTR";
+				} else if (string.startsWith("SPLICE_SITE,3PRIME_UTR")) {
+					return "SPLICE_SITE_3PRIME_UTR";
+				} else if (string.startsWith("ESSENTIAL_SPLICE_SITE,INTRONIC")) {
+					return "ESSENTIAL_SPLICE_SITE_INTRONIC";
+				} else if (string.startsWith("SPLICE_SITE,INTRONIC")) {
+					return "SPLICE_SITE_INTRONIC";
+				} 
+				return string;
 
 			} else if (fieldDef.type == Type.STRING) {
 				return string;

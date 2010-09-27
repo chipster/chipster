@@ -60,14 +60,20 @@ public class SNPTrack extends Track {
 	
 	private int lastColorIndex = colors.length-1;
 	
-	boolean changeView = false;
+	private int lastConsequenceNumber = -1;
+	
+	boolean changeView = true;
 	
 	//ordered according colors
 	enum ConsequenceName {
 		STOP_GAINED, STOP_LOST, FRAMESHIFT_CODING, SYNONYMOUS_CODING,
-		NON_SYNONYMOUS_CODING, UPSTREAM, INTRONIC, INTERGENETIC,  
+		NON_SYNONYMOUS_CODING, UPSTREAM, DOWNSTREAM, INTRONIC, INTERGENETIC,  
 		COMPLEX_INDEL, PARTIAL_CODON, REGULATORY_REGION, WITHIN_MATURE_mIRNA,
-		PRIME5_UTR, PRIME3_UTR, NONE,  
+		PRIME5_UTR,	PRIME3_UTR , NONE, STOP_GAINED_FRAMESHIFT, STOP_GAINED_SPLICE_SITE,
+		STOP_LOST_SPLICE_SITE, FRAMESHIFT_CODING_SPLICE_SITE, 
+		STOP_GAINED_FRAMESHIFT_CODING_SPLICE_SITE, NON_SYNONYMOUS_CODING_SPLICE_SITE,
+		SPLICE_SITE_SYNONYMOUS_CODING, SPLICE_SITE_5PRIME_UTR, SPLICE_SITE_3PRIME_UTR, 
+		ESSENTIAL_SPLICE_SITE_INTRONIC, SPLICE_SITE_INTRONIC, WITHIN_NON_CODING_GENE,
 	}
 
 	public SNPTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler) {
@@ -92,44 +98,29 @@ public class SNPTrack extends Track {
 	            }
 	            
 	            if (lastPosition == null) {
-					lastPosition = (long)getView().bpToTrack(value.region.start);
+	            	lastPosition = (long)getView().bpToTrack(value.region.start);
+	            }
+	            
+	            if (lastConsequenceNumber == -1) {
+					lastConsequenceNumber = ConsequenceName.valueOf(
+							(String)value.values.get(ColumnType.CONSEQUENCE_TO_TRANSCRIPT)).ordinal();
 				}
 	            String allele = (String)value.values.get(ColumnType.ALLELE);
 	            long position = getView().bpToTrack(value.region.start);
 	            if (changeView) {
 	            	String consequence = (String)value.values.get(ColumnType.CONSEQUENCE_TO_TRANSCRIPT);
 	            	
-	            	//if we have multiple lines with same location
-	            	if (lastPosition == position) {
-	            		Iterator<Drawable> i = drawables.iterator();
-	            		int j = 0;
-	            		Drawable lastDrawable = null;
-	            		
-	            		//get the last drawable
-	            		while (i.hasNext()) {
-	            			lastDrawable = i.next();
-	            			j++;
-	            		}
-	            		if (lastDrawable == null) {
-	            			
-	            		} else {
-	            			int old = getColorNumber(lastDrawable.color);
-	            			int now = ConsequenceName.valueOf(consequence).ordinal();
-	            			
-	            			//if importance is less than the old one, then just skip it
-	            			if (now >= old) {
-	            			} else {
-	            				//change the color
-	            				drawables.remove(lastDrawable);
-	            				drawables.add(new RectDrawable((int)position, 1, width,
-	            						getHeight(), colors[now], colors[now]));
-	            			}
-	            		}
+        			int now = ConsequenceName.valueOf(consequence).ordinal();
+	            	if (lastConsequenceNumber < now) {
+	            		drawables.add(new RectDrawable((int)position, 1, 
+	            				width, getHeight(), colors[getColorNumber(consequence)],
+	            				colors[getColorNumber(consequence)]));
 	            	} else {
 	            		drawables.add(new RectDrawable((int)position, 1, 
-            				width, getHeight(), colors[getColorNumber(consequence)],
-            				colors[getColorNumber(consequence)]));
+	            				width, getHeight(), colors[getColorNumber(consequence)],
+	            				colors[getColorNumber(consequence)]));
 	            	}
+	            		
 	            } else {
 	            	//frameshift
             		if (allele.matches("[A-Z]/[A-Z]/-") || 
