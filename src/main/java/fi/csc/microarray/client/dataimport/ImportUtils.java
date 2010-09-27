@@ -318,7 +318,7 @@ public class ImportUtils {
 	 */
 	public static void executeImport(ImportSession importSession) {
 
-		if (!application.isStandalone() || true) {
+		if (!application.isStandalone()) {
 			List<File> files = importSession.getInputFiles();
 
 			boolean importToolSupported = Session.getSession().getPrimaryModule().isImportToolSupported();
