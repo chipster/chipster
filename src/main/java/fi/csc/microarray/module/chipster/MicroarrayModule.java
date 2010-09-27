@@ -73,7 +73,7 @@ public class MicroarrayModule implements Module {
 
 	public static final String ANNOTATION_ID = "annotate-genelist2html.R";
 
-	public static final String IMPORT_FROM_ARRAYEXPRESS_ID = "import-from-ArrayExpress.R";
+	public static final String IMPORT_FROM_ARRAYEXPRESS_ID = "import-ArrayExpress.R";
 	public static final String IMPORT_FROM_GEO_ID = "import-soft2.R";
 
 	public void plugContentTypes(DataManager manager) {
