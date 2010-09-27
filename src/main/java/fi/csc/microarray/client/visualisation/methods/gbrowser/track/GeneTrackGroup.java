@@ -10,6 +10,14 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptTrack.PartColor;
 
+/**
+ * track group containing information about genes: transcript, intensity, gene, snp
+ * repeat masker.
+ * 
+ * @author zukauska
+ *
+ */
+
 public class GeneTrackGroup extends TrackGroup{
 	
 	private static final int CHANGE_TRACKS_ZOOM_THRESHOLD2 = 10000000;

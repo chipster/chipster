@@ -60,14 +60,19 @@ public class GenomeBrowserStarter {
 		GenomePlot plot = new GenomePlot(panel, horizontal);
 		TrackFactory.addCytobandTracks(plot,
 		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.GRCh37.59_karyotype.tsv", new CytobandParser()));
+		TrackFactory.addTitleTrack(plot, "SNP");
 		
-		TrackFactory.addThickSeparatorTrack(plot);
 		TrackFactory.addTitleTrack(plot, "Annotations");
 		
 		TrackFactory.addGeneTracks(plot,
 		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_genes.tsv", new GeneParser()),
 		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_transcripts.tsv", new TranscriptParser()),
-		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_seq.tsv", new SequenceParser()));
+		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_seq.tsv", new SequenceParser()),
+		        new ChunkDataSource(SNP_DATA_FILE, new SNPParser()));
+		
+//		TrackFactory.addSNPTrack(plot, new ChunkDataSource(SNP_DATA_FILE, new SNPParser()));
+//		TrackFactory.addThickSeparatorTrack(plot);
+		
 
 		TrackFactory.addThickSeparatorTrack(plot);
 		TrackFactory.addTitleTrack(plot, "WIG");
@@ -90,11 +95,8 @@ public class GenomeBrowserStarter {
 				"Reads"
 		);
 		
-		TrackFactory.addTitleTrack(plot, "SNP");
-		TrackFactory.addSNPTrack(plot, new ChunkDataSource(SNP_DATA_FILE, new SNPParser()));
-
 		TrackFactory.addRulerTrack(plot);
-		plot.start("12", 1024 * 1024 * 250d, 1000000L, 100000L);
+		plot.start("12", 1024 * 1024 * 250d, 9130000L, 100000L);
 		
 		panel.setChart(new JFreeChart(plot));
 		panel.setPreferredSize(new Dimension(800, 2000));

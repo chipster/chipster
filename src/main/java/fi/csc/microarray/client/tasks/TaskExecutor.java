@@ -29,6 +29,7 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
+import fi.csc.microarray.filebroker.JMSFileBrokerClient;
 import fi.csc.microarray.filebroker.FileBrokerException;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.MessagingEndpoint;
@@ -374,7 +375,7 @@ public class TaskExecutor {
 
 	public TaskExecutor(MessagingEndpoint endpoint, DataManager manager) throws JMSException {
 		this.manager = manager;
-		this.fileBroker = new FileBrokerClient(endpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
+		this.fileBroker = new JMSFileBrokerClient(endpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
 		this.requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC, AccessMode.WRITE);
 		this.jobExecutorStateChangeSupport = new SwingPropertyChangeSupport(this);
 	}

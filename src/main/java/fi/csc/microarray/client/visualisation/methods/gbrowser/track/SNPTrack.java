@@ -19,6 +19,23 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * single nucleotide polymorphism track
+ * there are two ways of showing data:
+ * 1. by nucleotides color
+ * 2. by consequence to transcript
+ * 
+ * in the consequence to transcript way the color is get by simple prioritization
+ * mechanizm. There is array of colors, which are ordered by importance and
+ * consequences enumeration, which are also ordered by importance, and particular
+ * color refer to particular consequence name.
+ * 
+ * If importance sequence is changed, so the colors array must be changed accordingly
+ * 
+ * @author zukauska
+ *
+ */
+
 public class SNPTrack extends Track {
 	
 	// prioritize (1. stop, 2. frameshift, synonymous, non_synonymous)
@@ -102,7 +119,6 @@ public class SNPTrack extends Track {
 	            			//if importance is less than the old one, then just skip it
 	            			if (now >= old) {
 	            			} else {
-	            				System.out.println(consequence);
 	            				//change the color
 	            				drawables.remove(lastDrawable);
 	            				drawables.add(new RectDrawable((int)position, 1, width,
@@ -121,7 +137,7 @@ public class SNPTrack extends Track {
 	            		drawables.add(new RectDrawable((int)position, 1, width, getHeight(), 
 	            				colors[getColorNumber("FRAMESHIFT_CODING")], 
 	            				colors[getColorNumber("FRAMESHIFT_CODING")]));
-	            		//Y/X change from Y to X 
+	            		
 	            	} else if (allele.matches("[A-Z]/A")) {
 		            	drawables.add(new RectDrawable((int)position, 1, width, getHeight(), a, a));
 		            } else if (allele.matches("[A-Z]/C")) {

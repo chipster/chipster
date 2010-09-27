@@ -207,16 +207,11 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		managerWebConsoleServer.setThreadPool(new QueuedThreadPool());
 		Connector connector = new SelectChannelConnector();
 		connector.setServer(managerWebConsoleServer);
-//		connector.setPort(configuration.getInt("webstart", "port"));
-		connector.setPort(8033);
+		connector.setPort(configuration.getInt("manager", "manager-web-console-port"));
 		managerWebConsoleServer.setConnectors(new Connector[]{ connector });
-		
         WebAppContext webapp = new WebAppContext();
-        //webapp.setExtractWAR(false);
         webapp.setContextPath("/");
         webapp.setWar("webapps/chipster-manager-console.war");
-        //webapp.setDefaultsDescriptor(jetty_home+"/etc/webdefault.xml");
-        
         managerWebConsoleServer.setHandler(webapp);
         managerWebConsoleServer.start();
         
