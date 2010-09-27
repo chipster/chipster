@@ -318,7 +318,7 @@ public class ImportUtils {
 	 */
 	public static void executeImport(ImportSession importSession) {
 
-		if (!application.isStandalone()) {
+		if (!application.isStandalone() || true) {
 			List<File> files = importSession.getInputFiles();
 
 			boolean importToolSupported = Session.getSession().getPrimaryModule().isImportToolSupported();
@@ -329,8 +329,7 @@ public class ImportUtils {
 
 			} else {
 				// skip not requested => show ActionChooser
-				ActionChooserScreen actionChooser = new ActionChooserScreen(importSession);
-				actionChooser.getFrame().setVisible(true);
+				new ActionChooserScreen(importSession);
 			}
 		}
 

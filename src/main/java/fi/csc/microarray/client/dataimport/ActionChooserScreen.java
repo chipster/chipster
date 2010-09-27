@@ -3,7 +3,6 @@ package fi.csc.microarray.client.dataimport;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -17,7 +16,7 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -37,9 +36,9 @@ import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DialogCloseListener;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.dialog.DialogInfo.Type;
-import fi.csc.microarray.client.screen.ScreenBase;
+import fi.csc.microarray.constants.VisualConstants;
 
-public class ActionChooserScreen extends ScreenBase implements ActionListener, DialogCloseListener {
+public class ActionChooserScreen implements ActionListener, DialogCloseListener {
 
 	private class GreyTableCellRenderer extends DefaultTableCellRenderer {
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -70,13 +69,14 @@ public class ActionChooserScreen extends ScreenBase implements ActionListener, D
 		}
 	}
 
-	private static final String FRAME_TEXT = "Choose how to proceed with each file. A file can be imported directly as it is or you can use the Import tool to define the contents of the file. You can also decide not to import a file at all.";
-
+	private static final String TITLE_TEXT = "Choose how to proceed with each file";
+	private static final String INFO_TEXT = "A file can be imported directly as it is or you can use the Import tool to define the contents of the file. You can also decide not to import a file at all.";
+	
 	private static final int NAME_COLUMN_INDEX = 0;
 	private static final int TYPE_COLUMN_INDEX = 1;
 	private static final int ACTION_COLUMN_INDEX = 2;
 
-	private JFrame frame = new JFrame("Import files");
+	private JDialog dialog = new JDialog(Session.getSession().getFrames().getMainFrame(), "Import");
 
 	private JCheckBox sameSettingsCheckBox;
 
@@ -89,21 +89,33 @@ public class ActionChooserScreen extends ScreenBase implements ActionListener, D
 	private ImportSession importSession;
 
 	public ActionChooserScreen(ImportSession importSession) {
-		SwingClientApplication.setPlastic3DLookAndFeel(frame);
-		frame.setPreferredSize(new Dimension(640, 480));
-		frame.setLocationByPlatform(true);
+		SwingClientApplication.setPlastic3DLookAndFeel(dialog);
+		dialog.setPreferredSize(new Dimension(640, 480));
+		dialog.setLocationByPlatform(true);
 
 		this.importSession = importSession;
 
 		table = this.getTable();
 		JScrollPane scroll = new JScrollPane(table);
 
-		JPanel upperPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 20));
-		JLabel infoLabel = new JLabel("<html><p>" + FRAME_TEXT + "</p></html>", JLabel.LEFT);
-		infoLabel.setVerticalTextPosition(JLabel.TOP);
-		infoLabel.setPreferredSize(new Dimension(630, 40));
-		upperPanel.add(infoLabel);
+		// upper panel
+		JLabel titleLabel = new JLabel("<html><p style=" + VisualConstants.HTML_DIALOG_TITLE_STYLE + ">" + TITLE_TEXT + "</p></html>", JLabel.LEFT);
+		JLabel descriptionLabel = new JLabel("<html><p>" + INFO_TEXT + "</p></html>", JLabel.LEFT);
+		GridBagConstraints c = new GridBagConstraints();
+		JPanel upperPanel = new JPanel(new GridBagLayout());
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.insets.set(10, 10, 5, 10);
+		c.gridx = 0;
+		c.gridy = 0;
+		upperPanel.add(titleLabel, c);
+		c.gridy++;
+		upperPanel.add(descriptionLabel, c);
+		
 
+		// lower panel
 		JPanel buttonPanel = new JPanel();
 		okButton = new JButton("  OK  ");
 		cancelButton = new JButton("Cancel");
@@ -113,7 +125,7 @@ public class ActionChooserScreen extends ScreenBase implements ActionListener, D
 
 		JLabel sameSettingsLabel = new JLabel("<html><p>" + "When using Import tool to import more than one files, only define the contents of the first file and then apply the same settings for the rest of the files." + "</p></html>", JLabel.LEFT);
 		sameSettingsLabel.setVerticalTextPosition(JLabel.TOP);
-		sameSettingsLabel.setPreferredSize(new Dimension(550, 40));
+		//sameSettingsLabel.setPreferredSize(new Dimension(550, 40));
 
 		sameSettingsCheckBox = new JCheckBox("Define file structure once and apply the same settings to all files");
 		sameSettingsCheckBox.setEnabled(true);
@@ -136,12 +148,13 @@ public class ActionChooserScreen extends ScreenBase implements ActionListener, D
 		g.gridx++;
 		buttonPanel.add(okButton, g);
 
-		frame.setLayout(new BorderLayout());
-		frame.add(upperPanel, BorderLayout.NORTH);
-		frame.add(scroll, BorderLayout.CENTER);
-		frame.add(buttonPanel, BorderLayout.SOUTH);
-		frame.pack();
-		frame.pack();
+		dialog.setLayout(new BorderLayout());
+		dialog.add(upperPanel, BorderLayout.NORTH);
+		dialog.add(scroll, BorderLayout.CENTER);
+		dialog.add(buttonPanel, BorderLayout.SOUTH);
+		dialog.pack();
+		dialog.pack();
+		dialog.setVisible(true);
 	}
 
 	/**
@@ -257,13 +270,6 @@ public class ActionChooserScreen extends ScreenBase implements ActionListener, D
 		}
 	}
 
-	public boolean hasFrame() {
-		return frame != null;
-	}
-
-	public JFrame getFrame() {
-		return frame;
-	}
 
 	public void actionPerformed(ActionEvent e) {
 
@@ -290,7 +296,7 @@ public class ActionChooserScreen extends ScreenBase implements ActionListener, D
 			
 		} else if (e.getSource() == cancelButton) {
 			// Close the frame
-			frame.dispose();
+			dialog.dispose();
 		}
 	}
 
@@ -331,6 +337,6 @@ public class ActionChooserScreen extends ScreenBase implements ActionListener, D
 		}
 
 		// Close the frame
-		frame.dispose();
+		dialog.dispose();
 	}
 }
