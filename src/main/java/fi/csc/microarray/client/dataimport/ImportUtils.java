@@ -329,8 +329,7 @@ public class ImportUtils {
 
 			} else {
 				// skip not requested => show ActionChooser
-				ActionChooserScreen actionChooser = new ActionChooserScreen(importSession);
-				actionChooser.getFrame().setVisible(true);
+				new ActionChooserScreen(importSession);
 			}
 		}
 
