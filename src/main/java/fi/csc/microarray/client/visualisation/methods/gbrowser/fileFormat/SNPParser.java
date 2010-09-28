@@ -135,7 +135,9 @@ public class SNPParser extends TsvParser{
 					return "ESSENTIAL_SPLICE_SITE_INTRONIC";
 				} else if (string.startsWith("SPLICE_SITE,INTRONIC")) {
 					return "SPLICE_SITE_INTRONIC";
-				} 
+				} else if (string.startsWith("INTRONIC,NMD_TRANSCRIPT")) {
+					return "INTRONIC_NMD_TRANSCRIPT";
+				}
 				return string;
 
 			} else if (fieldDef.type == Type.STRING) {

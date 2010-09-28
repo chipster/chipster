@@ -48,6 +48,7 @@ public class SNPTrack extends Track {
 	Color c = new Color(64, 64, 192, 128);
 	Color g = new Color(128, 128, 128, 128);
 	Color t = new Color(192, 64, 64, 128);
+	Color deletion = new Color(0, 0, 0, 128);//black
 	
 	//ordered by prioritiazation
 	private Color[] colors = new Color[] {
@@ -56,6 +57,7 @@ public class SNPTrack extends Track {
 			new Color(255, 105, 180, 128),//pink
 			new Color(255, 215, 0, 128),//gold
 			new Color(50, 205, 50, 128),//lemon green
+			new Color(0, 0, 255, 128), //blue
 			new Color(190, 190, 190, 128),//gray
 	};
 	
@@ -68,13 +70,14 @@ public class SNPTrack extends Track {
 	//ordered according colors
 	enum ConsequenceName {
 		STOP_GAINED, STOP_LOST, FRAMESHIFT_CODING, SYNONYMOUS_CODING,
-		NON_SYNONYMOUS_CODING, UPSTREAM, DOWNSTREAM, INTRONIC, INTERGENETIC,  
+		NON_SYNONYMOUS_CODING, WITHIN_MATURE_miRNA, UPSTREAM, DOWNSTREAM, INTRONIC, INTERGENETIC,  
 		COMPLEX_INDEL, PARTIAL_CODON, REGULATORY_REGION, WITHIN_MATURE_mIRNA,
-		PRIME5_UTR,	PRIME3_UTR , NONE, STOP_GAINED_FRAMESHIFT, STOP_GAINED_SPLICE_SITE,
+		PRIME5_UTR,	PRIME3_UTR , STOP_GAINED_FRAMESHIFT, STOP_GAINED_SPLICE_SITE,
 		STOP_LOST_SPLICE_SITE, FRAMESHIFT_CODING_SPLICE_SITE, 
 		STOP_GAINED_FRAMESHIFT_CODING_SPLICE_SITE, NON_SYNONYMOUS_CODING_SPLICE_SITE,
 		SPLICE_SITE_SYNONYMOUS_CODING, SPLICE_SITE_5PRIME_UTR, SPLICE_SITE_3PRIME_UTR, 
-		ESSENTIAL_SPLICE_SITE_INTRONIC, SPLICE_SITE_INTRONIC, WITHIN_NON_CODING_GENE,
+		ESSENTIAL_SPLICE_SITE_INTRONIC, SPLICE_SITE_INTRONIC, WITHIN_NON_CODING_GENE, 
+		INTRONIC_NMD_TRANSCRIPT, NONE,
 	}
 
 	public SNPTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler) {
@@ -135,12 +138,10 @@ public class SNPTrack extends Track {
 
 	            } else {
 	            	//frameshift
-            		if (allele.matches("[ACGT]/[ACGT]/-") || 
-	            			allele.matches("[ACGT]/-") || allele.matches("[ACGT]/-/[ACGT]")) {
+            		if (allele.matches("[ACGT]*/[ACGT]*/-*") || 
+	            			allele.matches("[ACGT]*/-*") || allele.matches("[ACGT]*/-/[ACGT]*")) {
 	            		drawables.add(new RectDrawable((int)position, 1, width, getHeight(), 
-	            				colors[getColorNumber("FRAMESHIFT_CODING")], 
-	            				colors[getColorNumber("FRAMESHIFT_CODING")]));
-	            		
+	            				deletion,deletion ));
 	            	} else if (allele.matches("[A-Z]/A")) {
 		            	drawables.add(new RectDrawable((int)position, 1, width, getHeight(), a, a));
 		            } else if (allele.matches("[A-Z]/C")) {
