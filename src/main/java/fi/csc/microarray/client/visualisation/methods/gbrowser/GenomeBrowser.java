@@ -593,7 +593,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 //										genome, AnnotationContents.Content.GENES).file,
 //										new SNPParser())
 										new ChunkDataSource(new File("/home/zukauska/" +
-										"chipster-share/ngs/SNP_annotations_test/martquery_0921112736_856.txt"), new SNPParser())
+										"chipster-share/ngs/SNP_annotations_test/chromosome12_mart_export.txt.sorted"), new SNPParser())
 										);
 						track.setTrackGroup(geneGroup);
 						break;

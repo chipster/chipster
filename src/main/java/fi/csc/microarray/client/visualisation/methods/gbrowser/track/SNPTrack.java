@@ -28,7 +28,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  * in the consequence to transcript way the color is get by simple prioritization
  * mechanizm. There is array of colors, which are ordered by importance and
  * consequences enumeration, which are also ordered by importance, and particular
- * color refer to particular consequence name.
+ * color refer to particular consequence name. If consiquence name number is greater than
+ * maxColorIndex, then 'default' gray color is defined
  * 
  * If importance sequence is changed, so the colors array must be changed accordingly
  * 
@@ -58,7 +59,7 @@ public class SNPTrack extends Track {
 			new Color(190, 190, 190, 128),//gray
 	};
 	
-	private int lastColorIndex = colors.length-1;
+	private int maxColorIndex = colors.length-1;
 	
 	private int lastConsequenceNumber = -1;
 	
@@ -110,21 +111,32 @@ public class SNPTrack extends Track {
 	            if (changeView) {
 	            	String consequence = (String)value.values.get(ColumnType.CONSEQUENCE_TO_TRANSCRIPT);
 	            	
-        			int now = ConsequenceName.valueOf(consequence).ordinal();
+        			int now;
+					try {
+						now = ConsequenceName.valueOf(consequence).ordinal();
+					} catch (Exception e) {
+						//if it's a consequence we don't know about
+						now = ConsequenceName.NONE.ordinal();
+					}
+        			if (lastPosition != position) {
+        				drawables.add(new RectDrawable((int)position, 1, 
+	            				width, getHeight(), colors[(now > maxColorIndex) ? maxColorIndex : now],
+	            				colors[(now > maxColorIndex) ? maxColorIndex : now]));
+        			}
 	            	if (lastConsequenceNumber < now) {
 	            		drawables.add(new RectDrawable((int)position, 1, 
-	            				width, getHeight(), colors[getColorNumber(consequence)],
-	            				colors[getColorNumber(consequence)]));
+	            				width, getHeight(), colors[(now > maxColorIndex) ? maxColorIndex : now],
+	            				colors[(now > maxColorIndex) ? maxColorIndex : now]));
 	            	} else {
 	            		drawables.add(new RectDrawable((int)position, 1, 
-	            				width, getHeight(), colors[getColorNumber(consequence)],
-	            				colors[getColorNumber(consequence)]));
+	            				width, getHeight(), colors[(lastConsequenceNumber > maxColorIndex) ? maxColorIndex : lastConsequenceNumber],
+	            				colors[(lastConsequenceNumber > maxColorIndex) ? maxColorIndex : lastConsequenceNumber]));
 	            	}
-	            		
+
 	            } else {
 	            	//frameshift
-            		if (allele.matches("[A-Z]/[A-Z]/-") || 
-	            			allele.matches("[A-Z]/-") || allele.matches("[A-Z]/-/[A-Z]")) {
+            		if (allele.matches("[ACGT]/[ACGT]/-") || 
+	            			allele.matches("[ACGT]/-") || allele.matches("[ACGT]/-/[ACGT]")) {
 	            		drawables.add(new RectDrawable((int)position, 1, width, getHeight(), 
 	            				colors[getColorNumber("FRAMESHIFT_CODING")], 
 	            				colors[getColorNumber("FRAMESHIFT_CODING")]));
@@ -142,39 +154,25 @@ public class SNPTrack extends Track {
 	            lastPosition = position;
 			}
 		}
-		
+
 		return drawables;
 	}
-	
-	private int getColorNumber(Color co) {
-		int index = -1;
-		for (Color c : colors) {
-			index++;
-			if (c.equals(co)) {
-				break;
-			}
-		}
-		if(index == -1) {
-			index = lastColorIndex;
-		}
-		return index;
-	}
-	
+
 	private int getColorNumber(String cn) {
 		int index = ConsequenceName.valueOf(cn).ordinal();
-		if (index > lastColorIndex) {
-			index = lastColorIndex;
+		if (index > maxColorIndex) {
+			index = maxColorIndex;
 		}
 		return index;
 	}
-	
+
 	@Override
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
 		if (areaResult.content.values.get(ColumnType.STRAND) == getStrand()) {
 			values.add(areaResult.content);
 		}
 	}
-	
+
 	@Override
 	public Map<DataSource, Set<ColumnType>> requestedData() {
 		HashMap<DataSource, Set<ColumnType>> datas = new
@@ -186,7 +184,7 @@ public class SNPTrack extends Track {
                 ColumnType.ALLELE})));
 		return datas;
 	}
-	
+
 	@Override
 	public boolean isConcised() {
 		return false;
@@ -196,7 +194,7 @@ public class SNPTrack extends Track {
 	public boolean isStretchable() {
 		return isVisible();
 	}
-	
+
 	@Override
     public Integer getHeight() {
         if (isVisible()) {
@@ -205,7 +203,7 @@ public class SNPTrack extends Track {
             return 0;
         }
     }
-	
+
 	public void changeSNPView(Class<? extends AreaRequestHandler> handler) {
         // turn on highlighting mode
         changeView = true;
@@ -214,15 +212,15 @@ public class SNPTrack extends Track {
         view.getQueueManager().createQueue(file, handler);
         view.getQueueManager().addResultListener(file, this);
     }
-    
+
     public void returnSNPView() {
         // turn off highlighting mode
         changeView = false;
     }
-    
+
     @Override
     public String getName() {
     	return "SNPTrack";
     }
-	
+
 }

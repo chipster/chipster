@@ -103,7 +103,7 @@ public class SNPParser extends TsvParser{
 			ColumnDefinition fieldDef = getFileDefinition().getFieldDef(col);
 
 			if (col == ColumnType.STRAND) {
-				return string.equals("2") || string.equalsIgnoreCase("r") 
+				return string.equals("-1") || string.equalsIgnoreCase("r") 
 				|| string.equals("-") ? Strand.REVERSED	: Strand.FORWARD;
 
 			} else if (col == ColumnType.CHROMOSOME) { 
@@ -126,7 +126,7 @@ public class SNPParser extends TsvParser{
 				} else if (string.startsWith("NON_SYNONYMOUS_CODING,SPLICE_SITE")) {
 					return "NON_SYNONYMOUS_CODING_SPLICE_SITE";
 				} else if (string.startsWith("SPLICE_SITE,SYNONYMOUS_CODING")) {
-					return "SPLICE_SITE_SYNOYMOUS_CODING";
+					return "SPLICE_SITE_SYNONYMOUS_CODING";
 				} else if (string.startsWith("SPLICE_SITE,5PRIME_UTR")) {
 					return "SPLICE_SITE_5PRIME_UTR";
 				} else if (string.startsWith("SPLICE_SITE,3PRIME_UTR")) {
