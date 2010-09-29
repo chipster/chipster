@@ -140,17 +140,20 @@ public class SNPTrack extends Track {
 	            	}
 
 	            } else {
-	            	if (allele.matches("[ACGT]/A")) {
-		            	drawables.add(new RectDrawable((int)position, 1, width, getHeight(), a, a));
-		            } else if (allele.matches("[ACGT]/C")) {
-		            	drawables.add(new RectDrawable((int)position, 1, width, getHeight(), c, c));
-		            } else if (allele.matches("[ACGT]/G")) {
-		            	drawables.add(new RectDrawable((int)position, 1, width, getHeight(), g, g));
-		            } else if (allele.matches("[ACGT]/T")) {
-		            	drawables.add(new RectDrawable((int)position, 1, width, getHeight(), t, t));
-		            } else {
-		            	drawables.add(new RectDrawable((int)position, 1, width, getHeight(), forExceptions, forExceptions));
+	            	if (lastPosition != position) {
+	            		if (allele.matches("[ACGT]/A")) {
+			            	drawables.add(new RectDrawable((int)position, 1, width, getHeight(), a, a));
+			            } else if (allele.matches("[ACGT]/C")) {
+			            	drawables.add(new RectDrawable((int)position, 1, width, getHeight(), c, c));
+			            } else if (allele.matches("[ACGT]/G")) {
+			            	drawables.add(new RectDrawable((int)position, 1, width, getHeight(), g, g));
+			            } else if (allele.matches("[ACGT]/T")) {
+			            	drawables.add(new RectDrawable((int)position, 1, width, getHeight(), t, t));
+			            } else {
+			            	drawables.add(new RectDrawable((int)position, 1, width, getHeight(), forExceptions, forExceptions));
+		            	}	            		
 	            	}
+	            	
 	            }
 	            lastPosition = position;
 	            lastConsequenceNumber = ConsequenceName.valueOf(
