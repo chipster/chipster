@@ -132,9 +132,4 @@ public class TrackFactory {
 		dataView.addTrack(new TitleTrack(dataView, title, Color.black));
 	}
 	
-	public static void addSNPTrack(GenomePlot genomePlot, DataSource file) {
-		SNPTrack snpTrack = new SNPTrack(genomePlot.getDataView(), file, ChunkTreeHandlerThread.class);
-		addTrack(genomePlot.getDataView(), snpTrack);
-	}
-	
 }

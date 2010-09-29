@@ -39,16 +39,16 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 
 public class SNPTrack extends Track {
 	
-	// prioritize (1. stop, 2. frameshift, synonymous, non_synonymous)
-	
 	private static int width = 8;
 	Collection<RegionContent> values = new LinkedList<RegionContent>();
 	Long lastPosition;
-	Color a = new Color(64, 192, 64, 128);
-	Color c = new Color(64, 64, 192, 128);
-	Color g = new Color(128, 128, 128, 128);
-	Color t = new Color(192, 64, 64, 128);
-	Color deletion = new Color(0, 0, 0, 128);//black
+	long maxBpLength;
+	long minBpLength;
+	Color a = new Color(64, 192, 64, 128); //green
+	Color c = new Color(64, 64, 192, 128); //blue
+	Color g = new Color(128, 128, 128, 128); // gray
+	Color t = new Color(192, 64, 64, 128); //red
+	Color forExceptions = new Color(139, 69, 19, 128);//brown
 	
 	//ordered by prioritiazation
 	private Color[] colors = new Color[] {
@@ -80,8 +80,11 @@ public class SNPTrack extends Track {
 		INTRONIC_NMD_TRANSCRIPT, NONE,
 	}
 
-	public SNPTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler) {
+	public SNPTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
+			long minBpLength, long maxBpLength) {
 		super(view, file, handler);
+		this.minBpLength = minBpLength;
+		this.maxBpLength = maxBpLength;
 	}
 
 	@Override
@@ -137,34 +140,25 @@ public class SNPTrack extends Track {
 	            	}
 
 	            } else {
-	            	//frameshift
-            		if (allele.matches("[ACGT]*/[ACGT]*/-*") || 
-	            			allele.matches("[ACGT]*/-*") || allele.matches("[ACGT]*/-/[ACGT]*")) {
-	            		drawables.add(new RectDrawable((int)position, 1, width, getHeight(), 
-	            				deletion,deletion ));
-	            	} else if (allele.matches("[A-Z]/A")) {
+	            	if (allele.matches("[ACGT]/A")) {
 		            	drawables.add(new RectDrawable((int)position, 1, width, getHeight(), a, a));
-		            } else if (allele.matches("[A-Z]/C")) {
+		            } else if (allele.matches("[ACGT]/C")) {
 		            	drawables.add(new RectDrawable((int)position, 1, width, getHeight(), c, c));
-		            } else if (allele.matches("[A-Z]/G")) {
+		            } else if (allele.matches("[ACGT]/G")) {
 		            	drawables.add(new RectDrawable((int)position, 1, width, getHeight(), g, g));
-		            } else if (allele.matches("[A-Z]/T")) {
+		            } else if (allele.matches("[ACGT]/T")) {
 		            	drawables.add(new RectDrawable((int)position, 1, width, getHeight(), t, t));
-		            }
+		            } else {
+		            	drawables.add(new RectDrawable((int)position, 1, width, getHeight(), forExceptions, forExceptions));
+	            	}
 	            }
 	            lastPosition = position;
+	            lastConsequenceNumber = ConsequenceName.valueOf(
+						(String)value.values.get(ColumnType.CONSEQUENCE_TO_TRANSCRIPT)).ordinal();
 			}
 		}
 
 		return drawables;
-	}
-
-	private int getColorNumber(String cn) {
-		int index = ConsequenceName.valueOf(cn).ordinal();
-		if (index > maxColorIndex) {
-			index = maxColorIndex;
-		}
-		return index;
 	}
 
 	@Override
@@ -222,6 +216,17 @@ public class SNPTrack extends Track {
     @Override
     public String getName() {
     	return "SNPTrack";
+    }
+    
+    @Override
+    public boolean isVisible() {
+    	if (super.isVisible() &&
+                getView().getBpRegion().getLength() > minBpLength &&
+                getView().getBpRegion().getLength() <= maxBpLength) {
+    		return true;
+    	} else {
+    		return false;
+    	}
     }
 
 }

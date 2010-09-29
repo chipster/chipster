@@ -22,6 +22,7 @@ public class GeneTrackGroup extends TrackGroup{
 	
 	private static final int CHANGE_TRACKS_ZOOM_THRESHOLD2 = 10000000;
 	private static final int CHANGE_TRACKS_ZOOM_THRESHOLD1 = 100000;
+	int SHOW_SNP_AT = 800;
 	
 	protected TranscriptTrack transcript;
 	protected IntensityTrack annotationOverview;
@@ -49,10 +50,10 @@ public class GeneTrackGroup extends TrackGroup{
 		        ChunkTreeHandlerThread.class, PartColor.CDS.c, CHANGE_TRACKS_ZOOM_THRESHOLD1, CHANGE_TRACKS_ZOOM_THRESHOLD2);
 		annotation.setStrand(Strand.FORWARD);
 		
-		snpTrack = new SNPTrack(dataView, snpFile, ChunkTreeHandlerThread.class);
+		snpTrack = new SNPTrack(dataView, snpFile, ChunkTreeHandlerThread.class, 0, SHOW_SNP_AT);
 		snpTrack.setStrand(Strand.FORWARD);
 		
-		snpTrackReversed = new SNPTrack(dataView, snpFile, ChunkTreeHandlerThread.class);
+		snpTrackReversed = new SNPTrack(dataView, snpFile, ChunkTreeHandlerThread.class, 0, SHOW_SNP_AT);
 		snpTrackReversed.setStrand(Strand.REVERSED);
 		
 		repeatMasker = new RepeatMaskerTrack(dataView, refSource, ChunkTreeHandlerThread.class, CHANGE_TRACKS_ZOOM_THRESHOLD1);
