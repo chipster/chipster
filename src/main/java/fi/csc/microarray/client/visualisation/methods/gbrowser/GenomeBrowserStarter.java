@@ -51,7 +51,7 @@ public class GenomeBrowserStarter {
 		URL_ROOT = new File(annotationPath, "/ngs/annotations");
 		
 		WIG_DATA_FILE = new File(annotationPath, "/ngs/wig/GSM529979_chr1.wig.out");//variableStep - GSM545202.wig; fixedStep - GSM529979.wig
-		SNP_DATA_FILE = new File(annotationPath, "/ngs/SNP_annotations_test/martquery_0921112736_856.txt");
+		SNP_DATA_FILE = new File(annotationPath, "/ngs/SNP_annotations_test/chromosome12_mart_export.txt.sorted");
 	}
 
 	public static void main(String[] args) throws IOException {

@@ -589,11 +589,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 								createAnnotationDataSource(annotationContents.getRow(
 										genome, AnnotationContents.Content.REFERENCE).file,
 										new SequenceParser()),
-//								createAnnotationDataSource(annotationContents.getRow(
-//										genome, AnnotationContents.Content.GENES).file,
-//										new SNPParser())
-										new ChunkDataSource(new File("/home/zukauska/" +
-										"chipster-share/ngs/SNP_annotations_test/chromosome12_mart_export.txt.sorted"), new SNPParser())
+								createAnnotationDataSource(annotationContents.getRow(
+										genome, AnnotationContents.Content.SNP).file,
+										new SNPParser())
 										);
 						track.setTrackGroup(geneGroup);
 						break;
