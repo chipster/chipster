@@ -46,7 +46,7 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
         super(view);
         
         Color histogramColor = Color.gray;
-        Color fontColor = Color.black;
+//        Color fontColor = Color.black;
         
         // Title
         titleTrack = new TitleTrack(view, filename, Color.black);

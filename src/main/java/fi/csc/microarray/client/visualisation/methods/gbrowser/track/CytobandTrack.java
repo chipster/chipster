@@ -44,8 +44,10 @@ public class CytobandTrack extends Track {
 	enum Band {
 
 		WHITE("gneg", Color.white), 
-		LIGHT_GRAY("gpos25", Color.lightGray), 
-		MID_GRAY("gpos50", Color.gray), 
+		LIGHT_GRAY("gpos25", Color.lightGray),
+		MOUSE_LIGHT_GRAY("gpos33", Color.lightGray),
+		MID_GRAY("gpos50", Color.gray),
+		MOUSE_DARK_GRAY("gpos66", Color.darkGray),
 		DARK_GRAY("gpos75", Color.darkGray), 
 		BLACK("gpos100", Color.black), 
 		GAP("acen", null), 

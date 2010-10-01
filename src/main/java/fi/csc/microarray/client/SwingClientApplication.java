@@ -300,7 +300,12 @@ public class SwingClientApplication extends ClientApplication {
 		leftSideContentPane.add(detailsFrame, BorderLayout.SOUTH);
 
 		rightSideViewChanger = new JPanel(new BorderLayout());
-		rightSideViewChanger.add(rightSplit, BorderLayout.CENTER);
+
+		if (this.isStandalone()) {
+			rightSideViewChanger.add(visualisationArea, BorderLayout.CENTER);
+		} else {	
+			rightSideViewChanger.add(rightSplit, BorderLayout.CENTER);
+		}
 		rightSideViewChanger.setBorder(BorderFactory.createEmptyBorder());
 
 		// construct the whole main content pane
@@ -1513,7 +1518,7 @@ public class SwingClientApplication extends ClientApplication {
 		importExportFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		importExportFileChooser.setAcceptAllFileFilterUsed(true);
 		
-		for (Module module : Session.getSession().getModules().getModules()) {
+		for (Module module : Session.getSession().getModules()) {
 			for (FileFilter filter : module.getImportFileFilter()) {
 				importExportFileChooser.addChoosableFileFilter(filter);
 				importExportFileChooser.setFileFilter(filter);

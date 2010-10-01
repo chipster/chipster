@@ -15,10 +15,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +51,6 @@ import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
-import fi.csc.microarray.client.visualisation.methods.PhenodataEditor;
 import fi.csc.microarray.client.workflow.WorkflowManager;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -62,15 +59,13 @@ import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.features.table.EditableTable;
-import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.SourceMessageListener;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.messaging.auth.ClientLoginListener;
-import fi.csc.microarray.module.Modules;
+import fi.csc.microarray.module.Module;
+import fi.csc.microarray.module.ModuleManager;
 import fi.csc.microarray.util.Files;
-import fi.csc.microarray.util.Strings;
 
 
 /**
@@ -195,8 +190,8 @@ public abstract class ClientApplication {
 		try {
 
 			// initialise modules
-			Modules modules = new Modules(requestedModule);
-			Session.getSession().setModules(modules);
+			ModuleManager modules = new ModuleManager(requestedModule);
+			Session.getSession().setModuleManager(modules);
 
 			// initialise workflows
 			this.workflowManager = new WorkflowManager(this);
@@ -216,15 +211,15 @@ public abstract class ClientApplication {
 			serviceAccessor.initialise(manager, getAuthenticationRequestListener());
 			this.taskExecutor = serviceAccessor.getTaskExecutor();
 			Session.getSession().setServiceAccessor(serviceAccessor);
-			reportInitialisation(" connected", false);
+			reportInitialisation(" ok", false);
 
 			// check services
 			reportInitialisation("Checking remote services...", true);
-			String status = serviceAccessor.checkRemoveServices();
+			String status = serviceAccessor.checkRemoteServices();
 			if (!ServiceAccessor.ALL_SERVICES_OK.equals(status)) {
 				throw new Exception(status);
 			}
-			reportInitialisation(" all are available", false);
+			reportInitialisation(" ok", false);
 			
 			// Fetch descriptions from compute server
 	        reportInitialisation("Fetching analysis descriptions...", true);
@@ -239,7 +234,7 @@ public abstract class ClientApplication {
 				}
 			}
 			logger.debug("created " + visibleCategories.size() + " operation categories");
-			reportInitialisation(" received and processed", false);
+			reportInitialisation(" ok", false);
 
 			// load internal operation definitions
 			internalOperationDefinitions = new HashMap<String, OperationDefinition>();
@@ -419,7 +414,7 @@ public abstract class ClientApplication {
 	 * monitors the execution. This creates a new dataset out of the
 	 * results and inserts it to the data set views.
 	 * 
-	 * @param job The finished job.
+	 * @param task The finished task.
 	 * @param oper The finished operation, which in fact is the GUI's
 	 * 			   abstraction of the concrete executed job. Operation
 	 * 			   has a decisively longer life span than its
@@ -427,32 +422,30 @@ public abstract class ClientApplication {
 	 * @throws MicroarrayException 
 	 * @throws IOException 
 	 */
-	public void onFinishedTask(Task job, Operation oper) throws MicroarrayException, IOException {
+	public void onFinishedTask(Task task, Operation oper) throws MicroarrayException, IOException {
 		
 		LinkedList<DataBean> newBeans = new LinkedList<DataBean>();
 		try {
 
-			logger.debug("operation finished, state is " + job.getState());
+			logger.debug("operation finished, state is " + task.getState());
 			
-			// for canceled tasks, do nothing
-			if (job.getState() == State.CANCELLED) {
-
-			}
-			// for unsuccessful tasks, report failing
-			else if (!job.getState().finishedSuccesfully()) { 
-				reportTaskError(job);
-			}
-
-			// for completed tasks, create datasets etc.
-			else {
-
+			if (task.getState() == State.CANCELLED) {
+				// task cancelled, do nothing
+				
+			} else if (!task.getState().finishedSuccesfully()) {
+				// task unsuccessful, report it
+				reportTaskError(task);
+				
+			} else {
+				// task completed, create datasets etc.
 				newBeans = new LinkedList<DataBean>();
 
 				// read operated datas
+				Module primaryModule = Session.getSession().getPrimaryModule();
 				LinkedList<DataBean> sources = new LinkedList<DataBean>();
 				for (DataBinding binding : oper.getBindings()) {
-					// remove derivation links that start from phenodata
-					if (!binding.getData().queryFeatures("/phenodata").exists()) {
+					// do not create derivation links for metadata datasets
+					if (!primaryModule.isMetadata(binding.getData())) {
 						sources.add(binding.getData());
 
 					}
@@ -469,106 +462,54 @@ public abstract class ClientApplication {
 				}
 
 
-				DataBean phenodata = null;
+				// read outputs and create derivational links for non-metadata beans
+				DataBean metadataOutput = null;
+				for (String outputName : task.outputNames()) {
 
-				for (String outputName : job.outputNames()) {
+					DataBean output = task.getOutput(outputName);
+					output.setOperation(oper);
 
-					DataBean result = job.getOutput(outputName);
-					result.setOperation(oper);
-
-					// check if this is phenodata
-					if (result.queryFeatures("/phenodata").exists()) {
-						phenodata = job.getOutput(outputName);					
+					// check if this is metadata
+					if (primaryModule.isMetadata(output)) {
+						metadataOutput = output;				
 					}
 
 					// set sources
 					for (DataBean source : sources) {
-						result.addLink(Link.DERIVATION, source);
+						output.addLink(Link.DERIVATION, source);
 					}
 
 					// initialise cache
 					try {
-						result.initialiseStreamStartCache();
+						output.initialiseStreamStartCache();
 					} catch (IOException e) {
 						throw new MicroarrayException(e);
 					}
 
 					// connect data (events are generated and it becomes visible)
-					folder.addChild(result);
+					folder.addChild(output);
 
-					newBeans.add(result);
+					newBeans.add(output);
 				}
 
-				if (phenodata != null) {
-					// link phenodata to other datasets
+				// link metadata output to other outputs
+				if (metadataOutput != null) {
 					for (DataBean bean : newBeans) {
-						if (bean != phenodata) {
-							phenodata.addLink(Link.ANNOTATION, bean);
+						if (bean != metadataOutput) {
+							metadataOutput.addLink(Link.ANNOTATION, bean);
 						}
 					}
 
-					// if original names are not already contained in the phenodata 
-					if (!phenodata.queryFeatures("/column/" + PhenodataEditor.PHENODATA_NAME_COLUMN).exists()) {
-						// augment phenodata with original dataset names (using parameter bindings)
-						HashSet<String> insertedNames = new HashSet<String>();
-						TableBeanEditor tableEditor = new TableBeanEditor(phenodata);
-						EditableTable editableTable = tableEditor.getEditable();
-						LinkedList<String> newColumn = new LinkedList<String>();
-						newColumn.addAll(Arrays.asList(Strings.repeatToArray("", editableTable.getRowCount())));
-						editableTable.addColumn(PhenodataEditor.PHENODATA_NAME_COLUMN, 1, newColumn); // add after sample column 
-						for (int ri = 0; ri < editableTable.getRowCount(); ri++) {
-							String sample = editableTable.getValue(PhenodataEditor.PHENODATA_SAMPLE_COLUMN, ri);
-							boolean correctRowFound = false;
-							String originalName = null;
-							for (DataBinding binding : oper.getBindings()) {
-								if (binding.getName().equals(sample)) {
-									originalName = binding.getData().getName();
-									correctRowFound = true;
-									break;
-								}
-							}
-							if (!correctRowFound) {
-								originalName = sample; // just duplicate the sample name if proper is not found
-							}
-
-							// check that original names are unique
-							if (insertedNames.contains(originalName)) {
-								final String separator = "/";
-								int i = 2;
-								while (insertedNames.contains(originalName + separator + i)) {
-									i++;
-								}
-								originalName = originalName + separator + i;
-							}
-
-							editableTable.setValue(PhenodataEditor.PHENODATA_NAME_COLUMN, ri, originalName);
-							insertedNames.add(originalName);
-
-						}
-						tableEditor.write();
-					}
-
-					// if chip descriptions (visualisation view names) aren't there already 
-					if (!phenodata.queryFeatures("/column/" + PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN).exists()) {
-						// copy original dataset names
-						TableBeanEditor tableEditor = new TableBeanEditor(phenodata);
-						EditableTable editableTable = tableEditor.getEditable();
-						LinkedList<String> newColumn = new LinkedList<String>();
-						newColumn.addAll(Arrays.asList(Strings.repeatToArray("", editableTable.getRowCount())));
-						editableTable.addColumn(PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN, newColumn); 
-						for (int ri = 0; ri < editableTable.getRowCount(); ri++) {
-							String sample = editableTable.getValue(PhenodataEditor.PHENODATA_NAME_COLUMN, ri);										
-							editableTable.setValue(PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN, ri, sample);
-						}
-						tableEditor.write();
-					}				
+					primaryModule.postProcessOutputMetadata(oper, metadataOutput);				
 				}
 
 			}			
 	
 		} finally {
+			
+			// notify result listener
 			if (oper.getResultListener() != null) {
-				if (job.getState().finishedSuccesfully()) {
+				if (task.getState().finishedSuccesfully()) {
 					oper.getResultListener().resultData(newBeans);
 				} else {
 					oper.getResultListener().noResults();
@@ -718,6 +659,10 @@ public abstract class ClientApplication {
 		});
 
 		return authenticator;
+	}
+	
+	public boolean isStandalone() {
+		return this.isStandalone;
 	}
 	
 }

@@ -285,4 +285,9 @@ public class AcidProfile extends Track {
     public boolean canExpandDrawables() {
         return true;
     }
+	
+	@Override
+	public String getName() {
+		return "AcidProfile";
+	}
 }

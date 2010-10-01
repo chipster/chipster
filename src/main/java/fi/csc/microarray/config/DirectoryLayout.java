@@ -205,7 +205,7 @@ public class DirectoryLayout {
 			throw new UnsupportedOperationException();
 		}
 	}
-
+	
 	public File getJobsDataDirBase(String id) throws IOException, IllegalConfigurationException {
 		if (type == Type.SERVER) {
 			File jobsDataDir = new File(getBaseDir(), configuration.getString("comp", "work-dir"));
@@ -264,7 +264,7 @@ public class DirectoryLayout {
 		
 		// if it did not work out, fall back to *nix mode 
 		if (dir == null) {
-			dir = new File(System.getProperty("user.home"), ".chipster");
+			dir = new File(System.getProperty("user.home"), "chipster-share/ngs");
 		}
 		
 		return check(dir);
@@ -284,7 +284,6 @@ public class DirectoryLayout {
 			if (debugRoot.exists()) {
 				baseDir = debugRoot;
 			}
-			
 			return baseDir;
 		}
 	}
