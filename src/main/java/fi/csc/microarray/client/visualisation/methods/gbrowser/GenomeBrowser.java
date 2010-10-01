@@ -573,7 +573,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 					switch (track.type) {
 					case CYTOBANDS:
 						TrackFactory.addCytobandTracks(plot,
-						        createAnnotationDataSource("Homo_sapiens.GRCh37.59_karyotype.tsv", new CytobandParser()));
 								createAnnotationDataSource(
 										annotationContents.getRow(
 												genome, AnnotationContents.Content.CYTOBANDS).file,
