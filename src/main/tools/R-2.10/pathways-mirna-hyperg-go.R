@@ -1,200 +1,120 @@
 # ANALYSIS Pathways/"GO enrichment for miRNA targets" (Performs a statistical test for enrichments of GO terms in the predicted gene targets of a list of miRNA ID:s.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT hyperg_go.tsv
-# PARAMETER ontology [biological_process, molecular_function, cellular_component] DEFAULT biological_process (the ontology to be analyzed)
-# PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value threshold)
-# PARAMETER p.adjust.method [none, BH, BY] DEFAULT BH (method for adjusting the p-value in order to account for multiple testing)
-# PARAMETER minimum.population INTEGER FROM 1 TO 1000000 DEFAULT 5 (minimum number of genes in in the reference list that map to a pathway)
-# PARAMETER species [human, mouse, rat] DEFAULT human (the species for which the miRNA:s have been analyzed)
-
-# POSSIBLE summary.feature [gene, transcript] DEFAULT gene (should the targets for the miRNA:s be transcripts or genes?)
-
+# INPUT GENE_EXPRS normalized.tsv
+# OUTPUT hyperg_go.tsv, hyperg_go.html
+# PARAMETER ontology [all, biological_process, molecular_function, cellular_component] DEFAULT biological_process (The ontology to be analyzed.)
+# PARAMETER p.value.threshold DECIMAL DEFAULT 0.05 (P-value threshold.)
+# PARAMETER minimum.population INTEGER FROM 1 TO 1000000 DEFAULT 2 (Minimum number of genes required to be in a pathway.)
+# PARAMETER conditional.testing [yes, no] (Conditional testing means that when a significant GO term is found, i.e. p-value is smaller than the specified thershold, that GO term is removed when testing the significance of its parent.)
+# PARAMETER p.adjust.method [none, BH, BY] DEFAULT none (Method for adjusting the p-value in order to account for multiple testing. Because of the structure of GO, multiple testing is theoretically problematic, and using conditional.testing is a generally the preferred method. The correction can only be applied when no conditional.testing is performed.)
+# PARAMETER over.or.under.representation [over, under] DEFAULT over (Should over or under-represented classes be seeked?)
+# PARAMETER species [human, mouse, rat] DEFAULT human (The species for which the miRNA:s have been analyzed.)
 
 # miRNA hypergeometric test for GO
 # MG, 4.11.2009
+# IS, 16.9.2010 rewritten to use intersection of pictar/targetscan for predicted targets, and GOstats for hypergeometric testing
 
-# force "transcript" mode, since "gene" mode is not currently nicely handled
-summary.feature <- "transcript"
+# load packages
+library(RmiR.Hs.miRNA) # what about other species ???
+library(GOstats)
+library(R2HTML)
 
-# Reads the data
-dat<-read.table("normalized.tsv", sep="\t", header=T)
+# read input
+dat <- read.table('normalized.tsv', header=TRUE, sep='\t', row.names=1)
 
-# Extracts the identifiers
-id<-as.character(rownames(dat))
+# extracts identifiers
+mirna_ids <- as.character(rownames(dat))
 
-# Translate parameter settings for biomaRt queries
-if (species=="human") {
-        dataset <- "hsapiens_gene_ensembl"
-}
-if (species=="mouse") {
-        dataset <- "mmusculus_gene_ensembl"
-}
-if (species=="rat") {
-        dataset <- "rnorvegicus_gene_ensembl"
-}
+# load target predictions from pictar and targescan, intersect to build list of reference genes
+pictar <- dbReadTable(RmiR.Hs.miRNA_dbconn(), 'pictar')[,1:2]
+targetscan <- dbReadTable(RmiR.Hs.miRNA_dbconn(), 'targetscan')[,1:2]
+reference.genes <- unique(intersect(pictar$gene_id, targetscan$gene_id))
 
-# Read in the CORNA library, which contains the functions to map miRNA:s to targets
-# and performs hypergeometric test for enrichment of GO terms
-library(CORNA)
+# pick targets of the specified miRNAs
+pictar <- pictar[pictar[,1] %in% mirna_ids,]
+targetscan <- targetscan[targetscan[,1] %in% mirna_ids,]
+selected.genes <- unique(intersect(pictar$gene_id, targetscan$gene_id))
 
-# Download the mapping of miRNA to its targets from Sanger institute
-# Currently disabled becuse of unstable web-services
-#if (species=="human") {
-#	targets <- miRBase2df.fun(url="ftp://ftp.sanger.ac.uk/pub/mirbase/targets/v5/arch.v5.txt.homo_sapiens.zip")
-#}
-#if (species=="mouse") {
-#	targets <- miRBase2df.fun(url="ftp://ftp.sanger.ac.uk/pub/mirbase/targets/v5/arch.v5.txt.mus_musculus.zip")
-#}
-#if (species=="rat") {
-#	targets <- miRBase2df.fun(url="ftp://ftp.sanger.ac.uk/pub/mirbase/targets/v5/arch.v5.txt.rattus_norvegicus.zip")
-#}
-
-# Download the mapping of miRNA to its targets from locally installed files
-path.mappings <- c(file.path(chipster.tools.path, "miRNA_mappings"))
-if (species=="human") {
-        targets <- read.table(file.path(path.mappings, "mirna_mappings_hsapiens.txt"), sep="\t")
-}
-if (species=="mouse") {
-        targets <- read.table(file.path(path.mappings, "mirna_mappings_mmusculus.txt"), sep="\t")
-}
-if (species=="rat") {
-        targets <- read.table(file.path(path.mappings, "mirna_mappings_rnorvegicus.txt"), sep="\t")
+# check for conditional testing and multiple testing correction
+if (conditional.testing == 'no') {
+	conditional <- FALSE
+} else {
+	if (p.adjust.method != 'none')
+		stop('CHIPSTER-NOTE: Multiple testing correction can be applied only when performing unconditional testing. Please set conditional.testing to no, or p.adjust.method to none. Usually the preferred method is to use conditional testing.')
+	conditional <- TRUE
 }
 
-# Fetch the predicted targets for the list of miRNA:s
-targets.list <- corna.map.fun(targets, id, "mir", "tran", all=TRUE)
-
-# Get links between targets and GO terms from BioMart:
-# Currently disabled to avoid connection problems to BiomaRT database
-#if (summary.feature=="gene") {
-#       tran2gomf  <- BioMart2df.fun(biomart="ensembl",  
-#                       dataset=dataset,
-#                       col.old=c("ensembl_gene_id", "go_molecular_function_id"),
-#                       col.new=c("gene", "gomf"))
-#       tran2gobp  <- BioMart2df.fun(biomart="ensembl",  
-#                       dataset=dataset,
-#                       col.old=c("ensembl_gene_id", "go_biological_process_id"),
-#                       col.new=c("gene", "gobp"))
-#       tran2gocc  <- BioMart2df.fun(biomart="ensembl",  
-#                       dataset=dataset,
-#                       col.old=c("ensembl_gene_id", "go_cellular_component_id"),
-#                       col.new=c("gene", "gocc"))
-#}
-#if (summary.feature=="transcript") {
-#       tran2gomf  <- BioMart2df.fun(biomart="ensembl",  
-#                      dataset=dataset,
-#                       col.old=c("ensembl_transcript_id", "go_molecular_function_id"),
-#                       col.new=c("tran", "gomf"))
-#       tran2gobp  <- BioMart2df.fun(biomart="ensembl",  
-#                       dataset=dataset,
-#                       col.old=c("ensembl_transcript_id", "go_biological_process_id"),
-#                       col.new=c("tran", "gobp"))
-#       tran2gocc  <- BioMart2df.fun(biomart="ensembl",  
-#                       dataset=dataset,
-#                       col.old=c("ensembl_transcript_id", "go_cellular_component_id"),
-#                       col.new=c("tran", "gocc"))
-#}
-
-# Get links between targets and GO terms from locally installed files:
-# Can be enabled if there are problems with BiomaRt interface
-if (summary.feature=="gene" & species=="human") {
-        tran2gomf  <- read.table(file=file.path(path.mappings, "go_molecular_function_gene_hsapiens.txt"), sep="\t")
-        tran2gobp  <- read.table(file=file.path(path.mappings, "go_biological_process_gene_hsapiens.txt"), sep="\t")
-        tran2gocc  <- read.table(file=file.path(path.mappings, "go_cellular_component_gene_hsapiens.txt"), sep="\t")
-}
-if (summary.feature=="transcript" & species=="human") {
-        tran2gomf  <- read.table(file=file.path(path.mappings, "go_molecular_function_transcript_hsapiens.txt"), sep="\t")
-        tran2gobp  <- read.table(file=file.path(path.mappings, "go_biological_process_transcript_hsapiens.txt"), sep="\t")
-        tran2gocc  <- read.table(file=file.path(path.mappings, "go_cellular_component_transcript_hsapiens.txt"), sep="\t")
-}
-if (summary.feature=="gene" & species=="mouse") {
-        tran2gomf  <- read.table(file=file.path(path.mappings, "go_molecular_function_gene_mmusculus.txt"), sep="\t")
-        tran2gobp  <- read.table(file=file.path(path.mappings, "go_biological_process_gene_mmusculus.txt"), sep="\t")
-        tran2gocc  <- read.table(file=file.path(path.mappings, "go_cellular_component_gene_mmusculus.txt"), sep="\t")
-}
-if (summary.feature=="transcript" & species=="mouse") {
-        tran2gomf  <- read.table(file=file.path(path.mappings, "go_molecular_function_transcript_mmusculus.txt"), sep="\t")
-        tran2gobp  <- read.table(file=file.path(path.mappings, "go_biological_process_transcript_mmusculus.txt"), sep="\t")
-        tran2gocc  <- read.table(file=file.path(path.mappings, "go_cellular_component_transcript_mmusculus.txt"), sep="\t")
-}
-if (summary.feature=="gene" & species=="rat") {
-        tran2gomf  <- read.table(file=file.path(path.mappings, "go_molecular_function_gene_rnorvegicus.txt"), sep="\t")
-        tran2gobp  <- read.table(file=file.path(path.mappings, "go_biological_process_gene_rnorvegicus.txt"), sep="\t")
-        tran2gocc  <- read.table(file=file.path(path.mappings, "go_cellular_component_gene_rnorvegicus.txt"), sep="\t")
-}
-if (summary.feature=="transcript" & species=="rat") {
-        tran2gomf  <- read.table(file=file.path(path.mappings, "go_molecular_function_transcript_rnorvegicus.txt"), sep="\t")
-        tran2gobp  <- read.table(file=file.path(path.mappings, "go_biological_process_transcript_rnorvegicus.txt"), sep="\t")
-        tran2gocc  <- read.table(file=file.path(path.mappings, "go_cellular_component_transcript_rnorvegicus.txt"), sep="\t")
+# define annotation package
+if (species == 'rat') {
+	annotpkg <- 'org.Rn.eg.db'
+} else if (species == 'mouse') {
+	annotpkg <- 'org.Mm.eg.db'
+} else {
+	annotpkg <- 'org.Hs.eg.db'
 }
 
-# Fetch links between GO id and term from NCBI, disabled for now due to unstable connections to NCBI
-# Currently disabled to avoid connection problems to NCBI database
-#go2term <- GO2df.fun(url="ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2go.gz")
+# define the output variable
+output <- data.frame(total=integer(0), expected=numeric(0), observad=integer(0), p.value=numeric(0), description=character(0), ontology=character(0))
 
-# Fetch links between GO id and term from locally installed files
-go2term <- read.table(file=file.path(path.mappings, "go_id_to_go_term.txt"), sep="\t")
-
-# Define the reference list to compare against, i.e. all transcripts in tran2gomf
-if (summary.feature=="gene") {
-        reference.list.mf <- as.vector(unique(tran2gomf[, "gene"]))
-}
-if (summary.feature=="transcript") {
-        reference.list.mf <- as.vector(unique(tran2gomf[, "tran"]))
-}
-if (summary.feature=="gene") {
-        reference.list.bp <- as.vector(unique(tran2gobp[, "gene"]))
-}
-if (summary.feature=="transcript") {
-        reference.list.bp <- as.vector(unique(tran2gobp[, "tran"]))
-}
-if (summary.feature=="gene") {
-        reference.list.cc <- as.vector(unique(tran2gocc[, "gene"]))
-}
-if (summary.feature=="transcript") {
-        reference.list.cc <- as.vector(unique(tran2gocc[, "tran"]))
+if (ontology == 'biological_process' || ontology == 'all') {
+	params <- new('GOHyperGParams', geneIds=selected.genes, universeGeneIds=reference.genes, annotation=annotpkg, ontology='BP', pvalueCutoff=p.value.threshold, conditional=conditional, testDirection=over.or.under.representation)
+	go <- hyperGTest(params)
+	go.table <- summary(go, pvalue=2)
+	if (nrow(go.table)>0) {
+		go.table$Pvalue <- p.adjust(go.table$Pvalue, method=p.adjust.method)
+		go.table <- go.table[go.table$Pvalue <= p.value.threshold & go.table$Size >= minimum.population,]
+		if (nrow(go.table)>0) {
+			rownames(go.table) <- go.table[,1]
+			go.table <- go.table[,c(6, 4, 5, 2, 7)]
+			go.table$ontology <- 'biological process'
+			colnames(go.table) <- colnames(output)
+			output <- rbind(output, go.table)
+			go.table$description <- paste('<a href="http://amigo.geneontology.org/cgi-bin/amigo/term-details.cgi?term=', rownames(go.table), '">', go.table$description, '</a>', sep='')
+			HTML(go.table, file='hyperg_go.html', append=TRUE, Border=0, innerBorder=1)
+		}
+	}
 }
 
-# Define the sample set, i.e. the set of targets in both targets.list and reference.list
-sample.mf <- intersect(targets.list[,2], reference.list.mf)
-sample.bp <- intersect(targets.list[,2], reference.list.bp)
-sample.cc <- intersect(targets.list[,2], reference.list.cc)
-
-# Run the hypergeometric test for over-representation
-if (ontology=="molecular_function") {
-	test.mf <- corna.test.fun(sample.mf,
-                reference.list.mf,
-                tran2gomf,
-                fisher=F,
-                sort="hypergeometric",
-                min.pop=minimum.population, 
-				p.adjust.method=p.adjust.method,
-                desc=go2term) 
-	significant.mf <- test.mf[test.mf$hypergeometric <= p.value.threshold, ]
-	write.table(significant.mf, file="hyperg_go.tsv", sep="\t", quote=F)	
-}
-	
-if (ontology=="biological_process") {
-	test.bp <- corna.test.fun(sample.bp,
-                reference.list.bp,
-                tran2gobp,
-                fisher=F,
-                sort="hypergeometric",
-                min.pop=minimum.population,
-				p.adjust.method=p.adjust.method,
-                desc=go2term) 
-	significant.bp <- test.bp[test.bp$hypergeometric <= p.value.threshold, ]
-	write.table(significant.bp, file="hyperg_go.tsv", sep="\t", quote=F)
+if (ontology == 'molecular_function' || ontology == 'all') {
+	params <- new('GOHyperGParams', geneIds=selected.genes, universeGeneIds=reference.genes, annotation=annotpkg, ontology='MF', pvalueCutoff=p.value.threshold, conditional=conditional, testDirection=over.or.under.representation)
+	go <- hyperGTest(params)
+	go.table <- summary(go, pvalue=2)
+	if (nrow(go.table)>0) {
+		go.table$Pvalue <- p.adjust(go.table$Pvalue, method=p.adjust.method)
+		go.table <- go.table[go.table$Pvalue <= p.value.threshold & go.table$Size >= minimum.population,]
+		if (nrow(go.table)>0) {
+			rownames(go.table) <- go.table[,1]
+			go.table <- go.table[,c(6, 4, 5, 2, 7)]
+			go.table$ontology <- 'molecular function'
+			colnames(go.table) <- colnames(output)
+			output <- rbind(output, go.table)
+			go.table$description <- paste('<a href="http://amigo.geneontology.org/cgi-bin/amigo/term-details.cgi?term=', rownames(go.table), '">', go.table$description, '</a>', sep='')
+			HTML(go.table, file='hyperg_go.html', append=TRUE, Border=0, innerBorder=1)
+		}
+	}
 }
 
-if (ontology=="cellular_component") {
-	test.cc <- corna.test.fun(sample.cc,
-                reference.list.cc,
-                tran2gocc,
-                fisher=F,
-                sort="hypergeometric",
-                min.pop=minimum.population,
-				p.adjust.method=p.adjust.method,
-                desc=go2term) 
-	significant.cc <- test.cc[test.cc$hypergeometric <= p.value.threshold, ]
-	write.table(significant.cc, file="hyperg_go.tsv", sep="\t", quote=F)	
+if (ontology == 'cellular_component' || ontology == 'all') {
+	params <- new('GOHyperGParams', geneIds=selected.genes, universeGeneIds=reference.genes, annotation=annotpkg, ontology='CC', pvalueCutoff=p.value.threshold, conditional=conditional, testDirection=over.or.under.representation)
+	go <- hyperGTest(params)
+	go.table <- summary(go, pvalue=2)
+	if (nrow(go.table)>0) {
+		go.table$Pvalue <- p.adjust(go.table$Pvalue, method=p.adjust.method)
+		go.table <- go.table[go.table$Pvalue <= p.value.threshold & go.table$Size >= minimum.population,]
+		if (nrow(go.table)>0) {
+			rownames(go.table) <- go.table[,1]
+			go.table <- go.table[,c(6, 4, 5, 2, 7)]
+			go.table$ontology <- 'cellular component'
+			colnames(go.table) <- colnames(output)
+			output <- rbind(output, go.table)
+			go.table$description <- paste('<a href="http://amigo.geneontology.org/cgi-bin/amigo/term-details.cgi?term=', rownames(go.table), '">', go.table$description, '</a>', sep='')
+			HTML(go.table, file='hyperg_go.html', append=TRUE, Border=0, innerBorder=1)
+		}
+	}
 }
+
+# write outputs
+write.table(output, file='hyperg_go.tsv', quote=FALSE, sep='\t')
+if (nrow(output)==0)
+	write('<html>\n\t<body>\n\t\tNo significant results found!</br />\n\t</body>\n</html>', file='hyperg_go.html')
+
+# EOF
