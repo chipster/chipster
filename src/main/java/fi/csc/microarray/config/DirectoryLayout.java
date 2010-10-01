@@ -264,7 +264,7 @@ public class DirectoryLayout {
 		
 		// if it did not work out, fall back to *nix mode 
 		if (dir == null) {
-			dir = new File(System.getProperty("user.home"), "chipster-share/ngs");
+			dir = new File(System.getProperty("user.home"), ".chipster");
 		}
 		
 		return check(dir);
