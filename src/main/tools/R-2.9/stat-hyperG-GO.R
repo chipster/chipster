@@ -13,7 +13,7 @@
 # JTT 30.7.2007 (with heavy modifications) 
 #
 # modified MG 5.2.2010
-# modified IS 16.9.2010
+# modified IS 1.10.2010
 
 # Loads the libraries
 library(GOstats)
@@ -92,7 +92,7 @@ if (conditional.testing == 'no') {
 }
 
 # define the output variable
-output <- data.frame(total=integer(0), expectation=numeric(0), observation=integer(0), p.value=numeric(0), description=character(0), ontology=character(0))
+output <- data.frame(total=integer(0), expected=numeric(0), observed=integer(0), p.value=numeric(0), description=character(0), ontology=character(0))
 
 if (ontology == 'biological_process' || ontology == 'all') {
   params <- new('GOHyperGParams', geneIds=myids, annotation=annotpkg, ontology='BP', pvalueCutoff=p.value.threshold, conditional=conditional, testDirection=over.or.under.representation)
@@ -108,7 +108,7 @@ if (ontology == 'biological_process' || ontology == 'all') {
       colnames(go.table) <- colnames(output)
       output <- rbind(output, go.table)
       go.table$description <- paste('<a href="http://amigo.geneontology.org/cgi-bin/amigo/term-details.cgi?term=', rownames(go.table), '">', go.table$description, '</a>', sep='')
-      HTML(go.table, file='hypergeo.html', append=TRUE)
+      HTML(go.table, file='hypergeo.html', append=TRUE, Border=0, innerBorder=1)
     }
   }
 }
@@ -127,7 +127,7 @@ if (ontology == 'molecular_function' || ontology == 'all') {
       colnames(go.table) <- colnames(output)
       output <- rbind(output, go.table)
       go.table$description <- paste('<a href="http://amigo.geneontology.org/cgi-bin/amigo/term-details.cgi?term=', rownames(go.table), '">', go.table$description, '</a>', sep='')
-      HTML(go.table, file='hypergeo.html', append=TRUE)
+      HTML(go.table, file='hypergeo.html', append=TRUE, Border=0, innerBorder=1)
     }
   }
 }
@@ -146,7 +146,7 @@ if (ontology == 'cellular_component' || ontology == 'all') {
       colnames(go.table) <- colnames(output)
       output <- rbind(output, go.table)
       go.table$description <- paste('<a href="http://amigo.geneontology.org/cgi-bin/amigo/term-details.cgi?term=', rownames(go.table), '">', go.table$description, '</a>', sep='')
-      HTML(go.table, file='hypergeo.html', append=TRUE)
+      HTML(go.table, file='hypergeo.html', append=TRUE, Border=0, innerBorder=1)
     }
   }
 }

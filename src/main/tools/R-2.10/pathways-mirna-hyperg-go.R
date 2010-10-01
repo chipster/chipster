@@ -11,7 +11,7 @@
 
 # miRNA hypergeometric test for GO
 # MG, 4.11.2009
-# IS, 20.9.2010 rewritten to use GOstats
+# IS, 1.10.2010 rewritten to use GOstats
 
 # load packages
 library(GOstats)
@@ -69,8 +69,7 @@ if (species == 'mouse') {
 }
 
 # define the output variable
-output <- data.frame(total=integer(0), expectation=numeric(0), observation=integer(0), p.value=numeric(0), description=character(0), ontology=character(0))
-
+output <- data.frame(total=integer(0), expected=numeric(0), observed=integer(0), p.value=numeric(0), description=character(0), ontology=character(0))
 if (ontology == 'biological_process' || ontology == 'all') {
   params <- new('GOHyperGParams', geneIds=selected.genes, universeGeneIds=reference.genes, annotation=annotpkg, ontology='BP', pvalueCutoff=p.value.threshold, conditional=conditional, testDirection=over.or.under.representation)
   go <- hyperGTest(params)
@@ -85,7 +84,7 @@ if (ontology == 'biological_process' || ontology == 'all') {
       colnames(go.table) <- colnames(output)
       output <- rbind(output, go.table)
       go.table$description <- paste('<a href="http://amigo.geneontology.org/cgi-bin/amigo/term-details.cgi?term=', rownames(go.table), '">', go.table$description, '</a>', sep='')
-      HTML(go.table, file='hyperg_go.html', append=TRUE)
+      HTML(go.table, file='hyperg_go.html', append=TRUE, Border=0, innerBorder=1)
     }
   }
 }
@@ -104,7 +103,7 @@ if (ontology == 'molecular_function' || ontology == 'all') {
       colnames(go.table) <- colnames(output)
       output <- rbind(output, go.table)
       go.table$description <- paste('<a href="http://amigo.geneontology.org/cgi-bin/amigo/term-details.cgi?term=', rownames(go.table), '">', go.table$description, '</a>', sep='')
-      HTML(go.table, file='hyperg_go.html', append=TRUE)
+      HTML(go.table, file='hyperg_go.html', append=TRUE, Border=0, innerBorder=1)
     }
   }
 }
@@ -123,7 +122,7 @@ if (ontology == 'cellular_component' || ontology == 'all') {
       colnames(go.table) <- colnames(output)
       output <- rbind(output, go.table)
       go.table$description <- paste('<a href="http://amigo.geneontology.org/cgi-bin/amigo/term-details.cgi?term=', rownames(go.table), '">', go.table$description, '</a>', sep='')
-      HTML(go.table, file='hyperg_go.html', append=TRUE)
+      HTML(go.table, file='hyperg_go.html', append=TRUE, Border=0, innerBorder=1)
     }
   }
 }
