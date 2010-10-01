@@ -74,7 +74,8 @@ public class TabixIntensityTrack extends Track {
 			// region in the genome and we should not draw silly looking diagonal line
 			boolean zoomedOut = x1 - lastX > 10;
 			if ((lastStart == null || regCont.region.start.minus(lastStart) > 100000) && zoomedOut) {
-				lastX = x1;
+//				lastX = x1;
+// did not work with 8k summaries
 			}
 			
 			drawables.add(new LineDrawable(lastX, lastY, x1, y1, color));
