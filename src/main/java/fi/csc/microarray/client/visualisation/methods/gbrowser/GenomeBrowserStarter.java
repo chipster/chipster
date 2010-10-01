@@ -40,7 +40,7 @@ public class GenomeBrowserStarter {
 	
 	static {
 		
-		annotationPath = "/home/" + System.getProperty("user.name") + "/chipster-share/";
+		annotationPath = System.getProperty("user.home") + "/chipster-share/";
 		
 //		ELAND_DATA_FILE = new File(annotationPath, "/ngs/STAT1/STAT1_treatment_aggregated_filtered_sorted_chr1.txt");
 		BAM_DATA_FILE = new File(annotationPath + "/ngs/RNA-seq/pairedEnd_Berger/501Mel.sorted.bam");
