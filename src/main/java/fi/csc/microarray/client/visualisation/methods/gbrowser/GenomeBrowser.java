@@ -579,6 +579,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 										new CytobandParser()));
 						break;
 					case GENES:
+						Row snpRow = annotationContents.getRow(genome, AnnotationContents.Content.SNP);
+						
 						TrackGroup geneGroup = TrackFactory.addGeneTracks(plot,
 								createAnnotationDataSource(annotationContents.getRow(
 										genome, AnnotationContents.Content.GENES).file,
@@ -589,10 +591,11 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 								createAnnotationDataSource(annotationContents.getRow(
 										genome, AnnotationContents.Content.REFERENCE).file,
 										new SequenceParser()),
-								createAnnotationDataSource(annotationContents.getRow(
-										genome, AnnotationContents.Content.SNP).file,
-										new SNPParser())
-										);
+								snpRow == null ? null : 
+									createAnnotationDataSource(annotationContents.getRow(
+											genome, AnnotationContents.Content.SNP).file,
+											new SNPParser())
+								);
 						track.setTrackGroup(geneGroup);
 						break;
 					case REFERENCE:

@@ -27,7 +27,7 @@ public class GeneTrackGroup extends TrackGroup{
 	protected TranscriptTrack transcript;
 	protected IntensityTrack annotationOverview;
 	protected GeneTrack annotation;
-	protected SNPTrack snpTrack;
+	protected SNPTrack snpTrack = null;
 	protected RepeatMaskerTrack repeatMasker;
 	protected IntensityTrack annotationOverviewReversed;
 	protected GeneTrack annotationReversed;
@@ -50,9 +50,11 @@ public class GeneTrackGroup extends TrackGroup{
 		        ChunkTreeHandlerThread.class, PartColor.CDS.c, CHANGE_TRACKS_ZOOM_THRESHOLD1, CHANGE_TRACKS_ZOOM_THRESHOLD2);
 		annotation.setStrand(Strand.FORWARD);
 		
-		snpTrack = new SNPTrack(dataView, snpFile, ChunkTreeHandlerThread.class, 0, SHOW_SNP_AT);
-		snpTrack.setStrand(Strand.FORWARD);
-		
+		if (snpFile != null) {
+			snpTrack = new SNPTrack(dataView, snpFile, ChunkTreeHandlerThread.class, 0, SHOW_SNP_AT);
+			snpTrack.setStrand(Strand.FORWARD);
+		}
+
 		snpTrackReversed = new SNPTrack(dataView, snpFile, ChunkTreeHandlerThread.class, 0, SHOW_SNP_AT);
 		snpTrackReversed.setStrand(Strand.REVERSED);
 		
@@ -91,7 +93,9 @@ public class GeneTrackGroup extends TrackGroup{
 		tracks.add(annotation);
 		
 		//SNP track Forward
-		tracks.add(snpTrack);
+		if (snpTrack != null) {
+			tracks.add(snpTrack);
+		}
 		
 		// Ruler track
 		tracks.add(new RulerTrack(view));
@@ -139,7 +143,7 @@ public class GeneTrackGroup extends TrackGroup{
 	@Override
 	public void showOrHide(String name, boolean state) {
 		super.showOrHide(name, state);
-		if (name.equals("changeSNP")) {
+		if (snpTrack != null && name.equals("changeSNP")) {
 			setChangeSNP(state);
 		}
 	}
