@@ -103,7 +103,7 @@
 		    <fatjar.jarsource file="${lib}/cron4j-1.1.5.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/PDFRenderer.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/pdfviewer.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/h2.jar" relpath=""/>
+		    	<fatjar.jarsource file="${lib}/h2-1.2.137.jar" relpath=""/>
 		    	
         </fatjar.build>
 
