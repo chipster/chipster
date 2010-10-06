@@ -50,11 +50,14 @@ public class GeneTrackGroup extends TrackGroup{
 		        ChunkTreeHandlerThread.class, PartColor.CDS.c, CHANGE_TRACKS_ZOOM_THRESHOLD1, CHANGE_TRACKS_ZOOM_THRESHOLD2);
 		annotation.setStrand(Strand.FORWARD);
 		
-		snpTrack = new SNPTrack(dataView, snpFile, ChunkTreeHandlerThread.class, 0, SHOW_SNP_AT);
-		snpTrack.setStrand(Strand.FORWARD);
-		
-		snpTrackReversed = new SNPTrack(dataView, snpFile, ChunkTreeHandlerThread.class, 0, SHOW_SNP_AT);
-		snpTrackReversed.setStrand(Strand.REVERSED);
+		if (snpFile != null) {
+
+			snpTrack = new SNPTrack(dataView, snpFile, ChunkTreeHandlerThread.class, 0, SHOW_SNP_AT);
+			snpTrack.setStrand(Strand.FORWARD);
+
+			snpTrackReversed = new SNPTrack(dataView, snpFile, ChunkTreeHandlerThread.class, 0, SHOW_SNP_AT);
+			snpTrackReversed.setStrand(Strand.REVERSED);
+		}
 		
 		repeatMasker = new RepeatMaskerTrack(dataView, refSource, ChunkTreeHandlerThread.class, CHANGE_TRACKS_ZOOM_THRESHOLD1);
 		
@@ -90,14 +93,16 @@ public class GeneTrackGroup extends TrackGroup{
 		// Gene, detailed, forward
 		tracks.add(annotation);
 		
-		//SNP track Forward
-		tracks.add(snpTrack);
-		
-		// Ruler track
-		tracks.add(new RulerTrack(view));
-		
-		//SNP track Reversed
-		tracks.add(snpTrackReversed);
+		if (snpTrack != null) {
+			//SNP track Forward
+			tracks.add(snpTrack);
+
+			// Ruler track
+			tracks.add(new RulerTrack(view));
+
+			//SNP track Reversed
+			tracks.add(snpTrackReversed);
+		}
 		  
         // Repeat masker track
         tracks.add(repeatMasker);
@@ -125,15 +130,17 @@ public class GeneTrackGroup extends TrackGroup{
     }
 	
 	public void setChangeSNP(boolean change) {
-		if (change) {
-			snpTrack.changeSNPView(ChunkTreeHandlerThread.class);
-			snpTrackReversed.changeSNPView(ChunkTreeHandlerThread.class);
-		} else {
-			snpTrack.returnSNPView();
-			snpTrackReversed.returnSNPView();
+		if (snpTrack != null) {
+			if (change) {
+				snpTrack.changeSNPView(ChunkTreeHandlerThread.class);
+				snpTrackReversed.changeSNPView(ChunkTreeHandlerThread.class);
+			} else {
+				snpTrack.returnSNPView();
+				snpTrackReversed.returnSNPView();
+			}
+			view.fireAreaRequests();
+			view.redraw();
 		}
-		view.fireAreaRequests();
-        view.redraw();
 	}
 	
 	@Override

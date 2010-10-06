@@ -55,7 +55,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Cytoba
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.HeaderTsvParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SNPParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SequenceParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
@@ -589,9 +588,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 								createAnnotationDataSource(annotationContents.getRow(
 										genome, AnnotationContents.Content.REFERENCE).file,
 										new SequenceParser()),
-								createAnnotationDataSource(annotationContents.getRow(
+										null
+								/*createAnnotationDataSource(annotationContents.getRow(
 										genome, AnnotationContents.Content.SNP).file,
-										new SNPParser())
+										new SNPParser())*/
 										);
 						track.setTrackGroup(geneGroup);
 						break;
@@ -632,7 +632,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 					    treatmentData = createReadDataSource(track.userData, tracks);
 						TrackGroup readGroup1 = TrackFactory.addReadSummaryTracks(plot, treatmentData,
 						        createReadHandler(file),
-						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv",
+						        createAnnotationDataSource(annotationContents.getRow(
+										genome, AnnotationContents.Content.REFERENCE).file,
 								        new SequenceParser()),
 						        file.getAbsolutePath());
 						track.setTrackGroup(readGroup1);
@@ -894,7 +895,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				
 			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
 			           (data.getName().endsWith(".bam") || data.getName().endsWith(".sam"))) {
-                interpretations.add(TrackType.TREATMENT_SUMMARY);
+                interpretations.add(TrackType.TREATMENT_READS);
                 
 			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
 			           (data.getName().endsWith(".bai"))) {
