@@ -110,7 +110,6 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
             for (Tool tool : category.getTools()) {
                 
                 SADLDescription sadl = new ChipsterSADLParser().parse(tool.getDescription());
-                //logger.debug(sadl.toStringVerbose());
                 
                 OperationDefinition newDefinition = new OperationDefinition(sadl.getName().getID(), 
                                                                             sadl.getName().getDisplayName(), op,
@@ -132,7 +131,6 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
                         parameter.getComment(), parameter.getFrom(), parameter.getTo(),
                         parameter.getDefaultValues(), parameter.isOptional()));      
                 }
-                // logger.debug(newDefinition.toStringVerbose());
             }
         }
 

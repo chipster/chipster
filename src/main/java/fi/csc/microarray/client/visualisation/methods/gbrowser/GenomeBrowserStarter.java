@@ -67,7 +67,7 @@ public class GenomeBrowserStarter {
 		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_genes.tsv", new GeneParser()),
 		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_transcripts.tsv", new TranscriptParser()),
 		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.NCBI36.54_seq.tsv", new SequenceParser()),
-		        new ChunkDataSource(SNP_DATA_FILE, new SNPParser()));
+		        null/*new ChunkDataSource(SNP_DATA_FILE, new SNPParser())*/);
 		
 //		TrackFactory.addSNPTrack(plot, new ChunkDataSource(SNP_DATA_FILE, new SNPParser()));
 //		TrackFactory.addThickSeparatorTrack(plot);
@@ -95,7 +95,7 @@ public class GenomeBrowserStarter {
 		);
 		
 		TrackFactory.addRulerTrack(plot);
-		plot.start("12", 1024 * 1024 * 250d, 9130000L, 100000L);
+		plot.start("1", 1024 * 1024 * 250d, 9130000L, 100000L);
 		
 		panel.setChart(new JFreeChart(plot));
 		panel.setPreferredSize(new Dimension(800, 2000));

@@ -114,7 +114,10 @@ public class WorkflowWriter {
 		script.append("op = new WfOperation(app.getOperationDefinition(\"" + operation.getID() + "\"), datas);\n");
 
 		for (Parameter parameter : operation.getParameters()) {
-			script.append("op.setParameter(\"" + parameter.getID() + "\", " + parameter.getValueAsJava() + ");\n");
+			// Write code that sets the value only if it was not null
+			if (parameter.getValue() != null) {	
+				script.append("op.setParameter(\"" + parameter.getID() + "\", " + parameter.getValueAsJava() + ");\n");
+			}
 		}
 
 		int resultCount = operation.getDefinition().getOutputCount();
