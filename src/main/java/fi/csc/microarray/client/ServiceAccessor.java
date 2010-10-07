@@ -25,7 +25,7 @@ public interface ServiceAccessor {
 	
 	public void initialise(DataManager manager, AuthenticationRequestListener authenticationRequestListener) throws Exception;
 
-	public String checkRemoveServices() throws Exception;
+	public String checkRemoteServices() throws Exception;
 
 	public void fetchDescriptions(Module primaryModule) throws Exception;
 

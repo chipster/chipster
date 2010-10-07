@@ -1,8 +1,12 @@
 package fi.csc.microarray.module.chipster;
 
 import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -17,12 +21,14 @@ import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.methods.ArrayLayout;
 import fi.csc.microarray.client.visualisation.methods.ClusteredProfiles;
 import fi.csc.microarray.client.visualisation.methods.ExpressionProfile;
 import fi.csc.microarray.client.visualisation.methods.HierarchicalClustering;
 import fi.csc.microarray.client.visualisation.methods.Histogram;
+import fi.csc.microarray.client.visualisation.methods.PhenodataEditor;
 import fi.csc.microarray.client.visualisation.methods.SOM;
 import fi.csc.microarray.client.visualisation.methods.Scatterplot;
 import fi.csc.microarray.client.visualisation.methods.Scatterplot3DPCA;
@@ -38,12 +44,17 @@ import fi.csc.microarray.databeans.features.bio.IdentifierProvider;
 import fi.csc.microarray.databeans.features.bio.NormalisedExpressionProvider;
 import fi.csc.microarray.databeans.features.stat.HierarchicalClusterProvider;
 import fi.csc.microarray.databeans.features.stat.SomClusterProvider;
+import fi.csc.microarray.databeans.features.table.EditableTable;
+import fi.csc.microarray.databeans.features.table.TableBeanEditor;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.util.GeneralFileFilter;
+import fi.csc.microarray.util.Strings;
 
 public class MicroarrayModule implements Module {
 
 	private static final String EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/ExampleSessionChipsterV2.cs";
+	
 	public static VisualisationMethod ARRAY_LAYOUT = new VisualisationMethod("Array layout", ArrayLayout.class, VisualConstants.ARRAY_MENUICON, -1, 0.0009);
 	public static VisualisationMethod HISTOGRAM = new VisualisationMethod("Histogram", Histogram.class, VisualConstants.HISTOGRAM_MENUICON, -1, 0.024);
 	public static VisualisationMethod SCATTERPLOT = new VisualisationMethod("Scatterplot", Scatterplot.class, VisualConstants.SCATTER_MENUICON, -1, 0.039);
@@ -56,12 +67,13 @@ public class MicroarrayModule implements Module {
 	public static VisualisationMethod CLUSTERED_PROFILES = new VisualisationMethod("Clustered profiles", ClusteredProfiles.class, VisualConstants.PROFILES_MENUICON, -1, 0.087);
 	public static VisualisationMethod VENN_DIAGRAM = new VisualisationMethod("Venn-diagram", VennDiagram.class, VisualConstants.VENN_MENUICON, 1, -1);
 	public static VisualisationMethod GBROWSER = new VisualisationMethod("Genome browser", GenomeBrowser.class, VisualConstants.SCATTER_MENUICON, 1, -1);
+	public static VisualisationMethod PHENODATA = new VisualisationMethod("Phenodata editor", PhenodataEditor.class, VisualConstants.PHENODATA_MENUICON, 3, 0, "chipster-manual/visualisation-phenodata.html");
 
 	public static final String SERVER_MODULE_MICROARRAY = "microarray";
 
 	public static final String ANNOTATION_ID = "annotate-genelist2html.R";
 
-	public static final String IMPORT_FROM_ARRAYEXPRESS_ID = "import-from-ArrayExpress.R";
+	public static final String IMPORT_FROM_ARRAYEXPRESS_ID = "import-ArrayExpress.R";
 	public static final String IMPORT_FROM_GEO_ID = "import-soft2.R";
 
 	public void plugContentTypes(DataManager manager) {
@@ -175,6 +187,7 @@ public class MicroarrayModule implements Module {
 	@Override
 	public VisualisationMethod[] getVisualisationMethods() {
 		return new VisualisationMethod[] {
+				PHENODATA,
 				ARRAY_LAYOUT,
 				HISTOGRAM,
 				SCATTERPLOT,
@@ -213,6 +226,74 @@ public class MicroarrayModule implements Module {
 				new GeneralFileFilter("Illumina", new String[] {"txt", "csv"}),
 				new GeneralFileFilter("SAM and BAM", new String[] {"sam", "bam"}),
 		};
+	}
+
+	@Override
+	public boolean isMetadata(DataBean data) {
+		// FIXME how this should actually work in the new type system?
+		return data.queryFeatures("/phenodata").exists();
+	}
+
+	@Override
+	public void postProcessOutputMetadata(Operation oper, DataBean metadataOutput) throws MicroarrayException, IOException {
+		
+		// FIXME how this should actually work in the new type system?
+		
+		// if original names are not already contained in the phenodata
+		if (!metadataOutput.queryFeatures("/column/" + PhenodataEditor.PHENODATA_NAME_COLUMN).exists()) {
+			// augment phenodata with original dataset names (using parameter bindings)
+			HashSet<String> insertedNames = new HashSet<String>();
+			TableBeanEditor tableEditor = new TableBeanEditor(metadataOutput);
+			EditableTable editableTable = tableEditor.getEditable();
+			LinkedList<String> newColumn = new LinkedList<String>();
+			newColumn.addAll(Arrays.asList(Strings.repeatToArray("", editableTable.getRowCount())));
+			editableTable.addColumn(PhenodataEditor.PHENODATA_NAME_COLUMN, 1, newColumn); // add after sample column 
+			for (int ri = 0; ri < editableTable.getRowCount(); ri++) {
+				String sample = editableTable.getValue(PhenodataEditor.PHENODATA_SAMPLE_COLUMN, ri);
+				boolean correctRowFound = false;
+				String originalName = null;
+				for (DataBinding binding : oper.getBindings()) {
+					if (binding.getName().equals(sample)) {
+						originalName = binding.getData().getName();
+						correctRowFound = true;
+						break;
+					}
+				}
+				if (!correctRowFound) {
+					originalName = sample; // just duplicate the sample name if proper is not found
+				}
+
+				// check that original names are unique
+				if (insertedNames.contains(originalName)) {
+					final String separator = "/";
+					int i = 2;
+					while (insertedNames.contains(originalName + separator + i)) {
+						i++;
+					}
+					originalName = originalName + separator + i;
+				}
+
+				editableTable.setValue(PhenodataEditor.PHENODATA_NAME_COLUMN, ri, originalName);
+				insertedNames.add(originalName);
+
+			}
+			tableEditor.write();
+		}
+
+		// if chip descriptions (visualisation view names) are not already contained in the phenodata
+		if (!metadataOutput.queryFeatures("/column/" + PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN).exists()) {
+			// copy original dataset names
+			TableBeanEditor tableEditor = new TableBeanEditor(metadataOutput);
+			EditableTable editableTable = tableEditor.getEditable();
+			LinkedList<String> newColumn = new LinkedList<String>();
+			newColumn.addAll(Arrays.asList(Strings.repeatToArray("", editableTable.getRowCount())));
+			editableTable.addColumn(PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN, newColumn); 
+			for (int ri = 0; ri < editableTable.getRowCount(); ri++) {
+				String sample = editableTable.getValue(PhenodataEditor.PHENODATA_NAME_COLUMN, ri);										
+				editableTable.setValue(PhenodataEditor.PHENODATA_DESCRIPTION_COLUMN, ri, sample);
+			}
+			tableEditor.write();
+		}
 	}
 
 }

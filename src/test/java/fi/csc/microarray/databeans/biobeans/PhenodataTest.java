@@ -15,7 +15,7 @@ import fi.csc.microarray.databeans.LinkUtils;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.table.EditableTable;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.module.Modules;
+import fi.csc.microarray.module.ModuleManager;
 
 public class PhenodataTest {
 
@@ -25,7 +25,7 @@ public class PhenodataTest {
 	public void init() throws IOException, IllegalConfigurationException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
 		this.manager = new DataManager();
-		new Modules("fi.csc.microarray.module.chipster.MicroarrayModule").plugAll(manager, null);
+		new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule").plugAll(manager, null);
 	}
 
 	@Test(groups = {"unit"} )

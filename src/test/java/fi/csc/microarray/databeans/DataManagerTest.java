@@ -9,7 +9,7 @@ import org.testng.annotations.Test;
 
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
-import fi.csc.microarray.module.Modules;
+import fi.csc.microarray.module.ModuleManager;
 
 public class DataManagerTest {
 
@@ -19,7 +19,7 @@ public class DataManagerTest {
 	public void init() throws IOException, IllegalConfigurationException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
 		this.manager = new DataManager();
-		new Modules("fi.csc.microarray.module.chipster.MicroarrayModule").plugAll(this.manager, null);
+		new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule").plugAll(this.manager, null);
 	}
 	
 	@Test(groups = {"unit"} )

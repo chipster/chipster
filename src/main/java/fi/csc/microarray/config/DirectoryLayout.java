@@ -205,7 +205,7 @@ public class DirectoryLayout {
 			throw new UnsupportedOperationException();
 		}
 	}
-
+	
 	public File getJobsDataDirBase(String id) throws IOException, IllegalConfigurationException {
 		if (type == Type.SERVER) {
 			File jobsDataDir = new File(getBaseDir(), configuration.getString("comp", "work-dir"));
@@ -284,7 +284,6 @@ public class DirectoryLayout {
 			if (debugRoot.exists()) {
 				baseDir = debugRoot;
 			}
-			
 			return baseDir;
 		}
 	}

@@ -368,4 +368,9 @@ public class SeqBlockTrack extends Track {
         }
         return refSeq;
     }
+    
+    @Override
+    public String getName() {
+    	return "SeqBlockTrack";
+    }
 }

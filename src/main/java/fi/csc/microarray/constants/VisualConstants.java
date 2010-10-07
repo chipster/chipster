@@ -349,4 +349,8 @@ public class VisualConstants {
 	"td { border-color: Gray; font-family: sans-serif; border-width: 1px; border-style: solid; font-size: 8px}" + 
 	"th { border-color: Gray; font-family: sans-serif; background: #E0E0E0; text-align: center;  border-width: 1px; border-style: solid;}" + 
 	"--></style>";
+
+	public static final String HTML_DIALOG_TITLE_STYLE = "\"font-weight:bold;font-size:115%\"";
+
+
 }

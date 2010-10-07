@@ -1,11 +1,16 @@
 package fi.csc.microarray.client.tasks;
 
-import java.beans.PropertyChangeListener;
-import java.util.Collection;
+import java.io.File;
 
 import javax.jms.JMSException;
 
+import fi.csc.chipster.tools.gbrowser.TsvSorter;
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileDefinition;
+import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 
 public class LocalTaskExecutor extends TaskExecutor {
@@ -15,83 +20,68 @@ public class LocalTaskExecutor extends TaskExecutor {
 	}
 
 	@Override
-	public void addChangeListener(PropertyChangeListener listener) {
-		// TODO Auto-generated method stub
-		super.addChangeListener(listener);
-	}
-	
-	@Override
-	protected void addToRunningTasks(Task task) {
-		// TODO Auto-generated method stub
-		super.addToRunningTasks(task);
-	}
-	
-	@Override
-	public Task createTask(Operation operation) {
-		// TODO Auto-generated method stub
-		return super.createTask(operation);
-	}
-	
-	@Override
-	public void execute(Task task) throws TaskException {
-		// TODO Auto-generated method stub
-		super.execute(task);
-	}
-	
-	@Override
-	public int getRunningTaskCount() {
-		// TODO Auto-generated method stub
-		return super.getRunningTaskCount();
-	}
-	
-	@Override
-	public Collection<Task> getTasks(boolean onlyRunning, boolean showHidden) {
-		// TODO Auto-generated method stub
-		return super.getTasks(onlyRunning, showHidden);
-	}
-	
-	@Override
-	public boolean isEventsEnabled() {
-		// TODO Auto-generated method stub
-		return super.isEventsEnabled();
-	}
-	
-	@Override
 	public void kill(Task task) {
-		// TODO Auto-generated method stub
-		super.kill(task);
+		throw new UnsupportedOperationException();
 	}
 	
 	@Override
 	public void killAll() {
-		// TODO Auto-generated method stub
-		super.killAll();
+		throw new UnsupportedOperationException();
 	}
 	
 	@Override
-	protected void removeFromRunningTasks(Task task) {
-		// TODO Auto-generated method stub
-		super.removeFromRunningTasks(task);
-	}
+	public void startExecuting(final Task task) throws TaskException {
+		if (!task.getOperationID().equals("PreprocessNGSSingle.java")) {
+			throw new UnsupportedOperationException();
+		}
+
+//		task.setState(State.RUNNING);
+
+		Runnable taskRunnable = new Runnable() {
+			public void run() {
+				DataManager dataManager = Session.getSession().getDataManager();
+				ElandParser parser = new ElandParser();
+				FileDefinition fileDefinition = parser.getFileDefinition();
+				
+				try {
+
+					for (DataBean inputDataBean: task.getInputs()) {
+						File inputFile = dataManager.getLocalFile(inputDataBean);
+						String outputName; 
+						int fileExtensionStartPosition = inputFile.getName().lastIndexOf(".");
+						if (fileExtensionStartPosition != -1) {
+							outputName = inputFile.getName().substring(0, fileExtensionStartPosition) + "-preprocessed" + 
+											inputFile.getName().substring(fileExtensionStartPosition, inputFile.getName().length());
+						} else {
+							outputName = inputFile.getName() + "-preprocessed";
+						}
+						File outputFile = dataManager.createNewRepositoryFile(outputName);		
+
+						// run sorter
+						new TsvSorter().sort(inputFile, outputFile,	fileDefinition.indexOf(ColumnType.CHROMOSOME), fileDefinition.indexOf(ColumnType.BP_START));
+
+						DataBean outputBean = dataManager.createDataBean(outputName, outputFile);
+						outputBean.setOperation(new Operation(Session.getSession().getApplication().getOperationDefinition("PreprocessNGSSingle.java"), new DataBean[] {}));
+						dataManager.getRootFolder().addChild(outputBean);
+						
+					}
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+
+//				task.setState(State.COMPLETED);
+
+			}
+		};
 	
-	@Override
-	public void setEventsEnabled(boolean eventsEnabled) {
-		// TODO Auto-generated method stub
-		super.setEventsEnabled(eventsEnabled);
-	}
-	
-	@Override
-	public void startExecuting(Task task) throws TaskException {
-		// TODO Auto-generated method stub
-		super.startExecuting(task);
+		
+		Session.getSession().getApplication().runBlockingTask("running " + task.getNamePrettyPrinted(), taskRunnable);
+		
+		
 	}
 	
 	@Override
 	public void startExecuting(Task task, int timeout) throws TaskException {
-		// TODO Auto-generated method stub
-		super.startExecuting(task, timeout);
+		throw new UnsupportedOperationException();
 	}
-	
-	
-
 }

@@ -11,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -27,11 +28,15 @@ import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.dataimport.table.InformationDialog;
 import fi.csc.microarray.client.dialog.ChipsterDialog;
 import fi.csc.microarray.client.dialog.DialogInfo;
+import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.dialog.DialogInfo.Type;
+import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -313,19 +318,48 @@ public class ImportUtils {
 	 */
 	public static void executeImport(ImportSession importSession) {
 
-		List<File> files = importSession.getInputFiles();
+		if (!application.isStandalone()) {
+			List<File> files = importSession.getInputFiles();
 
-		boolean importToolSupported = Session.getSession().getModules().getPrimaryModule().isImportToolSupported();
-		
-		if (!importToolSupported || (importSession.isSkipActionChooser() && !ImportUtils.containsUnsupportedTypes(files.toArray(new File[files.size()])))) {
-			// skip requested and all of the files are supported => import directly and don't show action chooser			
-			application.importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
-			
-		} else {
-			// skip not requested => show ActionChooser
-			ActionChooserScreen actionChooser = new ActionChooserScreen(importSession);
-			actionChooser.getFrame().setVisible(true);
+			boolean importToolSupported = Session.getSession().getPrimaryModule().isImportToolSupported();
 
+			if (!importToolSupported || (importSession.isSkipActionChooser() && !ImportUtils.containsUnsupportedTypes(files.toArray(new File[files.size()])))) {
+				// skip requested and all of the files are supported => import directly and don't show action chooser			
+				application.importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
+
+			} else {
+				// skip not requested => show ActionChooser
+				new ActionChooserScreen(importSession);
+			}
+		}
+
+		// standalone
+		else {
+
+			// input files to input DataBeans
+			List<DataBean> inputBeans = new LinkedList<DataBean>();
+			int i = 0;
+			for (File inputFile: importSession.getInputFiles()) {
+				try {
+					inputBeans.add(Session.getSession().getDataManager().createDataBean("preprocessInput-" + i, inputFile));
+				} catch (MicroarrayException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				i++;
+			}
+
+
+
+			// create operation, open import operation parameter dialog
+			try {
+				ClientApplication application = Session.getSession().getApplication();
+				Operation importOperation = new Operation(application.getOperationDefinition("PreprocessNGSSingle.java"), inputBeans.toArray(new DataBean[] {}));
+				new TaskImportDialog(application, "NGS preprocess", importOperation);
+
+			} catch (Exception me) {
+				Session.getSession().getApplication().reportException(me);
+			}
 		}
 	}	
 }
