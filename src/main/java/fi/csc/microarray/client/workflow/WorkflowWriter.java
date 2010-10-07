@@ -114,8 +114,8 @@ public class WorkflowWriter {
 		script.append("op = new WfOperation(app.getOperationDefinition(\"" + operation.getID() + "\"), datas);\n");
 
 		for (Parameter parameter : operation.getParameters()) {
-			// Write code that sets the value only if it was not null
-			if (parameter.getValue() != null) {	
+			// Write code that sets the value only when value is not empty
+			if (parameter.getValue() != null && !parameter.getValue().equals("")) {	
 				script.append("op.setParameter(\"" + parameter.getID() + "\", " + parameter.getValueAsJava() + ");\n");
 			}
 		}
