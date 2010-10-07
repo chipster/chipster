@@ -15,7 +15,6 @@ import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.SAMHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SNPParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SequenceParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.WIGParser;
@@ -35,7 +34,7 @@ public class GenomeBrowserStarter {
 //	private static final File MACS_DATA_FILE;
 	private static final File WIG_DATA_FILE;
 	private static final File URL_ROOT;
-	private static final File SNP_DATA_FILE;
+//	private static final File SNP_DATA_FILE;
 	private static final String annotationPath;
 	
 	static {
@@ -50,7 +49,7 @@ public class GenomeBrowserStarter {
 		URL_ROOT = new File(annotationPath, "/ngs/annotations");
 		
 		WIG_DATA_FILE = new File(annotationPath, "/ngs/wig/GSM529979_chr1.wig.out");//variableStep - GSM545202.wig; fixedStep - GSM529979.wig
-		SNP_DATA_FILE = new File(annotationPath, "/ngs/SNP_annotations_test/chromosome12_mart_export.txt.sorted");
+//		SNP_DATA_FILE = new File(annotationPath, "/ngs/SNP_annotations_test/chromosome12_mart_export.txt.sorted");
 	}
 
 	public static void main(String[] args) throws IOException {
