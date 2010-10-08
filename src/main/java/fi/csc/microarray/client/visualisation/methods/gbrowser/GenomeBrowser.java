@@ -183,8 +183,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
     //tracks switches
     private JCheckBox showReads = new JCheckBox("Reads", true);
     private JCheckBox showGel = new JCheckBox("Gel track", false);
-    private JCheckBox showProfile = new JCheckBox("Profile track", false);
-    private JCheckBox showAcid = new JCheckBox("Nucleic acids", false);
+    private JCheckBox showProfile = new JCheckBox("Strand profiles", false);
+    private JCheckBox showProfileSNP = new JCheckBox("SNP Profile", false);
     private JCheckBox showSNP = new JCheckBox("Highlight SNP", false);
     private JCheckBox changeSNP = new JCheckBox("Change SNP view", false);
 
@@ -288,7 +288,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		showReads.setEnabled(false);
 		showGel.setEnabled(false);
 		showProfile.setEnabled(false);
-		showAcid.setEnabled(false);
+		showProfileSNP.setEnabled(false);
 		showSNP.setEnabled(false);
 		changeSNP.setEnabled(false);
 		
@@ -298,15 +298,15 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		menu.setLayout(new GridLayout(5,1));
 		menu.add(showReads);
 		menu.add(showProfile);
+		menu.add(showProfileSNP);
 		menu.add(showGel);
-        //menu.add(showAcid);
         menu.add(showSNP);
         menu.add(changeSNP);
         
         showReads.addActionListener(this);
         showGel.addActionListener(this);
         showProfile.addActionListener(this);
-        showAcid.addActionListener(this);
+        showProfileSNP.addActionListener(this);
         showSNP.addActionListener(this);
         changeSNP.addActionListener(this);
 		settingsPanel.add(menuu, c);
@@ -433,7 +433,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				track.trackGroup.showOrHide("SeqBlockTrack", showReads.isSelected());
 				track.trackGroup.showOrHide("GelTrack", showGel.isSelected());
 				track.trackGroup.showOrHide("ProfileTrack", showProfile.isSelected());
-				track.trackGroup.showOrHide("AcidProfile", showAcid.isSelected());
+				track.trackGroup.showOrHide("ProfileSNPTrack", showProfileSNP.isSelected());
 				track.trackGroup.showOrHide("highlightSNP", showSNP.isSelected());
 				track.trackGroup.showOrHide("changeSNP", changeSNP.isSelected());
 			}
@@ -453,7 +453,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		        showReads.setEnabled(true);
 				showGel.setEnabled(true);
 				showProfile.setEnabled(true);
-				showAcid.setEnabled(true);
+				showProfileSNP.setEnabled(true);
 				showSNP.setEnabled(true);
 				changeSNP.setEnabled(true);
 				
@@ -484,10 +484,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 					track.trackGroup.showOrHide("ProfileTrack", showProfile.isSelected());
 				}
 			}
-		} else if (source == showAcid) {
+		} else if (source == showProfileSNP) {
 			for (Track track : tracks) {
 				if (track.trackGroup != null) {
-					track.trackGroup.showOrHide("AcidProfile", showAcid.isSelected());
+					track.trackGroup.showOrHide("ProfileSNPTrack", showProfileSNP.isSelected());
 				}
 			}
 		} else if (source == showSNP) {

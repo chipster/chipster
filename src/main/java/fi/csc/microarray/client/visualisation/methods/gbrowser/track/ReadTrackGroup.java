@@ -32,18 +32,18 @@ public class ReadTrackGroup extends TrackGroup {
     protected IntensityTrack readOverviewReversed;
     protected SeqBlockTrack readsReversed;
     protected ProfileTrack profileTrack;
-    protected AcidProfile acidTrack;
+    protected ProfileSNPTrack profileSNPTrack;
     protected GelTrack gelTrack;
     protected Track sepTrackTitle;
     protected SeparatorTrack sepTrackReads;
     protected SeparatorTrack sepTrackSeq;
     protected SeparatorTrack sepTrackProfile;
-    protected SeparatorTrack sepTrackAcid;
     protected SeparatorTrack sepTrackGel;
     
     // Reference sequence
     private DataSource seqFile;
     private boolean hasReference = false;
+	private SeparatorTrack sepTrackProfileSNP;
 
     public ReadTrackGroup(View view, DataSource userData,
             Class<? extends AreaRequestHandler> userDataHandler,
@@ -60,7 +60,14 @@ public class ReadTrackGroup extends TrackGroup {
         readOverview = new IntensityTrack(view, userData,
                 userDataHandler, histogramColor, SWITCH_VIEWS_AT);
         
-        // Detailed
+        // Detailed//            if (request.requestedContents.contains(ColumnType.QUALITY)) {
+//    	values.put(ColumnType.QUALITY, record.getBaseQualities());            	
+//      }
+//      
+//      if (request.requestedContents.contains(ColumnType.CIGAR)) {
+//      	values.put(ColumnType.CIGAR, record.getCigarString());
+//      }
+//      
         reads = new SeqBlockTrack(view, userData,
                 userDataHandler, fontColor, 0, SWITCH_VIEWS_AT);
         
@@ -88,11 +95,10 @@ public class ReadTrackGroup extends TrackGroup {
                 Color.BLACK, PartColor.CDS.c, 0, SWITCH_VIEWS_AT);
         profileTrack.setStrand(Strand.BOTH);
         
-        // Acid profile
-        acidTrack = new AcidProfile(view, userData, userDataHandler,
-                0, SHOW_REFERENCE_AT);
-        acidTrack.setStrand(Strand.FORWARD);        
-        
+        // SNP profile
+        profileSNPTrack = new ProfileSNPTrack(view, userData, userDataHandler,
+                Color.BLACK, 0, SHOW_REFERENCE_AT);
+        profileSNPTrack.setStrand(Strand.BOTH); //Will be set anyway in the track constructor
         
         // Gel
         gelTrack = new GelTrack(view, userData, userDataHandler,
@@ -101,7 +107,6 @@ public class ReadTrackGroup extends TrackGroup {
         
         // Add tracks to this group
         addTracks();
-
     }
     
     private void addTracks() {
@@ -131,9 +136,9 @@ public class ReadTrackGroup extends TrackGroup {
         tracks.add(sepTrackProfile);
         tracks.add(profileTrack);
         
-    	sepTrackAcid = new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT); 
-    	tracks.add(sepTrackAcid);
-        tracks.add(acidTrack);
+    	sepTrackProfileSNP = new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT); 
+    	tracks.add(sepTrackProfileSNP);
+        tracks.add(profileSNPTrack);
         
         // Only draw separator if gel track is visible
     	sepTrackGel = new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT); 

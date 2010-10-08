@@ -36,6 +36,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRe
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ProfileSNPTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ProfileTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
@@ -221,7 +222,10 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
                     // create view context for this track only if we will use it
                     // currently only used for tracks that contain information
                     // about reads
-                    if (expandDrawables && track instanceof ProfileTrack) {
+                    if (expandDrawables && 
+                    		(track instanceof ProfileTrack ||
+                    		track instanceof ProfileSNPTrack)) {
+                    	
                         if (parentPlot.getReadScale() == ReadScale.AUTO) {
                             trackContext = new TrackContext(track);
                         } else {
