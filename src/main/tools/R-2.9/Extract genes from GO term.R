@@ -3,47 +3,52 @@
 # PARAMETER match.term STRING DEFAULT empty (String to search for.)
 
 
-# Fetches genes for a given GO term
-# MG 9.8.2010
+# Extract the rows from a table that contain probes that map genes annotated
+# to a given gene ontology term
+#
+# MG 6.10.2010
 
 # Reads the chiptype from phenodata table
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 if(phenodata$chiptype[1]!="cDNA" | phenodata$chiptype[1]!="Illumina") {
-   # Saves the chiptype into object lib
-   lib<-phenodata$chiptype[1]
-   lib<-as.character(lib)
+	# Saves the chiptype into object lib
+	lib<-phenodata$chiptype[1]
+	lib<-as.character(lib)
 }
 
 # Account for the fact that annotation packages are from version 2.3 of Bioconductor
 # named with an ".db" suffix. Add the suffix when missing to support data files
 # from Chipster 1.3 and earlier. 
 if (length(grep(".db", lib)) == 0 & length(grep("pmcdf", lib)) == 0) {
-  lib <- paste(lib, ".db", sep="")
+	lib <- paste(lib, ".db", sep="")
 }
 
 # Loads the correct annotation library
+lib2<-sub('.db','',lib)
 library(package=lib, character.only=T)
-library(annaffy)
 
 # Loads the data
 file<-c("normalized.tsv")
 dat<-read.table(file, header=T, sep="\t", row.names=1)
 
 # Extract the mapping info
-translation_map <- 
+lib3 <- paste(lib2, "GO2ALLPROBES", sep="")
+env <- get(lib3)
+go.2.probes <- as.list(env) 
 
-# Creating annotations from the library
-annot.cols<-aaf.handler()
-annot.table<-aafTableAnn(row.names(dat), lib, annot.cols)
-saveText(annot.table, "annotations.tsv")
+# Extract all probes belonging to query
+probes.list <- go.2.probes[match.term]
+probes.go <- unlist(probes.list)
 
-# Merging annotations and data
-annot<-read.table("annotations.tsv", header=T, sep="\t", row.names=1, quote="")
-annot$Pathway<-gsub("\'", "", annot$Pathway)
-annot$Gene.Ontology<-gsub("\'", "", annot$Gene.Ontology)
-datannot<-merge(dat, annot, by.x="row.names", by.y="row.names")
-rownames(datannot)<-datannot[,1]
-datannot<-datannot[,-1]
+# Extract probes in query list
+probes.query <- rownames(dat)
 
-# Writing out the annotated data
-write.table(datannot, file="data-with-annotations.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+# Extract common probes
+match.indices <- match (probes.go, probes.query, nomatch=0)
+match.indices <- unique (match.indices[match.indices>0])
+
+# Extract data
+dat2 <- dat[match.indices,]
+
+# Writing out the extracted data
+write.table(dat2, file="extracted-from-GO.tsv", sep="\t", row.names=T, col.names=T, quote=F)
