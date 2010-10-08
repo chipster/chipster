@@ -1,41 +1,71 @@
-# ANALYSIS Utilities/"Average replicate chips" (Calculates an arithmetic average of gene expression levels for replicate 
-# chips.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT average-replicates.tsv
-# PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to average)
-
+# ANALYSIS Utilities/"Average replicate chips" (Calculates averages for replicate chips.)
+# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv
+# OUTPUT average-replicates.tsv, average-phenodata.tsv
+# PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to average.)
+# PARAMETER averaging [mean, median] DEFAULT mean (Averaging using the mean or median.)
 
 # Average replicate chips
 # JTT 30.7.2007
 #
 # modified by MG, 12.4.2010
+# rewritten by IS, 6.9.2010
 
-# Loads the normalized data
-file<-c("normalized.tsv")
-dat<-read.table(file, header=T, sep="\t", row.names=1)
+# load inputs
+dat <- read.table('normalized.tsv', header=TRUE, sep='\t', row.names=1)
+phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', as.is=TRUE)
 
-# Separates expression values and flags
-calls<-dat[,grep("flag", names(dat))]
-dat2<-dat[,grep("chip", names(dat))]
+# identify replicates
+replicates <- unique(phenodata[duplicated(phenodata[,column]), column])
+unique.chips <- which(!phenodata[,column] %in% replicates)
 
-# Test needs a parameter "groups" that specifies the grouping of the samples
-phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
-groups<-phenodata[,pmatch(column,colnames(phenodata))]
+# generate new phenodata
+concatenate.if.not.equal <- function(x) {
+  x <- unique(x)
+  paste(x, collapse=';')
+}
+numeric.cols <- sapply(phenodata, is.numeric)
+other.cols <- !sapply(phenodata, is.numeric)
+phenodata2 <- phenodata[unique.chips,]
+for (s in replicates) {
+  ss <- phenodata[phenodata[,column] == s,]
+  ss[1, numeric.cols] <- apply(ss[,numeric.cols], 2, averaging)
+  ss[1, other.cols] <- apply(ss[,other.cols], 2, concatenate.if.not.equal)
+  ss <- ss[1,]
+  phenodata2 <- rbind(phenodata2, ss)
+}
+phenodata2$sample <- sprintf('microarray%.3i', 1:nrow(phenodata2))
 
-# Sanity checks
-if(length(unique(groups))==1) {
-   stop("CHIPSTER-NOTE: You do not have any replicates to average!")
+# identify matrices (chip, flag, segmented, ...) present in the data
+x <- colnames(dat)
+suffix <- sub('^chip\\.', '', x[grep('^chip\\.', x)[1]])
+matrices <- sub(suffix, '', x[grep(suffix, x)])
+
+# identify annotation columns (that are not part of any of the matrices)
+annotations <- 1:ncol(dat)
+for (m in matrices)
+  annotations <- setdiff(annotations, grep(m, x))
+dat2 <- dat[,annotations]
+
+# generate new data table
+for (m in matrices) {
+  m2 <- dat[,grep(m, x)]
+  m3 <- m2[,unique.chips]
+  num <- is.numeric(as.matrix(m2))
+  for (s in replicates) {
+    ss <- which(phenodata[,column] == s)
+    if (num) {
+      ss <- apply(m2[,ss], 1, averaging, na.rm=TRUE) # what to do with the log transformation?
+    } else {
+      ss <- apply(m2[,ss], 1, concatenate.if.not.equal)
+    }
+    m3 <- cbind(m3, ss, stringsAsFactors=FALSE)
+  }
+  colnames(m3) <- paste(m, phenodata2$sample, sep='')
+  dat2 <- cbind(dat2, m3)
 }
 
-# Calculating averages
-columnnames<-c()
-dat3<-matrix(nrow=nrow(dat2), ncol=length(unique(groups)), NA)
-for(i in 1:length(unique(groups))) {
-   dat3[,i]<-log2(rowMeans(2^(dat2[,which(groups==i)])))
-   columnnames<-c(columnnames, paste("group", i, sep=""))
-}
-columnnames<-paste("chip.", columnnames, sep="")
-colnames(dat3)<-columnnames
-rownames(dat3)<-rownames(dat2)
+# write output
+write.table(dat2, file='average-replicates.tsv', quote=FALSE, sep='\t')
+write.table(phenodata2, file='average-phenodata.tsv', quote=FALSE, sep='\t', row.names=FALSE)
 
-# Saving the results
-write.table(data.frame(dat3), file="average-replicates.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+# EOF
