@@ -228,8 +228,8 @@ public abstract class ClientApplication {
 			
 			// create GUI elements from descriptions
 			this.operationDefinitions = new HashMap<String, OperationDefinition>();
-			for (OperationCategory category: visibleCategories) {
-				for (OperationDefinition operationDefinition: category.getOperationList()) {
+			for (OperationCategory category : visibleCategories) {
+				for (OperationDefinition operationDefinition : category.getOperationList()) {
 					operationDefinitions.put(operationDefinition.getID(), operationDefinition);
 				}
 			}

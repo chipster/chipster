@@ -55,6 +55,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Cytoba
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.HeaderTsvParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SNPParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SequenceParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
@@ -69,7 +70,6 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
-import fi.csc.microarray.gbrowser.index.GeneIndexDataType;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -183,10 +183,11 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
     
     //tracks switches
     private JCheckBox showReads = new JCheckBox("Reads", true);
-    private JCheckBox showGel = new JCheckBox("Gel track", true);
-    private JCheckBox showProfile = new JCheckBox("Profile track", true);
+    private JCheckBox showGel = new JCheckBox("Gel track", false);
+    private JCheckBox showProfile = new JCheckBox("Profile track", false);
     private JCheckBox showAcid = new JCheckBox("Nucleic acids", false);
     private JCheckBox showSNP = new JCheckBox("Highlight SNP", false);
+    private JCheckBox changeSNP = new JCheckBox("Change SNP view", false);
 
 	public GenomeBrowser(VisualisationFrame frame) {
 		super(frame);
@@ -290,6 +291,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		showProfile.setEnabled(false);
 		showAcid.setEnabled(false);
 		showSNP.setEnabled(false);
+		changeSNP.setEnabled(false);
 		
 		JPanel menu = new JPanel();
 		JScrollPane menuu = new JScrollPane(menu);
@@ -300,12 +302,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		menu.add(showGel);
         //menu.add(showAcid);
         menu.add(showSNP);
+        menu.add(changeSNP);
         
         showReads.addActionListener(this);
         showGel.addActionListener(this);
         showProfile.addActionListener(this);
         showAcid.addActionListener(this);
         showSNP.addActionListener(this);
+        changeSNP.addActionListener(this);
 		settingsPanel.add(menuu, c);
 		
 		c.gridy++;
@@ -423,6 +427,19 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	protected JComponent getColorLabel() {
 		return new JLabel("Color: ");
 	}
+	
+	public void setShowOrHideTracks() {
+		for (Track track : tracks) {
+			if (track.trackGroup != null) {
+				track.trackGroup.showOrHide("SeqBlockTrack", showReads.isSelected());
+				track.trackGroup.showOrHide("GelTrack", showGel.isSelected());
+				track.trackGroup.showOrHide("ProfileTrack", showProfile.isSelected());
+				track.trackGroup.showOrHide("AcidProfile", showAcid.isSelected());
+				track.trackGroup.showOrHide("highlightSNP", showSNP.isSelected());
+				track.trackGroup.showOrHide("changeSNP", changeSNP.isSelected());
+			}
+		}
+	}
 
 	/**
 	 * A method defined by the ActionListener interface. Allows this panel to
@@ -439,8 +456,15 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				showProfile.setEnabled(true);
 				showAcid.setEnabled(true);
 				showSNP.setEnabled(true);
+				changeSNP.setEnabled(true);
+				
+				setShowOrHideTracks();
+				
 		    } else {
 		        updateLocation();
+		        
+		        //leave the same values
+		        setShowOrHideTracks();
 		    }
 		} else if (source == showReads) {
 			for (Track track : tracks) {
@@ -473,6 +497,12 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 					track.trackGroup.showOrHide("highlightSNP", showSNP.isSelected());
 				}
 			}
+		} else if (source == changeSNP) {
+			for (Track track : tracks) {
+				if (track.trackGroup != null) {
+					track.trackGroup.showOrHide("changeSNP", changeSNP.isSelected());
+				}
+			}
 		}
 	}
 
@@ -501,8 +531,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			application.reportException(e);
 		}
 
-		// Create gene name index
-		gia = GeneIndexActions.getInstance(this);
 	}
 
 	@Override
@@ -527,6 +555,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		visualised = true;
 
 		try {
+			// Create gene name index
+			gia = GeneIndexActions.getInstance(this, (Genome)genomeBox.getSelectedItem());
+			
 			// create the plot
 			Genome genome = (Genome) genomeBox.getSelectedItem();
 			ChartPanel chartPanel = new NonScalableChartPanel();
@@ -548,6 +579,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 										new CytobandParser()));
 						break;
 					case GENES:
+						Row snpRow = annotationContents.getRow(genome, AnnotationContents.Content.SNP);
+						
 						TrackGroup geneGroup = TrackFactory.addGeneTracks(plot,
 								createAnnotationDataSource(annotationContents.getRow(
 										genome, AnnotationContents.Content.GENES).file,
@@ -557,7 +590,12 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 										new TranscriptParser()),
 								createAnnotationDataSource(annotationContents.getRow(
 										genome, AnnotationContents.Content.REFERENCE).file,
-										new SequenceParser()));
+										new SequenceParser()),
+								snpRow == null ? null : 
+									createAnnotationDataSource(annotationContents.getRow(
+											genome, AnnotationContents.Content.SNP).file,
+											new SNPParser())
+								);
 						track.setTrackGroup(geneGroup);
 						break;
 					case REFERENCE:
@@ -596,7 +634,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 					case TREATMENT_SUMMARY:
 					    treatmentData = createReadDataSource(track.userData, tracks);
 						TrackGroup readGroup1 = TrackFactory.addReadSummaryTracks(plot, treatmentData,
-						        createReadHandler(file), file.getName());
+						        createReadHandler(file),
+						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv",
+								        new SequenceParser()),
+						        file.getAbsolutePath());
 						track.setTrackGroup(readGroup1);
 						break;
 
@@ -727,6 +768,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	    
 	    if (file.getName().contains(".bam-summary")) {
 	    	dataSource = new TabixDataSource(file);
+	    	
 	    } else if (file.getName().contains(".bam") || file.getName().contains(".sam")) {
 	    	// Find the index file from the operation
 	    	DataBean indexBean = null;
@@ -855,7 +897,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				
 			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
 			           (data.getName().endsWith(".bam") || data.getName().endsWith(".sam"))) {
-                interpretations.add(TrackType.TREATMENT_READS);
+                interpretations.add(TrackType.TREATMENT_SUMMARY);
                 
 			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
 			           (data.getName().endsWith(".bai"))) {
@@ -902,21 +944,21 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		}
 
 		// Only position within chromosome changed
-		GeneIndexDataType gidt = new GeneIndexDataType();
+		BpCoordRegion geneLocation;
 		if (!gia.checkIfNumber(locationField.getText())) {
 
-			gidt = gia.getLocation(locationField.getText().toUpperCase());
+			geneLocation = gia.getLocation(locationField.getText().toUpperCase(), (Chromosome)chrBox.getSelectedItem());
 
-			if (gidt == null) {
+			if (geneLocation == null) {
 				application.showDialog("Not found",
 						"Gene with such name was not found", null,
 						Severity.INFO, false,
 						DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
 			} else {
-				chrBox.setSelectedItem(new Chromosome(gidt.chromosome));
+				chrBox.setSelectedItem(new Chromosome(geneLocation.start.chr));
 				plot.moveDataBpRegion((Chromosome) chrBox.getSelectedItem(),
-						(gidt.bpend + gidt.bpstart) / 2,
-						(gidt.bpend - gidt.bpstart) * 2);
+						(geneLocation.end.bp + geneLocation.start.bp) / 2,
+						(geneLocation.end.bp - geneLocation.start.bp) * 2);
 			}
 		} else {
 			try {
@@ -963,5 +1005,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 	public void componentShown(ComponentEvent arg0) {
 		// skip
+	}
+	
+	public ClientApplication getClientApplication() {
+		return application;
 	}
 }

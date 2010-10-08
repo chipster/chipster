@@ -93,7 +93,8 @@ public class AnnotationContents {
 		TRANSCRIPTS ("ENSEMBL Transcripts"),
 		GENES ("ENSEMBL Genes"),
 		MIRNA ("ENSEMBL miRNA Genes"),
-		REFERENCE ("Reference sequence");
+		REFERENCE ("Reference sequence"),
+		SNP ("ENSEMBL SNP");
 		
 		String id;
 		

@@ -17,12 +17,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
  * Generic track for showing high level distribution of items (genes, transcripts, reads...) on the genome.
- * The result is an approximation.
- *
  */
 public class TabixIntensityTrack extends Track {
 
@@ -48,6 +47,7 @@ public class TabixIntensityTrack extends Track {
 		
 		int lastX = 0;
 		int lastY = (int) getView().getTrackHeight();
+		BpCoord lastStart = null;
 		
 		while (iterator.hasNext()) {
 
@@ -60,7 +60,8 @@ public class TabixIntensityTrack extends Track {
 			}
 			
 			// do the plotting for this consised value
-			int x1 = getView().bpToTrack(regCont.region.start);
+			BpCoord start = regCont.region.start;
+			int x1 = getView().bpToTrack(start);
 			//int x2 = getView().bpToTrack(regCont.region.end) + 2;
 			int y2 = (int) getView().getTrackHeight();						
 			
@@ -69,10 +70,19 @@ public class TabixIntensityTrack extends Track {
 			
 			int y1 = (int) (-val + y2);
 			
+			// if we are trying to cover a large genomic area and zoomed out, there was empty 
+			// region in the genome and we should not draw silly looking diagonal line
+			boolean zoomedOut = x1 - lastX > 10;
+			if ((lastStart == null || regCont.region.start.minus(lastStart) > 100000) && zoomedOut) {
+//				lastX = x1;
+// did not work with 8k summaries
+			}
+			
 			drawables.add(new LineDrawable(lastX, lastY, x1, y1, color));
 			
 			lastX = x1;
 			lastY = y1;
+			lastStart = start; 
 		}
 
 		return drawables;

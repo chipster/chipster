@@ -312,11 +312,9 @@ public class OperationDefinition implements ExecutionItem {
         // Input suitability gets checked while trying to bind the data
         bindInputs(data);
 	    
-	    if (parameterSuitability == null) {
-	        // Parameter suitability has not been checked yet
-	        parameterSuitability =
-	                OperationDefinition.parameterSuitability(getParameters());
-	    }
+        // Parameter suitability has not been checked yet
+        parameterSuitability =
+        	OperationDefinition.parameterSuitability(getParameters());
 	    
 	    // Report only either input or parameter suitability
 	    if (evaluatedSuitability.isOk()) {

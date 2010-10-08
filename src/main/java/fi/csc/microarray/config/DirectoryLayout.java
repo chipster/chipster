@@ -284,7 +284,6 @@ public class DirectoryLayout {
 			if (debugRoot.exists()) {
 				baseDir = debugRoot;
 			}
-			
 			return baseDir;
 		}
 	}
