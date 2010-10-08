@@ -162,19 +162,16 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			connection = (HttpURLConnection) url.openConnection();
 		
 			// check file existence
-			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-				return false;
+			if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+				// should check content length and checksum
+				return true;
 			}
-			
-			// check content length
-
-		} catch (IOException e) {
-			// file broker may have changes
-			return false;
+		} catch (IOException ioe) {
+			return false;	
 		} finally {
 			IOUtils.disconnectIfPossible(connection);
 		}
-		return true;
+		return false;
 	}
 
 	

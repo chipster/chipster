@@ -7,13 +7,13 @@
 
 # plot-cgh-profile.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-04-20
+# 2010-08-31
 
 library(CGHcall)
 
 # read input files
 dat <- read.table('aberrations.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
-phenodata <- read.table("phenodata.tsv", header=T, sep="\t")
+phenodata <- read.table("phenodata.tsv", header=TRUE, sep="\t", as.is=TRUE)
 
 # parse the input string
 samples <- gsub('[^0-9,-]', ',', samples)

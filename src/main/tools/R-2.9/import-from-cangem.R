@@ -10,11 +10,11 @@
 # PARAMETER intra.array.normalization [none, median, loess] DEFAULT loess (Intra-array normalization method for Agilent arrays. Will be ignored, if downloaded files are not in Agilent file format.)
 # PARAMETER inter.array.normalization [none, quantile, scale] DEFAULT none (Inter-array normalization method for Agilent arrays. Will be ignored, if downloaded files are not in Agilent file format.)
 # PARAMETER affymetrix.normalization [gcrma, rma, mas5] DEFAULT gcrma (Normalization method for Affymetrix arrays. Will be ignored, if downloaded files are not in Affymetrix file format.)
-# PARAMETER genome.build [none, GRCh37, NCBI36, NCBI35, NCBI34] DEFAULT GRCh37 (The genome build to use for adding the chromosome names and start and end base pair positions for the probes.)
+# PARAMETER genome.build [none, GRCh37, NCBI36, NCBI35, NCBI34] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16.)
 
 # import-from-cangem.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-08-04
+# 2010-09-05
 
 # check for valid accession
 accession <- toupper(accession)
