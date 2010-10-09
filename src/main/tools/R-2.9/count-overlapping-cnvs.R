@@ -1,11 +1,11 @@
-# ANALYSIS "aCGH tools (beta testing)"/"Count overlapping CNVs" (Counts overlapping CNVs from the database of genomic variants.)
+# ANALYSIS "aCGH tools"/"Count overlapping CNVs" (Counts overlapping CNVs from the database of genomic variants.)
 # INPUT GENERIC normalized.tsv
 # OUTPUT cnvs.tsv
 # PARAMETER genome.build [GRCh37, NCBI36, NCBI35] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16.)
 
 # count-overlapping-cnvs.R
-# Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-09-04
+# Ilari Scheinin <firstname.lastname@gmail.com>
+# 2010-10-05
 
 dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 

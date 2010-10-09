@@ -1,13 +1,13 @@
-# ANALYSIS "aCGH tools (beta testing)"/"Group tests for called aCGH data" (Statistical tests between two or more groups for called aCGH data. The testing is recommended to be performed after running the Identify common regions from called aCGH data module.)
+# ANALYSIS "aCGH tools"/"Group tests for called aCGH data" (Statistical tests between two or more groups for called aCGH data. The testing is recommended to be performed after running the Identify common regions from called aCGH data tool.)
 # INPUT GENE_EXPRS regions.tsv, GENERIC phenodata.tsv
 # OUTPUT groups-test.tsv
 # PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER teststat [Chi-square, Wilcoxon, KW] DEFAULT Chi-square (The test to use: either Chi-square, Wilcoxon, or Kruskal-Wallis.)
-# PARAMETER niter INTEGER DEFAULT 10000 (The number of permutations. At least 10000 recommended for final calculations.)
+# PARAMETER test.statistic [Chi-square, Wilcoxon, KW] DEFAULT Chi-square (The test to use: either Chi-square, Wilcoxon, or Kruskal-Wallis.)
+# PARAMETER number.of.permutations INTEGER DEFAULT 10000 (The number of permutations. At least 10000 recommended for final calculations.)
 
 # stat-acgh.R
-# Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-06-07
+# Ilari Scheinin <firstname.lastname@gmail.com>
+# 2010-10-06
 
 library(CGHtest)
 
@@ -38,7 +38,7 @@ for (group in groupnames) {
   data.info[,paste('gain.freq.', group, sep='')] <- round(mean(as.data.frame(t(group.calls==1))), digits=3)
 }
 
-pvs <-  pvalstest(datacgh, data.info, teststat=teststat, group=group.sizes, groupnames=groupnames, niter=niter)
+pvs <-  pvalstest(datacgh, data.info, teststat=test.statistic, group=group.sizes, groupnames=groupnames, niter=number.of.permutations)
 fdrs <- fdrperm(pvs)
 
 write.table(fdrs, file="groups-test.tsv", quote=FALSE, sep="\t", row.names=TRUE, col.names=TRUE)
