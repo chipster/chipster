@@ -1,4 +1,4 @@
-# ANALYSIS "aCGH tools (beta testing)"/"Identify common regions from called aCGH data" (Reduces dimensionality of called aCGH data by identifying common breakpoints.)
+# ANALYSIS "aCGH tools"/"Identify common regions from called aCGH data" (Reduces dimensionality of called aCGH data by identifying common breakpoints.)
 # INPUT GENE_EXPRS aberrations.tsv
 # OUTPUT regions.tsv, aberration-regions.png, aberration-frequencies.png
 # PARAMETER max.info.loss DECIMAL DEFAULT 0.01 (Maximal information loss allowed.)
@@ -6,8 +6,8 @@
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 # detect-common-copy-number-aberration-regions.R
-# Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-08-31
+# Ilari Scheinin <firstname.lastname@gmail.com>
+# 2010-10-05
 
 library(CGHcall)
 library(CGHregions)

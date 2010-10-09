@@ -59,6 +59,7 @@
 	<tool runtime="R-2.9">ordination-ca.R</tool>
 	<tool runtime="R-2.9">ordination-nmds.R</tool>
 	<tool runtime="R-2.9">estimate-samplesize.R</tool>
+	<tool runtime="R-2.9">sample-size-with-bh.R</tool>
 	<!-- <tool runtime="R-2.10">up-down-analysis-mirna.R</tool> -->
 
 	<!-- CLUSTERING -->
@@ -110,6 +111,7 @@
 	<tool runtime="R-2.9">search-correlation.R</tool>
 	<!-- <tool runtime="R-2.10">search-queryword.R</tool> -->
 	<tool runtime="R-2.9">merge-tables.R</tool>
+	<tool runtime="R-2.9">merge-datasets.R</tool>
 	<tool runtime="R-2.9">extract-genes-from-clustering.R</tool>
 	<tool runtime="R-2.9">extract-samples-from-dataset.R</tool>
 	<tool runtime="R-2.9">extract-genes-from-stattest.R</tool>
@@ -138,14 +140,16 @@
 		<tool runtime="R-2.9">seqanal-phylogenetics.R</tool>
 	-->
 
-	<!-- ACGH TOOLS (BETA TESTING) -->
+	<!-- ACGH TOOLS -->
 	<tool runtime="R-2.9">import-from-cangem.R</tool>
 	<tool runtime="R-2.9">smooth-acgh.R</tool>
 	<tool runtime="R-2.9">detect-copy-number-aberrations.R</tool>
 	<tool runtime="R-2.9">plot-cgh-profile.R</tool>
-	<tool runtime="R-2.9">convert-cn-probes-to-genes.R</tool>
 	<tool runtime="R-2.9">detect-common-copy-number-aberration-regions.R</tool>
+	<tool runtime="R-2.9">cluster-acgh.R</tool>
 	<tool runtime="R-2.9">stat-acgh.R</tool>
+	<tool runtime="R-2.9">convert-cn-probes-to-genes.R</tool>
+	<tool runtime="R-2.10">pathways-acgh-hyperg-go.R</tool>
 	<tool runtime="R-2.9">match-cn-and-expression-probes.R</tool>
 	<tool runtime="R-2.9">plot-cn-induced-expression-profile.R</tool>
 	<tool runtime="R-2.9">test-for-cn-induced-differential-expression.R</tool>	
@@ -153,11 +157,7 @@
 	<tool runtime="R-2.9">fetch-probe-positions-from-cangem.R</tool>
 	<tool runtime="R-2.9">add-cytobands.R</tool>
 	<tool runtime="R-2.9">count-overlapping-cnvs.R</tool>
-   	<tool runtime="R-2.9">sample-size-with-bh.R</tool>
-   	<tool runtime="R-2.9">merge-datasets.R</tool>
-   	<tool runtime="R-2.9">calculate-aberration-frequencies.R</tool>
-   	<tool runtime="R-2.10">pathways-acgh-hyperg-go.R</tool>
-   	<tool runtime="R-2.9">cluster-acgh.R</tool>
+	<tool runtime="R-2.9">calculate-aberration-frequencies.R</tool>
 
 	<!-- HIDDEN -->
 	<tool runtime="R-2.9" hidden="true">test.R</tool>

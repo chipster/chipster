@@ -1,14 +1,14 @@
-# ANALYSIS "aCGH tools (beta testing)"/"Plot profiles of matched copy number and expression" (Plot profiles of two priorly matched data sets of copy number and expression. This module must be run on the output from the module Match copy number and expression probes - matched-cn-and-expression.tsv.)
+# ANALYSIS "aCGH tools"/"Plot profiles of matched copy number and expression" (Plot profiles of two priorly matched data sets of copy number and expression. This tool must be run on the output from the tool Match copy number and expression probes - matched-cn-and-expression.tsv.)
 # INPUT GENE_EXPRS matched-cn-and-expression.tsv
 # OUTPUT matched-cn-and-expression-profile.png
 # PARAMETER sample STRING DEFAULT 1 (The number of the sample to be plotted.)
-# PARAMETER chr INTEGER DEFAULT 0 (The chromosome to plot. Use 0 for all.)
+# PARAMETER chromosome INTEGER DEFAULT 0 (The chromosome to plot. Use 0 for all.)
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 # plot-cn-induced-expression-profile.R
-# Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-05-26
+# Ilari Scheinin <firstname.lastname@gmail.com>
+# 2010-10-05
 
 # The plotting command from the intCNGEan package uses par(mfrow) overriding ours.
 # Therefore only one profile can be plotted.
@@ -26,7 +26,7 @@ dat <- read.table('matched-cn-and-expression.tsv', header=TRUE, sep='\t', as.is=
 # check that the input file seems to be coming from the script used to match the two data sets
 pos <- c('chromosome','cn.start','cn.end','exp.start','exp.end')
 if (length(setdiff(pos, colnames(dat)))!=0)
-  stop('CHIPSTER-NOTE: This module can only be run on the output file from the module Match copy number and expression probes (matched-cn-and-expression.tsv).')
+  stop('CHIPSTER-NOTE: This tool can only be run on the output file from the tool Match copy number and expression probes (matched-cn-and-expression.tsv).')
 
 # build the necessary object
 dat$chromosome[dat$chromosome=='X'] <- 23
@@ -76,14 +76,14 @@ if (length(to.plot)==0)
 # plot
 bitmap(file='matched-cn-and-expression-profile.png', width=image.width/72, height=image.height/72)
 if (length(to.plot)==1) {
-  intCNGEan.profilesPlot(matched$CNdata.matched, matched$GEdata.matched, sampleNo=to.plot, chr=chr)
+  intCNGEan.profilesPlot(matched$CNdata.matched, matched$GEdata.matched, sampleNo=to.plot, chr=chromosome)
 } else {
   sq <- sqrt(length(to.plot))
   rows <- ceiling(sq)
   cols <- ceiling(length(to.plot)/rows)
   par(mfrow=c(rows,cols))
   for (sample in to.plot)
-    intCNGEan.profilesPlot(matched$CNdata.matched, matched$GEdata.matched, sampleNo=sample, chr=chr)
+    intCNGEan.profilesPlot(matched$CNdata.matched, matched$GEdata.matched, sampleNo=sample, chr=chromosome)
 }
 dev.off()
 

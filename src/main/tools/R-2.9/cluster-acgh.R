@@ -1,13 +1,13 @@
-# ANALYSIS "aCGH tools (beta testing)"/"Cluster called aCGH data" ()
+# ANALYSIS "aCGH tools"/"Cluster called aCGH data" (Perform clustering of aCGH arrays.)
 # INPUT GENERIC regions.tsv, GENERIC phenodata.tsv
 # OUTPUT wecca.png
-# PARAMETER calls [hard, soft] DEFAULT soft ()
+# PARAMETER calls [hard, soft] DEFAULT soft (Whether to cluster the arrays based on soft or hard calls. Hard calls are losses, normals, and gains, whereas soft calls refer to the respective probabilities of these calls. The preferred choice is to use soft calls whenever they are available.)
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 # cluster-acgh.R
-# Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-08-31
+# Ilari Scheinin <firstname.lastname@gmail.com>
+# 2010-10-05
 
 library(WECCA)
 
@@ -23,7 +23,7 @@ ann <- dat[,1:4]
 colnames(ann) <- c('Chromosome', 'Start', 'End', 'Nclone')
 hardcalls <- as.matrix(dat[,grep("^flag", names(dat))])
 if (ncol(hardcalls)==0)
-  stop('CHIPSTER-NOTE: No copy number calls were found. Please run modules Call copy number aberrations from aCGH data and Identify common regions from called aCGH data first.')
+  stop('CHIPSTER-NOTE: No copy number calls were found. Please run tools Call copy number aberrations from aCGH data and Identify common regions from called aCGH data first.')
 colnames(hardcalls) <- phenodata$description
 softcalls <- as.matrix(dat[,grep("^prob", names(dat))])
 if (ncol(softcalls)==0) {
