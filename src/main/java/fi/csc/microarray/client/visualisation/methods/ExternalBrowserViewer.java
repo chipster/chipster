@@ -1,4 +1,4 @@
-package fi.csc.microarray.client.visualisation;
+package fi.csc.microarray.client.visualisation.methods;
 
 import java.awt.BorderLayout;
 import java.io.File;
@@ -9,6 +9,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.visualisation.Visualisation;
+import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.BrowserLauncher;

@@ -12,11 +12,11 @@ import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.visualisation.ExternalBrowserViewer;
-import fi.csc.microarray.client.visualisation.PDFViewer;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
+import fi.csc.microarray.client.visualisation.methods.ExternalBrowserViewer;
 import fi.csc.microarray.client.visualisation.methods.HtmlViewer;
 import fi.csc.microarray.client.visualisation.methods.ImageViewer;
+import fi.csc.microarray.client.visualisation.methods.PDFViewer;
 import fi.csc.microarray.client.visualisation.methods.Spreadsheet;
 import fi.csc.microarray.client.visualisation.methods.TextViewer;
 import fi.csc.microarray.constants.VisualConstants;

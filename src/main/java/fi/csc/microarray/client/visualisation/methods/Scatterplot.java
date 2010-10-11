@@ -34,7 +34,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 import fi.csc.microarray.client.selection.RowChoiceEvent;
 import fi.csc.microarray.client.selection.RowSelectionManager;
 import fi.csc.microarray.client.visualisation.AnnotateListPanel;
-import fi.csc.microarray.client.visualisation.ChipVisualisation;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;

@@ -1,7 +1,10 @@
-package fi.csc.microarray.client.visualisation;
+package fi.csc.microarray.client.visualisation.methods;
 
 import java.util.Arrays;
 
+import fi.csc.microarray.client.visualisation.Visualisation;
+import fi.csc.microarray.client.visualisation.VisualisationFrame;
+import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.basic.BasicModule;
