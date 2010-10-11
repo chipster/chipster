@@ -2,13 +2,14 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -18,10 +19,14 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDo
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * Ruler that shows coordinates.
+ *
+ */
 public class RulerTrack extends Track {
 
 	private static final int textY = 10;
-	private final static int MINOR_STEPS = 5;
+	private final static int MINOR_STEPS = 10;
 
 	List<Long> info = new ArrayList<Long>();
 
@@ -38,7 +43,7 @@ public class RulerTrack extends Track {
 		long magnitude = (long) Math.pow(10, (int) Math.log10(region.getLength()));
 
 		final long start = region.start.bp - region.start.bp % magnitude;
-		final int steps = (int) Math.ceil(region.getLength() / magnitude) + 1;
+		final int steps = (int) Math.ceil(region.getLength() / (double)magnitude) + 1;
 		final long end = start + steps * magnitude;
 
 		for (long bp = start; bp <= end; bp += magnitude) {
@@ -63,8 +68,9 @@ public class RulerTrack extends Track {
 
 		double increment = bpRegion.getLength() / (double) steps;
 		BpCoordDouble boxBp = new BpCoordDouble(bpRegion.start);
-		int boxX;
-		int lastBoxX = getView().bpToTrack(bpRegion.start);
+		
+        float lastBoxX = getView().bpToTrackFloat(bpRegion.start);
+		float boxX = 0;
 
 		info.clear();
 
@@ -75,16 +81,25 @@ public class RulerTrack extends Track {
 
 			info.add((long) (double) boxBp.bp);
 
-			boxX = getView().bpToTrack(boxBp.asBpCoord());
+			boxX = getView().bpToTrackFloat(boxBp.asBpCoord());
 
-			drawables.add(new RectDrawable(lastBoxX, textY, boxX - lastBoxX, boxHeight, c, Color.black));
+			drawables.add(new RectDrawable(Math.round(lastBoxX), textY,
+			        Math.round(boxX) - Math.round(lastBoxX), boxHeight, c, null));
 
-			Color lineColor = (i % MINOR_STEPS == MINOR_STEPS - 1) ? new Color(0, 0, 0, 64) : new Color(0, 0, 0, 32);
-
-			drawables.add(new LineDrawable(boxX, -getView().getHeight() + getMaxHeight(), boxX, getMaxHeight(), lineColor));
+			// TODO remove these guidelines if not used
+			// Color lineColor = (i % MINOR_STEPS == MINOR_STEPS - 1) ? new Color(0, 0, 0, 64) : new Color(0, 0, 0, 32);
+			// drawables.add(new LineDrawable(boxX, -getView().getHeight() + getHeight(), boxX, getHeight(), lineColor));
 
 			lastBoxX = boxX;
 		}
+		
+		// Draw a single border
+		float startX = getView().bpToTrackFloat(bpRegion.start);
+		float endX = boxX;
+        drawables.add(new RectDrawable(
+                Math.round(startX), textY,
+                Math.round(endX) - Math.round(startX), boxHeight, null, Color.black));		
+		
 		return drawables;
 
 	}
@@ -96,16 +111,21 @@ public class RulerTrack extends Track {
 	public List<Long> getRulerInfo() {
 		return info;
 	}
+	
+    @Override
+    public Integer getHeight() {
+        return textY * 2;
+    }
 
 	@Override
-	public int getMaxHeight() {
-		return textY * 2;
+	public boolean isStretchable () {
+		return false;
 	}
 
-	@Override
-	public Collection<ColumnType> getDefaultContents() {
-		return Arrays.asList(new ColumnType[] {});
-	}
+    @Override
+    public Map<DataSource, Set<ColumnType>> requestedData() {
+        return null;
+    }
 
 	@Override
 	public boolean isConcised() {

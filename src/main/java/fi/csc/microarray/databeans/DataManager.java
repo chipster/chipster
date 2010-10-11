@@ -22,7 +22,7 @@ import org.mortbay.util.IO;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
-import fi.csc.microarray.databeans.DataBean.DataBeanType;
+import fi.csc.microarray.databeans.DataBean.StorageMethod;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
@@ -53,15 +53,15 @@ public class DataManager {
 	
 	/** Mapping file extensions to content types */
 	private Map<String, String> extensionMap = new HashMap<String, String>();
+	private HashMap<String, TypeTag> tagMap = new HashMap<String, TypeTag>();
 	
 	private LinkedList<DataChangeListener> listeners = new LinkedList<DataChangeListener>();
 	
 	private boolean eventsEnabled = false;
 
-	
-	
 	private DataFolder rootFolder;	
 	private File repositoryRoot;
+
 	
 	public DataManager() throws IOException {
 		rootFolder = createFolder(DataManager.ROOT_NAME);
@@ -416,7 +416,7 @@ public class DataManager {
 			throw new MicroarrayException(e);
 		}
 		
-		return createDataBean(name, DataBeanType.LOCAL_TEMP, null, new DataBean[] {}, contentFile);
+		return createDataBean(name, StorageMethod.LOCAL_TEMP, null, new DataBean[] {}, contentFile);
 	}
 
 	/**
@@ -434,9 +434,23 @@ public class DataManager {
 	 * 
 	 */
 	public DataBean createDataBean(String name, File contentFile) throws MicroarrayException {		
-		return createDataBean(name, DataBeanType.LOCAL_USER, null, new DataBean[] {}, contentFile);
+		return createDataBean(name, StorageMethod.LOCAL_USER, null, new DataBean[] {}, contentFile);
 	}
 
+	/**
+	 * For now, only file URLs are supported.
+	 * 
+	 */
+	public DataBean createDataBean(String name, URL url) throws MicroarrayException {
+		File contentFile;
+		try {
+			contentFile = new File(url.toURI());
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Could not convert " + url + " to a file");
+		}
+		
+		return createDataBean(name, StorageMethod.LOCAL_USER, null, new DataBean[] {}, contentFile);
+	}
 
 	/**
 	 * Create a zip file DataBean. Bean contents are already in the zipFile and can 
@@ -457,7 +471,7 @@ public class DataManager {
 		}
 		
 		DataBeanHandler handler = new ZipDataBeanHandler();
-		DataBean dataBean = new DataBean(name, DataBeanType.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new DataBean[] {}, null, this, handler);
+		DataBean dataBean = new DataBean(name, StorageMethod.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new DataBean[] {}, null, this, handler);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
 		return dataBean;
 	}
@@ -483,7 +497,7 @@ public class DataManager {
 		}
 
 		// create and return the bean
-		DataBean bean = createDataBean(name, DataBeanType.LOCAL_TEMP, folder, sources, contentFile);
+		DataBean bean = createDataBean(name, StorageMethod.LOCAL_TEMP, folder, sources, contentFile);
 		return bean;
 	}
 	
@@ -493,7 +507,7 @@ public class DataManager {
 	 * The file is used directly, the contents are not copied anywhere.
 	 * 
 	 */
-	private DataBean createDataBean(String name, DataBeanType type, DataFolder folder, DataBean[] sources, File contentFile) throws MicroarrayException {
+	private DataBean createDataBean(String name, StorageMethod type, DataFolder folder, DataBean[] sources, File contentFile) throws MicroarrayException {
 		URL url;
 		try {
 			 url = contentFile.toURI().toURL();
@@ -634,34 +648,16 @@ public class DataManager {
 	 * @throws IOException 
 	 */
 	public OutputStream getContentOutputStreamAndLockDataBean(DataBean bean) throws IOException {
+		// FIXME find correct place for this
+		bean.setContentChanged(true);
 		
 		// for local temp beans, just get the output stream
-		if (bean.getType().equals(DataBeanType.LOCAL_TEMP)) {
+		if (bean.getStorageMethod().equals(StorageMethod.LOCAL_TEMP)) {
 			return bean.getHandler().getOutputStream(bean);
 		}
 		// for other bean types, convert to local bean
 		else {
-			// lock bean
-			
-			// TODO think about that name
-			// copy contents to new file
-			File newFile = this.createNewRepositoryFile(bean.getName());
-			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(newFile));
-			BufferedInputStream in = new BufferedInputStream(bean.getContentByteStream());
-			try {
-				IOUtils.copy(in, out);
-			} finally {
-				IOUtils.closeIfPossible(in);
-				IOUtils.closeIfPossible(out);
-			}
-			// update url, type and handler in the bean
-			URL newURL = newFile.toURI().toURL();
-			
-			bean.setContentUrl(newURL);
-			bean.setType(DataBeanType.LOCAL_TEMP);
-			bean.setHandler(new LocalFileDataBeanHandler());
-			bean.setContentChanged(true);
-			
+			this.convertToLocalFileDataBean(bean);
 			return bean.getHandler().getOutputStream(bean);
 		}
 	}
@@ -685,9 +681,40 @@ public class DataManager {
 		this.dispatchEventIfVisible(cce);
 	}
 
+	public File getLocalFile(DataBean bean) throws IOException {
+		// convert non local file beans to local file beans
+		if (!(bean.getHandler() instanceof LocalFileDataBeanHandler)) {
+			this.convertToLocalFileDataBean(bean);
+		}
+		
+		// get the file
+		LocalFileDataBeanHandler handler = (LocalFileDataBeanHandler) bean.getHandler();
+		return handler.getFile(bean);
+	}
 	
 	
-	
+	private void convertToLocalFileDataBean(DataBean bean) throws IOException {
+		// FIXME lock bean
+		
+		// TODO think about that name
+		// copy contents to new file
+		File newFile = this.createNewRepositoryFile(bean.getName());
+		BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(newFile));
+		BufferedInputStream in = new BufferedInputStream(bean.getContentByteStream());
+		try {
+			IOUtils.copy(in, out);
+		} finally {
+			IOUtils.closeIfPossible(in);
+			IOUtils.closeIfPossible(out);
+		}
+		// update url, type and handler in the bean
+		URL newURL = newFile.toURI().toURL();
+		
+		bean.setContentUrl(newURL);
+		bean.setStorageMethod(StorageMethod.LOCAL_TEMP);
+		bean.setHandler(new LocalFileDataBeanHandler());
+		bean.setContentChanged(true);
+	}
 	
 	
 	
@@ -729,6 +756,14 @@ public class DataManager {
 				return npf;
 			}
 		}
+	}
+
+	public void plugTypeTag(TypeTag typeTag) {
+		this.tagMap.put(typeTag.getName(), typeTag);
+	}
+	
+	public TypeTag getTypeTag(String name) {
+		return this.tagMap.get(name);
 	}
 
 }

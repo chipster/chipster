@@ -21,7 +21,7 @@ public class SADLParserTest {
 
 	@BeforeTest
 	public void init() throws IOException, IllegalConfigurationException {
-		DirectoryLayout.initialiseClientLayout().getConfiguration();		
+		DirectoryLayout.initialiseSimpleLayout().getConfiguration();		
 	}
 
 	@Test(groups = {"unit"} )
@@ -217,7 +217,7 @@ public class SADLParserTest {
 	
 	public static void main(String[] args) throws MicroarrayException, IOException, IllegalConfigurationException {
 		
-		DirectoryLayout.initialiseClientLayout().getConfiguration();
+		DirectoryLayout.initialiseSimpleLayout().getConfiguration();
 		new SADLParserTest().testParsing();
 		new SADLParserTest().testRoundtrip();
 		new SADLParserTest().testEscapes();

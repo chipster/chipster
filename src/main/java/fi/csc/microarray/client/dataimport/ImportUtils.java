@@ -106,7 +106,7 @@ public class ImportUtils {
 						"There seems to be ZIP files on your desktop. "
 						+ "This can slow down selecting files in some Windows versions. " 
 						+ "If you experience this problem, please move the ZIP files to a subfolder.", null, Type.OK_MESSAGE); 
-				ChipsterDialog.showDialog(null, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true, null);
+				ChipsterDialog.showDialog(null, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true, null, null);
 				zipDialogShown = true;
 			}
 		}
@@ -306,20 +306,18 @@ public class ImportUtils {
 	}
 
 	/**
-	 * Imports given files if they all are supported type or launches
-	 * ActionChooserScreen if not.
-	 * 
-	 * @param files
-	 *            as File objects
-	 * @param skipActionChooser
-	 * @param importFolder
-	 *            Folder to where imported data is put
+	 * Imports given files if they all are supported type and 
+	 * skip is requested (by default it is). Otherwise launches
+	 * ActionChooserScreen. If module does not support import
+	 * tools then files are always imported directly.
 	 */
 	public static void executeImport(ImportSession importSession) {
 
 		List<File> files = importSession.getInputFiles();
 
-		if (importSession.isSkipActionChooser() && !ImportUtils.containsUnsupportedTypes(files.toArray(new File[files.size()]))) {
+		boolean importToolSupported = Session.getSession().getModules().getPrimaryModule().isImportToolSupported();
+		
+		if (!importToolSupported || (importSession.isSkipActionChooser() && !ImportUtils.containsUnsupportedTypes(files.toArray(new File[files.size()])))) {
 			// skip requested and all of the files are supported => import directly and don't show action chooser			
 			application.importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
 			

@@ -20,7 +20,7 @@ public class ACDToSADLTest {
     
     @BeforeSuite
     protected void setUp() throws Exception {
-        DirectoryLayout.initialiseClientLayout();
+        DirectoryLayout.initialiseSimpleLayout();
     }
 
     public static ACDDescription getTestDescription(String appName) {
@@ -32,8 +32,7 @@ public class ACDToSADLTest {
     public void testACDToSADL() {
         // Load water.acd
         ACDDescription acd = getTestDescription("water");
-        ACDToSADL converter = new ACDToSADL(acd);
-        SADLDescription sadl = converter.convert();
+        SADLDescription sadl = ACDToSADL.convert(acd, "water.acd");
         
         // Test number of added parameters
         Assert.assertEquals(sadl.parameters().size(), 3);
@@ -59,8 +58,7 @@ public class ACDToSADLTest {
         
         // Load complex.acd
         acd = getTestDescription("complex");
-        converter = new ACDToSADL(acd);
-        sadl = converter.convert();
+        sadl = ACDToSADL.convert(acd, "complex.acd");
         
         // Test multiple defaults in selection lists
         Assert.assertEquals(acd.getParameter("multiple").getDefaults().length, 3);

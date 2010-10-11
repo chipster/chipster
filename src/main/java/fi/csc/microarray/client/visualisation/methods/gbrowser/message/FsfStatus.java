@@ -7,7 +7,12 @@ import java.util.Set;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TreeNode;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 
-public class FsfStatus {
+/**
+ * Fast seek file status.
+ * 
+ * A generic status field that travels with all requests. It is used to synchronise the different parts of the system. 
+ */
+public class FsfStatus implements Cloneable {
 
 	/**
 	 * All threads should send this forward and end themselves
@@ -21,15 +26,31 @@ public class FsfStatus {
 	public boolean concise;
 	public boolean debug;
 
+	/**
+	 * All objects originating from a single area request share the same instance of this Set.
+	 */
 	private Set<Object> clearedAlready = new HashSet<Object>();
+	
 	public DataSource file;
 
 	public TreeNode bpSearchSource;
 
+
 	public void maybeClearQueue(Object fileResultQueue) {
 		if (clearQueues && !clearedAlready.contains(fileResultQueue)) {
+			
+			//System.out.println(fileResultQueue + "cleared...");
+			
 			clearedAlready.add(fileResultQueue);
 			((Queue<?>) fileResultQueue).clear();
 		}
 	}
+	
+	@Override
+	public FsfStatus clone() throws CloneNotSupportedException {
+		FsfStatus status = (FsfStatus)super.clone();
+		// do not clone clearedAlready, it must be shared between clones
+		return status;
+	}
+	
 }

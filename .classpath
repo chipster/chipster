@@ -32,11 +32,15 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/Jemboss.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jakarta-regexp-1.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/activemq-all-5.3.1.jar"/>
+	<classpathentry kind="lib" path="ext/lib/PDFRenderer.jar"/>
+	<classpathentry kind="lib" path="ext/lib/pdfviewer.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jcommon-1.0.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jfreechart-1.0.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/viski-chipster-1.0.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jgraph-5.12.2.1.jar"/>
-	<classpathentry kind="lib" path="ext/lib/swingx-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/swingx-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/sam-1.23.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/mail.jar"/>
 	<classpathentry kind="output" path="bin/eclipse"/>
 </classpath>

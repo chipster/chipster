@@ -24,4 +24,9 @@ public class RectDrawable extends Drawable {
 	public RectDrawable(Rectangle rect, Color fillColor, Color lineColor) {
 		this(rect.x, rect.y, rect.width, rect.height, fillColor, lineColor);
 	}
+    
+    @Override
+    public int getMinY() {
+        return y;
+    }
 }

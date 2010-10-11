@@ -55,10 +55,10 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 	private TestListener testListener;
 	private AuthenticationProvider authenticationProvider; 
 	
-	public Authenticator() throws Exception {
+	public Authenticator(String configURL) throws Exception {
 		
 		// initialise dir and logging
-		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {}));
+		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {}), configURL);
 		logger = Logger.getLogger(Authenticator.class);
 		securityLogger = Logger.getLogger("security.frontend");
 		messageLogger = Logger.getLogger("messages.frontend");

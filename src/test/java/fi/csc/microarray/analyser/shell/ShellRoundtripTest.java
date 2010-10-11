@@ -36,7 +36,7 @@ public class ShellRoundtripTest {
 
     @BeforeSuite
     protected void setUp() throws Exception {
-        DirectoryLayout.initialiseClientLayout();
+        DirectoryLayout.initialiseSimpleLayout();
     }
     
     @Test

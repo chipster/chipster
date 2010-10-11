@@ -1,5 +1,9 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
+/**
+ * Basepair coordinate: base(pair) location and chromosome.
+ *
+ */
 public class BpCoord implements Comparable<BpCoord> {
 
 	private static final BpCoord MAX = new BpCoord(Long.MAX_VALUE, null);
@@ -10,6 +14,10 @@ public class BpCoord implements Comparable<BpCoord> {
 	public BpCoord(Long bp, Chromosome chr) {
 		this.bp = bp;
 		this.chr = chr;
+	}
+
+	public BpCoord(BpCoord o) {
+		this(new Long(o.bp), new Chromosome(o.chr));
 	}
 
 	public BpCoord clone() {

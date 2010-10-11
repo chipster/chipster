@@ -16,4 +16,9 @@ public class TextDrawable extends Drawable {
 		super.upsideDown();
 		y += TEXT_HEIGHT;
 	}
+    
+    @Override
+    public int getMinY() {
+        return y - TEXT_HEIGHT;
+    }
 }

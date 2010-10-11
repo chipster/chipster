@@ -282,7 +282,7 @@ public class ActionChooserScreen extends ScreenBase implements ActionListener, D
 
 			if (warnings.length() > 0) {
 				DialogInfo info = new DialogInfo(Severity.WARNING, "Attempting import of binary files", "Import tool can describe only files that contain text formatted tables. For example ZIP archived files cannot be used. See details for more information. Select Ok to proceed or Cancel to go back.", warnings, Type.OPTION); 
-				ChipsterDialog.showDialog(null, info, DetailsVisibility.DETAILS_VISIBLE, false, this);
+				ChipsterDialog.showDialog(null, info, DetailsVisibility.DETAILS_VISIBLE, false, this, null);
 				return; // return to wait for users decision
 			}
 

@@ -1,23 +1,23 @@
-# ANALYSIS "aCGH tools (beta testing)"/"Sample size calculations with an adapted BH method" ()
+# ANALYSIS "aCGH tools (beta testing)"/"Sample size calculations with an adapted BH method" (Perform sample size calculations using an adapted Benjamini-Hochberg method.)
 # INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv
 # OUTPUT skewness.png, kurtosis.png, p-density.png, lambda.png, g.png, gamma.png, power.png, power.txt
 # PARAMETER column METACOLUMN_SEL DEFAULT group (The phenodata column that divides the samples into exactly two groups.)
-# PARAMETER var.equal [TRUE, FALSE] DEFAULT FALSE ()
-# PARAMETER distribution [normal, student] DEFAULT normal ()
-# PARAMETER false.discovery.rate DECIMAL DEFAULT 0.1 ()
+# PARAMETER var.equal [TRUE, FALSE] DEFAULT FALSE (Whether to treat the variances of the two groups as equal.)
+# PARAMETER distribution [normal, student] DEFAULT normal (Whether to use the normal or the t distribution to calculate p values.)
+# PARAMETER false.discovery.rate DECIMAL DEFAULT 0.1 (False discovery rate.)
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 # sample-size-with-bh.R
 # Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-03-20
+# 2010-05-25
 
 dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
-phenodata <- read.table("phenodata.tsv", header=T, sep="\t")
+phenodata <- read.table("phenodata.tsv", header=TRUE, sep="\t")
 groups <- phenodata[,column]
 
 if(length(unique(groups[!is.na(groups)]))!=2)
-   stop("You need to have exactly two groups to run this analysis")
+   stop('CHIPSTER-NOTE: You need to have exactly two groups to run this analysis')
 
 example.data = list(x=dat[,grep('chip', colnames(dat))], y=groups, genenames=rownames(dat), geneid=1:nrow(dat), samplelabels=phenodata$description)
 

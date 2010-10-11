@@ -18,6 +18,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.log4j.Logger;
+
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
@@ -29,7 +31,7 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataBean.DataBeanType;
+import fi.csc.microarray.databeans.DataBean.StorageMethod;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -46,6 +48,8 @@ import fi.csc.microarray.util.IOUtils;
  */
 public class SnapshottingSession {
 
+	private static final Logger logger = Logger.getLogger(SnapshottingSession.class);
+	
 	private final int DATA_BLOCK_SIZE = 2048;
 
 	private static final String METADATA_FILENAME = "snapshot_metadata.txt";
@@ -149,7 +153,7 @@ public class SnapshottingSession {
 			for (DataBean bean: newURLs.keySet()) {
 
 				// set new url and handler and type
-				bean.setType(DataBeanType.LOCAL_SESSION);
+				bean.setStorageMethod(StorageMethod.LOCAL_SESSION);
 				bean.setContentUrl(newURLs.get(bean));
 				bean.setHandler(new ZipDataBeanHandler());
 			}
@@ -246,7 +250,7 @@ public class SnapshottingSession {
 		String beanId = fetchId(bean);
 		
 		// for now all data content goes to session --> type is local session
-		metadata.append("DATABEAN " + beanId + " " + newURL + " " + DataBeanType.LOCAL_SESSION + " " + bean.getRepositoryName() + "\n");
+		metadata.append("DATABEAN " + beanId + " " + newURL + " " + StorageMethod.LOCAL_SESSION + " " + bean.getRepositoryName() + "\n");
 		
 		if (bean.getOperation() != null) {
 			Operation operation = bean.getOperation();
@@ -268,7 +272,8 @@ public class SnapshottingSession {
 				}
 
 				for (Parameter parameter : operation.getParameters()) {
-					metadata.append("OPERATION_PARAMETER " + operId + " " +  parameter.getID() + " " + parameter.getValue() + "\n");
+					metadata.append("OPERATION_PARAMETER " + operId + " " +
+					        parameter.getID() + " " + parameter.getValueAsString() + "\n");
 				}
 
 				// will be written in the 2nd pass
@@ -352,7 +357,31 @@ public class SnapshottingSession {
 					// TODO in the future, maybe give the URL directly to the manager
 					URL url = new URL(split[2]);
 					String entryName = url.getRef();
-					DataBean bean = manager.createDataBean("<empty>", snapshot, entryName);
+					
+					String typeString = split[3];
+					StorageMethod type;
+					try {
+						type = StorageMethod.valueOf(typeString);
+					} catch (IllegalArgumentException iae) {
+						//  FIXME 
+						logger.warn("unknown data bean type: " + typeString);
+						continue;
+					}
+					
+					DataBean bean;
+					switch (type) {
+					case LOCAL_SESSION:
+						bean = manager.createDataBean("<empty>", snapshot, entryName);
+						break;
+					case LOCAL_USER:
+						bean = manager.createDataBean("<empty>", url);
+						break;
+					default:
+						// FIXME 
+						logger.warn("illegal data bean type in session: " + type.toString());
+						continue;
+					}
+					
 					
 					newItems.add(bean);
 					mapId(id, bean);
@@ -545,7 +574,7 @@ public class SnapshottingSession {
 		String title = "Obsolete content in the session";
 		String inputDataDesc = dataName != null ? ("When loading dataset " + dataName + ":\n") : "";
 		String completeDetails = inputDataDesc + details; 
-		application.showDialog(title, message, completeDetails, Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_VISIBLE);
+		application.showDialog(title, message, completeDetails, Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_VISIBLE, null);
 	}
 
 	private static String afterNthSpace(String line, int nth) {

@@ -1,5 +1,9 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
+/**
+ * Possible types of values stored in a file.
+ *
+ */
 public enum Type {
 	
 	STRING(String.class), 

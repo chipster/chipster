@@ -7,18 +7,21 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
@@ -26,6 +29,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRe
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * Track for showing transcripts.
+ *
+ */
 public class TranscriptTrack extends Track {
 
 	private Map<String, Gene> genes = new TreeMap<String, Gene>();
@@ -43,9 +50,10 @@ public class TranscriptTrack extends Track {
 		}
 	}
 
-	public TranscriptTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler, FileParser inputParser, Color color, long maxBpLength) {
+	public TranscriptTrack(View view, DataSource file,
+	        Class<? extends AreaRequestHandler> handler, Color color, long maxBpLength) {
 
-		super(view, file, handler, inputParser);
+		super(view, file, handler);
 		this.color = color;
 		this.maxBpLength = maxBpLength;
 	}
@@ -62,7 +70,7 @@ public class TranscriptTrack extends Track {
 			Collections.sort(sortedGenes);
 
 			for (Gene gene : sortedGenes) {
-
+				
 				if (!gene.region.intercepts(getView().getBpRegion())) {
 
 					genes.remove(gene.id);
@@ -72,8 +80,10 @@ public class TranscriptTrack extends Track {
 				Rectangle rect = new Rectangle();
 
 				rect.x = getView().bpToTrack(gene.region.start);
+				int x = rect.x;
 				rect.width = getView().bpToTrack(gene.region.end) - rect.x;
-
+				int x2 = getView().bpToTrack(gene.region.end);
+				
 				int i = 0;
 
 				while (occupiedSpace.size() > i && occupiedSpace.get(i) > rect.x) {
@@ -89,10 +99,11 @@ public class TranscriptTrack extends Track {
 				}
 
 				rect.y = (int) (getView().getTrackHeight() - ((i + 1) * (14)));
+				int y = rect.y + 2;
 				rect.height = 2;
 
 				rect.y += 1;
-				drawables.add(new RectDrawable(rect, Color.darkGray, null));
+				drawables.add(new LineDrawable(x, y, x2, y, Color.darkGray));
 				rect.y -= 1;
 
 				rect.height = 4;
@@ -125,7 +136,7 @@ public class TranscriptTrack extends Track {
 							c = PartColor.CDS.c;
 						} else if (value.equals("exon")) {
 							c = PartColor.UTR.c;
-						} else if (value.equals("start_codon")) {
+						} else if (value.contains("start_codon")) {
 							c = PartColor.START_CODON.c;
 						} else if (value.equals("stop_codon")) {
 
@@ -214,32 +225,40 @@ public class TranscriptTrack extends Track {
 		}
 	}
 
-	private boolean wasLastConsied = true;
-
 	private long maxBpLength;
 
-	@Override
-	public void updateData() {
-		
-		if (wasLastConsied != isConcised()) {
-			genes.clear();
-			wasLastConsied = isConcised();
-		}
-		super.updateData();
-	}
-
-	public int getMaxHeight() {
-		if (getView().getBpRegion().getLength() <= maxBpLength) {
-			return super.getMaxHeight();
+	public Integer getHeight() {
+		if (isVisible()) {
+			return super.getHeight();
 		} else {
 			return 0;
 		}
 	}
+	   
+    @Override
+    public boolean isStretchable() {
+        // stretchable unless hidden
+        return isVisible();
+    }
+    
+    @Override
+    public boolean isVisible() {
+        // hide if visible region is too large
+        return (super.isVisible() &&
+                getView().getBpRegion().getLength() <= maxBpLength);
+    }
 
-	@Override
-	public Collection<ColumnType> getDefaultContents() {
-		return Arrays.asList(new ColumnType[] { ColumnType.CHROMOSOME, ColumnType.PARENT_BP_START, ColumnType.PARENT_BP_END, ColumnType.STRAND, ColumnType.DESCRIPTION, ColumnType.VALUE, ColumnType.PARENT_ID, ColumnType.PARENT_PART });
-	}
+    @Override
+    public Map<DataSource, Set<ColumnType>> requestedData() {
+        HashMap<DataSource, Set<ColumnType>> datas = new
+        HashMap<DataSource, Set<ColumnType>>();
+        datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+                ColumnType.CHROMOSOME, ColumnType.PARENT_BP_START,
+                ColumnType.PARENT_BP_END, ColumnType.STRAND,
+                ColumnType.DESCRIPTION, ColumnType.VALUE,
+                ColumnType.PARENT_ID, ColumnType.PARENT_PART })));
+        return datas;
+    }
 
 	@Override
 	public boolean isConcised() {

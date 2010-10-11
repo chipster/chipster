@@ -110,7 +110,7 @@ public class WorkflowManager {
 							" is not compatible with the tools in the workflow. This causes one of tools to fail and aborting the rest" +
 							" of the workflow.\n\n" +
 							"To get an idea of why a tool has failed, please see the tool specific failure window.",
-							Exceptions.getStackTrace(e), Severity.WARNING, false, DetailsVisibility.DETAILS_ALWAYS_HIDDEN);
+							Exceptions.getStackTrace(e), Severity.WARNING, false, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
 				} finally {
 					if (listener != null) {
 						listener.atEnd(success);

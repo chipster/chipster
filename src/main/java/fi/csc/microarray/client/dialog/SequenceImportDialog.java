@@ -8,13 +8,9 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.LinkedList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -27,13 +23,10 @@ import javax.swing.event.CaretListener;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.client.SwingClientApplication;
-import fi.csc.microarray.client.dataimport.ImportUtils;
+import fi.csc.microarray.client.ClientApplication;
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataFolder;
-import fi.csc.microarray.exception.MicroarrayException;
 
 /**
  * 
@@ -43,31 +36,27 @@ import fi.csc.microarray.exception.MicroarrayException;
 @SuppressWarnings("serial")
 public class SequenceImportDialog extends JDialog implements CaretListener, ActionListener {
     
-    private static final String OPERATION_ID = "import.sadl";
-    private static final String OUT_FILE = "outseq";
+    private static final String OPERATION_ID = "importseq.sadl";
     private final Dimension BUTTON_SIZE = new Dimension(70, 25);
     
     private static Logger logger = Logger.getLogger(SequenceImportDialog.class);
-    private SwingClientApplication application;
+    private ClientApplication application;
     
-    private JLabel nameLabel;
     private JLabel textLabel;
-    private JTextField nameField;
     private JTextField beginField;
     private JTextField endField;
     private JTextArea textArea;
     private JButton okButton;
     private JButton cancelButton;
-    private JComboBox folderNameCombo;
     private JComboBox dbNameCombo;
-    private JCheckBox mergeCheckBox;
     
     private enum Databases {
         EMBL("EMBL", "embl"),
         EMBL_NEW("EMBL New", "emblnew"),
         PDB("PDB", "pdb_seq"),
         UNIPROT_SWISS("UniProt / SwissProt", "swiss"),
-        UNIPROT_TREMBL("UniProt / TrEMBL", "trembl");
+        UNIPROT_TREMBL("UniProt / TrEMBL", "trembl"),
+        ENSEMBL("Ensembl", "ensembl");
         
         private String name;
         private String value;
@@ -86,10 +75,10 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         }
     }
     
-    public SequenceImportDialog(SwingClientApplication application) {
-        super(application.getMainFrame(), true);
+    public SequenceImportDialog(ClientApplication clientApplication) {
+        super(Session.getSession().getFrames().getMainFrame(), true);
 
-        this.application = application;
+        this.application = clientApplication;
         this.setTitle("Import sequence");
         this.setModal(true);
         
@@ -101,30 +90,30 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         this.setLayout(new GridBagLayout());
         
         // Name label
-        nameLabel = new JLabel("Filename");
-        c.anchor = GridBagConstraints.WEST;
-        c.insets.set(10, 10, 5, 10);
-        c.gridy++;
-        this.add(nameLabel, c);
+//        nameLabel = new JLabel("Filename");
+//        c.anchor = GridBagConstraints.WEST;
+//        c.insets.set(10, 10, 5, 10);
+//        c.gridy++;
+//        this.add(nameLabel, c);
         
         // Name field
-        nameField = new JTextField();
-        nameField.setPreferredSize(new Dimension(150, 20));
-        nameField.setText("data.txt");
-        c.insets.set(0, 10, 10, 10);       
-        c.gridy++;
-        this.add(nameField, c);
+//        nameField = new JTextField();
+//        nameField.setPreferredSize(new Dimension(150, 20));
+//        nameField.setText("data.txt");
+//        c.insets.set(0, 10, 10, 10);       
+//        c.gridy++;
+//        this.add(nameField, c);
         
         // Folder to store the file
-        folderNameCombo = new JComboBox(ImportUtils.getFolderNames(true).toArray());
-        folderNameCombo.setPreferredSize(new Dimension(150, 20));
-        folderNameCombo.setEditable(true);
-        c.insets.set(10, 10, 5, 10);
-        c.gridy++;
-        this.add(new JLabel("Create in folder"), c);
-        c.insets.set(0, 10, 10, 10);
-        c.gridy++;
-        this.add(folderNameCombo, c);
+//        folderNameCombo = new JComboBox(ImportUtils.getFolderNames(true).toArray());
+//        folderNameCombo.setPreferredSize(new Dimension(150, 20));
+//        folderNameCombo.setEditable(true);
+//        c.insets.set(10, 10, 5, 10);
+//        c.gridy++;
+//        this.add(new JLabel("Create in folder"), c);
+//        c.insets.set(0, 10, 10, 10);
+//        c.gridy++;
+//        this.add(folderNameCombo, c);
         
         // Database
         dbNameCombo = new JComboBox(Databases.values());
@@ -175,11 +164,11 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         this.add(rangePanel, c);
         
         // Checkbox for merging into one
-        mergeCheckBox = new JCheckBox("Merge into one dataset");
-        mergeCheckBox.setSelected(true);
-        c.insets.set(10, 10, 5, 10);
-        c.gridy++;
-        this.add(mergeCheckBox, c);
+//        mergeCheckBox = new JCheckBox("Merge into one dataset");
+//        mergeCheckBox.setSelected(true);
+//        c.insets.set(10, 10, 5, 10);
+//        c.gridy++;
+//        this.add(mergeCheckBox, c);
         
         // OK button
         okButton = new JButton("OK");
@@ -203,7 +192,7 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
         // Show
         this.pack();
         this.setResizable(false);
-        this.setLocationRelativeTo(application.getMainFrame());
+        Session.getSession().getFrames().setLocationRelativeToMainFrame(this);
         
         // Default focus
         textArea.requestFocusInWindow();
@@ -216,67 +205,66 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
 
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == okButton) {
-            String fileName = this.nameField.getText();
-            String folderName = (String) (this.folderNameCombo.getSelectedItem());
+            //String fileName = this.nameField.getText();
+            //String folderName = (String) (this.folderNameCombo.getSelectedItem());
             String db = ((Databases) this.dbNameCombo.getSelectedItem()).getValue();
             String ids = this.textArea.getText();
             
-            int separator = fileName.indexOf(".");
-            separator = separator == -1 ? fileName.length() : separator;
+//            int separator = fileName.indexOf(".");
+//            separator = separator == -1 ? fileName.length() : separator;
             
             // There can be multiple sequences
-            LinkedList<DataBean> datasets = new LinkedList<DataBean>();
             String[] sequences = ids.split("\n|;|,");
-            int index = 0;
+//            int index = 0;
             for (String id : sequences) {
-                // Rename files if we have to import several
-                String name = fileName;
-                if (sequences.length > 1) {
-                    name = fileName.substring(0, separator) + "." +
-                           index + fileName.substring(separator, fileName.length());
-                    index++;
-                }
+                // TODO Rename files if we have to import several
+//                String name = fileName;
+//                if (sequences.length > 1) {
+//                    name = fileName.substring(0, separator) + "." +
+//                           index + fileName.substring(separator, fileName.length());
+//                    index++;
+//                }
                 
                 // Run import
-                datasets.add(runImport(name, folderName, db, id));
+                runImport("", "", db, id);
             }
             
             // Create datasets
-            if (mergeCheckBox.isSelected() && datasets.size() > 0) {
-                // Merge all imported datasets into one
-                try {
-                    StringBuilder sb = new StringBuilder();
-                    for (DataBean dataset : datasets) {
-                        sb.append(new String(dataset.getContents()));
-                    }
-                    String content = sb.toString();
-                    
-                    // Create single dataset for all input data
-                    ByteArrayInputStream stream = new ByteArrayInputStream(content.getBytes());
-                    DataBean data = application.getDataManager().createDataBean(fileName, stream);
-                    data.setContentType(application.getDataManager().guessContentType(fileName));
-                    data.setOperation(new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data }));
-                    
-                    // Make it visible
-                    DataFolder folder = application.initializeFolderForImport(folderName);
-                    folder.addChild(data);
-                    application.getSelectionManager().selectSingle(data, this);
-                } catch (MicroarrayException e1) {
-					// FIXME proper error handling 
-                	e1.printStackTrace();
-                } catch (IOException ioe) {
-					// FIXME proper error handling 
-					ioe.printStackTrace();
-				}
-            } else {
-                // Make separate datasets visible
-                for (DataBean dataset : datasets) {
-                    DataFolder folder = application.initializeFolderForImport(folderName);
-                    folder.addChild(dataset);
-                    application.getSelectionManager().selectSingle(dataset, this);
-                }
-            }
-            
+            // TODO ability to merge datasets
+//            if (mergeCheckBox.isSelected() && datasets.size() > 0) {
+//                // Merge all imported datasets into one
+//                try {
+//                    StringBuilder sb = new StringBuilder();
+//                    for (DataBean dataset : datasets) {
+//                        sb.append(new String(dataset.getContents()));
+//                    }
+//                    String content = sb.toString();
+//                    
+//                    // Create single dataset for all input data
+//                    ByteArrayInputStream stream = new ByteArrayInputStream(content.getBytes());
+//                    DataBean data = application.getDataManager().createDataBean(fileName, stream);
+//                    data.setContentType(application.getDataManager().guessContentType(fileName));
+//                    data.setOperation(new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data }));
+//                    
+//                    // Make it visible
+//                    DataFolder folder = application.initializeFolderForImport(folderName);
+//                    folder.addChild(data);
+//                    application.getSelectionManager().selectSingle(data, this);
+//                } catch (MicroarrayException e1) {
+//					// FIXME proper error handling 
+//                	e1.printStackTrace();
+//                } catch (IOException ioe) {
+//					// FIXME proper error handling 
+//					ioe.printStackTrace();
+//				}
+//            } else {
+//                // Make separate datasets visible
+//                for (DataBean dataset : datasets) {
+//                    DataFolder folder = application.initializeFolderForImport(folderName);
+//                    folder.addChild(dataset);
+//                    application.getSelectionManager().selectSingle(dataset, this);
+//                }
+//            }
             
             this.dispose();
         } else if (e.getSource() == cancelButton) {
@@ -292,30 +280,38 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
      * @param db
      * @param id
      */
-    private DataBean runImport(String fileName, String folderName, String db, String id) {
-        DataBean data = null;
+    private void runImport(String fileName, String folderName, String db, String id) {
         try {               
             // Create importing job
             logger.info("Importing sequence...");
             
+            // Prepare parameters
+            Integer sbegin;
+            try {
+                sbegin = Integer.parseInt(beginField.getText());
+            } catch (NumberFormatException e) {
+                sbegin = null;
+            }
+            Integer send;
+            try {
+                send = Integer.parseInt(endField.getText());
+            } catch (NumberFormatException e) {
+                send = null;
+            }
+
+            // Create operation
             Operation operation = new Operation(application.getOperationDefinition(OPERATION_ID), new DataBean[] {});
             operation.setParameter("sequence", db + ":" + id);
-            operation.setParameter("sbegin", beginField.getText());
-            operation.setParameter("send", endField.getText());
+            operation.setParameter("sbegin", sbegin);
+            operation.setParameter("send", send);
             
             // Run the job (blocking while it is progressing)
             application.executeOperation(operation);
-
-            // should not be done like this
-//            // Create a dataset or prepare for merging them later
-//            data = importSequence.getOutput(OUT_FILE);
-//            data.setName(fileName);
-//            data.setContentType(client.getDataManager().guessContentType(fileName));
-//            data.setOperation(new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data }));
+            
+            // TODO ability to merge datasets
+            
         } catch (Exception exc) {
-            // FIXME proper error handling
-        	exc.printStackTrace();
+            application.reportException(exc);
         }
-        return data;
     }
 }

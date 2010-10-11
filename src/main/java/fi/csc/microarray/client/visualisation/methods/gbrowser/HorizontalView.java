@@ -9,7 +9,13 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
 
+/**
+ * The basic view of genome browser. 
+ *
+ */
 public class HorizontalView extends View {
 
 	public HorizontalView(GenomePlot parent, boolean movable, boolean zoomable, boolean selectable) {
@@ -21,12 +27,14 @@ public class HorizontalView extends View {
 
 		super.drawView(g, isAnimation);
 
+		// show current position on top of chromosome
 		if (highlight != null) {
 			g.setPaint(new Color(0, 0, 0, 64));
 			Rectangle rect = g.getClip().getBounds();
 
 			rect.x = bpToTrack(highlight.start);
 			rect.width = Math.max(1, bpToTrack(highlight.end) - rect.x);
+			rect.height = 24;
 			g.fill(rect);
 		}
 	}
@@ -48,7 +56,7 @@ public class HorizontalView extends View {
 
 	protected void drawTextDrawable(Graphics2D g, int x, int y, Drawable drawable) {
 
-		g.setFont(g.getFont().deriveFont(8f));
+		g.setFont(g.getFont().deriveFont(10f));
 		TextDrawable text = (TextDrawable) drawable;
 
 		text.text = text.text.replaceAll("\"", "");
@@ -60,24 +68,16 @@ public class HorizontalView extends View {
 
 		RectDrawable rect = (RectDrawable) drawable;
 
+		// Draw fill
 		if (rect.color != null) {
-
-			if (rect.lineColor == null) {
-				rect.x -= 1;
-				// rect.y -= 1;
-				rect.width += 2;
-				// rect.height += 2;
-			}
-
-			g.setPaint(drawable.color);
+			g.setPaint(rect.color);
 			g.fillRect(rect.x + x, rect.y + y, rect.width, rect.height);
-
 		}
 
 		// Draw outline after fill to make sure that it stays continuous
-		if (drawable.color != null) {
+		if (rect.lineColor != null) {
 			g.setPaint(rect.lineColor);
-			g.drawRect(rect.x + x, rect.y + y, rect.width, rect.height);
+			g.drawRect(rect.x + x, rect.y + y, rect.width-1, rect.height-1);
 		}
 	}
 
@@ -90,13 +90,31 @@ public class HorizontalView extends View {
 	protected void handleDrag(Point2D start, Point2D end, boolean disableDrawing) {
 		double bpMove = trackToBp((double) start.getX()).minus(trackToBp((double) end.getX()));
 
-		if (bpMove < 0 && bpRegion.start.bp < Math.abs(bpMove)) {
-			bpMove = -bpRegion.start.bp;
-		}
-
 		bpRegion.move(bpMove);
 		setBpRegion(bpRegion, disableDrawing);
 
 		parentPlot.redraw();
+	}
+	
+	@Override
+	public void setBpRegion(BpCoordRegionDouble region, boolean disableDrawing) {
+		
+		BpCoord maxBp = getMaxBp();
+		
+		if (maxBp != null && region.getLength() > maxBp.bp) {
+			region.start.bp = 0.0;
+			region.end.bp = (double)maxBp.bp;
+		} else {
+			if (region.start.bp < 0 ) {
+				region.move(-region.start.bp);
+			}
+
+			if (maxBp != null && region.end.bp > maxBp.bp) {				
+				double delta = region.end.bp - (double)maxBp.bp;
+				region.move(-delta);
+			}
+		}
+		
+		super.setBpRegion(region, disableDrawing);
 	}
 }
