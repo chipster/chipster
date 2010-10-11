@@ -16,10 +16,12 @@ import fi.csc.microarray.client.visualisation.methods.ArrayLayout;
 import fi.csc.microarray.client.visualisation.methods.ClusteredProfiles;
 import fi.csc.microarray.client.visualisation.methods.Empty;
 import fi.csc.microarray.client.visualisation.methods.ExpressionProfile;
+import fi.csc.microarray.client.visualisation.methods.ExternalBrowserViewer;
 import fi.csc.microarray.client.visualisation.methods.HierarchicalClustering;
 import fi.csc.microarray.client.visualisation.methods.Histogram;
 import fi.csc.microarray.client.visualisation.methods.HtmlViewer;
 import fi.csc.microarray.client.visualisation.methods.ImageViewer;
+import fi.csc.microarray.client.visualisation.methods.PDFViewer;
 import fi.csc.microarray.client.visualisation.methods.PhenodataEditor;
 import fi.csc.microarray.client.visualisation.methods.SOM;
 import fi.csc.microarray.client.visualisation.methods.Scatterplot;
@@ -72,7 +74,10 @@ public enum VisualisationMethod {
 			SHOW_IMAGE("Show image", ImageViewer.class, VisualConstants.IMAGE_MENUICON, 1, 0.015), 
 			WEBVIEW("View page", HtmlViewer.class, VisualConstants.HTML_MENUICON, 1, 0.008), 
 			VIEW_TEXT("View text", TextViewer.class, VisualConstants.TEXT_MENUICON, 1, 0.023), 
-			VENN_DIAGRAM("Venn-diagram", VennDiagram.class, VisualConstants.VENN_MENUICON, 1, 0);
+			VENN_DIAGRAM("Venn-diagram", VennDiagram.class, VisualConstants.VENN_MENUICON, 1, 0),
+			PDFVIEW("View PDF", PDFViewer.class, VisualConstants.IMAGE_MENUICON, 1, 0),
+			EXTERNAL_BROWSER("Open in external web browser", ExternalBrowserViewer.class, VisualConstants.EMPTY_MENUICON, 1, -1);
+;
 
 	private static LinkedList<VisualisationMethod> orderedDefaultCandidates;
 
