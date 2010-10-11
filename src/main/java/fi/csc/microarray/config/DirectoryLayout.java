@@ -88,6 +88,10 @@ public class DirectoryLayout {
 		return initialiseClientLayout(null);
 	}
 
+	public static DirectoryLayout initialiseSimpleLayout(String configURL) throws IOException, IllegalConfigurationException {
+		return initialiseClientLayout(configURL);
+	}
+
 	public static DirectoryLayout initialiseStandaloneClientLayout() throws IOException, IllegalConfigurationException {
 		synchronized (DirectoryLayout.class) {
 			if (DirectoryLayout.instance != null) {

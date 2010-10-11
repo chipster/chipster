@@ -94,7 +94,7 @@ public class MicroarrayMain {
 							return "nagios-check";
 						}
 					};
-					DirectoryLayout.initialiseSimpleLayout().getConfiguration();       			    
+					DirectoryLayout.initialiseSimpleLayout(configURL).getConfiguration();       			    
 					MessagingEndpoint endpoint = new MessagingEndpoint(nodeSupport);
 					AdminAPI api = new AdminAPI(endpoint.createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ_WRITE), null);
 					api.setRequiredCountFor("analyser", requiredAnalyserCount);
