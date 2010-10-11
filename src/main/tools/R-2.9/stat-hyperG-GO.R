@@ -74,7 +74,7 @@ if (annotpkg=="yeast2scentrezg.db") {
 }
 
 # check for conditional testing and multiple testing correction
-if (conditional.testing == 'no') {
+if (conditional.testing == 'yes') {
 	if (p.adjust.method != 'none')
 		stop('CHIPSTER-NOTE: Multiple testing correction can be applied only when performing unconditional testing. Please set conditional.testing to no, or p.adjust.method to none. Usually the preferred method is to use conditional testing.')
 	conditional <- FALSE
