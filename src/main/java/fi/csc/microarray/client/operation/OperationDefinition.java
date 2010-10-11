@@ -402,10 +402,7 @@ public class OperationDefinition implements ExecutionItem {
 			boolean foundBinding = false;
 
 			// metadata needs not to be selected, it is fetched automatically
-			// FIXME causes strange troubles in some environments
-			// FIXME remove the hack and enable proper check (but update scripts to use PHENODATA before that)
-			//if (input.type.isMetadata()) {					
-			if (input.name.startsWith("phenodata")) {
+			if (doBackwardsCompatibleMetadataCheck(input)) {
 				foundBinding = true; // we'll find it later on
 				unboundMetadataDefinitions.add(input);
 				continue;
@@ -418,7 +415,7 @@ public class OperationDefinition implements ExecutionItem {
 
 				// try to match values to input definitions
 				logger.debug("  trying to bind " + value.getName() + " to " + input.name + " (" + input.type + ")");
-				if (input.type.isTypeOf(value)) {
+				if (doBackwardsCompatibleTypeCheck(input.type, value)) {
 
 					logger.debug("    bound successfully (" + value.getName() + " -> " + input.getName() + ")");
 
@@ -474,6 +471,16 @@ public class OperationDefinition implements ExecutionItem {
 
 		this.evaluatedSuitability = Suitability.SUITABLE;
 		return bindings;
+	}
+
+	// TODO update to new type tag system
+	private boolean doBackwardsCompatibleTypeCheck(InputType type, DataBean data) {
+		return type.isTypeOf(data);
+	}
+
+	// TODO update to new type tag system
+	private boolean doBackwardsCompatibleMetadataCheck(InputDefinition input) {
+		return input.name.startsWith("phenodata");
 	}
 
 	/**
