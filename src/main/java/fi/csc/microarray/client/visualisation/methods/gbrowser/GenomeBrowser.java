@@ -70,7 +70,6 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
-import fi.csc.microarray.gbrowser.index.GeneIndexDataType;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.IOUtils;
 

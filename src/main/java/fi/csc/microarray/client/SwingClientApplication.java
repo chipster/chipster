@@ -104,6 +104,7 @@ import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
+import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
