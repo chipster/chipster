@@ -44,7 +44,7 @@ import fi.csc.microarray.util.IOUtils;
  * clipboard paste). Contains methods to help implementation of folder selection
  * and launching actionChooser or direct import.
  * 
- * @author Petri KlemelÃ¤
+ * @author Petri Klemelä
  */
 public class ImportUtils {
 

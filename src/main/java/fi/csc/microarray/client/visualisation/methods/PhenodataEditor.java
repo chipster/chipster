@@ -48,6 +48,7 @@ import fi.csc.microarray.databeans.DataChangeEvent;
 import fi.csc.microarray.databeans.DataChangeListener;
 import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.basic.BasicModule;
 
 
 /**
@@ -483,7 +484,7 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		return bean.queryFeatures("/phenodata").exists();
+		return bean.hasTypeTag(BasicModule.TypeTags.PHENODATA);
 	}
 	
 

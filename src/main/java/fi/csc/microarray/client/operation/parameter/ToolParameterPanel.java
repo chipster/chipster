@@ -34,7 +34,7 @@ import fi.csc.microarray.exception.MicroarrayException;
  * OperationDefinition) already exists or not. At least for now. Thought
  * it would save some memory.
  * 
- * @author Janne KÃ¤ki, Aleksi Kallio, Petri KlemelÃ¤
+ * @author Janne Käki, Aleksi Kallio, Petri Klemelä
  *
  */
 @SuppressWarnings("serial")

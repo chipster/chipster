@@ -23,7 +23,7 @@ import fi.csc.microarray.util.Strings;
  * side list in the OperationChoicePanel. These are the "blueprints" of specific
  * operations - the actual Operations
  * 
- * @author Janne KÃ¤ki, Aleksi Kallio
+ * @author Janne Käki, Aleksi Kallio
  * 
  */
 public class OperationDefinition implements ExecutionItem {
@@ -48,7 +48,7 @@ public class OperationDefinition implements ExecutionItem {
 	 * An enumeration containing all possible results when evaluating an
 	 * operation's suitability to a dataset.
 	 * 
-	 * @author Janne KÃ¤ki
+	 * @author Janne Käki
 	 * 
 	 */
 	public static enum Suitability {
