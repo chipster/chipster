@@ -10,7 +10,7 @@
 
 # sample-size-with-bh.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-05
+# 2010-10-12
 
 dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 phenodata <- read.table("phenodata.tsv", header=TRUE, sep="\t")
@@ -380,7 +380,7 @@ plot(samplesize, power, type='b', main=paste('Power calculation for FDR = ', rou
   xlab=paste('Number of samples (', round(100*N1/(N1+N2)), '% ', class.names[1], ', ', round(100*N2/(N1+N2)), '% ', class.names[2], ')', sep=''))
 dev.off()
 #
-write.table(data.frame(samplesize, power), file="power.txt", quote=FALSE, col.names=FALSE, row.names=TRUE, sep='\t')
+write.table(data.frame(samplesize, power), file="power.txt", quote=FALSE, col.names=TRUE, row.names=FALSE, sep='\t')
 #
 ################################################################################################################################################
 

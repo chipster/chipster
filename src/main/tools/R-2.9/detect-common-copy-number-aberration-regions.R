@@ -1,13 +1,13 @@
 # ANALYSIS "aCGH tools"/"Identify common regions from called aCGH data" (Reduces dimensionality of called aCGH data by identifying common breakpoints.)
 # INPUT GENE_EXPRS aberrations.tsv
-# OUTPUT regions.tsv, aberration-regions.png, aberration-frequencies.png
+# OUTPUT regions.tsv, regions.png, regions-frequencies.png
 # PARAMETER max.info.loss DECIMAL DEFAULT 0.01 (Maximal information loss allowed.)
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 # detect-common-copy-number-aberration-regions.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-05
+# 2010-10-12
 
 library(CGHcall)
 library(CGHregions)
@@ -20,15 +20,15 @@ dat$chromosome[dat$chromosome=='Y'] <- '24'
 dat$chromosome[dat$chromosome=='MT'] <- '25'
 dat$chromosome <- as.integer(dat$chromosome)
 
-calls <- as.matrix(dat[,grep("flag", names(dat))])
-logratios <- as.matrix(dat[,grep("chip", names(dat))])
+calls <- as.matrix(dat[,grep("^flag\\.", names(dat))])
+logratios <- as.matrix(dat[,grep("^chip\\.", names(dat))])
 
-if (length(grep("segmented", names(dat))>0)) { # input contains probabilities (is a CGHcall object)
-  segmented <- as.matrix(dat[,grep("segmented", names(dat))])
-  probloss <- as.matrix(dat[,grep("probloss", names(dat))])
-  probnorm <- as.matrix(dat[,grep("probnorm", names(dat))])
-  probgain <- as.matrix(dat[,grep("probgain", names(dat))])
-  probamp <- as.matrix(dat[,grep("probamp", names(dat))])
+if (length(grep("^segmented\\.", names(dat)))>0) { # input contains probabilities (is a CGHcall object)
+  segmented <- as.matrix(dat[,grep("^segmented\\.", names(dat))])
+  probloss <- as.matrix(dat[,grep("^probloss\\.", names(dat))])
+  probnorm <- as.matrix(dat[,grep("^probnorm\\.", names(dat))])
+  probgain <- as.matrix(dat[,grep("^probgain\\.", names(dat))])
+  probamp <- as.matrix(dat[,grep("^probamp\\.", names(dat))])
 
   if (ncol(probamp)==0) {
     cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=logratios, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
@@ -89,11 +89,11 @@ dat2$chromosome[dat2$chromosome=='25'] <- 'MT'
 
 write.table(dat2, file='regions.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
-bitmap(file='aberration-regions.png', width=image.width/72, height=image.height/72)
+bitmap(file='regions.png', width=image.width/72, height=image.height/72)
 plot(regions)
 dev.off()
 
-bitmap(file='aberration-frequencies.png', width=image.width/72, height=image.height/72)
+bitmap(file='regions-frequencies.png', width=image.width/72, height=image.height/72)
 frequencyPlot(regions)
 dev.off()
 

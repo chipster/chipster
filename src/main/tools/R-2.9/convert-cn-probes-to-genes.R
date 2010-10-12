@@ -7,7 +7,7 @@
 
 # convert-cn-probes-to-genes.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-05
+# 2010-10-12
 
 dat <- read.table('aberrations.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 
@@ -51,8 +51,8 @@ logratios <- dat[,grep("^chip\\.", colnames(dat))]
 x <- colnames(dat)
 suffix <- sub('^chip\\.', '', x[grep('^chip\\.', x)[1]])
 matrices <- sub(suffix, '', x[grep(suffix, x)])
-matrices <- matrices[matrices != 'flag']
-matrices <- matrices[matrices != 'chip']
+matrices <- matrices[matrices != 'flag.']
+matrices <- matrices[matrices != 'chip.']
 for (m in matrices)
   logratios <- cbind(logratios, dat[,grep(m, colnames(dat))])
 

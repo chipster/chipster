@@ -1,15 +1,15 @@
 # ANALYSIS "aCGH tools"/"Match copy number and expression probes" (Matches the probes of a copy number data set with probes of an expression data set, using their chromosomal locations. Running this tool is a prerequisite for testing copy-number-induced effects on expression.)
 # INPUT GENE_EXPRS aberrations.tsv, GENE_EXPRS normalized.tsv, GENERIC phenodata_cgh.tsv, GENERIC phenodata_exp.tsv
 # OUTPUT matched-cn-and-expression.tsv, matched-cn-and-expression-heatmap.png
-# PARAMETER samples1 METACOLUMN_SEL DEFAULT Sample (The phenodata column for data set 1 used to link the two data sets together.)
-# PARAMETER samples2 METACOLUMN_SEL DEFAULT Sample (The phenodata column for data set 2 used to link the two data sets together.)
+# PARAMETER sample.identifiers.1 METACOLUMN_SEL DEFAULT Sample (The phenodata column for data set 1 used to link the two data sets together.)
+# PARAMETER sample.identifiers.2 METACOLUMN_SEL DEFAULT Sample (The phenodata column for data set 2 used to link the two data sets together.)
 # PARAMETER method [distance, overlap, overlapplus] DEFAULT distance (The method for linking copy number and expression probes together.)
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 # match-cn-and-expression-probes.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-05
+# 2010-10-12
 
 library(CGHcall)
 library(intCNGEan)
@@ -25,15 +25,15 @@ if (length(grep("probnorm", names(dat1)))!=0) {
   exp <- dat2
   phenodata_cgh <- phenodata1
   phenodata_exp <- phenodata2
-  samples_cgh <- samples1
-  samples_exp <- samples2
+  samples_cgh <- sample.identifiers.1
+  samples_exp <- sample.identifiers.2
 } else if (length(grep("probnorm", names(dat2)))!=0) {
   cgh <- dat2
   exp <- dat1
   phenodata_cgh <- phenodata2
   phenodata_exp <- phenodata1
-  samples_cgh <- samples2
-  samples_exp <- samples1
+  samples_cgh <- sample.identifiers.2
+  samples_exp <- sample.identifiers.1
 } else {
   stop('CHIPSTER-NOTE: Could not detect the aCGH data set.')
 }

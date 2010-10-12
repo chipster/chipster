@@ -1,10 +1,10 @@
-# ANALYSIS "aCGH tools"/"Calculate aberration frequencies for called aCGH data" (Calculate frequencies of losses, gains and amplifications for called aCGH data. They are automatically calculated by the Call copy number aberrations from aCGH data tool, so normally there is no need to run this tool separately. But if you use e.g. the Extract samples from dataset tool, the frequencies should be updated using this script.)
+# ANALYSIS "aCGH tools"/"Update aberration frequencies for called aCGH data" (Calculate frequencies of losses, gains and amplifications for called aCGH data. They are automatically calculated by the Call copy number aberrations from aCGH data tool, so normally there is no need to run this tool separately. But if you use e.g. the Extract samples from dataset tool, the frequencies should be updated using this script.)
 # INPUT GENE_EXPRS aberrations.tsv
 # OUTPUT aberration-frequencies.tsv
 
 # calculate-aberration-frequencies.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-05
+# 2010-10-12
 
 # read data set
 dat <- read.table('aberrations.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
