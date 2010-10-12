@@ -12,10 +12,13 @@ import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.LinkUtils;
 import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.description.GenericInputTypes;
 import fi.csc.microarray.description.SADLSyntax;
 import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLSyntax.InputType;
+import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.Strings;
 
 /**
@@ -475,7 +478,28 @@ public class OperationDefinition implements ExecutionItem {
 
 	// TODO update to new type tag system
 	private boolean doBackwardsCompatibleTypeCheck(InputType type, DataBean data) {
-		return type.isTypeOf(data);
+		
+		if (type == ChipsterInputTypes.AFFY) {
+			return data.hasTypeTag(MicroarrayModule.TypeTags.RAW_AFFYMETRIX_EXPRESSION_VALUES);
+			
+		} else if (type == ChipsterInputTypes.CDNA) {
+			return data.hasTypeTag(MicroarrayModule.TypeTags.RAW_EXPRESSION_VALUES);
+			
+		} else if (type == ChipsterInputTypes.GENE_EXPRS) {
+			return data.hasTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
+			
+		} else if (type == ChipsterInputTypes.GENELIST) {
+			return data.hasTypeTag(MicroarrayModule.TypeTags.GENENAMES);
+			
+		} else if (type == ChipsterInputTypes.PHENODATA) {
+			return data.hasTypeTag(BasicModule.TypeTags.PHENODATA);
+			
+		} else if (type == GenericInputTypes.GENERIC) {
+			return true;
+			
+		} else {
+			throw new IllegalArgumentException();
+		}
 	}
 
 	// TODO update to new type tag system

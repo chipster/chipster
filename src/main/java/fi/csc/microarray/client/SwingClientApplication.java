@@ -105,9 +105,7 @@ import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.module.Module;
-import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
-import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.BrowserLauncher;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;
@@ -1682,59 +1680,7 @@ public class SwingClientApplication extends ClientApplication {
 			reportException(e);
 		}
 	}
-
 	
-	private void hackExampleSessionWithTypeTags() {
-		DataFolder folder = getDataManager().getRootFolder().getChildFolder("IlluminaTeratospermiaHuman6v1_BS1");
-
-		// Here's some not obvious things to check when updating code that sets the tags in place
-		
-		// TODO Affymetrix CEL: binary or not? if binary, then no TABLE_WITH_HEADER tag, otherwise the same
-		
-		// TODO significant expression fold change always when data has "p." "FC";
-
-		// TODO PCA: genewise or chipwise
-		
-		
-		for (DataItem item : folder.getChildren()) {
-			if (item.getName().equals("phenodata.tsv")) {
-				((DataBean)item).addTypeTag(BasicModule.TypeTags.PHENODATA);
-				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
-			}
-			if (item.getName().equals("sd-filter.tsv")) {
-				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
-				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
-				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.GENENAMES);
-			}
-			if (item.getName().equals("two-sample.tsv")) {
-				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
-				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
-				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.GENENAMES);
-				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.SIGNIFICANT_EXPRESSION_FOLD_CHANGES);
-			}
-			if (item.getName().equals("kmeans.tsv")) {
-				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
-				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
-				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.GENENAMES);
-				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.SIGNIFICANT_EXPRESSION_FOLD_CHANGES);
-			}
-			if (item.getName().equals("extract.tsv")) {
-				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
-				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
-				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.GENENAMES);
-				((DataBean)item).addTypeTag(MicroarrayModule.TypeTags.SIGNIFICANT_EXPRESSION_FOLD_CHANGES);
-			}
-			if (item.getName().equals("globaltest-result-table.tsv")) {
-				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
-			}
-			if (item.getName().equals("annotations.tsv")) {
-				((DataBean)item).addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
-			}
-		}
-		
-	}
-
-
 	@Override
 	public void loadSession() {
 
@@ -1767,7 +1713,6 @@ public class SwingClientApplication extends ClientApplication {
 					boolean somethingToSave = getAllDataBeans().size() != 0;
 					
 					final List<DataItem> newItems = manager.loadSnapshot(sessionFile, manager.getRootFolder(), application);
-					hackExampleSessionWithTypeTags();
 					SwingUtilities.invokeAndWait(new Runnable() {
 						public void run() {
 							getSelectionManager().selectSingle(newItems.get(newItems.size() - 1), this); // select last

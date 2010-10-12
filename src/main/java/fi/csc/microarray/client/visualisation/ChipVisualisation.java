@@ -31,6 +31,6 @@ public abstract class ChipVisualisation extends Visualisation {
 			
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		return isTabular(bean) && bean.hasTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES) ;
+		return isTabular(bean) && bean.hasTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
 	}
 }
