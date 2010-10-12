@@ -23,7 +23,7 @@ import fi.csc.microarray.databeans.DataItem;
 /**
  * A modal dialog which allows the user to rename the selected data item.
  * 
- * @author Janne KÃ¤ki
+ * @author Janne Käki
  *
  */
 public class RenameDialog extends JDialog implements ActionListener, CaretListener {

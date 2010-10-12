@@ -4,7 +4,7 @@ package fi.csc.microarray.client.operation.parameter;
  * A parameter which takes percentage values. For now, percentages are handled
  * as integers between 0 and 100, perhaps a better precision is needed?
  * 
- * @author Janne KÃ¤ki
+ * @author Janne Käki
  *
  */
 public class PercentageParameter extends Parameter {

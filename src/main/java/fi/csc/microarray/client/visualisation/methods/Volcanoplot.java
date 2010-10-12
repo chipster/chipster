@@ -35,7 +35,6 @@ import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.client.visualisation.methods.SelectableChartPanel.SelectionChangeListener;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 public class Volcanoplot extends Scatterplot implements ActionListener, PropertyChangeListener, SelectionChangeListener {
@@ -192,8 +191,6 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 			// plus one to hide points going into lines because of rounding
 			ROUNDING_LIMIT = (float) Math.pow(10, Math.ceil(Math.log10(min)) + 1);
 			
-			System.out.println("Min: " + min + ", Limit: " + ROUNDING_LIMIT);
-
 			// Sanity check
 			if (ROUNDING_LIMIT <= 0 || ROUNDING_LIMIT > DEFAULT_ROUNDING_LIMIT) {
 				ROUNDING_LIMIT = DEFAULT_ROUNDING_LIMIT;
@@ -272,8 +269,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		boolean isTabular = BasicModule.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
-		return isTabular && hasRows(bean) && bean.queryFeatures("/column/" + Y_AXIS_COLUMN_HEADER + "*").exists() && bean.queryFeatures("/column/" + X_AXIS_COLUMN_HEADER + "*").exists();
+		return super.canVisualise(bean) && bean.hasTypeTag(MicroarrayModule.TypeTags.SIGNIFICANT_EXPRESSION_FOLD_CHANGES) ;
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -284,7 +280,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 			vars.add((Variable) xBox.getSelectedItem());
 			vars.add((Variable) yBox.getSelectedItem());
 
-			application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, MicroarrayModule.VOLCANOPLOT, vars, getFrame().getDatas(), getFrame().getType(), getFrame()));
+			application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, MicroarrayModule.VisualisationMethods.VOLCANOPLOT, vars, getFrame().getDatas(), getFrame().getType(), getFrame()));
 		}
 	}
 

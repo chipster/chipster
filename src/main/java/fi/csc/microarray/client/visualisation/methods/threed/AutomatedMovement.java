@@ -1,7 +1,7 @@
 /*
  * AutomatedMovement.java
  *
- * Created on 3. kesÃ¤kuuta 2006, 20:53
+ * Created on 3. kesäkuuta 2006, 20:53
  *
  * To change this template, choose Tools | Options and locate the template under
  * the Source Creation and Management node. Right-click the template and choose
@@ -23,7 +23,7 @@ import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
  * (http://www.cs.helsinki.fi/group/viski/) but lot of refactoring and bugfixes are done. Also
  * support for kinetic movement is added.
  *
- * @author esa, Petri KlemelÃ¤
+ * @author esa, Petri Klemelä
  */
 public class AutomatedMovement extends Thread {
 
