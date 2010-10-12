@@ -39,6 +39,8 @@ import fi.csc.microarray.client.visualisation.methods.threed.Scatterplot3D;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.TypeTag;
+import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.bio.EmbeddedBinaryProvider;
 import fi.csc.microarray.databeans.features.bio.IdentifierProvider;
 import fi.csc.microarray.databeans.features.bio.NormalisedExpressionProvider;
@@ -55,21 +57,36 @@ public class MicroarrayModule implements Module {
 
 	private static final String EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/ExampleSessionChipsterV2.cs";
 	
-	public static VisualisationMethod ARRAY_LAYOUT = new VisualisationMethod("Array layout", ArrayLayout.class, VisualConstants.ARRAY_MENUICON, -1, 0.0009);
-	public static VisualisationMethod HISTOGRAM = new VisualisationMethod("Histogram", Histogram.class, VisualConstants.HISTOGRAM_MENUICON, -1, 0.024);
-	public static VisualisationMethod SCATTERPLOT = new VisualisationMethod("Scatterplot", Scatterplot.class, VisualConstants.SCATTER_MENUICON, -1, 0.039);
-	public static VisualisationMethod SCATTERPLOT3D = new VisualisationMethod("3D Scatterplot", Scatterplot3D.class, VisualConstants.SCATTER3D_MENUICON, -1, 0.082);
-	public static VisualisationMethod SCATTERPLOT3DPCA = new VisualisationMethod("3D Scatterplot for PCA", Scatterplot3DPCA.class, VisualConstants.SCATTER3DPCA_MENUICON, -1, 0.082);
-	public static VisualisationMethod VOLCANOPLOT = new VisualisationMethod("Volcano plot", Volcanoplot.class, VisualConstants.VOLCANO_MENUICON, -1, 0.039); 
-	public static VisualisationMethod SOM = new VisualisationMethod("SOM", SOM.class, VisualConstants.SOM_MENUICON, 3, 0.034);
-	public static VisualisationMethod HIERARCHICAL = new VisualisationMethod("Hierarchical clustering", HierarchicalClustering.class, VisualConstants.HC_MENUICON, 3, 0.09);
-	public static VisualisationMethod EXPRESSION_PROFILE = new VisualisationMethod("Expression profile", ExpressionProfile.class, VisualConstants.PROFILE_MENUICON, -1, 0.1);
-	public static VisualisationMethod CLUSTERED_PROFILES = new VisualisationMethod("Clustered profiles", ClusteredProfiles.class, VisualConstants.PROFILES_MENUICON, -1, 0.087);
-	public static VisualisationMethod VENN_DIAGRAM = new VisualisationMethod("Venn-diagram", VennDiagram.class, VisualConstants.VENN_MENUICON, 1, -1);
-	public static VisualisationMethod GBROWSER = new VisualisationMethod("Genome browser", GenomeBrowser.class, VisualConstants.SCATTER_MENUICON, 1, -1);
-	public static VisualisationMethod PHENODATA = new VisualisationMethod("Phenodata editor", PhenodataEditor.class, VisualConstants.PHENODATA_MENUICON, 3, 0, "chipster-manual/visualisation-phenodata.html");
-
-	public static final String SERVER_MODULE_MICROARRAY = "microarray";
+	public static class TypeTags {
+		public static final TypeTag RAW_AFFYMETRIX_EXPRESSION_VALUES  = new TypeTag(SERVER_MODULE_NAME, "raw-arrymetrix-expression-values", "must be in CEL format");
+		public static final TypeTag RAW_EXPRESSION_VALUES  = new TypeTag(SERVER_MODULE_NAME, "raw-expression-values", "");
+		public static final TypeTag NORMALISED_EXPRESSION_VALUES = new TypeTag(SERVER_MODULE_NAME, "normalised-expression-values", "must have columns following name pattern \"chip.*\"");
+		public static final TypeTag GENENAMES = new TypeTag(SERVER_MODULE_NAME, "genenames", "must have column \" \" or \"identifier\"");
+		public static final TypeTag SIGNIFICANT_EXPRESSION_FOLD_CHANGES = new TypeTag(SERVER_MODULE_NAME, "significant-expression-fold-changes", "must have columns following name patterns \"FC.*\" and \"p.*\"");
+		public static final TypeTag EXPRESSION_PRIMARY_COMPONENTS_GENEWISE = new TypeTag(SERVER_MODULE_NAME, "expression-primary-components-genewise", "");
+		public static final TypeTag EXPRESSION_PRIMARY_COMPONENTS_CHIPWISE = new TypeTag(SERVER_MODULE_NAME, "expression-primary-components-chipwise", "");
+		public static final TypeTag ORDERED_GENOMIC_ENTITIES = new TypeTag(SERVER_MODULE_NAME, "ordered-genomic-entities", "");
+		public static final TypeTag CLUSTERED_EXPRESSION_VALUES = new TypeTag(SERVER_MODULE_NAME, "clustered-expression-values", "must have column \"cluster\"");
+		public static final TypeTag SOM_CLUSTERED_EXPRESSION_VALUES = new TypeTag(SERVER_MODULE_NAME, "som-clustered-expression-values", "must have columns \"colours\", \"distance2first\", \"cluster\", \"griddim\"");
+	}
+	
+	public static class VisualisationMethods {
+		public static VisualisationMethod ARRAY_LAYOUT = new VisualisationMethod("Array layout", ArrayLayout.class, VisualConstants.ARRAY_MENUICON, -1, 0.0009);
+		public static VisualisationMethod HISTOGRAM = new VisualisationMethod("Histogram", Histogram.class, VisualConstants.HISTOGRAM_MENUICON, -1, 0.024);
+		public static VisualisationMethod SCATTERPLOT = new VisualisationMethod("Scatterplot", Scatterplot.class, VisualConstants.SCATTER_MENUICON, -1, 0.039);
+		public static VisualisationMethod SCATTERPLOT3D = new VisualisationMethod("3D Scatterplot", Scatterplot3D.class, VisualConstants.SCATTER3D_MENUICON, -1, 0.082);
+		public static VisualisationMethod SCATTERPLOT3DPCA = new VisualisationMethod("3D Scatterplot for PCA", Scatterplot3DPCA.class, VisualConstants.SCATTER3DPCA_MENUICON, -1, 0.082);
+		public static VisualisationMethod VOLCANOPLOT = new VisualisationMethod("Volcano plot", Volcanoplot.class, VisualConstants.VOLCANO_MENUICON, -1, 0.039); 
+		public static VisualisationMethod SOM = new VisualisationMethod("SOM", SOM.class, VisualConstants.SOM_MENUICON, 3, 0.034);
+		public static VisualisationMethod HIERARCHICAL = new VisualisationMethod("Hierarchical clustering", HierarchicalClustering.class, VisualConstants.HC_MENUICON, 3, 0.09);
+		public static VisualisationMethod EXPRESSION_PROFILE = new VisualisationMethod("Expression profile", ExpressionProfile.class, VisualConstants.PROFILE_MENUICON, -1, 0.1);
+		public static VisualisationMethod CLUSTERED_PROFILES = new VisualisationMethod("Clustered profiles", ClusteredProfiles.class, VisualConstants.PROFILES_MENUICON, -1, 0.087);
+		public static VisualisationMethod VENN_DIAGRAM = new VisualisationMethod("Venn-diagram", VennDiagram.class, VisualConstants.VENN_MENUICON, 1, -1);
+		public static VisualisationMethod GBROWSER = new VisualisationMethod("Genome browser", GenomeBrowser.class, VisualConstants.SCATTER_MENUICON, 1, -1);
+		public static VisualisationMethod PHENODATA = new VisualisationMethod("Phenodata editor", PhenodataEditor.class, VisualConstants.PHENODATA_MENUICON, 3, 0, "chipster-manual/visualisation-phenodata.html");
+	}
+	
+	public static final String SERVER_MODULE_NAME = "microarray";
 
 	public static final String ANNOTATION_ID = "annotate-genelist2html.R";
 
@@ -101,7 +118,7 @@ public class MicroarrayModule implements Module {
 
 	@Override
 	public String getServerModuleName() {
-		return SERVER_MODULE_MICROARRAY;
+		return SERVER_MODULE_NAME;
 	}
 
 	@Override
@@ -187,19 +204,19 @@ public class MicroarrayModule implements Module {
 	@Override
 	public VisualisationMethod[] getVisualisationMethods() {
 		return new VisualisationMethod[] {
-				PHENODATA,
-				ARRAY_LAYOUT,
-				HISTOGRAM,
-				SCATTERPLOT,
-				SCATTERPLOT3D,
-				SCATTERPLOT3DPCA,
-				VOLCANOPLOT,
-				SOM,
-				HIERARCHICAL,
-				EXPRESSION_PROFILE,
-				CLUSTERED_PROFILES,
-				VENN_DIAGRAM,
-				GBROWSER
+				VisualisationMethods.PHENODATA,
+				VisualisationMethods.ARRAY_LAYOUT,
+				VisualisationMethods.HISTOGRAM,
+				VisualisationMethods.SCATTERPLOT,
+				VisualisationMethods.SCATTERPLOT3D,
+				VisualisationMethods.SCATTERPLOT3DPCA,
+				VisualisationMethods.VOLCANOPLOT,
+				VisualisationMethods.SOM,
+				VisualisationMethods.HIERARCHICAL,
+				VisualisationMethods.EXPRESSION_PROFILE,
+				VisualisationMethods.CLUSTERED_PROFILES,
+				VisualisationMethods.VENN_DIAGRAM,
+				VisualisationMethods.GBROWSER
 		};
 	}
 
@@ -216,6 +233,52 @@ public class MicroarrayModule implements Module {
 				{ "miRNA expression analysis", "/mirna-expression-analysis.bsh" }
 		};
 	}
+	
+	
+	/**
+	 * Selects the proper source dataset ie. the dataset that is not a hidden phenodata dataset.
+	 */
+	public static DataBean getProperSource(DataBean dataBean) {
+		
+		if (dataBean == null || dataBean.getLinkTargets(Link.DERIVATION).size() == 0) {
+			return null;
+			
+		} else if (dataBean.getLinkTargets(Link.DERIVATION).size() == 1) {
+			return dataBean.getLinkTargets(Link.DERIVATION).iterator().next();
+			
+		} else {
+			LinkedList<DataBean> sourceCollector = new LinkedList<DataBean>();
+			for (DataBean source : dataBean.getLinkTargets(Link.DERIVATION)) {
+				if (source.queryFeatures("/phenodata").exists()) {
+					sourceCollector.add(source);
+				}
+			}
+			if (sourceCollector.size() == 0 || sourceCollector.size() > 1) {
+				return null; // no definite source was found
+			}
+			
+			return sourceCollector.getFirst(); // return the one and only proper source
+		}
+	}
+	
+	/**
+	 * Gets the operation history of this dataset as a chronological list
+	 * (implemented as vector) of DataSetHistoryWrapper objects, which
+	 * practically are DataSets with a slightly altered toString output.
+	 * The list will contain all the datasets on the workflow, starting
+	 * from raw data and ending at current dataset.
+	 * 
+	 * @return The chronologically ascending list of dataset history wrappers.
+	 */
+	public static DataBean[] getSourcePath(DataBean dataBean) {
+		LinkedList<DataBean> list = new LinkedList<DataBean>();
+		if (getProperSource(dataBean) != null) {
+			list.addAll(Arrays.asList(getSourcePath(getProperSource(dataBean))));
+		}
+		list.add(dataBean);
+		return list.toArray(new DataBean[0]);
+	}	
+
 
 	@Override
 	public FileFilter[] getImportFileFilter() {

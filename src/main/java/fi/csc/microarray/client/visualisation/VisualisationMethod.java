@@ -1,8 +1,6 @@
 package fi.csc.microarray.client.visualisation;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.ImageIcon;
 
@@ -121,23 +119,10 @@ public class VisualisationMethod {
 		return -1;
 	}
 
-	Map<DataBean, Boolean> canVisualiseCache = new HashMap<DataBean, Boolean>();
-
 	public boolean isApplicableTo(DataBean bean) throws MicroarrayException {
 
-		// The results of the canVisualise are saved to map to speed up
-		// the selection of datasets. The maps are emptied only when the client
-		// is closed, but this *shouldn't* be a problem for either memory
-		// consumption or performance.
-		
 		if (bean != null) {
-			// Has to be wrapper to allow null
-			Boolean result;
-			if ((result = canVisualiseCache.get(bean)) == null) {
-				result = this.getHeadlessVisualiser().canVisualise(bean);
-				canVisualiseCache.put(bean, result);
-			}
-			return result;
+			return this.getHeadlessVisualiser().canVisualise(bean);
 		}
 		return false;
 	}

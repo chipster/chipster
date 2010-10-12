@@ -70,6 +70,7 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -842,9 +843,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	}
 
 	@Override
-	public boolean canVisualise(java.util.List<DataBean> datas)
-			throws MicroarrayException {
-		return interpretUserDatas(datas) != null;
+	public boolean canVisualise(java.util.List<DataBean> datas) throws MicroarrayException {
+		// Check if there's non-compatible data  
+		for (DataBean data : datas) {
+			if (!data.hasTypeTag(MicroarrayModule.TypeTags.ORDERED_GENOMIC_ENTITIES)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public class ObjVariable extends Variable {
@@ -902,11 +908,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
 			           (data.getName().endsWith(".bai"))) {
 				interpretations.add(TrackType.HIDDEN);
-
+                
 			} else {
-				// cannot interpret, visualisation not available for this
-				// selection
-				return null;
+	             throw new RuntimeException("cannot visualise: " + data.getName());
 			}
 		}
 

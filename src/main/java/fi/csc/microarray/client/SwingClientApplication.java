@@ -116,7 +116,7 @@ import fi.csc.microarray.util.Strings;
 /**
  * This class adds all GUI and Swing specific content to client functionality.
  * 
- * @author Aleksi Kallio, Janne KÃ¤ki
+ * @author Aleksi Kallio, Janne Käki
  * 
  */
 public class SwingClientApplication extends ClientApplication {
@@ -1333,7 +1333,7 @@ public class SwingClientApplication extends ClientApplication {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		start(null, "microarray");
+		start(null, "fi.csc.microarray.module.chipster.MicroarrayModule");
 	}
 
 	public static void reportIllegalConfigurationException(IllegalConfigurationException e) {
@@ -1680,7 +1680,7 @@ public class SwingClientApplication extends ClientApplication {
 			reportException(e);
 		}
 	}
-
+	
 	@Override
 	public void loadSession() {
 

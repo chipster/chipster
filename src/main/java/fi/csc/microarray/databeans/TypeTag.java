@@ -12,14 +12,14 @@ package fi.csc.microarray.databeans;
  */
 public class TypeTag {
 
-	private String name;
+	private String tagName;
 
-	public TypeTag(String name) {
-		this.name = name;
+	public TypeTag(String serverModuleName, String tagName, String description) {
+		this.tagName = tagName;
 	}
 
 	public String getName() {
-		return name;
+		return tagName;
 	}
 	
 }

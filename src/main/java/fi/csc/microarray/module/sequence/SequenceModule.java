@@ -40,20 +40,17 @@ public class SequenceModule implements Module {
 
 	@Override
 	public void plugFeatures(DataManager manager) {
-		// TODO Auto-generated method stub
-
+		// nothing to plug
 	}
 
 	@Override
 	public void plugModifiers(DataManager manager) {
-		// TODO Auto-generated method stub
-
+		// nothing to plug
 	}
 
 	@Override
 	public void plugTypeTags(DataManager manager) {
-		// TODO Auto-generated method stub
-
+		// nothing to plug
 	}
 
 	@Override
