@@ -85,7 +85,6 @@
 	<tool runtime="R-2.9">stat-geneset.R</tool>
 	<!-- <tool runtime="R-2.10">pathways-mirna-hyperg-go.R</tool> -->
 	<!-- <tool runtime="R-2.10">pathways-mirna-hyperg-kegg.R</tool> -->
-	<!-- <tool runtime="R-2.10">correlation-analysis-mirna.R</tool> -->
 	<tool runtime="beanshell">annotate-cpdb.bsh</tool>
 	<tool runtime="beanshell">annotate-intact.bsh</tool>
 	<tool runtime="beanshell">annotate-reactome.bsh</tool>
@@ -132,13 +131,6 @@
 	<tool runtime="R-2.9">import-soft2.R</tool>
 	<!-- <tool runtime="R-2.10">import-ArrayExpress.R</tool> -->
 	<tool runtime="R-2.9">intersect-lists.R</tool>
-
-
-	<!-- MISCELLANEOUS (SEQUENCE ANALYSIS) -->
-	<!--
-		<tool runtime="R-2.9">seqanal-msa.R</tool> 
-		<tool runtime="R-2.9">seqanal-phylogenetics.R</tool>
-	-->
 
 	<!-- ACGH TOOLS -->
 	<tool runtime="R-2.9">import-from-cangem.R</tool>
