@@ -159,7 +159,7 @@ public class HelpMapping {
 	}
 
 	public static String mapToHelppage(OperationDefinition definition) {
-		String page = mappings.get(definition.getCategory().getName() + "/" + definition.getName());
+		String page = mappings.get(definition.getCategory().getName() + "/" + definition.getDisplayName());
 		if (page == null) {
 			page = DEFAULT_HELP_PAGE;
 		}

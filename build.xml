@@ -11,6 +11,7 @@
 
 	<!-- the project folder configuration -->
 	<property name="src" location="src/main/java" />
+	<property name="tools-src" location="src/main/tools/java" />
 	<property name="test-src" location="src/test/java" />
 	<property name="ext-src" location="src/main/applications" />
 	<property name="lib" location="ext/lib" />
@@ -36,7 +37,7 @@
 	<taskdef resource="testngtasks" classpath="${lib}/testng-5.9-jdk15.jar"/>
 
 	<!-- version numbering -->
-	<property name="release-version" value="1.4.5" />
+	<property name="release-version" value="2.0.0" />
 	<property name="r-version" value="R-2.9" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar" />
@@ -49,7 +50,7 @@
 	<property name="wrapper-linux-x86-32" value="${wrapper-dist}/wrapper-linux-x86-32-3.2.3" />
 	<property name="wrapper-linux-x86-64" value="${wrapper-dist}/wrapper-linux-x86-64-3.2.3" />
 	<property name="wrapper-windows-x86-32" value="${wrapper-dist}/wrapper-windows-x86-32-3.3.3" />
-	<property name="activemq-dist" value="${ext-apps}/apache-activemq-5.1.0" />
+	<property name="activemq-dist" value="${ext-apps}/apache-activemq-5.3.1" />
 
 	<!-- keystore for signing -->
     <property name="keyalias" value="csc" />
@@ -83,7 +84,7 @@
             <fatjar.jarsource file="${lib}/viski-chipster-1.0.1.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/commons-pool-1.3.jar" relpath=""/>
             <fatjar.jarsource file="${lib}/commons-daemon.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/swingx-0.9.1.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib}/swingx-1.0.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/bsh-2.0b4.jar" relpath=""/>
             <fatjar.jarsource file="${lib}/jetty-6.1.12.jar" relpath=""/>
 	        <fatjar.jarsource file="${lib}/jetty-util-6.1.12.jar" relpath=""/>
@@ -95,12 +96,15 @@
         	<fatjar.jarsource file="${lib}/geronimo-servlet_2.5_spec-1.1.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/activemq-all-5.3.1.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/commons-logging-1.1.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib}/sam-1.23.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/saaj-api.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/saaj-impl.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/activation.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/cron4j-1.1.5.jar" relpath=""/>
- 		    <fatjar.jarsource file="${lib}/PDFRenderer.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/PDFRenderer.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/pdfviewer.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/h2-1.2.137.jar" relpath=""/>
+		    	
         </fatjar.build>
 
 		<!-- sign it -->
@@ -142,6 +146,7 @@
 		<mkdir dir="${build}" />
 		<javac destdir="${build}" target="1.5" source="1.5" debug="true" failonerror="true">
 			<src path="${src}" />
+			<src path="${tools-src}" />
 			<classpath>
 				<fileset dir="${lib}">
 					<include name="**/*.jar" />
@@ -347,7 +352,7 @@
 			<tarfileset file="${activemq-dist}/bin/macosx/wrapper" filemode="755" prefix="chipster/activemq/bin/macosx" />
 			<tarfileset file="${activemq-dist}/bin/macosx/activemq" filemode="755" prefix="chipster/activemq/bin/macosx" />
 			<tarfileset file="${activemq-dist}/bin/macosx/libwrapper.jnilib" filemode="755" prefix="chipster/activemq/bin/macosx" />
-			<tarfileset dir="${activemq-dist}/bin/win32" filemode="755" prefix="chipster/activemq/bin/win32" />
+			<!--<tarfileset dir="${activemq-dist}/bin/win32" filemode="755" prefix="chipster/activemq/bin/win32" /> -->
 			
 			<tarfileset file="${ext-src}/activemq/activemq.xml" prefix="chipster/activemq/conf" />
 
@@ -357,7 +362,7 @@
 
 	<target name="package-zip" depends="package-tar" description="Create chipster zip">
 		<mkdir dir="temp"/>
-		<zip destfile="${release-zip}" compress="false" duplicate="fail" >
+		<zip destfile="${release-zip}" compress="false" duplicate="fail" >	<property name="release-version" value="2.0" />
 		  <tarfileset src="${release-tar}" />
 		</zip>
 

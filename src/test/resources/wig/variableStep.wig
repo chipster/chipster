@@ -1,0 +1,28 @@
+track type=wiggle_0 name="H9 Oct4 replicate 2" description="H9 Oct4 replicate 2 in reads per million" visibility=full autoScale=on color=0,0,0
+variableStep chrom=chr1 span=25
+830075	1.02
+830100	1.02
+830125	1.02
+830150	1.02
+830175	1.02
+841525	1.27
+841550	1.27
+841575	1.02
+845575	1.02
+845600	1.53
+845625	2.04
+845650	1.53
+845675	1.53
+845700	1.27
+845725	1.02
+846350	1.02
+846375	1.02
+variableStep chrom=chr2 span=25
+846475	1.27
+846500	1.02
+846525	1.02
+846550	1.02
+851050	1.02
+851075	1.02
+851375	1.02
+851400	1.02

@@ -53,16 +53,27 @@ if(length(unique(gene.groups))==1 | length(unique(gene.groups))>=3) {
 }
 
 # Calculate the average expression for the different experiment groups
-mirna.average.1 <- mirna.data.2[,mirna.groups==sort(unique(mirna.groups), decreasing=TRUE)[1]]
+#mirna.average.1 <- mirna.data.2[,mirna.groups==sort(unique(mirna.groups), decreasing=TRUE)[1]]
+#mirna.average.1 <- apply(mirna.average.1, FUN=average.method, MARGIN=1)
+#mirna.average.2 <- mirna.data.2[,mirna.groups==sort(unique(mirna.groups), decreasing=TRUE)[2]]
+#mirna.average.2 <- apply(mirna.average.2, FUN=average.method, MARGIN=1)
+#mirna.ratio <- mirna.average.1-mirna.average.2
+#gene.average.1 <- gene.data.2[,gene.groups==sort(unique(gene.groups), decreasing=TRUE)[1]]
+#gene.average.1 <- apply(gene.average.1, FUN=average.method, MARGIN=1)
+#gene.average.2 <- gene.data.2[,gene.groups==sort(unique(gene.groups),decreasing=TRUE)[2]]
+#gene.average.2 <- apply(gene.average.2, FUN=average.method, MARGIN=1)
+#gene.ratio <- gene.average.1-gene.average.2
+
+mirna.average.1 <- 2^mirna.data.2[,mirna.groups==sort(unique(mirna.groups), decreasing=TRUE)[1]]
 mirna.average.1 <- apply(mirna.average.1, FUN=average.method, MARGIN=1)
-mirna.average.2 <- mirna.data.2[,mirna.groups==sort(unique(mirna.groups), decreasing=TRUE)[2]]
+mirna.average.2 <- 2^mirna.data.2[,mirna.groups==sort(unique(mirna.groups), decreasing=TRUE)[2]]
 mirna.average.2 <- apply(mirna.average.2, FUN=average.method, MARGIN=1)
-mirna.ratio <- mirna.average.1-mirna.average.2
-gene.average.1 <- gene.data.2[,gene.groups==sort(unique(gene.groups), decreasing=TRUE)[1]]
+mirna.ratio <- log2 (mirna.average.1/mirna.average.2)
+gene.average.1 <- 2^gene.data.2[,gene.groups==sort(unique(gene.groups), decreasing=TRUE)[1]]
 gene.average.1 <- apply(gene.average.1, FUN=average.method, MARGIN=1)
-gene.average.2 <- gene.data.2[,gene.groups==sort(unique(gene.groups),decreasing=TRUE)[2]]
+gene.average.2 <- 2^gene.data.2[,gene.groups==sort(unique(gene.groups),decreasing=TRUE)[2]]
 gene.average.2 <- apply(gene.average.2, FUN=average.method, MARGIN=1)
-gene.ratio <- gene.average.1-gene.average.2
+gene.ratio <- log2 (gene.average.1/gene.average.2)
 
 # Read the chiptype that was used for the gene expression data
 if (id.type=="probe_id") {
