@@ -1,16 +1,20 @@
-# ANALYSIS "aCGH tools (beta testing)"/"Smooth waves from normalized aCGH data" (Smooths the wavy pattern typically seen in aCGH profiles. Note that you need a separate calibration data set, which is not measured from cancer samples.)
+# ANALYSIS "aCGH tools"/"Smooth waves from normalized aCGH data" (Smooths the wavy pattern typically seen in aCGH profiles. Note that you need a separate calibration data set, which is not measured from cancer samples. It should be measured with the same array platform and preprocessed with similar normalization settings. When selecting the two input files, be sure to first click on the cancer data set, then on the calibration one.)
 # INPUT GENE_EXPRS normalized_tumor.tsv, GENE_EXPRS normalized_calib.tsv
 # OUTPUT smoothed.tsv
 
 # smooth-acgh.R
-# Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-08-06
+# Ilari Scheinin <firstname.lastname@gmail.com>
+# 2010-10-05
 
 library(CGHcall)
 library(NoWaves)
 
+pos <- c('chromosome','start','end')
+
 # load tumor data and preprocess to deal with missing values
 dat <- read.table('normalized_tumor.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+if (length(setdiff(pos, colnames(dat)))!=0)
+  stop('CHIPSTER-NOTE: Your cancer data set needs to have the following columns: chromosome, start, end.')
 dat <- data.frame(probe=rownames(dat), dat, stringsAsFactors=FALSE)
 dat$chromosome[dat$chromosome=='X'] <- 23
 dat$chromosome[dat$chromosome=='Y'] <- 24
@@ -22,6 +26,8 @@ cgh <- data.frame(Probe=rownames(cgh@featureData@data), cgh@featureData@data, as
 
 # load calibration data and preprocess to deal with missing values
 dat2 <- read.table('normalized_calib.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+if (length(setdiff(pos, colnames(dat2)))!=0)
+  stop('CHIPSTER-NOTE: Your calibration data set needs to have the following columns: chromosome, start, end.')
 dat2 <- data.frame(probe=rownames(dat2), dat2, stringsAsFactors=FALSE)
 dat2$chromosome[dat2$chromosome=='X'] <- 23
 dat2$chromosome[dat2$chromosome=='Y'] <- 24

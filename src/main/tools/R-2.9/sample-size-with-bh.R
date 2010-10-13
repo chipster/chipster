@@ -1,16 +1,16 @@
-# ANALYSIS "aCGH tools (beta testing)"/"Sample size calculations with an adapted BH method" (Perform sample size calculations using an adapted Benjamini-Hochberg method.)
+# ANALYSIS "Statistics"/"Sample size calculations with an adapted BH method" (Perform sample size calculations using an adapted Benjamini-Hochberg method.)
 # INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv
 # OUTPUT skewness.png, kurtosis.png, p-density.png, lambda.png, g.png, gamma.png, power.png, power.txt
 # PARAMETER column METACOLUMN_SEL DEFAULT group (The phenodata column that divides the samples into exactly two groups.)
-# PARAMETER var.equal [TRUE, FALSE] DEFAULT FALSE (Whether to treat the variances of the two groups as equal.)
+# PARAMETER assume.equal.variances [yes, no] DEFAULT no (Whether to treat the variances of the two groups as equal.)
 # PARAMETER distribution [normal, student] DEFAULT normal (Whether to use the normal or the t distribution to calculate p values.)
 # PARAMETER false.discovery.rate DECIMAL DEFAULT 0.1 (False discovery rate.)
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 # sample-size-with-bh.R
-# Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-05-25
+# Ilari Scheinin <firstname.lastname@gmail.com>
+# 2010-10-05
 
 dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 phenodata <- read.table("phenodata.tsv", header=TRUE, sep="\t")
@@ -53,8 +53,14 @@ samples2<-as.matrix(example.data$x[,example.data$y==class.names[2] & !is.na(exam
 N1<-ncol(samples1)
 N2<-ncol(samples2)
 N<-1/(1/N1+1/N2)
-for(i in 1:n){ 
-  Sample.of.test.statistics[i]<-t.test(samples1[i,],samples2[i,],alternative="two.sided",mu=0,paired=FALSE,var.equal=(var.equal=='TRUE'))$statistic
+for(i in 1:n){
+  prob <- TRUE
+  try({
+    Sample.of.test.statistics[i]<-t.test(samples1[i,],samples2[i,],alternative="two.sided",mu=0,paired=FALSE,var.equal=(assume.equal.variances=='yes'))$statistic
+    prob <- FALSE
+  }, silent=TRUE)
+  if (prob)
+    Sample.of.test.statistics[i] <- 0
 }
 #
 #tests.of.normality<-matrix(0,nrow=n,ncol=2)
@@ -77,7 +83,7 @@ for (i in 1:1000) {
   normal.kurtosis[i,] <- c(kurtosis(rnd1), kurtosis(rnd2))
 }
 hist.norm <- function(x, norm = NULL, ...) {
-  u <- seq(min(x)-1, max(x)+1, length=401)
+  u <- seq(min(x, na.rm=TRUE)-1, max(x, na.rm=TRUE)+1, length=401)
   if (is.null(norm)) {
     d <- dnorm(u)
   } else {
