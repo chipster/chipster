@@ -137,7 +137,7 @@ public class HelpMapping {
 
 		mappings.put("aCGH tools/Import from CanGEM", "chipster-manual/import-from-cangem.html");
 		mappings.put("aCGH tools/Smooth waves from normalized aCGH data", "chipster-manual/smooth-acgh.html");
-		mappings.put("aCGH tools/Call copy number aberrations from aCGH data", "chipster-manual/detect-copy-number-eberrations.html");
+		mappings.put("aCGH tools/Call copy number aberrations from aCGH data", "chipster-manual/detect-copy-number-aberrations.html");
 		mappings.put("aCGH tools/Plot copy number profiles from called aCGH data", "chipster-manual/plot-cgh-profile.html");
 		mappings.put("aCGH tools/Identify common regions from called aCGH data", "chipster-manual/detect-common-copy-number-aberration-regions.html");
 		mappings.put("aCGH tools/Cluster called aCGH data", "chipster-manual/cluster-acgh.html");
