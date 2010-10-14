@@ -8,10 +8,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.fs.FSDataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.BrowserLauncher;
 
@@ -39,7 +39,7 @@ public class ExternalBrowserViewer extends Visualisation {
 	public JComponent getVisualisation(DataBean data) throws Exception {
 		
 		// open in browser
-		File file = ((FSDataBean)data).getContentFile();
+		File file = Session.getSession().getDataManager().getLocalFile(data);
 		BrowserLauncher.openURL("file://" + file.getAbsolutePath());
 		
 		// show message to user

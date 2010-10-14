@@ -41,6 +41,7 @@ public class DialogInfo {
 	private String title = null;
 	private String message = null;
 	private String details = null;
+    private Boolean showFeedback = false;
 	private Type type;
 
 	public DialogInfo(Severity severity, String title, String message, String details) {
@@ -94,4 +95,25 @@ public class DialogInfo {
 	public void setType(Type type) {
 		this.type = type;
 	}
+	
+	/**
+	 * Set visibility of "Send report" button with which
+	 * user can give us feedback.
+	 * 
+	 * @param show
+	 */
+	public void setFeedbackVisible(Boolean show) {
+	    this.showFeedback = show;
+	}
+	
+	/**
+	 * Decide if "Send report" button is visible in this
+	 * dialog.
+	 * 
+	 * @return true if feedback button is visible, false
+	 * otherwise.
+	 */
+    public Boolean getFeedbackVisible() {
+        return showFeedback;
+    }
 }
