@@ -59,15 +59,7 @@ public class ReadTrackGroup extends TrackGroup {
         // Overview
         readOverview = new IntensityTrack(view, userData,
                 userDataHandler, histogramColor, SWITCH_VIEWS_AT);
-        
-        // Detailed//            if (request.requestedContents.contains(ColumnType.QUALITY)) {
-//    	values.put(ColumnType.QUALITY, record.getBaseQualities());            	
-//      }
-//      
-//      if (request.requestedContents.contains(ColumnType.CIGAR)) {
-//      	values.put(ColumnType.CIGAR, record.getCigarString());
-//      }
-//      
+            
         reads = new SeqBlockTrack(view, userData,
                 userDataHandler, fontColor, 0, SWITCH_VIEWS_AT);
         
@@ -171,5 +163,4 @@ public class ReadTrackGroup extends TrackGroup {
     		setVisibleSNP(state);
     	}
     }
-    
 }

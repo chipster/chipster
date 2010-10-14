@@ -22,6 +22,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.utils.Sequence;
 
@@ -93,6 +94,11 @@ public class SeqBlockTrack extends Track {
 			BpCoord startBp = read.region.start;
 			BpCoord endBp = read.region.end;
 			String seq = ((String) read.values.get(ColumnType.SEQUENCE));
+			Object cigarObj = read.values.get(ColumnType.CIGAR);
+			Cigar cigar = null;
+			if ( cigarObj != null) {
+				cigar = (Cigar) cigarObj;
+			}
 
 			if (seq != null) {
 				// we have sequence
@@ -112,6 +118,10 @@ public class SeqBlockTrack extends Track {
 			
             // width in bp, sequence length not always equal to endBp - startBp + 1
             int widthBp = seq.length();
+            
+            if (cigar != null) {
+            	widthBp = cigar.getReferenceIndex(seq.length() - 1) + 1;
+            }
 
 			// create rectangle covering the correct screen area (x-axis)
 			Rectangle rect = new Rectangle();
@@ -190,30 +200,28 @@ public class SeqBlockTrack extends Track {
 				}
 
 				// prepare to draw single nucleotides
-				float x = getView().bpToTrackFloat(startBp);
 				float increment = getView().bpWidth();
-				float nextX;
-
+				float startX = getView().bpToTrackFloat(startBp);;
+				
 				// draw something for each nucleotide
 				for (int j = 0; j < seq.length(); j++) {
 
 					char letter = seq.charAt(j);
-
-					// character drawing commented away:
-					//
-					// if (rect.width > seq.length() * CHAR_WIDTH) {
-					//
-					// drawables.add(new TextDrawable((int) x + 1, rect.y +
-					// 10, "" + letter, fontColor));
-					//
-					// // drawables.add(new TextDrawable((int)x, rect.y - 8,
-					// // "" + letter, Color.black));
-					//
-					// }
+					
+					int refIndex = j;
+					
+					if (cigar != null) {
+						refIndex = cigar.getReferenceIndex(refIndex);
+						if (refIndex == -1) {
+							//There isn't reference sequence index where to draw this item, for example insertion
+							continue;
+						}
+					}
+					
 					
 					// choose a color depending on viewing mode
 					Color bg = Color.white;
-					int posInRef = startBp.bp.intValue() + j - getView().getBpRegion().start.bp.intValue();
+					int posInRef = startBp.bp.intValue() + refIndex - getView().getBpRegion().start.bp.intValue();
 					if (highlightSNP &&
 					    posInRef >= 0 &&
 					    posInRef < refSeq.length &&
@@ -236,10 +244,11 @@ public class SeqBlockTrack extends Track {
 						bg = bg.brighter();
 					}
 
-					nextX = x + increment;
+					int x = (int) (startX + refIndex * increment);
+					int blockEndX = (int) (x + increment);
+					
 					drawables.add(new RectDrawable(Math.round(x), rect.y,
-					        Math.round(nextX) - Math.round(x), height, bg, null));
-					x = nextX;
+					        Math.round(blockEndX) - Math.round(x), height, bg, null));
 				}
 			}
 		}
@@ -300,7 +309,8 @@ public class SeqBlockTrack extends Track {
                 HashMap<DataSource, Set<ColumnType>>();
         datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
                 ColumnType.SEQUENCE,
-                ColumnType.STRAND })));
+                ColumnType.STRAND,
+                ColumnType.CIGAR})));
         
         // We might also need reference sequence data
         if (highlightSNP) {
