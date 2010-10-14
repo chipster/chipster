@@ -12,7 +12,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dataimport.ImportUtils;
+import fi.csc.microarray.constants.VisualConstants;
 
 /**
  * Accessory component for the JFileChooser to allow direct input of dataset
@@ -23,7 +25,6 @@ import fi.csc.microarray.client.dataimport.ImportUtils;
  */
 public class ImportSettingsAccessory extends JPanel implements ActionListener {
 
-	private static final String SKIP_TEXT = "Import directly if possible";
 	private JCheckBox skipCheckBox;
 	private JComboBox folderNameCombo;
 	private String importFolder;
@@ -51,8 +52,13 @@ public class ImportSettingsAccessory extends JPanel implements ActionListener {
 		c.gridy++;
 		c.insets.set(10, 5, 0, 0);
 		c.weighty = 1;
-		skipCheckBox = new JCheckBox(SKIP_TEXT);
-		skipCheckBox.setSelected(true);
+		skipCheckBox = new JCheckBox(VisualConstants.getImportDirectlyText());
+		if (!Session.getSession().getApplication().isStandalone()) {
+			skipCheckBox.setSelected(true);
+		} else {
+			skipCheckBox.setSelected(false);
+		}
+		
 		this.add(skipCheckBox, c);
 		
 		// listen to file chooser for events that are related to this accessory
@@ -64,7 +70,11 @@ public class ImportSettingsAccessory extends JPanel implements ActionListener {
 	}
 
 	public void setDefaults() {
-		skipCheckBox.setSelected(true);
+		if (!Session.getSession().getApplication().isStandalone()) {
+			skipCheckBox.setSelected(true);
+		} else {
+			skipCheckBox.setSelected(false);
+		}
 	}
 
 	public void actionPerformed(ActionEvent e) {

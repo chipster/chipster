@@ -21,6 +21,8 @@ import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 import com.jgoodies.looks.plastic.theme.ExperienceBlue;
 
+import fi.csc.microarray.client.Session;
+
 public class VisualConstants {
 	
     // icons from Eclipse
@@ -351,6 +353,10 @@ public class VisualConstants {
 	"--></style>";
 
 	public static final String HTML_DIALOG_TITLE_STYLE = "\"font-weight:bold;font-size:115%\"";
+	
+	public static final String getImportDirectlyText() {
+		return Session.getSession().getApplication().isStandalone() ? "Import directly" : "Import directly if possible"; 
+	}
 
 
 }
