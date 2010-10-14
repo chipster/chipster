@@ -8,7 +8,13 @@ import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.databeans.DataBean;
 
+/**
+ * Empty visualisation is always present and spaces reserve space also for the longer names
+ * when they aren't present. This is the easiest found way to keep things
+ * steady.
+ */
 public class Empty extends Visualisation {
+	
 	public Empty(VisualisationFrame frame) {
 		super(frame);
 	}

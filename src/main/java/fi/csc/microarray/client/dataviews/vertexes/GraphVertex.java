@@ -22,7 +22,7 @@ import fi.csc.microarray.exception.MicroarrayException;
  * it has already undergone). The vertices can be selected (which will select 
  * the corresponding dataset) and moved around on the graph panel.
  * 
- * @author Janne KÃ¤ki, Mikko Koski
+ * @author Janne Käki, Mikko Koski
  *
  */
 public class GraphVertex extends AbstractGraphVertex {

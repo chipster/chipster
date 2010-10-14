@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -255,9 +256,31 @@ public class Files {
 	 */
 	public static URL toUrl(File file) {
 		try {
-			return file.toURL();
+			return file.toURI().toURL();
 		} catch (MalformedURLException e) {
 			return null;
 		}
+	}
+	
+	/**
+	 * Find files in a given directory whose filenames match given regex.
+	 */
+	public static File[] findFiles(File dir, String regex) {
+	    
+	    class RegexFileFilter implements FilenameFilter {
+	        private String regex;
+	        
+	        public RegexFileFilter(String regex) {
+                this.regex = regex;
+            }
+
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.matches(regex);
+            }
+	        
+	    }
+	    
+	    return dir.listFiles(new RegexFileFilter(regex));
 	}
 }
