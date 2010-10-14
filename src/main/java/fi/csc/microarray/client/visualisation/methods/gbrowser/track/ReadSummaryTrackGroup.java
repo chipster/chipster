@@ -39,7 +39,6 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
     protected SeqTrack seq;
 //    protected IntensityTrack readOverviewReversed;
     protected SeqBlockTrack readsReversed;
-    protected AcidProfile acidTrack;
 
     public ReadSummaryTrackGroup(View view, DataSource userData,
             Class<? extends AreaRequestHandler> userDataHandler, DataSource seqFile, String filename) throws FileNotFoundException {
@@ -81,13 +80,7 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
         // Profile
         profileTrack = new ProfileTrack(view, userData, userDataHandler,
                 Color.BLACK, PartColor.CDS.c, 0, SWITCH_VIEWS_AT);
-        profileTrack.setStrand(Strand.BOTH);
-        
-        // Acid profile
-        acidTrack = new AcidProfile(view, userData, userDataHandler,
-                0, SHOW_REFERENCE_AT);
-        acidTrack.setStrand(Strand.FORWARD);        
-        
+        profileTrack.setStrand(Strand.BOTH);        
         
         // Gel
         gelTrack = new GelTrack(view, userData, userDataHandler,
@@ -124,11 +117,6 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
             tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT));
             tracks.add(profileTrack);
 //        }
-        
-//        if (showAcid.isSelected()) {
-        	tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT));
-            tracks.add(acidTrack);
-//        
         
         // Only draw separator if gel track is visible
 //        if (showGel.isSelected()) {

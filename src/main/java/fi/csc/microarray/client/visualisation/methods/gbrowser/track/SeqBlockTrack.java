@@ -38,7 +38,7 @@ public class SeqBlockTrack extends Track {
 
 	private static final int SPACE_BETWEEN_READS = 2;
 
-	private static final Color[] charColors = new Color[] {
+	public static final Color[] charColors = new Color[] {
 			new Color(64, 192, 64, 128), // A
 			new Color(64, 64, 192, 128), // C
 			new Color(128, 128, 128, 128), // G
@@ -145,10 +145,23 @@ public class SeqBlockTrack extends Track {
 				continue;
 			}
 
-			// reverse the read if on reverse strand
+			// complement the read if on reverse strand
 			if ((Strand) read.values.get(ColumnType.STRAND) == Strand.REVERSED) {
-				StringBuffer buf = new StringBuffer(seq).reverse();
-				seq = buf.toString();
+				
+				StringBuffer buf = new StringBuffer(seq.toUpperCase());
+				            	
+            	//Reverse
+				//buf= buf.reverse();
+            	
+            	//Complement
+            	seq = buf.toString().
+            	replace('A', 'x'). //switch A and T
+            	replace('T', 'A').
+            	replace('x', 'T').
+            	
+            	replace('C', 'x'). //switch C and G
+            	replace('G', 'C').
+            	replace('x', 'G');           
 			}
 
 			
