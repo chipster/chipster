@@ -49,7 +49,7 @@ import fi.csc.microarray.util.IOUtils;
 public class ImportUtils {
 
 	private static final Logger logger = Logger.getLogger(ImportUtils.class);
-	private static final String DEFAULT_FOLDER_NAME = "My experiment";
+	private static final String DEFAULT_FOLDER_NAME = "";
 	private static ClientApplication application = Session.getSession().getApplication();
 
 	private static boolean zipDialogShown = false;

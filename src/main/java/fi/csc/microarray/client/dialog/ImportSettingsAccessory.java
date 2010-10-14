@@ -79,7 +79,7 @@ public class ImportSettingsAccessory extends JPanel implements ActionListener {
 
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equals(JFileChooser.APPROVE_SELECTION)) {
-			this.setImportFolder(folderNameCombo.getSelectedItem().toString());
+			this.setImportFolder(folderNameCombo.getSelectedItem().toString().trim());
 		}
 	}
 
