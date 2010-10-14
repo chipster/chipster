@@ -42,7 +42,7 @@ public class TaskImportDialog extends JDialog implements ActionListener {
 	private ClientApplication application;
 	private Operation operation;
 
-	public TaskImportDialog(ClientApplication application, String databaseName, Operation operation) throws MicroarrayException {
+	public TaskImportDialog(ClientApplication application, String title, Operation operation) throws MicroarrayException {
 		super(Session.getSession().getFrames().getMainFrame(), true);
 
 		this.application = application;
@@ -52,7 +52,7 @@ public class TaskImportDialog extends JDialog implements ActionListener {
 		this.setPreferredSize(new Dimension(500, 300));
 
 		// initialise components
-		titleLabel = new JLabel("<html><p style=" + VisualConstants.HTML_DIALOG_TITLE_STYLE + ">Import data from " + databaseName + "</p></html>");
+		titleLabel = new JLabel("<html><p style=" + VisualConstants.HTML_DIALOG_TITLE_STYLE + ">" + title + "</p></html>");
 		descriptionLabel = new JLabel("<html>" + operation.getDescription() + "</html>");
 		noteLabel = new JLabel("<html><p style=\"font-style:italic\">It may take a while for the import task to finish.");
 

@@ -355,7 +355,7 @@ public class ImportUtils {
 			try {
 				ClientApplication application = Session.getSession().getApplication();
 				Operation importOperation = new Operation(application.getOperationDefinition("PreprocessNGSSingle.java"), inputBeans.toArray(new DataBean[] {}));
-				new TaskImportDialog(application, "NGS preprocess", importOperation);
+				new TaskImportDialog(application, "Preprocess NGS data", importOperation);
 
 			} catch (Exception me) {
 				Session.getSession().getApplication().reportException(me);
