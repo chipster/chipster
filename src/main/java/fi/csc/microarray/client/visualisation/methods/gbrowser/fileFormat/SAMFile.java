@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.sf.samtools.CigarElement;
 import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.util.CloseableIterator;
@@ -14,6 +15,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Concis
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CigarItem;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
@@ -70,18 +73,74 @@ public class SAMFile {
             // Values for this read
             HashMap<ColumnType, Object> values = new HashMap<ColumnType, Object>();
             
-            // TODO Deal with "=" and "N" in read string
-            if (request.requestedContents.contains(ColumnType.SEQUENCE)) {
-                values.put(ColumnType.SEQUENCE, record.getReadString());
-            }
-            
             if (request.requestedContents.contains(ColumnType.STRAND)) {
-                values.put(ColumnType.STRAND,
-                        record.getReadNegativeStrandFlag() ?
-                        Strand.REVERSED : Strand.FORWARD);
+            	values.put(ColumnType.STRAND,
+            			record.getReadNegativeStrandFlag() ?
+            					Strand.REVERSED : Strand.FORWARD);
+            	
             }
             
-            // TODO Add cigar and pair data to values
+            
+            
+            if (request.requestedContents.contains(ColumnType.QUALITY)) {
+            	
+            	/*Now string because of equality problem described below, should be some nice internal
+            	 * object type in the future
+            	 */
+            	
+            	values.put(ColumnType.QUALITY, record.getBaseQualityString());            	
+            }
+            
+            if (request.requestedContents.contains(ColumnType.CIGAR)) {      
+            	
+            	
+            	Cigar cigar = new Cigar();
+            	
+            	for (CigarElement picardElement : record.getCigar().getCigarElements()) {
+            		cigar.addElement(new CigarItem(
+            				picardElement.getLength(), picardElement.getOperator().toString())); 
+            	}
+            	            	
+            	values.put(ColumnType.CIGAR, cigar);
+            }
+            
+            // TODO Deal with "=" and "N" in read string
+            if (request.requestedContents.contains(ColumnType.SEQUENCE)) {            
+            	                       	
+            	String seq = record.getReadString();
+            	
+            	//FIXME trying fix changes in reads to fit with the reference sequence, but
+            	//this doesn't work yet
+//            	StringBuffer buf = new StringBuffer();
+//            	
+//            	int seqCounter = 0;
+//            	
+//            	for (CigarElement element : record.getCigar().getCigarElements()) {
+//            		if (element.getOperator().consumesReferenceBases()) {
+//            			for (int j = 0; j < element.getLength(); j++) {
+//            				if (seqCounter + j < seq.length()) {
+//            					buf.append(seq.charAt(seqCounter + j));
+//            				}
+//            				seqCounter++;
+//            			}
+//            		} else {
+//            			for (int j = 0; j < element.getLength(); j++) {
+//            				buf.append(" ");
+//            			}
+//            		}
+//            	}
+            	
+            	values.put(ColumnType.SEQUENCE, seq);
+            	//values.put(ColumnType.SEQUENCE, buf.toString());
+            }
+            
+            // TODO Add pair data to values
+            
+            /* NOTE! RegionContents created from the same read are has to be equal in methods 
+             * equals, hash and compareTo. Primary types should be ok,
+             * but objects (including tables) has to be handled in those methods separately. 
+             * Otherwise tracks keep adding the same reads to their read sets again and again. 
+             */
             
             responseList.add(new RegionContent(recordRegion, values));
         }

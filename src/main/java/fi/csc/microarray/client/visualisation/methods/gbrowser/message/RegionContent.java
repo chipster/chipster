@@ -33,6 +33,7 @@ public class RegionContent implements Comparable<RegionContent> {
 		if (regionComparison != 0) {
 			return regionComparison;					
 		} else {
+			
 			return values.toString().compareTo(other.values.toString());
 		}
 	}
@@ -44,8 +45,7 @@ public class RegionContent implements Comparable<RegionContent> {
 
 	@Override
 	public boolean equals(Object o) {
-		RegionContent other = (RegionContent) o;
-		
+		RegionContent other = (RegionContent) o; 
 		return region.equals(region) && values.toString().equals(other.values.toString());		
 	}
 }
