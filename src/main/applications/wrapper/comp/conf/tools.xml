@@ -112,6 +112,7 @@
 	<tool runtime="R-2.9">merge-tables.R</tool>
 	<tool runtime="R-2.9">merge-datasets.R</tool>
 	<tool runtime="R-2.9">extract-genes-from-clustering.R</tool>
+	<tool runtime="R-2.9">extract-genes-from-go.R</tool>
 	<tool runtime="R-2.9">extract-samples-from-dataset.R</tool>
 	<tool runtime="R-2.9">extract-genes-from-stattest.R</tool>
 	<tool runtime="R-2.9">extract-genes.R</tool>
