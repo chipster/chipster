@@ -5,7 +5,7 @@ import java.util.LinkedList;
 
 import javax.jms.JMSException;
 
-import fi.csc.chipster.tools.PreprocessNGSSingle;
+import fi.csc.chipster.tools.LocalNGSPreprocess;
 import fi.csc.microarray.client.operation.OperationCategory;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.tasks.LocalTaskExecutor;
@@ -54,10 +54,10 @@ public class LocalServiceAccessor implements ServiceAccessor {
 		this.hiddenCategories = new LinkedList<OperationCategory>();
 		
 		// tools list
-		PreprocessNGSSingle tool = new PreprocessNGSSingle();
+//		PreprocessNGSSingle tool = new PreprocessNGSSingle();
 		
 		// for each tool, parse the SADL and create the OperationDefinition
-        SADLDescription sadl = new ChipsterSADLParser().parse(tool.getSADL());
+        SADLDescription sadl = new ChipsterSADLParser().parse(LocalNGSPreprocess.getSADL());
 		OperationCategory category = new OperationCategory(sadl.getCategory());
 		this.hiddenCategories.add(category);
 		
