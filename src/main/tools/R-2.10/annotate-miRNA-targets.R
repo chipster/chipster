@@ -5,6 +5,7 @@
 
 # miRNA hypergeometric test for GO
 # MG, 22.2.2010
+# IS, 13.10.2010, added rownames of miRNA-target-pairs to allow intersecting through Venn diagrams
 
 # Load the required libraries
 library(RmiR.Hs.miRNA)
@@ -49,6 +50,18 @@ for (gene_count in 1:length(annotated_genes [,1])) {
 }	
 names(result_table) <- c("miRNA","entrez_id","symbol","description")
 
-# Write out the output file
-write.table(result_table, file="mirna_targets.tsv", sep="\t", quote=F, row.names=FALSE)	
+# add rownames to allow use of Venn diagrams
+concatenate.if.not.equal <- function(x) {
+  x <- unique(x)
+  paste(x, collapse=';')
+}
+result_table$pair <- paste(result_table$miRNA, result_table$entrez_id, sep=';')
+result_table2 <- aggregate(result_table[,-5], list(result_table[,5]), concatenate.if.not.equal)
+result_table2$count <- aggregate(result_table[,5], list(result_table[,5]), length)$x
+rownames(result_table2) <- result_table2[,1]
+result_table2[,1] <- NULL
 
+# Write out the output file
+write.table(result_table2, file="mirna_targets.tsv", sep="\t", quote=FALSE)
+
+# EOF
