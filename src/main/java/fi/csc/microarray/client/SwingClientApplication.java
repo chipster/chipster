@@ -628,7 +628,7 @@ public class SwingClientApplication extends ClientApplication {
 
 		DataFolder root = manager.getRootFolder();
 
-		if (folderName == null) {
+		if (folderName == null || folderName.isEmpty()) {
 			logger.debug("initializing for import " + folderName + ": is null => using root");
 			return root;
 
