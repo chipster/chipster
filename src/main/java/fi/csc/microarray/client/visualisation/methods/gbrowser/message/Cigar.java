@@ -10,17 +10,25 @@ public class Cigar {
 		elements.add(e);
 	}
 	
-	public boolean isSNP(long requestedBp) {
+	public boolean isSNP(long seqIndex) {
 		
-		int bp = 0;
+		int seqCounter = 0;
 		
 		for (CigarItem element : elements) {
 						
-			if (requestedBp < bp + element.getLength()) {
+			
+			if (element.getType().equals("M") || element.getType().equals("I")) {
+				
+				seqCounter += element.getLength();
+				
+			} else if (element.getType().equals("D")) {
+				
+				//No content in sequence				
+			} 
+			
+			if (seqIndex < seqCounter) {
 				return !element.getType().equals("M");
 			}
-			
-			bp += element.getLength();
 		}
 		
 		//Request out of this read

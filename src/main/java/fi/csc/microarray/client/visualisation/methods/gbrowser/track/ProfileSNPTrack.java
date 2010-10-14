@@ -43,7 +43,7 @@ public class ProfileSNPTrack extends Track {
 	private Collection<RegionContent> forwardReads = new TreeSet<RegionContent>();
 	private Color forwardColor;
 
-	private boolean highlightSNP = true;
+	private boolean highlightSNP = false;
 
 	enum Acid { A, C, G, T };
 
@@ -65,7 +65,7 @@ public class ProfileSNPTrack extends Track {
 
 		public int[] acidCounts = new int[Acid.values().length];
 		
-		public boolean isSNP = true;
+		public boolean isSNP = false;
 
 		public Base() {
 			Arrays.fill(acidCounts, 0);
@@ -207,7 +207,15 @@ public class ProfileSNPTrack extends Track {
 			for (int i = 0; i < seq.length(); i++) {
 				
 				Base base = null;
-				Long bp = i + read.region.start.bp;
+				
+				int refIndex = cigar.getReferenceIndex(i);
+				
+				if (refIndex == -1) {
+					//Skip insertions
+					continue;
+				}
+				
+				Long bp = refIndex + read.region.start.bp;
 				
 				if (!collector.containsKey(bp)) {
 					base = new Base();
@@ -223,7 +231,12 @@ public class ProfileSNPTrack extends Track {
 				}
 				
 				if (cigar != null) {
-					base.isSNP = cigar.isSNP(i);
+					if (!base.isSNP) {
+						base.isSNP = cigar.isSNP(i);
+					}
+				} else {
+					//Show everything if cigar isn't available
+					base.isSNP = true;
 				}
 			}
 		}
@@ -307,5 +320,13 @@ public class ProfileSNPTrack extends Track {
 	@Override
 	public String getName() {
 		return "ProfileSNPTrack";
+	}
+
+	public void enableSNPHighlight() {
+		highlightSNP = true;
+	}
+
+	public void disableSNPHighlight() {
+		highlightSNP = false;
 	}
 }
