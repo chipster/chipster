@@ -315,6 +315,7 @@ public class ImportUtils {
 	 * skip is requested (by default it is). Otherwise launches
 	 * ActionChooserScreen. If module does not support import
 	 * tools then files are always imported directly.
+	 * @throws MicroarrayException 
 	 */
 	public static void executeImport(ImportSession importSession) {
 
@@ -344,22 +345,17 @@ public class ImportUtils {
 			// go to preprocessing
 			else {
 				// input files to input DataBeans
-				List<DataBean> inputBeans = new LinkedList<DataBean>();
-				int i = 0;
-				for (File inputFile: importSession.getInputFiles()) {
-					try {
-						inputBeans.add(Session.getSession().getDataManager().createDataBean("preprocessInput-" + i, inputFile));
-					} catch (MicroarrayException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					i++;
-				}
-
-				// create operation, open import operation parameter dialog
 				try {
+					List<DataBean> inputBeans = new LinkedList<DataBean>();
+					int i = 0;
+					for (File inputFile: importSession.getInputFiles()) {
+						inputBeans.add(Session.getSession().getDataManager().createDataBean("preprocessInput-" + i, inputFile));
+						i++;
+					}
+
+					// create operation, open import operation parameter dialog
 					ClientApplication application = Session.getSession().getApplication();
-					Operation importOperation = new Operation(application.getOperationDefinition("PreprocessNGSSingle.java"), inputBeans.toArray(new DataBean[] {}));
+					Operation importOperation = new Operation(application.getOperationDefinition("LocalNGSPreprocess.java"), inputBeans.toArray(new DataBean[] {}));
 					new TaskImportDialog(application, "Preprocess NGS data", importOperation);
 
 				} catch (Exception me) {
