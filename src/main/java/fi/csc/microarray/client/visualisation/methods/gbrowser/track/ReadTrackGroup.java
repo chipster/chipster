@@ -142,9 +142,11 @@ public class ReadTrackGroup extends TrackGroup {
     	if (b) {
             reads.enableSNPHighlight(seqFile, ChunkTreeHandlerThread.class);
             readsReversed.enableSNPHighlight(seqFile, ChunkTreeHandlerThread.class);
+            profileSNPTrack.enableSNPHighlight();
         } else {
             reads.disableSNPHiglight(seqFile);
             readsReversed.disableSNPHiglight(seqFile);
+            profileSNPTrack.disableSNPHighlight();
         }
         view.fireAreaRequests();
         view.redraw();
