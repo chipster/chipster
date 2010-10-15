@@ -7,7 +7,7 @@
 
 # plot-cn-induced-gene-expression.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-05
+# 2010-10-15
 
 library(intCNGEan)
 
@@ -27,7 +27,7 @@ dat <- dat[order(dat$gene.id),]
 nosamp <- (ncol(dat)-12)/3
 tuned <- list(datafortest=as.matrix(dat[,13:ncol(dat)]), lossorgain=dat$comparison, genestotest=dat$gene.id, callprobs=as.matrix(dat[,c('av.probs.1','av.probs.2')]), alleffects=dat$effect.size, ann=dat[,c('chromosome','start','end')], nosamp=nosamp)
 rownames(tuned$datafortest) <- dat$probes
-colnames(tuned$datafortest) <- sub('chip\\.', '', colnames(tuned$datafortest))
+colnames(tuned$datafortest) <- sub('^chip\\.', '', colnames(tuned$datafortest))
 colnames(tuned$datafortest)[1:(2*nosamp)] <- ''
 rownames(tuned$callprobs) <- dat$probes
 colnames(tuned$callprobs) <- NULL
