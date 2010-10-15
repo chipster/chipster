@@ -1661,7 +1661,7 @@ public class SwingClientApplication extends ClientApplication {
 					 * saving after opening session. However, if there was datasets already, combination
 					 * of them and new session can be necessary to save. This has to set after the import, because 
 					 */
-					boolean somethingToSave = getAllDataBeans().size() != 0;
+					boolean somethingToSave = manager.databeans().size() != 0;
 					
 					final List<DataItem> newItems = manager.loadSnapshot(sessionFile, manager.getRootFolder(), application);
 					SwingUtilities.invokeAndWait(new Runnable() {
