@@ -39,42 +39,47 @@ public class SamBamUtils {
 	}
 
 	public static void normaliseBam(File bamFile, File normalisedBamFile) {
-		SAMFileReader reader = new SAMFileReader(IoUtil.openFileForReading(bamFile));
 		
+		// Read in a BAM file and its header
+		SAMFileReader reader = new SAMFileReader(IoUtil.openFileForReading(bamFile));
+		SAMFileHeader normalisedHeader = reader.getFileHeader();
+		
+		// Alter the chrosome names in header's SAMSequenceDictionary
 		SAMSequenceDictionary normalisedDictionary = new SAMSequenceDictionary();
-		for (SAMSequenceRecord sequenceRecord : reader.getFileHeader().getSequenceDictionary().getSequences()) {
-			String sequenceName = sequenceRecord.getSequenceName();
+		for (SAMSequenceRecord sequenceRecord : normalisedHeader.getSequenceDictionary().getSequences()) {
 			
-			// Strip prefix
+			// Strip prefix, if exists
+			String sequenceName = sequenceRecord.getSequenceName();
 			if (sequenceName.startsWith(CHROMOSOME_NAME_PREFIX)) {
 				sequenceName = sequenceName.substring(CHROMOSOME_NAME_PREFIX.length());
 			}
 			
 			normalisedDictionary.addSequence(new SAMSequenceRecord(sequenceName, sequenceRecord.getSequenceLength()));
 		}
-		reader.getFileHeader().setSequenceDictionary(normalisedDictionary);
-
-		SAMFileWriter writer = new SAMFileWriterFactory().makeBAMWriter(reader.getFileHeader(), true, normalisedBamFile);
-
-		Iterator<SAMRecord> iterator = reader.iterator();
-		while (iterator.hasNext()) {
-			writer.addAlignment(iterator.next());
+		normalisedHeader.setSequenceDictionary(normalisedDictionary);
+		
+		// Write new BAM file with normalised chromosome names
+		SAMFileWriter writer = new SAMFileWriterFactory().makeBAMWriter(normalisedHeader, true, normalisedBamFile);
+		for (final SAMRecord rec : reader) {
+			rec.setHeader(normalisedHeader);
+			writer.addAlignment(rec);
 		}
-		reader.close();
+		
 		writer.close();
+		reader.close();
 	}
-	
+
 	public static void indexBam(File bamFile, File baiFile) {
 		BuildBamIndex.createIndex(new SAMFileReader(IoUtil.openFileForReading(bamFile)), baiFile); 
 	}
 	
-	public static void preprocessSamBam_with_normalise(File samBamFile, File preprocessedBamFile, File baiFile) throws IOException {
+	public static void preprocessSamBam(File samBamFile, File preprocessedBamFile, File baiFile) throws IOException {
 		
 		// Sort
 		File sortedTempBamFile = File.createTempFile("sorted", "bam");
 		sortSamBam(samBamFile, sortedTempBamFile);
 		
-		// Normalise
+		// Normalise (input must be BAM)
 		normaliseBam(sortedTempBamFile, preprocessedBamFile);
 		sortedTempBamFile.delete();
 
@@ -82,15 +87,6 @@ public class SamBamUtils {
 		indexBam(preprocessedBamFile, baiFile);
 	}
 
-	public static void preprocessSamBam(File samBamFile, File preprocessedBamFile, File baiFile) throws IOException {
-		
-		// Sort
-		sortSamBam(samBamFile, preprocessedBamFile);
-		
-		// Index
-		indexBam(preprocessedBamFile, baiFile);
-	}
-	
 	public static List<String> readChromosomeNames(File bamFile) {
 		SAMFileReader reader = null; 
 		try {
@@ -120,9 +116,9 @@ public class SamBamUtils {
 	}
 
 	public static void main(String[] args) throws IOException {
-		File input = new File("/home/akallio/Desktop/test.sam");
+		File input = new File("/home/akallio/Desktop/test.bam");
 		File temp = File.createTempFile("temp", "bam");
 		normaliseBam(input, temp);
-		ViewSam.main(new String[] {"I=" + temp.getAbsolutePath()});
+		ViewSam.main(new String[] {"I=" + temp.getAbsolutePath(), "VALIDATION_STRINGENCY=SILENT"});
 	}
 }
