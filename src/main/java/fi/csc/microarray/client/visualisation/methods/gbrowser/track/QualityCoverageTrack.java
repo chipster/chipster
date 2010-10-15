@@ -63,7 +63,7 @@ public class QualityCoverageTrack extends Track {
 
 		Chromosome chr = getView().getBpRegion().start.chr;
 
-		TreeMap<Long, Long> collector = getQualities(reads);
+		TreeMap<Long, Float> collector = getQualities(reads);
 
 		// width of a single bp in pixels
 		int bpWidth = (int) (getView().getWidth() / getView().getBpRegion().getLength());
@@ -78,7 +78,7 @@ public class QualityCoverageTrack extends Track {
 
 			// draw a line from the beginning of the graph to the first location
 			int startX = getView().bpToTrack(new BpCoord(lastBpLocation, chr));
-			long startY = collector.get(lastBpLocation);
+			long startY = (long)(float)collector.get(lastBpLocation);
 			drawables.add(new LineDrawable(0, maxY,
 					(int)(startX - bpWidth), maxY, color));
 			drawables.add(new LineDrawable((int)(startX - bpWidth), maxY,
@@ -89,9 +89,9 @@ public class QualityCoverageTrack extends Track {
 				Long currentBpLocation = bpLocations.next();
 
 				startX = getView().bpToTrack(new BpCoord(lastBpLocation, chr));
-				startY = collector.get(lastBpLocation);
+				startY = (long)(float)collector.get(lastBpLocation);
 				int endX = getView().bpToTrack(new BpCoord(currentBpLocation, chr));
-				long endY = collector.get(currentBpLocation);
+				long endY = (long)(float)collector.get(currentBpLocation);
 
 				// TODO could be approximated using natural cubic spline interpolation,
 				//      then having a formula S(x) for each interval we could draw
@@ -116,7 +116,7 @@ public class QualityCoverageTrack extends Track {
 
 			// draw a line from the last location to the end of the graph
 			int endX = getView().bpToTrack(new BpCoord(lastBpLocation, chr));
-			long endY = collector.get(lastBpLocation);
+			long endY = (long)(float)collector.get(lastBpLocation);
 			drawables.add(new LineDrawable(endX, (int)(maxY - endY),
 					(int)(endX + bpWidth), maxY, color));
 			drawables.add(new LineDrawable((int)(endX + bpWidth), maxY,
@@ -128,9 +128,9 @@ public class QualityCoverageTrack extends Track {
 		return drawables;
 	}
 
-	private TreeMap<Long, Long> getQualities(Collection<RegionContent> reads) {
+	private TreeMap<Long, Float> getQualities(Collection<RegionContent> reads) {
 
-		TreeMap<Long, Long> collector = new TreeMap<Long, Long>();
+		TreeMap<Long, Float> collector = new TreeMap<Long, Float>();
 		Iterator<RegionContent> iter = reads.iterator();
 
 		// iterate over RegionContent objects (one object corresponds to one read)
@@ -146,9 +146,13 @@ public class QualityCoverageTrack extends Track {
 
 			Cigar cigar = (Cigar) read.values.get(ColumnType.CIGAR);
 
-			byte[] quality = ((byte[]) read.values.get(ColumnType.QUALITY));
+			String quality = ((String) read.values.get(ColumnType.QUALITY));
+			
+			if (quality == null) {
+				continue;
+			}
 
-			for (int i = 0; i < quality.length; i++) {
+			for (int i = 0; i < quality.length(); i++) {
 
 				int refIndex = cigar.getReferenceIndex(i);
 
@@ -158,11 +162,16 @@ public class QualityCoverageTrack extends Track {
 				}
 
 				Long bp = refIndex + read.region.start.bp;
+				
+				char qualityChar = quality.charAt(i);
+				
+				//Scale to approximately same size than read coverage
+				float qualityValue = ((int)qualityChar - 33) / 25f;
 
 				if (!collector.containsKey(bp)) {
-					collector.put(bp, (long) quality[i]);
+					collector.put(bp, qualityValue);
 				} else {
-					collector.put(bp, collector.get(bp) + (long) quality[i]);
+					collector.put(bp, collector.get(bp) + qualityValue);
 				}
 			}
 		}	        
@@ -243,6 +252,6 @@ public class QualityCoverageTrack extends Track {
 
 	@Override
 	public String getName() {
-		return "Quality coverage track";
+		return "QualityCoverageTrack";
 	}
 }

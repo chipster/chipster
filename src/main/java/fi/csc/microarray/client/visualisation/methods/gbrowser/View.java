@@ -38,6 +38,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ProfileSNPTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ProfileTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.QualityCoverageTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
@@ -224,7 +225,8 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
                     // about reads
                     if (expandDrawables && 
                     		(track instanceof ProfileTrack ||
-                    		track instanceof ProfileSNPTrack)) {
+                    		track instanceof ProfileSNPTrack ||
+                    		track instanceof QualityCoverageTrack)) {
                     	
                         if (parentPlot.getReadScale() == ReadScale.AUTO) {
                             trackContext = new TrackContext(track);

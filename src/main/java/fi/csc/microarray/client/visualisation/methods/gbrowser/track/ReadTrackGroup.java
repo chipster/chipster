@@ -33,17 +33,19 @@ public class ReadTrackGroup extends TrackGroup {
     protected SeqBlockTrack readsReversed;
     protected ProfileTrack profileTrack;
     protected ProfileSNPTrack profileSNPTrack;
+    protected QualityCoverageTrack qualityCoverageTrack;
     protected GelTrack gelTrack;
     protected Track sepTrackTitle;
     protected SeparatorTrack sepTrackReads;
     protected SeparatorTrack sepTrackSeq;
     protected SeparatorTrack sepTrackProfile;
+    protected SeparatorTrack sepTrackProfileSNP;
+    protected SeparatorTrack sepTrackQualityCoverage;
     protected SeparatorTrack sepTrackGel;
     
     // Reference sequence
     private DataSource seqFile;
     private boolean hasReference = false;
-	private SeparatorTrack sepTrackProfileSNP;
 
     public ReadTrackGroup(View view, DataSource userData,
             Class<? extends AreaRequestHandler> userDataHandler,
@@ -92,6 +94,11 @@ public class ReadTrackGroup extends TrackGroup {
                 Color.BLACK, 0, SHOW_REFERENCE_AT);
         profileSNPTrack.setStrand(Strand.BOTH); //Will be set anyway in the track constructor
         
+        qualityCoverageTrack = new QualityCoverageTrack(view, userData, userDataHandler,
+        		Color.ORANGE, 0, SWITCH_VIEWS_AT);
+        profileSNPTrack.setStrand(Strand.BOTH); //Will be set anyway in the track constructor
+        
+        
         // Gel
         gelTrack = new GelTrack(view, userData, userDataHandler,
                 Color.WHITE, 0, SWITCH_VIEWS_AT);
@@ -131,6 +138,10 @@ public class ReadTrackGroup extends TrackGroup {
     	sepTrackProfileSNP = new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT); 
     	tracks.add(sepTrackProfileSNP);
         tracks.add(profileSNPTrack);
+
+    	sepTrackQualityCoverage = new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT); 
+    	tracks.add(sepTrackQualityCoverage);
+        tracks.add(qualityCoverageTrack);
         
         // Only draw separator if gel track is visible
     	sepTrackGel = new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT); 
