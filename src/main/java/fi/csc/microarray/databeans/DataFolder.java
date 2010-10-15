@@ -99,7 +99,7 @@ public class DataFolder extends DataItemBase {
 				data.addTypeTag(MicroarrayModule.TypeTags.CLUSTERED_EXPRESSION_VALUES);
 			}
 			
-		    if (data.isContentTypeCompatitible("text/plain", "text/bed", "text/bed-reads", "text/tab") 
+		    if (data.isContentTypeCompatitible("text/plain", "text/bed", "text/tab") 
 		    		|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().contains(".bam-summary")) 
 		    		|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().endsWith(".bam") || data.getName().endsWith(".sam"))
 		    		|| (data.isContentTypeCompatitible("application/octet-stream")) && (data.getName().endsWith(".bai"))) {

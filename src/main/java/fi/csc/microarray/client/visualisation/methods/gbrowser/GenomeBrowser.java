@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -37,6 +38,7 @@ import javax.swing.JTextField;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
+import fi.csc.chipster.tools.gbrowser.SamBamUtils;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
@@ -50,7 +52,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.SAMHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TabixHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDReadParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
@@ -81,16 +82,6 @@ import fi.csc.microarray.util.IOUtils;
 public class GenomeBrowser extends Visualisation implements ActionListener,
 		RegionListener, FocusListener, ComponentListener {
 
-	private static final String[] CHROMOSOMES = new String[] { "1", "2", "3",
-			"4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
-			"16", "17", "18", "19", "20", "21", "22", "X", "Y", };
-
-	public static final long[] CHROMOSOME_SIZES = new long[] { 247199719L,
-			242751149L, 199446827L, 191263063L, 180837866L, 170896993L,
-			158821424L, 146274826L, 140442298L, 135374737L, 134452384L,
-			132289534L, 114127980L, 106360585L, 100338915L, 88822254L,
-			78654742L, 76117153L, 63806651L, 62435965L, 46944323L, 49528953L,
-			154913754L, 57741652L, };
 	private static final String ANNOTATION_URL_PATH = "annotations";
 	private static final String CONTENTS_FILE = "contents.txt";
 
@@ -101,13 +92,11 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		CYTOBANDS(false), 
 		GENES(true), 
 		TRANSCRIPTS(true), 
-		TREATMENT_READS(true),
-		CONTROL_READS(true),
-		PEAKS(true),
 		REFERENCE(true),
+		PEAKS(true),
 		PEAKS_WITH_HEADER(true), 
-		TREATMENT_BED_READS(true),
-		TREATMENT_SUMMARY(true),
+		READS(true),
+		READS_WITH_SUMMARY(true),
 		HIDDEN(false);
 		
 		private boolean isToggleable;
@@ -148,6 +137,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			.getApplication();
 
 	private List<DataBean> datas;
+	private List<TrackType> interpretations;
 	private List<Track> tracks = new LinkedList<Track>();
 
 	private GenomePlot plot;
@@ -166,8 +156,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 	private Object lastChromosome;
 
-	// private JRadioButton horizView;
-	// private JRadioButton circularView;
 	private GridBagConstraints settingsGridBagConstraints;
 	private AnnotationContents annotationContents;
 	private JComboBox profileScaleBox = new JComboBox();
@@ -176,13 +164,13 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 	private URL annotationUrl;
 
-	GeneIndexActions gia;
+	private GeneIndexActions gia;
 
 	private boolean visualised;
-	InputStream contentsStream = null;
+	private InputStream contentsStream = null;
 	
     
-    //tracks switches
+    // Track switches
     private JCheckBox showReads = new JCheckBox("Reads", true);
     private JCheckBox showGel = new JCheckBox("Gel track", false);
     private JCheckBox showProfile = new JCheckBox("Profile track", false);
@@ -197,11 +185,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	@Override
 	public JPanel getParameterPanel() {
 
-		// FIXME should the following check be enabled?
-		if (paramPanel == null /*
-								 * || data !=application.getSelectionManager().
-								 * getSelectedDataBean()
-								 */) {
+		if (paramPanel == null) {
 
 			initAnnotations();
 
@@ -254,8 +238,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				tracks.add(new Track(row.content.getId(), type));
 			}
 		}
-
-		List<TrackType> interpretations = interpretUserDatas(this.datas);
 
 		for (int i = 0; i < interpretations.size(); i++) {
 			TrackType interpretation = interpretations.get(i);
@@ -353,12 +335,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			}
 			settingsPanel.add(genomeBox, c);
 
-			// list available chromosomes
-			// FIXME These should be read from user data file
-			for (String chromosome : CHROMOSOMES) {
-				chrBox.addItem(new Chromosome(chromosome));
-			}
-
 			c.gridy++;
 			settingsPanel.add(new JLabel("Chromosome"), c);
 			c.gridy++;
@@ -405,24 +381,28 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			IOUtils.closeIfPossible(contentsStream);
 		}
 
-		// horizView = new JRadioButton("Horizontal");
-		// horizView.setSelected(true);
-		// circularView = new JRadioButton("Circular");
-		//
-		// views = new ButtonGroup();
-		// views.add(horizView);
-		// views.add(circularView);
-		//
-		// c.gridy++;
-		// settingsPanel.add(new JLabel("View mode"), c);
-		// c.gridy++;
-		// settingsPanel.add(horizView, c);
-		// c.gridy++;
-		// settingsPanel.add(circularView, c);
-
 		this.settingsGridBagConstraints = c;
 
 		return settingsPanel;
+	}
+
+	private void fillChromosomeBox() throws IOException {
+		TreeSet<String> chromosomes = new TreeSet<String>(); 
+		for (int i = 0; i < interpretations.size(); i++) {
+			TrackType trackType = interpretations.get(i);
+			if (trackType == TrackType.READS || trackType == TrackType.READS_WITH_SUMMARY) {
+				DataBean data = datas.get(i);
+				File bamFile = Session.getSession().getDataManager().getLocalFile(data);
+				chromosomes.addAll(SamBamUtils.readChromosomeNames(bamFile));
+			}
+		}
+		for (String chromosome : chromosomes) {
+			// FIXME check should not be needed
+			if (chromosome.startsWith("chr")) {
+				chromosome = chromosome.substring(3);
+			}
+			chrBox.addItem(new Chromosome(chromosome));
+		}
 	}
 
 	protected JComponent getColorLabel() {
@@ -535,14 +515,18 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	}
 
 	@Override
-	public JComponent getVisualisation(java.util.List<DataBean> datas)
-			throws Exception {
+	public JComponent getVisualisation(java.util.List<DataBean> datas) throws Exception {
+		
 		this.datas = datas;
+		this.interpretations = interpretUserDatas(this.datas);
+		 
+		// List available chromosomes from user data files
+		fillChromosomeBox();
 
-		createAvailableTracks(); // we can create tracks now that we know the
-									// data
+		// We can create tracks now that we know the data
+		createAvailableTracks(); 
 
-		// create panel with card layout and put message panel there
+		// Create panel with card layout and put message panel there
 		JPanel waitPanel = new JPanel();
 		waitPanel.add(new JLabel("Please select parameters"));
 		plotPanel.add(waitPanel, WAITPANEL);
@@ -621,67 +605,21 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 					DataSource treatmentData;
 					switch (track.type) {
 
-					case TREATMENT_READS:
-						treatmentData = createReadDataSource(track.userData,
-								tracks);
-						TrackGroup readGroup = TrackFactory.addReadTracks(plot,
-								treatmentData, createReadHandler(file),
-								createAnnotationDataSource(annotationContents.getRow(
-										genome, AnnotationContents.Content.REFERENCE).file,
-										new SequenceParser()), file.getName());
+					case READS:
+						treatmentData = createReadDataSource(track.userData, tracks);
+						TrackGroup readGroup = TrackFactory.addReadTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.REFERENCE).file, new SequenceParser()), file.getName());
 						track.setTrackGroup(readGroup);
 						break;
-						
-					case TREATMENT_SUMMARY:
-					    treatmentData = createReadDataSource(track.userData, tracks);
-						TrackGroup readGroup1 = TrackFactory.addReadSummaryTracks(plot, treatmentData,
-						        createReadHandler(file),
-								createAnnotationDataSource(annotationContents.getRow(
-										genome, AnnotationContents.Content.REFERENCE).file,
-										new SequenceParser()), file.getName());
-						track.setTrackGroup(readGroup1);
-						break;
 
-					case TREATMENT_BED_READS:
-						// TODO Is this still used? If yes, update this code
-						// (according
-						// to TREATMENT_READS case)
-						treatmentData = new ChunkDataSource(file,
-								new BEDReadParser());
-						TrackFactory.addThickSeparatorTrack(plot);
-						TrackFactory.addReadTracks(plot, treatmentData,
-								// FIXME Decide correct handler thread
-								ChunkTreeHandlerThread.class,
-								createAnnotationDataSource(annotationContents.getRow(
-										genome, AnnotationContents.Content.REFERENCE).file,
-										new SequenceParser()), file.getName());
+					case READS_WITH_SUMMARY:
+						treatmentData = createReadDataSource(track.userData, tracks);
+						TrackGroup readGroupWithSummary = TrackFactory.addReadSummaryTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.REFERENCE).file, new SequenceParser()), file.getName());
+						track.setTrackGroup(readGroupWithSummary);
 						break;
 					}
 				}
 			}
 
-			// add selected control read tracks
-			for (Track track : tracks) {
-				if (track.checkBox.isSelected()) {
-					File file = track.userData == null ? null : Session
-							.getSession().getDataManager().getLocalFile(
-									track.userData);
-					DataSource controlData;
-					switch (track.type) {
-
-					case CONTROL_READS:
-						controlData = createReadDataSource(track.userData,
-								tracks);
-						TrackGroup readGroup = TrackFactory.addReadTracks(plot,
-								controlData, createReadHandler(file),
-								createAnnotationDataSource(annotationContents.getRow(
-										genome, AnnotationContents.Content.REFERENCE).file,
-										new SequenceParser()), file.getName());
-						track.setTrackGroup(readGroup);
-						break;
-					}
-				}
-			}
 			// add selected peak tracks
 			for (Track track : tracks) {
 				if (track.checkBox.isSelected()) {
@@ -876,22 +814,11 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		for (DataBean data : datas) {
 
 			if (data.isContentTypeCompatitible("text/plain")) {
-				// reads
-				// FIXME does it really have to be named "control" and
-				// "treatment"?
-				if (data.getName().contains("control")) {
-					interpretations.add(TrackType.CONTROL_READS);
-				} else {
-					interpretations.add(TrackType.TREATMENT_READS);
-				}
+				interpretations.add(TrackType.READS);
 
 			} else if (data.isContentTypeCompatitible("text/bed")) {
 				// peaks
 				interpretations.add(TrackType.PEAKS);
-
-			} else if (data.isContentTypeCompatitible("text/bed-reads")) {
-				// peaks
-				interpretations.add(TrackType.TREATMENT_BED_READS);
 
 			} else if (data.isContentTypeCompatitible("text/tab")) {
 				// peaks (with header in the file)
@@ -899,11 +826,11 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
 					(data.getName().contains(".bam-summary"))) {
-				interpretations.add(TrackType.TREATMENT_SUMMARY);
+				interpretations.add(TrackType.READS_WITH_SUMMARY);
 				
 			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
-			           (data.getName().endsWith(".bam") || data.getName().endsWith(".sam"))) {
-                interpretations.add(TrackType.TREATMENT_SUMMARY);
+			           (data.getName().endsWith(".bam"))) {
+                interpretations.add(TrackType.READS);
                 
 			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
 			           (data.getName().endsWith(".bai"))) {

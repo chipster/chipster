@@ -3,6 +3,8 @@ package fi.csc.chipster.tools.gbrowser;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import net.sf.picard.io.IoUtil;
 import net.sf.picard.sam.BuildBamIndex;
@@ -63,7 +65,7 @@ public class SamBamUtils {
 	}
 	
 	public static void indexBam(File bamFile, File baiFile) {
-		BuildBamIndex.createIndex(new SAMFileReader(bamFile), baiFile); 
+		BuildBamIndex.createIndex(new SAMFileReader(IoUtil.openFileForReading(bamFile)), baiFile); 
 	}
 	
 	public static void preprocessSamBam_with_normalise(File samBamFile, File preprocessedBamFile, File baiFile) throws IOException {
@@ -87,6 +89,34 @@ public class SamBamUtils {
 		
 		// Index
 		indexBam(preprocessedBamFile, baiFile);
+	}
+	
+	public static List<String> readChromosomeNames(File bamFile) {
+		SAMFileReader reader = null; 
+		try {
+			reader = new SAMFileReader(IoUtil.openFileForReading(bamFile));
+			
+			LinkedList<String> chromosomes = new LinkedList<String>();
+			for (SAMSequenceRecord record : reader.getFileHeader().getSequenceDictionary().getSequences()) {
+				chromosomes.add(record.getSequenceName());
+			}
+			
+			return chromosomes;
+			
+		} finally {
+			closeIfPossible(reader);
+		}
+		
+	}
+
+	private static void closeIfPossible(SAMFileReader reader) {
+		if (reader != null) {
+			try {
+				reader.close();
+			} catch (Exception e) {
+				// Ignore
+			}
+		}
 	}
 
 	public static void main(String[] args) throws IOException {
