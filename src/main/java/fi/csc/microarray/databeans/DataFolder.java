@@ -3,6 +3,7 @@ package fi.csc.microarray.databeans;
 import java.util.LinkedList;
 import java.util.List;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -51,6 +52,17 @@ public class DataFolder extends DataItemBase {
 	private void doBackwardsCompatibleTypeTagInitialisation(DataBean data) {
 
 		try {
+
+			if (data.isContentTypeCompatitible("text/tab", "application/cel", "text/csv")) {
+				data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
+			}
+			
+			
+			// the rest is microarray specific
+			if (!MicroarrayModule.SERVER_MODULE_NAME.equals(Session.getSession().getPrimaryModule().getServerModuleName())) {
+				return;
+			}
+			
 			Table chips = data.queryFeatures("/column/chip.*").asTable();
 
 			// Tag the "main type"
@@ -72,10 +84,6 @@ public class DataFolder extends DataItemBase {
 			}
 
 			// Tag additional typing information
-
-			if (data.isContentTypeCompatitible("text/tab", "application/cel", "text/csv")) {
-				data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
-			}
 
 			if (data.queryFeatures("/column/p.*").exists() && data.queryFeatures("/column/FC*").exists()) {
 				data.addTypeTag(MicroarrayModule.TypeTags.SIGNIFICANT_EXPRESSION_FOLD_CHANGES);

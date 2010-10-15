@@ -401,10 +401,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			}
 		}
 		for (String chromosome : chromosomes) {
-			// FIXME check should not be needed
-			if (chromosome.startsWith("chr")) {
-				chromosome = chromosome.substring(3);
-			}
 			chrBox.addItem(new Chromosome(chromosome));
 		}
 	}
