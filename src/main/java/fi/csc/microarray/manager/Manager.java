@@ -4,7 +4,6 @@ import it.sauronsoftware.cron4j.Scheduler;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -19,13 +18,16 @@ import javax.jms.JMSException;
 
 import org.apache.log4j.Logger;
 import org.h2.tools.Server;
+import org.mortbay.jetty.Connector;
+import org.mortbay.jetty.nio.SelectChannelConnector;
+import org.mortbay.jetty.webapp.WebAppContext;
+import org.mortbay.thread.QueuedThreadPool;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.MessagingEndpoint;
@@ -34,10 +36,12 @@ import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.MonitoredNodeBase;
 import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
+import fi.csc.microarray.messaging.message.FeedbackMessage;
 import fi.csc.microarray.messaging.message.JobLogMessage;
-import fi.csc.microarray.messaging.message.NamiMessage;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
+import fi.csc.microarray.util.Emails;
 import fi.csc.microarray.util.MemUtil;
 
 /**
@@ -76,6 +80,7 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 
     private JdbcTemplate jdbcTemplate;
     private SimpleJdbcInsert insertJobTemplate;
+    private String feedbackEmail;
 
 	// TODO index, unique keys
 	private static final String CREATE_JOBS_TABLE = 
@@ -104,22 +109,20 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 
 	/**
 	 * 
-	 * @throws MicroarrayException 
-	 * @throws JMSException
-	 * @throws IOException if creation of working directory fails.
 	 * @throws MicroarrayException
 	 * @throws JMSException 
-	 * @throws IllegalConfigurationException 
 	 * @throws IOException 
-	 * @throws ClassNotFoundException 
-	 * @throws SQLException 
+	 * @throws Exception 
 	 */
-	public Manager() throws MicroarrayException, JMSException, IOException, IllegalConfigurationException, ClassNotFoundException, SQLException {
+	public Manager(String configURL) throws Exception {
 		
 		// initialise dir and logging
-		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"manager"}));
+		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"manager"}), configURL);
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 		logger = Logger.getLogger(Manager.class);
+		
+		// email for sending feedback
+		feedbackEmail = configuration.getString("manager", "admin-email");
 		
 		// initialize database connection
 		logger.info("starting manager...");
@@ -184,20 +187,39 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		// initialize communications
 		this.endpoint = new MessagingEndpoint(this);
 		
-		MessagingTopic managerTopic = endpoint.createTopic(Topics.Name.MANAGER_TOPIC, AccessMode.READ);
-		managerTopic.setListener(this);
+		// listen for job log messages
+		MessagingTopic jobLogTopic = endpoint.createTopic(Topics.Name.JOB_LOG_TOPIC, AccessMode.READ);
+		jobLogTopic.setListener(this);
+		
+	    // listen for feedback messages
+        MessagingTopic feedbackTopic = endpoint.createTopic(Topics.Name.FEEDBACK_TOPIC, AccessMode.READ);
+        feedbackTopic.setListener(this);
 
-		// start web console
-		Server server;
+		// start h2 web console
+		Server h2WebConsoleServer;
 		if (startWebConsole) {
-			server = Server.createWebServer(new String[] {"-webAllowOthers",  "-webPort", String.valueOf(webConsolePort)});
-			server.start();
+			h2WebConsoleServer = Server.createWebServer(new String[] {"-webAllowOthers",  "-webPort", String.valueOf(webConsolePort)});
+			h2WebConsoleServer.start();
 		}
+		
+		// start manager web console
+		org.mortbay.jetty.Server managerWebConsoleServer = new org.mortbay.jetty.Server();
+		managerWebConsoleServer.setThreadPool(new QueuedThreadPool());
+		Connector connector = new SelectChannelConnector();
+		connector.setServer(managerWebConsoleServer);
+		connector.setPort(configuration.getInt("manager", "manager-web-console-port"));
+		managerWebConsoleServer.setConnectors(new Connector[]{ connector });
+        WebAppContext webapp = new WebAppContext();
+        webapp.setContextPath("/");
+        webapp.setWar("webapps/chipster-manager-console.war");
+        managerWebConsoleServer.setHandler(webapp);
+        managerWebConsoleServer.start();
+        
 		
 		// create keep-alive thread and register shutdown hook
 		KeepAliveShutdownHandler.init(this);
 		
-		logger.error("manager is up and running [" + ApplicationConstants.NAMI_VERSION + "]");
+		logger.error("manager is up and running [" + ApplicationConstants.VERSION + "]");
 		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
 	}
 	
@@ -210,30 +232,52 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 	/**
 	 * Process incoming message.  
 	 */
-	public void onNamiMessage(NamiMessage namiMessage) {
+	public void onChipsterMessage(ChipsterMessage chipsterMessage) {
 		
-		if (!(namiMessage instanceof JobLogMessage)) {
-			logger.warn("Got other than JobLogMessage: " + namiMessage.toString());
-			return;
-		}
-		
-		JobLogMessage jobLogMessage = (JobLogMessage)namiMessage;
-		try {
-		    Map<String, Object> parameters = new HashMap<String, Object>();
-		    parameters.put("id", jobLogMessage.getJobId());
-		    parameters.put("operation", jobLogMessage.getOperation());
-			parameters.put("status", jobLogMessage.getState().toString()); 
-			parameters.put("starttime", jobLogMessage.getStartTime()); 
-			parameters.put("endtime", jobLogMessage.getEndTime());
-			parameters.put("wallclockTime", (jobLogMessage.getEndTime().getTime() - jobLogMessage.getStartTime().getTime()) / 1000);
-			parameters.put("errorMessage", jobLogMessage.getErrorMessage());
-			parameters.put("outputText", jobLogMessage.getOutputText()); 
-			parameters.put("username", jobLogMessage.getUsername());
-			parameters.put("compHost", jobLogMessage.getCompHost());
-			
-			this.insertJobTemplate.execute(parameters);
-		} catch (Exception e) {
-			logger.error("Could not insert log entry", e);
+		if (chipsterMessage instanceof JobLogMessage) {
+		    // log information about some job ran by a user
+	        JobLogMessage jobLogMessage = (JobLogMessage)chipsterMessage;
+	        try {
+	            Map<String, Object> parameters = new HashMap<String, Object>();
+	            parameters.put("id", jobLogMessage.getJobId());
+	            parameters.put("operation", jobLogMessage.getOperation());
+	            parameters.put("status", jobLogMessage.getState().toString()); 
+	            parameters.put("starttime", jobLogMessage.getStartTime()); 
+	            parameters.put("endtime", jobLogMessage.getEndTime());
+	            parameters.put("wallclockTime", (jobLogMessage.getEndTime().getTime() - jobLogMessage.getStartTime().getTime()) / 1000);
+	            parameters.put("errorMessage", jobLogMessage.getErrorMessage());
+	            parameters.put("outputText", jobLogMessage.getOutputText()); 
+	            parameters.put("username", jobLogMessage.getUsername());
+	            parameters.put("compHost", jobLogMessage.getCompHost());
+	            
+	            this.insertJobTemplate.execute(parameters);
+	        } catch (Exception e) {
+	            logger.error("Could not insert log entry", e);
+	        }
+		} else if (chipsterMessage instanceof FeedbackMessage) {
+		    // user gives feedback after seeing an error message
+		    FeedbackMessage feedback = (FeedbackMessage) chipsterMessage;
+		    logger.info("Feedback received: " + feedback.getDetails());
+		    
+		    // formulate an email
+		    String replyEmail = !feedback.getEmail().equals("") ?
+		            feedback.getEmail() : "[not available]";
+		    String sessURL = !feedback.getSessionURL().equals("") ? 
+		            feedback.getSessionURL() : "[not available]";
+		    String emailBody =
+		        feedback.getDetails() + "\n\n" +
+		        "Email: " + replyEmail + "\n" +
+		        "Session file: " + sessURL + "\n";		    
+		    for (String[] log : feedback.getLogs()) {
+                emailBody += log[0] + ": " + log[1] + "\n";
+            }
+		    // send the email
+		    Emails.sendEmail(feedbackEmail,
+		            !feedback.getEmail().equals("") ? feedback.getEmail() : null,
+		            "User report", emailBody);
+		} else {
+	        logger.warn("Got other than JobLogMessage: " + chipsterMessage.toString());
+	        return; 
 		}
 	}
 

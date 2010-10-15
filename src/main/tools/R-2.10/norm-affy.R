@@ -1,11 +1,10 @@
-# ANALYSIS Normalisation/Affymetrix (Affymetrix preprocessing using CEL-files. Probe sets are automatically flagged 
-# using P/A/M flags. Variance stabilization can be applied only with MAS5 or Plier preprocessing methods. Custom
-# chiptype can't be used with Plier preprocessing.)
-# INPUT AFFY microarray[...].cel OUTPUT normalized.tsv, phenodata.tsv 
-# PARAMETER normalization.method [mas5, plier, rma, gcrma, li-wong] DEFAULT rma (Preprocessing method)
-# PARAMETER stabilize.variance [yes, no] DEFAULT no (Variance stabilazing normalization)
-# PARAMETER custom.chiptype [empty, hgu133ahsentrezg(hgu133a), hgu133a2hsentrezg(hgu133av2), hgu133phsentrezg(hgu133plus), hgu133plus2hsentrezg(hgu133plus2), hgu133bhsentrezg(hgu133b), hgu95av2hsentrezg(hgu95av2), moe430ammentrezg(moe430a), mouse430a2mmentrezg(mouse4302), moe430bmmentrezg(moe430b), mouse430a2mmentrezg(mouse430plus2), mm74av1mmentrezg(mgu74a), mgu74av2mmentrezg(mgu74av2), mgu74bv2mmentrezg(mgu74bv2), mgu74cv2mmentrezg(mgu74cv2), rae230arnentrezg(rae230a), rae230brnentrezg(rae230b), rat2302rnentrezg(rat2302), rgu34arnentrezg(rgu34a), rgu34brnentrezg(rgu34b), rgu34crnentrezg(rgu34c)] DEFAULT empty (custom chiptype)
-
+# TOOL "Normalisation" / norm-affy.R: "Affymetrix" (Affymetrix preprocessing using CEL-files. Probe sets are automatically flagged using P/A/M flags. Variance stabilization can be applied only with MAS5 or Plier preprocessing methods. Custom chiptype can't be used with Plier preprocessing.)
+# INPUT microarray{...}.cel: "CEL files" TYPE AFFY
+# OUTPUT normalized.tsv: "Normalised dataset"
+# OUTPUT phenodata.tsv: "Phenodata describing the experiment"
+# PARAMETER normalization.method: "Normalisation method" TYPE [mas5, plier, rma, gcrma, li-wong] DEFAULT rma (Preprocessing method)
+# PARAMETER stabilize.variance: "Stabilize variance" TYPE [yes, no] DEFAULT no (Variance stabilazing normalization)
+# PARAMETER custom.chiptype: "Custom chiptype (optional)" TYPE [empty, hgu133ahsentrezg(hgu133a), hgu133a2hsentrezg(hgu133av2), hgu133phsentrezg(hgu133plus), hgu133plus2hsentrezg(hgu133plus2), hgu133bhsentrezg(hgu133b), hgu95av2hsentrezg(hgu95av2), moe430ammentrezg(moe430a), mouse430a2mmentrezg(mouse4302), moe430bmmentrezg(moe430b), mouse430a2mmentrezg(mouse430plus2), mm74av1mmentrezg(mgu74a), mgu74av2mmentrezg(mgu74av2), mgu74bv2mmentrezg(mgu74bv2), mgu74cv2mmentrezg(mgu74cv2), rae230arnentrezg(rae230a), rae230brnentrezg(rae230b), rat2302rnentrezg(rat2302), rgu34arnentrezg(rgu34a), rgu34brnentrezg(rgu34b), rgu34crnentrezg(rgu34c)] DEFAULT empty (custom chiptype)
 
 # Affymetrix normalization
 # JTT 8.6.2006

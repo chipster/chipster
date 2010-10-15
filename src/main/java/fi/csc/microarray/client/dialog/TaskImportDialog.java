@@ -13,10 +13,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import fi.csc.microarray.client.ClientApplication;
-import fi.csc.microarray.client.SwingClientApplication;
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dataimport.ImportUtils;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.parameter.ImportParameterPanel;
+import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.exception.MicroarrayException;
 
 
@@ -41,8 +42,8 @@ public class TaskImportDialog extends JDialog implements ActionListener {
 	private ClientApplication application;
 	private Operation operation;
 
-	public TaskImportDialog(SwingClientApplication application, String databaseName, Operation operation) throws MicroarrayException {
-		super(application.getMainFrame(), true);
+	public TaskImportDialog(ClientApplication application, String databaseName, Operation operation) throws MicroarrayException {
+		super(Session.getSession().getFrames().getMainFrame(), true);
 
 		this.application = application;
 		this.operation = operation;
@@ -51,7 +52,7 @@ public class TaskImportDialog extends JDialog implements ActionListener {
 		this.setPreferredSize(new Dimension(500, 300));
 
 		// initialise components
-		titleLabel = new JLabel("<html><p style=\"font-weight:bold;font-size:120%\">Import data from " + databaseName + "</p></html>");
+		titleLabel = new JLabel("<html><p style=" + VisualConstants.HTML_DIALOG_TITLE_STYLE + ">Import data from " + databaseName + "</p></html>");
 		descriptionLabel = new JLabel("<html>" + operation.getDescription() + "</html>");
 		noteLabel = new JLabel("<html><p style=\"font-style:italic\">It may take a while for the import task to finish.");
 
@@ -124,7 +125,7 @@ public class TaskImportDialog extends JDialog implements ActionListener {
 
 		// make visible
 		this.pack();
-		this.setLocationRelativeTo(application.getMainFrame());
+		Session.getSession().getFrames().setLocationRelativeToMainFrame(this);
 		this.setVisible(true);
 	}
 

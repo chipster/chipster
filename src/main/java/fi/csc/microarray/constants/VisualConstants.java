@@ -66,6 +66,10 @@ public class VisualConstants {
 		new ImageIcon(VisualConstants.class.getResource("/zoom-in.png"));
 	public static ImageIcon ZOOM_OUT_ICON = 
 		new ImageIcon(VisualConstants.class.getResource("/zoom-out.png"));
+	public static ImageIcon MAGNIFIER_ICON = 
+	    new ImageIcon(VisualConstants.class.getResource("/viewmag.png"));
+    public static ImageIcon CLOSE_FILE_ICON = 
+	    new ImageIcon(VisualConstants.class.getResource("/fileclose.png"));
 	public static final ImageIcon APPLICATION_ICON =
         new ImageIcon(VisualConstants.class.getResource("/chipster_icon.png"));
 	public static final ImageIcon LOGIN_BANNER =
@@ -345,4 +349,8 @@ public class VisualConstants {
 	"td { border-color: Gray; font-family: sans-serif; border-width: 1px; border-style: solid; font-size: 8px}" + 
 	"th { border-color: Gray; font-family: sans-serif; background: #E0E0E0; text-align: center;  border-width: 1px; border-style: solid;}" + 
 	"--></style>";
+
+	public static final String HTML_DIALOG_TITLE_STYLE = "\"font-weight:bold;font-size:115%\"";
+
+
 }

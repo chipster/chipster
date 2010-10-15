@@ -4,8 +4,8 @@ public class StringParameter extends Parameter {
 
 	private String value = "";
 	
-	protected StringParameter(String name, String description, String initValue) {
-		super(name, description);
+	protected StringParameter(String id, String displayName, String description, String initValue) {
+		super(id, displayName, description);
 		if (initValue != null) {
 			setValue(initValue);
 		}
@@ -29,7 +29,7 @@ public class StringParameter extends Parameter {
 
 	@Override
 	public String toString() {
-		return value;
+		return this.getID() + ": " + value;
 	}
 
 	@Override
@@ -39,6 +39,14 @@ public class StringParameter extends Parameter {
 	
 	@Override
 	public void parseValue(String stringValue) throws IllegalArgumentException {
-		setValue(stringValue); // no parsing needed
+	    // Allow empty values for optional parameters
+	    stringValue = stringValue == null ? "" : stringValue;
+	    
+		setValue(stringValue);
+	}
+
+	@Override
+	public String getValueAsString() {
+		return value != null ? value : "";
 	}
 }
