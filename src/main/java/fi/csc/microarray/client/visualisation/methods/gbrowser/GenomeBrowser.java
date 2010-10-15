@@ -636,9 +636,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 					    treatmentData = createReadDataSource(track.userData, tracks);
 						TrackGroup readGroup1 = TrackFactory.addReadSummaryTracks(plot, treatmentData,
 						        createReadHandler(file),
-						        createAnnotationDataSource("Homo_sapiens." + genome + "_seq.tsv",
-								        new SequenceParser()),
-						        file.getAbsolutePath());
+								createAnnotationDataSource(annotationContents.getRow(
+										genome, AnnotationContents.Content.REFERENCE).file,
+										new SequenceParser()), file.getName());
 						track.setTrackGroup(readGroup1);
 						break;
 

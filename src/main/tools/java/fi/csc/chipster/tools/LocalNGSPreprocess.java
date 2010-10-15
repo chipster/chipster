@@ -2,13 +2,11 @@ package fi.csc.chipster.tools;
 
 import java.io.File;
 
-import fi.csc.chipster.tools.gbrowser.TsvSorter;
+import fi.csc.chipster.tools.gbrowser.SamBamUtils;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.tasks.Task;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileDefinition;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
@@ -48,32 +46,39 @@ public class LocalNGSPreprocess implements Runnable {
 
 	public void run() {
 		DataManager dataManager = Session.getSession().getDataManager();
-		ElandParser parser = new ElandParser();
-		FileDefinition fileDefinition = parser.getFileDefinition();
 		
 		try {
 
-			for (DataBean inputDataBean: task.getInputs()) {
+			for (DataBean inputDataBean : task.getInputs()) {
 				File inputFile = dataManager.getLocalFile(inputDataBean);
-				String outputName; 
+				
+				String outputName;
+				String indexOutputName; 
 				int fileExtensionStartPosition = inputFile.getName().lastIndexOf(".");
 				if (fileExtensionStartPosition != -1) {
-					outputName = inputFile.getName().substring(0, fileExtensionStartPosition) + "-preprocessed" + 
-									inputFile.getName().substring(fileExtensionStartPosition, inputFile.getName().length());
+					outputName = inputFile.getName().substring(0, fileExtensionStartPosition) + "-preprocessed"; 
 				} else {
 					outputName = inputFile.getName() + "-preprocessed";
 				}
+				outputName = outputName + ".bam";
+				indexOutputName = outputName + ".bai";
+				
 				File outputFile = dataManager.createNewRepositoryFile(outputName);		
+				File indexOutputFile = dataManager.createNewRepositoryFile(indexOutputName);
 
 				// run sorter
-				new TsvSorter().sort(inputFile, outputFile,	fileDefinition.indexOf(ColumnType.CHROMOSOME), fileDefinition.indexOf(ColumnType.BP_START));
+				SamBamUtils.preprocessSamBam(inputFile, outputFile, indexOutputFile);
 
 				// create outputs in the client
 				DataBean outputBean = dataManager.createDataBean(outputName, outputFile);
+				DataBean indexOutputBean = dataManager.createDataBean(indexOutputName, indexOutputFile);
 				
 				// create new operation instance, without any inputs FIXME parameters are lost, sucks
 				outputBean.setOperation(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {}));
+				indexOutputBean.setOperation(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {}));
 				dataManager.getRootFolder().addChild(outputBean);
+				dataManager.getRootFolder().addChild(indexOutputBean);
+				
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);

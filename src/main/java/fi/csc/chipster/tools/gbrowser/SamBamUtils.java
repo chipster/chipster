@@ -66,7 +66,7 @@ public class SamBamUtils {
 		BuildBamIndex.createIndex(new SAMFileReader(bamFile), baiFile); 
 	}
 	
-	public static void preprocessSamBam(File samBamFile, File preprocessedBamFile, File baiFile) throws IOException {
+	public static void preprocessSamBam_with_normalise(File samBamFile, File preprocessedBamFile, File baiFile) throws IOException {
 		
 		// Sort
 		File sortedTempBamFile = File.createTempFile("sorted", "bam");
@@ -76,6 +76,15 @@ public class SamBamUtils {
 		normaliseBam(sortedTempBamFile, preprocessedBamFile);
 		sortedTempBamFile.delete();
 
+		// Index
+		indexBam(preprocessedBamFile, baiFile);
+	}
+
+	public static void preprocessSamBam(File samBamFile, File preprocessedBamFile, File baiFile) throws IOException {
+		
+		// Sort
+		sortSamBam(samBamFile, preprocessedBamFile);
+		
 		// Index
 		indexBam(preprocessedBamFile, baiFile);
 	}
