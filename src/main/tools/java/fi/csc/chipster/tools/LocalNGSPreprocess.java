@@ -35,11 +35,11 @@ public class LocalNGSPreprocess implements Runnable {
 		}
 		
 		// TODO more verbose name, name of the second parameter
-		return 	"TOOL \"Preprocess\" / LocalNGSPreprocess.java: \"Preprocess NGS, treatment only\" (Sort primarily using chromosome and secondarily using start " +
+		return 	"TOOL \"Preprocess\" / LocalNGSPreprocess.java: \"NGS Preprocess\" (Sort primarily using chromosome and secondarily using start " +
 				"location of the feature. File format is used to find columns containing " +
 				"chromosome and start location. )" + "\n" +
-				"INPUT in-treatment.txt: \"Treatment\" TYPE GENERIC" + "\n" +
-				"OUTPUT treatment.txt: \"Treatment\"" + "\n" +
+				"INPUT input{...}.txt: \"Input NGS data\" TYPE GENERIC" + "\n" +
+				"OUTPUT ngs-preprocess.txt: \"Preprocessed NGS data\"" + "\n" +
 				"OUTPUT phenodata.tsv: \"Phenodata\"" + "\n" +
 				"PARAMETER file.format: \"Data format\" TYPE [" + fileFormats + "] DEFAULT " + parsers[0].getName() + " (Format of the data)" + "\n";
  	}
