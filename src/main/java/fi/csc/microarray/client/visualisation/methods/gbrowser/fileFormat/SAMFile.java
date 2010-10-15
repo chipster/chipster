@@ -14,6 +14,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Concis
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
@@ -29,6 +30,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  */
 public class SAMFile {
     
+    private static final String CHROMOSOME_PREFIX = "";
+	
 	private ConcisedValueCache cache = new ConcisedValueCache();
 	public SAMFileReader reader;
 
@@ -53,6 +56,8 @@ public class SAMFile {
      */
     public List<RegionContent> getReads(AreaRequest request) {
 
+        fixChromosomeNames(request);
+
     	List<RegionContent> responseList = new LinkedList<RegionContent>();
         
         // Read the given region
@@ -66,7 +71,7 @@ public class SAMFile {
             BpCoordRegion recordRegion =
                 new BpCoordRegion((long)record.getAlignmentStart(),
                         (long)record.getAlignmentEnd(),
-                        request.start.chr);
+                        cleanChromosomeName(request.start.chr));
             // Values for this read
             HashMap<ColumnType, Object> values = new HashMap<ColumnType, Object>();
             
@@ -90,6 +95,16 @@ public class SAMFile {
         return responseList;
     }
 
+	private Chromosome cleanChromosomeName(Chromosome chr) {
+		return new Chromosome(chr.toString().substring(CHROMOSOME_PREFIX.length()));
+	}
+
+	private void fixChromosomeNames(AreaRequest request) {
+		// fix chromosome names
+        request.start.chr = new Chromosome(CHROMOSOME_PREFIX + request.start.chr.toString());
+        request.end.chr = new Chromosome(CHROMOSOME_PREFIX + request.end.chr.toString());
+	}
+    
     /**
      * Return approximation of reads in a given range.
      * <p>
@@ -104,6 +119,8 @@ public class SAMFile {
      * @return
      */
     public List<RegionContent> getConciseReads(AreaRequest request) {
+
+        fixChromosomeNames(request);
 
     	List<RegionContent> responseList = new LinkedList<RegionContent>();
         
@@ -168,7 +185,7 @@ public class SAMFile {
 
         	// Create two approximated response objects: one for each strand
         	BpCoordRegion recordRegion =
-        		new BpCoordRegion(pos, pos + step, request.start.chr);
+        		new BpCoordRegion(pos, pos + step, cleanChromosomeName(request.start.chr));
 
         	// Forward
         	HashMap<ColumnType, Object> values = new HashMap<ColumnType, Object>();
