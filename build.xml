@@ -216,11 +216,13 @@
 			<tarfileset file="${ext-src}/wrapper/auth/chipster-auth" filemode="755" prefix="chipster/auth/bin/linux-x86-64" />
 
 			<tarfileset file="${wrapper-windows-x86-32}/bin/wrapper.exe" filemode="755" prefix="chipster/auth/bin/win32" />
+			<!--
 			<tarfileset file="${ext-src}/wrapper/win32/chipster.bat" filemode="755" fullpath="chipster/auth/bin/win32/chipster-auth.bat" />
 			<tarfileset file="${ext-src}/wrapper/win32/chipster-service.bat" filemode="755" prefix="chipster/auth/bin/win32" />
 			<tarfileset file="${ext-src}/wrapper/win32/install-service.bat" filemode="755" prefix="chipster/auth/bin/win32" />
 			<tarfileset file="${ext-src}/wrapper/win32/uninstall-service.bat" filemode="755" prefix="chipster/auth/bin/win32" />
-
+			-->
+			
 			<tarfileset dir="${ext-src}/wrapper/auth/conf" prefix="chipster/auth/conf" />
 			<tarfileset dir="${ext-src}/wrapper/auth/logs" prefix="chipster/auth/logs" /> <!-- must exist for wrapper -->
 			<tarfileset dir="${ext-src}/wrapper/auth/security" prefix="chipster/auth/security" />
@@ -347,7 +349,7 @@
 			<tarfileset file="${activemq-dist}/bin/macosx/wrapper" filemode="755" prefix="chipster/activemq/bin/macosx" />
 			<tarfileset file="${activemq-dist}/bin/macosx/activemq" filemode="755" prefix="chipster/activemq/bin/macosx" />
 			<tarfileset file="${activemq-dist}/bin/macosx/libwrapper.jnilib" filemode="755" prefix="chipster/activemq/bin/macosx" />
-			<tarfileset dir="${activemq-dist}/bin/win32" filemode="755" prefix="chipster/activemq/bin/win32" />
+			<!--<tarfileset dir="${activemq-dist}/bin/win32" filemode="755" prefix="chipster/activemq/bin/win32" />-->
 			
 			<tarfileset file="${ext-src}/activemq/activemq.xml" prefix="chipster/activemq/conf" />
 

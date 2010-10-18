@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -284,33 +283,12 @@ public abstract class ClientApplication implements Node {
         eventSupport.removePropertyChangeListener(listener);       
     }
     
-    public List<DataBean> getAllDataBeans(){
-		List<DataBean> datas = new ArrayList<DataBean>();
-		// The depth of the file structure is max 2, so we don't need recursion
-		
-		// Iterate the folders
-		for (DataItem item1 : this.manager.getRootFolder().getChildren()) {
-			if(item1 instanceof DataFolder){
-				DataFolder folder = (DataFolder)item1;
-				
-				// Iterate the datas
-				for(DataItem item2 : folder.getChildren()){
-					if(item2 instanceof DataBean){
-						DataBean bean = (DataBean)item2;
-						datas.add(bean);
-					}
-				}
-			}
-		}
-		return datas;
-    }
-
     public DataSelectionManager getSelectionManager() {
     	return selectionManager;
     }
     
     public void selectAllItems(){
-		List<DataBean> datas = getAllDataBeans();
+		List<DataBean> datas = manager.databeans();
 		for (DataBean data : datas) {
 			
 			selectionManager.selectMultiple(data, this);
