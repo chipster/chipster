@@ -10,23 +10,6 @@ public class Cigar {
 		elements.add(e);
 	}
 	
-	public boolean isSNP(long requestedBp) {
-		
-		int bp = 0;
-		
-		for (CigarItem element : elements) {
-						
-			if (requestedBp < bp + element.getLength()) {
-				return !element.getType().equals("M");
-			}
-			
-			bp += element.getLength();
-		}
-		
-		//Request out of this read
-		return false;
-	}
-	
 	public int getReferenceIndex(int seqIndex) {
 		
 		int seqCounter = 0;
@@ -39,19 +22,32 @@ public class Cigar {
 				seqCounter += element.getLength();
 				refCounter += element.getLength();
 				
-			} else if (element.getType().equals("D")) {
+			} else if (element.getType().equals("S")) {
+				
+				seqCounter += element.getLength();
+				
+			} else if (element.getType().equals("D") || 
+					element.getType().equals("N") || 
+					element.getType().equals("H")) {
 				
 				refCounter += element.getLength();
 				
 			} else if (element.getType().equals("I")) {
 				
 				seqCounter += element.getLength();
+				
+			} else if (element.getType().equals("P")) {
+				
+				//Do nothing, padded element exist only in some other read, not in this sequence nor in reference
 			}
 			
 			if (seqCounter > seqIndex) {
 				
 				if (element.getType().equals("I")) {
 					//There isn't reference sequence for insertion
+					return -1; 
+				} else if (element.getType().equals("S")) {
+					//TODO how to draw this?
 					return -1; 
 				}
 				

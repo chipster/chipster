@@ -175,6 +175,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
     private JCheckBox showGel = new JCheckBox("Gel track", false);
     private JCheckBox showProfile = new JCheckBox("Strand profiles", false);
     private JCheckBox showProfileSNP = new JCheckBox("SNP Profile", false);
+    private JCheckBox showQualityCoverage = new JCheckBox("Quality coverage", false);
     private JCheckBox showSNP = new JCheckBox("Highlight SNP", false);
     private JCheckBox changeSNP = new JCheckBox("Change SNP view", false);
 
@@ -273,16 +274,18 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		showGel.setEnabled(false);
 		showProfile.setEnabled(false);
 		showProfileSNP.setEnabled(false);
+		showQualityCoverage.setEnabled(false);
 		showSNP.setEnabled(false);
 		changeSNP.setEnabled(false);
 		
 		JPanel menu = new JPanel();
 		JScrollPane menuu = new JScrollPane(menu);
 		menuu.setBorder(BorderFactory.createEmptyBorder());
-		menu.setLayout(new GridLayout(5,1));
+		menu.setLayout(new GridLayout(7,1));
 		menu.add(showReads);
 		menu.add(showProfile);
 		menu.add(showProfileSNP);
+		menu.add(showQualityCoverage);
 		menu.add(showGel);
         menu.add(showSNP);
         menu.add(changeSNP);
@@ -291,6 +294,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
         showGel.addActionListener(this);
         showProfile.addActionListener(this);
         showProfileSNP.addActionListener(this);
+        showQualityCoverage.addActionListener(this);
         showSNP.addActionListener(this);
         changeSNP.addActionListener(this);
 		settingsPanel.add(menuu, c);
@@ -432,6 +436,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				showGel.setEnabled(true);
 				showProfile.setEnabled(true);
 				showProfileSNP.setEnabled(true);
+				showQualityCoverage.setEnabled(true);
 				showSNP.setEnabled(true);
 				changeSNP.setEnabled(true);
 				
@@ -466,6 +471,12 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			for (Track track : tracks) {
 				if (track.trackGroup != null) {
 					track.trackGroup.showOrHide("ProfileSNPTrack", showProfileSNP.isSelected());
+				}
+			}
+		} else if (source == showQualityCoverage) {
+			for (Track track : tracks) {
+				if (track.trackGroup != null) {
+					track.trackGroup.showOrHide("QualityCoverageTrack", showQualityCoverage.isSelected());
 				}
 			}
 		} else if (source == showSNP) {

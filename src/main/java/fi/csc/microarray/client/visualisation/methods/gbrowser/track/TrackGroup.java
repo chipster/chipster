@@ -200,11 +200,14 @@ public class TrackGroup {
     }
     
     /**
-     * sets the visibility of a track, if it is a need of SNP highlighting, method should be overriden
+     * sets the visibility of a track, if it is a need of SNP highlighting, method should be overridden
      * @param track name
      * @param state
      */
     public void showOrHide(String name, boolean state) {
+    	
+    	//FIXME this really shouldn't work with the track.getName(), which is intended for 
+    	//human readable name and can be changed often.
 		for (Track track : tracks) {
     		if (track.getName().equals(name)) {
     			track.setVisible(state);
