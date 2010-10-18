@@ -1,4 +1,4 @@
-# ANALYSIS "aCGH tools"/"GO enrichment for copy number aberrations" (Performs a statistical test for enrichment of GO terms in frequently aberrated genes. The input should be the output from the tool Convert called aCGH data from probes to genes.)
+# ANALYSIS "aCGH tools"/"GO enrichment for called aCGH genes" (Performs a statistical test for enrichment of GO terms in frequently aberrated genes. The input should be the output from the tool Convert called aCGH data from probes to genes.)
 # INPUT GENE_EXPRS gene-aberrations.tsv
 # OUTPUT hypergeo-go.tsv, hypergeo-go.html
 # PARAMETER aberrations [losses, gains, amplifications, gains_and_amplifications, all_aberrations] DEFAULT all_aberrations (Whether to test enrichment of GO terms in frequently lost, gained or amplified genes.)
@@ -12,7 +12,7 @@
 
 # pathways-acgh-hyperg-go.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-06
+# 2010-10-15
 
 # load packages
 library(org.Hs.eg.db)

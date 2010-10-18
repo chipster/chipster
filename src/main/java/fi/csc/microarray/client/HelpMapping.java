@@ -143,7 +143,7 @@ public class HelpMapping {
 		mappings.put("aCGH tools/Cluster called aCGH data", "chipster-manual/cluster-acgh.html");
 		mappings.put("aCGH tools/Group tests for called aCGH data", "chipster-manual/stat-acgh.html");
 		mappings.put("aCGH tools/Convert called aCGH data from probes to genes", "chipster-manual/convert-cn-probes-to-genes.html");
-		mappings.put("aCGH tools/GO enrichment for copy number aberrations", "chipster-manual/pathways-acgh-hyperg-go.html");
+		mappings.put("aCGH tools/GO enrichment for called aCGH genes", "chipster-manual/pathways-acgh-hyperg-go.html");
 		mappings.put("aCGH tools/Match copy number and expression probes", "chipster-manual/match-cn-and-expression-probes.html");
 		mappings.put("aCGH tools/Plot profiles of matched copy number and expression", "chipster-manual/plot-cn-induced-expression-profile.html");
 		mappings.put("aCGH tools/Test for copy-number-induced expression changes", "chipster-manual/test-for-cn-induced-differential-expression.html");
