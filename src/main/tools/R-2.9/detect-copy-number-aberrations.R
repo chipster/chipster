@@ -1,4 +1,4 @@
-# ANALYSIS "aCGH tools"/"Call copy number aberrations from aCGH data" (Call copy number aberrations from aCGH log ratios.)
+# ANALYSIS "aCGH"/"Call copy number aberrations from aCGH data" (Call copy number aberrations from aCGH log ratios.)
 # INPUT GENE_EXPRS normalized.tsv
 # OUTPUT aberrations.tsv, aberrations.png
 # PARAMETER normalization [median, mode, none] DEFAULT none (Normalization method.)

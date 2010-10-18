@@ -1,4 +1,4 @@
-# ANALYSIS "aCGH tools"/"Plot profiles of matched copy number and expression" (Plot profiles of two priorly matched data sets of copy number and expression. This tool must be run on the output from the tool Match copy number and expression probes - matched-cn-and-expression.tsv.)
+# ANALYSIS "aCGH"/"Plot profiles of matched copy number and expression" (Plot profiles of two priorly matched data sets of copy number and expression. This tool must be run on the output from the tool Match copy number and expression probes - matched-cn-and-expression.tsv.)
 # INPUT GENE_EXPRS matched-cn-and-expression.tsv, GENERIC phenodata.tsv
 # OUTPUT matched-cn-and-expression-profile.png
 # PARAMETER sample INTEGER DEFAULT 1 (The number of the sample to be plotted.)

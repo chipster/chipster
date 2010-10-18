@@ -1,4 +1,4 @@
-# ANALYSIS "aCGH tools"/"Count overlapping CNVs" (Counts overlapping CNVs from the database of genomic variants.)
+# ANALYSIS "aCGH"/"Count overlapping CNVs" (Counts overlapping CNVs from the database of genomic variants.)
 # INPUT GENERIC normalized.tsv
 # OUTPUT cnvs.tsv
 # PARAMETER genome.build [GRCh37, NCBI36, NCBI35] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16.)

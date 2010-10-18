@@ -1,4 +1,4 @@
-# ANALYSIS "aCGH tools"/"Identify common regions from called aCGH data" (Reduces dimensionality of called aCGH data by identifying common breakpoints.)
+# ANALYSIS "aCGH"/"Identify common regions from called aCGH data" (Reduces dimensionality of called aCGH data by identifying common breakpoints.)
 # INPUT GENE_EXPRS aberrations.tsv
 # OUTPUT regions.tsv, regions.png, regions-frequencies.png
 # PARAMETER max.info.loss DECIMAL DEFAULT 0.01 (Maximal information loss allowed.)
