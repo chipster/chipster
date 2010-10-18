@@ -42,6 +42,10 @@
 		<tool runtime="R-2.9"><resource>filter-by-column-value.R</resource></tool>
 		<tool runtime="R-2.9"><resource>impute.R</resource></tool>
 		<tool runtime="R-2.9"><resource>na-omitted.R</resource></tool>
+	    <tool runtime="java"><resource>fi.csc.chipster.tools.PreprocessNGSSingle</resource></tool>
+        <tool runtime="java"><resource>fi.csc.chipster.tools.PreprocessNGSTreatmentAndControl</resource></tool>
+        <tool runtime="R-2.9"><resource>ngs-filter-results-column.R</resource></tool>
+        <tool runtime="R-2.9"><resource>ngs-filter-annotations.R</resource></tool>
 	</category>
 	
 	<category name="Statistics" color="#d59f45">
@@ -61,6 +65,7 @@
 		<tool runtime="R-2.9"><resource>ordination-ca.R</resource></tool>
 		<tool runtime="R-2.9"><resource>ordination-nmds.R</resource></tool>
 		<tool runtime="R-2.9"><resource>estimate-samplesize.R</resource></tool>
+		<tool runtime="R-2.9"><resource>sample-size-with-bh.R</resource></tool>
 		<!-- <tool runtime="R-2.10"><resource>up-down-analysis-mirna.R</resource></tool> -->
 	</category>
 	
@@ -117,6 +122,7 @@
 		<tool runtime="R-2.9"><resource>search-correlation.R</resource></tool>
 		<tool runtime="R-2.10"><resource>search-queryword.R</resource></tool>
 		<tool runtime="R-2.9"><resource>merge-tables.R</resource></tool>
+		<tool runtime="R-2.9"><resource>merge-datasets.R</resource></tool>
 		<tool runtime="R-2.9"><resource>extract-genes-from-clustering.R</resource></tool>
 		<tool runtime="R-2.9"><resource>extract-samples-from-dataset.R</resource></tool>
 		<tool runtime="R-2.9"><resource>extract-genes-from-stattest.R</resource></tool>
@@ -139,34 +145,31 @@
 		<tool runtime="R-2.9"><resource>intersect-lists.R</resource></tool>
 	</category>
 	
-	<category name="aCGH tools (beta testing)" color="#83010b">
+	<category name="aCGH tools" color="#83010b">
 		<tool runtime="R-2.9"><resource>import-from-cangem.R</resource></tool>
+		<tool runtime="R-2.9"><resource>smooth-acgh.R</resource></tool>
 		<tool runtime="R-2.9"><resource>detect-copy-number-aberrations.R</resource></tool>
 		<tool runtime="R-2.9"><resource>plot-cgh-profile.R</resource></tool>
 		<tool runtime="R-2.9"><resource>detect-common-copy-number-aberration-regions.R</resource></tool>
-		<tool runtime="R-2.9"><resource>test-for-cn-induced-differential-expression.R</resource></tool>
+		<tool runtime="R-2.9"><resource>cluster-acgh.R</resource></tool>
+		<tool runtime="R-2.9"><resource>stat-acgh.R</resource></tool>
+		<tool runtime="R-2.9"><resource>convert-cn-probes-to-genes.R</resource></tool>
+		<tool runtime="R-2.10"><resource>pathways-acgh-hyperg-go.R</resource></tool>
+		<tool runtime="R-2.9"><resource>match-cn-and-expression-probes.R</resource></tool>
 		<tool runtime="R-2.9"><resource>plot-cn-induced-expression-profile.R</resource></tool>
+		<tool runtime="R-2.9"><resource>test-for-cn-induced-differential-expression.R</resource></tool>	
 		<tool runtime="R-2.9"><resource>plot-cn-induced-gene-expression.R</resource></tool>
 		<tool runtime="R-2.9"><resource>fetch-probe-positions-from-cangem.R</resource></tool>
 		<tool runtime="R-2.9"><resource>add-cytobands.R</resource></tool>
 		<tool runtime="R-2.9"><resource>count-overlapping-cnvs.R</resource></tool>
-	   	<tool runtime="R-2.9"><resource>sample-size-with-bh.R</resource></tool>	
+		<tool runtime="R-2.9"><resource>calculate-aberration-frequencies.R</resource></tool>
 	</category>
 	
 	<category name="NGS tools" color="#83010b">
-		<tool runtime="java"><resource>fi.csc.chipster.tools.ElandPreprocessorTool</resource></tool>
+	    <tool runtime="R-2.10"><resource>ngs-find-peaks-macs-two.R</resource></tool>
+        <tool runtime="R-2.10"><resource>ngs-find-peaks-macs-one.R</resource></tool>
+        <tool runtime="R-2.12"><resource>ngs-find-motifs-jaspar.R</resource></tool>
 	</category>
-	
-	<!-- TODO UI configuration -->
-	
-	
-	<!-- HIDDEN -->
-        <!--
-	<category name="Miscellaneous (sequence analysis)" hidden="true" color="#c0d2de">
-		<tool runtime="R-2.9"><resource>seqanal-msa.R</resource></tool> 
-		<tool runtime="R-2.9"><resource>seqanal-phylogenetics.R</resource></tool>
-	</category>
-        -->
 	
 	<category name="Hidden" hidden="true" color="#0">
 		<tool runtime="R-2.9"><resource>test.R</resource></tool>
@@ -179,6 +182,4 @@
 		<tool runtime="R-2.9"><resource>sleep.R</resource></tool>
 		<tool runtime="R-2.9"><resource>input-sleep-output.R</resource></tool>
 	</category>
-	
-
 </module>
