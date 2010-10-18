@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -43,8 +44,10 @@ public class CytobandTrack extends Track {
 	enum Band {
 
 		WHITE("gneg", Color.white), 
-		LIGHT_GRAY("gpos25", Color.lightGray), 
-		MID_GRAY("gpos50", Color.gray), 
+		LIGHT_GRAY("gpos25", Color.lightGray),
+		MOUSE_LIGHT_GRAY("gpos33", Color.lightGray),
+		MID_GRAY("gpos50", Color.gray),
+		MOUSE_DARK_GRAY("gpos66", Color.darkGray),
 		DARK_GRAY("gpos75", Color.darkGray), 
 		BLACK("gpos100", Color.black), 
 		GAP("acen", null), 
@@ -90,10 +93,22 @@ public class CytobandTrack extends Track {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
 		if (bands != null) {
+			
 
 			boolean firstGap = true;
+			
+			//Iterator instead of for to be able to delete items from the collection
+			Iterator<RegionContent> bandRegionIter = bands.iterator();
 
-			for (RegionContent bandRegion : bands) {
+			while (bandRegionIter.hasNext()) {
+								
+				RegionContent bandRegion = bandRegionIter.next();
+				
+				//Remove items that don't belong to this view area
+				if (!getView().getBpRegion().intercepts(bandRegion.region)) {
+					bandRegionIter.remove();
+					continue;
+				}
 
 				Band band = getBand((String) bandRegion.values.get(ColumnType.VALUE));
 				String text = (String) bandRegion.values.get(ColumnType.ID);

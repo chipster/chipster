@@ -18,7 +18,7 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.module.Modules;
+import fi.csc.microarray.module.ModuleManager;
 import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 
@@ -29,7 +29,7 @@ public class VisualiserTest {
 	public VisualiserTest() throws IOException, IllegalConfigurationException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
 		this.manager = new DataManager();
-		new Modules("fi.csc.microarray.module.chipster.MicroarrayModule").plugAll(manager, null);
+		new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule").plugAll(manager, null);
 	}
 
 	public static void main(String[] args) throws IOException, Exception {
@@ -40,7 +40,7 @@ public class VisualiserTest {
 	public void testSom() throws Exception {
 		DataBean dataset = manager.createDataBean("SOM", this.getClass().getResourceAsStream(TestConstants.SOM_CLUSTERED_RESOURCE));
 
-		JComponent component = doVisualisation(MicroarrayModule.SOM, dataset);
+		JComponent component = doVisualisation(MicroarrayModule.VisualisationMethods.SOM, dataset);
 		makeFrame(component);
 	}
 	
@@ -62,7 +62,7 @@ public class VisualiserTest {
 			DataBean heatmap = manager.createDataBean("heatmap", this.getClass().getResourceAsStream(heatmaps[i]));
 			tree.addLink(Link.DERIVATION, heatmap);
 
-			JComponent component = MicroarrayModule.HIERARCHICAL.getHeadlessVisualiser().getVisualisation(tree);
+			JComponent component = MicroarrayModule.VisualisationMethods.HIERARCHICAL.getHeadlessVisualiser().getVisualisation(tree);
 			makeFrame(component);
 		}
 	}
@@ -75,8 +75,8 @@ public class VisualiserTest {
 			try {
 				DataBean bean = manager.createDataBean(resource, this.getClass().getResourceAsStream(resource));
 				
-				doVisualisation(MicroarrayModule.ARRAY_LAYOUT, bean);
-				doVisualisation(BasicModule.SPREADSHEET, bean);
+				doVisualisation(MicroarrayModule.VisualisationMethods.ARRAY_LAYOUT, bean);
+				doVisualisation(BasicModule.VisualisationMethods.SPREADSHEET, bean);
 				
 			} catch (Exception e) {
 				System.err.println("exception when processing " + resource + ": " + e.getMessage());
@@ -91,9 +91,9 @@ public class VisualiserTest {
 			try {
 				DataBean dataBean = manager.createDataBean(resource, this.getClass().getResourceAsStream(resource));
 				
-				MicroarrayModule.SCATTERPLOT.getHeadlessVisualiser().getVariablesFor(dataBean);
-				MicroarrayModule.SCATTERPLOT.getHeadlessVisualiser().getParameterPanel();
-				JComponent visualisation = MicroarrayModule.SCATTERPLOT.getHeadlessVisualiser().getVisualisation(dataBean);
+				MicroarrayModule.VisualisationMethods.SCATTERPLOT.getHeadlessVisualiser().getVariablesFor(dataBean);
+				MicroarrayModule.VisualisationMethods.SCATTERPLOT.getHeadlessVisualiser().getParameterPanel();
+				JComponent visualisation = MicroarrayModule.VisualisationMethods.SCATTERPLOT.getHeadlessVisualiser().getVisualisation(dataBean);
 				makeFrame(visualisation);
 				
 			} catch (Exception e) {
@@ -107,9 +107,9 @@ public class VisualiserTest {
 	public void testHistogram() throws Exception {
 		
 		DataBean dataBean = manager.createDataBean("Hist. data", this.getClass().getResourceAsStream(TestConstants.FOUR_CHIPS_RESOURCE));		
-		Variable[] variables = MicroarrayModule.HISTOGRAM.getHeadlessVisualiser().getVariablesFor(dataBean);
+		Variable[] variables = MicroarrayModule.VisualisationMethods.HISTOGRAM.getHeadlessVisualiser().getVariablesFor(dataBean);
 		Assert.assertEquals(variables.length, 4);
-		Visualisation visualiser = MicroarrayModule.HISTOGRAM.getHeadlessVisualiser();
+		Visualisation visualiser = MicroarrayModule.VisualisationMethods.HISTOGRAM.getHeadlessVisualiser();
 		visualiser.getParameterPanel();		
 		JComponent visualisation = visualiser.getVisualisation(dataBean);
 		makeFrame(visualisation);
@@ -119,7 +119,7 @@ public class VisualiserTest {
 	public void testExpressionProfile() throws Exception {
 		
 		DataBean dataBean = manager.createDataBean("Profiledata", this.getClass().getResourceAsStream(TestConstants.FOUR_CHIPS_RESOURCE));
-		JComponent visualisation = MicroarrayModule.EXPRESSION_PROFILE.getHeadlessVisualiser().getVisualisation(dataBean);
+		JComponent visualisation = MicroarrayModule.VisualisationMethods.EXPRESSION_PROFILE.getHeadlessVisualiser().getVisualisation(dataBean);
 		makeFrame(visualisation);
 	}
 
@@ -127,7 +127,7 @@ public class VisualiserTest {
 	public void testClusteredProfiles() throws Exception {
 		
 		DataBean dataBean = manager.createDataBean("Profiledata", this.getClass().getResourceAsStream(TestConstants.CLUSTERED_PROFILES_RESOURCE));
-		JComponent visualisation = MicroarrayModule.CLUSTERED_PROFILES.getHeadlessVisualiser().getVisualisation(dataBean);
+		JComponent visualisation = MicroarrayModule.VisualisationMethods.CLUSTERED_PROFILES.getHeadlessVisualiser().getVisualisation(dataBean);
 		makeFrame(visualisation);
 	}
 
@@ -137,9 +137,9 @@ public class VisualiserTest {
 		
 		for (VisualisationMethod method : Session.getSession().getVisualisations().getVisualisationMethods()) {
 			if (method.isApplicableTo(affyMicroarray)) {
-				if (method == MicroarrayModule.SOM || method == MicroarrayModule.HIERARCHICAL
-						|| method == MicroarrayModule.EXPRESSION_PROFILE || method == BasicModule.SHOW_IMAGE
-						|| method == BasicModule.WEBVIEW || method == BasicModule.VIEW_TEXT) {
+				if (method == MicroarrayModule.VisualisationMethods.SOM || method == MicroarrayModule.VisualisationMethods.HIERARCHICAL
+						|| method == MicroarrayModule.VisualisationMethods.EXPRESSION_PROFILE || method == BasicModule.VisualisationMethods.SHOW_IMAGE
+						|| method == BasicModule.VisualisationMethods.WEBVIEW || method == BasicModule.VisualisationMethods.VIEW_TEXT) {
 					
 					Assert.fail("method " + method.getName() + " should not be applicable to " + affyMicroarray.getName());
 				}

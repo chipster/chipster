@@ -25,14 +25,13 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 
 /**
  * Context menu for set of selected DataItems.
  * 
  * @see fi.csc.microarray.databeans.DataItem
  * 
- * @author Mikko Koski, Petri KlemelÃ¤, Aleksi Kallio
+ * @author Mikko Koski, Petri Klemelä, Aleksi Kallio
  */
 public class ClientContextMenu extends JPopupMenu implements ActionListener, PopupMenuListener {
 
@@ -171,9 +170,10 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 					this.exportMenuItem.setEnabled(true);
 					this.historyMenuItem.setEnabled(true);
 					
-					// workflow items only enabled for normalised data
-					boolean normalisedDataSelected = ChipsterInputTypes.GENE_EXPRS.isTypeOf((DataBean)selectedItem);
-					this.saveWorkflowItem.setEnabled(normalisedDataSelected);
+					// workflow items only enabled for correct type of data
+					boolean workflowCompatibleDataSelected = Session.getSession().getPrimaryModule().isWorkflowCompatible((DataBean)selectedItem);
+					this.saveWorkflowItem.setEnabled(workflowCompatibleDataSelected);
+					
 				} else {
 					// single selected DataFolder
 					this.visualiseMenuItem.setEnabled(false);
@@ -220,7 +220,7 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 			// phenodata cannot link to phenodata
 			if (!((DataBean) items.get(0)).queryFeatures("/phenodata").exists()) {
 
-				List<DataBean> allDatas = application.getAllDataBeans();
+				List<DataBean> allDatas = application.getDataManager().databeans();
 
 				allDatas.remove(selectedItem); // cannot link to itself
 

@@ -25,6 +25,7 @@ public class TitleTrack extends Track {
 		super(view, null);
 		this.color = color;
 		this.title = title;
+		height = 10;
 	}
 
 	@Override
@@ -40,7 +41,7 @@ public class TitleTrack extends Track {
 
 	@Override
 	public Integer getHeight() {
-		return 10;
+		return height;
 	}
 	   
     @Override

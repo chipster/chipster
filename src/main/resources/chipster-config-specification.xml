@@ -21,6 +21,11 @@
 			<value>false</value>
 		</entry>
 
+		<entry entryKey="public-files-url" type="string" description="url for the root of the public files">
+			<value>http://chipster-filebroker.csc.fi:8090/public</value>
+		</entry>
+
+
 		<entry entryKey="disable-proxy" type="boolean" description="should we ignore Java proxy settings and connect directly">
 			<value>true</value>
 		</entry>
@@ -200,6 +205,21 @@
 		
 		<entry entryKey="admin-email" type="string" description="admin email">
 		</entry>
+	
+		<entry entryKey="manager-web-console-port" type="int" description="">
+			<value>8083</value>
+		</entry>
+	
+	    <entry entryKey="manager-web-console-username" type="string" description="">
+			<value>chipster</value>
+		</entry>
+
+	    <entry entryKey="manager-web-console-password" type="string" description="">
+			<value>chipster</value>
+		</entry>
+
+
+	
 			
 	</configuration-module>
 	

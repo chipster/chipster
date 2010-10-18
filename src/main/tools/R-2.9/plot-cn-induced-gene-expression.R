@@ -1,4 +1,4 @@
-# ANALYSIS "aCGH tools (beta testing)"/"Plot copy-number-induced gene expression" (Plot the expression levels of individual genes for a copy number vs. expression comparison. This module must be run on the output from the module Test for copy number induced expression changes - cn-induced-expression.tsv.)
+# ANALYSIS "aCGH tools"/"Plot copy-number-induced gene expression" (Plot the expression levels of individual genes for a copy number vs. expression comparison. This tool must be run on the output from the tool Test for copy number induced expression changes - cn-induced-expression.tsv.)
 # INPUT GENE_EXPRS cn-induced-expression.tsv
 # OUTPUT cn-induced-expression-plot.png
 # PARAMETER gene.ids STRING DEFAULT 1 (The gene.ids of the genes to be plotted, separated by commas. Ranges are also supported (e.g. 1,3,7-10).)
@@ -6,8 +6,8 @@
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 # plot-cn-induced-gene-expression.R
-# Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-06-04
+# Ilari Scheinin <firstname.lastname@gmail.com>
+# 2010-10-15
 
 library(intCNGEan)
 
@@ -27,7 +27,7 @@ dat <- dat[order(dat$gene.id),]
 nosamp <- (ncol(dat)-12)/3
 tuned <- list(datafortest=as.matrix(dat[,13:ncol(dat)]), lossorgain=dat$comparison, genestotest=dat$gene.id, callprobs=as.matrix(dat[,c('av.probs.1','av.probs.2')]), alleffects=dat$effect.size, ann=dat[,c('chromosome','start','end')], nosamp=nosamp)
 rownames(tuned$datafortest) <- dat$probes
-colnames(tuned$datafortest) <- sub('chip\\.', '', colnames(tuned$datafortest))
+colnames(tuned$datafortest) <- sub('^chip\\.', '', colnames(tuned$datafortest))
 colnames(tuned$datafortest)[1:(2*nosamp)] <- ''
 rownames(tuned$callprobs) <- dat$probes
 colnames(tuned$callprobs) <- NULL

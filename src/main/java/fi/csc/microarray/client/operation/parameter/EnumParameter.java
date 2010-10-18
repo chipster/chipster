@@ -7,11 +7,12 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.util.Strings;
+
 /**
- * A parameter that has a defined set of possible values, out of which only
- * one at a time can be selected.
+ * A parameter that has a defined set of possible values
  * 
- * @author Janne KÃ¤ki, Rimvydas Naktinis, Aleksi Kallio
+ * @author Janne Käki, Rimvydas Naktinis, Aleksi Kallio
  *
  */
 public class EnumParameter extends Parameter {
@@ -92,17 +93,20 @@ public class EnumParameter extends Parameter {
                     "selection parameter " + displayName + " may not be empty!");
         }
         this.options = options;
-        
-        // Check if defaults are ok by finding an intersection
-        HashSet<SelectionOption> opts = new HashSet<SelectionOption>(Arrays.asList(options));
-        opts.retainAll(defaultOptions);
-        if (opts.size() != defaultOptions.size()) {
-            throw new IllegalArgumentException("Some given default options " +
-                                               "were incorrect!");            
+
+        if (!defaultOptions.isEmpty()) {
+
+        	// Check if defaults are ok by finding an intersection
+        	HashSet<SelectionOption> opts = new HashSet<SelectionOption>(Arrays.asList(options));
+        	opts.retainAll(defaultOptions);
+        	if (opts.size() != defaultOptions.size()) {
+        		throw new IllegalArgumentException("Some given default options " +
+        		"were incorrect!");            
+        	}
+
+        	// Mark default values as selected
+        	this.selectedOptions.addAll(defaultOptions);
         }
-        
-        // Mark default values as selected
-        this.selectedOptions.addAll(defaultOptions);
         
         setMinCount(minCount);
         setMaxCount(maxCount);
@@ -228,24 +232,20 @@ public class EnumParameter extends Parameter {
     }
 
     /**
-     * @return comma separated String.
+     * @return comma separated String or null if no values are selected
      */
     @Override
     public Object getValue() {
         assert(options != null);
         
-        String selected = "";
-        for (SelectionOption option : selectedOptions) {
-            selected += "," + option.getValue(); 
+        // gather selected option values
+        LinkedList<String> selectedValues = new LinkedList<String>();
+        for (SelectionOption selectedOption : selectedOptions) {
+        	selectedValues.add(selectedOption.getValue());
         }
         
-        if (!selected.equals("")) {
-            // The first character is a comma
-            selected = selected.substring(1);
-        }
-        
-        logger.debug("returning value " + selected);
-        return selected;
+        // create comma separated string of selected values
+        return Strings.delimit(selectedValues, ",");
     }   
 
     /**
@@ -268,6 +268,7 @@ public class EnumParameter extends Parameter {
         return valueObject instanceof SelectionOption;
     }
     
+    @Override
     public String toString() {
         return this.getID() + ": " + getValue();
     }

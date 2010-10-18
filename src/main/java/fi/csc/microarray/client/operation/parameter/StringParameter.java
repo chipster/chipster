@@ -29,7 +29,7 @@ public class StringParameter extends Parameter {
 
 	@Override
 	public String toString() {
-		return value;
+		return this.getID() + ": " + value;
 	}
 
 	@Override

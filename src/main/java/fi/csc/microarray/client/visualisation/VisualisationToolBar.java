@@ -35,14 +35,13 @@ import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameTyp
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.module.basic.BasicModule;
 
 /**
  * This panel contains the options for different data visualizations. It is a
  * lower left part of the operations panel, and controls what is shown on the
  * results panel.
  * 
- * @author Janne KÃ¤ki, akallio
+ * @author Janne Käki, akallio
  * 
  */
 public class VisualisationToolBar extends JToolBar implements ActionListener, PropertyChangeListener {
@@ -272,11 +271,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 			if (e.getTarget() == FrameType.MAIN) {
 				
 				// update help button
-				if (e.getNewMethod() == BasicModule.PHENODATA) {
-					setHelpAddress("chipster-manual/visualisation-phenodata.html");
-				} else {
-					setHelpAddress(null);
-				}
+				setHelpAddress(e.getNewMethod().getHelpAddress());
 				
 				refreshVisualisationList(e.getNewMethod(), e.getDatas());
 				try {

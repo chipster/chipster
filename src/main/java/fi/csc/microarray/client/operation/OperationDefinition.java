@@ -12,10 +12,13 @@ import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.LinkUtils;
 import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.description.GenericInputTypes;
 import fi.csc.microarray.description.SADLSyntax;
 import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLSyntax.InputType;
+import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.Strings;
 
 /**
@@ -23,7 +26,7 @@ import fi.csc.microarray.util.Strings;
  * side list in the OperationChoicePanel. These are the "blueprints" of specific
  * operations - the actual Operations
  * 
- * @author Janne KÃ¤ki, Aleksi Kallio
+ * @author Janne Käki, Aleksi Kallio
  * 
  */
 public class OperationDefinition implements ExecutionItem {
@@ -48,7 +51,7 @@ public class OperationDefinition implements ExecutionItem {
 	 * An enumeration containing all possible results when evaluating an
 	 * operation's suitability to a dataset.
 	 * 
-	 * @author Janne KÃ¤ki
+	 * @author Janne Käki
 	 * 
 	 */
 	public static enum Suitability {
@@ -312,11 +315,9 @@ public class OperationDefinition implements ExecutionItem {
         // Input suitability gets checked while trying to bind the data
         bindInputs(data);
 	    
-	    if (parameterSuitability == null) {
-	        // Parameter suitability has not been checked yet
-	        parameterSuitability =
-	                OperationDefinition.parameterSuitability(getParameters());
-	    }
+        // Parameter suitability has not been checked yet
+        parameterSuitability =
+        	OperationDefinition.parameterSuitability(getParameters());
 	    
 	    // Report only either input or parameter suitability
 	    if (evaluatedSuitability.isOk()) {
@@ -404,10 +405,7 @@ public class OperationDefinition implements ExecutionItem {
 			boolean foundBinding = false;
 
 			// metadata needs not to be selected, it is fetched automatically
-			// FIXME causes strange troubles in some environments
-			// FIXME remove the hack and enable proper check (but update scripts to use PHENODATA before that)
-			//if (input.type.isMetadata()) {					
-			if (input.name.startsWith("phenodata")) {
+			if (doBackwardsCompatibleMetadataCheck(input)) {
 				foundBinding = true; // we'll find it later on
 				unboundMetadataDefinitions.add(input);
 				continue;
@@ -420,7 +418,7 @@ public class OperationDefinition implements ExecutionItem {
 
 				// try to match values to input definitions
 				logger.debug("  trying to bind " + value.getName() + " to " + input.name + " (" + input.type + ")");
-				if (input.type.isTypeOf(value)) {
+				if (doBackwardsCompatibleTypeCheck(input.type, value)) {
 
 					logger.debug("    bound successfully (" + value.getName() + " -> " + input.getName() + ")");
 
@@ -476,6 +474,37 @@ public class OperationDefinition implements ExecutionItem {
 
 		this.evaluatedSuitability = Suitability.SUITABLE;
 		return bindings;
+	}
+
+	// TODO update to new type tag system
+	private boolean doBackwardsCompatibleTypeCheck(InputType type, DataBean data) {
+		
+		if (type == ChipsterInputTypes.AFFY) {
+			return data.hasTypeTag(MicroarrayModule.TypeTags.RAW_AFFYMETRIX_EXPRESSION_VALUES);
+			
+		} else if (type == ChipsterInputTypes.CDNA) {
+			return data.hasTypeTag(MicroarrayModule.TypeTags.RAW_EXPRESSION_VALUES);
+			
+		} else if (type == ChipsterInputTypes.GENE_EXPRS) {
+			return data.hasTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
+			
+		} else if (type == ChipsterInputTypes.GENELIST) {
+			return data.hasTypeTag(MicroarrayModule.TypeTags.GENENAMES);
+			
+		} else if (type == ChipsterInputTypes.PHENODATA) {
+			return data.hasTypeTag(BasicModule.TypeTags.PHENODATA);
+			
+		} else if (type == GenericInputTypes.GENERIC) {
+			return true;
+			
+		} else {
+			throw new IllegalArgumentException();
+		}
+	}
+
+	// TODO update to new type tag system
+	private boolean doBackwardsCompatibleMetadataCheck(InputDefinition input) {
+		return input.name.startsWith("phenodata");
 	}
 
 	/**

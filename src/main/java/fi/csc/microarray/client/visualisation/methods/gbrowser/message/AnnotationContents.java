@@ -2,15 +2,16 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import fi.csc.microarray.util.IOUtils;
 
@@ -38,39 +39,91 @@ public class AnnotationContents {
 		
 		public String species;
 		public String version;
-		public String content;
+		public Content content;
 		public String file;
 
 		public Row(String species, String version, String content, String file) {
 			this.species = species;
-			this.version = version;
-			this.content = content;
+			this.version = version;		
 			this.file = file;
+			
+			for (Content type : Content.values()) {
+				if (type.id.equals(content)) {
+					this.content = type;
+				}
+			}
+		}
+		
+		public Genome getGenome() {
+			return new Genome(species, version);
+		}
+	}
+	
+	public class Genome {
+		public String species;
+		public String version;
+		
+		public Genome(String species, String version) { 
+			this.species = species;
+			this.version = version;
+		}
+		
+		@Override
+		public String toString() {
+			return species + " " + version;
+		}
+		
+		@Override
+		public boolean equals(Object o) {
+			if (o instanceof Genome) {
+				Genome other = (Genome) o;
+				return species.equals(other.species) && version.equals(other.version);
+			}
+			return false;
+		}
+		
+		@Override 
+		public int hashCode() {
+			return species.hashCode();
+		}
+	}
+	
+	public enum Content { 
+		CYTOBANDS ("Cytobands"), 
+		TRANSCRIPTS ("ENSEMBL Transcripts"),
+		GENES ("ENSEMBL Genes"),
+		MIRNA ("ENSEMBL miRNA Genes"),
+		REFERENCE ("Reference sequence"),
+		SNP ("ENSEMBL SNP");
+		
+		String id;
+		
+		Content(String id) {
+			this.id = id;
+		}
+
+		public String getId() {
+			return id;
 		}
 	}
 
-	public void parseFrom(InputStream contentsStream) {
+	public void parseFrom(InputStream contentsStream) throws IOException {
 
-		try {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(contentsStream));
 
-			BufferedReader reader = new BufferedReader(new InputStreamReader(contentsStream));
-
-			if (!reader.readLine().equals(FILE_ID)) {
-				throw new IllegalArgumentException("annotation stream does not start with " + FILE_ID);
-			}
-
-			String line;
-			while ((line = reader.readLine()) != null) {
-				String[] splitted = line.split("\t");
-				rows.add(new Row(splitted[0], splitted[1], splitted[2], splitted[3]));
-			}
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace(); // TODO fix exception handling
-			
-		} catch (IOException e) {
-			e.printStackTrace(); // TODO fix exception handling
+		if (!reader.readLine().equals(FILE_ID)) {
+			throw new IllegalArgumentException("annotation stream does not start with " + FILE_ID);
 		}
+
+		String line;
+		while ((line = reader.readLine()) != null) {
+			if (line.trim().equals("")) {
+				continue;
+			}
+			String[] splitted = line.split("\t");
+			rows.add(new Row(splitted[0], splitted[1], splitted[2], splitted[3]));
+		}
+
 	}
 
 
@@ -96,12 +149,21 @@ public class AnnotationContents {
 	public List<Row> getRows() {
 		return rows;
 	}
+	
+	public Row getRow(Genome genome, Content content) {
 
-
-	public LinkedHashSet<String> getGenomes() {
-		LinkedHashSet<String> genomes = new LinkedHashSet<String>();
 		for (Row row : rows) {
-			genomes.add(row.version);
+			if (row.getGenome().equals(genome) && row.content == content) {
+				return row;
+			}
+		}
+		return null;
+	}
+
+	public Collection<Genome> getGenomes() {
+		Set<Genome> genomes = new LinkedHashSet<Genome>();
+		for (Row row : rows) {
+			genomes.add(row.getGenome());
 		}
 		return genomes;
 	}

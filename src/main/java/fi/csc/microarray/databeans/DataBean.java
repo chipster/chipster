@@ -619,16 +619,21 @@ public class DataBean extends DataItemBase {
 	}
 	
 	/**
-	 * Checks if a tag is attached to this databean.
+	 * Checks if any of the tags is attached to this data bean.
 	 * 
-	 * @param tag type tag to check 
+	 * @param alternativeTags type tags to check 
 	 * 
-	 * @return true iff tag is attached
+	 * @return true iff one or more of the tags are attached
 	 * 
 	 * @see TypeTag
 	 */
-	public boolean hasTypeTag(TypeTag tag) {
-		return tags.contains(tag);
+	public boolean hasTypeTag(TypeTag... alternativeTags) {
+		for (TypeTag alternativeTag : alternativeTags) {
+			if (tags.contains(alternativeTag)) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	

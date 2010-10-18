@@ -1,8 +1,6 @@
 package fi.csc.microarray.client.visualisation;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.ImageIcon;
 
@@ -30,7 +28,7 @@ import fi.csc.microarray.exception.MicroarrayException;
 public class VisualisationMethod {
 
 	/**
-	 * Method None is always present and spaces reserve space also for the longer names
+	 * Method None can be always available and spaces reserve space also for the longer names
 	 * when they aren't present. This is the easiest found way to keep things
 	 * steady. Duration estimation 0 means no limit.
 	 */
@@ -46,9 +44,11 @@ public class VisualisationMethod {
 	private Class<? extends Visualisation> visualiser;
 	private ImageIcon icon;
 	private int orderNumber;
-	// Estimated visualisation duration (in milliseconds) per byte of the data
-	// length
+	/**
+	 * Estimated visualisation duration (in milliseconds) per byte of the data length
+	 */
 	private double durationEstimationFactor;
+	private String helpAddress = null;
 
 	public VisualisationMethod(String name, Class<? extends Visualisation> visualiser, ImageIcon icon, int orderNumber, double durationEstimationFactor) {
 		this.name = name;
@@ -58,6 +58,11 @@ public class VisualisationMethod {
 		this.durationEstimationFactor = durationEstimationFactor;
 	}
 
+	public VisualisationMethod(String name, Class<? extends Visualisation> visualiser, ImageIcon icon, int orderNumber, double durationEstimationFactor, String helpAddress) {
+		this(name, visualiser, icon, orderNumber, durationEstimationFactor);
+		this.helpAddress = helpAddress;
+	}
+	
 	public String toString() {
 		return this.name;
 	}
@@ -114,23 +119,10 @@ public class VisualisationMethod {
 		return -1;
 	}
 
-	Map<DataBean, Boolean> canVisualiseCache = new HashMap<DataBean, Boolean>();
-
 	public boolean isApplicableTo(DataBean bean) throws MicroarrayException {
 
-		// The results of the canVisualise are saved to map to speed up
-		// the selection of datasets. The maps are emptied only when the client
-		// is closed, but this *shouldn't* be a problem for either memory
-		// consumption or performance.
-		
 		if (bean != null) {
-			// Has to be wrapper to allow null
-			Boolean result;
-			if ((result = canVisualiseCache.get(bean)) == null) {
-				result = this.getHeadlessVisualiser().canVisualise(bean);
-				canVisualiseCache.put(bean, result);
-			}
-			return result;
+			return this.getHeadlessVisualiser().canVisualise(bean);
 		}
 		return false;
 	}
@@ -143,4 +135,7 @@ public class VisualisationMethod {
 		}
 	}
 
+	public String getHelpAddress() {
+		return helpAddress;
+	}
 }

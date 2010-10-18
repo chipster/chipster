@@ -81,8 +81,8 @@ public abstract class TsvParser extends FileParser {
 				ColumnDefinition fieldDef = getFileDefinition().getFieldDef(col);
 
 				if (col == ColumnType.STRAND) {
-					return string.equalsIgnoreCase("r") || string.equals("-") ? Strand.REVERSED
-							: Strand.FORWARD;
+					return string.equals("-1") || string.equalsIgnoreCase("r") 
+					|| string.equals("-") ? Strand.REVERSED	: Strand.FORWARD;
 
 				} else if (col == ColumnType.CHROMOSOME) {
 					return new Chromosome(string.replace("chr", ""));

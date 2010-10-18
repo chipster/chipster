@@ -211,7 +211,9 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
     @Override
     protected void cleanUp() {
         super.cleanUp();
-        process.destroy();
+        if (process != null) {
+        	process.destroy();
+        }
     }
 
     @Override

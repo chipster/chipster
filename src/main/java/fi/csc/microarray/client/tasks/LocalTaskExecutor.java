@@ -1,11 +1,9 @@
 package fi.csc.microarray.client.tasks;
 
-import java.beans.PropertyChangeListener;
-import java.util.Collection;
-
 import javax.jms.JMSException;
 
-import fi.csc.microarray.client.operation.Operation;
+import fi.csc.chipster.tools.LocalNGSPreprocess;
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.databeans.DataManager;
 
 public class LocalTaskExecutor extends TaskExecutor {
@@ -15,83 +13,31 @@ public class LocalTaskExecutor extends TaskExecutor {
 	}
 
 	@Override
-	public void addChangeListener(PropertyChangeListener listener) {
-		// TODO Auto-generated method stub
-		super.addChangeListener(listener);
-	}
-	
-	@Override
-	protected void addToRunningTasks(Task task) {
-		// TODO Auto-generated method stub
-		super.addToRunningTasks(task);
-	}
-	
-	@Override
-	public Task createTask(Operation operation) {
-		// TODO Auto-generated method stub
-		return super.createTask(operation);
-	}
-	
-	@Override
-	public void execute(Task task) throws TaskException {
-		// TODO Auto-generated method stub
-		super.execute(task);
-	}
-	
-	@Override
-	public int getRunningTaskCount() {
-		// TODO Auto-generated method stub
-		return super.getRunningTaskCount();
-	}
-	
-	@Override
-	public Collection<Task> getTasks(boolean onlyRunning, boolean showHidden) {
-		// TODO Auto-generated method stub
-		return super.getTasks(onlyRunning, showHidden);
-	}
-	
-	@Override
-	public boolean isEventsEnabled() {
-		// TODO Auto-generated method stub
-		return super.isEventsEnabled();
-	}
-	
-	@Override
 	public void kill(Task task) {
-		// TODO Auto-generated method stub
-		super.kill(task);
+		throw new UnsupportedOperationException();
 	}
 	
 	@Override
 	public void killAll() {
-		// TODO Auto-generated method stub
-		super.killAll();
+		throw new UnsupportedOperationException();
 	}
 	
 	@Override
-	protected void removeFromRunningTasks(Task task) {
-		// TODO Auto-generated method stub
-		super.removeFromRunningTasks(task);
-	}
-	
-	@Override
-	public void setEventsEnabled(boolean eventsEnabled) {
-		// TODO Auto-generated method stub
-		super.setEventsEnabled(eventsEnabled);
-	}
-	
-	@Override
-	public void startExecuting(Task task) throws TaskException {
-		// TODO Auto-generated method stub
-		super.startExecuting(task);
+	public void startExecuting(final Task task) throws TaskException {
+		if (!task.getOperationID().equals("LocalNGSPreprocess.java")) {
+			// stupid exception
+			throw new UnsupportedOperationException();
+		}
+
+
+		Runnable taskRunnable = new LocalNGSPreprocess(task);
+		Session.getSession().getApplication().runBlockingTask("running " + task.getNamePrettyPrinted(), taskRunnable);
+		
+		
 	}
 	
 	@Override
 	public void startExecuting(Task task, int timeout) throws TaskException {
-		// TODO Auto-generated method stub
-		super.startExecuting(task, timeout);
+		throw new UnsupportedOperationException();
 	}
-	
-	
-
 }

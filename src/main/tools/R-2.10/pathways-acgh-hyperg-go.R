@@ -1,7 +1,7 @@
-# ANALYSIS "aCGH tools (beta testing)"/"GO enrichment for copy number aberrations" (Performs a statistical test for enrichment of GO terms in frequently aberrated genes. The input should be the output from the module Convert called aCGH data from probes to genes.)
+# ANALYSIS "aCGH tools"/"GO enrichment for called aCGH genes" (Performs a statistical test for enrichment of GO terms in frequently aberrated genes. The input should be the output from the tool Convert called aCGH data from probes to genes.)
 # INPUT GENE_EXPRS gene-aberrations.tsv
 # OUTPUT hypergeo-go.tsv, hypergeo-go.html
-# PARAMETER aberrations [losses, gains, amplifications, gains_and_amplifications, any_aberration] DEFAULT losses (Whether to test enrichment of GO terms in frequently lost, gained or amplified genes.)
+# PARAMETER aberrations [losses, gains, amplifications, gains_and_amplifications, all_aberrations] DEFAULT all_aberrations (Whether to test enrichment of GO terms in frequently lost, gained or amplified genes.)
 # PARAMETER frequency.threshold DECIMAL DEFAULT 0.5 (The minimum proportion of samples containing the particular type of aberration.)
 # PARAMETER ontology [all, biological_process, molecular_function, cellular_component] DEFAULT biological_process (The ontology to be analyzed.)
 # PARAMETER p.value.threshold DECIMAL DEFAULT 0.05 (P-value threshold.)
@@ -11,8 +11,8 @@
 # PARAMETER over.or.under.representation [over, under] DEFAULT over (Should over or under-represented classes be seeked?)
 
 # pathways-acgh-hyperg-go.R
-# Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-09-16
+# Ilari Scheinin <firstname.lastname@gmail.com>
+# 2010-10-15
 
 # load packages
 library(org.Hs.eg.db)
@@ -28,10 +28,10 @@ reference.genes <- unique(unlist(ensembl.to.entrez[rownames(dat)]))
 
 # check that we have something (i.e. that input file was in fact Ensembl IDs)
 if (length(reference.genes)==0)
-  stop('CHIPSTER-NOTE: The input file should contain a list of Ensembl Gene IDs. Usually as a result of running the module Convert called aCGH data from probes to genes.')
+  stop('CHIPSTER-NOTE: The input file should contain a list of Ensembl Gene IDs. Usually as a result of running the tool Convert called aCGH data from probes to genes.')
 
 # detect the frequency column to use
-if (aberrations == 'any_aberration') {
+if (aberrations == 'all_aberrations') {
   if ('amp.freq' %in% colnames(dat))
     dat$gain.freq <- dat$gain.freq + dat$amp.freq
   dat$loss.freq <- dat$loss.freq + dat$gain.freq

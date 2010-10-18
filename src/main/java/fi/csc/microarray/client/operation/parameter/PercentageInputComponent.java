@@ -22,7 +22,7 @@ import javax.swing.event.ChangeListener;
  * other than 0 and 100 percent) is technically allowed, but the label
  * will display the value in bright red.
  * 
- * @author Janne KÃ¤ki
+ * @author Janne Käki
  *
  */
 @SuppressWarnings("serial")

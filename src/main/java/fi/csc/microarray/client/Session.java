@@ -4,9 +4,12 @@
  */
 package fi.csc.microarray.client;
 
+import java.util.List;
+
 import fi.csc.microarray.client.visualisation.VisualisationMethodRepository;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.module.Modules;
+import fi.csc.microarray.module.Module;
+import fi.csc.microarray.module.ModuleManager;
 
 
 
@@ -23,7 +26,7 @@ public class Session {
 	private ClientApplication clientApplication;
 	private DataManager dataManager;
 	private ServiceAccessor serviceAccessor;
-	private Modules modules;
+	private ModuleManager moduleManager;
 	private Frames frames;
 	private VisualisationMethodRepository visualisations = new VisualisationMethodRepository();
 	
@@ -50,8 +53,12 @@ public class Session {
 		return serviceAccessor;
 	}
 
-	public Modules getModules() {
-		return modules;
+	public List<Module> getModules() {
+		return moduleManager.getModules();
+	}
+
+	public Module getPrimaryModule() {
+		return moduleManager.getPrimaryModule();
 	}
 
 	public void setClientApplication(ClientApplication clientApplication) {
@@ -66,8 +73,8 @@ public class Session {
 		this.serviceAccessor = serviceAccessor;
 	}
 
-	public void setModules(Modules modules) {
-		this.modules = modules;
+	public void setModuleManager(ModuleManager modules) {
+		this.moduleManager = modules;
 	}
 
 	public Frames getFrames() {

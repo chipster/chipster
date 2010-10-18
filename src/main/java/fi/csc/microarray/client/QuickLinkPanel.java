@@ -52,7 +52,7 @@ public class QuickLinkPanel extends JPanel {
 		// Check if example session is available
 		exampleLink = null;
 		try {
-			final URL url = Session.getSession().getModules().getPrimaryModule().getExampleSessionUrl();
+			final URL url = Session.getSession().getPrimaryModule().getExampleSessionUrl();
 			if (url != null) {
 				exampleLink = createLink("Open example session ", new AbstractAction() {
 					@Override
@@ -128,7 +128,7 @@ public class QuickLinkPanel extends JPanel {
 		importLinks.add(importURLLink);
 
 		// module specific links
-		Module primaryModule = Session.getSession().getModules().getPrimaryModule();
+		Module primaryModule = Session.getSession().getPrimaryModule();
 		primaryModule.addImportLinks(this, importLinks);
 		
 		String linkTemplate = Strings.repeat("\n      *** ", importLinks.size());

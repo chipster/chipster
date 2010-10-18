@@ -30,6 +30,7 @@ import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dataimport.ImportSession;
 import fi.csc.microarray.client.dataimport.ImportUtils;
+import fi.csc.microarray.constants.VisualConstants;
 
 /**
  * Dialog for importing data from clipboard
@@ -41,7 +42,6 @@ public class ClipboardImportDialog extends JDialog implements ActionListener, Ca
 
 	private final Dimension BUTTON_SIZE = new Dimension(70, 25);
 
-	private static final String SKIP_TEXT = "Import directly if possible";
 	private JCheckBox skipCheckBox;
 
 	private JLabel label;
@@ -62,8 +62,12 @@ public class ClipboardImportDialog extends JDialog implements ActionListener, Ca
 		nameField = new JTextField(30);
 		nameField.setText("clipboard.txt");
 		nameField.addCaretListener(this);
-		skipCheckBox = new JCheckBox(SKIP_TEXT);
-		skipCheckBox.setSelected(true);
+		skipCheckBox = new JCheckBox(VisualConstants.getImportDirectlyText());
+		if (!Session.getSession().getApplication().isStandalone()) {
+			skipCheckBox.setSelected(true);
+		} else {
+			skipCheckBox.setSelected(false);
+		}
 
 		folderNameCombo = new JComboBox(ImportUtils.getFolderNames(true).toArray());
 		folderNameCombo.setEditable(true);

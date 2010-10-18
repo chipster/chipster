@@ -21,6 +21,8 @@ import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 import com.jgoodies.looks.plastic.theme.ExperienceBlue;
 
+import fi.csc.microarray.client.Session;
+
 public class VisualConstants {
 	
     // icons from Eclipse
@@ -349,4 +351,12 @@ public class VisualConstants {
 	"td { border-color: Gray; font-family: sans-serif; border-width: 1px; border-style: solid; font-size: 8px}" + 
 	"th { border-color: Gray; font-family: sans-serif; background: #E0E0E0; text-align: center;  border-width: 1px; border-style: solid;}" + 
 	"--></style>";
+
+	public static final String HTML_DIALOG_TITLE_STYLE = "\"font-weight:bold;font-size:115%\"";
+	
+	public static final String getImportDirectlyText() {
+		return Session.getSession().getApplication().isStandalone() ? "Import directly" : "Import directly if possible"; 
+	}
+
+
 }

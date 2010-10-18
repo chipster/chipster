@@ -88,6 +88,10 @@ public class DirectoryLayout {
 		return initialiseClientLayout(null);
 	}
 
+	public static DirectoryLayout initialiseSimpleLayout(String configURL) throws IOException, IllegalConfigurationException {
+		return initialiseClientLayout(configURL);
+	}
+
 	public static DirectoryLayout initialiseStandaloneClientLayout() throws IOException, IllegalConfigurationException {
 		synchronized (DirectoryLayout.class) {
 			if (DirectoryLayout.instance != null) {
@@ -108,6 +112,12 @@ public class DirectoryLayout {
 		}
 	}
 
+	public static boolean isInitialised() {
+		synchronized (DirectoryLayout.class) {
+			return DirectoryLayout.instance != null;
+		}
+	}
+		
 	public static DirectoryLayout getInstance() {
 		synchronized (DirectoryLayout.class) {
 			if (DirectoryLayout.instance == null) {
@@ -199,7 +209,7 @@ public class DirectoryLayout {
 			throw new UnsupportedOperationException();
 		}
 	}
-
+	
 	public File getJobsDataDirBase(String id) throws IOException, IllegalConfigurationException {
 		if (type == Type.SERVER) {
 			File jobsDataDir = new File(getBaseDir(), configuration.getString("comp", "work-dir"));
@@ -278,7 +288,6 @@ public class DirectoryLayout {
 			if (debugRoot.exists()) {
 				baseDir = debugRoot;
 			}
-			
 			return baseDir;
 		}
 	}

@@ -9,6 +9,7 @@ import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
+import fi.csc.microarray.filebroker.JMSFileBrokerClient;
 import fi.csc.microarray.messaging.AdminAPI;
 import fi.csc.microarray.messaging.DescriptionMessageListener;
 import fi.csc.microarray.messaging.MessagingEndpoint;
@@ -50,7 +51,7 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 	}
 	
 	@Override
-	public String checkRemoveServices() throws Exception {
+	public String checkRemoteServices() throws Exception {
 		AdminAPI api = new AdminAPI(endpoint.createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ_WRITE), null);
 		if (api.areAllServicesUp(true)) {
 			return ALL_SERVICES_OK;
@@ -100,7 +101,7 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 
 	@Override
 	public FileBrokerClient getFileBrokerClient() throws Exception {
-        return new FileBrokerClient(endpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
+        return new JMSFileBrokerClient(endpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
 	}
 
 	@Override

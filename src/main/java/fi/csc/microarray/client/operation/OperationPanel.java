@@ -52,7 +52,7 @@ import fi.csc.microarray.exception.MicroarrayException;
  * The main panel for all operation, parameter and visualization choices in
  * the client mainframe.
  * 
- * @author Janne KÃ¤ki, Petri KlemelÃ¤
+ * @author Janne Käki, Petri Klemelä
  *
  */
 @SuppressWarnings("serial")
@@ -570,17 +570,15 @@ public class OperationPanel extends JPanel
 	}
 	
 	/**
-	 * Reevaluate the sutability of parameter values
+	 * Reevaluate the suitability of parameter values
 	 * and inputs.
-	 * 
-	 * @return
 	 */
 	private Suitability evaluateSuitability() {
 		if (chosenOperation == null) {
 			return Suitability.IMPOSSIBLE;
 		}
 		
-		// Check input dataset suitability
+		// Check suitability of parameters and inputs
 		Suitability suitability = chosenOperation.evaluateSuitabilityFor(
 		        application.getSelectionManager().getSelectedDataBeans(),
 		        Suitability.SUITABLE);

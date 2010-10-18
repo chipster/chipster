@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.sf.samtools.CigarElement;
 import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.util.CloseableIterator;
@@ -14,7 +15,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Concis
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CigarItem;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
@@ -30,8 +32,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  */
 public class SAMFile {
     
-    private static final String CHROMOSOME_PREFIX = "chr";
-	
 	private ConcisedValueCache cache = new ConcisedValueCache();
 	public SAMFileReader reader;
 
@@ -56,8 +56,6 @@ public class SAMFile {
      */
     public List<RegionContent> getReads(AreaRequest request) {
 
-        fixChromosomeNames(request);
-
     	List<RegionContent> responseList = new LinkedList<RegionContent>();
         
         // Read the given region
@@ -71,22 +69,78 @@ public class SAMFile {
             BpCoordRegion recordRegion =
                 new BpCoordRegion((long)record.getAlignmentStart(),
                         (long)record.getAlignmentEnd(),
-                        cleanChromosomeName(request.start.chr));
+                        request.start.chr);
             // Values for this read
             HashMap<ColumnType, Object> values = new HashMap<ColumnType, Object>();
             
-            // TODO Deal with "=" and "N" in read string
-            if (request.requestedContents.contains(ColumnType.SEQUENCE)) {
-                values.put(ColumnType.SEQUENCE, record.getReadString());
-            }
-            
             if (request.requestedContents.contains(ColumnType.STRAND)) {
-                values.put(ColumnType.STRAND,
-                        record.getReadNegativeStrandFlag() ?
-                        Strand.REVERSED : Strand.FORWARD);
+            	values.put(ColumnType.STRAND,
+            			record.getReadNegativeStrandFlag() ?
+            					Strand.REVERSED : Strand.FORWARD);
+            	
             }
             
-            // TODO Add cigar and pair data to values
+            
+            
+            if (request.requestedContents.contains(ColumnType.QUALITY)) {
+            	
+            	/*Now string because of equality problem described below, should be some nice internal
+            	 * object type in the future
+            	 */
+            	
+            	values.put(ColumnType.QUALITY, record.getBaseQualityString());            	
+            }
+            
+            if (request.requestedContents.contains(ColumnType.CIGAR)) {      
+            	
+            	
+            	Cigar cigar = new Cigar();
+            	
+            	for (CigarElement picardElement : record.getCigar().getCigarElements()) {
+            		cigar.addElement(new CigarItem(
+            				picardElement.getLength(), picardElement.getOperator().toString())); 
+            	}
+            	            	
+            	values.put(ColumnType.CIGAR, cigar);
+            }
+            
+            // TODO Deal with "=" and "N" in read string
+            if (request.requestedContents.contains(ColumnType.SEQUENCE)) {            
+            	                       	
+            	String seq = record.getReadString();
+            	
+            	//FIXME trying fix changes in reads to fit with the reference sequence, but
+            	//this doesn't work yet
+//            	StringBuffer buf = new StringBuffer();
+//            	
+//            	int seqCounter = 0;
+//            	
+//            	for (CigarElement element : record.getCigar().getCigarElements()) {
+//            		if (element.getOperator().consumesReferenceBases()) {
+//            			for (int j = 0; j < element.getLength(); j++) {
+//            				if (seqCounter + j < seq.length()) {
+//            					buf.append(seq.charAt(seqCounter + j));
+//            				}
+//            				seqCounter++;
+//            			}
+//            		} else {
+//            			for (int j = 0; j < element.getLength(); j++) {
+//            				buf.append(" ");
+//            			}
+//            		}
+//            	}
+            	
+            	values.put(ColumnType.SEQUENCE, seq);
+            	//values.put(ColumnType.SEQUENCE, buf.toString());
+            }
+            
+            // TODO Add pair data to values
+            
+            /* NOTE! RegionContents created from the same read are has to be equal in methods 
+             * equals, hash and compareTo. Primary types should be ok,
+             * but objects (including tables) has to be handled in those methods separately. 
+             * Otherwise tracks keep adding the same reads to their read sets again and again. 
+             */
             
             responseList.add(new RegionContent(recordRegion, values));
         }
@@ -95,16 +149,6 @@ public class SAMFile {
         return responseList;
     }
 
-	private Chromosome cleanChromosomeName(Chromosome chr) {
-		return new Chromosome(chr.toString().substring(CHROMOSOME_PREFIX.length()));
-	}
-
-	private void fixChromosomeNames(AreaRequest request) {
-		// fix chromosome names
-        request.start.chr = new Chromosome(CHROMOSOME_PREFIX + request.start.chr.toString());
-        request.end.chr = new Chromosome(CHROMOSOME_PREFIX + request.end.chr.toString());
-	}
-    
     /**
      * Return approximation of reads in a given range.
      * <p>
@@ -120,8 +164,6 @@ public class SAMFile {
      */
     public List<RegionContent> getConciseReads(AreaRequest request) {
 
-        fixChromosomeNames(request);
-
     	List<RegionContent> responseList = new LinkedList<RegionContent>();
         
         // How many times file is read
@@ -136,6 +178,7 @@ public class SAMFile {
         	
         	BpCoord from = new BpCoord(pos, request.start.chr);
         	BpCoord to = new BpCoord(pos + step, request.start.chr);
+    		int stepMiddlepoint = (int)pos + step/2;
 
         	// Count number of reads in a sample from this area
     		int countForward = 0;
@@ -157,13 +200,11 @@ public class SAMFile {
         		countForward /= indexedValues.size();
         		countReverse /= indexedValues.size();
         		
-        		
         	} else {
         		
         		cacheMisses++;
         		
         		// Fetch new content by taking sample from the middle of this area
-        		int stepMiddlepoint = (int)pos + step/2;
         		CloseableIterator<SAMRecord> iterator =
         			this.reader.query(request.start.chr.toString(),
         					stepMiddlepoint - SAMPLE_SIZE/2, stepMiddlepoint + SAMPLE_SIZE/2, false);
@@ -179,11 +220,14 @@ public class SAMFile {
         		}
 
         		iterator.close();
+        		
+            	// Store value in cache
+            	cache.store(new BpCoord((long)stepMiddlepoint, request.start.chr), countForward, countReverse);
         	}
 
         	// Create two approximated response objects: one for each strand
         	BpCoordRegion recordRegion =
-        		new BpCoordRegion(pos, pos + step, cleanChromosomeName(request.start.chr));
+        		new BpCoordRegion(pos, pos + step, request.start.chr);
 
         	// Forward
         	HashMap<ColumnType, Object> values = new HashMap<ColumnType, Object>();
@@ -196,12 +240,9 @@ public class SAMFile {
         	values.put(ColumnType.VALUE, (float)countReverse);
         	values.put(ColumnType.STRAND, Strand.REVERSED);
         	responseList.add(new RegionContent(recordRegion, values));
-        	
-        	// Store value in cache
-        	cache.store(new BpCoord(pos, request.start.chr), countForward, countReverse);
         }	
         
-        System.out.println("Cache hits: " + cacheHits + ", misses: " + cacheMisses);
+//        System.out.println("Cache hits: " + cacheHits + ", misses: " + cacheMisses);
         return responseList;
     }
 }

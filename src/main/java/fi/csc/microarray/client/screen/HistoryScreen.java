@@ -36,8 +36,8 @@ import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.biobeans.BioBean;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.GeneralFileFilter;
 import fi.csc.microarray.util.Strings;
 
@@ -46,7 +46,7 @@ import fi.csc.microarray.util.Strings;
  * Allows the user to copypaste it to another application or save it as
  * a text file.
  * 
- * @author Janne KÃ¤ki
+ * @author Janne Käki
  *
  */
 public class HistoryScreen extends ScreenBase
@@ -93,7 +93,7 @@ public class HistoryScreen extends ScreenBase
 		checkBoxes.get("date").setSelected(false);
 		checkBoxes.get("code").setSelected(false);
 		checkBoxes.get("param").setEnabled(checkBoxes.get("oper").isSelected());
-        checkBoxes.get("code").setEnabled(checkBoxes.get("oper").isSelected());
+        checkBoxes.get("code").setEnabled(checkBoxes.get("oper").isSelected() && !application.isStandalone());
 		
 		saveButton = new JButton("Save...");
 		saveButton.setPreferredSize(BUTTON_SIZE);
@@ -134,7 +134,7 @@ public class HistoryScreen extends ScreenBase
 		//c.insets.set(1, 20, 0, 2);
 		contentPane.add(checkBoxes.get("param"), c);
         c.gridy++;
-        contentPane.add(checkBoxes.get("code"), c);
+      	contentPane.add(checkBoxes.get("code"), c);
         c.gridx++; c.gridy = 1;
         c.insets.set(1, 2, 0, 2);
         contentPane.add(checkBoxes.get("notes"), c);
@@ -189,7 +189,7 @@ public class HistoryScreen extends ScreenBase
 		}
 		StringBuffer historyText = new StringBuffer();
 		int i = 0;
-		for (DataBean listData : new BioBean(data).getSourcePath()) {
+		for (DataBean listData : MicroarrayModule.getSourcePath(data)) {
 			if (checkBoxes.get("title").isSelected()) {
 				String title = "Step " + (i+1);
 				historyText.append(title + "\n");
@@ -256,7 +256,7 @@ public class HistoryScreen extends ScreenBase
 			
 			// make list of wanted source codes
 			List<String> ids = new LinkedList<String>();
-			for (DataBean bean : new BioBean(data).getSourcePath()) {
+			for (DataBean bean : MicroarrayModule.getSourcePath(data)) {
 				OperationDefinition op = bean.getOperation().getDefinition();
 				if (op.hasSourceCode()) {
 					ids.add(op.getID());
@@ -328,7 +328,7 @@ public class HistoryScreen extends ScreenBase
 		if (source instanceof JCheckBox) {
 			if (source == checkBoxes.get("oper")) {
 				checkBoxes.get("param").setEnabled(checkBoxes.get("oper").isSelected());
-                checkBoxes.get("code").setEnabled(checkBoxes.get("oper").isSelected());
+                checkBoxes.get("code").setEnabled(checkBoxes.get("oper").isSelected() && !application.isStandalone());
 			}
 			textArea.setText(getHistoryText());
 		} else if (source == saveButton) {

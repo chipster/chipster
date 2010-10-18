@@ -19,7 +19,7 @@ import fi.csc.microarray.client.visualisation.methods.ExpressionProfile.ProfileR
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.module.basic.BasicModule;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 public class ClusteredProfiles extends Visualisation {
 
@@ -110,15 +110,7 @@ public class ClusteredProfiles extends Visualisation {
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		boolean isTabular = BasicModule.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
-		if (isTabular) {
-			Table chips = bean.queryFeatures("/column/chip.*").asTable();
-			boolean hasProfiles = chips != null && chips.getColumnNames().length > 1;
-			boolean hasClusters =bean.queryFeatures("/column/cluster").exists();
-			return hasProfiles && hasClusters;
-		}
-		return false;
-
+		return isTabular(bean) && bean.hasTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES) && bean.hasTypeTag(MicroarrayModule.TypeTags.CLUSTERED_EXPRESSION_VALUES);
 	}
 	
 }

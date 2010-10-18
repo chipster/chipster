@@ -59,7 +59,7 @@ public class MicroarrayMain {
 			
 			// give help, if needed
 			if (cmdParser.userAskedHelp()) {
-				System.out.println("Chipster " + ApplicationConstants.NAMI_VERSION);
+				System.out.println("Chipster " + ApplicationConstants.VERSION);
 				System.out.println("Parameters:");
 				System.out.println(cmdParser.getDescription());
 				System.exit(0);
@@ -94,7 +94,7 @@ public class MicroarrayMain {
 							return "nagios-check";
 						}
 					};
-					DirectoryLayout.initialiseSimpleLayout().getConfiguration();       			    
+					DirectoryLayout.initialiseSimpleLayout(configURL).getConfiguration();       			    
 					MessagingEndpoint endpoint = new MessagingEndpoint(nodeSupport);
 					AdminAPI api = new AdminAPI(endpoint.createTopic(Topics.Name.ADMIN_TOPIC, AccessMode.READ_WRITE), null);
 					api.setRequiredCountFor("analyser", requiredAnalyserCount);

@@ -1,13 +1,13 @@
-# ANALYSIS "aCGH tools (beta testing)"/"Convert called aCGH data from probes to genes" (Using the chromosomal locations of the probes of an aCGH data set, convert the data from probe-based to gene-based. The probes from which the copy number call for a given gene are determined as follows. If there are probes overlapping with the position of the gene, they are used. In case of no overlaps, the last preceding and first tailing probe are used.)
+# ANALYSIS "aCGH tools"/"Convert called aCGH data from probes to genes" (Using the chromosomal locations of the probes of an aCGH data set, convert the data from probe-based to gene-based. The probes from which the copy number call for a given gene are determined as follows. If there are probes overlapping with the position of the gene, they are used. In case of no overlaps, the last preceding and first tailing probe are used.)
 # INPUT GENE_EXPRS aberrations.tsv
 # OUTPUT gene-aberrations.tsv
-# PARAMETER call.method [majority, unambiguous] DEFAULT majority (The method majority means that if more than 50% of these probes give an aberrated signal, that call is used for the gene. The unambiguous method requires that all of the probes have the same call, otherwise the gene will be labeled as normal.)
-# PARAMETER logratio.method [mean, median] DEFAULT mean (The probes from which the copy number call for a given gene are determined as follows. If there are probes overlapping with the position of the gene, they are used. In case of no overlaps, the last preceding and first tailing probe are used. This parameter specifies whether to use the mean or the median for calculating log ratios for the genes.)
+# PARAMETER method.for.calls [majority, unambiguous] DEFAULT majority (The method majority means that if more than 50% of these probes give an aberrated signal, that call is used for the gene. The unambiguous method requires that all of the probes have the same call, otherwise the gene will be labeled as normal.)
+# PARAMETER method.for.others [mean, median] DEFAULT mean (Whether to use the mean or the median for calculating other data than copy number calls.)
 # PARAMETER genome.build [GRCh37, NCBI36, NCBI35, NCBI34] DEFAULT GRCh37 (The genome build to use for fetching the gene coordinates.)
 
 # convert-cn-probes-to-genes.R
-# Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-08-16
+# Ilari Scheinin <firstname.lastname@gmail.com>
+# 2010-10-12
 
 dat <- read.table('aberrations.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 
@@ -44,8 +44,17 @@ majority <- function(values) {
   return(0)
 }
 
-calls <- dat[,grep("flag", names(dat))]
-logratios <- dat[,grep("chip", names(dat))]
+calls <- dat[,grep("^flag\\.", colnames(dat))]
+logratios <- dat[,grep("^chip\\.", colnames(dat))]
+
+# identify additonal matrices (segmented, ...) present in the data
+x <- colnames(dat)
+suffix <- sub('^chip\\.', '', x[grep('^chip\\.', x)[1]])
+matrices <- sub(suffix, '', x[grep(suffix, x)])
+matrices <- matrices[matrices != 'flag.']
+matrices <- matrices[matrices != 'chip.']
+for (m in matrices)
+  logratios <- cbind(logratios, dat[,grep(m, colnames(dat))])
 
 calls.bygene <- matrix(nrow=nrow(genes), ncol=ncol(calls), dimnames=list(rownames(genes), colnames(calls)))
 logratios.bygene <- matrix(nrow=nrow(genes), ncol=ncol(logratios), dimnames=list(rownames(genes), colnames(logratios)))
@@ -57,8 +66,8 @@ for (gene in rownames(genes)) {
                                    dat$start <= genes[gene, 'end'])
   if (length(overlapping.probes) > 0) {
     # if yes, use those probes to calculate the copy number
-    calls.bygene[gene,] <- apply(calls[overlapping.probes,], 2, call.method)
-    logratios.bygene[gene,] <- apply(logratios[overlapping.probes,], 2, logratio.method, na.rm=TRUE)
+    calls.bygene[gene,] <- apply(calls[overlapping.probes,], 2, method.for.calls)
+    logratios.bygene[gene,] <- apply(logratios[overlapping.probes,], 2, method.for.others, na.rm=TRUE)
   } else {
     # if not, use the last preceding and the first tailing probe
     preceding.probes <- which(dat$chromosome == genes[gene, 'chromosome'] &
@@ -69,8 +78,8 @@ for (gene in rownames(genes)) {
     if (length(tailing.probes) > 0)
       adjacent.probes <- c(adjacent.probes, tailing.probes[1])
     if (length(adjacent.probes) > 0) {
-      calls.bygene[gene,] <- apply(calls[adjacent.probes,], 2, call.method)
-      logratios.bygene[gene,] <- apply(logratios[adjacent.probes,], 2, logratio.method, na.rm=TRUE)
+      calls.bygene[gene,] <- apply(calls[adjacent.probes,], 2, method.for.calls)
+      logratios.bygene[gene,] <- apply(logratios[adjacent.probes,], 2, method.for.others, na.rm=TRUE)
     } else {
       calls.bygene[gene,] <- 0
       logratios.bygene[gene,] <- 0
