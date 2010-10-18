@@ -6,10 +6,10 @@ import java.io.IOException;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.fs.FSDataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.SimplePDFViewer;
 
@@ -28,7 +28,7 @@ public class PDFViewer extends Visualisation {
 	@Override
 	public JComponent getVisualisation(DataBean data) throws Exception {
         SimplePDFViewer viewer = new SimplePDFViewer(true);
-        File file = ((FSDataBean)data).getContentFile();
+        File file = Session.getSession().getDataManager().getLocalFile(data);
         viewer.openFile(file);
 		return viewer;
 	}

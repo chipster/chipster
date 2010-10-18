@@ -26,7 +26,7 @@ public class FileBrokerClientTest extends MessagingTestBase {
 	@BeforeSuite(alwaysRun = true)
 	protected void setUp() throws Exception {
 		super.setUp();
-		fbc = new FileBrokerClient(super.endpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
+		fbc = new JMSFileBrokerClient(super.endpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
 	}
 
 	@AfterSuite(alwaysRun = true)
