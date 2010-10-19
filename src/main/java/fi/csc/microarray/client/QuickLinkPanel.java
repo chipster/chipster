@@ -128,8 +128,10 @@ public class QuickLinkPanel extends JPanel {
 		importLinks.add(importURLLink);
 
 		// module specific links
-		Module primaryModule = Session.getSession().getPrimaryModule();
-		primaryModule.addImportLinks(this, importLinks);
+		if (!application.isStandalone) {
+			Module primaryModule = Session.getSession().getPrimaryModule();
+			primaryModule.addImportLinks(this, importLinks);
+		}
 		
 		String linkTemplate = Strings.repeat("\n      *** ", importLinks.size());
 		addLinks("Import new data to Chipster: " + linkTemplate, importLinks, VisualConstants.IMPORT_LINK_ICON, c);
