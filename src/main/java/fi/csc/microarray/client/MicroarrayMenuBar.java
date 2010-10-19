@@ -416,6 +416,9 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			workflowsMenu.add(getOpenRepositoryWorkflowMenu());
 			workflowsMenu.addSeparator();
 			workflowsMenu.add(getSaveWorkflowMenuItem());
+			if (application.isStandalone) {
+				workflowsMenu.setEnabled(false);
+			}
 		}
 		return workflowsMenu;
 	}
