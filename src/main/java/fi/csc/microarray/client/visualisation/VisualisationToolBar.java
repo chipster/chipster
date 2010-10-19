@@ -95,7 +95,9 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 		buttonPanel.setOpaque(false);
 		buttonPanel.add(helpButton);
 		buttonPanel.add(redrawButton);
-		buttonPanel.add(maximiseButton);
+		if (!application.isStandalone()) {
+			buttonPanel.add(maximiseButton);
+		}
 		// buttonPanel.add(splitButton); // splitting disabled, needs more
 		// thinking
 		buttonPanel.add(detachButton);

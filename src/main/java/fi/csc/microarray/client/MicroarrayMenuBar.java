@@ -150,9 +150,11 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			importMenu = new JMenu();
 			importMenu.setText("Import from");
 			
-			Module primaryModule = Session.getSession().getPrimaryModule();
-			primaryModule.addImportMenuItems(importMenu);
-
+			if (!application.isStandalone) {
+				Module primaryModule = Session.getSession().getPrimaryModule();
+				primaryModule.addImportMenuItems(importMenu);
+			}
+				
 			importMenu.add(getImportFromURLMenuItem());
 			importMenu.add(getImportFromClipboardMenuItem());
 		}
