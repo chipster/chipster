@@ -34,14 +34,12 @@ public class LocalNGSPreprocess implements Runnable {
 			}
 		}
 		
-		// TODO more verbose name, name of the second parameter
 		return 	"TOOL \"Preprocess\" / LocalNGSPreprocess.java: \"NGS Preprocess\" (Sort primarily using chromosome and secondarily using start " +
 				"location of the feature. File format is used to find columns containing " +
 				"chromosome and start location. )" + "\n" +
 				"INPUT input{...}.txt: \"Input NGS data\" TYPE GENERIC" + "\n" +
 				"OUTPUT ngs-preprocess.txt: \"Preprocessed NGS data\"" + "\n" +
-				"OUTPUT phenodata.tsv: \"Phenodata\"" + "\n" +
-				"PARAMETER file.format: \"Data format\" TYPE [" + fileFormats + "] DEFAULT " + parsers[0].getName() + " (Format of the data)" + "\n";
+				"OUTPUT phenodata.tsv: \"Phenodata\"";
  	}
 
 	public void run() {
@@ -54,20 +52,29 @@ public class LocalNGSPreprocess implements Runnable {
 				
 				String outputName;
 				String indexOutputName; 
+				String extension = "";
 				int fileExtensionStartPosition = inputFile.getName().lastIndexOf(".");
 				if (fileExtensionStartPosition != -1) {
-					outputName = inputFile.getName().substring(0, fileExtensionStartPosition) + "-preprocessed"; 
+					outputName = inputFile.getName().substring(0, fileExtensionStartPosition) + "-preprocessed";
+					extension = inputFile.getName().substring(fileExtensionStartPosition);
 				} else {
 					outputName = inputFile.getName() + "-preprocessed";
 				}
+				
 				outputName = outputName + ".bam";
 				indexOutputName = outputName + ".bai";
 				
 				File outputFile = dataManager.createNewRepositoryFile(outputName);		
 				File indexOutputFile = dataManager.createNewRepositoryFile(indexOutputName);
 
-				// run sorter
-				SamBamUtils.preprocessSamBam(inputFile, outputFile, indexOutputFile);
+				// Run preprocessing
+				if (SamBamUtils.isSamBamExtension(extension)) {
+					SamBamUtils.preprocessSamBam(inputFile, outputFile, indexOutputFile);
+					
+				} else {
+					// Assume ELAND format
+					SamBamUtils.preprocessEland(inputFile, outputFile, indexOutputFile);
+				}
 
 				// create outputs in the client
 				DataBean outputBean = dataManager.createDataBean(outputName, outputFile);
