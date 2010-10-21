@@ -2,10 +2,14 @@ package fi.csc.chipster.tools;
 
 import java.io.File;
 
-import fi.csc.chipster.tools.gbrowser.SamBamUtils;
+import fi.csc.chipster.tools.gbrowser.SamBamUtil;
+import fi.csc.chipster.tools.gbrowser.SamBamUtil.SamBamUtilState;
+import fi.csc.chipster.tools.gbrowser.SamBamUtil.SamBamUtilStateListener;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.tasks.Task;
+import fi.csc.microarray.client.tasks.TaskEventListener;
+import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
 import fi.csc.microarray.databeans.DataBean;
@@ -67,7 +71,16 @@ public class LocalNGSPreprocess implements Runnable {
 				File indexOutputFile = dataManager.createNewRepositoryFile(indexOutputName);
 
 				// run sorter
-				SamBamUtils.preprocessSamBam(inputFile, outputFile, indexOutputFile);
+				SamBamUtil samBamUtil= new SamBamUtil(new SamBamUtilStateListener() {
+
+					@Override
+					public void stateChanged(SamBamUtilState newState) {
+						System.out.println(newState.getState() + " " + newState.getPercentage());
+						task.setStateDetail(newState.getState() + " " + newState.getPercentage());
+					}
+					 
+				});
+				samBamUtil.preprocessSamBam(inputFile, outputFile, indexOutputFile);
 
 				// create outputs in the client
 				DataBean outputBean = dataManager.createDataBean(outputName, outputFile);

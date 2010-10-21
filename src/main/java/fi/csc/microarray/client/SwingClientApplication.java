@@ -1609,7 +1609,7 @@ public class SwingClientApplication extends ClientApplication {
 				}
 			}
 		});
-		waitPanel.startWaiting("Please wait while " + taskName + "...");
+		waitPanel.startWaiting("<html>Please wait while " + taskName + "..." + "<p><center>jeejee</center></p></html>");
 		updateWindowTitleBlockingState(taskName);
 		backgroundThread.start();
 	}

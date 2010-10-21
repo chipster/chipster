@@ -17,10 +17,48 @@ import net.sf.samtools.SAMRecord;
 import net.sf.samtools.SAMSequenceDictionary;
 import net.sf.samtools.SAMSequenceRecord;
 
-public class SamBamUtils {
+public class SamBamUtil {
+	
+	public interface SamBamUtilStateListener {
+		public void stateChanged(SamBamUtilState newState);
+	}
+	
+	public class SamBamUtilState {
+		private String state;
+		private double percentage;
+	
+		public SamBamUtilState(String state, double percentage) {
+			this.state = state;
+			this.percentage = percentage;
+		}
+
+		public String getState() {
+			return this.state;
+		}
+		
+		public double getPercentage() {
+			return this.percentage;
+		}
+	}
+	
 	
 	private static final String CHROMOSOME_NAME_PREFIX = "chr";
+	private SamBamUtilStateListener stateListener;
+	
+	public SamBamUtil() {
+	}
+	
+	public SamBamUtil(SamBamUtilStateListener stateListener) {
+		this.stateListener = stateListener;
+	}
 
+	private void updateState(String state, double percentage) {
+		if (this.stateListener != null) {
+			stateListener.stateChanged(new SamBamUtilState(state, percentage));
+		}
+	}
+	
+	
 	public static void convertElandToBam(File elandFile, File bamFile) {
 		
 	}
@@ -73,18 +111,22 @@ public class SamBamUtils {
 		BuildBamIndex.createIndex(new SAMFileReader(IoUtil.openFileForReading(bamFile)), baiFile); 
 	}
 	
-	public static void preprocessSamBam(File samBamFile, File preprocessedBamFile, File baiFile) throws IOException {
+	public void preprocessSamBam(File samBamFile, File preprocessedBamFile, File baiFile) throws IOException {
 		
 		// Sort
+		updateState("sorting", 0);
 		File sortedTempBamFile = File.createTempFile("sorted", "bam");
 		sortSamBam(samBamFile, sortedTempBamFile);
 		
 		// Normalise (input must be BAM)
+		updateState("normalising", 33.3);
 		normaliseBam(sortedTempBamFile, preprocessedBamFile);
 		sortedTempBamFile.delete();
 
 		// Index
+		updateState("indexing", 66);
 		indexBam(preprocessedBamFile, baiFile);
+		updateState("done", 100);
 	}
 
 	public static List<String> readChromosomeNames(File bamFile) {
