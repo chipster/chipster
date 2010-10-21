@@ -184,13 +184,6 @@ public class SamBamUtils {
 		}
 	}
 
-	public static void main(String[] args) throws IOException {
-		File input = new File("/home/akallio/Desktop/test.bam");
-		File temp = File.createTempFile("temp", "bam");
-		normaliseBam(input, temp);
-		ViewSam.main(new String[] {"I=" + temp.getAbsolutePath(), "VALIDATION_STRINGENCY=SILENT"});
-	}
-
 	public static boolean isSamBamExtension(String extension) {
 		if (extension == null) {
 			return false;
