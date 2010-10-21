@@ -11,7 +11,6 @@ import java.util.List;
 
 import net.sf.picard.io.IoUtil;
 import net.sf.picard.sam.BuildBamIndex;
-import net.sf.picard.sam.ViewSam;
 import net.sf.samtools.SAMFileHeader;
 import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMFileWriter;
