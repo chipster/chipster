@@ -40,7 +40,13 @@ if (species == 'mouse') {
   ensembl.to.entrez <- as.list(org.Mm.egENSEMBLTRANS2EG)
   reference.genes <- unique(unlist(ensembl.to.entrez[unique(targets$tran)]))
   selected.genes <- unique(unlist(ensembl.to.entrez[unique(targets[targets$mir %in% mirna_ids, 'tran'])]))
-
+  
+  # check that it was indeed possible to identify any targets for the
+  # input list of miRNA names
+  if (length (selected.genes) == 0) {
+	  stop("CHIPSTER-NOTE: No target genes were found for the input list of miRNA names. Please make sure that you are using official miRNA names.")
+  }
+     
   annotpkg <- 'org.Mm.eg.db'
 } else if (species == 'rat') {
   library(org.Rn.eg.db)
@@ -51,6 +57,12 @@ if (species == 'mouse') {
   reference.genes <- unique(unlist(ensembl.to.entrez[unique(targets$tran)]))
   selected.genes <- unique(unlist(ensembl.to.entrez[unique(targets[targets$mir %in% mirna_ids, 'tran'])]))
 
+    # check that it was indeed possible to identify any targets for the
+  # input list of miRNA names
+  if (length (selected.genes) == 0) {
+	  stop("CHIPSTER-NOTE: No target genes were found for the input list of miRNA names. Please make sure that you are using official miRNA names.")
+  }
+      
   annotpkg <- 'org.Rn.eg.db'
 } else {
   library(RmiR.Hs.miRNA)
@@ -64,7 +76,13 @@ if (species == 'mouse') {
   pictar <- pictar[pictar[,1] %in% mirna_ids,]
   targetscan <- targetscan[targetscan[,1] %in% mirna_ids,]
   selected.genes <- unique(intersect(pictar$gene_id, targetscan$gene_id))
-
+  
+  # check that it was indeed possible to identify any targets for the
+  # input list of miRNA names
+  if (length (selected.genes) == 0) {
+	  stop("CHIPSTER-NOTE: No target genes were found for the input list of miRNA names. Please make sure that you are using official miRNA names.")
+  }
+    
   annotpkg <- 'org.Hs.eg.db'
 }
 
