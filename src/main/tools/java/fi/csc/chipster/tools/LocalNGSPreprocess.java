@@ -56,7 +56,7 @@ public class LocalNGSPreprocess implements Runnable {
 				int fileExtensionStartPosition = inputFile.getName().lastIndexOf(".");
 				if (fileExtensionStartPosition != -1) {
 					outputName = inputFile.getName().substring(0, fileExtensionStartPosition) + "-preprocessed";
-					extension = inputFile.getName().substring(fileExtensionStartPosition);
+					extension = inputFile.getName().substring(fileExtensionStartPosition + 1);
 				} else {
 					outputName = inputFile.getName() + "-preprocessed";
 				}
