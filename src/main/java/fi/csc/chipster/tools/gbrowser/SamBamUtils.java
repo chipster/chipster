@@ -196,7 +196,7 @@ public class SamBamUtils {
 			return false;
 		}
 		extension = extension.toLowerCase();
-		return "sam".equals(extension) || "sam".equals(extension);
+		return "sam".equals(extension) || "bam".equals(extension);
 	}
 
 }
