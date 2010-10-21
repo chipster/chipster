@@ -24,9 +24,11 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.Module;
+import fi.csc.microarray.module.basic.BasicModule;
 
 public class SequenceModule implements Module {
 
+	private static final String CATEGORY_PART_SEPARATOR = ":";
 	private static final String EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/embster.cs";
 	public static final String SERVER_MODULE_SEQUENCE = "sequence";
 
@@ -161,4 +163,16 @@ public class SequenceModule implements Module {
 	public void postProcessOutputMetadata(Operation operation, DataBean metadataOutput) throws MicroarrayException, IOException {
 		// do nothing, we don't use metadata
 	}
+	
+	@Override
+	public String getShortCategoryName(Operation operation) {
+		String catName = operation.getCategoryName(); 
+
+		if (catName.contains(CATEGORY_PART_SEPARATOR)) {
+			catName = catName.substring(catName.indexOf(CATEGORY_PART_SEPARATOR));
+		}
+		
+		return BasicModule.shortenCategoryName(catName);
+	}
+
 }

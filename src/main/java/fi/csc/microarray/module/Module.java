@@ -145,4 +145,14 @@ public interface Module {
 	 * @return array of file filters
 	 */
 	public FileFilter[] getImportFileFilter();
+
+	/**
+	 * Read the name of the operation and return a short version suitable for 
+	 * small UI components.
+	 * 
+	 * @param operation the category we want to shorten
+	 * 
+	 * @return short name (4 letters or less)
+	 */
+	public String getShortCategoryName(Operation operation);
 }

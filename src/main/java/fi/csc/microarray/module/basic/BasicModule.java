@@ -154,4 +154,16 @@ public class BasicModule implements Module {
 	public void postProcessOutputMetadata(Operation operation, DataBean metadataOutput) throws MicroarrayException, IOException {
 		// do nothing, we don't use metadata
 	}
+
+	@Override
+	public String getShortCategoryName(Operation operation) {
+		return shortenCategoryName(operation.getCategoryName());
+	}
+
+	public static String shortenCategoryName(String catName) {
+		if (catName.startsWith("Import")) {
+			return "file";
+		}
+		return catName.substring(0, catName.length() > 4 ? 4 : catName.length());
+	}
 }
