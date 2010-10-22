@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
@@ -1679,7 +1680,7 @@ public class SwingClientApplication extends ClientApplication {
 	}
 	
 	@Override
-	public void saveSession() {
+	public boolean saveSession() {
 
 		JFileChooser fileChooser = getSnapshotFileChooser(null);
 		int ret = fileChooser.showSaveDialog(this.getMainFrame());
@@ -1699,31 +1700,42 @@ public class SwingClientApplication extends ClientApplication {
 					returnValue = JOptionPane.showOptionDialog(this.getMainFrame(), message, "Confirm replace", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
 					if (returnValue != 1) {
-						return;
+						return false;
 					}
 
 				}
 
+				// save
+				final boolean[] saveSuccessful = new boolean[1];
+				final CountDownLatch latch = new CountDownLatch(1);
 				runBlockingTask("saving session", new Runnable() {
 
 					public void run() {
 
 						try {
 							getDataManager().saveSnapshot(file, application);
-						} catch (IOException e) {
+						} catch (Exception e) {
+							saveSuccessful[0] = false;
 							throw new RuntimeException(e);
+						} finally {
+							latch.countDown();
 						}
 					}
 				});
-				
+				latch.await();
+				if (!saveSuccessful[0]) {
+					return false;
+				}
 				menuBar.updateMenuStatus();
 				unsavedChanges = false;
 				
 			} catch (Exception exp) {
 				showErrorDialog("Saving session failed.", exp);
+				return false;
 			}
 		}
 		menuBar.updateMenuStatus();
+		return true;
 	}
 
 	/**

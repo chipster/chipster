@@ -172,7 +172,8 @@ public class FSDataManagerTest {
 		}
 
 		@Override
-		public void saveSession() {
+		public boolean saveSession() {
+			return true;
 		}
 
 		@Override
