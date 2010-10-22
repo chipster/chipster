@@ -45,7 +45,7 @@ public class ProfileSNPTrack extends Track {
 
 	private boolean highlightSNP = false;
 
-	enum Acid { A, C, G, T };
+	enum Acid { A, C, G, T }; //Nucleotides or bases
 
 	private Acid getAcid(char character) {
 		switch(character) {
