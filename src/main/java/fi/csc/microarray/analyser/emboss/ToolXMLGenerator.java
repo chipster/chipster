@@ -89,16 +89,16 @@ public class ToolXMLGenerator {
         ignoredPrograms.add("emira");
         ignoredPrograms.add("vrnafoldpf");        
         
-        colors.put("alignment", "#c3b6a2");
-        colors.put("display", "#d5c796");
-        colors.put("edit", "#e7df70");
-        colors.put("enzyme kinetics", "#d59f45");
-        colors.put("feature tables", "#e7881c");
-        colors.put("information", "#d53833");
-        colors.put("nucleic", "#80a3b7");
-        colors.put("phylogeny", "#0177b7");
-        colors.put("protein", "#629a9b");
-        colors.put("hmm", "#77aa77");
+        colors.put("alignment", "#e7df70");
+        colors.put("display", "#d59f45");
+        colors.put("edit", "#e7881c");
+        colors.put("enzyme kinetics", "#83010b");
+        colors.put("feature tables", "#83010b");
+        colors.put("information", "#80a3b7");
+        colors.put("nucleic", "#0177b7");
+        colors.put("phylogeny", "#629a9b");
+        colors.put("protein", "#a49900");
+        colors.put("hmm", "#d53833");
     }
 
     /**
