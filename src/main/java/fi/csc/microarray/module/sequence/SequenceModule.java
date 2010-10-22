@@ -169,7 +169,7 @@ public class SequenceModule implements Module {
 		String catName = operation.getCategoryName(); 
 
 		if (catName.contains(CATEGORY_PART_SEPARATOR)) {
-			catName = catName.substring(catName.indexOf(CATEGORY_PART_SEPARATOR));
+			catName = catName.substring(catName.indexOf(CATEGORY_PART_SEPARATOR) + 1);
 		}
 		
 		return BasicModule.shortenCategoryName(catName);
