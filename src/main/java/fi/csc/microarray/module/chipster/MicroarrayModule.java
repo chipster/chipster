@@ -50,6 +50,7 @@ import fi.csc.microarray.databeans.features.table.EditableTable;
 import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.Module;
+import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.util.GeneralFileFilter;
 import fi.csc.microarray.util.Strings;
 
@@ -357,6 +358,11 @@ public class MicroarrayModule implements Module {
 			}
 			tableEditor.write();
 		}
+	}
+
+	@Override
+	public String getShortCategoryName(Operation operation) {
+		return BasicModule.shortenCategoryName(operation.getCategoryName());
 	}
 
 }
