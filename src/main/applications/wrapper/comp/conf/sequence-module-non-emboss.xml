@@ -1,0 +1,179 @@
+    <!-- BLAST -->
+    <category color="#d5c796" name="BLAST">
+        <tool runtime="shell">
+            <resource>blastp.sadl</resource>
+            <parameter>
+                <name>executable</name>
+                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/blastp</value>
+            </parameter>
+            <parameter>
+                <name>output</name>
+                <value>out</value>
+            </parameter>
+        </tool>
+        <tool runtime="shell">
+            <resource>blastn.sadl</resource>
+            <parameter>
+                <name>executable</name>
+                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/blastn</value>
+            </parameter>
+            <parameter>
+                <name>output</name>
+                <value>out</value>
+            </parameter>
+        </tool>
+        <tool runtime="shell">
+            <resource>blastx.sadl</resource>
+            <parameter>
+                <name>executable</name>
+                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/blastx</value>
+            </parameter>
+            <parameter>
+                <name>output</name>
+                <value>out</value>
+            </parameter>
+        </tool>
+        <tool runtime="shell">
+            <resource>tblastn.sadl</resource>
+            <parameter>
+                <name>executable</name>
+                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/tblastn</value>
+            </parameter>
+            <parameter>
+                <name>output</name>
+                <value>out</value>
+            </parameter>
+        </tool>
+        <tool runtime="shell">
+            <resource>tblastx.sadl</resource>
+            <parameter>
+                <name>executable</name>
+                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/tblastx</value>
+            </parameter>
+            <parameter>
+                <name>output</name>
+                <value>out</value>
+            </parameter>
+        </tool>
+        <tool runtime="shell">
+            <resource>blastdbcmd.sadl</resource>
+            <parameter>
+                <name>executable</name>
+                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/blastdbcmd</value>
+            </parameter>
+            <parameter>
+                <name>output</name>
+                <value>out</value>
+            </parameter>
+        </tool>
+
+	<!-- User-specified BLAST databases -->
+        <tool runtime="shell">
+            <resource>my_blastn.sadl</resource>
+            <parameter>
+                <name>executable</name>
+                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/pb</value>
+            </parameter>
+            <parameter> <name>output</name> <value>out</value> </parameter>
+            <parameter> <name>arguments</name> <value>blastn</value> </parameter>
+        </tool>
+        <tool runtime="shell">
+            <resource>my_blastp.sadl</resource>
+            <parameter>
+                <name>executable</name>
+                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/pb</value>
+            </parameter>
+            <parameter> <name>output</name> <value>out</value> </parameter>
+            <parameter> <name>arguments</name> <value>blastp</value> </parameter>
+        </tool>
+        <tool runtime="shell">
+            <resource>my_blastx.sadl</resource>
+            <parameter>
+                <name>executable</name>
+                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/pb</value>
+            </parameter>
+            <parameter> <name>output</name> <value>out</value> </parameter>
+            <parameter> <name>arguments</name> <value>blastx</value> </parameter>
+        </tool>
+        <tool runtime="shell">
+            <resource>my_tblastn.sadl</resource>
+            <parameter>
+                <name>executable</name>
+                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/pb</value>
+            </parameter>
+            <parameter> <name>output</name> <value>out</value> </parameter>
+            <parameter> <name>arguments</name> <value>tblastn</value> </parameter>
+        </tool>
+        <tool runtime="shell">
+            <resource>my_tblastx.sadl</resource>
+            <parameter>
+                <name>executable</name>
+                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/pb</value>
+            </parameter>
+            <parameter> <name>output</name> <value>out</value> </parameter>
+            <parameter> <name>arguments</name> <value>tblastx</value> </parameter>
+        </tool>
+    </category>
+    
+    <!-- INTERNAL TOOLS, NOT VISIBLE TO USER -->
+    <category color="#629a9b" name="Internal" hidden="true">
+        <tool runtime="shell">
+            <resource>importseq.sadl</resource>
+            <parameter>
+                <name>executable</name>
+                <value>/v/linux26_x86_64/appl/molbio/emboss/6.3.1/bin/seqret</value>
+            </parameter>
+            <parameter>
+                <name>output</name>
+                <value>outseq</value>
+            </parameter>
+        </tool>
+    </category>
+    
+    <!-- MAFFT -->
+    <!-- these goes to Alignment:Multiple category! -->
+       <tool runtime="shell">
+            <resource>mafft-einsi.sadl</resource>
+            <parameter>
+                <name>executable</name>
+                <value>/v/linux26_x86_64/appl/molbio/mafft/latest/bin/mafft-einsi</value>
+            </parameter>
+            <parameter> <name>stdout</name> <value>yes</value> </parameter>
+            <parameter> <name>input</name> <value>last</value> </parameter>
+        </tool>
+        <tool runtime="shell">
+            <resource>mafft-fftns.sadl</resource>
+            <parameter>
+                <name>executable</name>
+                <value>/v/linux26_x86_64/appl/molbio/mafft/latest/bin/mafft-fftns</value>
+            </parameter>
+            <parameter> <name>stdout</name> <value>yes</value> </parameter>
+            <parameter> <name>input</name> <value>last</value> </parameter>
+        </tool>
+        <tool runtime="shell">
+            <resource>mafft-fftnsi.sadl</resource>
+            <parameter>
+                <name>executable</name>
+                <value>/v/linux26_x86_64/appl/molbio/mafft/latest/bin/mafft-fftnsi</value>
+            </parameter>
+            <parameter> <name>stdout</name> <value>yes</value> </parameter>
+            <parameter> <name>input</name> <value>last</value> </parameter>
+        </tool>
+        <tool runtime="shell">
+            <resource>mafft-ginsi.sadl</resource>
+            <parameter>
+                <name>executable</name>
+                <value>/v/linux26_x86_64/appl/molbio/mafft/latest/bin/mafft-ginsi</value>
+            </parameter>
+            <parameter> <name>stdout</name> <value>yes</value> </parameter>
+            <parameter> <name>input</name> <value>last</value> </parameter>
+        </tool>
+        <tool runtime="shell">
+            <resource>mafft-linsi.sadl</resource>
+            <parameter>
+                <name>executable</name>
+                <value>/v/linux26_x86_64/appl/molbio/mafft/latest/bin/mafft-linsi</value>
+            </parameter>
+            <parameter> <name>stdout</name> <value>yes</value> </parameter>
+            <parameter> <name>input</name> <value>last</value> </parameter>
+        </tool>

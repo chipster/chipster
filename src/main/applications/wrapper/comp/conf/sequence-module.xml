@@ -1,92 +1,178 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <module name="sequence">
 	<!-- BLAST -->
-    <category color="#c3b6a2" name="BLAST">
-        <tool runtime="shell">
-            <resource>blastp.sadl</resource>
-            <parameter>
-                <name>executable</name>
-                <value>/opt/blast/blastp</value>
-            </parameter>
-            <parameter>
-                <name>output</name>
-                <value>out</value>
-            </parameter>
-        </tool>
-        <tool runtime="shell">
-            <resource>blastn.sadl</resource>
-            <parameter>
-                <name>executable</name>
-                <value>/opt/blast/blastn</value>
-            </parameter>
-            <parameter>
-                <name>output</name>
-                <value>out</value>
-            </parameter>
-        </tool>
-        <tool runtime="shell">
-            <resource>blastx.sadl</resource>
-            <parameter>
-                <name>executable</name>
-                <value>/opt/blast/blastx</value>
-            </parameter>
-            <parameter>
-                <name>output</name>
-                <value>out</value>
-            </parameter>
-        </tool>
-        <tool runtime="shell">
-            <resource>tblastn.sadl</resource>
-            <parameter>
-                <name>executable</name>
-                <value>/opt/blast/tblastn</value>
-            </parameter>
-            <parameter>
-                <name>output</name>
-                <value>out</value>
-            </parameter>
-        </tool>
-        <tool runtime="shell">
-            <resource>tblastx.sadl</resource>
-            <parameter>
-                <name>executable</name>
-                <value>/opt/blast/tblastx</value>
-            </parameter>
-            <parameter>
-                <name>output</name>
-                <value>out</value>
-            </parameter>
-        </tool>
-        <tool runtime="shell">
-            <resource>blastdbcmd.sadl</resource>
-            <parameter>
-                <name>executable</name>
-                <value>/opt/blast/blastdbcmd</value>
-            </parameter>
-            <parameter>
-                <name>output</name>
-                <value>out</value>
-            </parameter>
-        </tool>
-    </category>
-    
+	<category color="#d5c796" name="BLAST">
+		<tool runtime="shell">
+			<resource>blastp.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/blastp
+				</value>
+			</parameter>
+			<parameter>
+				<name>output</name>
+				<value>out</value>
+			</parameter>
+		</tool>
+		<tool runtime="shell">
+			<resource>blastn.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/blastn
+				</value>
+			</parameter>
+			<parameter>
+				<name>output</name>
+				<value>out</value>
+			</parameter>
+		</tool>
+		<tool runtime="shell">
+			<resource>blastx.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/blastx
+				</value>
+			</parameter>
+			<parameter>
+				<name>output</name>
+				<value>out</value>
+			</parameter>
+		</tool>
+		<tool runtime="shell">
+			<resource>tblastn.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/tblastn
+				</value>
+			</parameter>
+			<parameter>
+				<name>output</name>
+				<value>out</value>
+			</parameter>
+		</tool>
+		<tool runtime="shell">
+			<resource>tblastx.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/tblastx
+				</value>
+			</parameter>
+			<parameter>
+				<name>output</name>
+				<value>out</value>
+			</parameter>
+		</tool>
+		<tool runtime="shell">
+			<resource>blastdbcmd.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/blastdbcmd
+				</value>
+			</parameter>
+			<parameter>
+				<name>output</name>
+				<value>out</value>
+			</parameter>
+		</tool>
+
+		<!-- User-specified BLAST databases -->
+		<tool runtime="shell">
+			<resource>my_blastn.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/pb
+				</value>
+			</parameter>
+			<parameter>
+				<name>output</name>
+				<value>out</value>
+			</parameter>
+			<parameter>
+				<name>arguments</name>
+				<value>blastn</value>
+			</parameter>
+		</tool>
+		<tool runtime="shell">
+			<resource>my_blastp.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/pb
+				</value>
+			</parameter>
+			<parameter>
+				<name>output</name>
+				<value>out</value>
+			</parameter>
+			<parameter>
+				<name>arguments</name>
+				<value>blastp</value>
+			</parameter>
+		</tool>
+		<tool runtime="shell">
+			<resource>my_blastx.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/pb
+				</value>
+			</parameter>
+			<parameter>
+				<name>output</name>
+				<value>out</value>
+			</parameter>
+			<parameter>
+				<name>arguments</name>
+				<value>blastx</value>
+			</parameter>
+		</tool>
+		<tool runtime="shell">
+			<resource>my_tblastn.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/pb
+				</value>
+			</parameter>
+			<parameter>
+				<name>output</name>
+				<value>out</value>
+			</parameter>
+			<parameter>
+				<name>arguments</name>
+				<value>tblastn</value>
+			</parameter>
+		</tool>
+		<tool runtime="shell">
+			<resource>my_tblastx.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/pb
+				</value>
+			</parameter>
+			<parameter>
+				<name>output</name>
+				<value>out</value>
+			</parameter>
+			<parameter>
+				<name>arguments</name>
+				<value>tblastx</value>
+			</parameter>
+		</tool>
+	</category>
+
 	<!-- INTERNAL TOOLS, NOT VISIBLE TO USER -->
-    <category color="#629a9b" name="Internal" hidden="true">
-        <tool runtime="shell">
-            <resource>importseq.sadl</resource>
-            <parameter>
-                <name>executable</name>
-                <value>/opt/EMBOSS-6.2.0/emboss/seqret</value>
-            </parameter>
-            <parameter>
-                <name>output</name>
-                <value>outseq</value>
-            </parameter>
-        </tool>
-    </category>
-
-
-
+	<category color="#629a9b" name="Internal" hidden="true">
+		<tool runtime="shell">
+			<resource>importseq.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/v/linux26_x86_64/appl/molbio/emboss/6.3.1/bin/seqret
+				</value>
+			</parameter>
+			<parameter>
+				<name>output</name>
+				<value>outseq</value>
+			</parameter>
+		</tool>
+	</category>
 	<category color="#e7df70" name="Alignment:Consensus">
 		<tool runtime="EMBOSS">
 			<resource>cons.acd</resource>
@@ -157,7 +243,7 @@
 			<resource>wordmatch.acd</resource>
 		</tool>
 	</category>
-	<category color="#e7df70" name="Alignment:Multiple">
+	<category color="#d59f45" name="Alignment:Multiple">
 		<tool runtime="EMBOSS">
 			<resource>edialign.acd</resource>
 		</tool>
@@ -166,6 +252,9 @@
 		</tool>
 		<tool runtime="EMBOSS">
 			<resource>infoalign.acd</resource>
+		</tool>
+		<tool runtime="EMBOSS">
+			<resource>mse.acd</resource>
 		</tool>
 		<tool runtime="EMBOSS">
 			<resource>plotcon.acd</resource>
@@ -179,13 +268,88 @@
 		<tool runtime="EMBOSS">
 			<resource>tranalign.acd</resource>
 		</tool>
-	</category>
-	<category color="#e7df70" name="Alignment:multiple">
-		<tool runtime="EMBOSS">
-			<resource>mse.acd</resource>
+		<tool runtime="shell">
+			<resource>mafft-einsi.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/v/linux26_x86_64/appl/molbio/mafft/latest/bin/mafft-einsi
+				</value>
+			</parameter>
+			<parameter>
+				<name>stdout</name>
+				<value>yes</value>
+			</parameter>
+			<parameter>
+				<name>input</name>
+				<value>last</value>
+			</parameter>
+		</tool>
+		<tool runtime="shell">
+			<resource>mafft-fftns.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/v/linux26_x86_64/appl/molbio/mafft/latest/bin/mafft-fftns
+				</value>
+			</parameter>
+			<parameter>
+				<name>stdout</name>
+				<value>yes</value>
+			</parameter>
+			<parameter>
+				<name>input</name>
+				<value>last</value>
+			</parameter>
+		</tool>
+		<tool runtime="shell">
+			<resource>mafft-fftnsi.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/v/linux26_x86_64/appl/molbio/mafft/latest/bin/mafft-fftnsi
+				</value>
+			</parameter>
+			<parameter>
+				<name>stdout</name>
+				<value>yes</value>
+			</parameter>
+			<parameter>
+				<name>input</name>
+				<value>last</value>
+			</parameter>
+		</tool>
+		<tool runtime="shell">
+			<resource>mafft-ginsi.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/v/linux26_x86_64/appl/molbio/mafft/latest/bin/mafft-ginsi
+				</value>
+			</parameter>
+			<parameter>
+				<name>stdout</name>
+				<value>yes</value>
+			</parameter>
+			<parameter>
+				<name>input</name>
+				<value>last</value>
+			</parameter>
+		</tool>
+		<tool runtime="shell">
+			<resource>mafft-linsi.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>/v/linux26_x86_64/appl/molbio/mafft/latest/bin/mafft-linsi
+				</value>
+			</parameter>
+			<parameter>
+				<name>stdout</name>
+				<value>yes</value>
+			</parameter>
+			<parameter>
+				<name>input</name>
+				<value>last</value>
+			</parameter>
 		</tool>
 	</category>
-	<category color="#d59f45" name="Display">
+	<category color="#e7881c" name="Display">
 		<tool runtime="EMBOSS">
 			<resource>abiview.acd</resource>
 		</tool>
@@ -229,7 +393,7 @@
 			<resource>textsearch.acd</resource>
 		</tool>
 	</category>
-	<category color="#e7881c" name="Edit">
+	<category color="#d53833" name="Edit">
 		<tool runtime="EMBOSS">
 			<resource>aligncopy.acd</resource>
 		</tool>
@@ -408,7 +572,7 @@
 			<resource>yank.acd</resource>
 		</tool>
 	</category>
-	<category color="#d53833" name="HMM">
+	<category color="#80a3b7" name="HMM">
 		<tool runtime="EMBOSS">
 			<resource>ehmmalign.acd</resource>
 		</tool>
@@ -437,7 +601,7 @@
 			<resource>ehmmsearch.acd</resource>
 		</tool>
 	</category>
-	<category color="#80a3b7" name="Information">
+	<category color="#0177b7" name="Information">
 		<tool runtime="EMBOSS">
 			<resource>infobase.acd</resource>
 		</tool>
@@ -457,7 +621,7 @@
 			<resource>wossname.acd</resource>
 		</tool>
 	</category>
-	<category color="#0177b7" name="Nucleic:Codon usage">
+	<category color="#629a9b" name="Nucleic:Codon usage">
 		<tool runtime="EMBOSS">
 			<resource>cai.acd</resource>
 		</tool>
@@ -474,7 +638,7 @@
 			<resource>syco.acd</resource>
 		</tool>
 	</category>
-	<category color="#0177b7" name="Nucleic:Composition">
+	<category color="#629a9b" name="Nucleic:Composition">
 		<tool runtime="EMBOSS">
 			<resource>banana.acd</resource>
 		</tool>
@@ -509,7 +673,7 @@
 			<resource>wordcount.acd</resource>
 		</tool>
 	</category>
-	<category color="#0177b7" name="Nucleic:CpG Islands">
+	<category color="#629a9b" name="Nucleic:CpG Islands">
 		<tool runtime="EMBOSS">
 			<resource>cpgplot.acd</resource>
 		</tool>
@@ -526,7 +690,7 @@
 			<resource>newcpgseek.acd</resource>
 		</tool>
 	</category>
-	<category color="#0177b7" name="Nucleic:Gene finding">
+	<category color="#629a9b" name="Nucleic:Gene finding">
 		<tool runtime="EMBOSS">
 			<resource>getorf.acd</resource>
 		</tool>
@@ -546,7 +710,7 @@
 			<resource>wobble.acd</resource>
 		</tool>
 	</category>
-	<category color="#0177b7" name="Nucleic:Motifs">
+	<category color="#629a9b" name="Nucleic:Motifs">
 		<tool runtime="EMBOSS">
 			<resource>dreg.acd</resource>
 		</tool>
@@ -557,7 +721,7 @@
 			<resource>fuzztran.acd</resource>
 		</tool>
 	</category>
-	<category color="#0177b7" name="Nucleic:Mutation">
+	<category color="#629a9b" name="Nucleic:Mutation">
 		<tool runtime="EMBOSS">
 			<resource>msbar.acd</resource>
 		</tool>
@@ -565,7 +729,7 @@
 			<resource>shuffleseq.acd</resource>
 		</tool>
 	</category>
-	<category color="#0177b7" name="Nucleic:Primers">
+	<category color="#629a9b" name="Nucleic:Primers">
 		<tool runtime="EMBOSS">
 			<resource>eprimer3.acd</resource>
 		</tool>
@@ -576,7 +740,7 @@
 			<resource>stssearch.acd</resource>
 		</tool>
 	</category>
-	<category color="#0177b7" name="Nucleic:Profiles">
+	<category color="#629a9b" name="Nucleic:Profiles">
 		<tool runtime="EMBOSS">
 			<resource>profit.acd</resource>
 		</tool>
@@ -587,7 +751,7 @@
 			<resource>prophet.acd</resource>
 		</tool>
 	</category>
-	<category color="#0177b7" name="Nucleic:RNA folding">
+	<category color="#629a9b" name="Nucleic:RNA folding">
 		<tool runtime="EMBOSS">
 			<resource>vrnaalifold.acd</resource>
 		</tool>
@@ -637,7 +801,7 @@
 			<resource>vrnasubopt.acd</resource>
 		</tool>
 	</category>
-	<category color="#0177b7" name="Nucleic:Repeats">
+	<category color="#629a9b" name="Nucleic:Repeats">
 		<tool runtime="EMBOSS">
 			<resource>einverted.acd</resource>
 		</tool>
@@ -651,7 +815,7 @@
 			<resource>palindrome.acd</resource>
 		</tool>
 	</category>
-	<category color="#0177b7" name="Nucleic:Restriction">
+	<category color="#629a9b" name="Nucleic:Restriction">
 		<tool runtime="EMBOSS">
 			<resource>recoder.acd</resource>
 		</tool>
@@ -668,12 +832,12 @@
 			<resource>silent.acd</resource>
 		</tool>
 	</category>
-	<category color="#0177b7" name="Nucleic:Transcription">
+	<category color="#629a9b" name="Nucleic:Transcription">
 		<tool runtime="EMBOSS">
 			<resource>jaspscan.acd</resource>
 		</tool>
 	</category>
-	<category color="#0177b7" name="Nucleic:Translation">
+	<category color="#629a9b" name="Nucleic:Translation">
 		<tool runtime="EMBOSS">
 			<resource>backtranambig.acd</resource>
 		</tool>
@@ -689,12 +853,7 @@
 			<resource>edamclean.acd</resource>
 		</tool>
 	</category>
-	<category color="#a49900" name="PROTEIN:2D STRUCTURE">
-		<tool runtime="EMBOSS">
-			<resource>topo.acd</resource>
-		</tool>
-	</category>
-	<category color="#629a9b" name="Phylogeny:Consensus">
+	<category color="#a49900" name="Phylogeny:Consensus">
 		<tool runtime="EMBOSS">
 			<resource>fconsense.acd</resource>
 		</tool>
@@ -705,12 +864,12 @@
 			<resource>ftreedistpair.acd</resource>
 		</tool>
 	</category>
-	<category color="#629a9b" name="Phylogeny:Continuous characters">
+	<category color="#a49900" name="Phylogeny:Continuous characters">
 		<tool runtime="EMBOSS">
 			<resource>fcontrast.acd</resource>
 		</tool>
 	</category>
-	<category color="#629a9b" name="Phylogeny:Discrete characters">
+	<category color="#a49900" name="Phylogeny:Discrete characters">
 		<tool runtime="EMBOSS">
 			<resource>fclique.acd</resource>
 		</tool>
@@ -736,7 +895,7 @@
 			<resource>fpenny.acd</resource>
 		</tool>
 	</category>
-	<category color="#629a9b" name="Phylogeny:Distance matrix">
+	<category color="#a49900" name="Phylogeny:Distance matrix">
 		<tool runtime="EMBOSS">
 			<resource>ffitch.acd</resource>
 		</tool>
@@ -747,7 +906,7 @@
 			<resource>fneighbor.acd</resource>
 		</tool>
 	</category>
-	<category color="#629a9b" name="Phylogeny:Gene frequencies">
+	<category color="#a49900" name="Phylogeny:Gene frequencies">
 		<tool runtime="EMBOSS">
 			<resource>fcontml.acd</resource>
 		</tool>
@@ -755,7 +914,7 @@
 			<resource>fgendist.acd</resource>
 		</tool>
 	</category>
-	<category color="#629a9b" name="Phylogeny:Molecular sequence">
+	<category color="#a49900" name="Phylogeny:Molecular sequence">
 		<tool runtime="EMBOSS">
 			<resource>distmat.acd</resource>
 		</tool>
@@ -820,7 +979,7 @@
 			<resource>fseqbootall.acd</resource>
 		</tool>
 	</category>
-	<category color="#629a9b" name="Phylogeny:Tree drawing">
+	<category color="#a49900" name="Phylogeny:Tree drawing">
 		<tool runtime="EMBOSS">
 			<resource>fdrawgram.acd</resource>
 		</tool>
@@ -831,7 +990,7 @@
 			<resource>fretree.acd</resource>
 		</tool>
 	</category>
-	<category color="#a49900" name="Protein:2D Structure">
+	<category color="#83010b" name="Protein:2D Structure">
 		<tool runtime="EMBOSS">
 			<resource>garnier.acd</resource>
 		</tool>
@@ -847,8 +1006,11 @@
 		<tool runtime="EMBOSS">
 			<resource>tmap.acd</resource>
 		</tool>
+		<tool runtime="EMBOSS">
+			<resource>topo.acd</resource>
+		</tool>
 	</category>
-	<category color="#a49900" name="Protein:Composition">
+	<category color="#83010b" name="Protein:Composition">
 		<tool runtime="EMBOSS">
 			<resource>charge.acd</resource>
 		</tool>
@@ -883,7 +1045,7 @@
 			<resource>pepwindowall.acd</resource>
 		</tool>
 	</category>
-	<category color="#a49900" name="Protein:Motifs">
+	<category color="#83010b" name="Protein:Motifs">
 		<tool runtime="EMBOSS">
 			<resource>antigenic.acd</resource>
 		</tool>
@@ -918,17 +1080,17 @@
 			<resource>sigcleave.acd</resource>
 		</tool>
 	</category>
-	<category color="#a49900" name="Protein:3D structure">
+	<category color="#83010b" name="Protein:3D structure">
 		<tool runtime="EMBOSS">
 			<resource>psiphi.acd</resource>
 		</tool>
 	</category>
-	<category color="#83010b" name="Enzyme Kinetics">
+	<category color="#c0d2de" name="Enzyme Kinetics">
 		<tool runtime="EMBOSS">
 			<resource>findkm.acd</resource>
 		</tool>
 	</category>
-	<category color="#83010b" name="Feature tables">
+	<category color="#c0d2de" name="Feature tables">
 		<tool runtime="EMBOSS">
 			<resource>coderet.acd</resource>
 		</tool>

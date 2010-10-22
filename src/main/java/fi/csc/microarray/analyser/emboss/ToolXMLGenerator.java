@@ -96,15 +96,16 @@ public class ToolXMLGenerator {
         ignoredPrograms.add("vrnafoldpf");        
         
         colors.put("alignment", "#e7df70");
-        colors.put("display", "#d59f45");
-        colors.put("edit", "#e7881c");
-        colors.put("enzyme kinetics", "#83010b");
-        colors.put("feature tables", "#83010b");
-        colors.put("information", "#80a3b7");
-        colors.put("nucleic", "#0177b7");
-        colors.put("phylogeny", "#629a9b");
-        colors.put("protein", "#a49900");
-        colors.put("hmm", "#d53833");
+        colors.put("alignment:multiple", "#d59f45");
+        colors.put("display", "#e7881c");
+        colors.put("edit", "#d53833");
+        colors.put("hmm", "#80a3b7");
+        colors.put("information", "#0177b7");
+        colors.put("nucleic", "#629a9b");
+        colors.put("phylogeny", "#a49900");
+        colors.put("protein", "#83010b");
+        colors.put("enzyme kinetics", "#c0d2de");
+        colors.put("feature tables", "#c0d2de");
     }
 
     /**
@@ -183,10 +184,16 @@ public class ToolXMLGenerator {
         	// Create category element
             Element category = doc.createElement("category");
             category.setAttribute("name", group.substring(0,1).toUpperCase() + group.substring(1));
-            String groupNormal = group.split(":")[0].trim().toLowerCase();
-            if (colors.containsKey(groupNormal)) {
-                category.setAttribute("color", colors.get(groupNormal));
+            String colorKey = group.trim().toLowerCase();
+            if (colors.containsKey(colorKey)) {
+            	category.setAttribute("color", colors.get(colorKey));
+            } else {
+            	colorKey =  group.split(":")[0].trim().toLowerCase();
+                if (colors.containsKey(colorKey)) {
+                    category.setAttribute("color", colors.get(colorKey));
+                }
             }
+            
             module.appendChild(category);
             LinkedList<String> sortedApps = groupsMap.get(group);
             Collections.sort(sortedApps);
