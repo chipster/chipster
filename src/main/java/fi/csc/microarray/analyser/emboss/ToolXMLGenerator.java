@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -46,6 +47,7 @@ public class ToolXMLGenerator {
     private File outFile;
     private Document doc = null;
     private static final HashSet<String> ignoredGroups = new HashSet<String>();
+    private List<String> bottomGroups = new LinkedList<String>();
     private static final HashSet<String> ignoredPrograms = new HashSet<String>();
     private LinkedHashMap<String, LinkedList<String>> groupsMap = new LinkedHashMap<String, LinkedList<String>>();
     private HashMap<String, String> colors = new HashMap<String, String>();
@@ -63,6 +65,10 @@ public class ToolXMLGenerator {
         ignoredGroups.add("Test");
         ignoredGroups.add("Utils");
 
+        // less important groups which should be last when sorting groups
+        bottomGroups.add("Enzyme Kinetics");
+        bottomGroups.add("Feature tables");
+        
         // Separate programs that are broken or we are not
         // interested in (they might be in several groups)
         
@@ -160,11 +166,21 @@ public class ToolXMLGenerator {
             }
         }
         
-        // Sort groups and generate XML
+        // sort groups
         LinkedList<String> sortedGroups = new LinkedList<String>(groupsMap.keySet());
         Collections.sort(sortedGroups);
+        
+        // drop less important categories to the bottom
+        for (String group : bottomGroups) {
+        	if (sortedGroups.contains(group)) {
+        		sortedGroups.remove(group);
+        		sortedGroups.add(group);
+        	}
+        }
+        
+        // generate xml
         for (String group : sortedGroups) {
-            // Create category element
+        	// Create category element
             Element category = doc.createElement("category");
             category.setAttribute("name", group.substring(0,1).toUpperCase() + group.substring(1));
             String groupNormal = group.split(":")[0].trim().toLowerCase();
@@ -238,7 +254,11 @@ public class ToolXMLGenerator {
     }
 
     public static void main(String[] args) {
-        new ToolXMLGenerator("/home/naktinis/acd",
-                "debug-base-dir/conf/sequence-module.xml").generate();
+    	if (args.length != 2) {
+    		System.out.println("Please provide <directory for acd files> and <target xml file> as arguments.");
+    		return;
+    	}
+    	
+    	new ToolXMLGenerator(args[0], args[1]).generate();
     }
 }
