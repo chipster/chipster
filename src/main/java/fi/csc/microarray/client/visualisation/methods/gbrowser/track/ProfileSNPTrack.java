@@ -221,7 +221,7 @@ public class ProfileSNPTrack extends Track {
 				
 				Base base = null;
 				
-				int refIndex = cigar.getReferenceIndex(i);
+				long refIndex = cigar.getReferenceIndex(i);
 				
 				if (refIndex == -1) {
 					//Skip insertions

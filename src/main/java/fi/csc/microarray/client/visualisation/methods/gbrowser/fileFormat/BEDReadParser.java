@@ -5,7 +5,6 @@ import java.util.Arrays;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeqBlockTrack;
 
 /**
  * Parser for a BED-like format that describes annotations. Values
@@ -15,6 +14,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeqBlockTra
  *
  */
 public class BEDReadParser extends TsvParser {
+
+	public static final String DUMMY_SEQUENCE = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 
 	public BEDReadParser() {
 		super(new FileDefinition(Arrays.asList(
@@ -55,7 +56,7 @@ public class BEDReadParser extends TsvParser {
 			Long start = (Long)super.get(cols, ColumnType.BP_START);
 			Long end = (Long)super.get(cols, ColumnType.BP_END);
 			
-			return SeqBlockTrack.DUMMY_SEQUENCE.substring(0, (int)(end-start));
+			return DUMMY_SEQUENCE.substring(0, (int)(end-start));
 			
 		} else {
 

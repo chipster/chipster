@@ -23,6 +23,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.utils.Sequence;
 
@@ -31,8 +32,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.utils.Sequence;
  * 
  */
 public class SeqBlockTrack extends Track {
-
-	public static final String DUMMY_SEQUENCE = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 
 	private static final int SPACE_BETWEEN_READS = 2;
 
@@ -84,148 +83,118 @@ public class SeqBlockTrack extends Track {
 			// Collect relevant data for this read
 			int height = 4;
 			BpCoord startBp = read.region.start;
-			BpCoord endBp = read.region.end;
-			String seq = ((String) read.values.get(ColumnType.SEQUENCE));
-			Object cigarObj = read.values.get(ColumnType.CIGAR);
-			Cigar cigar = null;
-			if (cigarObj != null) {
-				cigar = (Cigar) cigarObj;
-			}
 
-			if (seq != null) {
-				// We have sequence
-				seq = seq.trim();
+			// Split read into continious blocks (read parts) by using the cigar
+			List<ReadPart> visibleRegions = Cigar.getVisibleRegions(read);
+			for (ReadPart visibleRegion : visibleRegions) {
 
-			} else {
-				// We don't have a sequence, generate something
-				int seqLength = (int) (endBp.minus(startBp) + 1);
+				// Width in basepairs
+				long widthInBps = visibleRegion.getLength();
 
-				if (seqLength > 128) {
-					// TODO what happened?
-					seqLength = 0;
+				// Create rectangle covering the correct screen area (x-axis)
+				Rectangle rect = new Rectangle();
+				rect.x = getView().bpToTrack(visibleRegion.start);
+				rect.width = (int) Math.round(getView().bpWidth() * widthInBps);
+
+				// Read parts are drawn in order and placed in layers
+				int layer = 0;
+				while (occupiedSpace.size() > layer && occupiedSpace.get(layer) > rect.x + 1) {
+					layer++;
 				}
 
-				seq = DUMMY_SEQUENCE.substring(0, seqLength);
-			}
+				// Read part reserves the space of the layer from end to left corner of the screen
+				int end = rect.x + rect.width;
+				if (occupiedSpace.size() > layer) {
+					occupiedSpace.set(layer, end);
+				} else {
+					occupiedSpace.add(end);
+				}
 
-			// Width in basepairs, sequence length not always equal to endBp - startBp + 1
-			int widthBp = seq.length();
+				// Now we can decide the y coordinate
+				rect.y = getYCoord(layer, height);
+				rect.height = height;
 
-			if (cigar != null) {
-				widthBp = cigar.getReferenceIndex(seq.length() - 1) + 1;
-			}
+				// Check if we are about to go over the edge of the drawing area
+				boolean lastBeforeMaxStackingDepthCut = getYCoord(layer + 1, height) < 0;
 
-			// Create rectangle covering the correct screen area (x-axis)
-			Rectangle rect = new Rectangle();
-			rect.x = getView().bpToTrack(startBp);
-			rect.width = (int) Math.round(getView().bpWidth() * widthBp);
+				// Check if we are over the edge of the drawing area
+				if (rect.y < 0) {
+					continue;
+				}
 
-			// Reads are drawn in order and placed in layers
-			int layer = 0;
-			while (occupiedSpace.size() > layer && occupiedSpace.get(layer) > rect.x + 1) {
-				layer++;
-			}
+				// Check if we have enough space for the actual sequence
+				String seq = visibleRegion.getSequencePart();
+				if (rect.width < seq.length()) {
+					// Too little space - only show one rectangle for each read part
 
-			// Read reserves the space of the layer from end to left corner of the screen
-			int end = rect.x + rect.width;
-			if (occupiedSpace.size() > layer) {
-				occupiedSpace.set(layer, end);
-			} else {
-				occupiedSpace.add(end);
-			}
-
-			// Now we can decide the y coordinate
-			rect.y = getYCoord(layer, height);
-			rect.height = height;
-
-			// Check if we are about to go over the edge of the drawing area
-			boolean lastBeforeMaxStackingDepthCut = getYCoord(layer + 1, height) < 0;
-
-			// Check if we are over the edge of the drawing area
-			if (rect.y < 0) {
-				continue;
-			}
-
-			// Complement the read if on reverse strand
-			if ((Strand) read.values.get(ColumnType.STRAND) == Strand.REVERSED) {
-
-				StringBuffer buf = new StringBuffer(seq.toUpperCase());
-
-				// Complement
-				seq = buf.toString().replace('A', 'x'). // switch A and T
-				replace('T', 'A').replace('x', 'T').
-
-				replace('C', 'x'). // switch C and G
-				replace('G', 'C').replace('x', 'G');
-			}
-
-			// Check if we have enough space for the actual sequence
-			// FIXME Reimplement CIGAR compatible check
-			if (false/*rect.width < seq.length()*/) {
-				// too little space - only show one rectangle for each read
-
-				// FIXME Draw multiple rectangles
-//				Color color = Color.gray;
-//				// mark last line that will be drawn
-//				if (lastBeforeMaxStackingDepthCut) {
-//					color = color.brighter();
-//				}
-//
-//				// no space to draw actual sequence
-//				drawables.add(new RectDrawable(rect, color, null));
-
-			} else {
-
-				// Prepare to draw single nucleotides
-				float increment = getView().bpWidth();
-				float startX = getView().bpToTrackFloat(startBp);
-
-				// Draw something for each nucleotide
-				for (int j = 0; j < seq.length(); j++) {
-
-					char letter = seq.charAt(j);
-
-					int refIndex = j;
-
-					if (cigar != null) {
-						refIndex = cigar.getReferenceIndex(refIndex);
-						if (refIndex == -1) {
-							// There isn't reference sequence index where to draw this item (i.e., is insertion)
-							continue;
-						}
-					}
-
-					// Choose a color depending on viewing mode
-					Color bg = Color.white;
-					int posInRef = startBp.bp.intValue() + refIndex - getView().getBpRegion().start.bp.intValue();
-					if (highlightSNP && posInRef >= 0 && posInRef < refSeq.length && Character.toLowerCase(refSeq[posInRef]) == Character.toLowerCase(letter)) {
-						bg = Color.gray;
-					} else {
-						switch (letter) {
-						case 'A':
-							bg = charColors[0];
-							break;
-						case 'C':
-							bg = charColors[1];
-							break;
-						case 'G':
-							bg = charColors[2];
-							break;
-						case 'T':
-							bg = charColors[3];
-							break;
-						}
-					}
-
-					// Tell that we have reached max. stacking depth
+					Color color = Color.gray;
+					
+					// Mark last line that will be drawn
 					if (lastBeforeMaxStackingDepthCut) {
-						bg = bg.brighter();
+						color = color.brighter();
 					}
 
-					// Draw rectangle
-					int x = Math.round(startX + refIndex * increment);
-					int width = increment >= 1.0f ? Math.round(increment) : 1;  
-					drawables.add(new RectDrawable(x, rect.y, width, height, bg, null));
+					drawables.add(new RectDrawable(rect, color, null));
+
+				} else {
+
+					// Complement the read if on reverse strand
+					if ((Strand) read.values.get(ColumnType.STRAND) == Strand.REVERSED) {
+
+						StringBuffer buf = new StringBuffer(seq.toUpperCase());
+
+						// Complement
+						seq = buf.toString().replace('A', 'x'). // switch A and T
+						replace('T', 'A').replace('x', 'T').
+
+						replace('C', 'x'). // switch C and G
+						replace('G', 'C').replace('x', 'G');
+					}
+
+					// Prepare to draw single nucleotides
+					float increment = getView().bpWidth();
+					float startX = getView().bpToTrackFloat(startBp);
+
+					// Draw something for each nucleotide
+					for (int j = 0; j < seq.length(); j++) {
+
+						char letter = seq.charAt(j);
+
+						long refIndex = j;
+
+						// Choose a color depending on viewing mode
+						Color bg = Color.white;
+						long posInRef = startBp.bp.intValue() + refIndex - getView().getBpRegion().start.bp.intValue();
+						if (highlightSNP && posInRef >= 0 && posInRef < refSeq.length && Character.toLowerCase(refSeq[(int)posInRef]) == Character.toLowerCase(letter)) {
+							bg = Color.gray;
+						} else {
+							switch (letter) {
+							case 'A':
+								bg = charColors[0];
+								break;
+							case 'C':
+								bg = charColors[1];
+								break;
+							case 'G':
+								bg = charColors[2];
+								break;
+							case 'T':
+								bg = charColors[3];
+								break;
+							}
+						}
+
+						// Tell that we have reached max. stacking depth
+						if (lastBeforeMaxStackingDepthCut) {
+							bg = bg.brighter();
+						}
+
+						// Draw rectangle
+						int x = Math.round(startX + refIndex * increment);
+						int width = increment >= 1.0f ? Math.round(increment) : 1;  
+						drawables.add(new RectDrawable(x, rect.y, width, height, bg, null));
+					}
+
 				}
 			}
 		}

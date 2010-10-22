@@ -97,8 +97,7 @@ public class SAMFile {
             	Cigar cigar = new Cigar();
             	
             	for (CigarElement picardElement : record.getCigar().getCigarElements()) {
-            		cigar.addElement(new CigarItem(
-            				picardElement.getLength(), picardElement.getOperator().toString())); 
+            		cigar.addElement(new CigarItem(picardElement)); 
             	}
             	            	
             	values.put(ColumnType.CIGAR, cigar);

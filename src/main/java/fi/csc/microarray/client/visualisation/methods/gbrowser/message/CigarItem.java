@@ -1,19 +1,32 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
+import net.sf.samtools.CigarElement;
+import net.sf.samtools.CigarOperator;
+
 public class CigarItem {
-	private Long length;
-	private String type;
+	private CigarElement cigarElement;
 	
-	public CigarItem(long length, String type) {
-		this.length = length;
-		this.type = type;
+	public CigarItem(CigarElement cigarElement) {
+		this.cigarElement = cigarElement;
 	}
 	
 	public long getLength() {
-		return length;
+		return cigarElement.getLength();
 	}
 	
 	public String getType() {
-		return type;
+		return cigarElement.getOperator().toString();
+	}
+
+	public boolean isVisible() {
+		return cigarElement.getOperator() == CigarOperator.M;
+	}
+	
+	public boolean consumesReferenceBases() {
+		return cigarElement.getOperator().consumesReferenceBases();
+	}
+
+	public boolean consumesReadBases() {
+		return cigarElement.getOperator().consumesReadBases();
 	}
 }
