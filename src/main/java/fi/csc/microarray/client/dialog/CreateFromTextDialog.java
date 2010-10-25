@@ -43,8 +43,6 @@ public class CreateFromTextDialog extends JDialog implements CaretListener, Acti
     
     private final Dimension BUTTON_SIZE = new Dimension(70, 25);
     
-    private ClientApplication client;
-    
     private JLabel nameLabel;
     private JLabel textLabel;
     private JTextField nameField;
@@ -164,15 +162,16 @@ public class CreateFromTextDialog extends JDialog implements CaretListener, Acti
                 // Checkbox decides if we have to open import window
                 if (importCheckBox.isSelected()) {
                     // Create dataset
-                    ByteArrayInputStream stream = new ByteArrayInputStream(fileContent.getBytes());
-                    DataBean data = client.getDataManager().createDataBean(fileName, stream);
-                    data.setContentType(client.getDataManager().guessContentType(fileName));
+                    ClientApplication application =  Session.getSession().getApplication();
+                	ByteArrayInputStream stream = new ByteArrayInputStream(fileContent.getBytes());
+                    DataBean data = application.getDataManager().createDataBean(fileName, stream);
+                    data.setContentType(application.getDataManager().guessContentType(fileName));
                     data.setOperation(new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data }));
                     
                     // Make it visible
-                    DataFolder folder = client.initializeFolderForImport(folderName);
+                    DataFolder folder = application.initializeFolderForImport(folderName);
                     folder.addChild(data);
-                    client.getSelectionManager().selectSingle(data, this);
+                    application.getSelectionManager().selectSingle(data, this);
                 } else {
                     // Open import dialog
                     File file = ImportUtils.createTempFile(fileName, ImportUtils.getExtension(fileName));
