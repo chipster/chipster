@@ -22,7 +22,7 @@ import fi.csc.microarray.client.visualisation.methods.threed.CoordinateArea.Pain
  * Class for singel point of data. This is mainly from the Viski project 
  * (http://www.cs.helsinki.fi/group/viski/) but some new drawing modes are added.
  *
- * @author esa, Petri KlemelÃ¤
+ * @author esa, Petri Klemelä
  */
 public class DataPoint 
         extends Drawable {

@@ -21,6 +21,11 @@
 			<value>false</value>
 		</entry>
 
+		<entry entryKey="public-files-url" type="string" description="url for the root of the public files">
+			<value>http://chipster-filebroker.csc.fi:8090/public</value>
+		</entry>
+
+
 		<entry entryKey="disable-proxy" type="boolean" description="should we ignore Java proxy settings and connect directly">
 			<value>true</value>
 		</entry>
@@ -62,6 +67,14 @@
 	
 		<entry entryKey="file-root-path" type="string" description="path to file broker cache directory">
 			<value>file-root</value>
+		</entry>
+
+		<entry entryKey="user-data-path" type="string" description="path to data files of the users'">
+			<value>user-data</value>
+		</entry>
+
+		<entry entryKey="public-data-path" type="string" description="path to public data files">
+			<value>public</value>
 		</entry>
 		
 		<entry entryKey="file-life-time" type="int" description="how long files are stored in fileserver, seconds">
@@ -189,6 +202,24 @@
 		<entry entryKey="backup-interval" type="int" description="backup interval in hours">
 			<value>24</value>
 		</entry>
+		
+		<entry entryKey="admin-email" type="string" description="admin email">
+		</entry>
+	
+		<entry entryKey="manager-web-console-port" type="int" description="">
+			<value>8083</value>
+		</entry>
+	
+	    <entry entryKey="manager-web-console-username" type="string" description="">
+			<value>chipster</value>
+		</entry>
+
+	    <entry entryKey="manager-web-console-password" type="string" description="">
+			<value>chipster</value>
+		</entry>
+
+
+	
 			
 	</configuration-module>
 	

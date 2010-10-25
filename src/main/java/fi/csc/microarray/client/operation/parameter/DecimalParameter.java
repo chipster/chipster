@@ -3,14 +3,14 @@ package fi.csc.microarray.client.operation.parameter;
 /**
  * A parameter which takes float values.
  * 
- * @author Janne KÃ¤ki
+ * @author Janne Käki
  *
  */
 public class DecimalParameter extends Parameter {
 
-	private float minValue;
-	private float maxValue;
-	private float value;
+	private Float minValue;
+	private Float maxValue;
+	private Float value;
 	
 	/**
 	 * Creates a new DecimalParameter with the given initial values.
@@ -24,31 +24,37 @@ public class DecimalParameter extends Parameter {
 	 * 		   or the init value is not between these limits).
 	 */
 	public DecimalParameter(
-			String name, String description, float minValue, float maxValue, float initValue)
+			String id, String displayName, String description, Float minValue, Float maxValue, Float initValue)
 					throws IllegalArgumentException {
-		super(name, description);
+		super(id, displayName, description);
+        
 		this.minValue = minValue;
+        this.maxValue = maxValue;
+		if (initValue == null) {
+		    this.value = initValue;
+		    return;
+		}
+
 		if (maxValue < minValue) {
 			throw new IllegalArgumentException("Minimum value for decimal parameter " +
-					this.getName() + " cannot be bigger than the maximum value.");
+					this.getID() + " cannot be bigger than the maximum value.");
 		}
-		this.maxValue = maxValue;
 		if (initValue < minValue || initValue > maxValue) {
 			throw new IllegalArgumentException("Initial value for decimal parameter " +
-					this.getName() + " must be inside given limits.");
+					this.getID() + " must be inside given limits.");
 		}
 		this.value = initValue;
 	}
 	
-	public float getMinValue() {
+	public Float getMinValue() {
 		return minValue;
 	}
 	
-	public float getMaxValue() {
+	public Float getMaxValue() {
 		return maxValue;
 	}
 	
-	public float getDecimalValue() {
+	public Float getDecimalValue() {
 		return value;
 	}
 	
@@ -60,7 +66,7 @@ public class DecimalParameter extends Parameter {
 	public void setMinValue(float newMinValue) throws IllegalArgumentException {
 		if (newMinValue > this.maxValue) {
 			throw new IllegalArgumentException("New minimum value for " +
-					this.getName() + " cannot exceed current maximum value.");
+					this.getID() + " cannot exceed current maximum value.");
 		}
 		this.minValue = newMinValue;
 		if (this.value < this.minValue) {
@@ -71,7 +77,7 @@ public class DecimalParameter extends Parameter {
 	public void setMaxValue(float newMaxValue) throws IllegalArgumentException {
 		if (newMaxValue < this.minValue) {
 			throw new IllegalArgumentException("New maximum value for " +
-					this.getName() + " cannot fall below current minimum value.");
+					this.getID() + " cannot fall below current minimum value.");
 		}
 		this.maxValue = newMaxValue;
 		if (this.value > this.maxValue) {
@@ -90,33 +96,40 @@ public class DecimalParameter extends Parameter {
 	public void setDecimalValue(float newValue) throws IllegalArgumentException {
 		if (newValue < minValue || newValue > maxValue) {
 			throw new IllegalArgumentException("New value for decimal parameter " +
-					this.getName() + " must be inside given limits.");
+					this.getID() + " must be inside given limits.");
 		}
 		this.value = newValue;
 	}
 	
 	@Override
 	public void setValue(Object newValue) {
-		if (newValue instanceof Float) {
+	    if (newValue == null) {
+	        this.value = null;
+	    } else if (newValue instanceof Float) {
 			this.value = (Float) newValue;
-		}
-		if (newValue instanceof Double) {
+		} else if (newValue instanceof Double) {
 			double doubleValue = (Double) newValue;
 			this.value = (float) doubleValue;
 		} else {
 			throw new IllegalArgumentException(newValue + " is an illegal " +
-					"value for decimal parameter " + this.getName() + ".");
+					"value for decimal parameter " + this.getID() + ".");
 		}
 	}
 
 	@Override
 	public boolean checkValidityOf(Object valueObject) {
+	    // Allow null values for unfilled fields
+        if (valueObject == null) {
+            return true;
+        }
+	    
 		if (valueObject instanceof Float) {
 			float floatValue = (Float) valueObject;
 			if (floatValue >= this.minValue && floatValue <= this.maxValue) {
 				return true;
 			}
 		}
+		
 		if (valueObject instanceof Double) {
 			double doubleValue = (Double) valueObject;
 			if (doubleValue >= this.minValue && doubleValue <= this.maxValue) {
@@ -127,7 +140,7 @@ public class DecimalParameter extends Parameter {
 	}
 
 	public String toString() {
-		return this.getName() + ": " + value;
+		return this.getID() + ": " + value;
 	}
 
 	@Override
@@ -137,11 +150,24 @@ public class DecimalParameter extends Parameter {
 
 	@Override
 	public void parseValue(String stringValue) throws IllegalArgumentException {
+        
+        // Empty string means that no value is set
+        // This is possible for non-required parameters
+        if (stringValue == null || stringValue.equals("")) {
+            setValue(null);
+            return;
+        }
+        
+        // Otherwise string should represent a decimal
 		try {
 			setValue(Double.parseDouble(stringValue));
-			
 		} catch (NumberFormatException e) {
 			throw new IllegalArgumentException("cannot parse String value \"" + stringValue + "\"");
 		}
+	}
+
+	@Override
+	public String getValueAsString() {
+	    return value != null ? value.toString() : "";
 	}
 }

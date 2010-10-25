@@ -8,8 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +30,7 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.selection.DatasetChoiceEvent;
+import fi.csc.microarray.client.operation.OperationDefinition.Suitability;
 import fi.csc.microarray.constants.VisualConstants;
 
 /**
@@ -42,14 +40,13 @@ import fi.csc.microarray.constants.VisualConstants;
  * right one. Selecting an operation on the right side list, then, will
  * result in corresponding details being shown in the parent OperationPanel.
  * 
- * @author Janne KÃ¤ki
+ * @author Janne Käki
  *
  */
+@SuppressWarnings("serial")
 public class OperationChoicePanel extends JPanel
-								  implements ListSelectionListener, PropertyChangeListener {
-	/**
-	 * Logger for this class
-	 */
+								  implements ListSelectionListener {
+	// Logger for this class
 	private static final Logger logger = Logger
 			.getLogger(OperationChoicePanel.class);
 	
@@ -68,7 +65,8 @@ public class OperationChoicePanel extends JPanel
 	 * 
 	 * @param parent The OperationPanel, for communication purposes.
 	 */
-	public OperationChoicePanel(OperationPanel parent, Collection<OperationCategory> operationCategoryCollection) {
+	public OperationChoicePanel(OperationPanel parent,
+	       Collection<OperationCategory> operationCategoryCollection) {
 		super(new GridLayout(1, 2));
 		this.parent = parent;
 
@@ -89,7 +87,6 @@ public class OperationChoicePanel extends JPanel
 		categoryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		categoryList.addListSelectionListener(this);
 		categoryList.setCellRenderer(new CategoryListRenderer());
-		//categoryList.setPreferredSize(new Dimension(130, 0));
 		categoryList.getInsets().right = 1;
 		categoryList.setName("categoryList");
 		
@@ -98,7 +95,6 @@ public class OperationChoicePanel extends JPanel
 		operationList.addListSelectionListener(this);
 		operationList.setCellRenderer(new FontSizeFriendlyListRenderer());
 		operationList.addMouseListener(new MouseClickListener());
-		//operationList.setPreferredSize(new Dimension(200, 0));
 		operationList.getInsets().right = 1;
 		operationList.setName("operationList");
 		
@@ -106,16 +102,12 @@ public class OperationChoicePanel extends JPanel
 		JScrollPane operationListScroller = new JScrollPane(operationList);
 		
 		//Remove useless borders
-		categoryListScroller.setBorder(
-				BorderFactory.createMatteBorder(0, 0, 0, 1, VisualConstants.OPERATION_LIST_BORDER_COLOR));
-		operationListScroller.setBorder(
-				BorderFactory.createMatteBorder(0, 0, 0, 1, VisualConstants.OPERATION_LIST_BORDER_COLOR));
+		categoryListScroller.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
+		        VisualConstants.OPERATION_LIST_BORDER_COLOR));
+		operationListScroller.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 		
 		this.add(categoryListScroller);
 		this.add(operationListScroller);
-		
-		// start listening
-		application.addPropertyChangeListener(this);
 	}
 	
 	public Vector<Component> getFocusComponents(){
@@ -125,8 +117,16 @@ public class OperationChoicePanel extends JPanel
 		return order;
 	}
 	
+	/**
+	 * Deselect operation.
+	 */
+	public void deselectOperation() {
+	    categoryList.clearSelection();
+	    operationList.clearSelection();
+	    parent.selectOperation(null);
+	}
 	
-	class FontSizeFriendlyListRenderer extends DefaultListCellRenderer {
+	static class FontSizeFriendlyListRenderer extends DefaultListCellRenderer {
 		public Component getListCellRendererComponent(
 				JList list, Object value, int index,
 				boolean isSelected, boolean cellHasFocus) {
@@ -142,7 +142,7 @@ public class OperationChoicePanel extends JPanel
 	}
 	
 
-	class CategoryListRenderer extends FontSizeFriendlyListRenderer {
+	static class CategoryListRenderer extends FontSizeFriendlyListRenderer {
 
 		public Component getListCellRendererComponent(
 				JList list, Object value, int index,
@@ -188,7 +188,9 @@ public class OperationChoicePanel extends JPanel
 							application.getSelectionManager().getSelectedDataBeans().size() > 0) {
 						
 						OperationDefinition operationDefinition = (OperationDefinition)selected;
-						if (!operationDefinition.evaluateSuitabilityFor(application.getSelectionManager().getSelectedDataBeans()).isImpossible()) {
+						if (!operationDefinition.evaluateSuitabilityFor(
+						        application.getSelectionManager().getSelectedDataBeans(),
+						                Suitability.SUITABLE).isImpossible()) {
 							application.executeOperation(operationDefinition, null);
 						}
 					}
@@ -254,12 +256,5 @@ public class OperationChoicePanel extends JPanel
 				parent.selectOperation(selectedOperation);
 			}
 		}
-	}
-	
-	public void propertyChange(PropertyChangeEvent evt) {
-		if( evt instanceof DatasetChoiceEvent){
-			// reselect operation with the new data
-			parent.selectOperation(selectedOperation);
-		}		
 	}
 }

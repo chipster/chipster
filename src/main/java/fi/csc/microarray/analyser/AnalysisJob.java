@@ -1,6 +1,7 @@
 package fi.csc.microarray.analyser;
 
 import java.util.Date;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.log4j.Logger;
 
@@ -18,34 +19,34 @@ import fi.csc.microarray.messaging.message.ResultMessage;
  * ---------
  * Use updateState(...) and updateStateDetailToClient(...) for changing the 
  * state of the job.
- * 
+ * <p>
  * If there isn't a really good reason to do otherwise, the state of a 
  * successful job should be kept as RUNNING until the AnalysisJob sets
  * it to COMPLETED. So don't set the state as COMPLETED in a subclass.
- * 
+ * <p>
  * Try to detect any error situations and set the state accordingly:
- * 
+ * <p>
  * FAILED_USER_ERROR:	A situation in which the user can fix the problem
  * 						by changing inputs or parameters. You must also
  * 						set the error message to something which will
  * 						tell the user what happened and how to fix it.
  * 						The error message will be used as the header
  * 						in the client dialog.
- *  
+ * <p>
  * FAILED:				The tool failed.
- * 
+ * <p>
  * ERROR:				Error in the system, not in a specific tool.
- * 
+ * <p>
  * Before setting the state to one of those above, set the error message
  * and output text, then return after updateState(...)
- * 
+ * <p>
  * AnalysisJob will catch any Exceptions (and Throwables) and set the 
  * state as ERROR (With the exception of JobCancelledException). 
- * 
+ * <p>
  * Call cancelCheck() in situations where it makes sense to acknowledge
  * that the jobs has been requested to be canceled. This will throw the
  * JobCancelledException.
- * 
+ * <p>
  * Use updateStateDetailToClient(...) for reporting meaningful state 
  * detail changes to the client.
  * 
@@ -333,4 +334,22 @@ public abstract class AnalysisJob implements Runnable {
 		this.executionEndTime = executionEndTime;
 	}
 
+    /**
+     * A simple thread that waits for an operating system
+     * process to finish and reduces a given latch by one.
+     * 
+     * @author naktinis
+     *
+     */
+    protected class ProcessWaiter extends Thread {
+        public ProcessWaiter(Process process, CountDownLatch latch) {
+            try {
+                process.waitFor();
+                latch.countDown();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            
+        }
+    }
 }
