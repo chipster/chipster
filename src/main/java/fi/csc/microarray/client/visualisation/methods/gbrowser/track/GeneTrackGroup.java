@@ -93,13 +93,15 @@ public class GeneTrackGroup extends TrackGroup{
 		tracks.add(annotation);
 		
 		if (snpTrack != null) {
-			//SNP track Forward
+			// SNP track Forward
 			tracks.add(snpTrack);
+		}
 
-			// Ruler track
-			tracks.add(new RulerTrack(view));
+		// Ruler track
+		tracks.add(new RulerTrack(view));
 
-			//SNP track Reversed
+		if (snpTrackReversed != null) {
+			// SNP track Reversed
 			tracks.add(snpTrackReversed);
 		}
 		  
