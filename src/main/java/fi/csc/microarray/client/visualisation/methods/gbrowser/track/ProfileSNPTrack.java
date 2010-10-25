@@ -217,30 +217,32 @@ public class ProfileSNPTrack extends Track {
 			
 			Cigar cigar = (Cigar) read.values.get(ColumnType.CIGAR);
 
-			for (int i = 0; i < seq.length(); i++) {
-				
-				Base base = null;
-				
-				long refIndex = cigar.getReferenceIndex(i);
-				
-				if (refIndex == -1) {
-					//Skip insertions
-					continue;
-				}
-				
-				Long bp = refIndex + read.region.start.bp;
-				
-				if (!collector.containsKey(bp)) {
-					base = new Base();
-					collector.put(bp, base);
-				} else {
-					base = collector.get(bp);
-				}
-				
-				Acid acid = getAcid(seq.charAt(i));
-				
-				if (acid != null) {
-					base.acidCounts[acid.ordinal()]++;
+			if (cigar != null) {
+				for (int i = 0; i < seq.length(); i++) {
+
+					Base base = null;
+
+					long refIndex = cigar.getReferenceIndex(i);
+
+					if (refIndex == -1) {
+						//Skip insertions
+						continue;
+					}
+
+					Long bp = refIndex + read.region.start.bp;
+
+					if (!collector.containsKey(bp)) {
+						base = new Base();
+						collector.put(bp, base);
+					} else {
+						base = collector.get(bp);
+					}
+
+					Acid acid = getAcid(seq.charAt(i));
+
+					if (acid != null) {
+						base.acidCounts[acid.ordinal()]++;
+					}
 				}
 			}
 		}
