@@ -18,7 +18,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
@@ -61,11 +60,11 @@ import fi.csc.microarray.client.dataview.GraphPanel;
 import fi.csc.microarray.client.dataview.TreePanel;
 import fi.csc.microarray.client.dialog.ChipsterDialog;
 import fi.csc.microarray.client.dialog.ClipboardImportDialog;
-import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.dialog.DialogInfo;
 import fi.csc.microarray.client.dialog.ErrorDialogUtils;
 import fi.csc.microarray.client.dialog.ImportSettingsAccessory;
 import fi.csc.microarray.client.dialog.SnapshotAccessory;
+import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.dialog.URLImportDialog;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
@@ -1203,7 +1202,8 @@ public class SwingClientApplication extends ClientApplication {
 
 			if (returnValue == 0) {
 				try {
-					saveSession();
+					saveSessionAndQuit();
+					return;
 				} catch (Exception exp) {
 					this.showErrorDialog("Session saving failed", exp);
 					return;
@@ -1214,6 +1214,11 @@ public class SwingClientApplication extends ClientApplication {
 				return;
 			}
 		}
+		
+		quitImmediately();
+	}
+	
+	public void quitImmediately() {
 
 		// hide immediately to look more reactive...
 		childScreens.disposeAll();
@@ -1679,8 +1684,17 @@ public class SwingClientApplication extends ClientApplication {
 		});
 	}
 	
+	
 	@Override
-	public boolean saveSession() {
+	public void saveSession() {
+		saveSession(false);
+	}
+
+	public void saveSessionAndQuit() {
+		saveSession(true);
+	}
+	
+	public void saveSession(final boolean quit) {
 
 		JFileChooser fileChooser = getSnapshotFileChooser(null);
 		int ret = fileChooser.showSaveDialog(this.getMainFrame());
@@ -1700,42 +1714,40 @@ public class SwingClientApplication extends ClientApplication {
 					returnValue = JOptionPane.showOptionDialog(this.getMainFrame(), message, "Confirm replace", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
 					if (returnValue != 1) {
-						return false;
+						return;
 					}
 
 				}
 
 				// save
-				final boolean[] saveSuccessful = new boolean[1];
-				final CountDownLatch latch = new CountDownLatch(1);
 				runBlockingTask("saving session", new Runnable() {
 
 					public void run() {
 
 						try {
+							// save
 							getDataManager().saveSnapshot(file, application);
+
+							// quit
+							if (quit) {
+								quitImmediately();
+							}
+
+							menuBar.updateMenuStatus();
+							unsavedChanges = false;
+
+						
 						} catch (Exception e) {
-							saveSuccessful[0] = false;
 							throw new RuntimeException(e);
-						} finally {
-							latch.countDown();
 						}
 					}
 				});
-				latch.await();
-				if (!saveSuccessful[0]) {
-					return false;
-				}
-				menuBar.updateMenuStatus();
-				unsavedChanges = false;
-				
 			} catch (Exception exp) {
 				showErrorDialog("Saving session failed.", exp);
-				return false;
+				return;
 			}
 		}
 		menuBar.updateMenuStatus();
-		return true;
 	}
 
 	/**
