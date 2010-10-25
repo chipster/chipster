@@ -5,6 +5,9 @@
 
 # Adds the annotation to the data
 # JTT 21.1.2009
+#
+# MG 25.10.2010
+# modified to cope with annomalies in Description names
 
 # Reads the chiptype from phenodata table
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
@@ -41,6 +44,10 @@ annot$Gene.Ontology<-gsub("\'", "", annot$Gene.Ontology)
 datannot<-merge(dat, annot, by.x="row.names", by.y="row.names")
 rownames(datannot)<-datannot[,1]
 datannot<-datannot[,-1]
+
+# Fixes an issue with the ' sign appearing in the Description column
+# that causes troubles for downstream tools
+datannot$Description <- gsub("'", "", datannot$Description)
 
 # Writing out the annotated data
 write.table(datannot, file="data-with-annotations.tsv", sep="\t", row.names=T, col.names=T, quote=F)
