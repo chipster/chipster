@@ -166,7 +166,7 @@ public class SAMFile {
     	List<RegionContent> responseList = new LinkedList<RegionContent>();
         
         // How many times file is read
-        int SAMPLING_GRANULARITY = 40;
+        int SAMPLING_GRANULARITY = 100;
         int step = request.getLength().intValue() / SAMPLING_GRANULARITY;
         int SAMPLE_SIZE = 100; // FIXME: issue, can be bigger then step size 
         
@@ -204,17 +204,23 @@ public class SAMFile {
         		cacheMisses++;
         		
         		// Fetch new content by taking sample from the middle of this area
+        		int start = stepMiddlepoint - SAMPLE_SIZE/2;
+        		int end = stepMiddlepoint + SAMPLE_SIZE/2;
         		CloseableIterator<SAMRecord> iterator =
         			this.reader.query(request.start.chr.toString(),
-        					stepMiddlepoint - SAMPLE_SIZE/2, stepMiddlepoint + SAMPLE_SIZE/2, false);
+        					start, end, false);
 
         		// Count reads in this sample area
         		for (Iterator<SAMRecord> i = iterator; i.hasNext();) {
         			SAMRecord record = i.next();
-        			if (record.getReadNegativeStrandFlag()) {
-        				countReverse++;
-        			} else {
-        				countForward++;
+        			
+        			// Accept only records that start in this area (very rough approximation for spliced reads)
+        			if (record.getAlignmentStart() >= start && record.getAlignmentEnd() <= end) {
+        				if (record.getReadNegativeStrandFlag()) {
+        					countReverse++;
+        				} else {
+        					countForward++;
+        				}
         			}
         		}
 

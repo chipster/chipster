@@ -84,10 +84,15 @@ public class SeqBlockTrack extends Track {
 			int height = 4;
 			BpCoord startBp = read.region.start;
 
-			// Split read into continious blocks (read parts) by using the cigar
+			// Split read into continuous blocks (read parts) by using the cigar
 			List<ReadPart> visibleRegions = Cigar.getVisibleRegions(read);
 			for (ReadPart visibleRegion : visibleRegions) {
 
+				// Skip read parts that are not in this view
+				if (!visibleRegion.intercepts(getView().getBpRegion())) {
+					continue;
+				}
+				
 				// Width in basepairs
 				long widthInBps = visibleRegion.getLength();
 
@@ -122,7 +127,7 @@ public class SeqBlockTrack extends Track {
 					continue;
 				}
 
-				// Check if we have enough space for the actual sequence
+				// Check if we have enough space for the actual sequence (at least pixel per nucleotide)
 				String seq = visibleRegion.getSequencePart();
 				if (rect.width < seq.length()) {
 					// Too little space - only show one rectangle for each read part
@@ -137,6 +142,7 @@ public class SeqBlockTrack extends Track {
 					drawables.add(new RectDrawable(rect, color, null));
 
 				} else {
+					// Enough space - show color coding for each nucleotide
 
 					// Complement the read if on reverse strand
 					if ((Strand) read.values.get(ColumnType.STRAND) == Strand.REVERSED) {
@@ -155,7 +161,7 @@ public class SeqBlockTrack extends Track {
 					float increment = getView().bpWidth();
 					float startX = getView().bpToTrackFloat(startBp);
 
-					// Draw something for each nucleotide
+					// Draw each nucleotide
 					for (int j = 0; j < seq.length(); j++) {
 
 						char letter = seq.charAt(j);
@@ -194,7 +200,6 @@ public class SeqBlockTrack extends Track {
 						int width = increment >= 1.0f ? Math.round(increment) : 1;  
 						drawables.add(new RectDrawable(x, rect.y, width, height, bg, null));
 					}
-
 				}
 			}
 		}
@@ -234,8 +239,7 @@ public class SeqBlockTrack extends Track {
 
 	@Override
 	public boolean isStretchable() {
-		// stretchable unless hidden
-		return isVisible();
+		return isVisible(); // Stretchable unless hidden
 	}
 
 	@Override
