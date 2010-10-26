@@ -84,11 +84,11 @@ public class SeqBlockTrack extends Track {
 			int height = 4;
 			BpCoord startBp = read.region.start;
 
-			// Split read into continuous blocks (read parts) by using the cigar
-			List<ReadPart> visibleRegions = Cigar.getVisibleRegions(read);
+			// Split read into continuous blocks (elements) by using the cigar
+			List<ReadPart> visibleRegions = Cigar.splitVisibleElements(read);
 			for (ReadPart visibleRegion : visibleRegions) {
 
-				// Skip read parts that are not in this view
+				// Skip elements that are not in this view
 				if (!visibleRegion.intercepts(getView().getBpRegion())) {
 					continue;
 				}

@@ -9,6 +9,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 
 public class Cigar {
 	private List<CigarItem> elements = new ArrayList<CigarItem>();
+	private LinkedList<ReadPart> visibleElements = null;
+	private RegionContent read;
+	
+	public Cigar(RegionContent read) {
+		this.read = read;
+	}
 	
 	public void addElement(CigarItem e) {
 		elements.add(e);
@@ -73,40 +79,55 @@ public class Cigar {
 		return "Cigar";
 	}
 
-	public static List<ReadPart> getVisibleRegions(RegionContent read) {
+	/**
+	 * Utility method for splitting a read if it has cigar, otherwise returns the whole
+	 * read wrapped into ReadPart.
+	 * 
+	 * @param read read to split
+	 * 
+	 * @return list of ReadPart objects, one for each of the Cigar elements
+	 */
+	public static List<ReadPart> splitVisibleElements(RegionContent read) {
 		Cigar cigar = (Cigar) read.values.get(ColumnType.CIGAR); // Cigar can be null
 
 		if (cigar == null) {
 			return Arrays.asList(new ReadPart[] { new ReadPart(read) });
-			
+
 		} else {
-			LinkedList<ReadPart> regions = new LinkedList<ReadPart>();
-			
+			return cigar.getVisibleElements();
+		}
+
+	}
+	
+	public List<ReadPart> getVisibleElements() {
+		
+		// Regions are parsed lazily
+		if (visibleElements == null) {
+			visibleElements = new LinkedList<ReadPart>();
+
 			// Split read into regions using cigar
 			long refCoord = read.region.start.bp;;
 			long seqCoord = 0;
 			String seq = (String) read.values.get(ColumnType.SEQUENCE);
 
-			for (CigarItem element : cigar.elements) {
-				
+			for (CigarItem element : elements) {
+
 				if (element.isVisible()) {
 					String subSeq = seq.substring((int)seqCoord, (int)(seqCoord + element.getLength()));
 					ReadPart region = new ReadPart(refCoord, refCoord + element.getLength(), read.region.start.chr, subSeq);
-					regions.add(region);
+					visibleElements.add(region);
 				}
-				
+
 				if (element.consumesReferenceBases()) {
 					refCoord += element.getLength();
 				}
-				
+
 				if (element.consumesReadBases()) {
 					seqCoord += element.getLength();
 				}
 
 			}
-			
-			return regions;
 		}
-		
+		return visibleElements;
 	}
 }

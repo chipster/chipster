@@ -73,6 +73,8 @@ public class SAMFile {
             // Values for this read
             HashMap<ColumnType, Object> values = new HashMap<ColumnType, Object>();
             
+            RegionContent read = new RegionContent(recordRegion, values);
+            
             if (request.requestedContents.contains(ColumnType.STRAND)) {
             	values.put(ColumnType.STRAND,
             			record.getReadNegativeStrandFlag() ?
@@ -93,8 +95,7 @@ public class SAMFile {
             
             if (request.requestedContents.contains(ColumnType.CIGAR)) {      
             	
-            	
-            	Cigar cigar = new Cigar();
+            	Cigar cigar = new Cigar(read);
             	
             	for (CigarElement picardElement : record.getCigar().getCigarElements()) {
             		cigar.addElement(new CigarItem(picardElement)); 
@@ -141,7 +142,7 @@ public class SAMFile {
              * Otherwise tracks keep adding the same reads to their read sets again and again. 
              */
             
-            responseList.add(new RegionContent(recordRegion, values));
+            responseList.add(read);
         }
 
         iterator.close();
