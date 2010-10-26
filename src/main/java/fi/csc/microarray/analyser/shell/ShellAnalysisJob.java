@@ -14,10 +14,8 @@ import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
 import fi.csc.microarray.analyser.AnalysisDescription.InputDescription;
 import fi.csc.microarray.analyser.AnalysisDescription.OutputDescription;
 import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
-import fi.csc.microarray.analyser.emboss.EmbossAnalysisJob;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.util.Files;
-import fi.csc.microarray.util.Strings;
 
 /**
  * Job that is run as a generic shell command.
@@ -32,98 +30,68 @@ import fi.csc.microarray.util.Strings;
  *               as the first arguments for the command.   
  *  </ul>
  * 
- * @author naktinis
+ * @author naktinis, hupponen
  *
  */
 public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
-   
-    private String executablePath;
-    private Boolean useStdout;
-    private Boolean inputLast;
-    private String[] extraArguments;
-    private String outputParameter = null;
-    
-    LinkedList<String> inputParameters;
+ 
+	protected String[] command;
+	
+    private Boolean useStdout = false;
     
     // Logger for this class
-    static final Logger logger = Logger.getLogger(EmbossAnalysisJob.class);
+    static final Logger logger = Logger.getLogger(ShellAnalysisJob.class);
     
     // Latch for canceling or finishing a job
     private CountDownLatch latch = new CountDownLatch(1);
     
     // Operating system process
     private Process process = null;
+
     
+    /**
+     * Construct the command line.
+     * 
+     */
     @Override
     protected void preExecute() throws JobCancelledException {
     	cancelCheck();
     	super.preExecute();
     	
         // Path to executable file
-        executablePath = analysis.getCommand();
+        String executablePath = analysis.getCommand();
         
         // Output method
         useStdout = analysis.getConfigParameters().get("stdout") != null &&
                 analysis.getConfigParameters().get("stdout").toLowerCase().equals("yes");
         
         // Input parameter
-        inputLast = analysis.getConfigParameters().get("input") != null &&
+        Boolean inputLast = analysis.getConfigParameters().get("input") != null &&
                 analysis.getConfigParameters().get("input").toLowerCase().equals("last");
         
         // Additional arguments
         String arguments = analysis.getConfigParameters().get("arguments");
-        extraArguments = (arguments != null && !arguments.equals("")) ?
+        String[] extraArguments = (arguments != null && !arguments.equals("")) ?
                 arguments.split(",") : new String[] {};
-        
+ 
+        String outputParameter = null;
         if (!useStdout) {    
             // If program creates a normal file, we need an output parameter
             outputParameter = analysis.getConfigParameters().get("output");
         }
-    }
 
-    /**
-     * User decided to cancel this job.
-     */
-    @Override
-    protected void cancelRequested() {
-        latch.countDown();
-    }
-    
-    /**
-     * Destroy operating system process if it is still
-     * running.
-     */
-    @Override
-    protected void cleanUp() {
-		
-    	// kill the process if not already finished
-    	try {
-			if (process != null) {
-				try {
-					process.exitValue();
-				} catch (IllegalThreadStateException itse) {
-					process.destroy();
-				}
-			}
-		} catch (Exception e) {
-			logger.error("error when destroying process ", e);
-		} finally {
-			super.cleanUp();
-		}
-    }
-
-    @Override
-    protected void execute() throws JobCancelledException {
-        // Get parameter values from user's input (order is significant)
+        LinkedList<String> inputParameters;
+    	
+    	// Get parameter values from user's input (order is significant)
         inputParameters = new LinkedList<String>(inputMessage.getParameters());
                 
         // Generate the command to be executed
-        LinkedList<String> command = new LinkedList<String>();
-        command.add(executablePath);
+        LinkedList<String> commandParts = new LinkedList<String>();
+        commandParts.add(executablePath);
         
         // Prepend arguments defined in the configuration file
         for (String arg : extraArguments) {
-            command.add(arg);
+            commandParts.add(arg);
         }
         
         // Parameters
@@ -131,8 +99,8 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
         for (ParameterDescription parameter : analysis.getParameters()) {
             String value = inputParameters.get(index);
             if (!value.equals("")) {
-                command.add("-" + parameter.getName());
-                command.add(value);
+                commandParts.add("-" + parameter.getName());
+                commandParts.add(value);
             }
             index++;
         }
@@ -140,35 +108,43 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
         // Outputs to a file (currently we only support a single output)
         if (outputParameter != null) {
             OutputDescription output = analysis.getOutputFiles().get(0);
-            command.add("-" + this.outputParameter);
-            command.add(output.getFileName().getID());
+            commandParts.add("-" + outputParameter);
+            commandParts.add(output.getFileName().getID());
         }
         
         // Inputs
         for (InputDescription input : analysis.getInputFiles()) {
         	if (!inputLast) {
                 // Input is a named parameter
-                command.add("-" + input.getFileName());
+                commandParts.add("-" + input.getFileName());
             }
-            command.add(input.getFileName());
+            commandParts.add(input.getFileName());
         }
         
-        String[] cmd = new String[0];
-        cmd = command.toArray(cmd);
+        // store the command for execute()
+        command = commandParts.toArray(new String[] {});
+    }
+
+    @Override
+    protected void execute() throws JobCancelledException {
         try {
-            logger.info("running shell job: " + Strings.delimit(command, " "));
+            String commandString = "";
+        	for (String s : command) {
+        		commandString += s;
+        	}
+        	logger.info("running shell job: " + commandString);
             
-            process = Runtime.getRuntime().exec(cmd, null, jobWorkDir);
+            process = Runtime.getRuntime().exec(command, null, jobWorkDir);
             updateStateDetailToClient("running analysis tool");
             
             // Start a new thread to listen to OS process status
-            new Thread(new ProcessWaiter(process, latch)).start();
+            new Thread(new ProcessWaiter()).start();
             
             // wait for the job to finish
             latch.await();
             cancelCheck();
             
-            // now finished or canceled TODO add timeout
+            // now finished
             updateStateDetailToClient("analysis tool finished");
             
             // put stdout and stderr to outputmessage
@@ -205,11 +181,64 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
             // if successful, don't need to do anything, just leave the state as running
 
         } catch (Exception e) {
-            // 
         	outputMessage.setErrorMessage("Running analysis tool failed.");
         	outputMessage.setOutputText(e.toString());
         	updateState(JobState.ERROR, "analysis tool failed");
         	return;
         }
+    }
+
+    
+    
+    
+    /**
+     * User decided to cancel this job.
+     */
+    @Override
+    protected void cancelRequested() {
+        latch.countDown();
+    }
+    
+    /**
+     * Destroy operating system process if it is still
+     * running.
+     */
+    @Override
+    protected void cleanUp() {
+		
+    	// kill the process if not already finished
+    	try {
+			if (process != null) {
+				try {
+					process.exitValue();
+				} catch (IllegalThreadStateException itse) {
+					process.destroy();
+				}
+			}
+		} catch (Exception e) {
+			logger.error("error when destroying process ", e);
+		} finally {
+			super.cleanUp();
+		}
+    }
+
+
+    /**
+     * A simple runnable that waits for an operating system
+     * process to finish and reduces a given latch by one.
+     * 
+     */
+    private class ProcessWaiter implements Runnable {
+
+		@Override
+		public void run() {
+    		try {
+                process.waitFor();
+            } catch (InterruptedException e) {
+            	throw new RuntimeException(e);
+            } finally {
+            	latch.countDown();
+            }
+		}
     }
 }
