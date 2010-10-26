@@ -44,7 +44,7 @@ public class TrackFactory {
 	}
 	
     public static Track createThickSeparatorTrack(View view) {
-        return new SeparatorTrack(view, Color.gray.brighter(), 4, 0, Long.MAX_VALUE);
+        return new SeparatorTrack(view, Color.gray.brighter(), true, 0, Long.MAX_VALUE);
     }
 
 	public static TrackGroup addReadTracks(GenomePlot genomePlot, DataSource userData,

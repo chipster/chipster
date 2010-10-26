@@ -18,7 +18,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptT
  *
  */
 
-public class GeneTrackGroup extends TrackGroup{
+public class GeneTrackGroup extends TrackGroup {
 	
 	private static final int CHANGE_TRACKS_ZOOM_THRESHOLD2 = 10000000;
 	private static final int CHANGE_TRACKS_ZOOM_THRESHOLD1 = 100000;
@@ -127,7 +127,7 @@ public class GeneTrackGroup extends TrackGroup{
 	}
 	
 	private static Track createThickSeparatorTrack(View view) {
-        return new SeparatorTrack(view, Color.gray.brighter(), 4, 0, Long.MAX_VALUE);
+        return new SeparatorTrack(view, Color.gray.brighter(), true, 0, Long.MAX_VALUE);
     }
 	
 	private void setChangeSNP(boolean change) {

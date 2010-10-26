@@ -101,12 +101,12 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
         tracks.add(titleTrack);
         tracks.add(readOverview);
         tracks.add(reads);
-        tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, Long.MAX_VALUE));
+        tracks.add(new SeparatorTrack(view, Color.gray, false, 0, Long.MAX_VALUE));
         
         // Only draw reference sequence if data is present
 //        if (hasReference) {
             tracks.add(seq);
-            tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SHOW_REFERENCE_AT));
+            tracks.add(new SeparatorTrack(view, Color.gray, false, 0, SHOW_REFERENCE_AT));
 //        }
 
 //        tracks.add(readOverviewReversed);
@@ -114,13 +114,13 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
         
         // Only draw separator if profile track is visible
 //        if (showProfile.isSelected()) {
-            tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT));
+            tracks.add(new SeparatorTrack(view, Color.gray, false, 0, SWITCH_VIEWS_AT));
             tracks.add(profileTrack);
 //        }
         
         // Only draw separator if gel track is visible
 //        if (showGel.isSelected()) {
-            tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT));
+            tracks.add(new SeparatorTrack(view, Color.gray, false, 0, SWITCH_VIEWS_AT));
             tracks.add(gelTrack);
 //        }
     }

@@ -117,13 +117,13 @@ public class ReadTrackGroup extends TrackGroup {
         tracks.add(titleTrack);
         tracks.add(readOverview);
         tracks.add(reads);
-        sepTrackReads = new SeparatorTrack(view, Color.gray, 1, 0, Long.MAX_VALUE); 
+        sepTrackReads = new SeparatorTrack(view, Color.gray, false, 0, Long.MAX_VALUE); 
         tracks.add(sepTrackReads);
         
         // Only draw reference sequence if data is present
         if (hasReference) {
             tracks.add(seq);
-            sepTrackSeq = new SeparatorTrack(view, Color.gray, 1, 0, SHOW_REFERENCE_AT); 
+            sepTrackSeq = new SeparatorTrack(view, Color.gray, false, 0, SHOW_REFERENCE_AT); 
             tracks.add(sepTrackSeq);
         }
 
@@ -131,20 +131,20 @@ public class ReadTrackGroup extends TrackGroup {
         tracks.add(readsReversed);
         
         // Only draw separator if profile track is visible
-    	sepTrackProfile = new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT); 
+    	sepTrackProfile = new SeparatorTrack(view, Color.gray, false, 0, SWITCH_VIEWS_AT); 
         tracks.add(sepTrackProfile);
         tracks.add(profileTrack);
         
-    	sepTrackProfileSNP = new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT); 
+    	sepTrackProfileSNP = new SeparatorTrack(view, Color.gray, false, 0, SWITCH_VIEWS_AT); 
     	tracks.add(sepTrackProfileSNP);
         tracks.add(profileSNPTrack);
 
-    	sepTrackQualityCoverage = new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT); 
+    	sepTrackQualityCoverage = new SeparatorTrack(view, Color.gray, false, 0, SWITCH_VIEWS_AT); 
     	tracks.add(sepTrackQualityCoverage);
         tracks.add(qualityCoverageTrack);
         
         // Only draw separator if gel track is visible
-    	sepTrackGel = new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT); 
+    	sepTrackGel = new SeparatorTrack(view, Color.gray, false, 0, SWITCH_VIEWS_AT); 
         tracks.add(sepTrackGel);
         tracks.add(gelTrack);
     }
