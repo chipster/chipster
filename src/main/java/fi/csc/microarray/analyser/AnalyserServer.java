@@ -314,14 +314,13 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		}
 		
 		char delimiter = ';';
-		loggerJobs.info(job.getId() + delimiter + 
-						job.getInputMessage().getAnalysisId().replaceAll("\"", "") + delimiter +
-						job.getState() + delimiter + 
-						job.getInputMessage().getUsername() + delimiter + 
-						job.getExecutionStartTime().toString() + delimiter +
-						job.getExecutionEndTime().toString() + delimiter +
-						hostname);
-		
+		try {
+			loggerJobs.info(job.getId() + delimiter + job.getInputMessage().getAnalysisId().replaceAll("\"", "") + delimiter
+					+ job.getState() + delimiter + job.getInputMessage().getUsername() + delimiter + job.getExecutionStartTime().toString()
+					+ delimiter + job.getExecutionEndTime().toString() + delimiter + hostname);
+		} catch (Exception e) {
+			logger.warn("got exception when logging a job to be removed", e);
+		}
 		logger.debug("Analyser server removing job " + job.getId() + "(" + job.getState() + ")");
 		synchronized(jobsLock) {
 			this.runningJobs.remove(job.getId());
