@@ -56,6 +56,7 @@ public class ToolRepository {
 	 */
 	public ToolRepository(File workDir) throws Exception {
 		loadRuntimes(workDir);
+		loadModuleDescriptions();
 	}
 	
 	public synchronized AnalysisDescription getDescription(String id) throws AnalysisException {
@@ -185,7 +186,6 @@ public class ToolRepository {
 	 */
 	public List<ModuleDescriptionMessage> getModuleDescriptions()
 	        throws ParserConfigurationException, SAXException, IOException {
-        loadModuleDescriptions();
 	    return modules;
 	}
 
@@ -197,7 +197,7 @@ public class ToolRepository {
 	 * @throws SAXException
 	 * @throws ParserConfigurationException
 	 */
-	public void loadModuleDescriptions()
+	private void loadModuleDescriptions()
 	       throws IOException, SAXException, ParserConfigurationException {
 		logger.info("loading modules");
 		
