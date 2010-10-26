@@ -97,8 +97,21 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
      */
     @Override
     protected void cleanUp() {
-        super.cleanUp();
-        process.destroy();
+		
+    	// kill the process if not already finished
+    	try {
+			if (process != null) {
+				try {
+					process.exitValue();
+				} catch (IllegalThreadStateException itse) {
+					process.destroy();
+				}
+			}
+		} catch (Exception e) {
+			logger.error("error when destroying process ", e);
+		} finally {
+			super.cleanUp();
+		}
     }
 
     @Override
