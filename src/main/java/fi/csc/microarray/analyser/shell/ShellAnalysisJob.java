@@ -11,13 +11,11 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
-import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.analyser.AnalysisDescription.InputDescription;
 import fi.csc.microarray.analyser.AnalysisDescription.OutputDescription;
 import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
 import fi.csc.microarray.analyser.emboss.EmbossAnalysisJob;
 import fi.csc.microarray.messaging.JobState;
-import fi.csc.microarray.messaging.message.ResultMessage;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.Strings;
 
@@ -50,7 +48,7 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
     // Logger for this class
     static final Logger logger = Logger.getLogger(EmbossAnalysisJob.class);
     
-    // Latch for cancelling or finishing a job
+    // Latch for canceling or finishing a job
     private CountDownLatch latch = new CountDownLatch(1);
     
     // Operating system process
@@ -158,30 +156,34 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
         String[] cmd = new String[0];
         cmd = command.toArray(cmd);
         try {
-            logger.info("Running Shell application " + cmd[0]);
-            logger.info("Parameters: " + Strings.delimit(command, " "));
+            logger.info("running shell job: " + Strings.delimit(command, " "));
             
             process = Runtime.getRuntime().exec(cmd, null, jobWorkDir);
+            updateStateDetailToClient("running analysis tool");
             
             // Start a new thread to listen to OS process status
-            new ProcessWaiter(process, latch).start();
+            new Thread(new ProcessWaiter(process, latch)).start();
             
-            // Job finished successfully or was cancelled
+            // wait for the job to finish
             latch.await();
+            cancelCheck();
             
-            String outputString = Files.inputStreamToString(process.getErrorStream());
+            // now finished or canceled TODO add timeout
+            updateStateDetailToClient("analysis tool finished");
             
-            logger.info("Shell application has finished with exit code " +
-                        process.exitValue() + " and this message: " +
-                        "\"" + outputString + "\".");
+            // put stdout and stderr to outputmessage
+            String outputString = Files.inputStreamToString(process.getInputStream()) + 
+            					Files.inputStreamToString(process.getErrorStream());
+            outputMessage.setOutputText(outputString);
             
-            // If the exit code is non-zero, the application was not successful
+            // failed job
             if (process.exitValue() != 0) {
-                logger.debug("There was an error while running \"" +
-                        analysis.getDisplayName() + "\" application.");
-                outputMessage.setErrorMessage(outputString);
-                updateState(JobState.FAILED, "Application failed.");
-            } else if (useStdout) {
+                outputMessage.setErrorMessage("Running analysis tool failed.");
+                updateState(JobState.FAILED, "non zero exit value");
+                return;
+            } 
+        
+            if (useStdout) {
                 // FIXME not tested yet
                 // Take output data from stdout
                 InputStream stdoutStream =
@@ -199,17 +201,15 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
                 stdoutStream.close();
                 fileStream.close();
             }
-            
-            // This is what we should produce as output
-            ResultMessage outputMessage = this.outputMessage;
-            
-            // This is where results are returned 
-            ResultCallback resultHandler = this.resultHandler;
-            
-            outputMessage.setState(JobState.RUNNING);
-            resultHandler.sendResultMessage(inputMessage, outputMessage);
+
+            // if successful, don't need to do anything, just leave the state as running
+
         } catch (Exception e) {
-            e.printStackTrace();
+            // 
+        	outputMessage.setErrorMessage("Running analysis tool failed.");
+        	outputMessage.setOutputText(e.toString());
+        	updateState(JobState.ERROR, "analysis tool failed");
+        	return;
         }
     }
 }
