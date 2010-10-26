@@ -12,13 +12,10 @@ import org.apache.log4j.Logger;
 import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
 import fi.csc.microarray.analyser.ResultCallback;
+import fi.csc.microarray.analyser.AnalysisDescription.InputDescription;
 import fi.csc.microarray.analyser.AnalysisDescription.OutputDescription;
 import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
 import fi.csc.microarray.analyser.emboss.EmbossAnalysisJob;
-import fi.csc.microarray.description.SADLDescription;
-import fi.csc.microarray.description.SADLParser;
-import fi.csc.microarray.description.SADLDescription.Input;
-import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.ResultMessage;
 import fi.csc.microarray.util.Files;
@@ -42,7 +39,6 @@ import fi.csc.microarray.util.Strings;
  */
 public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
    
-    private SADLDescription sadl;
     private String executablePath;
     private Boolean useStdout;
     private Boolean inputLast;
@@ -65,13 +61,6 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
     	cancelCheck();
     	super.preExecute();
     	
-    	// Store descriptions
-        try {
-            this.sadl = new SADLParser().parse(analysis.getSADL());
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        
         // Path to executable file
         executablePath = analysis.getCommand();
         
@@ -145,12 +134,12 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
         }
         
         // Inputs
-        for (Input input : sadl.inputs()) {
-            if (!inputLast) {
+        for (InputDescription input : analysis.getInputFiles()) {
+        	if (!inputLast) {
                 // Input is a named parameter
-                command.add("-" + input.getName().getID());
+                command.add("-" + input.getFileName());
             }
-            command.add(input.getName().getID());
+            command.add(input.getFileName());
         }
         
         String[] cmd = new String[0];
