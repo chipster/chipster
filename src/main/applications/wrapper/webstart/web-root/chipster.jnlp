@@ -19,7 +19,7 @@
     <all-permissions/>
   </security>
   <resources>
-    <j2se version="1.5+" href="http://java.sun.com/products/autodl/j2se" java-vm-args="-Xmx900m" /> <!-- more than 900 megs is known to cause troubles in some environments -->
+    <j2se version="1.5+" href="http://java.sun.com/products/autodl/j2se" java-vm-args="-Xmx900m" /> <!-- more than 900M is known to cause trouble in some environments -->
     <jar href="lib/chipster-current.jar" download="eager"/>
   </resources>
   <application-desc main-class="fi.csc.microarray.MicroarrayMain">
