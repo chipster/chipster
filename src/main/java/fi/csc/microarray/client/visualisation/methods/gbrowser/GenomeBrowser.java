@@ -20,8 +20,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 import javax.swing.BorderFactory;
@@ -169,18 +171,18 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private boolean visualised;
 	private InputStream contentsStream = null;
 	
-    
-    // Track switches
-    private JCheckBox showReads = new JCheckBox("Reads", true);
-    private JCheckBox showGel = new JCheckBox("Gel track", false);
-    private JCheckBox showProfile = new JCheckBox("Strand profiles", false);
-    private JCheckBox showProfileSNP = new JCheckBox("SNP Profile", false);
-    private JCheckBox showQualityCoverage = new JCheckBox("Quality coverage", false);
-    private JCheckBox showSNP = new JCheckBox("Highlight SNP", false);
-    private JCheckBox changeSNP = new JCheckBox("Change SNP view", false);
-
+	private Map<JCheckBox, String> trackSwitches = new LinkedHashMap<JCheckBox, String>();
+	
 	public GenomeBrowser(VisualisationFrame frame) {
 		super(frame);
+
+		trackSwitches.put(new JCheckBox("Reads", true), "SeqBlockTrack");
+		trackSwitches.put(new JCheckBox("Gel track", false), "GelTrack");
+		trackSwitches.put(new JCheckBox("Strand profiles", false), "ProfileTrack");
+		trackSwitches.put(new JCheckBox("SNP Profile", true), "ProfileSNPTrack");
+		trackSwitches.put(new JCheckBox("Highlight SNP", false), "highlightSNP");
+		trackSwitches.put(new JCheckBox("Change SNP view", false), "changeSNP");
+		trackSwitches.put(new JCheckBox("Quality coverage", false), "QualityCoverageTrack");
 	}
 
 	@Override
@@ -269,35 +271,19 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	public void createTracksSwitches() {
 		
 		GridBagConstraints c = this.settingsGridBagConstraints;
-
-		showReads.setEnabled(false);
-		showGel.setEnabled(false);
-		showProfile.setEnabled(false);
-		showProfileSNP.setEnabled(false);
-		showQualityCoverage.setEnabled(false);
-		showSNP.setEnabled(false);
-		changeSNP.setEnabled(false);
 		
 		JPanel menu = new JPanel();
-		JScrollPane menuu = new JScrollPane(menu);
-		menuu.setBorder(BorderFactory.createEmptyBorder());
+		JScrollPane menuScrollPane = new JScrollPane(menu);
+		menuScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		menu.setLayout(new GridLayout(7,1));
-		menu.add(showReads);
-		menu.add(showProfile);
-		menu.add(showProfileSNP);
-		menu.add(showQualityCoverage);
-		menu.add(showGel);
-        menu.add(showSNP);
-        menu.add(changeSNP);
+
+		for (JCheckBox trackSwitch : trackSwitches.keySet()) {
+			trackSwitch.setEnabled(false);
+			trackSwitch.addActionListener(this);
+			menu.add(trackSwitch);
+		}
         
-        showReads.addActionListener(this);
-        showGel.addActionListener(this);
-        showProfile.addActionListener(this);
-        showProfileSNP.addActionListener(this);
-        showQualityCoverage.addActionListener(this);
-        showSNP.addActionListener(this);
-        changeSNP.addActionListener(this);
-		settingsPanel.add(menuu, c);
+		settingsPanel.add(menuScrollPane, c);
 		
 		c.gridy++;
 		c.fill = GridBagConstraints.BOTH;
@@ -412,12 +398,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	public void setShowOrHideTracks() {
 		for (Track track : tracks) {
 			if (track.trackGroup != null) {
-				track.trackGroup.showOrHide("SeqBlockTrack", showReads.isSelected());
-				track.trackGroup.showOrHide("GelTrack", showGel.isSelected());
-				track.trackGroup.showOrHide("ProfileTrack", showProfile.isSelected());
-				track.trackGroup.showOrHide("ProfileSNPTrack", showProfileSNP.isSelected());
-				track.trackGroup.showOrHide("highlightSNP", showSNP.isSelected());
-				track.trackGroup.showOrHide("changeSNP", changeSNP.isSelected());
+				for (JCheckBox trackSwitch : trackSwitches.keySet()) {
+					track.trackGroup.showOrHide(trackSwitches.get(trackSwitch), trackSwitch.isSelected());
+				}
 			}
 		}
 	}
@@ -431,64 +414,26 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 		if (source == drawButton) {
 			if (!visualised) {
-				showVisualisation();			
-		        showReads.setEnabled(true);
-				showGel.setEnabled(true);
-				showProfile.setEnabled(true);
-				showProfileSNP.setEnabled(true);
-				showQualityCoverage.setEnabled(true);
-				showSNP.setEnabled(true);
-				changeSNP.setEnabled(true);
+				showVisualisation();
+				
+				for (JCheckBox trackSwitch : trackSwitches.keySet()) {
+					trackSwitch.setEnabled(true);
+				}
 				
 				setShowOrHideTracks();
 				
 		    } else {
 		        updateLocation();
 		        
-		        //leave the same values
+		        // Leave the same values
 		        setShowOrHideTracks();
 		    }
-		} else if (source == showReads) {
-			for (Track track : tracks) {
-				if (track.trackGroup != null) {
-					track.trackGroup.showOrHide("SeqBlockTrack", showReads.isSelected());
-				}
-			}
-		} else if (source == showGel) {
-			for (Track track : tracks) {
-				if (track.trackGroup != null) {
-					track.trackGroup.showOrHide("GelTrack", showGel.isSelected());
-				}
-			}
 			
-		} else if (source == showProfile) {
+		} else if (trackSwitches.keySet().contains(source)) {
+			JCheckBox trackSwitch = (JCheckBox) source;
 			for (Track track : tracks) {
 				if (track.trackGroup != null) {
-					track.trackGroup.showOrHide("ProfileTrack", showProfile.isSelected());
-				}
-			}
-		} else if (source == showProfileSNP) {
-			for (Track track : tracks) {
-				if (track.trackGroup != null) {
-					track.trackGroup.showOrHide("ProfileSNPTrack", showProfileSNP.isSelected());
-				}
-			}
-		} else if (source == showQualityCoverage) {
-			for (Track track : tracks) {
-				if (track.trackGroup != null) {
-					track.trackGroup.showOrHide("QualityCoverageTrack", showQualityCoverage.isSelected());
-				}
-			}
-		} else if (source == showSNP) {
-			for (Track track : tracks) {
-				if (track.trackGroup != null) {
-					track.trackGroup.showOrHide("highlightSNP", showSNP.isSelected());
-				}
-			}
-		} else if (source == changeSNP) {
-			for (Track track : tracks) {
-				if (track.trackGroup != null) {
-					track.trackGroup.showOrHide("changeSNP", changeSNP.isSelected());
+					track.trackGroup.showOrHide(trackSwitches.get(trackSwitch), trackSwitch.isSelected());
 				}
 			}
 		}
