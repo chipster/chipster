@@ -9,7 +9,6 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.analyser.AnalysisDescription;
 import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
 import fi.csc.microarray.analyser.ResultCallback;
@@ -43,7 +42,6 @@ import fi.csc.microarray.util.Strings;
  */
 public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
    
-    private AnalysisDescription description;
     private SADLDescription sadl;
     private String executablePath;
     private Boolean useStdout;
@@ -62,34 +60,37 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
     // Operating system process
     private Process process = null;
     
-    public ShellAnalysisJob(AnalysisDescription ad) {
-        // Store descriptions
-        this.description = ad;
+    @Override
+    protected void preExecute() throws JobCancelledException {
+    	cancelCheck();
+    	super.preExecute();
+    	
+    	// Store descriptions
         try {
-            this.sadl = new SADLParser().parse(ad.getSADL());
+            this.sadl = new SADLParser().parse(analysis.getSADL());
         } catch (ParseException e) {
             e.printStackTrace();
         }
         
         // Path to executable file
-        executablePath = ad.getCommand();
+        executablePath = analysis.getCommand();
         
         // Output method
-        useStdout = ad.getConfigParameters().get("stdout") != null &&
-                ad.getConfigParameters().get("stdout").toLowerCase().equals("yes");
+        useStdout = analysis.getConfigParameters().get("stdout") != null &&
+                analysis.getConfigParameters().get("stdout").toLowerCase().equals("yes");
         
         // Input parameter
-        inputLast = ad.getConfigParameters().get("input") != null &&
-                ad.getConfigParameters().get("input").toLowerCase().equals("last");
+        inputLast = analysis.getConfigParameters().get("input") != null &&
+                analysis.getConfigParameters().get("input").toLowerCase().equals("last");
         
         // Additional arguments
-        String arguments = ad.getConfigParameters().get("arguments");
+        String arguments = analysis.getConfigParameters().get("arguments");
         extraArguments = (arguments != null && !arguments.equals("")) ?
                 arguments.split(",") : new String[] {};
         
         if (!useStdout) {    
             // If program creates a normal file, we need an output parameter
-            outputParameter = ad.getConfigParameters().get("output");
+            outputParameter = analysis.getConfigParameters().get("output");
         }
     }
 
@@ -127,7 +128,7 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
         
         // Parameters
         int index = 0;
-        for (ParameterDescription parameter : description.getParameters()) {
+        for (ParameterDescription parameter : analysis.getParameters()) {
             String value = inputParameters.get(index);
             if (!value.equals("")) {
                 command.add("-" + parameter.getName());
@@ -138,7 +139,7 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
 
         // Outputs to a file (currently we only support a single output)
         if (outputParameter != null) {
-            OutputDescription output = description.getOutputFiles().get(0);
+            OutputDescription output = analysis.getOutputFiles().get(0);
             command.add("-" + this.outputParameter);
             command.add(output.getFileName().getID());
         }
@@ -183,7 +184,7 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
                 // Take output data from stdout
                 InputStream stdoutStream =
                         new BufferedInputStream(process.getInputStream());
-                OutputDescription output = description.getOutputFiles().get(0);
+                OutputDescription output = analysis.getOutputFiles().get(0);
                 File outputFile = new File(jobWorkDir, output.getFileName().getID());
                 FileOutputStream fileStream = new FileOutputStream(outputFile);
                 

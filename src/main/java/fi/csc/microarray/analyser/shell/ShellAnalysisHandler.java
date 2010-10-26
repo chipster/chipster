@@ -45,7 +45,7 @@ public class ShellAnalysisHandler implements AnalysisHandler {
     public AnalysisJob createAnalysisJob(JobMessage jobMessage,
             AnalysisDescription description, ResultCallback resultCallback)
             throws AnalysisException {
-        ShellAnalysisJob analysisJob = new ShellAnalysisJob(description);
+        ShellAnalysisJob analysisJob = new ShellAnalysisJob();
         analysisJob.construct(jobMessage, description, resultCallback);
         return analysisJob;
     }
