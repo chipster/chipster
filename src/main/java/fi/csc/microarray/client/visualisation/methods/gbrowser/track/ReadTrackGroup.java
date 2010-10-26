@@ -91,7 +91,7 @@ public class ReadTrackGroup extends TrackGroup {
         
         // SNP profile
         profileSNPTrack = new ProfileSNPTrack(view, userData, userDataHandler,
-                Color.BLACK, 0, SHOW_REFERENCE_AT);
+                Color.BLACK, 0, SWITCH_VIEWS_AT);
         profileSNPTrack.setStrand(Strand.BOTH); //Will be set anyway in the track constructor
         
         qualityCoverageTrack = new QualityCoverageTrack(view, userData, userDataHandler,
