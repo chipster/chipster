@@ -1,6 +1,8 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,7 +42,14 @@ public class SAMFile {
      * @param indexFile - SAM index file (usually with .bai extension).
      */
     public SAMFile(File samFile, File indexFile) {
+    	// BAMFileReader emits useless warning to System.err that can't be turned off,
+    	// so we direct it to other stream and discard. 
+    	PrintStream originalErr = System.err;
+    	System.setErr(new PrintStream(new ByteArrayOutputStream()));
         this.reader = new SAMFileReader(samFile, indexFile);
+        
+        // Restore System.err
+        System.setErr(originalErr);
     }
     
     /**

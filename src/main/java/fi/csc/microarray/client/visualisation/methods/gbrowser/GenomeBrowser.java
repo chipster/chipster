@@ -670,10 +670,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	}
 
 	private void initialiseUserDatas() throws IOException {
-		for (Track track : tracks) {
-			if (track.checkBox.isSelected() && track.userData != null) {
-				Session.getSession().getDataManager().getLocalFile(track.userData);
-			}
+		for (DataBean data : datas) {
+			Session.getSession().getDataManager().getLocalFile(data);
 		}
 	}
 	
@@ -705,7 +703,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	    	for (Track track : tracks) {
 	    		if (track.type == GenomeBrowser.TrackType.HIDDEN) {
 	    			DataBean bean = track.userData;
-	    			if (bean.getName().endsWith(".bai") && bean.getName().startsWith(data.getName())) {
+	    			if (isIndexData(bean) && bean.getName().startsWith(data.getName())) {
 	    				indexBean = bean;
 	    			}
 	    		}
@@ -721,6 +719,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	    }
 	    
 	    return dataSource;
+	}
+
+	private boolean isIndexData(DataBean bean) {
+		return bean.getName().endsWith(".bai");
 	}
 
     /**
@@ -824,7 +826,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
                 interpretations.add(TrackType.READS);
                 
 			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
-			           (data.getName().endsWith(".bai"))) {
+			           (isIndexData(data))) {
 				interpretations.add(TrackType.HIDDEN);
                 
 			} else {
