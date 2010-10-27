@@ -382,8 +382,13 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			TrackType trackType = interpretations.get(i);
 			if (trackType == TrackType.READS || trackType == TrackType.READS_WITH_SUMMARY) {
 				DataBean data = datas.get(i);
-				File bamFile = Session.getSession().getDataManager().getLocalFile(data);
-				chromosomes.addAll(SamBamUtils.readChromosomeNames(bamFile));
+				InputStream in = null;
+				try {
+					in  = data.getContentByteStream();
+					chromosomes.addAll(SamBamUtils.readChromosomeNames(in));
+				} finally {
+					IOUtils.closeIfPossible(in);
+				}
 			}
 		}
 		for (String chromosome : chromosomes) {

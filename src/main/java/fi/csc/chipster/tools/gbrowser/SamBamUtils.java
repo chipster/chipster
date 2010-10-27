@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -146,10 +147,10 @@ public class SamBamUtils {
 		indexBam(preprocessedBamFile, baiFile);
 	}
 
-	public static List<String> readChromosomeNames(File bamFile) {
+	public static List<String> readChromosomeNames(InputStream in) {
 		SAMFileReader reader = null; 
 		try {
-			reader = new SAMFileReader(IoUtil.openFileForReading(bamFile));
+			reader = new SAMFileReader(in);
 			
 			LinkedList<String> chromosomes = new LinkedList<String>();
 			for (SAMSequenceRecord record : reader.getFileHeader().getSequenceDictionary().getSequences()) {
