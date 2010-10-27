@@ -64,6 +64,7 @@ public class ToolXMLGenerator {
         ignoredGroups.add("Menus");
         ignoredGroups.add("Test");
         ignoredGroups.add("Utils");
+        ignoredGroups.add("Ontology:EDAM");
 
         // less important groups which should be last when sorting groups
         bottomGroups.add("Enzyme Kinetics");
