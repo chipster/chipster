@@ -36,6 +36,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -277,8 +278,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		menuScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		menu.setLayout(new GridLayout(7,1));
 
+		setTrackSwitchesEnabled(false);
 		for (JCheckBox trackSwitch : trackSwitches.keySet()) {
-			trackSwitch.setEnabled(false);
 			trackSwitch.addActionListener(this);
 			menu.add(trackSwitch);
 		}
@@ -400,7 +401,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		return new JLabel("Color: ");
 	}
 	
-	public void setShowOrHideTracks() {
+	public void updateVisibilityForTracks() {
 		for (Track track : tracks) {
 			if (track.trackGroup != null) {
 				for (JCheckBox trackSwitch : trackSwitches.keySet()) {
@@ -419,19 +420,40 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 		if (source == drawButton) {
 			if (!visualised) {
-				showVisualisation();
 				
-				for (JCheckBox trackSwitch : trackSwitches.keySet()) {
-					trackSwitch.setEnabled(true);
-				}
-				
-				setShowOrHideTracks();
+				application.runBlockingTask("initialising genome browser", new Runnable() {
+					@Override
+					public void run() {
+						try {
+							// Preload datas in background thread
+							initialiseUserDatas();
+
+							// Update UI in Event Dispatch Thread
+							SwingUtilities.invokeAndWait(new Runnable() {
+								@Override
+								public void run() {
+									
+									// Show visualisation
+									showVisualisation();
+									
+									// Make track switches enabled
+									setTrackSwitchesEnabled(true);
+									
+									// Set track visibility
+									updateVisibilityForTracks();
+								}
+							});
+
+						} catch (Exception e) {
+							throw new RuntimeException(e);
+						}
+					}
+				});
 				
 		    } else {
+		    	
+		    	// Move to correct location
 		        updateLocation();
-		        
-		        // Leave the same values
-		        setShowOrHideTracks();
 		    }
 			
 		} else if (trackSwitches.keySet().contains(source)) {
@@ -441,6 +463,12 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 					track.trackGroup.showOrHide(trackSwitches.get(trackSwitch), trackSwitch.isSelected());
 				}
 			}
+		}
+	}
+
+	private void setTrackSwitchesEnabled(boolean enabled) {
+		for (JCheckBox trackSwitch : trackSwitches.keySet()) {
+			trackSwitch.setEnabled(enabled);
 		}
 	}
 
@@ -550,9 +578,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				}
 			}
 
-			// add selected treatment read tracks
-			// TODO is there actually any difference for us if reads are
-			// "treatment" or "control"?
+			// Add selected read tracks
 			for (Track track : tracks) {
 				if (track.checkBox.isSelected()) {
 
@@ -643,6 +669,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		}
 	}
 
+	private void initialiseUserDatas() throws IOException {
+		for (Track track : tracks) {
+			if (track.checkBox.isSelected() && track.userData != null) {
+				Session.getSession().getDataManager().getLocalFile(track.userData);
+			}
+		}
+	}
+	
 	/**
 	 * Create DataSource either for SAM/BAM or ELAND data files.
 	 * 
