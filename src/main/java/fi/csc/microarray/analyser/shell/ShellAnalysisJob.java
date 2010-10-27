@@ -1,21 +1,11 @@
 package fi.csc.microarray.analyser.shell;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.util.LinkedList;
-import java.util.concurrent.CountDownLatch;
-
-import org.apache.log4j.Logger;
 
 import fi.csc.microarray.analyser.JobCancelledException;
-import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
 import fi.csc.microarray.analyser.AnalysisDescription.InputDescription;
 import fi.csc.microarray.analyser.AnalysisDescription.OutputDescription;
 import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
-import fi.csc.microarray.messaging.JobState;
-import fi.csc.microarray.util.Files;
 
 /**
  * Job that is run as a generic shell command.
@@ -33,21 +23,7 @@ import fi.csc.microarray.util.Files;
  * @author naktinis, hupponen
  *
  */
-public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
- 
-	protected String[] command;
-	
-    private Boolean useStdout = false;
-    
-    // Logger for this class
-    static final Logger logger = Logger.getLogger(ShellAnalysisJob.class);
-    
-    // Latch for canceling or finishing a job
-    private CountDownLatch latch = new CountDownLatch(1);
-    
-    // Operating system process
-    private Process process = null;
-
+public class ShellAnalysisJob extends ShellAnalysisJobBase {
     
     /**
      * Construct the command line.
@@ -123,122 +99,5 @@ public class ShellAnalysisJob extends OnDiskAnalysisJobBase {
         
         // store the command for execute()
         command = commandParts.toArray(new String[] {});
-    }
-
-    @Override
-    protected void execute() throws JobCancelledException {
-        try {
-            String commandString = "";
-        	for (String s : command) {
-        		commandString += s;
-        	}
-        	logger.info("running shell job: " + commandString);
-            
-            process = Runtime.getRuntime().exec(command, null, jobWorkDir);
-            updateStateDetailToClient("running analysis tool");
-            
-            // Start a new thread to listen to OS process status
-            new Thread(new ProcessWaiter()).start();
-            
-            // wait for the job to finish
-            latch.await();
-            cancelCheck();
-            
-            // now finished
-            updateStateDetailToClient("analysis tool finished");
-            
-            // put stdout and stderr to outputmessage
-            String outputString = Files.inputStreamToString(process.getInputStream()) + 
-            					Files.inputStreamToString(process.getErrorStream());
-            outputMessage.setOutputText(outputString);
-            
-            // failed job
-            if (process.exitValue() != 0) {
-                outputMessage.setErrorMessage("Running analysis tool failed.");
-                updateState(JobState.FAILED, "non zero exit value");
-                return;
-            } 
-        
-            if (useStdout) {
-                // FIXME not tested yet
-                // Take output data from stdout
-                InputStream stdoutStream =
-                        new BufferedInputStream(process.getInputStream());
-                OutputDescription output = analysis.getOutputFiles().get(0);
-                File outputFile = new File(jobWorkDir, output.getFileName().getID());
-                FileOutputStream fileStream = new FileOutputStream(outputFile);
-                
-                // Write from program's stdout to output file
-                byte[] buffer = new byte[4096];  
-                int bytesRead;  
-                while ((bytesRead = stdoutStream.read(buffer)) != -1) {  
-                    fileStream.write(buffer, 0, bytesRead);  
-                }  
-                stdoutStream.close();
-                fileStream.close();
-            }
-
-            // if successful, don't need to do anything, just leave the state as running
-
-        } catch (Exception e) {
-        	outputMessage.setErrorMessage("Running analysis tool failed.");
-        	outputMessage.setOutputText(e.toString());
-        	updateState(JobState.ERROR, "analysis tool failed");
-        	return;
-        }
-    }
-
-    
-    
-    
-    /**
-     * User decided to cancel this job.
-     */
-    @Override
-    protected void cancelRequested() {
-        latch.countDown();
-    }
-    
-    /**
-     * Destroy operating system process if it is still
-     * running.
-     */
-    @Override
-    protected void cleanUp() {
-		
-    	// kill the process if not already finished
-    	try {
-			if (process != null) {
-				try {
-					process.exitValue();
-				} catch (IllegalThreadStateException itse) {
-					process.destroy();
-				}
-			}
-		} catch (Exception e) {
-			logger.error("error when destroying process ", e);
-		} finally {
-			super.cleanUp();
-		}
-    }
-
-
-    /**
-     * A simple runnable that waits for an operating system
-     * process to finish and reduces a given latch by one.
-     * 
-     */
-    private class ProcessWaiter implements Runnable {
-
-		@Override
-		public void run() {
-    		try {
-                process.waitFor();
-            } catch (InterruptedException e) {
-            	throw new RuntimeException(e);
-            } finally {
-            	latch.countDown();
-            }
-		}
     }
 }

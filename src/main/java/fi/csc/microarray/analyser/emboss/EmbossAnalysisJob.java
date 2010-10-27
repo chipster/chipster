@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
-import fi.csc.microarray.analyser.shell.ShellAnalysisJob;
+import fi.csc.microarray.analyser.shell.ShellAnalysisJobBase;
 import fi.csc.microarray.messaging.JobState;
 
 /**
@@ -17,7 +17,7 @@ import fi.csc.microarray.messaging.JobState;
  * @author naktinis, akallio, hupponen
  *
  */
-public class EmbossAnalysisJob extends ShellAnalysisJob {
+public class EmbossAnalysisJob extends ShellAnalysisJobBase {
     
     private String toolDirectory;
     private String descriptionDirectory;
@@ -78,7 +78,7 @@ public class EmbossAnalysisJob extends ShellAnalysisJob {
             }
             analysisToACD.put(param.getName(), mapTo);
         }
-        
+
         // Generate qualifiers and validate them
         index = 0;
         qualifiers = new LinkedList<EmbossQualifier>();
@@ -111,7 +111,6 @@ public class EmbossAnalysisJob extends ShellAnalysisJob {
 
         // store the command for execute()
         command = commandLine();
-    
     }
 
 
