@@ -74,6 +74,7 @@ public class ShellAnalysisHandler implements AnalysisHandler {
             ad = new AnalysisDescriptionGenerator().generate(
                     new ChipsterSADLParser().parse(sadlString), this);
             ad.setSADL(sadlString);
+            ad.setSourceCode(sadlString);
             
             // Command to be executed is stored in configuration file
             ad.setCommand(params.get("executable"));
@@ -81,10 +82,8 @@ public class ShellAnalysisHandler implements AnalysisHandler {
             
             // Log success
             logger.info("successfully loaded shell analysis description " + descriptionFilename);
-        } catch (ParseException e) {
-            throw new AnalysisException(e);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new AnalysisException(e);
         }
         return ad;
     }
