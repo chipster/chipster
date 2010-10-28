@@ -513,7 +513,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 		// Create panel with card layout and put message panel there
 		JPanel waitPanel = new JPanel();
-		waitPanel.add(new JLabel("Please select parameters"));
+		waitPanel.add(new JLabel("Please select settings"));
 		plotPanel.add(waitPanel, WAITPANEL);
 
 		return plotPanel;
