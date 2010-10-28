@@ -1,11 +1,10 @@
 package fi.csc.microarray.analyser.shell;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.util.concurrent.CountDownLatch;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.analyser.JobCancelledException;
@@ -60,8 +59,9 @@ public abstract class ShellAnalysisJobBase extends OnDiskAnalysisJobBase {
         try {
             String commandString = "";
         	for (String s : command) {
-        		commandString += s;
+        		commandString += s + " ";
         	}
+        	commandString = commandString.trim();
         	logger.info("running shell job: " + commandString);
             
             process = Runtime.getRuntime().exec(command, null, jobWorkDir);
@@ -78,9 +78,10 @@ public abstract class ShellAnalysisJobBase extends OnDiskAnalysisJobBase {
             updateStateDetailToClient("analysis tool finished");
             
             // put stdout and stderr to outputmessage
-            String outputString = Files.inputStreamToString(process.getInputStream()) + 
-            					Files.inputStreamToString(process.getErrorStream());
-            outputMessage.setOutputText(outputString);
+            // stdoOutString is also possible needed later for the out file
+            String stdOutString = Files.inputStreamToString(process.getInputStream());
+            String stdErrorString = Files.inputStreamToString(process.getErrorStream());
+            outputMessage.setOutputText(stdOutString + "\n" + stdErrorString);
             
             // failed job
             if (process.exitValue() != 0) {
@@ -90,22 +91,17 @@ public abstract class ShellAnalysisJobBase extends OnDiskAnalysisJobBase {
             } 
         
             if (useStdout) {
-                // FIXME not tested yet
-                // Take output data from stdout
-                InputStream stdoutStream =
-                        new BufferedInputStream(process.getInputStream());
+            	// use screen output as result data
                 OutputDescription output = analysis.getOutputFiles().get(0);
                 File outputFile = new File(jobWorkDir, output.getFileName().getID());
-                FileOutputStream fileStream = new FileOutputStream(outputFile);
-                
-                // Write from program's stdout to output file
-                byte[] buffer = new byte[4096];  
-                int bytesRead;  
-                while ((bytesRead = stdoutStream.read(buffer)) != -1) {  
-                    fileStream.write(buffer, 0, bytesRead);  
-                }  
-                stdoutStream.close();
-                fileStream.close();
+                FileOutputStream fileStream = null;
+                try {
+                	fileStream = new FileOutputStream(outputFile);
+                	IOUtils.write(stdOutString, fileStream);
+                	fileStream.flush();
+                } finally {
+                	IOUtils.closeQuietly(fileStream);
+                }
             }
 
             // if successful, don't need to do anything, just leave the state as running
