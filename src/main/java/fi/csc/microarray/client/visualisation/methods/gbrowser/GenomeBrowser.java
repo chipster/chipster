@@ -68,6 +68,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRe
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Row;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack3D;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
@@ -528,16 +529,17 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			// Create gene name index
 			gia = GeneIndexActions.getInstance(this, (Genome)genomeBox.getSelectedItem());
 			
-			// create the plot
+			// Create the plot
 			Genome genome = (Genome) genomeBox.getSelectedItem();
 			ChartPanel chartPanel = new NonScalableChartPanel();
 			this.plot = new GenomePlot(chartPanel, true);
-
-			// set scale of profile track containing reads information
+			
+			// Set scale of profile track containing reads information
 			this.plot.setReadScale((ReadScale) this.profileScaleBox
 					.getSelectedItem());
 
-			// add selected annotation tracks
+
+			// Add selected annotation tracks
 			for (Track track : tracks) {
 				if (track.checkBox.isSelected()) {
 					switch (track.type) {
@@ -548,7 +550,11 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 												genome, AnnotationContents.Content.CYTOBANDS).file,
 										new CytobandParser()));
 						break;
+						
 					case GENES:
+						// Start 3D effect
+						plot.getDataView().addTrack(new SeparatorTrack3D(plot.getDataView(), 0, Long.MAX_VALUE, true));
+
 						Row snpRow = annotationContents.getRow(genome, AnnotationContents.Content.SNP);
 						
 						TrackGroup geneGroup = TrackFactory.addGeneTracks(plot,
@@ -568,9 +574,11 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 								);
 						track.setTrackGroup(geneGroup);
 						break;
+
 					case REFERENCE:
 						// integrated into peaks
 						break;
+						
 					case TRANSCRIPTS:
 						// integrated into genes
 						break;
@@ -582,6 +590,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			for (Track track : tracks) {
 				if (track.checkBox.isSelected()) {
 
+
 					File file = track.userData == null ? null : Session
 							.getSession().getDataManager().getLocalFile(
 									track.userData);
@@ -589,12 +598,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 					switch (track.type) {
 
 					case READS:
+						TrackFactory.addThickSeparatorTrack(plot);
 						treatmentData = createReadDataSource(track.userData, tracks);
 						TrackGroup readGroup = TrackFactory.addReadTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.REFERENCE).file, new SequenceParser()), file.getName());
 						track.setTrackGroup(readGroup);
 						break;
 
 					case READS_WITH_SUMMARY:
+						TrackFactory.addThickSeparatorTrack(plot);
 						treatmentData = createReadDataSource(track.userData, tracks);
 						TrackGroup readGroupWithSummary = TrackFactory.addReadSummaryTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.REFERENCE).file, new SequenceParser()), file.getName());
 						track.setTrackGroup(readGroupWithSummary);
@@ -603,21 +614,25 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				}
 			}
 
-			// add selected peak tracks
+			// Add selected peak tracks
 			for (Track track : tracks) {
 				if (track.checkBox.isSelected()) {
+					
+
 					File file = track.userData == null ? null : Session
 							.getSession().getDataManager().getLocalFile(
 									track.userData);
 					DataSource peakData;
 					switch (track.type) {
 					case PEAKS:
+						TrackFactory.addThickSeparatorTrack(plot);
 						peakData = new ChunkDataSource(file, new BEDParser());
 						TrackFactory.addThickSeparatorTrack(plot);
 						TrackFactory.addTitleTrack(plot, file.getName());
 						TrackFactory.addPeakTrack(plot, peakData);
 						break;
 					case PEAKS_WITH_HEADER:
+						TrackFactory.addThickSeparatorTrack(plot);
 						peakData = new ChunkDataSource(file,
 								new HeaderTsvParser());
 						TrackFactory.addThickSeparatorTrack(plot);
@@ -628,7 +643,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				}
 			}
 
-			// fill in initial positions if not filled in
+			// End 3D effect
+			plot.getDataView().addTrack(new SeparatorTrack3D(plot.getDataView(), 0, Long.MAX_VALUE, false));
+
+			// Fill in initial positions if not filled in
 			if (locationField.getText().trim().isEmpty()) {
 				locationField.setText("1000000");
 			}
@@ -636,7 +654,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				zoomField.setText("100000");
 			}
 
-			// initialise the plot
+			// Initialise the plot
 			plot.addDataRegionListener(this);
 
 			// remember the chromosome, so we know if it has changed

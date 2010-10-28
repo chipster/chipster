@@ -79,7 +79,6 @@ public class GeneTrackGroup extends TrackGroup {
 		
 		this.tracks = new LinkedList<Track>();
 		// Top separator and title
-        tracks.add(createThickSeparatorTrack(view));
         tracks.add(new TitleTrack(view, "Annotations", Color.black));
 		
 		// Transcript, detailed, forward
@@ -125,10 +124,6 @@ public class GeneTrackGroup extends TrackGroup {
 	public String getName() {
 		return "GeneTrackGroup";
 	}
-	
-	private static Track createThickSeparatorTrack(View view) {
-        return new SeparatorTrack(view, Color.gray.brighter(), true, 0, Long.MAX_VALUE);
-    }
 	
 	private void setChangeSNP(boolean change) {
 		if (change) {

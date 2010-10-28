@@ -20,38 +20,32 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 public class SeparatorTrack extends Track {
 
 	private Color color;
-	private boolean thick;
 	private long maxBpLength;
 	private long minBpLength;
-
-	public SeparatorTrack(View view, Color color, boolean thick, long minBpLength, long maxBpLength) {
+	private int thickness;
+	
+	protected SeparatorTrack(View view, long minBpLength, long maxBpLength) {
 		super(view, null);
-		this.color = color;
-		this.thick = thick;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
+	}
+	
+	public SeparatorTrack(View view, Color color, int thickness, long minBpLength, long maxBpLength) {
+		this(view, minBpLength, maxBpLength);
+		this.color = color;
+		this.thickness = thickness;
 	}
 
 	@Override
 	public Collection<Drawable> getDrawables() {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
-		if (thick) {
-			drawables.add(new LineDrawable(0, 1, getView().getWidth(), 1, new Color(243, 243, 243)));
-			drawables.add(new LineDrawable(0, 2, getView().getWidth(), 2, new Color(224, 224, 224)));
-			drawables.add(new LineDrawable(0, 3, getView().getWidth(), 3, new Color(176, 176, 176)));
-			drawables.add(new LineDrawable(0, 4, getView().getWidth(), 4, new Color(64, 64, 64)));
-			// White space here
-			drawables.add(new LineDrawable(0, 7, getView().getWidth(), 7, new Color(64, 64, 64)));
-			drawables.add(new LineDrawable(0, 8, getView().getWidth(), 8, new Color(176, 176, 176)));
-			drawables.add(new LineDrawable(0, 9, getView().getWidth(), 9, new Color(224, 224, 224)));
-			drawables.add(new LineDrawable(0, 10, getView().getWidth(), 10, new Color(243, 243, 243)));
-			
-		} else {
-			drawables.add(new LineDrawable(0, 0, getView().getWidth(), 0, color));
+		for (int i = 0; i < thickness; i++) {
+			drawables.add(new LineDrawable(0, i, getView().getWidth(), i, color));
 		}
 
 		return drawables;
 	}
+
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
 		// ignore
@@ -60,8 +54,7 @@ public class SeparatorTrack extends Track {
     @Override
     public Integer getHeight() {
         if (isVisible()) {
-            return thick ? 11 : 1;
-            
+            return thickness;
         } else {
             return 0;
         }
