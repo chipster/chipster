@@ -101,6 +101,11 @@ public class SeqBlockTrack extends Track {
 				rect.x = getView().bpToTrack(visibleRegion.start);
 				rect.width = (int) Math.round(getView().bpWidth() * widthInBps);
 
+				// Do not draw invisible rectangles
+				if (rect.width < 2) {
+					rect.width = 2;
+				}
+
 				// Read parts are drawn in order and placed in layers
 				int layer = 0;
 				while (occupiedSpace.size() > layer && occupiedSpace.get(layer) > rect.x + 1) {
