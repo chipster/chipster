@@ -117,12 +117,13 @@ public class ProfileSNPTrack extends Track {
 
 		Chromosome chr = getView().getBpRegion().start.chr;
 
+		// Count acids for each location
 		TreeMap<Long, Base> collector = getAcidCounts(reads); 
 
-		// width of a single bp in pixels
+		// Count width of a single bp in pixels
 		int bpWidth = (int) (getView().getWidth() / getView().getBpRegion().getLength());
 
-		// maximum y coordinate
+		// Count maximum y coordinate
 		int maxY = this.getHeight() - 1;
 
 		// prepare lines that make up the profile for drawing
@@ -192,11 +193,14 @@ public class ProfileSNPTrack extends Track {
 					getView().getWidth(), maxY, color));
 		}
 
-		collector.clear();
+		collector.clear(); // FIXME don't clear, but keep'em cached (remember that there are two exit routes)
 
 		return drawables;
 	}
 
+	/**
+	 * Goes through data and gives count for each location and acid.
+	 */
 	private TreeMap<Long, Base> getAcidCounts(Collection<RegionContent> reads) {
 	
 		TreeMap<Long, Base> collector = new TreeMap<Long, Base>();

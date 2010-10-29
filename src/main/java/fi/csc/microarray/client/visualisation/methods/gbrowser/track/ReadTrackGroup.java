@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.LinkedList;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
@@ -18,10 +19,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptT
  *
  */
 public class ReadTrackGroup extends TrackGroup {
-    
-    // Constants
-    int SWITCH_VIEWS_AT = 50000;
-    int SHOW_REFERENCE_AT = 800;
     
     // Tracks
     protected TitleTrack titleTrack;
@@ -58,10 +55,10 @@ public class ReadTrackGroup extends TrackGroup {
         
         // Overview
         readOverview = new IntensityTrack(view, userData,
-                userDataHandler, histogramColor, SWITCH_VIEWS_AT);
+                userDataHandler, histogramColor, GenomeBrowserConstants.SWITCH_VIEWS_AT);
             
         reads = new SeqBlockTrack(view, userData,
-                userDataHandler, fontColor, 0, SWITCH_VIEWS_AT);
+                userDataHandler, fontColor, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         
         // Reference
         if (seqFile != null) {
@@ -69,37 +66,37 @@ public class ReadTrackGroup extends TrackGroup {
             hasReference = true;
             this.seqFile = seqFile;
             seq = new SeqTrack(view, seqFile,
-                    ChunkTreeHandlerThread.class, SHOW_REFERENCE_AT);
+                    ChunkTreeHandlerThread.class, GenomeBrowserConstants.SHOW_REFERENCE_AT);
         }
         
         // Overview
         readOverviewReversed = new IntensityTrack(view, userData,
-                userDataHandler, histogramColor, SWITCH_VIEWS_AT);
+                userDataHandler, histogramColor, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         readOverviewReversed.setStrand(Strand.REVERSED);
         
         // Detailed
         readsReversed = new SeqBlockTrack(view, userData,
-                userDataHandler, fontColor, 0, SWITCH_VIEWS_AT);
+                userDataHandler, fontColor, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         readsReversed.setStrand(Strand.REVERSED);
         
         // Profile
         profileTrack = new ProfileTrack(view, userData, userDataHandler,
-                Color.BLACK, PartColor.CDS.c, 0, SWITCH_VIEWS_AT);
+                Color.BLACK, PartColor.CDS.c, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         profileTrack.setStrand(Strand.BOTH);
         
         // SNP profile
         profileSNPTrack = new ProfileSNPTrack(view, userData, userDataHandler,
-                Color.BLACK, 0, SWITCH_VIEWS_AT);
+                Color.BLACK, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         profileSNPTrack.setStrand(Strand.BOTH); //Will be set anyway in the track constructor
         
         qualityCoverageTrack = new QualityCoverageTrack(view, userData, userDataHandler,
-        		Color.ORANGE, 0, SWITCH_VIEWS_AT);
+        		Color.ORANGE, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         profileSNPTrack.setStrand(Strand.BOTH); //Will be set anyway in the track constructor
         
         
         // Gel
         gelTrack = new GelTrack(view, userData, userDataHandler,
-                Color.WHITE, 0, SWITCH_VIEWS_AT);
+                Color.WHITE, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         gelTrack.setStrand(Strand.BOTH);
         
         // Add tracks to this group
@@ -118,7 +115,7 @@ public class ReadTrackGroup extends TrackGroup {
         // Only draw reference sequence if data is present
         if (hasReference) {
             tracks.add(seq);
-            sepTrackSeq = new SeparatorTrack(view, Color.gray, 1, 0, SHOW_REFERENCE_AT); 
+            sepTrackSeq = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SHOW_REFERENCE_AT); 
             tracks.add(sepTrackSeq);
         }
 
@@ -126,20 +123,20 @@ public class ReadTrackGroup extends TrackGroup {
         tracks.add(readsReversed);
         
         // Only draw separator if profile track is visible
-    	sepTrackProfile = new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT); 
+    	sepTrackProfile = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT); 
         tracks.add(sepTrackProfile);
         tracks.add(profileTrack);
         
-    	sepTrackProfileSNP = new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT); 
+    	sepTrackProfileSNP = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT); 
     	tracks.add(sepTrackProfileSNP);
         tracks.add(profileSNPTrack);
 
-    	sepTrackQualityCoverage = new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT); 
+    	sepTrackQualityCoverage = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT); 
     	tracks.add(sepTrackQualityCoverage);
         tracks.add(qualityCoverageTrack);
         
         // Only draw separator if gel track is visible
-    	sepTrackGel = new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT); 
+    	sepTrackGel = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT); 
         tracks.add(sepTrackGel);
         tracks.add(gelTrack);
     }
