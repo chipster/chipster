@@ -1,11 +1,12 @@
 # TOOL "Statistics" / ngs-find-nearest-genes.R: "Find the nearest genes for regions" (This tool takes set of genomic regions, such as ChIP-seq peaks, and fetches the nearest gene for each.)
 # INPUT regions-list.tsv: "Table with genomic regions" TYPE GENERIC
 # OUTPUT nearest-genes.tsv: "Table listing the nearest gene feature for each input region."
+# OUTPUT unique-genes-list.tsv: "Table listing the unique genes that can be mapped with gene symbols and entrez gene ids."
 # PARAMETER species: "Species" TYPE [Human, Mouse, Rat] DEFAULT Human (The species of the genome to use for fetching annotationsan.)
 
 #####################################################
 #                                                   #
-# MG, 27.10.2010                                    #
+# MG, 28.10.2010                                    #
 #                                                   #
 # Development version                               #
 #                                                   #
@@ -25,19 +26,26 @@ species <- "Human"
 
 # Load the libraries
 library(ChIPpeakAnno)
+library(biomaRt)
 
 # Load the annotation data
 if (species == "Human") {
 	data(TSS.human.NCBI36)
 	annotations <- TSS.human.NCBI36
+	ensembl_dataset <- "hsapiens_gene_ensembl"
+	filter <- "ens_hs_gene"
 }
 if (species == "Nouse") {
 	data(TSS.mouse.NCBIM37)
 	annotations <- TSS.mouse.NCBIM37
+	ensembl_dataset <- "mmusculus_gene_ensembl"
+	filter <- "ens_mm_gene"
 }
 if (species == "Rat") {
 	data(TSS.rat.RGSC3.4)
 	annotations <- TSS.rat.RGSC3.4
+	ensembl_dataset <- "rnorvegicus_gene_ensembl"
+	filter <- "ens_rn_gene"
 }
 
 # Read in data and convert to BED format
@@ -63,4 +71,27 @@ names(results_table) <- table_header
 # Write output
 write.table(results_table, file="nearest-genes.tsv", sep="\t", col.names=T, row.names=T, quote=F)
 
+# Fetch additional gene info from BioMart database
+ensembl_annotations <- useMart("ensembl", dataset=as.character(ensembl_dataset))
+ensembl_id_list <- as.character(unique(results_table$ensembl_id))
+gene_annotations <- getBM(filters="ensembl_gene_id", values=ensembl_id_list, attributes=c("ensembl_gene_id","hgnc_symbol","description","entrezgene"), mart=ensembl_annotations)
+
+# Keep only the ones that that have a unique ensembl gene id and actually map to unique entrez id:s
+gene_annotations_na <- na.omit(gene_annotations)
+unique_ensembl_id <- unique(levels(as.factor(gene_annotations_na[,1])))
+matches <- na.omit(match (unique_ensembl_id, gene_annotations_na[,1], nomatch=NA))
+gene_annotations_unique <- gene_annotations_na[matches,]
+unique_entrez_id <- unique(levels(as.factor(gene_annotations_unique[,4])))
+matches <- na.omit(match (unique_entrez_id, gene_annotations_unique[,4], nomatch=NA))
+gene_annotations_unique <- gene_annotations_unique[matches,]
+rownames(gene_annotations_unique) <- gene_annotations_unique[,1]
+gene_annotations_unique <- gene_annotations_unique[,2:4]
+names(gene_annotations_unique)[1] <- "symbol"
+
+# Write output
+write.table(gene_annotations_unique, file="unique-genes-list.tsv", sep="\t", col.names=T, row.names=T, quote=F)
+
 # EOF
+
+
+
