@@ -155,4 +155,7 @@ public interface Module {
 	 * @return short name (4 letters or less)
 	 */
 	public String getShortCategoryName(Operation operation);
+
+	public boolean countOperationResults();
+
 }

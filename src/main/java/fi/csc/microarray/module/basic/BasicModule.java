@@ -166,4 +166,9 @@ public class BasicModule implements Module {
 		}
 		return catName.substring(0, catName.length() > 4 ? 4 : catName.length());
 	}
+
+	@Override
+	public boolean countOperationResults() {
+		return true;
+	}
 }

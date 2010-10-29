@@ -365,4 +365,9 @@ public class MicroarrayModule implements Module {
 		return BasicModule.shortenCategoryName(operation.getCategoryName());
 	}
 
+	@Override
+	public boolean countOperationResults() {
+		return true;
+	}
+
 }

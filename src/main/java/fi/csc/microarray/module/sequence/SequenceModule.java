@@ -175,4 +175,9 @@ public class SequenceModule implements Module {
 		return BasicModule.shortenCategoryName(catName);
 	}
 
+	@Override
+	public boolean countOperationResults() {
+		return false;
+	}
+
 }
