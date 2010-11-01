@@ -127,7 +127,7 @@ public class QualityCoverageTrack extends Track {
 
 		return drawables;
 	}
-
+	
 	private TreeMap<Long, Float> getQualities(Collection<RegionContent> reads) {
 
 		TreeMap<Long, Float> collector = new TreeMap<Long, Float>();

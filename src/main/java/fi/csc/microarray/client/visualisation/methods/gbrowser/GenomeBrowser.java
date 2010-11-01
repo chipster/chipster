@@ -458,12 +458,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		    }
 			
 		} else if (trackSwitches.keySet().contains(source)) {
-			JCheckBox trackSwitch = (JCheckBox) source;
-			for (Track track : tracks) {
-				if (track.trackGroup != null) {
-					track.trackGroup.showOrHide(trackSwitches.get(trackSwitch), trackSwitch.isSelected());
-				}
-			}
+			updateVisibilityForTracks();
 		}
 	}
 
@@ -915,13 +910,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		// Set scale of profile track containing reads information
 		this.plot.setReadScale((ReadScale) this.profileScaleBox
 				.getSelectedItem());
-
-		// Enable/disable track groups for data files
-		for (Track track : tracks) {
-			if (track.getTrackGroup() != null) {
-				track.getTrackGroup().setVisible(track.checkBox.isSelected());
-			}
-		}
 	}
 
 	public void focusGained(FocusEvent e) {
