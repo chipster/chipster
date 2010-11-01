@@ -27,8 +27,8 @@ public class ReadTrackGroup extends TrackGroup {
     protected SeqTrack seq;
     protected IntensityTrack readOverviewReversed;
     protected SeqBlockTrack readsReversed;
-    protected ProfileTrack profileTrack;
-    protected ProfileSNPTrack profileSNPTrack;
+    protected CoverageTrack profileTrack;
+    protected CoverageAndSNPTrack profileSNPTrack;
     protected QualityCoverageTrack qualityCoverageTrack;
     protected GelTrack gelTrack;
     protected SeparatorTrack sepTrackReads;
@@ -80,12 +80,12 @@ public class ReadTrackGroup extends TrackGroup {
         readsReversed.setStrand(Strand.REVERSED);
         
         // Profile
-        profileTrack = new ProfileTrack(view, userData, userDataHandler,
+        profileTrack = new CoverageTrack(view, userData, userDataHandler,
                 Color.BLACK, PartColor.CDS.c, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         profileTrack.setStrand(Strand.BOTH);
         
         // SNP profile
-        profileSNPTrack = new ProfileSNPTrack(view, userData, userDataHandler,
+        profileSNPTrack = new CoverageAndSNPTrack(view, userData, userDataHandler,
                 Color.BLACK, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         profileSNPTrack.setStrand(Strand.BOTH); //Will be set anyway in the track constructor
         

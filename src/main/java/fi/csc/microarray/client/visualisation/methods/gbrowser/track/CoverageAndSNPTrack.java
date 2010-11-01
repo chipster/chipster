@@ -28,14 +28,13 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 /**
  * Track for showing the coverage of reads. Profile is drawn by calculating
  * the number of nucleotides hitting each basepair location. Should look
- * similar to IntensityTrack, but is exact.
+ * similar to IntensityTrack, but is exact. Also shows where there are
+ * large amounts of SNP's as bars chart.
  * 
- * If track's strand is set to Strand.BOTH, two profiles are drawn, one for
- * each strand.
  *
  * @see IntensityTrack
  */
-public class ProfileSNPTrack extends Track {
+public class CoverageAndSNPTrack extends Track {
 
 	private long maxBpLength;
 	private long minBpLength;
@@ -97,7 +96,7 @@ public class ProfileSNPTrack extends Track {
 	}
 
 
-	public ProfileSNPTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
+	public CoverageAndSNPTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
 			Color forwardColor, long minBpLength, long maxBpLength) {
 		super(view, file, handler);
 		this.forwardColor = forwardColor;

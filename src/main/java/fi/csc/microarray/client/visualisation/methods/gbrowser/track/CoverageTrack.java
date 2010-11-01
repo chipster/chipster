@@ -36,7 +36,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  *
  * @see IntensityTrack
  */
-public class ProfileTrack extends Track {
+public class CoverageTrack extends Track {
 
 	private long maxBpLength;
 	private long minBpLength;
@@ -47,7 +47,7 @@ public class ProfileTrack extends Track {
 	private Color backwardColor;
 
 
-	public ProfileTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
+	public CoverageTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
 	        Color forwardColor, Color backwardColor, long minBpLength, long maxBpLength) {
 		super(view, file, handler);
 		this.forwardColor = forwardColor;
