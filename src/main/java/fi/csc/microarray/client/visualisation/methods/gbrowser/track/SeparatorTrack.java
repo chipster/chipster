@@ -23,6 +23,7 @@ public class SeparatorTrack extends Track {
 	private long maxBpLength;
 	private long minBpLength;
 	private int thickness;
+	private String name = "separator";
 	
 	protected SeparatorTrack(View view, long minBpLength, long maxBpLength) {
 		super(view, null);
@@ -36,6 +37,15 @@ public class SeparatorTrack extends Track {
 		this.thickness = thickness;
 	}
 
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	@Override
+	public String getName() {
+		return name;
+	}
+	
 	@Override
 	public Collection<Drawable> getDrawables() {
 		Collection<Drawable> drawables = getEmptyDrawCollection();

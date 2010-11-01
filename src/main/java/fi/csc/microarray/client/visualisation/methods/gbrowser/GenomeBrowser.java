@@ -178,7 +178,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	public GenomeBrowser(VisualisationFrame frame) {
 		super(frame);
 
-		trackSwitches.put(new JCheckBox("Show reads", true), "SeqBlockTrack");
+		trackSwitches.put(new JCheckBox("Show reads", true), "Reads");
 		trackSwitches.put(new JCheckBox("Highlight read SNP's", false), "highlightSNP");
 		trackSwitches.put(new JCheckBox("Show SNP coverage", true), "ProfileSNPTrack");
 		trackSwitches.put(new JCheckBox("Show strand coverage", false), "ProfileTrack");

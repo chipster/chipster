@@ -93,7 +93,6 @@ public class ReadTrackGroup extends TrackGroup {
         		Color.ORANGE, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         profileSNPTrack.setStrand(Strand.BOTH); //Will be set anyway in the track constructor
         
-        
         // Gel
         gelTrack = new GelTrack(view, userData, userDataHandler,
                 Color.WHITE, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
@@ -104,39 +103,43 @@ public class ReadTrackGroup extends TrackGroup {
     }
     
     private void addTracks() {
-        // Construct the list according to visibility
-        this.tracks = new LinkedList<Track>();
+
+    	this.tracks = new LinkedList<Track>();
         tracks.add(titleTrack);
         tracks.add(readOverview);
         tracks.add(reads);
-        sepTrackReads = new SeparatorTrack(view, Color.gray, 1, 0, Long.MAX_VALUE); 
+        sepTrackReads = new SeparatorTrack(view, Color.gray, 1, 0, Long.MAX_VALUE);
+        sepTrackReads.setName("Reads");
         tracks.add(sepTrackReads);
         
         // Only draw reference sequence if data is present
         if (hasReference) {
             tracks.add(seq);
-            sepTrackSeq = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SHOW_REFERENCE_AT); 
+            sepTrackSeq = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SHOW_REFERENCE_AT);
+            sepTrackSeq.setName("Reads");
             tracks.add(sepTrackSeq);
         }
 
         tracks.add(readOverviewReversed);
         tracks.add(readsReversed);
         
-        // Only draw separator if profile track is visible
     	sepTrackProfile = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT); 
+    	sepTrackProfile.equals("ProfileTrack");
         tracks.add(sepTrackProfile);
         tracks.add(profileTrack);
         
-    	sepTrackProfileSNP = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT); 
+    	sepTrackProfileSNP = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+    	sepTrackProfileSNP.setName("ProfileSNPTrack");
     	tracks.add(sepTrackProfileSNP);
         tracks.add(profileSNPTrack);
 
-    	sepTrackQualityCoverage = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT); 
+    	sepTrackQualityCoverage = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+    	sepTrackQualityCoverage.setName("QualityCoverageTrack");
     	tracks.add(sepTrackQualityCoverage);
         tracks.add(qualityCoverageTrack);
         
-        // Only draw separator if gel track is visible
     	sepTrackGel = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT); 
+    	sepTrackGel.setName("GelTrack");
         tracks.add(sepTrackGel);
         tracks.add(gelTrack);
     }

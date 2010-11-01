@@ -339,6 +339,6 @@ public class SeqBlockTrack extends Track {
 
 	@Override
 	public String getName() {
-		return "SeqBlockTrack";
+		return "Reads";
 	}
 }
