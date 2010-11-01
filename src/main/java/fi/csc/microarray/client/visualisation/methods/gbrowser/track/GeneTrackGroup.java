@@ -40,7 +40,7 @@ public class GeneTrackGroup extends TrackGroup {
 		transcript.setStrand(Strand.FORWARD);
 		
 		annotationOverview = new IntensityTrack(dataView, geneAnnotationFile, ChunkTreeHandlerThread.class, 
-				PartColor.CDS.c, GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
+				PartColor.CDS.c, GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true);
 		annotationOverview.setStrand(Strand.FORWARD);
 		
 		annotation = new GeneTrack(dataView, geneAnnotationFile,
@@ -58,7 +58,7 @@ public class GeneTrackGroup extends TrackGroup {
 		repeatMasker = new RepeatMaskerTrack(dataView, refSource, ChunkTreeHandlerThread.class, GenomeBrowserConstants.SWITCH_VIEWS_AT);
 		
 		annotationOverviewReversed = new IntensityTrack(dataView,
-		        geneAnnotationFile, ChunkTreeHandlerThread.class, PartColor.CDS.c, GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2);
+		        geneAnnotationFile, ChunkTreeHandlerThread.class, PartColor.CDS.c, GenomeBrowserConstants.CHANGE_TRACKS_ZOOM_THRESHOLD2, true);
 		annotationOverviewReversed.setStrand(Strand.REVERSED);
 		
 		annotationReversed = new GeneTrack(dataView, geneAnnotationFile,

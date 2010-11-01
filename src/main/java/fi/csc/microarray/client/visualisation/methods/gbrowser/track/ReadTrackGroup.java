@@ -55,7 +55,7 @@ public class ReadTrackGroup extends TrackGroup {
         
         // Overview
         readOverview = new IntensityTrack(view, userData,
-                userDataHandler, histogramColor, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+                userDataHandler, histogramColor, GenomeBrowserConstants.SWITCH_VIEWS_AT, false);
             
         reads = new SeqBlockTrack(view, userData,
                 userDataHandler, fontColor, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
@@ -71,7 +71,7 @@ public class ReadTrackGroup extends TrackGroup {
         
         // Overview
         readOverviewReversed = new IntensityTrack(view, userData,
-                userDataHandler, histogramColor, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+                userDataHandler, histogramColor, GenomeBrowserConstants.SWITCH_VIEWS_AT, false);
         readOverviewReversed.setStrand(Strand.REVERSED);
         
         // Detailed

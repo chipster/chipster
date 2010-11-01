@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
@@ -32,8 +33,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.utils.Sequence;
  * 
  */
 public class SeqBlockTrack extends Track {
-
-	private static final int SPACE_BETWEEN_READS = 2;
 
 	public static final Color[] charColors = new Color[] { 
 		new Color(64, 192, 64, 128), // A
@@ -81,7 +80,6 @@ public class SeqBlockTrack extends Track {
 			}
 
 			// Collect relevant data for this read
-			int height = 4;
 			BpCoord startBp = read.region.start;
 
 			// Split read into continuous blocks (elements) by using the cigar
@@ -121,11 +119,11 @@ public class SeqBlockTrack extends Track {
 				}
 
 				// Now we can decide the y coordinate
-				rect.y = getYCoord(layer, height);
-				rect.height = height;
+				rect.y = getYCoord(layer, GenomeBrowserConstants.READ_HEIGHT);
+				rect.height = GenomeBrowserConstants.READ_HEIGHT;
 
 				// Check if we are about to go over the edge of the drawing area
-				boolean lastBeforeMaxStackingDepthCut = getYCoord(layer + 1, height) < 0;
+				boolean lastBeforeMaxStackingDepthCut = getYCoord(layer + 1, GenomeBrowserConstants.READ_HEIGHT) < 0;
 
 				// Check if we are over the edge of the drawing area
 				if (rect.y < 0) {
@@ -203,7 +201,7 @@ public class SeqBlockTrack extends Track {
 						// Draw rectangle
 						int x = Math.round(startX + refIndex * increment);
 						int width = increment >= 1.0f ? Math.round(increment) : 1;  
-						drawables.add(new RectDrawable(x, rect.y, width, height, bg, null));
+						drawables.add(new RectDrawable(x, rect.y, width, GenomeBrowserConstants.READ_HEIGHT, bg, null));
 					}
 				}
 			}
@@ -213,7 +211,7 @@ public class SeqBlockTrack extends Track {
 	}
 
 	private int getYCoord(int layer, int height) {
-		return (int) (getView().getTrackHeight() - ((layer + 1) * (height + SPACE_BETWEEN_READS)));
+		return (int) (getView().getTrackHeight() - ((layer + 1) * (height + GenomeBrowserConstants.SPACE_BETWEEN_READS)));
 	}
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
