@@ -16,7 +16,7 @@ import javax.swing.event.CaretListener;
  * be interpreted as a decimal number at all (cannot be parsed to a double),
  * the input text will also be bright red.
  * 
- * @author Janne KÃ¤ki
+ * @author Janne Käki
  *
  */
 @SuppressWarnings("serial")

@@ -24,7 +24,7 @@ import javax.swing.event.ChangeListener;
  * values, but will indicate this with a red background. If the value cannot
  * be parsed to an integer at all, the input text will also be bright red.
  * 
- * @author Janne KÃ¤ki
+ * @author Janne Käki
  *
  */
 @SuppressWarnings("serial")

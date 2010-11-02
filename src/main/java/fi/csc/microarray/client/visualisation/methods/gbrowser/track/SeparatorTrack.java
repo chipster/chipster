@@ -20,18 +20,32 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 public class SeparatorTrack extends Track {
 
 	private Color color;
-	private int thickness;
 	private long maxBpLength;
 	private long minBpLength;
-
-	public SeparatorTrack(View view, Color color, int thickness, long minBpLength, long maxBpLength) {
+	private int thickness;
+	private String name = "separator";
+	
+	protected SeparatorTrack(View view, long minBpLength, long maxBpLength) {
 		super(view, null);
-		this.color = color;
-		this.thickness = thickness;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
 	}
+	
+	public SeparatorTrack(View view, Color color, int thickness, long minBpLength, long maxBpLength) {
+		this(view, minBpLength, maxBpLength);
+		this.color = color;
+		this.thickness = thickness;
+	}
 
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	@Override
+	public String getName() {
+		return name;
+	}
+	
 	@Override
 	public Collection<Drawable> getDrawables() {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
@@ -41,6 +55,7 @@ public class SeparatorTrack extends Track {
 
 		return drawables;
 	}
+
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
 		// ignore

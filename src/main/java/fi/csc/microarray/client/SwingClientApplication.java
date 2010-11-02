@@ -116,7 +116,7 @@ import fi.csc.microarray.util.Strings;
 /**
  * This class adds all GUI and Swing specific content to client functionality.
  * 
- * @author Aleksi Kallio, Janne KÃ¤ki
+ * @author Aleksi Kallio, Janne Käki
  * 
  */
 public class SwingClientApplication extends ClientApplication {
@@ -628,7 +628,7 @@ public class SwingClientApplication extends ClientApplication {
 
 		DataFolder root = manager.getRootFolder();
 
-		if (folderName == null) {
+		if (folderName == null || folderName.isEmpty()) {
 			logger.debug("initializing for import " + folderName + ": is null => using root");
 			return root;
 
@@ -1333,7 +1333,7 @@ public class SwingClientApplication extends ClientApplication {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		start(null, "microarray");
+		start(null, "fi.csc.microarray.module.chipster.MicroarrayModule");
 	}
 
 	public static void reportIllegalConfigurationException(IllegalConfigurationException e) {
@@ -1680,7 +1680,7 @@ public class SwingClientApplication extends ClientApplication {
 			reportException(e);
 		}
 	}
-
+	
 	@Override
 	public void loadSession() {
 
@@ -1710,7 +1710,7 @@ public class SwingClientApplication extends ClientApplication {
 					 * saving after opening session. However, if there was datasets already, combination
 					 * of them and new session can be necessary to save. This has to set after the import, because 
 					 */
-					boolean somethingToSave = getAllDataBeans().size() != 0;
+					boolean somethingToSave = manager.databeans().size() != 0;
 					
 					final List<DataItem> newItems = manager.loadSnapshot(sessionFile, manager.getRootFolder(), application);
 					SwingUtilities.invokeAndWait(new Runnable() {

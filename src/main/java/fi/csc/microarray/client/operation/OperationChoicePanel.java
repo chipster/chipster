@@ -40,7 +40,7 @@ import fi.csc.microarray.constants.VisualConstants;
  * right one. Selecting an operation on the right side list, then, will
  * result in corresponding details being shown in the parent OperationPanel.
  * 
- * @author Janne KÃ¤ki
+ * @author Janne Käki
  *
  */
 @SuppressWarnings("serial")

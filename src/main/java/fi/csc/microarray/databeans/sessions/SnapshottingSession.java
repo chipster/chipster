@@ -272,17 +272,14 @@ public class SnapshottingSession {
 				}
 
 				for (Parameter parameter : operation.getParameters()) {
-					metadata.append("OPERATION_PARAMETER " + operId + " " +
-					        parameter.getID() + " " + parameter.getValueAsString() + "\n");
+
+					// Write parameter only when value is not empty
+					if (parameter.getValue() != null && !parameter.getValue().equals("")) {	
+						metadata.append("OPERATION_PARAMETER " + operId + " " +
+								parameter.getID() + " " + parameter.getValueAsString() + "\n");
+					}
 				}
 
-				// will be written in the 2nd pass
-//				for (Link type : Link.values()) {
-//					for (DataBean target : bean.getLinkTargets(type)) {
-//						String targetId = fetchId(target);				
-//						metadata.append("LINK " + type.name() + " " + beanId + " " + targetId + "\n");
-//					}
-//				}		
 
 			} else {
 				operId = reversedOperationIdMap.get(operation).toString();

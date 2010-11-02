@@ -36,12 +36,9 @@ import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.client.visualisation.methods.VenndiPlot.AREAS;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 public class VennDiagram extends Visualisation implements PropertyChangeListener, ActionListener {
-
-	private static final String IDENTIFIER_COLUMN = "/identifier";
 
 	public VennDiagram(VisualisationFrame frame) {
 		super(frame);
@@ -219,14 +216,15 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 
 	@Override
 	public boolean canVisualise(List<DataBean> beans) throws MicroarrayException {
+		
+		// VENN diagram can be be used for 2 or 3 datasets
 		if (beans.size() < 2 || beans.size() > 3) {
 			return false;
 		}
 
+		// check that all datasets have gene name column
 		for (DataBean data : beans) {
-			boolean isTabular = BasicModule.SPREADSHEET.getHeadlessVisualiser().canVisualise(data);
-
-			if (!(isTabular && data.queryFeatures(IDENTIFIER_COLUMN).exists())) {
+			if (!(isTabular(data) && data.hasTypeTag(MicroarrayModule.TypeTags.GENENAMES))) {
 				return false;
 			}
 		}
@@ -302,7 +300,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 		vars.add((Variable)colBox.getSelectedItem());
 		
 		application.setVisualisationMethod(new VisualisationMethodChangedEvent(this,
-				MicroarrayModule.VENN_DIAGRAM, vars, 
+				MicroarrayModule.VisualisationMethods.VENN_DIAGRAM, vars, 
 				getFrame().getDatas(), getFrame().getType(), getFrame()));
 	}
 	

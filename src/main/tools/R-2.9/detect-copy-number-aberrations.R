@@ -1,14 +1,16 @@
-# ANALYSIS "aCGH tools (beta testing)"/"Call copy number aberrations from aCGH data" (Call copy number aberrations from aCGH log ratios.)
+# ANALYSIS "aCGH tools"/"Call copy number aberrations from aCGH data" (Call copy number aberrations from aCGH log ratios.)
 # INPUT GENE_EXPRS normalized.tsv
-# OUTPUT aberrations.tsv, aberration-summary.png
-# PARAMETER chromosomes INTEGER DEFAULT 23 (Number of chromosomes. Usually 23 for sex-matched reference samples and 22 otherwise.)
+# OUTPUT aberrations.tsv, aberrations.png
 # PARAMETER normalization [median, mode, none] DEFAULT none (Normalization method.)
-# PARAMETER cn.states [3, 4] DEFAULT 3 (Whether to call loss/normal/gain or loss/normal/gain/amplification.)
-# PARAMETER min.width [2, 3, 4, 5] DEFAULT 2 (Minimum number of probes per segment.)
+# PARAMETER number.of.chromosomes INTEGER DEFAULT 23 (Number of chromosomes. Usually 23 for sex-matched reference samples and 22 otherwise.)
+# PARAMETER number.of.copy.number.states [3, 4] DEFAULT 3 (Whether to call loss vs. normal vs. gain or loss vs. normal vs. gain vs. amplification.)
+# PARAMETER minimum.number.of.probes.per.segment [2, 3, 4, 5] DEFAULT 2 (Minimum number of probes per segment.)
+# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 # detect-copy-number-aberrations.R
-# Ilari Scheinin <firstname.lastname@helsinki.fi>
-# 2010-08-06
+# Ilari Scheinin <firstname.lastname@gmail.com>
+# 2010-10-12
 
 library(CGHcall)
 
@@ -32,11 +34,11 @@ dat2$chromosome[dat2$chromosome=='MT'] <- 25
 dat2$chromosome <- as.integer(dat2$chromosome)
 
 cgh <- make_cghRaw(dat2)
-cgh <- preprocess(cgh, nchrom=chromosomes)
+cgh <- preprocess(cgh, nchrom=number.of.chromosomes)
 cgh <- normalize(cgh, method=normalization)
-cgh <- segmentData(cgh, min.width=as.integer(min.width))
+cgh <- segmentData(cgh, min.width=as.integer(minimum.number.of.probes.per.segment))
 cgh <- postsegnormalize(cgh)
-cgh <- CGHcall(cgh, nclass=as.integer(cn.states))
+cgh <- CGHcall(cgh, nclass=as.integer(number.of.copy.number.states))
 
 dat3 <- data.frame(cgh@featureData@data)
 colnames(dat3) <- c('chromosome', 'start', 'end')
@@ -47,7 +49,7 @@ for (col in c('cytoband', 'symbol', 'description', 'cnvs'))
 
 dat3$loss.freq <- round(mean(as.data.frame(t(assayDataElement(cgh, "calls")==-1))), digits=3)
 dat3$gain.freq <- round(mean(as.data.frame(t(assayDataElement(cgh, "calls")==1))), digits=3)
-if (cn.states=='4' && 2 %in% assayDataElement(cgh, 'calls'))
+if (number.of.copy.number.states=='4' && 2 %in% assayDataElement(cgh, 'calls'))
   dat3$amp.freq <- round(mean(as.data.frame(t(assayDataElement(cgh, "calls")==2))), digits=3)
 
 calls <- assayDataElement(cgh, 'calls')
@@ -74,7 +76,7 @@ probgain <- assayDataElement(cgh, 'probgain')
 colnames(probgain) <- sub('chip.', 'probgain.', chips)
 dat3 <- cbind(dat3, probgain)
 
-if (cn.states=='4') {
+if (number.of.copy.number.states=='4') {
   probamp <- assayDataElement(cgh, 'probamp')
   colnames(probamp) <- sub('chip.', 'probamp.', chips)
   dat3 <- cbind(dat3, probamp)
@@ -87,7 +89,7 @@ dat3$chromosome[dat3$chromosome=='25'] <- 'MT'
 
 write.table(dat3, file='aberrations.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
-bitmap(file='aberration-summary.png', width=600/72, height=600/72)
+bitmap(file='aberrations.png', width=image.width/72, height=image.height/72)
 plot.summary(cgh)
 dev.off()
 

@@ -16,7 +16,7 @@ import fi.csc.microarray.exception.MicroarrayException;
  * An abstract class representing all the different types of parameters
  * for the operations of this application.
  * 
- * @author Janne KÃ¤ki, akallio
+ * @author Janne Käki, akallio
  *
  */
 public abstract class Parameter implements Cloneable {

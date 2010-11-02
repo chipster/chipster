@@ -9,7 +9,6 @@ import java.util.LinkedList;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.TabixDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.TrackFactory;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
@@ -34,12 +33,11 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
     protected TitleTrack titleTrack;
     protected TabixIntensityTrack readOverview;
     protected SeqBlockTrack reads;
-    protected ProfileTrack profileTrack;
+    protected CoverageTrack profileTrack;
     protected GelTrack gelTrack;
     protected SeqTrack seq;
 //    protected IntensityTrack readOverviewReversed;
     protected SeqBlockTrack readsReversed;
-    protected AcidProfile acidTrack;
 
     public ReadSummaryTrackGroup(View view, DataSource userData,
             Class<? extends AreaRequestHandler> userDataHandler, DataSource seqFile, String filename) throws FileNotFoundException {
@@ -79,15 +77,9 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
         readsReversed.setStrand(Strand.REVERSED);
         
         // Profile
-        profileTrack = new ProfileTrack(view, userData, userDataHandler,
+        profileTrack = new CoverageTrack(view, userData, userDataHandler,
                 Color.BLACK, PartColor.CDS.c, 0, SWITCH_VIEWS_AT);
-        profileTrack.setStrand(Strand.BOTH);
-        
-        // Acid profile
-        acidTrack = new AcidProfile(view, userData, userDataHandler,
-                0, SHOW_REFERENCE_AT);
-        acidTrack.setStrand(Strand.FORWARD);        
-        
+        profileTrack.setStrand(Strand.BOTH);        
         
         // Gel
         gelTrack = new GelTrack(view, userData, userDataHandler,
@@ -104,7 +96,6 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
         // Construct the list according to visibility
         this.tracks = new LinkedList<Track>();
         // Top separator
-        tracks.add(TrackFactory.createThickSeparatorTrack(view));
         tracks.add(titleTrack);
         tracks.add(readOverview);
         tracks.add(reads);
@@ -124,11 +115,6 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
             tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT));
             tracks.add(profileTrack);
 //        }
-        
-//        if (showAcid.isSelected()) {
-        	tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT));
-            tracks.add(acidTrack);
-//        
         
         // Only draw separator if gel track is visible
 //        if (showGel.isSelected()) {

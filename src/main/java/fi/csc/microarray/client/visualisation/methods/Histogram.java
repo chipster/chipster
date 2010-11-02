@@ -32,7 +32,6 @@ import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.ui.TextAnchor;
 
-import fi.csc.microarray.client.visualisation.ChipVisualisation;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
@@ -115,7 +114,7 @@ public class Histogram extends ChipVisualisation {
 						List<Variable> variables = new ArrayList<Variable>();
 						variables.add((Variable) chipBox.getSelectedItem());
 
-						application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, MicroarrayModule.HISTOGRAM, variables, getFrame().getDatas(), getFrame().getType(), getFrame()));
+						application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, MicroarrayModule.VisualisationMethods.HISTOGRAM, variables, getFrame().getDatas(), getFrame().getType(), getFrame()));
 
 					} catch (Exception exp) {
 						application.reportException(exp);

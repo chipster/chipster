@@ -200,11 +200,12 @@ public class TrackGroup {
     }
     
     /**
-     * sets the visibility of a track, if it is a need of SNP highlighting, method should be overriden
+     * Sets the visibility of a track, if it is a need of SNP highlighting, method should be overridden.
      * @param track name
      * @param state
      */
     public void showOrHide(String name, boolean state) {
+    	
 		for (Track track : tracks) {
     		if (track.getName().equals(name)) {
     			track.setVisible(state);

@@ -10,7 +10,7 @@ import javax.swing.filechooser.FileFilter;
  * as a String array) to restrict what kind of files are shown, for
  * example, when selecting a file for importing microarray data.
  * 
- * @author Janne KÃ¤ki
+ * @author Janne Käki
  *
  */
 public class GeneralFileFilter extends FileFilter {

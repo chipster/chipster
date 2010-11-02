@@ -1,12 +1,15 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.sf.samtools.CigarElement;
 import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.util.CloseableIterator;
@@ -14,6 +17,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Concis
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CigarItem;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
@@ -37,7 +42,14 @@ public class SAMFile {
      * @param indexFile - SAM index file (usually with .bai extension).
      */
     public SAMFile(File samFile, File indexFile) {
+    	// BAMFileReader emits useless warning to System.err that can't be turned off,
+    	// so we direct it to other stream and discard. 
+    	PrintStream originalErr = System.err;
+    	System.setErr(new PrintStream(new ByteArrayOutputStream()));
         this.reader = new SAMFileReader(samFile, indexFile);
+        
+        // Restore System.err
+        System.setErr(originalErr);
     }
     
     /**
@@ -70,20 +82,76 @@ public class SAMFile {
             // Values for this read
             HashMap<ColumnType, Object> values = new HashMap<ColumnType, Object>();
             
-            // TODO Deal with "=" and "N" in read string
-            if (request.requestedContents.contains(ColumnType.SEQUENCE)) {
-                values.put(ColumnType.SEQUENCE, record.getReadString());
-            }
+            RegionContent read = new RegionContent(recordRegion, values);
             
             if (request.requestedContents.contains(ColumnType.STRAND)) {
-                values.put(ColumnType.STRAND,
-                        record.getReadNegativeStrandFlag() ?
-                        Strand.REVERSED : Strand.FORWARD);
+            	values.put(ColumnType.STRAND,
+            			record.getReadNegativeStrandFlag() ?
+            					Strand.REVERSED : Strand.FORWARD);
+            	
             }
             
-            // TODO Add cigar and pair data to values
             
-            responseList.add(new RegionContent(recordRegion, values));
+            
+            if (request.requestedContents.contains(ColumnType.QUALITY)) {
+            	
+            	/*Now string because of equality problem described below, should be some nice internal
+            	 * object type in the future
+            	 */
+            	
+            	values.put(ColumnType.QUALITY, record.getBaseQualityString());            	
+            }
+            
+            if (request.requestedContents.contains(ColumnType.CIGAR)) {      
+            	
+            	Cigar cigar = new Cigar(read);
+            	
+            	for (CigarElement picardElement : record.getCigar().getCigarElements()) {
+            		cigar.addElement(new CigarItem(picardElement)); 
+            	}
+            	            	
+            	values.put(ColumnType.CIGAR, cigar);
+            }
+            
+            // TODO Deal with "=" and "N" in read string
+            if (request.requestedContents.contains(ColumnType.SEQUENCE)) {            
+            	                       	
+            	String seq = record.getReadString();
+            	
+            	//FIXME trying fix changes in reads to fit with the reference sequence, but
+            	//this doesn't work yet
+//            	StringBuffer buf = new StringBuffer();
+//            	
+//            	int seqCounter = 0;
+//            	
+//            	for (CigarElement element : record.getCigar().getCigarElements()) {
+//            		if (element.getOperator().consumesReferenceBases()) {
+//            			for (int j = 0; j < element.getLength(); j++) {
+//            				if (seqCounter + j < seq.length()) {
+//            					buf.append(seq.charAt(seqCounter + j));
+//            				}
+//            				seqCounter++;
+//            			}
+//            		} else {
+//            			for (int j = 0; j < element.getLength(); j++) {
+//            				buf.append(" ");
+//            			}
+//            		}
+//            	}
+            	
+            	values.put(ColumnType.SEQUENCE, seq);
+            	//values.put(ColumnType.SEQUENCE, buf.toString());
+            }
+            
+            // TODO Add pair data to values
+            
+            /* NOTE! RegionContents created from the same read are has to be equal in methods 
+             * equals, hash and compareTo. Primary types should be ok,
+             * but objects (including tables) has to be handled in those methods separately. 
+             * Otherwise tracks keep adding the same reads to their read sets again and again. 
+             */
+            
+            responseList.add(read);
         }
 
         iterator.close();
@@ -108,7 +176,7 @@ public class SAMFile {
     	List<RegionContent> responseList = new LinkedList<RegionContent>();
         
         // How many times file is read
-        int SAMPLING_GRANULARITY = 40;
+        int SAMPLING_GRANULARITY = 100;
         int step = request.getLength().intValue() / SAMPLING_GRANULARITY;
         int SAMPLE_SIZE = 100; // FIXME: issue, can be bigger then step size 
         
@@ -146,17 +214,23 @@ public class SAMFile {
         		cacheMisses++;
         		
         		// Fetch new content by taking sample from the middle of this area
+        		int start = stepMiddlepoint - SAMPLE_SIZE/2;
+        		int end = stepMiddlepoint + SAMPLE_SIZE/2;
         		CloseableIterator<SAMRecord> iterator =
         			this.reader.query(request.start.chr.toString(),
-        					stepMiddlepoint - SAMPLE_SIZE/2, stepMiddlepoint + SAMPLE_SIZE/2, false);
+        					start, end, false);
 
         		// Count reads in this sample area
         		for (Iterator<SAMRecord> i = iterator; i.hasNext();) {
         			SAMRecord record = i.next();
-        			if (record.getReadNegativeStrandFlag()) {
-        				countReverse++;
-        			} else {
-        				countForward++;
+        			
+        			// Accept only records that start in this area (very rough approximation for spliced reads)
+        			if (record.getAlignmentStart() >= start && record.getAlignmentEnd() <= end) {
+        				if (record.getReadNegativeStrandFlag()) {
+        					countReverse++;
+        				} else {
+        					countForward++;
+        				}
         			}
         		}
 

@@ -44,12 +44,12 @@ import fi.csc.microarray.util.IOUtils;
  * clipboard paste). Contains methods to help implementation of folder selection
  * and launching actionChooser or direct import.
  * 
- * @author Petri KlemelÃ¤
+ * @author Petri Klemelä
  */
 public class ImportUtils {
 
 	private static final Logger logger = Logger.getLogger(ImportUtils.class);
-	private static final String DEFAULT_FOLDER_NAME = "My experiment";
+	private static final String DEFAULT_FOLDER_NAME = "";
 	private static ClientApplication application = Session.getSession().getApplication();
 
 	private static boolean zipDialogShown = false;
@@ -315,6 +315,7 @@ public class ImportUtils {
 	 * skip is requested (by default it is). Otherwise launches
 	 * ActionChooserScreen. If module does not support import
 	 * tools then files are always imported directly.
+	 * @throws MicroarrayException 
 	 */
 	public static void executeImport(ImportSession importSession) {
 
@@ -336,29 +337,30 @@ public class ImportUtils {
 		// standalone
 		else {
 
-			// input files to input DataBeans
-			List<DataBean> inputBeans = new LinkedList<DataBean>();
-			int i = 0;
-			for (File inputFile: importSession.getInputFiles()) {
-				try {
-					inputBeans.add(Session.getSession().getDataManager().createDataBean("preprocessInput-" + i, inputFile));
-				} catch (MicroarrayException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				i++;
+			// import directly
+			if (importSession.isSkipActionChooser()) {
+				application.importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
 			}
 
+			// go to preprocessing
+			else {
+				// input files to input DataBeans
+				try {
+					List<DataBean> inputBeans = new LinkedList<DataBean>();
+					int i = 0;
+					for (File inputFile: importSession.getInputFiles()) {
+						inputBeans.add(Session.getSession().getDataManager().createDataBean("preprocessInput-" + i, inputFile));
+						i++;
+					}
 
+					// create operation, open import operation parameter dialog
+					ClientApplication application = Session.getSession().getApplication();
+					Operation importOperation = new Operation(application.getOperationDefinition("LocalNGSPreprocess.java"), inputBeans.toArray(new DataBean[] {}));
+					new TaskImportDialog(application, "Preprocess NGS data", importOperation);
 
-			// create operation, open import operation parameter dialog
-			try {
-				ClientApplication application = Session.getSession().getApplication();
-				Operation importOperation = new Operation(application.getOperationDefinition("PreprocessNGSSingle.java"), inputBeans.toArray(new DataBean[] {}));
-				new TaskImportDialog(application, "NGS preprocess", importOperation);
-
-			} catch (Exception me) {
-				Session.getSession().getApplication().reportException(me);
+				} catch (Exception me) {
+					Session.getSession().getApplication().reportException(me);
+				}
 			}
 		}
 	}	

@@ -119,12 +119,12 @@ public class FeatureTest {
 			last = f;
 		}
 		Assert.assertTrue(last == 172f);
-		Assert.assertTrue(MicroarrayModule.ARRAY_LAYOUT.isApplicableTo(affyMicroarray));
+		Assert.assertTrue(MicroarrayModule.VisualisationMethods.ARRAY_LAYOUT.isApplicableTo(affyMicroarray));
 
 		// SOM
 		DataBean somData = manager.createDataBean("som.tsv", new FileInputStream(TestConstants.SOM_CLUSTERED_RESOURCE));
 
-		Assert.assertTrue(MicroarrayModule.SOM.isApplicableTo(somData));
+		Assert.assertTrue(MicroarrayModule.VisualisationMethods.SOM.isApplicableTo(somData));
 		Table som = somData.queryFeatures("/clusters/som").asTable();
 		Assert.assertNotNull(som);
 		Assert.assertEquals(som.getColumnCount(), 5); 
@@ -137,7 +137,7 @@ public class FeatureTest {
 
 		hcTree.addLink(Link.DERIVATION, hcHeatmap);
 
-		Assert.assertTrue(MicroarrayModule.HIERARCHICAL.isApplicableTo(hcTree));
+		Assert.assertTrue(MicroarrayModule.VisualisationMethods.HIERARCHICAL.isApplicableTo(hcTree));
 		Table heatmap = hcTree.queryFeatures("/clusters/hierarchical/heatmap").asTable();
 		Assert.assertNotNull(heatmap);
 		heatmap.nextRow();

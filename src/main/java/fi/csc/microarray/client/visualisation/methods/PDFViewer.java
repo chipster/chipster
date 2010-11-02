@@ -1,4 +1,4 @@
-package fi.csc.microarray.client.visualisation;
+package fi.csc.microarray.client.visualisation.methods;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,6 +7,8 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.visualisation.Visualisation;
+import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.SimplePDFViewer;

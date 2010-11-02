@@ -4,7 +4,7 @@ package fi.csc.microarray.client.operation.parameter;
 /**
  * A parameter which takes integer values.
  * 
- * @author Janne KÃ¤ki
+ * @author Janne Käki
  *
  */
 public class IntegerParameter extends Parameter {
