@@ -63,9 +63,9 @@ public class BaseStorage {
 		private Long bpLocation;
 		private int[] snpCounts = null;
 		private int totalSNPCount = 0;
+		private int totalCount = 0;
 		
 		public Base(Long bpLocation) {
-			Arrays.fill(getAcidCounts(), 0);
 			this.bpLocation = bpLocation;
 		}
 
@@ -74,14 +74,7 @@ public class BaseStorage {
 		}
 		
 		public int getCoverage() {
-
-			int sum = 0;
-
-			for (Acid acid : Acid.values()) {
-				sum += getAcidCounts()[acid.ordinal()]; 
-			}
-			
-			return sum;
+			return totalCount;
 		}
 		
 		public boolean hasSignificantSNPs() {
@@ -109,6 +102,7 @@ public class BaseStorage {
 				throw new IllegalStateException("cannot add acids after SNP counts have been calculated");
 			}
 			acidCounts[acid.ordinal()]++;
+			totalCount++;
 		}
 		
 		public int getTotalSNPCount() {
