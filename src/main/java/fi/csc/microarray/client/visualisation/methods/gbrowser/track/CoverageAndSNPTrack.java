@@ -8,11 +8,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.BaseStorage;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.BaseStorage.Acid;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.BaseStorage.Base;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
@@ -22,7 +24,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
@@ -39,62 +40,12 @@ public class CoverageAndSNPTrack extends Track {
 	private long maxBpLength;
 	private long minBpLength;
 
-	private Collection<RegionContent> forwardReads = new TreeSet<RegionContent>();
+	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
 	private Color forwardColor;
 
 	private boolean highlightSNP = false;
 
-	enum Acid { A, C, G, T };
-
-	private Acid getAcid(char character) {
-		switch(character) {
-		case 'A':
-			return Acid.A;
-		case 'C':
-			return Acid.C;
-		case 'G':
-			return Acid.G;
-		case 'T':
-			return Acid.T;
-		}
-		return null;
-	}
-
-	private class Base {
-
-		public int[] acidCounts = new int[Acid.values().length];
-
-		public Base() {
-			Arrays.fill(acidCounts, 0);
-		}
-
-		public int getCoverage() {
-
-			int sum = 0;
-
-			for (Acid acid : Acid.values()) {
-				sum += acidCounts[acid.ordinal()]; 
-			}
-			
-			return sum;
-		}
-		
-		public boolean isSNP() {
-			//TODO Values should be compared to reference sequence, now we don't notice, if
-			//all reads have the same mismatch
-			
-			int zeroCount = 0;
-			
-			for (Acid acid : Acid.values()) {
-				if (acidCounts[acid.ordinal()] == 0) {
-					zeroCount++;
-				}
-			}
-			
-			return zeroCount < 3;
-		}
-	}
-
+	private BaseStorage theBaseCacheThang = new BaseStorage();
 
 	public CoverageAndSNPTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
 			Color forwardColor, long minBpLength, long maxBpLength) {
@@ -117,148 +68,101 @@ public class CoverageAndSNPTrack extends Track {
 		Chromosome chr = getView().getBpRegion().start.chr;
 
 		// Count acids for each location
-		TreeMap<Long, Base> collector = getAcidCounts(reads); 
+		theBaseCacheThang.getAcidCounts(reads, view); 
 
 		// Count width of a single bp in pixels
 		int bpWidth = (int) (getView().getWidth() / getView().getBpRegion().getLength());
 
-		// Count maximum y coordinate
-		int maxY = this.getHeight() - 1;
+		// Count maximum y coordinate (the bottom of the track)
+		int bottomlineY = this.getHeight() - 1;
 
 		// prepare lines that make up the profile for drawing
-		Iterator<Long> bpLocations = collector.keySet().iterator();
-		if (bpLocations.hasNext()) {
-			Long lastBpLocation = bpLocations.next();
+		Iterator<Base> bases = theBaseCacheThang.iterator();
+		if (bases.hasNext()) {
+
+			Base previousBase = bases.next();
 
 			// draw a line from the beginning of the graph to the first location
-			int startX = getView().bpToTrack(new BpCoord(lastBpLocation, chr));
-			long startY = collector.get(lastBpLocation).getCoverage();
-			drawables.add(new LineDrawable(0, maxY,
-					(int)(startX - bpWidth), maxY, color));
-			drawables.add(new LineDrawable((int)(startX - bpWidth), maxY,
-					startX, (int)(maxY - startY), color));
+			int startX = getView().bpToTrack(new BpCoord(previousBase.getBpLocation(), chr));
+			long startY = previousBase.getCoverage();
+			drawables.add(new LineDrawable(0, bottomlineY,
+					(int)(startX - bpWidth), bottomlineY, color));
+			drawables.add(new LineDrawable((int)(startX - bpWidth), bottomlineY,
+					startX, (int)(bottomlineY - startY), color));
+
+			// Draw bar for the first base
+			drawSNPBar(drawables, bpWidth, bottomlineY, previousBase, startX);
 
 			// draw lines for each bp region that has some items
-			while (bpLocations.hasNext()) {
-				Long currentBpLocation = bpLocations.next();
+			while (bases.hasNext()) {
+				Base currentBase = bases.next();
 				
-				startX = getView().bpToTrack(new BpCoord(lastBpLocation, chr));
-				startY = collector.get(lastBpLocation).getCoverage();
-				int endX = getView().bpToTrack(new BpCoord(currentBpLocation, chr));
-				long endY = collector.get(currentBpLocation).getCoverage();
+				startX = getView().bpToTrack(new BpCoord(previousBase.getBpLocation(), chr));
+				startY = previousBase.getCoverage();
+				int endX = getView().bpToTrack(new BpCoord(currentBase.getBpLocation(), chr));
+				long endY = currentBase.getCoverage();
 
-				if (currentBpLocation - lastBpLocation == 1) {
+				drawSNPBar(drawables, bpWidth, bottomlineY, currentBase, endX);
+
+				if (currentBase.getBpLocation() - previousBase.getBpLocation() == 1) {
 					// join adjacent bp locations with a line
-					drawables.add(new LineDrawable(startX, (int)(maxY - startY),
-							endX, (int)(maxY - endY), color));
+					drawables.add(new LineDrawable(startX, (int)(bottomlineY - startY),
+							endX, (int)(bottomlineY - endY), color));
 				} else {
-					// join locations that are more than one bp apart
-					drawables.add(new LineDrawable((int)startX, (int)(maxY - startY),
-							(int)(startX + bpWidth), maxY, color));
-					drawables.add(new LineDrawable((int)(startX + bpWidth), maxY,
-							(int)(endX - bpWidth), maxY, color));
-					drawables.add(new LineDrawable((int)(endX - bpWidth), maxY,
-							(int)endX, (int)(maxY - endY), color));
+					// Join locations that are more than one bp apart using 3 lines
+					// 1. Slope down
+					drawables.add(new LineDrawable((int)startX, (int)(bottomlineY - startY),
+							(int)(startX + bpWidth), bottomlineY, color));
+					// 2. Bottomline level for the empty area
+					drawables.add(new LineDrawable((int)(startX + bpWidth), bottomlineY,
+							(int)(endX - bpWidth), bottomlineY, color));
+					// 3. Slope up
+					drawables.add(new LineDrawable((int)(endX - bpWidth), bottomlineY,
+							(int)endX, (int)(bottomlineY - endY), color));
 				}
 				
-				Base base = collector.get(currentBpLocation);
 
-				if (!highlightSNP || base.isSNP()) {
-					int y = maxY;				
-
-					for (Acid acid : Acid.values()) {
-
-						int increment = base.acidCounts[acid.ordinal()];
-
-						if (increment > 0) {
-							Color c = SeqBlockTrack.charColors[acid.ordinal()];
-
-							drawables.add(new RectDrawable(endX, y - increment, bpWidth, increment, c, c));
-
-							y -= increment;
-						}
-					}
-				}
-
-				lastBpLocation = currentBpLocation;
+				previousBase = currentBase;
 			}
 
-			// draw a line from the last location to the end of the graph
-			int endX = getView().bpToTrack(new BpCoord(lastBpLocation, chr));
-			long endY = collector.get(lastBpLocation).getCoverage();
-			drawables.add(new LineDrawable(endX, (int)(maxY - endY),
-					(int)(endX + bpWidth), maxY, color));
-			drawables.add(new LineDrawable((int)(endX + bpWidth), maxY,
-					getView().getWidth(), maxY, color));
+			// Draw a line from the last location to the end of the graph
+			int endX = getView().bpToTrack(new BpCoord(previousBase.getBpLocation(), chr));
+			long endY = previousBase.getCoverage();
+			drawables.add(new LineDrawable(endX, (int)(bottomlineY - endY),
+					(int)(endX + bpWidth), bottomlineY, color));
+			drawables.add(new LineDrawable((int)(endX + bpWidth), bottomlineY,
+					getView().getWidth(), bottomlineY, color));
 		}
-
-		collector.clear(); // FIXME don't clear, but keep'em cached (remember that there are two exit routes)
 
 		return drawables;
 	}
 
-	/**
-	 * Goes through data and gives count for each location and acid.
-	 */
-	private TreeMap<Long, Base> getAcidCounts(Collection<RegionContent> reads) {
-	
-		TreeMap<Long, Base> collector = new TreeMap<Long, Base>();
-		Iterator<RegionContent> iter = reads.iterator();
+	private void drawSNPBar(Collection<Drawable> drawables, int bpWidth, int bottomlineY, Base currentBase, int endX) {
+		if (highlightSNP && currentBase.hasSignificantSNPs()) {
+			int y = bottomlineY;				
 
-		// iterate over RegionContent objects (one object corresponds to one read)
-		while (iter.hasNext()) {
+			for (Acid acid : Acid.values()) {
 
-			RegionContent read = iter.next();
+				int increment = currentBase.getSNPCounts()[acid.ordinal()];
 
-			// remove those that are not in this view
-			if (!read.region.intercepts(getView().getBpRegion())) {
-				iter.remove();
-				continue;
-			}
+				if (increment > 0) {
+					Color c = SeqBlockTrack.charColors[acid.ordinal()];
 
-			String seq = (String) read.values.get(ColumnType.SEQUENCE);
-			
-			Cigar cigar = (Cigar) read.values.get(ColumnType.CIGAR);
+					drawables.add(new RectDrawable(endX, y - increment, bpWidth, increment, c, c));
 
-			if (cigar != null) {
-				for (int i = 0; i < seq.length(); i++) {
-
-					Base base = null;
-
-					long refIndex = cigar.getReferenceIndex(i);
-
-					if (refIndex == -1) {
-						//Skip insertions
-						continue;
-					}
-
-					Long bp = refIndex + read.region.start.bp;
-
-					if (!collector.containsKey(bp)) {
-						base = new Base();
-						collector.put(bp, base);
-					} else {
-						base = collector.get(bp);
-					}
-
-					Acid acid = getAcid(seq.charAt(i));
-
-					if (acid != null) {
-						base.acidCounts[acid.ordinal()]++;
-					}
+					y -= increment;
 				}
 			}
 		}
-
-		return collector;
 	}
+
 
 	@Override
 	public Collection<Drawable> getDrawables() {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
 		// add drawables from both reads (if present)
-		drawables.addAll(getDrawableReads(forwardReads, forwardColor));
+		drawables.addAll(getDrawableReads(reads, forwardColor));
 
 		return drawables;
 	}
@@ -271,7 +175,7 @@ public class CoverageAndSNPTrack extends Track {
 				areaResult.status.concise == isConcised()) {
 
 			// Don't care about strand
-			forwardReads.add(areaResult.content);
+			reads.add(areaResult.content);
 
 			getView().redraw();
 		}
