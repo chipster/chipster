@@ -86,6 +86,19 @@ public class ToolXMLGenerator {
         ignoredPrograms.add("newcoils");
         ignoredPrograms.add("ememe");
         
+        ignoredPrograms.add("domtesta");
+        ignoredPrograms.add("domtestb");
+        ignoredPrograms.add("domtestc");
+        ignoredPrograms.add("domtestd");
+        
+        ignoredPrograms.add("martattributes");
+        ignoredPrograms.add("martdatasets");
+        ignoredPrograms.add("martfilters");
+        ignoredPrograms.add("martquery");
+        ignoredPrograms.add("martregistry");
+        ignoredPrograms.add("martseqs");
+        
+        
         // Databases for these programs not supported
         ignoredPrograms.add("tfscan");
         

@@ -344,18 +344,6 @@
 			<resource>descseq.acd</resource>
 		</tool>
 		<tool runtime="EMBOSS">
-			<resource>domtesta.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>domtestb.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>domtestc.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>domtestd.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
 			<resource>entret.acd</resource>
 		</tool>
 		<tool runtime="EMBOSS">
@@ -381,24 +369,6 @@
 		</tool>
 		<tool runtime="EMBOSS">
 			<resource>makeprotseq.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>martattributes.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>martdatasets.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>martfilters.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>martquery.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>martregistry.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>martseqs.acd</resource>
 		</tool>
 		<tool runtime="EMBOSS">
 			<resource>maskambignuc.acd</resource>
