@@ -1,18 +1,28 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Writer;
+import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
+import fi.csc.microarray.client.Session;
+import fi.csc.microarray.config.DirectoryLayout;
+import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -24,7 +34,15 @@ import fi.csc.microarray.util.IOUtils;
  * 
  */
 public class AnnotationContents {
+	private static final String CONTENTS_FILE = "contents.txt";
+	private static final String ANNOTATIONS_PATH = "annotations";
 
+	private static final Logger logger = Logger.getLogger(AnnotationContents.class);
+
+	
+	private URL remoteAnnotationsRoot;
+	private File localAnnotationsRoot;
+	
 	private final File contentsFile = new File("contents.txt");
 
 	private final String FILE_ID = "CHIPSTER ANNOTATION CONTENTS FILE VERSION 1";
@@ -107,6 +125,62 @@ public class AnnotationContents {
 		}
 	}
 
+	
+	
+	public void initialize() throws Exception {
+
+		// get annotation locations
+		this.remoteAnnotationsRoot = getRemoteAnnotationsUrl();
+		this.localAnnotationsRoot = DirectoryLayout.getInstance().getLocalAnnotationDir();
+		
+		// try to parse the remote contents file
+		URL remoteContents = new URL(remoteAnnotationsRoot, CONTENTS_FILE);
+		boolean remoteContentsOk;
+		InputStream remoteContentsStream = null;
+		try {
+			remoteContentsStream = remoteContents.openStream();
+			parseFrom(remoteContentsStream);
+			remoteContentsOk = true;
+		} catch (Exception e) {
+			remoteContentsOk = false;
+		} finally {
+			IOUtils.closeIfPossible(remoteContentsStream);
+		}
+		
+		// if everything went well, also make a local copy of contents file
+		// it will be used when working offline
+		File localContents = new File(localAnnotationsRoot, CONTENTS_FILE);
+		if (remoteContentsOk) {
+			OutputStream localContentsStream = null;;
+			try {
+				remoteContentsStream = remoteContents.openStream();
+				localContentsStream = new FileOutputStream(localContents);
+				IOUtils.copy(remoteContentsStream, localContentsStream);
+			} catch (Exception e) {
+				logger.warn("could not make a local copy of contents file", e);
+			} finally {
+				IOUtils.closeIfPossible(remoteContentsStream);
+				IOUtils.closeIfPossible(localContentsStream);
+			}
+		}
+		
+		// remote contents could not be loaded, try local contents file
+		else {
+			InputStream localContentsStream = null;
+			try {
+				localContentsStream = new BufferedInputStream(new FileInputStream(localContents));
+				parseFrom(localContentsStream);
+			} catch (Exception e) {
+				// also local contents file failed
+				throw e;
+			} finally {
+				IOUtils.closeIfPossible(localContentsStream);
+			}
+		}
+	}
+
+	
+	
 	public void parseFrom(InputStream contentsStream) throws IOException {
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(contentsStream));
@@ -126,11 +200,6 @@ public class AnnotationContents {
 
 	}
 
-
-	public void add(Row row) {
-		rows.add(row);
-	}
-	
 
 	public void write() throws IOException {
 		contentsFile.delete();
@@ -167,4 +236,14 @@ public class AnnotationContents {
 		}
 		return genomes;
 	}
+	
+	private URL getRemoteAnnotationsUrl() throws Exception {
+		FileBrokerClient fileBroker = Session.getSession().getServiceAccessor()
+				.getFileBrokerClient();
+		URL annotationsUrl = new URL(fileBroker.getPublicUrl() + "/"
+				+ ANNOTATIONS_PATH);
+		return annotationsUrl;
+	}
+	
+	
 }

@@ -12,10 +12,8 @@ import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -35,6 +33,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
+import org.apache.log4j.Logger;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
@@ -66,28 +65,26 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Row;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
-import fi.csc.microarray.util.IOUtils;
 
 /**
  * Chipster style visualisation for genome browser.
  * 
- * @author Petri Klemel√§, Aleksi Kallio
+ * @author Petri Klemelä, Aleksi Kallio
  */
 public class GenomeBrowser extends Visualisation implements ActionListener,
 		RegionListener, FocusListener, ComponentListener {
 
-	private static final String ANNOTATION_URL_PATH = "annotations";
-	private static final String CONTENTS_FILE = "contents.txt";
 
 	final static String WAITPANEL = "waitpanel";
 	final static String PLOTPANEL = "plotpanel";
 
+	// FIXME ok to use logger in GenomeBrowser? standalone?
+	private static final Logger logger = Logger.getLogger(GenomeBrowser.class);
+	
 	private static enum TrackType {
 		CYTOBANDS(false), 
 		GENES(true), 
@@ -160,14 +157,13 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private AnnotationContents annotationContents;
 	private JComboBox profileScaleBox = new JComboBox();
 
+	// FIXME put these to AnnotationContents
 	private File localAnnotationPath;
-
 	private URL annotationUrl;
 
 	private GeneIndexActions gia;
 
 	private boolean visualised;
-	private InputStream contentsStream = null;
 	
     
     // Track switches
@@ -188,7 +184,12 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 		if (paramPanel == null) {
 
-			initAnnotations();
+			this.annotationContents = new AnnotationContents();
+			try {
+				this.annotationContents.initialize();
+			} catch (Exception e) {
+				logger.warn("initialising annotations failed", e);
+			}
 
 			paramPanel = new JPanel();
 			paramPanel.setLayout(new GridBagLayout());
@@ -324,66 +325,54 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		c.gridx = 0;
 		c.gridwidth = 5;
 
-		try {
-			AnnotationContents annotationContentFile = new AnnotationContents();
-			annotationContentFile.parseFrom(contentsStream);
-			this.annotationContents = annotationContentFile;
-
-			// read genome name and version for each annotation file
-			Collection<Genome> genomes = annotationContentFile.getGenomes();
-			c.gridy++;
-			settingsPanel.add(new JLabel("Genome"), c);
-			c.gridy++;
-			for (Genome genome : genomes) {
-				genomeBox.addItem(genome);
-			}
-			settingsPanel.add(genomeBox, c);
-
-			c.gridy++;
-			settingsPanel.add(new JLabel("Chromosome"), c);
-			c.gridy++;
-			settingsPanel.add(chrBox, c);
-
-			// location
-			c.gridy++;
-			settingsPanel.add(new JLabel("Location"), c);
-			c.gridy++;
-			settingsPanel.add(new JLabel("(gene or position)"), c);
-			c.gridy++;
-			settingsPanel.add(locationField, c);
-
-			// zoom
-			c.gridx = 0;
-			c.gridwidth = 5;
-			c.gridy++;
-			c.insets.set(5, 10, 5, 10);
-			settingsPanel.add(new JLabel("Zoom"), c);
-			c.gridwidth = 4;
-			c.gridy++;
-			settingsPanel.add(this.zoomField, c);
-			this.zoomField.addFocusListener(this);
-
-			// scale options for profile track
-			c.gridx = 0;
-			c.gridwidth = 5;
-			c.gridy++;
-			c.insets.set(5, 10, 5, 10);
-			settingsPanel.add(new JLabel("Profile scale"), c);
-			profileScaleBox = new JComboBox(GenomePlot.ReadScale.values());
-			c.gridx = 0;
-			c.gridwidth = 5;
-			c.gridy++;
-			settingsPanel.add(profileScaleBox, c);
-
-			gotoButton.addActionListener(this);
-			gotoButton.setEnabled(false);
-
-		} catch (IOException e) {
-			application.reportException(e);
-
-		} finally {
-			IOUtils.closeIfPossible(contentsStream);
+		// read genome name and version for each annotation file
+		Collection<Genome> genomes = annotationContents.getGenomes();
+		c.gridy++;
+		settingsPanel.add(new JLabel("Genome"), c);
+		c.gridy++;
+		for (Genome genome : genomes) {
+			genomeBox.addItem(genome);
 		}
+		settingsPanel.add(genomeBox, c);
+
+		c.gridy++;
+		settingsPanel.add(new JLabel("Chromosome"), c);
+		c.gridy++;
+		settingsPanel.add(chrBox, c);
+
+		// location
+		c.gridy++;
+		settingsPanel.add(new JLabel("Location"), c);
+		c.gridy++;
+		settingsPanel.add(new JLabel("(gene or position)"), c);
+		c.gridy++;
+		settingsPanel.add(locationField, c);
+
+		// zoom
+		c.gridx = 0;
+		c.gridwidth = 5;
+		c.gridy++;
+		c.insets.set(5, 10, 5, 10);
+		settingsPanel.add(new JLabel("Zoom"), c);
+		c.gridwidth = 4;
+		c.gridy++;
+		settingsPanel.add(this.zoomField, c);
+		this.zoomField.addFocusListener(this);
+
+		// scale options for profile track
+		c.gridx = 0;
+		c.gridwidth = 5;
+		c.gridy++;
+		c.insets.set(5, 10, 5, 10);
+		settingsPanel.add(new JLabel("Profile scale"), c);
+		profileScaleBox = new JComboBox(GenomePlot.ReadScale.values());
+		c.gridx = 0;
+		c.gridwidth = 5;
+		c.gridy++;
+		settingsPanel.add(profileScaleBox, c);
+
+		gotoButton.addActionListener(this);
+		gotoButton.setEnabled(false);
 
 		this.settingsGridBagConstraints = c;
 
@@ -499,27 +488,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		return getVisualisation(Arrays.asList(new DataBean[] { data }));
 	}
 
-	private void initAnnotations() {
-		// Find annotation locations
-		try {
-			File localAnnotationDir = DirectoryLayout.getInstance()
-					.getLocalAnnotationDir();
-			if (!localAnnotationDir.exists()) {
-				this.localAnnotationPath = null;
-				this.annotationUrl = fetchAnnotationUrl();
-				contentsStream = new URL(annotationUrl + "/" + CONTENTS_FILE)
-						.openStream();
-			} else {
-				this.localAnnotationPath = localAnnotationDir;
-				this.annotationUrl = null;
-				contentsStream = new FileInputStream(localAnnotationPath
-						+ File.separator + CONTENTS_FILE);
-			}
-		} catch (IOException e) {
-			application.reportException(e);
-		}
-
-	}
 
 	@Override
 	public JComponent getVisualisation(java.util.List<DataBean> datas) throws Exception {
@@ -769,18 +737,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		}
 	}
 
-	private URL fetchAnnotationUrl() {
-		try {
-			FileBrokerClient fileBroker = Session.getSession()
-					.getServiceAccessor().getFileBrokerClient();
-			URL annotationUrl = new URL(fileBroker.getPublicUrl() + "/"
-					+ ANNOTATION_URL_PATH);
-			return annotationUrl;
-
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
 
 	@Override
 	public boolean canVisualise(DataBean data) throws MicroarrayException {
