@@ -58,12 +58,12 @@ public class AnnotationContents {
 		public String species;
 		public String version;
 		public Content content;
-		public String file;
+		public URL url;
 
-		public Row(String species, String version, String content, String file) {
+		public Row(String species, String version, String content, URL url) {
 			this.species = species;
 			this.version = version;		
-			this.file = file;
+			this.url = url;
 			
 			for (Content type : Content.values()) {
 				if (type.id.equals(content)) {
@@ -134,7 +134,7 @@ public class AnnotationContents {
 		this.localAnnotationsRoot = DirectoryLayout.getInstance().getLocalAnnotationDir();
 		
 		// try to parse the remote contents file
-		URL remoteContents = new URL(remoteAnnotationsRoot, CONTENTS_FILE);
+		URL remoteContents = IOUtils.createURL(remoteAnnotationsRoot, CONTENTS_FILE);
 		boolean remoteContentsOk;
 		InputStream remoteContentsStream = null;
 		try {
@@ -195,7 +195,18 @@ public class AnnotationContents {
 				continue;
 			}
 			String[] splitted = line.split("\t");
-			rows.add(new Row(splitted[0], splitted[1], splitted[2], splitted[3]));
+			
+			// use local file if it exists
+			URL url;
+			String fileName = splitted[3];
+			File localFile = new File(localAnnotationsRoot, fileName);
+			// FIXME add more checks, size and checksum maybe
+			if (localFile.exists()) {
+				url = localFile.toURI().toURL();
+			} else {
+				url = IOUtils.createURL(remoteAnnotationsRoot, fileName);
+			}
+			rows.add(new Row(splitted[0], splitted[1], splitted[2], url));
 		}
 
 	}
@@ -208,7 +219,7 @@ public class AnnotationContents {
 			writer = new FileWriter(contentsFile, true);
 			writer.write(FILE_ID + "\n");
 			for (Row row : rows) {
-				writer.write(row.species + "\t" + row.version + "\t" + row.content + "\t" + row.file + "\n");
+				writer.write(row.species + "\t" + row.version + "\t" + row.content + "\t" + row.url.getFile() + "\n");
 			}
 		} finally {
 			IOUtils.closeIfPossible(writer);
@@ -244,6 +255,4 @@ public class AnnotationContents {
 				+ ANNOTATIONS_PATH);
 		return annotationsUrl;
 	}
-	
-	
 }

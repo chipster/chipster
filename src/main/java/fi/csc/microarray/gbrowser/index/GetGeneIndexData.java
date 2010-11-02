@@ -32,6 +32,7 @@ public class GetGeneIndexData {
 	public List<RegionContent> read(){
         
         try {
+        	// FIXME don't create file name here
 			ChunkDataSource data = genomeBrowser.createAnnotationDataSource(
 					selectedGenome.species.replace(" ", "_") + "." + 
 					selectedGenome.version + "_genes.tsv", new GeneParser());

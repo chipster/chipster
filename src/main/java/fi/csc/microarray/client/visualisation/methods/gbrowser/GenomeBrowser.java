@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
@@ -535,7 +536,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 						TrackFactory.addCytobandTracks(plot,
 								createAnnotationDataSource(
 										annotationContents.getRow(
-												genome, AnnotationContents.Content.CYTOBANDS).file,
+												genome, AnnotationContents.Content.CYTOBANDS).url,
 										new CytobandParser()));
 						break;
 					case GENES:
@@ -543,17 +544,17 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 						
 						TrackGroup geneGroup = TrackFactory.addGeneTracks(plot,
 								createAnnotationDataSource(annotationContents.getRow(
-										genome, AnnotationContents.Content.GENES).file,
+										genome, AnnotationContents.Content.GENES).url,
 										new GeneParser()),
 								createAnnotationDataSource(annotationContents.getRow(
-										genome, AnnotationContents.Content.TRANSCRIPTS).file,
+										genome, AnnotationContents.Content.TRANSCRIPTS).url,
 										new TranscriptParser()),
 								createAnnotationDataSource(annotationContents.getRow(
-										genome, AnnotationContents.Content.REFERENCE).file,
+										genome, AnnotationContents.Content.REFERENCE).url,
 										new SequenceParser()),
 								snpRow == null ? null : 
 									createAnnotationDataSource(annotationContents.getRow(
-											genome, AnnotationContents.Content.SNP).file,
+											genome, AnnotationContents.Content.SNP).url,
 											new SNPParser())
 								);
 						track.setTrackGroup(geneGroup);
@@ -582,13 +583,13 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 					case READS:
 						treatmentData = createReadDataSource(track.userData, tracks);
-						TrackGroup readGroup = TrackFactory.addReadTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.REFERENCE).file, new SequenceParser()), file.getName());
+						TrackGroup readGroup = TrackFactory.addReadTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.REFERENCE).url, new SequenceParser()), file.getName());
 						track.setTrackGroup(readGroup);
 						break;
 
 					case READS_WITH_SUMMARY:
 						treatmentData = createReadDataSource(track.userData, tracks);
-						TrackGroup readGroupWithSummary = TrackFactory.addReadSummaryTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.REFERENCE).file, new SequenceParser()), file.getName());
+						TrackGroup readGroupWithSummary = TrackFactory.addReadSummaryTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.REFERENCE).url, new SequenceParser()), file.getName());
 						track.setTrackGroup(readGroupWithSummary);
 						break;
 					}
@@ -734,6 +735,15 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		} else {
 			return new ChunkDataSource(this.localAnnotationPath, file,
 					fileParser);
+		}
+	}
+
+	public ChunkDataSource createAnnotationDataSource(URL url,
+			TsvParser fileParser) throws FileNotFoundException, URISyntaxException  {
+		if ("file".equals(url.getProtocol())) {
+			return new ChunkDataSource(new File(url.toURI()), fileParser);
+		} else {
+			return new ChunkDataSource(url, fileParser);
 		}
 	}
 
