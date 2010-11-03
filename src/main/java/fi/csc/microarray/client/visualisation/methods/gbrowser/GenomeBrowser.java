@@ -14,6 +14,7 @@ import java.awt.event.FocusListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -74,6 +75,7 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
+import fi.csc.microarray.util.IOUtils;
 
 /**
  * Chipster style visualisation for genome browser.

@@ -55,6 +55,11 @@ public class SamBamUtils {
 		this.stateListener = stateListener;
 	}
 
+	private void updateState(String state, double percentage) {
+		if (this.stateListener != null) {
+			stateListener.stateChanged(new SamBamUtilState(state, percentage));
+		}
+	}
 	
 	
 	private static final String REDUNDANT_CHROMOSOME_NAME_PREFIX = "chr";
