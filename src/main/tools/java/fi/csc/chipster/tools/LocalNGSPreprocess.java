@@ -8,8 +8,6 @@ import fi.csc.chipster.tools.gbrowser.SamBamUtils.SamBamUtilStateListener;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.tasks.Task;
-import fi.csc.microarray.client.tasks.TaskEventListener;
-import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
 import fi.csc.microarray.databeans.DataBean;
