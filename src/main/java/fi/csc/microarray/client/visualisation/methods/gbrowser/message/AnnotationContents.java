@@ -151,6 +151,7 @@ public class AnnotationContents {
 		// it will be used when working offline
 		File localContents = new File(localAnnotationsRoot, CONTENTS_FILE);
 		if (remoteContentsOk) {
+			logger.info("using remote annotation contents file");
 			OutputStream localContentsStream = null;;
 			try {
 				remoteContentsStream = remoteContents.openStream();
@@ -166,6 +167,7 @@ public class AnnotationContents {
 		
 		// remote contents could not be loaded, try local contents file
 		else {
+			logger.info("trying to use local annotation contents file");
 			InputStream localContentsStream = null;
 			try {
 				localContentsStream = new BufferedInputStream(new FileInputStream(localContents));
