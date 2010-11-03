@@ -20,24 +20,23 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
- * single nucleotide polymorphism track
- * there are two ways of showing data:
- * 1. by nucleotides color
- * 2. by consequence to transcript
+ * Track showing known SNP's of the genome. 
+ * 
+ * There are two ways of showing data: 1. by nucleotide color, or 2. by consequence to transcript.
  * 
  * in the consequence to transcript way the color is get by simple prioritization
- * mechanizm. There is array of colors, which are ordered by importance and
+ * mechanism. There is array of colors, which are ordered by importance and
  * consequences enumeration, which are also ordered by importance, and particular
- * color refer to particular consequence name. If consiquence name number is greater than
- * maxColorIndex, then 'default' gray color is defined
+ * color refer to particular consequence name. If consequence name number is greater than
+ * maxColorIndex, then 'default' gray color is defined.
  * 
- * If importance sequence is changed, so the colors array must be changed accordingly
+ * If importance sequence is changed, so the colors array must be changed accordingly.
  * 
  * @author zukauska
  *
  */
 
-public class SNPTrack extends Track {
+public class ReferenceSNPTrack extends Track {
 	
 	private static int width = 8;
 	Collection<RegionContent> values = new LinkedList<RegionContent>();
@@ -80,7 +79,7 @@ public class SNPTrack extends Track {
 		INTRONIC_NMD_TRANSCRIPT, NONE,
 	}
 
-	public SNPTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
+	public ReferenceSNPTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
 			long minBpLength, long maxBpLength) {
 		super(view, file, handler);
 		this.minBpLength = minBpLength;

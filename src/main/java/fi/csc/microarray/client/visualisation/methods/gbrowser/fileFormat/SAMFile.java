@@ -1,6 +1,8 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,7 +42,14 @@ public class SAMFile {
      * @param indexFile - SAM index file (usually with .bai extension).
      */
     public SAMFile(File samFile, File indexFile) {
+    	// BAMFileReader emits useless warning to System.err that can't be turned off,
+    	// so we direct it to other stream and discard. 
+    	PrintStream originalErr = System.err;
+    	System.setErr(new PrintStream(new ByteArrayOutputStream()));
         this.reader = new SAMFileReader(samFile, indexFile);
+        
+        // Restore System.err
+        System.setErr(originalErr);
     }
     
     /**
@@ -73,6 +82,8 @@ public class SAMFile {
             // Values for this read
             HashMap<ColumnType, Object> values = new HashMap<ColumnType, Object>();
             
+            RegionContent read = new RegionContent(recordRegion, values);
+            
             if (request.requestedContents.contains(ColumnType.STRAND)) {
             	values.put(ColumnType.STRAND,
             			record.getReadNegativeStrandFlag() ?
@@ -93,12 +104,10 @@ public class SAMFile {
             
             if (request.requestedContents.contains(ColumnType.CIGAR)) {      
             	
-            	
-            	Cigar cigar = new Cigar();
+            	Cigar cigar = new Cigar(read);
             	
             	for (CigarElement picardElement : record.getCigar().getCigarElements()) {
-            		cigar.addElement(new CigarItem(
-            				picardElement.getLength(), picardElement.getOperator().toString())); 
+            		cigar.addElement(new CigarItem(picardElement)); 
             	}
             	            	
             	values.put(ColumnType.CIGAR, cigar);
@@ -142,7 +151,7 @@ public class SAMFile {
              * Otherwise tracks keep adding the same reads to their read sets again and again. 
              */
             
-            responseList.add(new RegionContent(recordRegion, values));
+            responseList.add(read);
         }
 
         iterator.close();
@@ -167,7 +176,7 @@ public class SAMFile {
     	List<RegionContent> responseList = new LinkedList<RegionContent>();
         
         // How many times file is read
-        int SAMPLING_GRANULARITY = 40;
+        int SAMPLING_GRANULARITY = 100;
         int step = request.getLength().intValue() / SAMPLING_GRANULARITY;
         int SAMPLE_SIZE = 100; // FIXME: issue, can be bigger then step size 
         
@@ -205,17 +214,23 @@ public class SAMFile {
         		cacheMisses++;
         		
         		// Fetch new content by taking sample from the middle of this area
+        		int start = stepMiddlepoint - SAMPLE_SIZE/2;
+        		int end = stepMiddlepoint + SAMPLE_SIZE/2;
         		CloseableIterator<SAMRecord> iterator =
         			this.reader.query(request.start.chr.toString(),
-        					stepMiddlepoint - SAMPLE_SIZE/2, stepMiddlepoint + SAMPLE_SIZE/2, false);
+        					start, end, false);
 
         		// Count reads in this sample area
         		for (Iterator<SAMRecord> i = iterator; i.hasNext();) {
         			SAMRecord record = i.next();
-        			if (record.getReadNegativeStrandFlag()) {
-        				countReverse++;
-        			} else {
-        				countForward++;
+        			
+        			// Accept only records that start in this area (very rough approximation for spliced reads)
+        			if (record.getAlignmentStart() >= start && record.getAlignmentEnd() <= end) {
+        				if (record.getReadNegativeStrandFlag()) {
+        					countReverse++;
+        				} else {
+        					countForward++;
+        				}
         			}
         		}
 

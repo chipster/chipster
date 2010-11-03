@@ -1,19 +1,30 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 
 public class Cigar {
 	private List<CigarItem> elements = new ArrayList<CigarItem>();
+	private LinkedList<ReadPart> visibleElements = null;
+	private RegionContent read;
+	
+	public Cigar(RegionContent read) {
+		this.read = read;
+	}
 	
 	public void addElement(CigarItem e) {
 		elements.add(e);
 	}
 	
-	public int getReferenceIndex(int seqIndex) {
+	@Deprecated
+	public long getReferenceIndex(long seqIndex) {
 		
-		int seqCounter = 0;
-		int refCounter = 0;
+		long seqCounter = 0;
+		long refCounter = 0;
 		
 		for (CigarItem element : elements) {
 									
@@ -66,5 +77,57 @@ public class Cigar {
 	@Override
 	public String toString() {
 		return "Cigar";
+	}
+
+	/**
+	 * Utility method for splitting a read if it has cigar, otherwise returns the whole
+	 * read wrapped into ReadPart.
+	 * 
+	 * @param read read to split
+	 * 
+	 * @return list of ReadPart objects, one for each of the Cigar elements
+	 */
+	public static List<ReadPart> splitVisibleElements(RegionContent read) {
+		Cigar cigar = (Cigar) read.values.get(ColumnType.CIGAR); // Cigar can be null
+
+		if (cigar == null) {
+			return Arrays.asList(new ReadPart[] { new ReadPart(read) });
+
+		} else {
+			return cigar.getVisibleElements();
+		}
+
+	}
+	
+	public List<ReadPart> getVisibleElements() {
+		
+		// Regions are parsed lazily
+		if (visibleElements == null) {
+			visibleElements = new LinkedList<ReadPart>();
+
+			// Split read into regions using cigar
+			long refCoord = read.region.start.bp;;
+			long seqCoord = 0;
+			String seq = (String) read.values.get(ColumnType.SEQUENCE);
+
+			for (CigarItem element : elements) {
+
+				if (element.isVisible()) {
+					String subSeq = seq.substring((int)seqCoord, (int)(seqCoord + element.getLength()));
+					ReadPart region = new ReadPart(refCoord, refCoord + element.getLength(), read.region.start.chr, subSeq);
+					visibleElements.add(region);
+				}
+
+				if (element.consumesReferenceBases()) {
+					refCoord += element.getLength();
+				}
+
+				if (element.consumesReadBases()) {
+					seqCoord += element.getLength();
+				}
+
+			}
+		}
+		return visibleElements;
 	}
 }

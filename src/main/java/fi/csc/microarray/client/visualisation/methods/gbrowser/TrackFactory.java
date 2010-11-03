@@ -7,12 +7,13 @@ import java.net.MalformedURLException;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CytobandTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.EmptyTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GeneTrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.PeakTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadSummaryTrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ReadTrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack3D;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TitleTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
@@ -38,15 +39,13 @@ public class TrackFactory {
 	    return geneGroup;
 	}
 
-	static void addThickSeparatorTrack(GenomePlot genomePlot) {
+	public static void addThickSeparatorTrack(GenomePlot genomePlot) {
 		View dataView = genomePlot.getDataView();
-		dataView.addTrack(createThickSeparatorTrack(dataView));
+		dataView.addTrack(new SeparatorTrack3D(dataView, 0, Long.MAX_VALUE, false));
+		dataView.addTrack(new EmptyTrack(dataView, 2));
+		dataView.addTrack(new SeparatorTrack3D(dataView, 0, Long.MAX_VALUE, true));
 	}
 	
-    public static Track createThickSeparatorTrack(View view) {
-        return new SeparatorTrack(view, Color.gray.brighter(), 4, 0, Long.MAX_VALUE);
-    }
-
 	public static TrackGroup addReadTracks(GenomePlot genomePlot, DataSource userData,
 	        Class<? extends AreaRequestHandler> userDataHandler,
 	        DataSource seqFile, String title)

@@ -9,7 +9,6 @@ import java.util.LinkedList;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.TabixDataSource;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.TrackFactory;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
@@ -34,7 +33,7 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
     protected TitleTrack titleTrack;
     protected TabixIntensityTrack readOverview;
     protected SeqBlockTrack reads;
-    protected ProfileTrack profileTrack;
+    protected CoverageTrack profileTrack;
     protected GelTrack gelTrack;
     protected SeqTrack seq;
 //    protected IntensityTrack readOverviewReversed;
@@ -78,7 +77,7 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
         readsReversed.setStrand(Strand.REVERSED);
         
         // Profile
-        profileTrack = new ProfileTrack(view, userData, userDataHandler,
+        profileTrack = new CoverageTrack(view, userData, userDataHandler,
                 Color.BLACK, PartColor.CDS.c, 0, SWITCH_VIEWS_AT);
         profileTrack.setStrand(Strand.BOTH);        
         
@@ -97,7 +96,6 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
         // Construct the list according to visibility
         this.tracks = new LinkedList<Track>();
         // Top separator
-        tracks.add(TrackFactory.createThickSeparatorTrack(view));
         tracks.add(titleTrack);
         tracks.add(readOverview);
         tracks.add(reads);

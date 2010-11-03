@@ -73,7 +73,7 @@ public class GeneIndexActions {
     		st = conn.createStatement();
 			st.execute("CREATE TABLE IF NOT EXISTS gene_name_index(" +
 					"ID INT PRIMARY KEY auto_increment," +
-					"chromosome VARCHAR(2)," +
+					"chromosome VARCHAR(255)," +
 					"bp_start INT," +
 					"bp_end INT," +
 					"NAME VARCHAR(255),);" +
