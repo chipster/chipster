@@ -38,7 +38,7 @@ import org.apache.log4j.Logger;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
-import fi.csc.chipster.tools.gbrowser.SamBamUtil;
+import fi.csc.chipster.tools.gbrowser.SamBamUtils;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
@@ -74,7 +74,7 @@ import fi.csc.microarray.module.chipster.MicroarrayModule;
 /**
  * Chipster style visualisation for genome browser.
  * 
- * @author Petri KlemelŠ, Aleksi Kallio
+ * @author Petri Klemelï¿½, Aleksi Kallio
  */
 public class GenomeBrowser extends Visualisation implements ActionListener,
 		RegionListener, FocusListener, ComponentListener {
@@ -387,7 +387,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			if (trackType == TrackType.READS || trackType == TrackType.READS_WITH_SUMMARY) {
 				DataBean data = datas.get(i);
 				File bamFile = Session.getSession().getDataManager().getLocalFile(data);
-				chromosomes.addAll(SamBamUtil.readChromosomeNames(bamFile));
+				chromosomes.addAll(SamBamUtils.readChromosomeNames(bamFile));
 			}
 		}
 		for (String chromosome : chromosomes) {

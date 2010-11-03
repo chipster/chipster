@@ -2,9 +2,9 @@ package fi.csc.chipster.tools;
 
 import java.io.File;
 
-import fi.csc.chipster.tools.gbrowser.SamBamUtil;
-import fi.csc.chipster.tools.gbrowser.SamBamUtil.SamBamUtilState;
-import fi.csc.chipster.tools.gbrowser.SamBamUtil.SamBamUtilStateListener;
+import fi.csc.chipster.tools.gbrowser.SamBamUtils;
+import fi.csc.chipster.tools.gbrowser.SamBamUtils.SamBamUtilState;
+import fi.csc.chipster.tools.gbrowser.SamBamUtils.SamBamUtilStateListener;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.tasks.Task;
@@ -71,7 +71,7 @@ public class LocalNGSPreprocess implements Runnable {
 				File indexOutputFile = dataManager.createNewRepositoryFile(indexOutputName);
 
 				// run sorter
-				SamBamUtil samBamUtil= new SamBamUtil(new SamBamUtilStateListener() {
+				SamBamUtils samBamUtil= new SamBamUtils(new SamBamUtilStateListener() {
 
 					@Override
 					public void stateChanged(SamBamUtilState newState) {

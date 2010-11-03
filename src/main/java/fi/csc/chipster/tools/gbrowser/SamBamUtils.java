@@ -17,7 +17,7 @@ import net.sf.samtools.SAMRecord;
 import net.sf.samtools.SAMSequenceDictionary;
 import net.sf.samtools.SAMSequenceRecord;
 
-public class SamBamUtil {
+public class SamBamUtils {
 	
 	public interface SamBamUtilStateListener {
 		public void stateChanged(SamBamUtilState newState);
@@ -45,10 +45,10 @@ public class SamBamUtil {
 	private static final String CHROMOSOME_NAME_PREFIX = "chr";
 	private SamBamUtilStateListener stateListener;
 	
-	public SamBamUtil() {
+	public SamBamUtils() {
 	}
 	
-	public SamBamUtil(SamBamUtilStateListener stateListener) {
+	public SamBamUtils(SamBamUtilStateListener stateListener) {
 		this.stateListener = stateListener;
 	}
 
