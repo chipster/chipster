@@ -89,7 +89,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	final static String WAITPANEL = "waitpanel";
 	final static String PLOTPANEL = "plotpanel";
 
-	// FIXME ok to use logger in GenomeBrowser? standalone?
 	private static final Logger logger = Logger.getLogger(GenomeBrowser.class);
 	
 	private static enum TrackType {
@@ -174,7 +173,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	
 	private Map<JCheckBox, String> trackSwitches = new LinkedHashMap<JCheckBox, String>();
 	
-	public GenomeBrowser(VisualisationFrame frame) {
+	public GenomeBrowser(VisualisationFrame frame) throws Exception {
 		super(frame);
 
 		trackSwitches.put(new JCheckBox("Show reads", true), "Reads");
@@ -184,20 +183,21 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		trackSwitches.put(new JCheckBox("Show quality coverage", false), "QualityCoverageTrack");
 		trackSwitches.put(new JCheckBox("Show gel track", false), "GelTrack");
 //		trackSwitches.put(new JCheckBox("Show reference SNP's", false), "changeSNP"); // TODO re-enable SNP view
+
+		// initialise annotations
+		this.annotationContents = new AnnotationContents();
+		try {
+			this.annotationContents.initialize();
+		} catch (Exception e) {
+			logger.warn("initialising annotations failed", e);
+			throw e;
+		}
 	}
 
 	@Override
 	public JPanel getParameterPanel() {
 
 		if (paramPanel == null) {
-
-			this.annotationContents = new AnnotationContents();
-			try {
-				this.annotationContents.initialize();
-			} catch (Exception e) {
-				logger.warn("initialising annotations failed", e);
-			}
-
 			paramPanel = new JPanel();
 			paramPanel.setLayout(new GridBagLayout());
 			paramPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
