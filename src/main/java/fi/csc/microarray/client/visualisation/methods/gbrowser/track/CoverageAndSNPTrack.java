@@ -46,8 +46,10 @@ public class CoverageAndSNPTrack extends Track {
 	private boolean highlightSNP = false;
 
 	private BaseStorage theBaseCacheThang = new BaseStorage();
+	private DataSource refFile;
+	private Collection<RegionContent> refReads = new TreeSet<RegionContent>();
 
-	public CoverageAndSNPTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
+	public CoverageAndSNPTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler, DataSource refFile, Class<? extends AreaRequestHandler> refHandler, 
 			Color forwardColor, long minBpLength, long maxBpLength) {
 		super(view, file, handler);
 		this.forwardColor = forwardColor;
@@ -55,6 +57,19 @@ public class CoverageAndSNPTrack extends Track {
 		this.maxBpLength = maxBpLength;
 
 		setStrand(Strand.BOTH);
+		
+		this.refFile = refFile;
+		view.getQueueManager().createQueue(refFile, refHandler);
+	}
+
+	@Override	
+	public void initializeListener() {
+		super.initializeListener();
+		
+		// Add listener for reference file
+		if (file != null) {
+			view.getQueueManager().addResultListener(refFile, this);
+		}
 	}
 
 	/**
@@ -67,8 +82,11 @@ public class CoverageAndSNPTrack extends Track {
 
 		Chromosome chr = getView().getBpRegion().start.chr;
 
+		// If SNP highlight mode is on, we need reference sequence data
+		char[] refSeq = SeqBlockTrack.getReferenceArray(refReads, view, strand);
+
 		// Count acids for each location
-		theBaseCacheThang.getAcidCounts(reads, view); 
+		theBaseCacheThang.getAcidCounts(reads, view, refSeq); 
 
 		// Count width of a single bp in pixels
 		int bpWidth = (int) (getView().getWidth() / getView().getBpRegion().getLength());
@@ -138,6 +156,8 @@ public class CoverageAndSNPTrack extends Track {
 	}
 
 	private void drawSNPBar(Collection<Drawable> drawables, int bpWidth, int bottomlineY, Base currentBase, int endX) {
+		
+
 		if (highlightSNP && currentBase.hasSignificantSNPs()) {
 			int y = bottomlineY;				
 
@@ -169,15 +189,18 @@ public class CoverageAndSNPTrack extends Track {
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
 
-		// check that areaResult has same concised status (currently always false)
-		// and correct strand
-		if (areaResult.status.file == file &&
-				areaResult.status.concise == isConcised()) {
+		// Check that areaResult has same concised status (currently always false) and correct strand
+		if (areaResult.status.file == file && areaResult.status.concise == isConcised()) {
 
 			// Don't care about strand
 			reads.add(areaResult.content);
 
 			getView().redraw();
+		}
+		
+		// "Spy" on reference sequence data, if available
+		if (areaResult.status.file == refFile) {
+			this.refReads.add(areaResult.content);
 		}
 	}
 
@@ -236,6 +259,7 @@ public class CoverageAndSNPTrack extends Track {
 	}
 
 	public void enableSNPHighlight() {
+		// turn on highlighting mode
 		highlightSNP = true;
 	}
 

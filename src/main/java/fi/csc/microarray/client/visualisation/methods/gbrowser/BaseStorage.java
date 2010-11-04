@@ -1,6 +1,5 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -9,6 +8,7 @@ import java.util.TreeMap;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class BaseStorage {
@@ -41,7 +41,7 @@ public class BaseStorage {
 		}
 
 		public static Acid fromCharacter(char character) {
-			switch (character) {
+			switch (Character.toUpperCase(character)) {
 			case 'A':
 				return A;
 			case 'C':
@@ -52,6 +52,16 @@ public class BaseStorage {
 				return T;
 			default:
 				return null;
+			}
+		}
+
+		public static Acid fromCharacter(char character, boolean complement) {
+			Acid acid = fromCharacter(character);
+			
+			if (acid != null && complement) {
+				return acid.complement();
+			} else {
+				return acid;
 			}
 		} 
 	};
@@ -64,9 +74,12 @@ public class BaseStorage {
 		private int[] snpCounts = null;
 		private int totalSNPCount = 0;
 		private int totalCount = 0;
+		private Acid referenceAcid;
 		
-		public Base(Long bpLocation) {
+		public Base(Long bpLocation, Acid referenceAcid) {
+			
 			this.bpLocation = bpLocation;
+			this.referenceAcid = referenceAcid;
 		}
 
 		public Long getBpLocation() {
@@ -82,7 +95,7 @@ public class BaseStorage {
 
 			// Try to find good enough SNP acid
 			for (Acid acid : Acid.values()) {
-				if (snpCounts[acid.ordinal()] > MIN_SIGNIFICANT_SNP_COUNT) {
+				if (snpCounts[acid.ordinal()] >= MIN_SIGNIFICANT_SNP_COUNT) {
 					if (((double)snpCounts[acid.ordinal()])/((double)totalSNPCount) >= MIN_SIGNIFICANT_SNP_RATIO) {
 						return true;
 					}
@@ -116,25 +129,15 @@ public class BaseStorage {
 			if (snpCounts == null) {
 				snpCounts = new int[Acid.values().length];
 				
-				// Find the dominant base
-				//TODO Values should be compared to reference sequence, now we don't notice, if
-				//all reads have the same mismatch
-				int maxCount = 0;
-				int maxOrdinal = -1;
-				for (Acid acid : Acid.values()) {
-					if (acidCounts[acid.ordinal()] > maxCount) {
-						maxCount = acidCounts[acid.ordinal()];
-						maxOrdinal = acid.ordinal();
-					}
-				}
-
-				// Mark SNP's
-				for (Acid acid : Acid.values()) {
-					if (acid.ordinal() != maxOrdinal) {
-						snpCounts[acid.ordinal()] = acidCounts[acid.ordinal()];
-						totalSNPCount += acidCounts[acid.ordinal()];
-					} else {
-						snpCounts[acid.ordinal()] = 0;
+				// Mark SNP's, if possible
+				if (referenceAcid != null) {
+					for (Acid acid : Acid.values()) {
+						if (acid.compareTo(referenceAcid) == 0) {
+							snpCounts[acid.ordinal()] = 0;
+						} else {
+							snpCounts[acid.ordinal()] = acidCounts[acid.ordinal()];
+							totalSNPCount += acidCounts[acid.ordinal()];
+						}
 					}
 				}
 			}
@@ -193,8 +196,9 @@ public class BaseStorage {
 
 	/**
 	 * Goes through data and gives count for each location and acid.
+	 * @param refSeq 
 	 */
-	public void getAcidCounts(Collection<RegionContent> reads, View view) {
+	public void getAcidCounts(Collection<RegionContent> reads, View view, char[] refSeq) {
 	
 		// Sweep collector
 		collector = new TreeMap<Long, Base>();
@@ -211,37 +215,44 @@ public class BaseStorage {
 				continue;
 			}
 
-			String seq = (String) read.values.get(ColumnType.SEQUENCE);
 			Strand strand = (Strand) read.values.get(ColumnType.STRAND);
-			Cigar cigar = (Cigar) read.values.get(ColumnType.CIGAR);
 
-			if (cigar != null) {
-				for (int i = 0; i < seq.length(); i++) {
+			for (ReadPart readPart : Cigar.splitVisibleElements(read)) {
 
-					Base base = null;
+				// Skip elements that are not in this view
+				if (!readPart.intercepts(view.getBpRegion())) {
+					continue;
+				}
 
-					long refIndex = cigar.getReferenceIndex(i);
+				Base base = null;
 
-					if (refIndex == -1) {
-						//Skip insertions
+				String seq = readPart.getSequencePart();
+				for (int j = 0; j < seq.length(); j++) {
+
+					Long bp = readPart.start.bp + j;
+					
+					// Part of read can be out of view
+					if (bp.longValue() < view.bpRegion.start.bp.longValue()) {
 						continue;
+						
+					} else if (bp.longValue() > view.bpRegion.end.bp.longValue()) {
+						break;
 					}
 
-					Long bp = refIndex + read.region.start.bp;
-
 					if (!collector.containsKey(bp)) {
-						base = new Base(bp);
+						
+						int viewIndex = bp.intValue() - view.bpRegion.start.bp.intValue();
+						Acid referenceAcid = Acid.fromCharacter(refSeq[viewIndex], strand == Strand.REVERSED);
+						
+						base = new Base(bp, referenceAcid);
 						collector.put(bp, base);
+						
 					} else {
 						base = collector.get(bp);
 					}
 
-					Acid acid = Acid.fromCharacter(seq.charAt(i));
-
+					Acid acid = Acid.fromCharacter(seq.charAt(j), strand == Strand.REVERSED);
 					if (acid != null) {
-						if (strand == Strand.REVERSED) {
-							acid = acid.complement();
-						}
 						base.addAcid(acid);
 					}
 				}

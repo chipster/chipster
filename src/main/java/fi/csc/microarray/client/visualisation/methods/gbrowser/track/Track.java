@@ -50,7 +50,7 @@ public abstract class Track implements AreaResultListener {
 		if (file != null) {
 			view.getQueueManager().addResultListener(file, this);
 		} else {
-			System.out.println("Track has no file: " + this);
+			throw new RuntimeException("Track has no file: " + this);
 		}
 	}
 
