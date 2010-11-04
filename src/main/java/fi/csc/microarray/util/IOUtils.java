@@ -171,4 +171,9 @@ public class IOUtils {
 	public static URL createURL(URL url, String postfix) throws MalformedURLException {
 		return new URL(url, url.getFile() + "/" + postfix);
 	}
+	
+	public static boolean isLocalFileURL(URL url) {
+		return "file".equals(url.getProtocol());
+	}
+	
 }

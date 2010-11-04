@@ -65,6 +65,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Sequen
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationsScreen;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Genome;
@@ -320,8 +321,22 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		Collection<Genome> genomes = annotationContents.getGenomes();
 		c.gridy++;
 		settingsPanel.add(new JLabel("Genome"), c);
+		JButton button = new JButton("Annotations");
+		button.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				AnnotationsScreen screen = new AnnotationsScreen(annotationContents);
+				screen.getFrame().pack();
+				screen.getFrame().setVisible(true);
+			}
+			
+		});
+		settingsPanel.add(button);
+		
 		c.gridy++;
 		for (Genome genome : genomes) {
+			System.out.println("local: " + annotationContents.hasLocalAnnotations(genome));
 			genomeBox.addItem(genome);
 		}
 		settingsPanel.add(genomeBox, c);

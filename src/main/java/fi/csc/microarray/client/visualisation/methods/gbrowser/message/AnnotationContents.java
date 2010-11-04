@@ -183,37 +183,6 @@ public class AnnotationContents {
 
 	
 	
-	public void parseFrom(InputStream contentsStream) throws IOException {
-
-		BufferedReader reader = new BufferedReader(new InputStreamReader(contentsStream));
-
-		if (!reader.readLine().equals(FILE_ID)) {
-			throw new IllegalArgumentException("annotation stream does not start with " + FILE_ID);
-		}
-
-		String line;
-		while ((line = reader.readLine()) != null) {
-			if (line.trim().equals("")) {
-				continue;
-			}
-			String[] splitted = line.split("\t");
-			
-			// use local file if it exists
-			URL url;
-			String fileName = splitted[3];
-			File localFile = new File(localAnnotationsRoot, fileName);
-			// FIXME add more checks, size and checksum maybe
-			if (localFile.exists()) {
-				url = localFile.toURI().toURL();
-			} else {
-				url = IOUtils.createURL(remoteAnnotationsRoot, fileName);
-			}
-			rows.add(new Row(splitted[0], splitted[1], splitted[2], url));
-		}
-
-	}
-
-
 	public void write() throws IOException {
 		contentsFile.delete();
 		Writer writer = null;
@@ -242,14 +211,76 @@ public class AnnotationContents {
 		return null;
 	}
 
-	public Collection<Genome> getGenomes() {
-		Set<Genome> genomes = new LinkedHashSet<Genome>();
+	public List<Genome> getGenomes() {
+		List<Genome> genomes = new LinkedList<Genome>();
 		for (Row row : rows) {
-			genomes.add(row.getGenome());
+			if (!genomes.contains(row.getGenome())) {
+				genomes.add(row.getGenome());
+			}
 		}
 		return genomes;
 	}
 	
+	/**
+	 * TODO What if there are no annotations except for reference?
+	 * @param genome
+	 * @return
+	 */
+	public boolean hasLocalAnnotations(Genome genome) {
+		for (Content c : Content.values()) {
+			if (!c.equals(Content.REFERENCE)) {
+				Row annotation = getRow(genome, Content.GENES);
+				if (annotation != null && !IOUtils.isLocalFileURL(annotation.url)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	public boolean hasLocalReference(Genome genome) {
+		Row reference = getRow(genome, Content.REFERENCE);
+		if (reference != null && IOUtils.isLocalFileURL(reference.url)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+
+
+	private void parseFrom(InputStream contentsStream) throws IOException {
+	
+		BufferedReader reader = new BufferedReader(new InputStreamReader(contentsStream));
+	
+		if (!reader.readLine().equals(FILE_ID)) {
+			throw new IllegalArgumentException("annotation stream does not start with " + FILE_ID);
+		}
+	
+		String line;
+		while ((line = reader.readLine()) != null) {
+			if (line.trim().equals("")) {
+				continue;
+			}
+			String[] splitted = line.split("\t");
+			
+			// use local file if it exists
+			URL url;
+			String fileName = splitted[3];
+			File localFile = new File(localAnnotationsRoot, fileName);
+			// FIXME add more checks, size and checksum maybe
+			if (localFile.exists()) {
+				url = localFile.toURI().toURL();
+			} else {
+				url = IOUtils.createURL(remoteAnnotationsRoot, fileName);
+			}
+			rows.add(new Row(splitted[0], splitted[1], splitted[2], url));
+		}
+	
+	}
+
+
+
 	private URL getRemoteAnnotationsUrl() throws Exception {
 		FileBrokerClient fileBroker = Session.getSession().getServiceAccessor()
 				.getFileBrokerClient();
@@ -257,4 +288,5 @@ public class AnnotationContents {
 				+ ANNOTATIONS_PATH);
 		return annotationsUrl;
 	}
+	
 }
