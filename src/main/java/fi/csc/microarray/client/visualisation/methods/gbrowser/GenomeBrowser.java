@@ -493,7 +493,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 		try {
 			// Create gene name index
-			gia = GeneIndexActions.getInstance(this, (Genome)genomeBox.getSelectedItem());
+//			gia = GeneIndexActions.getInstance(this, (Genome)genomeBox.getSelectedItem());
 			
 			// Create the plot
 			Genome genome = (Genome) genomeBox.getSelectedItem();
@@ -850,7 +850,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 		// Only position within chromosome changed
 		BpCoordRegion geneLocation;
-		if (!gia.checkIfNumber(locationField.getText())) {
+		if (gia != null && !gia.checkIfNumber(locationField.getText())) {
 
 			geneLocation = gia.getLocation(locationField.getText().toUpperCase(), (Chromosome)chrBox.getSelectedItem());
 
