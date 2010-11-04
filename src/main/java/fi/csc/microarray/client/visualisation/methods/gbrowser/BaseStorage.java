@@ -95,14 +95,11 @@ public class BaseStorage {
 
 			// Try to find good enough SNP acid
 			for (Acid acid : Acid.values()) {
-				if (snpCounts[acid.ordinal()] > 0) {
-					return true;
+				if (snpCounts[acid.ordinal()] >= MIN_SIGNIFICANT_SNP_COUNT) {
+					if (((double)snpCounts[acid.ordinal()])/((double)totalSNPCount) >= MIN_SIGNIFICANT_SNP_RATIO) {
+						return true;
+					}
 				}
-//				if (snpCounts[acid.ordinal()] >= MIN_SIGNIFICANT_SNP_COUNT) {
-//					if (((double)snpCounts[acid.ordinal()])/((double)totalSNPCount) >= MIN_SIGNIFICANT_SNP_RATIO) {
-//						return true;
-//					}
-//				}
 			}
 			
 			// None found
