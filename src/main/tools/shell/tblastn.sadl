@@ -7,7 +7,7 @@ PARAMETER db: "Database" TYPE [nt: "NCBI non-redundant nucleotide database",
 	embl_htg: "EMBL GSS division", emblnew: "EMBL updates", refseq: "NCBI RefSeq RNA database",
 	refseq_con: "NCBI RefSeq human contigs"] DEFAULT nt (Choose a database)
 PARAMETER OPTIONAL query_loc: "Location on the query sequence" TYPE STRING (Location of the search region on the query sequence. Format: start-stop, for example: 23-66.  Default: the whole query sequence) 
-PARAMETER OPTIONAL evalue: "Expectation value (E) threshold for saving hits" TYPE DECIMAL DEAFULT 1 (Expectation value)
+PARAMETER OPTIONAL evalue: "Expectation value (E) threshold for saving hits" TYPE DECIMAL DEFAULT 1 (Expectation value)
 PARAMETER OPTIONAL matrix: "Matrix" TYPE [BLOSUM45: "BLOSUM45", BLOSUM50: "BLOSUM50", BLOSUM62: "BLOSUM62",
 	BLOSUM80: "BLOSUM80", BLOSUM90: "BLOSUM90"] DEFAULT BLOSUM62 (Weight matrix)
 PARAMETER OPTIONAL gapopen: "Gap opening penalty" TYPE INTEGER FROM 0 TO 20 (Cost to open a gap. Integer value from 0 to 20. The default value of this parameter depends on the selected scoring matrix. Note that if you assign this value, you must define also the gap extension penalty )
