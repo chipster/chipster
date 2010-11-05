@@ -180,4 +180,9 @@ public class SequenceModule implements Module {
 		return false;
 	}
 
+	@Override
+	public boolean notesVisibleAtStartup() {
+		return true;
+	}
+
 }

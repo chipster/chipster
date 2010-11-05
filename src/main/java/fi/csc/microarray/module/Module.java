@@ -157,5 +157,7 @@ public interface Module {
 	public String getShortCategoryName(Operation operation);
 
 	public boolean countOperationResults();
+	
+	public boolean notesVisibleAtStartup();
 
 }

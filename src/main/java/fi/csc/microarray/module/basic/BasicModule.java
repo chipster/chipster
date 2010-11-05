@@ -171,4 +171,9 @@ public class BasicModule implements Module {
 	public boolean countOperationResults() {
 		return true;
 	}
+
+	@Override
+	public boolean notesVisibleAtStartup() {
+		return false;
+	}
 }
