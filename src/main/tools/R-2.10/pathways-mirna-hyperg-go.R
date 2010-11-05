@@ -3,7 +3,7 @@
 # OUTPUT hyperg_go.tsv, hyperg_go.html
 # PARAMETER ontology [all, biological_process, molecular_function, cellular_component] DEFAULT biological_process (The ontology to be analyzed.)
 # PARAMETER p.value.threshold DECIMAL DEFAULT 0.05 (P-value threshold.)
-# PARAMETER minimum.population INTEGER FROM 1 TO 1000000 DEFAULT 2 (Minimum number of genes required to be in a pathway.)
+# PARAMETER minimum.population INTEGER FROM 1 TO 1000000 DEFAULT 5 (Minimum number of genes required to be in a pathway.)
 # PARAMETER conditional.testing [yes, no] (Conditional testing means that when a significant GO term is found, i.e. p-value is smaller than the specified thershold, that GO term is removed when testing the significance of its parent.)
 # PARAMETER p.adjust.method [none, BH, BY] DEFAULT none (Method for adjusting the p-value in order to account for multiple testing. Because of the structure of GO, multiple testing is theoretically problematic, and using conditional.testing is a generally the preferred method. The correction can only be applied when no conditional.testing is performed.)
 # PARAMETER over.or.under.representation [over, under] DEFAULT over (Should over or under-represented classes be seeked?)
@@ -40,7 +40,13 @@ if (species == 'mouse') {
   ensembl.to.entrez <- as.list(org.Mm.egENSEMBLTRANS2EG)
   reference.genes <- unique(unlist(ensembl.to.entrez[unique(targets$tran)]))
   selected.genes <- unique(unlist(ensembl.to.entrez[unique(targets[targets$mir %in% mirna_ids, 'tran'])]))
-
+  
+  # check that it was indeed possible to identify any targets for the
+  # input list of miRNA names
+  if (length (selected.genes) == 0) {
+	  stop("CHIPSTER-NOTE: No target genes were found for the input list of miRNA names. Please make sure that you are using official miRNA names.")
+  }
+     
   annotpkg <- 'org.Mm.eg.db'
 } else if (species == 'rat') {
   library(org.Rn.eg.db)
@@ -51,6 +57,12 @@ if (species == 'mouse') {
   reference.genes <- unique(unlist(ensembl.to.entrez[unique(targets$tran)]))
   selected.genes <- unique(unlist(ensembl.to.entrez[unique(targets[targets$mir %in% mirna_ids, 'tran'])]))
 
+    # check that it was indeed possible to identify any targets for the
+  # input list of miRNA names
+  if (length (selected.genes) == 0) {
+	  stop("CHIPSTER-NOTE: No target genes were found for the input list of miRNA names. Please make sure that you are using official miRNA names.")
+  }
+      
   annotpkg <- 'org.Rn.eg.db'
 } else {
   library(RmiR.Hs.miRNA)
@@ -64,7 +76,13 @@ if (species == 'mouse') {
   pictar <- pictar[pictar[,1] %in% mirna_ids,]
   targetscan <- targetscan[targetscan[,1] %in% mirna_ids,]
   selected.genes <- unique(intersect(pictar$gene_id, targetscan$gene_id))
-
+  
+  # check that it was indeed possible to identify any targets for the
+  # input list of miRNA names
+  if (length (selected.genes) == 0) {
+	  stop("CHIPSTER-NOTE: No target genes were found for the input list of miRNA names. Please make sure that you are using official miRNA names.")
+  }
+    
   annotpkg <- 'org.Hs.eg.db'
 }
 
