@@ -1,6 +1,8 @@
 # ANALYSIS Normalisation/"Illumina - lumi pipeline AAI" (Illumina normalization using BeadSummaryData files that reports the probe
-# identifiers in as Array_Address_Id (for example: 4900685) instead of Probe_Id (for example: ILMN_2607609) and using umi methodology.
-# TO USE THIS TOOL, YOU NEED TO IMPORT THE BeadSummaryData FILE DIRECTLY, NOT USING THE IMPORT TOOL.)
+# identifiers as Array_Address_Id, for example 4900685, instead of Probe_Id, for example ILMN_2607609, and using lumi methodology.
+# TO USE THIS TOOL, YOU NEED TO IMPORT THE BeadSummaryData FILE DIRECTLY, NOT USING THE IMPORT TOOL.
+# Please note that processing the data with Array_Address_Id is slower and the normalization therefore takes a bit longer time than
+# the Illumina - lumi pipeline tool.)
 # INPUT GENERIC chip.tsv OUTPUT normalized.tsv, phenodata.tsv
 # PARAMETER transformation [none, vst, log2] DEFAULT log2 (How to transform the data)
 # PARAMETER background.correction [none, bgAdjust.affy] DEFAULT none (Should background adjustment be applied)
