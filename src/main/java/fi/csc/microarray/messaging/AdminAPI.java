@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.messaging.AdminAPI.NodeStatus.Status;
 import fi.csc.microarray.messaging.message.CommandMessage;
-import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 
 /**
  * AdminAPI objects should be used only from a one thread.
@@ -63,7 +63,7 @@ public class AdminAPI {
 		
 		private Lock mutex = new ReentrantLock();
 		
-		public void onNamiMessage(NamiMessage msg) {
+		public void onChipsterMessage(ChipsterMessage msg) {
 			mutex.lock(); 
 			try {
 				CommandMessage cmdMsg = (CommandMessage) msg;
@@ -102,6 +102,8 @@ public class AdminAPI {
 		adminTopic.setListener(adminListener);
 		this.nodeStatuses.put("authenticator", new NodeStatus("authenticator"));
 		this.nodeStatuses.put("analyser", new NodeStatus("analyser"));
+		this.nodeStatuses.put("filebroker", new NodeStatus("filebroker"));
+		this.nodeStatuses.put("manager", new NodeStatus("manager"));
 		this.nodeStatuses.put("client", new NodeStatus("client"));
 	}
 
@@ -165,7 +167,12 @@ public class AdminAPI {
 	private boolean areAlreadyUp() {
 		errorStatus = "";
 		boolean areUp = true;
-		
+
+		if (nodeStatuses.get("filebroker").status != NodeStatus.Status.UP) {
+			errorStatus += " filebroker(s) not up ";
+			areUp = false;
+		} 
+
 		if (nodeStatuses.get("analyser").status != NodeStatus.Status.UP) {
 			errorStatus += " analyser(s) not up ";
 			areUp = false;

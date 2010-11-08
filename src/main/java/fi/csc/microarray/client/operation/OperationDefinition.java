@@ -1,11 +1,9 @@
 package fi.csc.microarray.client.operation;
 
 import java.awt.Color;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -14,10 +12,13 @@ import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.LinkUtils;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.description.VVSADLParser;
-import fi.csc.microarray.description.VVSADLSyntax;
-import fi.csc.microarray.description.VVSADLSyntax.InputType;
+import fi.csc.microarray.description.GenericInputTypes;
+import fi.csc.microarray.description.SADLSyntax;
+import fi.csc.microarray.description.SADLDescription.Name;
+import fi.csc.microarray.description.SADLSyntax.InputType;
+import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.module.chipster.ChipsterInputTypes;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.Strings;
 
 /**
@@ -25,7 +26,7 @@ import fi.csc.microarray.util.Strings;
  * side list in the OperationChoicePanel. These are the "blueprints" of specific
  * operations - the actual Operations
  * 
- * @author Janne KÃ¤ki, Aleksi Kallio
+ * @author Janne Käki, Aleksi Kallio
  * 
  */
 public class OperationDefinition implements ExecutionItem {
@@ -40,19 +41,22 @@ public class OperationDefinition implements ExecutionItem {
 	 * actual operation (in the sense that it would be possible to execute it)
 	 * but rather a dummy substitute, without any parameters.
 	 */
+	public static final String IMPORT_DEFINITION_ID = "operation-definition-id-import";
+	public static final String CREATE_DEFINITION_ID = "operation-definition-id-user-modification";
+	
 	public static final OperationDefinition IMPORT_DEFINITION;
-
-	public static final OperationDefinition USER_MODIFICATION_DEFINITION;
+	public static final OperationDefinition CREATE_DEFINITION;
 
 	/**
 	 * An enumeration containing all possible results when evaluating an
 	 * operation's suitability to a dataset.
 	 * 
-	 * @author Janne KÃ¤ki
+	 * @author Janne Käki
 	 * 
 	 */
 	public static enum Suitability {
-		SUITABLE, IMPOSSIBLE, ALREADY_DONE, TOO_MANY_INPUTS, NOT_ENOUGH_INPUTS;
+		SUITABLE, IMPOSSIBLE, ALREADY_DONE, TOO_MANY_INPUTS, NOT_ENOUGH_INPUTS,
+		EMPTY_REQUIRED_PARAMETERS;
 
 		private static final Color GREEN = new Color(52, 196, 49);
 		private static final Color YELLOW = new Color(196, 186, 49);
@@ -99,6 +103,8 @@ public class OperationDefinition implements ExecutionItem {
 				return "Too many inputs";
 			case NOT_ENOUGH_INPUTS:
 				return "Not enough inputs";
+            case EMPTY_REQUIRED_PARAMETERS:
+                return "Some required parameters are empty";
 			default:
 				throw new RuntimeException("unknown suitability: " + this.name());
 			}
@@ -107,53 +113,67 @@ public class OperationDefinition implements ExecutionItem {
 
 	public static String IDENTIFIER_SEPARATOR = "/";
 
-	private static Map<String, OperationDefinition> instances;
-
 	
 	static {
 		// done here to guarantee right execution order
-		instances = new HashMap<String, OperationDefinition>();
-		IMPORT_DEFINITION = new OperationDefinition("Raw data import", OperationCategory.IMPORT_CATEGORY, "Imports raw microarray data from an external file.", false);
-		USER_MODIFICATION_DEFINITION = new OperationDefinition("User modified", OperationCategory.USER_MODIFICATION_CATEGORY, "User had edited bean content.", false);
-	}
-
-	public static OperationDefinition getInstance(String identifier) {
-		return instances.get(identifier);
+		IMPORT_DEFINITION = new OperationDefinition(IMPORT_DEFINITION_ID, "Import data",
+		        OperationCategory.IMPORT_CATEGORY, "Import data.",
+		        false, null);
+		CREATE_DEFINITION = new OperationDefinition(CREATE_DEFINITION_ID, "Create a dataset",
+		        OperationCategory.CREATE_CATEGORY, "Create a new dataset.",
+		        false, null);
 	}
 
 	public static class InputDefinition {
 
 		private String name;
+		private String description = null;
 		private String postfix = null;
 		private boolean multi = false;
 		private int multiCounter;
-		private VVSADLSyntax.InputType type;
+		private SADLSyntax.InputType type;
 
 		/**
 		 * Creates single input.
 		 */
-		public InputDefinition(String name, VVSADLSyntax.InputType type) {
+		public InputDefinition(Name name, SADLSyntax.InputType type) {
 			resetMulti();
-			this.name = name;
+			this.name = name.getID();
+			this.description = name.getDisplayName();
 			this.type = type;
 		}
 
 		/**
 		 * Creates multi-input.
 		 */
-		public InputDefinition(String prefix, String postfix, VVSADLSyntax.InputType type) {
+		public InputDefinition(String prefix, String postfix, SADLSyntax.InputType type) {
 			this.name = prefix;
 			this.postfix = postfix;
 			this.type = type;
 			this.multi = true;
 		}
 
-		private String getName() {
+		public String getName() {
 			if (!multi) {
 				return name;
 			} else {
 				return name + Strings.toString(multiCounter, 3) + postfix; // show always at least 3 digits 
 			}
+		}
+		
+        public String getDescription() {
+            if (description != null) {
+                return description;
+            }
+            return getName();
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+		
+		public SADLSyntax.InputType getType() {
+		    return type;
 		}
 
 		private void nextMulti() {
@@ -169,21 +189,23 @@ public class OperationDefinition implements ExecutionItem {
 		}
 	}
 
-	private String name;
+	private String id;
+	private String displayName;
 	private OperationCategory category;
 	private LinkedList<Parameter> parameters = new LinkedList<Parameter>();
 	private String description;
+	private String helpURL;
 	private int colorCount;
 	private int outputCount = 0;
 	private LinkedList<InputDefinition> inputs = new LinkedList<InputDefinition>();
-	Suitability evaluatedSuitability = null;
+	private Suitability evaluatedSuitability = null;
 
 	private boolean hasSourceCode;
 
 	/**
 	 * Creates a new operation definition with the given initial values.
 	 * 
-	 * @param name
+	 * @param id
 	 *            The name of this operation. Should be something that extends
 	 *            the corresponding category name to be more specific (for
 	 *            example, in the category "Normalization", "Lowess" might be a
@@ -192,26 +214,45 @@ public class OperationDefinition implements ExecutionItem {
 	 * @param description
 	 *            A written description of this operation's purpose.
 	 */
-	public OperationDefinition(String name, OperationCategory category, String description, boolean hasSourceCode) {
-		this.name = name;
+	public OperationDefinition(String id, String displayName, OperationCategory category,
+	                           String description, boolean hasSourceCode,
+	                           String helpURL) {
+		this.id = id;
+		this.displayName = displayName;
 		this.category = category;
 		this.hasSourceCode = hasSourceCode;
+		this.helpURL = helpURL;
 		if (category != null) {
 			category.addOperation(this);
 		}
 
 		this.description = description;
-
-		instances.put(name + IDENTIFIER_SEPARATOR + category.getName(), this);
 	}
+
+	/**
+	 * Simplified constructor.
+	 * @param name
+	 * @param category
+	 * @param description
+	 * @param hasSourceCode
+	 * @param helpURL
+	 */
+     public OperationDefinition(String id, String displayName, OperationCategory category,
+         String description, boolean hasSourceCode) {
+         this(id, displayName, category, description, hasSourceCode, null);
+     }
 
 	/**
 	 * @return The name of this operation definition.
 	 */
-	public String getName() {
-		return name;
+	public String getID() {
+		return id;
 	}
 
+	public String getDisplayName() {
+		return displayName;
+	}
+	
 	/**
 	 * @return The category to which this operation definition belongs.
 	 */
@@ -231,17 +272,15 @@ public class OperationDefinition implements ExecutionItem {
 	 * @return categoryName / operationName
 	 */
 	public String getFullName() {
-		return getCategoryName() + " / " + getName();
+		return getCategoryName() + " / " + getDisplayName();
 	}
-
+	
 	/**
-	 * @return An array containing the "definition parameters", ones given to
-	 *         the constructor when this definition was initiated. Should be
-	 *         cloned when an actual Operation is created.
-	 */
-	public List<Parameter> getDefaultParameters() {
-		return parameters;
-	}
+     * @return URL linking to a help page or null if not given.
+     */
+    public String getHelpURL() {
+        return helpURL;
+    }
 
 	/**
 	 * @return A written description of this operation's purpose and function.
@@ -251,19 +290,11 @@ public class OperationDefinition implements ExecutionItem {
 	}
 
 	/**
-	 * @return The "job phrase", a code word that tells the server what kind of
-	 *         a job should be executed for this operation.
-	 */
-	public String getJobPhrase() {
-		return VVSADLParser.generateOperationIdentifier(category.getName(), name);
-	}
-
-	/**
 	 * @return A String representation (actually, just the name) of this
 	 *         operation definition, used for showing this on the list.
 	 */
 	public String toString() {
-		return name;
+		return getDisplayName();
 	}
 
 	/**
@@ -271,12 +302,45 @@ public class OperationDefinition implements ExecutionItem {
 	 * 
 	 * @param data
 	 *            The dataset for which to evaluate.
+	 * @param parametersSuitability is either null - indicating that the
+	 *        parameter suitability has not been checked yet or Suitability
+	 *        object defining the suitability of parameters in an encapsulating
+	 *        Operation object that calls this method.
 	 * @return One of the OperationDefinition.Suitability enumeration, depending
 	 *         on how suitable the operation is judged.
 	 */
-	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data) {
-		bindInputs(data);
+	public Suitability evaluateSuitabilityFor(Iterable<DataBean> data,
+	        Suitability parameterSuitability) {
+	       
+        // Input suitability gets checked while trying to bind the data
+        bindInputs(data);
+	    
+	    // Report only either input or parameter suitability
+	    if (evaluatedSuitability.isOk()) {
+	        evaluatedSuitability = parameterSuitability;
+	    }
+		
 		return getEvaluatedSuitability();
+	}
+	
+	/**
+	 * Check suitability of a given parameter list. The parameter
+	 * list can also come from the Operation object that encapsulates
+	 * this definition.
+	 * 
+	 * @param params
+	 * @return
+	 */
+	public static Suitability parameterSuitability(List<Parameter> params) {
+        for (Parameter param : params) {
+            // Required parameters can not be empty
+            if (!param.isOptional() && (param.getValue() == null ||
+                                        param.getValue().equals(""))) {
+                return Suitability.EMPTY_REQUIRED_PARAMETERS;
+            }
+        }
+        
+        return Suitability.SUITABLE;
 	}
 
 	public LinkedList<Parameter> getParameters() {
@@ -291,7 +355,7 @@ public class OperationDefinition implements ExecutionItem {
 		return colorCount;
 	}
 
-	public void addInput(String name, InputType type) {
+	public void addInput(Name name, InputType type) {
 		InputDefinition input = new InputDefinition(name, type);
 		inputs.add(input);
 	}
@@ -299,6 +363,10 @@ public class OperationDefinition implements ExecutionItem {
 	public void addInput(String prefix, String postfix, InputType type) {
 		InputDefinition input = new InputDefinition(prefix, postfix, type);
 		inputs.add(input);
+	}
+	
+	public List<InputDefinition> getInputs() {
+	    return inputs;
 	}
 
 	/**
@@ -333,10 +401,7 @@ public class OperationDefinition implements ExecutionItem {
 			boolean foundBinding = false;
 
 			// metadata needs not to be selected, it is fetched automatically
-			// FIXME causes strange troubles in some environments
-			// FIXME remove the hack and enable proper check (but update scripts to use PHENODATA before that)
-			//if (input.type.isMetadata()) {					
-			if (input.name.startsWith("phenodata")) {
+			if (doBackwardsCompatibleMetadataCheck(input)) {
 				foundBinding = true; // we'll find it later on
 				unboundMetadataDefinitions.add(input);
 				continue;
@@ -349,11 +414,11 @@ public class OperationDefinition implements ExecutionItem {
 
 				// try to match values to input definitions
 				logger.debug("  trying to bind " + value.getName() + " to " + input.name + " (" + input.type + ")");
-				if (input.type.isTypeOf(value)) {
+				if (doBackwardsCompatibleTypeCheck(input.type, value)) {
 
 					logger.debug("    bound successfully (" + value.getName() + " -> " + input.getName() + ")");
 
-					bindings.add(new DataBinding(value, input.getName(), input.type));
+					bindings.add(new DataBinding(value, input.getName(), input.getType()));
 					foundBinding = true;
 					removedValues.add(value); // mark it to be removed after iteration
 					
@@ -407,6 +472,37 @@ public class OperationDefinition implements ExecutionItem {
 		return bindings;
 	}
 
+	// TODO update to new type tag system
+	private boolean doBackwardsCompatibleTypeCheck(InputType type, DataBean data) {
+		
+		if (type == ChipsterInputTypes.AFFY) {
+			return data.hasTypeTag(MicroarrayModule.TypeTags.RAW_AFFYMETRIX_EXPRESSION_VALUES);
+			
+		} else if (type == ChipsterInputTypes.CDNA) {
+			return data.hasTypeTag(MicroarrayModule.TypeTags.RAW_EXPRESSION_VALUES);
+			
+		} else if (type == ChipsterInputTypes.GENE_EXPRS) {
+			return data.hasTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
+			
+		} else if (type == ChipsterInputTypes.GENELIST) {
+			return data.hasTypeTag(MicroarrayModule.TypeTags.GENENAMES);
+			
+		} else if (type == ChipsterInputTypes.PHENODATA) {
+			return data.hasTypeTag(BasicModule.TypeTags.PHENODATA);
+			
+		} else if (type == GenericInputTypes.GENERIC) {
+			return true;
+			
+		} else {
+			throw new IllegalArgumentException();
+		}
+	}
+
+	// TODO update to new type tag system
+	private boolean doBackwardsCompatibleMetadataCheck(InputDefinition input) {
+		return input.name.startsWith("phenodata");
+	}
+
 	/**
 	 * @return the suitability of last bindInputs-call or null
 	 * @see #bindInputs(Iterable)
@@ -426,8 +522,35 @@ public class OperationDefinition implements ExecutionItem {
 	public boolean hasSourceCode() {
 		return hasSourceCode;
 	}
+	
+	public String toStringVerbose() {
+		String s = "\n-------------- operation definition --------------\n";
+		s += getCategoryName() + " / ";
+		s += getDisplayName() + " ";
+		s += "(" + getID() + ")\n";
+		for (InputDefinition input: inputs) {
+			String type;
+			if (input.getType() != null) {
+				type = input.getType().getName();
+			} else {
+				type = "null";
+			}
+			s += input.getName() + " " + type + " " + input.getDescription() + "\n";
+		}
+		for (Parameter parameter: parameters) {
+		    // Some parameters don't have default values
+		    String value;
+		    if (parameter.getValue() == null) {
+		        value = "[no default value]";
+		    } else {
+		        value = parameter.getValueAsString();
+		    }
+			s += parameter.getID() + " " + value + "\n";
+		}
 
-	public void setSourceCode(boolean hasSourceCode) {
-		this.hasSourceCode = hasSourceCode;
+		s += "\n-------------- operation definition --------------\n";
+		
+		return s;
 	}
+	
 }

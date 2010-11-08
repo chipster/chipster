@@ -11,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -27,11 +28,15 @@ import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.dataimport.table.InformationDialog;
 import fi.csc.microarray.client.dialog.ChipsterDialog;
 import fi.csc.microarray.client.dialog.DialogInfo;
+import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.dialog.DialogInfo.Type;
+import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
+import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -39,12 +44,12 @@ import fi.csc.microarray.util.IOUtils;
  * clipboard paste). Contains methods to help implementation of folder selection
  * and launching actionChooser or direct import.
  * 
- * @author Petri KlemelÃ¤
+ * @author Petri Klemelä
  */
 public class ImportUtils {
 
 	private static final Logger logger = Logger.getLogger(ImportUtils.class);
-	private static final String DEFAULT_FOLDER_NAME = "My experiment";
+	private static final String DEFAULT_FOLDER_NAME = "";
 	private static ClientApplication application = Session.getSession().getApplication();
 
 	private static boolean zipDialogShown = false;
@@ -106,7 +111,7 @@ public class ImportUtils {
 						"There seems to be ZIP files on your desktop. "
 						+ "This can slow down selecting files in some Windows versions. " 
 						+ "If you experience this problem, please move the ZIP files to a subfolder.", null, Type.OK_MESSAGE); 
-				ChipsterDialog.showDialog(null, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true, null);
+				ChipsterDialog.showDialog(null, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true, null, null);
 				zipDialogShown = true;
 			}
 		}
@@ -306,28 +311,57 @@ public class ImportUtils {
 	}
 
 	/**
-	 * Imports given files if they all are supported type or launches
-	 * ActionChooserScreen if not.
-	 * 
-	 * @param files
-	 *            as File objects
-	 * @param skipActionChooser
-	 * @param importFolder
-	 *            Folder to where imported data is put
+	 * Imports given files if they all are supported type and 
+	 * skip is requested (by default it is). Otherwise launches
+	 * ActionChooserScreen. If module does not support import
+	 * tools then files are always imported directly.
+	 * @throws MicroarrayException 
 	 */
 	public static void executeImport(ImportSession importSession) {
 
-		List<File> files = importSession.getInputFiles();
+		if (!application.isStandalone()) {
+			List<File> files = importSession.getInputFiles();
 
-		if (importSession.isSkipActionChooser() && !ImportUtils.containsUnsupportedTypes(files.toArray(new File[files.size()]))) {
-			// skip requested and all of the files are supported => import directly and don't show action chooser			
-			application.importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
-			
-		} else {
-			// skip not requested => show ActionChooser
-			ActionChooserScreen actionChooser = new ActionChooserScreen(importSession);
-			actionChooser.getFrame().setVisible(true);
+			boolean importToolSupported = Session.getSession().getPrimaryModule().isImportToolSupported();
 
+			if (!importToolSupported || (importSession.isSkipActionChooser() && !ImportUtils.containsUnsupportedTypes(files.toArray(new File[files.size()])))) {
+				// skip requested and all of the files are supported => import directly and don't show action chooser			
+				application.importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
+
+			} else {
+				// skip not requested => show ActionChooser
+				new ActionChooserScreen(importSession);
+			}
+		}
+
+		// standalone
+		else {
+
+			// import directly
+			if (importSession.isSkipActionChooser()) {
+				application.importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
+			}
+
+			// go to preprocessing
+			else {
+				// input files to input DataBeans
+				try {
+					List<DataBean> inputBeans = new LinkedList<DataBean>();
+					int i = 0;
+					for (File inputFile: importSession.getInputFiles()) {
+						inputBeans.add(Session.getSession().getDataManager().createDataBean("preprocessInput-" + i, inputFile));
+						i++;
+					}
+
+					// create operation, open import operation parameter dialog
+					ClientApplication application = Session.getSession().getApplication();
+					Operation importOperation = new Operation(application.getOperationDefinition("LocalNGSPreprocess.java"), inputBeans.toArray(new DataBean[] {}));
+					new TaskImportDialog(application, "Preprocess NGS data", importOperation);
+
+				} catch (Exception me) {
+					Session.getSession().getApplication().reportException(me);
+				}
+			}
 		}
 	}	
 }
