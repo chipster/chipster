@@ -1630,8 +1630,7 @@ public class SwingClientApplication extends ClientApplication {
 	        // Mostly for microarray
 	        // TODO: consider refactoring so that url is stored in definition
 	        // and this "else" branch is not needed
-	        String urlBase = "https://extras.csc.fi/biosciences/";
-	        viewHelp(urlBase + HelpMapping.mapToHelppage(definition));
+	        viewHelp(HelpMapping.mapToHelppage(definition));
 	    }
 	}
 
