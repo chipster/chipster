@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <module name="sequence">
     <!-- BLAST -->
-    <category color="#d5c796" name="BLAST">
+    <category color="#d59f45" name="BLAST">
         <tool runtime="shell">
             <resource>blastp.sadl</resource>
             <parameter>
@@ -118,7 +118,7 @@
     </category>
     
     <!-- INTERNAL TOOLS, NOT VISIBLE TO USER -->
-    <category color="#629a9b" name="Internal" hidden="true">
+    <category color="#d5c796" name="Import" hidden="true">
         <tool runtime="shell">
             <resource>importseq.sadl</resource>
             <parameter>
@@ -132,11 +132,7 @@
         </tool>
     </category>
 
-
-
-
-
-	<category color="#e7df70" name="Alignment:Consensus">
+	<category color="#e7881c" name="Alignment:Consensus">
 		<tool runtime="EMBOSS">
 			<resource>cons.acd</resource>
 		</tool>
@@ -150,12 +146,12 @@
 			<resource>merger.acd</resource>
 		</tool>
 	</category>
-	<category color="#e7df70" name="Alignment:Differences">
+	<category color="#e7881c" name="Alignment:Differences">
 		<tool runtime="EMBOSS">
 			<resource>diffseq.acd</resource>
 		</tool>
 	</category>
-	<category color="#e7df70" name="Alignment:Dot plots">
+	<category color="#e7881c" name="Alignment:Dot plots">
 		<tool runtime="EMBOSS">
 			<resource>dotmatcher.acd</resource>
 		</tool>
@@ -169,7 +165,7 @@
 			<resource>polydot.acd</resource>
 		</tool>
 	</category>
-	<category color="#e7df70" name="Alignment:Global">
+	<category color="#e7881c" name="Alignment:Global">
 		<tool runtime="EMBOSS">
 			<resource>esim4.acd</resource>
 		</tool>
@@ -186,7 +182,7 @@
 			<resource>stretcher.acd</resource>
 		</tool>
 	</category>
-	<category color="#e7df70" name="Alignment:Local">
+	<category color="#e7881c" name="Alignment:Local">
 		<tool runtime="EMBOSS">
 			<resource>matcher.acd</resource>
 		</tool>
@@ -206,7 +202,7 @@
 			<resource>wordmatch.acd</resource>
 		</tool>
 	</category>
-	<category color="#d59f45" name="Alignment:Multiple">
+	<category color="#d53833" name="Alignment:Multiple">
 		<tool runtime="EMBOSS">
 			<resource>edialign.acd</resource>
 		</tool>
@@ -231,6 +227,8 @@
 		<tool runtime="EMBOSS">
 			<resource>tranalign.acd</resource>
 		</tool>
+    <!-- MAFFT -->
+    <!-- these goes to Alignment:Multiple category! -->
        <tool runtime="shell">
             <resource>mafft-einsi.sadl</resource>
             <parameter>
@@ -277,7 +275,7 @@
             <parameter> <name>input</name> <value>last</value> </parameter>
         </tool>
 	</category>
-	<category color="#e7881c" name="Display">
+	<category color="#d5c796" name="Display">
 		<tool runtime="EMBOSS">
 			<resource>abiview.acd</resource>
 		</tool>
@@ -321,7 +319,7 @@
 			<resource>textsearch.acd</resource>
 		</tool>
 	</category>
-	<category color="#d53833" name="Edit">
+	<category color="#c0d2de" name="Edit">
 		<tool runtime="EMBOSS">
 			<resource>aligncopy.acd</resource>
 		</tool>
@@ -470,36 +468,7 @@
 			<resource>yank.acd</resource>
 		</tool>
 	</category>
-	<category color="#80a3b7" name="HMM">
-		<tool runtime="EMBOSS">
-			<resource>ehmmalign.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>ehmmbuild.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>ehmmcalibrate.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>ehmmconvert.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>ehmmemit.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>ehmmfetch.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>ehmmindex.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>ehmmpfam.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>ehmmsearch.acd</resource>
-		</tool>
-	</category>
-	<category color="#0177b7" name="Information">
+	<category color="#80a3b7" name="Information">
 		<tool runtime="EMBOSS">
 			<resource>infobase.acd</resource>
 		</tool>
@@ -519,7 +488,7 @@
 			<resource>wossname.acd</resource>
 		</tool>
 	</category>
-	<category color="#629a9b" name="Nucleic:Codon usage">
+	<category color="#0177b7" name="Nucleic:Codon usage">
 		<tool runtime="EMBOSS">
 			<resource>cai.acd</resource>
 		</tool>
@@ -536,7 +505,7 @@
 			<resource>syco.acd</resource>
 		</tool>
 	</category>
-	<category color="#629a9b" name="Nucleic:Composition">
+	<category color="#0177b7" name="Nucleic:Composition">
 		<tool runtime="EMBOSS">
 			<resource>banana.acd</resource>
 		</tool>
@@ -571,7 +540,7 @@
 			<resource>wordcount.acd</resource>
 		</tool>
 	</category>
-	<category color="#629a9b" name="Nucleic:CpG Islands">
+	<category color="#0177b7" name="Nucleic:CpG Islands">
 		<tool runtime="EMBOSS">
 			<resource>cpgplot.acd</resource>
 		</tool>
@@ -588,7 +557,7 @@
 			<resource>newcpgseek.acd</resource>
 		</tool>
 	</category>
-	<category color="#629a9b" name="Nucleic:Gene finding">
+	<category color="#0177b7" name="Nucleic:Gene finding">
 		<tool runtime="EMBOSS">
 			<resource>getorf.acd</resource>
 		</tool>
@@ -608,7 +577,7 @@
 			<resource>wobble.acd</resource>
 		</tool>
 	</category>
-	<category color="#629a9b" name="Nucleic:Motifs">
+	<category color="#0177b7" name="Nucleic:Motifs">
 		<tool runtime="EMBOSS">
 			<resource>dreg.acd</resource>
 		</tool>
@@ -619,7 +588,7 @@
 			<resource>fuzztran.acd</resource>
 		</tool>
 	</category>
-	<category color="#629a9b" name="Nucleic:Mutation">
+	<category color="#0177b7" name="Nucleic:Mutation">
 		<tool runtime="EMBOSS">
 			<resource>msbar.acd</resource>
 		</tool>
@@ -627,7 +596,7 @@
 			<resource>shuffleseq.acd</resource>
 		</tool>
 	</category>
-	<category color="#629a9b" name="Nucleic:Primers">
+	<category color="#0177b7" name="Nucleic:Primers">
 		<tool runtime="EMBOSS">
 			<resource>eprimer3.acd</resource>
 		</tool>
@@ -638,7 +607,7 @@
 			<resource>stssearch.acd</resource>
 		</tool>
 	</category>
-	<category color="#629a9b" name="Nucleic:Profiles">
+	<category color="#0177b7" name="Nucleic:Profiles">
 		<tool runtime="EMBOSS">
 			<resource>profit.acd</resource>
 		</tool>
@@ -649,7 +618,7 @@
 			<resource>prophet.acd</resource>
 		</tool>
 	</category>
-	<category color="#629a9b" name="Nucleic:RNA folding">
+	<category color="#0177b7" name="Nucleic:RNA folding">
 		<tool runtime="EMBOSS">
 			<resource>vrnaalifold.acd</resource>
 		</tool>
@@ -699,7 +668,7 @@
 			<resource>vrnasubopt.acd</resource>
 		</tool>
 	</category>
-	<category color="#629a9b" name="Nucleic:Repeats">
+	<category color="#0177b7" name="Nucleic:Repeats">
 		<tool runtime="EMBOSS">
 			<resource>einverted.acd</resource>
 		</tool>
@@ -713,7 +682,7 @@
 			<resource>palindrome.acd</resource>
 		</tool>
 	</category>
-	<category color="#629a9b" name="Nucleic:Restriction">
+	<category color="#0177b7" name="Nucleic:Restriction">
 		<tool runtime="EMBOSS">
 			<resource>recoder.acd</resource>
 		</tool>
@@ -730,12 +699,12 @@
 			<resource>silent.acd</resource>
 		</tool>
 	</category>
-	<category color="#629a9b" name="Nucleic:Transcription">
+	<category color="#0177b7" name="Nucleic:Transcription">
 		<tool runtime="EMBOSS">
 			<resource>jaspscan.acd</resource>
 		</tool>
 	</category>
-	<category color="#629a9b" name="Nucleic:Translation">
+	<category color="#0177b7" name="Nucleic:Translation">
 		<tool runtime="EMBOSS">
 			<resource>backtranambig.acd</resource>
 		</tool>
@@ -746,7 +715,7 @@
 			<resource>transeq.acd</resource>
 		</tool>
 	</category>
-	<category color="#a49900" name="Phylogeny:Consensus">
+	<category color="#83010b" name="Phylogeny:Consensus">
 		<tool runtime="EMBOSS">
 			<resource>fconsense.acd</resource>
 		</tool>
@@ -757,12 +726,12 @@
 			<resource>ftreedistpair.acd</resource>
 		</tool>
 	</category>
-	<category color="#a49900" name="Phylogeny:Continuous characters">
+	<category color="#83010b" name="Phylogeny:Continuous characters">
 		<tool runtime="EMBOSS">
 			<resource>fcontrast.acd</resource>
 		</tool>
 	</category>
-	<category color="#a49900" name="Phylogeny:Discrete characters">
+	<category color="#83010b" name="Phylogeny:Discrete characters">
 		<tool runtime="EMBOSS">
 			<resource>fclique.acd</resource>
 		</tool>
@@ -788,7 +757,7 @@
 			<resource>fpenny.acd</resource>
 		</tool>
 	</category>
-	<category color="#a49900" name="Phylogeny:Distance matrix">
+	<category color="#83010b" name="Phylogeny:Distance matrix">
 		<tool runtime="EMBOSS">
 			<resource>ffitch.acd</resource>
 		</tool>
@@ -799,7 +768,7 @@
 			<resource>fneighbor.acd</resource>
 		</tool>
 	</category>
-	<category color="#a49900" name="Phylogeny:Gene frequencies">
+	<category color="#83010b" name="Phylogeny:Gene frequencies">
 		<tool runtime="EMBOSS">
 			<resource>fcontml.acd</resource>
 		</tool>
@@ -807,7 +776,7 @@
 			<resource>fgendist.acd</resource>
 		</tool>
 	</category>
-	<category color="#a49900" name="Phylogeny:Molecular sequence">
+	<category color="#83010b" name="Phylogeny:Molecular sequence">
 		<tool runtime="EMBOSS">
 			<resource>distmat.acd</resource>
 		</tool>
@@ -872,7 +841,7 @@
 			<resource>fseqbootall.acd</resource>
 		</tool>
 	</category>
-	<category color="#a49900" name="Phylogeny:Tree drawing">
+	<category color="#83010b" name="Phylogeny:Tree drawing">
 		<tool runtime="EMBOSS">
 			<resource>fdrawgram.acd</resource>
 		</tool>
@@ -883,7 +852,7 @@
 			<resource>fretree.acd</resource>
 		</tool>
 	</category>
-	<category color="#83010b" name="Protein:2D Structure">
+	<category color="#629a9b" name="Protein:2D Structure">
 		<tool runtime="EMBOSS">
 			<resource>garnier.acd</resource>
 		</tool>
@@ -903,7 +872,7 @@
 			<resource>topo.acd</resource>
 		</tool>
 	</category>
-	<category color="#83010b" name="Protein:Composition">
+	<category color="#629a9b" name="Protein:Composition">
 		<tool runtime="EMBOSS">
 			<resource>charge.acd</resource>
 		</tool>
@@ -938,7 +907,7 @@
 			<resource>pepwindowall.acd</resource>
 		</tool>
 	</category>
-	<category color="#83010b" name="Protein:Motifs">
+	<category color="#629a9b" name="Protein:Motifs">
 		<tool runtime="EMBOSS">
 			<resource>antigenic.acd</resource>
 		</tool>
@@ -973,17 +942,17 @@
 			<resource>sigcleave.acd</resource>
 		</tool>
 	</category>
-	<category color="#83010b" name="Protein:3D structure">
+	<category color="#629a9b" name="Protein:3D structure">
 		<tool runtime="EMBOSS">
 			<resource>psiphi.acd</resource>
 		</tool>
 	</category>
-	<category color="#c0d2de" name="Enzyme Kinetics">
+	<category color="#629a9b" name="Enzyme Kinetics">
 		<tool runtime="EMBOSS">
 			<resource>findkm.acd</resource>
 		</tool>
 	</category>
-	<category color="#c0d2de" name="Feature tables">
+	<category color="#629a9b" name="Feature tables">
 		<tool runtime="EMBOSS">
 			<resource>coderet.acd</resource>
 		</tool>
