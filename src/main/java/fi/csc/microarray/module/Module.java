@@ -160,4 +160,11 @@ public interface Module {
 	
 	public boolean notesVisibleAtStartup();
 
+	/**
+	 * Name of the module for the UI
+	 * 
+	 * @return
+	 */
+	public String getDisplayName();
+	
 }

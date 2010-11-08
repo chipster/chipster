@@ -375,4 +375,9 @@ public class MicroarrayModule implements Module {
 		return false;
 	}
 
+	@Override
+	public String getDisplayName() {
+		return "Chipster";
+	}
+
 }

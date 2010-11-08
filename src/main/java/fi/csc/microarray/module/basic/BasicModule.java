@@ -176,4 +176,9 @@ public class BasicModule implements Module {
 	public boolean notesVisibleAtStartup() {
 		return false;
 	}
+
+	@Override
+	public String getDisplayName() {
+		return "Chipster";
+	}
 }

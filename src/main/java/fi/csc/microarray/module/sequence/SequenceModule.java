@@ -185,4 +185,9 @@ public class SequenceModule implements Module {
 		return true;
 	}
 
+	@Override
+	public String getDisplayName() {
+		return "Embster";
+	}
+
 }
