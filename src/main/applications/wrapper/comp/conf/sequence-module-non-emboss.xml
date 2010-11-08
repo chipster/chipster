@@ -1,5 +1,5 @@
     <!-- BLAST -->
-    <category color="#d5c796" name="BLAST">
+    <category color="#d59f45" name="BLAST">
         <tool runtime="shell">
             <resource>blastp.sadl</resource>
             <parameter>
@@ -116,7 +116,7 @@
     </category>
     
     <!-- INTERNAL TOOLS, NOT VISIBLE TO USER -->
-    <category color="#629a9b" name="Import" hidden="true">
+    <category color="#d5c796" name="Import" hidden="true">
         <tool runtime="shell">
             <resource>importseq.sadl</resource>
             <parameter>
