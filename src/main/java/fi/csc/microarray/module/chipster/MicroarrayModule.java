@@ -380,4 +380,9 @@ public class MicroarrayModule implements Module {
 		return "Chipster";
 	}
 
+	@Override
+	public String getManualHome() {
+		return "https://extras.csc.fi/biosciences/chipster-manual/index.html";
+	}
+
 }

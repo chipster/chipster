@@ -190,4 +190,9 @@ public class SequenceModule implements Module {
 		return "Embster";
 	}
 
+	@Override
+	public String getManualHome() {
+		return "http://chipster.csc.fi/embster/manual";
+	}
+
 }

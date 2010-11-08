@@ -167,4 +167,11 @@ public interface Module {
 	 */
 	public String getDisplayName();
 	
+	/**
+	 * Url to manual home page.
+	 * 
+	 * @return
+	 */
+	public String getManualHome();
+	
 }
