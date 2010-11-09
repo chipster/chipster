@@ -337,31 +337,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		
 		c.gridy++;
 		for (Genome genome : genomes) {
-			System.out.println("local: " + annotationContents.hasLocalAnnotations(genome));
 			genomeBox.addItem(genome);
 		}
-		genomeBox.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				System.out.println(event.getActionCommand() + " | " + event.paramString());
-				System.out.println("value: " + genomeBox.getSelectedItem());
-				application.showDialog("Title", "Annotaatioita tarvitaan: " + genomeBox.getSelectedItem(), "", Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, new PluginButton() {
-
-					private Genome genome = (Genome)genomeBox.getSelectedItem();
-					
-					@Override
-					public void actionPerformed() {
-						System.out.println("Downloadataan " + genome);
-						
-					}
-
-					@Override
-					public String getText() {
-						return "Download ";
-					}});
-			}});
-		
+		genomeBox.addActionListener(this);
 		settingsPanel.add(genomeBox, c);
 
 		c.gridy++;
@@ -489,6 +467,31 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			
 		} else if (trackSwitches.keySet().contains(source)) {
 			updateVisibilityForTracks();
+		} 
+		
+		// genome selected
+		else if (source == genomeBox) {
+			Genome genome = (Genome) genomeBox.getSelectedItem();
+
+			// dialog for downloading annotations if not already local
+			if (annotationContents.hasLocalAnnotations(genome)) {
+				application.showDialog("Title", "Annotaatioita tarvitaan: " + genome, "", Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, new PluginButton() {
+
+					@Override
+					public void actionPerformed() {
+						try {
+							annotationContents.downloadAnnotations((Genome)genomeBox.getSelectedItem());
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+
+					@Override
+					public String getText() {
+						return "Download ";
+					}});
+			}
 		}
 	}
 

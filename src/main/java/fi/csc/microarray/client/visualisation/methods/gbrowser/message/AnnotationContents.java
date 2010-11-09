@@ -269,7 +269,7 @@ public class AnnotationContents {
 	}
 
 	private void downloadAnnotationFile(URL sourceUrl) throws IOException {
-		String fileName = sourceUrl.getFile();
+		String fileName = sourceUrl.getPath().substring(sourceUrl.getPath().lastIndexOf('/') + 1);
 		File localFile = new File(this.localAnnotationsRoot, fileName);
 		InputStream in = null;
 		try  {
