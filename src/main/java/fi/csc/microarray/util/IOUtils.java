@@ -136,6 +136,15 @@ public class IOUtils {
 	public static void copy(InputStream source, OutputStream target) throws IOException {
 		copy(source, target, null);
 	}
+	
+	public static void copy(InputStream source, File target) throws IOException {
+		FileOutputStream out = new FileOutputStream(target);
+		try {
+			copy(source, out, null);
+		} finally {
+			closeIfPossible(out);
+		}
+	}
 
 	/**
 	 * Copies a file. 

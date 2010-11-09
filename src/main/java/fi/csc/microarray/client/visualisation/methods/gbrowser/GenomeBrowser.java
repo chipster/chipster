@@ -46,6 +46,7 @@ import fi.csc.chipster.tools.gbrowser.SamBamUtils;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
+import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
@@ -339,6 +340,28 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			System.out.println("local: " + annotationContents.hasLocalAnnotations(genome));
 			genomeBox.addItem(genome);
 		}
+		genomeBox.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				System.out.println(event.getActionCommand() + " | " + event.paramString());
+				System.out.println("value: " + genomeBox.getSelectedItem());
+				application.showDialog("Title", "Annotaatioita tarvitaan: " + genomeBox.getSelectedItem(), "", Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, new PluginButton() {
+
+					private Genome genome = (Genome)genomeBox.getSelectedItem();
+					
+					@Override
+					public void actionPerformed() {
+						System.out.println("Downloadataan " + genome);
+						
+					}
+
+					@Override
+					public String getText() {
+						return "Download ";
+					}});
+			}});
+		
 		settingsPanel.add(genomeBox, c);
 
 		c.gridy++;

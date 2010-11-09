@@ -257,19 +257,35 @@ public class AnnotationContents {
 		}
 	}
 
-//	public void downloadAnnotations(Genome genome) {
-//		for (Content c : Content.values()) {
-//			if (!c.equals(Content.REFERENCE)) {
-//				Row annotation = getRow(genome, c);
-//				if (annotation != null && !IOUtils.isLocalFileURL(annotation.url)) {
-//					return false;
-//				}
-//			}
-//		}
-//
-//		
-//	}
+	public void downloadAnnotations(Genome genome) throws IOException {
+		for (Content c : Content.values()) {
+			if (!c.equals(Content.REFERENCE)) {
+				Row annotation = getRow(genome, c);
+				if (annotation != null && !checkLocalFile(annotation)) {
+					downloadAnnotationFile(annotation.url);
+				}
+			}
+		}
+	}
 
+	private void downloadAnnotationFile(URL sourceUrl) throws IOException {
+		String fileName = sourceUrl.getFile();
+		File localFile = new File(this.localAnnotationsRoot, fileName);
+		InputStream in = null;
+		try  {
+			in = sourceUrl.openStream();
+			IOUtils.copy(in, localFile);
+		} finally {
+			IOUtils.closeIfPossible(in);
+		}
+
+	}
+	
+	
+	/**
+	 * TODO add check for file size and or checksum
+	 * 
+	 */
 	private boolean checkLocalFile(Row annotation) {
 		if (annotation != null && IOUtils.isLocalFileURL(annotation.url)) {
 			return true;
