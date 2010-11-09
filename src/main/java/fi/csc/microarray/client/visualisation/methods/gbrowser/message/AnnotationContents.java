@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -222,6 +223,9 @@ public class AnnotationContents {
 	}
 	
 	/**
+	 * Returns local if there are no annotations.
+	 * 
+	 * 
 	 * TODO What if there are no annotations except for reference?
 	 * @param genome
 	 * @return
@@ -229,7 +233,7 @@ public class AnnotationContents {
 	public boolean hasLocalAnnotations(Genome genome) {
 		for (Content c : Content.values()) {
 			if (!c.equals(Content.REFERENCE)) {
-				Row annotation = getRow(genome, Content.GENES);
+				Row annotation = getRow(genome, c);
 				if (annotation != null && !IOUtils.isLocalFileURL(annotation.url)) {
 					return false;
 				}
@@ -238,16 +242,41 @@ public class AnnotationContents {
 		return true;
 	}
 
+	/**
+	 * Returns local if there is no reference.
+	 * 
+	 * @param genome
+	 * @return
+	 */
 	public boolean hasLocalReference(Genome genome) {
 		Row reference = getRow(genome, Content.REFERENCE);
-		if (reference != null && IOUtils.isLocalFileURL(reference.url)) {
+		if (reference != null && !IOUtils.isLocalFileURL(reference.url)) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+//	public void downloadAnnotations(Genome genome) {
+//		for (Content c : Content.values()) {
+//			if (!c.equals(Content.REFERENCE)) {
+//				Row annotation = getRow(genome, c);
+//				if (annotation != null && !IOUtils.isLocalFileURL(annotation.url)) {
+//					return false;
+//				}
+//			}
+//		}
+//
+//		
+//	}
+
+	private boolean checkLocalFile(Row annotation) {
+		if (annotation != null && IOUtils.isLocalFileURL(annotation.url)) {
 			return true;
 		} else {
 			return false;
 		}
 	}
-
-
 
 	private void parseFrom(InputStream contentsStream) throws IOException {
 	
@@ -287,6 +316,11 @@ public class AnnotationContents {
 		URL annotationsUrl = new URL(fileBroker.getPublicUrl() + "/"
 				+ ANNOTATIONS_PATH);
 		return annotationsUrl;
+	}
+
+	public static void main(String[] args) throws IOException {
+		URL url = new URL("http://chipster-filebroker.csc.fi:8090/public/annotations/Homo_sapiens.NCBI36.54_transcripts.tsv");
+		System.out.println(url.openConnection().getContentLength());
 	}
 	
 }
