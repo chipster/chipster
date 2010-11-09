@@ -185,4 +185,8 @@ public class IOUtils {
 		return "file".equals(url.getProtocol());
 	}
 	
+	public static String getFilenameWithoutPath(URL url) {
+		return url.getPath().substring(url.getPath().lastIndexOf('/') + 1);
+	}
+	
 }

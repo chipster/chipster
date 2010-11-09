@@ -59,6 +59,8 @@ public class AnnotationContents {
 		public String species;
 		public String version;
 		public Content content;
+		
+		// FIXME refactor to getUrl()
 		public URL url;
 
 		public Row(String species, String version, String content, URL url) {
@@ -101,6 +103,8 @@ public class AnnotationContents {
 			return false;
 		}
 		
+		
+		// FIXME not good
 		@Override 
 		public int hashCode() {
 			return species.hashCode();
@@ -234,7 +238,7 @@ public class AnnotationContents {
 		for (Content c : Content.values()) {
 			if (!c.equals(Content.REFERENCE)) {
 				Row annotation = getRow(genome, c);
-				if (annotation != null && !IOUtils.isLocalFileURL(annotation.url)) {
+				if (annotation != null && !checkLocalFile(annotation)) {
 					return false;
 				}
 			}
@@ -250,7 +254,7 @@ public class AnnotationContents {
 	 */
 	public boolean hasLocalReference(Genome genome) {
 		Row reference = getRow(genome, Content.REFERENCE);
-		if (reference != null && !IOUtils.isLocalFileURL(reference.url)) {
+		if (reference != null && !checkLocalFile(reference)) {
 			return false;
 		} else {
 			return true;
@@ -262,13 +266,13 @@ public class AnnotationContents {
 			if (!c.equals(Content.REFERENCE)) {
 				Row annotation = getRow(genome, c);
 				if (annotation != null && !checkLocalFile(annotation)) {
-					downloadAnnotationFile(annotation.url);
+					annotation.url = downloadAnnotationFile(annotation.url);
 				}
 			}
 		}
 	}
 
-	private void downloadAnnotationFile(URL sourceUrl) throws IOException {
+	private URL downloadAnnotationFile(URL sourceUrl) throws IOException {
 		String fileName = sourceUrl.getPath().substring(sourceUrl.getPath().lastIndexOf('/') + 1);
 		File localFile = new File(this.localAnnotationsRoot, fileName);
 		InputStream in = null;
@@ -279,6 +283,8 @@ public class AnnotationContents {
 			IOUtils.closeIfPossible(in);
 		}
 
+		return localFile.toURI().toURL();
+		
 	}
 	
 	
@@ -287,11 +293,12 @@ public class AnnotationContents {
 	 * 
 	 */
 	private boolean checkLocalFile(Row annotation) {
-		if (annotation != null && IOUtils.isLocalFileURL(annotation.url)) {
+		String fileName = IOUtils.getFilenameWithoutPath(annotation.url);
+		File localFile = new File(this.localAnnotationsRoot, fileName);
+		if (localFile.exists()) {
 			return true;
-		} else {
-			return false;
 		}
+		return false;
 	}
 
 	private void parseFrom(InputStream contentsStream) throws IOException {

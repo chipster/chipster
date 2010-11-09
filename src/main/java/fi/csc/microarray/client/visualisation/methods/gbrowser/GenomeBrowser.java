@@ -474,7 +474,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			Genome genome = (Genome) genomeBox.getSelectedItem();
 
 			// dialog for downloading annotations if not already local
-			if (annotationContents.hasLocalAnnotations(genome)) {
+			if (!annotationContents.hasLocalAnnotations(genome)) {
 				application.showDialog("Title", "Annotaatioita tarvitaan: " + genome, "", Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, new PluginButton() {
 
 					@Override
