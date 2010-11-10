@@ -475,7 +475,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 			// dialog for downloading annotations if not already local
 			if (!annotationContents.hasLocalAnnotations(genome)) {
-				application.showDialog("Title", "Annotaatioita tarvitaan: " + genome, "", Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, new PluginButton() {
+
+				application.showDialog("Download annotations for " + genome + "?", "Downloading annotations is highly recommended to get optimal performace with GenomeBrowser.\n\nYou only need to download annotations once, after that they are stored on your local computer for further use.", 
+						"", Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, new PluginButton() {
 
 					@Override
 					public void actionPerformed() {
