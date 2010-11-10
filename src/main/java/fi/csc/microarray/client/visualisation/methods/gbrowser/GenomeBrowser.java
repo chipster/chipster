@@ -787,10 +787,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	public ChunkDataSource createAnnotationDataSource(URL url,
 			TsvParser fileParser) throws FileNotFoundException, URISyntaxException  {
 		if ("file".equals(url.getProtocol())) {
-			System.out.println("creating from local url: " + url);
 			return new ChunkDataSource(new File(url.toURI()), fileParser);
 		} else {
-			System.out.println("creating from remote url: " + url);
 			return new ChunkDataSource(url, fileParser);
 		}
 	}
