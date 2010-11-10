@@ -108,7 +108,6 @@ public class BaseStorage {
 		}
 
 		public void addAcid(Acid acid) {
-			System.out.println(acid);
 			if (snpCounts != null) {
 				throw new IllegalStateException("cannot add acids after SNP counts have been calculated");
 			}
@@ -134,7 +133,6 @@ public class BaseStorage {
 				// Mark SNP's, if possible
 				if (referenceAcid != null) {
 					for (Acid acid : Acid.values()) {
-						System.out.println(acid + ": " + acidCounts[acid.ordinal()]);
 						if (acid.compareTo(referenceAcid) == 0) {
 							snpCounts[acid.ordinal()] = 0;
 						} else {
