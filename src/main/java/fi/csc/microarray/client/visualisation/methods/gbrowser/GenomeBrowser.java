@@ -307,10 +307,19 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		c.gridx = 0;
 		c.gridwidth = 5;
 
-		// read genome name and version for each annotation file
+		// genome
 		Collection<Genome> genomes = annotationContents.getGenomes();
 		c.gridy++;
 		settingsPanel.add(new JLabel("Genome"), c);
+		
+		c.gridy++;
+		for (Genome genome : genomes) {
+			genomeBox.addItem(genome);
+		}
+		genomeBox.addActionListener(this);
+		settingsPanel.add(genomeBox, c);
+
+		c.gridy++;
 		JButton button = new JButton("Annotations");
 		button.addActionListener(new ActionListener() {
 
@@ -320,17 +329,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				screen.getFrame().pack();
 				screen.getFrame().setVisible(true);
 			}
-			
 		});
-		settingsPanel.add(button);
+		settingsPanel.add(button, c);
 		
-		c.gridy++;
-		for (Genome genome : genomes) {
-			genomeBox.addItem(genome);
-		}
-		genomeBox.addActionListener(this);
-		settingsPanel.add(genomeBox, c);
-
 		c.gridy++;
 		settingsPanel.add(new JLabel("Chromosome"), c);
 		c.gridy++;

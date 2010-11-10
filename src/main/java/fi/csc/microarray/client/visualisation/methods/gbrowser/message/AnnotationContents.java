@@ -75,7 +75,7 @@ public class AnnotationContents {
 		}
 		
 		/**
-		 * Return url for the local file if the local file ok.
+		 * Return url pointing to a local file if the local file ok.
 		 * 
 		 * @return
 		 */
@@ -152,7 +152,12 @@ public class AnnotationContents {
 	}
 
 	
-	
+	/**
+	 * TODO Check local annotations dir for files which don't exist in the contents.txt
+	 * and remove them. Don't accidentally remove contents.txt while removing.
+	 * 
+	 * @throws Exception
+	 */
 	public void initialize() throws Exception {
 
 		// get annotation locations
@@ -208,21 +213,6 @@ public class AnnotationContents {
 	}
 
 	
-	
-	public void write() throws IOException {
-		contentsFile.delete();
-		Writer writer = null;
-		try {
-			writer = new FileWriter(contentsFile, true);
-			writer.write(FILE_ID + "\n");
-			for (Row row : rows) {
-				writer.write(row.species + "\t" + row.version + "\t" + row.content + "\t" + row.url.getFile() + "\n");
-			}
-		} finally {
-			IOUtils.closeIfPossible(writer);
-		}
-	}
-
 	public List<Row> getRows() {
 		return rows;
 	}
@@ -248,10 +238,9 @@ public class AnnotationContents {
 	}
 	
 	/**
-	 * Returns local if there are no annotations.
+	 * Returns local if there are no annotations. In such a case there is
+	 * nothing to be downloaded.
 	 * 
-	 * 
-	 * TODO What if there are no annotations except for reference?
 	 * @param genome
 	 * @return
 	 */
@@ -268,7 +257,8 @@ public class AnnotationContents {
 	}
 
 	/**
-	 * Returns local if there is no reference.
+	 * Returns local if there is no reference. In such as case there is 
+	 * nothing to be downloaded.
 	 * 
 	 * @param genome
 	 * @return
@@ -282,6 +272,12 @@ public class AnnotationContents {
 		}
 	}
 
+	/**
+	 * Download annotations for a genome. Downloading happens as a blocking task.
+	 * 
+	 * @param genome
+	 * @throws IOException
+	 */
 	public void downloadAnnotations(final Genome genome) throws IOException {
 		Session.getSession().getApplication().runBlockingTask("downloading annotations", new Runnable() {
 
@@ -326,6 +322,7 @@ public class AnnotationContents {
 
 	}
 	
+	
 	private void downloadAnnotationFile(URL sourceUrl) throws IOException {
 		String fileName = sourceUrl.getPath().substring(sourceUrl.getPath().lastIndexOf('/') + 1);
 		File localFile = new File(this.localAnnotationsRoot, fileName);
@@ -352,6 +349,12 @@ public class AnnotationContents {
 		return false;
 	}
 
+	/**
+	 * Parse contents file.
+	 * 
+	 * @param contentsStream
+	 * @throws IOException
+	 */
 	private void parseFrom(InputStream contentsStream) throws IOException {
 	
 		BufferedReader reader = new BufferedReader(new InputStreamReader(contentsStream));
@@ -367,16 +370,14 @@ public class AnnotationContents {
 			}
 			String[] splitted = line.split("\t");
 			
-			// always store the remote url even if local file exist
-			// existence of local is checked whenever it is needed
+			// always store the remote url even if a local file exists
+			// existence of the local is checked later everytime it is needed
 			URL url;
 			String fileName = splitted[3];
 			url = IOUtils.createURL(remoteAnnotationsRoot, fileName);
 			rows.add(new Row(splitted[0], splitted[1], splitted[2], url));
 		}
 	}
-
-
 
 	private URL getRemoteAnnotationsUrl() throws Exception {
 		FileBrokerClient fileBroker = Session.getSession().getServiceAccessor()
@@ -386,9 +387,22 @@ public class AnnotationContents {
 		return annotationsUrl;
 	}
 
-	public static void main(String[] args) throws IOException {
-		URL url = new URL("http://chipster-filebroker.csc.fi:8090/public/annotations/Homo_sapiens.NCBI36.54_transcripts.tsv");
-		System.out.println(url.openConnection().getContentLength());
+	/**
+	 * Needed when generating the contents file.
+	 * 
+	 * @throws IOException
+	 */
+	public void write() throws IOException {
+		contentsFile.delete();
+		Writer writer = null;
+		try {
+			writer = new FileWriter(contentsFile, true);
+			writer.write(FILE_ID + "\n");
+			for (Row row : rows) {
+				writer.write(row.species + "\t" + row.version + "\t" + row.content + "\t" + row.url.getFile() + "\n");
+			}
+		} finally {
+			IOUtils.closeIfPossible(writer);
+		}
 	}
-	
 }
