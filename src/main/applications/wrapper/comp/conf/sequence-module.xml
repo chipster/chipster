@@ -915,9 +915,6 @@
 			<resource>digest.acd</resource>
 		</tool>
 		<tool runtime="EMBOSS">
-			<resource>emast.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
 			<resource>epestfind.acd</resource>
 		</tool>
 		<tool runtime="EMBOSS">

@@ -86,6 +86,8 @@ public class ToolXMLGenerator {
         ignoredPrograms.add("primers");
         ignoredPrograms.add("newcoils");
         ignoredPrograms.add("ememe");
+        ignoredPrograms.add("emast");
+
         
         ignoredPrograms.add("domtesta");
         ignoredPrograms.add("domtestb");
