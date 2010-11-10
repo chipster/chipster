@@ -118,7 +118,11 @@ public class AnnotationsScreen extends ScreenBase implements ActionListener,
 				return annotations.getGenomes().get(row).species + " " + annotations.getGenomes().get(row).version;
 
 			} else if (col == Column.ANNOTATIONS) {
-				return new LinkModel("Download");
+				if (annotations.hasLocalAnnotations(annotations.getGenomes().get(row))) {
+					return new LinkModel("local");
+				} else {
+					return new LinkModel("Download");
+				}
 
 			} else if (col == Column.REFERENCE) {
 				return "local";
@@ -387,7 +391,7 @@ public class AnnotationsScreen extends ScreenBase implements ActionListener,
 				detailsButton.setText("Hide details");
 			}
 		} else if (e.getSource() == closeButton) {
-			application.flipTaskListVisibility(true);
+			frame.dispose();
 		}
 	}
 
