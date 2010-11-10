@@ -13,11 +13,8 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -60,8 +57,7 @@ public class AnnotationContents {
 		public String version;
 		public Content content;
 		
-		// FIXME refactor to getUrl()
-		public URL url;
+		private URL url;
 
 		public Row(String species, String version, String content, URL url) {
 			this.species = species;
@@ -74,6 +70,28 @@ public class AnnotationContents {
 				}
 			}
 		}
+		
+		/**
+		 * Return url for the local file if the local file ok.
+		 * 
+		 * @return
+		 */
+		public URL getUrl() {
+			if (checkLocalFile(this)) {
+				String fileName = IOUtils.getFilenameWithoutPath(this.url);
+				File localFile = new File(localAnnotationsRoot, fileName);
+				URL newUrl;
+				try {
+					newUrl = localFile.toURI().toURL();
+				} catch (MalformedURLException e) {
+					logger.warn("generating url for local file " + localFile + "failed");
+					return this.url;
+				}
+				return newUrl;
+			}
+			return this.url;
+		}
+		
 		
 		public Genome getGenome() {
 			return new Genome(species, version);
@@ -266,13 +284,13 @@ public class AnnotationContents {
 			if (!c.equals(Content.REFERENCE)) {
 				Row annotation = getRow(genome, c);
 				if (annotation != null && !checkLocalFile(annotation)) {
-					annotation.url = downloadAnnotationFile(annotation.url);
+					downloadAnnotationFile(annotation.url);
 				}
 			}
 		}
 	}
 
-	private URL downloadAnnotationFile(URL sourceUrl) throws IOException {
+	private void downloadAnnotationFile(URL sourceUrl) throws IOException {
 		String fileName = sourceUrl.getPath().substring(sourceUrl.getPath().lastIndexOf('/') + 1);
 		File localFile = new File(this.localAnnotationsRoot, fileName);
 		InputStream in = null;
@@ -282,9 +300,6 @@ public class AnnotationContents {
 		} finally {
 			IOUtils.closeIfPossible(in);
 		}
-
-		return localFile.toURI().toURL();
-		
 	}
 	
 	

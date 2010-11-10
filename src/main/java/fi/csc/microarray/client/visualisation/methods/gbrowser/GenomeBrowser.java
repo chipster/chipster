@@ -178,6 +178,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	public GenomeBrowser(VisualisationFrame frame) throws Exception {
 		super(frame);
 
+		// initialise annotations
+		this.annotationContents = new AnnotationContents();
+		this.annotationContents.initialize();
+		
 		trackSwitches.put(new JCheckBox("Show reads", true), "Reads");
 		trackSwitches.put(new JCheckBox("Highlight read SNP's", false), "highlightSNP");
 		trackSwitches.put(new JCheckBox("Show coverage and SNP's", true), "ProfileSNPTrack");
@@ -185,15 +189,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		trackSwitches.put(new JCheckBox("Show quality coverage", false), "QualityCoverageTrack");
 		trackSwitches.put(new JCheckBox("Show gel track", false), "GelTrack");
 //		trackSwitches.put(new JCheckBox("Show reference SNP's", false), "changeSNP"); // TODO re-enable SNP view
-
-		// initialise annotations
-		this.annotationContents = new AnnotationContents();
-		try {
-			this.annotationContents.initialize();
-		} catch (Exception e) {
-			logger.warn("initialising annotations failed", e);
-			throw e;
-		}
 	}
 
 	@Override
@@ -514,7 +509,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		
 		this.datas = datas;
 		this.interpretations = interpretUserDatas(this.datas);
-		 
+		
 		// List available chromosomes from user data files
 		fillChromosomeBox();
 
@@ -541,7 +536,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			// Create gene name index
 			gia = null;
 			try {
-				gia = GeneIndexActions.getInstance(genome, createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.GENES).url,	new GeneParser()));
+				gia = GeneIndexActions.getInstance(genome, createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.GENES).getUrl(),	new GeneParser()));
 			} catch (Exception e) {
 				logger.warn("could not create gene name index", e);
 			}
@@ -563,7 +558,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 						TrackFactory.addCytobandTracks(plot,
 								createAnnotationDataSource(
 										annotationContents.getRow(
-												genome, AnnotationContents.Content.CYTOBANDS).url,
+												genome, AnnotationContents.Content.CYTOBANDS).getUrl(),
 										new CytobandParser()));
 						break;
 						
@@ -575,17 +570,17 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 						
 						TrackGroup geneGroup = TrackFactory.addGeneTracks(plot,
 								createAnnotationDataSource(annotationContents.getRow(
-										genome, AnnotationContents.Content.GENES).url,
+										genome, AnnotationContents.Content.GENES).getUrl(),
 										new GeneParser()),
 								createAnnotationDataSource(annotationContents.getRow(
-										genome, AnnotationContents.Content.TRANSCRIPTS).url,
+										genome, AnnotationContents.Content.TRANSCRIPTS).getUrl(),
 										new TranscriptParser()),
 								createAnnotationDataSource(annotationContents.getRow(
-										genome, AnnotationContents.Content.REFERENCE).url,
+										genome, AnnotationContents.Content.REFERENCE).getUrl(),
 										new SequenceParser()),
 								snpRow == null ? null : 
 									createAnnotationDataSource(annotationContents.getRow(
-											genome, AnnotationContents.Content.SNP).url,
+											genome, AnnotationContents.Content.SNP).getUrl(),
 											new SNPParser())
 								);
 						track.setTrackGroup(geneGroup);
@@ -616,14 +611,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 					case READS:
 						TrackFactory.addThickSeparatorTrack(plot);
 						treatmentData = createReadDataSource(track.userData, tracks);
-						TrackGroup readGroup = TrackFactory.addReadTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.REFERENCE).url, new SequenceParser()), file.getName());
+						TrackGroup readGroup = TrackFactory.addReadTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.REFERENCE).getUrl(), new SequenceParser()), file.getName());
 						track.setTrackGroup(readGroup);
 						break;
 
 					case READS_WITH_SUMMARY:
 						TrackFactory.addThickSeparatorTrack(plot);
 						treatmentData = createReadDataSource(track.userData, tracks);
-						TrackGroup readGroupWithSummary = TrackFactory.addReadSummaryTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.REFERENCE).url, new SequenceParser()), file.getName());
+						TrackGroup readGroupWithSummary = TrackFactory.addReadSummaryTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.REFERENCE).getUrl(), new SequenceParser()), file.getName());
 						track.setTrackGroup(readGroupWithSummary);
 						break;
 					}
@@ -792,8 +787,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	public ChunkDataSource createAnnotationDataSource(URL url,
 			TsvParser fileParser) throws FileNotFoundException, URISyntaxException  {
 		if ("file".equals(url.getProtocol())) {
+			System.out.println("creating from local url: " + url);
 			return new ChunkDataSource(new File(url.toURI()), fileParser);
 		} else {
+			System.out.println("creating from remote url: " + url);
 			return new ChunkDataSource(url, fileParser);
 		}
 	}
