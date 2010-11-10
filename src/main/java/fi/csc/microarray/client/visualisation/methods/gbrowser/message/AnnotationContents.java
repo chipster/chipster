@@ -61,10 +61,12 @@ public class AnnotationContents {
 		public Content content;
 		
 		private URL url;
+		private long contentLength;
 
-		public Row(String species, String version, String content, URL url) {
+		public Row(String species, String version, String content, URL url, long contentLength) {
 			this.species = species;
-			this.version = version;		
+			this.version = version;
+			this.contentLength = contentLength;
 			this.url = url;
 			
 			for (Content type : Content.values()) {
@@ -76,6 +78,9 @@ public class AnnotationContents {
 		
 		/**
 		 * Return url pointing to a local file if the local file ok.
+		 * 
+		 * TODO what to do if offline and contents.txt content length
+		 * and local file content length mismatch
 		 * 
 		 * @return
 		 */
@@ -93,6 +98,10 @@ public class AnnotationContents {
 				return newUrl;
 			}
 			return this.url;
+		}
+		
+		public long getContentLength() {
+			return this.contentLength;
 		}
 		
 		
@@ -343,7 +352,7 @@ public class AnnotationContents {
 	private boolean checkLocalFile(Row annotation) {
 		String fileName = IOUtils.getFilenameWithoutPath(annotation.url);
 		File localFile = new File(this.localAnnotationsRoot, fileName);
-		if (localFile.exists()) {
+		if (localFile.exists() && localFile.length() == annotation.getContentLength()) {
 			return true;
 		}
 		return false;
@@ -375,7 +384,10 @@ public class AnnotationContents {
 			URL url;
 			String fileName = splitted[3];
 			url = IOUtils.createURL(remoteAnnotationsRoot, fileName);
-			rows.add(new Row(splitted[0], splitted[1], splitted[2], url));
+			
+			long contentLength = Long.parseLong(splitted[4]);
+			
+			rows.add(new Row(splitted[0], splitted[1], splitted[2], url, contentLength));
 		}
 	}
 
