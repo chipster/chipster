@@ -42,8 +42,8 @@ import fi.csc.microarray.util.FloatArrayList;
 
 public class Histogram extends ChipVisualisation {
 
-	public Histogram(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	private JPanel paramPanel;

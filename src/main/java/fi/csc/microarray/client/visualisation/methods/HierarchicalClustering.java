@@ -69,8 +69,8 @@ import fi.csc.microarray.module.chipster.MicroarrayModule;
 public class HierarchicalClustering extends Visualisation 
 implements PropertyChangeListener, SelectionChangeListener {
 
-	public HierarchicalClustering(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 	
 	private SelectableChartPanel selectableChartPanel;

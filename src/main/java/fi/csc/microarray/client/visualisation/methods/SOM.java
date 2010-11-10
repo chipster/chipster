@@ -22,8 +22,8 @@ import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 public class SOM extends Visualisation {
 
-	public SOM(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	/**

@@ -34,7 +34,7 @@ public abstract class Visualisation {
 
 	public abstract boolean canVisualise(DataBean bean) throws MicroarrayException;
 
-	public Visualisation(VisualisationFrame frame) {
+	public void initialise(VisualisationFrame frame) throws Exception {
 		this.frame = frame;
 	}
 

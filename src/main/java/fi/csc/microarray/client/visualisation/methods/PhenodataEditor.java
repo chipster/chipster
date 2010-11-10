@@ -73,8 +73,8 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 		return PHENODATA_GROUP_COLUMN.equals(columnName);
 	}
 
-	public PhenodataEditor(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	private JPanel paramPanel;

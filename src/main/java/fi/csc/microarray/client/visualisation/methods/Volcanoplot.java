@@ -47,8 +47,8 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 
 	private float ROUNDING_LIMIT;
 
-	public Volcanoplot(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	@Override

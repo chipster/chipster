@@ -46,8 +46,8 @@ import fi.csc.microarray.module.chipster.MicroarrayModule;
  */
 public class Scatterplot3D extends ChipVisualisation implements ActionListener, KeyListener {
 
-	public Scatterplot3D(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	protected JPanel paramPanel;

@@ -59,8 +59,8 @@ implements PropertyChangeListener, SelectionChangeListener {
 	//selection indexes in order of the original data
 	private Set<Integer> selectedIndexes = new HashSet<Integer>();
 
-	public ExpressionProfile(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 	
 	@Override

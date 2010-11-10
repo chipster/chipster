@@ -175,8 +175,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	
 	private Map<JCheckBox, String> trackSwitches = new LinkedHashMap<JCheckBox, String>();
 	
-	public GenomeBrowser(VisualisationFrame frame) throws Exception {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 
 		// initialise annotations
 		this.annotationContents = new AnnotationContents();

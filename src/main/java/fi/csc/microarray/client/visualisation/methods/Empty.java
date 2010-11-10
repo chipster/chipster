@@ -15,8 +15,8 @@ import fi.csc.microarray.databeans.DataBean;
  */
 public class Empty extends Visualisation {
 	
-	public Empty(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	@Override

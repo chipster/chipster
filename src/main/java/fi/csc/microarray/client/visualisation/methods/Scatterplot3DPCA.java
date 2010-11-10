@@ -32,8 +32,8 @@ public class Scatterplot3DPCA extends Scatterplot3D {
 	private List<String> colorGroupList;
 	private JScrollPane legendScroller;
 
-	public Scatterplot3DPCA(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	@Override

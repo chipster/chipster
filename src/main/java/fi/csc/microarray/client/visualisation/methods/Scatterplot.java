@@ -45,8 +45,8 @@ import fi.csc.microarray.module.chipster.MicroarrayModule;
 public class Scatterplot extends ChipVisualisation 
 implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 
-	public Scatterplot(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	protected SelectableChartPanel selectableChartPanel;
