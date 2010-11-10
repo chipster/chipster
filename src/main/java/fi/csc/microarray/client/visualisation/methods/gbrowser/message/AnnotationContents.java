@@ -19,6 +19,9 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
+import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
+import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.util.IOUtils;
@@ -279,17 +282,50 @@ public class AnnotationContents {
 		}
 	}
 
-	public void downloadAnnotations(Genome genome) throws IOException {
-		for (Content c : Content.values()) {
-			if (!c.equals(Content.REFERENCE)) {
-				Row annotation = getRow(genome, c);
-				if (annotation != null && !checkLocalFile(annotation)) {
-					downloadAnnotationFile(annotation.url);
+	public void downloadAnnotations(final Genome genome) throws IOException {
+		Session.getSession().getApplication().runBlockingTask("downloading annotations", new Runnable() {
+
+			@Override
+			public void run() {
+				for (Content c : Content.values()) {
+					if (!c.equals(Content.REFERENCE)) {
+						Row annotation = getRow(genome, c);
+						if (annotation != null && !checkLocalFile(annotation)) {
+							
+							// don't use getUrl() here because we need the remote url
+							try {
+								downloadAnnotationFile(annotation.url);
+							} catch (IOException e) {
+								throw new RuntimeException(e);
+							}
+						}
+					}
 				}
 			}
-		}
+		});
 	}
 
+
+	public void openDownloadAnnotationsDialog(final Genome genome) {
+		Session.getSession().getApplication().showDialog("Download annotations for " + genome + "?", "Downloading annotations is highly recommended to get optimal performace with GenomeBrowser.\n\nYou only need to download annotations once, after that they are stored on your local computer for further use.", 
+				"", Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, new PluginButton() {
+
+			@Override
+			public void actionPerformed() {
+				try {
+					downloadAnnotations(genome);
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+
+			@Override
+			public String getText() {
+				return "Download ";
+			}});
+
+	}
+	
 	private void downloadAnnotationFile(URL sourceUrl) throws IOException {
 		String fileName = sourceUrl.getPath().substring(sourceUrl.getPath().lastIndexOf('/') + 1);
 		File localFile = new File(this.localAnnotationsRoot, fileName);
@@ -331,19 +367,13 @@ public class AnnotationContents {
 			}
 			String[] splitted = line.split("\t");
 			
-			// use local file if it exists
+			// always store the remote url even if local file exist
+			// existence of local is checked whenever it is needed
 			URL url;
 			String fileName = splitted[3];
-			File localFile = new File(localAnnotationsRoot, fileName);
-			// FIXME add more checks, size and checksum maybe
-			if (localFile.exists()) {
-				url = localFile.toURI().toURL();
-			} else {
-				url = IOUtils.createURL(remoteAnnotationsRoot, fileName);
-			}
+			url = IOUtils.createURL(remoteAnnotationsRoot, fileName);
 			rows.add(new Row(splitted[0], splitted[1], splitted[2], url));
 		}
-	
 	}
 
 

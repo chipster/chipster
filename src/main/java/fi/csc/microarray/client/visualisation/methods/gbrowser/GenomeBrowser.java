@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
@@ -46,7 +45,6 @@ import fi.csc.chipster.tools.gbrowser.SamBamUtils;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
-import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
@@ -165,10 +163,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private AnnotationContents annotationContents;
 	private JComboBox profileScaleBox = new JComboBox();
 
-	// FIXME put these to AnnotationContents
-	private File localAnnotationPath;
-	private URL annotationUrl;
-
 	private GeneIndexActions gia;
 
 	private boolean visualised;
@@ -178,7 +172,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	public void initialise(VisualisationFrame frame) throws Exception {
 		super.initialise(frame);
 
-		// initialise annotations
+		// initialize annotations
 		this.annotationContents = new AnnotationContents();
 		this.annotationContents.initialize();
 		
@@ -470,24 +464,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 			// dialog for downloading annotations if not already local
 			if (!annotationContents.hasLocalAnnotations(genome)) {
-
-				application.showDialog("Download annotations for " + genome + "?", "Downloading annotations is highly recommended to get optimal performace with GenomeBrowser.\n\nYou only need to download annotations once, after that they are stored on your local computer for further use.", 
-						"", Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, new PluginButton() {
-
-					@Override
-					public void actionPerformed() {
-						try {
-							annotationContents.downloadAnnotations((Genome)genomeBox.getSelectedItem());
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-
-					@Override
-					public String getText() {
-						return "Download ";
-					}});
+				annotationContents.openDownloadAnnotationsDialog(genome);
 			}
 		}
 	}
@@ -772,19 +749,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
         return ChunkTreeHandlerThread.class;
     }
 
-	public ChunkDataSource createAnnotationDataSource(String file,
-			TsvParser fileParser) throws FileNotFoundException,
-			MalformedURLException {
-
-		if (this.annotationUrl != null) {
-			return new ChunkDataSource(this.annotationUrl, file, fileParser);
-		} else {
-			return new ChunkDataSource(this.localAnnotationPath, file,
-					fileParser);
-		}
-	}
-
-	public ChunkDataSource createAnnotationDataSource(URL url,
+	private ChunkDataSource createAnnotationDataSource(URL url,
 			TsvParser fileParser) throws FileNotFoundException, URISyntaxException  {
 		if ("file".equals(url.getProtocol())) {
 			return new ChunkDataSource(new File(url.toURI()), fileParser);
