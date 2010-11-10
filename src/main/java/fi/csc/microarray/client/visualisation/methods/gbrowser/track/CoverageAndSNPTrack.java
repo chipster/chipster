@@ -157,7 +157,8 @@ public class CoverageAndSNPTrack extends Track {
 
 	private void drawSNPBar(Collection<Drawable> drawables, int bpWidth, int bottomlineY, Base currentBase, int endX) {
 		
-
+		System.out.println(currentBase.getBpLocation() + ": " + currentBase.getReferenceAcid());
+		
 		if (highlightSNP && currentBase.hasSignificantSNPs()) {
 			int y = bottomlineY;				
 

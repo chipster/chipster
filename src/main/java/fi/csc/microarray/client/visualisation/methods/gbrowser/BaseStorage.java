@@ -5,8 +5,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.TreeMap;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -77,7 +75,6 @@ public class BaseStorage {
 		private Acid referenceAcid;
 		
 		public Base(Long bpLocation, Acid referenceAcid) {
-			
 			this.bpLocation = bpLocation;
 			this.referenceAcid = referenceAcid;
 		}
@@ -96,7 +93,7 @@ public class BaseStorage {
 			// Try to find good enough SNP acid
 			for (Acid acid : Acid.values()) {
 				if (snpCounts[acid.ordinal()] >= MIN_SIGNIFICANT_SNP_COUNT) {
-					if (((double)snpCounts[acid.ordinal()])/((double)totalSNPCount) >= MIN_SIGNIFICANT_SNP_RATIO) {
+					if (((double)snpCounts[acid.ordinal()])/((double)totalCount) >= MIN_SIGNIFICANT_SNP_RATIO) {
 						return true;
 					}
 				}
@@ -111,6 +108,7 @@ public class BaseStorage {
 		}
 
 		public void addAcid(Acid acid) {
+			System.out.println(acid);
 			if (snpCounts != null) {
 				throw new IllegalStateException("cannot add acids after SNP counts have been calculated");
 			}
@@ -125,6 +123,10 @@ public class BaseStorage {
 			return totalSNPCount;
 		}
 		
+		public Acid getReferenceAcid() {
+			return referenceAcid;
+		}
+		
 		public int[] getSNPCounts() {
 			if (snpCounts == null) {
 				snpCounts = new int[Acid.values().length];
@@ -132,6 +134,7 @@ public class BaseStorage {
 				// Mark SNP's, if possible
 				if (referenceAcid != null) {
 					for (Acid acid : Acid.values()) {
+						System.out.println(acid + ": " + acidCounts[acid.ordinal()]);
 						if (acid.compareTo(referenceAcid) == 0) {
 							snpCounts[acid.ordinal()] = 0;
 						} else {
@@ -215,8 +218,6 @@ public class BaseStorage {
 				continue;
 			}
 
-			Strand strand = (Strand) read.values.get(ColumnType.STRAND);
-
 			for (ReadPart readPart : Cigar.splitVisibleElements(read)) {
 
 				// Skip elements that are not in this view
@@ -242,7 +243,7 @@ public class BaseStorage {
 					if (!collector.containsKey(bp)) {
 						
 						int viewIndex = bp.intValue() - view.bpRegion.start.bp.intValue();
-						Acid referenceAcid = Acid.fromCharacter(refSeq[viewIndex], strand == Strand.REVERSED);
+						Acid referenceAcid = Acid.fromCharacter(refSeq[viewIndex]);
 						
 						base = new Base(bp, referenceAcid);
 						collector.put(bp, base);
@@ -251,7 +252,7 @@ public class BaseStorage {
 						base = collector.get(bp);
 					}
 
-					Acid acid = Acid.fromCharacter(seq.charAt(j), strand == Strand.REVERSED);
+					Acid acid = Acid.fromCharacter(seq.charAt(j));
 					if (acid != null) {
 						base.addAcid(acid);
 					}
