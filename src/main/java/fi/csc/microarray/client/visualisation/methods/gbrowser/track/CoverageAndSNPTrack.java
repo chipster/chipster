@@ -13,7 +13,7 @@ import java.util.TreeSet;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.BaseStorage;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.BaseStorage.Acid;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.BaseStorage.Nucleotide;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.BaseStorage.Base;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
@@ -85,8 +85,8 @@ public class CoverageAndSNPTrack extends Track {
 		// If SNP highlight mode is on, we need reference sequence data
 		char[] refSeq = SeqBlockTrack.getReferenceArray(refReads, view, strand);
 
-		// Count acids for each location
-		theBaseCacheThang.getAcidCounts(reads, view, refSeq); 
+		// Count nucleotides for each location
+		theBaseCacheThang.getNucleotideCounts(reads, view, refSeq); 
 
 		// Count width of a single bp in pixels
 		int bpWidth = (int) (getView().getWidth() / getView().getBpRegion().getLength());
@@ -160,12 +160,12 @@ public class CoverageAndSNPTrack extends Track {
 		if (highlightSNP && currentBase.hasSignificantSNPs()) {
 			int y = bottomlineY;				
 
-			for (Acid acid : Acid.values()) {
+			for (Nucleotide nt : Nucleotide.values()) {
 
-				int increment = currentBase.getSNPCounts()[acid.ordinal()];
+				int increment = currentBase.getSNPCounts()[nt.ordinal()];
 
 				if (increment > 0) {
-					Color c = SeqBlockTrack.charColors[acid.ordinal()];
+					Color c = SeqBlockTrack.charColors[nt.ordinal()];
 
 					drawables.add(new RectDrawable(endX, y - increment, bpWidth, increment, c, c));
 
