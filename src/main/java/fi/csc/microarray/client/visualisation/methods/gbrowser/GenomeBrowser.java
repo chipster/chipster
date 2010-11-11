@@ -165,7 +165,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 	private GeneIndexActions gia;
 
-	private boolean visualised;
+	private boolean initialised;
 	
 	private Map<JCheckBox, String> trackSwitches = new LinkedHashMap<JCheckBox, String>();
 	
@@ -418,7 +418,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		Object source = e.getSource();
 
 		if (source == drawButton) {
-			if (!visualised) {
+			if (!initialised) {
 				
 				application.runBlockingTask("initialising genome browser", new Runnable() {
 					@Override
@@ -505,7 +505,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private void showVisualisation() {
 
 		// Create tracks only once
-		visualised = true;
+		initialised = true;
 
 		try {
 			
@@ -856,6 +856,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		// contents)
 		if (lastChromosome != chrBox.getSelectedItem()) {
 			showVisualisation();
+			updateVisibilityForTracks();
 			return;
 		}
 
