@@ -165,7 +165,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 	private GeneIndexActions gia;
 
-	private boolean visualised;
+	private boolean initialised;
 	
 	private Map<JCheckBox, String> trackSwitches = new LinkedHashMap<JCheckBox, String>();
 	
@@ -176,12 +176,12 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		this.annotationContents = new AnnotationContents();
 		this.annotationContents.initialize();
 		
-		trackSwitches.put(new JCheckBox("Show reads", true), "Reads");
-		trackSwitches.put(new JCheckBox("Highlight read SNP's", false), "highlightSNP");
-		trackSwitches.put(new JCheckBox("Show coverage and SNP's", true), "ProfileSNPTrack");
-		trackSwitches.put(new JCheckBox("Show strand coverage", false), "ProfileTrack");
-		trackSwitches.put(new JCheckBox("Show quality coverage", false), "QualityCoverageTrack");
-		trackSwitches.put(new JCheckBox("Show gel track", false), "GelTrack");
+		trackSwitches.put(new JCheckBox("Reads", true), "Reads");
+		trackSwitches.put(new JCheckBox("Highlight SNPs", false), "highlightSNP");
+		trackSwitches.put(new JCheckBox("Coverage and SNP's", true), "ProfileSNPTrack");
+		trackSwitches.put(new JCheckBox("Strand-specific coverage", false), "ProfileTrack");
+		trackSwitches.put(new JCheckBox("Quality coverage", false), "QualityCoverageTrack");
+		trackSwitches.put(new JCheckBox("Density graph", false), "GelTrack");
 //		trackSwitches.put(new JCheckBox("Show reference SNP's", false), "changeSNP"); // TODO re-enable SNP view
 	}
 
@@ -418,7 +418,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		Object source = e.getSource();
 
 		if (source == drawButton) {
-			if (!visualised) {
+			if (!initialised) {
 				
 				application.runBlockingTask("initialising genome browser", new Runnable() {
 					@Override
@@ -505,7 +505,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private void showVisualisation() {
 
 		// Create tracks only once
-		visualised = true;
+		initialised = true;
 
 		try {
 			
@@ -856,6 +856,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		// contents)
 		if (lastChromosome != chrBox.getSelectedItem()) {
 			showVisualisation();
+			updateVisibilityForTracks();
 			return;
 		}
 

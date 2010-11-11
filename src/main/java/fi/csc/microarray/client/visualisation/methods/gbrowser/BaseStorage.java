@@ -5,8 +5,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.TreeMap;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -19,13 +17,13 @@ public class BaseStorage {
 	private Object baseCache = null;
 	private TreeMap<Long, Base> collector; 
 	
-	public enum Acid { 
+	public enum Nucleotide { 
 		A, 
 		C, 
 		G, 
 		T;
 
-		public Acid complement() {
+		public Nucleotide complement() {
 			switch (this) {
 				case A:
 					return T;
@@ -40,7 +38,7 @@ public class BaseStorage {
 			}
 		}
 
-		public static Acid fromCharacter(char character) {
+		public static Nucleotide fromCharacter(char character) {
 			switch (Character.toUpperCase(character)) {
 			case 'A':
 				return A;
@@ -55,13 +53,13 @@ public class BaseStorage {
 			}
 		}
 
-		public static Acid fromCharacter(char character, boolean complement) {
-			Acid acid = fromCharacter(character);
+		public static Nucleotide fromCharacter(char character, boolean complement) {
+			Nucleotide nt = fromCharacter(character);
 			
-			if (acid != null && complement) {
-				return acid.complement();
+			if (nt != null && complement) {
+				return nt.complement();
 			} else {
-				return acid;
+				return nt;
 			}
 		} 
 	};
@@ -69,17 +67,16 @@ public class BaseStorage {
 
 	public class Base {
 
-		private int[] acidCounts = new int[Acid.values().length];
+		private int[] nucleutideCounts = new int[Nucleotide.values().length];
 		private Long bpLocation;
 		private int[] snpCounts = null;
 		private int totalSNPCount = 0;
 		private int totalCount = 0;
-		private Acid referenceAcid;
+		private Nucleotide referenceNt;
 		
-		public Base(Long bpLocation, Acid referenceAcid) {
-			
+		public Base(Long bpLocation, Nucleotide referenceNt) {
 			this.bpLocation = bpLocation;
-			this.referenceAcid = referenceAcid;
+			this.referenceNt = referenceNt;
 		}
 
 		public Long getBpLocation() {
@@ -93,10 +90,10 @@ public class BaseStorage {
 		public boolean hasSignificantSNPs() {
 			int[] snpCounts = getSNPCounts();
 
-			// Try to find good enough SNP acid
-			for (Acid acid : Acid.values()) {
-				if (snpCounts[acid.ordinal()] >= MIN_SIGNIFICANT_SNP_COUNT) {
-					if (((double)snpCounts[acid.ordinal()])/((double)totalSNPCount) >= MIN_SIGNIFICANT_SNP_RATIO) {
+			// Try to find good enough SNP nucleotide
+			for (Nucleotide nt : Nucleotide.values()) {
+				if (snpCounts[nt.ordinal()] >= MIN_SIGNIFICANT_SNP_COUNT) {
+					if (((double)snpCounts[nt.ordinal()])/((double)totalCount) >= MIN_SIGNIFICANT_SNP_RATIO) {
 						return true;
 					}
 				}
@@ -106,15 +103,15 @@ public class BaseStorage {
 			return false;
 		}
 
-		public int[] getAcidCounts() {
-			return acidCounts;
+		public int[] getNucleotideCounts() {
+			return nucleutideCounts;
 		}
 
-		public void addAcid(Acid acid) {
+		public void addNucleotidee(Nucleotide nt) {
 			if (snpCounts != null) {
-				throw new IllegalStateException("cannot add acids after SNP counts have been calculated");
+				throw new IllegalStateException("cannot add nucleotides after SNP counts have been calculated");
 			}
-			acidCounts[acid.ordinal()]++;
+			nucleutideCounts[nt.ordinal()]++;
 			totalCount++;
 		}
 		
@@ -125,18 +122,22 @@ public class BaseStorage {
 			return totalSNPCount;
 		}
 		
+		public Nucleotide getReferenceNucleotide() {
+			return referenceNt;
+		}
+		
 		public int[] getSNPCounts() {
 			if (snpCounts == null) {
-				snpCounts = new int[Acid.values().length];
+				snpCounts = new int[Nucleotide.values().length];
 				
 				// Mark SNP's, if possible
-				if (referenceAcid != null) {
-					for (Acid acid : Acid.values()) {
-						if (acid.compareTo(referenceAcid) == 0) {
-							snpCounts[acid.ordinal()] = 0;
+				if (referenceNt != null) {
+					for (Nucleotide nt : Nucleotide.values()) {
+						if (nt.compareTo(referenceNt) == 0) {
+							snpCounts[nt.ordinal()] = 0;
 						} else {
-							snpCounts[acid.ordinal()] = acidCounts[acid.ordinal()];
-							totalSNPCount += acidCounts[acid.ordinal()];
+							snpCounts[nt.ordinal()] = nucleutideCounts[nt.ordinal()];
+							totalSNPCount += nucleutideCounts[nt.ordinal()];
 						}
 					}
 				}
@@ -195,10 +196,10 @@ public class BaseStorage {
 	}
 
 	/**
-	 * Goes through data and gives count for each location and acid.
+	 * Goes through data and gives count for each location and nucleotide.
 	 * @param refSeq 
 	 */
-	public void getAcidCounts(Collection<RegionContent> reads, View view, char[] refSeq) {
+	public void getNucleotideCounts(Collection<RegionContent> reads, View view, char[] refSeq) {
 	
 		// Sweep collector
 		collector = new TreeMap<Long, Base>();
@@ -214,8 +215,6 @@ public class BaseStorage {
 				iter.remove();
 				continue;
 			}
-
-			Strand strand = (Strand) read.values.get(ColumnType.STRAND);
 
 			for (ReadPart readPart : Cigar.splitVisibleElements(read)) {
 
@@ -242,18 +241,18 @@ public class BaseStorage {
 					if (!collector.containsKey(bp)) {
 						
 						int viewIndex = bp.intValue() - view.bpRegion.start.bp.intValue();
-						Acid referenceAcid = Acid.fromCharacter(refSeq[viewIndex], strand == Strand.REVERSED);
+						Nucleotide referenceNucleotide = Nucleotide.fromCharacter(refSeq[viewIndex]);
 						
-						base = new Base(bp, referenceAcid);
+						base = new Base(bp, referenceNucleotide);
 						collector.put(bp, base);
 						
 					} else {
 						base = collector.get(bp);
 					}
 
-					Acid acid = Acid.fromCharacter(seq.charAt(j), strand == Strand.REVERSED);
-					if (acid != null) {
-						base.addAcid(acid);
+					Nucleotide nucleotide = Nucleotide.fromCharacter(seq.charAt(j));
+					if (nucleotide != null) {
+						base.addNucleotidee(nucleotide);
 					}
 				}
 			}
