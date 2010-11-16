@@ -61,7 +61,7 @@ public class Scatterplot3DPCA extends Scatterplot3D {
 			phenoCols.add(new Variable("No phenodata", ""));
 		}
 
-		Visualisation.fillCompoBox(colorBox, phenoCols.toArray(new Variable[0]));
+		Visualisation.fillComboBox(colorBox, phenoCols.toArray(new Variable[0]));
 	}
 
 	@Override

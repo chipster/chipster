@@ -129,8 +129,8 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 			throw new IllegalStateException("must call getParameterPanel first");
 		}
 
-		Visualisation.fillCompoBox(xBox, this.getVariablesFor(data));
-		Visualisation.fillCompoBox(yBox, this.getVariablesFor(data));
+		Visualisation.fillComboBox(xBox, this.getVariablesFor(data));
+		Visualisation.fillComboBox(yBox, this.getVariablesFor(data));
 	}
 
 	/**

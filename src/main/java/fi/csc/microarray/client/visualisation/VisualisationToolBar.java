@@ -337,7 +337,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 
 			userComboAction = false;
 			methodChoiceBox.removeAllItems();
-			Visualisation.fillCompoBox(methodChoiceBox, applicableVisualisations.toArray());
+			Visualisation.fillComboBox(methodChoiceBox, applicableVisualisations.toArray());
 			userComboAction = true;
 
 		} else {
@@ -345,7 +345,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 
 			userComboAction = false;
 			methodChoiceBox.removeAllItems();
-			Visualisation.fillCompoBox(methodChoiceBox, applicableVisualisations.toArray());
+			Visualisation.fillComboBox(methodChoiceBox, applicableVisualisations.toArray());
 			userComboAction = true;
 		}
 	}

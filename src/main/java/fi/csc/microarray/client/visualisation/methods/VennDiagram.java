@@ -322,7 +322,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 			commonCols.retainAll(colsC);
 		}
 							
-		Visualisation.fillCompoBox(colBox, commonCols.toArray());
+		Visualisation.fillComboBox(colBox, commonCols.toArray());
 	}
 	
 	@Override

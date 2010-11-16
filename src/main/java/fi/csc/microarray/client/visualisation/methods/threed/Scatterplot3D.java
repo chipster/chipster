@@ -255,11 +255,11 @@ public class Scatterplot3D extends ChipVisualisation implements ActionListener, 
 		this.updateCombo(xBox, data);
 		this.updateCombo(yBox, data);
 		this.updateCombo(zBox, data);
-		Visualisation.fillCompoBox(colorBox, this.getVariablesMore(data));
+		Visualisation.fillComboBox(colorBox, this.getVariablesMore(data));
 	}
 
 	protected void updateCombo(JComboBox box, DataBean data) {
-		Visualisation.fillCompoBox(box, this.getVariablesFor(data));
+		Visualisation.fillComboBox(box, this.getVariablesFor(data));
 	}
 
 	public Tool getTool() {

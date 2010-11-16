@@ -107,6 +107,8 @@ public class QuickLinkPanel extends JPanel {
 			}
 		});
 
+		
+		// Draw panel
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0;
 		c.gridy = 0;

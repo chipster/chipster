@@ -152,7 +152,7 @@ public class Histogram extends ChipVisualisation {
 			throw new IllegalStateException("must call getParameterPanel first");
 		}
 
-		Visualisation.fillCompoBox(chipBox, this.getVariablesFor(data));
+		Visualisation.fillComboBox(chipBox, this.getVariablesFor(data));
 
 		List<Variable> variables = getFrame().getVariables();
 		if (variables != null && variables.size() > 0) {
