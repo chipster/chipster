@@ -1,13 +1,13 @@
 # ANALYSIS Utilities/"Sort samples" (Sorts samples according to a phenodata column. The column should contain
 # numerical values, since the samples are sorted in ascending order according to the values.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT sort-samples.tsv
+# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT sort-samples.tsv, phenodata-sorted.tsv
 # PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column specifying how to sort)
-
-# column <- "sort_order"
-
 
 # Sort samples
 # JTT 6.2.2008
+#
+# MG, 16.11.2010
+# modified to also generate a re-ordered phenodata file to reflect the re-ordered data
 
 # Loads libraries
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
@@ -50,4 +50,4 @@ if(ncol(calls)>0) {
 #   write.table(data.frame(dat2), file="sort-samples.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 #}
 write.table(dat3, file="sort-samples.tsv", sep="\t", row.names=T, col.names=T, quote=F)
-write.table(phenodata2, file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+write.table(phenodata2, file="phenodata-sorted.tsv", sep="\t", row.names=F, col.names=T, quote=F)
