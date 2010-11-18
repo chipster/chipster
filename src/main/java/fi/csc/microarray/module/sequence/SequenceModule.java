@@ -9,6 +9,7 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXHyperlink;
@@ -178,6 +179,11 @@ public class SequenceModule implements Module {
 	@Override
 	public boolean countOperationResults() {
 		return false;
+	}
+
+	@Override
+	public JPanel getContextLinkPanel(int selectedDataCount) {
+		return null;
 	}
 
 }

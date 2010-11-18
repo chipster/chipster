@@ -2,20 +2,13 @@ package fi.csc.microarray.client.visualisation;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.AbstractAction;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.jdesktop.swingx.JXHyperlink;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 

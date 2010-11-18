@@ -2,27 +2,15 @@ package fi.csc.microarray.client.visualisation.methods;
 
 import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
 import java.util.List;
 
-import javax.swing.AbstractAction;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-
-import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
-import fi.csc.microarray.client.visualisation.VisualisationMethod;
-import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowser;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 /**
  * Empty visualisation is always present and spaces reserve space also for the longer names
@@ -77,58 +65,15 @@ public class Empty extends Visualisation {
 			return super.getDefaultVisualisation(); // show empty screen
 		}
 		
-		JPanel panel2 = new JPanel();
-		panel2.setBackground(Color.WHITE);
+		JPanel mainPanel = new JPanel();
+		mainPanel.setBackground(Color.WHITE);
+
+		JPanel linkPanel = Session.getSession().getPrimaryModule().getContextLinkPanel(selectedDataCount);
 		
-		// Initialise context link panel
-		JPanel panel = new JPanel();
-		panel.setBackground(Color.WHITE);
-		panel.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.gridx = 0;
-		c.gridy = 0;
-		c.anchor = GridBagConstraints.NORTHWEST;
+		mainPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		mainPanel.add(linkPanel);
 
-		JLabel label;
-		JXHyperlink link;
-		
-		if (selectedDataCount > 0) {
-			label = new JLabel(selectedDataCount + " data(s) selected");
-			link = new JXHyperlink(new AbstractAction() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					System.out.println("go1");
-					application.setVisualisationMethod(MicroarrayModule.VisualisationMethods.GBROWSER, null, application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
-				}
-			});
-			link.setText("Open genome browser");
-
-		} else {
-			label = new JLabel("No data selected");
-			link = new JXHyperlink(new AbstractAction() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					System.out.println("go2");
-					application.selectAllItems();
-					System.out.println(application.getSelectionManager().getSelectedDataBeans().size());
-					application.setVisualisationMethod(MicroarrayModule.VisualisationMethods.GBROWSER, null, application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
-				}
-			});
-			link.setText("Select all and open genome browser");
-		}
-
-		c.insets.set(10, 40, 0, 0);
-		panel.add(label, c);
-		c.gridy++;
-		c.insets.set(10, 50, 0, 0);
-		panel.add(link, c);
-
-		panel2.setLayout(new FlowLayout(FlowLayout.LEFT));
-		panel2.add(panel);
-		
-		
-		return panel2;
-
+		return mainPanel;
 	}
 
 }
