@@ -340,9 +340,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 		// location
 		c.gridy++;
-		settingsPanel.add(new JLabel("Location"), c);
-		c.gridy++;
-		settingsPanel.add(new JLabel("(gene or position)"), c);
+		settingsPanel.add(new JLabel("Location (gene or position)"), c);
 		c.gridy++;
 		settingsPanel.add(locationField, c);
 
