@@ -312,7 +312,7 @@ public class AnnotationContents {
 
 
 	public void openDownloadAnnotationsDialog(final Genome genome) {
-		Session.getSession().getApplication().showDialog("Download annotations for " + genome + "?", "Downloading annotations is highly recommended to get optimal performace with GenomeBrowser.\n\nYou only need to download annotations once, after that they are stored on your local computer for further use.", 
+		Session.getSession().getApplication().showDialog("Download annotations for " + genome + "?", "Downloading annotations is highly recommended to get optimal performace with genome browser.\n\nYou only need to download annotations once, after that they are stored on your local computer for further use.", 
 				"", Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, new PluginButton() {
 
 			@Override
