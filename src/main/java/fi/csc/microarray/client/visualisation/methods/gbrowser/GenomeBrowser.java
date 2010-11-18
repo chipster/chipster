@@ -64,7 +64,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Sequen
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationsScreen;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Genome;
@@ -320,17 +319,19 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		settingsPanel.add(genomeBox, c);
 
 		c.gridy++;
-		JButton button = new JButton("Annotations");
-		button.addActionListener(new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				AnnotationsScreen screen = new AnnotationsScreen(annotationContents);
-				screen.getFrame().pack();
-				screen.getFrame().setVisible(true);
-			}
-		});
-		settingsPanel.add(button, c);
+		// add annotations button
+//		JButton button = new JButton("Annotations");
+//		button.addActionListener(new ActionListener() {
+//
+//			@Override
+//			public void actionPerformed(ActionEvent arg0) {
+//				AnnotationsScreen screen = new AnnotationsScreen(annotationContents);
+//				screen.getFrame().pack();
+//				screen.getFrame().setVisible(true);
+//			}
+//		});
+//		settingsPanel.add(button, c);
 		
 		c.gridy++;
 		settingsPanel.add(new JLabel("Chromosome"), c);
@@ -339,9 +340,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 		// location
 		c.gridy++;
-		settingsPanel.add(new JLabel("Location"), c);
-		c.gridy++;
-		settingsPanel.add(new JLabel("(gene or position)"), c);
+		settingsPanel.add(new JLabel("Location (gene or position)"), c);
 		c.gridy++;
 		settingsPanel.add(locationField, c);
 
