@@ -1,6 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
-import java.util.LinkedList;
+import java.util.LinkedHashSet;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -31,22 +31,33 @@ public class ConcisedValueCache {
 	 * Maps location to count of reads on a sample. Same sample size must be used
 	 * for all indexed items.
 	 */
-	private TreeMap<BpCoord, Counts> tree = new TreeMap<BpCoord, Counts>();
-	private LinkedList<BpCoord> storageOrder = new LinkedList<BpCoord>();
+	private TreeMap<BpCoord, Counts> coordinateOrder = new TreeMap<BpCoord, Counts>();
+	
+	/**
+	 * Linked hash set for keeping track of storage order. Storage works
+	 * in FIFO principle, using the linked list. Hashing is needed for 
+	 * quickly retrieving intermediate values, because values are touched 
+	 * when they are returned. 
+	 */
+	private LinkedHashSet<BpCoord> storageOrder = new LinkedHashSet<BpCoord>();
 
 	public SortedMap<BpCoord, Counts> subMap(BpCoord from, BpCoord to) {
 		
 		// Use tree to find the submap
-		SortedMap<BpCoord, Counts> subMap = tree.subMap(from, to);
+		SortedMap<BpCoord, Counts> subMap = coordinateOrder.subMap(from, to);
 		
-		// TODO Touch returned values
+		// Touch returned values
+		for (BpCoord coord : subMap.keySet()) {
+			storageOrder.remove(coord);
+			storageOrder.add(coord);
+		}
 
 		return subMap;
 	}
 
 	public void store(BpCoord bpCoord, int countForward, int countReverse) {
-		tree.put(bpCoord, new Counts(countForward, countReverse));
-		storageOrder.addLast(bpCoord);
+		coordinateOrder.put(bpCoord, new Counts(countForward, countReverse));
+		storageOrder.add(bpCoord);
 		shrink();
 	}
 
@@ -55,9 +66,10 @@ public class ConcisedValueCache {
 	 * order.
 	 */
 	private void shrink() {
-		while (tree.size() > CACHE_MAX_SIZE) {
-			BpCoord oldest = storageOrder.pop();
-			tree.remove(oldest);
+		while (coordinateOrder.size() > CACHE_MAX_SIZE) {
+			BpCoord oldest = storageOrder.iterator().next();
+			storageOrder.remove(oldest);
+			coordinateOrder.remove(oldest);
 		}
 	}
 
