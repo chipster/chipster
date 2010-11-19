@@ -356,7 +356,7 @@ public class ImportUtils {
 					// create operation, open import operation parameter dialog
 					ClientApplication application = Session.getSession().getApplication();
 					Operation importOperation = new Operation(application.getOperationDefinition("LocalNGSPreprocess.java"), inputBeans.toArray(new DataBean[] {}));
-					new TaskImportDialog(application, "Preprocess NGS data", importOperation);
+					new TaskImportDialog(application, "Preprocess NGS data", importSession, importOperation);
 
 				} catch (Exception me) {
 					Session.getSession().getApplication().reportException(me);

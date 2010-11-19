@@ -181,7 +181,7 @@ public class MicroarrayModule implements Module {
 		try {
 			ClientApplication application = Session.getSession().getApplication();
 			Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_GEO_ID), new DataBean[] {});
-			new TaskImportDialog(application, "Import data from the GEO", importOperation);
+			new TaskImportDialog(application, "Import data from the GEO", null, importOperation);
 			
 		} catch (Exception me) {
 			Session.getSession().getApplication().reportException(me);
@@ -192,7 +192,7 @@ public class MicroarrayModule implements Module {
 		try {
 			ClientApplication application = Session.getSession().getApplication();
 			Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_ARRAYEXPRESS_ID), new DataBean[] {});
-			new TaskImportDialog(application, "Import data from the ArrayExpress", importOperation);
+			new TaskImportDialog(application, "Import data from the ArrayExpress", null, importOperation);
 			
 		} catch (Exception me) {
 			Session.getSession().getApplication().reportException(me);
