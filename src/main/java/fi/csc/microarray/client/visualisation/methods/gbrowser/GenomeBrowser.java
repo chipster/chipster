@@ -4,7 +4,6 @@ import java.awt.CardLayout;
 import java.awt.Cursor;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -26,6 +25,7 @@ import java.util.Map;
 import java.util.TreeSet;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -35,6 +35,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
@@ -151,15 +152,25 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private JButton gotoButton = new JButton("Go to location");
 	private JButton drawButton = new JButton("Draw");
 
+	private JLabel locationLabel = new JLabel("Location (gene or position)");
 	private JTextField locationField = new JTextField();
+
+	private JLabel zoomLabel = new JLabel("Zoom");
 	private JTextField zoomField = new JTextField(10);
+	
+	private JLabel chrLabel = new JLabel("Chromosome");
 	private JComboBox chrBox = new JComboBox();
+	
 	private JComboBox genomeBox = new JComboBox();
+	
+	private JLabel tracksLabel = new JLabel("Datasets");
 
 	private Object lastChromosome;
 
 	private GridBagConstraints settingsGridBagConstraints;
 	private AnnotationContents annotationContents;
+
+	private JLabel profileScaleLabel = new JLabel("Profile scale");
 	private JComboBox profileScaleBox = new JComboBox();
 
 	private GeneIndexActions gia;
@@ -250,25 +261,72 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 					.get(i)));
 		}
 
-		// list available track types for the genome
-		for (Track track : tracks) {
-			this.settingsGridBagConstraints.gridy++;
-			JCheckBox box = new JCheckBox(track.name, true);
-			box.setEnabled(track.type.isToggleable);
-			settingsPanel.add(box, this.settingsGridBagConstraints);
-			track.checkBox = box;
-		}
-
+		this.settingsGridBagConstraints.gridy++;
 		GridBagConstraints c = this.settingsGridBagConstraints;
+
+		
+		// draw button
 		c.gridy++;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.CENTER;
 		drawButton.setEnabled(false);
 		settingsPanel.add(drawButton, c);
 		c.gridy++;
 		c.fill = GridBagConstraints.BOTH;
 		c.weighty = 1.0;
 		
-		createTracksSwitches();
 		
+		// add tracks to settings panel
+		c.weighty = 0.0;
+		
+		this.tracksLabel.setEnabled(false);
+		settingsPanel.add(tracksLabel, c);
+		c.gridy++;
+		c.weighty = 1.0;
+		c.fill = GridBagConstraints.BOTH;
+		c.anchor = GridBagConstraints.NORTHWEST;
+		
+		JPanel trackPanel = new JPanel();
+		trackPanel.setLayout(new BoxLayout(trackPanel, BoxLayout.Y_AXIS));
+
+		for (Track track : tracks) {
+			JCheckBox box = new JCheckBox(track.name, true);
+			box.setEnabled(false);
+			track.checkBox = box;
+			if (track.type.isToggleable) {
+				trackPanel.add(box);
+			}
+		}
+		
+		JScrollPane trackPanelScrollPane = new JScrollPane(trackPanel);
+		trackPanelScrollPane.setBorder(BorderFactory.createEmptyBorder());
+		
+		trackPanelScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);		
+		settingsPanel.add(trackPanelScrollPane, c);
+		c.gridy++;
+
+		
+		// options
+		c.weighty = 1.0;
+		createTracksSwitches();
+
+		// scale options for profile track
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.weighty = 0.0;
+		c.gridx = 0;
+		c.gridwidth = 5;
+		c.gridy++;
+		c.insets.set(5, 10, 5, 10);
+		profileScaleLabel.setEnabled(false);
+		settingsPanel.add(profileScaleLabel, c);
+		profileScaleBox = new JComboBox(GenomePlot.ReadScale.values());
+		profileScaleBox.setEnabled(false);
+		c.gridx = 0;
+		c.gridwidth = 5;
+		c.gridy++;
+		settingsPanel.add(profileScaleBox, c);
+
 	}
 	
 	public void createTracksSwitches() {
@@ -277,8 +335,11 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		
 		JPanel menu = new JPanel();
 		JScrollPane menuScrollPane = new JScrollPane(menu);
+		menuScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		menuScrollPane.setBorder(BorderFactory.createEmptyBorder());
-		menu.setLayout(new GridLayout(7,1));
+//		menu.setLayout(new GridLayout(7,1));
+		menu.setLayout(new BoxLayout(menu, BoxLayout.Y_AXIS));
+
 
 		setTrackSwitchesEnabled(false);
 		for (JCheckBox trackSwitch : trackSwitches.keySet()) {
@@ -344,14 +405,18 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 //		settingsPanel.add(button, c);
 		
 		c.gridy++;
-		settingsPanel.add(new JLabel("Chromosome"), c);
+		chrLabel.setEnabled(false);
+		settingsPanel.add(chrLabel, c);
 		c.gridy++;
+		chrBox.setEnabled(false);
 		settingsPanel.add(chrBox, c);
 
 		// location
 		c.gridy++;
-		settingsPanel.add(new JLabel("Location (gene or position)"), c);
+		locationLabel.setEnabled(false);
+		settingsPanel.add(locationLabel, c);
 		c.gridy++;
+		locationField.setEnabled(false);
 		settingsPanel.add(locationField, c);
 
 		// zoom
@@ -359,23 +424,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		c.gridwidth = 5;
 		c.gridy++;
 		c.insets.set(5, 10, 5, 10);
-		settingsPanel.add(new JLabel("Zoom"), c);
+		zoomLabel.setEnabled(false);
+		settingsPanel.add(zoomLabel, c);
 		c.gridwidth = 4;
 		c.gridy++;
+		zoomField.setEnabled(false);
 		settingsPanel.add(this.zoomField, c);
 		this.zoomField.addFocusListener(this);
 
-		// scale options for profile track
-		c.gridx = 0;
-		c.gridwidth = 5;
-		c.gridy++;
-		c.insets.set(5, 10, 5, 10);
-		settingsPanel.add(new JLabel("Profile scale"), c);
-		profileScaleBox = new JComboBox(GenomePlot.ReadScale.values());
-		c.gridx = 0;
-		c.gridwidth = 5;
-		c.gridy++;
-		settingsPanel.add(profileScaleBox, c);
 
 		gotoButton.addActionListener(this);
 		gotoButton.setEnabled(false);
@@ -427,6 +483,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		Object source = e.getSource();
 
 		if (source == drawButton) {
+
+			// disable changing of the genome
+			this.genomeBox.setEnabled(false);
 			if (!initialised) {
 				
 				application.runBlockingTask("initialising genome browser", new Runnable() {
@@ -478,8 +537,22 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				annotationContents.openDownloadAnnotationsDialog(genome);
 			}
 
-			// enable draw button
+			// enable other settings
 			this.drawButton.setEnabled(true);
+			this.chrLabel.setEnabled(true);
+			this.chrBox.setEnabled(true);
+			this.locationLabel.setEnabled(true);
+			this.locationField.setEnabled(true);
+			this.zoomLabel.setEnabled(true);
+			this.zoomField.setEnabled(true);
+			
+			this.tracksLabel.setEnabled(true);
+			for (Track track : tracks) {
+				track.checkBox.setEnabled(true);
+			}
+			
+			profileScaleLabel.setEnabled(true);
+			profileScaleBox.setEnabled(true);
 		}
 	}
 
