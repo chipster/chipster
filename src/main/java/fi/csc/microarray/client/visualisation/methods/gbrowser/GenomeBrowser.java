@@ -216,28 +216,34 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 	private void createAvailableTracks() {
 
-		Genome genome = (Genome) genomeBox.getSelectedItem();
+//		Genome genome = (Genome) genomeBox.getSelectedItem();
 
-		// list available track types for the genome
-		for (Row row : annotationContents.getRows()) {
-			if (genome.equals(row.getGenome())) {
-				TrackType type;
-				if (row.content == AnnotationContents.Content.GENES) {
-					type = TrackType.GENES;
-				} else if (row.content == AnnotationContents.Content.TRANSCRIPTS) {
-					continue; // track not directly supported, skip
-				} else if (row.content == AnnotationContents.Content.CYTOBANDS) {
-					type = TrackType.CYTOBANDS;
-				} else if (row.content == AnnotationContents.Content.REFERENCE) {
-					continue; // track not directly supported, skip
-				} else {
-					continue; // track not supported, skip
-				}
+		// for now just always add genes and cytobands
 
-				tracks.add(new Track(row.content.getId(), type));
-			}
-		}
+//		list available track types for the genome
+//		for (Row row : annotationContents.getRows()) {
+//			if (genome.equals(row.getGenome())) {
+//				TrackType type;
+//				if (row.content == AnnotationContents.Content.GENES) {
+//					type = TrackType.GENES;
+//				} else if (row.content == AnnotationContents.Content.TRANSCRIPTS) {
+//					continue; // track not directly supported, skip
+//				} else if (row.content == AnnotationContents.Content.CYTOBANDS) {
+//					type = TrackType.CYTOBANDS;
+//				} else if (row.content == AnnotationContents.Content.REFERENCE) {
+//					continue; // track not directly supported, skip
+//				} else {
+//					continue; // track not supported, skip
+//				}
+//
+//				tracks.add(new Track(row.content.getId(), type));
+//			}
+//		}
 
+		tracks.add(new Track(AnnotationContents.Content.GENES.getId(), TrackType.GENES));
+		tracks.add(new Track(AnnotationContents.Content.CYTOBANDS.getId(), TrackType.CYTOBANDS));
+		
+		
 		for (int i = 0; i < interpretations.size(); i++) {
 			TrackType interpretation = interpretations.get(i);
 			tracks.add(new Track(datas.get(i).getName(), interpretation, datas
@@ -255,6 +261,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 		GridBagConstraints c = this.settingsGridBagConstraints;
 		c.gridy++;
+		drawButton.setEnabled(false);
 		settingsPanel.add(drawButton, c);
 		c.gridy++;
 		c.fill = GridBagConstraints.BOTH;
@@ -315,9 +322,12 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		for (Genome genome : genomes) {
 			genomeBox.addItem(genome);
 		}
+		
+		// no selection at startup
+		genomeBox.setSelectedItem(null);
+
 		genomeBox.addActionListener(this);
 		settingsPanel.add(genomeBox, c);
-
 		c.gridy++;
 
 		// add annotations button
@@ -460,12 +470,16 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		
 		// genome selected
 		else if (source == genomeBox) {
+			
 			Genome genome = (Genome) genomeBox.getSelectedItem();
 
 			// dialog for downloading annotations if not already local
 			if (!annotationContents.hasLocalAnnotations(genome)) {
 				annotationContents.openDownloadAnnotationsDialog(genome);
 			}
+
+			// enable draw button
+			this.drawButton.setEnabled(true);
 		}
 	}
 
