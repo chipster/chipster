@@ -33,7 +33,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  *
  */
 public class SAMFile {
-    
+
+	// FIXME make final
+    int SAMPLING_GRANULARITY = 100;
+	int SAMPLE_DIVIDER = 4;
+    int SAMPLE_SIZE_BP = 100;
+
 	private ConcisedValueCache cache = new ConcisedValueCache();
 	public SAMFileReader reader;
 
@@ -152,7 +157,6 @@ public class SAMFile {
     	List<RegionContent> responseList = new LinkedList<RegionContent>();
         
         // How many times file is read
-        int SAMPLING_GRANULARITY = 50;
         int step = request.getLength().intValue() / SAMPLING_GRANULARITY;
         
         // Divide visible region into subregions and iterate over them
@@ -177,13 +181,10 @@ public class SAMFile {
 
 	private void sampleToGetConcisedRegion(AreaRequest request, List<RegionContent> responseList, int step, long pos) {
 
-		
-        int SAMPLE_SIZE = 100; // FIXME: issue, can be bigger than step size 
-
 		// Fetch new content by taking sample from the middle of this area
 		int stepMiddlepoint = (int)pos + step/2;
-		int start = stepMiddlepoint - SAMPLE_SIZE/2;
-		int end = stepMiddlepoint + SAMPLE_SIZE/2;
+		int start = stepMiddlepoint - SAMPLE_SIZE_BP/2;
+		int end = stepMiddlepoint + SAMPLE_SIZE_BP/2;
 		CloseableIterator<SAMRecord> iterator =
 			this.reader.query(request.start.chr.toString(),
 					start, end, false);
@@ -205,6 +206,12 @@ public class SAMFile {
 		}
 
 		iterator.close();
+
+		// Scale counts according to sample size
+//		System.out.println(countForward);
+//		countForward = (countForward * 10) / sampleSizeBp;
+//		countReverse = (countReverse * 10) / sampleSizeBp;
+		
 		
 		// Store value in cache
 		cache.store(new BpCoord((long)stepMiddlepoint, request.start.chr), countForward, countReverse);
