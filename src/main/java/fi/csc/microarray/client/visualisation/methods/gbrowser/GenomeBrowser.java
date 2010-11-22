@@ -682,7 +682,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 					case READS_WITH_SUMMARY:
 						TrackFactory.addThickSeparatorTrack(plot);
 						treatmentData = createReadDataSource(track.userData, tracks);
-						TrackGroup readGroupWithSummary = TrackFactory.addReadSummaryTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.REFERENCE).getUrl(), new SequenceParser()), file.getName());
+						TrackGroup readGroupWithSummary = TrackFactory.addReadSummaryTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.REFERENCE).getUrl(), new SequenceParser()), file);
 						track.setTrackGroup(readGroupWithSummary);
 						break;
 					}

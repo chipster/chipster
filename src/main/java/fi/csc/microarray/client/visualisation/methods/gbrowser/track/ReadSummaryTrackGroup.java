@@ -40,17 +40,17 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
     protected SeqBlockTrack readsReversed;
 
     public ReadSummaryTrackGroup(View view, DataSource userData,
-            Class<? extends AreaRequestHandler> userDataHandler, DataSource seqFile, String filename) throws FileNotFoundException {
+            Class<? extends AreaRequestHandler> userDataHandler, DataSource seqFile, File file) throws FileNotFoundException {
         super(view);
         
         Color histogramColor = Color.gray;
         Color fontColor = Color.black;
         
         // Title
-        titleTrack = new TitleTrack(view, filename, Color.black);
+        titleTrack = new TitleTrack(view, file.getName(), Color.black);
         
         // Overview
-        readOverview = new TabixIntensityTrack(view, new TabixDataSource(new File(filename)),
+        readOverview = new TabixIntensityTrack(view, new TabixDataSource(file),
                 TabixHandlerThread.class, histogramColor, SWITCH_VIEWS_AT, Long.MAX_VALUE);
         
         // Detailed

@@ -54,7 +54,7 @@ public class TabixReader {
 				level = lengthToLevel[i][1];
 			}
 		}
-		file = prefix + "-summary" + level;
+		file = prefix + level;
 		
 		//FIXME replace with real Java library for tabix, for example 
 		//https://genomeview.svn.sourceforge.net/svnroot/genomeview/jannot/trunk/net/sf/jannot/tabix/
@@ -94,6 +94,7 @@ public class TabixReader {
 		while ((s = stdError.readLine()) != null) {
 			System.out.println("Error in TabixReader when processing " + file + ": ");
 			System.out.println(s);
+			throw new RuntimeException();
 		}
 
 		return results;
