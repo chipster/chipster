@@ -18,10 +18,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import javax.swing.BorderFactory;
@@ -170,14 +172,16 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private GridBagConstraints settingsGridBagConstraints;
 	private AnnotationContents annotationContents;
 
-	private JLabel profileScaleLabel = new JLabel("Profile scale");
-	private JComboBox profileScaleBox = new JComboBox();
+	private JLabel coverageScaleLabel = new JLabel("Coverage scale");
+	private JComboBox coverageScaleBox = new JComboBox();
 
 	private GeneIndexActions gia;
 
 	private boolean initialised;
 	
 	private Map<JCheckBox, String> trackSwitches = new LinkedHashMap<JCheckBox, String>();
+	private Set<JCheckBox> datasetSwitches = new HashSet<JCheckBox>();
+	
 	
 	public void initialise(VisualisationFrame frame) throws Exception {
 		super.initialise(frame);
@@ -274,7 +278,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		c.gridy++;
 		c.fill = GridBagConstraints.BOTH;
 		c.weighty = 1.0;
-		
+
 		
 		// add tracks to settings panel
 		c.weighty = 0.0;
@@ -291,10 +295,13 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 		for (Track track : tracks) {
 			JCheckBox box = new JCheckBox(track.name, true);
+			box.setToolTipText(track.name);
 			box.setEnabled(false);
 			track.checkBox = box;
 			if (track.type.isToggleable) {
 				trackPanel.add(box);
+				datasetSwitches.add(box);
+				box.addActionListener(this);
 			}
 		}
 		
@@ -318,14 +325,15 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		c.gridwidth = 5;
 		c.gridy++;
 		c.insets.set(5, 10, 5, 10);
-		profileScaleLabel.setEnabled(false);
-		settingsPanel.add(profileScaleLabel, c);
-		profileScaleBox = new JComboBox(GenomePlot.ReadScale.values());
-		profileScaleBox.setEnabled(false);
+		coverageScaleLabel.setEnabled(false);
+		settingsPanel.add(coverageScaleLabel, c);
+		coverageScaleBox = new JComboBox(GenomePlot.ReadScale.values());
+		coverageScaleBox.setEnabled(false);
+		coverageScaleBox.addActionListener(this);
 		c.gridx = 0;
 		c.gridwidth = 5;
 		c.gridy++;
-		settingsPanel.add(profileScaleBox, c);
+		settingsPanel.add(coverageScaleBox, c);
 
 	}
 	
@@ -517,12 +525,16 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 					}
 				});
 				
-		    } else {
+			} else {
 		    	
 		    	// Move to correct location
 		        updateLocation();
 		    }
 			
+		} else if (datasetSwitches.contains(source) || source == coverageScaleBox) {
+	        showVisualisation();
+	        updateVisibilityForTracks();
+
 		} else if (trackSwitches.keySet().contains(source)) {
 			updateVisibilityForTracks();
 		} 
@@ -551,8 +563,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				track.checkBox.setEnabled(true);
 			}
 			
-			profileScaleLabel.setEnabled(true);
-			profileScaleBox.setEnabled(true);
+			coverageScaleLabel.setEnabled(true);
+			coverageScaleBox.setEnabled(true);
 		}
 	}
 
@@ -610,7 +622,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			this.plot = new GenomePlot(chartPanel, true);
 			
 			// Set scale of profile track containing reads information
-			this.plot.setReadScale((ReadScale) this.profileScaleBox
+			this.plot.setReadScale((ReadScale) this.coverageScaleBox
 					.getSelectedItem());
 
 
@@ -979,7 +991,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		}
 
 		// Set scale of profile track containing reads information
-		this.plot.setReadScale((ReadScale) this.profileScaleBox
+		this.plot.setReadScale((ReadScale) this.coverageScaleBox
 				.getSelectedItem());
 	}
 
