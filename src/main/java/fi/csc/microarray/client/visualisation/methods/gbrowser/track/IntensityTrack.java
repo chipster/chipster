@@ -78,10 +78,10 @@ public class IntensityTrack extends Track {
 
 		// FIXME move this to "gone out of view" place?
 		// remove values when they get "too big"
-		while (values.size() > MAX_VALUE_COUNT) {
-			RegionContent oldest = valueStorageOrder.pop();
-			values.remove(oldest);
-		}
+//		while (values.size() > MAX_VALUE_COUNT) {
+//			RegionContent oldest = valueStorageOrder.pop();
+//			values.remove(oldest);
+//		}
 		
 		return drawables;
 	}

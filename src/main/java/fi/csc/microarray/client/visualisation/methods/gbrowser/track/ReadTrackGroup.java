@@ -21,7 +21,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptT
 public class ReadTrackGroup extends TrackGroup {
 
 	// Colors
-    private final Color histogramColor = new Color(100, 100, 100, 100);
+//    private final Color histogramColor = new Color(100, 100, 100, 100); // translucent color
+	private final Color histogramColor = new Color(100, 100, 100);
     private final Color fontColor = Color.black;
 
     // Tracks
