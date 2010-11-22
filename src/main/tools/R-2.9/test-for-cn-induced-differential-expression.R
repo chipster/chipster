@@ -1,4 +1,4 @@
-# ANALYSIS "aCGH tools"/"Test for copy-number-induced expression changes" (Nonparametric testing for changes in expression induced by a change in DNA copy number. The copy number and expression probes of the two data sets must be matched together beforehand using the Match copy number and expression probes tool.)
+# ANALYSIS "aCGH"/"Test for copy-number-induced expression changes" (Nonparametric testing for changes in expression induced by a change in DNA copy number. The copy number and expression probes of the two data sets must be matched together beforehand using the Match copy number and expression probes tool.)
 # INPUT GENE_EXPRS matched-cn-and-expression.tsv, GENERIC phenodata.tsv
 # OUTPUT cn-induced-expression.tsv
 # PARAMETER test.statistic [wcvm, wmw] DEFAULT wcvm (The test statistic to use.)

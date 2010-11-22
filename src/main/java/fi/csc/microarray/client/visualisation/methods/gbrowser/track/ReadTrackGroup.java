@@ -19,7 +19,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptT
  *
  */
 public class ReadTrackGroup extends TrackGroup {
-    
+
+	// Colors
+//    private final Color histogramColor = new Color(100, 100, 100, 100); // translucent color
+	private final Color histogramColor = new Color(100, 100, 100);
+    private final Color fontColor = Color.black;
+
     // Tracks
     protected TitleTrack titleTrack;
     protected IntensityTrack readOverview;
@@ -46,9 +51,6 @@ public class ReadTrackGroup extends TrackGroup {
             Class<? extends AreaRequestHandler> userDataHandler,
             DataSource seqFile, String title) {
         super(view);
-        
-        Color histogramColor = Color.gray;
-        Color fontColor = Color.black;
         
         // Title
         titleTrack = new TitleTrack(view, title, Color.black);
@@ -85,7 +87,7 @@ public class ReadTrackGroup extends TrackGroup {
         profileTrack.setStrand(Strand.BOTH);
         
         // SNP profile
-        profileSNPTrack = new CoverageAndSNPTrack(view, userData, userDataHandler,
+        profileSNPTrack = new CoverageAndSNPTrack(view, userData, userDataHandler, seqFile, ChunkTreeHandlerThread.class, 
                 Color.BLACK, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         profileSNPTrack.setStrand(Strand.BOTH); //Will be set anyway in the track constructor
         

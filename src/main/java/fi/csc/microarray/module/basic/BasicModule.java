@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.List;
 
 import javax.swing.JMenu;
+import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXHyperlink;
@@ -153,5 +154,27 @@ public class BasicModule implements Module {
 	@Override
 	public void postProcessOutputMetadata(Operation operation, DataBean metadataOutput) throws MicroarrayException, IOException {
 		// do nothing, we don't use metadata
+	}
+
+	@Override
+	public String getShortCategoryName(Operation operation) {
+		return shortenCategoryName(operation.getCategoryName());
+	}
+
+	public static String shortenCategoryName(String catName) {
+		if (catName.startsWith("Import")) {
+			return "file";
+		}
+		return catName.substring(0, catName.length() > 4 ? 4 : catName.length());
+	}
+
+	@Override
+	public boolean countOperationResults() {
+		return true;
+	}
+
+	@Override
+	public JPanel getContextLinkPanel(int selectedDataCount) {
+		return null;
 	}
 }

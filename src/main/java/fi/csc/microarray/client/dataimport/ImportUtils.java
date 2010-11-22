@@ -319,8 +319,7 @@ public class ImportUtils {
 	 */
 	public static void executeImport(ImportSession importSession) {
 
-		// FIXME re-enable and make this more clever
-//		if (!application.isStandalone()) {
+		if (!application.isStandalone()) {
 			List<File> files = importSession.getInputFiles();
 
 			boolean importToolSupported = Session.getSession().getPrimaryModule().isImportToolSupported();
@@ -333,36 +332,36 @@ public class ImportUtils {
 				// skip not requested => show ActionChooser
 				new ActionChooserScreen(importSession);
 			}
-//		}
-//
-//		// standalone
-//		else {
-//
-//			// import directly
-//			if (importSession.isSkipActionChooser()) {
-//				application.importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
-//			}
-//
-//			// go to preprocessing
-//			else {
-//				// input files to input DataBeans
-//				try {
-//					List<DataBean> inputBeans = new LinkedList<DataBean>();
-//					int i = 0;
-//					for (File inputFile: importSession.getInputFiles()) {
-//						inputBeans.add(Session.getSession().getDataManager().createDataBean("preprocessInput-" + i, inputFile));
-//						i++;
-//					}
-//
-//					// create operation, open import operation parameter dialog
-//					ClientApplication application = Session.getSession().getApplication();
-//					Operation importOperation = new Operation(application.getOperationDefinition("LocalNGSPreprocess.java"), inputBeans.toArray(new DataBean[] {}));
-//					new TaskImportDialog(application, "Preprocess NGS data", importOperation);
-//
-//				} catch (Exception me) {
-//					Session.getSession().getApplication().reportException(me);
-//				}
-//			}
-//		}
+		}
+
+		// standalone
+		else {
+
+			// import directly
+			if (importSession.isSkipActionChooser()) {
+				application.importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
+			}
+
+			// go to preprocessing
+			else {
+				// input files to input DataBeans
+				try {
+					List<DataBean> inputBeans = new LinkedList<DataBean>();
+					int i = 0;
+					for (File inputFile: importSession.getInputFiles()) {
+						inputBeans.add(Session.getSession().getDataManager().createDataBean("preprocessInput-" + i, inputFile));
+						i++;
+					}
+
+					// create operation, open import operation parameter dialog
+					ClientApplication application = Session.getSession().getApplication();
+					Operation importOperation = new Operation(application.getOperationDefinition("LocalNGSPreprocess.java"), inputBeans.toArray(new DataBean[] {}));
+					new TaskImportDialog(application, "Preprocess NGS data", importSession, importOperation);
+
+				} catch (Exception me) {
+					Session.getSession().getApplication().reportException(me);
+				}
+			}
+		}
 	}	
 }

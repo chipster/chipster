@@ -1,4 +1,4 @@
-# ANALYSIS "aCGH tools"/"Plot copy-number-induced gene expression" (Plot the expression levels of individual genes for a copy number vs. expression comparison. This tool must be run on the output from the tool Test for copy number induced expression changes - cn-induced-expression.tsv.)
+# ANALYSIS "aCGH"/"Plot copy-number-induced gene expression" (Plot the expression levels of individual genes for a copy number vs. expression comparison. This tool must be run on the output from the tool Test for copy number induced expression changes - cn-induced-expression.tsv.)
 # INPUT GENE_EXPRS cn-induced-expression.tsv
 # OUTPUT cn-induced-expression-plot.png
 # PARAMETER gene.ids STRING DEFAULT 1 (The gene.ids of the genes to be plotted, separated by commas. Ranges are also supported (e.g. 1,3,7-10).)

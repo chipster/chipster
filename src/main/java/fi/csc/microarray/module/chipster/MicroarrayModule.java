@@ -1,5 +1,8 @@
 package fi.csc.microarray.module.chipster;
 
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -10,8 +13,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXHyperlink;
@@ -23,6 +29,7 @@ import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
+import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.methods.ArrayLayout;
 import fi.csc.microarray.client.visualisation.methods.ClusteredProfiles;
 import fi.csc.microarray.client.visualisation.methods.ExpressionProfile;
@@ -50,6 +57,7 @@ import fi.csc.microarray.databeans.features.table.EditableTable;
 import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.Module;
+import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.util.GeneralFileFilter;
 import fi.csc.microarray.util.Strings;
 
@@ -173,7 +181,7 @@ public class MicroarrayModule implements Module {
 		try {
 			ClientApplication application = Session.getSession().getApplication();
 			Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_GEO_ID), new DataBean[] {});
-			new TaskImportDialog(application, "Import data from the GEO", importOperation);
+			new TaskImportDialog(application, "Import data from the GEO", null, importOperation);
 			
 		} catch (Exception me) {
 			Session.getSession().getApplication().reportException(me);
@@ -184,7 +192,7 @@ public class MicroarrayModule implements Module {
 		try {
 			ClientApplication application = Session.getSession().getApplication();
 			Operation importOperation = new Operation(application.getOperationDefinition(MicroarrayModule.IMPORT_FROM_ARRAYEXPRESS_ID), new DataBean[] {});
-			new TaskImportDialog(application, "Import data from the ArrayExpress", importOperation);
+			new TaskImportDialog(application, "Import data from the ArrayExpress", null, importOperation);
 			
 		} catch (Exception me) {
 			Session.getSession().getApplication().reportException(me);
@@ -357,6 +365,75 @@ public class MicroarrayModule implements Module {
 			}
 			tableEditor.write();
 		}
+	}
+
+	@Override
+	public String getShortCategoryName(Operation operation) {
+		return BasicModule.shortenCategoryName(operation.getCategoryName());
+	}
+
+	@Override
+	public boolean countOperationResults() {
+		return true;
+	}
+
+	@Override
+	public JPanel getContextLinkPanel(int selectedDataCount) {
+		
+		final ClientApplication application = Session.getSession().getApplication();
+		
+		// Initialise context link panel
+		JPanel contentPanel = new JPanel();
+		contentPanel.setBackground(Color.WHITE);
+		contentPanel.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx = 0;
+		c.gridy = 0;
+		c.anchor = GridBagConstraints.NORTHWEST;
+
+		JLabel label;
+		JXHyperlink link;
+		
+		if (selectedDataCount > 0) {
+			label = new JLabel(selectedDataCount + " data(s) selected");
+			link = new JXHyperlink(new AbstractAction() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					application.setVisualisationMethod(MicroarrayModule.VisualisationMethods.GBROWSER, null, application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
+				}
+			});
+			link.setText("Open genome browser");
+
+		} else {
+			label = new JLabel("No data selected");
+			link = new JXHyperlink(new AbstractAction() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					
+					// Select all datasets (creates a bunch of events)
+					application.selectAllItems();
+					
+					// Use invokeLater so that visualisation system can process events from selectAllItems 
+					// before this. Otherwise the system is not synchronized and the visualisation panel
+					// does not update.
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							application.setVisualisationMethod(MicroarrayModule.VisualisationMethods.GBROWSER, null, application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
+						}
+					});
+				}
+			});
+			link.setText("Select all and open genome browser");
+		}
+
+		c.insets.set(10, 40, 0, 0);
+		contentPanel.add(label, c);
+		c.gridy++;
+		c.insets.set(10, 50, 0, 0);
+		contentPanel.add(link, c);
+
+		return contentPanel;
 	}
 
 }

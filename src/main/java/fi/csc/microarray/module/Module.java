@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.List;
 
 import javax.swing.JMenu;
+import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXHyperlink;
@@ -145,4 +146,31 @@ public interface Module {
 	 * @return array of file filters
 	 */
 	public FileFilter[] getImportFileFilter();
+
+	/**
+	 * Read the name of the operation and return a short version suitable for 
+	 * small UI components.
+	 * 
+	 * @param operation the category we want to shorten
+	 * 
+	 * @return short name (4 letters or less)
+	 */
+	public String getShortCategoryName(Operation operation);
+
+	/**
+	 * Should workflow engine check for the number of results? If the module contains tools
+	 * that produce variable amounts of results, then number of results should not be checked.
+	 * 
+	 * @return should workflow engine check for the number of results?
+	 */
+	public boolean countOperationResults();
+
+	/**
+	 * Create context link panel that contains links for selecting, visualising etc. for datasets. 
+	 * @param selectedDataCount 
+	 * 
+	 * @return panel or null
+	 */
+	public JPanel getContextLinkPanel(int selectedDataCount);
+
 }

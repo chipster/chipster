@@ -23,6 +23,45 @@ import fi.csc.microarray.util.IOUtils;
 
 public class SamBamUtils {
 	
+	public interface SamBamUtilStateListener {
+		public void stateChanged(SamBamUtilState newState);
+	}
+	
+	public class SamBamUtilState {
+		private String state;
+		private double percentage;
+	
+		public SamBamUtilState(String state, double percentage) {
+			this.state = state;
+			this.percentage = percentage;
+		}
+
+		public String getState() {
+			return this.state;
+		}
+		
+		public double getPercentage() {
+			return this.percentage;
+		}
+	}
+	
+	
+	private SamBamUtilStateListener stateListener;
+	
+	public SamBamUtils() {
+	}
+	
+	public SamBamUtils(SamBamUtilStateListener stateListener) {
+		this.stateListener = stateListener;
+	}
+
+	private void updateState(String state, double percentage) {
+		if (this.stateListener != null) {
+			stateListener.stateChanged(new SamBamUtilState(state, percentage));
+		}
+	}
+	
+	
 	private static final String REDUNDANT_CHROMOSOME_NAME_PREFIX = "chr";
 
 	public static void convertElandToSortedBam(File elandFile, File bamFile) throws IOException {
@@ -133,18 +172,22 @@ public class SamBamUtils {
 		}
 	}
 
-	public static void preprocessSamBam(File samBamFile, File preprocessedBamFile, File baiFile) throws IOException {
+	public void preprocessSamBam(File samBamFile, File preprocessedBamFile, File baiFile) throws IOException {
 		
 		// Sort
+		updateState("sorting", 0);
 		File sortedTempBamFile = File.createTempFile("sorted", "bam");
 		sortSamBam(samBamFile, sortedTempBamFile);
 		
 		// Normalise (input must be BAM)
+		updateState("normalising", 33.3);
 		normaliseBam(sortedTempBamFile, preprocessedBamFile);
 		sortedTempBamFile.delete();
 
 		// Index
+		updateState("indexing", 66);
 		indexBam(preprocessedBamFile, baiFile);
+		updateState("done", 100);
 	}
 
 	public static List<String> readChromosomeNames(InputStream in) {

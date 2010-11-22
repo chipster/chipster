@@ -65,7 +65,7 @@ public class SeqBlockTrack extends Track {
 		occupiedSpace.clear();
 
 		// If SNP highlight mode is on, we need reference sequence data
-		char[] refSeq = getReferenceArray();
+		char[] refSeq = highlightSNP ? getReferenceArray(refReads, view, strand) : null;
 
 		// Main loop: Iterate over RegionContent objects (one object corresponds to one read)
 		Iterator<RegionContent> iter = reads.iterator();
@@ -216,16 +216,14 @@ public class SeqBlockTrack extends Track {
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
 
-		// check that areaResult has same concised status (currently always false)
-		// and correct strand
+		// Check that areaResult has same concised status (currently always false) and correct strand
 		if (areaResult.status.file == file && areaResult.status.concise == isConcised() && areaResult.content.values.get(ColumnType.STRAND) == getStrand()) {
-
-			// add this to queue of RegionContents to be processed
+			// Add this to queue of RegionContents to be processed
 			this.reads.add(areaResult.content);
 			getView().redraw();
 		}
 
-		// reference sequence data
+		// "Spy" on reference sequence data, if available
 		if (areaResult.status.file == refData) {
 			this.refReads.add(areaResult.content);
 		}
@@ -296,39 +294,37 @@ public class SeqBlockTrack extends Track {
 	}
 
 	/**
-	 * Get reference sequence as an array, if set.
+	 * Convert reference sequence reads to a char array.
 	 */
-	private char[] getReferenceArray() {
+	public static char[] getReferenceArray(Collection<RegionContent> refReads, View view, Strand strand) {
 		char[] refSeq = new char[0];
-		if (highlightSNP) {
-			Iterator<RegionContent> iter = refReads.iterator();
-			refSeq = new char[getView().getBpRegion().getLength().intValue() + 1];
-			int startBp = getView().getBpRegion().start.bp.intValue();
-			int endBp = getView().getBpRegion().end.bp.intValue();
-			RegionContent read;
-			while (iter.hasNext()) {
-				read = iter.next();
-				if (!read.region.intercepts(getView().getBpRegion())) {
-					iter.remove();
-					continue;
-				}
+		Iterator<RegionContent> iter = refReads.iterator();
+		refSeq = new char[view.getBpRegion().getLength().intValue() + 1];
+		int startBp = view.getBpRegion().start.bp.intValue();
+		int endBp = view.getBpRegion().end.bp.intValue();
+		RegionContent read;
+		while (iter.hasNext()) {
+			read = iter.next();
+			if (!read.region.intercepts(view.getBpRegion())) {
+				iter.remove();
+				continue;
+			}
 
-				// we might need to reverse reference sequence
-				char[] readBases;
-				if (strand == Strand.REVERSED) {
-					readBases = Sequence.complement((String) read.values.get(ColumnType.SEQUENCE)).toCharArray();
-				} else {
-					readBases = ((String) read.values.get(ColumnType.SEQUENCE)).toCharArray();
-				}
+			// we might need to reverse reference sequence
+			char[] readBases;
+			if (strand == Strand.REVERSED) {
+				readBases = Sequence.complement((String) read.values.get(ColumnType.SEQUENCE)).toCharArray();
+			} else {
+				readBases = ((String) read.values.get(ColumnType.SEQUENCE)).toCharArray();
+			}
 
-				int readStart = read.region.start.bp.intValue();
-				int readNum = 0;
-				int nextPos = 0;
-				for (char c : readBases) {
-					nextPos = readStart + readNum++;
-					if (nextPos >= startBp && nextPos <= endBp) {
-						refSeq[nextPos - startBp] = c;
-					}
+			int readStart = read.region.start.bp.intValue();
+			int readNum = 0;
+			int nextPos = 0;
+			for (char c : readBases) {
+				nextPos = readStart + readNum++;
+				if (nextPos >= startBp && nextPos <= endBp) {
+					refSeq[nextPos - startBp] = c;
 				}
 			}
 		}

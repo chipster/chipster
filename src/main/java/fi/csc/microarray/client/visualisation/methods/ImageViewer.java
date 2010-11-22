@@ -49,8 +49,8 @@ public class ImageViewer extends Visualisation implements MouseListener {
 	private boolean isScaledMode = true;
 	private ImagePanel imagePanel = new ImagePanel();
 	
-	public ImageViewer(VisualisationFrame frame){
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception{
+		super.initialise(frame);
 		imagePanel.addMouseListener(this);
 	}
 	

@@ -1,50 +1,34 @@
 package fi.csc.microarray.analyser.emboss;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.concurrent.CountDownLatch;
 
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.analyser.JobCancelledException;
-import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
-import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
+import fi.csc.microarray.analyser.shell.ShellAnalysisJobBase;
 import fi.csc.microarray.messaging.JobState;
-import fi.csc.microarray.messaging.message.ResultMessage;
-import fi.csc.microarray.util.Strings;
 
 /**
  * Runs EMBOSS applications.
  * 
- * @author naktinis, akallio
+ * @author naktinis, akallio, hupponen
  *
  */
-public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
+public class EmbossAnalysisJob extends ShellAnalysisJobBase {
     
     private String toolDirectory;
     private String descriptionDirectory;
     
-    // EMBOSS logger
     static final Logger logger = Logger.getLogger(EmbossAnalysisJob.class);
     
-    LinkedList<EmbossQualifier> qualifiers;
-    LinkedList<String> inputParameters;
-    ACDDescription acdDescription;
-    
     // Output formats specified by user
-    HashMap<String, String> outputFormats = new HashMap<String, String>();
+    private HashMap<String, String> outputFormats = new HashMap<String, String>();
+    private LinkedList<EmbossQualifier> qualifiers;
+    private ACDDescription acdDescription;
     
-    // Operating system process
-    private Process process = null;
-    
-    // Latch for cancelling or finishing a job
-    private CountDownLatch latch = new CountDownLatch(1);
     
     public EmbossAnalysisJob(String toolDirectory, String descriptionDirectory) {
         // Directory where runnable files are stored
@@ -54,22 +38,13 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
         this.descriptionDirectory = descriptionDirectory;
     }
     
-    /**
-     * User decided to cancel this job.
-     */
-    @Override
-    protected void cancelRequested() {
-        latch.countDown();
-    }
     
-    /**
-     * Run EMBOSS job as an operating system process.
-     */
     @Override
-    protected void execute() throws JobCancelledException {
+    protected void preExecute() throws JobCancelledException {
+        super.preExecute();
         
         // Get parameter values from user's input (order is significant)
-        inputParameters = new LinkedList<String>(inputMessage.getParameters());
+        LinkedList<String> inputParameters = new LinkedList<String>(inputMessage.getParameters());
         
         // Get the ACD description
         acdDescription = getACD();
@@ -103,7 +78,7 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
             }
             analysisToACD.put(param.getName(), mapTo);
         }
-        
+
         // Generate qualifiers and validate them
         index = 0;
         qualifiers = new LinkedList<EmbossQualifier>();
@@ -133,93 +108,22 @@ public class EmbossAnalysisJob extends OnDiskAnalysisJobBase {
             }
             index++;
         }
-        
-        // Processing...
-        try {
-            String[] cmd = commandLine();
-            
-            // Log that we are about to run this
-            logger.info("Running Emboss application " + cmd[0]);
-            logger.info("Parameters: " + Strings.delimit(Arrays.asList(cmd), " "));
-            
-            // Start a process on the operating system
-            process = Runtime.getRuntime().exec(cmd, null, jobWorkDir);
-            
-            // Start a new thread to listen to OS process status
-            new ProcessWaiter(process, latch).start();
-            
-            // Job finished successfully or was cancelled
-            latch.await();
-            
-            // Some information from error stream
-            BufferedReader bufferedReader = new BufferedReader(
-                    new InputStreamReader(process.getErrorStream()));
-            StringBuilder stringBuilder = new StringBuilder();
-            String line = null;
-            while ((line = bufferedReader.readLine()) != null) {
-                stringBuilder.append(line + "\n");
-            }
-            bufferedReader.close();
-            String outputString = stringBuilder.toString();          
-            logger.info("Emboss application has finished with exit code " +
-                        process.exitValue() + " and this message: " +
-                        "\"" + outputString + "\".");
-            
-            // If the exit code is non-zero, the application was not successful
-            if (process.exitValue() != 0) {
-                logger.debug("There was an error while running emboss \"" +
-                             analysis.getDisplayName() + "\" application.");
-                outputMessage.setErrorMessage(outputString);
-                updateState(JobState.FAILED, "EMBOSS application failed.");
-            } 
-            
-            // This is what we should produce as output
-            ResultMessage outputMessage = this.outputMessage;
-            
-            // This is where results are returned 
-            ResultCallback resultHandler = this.resultHandler;
-            
-            outputMessage.setState(JobState.RUNNING);
-            resultHandler.sendResultMessage(inputMessage, outputMessage);
-        } catch (IOException e) {
-            // Program was not found
-            logger.debug("There was an error while running emboss \"" +
-                    analysis.getDisplayName() + "\" application.");
-            outputMessage.setErrorMessage("Program " + acdDescription.getName() +
-                    " couldn't be started.");
-            updateState(JobState.FAILED, "EMBOSS application failed.");
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
+        // store the command for execute()
+        command = commandLine();
     }
-    
+
+
     /**
      * Parse the appropriate ACD description file.
      * 
      * @return ACD description object.
      */
-    protected ACDDescription getACD() {
+    private ACDDescription getACD() {
         String appName = analysis.getID();
         return new ACDDescription(new File(descriptionDirectory, appName));
     }
     
-    /**
-     * Destroy operating system process if it is still
-     * running.
-     */
-    @Override
-    protected void cleanUp() {
-        super.cleanUp();
-        if (process != null) {
-        	process.destroy();
-        }
-    }
-
-    @Override
-    protected void preExecute() throws JobCancelledException {
-        super.preExecute();
-    }
     
     /**
      * Return a command line that will be executed,

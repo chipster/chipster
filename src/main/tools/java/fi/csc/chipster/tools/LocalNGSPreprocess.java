@@ -3,6 +3,8 @@ package fi.csc.chipster.tools;
 import java.io.File;
 
 import fi.csc.chipster.tools.gbrowser.SamBamUtils;
+import fi.csc.chipster.tools.gbrowser.SamBamUtils.SamBamUtilState;
+import fi.csc.chipster.tools.gbrowser.SamBamUtils.SamBamUtilStateListener;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.tasks.Task;
@@ -68,8 +70,18 @@ public class LocalNGSPreprocess implements Runnable {
 				File indexOutputFile = dataManager.createNewRepositoryFile(indexOutputName);
 
 				// Run preprocessing
+				SamBamUtils samBamUtil= new SamBamUtils(new SamBamUtilStateListener() {
+
+					@Override
+					public void stateChanged(SamBamUtilState newState) {
+						System.out.println(newState.getState() + " " + newState.getPercentage());
+						task.setStateDetail(newState.getState() + " " + newState.getPercentage());
+					}
+					 
+				});
+
 				if (SamBamUtils.isSamBamExtension(extension)) {
-					SamBamUtils.preprocessSamBam(inputFile, outputFile, indexOutputFile);
+					samBamUtil.preprocessSamBam(inputFile, outputFile, indexOutputFile);
 					
 				} else {
 					// Assume ELAND format
