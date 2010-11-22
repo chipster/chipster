@@ -445,7 +445,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		TreeSet<String> chromosomes = new TreeSet<String>(); 
 		for (int i = 0; i < interpretations.size(); i++) {
 			TrackType trackType = interpretations.get(i);
-			if (trackType == TrackType.READS || trackType == TrackType.READS_WITH_SUMMARY) {
+			if (trackType == TrackType.READS) {
 				DataBean data = datas.get(i);
 				InputStream in = null;
 				try {

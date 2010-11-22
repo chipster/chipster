@@ -92,7 +92,7 @@ public class TabixReader {
 
 		// read any errors from the attempted command
 		while ((s = stdError.readLine()) != null) {
-			System.out.println("Error in TabixReader: ");
+			System.out.println("Error in TabixReader when processing " + file + ": ");
 			System.out.println(s);
 		}
 
