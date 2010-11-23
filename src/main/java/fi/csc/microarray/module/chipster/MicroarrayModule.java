@@ -13,7 +13,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -378,10 +377,18 @@ public class MicroarrayModule implements Module {
 		return true;
 	}
 
+	/**
+	 * Generates nice context link panel for quickly using genome browser. If not in standalone
+	 * mode, null is returned. 
+	 */
 	@Override
 	public JPanel getContextLinkPanel(int selectedDataCount) {
 		
 		final ClientApplication application = Session.getSession().getApplication();
+		
+		if (!application.isStandalone()) {
+			return null;
+		}
 		
 		// Initialise context link panel
 		JPanel contentPanel = new JPanel();
