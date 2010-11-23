@@ -184,6 +184,9 @@ public class VisualConstants {
     public static final Font MONOSPACED_FONT = 
     	new Font("Monospaced", Font.PLAIN, 11);
 
+    public static final ImageIcon QUICKLINK_ICON =
+        new ImageIcon(VisualConstants.class.getResource("/quicklink.png"));
+
 
     public static final ImageIcon ICON_TYPE_BINARY =
         new ImageIcon(VisualConstants.class.getResource("/types/binary.png"));
