@@ -95,7 +95,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	
 	private static enum TrackType {
 		CYTOBANDS(false), 
-		GENES(true), 
+		GENES(false), 
 		TRANSCRIPTS(true), 
 		REFERENCE(true),
 		PEAKS(true),
@@ -231,34 +231,11 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 	private void createAvailableTracks() {
 
-//		Genome genome = (Genome) genomeBox.getSelectedItem();
-
 		// for now just always add genes and cytobands
-
-//		list available track types for the genome
-//		for (Row row : annotationContents.getRows()) {
-//			if (genome.equals(row.getGenome())) {
-//				TrackType type;
-//				if (row.content == AnnotationContents.Content.GENES) {
-//					type = TrackType.GENES;
-//				} else if (row.content == AnnotationContents.Content.TRANSCRIPTS) {
-//					continue; // track not directly supported, skip
-//				} else if (row.content == AnnotationContents.Content.CYTOBANDS) {
-//					type = TrackType.CYTOBANDS;
-//				} else if (row.content == AnnotationContents.Content.REFERENCE) {
-//					continue; // track not directly supported, skip
-//				} else {
-//					continue; // track not supported, skip
-//				}
-//
-//				tracks.add(new Track(row.content.getId(), type));
-//			}
-//		}
-
 		tracks.add(new Track(AnnotationContents.Content.GENES.getId(), TrackType.GENES));
 		tracks.add(new Track(AnnotationContents.Content.CYTOBANDS.getId(), TrackType.CYTOBANDS));
 		
-		
+
 		for (int i = 0; i < interpretations.size(); i++) {
 			TrackType interpretation = interpretations.get(i);
 			tracks.add(new Track(datas.get(i).getName(), interpretation, datas
