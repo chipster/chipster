@@ -392,7 +392,9 @@ public class MicroarrayModule implements Module {
 		c.gridy = 0;
 		c.anchor = GridBagConstraints.NORTHWEST;
 
-		c.insets.set(10, 40, 0, 0);
+		int topMargin = 15;
+		int leftMargin = 30;
+		c.insets.set(topMargin, leftMargin, 0, 0);
 		contentPanel.add(new JLabel(VisualConstants.QUICKLINK_ICON), c);
 		JXHyperlink link;
 		
@@ -428,7 +430,7 @@ public class MicroarrayModule implements Module {
 			link.setText("Select all and open genome browser");
 		}
 
-		c.insets.set(15, 5, 0, 0);
+		c.insets.set(topMargin + 5, 5, 0, 0);
 		c.gridx++;
 		contentPanel.add(link, c);
 		
