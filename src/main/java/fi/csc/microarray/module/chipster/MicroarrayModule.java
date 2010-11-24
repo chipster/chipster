@@ -104,6 +104,7 @@ public class MicroarrayModule implements Module {
 	public void plugContentTypes(DataManager manager) {
 		manager.plugContentType("application/x-treeview", true, false, "Newick formatted tree from clustering", VisualConstants.ICON_TYPE_TEXT, "tre");
 		manager.plugContentType("application/cel", true, false, "Affymetrix CEL", VisualConstants.ICON_TYPE_RAWDATA, "cel");
+		manager.plugContentType("text/bed", true, false, "BED file", VisualConstants.ICON_TYPE_TEXT, "bed");
 	}
 
 	public void plugFeatures(DataManager manager) {
