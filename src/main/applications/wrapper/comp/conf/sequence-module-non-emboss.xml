@@ -6,6 +6,10 @@
                 <name>executable</name>
                 <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/blastp</value>
             </parameter>
+			<parameter>
+				<name>arguments</name>
+				<value>-num_threads 4</value>
+			</parameter>
             <parameter>
                 <name>output</name>
                 <value>out</value>
@@ -17,6 +21,10 @@
                 <name>executable</name>
                 <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/blastn</value>
             </parameter>
+			<parameter>
+				<name>arguments</name>
+				<value>-num_threads 4</value>
+			</parameter>
             <parameter>
                 <name>output</name>
                 <value>out</value>
@@ -28,6 +36,10 @@
                 <name>executable</name>
                 <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/blastx</value>
             </parameter>
+			<parameter>
+				<name>arguments</name>
+				<value>-num_threads 4</value>
+			</parameter>
             <parameter>
                 <name>output</name>
                 <value>out</value>
@@ -39,6 +51,10 @@
                 <name>executable</name>
                 <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/tblastn</value>
             </parameter>
+			<parameter>
+				<name>arguments</name>
+				<value>-num_threads 4</value>
+			</parameter>
             <parameter>
                 <name>output</name>
                 <value>out</value>
@@ -50,6 +66,10 @@
                 <name>executable</name>
                 <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/tblastx</value>
             </parameter>
+			<parameter>
+				<name>arguments</name>
+				<value>-num_threads 4</value>
+			</parameter>
             <parameter>
                 <name>output</name>
                 <value>out</value>
