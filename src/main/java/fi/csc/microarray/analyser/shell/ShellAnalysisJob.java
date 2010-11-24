@@ -48,7 +48,7 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
         // Additional arguments
         String arguments = analysis.getConfigParameters().get("arguments");
         String[] extraArguments = (arguments != null && !arguments.equals("")) ?
-                arguments.split(",") : new String[] {};
+                arguments.trim().split(",") : new String[] {};
  
         String outputParameter = null;
         if (!useStdout) {    
