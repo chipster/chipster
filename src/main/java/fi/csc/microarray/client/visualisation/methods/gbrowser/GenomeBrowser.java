@@ -239,8 +239,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private void createAvailableTracks() {
 
 		// for now just always add genes and cytobands
-		tracks.add(new Track(AnnotationContents.Content.GENES.getId(), TrackType.GENES));
-		tracks.add(new Track(AnnotationContents.Content.CYTOBANDS.getId(), TrackType.CYTOBANDS));
+		tracks.add(new Track(AnnotationContents.Content.GENES.getId(), new Interpretation(TrackType.GENES, null)));
+		tracks.add(new Track(AnnotationContents.Content.CYTOBANDS.getId(), new Interpretation(TrackType.CYTOBANDS, null)));
 		
 
 		for (int i = 0; i < interpretations.size(); i++) {
@@ -282,7 +282,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			box.setToolTipText(track.name);
 			box.setEnabled(false);
 			track.checkBox = box;
-			if (track.type.isToggleable) {
+			if (track.interpretation.type.isToggleable) {
 				trackPanel.add(box);
 				datasetSwitches.add(box);
 				box.addActionListener(this);
@@ -435,10 +435,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 	private void fillChromosomeBox() throws IOException {
 		TreeSet<String> chromosomes = new TreeSet<String>(); 
-		for (int i = 0; i < interpretations.size(); i++) {
-			TrackType trackType = interpretations.get(i).type;
+		for (Interpretation interpretation : interpretations) {
+			TrackType trackType = interpretation.type;
 			if (trackType == TrackType.READS) {
-				DataBean data = datas.get(i);
+				DataBean data = interpretation.primaryData;
 				InputStream in = null;
 				try {
 					in  = data.getContentByteStream();
@@ -567,8 +567,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	@Override
 	public JComponent getVisualisation(java.util.List<DataBean> datas) throws Exception {
 		
-		this.datas = datas;
-		this.interpretations = interpretUserDatas(this.datas);
+		this.interpretations = interpretUserDatas(datas);
 		
 		// List available chromosomes from user data files
 		fillChromosomeBox();
@@ -613,7 +612,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			// Add selected annotation tracks
 			for (Track track : tracks) {
 				if (track.checkBox.isSelected()) {
-					switch (track.type) {
+					switch (track.interpretation.type) {
 					case CYTOBANDS:
 						TrackFactory.addCytobandTracks(plot,
 								createAnnotationDataSource(
@@ -661,23 +660,22 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			for (Track track : tracks) {
 				if (track.checkBox.isSelected()) {
 
-
-					File file = track.userData == null ? null : Session
+					File file = track.interpretation.primaryData == null ? null : Session
 							.getSession().getDataManager().getLocalFile(
-									track.userData);
+									track.interpretation.primaryData);
 					DataSource treatmentData;
-					switch (track.type) {
+					switch (track.interpretation.type) {
 
 					case READS:
 						TrackFactory.addThickSeparatorTrack(plot);
-						treatmentData = createReadDataSource(track.userData, tracks);
+						treatmentData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
 						TrackGroup readGroup = TrackFactory.addReadTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.REFERENCE).getUrl(), new SequenceParser()), file.getName());
 						track.setTrackGroup(readGroup);
 						break;
 
 					case READS_WITH_SUMMARY:
 						TrackFactory.addThickSeparatorTrack(plot);
-						treatmentData = createReadDataSource(track.userData, tracks);
+						treatmentData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
 						TrackGroup readGroupWithSummary = TrackFactory.addReadSummaryTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.REFERENCE).getUrl(), new SequenceParser()), file);
 						track.setTrackGroup(readGroupWithSummary);
 						break;
@@ -690,11 +688,11 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				if (track.checkBox.isSelected()) {
 					
 
-					File file = track.userData == null ? null : Session
+					File file = track.interpretation.primaryData == null ? null : Session
 							.getSession().getDataManager().getLocalFile(
-									track.userData);
+									track.interpretation.primaryData);
 					DataSource peakData;
-					switch (track.type) {
+					switch (track.interpretation.type) {
 					case PEAKS:
 						TrackFactory.addThickSeparatorTrack(plot);
 						peakData = new ChunkDataSource(file, new BEDParser());
@@ -759,8 +757,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	}
 
 	private void initialiseUserDatas() throws IOException {
-		for (DataBean data : datas) {
-			Session.getSession().getDataManager().getLocalFile(data);
+		for (Interpretation interpretation : interpretations) {
+			Session.getSession().getDataManager().getLocalFile(interpretation.primaryData);
 		}
 	}
 	
@@ -776,7 +774,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	 * @throws IOException
 	 *             if opening data files fails
 	 */
-	public DataSource createReadDataSource(DataBean data, List<Track> tracks)
+	public DataSource createReadDataSource(DataBean data, DataBean indexData, List<Track> tracks)
 			throws MicroarrayException, IOException {
 		DataSource dataSource = null;
 
@@ -787,17 +785,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	    	dataSource = new TabixDataSource(file);
 	    	
 	    } else if (file.getName().contains(".bam") || file.getName().contains(".sam")) {
-	    	// Find the index file from the operation
-	    	DataBean indexBean = null;
-	    	for (Track track : tracks) {
-	    		if (track.type == GenomeBrowser.TrackType.HIDDEN) {
-	    			DataBean bean = track.userData;
-	    			if (isIndexData(bean) && bean.getName().startsWith(data.getName())) {
-	    				indexBean = bean;
-	    			}
-	    		}
-	    	}
-	    	File indexFile = Session.getSession().getDataManager().getLocalFile(indexBean);
+	    	File indexFile = Session.getSession().getDataManager().getLocalFile(indexData);
 	    	dataSource = new SAMDataSource(file, indexFile);
 	    	
 	    } else {
