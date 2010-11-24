@@ -377,10 +377,18 @@ public class MicroarrayModule implements Module {
 		return true;
 	}
 
+	/**
+	 * Generates nice context link panel for quickly using genome browser. If not in standalone
+	 * mode, null is returned. 
+	 */
 	@Override
 	public JPanel getContextLinkPanel(int selectedDataCount) {
 		
 		final ClientApplication application = Session.getSession().getApplication();
+		
+		if (!application.isStandalone()) {
+			return null;
+		}
 		
 		// Initialise context link panel
 		JPanel contentPanel = new JPanel();
@@ -391,11 +399,13 @@ public class MicroarrayModule implements Module {
 		c.gridy = 0;
 		c.anchor = GridBagConstraints.NORTHWEST;
 
-		JLabel label;
+		int topMargin = 15;
+		int leftMargin = 30;
+		c.insets.set(topMargin, leftMargin, 0, 0);
+		contentPanel.add(new JLabel(VisualConstants.QUICKLINK_ICON), c);
 		JXHyperlink link;
 		
 		if (selectedDataCount > 0) {
-			label = new JLabel(selectedDataCount + " data(s) selected");
 			link = new JXHyperlink(new AbstractAction() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -404,8 +414,8 @@ public class MicroarrayModule implements Module {
 			});
 			link.setText("Open genome browser");
 
+
 		} else {
-			label = new JLabel("No data selected");
 			link = new JXHyperlink(new AbstractAction() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -427,12 +437,10 @@ public class MicroarrayModule implements Module {
 			link.setText("Select all and open genome browser");
 		}
 
-		c.insets.set(10, 40, 0, 0);
-		contentPanel.add(label, c);
-		c.gridy++;
-		c.insets.set(10, 50, 0, 0);
+		c.insets.set(topMargin + 5, 5, 0, 0);
+		c.gridx++;
 		contentPanel.add(link, c);
-
+		
 		return contentPanel;
 	}
 

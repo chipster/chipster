@@ -36,7 +36,7 @@ public abstract class VisualisationFrame implements DataChangeListener {
 
 	private static final Color BG = Color.white;
 
-	private ClientApplication application = Session.getSession().getApplication();
+	protected ClientApplication application = Session.getSession().getApplication();
 
 	private static final String WAIT_PANEL_NAME = "wait";
 	private static final String VISUALISATION_PANEL_NAME = "visualisation";
@@ -52,7 +52,7 @@ public abstract class VisualisationFrame implements DataChangeListener {
 
 	private List<DataBean> datas;
 
-	private FrameType type;
+	protected FrameType type;
 
 	private Visualisation visualiser;
 
@@ -258,14 +258,23 @@ public abstract class VisualisationFrame implements DataChangeListener {
 				application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, VisualisationMethod.NONE, null, null, type, this));
 			}
 			
+			// Data removed, check if context links should be refreshed
+			if (method == null || method == VisualisationMethod.NONE) {
+				updateContextLinks();
+			}
+
+			
 		} else if (e instanceof DataItemCreatedEvent) {
+
 			// Data added, check if context links should be refreshed
-			if (method == VisualisationMethod.NONE) {
-				application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, VisualisationMethod.NONE, null, null, type, this));
+			if (method == null || method == VisualisationMethod.NONE) {
+				updateContextLinks();
 			}
 		}
 	}
 
+	protected abstract void updateContextLinks();
+	
 	void setTitle(String title) {
 		return;
 	}

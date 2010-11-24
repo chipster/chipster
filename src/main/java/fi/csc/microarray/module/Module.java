@@ -167,9 +167,10 @@ public interface Module {
 
 	/**
 	 * Create context link panel that contains links for selecting, visualising etc. for datasets. 
-	 * @param selectedDataCount 
 	 * 
-	 * @return panel or null
+	 * @param selectedDataCount number of currently selected datasets 
+	 * 
+	 * @return panel or null if context link panel should not be shown
 	 */
 	public JPanel getContextLinkPanel(int selectedDataCount);
 
