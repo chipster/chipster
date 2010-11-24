@@ -152,7 +152,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private JPanel plotPanel = new JPanel(new CardLayout());
 
 	private JButton gotoButton = new JButton("Go to location");
-	private JButton drawButton = new JButton("Draw");
+	private JButton drawButton = new JButton("Go");
 
 	private JLabel locationLabel = new JLabel("Location (gene or position)");
 	private JTextField locationField = new JTextField();
@@ -570,8 +570,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		createAvailableTracks(); 
 
 		// Create panel with card layout and put message panel there
-		JPanel waitPanel = new JPanel();
-		waitPanel.add(new JLabel("Please select settings"));
+		JPanel waitPanel = new JPanel(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		
+		waitPanel.add(new JLabel("<html><p style=\"font-size: larger\">Please select genome and click " + drawButton.getText() + "</p></html>"), c);
 		plotPanel.add(waitPanel, WAITPANEL);
 
 		return plotPanel;
