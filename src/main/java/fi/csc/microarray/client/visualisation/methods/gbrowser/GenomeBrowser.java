@@ -91,6 +91,20 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 	private static final Logger logger = Logger.getLogger(GenomeBrowser.class);
 	
+	private static class Interpretation {
+		
+		public TrackType type;
+		public List<DataBean> summaryDatas;
+		public DataBean primaryData;
+		public DataBean indexData;
+		
+		public Interpretation(TrackType type, DataBean primaryData) {
+			this.type = type;
+			this.primaryData = primaryData;
+		}
+
+	}
+	
 	private static enum TrackType {
 		CYTOBANDS(false), 
 		GENES(true), 
@@ -111,20 +125,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 	private static class Track {
 
-		TrackType type;
+		Interpretation interpretation;
 		JCheckBox checkBox;
 		String name;
-		DataBean userData;
 		TrackGroup trackGroup = null;
 
-		public Track(String name, TrackType type) {
+		public Track(String name, Interpretation interpretation) {
 			this.name = name;
-			this.type = type;
-		}
-
-		public Track(String name, TrackType type, DataBean userData) {
-			this(name, type);
-			this.userData = userData;
+			this.interpretation = interpretation;
 		}
 
 		public void setTrackGroup(TrackGroup trackGroup) {
@@ -139,8 +147,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private final ClientApplication application = Session.getSession()
 			.getApplication();
 
-	private List<DataBean> datas;
-	private List<TrackType> interpretations;
+	private List<Interpretation> interpretations;
 	private List<Track> tracks = new LinkedList<Track>();
 
 	private GenomePlot plot;
@@ -192,7 +199,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		trackSwitches.put(new JCheckBox("Strand-specific coverage", false), "ProfileTrack");
 		trackSwitches.put(new JCheckBox("Quality coverage", false), "QualityCoverageTrack");
 		trackSwitches.put(new JCheckBox("Density graph", false), "GelTrack");
-//		trackSwitches.put(new JCheckBox("Show reference SNP's", false), "changeSNP"); // TODO re-enable SNP view
+//		trackSwitches.put(new JCheckBox("Show common SNP's", false), "changeSNP"); // TODO re-enable dbSNP view
 	}
 
 	@Override
@@ -256,9 +263,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		
 		
 		for (int i = 0; i < interpretations.size(); i++) {
-			TrackType interpretation = interpretations.get(i);
-			tracks.add(new Track(datas.get(i).getName(), interpretation, datas
-					.get(i)));
+			Interpretation interpretation = interpretations.get(i);
+			DataBean data = interpretation.primaryData;
+			tracks.add(new Track(data.getName(), interpretation));
 		}
 
 		this.settingsGridBagConstraints.gridy++;
@@ -444,7 +451,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private void fillChromosomeBox() throws IOException {
 		TreeSet<String> chromosomes = new TreeSet<String>(); 
 		for (int i = 0; i < interpretations.size(); i++) {
-			TrackType trackType = interpretations.get(i);
+			TrackType trackType = interpretations.get(i).type;
 			if (trackType == TrackType.READS) {
 				DataBean data = datas.get(i);
 				InputStream in = null;
@@ -801,9 +808,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	    			}
 	    		}
 	    	}
-	    	if (indexBean == null) {
-	    		throw new MicroarrayException("Index file not selected for SAM/BAM file " + data.getName());
-	    	}
 	    	File indexFile = Session.getSession().getDataManager().getLocalFile(indexBean);
 	    	dataSource = new SAMDataSource(file, indexFile);
 	    	
@@ -878,39 +882,62 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		gotoButton.setEnabled(false);
 	}
 
-	private List<TrackType> interpretUserDatas(List<DataBean> datas) {
-		LinkedList<TrackType> interpretations = new LinkedList<TrackType>();
+	private List<Interpretation> interpretUserDatas(List<DataBean> datas) {
+		LinkedList<Interpretation> interpretations = new LinkedList<Interpretation>();
 
-		// try to find interpretation for all selected datas
+		// Find interpretations for all primary data types
 		for (DataBean data : datas) {
 
 			if (data.isContentTypeCompatitible("text/plain")) {
-				interpretations.add(TrackType.READS);
+				// ELAND result / export
+				interpretations.add(new Interpretation(TrackType.READS, data));
 
 			} else if (data.isContentTypeCompatitible("text/bed")) {
-				// peaks
-				interpretations.add(TrackType.PEAKS);
+				// BED (ChIP-seq peaks)
+				interpretations.add(new Interpretation(TrackType.PEAKS, data));
 
 			} else if (data.isContentTypeCompatitible("text/tab")) {
 				// peaks (with header in the file)
-				interpretations.add(TrackType.PEAKS_WITH_HEADER);
+				interpretations.add(new Interpretation(TrackType.PEAKS_WITH_HEADER, data));
 
 			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
-					(data.getName().contains(".bam-summary"))) {
-				interpretations.add(TrackType.READS_WITH_SUMMARY);
-				
-			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
 			           (data.getName().endsWith(".bam"))) {
-                interpretations.add(TrackType.READS);
-                
-			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
-			           (isIndexData(data))) {
-				interpretations.add(TrackType.HIDDEN);
-                
-			} else {
-	             throw new RuntimeException("cannot visualise: " + data.getName());
+				// BAM file
+                interpretations.add(new Interpretation(TrackType.READS, data));
 			}
 		}
+		
+		// Find interpretations for all secondary data types
+		for (DataBean data : datas) {
+
+			// Find the interpretation to add this secondary data to
+			Interpretation primaryInterpretation = null;
+			for (Interpretation interpretation : interpretations) {
+				if (data.getName().startsWith(interpretation.primaryData.getName())) {
+					primaryInterpretation = interpretation;
+					break;
+				}
+			}
+			
+			if (primaryInterpretation == null) {
+				return null; // could not bound this secondary data to any primary data
+			}
+			
+			if ((data.isContentTypeCompatitible("application/octet-stream")) &&
+					(data.getName().contains(".bam-summary"))) {
+				// BAM summary file (from custom preprocessor)
+				primaryInterpretation.summaryDatas.add(data);
+				
+			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
+					(isIndexData(data))) {
+				// BAI file
+				if (primaryInterpretation.indexData != null) {
+					return null; // already taken, could not bind this secondary data to any primary data
+				}
+				primaryInterpretation.indexData = data;
+			}
+		}
+		
 
 		return interpretations;
 	}
