@@ -28,7 +28,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  */
 public class IntensityTrack extends Track {
 
-	private static final int MAX_VALUE_COUNT = 50;
+    final public static int SAMPLING_GRANULARITY = 100;
+
 	private SortedSet<RegionContent> values = new TreeSet<RegionContent>();
 	private LinkedList<RegionContent> valueStorageOrder = new LinkedList<RegionContent>();
 	private long minBpLength;
@@ -55,6 +56,12 @@ public class IntensityTrack extends Track {
 			
 			// remove values that have gone out of view
 			if (!regCont.region.intercepts(getView().getBpRegion())) {
+				iterator.remove();
+				continue;
+			}
+			
+			// remove values that are too wide for this view (when zooming in)
+			if (regCont.region.getLength() > (getView().getBpRegion().getLength() / SAMPLING_GRANULARITY * 2)) {
 				iterator.remove();
 				continue;
 			}

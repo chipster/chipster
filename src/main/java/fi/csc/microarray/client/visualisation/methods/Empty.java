@@ -69,10 +69,11 @@ public class Empty extends Visualisation {
 		mainPanel.setBackground(Color.WHITE);
 
 		JPanel linkPanel = Session.getSession().getPrimaryModule().getContextLinkPanel(selectedDataCount);
+		if (linkPanel != null) {
+			mainPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+			mainPanel.add(linkPanel);
+		}
 		
-		mainPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		mainPanel.add(linkPanel);
-
 		return mainPanel;
 	}
 

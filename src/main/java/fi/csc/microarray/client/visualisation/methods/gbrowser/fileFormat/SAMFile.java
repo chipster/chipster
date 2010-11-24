@@ -20,6 +20,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRe
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CigarItem;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.IntensityTrack;
 
 /**
  * SAM and BAM file abstraction. Uses picard library for actual
@@ -34,10 +35,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  */
 public class SAMFile {
 
-	// FIXME make final
-    int SAMPLING_GRANULARITY = 100;
-	int SAMPLE_DIVIDER = 4;
-    int SAMPLE_SIZE_BP = 100;
+    final public int SAMPLE_DIVIDER = 4;
+    final public int SAMPLE_SIZE_BP = 100;
 
 	private ConcisedValueCache cache = new ConcisedValueCache();
 	public SAMFileReader reader;
@@ -157,7 +156,7 @@ public class SAMFile {
     	List<RegionContent> responseList = new LinkedList<RegionContent>();
         
         // How many times file is read
-        int step = request.getLength().intValue() / SAMPLING_GRANULARITY;
+        int step = request.getLength().intValue() / IntensityTrack.SAMPLING_GRANULARITY;
         
         // Divide visible region into subregions and iterate over them
         for (long pos = request.start.bp; pos < request.end.bp; pos += step) {
