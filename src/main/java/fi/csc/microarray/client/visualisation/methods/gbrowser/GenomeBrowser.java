@@ -10,6 +10,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -260,6 +261,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		// add tracks to settings panel
 		c.weighty = 0.0;
 		
+		AffineTransform at = new AffineTransform();
+		at.setToScale(1.2, 1.2);
+
+		this.tracksLabel.setFont(this.tracksLabel.getFont().deriveFont(at));
 		this.tracksLabel.setEnabled(false);
 		settingsPanel.add(tracksLabel, c);
 		c.gridy++;
