@@ -97,7 +97,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private static class Interpretation {
 		
 		public TrackType type;
-		public List<DataBean> summaryDatas;
+		public List<DataBean> summaryDatas = new LinkedList<DataBean>();
 		public DataBean primaryData;
 		public DataBean indexData;
 		
@@ -116,7 +116,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		PEAKS(true),
 		PEAKS_WITH_HEADER(true), 
 		READS(true),
-		READS_WITH_SUMMARY(true),
 		HIDDEN(false);
 		
 		private boolean isToggleable;
@@ -674,18 +673,21 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 					switch (track.interpretation.type) {
 
 					case READS:
-						TrackFactory.addThickSeparatorTrack(plot);
-						treatmentData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
-						TrackGroup readGroup = TrackFactory.addReadTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.REFERENCE).getUrl(), new SequenceParser()), file.getName());
-						track.setTrackGroup(readGroup);
+						if (track.interpretation.summaryDatas.size() == 0) {
+							// No precomputed summary data
+							TrackFactory.addThickSeparatorTrack(plot);
+							treatmentData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
+							TrackGroup readGroup = TrackFactory.addReadTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.REFERENCE).getUrl(), new SequenceParser()), file.getName());
+							track.setTrackGroup(readGroup);
+						} else { 
+							// Has precomputed summary data
+							TrackFactory.addThickSeparatorTrack(plot);
+							treatmentData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
+							TrackGroup readGroupWithSummary = TrackFactory.addReadSummaryTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.REFERENCE).getUrl(), new SequenceParser()), file);
+							track.setTrackGroup(readGroupWithSummary);
+						}
 						break;
 
-					case READS_WITH_SUMMARY:
-						TrackFactory.addThickSeparatorTrack(plot);
-						treatmentData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
-						TrackGroup readGroupWithSummary = TrackFactory.addReadSummaryTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.REFERENCE).getUrl(), new SequenceParser()), file);
-						track.setTrackGroup(readGroupWithSummary);
-						break;
 					}
 				}
 			}
@@ -765,7 +767,17 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 	private void initialiseUserDatas() throws IOException {
 		for (Interpretation interpretation : interpretations) {
-			Session.getSession().getDataManager().getLocalFile(interpretation.primaryData);
+			initialiseUserData(interpretation.primaryData);
+			initialiseUserData(interpretation.indexData);
+			for (DataBean summaryData : interpretation.summaryDatas) {
+				initialiseUserData(summaryData);
+			}
+		}
+	}
+
+	private void initialiseUserData(DataBean data) throws IOException {
+		if (data != null) {
+			Session.getSession().getDataManager().getLocalFile(data);
 		}
 	}
 	

@@ -54,7 +54,7 @@ public class TabixReader {
 				level = lengthToLevel[i][1];
 			}
 		}
-		file = prefix + level;
+		file = prefix + "summary" + level;
 		
 		//FIXME replace with real Java library for tabix, for example 
 		//https://genomeview.svn.sourceforge.net/svnroot/genomeview/jannot/trunk/net/sf/jannot/tabix/
