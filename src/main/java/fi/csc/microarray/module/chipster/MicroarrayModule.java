@@ -438,7 +438,7 @@ public class MicroarrayModule implements Module {
 			link.setText("Select all and open genome browser");
 		}
 
-		c.insets.set(topMargin + 5, 5, 0, 0);
+		c.insets.set(topMargin, 5, 0, 0);
 		c.gridx++;
 		contentPanel.add(link, c);
 		
