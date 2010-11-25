@@ -1,7 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
 import java.awt.CardLayout;
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -28,6 +27,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -39,7 +39,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.border.TitledBorder;
 
 import org.apache.log4j.Logger;
 import org.jfree.chart.ChartPanel;
@@ -165,8 +164,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private JPanel optionsPanel;
 	private JPanel plotPanel = new JPanel(new CardLayout());
 
-	private JButton gotoButton = new JButton("Go to location");
-	private JButton drawButton = new JButton("Go");
+	private JButton goButton = new JButton("Go");
 
 	private JLabel locationLabel = new JLabel("Location (gene or position)");
 	private JTextField locationField = new JTextField();
@@ -270,7 +268,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			dc.weighty = 1.0;
 			dc.weightx = 1.0;
 
-			datasetSwitchesPanel = new JPanel(new GridBagLayout());
+			datasetSwitchesPanel = new JPanel();
+			datasetSwitchesPanel.setLayout(new BoxLayout(datasetSwitchesPanel, BoxLayout.Y_AXIS));
 			
 			JScrollPane scrollPane = new JScrollPane(datasetSwitchesPanel);
 			scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -286,13 +285,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		datasetSwitches.clear();
 		
 		datasetSwitchesPanel.removeAll();
-		GridBagConstraints sc = new GridBagConstraints();
-		sc.weighty = 1.0;
-		sc.weightx = 1.0;
-		sc.anchor = GridBagConstraints.PAGE_START;
-		sc.fill = GridBagConstraints.HORIZONTAL;
-		sc.gridx = 0;
-		sc.gridy = 0;
 
 		for (Track track : tracks) {
 			JCheckBox box = new JCheckBox(track.name, true);
@@ -300,8 +292,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			box.setEnabled(false);
 			track.checkBox = box;
 			if (track.interpretation.type.isToggleable) {
-				datasetSwitchesPanel.add(box, sc);
-				sc.gridy++;
+				datasetSwitchesPanel.add(box);
 				datasetSwitches.add(box);
 				box.addActionListener(this);
 			}
@@ -331,7 +322,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			menuScrollPane.setBorder(BorderFactory.createEmptyBorder());
 
 			GridBagConstraints c = new GridBagConstraints();
-			c.weighty = 1.0;
+			c.weighty = 0.0;
 			c.weightx = 1.0;
 			c.anchor = GridBagConstraints.PAGE_START;
 			c.fill = GridBagConstraints.HORIZONTAL;
@@ -345,9 +336,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				c.gridy++;
 			}
 
-			c.insets.set(5,0,0,0);
 			// coverage scale
 			coverageScaleLabel.setEnabled(false);
+			c.insets.set(10,0,0,0);
 			menu.add(coverageScaleLabel, c);
 			c.gridy++;
 			c.insets.set(0,0,0,0);
@@ -356,7 +347,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			coverageScaleBox.addActionListener(this);
 			menu.add(coverageScaleBox, c);
 
-			optionsPanel.add(menuScrollPane, oc);
+			optionsPanel.add(menu, oc);
 		}
 		return optionsPanel;
 	}
@@ -387,7 +378,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		c.fill = GridBagConstraints.BOTH;
 	
 		// options
-		c.weighty = 1.0;
+//		c.weighty = 1.0;
 		settingsPanel.add(getOptionsPanel(), c);
 		c.gridy++;
 		
@@ -440,56 +431,50 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			GridBagConstraints c = new GridBagConstraints();
 			c.gridy = 0;
 			c.gridx = 0;
-			c.insets.set(5, 0, 5, 0);
 			c.anchor = GridBagConstraints.NORTHWEST;
 			c.fill = GridBagConstraints.HORIZONTAL;
 			c.weighty = 0;
 			c.weightx = 1.0;
-			c.gridx = 0;
-			c.gridwidth = 5;
 
+			// chromosome
 			chrLabel.setEnabled(false);
 			locationPanel.add(chrLabel, c);
 			c.gridy++;
 			chrBox.setEnabled(false);
+			c.insets.set(0, 0, 10, 0);
 			locationPanel.add(chrBox, c);
 
 			// location
 			c.gridy++;
+			c.insets.set(0, 0, 0, 0);
 			locationLabel.setEnabled(false);
 			locationPanel.add(locationLabel, c);
-			c.gridy++;
 			locationField.setEnabled(false);
+			c.gridy++;
+			c.insets.set(0, 0, 10, 0);
 			locationPanel.add(locationField, c);
 
 			// zoom
 			c.gridx = 0;
 			c.gridwidth = 5;
 			c.gridy++;
-			c.insets.set(5, 0, 5, 0);
+			c.insets.set(0, 0, 0, 0);
 			zoomLabel.setEnabled(false);
 			locationPanel.add(zoomLabel, c);
 			c.gridwidth = 4;
 			c.gridy++;
+			c.insets.set(0, 0, 10, 0);
 			zoomField.setEnabled(false);
 			locationPanel.add(this.zoomField, c);
 			this.zoomField.addFocusListener(this);
 
-			// draw button
+			// go button
 			c.gridy++;
 			c.fill = GridBagConstraints.HORIZONTAL;
 			c.anchor = GridBagConstraints.CENTER;
-
-			drawButton.setEnabled(false);
-			drawButton.addActionListener(this);
-			locationPanel.add(drawButton, c);
-			c.gridy++;
-			c.fill = GridBagConstraints.BOTH;
-			c.weighty = 1.0;
-
-			gotoButton.addActionListener(this);
-			gotoButton.setEnabled(false);
-
+			goButton.setEnabled(false);
+			goButton.addActionListener(this);
+			locationPanel.add(goButton, c);
 		}
 		return locationPanel;
 	}
@@ -535,7 +520,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
 
-		if (source == drawButton) {
+		if (source == goButton) {
 
 			// disable changing of the genome
 			this.genomeBox.setEnabled(false);
@@ -595,7 +580,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			}
 
 			// enable other settings
-			this.drawButton.setEnabled(true);
+			this.goButton.setEnabled(true);
 			this.chrLabel.setEnabled(true);
 			this.chrBox.setEnabled(true);
 			this.locationLabel.setEnabled(true);
@@ -639,7 +624,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		JPanel waitPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		
-		waitPanel.add(new JLabel("<html><p style=\"font-size: larger\">Please select genome and click " + drawButton.getText() + "</p></html>"), c);
+		waitPanel.add(new JLabel("<html><p style=\"font-size: larger\">Please select genome and click " + goButton.getText() + "</p></html>"), c);
 		plotPanel.add(waitPanel, WAITPANEL);
 
 		return plotPanel;
@@ -918,7 +903,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	public void regionChanged(BpCoordRegion bpRegion) {
 		locationField.setText(bpRegion.getMid().toString());
 		zoomField.setText("" + bpRegion.getLength());
-		gotoButton.setEnabled(false);
 	}
 
 	private List<Interpretation> interpretUserDatas(List<DataBean> datas) {
@@ -1050,7 +1034,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	}
 
 	public void focusGained(FocusEvent e) {
-		gotoButton.setEnabled(true);
 	}
 
 	public void focusLost(FocusEvent e) {
