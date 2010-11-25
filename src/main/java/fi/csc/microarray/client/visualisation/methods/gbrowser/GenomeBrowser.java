@@ -618,6 +618,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		fillChromosomeBox();
 
 		// We can create tracks now that we know the data
+		this.tracks.clear();
 		createAvailableTracks(); 
 
 		// Create panel with card layout and put message panel there
