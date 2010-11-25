@@ -450,6 +450,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			locationLabel.setEnabled(false);
 			locationPanel.add(locationLabel, c);
 			locationField.setEnabled(false);
+			locationField.addActionListener(this);
 			c.gridy++;
 			c.insets.set(0, 0, 10, 0);
 			locationPanel.add(locationField, c);
@@ -466,7 +467,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			c.insets.set(0, 0, 10, 0);
 			zoomField.setEnabled(false);
 			locationPanel.add(this.zoomField, c);
-			this.zoomField.addFocusListener(this);
+			this.zoomField.addActionListener(this);
 
 			// go button
 			c.gridy++;
@@ -520,7 +521,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
 
-		if (source == goButton) {
+		if (source == goButton || source == locationField || source == zoomField) {
 
 			// disable changing of the genome
 			this.genomeBox.setEnabled(false);
@@ -594,7 +595,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			
 			coverageScaleLabel.setEnabled(true);
 			coverageScaleBox.setEnabled(true);
-		}
+		}		
 	}
 
 	private void setTrackSwitchesEnabled(boolean enabled) {
@@ -1011,7 +1012,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			if (geneLocation == null) {
 				application.showDialog("Not found",
 						"Gene with such name was not found", null,
-						Severity.INFO, false,
+						Severity.INFO, true,
 						DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
 			} else {
 				chrBox.setSelectedItem(new Chromosome(geneLocation.start.chr));
