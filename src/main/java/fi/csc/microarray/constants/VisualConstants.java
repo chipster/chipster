@@ -14,6 +14,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
+import javax.swing.border.TitledBorder;
 import javax.swing.plaf.BorderUIResource;
 
 import com.jgoodies.looks.HeaderStyle;
@@ -361,5 +362,8 @@ public class VisualConstants {
 		return Session.getSession().getApplication().isStandalone() ? "Import directly" : "Import directly if possible"; 
 	}
 
+	public static TitledBorder createSettingsPanelSubPanelBorder(String title) {
+		return BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.lightGray), title);
+	}
 
 }
