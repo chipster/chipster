@@ -35,13 +35,15 @@ public class IntensityTrack extends Track {
 	private long minBpLength;
 	private Color color;
 	private boolean doLog;
+	private boolean removeTooWide;
 
 	public IntensityTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
-	        Color c, long maxBpLength, boolean doLog) {
+	        Color c, long maxBpLength, boolean doLog, boolean removeTooWide) {
 		super(view, file, handler);
 		this.color = c;
 		this.doLog = doLog;
 		this.minBpLength = maxBpLength;
+		this.removeTooWide = removeTooWide;
 	}
 
 	@Override
@@ -61,7 +63,7 @@ public class IntensityTrack extends Track {
 			}
 			
 			// remove values that are too wide for this view (when zooming in)
-			if (regCont.region.getLength() > (getView().getBpRegion().getLength() / SAMPLING_GRANULARITY * 2)) {
+			if (removeTooWide && regCont.region.getLength() > (getView().getBpRegion().getLength() / SAMPLING_GRANULARITY * 2)) {
 				iterator.remove();
 				continue;
 			}
