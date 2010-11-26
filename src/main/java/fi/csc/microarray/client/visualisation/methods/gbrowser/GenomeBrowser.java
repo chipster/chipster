@@ -10,7 +10,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -74,6 +73,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Annotatio
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Row;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack3D;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
+import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
@@ -156,10 +156,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 	private JPanel paramPanel;
 	private JPanel settingsPanel = new JPanel();
+	private JPanel genomePanel;
+	private JPanel locationPanel;
+	private JPanel datasetsPanel;
+	private JPanel datasetSwitchesPanel;
+	private JPanel optionsPanel;
 	private JPanel plotPanel = new JPanel(new CardLayout());
 
-	private JButton gotoButton = new JButton("Go to location");
-	private JButton drawButton = new JButton("Go");
+	private JButton goButton = new JButton("Go");
 
 	private JLabel locationLabel = new JLabel("Location (gene or position)");
 	private JTextField locationField = new JTextField();
@@ -172,11 +176,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	
 	private JComboBox genomeBox = new JComboBox();
 	
-	private JLabel tracksLabel = new JLabel("Datasets");
-
 	private Object lastChromosome;
 
-	private GridBagConstraints settingsGridBagConstraints;
 	private AnnotationContents annotationContents;
 
 	private JLabel coverageScaleLabel = new JLabel("Coverage scale");
@@ -248,38 +249,41 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			DataBean data = interpretation.primaryData;
 			tracks.add(new Track(data.getName(), interpretation));
 		}
-
-		this.settingsGridBagConstraints.gridy++;
-		GridBagConstraints c = this.settingsGridBagConstraints;
-
 		
-		// draw button
-		c.gridy++;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.CENTER;
-		drawButton.setEnabled(false);
-		settingsPanel.add(drawButton, c);
-		c.gridy++;
-		c.fill = GridBagConstraints.BOTH;
-		c.weighty = 1.0;
+		// update the dataset switches in the settings panel
+		updateDatasetSwitches();
+	}
 
-		
-		// add tracks to settings panel
-		c.weighty = 0.0;
-		
-		AffineTransform at = new AffineTransform();
-		at.setToScale(1.2, 1.2);
+	private JPanel getDatasetsPanel() {
+		if (this.datasetsPanel == null) { 
+			datasetsPanel = new JPanel(new GridBagLayout());
+			datasetsPanel.setBorder(VisualConstants.createSettingsPanelSubPanelBorder("Datasets"));
 
-		this.tracksLabel.setFont(this.tracksLabel.getFont().deriveFont(at));
-		this.tracksLabel.setEnabled(false);
-		settingsPanel.add(tracksLabel, c);
-		c.gridy++;
-		c.weighty = 1.0;
-		c.fill = GridBagConstraints.BOTH;
-		c.anchor = GridBagConstraints.NORTHWEST;
+			GridBagConstraints dc = new GridBagConstraints();
+			dc.gridy = 0;
+			dc.gridx = 0;
+			dc.anchor = GridBagConstraints.NORTHWEST;
+			dc.fill = GridBagConstraints.BOTH;
+			dc.weighty = 1.0;
+			dc.weightx = 1.0;
+
+			datasetSwitchesPanel = new JPanel();
+			datasetSwitchesPanel.setLayout(new BoxLayout(datasetSwitchesPanel, BoxLayout.Y_AXIS));
+			
+			JScrollPane scrollPane = new JScrollPane(datasetSwitchesPanel);
+			scrollPane.setBorder(BorderFactory.createEmptyBorder());
+
+			scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);		
+			datasetsPanel.add(scrollPane, dc);
+		}
 		
-		JPanel trackPanel = new JPanel();
-		trackPanel.setLayout(new BoxLayout(trackPanel, BoxLayout.Y_AXIS));
+		return datasetsPanel;
+	}
+
+	private void updateDatasetSwitches() {
+		datasetSwitches.clear();
+		
+		datasetSwitchesPanel.removeAll();
 
 		for (Track track : tracks) {
 			JCheckBox box = new JCheckBox(track.name, true);
@@ -287,68 +291,64 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			box.setEnabled(false);
 			track.checkBox = box;
 			if (track.interpretation.type.isToggleable) {
-				trackPanel.add(box);
+				datasetSwitchesPanel.add(box);
 				datasetSwitches.add(box);
 				box.addActionListener(this);
 			}
 		}
-		
-		JScrollPane trackPanelScrollPane = new JScrollPane(trackPanel);
-		trackPanelScrollPane.setBorder(BorderFactory.createEmptyBorder());
-		
-		trackPanelScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);		
-		settingsPanel.add(trackPanelScrollPane, c);
-		c.gridy++;
-
-		
-		// options
-		c.weighty = 1.0;
-		createTracksSwitches();
-
-		// scale options for profile track
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.NORTHWEST;
-		c.weighty = 0.0;
-		c.gridx = 0;
-		c.gridwidth = 5;
-		c.gridy++;
-		c.insets.set(5, 10, 5, 10);
-		coverageScaleLabel.setEnabled(false);
-		settingsPanel.add(coverageScaleLabel, c);
-		coverageScaleBox = new JComboBox(GenomePlot.ReadScale.values());
-		coverageScaleBox.setEnabled(false);
-		coverageScaleBox.addActionListener(this);
-		c.gridx = 0;
-		c.gridwidth = 5;
-		c.gridy++;
-		settingsPanel.add(coverageScaleBox, c);
-
 	}
 	
-	public void createTracksSwitches() {
-		
-		GridBagConstraints c = this.settingsGridBagConstraints;
-		
-		JPanel menu = new JPanel();
-		JScrollPane menuScrollPane = new JScrollPane(menu);
-		menuScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		menuScrollPane.setBorder(BorderFactory.createEmptyBorder());
-//		menu.setLayout(new GridLayout(7,1));
-		menu.setLayout(new BoxLayout(menu, BoxLayout.Y_AXIS));
+	public JPanel getOptionsPanel() {
+		if (this.optionsPanel == null) {
+			optionsPanel = new JPanel(new GridBagLayout());
+			optionsPanel.setBorder(VisualConstants.createSettingsPanelSubPanelBorder("Options"));
+
+			GridBagConstraints oc = new GridBagConstraints();
+			oc.gridy = 0;
+			oc.gridx = 0;
+			oc.anchor = GridBagConstraints.PAGE_START;
+			oc.fill = GridBagConstraints.BOTH;
+			oc.weighty = 1.0;
+			oc.weightx = 1.0;
+
+			JPanel menu = new JPanel(new GridBagLayout());
+			menu.setBorder(BorderFactory.createEmptyBorder());
+
+			JScrollPane menuScrollPane = new JScrollPane(menu);
 
 
-		setTrackSwitchesEnabled(false);
-		for (JCheckBox trackSwitch : trackSwitches.keySet()) {
-			trackSwitch.addActionListener(this);
-			menu.add(trackSwitch);
+			menuScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+			menuScrollPane.setBorder(BorderFactory.createEmptyBorder());
+
+			GridBagConstraints c = new GridBagConstraints();
+			c.weighty = 0.0;
+			c.weightx = 1.0;
+			c.anchor = GridBagConstraints.PAGE_START;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			c.gridx = 0;
+			c.gridy = 0;
+
+			setTrackSwitchesEnabled(false);
+			for (JCheckBox trackSwitch : trackSwitches.keySet()) {
+				trackSwitch.addActionListener(this);
+				menu.add(trackSwitch, c);
+				c.gridy++;
+			}
+
+			// coverage scale
+			coverageScaleLabel.setEnabled(false);
+			c.insets.set(10,0,0,0);
+			menu.add(coverageScaleLabel, c);
+			c.gridy++;
+			c.insets.set(0,0,0,0);
+			coverageScaleBox = new JComboBox(GenomePlot.ReadScale.values());
+			coverageScaleBox.setEnabled(false);
+			coverageScaleBox.addActionListener(this);
+			menu.add(coverageScaleBox, c);
+
+			optionsPanel.add(menu, oc);
 		}
-        
-		settingsPanel.add(menuScrollPane, c);
-		
-		c.gridy++;
-		c.fill = GridBagConstraints.BOTH;
-		c.weighty = 1.0;
-		
+		return optionsPanel;
 	}
 	
 	public JPanel createSettingsPanel() {
@@ -356,85 +356,127 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		settingsPanel.setLayout(new GridBagLayout());
 		settingsPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
 
-		drawButton.addActionListener(this);
-
 		GridBagConstraints c = new GridBagConstraints();
 
 		c.gridy = 0;
 		c.gridx = 0;
-		c.insets.set(5, 10, 5, 10);
+		c.insets.set(0, 5, 15, 5);
 		c.anchor = GridBagConstraints.NORTHWEST;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weighty = 0;
 		c.weightx = 1.0;
-		c.gridx = 0;
-		c.gridwidth = 5;
 
 		// genome
-		Collection<Genome> genomes = annotationContents.getGenomes();
+		settingsPanel.add(getGenomePanel(), c);
 		c.gridy++;
-		settingsPanel.add(new JLabel("Genome"), c);
 		
-		c.gridy++;
-		for (Genome genome : genomes) {
-			genomeBox.addItem(genome);
-		}
-		
-		// no selection at startup
-		genomeBox.setSelectedItem(null);
-
-		genomeBox.addActionListener(this);
-		settingsPanel.add(genomeBox, c);
-		c.gridy++;
-
-		// add annotations button
-//		JButton button = new JButton("Annotations");
-//		button.addActionListener(new ActionListener() {
-//
-//			@Override
-//			public void actionPerformed(ActionEvent arg0) {
-//				AnnotationsScreen screen = new AnnotationsScreen(annotationContents);
-//				screen.getFrame().pack();
-//				screen.getFrame().setVisible(true);
-//			}
-//		});
-//		settingsPanel.add(button, c);
-		
-		c.gridy++;
-		chrLabel.setEnabled(false);
-		settingsPanel.add(chrLabel, c);
-		c.gridy++;
-		chrBox.setEnabled(false);
-		settingsPanel.add(chrBox, c);
-
 		// location
+		settingsPanel.add(getLocationPanel(), c);
 		c.gridy++;
-		locationLabel.setEnabled(false);
-		settingsPanel.add(locationLabel, c);
+		
+		c.fill = GridBagConstraints.BOTH;
+	
+		// options
+//		c.weighty = 1.0;
+		settingsPanel.add(getOptionsPanel(), c);
 		c.gridy++;
-		locationField.setEnabled(false);
-		settingsPanel.add(locationField, c);
-
-		// zoom
-		c.gridx = 0;
-		c.gridwidth = 5;
-		c.gridy++;
-		c.insets.set(5, 10, 5, 10);
-		zoomLabel.setEnabled(false);
-		settingsPanel.add(zoomLabel, c);
-		c.gridwidth = 4;
-		c.gridy++;
-		zoomField.setEnabled(false);
-		settingsPanel.add(this.zoomField, c);
-		this.zoomField.addFocusListener(this);
-
-
-		gotoButton.addActionListener(this);
-		gotoButton.setEnabled(false);
-
-		this.settingsGridBagConstraints = c;
-
+		
+		// datasets
+		c.weighty = 0.5;
+		c.insets.set(0, 5, 5, 5);
+		settingsPanel.add(getDatasetsPanel(), c);
+		
 		return settingsPanel;
+	}
+
+	
+	private JPanel getGenomePanel() {
+		if (this.genomePanel == null) {
+			this.genomePanel = new JPanel(new GridBagLayout());
+			genomePanel.setBorder(VisualConstants.createSettingsPanelSubPanelBorder("Genome"));
+			
+			GridBagConstraints c = new GridBagConstraints();
+			c.gridy = 0;
+			c.gridx = 0;
+			c.insets.set(5, 0, 5, 0);
+			c.anchor = GridBagConstraints.NORTHWEST;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			c.weighty = 0;
+			c.weightx = 1.0;
+			c.gridx = 0;
+
+			// genome
+			Collection<Genome> genomes = annotationContents.getGenomes();
+			for (Genome genome : genomes) {
+				genomeBox.addItem(genome);
+			}
+
+			// no selection at startup
+			genomeBox.setSelectedItem(null);
+			genomeBox.addActionListener(this);
+
+			genomePanel.add(genomeBox, c);
+		}
+
+		return genomePanel;
+	}
+	
+	private JPanel getLocationPanel() {
+		if (this.locationPanel == null) {
+
+			locationPanel = new JPanel(new GridBagLayout());
+			locationPanel.setBorder(VisualConstants.createSettingsPanelSubPanelBorder("Location"));
+
+			GridBagConstraints c = new GridBagConstraints();
+			c.gridy = 0;
+			c.gridx = 0;
+			c.anchor = GridBagConstraints.NORTHWEST;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			c.weighty = 0;
+			c.weightx = 1.0;
+
+			// chromosome
+			chrLabel.setEnabled(false);
+			locationPanel.add(chrLabel, c);
+			c.gridy++;
+			chrBox.setEnabled(false);
+			c.insets.set(0, 0, 10, 0);
+			locationPanel.add(chrBox, c);
+
+			// location
+			c.gridy++;
+			c.insets.set(0, 0, 0, 0);
+			locationLabel.setEnabled(false);
+			locationPanel.add(locationLabel, c);
+			locationField.setEnabled(false);
+			locationField.addActionListener(this);
+			c.gridy++;
+			c.insets.set(0, 0, 10, 0);
+			locationPanel.add(locationField, c);
+
+			// zoom
+			c.gridx = 0;
+			c.gridwidth = 5;
+			c.gridy++;
+			c.insets.set(0, 0, 0, 0);
+			zoomLabel.setEnabled(false);
+			locationPanel.add(zoomLabel, c);
+			c.gridwidth = 4;
+			c.gridy++;
+			c.insets.set(0, 0, 10, 0);
+			zoomField.setEnabled(false);
+			locationPanel.add(this.zoomField, c);
+			this.zoomField.addActionListener(this);
+
+			// go button
+			c.gridy++;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			c.anchor = GridBagConstraints.CENTER;
+			goButton.setEnabled(false);
+			goButton.addActionListener(this);
+			locationPanel.add(goButton, c);
+		}
+		return locationPanel;
 	}
 
 	private void fillChromosomeBox() throws IOException {
@@ -478,7 +520,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
 
-		if (source == drawButton) {
+		if (source == goButton || source == locationField || source == zoomField) {
 
 			// disable changing of the genome
 			this.genomeBox.setEnabled(false);
@@ -538,7 +580,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			}
 
 			// enable other settings
-			this.drawButton.setEnabled(true);
+			this.goButton.setEnabled(true);
 			this.chrLabel.setEnabled(true);
 			this.chrBox.setEnabled(true);
 			this.locationLabel.setEnabled(true);
@@ -546,14 +588,13 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			this.zoomLabel.setEnabled(true);
 			this.zoomField.setEnabled(true);
 			
-			this.tracksLabel.setEnabled(true);
 			for (Track track : tracks) {
 				track.checkBox.setEnabled(true);
 			}
 			
 			coverageScaleLabel.setEnabled(true);
 			coverageScaleBox.setEnabled(true);
-		}
+		}		
 	}
 
 	private void setTrackSwitchesEnabled(boolean enabled) {
@@ -577,13 +618,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		fillChromosomeBox();
 
 		// We can create tracks now that we know the data
+		this.tracks.clear();
 		createAvailableTracks(); 
 
 		// Create panel with card layout and put message panel there
 		JPanel waitPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		
-		waitPanel.add(new JLabel("<html><p style=\"font-size: larger\">Please select genome and click " + drawButton.getText() + "</p></html>"), c);
+		waitPanel.add(new JLabel("<html><p style=\"font-size: larger\">Please select genome and click " + goButton.getText() + "</p></html>"), c);
 		plotPanel.add(waitPanel, WAITPANEL);
 
 		return plotPanel;
@@ -875,7 +917,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	public void regionChanged(BpCoordRegion bpRegion) {
 		locationField.setText(bpRegion.getMid().toString());
 		zoomField.setText("" + bpRegion.getLength());
-		gotoButton.setEnabled(false);
 	}
 
 	private List<Interpretation> interpretUserDatas(List<DataBean> datas) {
@@ -983,7 +1024,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			if (geneLocation == null) {
 				application.showDialog("Not found",
 						"Gene with such name was not found", null,
-						Severity.INFO, false,
+						Severity.INFO, true,
 						DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
 			} else {
 				chrBox.setSelectedItem(new Chromosome(geneLocation.start.chr));
@@ -1007,7 +1048,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	}
 
 	public void focusGained(FocusEvent e) {
-		gotoButton.setEnabled(true);
 	}
 
 	public void focusLost(FocusEvent e) {
