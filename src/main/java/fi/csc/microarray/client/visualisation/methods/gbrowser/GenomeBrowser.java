@@ -541,9 +541,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 									// Show visualisation
 									showVisualisation();
 									
-									// Make track switches enabled
-									setTrackSwitchesEnabled(true);
-									
 									// Set track visibility
 									updateVisibilityForTracks();
 								}
@@ -561,11 +558,11 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		        updateLocation();
 		    }
 			
-		} else if (datasetSwitches.contains(source) || source == coverageScaleBox) {
+		} else if ((datasetSwitches.contains(source) || source == coverageScaleBox) && this.initialised) {
 	        showVisualisation();
 	        updateVisibilityForTracks();
 
-		} else if (trackSwitches.keySet().contains(source)) {
+		} else if (trackSwitches.keySet().contains(source) && this.initialised) {
 			updateVisibilityForTracks();
 		} 
 		
@@ -594,6 +591,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			
 			coverageScaleLabel.setEnabled(true);
 			coverageScaleBox.setEnabled(true);
+			
+			this.setTrackSwitchesEnabled(true);
 		}		
 	}
 
@@ -1063,6 +1062,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	}
 
 	public void componentResized(ComponentEvent arg0) {
+//        showVisualisation();
+//        updateVisibilityForTracks();
+
 		this.updateLocation();
 		plot.redraw();
 	}
