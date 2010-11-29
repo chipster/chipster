@@ -3,7 +3,6 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 import java.util.Arrays;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
@@ -56,10 +55,6 @@ public class BEDParser extends TsvParser {
 	public Object get(String[] cols, ColumnType col) {
 
 		Object obj = super.get(cols, col);
-
-		if (col == ColumnType.CHROMOSOME) {
-			return new Chromosome(((Chromosome) obj).toString().replace(".fa", ""));
-		}
 		
 		return obj;
 	}
