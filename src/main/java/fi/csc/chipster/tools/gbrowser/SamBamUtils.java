@@ -23,6 +23,11 @@ import fi.csc.microarray.util.IOUtils;
 
 public class SamBamUtils {
 	
+	
+	public interface ChromosomeNormaliser {
+		public String normaliseChromosome(String chromosomeName);
+	}
+	
 	public interface SamBamUtilStateListener {
 		public void stateChanged(SamBamUtilState newState);
 	}
@@ -47,12 +52,14 @@ public class SamBamUtils {
 	
 	
 	private SamBamUtilStateListener stateListener;
+	private ChromosomeNormaliser chromosomeNormaliser;
 	
 	public SamBamUtils() {
 	}
 	
-	public SamBamUtils(SamBamUtilStateListener stateListener) {
+	public SamBamUtils(SamBamUtilStateListener stateListener, ChromosomeNormaliser chromosomeNormaliser) {
 		this.stateListener = stateListener;
+		this.chromosomeNormaliser = chromosomeNormaliser;
 	}
 
 	private void updateState(String state, double percentage) {
@@ -61,9 +68,6 @@ public class SamBamUtils {
 		}
 	}
 	
-	
-	private static final String REDUNDANT_CHROMOSOME_NAME_PREFIX = "chr";
-
 	public static void convertElandToSortedBam(File elandFile, File bamFile) throws IOException {
 
 		BufferedReader in = null;
@@ -114,7 +118,7 @@ public class SamBamUtils {
 	}
 
 	
-	public static void normaliseBam(File bamFile, File normalisedBamFile) {
+	public void normaliseBam(File bamFile, File normalisedBamFile) {
 
 		// Read in a BAM file and its header
 		SAMFileReader reader = new SAMFileReader(IoUtil.openFileForReading(bamFile));
@@ -126,12 +130,8 @@ public class SamBamUtils {
 			SAMSequenceDictionary normalisedDictionary = new SAMSequenceDictionary();
 			for (SAMSequenceRecord sequenceRecord : normalisedHeader.getSequenceDictionary().getSequences()) {
 
-				// Strip prefix, if exists
-				String sequenceName = sequenceRecord.getSequenceName();
-				if (sequenceName.startsWith(REDUNDANT_CHROMOSOME_NAME_PREFIX)) {
-					sequenceName = sequenceName.substring(REDUNDANT_CHROMOSOME_NAME_PREFIX.length());
-				}
-
+				// Normalise chromosome
+				String sequenceName = chromosomeNormaliser.normaliseChromosome(sequenceRecord.getSequenceName());
 				normalisedDictionary.addSequence(new SAMSequenceRecord(sequenceName, sequenceRecord.getSequenceLength()));
 			}
 			normalisedHeader.setSequenceDictionary(normalisedDictionary);
@@ -149,11 +149,11 @@ public class SamBamUtils {
 		}
 	}
 
-	public static void indexBam(File bamFile, File baiFile) {
+	public void indexBam(File bamFile, File baiFile) {
 		BuildBamIndex.createIndex(new SAMFileReader(IoUtil.openFileForReading(bamFile)), baiFile); 
 	}
 
-	public static void preprocessEland(File elandFile, File preprocessedBamFile, File baiFile) throws IOException {
+	public void preprocessEland(File elandFile, File preprocessedBamFile, File baiFile) throws IOException {
 		File sortedTempBamFile = File.createTempFile("converted", "bam");
 		
 		try {

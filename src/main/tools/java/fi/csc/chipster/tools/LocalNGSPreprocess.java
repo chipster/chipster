@@ -5,6 +5,7 @@ import java.io.File;
 import fi.csc.chipster.tools.gbrowser.SamBamUtils;
 import fi.csc.chipster.tools.gbrowser.SamBamUtils.SamBamUtilState;
 import fi.csc.chipster.tools.gbrowser.SamBamUtils.SamBamUtilStateListener;
+import fi.csc.chipster.tools.gbrowser.SamBamUtils.ChromosomeNormaliser;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.tasks.Task;
@@ -78,6 +79,24 @@ public class LocalNGSPreprocess implements Runnable {
 						task.setStateDetail(newState.getState() + " " + newState.getPercentage());
 					}
 					 
+				}, new ChromosomeNormaliser() {
+
+					public String normaliseChromosome(String chromosomeName) {
+						
+						// Add prefix, if it is missing
+						String CHROMOSOME_NAME_PREFIX = "chr";
+						if (!chromosomeName.startsWith(CHROMOSOME_NAME_PREFIX)) {
+							chromosomeName = CHROMOSOME_NAME_PREFIX + chromosomeName;
+						}
+						
+						// Remove postfix, if present
+						String SEPARATOR = ".";
+						if (chromosomeName.contains(SEPARATOR)) {
+							chromosomeName = chromosomeName.substring(0, chromosomeName.indexOf(SEPARATOR));
+						}
+						
+						return chromosomeName;
+					}
 				});
 
 				if (SamBamUtils.isSamBamExtension(extension)) {
@@ -85,7 +104,7 @@ public class LocalNGSPreprocess implements Runnable {
 					
 				} else {
 					// Assume ELAND format
-					SamBamUtils.preprocessEland(inputFile, outputFile, indexOutputFile);
+					samBamUtil.preprocessEland(inputFile, outputFile, indexOutputFile);
 				}
 
 				// create outputs in the client
