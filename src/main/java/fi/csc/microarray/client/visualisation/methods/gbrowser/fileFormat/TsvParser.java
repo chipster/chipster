@@ -1,6 +1,7 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -58,6 +59,10 @@ public abstract class TsvParser extends FileParser {
 			Chromosome startChr = (Chromosome)get(firstRow, ColumnType.CHROMOSOME);
 			Chromosome endChr = (Chromosome)get(lastRow, ColumnType.CHROMOSOME);
 			
+			if (start == null || startChr == null | end == null | endChr == null) {
+				System.out.println(Arrays.toString(firstRow));
+				System.out.println(Arrays.toString(lastRow));
+			}
 			return new BpCoordRegion(start, startChr, end, endChr);
 		}
 		
@@ -156,7 +161,7 @@ public abstract class TsvParser extends FileParser {
 			return 2*1024;
 		}
 
-		public long getHeaderLength(File file) {
+		public long getHeaderLength(File file) throws IOException {
 			return 0;
 		}
 }

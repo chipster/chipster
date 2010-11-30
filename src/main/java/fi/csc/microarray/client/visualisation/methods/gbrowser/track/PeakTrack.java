@@ -27,6 +27,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  */
 public class PeakTrack extends Track {
 
+	private static final int MIN_VISIBLE_PEAK_SIZE = 5;
+
 	private static final int PEAK_SYMBOL_HEIGHT = 5;
 
 	private Collection<RegionContent> peaks = new TreeSet<RegionContent>();
@@ -72,6 +74,10 @@ public class PeakTrack extends Track {
 
 		rect.x = getView().bpToTrack(startBp);
 		rect.width = getView().bpToTrack(endBp) - rect.x;
+		
+		if (rect.width < MIN_VISIBLE_PEAK_SIZE) {
+			rect.width = MIN_VISIBLE_PEAK_SIZE;
+		}
 
 		rect.y = (int) (getView().getTrackHeight() / 2);
 		rect.height = height;

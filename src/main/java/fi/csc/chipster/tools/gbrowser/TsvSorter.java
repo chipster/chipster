@@ -1,7 +1,5 @@
 package fi.csc.chipster.tools.gbrowser;
 
-
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -9,43 +7,64 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileDefinition;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.HeaderTsvParser;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.exception.MicroarrayException;
-
+import fi.csc.microarray.util.Strings;
 
 public class TsvSorter {
 
+	private TsvParser parser;
 	private int chrCol;
 	private int bpCol;
+	private ChromosomeNormaliser chromosomeNormaliser = new ChromosomeNormaliser() {
+		@Override
+		public String normaliseChromosome(String chromosomeName) {
+			// Do default chromosome name normalisation
+			return chromosomeName.replace("chr", "").replace(".fa", "");
+		}
+	};
 
-	public void sort(File in, File out, int chrCol, int bpCol) throws Exception {
-
-		this.chrCol = chrCol;
-		this.bpCol = bpCol;
+	public void sort(File in, File out, TsvParser parser) throws Exception {
+		this.parser = parser;
+		this.chrCol = parser.getFileDefinition().indexOf(ColumnType.CHROMOSOME);
+		this.bpCol = parser.getFileDefinition().indexOf(ColumnType.BP_START);
 		externalSort(in, out);
 	}
+	
+	public void sort(File in, File out, TsvParser parser, ChromosomeNormaliser chromosomeNormaliser) throws Exception {
+		this.chromosomeNormaliser = chromosomeNormaliser;
+		sort(in, out, parser);
+	}
 
-	private class Row extends BpCoord{
+	private class Row extends BpCoord {
 
 		public String line;
 
-		public Row(String line){
+		public Row(String line) {
 			super(null, null);
 
 			this.line = line;
 			String[] splitted = line.split("\t");
 			String chrStr = splitted.length > chrCol ? splitted[chrCol] : "";
+			
+			// If chromosome name exists, normalise it
+			if (!"".equals(chrStr)) {
+				chrStr = chromosomeNormaliser.normaliseChromosome(chrStr);
+				splitted[chrCol] = chrStr;
+				this.line = Strings.delimit(Arrays.asList(splitted), "\t"); // replace back to raw line
+			}
 			String bpStr = splitted.length > bpCol ? splitted[bpCol] : "";
 
-			chr = new Chromosome(chrStr.replace("chr", "").replace(".fa", ""));
+			chr = new Chromosome(chrStr);
 
-			if(bpStr.equals("")){
+			if (bpStr.equals("")) {
 				bp = -1l;
 			} else {
 				bp = Long.parseLong(bpStr);
@@ -55,20 +74,28 @@ public class TsvSorter {
 
 	private void externalSort(File infile, File outfile) throws IOException, MicroarrayException {
 
+		// Start reading
 		BufferedReader initReader = new BufferedReader(new FileReader(infile));
-		ArrayList<Row> rowBatch = new ArrayList<Row>(500000);
+		
+		// Read header row, if exists
+		String headerRow = null;
+		if (parser.getHeaderLength(infile) > 0) {
+			headerRow = initReader.readLine(); // we assume header is always a single row!
+		}
 
+		// Create and sort chunks
+		ArrayList<Row> rowBatch = new ArrayList<Row>(500000);
 		boolean quit = false;
 		int numFiles = 0;
 
 		while (!quit) {
 
-			//showProgress("Reading...");
+			// showProgress("Reading...");
 
 			// limit chunks to 200MB
 			int size = 0;
 			while (size < 200000000) {
-				//while (size < 10000000) {
+				// while (size < 10000000) {
 				String line = initReader.readLine();
 
 				if (line == null) {
@@ -80,13 +107,12 @@ public class TsvSorter {
 				size += line.length();
 			}
 
-			//showProgress("Sorting...");
+			// showProgress("Sorting...");
 
 			// Use Java's sort.
 			Collections.sort(rowBatch);
 
-
-			//showProgress("Writing...");
+			// showProgress("Writing...");
 
 			// write to disk
 			FileWriter fw = new FileWriter(infile + "_chunk" + numFiles);
@@ -99,25 +125,30 @@ public class TsvSorter {
 			rowBatch.clear();
 		}
 
-		//showProgress("Merging...");
+		// showProgress("Merging...");
 
-		mergeFiles(infile.getAbsolutePath(), outfile, numFiles);
+		mergeFiles(infile.getAbsolutePath(), outfile, numFiles, headerRow);
 
-		//showProgress("DONE");
+		// showProgress("DONE");
 
 		initReader.close();
 	}
 
-	private void mergeFiles(String inputFilePath, File outputFilePath, int numChunkFiles) 
-	throws IOException, MicroarrayException {
+	private void mergeFiles(String inputFilePath, File outputFilePath, int numChunkFiles, String headerRow) throws IOException, MicroarrayException {
 
+		// Initialise
 		ArrayList<BufferedReader> mergefbr = new ArrayList<BufferedReader>();
 		ArrayList<Row> filerows = new ArrayList<Row>();
 		FileWriter fw = new FileWriter(outputFilePath);
 		BufferedWriter bw = new BufferedWriter(fw);
 
-		boolean someFileStillHasRows = false;
+		// Write header, if needed
+		if (headerRow != null) {
+			bw.append(headerRow + "\n");	
+		}		
 
+		// Merge chunks
+		boolean someFileStillHasRows = false;
 		for (int i = 0; i < numChunkFiles; i++) {
 			mergefbr.add(new BufferedReader(new FileReader(inputFilePath + "_chunk" + i)));
 
@@ -182,9 +213,7 @@ public class TsvSorter {
 				someFileStillHasRows = false;
 				if (filerows.get(i) != null) {
 					if (minIndex < 0) {
-						throw new MicroarrayException("Error in sorting: " +
-								"mindex lt 0 and found row not null"
-								+ filerows.get(i));
+						throw new MicroarrayException("Error in sorting: " + "mindex lt 0 and found row not null" + filerows.get(i));
 					}
 					someFileStillHasRows = true;
 					break;
@@ -193,7 +222,7 @@ public class TsvSorter {
 
 			// check the actual files one more time
 			if (!someFileStillHasRows) {
-				//write the last one not covered above
+				// write the last one not covered above
 				for (int i = 0; i < filerows.size(); i++) {
 					if (filerows.get(i) == null) {
 						String line = mergefbr.get(i).readLine();
@@ -219,18 +248,20 @@ public class TsvSorter {
 			f.delete();
 		}
 	}
-	
+
 	public static void main(String[] args) throws Exception {
-		
+
 		String filename = "/home/akallio/Desktop/cisREDgroup_contents_for_40193-STAT1_trimmed.tsv";
 		String resultFilename = filename + ".sorted";
-		FileDefinition def = new HeaderTsvParser().getFileDefinition();
-		new TsvSorter().sort(new File(filename), new File(resultFilename), def.indexOf(ColumnType.CHROMOSOME), def.indexOf(ColumnType.BP_START));
+		new TsvSorter().sort(new File(filename), new File(resultFilename), new HeaderTsvParser());
 
-		//		FileDefinition def = new BEDParser().getFileDefinition();
-//		new TsvSorter().sort(new File("/home/akallio/Desktop/STAT1/STAT1_peaks.bed"), new File("/home/akallio/Desktop/STAT1/STAT1_peaks_sorted.bed"), def.indexOf(ColumnType.CHROMOSOME), def.indexOf(ColumnType.BP_START));
+		// FileDefinition def = new BEDParser().getFileDefinition();
+		// new TsvSorter().sort(new File("/home/akallio/Desktop/STAT1/STAT1_peaks.bed"), new
+		// File("/home/akallio/Desktop/STAT1/STAT1_peaks_sorted.bed"), def.indexOf(ColumnType.CHROMOSOME),
+		// def.indexOf(ColumnType.BP_START));
 
-//		FileDefinition def = new ElandParser().getFileDefinition();
-//		new TsvSorter().sort(new File("infile.txt"), new File("infile.txt"), def.indexOf(ColumnType.CHROMOSOME), def.indexOf(ColumnType.BP_START));
+		// FileDefinition def = new ElandParser().getFileDefinition();
+		// new TsvSorter().sort(new File("infile.txt"), new File("infile.txt"), def.indexOf(ColumnType.CHROMOSOME),
+		// def.indexOf(ColumnType.BP_START));
 	}
 }

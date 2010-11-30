@@ -1,5 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 
+import java.io.IOException;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -38,11 +39,16 @@ public class ChunkTreeHandlerThread extends AreaRequestHandler {
 
 	public synchronized void run() {
 
-		fileFetcher = new ChunkFileFetcherThread(fileRequestQueue, fileResultQueue, this, inputParser);
-		createTree(fileFetcher.getFileLength());
-		fileFetcher.start();
+		try {
+			fileFetcher = new ChunkFileFetcherThread(fileRequestQueue, fileResultQueue, this, inputParser);
+			createTree(fileFetcher.getFileLength());
+			fileFetcher.start();
 
-		super.run();
+			super.run();
+
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	protected boolean checkOtherQueues() {
@@ -55,8 +61,8 @@ public class ChunkTreeHandlerThread extends AreaRequestHandler {
 		return fileResult != null;
 	}
 
-	private void createTree(long fileLength) {
-		rootNode = new TreeNode(new ByteRegion(file.headerLength(), fileLength, false), this, null);
+	private void createTree(long fileLength) throws IOException {
+		rootNode = new TreeNode(new ByteRegion(file.getHeaderLength(), fileLength, false), this, null);
 	}
 
 	private void processFileResult(FileResult fileResult) {

@@ -3,24 +3,42 @@ package fi.csc.chipster.tools;
 import java.io.File;
 import java.io.IOException;
 
+import fi.csc.chipster.tools.gbrowser.ChromosomeNormaliser;
 import fi.csc.chipster.tools.gbrowser.SamBamUtils;
 import fi.csc.chipster.tools.gbrowser.TsvSorter;
 import fi.csc.chipster.tools.gbrowser.SamBamUtils.SamBamUtilState;
 import fi.csc.chipster.tools.gbrowser.SamBamUtils.SamBamUtilStateListener;
-import fi.csc.chipster.tools.gbrowser.SamBamUtils.ChromosomeNormaliser;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileDefinition;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 
 public class LocalNGSPreprocess implements Runnable {
+
+	private static final ChromosomeNormaliser CHROMOSOME_NORMALISER = new ChromosomeNormaliser() {
+
+		public String normaliseChromosome(String chromosomeName) {
+			
+			// Add prefix, if it is missing
+			String CHROMOSOME_NAME_PREFIX = "chr";
+			if (!chromosomeName.startsWith(CHROMOSOME_NAME_PREFIX)) {
+				chromosomeName = CHROMOSOME_NAME_PREFIX + chromosomeName;
+			}
+			
+			// Remove postfix, if present
+			String SEPARATOR = ".";
+			if (chromosomeName.contains(SEPARATOR)) {
+				chromosomeName = chromosomeName.substring(0, chromosomeName.indexOf(SEPARATOR));
+			}
+			
+			return chromosomeName;
+		}
+	};
 
 	private static TsvParser[] parsers = {
 			new ElandParser()
@@ -108,25 +126,7 @@ public class LocalNGSPreprocess implements Runnable {
 				task.setStateDetail(newState.getState() + " " + newState.getPercentage());
 			}
 			 
-		}, new ChromosomeNormaliser() {
-
-			public String normaliseChromosome(String chromosomeName) {
-				
-				// Add prefix, if it is missing
-				String CHROMOSOME_NAME_PREFIX = "chr";
-				if (!chromosomeName.startsWith(CHROMOSOME_NAME_PREFIX)) {
-					chromosomeName = CHROMOSOME_NAME_PREFIX + chromosomeName;
-				}
-				
-				// Remove postfix, if present
-				String SEPARATOR = ".";
-				if (chromosomeName.contains(SEPARATOR)) {
-					chromosomeName = chromosomeName.substring(0, chromosomeName.indexOf(SEPARATOR));
-				}
-				
-				return chromosomeName;
-			}
-		});
+		}, CHROMOSOME_NORMALISER);
 		
 		if (SamBamUtils.isSamBamExtension(extension)) {
 			samBamUtil.preprocessSamBam(inputFile, outputFile, indexOutputFile);
@@ -153,8 +153,7 @@ public class LocalNGSPreprocess implements Runnable {
 		File outputFile = dataManager.createNewRepositoryFile(outputName);		
 
 		// Sort
-		FileDefinition def = new BEDParser().getFileDefinition();
-		new TsvSorter().sort(inputFile, outputFile, def.indexOf(ColumnType.CHROMOSOME), def.indexOf(ColumnType.BP_START));
+		new TsvSorter().sort(inputFile, outputFile, new BEDParser(), CHROMOSOME_NORMALISER);
 		
 		// Create outputs in the client
 		DataBean outputBean = dataManager.createDataBean(outputName, outputFile);
