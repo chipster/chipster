@@ -350,6 +350,9 @@ public class TaskExecutor {
 		 */
 		private void taskFinished(State state, String stateDetail, ResultMessage resultMessage) {
 
+			// cleanup temp topic
+			this.cleanUp();
+			
 			if (resultMessage != null) {
 				// possible screen output
 				if (resultMessage.getOutputText() != null) {
@@ -372,9 +375,6 @@ public class TaskExecutor {
 
 			// remove from running
 			removeFromRunningTasks(pendingTask);
-			
-			// cleanup temp topic
-			this.cleanUp();
 		}
 
 	}
