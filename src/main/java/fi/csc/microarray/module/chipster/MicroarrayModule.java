@@ -33,6 +33,7 @@ import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameTyp
 import fi.csc.microarray.client.visualisation.methods.ArrayLayout;
 import fi.csc.microarray.client.visualisation.methods.ClusteredProfiles;
 import fi.csc.microarray.client.visualisation.methods.ExpressionProfile;
+import fi.csc.microarray.client.visualisation.methods.Heatmap;
 import fi.csc.microarray.client.visualisation.methods.HierarchicalClustering;
 import fi.csc.microarray.client.visualisation.methods.Histogram;
 import fi.csc.microarray.client.visualisation.methods.PhenodataEditor;
@@ -81,6 +82,7 @@ public class MicroarrayModule implements Module {
 	public static class VisualisationMethods {
 		public static VisualisationMethod ARRAY_LAYOUT = new VisualisationMethod("Array layout", ArrayLayout.class, VisualConstants.ARRAY_MENUICON, -1, 0.0009);
 		public static VisualisationMethod HISTOGRAM = new VisualisationMethod("Histogram", Histogram.class, VisualConstants.HISTOGRAM_MENUICON, -1, 0.024);
+		public static VisualisationMethod HEATMAP = new VisualisationMethod("Heatmap", Heatmap.class, VisualConstants.ARRAY_MENUICON, -1, 0.0009);
 		public static VisualisationMethod SCATTERPLOT = new VisualisationMethod("Scatterplot", Scatterplot.class, VisualConstants.SCATTER_MENUICON, -1, 0.039);
 		public static VisualisationMethod SCATTERPLOT3D = new VisualisationMethod("3D Scatterplot", Scatterplot3D.class, VisualConstants.SCATTER3D_MENUICON, -1, 0.082);
 		public static VisualisationMethod SCATTERPLOT3DPCA = new VisualisationMethod("3D Scatterplot for PCA", Scatterplot3DPCA.class, VisualConstants.SCATTER3DPCA_MENUICON, -1, 0.082);
