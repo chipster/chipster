@@ -73,7 +73,9 @@ public class VisualisationMethod {
 
 	public Visualisation getVisualiser(VisualisationFrame frame) {
 		try {
-			return visualiser.getConstructor(VisualisationFrame.class).newInstance(frame);
+			Visualisation visualisation = visualiser.getConstructor().newInstance();
+			visualisation.initialise(frame);
+			return visualisation;
 		} catch (Exception e) {
 			application.reportException(e);
 			return null;
@@ -88,7 +90,7 @@ public class VisualisationMethod {
 	 */
 	public Visualisation getHeadlessVisualiser() {
 		try {
-			return visualiser.getConstructor(VisualisationFrame.class).newInstance((Object) null);
+			return visualiser.getConstructor().newInstance();
 		} catch (Exception e) {
 			application.reportException(e);
 			return null;

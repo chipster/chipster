@@ -14,6 +14,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
+import javax.swing.border.TitledBorder;
 import javax.swing.plaf.BorderUIResource;
 
 import com.jgoodies.looks.HeaderStyle;
@@ -62,8 +63,10 @@ public class VisualConstants {
         new ImageIcon(VisualConstants.class.getResource("/eclipse/link.gif"));
     public static final ImageIcon UNLINK_MENUICON = 
         new ImageIcon(VisualConstants.class.getResource("/eclipse/unlink.gif"));
+    public static final ImageIcon QUICKLINK_ICON =
+        new ImageIcon(VisualConstants.class.getResource("/eclipse/bulb.gif"));
 
-	// rest of the icons done by us (mostly by Mikko Koski & Petri KlemelÃ¯Â¿Â½)
+	// rest of the icons done by us (mostly by Mikko Koski and Petri Klemelä)
 	public static ImageIcon ZOOM_IN_ICON = 
 		new ImageIcon(VisualConstants.class.getResource("/zoom-in.png"));
 	public static ImageIcon ZOOM_OUT_ICON = 
@@ -183,6 +186,7 @@ public class VisualConstants {
     
     public static final Font MONOSPACED_FONT = 
     	new Font("Monospaced", Font.PLAIN, 11);
+
 
 
     public static final ImageIcon ICON_TYPE_BINARY =
@@ -358,5 +362,8 @@ public class VisualConstants {
 		return Session.getSession().getApplication().isStandalone() ? "Import directly" : "Import directly if possible"; 
 	}
 
+	public static TitledBorder createSettingsPanelSubPanelBorder(String title) {
+		return BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.lightGray), title);
+	}
 
 }

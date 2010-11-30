@@ -15,8 +15,8 @@ public class TextViewer extends Visualisation {
 
 	private static long CONTENT_SIZE_LIMIT = 1024*1024*1;
 	
-	public TextViewer(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	@Override

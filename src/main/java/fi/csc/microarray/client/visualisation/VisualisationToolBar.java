@@ -60,8 +60,6 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 	private JButton splitButton = ToolBarComponentFactory.createButton("Duplicate", VisualConstants.SPLIT_ICON, true, false);
 	private JButton detachButton = ToolBarComponentFactory.createButton("Detach", VisualConstants.TO_WINDOW_ICON, true, false);
 
-	// private VisualisationListModel methodListModel = new
-	// VisualisationListModel();
 	private JComboBox methodChoiceBox = ToolBarComponentFactory.createComboBox();
 
 	private String helpAddress;
@@ -95,9 +93,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 		buttonPanel.setOpaque(false);
 		buttonPanel.add(helpButton);
 		buttonPanel.add(redrawButton);
-		if (!application.isStandalone()) {
-			buttonPanel.add(maximiseButton);
-		}
+		buttonPanel.add(maximiseButton);
 		// buttonPanel.add(splitButton); // splitting disabled, needs more
 		// thinking
 		buttonPanel.add(detachButton);
@@ -341,7 +337,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 
 			userComboAction = false;
 			methodChoiceBox.removeAllItems();
-			Visualisation.fillCompoBox(methodChoiceBox, applicableVisualisations.toArray());
+			Visualisation.fillComboBox(methodChoiceBox, applicableVisualisations.toArray());
 			userComboAction = true;
 
 		} else {
@@ -349,7 +345,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 
 			userComboAction = false;
 			methodChoiceBox.removeAllItems();
-			Visualisation.fillCompoBox(methodChoiceBox, applicableVisualisations.toArray());
+			Visualisation.fillComboBox(methodChoiceBox, applicableVisualisations.toArray());
 			userComboAction = true;
 		}
 	}

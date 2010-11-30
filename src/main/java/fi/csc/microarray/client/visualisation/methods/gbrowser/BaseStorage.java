@@ -1,14 +1,12 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.TreeMap;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class BaseStorage {
@@ -19,13 +17,13 @@ public class BaseStorage {
 	private Object baseCache = null;
 	private TreeMap<Long, Base> collector; 
 	
-	public enum Acid { 
+	public enum Nucleotide { 
 		A, 
 		C, 
 		G, 
 		T;
 
-		public Acid complement() {
+		public Nucleotide complement() {
 			switch (this) {
 				case A:
 					return T;
@@ -40,8 +38,8 @@ public class BaseStorage {
 			}
 		}
 
-		public static Acid fromCharacter(char character) {
-			switch (character) {
+		public static Nucleotide fromCharacter(char character) {
+			switch (Character.toUpperCase(character)) {
 			case 'A':
 				return A;
 			case 'C':
@@ -53,20 +51,32 @@ public class BaseStorage {
 			default:
 				return null;
 			}
+		}
+
+		public static Nucleotide fromCharacter(char character, boolean complement) {
+			Nucleotide nt = fromCharacter(character);
+			
+			if (nt != null && complement) {
+				return nt.complement();
+			} else {
+				return nt;
+			}
 		} 
 	};
 
 
 	public class Base {
 
-		private int[] acidCounts = new int[Acid.values().length];
+		private int[] nucleutideCounts = new int[Nucleotide.values().length];
 		private Long bpLocation;
 		private int[] snpCounts = null;
 		private int totalSNPCount = 0;
+		private int totalCount = 0;
+		private Nucleotide referenceNt;
 		
-		public Base(Long bpLocation) {
-			Arrays.fill(getAcidCounts(), 0);
+		public Base(Long bpLocation, Nucleotide referenceNt) {
 			this.bpLocation = bpLocation;
+			this.referenceNt = referenceNt;
 		}
 
 		public Long getBpLocation() {
@@ -74,23 +84,16 @@ public class BaseStorage {
 		}
 		
 		public int getCoverage() {
-
-			int sum = 0;
-
-			for (Acid acid : Acid.values()) {
-				sum += getAcidCounts()[acid.ordinal()]; 
-			}
-			
-			return sum;
+			return totalCount;
 		}
 		
 		public boolean hasSignificantSNPs() {
 			int[] snpCounts = getSNPCounts();
 
-			// Try to find good enough SNP acid
-			for (Acid acid : Acid.values()) {
-				if (snpCounts[acid.ordinal()] > MIN_SIGNIFICANT_SNP_COUNT) {
-					if (((double)snpCounts[acid.ordinal()])/((double)totalSNPCount) >= MIN_SIGNIFICANT_SNP_RATIO) {
+			// Try to find good enough SNP nucleotide
+			for (Nucleotide nt : Nucleotide.values()) {
+				if (snpCounts[nt.ordinal()] >= MIN_SIGNIFICANT_SNP_COUNT) {
+					if (((double)snpCounts[nt.ordinal()])/((double)totalCount) >= MIN_SIGNIFICANT_SNP_RATIO) {
 						return true;
 					}
 				}
@@ -100,15 +103,16 @@ public class BaseStorage {
 			return false;
 		}
 
-		public int[] getAcidCounts() {
-			return acidCounts;
+		public int[] getNucleotideCounts() {
+			return nucleutideCounts;
 		}
 
-		public void addAcid(Acid acid) {
+		public void addNucleotidee(Nucleotide nt) {
 			if (snpCounts != null) {
-				throw new IllegalStateException("cannot add acids after SNP counts have been calculated");
+				throw new IllegalStateException("cannot add nucleotides after SNP counts have been calculated");
 			}
-			acidCounts[acid.ordinal()]++;
+			nucleutideCounts[nt.ordinal()]++;
+			totalCount++;
 		}
 		
 		public int getTotalSNPCount() {
@@ -118,29 +122,23 @@ public class BaseStorage {
 			return totalSNPCount;
 		}
 		
+		public Nucleotide getReferenceNucleotide() {
+			return referenceNt;
+		}
+		
 		public int[] getSNPCounts() {
 			if (snpCounts == null) {
-				snpCounts = new int[Acid.values().length];
+				snpCounts = new int[Nucleotide.values().length];
 				
-				// Find the dominant base
-				//TODO Values should be compared to reference sequence, now we don't notice, if
-				//all reads have the same mismatch
-				int maxCount = 0;
-				int maxOrdinal = -1;
-				for (Acid acid : Acid.values()) {
-					if (acidCounts[acid.ordinal()] > maxCount) {
-						maxCount = acidCounts[acid.ordinal()];
-						maxOrdinal = acid.ordinal();
-					}
-				}
-
-				// Mark SNP's
-				for (Acid acid : Acid.values()) {
-					if (acid.ordinal() != maxOrdinal) {
-						snpCounts[acid.ordinal()] = acidCounts[acid.ordinal()];
-						totalSNPCount += acidCounts[acid.ordinal()];
-					} else {
-						snpCounts[acid.ordinal()] = 0;
+				// Mark SNP's, if possible
+				if (referenceNt != null) {
+					for (Nucleotide nt : Nucleotide.values()) {
+						if (nt.compareTo(referenceNt) == 0) {
+							snpCounts[nt.ordinal()] = 0;
+						} else {
+							snpCounts[nt.ordinal()] = nucleutideCounts[nt.ordinal()];
+							totalSNPCount += nucleutideCounts[nt.ordinal()];
+						}
 					}
 				}
 			}
@@ -198,9 +196,10 @@ public class BaseStorage {
 	}
 
 	/**
-	 * Goes through data and gives count for each location and acid.
+	 * Goes through data and gives count for each location and nucleotide.
+	 * @param refSeq 
 	 */
-	public void getAcidCounts(Collection<RegionContent> reads, View view) {
+	public void getNucleotideCounts(Collection<RegionContent> reads, View view, char[] refSeq) {
 	
 		// Sweep collector
 		collector = new TreeMap<Long, Base>();
@@ -217,38 +216,43 @@ public class BaseStorage {
 				continue;
 			}
 
-			String seq = (String) read.values.get(ColumnType.SEQUENCE);
-			Strand strand = (Strand) read.values.get(ColumnType.STRAND);
-			Cigar cigar = (Cigar) read.values.get(ColumnType.CIGAR);
+			for (ReadPart readPart : Cigar.splitVisibleElements(read)) {
 
-			if (cigar != null) {
-				for (int i = 0; i < seq.length(); i++) {
+				// Skip elements that are not in this view
+				if (!readPart.intercepts(view.getBpRegion())) {
+					continue;
+				}
 
-					Base base = null;
+				Base base = null;
 
-					long refIndex = cigar.getReferenceIndex(i);
+				String seq = readPart.getSequencePart();
+				for (int j = 0; j < seq.length(); j++) {
 
-					if (refIndex == -1) {
-						//Skip insertions
+					Long bp = readPart.start.bp + j;
+					
+					// Part of read can be out of view
+					if (bp.longValue() < view.bpRegion.start.bp.longValue()) {
 						continue;
+						
+					} else if (bp.longValue() > view.bpRegion.end.bp.longValue()) {
+						break;
 					}
 
-					Long bp = refIndex + read.region.start.bp;
-
 					if (!collector.containsKey(bp)) {
-						base = new Base(bp);
+						
+						int viewIndex = bp.intValue() - view.bpRegion.start.bp.intValue();
+						Nucleotide referenceNucleotide = Nucleotide.fromCharacter(refSeq[viewIndex]);
+						
+						base = new Base(bp, referenceNucleotide);
 						collector.put(bp, base);
+						
 					} else {
 						base = collector.get(bp);
 					}
 
-					Acid acid = Acid.fromCharacter(seq.charAt(i));
-
-					if (acid != null) {
-						if (strand == Strand.REVERSED) {
-							acid = acid.complement();
-						}
-						base.addAcid(acid);
+					Nucleotide nucleotide = Nucleotide.fromCharacter(seq.charAt(j));
+					if (nucleotide != null) {
+						base.addNucleotidee(nucleotide);
 					}
 				}
 			}

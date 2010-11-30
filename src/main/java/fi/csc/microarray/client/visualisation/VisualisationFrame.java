@@ -27,19 +27,19 @@ import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameTyp
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataChangeEvent;
 import fi.csc.microarray.databeans.DataChangeListener;
+import fi.csc.microarray.databeans.DataItemCreatedEvent;
 import fi.csc.microarray.databeans.DataItemRemovedEvent;
 
 public abstract class VisualisationFrame implements DataChangeListener {
 
-	// public abstract void setVisualisation(JComponent visualisationComponent, List<DataBean> datas);
 	public abstract void setContent(JComponent visualisationComponent);
 
 	private static final Color BG = Color.white;
 
-	private ClientApplication application = Session.getSession().getApplication();
+	protected ClientApplication application = Session.getSession().getApplication();
 
 	private static final String WAIT_PANEL_NAME = "wait";
-	private static final String VISUALISATION_PANEL_NAME = "panel";
+	private static final String VISUALISATION_PANEL_NAME = "visualisation";
 
 	private CardLayout viewChangerLayout = new CardLayout();
 	private JPanel viewChangerPanel = new JPanel(viewChangerLayout);
@@ -52,11 +52,11 @@ public abstract class VisualisationFrame implements DataChangeListener {
 
 	private List<DataBean> datas;
 
-	private FrameType type;
+	protected FrameType type;
 
 	private Visualisation visualiser;
 
-	private static final Logger logger = Logger.getLogger(VisualisationFrame.class);;
+	private static final Logger logger = Logger.getLogger(VisualisationFrame.class);
 
 	/**
 	 * Creates a new VisualisationFrame with a CardLayout-powered view changer.
@@ -68,7 +68,6 @@ public abstract class VisualisationFrame implements DataChangeListener {
 
 		// initialise panels
 		viewChangerPanel.setBackground(BG);
-		;
 
 		// initialise wait panel
 		JPanel waitPanel = new JPanel(new BorderLayout());
@@ -252,13 +251,30 @@ public abstract class VisualisationFrame implements DataChangeListener {
 	}
 
 	public void dataChanged(DataChangeEvent e) {
+		
 		if (e instanceof DataItemRemovedEvent) {
+			// Data removed, check if it was part of visualisation
 			if (datas != null && datas.contains(((DataItemRemovedEvent) e).getDataItem())) {
 				application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, VisualisationMethod.NONE, null, null, type, this));
+			}
+			
+			// Data removed, check if context links should be refreshed
+			if (method == null || method == VisualisationMethod.NONE) {
+				updateContextLinks();
+			}
+
+			
+		} else if (e instanceof DataItemCreatedEvent) {
+
+			// Data added, check if context links should be refreshed
+			if (method == null || method == VisualisationMethod.NONE) {
+				updateContextLinks();
 			}
 		}
 	}
 
+	protected abstract void updateContextLinks();
+	
 	void setTitle(String title) {
 		return;
 	}

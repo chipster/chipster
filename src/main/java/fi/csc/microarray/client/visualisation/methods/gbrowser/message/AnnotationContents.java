@@ -11,16 +11,17 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
+import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
+import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.filebroker.FileBrokerClient;
 import fi.csc.microarray.util.IOUtils;
@@ -58,11 +59,14 @@ public class AnnotationContents {
 		public String species;
 		public String version;
 		public Content content;
-		public URL url;
+		
+		private URL url;
+		private long contentLength;
 
-		public Row(String species, String version, String content, URL url) {
+		public Row(String species, String version, String content, URL url, long contentLength) {
 			this.species = species;
-			this.version = version;		
+			this.version = version;
+			this.contentLength = contentLength;
 			this.url = url;
 			
 			for (Content type : Content.values()) {
@@ -71,6 +75,35 @@ public class AnnotationContents {
 				}
 			}
 		}
+		
+		/**
+		 * Return url pointing to a local file if the local file ok.
+		 * 
+		 * TODO what to do if offline and contents.txt content length
+		 * and local file content length mismatch
+		 * 
+		 * @return
+		 */
+		public URL getUrl() {
+			if (checkLocalFile(this)) {
+				String fileName = IOUtils.getFilenameWithoutPath(this.url);
+				File localFile = new File(localAnnotationsRoot, fileName);
+				URL newUrl;
+				try {
+					newUrl = localFile.toURI().toURL();
+				} catch (MalformedURLException e) {
+					logger.warn("generating url for local file " + localFile + "failed");
+					return this.url;
+				}
+				return newUrl;
+			}
+			return this.url;
+		}
+		
+		public long getContentLength() {
+			return this.contentLength;
+		}
+		
 		
 		public Genome getGenome() {
 			return new Genome(species, version);
@@ -100,6 +133,8 @@ public class AnnotationContents {
 			return false;
 		}
 		
+		
+		// FIXME not good
 		@Override 
 		public int hashCode() {
 			return species.hashCode();
@@ -126,7 +161,12 @@ public class AnnotationContents {
 	}
 
 	
-	
+	/**
+	 * TODO Check local annotations dir for files which don't exist in the contents.txt
+	 * and remove them. Don't accidentally remove contents.txt while removing.
+	 * 
+	 * @throws Exception
+	 */
 	public void initialize() throws Exception {
 
 		// get annotation locations
@@ -151,6 +191,7 @@ public class AnnotationContents {
 		// it will be used when working offline
 		File localContents = new File(localAnnotationsRoot, CONTENTS_FILE);
 		if (remoteContentsOk) {
+			logger.info("using remote annotation contents file");
 			OutputStream localContentsStream = null;;
 			try {
 				remoteContentsStream = remoteContents.openStream();
@@ -166,6 +207,7 @@ public class AnnotationContents {
 		
 		// remote contents could not be loaded, try local contents file
 		else {
+			logger.info("trying to use local annotation contents file");
 			InputStream localContentsStream = null;
 			try {
 				localContentsStream = new BufferedInputStream(new FileInputStream(localContents));
@@ -180,52 +222,6 @@ public class AnnotationContents {
 	}
 
 	
-	
-	public void parseFrom(InputStream contentsStream) throws IOException {
-
-		BufferedReader reader = new BufferedReader(new InputStreamReader(contentsStream));
-
-		if (!reader.readLine().equals(FILE_ID)) {
-			throw new IllegalArgumentException("annotation stream does not start with " + FILE_ID);
-		}
-
-		String line;
-		while ((line = reader.readLine()) != null) {
-			if (line.trim().equals("")) {
-				continue;
-			}
-			String[] splitted = line.split("\t");
-			
-			// use local file if it exists
-			URL url;
-			String fileName = splitted[3];
-			File localFile = new File(localAnnotationsRoot, fileName);
-			// FIXME add more checks, size and checksum maybe
-			if (localFile.exists()) {
-				url = localFile.toURI().toURL();
-			} else {
-				url = IOUtils.createURL(remoteAnnotationsRoot, fileName);
-			}
-			rows.add(new Row(splitted[0], splitted[1], splitted[2], url));
-		}
-
-	}
-
-
-	public void write() throws IOException {
-		contentsFile.delete();
-		Writer writer = null;
-		try {
-			writer = new FileWriter(contentsFile, true);
-			writer.write(FILE_ID + "\n");
-			for (Row row : rows) {
-				writer.write(row.species + "\t" + row.version + "\t" + row.content + "\t" + row.url.getFile() + "\n");
-			}
-		} finally {
-			IOUtils.closeIfPossible(writer);
-		}
-	}
-
 	public List<Row> getRows() {
 		return rows;
 	}
@@ -240,19 +236,185 @@ public class AnnotationContents {
 		return null;
 	}
 
-	public Collection<Genome> getGenomes() {
-		Set<Genome> genomes = new LinkedHashSet<Genome>();
+	public List<Genome> getGenomes() {
+		List<Genome> genomes = new LinkedList<Genome>();
 		for (Row row : rows) {
-			genomes.add(row.getGenome());
+			if (!genomes.contains(row.getGenome())) {
+				genomes.add(row.getGenome());
+			}
 		}
 		return genomes;
 	}
 	
+	/**
+	 * Returns local if there are no annotations. In such a case there is
+	 * nothing to be downloaded.
+	 * 
+	 * @param genome
+	 * @return
+	 */
+	public boolean hasLocalAnnotations(Genome genome) {
+		for (Content c : Content.values()) {
+			if (!c.equals(Content.REFERENCE)) {
+				Row annotation = getRow(genome, c);
+				if (annotation != null && !checkLocalFile(annotation)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Returns local if there is no reference. In such as case there is 
+	 * nothing to be downloaded.
+	 * 
+	 * @param genome
+	 * @return
+	 */
+	public boolean hasLocalReference(Genome genome) {
+		Row reference = getRow(genome, Content.REFERENCE);
+		if (reference != null && !checkLocalFile(reference)) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	/**
+	 * Download annotations for a genome. Downloading happens as a blocking task.
+	 * 
+	 * @param genome
+	 * @throws IOException
+	 */
+	public void downloadAnnotations(final Genome genome) throws IOException {
+		Session.getSession().getApplication().runBlockingTask("downloading annotations", new Runnable() {
+
+			@Override
+			public void run() {
+				for (Content c : Content.values()) {
+					if (!c.equals(Content.REFERENCE)) {
+						Row annotation = getRow(genome, c);
+						if (annotation != null && !checkLocalFile(annotation)) {
+							
+							// don't use getUrl() here because we need the remote url
+							try {
+								downloadAnnotationFile(annotation.url);
+							} catch (IOException e) {
+								throw new RuntimeException(e);
+							}
+						}
+					}
+				}
+			}
+		});
+	}
+
+
+	public void openDownloadAnnotationsDialog(final Genome genome) {
+		Session.getSession().getApplication().showDialog("Download annotations for " + genome + "?", "Downloading annotations is highly recommended to get optimal performace with genome browser.\n\nYou only need to download annotations once, after that they are stored on your local computer for further use.", 
+				"", Severity.INFO, true, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, new PluginButton() {
+
+			@Override
+			public void actionPerformed() {
+				try {
+					downloadAnnotations(genome);
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+
+			@Override
+			public String getText() {
+				return "Download ";
+			}});
+
+	}
+	
+	
+	private void downloadAnnotationFile(URL sourceUrl) throws IOException {
+		String fileName = sourceUrl.getPath().substring(sourceUrl.getPath().lastIndexOf('/') + 1);
+		File localFile = new File(this.localAnnotationsRoot, fileName);
+		InputStream in = null;
+		try  {
+			in = sourceUrl.openStream();
+			IOUtils.copy(in, localFile);
+		} finally {
+			IOUtils.closeIfPossible(in);
+		}
+	}
+	
+	
+	/**
+	 * TODO add check for file size and or checksum
+	 * 
+	 */
+	private boolean checkLocalFile(Row annotation) {
+		String fileName = IOUtils.getFilenameWithoutPath(annotation.url);
+		File localFile = new File(this.localAnnotationsRoot, fileName);
+		if (localFile.exists() && localFile.length() == annotation.getContentLength()) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Parse contents file.
+	 * 
+	 * @param contentsStream
+	 * @throws IOException
+	 */
+	private void parseFrom(InputStream contentsStream) throws IOException {
+	
+		BufferedReader reader = new BufferedReader(new InputStreamReader(contentsStream));
+	
+		if (!reader.readLine().equals(FILE_ID)) {
+			throw new IllegalArgumentException("annotation stream does not start with " + FILE_ID);
+		}
+	
+		String line;
+		while ((line = reader.readLine()) != null) {
+			if (line.trim().equals("")) {
+				continue;
+			}
+			String[] splitted = line.split("\t");
+			
+			// always store the remote url even if a local file exists
+			// existence of the local is checked later everytime it is needed
+			URL url;
+			String fileName = splitted[3];
+			url = IOUtils.createURL(remoteAnnotationsRoot, fileName);
+			
+			long contentLength = Long.parseLong(splitted[4]);
+			
+			rows.add(new Row(splitted[0], splitted[1], splitted[2], url, contentLength));
+		}
+	}
+
 	private URL getRemoteAnnotationsUrl() throws Exception {
 		FileBrokerClient fileBroker = Session.getSession().getServiceAccessor()
 				.getFileBrokerClient();
 		URL annotationsUrl = new URL(fileBroker.getPublicUrl() + "/"
 				+ ANNOTATIONS_PATH);
 		return annotationsUrl;
+	}
+
+	/**
+	 * Needed when generating the contents file.
+	 * 
+	 * @throws IOException
+	 */
+	public void write() throws IOException {
+		contentsFile.delete();
+		Writer writer = null;
+		try {
+			writer = new FileWriter(contentsFile, true);
+			writer.write(FILE_ID + "\n");
+			for (Row row : rows) {
+				writer.write(row.species + "\t" + row.version + "\t" + row.content + "\t" + row.url.getFile() + "\n");
+			}
+		} finally {
+			IOUtils.closeIfPossible(writer);
+		}
 	}
 }

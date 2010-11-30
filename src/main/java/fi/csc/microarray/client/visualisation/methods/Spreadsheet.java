@@ -40,8 +40,8 @@ import fi.csc.microarray.module.basic.BasicModule;
 
 public class Spreadsheet extends Visualisation {
 	
-	public Spreadsheet(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}	
 
 	/**

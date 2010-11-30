@@ -1717,12 +1717,7 @@ public class SwingClientApplication extends ClientApplication {
 					 */
 					boolean somethingToSave = manager.databeans().size() != 0;
 					
-					final List<DataItem> newItems = manager.loadSnapshot(sessionFile, manager.getRootFolder(), application);
-					SwingUtilities.invokeAndWait(new Runnable() {
-						public void run() {
-							getSelectionManager().selectSingle(newItems.get(newItems.size() - 1), this); // select last
-						}
-					});
+					manager.loadSnapshot(sessionFile, manager.getRootFolder(), application);
 					
 					unsavedChanges = somethingToSave;
 				} catch (Exception e) {
