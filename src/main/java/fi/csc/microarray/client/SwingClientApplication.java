@@ -60,11 +60,11 @@ import fi.csc.microarray.client.dataview.GraphPanel;
 import fi.csc.microarray.client.dataview.TreePanel;
 import fi.csc.microarray.client.dialog.ChipsterDialog;
 import fi.csc.microarray.client.dialog.ClipboardImportDialog;
-import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.dialog.DialogInfo;
 import fi.csc.microarray.client.dialog.ErrorDialogUtils;
 import fi.csc.microarray.client.dialog.ImportSettingsAccessory;
 import fi.csc.microarray.client.dialog.SnapshotAccessory;
+import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.dialog.URLImportDialog;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
@@ -1202,7 +1202,8 @@ public class SwingClientApplication extends ClientApplication {
 
 			if (returnValue == 0) {
 				try {
-					saveSession();
+					saveSessionAndQuit();
+					return;
 				} catch (Exception exp) {
 					this.showErrorDialog("Session saving failed", exp);
 					return;
@@ -1213,6 +1214,11 @@ public class SwingClientApplication extends ClientApplication {
 				return;
 			}
 		}
+		
+		quitImmediately();
+	}
+	
+	public void quitImmediately() {
 
 		// hide immediately to look more reactive...
 		childScreens.disposeAll();
@@ -1678,8 +1684,17 @@ public class SwingClientApplication extends ClientApplication {
 		});
 	}
 	
+	
 	@Override
 	public void saveSession() {
+		saveSession(false);
+	}
+
+	public void saveSessionAndQuit() {
+		saveSession(true);
+	}
+	
+	public void saveSession(final boolean quit) {
 
 		JFileChooser fileChooser = getSnapshotFileChooser(null);
 		int ret = fileChooser.showSaveDialog(this.getMainFrame());
@@ -1704,23 +1719,32 @@ public class SwingClientApplication extends ClientApplication {
 
 				}
 
+				// save
 				runBlockingTask("saving session", new Runnable() {
 
 					public void run() {
 
 						try {
+							// save
 							getDataManager().saveSnapshot(file, application);
-						} catch (IOException e) {
+
+							// quit
+							if (quit) {
+								quitImmediately();
+							}
+
+							menuBar.updateMenuStatus();
+							unsavedChanges = false;
+
+						
+						} catch (Exception e) {
 							throw new RuntimeException(e);
 						}
 					}
 				});
-				
-				menuBar.updateMenuStatus();
-				unsavedChanges = false;
-				
 			} catch (Exception exp) {
 				showErrorDialog("Saving session failed.", exp);
+				return;
 			}
 		}
 		menuBar.updateMenuStatus();
