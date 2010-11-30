@@ -170,7 +170,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 				addButtons(helpButton, redrawButton, maximiseButton, detachButton);
 		}
 		// remove redraw button for NONE and GBROWSER
-		else if ((method == VisualisationMethod.NONE || method != MicroarrayModule.VisualisationMethods.GBROWSER) && 
+		else if ((method == VisualisationMethod.NONE || method == MicroarrayModule.VisualisationMethods.GBROWSER) && 
 				redrawButton.getParent() == buttonPanel) {
 			buttonPanel.removeAll();
 			addButtons(helpButton, maximiseButton, detachButton);
@@ -179,6 +179,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 		// other buttons
 		splitButton.setEnabled(method != VisualisationMethod.NONE || isSplit);
 		detachButton.setEnabled(method != VisualisationMethod.NONE);
+	
 	}
 
 	/**
