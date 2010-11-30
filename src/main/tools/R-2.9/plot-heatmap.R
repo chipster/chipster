@@ -12,6 +12,9 @@
 #
 # modified by MG, 21.4.2010, to increase the gene/sample limit and adjust column width to number of genes
 # and have the option to cluster samples only
+#
+# MG 25.11.2010
+# Increased the gene/sample limit to 20000
 
 # Renaming variables
 colpar<-coloring.scheme
@@ -30,11 +33,11 @@ calls<-dat[,grep("flag", names(dat))]
 dat2<-dat[,grep("chip", names(dat))]
 
 # Sanity checks
-if (nrow(dat2) > 10000 & cluster.samples.only=="no") {
-	stop("CHIPSTER-NOTE: Hierarchical clustering can be run on a maximum of 10000 genes");
+if (nrow(dat2) > 20000 & cluster.samples.only=="no") {
+	stop("CHIPSTER-NOTE: Hierarchical clustering can be run on a maximum of 20000 genes");
 }
-if (ncol(dat2) > 10000) {
-	stop("CHIPSTER-NOTE: Hierarchical clustering can be run on a maximum of 10000 samples");
+if (ncol(dat2) > 20000) {
+	stop("CHIPSTER-NOTE: Hierarchical clustering can be run on a maximum of 20000 samples");
 }
 
 # Loads phenodata
