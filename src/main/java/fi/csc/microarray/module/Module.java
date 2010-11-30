@@ -164,6 +164,8 @@ public interface Module {
 	 * @return should workflow engine check for the number of results?
 	 */
 	public boolean countOperationResults();
+	
+	public boolean notesVisibleAtStartup();
 
 	/**
 	 * Create context link panel that contains links for selecting, visualising etc. for datasets. 
@@ -174,4 +176,18 @@ public interface Module {
 	 */
 	public JPanel getContextLinkPanel(int selectedDataCount);
 
+	/**
+	 * Name of the module for the UI
+	 * 
+	 * @return
+	 */
+	public String getDisplayName();
+	
+	/**
+	 * Url to manual home page.
+	 * 
+	 * @return
+	 */
+	public String getManualHome();
+	
 }

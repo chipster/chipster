@@ -445,4 +445,19 @@ public class MicroarrayModule implements Module {
 		return contentPanel;
 	}
 
+	@Override
+	public boolean notesVisibleAtStartup() {
+		return false;
+	}
+
+	@Override
+	public String getDisplayName() {
+		return "Chipster";
+	}
+
+	@Override
+	public String getManualHome() {
+		return "https://extras.csc.fi/biosciences/chipster-manual/index.html";
+	}
+
 }
