@@ -5,23 +5,17 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
  */
 public class Chromosome implements Comparable<Chromosome> {
 
+	
+	private static final String CHROMOSOME_PREFIX = "chr";
 	private String chr;
 	private Integer intValue;
 
-	/**
-	 * Constant that compareTo method considers bigger than any real choromosome.
-	 */
-	public static final String MAX_VALUE = "ZZZZZZZZ";
-
-	/**
-	 * Constant that compareTo method considers smaller than any real choromosome.
-	 */
-	public static final String MIN_VALUE = "0";
-
-//	public static final Chromosome MAX = new Chromosome(MAX_VALUE);
-//	public static final Chromosome MIN = new Chromosome(MIN_VALUE);
-
 	public Chromosome(String chr) {
+		
+//		if (!chr.startsWith(CHROMOSOME_PREFIX)) {
+//			chr = CHROMOSOME_PREFIX + chr; 
+//		}
+		
 		this.chr = chr;
 		try {
 			this.intValue = Integer.parseInt(chr);

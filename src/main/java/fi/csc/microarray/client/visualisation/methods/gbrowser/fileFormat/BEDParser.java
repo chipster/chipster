@@ -55,7 +55,7 @@ public class BEDParser extends TsvParser {
 	public Object get(String[] cols, ColumnType col) {
 
 		Object obj = super.get(cols, col);
-		
+
 		return obj;
 	}
 }
