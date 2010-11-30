@@ -165,8 +165,11 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 		Rectangle viewClip = g.getClipBounds();
 		viewArea = viewClip;
-
-		if (drawBuffer == null) {
+		
+		if (drawBuffer == null || 
+				drawBuffer.getWidth() != viewArea.getWidth() || 
+				drawBuffer.getHeight() != viewArea.getHeight()) {
+			
 			drawBuffer = new BufferedImage((int) viewArea.getWidth(),
 			        (int) viewArea.getHeight(), BufferedImage.TYPE_INT_RGB);
 
