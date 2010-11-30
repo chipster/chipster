@@ -161,7 +161,7 @@ public class DirectoryLayout {
 	}
 
 	public File getLocalAnnotationDir() throws IOException {
-		return new File(getBaseDir(), LOCAL_ANNOTATION_DIR);
+		return check(new File(getBaseDir(), LOCAL_ANNOTATION_DIR));
 	}
 
 

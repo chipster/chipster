@@ -54,7 +54,7 @@ public class ResultBlocker implements ResultListener {
 			beans.add(iter.next());
 		}
 		
-		// for now, ignore count check for seq module
+		// TODO remove the check and countOperationResults()
 		if (Session.getSession().getPrimaryModule().countOperationResults()) {
 			if (enforcedResultCount != -1 && beans.size() != enforcedResultCount) {
 				throw new IllegalStateException("there are more or less than " + enforcedResultCount + " results");

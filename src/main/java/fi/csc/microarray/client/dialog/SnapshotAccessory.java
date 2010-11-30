@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 /**
@@ -35,9 +34,6 @@ public class SnapshotAccessory extends JPanel implements ActionListener {
 		clearCheckBox = new JCheckBox("<html>Add to current<br>session</html>");
 		clearCheckBox.setSelected(false);
 		this.add(clearCheckBox, c);	
-		
-		c.gridy++;
-		this.add(new JLabel("<html><b>Hint:</b><br>Workspace from<br>old version can be<br>opened using<br>File->Open workspace<br>saved with Chipster 1.1</html>"), c);
 	}
 
 	public boolean clearSession() {

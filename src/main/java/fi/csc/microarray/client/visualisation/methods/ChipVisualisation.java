@@ -11,8 +11,8 @@ import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 public abstract class ChipVisualisation extends Visualisation {
 	
-	public ChipVisualisation(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	@Override

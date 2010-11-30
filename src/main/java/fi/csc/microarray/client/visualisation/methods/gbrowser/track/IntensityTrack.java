@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
@@ -27,17 +28,22 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  */
 public class IntensityTrack extends Track {
 
+    final public static int SAMPLING_GRANULARITY = 100;
+
 	private SortedSet<RegionContent> values = new TreeSet<RegionContent>();
+	private LinkedList<RegionContent> valueStorageOrder = new LinkedList<RegionContent>();
 	private long minBpLength;
 	private Color color;
 	private boolean doLog;
+	private boolean removeTooWide;
 
 	public IntensityTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
-	        Color c, long maxBpLength, boolean doLog) {
+	        Color c, long maxBpLength, boolean doLog, boolean removeTooWide) {
 		super(view, file, handler);
 		this.color = c;
 		this.doLog = doLog;
 		this.minBpLength = maxBpLength;
+		this.removeTooWide = removeTooWide;
 	}
 
 	@Override
@@ -56,6 +62,12 @@ public class IntensityTrack extends Track {
 				continue;
 			}
 			
+			// remove values that are too wide for this view (when zooming in)
+			if (removeTooWide && regCont.region.getLength() > (getView().getBpRegion().getLength() / SAMPLING_GRANULARITY * 2)) {
+				iterator.remove();
+				continue;
+			}
+			
 			// do the plotting for this concised value
 			int x1 = getView().bpToTrack(regCont.region.start);
 			int x2 = getView().bpToTrack(regCont.region.end) + 2;
@@ -69,14 +81,17 @@ public class IntensityTrack extends Track {
 			int height = (int) Math.min(count * (GenomeBrowserConstants.READ_HEIGHT + GenomeBrowserConstants.SPACE_BETWEEN_READS), getView().getTrackHeight());
 			int y1 = (int) (-height + y2);
 
-			// FIXME implement overlaying tracks; currently is drawn above the track,
-			//       so it would merge with the previous track
-			// FIXME when region content value is close to zero, y1 can be something
-			//       like -2147483605, which we probably don't want to plot
 			drawables.add(new RectDrawable(x1, y1, x2 - x1, y2 - y1, color, null));
 
 		}
 
+		// FIXME move this to "gone out of view" place?
+		// remove values when they get "too big"
+//		while (values.size() > MAX_VALUE_COUNT) {
+//			RegionContent oldest = valueStorageOrder.pop();
+//			values.remove(oldest);
+//		}
+		
 		return drawables;
 	}
 
@@ -89,6 +104,7 @@ public class IntensityTrack extends Track {
 
 			
 			values.add(areaResult.content);
+			valueStorageOrder.add(areaResult.content);
 			getView().redraw();
 		}
 	}

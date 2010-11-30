@@ -23,8 +23,8 @@ import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 public class ClusteredProfiles extends Visualisation {
 
-	public ClusteredProfiles(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	@Override
@@ -82,7 +82,10 @@ public class ClusteredProfiles extends Visualisation {
 		// draw plots
 		for (int i = 0; i < clusterCount; i++) {
 			//TODO createProfileChart should allow static use
-			charts.add(new ExpressionProfile(null).createProfileChart(datasets.get(i), rows.get(i), "Cluster " + (i+1)));
+			// FIXME it really should
+			ExpressionProfile ep = new ExpressionProfile();
+			ep.initialise(null);
+			charts.add(ep.createProfileChart(datasets.get(i), rows.get(i), "Cluster " + (i+1)));
 		}
 		
 		return this.makePanel(charts);

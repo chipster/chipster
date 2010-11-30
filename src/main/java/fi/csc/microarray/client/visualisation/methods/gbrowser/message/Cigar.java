@@ -106,7 +106,7 @@ public class Cigar {
 			visibleElements = new LinkedList<ReadPart>();
 
 			// Split read into regions using cigar
-			long refCoord = read.region.start.bp;;
+			long refCoord = read.region.start.bp;
 			long seqCoord = 0;
 			String seq = (String) read.values.get(ColumnType.SEQUENCE);
 
