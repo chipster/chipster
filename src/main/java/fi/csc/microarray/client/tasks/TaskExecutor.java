@@ -109,11 +109,10 @@ public class TaskExecutor {
 	/**
 	 * For listening to temporary result Topics.
 	 *
-	 * FIXME Add cleanUp() to appropriate places!
 	 */
 	private class ResultMessageListener extends TempTopicMessagingListenerBase {
 
-		Task pendingTask; // TODO memory leak, this temp topic based listener
+		Task pendingTask; 
 		// should be removed
 		ResultListenerState internalState;
 		String asId;
@@ -373,6 +372,9 @@ public class TaskExecutor {
 
 			// remove from running
 			removeFromRunningTasks(pendingTask);
+			
+			// cleanup temp topic
+			this.cleanUp();
 		}
 
 	}

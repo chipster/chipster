@@ -40,7 +40,8 @@ public class HelpMapping {
 		mappings.put("Normalisation/Agilent 2-color", "chipster-manual/norm-agilent.html");
 		mappings.put("Normalisation/cDNA", "chipster-manual/norm-cdna.html");
 		mappings.put("Normalisation/Illumina", "chipster-manual/norm-illumina.html");
-		mappings.put("Normalisation/Illumina - lumi pipeline", "chipster-manual/norm-illumina-lumi.html"); 
+		mappings.put("Normalisation/Illumina - lumi pipeline", "chipster-manual/norm-illumina-lumi.html");
+		mappings.put("Normalisation/Illumina - lumi pipeline AAI", "chipster-manual/norm-illumina-lumi-AAI.html");
 		mappings.put("Normalisation/Random effects", "chipster-manual/norm-lme.html");
 		mappings.put("Normalisation/Normalize to chip average", "chipster-manual/norm-chip-average.html");
 		mappings.put("Normalisation/Normalize to gene average", "chipster-manual/norm-gene-average.html");
