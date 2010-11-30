@@ -177,4 +177,19 @@ public class BasicModule implements Module {
 	public JPanel getContextLinkPanel(int selectedDataCount) {
 		return null;
 	}
+
+	@Override
+	public boolean notesVisibleAtStartup() {
+		return false;
+	}
+
+	@Override
+	public String getDisplayName() {
+		return "Chipster";
+	}
+
+	@Override
+	public String getManualHome() {
+		return "https://extras.csc.fi/biosciences/chipster-manual/index.html";
+	}
 }

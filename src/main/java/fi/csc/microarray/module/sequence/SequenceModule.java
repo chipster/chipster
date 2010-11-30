@@ -186,4 +186,19 @@ public class SequenceModule implements Module {
 		return null;
 	}
 
+	@Override
+	public boolean notesVisibleAtStartup() {
+		return true;
+	}
+
+	@Override
+	public String getDisplayName() {
+		return "Embster";
+	}
+
+	@Override
+	public String getManualHome() {
+		return "http://chipster.csc.fi/embster/manual";
+	}
+
 }

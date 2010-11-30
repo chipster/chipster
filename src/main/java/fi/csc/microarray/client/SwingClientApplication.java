@@ -405,13 +405,13 @@ public class SwingClientApplication extends ClientApplication {
 	
 	public void updateWindowTitle() {
 		if (windowTitleBlockingPrefix != null) {
-			this.mainFrame.setTitle(windowTitleBlockingPrefix + ApplicationConstants.TITLE);
+			this.mainFrame.setTitle(windowTitleBlockingPrefix + Session.getSession().getPrimaryModule().getDisplayName() + " " + ApplicationConstants.VERSION);
 			
 		} else if (windowTitleJobPrefix != null) {
-			this.mainFrame.setTitle(windowTitleJobPrefix + ApplicationConstants.TITLE);
+			this.mainFrame.setTitle(windowTitleJobPrefix + Session.getSession().getPrimaryModule().getDisplayName() + " " +  ApplicationConstants.VERSION);
 			
 		} else {
-			this.mainFrame.setTitle(ApplicationConstants.TITLE);
+			this.mainFrame.setTitle(Session.getSession().getPrimaryModule().getDisplayName() + " " + ApplicationConstants.VERSION);
 		}
 
 	}
@@ -1630,8 +1630,7 @@ public class SwingClientApplication extends ClientApplication {
 	        // Mostly for microarray
 	        // TODO: consider refactoring so that url is stored in definition
 	        // and this "else" branch is not needed
-	        String urlBase = "https://extras.csc.fi/biosciences/";
-	        viewHelp(urlBase + HelpMapping.mapToHelppage(definition));
+	        viewHelp(HelpMapping.mapToHelppage(definition));
 	    }
 	}
 

@@ -142,6 +142,11 @@ public class DetailsPanel extends JPanel implements PropertyChangeListener, Focu
 		this.setMinimumSize(new Dimension(0,0));
 		this.disable();
 		
+		// notes visible?
+		if (Session.getSession().getPrimaryModule().notesVisibleAtStartup()) {
+			showPanel(CL_MAIN, CL_MAIN_INDEX);
+		}
+		
 		// start listening
 		application.addPropertyChangeListener(this);
 	}

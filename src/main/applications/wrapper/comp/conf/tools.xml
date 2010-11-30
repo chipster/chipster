@@ -13,6 +13,7 @@
 	<tool runtime="R-2.9">norm-illumina.R</tool>
 	<tool runtime="R-2.9">norm-illumina-r210.R</tool>
 	<tool runtime="R-2.9">norm-illumina-lumi.R</tool>
+	<tool runtime="R-2.9">norm-illumina-lumi-AAI.R</tool>
 	<tool runtime="R-2.9">norm-lme.R</tool>
 	<tool runtime="R-2.9">norm-illumina-SNP.R</tool>
 	<tool runtime="R-2.9">norm-prenormalized.R</tool>

@@ -65,6 +65,7 @@ public class ToolXMLGenerator {
         ignoredGroups.add("Test");
         ignoredGroups.add("Utils");
         ignoredGroups.add("Ontology");
+        ignoredGroups.add("HMM");
 
         // less important groups which should be last when sorting groups
         bottomGroups.add("Enzyme Kinetics");
@@ -85,6 +86,8 @@ public class ToolXMLGenerator {
         ignoredPrograms.add("primers");
         ignoredPrograms.add("newcoils");
         ignoredPrograms.add("ememe");
+        ignoredPrograms.add("emast");
+
         
         ignoredPrograms.add("domtesta");
         ignoredPrograms.add("domtestb");
@@ -109,17 +112,16 @@ public class ToolXMLGenerator {
         ignoredPrograms.add("emira");
         ignoredPrograms.add("vrnafoldpf");        
         
-        colors.put("alignment", "#e7df70");
-        colors.put("alignment:multiple", "#d59f45");
-        colors.put("display", "#e7881c");
-        colors.put("edit", "#d53833");
-        colors.put("hmm", "#80a3b7");
-        colors.put("information", "#0177b7");
-        colors.put("nucleic", "#629a9b");
-        colors.put("phylogeny", "#a49900");
-        colors.put("protein", "#83010b");
-        colors.put("enzyme kinetics", "#c0d2de");
-        colors.put("feature tables", "#c0d2de");
+        colors.put("alignment", "#e7881c");
+        colors.put("alignment:multiple", "#d53833");
+        colors.put("display", "#d5c796");
+        colors.put("edit", "#c0d2de");
+        colors.put("information", "#80a3b7");
+        colors.put("nucleic", "#0177b7");
+        colors.put("phylogeny", "#83010b");
+        colors.put("protein", "#629a9b");
+        colors.put("enzyme kinetics", "#629a9b");
+        colors.put("feature tables", "#629a9b");
     }
 
     /**

@@ -30,7 +30,7 @@ if(chiptype=="Mouse") {
 	chiptype<-c("lumiMouseAll")
 	mapping<-c("lumiMouseIDMapping")
 }
-if(chiptype=="RatRef") {
+if(chiptype=="Rat") {
 	chiptype<-c("lumiRatAll")
 	mapping<-c("lumiRatIDMapping")
 }
