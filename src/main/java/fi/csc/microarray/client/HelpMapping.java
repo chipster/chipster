@@ -116,6 +116,7 @@ public class HelpMapping {
 		mappings.put("Utilities/Export tab2mage format", "chipster-manual/export-tab2mage.html");
 		mappings.put("Utilities/Extract genes from clustering", "chipster-manual/extract-genes-from-clustering.html");
 		mappings.put("Utilities/Extract genes from GO term", "chipster-manual/extract-genes-from-go.html");
+		mappings.put("Utilities/Extract genes from KEGG pathway", "chipster-manual/extract-genes-from-kegg.html");
 		mappings.put("Utilities/Extract genes using a p-value", "chipster-manual/extract-genes-from-stattest.html");
 		mappings.put("Utilities/Extract samples from dataset", "chipster-manual/extract-samples-from-dataset.html");
 		mappings.put("Utilities/Average replicate chips", "chipster-manual/average-replicates.html");
