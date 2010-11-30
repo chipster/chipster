@@ -77,7 +77,6 @@ import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
-import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -894,13 +893,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 	@Override
 	public boolean canVisualise(java.util.List<DataBean> datas) throws MicroarrayException {
-		// Check if there's non-compatible data  
-		for (DataBean data : datas) {
-			if (!data.hasTypeTag(MicroarrayModule.TypeTags.ORDERED_GENOMIC_ENTITIES)) {
-				return false;
-			}
-		}
-		return true;
+		return interpretUserDatas(datas) != null;
 	}
 
 	public class ObjVariable extends Variable {
@@ -971,6 +964,13 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 					return null; // already taken, could not bind this secondary data to any primary data
 				}
 				primaryInterpretation.indexData = data;
+			}
+		}
+		
+		// Check that interpretations are now fully initialised
+		for (Interpretation interpretation : interpretations) {
+			if (interpretation.primaryData.getName().endsWith(".bam") && interpretation.indexData == null) {
+				return null; // BAM is missing BAI
 			}
 		}
 		
