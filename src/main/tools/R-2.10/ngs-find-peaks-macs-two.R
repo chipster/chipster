@@ -1,6 +1,6 @@
 # TOOL "Statistics" / ngs-find-peaks-macs-two.R: "Find peaks using MACS, treatment vs. control" (This tool will search for statistically significantly enriched genomic regions in sequencing data from a ChIP-seq experiment. The analysis is performed on one or more treatment samples relative to one or more control samples.)
-# INPUT treatment.txt: "Treatment data file" TYPE GENERIC
-# INPUT control.txt: "Control data file" TYPE GENERIC
+# INPUT treatment.bam: "Treatment data file" TYPE GENERIC
+# INPUT control.bam: "Control data file" TYPE GENERIC
 # OUTPUT positive-peaks.tsv: "True enriched peaks"
 # OUTPUT positive-peaks.bed: "True enriched peaks in a format compatible with the Genome Browser"
 # OUTPUT OPTIONAL model-plot.png: "A plot of the fitted peak model"
@@ -13,8 +13,12 @@
 # PARAMETER band.with: "Band width" TYPE INTEGER FROM 1 TO 1000 DEFAULT 200 (The scanning window size, typically half the average fragment size of the DNA)
 # PARAMETER p.value.threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.00001 (The cutoff for statistical significance. Since the p-values are not adjusted to account for multiple testing correction the cutoff needs to be substantially more conservative than what is usually applied.)
 # PARAMETER build.model: "Peak model" TYPE [yes, no] DEFAULT yes (If enabled, a peak model is built from the data. Disabling model building means the shiftsize has to be guessed. In Chipster the shift size is set to half the band with.)
-# PARAMETER m.fold: "M-fold cutoff" TYPE INTEGER FROM 1 TO 100 DEFAULT 32 (Sets the cutoff used to determine peak regions for model building. A too high value may result in not enough peaks being identified for building the model. Notice that if the peak model is disabled this parameter has no effect.)
+# PARAMETER m.fold.upper: "Upper M-fold cutoff" TYPE INTEGER FROM 1 TO 100 DEFAULT 30 (Sets the cutoff used to determine peak regions for model building. A too high value may result in not enough peaks being identified for building the model. Notice that if the peak model is disabled this parameter has no effect.)
+# PARAMETER m.fold.lower: "Lower M-fold cutoff" TYPE INTEGER FROM 1 TO 100 DEFAULT 10 (Sets the cutoff used to determine peak regions for model building. A too low value may result in the inclusion of many false peaks being used for building the model. Notice that if the peak model is disabled this parameter has no effect.)
+
+# This parameter is no longer needed, as MACS automatically lowers the m-fold cut-off if needed as of version 1.4.0
 # PARAMETER adjust.mfold: "Adjust m-fold" TYPE [yes, no] DEFAULT yes (Enabling this option, when building peak model is selected, the m-fold cutoff is automatically adjusted down in case the user-selected value is to stringent for finding peaks for modeling.)
+
 
 
 #####################################################
@@ -35,6 +39,17 @@
 # control.                                          #
 #                                                   #
 #####################################################
+
+#####################################################
+#                                                   #
+# MG, 1.12.2010                                     #
+#                                                   #
+# Modified to take BAM files as input.              #
+#                                                   #
+# Modified to run version 1.4 of MACS.              #
+#                                                   #
+#####################################################
+
 
 #####################################################
 #                                                   #
@@ -99,6 +114,12 @@ if (build.model == "no") {
 if (build.model == "yes") {
 	no.model <- FALSE
 }
+
+# Set up the m-fold limits
+mfold.limits <- paste (as.character(m.fold.lower),",",as.character(m.fold.upper), sep="")
+
+# Turn on the option that leaves the mfold auto adjust to MACS
+adjust.mfold <- "no"
 
 ####################################################
 #                                                  #
@@ -180,16 +201,16 @@ if (build.model == "yes") {
 
 
 # Remove unmappable reads belonging to random chromosomes or hapmap (single file approach)
-system("grep -v random treatment.txt > treatment_2.txt")
-system("grep -v hap treatment_2.txt > treatment_3.txt")
-system ("rm -f treatment.txt")
-system("rm -f treatment_2.txt")
-if (control.available == "yes") {
-	system("grep -v random control.txt > control_2.txt")
-	system("grep -v hap control_2.txt > control_3.txt")
-	system ("rm -f control.txt")
-	system("rm -f control_2.txt")
-}
+# system("grep -v random treatment.txt > treatment_2.txt")
+# system("grep -v hap treatment_2.txt > treatment_3.txt")
+# system ("rm -f treatment.txt")
+# system("rm -f treatment_2.txt")
+# if (control.available == "yes") {
+#	system("grep -v random control.txt > control_2.txt")
+#	system("grep -v hap control_2.txt > control_3.txt")
+#	system ("rm -f control.txt")
+#	system("rm -f control_2.txt")
+#}
 
 # Define function for running MACS
 runMACS <- function(..., logFile="/dev/null") {
@@ -221,7 +242,7 @@ runMACS <- function(..., logFile="/dev/null") {
 		}
 		
 		# Command
-		command <- paste("/v/users/chipster/tools/bin/macs", paste(flags, params, collapse=" "))
+		command <- paste("/v/users/chipster/tools/bin/macs14", paste(flags, params, collapse=" "))
 		if (!is.null(switchOnParams)) {
 			switchOnParams <-  paste(switchOnParams, collapse=" ")
 			command <- paste(command, switchOnParams)
@@ -259,13 +280,13 @@ runMACS <- function(..., logFile="/dev/null") {
 
 # Run MACS with specified parameters for the data set
 if (build.model == "no") {
-	runMACS(treatment="treatment_3.txt", 
-		control="control_3.txt", 
+	runMACS(treatment="treatment.bam", 
+		control="control.bam", 
 		name="results", 
 		format = file.format,
 		bw=band.with,
 		pvalue=p.value.threshold,
-		mfold=m.fold,
+		mfold=mfold.limits,
 		tsize=read.length,
 		gsize=genome.size,
 		verbose=3, 
@@ -276,8 +297,8 @@ if (build.model == "no") {
 		version=FALSE)
 }
 if (build.model == "yes") {
-	runMACS(treatment="treatment_3.txt", 
-			control="control_3.txt", 
+	runMACS(treatment="treatment.bam", 
+			control="control.bam", 
 			name="results", 
 			format = file.format,
 			bw=band.with,
