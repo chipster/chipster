@@ -10,7 +10,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -790,17 +789,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				chartPanel.addMouseListener(view);
 				chartPanel.addMouseMotionListener(view);
 				chartPanel.addMouseWheelListener(view);
-			}
-
-			// add key listeners if necessary
-			for (View view : plot.getViews()) {
-
-				if ( view instanceof KeyListener) {
-					
-					paramPanel.addKeyListener((KeyListener) view);
-					plotPanel.addKeyListener((KeyListener) view);
-					System.out.println(paramPanel.isFocusable());
-				}
 			}
 
 			// put panel on top of card layout

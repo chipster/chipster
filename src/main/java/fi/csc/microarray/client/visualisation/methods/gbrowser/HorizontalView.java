@@ -21,8 +21,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRe
 public class HorizontalView extends View implements KeyListener {
 
 	public HorizontalView(GenomePlot parent, boolean movable, boolean zoomable, boolean selectable) {
-		
+				
 		super(parent, movable, zoomable, selectable);
+		
+		parent.chartPanel.addKeyListener(this);
 	}
 
 	@Override
@@ -127,11 +129,11 @@ public class HorizontalView extends View implements KeyListener {
 		if ( this.zoomable ) {
 			if ( e.getKeyCode() == KeyEvent.VK_UP ) {
 				
-				this.zoom(this.getWidth() / 2, -3, false);
+				this.zoomAnimation(this.getWidth() / 2, -1);
 				
 			} else if (e.getKeyCode() == KeyEvent.VK_DOWN )  {
 				
-				this.zoom(this.getWidth() / 2, 3, false);
+				this.zoomAnimation(this.getWidth() / 2, 1);
 			}
 		}
 		

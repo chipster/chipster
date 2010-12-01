@@ -466,6 +466,8 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	public void mousePressed(MouseEvent e) {
 
+		parentPlot.chartPanel.requestFocusInWindow();
+		
 		stopAnimation();
 		dragStartPoint = scale(e.getPoint());
 		dragStarted = false;
@@ -538,6 +540,10 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	public void mouseWheelMoved(final MouseWheelEvent e) {
 
+		zoomAnimation((int) scale(e.getPoint()).getX(), e.getWheelRotation());
+	}
+	
+	public void zoomAnimation(final int centerX, final int wheelRotation) {
 		stopAnimation();
 
 		timer = new Timer(1000 / FPS, new ActionListener() {
@@ -553,18 +559,18 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 				boolean skipFrame = (i < (ANIMATION_FRAMES - 1)) && System.currentTimeMillis() > startTime + (1000 / FPS) * i;
 
 				if (i < ANIMATION_FRAMES) {
-					zoom((int) scale(e.getPoint()).getX(), e.getWheelRotation(), skipFrame);
+					zoom(centerX, wheelRotation, skipFrame);
 					i++;
-					
+
 				} else {
 					stopAnimation();
 				}
 			}
 		});
-		
+
 		timer.setRepeats(true);
 		timer.setCoalesce(false);
-		timer.start();
+		timer.start();	
 	}
 
 	private void stopAnimation() {
