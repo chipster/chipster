@@ -90,7 +90,7 @@ public abstract class TsvParser extends FileParser {
 					|| string.equals("-") ? Strand.REVERSED	: Strand.FORWARD;
 
 				} else if (col == ColumnType.CHROMOSOME) {
-					return new Chromosome(string.replace("chr", ""));
+					return new Chromosome(string);
 
 				} else if (fieldDef.type == Type.STRING) {
 					return string;

@@ -107,7 +107,7 @@ public class SNPParser extends TsvParser{
 				|| string.equals("-") ? Strand.REVERSED	: Strand.FORWARD;
 
 			} else if (col == ColumnType.CHROMOSOME) { 
-				return new Chromosome(string.replace("chr", ""));
+				return new Chromosome(string);
 			} else if (col == ColumnType.CONSEQUENCE_TO_TRANSCRIPT) {
 				if (string.startsWith("3PRIME")) {
 					return "PRIME3_UTR";
