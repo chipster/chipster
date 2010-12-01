@@ -26,6 +26,7 @@ import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.TaskImportDialog;
+import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
@@ -384,15 +385,16 @@ public class MicroarrayModule implements Module {
 	 */
 	@Override
 	public JPanel getContextLinkPanel(int selectedDataCount) {
-		
+
 		final ClientApplication application = Session.getSession().getApplication();
-		
+
 		if (!application.isStandalone()) {
 			return null;
 		}
-		
-		// Initialise context link panel
+
 		JPanel contentPanel = new JPanel();
+
+		// Initialise context link panel
 		contentPanel.setBackground(Color.WHITE);
 		contentPanel.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
@@ -405,8 +407,15 @@ public class MicroarrayModule implements Module {
 		c.insets.set(topMargin, leftMargin, 0, 0);
 		contentPanel.add(new JLabel(VisualConstants.QUICKLINK_ICON), c);
 		JXHyperlink link;
-		
-		if (selectedDataCount > 0) {
+		boolean currentSelectionVisualisable = false;
+		try {
+			currentSelectionVisualisable = MicroarrayModule.VisualisationMethods.GBROWSER.getVisualiser(null).canVisualise(application.getSelectionManager().getSelectedDataBeans());
+		} catch (MicroarrayException e2) {
+			// ignore
+		}
+
+		if (selectedDataCount > 0 && currentSelectionVisualisable) {
+			// Selection can be visualised directly
 			link = new JXHyperlink(new AbstractAction() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -416,32 +425,49 @@ public class MicroarrayModule implements Module {
 			link.setText("Open genome browser");
 
 
-		} else {
+		} else if (selectedDataCount < application.getDataManager().databeans().size()) {
+			// Not all datasets are selected, they might be visualisable when selected, so suggest it
 			link = new JXHyperlink(new AbstractAction() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					
+
 					// Select all datasets (creates a bunch of events)
 					application.selectAllItems();
-					
-					// Use invokeLater so that visualisation system can process events from selectAllItems 
-					// before this. Otherwise the system is not synchronized and the visualisation panel
-					// does not update.
-					SwingUtilities.invokeLater(new Runnable() {
-						@Override
-						public void run() {
-							application.setVisualisationMethod(MicroarrayModule.VisualisationMethods.GBROWSER, null, application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
-						}
-					});
+
+					// Check if selection can be visualised
+					boolean canVisualise = false;
+					try {
+						canVisualise = MicroarrayModule.VisualisationMethods.GBROWSER.getVisualiser(null).canVisualise(application.getSelectionManager().getSelectedDataBeans());
+					} catch (MicroarrayException e1) {
+						// ignore
+					}
+
+					if (canVisualise) {
+						// Use invokeLater so that visualisation system can process events from selectAllItems 
+						// before this. Otherwise the system is not synchronized and the visualisation panel
+						// does not update.
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								application.setVisualisationMethod(MicroarrayModule.VisualisationMethods.GBROWSER, null, application.getSelectionManager().getSelectedDataBeans(), FrameType.MAIN);
+							}
+						});
+					} else {
+						application.showDialog("Cannot open genome browser", "Currect dataset selection cannot be visualised in genome browser", "Unselect improper datasets to open genome browser.", Severity.INFO, true);
+					}
 				}
 			});
 			link.setText("Select all and open genome browser");
+
+		} else {
+			// No links available, bail out
+			return null;
 		}
 
 		c.insets.set(topMargin, 5, 0, 0);
 		c.gridx++;
 		contentPanel.add(link, c);
-		
+
 		return contentPanel;
 	}
 

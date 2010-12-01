@@ -176,7 +176,7 @@ public class ChunkDataSource extends DataSource {
 		}
 	}
 
-	public long headerLength() {
+	public long getHeaderLength() throws IOException {
 		return fileParser.getHeaderLength(file);
 	}
 
