@@ -63,7 +63,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	private static final int FPS = 30;
 
-	private boolean movable;
+	protected boolean movable;
 	protected boolean zoomable;
 
 	protected final float ZOOM_FACTOR = 1.06f;
@@ -574,7 +574,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		}
 	}
 
-	private void zoom(int lockedX, int wheelRotation, boolean disableDrawing) {
+	protected void zoom(int lockedX, int wheelRotation, boolean disableDrawing) {
 
 		// not all views are zoomed (e.g., the overview with cytoband) 
 		if (zoomable) {

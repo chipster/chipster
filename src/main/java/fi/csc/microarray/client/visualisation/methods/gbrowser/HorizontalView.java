@@ -3,6 +3,8 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.geom.Point2D;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
@@ -16,9 +18,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRe
  * The basic view of genome browser. 
  *
  */
-public class HorizontalView extends View {
+public class HorizontalView extends View implements KeyListener {
 
 	public HorizontalView(GenomePlot parent, boolean movable, boolean zoomable, boolean selectable) {
+		
 		super(parent, movable, zoomable, selectable);
 	}
 
@@ -116,5 +119,45 @@ public class HorizontalView extends View {
 		}
 		
 		super.setBpRegion(region, disableDrawing);
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		
+		if ( this.zoomable ) {
+			if ( e.getKeyCode() == KeyEvent.VK_UP ) {
+				
+				this.zoom(this.getWidth() / 2, -3, false);
+				
+			} else if (e.getKeyCode() == KeyEvent.VK_DOWN )  {
+				
+				this.zoom(this.getWidth() / 2, 3, false);
+			}
+		}
+		
+		if ( this.movable ) {
+			if ( e.getKeyCode() == KeyEvent.VK_LEFT ) {
+
+				bpRegion.move(-this.getBpRegion().getLength() / 10.0);
+				setBpRegion(bpRegion, false);
+				parentPlot.redraw();
+				
+			} else if (e.getKeyCode() == KeyEvent.VK_RIGHT )  {
+
+				bpRegion.move(this.getBpRegion().getLength() / 10.0);
+				setBpRegion(bpRegion, false);
+				parentPlot.redraw();
+			}
+		}
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+					
 	}
 }
