@@ -124,6 +124,8 @@
 		<tool runtime="R-2.9"><resource>merge-tables.R</resource></tool>
 		<tool runtime="R-2.9"><resource>merge-datasets.R</resource></tool>
 		<tool runtime="R-2.9"><resource>extract-genes-from-clustering.R</resource></tool>
+        <tool runtime="R-2.9"><resource>extract-genes-from-go.R</resource></tool>
+        <tool runtime="R-2.9"><resource>extract-genes-from-kegg.R</resource></tool>
 		<tool runtime="R-2.9"><resource>extract-samples-from-dataset.R</resource></tool>
 		<tool runtime="R-2.9"><resource>extract-genes-from-stattest.R</resource></tool>
 		<tool runtime="R-2.9"><resource>extract-genes.R</resource></tool>

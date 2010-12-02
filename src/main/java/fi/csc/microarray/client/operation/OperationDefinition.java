@@ -317,7 +317,11 @@ public class OperationDefinition implements ExecutionItem {
 	    
 	    // Report only either input or parameter suitability
 	    if (evaluatedSuitability.isOk()) {
-	        evaluatedSuitability = parameterSuitability;
+	        if (parameterSuitability == null) {
+	        	evaluatedSuitability = parameterSuitability(getParameters());
+	        } else {
+	        	evaluatedSuitability = parameterSuitability;
+	        }
 	    }
 		
 		return getEvaluatedSuitability();

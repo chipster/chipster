@@ -403,7 +403,7 @@ public class SnapshottingSession {
 					if (od == null) {
 						String message = "The session you opened contains a dataset which has been derived using an analysis tool which has been removed or renamed.\n\n" +
 						"The dataset contents have not changed and you can use them as before, but the obsolete operation will not be usable in workflows.";
-						String details = "Analysis tool: " + id + "\n";
+						String details = "Analysis tool: " + operationID + ", " + id + "\n";
 						warnAboutObsoleteContent(message, details, null);
 					}
 					Operation op = null;

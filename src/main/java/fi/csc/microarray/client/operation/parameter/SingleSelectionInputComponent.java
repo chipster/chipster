@@ -56,6 +56,8 @@ public class SingleSelectionInputComponent extends ParameterInputComponent
 		if (param.getSelectedOptions().size() > 0) {
 		    // This is a single selection list so there's only one default value
 		    choiceBox.setSelectedItem(param.getSelectedOptions().get(0));
+		} else {
+			choiceBox.setSelectedItem(null);
 		}
         
 		choiceBox.addActionListener(this);
