@@ -22,7 +22,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDraw
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -80,7 +79,6 @@ public class SeqBlockTrack extends Track {
 			}
 
 			// Collect relevant data for this read
-			BpCoord startBp = read.region.start;
 
 			// Split read into continuous blocks (elements) by using the cigar
 			List<ReadPart> visibleRegions = Cigar.splitVisibleElements(read);
@@ -162,7 +160,7 @@ public class SeqBlockTrack extends Track {
 
 					// Prepare to draw single nucleotides
 					float increment = getView().bpWidth();
-					float startX = getView().bpToTrackFloat(startBp);
+					float startX = getView().bpToTrackFloat(visibleRegion.start);
 
 					// Draw each nucleotide
 					for (int j = 0; j < seq.length(); j++) {
@@ -173,7 +171,7 @@ public class SeqBlockTrack extends Track {
 
 						// Choose a color depending on viewing mode
 						Color bg = Color.white;
-						long posInRef = startBp.bp.intValue() + refIndex - getView().getBpRegion().start.bp.intValue();
+						long posInRef = read.region.start.bp.intValue() + refIndex - getView().getBpRegion().start.bp.intValue();
 						if (highlightSNP && posInRef >= 0 && posInRef < refSeq.length && Character.toLowerCase(refSeq[(int)posInRef]) == Character.toLowerCase(letter)) {
 							bg = Color.gray;
 						} else {
