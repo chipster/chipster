@@ -61,7 +61,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	public GenomePlot parentPlot;
 
-	private static final int FPS = 30;
+	protected static final int FPS = 30;
 
 	protected boolean movable;
 	protected boolean zoomable;
@@ -483,7 +483,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 			stopAnimation();
 
-			timer = new Timer(1000 / FPS, new ActionListener() {
+			mouseZoomTimer = new Timer(1000 / FPS, new ActionListener() {
 
 				private int i = 0;
 				private int ANIMATION_FRAMES = 30;
@@ -508,8 +508,8 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 					}
 				}
 			});
-			timer.setRepeats(true);
-			timer.start();
+			mouseZoomTimer.setRepeats(true);
+			mouseZoomTimer.start();
 		}
 	}
 
@@ -536,7 +536,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	protected abstract void handleDrag(Point2D start, Point2D end, boolean disableDrawing);
 
-	private Timer timer;
+	private Timer mouseZoomTimer;
 
 	public void mouseWheelMoved(final MouseWheelEvent e) {
 
@@ -546,7 +546,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	public void zoomAnimation(final int centerX, final int wheelRotation) {
 		stopAnimation();
 
-		timer = new Timer(1000 / FPS, new ActionListener() {
+		mouseZoomTimer = new Timer(1000 / FPS, new ActionListener() {
 
 			private int i = 0;
 
@@ -568,19 +568,19 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			}
 		});
 
-		timer.setRepeats(true);
-		timer.setCoalesce(false);
-		timer.start();	
+		mouseZoomTimer.setRepeats(true);
+		mouseZoomTimer.setCoalesce(false);
+		mouseZoomTimer.start();	
 	}
 
 	private void stopAnimation() {
-		if (timer != null) {
-			timer.stop();
-			timer = null;
+		if (mouseZoomTimer != null) {
+			mouseZoomTimer.stop();
+			mouseZoomTimer = null;
 		}
 	}
 
-	protected void zoom(int lockedX, int wheelRotation, boolean disableDrawing) {
+	protected void zoom(int lockedX, double wheelRotation, boolean disableDrawing) {
 
 		// not all views are zoomed (e.g., the overview with cytoband) 
 		if (zoomable) {
