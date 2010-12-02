@@ -758,13 +758,6 @@ public class SwingClientApplication extends ClientApplication {
 						lastGroupMember = data;
 
 					}
-					// select data
-					final DataBean selectedBean = lastGroupMember;
-					SwingUtilities.invokeAndWait(new Runnable() {
-						public void run() {
-							getSelectionManager().selectSingle(selectedBean, this);
-						}
-					});
 
 				} catch (Exception e) {
 					throw new RuntimeException(e);
