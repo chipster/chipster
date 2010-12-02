@@ -22,12 +22,7 @@ import net.sf.samtools.SAMSequenceRecord;
 import fi.csc.microarray.util.IOUtils;
 
 public class SamBamUtils {
-	
-	
-	public interface ChromosomeNormaliser {
-		public String normaliseChromosome(String chromosomeName);
-	}
-	
+		
 	public interface SamBamUtilStateListener {
 		public void stateChanged(SamBamUtilState newState);
 	}
