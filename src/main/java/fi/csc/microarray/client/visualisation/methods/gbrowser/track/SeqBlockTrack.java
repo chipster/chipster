@@ -199,7 +199,7 @@ public class SeqBlockTrack extends Track {
 						}
 
 						// Draw rectangle
-						int x = Math.round(startX + refIndex * increment);
+						int x = Math.round(startX + Math.round(((float)refIndex) * increment));
 						int width = increment >= 1.0f ? Math.round(increment) : 1;  
 						drawables.add(new RectDrawable(x, rect.y, width, GenomeBrowserConstants.READ_HEIGHT, bg, null));
 					}
