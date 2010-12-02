@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
@@ -36,13 +35,14 @@ import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameTyp
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 /**
  * This panel contains the options for different data visualizations. It is a
  * lower left part of the operations panel, and controls what is shown on the
  * results panel.
  * 
- * @author Janne KÃ¤ki, akallio
+ * @author Janne Käki, akallio
  * 
  */
 public class VisualisationToolBar extends JToolBar implements ActionListener, PropertyChangeListener {
@@ -61,8 +61,8 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 	private JButton splitButton = ToolBarComponentFactory.createButton("Duplicate", VisualConstants.SPLIT_ICON, true, false);
 	private JButton detachButton = ToolBarComponentFactory.createButton("Detach", VisualConstants.TO_WINDOW_ICON, true, false);
 
-	// private VisualisationListModel methodListModel = new
-	// VisualisationListModel();
+	JPanel buttonPanel;
+	
 	private JComboBox methodChoiceBox = ToolBarComponentFactory.createComboBox();
 
 	private String helpAddress;
@@ -92,7 +92,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 		// methodChoiceBox.setPreferredSize(ToolBarComponentFactory.COMBOBOX_SIZE);
 		methodChoiceBox.setRenderer(new ComboBoxRenderer());
 
-		JPanel buttonPanel = new JPanel(new GridLayout(1, 4));
+		buttonPanel = new JPanel(new GridLayout(1, 4));
 		buttonPanel.setOpaque(false);
 		buttonPanel.add(helpButton);
 		buttonPanel.add(redrawButton);
@@ -146,6 +146,12 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 		});
 	}
 
+	private void addButtons(JButton... buttons) {
+		for (JButton button : buttons) {
+			buttonPanel.add(button);
+		}
+	}
+	
 	private void refreshVisualisationList(VisualisationMethod method, List<DataBean> datas) {
 
 		// update maximise button
@@ -154,9 +160,26 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 		// update method list
 		fillMethodsFor(datas);
 		methodChoiceBox.setEnabled(datas != null && datas.size() > 0);
+		
+		// redraw button
 		redrawButton.setEnabled(method != VisualisationMethod.NONE);
+		// add missing redraw button
+		if (method != VisualisationMethod.NONE && method != MicroarrayModule.VisualisationMethods.GBROWSER && 
+				redrawButton.getParent() != buttonPanel) {
+				buttonPanel.removeAll();
+				addButtons(helpButton, redrawButton, maximiseButton, detachButton);
+		}
+		// remove redraw button for NONE and GBROWSER
+		else if ((method == VisualisationMethod.NONE || method == MicroarrayModule.VisualisationMethods.GBROWSER) && 
+				redrawButton.getParent() == buttonPanel) {
+			buttonPanel.removeAll();
+			addButtons(helpButton, maximiseButton, detachButton);
+		}
+
+		// other buttons
 		splitButton.setEnabled(method != VisualisationMethod.NONE || isSplit);
 		detachButton.setEnabled(method != VisualisationMethod.NONE);
+	
 	}
 
 	/**
@@ -272,11 +295,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 			if (e.getTarget() == FrameType.MAIN) {
 				
 				// update help button
-				if (e.getNewMethod() == VisualisationMethod.PHENODATA) {
-					setHelpAddress("chipster-manual/visualisation-phenodata.html");
-				} else {
-					setHelpAddress(null);
-				}
+				setHelpAddress(e.getNewMethod().getHelpAddress());
 				
 				refreshVisualisationList(e.getNewMethod(), e.getDatas());
 				try {
@@ -312,14 +331,14 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 	public void fillMethodsFor(List<DataBean> datas) {
 		// Arrays.asList doesn't support removing, so we need a new one
 		List<VisualisationMethod> applicableVisualisations = new ArrayList<VisualisationMethod>();
-		applicableVisualisations.addAll(Arrays.asList(VisualisationMethod.values()));
+		applicableVisualisations.addAll(Session.getSession().getVisualisations().getVisualisationMethods());
 
 		List<VisualisationMethod> onlyNoneList = new ArrayList<VisualisationMethod>();
 		onlyNoneList.add(VisualisationMethod.NONE);
 
 		if (datas != null) {
 
-			for (VisualisationMethod method : VisualisationMethod.values()) {
+			for (VisualisationMethod method : Session.getSession().getVisualisations().getVisualisationMethods()) {
 
 				try {
 
@@ -344,7 +363,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 
 			userComboAction = false;
 			methodChoiceBox.removeAllItems();
-			Visualisation.fillCompoBox(methodChoiceBox, applicableVisualisations.toArray());
+			Visualisation.fillComboBox(methodChoiceBox, applicableVisualisations.toArray());
 			userComboAction = true;
 
 		} else {
@@ -352,7 +371,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 
 			userComboAction = false;
 			methodChoiceBox.removeAllItems();
-			Visualisation.fillCompoBox(methodChoiceBox, applicableVisualisations.toArray());
+			Visualisation.fillComboBox(methodChoiceBox, applicableVisualisations.toArray());
 			userComboAction = true;
 		}
 	}

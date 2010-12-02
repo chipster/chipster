@@ -8,9 +8,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * 
@@ -81,7 +84,7 @@ public class IOUtils {
 	}
 
 	public static interface CopyProgressListener {
-		public void progress(int bytes);
+		public void progress(long bytes);
 	}
 	
 	/**
@@ -102,7 +105,7 @@ public class IOUtils {
 		// initialise
 		byte buffer[] = new byte[BUFFER_SIZE];
 		int len = BUFFER_SIZE;
-		int sum = 0;
+		long sum = 0;
 		long lastCallback = Long.MAX_VALUE; 
 		
 		// tell that we are in the beginning
@@ -133,6 +136,15 @@ public class IOUtils {
 	public static void copy(InputStream source, OutputStream target) throws IOException {
 		copy(source, target, null);
 	}
+	
+	public static void copy(InputStream source, File target) throws IOException {
+		FileOutputStream out = new FileOutputStream(target);
+		try {
+			copy(source, out, null);
+		} finally {
+			closeIfPossible(out);
+		}
+	}
 
 	/**
 	 * Copies a file. 
@@ -155,4 +167,26 @@ public class IOUtils {
 		}
 	}
 
+	public static void closeIfPossible(RandomAccessFile raf) {
+		if (raf != null) {
+			try {
+				raf.close();
+			} catch (IOException e) {
+				// ignore
+			}
+		}		
+	}
+
+	public static URL createURL(URL url, String postfix) throws MalformedURLException {
+		return new URL(url, url.getFile() + "/" + postfix);
+	}
+	
+	public static boolean isLocalFileURL(URL url) {
+		return "file".equals(url.getProtocol());
+	}
+	
+	public static String getFilenameWithoutPath(URL url) {
+		return url.getPath().substring(url.getPath().lastIndexOf('/') + 1);
+	}
+	
 }
