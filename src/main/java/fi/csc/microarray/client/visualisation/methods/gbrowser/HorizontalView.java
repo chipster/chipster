@@ -187,29 +187,41 @@ public class HorizontalView extends View implements KeyListener {
 								if (!keySet.isEmpty() && parentPlot.chartPanel.hasFocus()) {
 
 									if ( zoomable ) {
+										
+										/*This value was obtained with trial-and-error method
+										 * by trying to find value that would keep one side of the screen
+										 * fixed when zooming and moving simultaneously. This could be 
+										 * as well anything else as long as zooming speed feels nice.
+										 */
+										
+										final double ZOOM_FACTOR = 0.78;
+										
 										if ( keySet.contains( KeyEvent.VK_UP )) {
 
-											zoom(getWidth() / 2, -0.78, skipFrame);
+											zoom(getWidth() / 2, -ZOOM_FACTOR, skipFrame);
 
 										} 
 
 										if ( keySet.contains( KeyEvent.VK_DOWN ))  {
 
-											zoom(getWidth() / 2, 0.78, skipFrame);
+											zoom(getWidth() / 2, ZOOM_FACTOR, skipFrame);
 										}
 									}
 
 									if ( movable ) {
+										
+										final double SPEED_DIVIDER = 50.0;
+										
 										if ( keySet.contains( KeyEvent.VK_LEFT )) {
 
-											bpRegion.move(-getBpRegion().getLength() / 50.0);
+											bpRegion.move(-getBpRegion().getLength() / SPEED_DIVIDER);
 											setBpRegion(bpRegion, skipFrame);
 
 										} 
 
 										if (keySet.contains(  KeyEvent.VK_RIGHT ))  {
 
-											bpRegion.move(getBpRegion().getLength() / 50.0);
+											bpRegion.move(getBpRegion().getLength() / SPEED_DIVIDER);
 											setBpRegion(bpRegion, skipFrame);
 
 
