@@ -8,7 +8,7 @@
 #
 # MG, 16.11.2010
 # modified to also generate a re-ordered phenodata file to reflect the re-ordered data
-
+ 
 # Loads libraries
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 
