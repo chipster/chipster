@@ -18,6 +18,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -77,7 +78,6 @@ import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.gbrowser.index.GeneIndexActions;
-import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -480,7 +480,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	}
 
 	private void fillChromosomeBox() throws IOException {
-		TreeSet<String> chromosomes = new TreeSet<String>(); 
+		
+		// Gather all chromosome names from all read datasets
+		TreeSet<String> chromosomeNames = new TreeSet<String>(); 
 		for (Interpretation interpretation : interpretations) {
 			TrackType trackType = interpretation.type;
 			if (trackType == TrackType.READS) {
@@ -488,14 +490,23 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				InputStream in = null;
 				try {
 					in  = data.getContentByteStream();
-					chromosomes.addAll(SamBamUtils.readChromosomeNames(in));
+					chromosomeNames.addAll(SamBamUtils.readChromosomeNames(in));
 				} finally {
 					IOUtils.closeIfPossible(in);
 				}
 			}
 		}
-		for (String chromosome : chromosomes) {
-			chrBox.addItem(new Chromosome(chromosome));
+		
+		// Sort them
+		LinkedList<Chromosome> chromosomes = new LinkedList<Chromosome>();
+		for (String chromosomeName : chromosomeNames) {
+			chromosomes.add(new Chromosome(chromosomeName));
+		}
+		Collections.sort(chromosomes);
+		
+		// Fill in the box
+		for (Chromosome chromosome : chromosomes) {
+			chrBox.addItem(chromosome);
 		}
 	}
 
@@ -894,13 +905,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 	@Override
 	public boolean canVisualise(java.util.List<DataBean> datas) throws MicroarrayException {
-		// Check if there's non-compatible data  
-		for (DataBean data : datas) {
-			if (!data.hasTypeTag(MicroarrayModule.TypeTags.ORDERED_GENOMIC_ENTITIES)) {
-				return false;
-			}
-		}
-		return true;
+		return interpretUserDatas(datas) != null;
 	}
 
 	public class ObjVariable extends Variable {
@@ -974,6 +979,13 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			}
 		}
 		
+		// Check that interpretations are now fully initialised
+		for (Interpretation interpretation : interpretations) {
+			if (interpretation.primaryData.getName().endsWith(".bam") && interpretation.indexData == null) {
+				return null; // BAM is missing BAI
+			}
+		}
+		
 
 		return interpretations;
 	}
@@ -1022,7 +1034,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 			if (geneLocation == null) {
 				application.showDialog("Not found",
-						"Gene with such name was not found", null,
+						"Gene was not found", null,
 						Severity.INFO, true,
 						DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
 			} else {
