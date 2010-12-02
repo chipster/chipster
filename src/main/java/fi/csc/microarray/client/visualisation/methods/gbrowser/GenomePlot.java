@@ -76,9 +76,12 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 		// add horizontal or circular data view
 		if (horizontal) {
-			this.dataView = new HorizontalView(this, true, true, false);
+			
+			HorizontalView hView = new HorizontalView(this, true, true, false);					
+			this.dataView = hView;
 
 		} else {
+			
 			this.dataView = new CircularView(this, true, true, false);
 			this.dataView.margin = 20;
 			this.dataView.addTrack(new EmptyTrack(dataView, 30));
