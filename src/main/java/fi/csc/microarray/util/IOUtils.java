@@ -12,6 +12,8 @@ import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * 
@@ -134,6 +136,15 @@ public class IOUtils {
 	public static void copy(InputStream source, OutputStream target) throws IOException {
 		copy(source, target, null);
 	}
+	
+	public static void copy(InputStream source, File target) throws IOException {
+		FileOutputStream out = new FileOutputStream(target);
+		try {
+			copy(source, out, null);
+		} finally {
+			closeIfPossible(out);
+		}
+	}
 
 	/**
 	 * Copies a file. 
@@ -166,4 +177,16 @@ public class IOUtils {
 		}		
 	}
 
+	public static URL createURL(URL url, String postfix) throws MalformedURLException {
+		return new URL(url, url.getFile() + "/" + postfix);
+	}
+	
+	public static boolean isLocalFileURL(URL url) {
+		return "file".equals(url.getProtocol());
+	}
+	
+	public static String getFilenameWithoutPath(URL url) {
+		return url.getPath().substring(url.getPath().lastIndexOf('/') + 1);
+	}
+	
 }

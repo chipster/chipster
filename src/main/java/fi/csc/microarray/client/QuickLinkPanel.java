@@ -52,7 +52,12 @@ public class QuickLinkPanel extends JPanel {
 		// Check if example session is available
 		exampleLink = null;
 		try {
-			final URL url = Session.getSession().getPrimaryModule().getExampleSessionUrl();
+			final URL url;
+			if (!application.isStandalone) {
+				url = Session.getSession().getPrimaryModule().getExampleSessionUrl();
+			} else {
+				url = new URL("http://chipster.csc.fi/examples/for_browser.cs");
+			}
 			if (url != null) {
 				exampleLink = createLink("Open example session ", new AbstractAction() {
 					@Override
@@ -102,6 +107,8 @@ public class QuickLinkPanel extends JPanel {
 			}
 		});
 
+		
+		// Draw panel
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0;
 		c.gridy = 0;
@@ -109,14 +116,14 @@ public class QuickLinkPanel extends JPanel {
 
 		c.insets.set(5, 10, 5, 10);
 		c.gridwidth = 2;
-		this.add(new JLabel("To start working with Chipster, you need to load in data first:"), c);
+		this.add(new JLabel("To start working with " + Session.getSession().getPrimaryModule().getDisplayName() + ", you need to load in data first:"), c);
 		c.gridwidth = 1;
 		c.gridy++;
 
 		c.insets.set(0, 10, 0, 0);
 
 		if (exampleLink != null) {
-			addLink("*** to get familiar with Chipster.", exampleLink, VisualConstants.EXAMPLE_SESSION_ICON, c);
+			addLink("*** to get familiar with " + Session.getSession().getPrimaryModule().getDisplayName() + ".", exampleLink, VisualConstants.EXAMPLE_SESSION_ICON, c);
 		}
 		
 		addLink("*** to continue working on previous sessions.", sessionLink, VisualConstants.OPEN_SESSION_LINK_ICON, c);
@@ -134,7 +141,7 @@ public class QuickLinkPanel extends JPanel {
 		}
 		
 		String linkTemplate = Strings.repeat("\n      *** ", importLinks.size());
-		addLinks("Import new data to Chipster: " + linkTemplate, importLinks, VisualConstants.IMPORT_LINK_ICON, c);
+		addLinks("Import new data to " + Session.getSession().getPrimaryModule().getDisplayName() + ": " + linkTemplate, importLinks, VisualConstants.IMPORT_LINK_ICON, c);
 
 		// Panels to take rest of space
 		JPanel bottomPanel = new JPanel();

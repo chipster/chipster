@@ -36,6 +36,9 @@ import fi.csc.microarray.util.IOUtils;
 
 public class DataManager {
 
+	private static final int MAX_FILENAME_LENGTH = 256;
+
+
 	private static final Logger logger = Logger.getLogger(DataManager.class);
 
 	
@@ -141,8 +144,8 @@ public class DataManager {
 		String fileName = beanName.replaceAll("[^\\wÃ¶Ã¤Ã¥ÃÃÃ\\\\.]", "");
 		if (fileName.length() < 1) {
 			fileName = "data";
-		} else if (fileName.length() > 50) {
-			fileName = fileName.substring(0, 50);
+		} else if (fileName.length() > MAX_FILENAME_LENGTH) {
+			fileName = fileName.substring(0, MAX_FILENAME_LENGTH);
 		} 
 		
 		File file = new File(this.repositoryRoot, fileName);

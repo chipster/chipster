@@ -16,6 +16,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 public class TabixReader {
 
 	
+	private static final String TABIX_EXECUTABLE = "tabix";
+
 	public static List<RegionContent> query(String file, String chr, String startBp, String endBp) throws IOException {
 
 		long[][] lengthToLevel = new long[16][2];
@@ -54,12 +56,11 @@ public class TabixReader {
 				level = lengthToLevel[i][1];
 			}
 		}
-		file = prefix + "-summary" + level;
+		file = prefix + "summary" + level;
 		
 		//FIXME replace with real Java library for tabix, for example 
 		//https://genomeview.svn.sourceforge.net/svnroot/genomeview/jannot/trunk/net/sf/jannot/tabix/
-		Process p = Runtime.getRuntime().exec(
-				System.getProperty("user.home") + "/tabix-0.2.2/tabix " + 
+		Process p = Runtime.getRuntime().exec(TABIX_EXECUTABLE + " " + 
 				file + " " + 
 				chr + ":" + 
 				startBp + "-" + endBp);
@@ -92,8 +93,9 @@ public class TabixReader {
 
 		// read any errors from the attempted command
 		while ((s = stdError.readLine()) != null) {
-			System.out.println("Error in TabixReader: ");
+			System.out.println("Error in TabixReader when processing " + file + ": ");
 			System.out.println(s);
+			throw new RuntimeException();
 		}
 
 		return results;

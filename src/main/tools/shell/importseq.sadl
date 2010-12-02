@@ -1,4 +1,4 @@
-TOOL "Internal" / importseq.sadl: "Import sequence" (Import sequences using seqret tool from EMBOSS)
+TOOL "Import" / importseq.sadl: "Import sequence" (Import sequences using seqret tool from EMBOSS)
 OUTPUT outseq.txt
 PARAMETER sequence: "Accession id" TYPE STRING (accession number of sequence to be imported)
 PARAMETER OPTIONAL sbegin: "Beginning" TYPE INTEGER (begining index)

@@ -15,8 +15,8 @@ import fi.csc.microarray.util.SimplePDFViewer;
 
 public class PDFViewer extends Visualisation {
 
-	public PDFViewer(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	@Override

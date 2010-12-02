@@ -23,8 +23,8 @@ import fi.csc.microarray.util.BrowserLauncher;
  */
 public class ExternalBrowserViewer extends Visualisation {
 
-	public ExternalBrowserViewer(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	/**

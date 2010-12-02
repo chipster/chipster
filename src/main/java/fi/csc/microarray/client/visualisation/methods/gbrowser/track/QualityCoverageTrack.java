@@ -127,7 +127,7 @@ public class QualityCoverageTrack extends Track {
 
 		return drawables;
 	}
-
+	
 	private TreeMap<Long, Float> getQualities(Collection<RegionContent> reads) {
 
 		TreeMap<Long, Float> collector = new TreeMap<Long, Float>();
@@ -154,7 +154,7 @@ public class QualityCoverageTrack extends Track {
 
 			for (int i = 0; i < quality.length(); i++) {
 
-				int refIndex = cigar.getReferenceIndex(i);
+				long refIndex = cigar.getReferenceIndex(i);
 
 				if (refIndex == -1) {
 					//Skip insertions

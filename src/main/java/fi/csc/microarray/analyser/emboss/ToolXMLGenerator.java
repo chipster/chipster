@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -46,6 +47,7 @@ public class ToolXMLGenerator {
     private File outFile;
     private Document doc = null;
     private static final HashSet<String> ignoredGroups = new HashSet<String>();
+    private List<String> bottomGroups = new LinkedList<String>();
     private static final HashSet<String> ignoredPrograms = new HashSet<String>();
     private LinkedHashMap<String, LinkedList<String>> groupsMap = new LinkedHashMap<String, LinkedList<String>>();
     private HashMap<String, String> colors = new HashMap<String, String>();
@@ -62,7 +64,13 @@ public class ToolXMLGenerator {
         ignoredGroups.add("Menus");
         ignoredGroups.add("Test");
         ignoredGroups.add("Utils");
+        ignoredGroups.add("Ontology");
+        ignoredGroups.add("HMM");
 
+        // less important groups which should be last when sorting groups
+        bottomGroups.add("Enzyme Kinetics");
+        bottomGroups.add("Feature tables");
+        
         // Separate programs that are broken or we are not
         // interested in (they might be in several groups)
         
@@ -77,6 +85,22 @@ public class ToolXMLGenerator {
         ignoredPrograms.add("prima");
         ignoredPrograms.add("primers");
         ignoredPrograms.add("newcoils");
+        ignoredPrograms.add("ememe");
+        ignoredPrograms.add("emast");
+
+        
+        ignoredPrograms.add("domtesta");
+        ignoredPrograms.add("domtestb");
+        ignoredPrograms.add("domtestc");
+        ignoredPrograms.add("domtestd");
+        
+        ignoredPrograms.add("martattributes");
+        ignoredPrograms.add("martdatasets");
+        ignoredPrograms.add("martfilters");
+        ignoredPrograms.add("martquery");
+        ignoredPrograms.add("martregistry");
+        ignoredPrograms.add("martseqs");
+        
         
         // Databases for these programs not supported
         ignoredPrograms.add("tfscan");
@@ -88,16 +112,16 @@ public class ToolXMLGenerator {
         ignoredPrograms.add("emira");
         ignoredPrograms.add("vrnafoldpf");        
         
-        colors.put("alignment", "#c3b6a2");
+        colors.put("alignment", "#e7881c");
+        colors.put("alignment:multiple", "#d53833");
         colors.put("display", "#d5c796");
-        colors.put("edit", "#e7df70");
-        colors.put("enzyme kinetics", "#d59f45");
-        colors.put("feature tables", "#e7881c");
-        colors.put("information", "#d53833");
-        colors.put("nucleic", "#80a3b7");
-        colors.put("phylogeny", "#0177b7");
+        colors.put("edit", "#c0d2de");
+        colors.put("information", "#80a3b7");
+        colors.put("nucleic", "#0177b7");
+        colors.put("phylogeny", "#83010b");
         colors.put("protein", "#629a9b");
-        colors.put("hmm", "#77aa77");
+        colors.put("enzyme kinetics", "#629a9b");
+        colors.put("feature tables", "#629a9b");
     }
 
     /**
@@ -159,17 +183,33 @@ public class ToolXMLGenerator {
             }
         }
         
-        // Sort groups and generate XML
+        // sort groups
         LinkedList<String> sortedGroups = new LinkedList<String>(groupsMap.keySet());
         Collections.sort(sortedGroups);
+        
+        // drop less important categories to the bottom
+        for (String group : bottomGroups) {
+        	if (sortedGroups.contains(group)) {
+        		sortedGroups.remove(group);
+        		sortedGroups.add(group);
+        	}
+        }
+        
+        // generate xml
         for (String group : sortedGroups) {
-            // Create category element
+        	// Create category element
             Element category = doc.createElement("category");
             category.setAttribute("name", group.substring(0,1).toUpperCase() + group.substring(1));
-            String groupNormal = group.split(":")[0].trim().toLowerCase();
-            if (colors.containsKey(groupNormal)) {
-                category.setAttribute("color", colors.get(groupNormal));
+            String colorKey = group.trim().toLowerCase();
+            if (colors.containsKey(colorKey)) {
+            	category.setAttribute("color", colors.get(colorKey));
+            } else {
+            	colorKey =  group.split(":")[0].trim().toLowerCase();
+                if (colors.containsKey(colorKey)) {
+                    category.setAttribute("color", colors.get(colorKey));
+                }
             }
+            
             module.appendChild(category);
             LinkedList<String> sortedApps = groupsMap.get(group);
             Collections.sort(sortedApps);
@@ -237,7 +277,11 @@ public class ToolXMLGenerator {
     }
 
     public static void main(String[] args) {
-        new ToolXMLGenerator("/home/naktinis/acd",
-                "debug-base-dir/conf/sequence-module.xml").generate();
+    	if (args.length != 2) {
+    		System.out.println("Please provide <directory for acd files> and <target xml file> as arguments.");
+    		return;
+    	}
+    	
+    	new ToolXMLGenerator(args[0], args[1]).generate();
     }
 }

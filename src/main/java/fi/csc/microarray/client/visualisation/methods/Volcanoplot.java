@@ -47,8 +47,8 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 
 	private float ROUNDING_LIMIT;
 
-	public Volcanoplot(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	@Override
@@ -96,8 +96,8 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 			throw new IllegalStateException("must call getParameterPanel first");
 		}
 
-		Visualisation.fillCompoBox(xBox, VisualisationUtilities.getVariablesFilteredInclusive(data, X_AXIS_COLUMN_HEADER, false));
-		Visualisation.fillCompoBox(yBox, VisualisationUtilities.getVariablesFilteredInclusive(data, Y_AXIS_COLUMN_HEADER, false));
+		Visualisation.fillComboBox(xBox, VisualisationUtilities.getVariablesFilteredInclusive(data, X_AXIS_COLUMN_HEADER, false));
+		Visualisation.fillComboBox(yBox, VisualisationUtilities.getVariablesFilteredInclusive(data, Y_AXIS_COLUMN_HEADER, false));
 	}
 
 	@Override

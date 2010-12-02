@@ -7,6 +7,8 @@ import fi.csc.microarray.client.operation.OperationDefinition;
 
 public class HelpMapping {
 
+    private static final String URL_BASE = "https://extras.csc.fi/biosciences/";
+
 	private static final String DEFAULT_HELP_PAGE = "chipster-manual/tools.html";
 	private static Map<String, String> mappings = new HashMap<String, String>();
 
@@ -40,7 +42,8 @@ public class HelpMapping {
 		mappings.put("Normalisation/Agilent 2-color", "chipster-manual/norm-agilent.html");
 		mappings.put("Normalisation/cDNA", "chipster-manual/norm-cdna.html");
 		mappings.put("Normalisation/Illumina", "chipster-manual/norm-illumina.html");
-		mappings.put("Normalisation/Illumina - lumi pipeline", "chipster-manual/norm-illumina-lumi.html"); 
+		mappings.put("Normalisation/Illumina - lumi pipeline", "chipster-manual/norm-illumina-lumi.html");
+		mappings.put("Normalisation/Illumina - lumi pipeline AAI", "chipster-manual/norm-illumina-lumi-AAI.html");
 		mappings.put("Normalisation/Random effects", "chipster-manual/norm-lme.html");
 		mappings.put("Normalisation/Normalize to chip average", "chipster-manual/norm-chip-average.html");
 		mappings.put("Normalisation/Normalize to gene average", "chipster-manual/norm-gene-average.html");
@@ -114,6 +117,8 @@ public class HelpMapping {
 		mappings.put("Utilities/Export GEO's SOFT format", "chipster-manual/export-soft.html");
 		mappings.put("Utilities/Export tab2mage format", "chipster-manual/export-tab2mage.html");
 		mappings.put("Utilities/Extract genes from clustering", "chipster-manual/extract-genes-from-clustering.html");
+		mappings.put("Utilities/Extract genes from GO term", "chipster-manual/extract-genes-from-go.html");
+		mappings.put("Utilities/Extract genes from KEGG pathway", "chipster-manual/extract-genes-from-kegg.html");
 		mappings.put("Utilities/Extract genes using a p-value", "chipster-manual/extract-genes-from-stattest.html");
 		mappings.put("Utilities/Extract samples from dataset", "chipster-manual/extract-samples-from-dataset.html");
 		mappings.put("Utilities/Average replicate chips", "chipster-manual/average-replicates.html");
@@ -159,10 +164,25 @@ public class HelpMapping {
 	}
 
 	public static String mapToHelppage(OperationDefinition definition) {
-		String page = mappings.get(definition.getCategory().getName() + "/" + definition.getDisplayName());
-		if (page == null) {
-			page = DEFAULT_HELP_PAGE;
+		
+		// blast
+		if ("BLAST".equals(definition.getCategory().getName())) {
+			return "http://www.csc.fi/english/research/sciences/bioscience/programs/blast/index_html"; 
 		}
-		return page;
+		
+		// mafft
+		else if ("Alignment:Multiple".equals(definition.getCategory().getName()) && definition.getID().startsWith("mafft")) {
+			return "http://mafft.cbrc.jp/alignment/software/algorithms/algorithms.html";
+
+		}
+		
+		// others
+		else {
+			String page = mappings.get(definition.getCategory().getName() + "/" + definition.getDisplayName());
+			if (page == null) {
+				page = DEFAULT_HELP_PAGE;
+			}
+			return URL_BASE + page;
+		}
 	}
 }

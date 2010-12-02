@@ -9,6 +9,7 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXHyperlink;
@@ -24,9 +25,11 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.Module;
+import fi.csc.microarray.module.basic.BasicModule;
 
 public class SequenceModule implements Module {
 
+	private static final String CATEGORY_PART_SEPARATOR = ":";
 	private static final String EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/embster.cs";
 	public static final String SERVER_MODULE_SEQUENCE = "sequence";
 
@@ -161,4 +164,41 @@ public class SequenceModule implements Module {
 	public void postProcessOutputMetadata(Operation operation, DataBean metadataOutput) throws MicroarrayException, IOException {
 		// do nothing, we don't use metadata
 	}
+	
+	@Override
+	public String getShortCategoryName(Operation operation) {
+		String catName = operation.getCategoryName(); 
+
+		if (catName.contains(CATEGORY_PART_SEPARATOR)) {
+			catName = catName.substring(catName.indexOf(CATEGORY_PART_SEPARATOR) + 1);
+		}
+		
+		return BasicModule.shortenCategoryName(catName);
+	}
+
+	@Override
+	public boolean countOperationResults() {
+		return false;
+	}
+
+	@Override
+	public JPanel getContextLinkPanel(int selectedDataCount) {
+		return null;
+	}
+
+	@Override
+	public boolean notesVisibleAtStartup() {
+		return true;
+	}
+
+	@Override
+	public String getDisplayName() {
+		return "Embster";
+	}
+
+	@Override
+	public String getManualHome() {
+		return "http://chipster.csc.fi/embster/manual";
+	}
+
 }
