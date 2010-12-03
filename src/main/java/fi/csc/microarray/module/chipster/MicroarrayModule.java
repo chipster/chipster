@@ -210,7 +210,9 @@ public class MicroarrayModule implements Module {
 
 	@Override
 	public boolean isWorkflowCompatible(DataBean data) {
-		return ChipsterInputTypes.GENE_EXPRS.isTypeOf(data);
+		// TODO replace inclusive check with exclusive: check for raw expression data and other illegal types
+//		return ChipsterInputTypes.GENE_EXPRS.isTypeOf(data);
+		return true;
 	}
 
 	@Override
