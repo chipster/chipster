@@ -24,7 +24,7 @@ dat <- read.table('gene-list.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=
 
 # convert list of reference genes from Ensembl to Entrez IDs
 ensembl.to.entrez <- as.list(org.Hs.egENSEMBL2EG)
-reference.genes <- unique(unlist(ensembl.to.entrez[rownames(dat)]))
+reference.genes <- unique(unlist(ensembl.to.entrez))
 
 # check that we have something (i.e. that input file was in fact Ensembl IDs)
 if (length(reference.genes)==0)
