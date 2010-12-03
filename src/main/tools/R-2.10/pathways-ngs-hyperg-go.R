@@ -1,5 +1,5 @@
 # ANALYSIS "NGS tools"/"GO enrichment for list of genes" (Performs a statistical test for enrichment of GO terms in a query list of genes. The input should be the output from the tool Find nearest genes for regions.)
-# INPUT GENE_EXPRS gene-list.tsv
+# INPUT GENERIC gene-list.tsv
 # OUTPUT hypergeo-go.tsv, hypergeo-go.html
 # PARAMETER ontology [all, biological_process, molecular_function, cellular_component] DEFAULT biological_process (The ontology to be analyzed.)
 # PARAMETER p.value.threshold DECIMAL DEFAULT 0.05 (P-value threshold.)
@@ -30,6 +30,8 @@ reference.genes <- unique(unlist(ensembl.to.entrez[rownames(dat)]))
 if (length(reference.genes)==0)
 	stop('CHIPSTER-NOTE: The input file should contain a list of Ensembl Gene IDs. Usually as a result of running the tool Convert called aCGH data from probes to genes.')
 
+# extract the list of frequently aberrated genes
+selected.genes <- as.character (dat$entrezgene)
 
 # check for conditional testing and multiple testing correction
 if (conditional.testing == 'no') {
