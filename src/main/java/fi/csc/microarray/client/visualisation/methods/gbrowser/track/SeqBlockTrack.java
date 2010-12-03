@@ -171,7 +171,7 @@ public class SeqBlockTrack extends Track {
 
 						// Choose a color depending on viewing mode
 						Color bg = Color.white;
-						long posInRef = read.region.start.bp.intValue() + refIndex - getView().getBpRegion().start.bp.intValue();
+						long posInRef = visibleRegion.start.bp.intValue() + refIndex - getView().getBpRegion().start.bp.intValue();
 						if (highlightSNP && posInRef >= 0 && posInRef < refSeq.length && Character.toLowerCase(refSeq[(int)posInRef]) == Character.toLowerCase(letter)) {
 							bg = Color.gray;
 						} else {
