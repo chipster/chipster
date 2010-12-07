@@ -268,6 +268,9 @@ runMACS <- function(..., logFile="/dev/null") {
 			if (system.output != 0) {
 				stop("CHIPSTER-NOTE: Building the peak model failed. Retry by lowering the m-fold value or enabling the automatic m-fold adjustment.") 
 			}
+			if (length(grep ("results_model.r",dir())) == 0) {
+				stop("CHIPSTER-NOTE: Building the peak model failed. Retry by lowering the m.fold.lower value or rerun with model builing turned off.") 
+			}
 		}
 		if (build.model == "no") {
 			system.output <- system(paste(environment, command, "2>", logFile))
