@@ -48,7 +48,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 	
 	private class RProcessMonitor implements Runnable {
 
-		private final String ERROR_MESSAGE_TOKEN = "Error: ";
+		private final String ERROR_MESSAGE_TOKEN = "Error ";
 		private final String CHIPSTER_NOTE_TOKEN = "CHIPSTER-NOTE:"; 
 		
 		private ArrayList<String> outputLines;
@@ -105,8 +105,8 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 						errorMessage = errorMessage.trim();
 						
 						// check for chipster note
-						if (errorMessage.startsWith(CHIPSTER_NOTE_TOKEN)) {
-							errorMessage = errorMessage.substring(CHIPSTER_NOTE_TOKEN.length());
+						if (errorMessage.contains(CHIPSTER_NOTE_TOKEN)) {
+							errorMessage = errorMessage.substring(errorMessage.indexOf(CHIPSTER_NOTE_TOKEN) + CHIPSTER_NOTE_TOKEN.length());
 							errorMessage = errorMessage.trim();
 							updateState(JobState.FAILED_USER_ERROR, "");
 						}
