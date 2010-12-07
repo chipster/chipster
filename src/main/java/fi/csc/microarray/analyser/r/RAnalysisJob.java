@@ -48,7 +48,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 	
 	private class RProcessMonitor implements Runnable {
 
-		private final String ERROR_MESSAGE_TOKEN = "Error ";
+		private final String ERROR_MESSAGE_TOKEN = "Error";
 		private final String CHIPSTER_NOTE_TOKEN = "CHIPSTER-NOTE:"; 
 		
 		private ArrayList<String> outputLines;
