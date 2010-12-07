@@ -14,7 +14,7 @@ public class FailingAnalysisJob extends JavaAnalysisJobBase {
 
 
 	@Override
-	public String getVVSADL() {		
+	public String getSADL() {		
 		return " ANALYSIS Test/FailJava (Java job which fails.) ";
 	}
 

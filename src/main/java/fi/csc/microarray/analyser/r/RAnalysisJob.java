@@ -200,7 +200,20 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		}
 		if (!processAlive) {
 			outputMessage.setErrorMessage("Starting R failed.");
-			outputMessage.setOutputText("R already finished.");
+			String output = "";
+			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			try {
+				for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+					output += line + "\n";
+				}
+				reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+				for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+					output += line + "\n";
+				}
+			} catch (IOException e) {
+				logger.warn("could not read output stream");
+			}
+			outputMessage.setOutputText("R already finished.\n\n" + output);
 			updateState(JobState.ERROR, "");
 			return;
 		}
@@ -248,7 +261,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		
 		// script now finished or timeout
 		cancelCheck();
-		logger.debug("done waiting for " + analysis.getFullName() + ", state is " + getState());		
+		logger.debug("done waiting for " + analysis.getID() + ", state is " + getState());		
 
 		// add output to result message
 		String output = processMonitor.getOutput();

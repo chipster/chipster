@@ -1,0 +1,5 @@
+TOOL "ensemblfetch" / ensemblfetch: ensemblfetch (Tool to retrieve genomic, cDNA or protein dataset of a given species from the Ensembl database)
+OUTPUT out.txt
+PARAMETER : "Species name" TYPE STRING (The latin name of the species for which the data is retrieved. Note that you should use underscore instead of the space character in the species name. For example homo_sapiens)
+PARAMETER type: "Sequence data type" TYPE [dna: "Genomic DNA", cdna: "cDNA transcripts", pep: "Protein sequences"] DEFAULT dna (Sequence data type to retrieve)
+PARAMETER OPTIONAL names: "List the available species names" TYPE [yes: Yes, no: No] DEFAULT N (Print a list of species names that this tool recognizes)

@@ -66,7 +66,7 @@ import fi.csc.microarray.util.SwingTools;
  * A GUI component for viewing the data in a graph presentation, where each dataset is represented by a graphical vertex (an instance of
  * GraphVertex). The graph is created by using the JGraph application framework.
  * 
- * @author Janne KÃ¤ki, Aleksi Kallio, Petri KlemelÃ¤
+ * @author Janne Käki, Aleksi Kallio, Petri Klemelä
  * 
  */
 public class GraphPanel extends JPanel implements ActionListener, PropertyChangeListener, DataChangeListener, AnimatorScrollable {
@@ -418,14 +418,14 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 	 */
 	public boolean setGraphScale(double scale) {
 		double newScale = scale;
-		if (scale > ZOOM_IN_LIMIT) {
+		if (scale >= ZOOM_IN_LIMIT) {
 			newScale = ZOOM_IN_LIMIT;
 			zoomInButton.setEnabled(false);
 		} else {
 			zoomInButton.setEnabled(true);
 		}
 
-		if (scale < ZOOM_OUT_LIMIT) {
+		if (scale <= ZOOM_OUT_LIMIT) {
 			newScale = ZOOM_OUT_LIMIT;
 			zoomOutButton.setEnabled(false);
 		} else {
