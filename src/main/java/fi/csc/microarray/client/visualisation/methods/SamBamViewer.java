@@ -6,14 +6,15 @@ import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
+import fi.csc.chipster.tools.gbrowser.SamBamUtils;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 
-public class TextViewer extends Visualisation {
+public class SamBamViewer extends Visualisation {
 
-	private static long CONTENT_SIZE_LIMIT = 1024*1024*1;
+	private static int MAX_RECORD_LIMIT = 1024;
 	
 	public void initialise(VisualisationFrame frame) throws Exception {
 		super.initialise(frame);
@@ -21,20 +22,18 @@ public class TextViewer extends Visualisation {
 
 	@Override
 	public JComponent getVisualisation(DataBean data) throws Exception {
-		byte[] txt = data.getContents(CONTENT_SIZE_LIMIT);
-
-		if (txt != null) {
-			JTextPane txtPane = new JTextPane();
-			txtPane.setFont(Font.decode("Monospaced"));
-			txtPane.setText(new String(txt));
-			return new JScrollPane(txtPane);
-		}
-		return this.getDefaultVisualisation();
+		String txt = new SamBamUtils().printSamBam(data.getContentByteStream(), MAX_RECORD_LIMIT);
+		JTextPane txtPane = new JTextPane();
+		txtPane.setFont(Font.decode("Monospaced"));
+		txtPane.setText(new String(txt));
+		return new JScrollPane(txtPane);
 	}
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		return bean.isContentTypeCompatitible("text/plain", "chemical/x-fasta", "text/wig", "text/bed");
+		return bean.getName().endsWith(".bam") || bean.getName().endsWith(".sam"); 
 	}
+	
+	
 
 }

@@ -1,6 +1,7 @@
 package fi.csc.chipster.tools.gbrowser;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -228,6 +229,31 @@ public class SamBamUtils {
 		}
 		extension = extension.toLowerCase();
 		return "sam".equals(extension) || "bam".equals(extension);
+	}
+	
+	public String printSamBam(InputStream samBamStream, int maxRecords) throws IOException {
+		SAMFileReader in = new SAMFileReader(samBamStream);
+		SAMFileHeader header = in.getFileHeader();
+		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		SAMFileWriter out = new SAMFileWriterFactory().makeSAMWriter(header, true, buffer);
+		int i = 0;
+		try {
+			for (final SAMRecord rec : in) {
+				if (i > maxRecords) {
+					break;
+				}
+				out.addAlignment(rec);
+				i++;
+			}
+		} finally {
+			closeIfPossible(out);
+		}
+
+		if (i > maxRecords) {
+			buffer.write("SAM/BAM too long for viewing, truncated here!\n".getBytes());
+		}
+		
+		return buffer.toString();
 	}
 
 }
