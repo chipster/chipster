@@ -3,7 +3,9 @@ package fi.csc.microarray.client.operation;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -21,51 +23,62 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JToolBar;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 
 import org.apache.log4j.Logger;
 
+import com.jgoodies.looks.HeaderStyle;
+import com.jgoodies.looks.Options;
 import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
+import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationDefinition.Suitability;
 import fi.csc.microarray.client.operation.parameter.ToolParameterPanel;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.description.VVSADLParser;
-import fi.csc.microarray.description.VVSADLParser.ParseException;
+import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
  * The main panel for all operation, parameter and visualization choices in
  * the client mainframe.
  * 
- * @author Janne KÃ¤ki, Petri KlemelÃ¤
+ * @author Janne Käki, Petri Klemelä
  *
  */
+@SuppressWarnings("serial")
 public class OperationPanel extends JPanel
 							implements ActionListener, PropertyChangeListener {
-
+    // Logger for this class
+    private static final Logger logger = Logger.getLogger(OperationPanel.class);
+    
 	private static final String OPERATION_LIST_TITLE = "Analysis tools";
 	private static final String SHOW_PARAMETERS_TEXT = "Show parameters";
 	private static final String HIDE_PARAMETERS_TEXT = "Hide parameters";	
 	
 	private static final String OPERATIONS = "Operations";
+	private static final String OPERATIONS_CATEGORIZED = "Categorized operations";
+	private static final String OPERATIONS_FILTERED = "Filtered operations";
 	private static final String PARAMETERS = "Parameters";
-
-	/**
-	 * Logger for this class
-	 */
-	private static final Logger logger = Logger.getLogger(OperationPanel.class);
-
+	
 	private static final int WHOLE_PANEL_HEIGHT = 240;
 	private static final int WHOLE_PANEL_WIDTH= 660;
 	
-	private OperationChoicePanel operationChoicePanel = null;
-	private JPanel cardPanel = new JPanel();
+	private JPanel operationPanel;
+	private JPanel operationCardPanel;
+	private OperationChoicePanel operationChoicePanel;
+	private OperationFilterPanel operationFilterPanel;
+	private JTextField searchField;
+	private JPanel cardPanel;
 	private JTextArea detailField = new JTextArea();
 	
 	private JLabel suitabilityLabel = new JLabel();
@@ -78,7 +91,6 @@ public class OperationPanel extends JPanel
 	
 	private ExecutionItem chosenOperation = null;
 	private ClientApplication application = Session.getSession().getApplication();
-
 	
 	/**
 	 * Creates a new OperationPanel.
@@ -90,7 +102,8 @@ public class OperationPanel extends JPanel
 		this.setPreferredSize(new Dimension(WHOLE_PANEL_WIDTH, WHOLE_PANEL_HEIGHT));
 		this.setMinimumSize(new Dimension(0,0));
 		
-		operationChoicePanel = new OperationChoicePanel(this, parsedCategories);		
+		operationChoicePanel = new OperationChoicePanel(this, parsedCategories);
+		operationFilterPanel = new OperationFilterPanel(this, parsedCategories);
 		
 		cardPanel = new JPanel(new CardLayout());
 		
@@ -99,14 +112,15 @@ public class OperationPanel extends JPanel
 		detailField.setWrapStyleWord(true);	
 		
 		detailFieldScroller = new JScrollPane(detailField);
-		detailFieldScroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);		
+		detailFieldScroller.setHorizontalScrollBarPolicy(
+		        ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);		
 
 		sourceButton.setEnabled(false);
         sourceButton.setToolTipText("View Source Code");
 		sourceButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {				
 				try {
-					application.showSourceFor(VVSADLParser.generateOperationIdentifier(chosenOperation.getCategoryName(), chosenOperation.getName()));
+					application.showSourceFor(chosenOperation.getID());
 				} catch (TaskException je) {
 					application.reportException(je);
 				}
@@ -117,7 +131,10 @@ public class OperationPanel extends JPanel
 		helpButton.setToolTipText("More information about this tool");
 		helpButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				OperationDefinition od = chosenOperation instanceof OperationDefinition ? (OperationDefinition) chosenOperation : ((Operation)chosenOperation).getDefinition();
+				OperationDefinition od =
+				    chosenOperation instanceof OperationDefinition ?
+				            (OperationDefinition) chosenOperation :
+				            ((Operation)chosenOperation).getDefinition();
 				application.viewHelpFor(od);
 			}			
 		});
@@ -143,12 +160,84 @@ public class OperationPanel extends JPanel
 		detailFieldScroller.setBorder(
 				BorderFactory.createMatteBorder(1, 0, 0, 0, VisualConstants.OPERATION_LIST_BORDER_COLOR));
 		
-		cardPanel.add(operationChoicePanel,OPERATIONS);
+	    // Search bar
+        JToolBar searchPanel = new JToolBar();
+        searchPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 1));
+        // Text field
+        searchField = new JTextField(20);
+        searchField.addCaretListener(new CaretListener() {
+            public void caretUpdate(CaretEvent e) {
+                // Show filtered tools
+                JTextField field = (JTextField) e.getSource();
+                if (field.getText().length() > 0) {
+                    operationFilterPanel.loadFilteredOperations(field.getText());
+                    showOperationCard(OPERATIONS_FILTERED);
+                } else {
+                    operationChoicePanel.deselectOperation();
+                    showOperationCard(OPERATIONS_CATEGORIZED);
+                }
+            }
+        });
+        // Clear search
+        JButton showAllButton = new JButton(VisualConstants.CLOSE_FILE_ICON);
+        showAllButton.setFocusPainted(false);
+        showAllButton.setContentAreaFilled(false);
+        showAllButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        showAllButton.setBorder(null);
+        showAllButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                searchField.setText("");
+                operationChoicePanel.deselectOperation();
+                showOperationCard(OPERATIONS_CATEGORIZED);
+            }
+        });
+        searchPanel.add(new JLabel(VisualConstants.MAGNIFIER_ICON));
+        searchPanel.add(searchField);
+        searchField.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        searchField.setPreferredSize(new Dimension(100, 22));
+        searchField.add(showAllButton);
+        //searchPanel.add(showAllButton);
+        searchPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
+                VisualConstants.OPERATION_LIST_BORDER_COLOR));
 		
-		JPanel topLeftPanel = new JPanel(new GridBagLayout());				
-		
+		// Operation choice card contains two other cards:
+		// operations with categories and filtered operations
+		operationPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
+	    c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 1;
+        c.weighty = 0;
+        c.gridheight = 1;
+        c.insets.set(0,0,0,0);
+        c.fill = GridBagConstraints.BOTH;
+        searchPanel.setPreferredSize(new Dimension(10, 23));
+        searchPanel.setMinimumSize(new Dimension(10, 23));
+        searchPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        searchPanel.putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.SINGLE);
+        operationPanel.add(searchPanel, c);
+        operationCardPanel = new JPanel(new CardLayout());
+        c.gridy = 1;
+        c.weightx = 1;
+        c.weighty = 1;
+        c.fill = GridBagConstraints.BOTH;
+        c.insets.set(0,0,0,0);
+        operationPanel.add(operationCardPanel, c);
+        
+        // Tool selection panels inside operation card
+        operationCardPanel.add(operationChoicePanel, OPERATIONS_CATEGORIZED);
+        operationCardPanel.add(operationFilterPanel, OPERATIONS_FILTERED);
+        operationCardPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
+                VisualConstants.OPERATION_LIST_BORDER_COLOR));
+
+	    // Add operation panel
+	    cardPanel.add(operationPanel, OPERATIONS);
+        cardPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
+                VisualConstants.OPERATION_LIST_BORDER_COLOR));
 		
+	    // Help and execution panel
+		JPanel topLeftPanel = new JPanel(new GridBagLayout());
+		c = new GridBagConstraints();
 		c.gridx = 0;
 		c.gridy = 0;
 		c.gridheight = 1;
@@ -156,15 +245,13 @@ public class OperationPanel extends JPanel
 		c.weighty = 0;				
 		c.fill = GridBagConstraints.NONE;
 		c.insets.set(0,10,0,10);
-		
 		topLeftPanel.add(suitabilityLabel, c);
 		c.gridx++;
 		c.weightx = 1;
 		c.weighty = 1;				
 		c.fill = GridBagConstraints.BOTH;
 		c.insets.set(0,0,0,0);
-		topLeftPanel.add(parametersButton,c);		
-		
+		topLeftPanel.add(parametersButton,c);
 		JPanel topPanel = new JPanel(new GridLayout(1,2));
 		topPanel.add(topLeftPanel);
 		topPanel.add(executeButton);
@@ -172,7 +259,7 @@ public class OperationPanel extends JPanel
 		bottomPanel.add(helpButton);
 		bottomPanel.add(sourceButton);
 		
-		
+		// Add everything to the main panel
 		c.gridx = 0;
 		c.gridy = 0;
 		c.gridheight = 3;
@@ -181,7 +268,8 @@ public class OperationPanel extends JPanel
 		c.fill = GridBagConstraints.BOTH;
 		c.insets.set(0,0,0,0);
 		this.add(cardPanel, c);
-		c.gridx++;
+		c.gridy = 0;
+		c.gridx = 1;
 		c.gridwidth = 1;
 		c.gridheight = 1;
 		c.weightx = 0;
@@ -222,6 +310,17 @@ public class OperationPanel extends JPanel
 		if (e.getSource() == parametersButton) {
 			parametersButtonClicked();
 		} else if (e.getSource() == executeButton ) {
+		    // Check if we can run the operation
+		    Suitability suitability = evaluateSuitability();
+		    
+		    if (!suitability.isOk()) {
+		        application.showDialog("Check parameters", suitability.toString(), "",
+		                               Severity.INFO, true,
+		                               DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
+		        return;
+		    }
+		    
+		    // Run it	    
 			if (chosenOperation instanceof OperationDefinition) {
 				application.executeOperation((OperationDefinition)chosenOperation, null);
 			} else {				
@@ -253,39 +352,56 @@ public class OperationPanel extends JPanel
 		}
 	}
 	
+	/**
+	 * Activate a certain card in the left panel.
+	 */
+	private void showCard(String card) {
+	    CardLayout cl = (CardLayout)(cardPanel.getLayout());
+        cl.show(cardPanel, card);
+	}
+	
+	/**
+     * Activate a certain card in the operation panel.
+     * 
+     * Currently you can choose between categorized operations and
+     * a list of filtered operations.
+     */
+    private void showOperationCard(String card) {
+        CardLayout cl = (CardLayout)(operationCardPanel.getLayout());
+        cl.show(operationCardPanel, card);
+    }
 
 	private void showParameterPanel() {			
-			showParametersTitle(true);
-			parametersButton.setText(HIDE_PARAMETERS_TEXT);
+		showParametersTitle(true);
+		parametersButton.setText(HIDE_PARAMETERS_TEXT);
 
-			try {
+		try {
+		    // Display parameters for selected operation
+			if (chosenOperation instanceof Operation) {
+				chosenOperation = (Operation)chosenOperation;
 
-				if (chosenOperation instanceof Operation) {
-					chosenOperation = (Operation)chosenOperation;
+			} else if (chosenOperation instanceof OperationDefinition) {
+				chosenOperation = new Operation((OperationDefinition)chosenOperation,
+				        application.getSelectionManager().getSelectedDatasAsArray());
 
-				} else if (chosenOperation instanceof OperationDefinition) {
-					chosenOperation = new Operation((OperationDefinition)chosenOperation, application.getSelectionManager().getSelectedDatasAsArray());
+			} else {
+				throw new RuntimeException("wrong type: " + chosenOperation.getClass().getSimpleName());				
+			}
+			
+			cardPanel.add(new ToolParameterPanel((Operation)chosenOperation, this),PARAMETERS);
+			showCard(PARAMETERS);
+		    isParametersVisible = true;
 
-				} else {
-					throw new RuntimeException("wrong type: " + chosenOperation.getClass().getSimpleName());				
-				}
-				
-				cardPanel.add(new ToolParameterPanel((Operation)chosenOperation, this),PARAMETERS);
-				CardLayout cl = (CardLayout)(cardPanel.getLayout());
-			    cl.show(cardPanel, PARAMETERS);
-			    isParametersVisible = true;
-
-			} catch (MicroarrayException e) {
-				application.reportException(e);
-			}		
+		} catch (MicroarrayException e) {
+			application.reportException(e);
+		}
 	}
 
-	private void showOperationsPanel() {
-		showParametersTitle(false);
-		parametersButton.setText(SHOW_PARAMETERS_TEXT);
-		CardLayout cl = (CardLayout)(cardPanel.getLayout());
-		 cl.show(cardPanel, OPERATIONS);
-		 isParametersVisible = false;
+	private void showOperationsPanel() {       
+        showParametersTitle(false);
+        parametersButton.setText(SHOW_PARAMETERS_TEXT);
+        isParametersVisible = false;
+        showCard(OPERATIONS);
 	}
 	
 	/**
@@ -304,8 +420,8 @@ public class OperationPanel extends JPanel
 			// ExecutionItem oper =
 			//	operationChoiceView.getSelectedOperation();
 			title = OPERATION_LIST_TITLE + 
-			  " - " +this.chosenOperation.getCategoryName() +
-			  " [" + this.chosenOperation.getName() + "]";
+			  " - " + this.chosenOperation.getCategoryName() +
+			  " - " + this.chosenOperation.getDisplayName();
 		} else {
 			title = OPERATION_LIST_TITLE;
 		}
@@ -345,8 +461,8 @@ public class OperationPanel extends JPanel
 				suitabilityLabel.setIcon(VisualConstants.INCOMPATIBLE_ICON);
 			} else if( suitability.isOk()){
 				suitabilityLabel.setIcon(VisualConstants.SUITABLE_ICON);
-			} else if( suitability.isImpossible()){
-				suitabilityLabel.setIcon(VisualConstants.SUITABILITY_WARNING_ICON);
+			} else {
+				suitabilityLabel.setIcon(VisualConstants.SUITABLE_ICON);
 			}
 					
 			suitabilityLabel.setToolTipText(" " + suitability.toString());
@@ -424,27 +540,48 @@ public class OperationPanel extends JPanel
 	}
 	
 	private void makeButtonsEnabled(boolean enabled) {
-		if(!enabled){
-			this.showOperationsPanel();
-		}
-		//parametersButton.setEnabled(enabled);
+		//if(!enabled){
+		//	this.showOperationsPanel();
+		//}
 		setExecuteButtonEnabled(enabled);
 	}
 	
+	/**
+	 * Datset selection changed.
+	 */
 	public void propertyChange(PropertyChangeEvent dataEvent) {
 		if(dataEvent instanceof DatasetChoiceEvent) {
-			logger.debug("chosen data " +  application.getSelectionManager().getSelectedDataBean() + " (possible one among many)");
-			if (application.getSelectionManager().getSelectedDataBean() != null) {
-				showOperationsPanel();
-			}
+			logger.debug("chosen data " +
+			        application.getSelectionManager().getSelectedDataBean() +
+			        " (possible one among many)");
+			
+            // Reselect operation definition, so suitability is recalculated
+			// and parameter values are set to default
+            OperationDefinition chosenOperationDefinition = 
+                    chosenOperation instanceof Operation ?
+                    ((Operation)chosenOperation).getDefinition() :
+                    (OperationDefinition)chosenOperation;
+            selectOperation(chosenOperationDefinition);
+            
+            // In case parameter panel is open, open operations panel,
+            // because we have just nulled the parameter values
+            showOperationsPanel();
 		}
 	}
 	
+	/**
+	 * Reevaluate the suitability of parameter values
+	 * and inputs.
+	 */
 	private Suitability evaluateSuitability() {
 		if (chosenOperation == null) {
 			return Suitability.IMPOSSIBLE;
 		}
 		
-		return chosenOperation.evaluateSuitabilityFor(application.getSelectionManager().getSelectedDataBeans());
+		// Check suitability of parameters and inputs
+		Suitability suitability = chosenOperation.evaluateSuitabilityFor(
+		        application.getSelectionManager().getSelectedDataBeans(), null);
+		
+		return suitability;
 	}
 }
