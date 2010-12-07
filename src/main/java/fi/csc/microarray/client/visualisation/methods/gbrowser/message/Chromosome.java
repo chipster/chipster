@@ -30,7 +30,13 @@ public class Chromosome implements Comparable<Chromosome> {
 	}
 
 	private String normalise(String original) {
-		return original.replace(CHROMOSOME_PREFIX, "").replace(".fa", "");
+		// If contains any postfix, remove it
+		if (original.indexOf(".") != -1) {
+			original = original.substring(0, original.indexOf("."));
+		}
+		
+		// Remove known prefix, if exists
+		return original.replace(CHROMOSOME_PREFIX, "");
 	}
 
 	public Chromosome(Chromosome chromosome) {
