@@ -88,6 +88,9 @@
 # find_peals_using_MACS.R
 # MG, 22.5.2010
 
+# just testing error handling
+# stop("CHIPSTER-NOTE: Error handling is working!")
+
 # Set up approximate mappable genome size depending on species
 if (species == "human") {
 	genome.size <- as.character(3.5e+9*0.978*.9)
@@ -268,6 +271,9 @@ runMACS <- function(..., logFile="/dev/null") {
 			if (system.output != 0) {
 				stop("CHIPSTER-NOTE: Building the peak model failed. Retry by lowering the m-fold value or enabling the automatic m-fold adjustment.") 
 			}
+			if (length(grep ("results_model.r",dir())) == 0) {
+				stop("CHIPSTER-NOTE: Building the peak model failed. Retry by lowering the m.fold.lower value or rerun with model builing turned off.") 
+			}
 		}
 		if (build.model == "no") {
 			system.output <- system(paste(environment, command, "2>", logFile))
@@ -275,7 +281,7 @@ runMACS <- function(..., logFile="/dev/null") {
 				stop("CHIPSTER-NOTE: Building the peak model failed. Retry by lowering the m-fold value or enabling the automatic m-fold adjustment.") 
 			}
 		}
-		return(invisible(system.output))
+		return((system.output))
 	}
 }
 
