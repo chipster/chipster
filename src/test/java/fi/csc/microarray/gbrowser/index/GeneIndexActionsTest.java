@@ -3,6 +3,7 @@ package fi.csc.microarray.gbrowser.index;
 import java.sql.SQLException;
 
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
@@ -14,7 +15,8 @@ public class GeneIndexActionsTest {
 			super(null);
 		}
 	}
-	
+
+	@Test(groups = {"unit"} )
 	public void test() throws SQLException, ClassNotFoundException {
 		TestableGeneIndexActions tgia = new TestableGeneIndexActions();
 		tgia.insertGene("1", "100", "200", "a2m");
