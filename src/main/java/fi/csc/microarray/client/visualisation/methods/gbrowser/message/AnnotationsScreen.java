@@ -77,7 +77,7 @@ public class AnnotationsScreen extends ScreenBase implements ActionListener,
 
 	private TaskExecutor taskExecutor;
 	private List<Task> tasks = new LinkedList<Task>();
-	private AnnotationContents annotations;
+	private AnnotationManager annotations;
 	
 	private enum Column {
 		GENOME("Genome"), ANNOTATIONS("Annotations"), REFERENCE("Reference sequence");
@@ -163,7 +163,7 @@ public class AnnotationsScreen extends ScreenBase implements ActionListener,
 	}
 
 	@SuppressWarnings("serial")
-	public AnnotationsScreen(AnnotationContents annotations) {
+	public AnnotationsScreen(AnnotationManager annotations) {
 
 		
 		SwingClientApplication.setPlastic3DLookAndFeel(frame);
