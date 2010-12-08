@@ -43,10 +43,13 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 	 * Scale for visualising reads as profiles, gel etc.
 	 */
     public enum ReadScale {
-        SMALL("Small (0..10)", 10),
-        MEDIUM("Medium (0..100)", 100),
-        LARGE("Large (0..1000)", 1000),
-        EXTRA_LARGE("Extra large (0..10k)", 10000),
+        XS("0..10", 10),
+        SMALL("0..50", 100),
+        MEDIUM("0..100", 100),
+        LARGE("0..500", 1000),        
+        XL("0..1000", 10000),
+        XXL("0..5000", 10000),
+        XXXL("0..10000", 10000),
         AUTO("Automatic", 0);
         
         private String name;
