@@ -41,7 +41,6 @@ import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
@@ -89,11 +88,11 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		RegionListener, FocusListener, ComponentListener {
 
 
+	private static final String DEFAULT_ZOOM = "100000";
+	private static final String DEFAULT_LOCATION = "1000000";
 	final static String WAITPANEL = "waitpanel";
 	final static String PLOTPANEL = "plotpanel";
 
-	private static final Logger logger = Logger.getLogger(GenomeBrowser.class);
-	
 	private static class Interpretation {
 		
 		public TrackType type;
@@ -176,7 +175,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	
 	private JComboBox genomeBox = new JComboBox();
 	
-	private Object lastChromosome;
+	private Object visibleChromosome;
 
 	private AnnotationContents annotationContents;
 
@@ -189,6 +188,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	
 	private Map<JCheckBox, String> trackSwitches = new LinkedHashMap<JCheckBox, String>();
 	private Set<JCheckBox> datasetSwitches = new HashSet<JCheckBox>();
+	private Long lastLocation;
+	private Long lastZoom;
 	
 	
 	public void initialise(VisualisationFrame frame) throws Exception {
@@ -655,7 +656,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			try {
 				gia = GeneIndexActions.getInstance(genome, createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.GENES).getUrl(),	new GeneParser()));
 			} catch (Exception e) {
-				logger.warn("could not create gene name index", e);
+				application.reportException(e);
 			}
 			
 			// Create the plot
@@ -663,8 +664,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			this.plot = new GenomePlot(chartPanel, true);
 			
 			// Set scale of profile track containing reads information
-			this.plot.setReadScale((ReadScale) this.coverageScaleBox
-					.getSelectedItem());
+			this.plot.setReadScale((ReadScale) this.coverageScaleBox.getSelectedItem());
 
 
 			// Add selected annotation tracks
@@ -775,18 +775,20 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 			// Fill in initial positions if not filled in
 			if (locationField.getText().trim().isEmpty()) {
-				locationField.setText("1000000");
+				locationField.setText(DEFAULT_LOCATION);
 			}
 			if (zoomField.getText().trim().isEmpty()) {
-				zoomField.setText("100000");
+				zoomField.setText(DEFAULT_ZOOM);
 			}
-
+			
 			// Initialise the plot
 			plot.addDataRegionListener(this);
 
-			// remember the chromosome, so we know if it has changed
-			lastChromosome = chrBox.getSelectedItem();
+			// Go to correct place (possibly gene name that must be translated)
 			updateLocation();
+			
+			// Remember chromosome
+			visibleChromosome = chrBox.getSelectedItem();
 
 			// wrap it in a panel
 			chartPanel.setChart(new JFreeChart(plot));
@@ -918,6 +920,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	public void regionChanged(BpCoordRegion bpRegion) {
 		locationField.setText(bpRegion.getMid().toString());
 		zoomField.setText("" + bpRegion.getLength());
+		this.lastLocation = bpRegion.getMid();
+		this.lastZoom = bpRegion.getLength();
 	}
 
 	private List<Interpretation> interpretUserDatas(List<DataBean> datas) {
@@ -1010,49 +1014,63 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	 */
 	private void updateLocation() {
 
-		// Chromosome changed - redraw (alternatively we could clean track
-		// contents)
-		if (lastChromosome != chrBox.getSelectedItem()) {
-			showVisualisation();
-			updateVisibilityForTracks();
-			return;
-		}
+		try {
 
-		// Only position within chromosome changed
-		BpCoordRegion geneLocation;
-		if (!GeneIndexActions.checkIfNumber(locationField.getText())) {
-			if (gia == null) {
-				// TODO tell user about it
-				return;
+			// If gene name was given, search for it and 
+			// translate it to coordinates.
+			if (!GeneIndexActions.checkIfNumber(locationField.getText())) {
+
+				BpCoordRegion geneLocation = gia.getLocation(locationField.getText().toUpperCase());
+
+				if (geneLocation == null) {
+					
+					// Move to last known location
+					if (lastLocation != null && lastZoom != null) {
+						locationField.setText(lastLocation.toString());
+						zoomField.setText(lastZoom.toString());
+					} else {
+						locationField.setText(DEFAULT_LOCATION);
+						zoomField.setText(DEFAULT_ZOOM);
+					}
+					
+					// Tell the user 
+					application.showDialog("Not found",
+							"Gene was not found", null,
+							Severity.INFO, true,
+							DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
+					
+				} else {
+					
+					// Update coordinate controls with gene's location
+					chrBox.setSelectedItem(new Chromosome(geneLocation.start.chr));
+					locationField.setText(Long.toString((geneLocation.end.bp + geneLocation.start.bp) / 2));
+					zoomField.setText(Long.toString((geneLocation.end.bp - geneLocation.start.bp) * 2));
+
+				}
 			}
-			
-			
-			geneLocation = gia.getLocation(locationField.getText().toUpperCase(), (Chromosome)chrBox.getSelectedItem());
 
-			if (geneLocation == null) {
-				application.showDialog("Not found",
-						"Gene was not found", null,
-						Severity.INFO, true,
-						DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
+			// Check how large the update in location was 
+			if (visibleChromosome != null && visibleChromosome != chrBox.getSelectedItem()) {
+
+				// Chromosome changed, redraw everything
+				showVisualisation();
+				updateVisibilityForTracks();
+
 			} else {
-				chrBox.setSelectedItem(new Chromosome(geneLocation.start.chr));
-				plot.moveDataBpRegion((Chromosome) chrBox.getSelectedItem(),
-						(geneLocation.end.bp + geneLocation.start.bp) / 2,
-						(geneLocation.end.bp - geneLocation.start.bp) * 2);
-			}
-		} else {
-			try {
+
+				// Only bp position within chromosome changed, move there
 				plot.moveDataBpRegion((Chromosome) chrBox.getSelectedItem(),
 						Long.parseLong(locationField.getText()), Long
-								.parseLong(zoomField.getText()));
-			} catch (NumberFormatException e) {
-				application.reportException(e);
-			}
+						.parseLong(zoomField.getText()));
+
+				// Set scale of profile track containing reads information
+				this.plot.setReadScale((ReadScale) this.coverageScaleBox.getSelectedItem());
+			}		
+			
+		} catch (Exception e) {
+			application.reportException(e);
 		}
 
-		// Set scale of profile track containing reads information
-		this.plot.setReadScale((ReadScale) this.coverageScaleBox
-				.getSelectedItem());
 	}
 
 	public void focusGained(FocusEvent e) {

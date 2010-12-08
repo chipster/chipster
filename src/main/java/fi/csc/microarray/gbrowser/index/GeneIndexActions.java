@@ -1,20 +1,19 @@
 package fi.csc.microarray.gbrowser.index;
 
 /**
- * Gene name search actions (creating database in memory, creating table,
- * updating it with gene information (chromosome, bp_start, bp_end, name),
- * getting gene coordinates by its name 
+ * Gene indexing tools. For a single genome, inserts gene names into 
+ * an indexed database with their coordinates. Database is stored
+ * in memory. Gene coordinates can be queried from the database via
+ * this tool.
  * 
- * FIXME Check whether connections etc are evere released
- * 
- * @author zukauska
+ * @author zukauska, Aleksi Kallio
  */
-
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.HashMap;
 import java.util.List;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
@@ -26,82 +25,85 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Annotatio
 
 public class GeneIndexActions {
 
-	private Connection conn;
-	private Statement st;
-	private static GeneIndexActions gia;
-	private GetGeneIndexData getData;
-	private static Genome selectedGenome;
+	private static HashMap<String, GeneIndexActions> instances = new HashMap<String, GeneIndexActions>();
+	private PreparedStatement insertGeneStatement;
+	private PreparedStatement selectStatement;
 
-	private GeneIndexActions(ChunkDataSource dataSource) throws ClassNotFoundException, SQLException {
-		getData = new GetGeneIndexData(dataSource);
+	protected GeneIndexActions(ChunkDataSource dataSource) throws ClassNotFoundException, SQLException {
 		Class.forName("org.h2.Driver");
-		conn = DriverManager.getConnection("jdbc:h2:mem:GeneIndex", "sa", "");
-		createTable();
-		updateTable(getData.read());
+		Connection conn = DriverManager.getConnection("jdbc:h2:mem:GeneIndex", "", "");
+		initialise(conn);
+		
+		if (dataSource != null) {
+			GetGeneIndexData data = new GetGeneIndexData(dataSource);
+			updateTable(data.read());
+		}
+	}
+
+	private void initialise(Connection conn) throws SQLException {
+		
+		// Initialise the database 
+		PreparedStatement createTableStatements = conn.prepareStatement(
+				"DROP TABLE gene IF EXISTS;"
+				+ "CREATE TABLE gene ("  
+				+ "ID INT PRIMARY KEY AUTO_INCREMENT, chromosome VARCHAR(255),"
+				+ "bp_start INT, bp_end INT, name VARCHAR(255));"
+				+ "DROP INDEX gene_name_index IF EXISTS;"
+				+ "CREATE INDEX gene_name_index ON gene(name);");
+
+		createTableStatements.execute();
+
+		// Initialise statement for inserting genes
+		this.insertGeneStatement = conn.prepareStatement("INSERT INTO gene VALUES (NULL, ?, ?, ?, ?);");
+
+		// Initialise statement for finding gene locations
+		this.selectStatement = conn.prepareStatement("SELECT chromosome, bp_start, bp_end FROM gene WHERE name = ?");
+
 	}
 
 	/**
-	 * creates database, table, updates table with gene indexes
-	 * @throws SQLException 
-	 * @throws ClassNotFoundException 
+	 * Returns gene index for given genome. If index has not yet been initialised, initialises it with
+	 * given dataSource.
 	 */
 	public static GeneIndexActions getInstance(Genome genome, ChunkDataSource dataSource) throws ClassNotFoundException, SQLException {
 
-		if (gia == null) {
-			gia = new GeneIndexActions(dataSource);
-			selectedGenome = genome;
-
-		} else if (!selectedGenome.equals(genome)) {
-			selectedGenome = genome;
-			gia = new GeneIndexActions(dataSource);
-			selectedGenome = genome;
+		String genomeString = genome.toString();
+		
+		if (!instances.containsKey(genomeString)) {
+			instances.put(genomeString, new GeneIndexActions(dataSource));
 		}
 
-		return gia;
-	}
-
-	/**
-	 * create table and index for geneName
-	 * @throws SQLException 
-	 */
-	private void createTable() throws SQLException {
-
-		st = conn.createStatement();
-		st.execute("CREATE TABLE IF NOT EXISTS gene_name_index(" + "ID INT PRIMARY KEY auto_increment," + "chromosome VARCHAR(255),"
-				+ "bp_start INT," + "bp_end INT," + "NAME VARCHAR(255),);"
-				+ "create index IF NOT EXISTS geneName on gene_name_index(name);");
+		return instances.get(genomeString);
 	}
 
 	private void updateTable(List<RegionContent> indexList) throws SQLException {
-		st = conn.createStatement();
-		ResultSet rs = st.executeQuery("select * from gene_name_index limit 0,1");
-		if (rs.next()) {
-			st.execute("delete from gene_name_index");
-		}
-		st = conn.createStatement();
 		for (RegionContent id : indexList) {
-			st.executeUpdate("insert into gene_name_index values (null,'" + id.values.get(ColumnType.CHROMOSOME) + "',"
-					+ id.values.get(ColumnType.BP_START) + "," + id.values.get(ColumnType.BP_END) + ",'"
-					+ id.values.get(ColumnType.DESCRIPTION) + "' )");
+			String chromosome = id.values.get(ColumnType.CHROMOSOME).toString();
+			String bpStart = id.values.get(ColumnType.BP_START).toString();
+			String bpEnd = id.values.get(ColumnType.BP_END).toString();
+			String name = id.values.get(ColumnType.DESCRIPTION).toString();
+			insertGene(chromosome, bpStart, bpEnd, name);
 		}
+	}
+
+	protected void insertGene(String chromosome, String bpStart, String bpEnd, String name) throws SQLException {
+		insertGeneStatement.setString(1, chromosome);
+		insertGeneStatement.setString(2, bpStart);
+		insertGeneStatement.setString(3, bpEnd);
+		insertGeneStatement.setString(4, name.toUpperCase());
+		insertGeneStatement.executeUpdate();
 	}
 
 	/**
 	 * getting location of a gene
+	 * @throws SQLException 
 	 */
-	public BpCoordRegion getLocation(String name, Chromosome chromosome) {
-		try {
-			st = conn.createStatement();
-			ResultSet rs = st.executeQuery("select chromosome, bp_start,bp_end from gene_name_index " + "where name ='" + name
-					+ "' and chromosome ='" + chromosome.toString() + "'");
-			if (!rs.next()) {
-				st = conn.createStatement();
-				rs = st.executeQuery("select chromosome, bp_start,bp_end from gene_name_index " + "where name ='" + name + "'");
-				rs.next();
-			}
+	public BpCoordRegion getLocation(String name) throws SQLException {
+		selectStatement.setString(1, name.toUpperCase());
+		ResultSet rs = selectStatement.executeQuery();
+		if (rs.next()) {
 			return new BpCoordRegion(rs.getLong(2), rs.getLong(3), new Chromosome(rs.getString(1)));
-
-		} catch (SQLException e) {
+		} else {
 			return null;
 		}
 	}
@@ -117,14 +119,6 @@ public class GeneIndexActions {
 			} catch (NumberFormatException e1) {
 				return false;
 			}
-		}
-	}
-
-	public void closeConnection() {
-		try {
-			conn.close();
-		} catch (SQLException e) {
-
 		}
 	}
 }
