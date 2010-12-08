@@ -7,43 +7,33 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Time;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
-
-import org.jdesktop.swingx.decorator.SortOrder;
 import org.jdesktop.swingx.hyperlink.LinkModel;
 import org.jdesktop.swingx.hyperlink.LinkModelAction;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.HyperlinkProvider;
 
-import fi.csc.microarray.client.ClientApplication;
-import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.screen.ScreenBase;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.TaskExecutor;
-import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.util.Strings;
 
 /**
  * @author Petri Klemelä
@@ -53,9 +43,6 @@ public class AnnotationsScreen extends ScreenBase implements ActionListener,
 		ListSelectionListener {
 
 	private static Logger logger = Logger.getLogger(AnnotationsScreen.class);
-
-	private ClientApplication application = Session.getSession()
-			.getApplication();
 
 	private Dimension BUTTON_SIZE = new Dimension(120, 22);
 	private JFrame frame = new JFrame("Annotations");
