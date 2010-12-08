@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
     Licensed to the Apache Software Foundation (ASF) under one or more
     contributor license agreements.  See the NOTICE file distributed with
@@ -14,12 +15,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<beans
-  xmlns="http://www.springframework.org/schema/beans"
-  xmlns:amq="http://activemq.apache.org/schema/core"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd   http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
 
     <!-- Allows us to use system properties as variables in this configuration file -->
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -28,64 +25,44 @@
         </property>      
     </bean>
 
-  
-  <broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost" dataDirectory="${activemq.base}/data" persistent="false" useJmx="false">
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost" dataDirectory="${activemq.base}/data" persistent="false" useJmx="true" advisorySupport="false">
 
-    <!-- The transport connectors ActiveMQ will listen to -->
-    <transportConnectors>
-    <transportConnector name="openwire" uri="tcp://localhost:61616" /> 
-   <!--    <transportConnector name="ssl"     uri="ssl://localhost:61617"/> -->
-   <!--    <transportConnector name="stomp"   uri="stomp://localhost:61613"/>-->
-   <!--    <transportConnector name="xmpp"    uri="xmpp://localhost:61222"/>-->
-    </transportConnectors>
+	    <!-- The transport connectors ActiveMQ will listen to -->
+	    <transportConnectors>
+		    <transportConnector name="openwire" uri="tcp://localhost:61616" />  
+    	</transportConnectors>
 
+    	<plugins>
+      		<simpleAuthenticationPlugin>
+         		<users>
+           			<authenticationUser groups="clients,all" password="client" username="client"/>
+           			<authenticationUser groups="analysers,all" password="comp" username="comp"/>
+           			<authenticationUser groups="authenticators,all" password="auth" username="auth"/>
+           			<authenticationUser groups="managers,all" password="manager" username="manager"/>
+           			<authenticationUser groups="filebrokers,all" password="filebroker" username="filebroker"/>
+           			<authenticationUser groups="clients,analysers,all" password="nonauth" username="nonauth"/>
+          		</users>
+      		</simpleAuthenticationPlugin>
+      		<authorizationPlugin>
+         		<map>
+           			<authorizationMap>
+             			<authorizationEntries>
+               				<authorizationEntry admin="all" read="analysers" topic="authorised-request-topic" write="authenticators"/>
+               				<authorizationEntry admin="all" read="authenticators" topic="request-topic" write="clients"/>
+               				<authorizationEntry admin="all" read="filebrokers" topic="authorised-url-topic" write="analysers,authenticators"/>
+               				<authorizationEntry admin="all" read="authenticators" topic="url-topic" write="clients"/>
+               				<authorizationEntry admin="all" read="managers" topic="job-log-topic" write="analysers,authenticators"/>
+               				<authorizationEntry topic="feedback-topic" write="clients" read="managers" admin="all" />
+               				<authorizationEntry admin="all" read="all" topic="admin-topic" write="all"/>
+               				<authorizationEntry admin="all" read="all" topic="test-topic" write="all"/>
+               				<authorizationEntry admin="all" read="all" topic="ActiveMQ.Advisory.&gt;" write="all"/>
+             			</authorizationEntries>
+           			</authorizationMap>
+         		</map>
+       		</authorizationPlugin>
 
+    	</plugins>
 
-
-    <plugins>
-      <simpleAuthenticationPlugin>
-         <users>
-           <authenticationUser username="client" password="client" groups="clients,all" />
-           <authenticationUser username="comp" password="comp" groups="analysers,all" />
-           <authenticationUser username="auth" password="auth" groups="authenticators,all" />
-           <authenticationUser username="manager" password="manager" groups="managers,all" />
-           <authenticationUser username="filebroker" password="filebroker" groups="filebrokers,all" />
-           <authenticationUser username="nonauth" password="nonauth" groups="clients,analysers,all" />
-       
-         </users>
-       </simpleAuthenticationPlugin>
-      <authorizationPlugin>
-         <map>
-           <authorizationMap>
-             <authorizationEntries>
-               <authorizationEntry topic="authorised-request-topic" write="authenticators" read="analysers" admin="all" />
-               <authorizationEntry topic="request-topic" write="clients" read="authenticators" admin="all" />
-               <authorizationEntry topic="authorised-url-topic" write="analysers,authenticators" read="filebrokers" admin="all" />
-               <authorizationEntry topic="url-topic" write="clients" read="authenticators" admin="all" />
-               <authorizationEntry topic="job-log-topic" write="analysers,authenticators" read="managers" admin="all" />
-               <authorizationEntry topic="feedback-topic" write="clients" read="managers" admin="all" />
-               <authorizationEntry topic="admin-topic" write="all" read="all" admin="all" />
-               <authorizationEntry topic="test-topic" write="all" read="all" admin="all" />
-               <authorizationEntry topic="ActiveMQ.Advisory.>" read="all" write="all" admin="all"/>
-             </authorizationEntries>
-           </authorizationMap>
-         </map>
-       </authorizationPlugin>
-
-
-
-    </plugins>
-
-
-
-
-
-
-
-
-
-  </broker>
-
+  	</broker>
 
 </beans>
-<!-- END SNIPPET: example -->
