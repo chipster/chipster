@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -784,8 +785,11 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			// Initialise the plot
 			plot.addDataRegionListener(this);
 
-			// Go to correct place (possibly gene name that must be translated)
-			updateLocation();
+			// Translate gene name in position box, if needed
+			translateGenename();
+			
+			// Move to correct location
+			move();
 			
 			// Remember chromosome
 			visibleChromosome = chrBox.getSelectedItem();
@@ -1018,36 +1022,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 			// If gene name was given, search for it and 
 			// translate it to coordinates.
-			if (!GeneIndexActions.checkIfNumber(locationField.getText())) {
-
-				BpCoordRegion geneLocation = gia.getLocation(locationField.getText().toUpperCase());
-
-				if (geneLocation == null) {
-					
-					// Move to last known location
-					if (lastLocation != null && lastZoom != null) {
-						locationField.setText(lastLocation.toString());
-						zoomField.setText(lastZoom.toString());
-					} else {
-						locationField.setText(DEFAULT_LOCATION);
-						zoomField.setText(DEFAULT_ZOOM);
-					}
-					
-					// Tell the user 
-					application.showDialog("Not found",
-							"Gene was not found", null,
-							Severity.INFO, true,
-							DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
-					
-				} else {
-					
-					// Update coordinate controls with gene's location
-					chrBox.setSelectedItem(new Chromosome(geneLocation.start.chr));
-					locationField.setText(Long.toString((geneLocation.end.bp + geneLocation.start.bp) / 2));
-					zoomField.setText(Long.toString((geneLocation.end.bp - geneLocation.start.bp) * 2));
-
-				}
-			}
+			translateGenename();
 
 			// Check how large the update in location was 
 			if (visibleChromosome != null && visibleChromosome != chrBox.getSelectedItem()) {
@@ -1057,20 +1032,56 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				updateVisibilityForTracks();
 
 			} else {
-
 				// Only bp position within chromosome changed, move there
-				plot.moveDataBpRegion((Chromosome) chrBox.getSelectedItem(),
-						Long.parseLong(locationField.getText()), Long
-						.parseLong(zoomField.getText()));
-
-				// Set scale of profile track containing reads information
-				this.plot.setReadScale((ReadScale) this.coverageScaleBox.getSelectedItem());
+				move();
 			}		
 			
 		} catch (Exception e) {
 			application.reportException(e);
 		}
 
+	}
+
+	private void translateGenename() throws SQLException {
+		if (!GeneIndexActions.checkIfNumber(locationField.getText())) {
+
+			BpCoordRegion geneLocation = gia.getLocation(locationField.getText().toUpperCase());
+
+			if (geneLocation == null) {
+				
+				// Move to last known location
+				if (lastLocation != null && lastZoom != null) {
+					locationField.setText(lastLocation.toString());
+					zoomField.setText(lastZoom.toString());
+				} else {
+					locationField.setText(DEFAULT_LOCATION);
+					zoomField.setText(DEFAULT_ZOOM);
+				}
+				
+				// Tell the user 
+				application.showDialog("Not found",
+						"Gene was not found", null,
+						Severity.INFO, true,
+						DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
+				
+			} else {
+				
+				// Update coordinate controls with gene's location
+				chrBox.setSelectedItem(new Chromosome(geneLocation.start.chr));
+				locationField.setText(Long.toString((geneLocation.end.bp + geneLocation.start.bp) / 2));
+				zoomField.setText(Long.toString((geneLocation.end.bp - geneLocation.start.bp) * 2));
+
+			}
+		}
+	}
+
+	private void move() {
+		plot.moveDataBpRegion((Chromosome) chrBox.getSelectedItem(),
+				Long.parseLong(locationField.getText()), Long
+				.parseLong(zoomField.getText()));
+
+		// Set scale of profile track containing reads information
+		this.plot.setReadScale((ReadScale) this.coverageScaleBox.getSelectedItem());
 	}
 
 	public void focusGained(FocusEvent e) {
