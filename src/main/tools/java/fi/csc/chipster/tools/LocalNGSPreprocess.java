@@ -20,7 +20,7 @@ import fi.csc.microarray.exception.MicroarrayException;
 
 public class LocalNGSPreprocess implements Runnable {
 
-	private static final ChromosomeNormaliser CHROMOSOME_NORMALISER = new ChromosomeNormaliser() {
+	public static final ChromosomeNormaliser CHROMOSOME_NORMALISER = new ChromosomeNormaliser() {
 
 		public String normaliseChromosome(String chromosomeName) {
 			
@@ -76,9 +76,9 @@ public class LocalNGSPreprocess implements Runnable {
 
 			for (DataBean inputDataBean : task.getInputs()) {
 				File inputFile = dataManager.getLocalFile(inputDataBean);
-				String extension = inputFile.getName().substring(inputFile.getName().lastIndexOf("."));
+				String extension = inputFile.getName().substring(inputFile.getName().lastIndexOf(".") + 1);
 				
-				if (".bed".equals(extension)) {
+				if ("bed".equals(extension)) {
 					preprocessBed(dataManager, inputFile);
 					
 				} else {
@@ -122,7 +122,6 @@ public class LocalNGSPreprocess implements Runnable {
 
 			@Override
 			public void stateChanged(SamBamUtilState newState) {
-				System.out.println(newState.getState() + " " + newState.getPercentage());
 				task.setStateDetail(newState.getState() + " " + newState.getPercentage());
 			}
 			 
