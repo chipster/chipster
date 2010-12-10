@@ -20,7 +20,7 @@ import fi.csc.microarray.exception.MicroarrayException;
 
 public class LocalNGSPreprocess implements Runnable {
 
-	private static final ChromosomeNormaliser CHROMOSOME_NORMALISER = new ChromosomeNormaliser() {
+	public static final ChromosomeNormaliser CHROMOSOME_NORMALISER = new ChromosomeNormaliser() {
 
 		public String normaliseChromosome(String chromosomeName) {
 			
