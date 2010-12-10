@@ -22,7 +22,7 @@ public class PreprocessNGSSingle extends JavaAnalysisJobBase {
 	
 	@Override
 	protected void execute() { 
-		updateState(JobState.RUNNING, "Sorting file");
+		updateStateToClient(JobState.RUNNING, "preprocessing");
 
 
 		try {
@@ -38,7 +38,7 @@ public class PreprocessNGSSingle extends JavaAnalysisJobBase {
 				@Override
 				public void stateChanged(SamBamUtilState newState) {
 					// update detail state
-					updateStateDetailToClient("preprocess: " + newState.getState() + " " + newState.getPercentage());
+					updateStateDetailToClient("preprocess: " + newState.getState());
 				}
 
 			}, LocalNGSPreprocess.CHROMOSOME_NORMALISER);
@@ -51,6 +51,6 @@ public class PreprocessNGSSingle extends JavaAnalysisJobBase {
 			return;
 		}
 
-		updateState(JobState.RUNNING, "sort finished");
+		updateStateToClient(JobState.RUNNING, "preprocessing finished");
 	}
 }
