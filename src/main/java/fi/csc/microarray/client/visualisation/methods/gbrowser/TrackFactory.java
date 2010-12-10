@@ -19,6 +19,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TitleTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.WIGTrack;
+import fi.csc.microarray.constants.VisualConstants;
 
 /**
  * Utility for creating predefined track groups.  
@@ -87,14 +88,14 @@ public class TrackFactory {
 	public static void addPeakTrack(GenomePlot plot, DataSource peaks) {
 		View dataView = plot.getDataView();
 
-		PeakTrack annotation = new PeakTrack(dataView, peaks, ChunkTreeHandlerThread.class, Color.YELLOW, 0, Long.MAX_VALUE);
+		PeakTrack annotation = new PeakTrack(dataView, peaks, ChunkTreeHandlerThread.class, VisualConstants.BED_COLOR, 0, Long.MAX_VALUE);
 		addTrack(dataView, annotation);
 	}
 
 	public static void addHeaderPeakTrack(GenomePlot plot, DataSource peaks) {
 		View dataView = plot.getDataView();
 
-		PeakTrack annotation = new PeakTrack(dataView, peaks, ChunkTreeHandlerThread.class, Color.YELLOW, 0, Long.MAX_VALUE);
+		PeakTrack annotation = new PeakTrack(dataView, peaks, ChunkTreeHandlerThread.class, VisualConstants.BED_COLOR, 0, Long.MAX_VALUE);
 		addTrack(dataView, annotation);
 	}
 

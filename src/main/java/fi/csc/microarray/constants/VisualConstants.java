@@ -366,4 +366,6 @@ public class VisualConstants {
 		return BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.lightGray), title);
 	}
 
+	public static final Color BED_COLOR = new Color(1, 119, 183);
+
 }
