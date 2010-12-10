@@ -66,11 +66,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SNPPar
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SequenceParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Genome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Row;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.GenomeAnnotation;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack3D;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 import fi.csc.microarray.constants.VisualConstants;
@@ -177,7 +177,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	
 	private Object visibleChromosome;
 
-	private AnnotationContents annotationContents;
+	private AnnotationManager annotationManager;
 
 	private JLabel coverageScaleLabel = new JLabel("Coverage scale");
 	private JComboBox coverageScaleBox = new JComboBox();
@@ -196,8 +196,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		super.initialise(frame);
 
 		// initialize annotations
-		this.annotationContents = new AnnotationContents();
-		this.annotationContents.initialize();
+		this.annotationManager = new AnnotationManager();
+		this.annotationManager.initialize();
 		
 		trackSwitches.put(new JCheckBox("Reads", true), "Reads");
 		trackSwitches.put(new JCheckBox("Highlight SNPs", false), "highlightSNP");
@@ -241,8 +241,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private void createAvailableTracks() {
 
 		// for now just always add genes and cytobands
-		tracks.add(new Track(AnnotationContents.Content.GENES.getId(), new Interpretation(TrackType.GENES, null)));
-		tracks.add(new Track(AnnotationContents.Content.CYTOBANDS.getId(), new Interpretation(TrackType.CYTOBANDS, null)));
+		tracks.add(new Track(AnnotationManager.AnnotationType.GENES.getId(), new Interpretation(TrackType.GENES, null)));
+		tracks.add(new Track(AnnotationManager.AnnotationType.CYTOBANDS.getId(), new Interpretation(TrackType.CYTOBANDS, null)));
 		
 
 		for (int i = 0; i < interpretations.size(); i++) {
@@ -407,7 +407,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			c.gridx = 0;
 
 			// genome
-			Collection<Genome> genomes = annotationContents.getGenomes();
+			Collection<Genome> genomes = annotationManager.getGenomes();
 			for (Genome genome : genomes) {
 				genomeBox.addItem(genome);
 			}
@@ -584,8 +584,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			Genome genome = (Genome) genomeBox.getSelectedItem();
 
 			// dialog for downloading annotations if not already local
-			if (!annotationContents.hasLocalAnnotations(genome)) {
-				annotationContents.openDownloadAnnotationsDialog(genome);
+			if (!annotationManager.hasLocalAnnotations(genome)) {
+				annotationManager.openDownloadAnnotationsDialog(genome);
 			}
 
 			// enable other settings
@@ -654,7 +654,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			// Create gene name index
 			gia = null;
 			try {
-				gia = GeneIndexActions.getInstance(genome, createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.GENES).getUrl(),	new GeneParser()));
+				gia = GeneIndexActions.getInstance(genome, createAnnotationDataSource(annotationManager.getAnnotation(genome, AnnotationManager.AnnotationType.GENES).getUrl(),	new GeneParser()));
 			} catch (Exception e) {
 				application.reportException(e);
 			}
@@ -674,8 +674,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 					case CYTOBANDS:
 						TrackFactory.addCytobandTracks(plot,
 								createAnnotationDataSource(
-										annotationContents.getRow(
-												genome, AnnotationContents.Content.CYTOBANDS).getUrl(),
+										annotationManager.getAnnotation(
+												genome, AnnotationManager.AnnotationType.CYTOBANDS).getUrl(),
 										new CytobandParser()));
 						break;
 						
@@ -683,21 +683,21 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 						// Start 3D effect
 						plot.getDataView().addTrack(new SeparatorTrack3D(plot.getDataView(), 0, Long.MAX_VALUE, true));
 
-						Row snpRow = annotationContents.getRow(genome, AnnotationContents.Content.SNP);
+						GenomeAnnotation snpRow = annotationManager.getAnnotation(genome, AnnotationManager.AnnotationType.SNP);
 						
 						TrackGroup geneGroup = TrackFactory.addGeneTracks(plot,
-								createAnnotationDataSource(annotationContents.getRow(
-										genome, AnnotationContents.Content.GENES).getUrl(),
+								createAnnotationDataSource(annotationManager.getAnnotation(
+										genome, AnnotationManager.AnnotationType.GENES).getUrl(),
 										new GeneParser()),
-								createAnnotationDataSource(annotationContents.getRow(
-										genome, AnnotationContents.Content.TRANSCRIPTS).getUrl(),
+								createAnnotationDataSource(annotationManager.getAnnotation(
+										genome, AnnotationManager.AnnotationType.TRANSCRIPTS).getUrl(),
 										new TranscriptParser()),
-								createAnnotationDataSource(annotationContents.getRow(
-										genome, AnnotationContents.Content.REFERENCE).getUrl(),
+								createAnnotationDataSource(annotationManager.getAnnotation(
+										genome, AnnotationManager.AnnotationType.REFERENCE).getUrl(),
 										new SequenceParser()),
 								snpRow == null ? null : 
-									createAnnotationDataSource(annotationContents.getRow(
-											genome, AnnotationContents.Content.SNP).getUrl(),
+									createAnnotationDataSource(annotationManager.getAnnotation(
+											genome, AnnotationManager.AnnotationType.SNP).getUrl(),
 											new SNPParser())
 								);
 						track.setTrackGroup(geneGroup);
@@ -729,13 +729,13 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 							// No precomputed summary data
 							TrackFactory.addThickSeparatorTrack(plot);
 							treatmentData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
-							TrackGroup readGroup = TrackFactory.addReadTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.REFERENCE).getUrl(), new SequenceParser()), file.getName());
+							TrackGroup readGroup = TrackFactory.addReadTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationManager.getAnnotation(genome, AnnotationManager.AnnotationType.REFERENCE).getUrl(), new SequenceParser()), track.interpretation.primaryData.getName());
 							track.setTrackGroup(readGroup);
 						} else { 
 							// Has precomputed summary data
 							TrackFactory.addThickSeparatorTrack(plot);
 							treatmentData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
-							TrackGroup readGroupWithSummary = TrackFactory.addReadSummaryTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationContents.getRow(genome, AnnotationContents.Content.REFERENCE).getUrl(), new SequenceParser()), file);
+							TrackGroup readGroupWithSummary = TrackFactory.addReadSummaryTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationManager.getAnnotation(genome, AnnotationManager.AnnotationType.REFERENCE).getUrl(), new SequenceParser()), file);
 							track.setTrackGroup(readGroupWithSummary);
 						}
 						break;

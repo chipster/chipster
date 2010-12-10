@@ -21,7 +21,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationContents.Genome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
 
 public class GeneIndexActions {
 
