@@ -122,7 +122,6 @@ public class LocalNGSPreprocess implements Runnable {
 
 			@Override
 			public void stateChanged(SamBamUtilState newState) {
-				System.out.println(newState.getState() + " " + newState.getPercentage());
 				task.setStateDetail(newState.getState() + " " + newState.getPercentage());
 			}
 			 
