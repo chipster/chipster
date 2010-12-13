@@ -14,7 +14,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaR
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TabixHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TranscriptTrack.PartColor;
+import fi.csc.microarray.constants.VisualConstants;
 
 /**
  * Tracks containing information about reads: sequences themselves, gel,
@@ -78,7 +78,7 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
         
         // Profile
         profileTrack = new CoverageTrack(view, userData, userDataHandler,
-                Color.BLACK, PartColor.CDS.c, 0, SWITCH_VIEWS_AT);
+                Color.BLACK, VisualConstants.COLOR_BLUE, 0, SWITCH_VIEWS_AT);
         profileTrack.setStrand(Strand.BOTH);        
         
         // Gel

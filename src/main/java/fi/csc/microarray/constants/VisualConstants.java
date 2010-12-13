@@ -368,4 +368,15 @@ public class VisualConstants {
 
 	public static final Color BED_COLOR = new Color(1, 119, 183);
 
+	public static final Color COLOR_BEIGE = new Color(0xd5c796);
+	public static final Color COLOR_SAND = new Color(0xe7df70);
+	public static final Color COLOR_BROWN_LIGHT = new Color(0xd59f45);
+	public static final Color COLOR_ORANGE = new Color(0xe7881c);
+	public static final Color COLOR_RED = new Color(0xd53833);
+	public static final Color COLOR_BLUE_GREY = new Color(0x80a3b7);
+	public static final Color COLOR_BLUE = new Color(0x0177b7);
+	public static final Color COLOR_BLUE_GREEN = new Color(0x629a9b);
+	public static final Color COLOR_YELLOW_DIRTY = new Color(0xa49900);
+	public static final Color COLOR_BROWN = new Color(0x83010b);
+	public static final Color COLOR_BLUE_LIGHT = new Color(0xc0d2de);
 }
