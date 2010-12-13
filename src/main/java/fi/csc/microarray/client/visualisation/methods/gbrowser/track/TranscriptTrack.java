@@ -43,7 +43,7 @@ public class TranscriptTrack extends Track {
 	private Color color;
 
 	public enum PartColor {
-		CDS(VisualConstants.COLOR_BLUE), UTR(VisualConstants.COLOR_BROWN_LIGHT), START_CODON(Color.gray);
+		CDS(VisualConstants.COLOR_BLUE), UTR(VisualConstants.COLOR_ORANGE), START_CODON(Color.gray);
 
 		//		CDS(new Color(64, 192, 64)), UTR(new Color(192, 64, 64)), START_CODON(Color.gray);
 		public Color c;
