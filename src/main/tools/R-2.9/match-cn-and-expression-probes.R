@@ -9,7 +9,7 @@
 
 # match-cn-and-expression-probes.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-15
+# 2010-12-14
 
 library(CGHcall)
 library(intCNGEan)
@@ -140,13 +140,14 @@ dat3$chromosome[dat3$chromosome=='23'] <- 'X'
 dat3$chromosome[dat3$chromosome=='24'] <- 'Y'
 dat3$chromosome[dat3$chromosome=='25'] <- 'MT'
 
-# add additional phenodata columns from phenodata_exp to phenodata_cgh
+# add additional phenodata columns from phenodata_cgh to phenodata_exp
 phenodata_cgh <- phenodata_cgh[index_cgh,]
 phenodata_exp <- phenodata_exp[index_exp,]
 phenodata_exp$description_cgh <- phenodata_cgh$description
 for (col in setdiff(colnames(phenodata_cgh), colnames(phenodata_exp)))
   phenodata_exp[,col] <- phenodata_cgh[,col]
 phenodata_exp$sample <- samples
+phenodata_exp$n <- NULL
 
 # write output
 write.table(dat3, file='matched-cn-and-expression.tsv', quote=FALSE, sep='\t')
