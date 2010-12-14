@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.util.LinkedList;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowserConstants;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
@@ -36,8 +37,15 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
     protected CoverageTrack profileTrack;
     protected GelTrack gelTrack;
     protected SeqTrack seq;
-//    protected IntensityTrack readOverviewReversed;
     protected SeqBlockTrack readsReversed;
+	private IntensityTrack readOverviewOld;
+	private boolean hasReference = false;
+	private SeparatorTrack sepTrackProfile;
+	private Track profileSNPTrack;
+	private SeparatorTrack sepTrackProfileSNP;
+	private Track qualityCoverageTrack;
+	private SeparatorTrack sepTrackQualityCoverage;
+	private SeparatorTrack sepTrackGel;
 
     public ReadSummaryTrackGroup(View view, DataSource userData,
             Class<? extends AreaRequestHandler> userDataHandler, DataSource seqFile, File file) throws FileNotFoundException {
@@ -48,7 +56,11 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
         
         // Title
         titleTrack = new TitleTrack(view, file.getName(), Color.black);
-        
+
+        // Overview - old
+        readOverviewOld = new IntensityTrack(view, userData,
+                userDataHandler, histogramColor, GenomeBrowserConstants.SWITCH_VIEWS_AT, false, true);
+
         // Overview
         readOverview = new TabixIntensityTrack(view, new TabixDataSource(file),
                 TabixHandlerThread.class, histogramColor, SWITCH_VIEWS_AT, Long.MAX_VALUE);
@@ -59,17 +71,11 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
         
         // Reference
         if (seqFile != null) {
+        	hasReference = true;
             // Reference sequence
-//            hasReference = true;
-//            this.seqFile = seqFile;
             seq = new SeqTrack(view, seqFile,
                     ChunkTreeHandlerThread.class, SHOW_REFERENCE_AT);
         }
-        
-//        // Overview
-//        readOverviewReversed = new IntensityTrack(view, userData,
-//                userDataHandler, histogramColor, SWITCH_VIEWS_AT);
-//        readOverviewReversed.setStrand(Strand.REVERSED);
         
         // Detailed
         readsReversed = new SeqBlockTrack(view, userData,
@@ -78,14 +84,23 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
         
         // Profile
         profileTrack = new CoverageTrack(view, userData, userDataHandler,
-                Color.BLACK, VisualConstants.COLOR_BLUE, 0, SWITCH_VIEWS_AT);
-        profileTrack.setStrand(Strand.BOTH);        
+                Color.BLACK, VisualConstants.COLOR_BLUE, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+        profileTrack.setStrand(Strand.BOTH);
+        
+        // SNP profile
+        profileSNPTrack = new CoverageAndSNPTrack(view, userData, userDataHandler, seqFile, ChunkTreeHandlerThread.class, 
+                Color.BLACK, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+        profileSNPTrack.setStrand(Strand.BOTH); //Will be set anyway in the track constructor
+        
+        qualityCoverageTrack = new QualityCoverageTrack(view, userData, userDataHandler,
+        		Color.ORANGE, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+        profileSNPTrack.setStrand(Strand.BOTH); //Will be set anyway in the track constructor
         
         // Gel
         gelTrack = new GelTrack(view, userData, userDataHandler,
-                Color.WHITE, 0, SWITCH_VIEWS_AT);
+                Color.WHITE, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         gelTrack.setStrand(Strand.BOTH);
-        
+     
         // Add tracks to this group
         addTracks();
         
@@ -97,30 +112,43 @@ public class ReadSummaryTrackGroup extends TrackGroup implements ActionListener 
         this.tracks = new LinkedList<Track>();
         // Top separator
         tracks.add(titleTrack);
+        tracks.add(readOverviewOld);
+    	tracks.add(new SeparatorTrack(view, Color.gray, 1, (long)GenomeBrowserConstants.SWITCH_VIEWS_AT, Long.MAX_VALUE)); 
         tracks.add(readOverview);
         tracks.add(reads);
         tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, Long.MAX_VALUE));
         
         // Only draw reference sequence if data is present
-//        if (hasReference) {
+        if (hasReference ) {
             tracks.add(seq);
             tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SHOW_REFERENCE_AT));
-//        }
+        }
 
-//        tracks.add(readOverviewReversed);
         tracks.add(readsReversed);
+
+    	SeparatorTrack sepTrackReads2 = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT); 
+    	sepTrackReads2.setName("Reads");
+        tracks.add(sepTrackReads2);
+
+        tracks.add(profileTrack);
+    	sepTrackProfile = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT); 
+    	sepTrackProfile.setName("ProfileTrack");
+        tracks.add(sepTrackProfile);
         
-        // Only draw separator if profile track is visible
-//        if (showProfile.isSelected()) {
-            tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT));
-            tracks.add(profileTrack);
-//        }
+        tracks.add(profileSNPTrack);
+    	sepTrackProfileSNP = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+    	sepTrackProfileSNP.setName("ProfileSNPTrack");
+    	tracks.add(sepTrackProfileSNP);
+
+        tracks.add(qualityCoverageTrack);
+    	sepTrackQualityCoverage = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+    	sepTrackQualityCoverage.setName("QualityCoverageTrack");
+    	tracks.add(sepTrackQualityCoverage);
         
-        // Only draw separator if gel track is visible
-//        if (showGel.isSelected()) {
-            tracks.add(new SeparatorTrack(view, Color.gray, 1, 0, SWITCH_VIEWS_AT));
-            tracks.add(gelTrack);
-//        }
+        tracks.add(gelTrack);
+    	sepTrackGel = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT); 
+    	sepTrackGel.setName("GelTrack");
+        tracks.add(sepTrackGel);
     }
 
     public void actionPerformed(ActionEvent e) {
