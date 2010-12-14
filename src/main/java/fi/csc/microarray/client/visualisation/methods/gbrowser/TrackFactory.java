@@ -1,7 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
 import java.awt.Color;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 
@@ -56,8 +55,9 @@ public class TrackFactory {
 		View dataView = genomePlot.getDataView();
 		
 		// Group containing tracks for this data source
-		TrackGroup readGroup = new ReadTrackGroup(dataView, userData,
+		ReadTrackGroup readGroup = new ReadTrackGroup(dataView, userData,
 		        userDataHandler, seqFile, title);
+		readGroup.initialise();
         
         addGroup(dataView, readGroup);
         
@@ -65,15 +65,16 @@ public class TrackFactory {
 	}
 	
 	public static TrackGroup addReadSummaryTracks(GenomePlot genomePlot, DataSource userData,
-	        Class<? extends AreaRequestHandler> userDataHandler, DataSource seqFile, File file)
+	        Class<? extends AreaRequestHandler> userDataHandler, DataSource seqFile, String title, TabixDataSource summaryDataSource)
 	        throws FileNotFoundException, MalformedURLException {
 	
 		View dataView = genomePlot.getDataView();
 		
 		// Group containing tracks for this data source
-		TrackGroup readGroup = new ReadSummaryTrackGroup(dataView, userData,
-		        userDataHandler, seqFile, file);
-        
+		ReadSummaryTrackGroup readGroup = new ReadSummaryTrackGroup(dataView, userData,
+		        userDataHandler, seqFile, title, summaryDataSource);
+		readGroup.initialise();
+		
         addGroup(dataView, readGroup);
         
         return readGroup;

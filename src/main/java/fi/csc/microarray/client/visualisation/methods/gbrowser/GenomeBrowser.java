@@ -736,7 +736,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 							// Has precomputed summary data
 							TrackFactory.addThickSeparatorTrack(plot);
 							treatmentData = createReadDataSource(track.interpretation.primaryData, track.interpretation.indexData, tracks);
-							TrackGroup readGroupWithSummary = TrackFactory.addReadSummaryTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationManager.getAnnotation(genome, AnnotationManager.AnnotationType.REFERENCE).getUrl(), new SequenceParser()), file);
+							TrackGroup readGroupWithSummary = TrackFactory.addReadSummaryTracks(plot, treatmentData, createReadHandler(file), createAnnotationDataSource(annotationManager.getAnnotation(genome, AnnotationManager.AnnotationType.REFERENCE).getUrl(), new SequenceParser()), track.interpretation.primaryData.getName(), new TabixDataSource(file));
 							track.setTrackGroup(readGroupWithSummary);
 						}
 						break;
