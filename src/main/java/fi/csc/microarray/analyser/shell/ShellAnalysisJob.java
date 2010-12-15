@@ -42,8 +42,12 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
                 analysis.getConfigParameters().get("stdout").toLowerCase().equals("yes");
         
         // Input parameter
-        Boolean inputLast = analysis.getConfigParameters().get("input") != null &&
+        boolean inputLast = analysis.getConfigParameters().get("input") != null &&
                 analysis.getConfigParameters().get("input").toLowerCase().equals("last");
+        
+        boolean inputsAsPlainArguments = analysis.getConfigParameters().get("inputs-as-plain-arguments") != null &&
+        analysis.getConfigParameters().get("inputs-as-plain-arguments").toLowerCase().equals("true");
+        
         
         // Additional arguments
         String arguments = analysis.getConfigParameters().get("arguments");
@@ -64,6 +68,13 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
         // Generate the command to be executed
         LinkedList<String> commandParts = new LinkedList<String>();
         commandParts.add(executablePath);
+
+        // if plain inputs, add them right after the executable
+        if (inputsAsPlainArguments) {
+        	for (InputDescription input : analysis.getInputFiles()) {
+        		commandParts.add(input.getFileName());
+        	}
+        }
         
         // Prepend arguments defined in the configuration file
         for (String arg : extraArguments) {
@@ -89,14 +100,16 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
         }
         
         // Inputs
-        for (InputDescription input : analysis.getInputFiles()) {
-        	if (!inputLast) {
-                // Input is a named parameter
-                commandParts.add("-" + input.getFileName());
-            }
-            commandParts.add(input.getFileName());
+        if (!inputsAsPlainArguments) {
+        	for (InputDescription input : analysis.getInputFiles()) {
+        		if (!inputLast) {
+        			// Input is a named parameter
+        			commandParts.add("-" + input.getFileName());
+        		}
+        		commandParts.add(input.getFileName());
+        	}
         }
-        
+        	
         // store the command for execute()
         command = commandParts.toArray(new String[] {});
     }

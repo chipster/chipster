@@ -197,3 +197,22 @@
             <parameter> <name>stdout</name> <value>yes</value> </parameter>
             <parameter> <name>input</name> <value>last</value> </parameter>
         </tool>
+
+
+	<!-- EDIT -->
+		<tool runtime="shell">
+			<resource>concatenate.sadl</resource>
+			<parameter>
+				<name>executable</name>
+				<value>cat</value>
+			</parameter>
+			<parameter>
+				<name>stdout</name>
+				<value>yes</value>
+			</parameter>
+			<parameter>
+				<name>inputs-as-plain-arguments</name>
+				<value>true</value>
+			</parameter>
+		</tool>
+        
