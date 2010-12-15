@@ -4,11 +4,11 @@
             <resource>blastp.sadl</resource>
             <parameter>
                 <name>executable</name>
-                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/blastp</value>
+                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/pb</value>
             </parameter>
 			<parameter>
 				<name>arguments</name>
-				<value>-num_threads 4</value>
+				<value>blastp -num_threads 4</value>
 			</parameter>
             <parameter>
                 <name>output</name>
@@ -19,11 +19,11 @@
             <resource>blastn.sadl</resource>
             <parameter>
                 <name>executable</name>
-                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/blastn</value>
+                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/pb</value>
             </parameter>
 			<parameter>
 				<name>arguments</name>
-				<value>-num_threads 4</value>
+				<value>blastn -num_threads 4</value>
 			</parameter>
             <parameter>
                 <name>output</name>
@@ -34,11 +34,11 @@
             <resource>blastx.sadl</resource>
             <parameter>
                 <name>executable</name>
-                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/blastx</value>
+                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/pb</value>
             </parameter>
 			<parameter>
 				<name>arguments</name>
-				<value>-num_threads 4</value>
+				<value>blastx -num_threads 4</value>
 			</parameter>
             <parameter>
                 <name>output</name>
@@ -49,11 +49,11 @@
             <resource>tblastn.sadl</resource>
             <parameter>
                 <name>executable</name>
-                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/tblastn</value>
+                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/pb</value>
             </parameter>
 			<parameter>
 				<name>arguments</name>
-				<value>-num_threads 4</value>
+				<value>tblastn -num_threads 4</value>
 			</parameter>
             <parameter>
                 <name>output</name>
@@ -64,11 +64,11 @@
             <resource>tblastx.sadl</resource>
             <parameter>
                 <name>executable</name>
-                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/tblastx</value>
+                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/pb</value>
             </parameter>
 			<parameter>
 				<name>arguments</name>
-				<value>-num_threads 4</value>
+				<value>tblastx -num_threads 4</value>
 			</parameter>
             <parameter>
                 <name>output</name>
