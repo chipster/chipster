@@ -29,9 +29,9 @@ public class GeneIndexActions {
 	private PreparedStatement insertGeneStatement;
 	private PreparedStatement selectStatement;
 
-	protected GeneIndexActions(ChunkDataSource dataSource) throws ClassNotFoundException, SQLException {
+	protected GeneIndexActions(ChunkDataSource dataSource, String id) throws ClassNotFoundException, SQLException {
 		Class.forName("org.h2.Driver");
-		Connection conn = DriverManager.getConnection("jdbc:h2:mem:GeneIndex", "", "");
+		Connection conn = DriverManager.getConnection("jdbc:h2:mem:" + id, "", "");
 		initialise(conn);
 		
 		if (dataSource != null) {
@@ -70,7 +70,7 @@ public class GeneIndexActions {
 		String genomeString = genome.toString();
 		
 		if (!instances.containsKey(genomeString)) {
-			instances.put(genomeString, new GeneIndexActions(dataSource));
+			instances.put(genomeString, new GeneIndexActions(dataSource, genomeString.replace(" ", "")));
 		}
 
 		return instances.get(genomeString);

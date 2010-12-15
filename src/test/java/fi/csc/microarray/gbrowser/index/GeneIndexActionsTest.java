@@ -12,7 +12,7 @@ public class GeneIndexActionsTest {
 
 	private static class TestableGeneIndexActions extends GeneIndexActions {
 		public TestableGeneIndexActions() throws ClassNotFoundException, SQLException {
-			super(null);
+			super(null, "test");
 		}
 	}
 
