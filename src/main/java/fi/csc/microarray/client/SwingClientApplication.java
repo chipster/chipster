@@ -925,7 +925,7 @@ public class SwingClientApplication extends ClientApplication {
 		// show dialog
 		DialogInfo dialogInfo = new DialogInfo(Severity.INFO, title, message, details);
 		dialogInfo.setFeedbackVisible(true);
-		ChipsterDialog.showDialog(mainFrame, dialogInfo, detailsVisibility, false);
+		ChipsterDialog.showDialog(this, dialogInfo, detailsVisibility, false);
 	}
 
 	public void reportException(Exception e) {
