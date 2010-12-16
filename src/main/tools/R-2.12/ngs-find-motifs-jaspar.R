@@ -86,7 +86,11 @@ if (genome == "BSgenome.Rnorvegicus.UCSC.rn4") {
 # the data is called jaspar and the scores jaspar.scores
 
 # Get the motifs from the GADEM objects
-results_motifs <- viewPWM(results_gadem)
+# but first make sure that there were some motifs found
+motifs_found <- try (results_motifs <- viewPWM(results_gadem))
+if (class(motifs_found) == "try-error") {
+	stop("CHIPSTER-NOTE: No common motifs were found among the query sequences! Retry with less stringent parameter settings or provide a longer list of query sequences.")
+}
 
 # Find out how many consensus motifs were discovered
 number_motifs <- length(results_motifs)
