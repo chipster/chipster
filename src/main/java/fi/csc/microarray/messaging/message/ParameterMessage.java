@@ -12,12 +12,12 @@ import javax.jms.MapMessage;
 import org.apache.log4j.Logger;
 
 /**
- * Adds ability to attach parameters into a regular NamiMessage.
+ * Adds ability to attach parameters into a regular ChipsterMessage.
  * Parameters are accessed by their order (FIFO).
  * 
  * @author akallio
  */
-public abstract class ParameterMessage extends NamiMessage {
+public abstract class ParameterMessage extends ChipsterMessage {
 	/**
 	 * Logger for this class
 	 */

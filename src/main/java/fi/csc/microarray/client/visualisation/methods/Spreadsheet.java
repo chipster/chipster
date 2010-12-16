@@ -23,6 +23,7 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.RestrictModifier;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.basic.BasicModule;
 
 /**
  * A GUI component for showing (and some day maybe even editing!) the
@@ -32,15 +33,15 @@ import fi.csc.microarray.exception.MicroarrayException;
  * could be used to annotate them (write some describing names and notes
  * for different genes).
  * 
- * @author Janne KÃ¤ki, Mikko Koski, Aleksi Kallio
+ * @author Janne Käki, Mikko Koski, Aleksi Kallio
  *
  */
 
 
 public class Spreadsheet extends Visualisation {
 	
-	public Spreadsheet(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}	
 
 	/**
@@ -101,6 +102,8 @@ public class Spreadsheet extends Visualisation {
 	public JComponent getVisualisation(DataBean data) throws Exception {
 		JPanel panel = new JPanel(new BorderLayout());				
 	
+		// FIXME handling for case when this is true: bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_HEADER)
+		
 		Table rowCounter = data.queryFeatures("/column/*").asTable();
 		int rowCount = 0;
 		while (rowCounter.nextRow()) {
@@ -218,16 +221,7 @@ public class Spreadsheet extends Visualisation {
 	
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-
-		if (bean.isContentTypeCompatitible("text/tab", "text/csv")) {
-			return true; // clearly tabular
-			
-		} else if (bean.isContentTypeCompatitible("application/cel")) {
-			return !bean.queryFeatures("/embedded-binary-content/").exists(); // might have embedded binary content
-			
-		} else {
-			return false;
-		}
+		return bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES) || bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
 	}
 	
 	@Override
