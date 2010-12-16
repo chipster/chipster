@@ -48,7 +48,12 @@ public class TaskImportDialog extends JDialog implements ActionListener {
 	/**
 	 * @param importSession if passed, then skipping import is supported.
 	 */
+
 	public TaskImportDialog(ClientApplication application, String title, ImportSession importSession, Operation importOperation) throws MicroarrayException {
+		this(application, title, importSession, importOperation, "Import", "Cancel", "Skip");
+	}
+	
+	public TaskImportDialog(ClientApplication application, String title, ImportSession importSession, Operation importOperation, String okButtonText, String cancelButtonText, String skipButtonText) throws MicroarrayException {
 		super(Session.getSession().getFrames().getMainFrame(), true);
 
 		this.application = application;
@@ -66,15 +71,15 @@ public class TaskImportDialog extends JDialog implements ActionListener {
 		folderNameCombo = new JComboBox(ImportUtils.getFolderNames(false).toArray());
 		folderNameCombo.setEditable(true);
 
-		okButton = new JButton("Import");
+		okButton = new JButton(okButtonText);
 		okButton.setPreferredSize(BUTTON_SIZE);
 		okButton.addActionListener(this);
 
-		skipButton = new JButton("Skip");
+		skipButton = new JButton(skipButtonText);
 		skipButton.setPreferredSize(BUTTON_SIZE);
 		skipButton.addActionListener(this);
 
-		cancelButton = new JButton("Cancel");
+		cancelButton = new JButton(cancelButtonText);
 		cancelButton.setPreferredSize(BUTTON_SIZE);
 		cancelButton.addActionListener(this);
 

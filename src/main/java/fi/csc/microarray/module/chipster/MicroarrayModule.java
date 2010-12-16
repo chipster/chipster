@@ -39,6 +39,7 @@ import fi.csc.microarray.client.visualisation.methods.HierarchicalClustering;
 import fi.csc.microarray.client.visualisation.methods.Histogram;
 import fi.csc.microarray.client.visualisation.methods.PhenodataEditor;
 import fi.csc.microarray.client.visualisation.methods.SOM;
+import fi.csc.microarray.client.visualisation.methods.SamBamViewer;
 import fi.csc.microarray.client.visualisation.methods.Scatterplot;
 import fi.csc.microarray.client.visualisation.methods.Scatterplot3DPCA;
 import fi.csc.microarray.client.visualisation.methods.VennDiagram;
@@ -94,6 +95,7 @@ public class MicroarrayModule implements Module {
 		public static VisualisationMethod CLUSTERED_PROFILES = new VisualisationMethod("Clustered profiles", ClusteredProfiles.class, VisualConstants.PROFILES_MENUICON, -1, 0.087);
 		public static VisualisationMethod VENN_DIAGRAM = new VisualisationMethod("Venn-diagram", VennDiagram.class, VisualConstants.VENN_MENUICON, 1, -1);
 		public static VisualisationMethod GBROWSER = new VisualisationMethod("Genome browser", GenomeBrowser.class, VisualConstants.SCATTER_MENUICON, 1, -1);
+		public static VisualisationMethod SAMBAM_VIEWER = new VisualisationMethod("BAM viewer", SamBamViewer.class, VisualConstants.TEXT_MENUICON, 1, -1);
 		public static VisualisationMethod PHENODATA = new VisualisationMethod("Phenodata editor", PhenodataEditor.class, VisualConstants.PHENODATA_MENUICON, 3, 0, "chipster-manual/visualisation-phenodata.html");
 	}
 	
@@ -210,7 +212,9 @@ public class MicroarrayModule implements Module {
 
 	@Override
 	public boolean isWorkflowCompatible(DataBean data) {
-		return ChipsterInputTypes.GENE_EXPRS.isTypeOf(data);
+		// TODO replace inclusive check with exclusive: check for raw expression data and other illegal types
+//		return ChipsterInputTypes.GENE_EXPRS.isTypeOf(data);
+		return true;
 	}
 
 	@Override
@@ -228,7 +232,8 @@ public class MicroarrayModule implements Module {
 				VisualisationMethods.EXPRESSION_PROFILE,
 				VisualisationMethods.CLUSTERED_PROFILES,
 				VisualisationMethods.VENN_DIAGRAM,
-				VisualisationMethods.GBROWSER
+				VisualisationMethods.GBROWSER,
+				VisualisationMethods.SAMBAM_VIEWER
 		};
 	}
 
