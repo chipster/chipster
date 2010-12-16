@@ -924,7 +924,10 @@ public class SwingClientApplication extends ClientApplication {
 		
 		// show dialog
 		DialogInfo dialogInfo = new DialogInfo(Severity.INFO, title, message, details);
-		dialogInfo.setFeedbackVisible(true);
+		if (!userFixable) {
+			dialogInfo.setFeedbackVisible(true);
+		}
+		
 		ChipsterDialog.showDialog(this, dialogInfo, detailsVisibility, false);
 	}
 
