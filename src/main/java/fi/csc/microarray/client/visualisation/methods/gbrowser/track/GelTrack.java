@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -23,6 +24,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
@@ -84,20 +87,30 @@ public class GelTrack extends Track {
                     continue;
                 }
 
-                // collect relevant data for this read
-                BpCoord startBp = read.region.start;
-                BpCoord endBp = read.region.end;
-                lastChromosome = read.region.start.chr;
-                
-                int seqLength = (int) (endBp.minus(startBp) + 1);
+    			// Split read into continuous blocks (elements) by using the cigar
+                List<ReadPart> elements = Cigar.splitVisibleElements(read);
+                for (ReadPart element : elements) {
 
-                for (Long i = read.region.start.bp; i <= (read.region.start.bp + seqLength); i++) {
-                    if (collector.containsKey(i)) {
-                        maxItems = Math.max(maxItems, collector.get(i) + 1);
-                        collector.put(i, collector.get(i) + 1);
-                    } else {
-                        collector.put(i, 1L);
-                    }
+                	// Skip elements that are not in this view
+                	if (!element.intercepts(getView().getBpRegion())) {
+                		continue;
+                	}
+
+                	// collect relevant data for this read
+                	BpCoord startBp = element.start;
+                	BpCoord endBp = element.end;
+                	lastChromosome = element.start.chr;
+
+                	int seqLength = (int) (endBp.minus(startBp) + 1);
+
+                	for (Long i = element.start.bp; i <= (element.start.bp + seqLength); i++) {
+                		if (collector.containsKey(i)) {
+                			maxItems = Math.max(maxItems, collector.get(i) + 1);
+                			collector.put(i, collector.get(i) + 1);
+                		} else {
+                			collector.put(i, 1L);
+                		}
+                	}
                 }
             }            
 

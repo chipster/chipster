@@ -63,8 +63,12 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 	@Override
 	public void fetchDescriptions(Module module) throws Exception {
         DescriptionMessageListener descriptionListener = new DescriptionMessageListener(module.getServerModuleName());
-		this.requestTopic.sendReplyableMessage(new CommandMessage(CommandMessage.COMMAND_DESCRIBE), descriptionListener);
-		descriptionListener.waitForResponse();
+		try {
+			this.requestTopic.sendReplyableMessage(new CommandMessage(CommandMessage.COMMAND_DESCRIBE), descriptionListener);
+			descriptionListener.waitForResponse();
+		} finally {
+			descriptionListener.cleanUp();
+		}
 		this.visibleCategories = descriptionListener.getVisibleCategories();
 		this.hiddenCategories = descriptionListener.getHiddenCategories();
 	}

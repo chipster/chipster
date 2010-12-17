@@ -13,7 +13,6 @@ import fi.csc.microarray.analyser.AnalysisException;
 import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
 import fi.csc.microarray.analyser.ResultCallback;
-import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 import fi.csc.microarray.util.Files;
@@ -45,7 +44,7 @@ public class ShellAnalysisHandler implements AnalysisHandler {
     public AnalysisJob createAnalysisJob(JobMessage jobMessage,
             AnalysisDescription description, ResultCallback resultCallback)
             throws AnalysisException {
-        ShellAnalysisJob analysisJob = new ShellAnalysisJob(description);
+        ShellAnalysisJob analysisJob = new ShellAnalysisJob();
         analysisJob.construct(jobMessage, description, resultCallback);
         return analysisJob;
     }
@@ -74,6 +73,7 @@ public class ShellAnalysisHandler implements AnalysisHandler {
             ad = new AnalysisDescriptionGenerator().generate(
                     new ChipsterSADLParser().parse(sadlString), this);
             ad.setSADL(sadlString);
+            ad.setSourceCode(sadlString);
             
             // Command to be executed is stored in configuration file
             ad.setCommand(params.get("executable"));
@@ -81,10 +81,8 @@ public class ShellAnalysisHandler implements AnalysisHandler {
             
             // Log success
             logger.info("successfully loaded shell analysis description " + descriptionFilename);
-        } catch (ParseException e) {
-            throw new AnalysisException(e);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new AnalysisException(e);
         }
         return ad;
     }

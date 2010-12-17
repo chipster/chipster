@@ -40,8 +40,8 @@ import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 public class VennDiagram extends Visualisation implements PropertyChangeListener, ActionListener {
 
-	public VennDiagram(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	private VenndiPlot plot;
@@ -322,7 +322,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 			commonCols.retainAll(colsC);
 		}
 							
-		Visualisation.fillCompoBox(colBox, commonCols.toArray());
+		Visualisation.fillComboBox(colBox, commonCols.toArray());
 	}
 	
 	@Override

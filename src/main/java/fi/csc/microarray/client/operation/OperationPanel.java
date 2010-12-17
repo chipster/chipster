@@ -580,8 +580,7 @@ public class OperationPanel extends JPanel
 		
 		// Check suitability of parameters and inputs
 		Suitability suitability = chosenOperation.evaluateSuitabilityFor(
-		        application.getSelectionManager().getSelectedDataBeans(),
-		        Suitability.SUITABLE);
+		        application.getSelectionManager().getSelectedDataBeans(), null);
 		
 		return suitability;
 	}

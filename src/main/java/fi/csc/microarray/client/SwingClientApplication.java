@@ -405,13 +405,13 @@ public class SwingClientApplication extends ClientApplication {
 	
 	public void updateWindowTitle() {
 		if (windowTitleBlockingPrefix != null) {
-			this.mainFrame.setTitle(windowTitleBlockingPrefix + ApplicationConstants.TITLE);
+			this.mainFrame.setTitle(windowTitleBlockingPrefix + Session.getSession().getPrimaryModule().getDisplayName() + " " + ApplicationConstants.VERSION);
 			
 		} else if (windowTitleJobPrefix != null) {
-			this.mainFrame.setTitle(windowTitleJobPrefix + ApplicationConstants.TITLE);
+			this.mainFrame.setTitle(windowTitleJobPrefix + Session.getSession().getPrimaryModule().getDisplayName() + " " +  ApplicationConstants.VERSION);
 			
 		} else {
-			this.mainFrame.setTitle(ApplicationConstants.TITLE);
+			this.mainFrame.setTitle(Session.getSession().getPrimaryModule().getDisplayName() + " " + ApplicationConstants.VERSION);
 		}
 
 	}
@@ -1238,7 +1238,8 @@ public class SwingClientApplication extends ClientApplication {
 
 			if (returnValue == 0) {
 				try {
-					saveSession();
+					saveSessionAndQuit();
+					return;
 				} catch (Exception exp) {
 					this.showErrorDialog("Session saving failed", exp);
 					return;
@@ -1249,6 +1250,11 @@ public class SwingClientApplication extends ClientApplication {
 				return;
 			}
 		}
+		
+		quitImmediately();
+	}
+	
+	public void quitImmediately() {
 
 		// hide immediately to look more reactive...
 		childScreens.disposeAll();
@@ -1609,7 +1615,7 @@ public class SwingClientApplication extends ClientApplication {
 				}
 			}
 		});
-		waitPanel.startWaiting("Please wait while " + taskName + "...");
+		waitPanel.startWaiting("<html>Please wait while " + taskName + "..." + "</html>");
 		updateWindowTitleBlockingState(taskName);
 		backgroundThread.start();
 	}
@@ -1624,8 +1630,7 @@ public class SwingClientApplication extends ClientApplication {
 	        // Mostly for microarray
 	        // TODO: consider refactoring so that url is stored in definition
 	        // and this "else" branch is not needed
-	        String urlBase = "https://extras.csc.fi/biosciences/";
-	        viewHelp(urlBase + HelpMapping.mapToHelppage(definition));
+	        viewHelp(HelpMapping.mapToHelppage(definition));
 	    }
 	}
 
@@ -1712,12 +1717,7 @@ public class SwingClientApplication extends ClientApplication {
 					 */
 					boolean somethingToSave = manager.databeans().size() != 0;
 					
-					final List<DataItem> newItems = manager.loadSnapshot(sessionFile, manager.getRootFolder(), application);
-					SwingUtilities.invokeAndWait(new Runnable() {
-						public void run() {
-							getSelectionManager().selectSingle(newItems.get(newItems.size() - 1), this); // select last
-						}
-					});
+					manager.loadSnapshot(sessionFile, manager.getRootFolder(), application);
 					
 					unsavedChanges = somethingToSave;
 				} catch (Exception e) {
@@ -1727,8 +1727,17 @@ public class SwingClientApplication extends ClientApplication {
 		});
 	}
 	
+	
 	@Override
 	public void saveSession() {
+		saveSession(false);
+	}
+
+	public void saveSessionAndQuit() {
+		saveSession(true);
+	}
+	
+	public void saveSession(final boolean quit) {
 
 		JFileChooser fileChooser = getSnapshotFileChooser(null);
 		int ret = fileChooser.showSaveDialog(this.getMainFrame());
@@ -1753,23 +1762,32 @@ public class SwingClientApplication extends ClientApplication {
 
 				}
 
+				// save
 				runBlockingTask("saving session", new Runnable() {
 
 					public void run() {
 
 						try {
+							// save
 							getDataManager().saveSnapshot(file, application);
-						} catch (IOException e) {
+
+							// quit
+							if (quit) {
+								quitImmediately();
+							}
+
+							menuBar.updateMenuStatus();
+							unsavedChanges = false;
+
+						
+						} catch (Exception e) {
 							throw new RuntimeException(e);
 						}
 					}
 				});
-				
-				menuBar.updateMenuStatus();
-				unsavedChanges = false;
-				
 			} catch (Exception exp) {
 				showErrorDialog("Saving session failed.", exp);
+				return;
 			}
 		}
 		menuBar.updateMenuStatus();

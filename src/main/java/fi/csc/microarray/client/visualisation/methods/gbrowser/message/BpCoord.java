@@ -25,7 +25,7 @@ public class BpCoord implements Comparable<BpCoord> {
 	}
 
 	public int compareTo(BpCoord o) {
-
+		
 		int chrComparison = chr.compareTo(o.chr);
 
 		if (chrComparison != 0) {

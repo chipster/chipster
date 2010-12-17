@@ -150,9 +150,11 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			importMenu = new JMenu();
 			importMenu.setText("Import from");
 			
-			Module primaryModule = Session.getSession().getPrimaryModule();
-			primaryModule.addImportMenuItems(importMenu);
-
+			if (!application.isStandalone) {
+				Module primaryModule = Session.getSession().getPrimaryModule();
+				primaryModule.addImportMenuItems(importMenu);
+			}
+				
 			importMenu.add(getImportFromURLMenuItem());
 			importMenu.add(getImportFromClipboardMenuItem());
 		}
@@ -416,6 +418,9 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			workflowsMenu.add(getOpenRepositoryWorkflowMenu());
 			workflowsMenu.addSeparator();
 			workflowsMenu.add(getSaveWorkflowMenuItem());
+			if (application.isStandalone) {
+				workflowsMenu.setEnabled(false);
+			}
 		}
 		return workflowsMenu;
 	}
@@ -594,7 +599,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 			contentMenuItem.setIcon(VisualConstants.HELP_MENUICON);
 			contentMenuItem.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					application.viewHelp("chipster-manual/index.html");
+					application.viewHelp(Session.getSession().getPrimaryModule().getManualHome());
 				}
 			});
 		}

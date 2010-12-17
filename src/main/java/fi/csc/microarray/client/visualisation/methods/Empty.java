@@ -1,9 +1,13 @@
 package fi.csc.microarray.client.visualisation.methods;
 
+import java.awt.Color;
+import java.awt.FlowLayout;
 import java.util.List;
 
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.databeans.DataBean;
@@ -15,18 +19,24 @@ import fi.csc.microarray.databeans.DataBean;
  */
 public class Empty extends Visualisation {
 	
-	public Empty(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	@Override
-	public JComponent getVisualisation(DataBean datas) {
-		return this.getDefaultVisualisation();		
+	public JComponent getVisualisation(DataBean bean) {
+		int selectedDataCount = bean != null ? 1 : 0;
+		return generateContextlinkPanel(selectedDataCount);		
+	}
+	
+	private boolean isDataLoaded() {
+		return !Session.getSession().getDataManager().databeans().isEmpty();
 	}
 	
 	@Override
 	public JComponent getVisualisation(List<DataBean> beans) {
-		return this.getDefaultVisualisation();		
+		int selectedDataCount = beans != null ? beans.size() : 0;
+		return generateContextlinkPanel(selectedDataCount);		
 	}
 
 	@Override
@@ -47,6 +57,24 @@ public class Empty extends Visualisation {
 	@Override
 	public boolean isForMultipleDatas(){
 		return true;
+	}
+	
+	private JComponent generateContextlinkPanel(int selectedDataCount) {
+		
+		if (!isDataLoaded()) {
+			return super.getDefaultVisualisation(); // show empty screen
+		}
+		
+		JPanel mainPanel = new JPanel();
+		mainPanel.setBackground(Color.WHITE);
+
+		JPanel linkPanel = Session.getSession().getPrimaryModule().getContextLinkPanel(selectedDataCount);
+		if (linkPanel != null) {
+			mainPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+			mainPanel.add(linkPanel);
+		}
+		
+		return mainPanel;
 	}
 
 }

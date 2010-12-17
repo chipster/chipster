@@ -1,4 +1,4 @@
-# ANALYSIS "aCGH tools"/"Cluster called aCGH data" (Perform clustering of aCGH arrays.)
+# ANALYSIS "aCGH"/"Cluster called aCGH data" (Perform clustering of aCGH arrays.)
 # INPUT GENERIC regions.tsv, GENERIC phenodata.tsv
 # OUTPUT wecca.png
 # PARAMETER type.of.calls [hard, soft] DEFAULT soft (Whether to cluster the arrays based on soft or hard calls. Hard calls are losses, normals, and gains, whereas soft calls refer to the respective probabilities of these calls. The preferred choice is to use soft calls whenever they are available.)

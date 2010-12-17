@@ -7,6 +7,8 @@ import fi.csc.microarray.client.operation.OperationDefinition;
 
 public class HelpMapping {
 
+    private static final String URL_BASE = "https://extras.csc.fi/biosciences/";
+
 	private static final String DEFAULT_HELP_PAGE = "chipster-manual/tools.html";
 	private static Map<String, String> mappings = new HashMap<String, String>();
 
@@ -40,7 +42,8 @@ public class HelpMapping {
 		mappings.put("Normalisation/Agilent 2-color", "chipster-manual/norm-agilent.html");
 		mappings.put("Normalisation/cDNA", "chipster-manual/norm-cdna.html");
 		mappings.put("Normalisation/Illumina", "chipster-manual/norm-illumina.html");
-		mappings.put("Normalisation/Illumina - lumi pipeline", "chipster-manual/norm-illumina-lumi.html"); 
+		mappings.put("Normalisation/Illumina - lumi pipeline", "chipster-manual/norm-illumina-lumi.html");
+		mappings.put("Normalisation/Illumina - lumi pipeline AAI", "chipster-manual/norm-illumina-lumi-AAI.html");
 		mappings.put("Normalisation/Random effects", "chipster-manual/norm-lme.html");
 		mappings.put("Normalisation/Normalize to chip average", "chipster-manual/norm-chip-average.html");
 		mappings.put("Normalisation/Normalize to gene average", "chipster-manual/norm-gene-average.html");
@@ -114,6 +117,8 @@ public class HelpMapping {
 		mappings.put("Utilities/Export GEO's SOFT format", "chipster-manual/export-soft.html");
 		mappings.put("Utilities/Export tab2mage format", "chipster-manual/export-tab2mage.html");
 		mappings.put("Utilities/Extract genes from clustering", "chipster-manual/extract-genes-from-clustering.html");
+		mappings.put("Utilities/Extract genes from GO term", "chipster-manual/extract-genes-from-go.html");
+		mappings.put("Utilities/Extract genes from KEGG pathway", "chipster-manual/extract-genes-from-kegg.html");
 		mappings.put("Utilities/Extract genes using a p-value", "chipster-manual/extract-genes-from-stattest.html");
 		mappings.put("Utilities/Extract samples from dataset", "chipster-manual/extract-samples-from-dataset.html");
 		mappings.put("Utilities/Average replicate chips", "chipster-manual/average-replicates.html");
@@ -135,23 +140,23 @@ public class HelpMapping {
 		mappings.put("Utilities/Random sampling", "chipster-manual/random-sampling.html"); 
 		mappings.put("Utilities/Intersect lists", "chipster-manual/intersect-lists.html"); 
 
-		mappings.put("aCGH tools/Import from CanGEM", "chipster-manual/import-from-cangem.html");
-		mappings.put("aCGH tools/Smooth waves from normalized aCGH data", "chipster-manual/smooth-acgh.html");
-		mappings.put("aCGH tools/Call copy number aberrations from aCGH data", "chipster-manual/detect-copy-number-aberrations.html");
-		mappings.put("aCGH tools/Plot copy number profiles from called aCGH data", "chipster-manual/plot-cgh-profile.html");
-		mappings.put("aCGH tools/Identify common regions from called aCGH data", "chipster-manual/detect-common-copy-number-aberration-regions.html");
-		mappings.put("aCGH tools/Cluster called aCGH data", "chipster-manual/cluster-acgh.html");
-		mappings.put("aCGH tools/Group tests for called aCGH data", "chipster-manual/stat-acgh.html");
-		mappings.put("aCGH tools/Convert called aCGH data from probes to genes", "chipster-manual/convert-cn-probes-to-genes.html");
-		mappings.put("aCGH tools/GO enrichment for copy number aberrations", "chipster-manual/pathways-acgh-hyperg-go.html");
-		mappings.put("aCGH tools/Match copy number and expression probes", "chipster-manual/match-cn-and-expression-probes.html");
-		mappings.put("aCGH tools/Plot profiles of matched copy number and expression", "chipster-manual/plot-cn-induced-expression-profile.html");
-		mappings.put("aCGH tools/Test for copy-number-induced expression changes", "chipster-manual/test-for-cn-induced-differential-expression.html");
-		mappings.put("aCGH tools/Plot copy-number-induced gene expression", "chipster-manual/plot-cn-induced-gene-expression.html");
-		mappings.put("aCGH tools/Fetch probe positions from CanGEM", "chipster-manual/fetch-probe-positions-from-cangem.html");
-		mappings.put("aCGH tools/Add cytogenetic bands", "chipster-manual/add-cytobands.html");
-		mappings.put("aCGH tools/Count overlapping CNVs", "chipster-manual/count-overlapping-cnvs.html");
-		mappings.put("aCGH tools/Update aberration frequencies for called aCGH data", "chipster-manual/calculate-aberration-frequencies.html");
+		mappings.put("aCGH/Import from CanGEM", "chipster-manual/import-from-cangem.html");
+		mappings.put("aCGH/Smooth waves from normalized aCGH data", "chipster-manual/smooth-acgh.html");
+		mappings.put("aCGH/Call copy number aberrations from aCGH data", "chipster-manual/detect-copy-number-aberrations.html");
+		mappings.put("aCGH/Plot copy number profiles from called aCGH data", "chipster-manual/plot-cgh-profile.html");
+		mappings.put("aCGH/Identify common regions from called aCGH data", "chipster-manual/detect-common-copy-number-aberration-regions.html");
+		mappings.put("aCGH/Cluster called aCGH data", "chipster-manual/cluster-acgh.html");
+		mappings.put("aCGH/Group tests for called aCGH data", "chipster-manual/stat-acgh.html");
+		mappings.put("aCGH/Convert called aCGH data from probes to genes", "chipster-manual/convert-cn-probes-to-genes.html");
+		mappings.put("aCGH/GO enrichment for called aCGH genes", "chipster-manual/pathways-acgh-hyperg-go.html");
+		mappings.put("aCGH/Match copy number and expression probes", "chipster-manual/match-cn-and-expression-probes.html");
+		mappings.put("aCGH/Plot profiles of matched copy number and expression", "chipster-manual/plot-cn-induced-expression-profile.html");
+		mappings.put("aCGH/Test for copy-number-induced expression changes", "chipster-manual/test-for-cn-induced-differential-expression.html");
+		mappings.put("aCGH/Plot copy-number-induced gene expression", "chipster-manual/plot-cn-induced-gene-expression.html");
+		mappings.put("aCGH/Fetch probe positions from CanGEM", "chipster-manual/fetch-probe-positions-from-cangem.html");
+		mappings.put("aCGH/Add cytogenetic bands", "chipster-manual/add-cytobands.html");
+		mappings.put("aCGH/Count overlapping CNVs", "chipster-manual/count-overlapping-cnvs.html");
+		mappings.put("aCGH/Update aberration frequencies for called aCGH data", "chipster-manual/calculate-aberration-frequencies.html");
 		
 		
 		mappings.put("Miscellaneous/Multiple sequence alignment", "chipster-manual/seqanal-msa.html");
@@ -159,10 +164,25 @@ public class HelpMapping {
 	}
 
 	public static String mapToHelppage(OperationDefinition definition) {
-		String page = mappings.get(definition.getCategory().getName() + "/" + definition.getDisplayName());
-		if (page == null) {
-			page = DEFAULT_HELP_PAGE;
+		
+		// blast
+		if ("BLAST".equals(definition.getCategory().getName())) {
+			return "http://www.csc.fi/english/research/sciences/bioscience/programs/blast/index_html"; 
 		}
-		return page;
+		
+		// mafft
+		else if ("Alignment:Multiple".equals(definition.getCategory().getName()) && definition.getID().startsWith("mafft")) {
+			return "http://mafft.cbrc.jp/alignment/software/algorithms/algorithms.html";
+
+		}
+		
+		// others
+		else {
+			String page = mappings.get(definition.getCategory().getName() + "/" + definition.getDisplayName());
+			if (page == null) {
+				page = DEFAULT_HELP_PAGE;
+			}
+			return URL_BASE + page;
+		}
 	}
 }

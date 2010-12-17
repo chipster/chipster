@@ -34,7 +34,7 @@ public abstract class Visualisation {
 
 	public abstract boolean canVisualise(DataBean bean) throws MicroarrayException;
 
-	public Visualisation(VisualisationFrame frame) {
+	public void initialise(VisualisationFrame frame) throws Exception {
 		this.frame = frame;
 	}
 
@@ -58,10 +58,11 @@ public abstract class Visualisation {
 	protected JComponent getDefaultVisualisation() {
 		JPanel panel = new JPanel();
 		panel.setBackground(Color.WHITE);
+		
 		return panel;
 	}
 
-	public static void fillCompoBox(JComboBox box, Object[] content) {
+	public static void fillComboBox(JComboBox box, Object[] content) {
 		box.removeAllItems();
 		for (Object o : content) {
 			box.addItem(o);

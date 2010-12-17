@@ -1,9 +1,13 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
@@ -23,6 +27,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  *
  */
 public class BEDParser extends TsvParser {
+
+	private static final String BED_HEADER_STRING = "track";
 
 	public BEDParser() {
 		super(new FileDefinition(Arrays.asList(
@@ -54,13 +60,18 @@ public class BEDParser extends TsvParser {
 
 	@Override
 	public Object get(String[] cols, ColumnType col) {
-
 		Object obj = super.get(cols, col);
-
-		if (col == ColumnType.CHROMOSOME) {
-			return new Chromosome(((Chromosome) obj).toString().replace(".fa", ""));
-		}
-		
 		return obj;
+	}
+	
+	@Override
+	public long getHeaderLength(File file) throws IOException {
+		BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+		String firstLine = in.readLine();
+		if (firstLine != null && firstLine.startsWith(BED_HEADER_STRING)) {
+			return firstLine.length();
+		} else {
+			return 0;
+		}
 	}
 }

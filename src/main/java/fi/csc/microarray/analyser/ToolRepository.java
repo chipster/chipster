@@ -56,6 +56,7 @@ public class ToolRepository {
 	 */
 	public ToolRepository(File workDir) throws Exception {
 		loadRuntimes(workDir);
+		loadModuleDescriptions();
 	}
 	
 	public synchronized AnalysisDescription getDescription(String id) throws AnalysisException {
@@ -131,7 +132,7 @@ public class ToolRepository {
 
 
 		for (Element runtimeElement: XmlUtil.getChildElements(runtimesElement, "runtime")) {
-			String runtimeName = XmlUtil.getChildElement(runtimeElement, "name").getTextContent();
+			String runtimeName = XmlUtil.getChildElement(runtimeElement, "name").getTextContent().trim();
 			logger.info("loading runtime " + runtimeName);
 			if (runtimes.containsKey(runtimeName)) {
 				logger.warn("runtime with the same name " + runtimeName + " already loaded, keeping the first one");
@@ -146,7 +147,7 @@ public class ToolRepository {
 			
 			// handler
 			Element handlerElement = XmlUtil.getChildElement(runtimeElement, "handler");
-			String handlerClassName = XmlUtil.getChildElement(handlerElement, "class").getTextContent();
+			String handlerClassName = XmlUtil.getChildElement(handlerElement, "class").getTextContent().trim();
 
 			// parameters to handler
 			HashMap<String, String> parameters = new HashMap<String, String>();
@@ -156,8 +157,8 @@ public class ToolRepository {
 
 			// parameters from config
 			for (Element parameterElement: XmlUtil.getChildElements(handlerElement, "parameter")) {
-				String paramName = XmlUtil.getChildElement(parameterElement, "name").getTextContent();
-				String paramValue = XmlUtil.getChildElement(parameterElement, "value").getTextContent(); 
+				String paramName = XmlUtil.getChildElement(parameterElement, "name").getTextContent().trim();
+				String paramValue = XmlUtil.getChildElement(parameterElement, "value").getTextContent().trim(); 
 				parameters.put(paramName, paramValue);
 			}
 
@@ -185,7 +186,6 @@ public class ToolRepository {
 	 */
 	public List<ModuleDescriptionMessage> getModuleDescriptions()
 	        throws ParserConfigurationException, SAXException, IOException {
-        loadModuleDescriptions();
 	    return modules;
 	}
 
@@ -197,7 +197,7 @@ public class ToolRepository {
 	 * @throws SAXException
 	 * @throws ParserConfigurationException
 	 */
-	public void loadModuleDescriptions()
+	private void loadModuleDescriptions()
 	       throws IOException, SAXException, ParserConfigurationException {
 		logger.info("loading modules");
 		
@@ -295,7 +295,7 @@ public class ToolRepository {
 		    		logger.warn("not loading a tool without resource element");
 		    		continue;
 		    	}
-		    	String resourceName = resourceElement.getTextContent();
+		    	String resourceName = resourceElement.getTextContent().trim();
 		    	if (resourceName == null || resourceName.isEmpty()) {
 		    		logger.warn("not loading a tool with empty resource name");
 		    		continue;
@@ -318,14 +318,14 @@ public class ToolRepository {
 		    	boolean parametersOk = true;
 		    	HashMap<String, String> parameters = new HashMap<String, String>();
 		    	for (Element parameterElement : XmlUtil.getChildElements(toolElement, "parameter")) {
-		    		String parameterName = XmlUtil.getChildElement(parameterElement, "name").getTextContent();
+		    		String parameterName = XmlUtil.getChildElement(parameterElement, "name").getTextContent().trim();
 		    		if (parameterName == null || parameterName.isEmpty()) {
 		    			logger.warn("parameter without a name");
 		    			parametersOk = false;
 		    			break;
 		    		}
 
-		    		String parameterValue = XmlUtil.getChildElement(parameterElement, "value").getTextContent();
+		    		String parameterValue = XmlUtil.getChildElement(parameterElement, "value").getTextContent().trim();
 		    		if (parameterValue == null) {
 		    			logger.warn("parameter without a value");
 		    			parametersOk = false;

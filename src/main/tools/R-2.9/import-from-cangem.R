@@ -1,4 +1,4 @@
-# ANALYSIS "aCGH tools"/"Import from CanGEM" (Load a microarray data set from the CanGEM database, perform background-correction and normalization, and append chromosomal locations of the microarray probes.)
+# ANALYSIS "aCGH"/"Import from CanGEM" (Load a microarray data set from the CanGEM database, perform background-correction and normalization, and append chromosomal locations of the microarray probes.)
 # OUTPUT normalized.tsv, phenodata.tsv
 # PARAMETER accession STRING DEFAULT CG- (Accession of either a data set, an experiment, a series, or single microarray results.)
 # PARAMETER username STRING DEFAULT empty (Username, in case the data is password-protected. WARNING: This will store your username/password in the Chipster history files. To avoid this, use the session parameter.)

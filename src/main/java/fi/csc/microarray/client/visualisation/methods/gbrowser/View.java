@@ -36,8 +36,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRe
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ProfileSNPTrack;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.ProfileTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CoverageAndSNPTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CoverageTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.QualityCoverageTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
@@ -63,7 +63,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	private static final int FPS = 30;
 
-	private boolean movable;
+	protected boolean movable;
 	protected boolean zoomable;
 
 	protected final float ZOOM_FACTOR = 1.06f;
@@ -165,8 +165,11 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 		Rectangle viewClip = g.getClipBounds();
 		viewArea = viewClip;
-
-		if (drawBuffer == null) {
+		
+		if (drawBuffer == null || 
+				drawBuffer.getWidth() != viewArea.getWidth() || 
+				drawBuffer.getHeight() != viewArea.getHeight()) {
+			
 			drawBuffer = new BufferedImage((int) viewArea.getWidth(),
 			        (int) viewArea.getHeight(), BufferedImage.TYPE_INT_RGB);
 
@@ -224,8 +227,8 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
                     // currently only used for tracks that contain information
                     // about reads
                     if (expandDrawables && 
-                    		(track instanceof ProfileTrack ||
-                    		track instanceof ProfileSNPTrack ||
+                    		(track instanceof CoverageTrack ||
+                    		track instanceof CoverageAndSNPTrack ||
                     		track instanceof QualityCoverageTrack)) {
                     	
                         if (parentPlot.getReadScale() == ReadScale.AUTO) {
@@ -463,6 +466,8 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	public void mousePressed(MouseEvent e) {
 
+		parentPlot.chartPanel.requestFocusInWindow();
+		
 		stopAnimation();
 		dragStartPoint = scale(e.getPoint());
 		dragStarted = false;
@@ -535,6 +540,10 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	public void mouseWheelMoved(final MouseWheelEvent e) {
 
+		zoomAnimation((int) scale(e.getPoint()).getX(), e.getWheelRotation());
+	}
+	
+	public void zoomAnimation(final int centerX, final int wheelRotation) {
 		stopAnimation();
 
 		timer = new Timer(1000 / FPS, new ActionListener() {
@@ -550,18 +559,18 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 				boolean skipFrame = (i < (ANIMATION_FRAMES - 1)) && System.currentTimeMillis() > startTime + (1000 / FPS) * i;
 
 				if (i < ANIMATION_FRAMES) {
-					zoom((int) scale(e.getPoint()).getX(), e.getWheelRotation(), skipFrame);
+					zoom(centerX, wheelRotation, skipFrame);
 					i++;
-					
+
 				} else {
 					stopAnimation();
 				}
 			}
 		});
-		
+
 		timer.setRepeats(true);
 		timer.setCoalesce(false);
-		timer.start();
+		timer.start();	
 	}
 
 	private void stopAnimation() {
@@ -571,7 +580,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		}
 	}
 
-	private void zoom(int lockedX, int wheelRotation, boolean disableDrawing) {
+	protected void zoom(int lockedX, int wheelRotation, boolean disableDrawing) {
 
 		// not all views are zoomed (e.g., the overview with cytoband) 
 		if (zoomable) {

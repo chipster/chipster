@@ -7,9 +7,7 @@ import java.io.IOException;
 import fi.csc.chipster.tools.gbrowser.TsvSorter;
 import fi.csc.microarray.analyser.AnalysisDescription.InputDescription;
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileDefinition;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvParser;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.util.IOUtils;
@@ -49,10 +47,10 @@ public class PreprocessNGSSingle extends JavaAnalysisJobBase {
 		updateState(JobState.RUNNING, "Sorting file");
 		
 		// get the file format and definitions
-		FileDefinition def = null;
+		TsvParser parser = null;
 		for (int i = 0; i < parsers.length; i++) {
 			if (parsers[i].getName().equals(inputMessage.getParameters().get(0))) {
-				def = parsers[i].getFileDefinition();
+				parser = parsers[i];
 			}
 		}		
 
@@ -65,8 +63,7 @@ public class PreprocessNGSSingle extends JavaAnalysisJobBase {
 			
 			// run sorter
 			try {
-				new TsvSorter().sort(inputFile, outputFile, 
-						def.indexOf(ColumnType.CHROMOSOME), def.indexOf(ColumnType.BP_START));
+				new TsvSorter().sort(inputFile, outputFile, parser);
 			} catch (Exception e) {
 				updateState(JobState.FAILED, e.getMessage());
 				return;

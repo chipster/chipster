@@ -1,11 +1,13 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -26,11 +28,6 @@ public class HeaderTsvParser extends TsvParser {
 
 	public HeaderTsvParser(FileDefinition fileDefinition) {
 		super(fileDefinition);
-	}
-
-	@Override
-	public String[] getFirstRow(Chunk chunk) {
-		return super.getFirstRow(filterChunk(chunk));
 	}
 
 	@Override
@@ -61,31 +58,9 @@ public class HeaderTsvParser extends TsvParser {
 	}
 	
 	@Override
-	public List<RegionContent> getAll(Chunk chunk, Collection<ColumnType> requestedContents) {
-		return super.getAll(filterChunk(chunk), requestedContents);
-	}
-
-	@Override
-	public BpCoordRegion getBpRegion(Chunk chunk) {
-		return super.getBpRegion(filterChunk(chunk));
-	};
-	
-	@Override
-	public String[] getLastRow(Chunk chunk) {
-		return super.getLastRow(filterChunk(chunk));
-	};
-	
-	
-	private Chunk filterChunk(Chunk chunk) {
-		String filtered = "";
-		for (String row : chunk.getContent().split("\n")) {
-			if (!row.startsWith("chr\tstart")) {
-				filtered += (row + "\n");
-			}
-		}
-		
-		Chunk newChunk = chunk.clone();
-		newChunk.setContent(filtered);
-		return newChunk;
+	public long getHeaderLength(File file) throws IOException {
+		BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+		String firstLine = in.readLine();
+		return (firstLine + "\n").length();
 	}
 }

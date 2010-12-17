@@ -13,6 +13,7 @@
 	<tool runtime="R-2.9">norm-illumina.R</tool>
 	<tool runtime="R-2.9">norm-illumina-r210.R</tool>
 	<tool runtime="R-2.9">norm-illumina-lumi.R</tool>
+	<tool runtime="R-2.9">norm-illumina-lumi-AAI.R</tool>
 	<tool runtime="R-2.9">norm-lme.R</tool>
 	<tool runtime="R-2.9">norm-illumina-SNP.R</tool>
 	<tool runtime="R-2.9">norm-prenormalized.R</tool>
@@ -113,6 +114,7 @@
 	<tool runtime="R-2.9">merge-datasets.R</tool>
 	<tool runtime="R-2.9">extract-genes-from-clustering.R</tool>
 	<tool runtime="R-2.9">extract-genes-from-go.R</tool>
+	<tool runtime="R-2.9">extract-genes-from-kegg.R</tool>
 	<tool runtime="R-2.9">extract-samples-from-dataset.R</tool>
 	<tool runtime="R-2.9">extract-genes-from-stattest.R</tool>
 	<tool runtime="R-2.9">extract-genes.R</tool>

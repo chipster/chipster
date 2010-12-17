@@ -13,6 +13,10 @@
 
 # Hierarchical clustering, permutation testing 
 # JTT 22.6.2006
+#
+# MG 25.11.2010
+# Increased the gene/sample limit to 20000
+
 
 # Renaming variables
 margin<-cluster
@@ -39,6 +43,11 @@ dat<-read.table(file, header=T, sep="\t", row.names=1)
 # Separates expression values and flags
 calls<-dat[,grep("flag", names(dat))]
 dat2<-dat[,grep("chip", names(dat))]
+
+# Check that resampling is not applied to dataset larger than 1000 genes
+if (resampling == "bootstrap" && nrow(dat)>1000) {
+	stop("CHIPSTER-NOTE: Bootstrap resampling on datasets larger than 1000 genes is not possible due to computing time limitations. Please note that you can run hierarchical clustering on datasets including up to 20000 genes, provided the resampling option is turned off.")
+}
 
 # Takes a sample of the data
 # PARAMETER do.sample [25, 50, 75, 100, 125, 150, 175, 200, all] DEFAULT 100 (If the data is large, should the image be generated from a specified number of random genes)
@@ -78,8 +87,8 @@ if(margin=="chips") {
    dat2<-t(dat2)        
 }
 
-if (nrow(dat2) > 1000) {
-  stop("Hierarchical clustering can be run on maximum 1000 of genes/samples");
+if (nrow(dat2) > 20000) {
+  stop("Hierarchical clustering can be run on maximum 20000 of genes/samples");
 }
 
 # Tree calculation, no resampling
