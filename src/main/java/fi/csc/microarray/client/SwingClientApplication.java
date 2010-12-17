@@ -894,10 +894,13 @@ public class SwingClientApplication extends ClientApplication {
 		String title;
 		String message;
 		
+		//
+		boolean userFixable = task.getState() == State.FAILED_USER_ERROR && task.getErrorMessage() != null && !task.getErrorMessage().equals("");
+		
 		// user-friendly message
-		if (task.getState() == State.FAILED_USER_ERROR && task.getErrorMessage() != null && !task.getErrorMessage().equals("")) {
+		if (userFixable) {
 			title = task.getErrorMessage();
-			message = task.getNamePrettyPrinted() + " did not complete successfully. ";
+			message = task.getNamePrettyPrinted() + " was stopped. ";
 		} 
 		
 		// generic message
@@ -917,10 +920,15 @@ public class SwingClientApplication extends ClientApplication {
 			details += task.getScreenOutput();
 		}
 		
+		DetailsVisibility detailsVisibility = userFixable ? DetailsVisibility.DETAILS_ALWAYS_HIDDEN : DetailsVisibility.DETAILS_HIDDEN;
+		
 		// show dialog
 		DialogInfo dialogInfo = new DialogInfo(Severity.INFO, title, message, details);
-		dialogInfo.setFeedbackVisible(true);
-		ChipsterDialog.showDialog(this, dialogInfo, ChipsterDialog.DetailsVisibility.DETAILS_HIDDEN, false);
+		if (!userFixable) {
+			dialogInfo.setFeedbackVisible(true);
+		}
+		
+		ChipsterDialog.showDialog(this, dialogInfo, detailsVisibility, false);
 	}
 
 	public void reportException(Exception e) {

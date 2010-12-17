@@ -29,7 +29,7 @@
 
 	    <!-- The transport connectors ActiveMQ will listen to -->
 	    <transportConnectors>
-		    <transportConnector name="openwire" uri="tcp://localhost:61616" />  
+		    <transportConnector name="openwire" uri="tcp://0.0.0.0:61616" />  
     	</transportConnectors>
 
     	<plugins>
@@ -55,7 +55,6 @@
                				<authorizationEntry topic="feedback-topic" write="clients" read="managers" admin="all" />
                				<authorizationEntry admin="all" read="all" topic="admin-topic" write="all"/>
                				<authorizationEntry admin="all" read="all" topic="test-topic" write="all"/>
-               				<authorizationEntry admin="all" read="all" topic="ActiveMQ.Advisory.&gt;" write="all"/>
              			</authorizationEntries>
            			</authorizationMap>
          		</map>

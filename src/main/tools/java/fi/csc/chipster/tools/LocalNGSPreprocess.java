@@ -61,9 +61,13 @@ public class LocalNGSPreprocess implements Runnable {
 			}
 		}
 		
-		return 	"TOOL \"Preprocess\" / LocalNGSPreprocess.java: \"NGS Preprocess\" (Sort primarily using chromosome and secondarily using start " +
-				"location of the feature. File format is used to find columns containing " +
-				"chromosome and start location. )" + "\n" +
+		String description = "Chipster Viewer is able to show BAM and BED files. BAM files need to be " + 
+		"sorted and indexed, and the Viewer can perform this preprocessing for you.\n\n " +
+		"Please note that preprocessing BAM files can take several minutes depending " +
+		"on the file size. Also BED files need to be preprocessed prior to viewing, " +
+		"but this is very quick.";
+		
+		return 	"TOOL \"Preprocess\" / LocalNGSPreprocess.java: \"NGS Preprocess\" (" + description + ")" + "\n" +
 				"INPUT input{...}.txt: \"Input NGS data\" TYPE GENERIC" + "\n" +
 				"OUTPUT ngs-preprocess.txt: \"Preprocessed NGS data\"" + "\n" +
 				"OUTPUT phenodata.tsv: \"Phenodata\"";

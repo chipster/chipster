@@ -137,7 +137,7 @@ public class ChipsterDialog extends JDialog {
 		
         g.gridx++;
 		if (dialogInfo.getFeedbackVisible()) {
-		    JButton feedbackButton = new JButton("Send a report");
+		    JButton feedbackButton = new JButton("Send feedback");
 		    feedbackButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     FeedbackDialog feedback = new FeedbackDialog(application);
