@@ -1,7 +1,5 @@
 package fi.csc.microarray.client.visualisation.methods;
 
-import java.awt.Font;
-
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
@@ -23,9 +21,7 @@ public class SamBamViewer extends Visualisation {
 	@Override
 	public JComponent getVisualisation(DataBean data) throws Exception {
 		String txt = new SamBamUtils().printSamBam(data.getContentByteStream(), MAX_RECORD_LIMIT);
-		JTextPane txtPane = new JTextPane();
-		txtPane.setFont(Font.decode("Monospaced"));
-		txtPane.setText(new String(txt));
+		JTextPane txtPane = TextViewer.makeTxtPane(txt);
 		return new JScrollPane(txtPane);
 	}
 
@@ -33,7 +29,4 @@ public class SamBamViewer extends Visualisation {
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
 		return bean.getName().endsWith(".bam") || bean.getName().endsWith(".sam"); 
 	}
-	
-	
-
 }

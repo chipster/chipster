@@ -24,9 +24,7 @@ public class TextViewer extends Visualisation {
 		byte[] txt = data.getContents(CONTENT_SIZE_LIMIT);
 
 		if (txt != null) {
-			JTextPane txtPane = new JTextPane();
-			txtPane.setFont(Font.decode("Monospaced"));
-			txtPane.setText(new String(txt));
+			JTextPane txtPane = makeTxtPane(new String(txt));
 			return new JScrollPane(txtPane);
 		}
 		return this.getDefaultVisualisation();
@@ -36,5 +34,12 @@ public class TextViewer extends Visualisation {
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
 		return bean.isContentTypeCompatitible("text/plain", "chemical/x-fasta", "text/wig", "text/bed");
 	}
-
+	
+	public static JTextPane makeTxtPane(String txt) {
+		JTextPane txtPane = new JTextPane();
+		txtPane.setFont(Font.decode("Monospaced"));
+		txtPane.setText(txt);
+		txtPane.setEditable(false);
+		return txtPane;
+	}
 }
