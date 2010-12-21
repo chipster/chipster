@@ -18,7 +18,7 @@ public class TextDrawable extends Drawable {
 	}
     
     @Override
-    public int getMinY() {
+    public int getMaxY() {
         return y - TEXT_HEIGHT;
     }
 }

@@ -98,13 +98,11 @@ public class TranscriptTrack extends Track {
 					occupiedSpace.add(end);
 				}
 
-				rect.y = (int) (getView().getTrackHeight() - ((i + 1) * (14)));
+				rect.y = (int) (((i + 1) * (14)));
 				int y = rect.y + 2;
 				rect.height = 2;
-
-				rect.y += 1;
+				
 				drawables.add(new LineDrawable(x, y, x2, y, Color.darkGray));
-				rect.y -= 1;
 
 				rect.height = 4;
 
@@ -199,7 +197,7 @@ public class TranscriptTrack extends Track {
 			occupiedSpace.add(end);
 		}
 
-		rect.y = (int) (getView().getTrackHeight() - ((i + 1) * (height + 2)));
+		rect.y = (int) ((i + 1) * (height + 2));
 		rect.height = height;
 
 		return new RectDrawable(rect, c, null);

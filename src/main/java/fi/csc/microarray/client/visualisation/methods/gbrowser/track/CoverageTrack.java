@@ -109,7 +109,7 @@ public class CoverageTrack extends Track {
         int bpWidth = (int) (getView().getWidth() / getView().getBpRegion().getLength());
         
         // maximum y coordinate
-        int maxY = this.getHeight() - 1;
+        int baselineY = 0;
 
         // prepare lines that make up the profile for drawing
         Iterator<Long> bpLocations = collector.keySet().iterator();
@@ -119,10 +119,10 @@ public class CoverageTrack extends Track {
             // draw a line from the beginning of the graph to the first location
             int startX = getView().bpToTrack(new BpCoord(lastBpLocation, lastChromosome));
             long startY = collector.get(lastBpLocation);
-            drawables.add(new LineDrawable(0, maxY,
-                    (int)(startX - bpWidth), maxY, color));
-            drawables.add(new LineDrawable((int)(startX - bpWidth), maxY,
-                    startX, (int)(maxY - startY), color));
+            drawables.add(new LineDrawable(0, baselineY,
+                    (int)(startX - bpWidth), baselineY, color));
+            drawables.add(new LineDrawable((int)(startX - bpWidth), baselineY,
+                    startX, (int)(baselineY + startY), color));
 
             // draw lines for each bp region that has some items
             while (bpLocations.hasNext()) {
@@ -139,16 +139,16 @@ public class CoverageTrack extends Track {
                 
                 if (currentBpLocation - lastBpLocation == 1) {
                     // join adjacent bp locations with a line
-                    drawables.add(new LineDrawable(startX, (int)(maxY - startY),
-                            endX, (int)(maxY - endY), color));
+                    drawables.add(new LineDrawable(startX, (int)(baselineY + startY),
+                            endX, (int)(baselineY + endY), color));
                 } else {
                     // join locations that are more than one bp apart
-                    drawables.add(new LineDrawable((int)startX, (int)(maxY - startY),
-                            (int)(startX + bpWidth), maxY, color));
-                    drawables.add(new LineDrawable((int)(startX + bpWidth), maxY,
-                            (int)(endX - bpWidth), maxY, color));
-                    drawables.add(new LineDrawable((int)(endX - bpWidth), maxY,
-                            (int)endX, (int)(maxY - endY), color));
+                    drawables.add(new LineDrawable((int)startX, (int)(baselineY + startY),
+                            (int)(startX + bpWidth), baselineY, color));
+                    drawables.add(new LineDrawable((int)(startX + bpWidth), baselineY,
+                            (int)(endX - bpWidth), baselineY, color));
+                    drawables.add(new LineDrawable((int)(endX - bpWidth), baselineY,
+                            (int)endX, (int)(baselineY + endY), color));
                 }
                 
                 lastBpLocation = currentBpLocation;
@@ -157,10 +157,10 @@ public class CoverageTrack extends Track {
             // draw a line from the last location to the end of the graph
             int endX = getView().bpToTrack(new BpCoord(lastBpLocation, lastChromosome));
             long endY = collector.get(lastBpLocation);
-            drawables.add(new LineDrawable(endX, (int)(maxY - endY),
-                    (int)(endX + bpWidth), maxY, color));
-            drawables.add(new LineDrawable((int)(endX + bpWidth), maxY,
-                    getView().getWidth(), maxY, color));
+            drawables.add(new LineDrawable(endX, (int)(baselineY + endY),
+                    (int)(endX + bpWidth), baselineY, color));
+            drawables.add(new LineDrawable((int)(endX + bpWidth), baselineY,
+                    getView().getWidth(), baselineY, color));
         }
         
         collector.clear();
@@ -201,7 +201,8 @@ public class CoverageTrack extends Track {
     @Override
     public Integer getHeight() {
         if (isVisible()) {
-            return super.getHeight();
+            // return super.getHeight();
+        	return 100;
         } else {
             return 0;
         }
@@ -209,8 +210,10 @@ public class CoverageTrack extends Track {
     
     @Override
     public boolean isStretchable() {
+    	
+    	return false;
         // stretchable unless hidden
-        return isVisible();
+        // return isVisible();
     }
     
     @Override

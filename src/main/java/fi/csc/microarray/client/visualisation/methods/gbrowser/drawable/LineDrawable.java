@@ -25,18 +25,15 @@ public class LineDrawable extends Drawable {
 	}
 
     @Override
-    public int getMinY() {
+    public int getMaxY() {
         return Math.min(y, y2);
     }
     
     @Override
     public void expand(TrackContext context) {
-        // firstly coordinates are converted from user coordinate space to
-        // euclidian space, then multiplied by expansion ratio and converted back
+
         int maxY = context.trackHeight-1;
-        this.y = Math.max(maxY - Math.round((-this.y + maxY) *
-                context.expansionRatio), 0);
-        this.y2 = Math.max(maxY - Math.round((-this.y2 + maxY) *
-                context.expansionRatio), 0);
+        this.y = Math.min(maxY, Math.round(this.y * context.expansionRatio));
+        this.y2 = Math.min(maxY, Math.round(this.y2 * context.expansionRatio));
     }
 }

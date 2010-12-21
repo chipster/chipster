@@ -31,7 +31,7 @@ public class TitleTrack extends Track {
 	@Override
 	public Collection<Drawable> getDrawables() {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
-		drawables.add(new TextDrawable(5, 13, title, color));
+		drawables.add(new TextDrawable(5, 10, title, color));
 		return drawables;
 	}
 

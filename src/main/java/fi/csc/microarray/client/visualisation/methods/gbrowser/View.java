@@ -76,14 +76,17 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	private Point2D dragLastStartPoint;
 	private Iterator<Track> trackIter;
 	private Iterator<Drawable> drawableIter;
-	private boolean continueDrawingLater;
+
 	private Track track;
 	private float y;
 	private int x;
 	private BufferedImage drawBuffer;
 	private long dragEventTime;
-    private boolean isStatic;
+	private boolean isStatic;
 	private static final long DRAG_EXPIRATION_TIME_MS = 50;
+	
+	private static boolean showFullHeight = true;
+	private static final int Y_MARGIN = 20;
 
 	public View(GenomePlot parent, boolean movable, boolean zoomable, boolean selectable) {
 		this.parentPlot = parent;
@@ -100,39 +103,39 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	 * 
 	 * @param track
 	 */
-    public void addTrack(Track track) {
-	    trackGroups.add(new TrackGroup(track));
+	public void addTrack(Track track) {
+		trackGroups.add(new TrackGroup(track));
 	}
 
-    /**
-     * Add a track group containing one or several tracks.
-     * 
-     * @param group
-     */
+	/**
+	 * Add a track group containing one or several tracks.
+	 * 
+	 * @param group
+	 */
 	public void addTrackGroup(TrackGroup group) {
 		trackGroups.add(group);
 	}
-	
+
 	/**
 	 * Get tracks contained in track groups as a linear collection.
 	 * 
 	 * Only return tracks within visible groups.
 	 */
 	public Collection<Track> getTracks() {
-	    Collection<Track> tracks = new LinkedList<Track>();
-        for (TrackGroup trackGroup : trackGroups) {
-            // Only return tracks within visible groups
-            if (trackGroup.isVisible()) {
-                tracks.addAll(trackGroup.getTracks());
-            }
-        }
-        return tracks;
+		Collection<Track> tracks = new LinkedList<Track>();
+		for (TrackGroup trackGroup : trackGroups) {
+			// Only return tracks within visible groups
+			if (trackGroup.isVisible()) {
+				tracks.addAll(trackGroup.getTracks());
+			}
+		}
+		return tracks;
 	}
-	
+
 	public BpCoord getMaxBp() {
-		
+
 		BpCoord max = null;
-		
+
 		if (bpRegion != null) {
 			for (Track t : getTracks()) {
 
@@ -143,35 +146,39 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 				}
 			}
 		}
-		
+
 		if (max != null) {
 			//Little bit empty space to the end
 			max.bp += 10000;
 			return max;
-			
+
 		} else {
 			return null;
 		}
 	}
 
 	protected void drawView(Graphics2D g, boolean isAnimation) {
-	    
+
 		if (bpRegion == null) {
 			setBpRegion(new BpCoordRegionDouble(0d, 1024 * 1024 * 250d, new Chromosome("1")), false);
 		}
 		
-        // Recalculate track heights
+		showFullHeight = parentPlot.isFullHeight();
+
+		// Recalculate track heights
 		updateTrackHeights();
 
-		Rectangle viewClip = g.getClipBounds();
-		viewArea = viewClip;
-		
+		viewArea = g.getClipBounds();
+				
+		int drawBufferWidth = (int) (viewArea.getX() + viewArea.getWidth());
+		int drawBufferHeight = (int) (viewArea.getY() + viewArea.getHeight());
+
 		if (drawBuffer == null || 
-				drawBuffer.getWidth() != viewArea.getWidth() || 
-				drawBuffer.getHeight() != viewArea.getHeight()) {
+				drawBuffer.getWidth() != drawBufferWidth || 
+				drawBuffer.getHeight() != drawBufferHeight) {
 			
-			drawBuffer = new BufferedImage((int) viewArea.getWidth(),
-			        (int) viewArea.getHeight(), BufferedImage.TYPE_INT_RGB);
+			drawBuffer = new BufferedImage(drawBufferWidth,
+					drawBufferHeight, BufferedImage.TYPE_INT_RGB);		
 
 			Graphics2D bufG2 = (Graphics2D) drawBuffer.getGraphics();
 			bufG2.setPaint(Color.white);
@@ -180,144 +187,156 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 		Graphics2D bufG2 = (Graphics2D) drawBuffer.getGraphics();
 		bufG2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-
+				RenderingHints.VALUE_ANTIALIAS_ON);
 		
+		/* In full height mode we draw always also the content that isn't shown in current vertical
+		 * scrolling position. Setting the original clip to the drawing buffer should
+		 * at least prevent actual pixel manipulating when drawing outside of the view.
+		 */
+		bufG2.setClip(g.getClip());
 
-		// DOCME what is this continueDrawingLater for?
-        // long startTime = System.currentTimeMillis();
-        continueDrawingLater = false;
-        
-        // prepare context object
-        TrackContext trackContext = null;
+		// prepare context object
+		TrackContext trackContext = null;
 
-        // prepare coordinates
-        y = 0;
-        x = 0;
+		// prepare coordinates
+		y = 0;
+		x = 0;
 
-        // track group contains one or several logically-related tracks
-        for (TrackGroup group : trackGroups) {
-            trackIter = group.getTracks().iterator();
-            drawableIter = null;
-            
-            if (!group.isVisible()) {
-                continue;
-            }
-            
-            // draw side menu
-            if (group.isMenuVisible()) {
-                group.menu.setPosition((int) (viewArea.getX() + viewArea.getWidth()),
-                        (int) (viewArea.getY() + y));
-            }
+		// track group contains one or several logically-related tracks
+		for (TrackGroup group : trackGroups) {
+			trackIter = group.getTracks().iterator();
+			drawableIter = null;
 
-            // draw all tracks
-            while (trackIter.hasNext() || (drawableIter != null && drawableIter.hasNext())) {
-    
-                if (drawableIter == null || !drawableIter.hasNext()) {
-                    track = trackIter.next();
-                }
-    
-                // draw drawable objects for visible tracks
-                if (track.isVisible()) {
-                    
-                    // decide if we will expand drawable for this track
-                    boolean expandDrawables = track.canExpandDrawables();
-                                       
-                    // create view context for this track only if we will use it
-                    // currently only used for tracks that contain information
-                    // about reads
-                    if (expandDrawables && 
-                    		(track instanceof CoverageTrack ||
-                    		track instanceof CoverageAndSNPTrack ||
-                    		track instanceof QualityCoverageTrack)) {
-                    	
-                        if (parentPlot.getReadScale() == ReadScale.AUTO) {
-                            trackContext = new TrackContext(track);
-                        } else {
-                            // FIXME ReadScale is in "number of reads" and context takes "number of pixels"
-                            trackContext = new TrackContext(track, track.getHeight() - parentPlot.getReadScale().numReads);
-                        }
-                    }
-    
-                    // get drawable iterator
-                    if (drawableIter == null) {
-                        Collection<Drawable> drawables = track.getDrawables();
-                        drawableIter = drawables.iterator();
-                    }
-    
-                    while (drawableIter.hasNext()) {
-    
-                        Drawable drawable = drawableIter.next();
-                        
-                        if(drawable == null) {
-                            continue;
-                        }
-                        
-                        // expand drawables to stretch across all height if necessary
-                        if (expandDrawables) {
-                            drawable.expand(trackContext);
-                        }
-    
-                        // recalculate position for reversed strands
-                        int maybeReversedY = (int) y;
-                        if (track.isReversed()) {
-                            drawable.upsideDown();
-                            maybeReversedY += track.getHeight();
-                        }
-    
-                        // draw an object onto the buffer
-                        drawDrawable(bufG2, x, maybeReversedY, drawable);
-    
-    //                    if (System.currentTimeMillis() - startTime >= 1000 / FPS) {
-    //                        continueDrawingLater = true;
-    //                        this.redraw();
-    //                        break;
-    //                    }
-                    }
-    
-                    if (continueDrawingLater) {
-                        break;
-                        
-                    } else {
-                        drawableIter = null;
-                    }
-                    
-                    y += track.getHeight();
-                    
-                } else {
-                    drawableIter = null;
-                }               
-            }
-        }
-        
-        g.drawImage(drawBuffer, (int) viewArea.getX(), (int) viewArea.getY(),
-                (int) viewArea.getX() + drawBuffer.getWidth(),
-                (int) viewArea.getY() + drawBuffer.getHeight(), 0, 0,
-                drawBuffer.getWidth(), drawBuffer.getHeight(), null);
+			if (!group.isVisible()) {
+				continue;
+			}
 
-        if (!continueDrawingLater) {
-            bufG2.setPaint(Color.white);
-            bufG2.fillRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
-            trackIter = null;
-            drawableIter = null;
-        }
+			// draw side menu
+			if (group.isMenuVisible()) {
+				group.menu.setPosition((int) (viewArea.getX() + viewArea.getWidth()),
+						(int) (viewArea.getY() + y));
+			}
+
+			// draw all tracks
+			while (trackIter.hasNext()) {
+
+				if (drawableIter == null || !drawableIter.hasNext()) {
+					track = trackIter.next();
+				}
+
+				// draw drawable objects for visible tracks
+				if (track.isVisible()) {
+
+					// decide if we will expand drawable for this track
+					boolean expandDrawables = track.canExpandDrawables();
+
+					// create view context for this track only if we will use it
+					// currently only used for tracks that contain information
+					// about reads
+					if (expandDrawables && 
+							(track instanceof CoverageTrack ||
+									track instanceof CoverageAndSNPTrack ||
+									track instanceof QualityCoverageTrack)) {
+
+						if (parentPlot.getReadScale() == ReadScale.AUTO) {
+							trackContext = new TrackContext(track);
+						} else {
+							// FIXME ReadScale is in "number of reads" and context takes "number of pixels"
+							trackContext = new TrackContext(track, track.getHeight() - parentPlot.getReadScale().numReads);
+						}
+					}
+
+					Collection<Drawable> drawables = track.getDrawables();
+					drawableIter = drawables.iterator();
+					
+					int maxY = 20;
+					
+					if (showFullHeight && track.isStretchable()) {
+						
+						while (drawableIter.hasNext()) {										
+
+							Drawable drawable = drawableIter.next();
+
+							if(drawable == null) {
+								continue;
+							}
+							
+							if (drawable.getMaxY() > maxY) {
+								maxY = drawable.getMaxY();
+							}
+						}
+						
+						track.setHeight(maxY + Y_MARGIN);						
+					}
+					
+					y += track.getHeight();
+					
+					drawableIter = drawables.iterator();					
+
+					while (drawableIter.hasNext()) {										
+
+						Drawable drawable = drawableIter.next();
+
+						if(drawable == null) {
+							continue;
+						}												
+
+						// expand drawables to stretch across all height if necessary
+						if (expandDrawables) {
+							drawable.expand(trackContext);
+						}
+
+						// recalculate position for reversed strands
+						int maybeReversedY = (int) y;
+						if (track.isReversed()) {
+							maybeReversedY -= track.getHeight();
+						} else {
+							drawable.upsideDown();
+						}			
+
+						// draw an object onto the buffer
+						drawDrawable(bufG2, x, maybeReversedY, drawable);
+
+					}
+
+					drawableIter = null;
+
+
+				} else {
+					drawableIter = null;
+				}               
+			}
+		}
+		
+		g.drawImage(drawBuffer, 
+				(int) viewArea.getX(), (int) viewArea.getY(), drawBufferWidth, drawBufferHeight,
+				(int) viewArea.getX(), (int) viewArea.getY(), drawBufferWidth, drawBufferHeight, null);				
+
+		bufG2.setPaint(Color.white);
+		bufG2.fillRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
+		trackIter = null;
+		drawableIter = null;
 	}
-	
+
 	/**
 	 * Update heights of tracks after zoom, resize etc.
 	 */
 	private void updateTrackHeights() {
-        // Calculate height of stretchable tracks    
-        for (Track t : getTracks()) {
-            if (t.isStretchable()) {
-                t.setHeight(Math.round(getTrackHeight()));
-            }
-        }
+		// Calculate height of stretchable tracks    
+		for (Track t : getTracks()) {
+			if (t.isStretchable()) {
+				if (showFullHeight) {
+					t.setHeight(Integer.MAX_VALUE);
+				} else {					
+					t.setHeight(Math.round(getTrackHeight()));
+				}
+			}
+		}
 	}
 
 	public float getTrackHeight() {
 		trackHeight = (getHeight() - getStaticTrackHeightTotal()) /
-		        (float) getStretchableTrackCount();		
+		(float) getStretchableTrackCount();		
 		return trackHeight;
 	}
 
@@ -334,6 +353,25 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		}
 		return staticHeightTotal;
 	}
+	
+	protected int getTrackHeightTotal() {
+		int heightTotal = 0;
+
+		for (Track track : getTracks()) {
+			if (track.isVisible()) {
+				if (track.getHeight() !=  null) {
+					heightTotal += track.getHeight();
+				}
+			}
+		}
+		
+		//Avoid problems in initialisation by having some fixed value
+		if (heightTotal == 0) {
+			heightTotal = getHeight();
+		}
+		return heightTotal;
+	}
+
 
 	protected int getStretchableTrackCount() {
 		int stretchableCount = 0;
@@ -353,23 +391,23 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	public int getHeight() {
 		return this.viewArea.height;
 	}
-	
-    public void setHeight(int height) {
-        this.viewArea.height = height;
-    }
-	
-	public boolean hasStaticHeight() {
-        return isStatic;
+
+	public void setHeight(int height) {
+		this.viewArea.height = height;
 	}
-	
+
+	public boolean hasStaticHeight() {
+		return isStatic;
+	}
+
 	public void setStaticHeight(boolean isStatic) {
-	    this.isStatic = isStatic;
+		this.isStatic = isStatic;
 	}
 
 	public QueueManager getQueueManager() {
 		return queueManager;
 	}
-	
+
 	/**
 	 * Fire area requests for all tracks in this view.
 	 * 
@@ -379,67 +417,67 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	 * requests for them.
 	 */
 	public void fireAreaRequests() {
-	    // Concise data
-        Map<DataSource, Set<ColumnType>> conciseDatas = new
-                HashMap<DataSource, Set<ColumnType>>();
-        // Precise data
-        Map<DataSource, Set<ColumnType>> preciseDatas = new
-                HashMap<DataSource, Set<ColumnType>>();
-        
-        // Add all requested columns for each requested file 
-        for (Track t : getTracks()) {
-            Map<DataSource, Set<ColumnType>> trackDatas = t.requestedData();
-            
-            // Don't do anything for hidden tracks or tracks without data
-            if (trackDatas == null || !t.isVisible()) {
-                continue;
-            }
-            
-            for (DataSource file : trackDatas.keySet()) {
-                if (file != null) {
-                    // Handle concise and precise requests separately
-                    Map<DataSource, Set<ColumnType>> datas;
-                    datas = preciseDatas;
-                    if (t.isConcised()) {
-                        datas = conciseDatas;
-                    }
-                    // Add columns for this requested file
-                    Set<ColumnType> columns = datas.get(file);
-                    columns = columns != null ? columns : new HashSet<ColumnType>();
-                    columns.addAll(trackDatas.get(file));
-                    datas.put(file, columns);
-                }
-            }
-        }
-        
-        // Fire area requests for concise requests
-        for (DataSource file : conciseDatas.keySet()) {
-            FsfStatus status = new FsfStatus();
-            status.clearQueues = true;
-            status.concise = true;
-            getQueueManager().addAreaRequest(file,
-                    new AreaRequest(getBpRegion(), conciseDatas.get(file), status), true);
-        }
-        
-        // Fire area requests for precise requests
-        for (DataSource file : preciseDatas.keySet()) {
-            FsfStatus status = new FsfStatus();
-            status.clearQueues = true;
-            status.concise = false;
-            getQueueManager().addAreaRequest(file,
-                    new AreaRequest(getBpRegion(), preciseDatas.get(file), status), true);
-        }
+		// Concise data
+		Map<DataSource, Set<ColumnType>> conciseDatas = new
+		HashMap<DataSource, Set<ColumnType>>();
+		// Precise data
+		Map<DataSource, Set<ColumnType>> preciseDatas = new
+		HashMap<DataSource, Set<ColumnType>>();
+
+		// Add all requested columns for each requested file 
+		for (Track t : getTracks()) {
+			Map<DataSource, Set<ColumnType>> trackDatas = t.requestedData();
+
+			// Don't do anything for hidden tracks or tracks without data
+			if (trackDatas == null || !t.isVisible()) {
+				continue;
+			}
+
+			for (DataSource file : trackDatas.keySet()) {
+				if (file != null) {
+					// Handle concise and precise requests separately
+					Map<DataSource, Set<ColumnType>> datas;
+					datas = preciseDatas;
+					if (t.isConcised()) {
+						datas = conciseDatas;
+					}
+					// Add columns for this requested file
+					Set<ColumnType> columns = datas.get(file);
+					columns = columns != null ? columns : new HashSet<ColumnType>();
+					columns.addAll(trackDatas.get(file));
+					datas.put(file, columns);
+				}
+			}
+		}
+
+		// Fire area requests for concise requests
+		for (DataSource file : conciseDatas.keySet()) {
+			FsfStatus status = new FsfStatus();
+			status.clearQueues = true;
+			status.concise = true;
+			getQueueManager().addAreaRequest(file,
+					new AreaRequest(getBpRegion(), conciseDatas.get(file), status), true);
+		}
+
+		// Fire area requests for precise requests
+		for (DataSource file : preciseDatas.keySet()) {
+			FsfStatus status = new FsfStatus();
+			status.clearQueues = true;
+			status.concise = false;
+			getQueueManager().addAreaRequest(file,
+					new AreaRequest(getBpRegion(), preciseDatas.get(file), status), true);
+		}
 	}
 
 	public void setBpRegion(BpCoordRegionDouble region, boolean disableDrawing) {
-		
+
 		this.bpRegion = region;
 
 		// Bp-region change may change visibility of tracks, calculate sizes again
 		trackHeight = null;
 
 		if (!disableDrawing) {
-		    fireAreaRequests();            
+			fireAreaRequests();            
 			dispatchRegionChange();
 		}
 	}
@@ -467,7 +505,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	public void mousePressed(MouseEvent e) {
 
 		parentPlot.chartPanel.requestFocusInWindow();
-		
+
 		stopAnimation();
 		dragStartPoint = scale(e.getPoint());
 		dragStarted = false;
@@ -514,11 +552,11 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	}
 
 	public void mouseDragged(MouseEvent e) {
-		
+
 		if (movable && 
 				((dragStartPoint != null && viewArea.contains(dragStartPoint) || 
 						viewArea.contains(e.getPoint() )))) {
-			
+
 			dragStarted = true;
 			dragEndPoint = scale(e.getPoint());
 			dragEventTime = System.currentTimeMillis();
@@ -540,9 +578,11 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	public void mouseWheelMoved(final MouseWheelEvent e) {
 
-		zoomAnimation((int) scale(e.getPoint()).getX(), e.getWheelRotation());
+		if (!parentPlot.isFullHeight()) {
+			zoomAnimation((int) scale(e.getPoint()).getX(), e.getWheelRotation());			
+		}
 	}
-	
+
 	public void zoomAnimation(final int centerX, final int wheelRotation) {
 		stopAnimation();
 
@@ -590,7 +630,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 			double startBp = getBpRegionDouble().start.bp;
 			double endBp = getBpRegionDouble().end.bp;			
-						
+
 			double width = endBp - startBp;
 			width *= Math.pow(ZOOM_FACTOR, wheelRotation);
 
@@ -601,14 +641,14 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 			startBp = (double) (pointerBp.bp - width * pointerRelative);
 			endBp = (double) (pointerBp.bp + width * (1 - pointerRelative));
-			
+
 			BpCoord maxBp = getMaxBp();
-			
+
 			if (startBp < 0) {
 				endBp += -startBp;
 				startBp = 0;
 			}
-			
+
 			if (maxBp != null) {
 				// check bounds
 				long maxBpVal = maxBp.bp;
@@ -629,7 +669,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	public Integer bpToTrack(BpCoord bp) {
 		if (bpRegion.start.chr.equals(bp.chr)) {
 			return (int) Math.round(((bp.bp - getBpRegionDouble().start.bp) * bpWidth()) + getX());
-			
+
 		} else {
 			return null;
 		}
@@ -642,15 +682,15 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	 * @param bp
 	 * @return
 	 */
-    public Float bpToTrackFloat(BpCoord bp) {
-        if (bpRegion.start.chr.equals(bp.chr)) {
-            return (float) ((bp.bp - getBpRegionDouble().start.bp) * bpWidth()) + getX();
-            
-        } else {
-            return null;
-        }
-    }
-	
+	public Float bpToTrackFloat(BpCoord bp) {
+		if (bpRegion.start.chr.equals(bp.chr)) {
+			return (float) ((bp.bp - getBpRegionDouble().start.bp) * bpWidth()) + getX();
+
+		} else {
+			return null;
+		}
+	}
+
 	/**
 	 * Calculates width of a single bp in pixels for this view.
 	 * Number is a float, so the rounding should be performed just
@@ -659,7 +699,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	 * @return width of a single bp in pixels for this view.
 	 */
 	public Float bpWidth() {
-	    return getWidth() / (float) getBpRegionDouble().getLength();
+		return getWidth() / (float) getBpRegionDouble().getLength();
 	}
 
 	public BpCoordDouble trackToBp(double d) {

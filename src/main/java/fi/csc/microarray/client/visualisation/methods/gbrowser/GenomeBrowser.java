@@ -2,6 +2,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
 import java.awt.CardLayout;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -189,6 +190,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	
 	private Map<JCheckBox, String> trackSwitches = new LinkedHashMap<JCheckBox, String>();
 	private Set<JCheckBox> datasetSwitches = new HashSet<JCheckBox>();
+	private JScrollPane verticalScroller;
+	private JCheckBox showFullHeightBox;
 	
 	
 	public void initialise(VisualisationFrame frame) throws Exception {
@@ -345,6 +348,12 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			coverageScaleBox.setEnabled(false);
 			coverageScaleBox.addActionListener(this);
 			menu.add(coverageScaleBox, c);
+			
+			c.gridy++;
+			showFullHeightBox = new JCheckBox("Show full height", false);
+			showFullHeightBox.setEnabled(false);
+			showFullHeightBox.addActionListener(this);
+			menu.add(showFullHeightBox, c);
 
 			optionsPanel.add(menu, oc);
 		}
@@ -570,8 +579,12 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		    }
 			
 		} else if ((datasetSwitches.contains(source) || source == coverageScaleBox) && this.initialised) {
+			
+			showFullHeightBox.setSelected(false);
+			setFullHeight(false);
+			
 	        showVisualisation();
-	        updateVisibilityForTracks();
+	        updateVisibilityForTracks();	        	        
 
 		} else if (trackSwitches.keySet().contains(source) && this.initialised) {
 			updateVisibilityForTracks();
@@ -595,6 +608,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			this.locationField.setEnabled(true);
 			this.zoomLabel.setEnabled(true);
 			this.zoomField.setEnabled(true);
+			this.showFullHeightBox.setEnabled(true);
 			
 			for (Track track : tracks) {
 				track.checkBox.setEnabled(true);
@@ -604,7 +618,22 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			coverageScaleBox.setEnabled(true);
 			
 			this.setTrackSwitchesEnabled(true);
-		}		
+			
+		} else if (source == showFullHeightBox && this.initialised) {
+			
+			setFullHeight(showFullHeightBox.isSelected());
+		}
+	}
+	
+	private void setFullHeight(boolean fullHeight) {
+		
+		if (fullHeight) {
+			verticalScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		} else {
+			verticalScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+		}
+		
+		plot.setFullHeight(fullHeight);		
 	}
 
 	private void setTrackSwitchesEnabled(boolean enabled) {
@@ -661,6 +690,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			// Create the plot
 			ChartPanel chartPanel = new NonScalableChartPanel();
 			this.plot = new GenomePlot(chartPanel, true);
+			((NonScalableChartPanel)chartPanel).setGenomePlot(plot);
 			
 			// Set scale of profile track containing reads information
 			this.plot.setReadScale((ReadScale) this.coverageScaleBox
@@ -806,8 +836,12 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			if (plotPanel.getComponentCount() == 2) {
 				plotPanel.remove(1);
 			}
+			
+			verticalScroller = new JScrollPane(chartPanel);
+			
+			setFullHeight(showFullHeightBox.isSelected());
 
-			plotPanel.add(chartPanel, PLOTPANEL);
+			plotPanel.add(verticalScroller, PLOTPANEL);
 			plotPanel.addComponentListener(this);
 			CardLayout cl = (CardLayout) (plotPanel.getLayout());
 			cl.show(plotPanel, PLOTPANEL);
