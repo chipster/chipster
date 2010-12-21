@@ -13,7 +13,7 @@ import fi.csc.microarray.client.tasks.TaskEventListener;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.client.tasks.Task.State;
-import fi.csc.microarray.databeans.fs.FSDataManager;
+import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.messaging.MessagingTestBase;
 
 /**
@@ -38,7 +38,7 @@ public class AnalysisTestBase extends MessagingTestBase {
 
 
 
-	protected FSDataManager manager;
+	protected DataManager manager;
 	protected TaskExecutor executor;
 	
 	
@@ -63,7 +63,7 @@ public class AnalysisTestBase extends MessagingTestBase {
 	@BeforeSuite(alwaysRun = true)
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.manager = new FSDataManager();
+		this.manager = new DataManager();
 		this.executor = new TaskExecutor(super.endpoint, manager);
 		
 	}

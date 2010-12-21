@@ -15,7 +15,8 @@ public interface Topics {
 		URL_TOPIC("url-topic"),
 		AUTHORISED_URL_TOPIC("authorised-url-topic"),
 		ADMIN_TOPIC("admin-topic"),
-		MANAGER_TOPIC("job-log-topic"),
+		JOB_LOG_TOPIC("job-log-topic"),
+		FEEDBACK_TOPIC("feedback-topic"),
 		AUTH_LOG_TOPIC("auth-log-topic")
 		;
 
