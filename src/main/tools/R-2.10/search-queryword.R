@@ -10,25 +10,26 @@
 # Search genes by name, AffyID, correlation or chromosome location
 # JTT 4.7.2006
 #
-# modified, MG, 23.2.2010, to allow option to exclude query genes or chromosomes
+# MG, 23.2.2010, modified to allow option to exclude query genes or chromosomes
+#
+# MG, 27.12.2010 modifed to cope with other than microarray data
+#
 
 # Renaming variables
-meth<-search.for
-query<-query
+meth <- search.for
+query <- query
 
-# Loads libraries
+# Loads libraries where applicable
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
-if(phenodata$chiptype[1]!="cDNA" & phenodata$chiptype[1]!="Illumina" & phenodata$chiptype[1]!="miRNA" ) {
+if(phenodata$chiptype[1]!="cDNA" & phenodata$chiptype[1]!="Illumina" & phenodata$chiptype[1]!="miRNA" & phenodata$chiptype[1]!="other" & phenodata$chiptype=="empty") {
    lib<-phenodata$chiptype[1]
    lib<-as.character(lib)
-   
    # Account for the fact that annotation packages are from version 2.3 of Bioconductor
    # named with an ".db" suffix. Add the suffix when missing to support data files
    # from Chipster 1.3 and earlier. 
    if (length(grep(".db", lib)) == 0 & length(grep("pmcdf", lib)) == 0) {
         lib <- paste(lib, ".db", sep="")
    }
-   
    library(package=lib, character.only=T)
 }
 
@@ -43,6 +44,10 @@ if(meth=="rowname") {
 }
 
 if(meth=="Genename") {
+	# NOT supported for data of type "other"
+	if (phenodata$chiptype[1]=="other" | phenodata$chiptype[1]=="empty") {
+		stop("CHIPSTER-NOTE: To search by gene name is not supported for other than microarray data. Please rerun the tool with the rownames parameter enabled.")
+	}
    query<-paste("^", query, sep="")
    lib2<-sub('.db','',lib)
    env<-paste(lib2, "SYMBOL", sep="")
@@ -56,6 +61,10 @@ if(meth=="Genename") {
 }
 
 if(meth=="ChromosomeLocation") {
+	# NOT supported for data of type "other"
+	if (phenodata$chiptype[1]=="other" | phenodata$chiptype[1]=="empty") {
+		stop("CHIPSTER-NOTE: To search by gene name is not supported for other than microarray data. Please rerun the tool with the rownames parameter enabled.")
+	}
    lib2<-sub('.db','',lib)
    env<-paste(lib2, "CHR", sep="")
    env2<-get(env)
