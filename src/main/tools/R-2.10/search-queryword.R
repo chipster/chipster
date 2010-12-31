@@ -21,7 +21,7 @@ query <- query
 
 # Loads libraries where applicable
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
-if(phenodata$chiptype[1]!="cDNA" & phenodata$chiptype[1]!="Illumina" & phenodata$chiptype[1]!="miRNA" & phenodata$chiptype[1]!="other" & phenodata$chiptype=="empty") {
+if(phenodata$chiptype[1]!="cDNA" & phenodata$chiptype[1]!="Illumina" & phenodata$chiptype[1]!="miRNA" & phenodata$chiptype[1]!="other" & phenodata$chiptype[1]!="empty") {
    lib<-phenodata$chiptype[1]
    lib<-as.character(lib)
    # Account for the fact that annotation packages are from version 2.3 of Bioconductor
@@ -35,7 +35,7 @@ if(phenodata$chiptype[1]!="cDNA" & phenodata$chiptype[1]!="Illumina" & phenodata
 
 # Loads data (which file to search)
 file<-c("normalized.tsv")
-dat<-read.table(file, header=T, sep="\t", row.names=1)
+dat<-read.table(file, header=T, sep="\t", row.names=1, quote="", comment.char="")
 
 if(meth=="rowname") {
 	if(mode=="include") dat2<-dat[grep(query, row.names(dat), invert=FALSE),]
