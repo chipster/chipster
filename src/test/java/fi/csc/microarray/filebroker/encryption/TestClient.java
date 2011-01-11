@@ -27,7 +27,8 @@ import javax.net.ssl.SSLSession;
 public class TestClient {
 
     public static void main(String... args) throws Exception {
-        final File file = new File("test_input");
+
+    	final File file = new File("test_input");
         DataInputStream dis = new DataInputStream(new FileInputStream(file));
         byte[] bytes = new byte[(int) file.length()];
         dis.readFully(bytes);
@@ -54,9 +55,9 @@ public class TestClient {
     	for (int i = 0; i < runCount; i++) {
     		bandwidthSum += test(bytes, encryptionAlgorithm, compression);
     	}
-    	float bandwidth = Math.round(bandwidthSum / (float)runCount);
+    	float bandwidth = bandwidthSum / (float)runCount;
     	
-		System.out.println(encryptionAlgorithm + "/" + (compression ? "compressed" : "normal") + ":  Bandwidth " + bandwidth + " MB/s.");
+		System.out.println(encryptionAlgorithm + "/" + (compression ? "compressed" : "normal") + ":  Bandwidth " + String.format("%3.2f", bandwidth) + " MB/s.");
 
     }
     
