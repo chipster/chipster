@@ -16,6 +16,7 @@
 
 # Loading libraries
 library(lumi)
+library(annotate)
 
 # Converting to the correct chiptype
 if(chiptype=="empty") {
@@ -99,7 +100,11 @@ if(chiptype!="Illumina") {
    # genename<-gsub("#", "", genename)
    # Write out expression data
    # write.table(data.frame(symbol, description=genename, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
-   write.table(data.frame(dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+	symbols <- unlist (lookUp(rownames(dat2), chiptype, what="SYMBOL"))
+	genenames <- unlist (lookUp(rownames(dat2), chiptype, what="GENENAME"))
+	symbols <- gsub("#", "", symbols)
+	genenames <- gsub("#", "", genenames)
+	write.table(data.frame(symbol=symbols, description=genenames, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 } else {
    # Write out expression data
    write.table(data.frame(dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)

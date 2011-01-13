@@ -2,8 +2,9 @@
 # INPUT GENE_EXPRS normalized.tsv OUTPUT cv-filter.tsv
 # PARAMETER percentage.to.filter.out DECIMAL FROM 0 TO 1 DEFAULT 0.5 (Percentage to filter out)
 
-
 # JTT, 14.1.2008
+#
+# MG, 27.12.2010, modified to handle data with zero mean
 
 # Renaming variables
 percentage<-percentage.to.filter.out
@@ -31,6 +32,13 @@ colno<-ncol(dat2)
 g.mean <- rowSums(dat2)/colno
 g.sd <- rowSds(dat2)
 g.cv <- g.sd / g.mean
+	# if an infinite result is obtained because of a zero mean value
+	# force the CV value to become zero
+	for (count in 1:length(g.cv)) {
+		if (is.na (g.cv[count])) {
+			g.cv[count] <- 0
+		}
+	}
 sel<-(g.cv>quantile(g.cv,percentage,na.rm=TRUE))
 set<-dat[sel, ]
 
