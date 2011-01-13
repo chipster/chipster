@@ -18,7 +18,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Concis
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CigarItem;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -42,7 +41,7 @@ public class SAMFile {
 
 	private ConcisedValueCache cache = new ConcisedValueCache();
 	public SAMFileReader reader;
-	private boolean isChromosomePrefixed = false;
+	private ChromosomeNameUnnormaliser chromosomeNameUnnormaliser = ChromosomeNameUnnormaliser.newIdentityPreversingUnnormaliser();
 	
 
 	/**
@@ -59,11 +58,10 @@ public class SAMFile {
         // Iterate chromosomes to check naming convention
         for (SAMSequenceRecord sequenceRecord : this.reader.getFileHeader().getSequenceDictionary().getSequences()) {
 
-        	if (sequenceRecord.getSequenceName().startsWith(Chromosome.CHROMOSOME_PREFIX)) {
-        		isChromosomePrefixed = true;
-        	}
+        	// Create unnormaliser for this naming convention
+        	this.chromosomeNameUnnormaliser = new ChromosomeNameUnnormaliser(sequenceRecord.getSequenceName());
 
-        	// Look only at the first sequence (assume all have same convention)
+        	// Look only at the first sequence (assume all have the same convention)
         	break;
         }
 
@@ -88,7 +86,7 @@ public class SAMFile {
     	List<RegionContent> responseList = new LinkedList<RegionContent>();
         
         // Read the given region
-        String chromosome = prefixChromosome(request.start.chr);
+        String chromosome = chromosomeNameUnnormaliser.unnormalise(request.start.chr);
 		CloseableIterator<SAMRecord> iterator =
                 this.reader.query(chromosome,
                 request.start.bp.intValue(), request.end.bp.intValue(), false);
@@ -155,10 +153,6 @@ public class SAMFile {
         return responseList;
     }
 
-	private String prefixChromosome(Chromosome chromosome) {
-		return (isChromosomePrefixed ? Chromosome.CHROMOSOME_PREFIX : "") + chromosome.toNormalisedString();
-	}
-
 	/**
      * Return approximation of reads in a given range.
      * <p>
@@ -206,7 +200,7 @@ public class SAMFile {
 		int start = stepMiddlepoint - SAMPLE_SIZE_BP/2;
 		int end = stepMiddlepoint + SAMPLE_SIZE_BP/2;
 		CloseableIterator<SAMRecord> iterator =
-			this.reader.query(prefixChromosome(request.start.chr),
+			this.reader.query(chromosomeNameUnnormaliser.unnormalise(request.start.chr),
 					start, end, false);
 
 		// Count reads in this sample area

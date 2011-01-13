@@ -169,7 +169,6 @@
 	
 	<category name="NGS" color="#478b8c">
         <tool runtime="java"><resource>fi.csc.chipster.tools.PreprocessNGSSingle</resource></tool>
-        <tool runtime="java"><resource>fi.csc.chipster.tools.PreprocessNGSTreatmentAndControl</resource></tool>
         <tool runtime="R-2.10"><resource>ngs-find-peaks-macs-one.R</resource></tool>
         <tool runtime="R-2.10"><resource>ngs-find-peaks-macs-two.R</resource></tool>    
         <tool runtime="R-2.9"><resource>ngs-filter-results-column.R</resource></tool>

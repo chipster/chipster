@@ -56,13 +56,12 @@ public class DataFolder extends DataItemBase {
 			if (data.isContentTypeCompatitible("text/tab", "application/cel", "text/csv")) {
 				data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 			}
-			
-			
+
 			// the rest is microarray specific
 			if (!MicroarrayModule.SERVER_MODULE_NAME.equals(Session.getSession().getPrimaryModule().getServerModuleName())) {
 				return;
 			}
-			
+
 			Table chips = data.queryFeatures("/column/chip.*").asTable();
 
 			// Tag the "main type"

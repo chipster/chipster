@@ -46,7 +46,7 @@ public class FeedbackDialog extends JDialog implements ActionListener {
         super(application.getMainFrame(), true);
 
         this.application = application;
-        this.setTitle("Send a report");
+        this.setTitle("Send feedback");
         
         // Layout
         this.setLayout(new GridBagLayout());
@@ -58,7 +58,7 @@ public class FeedbackDialog extends JDialog implements ActionListener {
         // Text are for entering details
         c.insets.set(10,10,5,10);
         c.gridy++;
-        this.add(new JLabel("Describe the problem"), c);
+        this.add(new JLabel("Feedback"), c);
         detailArea = new JTextArea();
         detailArea.setPreferredSize(new Dimension(300, 150));
         c.insets.set(0, 10, 10, 10);  
