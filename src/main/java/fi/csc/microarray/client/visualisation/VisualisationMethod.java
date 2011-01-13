@@ -17,6 +17,7 @@ import fi.csc.microarray.client.visualisation.methods.ClusteredProfiles;
 import fi.csc.microarray.client.visualisation.methods.Empty;
 import fi.csc.microarray.client.visualisation.methods.ExpressionProfile;
 import fi.csc.microarray.client.visualisation.methods.ExternalBrowserViewer;
+import fi.csc.microarray.client.visualisation.methods.Heatmap;
 import fi.csc.microarray.client.visualisation.methods.HierarchicalClustering;
 import fi.csc.microarray.client.visualisation.methods.Histogram;
 import fi.csc.microarray.client.visualisation.methods.HtmlViewer;
@@ -62,6 +63,7 @@ public enum VisualisationMethod {
 			SPREADSHEET("Spreadsheet", Spreadsheet.class, VisualConstants.SPREADSHEET_MENUICON, 2, 0.0007), 
 			PHENODATA("Phenodata editor", PhenodataEditor.class, VisualConstants.PHENODATA_MENUICON, 3, 0), 
 			ARRAY_LAYOUT("Array layout", ArrayLayout.class, VisualConstants.ARRAY_MENUICON, -1, 0.0009), 
+			HEATMAP("Heatmap", Heatmap.class, VisualConstants.ARRAY_MENUICON, -1, 0.0009), 
 			HISTOGRAM("Histogram", Histogram.class, VisualConstants.HISTOGRAM_MENUICON, -1, 0.024), 
 			SCATTERPLOT("Scatterplot", Scatterplot.class, VisualConstants.SCATTER_MENUICON, -1, 0.039), 
 			SCATTERPLOT3D("3D Scatterplot", Scatterplot3D.class, VisualConstants.SCATTER3D_MENUICON, -1, 0.082), 

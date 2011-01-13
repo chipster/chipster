@@ -13,7 +13,6 @@ import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Session;
 import javax.jms.Topic;
-import javax.jms.TopicConnectionFactory;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -148,7 +147,7 @@ public class MessagingEndpoint implements MessagingListener {
 				// tests connecting with unreliable, so that if broker is not available, 
 				// we won't initiate retry sequence
 				logger.debug("testing connecting to " + completeBrokerUrl);
-				TopicConnectionFactory connectionFactory = new ActiveMQConnectionFactory(username, password, completeBrokerUrl);
+				ActiveMQConnectionFactory connectionFactory = createConnectionFactory(username, password, completeBrokerUrl);
 				Connection tempConnection = connectionFactory.createTopicConnection();
 				tempConnection.start();
 				tempConnection.stop();
@@ -159,7 +158,7 @@ public class MessagingEndpoint implements MessagingListener {
 			}
 			
 			// create actual reliable connection
-			TopicConnectionFactory reliableConnectionFactory = new ActiveMQConnectionFactory(username, password, completeBrokerUrl);		
+			ActiveMQConnectionFactory reliableConnectionFactory = createConnectionFactory(username, password, completeBrokerUrl);
 			connection = (ActiveMQConnection)reliableConnectionFactory.createTopicConnection();
 			connection.setExceptionListener(master);
 			connection.start();
@@ -172,6 +171,12 @@ public class MessagingEndpoint implements MessagingListener {
 		} catch (JMSException e) {
 			throw new MicroarrayException("could not connect to message broker at " + brokerUrl + " (" + e.getMessage() + ")", e);
 		}
+	}
+
+	private ActiveMQConnectionFactory createConnectionFactory(String username, String password, String completeBrokerUrl) {
+		ActiveMQConnectionFactory reliableConnectionFactory = new ActiveMQConnectionFactory(username, password, completeBrokerUrl);
+		reliableConnectionFactory.setWatchTopicAdvisories(false);
+		return reliableConnectionFactory;
 	}
 
 	/**
