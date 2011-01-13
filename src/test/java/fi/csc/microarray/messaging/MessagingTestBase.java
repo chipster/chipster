@@ -52,7 +52,11 @@ public abstract class MessagingTestBase {
 		if (configURL == null) {
 			DirectoryLayout.initialiseClientLayout().getConfiguration();
 		} else {
-			DirectoryLayout.initialiseClientLayout(configURL);
+			try {
+				DirectoryLayout.initialiseClientLayout(configURL);
+			} catch (IllegalStateException e) {
+				// ignore
+			}
 		}
 		
 		System.out.println("setting up messaging");
