@@ -425,12 +425,6 @@
 			<resource>nthseqset.acd</resource>
 		</tool>
 		<tool runtime="EMBOSS">
-			<resource>origsplitter.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>origunion.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
 			<resource>pasteseq.acd</resource>
 		</tool>
 		<tool runtime="EMBOSS">
@@ -440,19 +434,10 @@
 			<resource>seqret.acd</resource>
 		</tool>
 		<tool runtime="EMBOSS">
-			<resource>seqretall.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>seqretset.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
 			<resource>seqretsetall.acd</resource>
 		</tool>
 		<tool runtime="EMBOSS">
 			<resource>seqretsplit.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>seqrettype.acd</resource>
 		</tool>
 		<tool runtime="EMBOSS">
 			<resource>sizeseq.acd</resource>
@@ -534,9 +519,6 @@
 		</tool>
 		<tool runtime="EMBOSS">
 			<resource>chaos.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>complex.acd</resource>
 		</tool>
 		<tool runtime="EMBOSS">
 			<resource>compseq.acd</resource>
@@ -679,9 +661,6 @@
 			<resource>vrnalfold.acd</resource>
 		</tool>
 		<tool runtime="EMBOSS">
-			<resource>vrnapaln.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
 			<resource>vrnaplot.acd</resource>
 		</tool>
 		<tool runtime="EMBOSS">
@@ -717,11 +696,6 @@
 		</tool>
 		<tool runtime="EMBOSS">
 			<resource>silent.acd</resource>
-		</tool>
-	</category>
-	<category color="#0177b7" name="Nucleic:Transcription">
-		<tool runtime="EMBOSS">
-			<resource>jaspscan.acd</resource>
 		</tool>
 	</category>
 	<category color="#0177b7" name="Nucleic:Translation">
