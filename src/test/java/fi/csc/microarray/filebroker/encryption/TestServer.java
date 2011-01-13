@@ -30,16 +30,16 @@ public class TestServer {
 		jettyInstance.setThreadPool(new QueuedThreadPool());
 		SelectChannelConnector connector = new SelectChannelConnector();
 		connector.setServer(jettyInstance);
-		connector.setPort(8080);
+		connector.setPort(9080);
 		SslSocketConnector sslConnector = new SslSocketConnector();
 		sslConnector.setServer(jettyInstance);
-		sslConnector.setPort(8443);
+		sslConnector.setPort(9443);
 		sslConnector.setKeystore("keystore.ks");
 		sslConnector.setKeyPassword("microarray");
 		jettyInstance.setConnectors(new Connector[]{ connector, sslConnector });
 
 		Context root = new Context(jettyInstance, "/", false, false);
-		root.setResourceBase("/tmp");
+		root.setResourceBase("/tmp/test-root");
 		root.addServlet(new ServletHolder(new UploadServlet()), "/*");
 		jettyInstance.start();
 	}

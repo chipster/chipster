@@ -35,13 +35,13 @@ public class TestClient {
         
         System.out.println("Test started...");
         burnAndTest(bytes, null, false);
-//        burnAndTest(bytes, null, true);
+        burnAndTest(bytes, null, true);
         burnAndTest(bytes, "SSL", false);
-//      burnAndTest(bytes, "SSL", true);
+        burnAndTest(bytes, "SSL", true);
         burnAndTest(bytes, "RC4", false);
-//        burnAndTest(bytes, "RC4", true);
+        burnAndTest(bytes, "RC4", true);
         burnAndTest(bytes, "AES", false);
-//        burnAndTest(bytes, "AES", true);
+        burnAndTest(bytes, "AES", true);
     }
 
     private static void burnAndTest(byte[] bytes, String encryptionAlgorithm, boolean compression) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException {
@@ -63,7 +63,7 @@ public class TestClient {
     
     private static float test(byte[] bytes, String encryptionAlgorithm, boolean compression) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException {
 
-    	String host = "localhost";
+    	String host = "chipster-devel2.csc.fi";
     	
     	HttpURLConnection connection;
     	if ("SSL".equals(encryptionAlgorithm)) {
