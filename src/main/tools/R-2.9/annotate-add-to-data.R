@@ -30,7 +30,7 @@ library(annaffy)
 
 # Loads the data
 file<-c("normalized.tsv")
-dat<-read.table(file, header=T, sep="\t", row.names=1)
+dat<-read.table(file, header=T, sep="\t", row.names=1, quote="", comment.char="")
 
 # Creating annotations from the library
 annot.cols<-aaf.handler()
