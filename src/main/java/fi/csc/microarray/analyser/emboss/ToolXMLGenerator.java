@@ -100,7 +100,15 @@ public class ToolXMLGenerator {
         ignoredPrograms.add("martquery");
         ignoredPrograms.add("martregistry");
         ignoredPrograms.add("martseqs");
-        
+
+        ignoredPrograms.add("jaspscan");
+        ignoredPrograms.add("origsplitter");
+        ignoredPrograms.add("origunion");
+        ignoredPrograms.add("seqretall");
+        ignoredPrograms.add("seqretset");
+        ignoredPrograms.add("seqrettype");
+        ignoredPrograms.add("complex");
+        ignoredPrograms.add("vrnapaln");
         
         // Databases for these programs not supported
         ignoredPrograms.add("tfscan");
