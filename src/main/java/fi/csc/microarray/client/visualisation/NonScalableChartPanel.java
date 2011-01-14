@@ -14,7 +14,11 @@ import org.jfree.chart.JFreeChart;
  * @author klemela
  */
 public class NonScalableChartPanel extends ChartPanel {
-
+    
+    public NonScalableChartPanel() {
+        super(null);
+    }
+    
 	public NonScalableChartPanel(JFreeChart chart) {
 		super(chart);
 	}
