@@ -1,0 +1,15 @@
+#/v/linux26_x86_64/appl/molbio/hmmer/hmmer-3.0/bin/hmmsearch --cpu 4 <options> <query> <target>
+TOOL "HMM" / hmmsearch.sadl: hmmsearch ( search profile(s) against a sequence database)
+INPUT query-value-only: "query HMM file" TYPE GENERIC
+INPUT target-value-only: "target sequence file" TYPE GENERIC
+OUTPUT o: out.txt
+OUTPUT A: out_align.txt
+OUTPUY -tblout: out_table.txt
+OUTPUY -domtblout: out_table.txt
+PARAMETER OPTIONAL E: "E value limit" TYPE DECIMAL DEFAULT 10 (report sequences <= this E-value threshold in output)
+PARAMETER OPTIONAL T: "Score limit" TYPE INTEGER ( report sequences >= this score threshold in output)
+PARAMETER OPTIONAL -domE: "Domain E value limit" TYPE DECIMAL (report domains <= this E-value threshold in output)
+PARAMETER OPTIONAL -domT: "Domain score limit" TYPE INTEGER (report domains >= this score cutoff in output)
+PARAMETER OPTIONAL heuristics-value-only: "options controlling acceleration heuristics" TYPE [  : "normal", --max: "Turn all heuristic filters off", --nobias: "turn off composition bias filter"] (options controlling acceleration heuristic)
+
+

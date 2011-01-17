@@ -1,0 +1,8 @@
+# komento on muotoa hmmbuild --informat afa  -n name <output> <input> 
+TOOL "HMM" / hmmbuild.sadl: hmmbuild (profile HMM construction from multiple sequence alignments)
+INPUT input-value-only: "Sequence alignment" TYPE GENERIC
+OUTPUT out.hmm
+PARAMETER OPTIONAL n: "HMM name" TYPE STRING DEFAULT my_hmm (Name of the HMM to be create)
+
+
+

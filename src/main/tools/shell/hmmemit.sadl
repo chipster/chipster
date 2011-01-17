@@ -1,0 +1,6 @@
+#/v/linux26_x86_64/appl/molbio/hmmer/hmmer-3.0/bin/hmmemit <options> hmmfile 
+TOOL "HMM" / hmmemit.sadl: hmmemit (Sample sequences from a profile HMM)
+INPUT hmmfile-value-only: "HMM file" TYPE GENERIC
+OUTPUT o: out.txt
+PARAMETER OPTIONAL N: "Number of sequeces to sample" TYPE INTEGER DEDAULT 1 (Sample several sequences, rather than just one.)
+PARAMETER OPTIONAL consensus-value-only: "emit simple consensus sequence" TYPE [  : "No", -c: "Yes"] (Emit a consensus sequence, instead of sampling a sequence from HMM's probability distribution. The consensus sequence is formed by selecting the maximum probability residue at each match state. options controlling acceleration heuristic)
