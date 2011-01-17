@@ -1,6 +1,5 @@
-#Komento 
-TOOL "Information" / ensemblfetch: ensemblfetch (Tool to retrieve the genomic, cDNA or protein dataset of the given species form the Ensembl data bases.)
-OUTPUT out.fasta
+TOOL "Information" / ensemblfetch.sadl: ensemblfetch (Tool to retrieve the genomic, cDNA or protein dataset of the given species form the Ensembl data bases.)
+OUTPUT ensemblfetch.fasta
 PARAMETER species-value-only: "Species name" TYPE STRING (Then latin name of the species for which the data is retrieved. Note that you should use under score: _ in stead of the space character in the species name. For example homo_sapiens)
 PARAMETER type: "Sequence data type" TYPE [dna: "Genomic DNA", cdna: "cDNA trasnscipts", pep: "Protein sequences"] DEFAULT dna (Sequence data type to retrieve)
-PARAMETER OPTIONAL names: "List the available speceis names" TYPE [yes: Yes, no: No] DEFAULT no 
+PARAMETER OPTIONAL names-value-only: "List the available species names" TYPE [-names: Yes, NO-VALUE: No] DEFAULT "NO-VALUE" (List the available species names)
