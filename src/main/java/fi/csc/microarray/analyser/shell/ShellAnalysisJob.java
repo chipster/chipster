@@ -26,6 +26,7 @@ import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
 public class ShellAnalysisJob extends ShellAnalysisJobBase {
     
 	private static final String USE_ONLY_PARAMETER_VALUE_TOKEN = "-value-only";
+	private static final String NO_PARAMETER_VALUE_TOKEN = "NO-VALUE";
 	
     /**
      * Construct the command line.
@@ -90,8 +91,14 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
 
             // value only parameters
             if (parameter.getName().endsWith(USE_ONLY_PARAMETER_VALUE_TOKEN)) {
-            	commandParts.add(value);
+            	
+            	// no value parameter, don't add anything
+            	if (!value.equals(NO_PARAMETER_VALUE_TOKEN)) {
+            		commandParts.add(value);
+            	}
+            	
             }
+            
             
             // normal parameters
             else if (!value.equals("")) {
