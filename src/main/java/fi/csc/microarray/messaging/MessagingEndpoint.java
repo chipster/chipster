@@ -201,9 +201,13 @@ public class MessagingEndpoint implements MessagingListener {
 
     private void replyToMessage(Destination replyToDest, NamiMessage reply) throws JMSException {
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-    	MapMessage msg = session.createMapMessage();
-    	reply.marshal(msg);
-    	session.createProducer(replyToDest).send(msg);
+    	try {
+			MapMessage msg = session.createMapMessage();
+	    	reply.marshal(msg);
+	    	session.createProducer(replyToDest).send(msg);
+    	} finally {
+    		session.close();
+    	}
     }
     
 	/**
@@ -268,5 +272,14 @@ public class MessagingEndpoint implements MessagingListener {
 
 	public void setSessionID(String sessionID) {
 		this.sessionID = sessionID;
+	}
+
+	/**
+	 * For testing only.
+	 * 
+	 * @return
+	 */
+	public ActiveMQConnection getConnection() {
+		return connection;
 	}
 }
