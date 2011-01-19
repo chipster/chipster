@@ -6,6 +6,9 @@ package fi.csc.microarray.messaging;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -13,10 +16,16 @@ import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Session;
 import javax.jms.Topic;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.ActiveMQSslConnectionFactory;
 import org.apache.log4j.Logger;
+
 
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -174,7 +183,26 @@ public class MessagingEndpoint implements MessagingListener {
 	}
 
 	private ActiveMQConnectionFactory createConnectionFactory(String username, String password, String completeBrokerUrl) {
+//		ActiveMQSslConnectionFactory reliableConnectionFactory = new ActiveMQSslConnectionFactory();
+//		
+//		reliableConnectionFactory.setKeyAndTrustManagers(null, new TrustManager[] {new X509TrustManager() {
+//
+//			
+//			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+//			}
+//
+//			public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+//			}
+//
+//			public X509Certificate[] getAcceptedIssuers() {
+//				return null;
+//			}}}, new SecureRandom());
+//		reliableConnectionFactory.setUserName(username);
+//		reliableConnectionFactory.setPassword(password);
+//		reliableConnectionFactory.setBrokerURL(completeBrokerUrl);
+		
 		ActiveMQConnectionFactory reliableConnectionFactory = new ActiveMQConnectionFactory(username, password, completeBrokerUrl);
+
 		reliableConnectionFactory.setWatchTopicAdvisories(false);
 		return reliableConnectionFactory;
 	}
