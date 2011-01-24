@@ -25,12 +25,7 @@
         </property>      
     </bean>
 
-    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost" dataDirectory="${activemq.base}/data" persistent="false" useJmx="true" advisorySupport="false">
-
-	    <!-- The transport connectors ActiveMQ will listen to -->
-	    <transportConnectors>
-		    <transportConnector name="openwire" uri="tcp://0.0.0.0:61616" />  
-    	</transportConnectors>
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost" dataDirectory="${activemq.base}/data" persistent="false" useJmx="false" advisorySupport="false">
 
     	<plugins>
       		<simpleAuthenticationPlugin>
@@ -61,6 +56,11 @@
        		</authorizationPlugin>
 
     	</plugins>
+
+	    <!-- The transport connectors ActiveMQ will listen to -->
+	    <transportConnectors>
+		    <transportConnector name="openwire" uri="tcp://0.0.0.0:61616" />  
+    	</transportConnectors>
 
   	</broker>
 

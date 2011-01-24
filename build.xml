@@ -49,7 +49,7 @@
 	<property name="wrapper-linux-x86-32" value="${wrapper-dist}/wrapper-linux-x86-32-3.2.3" />
 	<property name="wrapper-linux-x86-64" value="${wrapper-dist}/wrapper-linux-x86-64-3.2.3" />
 	<property name="wrapper-windows-x86-32" value="${wrapper-dist}/wrapper-windows-x86-32-3.3.3" />
-	<property name="activemq-dist" value="${ext-apps}/apache-activemq-5.3.1" />
+	<property name="activemq-dist" value="${ext-apps}/apache-activemq-5.4.2" />
 
 	<!-- keystore for signing -->
     <property name="keyalias" value="csc" />
@@ -352,7 +352,10 @@
 			<!--<tarfileset dir="${activemq-dist}/bin/win32" filemode="755" prefix="chipster/activemq/bin/win32" />-->
 			
 			<tarfileset file="${ext-src}/activemq/activemq.xml" prefix="chipster/activemq/conf" />
-
+			<tarfileset file="${ext-src}/activemq/wrapper/linux-x86-32/wrapper.conf" prefix="chipster/activemq/bin/linux-x86-32" />
+			<tarfileset file="${ext-src}/activemq/wrapper/linux-x86-64/wrapper.conf" prefix="chipster/activemq/bin/linux-x86-64" />
+			<tarfileset file="${ext-src}/activemq/wrapper/macosx/wrapper.conf" prefix="chipster/activemq/bin/macosx" />
+			
 		</tar>
 
 	</target>
