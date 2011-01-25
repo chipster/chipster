@@ -1,12 +1,11 @@
-#/v/linux26_x86_64/appl/molbio/hmmer/hmmer-3.0/bin/hmmscan --cpu 4 <db> <query>
-TOOL "HMM" / hmmscan.sadl: hmmscan ( search sequences against a Pfam-databasese)
-INPUT query-value-only: "query HMM file" TYPE GENERIC
-OUTPUT o: out.txt
-OUTPUY -tblout: out_table.txt
-OUTPUY -domtblout: out_table.txt
-PARAMETER OPTIONAL E: "E value limit" TYPE DECIMAL DEFAULT 10 (report sequences <= this E-value threshold in output)
-PARAMETER OPTIONAL T: "Score limit" TYPE INTEGER ( report sequences >= this score threshold in output)
-PARAMETER OPTIONAL -domE: "Domain E value limit" TYPE DECIMAL (report domains <= this E-value threshold in output)
+TOOL "HMM" / hmmscan.sadl: hmmscan (Search sequences against a Pfam-database.)
+INPUT hmm-model.txt: "HMM model" TYPE GENERIC
+OUTPUT hmmscan.txt
+OUTPUT hmmscan-sequence-hits.txt
+OUTPUT hmmscan-domain-hits.txt
+PARAMETER OPTIONAL E: "E value limit" TYPE DECIMAL FROM 0 DEFAULT 10 (report sequences <= this E-value threshold in output)
+PARAMETER OPTIONAL T: "Score limit" TYPE INTEGER (report sequences >= this score threshold in output)
+PARAMETER OPTIONAL -domE: "Domain E value limit" TYPE DECIMAL FROM 0 (report domains <= this E-value threshold in output)
 PARAMETER OPTIONAL -domT: "Domain score limit" TYPE INTEGER (report domains >= this score cutoff in output)
-PARAMETER OPTIONAL heuristics-value-only: "options controlling acceleration heuristics" TYPE [  : "normal", --max: "Turn all heuristic filters off", --nobias: "turn off composition bias filter"] (options controlling acceleration heuristic)
-PARAMETER db-value-only: "Database" TYPE [ /fs/db/biodb/pfam/Pfam-A.hmm: "Pfam-A",  /fs/db/biodb/pfam/Pfam-B.hmm: "Pfam-B"] DEFAULT /fs/db/biodb/pfam/Pfam-A.hmm (Choose a database)
+PARAMETER OPTIONAL heuristics-value-only: "Options controlling acceleration heuristics" TYPE [ NO-VALUE: "normal", --max: "turn all heuristic filters off", --nobias: "turn off composition bias filter"] DEFAULT NO-VALUE (Options controlling acceleration heuristic)
+PARAMETER db-value-only: "Database" TYPE ["/fs/db/biodb/pfam/Pfam-A.hmm": "Pfam-A", "/fs/db/biodb/pfam/Pfam-B.hmm": "Pfam-B"] DEFAULT "/fs/db/biodb/pfam/Pfam-A.hmm" (Choose a database)

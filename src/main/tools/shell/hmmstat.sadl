@@ -1,4 +1,3 @@
-#/v/linux26_x86_64/appl/molbio/hmmer/hmmer-3.0/bin/hmmstat hmmfile 
-TOOL "HMM" / hmmstat.sadl: hmmstat ( display summary statistics for a profile file)
-INPUT hmmfile-value-only: "HMM file" TYPE GENERIC
-OUTPUT o: out.txt
+TOOL "HMM" / hmmstat.sadl: hmmstat (Display summary statistics for a profile file)
+INPUT hmm-model.txt: "HMM model" TYPE GENERIC
+OUTPUT hmmstat.txt
