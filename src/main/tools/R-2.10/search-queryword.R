@@ -42,7 +42,7 @@ if (search.for == "symbol") {
 # For chromosome location
 if(search.for == "chromosome.location") {
 	# Loads libraries where applicable
-	phenodata<-read.table("phenodata-2.tsv", header=T, sep="\t")
+	phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 	if(phenodata$chiptype[1]!="cDNA" & phenodata$chiptype[1]!="Illumina" & phenodata$chiptype[1]!="miRNA" & phenodata$chiptype[1]!="other" & phenodata$chiptype[1]!="empty") {
 		lib<-phenodata$chiptype[1]
 		lib<-as.character(lib)
