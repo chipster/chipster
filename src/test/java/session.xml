@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+
+<session format-version="3">
+
+	<!-- Operations -->
+	
+	<operation>
+		<name>operation-definition-id-import</name>
+		<id>oper-0</id>
+	</operation>
+
+	<operation>
+		<name>operation-definition-id-import</name>
+		<id>oper-1</id>
+	</operation>
+
+	<operation>
+		<name>norm-illumina.R</name>
+		<id>oper-2</id>
+		<inputs>
+			<input>data-2</input>
+			<input>data-3</input>
+		</inputs>
+		<parameters>
+			<parameter>
+				<name>normalize.chips</name>
+				<value>quantile</value>
+			</parameter>	
+			<parameter>
+				<name>beadstudio.version</name>
+				<value>1</value>
+			</parameter>	
+			<parameter>
+				<name>chiptype</name>
+				<value>Human-6v1</value>
+			</parameter>	
+			<parameter>
+				<name>id.type</name>
+				<value>TargetID</value>
+			</parameter>	
+			<parameter>
+				<name>produce.flags</name>
+				<value>no</value>
+			</parameter>
+		</parameters>
+		<notes></notes>			
+	</operation>
+
+	<!-- Datas -->
+
+	<data>
+		<!-- different element type for folders? -->
+		<name>Datasets</name>
+		<id>data-0</id>
+		<type>FOLDER</type>
+	</data>
+	
+	<data>
+		<name>IlluminaTeratospermiaHuman6v1_BS1</name>
+		<id>data-1</id>
+		<parent>data-0</parent>
+		<type>FOLDER</type>
+	</data>
+
+	<data>
+		<name>normalGSM160625 (6729238532412057499).tsv</name>
+		<id>data-2</id>
+		<parent>data-1</parent>
+		<result-of>oper-0</result-of>
+		<type>DATASET</type>
+		<storage-type>LOCAL_SESSION</storage-type>
+		<url>file:/C:/Documents%20and%20Settings/ekorpela/Desktop/ExampleSessionChipsterV2.cs#file-0</url>
+		<cached-url>http://chipster-filebroker.csc.fi:8090/user-data/0c636c43-949d-440b-9c6a-cf8700e70164</cached-url>
+		<links>
+			<link>
+				<target>data-3</target>
+				<type>GROUPING</type>
+			</link>
+		</links>
+	</data>
+
+	<data>
+		<name>teratospermialGSM160625 (6729238532412057499).tsv</name>
+		<id>data-3</id>
+		<parent>data-1</parent>
+		<result-of>oper-1</result-of>
+		<type>DATASET</type>
+		<storage-type>LOCAL_SESSION</storage-type>
+		<url>file:/C:/Documents%20and%20Settings/ekorpela/Desktop/ExampleSessionChipsterV2.cs#file-1</url>
+		<cached-url>http://chipster-filebroker.csc.fi:8090/user-data/0c636c43-y523-440b-9c6a-cf8700e70164</cached-url>
+		<links>
+			<link>
+				<target>data-2</target>
+				<type>GROUPING</type>
+			</link>
+		</links>
+	</data>
+
+	<data>
+		<name>normalized.tsv</name>
+		<id>data-4</id>
+		<parent>data-1</parent>
+		<result-of>oper-2</result-of>
+		<type>DATASET</type>
+		<storage-type>LOCAL_SESSION</storage-type>
+		<url>file:/C:/Documents%20and%20Settings/ekorpela/Desktop/ExampleSessionChipsterV2.cs#file-2</url>
+		<cached-url>http://chipster-filebroker.csc.fi:8090/user-data/0c636c43-949d-440b-9y58-cf8700e70164</cached-url>
+		<links>
+			<link>
+				<target>data-2</target>
+				<type>DERIVATION</type>
+			</link>
+			<link>
+				<target>data-3</target>
+				<type>DERIVATION</type>
+			</link>
+		</links>
+	</data>
+
+</session>
