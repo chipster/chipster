@@ -3,6 +3,10 @@ package fi.csc.microarray.security;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.log4j.Logger;
+
+
+import fi.csc.microarray.config.DirectoryLayout;
 
 /**
  * Implementation of a session pool. Session are given cryptographically strong
@@ -13,8 +17,10 @@ import java.util.Map;
  */
 public class SecureSessionPool {
 	
-	private static final long ACTIVE_TIMEOUT_IN_MILLIS = 1*60*60*1000; // 1 hour
-	private static final long TOTAL_TIMEOUT_IN_MILLIS = 14*60*60*1000; // 14 hours
+	private static final Logger logger = Logger.getLogger(SecureSessionPool.class);
+	
+	private long activeTimeout;
+	private long totalTimeout;
 	
 	private Map<String, Session> sessions = new HashMap<String, Session>();
 	
@@ -71,6 +77,17 @@ public class SecureSessionPool {
 		}
 	}
 	
+	public SecureSessionPool() {
+		// timeouts, hours from config file
+		int activeTimeoutMinutes = DirectoryLayout.getInstance().getConfiguration().getInt("auth", "sessionRefreshTimeout");
+		int totalTimeoutMinutes = DirectoryLayout.getInstance().getConfiguration().getInt("auth", "sessionMaxLifetime");
+
+		this.activeTimeout = 1000 * 60 * activeTimeoutMinutes;
+		this.totalTimeout = 1000 * 60 * totalTimeoutMinutes;
+		
+		logger.info("session lifetimes: active " + activeTimeoutMinutes +  "m, maximum " + totalTimeoutMinutes + "m");
+	}
+	
 	public synchronized Session createSession() {
 		String id = CryptoKey.generateRandom();
 		Session session = new Session(id);
@@ -89,8 +106,8 @@ public class SecureSessionPool {
 	}
 	
 	private boolean isExpired(Session session) {
-		return (System.currentTimeMillis() - session.getLastUseTimestamp()) > ACTIVE_TIMEOUT_IN_MILLIS ||
-			(System.currentTimeMillis() - session.getCreationTimestamp()) > TOTAL_TIMEOUT_IN_MILLIS;
+		return (System.currentTimeMillis() - session.getLastUseTimestamp()) > activeTimeout ||
+			(System.currentTimeMillis() - session.getCreationTimestamp()) > totalTimeout;
 	}
 	
 	public synchronized void removeSession(Session session) {
