@@ -44,11 +44,11 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 	 */
     public enum ReadScale {
         XS("0..10", 10),
-        SMALL("0..50", 100),
+        SMALL("0..50", 50),
         MEDIUM("0..100", 100),
-        LARGE("0..500", 1000),        
-        XL("0..1000", 10000),
-        XXL("0..5000", 10000),
+        LARGE("0..500", 500),        
+        XL("0..1000", 1000),
+        XXL("0..5000", 5000),
         XXXL("0..10000", 10000),
         AUTO("Automatic", 0);
         

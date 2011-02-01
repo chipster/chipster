@@ -276,10 +276,6 @@
       <bioconductor-package>oligoClasses</bioconductor-package>
     </item>
       
-    <item installed="false" name="matchprobes" type="r-package"> 
-      <bioconductor-package>matchprobes</bioconductor-package>
-    </item>
-      
     <item installed="false" name="statmod" type="r-package"> 
       <bioconductor-package>statmod</bioconductor-package>
     </item>
