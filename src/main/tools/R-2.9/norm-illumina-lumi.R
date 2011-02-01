@@ -9,6 +9,8 @@
 
 # Illumina data preprocessing and normalization for BeadSummaryData
 # JTT 27.5.2008
+#
+# NG, 21.12.2010 modified to add gene symbol and gene name to the output
 
 # transformation<-"none"
 # normalize.genes<-"none"
