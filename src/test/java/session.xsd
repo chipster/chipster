@@ -1,120 +1,121 @@
 <?xml version="1.0"?>
 
-<session format-version="3">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-	<!-- Operations -->
+	<xs:element name="session" type="sessionType"></xs:element>
+
+
+
+
+
+
+	<xs:complexType name="sessionType">
+		<xs:sequence>
+			<xs:element name="operation" type="operationType"
+				maxOccurs="unbounded" minOccurs="0">
+			</xs:element>
+			<xs:element name="folder" type="folderType"
+				maxOccurs="unbounded" minOccurs="0">
+			</xs:element>
+			<xs:element name="data" type="dataType"
+				maxOccurs="unbounded" minOccurs="0">
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="format-version" type="xs:int"></xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="operationType">
+		<xs:sequence>
+			<xs:element name="id" type="xs:string"></xs:element>
+			<xs:element name="finished-time" type="xs:string"></xs:element>
+			<xs:element name="description" type="descriptionType"></xs:element>
+			<xs:element name="inputs" type="inputsType"></xs:element>
+			<xs:element name="outputs" type="outputsType"></xs:element>
+			<xs:element name="parameters" type="parametersType"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="folderType">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string"></xs:element>
+			<xs:element name="id" type="xs:string"></xs:element>
+            <xs:element name="parent" type="xs:string"></xs:element>
+            <xs:element name="children" type="childrenType"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="dataType">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string"></xs:element>
+			<xs:element name="id" type="xs:string"></xs:element>
+			<xs:element name="folder" type="xs:string"></xs:element>
+			<xs:element name="result-of" type="xs:string"></xs:element>
+			<xs:element name="storage-type" type="xs:string"></xs:element>
+			<xs:element name="url" type="xs:string"></xs:element>
+			<xs:element name="cached-url" type="xs:string"></xs:element>
+			<xs:element name="links" type="linksType"></xs:element>
+			<xs:element name="notes" type="xs:string"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
 	
-	<operation>
-		<name>operation-definition-id-import</name>
-		<id>oper-0</id>
-	</operation>
+    <xs:complexType name="descriptionType">
+    	<xs:sequence>
+    		<xs:element name="name" type="nameType"></xs:element>
+    		<xs:element name="type" type="xs:string"></xs:element>
+    		<xs:element name="source-code-file" type="xs:string"></xs:element>
+    	</xs:sequence>
+    </xs:complexType>
 
-	<operation>
-		<name>operation-definition-id-import</name>
-		<id>oper-1</id>
-	</operation>
+    <xs:complexType name="nameType">
+    	<xs:sequence>
+    		<xs:element name="id" type="xs:string"></xs:element>
+    		<xs:element name="display-name" type="xs:string"></xs:element>
+    	</xs:sequence>
+    </xs:complexType>
 
-	<operation>
-		<name>norm-illumina.R</name>
-		<id>oper-2</id>
-		<inputs>
-			<input>data-2</input>
-			<input>data-3</input>
-		</inputs>
-		<parameters>
-			<parameter>
-				<name>normalize.chips</name>
-				<value>quantile</value>
-			</parameter>	
-			<parameter>
-				<name>beadstudio.version</name>
-				<value>1</value>
-			</parameter>	
-			<parameter>
-				<name>chiptype</name>
-				<value>Human-6v1</value>
-			</parameter>	
-			<parameter>
-				<name>id.type</name>
-				<value>TargetID</value>
-			</parameter>	
-			<parameter>
-				<name>produce.flags</name>
-				<value>no</value>
-			</parameter>
-		</parameters>
-		<notes></notes>			
-	</operation>
+    <xs:complexType name="inputsType">
+    	<xs:sequence>
+    		<xs:element name="input" type="xs:string" maxOccurs="unbounded" minOccurs="0"></xs:element>
+    	</xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="outputsType">
+    	<xs:sequence>
+    		<xs:element name="output" type="xs:string" maxOccurs="unbounded" minOccurs="0"></xs:element>
+    	</xs:sequence>
+    </xs:complexType>
 
-	<!-- Datas -->
+    <xs:complexType name="parametersType">
+    	<xs:sequence>
+    		<xs:element name="parameter" type="parameterType"
+    			maxOccurs="unbounded" minOccurs="0">
+    		</xs:element>
+    	</xs:sequence>
+    </xs:complexType>
 
-	<data>
-		<!-- different element type for folders? -->
-		<name>Datasets</name>
-		<id>data-0</id>
-		<type>FOLDER</type>
-	</data>
-	
-	<data>
-		<name>IlluminaTeratospermiaHuman6v1_BS1</name>
-		<id>data-1</id>
-		<parent>data-0</parent>
-		<type>FOLDER</type>
-	</data>
+    <xs:complexType name="parameterType">
+    	<xs:sequence>
+    		<xs:element name="name" type="nameType"></xs:element>
+    		<xs:element name="value" type="xs:string"></xs:element>
+    	</xs:sequence>
+    </xs:complexType>
 
-	<data>
-		<name>normalGSM160625 (6729238532412057499).tsv</name>
-		<id>data-2</id>
-		<parent>data-1</parent>
-		<result-of>oper-0</result-of>
-		<type>DATASET</type>
-		<storage-type>LOCAL_SESSION</storage-type>
-		<url>file:/C:/Documents%20and%20Settings/ekorpela/Desktop/ExampleSessionChipsterV2.cs#file-0</url>
-		<cached-url>http://chipster-filebroker.csc.fi:8090/user-data/0c636c43-949d-440b-9c6a-cf8700e70164</cached-url>
-		<links>
-			<link>
-				<target>data-3</target>
-				<type>GROUPING</type>
-			</link>
-		</links>
-	</data>
+    <xs:complexType name="childrenType">
+    	<xs:sequence>
+    		<xs:element name="child" type="xs:string" maxOccurs="unbounded" minOccurs="0"></xs:element>
+    	</xs:sequence>
+    </xs:complexType>
 
-	<data>
-		<name>teratospermialGSM160625 (6729238532412057499).tsv</name>
-		<id>data-3</id>
-		<parent>data-1</parent>
-		<result-of>oper-1</result-of>
-		<type>DATASET</type>
-		<storage-type>LOCAL_SESSION</storage-type>
-		<url>file:/C:/Documents%20and%20Settings/ekorpela/Desktop/ExampleSessionChipsterV2.cs#file-1</url>
-		<cached-url>http://chipster-filebroker.csc.fi:8090/user-data/0c636c43-y523-440b-9c6a-cf8700e70164</cached-url>
-		<links>
-			<link>
-				<target>data-2</target>
-				<type>GROUPING</type>
-			</link>
-		</links>
-	</data>
+    <xs:complexType name="linksType">
+    	<xs:sequence>
+    		<xs:element name="link" type="linkType" maxOccurs="unbounded" minOccurs="0"></xs:element>
+    	</xs:sequence>
+    </xs:complexType>
 
-	<data>
-		<name>normalized.tsv</name>
-		<id>data-4</id>
-		<parent>data-1</parent>
-		<result-of>oper-2</result-of>
-		<type>DATASET</type>
-		<storage-type>LOCAL_SESSION</storage-type>
-		<url>file:/C:/Documents%20and%20Settings/ekorpela/Desktop/ExampleSessionChipsterV2.cs#file-2</url>
-		<cached-url>http://chipster-filebroker.csc.fi:8090/user-data/0c636c43-949d-440b-9y58-cf8700e70164</cached-url>
-		<links>
-			<link>
-				<target>data-2</target>
-				<type>DERIVATION</type>
-			</link>
-			<link>
-				<target>data-3</target>
-				<type>DERIVATION</type>
-			</link>
-		</links>
-	</data>
-
-</session>
+    <xs:complexType name="linkType">
+    	<xs:sequence>
+    		<xs:element name="target" type="xs:string"></xs:element>
+    		<xs:element name="type" type="xs:string"></xs:element>
+    	</xs:sequence>
+    </xs:complexType>
+</xs:schema>
