@@ -9,7 +9,6 @@
 #
 # modified by MG, 12.4.2010
 # rewritten by IS, 6.9.2010
-# test
 
 # Parameter settings (default) for testing purposes
 #column<-c("group")
