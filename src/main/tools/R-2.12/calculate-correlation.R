@@ -10,6 +10,8 @@
 # Parameter settings (default) for testing purposes
 #correlation.method<-c("pearson")
 
+# JOOO
+ 
 # Loads the normalized data
 file<-c("normalized.tsv")
 dat<-read.table(file, header=T, sep="\t", row.names=1)
