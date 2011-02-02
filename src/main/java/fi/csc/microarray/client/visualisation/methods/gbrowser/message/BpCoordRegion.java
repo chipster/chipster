@@ -20,6 +20,9 @@ public class BpCoordRegion implements Comparable<BpCoordRegion> {
 	}
 
 	public BpCoordRegion(Long start, Chromosome chr1, Long end, Chromosome chr2) {
+		if (!chr1.equals(chr2)) {
+			throw new IllegalArgumentException("cross-chromosome regions not supported");
+		}
 		this.start = new BpCoord(start, chr1);
 		this.end = new BpCoord(end, chr2);
 	}
@@ -49,11 +52,15 @@ public class BpCoordRegion implements Comparable<BpCoordRegion> {
 	}
 
 	public boolean intercepts(BpCoordRegion other) {
-		return other.end.compareTo(start) >= 0 && other.start.compareTo(end) <= 0;
+		return start.chr.equals(other.start.chr) && other.end.compareTo(start) >= 0 && other.start.compareTo(end) <= 0;
 	}
 
 	public BpCoordRegion intercept(BpCoordRegion other) {
-		return new BpCoordRegion(start.max(other.start), end.min(other.end));
+		if (intercepts(other)) {
+			return new BpCoordRegion(start.max(other.start), end.min(other.end));
+		} else {
+			return null;
+		}
 	}
 
 	public int compareTo(BpCoordRegion o) {
@@ -83,6 +90,6 @@ public class BpCoordRegion implements Comparable<BpCoordRegion> {
 	}
 
 	public boolean contains(BpCoord point) {
-		return point.compareTo(start) >= 0 && point.compareTo(end) < 0;
+		return start.chr.equals(point.chr) && point.compareTo(start) >= 0 && point.compareTo(end) < 0;
 	}
 }
