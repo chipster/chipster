@@ -6,6 +6,9 @@ package fi.csc.microarray.messaging;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -13,9 +16,12 @@ import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Session;
 import javax.jms.Topic;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.ActiveMQSslConnectionFactory;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.config.Configuration;
@@ -174,7 +180,28 @@ public class MessagingEndpoint implements MessagingListener {
 	}
 
 	private ActiveMQConnectionFactory createConnectionFactory(String username, String password, String completeBrokerUrl) {
-		ActiveMQConnectionFactory reliableConnectionFactory = new ActiveMQConnectionFactory(username, password, completeBrokerUrl);
+//		ActiveMQConnectionFactory reliableConnectionFactory = new ActiveMQConnectionFactory(username, password, completeBrokerUrl);
+
+		// use dummy trust manager
+		ActiveMQSslConnectionFactory reliableConnectionFactory = new ActiveMQSslConnectionFactory();
+		
+		reliableConnectionFactory.setKeyAndTrustManagers(null, new TrustManager[] {new X509TrustManager() {
+
+			
+			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+			}
+
+			public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+			}
+
+			public X509Certificate[] getAcceptedIssuers() {
+				return null;
+			}}}, new SecureRandom());
+		reliableConnectionFactory.setUserName(username);
+		reliableConnectionFactory.setPassword(password);
+		reliableConnectionFactory.setBrokerURL(completeBrokerUrl);
+		
+
 		reliableConnectionFactory.setWatchTopicAdvisories(false);
 		return reliableConnectionFactory;
 	}
@@ -201,9 +228,13 @@ public class MessagingEndpoint implements MessagingListener {
 
     private void replyToMessage(Destination replyToDest, ChipsterMessage reply) throws JMSException {
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-    	MapMessage msg = session.createMapMessage();
-    	reply.marshal(msg);
-    	session.createProducer(replyToDest).send(msg);
+    	try {
+			MapMessage msg = session.createMapMessage();
+	    	reply.marshal(msg);
+	    	session.createProducer(replyToDest).send(msg);
+    	} finally {
+    		session.close();
+    	}
     }
     
 	/**
@@ -268,5 +299,14 @@ public class MessagingEndpoint implements MessagingListener {
 
 	public void setSessionID(String sessionID) {
 		this.sessionID = sessionID;
+	}
+
+	/**
+	 * For testing only.
+	 * 
+	 * @return
+	 */
+	public ActiveMQConnection getConnection() {
+		return connection;
 	}
 }

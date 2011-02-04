@@ -244,6 +244,12 @@ public class ConfigTool {
 				updateRuntimesConfigFile(runtimesConfigFile);
 			}
 
+			// update ActiveMQ config
+			File activemqConfigFile = new File(brokerDir + File.separator + DirectoryLayout.CONF_DIR + File.separator + "activemq.xml");
+			if (activemqConfigFile.exists()) {
+				updateActivemqConfigFile(activemqConfigFile);
+			}
+			
 			// update Web Start config
 			File wsConfigFile = new File(webstartDir + File.separator + DirectoryLayout.WEB_ROOT + File.separator + "chipster.jnlp");
 			if (wsConfigFile.exists()) {
@@ -268,6 +274,18 @@ public class ConfigTool {
 
 	}
 
+	private void updateActivemqConfigFile(File configFile) throws Exception {
+		Document doc = openForUpdating("ActiveMQ", configFile);
+		Element broker = (Element)doc.getDocumentElement().getElementsByTagName("broker").item(0);
+		
+		Element transportConnectors = (Element)broker.getElementsByTagName("transportConnectors").item(0);		
+		Element transportConnector = (Element)transportConnectors.getElementsByTagName("transportConnector").item(0); // edit first in the list (could use attribute name to decide right one)..
+		String uri = configs[BROKER_PROTOCOL_INDEX][VAL_INDEX] + "://" + configs[BROKER_HOST_INDEX][VAL_INDEX] + ":" + configs[BROKER_PORT_INDEX][VAL_INDEX];
+		updateElementAttribute(transportConnector, "uri", uri);
+		
+		writeLater(configFile, doc);
+	}
+	
 	private void updateWsConfigFile(File configFile) throws Exception {
 		Document doc = openForUpdating("Web Start", configFile);
 		Element jnlp = (Element)doc.getDocumentElement();

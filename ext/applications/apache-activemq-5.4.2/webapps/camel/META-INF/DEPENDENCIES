@@ -1,0 +1,137 @@
+// ------------------------------------------------------------------
+// Transitive dependencies of this project determined from the
+// maven pom organized by organization.
+// ------------------------------------------------------------------
+
+Camel :: Web
+
+
+From: 'an unknown organization'
+  - AOP alliance (http://aopalliance.sourceforge.net) aopalliance:aopalliance:jar:1.0
+    License: Public Domain 
+  - Unnamed - com.sun.xml.bind:jaxb-impl:jar:2.1.12  com.sun.xml.bind:jaxb-impl:jar:2.1.12
+
+  - JavaBeans Activation Framework (JAF) (http://java.sun.com/products/javabeans/jaf/index.jsp) javax.activation:activation:jar:1.1
+    License: Common Development and Distribution License (CDDL) v1.0  (https://glassfish.dev.java.net/public/CDDLv1.0.html)
+  - Unnamed - javax.annotation:jsr250-api:jar:1.0  javax.annotation:jsr250-api:jar:1.0
+
+  - Unnamed - javax.servlet:jstl:jar:1.1.2  javax.servlet:jstl:jar:1.1.2
+
+  - Unnamed - javax.xml.bind:jaxb-api:jar:2.1  javax.xml.bind:jaxb-api:jar:2.1
+
+  - Streaming API for XML  javax.xml.stream:stax-api:jar:1.0-2
+    License: GNU General Public Library  (http://www.gnu.org/licenses/gpl.txt)    License: COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0  (http://www.sun.com/cddl/cddl.html)
+  - Unnamed - jdom:jdom:jar:1.0  jdom:jdom:jar:1.0
+
+  - JLine (http://jline.sourceforge.net) jline:jline:jar:0.9.93
+    License: BSD  (LICENSE.txt)
+  - Jettison  org.codehaus.jettison:jettison:bundle:1.2
+
+  - JRuby (http://www.jruby.org/maven/jruby) org.jruby:jruby:jar:1.5.1
+    License: Common Public License - v 1.0  (http://www-128.ibm.com/developerworks/library/os-cpl.html)    License: GNU General Public License Version 2  (http://www.gnu.org/copyleft/gpl.html)    License: GNU Lesser General Public License Version 2.1  (http://www.gnu.org/licenses/lgpl.html)
+  - jnr-posix  org.jruby.ext.posix:jnr-posix:jar:1.1.4
+    License: Common Public License - v 1.0  (http://www-128.ibm.com/developerworks/library/os-cpl.html)    License: GNU General Public License Version 2  (http://www.gnu.org/copyleft/gpl.html)    License: GNU Lesser General Public License Version 2.1  (http://www.gnu.org/licenses/lgpl.html)
+  - ByteList  org.jruby.extras:bytelist:jar:1.0.6
+    License: MIT License  (http://www.opensource.org/licenses/mit-license.php)
+  - constantine (http://constantine.kenai.com) org.jruby.extras:constantine:jar:0.6
+    License: The MIT License  (http://www.opensource.org/licenses/mit-license.php)
+  - jaffl (http://github.com/wmeissner/jaffl) org.jruby.extras:jaffl:jar:0.5.1
+    License: GNU Lesser General Public License Version 3  (http://www.gnu.org/licenses/lgpl-3.0.txt)
+  - jffi (http://github.com/wmeissner/jffi) org.jruby.extras:jffi:jar:1.0.1
+    License: GNU LGPLv3  (http://www.gnu.org/licenses/lgpl-3.0.txt)
+  - jnr-netdb (http://github.com/wmeissner/jnr-netdb) org.jruby.extras:jnr-netdb:jar:1.0
+    License: GNU Lesser General Public License Version 3  (http://www.gnu.org/licenses/lgpl-3.0.txt)
+  - JCodings  org.jruby.jcodings:jcodings:jar:1.0.4
+    License: MIT License  (http://www.opensource.org/licenses/mit-license.php)
+  - Joni  org.jruby.joni:joni:jar:1.1.4
+    License: MIT License  (http://www.opensource.org/licenses/mit-license.php)
+  - Unnamed - org.springframework:spring-aop:jar:3.0.3.RELEASE  org.springframework:spring-aop:jar:3.0.3.RELEASE
+
+  - Unnamed - org.springframework:spring-asm:jar:3.0.3.RELEASE  org.springframework:spring-asm:jar:3.0.3.RELEASE
+
+  - Unnamed - org.springframework:spring-beans:jar:3.0.3.RELEASE  org.springframework:spring-beans:jar:3.0.3.RELEASE
+
+  - Unnamed - org.springframework:spring-context:jar:3.0.3.RELEASE  org.springframework:spring-context:jar:3.0.3.RELEASE
+
+  - Unnamed - org.springframework:spring-core:jar:3.0.3.RELEASE  org.springframework:spring-core:jar:3.0.3.RELEASE
+
+  - Unnamed - org.springframework:spring-expression:jar:3.0.3.RELEASE  org.springframework:spring-expression:jar:3.0.3.RELEASE
+
+  - Unnamed - org.springframework:spring-tx:jar:3.0.3.RELEASE  org.springframework:spring-tx:jar:3.0.3.RELEASE
+
+  - Unnamed - org.springframework:spring-web:jar:3.0.3.RELEASE  org.springframework:spring-web:jar:3.0.3.RELEASE
+
+  - StAX API (http://stax.codehaus.org/) stax:stax-api:jar:1.0.1
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Unnamed - taglibs:standard:jar:1.1.2  taglibs:standard:jar:1.1.2
+
+
+From: 'FasterXML' (http://fasterxml.com)
+  - Jackson (http://jackson.codehaus.org) org.codehaus.jackson:jackson-core-asl:jar:1.1.1
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+From: 'FuseSource' (http://www.fusesource.org)
+  - Commons Management (http://commonman.fusesource.org) org.fusesource.commonman:commons-management:bundle:1.0
+    License: Apache License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.html)
+
+From: 'Joda.org' (http://www.joda.org)
+  - Joda time (http://joda-time.sourceforge.net) joda-time:joda-time:jar:1.6
+    License: Apache 2  (http://www.apache.org/licenses/)
+
+From: 'ObjectWeb' (http://www.objectweb.org/)
+  - ASM Core (http://asm.objectweb.org/asm) asm:asm:jar:3.1
+
+
+From: 'Opensymphony' (http://www.opensymphony.com)
+  - Sitemesh (http://www.opensymphony.com/sitemesh) opensymphony:sitemesh:jar:2.3
+    License: The Apache Software License, Version 1.1  (http://www.opensymphony.com/sitemesh/license.action)
+
+From: 'QOS.ch' (http://www.qos.ch)
+  - SLF4J API Module (http://www.slf4j.org) org.slf4j:slf4j-api:jar:1.6.0
+    License: MIT License  (http://www.opensource.org/licenses/mit-license.php)
+  - SLF4J LOG4J-12 Binding (http://www.slf4j.org) org.slf4j:slf4j-log4j12:jar:1.6.0
+    License: MIT License  (http://www.opensource.org/licenses/mit-license.php)
+
+From: 'Spring Framework' (http://www.springframework.org/)
+  - Spring Framework (http://www.springframework.org) org.springframework:spring:jar:2.5.6
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+From: 'Sun Microsystems' (http://java.sun.com/)
+  - ROME, RSS and atOM utilitiEs for Java (https://rome.dev.java.net/) rome:rome:jar:0.9
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+From: 'Sun Microsystems, Inc' (http://www.sun.com/)
+  - jersey-atom (https://jersey.dev.java.net/jersey-atom) com.sun.jersey:jersey-atom:jar:1.1.5
+    License: CDDL+GPL License  (https://jersey.dev.java.net/CDDL+GPL.html)
+  - jersey-core (https://jersey.dev.java.net/jersey-core) com.sun.jersey:jersey-core:jar:1.1.5
+    License: CDDL+GPL License  (https://jersey.dev.java.net/CDDL+GPL.html)
+  - jersey-json (https://jersey.dev.java.net/jersey-json) com.sun.jersey:jersey-json:jar:1.1.5
+    License: CDDL+GPL License  (https://jersey.dev.java.net/CDDL+GPL.html)
+  - jersey-server (https://jersey.dev.java.net/jersey-server) com.sun.jersey:jersey-server:jar:1.1.5
+    License: CDDL+GPL License  (https://jersey.dev.java.net/CDDL+GPL.html)
+  - jersey-spring (http://maven.apache.org) com.sun.jersey.contribs:jersey-spring:jar:1.1.5
+    License: CDDL+GPL License  (https://jersey.dev.java.net/CDDL+GPL.html)
+  - jsr311-api (https://jsr311.dev.java.net) javax.ws.rs:jsr311-api:jar:1.1.1
+    License: CDDL License  (http://www.opensource.org/licenses/cddl1.php)
+
+From: 'The Apache Software Foundation' (http://jakarta.apache.org)
+  - Logging (http://jakarta.apache.org/commons/logging/) commons-logging:commons-logging-api:jar:1.1
+    License: The Apache Software License, Version 2.0  (/LICENSE.txt)
+
+From: 'The Apache Software Foundation' (http://www.apache.org/)
+  - Camel :: Core (http://camel.apache.org/camel-parent/camel-core) org.apache.camel:camel-core:bundle:2.4.0
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Camel :: Groovy (http://camel.apache.org/camel-parent/camel-groovy) org.apache.camel:camel-groovy:bundle:2.4.0
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Camel :: Ruby (http://camel.apache.org/camel-parent/camel-ruby) org.apache.camel:camel-ruby:bundle:2.4.0
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Camel :: Spring (http://camel.apache.org/camel-parent/camel-spring) org.apache.camel:camel-spring:bundle:2.4.0
+    License: The Apache Software License, Version 2.0  (http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+From: 'The Codehaus' (http://codehaus.org)
+  - Groovy (http://groovy.codehaus.org/) org.codehaus.groovy:groovy-all:jar:1.7.3
+
+
+
+
+
