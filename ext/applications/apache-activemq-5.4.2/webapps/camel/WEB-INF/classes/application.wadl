@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns2:application
+        xmlns:ns2="http://research.sun.com/wadl/2006/10"><ns2:doc
+        jersey:generatedBy="Jersey: 1.1.4.1 11/24/2009 01:30 AM"
+        xmlns:jersey="http://jersey.dev.java.net/"/><ns2:doc
+        xml:lang="en"
+                title="Apache Camel Web Console and API"><![CDATA[
+    ]]><p>
+      For more on the REST API please see<a
+            href="http://camel.apache.org/web-console.html">the Web Console documentation</a>.
+    </p><![CDATA[
+  ]]></ns2:doc><ns2:grammars><ns2:include
+        href="camel-web.xsd"/></ns2:grammars><ns2:resources
+            base="http://www.example.com/api"><ns2:resource
+                path="/"><ns2:doc><![CDATA[The root Camel resource from which all other resources can be navigated such as for <code>endpoints</code>
+ or <code>routes</code>]]></ns2:doc><ns2:method
+                name="GET"
+                        id="getCamel"><ns2:doc><![CDATA[Returns the XML or JSON representation of the CamelContext]]></ns2:doc><ns2:response><ns2:representation
+                        mediaType="text/xml"/><ns2:representation
+                        mediaType="application/xml"/><ns2:representation
+                mediaType="application/json"/></ns2:response></ns2:method><ns2:resource
+                    path="components"><ns2:doc><![CDATA[Represents the list of the currently active <a href="http://camel.apache.org/component.html">components</a>
+ in the current camel context]]></ns2:doc><ns2:resource
+                        path="{id}"><ns2:param type="xs:string"
+                        style="template" name="id"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"/></ns2:resource></ns2:resource><ns2:resource
+                    path="converters"><ns2:resource
+                        path="{type}"><ns2:param type="xs:string"
+                        style="template" name="type"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"/></ns2:resource></ns2:resource><ns2:resource
+                    path="endpoints"><ns2:doc><![CDATA[The active endpoints in Camel]]></ns2:doc><ns2:method
+                    name="GET"
+                            id="getDTO"><ns2:doc><![CDATA[Returns a list of endpoints available in this context]]></ns2:doc><ns2:response><ns2:representation
+                            mediaType="text/xml"/><ns2:representation
+                            mediaType="application/xml"/><ns2:representation
+                    mediaType="application/json"/></ns2:response></ns2:method><ns2:method
+                    name="POST"
+                            id="postUri"><ns2:doc><![CDATA[Creates a new Endpoint for the given URI that is posted.]]></ns2:doc><ns2:request><ns2:representation
+                            mediaType="text/plain"/></ns2:request><ns2:response><ns2:representation
+                    mediaType="*/*"/></ns2:response></ns2:method><ns2:method
+                    name="POST"
+                            id="postUriForm"><ns2:doc><![CDATA[Creates a new Endpoint for the given URI that is posted using form encoding with the <code>uri</code>
+ value in the form being used to specify the endpoints unique URI.]]></ns2:doc><ns2:request><ns2:representation
+                            mediaType="application/x-www-form-urlencoded"/></ns2:request><ns2:response><ns2:representation
+                    mediaType="*/*"/></ns2:response></ns2:method><ns2:resource
+                        path="{id}"><ns2:doc><![CDATA[A Camel <a href="http://camel.apache.org/endpoint.html">Endpoint</a>]]></ns2:doc><ns2:param
+                        type="xs:string" style="template" name="id"
+                        xmlns:xs="http://www.w3.org/2001/XMLSchema"><ns2:doc><![CDATA[the endpoints unique URI]]></ns2:doc></ns2:param><ns2:method
+                        name="POST"
+                                id="postMessage"><ns2:doc><![CDATA[Posts a <a href="http://camel.apache.org/message.html">message</a> to this Camel endpoint with the payload
+ being text, XML or JSON]]></ns2:doc><ns2:request><ns2:representation
+                                mediaType="text/plain"/><ns2:representation
+                                mediaType="text/html"/><ns2:representation
+                                mediaType="text/xml"/><ns2:representation
+                                mediaType="application/xml"/></ns2:request><ns2:response><ns2:representation
+                        mediaType="*/*"/></ns2:response></ns2:method><ns2:method
+                        name="POST"
+                                id="postMessageForm"><ns2:doc><![CDATA[Posts a <a href="http://camel.apache.org/message.html">message</a> to this Camel endpoint taking the
+ form data and extracting the <code>body</code> field as the body of the message.]]></ns2:doc><ns2:request><ns2:representation
+                                mediaType="application/x-www-form-urlencoded"/></ns2:request><ns2:response><ns2:representation
+                        mediaType="*/*"/></ns2:response></ns2:method><ns2:resource
+                            path="messages/{id}"><ns2:doc><![CDATA[A Camel <a href="http://camel.apache.org/exchange.html">message exchange</a>]]></ns2:doc><ns2:param
+                            type="xs:string" style="template" name="id"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"/></ns2:resource></ns2:resource></ns2:resource><ns2:resource
+                    path="languages"><ns2:doc><![CDATA[Represents the list of the currently active <a href="http://camel.apache.org/languages.html">languages</a>
+ in the current camel context]]></ns2:doc><ns2:resource
+                        path="{id}"><ns2:param type="xs:string"
+                        style="template" name="id"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"/></ns2:resource></ns2:resource><ns2:resource
+                    path="routes"><ns2:doc><![CDATA[The active routes in Camel which are used to implement one or more <a
+ href="http://camel.apache.org/enterprise-integration-patterns.html"
+ >Enterprise Integration Paterns</a>]]></ns2:doc><ns2:method
+                    name="GET"
+                            id="getRouteDefinitions"><ns2:doc><![CDATA[Returns the routes currently active within this context]]></ns2:doc><ns2:response><ns2:representation
+                            mediaType="text/xml"/><ns2:representation
+                            mediaType="application/xml"/><ns2:representation
+                    mediaType="application/json"/></ns2:response></ns2:method><ns2:method
+                    name="GET"
+                            id="getDot"><ns2:doc><![CDATA[Returns the Graphviz DOT <a
+ href="http://camel.apache.org/visualisation.html">Visualisation</a> of
+ the current Camel routes]]></ns2:doc><ns2:response><ns2:representation
+                    mediaType="text/vnd.graphviz"/></ns2:response></ns2:method><ns2:method
+                    name="POST"
+                            id="postRouteForm"><ns2:doc><![CDATA[Creates a new route using form encoded data from a web form]]></ns2:doc><ns2:request><ns2:representation
+                                mediaType="application/x-www-form-urlencoded"><ns2:param
+                                type="xs:string" style="query"
+                                name="language"
+                                xmlns:xs="http://www.w3.org/2001/XMLSchema"/><ns2:param
+                                type="xs:string" style="query"
+                                name="route"
+                            xmlns:xs="http://www.w3.org/2001/XMLSchema"/></ns2:representation></ns2:request><ns2:response><ns2:representation
+                    mediaType="*/*"/></ns2:response></ns2:method><ns2:resource
+                        path="{id}/lang/{language}"><ns2:doc><![CDATA[A single Camel Route which is used to implement one or more
+ <a href="http://camel.apache.org/enterprise-integration-patterns.html">Enterprise Integration Paterns</a>]]></ns2:doc><ns2:param
+                        type="xs:string" style="template" name="id"
+                        xmlns:xs="http://www.w3.org/2001/XMLSchema"/><ns2:param
+                        type="xs:string" style="template"
+                        name="language"
+                        xmlns:xs="http://www.w3.org/2001/XMLSchema"/><ns2:method
+                        name="GET"
+                                id="getRoute"><ns2:doc><![CDATA[Returns the XML or JSON representation of this route]]></ns2:doc><ns2:response><ns2:representation
+                                mediaType="text/xml"/><ns2:representation
+                                mediaType="application/xml"/><ns2:representation
+                        mediaType="application/json"/></ns2:response></ns2:method><ns2:method
+                        name="GET"
+                                id="getDot"><ns2:doc><![CDATA[Returns the Graphviz DOT <a
+ href="http://camel.apache.org/visualisation.html">Visualisation</a> of
+ this route]]></ns2:doc><ns2:response><ns2:representation
+                        mediaType="text/vnd.graphviz"/></ns2:response></ns2:method><ns2:method
+                        name="POST"
+                                id="postRouteForm"><ns2:doc><![CDATA[Updates a route definition using form encoded data from a web form]]></ns2:doc><ns2:request><ns2:representation
+                                    mediaType="application/x-www-form-urlencoded"><ns2:param
+                                    type="xs:string" style="query"
+                                    name="language"
+                                    xmlns:xs="http://www.w3.org/2001/XMLSchema"/><ns2:param
+                                    type="xs:string" style="query"
+                                    name="route"
+                                    xmlns:xs="http://www.w3.org/2001/XMLSchema"/><ns2:param
+                                    type="xs:string" style="query"
+                                    name="edited"
+                                xmlns:xs="http://www.w3.org/2001/XMLSchema"/></ns2:representation></ns2:request><ns2:response><ns2:representation
+                        mediaType="*/*"/></ns2:response></ns2:method><ns2:method
+                        name="POST"
+                                id="postRoute"><ns2:doc><![CDATA[Allows a route definition to be updated]]></ns2:doc><ns2:request><ns2:representation
+                        mediaType="*/*"/></ns2:request></ns2:method><ns2:resource
+                            path="status"><ns2:doc><![CDATA[Represents the status of a single single Camel Route which is used to implement one or more
+ <a href="http://camel.apache.org/enterprise-integration-patterns.html">Enterprise Integration Paterns</a>]]></ns2:doc><ns2:method
+                            name="POST"
+                                    id="setStatus"><ns2:request><ns2:representation
+                                    mediaType="application/x-www-form-urlencoded"/></ns2:request><ns2:response><ns2:representation
+                            mediaType="*/*"/></ns2:response></ns2:method><ns2:method
+                            name="POST"
+                                    id="setStatus"><ns2:request><ns2:representation
+                                    mediaType="text/plain"/></ns2:request><ns2:response><ns2:representation
+                            mediaType="*/*"/></ns2:response></ns2:method><ns2:method
+                            name="GET"
+                                    id="getStatusText"><ns2:response><ns2:representation
+                    mediaType="text/plain"/></ns2:response></ns2:method></ns2:resource></ns2:resource><ns2:resource
+                        path="{id}"><ns2:doc><![CDATA[A single Camel Route which is used to implement one or more
+ <a href="http://camel.apache.org/enterprise-integration-patterns.html">Enterprise Integration Paterns</a>]]></ns2:doc><ns2:param
+                        type="xs:string" style="template" name="id"
+                        xmlns:xs="http://www.w3.org/2001/XMLSchema"/><ns2:method
+                        name="GET"
+                                id="getRoute"><ns2:doc><![CDATA[Returns the XML or JSON representation of this route]]></ns2:doc><ns2:response><ns2:representation
+                                mediaType="text/xml"/><ns2:representation
+                                mediaType="application/xml"/><ns2:representation
+                        mediaType="application/json"/></ns2:response></ns2:method><ns2:method
+                        name="GET"
+                                id="getDot"><ns2:doc><![CDATA[Returns the Graphviz DOT <a
+ href="http://camel.apache.org/visualisation.html">Visualisation</a> of
+ this route]]></ns2:doc><ns2:response><ns2:representation
+                        mediaType="text/vnd.graphviz"/></ns2:response></ns2:method><ns2:method
+                        name="POST"
+                                id="postRouteForm"><ns2:doc><![CDATA[Updates a route definition using form encoded data from a web form]]></ns2:doc><ns2:request><ns2:representation
+                                    mediaType="application/x-www-form-urlencoded"><ns2:param
+                                    type="xs:string" style="query"
+                                    name="language"
+                                    xmlns:xs="http://www.w3.org/2001/XMLSchema"/><ns2:param
+                                    type="xs:string" style="query"
+                                    name="route"
+                                    xmlns:xs="http://www.w3.org/2001/XMLSchema"/><ns2:param
+                                    type="xs:string" style="query"
+                                    name="edited"
+                                xmlns:xs="http://www.w3.org/2001/XMLSchema"/></ns2:representation></ns2:request><ns2:response><ns2:representation
+                        mediaType="*/*"/></ns2:response></ns2:method><ns2:method
+                        name="POST"
+                                id="postRoute"><ns2:doc><![CDATA[Allows a route definition to be updated]]></ns2:doc><ns2:request><ns2:representation
+                        mediaType="*/*"/></ns2:request></ns2:method><ns2:resource
+                            path="status"><ns2:doc><![CDATA[Represents the status of a single single Camel Route which is used to implement one or more
+ <a href="http://camel.apache.org/enterprise-integration-patterns.html">Enterprise Integration Paterns</a>]]></ns2:doc><ns2:method
+                            name="POST"
+                                    id="setStatus"><ns2:request><ns2:representation
+                                    mediaType="application/x-www-form-urlencoded"/></ns2:request><ns2:response><ns2:representation
+                            mediaType="*/*"/></ns2:response></ns2:method><ns2:method
+                            name="POST"
+                                    id="setStatus"><ns2:request><ns2:representation
+                                    mediaType="text/plain"/></ns2:request><ns2:response><ns2:representation
+                            mediaType="*/*"/></ns2:response></ns2:method><ns2:method
+                            name="GET"
+                                    id="getStatusText"><ns2:response><ns2:representation
+                    mediaType="text/plain"/></ns2:response></ns2:method></ns2:resource></ns2:resource><ns2:resource
+                        path="{id}/status"><ns2:doc><![CDATA[Represents the status of a single single Camel Route which is used to implement one or more
+ <a href="http://camel.apache.org/enterprise-integration-patterns.html">Enterprise Integration Paterns</a>]]></ns2:doc><ns2:param
+                        type="xs:string" style="template" name="id"
+                        xmlns:xs="http://www.w3.org/2001/XMLSchema"/><ns2:method
+                        name="POST"
+                                id="setStatus"><ns2:request><ns2:representation
+                                mediaType="application/x-www-form-urlencoded"/></ns2:request><ns2:response><ns2:representation
+                        mediaType="*/*"/></ns2:response></ns2:method><ns2:method
+                        name="POST"
+                                id="setStatus"><ns2:request><ns2:representation
+                                mediaType="text/plain"/></ns2:request><ns2:response><ns2:representation
+                        mediaType="*/*"/></ns2:response></ns2:method><ns2:method
+                        name="GET"
+                                id="getStatusText"><ns2:response><ns2:representation mediaType="text/plain"/></ns2:response></ns2:method></ns2:resource></ns2:resource></ns2:resource></ns2:resources></ns2:application>

@@ -50,7 +50,7 @@
 	<property name="wrapper-linux-x86-32" value="${wrapper-dist}/wrapper-linux-x86-32-3.2.3" />
 	<property name="wrapper-linux-x86-64" value="${wrapper-dist}/wrapper-linux-x86-64-3.2.3" />
 	<property name="wrapper-windows-x86-32" value="${wrapper-dist}/wrapper-windows-x86-32-3.3.3" />
-	<property name="activemq-dist" value="${ext-apps}/apache-activemq-5.3.1" />
+	<property name="activemq-dist" value="${ext-apps}/apache-activemq-5.4.2" />
 
 	<!-- keystore for signing -->
     <property name="keyalias" value="csc" />
@@ -94,7 +94,7 @@
         	<fatjar.jarsource file="${lib}/commons-io-1.3.2.jar" relpath=""/>
            	<fatjar.jarsource file="${lib}/eclipse-icons.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/geronimo-servlet_2.5_spec-1.1.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/activemq-all-5.3.1.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib}/activemq-all-5.4.2.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/commons-logging-1.1.jar" relpath=""/>
 	    	<fatjar.jarsource file="${lib}/sam-1.32.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/picard-1.32.jar" relpath=""/>
@@ -145,7 +145,7 @@
 
 		<delete dir="${build}" quiet="true" />
 		<mkdir dir="${build}" />
-		<javac destdir="${build}" target="1.5" source="1.5" debug="true" failonerror="true">
+		<javac destdir="${build}" target="1.6" source="1.6" debug="true" failonerror="true">
 			<src path="${src}" />
 			<src path="${tools-src}" />
 			<classpath>
@@ -356,7 +356,10 @@
 			<!--<tarfileset dir="${activemq-dist}/bin/win32" filemode="755" prefix="chipster/activemq/bin/win32" /> -->
 			
 			<tarfileset file="${ext-src}/activemq/activemq.xml" prefix="chipster/activemq/conf" />
-
+			<tarfileset file="${ext-src}/activemq/wrapper/linux-x86-32/wrapper.conf" prefix="chipster/activemq/bin/linux-x86-32" />
+			<tarfileset file="${ext-src}/activemq/wrapper/linux-x86-64/wrapper.conf" prefix="chipster/activemq/bin/linux-x86-64" />
+			<tarfileset file="${ext-src}/activemq/wrapper/macosx/wrapper.conf" prefix="chipster/activemq/bin/macosx" />
+			
 		</tar>
 
 	</target>
