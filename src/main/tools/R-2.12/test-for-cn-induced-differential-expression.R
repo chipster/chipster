@@ -7,7 +7,7 @@
 
 # test-for-cn-induced-differential-expression.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-15
+# 2011-02-07
 
 library(CGHcall)
 library(intCNGEan)
@@ -51,6 +51,12 @@ matched <- list(CNdata.matched=cgh, GEdata.matched=exp)
 # tune and test
 tuned <- intCNGEan.tune(matched$CNdata.matched, matched$GEdata.matched, test.statistic=test.statistic)
 result <- intCNGEan.test(tuned, analysis.type=analysis.type, test.statistic=test.statistic, nperm=number.of.permutations)
+
+# for some reason, columns in the data.frame appear as lists in R-2.12.
+# convert back to vectors
+if (class(result[,1]) == 'list')
+  for (i in 1:ncol(result))
+    result[,i] <- unlist(result[,i])
 
 if (nrow(tuned$ann) != nrow(result))
   stop('CHIPSTER-NOTE: The number of rows for the objects tuned and result do not match. Please report this to Ilari Scheinin.')
