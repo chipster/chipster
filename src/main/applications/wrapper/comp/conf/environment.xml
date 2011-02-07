@@ -322,7 +322,7 @@
 	<!--  Other packages -->
 	
     <item installed="false" name="altcdf-annotations" type="r-package"> 
-      <from-web-page>http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/12.0.0/entrezg.asp</from-web-page>
+      <from-web-page>http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/13.0.0/entrezg.asp</from-web-page>
     </item>
     
     <item installed="false" name="affy-exon-exon-rat" type="r-package">
@@ -355,14 +355,6 @@
     
     <item installed="false" name="SMA" type="r-package">
     	<url>http://www.stat.berkeley.edu/~terry/zarray/Software/SMAcode/sma_0.5.13.tar.gz</url>
-    </item>
-
-    <item installed="false" name="alt-cfd hgu133ah (v11)" type="r-package">
-    	<url>http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/11.0.1/entrezg.download/hgu133ahsentrezg.db_11.0.1.tar.gz</url>
-    </item>
-
-    <item installed="false" name="alt-cfd hgu133a2h (v11)" type="r-package">    	
-    	<url>http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/11.0.1/entrezg.download/hgu133a2hsentrezg.db_11.0.1.tar.gz</url>
     </item>
 
     <item installed="false" name="microRNA" type="r-package"> 
