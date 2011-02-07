@@ -48,6 +48,9 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
         boolean inputLast = analysis.getConfigParameters().get("input") != null &&
                 analysis.getConfigParameters().get("input").toLowerCase().equals("last");
         
+        boolean noInput = analysis.getConfigParameters().get("input") != null &&
+        analysis.getConfigParameters().get("input").toLowerCase().equals("none");
+        
         boolean inputsAsPlainArguments = analysis.getConfigParameters().get("inputs-as-plain-arguments") != null &&
         analysis.getConfigParameters().get("inputs-as-plain-arguments").toLowerCase().equals("true");
         
@@ -116,7 +119,7 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
         }
         
         // Inputs
-        if (!inputsAsPlainArguments) {
+        if (!inputsAsPlainArguments && !noInput) {
         	for (InputDescription input : analysis.getInputFiles()) {
         		if (!inputLast) {
         			// Input is a named parameter
