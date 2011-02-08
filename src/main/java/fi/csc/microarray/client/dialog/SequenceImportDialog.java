@@ -8,6 +8,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.ByteArrayInputStream;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -36,7 +37,7 @@ import fi.csc.microarray.databeans.DataBean;
 @SuppressWarnings("serial")
 public class SequenceImportDialog extends JDialog implements CaretListener, ActionListener {
     
-    private static final String OPERATION_ID = "importseq.sadl";
+    private static final String OPERATION_ID = "import-sequences-from-database.sadl";
     private final Dimension BUTTON_SIZE = new Dimension(70, 25);
     
     private static Logger logger = Logger.getLogger(SequenceImportDialog.class);
@@ -299,16 +300,18 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
                 send = null;
             }
 
+            String identifiers = "CASA1_HUMAN\nCASA1_MOUSE";
+            
             // Create operation
             Operation operation = new Operation(application.getOperationDefinition(OPERATION_ID), new DataBean[] {});
-            operation.setParameter("sequence", db + ":" + id);
+            operation.setParameter("source", db);
             operation.setParameter("sbegin", sbegin);
             operation.setParameter("send", send);
+
+            operation.bindInputs(new DataBean[] {Session.getSession().getDataManager().createDataBean("identifiers.txt", new ByteArrayInputStream(identifiers.getBytes()))});
             
             // Run the job (blocking while it is progressing)
             application.executeOperation(operation);
-            
-            // TODO ability to merge datasets
             
         } catch (Exception exc) {
             application.reportException(exc);
