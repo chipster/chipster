@@ -5,12 +5,10 @@
 
 # Correlogram
 # JTT 18.10.2007
-# jeejeejeeJeu
+# jeejeejeeJou
 
 # Parameter settings (default) for testing purposes
 #correlation.method<-c("pearson")
-
-# JOOO
  
 # Loads the normalized data
 file<-c("normalized.tsv")
