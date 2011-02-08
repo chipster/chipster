@@ -423,7 +423,11 @@ public abstract class ClientApplication {
 				LinkedList<DataBean> sources = new LinkedList<DataBean>();
 				for (DataBinding binding : oper.getBindings()) {
 					// do not create derivation links for metadata datasets
-					if (!primaryModule.isMetadata(binding.getData())) {
+					// also do not create links for sources without parents
+					// this happens when creating the input databean for example
+					// for import tasks
+					// FIXME should such a source be deleted here?
+					if (!primaryModule.isMetadata(binding.getData()) && (binding.getData().getParent() != null)) {
 						sources.add(binding.getData());
 
 					}
