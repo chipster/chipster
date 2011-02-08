@@ -13,10 +13,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import fi.csc.microarray.client.ClientApplication;
-import fi.csc.microarray.client.SwingClientApplication;
+import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.dataimport.ImportSession;
 import fi.csc.microarray.client.dataimport.ImportUtils;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.parameter.ImportParameterPanel;
+import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.exception.MicroarrayException;
 
 
@@ -36,37 +38,52 @@ public class TaskImportDialog extends JDialog implements ActionListener {
 	private JLabel descriptionLabel;
 	private JLabel noteLabel;
 	private JButton okButton;
+	private JButton skipButton;
 	private JButton cancelButton;
 	private JComboBox folderNameCombo;
 	private ClientApplication application;
-	private Operation operation;
+	private ImportSession importSession;
+	private Operation importOperation;
 
-	public TaskImportDialog(SwingClientApplication application, String databaseName, Operation operation) throws MicroarrayException {
-		super(application.getMainFrame(), true);
+	/**
+	 * @param importSession if passed, then skipping import is supported.
+	 */
+
+	public TaskImportDialog(ClientApplication application, String title, ImportSession importSession, Operation importOperation) throws MicroarrayException {
+		this(application, title, importSession, importOperation, "Import", "Cancel", "Skip");
+	}
+	
+	public TaskImportDialog(ClientApplication application, String title, ImportSession importSession, Operation importOperation, String okButtonText, String cancelButtonText, String skipButtonText) throws MicroarrayException {
+		super(Session.getSession().getFrames().getMainFrame(), true);
 
 		this.application = application;
-		this.operation = operation;
+		this.importSession = importSession;
+		this.importOperation = importOperation;
 		this.setTitle("Import");
 		this.setModal(true);
 		this.setPreferredSize(new Dimension(500, 300));
 
 		// initialise components
-		titleLabel = new JLabel("<html><p style=\"font-weight:bold;font-size:120%\">Import data from " + databaseName + "</p></html>");
-		descriptionLabel = new JLabel("<html>" + operation.getDescription() + "</html>");
+		titleLabel = new JLabel("<html><p style=" + VisualConstants.HTML_DIALOG_TITLE_STYLE + ">" + title + "</p></html>");
+		descriptionLabel = new JLabel("<html>" + importOperation.getDescription() + "</html>");
 		noteLabel = new JLabel("<html><p style=\"font-style:italic\">It may take a while for the import task to finish.");
 
 		folderNameCombo = new JComboBox(ImportUtils.getFolderNames(false).toArray());
 		folderNameCombo.setEditable(true);
 
-		okButton = new JButton("Import");
+		okButton = new JButton(okButtonText);
 		okButton.setPreferredSize(BUTTON_SIZE);
 		okButton.addActionListener(this);
 
-		cancelButton = new JButton("Cancel");
+		skipButton = new JButton(skipButtonText);
+		skipButton.setPreferredSize(BUTTON_SIZE);
+		skipButton.addActionListener(this);
+
+		cancelButton = new JButton(cancelButtonText);
 		cancelButton.setPreferredSize(BUTTON_SIZE);
 		cancelButton.addActionListener(this);
 
-		ImportParameterPanel parameterPanel = new ImportParameterPanel(operation, null);
+		ImportParameterPanel parameterPanel = new ImportParameterPanel(importOperation, null);
 
 		JPanel keepButtonsRightPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints buttonConstraints = new GridBagConstraints();
@@ -75,6 +92,10 @@ public class TaskImportDialog extends JDialog implements ActionListener {
 		buttonConstraints.anchor = GridBagConstraints.EAST;
 		buttonConstraints.insets.set(0, 0, 0, 8);
 		keepButtonsRightPanel.add(cancelButton, buttonConstraints);
+		if (importSession != null) {
+			buttonConstraints.anchor = GridBagConstraints.CENTER;		
+			keepButtonsRightPanel.add(skipButton, buttonConstraints);
+		}
 		buttonConstraints.gridx = GridBagConstraints.RELATIVE;
 		buttonConstraints.insets.set(0, 0, 0, 0);
 		keepButtonsRightPanel.add(okButton, buttonConstraints);
@@ -124,17 +145,17 @@ public class TaskImportDialog extends JDialog implements ActionListener {
 
 		// make visible
 		this.pack();
-		this.setLocationRelativeTo(application.getMainFrame());
+		Session.getSession().getFrames().setLocationRelativeToMainFrame(this);
 		this.setVisible(true);
 	}
 
 	
 	public void actionPerformed(ActionEvent e) {
 
-		// start the import task
+		// Start the import task
 		if (e.getSource() == okButton) {
 			try {
-				application.executeOperation(operation);
+				application.executeOperation(importOperation);
 			} catch (Exception me) {
 				application.reportException(me);
 			} finally {
@@ -142,9 +163,16 @@ public class TaskImportDialog extends JDialog implements ActionListener {
 			}
 		} 
 		
-		// cancel import
+		// Cancel import
 		else if (e.getSource() == cancelButton) {
 			this.dispose();
 		}
+		
+		// Skip import
+		else if (e.getSource() == skipButton) {
+			application.importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
+			this.dispose();
+		}
+
 	}
 }

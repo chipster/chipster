@@ -253,9 +253,6 @@ public class TableColumnProvider extends FeatureProviderBase {
 					System.arraycopy(columnNames, 0, newColumnNames, 1, columnNames.length);
 					newColumnNames[0] = " "; // must be space, empty names are not allowed
 					columnNames = newColumnNames;
-
-				} else if (dataColumnCount > (columnNames.length+1)) {
-					throw new MicroarrayException("table parse error: " + columnNames.length + " column names, but " + dataColumnCount + " values");
 				}
 
 				logger.debug("parsed matrix has " + columnNames.length + " columns, column names came with data: " + settings.hasColumnNames);

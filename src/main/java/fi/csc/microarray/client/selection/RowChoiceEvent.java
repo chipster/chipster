@@ -10,7 +10,7 @@ import fi.csc.microarray.databeans.DataBean;
  * An event that is fired whenever data rows are selected from data set 
  * to keep the visualisations agreed on the selected rows. 
  * 
- * @author Petri KlemelÃ¤
+ * @author Petri Klemelä
  *
  */
 public class RowChoiceEvent extends PropertyChangeEvent {

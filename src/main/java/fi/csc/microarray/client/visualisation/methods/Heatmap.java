@@ -35,7 +35,6 @@ import org.jfree.data.hc.HeatMap;
 
 import fi.csc.microarray.client.selection.RowChoiceEvent;
 import fi.csc.microarray.client.selection.RowSelectionManager;
-import fi.csc.microarray.client.visualisation.ChipVisualisation;
 import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.methods.SelectableChartPanel.SelectionChangeListener;
@@ -70,10 +69,9 @@ public class Heatmap extends ChipVisualisation implements PropertyChangeListener
 
 	int rowCount;
 
-	public Heatmap(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
-
 	/**
 	 * Logger for this class
 	 */
