@@ -62,7 +62,7 @@ public class GeneTrack extends Track {
 				RegionContent read = iter.next();
 
 				// FIXME this and all the other incarnations of the same 3 lines should be refactored up to Track or something
-				if (!read.region.intercepts(getView().getBpRegion())) {
+				if (!read.region.intersects(getView().getBpRegion())) {
 					iter.remove();
 					continue;
 				}

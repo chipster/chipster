@@ -58,7 +58,7 @@ public class SeqTrack extends Track {
 
 				RegionContent read = iter.next();
 
-				if (!read.region.intercepts(getView().getBpRegion())) {
+				if (!read.region.intersects(getView().getBpRegion())) {
 
 					iter.remove();
 					continue;

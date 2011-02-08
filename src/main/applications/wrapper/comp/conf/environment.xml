@@ -33,9 +33,17 @@
     	<package-name>libxml2-devel</package-name>
     </item>
   
+    <item installed="false" name="gsl" type="file"> 
+	  <dir></dir>
+	  <comment>
+	    Install GSL (GNU Scientific Library) and make the environment variable
+	    GSL_CONFIG to contain the path to $GSL_HOME/bin/gsl-config
+      </comment>
+    </item>
+    
   </bundle>
   
-  <bundle depends="Required OS packages for R" name="Basic R environment" required="true">
+  <bundle name="Basic R environment" depends="Required OS packages for R" required="true">
   
     <item installed="false" name="R" type="application">
       <dir>/opt/chipster/tools/R-2.9.0</dir>
@@ -47,14 +55,12 @@
     
   </bundle>
    
-   <!--  split required: annotationDbi, matchprobes -->   
-  <bundle depends="Basic R environment" name="Basic R packages" required="true">
+  <bundle name="Basic R packages" depends="Basic R environment" required="true">
   
   	<!-- CRAN packages -->
   	
     <item installed="false" name="Matrix" type="r-package">
       <repository>http://cran.r-project.org</repository>
-      <!-- <dependencies>true</dependencies> -->
       <package>Matrix</package>
     </item>
 
@@ -138,6 +144,7 @@
       <package>XML</package>
     </item>
 
+
 	<!--  BioConductor packages -->
 	
     <item installed="false" name="bioconductor" type="r-package"> 
@@ -208,17 +215,6 @@
       <bioconductor-package>biomaRt</bioconductor-package>
     </item>
 
-	<!--  Bioconductor packages required for miRNA tools (R 2.10)
-	
-    <item installed="false" name="microRNA" type="r-package"> 
-      <bioconductor-package>microRNA</bioconductor-package>
-    </item>
-
-    <item installed="false" name="RmiR" type="r-package"> 
-      <bioconductor-package>RmiR</bioconductor-package>
-    </item>
-    
-    -->
       
     <item installed="false" name="lumi" type="r-package"> 
       <bioconductor-package>lumi</bioconductor-package>
@@ -314,7 +310,7 @@
 
   </bundle>
   
-  <bundle depends="Basic R environment" name="Additional R packages">
+  <bundle name="Additional R packages" depends="Basic R environment">
      
     <!--  BioConductor annotations -->
     
@@ -322,10 +318,11 @@
       <bioconductor-repository>4</bioconductor-repository>
     </item>
 
+
 	<!--  Other packages -->
 	
     <item installed="false" name="altcdf-annotations" type="r-package"> 
-      <from-web-page>http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/12.0.0/entrezg.asp</from-web-page>
+      <from-web-page>http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/13.0.0/entrezg.asp</from-web-page>
     </item>
     
     <item installed="false" name="affy-exon-exon-rat" type="r-package">
@@ -360,14 +357,86 @@
     	<url>http://www.stat.berkeley.edu/~terry/zarray/Software/SMAcode/sma_0.5.13.tar.gz</url>
     </item>
 
-    <item installed="false" name="alt-cfd hgu133ah (v11)" type="r-package">
-    	<url>http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/11.0.1/entrezg.download/hgu133ahsentrezg.db_11.0.1.tar.gz</url>
+    <item installed="false" name="microRNA" type="r-package"> 
+      <bioconductor-package>microRNA</bioconductor-package>
     </item>
 
-    <item installed="false" name="alt-cfd hgu133a2h (v11)" type="r-package">    	
-    	<url>http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/11.0.1/entrezg.download/hgu133a2hsentrezg.db_11.0.1.tar.gz</url>
+    <item installed="false" name="RmiR" type="r-package"> 
+      <bioconductor-package>RmiR</bioconductor-package>
     </item>
     
+    <item installed="false" name="biomaRt" type="r-package"> 
+      <bioconductor-package>biomaRt</bioconductor-package>
+    </item>
+    
+    <item installed="false" name="ChIPpeakAnno" type="r-package"> 
+      <bioconductor-package>ChIPpeakAnno</bioconductor-package>
+    </item>
+    
+    <item installed="false" name="rGADEM" type="r-package"> 
+      <bioconductor-package>rGADEM</bioconductor-package>
+    </item>
+    
+    <item installed="false" name="MotIV" type="r-package"> 
+      <bioconductor-package>MotIV</bioconductor-package>
+    </item>
+    
+    <item installed="false" name="PICS" type="r-package"> 
+      <bioconductor-package>PICS</bioconductor-package>
+    </item>
+    
+    <item installed="false" name="IRanges" type="r-package"> 
+      <bioconductor-package>IRanges</bioconductor-package>
+    </item>
+    
+    <item installed="false" name="BSgenome" type="r-package"> 
+      <bioconductor-package>BSgenome</bioconductor-package>
+    </item>
+
+    <item installed="false" name="BSgenome.Hsapiens.UCSC.hg18" type="r-package"> 
+      <bioconductor-package>BSgenome.Hsapiens.UCSC.hg18</bioconductor-package>
+    </item>
+    
+    <item installed="false" name="seqLogo" type="r-package"> 
+      <bioconductor-package>seqLogo</bioconductor-package>
+    </item>
+    
+    <item installed="false" name="GenomicRanges" type="r-package"> 
+      <bioconductor-package>GenomicRanges</bioconductor-package>
+    </item>
+    
+    <item installed="false" name="Biostrings" type="r-package"> 
+      <bioconductor-package>Biostrings</bioconductor-package>
+    </item>
+    
+    <item installed="false" name="ChIPpeakAnno" type="r-package"> 
+      <bioconductor-package>ChIPpeakAnno</bioconductor-package>
+    </item>
+    
+    <item installed="false" name="chipseq" type="r-package"> 
+      <bioconductor-package>chipseq</bioconductor-package>
+    </item>
+ 
+    <item installed="false" name="Rsamtools" type="r-package"> 
+      <bioconductor-package>Rsamtools</bioconductor-package>
+    </item>
+    
+    <item installed="false" name="ShortRead" type="r-package"> 
+      <bioconductor-package>ShortRead</bioconductor-package>
+    </item>
+    
+    <item installed="false" name="lumiHumanIDMapping" type="r-package"> 
+      <bioconductor-package>lumiHumanIDMapping</bioconductor-package>
+    </item>
+    
+    <item installed="false" name="lumiMouseIDMapping" type="r-package"> 
+      <bioconductor-package>lumiMouseIDMapping</bioconductor-package>
+    </item>
+    
+    <item installed="false" name="lumiRatIDMapping" type="r-package"> 
+      <bioconductor-package>lumiRatIDMapping</bioconductor-package>
+    </item>
+   
   </bundle>
   
   <bundle name="External applications">

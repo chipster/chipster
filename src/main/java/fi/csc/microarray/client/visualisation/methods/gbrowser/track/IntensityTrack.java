@@ -57,7 +57,7 @@ public class IntensityTrack extends Track {
 			RegionContent regCont = iterator.next();
 			
 			// remove values that have gone out of view
-			if (!regCont.region.intercepts(getView().getBpRegion())) {
+			if (!regCont.region.intersects(getView().getBpRegion())) {
 				iterator.remove();
 				continue;
 			}
@@ -100,7 +100,7 @@ public class IntensityTrack extends Track {
 		if (areaResult.status.concise == this.isConcised() && 
 				areaResult.content.values.get(ColumnType.STRAND) == getStrand() && 
 				areaResult.content.values.get(ColumnType.VALUE) != null &&
-				areaResult.content.region.intercepts(getView().getBpRegion())) { 
+				areaResult.content.region.intersects(getView().getBpRegion())) { 
 
 			
 			values.add(areaResult.content);

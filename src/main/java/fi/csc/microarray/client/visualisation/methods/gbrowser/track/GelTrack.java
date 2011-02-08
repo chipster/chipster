@@ -82,7 +82,7 @@ public class GelTrack extends Track {
                 RegionContent read = iter.next();
 
                 // remove those that are not in this view
-                if (!read.region.intercepts(getView().getBpRegion())) {
+                if (!read.region.intersects(getView().getBpRegion())) {
                     iter.remove();
                     continue;
                 }
@@ -92,7 +92,7 @@ public class GelTrack extends Track {
                 for (ReadPart element : elements) {
 
                 	// Skip elements that are not in this view
-                	if (!element.intercepts(getView().getBpRegion())) {
+                	if (!element.intersects(getView().getBpRegion())) {
                 		continue;
                 	}
 

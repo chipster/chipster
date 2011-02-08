@@ -73,7 +73,7 @@ public class SeqBlockTrack extends Track {
 			RegionContent read = iter.next();
 
 			// Remove reads that are not in this view
-			if (!read.region.intercepts(getView().getBpRegion())) {
+			if (!read.region.intersects(getView().getBpRegion())) {
 				iter.remove();
 				continue;
 			}
@@ -85,7 +85,7 @@ public class SeqBlockTrack extends Track {
 			for (ReadPart visibleRegion : visibleRegions) {
 
 				// Skip elements that are not in this view
-				if (!visibleRegion.intercepts(getView().getBpRegion())) {
+				if (!visibleRegion.intersects(getView().getBpRegion())) {
 					continue;
 				}
 				
@@ -303,7 +303,7 @@ public class SeqBlockTrack extends Track {
 		RegionContent read;
 		while (iter.hasNext()) {
 			read = iter.next();
-			if (!read.region.intercepts(view.getBpRegion())) {
+			if (!read.region.intersects(view.getBpRegion())) {
 				iter.remove();
 				continue;
 			}

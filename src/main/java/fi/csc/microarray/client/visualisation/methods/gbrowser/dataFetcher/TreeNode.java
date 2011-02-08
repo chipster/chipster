@@ -225,7 +225,7 @@ public class TreeNode {
 			 * Normally this is always true, but it's not a big job to check anyway and make it
 			 * little bit more robust.
 			 */
-			if (fileResult.request.areaRequest.intercepts(fileResult.chunkParser.getBpRegion(fileResult.chunk))) {
+			if (fileResult.request.areaRequest.intersects(fileResult.chunkParser.getBpRegion(fileResult.chunk))) {
 
 				if (fileResult.status.concise) {
 					createConcisedResult(fileResult.request.areaRequest, fileResult.status);
@@ -281,7 +281,7 @@ public class TreeNode {
 	private void createConcisedResult(AreaRequest areaRequest, FsfStatus status) {
 
 		for (RegionContent regCont : concisedValues) {
-			if (areaRequest.intercepts(regCont.region)) {
+			if (areaRequest.intersects(regCont.region)) {
 				tree.createAreaResult(new AreaResult<RegionContent>(status, regCont));
 			}
 		}
@@ -299,7 +299,7 @@ public class TreeNode {
 
 		for (RegionContent rc : chunkParser.getAll(chunk, areaRequest.requestedContents)) {
 
-			if (areaRequest.intercepts(rc.region)) {
+			if (areaRequest.intersects(rc.region)) {
 				tree.createAreaResult(new AreaResult<RegionContent>(status, rc));
 			}
 		}
