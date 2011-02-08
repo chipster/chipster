@@ -5,7 +5,6 @@
 
 # Correlogram
 # JTT 18.10.2007
-# jeejeejeeJou
 
 # Parameter settings (default) for testing purposes
 #correlation.method<-c("pearson")
