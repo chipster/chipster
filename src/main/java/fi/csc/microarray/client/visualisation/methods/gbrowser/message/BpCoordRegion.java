@@ -43,24 +43,21 @@ public class BpCoordRegion implements Comparable<BpCoordRegion> {
 		return start.plus(end) / 2;
 	}
 
+	@Override
 	public String toString() {
-		return "Region [" + start + " - " + end + "]";
+		return toString(false);
+	}
+	
+	public String toString(boolean tsvFormat) {
+		if (tsvFormat) {
+			return start.chr + "\t" + start.bp + "\t" + end.bp;
+		} else {
+			return "Region [" + start + " - " + end + "]";
+		}
 	}
 
 	public BpCoordRegion clone() throws CloneNotSupportedException {
 		return new BpCoordRegion(start, end);
-	}
-
-	public boolean intercepts(BpCoordRegion other) {
-		return start.chr.equals(other.start.chr) && other.end.compareTo(start) >= 0 && other.start.compareTo(end) <= 0;
-	}
-
-	public BpCoordRegion intercept(BpCoordRegion other) {
-		if (intercepts(other)) {
-			return new BpCoordRegion(start.max(other.start), end.min(other.end));
-		} else {
-			return null;
-		}
 	}
 
 	public int compareTo(BpCoordRegion o) {
@@ -92,4 +89,31 @@ public class BpCoordRegion implements Comparable<BpCoordRegion> {
 	public boolean contains(BpCoord point) {
 		return start.chr.equals(point.chr) && point.compareTo(start) >= 0 && point.compareTo(end) < 0;
 	}
+
+	public boolean intersects(BpCoordRegion other) {
+		return start.chr.equals(other.start.chr) && other.end.compareTo(start) >= 0 && other.start.compareTo(end) <= 0;
+	}
+
+	public BpCoordRegion intersect(BpCoordRegion other) {
+		if (!intersects(other)) {
+			throw new IllegalArgumentException("regions do not intersect");
+		}
+		return new BpCoordRegion(start.max(other.start), end.min(other.end));
+	}
+
+	public BpCoordRegion merge(BpCoordRegion other) {
+		if (!intersects(other)) {
+			throw new IllegalArgumentException("regions do not intersect");
+		}
+		return new BpCoordRegion(start.min(other.start), end.max(other.end));
+	}
+
+	public BpCoordRegion subtract(BpCoordRegion other) {
+		if (!intersects(other)) {
+			throw new IllegalArgumentException("regions do not intersect");
+		}
+		return new BpCoordRegion(start.max(other.end), end.min(other.start));
+	}
+	
+	
 }

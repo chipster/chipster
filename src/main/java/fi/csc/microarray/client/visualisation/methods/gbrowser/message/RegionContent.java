@@ -46,6 +46,6 @@ public class RegionContent implements Comparable<RegionContent> {
 	@Override
 	public boolean equals(Object o) {
 		RegionContent other = (RegionContent) o; 
-		return region.equals(region) && values.toString().equals(other.values.toString());		
+		return region.equals(other.region) && values.toString().equals(other.values.toString());		
 	}
 }

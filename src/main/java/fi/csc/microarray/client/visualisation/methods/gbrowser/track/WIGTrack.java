@@ -59,7 +59,7 @@ public class WIGTrack extends Track{
 	            RegionContent value = iter.next();
 	
 	            // remove those that are not in this view
-	            if (!value.region.intercepts(getView().getBpRegion())) {
+	            if (!value.region.intersects(getView().getBpRegion())) {
 	                iter.remove();
 	                continue;
 	            }

@@ -157,7 +157,7 @@ public class BaseStorage {
 
 			RegionContent read = iter.next();
 
-			if (read.region.intercepts(view.getBpRegion())) {
+			if (read.region.intersects(view.getBpRegion())) {
 				readsInView.add(read);
 			} else {
 				readOutOfView.add(read);
@@ -211,7 +211,7 @@ public class BaseStorage {
 			RegionContent read = iter.next();
 
 			// remove those that are not in this view
-			if (!read.region.intercepts(view.getBpRegion())) {
+			if (!read.region.intersects(view.getBpRegion())) {
 				iter.remove();
 				continue;
 			}
@@ -219,7 +219,7 @@ public class BaseStorage {
 			for (ReadPart readPart : Cigar.splitVisibleElements(read)) {
 
 				// Skip elements that are not in this view
-				if (!readPart.intercepts(view.getBpRegion())) {
+				if (!readPart.intersects(view.getBpRegion())) {
 					continue;
 				}
 

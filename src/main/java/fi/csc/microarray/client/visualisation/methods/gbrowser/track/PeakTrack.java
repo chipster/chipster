@@ -57,7 +57,7 @@ public class PeakTrack extends Track {
 
 				RegionContent peak = iter.next();
 
-				if (!peak.region.intercepts(getView().getBpRegion())) {
+				if (!peak.region.intersects(getView().getBpRegion())) {
 					iter.remove();
 					continue;
 				}

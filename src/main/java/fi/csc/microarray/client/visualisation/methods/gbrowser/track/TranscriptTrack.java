@@ -74,7 +74,7 @@ public class TranscriptTrack extends Track {
 
 			for (Gene gene : sortedGenes) {
 				
-				if (!gene.region.intercepts(getView().getBpRegion())) {
+				if (!gene.region.intersects(getView().getBpRegion())) {
 
 					genes.remove(gene.id);
 					continue;
