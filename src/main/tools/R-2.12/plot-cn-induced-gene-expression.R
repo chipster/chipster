@@ -2,8 +2,8 @@
 # INPUT GENE_EXPRS cn-induced-expression.tsv
 # OUTPUT cn-induced-expression-plot.png
 # PARAMETER gene.ids STRING DEFAULT 1 (The gene.ids of the genes to be plotted, separated by commas. Ranges are also supported (e.g. 1,3,7-10).)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# PARAMETER image.width INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
+# PARAMETER image.height INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
 
 # plot-cn-induced-gene-expression.R
 # Ilari Scheinin <firstname.lastname@gmail.com>

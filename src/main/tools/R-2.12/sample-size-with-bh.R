@@ -5,8 +5,8 @@
 # PARAMETER assume.equal.variances [yes, no] DEFAULT no (Whether to treat the variances of the two groups as equal.)
 # PARAMETER distribution [normal, student] DEFAULT normal (Whether to use the normal or the t distribution to calculate p values.)
 # PARAMETER false.discovery.rate DECIMAL DEFAULT 0.1 (False discovery rate.)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# PARAMETER image.width INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
+# PARAMETER image.height INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
 
 # sample-size-with-bh.R
 # Ilari Scheinin <firstname.lastname@gmail.com>

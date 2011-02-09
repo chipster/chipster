@@ -2,8 +2,8 @@
 # INPUT GENE_EXPRS aberrations.tsv
 # OUTPUT regions.tsv, regions.png, regions-frequencies.png
 # PARAMETER max.info.loss DECIMAL DEFAULT 0.01 (Maximal information loss allowed.)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# PARAMETER image.width INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
+# PARAMETER image.height INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
 
 # detect-common-copy-number-aberration-regions.R
 # Ilari Scheinin <firstname.lastname@gmail.com>

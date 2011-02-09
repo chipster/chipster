@@ -5,8 +5,8 @@
 # PARAMETER number.of.chromosomes INTEGER DEFAULT 23 (Number of chromosomes. Usually 23 for sex-matched reference samples and 22 otherwise.)
 # PARAMETER number.of.copy.number.states [3, 4] DEFAULT 3 (Whether to call loss vs. normal vs. gain or loss vs. normal vs. gain vs. amplification.)
 # PARAMETER minimum.number.of.probes.per.segment [2, 3, 4, 5] DEFAULT 2 (Minimum number of probes per segment.)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# PARAMETER image.width INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
+# PARAMETER image.height INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
 
 # detect-copy-number-aberrations.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
