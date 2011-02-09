@@ -1,10 +1,12 @@
 # ANALYSIS Normalisation/"Illumina - methylumi pipeline" (Illumina methylation assay normalization using FinalReport files and lumi methodology.
 # TO USE THIS, YOU NEED TO IMPORT THE FinalReport FILE DIRECTLY, NOT USING THE IMPORT TOOL.)
-# INPUT GENERIC chip.tsv OUTPUT normalized.tsv, unmethylated.tsv, methylated.tsv, phenodata.tsv
+# INPUT GENERIC chip.tsv OUTPUT normalized.tsv, unmethylated.tsv, methylated.tsv, phenodata.tsv, QC-plot.png
 # PARAMETER color.balance.adjustment [none, quantile, ssn] DEFAULT quantile (Adjustment of color balance)
 # PARAMETER background.correction [none, bgAdjust2C, forcePositive] DEFAULT none (Should background adjustment be applied)
 # PARAMETER normalization [none, quantile, ssn] DEFAULT quantile (Normalization)
 # PARAMETER chiptype [Human] DEFAULT Human (chiptype)
+# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the resampling image)
+# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the resampling image)
 
 
 # Illumina methylation array data preprocessing and normalization for FinalReport file
@@ -14,7 +16,12 @@
 # background.correction<-c("none")
 # normalization<-c("quantile")
 # chiptype<-c("Human")
+# image.width<-c(600)
+# image.height<-c(600)
 
+# Renaming variables
+w<-image.width
+h<-image.height
 
 # Loading libraries
 library(lumi)
@@ -42,6 +49,14 @@ if(color.balance.adjustment!="none") {
 # Normalization
 dat4<-lumiMethyN(dat3, method=normalization)
 
+# QC plots
+bitmap(file="QC-plot.png", width=w/72, height=h/72)
+par(mfrow=c(2,2))
+plotColorBias1D(dat, main="Unpreprocessed")
+plotColorBias1D(dat4, main="Preprocessed")
+boxplotColorBias(dat, main="Unpreprocessed")
+boxplotColorBias(dat4, main="Preprocessed")
+dev.off()
 
 # Convert sample names to Chipster style
 dat5<-exprs(dat4)
