@@ -19,7 +19,8 @@ public class IntervalTool extends JavaAnalysisJobBase {
 		return 	"TOOL \"Interval operations\" / IntervalTool.java: \"Remove intervals\" (Removes intervals of the second dataset from the first dataset.)" + "\n" +
 				"INPUT data1.bed: \"First input file\" TYPE GENERIC" + "\n" +
 				"INPUT data2.bed: \"Second input file\" TYPE GENERIC" + "\n" +
-				"OUTPUT result.bed: \"Result file\"" + "\n"; 
+				"OUTPUT result.bed: \"Result file\"" + "\n" + 
+				"PARAMETER min.overlap.bp: \"Minimum number of overlapping basepairs\" INTEGER FROM 1 DEFAULT 1 (How many basepairs are required for overlapping)";
 	}
 	
 	
@@ -29,13 +30,14 @@ public class IntervalTool extends JavaAnalysisJobBase {
 			updateStateToClient(JobState.RUNNING, "preprocessing");
 			File inputFile1 = new File(jobWorkDir, analysis.getInputFiles().get(0).getFileName()); 
 			File inputFile2 = new File(jobWorkDir, analysis.getInputFiles().get(1).getFileName());
-
+			
 			IntervalOperations tool = new IntervalOperations();
 
 			List<RegionContent> rows1 = tool.loadFile(inputFile1);
 			List<RegionContent> rows2 = tool.loadFile(inputFile2);
+			Long minOverlap = Long.parseLong(inputMessage.getParameters().get(0));
 
-			LinkedList<BpCoordRegion> intersections = tool.intersect(rows1, rows2, false);
+			LinkedList<BpCoordRegion> intersections = tool.intersect(rows1, rows2, minOverlap, false);
 
 			FileOutputStream outputStream = null;
 			try {

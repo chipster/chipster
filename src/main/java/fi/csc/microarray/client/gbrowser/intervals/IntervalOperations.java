@@ -19,6 +19,27 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRe
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class IntervalOperations {
+
+	public static interface PairRule {
+		public boolean isPair(BpCoordRegion left, BpCoordRegion right);
+	}
+
+	public static class IntersectingPairRule implements PairRule {
+
+		private Long minLength;
+
+		public IntersectingPairRule(Long minLength) {
+			this.minLength = minLength;
+		}
+
+		public boolean isPair(BpCoordRegion left, BpCoordRegion right) {
+			if (!left.intersects(right)) {
+				return false;
+			}
+			BpCoordRegion intersection = left.intersect(right);
+			return intersection.getLength() >= minLength;
+		}
+	}
 	
 	public static interface PairPolicy {
 		public void process(BpCoordRegion left, BpCoordRegion right, LinkedList<BpCoordRegion> collector);
@@ -92,17 +113,17 @@ public class IntervalOperations {
 	 * @param rightIntervals second set
 	 * @return intersections
 	 */
-	public LinkedList<BpCoordRegion> intersect(List<RegionContent> leftIntervals, List<RegionContent> rightIntervals, boolean mergeIntersecting) {
-		return operate(leftIntervals, rightIntervals, EXCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, mergeIntersecting ? MERGE_PAIR_POLICY : INTERSECT_PAIR_POLICY, true);
+	public LinkedList<BpCoordRegion> intersect(List<RegionContent> leftIntervals, List<RegionContent> rightIntervals, Long minIntersectionLength, boolean mergeIntersecting) {
+		return operate(leftIntervals, rightIntervals, new IntersectingPairRule(minIntersectionLength), EXCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, mergeIntersecting ? MERGE_PAIR_POLICY : INTERSECT_PAIR_POLICY, true);
 	}
 
 
-	public LinkedList<BpCoordRegion> subtract(List<RegionContent> leftIntervals, List<RegionContent> rightIntervals) {
-		return operate(leftIntervals, rightIntervals, INCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, EXCLUDE_PAIR_POLICY, true);
+	public LinkedList<BpCoordRegion> subtract(List<RegionContent> leftIntervals, List<RegionContent> rightIntervals, Long minIntersectionLength) {
+		return operate(leftIntervals, rightIntervals, new IntersectingPairRule(minIntersectionLength), INCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, EXCLUDE_PAIR_POLICY, true);
 	}
 
-	public LinkedList<BpCoordRegion> merge(List<RegionContent> leftIntervals, List<RegionContent> rightIntervals) {
-		return operate(leftIntervals, rightIntervals, INCLUDE_ORPHAN_POLICY, INCLUDE_ORPHAN_POLICY, MERGE_PAIR_POLICY, true);
+	public LinkedList<BpCoordRegion> merge(List<RegionContent> leftIntervals, List<RegionContent> rightIntervals, Long minIntersectionLength) {
+		return operate(leftIntervals, rightIntervals, new IntersectingPairRule(minIntersectionLength), INCLUDE_ORPHAN_POLICY, INCLUDE_ORPHAN_POLICY, MERGE_PAIR_POLICY, true);
 	}
 
 	public void print(Iterable<BpCoordRegion> intervals, OutputStream outputStream) {
@@ -152,7 +173,7 @@ public class IntervalOperations {
 		return dataSource.getFileParser().getAll(new Chunk(new String(fileChunk)), columns);
 	}
 	
-	public LinkedList<BpCoordRegion> operate(List<RegionContent> leftIntervals, List<RegionContent> rightIntervals, OrphanPolicy leftOrphanPolicy, OrphanPolicy rightOrphanPolicy, PairPolicy intersectingPairPolicy, boolean mergeContinous) {
+	public LinkedList<BpCoordRegion> operate(List<RegionContent> leftIntervals, List<RegionContent> rightIntervals, PairRule pairRule, OrphanPolicy leftOrphanPolicy, OrphanPolicy rightOrphanPolicy, PairPolicy pairPolicy, boolean mergeContinous) {
 		
 		// Initialise collectors
 		LinkedList<BpCoordRegion> result = new LinkedList<BpCoordRegion>();
@@ -162,10 +183,10 @@ public class IntervalOperations {
 		// Find pairs
 		for (RegionContent leftInterval : leftIntervals) {
 			for (RegionContent rightInterval : rightIntervals) {
-				if (leftInterval.region.intersects(rightInterval.region)) {
+				if (pairRule.isPair(leftInterval.region, rightInterval.region)) {
 					leftPaired.add(leftInterval);
 					rightPaired.add(rightInterval);
-					intersectingPairPolicy.process(leftInterval.region, rightInterval.region, result);
+					pairPolicy.process(leftInterval.region, rightInterval.region, result);
 				}
 			}
 		}
