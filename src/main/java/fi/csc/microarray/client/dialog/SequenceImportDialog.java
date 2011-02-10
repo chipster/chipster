@@ -33,7 +33,7 @@ import fi.csc.microarray.databeans.DataBean;
 @SuppressWarnings("serial")
 public class SequenceImportDialog extends JDialog implements CaretListener, ActionListener {
 
-	private static final String OPERATION_ID_FOR_MULTIPLE_IDENTIFIERS = "import-sequences-from-database.sadl";
+	private static final String OPERATION_ID_FOR_MULTIPLE_IDENTIFIERS = "retrieve-sequences-from-database.sadl";
 	private static final String OPERATION_ID_FOR_SINGLE_IDENTIFIER = "importseq.sadl";
 
 	private static final String STYLE_FOR_HINTS = "style=\"font-size: 90%\"";

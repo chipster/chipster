@@ -1,4 +1,0 @@
-TOOL "Import" / import-sequences-from-database.sadl: "Import sequences from database" (Import sequences using seqret tool from EMBOSS)
-INPUT identifiers.txt: "sequence identifiers" TYPE GENERIC
-OUTPUT import-from-database.txt
-PARAMETER source: "Source database" TYPE [embl: "EMBL", emblnew: "EMBL New", pdb_seq: "PDB", swiss: "UniProt / SwissProt", trembl: "UniProt / TrEMBL", ensebl: "Ensebml"] ("Source database") 
