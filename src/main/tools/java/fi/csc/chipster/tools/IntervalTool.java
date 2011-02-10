@@ -37,7 +37,7 @@ public class IntervalTool extends JavaAnalysisJobBase {
 			List<RegionContent> rows2 = tool.loadFile(inputFile2);
 			Long minOverlap = Long.parseLong(inputMessage.getParameters().get(0));
 
-			LinkedList<BpCoordRegion> intersections = tool.intersect(rows1, rows2, minOverlap, false);
+			LinkedList<BpCoordRegion> intersections = tool.subtract(rows1, rows2, minOverlap);
 
 			FileOutputStream outputStream = null;
 			try {
