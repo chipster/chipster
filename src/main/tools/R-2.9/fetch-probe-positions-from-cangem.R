@@ -4,10 +4,13 @@
 # PARAMETER platform [other, Affymetrix_GeneChip_Human_Mapping_50K_Xba, Affymetrix_Human_Genome_U133_Plus_2.0, Affymetrix_Human_Genome_U133A, Affymetrix_Human_Genome_U133A_2.0, Affymetrix_Human_Genome_U133B, Affymetrix_Human_Genome_U95A, Affymetrix_Human_Genome_U95Av2, Affymetrix_Human_Genome_U95B, Affymetrix_Human_Genome_U95C, Affymetrix_Human_Genome_U95D, Affymetrix_Human_Genome_U95E, Agilent_Human_1_cDNA_Microarray_G4100A, Agilent_Human_1A_Microarray_G4110A, Agilent_Human_1A_Microarray_V2_G4110B, Agilent_Human_1B_Microarray_G4111A, Agilent_Human_Genome_CGH_Oligo_Microarray_4x44K, Agilent_Human_Genome_CGH_Oligo_Microarray_Kit_185, Agilent_Human_Genome_CGH_Oligo_Microarray_Kit_244A_G4411B, Agilent_Human_Genome_CGH_Oligo_Microarray_Kit_44A_G4410A, Agilent_Human_Genome_CGH_Oligo_Microarray_Kit_44B_G4410B, Agilent_Human_miRNA_Microarray, Agilent_Human_miRNA_Microarray_V2, Agilent_Human_miRNA_Microarray_V3, Agilent_Human_Promoter_ChIP_on_Chip_Set_244K_Microarray_1_of_2, Agilent_Human_Promoter_ChIP_on_Chip_Set_244K_Microarray_2_of_2, Agilent_Oxford_2x105, Agilent_Whole_Human_Genome_Microarray_Kit_G4112A, Agilent_Whole_Human_Genome_Oligo_Microarray_4x44K, Turku_HUM_16K_cDNA, VUMC_Human_30K_60mer_oligo_array, Ensembl_Genes, Ensembl_Cytobands, Ensembl_Chromosomes] DEFAULT other (The microarray platform. If the one used is not on the list, but can be found from CanGEM, please select other and specify the accession number using the next parameter.)
 # PARAMETER other.platform.accession STRING DEFAULT CG-PLM- (The accession of the platform. This is used only if other is selected in the previous parameter.)
 # PARAMETER genome.build [GRCh37, NCBI36, NCBI35, NCBI34] DEFAULT GRCh37 (The genome build to use for adding the chromosome names and start and end base pair positions for the probes.)
+# PARAMETER username STRING DEFAULT empty (Username, in case the data is password-protected. WARNING: This will store your username/password in the Chipster history files. To avoid this, use the session parameter.)
+# PARAMETER password STRING DEFAULT empty (Password, in case the data is password-protected. WARNING: This will store your username/password in the Chipster history files. To avoid this, use the session parameter.)
+# PARAMETER session STRING DEFAULT empty (Session ID. To avoid saving your username/password in Chipster history files, log in at http://www.cangem.org/ using a web browser, then copy&paste your session ID from the lower right corner of the CanGEM website. This will allow Chipster to access your password-protected data until you log out of the web site (or the session times out).)
 
 # fetch-probe-positions-from-cangem.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-12
+# 2011-02-04
 
 # determine platform accession if a platform was chosen from the popup
 if (platform != 'other') {
@@ -28,8 +31,15 @@ dat$start <- NULL
 dat$end <- NULL
 dat$cytoband <- NULL
 
+# construct the string used in authenticating
+if (session != 'empty' && session != '') {
+  auth <- paste('&PHPSESSID=', session, sep='')
+} else if (username != 'empty' && username != '' && password != 'empty' && password != '') {
+  auth <- paste('&username=', username, '&password=', password, sep = '')
+} else auth <- ''
+
 # load platform
-platform <- read.table(paste('http://www.cangem.org/download.php?platform=', platform.accession, '&flag=', genome.build, sep=''), sep='\t', header=TRUE, as.is=TRUE)
+platform <- read.table(paste('http://www.cangem.org/download.php?platform=', platform.accession, '&flag=', genome.build, auth, sep=''), sep='\t', header=TRUE, as.is=TRUE)
 colnames(platform) <- tolower(colnames(platform))
 colnames(platform)[colnames(platform)=='chr'] <- 'chromosome'
 rownames(platform) <- platform[,1]

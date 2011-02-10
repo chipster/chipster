@@ -1,14 +1,19 @@
 # ANALYSIS Visualisation/"Volcano plot" (Tests whether the genes are differentially expressed using one-sample t-test,
-# and plots the result in a form of a Volcano plot.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT volcanoP.png, volcanoSE.png
+# and plots the result in a form of a Volcano plot, but a table with the original data, the scaled fold change values and the adjusted p-values is also output.
+# This tool is best suited for 2-color array data, where the comparison to a common reference is done on the array.)
+# INPUT GENE_EXPRS normalized.tsv OUTPUT volcanoP.png, volcanoSE.png, one-sample.tsv
 # PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
 # PARAMETER expression.threshold DECIMAL FROM -10 TO 10 DEFAULT 1 (Expression threshold for plotting) 
+# PARAMETER p.value.adjustment.method [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method)
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
-
 # Volcano plot
-# JTT 19.9.2007, modified MG 17.9.2009
+# JTT 19.9.2007
+#
+# MG. 10.2.2011
+# Added table with FC and p-values to the output
+# Added p-value adjustment capability
 
 # Renaming variables
 w<-image.width
@@ -44,19 +49,22 @@ s<-rowSds(dat2)/d
 m<-rowSums(dat2)/n
 T<-(m-0)/s
 p.raw<-(1-pt(abs(T), df=n-1))*2
+p.adj <- p.adjust(p.raw, method=p.value.adjustment.method)
 
 # Coloring the dot
 cols<-rep(1, length(m))
-cols[which(p.raw<=pcut & m<(-ecut))] <- 3
-cols[which(p.raw<=pcut & m>ecut)] <- 2
-
+cols[which(p.adj<=pcut & m<(-ecut))] <- 3
+cols[which(p.adj<=pcut & m>ecut)] <- 2
 
 # Plotting
 bitmap(file="volcanoP.png", width=w/72, height=h/72)
-plot(m, -log10(p.raw), xlim=c(-max(m), max(m)), ylim=c(0,ceiling (max(-log10(p.raw)))), col=cols, main="Volcano plot", pch=19, xlab="Mean expression", ylab="-log10 (p)")
+plot(m, -log10(p.adj), xlim=c(-max(m), max(m)), ylim=c(0,ceiling (max(-log10(p.adj)))), col=cols, main="Volcano plot", pch=19, xlab="Mean expression", ylab="-log10 (p)")
 dev.off()
 
 bitmap(file="volcanoSE.png", width=w/72, height=h/72)
-symbols(m, -log10(p.raw), rectangles=cbind(rep(0, length(p.raw)), s), fg=cols, xlim=c(-max(m), max(m)), ylim=c(0,ceiling (max(-log10(p.raw)))), main="Volcano plot", xlab="Mean expression", ylab="-log10 (p)")
+symbols(m, -log10(p.adj), rectangles=cbind(rep(0, length(p.adj)), s), fg=cols, xlim=c(-max(m), max(m)), ylim=c(0,ceiling (max(-log10(p.adj)))), main="Volcano plot", xlab="Mean expression", ylab="-log10 (p)")
 dev.off()
+
+# Printing output table
+write.table(data.frame(dat, p.adjusted=round(p.adj, digits=6), FC=m), file="one-sample.tsv", sep="\t", row.names=T, col.names=TRUE, quote=F)
 
