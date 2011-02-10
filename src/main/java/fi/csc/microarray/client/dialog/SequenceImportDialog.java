@@ -123,15 +123,15 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
 		c.gridy++;
 		this.add(areaScrollPane, c);
 
-		c.gridy++;
-		c.anchor = GridBagConstraints.EAST;
-		c.gridwidth = 1;
-		c.gridx++;
-		this.add(new JLabel("<html><p " + STYLE_FOR_HINTS + ">separated by any whitspace, ';' or ','</p></html>"), c);
-		c.anchor = GridBagConstraints.WEST;
-		c.gridx = 0;
-		c.gridwidth = 2;
-		c.insets.set(0, 10, 10, 10);
+//		c.gridy++;
+//		c.anchor = GridBagConstraints.EAST;
+//		c.gridwidth = 1;
+//		c.gridx++;
+//		this.add(new JLabel("<html><p " + STYLE_FOR_HINTS + ">separated by any whitespace, ';' or ','</p></html>"), c);
+//		c.anchor = GridBagConstraints.WEST;
+//		c.gridx = 0;
+//		c.gridwidth = 2;
+//		c.insets.set(0, 10, 10, 10);
 
 
 		// range panel
@@ -156,13 +156,17 @@ public class SequenceImportDialog extends JDialog implements CaretListener, Acti
 		rangeConstraints.gridy++;
 		rangeConstraints.gridwidth = 4;
 		rangeConstraints.anchor = GridBagConstraints.EAST;
-		rangePanel.add(new JLabel("<html><p " + STYLE_FOR_HINTS + ">only applies for a single identifier</p></html>"), rangeConstraints);
+//		rangePanel.add(new JLabel("<html><p " + STYLE_FOR_HINTS + ">only applies for a single identifier</p></html>"), rangeConstraints);
 		
 		c.insets.set(10, 10, 0, 10);
 		c.gridy++;
 		c.fill = GridBagConstraints.NONE;
 		this.add(rangePanel, c);
-
+		
+		c.insets.set(0, 10, 0, 10);
+		c.gridy++;
+		c.fill = GridBagConstraints.NONE;
+		this.add(new JLabel("<html><p " + STYLE_FOR_HINTS + ">Only applies for a single identifier</p></html>"), c);
 		
 		// OK button
 		okButton = new JButton("OK");
