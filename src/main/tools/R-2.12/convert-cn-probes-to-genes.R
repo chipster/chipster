@@ -20,6 +20,7 @@ if (length(setdiff(pos, colnames(dat)))!=0)
 genes <- read.table(file.path(chipster.tools.path, 'CanGEM', 'Ensembl_Genes', paste(genome.build, '.txt', sep='')), sep='\t', header=TRUE, row.names=1, as.is=TRUE)
 colnames(genes) <- tolower(colnames(genes))
 colnames(genes)[colnames(genes)=='chr'] <- 'chromosome'
+colnames(genes)[colnames(genes)=='cnv.per.mb'] <- 'cnv.per.Mb'
 
 # remove genes from chromosomes not present in the array data
 genes <- genes[genes$chromosome %in% dat$chromosome,]
