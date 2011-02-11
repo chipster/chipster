@@ -36,13 +36,6 @@
 library(RmiR)
 library(org.Hs.eg.db)
 
-id.type <- "probe_id"
-correlation.method <- "pearson"
-order.column.gene <- "order"
-order.column.mirna <- "order"
-p.value.threshold <- "0.05"
-p.value.adjustment.method <- "none"
-
 # Loads the normalized data and phenodata files
 data_1 <- read.table(file="normalized_mirna.tsv", header=T, sep="\t", row.names=1)
 data_2 <- read.table(file="normalized_gene.tsv", header=T, sep="\t", row.names=1)
