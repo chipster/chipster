@@ -6,43 +6,37 @@ import java.util.LinkedList;
 import java.util.List;
 
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
-import fi.csc.microarray.client.gbrowser.intervals.IntervalOperations;
+import fi.csc.microarray.client.gbrowser.regions.RegionOperations;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.util.IOUtils;
 
-public class RegionTool extends JavaAnalysisJobBase {
+public abstract class RegionTool extends JavaAnalysisJobBase {
 
-	@Override
-	public String getSADL() {
-		return 	"TOOL \"Interval operations\" / IntervalTool.java: \"Remove intervals\" (Removes intervals of the second dataset from the first dataset.)" + "\n" +
-				"INPUT data1.bed: \"First input file\" TYPE GENERIC" + "\n" +
-				"INPUT data2.bed: \"Second input file\" TYPE GENERIC" + "\n" +
-				"OUTPUT result.bed: \"Result file\"" + "\n" + 
-				"PARAMETER min.overlap.bp: \"Minimum number of overlapping basepairs\" TYPE INTEGER FROM 1 DEFAULT 1 (How many basepairs are required to overlap)";
-	}
-	
+	protected abstract LinkedList<BpCoordRegion> operate(LinkedList<List<RegionContent>> inputs, List<String> parameters);
 	
 	@Override
 	protected void execute() { 
 		try {
 			updateStateToClient(JobState.RUNNING, "preprocessing");
-			File inputFile1 = new File(jobWorkDir, analysis.getInputFiles().get(0).getFileName()); 
-			File inputFile2 = new File(jobWorkDir, analysis.getInputFiles().get(1).getFileName());
+
+			// Parse inputs
+			RegionOperations tool = new RegionOperations();
+			LinkedList<List<RegionContent>> inputs = new LinkedList<List<RegionContent>>();
+			for (int i = 0; i < analysis.getInputFiles().size(); i++) {
+				File inputFile = new File(jobWorkDir, analysis.getInputFiles().get(i).getFileName());
+				inputs.add(tool.loadFile(inputFile));
+			}
+
+			// Delegate actual processing to subclasses
+			LinkedList<BpCoordRegion> output = operate(inputs, inputMessage.getParameters());
 			
-			IntervalOperations tool = new IntervalOperations();
-
-			List<RegionContent> rows1 = tool.loadFile(inputFile1);
-			List<RegionContent> rows2 = tool.loadFile(inputFile2);
-			Long minOverlap = Long.parseLong(inputMessage.getParameters().get(0));
-
-			LinkedList<BpCoordRegion> intersections = tool.subtract(rows1, rows2, minOverlap);
-
+			// Write output
 			FileOutputStream outputStream = null;
 			try {
 				outputStream = new FileOutputStream(new File(jobWorkDir, analysis.getOutputFiles().get(0).getFileName().getID())); 
-				tool.print(intersections, outputStream);
+				tool.print(output, outputStream);
 
 			} finally {
 				IOUtils.closeIfPossible(outputStream);

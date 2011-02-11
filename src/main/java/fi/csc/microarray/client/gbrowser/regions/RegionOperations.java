@@ -1,4 +1,4 @@
-package fi.csc.microarray.client.gbrowser.intervals;
+package fi.csc.microarray.client.gbrowser.regions;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,7 +18,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
-public class IntervalOperations {
+public class RegionOperations {
 
 	public static interface PairRule {
 		public boolean isPair(BpCoordRegion left, BpCoordRegion right);
@@ -105,16 +105,8 @@ public class IntervalOperations {
 		}
 	};
 
-	/**
-	 * For each interval in first set, finds intersection with second set.
-	 * Returns merged intersections.
-	 *  
-	 * @param leftIntervals first set 
-	 * @param rightIntervals second set
-	 * @return intersections
-	 */
-	public LinkedList<BpCoordRegion> intersect(List<RegionContent> leftIntervals, List<RegionContent> rightIntervals, Long minIntersectionLength, boolean mergeIntersecting) {
-		return operate(leftIntervals, rightIntervals, new IntersectingPairRule(minIntersectionLength), EXCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, mergeIntersecting ? MERGE_PAIR_POLICY : INTERSECT_PAIR_POLICY, true);
+	public LinkedList<BpCoordRegion> intersect(List<RegionContent> leftIntervals, List<RegionContent> rightIntervals, Long minIntersectionLength, boolean mergeOrIntersect) {
+		return operate(leftIntervals, rightIntervals, new IntersectingPairRule(minIntersectionLength), EXCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, mergeOrIntersect ? MERGE_PAIR_POLICY : INTERSECT_PAIR_POLICY, true);
 	}
 
 
@@ -122,9 +114,14 @@ public class IntervalOperations {
 		return operate(leftIntervals, rightIntervals, new IntersectingPairRule(minIntersectionLength), INCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, EXCLUDE_PAIR_POLICY, true);
 	}
 
-	public LinkedList<BpCoordRegion> merge(List<RegionContent> leftIntervals, List<RegionContent> rightIntervals, Long minIntersectionLength) {
-		return operate(leftIntervals, rightIntervals, new IntersectingPairRule(minIntersectionLength), INCLUDE_ORPHAN_POLICY, INCLUDE_ORPHAN_POLICY, MERGE_PAIR_POLICY, true);
+	public LinkedList<BpCoordRegion> merge(List<RegionContent> leftIntervals, List<RegionContent> rightIntervals, Long minIntersectionLength, boolean flatten) {
+		return operate(leftIntervals, rightIntervals, new IntersectingPairRule(minIntersectionLength), INCLUDE_ORPHAN_POLICY, INCLUDE_ORPHAN_POLICY, MERGE_PAIR_POLICY, flatten);
 	}
+
+	public LinkedList<BpCoordRegion> flatten(List<RegionContent> leftIntervals) {
+		return operate(leftIntervals, new LinkedList<RegionContent>(), new IntersectingPairRule(0L), INCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, MERGE_PAIR_POLICY, true);
+	}
+
 
 	public void print(Iterable<BpCoordRegion> intervals, OutputStream outputStream) {
 		PrintWriter out = new PrintWriter(outputStream);
@@ -212,6 +209,4 @@ public class IntervalOperations {
 			return result;
 		}
 	}
-
-
 }
