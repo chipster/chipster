@@ -135,7 +135,7 @@ for (count in 2:number.conditions) {
 # the ones that come from the org.Hs.eg.db package
 all_genes <- org.Hs.egSYMBOL
 mapped_genes <- mappedkeys(all_genes)
-mapped_genes  <- as.list(x[mapped_genes])
+mapped_genes  <- as.list(all_genes[mapped_genes])
 symbols_list <- unlist(mapped_genes[as.character(merged.table$gene_id) ])
 merged.table$symbol <- symbols_list
 
