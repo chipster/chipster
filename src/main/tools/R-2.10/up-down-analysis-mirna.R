@@ -106,7 +106,7 @@ colnames (merged.table) [1] <- "entrez_id"
 
 # Add rownames to allow use of Venn diagrams
 # Construct the names from combining the miRNA nameand the target gene symbol
-rownames (merged.table (merged.table[,2],"_",merged.table[,4],sep=""))
+rownames (merged.table) <- paste (merged.table[,2],"_",merged.table[,4],sep="")
 
 # Identify the miRNA-gene pairs that are behaving oppositely
 mirna.ratio <- merged.table$mirExpr
