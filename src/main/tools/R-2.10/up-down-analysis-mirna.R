@@ -97,7 +97,7 @@ merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4,
 # the ones that come from the org.Hs.eg.db package
 all_genes <- org.Hs.egSYMBOL
 mapped_genes <- mappedkeys(all_genes)
-mapped_genes  <- as.list(x[mapped_genes])
+mapped_genes  <- as.list(all_genes[mapped_genes])
 symbols_list <- unlist(mapped_genes[as.character(merged.table$gene_id) ])
 merged.table$symbol <- symbols_list
 
@@ -106,7 +106,7 @@ colnames (merged.table) [1] <- "entrez_id"
 
 # Add rownames to allow use of Venn diagrams
 # Construct the names from combining the miRNA nameand the target gene symbol
-rownames (merged.table (merged.table[,2],"_",merged.table[,4],sep="")
+rownames (merged.table (merged.table[,2],"_",merged.table[,4],sep=""))
 
 # Identify the miRNA-gene pairs that are behaving oppositely
 mirna.ratio <- merged.table$mirExpr
