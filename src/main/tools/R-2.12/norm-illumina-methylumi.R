@@ -5,8 +5,8 @@
 # PARAMETER background.correction [none, bgAdjust2C, forcePositive] DEFAULT none (Should background adjustment be applied)
 # PARAMETER normalization [none, quantile, ssn] DEFAULT quantile (Normalization)
 # PARAMETER chiptype [Human] DEFAULT Human (chiptype)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the resampling image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the resampling image)
+# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the QC image)
+# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the QC image)
 
 
 # Illumina methylation array data preprocessing and normalization for FinalReport file
