@@ -20,7 +20,7 @@ public class IntervalTool extends JavaAnalysisJobBase {
 				"INPUT data1.bed: \"First input file\" TYPE GENERIC" + "\n" +
 				"INPUT data2.bed: \"Second input file\" TYPE GENERIC" + "\n" +
 				"OUTPUT result.bed: \"Result file\"" + "\n" + 
-				"PARAMETER min.overlap.bp: \"Minimum number of overlapping basepairs\" INTEGER FROM 1 DEFAULT 1 (How many basepairs are required for overlapping)";
+				"PARAMETER min.overlap.bp: \"Minimum number of overlapping basepairs\" TYPE INTEGER FROM 1 DEFAULT 1 (How many basepairs are required to overlap)";
 	}
 	
 	
