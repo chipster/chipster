@@ -5,7 +5,7 @@ import java.util.LinkedList;
 
 import javax.jms.JMSException;
 
-import fi.csc.chipster.tools.LocalNGSPreprocess;
+import fi.csc.chipster.tools.ngs.LocalNGSPreprocess;
 import fi.csc.microarray.client.operation.OperationCategory;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.tasks.LocalTaskExecutor;

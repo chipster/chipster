@@ -2,7 +2,7 @@ package fi.csc.microarray.client.tasks;
 
 import javax.jms.JMSException;
 
-import fi.csc.chipster.tools.LocalNGSPreprocess;
+import fi.csc.chipster.tools.ngs.LocalNGSPreprocess;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.databeans.DataManager;
 

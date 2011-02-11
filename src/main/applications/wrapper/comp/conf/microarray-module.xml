@@ -42,8 +42,8 @@
 		<tool runtime="R-2.9"><resource>filter-by-column-value.R</resource></tool>
 		<tool runtime="R-2.9"><resource>impute.R</resource></tool>
 		<tool runtime="R-2.9"><resource>na-omitted.R</resource></tool>
-	    <tool runtime="java"><resource>fi.csc.chipster.tools.PreprocessNGSSingle</resource></tool>
-        <tool runtime="java"><resource>fi.csc.chipster.tools.PreprocessNGSTreatmentAndControl</resource></tool>
+	    <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.PreprocessNGSSingle</resource></tool>
+        <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.PreprocessNGSTreatmentAndControl</resource></tool>
         <tool runtime="R-2.9"><resource>ngs-filter-results-column.R</resource></tool>
         <tool runtime="R-2.9"><resource>ngs-filter-annotations.R</resource></tool>
 	</category>
@@ -168,7 +168,7 @@
 	</category>
 	
 	<category name="NGS" color="#478b8c">
-        <tool runtime="java"><resource>fi.csc.chipster.tools.PreprocessNGSSingle</resource></tool>
+        <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.PreprocessNGSSingle</resource></tool>
         <tool runtime="R-2.10"><resource>ngs-find-peaks-macs-one.R</resource></tool>
         <tool runtime="R-2.10"><resource>ngs-find-peaks-macs-two.R</resource></tool>    
         <tool runtime="R-2.9"><resource>ngs-filter-results-column.R</resource></tool>

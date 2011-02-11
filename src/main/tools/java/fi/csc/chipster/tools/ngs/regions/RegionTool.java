@@ -1,4 +1,4 @@
-package fi.csc.chipster.tools;
+package fi.csc.chipster.tools.ngs.regions;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,7 +12,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.util.IOUtils;
 
-public class IntervalTool extends JavaAnalysisJobBase {
+public class RegionTool extends JavaAnalysisJobBase {
 
 	@Override
 	public String getSADL() {
