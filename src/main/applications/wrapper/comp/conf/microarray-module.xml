@@ -9,13 +9,13 @@
         <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.RemoveOverlappingTool</resource></tool>
         <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.FlattenRegionsTool</resource></tool>
         <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.CombineRegionsTool</resource></tool>
+        <tool runtime="R-2.9"><resource>ngs-filter-results-column.R</resource></tool>
+        <tool runtime="R-2.9"><resource>ngs-filter-annotations.R</resource></tool>
 	</category>
 
 	<category name="NGS ChIP-seq" color="#006944">
         <tool runtime="R-2.10"><resource>ngs-find-peaks-macs-one.R</resource></tool>
         <tool runtime="R-2.10"><resource>ngs-find-peaks-macs-two.R</resource></tool>    
-        <tool runtime="R-2.9"><resource>ngs-filter-results-column.R</resource></tool>
-        <tool runtime="R-2.9"><resource>ngs-filter-annotations.R</resource></tool>
         <tool runtime="R-2.12"><resource>ngs-find-motifs-jaspar.R</resource></tool>
         <tool runtime="R-2.12"><resource>ngs-find-nearest-genes.R</resource></tool>
         <tool runtime="R-2.10"><resource>pathways-ngs-hyperg-go.R</resource></tool>
