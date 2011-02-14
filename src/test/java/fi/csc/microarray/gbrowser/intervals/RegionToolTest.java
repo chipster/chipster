@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.client.gbrowser.regions.RegionOperations;
+import fi.csc.chipster.tools.gbrowser.regions.RegionOperations;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;

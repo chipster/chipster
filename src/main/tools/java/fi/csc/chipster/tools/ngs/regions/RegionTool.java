@@ -5,8 +5,8 @@ import java.io.FileOutputStream;
 import java.util.LinkedList;
 import java.util.List;
 
+import fi.csc.chipster.tools.gbrowser.regions.RegionOperations;
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
-import fi.csc.microarray.client.gbrowser.regions.RegionOperations;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.messaging.JobState;
