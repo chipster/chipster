@@ -91,13 +91,15 @@ get.gene.data <- function(x) {
   c(gene.calls, gene.logratios)
 }
 
-# library(snowfall)
-# sfInit(parallel=TRUE, cpus=10)
-# sfExport(list=c('dat', 'calls', 'logratios', 'method.for.calls', 'method.for.others', 'unambiguous', 'majority'))
-# gene.calls.and.logratios <- t(sfApply(genes, 1, get.gene.data))
-# sfStop()
+# parallel computing
+library(snowfall)
+sfInit(parallel=TRUE, cpus=4)
+sfExport(list=c('dat', 'calls', 'logratios', 'method.for.calls', 'method.for.others', 'unambiguous', 'majority'))
+gene.calls.and.logratios <- t(sfApply(genes, 1, get.gene.data))
+sfStop()
 
-gene.calls.and.logratios <- t(apply(genes, 1, get.gene.data))\
+# sequential computing
+# gene.calls.and.logratios <- t(apply(genes, 1, get.gene.data))\
 
 calls.bygene <- gene.calls.and.logratios[,1:ncol(calls)]
 genes$loss.freq <- mean(as.data.frame(t(calls.bygene==-1)))

@@ -62,13 +62,15 @@ cnv.counter <- function(x) {
   c(count, round(bases / (end - start + 1) * 1000000))
 }
 
-# library(snowfall)
-# sfInit(parallel=TRUE, cpus=4)
-# sfExport(list=c('cnv', 'joined'))
-# dat2[,c('cnv.count', 'cnv.per.Mb')] <- t(sfApply(dat2, 1, cnv.counter))
-# sfStop()
+# parallel computing
+library(snowfall)
+sfInit(parallel=TRUE, cpus=4)
+sfExport(list=c('cnv', 'joined'))
+dat2[,c('cnv.count', 'cnv.per.Mb')] <- t(sfApply(dat2, 1, cnv.counter))
+sfStop()
 
-dat2[,c('cnv.count', 'cnv.per.Mb')] <- t(apply(dat2, 1, cnv.counter))
+# sequential computing
+# dat2[,c('cnv.count', 'cnv.per.Mb')] <- t(apply(dat2, 1, cnv.counter))
 
 dat2 <- cbind(dat2, dat[,first.data.col:ncol(dat)])
 
