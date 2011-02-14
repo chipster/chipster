@@ -14,7 +14,7 @@ public class RemoveOverlappingTool extends RegionTool {
 		return 	"TOOL \"Region operations\" / RemoveOverlappingTool.java: \"Remove overlapping regions\" (Returns regions in the first input file that do not have overlap with any of the regions in the second input file. Also known as subtraction.)" + "\n" +
 				"INPUT data1.bed: \"Regions to remove from\" TYPE GENERIC" + "\n" +
 				"INPUT data2.bed: \"Regions that possibly overlap with the first input file\" TYPE GENERIC" + "\n" +
-				"OUTPUT result.bed: \"Regions of first input that do not overlap\"" + "\n" + 
+				"OUTPUT nonoverlapping.bed: \"Regions of first input that do not overlap\"" + "\n" + 
 				"PARAMETER min.overlap.bp: \"Minimum number of overlapping basepairs\" TYPE INTEGER FROM 1 DEFAULT 1 (How many basepairs are required to consider regions overlapping?)";
 	}
 

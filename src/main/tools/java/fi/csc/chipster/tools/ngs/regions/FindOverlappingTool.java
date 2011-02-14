@@ -14,7 +14,7 @@ public class FindOverlappingTool extends RegionTool {
 		return 	"TOOL \"Region operations\" / FindOverlappingTool.java: \"Find overlapping regions\" (Returns regions that have overlap with some region in the other input file. Also known as intersection.)" + "\n" +
 				"INPUT data1.bed: \"First set of regions\" TYPE GENERIC" + "\n" +
 				"INPUT data2.bed: \"Second set of regions\" TYPE GENERIC" + "\n" +
-				"OUTPUT result.bed: \"Overlapping regions\"" + "\n" + 
+				"OUTPUT overlapping.bed: \"Overlapping regions\"" + "\n" + 
 				"PARAMETER return.type: \"Type of returned regions\" TYPE [merged: \"Merged overlapping regions\", intersection: \"Overlapping piece of regions\"] DEFAULT merged (How overlapping regions are returned?)" + 
 				"PARAMETER min.overlap.bp: \"Minimum number of overlapping basepairs\" TYPE INTEGER FROM 1 DEFAULT 1 (How many basepairs are required to consider regions overlapping?)";
 	}

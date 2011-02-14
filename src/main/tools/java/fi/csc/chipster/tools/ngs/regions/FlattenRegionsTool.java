@@ -13,7 +13,7 @@ public class FlattenRegionsTool extends RegionTool {
 	public String getSADL() {
 		return 	"TOOL \"Region operations\" / FlattenRegionsTool.java: \"Flatten overlapping regions\" (Merges overlapping regions of a single file. The returned file does not have any internal overlapping.)" + "\n" +
 				"INPUT data1.bed: \"Regions to flatten\" TYPE GENERIC" + "\n" +
-				"OUTPUT result.bed: \"Merged regions\"" + "\n"; 
+				"OUTPUT flattened.bed: \"Merged regions\"" + "\n"; 
 	}
 
 	@Override
