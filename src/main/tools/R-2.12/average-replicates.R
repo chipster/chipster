@@ -9,6 +9,7 @@
 #
 # modified by MG, 12.4.2010
 # rewritten by IS, 6.9.2010
+# updated by MG, 14.2.2011
 
 # Parameter settings (default) for testing purposes
 #column<-c("group")
@@ -21,6 +22,12 @@ phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', as.is=TRUE)
 # identify replicates
 replicates <- unique(phenodata[duplicated(phenodata[,column]), column])
 unique.chips <- which(!phenodata[,column] %in% replicates)
+
+# in case there is only the group column and no specific replicates column
+if (sum (as.numeric (numeric.cols))==1) {
+	temp_column <- phenodata[,column]
+	phenodata <- cbind (phenodata, temp_column)
+}
 
 # generate new phenodata
 concatenate.if.not.equal <- function(x) {
