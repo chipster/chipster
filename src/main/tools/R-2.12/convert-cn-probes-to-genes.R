@@ -7,7 +7,7 @@
 
 # convert-cn-probes-to-genes.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-02-07
+# 2011-02-14
 
 dat <- read.table('aberrations.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 
@@ -59,43 +59,52 @@ matrices <- matrices[matrices != 'chip.']
 for (m in matrices)
   logratios <- cbind(logratios, dat[,grep(m, colnames(dat))])
 
-calls.bygene <- matrix(nrow=nrow(genes), ncol=ncol(calls), dimnames=list(rownames(genes), colnames(calls)))
-logratios.bygene <- matrix(nrow=nrow(genes), ncol=ncol(logratios), dimnames=list(rownames(genes), colnames(logratios)))
-
-for (gene in rownames(genes)) {
+get.gene.data <- function(x) {
+  chr <- x['chromosome']
+  start <- as.integer(x['start'])
+  end <- as.integer(x['end'])
   # are there probes overlapping with the position of the gene
-  overlapping.probes <- which(dat$chromosome == genes[gene, 'chromosome'] &
-                                     dat$end >= genes[gene, 'start'] &
-                                   dat$start <= genes[gene, 'end'])
+  overlapping.probes <- which(dat$chromosome == chr &
+                                     dat$end >= start &
+                                   dat$start <= end)
   if (length(overlapping.probes) > 0) {
     # if yes, use those probes to calculate the copy number
-    calls.bygene[gene,] <- apply(calls[overlapping.probes,], 2, method.for.calls)
-    logratios.bygene[gene,] <- apply(logratios[overlapping.probes,], 2, method.for.others, na.rm=TRUE)
+    gene.calls <- apply(calls[overlapping.probes,], 2, method.for.calls)
+    gene.logratios <- apply(logratios[overlapping.probes,], 2, method.for.others, na.rm=TRUE)
   } else {
     # if not, use the last preceding and the first tailing probe
-    preceding.probes <- which(dat$chromosome == genes[gene, 'chromosome'] &
-                                     dat$end <  genes[gene, 'start'])
-    tailing.probes <- which(dat$chromosome == genes[gene, 'chromosome'] &
-                                 dat$start >  genes[gene, 'end'])
+    preceding.probes <- which(dat$chromosome == chr &
+                                     dat$end <  start)
+    tailing.probes <- which(dat$chromosome == chr &
+                                 dat$start >  end)
     adjacent.probes <- preceding.probes[length(preceding.probes)]
     if (length(tailing.probes) > 0)
       adjacent.probes <- c(adjacent.probes, tailing.probes[1])
     if (length(adjacent.probes) > 0) {
-      calls.bygene[gene,] <- apply(calls[adjacent.probes,], 2, method.for.calls)
-      logratios.bygene[gene,] <- apply(logratios[adjacent.probes,], 2, method.for.others, na.rm=TRUE)
+      gene.calls <- apply(calls[adjacent.probes,], 2, method.for.calls)
+      gene.logratios <- apply(logratios[adjacent.probes,], 2, method.for.others, na.rm=TRUE)
     } else {
-      calls.bygene[gene,] <- 0
-      logratios.bygene[gene,] <- 0
+      gene.calls <- 0
+      gene.logratios <- 0
     }
   }
+  c(gene.calls, gene.logratios)
 }
 
+# library(snowfall)
+# sfInit(parallel=TRUE, cpus=10)
+# sfExport(list=c('dat', 'calls', 'logratios', 'method.for.calls', 'method.for.others', 'unambiguous', 'majority'))
+# gene.calls.and.logratios <- t(sfApply(genes, 1, get.gene.data))
+# sfStop()
+
+gene.calls.and.logratios <- t(apply(genes, 1, get.gene.data))\
+
+calls.bygene <- gene.calls.and.logratios[,1:ncol(calls)]
 genes$loss.freq <- mean(as.data.frame(t(calls.bygene==-1)))
 genes$gain.freq <- mean(as.data.frame(t(calls.bygene==1)))
 if (2 %in% calls.bygene)
     genes$amp.freq <- mean(as.data.frame(t(calls.bygene==2)))
-genes <- cbind(genes, calls.bygene)
-genes <- cbind(genes, logratios.bygene)
+genes <- cbind(genes, gene.calls.and.logratios)
 
 write.table(genes, file='gene-aberrations.tsv', sep="\t", quote=FALSE, row.names=TRUE, col.names=TRUE)
 
