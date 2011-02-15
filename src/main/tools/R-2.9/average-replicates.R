@@ -9,6 +9,7 @@
 #
 # modified by MG, 12.4.2010
 # rewritten by IS, 6.9.2010
+# modified by IS, 15.2.2011
 
 # load inputs
 dat <- read.table('normalized.tsv', header=TRUE, sep='\t', row.names=1)
@@ -28,8 +29,8 @@ other.cols <- !sapply(phenodata, is.numeric)
 phenodata2 <- phenodata[unique.chips,]
 for (s in replicates) {
   ss <- phenodata[phenodata[,column] == s,]
-  ss[1, numeric.cols] <- apply(ss[,numeric.cols], 2, averaging)
-  ss[1, other.cols] <- apply(ss[,other.cols], 2, concatenate.if.not.equal)
+  ss[1, numeric.cols] <- apply(as.data.frame(ss[,numeric.cols]), 2, averaging)
+  ss[1, other.cols] <- apply(as.data.frame(ss[,other.cols]), 2, concatenate.if.not.equal)
   ss <- ss[1,]
   phenodata2 <- rbind(phenodata2, ss)
 }
