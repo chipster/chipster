@@ -61,8 +61,8 @@ public class LocalNGSPreprocess implements Runnable {
 			}
 		}
 		
-		String description = "Chipster Viewer is able to show BAM and BED files. BAM files need to be " + 
-		"sorted and indexed, and the Viewer can perform this preprocessing for you.\n\n " +
+		String description = "Chipster genome browser is able to show BAM and BED files. BAM files need to be " + 
+		"sorted and indexed, and Chipster can perform this preprocessing for you.\n\n " +
 		"Please note that preprocessing BAM files can take several minutes depending " +
 		"on the file size. Also BED files need to be preprocessed prior to viewing, " +
 		"but this is very quick.";
