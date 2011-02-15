@@ -29,26 +29,26 @@ public class RegionOperations {
 	/**
 	 * Intersects regions on two sets and returns either unions or intersections of intersecting pairs.
 	 * 
-	 * @param leftIntervals first set
-	 * @param rightIntervals second set
+	 * @param leftRegions first set
+	 * @param rightRegions second set
 	 * @param minIntersectionLength minimum number of shared bases
 	 * @param mergeOrIntersect if true return union, otherwise intersection
 	 * @return
 	 */
-	public LinkedList<BpCoordRegion> intersect(List<RegionContent> leftIntervals, List<RegionContent> rightIntervals, Long minIntersectionLength, boolean mergeOrIntersect) {
-		return operate(leftIntervals, rightIntervals, new IntersectingPairRule(minIntersectionLength), EXCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, mergeOrIntersect ? MERGE_PAIR_POLICY : INTERSECT_PAIR_POLICY, true);
+	public LinkedList<BpCoordRegion> intersect(List<RegionContent> leftRegions, List<RegionContent> rightRegions, Long minIntersectionLength, boolean mergeOrIntersect) {
+		return operate(leftRegions, rightRegions, new IntersectingPairRule(minIntersectionLength), EXCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, mergeOrIntersect ? MERGE_PAIR_POLICY : INTERSECT_PAIR_POLICY, true);
 	}
 
-	public LinkedList<BpCoordRegion> subtract(List<RegionContent> leftIntervals, List<RegionContent> rightIntervals, Long minIntersectionLength) {
-		return operate(leftIntervals, rightIntervals, new IntersectingPairRule(minIntersectionLength), INCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, EXCLUDE_PAIR_POLICY, true);
+	public LinkedList<BpCoordRegion> subtract(List<RegionContent> leftRegions, List<RegionContent> rightRegions, Long minIntersectionLength) {
+		return operate(leftRegions, rightRegions, new IntersectingPairRule(minIntersectionLength), INCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, EXCLUDE_PAIR_POLICY, true);
 	}
 
-	public LinkedList<BpCoordRegion> merge(List<RegionContent> leftIntervals, List<RegionContent> rightIntervals, Long minIntersectionLength, boolean flatten) {
-		return operate(leftIntervals, rightIntervals, new IntersectingPairRule(minIntersectionLength), INCLUDE_ORPHAN_POLICY, INCLUDE_ORPHAN_POLICY, MERGE_PAIR_POLICY, flatten);
+	public LinkedList<BpCoordRegion> merge(List<RegionContent> leftRegions, List<RegionContent> rightRegions, Long minIntersectionLength, boolean flatten) {
+		return operate(leftRegions, rightRegions, new IntersectingPairRule(minIntersectionLength), INCLUDE_ORPHAN_POLICY, INCLUDE_ORPHAN_POLICY, MERGE_PAIR_POLICY, flatten);
 	}
 
-	public LinkedList<BpCoordRegion> flatten(List<RegionContent> leftIntervals) {
-		return operate(leftIntervals, new LinkedList<RegionContent>(), new IntersectingPairRule(0L), INCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, MERGE_PAIR_POLICY, true);
+	public LinkedList<BpCoordRegion> flatten(List<RegionContent> leftRegions) {
+		return operate(leftRegions, new LinkedList<RegionContent>(), new IntersectingPairRule(0L), INCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, MERGE_PAIR_POLICY, true);
 	}
 
 	/**
@@ -57,8 +57,8 @@ public class RegionOperations {
 	 * orphan (non-paired) regions.
 	 * 
 	 * 
-	 * @param leftIntervals first set (primary set in some cases)
-	 * @param rightIntervals second set
+	 * @param leftRegions first set (primary set in some cases)
+	 * @param rightRegions second set
 	 * @param pairRule rule for deciding of two regions are a pair
 	 * @param leftOrphanPolicy what to do with non-paired regions in first set?
 	 * @param rightOrphanPolicy what to do with non-paired regions in second set?
@@ -67,7 +67,7 @@ public class RegionOperations {
 	 * 
 	 * @return results produced from paired regions and non-paired regions
 	 */
-	public LinkedList<BpCoordRegion> operate(List<RegionContent> leftIntervals, List<RegionContent> rightIntervals, PairRule pairRule, OrphanPolicy leftOrphanPolicy, OrphanPolicy rightOrphanPolicy, PairPolicy pairPolicy, boolean mergeContinous) {
+	public LinkedList<BpCoordRegion> operate(List<RegionContent> leftRegions, List<RegionContent> rightRegions, PairRule pairRule, OrphanPolicy leftOrphanPolicy, OrphanPolicy rightOrphanPolicy, PairPolicy pairPolicy, boolean mergeContinous) {
 		
 		// Initialise collectors
 		LinkedList<BpCoordRegion> result = new LinkedList<BpCoordRegion>();
@@ -75,29 +75,29 @@ public class RegionOperations {
 		HashSet<RegionContent> rightPaired = new HashSet<RegionContent>();
 		
 		// Find pairs from a Cartesian product
-		for (RegionContent leftInterval : leftIntervals) {
-			for (RegionContent rightInterval : rightIntervals) {
-				if (pairRule.isPair(leftInterval.region, rightInterval.region)) {
-					leftPaired.add(leftInterval);
-					rightPaired.add(rightInterval);
+		for (RegionContent leftRegion : leftRegions) {
+			for (RegionContent rightRegion : rightRegions) {
+				if (pairRule.isPair(leftRegion.region, rightRegion.region)) {
+					leftPaired.add(leftRegion);
+					rightPaired.add(rightRegion);
 					
 					// Output what pair policy dictates
-					pairPolicy.process(leftInterval.region, rightInterval.region, result);
+					pairPolicy.process(leftRegion.region, rightRegion.region, result);
 				}
 			}
 		}
 		
 		// Process left orphans
-		for (RegionContent leftInterval : leftIntervals) {
-			if (!leftPaired.contains(leftInterval)) {
-				leftOrphanPolicy.process(leftInterval.region, result);
+		for (RegionContent leftRegion : leftRegions) {
+			if (!leftPaired.contains(leftRegion)) {
+				leftOrphanPolicy.process(leftRegion.region, result);
 			}
 		}
 		
 		// Process right orphans
-		for (RegionContent rightInterval : rightIntervals) {
-			if (!rightPaired.contains(rightInterval)) {
-				rightOrphanPolicy.process(rightInterval.region, result);
+		for (RegionContent rightRegion : rightRegions) {
+			if (!rightPaired.contains(rightRegion)) {
+				rightOrphanPolicy.process(rightRegion.region, result);
 			}
 		}
 		
@@ -199,18 +199,18 @@ public class RegionOperations {
 	 * Decides what is done to non-paired regions.
 	 */
 	public static interface OrphanPolicy {
-		public void process(BpCoordRegion interval, LinkedList<BpCoordRegion> collector);
+		public void process(BpCoordRegion region, LinkedList<BpCoordRegion> collector);
 	}
 
 	
 	public static OrphanPolicy INCLUDE_ORPHAN_POLICY = new OrphanPolicy() {
-		public void process(BpCoordRegion interval, LinkedList<BpCoordRegion> collector) {
-			collector.add(interval);
+		public void process(BpCoordRegion region, LinkedList<BpCoordRegion> collector) {
+			collector.add(region);
 		}
 	};
 
 	public static OrphanPolicy EXCLUDE_ORPHAN_POLICY = new OrphanPolicy() {
-		public void process(BpCoordRegion interval, LinkedList<BpCoordRegion> collector) {
+		public void process(BpCoordRegion region, LinkedList<BpCoordRegion> collector) {
 			// do nothing
 		}
 	};
@@ -218,20 +218,20 @@ public class RegionOperations {
 
 
 	/**
-	 * Prints out regions in BED-like text format.
+	 * Prints out regions in BED text format (without track header row).
 	 */
-	public void print(Iterable<BpCoordRegion> intervals, OutputStream outputStream) {
+	public void print(Iterable<BpCoordRegion> regions, OutputStream outputStream) {
 		PrintWriter out = new PrintWriter(outputStream);
-		for (BpCoordRegion interval : intervals) {
-			out.println(interval.toString(true));
+		for (BpCoordRegion region : regions) {
+			out.println(region.toString(true));
 		}
 		out.flush();
 	}
 
 	/**
-	 * Parses BED-like region text format from an input file.
+	 * Parses regions from a BED text formatted input file.
 	 * 
-	 * @param input BED-like file
+	 * @param input BED file
 	 * @return regions and their extra data
 	 */
 	public List<RegionContent> loadFile(File input) throws FileNotFoundException, IOException {
@@ -242,35 +242,35 @@ public class RegionOperations {
 	}
 	
 
-	private LinkedList<BpCoordRegion> mergeContinuous(LinkedList<BpCoordRegion> intervals) {
+	private LinkedList<BpCoordRegion> mergeContinuous(LinkedList<BpCoordRegion> regions) {
 		
 		// Sort to bring continuous pieces together
-		Collections.sort(intervals);
+		Collections.sort(regions);
 		
-		// Write out continuous intervals
-		LinkedList<BpCoordRegion> mergedIntervals = new LinkedList<BpCoordRegion>();
-		for (int i = 0; i < intervals.size(); ) {
+		// Write out continuous regions
+		LinkedList<BpCoordRegion> mergedRegions = new LinkedList<BpCoordRegion>();
+		for (int i = 0; i < regions.size(); ) {
 			
 			// Iterate as long as continuous
 			int j = i;
-			for (; j < intervals.size() - 1; ) {
-				if (intervals.get(i).intersects(intervals.get(j + 1))) {
-					// should be merged, we can continue to look for continuous stuff
+			for (; j < regions.size() - 1; ) {
+				if (regions.get(i).intersects(regions.get(j + 1))) {
+					// Should be merged, we can continue to look for continuous stuff
 					j++;
 					
 				} else {
-					// here is a gap
+					// Here is a gap
 					break;
 				}
 			}
 			
 			// Write out
-			mergedIntervals.add(new BpCoordRegion(intervals.get(i).start, intervals.get(j).end));
+			mergedRegions.add(new BpCoordRegion(regions.get(i).start, regions.get(j).end));
 			
-			// Jump to interval after the previously written one
+			// Jump to region after the previously written one
 			i = j+1;
 		}
 		
-		return mergedIntervals;
+		return mergedRegions;
 	}
 }
