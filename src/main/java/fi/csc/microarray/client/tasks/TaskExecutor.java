@@ -23,6 +23,8 @@ import javax.swing.event.SwingPropertyChangeSupport;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.chipster.tools.ngs.LocalNGSPreprocess;
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.databeans.DataBean;
@@ -415,6 +417,13 @@ public class TaskExecutor {
 	public void startExecuting(final Task task, int timeout) throws TaskException {
 		logger.debug("Starting task " + task.getName());
 
+		// ugly hack for local ngs preprocess
+		if (task.getOperationID().equals("LocalNGSPreprocess.java")) {
+			Runnable taskRunnable = new LocalNGSPreprocess(task);
+			Session.getSession().getApplication().runBlockingTask("running " + task.getNamePrettyPrinted(), taskRunnable);
+			return;
+		}
+		
 		// log parameters
 		List<String> parameters;
 		try {
