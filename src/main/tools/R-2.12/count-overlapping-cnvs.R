@@ -5,7 +5,7 @@
 
 # count-overlapping-cnvs.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-02-14
+# 2011-02-15
 
 dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 
@@ -62,15 +62,19 @@ cnv.counter <- function(x) {
   c(count, round(bases / (end - start + 1) * 1000000))
 }
 
-# parallel computing
-library(snowfall)
-sfInit(parallel=TRUE, cpus=4)
-sfExport(list=c('cnv', 'joined'))
-dat2[,c('cnv.count', 'cnv.per.Mb')] <- t(sfApply(dat2, 1, cnv.counter))
-sfStop()
-
-# sequential computing
-# dat2[,c('cnv.count', 'cnv.per.Mb')] <- t(apply(dat2, 1, cnv.counter))
+# first try parallel computing
+prob <- TRUE
+try({
+  library(snowfall)
+  sfInit(parallel=TRUE, cpus=4)
+  sfExport(list=c('cnv', 'joined'))
+  dat2[,c('cnv.count', 'cnv.per.Mb')] <- t(sfApply(dat2, 1, cnv.counter))
+  sfStop()
+  prob <- FALSE
+}, silent=TRUE)
+# if problems, fall back to sequential computing
+if (prob)
+  dat2[,c('cnv.count', 'cnv.per.Mb')] <- t(apply(dat2, 1, cnv.counter))
 
 dat2 <- cbind(dat2, dat[,first.data.col:ncol(dat)])
 

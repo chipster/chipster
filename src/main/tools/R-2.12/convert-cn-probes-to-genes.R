@@ -7,7 +7,7 @@
 
 # convert-cn-probes-to-genes.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-02-14
+# 2011-02-15
 
 dat <- read.table('aberrations.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 
@@ -91,15 +91,19 @@ get.gene.data <- function(x) {
   c(gene.calls, gene.logratios)
 }
 
-# parallel computing
-library(snowfall)
-sfInit(parallel=TRUE, cpus=4)
-sfExport(list=c('dat', 'calls', 'logratios', 'method.for.calls', 'method.for.others', 'unambiguous', 'majority'))
-gene.calls.and.logratios <- t(sfApply(genes, 1, get.gene.data))
-sfStop()
-
-# sequential computing
-# gene.calls.and.logratios <- t(apply(genes, 1, get.gene.data))\
+# first try parallel computing
+prob <- TRUE
+try({
+  library(snowfall)
+  sfInit(parallel=TRUE, cpus=4)
+  sfExport(list=c('dat', 'calls', 'logratios', 'method.for.calls', 'method.for.others', 'unambiguous', 'majority'))
+  gene.calls.and.logratios <- t(sfApply(genes, 1, get.gene.data))
+  sfStop()
+  prob <- FALSE
+}, silent=TRUE)
+# if problems, fall back to sequential computing
+if (prob)
+  gene.calls.and.logratios <- t(apply(genes, 1, get.gene.data))
 
 calls.bygene <- gene.calls.and.logratios[,1:ncol(calls)]
 genes$loss.freq <- mean(as.data.frame(t(calls.bygene==-1)))
