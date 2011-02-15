@@ -18,6 +18,26 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 public class RegionToolTest {
 
 	@Test
+	public void testSort() throws FileNotFoundException, IOException {
+		RegionOperations tool = new RegionOperations();
+		
+		LinkedList<BpCoordRegion> rows = new LinkedList<BpCoordRegion>();
+		rows.add(new BpCoordRegion(210L, 600L, new Chromosome("1")));
+		rows.add(new BpCoordRegion(300L, 350L, new Chromosome("2")));
+		rows.add(new BpCoordRegion(100L, 200L, new Chromosome("2")));
+		rows.add(new BpCoordRegion(100L, 200L, new Chromosome("1")));
+
+		LinkedList<BpCoordRegion> sortedRows = new LinkedList<BpCoordRegion>();
+		sortedRows.add(new BpCoordRegion(100L, 200L, new Chromosome("1")));
+		sortedRows.add(new BpCoordRegion(210L, 600L, new Chromosome("1")));
+		sortedRows.add(new BpCoordRegion(100L, 200L, new Chromosome("2")));
+		sortedRows.add(new BpCoordRegion(300L, 350L, new Chromosome("2")));
+
+		tool.sort(rows);
+		Assert.assertEquals(rows, sortedRows);
+	}
+
+	@Test
 	public void test() throws FileNotFoundException, IOException {
 		RegionOperations tool = new RegionOperations();
 
@@ -84,6 +104,7 @@ public class RegionToolTest {
 	
 	public static void main(String[] args) throws Exception {
 		new RegionToolTest().test();
+		new RegionToolTest().testSort();
 		System.out.println("OK");
 	}
 }

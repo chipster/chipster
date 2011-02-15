@@ -306,4 +306,8 @@ public class RegionOperations {
 		out.flush();
 		
 	}
+
+	public void sort(LinkedList<BpCoordRegion> rows) {
+		Collections.sort(rows);
+	}
 }

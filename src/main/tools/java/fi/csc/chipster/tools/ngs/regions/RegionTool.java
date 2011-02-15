@@ -32,6 +32,9 @@ public abstract class RegionTool extends JavaAnalysisJobBase {
 			// Delegate actual processing to subclasses
 			LinkedList<BpCoordRegion> output = operate(inputs, inputMessage.getParameters());
 			
+			// Sort result
+			new RegionOperations().sort(output);
+			
 			// Write output
 			FileOutputStream outputStream = null;
 			try {
