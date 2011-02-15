@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -237,10 +236,35 @@ public class RegionOperations {
 	public List<RegionContent> loadFile(File input) throws FileNotFoundException, IOException {
 		ChunkDataSource dataSource = new ChunkDataSource(input, new BEDParser());
 		byte[] fileChunk = dataSource.readAll();
-		List<ColumnType> columns = Arrays.asList(new ColumnType[] { ColumnType.CHROMOSOME, ColumnType.BP_START, ColumnType.BP_END});
-		return dataSource.getFileParser().getAll(new Chunk(new String(fileChunk)), columns);
+		return parseString(new String(fileChunk));
 	}
-	
+
+	/**
+	 * Parses regions from a BED text formatted String.
+	 * 
+	 * @param string BED string
+	 * @return  regions and their extra data
+	 */
+	public List<RegionContent> parseString(String string) throws FileNotFoundException, IOException {
+		
+		// Process track name, if exists
+		BEDParser parser = new BEDParser();
+		string = string.substring((int)parser.getHeaderLength(string) + 1);
+		
+		// Count fields and create list of what extra types we need
+		int fieldCount = string.split("\n")[0].split("\t").length;
+		if (fieldCount < 3) {
+			throw new IllegalArgumentException("BED must have at least chromosome, start and end fields");
+		}
+		LinkedList<ColumnType> extraTypes = new LinkedList<ColumnType>();
+		for (int i = 3; i < fieldCount; i++) {
+			extraTypes.add(BEDParser.completeBedColumns.get(i).content);
+		}
+		
+		// Parse it
+		return parser.getAll(new Chunk(string), extraTypes);
+	}
+
 
 	private LinkedList<BpCoordRegion> mergeContinuous(LinkedList<BpCoordRegion> regions) {
 		
@@ -272,5 +296,14 @@ public class RegionOperations {
 		}
 		
 		return mergedRegions;
+	}
+
+	public void printRegions(List<RegionContent> regionContents, OutputStream outputStream) {
+		PrintWriter out = new PrintWriter(outputStream);
+		for (RegionContent regionContent : regionContents) {
+			out.println(regionContent.region.toString(true));
+		}
+		out.flush();
+		
 	}
 }

@@ -3,11 +3,14 @@ package fi.csc.microarray.gbrowser.intervals;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fi.csc.chipster.tools.gbrowser.regions.RegionOperations;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -18,14 +21,25 @@ public class RegionToolTest {
 	public void test() throws FileNotFoundException, IOException {
 		RegionOperations tool = new RegionOperations();
 
-		// First input (left)
-		LinkedList<RegionContent> rows1 = new LinkedList<RegionContent>();
-		rows1.add(new RegionContent(new BpCoordRegion(100L, 200L, new Chromosome("1")), ""));
-		rows1.add(new RegionContent(new BpCoordRegion(210L, 300L, new Chromosome("1")), ""));
-		rows1.add(new RegionContent(new BpCoordRegion(400L, 500L, new Chromosome("1")), ""));
-		rows1.add(new RegionContent(new BpCoordRegion(100L, 200L, new Chromosome("2")), ""));
+		// First (left) input is parsed and has track name & extra data (use chr prefix here)
+		String fileContents = 
+			"track name=pairedReads description=\"Clone Paired Reads\" useScore=1\n" +
+			"chr1\t100\t200\tcloneA\t960\t+\t1000\t5000\t0\t2\t567,488\t0,3512\n" +
+			"chr1\t210\t300\tcloneA\t960\t+\t1000\t5000\t0\t2\t567,488\t0,3512\n" +
+			"chr1\t400\t500\tcloneA\t960\t+\t1000\t5000\t0\t2\t567,488\t0,3512\n" +
+			"chr2\t100\t200\tcloneA\t960\t+\t1000\t5000\t0\t2\t567,488\t0,3512\n";
+		List<RegionContent> rows1 = tool.parseString(fileContents);
 		
-		// Second input (right)
+		// Check that parsing was ok
+		Assert.assertEquals(rows1.size(), 4);
+		Assert.assertEquals(rows1.get(0).values.get(ColumnType.STRAND), Strand.FORWARD);
+		Assert.assertEquals(rows1.get(0).values.get(ColumnType.ID), "cloneA");
+		Assert.assertEquals(rows1.get(0).region.start.chr, new Chromosome("chr1.fa"));
+		Assert.assertEquals(rows1.get(0).region.start.chr, new Chromosome("chr1"));
+		Assert.assertEquals(rows1.get(0).region.start.chr, new Chromosome("1"));
+		
+		
+		// Second (right) input given directly (don't use chr prefix here)
 		LinkedList<RegionContent> rows2 = new LinkedList<RegionContent>();
 		rows2.add(new RegionContent(new BpCoordRegion(100L, 150L, new Chromosome("1")), ""));
 		rows2.add(new RegionContent(new BpCoordRegion(250L, 600L, new Chromosome("1")), ""));

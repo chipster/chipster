@@ -5,10 +5,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.Arrays;
+import java.util.List;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.util.IOUtils;
 
 /**
  * Parser for BED file format.
@@ -30,13 +33,23 @@ public class BEDParser extends TsvParser {
 
 	private static final String BED_HEADER_STRING = "track";
 
+	public static List<ColumnDefinition> completeBedColumns = Arrays.asList(new ColumnDefinition[] { 
+		new ColumnDefinition(ColumnType.CHROMOSOME, Type.STRING), 
+		new ColumnDefinition(ColumnType.BP_START, Type.LONG), 
+		new ColumnDefinition(ColumnType.BP_END, Type.LONG),
+		new ColumnDefinition(ColumnType.ID, Type.STRING),
+		new ColumnDefinition(ColumnType.VALUE, Type.LONG),
+		new ColumnDefinition(ColumnType.STRAND, Type.STRING),
+		new ColumnDefinition(ColumnType.SKIP, Type.STRING),
+		new ColumnDefinition(ColumnType.SKIP, Type.STRING),
+		new ColumnDefinition(ColumnType.SKIP, Type.STRING),
+		new ColumnDefinition(ColumnType.SKIP, Type.STRING),
+		new ColumnDefinition(ColumnType.SKIP, Type.STRING),
+		new ColumnDefinition(ColumnType.SKIP, Type.STRING),
+	});
+
 	public BEDParser() {
-		super(new FileDefinition(Arrays.asList(
-				new ColumnDefinition[] { 
-						new ColumnDefinition(ColumnType.CHROMOSOME, Type.STRING), 
-						new ColumnDefinition(ColumnType.BP_START, Type.LONG), 
-						new ColumnDefinition(ColumnType.BP_END, Type.LONG), }
-				)));
+		super(new FileDefinition(completeBedColumns));
 	}
 
 	public BEDParser(FileDefinition fileDefinition) {
@@ -64,14 +77,29 @@ public class BEDParser extends TsvParser {
 		return obj;
 	}
 	
-	@Override
-	public long getHeaderLength(File file) throws IOException {
-		BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-		String firstLine = in.readLine();
+	public long getHeaderLength(String string) throws IOException {
+		BufferedReader reader = new BufferedReader(new StringReader(string));
+		return getHeaderLength(reader);
+	}
+
+	public long getHeaderLength(BufferedReader reader) throws IOException {
+		String firstLine = reader.readLine();
 		if (firstLine != null && firstLine.startsWith(BED_HEADER_STRING)) {
 			return firstLine.length();
 		} else {
 			return 0;
+		}
+	}
+
+	@Override
+	public long getHeaderLength(File file) throws IOException {
+		BufferedReader in = null;
+		try {
+			in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+			return getHeaderLength(in);
+			
+		} finally {
+			IOUtils.closeIfPossible(in);
 		}
 	}
 }

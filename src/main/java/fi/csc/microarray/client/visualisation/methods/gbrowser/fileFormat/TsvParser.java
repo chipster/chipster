@@ -117,7 +117,7 @@ public abstract class TsvParser extends FileParser {
          * Fetch all columns of given column types that are in a given chunk.
          * 
          * @param chunk - string chunk from a file.
-         * @param requestedContents - a collection of column types to be fetched.
+         * @param requestedContents - a collection of column types to be fetched
          * @return
          */
 		@Override
@@ -125,15 +125,15 @@ public abstract class TsvParser extends FileParser {
 
 			List<RegionContent> rows = new LinkedList<RegionContent>();
 			
-
+			// Parse each row
 			for (String row : chunk.getContent().split("\n")) {
 				
-				Map<ColumnType, Object> values = new HashMap<ColumnType, Object>();
-				
+				// Split into fields
 				String[] cols = row.split("\t");
-				
+
+				// Collect extra data, if requested
+				Map<ColumnType, Object> values = new HashMap<ColumnType, Object>();
 				for (ColumnType requestedContent : requestedContents) {
-							
 					values.put(requestedContent, this.get(cols, requestedContent));					
 				}
 				
