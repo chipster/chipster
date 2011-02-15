@@ -34,8 +34,8 @@ public class RegionOperations {
 	 * @param mergeOrIntersect if true return union, otherwise intersection
 	 * @return
 	 */
-	public LinkedList<BpCoordRegion> intersect(List<RegionContent> leftRegions, List<RegionContent> rightRegions, Long minIntersectionLength, boolean mergeOrIntersect) {
-		return operate(leftRegions, rightRegions, new IntersectingPairRule(minIntersectionLength), EXCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, mergeOrIntersect ? MERGE_PAIR_POLICY : INTERSECT_PAIR_POLICY, true);
+	public LinkedList<BpCoordRegion> intersect(List<RegionContent> leftRegions, List<RegionContent> rightRegions, Long minIntersectionLength, PairPolicy pairPolicy) {
+		return operate(leftRegions, rightRegions, new IntersectingPairRule(minIntersectionLength), EXCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, pairPolicy, true);
 	}
 
 	public LinkedList<BpCoordRegion> subtract(List<RegionContent> leftRegions, List<RegionContent> rightRegions, Long minIntersectionLength) {
@@ -150,6 +150,13 @@ public class RegionOperations {
 	public static interface PairPolicy {
 		public void process(BpCoordRegion left, BpCoordRegion right, LinkedList<BpCoordRegion> collector);
 	}
+
+	public static PairPolicy ORIGINALS_PAIR_POLICY = new PairPolicy() {
+		public void process(BpCoordRegion left, BpCoordRegion right, LinkedList<BpCoordRegion> collector) {
+			collector.add(left);
+			collector.add(right);
+		}
+	};
 
 	public static PairPolicy MERGE_PAIR_POLICY = new PairPolicy() {
 		public void process(BpCoordRegion left, BpCoordRegion right, LinkedList<BpCoordRegion> collector) {

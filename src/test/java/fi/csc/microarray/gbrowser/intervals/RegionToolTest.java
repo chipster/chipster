@@ -70,7 +70,7 @@ public class RegionToolTest {
 		expectedIntersection.add(new BpCoordRegion(100L, 150L, new Chromosome("1")));
 		expectedIntersection.add(new BpCoordRegion(250L, 300L, new Chromosome("1")));
 		expectedIntersection.add(new BpCoordRegion(400L, 500L, new Chromosome("1")));
-		Assert.assertEquals(tool.intersect(rows1, rows2, 1L, false), expectedIntersection);
+		Assert.assertEquals(tool.intersect(rows1, rows2, 1L, RegionOperations.INTERSECT_PAIR_POLICY), expectedIntersection);
 		expectedIntersection.remove();
 		Assert.assertNotSame(tool.merge(rows1, rows2, 1L, true), expectedIntersection);
 
