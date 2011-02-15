@@ -28,7 +28,7 @@ ecut<-expression.threshold
 
 # Loads the normalized data
 file<-c("normalized.tsv")
-dat<-read.table(file, header=TRUE, sep="\t", row.names=1)
+dat<-read.table(file, header=T, sep="\t", row.names=1)
 
 # Separates expression values and flags
 calls<-dat[,grep("flag", names(dat))]
@@ -66,5 +66,5 @@ symbols(m, -log10(p.adj), rectangles=cbind(rep(0, length(p.adj)), s), fg=cols, x
 dev.off()
 
 # Printing output table
-write.table(data.frame(dat, p.adjusted=round(p.adj, digits=6), FC=m), file="one-sample.tsv", sep="\t", row.names=TRUE, col.names=TRUE, quote=FALSE)
+write.table(data.frame(dat, p.adjusted=round(p.adj, digits=6), FC=m), file="one-sample.tsv", sep="\t", row.names=T, col.names=TRUE, quote=F)
 
