@@ -9,7 +9,7 @@
 #
 # modified by MG, 12.4.2010
 # rewritten by IS, 6.9.2010
-# modified by IS, 15.2.2011
+# modified by IS, 16.2.2011
 
 # load inputs
 dat <- read.table('normalized.tsv', header=TRUE, sep='\t', row.names=1)
@@ -50,7 +50,7 @@ dat2 <- dat[,annotations]
 # generate new data table
 for (m in matrices) {
   m2 <- dat[,grep(m, x)]
-  m3 <- m2[,unique.chips]
+  m3 <- as.data.frame(m2[,unique.chips])
   num <- is.numeric(as.matrix(m2))
   for (s in replicates) {
     ss <- which(phenodata[,column] == s)
