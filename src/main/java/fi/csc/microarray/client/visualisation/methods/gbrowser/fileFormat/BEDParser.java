@@ -40,12 +40,12 @@ public class BEDParser extends TsvParser {
 		new ColumnDefinition(ColumnType.ID, Type.STRING),
 		new ColumnDefinition(ColumnType.VALUE, Type.LONG),
 		new ColumnDefinition(ColumnType.STRAND, Type.STRING),
-		new ColumnDefinition(ColumnType.SKIP, Type.STRING),
-		new ColumnDefinition(ColumnType.SKIP, Type.STRING),
-		new ColumnDefinition(ColumnType.SKIP, Type.STRING),
-		new ColumnDefinition(ColumnType.SKIP, Type.STRING),
-		new ColumnDefinition(ColumnType.SKIP, Type.STRING),
-		new ColumnDefinition(ColumnType.SKIP, Type.STRING),
+		new ColumnDefinition(ColumnType.THICK_START, Type.STRING),
+		new ColumnDefinition(ColumnType.THICK_END, Type.STRING),
+		new ColumnDefinition(ColumnType.ITEM_RGB, Type.STRING),
+		new ColumnDefinition(ColumnType.BLOCK_COUNT, Type.STRING),
+		new ColumnDefinition(ColumnType.BLOCK_SIZES, Type.STRING),
+		new ColumnDefinition(ColumnType.BLOCK_STARTS, Type.STRING),
 	});
 
 	public BEDParser() {

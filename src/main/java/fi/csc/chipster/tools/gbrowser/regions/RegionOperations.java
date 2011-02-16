@@ -34,19 +34,19 @@ public class RegionOperations {
 	 * @param mergeOrIntersect if true return union, otherwise intersection
 	 * @return
 	 */
-	public LinkedList<BpCoordRegion> intersect(List<RegionContent> leftRegions, List<RegionContent> rightRegions, Long minIntersectionLength, PairPolicy pairPolicy) {
-		return operate(leftRegions, rightRegions, new IntersectingPairRule(minIntersectionLength), EXCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, pairPolicy, true);
+	public LinkedList<RegionContent> intersect(List<RegionContent> leftRegions, List<RegionContent> rightRegions, Long minIntersectionLength, PairPolicy pairPolicy, boolean flatten) {
+		return operate(leftRegions, rightRegions, new IntersectingPairRule(minIntersectionLength), EXCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, pairPolicy, flatten);
 	}
 
-	public LinkedList<BpCoordRegion> subtract(List<RegionContent> leftRegions, List<RegionContent> rightRegions, Long minIntersectionLength) {
+	public LinkedList<RegionContent> subtract(List<RegionContent> leftRegions, List<RegionContent> rightRegions, Long minIntersectionLength) {
 		return operate(leftRegions, rightRegions, new IntersectingPairRule(minIntersectionLength), INCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, EXCLUDE_PAIR_POLICY, true);
 	}
 
-	public LinkedList<BpCoordRegion> merge(List<RegionContent> leftRegions, List<RegionContent> rightRegions, Long minIntersectionLength, boolean flatten) {
+	public LinkedList<RegionContent> merge(List<RegionContent> leftRegions, List<RegionContent> rightRegions, Long minIntersectionLength, boolean flatten) {
 		return operate(leftRegions, rightRegions, new IntersectingPairRule(minIntersectionLength), INCLUDE_ORPHAN_POLICY, INCLUDE_ORPHAN_POLICY, MERGE_PAIR_POLICY, flatten);
 	}
 
-	public LinkedList<BpCoordRegion> flatten(List<RegionContent> leftRegions) {
+	public LinkedList<RegionContent> flatten(List<RegionContent> leftRegions) {
 		return operate(leftRegions, new LinkedList<RegionContent>(), new IntersectingPairRule(0L), INCLUDE_ORPHAN_POLICY, EXCLUDE_ORPHAN_POLICY, MERGE_PAIR_POLICY, true);
 	}
 
@@ -66,10 +66,10 @@ public class RegionOperations {
 	 * 
 	 * @return results produced from paired regions and non-paired regions
 	 */
-	public LinkedList<BpCoordRegion> operate(List<RegionContent> leftRegions, List<RegionContent> rightRegions, PairRule pairRule, OrphanPolicy leftOrphanPolicy, OrphanPolicy rightOrphanPolicy, PairPolicy pairPolicy, boolean mergeContinous) {
+	public LinkedList<RegionContent> operate(List<RegionContent> leftRegions, List<RegionContent> rightRegions, PairRule pairRule, OrphanPolicy leftOrphanPolicy, OrphanPolicy rightOrphanPolicy, PairPolicy pairPolicy, boolean mergeContinous) {
 		
 		// Initialise collectors
-		LinkedList<BpCoordRegion> result = new LinkedList<BpCoordRegion>();
+		LinkedList<RegionContent> result = new LinkedList<RegionContent>();
 		HashSet<RegionContent> leftPaired = new HashSet<RegionContent>();
 		HashSet<RegionContent> rightPaired = new HashSet<RegionContent>();
 		
@@ -81,7 +81,7 @@ public class RegionOperations {
 					rightPaired.add(rightRegion);
 					
 					// Output what pair policy dictates
-					pairPolicy.process(leftRegion.region, rightRegion.region, result);
+					pairPolicy.process(leftRegion, rightRegion, result);
 				}
 			}
 		}
@@ -89,14 +89,14 @@ public class RegionOperations {
 		// Process left orphans
 		for (RegionContent leftRegion : leftRegions) {
 			if (!leftPaired.contains(leftRegion)) {
-				leftOrphanPolicy.process(leftRegion.region, result);
+				leftOrphanPolicy.process(leftRegion, result);
 			}
 		}
 		
 		// Process right orphans
 		for (RegionContent rightRegion : rightRegions) {
 			if (!rightPaired.contains(rightRegion)) {
-				rightOrphanPolicy.process(rightRegion.region, result);
+				rightOrphanPolicy.process(rightRegion, result);
 			}
 		}
 		
@@ -148,54 +148,54 @@ public class RegionOperations {
 	 * Decides what should be output when a pair is found. 
 	 */
 	public static interface PairPolicy {
-		public void process(BpCoordRegion left, BpCoordRegion right, LinkedList<BpCoordRegion> collector);
+		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector);
 	}
 
 	public static PairPolicy ORIGINALS_PAIR_POLICY = new PairPolicy() {
-		public void process(BpCoordRegion left, BpCoordRegion right, LinkedList<BpCoordRegion> collector) {
+		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
 			collector.add(left);
 			collector.add(right);
 		}
 	};
 
 	public static PairPolicy MERGE_PAIR_POLICY = new PairPolicy() {
-		public void process(BpCoordRegion left, BpCoordRegion right, LinkedList<BpCoordRegion> collector) {
-			collector.add(left.merge(right));
+		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
+			collector.add(new RegionContent(left.region.merge(right.region), ""));
 		}
 	};
 
 	public static PairPolicy LEFT_PAIR_POLICY = new PairPolicy() {
-		public void process(BpCoordRegion left, BpCoordRegion right, LinkedList<BpCoordRegion> collector) {
+		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
 			collector.add(left);
 		}
 	};
 	
 	public static PairPolicy SUBTRACTED_LEFT_PAIR_POLICY = new PairPolicy() {
-		public void process(BpCoordRegion left, BpCoordRegion right, LinkedList<BpCoordRegion> collector) {
-			collector.add(left.subtract(right));
+		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
+			collector.add(new RegionContent(left.region.subtract(right.region), ""));
 		}
 	};
 
 	public static PairPolicy RIGHT_PAIR_POLICY = new PairPolicy() {
-		public void process(BpCoordRegion left, BpCoordRegion right, LinkedList<BpCoordRegion> collector) {
+		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
 			collector.add(right);
 		}
 	};
 	
 	public static PairPolicy SUBTRACTED_RIGHT_PAIR_POLICY = new PairPolicy() {
-		public void process(BpCoordRegion left, BpCoordRegion right, LinkedList<BpCoordRegion> collector) {
-			collector.add(right.subtract(left));
+		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
+			collector.add(new RegionContent(right.region.subtract(left.region), ""));
 		}
 	};
 
 	public static PairPolicy INTERSECT_PAIR_POLICY = new PairPolicy() {
-		public void process(BpCoordRegion left, BpCoordRegion right, LinkedList<BpCoordRegion> collector) {
-			collector.add(left.intersect(right));
+		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
+			collector.add(new RegionContent(left.region.intersect(right.region), ""));
 		}
 	};
 
 	public static PairPolicy EXCLUDE_PAIR_POLICY = new PairPolicy() {
-		public void process(BpCoordRegion left, BpCoordRegion right, LinkedList<BpCoordRegion> collector) {
+		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
 			// do nothing
 		}
 	};
@@ -205,18 +205,18 @@ public class RegionOperations {
 	 * Decides what is done to non-paired regions.
 	 */
 	public static interface OrphanPolicy {
-		public void process(BpCoordRegion region, LinkedList<BpCoordRegion> collector);
+		public void process(RegionContent region, LinkedList<RegionContent> collector);
 	}
 
 	
 	public static OrphanPolicy INCLUDE_ORPHAN_POLICY = new OrphanPolicy() {
-		public void process(BpCoordRegion region, LinkedList<BpCoordRegion> collector) {
+		public void process(RegionContent region, LinkedList<RegionContent> collector) {
 			collector.add(region);
 		}
 	};
 
 	public static OrphanPolicy EXCLUDE_ORPHAN_POLICY = new OrphanPolicy() {
-		public void process(BpCoordRegion region, LinkedList<BpCoordRegion> collector) {
+		public void process(RegionContent region, LinkedList<RegionContent> collector) {
 			// do nothing
 		}
 	};
@@ -273,19 +273,19 @@ public class RegionOperations {
 	}
 
 
-	private LinkedList<BpCoordRegion> mergeContinuous(LinkedList<BpCoordRegion> regions) {
+	private LinkedList<RegionContent> mergeContinuous(LinkedList<RegionContent> regions) {
 		
 		// Sort to bring continuous pieces together
-		Collections.sort(regions);
+		sort(regions);
 		
 		// Write out continuous regions
-		LinkedList<BpCoordRegion> mergedRegions = new LinkedList<BpCoordRegion>();
+		LinkedList<RegionContent> mergedRegions = new LinkedList<RegionContent>();
 		for (int i = 0; i < regions.size(); ) {
 			
 			// Iterate as long as continuous
 			int j = i;
 			for (; j < regions.size() - 1; ) {
-				if (regions.get(i).intersects(regions.get(j + 1))) {
+				if (regions.get(i).region.intersects(regions.get(j + 1).region)) {
 					// Should be merged, we can continue to look for continuous stuff
 					j++;
 					
@@ -296,7 +296,7 @@ public class RegionOperations {
 			}
 			
 			// Write out
-			mergedRegions.add(new BpCoordRegion(regions.get(i).start, regions.get(j).end));
+			mergedRegions.add(new RegionContent(new BpCoordRegion(regions.get(i).region.start, regions.get(j).region.end), ""));
 			
 			// Jump to region after the previously written one
 			i = j+1;
@@ -308,13 +308,12 @@ public class RegionOperations {
 	public void printRegions(List<RegionContent> regionContents, OutputStream outputStream) {
 		PrintWriter out = new PrintWriter(outputStream);
 		for (RegionContent regionContent : regionContents) {
-			out.println(regionContent.region.toString(true));
+			out.println(regionContent);
 		}
 		out.flush();
-		
 	}
 
-	public void sort(LinkedList<BpCoordRegion> rows) {
+	public void sort(List<RegionContent> rows) {
 		Collections.sort(rows);
 	}
 }

@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import fi.csc.chipster.tools.gbrowser.regions.RegionOperations;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class RemoveOverlappingTool extends RegionTool {
@@ -19,7 +18,7 @@ public class RemoveOverlappingTool extends RegionTool {
 	}
 
 	@Override
-	protected LinkedList<BpCoordRegion> operate(LinkedList<List<RegionContent>> inputs, List<String> parameters) {
+	protected LinkedList<RegionContent> operate(LinkedList<List<RegionContent>> inputs, List<String> parameters) {
 		RegionOperations tool = new RegionOperations();
 		Long minOverlap = Long.parseLong(inputMessage.getParameters().get(0));
 		return tool.subtract(inputs.get(0), inputs.get(1), minOverlap);

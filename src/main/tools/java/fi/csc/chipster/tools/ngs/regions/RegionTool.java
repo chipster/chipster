@@ -7,14 +7,13 @@ import java.util.List;
 
 import fi.csc.chipster.tools.gbrowser.regions.RegionOperations;
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.util.IOUtils;
 
 public abstract class RegionTool extends JavaAnalysisJobBase {
 
-	protected abstract LinkedList<BpCoordRegion> operate(LinkedList<List<RegionContent>> inputs, List<String> parameters);
+	protected abstract LinkedList<RegionContent> operate(LinkedList<List<RegionContent>> inputs, List<String> parameters);
 	
 	@Override
 	protected void execute() { 
@@ -30,7 +29,7 @@ public abstract class RegionTool extends JavaAnalysisJobBase {
 			}
 
 			// Delegate actual processing to subclasses
-			LinkedList<BpCoordRegion> output = operate(inputs, inputMessage.getParameters());
+			LinkedList<RegionContent> output = operate(inputs, inputMessage.getParameters());
 			
 			// Sort result
 			new RegionOperations().sort(output);
@@ -39,7 +38,7 @@ public abstract class RegionTool extends JavaAnalysisJobBase {
 			FileOutputStream outputStream = null;
 			try {
 				outputStream = new FileOutputStream(new File(jobWorkDir, analysis.getOutputFiles().get(0).getFileName().getID())); 
-				tool.print(output, outputStream);
+				tool.printRegions(output, outputStream);
 
 			} finally {
 				IOUtils.closeIfPossible(outputStream);

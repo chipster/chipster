@@ -3,6 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +62,7 @@ public class CytobandParser extends TsvParser {
 		
 		for (String row : chunk.getContent().split("\n")) {
 			
-			Map<ColumnType, Object> values = new HashMap<ColumnType, Object>();
+			LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
 			
 			String[] cols = row.split("\t");
 			

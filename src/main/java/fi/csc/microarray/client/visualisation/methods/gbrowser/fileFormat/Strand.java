@@ -8,5 +8,19 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
  * a single track.
  */
 public enum Strand {
-	FORWARD, REVERSED, BOTH
+	FORWARD, 
+	REVERSED, 
+	BOTH;
+	
+	@Override
+	public String toString() {
+		switch (this) {
+		case FORWARD:
+			return "+";
+		case REVERSED:
+			return "-";
+		default:
+			return super.toString();
+		}
+	}
 }

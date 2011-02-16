@@ -4,10 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
@@ -132,7 +131,7 @@ public abstract class TsvParser extends FileParser {
 				String[] cols = row.split("\t");
 
 				// Collect extra data, if requested
-				Map<ColumnType, Object> values = new HashMap<ColumnType, Object>();
+				LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
 				for (ColumnType requestedContent : requestedContents) {
 					values.put(requestedContent, this.get(cols, requestedContent));					
 				}
