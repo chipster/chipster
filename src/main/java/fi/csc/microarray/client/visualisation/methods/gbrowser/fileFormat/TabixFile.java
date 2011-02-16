@@ -3,7 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -109,7 +109,7 @@ public class TabixFile {
         		new BpCoordRegion(pos, pos + step, request.start.chr);
 
         	// Forward
-        	HashMap<ColumnType, Object> values = new HashMap<ColumnType, Object>();
+        	LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
         	values.put(ColumnType.VALUE, (float)countForward);
         	values.put(ColumnType.STRAND, Strand.FORWARD);
         	responseList.add(new RegionContent(recordRegion, values));

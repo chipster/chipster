@@ -3,8 +3,8 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedMap;
@@ -100,7 +100,7 @@ public class SAMFile {
                         request.start.chr);
             
             // Values for this read
-            HashMap<ColumnType, Object> values = new HashMap<ColumnType, Object>();
+            LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
             
             RegionContent read = new RegionContent(recordRegion, values);
             
@@ -267,13 +267,13 @@ public class SAMFile {
 			new BpCoordRegion(startPos, endPos, request.start.chr);
 
 		// Forward
-		HashMap<ColumnType, Object> values = new HashMap<ColumnType, Object>();
+		LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
 		values.put(ColumnType.VALUE, (float)countForward);
 		values.put(ColumnType.STRAND, Strand.FORWARD);
 		responseList.add(new RegionContent(recordRegion, values));
 
 		// Reverse
-		values = new HashMap<ColumnType, Object>();
+		values = new LinkedHashMap<ColumnType, Object>();
 		values.put(ColumnType.VALUE, (float)countReverse);
 		values.put(ColumnType.STRAND, Strand.REVERSED);
 		responseList.add(new RegionContent(recordRegion, values));

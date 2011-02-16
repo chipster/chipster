@@ -3,42 +3,64 @@
 
   <bundle name="Required OS packages for R" required="true">
   
-    <item installed="false" name="build-essential" type="os-package">
+    <item installed="false" name="Essential tools for building source packages" type="os-package">
     	<package-name>build-essential</package-name>
     </item>
     
-    <item installed="false" name="x-devel" type="os-package">
+    <item installed="false" name="X development files" type="os-package">
     	<package-name>xorg-dev</package-name>
     	<alternative-package-name>groupinstall "X Software Development"</alternative-package-name>
     </item> 
 
-    <item installed="false" name="tk-devel" type="os-package">
-    	<package-name>tk-devel</package-name>
+    <item installed="false" name="Tk development files" type="os-package">
+    	<package-name>tk-dev</package-name>
+    	<alternative-package-name>tk-devel</alternative-package-name>
     </item>
 
-    <item installed="false" name="tcl-devel" type="os-package">
-    	<package-name>tcl-devel</package-name>
+    <item installed="false" name="Tcl development files" type="os-package">
+    	<package-name>tcl-dev</package-name>
+    	<alternative-package-name>tcl-devel</alternative-package-name>
     </item>
     
-    <item installed="false" name="readline-devel" type="os-package">
-    	<package-name>readline-devel</package-name>
-    	<alternative-package-name>libreadline5-dev</alternative-package-name>
+    <item installed="false" name="readline development files" type="os-package">
+    	<package-name>libreadline5-dev</package-name>
+    	<alternative-package-name>readline-devel</alternative-package-name>
     </item>
 
-	<item installed="false" name="gfortran" type="os-package">
+	<item installed="false" name="gfortran compiler" type="os-package">
     	<package-name>gfortran</package-name>
+    	<alternative-package-name>gcc</alternative-package-name>
     </item> 	
     	
-	<item installed="false" name="libxml2-devel" type="os-package">
-    	<package-name>libxml2-devel</package-name>
+	<item installed="false" name="libxml2 development files" type="os-package">
+    	<package-name>libxml2-dev</package-name>
+    	<alternative-package-name>libxml2-devel</alternative-package-name>
     </item>
-  
-    <item installed="false" name="gsl" type="file"> 
-	  <dir></dir>
-	  <comment>
-	    Install GSL (GNU Scientific Library) and make the environment variable
-	    GSL_CONFIG to contain the path to $GSL_HOME/bin/gsl-config
-      </comment>
+
+	<item installed="false" name="Mesa OpenGL library development files" type="os-package">
+    	<package-name>mesa-common-dev</package-name>
+    	
+    </item>
+
+    <item installed="false" name="OpenGL utility library development files" type="os-package">
+    	<package-name>libglu1-mesa-dev</package-name>
+    </item>
+
+    
+    <item installed="false" name="CURL development libraries" type="os-package">
+    	<package-name>libcurl-dev</package-name>
+    </item>
+    	
+    <item installed="false" name="GNU scientific library development files" type="os-package">
+    	<package-name>libgsl0-dev</package-name>
+    </item>
+
+    <item installed="false" name="PNG library development files" type="os-package">
+    	<package-name>libpng-dev</package-name>
+    </item>
+
+    <item installed="false" name="Glib development files" type="os-package">
+    	<package-name>libglib2.0-dev</package-name>
     </item>
     
   </bundle>
@@ -299,15 +321,7 @@
     <item installed="false" name="DNAcopy" type="r-package"> 
       <bioconductor-package>DNAcopy</bioconductor-package>
     </item>
-
-    <item installed="false" name="hgu133plus2probe" type="r-package"> 
-      <bioconductor-package>hgu133plus2probe</bioconductor-package>
-    </item>
-
-    <item installed="false" name="hgu133plus2cdf" type="r-package"> 
-      <bioconductor-package>hgu133plus2cdf</bioconductor-package>
-    </item>
-
+    
   </bundle>
   
   <bundle name="Additional R packages" depends="Basic R environment">
@@ -353,10 +367,6 @@
     	<url>http://www.math.utu.fi/en/research/groups/bio/projects/ROTS_1.1.1.tar.gz</url>
     </item>    
     
-    <item installed="false" name="SMA" type="r-package">
-    	<url>http://www.stat.berkeley.edu/~terry/zarray/Software/SMAcode/sma_0.5.13.tar.gz</url>
-    </item>
-
     <item installed="false" name="microRNA" type="r-package"> 
       <bioconductor-package>microRNA</bioconductor-package>
     </item>
@@ -392,11 +402,7 @@
     <item installed="false" name="BSgenome" type="r-package"> 
       <bioconductor-package>BSgenome</bioconductor-package>
     </item>
-
-    <item installed="false" name="BSgenome.Hsapiens.UCSC.hg18" type="r-package"> 
-      <bioconductor-package>BSgenome.Hsapiens.UCSC.hg18</bioconductor-package>
-    </item>
-    
+ 
     <item installed="false" name="seqLogo" type="r-package"> 
       <bioconductor-package>seqLogo</bioconductor-package>
     </item>
