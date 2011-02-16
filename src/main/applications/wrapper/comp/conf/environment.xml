@@ -58,6 +58,10 @@
     <item installed="false" name="PNG library development files" type="os-package">
     	<package-name>libpng-dev</package-name>
     </item>
+
+    <item installed="false" name="Glib development files" type="os-package">
+    	<package-name>libglib2.0-dev</package-name>
+    </item>
     
   </bundle>
   
@@ -317,21 +321,6 @@
     <item installed="false" name="DNAcopy" type="r-package"> 
       <bioconductor-package>DNAcopy</bioconductor-package>
     </item>
-
-    <item installed="false" name="hgu133plus2probe" type="r-package"> 
-      <bioconductor-package>hgu133plus2probe</bioconductor-package>
-    </item>
-
-    <item installed="false" name="hgu133plus2cdf" type="r-package"> 
-      <bioconductor-package>hgu133plus2cdf</bioconductor-package>
-    </item>
-
-	<item installed="false" name="org.Bt.eg.db" type="r-package"> 
-      <bioconductor-package>org.Bt.eg.db</bioconductor-package>
-    </item>
-	<item installed="false" name="org.Ce.eg.db" type="r-package"> 
-      <bioconductor-package>org.Ce.eg.db</bioconductor-package>
-    </item>
     
   </bundle>
   
@@ -413,11 +402,7 @@
     <item installed="false" name="BSgenome" type="r-package"> 
       <bioconductor-package>BSgenome</bioconductor-package>
     </item>
-
-    <item installed="false" name="BSgenome.Hsapiens.UCSC.hg18" type="r-package"> 
-      <bioconductor-package>BSgenome.Hsapiens.UCSC.hg18</bioconductor-package>
-    </item>
-    
+ 
     <item installed="false" name="seqLogo" type="r-package"> 
       <bioconductor-package>seqLogo</bioconductor-package>
     </item>
