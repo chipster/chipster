@@ -24,6 +24,8 @@ replicates <- unique(phenodata[duplicated(phenodata[,column]), column])
 unique.chips <- which(!phenodata[,column] %in% replicates)
 
 # in case there is only the group column and no specific replicates column
+numeric.cols <- sapply(phenodata, is.numeric)
+other.cols <- !sapply(phenodata, is.numeric)
 if (sum (as.numeric (numeric.cols))==1) {
 	temp_column <- phenodata[,column]
 	phenodata <- cbind (phenodata, temp_column)
@@ -74,6 +76,9 @@ for (m in matrices) {
   colnames(m3) <- paste(m, phenodata2$sample, sep='')
   dat2 <- cbind(dat2, m3)
 }
+
+# remove temporary column
+phenodata2 <- phenodata2 [, grep ("temp_column", colnames (phenodata2), invert=TRUE) ]
 
 # write output
 write.table(dat2, file='average-replicates.tsv', quote=FALSE, sep='\t')
