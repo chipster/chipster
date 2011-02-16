@@ -244,7 +244,8 @@ public class RegionOperations {
 		
 		// Process track name, if exists
 		BEDParser parser = new BEDParser();
-		string = string.substring((int)parser.getHeaderLength(string) + 1);
+		int headerLength = (int)parser.getHeaderLength(string);
+		string = string.substring(headerLength > 0 ? (headerLength + 1) : 0);
 		
 		// Count fields and create list of what extra types we need
 		int fieldCount = string.split("\n")[0].split("\t").length;

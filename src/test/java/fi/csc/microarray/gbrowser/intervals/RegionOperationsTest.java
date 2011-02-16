@@ -47,12 +47,14 @@ public class RegionOperationsTest {
 
 		// First (left) input is parsed and has track name & extra data (use chr prefix here)
 		String fileContents = 
-			"track name=pairedReads description=\"Clone Paired Reads\" useScore=1\n" +
 			"chr1\t100\t200\tcloneA\t960\t+\t1000\t5000\t0\t2\t567,488\t0,3512\n" +
 			"chr1\t210\t300\tcloneA\t960\t+\t1000\t5000\t0\t2\t567,488\t0,3512\n" +
 			"chr1\t400\t500\tcloneA\t960\t+\t1000\t5000\t0\t2\t567,488\t0,3512\n" +
 			"chr2\t100\t200\tcloneA\t960\t+\t1000\t5000\t0\t2\t567,488\t0,3512\n";
-		List<RegionContent> rows1 = tool.parseString(fileContents);
+		String fileContentsWithHeader = 
+			"track name=pairedReads description=\"Clone Paired Reads\" useScore=1\n" +
+			fileContents;
+		List<RegionContent> rows1 = tool.parseString(fileContentsWithHeader);
 		
 		// Check that parsing was ok
 		Assert.assertEquals(rows1.size(), 4);
@@ -62,13 +64,14 @@ public class RegionOperationsTest {
 		Assert.assertEquals(rows1.get(0).region.start.chr, new Chromosome("chr1"));
 		Assert.assertEquals(rows1.get(0).region.start.chr, new Chromosome("1"));
 		
+		// Check that track header row does not cause trouble
+		Assert.assertEquals(tool.parseString(fileContents), rows1);
+		
 		// Check that printed output matches parsed input
-		BEDParser parser = new BEDParser();
-		String headerlessContents = fileContents.substring((int)parser.getHeaderLength(fileContents) + 1);
-		headerlessContents = headerlessContents.replace("chr", "");
+		String normalisedFileContents = fileContents.replace("chr", "");
 		OutputStream stringOut = new ByteArrayOutputStream();
 		tool.print(rows1, stringOut);
-		Assert.assertEquals(stringOut.toString(), headerlessContents);
+		Assert.assertEquals(stringOut.toString(), normalisedFileContents);
 		
 		// Second (right) input given directly (don't use chr prefix here)
 		LinkedList<RegionContent> rows2 = new LinkedList<RegionContent>();
