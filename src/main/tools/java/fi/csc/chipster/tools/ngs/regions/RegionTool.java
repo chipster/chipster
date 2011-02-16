@@ -38,7 +38,7 @@ public abstract class RegionTool extends JavaAnalysisJobBase {
 			FileOutputStream outputStream = null;
 			try {
 				outputStream = new FileOutputStream(new File(jobWorkDir, analysis.getOutputFiles().get(0).getFileName().getID())); 
-				tool.printRegions(output, outputStream);
+				tool.print(output, outputStream);
 
 			} finally {
 				IOUtils.closeIfPossible(outputStream);

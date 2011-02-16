@@ -19,7 +19,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRe
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
-public class RegionToolTest {
+public class RegionOperationsTest {
 
 	@Test
 	public void testSort() throws FileNotFoundException, IOException {
@@ -67,7 +67,7 @@ public class RegionToolTest {
 		String headerlessContents = fileContents.substring((int)parser.getHeaderLength(fileContents) + 1);
 		headerlessContents = headerlessContents.replace("chr", "");
 		OutputStream stringOut = new ByteArrayOutputStream();
-		tool.printRegions(rows1, stringOut);
+		tool.print(rows1, stringOut);
 		Assert.assertEquals(stringOut.toString(), headerlessContents);
 		
 		// Second (right) input given directly (don't use chr prefix here)
@@ -136,8 +136,8 @@ public class RegionToolTest {
 	
 	
 	public static void main(String[] args) throws Exception {
-		new RegionToolTest().test();
-		new RegionToolTest().testSort();
+		new RegionOperationsTest().test();
+		new RegionOperationsTest().testSort();
 		System.out.println("OK");
 	}
 }

@@ -222,18 +222,6 @@ public class RegionOperations {
 	};
 
 
-
-	/**
-	 * Prints out regions in BED text format (without track header row).
-	 */
-	public void print(Iterable<BpCoordRegion> regions, OutputStream outputStream) {
-		PrintWriter out = new PrintWriter(outputStream);
-		for (BpCoordRegion region : regions) {
-			out.println(region.toString(true));
-		}
-		out.flush();
-	}
-
 	/**
 	 * Parses regions from a BED text formatted input file.
 	 * 
@@ -305,7 +293,10 @@ public class RegionOperations {
 		return mergedRegions;
 	}
 
-	public void printRegions(List<RegionContent> regionContents, OutputStream outputStream) {
+	/**
+	 * Prints out regions and their extra fields in BED text format (without track header row).
+	 */
+	public void print(List<RegionContent> regionContents, OutputStream outputStream) {
 		PrintWriter out = new PrintWriter(outputStream);
 		for (RegionContent regionContent : regionContents) {
 			out.println(regionContent);
