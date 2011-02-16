@@ -14,7 +14,7 @@ public class FindOverlappingTool extends RegionTool {
 				"INPUT data1.bed: \"First set of regions\" TYPE GENERIC" + "\n" +
 				"INPUT data2.bed: \"Second set of regions\" TYPE GENERIC" + "\n" +
 				"OUTPUT overlapping.bed: \"Overlapping regions\"" + "\n" + 
-				"PARAMETER return.type: \"Type of returned regions\" TYPE [merged: \"Merged overlapping regions\", intersection: \"Overlapping piece of regions\", original: \"Both of the original regions\"] DEFAULT merged (How overlapping regions are returned?)" + 
+				"PARAMETER return.type: \"Type of returned regions\" TYPE [first: \"Regions from the first set only\", both: \"Regions from both sets\", merged: \"Merged regions\", intersection: \"Overlapping pieces of regions\"] DEFAULT first (How overlapping regions are returned?)" + 
 				"PARAMETER min.overlap.bp: \"Minimum number of overlapping basepairs\" TYPE INTEGER FROM 1 DEFAULT 1 (How many basepairs are required to consider regions overlapping?)";
 	}
 
@@ -24,10 +24,12 @@ public class FindOverlappingTool extends RegionTool {
 		RegionOperations.PairPolicy pairPolicy;
 		if ("intersection".equals(inputMessage.getParameters().get(0))) {
 			pairPolicy = RegionOperations.INTERSECT_PAIR_POLICY; 
-		} else if ("original".equals(inputMessage.getParameters().get(0))) {
+		} else if ("both".equals(inputMessage.getParameters().get(0))) {
 			pairPolicy = RegionOperations.ORIGINALS_PAIR_POLICY;
-		} else {
+		} else if ("merged".equals(inputMessage.getParameters().get(0))) {
 			pairPolicy = RegionOperations.MERGE_PAIR_POLICY;
+		} else {
+			pairPolicy = RegionOperations.LEFT_PAIR_POLICY;
 		}
 		Long minOverlap = Long.parseLong(inputMessage.getParameters().get(1));
 		return tool.intersect(inputs.get(0), inputs.get(1), minOverlap, pairPolicy, false);

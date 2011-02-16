@@ -7,7 +7,7 @@
         <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.PreprocessNGSTreatmentAndControl</resource></tool>
         <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingTool</resource></tool>
         <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.RemoveOverlappingTool</resource></tool>
-        <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.FlattenRegionsTool</resource></tool>
+        <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.FuseRegionsTool</resource></tool>
         <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.CombineRegionsTool</resource></tool>
         <tool runtime="R-2.9"><resource>ngs-filter-results-column.R</resource></tool>
         <tool runtime="R-2.9"><resource>ngs-filter-annotations.R</resource></tool>
