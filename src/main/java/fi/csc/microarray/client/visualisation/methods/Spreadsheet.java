@@ -26,12 +26,8 @@ import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.basic.BasicModule;
 
 /**
- * A GUI component for showing (and some day maybe even editing!) the
- * microarray data - that is, the channels and their intensities.
- * It basically takes the data from a dataset's microarray and puts it
- * to a JTable. Once gene names are implemented in microarrays, this
- * could be used to annotate them (write some describing names and notes
- * for different genes).
+ * A GUI component for showing tabular data. Supports sorting and
+ * other extended functions with underlying JXTable.
  * 
  * @author Janne Käki, Mikko Koski, Aleksi Kallio
  *
@@ -102,8 +98,6 @@ public class Spreadsheet extends Visualisation {
 	public JComponent getVisualisation(DataBean data) throws Exception {
 		JPanel panel = new JPanel(new BorderLayout());				
 	
-		// FIXME handling for case when this is true: bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_HEADER)
-		
 		Table rowCounter = data.queryFeatures("/column/*").asTable();
 		int rowCount = 0;
 		while (rowCounter.nextRow()) {
