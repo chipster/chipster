@@ -46,6 +46,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
 import fi.csc.chipster.tools.gbrowser.SamBamUtils;
+import fi.csc.chipster.tools.gbrowser.regions.RegionOperations;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
@@ -70,6 +71,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvPar
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.GenomeAnnotation;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack3D;
@@ -113,8 +115,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		GENES(false), 
 		TRANSCRIPTS(true), 
 		REFERENCE(true),
-		PEAKS(true),
-		PEAKS_WITH_HEADER(true), 
+		REGIONS(true),
+		REGIONS_WITH_HEADER(true), 
 		READS(true),
 		HIDDEN(false);
 		
@@ -483,11 +485,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 	private void fillChromosomeBox() throws IOException {
 		
-		// Gather all chromosome names from all read datasets
+		// Gather all chromosome names from all indexed datasets (SAM/BAM)
 		TreeSet<String> chromosomeNames = new TreeSet<String>(); 
 		for (Interpretation interpretation : interpretations) {
-			TrackType trackType = interpretation.type;
-			if (trackType == TrackType.READS) {
+			if (interpretation.type == TrackType.READS) {
 				DataBean data = interpretation.primaryData;
 				InputStream in = null;
 				try {
@@ -495,6 +496,20 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 					chromosomeNames.addAll(SamBamUtils.readChromosomeNames(in));
 				} finally {
 					IOUtils.closeIfPossible(in);
+				}
+			}
+		}
+		
+		// If we still don't have names, go through non-indexed datasets
+		if (chromosomeNames.isEmpty()) {
+			for (Interpretation interpretation : interpretations) {
+				if (interpretation.type == TrackType.REGIONS) {
+					DataBean data = interpretation.primaryData;
+					File file = Session.getSession().getDataManager().getLocalFile(data);
+					List<RegionContent> rows = new RegionOperations().loadFile(file);
+					for (RegionContent row : rows) {
+						chromosomeNames.add(row.region.start.chr.toNormalisedString());
+					}
 				}
 			}
 		}
@@ -755,13 +770,13 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 									track.interpretation.primaryData);
 					DataSource peakData;
 					switch (track.interpretation.type) {
-					case PEAKS:
+					case REGIONS:
 						TrackFactory.addThickSeparatorTrack(plot);
 						TrackFactory.addTitleTrack(plot, file.getName());
 						peakData = new ChunkDataSource(file, new BEDParser());
 						TrackFactory.addPeakTrack(plot, peakData);
 						break;
-					case PEAKS_WITH_HEADER:
+					case REGIONS_WITH_HEADER:
 						TrackFactory.addThickSeparatorTrack(plot);
 						TrackFactory.addTitleTrack(plot, file.getName());
 						peakData = new ChunkDataSource(file, new HeaderTsvParser());
@@ -940,11 +955,11 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 			} else if (data.isContentTypeCompatitible("text/bed")) {
 				// BED (ChIP-seq peaks)
-				interpretations.add(new Interpretation(TrackType.PEAKS, data));
+				interpretations.add(new Interpretation(TrackType.REGIONS, data));
 
 			} else if (data.isContentTypeCompatitible("text/tab")) {
 				// peaks (with header in the file)
-				interpretations.add(new Interpretation(TrackType.PEAKS_WITH_HEADER, data));
+				interpretations.add(new Interpretation(TrackType.REGIONS_WITH_HEADER, data));
 
 			} else if ((data.isContentTypeCompatitible("application/octet-stream")) &&
 			           (data.getName().endsWith(".bam"))) {
