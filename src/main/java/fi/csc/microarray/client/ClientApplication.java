@@ -247,6 +247,20 @@ public abstract class ClientApplication {
 			    }
 			}
 
+			// load local operation definitions
+			ServiceAccessor localServiceAccessor = new LocalServiceAccessor();
+			localServiceAccessor.initialise(manager, null);
+			localServiceAccessor.fetchDescriptions(modules.getPrimaryModule());
+			for (OperationCategory category : localServiceAccessor.getHiddenCategories()) {
+			    for (OperationDefinition operationDefinition : category.getOperationList()) {
+			        internalOperationDefinitions.put(operationDefinition.getID(), operationDefinition);
+			    }
+			}
+
+			
+			
+			
+			
 			// start listening to job events
 			taskExecutor.addChangeListener(jobExecutorChangeListener);
 

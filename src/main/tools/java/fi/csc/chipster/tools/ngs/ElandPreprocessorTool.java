@@ -1,4 +1,4 @@
-package fi.csc.chipster.tools;
+package fi.csc.chipster.tools.ngs;
 
 import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
