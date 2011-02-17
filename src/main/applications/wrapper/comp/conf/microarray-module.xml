@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<module name="microarray">
+		
+	<category name="NGS Data processing" color="#01B777">
+	    <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.PreprocessNGSSingle</resource></tool>
+        <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.PreprocessNGSTreatmentAndControl</resource></tool>
+        <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingTool</resource></tool>
+        <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.RemoveOverlappingTool</resource></tool>
+        <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.FlattenRegionsTool</resource></tool>
+        <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.CombineRegionsTool</resource></tool>
+	</category>
+
+	<category name="NGS ChIP-seq" color="#006944">
+        <tool runtime="R-2.10"><resource>ngs-find-peaks-macs-one.R</resource></tool>
+        <tool runtime="R-2.10"><resource>ngs-find-peaks-macs-two.R</resource></tool>    
+        <tool runtime="R-2.9"><resource>ngs-filter-results-column.R</resource></tool>
+        <tool runtime="R-2.9"><resource>ngs-filter-annotations.R</resource></tool>
+        <tool runtime="R-2.12"><resource>ngs-find-motifs-jaspar.R</resource></tool>
+        <tool runtime="R-2.12"><resource>ngs-find-nearest-genes.R</resource></tool>
+        <tool runtime="R-2.10"><resource>pathways-ngs-hyperg-go.R</resource></tool>
+	</category>
+	
+	<category name="Normalisation" color="#d5c796">
+		<tool runtime="R-2.10"><resource>norm-affy.R</resource></tool>
+		<tool runtime="R-2.9"><resource>norm-affy-exon.R</resource></tool>
+		<tool runtime="R-2.9"><resource>norm-affy-snp.R</resource></tool>
+		<tool runtime="R-2.9"><resource>norm-affy-gene.R</resource></tool>
+		<tool runtime="R-2.9"><resource>norm-agilent-one-color.R</resource></tool>
+		<tool runtime="R-2.9"><resource>norm-agilent.R</resource></tool>
+		<tool runtime="R-2.9"><resource>norm-agilent-miRNA.R</resource></tool>
+		<tool runtime="R-2.9"><resource>norm-cdna.R</resource></tool>
+		<tool runtime="R-2.9"><resource>norm-illumina.R</resource></tool>
+		<tool runtime="R-2.9"><resource>norm-illumina-lumi.R</resource></tool>
+		<tool runtime="R-2.9"><resource>norm-lme.R</resource></tool>
+		<tool runtime="R-2.9"><resource>norm-illumina-SNP.R</resource></tool>
+		<tool runtime="R-2.9"><resource>norm-prenormalized.R</resource></tool>
+		<tool runtime="R-2.9"><resource>norm-prenormalized-affy.R</resource></tool>
+		<tool runtime="R-2.9"><resource>norm-chip-average.R</resource></tool>
+		<tool runtime="R-2.9"><resource>norm-gene-average.R</resource></tool>
+		<tool runtime="R-2.9"><resource>norm-specific-samples.R</resource></tool>
+		<tool runtime="R-2.9"><resource>norm-specific-genes.R</resource></tool>
+	</category>
+	
+	<category name="Quality control" color="#e7df70">
+		<tool runtime="R-2.9"><resource>qc-affy.R</resource></tool>
+		<tool runtime="R-2.9"><resource>qc-affy-rle-nuse.R</resource></tool>
+		<tool runtime="R-2.9"><resource>qc-affy-exon-rle-nuse.R</resource></tool>
+		<tool runtime="R-2.9"><resource>qc-cdna.R</resource></tool>
+		<tool runtime="R-2.9"><resource>qc-illumina.R</resource></tool>
+		<tool runtime="R-2.9"><resource>qc-agilent.R</resource></tool>
+		<tool runtime="R-2.9"><resource>qc-agilent-one-color.R</resource></tool>
+	</category>
+	
+	<category name="Preprocessing" color="#d59f45">
+		<tool runtime="R-2.9"><resource>filter-expression.R</resource></tool>
+		<tool runtime="R-2.9"><resource>filter-flags.R</resource></tool>
+		<tool runtime="R-2.9"><resource>filter-sd.R</resource></tool>
+		<tool runtime="R-2.9"><resource>filter-iqr.R</resource></tool>
+		<tool runtime="R-2.9"><resource>filter-cv.R</resource></tool>
+		<tool runtime="R-2.9"><resource>filter-by-column-term.R</resource></tool>
+		<tool runtime="R-2.9"><resource>filter-by-column-value.R</resource></tool>
+		<tool runtime="R-2.9"><resource>impute.R</resource></tool>
+		<tool runtime="R-2.9"><resource>na-omitted.R</resource></tool>
+        <tool runtime="R-2.9"><resource>ngs-filter-results-column.R</resource></tool>
+        <tool runtime="R-2.9"><resource>ngs-filter-annotations.R</resource></tool>
+	</category>
+	
+	<category name="Statistics" color="#e7881c">
+		<tool runtime="R-2.9"><resource>stat-singleslide.R</resource></tool>
+		<tool runtime="R-2.9"><resource>stat-one-group.R</resource></tool>
+		<tool runtime="R-2.9"><resource>stat-two-groups.R</resource></tool>
+		<tool runtime="R-2.9"><resource>stat-ROTS.R</resource></tool>
+		<tool runtime="R-2.9"><resource>stat-sam.R</resource></tool>
+		<tool runtime="R-2.9"><resource>stat-several-groups.R</resource></tool>
+		<tool runtime="R-2.9"><resource>stat-linear-modelling.R</resource></tool>
+		<tool runtime="R-2.9"><resource>stat-correlate-with-phenodata.R</resource></tool>
+		<tool runtime="R-2.10"><resource>correlation-analysis-mirna.R</resource></tool> 
+		<tool runtime="R-2.9"><resource>stat-timeseries.R</resource></tool>
+		<tool runtime="R-2.9"><resource>stat-chisq-snp.R</resource></tool>
+		<tool runtime="R-2.9"><resource>stat-adjust-pvalues.R</resource></tool>
+		<tool runtime="R-2.9"><resource>ordination-pca.R</resource></tool>
+		<tool runtime="R-2.9"><resource>ordination-ca.R</resource></tool>
+		<tool runtime="R-2.9"><resource>ordination-nmds.R</resource></tool>
+		<tool runtime="R-2.9"><resource>estimate-samplesize.R</resource></tool>
+		<tool runtime="R-2.9"><resource>sample-size-with-bh.R</resource></tool>
+		<tool runtime="R-2.10"><resource>up-down-analysis-mirna.R</resource></tool>
+	</category>
+	
+	<category name="Clustering" color="#d53833">
+		<tool runtime="R-2.9"><resource>classification-knn.R</resource></tool>
+		<tool runtime="R-2.9"><resource>cluster-hierarchical.R</resource></tool>
+		<tool runtime="R-2.9"><resource>cluster-kmeans.R</resource></tool>
+		<tool runtime="R-2.9"><resource>cluster-kmeans-testK.R</resource></tool>
+		<tool runtime="R-2.9"><resource>cluster-qt.R</resource></tool>
+		<tool runtime="R-2.9"><resource>cluster-som.R</resource></tool>
+		<tool runtime="R-2.9"><resource>classification.R</resource></tool>
+	</category>
+	
+	<category name="Annotation" color="#80a3b7">
+		<tool runtime="R-2.9"><resource>annotate-genelist2html.R</resource></tool>
+		<tool runtime="R-2.9"><resource>annotate-add-to-data.R</resource></tool>
+		<tool runtime="R-2.9"><resource>annotate-agilent-miRNA.R</resource></tool>
+		<tool runtime="R-2.10"><resource>annotate-miRNA-targets.R</resource></tool> 
+	</category>
+	
+	<category name="Pathways" color="#0177b7">
+		<tool runtime="R-2.9"><resource>stat-hyperG-GO.R</resource></tool>
+		<tool runtime="R-2.9"><resource>stat-hyperG-KEGG-PFAM.R</resource></tool>
+		<tool runtime="R-2.9"><resource>stat-hyperG-safe.R</resource></tool>
+		<tool runtime="R-2.9"><resource>stat-hyperG-cytoband.R</resource></tool>
+		<tool runtime="R-2.9"><resource>stat-geneset.R</resource></tool>
+		<tool runtime="R-2.10"><resource>pathways-mirna-hyperg-go.R</resource></tool> 
+		<tool runtime="R-2.10"><resource>pathways-mirna-hyperg-kegg.R</resource></tool> 
+		<tool runtime="beanshell"><resource>annotate-cpdb.bsh</resource></tool>
+		<tool runtime="beanshell"><resource>annotate-intact.bsh</resource></tool>
+		<tool runtime="beanshell"><resource>annotate-reactome.bsh</resource></tool>
+	</category>
+
+	<category name="Promoter analysis" color="#629a9b">
+		<tool runtime="R-2.9"><resource>promoter-tfbs.R</resource></tool>
+		<tool runtime="R-2.9"><resource>promoter-tfbs-cosmo.R</resource></tool>
+		<tool runtime="R-2.9"><resource>promoter-cbust.R</resource></tool>
+		<tool runtime="R-2.9"><resource>promoter-retrprom.R</resource></tool>
+	</category>
+
+	<category name="aCGH" color="#c0d2de">
+		<tool runtime="R-2.9"><resource>import-from-cangem.R</resource></tool>
+		<tool runtime="R-2.9"><resource>smooth-acgh.R</resource></tool>
+		<tool runtime="R-2.9"><resource>detect-copy-number-aberrations.R</resource></tool>
+		<tool runtime="R-2.9"><resource>plot-cgh-profile.R</resource></tool>
+		<tool runtime="R-2.9"><resource>detect-common-copy-number-aberration-regions.R</resource></tool>
+		<tool runtime="R-2.9"><resource>cluster-acgh.R</resource></tool>
+		<tool runtime="R-2.9"><resource>stat-acgh.R</resource></tool>
+		<tool runtime="R-2.9"><resource>convert-cn-probes-to-genes.R</resource></tool>
+		<tool runtime="R-2.10"><resource>pathways-acgh-hyperg-go.R</resource></tool>
+		<tool runtime="R-2.9"><resource>match-cn-and-expression-probes.R</resource></tool>
+		<tool runtime="R-2.9"><resource>plot-cn-induced-expression-profile.R</resource></tool>
+		<tool runtime="R-2.9"><resource>test-for-cn-induced-differential-expression.R</resource></tool>	
+		<tool runtime="R-2.9"><resource>plot-cn-induced-gene-expression.R</resource></tool>
+		<tool runtime="R-2.9"><resource>fetch-probe-positions-from-cangem.R</resource></tool>
+		<tool runtime="R-2.9"><resource>add-cytobands.R</resource></tool>
+		<tool runtime="R-2.9"><resource>count-overlapping-cnvs.R</resource></tool>
+		<tool runtime="R-2.9"><resource>calculate-aberration-frequencies.R</resource></tool>
+	</category>
+
+	<category name="Visualisation" color="#a49900">
+		<tool runtime="R-2.9"><resource>plot-idiogram.R</resource></tool>
+		<tool runtime="R-2.9"><resource>plot-chrom-pos.R</resource></tool>
+		<tool runtime="R-2.9"><resource>plot-volcano.R</resource></tool>
+		<tool runtime="R-2.9"><resource>plot-volcano-data-exists.R</resource></tool>
+		<tool runtime="R-2.9"><resource>plot-boxplot.R</resource></tool>
+		<tool runtime="R-2.9"><resource>plot-dendrogram.R</resource></tool>
+		<tool runtime="R-2.9"><resource>plot-histogram.R</resource></tool>
+		<tool runtime="R-2.9"><resource>plot-corrgram.R</resource></tool>
+		<tool runtime="R-2.9"><resource>plot-heatmap.R</resource></tool>
+	</category>
+
+	<category name="Utilities" color="#83010b">
+		<tool runtime="R-2.9"><resource>search-correlation.R</resource></tool>
+		<tool runtime="R-2.10"><resource>search-queryword.R</resource></tool>
+		<tool runtime="R-2.9"><resource>merge-tables.R</resource></tool>
+		<tool runtime="R-2.9"><resource>merge-datasets.R</resource></tool>
+		<tool runtime="R-2.9"><resource>extract-genes-from-clustering.R</resource></tool>
+		<tool runtime="R-2.9"><resource>extract-genes-from-go.R</resource></tool>
+		<tool runtime="R-2.9"><resource>extract-genes-from-kegg.R</resource></tool>
+		<tool runtime="R-2.9"><resource>extract-samples-from-dataset.R</resource></tool>
+		<tool runtime="R-2.9"><resource>extract-genes-from-stattest.R</resource></tool>
+		<tool runtime="R-2.9"><resource>extract-genes.R</resource></tool>
+		<tool runtime="R-2.9"><resource>calculate-fold-change.R</resource></tool>
+		<tool runtime="R-2.9"><resource>average-replicates.R</resource></tool>
+		<tool runtime="R-2.9"><resource>combine-probes-to-genes.R</resource></tool>
+		<tool runtime="R-2.9"><resource>change-interpretation.R</resource></tool>
+		<tool runtime="R-2.9"><resource>generate-phenodata.R</resource></tool>
+		<tool runtime="R-2.9"><resource>filter-by-column.R</resource></tool>
+		<tool runtime="R-2.9"><resource>delete-columns.R</resource></tool>
+		<tool runtime="R-2.9"><resource>calculate-descriptive-statistics.R</resource></tool>
+		<tool runtime="R-2.9"><resource>sort-samples.R</resource></tool>
+		<tool runtime="R-2.9"><resource>sort-genes.R</resource></tool>
+		<tool runtime="R-2.9"><resource>sampling.R</resource></tool>
+		<tool runtime="R-2.9"><resource>export-tab2mage.R</resource></tool>
+		<tool runtime="R-2.9"><resource>export-soft.R</resource></tool>
+		<tool runtime="R-2.9"><resource>import-soft2.R</resource></tool>
+		<tool runtime="R-2.10"><resource>import-ArrayExpress.R</resource></tool>
+		<tool runtime="R-2.9"><resource>intersect-lists.R</resource></tool>
+	</category>
+	
+	<category name="Hidden" hidden="true" color="#0">
+		<tool runtime="R-2.9"><resource>test.R</resource></tool>
+		<tool runtime="R-2.9"><resource>no-operation.R</resource></tool>
+		<tool runtime="R-2.9"><resource>echo.R</resource></tool>
+		<tool runtime="R-2.9"><resource>fail.R</resource></tool>
+		<tool runtime="R-2.9"><resource>input-output.R</resource></tool>
+		<tool runtime="R-2.9"><resource>simple-input-output.R</resource></tool>
+		<tool runtime="R-2.9"><resource>data-throughput.R</resource></tool>
+		<tool runtime="R-2.9"><resource>sleep.R</resource></tool>
+		<tool runtime="R-2.9"><resource>input-sleep-output.R</resource></tool>
+	</category>
+</module>

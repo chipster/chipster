@@ -7,6 +7,8 @@ import fi.csc.microarray.client.operation.OperationDefinition;
 
 public class HelpMapping {
 
+    private static final String URL_BASE = "https://extras.csc.fi/biosciences/";
+
 	private static final String DEFAULT_HELP_PAGE = "chipster-manual/tools.html";
 	private static Map<String, String> mappings = new HashMap<String, String>();
 
@@ -163,10 +165,25 @@ public class HelpMapping {
 	}
 
 	public static String mapToHelppage(OperationDefinition definition) {
-		String page = mappings.get(definition.getCategory().getName() + "/" + definition.getName());
-		if (page == null) {
-			page = DEFAULT_HELP_PAGE;
+		
+		// blast
+		if ("BLAST".equals(definition.getCategory().getName())) {
+			return "http://www.csc.fi/english/research/sciences/bioscience/programs/blast/index_html"; 
 		}
-		return page;
+		
+		// mafft
+		else if ("Alignment:Multiple".equals(definition.getCategory().getName()) && definition.getID().startsWith("mafft")) {
+			return "http://mafft.cbrc.jp/alignment/software/algorithms/algorithms.html";
+
+		}
+		
+		// others
+		else {
+			String page = mappings.get(definition.getCategory().getName() + "/" + definition.getDisplayName());
+			if (page == null) {
+				page = DEFAULT_HELP_PAGE;
+			}
+			return URL_BASE + page;
+		}
 	}
 }

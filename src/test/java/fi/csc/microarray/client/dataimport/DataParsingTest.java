@@ -59,7 +59,7 @@ public class DataParsingTest {
 	}
 	
 	public DataParsingTest() throws IOException, IllegalConfigurationException {
-		DirectoryLayout.initialiseClientLayout().getConfiguration();			
+		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
 	}
 	
 	@Test(groups = {"stress"} ) // needs more memory than JVM default

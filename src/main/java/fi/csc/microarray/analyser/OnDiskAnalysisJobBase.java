@@ -4,12 +4,14 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.net.URL;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.analyser.AnalysisDescription.OutputDescription;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.util.Files;
@@ -95,29 +97,68 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 	 */
 	@Override
 	protected void postExecute() throws JobCancelledException {
+	    // update job state on the client side
 		updateStateDetailToClient("transferring output data");
 		cancelCheck();
 
-		List<String> outputFileNames = analysis.getOutputFiles();
-		for (String fileName : outputFileNames) {
+		// pass output files to result message
+		List<OutputDescription> outputFiles = analysis.getOutputFiles();
+		for (OutputDescription fileDescription : outputFiles) {
 			cancelCheck();
+			
+			// single file description can also describe several files
+			File[] describedFiles;
 
-			// copy file to file broker
-			File outputFile = new File(jobWorkDir, fileName);
-			URL url;
-				try {
-					url = resultHandler.getFileBrokerClient().addFile(new FileInputStream(outputFile), null);
-				} catch (Exception e) {
-					logger.error("could not put file to file broker", e);
-					outputMessage.setErrorMessage("Could not send output file.");
-					outputMessage.setOutputText(e.toString());
-					updateState(JobState.ERROR, "");
-					return;
-				}
+			if (fileDescription.getFileName().isSpliced()) {
+                // it is a set of files
+			    String prefix = fileDescription.getFileName().getPrefix();
+			    String postfix = fileDescription.getFileName().getPostfix();
+			    String regex = prefix + ".*" + postfix;
+			    describedFiles = Files.findFiles(jobWorkDir, regex);
+			    
+			    // if output is required there should be at least one
+			    if (!fileDescription.isOptional() && describedFiles.length == 0) {
+                    logger.error("required output file set not found");
+                    outputMessage.setErrorMessage("Required output file set " +
+                            fileDescription.getFileName().getID() + " is missing.");
+                    updateState(JobState.ERROR, "");
+                    return;
+			    }
+			} else {
+			    // it is a single file
+	            String outputName = fileDescription.getFileName().getID();
+			    describedFiles = new File[] {new File(jobWorkDir, outputName)};
+			}
+			
+			// add all described files to the result message
+			for (File outputFile : describedFiles) {
+	            // copy file to file broker
+	            URL url;
+	            try {
+	                url = resultHandler.getFileBrokerClient().addFile(new FileInputStream(outputFile), null);
+	                // put url to result message
+	                outputMessage.addPayload(outputFile.getName(), url);
+	                logger.debug("transferred output file: " + fileDescription.getFileName());
 
-			// put url to result message
-			outputMessage.addPayload(fileName, url);
-			logger.debug("transferred output file: " + fileName);
+	            } catch (FileNotFoundException e) {
+	                // required output file not found
+	                if (!fileDescription.isOptional()) {
+	                    logger.error("required output file not found", e);
+	                    outputMessage.setErrorMessage("Required output file is missing.");
+	                    outputMessage.setOutputText(e.toString());
+	                    updateState(JobState.ERROR, "");
+	                    return;
+	                }
+	                
+	            } catch (Exception e) {
+	                // TODO continue or return? also note the super.postExecute()
+	                logger.error("could not put file to file broker", e);
+	                outputMessage.setErrorMessage("Could not send output file.");
+	                outputMessage.setOutputText(e.toString());
+	                updateState(JobState.ERROR, "");
+	                return;
+	            }
+			}
 		}
 		super.postExecute();
 	}

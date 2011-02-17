@@ -18,10 +18,11 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.basic.BasicModule;
 
 public abstract class Visualisation {
 
-	public static final Dimension PARAMETER_SIZE = new Dimension(150, 500);
+	public static final Dimension PARAMETER_SIZE = new Dimension(200, 500);
 
 	private VisualisationFrame frame;
 
@@ -33,7 +34,7 @@ public abstract class Visualisation {
 
 	public abstract boolean canVisualise(DataBean bean) throws MicroarrayException;
 
-	public Visualisation(VisualisationFrame frame) {
+	public void initialise(VisualisationFrame frame) throws Exception {
 		this.frame = frame;
 	}
 
@@ -57,10 +58,11 @@ public abstract class Visualisation {
 	protected JComponent getDefaultVisualisation() {
 		JPanel panel = new JPanel();
 		panel.setBackground(Color.WHITE);
+		
 		return panel;
 	}
 
-	public static void fillCompoBox(JComboBox box, Object[] content) {
+	public static void fillComboBox(JComboBox box, Object[] content) {
 		box.removeAllItems();
 		for (Object o : content) {
 			box.addItem(o);
@@ -179,4 +181,15 @@ public abstract class Visualisation {
 	 */
 	public void removeVisualisation() {
 	}
+
+	/**
+	 * Convenience class for checking tabularity of data.
+	 * 
+	 * @param bean data to check
+	 * @return true iff data has known tabular MIME type
+	 */
+	protected boolean isTabular(DataBean bean) {
+		return bean.isContentTypeCompatitible("text/tab", "application/cel", "text/csv") && bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES, BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
+	}
+
 }
