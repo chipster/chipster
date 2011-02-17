@@ -105,7 +105,8 @@ public class GeneTrack extends Track {
 			// TODO fix the extra quote mark in file
 			name = name.replaceAll("\"", "");
 
-			drawables.add(new TextDrawable(rect.x, rect.y + 10, name, Color.DARK_GRAY));
+			// draw name to leftmost visible part of the gene rectangle
+			drawables.add(new TextDrawable(rect.x < 0 ? 0 : rect.x, rect.y + 10, name, Color.DARK_GRAY));
 		}
 	}
 
