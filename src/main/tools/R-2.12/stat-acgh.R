@@ -7,9 +7,9 @@
 
 # stat-acgh.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-06
+# 2011-02-15
 
-library(CGHtest)
+library(CGHtestpar)
 
 dat <- read.table('regions.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t')
@@ -38,7 +38,7 @@ for (group in groupnames) {
   data.info[,paste('gain.freq.', group, sep='')] <- round(mean(as.data.frame(t(group.calls==1))), digits=3)
 }
 
-pvs <-  pvalstest(datacgh, data.info, teststat=test.statistic, group=group.sizes, groupnames=groupnames, niter=number.of.permutations)
+pvs <-  pvalstest(datacgh, data.info, teststat=test.statistic, group=group.sizes, groupnames=groupnames, niter=number.of.permutations, ncpus=4)
 fdrs <- fdrperm(pvs)
 
 write.table(fdrs, file="groups-test.tsv", quote=FALSE, sep="\t", row.names=TRUE, col.names=TRUE)
