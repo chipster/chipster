@@ -4,24 +4,32 @@
  */
 package fi.csc.microarray.client;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-import fi.csc.microarray.client.tasks.TaskExecutor;
+import fi.csc.microarray.client.visualisation.VisualisationMethodRepository;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.messaging.MessagingEndpoint;
-import fi.csc.microarray.module.Modules;
+import fi.csc.microarray.module.Module;
+import fi.csc.microarray.module.ModuleManager;
 
 
 
 /**
- * @author akallio
+ * Simple global access point for client session related objects.
+ *  
+ * @author Aleksi Kallio
  *
  */
 public class Session {
+	
 	private static Session instance = new Session();	
-	private Map<String, Object> sessionBoundObjects = new HashMap<String, Object>(); 
-
+	
+	private ClientApplication clientApplication;
+	private DataManager dataManager;
+	private ServiceAccessor serviceAccessor;
+	private ModuleManager moduleManager;
+	private Frames frames;
+	private VisualisationMethodRepository visualisations = new VisualisationMethodRepository();
+	
 	/**
 	 * 
 	 * @return the singleton object
@@ -32,28 +40,52 @@ public class Session {
 	
 	private Session() {
 	}
-	
-	public void putObject(String name, Object endpoint) {
-		sessionBoundObjects.put(name, endpoint);
-	}
-
-	public MessagingEndpoint getMessagingEndpoint(String name) {
-		return (MessagingEndpoint)sessionBoundObjects.get(name);
-	}
-		
-	public TaskExecutor getJobExecutor(String name) {
-		return (TaskExecutor)sessionBoundObjects.get(name);
-	}
 
 	public ClientApplication getApplication() {
-		return (ClientApplication)sessionBoundObjects.get("application");
+		return clientApplication;
 	}
-	
+
 	public DataManager getDataManager() {
-		return (DataManager)sessionBoundObjects.get("data-manager");
+		return dataManager;
 	}
-	
-	public Modules getModules() {
-		return (Modules)sessionBoundObjects.get("modules");
+
+	public ServiceAccessor getServiceAccessor() {
+		return serviceAccessor;
+	}
+
+	public List<Module> getModules() {
+		return moduleManager.getModules();
+	}
+
+	public Module getPrimaryModule() {
+		return moduleManager.getPrimaryModule();
+	}
+
+	public void setClientApplication(ClientApplication clientApplication) {
+		this.clientApplication = clientApplication;
+	}
+
+	public void setDataManager(DataManager dataManager) {
+		this.dataManager = dataManager;
+	}
+
+	public void setServiceAccessor(ServiceAccessor serviceAccessor) {
+		this.serviceAccessor = serviceAccessor;
+	}
+
+	public void setModuleManager(ModuleManager modules) {
+		this.moduleManager = modules;
+	}
+
+	public Frames getFrames() {
+		return frames;
+	}
+
+	public void setFrames(Frames frames) {
+		this.frames = frames;
+	}
+
+	public VisualisationMethodRepository getVisualisations() {
+		return visualisations;
 	}
 }

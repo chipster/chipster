@@ -11,7 +11,7 @@ public class InternalVisualisationFrame extends VisualisationFrame {
 	
 	private JPanel panel;
 	
-	public InternalVisualisationFrame(FrameType type){
+	public InternalVisualisationFrame(FrameType type) {
 		super(type);		
 	}
 	
@@ -25,5 +25,13 @@ public class InternalVisualisationFrame extends VisualisationFrame {
 	@Override
 	public void setContent(JComponent visualisationComponent) {
 		getFrameComponent().add(visualisationComponent, BorderLayout.CENTER);
+	}
+
+	@Override
+	protected void updateContextLinks() {
+		if (type == FrameType.MAIN) {
+			application.setVisualisationMethod(new VisualisationMethodChangedEvent(this, VisualisationMethod.NONE, null, null, type, this));
+		}
+		
 	}
 }

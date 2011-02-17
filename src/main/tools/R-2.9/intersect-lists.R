@@ -40,13 +40,23 @@ for (count in 1:number_files) {
 
 # remove "NA" entries
 if (number_files==2) {
-	list_1 <- list_1[-is.na(list_1)]
-	list_2 <- list_2[-is.na(list_2)]
+#	list_1 <- list_1[-is.na(list_1)]
+#	list_2 <- list_2[-is.na(list_2)]
+list_1 <- levels(list_1)
+list_2 <- levels(list_2)
+list_1 <- list_1[list_1!=""]
+list_2 <- list_2[list_2!=""]
 }
 if (number_files==3) {
-	list_1 <- list_1[-is.na(list_1)]
-	list_2 <- list_2[-is.na(list_2)]
-	list_3 <- list_3[-is.na(list_3)]	
+#	list_1 <- list_1[-is.na(list_1)]
+#	list_2 <- list_2[-is.na(list_2)]
+#	list_3 <- list_3[-is.na(list_3)]	
+	list_1 <- levels(list_1)
+	list_2 <- levels(list_2)
+	list_2 <- levels(list_3)	
+	list_1 <- list_1[list_1!=""]
+	list_2 <- list_2[list_2!=""]
+	list_2 <- list_2[list_3!=""]	
 }
 
 if (number_files==2) {

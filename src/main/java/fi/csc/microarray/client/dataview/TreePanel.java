@@ -51,7 +51,7 @@ import fi.csc.microarray.databeans.DataItemRemovedEvent;
  * organized in parent elements called DataFolders. Within each folder,
  * the datasets are kept in alphabetical order.
  * 
- * @author Janne KÃ¤ki, Aleksi Kallio
+ * @author Janne Käki, Aleksi Kallio
  * 
  */
 public class TreePanel extends JPanel implements DataChangeListener, TreeSelectionListener, PropertyChangeListener {
