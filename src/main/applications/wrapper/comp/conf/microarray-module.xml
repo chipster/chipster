@@ -2,7 +2,7 @@
 
 <module name="microarray">
 		
-	<category name="NGS Data processing" color="#01B777">
+	<category name="NGS Data processing" color="#27bcd1">
 	    <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.PreprocessNGSSingle</resource></tool>
         <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingTool</resource></tool>
         <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.RemoveOverlappingTool</resource></tool>
@@ -12,7 +12,7 @@
         <tool runtime="R-2.9"><resource>ngs-filter-annotations.R</resource></tool>
 	</category>
 
-	<category name="NGS ChIP-seq" color="#006944">
+	<category name="NGS ChIP-seq" color="#e7ddd2">
         <tool runtime="R-2.10"><resource>ngs-find-peaks-macs-one.R</resource></tool>
         <tool runtime="R-2.10"><resource>ngs-find-peaks-macs-two.R</resource></tool>    
         <tool runtime="R-2.12"><resource>ngs-find-motifs-jaspar.R</resource></tool>
