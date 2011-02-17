@@ -20,9 +20,6 @@ public class BpCoordRegion implements Comparable<BpCoordRegion> {
 	}
 
 	public BpCoordRegion(Long start, Chromosome chr1, Long end, Chromosome chr2) {
-		if (!chr1.equals(chr2)) {
-			throw new IllegalArgumentException("cross-chromosome regions not supported");
-		}
 		this.start = new BpCoord(start, chr1);
 		this.end = new BpCoord(end, chr2);
 	}
