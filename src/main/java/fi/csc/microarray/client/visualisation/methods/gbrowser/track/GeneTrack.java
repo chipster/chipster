@@ -100,7 +100,7 @@ public class GeneTrack extends Track {
 		rect.height = height;
 
 		drawables.add(new RectDrawable(rect, c, null));
-		if (rect.width > getView().getWidth()/20) {
+		if (isNameVisible(rect)) {
 
 			// TODO fix the extra quote mark in file
 			name = name.replaceAll("\"", "");

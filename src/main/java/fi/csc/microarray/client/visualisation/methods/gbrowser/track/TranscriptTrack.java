@@ -120,7 +120,7 @@ public class TranscriptTrack extends Track {
 
 				String geneId = ((String) gene.first().values.get(ColumnType.DESCRIPTION));
 
-				if (rect.width > geneId.length() * 5) {
+				if (isNameVisible(rect)) {
 					drawables.add(new TextDrawable(rect.x, rect.y - 1, geneId, Color.DARK_GRAY));
 				}
 

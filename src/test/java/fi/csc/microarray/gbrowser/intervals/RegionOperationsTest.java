@@ -12,7 +12,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fi.csc.chipster.tools.gbrowser.regions.RegionOperations;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
