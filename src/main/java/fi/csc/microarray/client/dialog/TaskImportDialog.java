@@ -33,7 +33,9 @@ import fi.csc.microarray.exception.MicroarrayException;
 public class TaskImportDialog extends JDialog implements ActionListener {
 
 	private final Dimension BUTTON_SIZE = new Dimension(70, 25);
-
+	private static final String DEFAULT_NOTE_TEXT = "It may take a while for the import task to finish.";
+	
+	
 	private JLabel titleLabel;
 	private JLabel descriptionLabel;
 	private JLabel noteLabel;
@@ -52,8 +54,12 @@ public class TaskImportDialog extends JDialog implements ActionListener {
 	public TaskImportDialog(ClientApplication application, String title, ImportSession importSession, Operation importOperation) throws MicroarrayException {
 		this(application, title, importSession, importOperation, "Import", "Cancel", "Skip");
 	}
-	
+
 	public TaskImportDialog(ClientApplication application, String title, ImportSession importSession, Operation importOperation, String okButtonText, String cancelButtonText, String skipButtonText) throws MicroarrayException {
+		this(application, title, importSession, importOperation, okButtonText, cancelButtonText, skipButtonText, DEFAULT_NOTE_TEXT);
+	}
+	
+	public TaskImportDialog(ClientApplication application, String title, ImportSession importSession, Operation importOperation, String okButtonText, String cancelButtonText, String skipButtonText, String noteText) throws MicroarrayException {
 		super(Session.getSession().getFrames().getMainFrame(), true);
 
 		this.application = application;
@@ -66,7 +72,7 @@ public class TaskImportDialog extends JDialog implements ActionListener {
 		// initialise components
 		titleLabel = new JLabel("<html><p style=" + VisualConstants.HTML_DIALOG_TITLE_STYLE + ">" + title + "</p></html>");
 		descriptionLabel = new JLabel("<html>" + importOperation.getDescription() + "</html>");
-		noteLabel = new JLabel("<html><p style=\"font-style:italic\">It may take a while for the import task to finish.");
+		noteLabel = new JLabel("<html><p style=\"font-style:italic\">" + noteText + "</p></html>");
 
 		folderNameCombo = new JComboBox(ImportUtils.getFolderNames(false).toArray());
 		folderNameCombo.setEditable(true);

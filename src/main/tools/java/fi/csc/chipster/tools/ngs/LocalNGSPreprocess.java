@@ -61,11 +61,17 @@ public class LocalNGSPreprocess implements Runnable {
 			}
 		}
 		
-		String description = "Chipster genome browser is able to show BAM and BED files. BAM files need to be " + 
-		"sorted and indexed, and Chipster can perform this preprocessing for you.\n\n " +
-		"Please note that preprocessing BAM files can take several minutes depending " +
-		"on the file size. Also BED files need to be preprocessed prior to viewing, " +
-		"but this is very quick.";
+//		String description = "Chipster genome browser is able to show BAM and BED files. BAM files need to be " + 
+//		"sorted and indexed, and Chipster can perform this preprocessing for you.\n\n " +
+//		"Please note that preprocessing BAM files can take several minutes depending " +
+//		"on the file size. Also BED files need to be preprocessed prior to viewing, " +
+//		"but this is very quick.";
+		String description = "<p>Does my NGS data need to preprocessed by Chipster?</p><br/>" + 
+
+				"<p>-SAM files: yes</p>" +
+				"<p>-BAM files: yes, unless your file is already sorted and you have an index file for it</p>" +
+				"<p>-BED files: yes, unless your file is already sorted</p>";
+		
 		
 		return 	"TOOL \"Preprocess\" / LocalNGSPreprocess.java: \"NGS Preprocess\" (" + description + ")" + "\n" +
 				"INPUT input{...}.txt: \"Input NGS data\" TYPE GENERIC" + "\n" +
@@ -85,6 +91,8 @@ public class LocalNGSPreprocess implements Runnable {
 				if ("bed".equals(extension)) {
 					preprocessBed(dataManager, inputFile);
 					
+				} else if ("bai".equals(extension)) {
+					preprocessBai(dataManager, inputFile);
 				} else {
 					preprocessReads(dataManager, inputFile, extension);
 				}
@@ -166,4 +174,16 @@ public class LocalNGSPreprocess implements Runnable {
 		dataManager.getRootFolder().addChild(outputBean);
 	}
 
+	private void preprocessBai(DataManager dataManager, File inputFile) throws Exception {
+		String outputName = inputFile.getName();		
+		File outputFile = dataManager.createNewRepositoryFile(outputName);		
+		
+		// Create outputs in the client
+		DataBean outputBean = dataManager.createDataBean(outputName, outputFile);
+		
+		// Create new operation instance, without any inputs FIXME parameters are lost, sucks
+		outputBean.setOperation(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {}));
+		dataManager.getRootFolder().addChild(outputBean);
+	}
+	
 }
