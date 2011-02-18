@@ -326,6 +326,7 @@ public class ImportUtils {
 			boolean allBamSamOrBed = true;
 			for (File file : files) {
 				if (!file.getName().toLowerCase().endsWith(".bam") &&
+					!file.getName().toLowerCase().endsWith(".bai") &&
 					!file.getName().toLowerCase().endsWith(".sam") &&
 					!file.getName().toLowerCase().endsWith(".bed")) {
 					allBamSamOrBed = false;
@@ -384,7 +385,7 @@ public class ImportUtils {
 			// create operation, open import operation parameter dialog
 			ClientApplication application = Session.getSession().getApplication();
 			Operation importOperation = new Operation(application.getOperationDefinition("LocalNGSPreprocess.java"), inputBeans.toArray(new DataBean[] {}));
-			new TaskImportDialog(application, "Preprocess NGS data", importSession, importOperation, "Preprocess", "Cancel", "Skip preprocessing");
+			new TaskImportDialog(application, "Preprocess NGS data", importSession, importOperation, "Preprocess", "Cancel", "Skip preprocessing", "Please note that preprocessing SAM and BAM files can take several minutes depending on the file size.");
 
 		} catch (Exception me) {
 			Session.getSession().getApplication().reportException(me);
