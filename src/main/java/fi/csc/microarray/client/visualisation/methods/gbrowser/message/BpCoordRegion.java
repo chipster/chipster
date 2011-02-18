@@ -88,7 +88,11 @@ public class BpCoordRegion implements Comparable<BpCoordRegion> {
 	}
 
 	public boolean intersects(BpCoordRegion other) {
-		return start.chr.equals(other.start.chr) && other.end.compareTo(start) >= 0 && other.start.compareTo(end) <= 0;
+		BpCoord intersectionStart = start.max(other.start);
+		BpCoord intersectionEnd = end.min(other.end);
+		
+		// Intersection has negative length <=> there is no intersection
+		return intersectionStart.compareTo(intersectionEnd) <= 0;
 	}
 
 	public BpCoordRegion intersect(BpCoordRegion other) {
