@@ -62,7 +62,7 @@ public class DataFolder extends DataItemBase {
 			}
 
 			if (data.isContentTypeCompatitible("text/bed")) {
-				data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
+				data.addTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
 				
 				// Check if it has title row
 				BufferedReader in = null;

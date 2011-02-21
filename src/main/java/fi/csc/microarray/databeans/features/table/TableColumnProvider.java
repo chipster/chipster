@@ -220,7 +220,7 @@ public class TableColumnProvider extends FeatureProviderBase {
 					// Unknown/generic type, use defaults and infer stuff from type tags
 					logger.debug("parsing generic type");
 
-					settings.hasColumnNames = bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
+					settings.hasColumnNames = bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 					if (bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_TITLE_ROW)) {
 						settings.headerTerminator = source.peekLine(1); // use the whole row as header terminator
 					}
