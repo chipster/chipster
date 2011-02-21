@@ -417,13 +417,12 @@ public class TaskExecutor {
 	public void startExecuting(final Task task, int timeout) throws TaskException {
 		logger.debug("Starting task " + task.getName());
 
-		// hackhack
+		// ugly hack for local ngs preprocess
 		if (task.getOperationID().equals("LocalNGSPreprocess.java")) {
 			Runnable taskRunnable = new LocalNGSPreprocess(task);
 			Session.getSession().getApplication().runBlockingTask("running " + task.getNamePrettyPrinted(), taskRunnable);
 			return;
 		}
-		
 		
 		// log parameters
 		List<String> parameters;
