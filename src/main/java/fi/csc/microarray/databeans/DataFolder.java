@@ -99,13 +99,14 @@ public class DataFolder extends DataItemBase {
 
 			} else if (data.queryFeatures("/identifier").exists()) {
 				data.addTypeTag(MicroarrayModule.TypeTags.GENENAMES);
+			} 
 
-			} else if (data.queryFeatures("/phenodata").exists()) {
-				data.addTypeTag(BasicModule.TypeTags.PHENODATA);
-			}
 
 			// Tag additional typing information
-
+			if (data.queryFeatures("/phenodata").exists()) {
+				data.addTypeTag(BasicModule.TypeTags.PHENODATA);
+			}
+				
 			if (data.queryFeatures("/column/p.*").exists() && data.queryFeatures("/column/FC*").exists()) {
 				data.addTypeTag(MicroarrayModule.TypeTags.SIGNIFICANT_EXPRESSION_FOLD_CHANGES);
 			}
