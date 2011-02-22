@@ -471,10 +471,6 @@ public abstract class ClientApplication {
 					DataBean output = task.getOutput(outputName);
 					output.setOperation(oper);
 
-					// check if this is metadata
-					if (primaryModule.isMetadata(output)) {
-						metadataOutput = output;				
-					}
 
 					// set sources
 					for (DataBean source : sources) {
@@ -491,6 +487,12 @@ public abstract class ClientApplication {
 					// connect data (events are generated and it becomes visible)
 					folder.addChild(output);
 
+					// check if this is metadata
+					// for now this must be after folder.addChild(), as type tags are added there
+					if (primaryModule.isMetadata(output)) {
+						metadataOutput = output;				
+					}
+					
 					newBeans.add(output);
 				}
 
