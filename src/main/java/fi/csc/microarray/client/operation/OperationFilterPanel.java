@@ -34,7 +34,7 @@ public class OperationFilterPanel extends JPanel
     private static final Logger logger = Logger
         .getLogger(OperationChoicePanel.class);
     
-    private OperationPanel parent;
+    private OperationPanel operationPanel;
     private Collection<OperationCategory> categories;
     private OperationCategory[] categoryItem = new OperationCategory[1];
     
@@ -46,7 +46,7 @@ public class OperationFilterPanel extends JPanel
     public OperationFilterPanel(OperationPanel parent,
            Collection<OperationCategory> categories) {
         super(new GridLayout(1, 2));
-        this.parent = parent;
+        this.operationPanel = parent;
         this.categories = categories;
         
         // Category list has only one item
@@ -139,12 +139,12 @@ public class OperationFilterPanel extends JPanel
         // Update category list
         categoryItem[0].setName("Tools found for " + "\"" + filterPhrase + "\"");
         
-        parent.enableAction(false);
+        operationPanel.selectOperation(null);
         
         logger.debug("found " + filteredOperations.size() + " operations " +
                      "for phrase \"" + filterPhrase + "\"");
         operationList.setListData(filteredOperations);
-        parent.selectOperation(null);
+        operationPanel.selectOperation(null);
     }
 
 
@@ -155,7 +155,7 @@ public class OperationFilterPanel extends JPanel
         Object selected = operationList.getSelectedValue();
         if (selected instanceof ExecutionItem) {
             selectedOperation = (ExecutionItem) selected;
-            parent.selectOperation(selectedOperation);
+            operationPanel.selectOperation(selectedOperation);
         }
     }
 }

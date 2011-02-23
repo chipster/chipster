@@ -30,7 +30,6 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.operation.OperationDefinition.Suitability;
 import fi.csc.microarray.constants.VisualConstants;
 
 /**
@@ -52,13 +51,13 @@ public class OperationChoicePanel extends JPanel
 	
 	private final ClientApplication application = Session.getSession().getApplication();
 	
-	private OperationPanel parent;
+	private OperationPanel operationPanel;
 	
 	private JList categoryList;
 	private JList operationList;
 	
 	private OperationCategory selectedCategory;
-	private ExecutionItem selectedOperation;
+	private ExecutionItem selectedOperationDefinition;
 	
 	/**
 	 * Creates a new OperationChoicePanel.
@@ -68,7 +67,7 @@ public class OperationChoicePanel extends JPanel
 	public OperationChoicePanel(OperationPanel parent,
 	       Collection<OperationCategory> operationCategoryCollection) {
 		super(new GridLayout(1, 2));
-		this.parent = parent;
+		this.operationPanel = parent;
 
         List<OperationCategory> operationCategories;
         operationCategories = Collections.list(Collections.enumeration(operationCategoryCollection));
@@ -123,7 +122,7 @@ public class OperationChoicePanel extends JPanel
 	public void deselectOperation() {
 	    categoryList.clearSelection();
 	    operationList.clearSelection();
-	    parent.selectOperation(null);
+	    operationPanel.selectOperation(null);
 	}
 	
 	static class FontSizeFriendlyListRenderer extends DefaultListCellRenderer {
@@ -182,22 +181,13 @@ public class OperationChoicePanel extends JPanel
 		
 		public void mousePressed(MouseEvent e) {
 			if (e.getButton() == MouseEvent.BUTTON1) {
-				if (e.getClickCount() > 1) {
-					Object selected = operationList.getSelectedValue();
-					if (selected instanceof OperationDefinition &&
-							application.getSelectionManager().getSelectedDataBeans().size() > 0) {
-						
-						OperationDefinition operationDefinition = (OperationDefinition)selected;
-						if (!operationDefinition.evaluateSuitabilityFor(
-						        application.getSelectionManager().getSelectedDataBeans(),
-						                Suitability.SUITABLE).isImpossible()) {
-							application.executeOperation(operationDefinition, null);
-						}
-					}
+				if (e.getClickCount() == 2) {
+					operationPanel.runSelectedOperation();
 				}
 			}
 			maybeShowPopup(e);        
 		}	
+
 		@Override
 		public void mouseReleased(MouseEvent e) {
 			maybeShowPopup(e);        
@@ -243,17 +233,17 @@ public class OperationChoicePanel extends JPanel
 			Object selected = categoryList.getSelectedValue();
 			if (selected instanceof OperationCategory) {
 				selectedCategory = (OperationCategory) selected;
-				selectedOperation = null;
+				selectedOperationDefinition = null;
 				logger.debug("selected category has " + selectedCategory.getOperationList().size() + " operations");
 				operationList.setListData(selectedCategory.getOperationList());
-				parent.enableAction(false);
+				operationPanel.selectOperation(null);
 			}
-			parent.selectOperation(null);
+			operationPanel.selectOperation(null);
 		} else if (source == operationList) {
 			Object selected = operationList.getSelectedValue();
 			if (selected instanceof ExecutionItem) {
-				selectedOperation = (ExecutionItem) selected;
-				parent.selectOperation(selectedOperation);
+				selectedOperationDefinition = (ExecutionItem) selected;
+				operationPanel.selectOperation(selectedOperationDefinition);
 			}
 		}
 	}
