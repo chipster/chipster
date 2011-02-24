@@ -34,7 +34,6 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import fi.csc.microarray.client.selection.RowChoiceEvent;
 import fi.csc.microarray.client.selection.RowSelectionManager;
 import fi.csc.microarray.client.visualisation.AnnotateListPanel;
-import fi.csc.microarray.client.visualisation.ChipVisualisation;
 import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
@@ -60,8 +59,8 @@ implements PropertyChangeListener, SelectionChangeListener {
 	//selection indexes in order of the original data
 	private Set<Integer> selectedIndexes = new HashSet<Integer>();
 
-	public ExpressionProfile(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 	
 	@Override

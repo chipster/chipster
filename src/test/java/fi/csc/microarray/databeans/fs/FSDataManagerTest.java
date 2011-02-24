@@ -21,6 +21,7 @@ import fi.csc.microarray.client.AtEndListener;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
+import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationCategory;
 import fi.csc.microarray.client.operation.OperationDefinition;
@@ -43,19 +44,19 @@ public class FSDataManagerTest {
 
 	@BeforeSuite
 	public void init() throws IOException, IllegalConfigurationException {
-		DirectoryLayout.initialiseClientLayout().getConfiguration();
+		DirectoryLayout.initialiseSimpleLayout().getConfiguration();
 	}
 	
 	@Test
 	public void testFSDataManagerInitialisation() throws IOException {
-		new FSDataManager();
+		new DataManager();
 	}
 
 	@Test(groups = {"smoke"} )
 	public void testSnapshot() throws IOException, MicroarrayException {
 
 		// create original
-		DataManager manager1 = new FSDataManager();
+		DataManager manager1 = new DataManager();
 		String beanName1 = "My bean.txt";
 		String beanName2 = "My other bean.txt";
 		String beanName3 = "My other bean.txt"; // test beans with a same name
@@ -78,13 +79,16 @@ public class FSDataManagerTest {
 		Assert.assertTrue(snap.exists());
 		
 		// load
-		DataManager manager2 = new FSDataManager();
+		DataManager manager2 = new DataManager();
 		manager2.loadSnapshot(snap, manager2.getRootFolder(), new DummyClientApplication());
 		
 		// check
-		DataFolder root1 = manager1.getRootFolder();
+//		DataFolder root1 = manager1.getRootFolder();
 		DataFolder root2 = manager2.getRootFolder();
-		Assert.assertEquals(root2.toStringRecursively(0), root1.toStringRecursively(0));
+		
+		// TODO reimplement toStringRecursively here
+		Assert.assertTrue(false);
+		//Assert.assertEquals(root2.toStringRecursively(0), root1.toStringRecursively(0));
 		DataBean newBean1 = null;
 		for (DataItem item : root2.getChildren()) {
 			if (item.getName().equals(beanName1)) {
@@ -98,8 +102,8 @@ public class FSDataManagerTest {
 	
 	@Test(groups = {"smoke"} )
 	public void testDataBeanCreation() throws IOException, MicroarrayException {
-		FSDataManager manager = new FSDataManager();
-		FSDataBean bean = manager.createDataBean("samename.txt", new FileInputStream("examples/affy_example.cel"));
+		DataManager manager = new DataManager();
+		DataBean bean = manager.createDataBean("samename.txt", new FileInputStream("examples/affy_example.cel"));
 	
 		InputStream originalData = new BufferedInputStream(new FileInputStream("examples/affy_example.cel"));
 		InputStream beanData = new BufferedInputStream(bean.getContentByteStream());
@@ -116,9 +120,10 @@ public class FSDataManagerTest {
 	private static class DummyClientApplication extends ClientApplication {
 
 		@Override
-		public OperationDefinition locateOperationDefinition(String categoryName, String operationName) {
+		public OperationDefinition getOperationDefinition(String operationID) {
 			// dummy implementation
-			return new OperationDefinition("name", new OperationCategory("cat. name"), "description", false);
+			// FIXME only fixed signature to use operationID
+			return new OperationDefinition("id", "display name", new OperationCategory("cat. name"), "description", false);
 		}
 			
 
@@ -189,7 +194,7 @@ public class FSDataManagerTest {
 		}
 
 		@Override
-		public void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility) {
+		public void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility, PluginButton button) {
 		}
 
 		@Override
@@ -280,6 +285,11 @@ public class FSDataManagerTest {
 		public void runWorkflow(URL workflowScript,
 				AtEndListener atEndListener) {
 			
+		}
+
+
+		@Override
+		protected void initialiseGUI() throws MicroarrayException, IOException {
 		}		
 	}
 }

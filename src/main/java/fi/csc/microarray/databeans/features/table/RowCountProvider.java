@@ -36,7 +36,7 @@ public class RowCountProvider extends FeatureProviderBase {
 					// count rows
 					Table rowCounter = bean.queryFeatures("/column/*").asTable();
 					rowCount = 0;
-					while (rowCounter.nextRow() && rowCount < gtRows) {
+					while (rowCounter != null && rowCounter.nextRow() && rowCount < gtRows) {
 						rowCount++;
 					}
 					bean.putToContentCache(AT_LEAST_ROWS_CACHENAME, (Integer)rowCount);

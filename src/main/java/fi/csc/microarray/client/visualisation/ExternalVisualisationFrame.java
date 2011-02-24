@@ -34,4 +34,9 @@ public class ExternalVisualisationFrame extends VisualisationFrame{
 		getFrameComponent().setSize(new Dimension(800, 600) );
 		getFrameComponent().setVisible(true);
 	}
+
+	@Override
+	protected void updateContextLinks() {
+		// do nothing
+	}
 }

@@ -22,6 +22,8 @@
 
 # Filtering by expression
 # JTT 9.6.2006
+#
+# modified by MG, 24.6.2010
 
 # Loading the libraries
 library(genefilter)
@@ -48,19 +50,26 @@ if(scale.to.same.mean=="yes") {
 }
 
 # Filter
-# If a data value is smaller than up or larger than down, recode it with 0, otherwise with 1
-scaled.dat2<-ifelse(scaled.dat<=up & scaled.dat>=down, 0, 1)
+# If a data value is smaller than up AND larger than down, recode it with 0, otherwise with 1
+if(meth=="outside-the-range") {
+	scaled.dat2<-ifelse(scaled.dat<=up & scaled.dat>=down, 0, 1)
+}
+# If a data value is smaller than up AND larger than down, recode it with 0, otherwise with 1
+if(meth=="inside-the-range") {
+	scaled.dat2<-ifelse(scaled.dat<=up & scaled.dat>=down, 1, 0)
+}
 
 # Calculate a sum of the number of chips the filtering criterion is fulfilled
 s<-apply(as.data.frame(scaled.dat2), MARGIN=1, FUN="sum")
 
 # Select only the rows for which the rowsum exceeds the number of chips (p)
-if(meth=="outside-the-range") {
-   dat2<-dat[which(s>=p),]
-}
-if(meth=="inside-the-range") {
-   dat2<-dat[which(s<p),] 
-}
+#if(meth=="outside-the-range") {
+#   dat2<-dat[which(s>=p),]
+#}
+#if(meth=="inside-the-range") {
+#   dat2<-dat[which(s<p),] 
+#}
+dat2<-dat[which(s>=p),]
 
 # Writing out the data
 write.table(dat2, "expression-filter.tsv", sep="\t", row.names=T, col.names=T, quote=F)

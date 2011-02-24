@@ -39,7 +39,7 @@ import fi.csc.microarray.databeans.DataItem;
  * (for the user's personal notes). Both are placed together in one
  * JScrollPane, so that the length of the notes is not limited.
  * 
- * @author Janne KÃ¤ki
+ * @author Janne Käki
  *
  */
 public class DetailsPanel extends JPanel implements PropertyChangeListener, FocusListener, ActionListener, DocumentListener {
@@ -142,13 +142,18 @@ public class DetailsPanel extends JPanel implements PropertyChangeListener, Focu
 		this.setMinimumSize(new Dimension(0,0));
 		this.disable();
 		
+		// notes visible?
+		if (Session.getSession().getPrimaryModule().notesVisibleAtStartup()) {
+			showPanel(CL_MAIN, CL_MAIN_INDEX);
+		}
+		
 		// start listening
 		application.addPropertyChangeListener(this);
 	}
 	
 	private String getNameText() {
 		if (currentData != null) {
-			return currentData.getOperation().getName();
+			return currentData.getOperation().getDefinition().getFullName();
 			
 		} else {			
 			return null;
@@ -168,7 +173,7 @@ public class DetailsPanel extends JPanel implements PropertyChangeListener, Focu
 			if (lastOper != null) {
 				
 				attrib.append("\nOperation: " + lastOper.getCategoryName() +
-						" / " +lastOper.getName());
+						" / " +lastOper.getID());
 				
 				List<Parameter> params = lastOper.getParameters();
 				if (params != null) {

@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.jgraph.graph.GraphConstants;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dataview.MicroarrayGraph;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.databeans.DataBean;
@@ -22,7 +23,7 @@ import fi.csc.microarray.exception.MicroarrayException;
  * it has already undergone). The vertices can be selected (which will select 
  * the corresponding dataset) and moved around on the graph panel.
  * 
- * @author Janne KÃ¤ki, Mikko Koski
+ * @author Janne Käki, Mikko Koski
  *
  */
 public class GraphVertex extends AbstractGraphVertex {
@@ -164,11 +165,7 @@ public class GraphVertex extends AbstractGraphVertex {
 	@Override
 	public String toString() {
 		Operation oper = getData().getOperation();
-		String catName = oper.getCategoryName(); 
-		if (catName.startsWith("Import")) {
-			return "file";
-		}
-		return catName.substring(0, catName.length() > 4 ? 4 : catName.length());
+		return Session.getSession().getPrimaryModule().getShortCategoryName(oper);
 	}
 	
 	public void addChildVertex(GraphVertex child){
