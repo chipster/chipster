@@ -26,6 +26,7 @@ h<-image.height
 # Loading libraries
 library(lumi)
 library(methylumi)
+library(annotate)
 
 # Converting to the correct chiptype
 if(chiptype=="Human") {
@@ -77,12 +78,19 @@ sample.names<-paste("chip.", sample.names, sep="")
 names(dat7)<-sample.names
 colnames(dat7)<-sample.names
 
+# Annotations
+library(chiptype, character.only=T)
+symbols <- unlist (lookUp(rownames(dat5), chiptype, what="SYMBOL"))
+genenames <- unlist (lookUp(rownames(dat5), chiptype, what="GENENAME"))
+symbols <- gsub("#", "", symbols)
+genenames <- gsub("#", "", genenames)
 
 # Write out a phenodata
 group<-c(rep("", ncol(dat5)))
 training<-c(rep("", ncol(dat5)))
 write.table(data.frame(sample=sample.names, chiptype=chiptype, group=group), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
-write.table(data.frame(dat5), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
-write.table(data.frame(dat6), file="methylated.tsv", col.names=T, quote=F, sep="\t", row.names=T)
-write.table(data.frame(dat7), file="unmethylated.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+# Write out expression data
+write.table(data.frame(symbol=symbols, description=genenames, dat5), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+write.table(data.frame(symbol=symbols, description=genenames, dat6), file="methylated.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+write.table(data.frame(symbol=symbols, description=genenames, dat7), file="unmethylated.tsv", col.names=T, quote=F, sep="\t", row.names=T)
