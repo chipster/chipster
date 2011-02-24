@@ -1,7 +1,7 @@
 # ANALYSIS Utilities/"Extract data for miRNA targets" (This tools provides a means of extracting the expression data
 # for a set of target genes identified from an integrative analysis of miRNA and gene expression. Two files need to be selected,the
 # result file from an integrative analysis and the file containing the gene expression data to be extracted.)
-# INPUT GENERIC normalized_mirna.tsv, GENE_EXPRS normalized_gene.tsv, GENERIC phenodata_mirna.tsv, GENERIC phenodata_gene.tsv
+# INPUT GENE_EXPRS normalized_gene.tsv, GENERIC normalized_mirna.tsv, GENERIC phenodata_gene.tsv
 # OUTPUT target-gene-expression.tsv, phenodata-target-gene.tsv
 # PARAMETER common.column STRING DEFAULT empty (The name of the column that is common to the data tables.)
 
@@ -11,20 +11,15 @@
 # Loads the normalized data and phenodata files
 data_1 <- read.table(file="normalized_mirna.tsv", header=T, sep="\t", row.names=1)
 data_2 <- read.table(file="normalized_gene.tsv", header=T, sep="\t", row.names=1)
-phenodata_1 <- read.table("phenodata_mirna.tsv", header=T, sep="\t")
-phenodata_2 <- read.table("phenodata_gene.tsv", header=T, sep="\t")
+phenodata <- read.table("phenodata_gene.tsv", header=T, sep="\t")
 
 # Figure out which is the miRNA data
-if (phenodata_1$chiptype[1] == "miRNA") {
-	mirna.phenodata <- phenodata_1
+if (length (grep ("miRNA", names (data_1))) == 1) {
 	mirna.data <- data_1
-	gene.phenodata <- phenodata_2
 	gene.data <- data_2
 }
-if (phenodata_2$chiptype[1] == "miRNA") {
-	mirna.phenodata <- phenodata_2
+if (length (grep ("miRNA", names (data_2))) == 1) {
 	mirna.data <- data_2
-	gene.phenodata <- phenodata_1
 	gene.data <- data_1
 }
 
@@ -41,7 +36,7 @@ gene.data.2 <- gene.data [match(mirna.symbols, gene.symbols, nomatch=0),]
 
 # write files
 write.table(gene.data.2, file='target-gene-expression.tsv', quote=FALSE, sep='\t', row.names=TRUE, col.names=TRUE)
-write.table(gene.phenodata, file='phenodata-target-gene.tsv', quote=FALSE, sep='\t', na='', row.names=FALSE, col.names=TRUE)
+write.table(phenodata, file='phenodata-target-gene.tsv', quote=FALSE, sep='\t', na='', row.names=FALSE, col.names=TRUE)
 
 # EOF
 
