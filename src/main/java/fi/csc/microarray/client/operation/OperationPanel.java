@@ -12,6 +12,8 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
@@ -78,6 +80,7 @@ public class OperationPanel extends JPanel
 	private OperationChoicePanel operationChoicePanel;
 	private OperationFilterPanel operationFilterPanel;
 	private JTextField searchField;
+	private JButton clearSearchButton;
 	private JPanel cardPanel;
 	private JTextArea detailField = new JTextArea();
 	
@@ -170,32 +173,58 @@ public class OperationPanel extends JPanel
                 // Show filtered tools
                 JTextField field = (JTextField) e.getSource();
                 if (field.getText().length() > 0) {
-                    operationFilterPanel.loadFilteredOperations(field.getText());
+                    field.setBackground(VisualConstants.COLOR_BLUE_LIGHT);
+                    if (!clearSearchButton.isAncestorOf(field)) {
+                    	field.add(clearSearchButton);
+                    }
+                	operationFilterPanel.loadFilteredOperations(field.getText());
                     showOperationCard(OPERATIONS_FILTERED);
                 } else {
-                    operationChoicePanel.deselectOperation();
-                    showOperationCard(OPERATIONS_CATEGORIZED);
+                	clearSearch();
                 }
             }
         });
-        // Clear search
-        JButton showAllButton = new JButton(VisualConstants.CLOSE_FILE_ICON);
-        showAllButton.setFocusPainted(false);
-        showAllButton.setContentAreaFilled(false);
-        showAllButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        showAllButton.setBorder(null);
-        showAllButton.addActionListener(new ActionListener() {
+
+        // clear button in the search field
+        clearSearchButton = new JButton(VisualConstants.CLOSE_FILE_ICON);
+        clearSearchButton.setFocusPainted(false);
+        clearSearchButton.setContentAreaFilled(false);
+        clearSearchButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        clearSearchButton.setBorder(null);
+        clearSearchButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
-                searchField.setText("");
-                operationChoicePanel.deselectOperation();
-                showOperationCard(OPERATIONS_CATEGORIZED);
+                clearSearch();
             }
         });
+        
+        // also clear search with esc
+        searchField.addKeyListener(new KeyListener() {
+
+			@Override
+			public void keyPressed(KeyEvent event) {
+				if (event.getKeyCode() == KeyEvent.VK_ESCAPE) {
+					clearSearch();
+				}
+				
+			}
+
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+			}
+
+			@Override
+			public void keyTyped(KeyEvent arg0) {
+			}
+        	
+        });
+        
+        
+        
         searchPanel.add(new JLabel(VisualConstants.MAGNIFIER_ICON));
         searchPanel.add(searchField);
         searchField.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         searchField.setPreferredSize(new Dimension(100, 22));
-        searchField.add(showAllButton);
+        searchField.add(clearSearchButton);
         //searchPanel.add(showAllButton);
         searchPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
                 VisualConstants.OPERATION_LIST_BORDER_COLOR));
@@ -583,5 +612,13 @@ public class OperationPanel extends JPanel
 		        application.getSelectionManager().getSelectedDataBeans(), null);
 		
 		return suitability;
+	}
+
+	private void clearSearch() {
+		searchField.setText("");
+		searchField.setBackground(Color.WHITE);
+		searchField.remove(clearSearchButton);
+		operationChoicePanel.deselectOperation();
+		showOperationCard(OPERATIONS_CATEGORIZED);
 	}
 }
