@@ -1,11 +1,10 @@
 package fi.csc.microarray.client.operation;
 
-import java.awt.Color;
 import java.awt.GridLayout;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -34,25 +33,25 @@ public class OperationFilterPanel extends JPanel
     private static final Logger logger = Logger
         .getLogger(OperationChoicePanel.class);
     
-    private OperationPanel operationPanel;
-    private Collection<OperationCategory> categories;
-    private OperationCategory[] categoryItem = new OperationCategory[1];
+    private static final OperationCategory CATEGORY_ALL = new OperationCategory("All");
+    private OperationCategory CATEGORY_NO_MATCHES = new OperationCategory("No matches");
     
+    private OperationPanel operationPanel;
+    private List<OperationCategory> categories;
+    
+    private List<OperationDefinition> matchingOperations = new LinkedList<OperationDefinition>();
     private JList categoryList;
-    private JList operationList;
+    private JList visibleOperationsList;
     
     private ExecutionItem selectedOperation;
     
     public OperationFilterPanel(OperationPanel parent,
-           Collection<OperationCategory> categories) {
+           List<OperationCategory> categories) {
         super(new GridLayout(1, 2));
         this.operationPanel = parent;
         this.categories = categories;
         
-        // Category list has only one item
-        categoryItem[0] = new OperationCategory("Found items");
-        categoryItem[0].setColor(new Color(70, 160, 70));
-        categoryList = new JList(categoryItem);
+        categoryList = new JList();
         categoryList.setSelectedIndex(0);
         categoryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         categoryList.addListSelectionListener(this);
@@ -61,15 +60,15 @@ public class OperationFilterPanel extends JPanel
         categoryList.setName("categoryList");
         
         // Operation list shows the results
-        operationList = new JList();
-        operationList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        operationList.addListSelectionListener(this);
-        operationList.setCellRenderer(new OperationChoicePanel.FontSizeFriendlyListRenderer());
-        operationList.getInsets().right = 1;
-        operationList.setName("operationList");
+        visibleOperationsList = new JList();
+        visibleOperationsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        visibleOperationsList.addListSelectionListener(this);
+        visibleOperationsList.setCellRenderer(new OperationChoicePanel.FontSizeFriendlyListRenderer());
+        visibleOperationsList.getInsets().right = 1;
+        visibleOperationsList.setName("operationList");
         
         JScrollPane categoryListScroller = new JScrollPane(categoryList);       
-        JScrollPane operationListScroller = new JScrollPane(operationList);
+        JScrollPane operationListScroller = new JScrollPane(visibleOperationsList);
         categoryListScroller.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
                 VisualConstants.OPERATION_LIST_BORDER_COLOR));
         operationListScroller.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -137,25 +136,101 @@ public class OperationFilterPanel extends JPanel
                 filteredOperationsWeights));
         
         // Update category list
-        categoryItem[0].setName("Tools found for " + "\"" + filterPhrase + "\"");
+        LinkedList<OperationCategory> matchingCategories = new LinkedList<OperationCategory>();
+        for (OperationDefinition filteredDefinition : filteredOperations) {
+        	OperationCategory oc = filteredDefinition.getCategory();
+        	if (!matchingCategories.contains(oc)) {
+        		matchingCategories.add(oc);
+        	}
+        }
+
+        // sort categories
+        Collections.sort(matchingCategories, new Comparator<OperationCategory>() {
+
+			@Override
+			public int compare(OperationCategory category1, OperationCategory category2) {
+				return categories.indexOf(category1) - categories.indexOf(category2);
+			}
+        	
+        });
+
+        // add extra categories to the top
+        if (filteredOperations.size() > 0) {
+        	matchingCategories.addFirst(CATEGORY_ALL);
+        } else {
+        	CATEGORY_NO_MATCHES.setName("No matching tools for \'" + filterPhrase +"\'");
+        	matchingCategories.addFirst(CATEGORY_NO_MATCHES);
+        }
+
+        // update visible categories
+        categoryList.setListData(matchingCategories.toArray());
         
-        operationPanel.selectOperation(null);
+        // update visible tools
+        this.matchingOperations = filteredOperations;
+        visibleOperationsList.setListData(filteredOperations);
         
-        logger.debug("found " + filteredOperations.size() + " operations " +
-                     "for phrase \"" + filterPhrase + "\"");
-        operationList.setListData(filteredOperations);
-        operationPanel.selectOperation(null);
+        // select best match
+        if (!filteredOperations.isEmpty()) {
+        	visibleOperationsList.setSelectedValue(filteredOperations.firstElement(), true);
+        }
     }
 
 
     /**
      * User has selected an operation.
      */
-    public void valueChanged(ListSelectionEvent arg0) {
-        Object selected = operationList.getSelectedValue();
-        if (selected instanceof ExecutionItem) {
-            selectedOperation = (ExecutionItem) selected;
-            operationPanel.selectOperation(selectedOperation);
+    public void valueChanged(ListSelectionEvent event) {
+        
+    	// category selected
+    	if (event.getSource() == categoryList && categoryList.getSelectedValue() != null) {
+        	OperationCategory selectedCategory = (OperationCategory) categoryList.getSelectedValue();
+
+        	// get matching tools in the selected category
+    		List<OperationDefinition> matchingToolsInSelectedCategory = new LinkedList<OperationDefinition>();
+
+    		if (selectedCategory == CATEGORY_NO_MATCHES) {
+    			// don't allow selecting this
+    			categoryList.clearSelection();
+    			return;
+    		}
+    		
+        	// all category
+    		else if (selectedCategory == CATEGORY_ALL) {
+        		matchingToolsInSelectedCategory = matchingOperations;
+        	} 
+        	
+        	// normal category
+        	else {
+        		for (OperationDefinition tool : matchingOperations) {
+        			if (tool.getCategory().equals(selectedCategory)) {
+        				matchingToolsInSelectedCategory.add(tool);
+        			}
+        		}
+        	}
+
+        	// make the matching tools visible
+        	visibleOperationsList.setListData(matchingToolsInSelectedCategory.toArray());
+        	
+        	// select the best match
+        	if (!matchingToolsInSelectedCategory.isEmpty()) {
+        		visibleOperationsList.setSelectedValue(matchingToolsInSelectedCategory.get(0), true);
+        	}
+
+        // tool selected	
+        } else if (event.getSource() == visibleOperationsList) {
+        	Object selected = visibleOperationsList.getSelectedValue();
+        	if (selected instanceof ExecutionItem) {
+        		
+        		selectedOperation = (ExecutionItem) selected;
+        		operationPanel.selectOperation(selectedOperation);
+        		
+        		// also select the category of this operation
+        		// avoid category changed event which would cause limiting the visible
+        		// tools to this category only
+        		categoryList.removeListSelectionListener(this);
+        		categoryList.setSelectedValue(((OperationDefinition)selected).getCategory(), true);
+        		categoryList.addListSelectionListener(this);
+        	}
         }
     }
 }

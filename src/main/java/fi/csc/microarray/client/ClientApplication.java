@@ -151,7 +151,7 @@ public abstract class ClientApplication {
 	protected String requestedModule;
 
 	// TODO wrap these to some kind of repository
-	protected Collection<OperationCategory> visibleCategories;
+	protected List<OperationCategory> visibleCategories;
 	protected Map<String, OperationDefinition> operationDefinitions;
 	protected Map<String, OperationDefinition> internalOperationDefinitions;
 

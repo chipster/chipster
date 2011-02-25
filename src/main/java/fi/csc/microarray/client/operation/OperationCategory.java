@@ -51,7 +51,7 @@ public class OperationCategory {
 		this.name = name;
 		this.operations = new Vector<OperationDefinition>();
 	}
-	
+
 	/**
      * Set name of this category.
      */

@@ -14,7 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Collection;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -100,7 +100,7 @@ public class OperationPanel extends JPanel
 	 * 
 	 * @param client The client under whose command this panel is assigned.
 	 */
-	public OperationPanel(Collection<OperationCategory> parsedCategories) throws ParseException {
+	public OperationPanel(List<OperationCategory> parsedCategories) throws ParseException {
 		super(new GridBagLayout());
 		this.setPreferredSize(new Dimension(WHOLE_PANEL_WIDTH, WHOLE_PANEL_HEIGHT));
 		this.setMinimumSize(new Dimension(0,0));

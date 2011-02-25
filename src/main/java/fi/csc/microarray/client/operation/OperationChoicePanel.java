@@ -1,5 +1,6 @@
 package fi.csc.microarray.client.operation;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -150,7 +151,11 @@ public class OperationChoicePanel extends JPanel
 			JLabel comp = (JLabel)super.getListCellRendererComponent(
 					list, value, index, isSelected, cellHasFocus);
 			
-			comp.setIcon(new ColoredCircleIcon(((OperationCategory)(list.getModel().getElementAt(index))).getColor()));
+			Color circleColor = ((OperationCategory)(list.getModel().getElementAt(index))).getColor();
+			if (circleColor == null) {
+				circleColor = comp.getBackground();
+			}
+			comp.setIcon(new ColoredCircleIcon(circleColor));
 			
 			return this;
 		}
