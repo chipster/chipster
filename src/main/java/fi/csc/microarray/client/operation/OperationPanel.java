@@ -223,8 +223,6 @@ public class OperationPanel extends JPanel
         searchPanel.add(searchField);
         searchField.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         searchField.setPreferredSize(new Dimension(100, 22));
-        searchField.add(clearSearchButton);
-        //searchPanel.add(showAllButton);
         searchPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
                 VisualConstants.OPERATION_LIST_BORDER_COLOR));
 		
