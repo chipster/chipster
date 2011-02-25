@@ -16,7 +16,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Collection;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -92,7 +92,10 @@ public class OperationPanel extends JPanel
 	private JScrollPane detailFieldScroller;
 	private boolean isParametersVisible = false;
 	
-	private ExecutionItem chosenOperation = null;
+	private OperationDefinition selectedOperationDefinition = null;
+	private Operation currentOperation = null;
+
+	
 	private ClientApplication application = Session.getSession().getApplication();
 	
 	/**
@@ -100,7 +103,7 @@ public class OperationPanel extends JPanel
 	 * 
 	 * @param client The client under whose command this panel is assigned.
 	 */
-	public OperationPanel(Collection<OperationCategory> parsedCategories) throws ParseException {
+	public OperationPanel(List<OperationCategory> parsedCategories) throws ParseException {
 		super(new GridBagLayout());
 		this.setPreferredSize(new Dimension(WHOLE_PANEL_WIDTH, WHOLE_PANEL_HEIGHT));
 		this.setMinimumSize(new Dimension(0,0));
@@ -123,7 +126,7 @@ public class OperationPanel extends JPanel
 		sourceButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {				
 				try {
-					application.showSourceFor(chosenOperation.getID());
+					application.showSourceFor(selectedOperationDefinition.getID());
 				} catch (TaskException je) {
 					application.reportException(je);
 				}
@@ -134,11 +137,7 @@ public class OperationPanel extends JPanel
 		helpButton.setToolTipText("More information about this tool");
 		helpButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				OperationDefinition od =
-				    chosenOperation instanceof OperationDefinition ?
-				            (OperationDefinition) chosenOperation :
-				            ((Operation)chosenOperation).getDefinition();
-				application.viewHelpFor(od);
+				application.viewHelpFor(selectedOperationDefinition);
 			}			
 		});
 				
@@ -158,7 +157,7 @@ public class OperationPanel extends JPanel
 		executeButton.setToolTipText("Run selected operation for selected datasets");
 		executeButton.addActionListener(this);
 		executeButton.setName("executeButton");
-		setExecuteButtonEnabled(false);
+		executeButton.setEnabled(false);
 		
 		detailFieldScroller.setBorder(
 				BorderFactory.createMatteBorder(1, 0, 0, 0, VisualConstants.OPERATION_LIST_BORDER_COLOR));
@@ -339,29 +338,29 @@ public class OperationPanel extends JPanel
 		if (e.getSource() == parametersButton) {
 			parametersButtonClicked();
 		} else if (e.getSource() == executeButton ) {
-		    // Check if we can run the operation
-		    Suitability suitability = evaluateSuitability();
-		    
-		    if (!suitability.isOk()) {
-		        application.showDialog("Check parameters", suitability.toString(), "",
-		                               Severity.INFO, true,
-		                               DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
-		        return;
-		    }
-		    
-		    // Run it	    
-			if (chosenOperation instanceof OperationDefinition) {
-				application.executeOperation((OperationDefinition)chosenOperation, null);
-			} else {				
-				try {
-					// we MUST clone the operation, or otherwise results share the same
-					// operation as long as it is executed and parameter panel is not closed
-					Operation clonedOperation = new Operation((Operation)chosenOperation);
-					application.executeOperation(clonedOperation);
-				} catch (MicroarrayException me) {
-					throw new RuntimeException(me);
-				}
-			}
+		    executeCurrentOperation();
+		}
+	}
+
+	private void executeCurrentOperation() {
+		// Check if we can run the operation
+		Suitability suitability = evaluateSuitability();
+		
+		if (!suitability.isOk()) {
+		    application.showDialog("Check parameters", suitability.toString(), "",
+		                           Severity.INFO, true,
+		                           DetailsVisibility.DETAILS_ALWAYS_HIDDEN, null);
+		    return;
+		}
+		
+		// Run it	    
+		try {
+			// we MUST clone the operation, or otherwise results share the same
+			// operation as long as it is executed and parameter panel is not closed
+			Operation clonedOperation = new Operation(currentOperation);
+			application.executeOperation(clonedOperation);
+		} catch (MicroarrayException me) {
+			throw new RuntimeException(me);
 		}
 	}
 
@@ -372,14 +371,6 @@ public class OperationPanel extends JPanel
 			showOperationsPanel();
 		}
 	}		
-	
-	private void setExecuteButtonEnabled(boolean enabled){
-		if (enabled){
-			executeButton.setEnabled(true);
-		} else {
-			executeButton.setEnabled(false);
-		}
-	}
 	
 	/**
 	 * Activate a certain card in the left panel.
@@ -406,18 +397,7 @@ public class OperationPanel extends JPanel
 
 		try {
 		    // Display parameters for selected operation
-			if (chosenOperation instanceof Operation) {
-				chosenOperation = (Operation)chosenOperation;
-
-			} else if (chosenOperation instanceof OperationDefinition) {
-				chosenOperation = new Operation((OperationDefinition)chosenOperation,
-				        application.getSelectionManager().getSelectedDatasAsArray());
-
-			} else {
-				throw new RuntimeException("wrong type: " + chosenOperation.getClass().getSimpleName());				
-			}
-			
-			cardPanel.add(new ToolParameterPanel((Operation)chosenOperation, this),PARAMETERS);
+			cardPanel.add(new ToolParameterPanel(currentOperation, this),PARAMETERS);
 			showCard(PARAMETERS);
 		    isParametersVisible = true;
 
@@ -437,7 +417,7 @@ public class OperationPanel extends JPanel
 	 * Sets the title of this panel (shown in the TitledBorder) according to
 	 * the received command word (suggesting either a generic "Operations"
 	 * title or a more specific one, if an operation is already selected).
-	 * The selected dataset will also be taken into accound when setting
+	 * The selected dataset will also be taken into account when setting
 	 * the title.
 	 * 
 	 * @param commandWord Either OperationPanel.showOperationsCommand or
@@ -449,8 +429,8 @@ public class OperationPanel extends JPanel
 			// ExecutionItem oper =
 			//	operationChoiceView.getSelectedOperation();
 			title = OPERATION_LIST_TITLE + 
-			  " - " + this.chosenOperation.getCategoryName() +
-			  " - " + this.chosenOperation.getDisplayName();
+			  " - " + this.currentOperation.getCategoryName() +
+			  " - " + this.currentOperation.getDisplayName();
 		} else {
 			title = OPERATION_LIST_TITLE;
 		}
@@ -465,44 +445,56 @@ public class OperationPanel extends JPanel
 	 * 
 	 * @param operation The operation (or operation definition, or workflow)
 	 * 					whose details are to be shown.
+	 * @throws MicroarrayException 
 	 */
-	public void selectOperation(ExecutionItem operation) {
+	public void selectOperation(ExecutionItem newSelectedOperationDefinition) {
 		
-		// update source button and operation description text
+		// no operation selected
+		if (newSelectedOperationDefinition == null) {
+			clearOperationSelection();
+		} 
 		
-		this.chosenOperation = operation;
-		this.showParametersTitle(false);
-		
-		this.showOperationInfoText();
-		
-		// update suitability label and action buttons
-		if (operation != null) {
+		// operation selected
+		else {
+
+			// create the operation
+			this.selectedOperationDefinition = (OperationDefinition)newSelectedOperationDefinition;
+			try {
+				this.currentOperation = new Operation(this.selectedOperationDefinition, application.getSelectionManager().getSelectedDatasAsArray());
+			} catch (MicroarrayException e) {
+				logger.error("could not create operation for " + this.selectedOperationDefinition.getDisplayName(), e);
+				clearOperationSelection();
+				return;
+			}
+
+			// show operation info panel
+			this.showParametersTitle(false);
+			this.showOperationInfoText();
 			parametersButton.setEnabled(true);
-			
+
+			// update suitability label and run buttons
 			Suitability suitability = evaluateSuitability();
-			if (suitability.isImpossible()) {
-				makeButtonsEnabled(false);
+			if (suitability.isOk()) {
+				suitabilityLabel.setIcon(VisualConstants.SUITABLE_ICON);
+				executeButton.setEnabled(true);
 			} else {
-				makeButtonsEnabled(true);
-			}
-			
-			if( suitability.isImpossible()){
 				suitabilityLabel.setIcon(VisualConstants.INCOMPATIBLE_ICON);
-			} else if( suitability.isOk()){
-				suitabilityLabel.setIcon(VisualConstants.SUITABLE_ICON);
-			} else {
-				suitabilityLabel.setIcon(VisualConstants.SUITABLE_ICON);
+				executeButton.setEnabled(false);
 			}
-					
+
 			suitabilityLabel.setToolTipText(" " + suitability.toString());
-		} else {
-			makeButtonsEnabled(false);
-			parametersButton.setEnabled(false);
-			suitabilityLabel.setIcon(null);
-			suitabilityLabel.setToolTipText("");
 		}
 	}
-	
+
+	private void clearOperationSelection() {
+		this.selectedOperationDefinition = null;
+		this.currentOperation = null;
+
+		executeButton.setEnabled(false);
+		parametersButton.setEnabled(false);
+		suitabilityLabel.setIcon(null);
+		suitabilityLabel.setToolTipText("");
+	}
 	/**
 	 * Sets new info text and updates text margins if the vertical scrollbar 
 	 * appers
@@ -520,8 +512,8 @@ public class OperationPanel extends JPanel
 	}
 	
 	public void showOperationInfoText() {
-		if (chosenOperation != null) {
-			setInfoText(chosenOperation.getDescription(), Color.BLACK, true);
+		if (currentOperation != null) {
+			setInfoText(currentOperation.getDescription(), Color.BLACK, true);
 			sourceButton.setEnabled(true);
 			helpButton.setEnabled(true);
 		} else {
@@ -552,31 +544,9 @@ public class OperationPanel extends JPanel
 		}
 	}
 		
-	/**
-	 * Enables (or disables) action - the two buttons in the top right corner,
-	 * to be exact. This prevents from enabling an operation without selecting
-	 * a dataset first.
-	 * 
-	 * @param enabled Whether action is to be enabled or not.
-	 */
-	public void enableAction(boolean enabled) {
-		if (!evaluateSuitability().isImpossible()) {
-			makeButtonsEnabled(enabled);			
-		}
-		if(!enabled){
-			suitabilityLabel.setIcon(null);
-		}
-	}
-	
-	private void makeButtonsEnabled(boolean enabled) {
-		//if(!enabled){
-		//	this.showOperationsPanel();
-		//}
-		setExecuteButtonEnabled(enabled);
-	}
 	
 	/**
-	 * Datset selection changed.
+	 * Dataset selection changed.
 	 */
 	public void propertyChange(PropertyChangeEvent dataEvent) {
 		if(dataEvent instanceof DatasetChoiceEvent) {
@@ -586,11 +556,7 @@ public class OperationPanel extends JPanel
 			
             // Reselect operation definition, so suitability is recalculated
 			// and parameter values are set to default
-            OperationDefinition chosenOperationDefinition = 
-                    chosenOperation instanceof Operation ?
-                    ((Operation)chosenOperation).getDefinition() :
-                    (OperationDefinition)chosenOperation;
-            selectOperation(chosenOperationDefinition);
+            selectOperation(selectedOperationDefinition);
             
             // In case parameter panel is open, open operations panel,
             // because we have just nulled the parameter values
@@ -603,15 +569,21 @@ public class OperationPanel extends JPanel
 	 * and inputs.
 	 */
 	private Suitability evaluateSuitability() {
-		if (chosenOperation == null) {
+		if (currentOperation == null) {
 			return Suitability.IMPOSSIBLE;
 		}
 		
 		// Check suitability of parameters and inputs
-		Suitability suitability = chosenOperation.evaluateSuitabilityFor(
+		Suitability suitability = currentOperation.evaluateSuitabilityFor(
 		        application.getSelectionManager().getSelectedDataBeans(), null);
 		
 		return suitability;
+	}
+
+	public void runSelectedOperation() {
+		if (evaluateSuitability().isOk()) {
+			this.executeCurrentOperation();
+		}
 	}
 
 	private void clearSearch() {

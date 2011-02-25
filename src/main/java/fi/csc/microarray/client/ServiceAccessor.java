@@ -1,6 +1,6 @@
 package fi.csc.microarray.client;
 
-import java.util.Collection;
+import java.util.List;
 
 import fi.csc.microarray.client.operation.OperationCategory;
 import fi.csc.microarray.client.tasks.TaskExecutor;
@@ -29,9 +29,9 @@ public interface ServiceAccessor {
 
 	public void fetchDescriptions(Module primaryModule) throws Exception;
 
-	public Collection<OperationCategory> getVisibleCategories();
+	public List<OperationCategory> getVisibleCategories();
 
-	public Collection<OperationCategory> getHiddenCategories();
+	public List<OperationCategory> getHiddenCategories();
 
 	public TaskExecutor getTaskExecutor();
 
