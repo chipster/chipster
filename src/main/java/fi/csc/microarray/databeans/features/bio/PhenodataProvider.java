@@ -48,8 +48,11 @@ public class PhenodataProvider extends FeatureProviderBase {
 
 		Table columns = null;
 		try {
-			columns = bean.queryFeatures("/column/*").asTable();
-
+			// FIXME fix hacky phenodata check (prevents problems with data that is almost tabular)
+			if (bean.getName().startsWith("phenodata")) {
+				columns = bean.queryFeatures("/column/*").asTable();
+			}
+			
 			// check that data has everything we need
 			if (columns != null && columns.hasColumn("sample") && columns.hasColumn("chiptype")) {
 
