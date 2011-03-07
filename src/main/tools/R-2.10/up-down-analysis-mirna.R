@@ -103,6 +103,7 @@ merged.table$symbol <- symbols_list
 
 # Change the column names for sake of consistency with other tools
 colnames (merged.table) [1] <- "entrez_id"
+colnames (merged.table) [2] <- "miRNA"
 
 # Add rownames to allow use of Venn diagrams
 # Construct the names from combining the miRNA nameand the target gene symbol
