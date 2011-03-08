@@ -102,8 +102,13 @@
         	<fatjar.jarsource file="${lib}/saaj-impl.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/activation.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/cron4j-1.1.5.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/PDFRenderer.jar" relpath=""/>
-		    <fatjar.jarsource file="${lib}/pdfviewer.jar" relpath=""/>
+ 		    <fatjar.jarsource file="${lib}/icepdf-core.jar" relpath=""/>
+ 		    <fatjar.jarsource file="${lib}/icepdf-viewer.jar" relpath=""/>
+ 		    <fatjar.jarsource file="${lib}/batik-awt-util.jar" relpath=""/>
+ 		    <fatjar.jarsource file="${lib}/batik-svg-dom.jar" relpath=""/>
+ 		    <fatjar.jarsource file="${lib}/batik-svggen.jar" relpath=""/>
+ 		    <fatjar.jarsource file="${lib}/batik-util.jar" relpath=""/>
+ 		    <fatjar.jarsource file="${lib}/batik-xml.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/h2-1.2.137.jar" relpath=""/>
 		    	
         </fatjar.build>
