@@ -5,7 +5,7 @@
 
 # count-overlapping-cnvs.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-02-07
+# 2011-02-15
 
 dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 
@@ -45,21 +45,36 @@ for (i in 2:nrow(cnv)) {
 }
 joined <- rbind(joined, prev)
 
-for (i in rownames(dat2)) {
-  chr <- dat2[i, 'chromosome']
-  start <- dat2[i, 'start']
-  end <- dat2[i, 'end']
-  dat2[i, 'cnv.count'] <- nrow(cnv[cnv$Chr   == chr &
-                                   cnv$Start <= end &
-                                   cnv$End   >= start,])
+cnv.counter <- function(x) {
+  chr <- x['chromosome']
+  start <- as.integer(x['start'])
+  end <- as.integer(x['end'])
+
+  count <- nrow(cnv[cnv$Chr   == chr &
+                    cnv$Start <= end &
+                    cnv$End   >= start,])
   overlaps <- joined[joined$Chr   == chr &
                      joined$Start <= end &
                      joined$End   >= start,]
   bases <- 0
   for (j in rownames(overlaps))
     bases <- bases + min(end, overlaps[j, 'End']) - max(start, overlaps[j, 'Start']) + 1
-  dat2[i, 'cnv.per.Mb'] <- round(bases / (end - start + 1) * 1000000)
+  c(count, round(bases / (end - start + 1) * 1000000))
 }
+
+# first try parallel computing
+prob <- TRUE
+try({
+  library(snowfall)
+  sfInit(parallel=TRUE, cpus=4)
+  sfExport(list=c('cnv', 'joined'))
+  dat2[,c('cnv.count', 'cnv.per.Mb')] <- t(sfApply(dat2, 1, cnv.counter))
+  sfStop()
+  prob <- FALSE
+}, silent=TRUE)
+# if problems, fall back to sequential computing
+if (prob)
+  dat2[,c('cnv.count', 'cnv.per.Mb')] <- t(apply(dat2, 1, cnv.counter))
 
 dat2 <- cbind(dat2, dat[,first.data.col:ncol(dat)])
 
