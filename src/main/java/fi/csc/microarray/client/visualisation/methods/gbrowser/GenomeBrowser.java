@@ -772,13 +772,13 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 					switch (track.interpretation.type) {
 					case REGIONS:
 						TrackFactory.addThickSeparatorTrack(plot);
-						TrackFactory.addTitleTrack(plot, file.getName());
+						TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
 						peakData = new ChunkDataSource(file, new BEDParser());
 						TrackFactory.addPeakTrack(plot, peakData);
 						break;
 					case REGIONS_WITH_HEADER:
 						TrackFactory.addThickSeparatorTrack(plot);
-						TrackFactory.addTitleTrack(plot, file.getName());
+						TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
 						peakData = new ChunkDataSource(file, new HeaderTsvParser());
 						TrackFactory.addHeaderPeakTrack(plot, peakData);
 						break;
