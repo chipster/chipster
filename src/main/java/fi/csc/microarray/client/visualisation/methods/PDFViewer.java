@@ -1,7 +1,5 @@
 package fi.csc.microarray.client.visualisation.methods;
 
-import java.io.File;
-
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
@@ -9,7 +7,6 @@ import org.icepdf.ri.common.SwingController;
 import org.icepdf.ri.common.SwingViewBuilder;
 import org.icepdf.ri.common.views.DocumentViewControllerImpl;
 
-import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.databeans.DataBean;
@@ -29,8 +26,6 @@ public class PDFViewer extends Visualisation {
 
 	@Override
 	public JComponent getVisualisation(DataBean data) throws Exception {
-	
-        File file = ((FSDataBean)data).getContentFile();
 
 		// build a controller
 		SwingController controller = new SwingController();
@@ -43,7 +38,7 @@ public class PDFViewer extends Visualisation {
 		JPanel viewerComponentPanel = factory.buildViewerPanel();
 
 		// Open a PDF document to view
-		controller.openDocument(file.getPath());
+		controller.openDocument(data.getContentByteStream(), data.getName(), data.getContentUrl().toString());
 
 		// Set view mode
 		controller.setPageViewMode(DocumentViewControllerImpl.ONE_COLUMN_VIEW, true);
