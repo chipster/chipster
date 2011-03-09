@@ -84,9 +84,9 @@ public class BeanShellHandler implements AnalysisHandler {
 		
 		// read the SADL from the comment block in the beginning of file
 		// and the actual source code
-		SADLTool.ParsedRScript parsedScript;
+		SADLTool.ParsedScript parsedScript;
 		try {
-			parsedScript = new SADLTool().parseRScript(scriptSource, "//");
+			parsedScript = new SADLTool().parseScript(scriptSource, "//");
 		} catch (IOException e) {				
 			throw new AnalysisException(e);
 		}
@@ -109,8 +109,8 @@ public class BeanShellHandler implements AnalysisHandler {
 
 		// add stuff to the AnalysisDescription
 		ad.setCommand("BeanShell");
-		ad.setImplementation(parsedScript.rSource); // include headers
-		ad.setSourceCode(parsedScript.rSource);
+		ad.setImplementation(parsedScript.source); // include headers
+		ad.setSourceCode(parsedScript.source);
 		ad.setSourceResourceName(sourceResourceName);
 		ad.setSourceResourceFullPath(scriptPath);
 		

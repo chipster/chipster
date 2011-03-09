@@ -150,7 +150,7 @@ public class MicroarrayMain {
 			} else if (cmdParser.hasValue("rcheck")) {
 				boolean fails = false;
 				try {					
-					SADLTool.ParsedRScript res = new SADLTool().parseRScript(new FileInputStream(cmdParser.getValue("rcheck")));
+					SADLTool.ParsedScript res = new SADLTool().parseScript(new FileInputStream(cmdParser.getValue("rcheck")), "#");
 					new Validator().validate(cmdParser.getValue("rcheck"), res.SADL);
 				} catch (Exception e) {
 					System.out.println(e.getMessage());
