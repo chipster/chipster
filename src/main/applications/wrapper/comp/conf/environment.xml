@@ -316,6 +316,11 @@
       <bioconductor-package>hgu133plus2cdf</bioconductor-package>
     </item>
 
+    <item installed="false" name="MLInterfaces" type="r-package"> 
+      <bioconductor-package>MLInterfaces</bioconductor-package>
+    </item>
+
+
   </bundle>
   
   <bundle depends="Basic R environment" name="Additional R packages">
