@@ -44,7 +44,7 @@ public class LocalServiceAccessor implements ServiceAccessor {
 
 	/**
 	 * FIXME get tool list from configs
-	 * FIXME put the code for creating the OperatioinDefinition to a place where both this and
+	 * FIXME put the code for creating the OperationDefinition to a place where both this and
 	 * DescriptionMessageListener can use it
 	 * 
 	 */
