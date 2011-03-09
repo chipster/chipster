@@ -471,17 +471,21 @@ public class OperationPanel extends JPanel
 			parametersButton.setEnabled(true);
 
 			// update suitability label and run buttons
-			Suitability suitability = evaluateSuitability();
-			if (suitability.isOk()) {
-				suitabilityLabel.setIcon(VisualConstants.SUITABLE_ICON);
-				executeButton.setEnabled(true);
-			} else {
-				suitabilityLabel.setIcon(VisualConstants.INCOMPATIBLE_ICON);
-				executeButton.setEnabled(false);
-			}
-
-			suitabilityLabel.setToolTipText(" " + suitability.toString());
+			updateSuitability();
 		}
+	}
+
+	public void updateSuitability() {
+		Suitability suitability = evaluateSuitability();
+		if (suitability.isOk()) {
+			suitabilityLabel.setIcon(VisualConstants.SUITABLE_ICON);
+			executeButton.setEnabled(true);
+		} else {
+			suitabilityLabel.setIcon(VisualConstants.INCOMPATIBLE_ICON);
+			executeButton.setEnabled(false);
+		}
+
+		suitabilityLabel.setToolTipText(" " + suitability.toString());
 	}
 
 	private void clearOperationSelection() {

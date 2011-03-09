@@ -207,5 +207,6 @@ public class ToolParameterPanel extends ParameterPanel {
 	@Override
 	public void setMessage(String message, Color color) {
 		parent.setInfoText(message, color, true);
+		parent.updateSuitability();
 	}
 }
