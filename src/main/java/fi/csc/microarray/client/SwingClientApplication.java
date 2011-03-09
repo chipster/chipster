@@ -164,7 +164,7 @@ public class SwingClientApplication extends ClientApplication {
 	private boolean unsavedChanges = false;
 
 	private JFileChooser importExportFileChooser;
-	private JFileChooser snapshotFileChooser;
+	private JFileChooser sessionFileChooser;
 	private JFileChooser workflowFileChooser;
 
 	public SwingClientApplication(ClientListener clientListener, AuthenticationRequestListener overridingARL, String module, boolean isStandalone)
@@ -1540,22 +1540,22 @@ public class SwingClientApplication extends ClientApplication {
 		return importExportFileChooser;
 	}
 
-	private JFileChooser getSnapshotFileChooser(JComponent accessory) {
-		if (snapshotFileChooser == null) {
-			snapshotFileChooser = ImportUtils.getFixedFileChooser();
+	private JFileChooser getSessionFileChooser(JComponent accessory) {
+		if (sessionFileChooser == null) {
+			sessionFileChooser = ImportUtils.getFixedFileChooser();
 
-			String[] extensions = { SnapshottingSession.SNAPSHOT_EXTENSION };
-			snapshotFileChooser.setFileFilter(new GeneralFileFilter("Chipster Session", extensions));
-			snapshotFileChooser.setSelectedFile(new File("session." + SnapshottingSession.SNAPSHOT_EXTENSION));
-			snapshotFileChooser.setAcceptAllFileFilterUsed(false);
-			snapshotFileChooser.setMultiSelectionEnabled(false);
+			String[] extensions = { SnapshottingSession.SNAPSHOT_EXTENSION, SnapshottingSession.SESSION_EXTENSION };
+			sessionFileChooser.setFileFilter(new GeneralFileFilter("Chipster Session", extensions));
+			sessionFileChooser.setSelectedFile(new File("session." + SnapshottingSession.SNAPSHOT_EXTENSION));
+			sessionFileChooser.setAcceptAllFileFilterUsed(false);
+			sessionFileChooser.setMultiSelectionEnabled(false);
 
 		}
-		snapshotFileChooser.setAccessory(accessory);
+		sessionFileChooser.setAccessory(accessory);
 
-		fixFileChooserFontSize(snapshotFileChooser);
+		fixFileChooserFontSize(sessionFileChooser);
 
-		return snapshotFileChooser;
+		return sessionFileChooser;
 	}
 
 	private JFileChooser getWorkflowFileChooser() {
@@ -1691,7 +1691,7 @@ public class SwingClientApplication extends ClientApplication {
 	public void loadSession() {
 
 		SnapshotAccessory accessory = new SnapshotAccessory();
-		final JFileChooser fileChooser = getSnapshotFileChooser(accessory);
+		final JFileChooser fileChooser = getSessionFileChooser(accessory);
 		int ret = fileChooser.showOpenDialog(this.getMainFrame());
 		
 		if (ret == JFileChooser.APPROVE_OPTION) {
@@ -1740,7 +1740,7 @@ public class SwingClientApplication extends ClientApplication {
 	
 	public void saveSession(final boolean quit) {
 
-		JFileChooser fileChooser = getSnapshotFileChooser(null);
+		JFileChooser fileChooser = getSessionFileChooser(null);
 		int ret = fileChooser.showSaveDialog(this.getMainFrame());
 		final ClientApplication application = this; // for inner class
 		
