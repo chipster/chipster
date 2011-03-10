@@ -286,6 +286,10 @@
       <bioconductor-package>MLInterfaces</bioconductor-package>
     </item>
       
+    <item installed="false" name="GOstats" type="r-package"> 
+      <bioconductor-package>GOstats</bioconductor-package>
+    </item>
+
     <item installed="false" name="PAnnBuilder" type="r-package"> 
       <bioconductor-package>PAnnBuilder</bioconductor-package>
     </item>
