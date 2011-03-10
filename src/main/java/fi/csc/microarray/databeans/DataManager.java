@@ -22,6 +22,8 @@ import org.mortbay.util.IO;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
+import fi.csc.microarray.client.session.ClientSession;
+import fi.csc.microarray.client.session.SessionLoader;
 import fi.csc.microarray.databeans.DataBean.StorageMethod;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.Feature;
@@ -531,10 +533,14 @@ public class DataManager {
 	 * 
 	 * @see #saveSnapshot(File, ClientApplication)
 	 */
-	public List<DataItem> loadSnapshot(File sessionFile, DataFolder parentFolder, ClientApplication application) throws IOException, MicroarrayException {
-		SnapshottingSession session = new SnapshottingSession(this, application);
-		List<DataItem> newItems = session.loadFromSnapshot(sessionFile, parentFolder);
-		return newItems;
+	public void loadSnapshot(File sessionFile, DataFolder parentFolder, ClientApplication application) throws IOException, MicroarrayException {
+		if (ClientSession.isValidSessionFile(sessionFile)) {
+			SessionLoader sessionLoader = new SessionLoader();
+			sessionLoader.loadSession(sessionFile);
+		} else {
+			SnapshottingSession session = new SnapshottingSession(this, application);
+			session.loadFromSnapshot(sessionFile, parentFolder);
+		}
 	}
 
 
