@@ -86,7 +86,7 @@ public class BeanShellHandler implements AnalysisHandler {
 		// and the actual source code
 		SADLTool.ParsedScript parsedScript;
 		try {
-			parsedScript = new SADLTool().parseScript(scriptSource, "//");
+			parsedScript = new SADLTool("//").parseScript(scriptSource);
 		} catch (IOException e) {				
 			throw new AnalysisException(e);
 		}

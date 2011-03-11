@@ -14,7 +14,7 @@ public class SADLToolTest {
 	public void testEvilContent() throws Exception {	
 		// no empty line after header
 		String source = "# ANALYSIS Test/Test ()\ncontent\n";
-		ParsedScript parseRScript = new SADLTool().parseScript(new ByteArrayInputStream(source.getBytes()), "#");
+		ParsedScript parseRScript = new SADLTool("#").parseScript(new ByteArrayInputStream(source.getBytes()));
 		Assert.assertEquals(parseRScript.SADL.length(), 22);
 		Assert.assertEquals(parseRScript.source.length(), source.length());
 	}
