@@ -168,5 +168,5 @@ abline(h = c(-2, 2), col = "dodgerblue", lwd = 2)
 output_table <- data.frame (data_2[significant_indices,], significant_results)
 
 # Output the table
-write.table(output_table, digits=6)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+write.table(output_table, file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 
