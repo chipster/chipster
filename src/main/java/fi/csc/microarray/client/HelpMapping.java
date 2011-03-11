@@ -1,18 +1,15 @@
 package fi.csc.microarray.client;
 
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
 import fi.csc.microarray.client.operation.OperationDefinition;
-import fi.csc.microarray.util.IOUtils;
 
 public class HelpMapping {
 
     private static final String URL_BASE = "https://extras.csc.fi/biosciences/";
 
-	private static final String DEFAULT_HELP_PAGE = "chipster-manual/tools.html";
+//	private static final String DEFAULT_HELP_PAGE = "chipster-manual/tools.html";
 	private static Map<String, String> mappings = new HashMap<String, String>();
 
 	static {
@@ -185,23 +182,25 @@ public class HelpMapping {
 			String page = mappings.get(definition.getCategory().getName() + "/" + definition.getDisplayName());
 			if (page == null) {
 				String addressByConvention = "chipster-manual/" + definition.getID().replace(".R", ".html");
-				URLConnection conn = null;
-				try {
-					conn = new URL(URL_BASE + addressByConvention).openConnection();
-					if (conn.getContentLength() > 0) {
+				
+				// Check if the manual page exists
+				
+//				HttpURLConnection conn = null;
+//				try {
+//					conn = (HttpURLConnection)(new URL(URL_BASE + addressByConvention).openConnection());
+//					if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
 						page = addressByConvention;
-					}
-				} catch (Exception e) {
-					// ignore, will fall back to default page
-				} finally {
-					IOUtils.disconnectIfPossible(conn);
-				}
-
+//					}
+//				} catch (Exception e) {
+//					// ignore, will fall back to default page
+//				} finally {
+//					IOUtils.disconnectIfPossible(conn);
+//				}
 			}
 
-			if (page == null) {
-				page = DEFAULT_HELP_PAGE;
-			}
+//			if (page == null) {
+//				page = DEFAULT_HELP_PAGE;
+//			}
 
 			return URL_BASE + page;
 		}
