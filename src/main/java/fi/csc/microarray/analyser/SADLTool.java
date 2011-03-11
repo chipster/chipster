@@ -10,7 +10,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.module.chipster.ChipsterSADLParser;
@@ -102,7 +101,7 @@ public class SADLTool {
 		// Rewrite the file
 		PrintWriter out = null;
 		try {
-			out = new PrintWriter(new FileOutputStream(new File("test.R")));
+			out = new PrintWriter(new FileOutputStream(scriptFile));
 			out.print(toScriptString(parsedScript));
 			
 		} finally {
