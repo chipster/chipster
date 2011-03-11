@@ -1,6 +1,0 @@
-TOOL "NGS" / bowtie.sadl: Bowtie (How to tie a bow.) 
-INPUT reads.txt: "Reads to align" TYPE GENERIC
-OUTPUT alignment.sam
-OUTPUT bowtie.log
-PARAMETER genome-value-only: "Genome" TYPE [m_musculus_ncbi37: "m_musculus_ncbi37"] DEFAULT m_musculus_ncbi37 (Genome.)
-PARAMETER n: "Max mismatches in seed" TYPE [0, 1, 2, 3] DEFAULT 2 (Max mismatches in seed.)
