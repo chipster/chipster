@@ -1,9 +1,12 @@
 package fi.csc.microarray.client;
 
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 
 import fi.csc.microarray.client.operation.OperationDefinition;
+import fi.csc.microarray.util.IOUtils;
 
 public class HelpMapping {
 
@@ -181,8 +184,25 @@ public class HelpMapping {
 		else {
 			String page = mappings.get(definition.getCategory().getName() + "/" + definition.getDisplayName());
 			if (page == null) {
+				String addressByConvention = "chipster-manual/" + definition.getID().replace(".R", ".html");
+				URLConnection conn = null;
+				try {
+					conn = new URL(URL_BASE + addressByConvention).openConnection();
+					if (conn.getContentLength() > 0) {
+						page = addressByConvention;
+					}
+				} catch (Exception e) {
+					// ignore, will fall back to default page
+				} finally {
+					IOUtils.disconnectIfPossible(conn);
+				}
+
+			}
+
+			if (page == null) {
 				page = DEFAULT_HELP_PAGE;
 			}
+
 			return URL_BASE + page;
 		}
 	}

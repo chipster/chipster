@@ -14,6 +14,7 @@ import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 
 /**
  * 
@@ -82,6 +83,13 @@ public class IOUtils {
 			connection.disconnect();
 		}
 	}
+
+	public static void disconnectIfPossible(URLConnection connection) {
+		if (connection instanceof HttpURLConnection) {
+			disconnectIfPossible((HttpURLConnection)connection);
+		}
+	}
+	
 
 	public static interface CopyProgressListener {
 		public void progress(long bytes);
