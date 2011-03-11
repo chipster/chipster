@@ -19,7 +19,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
@@ -106,7 +105,7 @@ public class GeneTrack extends Track {
 			name = name.replaceAll("\"", "");
 
 			// draw name to leftmost visible part of the gene rectangle
-			drawables.add(new TextDrawable(rect.x < 0 ? 0 : rect.x, rect.y + 10, name, Color.DARK_GRAY));
+			drawTextAboveRectangle(name, drawables, rect, 10);
 		}
 	}
 

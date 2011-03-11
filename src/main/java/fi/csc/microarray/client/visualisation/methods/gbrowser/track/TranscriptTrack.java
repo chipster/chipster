@@ -121,7 +121,7 @@ public class TranscriptTrack extends Track {
 				String geneId = ((String) gene.first().values.get(ColumnType.DESCRIPTION));
 
 				if (isNameVisible(rect)) {
-					drawables.add(new TextDrawable(rect.x, rect.y - 1, geneId, Color.DARK_GRAY));
+					drawTextAboveRectangle(geneId, drawables, rect, 1);
 				}
 
 				List<Drawable> geneDrawables = new ArrayList<Drawable>();
