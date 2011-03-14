@@ -1,26 +1,11 @@
-# ANALYSIS Statistics/"Two groups tests" (Tests for comparing the mean gene expression of two groups. 
-# LPE only works, if the whole data is used, i.e., the data should not be pre-filtered, if LPE is used. 
-# Other than empiricalBayes might be slow, if run on unfiltered data.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT two-sample.tsv
-# PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER test [empiricalBayes, fast-t-test, t-test, F-test, Mann-Whitney, LPE] DEFAULT empiricalBayes (Test type)
-# PARAMETER p.value.adjustment.method [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method)
-# PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
-
-# TOOL "Statistics" / ngs-find-peaks-macs-one.R: "Find peaks using MACS, treatment only" (This tool will search for statistically significantly enriched genomic regions in sequencing data from a ChIP-seq experiment. The analysis is performed on one or more treatment samples alone, without taking into account control control samples.)
-# INPUT treatment.bam: "Treatment data file" TYPE GENERIC
-# OUTPUT positive-peaks.tsv: "True enriched peaks"
-# OUTPUT OPTIONAL model-plot.png: "A plot of the fitted peak model"
-# OUTPUT OPTIONAL negative-peaks.tsv: "The false enriched peaks"
-# OUTPUT analysis-log.txt: "Summary of analysis settings and run"
-# PARAMETER file.format: "File format" TYPE [ELAND, BAM, BED] DEFAULT BAM (The format of the input files.)
-# PARAMETER species: "Genome" TYPE [human, mouse, rat] DEFAULT human (the species of the samples.)
-# PARAMETER read.length: "Read length" TYPE INTEGER FROM 1 TO 200 DEFAULT 25 (The length in nucleotides of the sequence reads)
-# PARAMETER band.with: "Band width" TYPE INTEGER FROM 1 TO 1000 DEFAULT 200 (The scanning window size, typically half the average fragment size of the DNA)
-# PARAMETER p.value.threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.00001 (The cutoff for statistical significance. Since the p-values are not adjusted to account for multiple testing correction the cutoff needs to be substantially more conservative than what is usually applied.)
-# PARAMETER build.model: "Peak model" TYPE [yes, no] DEFAULT yes (If enabled, a peak model is built from the data. Disabling model building means the shiftsize has to be guessed. In Chipster the shift size is set to half the band with.)
-# PARAMETER m.fold.upper: "Upper M-fold cutoff" TYPE INTEGER FROM 1 TO 100 DEFAULT 30 (Sets the cutoff used to determine peak regions for model building. A too high value may result in not enough peaks being identified for building the model. Notice that if the peak model is disabled this parameter has no effect.)
-# PARAMETER m.fold.lower: "Lower M-fold cutoff" TYPE INTEGER FROM 1 TO 100 DEFAULT 10 (Sets the cutoff used to determine peak regions for model building. A too low value may result in the inclusion of many false peaks being used for building the model. Notice that if the peak model is disabled this parameter has no effect.)
+# TOOL "Statistics" / ngs-dea-edger.R: "Differential expression analysis using edgeR" (This tool will perform an analysis for differentially expressed sequences using the R implementation of the edge algorithm.)
+# INPUT data.tsv: "Input data table" TYPE GENE_EXPRS
+# INPUT phenodata.tsv "Experiment parameters" TYPE GENERIC
+# OUTPUT de-list.tsv "List of differentially expressed sequences" TYPE GENE_EXPR
+# PARAMETER normalization_method: "Normalization method" TYPE [none, library_size, sequence_specific] DEFAULT sequence_specific (If enabled, a normalization factor based on the total number of sequence counts or sequence distribution is performed to reduce the effect from sequencing biases.)
+# PARAMETER dispersion_estimate: "Dispersion estimate" TYPE [common, moderated] DEFAULT moderated (The dispersion of counts for any given sequence can either be estimated based on the actual counts in the sample data set or be moderated across a selection of sequences with similar count numbers. The latter option, which is set by default, typically yields higher sensitivity and specificity.)
+# PARAMETER p_value_adjustment_method "Multiple testing correction" TYPE [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method.)
+# PARAMETER p_value_threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.00001 (The cutoff for statistical significance.)
 
 
 ############################################################
