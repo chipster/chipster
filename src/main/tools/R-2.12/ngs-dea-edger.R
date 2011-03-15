@@ -156,4 +156,3 @@ output_table <- data.frame (data_2[significant_indices,], significant_results)
 # Output the table
 write.table(output_table, file="de-list.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 
-# EOF
