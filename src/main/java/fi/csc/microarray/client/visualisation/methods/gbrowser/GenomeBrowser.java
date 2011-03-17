@@ -10,6 +10,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -675,8 +676,14 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				application.reportException(e);
 			}
 			
-			// Create the plot
-			ChartPanel chartPanel = new NonScalableChartPanel();
+			// Create the chart panel with tooltip support				
+			ChartPanel chartPanel = new NonScalableChartPanel() {
+				@Override
+				public String getToolTipText(MouseEvent arg0) {
+					return arg0.getLocationOnScreen().toString();
+				}			
+			};
+			
 			this.plot = new GenomePlot(chartPanel, true);
 			
 			// Set scale of profile track containing reads information
