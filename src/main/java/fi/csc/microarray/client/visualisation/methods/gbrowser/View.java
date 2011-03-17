@@ -1,7 +1,9 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -12,6 +14,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.font.FontRenderContext;
+import java.awt.font.TextLayout;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
@@ -210,6 +214,10 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
                         (int) (viewArea.getY() + y));
             }
 
+            // draw simple vertical ruler
+//            bufG2.setColor(Color.LIGHT_GRAY);
+//            bufG2.drawLine(drawBuffer.getWidth()/2, 0, drawBuffer.getWidth()/2, drawBuffer.getHeight());
+          
             // draw all tracks
             while (trackIter.hasNext() || (drawableIter != null && drawableIter.hasNext())) {
     
@@ -244,7 +252,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
                         Collection<Drawable> drawables = track.getDrawables();
                         drawableIter = drawables.iterator();
                     }
-    
+                    
                     while (drawableIter.hasNext()) {
     
                         Drawable drawable = drawableIter.next();
