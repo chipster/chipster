@@ -4,8 +4,7 @@
 # OUTPUT OPTIONAL model-plot.png: "A plot of the fitted peak model"
 # OUTPUT OPTIONAL negative-peaks.tsv: "The false enriched peaks"
 # OUTPUT analysis-log.txt: "Summary of analysis settings and run"
-# PARAMETER file.format: "File format" TYPE [ELAND, SAM, BAM, BED] DEFAULT BAM (The format of the input files.)
-# PARAMETER produce.wiggle: "Produce wiggle" TYPE [yes, no] DEFAULT no (Determines if WIGGLE type files should be output or not. By default this option is turned off due to the significantly longer run times it causes. However, for displaying p-values in one track of the Genome Browser, this paramter should be set to indicate the chromosome for which to produce the wiggle file.)
+# PARAMETER file.format: "File format" TYPE [ELAND, BAM, BED] DEFAULT BAM (The format of the input files.)
 # PARAMETER species: "Genome" TYPE [human, mouse, rat] DEFAULT human (the species of the samples.)
 # PARAMETER read.length: "Read length" TYPE INTEGER FROM 1 TO 200 DEFAULT 25 (The length in nucleotides of the sequence reads)
 # PARAMETER band.with: "Band width" TYPE INTEGER FROM 1 TO 1000 DEFAULT 200 (The scanning window size, typically half the average fragment size of the DNA)
@@ -16,6 +15,9 @@
 
 # This parameter is no longer needed, as MACS automatically lowers the m-fold cut-off if needed as of version 1.4.0
 # PARAMETER adjust.mfold: "Adjust m-fold" TYPE [yes, no] DEFAULT yes (Enabling this option, when building peak model is selected, the m-fold cutoff is automatically adjusted down in case the user-selected value is to stringent for finding peaks for modeling.)
+
+# This parameter has been disabled since its functionality is quite well emulated by the separate strand coverage track in the Genome Browser
+# PARAMETER produce.wiggle: "Produce wiggle" TYPE [yes, no] DEFAULT no (Determines if WIGGLE type files should be output or not. By default this option is turned off due to the significantly longer run times it causes. However, for displaying p-values in one track of the Genome Browser, this paramter should be set to indicate the chromosome for which to produce the wiggle file.)
 
 # This output is now obsolete since Chipster can view the .tsv output file in Genome Browser
 # OUTPUT positive-peaks.bed: "True enriched peaks in a format compatible with the Genome Browser"
@@ -49,6 +51,13 @@
 #                                                   #
 #####################################################
 
+#####################################################
+#                                                   #
+# MG, 8.3.2011                                      #
+#                                                   #
+# Modified to disable wiggle output.                #
+#                                                   #
+#####################################################
 
 #####################################################
 #                                                   #
