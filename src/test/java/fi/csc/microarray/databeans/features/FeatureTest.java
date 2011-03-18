@@ -9,24 +9,23 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import fi.csc.microarray.TestConstants;
-import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.databeans.fs.FSDataManager;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.module.DefaultModules;
+import fi.csc.microarray.module.ModuleManager;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 public class FeatureTest {
 
 	private DataManager manager;
 
-	public FeatureTest() throws IOException, IllegalConfigurationException {
+	public FeatureTest() throws IOException, IllegalConfigurationException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		DirectoryLayout.initialiseUnitTestLayout();
-		this.manager = new FSDataManager();
-		DefaultModules.getDefaultModules().plugFeatures(manager);
+		this.manager = new DataManager();
+		new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule").plugAll(manager, null);
 	}
 
 	@Test(groups = {"unit"} )
@@ -73,7 +72,7 @@ public class FeatureTest {
 
 	}
 	
-	public static void main(String[] args) throws IOException, MicroarrayException, IllegalConfigurationException {
+	public static void main(String[] args) throws IOException, MicroarrayException, IllegalConfigurationException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		new FeatureTest().testRowCount();
 	}
 
@@ -120,12 +119,12 @@ public class FeatureTest {
 			last = f;
 		}
 		Assert.assertTrue(last == 172f);
-		Assert.assertTrue(VisualisationMethod.ARRAY_LAYOUT.isApplicableTo(affyMicroarray));
+		Assert.assertTrue(MicroarrayModule.VisualisationMethods.ARRAY_LAYOUT.isApplicableTo(affyMicroarray));
 
 		// SOM
 		DataBean somData = manager.createDataBean("som.tsv", new FileInputStream(TestConstants.SOM_CLUSTERED_RESOURCE));
 
-		Assert.assertTrue(VisualisationMethod.SOM.isApplicableTo(somData));
+		Assert.assertTrue(MicroarrayModule.VisualisationMethods.SOM.isApplicableTo(somData));
 		Table som = somData.queryFeatures("/clusters/som").asTable();
 		Assert.assertNotNull(som);
 		Assert.assertEquals(som.getColumnCount(), 5); 
@@ -138,7 +137,7 @@ public class FeatureTest {
 
 		hcTree.addLink(Link.DERIVATION, hcHeatmap);
 
-		Assert.assertTrue(VisualisationMethod.HIERARCHICAL.isApplicableTo(hcTree));
+		Assert.assertTrue(MicroarrayModule.VisualisationMethods.HIERARCHICAL.isApplicableTo(hcTree));
 		Table heatmap = hcTree.queryFeatures("/clusters/hierarchical/heatmap").asTable();
 		Assert.assertNotNull(heatmap);
 		heatmap.nextRow();

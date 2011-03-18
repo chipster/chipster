@@ -11,7 +11,7 @@ import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.TempTopicMessagingListener;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener.Credentials;
 import fi.csc.microarray.messaging.message.AuthenticationMessage;
-import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.AuthenticationMessage.AuthenticationOperation;
 
 
@@ -31,7 +31,7 @@ public class AuthenticatedTopic extends MessagingTopic {
 	private AuthenticationRequestListener listener;
 	
 	private MessagingListener authTopicListener = new MessagingListener() {
-		public void onNamiMessage(NamiMessage msg) {
+		public void onChipsterMessage(ChipsterMessage msg) {
 			
 			try {
 				if (msg instanceof AuthenticationMessage) {
@@ -80,21 +80,21 @@ public class AuthenticatedTopic extends MessagingTopic {
 	}
 	
 	/**
-	 * @see MessagingTopic#sendMessage(NamiMessage)
+	 * @see MessagingTopic#sendMessage(ChipsterMessage)
 	 */
 	@Override
-	public void sendMessage(NamiMessage message) throws JMSException {
+	public void sendMessage(ChipsterMessage message) throws JMSException {
 		attachSessionID(message);
 		super.sendMessage(message);
 	}
 	
-	public void sendReplyableMessage(NamiMessage message, TempTopicMessagingListener replyListener) throws JMSException {
+	public void sendReplyableMessage(ChipsterMessage message, TempTopicMessagingListener replyListener) throws JMSException {
 		attachSessionID(message);
 		logger.debug("added authentication listener to message");
 		super.sendReplyableMessage(message, replyListener, authTopicListener);
 	}
 	
-	private void attachSessionID(NamiMessage msg) {
+	private void attachSessionID(ChipsterMessage msg) {
 		String sessionID = getEndpoint().getSessionID();
 		if (sessionID != null) {
 			msg.setSessionID(sessionID);

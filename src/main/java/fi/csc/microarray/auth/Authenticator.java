@@ -17,7 +17,7 @@ import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.message.AuthenticationMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
-import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.AuthenticationMessage.AuthenticationOperation;
 import fi.csc.microarray.security.SecureSessionPool;
 import fi.csc.microarray.security.SecureSessionPool.Session;
@@ -55,10 +55,10 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 	private TestListener testListener;
 	private AuthenticationProvider authenticationProvider; 
 	
-	public Authenticator() throws Exception {
+	public Authenticator(String configURL) throws Exception {
 		
 		// initialise dir and logging
-		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"auth"}));
+		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"auth"}), configURL);
 		logger = Logger.getLogger(Authenticator.class);
 		securityLogger = Logger.getLogger("security.frontend");
 		messageLogger = Logger.getLogger("messages.frontend");
@@ -92,7 +92,7 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 		// create keep-alive thread and register shutdown hook
 		KeepAliveShutdownHandler.init(this);
 		
-		logger.info("authenticator is up and running [" + ApplicationConstants.NAMI_VERSION + "]");
+		logger.info("authenticator is up and running [" + ApplicationConstants.VERSION + "]");
 		logger.info("[mem: " + MemUtil.getMemInfo() + "]");
 	}
 	
@@ -110,13 +110,13 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 		/**
 		 * Two step processing: authenticate, then route.
 		 */
-		public void onNamiMessage(NamiMessage msg) {
+		public void onChipsterMessage(ChipsterMessage msg) {
 			try {
 
 				logger.debug("starting to process " + msg);
 				
 				// variables
-				NamiMessage messageToBeRouted = null;
+				ChipsterMessage messageToBeRouted = null;
 				Session session = null;
 
 				//
@@ -163,7 +163,7 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 								
 								if (session.getParameter(KEY_PENDING_MESSAGE) != null) {
 									// route pending message
-									messageToBeRouted = (NamiMessage)session.getParameter(KEY_PENDING_MESSAGE);
+									messageToBeRouted = (ChipsterMessage)session.getParameter(KEY_PENDING_MESSAGE);
 								}
 							} else {
 								securityLogger.info("illegal username/password (user " + authMsg.getUsername()  + ", auth. message JMS id was " + authMsg.getJmsMessageID() + ")");
@@ -212,7 +212,7 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 		}
 
 		
-		private void ackLogin(NamiMessage loginMessage, String sessionID, boolean succeeded) throws JMSException, AuthorisationException {
+		private void ackLogin(ChipsterMessage loginMessage, String sessionID, boolean succeeded) throws JMSException, AuthorisationException {
 			AuthenticationOperation operation = succeeded ? AuthenticationMessage.AuthenticationOperation.LOGIN_SUCCEEDED : AuthenticationMessage.AuthenticationOperation.LOGIN_FAILED; 
 			AuthenticationMessage request = new AuthenticationMessage(operation);
 			request.setSessionID(sessionID);
@@ -220,7 +220,7 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 			endpoint.replyToMessage(loginMessage, request, Topics.MultiplexName.AUTHORISE_TO.toString());
 		}
 		
-		private void requestAuthentication(NamiMessage msg, String sessionID) throws JMSException, AuthorisationException {
+		private void requestAuthentication(ChipsterMessage msg, String sessionID) throws JMSException, AuthorisationException {
 			AuthenticationMessage request = new AuthenticationMessage(AuthenticationMessage.AuthenticationOperation.REQUEST);
 			request.setSessionID(sessionID);
 			request.setReplyTo(msg.getReplyTo());
@@ -230,7 +230,7 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 	}
 		
 	private class TestListener implements MessagingListener {
-		public void onNamiMessage(NamiMessage msg) {
+		public void onChipsterMessage(ChipsterMessage msg) {
 			logger.debug("got message on test-topic.");
 			try {
 
