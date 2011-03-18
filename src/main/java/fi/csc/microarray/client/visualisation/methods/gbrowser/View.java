@@ -191,6 +191,12 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		y = 0;
 		x = 0;
 
+		// draw simple vertical ruler
+		if (!(this instanceof OverviewHorizontalView)) {
+			bufG2.setColor(Color.LIGHT_GRAY);
+			bufG2.drawLine(drawBuffer.getWidth()/2, 0, drawBuffer.getWidth()/2, drawBuffer.getHeight());
+		}
+
 		// track group contains one or several logically-related tracks
 		for (TrackGroup group : trackGroups) {
 			trackIter = group.getTracks().iterator();
@@ -204,10 +210,6 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			if (group.isMenuVisible()) {
 				group.menu.setPosition((int) (viewArea.getX() + viewArea.getWidth()), (int) (viewArea.getY() + y));
 			}
-
-			// draw simple vertical ruler
-			// bufG2.setColor(Color.LIGHT_GRAY);
-			// bufG2.drawLine(drawBuffer.getWidth()/2, 0, drawBuffer.getWidth()/2, drawBuffer.getHeight());
 
 			// draw all tracks
 			while (trackIter.hasNext() || (drawableIter != null && drawableIter.hasNext())) {
