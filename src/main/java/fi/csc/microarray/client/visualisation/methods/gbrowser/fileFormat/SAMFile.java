@@ -9,7 +9,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedMap;
 
-import net.sf.samtools.CigarElement;
 import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.SAMSequenceRecord;
@@ -19,7 +18,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaReque
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CigarItem;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.IntensityTrack;
 
@@ -124,12 +122,7 @@ public class SAMFile {
             
             if (request.requestedContents.contains(ColumnType.CIGAR)) {      
             	
-            	Cigar cigar = new Cigar(read);
-            	
-            	for (CigarElement picardElement : record.getCigar().getCigarElements()) {
-            		cigar.addElement(new CigarItem(picardElement)); 
-            	}
-            	            	
+            	Cigar cigar = new Cigar(read, record.getCigar());
             	values.put(ColumnType.CIGAR, cigar);
             }
             
