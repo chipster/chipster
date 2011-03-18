@@ -26,7 +26,7 @@ import fi.csc.microarray.databeans.DataBean;
  * INPUT -> "INPUT" INPUT_DESCRIPTION
  * METAINPUT -> "METAINPUT" INPUT_DESCRIPTION
  * INPUT_DESCRIPTION -> OPTIONALITY? NAME "TYPE" TYPE_NAME
- * TYPE_NAME -> TOKEN (see SADLSyntax.ParameterType for declaration, implementations pluggable)
+ * TYPE_NAME -> TOKEN (see SADLSyntax.InputType for declaration, implementations pluggable)
  * OUTPUT -> "OUTPUT" OUTPUT_DESCRIPTION
  * METAOUTPUT -> "METAOUTPUT" OUTPUT_DESCRIPTION
  * OUTPUT_DESCRIPTION -> OPTIONALITY? NAME 
