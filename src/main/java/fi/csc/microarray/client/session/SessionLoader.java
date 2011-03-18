@@ -207,12 +207,12 @@ public class SessionLoader {
 			String displayName = XmlUtil.getChildElement(nameElement, ClientSession.ELEMENT_DISPLAY_NAME).getTextContent();
 			
 			
-			// create the folder
-			DataFolder dataFolder = dataManager.createFolder(name);
-			folders.put(id, dataFolder);
-			folderElements.put(dataFolder, folderElement);
-	
-			logger.debug("successfully parsed folder element: " + dataFolder.getName());
+			// create the operation
+//			Operation operation = new Operation();
+//			folders.put(id, dataFolder);
+//			folderElements.put(dataFolder, folderElement);
+//	
+//			logger.debug("successfully parsed folder element: " + dataFolder.getName());
 		}
 	}
 
