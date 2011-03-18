@@ -739,7 +739,9 @@ public class DataBean extends DataItemBase {
 		this.cacheUrl = url;
 	}
 
-
+	public void setCreationDate(Date date) {
+		this.date = date;
+	}
 
 	public ReentrantReadWriteLock getLock() {
 		return this.lock;

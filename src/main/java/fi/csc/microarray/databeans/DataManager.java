@@ -481,6 +481,21 @@ public class DataManager {
 		return dataBean;
 	}
 
+	/**
+	 * Create a zip file DataBean. Bean contents are already in the zipFile.
+	 * 
+	 * @param name
+	 * @param url location of the zip file, zip entry name as the fragment
+	 * @return
+	 * @throws MicroarrayException
+	 */
+	public DataBean createDataBeanFromZip(String name, URL url) throws MicroarrayException {
+		DataBeanHandler handler = new ZipDataBeanHandler();
+		DataBean dataBean = new DataBean(name, StorageMethod.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new DataBean[] {}, null, this, handler);
+		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
+		return dataBean;
+	}
+
 	
 	/**
 	 * Create a local temporary file DataBean with content, with a parent folder and with sources.
@@ -535,8 +550,8 @@ public class DataManager {
 	 */
 	public void loadSnapshot(File sessionFile, DataFolder parentFolder, ClientApplication application) throws IOException, MicroarrayException {
 		if (ClientSession.isValidSessionFile(sessionFile)) {
-			SessionLoader sessionLoader = new SessionLoader();
-			sessionLoader.loadSession(sessionFile);
+			SessionLoader sessionLoader = new SessionLoader(sessionFile);
+//			sessionLoader.loadSession(sessionFile);
 		} else {
 			SnapshottingSession session = new SnapshottingSession(this, application);
 			session.loadFromSnapshot(sessionFile, parentFolder);

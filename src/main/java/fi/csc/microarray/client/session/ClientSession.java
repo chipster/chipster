@@ -13,6 +13,22 @@ public class ClientSession {
 	public static final String SESSION_FILE_EXTENSION = "zip";
 	public static final String SESSION_METADATA_FILENAME = "session.xml";
 	
+	public static final String ELEMENT_ID = "id";
+	public static final String ELEMENT_NAME = "name";
+	public static final String ELEMENT_STORAGE_METHOD = "storage-method";
+	public static final String ELEMENT_FOLDER = "folder";
+	public static final String ELEMENT_SESSION = "session";
+	public static final String ELEMENT_DATA = "data";
+	public static final String ELEMENT_URL = "url";
+	public static final String ELEMENT_CACHE_URL = "cache-url";
+	public static final String ELEMENT_NOTES = "notes";
+	public static final String ELEMENT_OPERATION = "operation";
+	public static final String ELEMENT_DESCRIPTION = "";
+	public static final String ELEMENT_DISPLAY_NAME = "id";
+//	public static final String ELEMENT_ = "";
+
+	
+	
 	private static final Logger logger = Logger.getLogger(ClientSession.class);
 	
 	

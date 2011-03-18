@@ -23,4 +23,42 @@
 		</children>
 	</folder>
 
+	<!--  Datas -->
+	
+	<data>
+		<name>normalGSM160625 (6729238532412057499).tsv</name>
+		<id>data-0</id>
+		<folder>folder-1</folder>
+		<result-of>oper-0</result-of>
+		<storage-method>LOCAL_USER</storage-method>
+		<url>file:/C:/Documents%20and%20Settings/ekorpela/Desktop/ExampleSessionChipsterV2.cs</url>
+		<cache-url>http://chipster-filebroker.csc.fi:8090/user-data/0c636c43-949d-440b-9c6a-cf8700e70164</cache-url>
+		<links>
+			<link>
+				<target>data-1</target>
+				<type>GROUPING</type>
+			</link>
+		</links>
+		<notes>Important notes here.</notes>			
+	</data>
+
+	<data>
+		<name>teratospermialGSM160625 (6729238532412057499).tsv</name>
+		<id>data-1</id>
+		<folder>folder-1</folder>
+		<result-of>oper-1</result-of>
+		<storage-method>LOCAL_SESSION</storage-method>
+		<url>file:/C:/Documents%20and%20Settings/ekorpela/Desktop/ExampleSessionChipsterV2.cs#file-1</url>
+		<cache-url>http://chipster-filebroker.csc.fi:8090/user-data/0c636c43-y523-440b-9c6a-cf8700e70164</cache-url>
+		<links>
+			<!-- should something be done to links? -->
+			<link>
+				<target>data-0</target>
+				<type>GROUPING</type>
+			</link>
+		</links>
+		<notes></notes>			
+	</data>
+
+
 </session>
