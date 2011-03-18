@@ -192,7 +192,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		x = 0;
 
 		// draw simple vertical ruler
-		if (!(this instanceof OverviewHorizontalView)) {
+		if (isRulerEnabled()) {
 			bufG2.setColor(Color.LIGHT_GRAY);
 			bufG2.drawLine(drawBuffer.getWidth()/2, 0, drawBuffer.getWidth()/2, drawBuffer.getHeight());
 		}
@@ -296,6 +296,10 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			trackIter = null;
 			drawableIter = null;
 		}
+	}
+
+	public boolean isRulerEnabled() {
+		return true;
 	}
 
 	/**
