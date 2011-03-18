@@ -8,10 +8,8 @@ import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
-import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
-import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.SAMHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
@@ -54,7 +52,7 @@ public class GenomeBrowserStarter {
 
 	public static void main(String[] args) throws IOException {
 		boolean horizontal = true;
-        ChartPanel panel = new NonScalableChartPanel();
+		TooltipEnabledChartPanel panel = new TooltipEnabledChartPanel();
 		GenomePlot plot = new GenomePlot(panel, horizontal);
 		TrackFactory.addCytobandTracks(plot,
 		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.GRCh37.59_karyotype.tsv", new CytobandParser()));

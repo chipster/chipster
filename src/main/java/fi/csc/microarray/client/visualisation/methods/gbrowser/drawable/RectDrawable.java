@@ -10,12 +10,14 @@ public class RectDrawable extends Drawable {
 	public int width;
 	public int height;
 	public Color lineColor;
+	private String tooltipText;
 
-	public RectDrawable(int x, int y, int width, int height, Color fillColor, Color lineColor) {
+	public RectDrawable(int x, int y, int width, int height, Color fillColor, Color lineColor, String tooltipText) {
 		super(x, y, fillColor);
 		this.width = width;
 		this.height = height;
 		this.lineColor = lineColor;
+		this.tooltipText = tooltipText;
 	}
 
 	public void upsideDown() {
@@ -23,8 +25,16 @@ public class RectDrawable extends Drawable {
 		y -= height;
 	}
 
+	public RectDrawable(int x, int y, int width, int height, Color fillColor, Color lineColor) {
+		this(x, y, width, height, fillColor, lineColor, null);
+	}
+
+	public RectDrawable(Rectangle rect, Color fillColor, Color lineColor, String tooltipText) {
+		this(rect.x, rect.y, rect.width, rect.height, fillColor, lineColor, tooltipText);
+	}
+
 	public RectDrawable(Rectangle rect, Color fillColor, Color lineColor) {
-		this(rect.x, rect.y, rect.width, rect.height, fillColor, lineColor);
+		this(rect.x, rect.y, rect.width, rect.height, fillColor, lineColor, null);
 	}
     
     @Override
@@ -51,4 +61,9 @@ public class RectDrawable extends Drawable {
         y -= newHeight-height;
         this.height = newHeight;
     }
+
+	@Override
+	public String getTooltipText() {
+		return tooltipText;
+	}
 }
