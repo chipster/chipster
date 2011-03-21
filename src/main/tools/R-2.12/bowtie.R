@@ -1,14 +1,41 @@
 # TOOL "NGS" / bowtie.sadl: Bowtie (How to tie a bow.) 
 # INPUT reads.txt: "Reads to align" TYPE GENERIC
-# OUTPUT alignment-bowtie.bam
-# OUTPUT alignment-bowtie.bam.bai
+# OUTPUT bowtie.bam
+# OUTPUT bowtie.bam.bai
 # OUTPUT bowtie.log
-# PARAMETER genome: "Genome" TYPE [m_musculus_ncbi37: "m_musculus_ncbi37", hg19: "hg19", mm9: "mm9", rn4: "rn4"] DEFAULT m_musculus_ncbi37 (Genome.)
-# PARAMETER max.mismatches: "Max mismatches in seed" TYPE [0, 1, 2, 3] DEFAULT 2 (Max mismatches in seed.)
+# OUTPUT OPTIONAL unaligned-reads.fastq
+# OUTPUT OPTIONAL multireads.fastq
+# PARAMETER genome: "Genome or transcriptome" TYPE [m_musculus_ncbi37: "m_musculus_ncbi37", hg19: "hg19", mm9: "mm9", rn4: "rn4"] DEFAULT m_musculus_ncbi37 (Genome or transcriptome that you would to align your reads against.)
+# PARAMETER max.mismatches: "Number of mismatches allowed" TYPE [0, 1, 2, 3] DEFAULT 2 (How many mismatches is the alignment allowed to have?)
+# PARAMETER limit.to.seed: "Consider only mismatches in the seed" TYPE [yes, no] DEFAULT no (Should the mismatch limit be applied only to the left, good quality part of the read? You can define the lenght of this seed region with the next parameter.)
+# PARAMETER seed: "Lenght of the seed region" TYPE [0, 1, 2, 3] DEFAULT 28 (If you have chosen to apply the mismatch limit only to the left, good quality part of the read, how many bases should be considered?)
+# PARAMETER multiread: "How many places is a read allowed to map to" TYPE [1, 2, 3] DEFAULT 1 (If you want to have alignments only for uniquely mapping reads, select 1.)
+# PARAMETER alignment.no: "How many valid alignments can be reported per read" TYPE [1, 2, 3] DEFAULT 1 (If there are several, equally good alignments, how many should be reported?)
+# PARAMETER unaligned.file: "Put unaligned reads to a separate file" TYPE [yes, no] DEFAULT no (Would you like to store unaligned reads to a new fastq file?)
+# PARAMETER multiread.file: "Put reads mapping to several positions to a separate file" TYPE [yes, no] DEFAULT no (If you chose not to have alignments for reads which map to multiple positions, would you like to store these reads to a separate fastq file?)
+
 
 # run bowtie
 bowtie.binary <- c(file.path(chipster.tools.path, "bowtie", "bowtie"))
-bowtie.command <- paste("bash -c '", bowtie.binary, "-n", max.mismatches, "-q --best -S", genome, "reads.txt 1> alignment.sam 2> bowtie.log'")
+bowtie.parameters <- "-q --best -S"
+if limit.to.seed == yes,
+bowtie.command <- paste("bash -c '", bowtie.binary, bowtie.parameters, -q, --best, --strata, "-m", multiread, "-k", alignment.no, "-n", max.mismatches, -"l", seed, genome, "reads.txt 1> alignment.sam 2> bowtie.log'")
+
+if limit.to.seed == no,
+bowtie.command <- paste("bash -c '", bowtie.binary, bowtie.parameters, -q, --best, --strata, "-m", multiread, "-k", alignment.no, "-v", max.mismatches, genome, "reads.txt 1> alignment.sam 2> bowtie.log'")
+
+unaligned.file = "yes"
+ifelse(par == "yes", "--un unaligned-reads.fastq", "")
+[1] "--un filename"
+unaligned.file = "no"
+ifelse(par == "yes", "--un unaligned-reads.fastq", "")
+
+multiread.file = "yes"
+ifelse(par == "yes", "--max multireads.fastq", "")
+[1] "--un filename"
+multiread.file = "no"
+ifelse(par == "yes", "--max multireads.fastq", "")
+
 system(bowtie.command)
 
 # samtools binary
