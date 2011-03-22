@@ -56,7 +56,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		 * 
 		 * Interpretation: Maybe minus, zero or more digits, maybe point, zero or more digits.
 		 */
-		private static String NUMERIC_VALUE_PATTERN = "-?\\d*\\.?\\d*";
+		public static String NUMERIC_VALUE_PATTERN = "-?\\d*\\.?\\d*";
 		
 		/**
 		 * This regular expression is not very critical, because text is inserted inside string constant in R code.
@@ -66,7 +66,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		 * 
 		 * Interpretation: Only word characters and some special symbols are allowed.
 		 */
-		private static String TEXT_VALUE_PATTERN = "[\\w+-_:;\\.]*";
+		public static String TEXT_VALUE_PATTERN = "[\\w+\\-_:\\.]*";
 		
 		/**
 		 *  
