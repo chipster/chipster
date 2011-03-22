@@ -11,11 +11,21 @@ import javax.jms.MapMessage;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.analyser.AnalysisDescription;
+import fi.csc.microarray.analyser.r.RAnalysisJob.RParameterSecurityPolicy;
+
 /**
- * Adds ability to attach parameters into a regular NamiMessage.
- * Parameters are accessed by their order (FIFO).
+ * Adds ability to attach parameters into a regular ChipsterMessage.
+ * Parameters are accessed by their order (FIFO). There
+ * are two types of parameters: named parameters, used for
+ * system level messaging, and anonymous (normal) parameters,
+ * given by the user. The latter have tight access policy to
+ * make sure that required safety precautions are in place.
+ * Implementation of safety precautions is subclass specific,
+ * but they should typically guard against injection attacks
+ * and simple DOS attacks (too long String parameters etc.).
  * 
- * @author akallio
+ * @author Aleksi Kallio
  */
 public abstract class ParameterMessage extends NamiMessage {
 	/**
@@ -46,20 +56,23 @@ public abstract class ParameterMessage extends NamiMessage {
 	}
 
 	/**
+	 * Gets parameters in the order they were inserted.
+	 * Only available to subclasses. Subclasses must
+	 * make sure that required safety precautions
+	 * are in place.
+	 */
+	protected List<String> getParameters() {
+		return parameters;
+	}
+
+
+	/**
 	 * Adds a parameter.  
 	 * @param parameter
 	 */
 	public void addParameter(String parameter) {
 		parameters.add(parameter);
 	}
-	
-	/**
-	 * Gets parameters in the order they were inserted.
-	 */
-	public List<String> getParameters() {
-		return parameters;
-	}
-
 	
 	public void addNamedParameter(String key, String value) {
 		namedParameters.put(key, value);
