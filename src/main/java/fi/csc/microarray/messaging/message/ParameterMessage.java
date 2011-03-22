@@ -11,9 +11,6 @@ import javax.jms.MapMessage;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.analyser.AnalysisDescription;
-import fi.csc.microarray.analyser.r.RAnalysisJob.RParameterSecurityPolicy;
-
 /**
  * Adds ability to attach parameters into a regular ChipsterMessage.
  * Parameters are accessed by their order (FIFO). There

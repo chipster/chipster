@@ -9,7 +9,9 @@ import org.apache.log4j.Logger;
 import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
 import fi.csc.microarray.analyser.shell.ShellAnalysisJobBase;
+import fi.csc.microarray.analyser.shell.ShellAnalysisJob.ShellParameterSecurityPolicy;
 import fi.csc.microarray.messaging.JobState;
+import fi.csc.microarray.messaging.message.JobMessage.ParameterValidityException;
 
 /**
  * Runs EMBOSS applications.
@@ -19,9 +21,24 @@ import fi.csc.microarray.messaging.JobState;
  */
 public class EmbossAnalysisJob extends ShellAnalysisJobBase {
     
+	public static class EmbossParameterSecurityPolicy extends ShellParameterSecurityPolicy {
+		
+		public boolean isValueValid(String value, ParameterDescription parameterDescription) {
+			
+			// Check parameter size (DOS protection) and content (shell code injection).
+			// We don't check the parameter for ACD expression
+			// vulnerabilities, because due to recursion limited
+			// parsing and very limited syntax there should be none.
+			return super.isValueValid(value, parameterDescription);
+		}
+
+	}
+	
+	public static EmbossParameterSecurityPolicy EMBOSS_PARAMETER_SECURITY_POLICY = new EmbossParameterSecurityPolicy();
+
     private String toolDirectory;
     private String descriptionDirectory;
-    
+
     static final Logger logger = Logger.getLogger(EmbossAnalysisJob.class);
     
     // Output formats specified by user
@@ -44,7 +61,16 @@ public class EmbossAnalysisJob extends ShellAnalysisJobBase {
         super.preExecute();
         
         // Get parameter values from user's input (order is significant)
-        LinkedList<String> inputParameters = new LinkedList<String>(inputMessage.getParameters());
+        LinkedList<String> inputParameters;
+		try {
+			inputParameters = new LinkedList<String>(inputMessage.getParameters(EMBOSS_PARAMETER_SECURITY_POLICY, analysis));
+			
+		} catch (ParameterValidityException e) {
+			outputMessage.setErrorMessage("There was an invalid parameter value.");
+			outputMessage.setOutputText(e.toString());
+			updateState(JobState.FAILED_USER_ERROR, "");
+			return;
+		}
         
         // Get the ACD description
         acdDescription = getACD();
