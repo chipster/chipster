@@ -68,7 +68,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	}
 	
 	private static InternalParameterSecurityPolicy INTERNAL_PARAMETER_SECURITY_POLICY = new InternalParameterSecurityPolicy();
-	private static AnalysisDescription SOURCECODE_FETCH_DESCRIPTION = new AnalysisDescription(null);
+	private static AnalysisDescription SOURCECODE_FETCH_DESCRIPTION;
 	
 	public static final String DESCRIPTION_OUTPUT_NAME = "description";
 	public static final String SOURCECODE_OUTPUT_NAME = "sourcecode";
@@ -136,6 +136,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
 
 		// Initialise static variables, so late because they need logging
+		SOURCECODE_FETCH_DESCRIPTION = new AnalysisDescription(null);
 		SOURCECODE_FETCH_DESCRIPTION.setName("Fetch sourcecode (system internal operation)");
 		SOURCECODE_FETCH_DESCRIPTION.addParameter(new AnalysisDescription.ParameterDescription("tool id", "ID (technical name) of the tool", false));
 
