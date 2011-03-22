@@ -70,12 +70,6 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	private static InternalParameterSecurityPolicy INTERNAL_PARAMETER_SECURITY_POLICY = new InternalParameterSecurityPolicy();
 	private static AnalysisDescription SOURCECODE_FETCH_DESCRIPTION = new AnalysisDescription(null);
 	
-	static {
-		SOURCECODE_FETCH_DESCRIPTION.setName("Fetch sourcecode (system internal operation)");
-		SOURCECODE_FETCH_DESCRIPTION.addParameter(new AnalysisDescription.ParameterDescription("tool id", "ID (technical name) of the tool", false));
-	}
-	
-	
 	public static final String DESCRIPTION_OUTPUT_NAME = "description";
 	public static final String SOURCECODE_OUTPUT_NAME = "sourcecode";
 	
@@ -137,9 +131,15 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 */
 	public AnalyserServer() throws Exception {
 		
-		// initialise dir, config and logging
+		// Initialise dir, config and logging
 		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"comp"}));
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
+
+		// Initialise static variables, so late because they need logging
+		SOURCECODE_FETCH_DESCRIPTION.setName("Fetch sourcecode (system internal operation)");
+		SOURCECODE_FETCH_DESCRIPTION.addParameter(new AnalysisDescription.ParameterDescription("tool id", "ID (technical name) of the tool", false));
+
+		// Initialise instance variables
 		this.receiveTimeout = configuration.getInt("comp", "receive-timeout");
 		this.scheduleTimeout = configuration.getInt("comp", "schedule-timeout");
 		this.timeoutCheckInterval = configuration.getInt("comp", "timeout-check-interval");
