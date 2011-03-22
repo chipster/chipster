@@ -49,7 +49,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		
 		private static final int MAX_VALUE_LENGTH = 1000;
 		private static String NUMERIC_VALUE_PATTERN = "-?\\d*\\.?\\d*"; // Maybe minus, zero or more digits, maybe point, zero or more digits
-		private static String TEXT_VALUE_PATTERN = "[\\w+-_:;]*"; // Only word characters and some special symbols are allowed
+		private static String TEXT_VALUE_PATTERN = "[\\w+-_:;\\.]*"; // Only word characters and some special symbols are allowed
 		
 		/**
 		 *  
