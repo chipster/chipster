@@ -1,14 +1,38 @@
 package fi.csc.microarray.analyser.java;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
+
 import fi.csc.microarray.analyser.AnalysisDescription;
+import fi.csc.microarray.analyser.AnalysisDescriptionGenerator;
 import fi.csc.microarray.analyser.AnalysisException;
 import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
 import fi.csc.microarray.analyser.ResultCallback;
+import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
+import fi.csc.microarray.description.SADLDescription;
+import fi.csc.microarray.description.SADLGenerator;
+import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.messaging.message.JobMessage;
+import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 
 public class JavaAnalysisHandler implements AnalysisHandler {
 
+	/**
+	 * Logger for this class
+	 */
+	static final Logger logger = Logger.getLogger(JavaAnalysisHandler.class);
+
+	
+	public JavaAnalysisHandler(HashMap<String, String> parameters) throws IOException, IllegalConfigurationException {
+		//Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
+	}
+
+	
+	
 	@SuppressWarnings(value="unchecked")
 	public AnalysisJob createAnalysisJob(JobMessage message, AnalysisDescription description, ResultCallback resultHandler) {
 		try {
@@ -22,14 +46,17 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 		}
 	}
 
-	public AnalysisDescription handle(String sourceResourceName) throws AnalysisException {
+
+	public AnalysisDescription handle(String sourceResourceName,
+	                                  Map<String, String> params) throws AnalysisException {
 		
 		// get the job class
 		Class<? extends Object> jobClass = null;
 		try { 
 			 jobClass = Class.forName(sourceResourceName);
 		} catch (ClassNotFoundException e) {
-			throw new AnalysisException("Could not load job class: " + sourceResourceName);
+			logger.error("could not load job class: " + sourceResourceName);
+			throw new AnalysisException("could not load job class: " + sourceResourceName);
 		}
 		
 		
@@ -38,16 +65,34 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 		try {
 			jobInstance = (JavaAnalysisJobBase)jobClass.newInstance();
 		} catch (Exception e) {
-			// should not happen
+			logger.error("could not instantiate job: " + sourceResourceName);
 			throw new RuntimeException(e);
 		}
 		
-		AnalysisDescription description = new AnalysisDescription(this);
-		description.setImplementation(jobClass);
-		description.setVVSADL(jobInstance.getVVSADL());
-		description.setSourceResourceName(jobClass.getName());
+		// parse SADL		
+		SADLDescription sadlDescription;
+		try {
+			sadlDescription = new ChipsterSADLParser().parse(jobInstance.getSADL(),
+			        sourceResourceName);
+		} catch (ParseException e) {
+			throw new AnalysisException(e);
+		}
 		
-		return description;
+		// create analysis description
+		AnalysisDescription ad;
+		ad = new AnalysisDescriptionGenerator().generate(sadlDescription, this);
+		
+		// SADL back to string
+		SADLGenerator.generate(sadlDescription);
+		ad.setSADL(SADLGenerator.generate(sadlDescription));
+		
+		ad.setImplementation(jobClass);
+		ad.setCommand("java");
+		ad.setSourceResourceName(jobClass.getName());
+		ad.setSourceResourceFullPath(jobClass.getCanonicalName());
+		ad.setSourceCode("Source code for this tool is available within Chipster source code.");
+		
+		return ad;
 	}
 
 
@@ -72,3 +117,4 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 	}
 
 }
+

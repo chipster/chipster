@@ -31,7 +31,7 @@ import fi.csc.microarray.constants.VisualConstants;
  * handles selections, rotations etc. The base of the implemention is Threed-visualisation
  * from Viski library (http://www.cs.helsinki.fi/group/viski/ ).
  * 
- * @author Petri KlemelÃ¤
+ * @author Petri Klemelä
  */
 public class CoordinateArea extends JComponent 
 implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChangeListener  {

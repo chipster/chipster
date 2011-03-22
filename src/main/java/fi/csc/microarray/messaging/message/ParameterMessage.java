@@ -27,7 +27,7 @@ import fi.csc.microarray.analyser.r.RAnalysisJob.RParameterSecurityPolicy;
  * 
  * @author Aleksi Kallio
  */
-public abstract class ParameterMessage extends NamiMessage {
+public abstract class ParameterMessage extends ChipsterMessage {
 	/**
 	 * Logger for this class
 	 */

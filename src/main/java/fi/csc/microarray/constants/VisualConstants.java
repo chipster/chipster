@@ -14,12 +14,15 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
+import javax.swing.border.TitledBorder;
 import javax.swing.plaf.BorderUIResource;
 
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 import com.jgoodies.looks.plastic.theme.ExperienceBlue;
+
+import fi.csc.microarray.client.Session;
 
 public class VisualConstants {
 	
@@ -60,12 +63,18 @@ public class VisualConstants {
         new ImageIcon(VisualConstants.class.getResource("/eclipse/link.gif"));
     public static final ImageIcon UNLINK_MENUICON = 
         new ImageIcon(VisualConstants.class.getResource("/eclipse/unlink.gif"));
+    public static final ImageIcon QUICKLINK_ICON =
+        new ImageIcon(VisualConstants.class.getResource("/eclipse/bulb.gif"));
 
-	// rest of the icons done by us (mostly by Mikko Koski & Petri KlemelÃ¯Â¿Â½)
+	// rest of the icons done by us (mostly by Mikko Koski and Petri Klemelä)
 	public static ImageIcon ZOOM_IN_ICON = 
 		new ImageIcon(VisualConstants.class.getResource("/zoom-in.png"));
 	public static ImageIcon ZOOM_OUT_ICON = 
 		new ImageIcon(VisualConstants.class.getResource("/zoom-out.png"));
+	public static ImageIcon MAGNIFIER_ICON = 
+	    new ImageIcon(VisualConstants.class.getResource("/viewmag.png"));
+    public static ImageIcon CLOSE_FILE_ICON = 
+	    new ImageIcon(VisualConstants.class.getResource("/fileclose.png"));
 	public static final ImageIcon APPLICATION_ICON =
         new ImageIcon(VisualConstants.class.getResource("/chipster_icon.png"));
 	public static final ImageIcon LOGIN_BANNER =
@@ -177,6 +186,7 @@ public class VisualConstants {
     
     public static final Font MONOSPACED_FONT = 
     	new Font("Monospaced", Font.PLAIN, 11);
+
 
 
     public static final ImageIcon ICON_TYPE_BINARY =
@@ -345,4 +355,31 @@ public class VisualConstants {
 	"td { border-color: Gray; font-family: sans-serif; border-width: 1px; border-style: solid; font-size: 8px}" + 
 	"th { border-color: Gray; font-family: sans-serif; background: #E0E0E0; text-align: center;  border-width: 1px; border-style: solid;}" + 
 	"--></style>";
+
+	public static final String HTML_DIALOG_TITLE_STYLE = "\"font-weight:bold;font-size:115%\"";
+	
+	public static final String getImportDirectlyText() {
+		return Session.getSession().getApplication().isStandalone() ? "Import directly" : "Import directly if possible"; 
+	}
+
+	public static TitledBorder createSettingsPanelSubPanelBorder(String title) {
+		return BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.lightGray), title);
+	}
+
+	public static final Color BED_COLOR = new Color(1, 119, 183);
+
+	public static final Color COLOR_BEIGE = new Color(0xc3b6a2);
+	public static final Color COLOR_SAND = new Color(0xd5c796);
+	public static final Color COLOR_YELLOW = new Color(0xe7df70);
+	public static final Color COLOR_BROWN_LIGHT = new Color(0xd59f45);
+	public static final Color COLOR_ORANGE = new Color(0xe7881c);
+	public static final Color COLOR_RED = new Color(0xd53833);
+	public static final Color COLOR_BLUE_GREY = new Color(0x80a3b7);
+	public static final Color COLOR_BLUE = new Color(0x0177b7);
+	public static final Color COLOR_BLUE_EVEN_BRIGHTER = new Color(0x01A6FF);
+	public static final Color COLOR_BLUE_BRIGHTER = new Color(0x0199EB);
+	public static final Color COLOR_BLUE_GREEN = new Color(0x629a9b);
+	public static final Color COLOR_YELLOW_DIRTY = new Color(0xa49900);
+	public static final Color COLOR_BROWN = new Color(0x83010b);
+	public static final Color COLOR_BLUE_LIGHT = new Color(0xc0d2de);
 }

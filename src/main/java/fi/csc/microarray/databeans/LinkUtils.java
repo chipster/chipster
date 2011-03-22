@@ -1,5 +1,6 @@
 package fi.csc.microarray.databeans;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import fi.csc.microarray.databeans.DataBean.Link;
@@ -35,5 +36,22 @@ public class LinkUtils {
 		} else {
 			return null;
 		}
+	}
+	
+	/**
+	 * Retrieve the whole set of outputs that this databean is part of, i.e., the set of
+	 * databeans that share the same originating Operation.
+	 */
+	public static DataBean[] retrieveOutputSet(DataBean seed) {
+		DataBean origin = seed.getLinkTargets(Link.derivationalTypes()).get(0); // any originating DataBean will do, pick first
+		
+		LinkedList<DataBean> outputSet = new LinkedList<DataBean>();
+		for (DataBean candidateOutput : origin.getLinkSources(Link.derivationalTypes())) {
+			if (candidateOutput.getOperation() == seed.getOperation()) {
+				outputSet.add(candidateOutput);
+			}
+		}
+		
+		return outputSet.toArray(new DataBean[] {});
 	}
 }
