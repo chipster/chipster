@@ -1,6 +1,6 @@
 # ANALYSIS Visualisation/"Dendrogram" (Creates a dendrogram of samples using normalized data with Pearson correlation and 
 # average linkage method. The branches of the tree are colored according to the selected number of groups.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT dendrogram-color.png, dendrogram-bw.png
+# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT dendrogram-color.pdf, dendrogram-bw.pdf
 # PARAMETER cluster [genes, chips] DEFAULT chips (What to cluster)
 # PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to color next to the tree)
 # PARAMETER number.of.groups INTEGER FROM 2 TO 20 DEFAULT 2 (How many groups to color to the tree)
@@ -681,7 +681,7 @@ plot.arimaSelect <- function(x, choix, ...){
 
 
 # Plotting
-bitmap(file="dendrogram-color.png", width=w/72, height=h/72)
+bitmap(file="dendrogram-color.pdf", width=w/72, height=h/72)
 if(margin=="chips") {
 A2Rplot(clust, k=gr, fact.sup=groups) 
 } else {
@@ -689,7 +689,7 @@ A2Rplot(clust, k=gr)
 }
 dev.off()
 
-bitmap(file="dendrogram-bw.png", width=w/72, height=h/72)
+bitmap(file="dendrogram-bw.pdf", width=w/72, height=h/72)
 plot(clust, hang=0.1)
 dev.off()
 

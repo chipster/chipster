@@ -1,7 +1,7 @@
 # ANALYSIS Visualisation/"Chromosomal position" (Plots the chromosomal positions of genes in the selected list. 
 # Currently, this works only for human, mouse and rat data. Before plotting, chips are scaled in order to
 # infer the up- or down-regulation status.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT chromloc.png
+# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT chromloc.pdf
 # PARAMETER chip.to.plot INTEGER FROM 1 TO 1000 DEFAULT 1 (Which chip to plot)
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
@@ -65,7 +65,7 @@ xx <- as.list(x[mapped_probes])
 chr<-unique(unlist(xx))
 
 # Plotting the chromosomes and genes
-bitmap(file="chromloc.png", width=w/72, height=h/72)
+bitmap(file="chromloc.pdf", width=w/72, height=h/72)
 cPlot(chromloc, bg="White", fg="LightGrey", useChroms=chr)
 cColor(rownames(up), "red", chromloc)
 cColor(rownames(down), "green", chromloc)

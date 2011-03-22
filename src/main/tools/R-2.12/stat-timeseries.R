@@ -1,7 +1,7 @@
 # ANALYSIS Statistics/"Time series" (Analyses of time series data. Finds periodically expressed genes. 
 # For the ICA method, a standard deviation threshold for significantly differentially expressed genes is needed.
 # If there are more than one replicate per time point, this tool will not work.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT timeseries.tsv, profiles.png
+# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT timeseries.tsv, profiles.pdf
 # PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the time to test)
 # PARAMETER analysis.type [periodicity, ica] DEFAULT periodicity (Analysis type)
 # PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
@@ -76,7 +76,7 @@ if(analysis=="periodicity") {
    dat5<-as.data.frame(t(dat4))
    names(dat5)<-names(dat2)
    write.table(data.frame(dat5[p.adj<=p.cut,], p.adjusted=round(p.adj[p.adj<=p.cut], digits=6)), file="timeseries.tsv", sep="\t", row.names=T, col.names=T, quote=F)
-   bitmap(file="profiles.png", width=w/72, height=h/72)
+   bitmap(file="profiles.pdf", width=w/72, height=h/72)
    plot(1, 1, col=0)
    text(1, 1, "This is a dummy image.", col=1)
    text(1, 0.9, "To generate an image of gene expression profiles, use ica option.", col=1)
@@ -98,12 +98,11 @@ if(analysis=="ica") {
    }
    write.table(dg, file="timeseries.tsv", sep="\t", row.names=T, col.names=T, quote=F)
    a<-data.frame(times, t(o$A))
-   bitmap(file="profiles.png", width=w/72, height=h/72)
+   bitmap(file="profiles.pdf", width=w/72, height=h/72)
    par(mar=c(0, 1, 1, 0)+0.1)
    par(mfrow=c(ceiling(sqrt(ncol(a))), ceiling(sqrt(ncol(a)))))
    for(i in 2:ncol(a)) {
       plot(a$time, a[,i], xaxt="n", type="l", xlab=NULL, ylab=NULL, main=paste("Chip", i-1, sep=" "), cex.main=0.75, cex.axis=0.7, cex.lab=0.75, tck=-0.01, mgp=c(3,0.2,0))
-      # plot(a$time, a[,i], type="l", xlab=NULL, ylab=NULL, main=paste("Chip", i-1, sep=" "), cex.main=0.75, cex.axis=0.7, cex.lab=0.75, tck=-0.01, mgp=c(3,0.2,0))
    }
    dev.off()
 }

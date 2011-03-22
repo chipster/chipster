@@ -1,7 +1,7 @@
 # ANALYSIS "Promoter Analysis"/Cosmo (Finds common sequence motifs in the promoters of input genes. 
 # Promoter sequences are automatically retrieved from a central database. Currently works only for human, mouse, 
 # rat, drosophila, and yeast data.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT cosmo-output.txt, seqlogo.png, probs.png
+# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT cosmo-output.txt, seqlogo.pdf, probs.pdf
 # PARAMETER species [human, mouse, rat, drosophila, yeast] DEFAULT human (Species)
 # PARAMETER promoter.size [small, medium, large] DEFAULT small (Length of upstream sequences)
 # PARAMETER strands [single, both] DEFAULT single (Analyze both strands of DNA)
@@ -156,10 +156,10 @@ sink("cosmo-output.txt")
 summary(res)
 sink()
 
-bitmap(file="seqlogo.png", width=600/72, height=600/72)
+bitmap(file="seqlogo.pdf", width=600/72, height=600/72)
 plot(res)
 dev.off()
 
-bitmap(file="probs.png", width=600/72, height=600/72)
+bitmap(file="probs.pdf", width=600/72, height=600/72)
 plot(res, type="prob")
 dev.off()

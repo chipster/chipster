@@ -1,6 +1,6 @@
 # ANALYSIS "Quality control"/"Affymetrix - using RLE and NUSE" (Affymetrix quality control using NUSE and RLE. 
 # This tool should be run on RAW data, i.e., CEL-files.)
-# INPUT AFFY microarray[...].cel OUTPUT rle-plot.png, nuse-plot.png
+# INPUT AFFY microarray[...].cel OUTPUT rle-plot.pdf, nuse-plot.pdf
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
@@ -24,12 +24,12 @@ aqc<-fitPLM(dat)
 
 # Plotting the QC-values
 par(mar=c(7, 4, 4, 2) + 0.1)
-bitmap(file="rle-plot.png", width=w/72, height=h/72)
+bitmap(file="rle-plot.pdf", width=w/72, height=h/72)
 Mbox(aqc, main="RLE", las=2)
 dev.off()
 
 par(mar=c(7, 4, 4, 2) + 0.1)
-bitmap(file="nuse-plot.png", width=w/72, height=h/72)
+bitmap(file="nuse-plot.pdf", width=w/72, height=h/72)
 boxplot(aqc, main="NUSE", las=2)
 dev.off()
 
