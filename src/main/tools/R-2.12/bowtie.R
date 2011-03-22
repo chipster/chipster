@@ -1,4 +1,4 @@
-# TOOL "NGS" / bowtie.sadl: Bowtie (How to tie a bow.) 
+# TOOL "NGS" / bowtie.sadl: Bowtie (Alignment of reads to genome, transcriptome, known miRNAs, etc. Bowtie can be run with two modes: mismatches are either considered all along the alignment and quality values are not taken into account, or mismatches are considered only in the user-defined left part of the read and quality values are taken into account. Chipster's Bowtie tool gives the alignment results as sorted and indexed bam files, which are ready for viewing the Chipster genome browser. Note that this Bowtie tool uses genome indeces provided by us. If you would like to align reads against your own datasets, please use the tool "Bowtie with self-made indeces" which will apeear soon. ) 
 # INPUT reads.txt: "Reads to align" TYPE GENERIC
 # OUTPUT bowtie.bam
 # OUTPUT bowtie.bam.bai
