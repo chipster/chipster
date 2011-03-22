@@ -5,24 +5,37 @@
  */
 package fi.csc.microarray.messaging.message;
 
+import java.util.Iterator;
 import java.util.List;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.analyser.AnalysisDescription;
+import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
+
 
 /**
  * For sending jobs to back-end components.
  * 
- * @author hupponen, akallio
+ * @author Taavi Hupponen, Aleksi Kallio
  *
  */
 public class JobMessage extends PayloadMessage {
 
-	private static final Logger logger = Logger
-	.getLogger(JobMessage.class);
-
+	public static interface ParameterSecurityPolicy {
+		public boolean isValueValid(String value, ParameterDescription parameterDescription);
+	}
+	
+	public static class ParameterValidityException extends Exception {
+		
+		public ParameterValidityException(String msg) {
+			super(msg);
+		}
+	}
+	
+	private static final Logger logger = Logger.getLogger(JobMessage.class);
 	
 	private static final String KEY_JOB_ID = "jobID";
 	private static final String KEY_ANALYSIS_ID = "analysisID";
@@ -93,6 +106,52 @@ public class JobMessage extends PayloadMessage {
 		this.jobId = jobId;
 	}
 
+	/**
+	 * Gets parameters in the order they were inserted.
+	 * Parameters are given by the user and hence  
+	 * safety policy is required to get access to them.
+	 * 
+	 * @param securityPolicy security policy to check parameters against, cannot be null
+	 * @param description description of the analysis operation, cannot be null
+	 * 
+	 * @throws ParameterValidityException if some parameter value fails check by security policy 
+	 */
+	public List<String> getParameters(ParameterSecurityPolicy securityPolicy, AnalysisDescription description) throws ParameterValidityException {
+		
+		// Do argument checking first
+		if (securityPolicy == null) {
+			throw new IllegalArgumentException("security policy cannot be null");
+		}
+		if (description == null) {
+			throw new IllegalArgumentException("analysis description cannot be null");
+		}
+
+		// Count parameter descriptions
+		int parameterDescriptionCount = 0;
+		for (Iterator<ParameterDescription> iterator = description.getParameters().iterator(); iterator.hasNext(); iterator.next()) {
+			parameterDescriptionCount++;
+		}
+
+		// Get the actual values
+		List<String> parameters = super.getParameters();
+
+		// Check that description and values match
+		if (parameterDescriptionCount != parameters.size()) {
+			throw new IllegalArgumentException("number of parameter descriptions does not match the number of parameter values");
+		}
+
+		// Validate parameters
+		Iterator<ParameterDescription> descriptionIterator = description.getParameters().iterator();
+		for (String parameter : parameters) {
+			ParameterDescription parameterDescription = descriptionIterator.next();
+			if (!securityPolicy.isValueValid(parameter, parameterDescription)) {
+				throw new ParameterValidityException("illegal parameter value: " + parameter);
+			}
+		}
+		
+		// Everything was ok, return the parameters
+		return parameters;
+	}
 
 }
 	
