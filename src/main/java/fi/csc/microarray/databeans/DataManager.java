@@ -88,6 +88,11 @@ public class DataManager {
 	public DataFolder getRootFolder() {
 		return rootFolder;
 	}
+	
+	
+	public boolean isRootFolder(DataFolder folder) {
+		return (rootFolder == folder) && (rootFolder != null);
+	}
 
 	/**
 	 * Creates a folder under this manager. Folder will be created without parent.

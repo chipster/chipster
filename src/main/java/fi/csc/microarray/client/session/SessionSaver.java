@@ -15,6 +15,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
+import org.apache.log4j.Logger;
+
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
@@ -33,6 +35,9 @@ import fi.csc.microarray.util.IOUtils;
 
 public class SessionSaver {
 
+	private static final Logger logger = Logger.getLogger(SessionSaver.class);
+
+	
 	private final int DATA_BLOCK_SIZE = 2048;
 	
 	private File sessionFile;
@@ -102,8 +107,7 @@ public class SessionSaver {
 			// validate meta data 
 			
 			// save meta data
-			JAXBContext jaxbContext = JAXBContext.newInstance("fi.csc.microarray.client.session.schema");
-			Marshaller marshaller = jaxbContext.createMarshaller();
+			Marshaller marshaller = ClientSession.getJAXBContext().createMarshaller();
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 			marshaller.marshal(factory.createSession(sessionType), System.out);
 
@@ -242,6 +246,19 @@ public class SessionSaver {
 		if (folder.getParent() != null) {
 			folderType.setParent(fetchId(folder.getParent()));
 		}
+		
+		if (folder.getChildCount() > 0) {
+			for (DataItem child : folder.getChildren()) {
+				String childId = fetchId(child);
+				if (childId != null) { 
+					System.out.println(folderType.getChildren() == null);
+					folderType.getChildren().getChild().add(fetchId(child));
+				} else {
+					logger.warn("unknown child: " + child.getName());
+				}
+			}
+		}
+		
 		sessionType.getFolder().add(folderType);
 		
 		//		metadata.append("DATAFOLDER " + folderId + "\n");
@@ -312,7 +329,12 @@ public class SessionSaver {
 
 	
 	private String fetchId(DataItem item) {
-		return reversedItemIdMap.get(item).toString();
+		Integer id = reversedItemIdMap.get(item);
+		if (id != null) {
+			return id.toString();
+		} else {
+			return null;
+		}
 	}
 
 	

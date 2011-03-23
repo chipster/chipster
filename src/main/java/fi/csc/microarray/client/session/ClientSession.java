@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+
 import org.apache.log4j.Logger;
 
 
@@ -12,6 +15,8 @@ public class ClientSession {
 
 	public static final String SESSION_FILE_EXTENSION = "zip";
 	public static final String SESSION_METADATA_FILENAME = "session.xml";
+	public static final String ROOT_FOLDER_ID = "0";
+
 	
 	public static final String ELEMENT_ID = "id";
 	public static final String ELEMENT_NAME = "name";
@@ -77,4 +82,7 @@ public class ClientSession {
 		return true;
 	}
 	
+	public static JAXBContext getJAXBContext() throws JAXBException {
+		return JAXBContext.newInstance("fi.csc.microarray.client.session.schema");
+	}
 }

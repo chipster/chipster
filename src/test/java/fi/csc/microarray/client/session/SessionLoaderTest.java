@@ -2,6 +2,7 @@ package fi.csc.microarray.client.session;
 
 import java.io.IOException;
 
+import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.testng.annotations.BeforeTest;
@@ -13,7 +14,7 @@ public class SessionLoaderTest {
 	private SessionLoader sessionLoader;
 	
 	@BeforeTest
-	public void setupMetadataFile() throws SAXException, IOException, ParserConfigurationException {
+	public void setupMetadataFile() throws SAXException, IOException, ParserConfigurationException, JAXBException {
 		sessionLoader = new SessionLoader(this.getClass().getResourceAsStream("/fi/csc/microarray/session/example/session.xml"));
 	}
 	
@@ -24,7 +25,7 @@ public class SessionLoaderTest {
 
 	}
 
-	public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException {
+	public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException, JAXBException {
 		SessionLoaderTest test = new SessionLoaderTest();
 		test.setupMetadataFile();
 		test.load();
