@@ -88,6 +88,9 @@ public class SessionLoader {
 			
 			parseFolders();
 			
+			for (String folderId : this.folders.keySet()) {
+				dataManager.getRootFolder().addChild(folders.get(folderId));
+			}
 		} 
 		// FIXME
 		catch (Exception e) {

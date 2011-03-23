@@ -1548,7 +1548,7 @@ public class SwingClientApplication extends ClientApplication {
 
 			String[] extensions = { SnapshottingSession.SNAPSHOT_EXTENSION, ClientSession.SESSION_FILE_EXTENSION };
 			sessionFileChooser.setFileFilter(new GeneralFileFilter("Chipster Session (*.cs, *.zip)", extensions));
-			sessionFileChooser.setSelectedFile(new File("session." + SnapshottingSession.SNAPSHOT_EXTENSION));
+			sessionFileChooser.setSelectedFile(new File("session." + ClientSession.SESSION_FILE_EXTENSION));
 			sessionFileChooser.setAcceptAllFileFilterUsed(false);
 			sessionFileChooser.setMultiSelectionEnabled(false);
 
@@ -1767,7 +1767,7 @@ public class SwingClientApplication extends ClientApplication {
 		
 		if (ret == JFileChooser.APPROVE_OPTION) {
 			try {
-				final File file = fileChooser.getSelectedFile().getName().endsWith("." + SnapshottingSession.SNAPSHOT_EXTENSION) ? fileChooser.getSelectedFile() : new File(fileChooser.getSelectedFile().getCanonicalPath() + "." + SnapshottingSession.SNAPSHOT_EXTENSION);
+				final File file = fileChooser.getSelectedFile().getName().endsWith("." + ClientSession.SESSION_FILE_EXTENSION) ? fileChooser.getSelectedFile() : new File(fileChooser.getSelectedFile().getCanonicalPath() + "." + ClientSession.SESSION_FILE_EXTENSION);
 
 				if (file.exists()) {
 					int returnValue = JOptionPane.DEFAULT_OPTION;

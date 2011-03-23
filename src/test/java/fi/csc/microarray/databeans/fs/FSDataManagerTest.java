@@ -12,6 +12,7 @@ import java.util.List;
 
 import javax.jms.JMSException;
 import javax.swing.Icon;
+import javax.xml.bind.JAXBException;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
@@ -53,7 +54,7 @@ public class FSDataManagerTest {
 	}
 
 	@Test(groups = {"smoke"} )
-	public void testSnapshot() throws IOException, MicroarrayException {
+	public void testSnapshot() throws IOException, MicroarrayException, JAXBException {
 
 		// create original
 		DataManager manager1 = new DataManager();

@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.Icon;
+import javax.xml.bind.JAXBException;
 
 import org.apache.log4j.Logger;
 import org.mortbay.util.IO;
@@ -24,6 +25,7 @@ import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.session.ClientSession;
 import fi.csc.microarray.client.session.SessionLoader;
+import fi.csc.microarray.client.session.SessionSaver;
 import fi.csc.microarray.databeans.DataBean.StorageMethod;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.Feature;
@@ -551,7 +553,7 @@ public class DataManager {
 	public void loadSnapshot(File sessionFile, DataFolder parentFolder, ClientApplication application) throws IOException, MicroarrayException {
 		if (ClientSession.isValidSessionFile(sessionFile)) {
 			SessionLoader sessionLoader = new SessionLoader(sessionFile);
-//			sessionLoader.loadSession(sessionFile);
+			sessionLoader.loadSession();
 		} else {
 			SnapshottingSession session = new SnapshottingSession(this, application);
 			session.loadFromSnapshot(sessionFile, parentFolder);
@@ -563,10 +565,13 @@ public class DataManager {
 	 * Saves session (all data: beans, folder structure, operation metadata, links etc.) to a file.
 	 * File is a zip file with all the data files and one metadata file.
 	 * @return count of stored files
+	 * @throws JAXBException 
 	 */
-	public void saveSnapshot(File snapshotDir, ClientApplication application) throws IOException {
-		SnapshottingSession session = new SnapshottingSession(this, application);
-		session.saveSnapshot(snapshotDir);
+	public void saveSnapshot(File snapshotDir, ClientApplication application) throws IOException, JAXBException {
+		SessionSaver sessionSaver = new SessionSaver(snapshotDir);
+		sessionSaver.saveSnapshot();
+//		SnapshottingSession session = new SnapshottingSession(this, application);
+//		session.saveSnapshot(snapshotDir);
 	}
 
 	/**
