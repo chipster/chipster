@@ -2,7 +2,7 @@
 # For each chromosome, the Y axis reports the position of the gene along the cytobands. On the X axis the 
 # fold changes of each gene are reported. Up-regulated genes are highlighted with red color, the 
 # down-regulated with green color. Currently, this works only for human, mouse and rat data.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT idiogram.png
+# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT idiogram.pdf
 # PARAMETER chip.to.plot INTEGER FROM 1 TO 1000 DEFAULT 1 (Which chip to plot)
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
@@ -80,7 +80,6 @@ chromloc@chromLocs<-chromloc@chromLocs[names(chromloc@chromLocs) %in% chr]
 chromloc@chromInfo<-chromloc@chromInfo[names(chromloc@chromInfo) %in% chr]
 
 # Plots the idiogram
-# png("midiogram.png", width=w, height=h)
-bitmap(file="idiogram.png", width=w/72, height=h/72)
+bitmap(file="idiogram.pdf", width=w/72, height=h/72)
 midiogram(fc, chromloc, col=cols, pch=20) 
 dev.off()

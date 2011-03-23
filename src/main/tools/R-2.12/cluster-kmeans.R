@@ -1,6 +1,6 @@
 # ANALYSIS Clustering/K-Means (K-means clustering of genes. Divides the genes in the selected data set into a specified 
 # number of clusters.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT kmeans.tsv, kmeans.png
+# INPUT GENE_EXPRS normalized.tsv OUTPUT kmeans.tsv, kmeans.pdf
 # PARAMETER number.of.clusters INTEGER FROM 2 TO 100000 DEFAULT 5 (Number of clusters)
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the resampling image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the resampling image)
@@ -40,7 +40,7 @@ km<-kmeans(dat2, k, iter.max=100000, nstart=min(10, nrow(dat2)))
 # Plotting the clustering
 max.dat2<-max(dat2)
 min.dat2<-min(dat2)
-bitmap(file="kmeans.png", width=w/72, height=h/72)
+bitmap(file="kmeans.pdf", width=w/72, height=h/72)
 par(mfrow=c(ceiling(sqrt(k)), ceiling(sqrt(k))))
 for(i in 1:k) {
    matplot(t(dat2[km$cluster==i,]), type="l", main=paste("cluster:", i), ylab="log expression", col=1, lty=1, ylim=c(min.dat2, max.dat2))

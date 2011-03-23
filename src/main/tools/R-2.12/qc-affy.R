@@ -1,6 +1,6 @@
 # ANALYSIS "Quality control"/"Affymetrix basic" (Affymetrix quality control for RNA degradation and
 # general quality parameters, such as scaling factor. This tool should be run on RAW data, i.e., CEL-files.)
-# INPUT AFFY microarray[...].cel OUTPUT RNA-degradation-plot.png, simpleaffy-plot.png, spike-in-plot.png
+# INPUT AFFY microarray[...].cel OUTPUT RNA-degradation-plot.pdf, simpleaffy-plot.pdf, spike-in-plot.pdf
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
@@ -52,7 +52,7 @@ if (number_samples < 8) {
 aqc<-qc(dat)
 
 # Plotting the QC-values
-bitmap(file="simpleaffy-plot.png", width=w/72, height=h/72)
+bitmap(file="simpleaffy-plot.pdf", width=w/72, height=h/72)
 plot(aqc)
 dev.off()
 
@@ -94,7 +94,7 @@ plot_RNA_deg <-function (rna.deg.obj, transform = "shift.scale", cols = NULL,
 				], col = cols[i], lty=line_type[i])
 }
 # Saving the degradation result into a file
-bitmap(file="RNA-degradation-plot.png", width=w/72, height=h/72)
+bitmap(file="RNA-degradation-plot.pdf", width=w/72, height=h/72)
 plot_RNA_deg(deg, col=color_array, line_type=line_type)
 legend(legend=sampleNames(dat), x="topleft", lty=line_type, cex=0.75, 
 	col=color_array, ncol=number_columns)
@@ -106,7 +106,7 @@ concentration <- log(c(1.5, 5, 25, 100))
 x_values <- array(concentration, c(4, number_samples))
 x_values <- t(x_values)
 y_values <- spikeInProbes(aqc)
-bitmap(file="spike-in-plot.png", width=w/72, height=h/72)
+bitmap(file="spike-in-plot.pdf", width=w/72, height=h/72)
 plot(x_values, y_values, col=color_array, main="Spike-in performance",
 		xlab="log10 (concentration in pM)", ylab="log2 (expression)",
 		pch=plot_symbol, type="p")

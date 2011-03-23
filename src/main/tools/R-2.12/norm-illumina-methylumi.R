@@ -1,6 +1,6 @@
 # ANALYSIS Normalisation/"Illumina - methylumi pipeline" (Illumina methylation assay normalization using FinalReport files and lumi methodology.
 # TO USE THIS, YOU NEED TO IMPORT THE FinalReport FILE DIRECTLY, NOT USING THE IMPORT TOOL.)
-# INPUT GENERIC chip.tsv OUTPUT normalized.tsv, unmethylated.tsv, methylated.tsv, phenodata.tsv, QC-plot.png
+# INPUT GENERIC chip.tsv OUTPUT normalized.tsv, unmethylated.tsv, methylated.tsv, phenodata.tsv, QC-plot.pdf
 # PARAMETER color.balance.adjustment [none, quantile, ssn] DEFAULT quantile (Adjustment of color balance)
 # PARAMETER background.correction [none, bgAdjust2C, forcePositive] DEFAULT none (Should background adjustment be applied)
 # PARAMETER normalization [none, quantile, ssn] DEFAULT quantile (Normalization)
@@ -51,7 +51,7 @@ if(color.balance.adjustment!="none") {
 dat4<-lumiMethyN(dat3, method=normalization)
 
 # QC plots
-bitmap(file="QC-plot.png", width=w/72, height=h/72)
+bitmap(file="QC-plot.pdf", width=w/72, height=h/72)
 par(mfrow=c(2,2))
 plotColorBias1D(dat, main="Unpreprocessed")
 plotColorBias1D(dat4, main="Preprocessed")

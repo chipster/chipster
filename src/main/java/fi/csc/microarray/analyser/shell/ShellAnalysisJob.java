@@ -6,6 +6,9 @@ import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.AnalysisDescription.InputDescription;
 import fi.csc.microarray.analyser.AnalysisDescription.OutputDescription;
 import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
+import fi.csc.microarray.messaging.JobState;
+import fi.csc.microarray.messaging.message.JobMessage.ParameterSecurityPolicy;
+import fi.csc.microarray.messaging.message.JobMessage.ParameterValidityException;
 
 /**
  * Job that is run as a generic shell command.
@@ -25,6 +28,31 @@ import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
  */
 public class ShellAnalysisJob extends ShellAnalysisJobBase {
     
+	public static class ShellParameterSecurityPolicy implements ParameterSecurityPolicy {
+		
+		private static final int MAX_VALUE_LENGTH = 1000;
+		public static String COMMAND_LINE_SAFE_VALUE_PATTERN = "[\\w+\\-_\\.:*]*"; // Only word characters and some special symbols are allowed
+		
+		public boolean isValueValid(String value, ParameterDescription parameterDescription) {
+			
+			// Check parameter size (DOS protection)
+			if (value.length() > MAX_VALUE_LENGTH) {
+				return false;
+			}
+			
+			// Check content for string termination (shell code injection)
+			if (value.contains(SHELL_STRING_SEPARATOR)) {
+				return false;
+			}
+
+			// Check that content matches the pattern (shell code injection)
+			return value.matches(COMMAND_LINE_SAFE_VALUE_PATTERN);
+		}
+
+	}
+	
+	public static ShellParameterSecurityPolicy SHELL_PARAMETER_SECURITY_POLICY = new ShellParameterSecurityPolicy();
+
 	private static final String USE_ONLY_PARAMETER_VALUE_TOKEN = "-value-only";
 	private static final String NO_PARAMETER_VALUE_TOKEN = "NO-VALUE";
 	
@@ -69,7 +97,14 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
         LinkedList<String> inputParameters;
     	
     	// Get parameter values from user's input (order is significant)
-        inputParameters = new LinkedList<String>(inputMessage.getParameters());
+        try {
+			inputParameters = new LinkedList<String>(inputMessage.getParameters(SHELL_PARAMETER_SECURITY_POLICY, analysis));
+		} catch (ParameterValidityException e) {
+			outputMessage.setErrorMessage("There was an invalid parameter value.");
+			outputMessage.setOutputText(e.toString());
+			updateState(JobState.FAILED_USER_ERROR, "");
+			return;
+		}
                 
         // Generate the command to be executed
         LinkedList<String> commandParts = new LinkedList<String>();
@@ -97,7 +132,7 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
             	
             	// no value parameter, don't add anything
             	if (!value.equals(NO_PARAMETER_VALUE_TOKEN)) {
-            		commandParts.add(value);
+            		commandParts.add(SHELL_STRING_SEPARATOR + value + SHELL_STRING_SEPARATOR);
             	}
             	
             }
@@ -106,7 +141,7 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
             // normal parameters
             else if (!value.equals("")) {
                 commandParts.add("-" + parameter.getName());
-                commandParts.add(value);
+                commandParts.add(SHELL_STRING_SEPARATOR + value + SHELL_STRING_SEPARATOR);
             }
             index++;
         }

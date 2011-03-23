@@ -22,16 +22,16 @@ public class FindOverlappingTool extends RegionTool {
 	protected LinkedList<RegionContent> operate(LinkedList<List<RegionContent>> inputs, List<String> parameters) {
 		RegionOperations tool = new RegionOperations();
 		RegionOperations.PairPolicy pairPolicy;
-		if ("intersection".equals(inputMessage.getParameters().get(0))) {
+		if ("intersection".equals(parameters.get(0))) {
 			pairPolicy = RegionOperations.INTERSECT_PAIR_POLICY; 
-		} else if ("both".equals(inputMessage.getParameters().get(0))) {
+		} else if ("both".equals(parameters.get(0))) {
 			pairPolicy = RegionOperations.ORIGINALS_PAIR_POLICY;
-		} else if ("merged".equals(inputMessage.getParameters().get(0))) {
+		} else if ("merged".equals(parameters.get(0))) {
 			pairPolicy = RegionOperations.MERGE_PAIR_POLICY;
 		} else {
 			pairPolicy = RegionOperations.LEFT_PAIR_POLICY;
 		}
-		Long minOverlap = Long.parseLong(inputMessage.getParameters().get(1));
+		Long minOverlap = Long.parseLong(parameters.get(1));
 		return tool.intersect(inputs.get(0), inputs.get(1), minOverlap, pairPolicy, false);
 		
 	}

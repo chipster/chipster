@@ -21,8 +21,8 @@ public class CombineRegionsTool extends RegionTool {
 	@Override
 	protected LinkedList<RegionContent> operate(LinkedList<List<RegionContent>> inputs, List<String> parameters) {
 		RegionOperations tool = new RegionOperations();
-		boolean flatten = "yes".equals(inputMessage.getParameters().get(0));
-		Long minOverlap = Long.parseLong(inputMessage.getParameters().get(1));
+		boolean flatten = "yes".equals(parameters.get(0));
+		Long minOverlap = Long.parseLong(parameters.get(1));
 		return tool.merge(inputs.get(0), inputs.get(1), minOverlap, flatten);
 	}
 }
