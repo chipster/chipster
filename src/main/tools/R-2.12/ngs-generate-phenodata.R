@@ -16,8 +16,6 @@
 #                                                            #
 ##############################################################
 
-# Parameter settings (default) for testing purposes
-#chiptype<-c("hgu133a")
 
 # Figure out how the data is organized and load it
 file<-c("normalized.tsv")
