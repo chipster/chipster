@@ -31,7 +31,7 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
 	public static class ShellParameterSecurityPolicy implements ParameterSecurityPolicy {
 		
 		private static final int MAX_VALUE_LENGTH = 1000;
-		public static String COMMAND_LINE_SAFE_VALUE_PATTERN = "[\\w+\\-_\\.]*"; // Only word characters and some special symbols are allowed
+		public static String COMMAND_LINE_SAFE_VALUE_PATTERN = "[\\w+\\-_\\.:*]*"; // Only word characters and some special symbols are allowed
 		
 		public boolean isValueValid(String value, ParameterDescription parameterDescription) {
 			
@@ -40,7 +40,12 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
 				return false;
 			}
 			
-			// Check parameter content (shell code injection).
+			// Check content for string termination (shell code injection)
+			if (value.contains(SHELL_STRING_SEPARATOR)) {
+				return false;
+			}
+
+			// Check that content matches the pattern (shell code injection)
 			return value.matches(COMMAND_LINE_SAFE_VALUE_PATTERN);
 		}
 
@@ -127,7 +132,7 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
             	
             	// no value parameter, don't add anything
             	if (!value.equals(NO_PARAMETER_VALUE_TOKEN)) {
-            		commandParts.add(value);
+            		commandParts.add(SHELL_STRING_SEPARATOR + value + SHELL_STRING_SEPARATOR);
             	}
             	
             }
@@ -136,7 +141,7 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
             // normal parameters
             else if (!value.equals("")) {
                 commandParts.add("-" + parameter.getName());
-                commandParts.add(value);
+                commandParts.add(SHELL_STRING_SEPARATOR + value + SHELL_STRING_SEPARATOR);
             }
             index++;
         }
