@@ -1,6 +1,6 @@
 # ANALYSIS "aCGH"/"Identify common regions from called aCGH data" (Reduces dimensionality of called aCGH data by identifying common breakpoints.)
 # INPUT GENE_EXPRS aberrations.tsv
-# OUTPUT regions.tsv, regions.png, regions-frequencies.png
+# OUTPUT regions.tsv, regions.pdf, regions-frequencies.pdf
 # PARAMETER max.info.loss DECIMAL DEFAULT 0.01 (Maximal information loss allowed.)
 # PARAMETER image.width INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
@@ -89,11 +89,11 @@ dat2$chromosome[dat2$chromosome=='25'] <- 'MT'
 
 write.table(dat2, file='regions.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
-bitmap(file='regions.png', width=image.width/72, height=image.height/72)
+pdf(file='regions.pdf', width=image.width/72, height=image.height/72)
 plot(regions)
 dev.off()
 
-bitmap(file='regions-frequencies.png', width=image.width/72, height=image.height/72)
+pdf(file='regions-frequencies.pdf', width=image.width/72, height=image.height/72)
 frequencyPlot(regions)
 dev.off()
 
