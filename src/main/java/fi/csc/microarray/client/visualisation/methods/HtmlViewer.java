@@ -13,8 +13,8 @@ import fi.csc.microarray.util.BrowsableHtmlPanel;
 
 public class HtmlViewer extends Visualisation {
 
-	public HtmlViewer(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	@Override

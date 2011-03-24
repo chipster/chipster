@@ -23,12 +23,12 @@ public class FSDataEventTest implements DataChangeListener {
 	
 	@BeforeTest
 	public void init() throws IOException, IllegalConfigurationException {
-		DirectoryLayout.initialiseClientLayout().getConfiguration();
+		DirectoryLayout.initialiseSimpleLayout().getConfiguration();
 	}
 
 	@Test(groups = {"unit"} )
 	public void testEvents() throws IOException, MicroarrayException {
-		DataManager manager = new FSDataManager();
+		DataManager manager = new DataManager();
 		manager.addDataChangeListener(this);
 		manager.setEventsEnabled(true);
 		
