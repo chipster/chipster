@@ -1,6 +1,6 @@
 # ANALYSIS "aCGH"/"Plot copy-number-induced gene expression" (Plot the expression levels of individual genes for a copy number vs. expression comparison. This tool must be run on the output from the tool Test for copy number induced expression changes - cn-induced-expression.tsv.)
 # INPUT GENE_EXPRS cn-induced-expression.tsv
-# OUTPUT cn-induced-expression-plot.png
+# OUTPUT cn-induced-expression-plot.pdf
 # PARAMETER gene.ids STRING DEFAULT 1 (The gene.ids of the genes to be plotted, separated by commas. Ranges are also supported (e.g. 1,3,7-10).)
 # PARAMETER image.width INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
@@ -57,7 +57,7 @@ if (length(to.plot)==0)
   stop('CHIPSTER-NOTE: Nothing to plot.')
 
 # plot
-bitmap(file='cn-induced-expression-plot.png', width=image.width/72, height=image.height/72)
+pdf(file='cn-induced-expression-plot.pdf', width=image.width/72, height=image.height/72)
 if (length(to.plot)==1) {
   intCNGEan.plot(gene.id=to.plot, tuned)
 } else {

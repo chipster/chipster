@@ -1,6 +1,6 @@
 # ANALYSIS "aCGH"/"Plot copy number profiles from called aCGH data" (Plot copy number profiles of individual arrays from called aCGH data.)
 # INPUT GENE_EXPRS aberrations.tsv, GENERIC phenodata.tsv
-# OUTPUT cgh-profile.png
+# OUTPUT cgh-profile.pdf
 # PARAMETER samples STRING DEFAULT 1 (The numbers of the samples to be plotted, separated by commas. Ranges are also supported (e.g. 1,3,7-10).)
 # PARAMETER chromosomes STRING DEFAULT 0 (The numbers of the chromosomes to be plotted, separated by commas. 0 means all chromosomes. Ranges are also supported (e.g. 1,3,7-10).)
 # PARAMETER image.width INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
@@ -79,7 +79,7 @@ if (length(chrs.to.plot)==0)
   chrs.to.plot <- 0
 
 # plot
-bitmap(file='cgh-profile.png', width=image.width/72, height=image.height/72)
+pdf(file='cgh-profile.pdf', width=image.width/72, height=image.height/72)
 if (length(samples.to.plot)==1) {
   if (0 %in% chrs.to.plot) {
     plot(cgh[,samples.to.plot]) # dotres=10 -> every 10th log2-ratio is plotted
