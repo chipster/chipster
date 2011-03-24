@@ -65,7 +65,7 @@ xx <- as.list(x[mapped_probes])
 chr<-unique(unlist(xx))
 
 # Plotting the chromosomes and genes
-bitmap(file="chromloc.pdf", width=w/72, height=h/72)
+pdf(file="chromloc.pdf", width=w/72, height=h/72)
 cPlot(chromloc, bg="White", fg="LightGrey", useChroms=chr)
 cColor(rownames(up), "red", chromloc)
 cColor(rownames(down), "green", chromloc)

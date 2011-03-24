@@ -31,7 +31,7 @@ s<-ceiling(sqrt(ncol(dat2)))
 titles<-gsub(" ", "", phenodata$description)
 
 if(length(titles)==ncol(dat2)) {
-   bitmap(file="histogram.pdf", width=w/72, height=h/72)
+   pdf(file="histogram.pdf", width=w/72, height=h/72)
    par(mfrow=c(s,s))
    for(i in 1:ncol(dat2)) {
       par(mar=c(2,2,3,0))
@@ -39,7 +39,7 @@ if(length(titles)==ncol(dat2)) {
    }
    dev.off()
 } else {
-   bitmap(file="histogram.pdf", width=w/72, height=h/72)
+   pdf(file="histogram.pdf", width=w/72, height=h/72)
    par(mfrow=c(s,s))
    for(i in 1:ncol(dat2)) {
       par(mar=c(2,2,3,0))

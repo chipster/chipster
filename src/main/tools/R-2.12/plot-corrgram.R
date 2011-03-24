@@ -33,7 +33,7 @@ phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 colnames(dat2)<-gsub(" ", "", phenodata$description)
 
 # Plotting
-bitmap(file="corrgram.pdf", width=w/72, height=h/72)
+pdf(file="corrgram.pdf", width=w/72, height=h/72)
 corrgram(x=dat2, lower.panel=panel.shade, upper.panel=panel.pts, pch=".")
 dev.off()
 

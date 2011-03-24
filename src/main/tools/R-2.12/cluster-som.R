@@ -68,7 +68,7 @@ for(i in 1:length(dif.dists)) {
 }
 
 # Plotting the SOM map
-bitmap(file="som.pdf", width=w/72, height=h/72)
+pdf(file="som.pdf", width=w/72, height=h/72)
 par(mfrow=c(2,2), mar=c(2,2,0,0))
 plot.kohonen(kohmap, type="property", property=dists[1,], palette.name=heat.colors, main="Property")
 plot.kohonen(kohmap, type="codes", property=dists[1,], palette.name=heat.colors, main="Codes")

@@ -40,7 +40,7 @@ km<-kmeans(dat2, k, iter.max=100000, nstart=min(10, nrow(dat2)))
 # Plotting the clustering
 max.dat2<-max(dat2)
 min.dat2<-min(dat2)
-bitmap(file="kmeans.pdf", width=w/72, height=h/72)
+pdf(file="kmeans.pdf", width=w/72, height=h/72)
 par(mfrow=c(ceiling(sqrt(k)), ceiling(sqrt(k))))
 for(i in 1:k) {
    matplot(t(dat2[km$cluster==i,]), type="l", main=paste("cluster:", i), ylab="log expression", col=1, lty=1, ylim=c(min.dat2, max.dat2))

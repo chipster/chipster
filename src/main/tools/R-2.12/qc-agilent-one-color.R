@@ -27,12 +27,12 @@ A<-dat[,grep("average", names(dat))]
 # Producing some basic plots of the data
 
 # Boxplot
-bitmap(file="boxplot.pdf", width=w/72, height=h/72)
+pdf(file="boxplot.pdf", width=w/72, height=h/72)
 boxplot(as.data.frame(dat2), las=2, cex.axis=0.5)
 dev.off()
 
 # Density plot
-bitmap(file="densityplot.pdf", width=w/72, height=h/72)
+pdf(file="densityplot.pdf", width=w/72, height=h/72)
 x<-c()
 y<-c()
 for(i in 1:ncol(dat2)) {

@@ -51,7 +51,7 @@ if(color.balance.adjustment!="none") {
 dat4<-lumiMethyN(dat3, method=normalization)
 
 # QC plots
-bitmap(file="QC-plot.pdf", width=w/72, height=h/72)
+pdf(file="QC-plot.pdf", width=w/72, height=h/72)
 par(mfrow=c(2,2))
 plotColorBias1D(dat, main="Unpreprocessed")
 plotColorBias1D(dat4, main="Preprocessed")

@@ -76,7 +76,7 @@ if(analysis=="periodicity") {
    dat5<-as.data.frame(t(dat4))
    names(dat5)<-names(dat2)
    write.table(data.frame(dat5[p.adj<=p.cut,], p.adjusted=round(p.adj[p.adj<=p.cut], digits=6)), file="timeseries.tsv", sep="\t", row.names=T, col.names=T, quote=F)
-   bitmap(file="profiles.pdf", width=w/72, height=h/72)
+   pdf(file="profiles.pdf", width=w/72, height=h/72)
    plot(1, 1, col=0)
    text(1, 1, "This is a dummy image.", col=1)
    text(1, 0.9, "To generate an image of gene expression profiles, use ica option.", col=1)
@@ -98,7 +98,7 @@ if(analysis=="ica") {
    }
    write.table(dg, file="timeseries.tsv", sep="\t", row.names=T, col.names=T, quote=F)
    a<-data.frame(times, t(o$A))
-   bitmap(file="profiles.pdf", width=w/72, height=h/72)
+   pdf(file="profiles.pdf", width=w/72, height=h/72)
    par(mar=c(0, 1, 1, 0)+0.1)
    par(mfrow=c(ceiling(sqrt(ncol(a))), ceiling(sqrt(ncol(a)))))
    for(i in 2:ncol(a)) {
