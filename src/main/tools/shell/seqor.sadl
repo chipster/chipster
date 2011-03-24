@@ -1,0 +1,8 @@
+#Komento :/v/linux26_x86_64/appl/molbio/share/seqor.tsch
+TOOL "Edit" / seqor.tsch: seqor (Reads in two sets of sequences and writes out a sequence file that result from the logical union of the two sets. Note that the selected logical operation: OR, AND, XOR, or NOT is based in the sequece names, not the actual sequences.)
+INPUT firstsequences: firstsequences TYPE GENERIC
+INPUT secondsequences: secondsequences TYPE GENERIC
+OUTPUT outfile: outfile.seqor.txt
+PARAMETER operator: "logical operator to combine the sequences" TYPE [O: "OR - merger of both sets", A: "AND - only those in both sets", X: "XOR - only those not in both sets", N: "NOT - those of the first set that are not in the second"] DEFAULT OR (The following logical operators combine the sequences in the following ways: \ OR - gives all that occur in one set or the other \ AND - gives only those which occur in both sets \ XOR - gives those which only occur in one set or the other, but not in both \ NOT - gives those which occur in the first set except for those that also occur in the second)
+
+

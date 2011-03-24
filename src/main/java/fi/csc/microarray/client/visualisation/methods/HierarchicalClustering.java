@@ -64,11 +64,12 @@ import fi.csc.microarray.databeans.features.QueryResult;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 public class HierarchicalClustering extends Visualisation implements PropertyChangeListener, SelectionChangeListener {
 
-	public HierarchicalClustering(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	protected SelectableChartPanel selectableChartPanel;
@@ -508,7 +509,8 @@ public class HierarchicalClustering extends Visualisation implements PropertyCha
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		return bean.isContentTypeCompatitible("application/x-treeview") && bean.queryFeatures("/clusters/hierarchical/tree").exists() && bean.queryFeatures("/clusters/hierarchical/heatmap").exists();
+		DataBean parentBean = MicroarrayModule.getProperSource(bean); 
+		return bean.isContentTypeCompatitible("application/x-treeview") && parentBean.hasTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
 	}
 
 	public void selectionChanged(Rectangle2D.Double selectionRect) {

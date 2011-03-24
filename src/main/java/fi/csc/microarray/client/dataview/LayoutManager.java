@@ -17,7 +17,7 @@ import fi.csc.microarray.databeans.DataBean.Link;
  * Class for some  methods which are iterating through
  * the vertexes to make placement of the new vertexes as good as possible
  * 
- * @author Petri KlemelÃ¤, Aleksi Kallio
+ * @author Petri Klemelä, Aleksi Kallio
  */
 public class LayoutManager {
 	
