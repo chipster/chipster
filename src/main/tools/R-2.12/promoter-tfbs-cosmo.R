@@ -156,10 +156,10 @@ sink("cosmo-output.txt")
 summary(res)
 sink()
 
-bitmap(file="seqlogo.pdf", width=600/72, height=600/72)
+pdf(file="seqlogo.pdf", width=600/72, height=600/72)
 plot(res)
 dev.off()
 
-bitmap(file="probs.pdf", width=600/72, height=600/72)
+pdf(file="probs.pdf", width=600/72, height=600/72)
 plot(res, type="prob")
 dev.off()

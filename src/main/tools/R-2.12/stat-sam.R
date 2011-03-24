@@ -45,11 +45,11 @@ if(column=="empty") {
 samout<-sam(dat2, groups, rand=random.number, control=samControl(n.delta=number.of.delta))
 
 # Plots the results
-bitmap(file="sam.pdf", width=600/72, height=600/72)
+pdf(file="sam.pdf", width=600/72, height=600/72)
 plot(samout)
 dev.off()
 
-bitmap(file="sam-delta.pdf", width=600/72, height=600/72)
+pdf(file="sam-delta.pdf", width=600/72, height=600/72)
 plot(samout, delta.to.plot)
 dev.off()
 

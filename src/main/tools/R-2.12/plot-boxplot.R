@@ -28,12 +28,12 @@ phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 
 # Plotting
 if(nrow(phenodata)==ncol(dat2)) {
-   bitmap(file="boxplot.pdf", width=w/72, height=h/72)
+   pdf(file="boxplot.pdf", width=w/72, height=h/72)
    par(mar=c(12,5,5,5))
    boxplot(as.data.frame(dat2), las=2, names=phenodata$description)
    dev.off()
 } else {
-   bitmap(file="boxplot.pdf", width=w/72, height=h/72)
+   pdf(file="boxplot.pdf", width=w/72, height=h/72)
    par(mar=c(12,5,5,5))
    boxplot(as.data.frame(dat2), las=2)
    dev.off()

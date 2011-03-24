@@ -35,14 +35,14 @@ size<-ssize(sd=sds, delta=log2(effect.size), sig.level=alpha, power=beeta)
 po<-pow(sd=sds, n=group.size, delta=log2(effect.size), sig.level=alpha)
 del<-delta(sd=sds, n=group.size, power=beeta, sig.level=alpha)
 
-bitmap(file="size.pdf", width=600/72, height=600/72)
+pdf(file="size.pdf", width=600/72, height=600/72)
 ssize.plot(size, xlim=c(0,20), main=paste("Sample size to detect ", effect.size, "-fold change", sep=""))
 dev.off()
 
-bitmap(file="power.pdf", width=600/72, height=600/72)
+pdf(file="power.pdf", width=600/72, height=600/72)
 power.plot(po, main=paste("Power to detect ", effect.size, "-fold change", sep=""))
 dev.off()
 
-bitmap(file="delta.pdf", width=600/72, height=600/72)
+pdf(file="delta.pdf", width=600/72, height=600/72)
 delta.plot(del, xlim=c(0,20), main=paste("Fold change to achieve ", beeta*100, "% power", sep=""))
 dev.off()

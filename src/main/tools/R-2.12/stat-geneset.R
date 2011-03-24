@@ -95,7 +95,7 @@ if(pathways=="KEGG") {
    table.out <- table.out[table.out$Tested>1,]
    write.table(table.out, file="globaltest-result-table.tsv", sep="\t", row.names=T, col.names=T, quote=F)
    s<-c(sqrt(x), sqrt(x))
-   bitmap(file="multtest.pdf", width=w/72, height=h/72)
+   pdf(file="multtest.pdf", width=w/72, height=h/72)
    split.screen(c(sqrt(x), sqrt(x)))
    if (length (indices) < x) {
 	   x <- length(indices)
@@ -147,7 +147,7 @@ if(pathways=="GO") {
 	table.out <- table.out[table.out$Tested>1,]
 	write.table(table.out, file="globaltest-result-table.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 	s<-c(sqrt(x), sqrt(x)) 
-	bitmap(file="multtest.pdf", width=w/72, height=h/72)
+	pdf(file="multtest.pdf", width=w/72, height=h/72)
 	split.screen(c(sqrt(x), sqrt(x)))
 	if (length (indices) < x) {
 		x <- length(indices)
@@ -166,7 +166,7 @@ if(pathways=="GO") {
 
 if(pathways=="current") {
    test.current<-globaltest(X=as.matrix(dat2), Y=groups, genesets=rep(1, nrow(dat2)))
-   bitmap(file="multtest.pdf", width=w/72, height=h/72)
+   pdf(file="multtest.pdf", width=w/72, height=h/72)
    geneplot(test.current)
    dev.off()
    write(x="Dont't worry! You've run the analysis using current gene list. Thus, this file should be empty.", file="globaltest-result-table.tsv")
