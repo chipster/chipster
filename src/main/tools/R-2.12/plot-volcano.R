@@ -57,11 +57,11 @@ cols[which(p.adj<=pcut & m<(-ecut))] <- 3
 cols[which(p.adj<=pcut & m>ecut)] <- 2
 
 # Plotting
-bitmap(file="volcanoP.pdf", width=w/72, height=h/72)
+pdf(file="volcanoP.pdf", width=w/72, height=h/72)
 plot(m, -log10(p.adj), xlim=c(-max(m), max(m)), ylim=c(0,ceiling (max(-log10(p.adj)))), col=cols, main="Volcano plot", pch=19, xlab="Mean expression", ylab="-log10 (p)")
 dev.off()
 
-bitmap(file="volcanoSE.pdf", width=w/72, height=h/72)
+pdf(file="volcanoSE.pdf", width=w/72, height=h/72)
 symbols(m, -log10(p.adj), rectangles=cbind(rep(0, length(p.adj)), s), fg=cols, xlim=c(-max(m), max(m)), ylim=c(0,ceiling (max(-log10(p.adj)))), main="Volcano plot", xlab="Mean expression", ylab="-log10 (p)")
 dev.off()
 

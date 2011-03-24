@@ -24,12 +24,12 @@ aqc<-fitPLM(dat)
 
 # Plotting the QC-values
 par(mar=c(7, 4, 4, 2) + 0.1)
-bitmap(file="rle-plot.pdf", width=w/72, height=h/72)
+pdf(file="rle-plot.pdf", width=w/72, height=h/72)
 Mbox(aqc, main="RLE", las=2)
 dev.off()
 
 par(mar=c(7, 4, 4, 2) + 0.1)
-bitmap(file="nuse-plot.pdf", width=w/72, height=h/72)
+pdf(file="nuse-plot.pdf", width=w/72, height=h/72)
 boxplot(aqc, main="NUSE", las=2)
 dev.off()
 

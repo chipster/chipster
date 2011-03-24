@@ -40,7 +40,7 @@ if(any(dat2<0)) {
 fit<-decorana(dat2)
 
 # Plotting the image
-bitmap(file="ca.pdf", width=w/72, height=h/72)
+pdf(file="ca.pdf", width=w/72, height=h/72)
 plot(fit, main="Detrended correspondence analysis", type="n")
 points(fit, display=c("species"), pch=15, col=phenodata$group)
 points(fit, display=c("sites"), pch=20, col=c("black"), cex=0.6)

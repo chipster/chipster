@@ -41,7 +41,7 @@ qtc<-qtclust(dat3, radius=rad)
 max.dat2<-max(dat3)
 min.dat2<-min(dat3)
 k<-length(unique(qtc@cluster))
-bitmap(file="qt.pdf", width=w/72, height=h/72)
+pdf(file="qt.pdf", width=w/72, height=h/72)
 par(mfrow=c(ceiling(sqrt(k)), ceiling(sqrt(k))))
 for(i in 1:k) {
    matplot(t(dat3[qtc@cluster==i,]), type="l", main=paste("cluster:", i), ylab="log expression", col=1, lty=1, ylim=c(min.dat2, max.dat2))

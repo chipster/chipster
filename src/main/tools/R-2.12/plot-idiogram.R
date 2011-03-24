@@ -80,6 +80,6 @@ chromloc@chromLocs<-chromloc@chromLocs[names(chromloc@chromLocs) %in% chr]
 chromloc@chromInfo<-chromloc@chromInfo[names(chromloc@chromInfo) %in% chr]
 
 # Plots the idiogram
-bitmap(file="idiogram.pdf", width=w/72, height=h/72)
+pdf(file="idiogram.pdf", width=w/72, height=h/72)
 midiogram(fc, chromloc, col=cols, pch=20) 
 dev.off()

@@ -42,7 +42,7 @@ expression<-dat[,grep(fold.change.column, colnames(dat))]
 pvalues<-dat[,grep(p.value.column, colnames(dat))]
 
 # Plotting
-bitmap(file="volcanoP.pdf", width=w/72, height=h/72)
+pdf(file="volcanoP.pdf", width=w/72, height=h/72)
 plot(expression, -log10(pvalues), xlim=c(-max(expression), max(expression)), main="Volcano plot", pch=19, xlab="log2 (fold change)", ylab="-log10 (p)")
 dev.off()
 

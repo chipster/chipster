@@ -80,7 +80,7 @@ if(colpar=="Black-White") {
 		column_margin <- 15
 	}
 	
-bitmap(file="heatmap.pdf", width=w/72, height=h/72)
+pdf(file="heatmap.pdf", width=w/72, height=h/72)
 if (cluster.samples.only=="no") {
 	heatmap(x=as.matrix(dat2), Rowv=clustg, Colv=clustc, col=heatcol, margins=c(15, column_margin), labCol=gsub(" ", "", phenodata$description))
 }

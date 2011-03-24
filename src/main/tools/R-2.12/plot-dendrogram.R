@@ -681,7 +681,7 @@ plot.arimaSelect <- function(x, choix, ...){
 
 
 # Plotting
-bitmap(file="dendrogram-color.pdf", width=w/72, height=h/72)
+pdf(file="dendrogram-color.pdf", width=w/72, height=h/72)
 if(margin=="chips") {
 A2Rplot(clust, k=gr, fact.sup=groups) 
 } else {
@@ -689,7 +689,7 @@ A2Rplot(clust, k=gr)
 }
 dev.off()
 
-bitmap(file="dendrogram-bw.pdf", width=w/72, height=h/72)
+pdf(file="dendrogram-bw.pdf", width=w/72, height=h/72)
 plot(clust, hang=0.1)
 dev.off()
 

@@ -80,7 +80,7 @@ if (number_files==2) {
 	unique_2 <- setdiff (list_2, intersect_1_2)
 	
 	# set up plotting area
-	bitmap(file="venn-diagram-plot.pdf", width=w/72, height=h/72)
+	pdf(file="venn-diagram-plot.pdf", width=w/72, height=h/72)
 	plot(-1:1, -1:1, type="n", axes = FALSE, xlab = "", ylab = "")
 	
 	# draw overlapping circles
@@ -163,7 +163,7 @@ if (number_files==3) {
 	unique_3 <- setdiff (list_3, union(union(intersect_1_3, intersect_2_3), intersect_1_2_3))
 	
 	# set up plotting area
-	bitmap(file="venn-diagram-plot.pdf", width=w/72, height=h/72)
+	pdf(file="venn-diagram-plot.pdf", width=w/72, height=h/72)
 	plot(-1:1, -1.3:1, type="n", axes = FALSE, xlab = "", ylab = "")
 	
 	# draw overlapping circles

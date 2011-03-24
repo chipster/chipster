@@ -134,6 +134,6 @@ vennDiagram2<-function (object, include = "both", names, mar = rep(1, 4), cex = 
 
 # Plotting the diagram
 cols<-c("Red", "Green", "Blue")
-bitmap(file="venn.pdf", width=w/72, height=h/72)
+pdf(file="venn.pdf", width=w/72, height=h/72)
 vennDiagram2(vennCounts(Counts), circle.col=cols)
 dev.off()

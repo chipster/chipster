@@ -41,6 +41,6 @@ while(i<kmax) {
 }
 
 # Plotting the clustering
-bitmap(file="kmeans-test.pdf", width=w/72, height=h/72)
+pdf(file="kmeans-test.pdf", width=w/72, height=h/72)
 plot(2:kmax, km, xlab="K", ylab="sum(withinss)", type="b", pch="+", main="Terminated when change less than 1%")
 dev.off()
