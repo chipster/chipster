@@ -3,12 +3,15 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.geom.Point2D;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.SwingUtilities;
@@ -29,20 +32,27 @@ public class HorizontalView extends View implements KeyListener {
 
 	private Timer keyTimer;
 	private Set<Integer> keySet = new HashSet<Integer>();
+	private Map<Rectangle, Drawable> drawableMap = new HashMap<Rectangle, Drawable>();
+	private Shape clip;
 
 	public HorizontalView(GenomePlot parent, boolean movable, boolean zoomable, boolean selectable) {
-				
 		super(parent, movable, zoomable, selectable);
-		
 		parent.chartPanel.addKeyListener(this);
 	}
 
 	@Override
 	protected void drawView(Graphics2D g, boolean isAnimation) {
 
+		// Clear previous tooltip mappings
+		drawableMap.clear();
+
+		// Store clip
+		this.clip = g.getClip();
+		
+		// Do the actual drawing
 		super.drawView(g, isAnimation);
 
-		// show current position on top of chromosome
+		// Show current position on top of chromosome cytoband
 		if (highlight != null) {
 			g.setPaint(new Color(0, 0, 0, 64));
 			Rectangle rect = g.getClip().getBounds();
@@ -94,6 +104,17 @@ public class HorizontalView extends View implements KeyListener {
 			g.setPaint(rect.lineColor);
 			g.drawRect(rect.x + x, rect.y + y, rect.width-1, rect.height-1);
 		}
+		
+		// register tooltip, if needed
+		String tooltipText = drawable.getTooltipText();
+		if (tooltipText != null) {
+			try {
+				drawableMap.put(new Rectangle(rect.x + x + clip.getBounds().x, rect.y + y + clip.getBounds().y, rect.width, rect.height), drawable);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
 	}
 
 	protected void drawLineDrawable(Graphics2D g, int x, int y, Drawable drawable) {
@@ -119,6 +140,7 @@ public class HorizontalView extends View implements KeyListener {
 		if (maxBp != null && region.getLength() > maxBp.bp) {
 			region.start.bp = 0.0;
 			region.end.bp = (double)maxBp.bp;
+			
 		} else {
 			if (region.start.bp < 0 ) {
 				region.move(-region.start.bp);
@@ -135,9 +157,7 @@ public class HorizontalView extends View implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		
-			if ( (zoomable || movable ) && isNavigationKey(e.getKeyCode())) {
-				
+			if ((zoomable || movable) && isNavigationKey(e.getKeyCode())) {
 				keySet.add(e.getKeyCode());
 				startKeyAnimation();				
 			}
@@ -154,7 +174,7 @@ public class HorizontalView extends View implements KeyListener {
 		
 		if (keyTimer == null) {
 			
-			//Stop existing timers
+			// Stop existing timers
 			stopKeyAnimation();
 
 			keyTimer = new Timer(1000 / FPS, new ActionListener() {
@@ -169,26 +189,25 @@ public class HorizontalView extends View implements KeyListener {
 					SwingUtilities.invokeLater(new Runnable() {
 						public void run() {						
 
-							//Always execute following loop at least once
+							// Always execute following loop at least once
 							boolean skipFrame = true;
 							
-							//Last round has to draw
+							// Last round has to draw
 							boolean firstNotSkipped = true;	
 							
-							//Update locations without drawing until we are in the correct place for
-							//moment of time and then do it once again with drawing
+							// Update locations without drawing until we are in the correct place for
+							// moment of time and then do it once again with drawing
 							while (skipFrame || firstNotSkipped){
 																
 								if (!skipFrame) {
 									firstNotSkipped = false;
 								}
 																
-								//Do until all keys are released or component has lost the focus
+								// Do until all keys are released or component has lost the focus
 								if (!keySet.isEmpty() && parentPlot.chartPanel.hasFocus()) {
 
-									if ( zoomable ) {
-										
-										/*This value was obtained with trial-and-error method
+									if (zoomable) {
+										/* This value was obtained with trial-and-error method
 										 * by trying to find value that would keep one side of the screen
 										 * fixed when zooming and moving simultaneously. This could be 
 										 * as well anything else as long as zooming speed feels nice.
@@ -213,17 +232,13 @@ public class HorizontalView extends View implements KeyListener {
 										final double SPEED_DIVIDER = 50.0;
 										
 										if ( keySet.contains( KeyEvent.VK_LEFT )) {
-
 											bpRegion.move(-getBpRegion().getLength() / SPEED_DIVIDER);
 											setBpRegion(bpRegion, skipFrame);
-
 										} 
 
 										if (keySet.contains(  KeyEvent.VK_RIGHT ))  {
-
 											bpRegion.move(getBpRegion().getLength() / SPEED_DIVIDER);
 											setBpRegion(bpRegion, skipFrame);
-
 
 											if (!skipFrame) {
 												parentPlot.redraw();											
@@ -255,8 +270,8 @@ public class HorizontalView extends View implements KeyListener {
 	}
 
 	private void stopKeyAnimation() {
+
 		if (keyTimer != null) {
-			
 			keyTimer.stop();
 			keyTimer = null;
 			
@@ -267,14 +282,25 @@ public class HorizontalView extends View implements KeyListener {
 	@Override
 	public void keyReleased(KeyEvent e) {
 		
-		if ( (zoomable || movable ) && isNavigationKey(e.getKeyCode())) {
-			
+		if ((zoomable || movable) && isNavigationKey(e.getKeyCode())) {
 			keySet.remove(e.getKeyCode());
 		}
 	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-					
+		// ignore		
 	}
+	
+	@Override
+	public String tooltipRequest(Point2D locationOnPanel) {
+
+		for (Rectangle rect : drawableMap.keySet()) {
+			if (rect.contains(locationOnPanel)) {
+				return drawableMap.get(rect).getTooltipText();
+			}
+		}
+		return null;
+	}
+
 }

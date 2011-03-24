@@ -1,6 +1,6 @@
 # ANALYSIS "Quality control"/"Agilent 2-color" (Agilent quality control using boxplots, density plots, and MA plots. 
 # This tool should be run on normalized data.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT boxplot.png, densityplot.png, MA-plot.png
+# INPUT GENE_EXPRS normalized.tsv OUTPUT boxplot.pdf, densityplot.pdf, MA-plot.pdf
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
@@ -27,12 +27,12 @@ A<-dat[,grep("average", names(dat))]
 # Producing some basic plots of the data
 
 # Boxplot
-bitmap(file="boxplot.png", width=w/72, height=h/72)
+pdf(file="boxplot.pdf", width=w/72, height=h/72)
 boxplot(as.data.frame(dat2), las=2, cex.axis=0.5)
 dev.off()
 
 # Density plot
-bitmap(file="densityplot.png", width=w/72, height=h/72)
+pdf(file="densityplot.pdf", width=w/72, height=h/72)
 x<-c()
 y<-c()
 for(i in 1:ncol(dat2)) {
@@ -47,7 +47,7 @@ legend(legend=colnames(dat2), x="topleft", lty=1, cex=0.75, col=c(1:ncol(dat2)))
 dev.off()
 
 # MA plot
-bitmap(file="MA-plot.png", width=w/72, height=h/72)
+pdf(file="MA-plot.pdf", width=w/72, height=h/72)
 par(mfrow=c(ceiling(sqrt(ncol(dat2))), ceiling(sqrt(ncol(dat2)))))
 ylim<-c(min(na.omit(dat2)), max(na.omit(dat2)))
 for(i in 1:ncol(dat2)) {

@@ -1,6 +1,6 @@
 # ANALYSIS Clustering/"Self-organizing map (SOM)" (Self-organizing map clustering of genes. Note that you need to
 # have at least two chips, and columns times rows number of genes in order to able to execute the analysis.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT som.tsv, som.png
+# INPUT GENE_EXPRS normalized.tsv OUTPUT som.tsv, som.pdf
 # PARAMETER number.of.columns INTEGER FROM 1 TO 100 DEFAULT 4 (Number of SOM grid columns)
 # PARAMETER number.of.rows INTEGER FROM 1 TO 100 DEFAULT 3 (Number of SOM grid rows)
 # PARAMETER coloring.scheme [Red-Green, Blue-Yellow, Black-White] DEFAULT Blue-Yellow (Coloring scheme for the SOM map)
@@ -68,7 +68,7 @@ for(i in 1:length(dif.dists)) {
 }
 
 # Plotting the SOM map
-bitmap(file="som.png", width=w/72, height=h/72)
+pdf(file="som.pdf", width=w/72, height=h/72)
 par(mfrow=c(2,2), mar=c(2,2,0,0))
 plot.kohonen(kohmap, type="property", property=dists[1,], palette.name=heat.colors, main="Property")
 plot.kohonen(kohmap, type="codes", property=dists[1,], palette.name=heat.colors, main="Codes")

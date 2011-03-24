@@ -15,8 +15,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.apache.log4j.Logger;
-
 import fi.csc.microarray.constants.VisualConstants;
 
 /**
@@ -28,10 +26,6 @@ import fi.csc.microarray.constants.VisualConstants;
 @SuppressWarnings("serial")
 public class OperationFilterPanel extends JPanel
                                   implements ListSelectionListener {
-    
-    // Logger for this class
-    private static final Logger logger = Logger
-        .getLogger(OperationChoicePanel.class);
     
     private static final OperationCategory CATEGORY_ALL = new OperationCategory("All");
     private OperationCategory CATEGORY_NO_MATCHES = new OperationCategory("No matches");

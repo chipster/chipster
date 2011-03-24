@@ -1,5 +1,6 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
+import java.awt.Color;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -7,6 +8,7 @@ import java.util.Set;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 
@@ -23,7 +25,9 @@ public class EmptyTrack extends Track {
 
 	@Override
 	public Collection<Drawable> getDrawables() {
-		return getEmptyDrawCollection();
+		Collection<Drawable> drawables = getEmptyDrawCollection();
+		drawables.add(new RectDrawable(0, 0, getView().getWidth(), height, Color.WHITE, Color.WHITE));
+		return drawables;
 	}
 
 	public void processAreaResult(AreaResult areaResult) {

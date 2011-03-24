@@ -29,7 +29,8 @@ public abstract class RegionTool extends JavaAnalysisJobBase {
 			}
 
 			// Delegate actual processing to subclasses
-			LinkedList<RegionContent> output = operate(inputs, inputMessage.getParameters());
+			List<String> parameters = inputMessage.getParameters(JAVA_PARAMETER_SECURITY_POLICY, analysis);
+			LinkedList<RegionContent> output = operate(inputs, parameters);
 			
 			// Sort result
 			new RegionOperations().sort(output);

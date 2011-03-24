@@ -1,6 +1,6 @@
 # ANALYSIS Visualisation/"Venn diagram" (Draws a Venn diagram for the three selected gene lists. Select the gene lists
 # from the Workflow view of Datasets before running this tool.)
-# INPUT GENE_EXPRS normalized1.tsv, GENE_EXPRS normalized2.tsv, GENE_EXPRS normalized3.tsv OUTPUT venn.png
+# INPUT GENE_EXPRS normalized1.tsv, GENE_EXPRS normalized2.tsv, GENE_EXPRS normalized3.tsv OUTPUT venn.pdf
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
@@ -134,6 +134,6 @@ vennDiagram2<-function (object, include = "both", names, mar = rep(1, 4), cex = 
 
 # Plotting the diagram
 cols<-c("Red", "Green", "Blue")
-bitmap(file="venn.png", width=w/72, height=h/72)
+pdf(file="venn.pdf", width=w/72, height=h/72)
 vennDiagram2(vennCounts(Counts), circle.col=cols)
 dev.off()

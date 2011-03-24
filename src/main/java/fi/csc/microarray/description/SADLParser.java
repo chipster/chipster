@@ -167,6 +167,12 @@ public class SADLParser {
 			Parameter parameter = parseParameter(tokens);
 			description.addParameter(parameter);
 		}
+
+		// check that no trailing content was left behind
+		if (tokens.hasNext() && !nextTokenIs(tokens, SADLSyntax.KEYWORD_TOOL)) {
+			// content other then new description was left 
+			throw new ParseException("unexpected content: " + tokens.next(), unitName);
+		}
 		
 		return description;
 	}
