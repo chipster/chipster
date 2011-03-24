@@ -61,4 +61,62 @@
 	</data>
 
 
+<operation>
+		<id>oper-2</id>
+		<finished-time>2004-09-17T13:59:58.75</finished-time>
+		<description>
+			<name>
+				<id>norm-illumina.R</id>
+				<display-name>Illumina normalisation</display-name>
+			</name>
+			<type>external</type>
+			<source-code-file>source/norm-illumina-1.R</source-code-file>
+		</description>
+		<inputs>
+			<input>data-0</input>
+			<input>data-1</input>
+		</inputs>
+		<outputs>
+			<output>data-2</output>
+		</outputs>
+		<parameters>
+			<parameter>
+				<name>
+					<id>normalize.chips</id>
+					<display-name>Normalise chips or genes</display-name>
+				</name>
+				<value>quantile</value>
+			</parameter>	
+			<parameter>
+				<name>
+					<id>beadstudio.version</id>
+					<display-name>BeadStudio version of the input file</display-name>
+				</name>
+				<value>1</value>
+			</parameter>	
+			<parameter>
+				<name>
+					<id>chiptype</id>
+					<display-name>Chip type of the input file</display-name>
+				</name>
+				<value>Human-6v1</value>
+			</parameter>	
+			<parameter>
+				<name>
+					<id>id.type</id>
+					<display-name>ID scheme used in the input file</display-name>
+				</name>
+				<value>TargetID</value>
+			</parameter>	
+			<parameter>
+				<name>
+					<id>produce.flags</id>
+					<display-name>Should quality flags be produced also</display-name>
+				</name>
+				<value>no</value>
+			</parameter>
+		</parameters>
+	</operation>
+
+
 </session>
