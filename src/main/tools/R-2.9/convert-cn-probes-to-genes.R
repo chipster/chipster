@@ -7,7 +7,7 @@
 
 # convert-cn-probes-to-genes.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-12
+# 2011-03-07
 
 dat <- read.table('aberrations.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 
@@ -16,9 +16,12 @@ if (length(setdiff(pos, colnames(dat)))!=0)
   stop('CHIPSTER-NOTE: This script can only be run on files that have the following columns: chromosome, start, end.')
 
 # load genes
-genes <- read.table(paste('http://www.cangem.org/download.php?platform=CG-PLM-26&flag=', genome.build, sep=''), sep='\t', header=TRUE, row.names=1, as.is=TRUE)
+# genes <- read.table(paste('http://www.cangem.org/download.php?platform=CG-PLM-26&flag=', genome.build, sep=''), sep='\t', header=TRUE, row.names=1, as.is=TRUE)
+genes <- read.table(file.path(chipster.tools.path, 'CanGEM', 'Ensembl_Genes', paste(genome.build, '.txt', sep='')), sep='\t', header=TRUE, row.names=1, as.is=TRUE)
 colnames(genes) <- tolower(colnames(genes))
 colnames(genes)[colnames(genes)=='chr'] <- 'chromosome'
+colnames(genes)[colnames(genes)=='band'] <- 'cytoband'
+colnames(genes)[colnames(genes)=='cnv.per.mb'] <- 'cnv.per.Mb'
 
 # remove genes from chromosomes not present in the array data
 genes <- genes[genes$chromosome %in% dat$chromosome,]

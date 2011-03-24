@@ -111,6 +111,7 @@
 	<!-- UTILITIES -->
 	<tool runtime="R-2.9">search-correlation.R</tool>
 	<!-- <tool runtime="R-2.10">search-queryword.R</tool> -->
+	<tool runtime="R-2.12">search-coordinates.R</tool>
 	<tool runtime="R-2.9">merge-tables.R</tool>
 	<tool runtime="R-2.12">merge-datasets.R</tool>
 	<tool runtime="R-2.9">extract-genes-from-clustering.R</tool>
