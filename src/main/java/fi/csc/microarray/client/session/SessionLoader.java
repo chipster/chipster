@@ -1,11 +1,8 @@
 package fi.csc.microarray.client.session;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -18,15 +15,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.session.schema.ChildrenType;
+import fi.csc.microarray.client.session.schema.DataType;
 import fi.csc.microarray.client.session.schema.FolderType;
-import fi.csc.microarray.client.session.schema.ObjectFactory;
 import fi.csc.microarray.client.session.schema.SessionType;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
@@ -34,7 +29,6 @@ import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.util.XmlUtil;
 
 public class SessionLoader {
 	
@@ -47,8 +41,7 @@ public class SessionLoader {
 	private LinkedHashMap<String, DataItem> dataItems = new LinkedHashMap<String, DataItem>();
 
 	
-	private LinkedHashMap<String, DataBean> dataBeans = new LinkedHashMap<String, DataBean>();
-	private HashMap<DataBean, Element> dataBeanElements = new HashMap<DataBean, Element>();
+	private HashMap<DataBean, DataType> dataTypes = new HashMap<DataBean, DataType>();
 
 	private LinkedHashMap<String, Operation> operations = new LinkedHashMap<String, Operation>();
 	private HashMap<Operation, Element> operationElements = new HashMap<Operation, Element>();
@@ -97,6 +90,7 @@ public class SessionLoader {
 			this.sessionType = unmarshaller.unmarshal(new StreamSource(metadataStream), SessionType.class).getValue();
 		
 			parseFolders();
+			parseDataBeans();
 			linkChildren(dataManager.getRootFolder());
 			
 		} 
@@ -144,67 +138,72 @@ public class SessionLoader {
 	}
 
 	void parseDataBeans() {
-//		for (Element element : XmlUtil.getChildElements(sessionElement, "data")) {
-//			String name = XmlUtil.getChildElement(element, ClientSession.ELEMENT_NAME).getTextContent();
-//			String id = XmlUtil.getChildElement(element, ClientSession.ELEMENT_ID).getTextContent();
-//			
-//			// check for unique id
-//			if (dataBeans.containsKey(id)) {
-//				logger.warn("duplicate data bean id: " + id + " , ignoring data bean: " + name);
-//				continue;
-//			}
-//			
-//			// create the data bean
-//			String storageMethodString = XmlUtil.getChildElement(element, ClientSession.ELEMENT_STORAGE_METHOD).getTextContent();
-//			StorageMethod storageMethod = DataBean.StorageMethod.valueOf(storageMethodString);
-//			String urlString = XmlUtil.getChildElement(element, ClientSession.ELEMENT_URL).getTextContent();
-//			URL url = null;
-//			try {
-//				url = new URL(urlString);
-//			} catch (MalformedURLException e) {
-//				logger.warn("could not parse url: "  + urlString + " for data bean: " + name);
-//			}
-//			
-//			String cacheURLString = XmlUtil.getChildElement(element, ClientSession.ELEMENT_CACHE_URL).getTextContent();
-//			URL cacheURL = null;
-//			try {
-//				cacheURL = new URL(cacheURLString);
-//			} catch (MalformedURLException e1) {
-//				logger.warn("could not parse cache url: "  + cacheURLString + " for data bean: " + name);
-//			}
-//			
-//			DataBean dataBean = null;
-//			switch (storageMethod) {
-//			case LOCAL_SESSION:
-//				try {
-//					dataBean = dataManager.createDataBeanFromZip(name, url);
-//				} catch (MicroarrayException e1) {
-//					// TODO Auto-generated catch block
-//					e1.printStackTrace();
-//				}
-//				break;
-//			case LOCAL_USER:
-//				try {
-//					dataBean = dataManager.createDataBean(name, url);
-//				} catch (MicroarrayException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//				break;
-//			default:
-//				logger.warn("unexpected storage method " + storageMethod.name() + " for data bean: " + name);	
-//				continue;
-//			}
-//
-//			dataBean.setCacheUrl(cacheURL);
-//			dataBean.setNotes(XmlUtil.getChildElement(element, ClientSession.ELEMENT_NOTES).getTextContent());
-//			//			dataBean.setCreationDate(date);
-//			
-//			dataBeans.put(id, dataBean);
-//			dataBeanElements.put(dataBean, element);
-//	
-//			logger.debug("successfully parsed databean element: " + dataBean.getName());
-//		}
+		for (DataType dataType : this.sessionType.getData()) {
+			String name = dataType.getName();
+			String id = dataType.getId();
+			
+			// check for unique id
+			if (dataItems.containsKey(id)) {
+				logger.warn("duplicate data bean id: " + id + " , ignoring data bean: " + name);
+				continue;
+			}
+			
+			// create the data bean
+			String storageMethodString = dataType.getStorageType();
+			StorageMethod storageMethod = DataBean.StorageMethod.valueOf(storageMethodString);
+			String urlString = dataType.getUrl();
+			URL url = null;
+			try {
+				url = new URL(urlString);
+			} catch (MalformedURLException e) {
+				logger.warn("could not parse url: "  + urlString + " for data bean: " + name);
+				continue;
+			}
+			
+			
+			DataBean dataBean = null;
+			switch (storageMethod) {
+			case LOCAL_SESSION:
+				try {
+					dataBean = dataManager.createDataBeanFromZip(name, url);
+				} catch (MicroarrayException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				break;
+			case LOCAL_USER:
+				try {
+					dataBean = dataManager.createDataBean(name, url);
+				} catch (MicroarrayException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				break;
+			default:
+				logger.warn("unexpected storage method " + storageMethod.name() + " for data bean: " + name);	
+				continue;
+			}
+
+			// cache url
+			String cacheURLString = dataType.getCacheUrl();
+			URL cacheURL = null;
+			try {
+				cacheURL = new URL(cacheURLString);
+			} catch (MalformedURLException e1) {
+				logger.warn("could not parse cache url: "  + cacheURLString + " for data bean: " + name);
+			}
+			dataBean.setCacheUrl(cacheURL);
+
+			// notes
+			dataBean.setNotes(dataType.getNotes());
+			//			dataBean.setCreationDate(date);
+			
+			
+			dataItems.put(id, dataBean);
+			dataTypes.put(dataBean, dataType);
+	
+			logger.debug("successfully parsed databean element: " + dataBean.getName());
+		}
 	}
 
 	
@@ -235,14 +234,7 @@ public class SessionLoader {
 
 	
 	private void linkChildren(DataFolder parent) {
-		ChildrenType childrenType = folderTypes.get(parent).getChildren();
-		
-		// no children at all? 
-		if (childrenType == null) {
-			return;
-		}
-		
-		for (String childId : childrenType.getChild()) {
+		for (String childId : folderTypes.get(parent).getChild()) {
 			
 			// check that the referenced data item exists
 			DataItem child = dataItems.get(childId);

@@ -40,6 +40,8 @@ public class ClientSession {
 	
 	
 	private static final Logger logger = Logger.getLogger(ClientSession.class);
+	public static final String ROOT_FOLDER_ID = "0";
+	public static final Integer SESSION_VERSION = 1;
 	
 	
 	public static boolean isValidSessionFile(File file) {

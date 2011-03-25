@@ -21,8 +21,11 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.parameter.Parameter;
+import fi.csc.microarray.client.session.schema.DataType;
 import fi.csc.microarray.client.session.schema.FolderType;
+import fi.csc.microarray.client.session.schema.NameType;
 import fi.csc.microarray.client.session.schema.ObjectFactory;
+import fi.csc.microarray.client.session.schema.OperationType;
 import fi.csc.microarray.client.session.schema.SessionType;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
@@ -244,15 +247,19 @@ public class SessionSaver {
 		folderType.setId(folderId);
 		folderType.setName(folder.getName());
 		if (folder.getParent() != null) {
-			folderType.setParent(fetchId(folder.getParent()));
+			String parentId = fetchId(folder.getParent());
+			if (parentId != null) {
+				folderType.setParent(parentId);
+			} else {
+				logger.warn("unknown parent");
+			}
 		}
 		
 		if (folder.getChildCount() > 0) {
 			for (DataItem child : folder.getChildren()) {
 				String childId = fetchId(child);
 				if (childId != null) { 
-					System.out.println(folderType.getChildren() == null);
-					folderType.getChildren().getChild().add(fetchId(child));
+					folderType.getChild().add(fetchId(child));
 				} else {
 					logger.warn("unknown child: " + child.getName());
 				}
@@ -260,66 +267,115 @@ public class SessionSaver {
 		}
 		
 		sessionType.getFolder().add(folderType);
-		
-		//		metadata.append("DATAFOLDER " + folderId + "\n");
-//		saveDataItemMetadata(folder, folderId, metadata);
 	}	
 	
 	private void saveDataBeanMetadata(DataBean bean, URL newURL, String folderId) {
-//		String beanId = fetchId(bean);
-//		
-//		// for now all data content goes to session --> type is local session
-//		metadata.append("DATABEAN " + beanId + " " + newURL + " " + StorageMethod.LOCAL_SESSION + " " + bean.getRepositoryName() + "\n");
-//		
-//		if (bean.getOperation() != null) {
-//			Operation operation = bean.getOperation();
-//			String operId;
-//			
-//			// write operation or lookup already written
-//			if (!operationIdMap.containsValue(operation) ) {
-//				
-//				operId = generateId(operation);
-//				metadata.append("OPERATION " + operId + " " + operation.getID() + "\n");
-//
-//				// some parameters need inputs at loading time => write these first
-//				if (operation.getBindings() != null) {
-//					String beanIds = "";
-//					for (DataBinding binding : operation.getBindings()) {
-//						beanIds += fetchId(binding.getData()) + " ";
-//					}
-//					metadata.append("INPUTS " + operId + " " + beanIds + "\n");
-//				}
-//
-//				for (Parameter parameter : operation.getParameters()) {
-//
-//					// Write parameter only when value is not empty
-//					if (parameter.getValue() != null && !parameter.getValue().equals("")) {	
-//						metadata.append("OPERATION_PARAMETER " + operId + " " +
-//								parameter.getID() + " " + parameter.getValueAsString() + "\n");
-//					}
-//				}
-//
-//
-//			} else {
-//				operId = reversedOperationIdMap.get(operation).toString();
-//			}
-//			
-//			metadata.append("OUTPUT " + operId + " " + beanId + "\n");
-//			
-//		}
-//		
-//		if (bean.getNotes() != null) {
-//			// remove newlines from notes, they break loading
-//			metadata.append("NOTES " + beanId + " " + bean.getNotes().replace('\n', ' ') + "\n");
-//		}
-//		
-//		if (bean.getCacheUrl() != null) {
-//			metadata.append("CACHED_URL " + beanId + " " + bean.getCacheUrl() + "\n");			
-//		}
-//		
-//		saveDataItemMetadata(bean, beanId, metadata);
+		String beanId = fetchId(bean);
+		
+		// save the basic data
+		DataType dataType = factory.createDataType();
+		dataType.setId(beanId);
+		dataType.setName(bean.getName());
+		if (bean.getParent() != null) {
+			String parentId = fetchId(bean.getParent());
+			if (parentId != null) {
+				dataType.setFolder(parentId);
+			} else {
+				logger.warn("unknown parent");
+			}
+		}
+		
+		dataType.setNotes(bean.getNotes());
+		
+		// storage method
+		// for now all data content goes to session --> type is local session
+		dataType.setStorageType(StorageMethod.LOCAL_SESSION.name());
+		
+		// url
+		dataType.setUrl(newURL.toString());
+		
+		// cache url
+		if (bean.getCacheUrl() != null) {
+			dataType.setCacheUrl(bean.getCacheUrl().toString());
+		}
+		
+		
+		if (bean.getOperation() != null) {
+			Operation operation = bean.getOperation();
+			String operId;
+			
+			// write operation or lookup already written
+			if (!operationIdMap.containsValue(operation) ) {
+				
+				operId = generateId(operation);
+				metadata.append("OPERATION " + operId + " " + operation.getID() + "\n");
+
+				// some parameters need inputs at loading time => write these first
+				if (operation.getBindings() != null) {
+					String beanIds = "";
+					for (DataBinding binding : operation.getBindings()) {
+						beanIds += fetchId(binding.getData()) + " ";
+					}
+					metadata.append("INPUTS " + operId + " " + beanIds + "\n");
+				}
+
+				for (Parameter parameter : operation.getParameters()) {
+
+					// Write parameter only when value is not empty
+					if (parameter.getValue() != null && !parameter.getValue().equals("")) {	
+						metadata.append("OPERATION_PARAMETER " + operId + " " +
+								parameter.getID() + " " + parameter.getValueAsString() + "\n");
+					}
+				}
+
+
+			} else {
+				operId = reversedOperationIdMap.get(operation).toString();
+			}
+			
+			metadata.append("OUTPUT " + operId + " " + beanId + "\n");
+			
+		}
+		
+		if (bean.getNotes() != null) {
+			// remove newlines from notes, they break loading
+			metadata.append("NOTES " + beanId + " " + bean.getNotes().replace('\n', ' ') + "\n");
+		}
+		
+		if (bean.getCacheUrl() != null) {
+			metadata.append("CACHED_URL " + beanId + " " + bean.getCacheUrl() + "\n");			
+		}
+		
+		saveDataItemMetadata(bean, beanId, metadata);
+
+		sessionType.getData().add(dataType);
+
 	}
 
+	
+	private void saveOperationMetadata(Operation operation, String operationId) {
+		OperationType operationType = factory.createOperationType();
+		operationType.setId(operationId);
+		
+		NameType nameType = factory.createNameType();
+		nameType.setId(operation.getID());
+		nameType.setDisplayName(operation.getDisplayName());
+		operationType.setName(nameType);
+		
+		for (Parameter parameter : operation.getParameters()) {
+
+			// Write parameter only when value is not empty
+			if (parameter.getValue() != null && !parameter.getValue().equals("")) {	
+				metadata.append("OPERATION_PARAMETER " + operId + " " +
+						parameter.getID() + " " + parameter.getValueAsString() + "\n");
+			}
+		}
+
+		
+		sessionType.getOperation().add(operationType);
+	}	
+
+	
 	private void saveDataItemMetadata(DataItem data, String folderId) {
 //		metadata.append("NAME " + folderId + " " + data.getName() + "\n");
 //		if (data.getParent() != null) {

@@ -383,7 +383,9 @@
 
 	
 	<target name="generate-session-classes" description="">
-	    <java classname="com.sun.tools.internal.xjc.XJCFacade">
+		<delete dir="src/main/java/fi/csc/microarray/client/session/schema" />
+
+		<java classname="com.sun.tools.internal.xjc.XJCFacade">
 	            <arg value="-p" />
 	            <arg value="fi.csc.microarray.client.session.schema"/>
             	<arg value="-d" />
