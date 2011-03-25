@@ -23,11 +23,11 @@ public class GeneTrackGroup extends TrackGroup {
 	
 	protected TranscriptTrack transcript;
 	protected IntensityTrack geneOverview;
-	protected GeneTrack gene;
+	protected Track gene;
 	protected ReferenceSNPTrack snpTrack = null;
 	protected RepeatMaskerTrack repeatMasker;
 	protected IntensityTrack geneOverviewReversed;
-	protected GeneTrack geneReversed;
+	protected Track geneReversed;
 	protected TranscriptTrack transcriptReversed;
 	protected ReferenceSNPTrack snpTrackReversed;
 

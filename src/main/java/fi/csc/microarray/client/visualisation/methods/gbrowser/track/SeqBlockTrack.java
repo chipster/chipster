@@ -130,6 +130,7 @@ public class SeqBlockTrack extends Track {
 
 				// Check if we have enough space for the actual sequence (at least pixel per nucleotide)
 				String seq = visibleRegion.getSequencePart();
+				Cigar cigar = (Cigar) read.values.get(ColumnType.CIGAR);
 				if (rect.width < seq.length()) {
 					// Too little space - only show one rectangle for each read part
 
@@ -140,7 +141,7 @@ public class SeqBlockTrack extends Track {
 						color = color.brighter();
 					}
 
-					drawables.add(new RectDrawable(rect, color, null));
+					drawables.add(new RectDrawable(rect, color, null, cigar.toInfoString()));
 
 				} else {
 					// Enough space - show color coding for each nucleotide
@@ -197,9 +198,10 @@ public class SeqBlockTrack extends Track {
 						}
 
 						// Draw rectangle
-						int x = Math.round(startX + Math.round(((float)refIndex) * increment));
-						int width = increment >= 1.0f ? Math.round(increment) : 1;  
-						drawables.add(new RectDrawable(x, rect.y, width, GenomeBrowserConstants.READ_HEIGHT, bg, null));
+						int x1 = Math.round(startX + ((float)refIndex) * increment);
+						int x2 = Math.round(startX + ((float)refIndex + 1f) * increment);
+						int width = Math.max(x2 - x1, 1);
+						drawables.add(new RectDrawable(x1, rect.y, width, GenomeBrowserConstants.READ_HEIGHT, bg, null, cigar.toInfoString()));
 					}
 				}
 			}

@@ -23,7 +23,12 @@ import javax.swing.border.LineBorder;
 
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.dialog.DialogInfo.Type;
-
+/**
+ * 
+ * TODO State of the details visibility doesn't seem to be updated in the code.
+ * Probably works the way it's used at the moment. 
+ *
+ */
 public class ChipsterDialog extends JDialog {
 	
 	public enum DetailsVisibility { 
@@ -194,7 +199,8 @@ public class ChipsterDialog extends JDialog {
 		g.gridwidth = 5;
 		g.weighty = 1.0;
 		
-		detailsPanel.setLayout(new CardLayout());
+		CardLayout detailsCardLayout = new CardLayout();
+		detailsPanel.setLayout(detailsCardLayout);
 		
 		JTextArea detailsArea = new JTextArea(dialogInfo.getDetails());		
 		detailsArea.setBorder(new LineBorder(Color.BLACK));
@@ -205,7 +211,9 @@ public class ChipsterDialog extends JDialog {
 		JPanel placeholder = new JPanel();
 		detailsPanel.add(placeholder, "hidden");
 		
-		setDetailsVisible(false);
+	    detailsCardLayout.show(detailsPanel, "hidden");
+	    detailsPanel.setPreferredSize(new Dimension(DETAIL_AREA_WIDTH, 0));
+
 		mainPanel.add(detailsPanel, g);
 
 		return mainPanel;

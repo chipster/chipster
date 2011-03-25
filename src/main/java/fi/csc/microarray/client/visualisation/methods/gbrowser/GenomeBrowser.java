@@ -42,7 +42,6 @@ import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
-import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
 import fi.csc.chipster.tools.gbrowser.SamBamUtils;
@@ -51,7 +50,6 @@ import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
-import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
@@ -675,8 +673,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				application.reportException(e);
 			}
 			
-			// Create the plot
-			ChartPanel chartPanel = new NonScalableChartPanel();
+			// Create the chart panel with tooltip support				
+			TooltipEnabledChartPanel chartPanel = new TooltipEnabledChartPanel();
 			this.plot = new GenomePlot(chartPanel, true);
 			
 			// Set scale of profile track containing reads information
@@ -772,13 +770,13 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 					switch (track.interpretation.type) {
 					case REGIONS:
 						TrackFactory.addThickSeparatorTrack(plot);
-						TrackFactory.addTitleTrack(plot, file.getName());
+						TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
 						peakData = new ChunkDataSource(file, new BEDParser());
 						TrackFactory.addPeakTrack(plot, peakData);
 						break;
 					case REGIONS_WITH_HEADER:
 						TrackFactory.addThickSeparatorTrack(plot);
-						TrackFactory.addTitleTrack(plot, file.getName());
+						TrackFactory.addTitleTrack(plot, track.interpretation.primaryData.getName());
 						peakData = new ChunkDataSource(file, new HeaderTsvParser());
 						TrackFactory.addHeaderPeakTrack(plot, peakData);
 						break;

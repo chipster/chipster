@@ -38,7 +38,6 @@ import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationCategory;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
-import fi.csc.microarray.client.operation.Operation.ResultListener;
 import fi.csc.microarray.client.selection.DataSelectionManager;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.TaskEventListener;
@@ -152,7 +151,7 @@ public abstract class ClientApplication {
 	protected String requestedModule;
 
 	// TODO wrap these to some kind of repository
-	protected Collection<OperationCategory> visibleCategories;
+	protected List<OperationCategory> visibleCategories;
 	protected Map<String, OperationDefinition> operationDefinitions;
 	protected Map<String, OperationDefinition> internalOperationDefinitions;
 
@@ -339,18 +338,6 @@ public abstract class ClientApplication {
 	 */
 	public void renameDataItem(DataItem data, String newName) {
 		data.setName(newName);
-	}
-	
-	public void executeOperation(final OperationDefinition operationDefinition, ResultListener resultListener) {
-		
-		try {
-			Operation operation = new Operation(operationDefinition, getSelectionManager().getSelectedDatasAsArray());
-			operation.setResultListener(resultListener);
-			executeOperation(operation);
-			
-		} catch (MicroarrayException e) {
-			reportException(e);
-		}
 	}
 	
 

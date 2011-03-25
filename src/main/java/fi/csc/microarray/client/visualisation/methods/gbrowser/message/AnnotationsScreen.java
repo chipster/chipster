@@ -36,7 +36,9 @@ import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.TaskExecutor;
 
 /**
- * @author Petri Klemelä
+ * Screen for downloading annotations files used by the genome browser.
+ * 
+ * @author Taavi Hupponen
  * 
  */
 public class AnnotationsScreen extends ScreenBase implements ActionListener,
@@ -233,8 +235,8 @@ public class AnnotationsScreen extends ScreenBase implements ActionListener,
 					Component c = super.prepareRenderer(renderer, rowIndex,
 							vColIndex);
 
-					Column col = Column.values()[table
-							.convertColumnIndexToModel(vColIndex)];
+//					Column col = Column.values()[table
+//							.convertColumnIndexToModel(vColIndex)];
 
 					rowIndex = table.convertRowIndexToModel(rowIndex);
 

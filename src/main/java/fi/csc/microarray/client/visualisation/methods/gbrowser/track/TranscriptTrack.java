@@ -20,7 +20,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaR
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
@@ -121,7 +120,7 @@ public class TranscriptTrack extends Track {
 				String geneId = ((String) gene.first().values.get(ColumnType.DESCRIPTION));
 
 				if (isNameVisible(rect)) {
-					drawables.add(new TextDrawable(rect.x, rect.y - 1, geneId, Color.DARK_GRAY));
+					drawTextAboveRectangle(geneId, drawables, rect, 1);
 				}
 
 				List<Drawable> geneDrawables = new ArrayList<Drawable>();

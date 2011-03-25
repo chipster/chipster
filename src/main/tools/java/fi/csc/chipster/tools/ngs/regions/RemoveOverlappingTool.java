@@ -20,7 +20,7 @@ public class RemoveOverlappingTool extends RegionTool {
 	@Override
 	protected LinkedList<RegionContent> operate(LinkedList<List<RegionContent>> inputs, List<String> parameters) {
 		RegionOperations tool = new RegionOperations();
-		Long minOverlap = Long.parseLong(inputMessage.getParameters().get(0));
+		Long minOverlap = Long.parseLong(parameters.get(0));
 		return tool.subtract(inputs.get(0), inputs.get(1), minOverlap);
 	}
 }

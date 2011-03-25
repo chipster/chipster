@@ -3,6 +3,7 @@
 <module name="microarray">
 		
 	<category name="NGS Data processing" color="#27bcd1">
+	    <tool runtime="R-2.12"><resource>bowtie.R</resource></tool>
 	    <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.PreprocessNGSSingle</resource></tool>
         <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingTool</resource></tool>
         <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.RemoveOverlappingTool</resource></tool>

@@ -4,7 +4,7 @@ import java.awt.Color;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.TrackContext;
 
-public class Drawable {
+public abstract class Drawable {
 
 	public int x;
 	public int y;
@@ -31,4 +31,8 @@ public class Drawable {
      * Expand this drawable to fit into given context.
      */
     public void expand(TrackContext context) { }
+
+	public String getTooltipText() {
+		return null;
+	}
 }

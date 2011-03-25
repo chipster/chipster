@@ -1,5 +1,5 @@
 # ANALYSIS Visualisation/"Heatmap" (Draws a heatmap using Pearson correlation and average linkage.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT heatmap.png
+# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT heatmap.pdf
 # PARAMETER coloring.scheme [Green-Red, Blue-Yellow, Black-White] DEFAULT Blue-Yellow (Coloring scheme for the SOM map)
 # PARAMETER cluster.samples.only [yes, no] DEFAULT no (Disables clustering on the genes. This option is convenient if you
 # want to retain a predefined gene order or make a sample clustering heatmap with more than 10000 genes)
@@ -80,7 +80,7 @@ if(colpar=="Black-White") {
 		column_margin <- 15
 	}
 	
-bitmap(file="heatmap.png", width=w/72, height=h/72)
+pdf(file="heatmap.pdf", width=w/72, height=h/72)
 if (cluster.samples.only=="no") {
 	heatmap(x=as.matrix(dat2), Rowv=clustg, Colv=clustc, col=heatcol, margins=c(15, column_margin), labCol=gsub(" ", "", phenodata$description))
 }

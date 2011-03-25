@@ -1,7 +1,7 @@
 # ANALYSIS Clustering/Hierarchical (Hierarchical clustering of genes or chips. Specify the distance measure and the 
 # clustering method. The clustering result can be validated using bootstrapping. Validation is computationally 
 # very expensive, and works for approximately less than 100 genes.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT hc.tre, resample.png
+# INPUT GENE_EXPRS normalized.tsv OUTPUT hc.tre, resample.pdf
 # PARAMETER cluster [genes, chips] DEFAULT genes (What to cluster)
 # PARAMETER distance.method [euclidian, manhattan, pearson, spearman] DEFAULT pearson (Distance measure)
 # PARAMETER tree.method [single, average, complete, ward] DEFAULT average (Clustering method)
@@ -110,8 +110,7 @@ if(doresample=="none") {
 
 # Tree calculation, with resampling
 if(doresample=="none"){
-   # png("resample.png", width=600, height=600)
-   bitmap(file="resample.png", width=w/72, height=h/72)
+   pdf(file="resample.pdf", width=w/72, height=h/72)
    plot(1, 1, col=0)
    text(1, 1, "This is a dummy image.", col=1)
    text(1, 0.9, "To generate a real image, turn on the bootstrapping option.", col=1)
@@ -128,8 +127,7 @@ if(doresample=="bootstrap"){
    }
    dat2<-t(dat2)
    pv.clust<-pvclust(dat2, method.dist=distmeth, method.hclust=treemeth, nboot=perms, r=1)
-   # png("resample.png", width=600, height=600)
-   bitmap(file="resample.png", width=w/72, height=h/72)
+   pdf(file="resample.pdf", width=w/72, height=h/72)
    plot(pv.clust, cex.pv=0.75, font.pv=0.75, cex=0.75)
    dev.off()
 }

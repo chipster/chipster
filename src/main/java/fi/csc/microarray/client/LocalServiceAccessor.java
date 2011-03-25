@@ -1,7 +1,7 @@
 package fi.csc.microarray.client;
 
-import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.jms.JMSException;
 
@@ -26,8 +26,8 @@ public class LocalServiceAccessor implements ServiceAccessor {
 
 	private DataManager manager;
 
-	private Collection<OperationCategory> visibleCategories;
-	private Collection<OperationCategory> hiddenCategories;
+	private List<OperationCategory> visibleCategories;
+	private List<OperationCategory> hiddenCategories;
 
 	
 	
@@ -44,7 +44,7 @@ public class LocalServiceAccessor implements ServiceAccessor {
 
 	/**
 	 * FIXME get tool list from configs
-	 * FIXME put the code for creating the OperatioinDefinition to a place where both this and
+	 * FIXME put the code for creating the OperationDefinition to a place where both this and
 	 * DescriptionMessageListener can use it
 	 * 
 	 */
@@ -100,7 +100,7 @@ public class LocalServiceAccessor implements ServiceAccessor {
 	}
 
 	@Override
-	public Collection<OperationCategory> getHiddenCategories() {
+	public List<OperationCategory> getHiddenCategories() {
 		if (hiddenCategories == null) {
 			throw new IllegalStateException("fetchDescriptions(...) must be called first");
 		}
@@ -108,7 +108,7 @@ public class LocalServiceAccessor implements ServiceAccessor {
 	}
 	
 	@Override
-	public Collection<OperationCategory> getVisibleCategories() {
+	public List<OperationCategory> getVisibleCategories() {
 		if (visibleCategories == null) {
 			throw new IllegalStateException("fetchDescriptions(...) must be called first");
 		}

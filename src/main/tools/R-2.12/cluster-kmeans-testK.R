@@ -1,6 +1,6 @@
 # ANALYSIS Clustering/"K-Means - estimate K" (K-means clustering of genes. Divides the genes in the selected data set into a specified 
 # number of clusters. Tests a number of different Ks and gives back a report.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT kmeans-test.png
+# INPUT GENE_EXPRS normalized.tsv OUTPUT kmeans-test.pdf
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the resampling image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the resampling image)
 
@@ -41,6 +41,6 @@ while(i<kmax) {
 }
 
 # Plotting the clustering
-bitmap(file="kmeans-test.png", width=w/72, height=h/72)
+pdf(file="kmeans-test.pdf", width=w/72, height=h/72)
 plot(2:kmax, km, xlab="K", ylab="sum(withinss)", type="b", pch="+", main="Terminated when change less than 1%")
 dev.off()

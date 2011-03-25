@@ -129,12 +129,11 @@ public class RepeatMaskerTrack extends Track {
                     long endX = getView().bpToTrack(new BpCoord(currentBpLocation, lastChromosome));
                     
                     // only draw rectangles when letter case changes
-            		drawables.add(new RectDrawable(new Rectangle((int)startX, 0,
-                            (int)(endX-startX), this.getHeight()), c, c));
+                    if (c != UPPER_COLOR) {
+                    	drawables.add(new RectDrawable(new Rectangle((int)startX, 0,
+                    			(int)(endX-startX), this.getHeight()), c, c));
+                    }
             		
-            		drawables.add(new RectDrawable(new Rectangle((int)startX, 0,
-                            (int)(endX-startX), this.getHeight()), c, c));
-                    
                     lastBpLocation = currentBpLocation;
                 	c = (c == UPPER_COLOR) ? LOWER_COLOR : UPPER_COLOR;
                 }

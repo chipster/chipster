@@ -166,6 +166,12 @@
       <package>XML</package>
     </item>
 
+	<item installed="false" name="R2HTML" type="r-package">
+      <repository>http://cran.r-project.org</repository>
+      <package>R2HTML</package>
+    </item>
+
+
 
 	<!--  BioConductor packages -->
 	
@@ -286,6 +292,10 @@
       <bioconductor-package>MLInterfaces</bioconductor-package>
     </item>
       
+    <item installed="false" name="GOstats" type="r-package"> 
+      <bioconductor-package>GOstats</bioconductor-package>
+    </item>
+
     <item installed="false" name="PAnnBuilder" type="r-package"> 
       <bioconductor-package>PAnnBuilder</bioconductor-package>
     </item>
@@ -322,6 +332,19 @@
       <bioconductor-package>DNAcopy</bioconductor-package>
     </item>
     
+    <item installed="false" name="hgu133plus2probe" type="r-package"> 
+      <bioconductor-package>hgu133plus2probe</bioconductor-package>
+    </item>
+
+    <item installed="false" name="hgu133plus2cdf" type="r-package"> 
+      <bioconductor-package>hgu133plus2cdf</bioconductor-package>
+    </item>
+
+    <item installed="false" name="MLInterfaces" type="r-package"> 
+      <bioconductor-package>MLInterfaces</bioconductor-package>
+    </item>
+
+
   </bundle>
   
   <bundle name="Additional R packages" depends="Basic R environment">

@@ -1,5 +1,5 @@
 # ANALYSIS Visualisation/"Correlogram" (Plots the correlations between samples in a graph.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT corrgram.png
+# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT corrgram.pdf
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
@@ -33,7 +33,7 @@ phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 colnames(dat2)<-gsub(" ", "", phenodata$description)
 
 # Plotting
-bitmap(file="corrgram.png", width=w/72, height=h/72)
+pdf(file="corrgram.pdf", width=w/72, height=h/72)
 corrgram(x=dat2, lower.panel=panel.shade, upper.panel=panel.pts, pch=".")
 dev.off()
 

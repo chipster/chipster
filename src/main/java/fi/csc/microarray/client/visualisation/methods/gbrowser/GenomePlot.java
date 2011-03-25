@@ -65,7 +65,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
         }
     }
 
-	public GenomePlot(ChartPanel panel, boolean horizontal) throws FileNotFoundException, MalformedURLException {
+	public GenomePlot(TooltipEnabledChartPanel panel, boolean horizontal) throws FileNotFoundException, MalformedURLException {
 	    
 	    // set chart panel
 	    chartPanel = panel;
@@ -81,8 +81,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 		// add horizontal or circular data view
 		if (horizontal) {
 			
-			HorizontalView hView = new HorizontalView(this, true, true, false);					
-			this.dataView = hView;
+			this.dataView = new HorizontalView(this, true, true, false);
 
 		} else {
 			
@@ -92,6 +91,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 		}
 
 		this.views.add(dataView);
+		panel.addTooltipRequestProcessor(dataView);
 
 		dataView.addRegionListener(new RegionListener() {
 			public void regionChanged(BpCoordRegion bpRegion) {

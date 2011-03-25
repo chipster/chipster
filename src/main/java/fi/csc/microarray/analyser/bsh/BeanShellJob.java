@@ -1,5 +1,7 @@
 package fi.csc.microarray.analyser.bsh;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
 import bsh.EvalError;
@@ -8,7 +10,10 @@ import bsh.TargetError;
 import fi.csc.microarray.analyser.AnalysisDescription;
 import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
+import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
 import fi.csc.microarray.messaging.JobState;
+import fi.csc.microarray.messaging.message.JobMessage.ParameterSecurityPolicy;
+import fi.csc.microarray.messaging.message.JobMessage.ParameterValidityException;
 
 
 /**
@@ -19,10 +24,29 @@ import fi.csc.microarray.messaging.JobState;
  * TODO Add better error handling. The bean shell script should be able to 
  * set job state, error message and output text
  * 
- * @author hupponen
+ * @author Taavi Hupponen, Aleksi Kallio
  * 
  */
 public class BeanShellJob extends OnDiskAnalysisJobBase {
+
+	public static class BSParameterSecurityPolicy implements ParameterSecurityPolicy {
+		
+		private static final int MAX_VALUE_LENGTH = 10000;
+		
+		public boolean isValueValid(String value, ParameterDescription parameterDescription) {
+			
+			// Check parameter size (DOS protection)
+			if (value.length() > MAX_VALUE_LENGTH) {
+				return false;
+			}
+			
+			// No need to check content, parameters are passed inside Java Strings
+			return true;
+		}
+
+	}
+	
+	public static BSParameterSecurityPolicy BS_PARAMETER_SECURITY_POLICY = new BSParameterSecurityPolicy();
 
 	private static final Logger logger = Logger.getLogger(BeanShellJob.class);
 	
@@ -41,8 +65,17 @@ public class BeanShellJob extends OnDiskAnalysisJobBase {
 		jobInfo.workDir = jobWorkDir;
 		
 		int i = 0;
+		List<String> parameters;
+		try {
+			parameters = inputMessage.getParameters(BS_PARAMETER_SECURITY_POLICY, analysis);
+		} catch (ParameterValidityException e) {
+			outputMessage.setErrorMessage("There was an invalid parameter value.");
+			outputMessage.setOutputText(e.toString());
+			updateState(JobState.FAILED_USER_ERROR, "");
+			return;
+		}
 		for (AnalysisDescription.ParameterDescription param : analysis.getParameters()) {
-			jobInfo.parameters.put(param.getName(), inputMessage.getParameters().get(i));
+			jobInfo.parameters.put(param.getName(), parameters.get(i));
 			i++;
 		}
 		

@@ -1,5 +1,5 @@
 # ANALYSIS Visualisation/"Boxplot" (Creates a boxplot of normalized data. One box per chip is plotted.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT boxplot.png
+# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT boxplot.pdf
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
@@ -28,12 +28,12 @@ phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 
 # Plotting
 if(nrow(phenodata)==ncol(dat2)) {
-   bitmap(file="boxplot.png", width=w/72, height=h/72)
+   pdf(file="boxplot.pdf", width=w/72, height=h/72)
    par(mar=c(12,5,5,5))
    boxplot(as.data.frame(dat2), las=2, names=phenodata$description)
    dev.off()
 } else {
-   bitmap(file="boxplot.png", width=w/72, height=h/72)
+   pdf(file="boxplot.pdf", width=w/72, height=h/72)
    par(mar=c(12,5,5,5))
    boxplot(as.data.frame(dat2), las=2)
    dev.off()

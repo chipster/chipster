@@ -51,12 +51,12 @@ public class BasicModule implements Module {
 		public static VisualisationMethod WEBVIEW = new VisualisationMethod("View page", HtmlViewer.class, VisualConstants.HTML_MENUICON, 1, 0.008); 
 		public static VisualisationMethod PDFVIEW = new VisualisationMethod("View PDF", PDFViewer.class, VisualConstants.IMAGE_MENUICON, 1, 0);
 		public static VisualisationMethod VIEW_TEXT = new VisualisationMethod("View text", TextViewer.class, VisualConstants.TEXT_MENUICON, 1, 0);
-		public static VisualisationMethod EXTERNAL_BROWSER = new VisualisationMethod("Open in external web browser", ExternalBrowserViewer.class, VisualConstants.EMPTY_MENUICON, 1, -1);
+		public static VisualisationMethod EXTERNAL_BROWSER = new VisualisationMethod("Open in external web browser", ExternalBrowserViewer.class, VisualConstants.EMPTY_MENUICON, -1, -1);
 	}
 	
 	public void plugContentTypes(DataManager manager) {
 
-		manager.plugContentType("text/plain", false, false, "plain text", VisualConstants.ICON_TYPE_TEXT, "txt", "dat", "wee", "seq");
+		manager.plugContentType("text/plain", false, false, "plain text", VisualConstants.ICON_TYPE_TEXT, "txt", "dat", "wee", "seq", "log", "sam", "fastq");
 		manager.plugContentType("application/octet-stream", false, true, "binary", VisualConstants.ICON_TYPE_BINARY, "");
 		
 		manager.plugContentType("text/tab", false, false, "tab separated values", VisualConstants.ICON_TYPE_TABLE, "tsv");
