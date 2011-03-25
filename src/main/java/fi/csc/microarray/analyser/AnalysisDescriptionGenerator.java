@@ -24,7 +24,6 @@ public class AnalysisDescriptionGenerator {
 		description.setID(source.getName().getID());
 		description.setDisplayName(source.getName().getDisplayName());
 		description.setComment(source.getComment());
-		description.setCategory(source.getCategory());
 
 		// not interested in inputs, they were figured out when job was submitted
 		// I'm interested in inputs in java jobs

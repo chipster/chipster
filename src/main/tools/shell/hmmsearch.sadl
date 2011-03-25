@@ -1,4 +1,4 @@
-TOOL "HMM" / hmmsearch.sadl: hmmsearch (Search one or more profiles against a sequence database.)
+TOOL hmmsearch.sadl: hmmsearch (Search one or more profiles against a sequence database.)
 INPUT hmm-model.txt: "HMM model" TYPE GENERIC
 INPUT target-sequence-file: "target sequence file" TYPE GENERIC
 OUTPUT hmmsearch.txt

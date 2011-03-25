@@ -1,4 +1,4 @@
-TOOL "HMM" / hmmscan.sadl: hmmscan (Search sequences against a Pfam-database.)
+TOOL hmmscan.sadl: hmmscan (Search sequences against a Pfam-database.)
 INPUT hmm-model.txt: "HMM model" TYPE GENERIC
 OUTPUT hmmscan.txt
 OUTPUT hmmscan-sequence-hits.txt

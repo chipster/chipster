@@ -1,4 +1,4 @@
-TOOL "BLAST" / my_blastn.sadl: my_blastn (Heuristic tool to search hits for a nucleotide sequence from a nucleotide sequence set.)
+TOOL my_blastn.sadl: my_blastn (Heuristic tool to search hits for a nucleotide sequence from a nucleotide sequence set.)
 INPUT query: "Query sequences" TYPE GENERIC
 INPUT dbnuc: "Database" TYPE GENERIC
 OUTPUT out.txt

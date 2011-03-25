@@ -40,7 +40,6 @@ public class SADLParserTest {
 		SADLDescription parsedDescription = new ChipsterSADLParser().parse(vvsadl);
 		Assert.assertNotNull(parsedDescription);
 		Assert.assertEquals(parsedDescription.getName().getID(), "Test tool");
-		Assert.assertEquals(parsedDescription.getCategory(), "Test utilities");
 		Assert.assertEquals(parsedDescription.getName().getDisplayName(), "Test tool");
 		Assert.assertTrue(parsedDescription.getComment().startsWith("Just a test analysis"));
 		Assert.assertEquals(parsedDescription.inputs().size(), 1);
@@ -53,7 +52,7 @@ public class SADLParserTest {
 
 	@Test(groups = {"unit"} )
 	public void testParsing() throws MicroarrayException, IOException {
-		String sadl = "TOOL \"Test utilities\" / util-test.R: \"Test tool\" (Just a test analysis for development. These descriptions are sometimes very\n" + 
+		String sadl = "TOOL util-test.R: \"Test tool\" (Just a test analysis for development. These descriptions are sometimes very\n" + 
 				"long and might get hard to read. (Note that certain operators must be escaped.\\))\n" + 
 				"INPUT microarray{...}.tsv: \"Raw data files\" TYPE CDNA\n" + 
 				"INPUT phenodata.tsv: \"Experiment description\" TYPE GENERIC\n" + 
@@ -75,7 +74,6 @@ public class SADLParserTest {
 		Assert.assertEquals(parsedDescription.getName().getID(), "util-test.R"); // test name parts here, not repeated after this
 		Assert.assertEquals(parsedDescription.getName().getDisplayName(), "Test tool"); // test name parts here, not repeated after this
 		Assert.assertEquals(parsedDescription.getName().toString(), "util-test.R: \"Test tool\"");
-		Assert.assertEquals(parsedDescription.getCategory(), "Test utilities");
 		Assert.assertTrue(parsedDescription.getComment().startsWith("Just a test analysis"));
 		Assert.assertTrue(parsedDescription.getComment().endsWith("must be escaped.)"));
 		
@@ -176,7 +174,7 @@ public class SADLParserTest {
 		Assert.assertEquals(parsedDescription.inputs().get(0).getName().getID(), "input1");
 		Assert.assertTrue(parsedDescription.inputs().get(0).isOptional());
 		Assert.assertEquals(parsedDescription.inputs().get(1).getName().getPrefix(), "input2");
-		Assert.assertEquals(parsedDescription.inputs().size(), 2);
+		Assert.assertEquals(parsedDescription.inputs().size(), 4);
 		Assert.assertEquals(parsedDescription.parameters().size(), 2);
 		Assert.assertEquals(parsedDescription.parameters().get(1).getFrom(), "1");
 		
@@ -203,13 +201,13 @@ public class SADLParserTest {
 	}
 	
 	private SADLDescription generateDescription() {
-		SADLDescription description = new SADLDescription(Name.createName("name", "longname/displayname"), "category", "main comment (funny)"); 
+		SADLDescription description = new SADLDescription(Name.createName("name", "longname/displayname"), "main comment (funny)"); 
 		description.addInput(new Input(ChipsterInputTypes.GENE_EXPRS, Name.createName("input1", "input1"), true));
 		description.addInput(new Input(ChipsterInputTypes.GENE_EXPRS, Name.createNameSet("input2", ".ext", "input set 2")));
-		description.addMetaInput(new Input(ChipsterInputTypes.GENE_EXPRS, Name.createName("metainput1", "metainput1")));
-		description.addMetaInput(new Input(ChipsterInputTypes.GENE_EXPRS, Name.createNameSet("metainput2", ".ext", "meta input set 2")));
+		description.addInput(new Input(ChipsterInputTypes.GENE_EXPRS, Name.createName("metainput1", "metainput1"), false, true));
+		description.addInput(new Input(ChipsterInputTypes.GENE_EXPRS, Name.createNameSet("metainput2", ".ext", "meta input set 2"), false, true));
 		description.addOutput(new Output(Name.createName("output1","output1")));
-		description.addMetaOutput(new Output(Name.createName("metaoutput1", "metaoutput1")));
+		description.addOutput(new Output(Name.createName("metaoutput1", "metaoutput1"), false, true));
 		description.addParameter(new Parameter(Name.createName("parameter1", "parameter1"), ParameterType.DECIMAL, null, "1", "3", "2", "param comment 1"));
 		description.addParameter(new Parameter(Name.createName("parameter2", "parameter2"), ParameterType.ENUM, new Name[] {Name.createName("1"), Name.createName("2"), Name.createName("3")}, "1", "2", new String[]{"1", "2"}, "param comment 2"));
 		return description;
@@ -222,6 +220,6 @@ public class SADLParserTest {
 		new SADLParserTest().testRoundtrip();
 		new SADLParserTest().testEscapes();
 		new SADLParserTest().testVVSADLCompatibility();
-		System.out.println("SADLParser ok");
+		System.out.println("SADLParserTest OK");
 	}
 }

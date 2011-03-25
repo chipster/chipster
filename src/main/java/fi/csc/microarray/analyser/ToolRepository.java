@@ -351,7 +351,7 @@ public class ToolRepository {
 		    	    } else {
 		                description = runtime.getHandler().handle(resourceName, parameters);
 		    	    }
-		    		description.setCategory(category.getName());
+		    	    
 		    	} catch (Exception e) {
 		    		logger.warn("loading " + resourceName + " failed, could not create description", e);
 		    		continue;
@@ -380,7 +380,7 @@ public class ToolRepository {
 		    		hiddenCount++;
 		    	}
 
-		    	logger.info("loaded " + description.getID() + " " + description.getFullDisplayName().replace("\"", "") + " " +
+		    	logger.info("loaded " + description.getID() + " " + description.getDisplayName() + " " +
 		    			description.getSourceResourceFullPath() + disabledStatus + hiddenStatus);
 		    }
 

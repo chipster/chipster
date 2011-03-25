@@ -1,4 +1,4 @@
-TOOL "BLAST" / my_blastp.sadl: my_blastp (Heuristic tool to search hits for a protein sequence from users own protein sequence set.)
+TOOL my_blastp.sadl: my_blastp (Heuristic tool to search hits for a protein sequence from users own protein sequence set.)
 INPUT query: "Query sequences" TYPE GENERIC
 INPUT dbprot: "Database sequences" TYPE GENERIC
 OUTPUT out.txt
