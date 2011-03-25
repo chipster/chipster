@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.description.SADLDescription;
+import fi.csc.microarray.description.SADLDescription.Input;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 import fi.csc.microarray.util.IOUtils;
@@ -90,6 +91,13 @@ public class SADLTool {
 			
 			// Parse it
 			SADLDescription sadl = new ChipsterSADLParser().parse(parsedScript.SADL, scriptFile.getName());
+			
+			// Do necessary tweaks to meta inputs
+			for (Input input : sadl.inputs()) {
+				if (input.getName().getID().equals("phenodata.tsv")) {
+					input.setMeta(true);
+				}
+			}
 			
 			// Generate SADL from parsed content
 			parsedScript.SADL = sadl.toString();
