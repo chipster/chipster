@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.description.SADLDescription.Input;
+import fi.csc.microarray.description.SADLDescription.Output;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 import fi.csc.microarray.util.IOUtils;
@@ -92,13 +93,18 @@ public class SADLTool {
 			// Parse it
 			SADLDescription sadl = new ChipsterSADLParser().parse(parsedScript.SADL, scriptFile.getName());
 			
-			// Do necessary tweaks to meta inputs
+			// Do necessary tweaks to meta inputs/outputs
 			for (Input input : sadl.inputs()) {
-				if (input.getName().getID().equals("phenodata.tsv")) {
+				if ("phenodata.tsv".equals(input.getName().getID())) {
 					input.setMeta(true);
 				}
 			}
-			
+			for (Output output : sadl.outputs()) {
+				if ("phenodata.tsv".equals(output.getName().getID())) {
+					output.setMeta(true);
+				}
+			}
+
 			// Generate SADL from parsed content
 			parsedScript.SADL = sadl.toString();
 			
@@ -119,7 +125,32 @@ public class SADLTool {
 	
 	public static void main(String[] args) throws Exception {
 		DirectoryLayout.initialiseUnitTestLayout();
-		new SADLTool("#").convertToSADL(new File("src/main/tools/R-2.9/norm-affy.R"));
+		convertACGH();
+	}
+
+
+	private static void convertACGH() throws Exception {
+//		new SADLTool("#").convertToSADL(new File("src/main/tools/R-2.12/"));
+		new SADLTool("#").convertToSADL(new File("src/main/tools/R-2.12/add-cytobands.R"));
+		new SADLTool("#").convertToSADL(new File("src/main/tools/R-2.12/calculate-aberration-frequencies.R"));
+		new SADLTool("#").convertToSADL(new File("src/main/tools/R-2.12/cluster-acgh.R"));
+		new SADLTool("#").convertToSADL(new File("src/main/tools/R-2.12/convert-cn-probes-to-genes.R"));
+		new SADLTool("#").convertToSADL(new File("src/main/tools/R-2.12/count-overlapping-cnvs.R"));
+		new SADLTool("#").convertToSADL(new File("src/main/tools/R-2.12/detect-common-copy-number-aberration-regions.R"));
+		new SADLTool("#").convertToSADL(new File("src/main/tools/R-2.12/detect-copy-number-aberrations.R"));
+		new SADLTool("#").convertToSADL(new File("src/main/tools/R-2.12/fetch-probe-positions-from-cangem.R"));
+		new SADLTool("#").convertToSADL(new File("src/main/tools/R-2.12/import-from-cangem.R"));
+		new SADLTool("#").convertToSADL(new File("src/main/tools/R-2.12/match-cn-and-expression-probes.R"));
+		new SADLTool("#").convertToSADL(new File("src/main/tools/R-2.12/merge-datasets.R"));
+		new SADLTool("#").convertToSADL(new File("src/main/tools/R-2.12/pathways-acgh-hyperg-go.R"));
+		new SADLTool("#").convertToSADL(new File("src/main/tools/R-2.12/plot-cgh-profile.R"));
+		new SADLTool("#").convertToSADL(new File("src/main/tools/R-2.12/plot-cn-induced-expression-profile.R"));
+		new SADLTool("#").convertToSADL(new File("src/main/tools/R-2.12/plot-cn-induced-gene-expression.R"));
+		new SADLTool("#").convertToSADL(new File("src/main/tools/R-2.12/sample-size-with-bh.R"));
+		new SADLTool("#").convertToSADL(new File("src/main/tools/R-2.12/search-coordinates.R"));
+		new SADLTool("#").convertToSADL(new File("src/main/tools/R-2.12/smooth-acgh.R"));
+		new SADLTool("#").convertToSADL(new File("src/main/tools/R-2.12/stat-acgh.R"));
+		new SADLTool("#").convertToSADL(new File("src/main/tools/R-2.12/test-for-cn-induced-differential-expression.R"));
 	}
 
 }
