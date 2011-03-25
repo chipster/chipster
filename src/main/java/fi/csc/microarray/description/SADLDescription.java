@@ -140,6 +140,7 @@ public class SADLDescription {
 		
 		private Name name;
 		private boolean isOptional;
+		protected String comment;
 
 		public Entity(Name name, boolean isOptional) {
             this.name = name;
@@ -161,11 +162,18 @@ public class SADLDescription {
 		public Name getName() {
 			return name;
 		}
+
+		public void setComment(String comment) {
+			this.comment = comment;
+		}
+
+		public String getComment() {
+			return comment;
+		}
 	}
 	
 	public static class IOEntity extends Entity {
 
-		
 		private boolean isMeta;
 		
 		public IOEntity(Name name, boolean isOptional, boolean isMeta) {
@@ -250,14 +258,22 @@ public class SADLDescription {
 		private String from;
 		private String to;
 		private String[] defaultValues; 
-		private String comment;
-		
+
+		public Parameter(Name name, ParameterType type, Name[] selectionOptions,
+				String from, String to, String defaultValue) {
+			this(name, type, selectionOptions, from, to, defaultValue, null);
+		}
 
 		public Parameter(Name name, ParameterType type, Name[] selectionOptions,
 				String from, String to, String defaultValue, String comment) {
 			this(name, type, selectionOptions, from, to,
 			     defaultValue == null ? new String[] {} : new String[] {defaultValue},
 			     comment);
+		}
+
+		public Parameter(Name name, ParameterType type, Name[] selectionOptions,
+				String from, String to, String[] defaultValues) {
+			this(name, type, selectionOptions, from, to, defaultValues, null);
 		}
 
 		public Parameter(Name name, ParameterType type, Name[] selectionOptions,
@@ -296,11 +312,11 @@ public class SADLDescription {
 
 		public String[] getDefaultValues() {
 			return defaultValues;
-		}
-
-		public String getComment() {
-			return comment;
 		}		
+	}
+
+	public SADLDescription(Name name) {
+		this(name, null);
 	}
 
 	/**
@@ -332,6 +348,10 @@ public class SADLDescription {
 		return comment;
 	}
 
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
 	public List<Input> inputs() {
 		return inputs;
 	}
@@ -358,38 +378,6 @@ public class SADLDescription {
 	@Override
 	public String toString() {
 		return SADLGenerator.generate(this);
-	}
-
-	public String toStringVerbose() {
-		String s = "";
-		s += "-------------- sadl description --------------\n";
-		s += this.getName().getID() + "\n";
-		s += this.getName().getDisplayName() + "\n";
-		
-		for (SADLDescription.Input input: this.inputs()) {
-			String inputID = input.getName().getID();
-			if (inputID == null) {
-				inputID = input.getName().getPrefix() + input.getName().getPostfix();
-			}
-			
-			s += inputID + ", " + input.getName().getDisplayName() + ", " + input.getType().getName() + "\n";
-			
-		}
-		
-		for (SADLDescription.Output output: this.outputs()) {
-			String outputID = output.getName().getID();
-			if (outputID == null) {
-				outputID = output.getName().getPrefix() + output.getName().getPostfix();
-			}
-
-			s += outputID + ", " + output.getName().getDisplayName() + ", " + output.isOptional() + "\n";
-		}
-		for (SADLDescription.Parameter parameter: this.parameters()) {
-			s += parameter.getName().getID() + ", " + parameter.getName().getDisplayName() + ", " + parameter.getType() + "\n";
-		}
-		
-		s += "-------------- sadl description --------------\n";
-		return s;
 	}
 
 	/**

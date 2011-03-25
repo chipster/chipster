@@ -17,16 +17,40 @@ import fi.csc.microarray.description.SADLParser.ParseException;
  */
 public class SADLTokeniser {
 
+	public static enum TokenType {
+		COMMENT,
+		QUOTED,
+		OPERATOR,
+		NORMAL
+	}
+	
 	private List<String> tokens;
+	private List<TokenType> types;
 	int index = -1;
 
 	public SADLTokeniser(String sadl, String unitName) throws ParseException {
 		CharTokeniser t = new CharTokeniser(sadl, unitName);
-		this.tokens = t.tokenise();
+		t.tokenise();
+		this.tokens = t.getTokens();
+		this.types = t.getTypes();
+		
+		if (this.tokens.size() != this.types.size()) {
+			throw new RuntimeException("internal parsing error, number of types and tokens does not match");
+		}
 	}
 	
 	public String peek() {
+		if (!hasNext()) {
+			return null;
+		}
 		return tokens.get(index + 1);
+	}
+
+	public TokenType peekType() {
+		if (!hasNext()) {
+			return null;
+		}
+		return types.get(index + 1);
 	}
 
 	public boolean hasNext() {
@@ -59,25 +83,26 @@ public class SADLTokeniser {
 	private static class CharTokeniser {
 
 		private String sadl;
-		private int index = 0;
+		private int charIndex = 0;
 		private String unitName;
 		private boolean escaped;
 		private boolean escapingEnabled;
-
+		private List<String> tokens = new LinkedList<String>();
+		private List<TokenType> types = new LinkedList<TokenType>();
+		
 		public CharTokeniser(String sadl, String unitName) {
 			this.sadl = sadl;
 			this.unitName = unitName;
 		}
 
-		public List<String> tokenise() throws ParseException {
-
-			List<String> tokens = new LinkedList<String>();
+		public void tokenise() throws ParseException {
 
 			// iterate through the whole string
 			while (!atEnd()) {
 
-				int startedAt = index;
+				int startedAt = charIndex;
 				String token = "";
+				TokenType type = TokenType.NORMAL; 
 
 				// read special comment block
 				if (peek() == SADLSyntax.COMMENT_OPEN.charAt(0)) {
@@ -91,6 +116,8 @@ public class SADLTokeniser {
 
 					setEscapingEnabled(false);
 					next(); // skip ')'
+					
+					type = TokenType.COMMENT;
 
 				// read special quoted block
 				} else if (peek() == SADLSyntax.QUOTE.charAt(0)) {
@@ -105,12 +132,16 @@ public class SADLTokeniser {
 					setEscapingEnabled(false);
 					next(); // skip '"'
 
+					type = TokenType.QUOTED;
+
 				// read special operator block
 				} else if (isOperator()) {
 
 					while (!atEnd() && isOperator()) {
 						token += next();
 					}
+					
+					type = TokenType.OPERATOR;
 
 				// read regular block of non-whitespace
 				} else {
@@ -126,16 +157,23 @@ public class SADLTokeniser {
 				}
 
 				// check that we made progress
-				if (index == startedAt) {
+				if (charIndex == startedAt) {
 					throw new ParseException("tokeniser got stuck at ", unitName);
 				}
 
 				// emit token
 				tokens.add(token);
+				types.add(type);
 
 			}
+		}
 
+		public List<String> getTokens() {
 			return tokens;
+		}
+
+		public List<TokenType> getTypes() {
+			return types;
 		}
 
 		private void setEscapingEnabled(boolean b) {
@@ -143,7 +181,7 @@ public class SADLTokeniser {
 		}
 
 		private boolean atEnd() {
-			return index >= sadl.length();
+			return charIndex >= sadl.length();
 		}
 
 		private boolean isWhiteSpace() {
@@ -175,7 +213,7 @@ public class SADLTokeniser {
 
 		public char next() {
 			char c = peek();
-			index++;
+			charIndex++;
 			return c;
 		}
 
@@ -183,12 +221,12 @@ public class SADLTokeniser {
 			
 			// skip escape char and remember the we have escaped the next char
 			this.escaped = false;
-			if (escapingEnabled && sadl.charAt(index) == SADLSyntax.ESCAPE.charAt(0)) {
-				index++;
+			if (escapingEnabled && sadl.charAt(charIndex) == SADLSyntax.ESCAPE.charAt(0)) {
+				charIndex++;
 				escaped = true;
 			}
 			
-			return sadl.charAt(index);
+			return sadl.charAt(charIndex);
 		}
 	}
 }

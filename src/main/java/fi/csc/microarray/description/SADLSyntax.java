@@ -20,12 +20,9 @@ import fi.csc.microarray.databeans.DataBean;
  * 
  * <pre>
  * -> TOOL+
- * TOOL -> "TOOL" NAME DESCRIPTION INPUT* METAINPUT* OUTPUT* METAOUTPUT* PARAMETER*
- * INPUT -> "INPUT" INPUT_DESCRIPTION
- * INPUT_DESCRIPTION -> META? OPTIONALITY? NAME "TYPE" TYPE_NAME
- * TYPE_NAME -> TOKEN (see SADLSyntax.InputType for declaration, implementations pluggable)
- * OUTPUT -> "OUTPUT" OUTPUT_DESCRIPTION
- * OUTPUT_DESCRIPTION -> META? OPTIONALITY? NAME 
+ * TOOL -> "TOOL" NAME DESCRIPTION INPUT* OUTPUT* PARAMETER*
+ * INPUT -> "INPUT" META? OPTIONALITY? NAME "TYPE" TYPE_NAME DESCRIPTION
+ * OUTPUT -> "OUTPUT" META? OPTIONALITY? NAME DESCRIPTION
  * PARAMETER -> "PARAMETER" OPTIONALITY? NAME "TYPE" PARAMETER_TYPE PARAMETER_FROM? PARAMETER_TO? PARAMETER_DEFAULT? DESCRIPTION 
  * PARAMETER_TYPE -> TOKEN | PARAMETER_TYPE_ENUM
  * PARAMETER_TYPE_ENUM -> "[" PARAMETER_TYPE_ENUM_ELEMENTS "]"
@@ -38,6 +35,7 @@ import fi.csc.microarray.databeans.DataBean;
  * META -> "META"
  * NAME -> TOKEN | TOKEN ":" TOKEN
  * DESCRIPTION -> TOKEN
+ * TYPE_NAME -> TOKEN (see SADLSyntax.InputType for declaration, implementations pluggable)
  * TOKEN -> any single token produced by tokeniser
  * </pre>
  * 
@@ -52,7 +50,7 @@ import fi.csc.microarray.databeans.DataBean;
  * TOOL util-test.R: "Test tool" (Just a test analysis for development. These descriptions are sometimes very
  * long and might get hard to read.)
  * INPUT microarray{...}.tsv: "Raw data files" TYPE CDNA
- * INPUT phenodata.tsv: "Experiment description" TYPE GENERIC
+ * INPUT phenodata.tsv: "Experiment description" TYPE GENERIC (remember the fill in the phenodata file before running this tool)
  * OUTPUT result{...}.txt: "Result files"
  * OUTPUT OPTIONAL error.txt: "Error, if any"
  * PARAMETER value1: "The first value" TYPE INTEGER FROM 0 TO 200 DEFAULT 10 (the first value of the result set)

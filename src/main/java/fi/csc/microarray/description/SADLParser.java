@@ -12,6 +12,7 @@ import fi.csc.microarray.description.SADLDescription.Output;
 import fi.csc.microarray.description.SADLDescription.Parameter;
 import fi.csc.microarray.description.SADLSyntax.InputType;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
+import fi.csc.microarray.description.SADLTokeniser.TokenType;
 import fi.csc.microarray.description.vvsadl.CompatibilityVVSADLParser;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -131,9 +132,12 @@ public class SADLParser {
 
 		// read analysis stuff
 		Name name = parseName(tokens);		
-		String comment = tokens.next();
-		SADLDescription description = new SADLDescription(name, comment);
-	
+		SADLDescription description = new SADLDescription(name);
+
+		if (tokens.peekType() == TokenType.COMMENT) {
+			description.setComment(tokens.next());
+		}
+
 		// read possible inputs
 		while (nextTokenIs(tokens, SADLSyntax.KEYWORD_INPUT)) { 
 			skip(tokens, SADLSyntax.KEYWORD_INPUT);  
@@ -214,7 +218,11 @@ public class SADLParser {
 		output.setOptional(isOptional);
 
 		output.setName(parseName(tokens));
-		
+
+		if (tokens.peekType() == TokenType.COMMENT) {
+			output.setComment(tokens.next());
+		}
+
 		return output;
 	}
 
@@ -236,7 +244,11 @@ public class SADLParser {
 			throw new ParseException("Invalid input type: " + inputTypeName, description.getName().getID());
 		}
 		input.setType(inputType);
-				
+		
+		if (tokens.peekType() == TokenType.COMMENT) {
+			input.setComment(tokens.next());
+		}
+
 		return input;
 	}
 
@@ -299,11 +311,13 @@ public class SADLParser {
 			defaultValues = parseDefaultValues(tokens);
 		}
 
-		String comment = tokens.next();
-		
-		Parameter parameter = new Parameter(name, type, options, from, to, defaultValues, comment);
+		Parameter parameter = new Parameter(name, type, options, from, to, defaultValues);
 		parameter.setOptional(isOptional);
-		
+
+		if (tokens.peekType() == TokenType.COMMENT) {
+			parameter.setComment(tokens.next());
+		}
+
 		return parameter;
 	}
 

@@ -74,7 +74,7 @@ public class SADLGenerator {
 					}
 				}
 
-				paramString += "(" + escapeIfNeeded(parameter.getComment()) + ")";
+				paramString += possibleComment(parameter.getComment());
 				
 				string += paramString + "\n";
 			}			
@@ -83,11 +83,19 @@ public class SADLGenerator {
 		return string;
 	}
 
+	private static String possibleComment(String comment) {
+		if (comment != null) {
+			return "(" + escapeIfNeeded(comment) + ")";
+		} else {
+			return "";
+		}
+	}
+
 	private static String generateOutputs(String header, List<Output> outputList) {
 		String string = "";
 		if (!outputList.isEmpty()) {
 			for (Output output : outputList) {
-				string += header + " " + generateExtensions(output) + generateName(output.getName()) +  "\n";
+				string += header + " " + generateExtensions(output) + generateName(output.getName()) + " " + possibleComment(output.getComment()) + "\n";
 			}
 		}
 		return string;
@@ -97,7 +105,7 @@ public class SADLGenerator {
 		String string = "";
 		if (!inputList.isEmpty()) {
 			for (Input input : inputList) {
-				string += header + " " + generateExtensions(input) + generateName(input.getName()) + " TYPE " + input.getType().getName() + "\n";
+				string += header + " " + generateExtensions(input) + generateName(input.getName()) + " TYPE " + input.getType().getName() + " " + possibleComment(input.getComment()) + "\n";
 			}
 			
 		}

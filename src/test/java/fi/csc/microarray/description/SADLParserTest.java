@@ -57,7 +57,7 @@ public class SADLParserTest {
 				"INPUT microarray{...}.tsv: \"Raw data files\" TYPE CDNA\n" + 
 				"INPUT phenodata.tsv: \"Experiment description\" TYPE GENERIC\n" + 
 				"OUTPUT result{...}.txt: \"Result files\"\n" + 
-				"OUTPUT OPTIONAL error.txt: \"Error, if any\"\n" + 
+				"OUTPUT OPTIONAL error.txt: \"Error, if any\" (Here's an example of a comment on an output file.)\n" + 
 				"PARAMETER value1: \"The first value\" TYPE INTEGER FROM 0 TO 200 DEFAULT 10 (the first value of the result set)\n" + 
 				"PARAMETER value2: \"The second value\" TYPE DECIMAL FROM 0 TO 200 DEFAULT 20 (the second value of the result set)\n" + 
 				"PARAMETER OPTIONAL value3: \"The third value\" TYPE DECIMAL FROM 0 TO 200 DEFAULT 30.2 (the third value of the result set)\n" + 
@@ -97,6 +97,7 @@ public class SADLParserTest {
 		Assert.assertEquals(parsedDescription.outputs().get(0).getName().getDisplayName(), "Result files");
 		Assert.assertFalse(parsedDescription.outputs().get(0).isOptional());
 		Assert.assertEquals(parsedDescription.outputs().get(1).getName().toString(), "error.txt: \"Error, if any\"");
+		Assert.assertEquals(parsedDescription.outputs().get(1).getComment(), "Here's an example of a comment on an output file.");
 		Assert.assertTrue(parsedDescription.outputs().get(1).isOptional());
 		
 		// PARAMETERS
@@ -172,6 +173,7 @@ public class SADLParserTest {
 		// to guard against serialisation omissions, we should do complete check between description and parsedDescription
 		// now we just do some checks
 		Assert.assertEquals(parsedDescription.inputs().get(0).getName().getID(), "input1");
+		Assert.assertEquals(parsedDescription.inputs().get(0).getComment(), "input comment");
 		Assert.assertTrue(parsedDescription.inputs().get(0).isOptional());
 		Assert.assertEquals(parsedDescription.inputs().get(1).getName().getPrefix(), "input2");
 		Assert.assertEquals(parsedDescription.inputs().size(), 4);
@@ -201,8 +203,10 @@ public class SADLParserTest {
 	}
 	
 	private SADLDescription generateDescription() {
-		SADLDescription description = new SADLDescription(Name.createName("name", "longname/displayname"), "main comment (funny)"); 
-		description.addInput(new Input(ChipsterInputTypes.GENE_EXPRS, Name.createName("input1", "input1"), true));
+		SADLDescription description = new SADLDescription(Name.createName("name", "longname/displayname"), "main comment (funny)");
+		Input input = new Input(ChipsterInputTypes.GENE_EXPRS, Name.createName("input1", "input1"), true);
+		input.setComment("input comment");
+		description.addInput(input);
 		description.addInput(new Input(ChipsterInputTypes.GENE_EXPRS, Name.createNameSet("input2", ".ext", "input set 2")));
 		description.addInput(new Input(ChipsterInputTypes.GENE_EXPRS, Name.createName("metainput1", "metainput1"), false, true));
 		description.addInput(new Input(ChipsterInputTypes.GENE_EXPRS, Name.createNameSet("metainput2", ".ext", "meta input set 2"), false, true));
