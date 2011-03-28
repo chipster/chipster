@@ -28,7 +28,6 @@ public class ACDToSADL {
 	 */
 	public static SADLDescription convert(ACDDescription acd, String id) {
         SADLDescription sadl = new SADLDescription(Name.createName(id, acd.getName()),
-                                                   acd.getGroups().get(0),
 	                                               acd.getDescription());
 	    
 	    // Get all input parameters
@@ -241,7 +240,7 @@ public class ACDToSADL {
 	        // Skip all non-required inputs
 	        if (type == ACDParameter.PARAM_GROUP_INPUT &&
 	            param.isRequired()) {
-	            Input input = new Input(GenericInputTypes.GENERIC, Name.createName(fieldName), true);
+	            Input input = new Input(GenericInputTypes.GENERIC, Name.createName(fieldName), true, false);
 	            return input;
 	        } else {
 	            return null;

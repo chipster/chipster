@@ -24,6 +24,8 @@ import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 
 public class LocalServiceAccessor implements ServiceAccessor {
 
+	private static final String INTERNAL_CATEGORY_NAME = "Internal tools";
+
 	private DataManager manager;
 
 	private List<OperationCategory> visibleCategories;
@@ -58,7 +60,7 @@ public class LocalServiceAccessor implements ServiceAccessor {
 		
 		// for each tool, parse the SADL and create the OperationDefinition
         SADLDescription sadl = new ChipsterSADLParser().parse(LocalNGSPreprocess.getSADL());
-		OperationCategory category = new OperationCategory(sadl.getCategory());
+		OperationCategory category = new OperationCategory(INTERNAL_CATEGORY_NAME);
 		this.hiddenCategories.add(category);
 		
         OperationDefinition od = new OperationDefinition(sadl.getName().getID(), 

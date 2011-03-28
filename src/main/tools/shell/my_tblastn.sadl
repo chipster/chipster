@@ -1,4 +1,4 @@
-TOOL "BLAST" / my_tblastn.sadl: my_tblastn (Heuristic tool to search hits for a protein sequence from nucleotide sequence set.)
+TOOL my_tblastn.sadl: my_tblastn (Heuristic tool to search hits for a protein sequence from nucleotide sequence set.)
 INPUT query: "Query sequence" TYPE GENERIC
 INPUT dbnuc: "Database sequences" TYPE GENERIC
 OUTPUT out.txt

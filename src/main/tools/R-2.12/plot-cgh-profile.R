@@ -1,10 +1,11 @@
-# ANALYSIS "aCGH"/"Plot copy number profiles from called aCGH data" (Plot copy number profiles of individual arrays from called aCGH data.)
-# INPUT GENE_EXPRS aberrations.tsv, GENERIC phenodata.tsv
-# OUTPUT cgh-profile.pdf
-# PARAMETER samples STRING DEFAULT 1 (The numbers of the samples to be plotted, separated by commas. Ranges are also supported (e.g. 1,3,7-10).)
-# PARAMETER chromosomes STRING DEFAULT 0 (The numbers of the chromosomes to be plotted, separated by commas. 0 means all chromosomes. Ranges are also supported (e.g. 1,3,7-10).)
-# PARAMETER image.width INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
+# TOOL plot-cgh-profile.R: "Plot copy number profiles from called aCGH data" (Plot copy number profiles of individual arrays from called aCGH data.)
+# INPUT aberrations.tsv: aberrations.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT cgh-profile.pdf: cgh-profile.pdf 
+# PARAMETER samples: samples TYPE STRING DEFAULT 1 (The numbers of the samples to be plotted, separated by commas. Ranges are also supported (e.g. 1,3,7-10\).)
+# PARAMETER chromosomes: chromosomes TYPE STRING DEFAULT 0 (The numbers of the chromosomes to be plotted, separated by commas. 0 means all chromosomes. Ranges are also supported (e.g. 1,3,7-10\).)
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
 
 # plot-cgh-profile.R
 # Ilari Scheinin <firstname.lastname@gmail.com>

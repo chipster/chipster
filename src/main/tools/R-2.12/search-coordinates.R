@@ -1,10 +1,10 @@
-# ANALYSIS Utilities/"Search by genomic coordinates" ()
-# INPUT GENE_EXPRS normalized.tsv
-# OUTPUT search-coordinates.tsv
-# PARAMETER chromosome STRING DEFAULT 1 ()
-# PARAMETER start INTEGER DEFAULT 100000000 ()
-# PARAMETER end INTEGER DEFAULT 0 ()
-# PARAMETER number.of.closest.results.to.return INTEGER DEFAULT 5 ()
+# TOOL search-coordinates.R: "Search by genomic coordinates" ()
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT search-coordinates.tsv: search-coordinates.tsv 
+# PARAMETER chromosome: chromosome TYPE STRING DEFAULT 1 ()
+# PARAMETER start: start TYPE INTEGER DEFAULT 100000000 ()
+# PARAMETER end: end TYPE INTEGER DEFAULT 0 ()
+# PARAMETER number.of.closest.results.to.return: number.of.closest.results.to.return TYPE INTEGER DEFAULT 5 ()
 
 # search-coordinates.R
 # Ilari Scheinin <firstname.lastname@gmail.com>

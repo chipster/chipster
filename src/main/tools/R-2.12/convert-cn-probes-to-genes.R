@@ -1,9 +1,9 @@
-# ANALYSIS "aCGH"/"Convert called aCGH data from probes to genes" (Using the chromosomal locations of the probes of an aCGH data set, convert the data from probe-based to gene-based. The probes from which the copy number call for a given gene are determined as follows. If there are probes overlapping with the position of the gene, they are used. In case of no overlaps, the last preceding and first tailing probe are used.)
-# INPUT GENE_EXPRS aberrations.tsv
-# OUTPUT gene-aberrations.tsv
-# PARAMETER method.for.calls [majority, unambiguous] DEFAULT majority (The method majority means that if more than 50% of these probes give an aberrated signal, that call is used for the gene. The unambiguous method requires that all of the probes have the same call, otherwise the gene will be labeled as normal.)
-# PARAMETER method.for.others [mean, median] DEFAULT mean (Whether to use the mean or the median for calculating other data than copy number calls.)
-# PARAMETER genome.build [GRCh37, NCBI36, NCBI35, NCBI34] DEFAULT GRCh37 (The genome build to use for fetching the gene coordinates.)
+# TOOL convert-cn-probes-to-genes.R: "Convert called aCGH data from probes to genes" (Using the chromosomal locations of the probes of an aCGH data set, convert the data from probe-based to gene-based. The probes from which the copy number call for a given gene are determined as follows. If there are probes overlapping with the position of the gene, they are used. In case of no overlaps, the last preceding and first tailing probe are used.)
+# INPUT aberrations.tsv: aberrations.tsv TYPE GENE_EXPRS 
+# OUTPUT gene-aberrations.tsv: gene-aberrations.tsv 
+# PARAMETER method.for.calls: method.for.calls TYPE [majority: majority, unambiguous: unambiguous] DEFAULT majority (The method majority means that if more than 50% of these probes give an aberrated signal, that call is used for the gene. The unambiguous method requires that all of the probes have the same call, otherwise the gene will be labeled as normal.)
+# PARAMETER method.for.others: method.for.others TYPE [mean: mean, median: median] DEFAULT mean (Whether to use the mean or the median for calculating other data than copy number calls.)
+# PARAMETER genome.build: genome.build TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34] DEFAULT GRCh37 (The genome build to use for fetching the gene coordinates.)
 
 # convert-cn-probes-to-genes.R
 # Ilari Scheinin <firstname.lastname@gmail.com>

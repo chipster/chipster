@@ -1,6 +1,7 @@
-# ANALYSIS "aCGH"/"Smooth waves from normalized aCGH data" (Smooths the wavy pattern typically seen in aCGH profiles. Note that you need a separate calibration data set, which is not measured from cancer samples. It should be measured with the same array platform and preprocessed with similar normalization settings. When selecting the two input files, be sure to first click on the cancer data set, then on the calibration one.)
-# INPUT GENE_EXPRS normalized_tumor.tsv, GENE_EXPRS normalized_calib.tsv
-# OUTPUT smoothed.tsv
+# TOOL smooth-acgh.R: "Smooth waves from normalized aCGH data" (Smooths the wavy pattern typically seen in aCGH profiles. Note that you need a separate calibration data set, which is not measured from cancer samples. It should be measured with the same array platform and preprocessed with similar normalization settings. When selecting the two input files, be sure to first click on the cancer data set, then on the calibration one.)
+# INPUT normalized_tumor.tsv: normalized_tumor.tsv TYPE GENE_EXPRS 
+# INPUT normalized_calib.tsv: normalized_calib.tsv TYPE GENE_EXPRS 
+# OUTPUT smoothed.tsv: smoothed.tsv 
 
 # smooth-acgh.R
 # Ilari Scheinin <firstname.lastname@gmail.com>

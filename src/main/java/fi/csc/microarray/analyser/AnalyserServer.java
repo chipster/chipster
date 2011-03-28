@@ -209,7 +209,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	
 							// run the job
 							executorService.execute(job);
-							logger.info("Executing job " + job.analysis.getFullDisplayName() + "(" + job.analysis.getID() + ")" + ", "+ job.getId() + ", " + job.getInputMessage().getUsername()) ;
+							logger.info("Executing job " + job.analysis.getDisplayName() + "(" + job.analysis.getID() + ")" + ", "+ job.getId() + ", " + job.getInputMessage().getUsername()) ;
 						} else {
 							logger.warn("Got ACCEPT_OFFER for job which is not scheduled.");
 						}

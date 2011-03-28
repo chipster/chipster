@@ -10,7 +10,7 @@ public class FuseRegionsTool extends RegionTool {
 
 	@Override
 	public String getSADL() {
-		return 	"TOOL \"Region operations\" / FuseRegionsTool.java: \"Fuse overlapping regions\" (Merges overlapping regions of a single file. The returned file does not have any internal overlapping.)" + "\n" +
+		return 	"TOOL FuseRegionsTool.java: \"Fuse overlapping regions\" (Merges overlapping regions of a single file. The returned file does not have any internal overlapping.)" + "\n" +
 				"INPUT data.bed: \"Regions to fuse\" TYPE GENERIC" + "\n" +
 				"OUTPUT fused.bed: \"Merged regions\"" + "\n"; 
 	}

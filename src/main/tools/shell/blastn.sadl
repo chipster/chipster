@@ -1,4 +1,4 @@
-TOOL "BLAST" / blastn.sadl: blastn (Heuristic tool to search hits for a nucleotide sequence from a nucleotode sequence database.)
+TOOL blastn.sadl: blastn (Heuristic tool to search hits for a nucleotide sequence from a nucleotode sequence database.)
 INPUT query: "Query sequence" TYPE GENERIC
 OUTPUT out.txt
 PARAMETER db: "Database" TYPE [nt: "NCBI non-redundant nucleotide database",

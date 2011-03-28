@@ -73,7 +73,7 @@ public class LocalNGSPreprocess implements Runnable {
 				"<p>-BED files: yes, unless your file is already sorted</p>";
 		
 		
-		return 	"TOOL \"Preprocess\" / LocalNGSPreprocess.java: \"NGS Preprocess\" (" + description + ")" + "\n" +
+		return 	"TOOL LocalNGSPreprocess.java: \"NGS Preprocess\" (" + description + ")" + "\n" +
 				"INPUT input{...}.txt: \"Input NGS data\" TYPE GENERIC" + "\n" +
 				"OUTPUT ngs-preprocess.txt: \"Preprocessed NGS data\"" + "\n" +
 				"OUTPUT phenodata.tsv: \"Phenodata\"";

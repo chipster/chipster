@@ -1,4 +1,4 @@
-TOOL "BLAST" / tblastx.sadl : tblastx (Heuristic tool for nucleotide sequence search using protein translations of both the query and the database.)
+TOOL tblastx.sadl : tblastx (Heuristic tool for nucleotide sequence search using protein translations of both the query and the database.)
 INPUT query: "Query sequence" TYPE GENERIC
 OUTPUT out.txt
 PARAMETER db: "Database" TYPE [nt: "NCBI non-redundant nucleotide database",

@@ -1,4 +1,4 @@
-TOOL "HMM" / hmmbuild.sadl: hmmbuild (Profile HMM construction from multiple sequence alignments.)
+TOOL hmmbuild.sadl: hmmbuild (Profile HMM construction from multiple sequence alignments.)
 INPUT alignment.txt: "Sequence alignment" TYPE GENERIC
 OUTPUT hmm-model.txt
 OUTPUT hmmbuild-summary.txt

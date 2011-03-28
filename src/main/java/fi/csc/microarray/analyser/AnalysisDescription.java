@@ -120,7 +120,6 @@ public class AnalysisDescription {
 	private List<OutputDescription> outputFiles = new LinkedList<OutputDescription>();
 	private List<ParameterDescription> parameters = new LinkedList<ParameterDescription>();
 	private String sourceCode;
-	private String category;
 	private String sadl;
 	private String helpURL = null;
 	private AnalysisHandler handler;
@@ -215,10 +214,6 @@ public class AnalysisDescription {
 		 return this.id;
 	}
 	
-	public String getFullDisplayName() {
-		return "\"" + getCategory() + "\"/\"" + getDisplayName() + "\"";
-	}
-	
 	public String getDisplayName() {
 		if (displayName == null) {
 			return id;
@@ -246,14 +241,6 @@ public class AnalysisDescription {
 
 	public String getSourceCode() {
 		return sourceCode;
-	}
-
-	public void setCategory(String category) {
-		this.category = category;		
-	}
-
-	public String getCategory() {
-		return category;
 	}
 
 	public void setSADL(String sadl) {
