@@ -1,9 +1,10 @@
-# ANALYSIS "aCGH"/"Cluster called aCGH data" (Perform clustering of aCGH arrays.)
-# INPUT GENERIC regions.tsv, GENERIC phenodata.tsv
-# OUTPUT wecca.png
-# PARAMETER type.of.calls [hard, soft] DEFAULT soft (Whether to cluster the arrays based on soft or hard calls. Hard calls are losses, normals, and gains, whereas soft calls refer to the respective probabilities of these calls. The preferred choice is to use soft calls whenever they are available.)
-# PARAMETER image.width INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
+# TOOL cluster-acgh.R: "Cluster called aCGH data" (Perform clustering of aCGH arrays.)
+# INPUT regions.tsv: regions.tsv TYPE GENERIC 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT wecca.pdf: wecca.pdf 
+# PARAMETER type.of.calls: type.of.calls TYPE [hard: hard, soft: soft] DEFAULT soft (Whether to cluster the arrays based on soft or hard calls. Hard calls are losses, normals, and gains, whereas soft calls refer to the respective probabilities of these calls. The preferred choice is to use soft calls whenever they are available.)
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
 
 # cluster-acgh.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
@@ -69,7 +70,7 @@ WECCA.heatmap.modified <- function (cghdata.regioned, dendrogram)
         scale = "none")
 }
 
-bitmap(file='wecca.png', width=image.width/72, height=image.height/72)
+pdf(file='wecca.pdf', width=image.width/72, height=image.height/72)
 WECCA.heatmap.modified(regions, dendrogram)
 dev.off()
 

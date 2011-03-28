@@ -25,6 +25,7 @@ public class SADLDescriptionTest {
 		SADLDescriptionTest test = new SADLDescriptionTest();
 		test.testDescriptions();
 		test.testSADLTool();
+		System.out.println("SADLDescriptionTest OK");
 	}
 
 	@Test(groups = {"unit"} )

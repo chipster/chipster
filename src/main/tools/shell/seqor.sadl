@@ -1,5 +1,5 @@
 #Komento :/v/linux26_x86_64/appl/molbio/share/seqor.tsch
-TOOL "Edit" / seqor.tsch: seqor (Reads in two sets of sequences and writes out a sequence file that result from the logical union of the two sets. Note that the selected logical operation: OR, AND, XOR, or NOT is based in the sequece names, not the actual sequences.)
+TOOL seqor.tsch: seqor (Reads in two sets of sequences and writes out a sequence file that result from the logical union of the two sets. Note that the selected logical operation: OR, AND, XOR, or NOT is based in the sequece names, not the actual sequences.)
 INPUT firstsequences: firstsequences TYPE GENERIC
 INPUT secondsequences: secondsequences TYPE GENERIC
 OUTPUT outfile: outfile.seqor.txt

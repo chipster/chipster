@@ -12,6 +12,7 @@ import fi.csc.microarray.description.SADLDescription.Output;
 import fi.csc.microarray.description.SADLDescription.Parameter;
 import fi.csc.microarray.description.SADLSyntax.InputType;
 import fi.csc.microarray.description.SADLSyntax.ParameterType;
+import fi.csc.microarray.description.SADLTokeniser.TokenType;
 import fi.csc.microarray.description.vvsadl.CompatibilityVVSADLParser;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -104,6 +105,7 @@ public class SADLParser {
 				descriptions.add(parseTool(tokens));
 				parsingPreviousSuccessful = true;
 			} catch (ParseException pe) {
+				pe.printStackTrace();
 				if (parsingPreviousSuccessful) {
 					descriptions.removeLast();
 					logger.error("Could not parse description. ", pe);
@@ -129,12 +131,13 @@ public class SADLParser {
 		skip(tokens, SADLSyntax.KEYWORD_TOOL);
 
 		// read analysis stuff
-		String category = tokens.next();
-		skip(tokens, SADLSyntax.CATEGORY_SEPARATOR);
 		Name name = parseName(tokens);		
-		String comment = tokens.next();
-		SADLDescription description = new SADLDescription(name, category, comment);
-	
+		SADLDescription description = new SADLDescription(name);
+
+		if (tokens.peekType() == TokenType.COMMENT) {
+			description.setComment(tokens.next());
+		}
+
 		// read possible inputs
 		while (nextTokenIs(tokens, SADLSyntax.KEYWORD_INPUT)) { 
 			skip(tokens, SADLSyntax.KEYWORD_INPUT);  
@@ -142,25 +145,12 @@ public class SADLParser {
 			description.addInput(input);			
 		}
 
-		// read possible metainputs
-		while (nextTokenIs(tokens, SADLSyntax.KEYWORD_METAINPUT)) { 
-			skip(tokens, SADLSyntax.KEYWORD_METAINPUT); 
-			Input input = parseInput(tokens, description);
-			description.addMetaInput(input);			
-		}
-
 		// read possible outputs
 		while (nextTokenIs(tokens, SADLSyntax.KEYWORD_OUTPUT)) {
 			skip(tokens, SADLSyntax.KEYWORD_OUTPUT); 
 			description.addOutput(parseOutput(tokens));
 		}
-
-		// read possible metaoutputs
-		while (nextTokenIs(tokens, SADLSyntax.KEYWORD_METAOUTPUT)) {
-			skip(tokens, SADLSyntax.KEYWORD_METAOUTPUT);
-			description.addMetaOutput(parseOutput(tokens));
-		}
-
+		
 		//	read possible parameters
 		while (nextTokenIs(tokens, SADLSyntax.KEYWORD_PARAMETER)) {
 			skip(tokens, SADLSyntax.KEYWORD_PARAMETER);
@@ -220,17 +210,29 @@ public class SADLParser {
 	private Output parseOutput(SADLTokeniser tokens) throws ParseException {
 		
 		Output output = new Output();
+
+		boolean isMeta = parseMetaIfExists(tokens);
+		output.setMeta(isMeta);
+
 		boolean isOptional = parseOptionalIfExists(tokens);
 		output.setOptional(isOptional);
 
 		output.setName(parseName(tokens));
-		
+
+		if (tokens.peekType() == TokenType.COMMENT) {
+			output.setComment(tokens.next());
+		}
+
 		return output;
 	}
 
 	private Input parseInput(SADLTokeniser tokens, SADLDescription description) throws ParseException {
 		
 		Input input = new Input();
+
+		boolean isMeta = parseMetaIfExists(tokens);
+		input.setMeta(isMeta);
+		
 		boolean isOptional = parseOptionalIfExists(tokens);
 		input.setOptional(isOptional);
 		
@@ -242,10 +244,25 @@ public class SADLParser {
 			throw new ParseException("Invalid input type: " + inputTypeName, description.getName().getID());
 		}
 		input.setType(inputType);
-				
+		
+		if (tokens.peekType() == TokenType.COMMENT) {
+			input.setComment(tokens.next());
+		}
+
 		return input;
 	}
-	
+
+	private boolean parseMetaIfExists(SADLTokeniser tokens) throws ParseException {
+		
+		if (nextTokenIs(tokens, SADLSyntax.KEYWORD_META)) {
+			skip(tokens, SADLSyntax.KEYWORD_META);
+			return true;
+		
+		} else {
+			return false;
+		}
+	}
+
 	private boolean parseOptionalIfExists(SADLTokeniser tokens) throws ParseException {
 		
 		if (nextTokenIs(tokens, SADLSyntax.KEYWORD_OPTIONAL)) {
@@ -294,11 +311,13 @@ public class SADLParser {
 			defaultValues = parseDefaultValues(tokens);
 		}
 
-		String comment = tokens.next();
-		
-		Parameter parameter = new Parameter(name, type, options, from, to, defaultValues, comment);
+		Parameter parameter = new Parameter(name, type, options, from, to, defaultValues);
 		parameter.setOptional(isOptional);
-		
+
+		if (tokens.peekType() == TokenType.COMMENT) {
+			parameter.setComment(tokens.next());
+		}
+
 		return parameter;
 	}
 

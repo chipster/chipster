@@ -10,7 +10,7 @@ public class CombineRegionsTool extends RegionTool {
 
 	@Override
 	public String getSADL() {
-		return 	"TOOL \"Region operations\" / CombineRegionsTool.java: \"Combine region files\" (Returns combined regions from both of the inputs. Also known as union.)" + "\n" +
+		return 	"TOOL CombineRegionsTool.java: \"Combine region files\" (Returns combined regions from both of the inputs. Also known as union.)" + "\n" +
 				"INPUT data1.bed: \"First input file\" TYPE GENERIC" + "\n" +
 				"INPUT data2.bed: \"Second input file\" TYPE GENERIC" + "\n" +
 				"OUTPUT combined.bed: \"Combined regions\"" + "\n" + 

@@ -1,4 +1,4 @@
-TOOL "BLAST" / blastx.sadl: blastx (Heuristic tool to search hits for a nucleotide sequence from protein database.)
+TOOL blastx.sadl: blastx (Heuristic tool to search hits for a nucleotide sequence from protein database.)
 INPUT query: "Query sequence" TYPE GENERIC
 OUTPUT out.txt
 PARAMETER db: "Database" TYPE [nr: "NCBI non-redundant proteins", pdb: "PDB", swiss: "UniProt / Swiss", trembl: "UniProt / TrEMBL",

@@ -1,4 +1,4 @@
-TOOL "HMM" / hmmalign.sadl: hmmalign (Align sequences to a profile HMM.)
+TOOL hmmalign.sadl: hmmalign (Align sequences to a profile HMM.)
 INPUT hmm-model.txt: "HMM model" TYPE GENERIC
 INPUT sequences.txt: "sequence file" TYPE GENERIC
 OUTPUT hmmalign.txt

@@ -1,4 +1,4 @@
-TOOL "BLAST" / my_blastx.sadl: my_blastx (Heuristic tool to search hits for a nucleotide sequence from a protein sequence set.)
+TOOL my_blastx.sadl: my_blastx (Heuristic tool to search hits for a nucleotide sequence from a protein sequence set.)
 INPUT query: "Query sequences" TYPE GENERIC
 INPUT dbprot: "Database sequences" TYPE GENERIC
 OUTPUT out.txt

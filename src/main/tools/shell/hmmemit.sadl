@@ -1,4 +1,4 @@
-TOOL "HMM" / hmmemit.sadl: hmmemit (Sample sequences from a profile HMM)
+TOOL hmmemit.sadl: hmmemit (Sample sequences from a profile HMM)
 INPUT hmm-model.txt: "HMM model" TYPE GENERIC
 OUTPUT hmmemit.txt
 PARAMETER OPTIONAL N: "Number of sequences to sample" TYPE INTEGER FROM 1 (Sample several sequences, rather than just one.)

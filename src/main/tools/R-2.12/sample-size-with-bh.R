@@ -1,12 +1,20 @@
-# ANALYSIS "Statistics"/"Sample size calculations with an adapted BH method" (Perform sample size calculations using an adapted Benjamini-Hochberg method.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv
-# OUTPUT skewness.png, kurtosis.png, p-density.png, lambda.png, g.png, gamma.png, power.png, power.txt
-# PARAMETER column METACOLUMN_SEL DEFAULT group (The phenodata column that divides the samples into exactly two groups.)
-# PARAMETER assume.equal.variances [yes, no] DEFAULT no (Whether to treat the variances of the two groups as equal.)
-# PARAMETER distribution [normal, student] DEFAULT normal (Whether to use the normal or the t distribution to calculate p values.)
-# PARAMETER false.discovery.rate DECIMAL DEFAULT 0.1 (False discovery rate.)
-# PARAMETER image.width INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
+# TOOL sample-size-with-bh.R: "Sample size calculations with an adapted BH method" (Perform sample size calculations using an adapted Benjamini-Hochberg method.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT skewness.pdf: skewness.pdf 
+# OUTPUT kurtosis.pdf: kurtosis.pdf 
+# OUTPUT p-density.pdf: p-density.pdf 
+# OUTPUT lambda.pdf: lambda.pdf 
+# OUTPUT g.pdf: g.pdf 
+# OUTPUT gamma.pdf: gamma.pdf 
+# OUTPUT power.pdf: power.pdf 
+# OUTPUT power.txt: power.txt 
+# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (The phenodata column that divides the samples into exactly two groups.)
+# PARAMETER assume.equal.variances: assume.equal.variances TYPE [yes: yes, no: no] DEFAULT no (Whether to treat the variances of the two groups as equal.)
+# PARAMETER distribution: distribution TYPE [normal: normal, student: student] DEFAULT normal (Whether to use the normal or the t distribution to calculate p values.)
+# PARAMETER false.discovery.rate: false.discovery.rate TYPE DECIMAL DEFAULT 0.1 (False discovery rate.)
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
 
 # sample-size-with-bh.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
@@ -124,12 +132,12 @@ hist.norm <- function(x, norm = NULL, ...) {
 #    main=as.character(class.names[j]))
 #  if(j==1){windows()}
 #}
-bitmap(file='skewness.png', width=image.width/72, height=image.height/72)
+pdf(file='skewness.pdf', width=image.width/72, height=image.height/72)
 par(mfrow=c(1,2))
 hist.norm(sample.skewness[,1], normal.skewness[,1], main=as.character(class.names[1]), xlab='skewness')
 hist.norm(sample.skewness[,2], normal.skewness[,2], main=as.character(class.names[2]), xlab='skewness')
 dev.off()
-bitmap(file='kurtosis.png', width=image.width/72, height=image.height/72)
+pdf(file='kurtosis.pdf', width=image.width/72, height=image.height/72)
 par(mfrow=c(1,2))
 hist.norm(sample.kurtosis[,1], normal.kurtosis[,1], main=as.character(class.names[1]), xlab='kurtosis')
 hist.norm(sample.kurtosis[,2], normal.kurtosis[,2], main=as.character(class.names[2]), xlab='kurtosis')
@@ -173,7 +181,7 @@ c<-1
 a.n<-n^((c-1)/2) #Smoothing parameter 
 x<-seq(1/resolution,1-1/resolution,1/resolution)
 density.estimate.of.p.values<-sapply(x,beta.kernel.density.at.x,Sample.of.p.values,a.n)
-bitmap(file='p-density.png', width=image.width/72, height=image.height/72)
+pdf(file='p-density.pdf', width=image.width/72, height=image.height/72)
 plot(x,density.estimate.of.p.values,type='l',xlab="p-value",ylab="density",col=1,xlim=c(0,1),
 ylim=c(0,1.1*max(density.estimate.of.p.values)))
 rough.estimate.of.gamma<-beta.kernel.density.at.x(1-0.0001,Sample.of.p.values,a.n)
@@ -255,7 +263,7 @@ estimate.lambda.of.theta<-pmax(rep(0,length(theta.vector)),estimate.lambda.of.th
 Const<-sum(estimate.lambda.of.theta)*step.theta
 estimate.lambda.of.theta<-estimate.lambda.of.theta/Const
 #Plotting estimate.lambda.of.theta
-bitmap(file='lambda.png', width=image.width/72, height=image.height/72)
+pdf(file='lambda.pdf', width=image.width/72, height=image.height/72)
 plot(theta.vector,estimate.lambda.of.theta,type='l',col=3,ylim=c(0,1.2*max(estimate.lambda.of.theta)),xlab=quote(theta),
 ylab=quote(lambda(theta)))
 title("Estimated density of effect sizes")
@@ -301,7 +309,7 @@ estimate.lambda.of.theta<-estimate.lambda.of.theta/Const
 G.n.hat.u<-sapply(as.matrix(u),G.hat.n.at.a.point,theta.vector,step.theta,estimate.lambda.of.theta,nu,N)
 H.n.u<-sapply(u,edf.at.a.point,Sample.of.p.values)
 G.n.tilde.u<-(H.n.u-initial.gamma*u)/(1-initial.gamma)
-bitmap(file='g.png', width=image.width/72, height=image.height/72)
+pdf(file='g.pdf', width=image.width/72, height=image.height/72)
 plot(u,G.n.tilde.u,type='l',xlab=quote(u),ylab=quote(G(u)),lty=c(1,3),col=c(3,2),xlim=c(0,1),ylim=c(0,max(G.n.tilde.u)))
 lines(u,G.n.hat.u,col=2)
 legend(c(0.6,0.8),c(0.6,0.8),c("non-parametric","semi-parametric"),lty=c(1,3),col=c(3,2),bty="n")
@@ -333,7 +341,7 @@ distances<-sapply(as.matrix(gamma.vector),distance.between.estimates.of.G.n,u,st
 minimum.distance<-min(distances)
 gamma.hat<-gamma.vector[distances<=minimum.distance]
 #
-bitmap(file='gamma.png', width=image.width/72, height=image.height/72)
+pdf(file='gamma.pdf', width=image.width/72, height=image.height/72)
 plot(gamma.vector,distances,type='l',xlab=quote(~~gamma),ylab=quote(D[n](gamma)),col=1,ylim=c(0,1))
 dev.off()
 #
@@ -374,7 +382,7 @@ for(Nprime in samplesize.N) {
     #lines(u,u/r)
     #title(paste("Power calculation for N'=",round(Nprime,digits=1),""))
 }
-bitmap(file='power.png', width=image.width/72, height=image.height/72)
+pdf(file='power.pdf', width=image.width/72, height=image.height/72)
 plot(samplesize, power, type='b', main=paste('Power calculation for FDR = ', round(100*delta), '%', sep=''),
   xlim=c(0, 300), ylim=0:1, ylab='Average power',
   xlab=paste('Number of samples (', round(100*N1/(N1+N2)), '% ', class.names[1], ', ', round(100*N2/(N1+N2)), '% ', class.names[2], ')', sep=''))

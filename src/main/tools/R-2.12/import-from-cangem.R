@@ -1,16 +1,17 @@
-# ANALYSIS "aCGH"/"Import from CanGEM" (Load a microarray data set from the CanGEM database, perform background-correction and normalization, and append chromosomal locations of the microarray probes.)
-# OUTPUT normalized.tsv, phenodata.tsv
-# PARAMETER accession STRING DEFAULT CG- (Accession of either a data set, an experiment, a series, or single microarray results.)
-# PARAMETER username STRING DEFAULT empty (Username, in case the data is password-protected. WARNING: This will store your username/password in the Chipster history files. To avoid this, use the session parameter.)
-# PARAMETER password STRING DEFAULT empty (Password, in case the data is password-protected. WARNING: This will store your username/password in the Chipster history files. To avoid this, use the session parameter.)
-# PARAMETER session STRING DEFAULT empty (Session ID. To avoid saving your username/password in Chipster history files, log in at http://www.cangem.org/ using a web browser, then copy&paste your session ID from the lower right corner of the CanGEM website. This will allow Chipster to access your password-protected data until you log out of the web site (or the session times out).)
-# PARAMETER agilent.filtering [yes, no] DEFAULT yes (Whether to filter outliers from Agilent 2-color arrays. Will be ignored, if downloaded files are 1-color arrays, or not in Agilent file format. Check the help file for details about the filtering function.)
-# PARAMETER background.treatment [none, subtract, normexp, rma] DEFAULT normexp (Background treatment method. RMA is available only for one-color arrays.)
-# PARAMETER background.offset [0, 50] DEFAULT 50 (Background offset.)
-# PARAMETER intra.array.normalization [none, median, loess] DEFAULT loess (Intra-array normalization method for Agilent arrays. Will be ignored, if downloaded files are not in Agilent file format.)
-# PARAMETER inter.array.normalization [none, quantile, scale] DEFAULT none (Inter-array normalization method for Agilent arrays. Will be ignored, if downloaded files are not in Agilent file format.)
-# PARAMETER affymetrix.normalization [gcrma, rma, mas5] DEFAULT gcrma (Normalization method for Affymetrix arrays. Will be ignored, if downloaded files are not in Affymetrix file format.)
-# PARAMETER genome.build [none, GRCh37, NCBI36, NCBI35, NCBI34] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16.)
+# TOOL import-from-cangem.R: "Import from CanGEM" (Load a microarray data set from the CanGEM database, perform background-correction and normalization, and append chromosomal locations of the microarray probes.)
+# OUTPUT normalized.tsv: normalized.tsv 
+# OUTPUT META phenodata.tsv: phenodata.tsv 
+# PARAMETER accession: accession TYPE STRING DEFAULT CG- (Accession of either a data set, an experiment, a series, or single microarray results.)
+# PARAMETER username: username TYPE STRING DEFAULT empty (Username, in case the data is password-protected. WARNING: This will store your username password in the Chipster history files. To avoid this, use the session parameter.)
+# PARAMETER password: password TYPE STRING DEFAULT empty (Password, in case the data is password-protected. WARNING: This will store your username password in the Chipster history files. To avoid this, use the session parameter.)
+# PARAMETER session: session TYPE STRING DEFAULT empty (Session ID. To avoid saving your username password in Chipster history files, log in at http: www.cangem.org using a web browser, then copy&paste your session ID from the lower right corner of the CanGEM website. This will allow Chipster to access your password-protected data until you log out of the web site (or the session times out\).)
+# PARAMETER agilent.filtering: agilent.filtering TYPE [yes: yes, no: no] DEFAULT yes (Whether to filter outliers from Agilent 2-color arrays. Will be ignored, if downloaded files are 1-color arrays, or not in Agilent file format. Check the help file for details about the filtering function.)
+# PARAMETER background.treatment: background.treatment TYPE [none: none, subtract: subtract, normexp: normexp, rma: rma] DEFAULT normexp (Background treatment method. RMA is available only for one-color arrays.)
+# PARAMETER background.offset: background.offset TYPE [0: 0, 50: 50] DEFAULT 50 (Background offset.)
+# PARAMETER intra.array.normalization: intra.array.normalization TYPE [none: none, median: median, loess: loess] DEFAULT loess (Intra-array normalization method for Agilent arrays. Will be ignored, if downloaded files are not in Agilent file format.)
+# PARAMETER inter.array.normalization: inter.array.normalization TYPE [none: none, quantile: quantile, scale: scale] DEFAULT none (Inter-array normalization method for Agilent arrays. Will be ignored, if downloaded files are not in Agilent file format.)
+# PARAMETER affymetrix.normalization: affymetrix.normalization TYPE [gcrma: gcrma, rma: rma, mas5: mas5] DEFAULT gcrma (Normalization method for Affymetrix arrays. Will be ignored, if downloaded files are not in Affymetrix file format.)
+# PARAMETER genome.build: genome.build TYPE [none: none, GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16.)
 
 # import-from-cangem.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
