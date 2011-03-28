@@ -1,4 +1,4 @@
-# TOOL "Statistics" / medips.R: "MEDIPS - methylation analysis" (Methylation analysis for sequencing data.)
+# ANALYSIS "Statistics" / medips.R: "MEDIPS - methylation analysis" (Methylation analysis for sequencing data.)
 # INPUT MEDIPS-input{...}.tsv: "Converted BAM data files" TYPE GENERIC
 # INPUT phenodata.tsv: "Phenodata describing the experiment" TYPE GENERIC 
 # OUTPUT saturationplot.png: "Saturation plot"
