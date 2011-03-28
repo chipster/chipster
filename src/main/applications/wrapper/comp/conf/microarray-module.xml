@@ -125,23 +125,23 @@
 	</category>
 
 	<category name="aCGH" color="#c0d2de">
-		<tool runtime="R-2.9"><resource>import-from-cangem.R</resource></tool>
-		<tool runtime="R-2.9"><resource>smooth-acgh.R</resource></tool>
-		<tool runtime="R-2.9"><resource>detect-copy-number-aberrations.R</resource></tool>
-		<tool runtime="R-2.9"><resource>plot-cgh-profile.R</resource></tool>
-		<tool runtime="R-2.9"><resource>detect-common-copy-number-aberration-regions.R</resource></tool>
-		<tool runtime="R-2.9"><resource>cluster-acgh.R</resource></tool>
-		<tool runtime="R-2.9"><resource>stat-acgh.R</resource></tool>
-		<tool runtime="R-2.9"><resource>convert-cn-probes-to-genes.R</resource></tool>
-		<tool runtime="R-2.10"><resource>pathways-acgh-hyperg-go.R</resource></tool>
-		<tool runtime="R-2.9"><resource>match-cn-and-expression-probes.R</resource></tool>
-		<tool runtime="R-2.9"><resource>plot-cn-induced-expression-profile.R</resource></tool>
-		<tool runtime="R-2.9"><resource>test-for-cn-induced-differential-expression.R</resource></tool>	
-		<tool runtime="R-2.9"><resource>plot-cn-induced-gene-expression.R</resource></tool>
-		<tool runtime="R-2.9"><resource>fetch-probe-positions-from-cangem.R</resource></tool>
-		<tool runtime="R-2.9"><resource>add-cytobands.R</resource></tool>
-		<tool runtime="R-2.9"><resource>count-overlapping-cnvs.R</resource></tool>
-		<tool runtime="R-2.9"><resource>calculate-aberration-frequencies.R</resource></tool>
+		<tool runtime="R-2.12"><resource>import-from-cangem.R</resource></tool>
+		<tool runtime="R-2.12"><resource>smooth-acgh.R</resource></tool>
+		<tool runtime="R-2.12"><resource>detect-copy-number-aberrations.R</resource></tool>
+		<tool runtime="R-2.12"><resource>plot-cgh-profile.R</resource></tool>
+		<tool runtime="R-2.12"><resource>detect-common-copy-number-aberration-regions.R</resource></tool>
+		<tool runtime="R-2.12"><resource>cluster-acgh.R</resource></tool>
+		<tool runtime="R-2.12"><resource>stat-acgh.R</resource></tool>
+		<tool runtime="R-2.12"><resource>convert-cn-probes-to-genes.R</resource></tool>
+		<tool runtime="R-2.12"><resource>pathways-acgh-hyperg-go.R</resource></tool>
+		<tool runtime="R-2.12"><resource>match-cn-and-expression-probes.R</resource></tool>
+		<tool runtime="R-2.12"><resource>plot-cn-induced-expression-profile.R</resource></tool>
+		<tool runtime="R-2.12"><resource>test-for-cn-induced-differential-expression.R</resource></tool>	
+		<tool runtime="R-2.12"><resource>plot-cn-induced-gene-expression.R</resource></tool>
+		<tool runtime="R-2.12"><resource>fetch-probe-positions-from-cangem.R</resource></tool>
+		<tool runtime="R-2.12"><resource>add-cytobands.R</resource></tool>
+		<tool runtime="R-2.12"><resource>count-overlapping-cnvs.R</resource></tool>
+		<tool runtime="R-2.12"><resource>calculate-aberration-frequencies.R</resource></tool>
 	</category>
 
 	<category name="Visualisation" color="#a49900">
