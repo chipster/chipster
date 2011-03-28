@@ -7,7 +7,7 @@
 
 # cluster-acgh.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-12
+# 2011-03-28
 
 library(WECCA)
 
@@ -69,7 +69,8 @@ WECCA.heatmap.modified <- function (cghdata.regioned, dendrogram)
         scale = "none")
 }
 
-pdf(file='wecca.pdf', width=image.width/72, height=image.height/72)
+# pdf(file='wecca.pdf', width=image.width/72, height=image.height/72)
+pdf(file='wecca.pdf')
 WECCA.heatmap.modified(regions, dendrogram)
 dev.off()
 

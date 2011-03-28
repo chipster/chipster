@@ -10,7 +10,7 @@
 
 # detect-copy-number-aberrations.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-02-05
+# 2011-03-28
 
 library(CGHcall)
 
@@ -90,7 +90,8 @@ dat3$chromosome[dat3$chromosome=='25'] <- 'MT'
 
 write.table(dat3, file='aberrations.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
-pdf(file='aberrations.pdf', width=image.width/72, height=image.height/72)
+# pdf(file='aberrations.pdf', width=image.width/72, height=image.height/72)
+pdf(file='aberrations.pdf')
 plot.summary(cgh)
 dev.off()
 

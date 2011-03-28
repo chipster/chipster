@@ -7,7 +7,7 @@
 
 # detect-common-copy-number-aberration-regions.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-12
+# 2011-03-28
 
 library(CGHcall)
 library(CGHregions)
@@ -89,11 +89,13 @@ dat2$chromosome[dat2$chromosome=='25'] <- 'MT'
 
 write.table(dat2, file='regions.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
-pdf(file='regions.pdf', width=image.width/72, height=image.height/72)
+# pdf(file='regions.pdf', width=image.width/72, height=image.height/72)
+pdf(file='regions.pdf')
 plot(regions)
 dev.off()
 
-pdf(file='regions-frequencies.pdf', width=image.width/72, height=image.height/72)
+# pdf(file='regions-frequencies.pdf', width=image.width/72, height=image.height/72)
+pdf(file='regions-frequencies.pdf')
 frequencyPlot(regions)
 dev.off()
 

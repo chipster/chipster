@@ -10,7 +10,7 @@
 
 # sample-size-with-bh.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-12
+# 2011-03-28
 
 dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 phenodata <- read.table("phenodata.tsv", header=TRUE, sep="\t")
@@ -124,12 +124,14 @@ hist.norm <- function(x, norm = NULL, ...) {
 #    main=as.character(class.names[j]))
 #  if(j==1){windows()}
 #}
-pdf(file='skewness.pdf', width=image.width/72, height=image.height/72)
+# pdf(file='skewness.pdf', width=image.width/72, height=image.height/72)
+pdf(file='skewness.pdf')
 par(mfrow=c(1,2))
 hist.norm(sample.skewness[,1], normal.skewness[,1], main=as.character(class.names[1]), xlab='skewness')
 hist.norm(sample.skewness[,2], normal.skewness[,2], main=as.character(class.names[2]), xlab='skewness')
 dev.off()
-pdf(file='kurtosis.pdf', width=image.width/72, height=image.height/72)
+# pdf(file='kurtosis.pdf', width=image.width/72, height=image.height/72)
+pdf(file='kurtosis.pdf')
 par(mfrow=c(1,2))
 hist.norm(sample.kurtosis[,1], normal.kurtosis[,1], main=as.character(class.names[1]), xlab='kurtosis')
 hist.norm(sample.kurtosis[,2], normal.kurtosis[,2], main=as.character(class.names[2]), xlab='kurtosis')
@@ -173,7 +175,8 @@ c<-1
 a.n<-n^((c-1)/2) #Smoothing parameter 
 x<-seq(1/resolution,1-1/resolution,1/resolution)
 density.estimate.of.p.values<-sapply(x,beta.kernel.density.at.x,Sample.of.p.values,a.n)
-pdf(file='p-density.pdf', width=image.width/72, height=image.height/72)
+# pdf(file='p-density.pdf', width=image.width/72, height=image.height/72)
+pdf(file='p-density.pdf')
 plot(x,density.estimate.of.p.values,type='l',xlab="p-value",ylab="density",col=1,xlim=c(0,1),
 ylim=c(0,1.1*max(density.estimate.of.p.values)))
 rough.estimate.of.gamma<-beta.kernel.density.at.x(1-0.0001,Sample.of.p.values,a.n)
@@ -255,7 +258,8 @@ estimate.lambda.of.theta<-pmax(rep(0,length(theta.vector)),estimate.lambda.of.th
 Const<-sum(estimate.lambda.of.theta)*step.theta
 estimate.lambda.of.theta<-estimate.lambda.of.theta/Const
 #Plotting estimate.lambda.of.theta
-pdf(file='lambda.pdf', width=image.width/72, height=image.height/72)
+# pdf(file='lambda.pdf', width=image.width/72, height=image.height/72)
+pdf(file='lambda.pdf')
 plot(theta.vector,estimate.lambda.of.theta,type='l',col=3,ylim=c(0,1.2*max(estimate.lambda.of.theta)),xlab=quote(theta),
 ylab=quote(lambda(theta)))
 title("Estimated density of effect sizes")
@@ -301,7 +305,8 @@ estimate.lambda.of.theta<-estimate.lambda.of.theta/Const
 G.n.hat.u<-sapply(as.matrix(u),G.hat.n.at.a.point,theta.vector,step.theta,estimate.lambda.of.theta,nu,N)
 H.n.u<-sapply(u,edf.at.a.point,Sample.of.p.values)
 G.n.tilde.u<-(H.n.u-initial.gamma*u)/(1-initial.gamma)
-pdf(file='g.pdf', width=image.width/72, height=image.height/72)
+# pdf(file='g.pdf', width=image.width/72, height=image.height/72)
+pdf(file='g.pdf')
 plot(u,G.n.tilde.u,type='l',xlab=quote(u),ylab=quote(G(u)),lty=c(1,3),col=c(3,2),xlim=c(0,1),ylim=c(0,max(G.n.tilde.u)))
 lines(u,G.n.hat.u,col=2)
 legend(c(0.6,0.8),c(0.6,0.8),c("non-parametric","semi-parametric"),lty=c(1,3),col=c(3,2),bty="n")
@@ -333,7 +338,8 @@ distances<-sapply(as.matrix(gamma.vector),distance.between.estimates.of.G.n,u,st
 minimum.distance<-min(distances)
 gamma.hat<-gamma.vector[distances<=minimum.distance]
 #
-pdf(file='gamma.pdf', width=image.width/72, height=image.height/72)
+# pdf(file='gamma.pdf', width=image.width/72, height=image.height/72)
+pdf(file='gamma.pdf')
 plot(gamma.vector,distances,type='l',xlab=quote(~~gamma),ylab=quote(D[n](gamma)),col=1,ylim=c(0,1))
 dev.off()
 #
@@ -374,7 +380,8 @@ for(Nprime in samplesize.N) {
     #lines(u,u/r)
     #title(paste("Power calculation for N'=",round(Nprime,digits=1),""))
 }
-pdf(file='power.pdf', width=image.width/72, height=image.height/72)
+# pdf(file='power.pdf', width=image.width/72, height=image.height/72)
+pdf(file='power.pdf')
 plot(samplesize, power, type='b', main=paste('Power calculation for FDR = ', round(100*delta), '%', sep=''),
   xlim=c(0, 300), ylim=0:1, ylab='Average power',
   xlab=paste('Number of samples (', round(100*N1/(N1+N2)), '% ', class.names[1], ', ', round(100*N2/(N1+N2)), '% ', class.names[2], ')', sep=''))
