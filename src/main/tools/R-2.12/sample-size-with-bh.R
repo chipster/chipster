@@ -1,12 +1,20 @@
-# ANALYSIS "Statistics"/"Sample size calculations with an adapted BH method" (Perform sample size calculations using an adapted Benjamini-Hochberg method.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv
-# OUTPUT skewness.pdf, kurtosis.pdf, p-density.pdf, lambda.pdf, g.pdf, gamma.pdf, power.pdf, power.txt
-# PARAMETER column METACOLUMN_SEL DEFAULT group (The phenodata column that divides the samples into exactly two groups.)
-# PARAMETER assume.equal.variances [yes, no] DEFAULT no (Whether to treat the variances of the two groups as equal.)
-# PARAMETER distribution [normal, student] DEFAULT normal (Whether to use the normal or the t distribution to calculate p values.)
-# PARAMETER false.discovery.rate DECIMAL DEFAULT 0.1 (False discovery rate.)
-# PARAMETER image.width INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
+# TOOL sample-size-with-bh.R: "Sample size calculations with an adapted BH method" (Perform sample size calculations using an adapted Benjamini-Hochberg method.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT skewness.pdf: skewness.pdf 
+# OUTPUT kurtosis.pdf: kurtosis.pdf 
+# OUTPUT p-density.pdf: p-density.pdf 
+# OUTPUT lambda.pdf: lambda.pdf 
+# OUTPUT g.pdf: g.pdf 
+# OUTPUT gamma.pdf: gamma.pdf 
+# OUTPUT power.pdf: power.pdf 
+# OUTPUT power.txt: power.txt 
+# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (The phenodata column that divides the samples into exactly two groups.)
+# PARAMETER assume.equal.variances: assume.equal.variances TYPE [yes: yes, no: no] DEFAULT no (Whether to treat the variances of the two groups as equal.)
+# PARAMETER distribution: distribution TYPE [normal: normal, student: student] DEFAULT normal (Whether to use the normal or the t distribution to calculate p values.)
+# PARAMETER false.discovery.rate: false.discovery.rate TYPE DECIMAL DEFAULT 0.1 (False discovery rate.)
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
 
 # sample-size-with-bh.R
 # Ilari Scheinin <firstname.lastname@gmail.com>

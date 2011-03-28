@@ -22,7 +22,7 @@ public class ImportSession{
 	 * @author Mikko Koski
 	 *
 	 */
-	public enum Source {FILES, FOLDER, URL, CLIPBOARD}
+	public enum Source {FILES, FOLDER, URL, CLIPBOARD, TEXT}
 	
 	private Source source;
 	private List<ImportItem> items;

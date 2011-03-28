@@ -1,10 +1,11 @@
-# ANALYSIS "aCGH"/"Plot profiles of matched copy number and expression" (Plot profiles of two priorly matched data sets of copy number and expression. This tool must be run on the output from the tool Match copy number and expression probes - matched-cn-and-expression.tsv.)
-# INPUT GENE_EXPRS matched-cn-and-expression.tsv, GENERIC phenodata.tsv
-# OUTPUT matched-cn-and-expression-profile.pdf
-# PARAMETER sample INTEGER DEFAULT 1 (The number of the sample to be plotted.)
-# PARAMETER chromosome INTEGER DEFAULT 0 (The chromosome to plot. Use 0 for all.)
-# PARAMETER image.width INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
+# TOOL plot-cn-induced-expression-profile.R: "Plot profiles of matched copy number and expression" (Plot profiles of two priorly matched data sets of copy number and expression. This tool must be run on the output from the tool Match copy number and expression probes - matched-cn-and-expression.tsv.)
+# INPUT matched-cn-and-expression.tsv: matched-cn-and-expression.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT matched-cn-and-expression-profile.pdf: matched-cn-and-expression-profile.pdf 
+# PARAMETER sample: sample TYPE INTEGER DEFAULT 1 (The number of the sample to be plotted.)
+# PARAMETER chromosome: chromosome TYPE INTEGER DEFAULT 0 (The chromosome to plot. Use 0 for all.)
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
 
 # plot-cn-induced-expression-profile.R
 # Ilari Scheinin <firstname.lastname@gmail.com>

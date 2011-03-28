@@ -18,7 +18,7 @@ import javax.swing.SwingConstants;
  * JPanel with black background and rainbow gradient. Values of the different colors
  * are taken from the dataModel and their colors from the color model.
  * 
- * @author Petri KlemelÃ¤
+ * @author Petri Klemelä
  */
 public class ColorGroupsPanel extends JPanel{
 

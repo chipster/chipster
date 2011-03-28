@@ -1,11 +1,16 @@
-# ANALYSIS "aCGH"/"Match copy number and expression probes" (Matches the probes of a copy number data set with probes of an expression data set, using their chromosomal locations. Running this tool is a prerequisite for testing copy-number-induced effects on expression.)
-# INPUT GENE_EXPRS aberrations.tsv, GENE_EXPRS normalized.tsv, GENERIC phenodata_cgh.tsv, GENERIC phenodata_exp.tsv
-# OUTPUT matched-cn-and-expression.tsv, matched-cn-and-expression-heatmap.pdf, matched-phenodata.tsv
-# PARAMETER sample.identifiers.1 METACOLUMN_SEL DEFAULT Sample (The phenodata column for data set 1 used to link the two data sets together.)
-# PARAMETER sample.identifiers.2 METACOLUMN_SEL DEFAULT Sample (The phenodata column for data set 2 used to link the two data sets together.)
-# PARAMETER method [distance, overlap, overlapplus] DEFAULT distance (The method for linking copy number and expression probes together.)
-# PARAMETER image.width INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
+# TOOL match-cn-and-expression-probes.R: "Match copy number and expression probes" (Matches the probes of a copy number data set with probes of an expression data set, using their chromosomal locations. Running this tool is a prerequisite for testing copy-number-induced effects on expression.)
+# INPUT aberrations.tsv: aberrations.tsv TYPE GENE_EXPRS 
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT phenodata_cgh.tsv: phenodata_cgh.tsv TYPE GENERIC 
+# INPUT phenodata_exp.tsv: phenodata_exp.tsv TYPE GENERIC 
+# OUTPUT matched-cn-and-expression.tsv: matched-cn-and-expression.tsv 
+# OUTPUT matched-cn-and-expression-heatmap.pdf: matched-cn-and-expression-heatmap.pdf 
+# OUTPUT matched-phenodata.tsv: matched-phenodata.tsv 
+# PARAMETER sample.identifiers.1: sample.identifiers.1 TYPE METACOLUMN_SEL DEFAULT Sample (The phenodata column for data set 1 used to link the two data sets together.)
+# PARAMETER sample.identifiers.2: sample.identifiers.2 TYPE METACOLUMN_SEL DEFAULT Sample (The phenodata column for data set 2 used to link the two data sets together.)
+# PARAMETER method: method TYPE [distance: distance, overlap: overlap, overlapplus: overlapplus] DEFAULT distance (The method for linking copy number and expression probes together.)
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
 
 # match-cn-and-expression-probes.R
 # Ilari Scheinin <firstname.lastname@gmail.com>

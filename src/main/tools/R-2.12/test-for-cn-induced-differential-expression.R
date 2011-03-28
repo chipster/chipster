@@ -1,9 +1,10 @@
-# ANALYSIS "aCGH"/"Test for copy-number-induced expression changes" (Nonparametric testing for changes in expression induced by a change in DNA copy number. The copy number and expression probes of the two data sets must be matched together beforehand using the Match copy number and expression probes tool.)
-# INPUT GENE_EXPRS matched-cn-and-expression.tsv, GENERIC phenodata.tsv
-# OUTPUT cn-induced-expression.tsv
-# PARAMETER test.statistic [wcvm, wmw] DEFAULT wcvm (The test statistic to use.)
-# PARAMETER analysis.type [univariate, regional] DEFAULT univariate (The type of the analysis.)
-# PARAMETER number.of.permutations INTEGER DEFAULT 10000 (The number of permutations used for the p-value calculation.)
+# TOOL test-for-cn-induced-differential-expression.R: "Test for copy-number-induced expression changes" (Nonparametric testing for changes in expression induced by a change in DNA copy number. The copy number and expression probes of the two data sets must be matched together beforehand using the Match copy number and expression probes tool.)
+# INPUT matched-cn-and-expression.tsv: matched-cn-and-expression.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT cn-induced-expression.tsv: cn-induced-expression.tsv 
+# PARAMETER test.statistic: test.statistic TYPE [wcvm: wcvm, wmw: wmw] DEFAULT wcvm (The test statistic to use.)
+# PARAMETER analysis.type: analysis.type TYPE [univariate: univariate, regional: regional] DEFAULT univariate (The type of the analysis.)
+# PARAMETER number.of.permutations: number.of.permutations TYPE INTEGER DEFAULT 10000 (The number of permutations used for the p-value calculation.)
 
 # test-for-cn-induced-differential-expression.R
 # Ilari Scheinin <firstname.lastname@gmail.com>

@@ -8,7 +8,9 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -59,11 +61,12 @@ public class TableBeanEditor {
 	}
 	
 	public void write() throws MicroarrayException, IOException {
-		OutputStream out = bean.getContentOutputStreamAndLockDataBean();
+		DataManager dataManager = Session.getSession().getDataManager();
+		OutputStream out = dataManager.getContentOutputStreamAndLockDataBean(bean);
 		try {
 			getEditable().writeTo(out);
 		} finally {
-			bean.closeContentOutputStreamAndUnlockDataBean(out);
+			dataManager.closeContentOutputStreamAndUnlockDataBean(bean, out);
 		}
 	}
 }

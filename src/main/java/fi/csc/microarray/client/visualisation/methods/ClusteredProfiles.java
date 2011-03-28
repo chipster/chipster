@@ -15,16 +15,16 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
-import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.methods.ExpressionProfile.ProfileRow;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 public class ClusteredProfiles extends Visualisation {
 
-	public ClusteredProfiles(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	@Override
@@ -82,7 +82,10 @@ public class ClusteredProfiles extends Visualisation {
 		// draw plots
 		for (int i = 0; i < clusterCount; i++) {
 			//TODO createProfileChart should allow static use
-			charts.add(new ExpressionProfile(null).createProfileChart(datasets.get(i), rows.get(i), "Cluster " + (i+1)));
+			// FIXME it really should
+			ExpressionProfile ep = new ExpressionProfile();
+			ep.initialise(null);
+			charts.add(ep.createProfileChart(datasets.get(i), rows.get(i), "Cluster " + (i+1)));
 		}
 		
 		return this.makePanel(charts);
@@ -110,15 +113,7 @@ public class ClusteredProfiles extends Visualisation {
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		boolean isTabular = VisualisationMethod.SPREADSHEET.getHeadlessVisualiser().canVisualise(bean);
-		if (isTabular) {
-			Table chips = bean.queryFeatures("/column/chip.*").asTable();
-			boolean hasProfiles = chips != null && chips.getColumnNames().length > 1;
-			boolean hasClusters =bean.queryFeatures("/column/cluster").exists();
-			return hasProfiles && hasClusters;
-		}
-		return false;
-
+		return isTabular(bean) && bean.hasTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES) && bean.hasTypeTag(MicroarrayModule.TypeTags.CLUSTERED_EXPRESSION_VALUES);
 	}
 	
 }
