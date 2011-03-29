@@ -7,7 +7,7 @@
 
 # cluster-acgh.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-03-28
+# 2011-03-29
 
 library(WECCA)
 
@@ -47,31 +47,9 @@ if (type.of.calls == 'hard') {
   dendrogram <- WECCAsc(regions)
 }
 
-# there's a small bug in the WECCA library, so here's a fixed version of this function:
-WECCA.heatmap.modified <- function (cghdata.regioned, dendrogram) 
-{
-    nclass <- dim(cghdata.regioned$softcalls)[2]/dim(cghdata.regioned$hardcalls)[2]
-    chr.color <- rep("blue", dim(cghdata.regioned$hardcalls)[1])
-    ids <- ((cghdata.regioned$ann[, 1]%%2) == 0)
-    chr.color[ids] <- c("yellow")
-    Y <- rep(FALSE, dim(cghdata.regioned$hardcalls)[1])
-    for (i in 2:(dim(cghdata.regioned$ann)[1])) {
-        if ((cghdata.regioned$ann[i - 1, 1] != cghdata.regioned$ann[i, 1])) {
-            Y[i] <- TRUE
-        }
-    }
-    Y[1] <- TRUE
-    begin.chr <- rep("", dim(cghdata.regioned$ann)[1])
-    begin.chr[Y] <- cghdata.regioned$ann[Y, 1]
-    color.coding <- c("red", "black", "green", "white")[1:nclass]
-    heatmap(cghdata.regioned$hardcalls, Colv = as.dendrogram(dendrogram), 
-        Rowv = NA, col = color.coding, labRow = begin.chr, RowSideColors = chr.color, 
-        scale = "none")
-}
-
 # pdf(file='wecca.pdf', width=image.width/72, height=image.height/72)
 pdf(file='wecca.pdf')
-WECCA.heatmap.modified(regions, dendrogram)
+WECCA.heatmap(regions, dendrogram)
 dev.off()
 
 # EOF
