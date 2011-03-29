@@ -9,7 +9,7 @@
 
 # match-cn-and-expression-probes.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-12-14
+# 2011-03-28
 
 library(CGHcall)
 library(intCNGEan)
@@ -93,7 +93,8 @@ sampleNames(exp) <- phenodata_exp[common.samples, samples_exp]
 matched <- intCNGEan.match(cgh, exp, CNbpend='yes', GEbpend='yes', method=method)
 
 # plot heatmaps
-pdf(file='matched-cn-and-expression-heatmap.pdf', width=image.width/72, height=image.height/72)
+# pdf(file='matched-cn-and-expression-heatmap.pdf', width=image.width/72, height=image.height/72)
+pdf(file='matched-cn-and-expression-heatmap.pdf')
 intCNGEan.heatmaps(matched$CNdata.matched, matched$GEdata.matched)
 dev.off()
 

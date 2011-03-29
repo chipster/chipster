@@ -8,7 +8,7 @@
 
 # plot-cgh-profile.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-12
+# 2011-03-28
 
 library(CGHcall)
 
@@ -43,6 +43,8 @@ dat$chromosome[dat$chromosome=='Y'] <- 24
 dat$chromosome[dat$chromosome=='MT'] <- 25
 dat$chromosome <- as.integer(dat$chromosome)
 
+dat <- dat[dat$chromosome %in% 1:24,]
+
 calls <- as.matrix(dat[,grep("flag", names(dat))])
 copynumber <- as.matrix(dat[,grep("chip", names(dat))])
 segmented <- as.matrix(dat[,grep("segmented", names(dat))])
@@ -51,7 +53,9 @@ probnorm <- as.matrix(dat[,grep("probnorm", names(dat))])
 probgain <- as.matrix(dat[,grep("probgain", names(dat))])
 probamp <- as.matrix(dat[,grep("probamp", names(dat))])
 
-if (ncol(probamp)==0) {
+if (ncol(segmented) == 0) {
+  cgh <- new('cghRaw', copynumber=copynumber, featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
+} else if (ncol(probamp) == 0) {
   cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=copynumber, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
 } else {
   cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=copynumber, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain, probamp=probamp), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
@@ -79,25 +83,14 @@ if (length(chrs.to.plot)==0)
   chrs.to.plot <- 0
 
 # plot
-pdf(file='cgh-profile.pdf', width=image.width/72, height=image.height/72)
-if (length(samples.to.plot)==1) {
+# pdf(file='cgh-profile.pdf', width=image.width/72, height=image.height/72)
+pdf(file='cgh-profile.pdf')
+for (sample in samples.to.plot)
   if (0 %in% chrs.to.plot) {
-    plot(cgh[,samples.to.plot]) # dotres=10 -> every 10th log2-ratio is plotted
+    plot(cgh[,sample]) # dotres=10 -> every 10th log2-ratio is plotted
   } else {
-    plot(cgh[chromosomes(cgh) %in% chrs.to.plot, samples.to.plot]) # dotres=10 -> every 10th log2-ratio is plotted
+    plot(cgh[chromosomes(cgh) %in% chrs.to.plot, sample]) # dotres=10 -> every 10th log2-ratio is plotted
   }
-} else {
-  sq <- sqrt(length(samples.to.plot))
-  rows <- ceiling(sq)
-  cols <- ceiling(length(samples.to.plot)/rows)
-  par(mfrow=c(rows,cols))
-  for (sample in samples.to.plot)
-    if (0 %in% chrs.to.plot) {
-      plot(cgh[,sample]) # dotres=10 -> every 10th log2-ratio is plotted
-    } else {
-      plot(cgh[chromosomes(cgh) %in% chrs.to.plot, sample]) # dotres=10 -> every 10th log2-ratio is plotted
-    }
-}
 dev.off()
 
 # EOF

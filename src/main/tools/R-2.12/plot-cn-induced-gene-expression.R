@@ -7,7 +7,7 @@
 
 # plot-cn-induced-gene-expression.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-15
+# 2011-03-28
 
 library(intCNGEan)
 
@@ -57,17 +57,10 @@ if (length(to.plot)==0)
   stop('CHIPSTER-NOTE: Nothing to plot.')
 
 # plot
-pdf(file='cn-induced-expression-plot.pdf', width=image.width/72, height=image.height/72)
-if (length(to.plot)==1) {
-  intCNGEan.plot(gene.id=to.plot, tuned)
-} else {
-  sq <- sqrt(length(to.plot))
-  rows <- ceiling(sq)
-  cols <- ceiling(length(to.plot)/rows)
-  par(mfrow=c(rows,cols))
-  for (gene in to.plot)
-    intCNGEan.plot(gene.id=gene, tuned)
-}
+# pdf(file='cn-induced-expression-plot.pdf', width=image.width/72, height=image.height/72)
+pdf(file='cn-induced-expression-plot.pdf')
+for (gene in to.plot)
+  intCNGEan.plot(gene.id=gene, tuned)
 dev.off()
 
 # EOF
