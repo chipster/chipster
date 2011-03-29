@@ -3,13 +3,13 @@
 # OUTPUT regions.tsv: regions.tsv 
 # OUTPUT regions.pdf: regions.pdf 
 # OUTPUT regions-frequencies.pdf: regions-frequencies.pdf 
-# PARAMETER max.info.loss: max.info.loss TYPE DECIMAL DEFAULT 0.01 (Maximal information loss allowed.)
+# PARAMETER max.info.loss: max.info.loss TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.01 (Maximal information loss allowed.)
 # PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
 # PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
 
 # detect-common-copy-number-aberration-regions.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-03-28
+# 2011-03-29
 
 library(CGHcall)
 library(CGHregions)
