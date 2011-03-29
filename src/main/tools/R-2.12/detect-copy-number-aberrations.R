@@ -6,8 +6,8 @@
 # PARAMETER number.of.copy.number.states [3, 4] DEFAULT 3 (Whether to call loss vs. normal vs. gain or loss vs. normal vs. gain vs. amplification.)
 # PARAMETER minimum.number.of.probes.per.segment [2, 3, 4, 5] DEFAULT 2 (Minimum number of probes per segment.)
 # PARAMETER minimum.number.of.sds.between.segments DECIMAL FROM 0 TO 10 DEFAULT 0 (Miminum number of standard deviations required between segments.)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image.)
+# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image.)
 
 # detect-copy-number-aberrations.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
@@ -92,7 +92,6 @@ dat3$chromosome[dat3$chromosome=='25'] <- 'MT'
 write.table(dat3, file='aberrations.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
 bitmap(file='aberrations.png', width=image.width/72, height=image.height/72)
-# pdf(file='aberrations.pdf', width=image.width/72, height=image.height/72)
 # pdf(file='aberrations.pdf')
 plot.summary(cgh)
 dev.off()
