@@ -170,7 +170,6 @@ public class VisualisationUtilities {
 				public void run() {
 					try {
 
-						// run normalisation
 						Operation normOp = new Operation(application.getOperationDefinition(MicroarrayModule.ANNOTATION_ID), new DataBean[] { filterBySelection });
 						ResultBlocker normBlocker = new ResultBlocker(2);
 						normOp.setResultListener(normBlocker);
