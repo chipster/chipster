@@ -3,12 +3,13 @@
 # OUTPUT cgh-profile.pdf
 # PARAMETER samples STRING DEFAULT 1 (The numbers of the samples to be plotted, separated by commas. Ranges are also supported (e.g. 1,3,7-10).)
 # PARAMETER chromosomes STRING DEFAULT 0 (The numbers of the chromosomes to be plotted, separated by commas. 0 means all chromosomes. Ranges are also supported (e.g. 1,3,7-10).)
-# PARAMETER image.width INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
+# PARAMETER resolution DECIMAL FROM 0.01 TO 1 DEFAULT 0.1 (Proportion of log-ratio data points to draw. Lower values lead to smaller file sizes and faster processing.)
+# PARAMETER image.width INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image. Not used anymore as plotting format is now PDF.)
+# PARAMETER image.height INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image. Not used anymore as plotting format is now PDF.)
 
 # plot-cgh-profile.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-03-28
+# 2011-03-29
 
 library(CGHcall)
 
@@ -87,9 +88,9 @@ if (length(chrs.to.plot)==0)
 pdf(file='cgh-profile.pdf')
 for (sample in samples.to.plot)
   if (0 %in% chrs.to.plot) {
-    plot(cgh[,sample]) # dotres=10 -> every 10th log2-ratio is plotted
+    plot(cgh[,sample], dotres=1/resolution)
   } else {
-    plot(cgh[chromosomes(cgh) %in% chrs.to.plot, sample]) # dotres=10 -> every 10th log2-ratio is plotted
+    plot(cgh[chromosomes(cgh) %in% chrs.to.plot, sample], dotres=1/resolution)
   }
 dev.off()
 

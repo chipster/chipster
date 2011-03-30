@@ -3,8 +3,8 @@
 # OUTPUT matched-cn-and-expression-profile.pdf
 # PARAMETER sample INTEGER DEFAULT 1 (The number of the sample to be plotted.)
 # PARAMETER chromosome INTEGER DEFAULT 0 (The chromosome to plot. Use 0 for all.)
-# PARAMETER image.width INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
+# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image. Not used anymore as plotting format is now PDF.)
+# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image. Not used anymore as plotting format is now PDF.)
 
 # plot-cn-induced-expression-profile.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
@@ -71,7 +71,6 @@ if (length(sample)==0)
   stop('CHIPSTER-NOTE: Nothing to plot.')
 
 # plot
-# pdf(file='matched-cn-and-expression-profile.pdf', width=image.width/72, height=image.height/72)
 pdf(file='matched-cn-and-expression-profile.pdf')
 for (sample in samples.to.plot)
   intCNGEan.profilesPlot(matched$CNdata.matched, matched$GEdata.matched, sampleNo=sample, chr=chromosome)
