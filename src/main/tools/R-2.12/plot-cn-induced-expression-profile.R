@@ -8,13 +8,7 @@
 
 # plot-cn-induced-expression-profile.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-15
-
-# The plotting command from the intCNGEan package uses par(mfrow) overriding ours.
-# Therefore only one profile can be plotted.
-# However, the code already contains the necessary functionality to deal with multiple samples,
-# in case I find a way how to do it in the future.
-# If that happens, the parameter definition will be altered, and this line removed:
+# 2011-03-28
 
 library(CGHcall)
 library(intCNGEan)
@@ -23,7 +17,7 @@ library(intCNGEan)
 dat <- read.table('matched-cn-and-expression.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t', as.is=TRUE)
 
-# check if the matched data was produced witha n old version
+# check if the matched data was produced with an old version
 if (length(grep("^exprs\\.", names(dat)))!=0)
   stop('CHIPSTER-NOTE: The input file matched-cn-and-expression.tsv has been produced with an old version of the Match copy number and expression probes script. Please re-run that script first, and use the output from the new version.')
 
@@ -31,6 +25,21 @@ if (length(grep("^exprs\\.", names(dat)))!=0)
 pos <- c('chromosome','cn.start','cn.end','exp.start','exp.end')
 if (length(setdiff(pos, colnames(dat)))!=0)
   stop('CHIPSTER-NOTE: This tool can only be run on the output file from the tool Match copy number and expression probes (matched-cn-and-expression.tsv).')
+
+# parse samples to be plotted
+samples <- sample
+samples <- gsub('[^0-9,-]', ',', samples)
+items <- strsplit(samples, ',')[[1]]
+samples.to.plot <- integer()
+for (item in items) {
+  item <- item[item!='']
+  if (length(item)==0) next
+  range <- strsplit(item, '-')[[1]]
+  range <- range[range!='']
+  if (length(range)==0) next
+  samples.to.plot <- c(samples.to.plot, seq(range[1], range[length(range)]))
+}
+samples.to.plot <- unique(samples.to.plot)
 
 # build the necessary object
 dat$chromosome[dat$chromosome=='X'] <- 23
@@ -62,8 +71,10 @@ if (length(sample)==0)
   stop('CHIPSTER-NOTE: Nothing to plot.')
 
 # plot
-pdf(file='matched-cn-and-expression-profile.pdf', width=image.width/72, height=image.height/72)
-intCNGEan.profilesPlot(matched$CNdata.matched, matched$GEdata.matched, sampleNo=sample, chr=chromosome)
+# pdf(file='matched-cn-and-expression-profile.pdf', width=image.width/72, height=image.height/72)
+pdf(file='matched-cn-and-expression-profile.pdf')
+for (sample in samples.to.plot)
+  intCNGEan.profilesPlot(matched$CNdata.matched, matched$GEdata.matched, sampleNo=sample, chr=chromosome)
 dev.off()
 
 # EOF

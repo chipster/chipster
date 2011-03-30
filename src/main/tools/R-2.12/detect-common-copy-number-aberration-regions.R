@@ -1,13 +1,13 @@
 # ANALYSIS "aCGH"/"Identify common regions from called aCGH data" (Reduces dimensionality of called aCGH data by identifying common breakpoints.)
 # INPUT GENE_EXPRS aberrations.tsv
 # OUTPUT regions.tsv, regions.pdf, regions-frequencies.pdf
-# PARAMETER max.info.loss DECIMAL DEFAULT 0.01 (Maximal information loss allowed.)
+# PARAMETER max.info.loss DECIMAL FROM 0 TO 1 DEFAULT 0.01 (Maximal information loss allowed.)
 # PARAMETER image.width INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
 
 # detect-common-copy-number-aberration-regions.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-12
+# 2011-03-29
 
 library(CGHcall)
 library(CGHregions)
@@ -89,11 +89,13 @@ dat2$chromosome[dat2$chromosome=='25'] <- 'MT'
 
 write.table(dat2, file='regions.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
-pdf(file='regions.pdf', width=image.width/72, height=image.height/72)
+# pdf(file='regions.pdf', width=image.width/72, height=image.height/72)
+pdf(file='regions.pdf')
 plot(regions)
 dev.off()
 
-pdf(file='regions-frequencies.pdf', width=image.width/72, height=image.height/72)
+# pdf(file='regions-frequencies.pdf', width=image.width/72, height=image.height/72)
+pdf(file='regions-frequencies.pdf')
 frequencyPlot(regions)
 dev.off()
 

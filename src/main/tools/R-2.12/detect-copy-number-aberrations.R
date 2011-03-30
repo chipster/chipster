@@ -5,12 +5,13 @@
 # PARAMETER number.of.chromosomes INTEGER DEFAULT 23 (Number of chromosomes. Usually 23 for sex-matched reference samples and 22 otherwise.)
 # PARAMETER number.of.copy.number.states [3, 4] DEFAULT 3 (Whether to call loss vs. normal vs. gain or loss vs. normal vs. gain vs. amplification.)
 # PARAMETER minimum.number.of.probes.per.segment [2, 3, 4, 5] DEFAULT 2 (Minimum number of probes per segment.)
+# PARAMETER minimum.number.of.sds.between.segments DECIMAL FROM 0 TO 10 DEFAULT 0 (Miminum number of standard deviations required between segments.)
 # PARAMETER image.width INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
 
 # detect-copy-number-aberrations.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-02-05
+# 2011-03-29
 
 library(CGHcall)
 
@@ -36,7 +37,7 @@ dat2$chromosome <- as.integer(dat2$chromosome)
 cgh.raw <- make_cghRaw(dat2)
 cgh.pre <- preprocess(cgh.raw, nchrom=number.of.chromosomes)
 cgh.nor <- normalize(cgh.pre, method=normalization)
-cgh.seg <- segmentData(cgh.nor, min.width=as.integer(minimum.number.of.probes.per.segment))
+cgh.seg <- segmentData(cgh.nor, min.width=as.integer(minimum.number.of.probes.per.segment), undo.splits='sdundo', undo.SD=minimum.number.of.sds.between.segments)
 cgh.psn <- postsegnormalize(cgh.seg)
 cgh.cal <- CGHcall(cgh.psn, nclass=as.integer(number.of.copy.number.states))
 cgh <- ExpandCGHcall(cgh.cal, cgh.psn)
@@ -90,7 +91,8 @@ dat3$chromosome[dat3$chromosome=='25'] <- 'MT'
 
 write.table(dat3, file='aberrations.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
-pdf(file='aberrations.pdf', width=image.width/72, height=image.height/72)
+# pdf(file='aberrations.pdf', width=image.width/72, height=image.height/72)
+pdf(file='aberrations.pdf')
 plot.summary(cgh)
 dev.off()
 
