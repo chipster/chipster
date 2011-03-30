@@ -2,14 +2,12 @@
 # INPUT matched-cn-and-expression.tsv: matched-cn-and-expression.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT matched-cn-and-expression-profile.pdf: matched-cn-and-expression-profile.pdf 
-# PARAMETER sample: sample TYPE INTEGER DEFAULT 1 (The number of the sample to be plotted.)
+# PARAMETER samples: samples TYPE STRING DEFAULT 1 (The numbers of the samples to be plotted, separated by commas. Ranges are also supported (e.g. 1,3,7-10\).)
 # PARAMETER chromosome: chromosome TYPE INTEGER DEFAULT 0 (The chromosome to plot. Use 0 for all.)
-# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
-# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
 
 # plot-cn-induced-expression-profile.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-03-28
+# 2011-03-30
 
 library(CGHcall)
 library(intCNGEan)
@@ -28,7 +26,6 @@ if (length(setdiff(pos, colnames(dat)))!=0)
   stop('CHIPSTER-NOTE: This tool can only be run on the output file from the tool Match copy number and expression probes (matched-cn-and-expression.tsv).')
 
 # parse samples to be plotted
-samples <- sample
 samples <- gsub('[^0-9,-]', ',', samples)
 items <- strsplit(samples, ',')[[1]]
 samples.to.plot <- integer()
@@ -72,7 +69,6 @@ if (length(sample)==0)
   stop('CHIPSTER-NOTE: Nothing to plot.')
 
 # plot
-# pdf(file='matched-cn-and-expression-profile.pdf', width=image.width/72, height=image.height/72)
 pdf(file='matched-cn-and-expression-profile.pdf')
 for (sample in samples.to.plot)
   intCNGEan.profilesPlot(matched$CNdata.matched, matched$GEdata.matched, sampleNo=sample, chr=chromosome)

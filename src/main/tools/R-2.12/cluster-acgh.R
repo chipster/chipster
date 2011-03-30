@@ -3,12 +3,10 @@
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT wecca.pdf: wecca.pdf 
 # PARAMETER type.of.calls: type.of.calls TYPE [hard: hard, soft: soft] DEFAULT soft (Whether to cluster the arrays based on soft or hard calls. Hard calls are losses, normals, and gains, whereas soft calls refer to the respective probabilities of these calls. The preferred choice is to use soft calls whenever they are available.)
-# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
-# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
 
 # cluster-acgh.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-03-29
+# 2011-03-30
 
 library(WECCA)
 
@@ -48,7 +46,6 @@ if (type.of.calls == 'hard') {
   dendrogram <- WECCAsc(regions)
 }
 
-# pdf(file='wecca.pdf', width=image.width/72, height=image.height/72)
 pdf(file='wecca.pdf')
 WECCA.heatmap(regions, dendrogram)
 dev.off()
