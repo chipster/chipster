@@ -20,6 +20,7 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.log4j.Logger;
 import org.mortbay.util.IO;
+import org.xml.sax.SAXException;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
@@ -571,8 +572,9 @@ public class DataManager {
 	 * File is a zip file with all the data files and one metadata file.
 	 * @return count of stored files
 	 * @throws JAXBException 
+	 * @throws SAXException 
 	 */
-	public void saveSnapshot(File snapshotDir, ClientApplication application) throws IOException, JAXBException {
+	public void saveSnapshot(File snapshotDir, ClientApplication application) throws IOException, JAXBException, SAXException {
 		SessionSaver sessionSaver = new SessionSaver(snapshotDir);
 		sessionSaver.saveSnapshot();
 //		SnapshottingSession session = new SnapshottingSession(this, application);

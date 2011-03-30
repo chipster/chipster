@@ -41,7 +41,7 @@
 		<xs:sequence>
 			<xs:element name="name" type="xs:string"/>
 			<xs:element name="id" type="xs:string"/>
-            <xs:element name="parent" type="xs:string"/>
+            <xs:element name="parent" type="xs:string" minOccurs="0"/>
             <xs:element name="child" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>

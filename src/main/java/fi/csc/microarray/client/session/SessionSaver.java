@@ -1,7 +1,6 @@
 package fi.csc.microarray.client.session;
 
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -16,6 +15,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
 import org.apache.log4j.Logger;
+import org.xml.sax.SAXException;
 
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
@@ -26,12 +26,12 @@ import fi.csc.microarray.client.session.schema.FolderType;
 import fi.csc.microarray.client.session.schema.NameType;
 import fi.csc.microarray.client.session.schema.ObjectFactory;
 import fi.csc.microarray.client.session.schema.OperationType;
+import fi.csc.microarray.client.session.schema.ParameterType;
 import fi.csc.microarray.client.session.schema.SessionType;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.StorageMethod;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.util.IOUtils;
@@ -54,6 +54,8 @@ public class SessionSaver {
 	private int operationIdCounter = 0;
 	private HashMap<Integer, Operation> operationIdMap = new HashMap<Integer, Operation>();
 	private HashMap<Operation, Integer> reversedOperationIdMap = new HashMap<Operation, Integer>();
+	private HashMap<Integer, OperationType> operationTypeMap = new HashMap<Integer, OperationType>();
+	
 	
 	private DataManager dataManager = Session.getSession().getDataManager();
 
@@ -67,7 +69,7 @@ public class SessionSaver {
 
 	}
 	
-	public void saveSnapshot() throws IOException, JAXBException {
+	public void saveSnapshot() throws IOException, JAXBException, SAXException {
 
 		this.newURLs = new HashMap<DataBean, URL>();
 		boolean replaceOldSession = sessionFile.exists();
@@ -107,10 +109,12 @@ public class SessionSaver {
 //			saveLinksRecursively(dataManager.getRootFolder(), metadata);
 
 			
-			// validate meta data 
 			
-			// save meta data
+			
+			
+			// validate and save meta data
 			Marshaller marshaller = ClientSession.getJAXBContext().createMarshaller();
+			//marshaller.setSchema(ClientSession.getSchema());
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 			marshaller.marshal(factory.createSession(sessionType), System.out);
 
@@ -299,54 +303,28 @@ public class SessionSaver {
 			dataType.setCacheUrl(bean.getCacheUrl().toString());
 		}
 		
-		
+
+		// FIXME accept beans without operation?
 		if (bean.getOperation() != null) {
 			Operation operation = bean.getOperation();
 			String operId;
 			
 			// write operation or lookup already written
 			if (!operationIdMap.containsValue(operation) ) {
-				
 				operId = generateId(operation);
-				metadata.append("OPERATION " + operId + " " + operation.getID() + "\n");
-
-				// some parameters need inputs at loading time => write these first
-				if (operation.getBindings() != null) {
-					String beanIds = "";
-					for (DataBinding binding : operation.getBindings()) {
-						beanIds += fetchId(binding.getData()) + " ";
-					}
-					metadata.append("INPUTS " + operId + " " + beanIds + "\n");
-				}
-
-				for (Parameter parameter : operation.getParameters()) {
-
-					// Write parameter only when value is not empty
-					if (parameter.getValue() != null && !parameter.getValue().equals("")) {	
-						metadata.append("OPERATION_PARAMETER " + operId + " " +
-								parameter.getID() + " " + parameter.getValueAsString() + "\n");
-					}
-				}
-
+				saveOperationMetadata(operation, operId);
 
 			} else {
 				operId = reversedOperationIdMap.get(operation).toString();
 			}
+
+			// link data to operation
+			operationTypeMap.get(operId).getInput().add(beanId);
 			
-			metadata.append("OUTPUT " + operId + " " + beanId + "\n");
+			// link the operation to data
+			dataType.setResultOf(operId);
 			
 		}
-		
-		if (bean.getNotes() != null) {
-			// remove newlines from notes, they break loading
-			metadata.append("NOTES " + beanId + " " + bean.getNotes().replace('\n', ' ') + "\n");
-		}
-		
-		if (bean.getCacheUrl() != null) {
-			metadata.append("CACHED_URL " + beanId + " " + bean.getCacheUrl() + "\n");			
-		}
-		
-		saveDataItemMetadata(bean, beanId, metadata);
 
 		sessionType.getData().add(dataType);
 
@@ -355,24 +333,40 @@ public class SessionSaver {
 	
 	private void saveOperationMetadata(Operation operation, String operationId) {
 		OperationType operationType = factory.createOperationType();
+		
+		// session id
 		operationType.setId(operationId);
 		
+		// name
 		NameType nameType = factory.createNameType();
 		nameType.setId(operation.getID());
 		nameType.setDisplayName(operation.getDisplayName());
 		operationType.setName(nameType);
 		
+		// parameters
 		for (Parameter parameter : operation.getParameters()) {
 
 			// Write parameter only when value is not empty
 			if (parameter.getValue() != null && !parameter.getValue().equals("")) {	
-				metadata.append("OPERATION_PARAMETER " + operId + " " +
-						parameter.getID() + " " + parameter.getValueAsString() + "\n");
+				ParameterType parameterType = factory.createParameterType();
+				NameType parameterNameType = factory.createNameType();
+				parameterNameType.setId(parameter.getID());
+				parameterNameType.setDisplayName(parameter.getDisplayName());
+				parameterType.setName(parameterNameType);
+				parameterType.setValue(parameter.getValueAsString());
+				operationType.getParameter().add(parameterType);
 			}
 		}
 
+		// inputs
+		for (DataBinding binding : operation.getBindings()) {
+			// FIXME check inputId for null
+			String inputId = fetchId(binding.getData());
+			operationType.getInput().add(inputId); 
+		}
 		
 		sessionType.getOperation().add(operationType);
+		operationTypeMap.put(Integer.parseInt(operationId), operationType);
 	}	
 
 	

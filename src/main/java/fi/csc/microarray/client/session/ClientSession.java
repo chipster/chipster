@@ -128,4 +128,20 @@ public class ClientSession {
 	public static JAXBContext getJAXBContext() throws JAXBException {
 		return JAXBContext.newInstance("fi.csc.microarray.client.session.schema");
 	}
+
+
+	public static Validator getValidator() throws SAXException {
+        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+
+		
+		Schema schema = factory.newSchema(new StreamSource(ClientSession.class.getResourceAsStream("/session.xsd")));
+        
+        return schema.newValidator();
+	}
+
+	public static Schema getSchema() throws SAXException {
+        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+		return factory.newSchema(new StreamSource(ClientSession.class.getResourceAsStream("/session.xsd")));
+	}
+	
 }
