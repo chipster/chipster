@@ -5,7 +5,7 @@
 
 # plot-cn-induced-gene-expression.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-03-29
+# 2011-03-30
 
 library(intCNGEan)
 
