@@ -15,7 +15,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.table.DefaultTableModel;
 
-import fi.csc.microarray.client.visualisation.MicroarrayTable;
+import fi.csc.microarray.client.visualisation.ExtendedJXTable;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationUtilities;
@@ -47,12 +47,12 @@ public class Spreadsheet extends Visualisation {
 	 */
 	public class SpreadsheetPopupMenu extends JPopupMenu implements ActionListener {
 
-		private MicroarrayTable table;
+		private ExtendedJXTable table;
 		private JMenuItem annotateMenuItem;
 		private JMenuItem copyMenuItem;
 		private JMenuItem filterMenuItem;
 		
-		public SpreadsheetPopupMenu(MicroarrayTable table) {
+		public SpreadsheetPopupMenu(ExtendedJXTable table) {
 			this.table = table;
 			
 			copyMenuItem = new JMenuItem("Copy");			
@@ -85,7 +85,7 @@ public class Spreadsheet extends Visualisation {
 
 	private final int COLUMNS_REQUIRES_SCROLLING = 8;
 
-	private MicroarrayTable table;
+	private ExtendedJXTable table;
 	
 	/**
 	 * Creates a new TablePanel, which (for now) is dataset specific.
@@ -128,7 +128,7 @@ public class Spreadsheet extends Visualisation {
 			row++;
 		}
 		
-		table = new MicroarrayTable(data);
+		table = new ExtendedJXTable(data);
 		DefaultTableModel tableModel = new DefaultTableModel(rowData, columnTitles) {			
 			@Override
 			public boolean isCellEditable(int row, int column){

@@ -38,18 +38,18 @@ import fi.csc.microarray.databeans.DataBean;
  * @author Mikko Koski, Aleksi Kallio
  * 
  */
-public class MicroarrayTable extends JXTable implements ActionListener, PropertyChangeListener {
+public class ExtendedJXTable extends JXTable implements ActionListener, PropertyChangeListener {
 
 	private Clipboard systemClipboard;
 
 	private static ClientApplication application = Session.getSession().getApplication();
 
-	private static Logger logger = Logger.getLogger(MicroarrayTable.class);
+	private static Logger logger = Logger.getLogger(ExtendedJXTable.class);
 
 	private boolean doNotDispatchEvents = true;
 	private DataBean data;
 
-	public MicroarrayTable(DataBean data) {
+	public ExtendedJXTable(DataBean data) {
 
 		this.data = data;
 
@@ -66,17 +66,17 @@ public class MicroarrayTable extends JXTable implements ActionListener, Property
 				if (!doNotDispatchEvents) {
 					logger.debug("Row selection of the table changed");
 
-					int[] selected = MicroarrayTable.this.getSelectedRows();
+					int[] selected = ExtendedJXTable.this.getSelectedRows();
 					int[] converted = new int[selected.length];
 
 					for (int i = 0; i < selected.length; i++) {
-						converted[i] = MicroarrayTable.this.convertRowIndexToModel(selected[i]);
+						converted[i] = ExtendedJXTable.this.convertRowIndexToModel(selected[i]);
 					}
 
 					boolean tmp = doNotDispatchEvents;
 					doNotDispatchEvents = true;
 					application.getSelectionManager().getRowSelectionManager(
-							MicroarrayTable.this.data).setSelection(converted, MicroarrayTable.this);
+							ExtendedJXTable.this.data).setSelection(converted, ExtendedJXTable.this);
 
 					doNotDispatchEvents = tmp;
 				}
@@ -123,7 +123,7 @@ public class MicroarrayTable extends JXTable implements ActionListener, Property
 	 *           if(selectionMode ==
 	 *           ListSelectionModel.MULTIPLE_INTERVAL_SELECTION){ throw new
 	 *           IllegalArgumentException(
-	 *           "MULTIPLE_INTERVAL_SELECTION cannot be used in MicroarrayTable"
+	 *           "MULTIPLE_INTERVAL_SELECTION cannot be used in ExtendedJXTable"
 	 *           ); } }
 	 */
 
