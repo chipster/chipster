@@ -2,8 +2,8 @@
 # INPUT GENE_EXPRS cn-induced-expression.tsv
 # OUTPUT cn-induced-expression-plot.pdf
 # PARAMETER gene.ids STRING DEFAULT 1 (The gene.ids of the genes to be plotted, separated by commas. Ranges are also supported (e.g. 1,3,7-10).)
-# PARAMETER image.width INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
+# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image. Not used anymore as plotting format is now PDF.)
+# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image. Not used anymore as plotting format is now PDF.)
 
 # plot-cn-induced-gene-expression.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
@@ -57,7 +57,6 @@ if (length(to.plot)==0)
   stop('CHIPSTER-NOTE: Nothing to plot.')
 
 # plot
-# pdf(file='cn-induced-expression-plot.pdf', width=image.width/72, height=image.height/72)
 pdf(file='cn-induced-expression-plot.pdf')
 for (gene in to.plot)
   intCNGEan.plot(gene.id=gene, tuned)
