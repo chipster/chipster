@@ -86,7 +86,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	private long dragEventTime;
 	private boolean isStatic;
 	private static final long DRAG_EXPIRATION_TIME_MS = 50;
-	
+
 	private static boolean showFullHeight = true;
 	private static final int Y_MARGIN = 20;
 
@@ -181,8 +181,6 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			
 			drawBuffer = new BufferedImage(drawBufferWidth,
 					drawBufferHeight, BufferedImage.TYPE_INT_RGB);		
-
-		if (drawBuffer == null || drawBuffer.getWidth() != viewArea.getWidth() || drawBuffer.getHeight() != viewArea.getHeight()) {
 
 			drawBuffer = new BufferedImage((int) viewArea.getWidth(), (int) viewArea.getHeight(), BufferedImage.TYPE_INT_RGB);
 
@@ -330,16 +328,20 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		drawableIter = null;
 	}
 
+	public boolean isRulerEnabled() {
+		return true;
+	}
+
 	/**
 	 * Update heights of tracks after zoom, resize etc.
 	 */
 	private void updateTrackHeights() {
-		// Calculate height of stretchable tracks    
+		// Calculate height of stretchable tracks
 		for (Track t : getTracks()) {
 			if (t.isStretchable()) {
 				if (showFullHeight) {
 					t.setHeight(Integer.MAX_VALUE);
-				} else {					
+				} else {
 					t.setHeight(Math.round(getTrackHeight()));
 				}
 			}
@@ -347,8 +349,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	}
 
 	public float getTrackHeight() {
-		trackHeight = (getHeight() - getStaticTrackHeightTotal()) /
-		(float) getStretchableTrackCount();		
+		trackHeight = (getHeight() - getStaticTrackHeightTotal()) / (float) getStretchableTrackCount();
 		return trackHeight;
 	}
 
@@ -365,25 +366,24 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		}
 		return staticHeightTotal;
 	}
-	
+
 	protected int getTrackHeightTotal() {
 		int heightTotal = 0;
 
 		for (Track track : getTracks()) {
 			if (track.isVisible()) {
-				if (track.getHeight() !=  null) {
+				if (track.getHeight() != null) {
 					heightTotal += track.getHeight();
 				}
 			}
 		}
-		
-		//Avoid problems in initialisation by having some fixed value
+
+		// Avoid problems in initialisation by having some fixed value
 		if (heightTotal == 0) {
 			heightTotal = getHeight();
 		}
 		return heightTotal;
 	}
-
 
 	protected int getStretchableTrackCount() {
 		int stretchableCount = 0;
@@ -428,13 +428,11 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	 */
 	public void fireAreaRequests() {
 		// Concise data
-		Map<DataSource, Set<ColumnType>> conciseDatas = new
-		HashMap<DataSource, Set<ColumnType>>();
+		Map<DataSource, Set<ColumnType>> conciseDatas = new HashMap<DataSource, Set<ColumnType>>();
 		// Precise data
-		Map<DataSource, Set<ColumnType>> preciseDatas = new
-		HashMap<DataSource, Set<ColumnType>>();
+		Map<DataSource, Set<ColumnType>> preciseDatas = new HashMap<DataSource, Set<ColumnType>>();
 
-		// Add all requested columns for each requested file 
+		// Add all requested columns for each requested file
 		for (Track t : getTracks()) {
 			Map<DataSource, Set<ColumnType>> trackDatas = t.requestedData();
 
@@ -465,8 +463,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			FsfStatus status = new FsfStatus();
 			status.clearQueues = true;
 			status.concise = true;
-			getQueueManager().addAreaRequest(file,
-					new AreaRequest(getBpRegion(), conciseDatas.get(file), status), true);
+			getQueueManager().addAreaRequest(file, new AreaRequest(getBpRegion(), conciseDatas.get(file), status), true);
 		}
 
 		// Fire area requests for precise requests
@@ -474,8 +471,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			FsfStatus status = new FsfStatus();
 			status.clearQueues = true;
 			status.concise = false;
-			getQueueManager().addAreaRequest(file,
-					new AreaRequest(getBpRegion(), preciseDatas.get(file), status), true);
+			getQueueManager().addAreaRequest(file, new AreaRequest(getBpRegion(), preciseDatas.get(file), status), true);
 		}
 	}
 
@@ -487,7 +483,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		trackHeight = null;
 
 		if (!disableDrawing) {
-			fireAreaRequests();            
+			fireAreaRequests();
 			dispatchRegionChange();
 		}
 	}
@@ -559,9 +555,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	public void mouseDragged(MouseEvent e) {
 
-		if (movable && 
-				((dragStartPoint != null && viewArea.contains(dragStartPoint) || 
-						viewArea.contains(e.getPoint() )))) {
+		if (movable && ((dragStartPoint != null && viewArea.contains(dragStartPoint) || viewArea.contains(e.getPoint())))) {
 
 			dragStarted = true;
 			dragEndPoint = scale(e.getPoint());
@@ -585,7 +579,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	public void mouseWheelMoved(final MouseWheelEvent e) {
 
 		if (!parentPlot.isFullHeight()) {
-			zoomAnimation((int) scale(e.getPoint()).getX(), e.getWheelRotation());			
+			zoomAnimation((int) scale(e.getPoint()).getX(), e.getWheelRotation());
 		}
 	}
 
@@ -635,7 +629,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			double pointerRelative = trackToRelative(lockedX);
 
 			double startBp = getBpRegionDouble().start.bp;
-			double endBp = getBpRegionDouble().end.bp;			
+			double endBp = getBpRegionDouble().end.bp;
 
 			double width = endBp - startBp;
 			width *= Math.pow(ZOOM_FACTOR, wheelRotation);
@@ -748,13 +742,13 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	private Point2D scale(Point2D p) {
 		return new Point((int) (p.getX() / parentPlot.chartPanel.getScaleX()), (int) (p.getY() / parentPlot.chartPanel.getScaleY()));
 	}
-	
+
 	public String tooltipRequest(MouseEvent mouseEvent) {
-		Point locationOnPanel = (Point)mouseEvent.getLocationOnScreen().clone();
+		Point locationOnPanel = (Point) mouseEvent.getLocationOnScreen().clone();
 		SwingUtilities.convertPointFromScreen(locationOnPanel, parentPlot.chartPanel);
 		return tooltipRequest(locationOnPanel);
 	}
-	
+
 	public String tooltipRequest(Point2D locationOnPanel) {
 		return null; // tooltips disabled by default in views
 	}
