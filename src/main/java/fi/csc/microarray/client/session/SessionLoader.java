@@ -7,6 +7,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.zip.ZipFile;
 
 import javax.xml.bind.JAXBException;
@@ -15,18 +17,22 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.log4j.Logger;
-import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.session.schema.DataType;
 import fi.csc.microarray.client.session.schema.FolderType;
+import fi.csc.microarray.client.session.schema.LinkType;
+import fi.csc.microarray.client.session.schema.OperationType;
+import fi.csc.microarray.client.session.schema.ParameterType;
 import fi.csc.microarray.client.session.schema.SessionType;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -35,16 +41,14 @@ public class SessionLoader {
 	private File sessionFile;
 	private SessionType sessionType;
 	
-//	private LinkedHashMap<String, DataFolder> folders = new LinkedHashMap<String, DataFolder>();
+	private LinkedHashMap<String, DataFolder> folders = new LinkedHashMap<String, DataFolder>();
 	private HashMap<DataFolder, FolderType> folderTypes = new HashMap<DataFolder, FolderType>();
 
-	private LinkedHashMap<String, DataItem> dataItems = new LinkedHashMap<String, DataItem>();
-
-	
+	private LinkedHashMap<String, DataBean> dataBeans = new LinkedHashMap<String, DataBean>();
 	private HashMap<DataBean, DataType> dataTypes = new HashMap<DataBean, DataType>();
 
 	private LinkedHashMap<String, Operation> operations = new LinkedHashMap<String, Operation>();
-	private HashMap<Operation, Element> operationElements = new HashMap<Operation, Element>();
+	private HashMap<Operation, OperationType> operationTypes = new HashMap<Operation, OperationType>();
 
 	
 	private DataManager dataManager;
@@ -91,7 +95,23 @@ public class SessionLoader {
 		
 			parseFolders();
 			parseDataBeans();
+			parseOperations();
+			
+			linkOperations();
+			
 			linkChildren(dataManager.getRootFolder());
+			
+			linkDataBeans();
+			
+			// check
+			logger.info("after load checking");
+			for (DataBean dataBean : dataBeans.values()) {
+				if (dataBean.getOperation() == null) {
+					logger.info(dataBean.getName() + " has null operation");
+				} else if (dataBean.getOperation().getBindings() == null) {
+					logger.info(dataBean.getOperation().getID() + " has null bindings");
+				}
+			}
 			
 		} 
 		// FIXME
@@ -118,7 +138,7 @@ public class SessionLoader {
 			String id = folderType.getId();
 			
 			// check for unique id
-			if (dataItems.containsKey(id)) {
+			if (getDataItem(id) != null) {
 				logger.warn("duplicate folder id: " + id + " , ignoring folder: " + name);
 				continue;
 			}
@@ -130,7 +150,7 @@ public class SessionLoader {
 			} else {
 				dataFolder = dataManager.createFolder(name);
 			}
-			dataItems.put(id, dataFolder);
+			folders.put(id, dataFolder);
 			folderTypes.put(dataFolder, folderType);
 	
 			logger.debug("successfully parsed folder element: " + dataFolder.getName());
@@ -143,7 +163,7 @@ public class SessionLoader {
 			String id = dataType.getId();
 			
 			// check for unique id
-			if (dataItems.containsKey(id)) {
+			if (getDataItem(id) != null) {
 				logger.warn("duplicate data bean id: " + id + " , ignoring data bean: " + name);
 				continue;
 			}
@@ -199,7 +219,7 @@ public class SessionLoader {
 			//			dataBean.setCreationDate(date);
 			
 			
-			dataItems.put(id, dataBean);
+			dataBeans.put(id, dataBean);
 			dataTypes.put(dataBean, dataType);
 	
 			logger.debug("successfully parsed databean element: " + dataBean.getName());
@@ -207,29 +227,38 @@ public class SessionLoader {
 	}
 
 	
-	void parseOperations() {
-//		for (Element element : XmlUtil.getChildElements(sessionElement, ClientSession.ELEMENT_OPERATION)) {
-//			String id = XmlUtil.getChildElement(element, ClientSession.ELEMENT_ID).getTextContent();
-//			
-//			// check for unique id
-//			if (operations.containsKey(id)) {
-//				logger.warn("duplicate operation id: " + id);
-//				continue;
-//			}
-//
-//			Element descriptionElement = XmlUtil.getChildElement(element, ClientSession.ELEMENT_DESCRIPTION);
-//			Element nameElement = XmlUtil.getChildElement(descriptionElement, ClientSession.ELEMENT_NAME);
-//			String operationId = XmlUtil.getChildElement(nameElement, ClientSession.ELEMENT_ID).getTextContent();
-//			String displayName = XmlUtil.getChildElement(nameElement, ClientSession.ELEMENT_DISPLAY_NAME).getTextContent();
-//			
-//			
-//			// create the operation
-////			Operation operation = new Operation();
-////			folders.put(id, dataFolder);
-////			folderElements.put(dataFolder, folderElement);
-////	
-////			logger.debug("successfully parsed folder element: " + dataFolder.getName());
-//		}
+	private void parseOperations() {
+		for (OperationType operationType : sessionType.getOperation()) {
+			String operationSessionId = operationType.getId();
+
+			// check for unique id
+			if (operations.containsKey(operationSessionId)) {
+				logger.warn("duplicate operation id: " + operationSessionId);
+				continue;
+			}
+
+			String operationId = operationType.getName().getId();
+			OperationDefinition operationDefinition = Session.getSession().getApplication().getOperationDefinition(operationId);
+			
+			// FIXME check for null operation definition
+			Operation operation;
+			try {
+				operation = new Operation(operationDefinition, new DataBean[] {});
+			} catch (MicroarrayException e) {
+				// FIXME Auto-generated catch block
+				e.printStackTrace();
+				continue;
+			}
+
+			// FIXME what to do with obsolete parameters
+			for (ParameterType parameterType : operationType.getParameter()) {
+				operation.parseParameter(parameterType.getName().getId(), parameterType.getValue());
+			}
+			
+			operations.put(operationSessionId, operation);
+			operationTypes.put(operation, operationType);
+
+		}
 	}
 
 	
@@ -237,7 +266,7 @@ public class SessionLoader {
 		for (String childId : folderTypes.get(parent).getChild()) {
 			
 			// check that the referenced data item exists
-			DataItem child = dataItems.get(childId);
+			DataItem child = getDataItem(childId);
 			if (child == null) {
 				logger.warn("child with id: " + childId + " does not exist");
 				continue;
@@ -253,5 +282,63 @@ public class SessionLoader {
 		}
 	}
 	
+	private void linkOperations() {
+		
+		for (Operation operation : operations.values()) {
+			logger.info("linking operation: " + operation.getID());
+			List<DataBean> inputBeans = new LinkedList<DataBean>();
+			
+			// FIXME add checks
+			for (String inputId : operationTypes.get(operation).getInput()) {
+				DataBean inputBean = dataBeans.get(inputId);
+				inputBeans.add(inputBean);
+			
+			}
+			
+			// bind inputs
+			
+			logger.info("binding " + inputBeans.size() + " inputs for " + operation.getID());
+			try {
+				operation.bindInputs(inputBeans.toArray(new DataBean[] {}));
+			} catch (MicroarrayException e) {
+				// FIXME Auto-generated catch block
+				e.printStackTrace();
+				continue;
+			}
+			if (operation.getBindings() == null) {
+				logger.info("bindings is null");
+			}
+			
+			// set as the operation for outputs 
+			for (String outputId : operationTypes.get(operation).getOutput()) {
+				// FIXME check
+				DataBean outputBean = dataBeans.get(outputId);
+				outputBean.setOperation(operation);
+			}
+		}
+	}
 
+	
+	private void linkDataBeans() {
+		for (DataBean dataBean : dataBeans.values()) {
+			for (LinkType linkType : dataTypes.get(dataBean).getLink()) {
+				dataBean.addLink(Link.valueOf(linkType.getType()), dataBeans.get(linkType.getTarget()));
+			}
+			
+		}
+	}
+	
+	/**
+	 * 
+	 * @param id
+	 * @return null if no DataItem for the id is found
+	 */
+	private DataItem getDataItem(String id) {
+		DataItem dataItem = folders.get(id);
+		if (dataItem != null) {
+			return dataItem;
+		} else { 
+			return dataBeans.get(id);
+		}
+	}
 }
