@@ -1,9 +1,11 @@
-# ANALYSIS "aCGH"/"Identify common regions from called aCGH data" (Reduces dimensionality of called aCGH data by identifying common breakpoints.)
-# INPUT GENE_EXPRS aberrations.tsv
-# OUTPUT regions.tsv, regions.pdf, regions-frequencies.pdf
-# PARAMETER max.info.loss DECIMAL FROM 0 TO 1 DEFAULT 0.01 (Maximal information loss allowed.)
-# PARAMETER image.width INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
+# TOOL detect-common-copy-number-aberration-regions.R: "Identify common regions from called aCGH data" (Reduces dimensionality of called aCGH data by identifying common breakpoints.)
+# INPUT aberrations.tsv: aberrations.tsv TYPE GENE_EXPRS 
+# OUTPUT regions.tsv: regions.tsv 
+# OUTPUT regions.pdf: regions.pdf 
+# OUTPUT regions-frequencies.pdf: regions-frequencies.pdf 
+# PARAMETER max.info.loss: max.info.loss TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.01 (Maximal information loss allowed.)
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 6400 DEFAULT 2400 (Width of the plotted network image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 6400 DEFAULT 2400 (Height of the plotted network image)
 
 # detect-common-copy-number-aberration-regions.R
 # Ilari Scheinin <firstname.lastname@gmail.com>

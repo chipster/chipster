@@ -50,7 +50,7 @@ public abstract class MessagingTestBase {
 		// use default config if no config url
 		System.out.println("initialising client");
 		if (configURL == null) {
-			DirectoryLayout.initialiseClientLayout().getConfiguration();
+			DirectoryLayout.initialiseSimpleLayout().getConfiguration();
 		} else {
 			try {
 				DirectoryLayout.initialiseClientLayout(configURL);

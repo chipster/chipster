@@ -19,8 +19,10 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.dataimport.ImportUtils;
+import fi.csc.microarray.constants.VisualConstants;
 
 /**
  * Dialog for asking URL from user. It has an drop down menu which shows the 
@@ -39,7 +41,6 @@ public class URLImportDialog extends JDialog implements ActionListener{
 	
 	private final int RECENT_URL_COUNT = 10;
 	
-	private static final String SKIP_TEXT = "Import directly if possible";
 	private JCheckBox skipCheckBox;
 	
 	private JLabel label;
@@ -68,8 +69,12 @@ public class URLImportDialog extends JDialog implements ActionListener{
 		folderNameCombo = new JComboBox(ImportUtils.getFolderNames(true).toArray());
 		folderNameCombo.setEditable(true);
 		
-		skipCheckBox = new JCheckBox(SKIP_TEXT);
-		skipCheckBox.setSelected(true);
+		skipCheckBox = new JCheckBox(VisualConstants.getImportDirectlyText());
+		if (!Session.getSession().getApplication().isStandalone()) {
+			skipCheckBox.setSelected(true);
+		} else {
+			skipCheckBox.setSelected(false);
+		}
 		
 		okButton = new JButton("OK");
 		okButton.setPreferredSize(BUTTON_SIZE);
