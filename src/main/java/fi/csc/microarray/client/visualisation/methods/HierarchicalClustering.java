@@ -46,7 +46,7 @@ import org.jfree.data.hc.HCTreeNode;
 import org.jfree.data.hc.HeatMap;
 
 import fi.csc.microarray.client.selection.RowChoiceEvent;
-import fi.csc.microarray.client.selection.RowSelectionManager;
+import fi.csc.microarray.client.selection.IntegratedSelectionManager;
 import fi.csc.microarray.client.visualisation.AnnotateListPanel;
 import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
 import fi.csc.microarray.client.visualisation.Visualisation;
@@ -573,7 +573,7 @@ public class HierarchicalClustering extends Visualisation implements PropertyCha
 	}
 
 	protected void updateSelectionsFromApplication(boolean dispatchEvent) {
-		RowSelectionManager manager = application.getSelectionManager().getRowSelectionManager(selectionBean);
+		IntegratedSelectionManager manager = application.getSelectionManager().getRowSelectionManager(selectionBean);
 
 		orders.updateVisibleIndexes();
 

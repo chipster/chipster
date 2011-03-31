@@ -32,7 +32,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import fi.csc.microarray.client.selection.RowChoiceEvent;
-import fi.csc.microarray.client.selection.RowSelectionManager;
+import fi.csc.microarray.client.selection.IntegratedSelectionManager;
 import fi.csc.microarray.client.visualisation.AnnotateListPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
@@ -248,7 +248,7 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 	}
 
 	protected void updateSelectionsFromApplication(boolean dispatchEvent) {
-		RowSelectionManager manager = application.getSelectionManager().getRowSelectionManager(data);
+		IntegratedSelectionManager manager = application.getSelectionManager().getRowSelectionManager(data);
 
 		selectedIndexes.clear();
 		for (int i : manager.getSelectedRows()){

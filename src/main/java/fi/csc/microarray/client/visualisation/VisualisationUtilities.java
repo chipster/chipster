@@ -11,7 +11,7 @@ import java.util.Map;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.selection.RowSelectionManager;
+import fi.csc.microarray.client.selection.IntegratedSelectionManager;
 import fi.csc.microarray.client.tasks.ResultBlocker;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.databeans.DataBean;
@@ -32,7 +32,7 @@ public class VisualisationUtilities {
 
 			if (datas.size() == 1) {
 				Collection<String> lines = application.getSelectionManager().getRowSelectionManager(datas.get(0)).getSelectedLines();
-				return RowSelectionManager.createDataset(lines, datas.toArray(new DataBean[datas.size()]));
+				return IntegratedSelectionManager.createDataset(lines, datas.toArray(new DataBean[datas.size()]));
 			} else {
 
 				List<String[]> allColumns = new LinkedList<String[]>();
@@ -107,7 +107,7 @@ public class VisualisationUtilities {
 					lines.add(newLine);
 				}
 
-				return RowSelectionManager.createDataset(lines, datas.toArray(new DataBean[datas.size()]));
+				return IntegratedSelectionManager.createDataset(lines, datas.toArray(new DataBean[datas.size()]));
 			}
 
 		} catch (Exception exp) {

@@ -22,16 +22,16 @@ import fi.csc.microarray.exception.MicroarrayException;
 /**
  * Selection manager for the rows that are selected from the specific dataset.
  * 
- * @author klemela
+ * @author Petri Klemelä, Aleksi Kallio
  * 
  */
-public class RowSelectionManager {
+public class IntegratedSelectionManager {
 
 	private ClientApplication client;
 	private DataBean data;
 	private int[] selectedRows = new int[0];
 
-	public RowSelectionManager(ClientApplication client, DataBean data) {
+	public IntegratedSelectionManager(ClientApplication client, DataBean data) {
 		this.client = client;
 		this.data = data;
 	}

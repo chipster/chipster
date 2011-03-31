@@ -34,7 +34,7 @@ import org.jfree.data.hc.HCDataset;
 import org.jfree.data.hc.HeatMap;
 
 import fi.csc.microarray.client.selection.RowChoiceEvent;
-import fi.csc.microarray.client.selection.RowSelectionManager;
+import fi.csc.microarray.client.selection.IntegratedSelectionManager;
 import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.methods.SelectableChartPanel.SelectionChangeListener;
@@ -212,7 +212,7 @@ public class Heatmap extends ChipVisualisation implements PropertyChangeListener
 	}
 
 	protected void updateSelectionsFromApplication(boolean dispatchEvent) {
-		RowSelectionManager manager = application.getSelectionManager().getRowSelectionManager(selectionBean);
+		IntegratedSelectionManager manager = application.getSelectionManager().getRowSelectionManager(selectionBean);
 
 		selected.clear();
 		for (int i : manager.getSelectedRows()) {

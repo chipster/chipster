@@ -21,7 +21,7 @@ public class DataSelectionManager {
 
     private ClientApplication client;
     private LinkedList<DataItem> selectedDatas = new LinkedList<DataItem>();
-    private Map<DataItem, RowSelectionManager> rowSelectionManagers = new HashMap<DataItem, RowSelectionManager>();
+    private Map<DataItem, IntegratedSelectionManager> rowSelectionManagers = new HashMap<DataItem, IntegratedSelectionManager>();
     
     public DataSelectionManager(ClientApplication client) {
         this.client = client;
@@ -35,12 +35,12 @@ public class DataSelectionManager {
      * @param data
      * @return
      */
-    public RowSelectionManager getRowSelectionManager(DataBean data){
-    	RowSelectionManager manager;
+    public IntegratedSelectionManager getRowSelectionManager(DataBean data){
+    	IntegratedSelectionManager manager;
     	manager = rowSelectionManagers.get(data);
     	
     	if(manager == null){
-    		manager = new RowSelectionManager(client,data);
+    		manager = new IntegratedSelectionManager(client,data);
     		rowSelectionManagers.put(data, manager);
     	}
     	
