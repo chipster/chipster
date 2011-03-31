@@ -31,7 +31,7 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import fi.csc.microarray.client.selection.RowChoiceEvent;
+import fi.csc.microarray.client.selection.SelectionEvent;
 import fi.csc.microarray.client.selection.IntegratedSelectionManager;
 import fi.csc.microarray.client.visualisation.AnnotateListPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
@@ -241,7 +241,7 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 	}
 
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt instanceof RowChoiceEvent && evt.getSource() != this && ((RowChoiceEvent) evt).getData() == data) {
+		if (evt instanceof SelectionEvent && evt.getSource() != this && ((SelectionEvent) evt).getData() == data) {
 
 			updateSelectionsFromApplication(false);
 		}
@@ -251,7 +251,7 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 		IntegratedSelectionManager manager = application.getSelectionManager().getRowSelectionManager(data);
 
 		selectedIndexes.clear();
-		for (int i : manager.getSelectedRows()){
+		for (int i : manager.getSelectionAsRows()){
 			selectedIndexes.add(i);
 		}
 

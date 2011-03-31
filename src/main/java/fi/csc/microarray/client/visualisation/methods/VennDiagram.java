@@ -26,7 +26,7 @@ import javax.swing.JTabbedPane;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
-import fi.csc.microarray.client.selection.RowChoiceEvent;
+import fi.csc.microarray.client.selection.SelectionEvent;
 import fi.csc.microarray.client.selection.IntegratedSelectionManager;
 import fi.csc.microarray.client.visualisation.AnnotateListPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
@@ -242,7 +242,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 	}
 
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt instanceof RowChoiceEvent && evt.getSource() != this) {
+		if (evt instanceof SelectionEvent && evt.getSource() != this) {
 
 			updateSelectionsFromApplication(false);
 		}
@@ -255,7 +255,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 
 			for (DataBean data : plot.getDataset().getDataBeans()) {
 				IntegratedSelectionManager manager = application.getSelectionManager().getRowSelectionManager(data);
-				selected.addAll(manager.getSelectedIdentifiers());
+				selected.addAll(manager.getSelectionAsIdentifiers());
 			}
 
 		} catch (MicroarrayException e) {

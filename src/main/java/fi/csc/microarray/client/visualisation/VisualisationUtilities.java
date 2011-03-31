@@ -39,7 +39,7 @@ public class VisualisationUtilities {
 
 				// Get list of columns names from every dataset
 				for (DataBean data : datas) {
-					if (application.getSelectionManager().getRowSelectionManager(data).getSelectedRows().length > 0) {
+					if (application.getSelectionManager().getRowSelectionManager(data).getSelectionAsRows().length > 0) {
 
 						allColumns.add(data.queryFeatures("/column/*").asTable().getColumnNames());
 					}
@@ -126,7 +126,7 @@ public class VisualisationUtilities {
 		for (DataBean data : datas) {
 			Table columns = data.queryFeatures("/column/*").asTable();
 
-			int[] indexes = application.getSelectionManager().getRowSelectionManager(data).getSelectedRows();
+			int[] indexes = application.getSelectionManager().getRowSelectionManager(data).getSelectionAsRows();
 
 			Arrays.sort(indexes);
 

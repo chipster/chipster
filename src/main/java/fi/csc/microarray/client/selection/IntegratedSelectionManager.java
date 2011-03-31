@@ -36,11 +36,15 @@ public class IntegratedSelectionManager {
 		this.data = data;
 	}
 
-	public int[] getSelectedRows() {
+	public int[] getSelectionAsRows() {
 		return selectedRows.clone();
 	}
 
-	public List<String> getSelectedIdentifiers() throws MicroarrayException {
+	public int getPointSelectionAsRow() {
+		return getSelectionAsRows()[0];
+	}
+
+	public List<String> getSelectionAsIdentifiers() throws MicroarrayException {
 
 		Arrays.sort(selectedRows);
 
@@ -54,6 +58,10 @@ public class IntegratedSelectionManager {
 		}
 
 		return names;
+	}
+	
+	public String getPointSelectionAsIdentifier() throws MicroarrayException {
+		return getSelectionAsIdentifiers().get(0);
 	}
 
 	public List<String> getSelectedLines() throws Exception {
@@ -110,9 +118,20 @@ public class IntegratedSelectionManager {
 		return newData;
 	}
 
-	public void setSelected(int[] selected, Object source) {
-		selectedRows = selected.clone();
-		client.fireClientEvent(new RowChoiceEvent(data, source));
+	/**
+	 * Normal type of selection.
+	 */
+	public void setSelection(int[] selection, Object source) {
+		selectedRows = selection.clone();
+		client.fireClientEvent(new SelectionEvent(data, source));
+	}
+
+	/**
+	 * Focus type of selection.
+	 */
+	public void setPointSelection(int pointSelection, Object source) {
+		selectedRows = new int[pointSelection];
+		client.fireClientEvent(new PointSelectionEvent(data, source));
 	}
 
 	public void clearAll(Object source) {
@@ -134,6 +153,6 @@ public class IntegratedSelectionManager {
 			}
 		}
 		selectedRows = indexes;
-		client.fireClientEvent(new RowChoiceEvent(data, source));
+		client.fireClientEvent(new SelectionEvent(data, source));
 	}
 }

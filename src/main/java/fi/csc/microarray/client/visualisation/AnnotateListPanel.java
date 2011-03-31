@@ -169,7 +169,7 @@ public class AnnotateListPanel extends JPanel {
 
 
 		if (dispatchEvent) {
-			application.getSelectionManager().getRowSelectionManager(data).setSelected(indexes, source);
+			application.getSelectionManager().getRowSelectionManager(data).setSelection(indexes, source);
 		}
 	}
 

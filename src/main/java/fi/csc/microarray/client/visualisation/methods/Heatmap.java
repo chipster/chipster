@@ -33,7 +33,7 @@ import org.jfree.chart.title.TextTitle;
 import org.jfree.data.hc.HCDataset;
 import org.jfree.data.hc.HeatMap;
 
-import fi.csc.microarray.client.selection.RowChoiceEvent;
+import fi.csc.microarray.client.selection.SelectionEvent;
 import fi.csc.microarray.client.selection.IntegratedSelectionManager;
 import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
@@ -215,7 +215,7 @@ public class Heatmap extends ChipVisualisation implements PropertyChangeListener
 		IntegratedSelectionManager manager = application.getSelectionManager().getRowSelectionManager(selectionBean);
 
 		selected.clear();
-		for (int i : manager.getSelectedRows()) {
+		for (int i : manager.getSelectionAsRows()) {
 			selected.add(i);
 		}
 
@@ -330,7 +330,7 @@ public class Heatmap extends ChipVisualisation implements PropertyChangeListener
 	
 	
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt instanceof RowChoiceEvent && evt.getSource() != this && ((RowChoiceEvent) evt).getData() == selectionBean) {
+		if (evt instanceof SelectionEvent && evt.getSource() != this && ((SelectionEvent) evt).getData() == selectionBean) {
 			updateSelectionsFromApplication(false);
 		}
 	}

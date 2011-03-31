@@ -23,7 +23,7 @@ import javax.swing.event.MouseInputListener;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.selection.RowChoiceEvent;
+import fi.csc.microarray.client.selection.SelectionEvent;
 import fi.csc.microarray.constants.VisualConstants;
 
 /**
@@ -503,8 +503,8 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 	}
 
 	public void propertyChange(PropertyChangeEvent evt) {
-		if(evt instanceof RowChoiceEvent && !evt.getSource().equals(this) && 
-				((RowChoiceEvent)evt).getData() == controller.getFrame().getDatas().get(0)){			
+		if(evt instanceof SelectionEvent && !evt.getSource().equals(this) && 
+				((SelectionEvent)evt).getData() == controller.getFrame().getDatas().get(0)){			
 			updateSelectedFromApplication();
 			this.repaint();
 		}
@@ -514,7 +514,7 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 		Drawable[] drawables = controller.getDataModel().getDataArray();
 		this.clearSelections();
 		for (int index : application.getSelectionManager().
-				getRowSelectionManager(controller.getFrame().getDatas().get(0)).getSelectedRows()){
+				getRowSelectionManager(controller.getFrame().getDatas().get(0)).getSelectionAsRows()){
 			
 			for(Drawable drawable : drawables){
 				if(drawable instanceof DataPoint){
