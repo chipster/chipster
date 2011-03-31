@@ -141,7 +141,7 @@ public class ClientSession {
 
 	public static Schema getSchema() throws SAXException {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-		return factory.newSchema(new StreamSource(ClientSession.class.getResourceAsStream("/session.xsd")));
+		return factory.newSchema(new StreamSource(ClientSession.class.getResourceAsStream("session.xsd")));
 	}
 	
 }

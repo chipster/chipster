@@ -23,6 +23,7 @@ import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.client.session.schema.DataType;
 import fi.csc.microarray.client.session.schema.FolderType;
+import fi.csc.microarray.client.session.schema.LinkType;
 import fi.csc.microarray.client.session.schema.NameType;
 import fi.csc.microarray.client.session.schema.ObjectFactory;
 import fi.csc.microarray.client.session.schema.OperationType;
@@ -32,6 +33,7 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.StorageMethod;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.util.IOUtils;
@@ -48,13 +50,13 @@ public class SessionSaver {
 	private int entryCounter = 0;
 
 	private int itemIdCounter = 0;
-	private HashMap<Integer, DataItem> itemIdMap = new HashMap<Integer, DataItem>();
-	private HashMap<DataItem, Integer> reversedItemIdMap = new HashMap<DataItem, Integer>();
+	private HashMap<String, DataItem> itemIdMap = new HashMap<String, DataItem>();
+	private HashMap<DataItem, String> reversedItemIdMap = new HashMap<DataItem, String>();
 
 	private int operationIdCounter = 0;
-	private HashMap<Integer, Operation> operationIdMap = new HashMap<Integer, Operation>();
-	private HashMap<Operation, Integer> reversedOperationIdMap = new HashMap<Operation, Integer>();
-	private HashMap<Integer, OperationType> operationTypeMap = new HashMap<Integer, OperationType>();
+	private HashMap<String, Operation> operationIdMap = new HashMap<String, Operation>();
+	private HashMap<Operation, String> reversedOperationIdMap = new HashMap<Operation, String>();
+	private HashMap<String, OperationType> operationTypeMap = new HashMap<String, OperationType>();
 	
 	
 	private DataManager dataManager = Session.getSession().getDataManager();
@@ -114,7 +116,7 @@ public class SessionSaver {
 			
 			// validate and save meta data
 			Marshaller marshaller = ClientSession.getJAXBContext().createMarshaller();
-			//marshaller.setSchema(ClientSession.getSchema());
+			marshaller.setSchema(ClientSession.getSchema());
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 			marshaller.marshal(factory.createSession(sessionType), System.out);
 
@@ -210,7 +212,8 @@ public class SessionSaver {
 	}
 
 	private void generateId(DataItem data) {
-		Integer id = itemIdCounter++;
+		String id = String.valueOf(itemIdCounter);
+		itemIdCounter++;
 		itemIdMap.put(id, data);
 		reversedItemIdMap.put(data, id);
 	}
@@ -218,7 +221,7 @@ public class SessionSaver {
 	
 	private void saveRecursively(DataFolder folder, ZipOutputStream cpZipOutputStream) throws IOException {
 		
-		String folderId = fetchId(folder);
+		String folderId = reversedItemIdMap.get(folder);
 		saveDataFolderMetadata(folder, folderId);
 		
 		for (DataItem data : folder.getChildren()) {
@@ -251,7 +254,7 @@ public class SessionSaver {
 		folderType.setId(folderId);
 		folderType.setName(folder.getName());
 		if (folder.getParent() != null) {
-			String parentId = fetchId(folder.getParent());
+			String parentId = reversedItemIdMap.get(folder.getParent());
 			if (parentId != null) {
 				folderType.setParent(parentId);
 			} else {
@@ -261,9 +264,9 @@ public class SessionSaver {
 		
 		if (folder.getChildCount() > 0) {
 			for (DataItem child : folder.getChildren()) {
-				String childId = fetchId(child);
+				String childId = reversedItemIdMap.get(child);
 				if (childId != null) { 
-					folderType.getChild().add(fetchId(child));
+					folderType.getChild().add(reversedItemIdMap.get(child));
 				} else {
 					logger.warn("unknown child: " + child.getName());
 				}
@@ -274,14 +277,14 @@ public class SessionSaver {
 	}	
 	
 	private void saveDataBeanMetadata(DataBean bean, URL newURL, String folderId) {
-		String beanId = fetchId(bean);
+		String beanId = reversedItemIdMap.get(bean);
 		
 		// save the basic data
 		DataType dataType = factory.createDataType();
 		dataType.setId(beanId);
 		dataType.setName(bean.getName());
 		if (bean.getParent() != null) {
-			String parentId = fetchId(bean.getParent());
+			String parentId = reversedItemIdMap.get(bean.getParent());
 			if (parentId != null) {
 				dataType.setFolder(parentId);
 			} else {
@@ -319,12 +322,26 @@ public class SessionSaver {
 			}
 
 			// link data to operation
-			operationTypeMap.get(operId).getInput().add(beanId);
+			operationTypeMap.get(operId).getOutput().add(beanId);
 			
 			// link the operation to data
 			dataType.setResultOf(operId);
 			
 		}
+		
+		// links to other datasets
+		for (Link type : Link.values()) {
+			for (DataBean target : bean.getLinkTargets(type)) {
+				// FIXME check for targetId not null
+				String targetId = reversedItemIdMap.get(target);				
+				LinkType linkType = factory.createLinkType();
+				linkType.setTarget(targetId);
+				linkType.setType(type.name());
+				
+				dataType.getLink().add(linkType);
+			}
+		}		
+		
 
 		sessionType.getData().add(dataType);
 
@@ -361,52 +378,14 @@ public class SessionSaver {
 		// inputs
 		for (DataBinding binding : operation.getBindings()) {
 			// FIXME check inputId for null
-			String inputId = fetchId(binding.getData());
+			String inputId = reversedItemIdMap.get(binding.getData());
 			operationType.getInput().add(inputId); 
 		}
 		
 		sessionType.getOperation().add(operationType);
-		operationTypeMap.put(Integer.parseInt(operationId), operationType);
+		operationTypeMap.put(operationId, operationType);
 	}	
 
-	
-	private void saveDataItemMetadata(DataItem data, String folderId) {
-//		metadata.append("NAME " + folderId + " " + data.getName() + "\n");
-//		if (data.getParent() != null) {
-//			metadata.append("CHILD " + folderId + " " + fetchId(data.getParent()) + "\n");
-//		}
-	}
-
-	
-	private String fetchId(DataItem item) {
-		Integer id = reversedItemIdMap.get(item);
-		if (id != null) {
-			return id.toString();
-		} else {
-			return null;
-		}
-	}
-
-	
-	private void saveLinksRecursively(DataFolder folder) {
-//		
-//		for (DataItem data : folder.getChildren()) {
-//			
-//			if (data instanceof DataFolder) {
-//				saveLinksRecursively((DataFolder)data, metadata);
-//				
-//			} else {
-//				DataBean bean = (DataBean)data; 
-//				for (Link type : Link.values()) {
-//					for (DataBean target : bean.getLinkTargets(type)) {
-//						String beanId = fetchId(bean);
-//						String targetId = fetchId(target);				
-//						metadata.append("LINK " + type.name() + " " + beanId + " " + targetId + "\n");
-//					}
-//				}		
-//			}
-//		}		
-	}
 
 	private String getNewEntryName() {
 		return "file-" + entryCounter++;
@@ -428,7 +407,8 @@ public class SessionSaver {
 	}
 
 	private String generateId(Operation operation) {
-		Integer id = operationIdCounter++;
+		String id = String.valueOf(operationIdCounter);
+		operationIdCounter++;
 		operationIdMap.put(id, operation);
 		reversedOperationIdMap.put(operation, id);
 		return id.toString();
