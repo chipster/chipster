@@ -2,6 +2,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -14,6 +15,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaR
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaResultListener;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
@@ -26,6 +28,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
  */
 public abstract class Track implements AreaResultListener {
 
+	private static final int NAME_VISIBLE_VIEW_RATIO = 20;
 	protected View view;
 	protected DataSource file;
 	protected Strand strand = Strand.FORWARD;
@@ -194,12 +197,19 @@ public abstract class Track implements AreaResultListener {
 		return parts;
 	}
 
-	// FIXME remove this, it is never overridden
 	public BpCoord getMaxBp(Chromosome chr) {
 		return null;
 	}
 	
 	public String getName() {
 		return "Track";
+	}
+	
+	public boolean isNameVisible(Rectangle rect) {
+		return rect.width > getView().getWidth()/NAME_VISIBLE_VIEW_RATIO;
+	}
+
+	protected void drawTextAboveRectangle(String text, Collection<Drawable> drawables, Rectangle rect, int offset) {
+		drawables.add(new TextDrawable(rect.x < 0 ? 0 : rect.x, rect.y + offset, text, Color.DARK_GRAY));
 	}
 }

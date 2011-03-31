@@ -1,4 +1,4 @@
-TOOL "BLAST" / blastdbcmd.sadl: blastdbcmd (A tool to retrieve sequences from BLAST databases.)
+TOOL blastdbcmd.sadl: blastdbcmd (A tool to retrieve sequences from BLAST databases.)
 INPUT entry_batch: "Sequence ID:s to retrieve" TYPE GENERIC
 OUTPUT out.txt
 PARAMETER db: "Database" TYPE [nr: "NCBI non-redundant proteins", pdb: "PDB", swiss: "UniProt / Swiss", trembl: "UniProt / TrEMBL",

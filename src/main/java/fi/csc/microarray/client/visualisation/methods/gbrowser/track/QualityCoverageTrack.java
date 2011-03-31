@@ -139,7 +139,7 @@ public class QualityCoverageTrack extends Track {
 			RegionContent read = iter.next();
 
 			// remove those that are not in this view
-			if (!read.region.intercepts(getView().getBpRegion())) {
+			if (!read.region.intersects(getView().getBpRegion())) {
 				iter.remove();
 				continue;
 			}

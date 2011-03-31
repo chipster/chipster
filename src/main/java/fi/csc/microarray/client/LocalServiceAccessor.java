@@ -1,11 +1,11 @@
 package fi.csc.microarray.client;
 
-import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.jms.JMSException;
 
-import fi.csc.chipster.tools.LocalNGSPreprocess;
+import fi.csc.chipster.tools.ngs.LocalNGSPreprocess;
 import fi.csc.microarray.client.operation.OperationCategory;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.tasks.LocalTaskExecutor;
@@ -24,10 +24,12 @@ import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 
 public class LocalServiceAccessor implements ServiceAccessor {
 
+	private static final String INTERNAL_CATEGORY_NAME = "Internal tools";
+
 	private DataManager manager;
 
-	private Collection<OperationCategory> visibleCategories;
-	private Collection<OperationCategory> hiddenCategories;
+	private List<OperationCategory> visibleCategories;
+	private List<OperationCategory> hiddenCategories;
 
 	
 	
@@ -44,7 +46,7 @@ public class LocalServiceAccessor implements ServiceAccessor {
 
 	/**
 	 * FIXME get tool list from configs
-	 * FIXME put the code for creating the OperatioinDefinition to a place where both this and
+	 * FIXME put the code for creating the OperationDefinition to a place where both this and
 	 * DescriptionMessageListener can use it
 	 * 
 	 */
@@ -58,7 +60,7 @@ public class LocalServiceAccessor implements ServiceAccessor {
 		
 		// for each tool, parse the SADL and create the OperationDefinition
         SADLDescription sadl = new ChipsterSADLParser().parse(LocalNGSPreprocess.getSADL());
-		OperationCategory category = new OperationCategory(sadl.getCategory());
+		OperationCategory category = new OperationCategory(INTERNAL_CATEGORY_NAME);
 		this.hiddenCategories.add(category);
 		
         OperationDefinition od = new OperationDefinition(sadl.getName().getID(), 
@@ -100,7 +102,7 @@ public class LocalServiceAccessor implements ServiceAccessor {
 	}
 
 	@Override
-	public Collection<OperationCategory> getHiddenCategories() {
+	public List<OperationCategory> getHiddenCategories() {
 		if (hiddenCategories == null) {
 			throw new IllegalStateException("fetchDescriptions(...) must be called first");
 		}
@@ -108,7 +110,7 @@ public class LocalServiceAccessor implements ServiceAccessor {
 	}
 	
 	@Override
-	public Collection<OperationCategory> getVisibleCategories() {
+	public List<OperationCategory> getVisibleCategories() {
 		if (visibleCategories == null) {
 			throw new IllegalStateException("fetchDescriptions(...) must be called first");
 		}

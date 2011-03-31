@@ -7,55 +7,44 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Time;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
-
-import org.jdesktop.swingx.decorator.SortOrder;
 import org.jdesktop.swingx.hyperlink.LinkModel;
 import org.jdesktop.swingx.hyperlink.LinkModelAction;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.HyperlinkProvider;
 
-import fi.csc.microarray.client.ClientApplication;
-import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.screen.ScreenBase;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.TaskExecutor;
-import fi.csc.microarray.constants.VisualConstants;
-import fi.csc.microarray.util.Strings;
 
 /**
- * @author Petri Klemelä
+ * Screen for downloading annotations files used by the genome browser.
+ * 
+ * @author Taavi Hupponen
  * 
  */
 public class AnnotationsScreen extends ScreenBase implements ActionListener,
 		ListSelectionListener {
 
 	private static Logger logger = Logger.getLogger(AnnotationsScreen.class);
-
-	private ClientApplication application = Session.getSession()
-			.getApplication();
 
 	private Dimension BUTTON_SIZE = new Dimension(120, 22);
 	private JFrame frame = new JFrame("Annotations");
@@ -77,7 +66,7 @@ public class AnnotationsScreen extends ScreenBase implements ActionListener,
 
 	private TaskExecutor taskExecutor;
 	private List<Task> tasks = new LinkedList<Task>();
-	private AnnotationContents annotations;
+	private AnnotationManager annotations;
 	
 	private enum Column {
 		GENOME("Genome"), ANNOTATIONS("Annotations"), REFERENCE("Reference sequence");
@@ -163,7 +152,7 @@ public class AnnotationsScreen extends ScreenBase implements ActionListener,
 	}
 
 	@SuppressWarnings("serial")
-	public AnnotationsScreen(AnnotationContents annotations) {
+	public AnnotationsScreen(AnnotationManager annotations) {
 
 		
 		SwingClientApplication.setPlastic3DLookAndFeel(frame);
@@ -246,8 +235,8 @@ public class AnnotationsScreen extends ScreenBase implements ActionListener,
 					Component c = super.prepareRenderer(renderer, rowIndex,
 							vColIndex);
 
-					Column col = Column.values()[table
-							.convertColumnIndexToModel(vColIndex)];
+//					Column col = Column.values()[table
+//							.convertColumnIndexToModel(vColIndex)];
 
 					rowIndex = table.convertRowIndexToModel(rowIndex);
 

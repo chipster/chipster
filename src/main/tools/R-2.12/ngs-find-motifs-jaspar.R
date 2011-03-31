@@ -1,4 +1,4 @@
-# TOOL "Statistics" / ngs-find-motifs-jaspar.R: "Find common motifs and match to Jaspar" (This tool scans a set of genomic regions for consensus sequence motifs,
+# TOOL ngs-find-motifs-jaspar.R: "Find common motifs and match to Jaspar" (This tool scans a set of genomic regions for consensus sequence motifs,
 # calculates the alignment score against transcription factors in the Jaspar database and finds the 10 highest ranking for each motif.)
 # INPUT results.tsv: "Results data file" TYPE GENERIC
 # OUTPUT motif-analysis-summary.txt: "A lot of analysis information collected in one single file"
@@ -86,7 +86,11 @@ if (genome == "BSgenome.Rnorvegicus.UCSC.rn4") {
 # the data is called jaspar and the scores jaspar.scores
 
 # Get the motifs from the GADEM objects
-results_motifs <- viewPWM(results_gadem)
+# but first make sure that there were some motifs found
+motifs_found <- try (results_motifs <- viewPWM(results_gadem))
+if (class(motifs_found) == "try-error") {
+	stop("CHIPSTER-NOTE: No common motifs were found among the query sequences! Retry with less stringent parameter settings or provide a longer list of query sequences.")
+}
 
 # Find out how many consensus motifs were discovered
 number_motifs <- length(results_motifs)
@@ -122,24 +126,24 @@ results_summary <- summary (results_alignment)
 # Write out a results summary file
 # print out a summary of the results
 sink(file="motif-analysis-summary.txt")
-	print("Summary of MotIV analysis", quote=FALSE)
-	print("", quote=FALSE)
-	summary(results_alignment)
-	print("", quote=FALSE)
-	print("", quote=FALSE)
-	print ("Consensus sequence", quote=FALSE)
-	print("", quote=FALSE)
-	consensus_sequences
-	print("", quote=FALSE)
-	print("", quote=FALSE)
-	print ("Number of occurrences of consensus sequence for each motif", quote=FALSE)
-	print("", quote=FALSE)
-	number_occurrences
-	print("", quote=FALSE)
-	print("", quote=FALSE)
-	print ("Weighted matrices for each motif", quote=FALSE)
-	print("", quote=FALSE)
-	results_motifs
+print("Summary of MotIV analysis", quote=FALSE)
+print("", quote=FALSE)
+summary(results_alignment)
+print("", quote=FALSE)
+print("", quote=FALSE)
+print ("Consensus sequence", quote=FALSE)
+print("", quote=FALSE)
+consensus_sequences
+print("", quote=FALSE)
+print("", quote=FALSE)
+print ("Number of occurrences of consensus sequence for each motif", quote=FALSE)
+print("", quote=FALSE)
+number_occurrences
+print("", quote=FALSE)
+print("", quote=FALSE)
+print ("Weighted matrices for each motif", quote=FALSE)
+print("", quote=FALSE)
+results_motifs
 sink()
 
 # testing optional plots
@@ -159,10 +163,10 @@ sink()
 ## Plot the logo of the motifs and corresponding TF:s
 for (count in 1:number_motifs) {
 	file_name <- paste("logo-plot-",count,".png", sep="")
-	bitmap(file=file_name, width=1000/72, height=1000/72)
+	bitmap(file=file_name, height=1400/72, width=600/72)
 #	png(width=1000, height=1000, file=file_name)
 	plot_name <- consensus(results_gadem) [count]
-	plot (results_alignment[count], top=10, main=paste("Top ten TF matches for motif\n", plot_name, sep=""))
+	plot (results_alignment[count], top=10, ncol=1, main=paste("Top ten TF matches for motif\n", plot_name, sep=""))
 	dev.off()
 }
 

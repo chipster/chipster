@@ -74,7 +74,7 @@ public class EmbossAnalysisHandler implements AnalysisHandler {
         description.setSourceResourceName(acdFileName);
         description.setSourceResourceFullPath(acdFile.getAbsolutePath());
         description.setHelpURL("https://extras.csc.fi/emboss/doc/programs/html/" +
-                               sadlDescription.getName().getDisplayName() + ".html");
+                               sadlDescription.getName().getID() + ".html");
         
         return description;
     }

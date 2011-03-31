@@ -22,7 +22,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDraw
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -74,20 +73,19 @@ public class SeqBlockTrack extends Track {
 			RegionContent read = iter.next();
 
 			// Remove reads that are not in this view
-			if (!read.region.intercepts(getView().getBpRegion())) {
+			if (!read.region.intersects(getView().getBpRegion())) {
 				iter.remove();
 				continue;
 			}
 
 			// Collect relevant data for this read
-			BpCoord startBp = read.region.start;
 
 			// Split read into continuous blocks (elements) by using the cigar
 			List<ReadPart> visibleRegions = Cigar.splitVisibleElements(read);
 			for (ReadPart visibleRegion : visibleRegions) {
 
 				// Skip elements that are not in this view
-				if (!visibleRegion.intercepts(getView().getBpRegion())) {
+				if (!visibleRegion.intersects(getView().getBpRegion())) {
 					continue;
 				}
 				
@@ -132,6 +130,7 @@ public class SeqBlockTrack extends Track {
 
 				// Check if we have enough space for the actual sequence (at least pixel per nucleotide)
 				String seq = visibleRegion.getSequencePart();
+				Cigar cigar = (Cigar) read.values.get(ColumnType.CIGAR);
 				if (rect.width < seq.length()) {
 					// Too little space - only show one rectangle for each read part
 
@@ -142,7 +141,7 @@ public class SeqBlockTrack extends Track {
 						color = color.brighter();
 					}
 
-					drawables.add(new RectDrawable(rect, color, null));
+					drawables.add(new RectDrawable(rect, color, null, cigar.toInfoString()));
 
 				} else {
 					// Enough space - show color coding for each nucleotide
@@ -162,7 +161,7 @@ public class SeqBlockTrack extends Track {
 
 					// Prepare to draw single nucleotides
 					float increment = getView().bpWidth();
-					float startX = getView().bpToTrackFloat(startBp);
+					float startX = getView().bpToTrackFloat(visibleRegion.start);
 
 					// Draw each nucleotide
 					for (int j = 0; j < seq.length(); j++) {
@@ -173,7 +172,7 @@ public class SeqBlockTrack extends Track {
 
 						// Choose a color depending on viewing mode
 						Color bg = Color.white;
-						long posInRef = startBp.bp.intValue() + refIndex - getView().getBpRegion().start.bp.intValue();
+						long posInRef = visibleRegion.start.bp.intValue() + refIndex - getView().getBpRegion().start.bp.intValue();
 						if (highlightSNP && posInRef >= 0 && posInRef < refSeq.length && Character.toLowerCase(refSeq[(int)posInRef]) == Character.toLowerCase(letter)) {
 							bg = Color.gray;
 						} else {
@@ -199,9 +198,10 @@ public class SeqBlockTrack extends Track {
 						}
 
 						// Draw rectangle
-						int x = Math.round(startX + refIndex * increment);
-						int width = increment >= 1.0f ? Math.round(increment) : 1;  
-						drawables.add(new RectDrawable(x, rect.y, width, GenomeBrowserConstants.READ_HEIGHT, bg, null));
+						int x1 = Math.round(startX + ((float)refIndex) * increment);
+						int x2 = Math.round(startX + ((float)refIndex + 1f) * increment);
+						int width = Math.max(x2 - x1, 1);
+						drawables.add(new RectDrawable(x1, rect.y, width, GenomeBrowserConstants.READ_HEIGHT, bg, null, cigar.toInfoString()));
 					}
 				}
 			}
@@ -305,7 +305,7 @@ public class SeqBlockTrack extends Track {
 		RegionContent read;
 		while (iter.hasNext()) {
 			read = iter.next();
-			if (!read.region.intercepts(view.getBpRegion())) {
+			if (!read.region.intersects(view.getBpRegion())) {
 				iter.remove();
 				continue;
 			}

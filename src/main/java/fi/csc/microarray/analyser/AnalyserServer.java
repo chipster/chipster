@@ -35,9 +35,9 @@ import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
-import fi.csc.microarray.messaging.message.ModuleDescriptionMessage;
 import fi.csc.microarray.messaging.message.JobLogMessage;
 import fi.csc.microarray.messaging.message.JobMessage;
+import fi.csc.microarray.messaging.message.ModuleDescriptionMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
 import fi.csc.microarray.messaging.message.SourceMessage;
@@ -118,6 +118,8 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		DirectoryLayout.initialiseServerLayout(
 		        Arrays.asList(new String[] {"comp"}), configURL);
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
+
+		// Initialise instance variables
 		this.receiveTimeout = configuration.getInt("comp", "receive-timeout");
 		this.scheduleTimeout = configuration.getInt("comp", "schedule-timeout");
 		this.timeoutCheckInterval = configuration.getInt("comp", "timeout-check-interval");
@@ -207,7 +209,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	
 							// run the job
 							executorService.execute(job);
-							logger.info("Executing job " + job.analysis.getFullDisplayName() + "(" + job.analysis.getID() + ")" + ", "+ job.getId() + ", " + job.getInputMessage().getUsername()) ;
+							logger.info("Executing job " + job.analysis.getDisplayName() + "(" + job.analysis.getID() + ")" + ", "+ job.getId() + ", " + job.getInputMessage().getUsername()) ;
 						} else {
 							logger.warn("Got ACCEPT_OFFER for job which is not scheduled.");
 						}
@@ -530,6 +532,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 
 	private SourceMessage createSourceCodeMessage(CommandMessage requestMessage) {
 			String toolID = new String(requestMessage.getParameters().get(0));
+			
 			logger.info("sending source code for " + toolID);
 			String sourceCode;
 			try {

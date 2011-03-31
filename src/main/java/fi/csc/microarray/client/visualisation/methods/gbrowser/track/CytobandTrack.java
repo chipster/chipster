@@ -105,7 +105,7 @@ public class CytobandTrack extends Track {
 				RegionContent bandRegion = bandRegionIter.next();
 				
 				//Remove items that don't belong to this view area
-				if (!getView().getBpRegion().intercepts(bandRegion.region)) {
+				if (!getView().getBpRegion().intersects(bandRegion.region)) {
 					bandRegionIter.remove();
 					continue;
 				}
@@ -199,7 +199,7 @@ public class CytobandTrack extends Track {
 			}
 		}				
 
-		if (getView().getBpRegion().intercepts(areaResult.content.region)) {
+		if (getView().getBpRegion().intersects(areaResult.content.region)) {
 
 			this.bands.add(areaResult.content);
 			getView().redraw();

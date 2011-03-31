@@ -17,6 +17,7 @@ import fi.csc.microarray.databeans.features.FeatureProvider;
 import fi.csc.microarray.databeans.features.FeatureProviderBase;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.LookaheadLineReader;
 
@@ -208,7 +209,7 @@ public class TableColumnProvider extends FeatureProviderBase {
 				LookaheadLineReader source = new LookaheadLineReader(bufferedReader);
 				MatrixParseSettings settings = new MatrixParseSettings();
 
-				// check what kind of matrix we are dealing with
+				// check what kind of matrix we are dealing with TODO remove this Affymetrix CEL specific functionality here and use type tags
 				if (source.peekLine() != null && source.peekLine().contains("[CEL]")) {
 					logger.debug("parsing cel type");
 					settings.headerTerminator = "CellHeader=";
@@ -216,9 +217,14 @@ public class TableColumnProvider extends FeatureProviderBase {
 					settings.hasColumnNames = true;
 
 				} else {
+					// Unknown/generic type, use defaults and infer stuff from type tags
 					logger.debug("parsing generic type");
-					// unknown/generic type, use defaults
 
+					settings.hasColumnNames = bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
+					if (bean.hasTypeTag(BasicModule.TypeTags.TABLE_WITH_TITLE_ROW)) {
+						settings.headerTerminator = source.peekLine(1); // use the whole row as header terminator
+					}
+					
 					// note: it is safe to call tokeniseRow with null input				
 					logger.debug("first line has " + tokeniseRow(source.peekLine(1)).length + " tokens and is " + source.peekLine(1));
 					logger.debug("second line has " + tokeniseRow(source.peekLine(2)).length + " tokens and is " + source.peekLine(2));

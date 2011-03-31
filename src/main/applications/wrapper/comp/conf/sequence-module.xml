@@ -6,8 +6,12 @@
             <resource>blastp.sadl</resource>
             <parameter>
                 <name>executable</name>
-                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/blastp</value>
+                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/pb</value>
             </parameter>
+			<parameter>
+				<name>arguments</name>
+				<value>blastp -num_threads 4</value>
+			</parameter>
             <parameter>
                 <name>output</name>
                 <value>out</value>
@@ -17,8 +21,12 @@
             <resource>blastn.sadl</resource>
             <parameter>
                 <name>executable</name>
-                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/blastn</value>
+                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/pb</value>
             </parameter>
+			<parameter>
+				<name>arguments</name>
+				<value>blastn -num_threads 4</value>
+			</parameter>
             <parameter>
                 <name>output</name>
                 <value>out</value>
@@ -28,8 +36,12 @@
             <resource>blastx.sadl</resource>
             <parameter>
                 <name>executable</name>
-                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/blastx</value>
+                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/pb</value>
             </parameter>
+			<parameter>
+				<name>arguments</name>
+				<value>blastx -num_threads 4</value>
+			</parameter>
             <parameter>
                 <name>output</name>
                 <value>out</value>
@@ -39,8 +51,12 @@
             <resource>tblastn.sadl</resource>
             <parameter>
                 <name>executable</name>
-                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/tblastn</value>
+                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/pb</value>
             </parameter>
+			<parameter>
+				<name>arguments</name>
+				<value>tblastn -num_threads 4</value>
+			</parameter>
             <parameter>
                 <name>output</name>
                 <value>out</value>
@@ -50,8 +66,12 @@
             <resource>tblastx.sadl</resource>
             <parameter>
                 <name>executable</name>
-                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/tblastx</value>
+                <value>/v/linux26_x86_64/appl/molbio/blast+/latest/bin/pb</value>
             </parameter>
+			<parameter>
+				<name>arguments</name>
+				<value>tblastx -num_threads 4</value>
+			</parameter>
             <parameter>
                 <name>output</name>
                 <value>out</value>
@@ -405,12 +425,6 @@
 			<resource>nthseqset.acd</resource>
 		</tool>
 		<tool runtime="EMBOSS">
-			<resource>origsplitter.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>origunion.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
 			<resource>pasteseq.acd</resource>
 		</tool>
 		<tool runtime="EMBOSS">
@@ -420,19 +434,10 @@
 			<resource>seqret.acd</resource>
 		</tool>
 		<tool runtime="EMBOSS">
-			<resource>seqretall.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>seqretset.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
 			<resource>seqretsetall.acd</resource>
 		</tool>
 		<tool runtime="EMBOSS">
 			<resource>seqretsplit.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>seqrettype.acd</resource>
 		</tool>
 		<tool runtime="EMBOSS">
 			<resource>sizeseq.acd</resource>
@@ -514,9 +519,6 @@
 		</tool>
 		<tool runtime="EMBOSS">
 			<resource>chaos.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
-			<resource>complex.acd</resource>
 		</tool>
 		<tool runtime="EMBOSS">
 			<resource>compseq.acd</resource>
@@ -659,9 +661,6 @@
 			<resource>vrnalfold.acd</resource>
 		</tool>
 		<tool runtime="EMBOSS">
-			<resource>vrnapaln.acd</resource>
-		</tool>
-		<tool runtime="EMBOSS">
 			<resource>vrnaplot.acd</resource>
 		</tool>
 		<tool runtime="EMBOSS">
@@ -697,11 +696,6 @@
 		</tool>
 		<tool runtime="EMBOSS">
 			<resource>silent.acd</resource>
-		</tool>
-	</category>
-	<category color="#0177b7" name="Nucleic:Transcription">
-		<tool runtime="EMBOSS">
-			<resource>jaspscan.acd</resource>
 		</tool>
 	</category>
 	<category color="#0177b7" name="Nucleic:Translation">

@@ -9,7 +9,7 @@ public class HelpMapping {
 
     private static final String URL_BASE = "https://extras.csc.fi/biosciences/";
 
-	private static final String DEFAULT_HELP_PAGE = "chipster-manual/tools.html";
+//	private static final String DEFAULT_HELP_PAGE = "chipster-manual/tools.html";
 	private static Map<String, String> mappings = new HashMap<String, String>();
 
 	static {
@@ -44,6 +44,7 @@ public class HelpMapping {
 		mappings.put("Normalisation/Illumina", "chipster-manual/norm-illumina.html");
 		mappings.put("Normalisation/Illumina - lumi pipeline", "chipster-manual/norm-illumina-lumi.html");
 		mappings.put("Normalisation/Illumina - lumi pipeline AAI", "chipster-manual/norm-illumina-lumi-AAI.html");
+		mappings.put("Normalisation/Illumina - methylumi pipeline", "chipster-manual/norm-illumina-methylumi.html");
 		mappings.put("Normalisation/Random effects", "chipster-manual/norm-lme.html");
 		mappings.put("Normalisation/Normalize to chip average", "chipster-manual/norm-chip-average.html");
 		mappings.put("Normalisation/Normalize to gene average", "chipster-manual/norm-gene-average.html");
@@ -180,8 +181,27 @@ public class HelpMapping {
 		else {
 			String page = mappings.get(definition.getCategory().getName() + "/" + definition.getDisplayName());
 			if (page == null) {
-				page = DEFAULT_HELP_PAGE;
+				String addressByConvention = "chipster-manual/" + definition.getID().replace(".R", ".html");
+				
+				// Check if the manual page exists
+				
+//				HttpURLConnection conn = null;
+//				try {
+//					conn = (HttpURLConnection)(new URL(URL_BASE + addressByConvention).openConnection());
+//					if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+						page = addressByConvention;
+//					}
+//				} catch (Exception e) {
+//					// ignore, will fall back to default page
+//				} finally {
+//					IOUtils.disconnectIfPossible(conn);
+//				}
 			}
+
+//			if (page == null) {
+//				page = DEFAULT_HELP_PAGE;
+//			}
+
 			return URL_BASE + page;
 		}
 	}

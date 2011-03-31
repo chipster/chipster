@@ -46,7 +46,7 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 	 */
 	private static Logger messageLogger = null;
 	
-	private SecureSessionPool sessionPool = new SecureSessionPool();
+	private SecureSessionPool sessionPool; 
 	private MessagingEndpoint endpoint;
 	private MessagingTopic authorisedTopic;
 	private MessagingTopic authorisedUrlTopic;
@@ -58,10 +58,13 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 	public Authenticator(String configURL) throws Exception {
 		
 		// initialise dir and logging
-		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {}), configURL);
+		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"auth"}), configURL);
 		logger = Logger.getLogger(Authenticator.class);
 		securityLogger = Logger.getLogger("security.frontend");
 		messageLogger = Logger.getLogger("messages.frontend");
+		
+		// initialise session pool
+		sessionPool = new SecureSessionPool();
 		
 		// initialise communications
 		this.endpoint = new MessagingEndpoint(this);

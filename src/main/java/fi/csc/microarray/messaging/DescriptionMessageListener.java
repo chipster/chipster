@@ -1,6 +1,5 @@
 package fi.csc.microarray.messaging;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -24,9 +23,9 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
 	private static final Logger logger = Logger.getLogger(DescriptionMessageListener.class);
     
 	private final CountDownLatch latch = new CountDownLatch(1);
-    private Collection<OperationCategory> visibleCategories =
+    private List<OperationCategory> visibleCategories =
         new LinkedList<OperationCategory>();
-    private Collection<OperationCategory> hiddenCategories =
+    private List<OperationCategory> hiddenCategories =
         new LinkedList<OperationCategory>();
     private String wantedModule;
     private boolean finished = false;
@@ -38,7 +37,7 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
     /**
      * @return categories that are visible to end-user.
      */
-    public Collection<OperationCategory> getVisibleCategories() {
+    public List<OperationCategory> getVisibleCategories() {
         return visibleCategories;
     }
 
@@ -46,7 +45,7 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
      * @return categories that are hidden from end-user, but still
      * available for execution.
      */
-    public Collection<OperationCategory> getHiddenCategories() {
+    public List<OperationCategory> getHiddenCategories() {
         return hiddenCategories;
     }
     

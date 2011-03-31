@@ -29,7 +29,7 @@ public class PeakTrack extends Track {
 
 	private static final int MIN_VISIBLE_PEAK_SIZE = 5;
 
-	private static final int PEAK_SYMBOL_HEIGHT = 5;
+	private static final int PEAK_SYMBOL_HEIGHT = 10;
 
 	private Collection<RegionContent> peaks = new TreeSet<RegionContent>();
 
@@ -57,7 +57,7 @@ public class PeakTrack extends Track {
 
 				RegionContent peak = iter.next();
 
-				if (!peak.region.intercepts(getView().getBpRegion())) {
+				if (!peak.region.intersects(getView().getBpRegion())) {
 					iter.remove();
 					continue;
 				}

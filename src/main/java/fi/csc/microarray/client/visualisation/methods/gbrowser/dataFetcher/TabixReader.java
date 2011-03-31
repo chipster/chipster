@@ -3,10 +3,9 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
@@ -83,7 +82,7 @@ public class TabixReader {
 
 			float value = Float.parseFloat(splitted[3]);
 
-			Map<ColumnType, Object> values = new HashMap<ColumnType, Object>();
+			LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
 			values.put(ColumnType.VALUE, new Float(value));
 
 			RegionContent reg = new RegionContent(

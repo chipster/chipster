@@ -3,13 +3,12 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedMap;
 
-import net.sf.samtools.CigarElement;
 import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMRecord;
 import net.sf.samtools.SAMSequenceRecord;
@@ -18,9 +17,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Concis
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.CigarItem;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.IntensityTrack;
 
@@ -42,7 +39,7 @@ public class SAMFile {
 
 	private ConcisedValueCache cache = new ConcisedValueCache();
 	public SAMFileReader reader;
-	private boolean isChromosomePrefixed = false;
+	private ChromosomeNameUnnormaliser chromosomeNameUnnormaliser = ChromosomeNameUnnormaliser.newIdentityPreversingUnnormaliser();
 	
 
 	/**
@@ -59,11 +56,10 @@ public class SAMFile {
         // Iterate chromosomes to check naming convention
         for (SAMSequenceRecord sequenceRecord : this.reader.getFileHeader().getSequenceDictionary().getSequences()) {
 
-        	if (sequenceRecord.getSequenceName().startsWith(Chromosome.CHROMOSOME_PREFIX)) {
-        		isChromosomePrefixed = true;
-        	}
+        	// Create unnormaliser for this naming convention
+        	this.chromosomeNameUnnormaliser = new ChromosomeNameUnnormaliser(sequenceRecord.getSequenceName());
 
-        	// Look only at the first sequence (assume all have same convention)
+        	// Look only at the first sequence (assume all have the same convention)
         	break;
         }
 
@@ -88,7 +84,7 @@ public class SAMFile {
     	List<RegionContent> responseList = new LinkedList<RegionContent>();
         
         // Read the given region
-        String chromosome = prefixChromosome(request.start.chr);
+        String chromosome = chromosomeNameUnnormaliser.unnormalise(request.start.chr);
 		CloseableIterator<SAMRecord> iterator =
                 this.reader.query(chromosome,
                 request.start.bp.intValue(), request.end.bp.intValue(), false);
@@ -102,7 +98,7 @@ public class SAMFile {
                         request.start.chr);
             
             // Values for this read
-            HashMap<ColumnType, Object> values = new HashMap<ColumnType, Object>();
+            LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
             
             RegionContent read = new RegionContent(recordRegion, values);
             
@@ -126,12 +122,7 @@ public class SAMFile {
             
             if (request.requestedContents.contains(ColumnType.CIGAR)) {      
             	
-            	Cigar cigar = new Cigar(read);
-            	
-            	for (CigarElement picardElement : record.getCigar().getCigarElements()) {
-            		cigar.addElement(new CigarItem(picardElement)); 
-            	}
-            	            	
+            	Cigar cigar = new Cigar(read, record.getCigar());
             	values.put(ColumnType.CIGAR, cigar);
             }
             
@@ -154,10 +145,6 @@ public class SAMFile {
         iterator.close();
         return responseList;
     }
-
-	private String prefixChromosome(Chromosome chromosome) {
-		return (isChromosomePrefixed ? Chromosome.CHROMOSOME_PREFIX : "") + chromosome.toNormalisedString();
-	}
 
 	/**
      * Return approximation of reads in a given range.
@@ -206,7 +193,7 @@ public class SAMFile {
 		int start = stepMiddlepoint - SAMPLE_SIZE_BP/2;
 		int end = stepMiddlepoint + SAMPLE_SIZE_BP/2;
 		CloseableIterator<SAMRecord> iterator =
-			this.reader.query(prefixChromosome(request.start.chr),
+			this.reader.query(chromosomeNameUnnormaliser.unnormalise(request.start.chr),
 					start, end, false);
 
 		// Count reads in this sample area
@@ -273,13 +260,13 @@ public class SAMFile {
 			new BpCoordRegion(startPos, endPos, request.start.chr);
 
 		// Forward
-		HashMap<ColumnType, Object> values = new HashMap<ColumnType, Object>();
+		LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
 		values.put(ColumnType.VALUE, (float)countForward);
 		values.put(ColumnType.STRAND, Strand.FORWARD);
 		responseList.add(new RegionContent(recordRegion, values));
 
 		// Reverse
-		values = new HashMap<ColumnType, Object>();
+		values = new LinkedHashMap<ColumnType, Object>();
 		values.put(ColumnType.VALUE, (float)countReverse);
 		values.put(ColumnType.STRAND, Strand.REVERSED);
 		responseList.add(new RegionContent(recordRegion, values));

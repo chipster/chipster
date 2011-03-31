@@ -1,6 +1,6 @@
 package fi.csc.microarray.client;
 
-import java.util.Collection;
+import java.util.List;
 
 import javax.jms.JMSException;
 
@@ -34,8 +34,8 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 			return "client";
 		}
 	};
-	private Collection<OperationCategory> visibleCategories;
-	private Collection<OperationCategory> hiddenCategories;
+	private List<OperationCategory> visibleCategories;
+	private List<OperationCategory> hiddenCategories;
 
 	public void initialise(DataManager manager, AuthenticationRequestListener authenticationRequestListener) throws MicroarrayException, JMSException {
 		this.endpoint = new MessagingEndpoint(nodeSupport, authenticationRequestListener);
@@ -74,7 +74,7 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 	}
 
 	@Override
-	public Collection<OperationCategory> getHiddenCategories() {
+	public List<OperationCategory> getHiddenCategories() {
 		if (hiddenCategories == null) {
 			throw new IllegalStateException("fetchDescriptions(...) must be called first");
 		}
@@ -82,7 +82,7 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 	}
 	
 	@Override
-	public Collection<OperationCategory> getVisibleCategories() {
+	public List<OperationCategory> getVisibleCategories() {
 		if (visibleCategories == null) {
 			throw new IllegalStateException("fetchDescriptions(...) must be called first");
 		}

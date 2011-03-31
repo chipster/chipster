@@ -5,19 +5,25 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.sf.samtools.CigarElement;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 
 public class Cigar {
 	private List<CigarItem> elements = new ArrayList<CigarItem>();
 	private LinkedList<ReadPart> visibleElements = null;
 	private RegionContent read;
+	private net.sf.samtools.Cigar samCigar;
 	
-	public Cigar(RegionContent read) {
+	public Cigar(RegionContent read, net.sf.samtools.Cigar samCigar) {
 		this.read = read;
+		this.samCigar = samCigar;
+		
+    	for (CigarElement picardElement : samCigar.getCigarElements()) {
+    		elements.add(new CigarItem(picardElement));
+    	}
 	}
 	
 	public void addElement(CigarItem e) {
-		elements.add(e);
 	}
 	
 	@Deprecated
@@ -129,5 +135,9 @@ public class Cigar {
 			}
 		}
 		return visibleElements;
+	}
+	
+	public String toInfoString() {
+		return "Cigar: " + samCigar.toString();
 	}
 }

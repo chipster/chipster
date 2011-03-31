@@ -1,5 +1,8 @@
 package fi.csc.microarray.databeans;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,6 +12,7 @@ import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.basic.BasicModule;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
+import fi.csc.microarray.util.IOUtils;
 
 /**
  * DataFolder is used to manage DataBean objects.
@@ -56,13 +60,30 @@ public class DataFolder extends DataItemBase {
 			if (data.isContentTypeCompatitible("text/tab", "application/cel", "text/csv")) {
 				data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_COLUMN_NAMES);
 			}
-			
-			
+
+			if (data.isContentTypeCompatitible("text/bed")) {
+				data.addTypeTag(BasicModule.TypeTags.TABLE_WITHOUT_COLUMN_NAMES);
+				
+				// Check if it has title row
+				BufferedReader in = null;
+				try {
+					in = new BufferedReader(new InputStreamReader(data.getContentByteStream()));
+					if (in.readLine().startsWith("track")) {
+						data.addTypeTag(BasicModule.TypeTags.TABLE_WITH_TITLE_ROW);
+					}
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				} finally {
+					IOUtils.closeIfPossible(in);
+				}
+				
+			}
+
 			// the rest is microarray specific
 			if (!MicroarrayModule.SERVER_MODULE_NAME.equals(Session.getSession().getPrimaryModule().getServerModuleName())) {
 				return;
 			}
-			
+
 			Table chips = data.queryFeatures("/column/chip.*").asTable();
 
 			// Tag the "main type"
@@ -70,7 +91,8 @@ public class DataFolder extends DataItemBase {
 			if (data.isContentTypeCompatitible("application/cel")) {
 				data.addTypeTag(MicroarrayModule.TypeTags.RAW_AFFYMETRIX_EXPRESSION_VALUES);
 
-			} else if (data.queryFeatures("/column/sample").exists()) {
+			// FIXME also phenodata gets tagged here
+			} else if (data.queryFeatures("/column/sample").exists() && !data.queryFeatures("/phenodata").exists()) {
 				data.addTypeTag(MicroarrayModule.TypeTags.RAW_EXPRESSION_VALUES);
 
 			} else if (chips != null && chips.getColumnCount() > 0) {
@@ -78,13 +100,14 @@ public class DataFolder extends DataItemBase {
 
 			} else if (data.queryFeatures("/identifier").exists()) {
 				data.addTypeTag(MicroarrayModule.TypeTags.GENENAMES);
+			} 
 
-			} else if (data.queryFeatures("/phenodata").exists()) {
-				data.addTypeTag(BasicModule.TypeTags.PHENODATA);
-			}
 
 			// Tag additional typing information
-
+			if (data.queryFeatures("/phenodata").exists()) {
+				data.addTypeTag(BasicModule.TypeTags.PHENODATA);
+			}
+				
 			if (data.queryFeatures("/column/p.*").exists() && data.queryFeatures("/column/FC*").exists()) {
 				data.addTypeTag(MicroarrayModule.TypeTags.SIGNIFICANT_EXPRESSION_FOLD_CHANGES);
 			}

@@ -45,9 +45,13 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 	 * Scale for visualising reads as profiles, gel etc.
 	 */
     public enum ReadScale {
-        SMALL("Small", 15),
-        MEDIUM("Medium", 120),
-        LARGE("Large", 500),
+        XS("0..10", 10),
+        SMALL("0..50", 50),
+        MEDIUM("0..100", 100),
+        LARGE("0..500", 500),        
+        XL("0..1000", 1000),
+        XXL("0..5000", 5000),
+        XXXL("0..10000", 10000),
         AUTO("Automatic", 0);
         
         private String name;
@@ -63,7 +67,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
         }
     }    
 
-	public GenomePlot(ChartPanel panel, boolean horizontal) throws FileNotFoundException, MalformedURLException {
+	public GenomePlot(TooltipEnabledChartPanel panel, boolean horizontal) throws FileNotFoundException, MalformedURLException {
 	    
 	    // set chart panel
 	    chartPanel = panel;
@@ -79,8 +83,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 		// add horizontal or circular data view
 		if (horizontal) {
 			
-			HorizontalView hView = new HorizontalView(this, true, true, false);					
-			this.dataView = hView;
+			this.dataView = new HorizontalView(this, true, true, false);
 
 		} else {
 			
@@ -90,6 +93,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 		}
 
 		this.views.add(dataView);
+		panel.addTooltipRequestProcessor(dataView);
 
 		dataView.addRegionListener(new RegionListener() {
 			public void regionChanged(BpCoordRegion bpRegion) {

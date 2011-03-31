@@ -26,11 +26,7 @@ import fi.csc.microarray.exception.MicroarrayException;
  * 
  */
 public class RowSelectionManager {
-	/**
-	 * Logger for this class
-	 */
-	// private static final Logger logger =
-	// Logger.getLogger(RowSelectionManager.class);
+
 	private ClientApplication client;
 	private DataBean data;
 	private int[] selectedRows = new int[0];

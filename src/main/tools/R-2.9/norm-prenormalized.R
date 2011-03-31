@@ -35,7 +35,14 @@ dat2<-normalizeBetweenArrays(dat$R, method="none")
 
 # Writes out a phenodata table
 # sample<-paste(colnames(dat2), ".tsv", sep="")
+
+# check is sample names contain a .tsv extension
+
+# Check whether column names contain "chip." and, if so, remove from name
 sample<-colnames(dat2)
+if (length (grep(".tsv", sample)) == 0) {
+	sample<-paste(sample, ".tsv", sep="")
+}
 group<-c(rep("", length(sample)))
 training<-c(rep("", length(sample)))
 time<-c(rep("", length(sample)))

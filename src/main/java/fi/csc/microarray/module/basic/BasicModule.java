@@ -41,6 +41,7 @@ public class BasicModule implements Module {
 	public static class TypeTags {
 		public static final TypeTag TABLE_WITHOUT_COLUMN_NAMES = new TypeTag(SERVER_MODULE_NAME, "table-without-column-names", "first row is the first data row");
 		public static final TypeTag TABLE_WITH_COLUMN_NAMES = new TypeTag(SERVER_MODULE_NAME, "table-without-column-names", "first row is the column name row");
+		public static final TypeTag TABLE_WITH_TITLE_ROW = new TypeTag(SERVER_MODULE_NAME, "table-with-possible-title-row", "first row is title row");
 		public static final TypeTag PHENODATA = new TypeTag(SERVER_MODULE_NAME, "phenodata", "phenodata table");
 	}
 	
@@ -50,12 +51,12 @@ public class BasicModule implements Module {
 		public static VisualisationMethod WEBVIEW = new VisualisationMethod("View page", HtmlViewer.class, VisualConstants.HTML_MENUICON, 1, 0.008); 
 		public static VisualisationMethod PDFVIEW = new VisualisationMethod("View PDF", PDFViewer.class, VisualConstants.IMAGE_MENUICON, 1, 0);
 		public static VisualisationMethod VIEW_TEXT = new VisualisationMethod("View text", TextViewer.class, VisualConstants.TEXT_MENUICON, 1, 0);
-		public static VisualisationMethod EXTERNAL_BROWSER = new VisualisationMethod("Open in external web browser", ExternalBrowserViewer.class, VisualConstants.EMPTY_MENUICON, 1, -1);
+		public static VisualisationMethod EXTERNAL_BROWSER = new VisualisationMethod("Open in external web browser", ExternalBrowserViewer.class, VisualConstants.EMPTY_MENUICON, -1, -1);
 	}
 	
 	public void plugContentTypes(DataManager manager) {
 
-		manager.plugContentType("text/plain", false, false, "plain text", VisualConstants.ICON_TYPE_TEXT, "txt", "dat", "wee");
+		manager.plugContentType("text/plain", false, false, "plain text", VisualConstants.ICON_TYPE_TEXT, "txt", "dat", "wee", "seq", "log", "sam", "fastq");
 		manager.plugContentType("application/octet-stream", false, true, "binary", VisualConstants.ICON_TYPE_BINARY, "");
 		
 		manager.plugContentType("text/tab", false, false, "tab separated values", VisualConstants.ICON_TYPE_TABLE, "tsv");

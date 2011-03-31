@@ -4,10 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
@@ -59,10 +58,6 @@ public abstract class TsvParser extends FileParser {
 			Chromosome startChr = (Chromosome)get(firstRow, ColumnType.CHROMOSOME);
 			Chromosome endChr = (Chromosome)get(lastRow, ColumnType.CHROMOSOME);
 			
-			if (start == null || startChr == null | end == null | endChr == null) {
-				System.out.println(Arrays.toString(firstRow));
-				System.out.println(Arrays.toString(lastRow));
-			}
 			return new BpCoordRegion(start, startChr, end, endChr);
 		}
 		
@@ -117,7 +112,7 @@ public abstract class TsvParser extends FileParser {
          * Fetch all columns of given column types that are in a given chunk.
          * 
          * @param chunk - string chunk from a file.
-         * @param requestedContents - a collection of column types to be fetched.
+         * @param requestedContents - a collection of column types to be fetched
          * @return
          */
 		@Override
@@ -125,15 +120,15 @@ public abstract class TsvParser extends FileParser {
 
 			List<RegionContent> rows = new LinkedList<RegionContent>();
 			
-
+			// Parse each row
 			for (String row : chunk.getContent().split("\n")) {
 				
-				Map<ColumnType, Object> values = new HashMap<ColumnType, Object>();
-				
+				// Split into fields
 				String[] cols = row.split("\t");
-				
+
+				// Collect extra data, if requested
+				LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
 				for (ColumnType requestedContent : requestedContents) {
-							
 					values.put(requestedContent, this.get(cols, requestedContent));					
 				}
 				

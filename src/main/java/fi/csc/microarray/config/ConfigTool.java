@@ -244,8 +244,6 @@ public class ConfigTool {
 				updateRuntimesConfigFile(runtimesConfigFile);
 			}
 
-
-			
 			// update ActiveMQ config
 			File activemqConfigFile = new File(brokerDir + File.separator + DirectoryLayout.CONF_DIR + File.separator + "activemq.xml");
 			if (activemqConfigFile.exists()) {
@@ -276,18 +274,6 @@ public class ConfigTool {
 
 	}
 
-	private void updateWsConfigFile(File configFile) throws Exception {
-		Document doc = openForUpdating("Web Start", configFile);
-		Element jnlp = (Element)doc.getDocumentElement();
-		updateElementAttribute(jnlp, "codebase", configs[WS_CODEBASE_INDEX][VAL_INDEX]);
-		Element applicationDesc = (Element)jnlp.getElementsByTagName("application-desc").item(0);
-		NodeList arguments = applicationDesc.getElementsByTagName("argument");
-		Element lastArgument = (Element)arguments.item(arguments.getLength() - 1);
-		String url = "http://" + configs[BROKER_HOST_INDEX][VAL_INDEX] + ":" + configs[WS_PORT][VAL_INDEX] + "/" + Configuration.CONFIG_FILENAME;
-		updateElementValue(lastArgument, "configuration URL (for Web Start)", url);
-		writeLater(configFile, doc);
-	}
-
 	private void updateActivemqConfigFile(File configFile) throws Exception {
 		Document doc = openForUpdating("ActiveMQ", configFile);
 		Element broker = (Element)doc.getDocumentElement().getElementsByTagName("broker").item(0);
@@ -300,6 +286,18 @@ public class ConfigTool {
 		writeLater(configFile, doc);
 	}
 	
+	private void updateWsConfigFile(File configFile) throws Exception {
+		Document doc = openForUpdating("Web Start", configFile);
+		Element jnlp = (Element)doc.getDocumentElement();
+		updateElementAttribute(jnlp, "codebase", configs[WS_CODEBASE_INDEX][VAL_INDEX]);
+		Element applicationDesc = (Element)jnlp.getElementsByTagName("application-desc").item(0);
+		NodeList arguments = applicationDesc.getElementsByTagName("argument");
+		Element lastArgument = (Element)arguments.item(arguments.getLength() - 1);
+		String url = "http://" + configs[BROKER_HOST_INDEX][VAL_INDEX] + ":" + configs[WS_PORT][VAL_INDEX] + "/" + Configuration.CONFIG_FILENAME;
+		updateElementValue(lastArgument, "configuration URL (for Web Start)", url);
+		writeLater(configFile, doc);
+	}
+
 	private void updateActivemqConfigFilePasswords(File configFile) throws Exception {
 		Document doc = openForUpdating("ActiveMQ", configFile);
 		Element broker = (Element)doc.getDocumentElement().getElementsByTagName("broker").item(0);

@@ -20,16 +20,9 @@ import fi.csc.microarray.databeans.DataBean;
  * 
  * <pre>
  * -> TOOL+
- * 
- * TOOL -> "TOOL" CATEGORY_NAME "/" NAME DESCRIPTION INPUT* METAINPUT* OUTPUT* METAOUTPUT* PARAMETER*
- * CATEGORY_NAME -> TOKEN
- * INPUT -> "INPUT" INPUT_DESCRIPTION
- * METAINPUT -> "METAINPUT" INPUT_DESCRIPTION
- * INPUT_DESCRIPTION -> OPTIONALITY? NAME "TYPE" TYPE_NAME
- * TYPE_NAME -> TOKEN (see SADLSyntax.ParameterType for declaration, implementations pluggable)
- * OUTPUT -> "OUTPUT" OUTPUT_DESCRIPTION
- * METAOUTPUT -> "METAOUTPUT" OUTPUT_DESCRIPTION
- * OUTPUT_DESCRIPTION -> OPTIONALITY? NAME 
+ * TOOL -> "TOOL" NAME DESCRIPTION INPUT* OUTPUT* PARAMETER*
+ * INPUT -> "INPUT" META? OPTIONALITY? NAME "TYPE" TYPE_NAME DESCRIPTION
+ * OUTPUT -> "OUTPUT" META? OPTIONALITY? NAME DESCRIPTION
  * PARAMETER -> "PARAMETER" OPTIONALITY? NAME "TYPE" PARAMETER_TYPE PARAMETER_FROM? PARAMETER_TO? PARAMETER_DEFAULT? DESCRIPTION 
  * PARAMETER_TYPE -> TOKEN | PARAMETER_TYPE_ENUM
  * PARAMETER_TYPE_ENUM -> "[" PARAMETER_TYPE_ENUM_ELEMENTS "]"
@@ -39,8 +32,10 @@ import fi.csc.microarray.databeans.DataBean;
  * PARAMETER_DEFAULT -> "DEFAULT" PARAMETER_DEFAULT_ELEMENT
  * PARAMETER_DEFAULT_ELEMENT -> TOKEN | TOKEN "," PARAMETER_DEFAULT_ELEMENT 
  * OPTIONALITY -> "OPTIONAL"
+ * META -> "META"
  * NAME -> TOKEN | TOKEN ":" TOKEN
  * DESCRIPTION -> TOKEN
+ * TYPE_NAME -> TOKEN (see SADLSyntax.InputType for declaration, implementations pluggable)
  * TOKEN -> any single token produced by tokeniser
  * </pre>
  * 
@@ -52,10 +47,10 @@ import fi.csc.microarray.databeans.DataBean;
  *  
  * <p>Below is an example of a SADL snippet.</p>
  * <pre>
- * TOOL "Test utilities" / util-test.R: "Test tool" (Just a test analysis for development. These descriptions are sometimes very
+ * TOOL util-test.R: "Test tool" (Just a test analysis for development. These descriptions are sometimes very
  * long and might get hard to read.)
  * INPUT microarray{...}.tsv: "Raw data files" TYPE CDNA
- * INPUT phenodata.tsv: "Experiment description" TYPE GENERIC
+ * INPUT phenodata.tsv: "Experiment description" TYPE GENERIC (remember the fill in the phenodata file before running this tool)
  * OUTPUT result{...}.txt: "Result files"
  * OUTPUT OPTIONAL error.txt: "Error, if any"
  * PARAMETER value1: "The first value" TYPE INTEGER FROM 0 TO 200 DEFAULT 10 (the first value of the result set)
@@ -79,17 +74,15 @@ public class SADLSyntax {
 	public static final String KEYWORD_TO = "TO";
 	public static final String KEYWORD_FROM = "FROM";
 	public static final String KEYWORD_OPTIONAL = "OPTIONAL";
+	public static final String KEYWORD_META = "META";
 	public static final String KEYWORD_TYPE = "TYPE";
 	public static final String KEYWORD_PARAMETER = "PARAMETER";
-	public static final String KEYWORD_METAOUTPUT = "METAOUTPUT";
 	public static final String KEYWORD_OUTPUT = "OUTPUT";
-	public static final String KEYWORD_METAINPUT = "METAINPUT";
 	public static final String KEYWORD_INPUT = "INPUT";
 	public static final String KEYWORD_TOOL = "TOOL";
 
 	public static final String NAME_SET_DESIGNATOR = "{...}";
 	public static final String NAME_SEPARATOR = ":";
-	public static final String CATEGORY_SEPARATOR = "/";
 	public static final String ENUM_OPEN = "[";
 	public static final String ENUM_CLOSE = "]";
 	public static final String LIST_SEPARATOR = ",";

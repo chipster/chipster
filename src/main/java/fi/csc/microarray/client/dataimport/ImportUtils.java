@@ -321,16 +321,39 @@ public class ImportUtils {
 
 		if (!application.isStandalone()) {
 			List<File> files = importSession.getInputFiles();
+			
+			// bam sam and bed go always to preprocess dialog
+			boolean allBamSamOrBed = true;
+			for (File file : files) {
+				if (!file.getName().toLowerCase().endsWith(".bam") &&
+					!file.getName().toLowerCase().endsWith(".bai") &&
+					!file.getName().toLowerCase().endsWith(".sam") &&
+					!file.getName().toLowerCase().endsWith(".bed")) {
+					allBamSamOrBed = false;
+					break;
+				}
+			}
 
-			boolean importToolSupported = Session.getSession().getPrimaryModule().isImportToolSupported();
+			// go to preprocess with .bam .sam or .bed
+			if (allBamSamOrBed) {
+				openPreprocessDialog(importSession);
+			} 
+			
+			// normal import
+			else {
 
-			if (!importToolSupported || (importSession.isSkipActionChooser() && !ImportUtils.containsUnsupportedTypes(files.toArray(new File[files.size()])))) {
-				// skip requested and all of the files are supported => import directly and don't show action chooser			
-				application.importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
+				boolean importToolSupported = Session.getSession().getPrimaryModule().isImportToolSupported();
 
-			} else {
-				// skip not requested => show ActionChooser
-				new ActionChooserScreen(importSession);
+				// import directly
+				if (!importToolSupported || (importSession.isSkipActionChooser() && !ImportUtils.containsUnsupportedTypes(files.toArray(new File[files.size()])))) {
+					// skip requested and all of the files are supported => import directly and don't show action chooser			
+					application.importGroup(importSession.getImportItems(), importSession.getDestinationFolder());
+				} 
+
+				// action chooser or preprocess
+				else {
+					new ActionChooserScreen(importSession);
+				}
 			}
 		}
 
@@ -344,24 +367,28 @@ public class ImportUtils {
 
 			// go to preprocessing
 			else {
-				// input files to input DataBeans
-				try {
-					List<DataBean> inputBeans = new LinkedList<DataBean>();
-					int i = 0;
-					for (File inputFile: importSession.getInputFiles()) {
-						inputBeans.add(Session.getSession().getDataManager().createDataBean("preprocessInput-" + i, inputFile));
-						i++;
-					}
-
-					// create operation, open import operation parameter dialog
-					ClientApplication application = Session.getSession().getApplication();
-					Operation importOperation = new Operation(application.getOperationDefinition("LocalNGSPreprocess.java"), inputBeans.toArray(new DataBean[] {}));
-					new TaskImportDialog(application, "Preprocess NGS data", importSession, importOperation);
-
-				} catch (Exception me) {
-					Session.getSession().getApplication().reportException(me);
-				}
+				openPreprocessDialog(importSession);
 			}
+		}
+	}
+
+	private static void openPreprocessDialog(ImportSession importSession) {
+		// input files to input DataBeans
+		try {
+			List<DataBean> inputBeans = new LinkedList<DataBean>();
+			int i = 0;
+			for (File inputFile: importSession.getInputFiles()) {
+				inputBeans.add(Session.getSession().getDataManager().createDataBean("preprocessInput-" + i, inputFile));
+				i++;
+			}
+
+			// create operation, open import operation parameter dialog
+			ClientApplication application = Session.getSession().getApplication();
+			Operation importOperation = new Operation(application.getOperationDefinition("LocalNGSPreprocess.java"), inputBeans.toArray(new DataBean[] {}));
+			new TaskImportDialog(application, "Preprocess NGS data", importSession, importOperation, "Preprocess", "Cancel", "Skip preprocessing", "Please note that preprocessing SAM and BAM files can take several minutes depending on the file size.");
+
+		} catch (Exception me) {
+			Session.getSession().getApplication().reportException(me);
 		}
 	}	
 }

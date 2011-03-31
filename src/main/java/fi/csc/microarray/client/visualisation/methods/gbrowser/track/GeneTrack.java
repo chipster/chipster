@@ -19,7 +19,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
@@ -62,7 +61,7 @@ public class GeneTrack extends Track {
 				RegionContent read = iter.next();
 
 				// FIXME this and all the other incarnations of the same 3 lines should be refactored up to Track or something
-				if (!read.region.intercepts(getView().getBpRegion())) {
+				if (!read.region.intersects(getView().getBpRegion())) {
 					iter.remove();
 					continue;
 				}
@@ -100,12 +99,13 @@ public class GeneTrack extends Track {
 		rect.height = height;
 
 		drawables.add(new RectDrawable(rect, c, null));
-		if (rect.width > name.length() * 7) {
+		if (isNameVisible(rect)) {
 
 			// TODO fix the extra quote mark in file
 			name = name.replaceAll("\"", "");
 
-			drawables.add(new TextDrawable(rect.x, rect.y + 10, name, Color.DARK_GRAY));
+			// draw name to leftmost visible part of the gene rectangle
+			drawTextAboveRectangle(name, drawables, rect, 10);
 		}
 	}
 

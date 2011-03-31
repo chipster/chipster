@@ -20,7 +20,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaR
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
@@ -28,6 +27,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.constants.VisualConstants;
 
 /**
  * Track for showing transcripts.
@@ -42,7 +42,9 @@ public class TranscriptTrack extends Track {
 	private Color color;
 
 	public enum PartColor {
-		CDS(new Color(64, 192, 64)), UTR(new Color(192, 64, 64)), START_CODON(Color.gray);
+		CDS(VisualConstants.COLOR_BLUE), UTR(VisualConstants.COLOR_ORANGE), START_CODON(Color.gray);
+
+		//		CDS(new Color(64, 192, 64)), UTR(new Color(192, 64, 64)), START_CODON(Color.gray);
 		public Color c;
 
 		PartColor(Color c) {
@@ -71,7 +73,7 @@ public class TranscriptTrack extends Track {
 
 			for (Gene gene : sortedGenes) {
 				
-				if (!gene.region.intercepts(getView().getBpRegion())) {
+				if (!gene.region.intersects(getView().getBpRegion())) {
 
 					genes.remove(gene.id);
 					continue;
@@ -115,8 +117,8 @@ public class TranscriptTrack extends Track {
 
 				String geneId = ((String) gene.first().values.get(ColumnType.DESCRIPTION));
 
-				if (rect.width > geneId.length() * 5) {
-					drawables.add(new TextDrawable(rect.x, rect.y - 1, geneId, Color.DARK_GRAY));
+				if (isNameVisible(rect)) {
+					drawTextAboveRectangle(geneId, drawables, rect, 1);
 				}
 
 				List<Drawable> geneDrawables = new ArrayList<Drawable>();

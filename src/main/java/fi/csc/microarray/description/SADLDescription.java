@@ -20,10 +20,7 @@ public class SADLDescription {
 	
 	private LinkedList<Input> inputs = new LinkedList<Input>();
 	private LinkedList<Output> outputs = new LinkedList<Output>();
-	private LinkedList<Input> metaInputs = new LinkedList<Input>();
-	private LinkedList<Output> metaOutputs = new LinkedList<Output>();
 	private LinkedList<Parameter> parameters = new LinkedList<Parameter>();
-	private String category;
 
 	/**
 	 * Name for some description entity. Name consists of two major parts:
@@ -142,16 +139,21 @@ public class SADLDescription {
 	public static class Entity {
 		
 		private Name name;
-		private boolean optional;
+		private boolean isOptional;
+		protected String comment;
 
-		public Entity(Name name, boolean optional) {
-            this.optional = optional;
+		public Entity(Name name, boolean isOptional) {
             this.name = name;
-        }
+            this.isOptional = isOptional;
+		}
 
         public boolean isOptional() {
-			return optional;
+			return isOptional;
 		}
+
+		public void setOptional(boolean isOptional) {
+			this.isOptional  = isOptional;
+		}		
 
 		public void setName(Name name) {
 			this.name = name;
@@ -160,30 +162,57 @@ public class SADLDescription {
 		public Name getName() {
 			return name;
 		}
+
+		public void setComment(String comment) {
+			this.comment = comment;
+		}
+
+		public String getComment() {
+			return comment;
+		}
+	}
+	
+	public static class IOEntity extends Entity {
+
+		private boolean isMeta;
 		
-		public void setOptional(boolean optional) {
-			this.optional  = optional;
+		public IOEntity(Name name, boolean isOptional, boolean isMeta) {
+			super(name, isOptional);
+            this.isMeta = isMeta;
+		}
+
+        public boolean isMeta() {
+        	return isMeta;
+        }
+
+		public void setMeta(boolean isMeta) {
+			this.isMeta  = isMeta;
 		}		
-		
+
 	}
 
 	/**
 	 * Input file description.
 	 */
-	public static class Input extends Entity {
+	public static class Input extends IOEntity {
 		
 		private InputType type;
+
+		public Input() {
+			this(null, Name.createEmptyName(), false);
+		}
 
 		public Input(InputType type, Name name) {
 		    this(type, name, false);
 		}
 
-		public Input() {
-			super(Name.createEmptyName(), false);
+		public Input(InputType type, Name name, boolean optional) {
+		    this(type, name, optional, false);
 		}
 
-		public Input(InputType type, Name name, boolean optional) {
-            super(name, optional);
+
+		public Input(InputType type, Name name, boolean optional, boolean isMeta) {
+            super(name, optional, isMeta);
             this.type = type;
         }
 
@@ -199,20 +228,23 @@ public class SADLDescription {
 	/**
 	 * Output file description.
 	 */
-	public static class Output extends Entity {
+	public static class Output extends IOEntity {
+		
+		public Output() {
+			this(Name.createEmptyName());
+		}
 		
 		public Output(Name name) {
 			this(name, false);
 		}
 
-		public Output() {
-			this(Name.createEmptyName(), false);
-		}
-		
         public Output(Name name, boolean optional) {
-            super(name, optional);
+            this(name, optional, false);
         }
 
+        public Output(Name name, boolean optional, boolean isMeta) {
+            super(name, optional, isMeta);
+        }
 	}
 
 	/**
@@ -226,14 +258,22 @@ public class SADLDescription {
 		private String from;
 		private String to;
 		private String[] defaultValues; 
-		private String comment;
-		
+
+		public Parameter(Name name, ParameterType type, Name[] selectionOptions,
+				String from, String to, String defaultValue) {
+			this(name, type, selectionOptions, from, to, defaultValue, null);
+		}
 
 		public Parameter(Name name, ParameterType type, Name[] selectionOptions,
 				String from, String to, String defaultValue, String comment) {
 			this(name, type, selectionOptions, from, to,
 			     defaultValue == null ? new String[] {} : new String[] {defaultValue},
 			     comment);
+		}
+
+		public Parameter(Name name, ParameterType type, Name[] selectionOptions,
+				String from, String to, String[] defaultValues) {
+			this(name, type, selectionOptions, from, to, defaultValues, null);
 		}
 
 		public Parameter(Name name, ParameterType type, Name[] selectionOptions,
@@ -272,37 +312,28 @@ public class SADLDescription {
 
 		public String[] getDefaultValues() {
 			return defaultValues;
-		}
-
-		public String getComment() {
-			return comment;
 		}		
+	}
+
+	public SADLDescription(Name name) {
+		this(name, null);
 	}
 
 	/**
 	 * Returns a new (mostly empty) object presentation for parsed SADL. 
 	 */
-	public SADLDescription(Name name, String category, String comment) {
+	public SADLDescription(Name name, String comment) {
 		super();
 		this.name = name;
 		this.comment = comment;
-		this.category = category;
 	}
 
 	public void addInput(Input input) {
 		inputs.add(input);
 	}
 
-	public void addMetaInput(Input input) {
-		metaInputs.add(input);
-	}
-
 	public void addOutput(Output metaOutput) {
 		outputs.add(metaOutput);
-	}
-	
-	public void addMetaOutput(Output metaOutput) {
-		metaOutputs.add(metaOutput);
 	}
 	
 	public void addParameter(Parameter parameter) {
@@ -317,22 +348,18 @@ public class SADLDescription {
 		return comment;
 	}
 
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
 	public List<Input> inputs() {
 		return inputs;
-	}
-	
-	public List<Input> metaInputs() {
-		return metaInputs;
 	}
 	
 	public List<Output> outputs() {
 		return outputs;		
 	}
 	
-	public List<Output> metaOutputs() {
-		return metaOutputs;	
-	}
-
 	public List<Parameter> parameters() {
 		return parameters;
 	}
@@ -341,61 +368,16 @@ public class SADLDescription {
 		inputs.addAll(inputCollection);		
 	}
 
-	public void addMetaInputs(List<Input> inputCollection) {
-		metaInputs.addAll(inputCollection);		
-	}
-
 	public void addOutputs(List<Output> outputCollection) {
 		outputs.addAll(outputCollection);		
 	}
-	
-	public void addMetaOutputs(List<Output> outputCollection) {
-		metaOutputs.addAll(outputCollection);		
-	}
 
-	public String getCategory() {
-		return this.category;
-	}
-	
 	/**
 	 * @see SADLGenerator#generate(SADLDescription)
 	 */
 	@Override
 	public String toString() {
 		return SADLGenerator.generate(this);
-	}
-
-	public String toStringVerbose() {
-		String s = "";
-		s += "-------------- sadl description --------------\n";
-		s += this.getName().getID() + "\n";
-		s += this.getName().getDisplayName() + "\n";
-		s += this.getCategory() + "\n";
-		
-		for (SADLDescription.Input input: this.inputs()) {
-			String inputID = input.getName().getID();
-			if (inputID == null) {
-				inputID = input.getName().getPrefix() + input.getName().getPostfix();
-			}
-			
-			s += inputID + ", " + input.getName().getDisplayName() + ", " + input.getType().getName() + "\n";
-			
-		}
-		
-		for (SADLDescription.Output output: this.outputs()) {
-			String outputID = output.getName().getID();
-			if (outputID == null) {
-				outputID = output.getName().getPrefix() + output.getName().getPostfix();
-			}
-
-			s += outputID + ", " + output.getName().getDisplayName() + ", " + output.isOptional() + "\n";
-		}
-		for (SADLDescription.Parameter parameter: this.parameters()) {
-			s += parameter.getName().getID() + ", " + parameter.getName().getDisplayName() + ", " + parameter.getType() + "\n";
-		}
-		
-		s += "-------------- sadl description --------------\n";
-		return s;
 	}
 
 	/**

@@ -8,10 +8,12 @@
 # PARAMETER p.adjust.method [none, BH, BY] DEFAULT none (Method for adjusting the p-value in order to account for multiple testing. Because of the structure of GO, multiple testing is theoretically problematic, and using conditional.testing is a generally the preferred method. The correction can only be applied when no conditional.testing is performed.)
 # PARAMETER over.or.under.representation [over, under] DEFAULT over (Should over or under-represented classes be seeked?)
 # PARAMETER species [human, mouse, rat] DEFAULT human (The species for which the miRNA:s have been analyzed.)
+# PARAMETER database [PicTar, TargetScan, both] DEFAULT both (For human data this parameter defines whether to fetch predicted gene targets from either PicTar or TargetScan databases, or whether to restrict the enrichment analysis to those targets that are common to both databases. To last option is recommended to minimize the occurrence of false positives.) 
 
 # miRNA hypergeometric test for GO
 # MG, 4.11.2009
-# IS, 1.10.2010 rewritten to use GOstats
+# IS, 1.10.2010, rewritten to use GOstats
+# MG, 7.3.2011, added the "database" parameter
 
 # load packages
 library(GOstats)
@@ -70,12 +72,28 @@ if (species == 'mouse') {
   # load target predictions from pictar and targescan, intersect to build list of reference genes
   pictar <- dbReadTable(RmiR.Hs.miRNA_dbconn(), 'pictar')[,1:2]
   targetscan <- dbReadTable(RmiR.Hs.miRNA_dbconn(), 'targetscan')[,1:2]
-  reference.genes <- unique(intersect(pictar$gene_id, targetscan$gene_id))
+  if (database == "PicTar") {
+	reference.genes <- unique(pictar$gene_id)
+  }
+  if (database == "TargetScan") {
+	reference.genes <- unique(targetscan$gene_id)
+  }
+  if (database == "both") {
+  	reference.genes <- unique(intersect(pictar$gene_id, targetscan$gene_id))
+  }
 
   # pick targets of the specified miRNAs
   pictar <- pictar[pictar[,1] %in% mirna_ids,]
   targetscan <- targetscan[targetscan[,1] %in% mirna_ids,]
-  selected.genes <- unique(intersect(pictar$gene_id, targetscan$gene_id))
+  if (database == "PicTar") {
+	  selected.genes <- unique(pictar$gene_id)
+  }
+  if (database == "TargetScan") {
+	  selected.genes <- unique(targetscan$gene_id)
+  }
+  if (database == "both") {
+	  selected.genes <- unique(intersect(pictar$gene_id, targetscan$gene_id))
+  }  
   
   # check that it was indeed possible to identify any targets for the
   # input list of miRNA names

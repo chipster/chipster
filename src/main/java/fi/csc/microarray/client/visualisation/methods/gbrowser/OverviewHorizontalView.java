@@ -105,6 +105,9 @@ public class OverviewHorizontalView extends HorizontalView {
 		}
 	}
 	
-	
+	@Override
+	public boolean isRulerEnabled() {
+		return false;
+	}
 
 }

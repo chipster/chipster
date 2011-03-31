@@ -38,7 +38,6 @@ import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationCategory;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
-import fi.csc.microarray.client.operation.Operation.ResultListener;
 import fi.csc.microarray.client.selection.DataSelectionManager;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.TaskEventListener;
@@ -152,7 +151,7 @@ public abstract class ClientApplication {
 	protected String requestedModule;
 
 	// TODO wrap these to some kind of repository
-	protected Collection<OperationCategory> visibleCategories;
+	protected List<OperationCategory> visibleCategories;
 	protected Map<String, OperationDefinition> operationDefinitions;
 	protected Map<String, OperationDefinition> internalOperationDefinitions;
 
@@ -247,6 +246,20 @@ public abstract class ClientApplication {
 			    }
 			}
 
+			// load local operation definitions
+			ServiceAccessor localServiceAccessor = new LocalServiceAccessor();
+			localServiceAccessor.initialise(manager, null);
+			localServiceAccessor.fetchDescriptions(modules.getPrimaryModule());
+			for (OperationCategory category : localServiceAccessor.getHiddenCategories()) {
+			    for (OperationDefinition operationDefinition : category.getOperationList()) {
+			        internalOperationDefinitions.put(operationDefinition.getID(), operationDefinition);
+			    }
+			}
+
+			
+			
+			
+			
 			// start listening to job events
 			taskExecutor.addChangeListener(jobExecutorChangeListener);
 
@@ -325,18 +338,6 @@ public abstract class ClientApplication {
 	 */
 	public void renameDataItem(DataItem data, String newName) {
 		data.setName(newName);
-	}
-	
-	public void executeOperation(final OperationDefinition operationDefinition, ResultListener resultListener) {
-		
-		try {
-			Operation operation = new Operation(operationDefinition, getSelectionManager().getSelectedDatasAsArray());
-			operation.setResultListener(resultListener);
-			executeOperation(operation);
-			
-		} catch (MicroarrayException e) {
-			reportException(e);
-		}
 	}
 	
 
@@ -423,19 +424,29 @@ public abstract class ClientApplication {
 				LinkedList<DataBean> sources = new LinkedList<DataBean>();
 				for (DataBinding binding : oper.getBindings()) {
 					// do not create derivation links for metadata datasets
-					if (!primaryModule.isMetadata(binding.getData())) {
+					// also do not create links for sources without parents
+					// this happens when creating the input databean for example
+					// for import tasks
+					// FIXME should such a source be deleted here?
+					if (!primaryModule.isMetadata(binding.getData()) && (binding.getData().getParent() != null)) {
 						sources.add(binding.getData());
 
 					}
 				}
 
 				// decide output folder
-				DataFolder folder;
+				DataFolder folder = null;
 				if (oper.getOutputFolder() != null) {
 					folder = oper.getOutputFolder();
 				} else if (sources.size() > 0) {
-					folder = sources.get(0).getParent();
-				} else {
+					for (DataBean source : sources) {
+						if (source.getParent() != null) {
+							folder = source.getParent();
+						}
+					}
+				}
+				// use root if no better option 
+				if (folder == null) {
 					folder = manager.getRootFolder();
 				}
 
@@ -447,10 +458,6 @@ public abstract class ClientApplication {
 					DataBean output = task.getOutput(outputName);
 					output.setOperation(oper);
 
-					// check if this is metadata
-					if (primaryModule.isMetadata(output)) {
-						metadataOutput = output;				
-					}
 
 					// set sources
 					for (DataBean source : sources) {
@@ -467,6 +474,12 @@ public abstract class ClientApplication {
 					// connect data (events are generated and it becomes visible)
 					folder.addChild(output);
 
+					// check if this is metadata
+					// for now this must be after folder.addChild(), as type tags are added there
+					if (primaryModule.isMetadata(output)) {
+						metadataOutput = output;				
+					}
+					
 					newBeans.add(output);
 				}
 

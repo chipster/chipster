@@ -23,9 +23,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.TooltipEnabledChartPanel.TooltipRequestProcessor;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.QueueManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -44,11 +46,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 
 /**
- * Combines track to create a single synchronised view. All tracks within one view move hand-in-hand. View is responsible
- * for allocating space and taking care of actual drawing.
- *
+ * Combines track to create a single synchronised view. All tracks within one view move hand-in-hand. View is responsible for allocating
+ * space and taking care of actual drawing.
+ * 
  */
-public abstract class View implements MouseListener, MouseMotionListener, MouseWheelListener {
+public abstract class View implements MouseListener, MouseMotionListener, MouseWheelListener, TooltipRequestProcessor {
 
 	public BpCoordRegionDouble bpRegion;
 	public BpCoordRegion highlight;
@@ -61,7 +63,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	public GenomePlot parentPlot;
 
-	private static final int FPS = 30;
+	protected static final int FPS = 30;
 
 	protected boolean movable;
 	protected boolean zoomable;
@@ -148,7 +150,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		}
 
 		if (max != null) {
-			//Little bit empty space to the end
+			// Little bit empty space to the end
 			max.bp += 10000;
 			return max;
 
@@ -180,6 +182,10 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			drawBuffer = new BufferedImage(drawBufferWidth,
 					drawBufferHeight, BufferedImage.TYPE_INT_RGB);		
 
+		if (drawBuffer == null || drawBuffer.getWidth() != viewArea.getWidth() || drawBuffer.getHeight() != viewArea.getHeight()) {
+
+			drawBuffer = new BufferedImage((int) viewArea.getWidth(), (int) viewArea.getHeight(), BufferedImage.TYPE_INT_RGB);
+
 			Graphics2D bufG2 = (Graphics2D) drawBuffer.getGraphics();
 			bufG2.setPaint(Color.white);
 			bufG2.fillRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
@@ -201,6 +207,12 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		// prepare coordinates
 		y = 0;
 		x = 0;
+
+		// draw simple vertical ruler
+		if (isRulerEnabled()) {
+			bufG2.setColor(Color.LIGHT_GRAY);
+			bufG2.drawLine(drawBuffer.getWidth()/2, 0, drawBuffer.getWidth()/2, drawBuffer.getHeight());
+		}
 
 		// track group contains one or several logically-related tracks
 		for (TrackGroup group : trackGroups) {
@@ -411,10 +423,8 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	/**
 	 * Fire area requests for all tracks in this view.
 	 * 
-	 * Only fire one request for a single file. If two tracks ask
-	 * for the same file and one of them wants concise data while
-	 * the other want wants precise, we should fire separate
-	 * requests for them.
+	 * Only fire one request for a single file. If two tracks ask for the same file and one of them wants concise data while the other want
+	 * wants precise, we should fire separate requests for them.
 	 */
 	public void fireAreaRequests() {
 		// Concise data
@@ -513,15 +523,11 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	public void mouseReleased(MouseEvent e) {
 
-		if (dragStarted && 
-				dragEndPoint != null && 
-				dragLastStartPoint != null && 
-				Math.abs(dragEndPoint.getX() - dragLastStartPoint.getX()) > 10 
-				&& System.currentTimeMillis() - dragEventTime < DRAG_EXPIRATION_TIME_MS) {
+		if (dragStarted && dragEndPoint != null && dragLastStartPoint != null && Math.abs(dragEndPoint.getX() - dragLastStartPoint.getX()) > 10 && System.currentTimeMillis() - dragEventTime < DRAG_EXPIRATION_TIME_MS) {
 
 			stopAnimation();
 
-			timer = new Timer(1000 / FPS, new ActionListener() {
+			mouseZoomTimer = new Timer(1000 / FPS, new ActionListener() {
 
 				private int i = 0;
 				private int ANIMATION_FRAMES = 30;
@@ -546,8 +552,8 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 					}
 				}
 			});
-			timer.setRepeats(true);
-			timer.start();
+			mouseZoomTimer.setRepeats(true);
+			mouseZoomTimer.start();
 		}
 	}
 
@@ -574,7 +580,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	protected abstract void handleDrag(Point2D start, Point2D end, boolean disableDrawing);
 
-	private Timer timer;
+	private Timer mouseZoomTimer;
 
 	public void mouseWheelMoved(final MouseWheelEvent e) {
 
@@ -586,7 +592,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	public void zoomAnimation(final int centerX, final int wheelRotation) {
 		stopAnimation();
 
-		timer = new Timer(1000 / FPS, new ActionListener() {
+		mouseZoomTimer = new Timer(1000 / FPS, new ActionListener() {
 
 			private int i = 0;
 
@@ -608,21 +614,21 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			}
 		});
 
-		timer.setRepeats(true);
-		timer.setCoalesce(false);
-		timer.start();	
+		mouseZoomTimer.setRepeats(true);
+		mouseZoomTimer.setCoalesce(false);
+		mouseZoomTimer.start();
 	}
 
 	private void stopAnimation() {
-		if (timer != null) {
-			timer.stop();
-			timer = null;
+		if (mouseZoomTimer != null) {
+			mouseZoomTimer.stop();
+			mouseZoomTimer = null;
 		}
 	}
 
-	protected void zoom(int lockedX, int wheelRotation, boolean disableDrawing) {
+	protected void zoom(int lockedX, double wheelRotation, boolean disableDrawing) {
 
-		// not all views are zoomed (e.g., the overview with cytoband) 
+		// not all views are zoomed (e.g., the overview with cytoband)
 		if (zoomable) {
 
 			BpCoordDouble pointerBp = trackToBp(lockedX);
@@ -634,7 +640,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			double width = endBp - startBp;
 			width *= Math.pow(ZOOM_FACTOR, wheelRotation);
 
-			int minBpWidth = (int)(((float)parentPlot.chartPanel.getPreferredSize().getSize().width) / MIN_PIXELS_PER_NUCLEOTIDE);
+			int minBpWidth = (int) (((float) parentPlot.chartPanel.getPreferredSize().getSize().width) / MIN_PIXELS_PER_NUCLEOTIDE);
 			if (width < minBpWidth) {
 				width = minBpWidth;
 			}
@@ -676,8 +682,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	}
 
 	/**
-	 * Precisely convert bp coordinate to pixel position in this view.
-	 * Rounding should be performed just before drawing.
+	 * Precisely convert bp coordinate to pixel position in this view. Rounding should be performed just before drawing.
 	 * 
 	 * @param bp
 	 * @return
@@ -692,9 +697,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	}
 
 	/**
-	 * Calculates width of a single bp in pixels for this view.
-	 * Number is a float, so the rounding should be performed just
-	 * before drawing.
+	 * Calculates width of a single bp in pixels for this view. Number is a float, so the rounding should be performed just before drawing.
 	 * 
 	 * @return width of a single bp in pixels for this view.
 	 */
@@ -745,4 +748,15 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	private Point2D scale(Point2D p) {
 		return new Point((int) (p.getX() / parentPlot.chartPanel.getScaleX()), (int) (p.getY() / parentPlot.chartPanel.getScaleY()));
 	}
+	
+	public String tooltipRequest(MouseEvent mouseEvent) {
+		Point locationOnPanel = (Point)mouseEvent.getLocationOnScreen().clone();
+		SwingUtilities.convertPointFromScreen(locationOnPanel, parentPlot.chartPanel);
+		return tooltipRequest(locationOnPanel);
+	}
+	
+	public String tooltipRequest(Point2D locationOnPanel) {
+		return null; // tooltips disabled by default in views
+	}
+
 }

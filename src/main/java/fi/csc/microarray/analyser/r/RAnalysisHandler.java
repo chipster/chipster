@@ -117,9 +117,9 @@ public class RAnalysisHandler implements AnalysisHandler {
 		
 		// read the SADL from the comment block in the beginning of file
 		// and the actual source code
-		SADLTool.ParsedRScript parsedScript;
+		SADLTool.ParsedScript parsedScript;
 		try {
-			parsedScript = new SADLTool().parseRScript(scriptSource);
+			parsedScript = new SADLTool("#").parseScript(scriptSource);
 		} catch (IOException e) {				
 			throw new AnalysisException(e);
 		}
@@ -143,8 +143,8 @@ public class RAnalysisHandler implements AnalysisHandler {
 
 		// add R specific stuff to AnalysisDescription
 		ad.setCommand(rCommand);
-		ad.setImplementation(parsedScript.rSource); // include headers
-		ad.setSourceCode(parsedScript.rSource);
+		ad.setImplementation(parsedScript.source); // include headers
+		ad.setSourceCode(parsedScript.source);
 		ad.setSourceResourceName(sourceResourceName);
 		ad.setSourceResourceFullPath(scriptPath);
 		ad.setInitialiser("chipster.tools.path = '" + externalToolPath + "'\n");
