@@ -183,7 +183,7 @@ public class Heatmap extends ChipVisualisation implements PropertyChangeListener
 			this.selectableChartPanel.getChartPanel().addChartMouseListener((HCPlot) chart.getPlot());
 
 			updateSelectionsFromApplication(false);
-			application.addPropertyChangeListener(this);
+			application.addClientEventListener(this);
 
 			int blockSize = 10;
 

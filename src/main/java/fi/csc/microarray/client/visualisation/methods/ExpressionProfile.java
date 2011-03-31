@@ -166,7 +166,7 @@ implements PropertyChangeListener, SelectionChangeListener {
 		
 		this.data = data;
 		
-		application.addPropertyChangeListener(this);
+		application.addClientEventListener(this);
 		
 		JFreeChart chart = createProfileChart(createDataset(), rows,  data.getName());
 		

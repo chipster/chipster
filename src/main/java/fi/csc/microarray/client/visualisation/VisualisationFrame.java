@@ -223,7 +223,7 @@ public abstract class VisualisationFrame implements DataChangeListener {
 
 	private void removeVisualiser() {
 		if (visualiser instanceof PropertyChangeListener) {
-			application.removePropertyChangeListener((PropertyChangeListener) visualiser);
+			application.removeClientEventListener((PropertyChangeListener) visualiser);
 		}
 		if (visualiser != null) {
 			visualiser.removeVisualisation();

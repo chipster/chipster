@@ -127,7 +127,7 @@ public class DataSelectionManager {
             }
     	}
     	if(realChange){
-    		client.dispatchEvent(new DatasetChoiceEvent(source));
+    		client.fireClientEvent(new DatasetChoiceEvent(source));
     	}
     }
     
@@ -135,7 +135,7 @@ public class DataSelectionManager {
 
         if (selectedDatas.contains(selectedItem)) {
             selectedDatas.remove(selectedItem);
-            client.dispatchEvent(new DatasetChoiceEvent(source));     
+            client.fireClientEvent(new DatasetChoiceEvent(source));     
         }
         
         // print debug
@@ -155,7 +155,7 @@ public class DataSelectionManager {
 		this.selectedDatas.clear();
 		
         if (dispatchEvent) {
-        	client.dispatchEvent(new DatasetChoiceEvent(source));        	
+        	client.fireClientEvent(new DatasetChoiceEvent(source));        	
         }
 	}
     

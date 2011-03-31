@@ -83,7 +83,7 @@ public class MicroarrayTable extends JXTable implements ActionListener, Property
 			}
 		});
 
-		application.addPropertyChangeListener(this);
+		application.addClientEventListener(this);
 	}
 
 	/**

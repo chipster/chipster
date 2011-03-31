@@ -148,7 +148,7 @@ public class DetailsPanel extends JPanel implements PropertyChangeListener, Focu
 		}
 		
 		// start listening
-		application.addPropertyChangeListener(this);
+		application.addClientEventListener(this);
 	}
 	
 	private String getNameText() {

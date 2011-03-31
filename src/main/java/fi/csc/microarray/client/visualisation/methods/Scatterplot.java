@@ -195,7 +195,7 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 		
 		JFreeChart chart = new JFreeChart(description.plotTitle, plot);
 
-		application.addPropertyChangeListener(this);
+		application.addClientEventListener(this);
 
 		selectableChartPanel = new SelectableChartPanel(chart, this); 
 		return selectableChartPanel;

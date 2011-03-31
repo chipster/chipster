@@ -220,6 +220,6 @@ public class Spreadsheet extends Visualisation {
 	
 	@Override
 	public void removeVisualisation(){
-		application.removePropertyChangeListener(table);
+		application.removeClientEventListener(table);
 	}
 }

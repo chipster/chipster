@@ -403,7 +403,7 @@ public class HierarchicalClustering extends Visualisation implements PropertyCha
 			selectableChartPanel.getChartPanel().addChartMouseListener((HCPlot) chart.getPlot());
 
 			updateSelectionsFromApplication(false);
-			application.addPropertyChangeListener(this);
+			application.addClientEventListener(this);
 
 			int blockSize = 10;
 

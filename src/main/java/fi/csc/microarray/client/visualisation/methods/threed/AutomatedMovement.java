@@ -49,7 +49,7 @@ public class AutomatedMovement extends Thread {
         this.taskQueue = new LinkedList<Task>();
         //this.obj = new Object();
         
-        Session.getSession().getApplication().addPropertyChangeListener(new PropertyChangeListener(){
+        Session.getSession().getApplication().addClientEventListener(new PropertyChangeListener(){
 			public void propertyChange(PropertyChangeEvent evt) {
 				if(evt instanceof VisualisationMethodChangedEvent){
 					AutomatedMovement.this.kill();

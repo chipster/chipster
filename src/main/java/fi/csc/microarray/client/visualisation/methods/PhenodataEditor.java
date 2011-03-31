@@ -490,6 +490,6 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 
 	@Override
 	public void removeVisualisation(){
-		application.removePropertyChangeListener(table);
+		application.removeClientEventListener(table);
 	}
 }

@@ -313,7 +313,7 @@ public class OperationPanel extends JPanel
 		this.add(bottomPanel, c);		
 
 		// start listening
-		Session.getSession().getApplication().addPropertyChangeListener(this);
+		Session.getSession().getApplication().addClientEventListener(this);
 		
 	}
 	

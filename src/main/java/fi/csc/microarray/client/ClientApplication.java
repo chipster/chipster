@@ -292,14 +292,14 @@ public abstract class ClientApplication {
 	/**
 	 * Add listener for applications state changes.
 	 */
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
+	public void addClientEventListener(PropertyChangeListener listener) {
 		eventSupport.addPropertyChangeListener(listener);		
 	}
 
 	/**
-	 * @see #addPropertyChangeListener(PropertyChangeListener)
+	 * @see #addClientEventListener(PropertyChangeListener)
 	 */
-    public void removePropertyChangeListener(PropertyChangeListener listener) {
+    public void removeClientEventListener(PropertyChangeListener listener) {
         eventSupport.removePropertyChangeListener(listener);       
     }
     
@@ -317,11 +317,11 @@ public abstract class ClientApplication {
     }
 
 	public void setVisualisationMethod(VisualisationMethod method, List<Variable> variables, List<DataBean> datas, FrameType target ) {
-		dispatchVisualisationEvent(new VisualisationMethodChangedEvent(this, method, variables, datas, target));
+		fireClientEvent(new VisualisationMethodChangedEvent(this, method, variables, datas, target));
 	}
 	
 	public void setVisualisationMethod(VisualisationMethodChangedEvent e){
-		dispatchEvent(e);
+		fireClientEvent(e);
 	}
 	
 	public void setEventsEnabled(boolean eventsEnabled) {
@@ -519,12 +519,7 @@ public abstract class ClientApplication {
 		}
 	}
 	
-	public void dispatchVisualisationEvent(VisualisationMethodChangedEvent event) {
-		logger.debug("VisualisationEvent dispatched: " + event.getNewMethod());
-		this.dispatchEvent(event);
-	}
-	
-	public void dispatchEvent(PropertyChangeEvent event) {
+	public void fireClientEvent(PropertyChangeEvent event) {
 		logger.debug("dispatching event: " + event);
 		if (eventsEnabled) {
 			eventSupport.firePropertyChange(event);

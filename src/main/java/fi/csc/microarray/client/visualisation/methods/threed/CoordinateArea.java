@@ -105,7 +105,7 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 		kineticMovement = movement.startKineticMove(25, 0.95);		
 		
 		this.updateSelectedFromApplication();
-		application.addPropertyChangeListener(this);
+		application.addClientEventListener(this);
 		
 	}
 

@@ -204,7 +204,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 
 		this.updateSelectionsFromApplication(false);
 
-		application.addPropertyChangeListener(this);
+		application.addClientEventListener(this);
 
 		return chartPanel;
 	}

@@ -112,7 +112,7 @@ public class IntegratedSelectionManager {
 
 	public void setSelected(int[] selected, Object source) {
 		selectedRows = selected.clone();
-		client.dispatchEvent(new RowChoiceEvent(data, source));
+		client.fireClientEvent(new RowChoiceEvent(data, source));
 	}
 
 	public void clearAll(Object source) {
@@ -134,6 +134,6 @@ public class IntegratedSelectionManager {
 			}
 		}
 		selectedRows = indexes;
-		client.dispatchEvent(new RowChoiceEvent(data, source));
+		client.fireClientEvent(new RowChoiceEvent(data, source));
 	}
 }
