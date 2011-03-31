@@ -97,11 +97,14 @@ public class SessionLoader {
 			parseDataBeans();
 			parseOperations();
 			
-			linkOperations();
-			
+			linkOperationsToOutputs();
 			linkChildren(dataManager.getRootFolder());
-			
+
 			linkDataBeans();
+
+			linkOperations();
+
+			
 			
 			// check
 			logger.info("after load checking");
@@ -218,6 +221,7 @@ public class SessionLoader {
 			dataBean.setNotes(dataType.getNotes());
 			//			dataBean.setCreationDate(date);
 			
+			dataBean.setContentType(Session.getSession().getDataManager().guessContentType(dataBean.getName()));
 			
 			dataBeans.put(id, dataBean);
 			dataTypes.put(dataBean, dataType);
@@ -291,6 +295,11 @@ public class SessionLoader {
 			// FIXME add checks
 			for (String inputId : operationTypes.get(operation).getInput()) {
 				DataBean inputBean = dataBeans.get(inputId);
+				if (inputBean.queryFeatures("/phenodata/").exists()) {
+					continue; // skip phenodata, it is bound automatically
+				}
+
+				
 				inputBeans.add(inputBean);
 			
 			}
@@ -308,7 +317,13 @@ public class SessionLoader {
 			if (operation.getBindings() == null) {
 				logger.info("bindings is null");
 			}
-			
+		}
+	}
+
+	
+	private void linkOperationsToOutputs() {
+		
+		for (Operation operation : operations.values()) {
 			// set as the operation for outputs 
 			for (String outputId : operationTypes.get(operation).getOutput()) {
 				// FIXME check
@@ -318,6 +333,7 @@ public class SessionLoader {
 		}
 	}
 
+	
 	
 	private void linkDataBeans() {
 		for (DataBean dataBean : dataBeans.values()) {
