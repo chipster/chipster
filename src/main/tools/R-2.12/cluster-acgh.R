@@ -1,13 +1,12 @@
-# ANALYSIS "aCGH"/"Cluster called aCGH data" (Perform clustering of aCGH arrays.)
-# INPUT GENERIC regions.tsv, GENERIC phenodata.tsv
-# OUTPUT wecca.pdf
-# PARAMETER type.of.calls [hard, soft] DEFAULT soft (Whether to cluster the arrays based on soft or hard calls. Hard calls are losses, normals, and gains, whereas soft calls refer to the respective probabilities of these calls. The preferred choice is to use soft calls whenever they are available.)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image. Not used anymore as plotting format is now PDF.)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image. Not used anymore as plotting format is now PDF.)
+# TOOL cluster-acgh.R: "Cluster called aCGH data" (Perform clustering of aCGH arrays.)
+# INPUT regions.tsv: regions.tsv TYPE GENERIC 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT wecca.pdf: wecca.pdf 
+# PARAMETER type.of.calls: type.of.calls TYPE [hard: hard, soft: soft] DEFAULT soft (Whether to cluster the arrays based on soft or hard calls. Hard calls are losses, normals, and gains, whereas soft calls refer to the respective probabilities of these calls. The preferred choice is to use soft calls whenever they are available.)
 
 # cluster-acgh.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-03-29
+# 2011-03-30
 
 library(WECCA)
 

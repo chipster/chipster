@@ -1,6 +1,6 @@
 package fi.csc.microarray.messaging;
 
-import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 
 /**
  * Messaging fabric counterpart of JMS message listener.
@@ -13,7 +13,7 @@ public interface MessagingListener {
 	 * 
 	 * @param msg unmarshalled message
 	 */
-	public void onNamiMessage(NamiMessage msg);
+	public void onChipsterMessage(ChipsterMessage msg);
 	
 	// TODO add method for stopping listening
 

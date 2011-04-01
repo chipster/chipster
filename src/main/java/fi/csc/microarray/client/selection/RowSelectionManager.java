@@ -15,6 +15,7 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -25,11 +26,7 @@ import fi.csc.microarray.exception.MicroarrayException;
  * 
  */
 public class RowSelectionManager {
-	/**
-	 * Logger for this class
-	 */
-	// private static final Logger logger =
-	// Logger.getLogger(RowSelectionManager.class);
+
 	private ClientApplication client;
 	private DataBean data;
 	private int[] selectedRows = new int[0];
@@ -83,10 +80,12 @@ public class RowSelectionManager {
 	}
 		
 	public static DataBean createDataset(Iterable<String> lines, DataBean... sources) throws Exception {
-		DataBean newData = Session.getSession().getApplication().getDataManager().createDataBean("user_edited.tsv");
+		DataManager dataManager = Session.getSession().getApplication().getDataManager();
+		
+		DataBean newData = dataManager.createDataBean("user_edited.tsv");
 		
 		// write data
-		OutputStream outputStream = newData.getContentOutputStreamAndLockDataBean();
+		OutputStream outputStream = dataManager.getContentOutputStreamAndLockDataBean(newData);
 		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
 
 		for (String line : lines) {
@@ -95,8 +94,9 @@ public class RowSelectionManager {
 		}
 
 		writer.flush();
-		newData.closeContentOutputStreamAndUnlockDataBean(outputStream);
-		newData.setOperation(new Operation(OperationDefinition.USER_MODIFICATION_DEFINITION, new DataBean[] { newData }));
+		dataManager.closeContentOutputStreamAndUnlockDataBean(newData, outputStream);
+		// TODO get the operation definition from the application
+		newData.setOperation(new Operation(OperationDefinition.CREATE_DEFINITION, new DataBean[] { newData }));
 
 		
 		// set metadata

@@ -21,7 +21,7 @@ public class LoginTest {
 	@Test(groups = {"unit"} )
 	public void expirationTest() throws IOException, IllegalConfigurationException {
 
-		DirectoryLayout.initialiseClientLayout().getConfiguration();			
+		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
 		
 		String validUsername = "valid";
 		String expiredUsername = "expired";
@@ -54,7 +54,7 @@ public class LoginTest {
 	 */
 	public void manualTest(File usersFileToTest, String username, String password) throws IOException, IllegalConfigurationException {
 
-		DirectoryLayout.initialiseClientLayout().getConfiguration();			
+		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
 		
 		File testJaasConfigFile = createTestJaasConfig(usersFileToTest);
 		AuthenticationProvider authProvider = createAuthProvider(testJaasConfigFile);
@@ -64,7 +64,7 @@ public class LoginTest {
 	}
 
 	private AuthenticationProvider createAuthProvider(File testJaasConfigFile) throws IOException, IllegalConfigurationException {
-		DirectoryLayout.initialiseClientLayout().getConfiguration();			
+		DirectoryLayout.initialiseSimpleLayout().getConfiguration();			
 		AuthenticationProvider authProvider = new JaasAuthenticationProvider();
 		System.setProperty("java.security.auth.login.config", testJaasConfigFile.getPath());
 		return authProvider;

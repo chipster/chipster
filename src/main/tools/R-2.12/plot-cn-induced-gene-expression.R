@@ -1,13 +1,11 @@
-# ANALYSIS "aCGH"/"Plot copy-number-induced gene expression" (Plot the expression levels of individual genes for a copy number vs. expression comparison. This tool must be run on the output from the tool Test for copy number induced expression changes - cn-induced-expression.tsv.)
-# INPUT GENE_EXPRS cn-induced-expression.tsv
-# OUTPUT cn-induced-expression-plot.pdf
-# PARAMETER gene.ids STRING DEFAULT 1 (The gene.ids of the genes to be plotted, separated by commas. Ranges are also supported (e.g. 1,3,7-10).)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image. Not used anymore as plotting format is now PDF.)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image. Not used anymore as plotting format is now PDF.)
+# TOOL plot-cn-induced-gene-expression.R: "Plot copy-number-induced gene expression" (Plot the expression levels of individual genes for a copy number vs. expression comparison. This tool must be run on the output from the tool Test for copy number induced expression changes - cn-induced-expression.tsv.)
+# INPUT cn-induced-expression.tsv: cn-induced-expression.tsv TYPE GENE_EXPRS 
+# OUTPUT cn-induced-expression-plot.pdf: cn-induced-expression-plot.pdf 
+# PARAMETER gene.ids: gene.ids TYPE STRING DEFAULT 1 (The gene.ids of the genes to be plotted, separated by commas. Ranges are also supported (e.g. 1,3,7-10\).)
 
 # plot-cn-induced-gene-expression.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-03-28
+# 2011-03-30
 
 library(intCNGEan)
 
