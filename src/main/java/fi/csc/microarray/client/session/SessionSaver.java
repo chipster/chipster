@@ -46,7 +46,8 @@ public class SessionSaver {
 	private final int DATA_BLOCK_SIZE = 2048;
 	
 	private File sessionFile;
-	private HashMap<DataBean, URL> newURLs;
+	private HashMap<DataBean, URL> newURLs = new HashMap<DataBean, URL>();
+
 	private int entryCounter = 0;
 
 	private int itemIdCounter = 0;
@@ -71,11 +72,10 @@ public class SessionSaver {
 
 	}
 	
-	public void saveSnapshot() throws IOException, JAXBException, SAXException {
+	public void saveSession() throws IOException, JAXBException, SAXException {
 
-		this.newURLs = new HashMap<DataBean, URL>();
+		// figure out the target file
 		boolean replaceOldSession = sessionFile.exists();
-
 		File newSessionFile;
 		File backupFile = null;
 		if (replaceOldSession) {
@@ -86,10 +86,9 @@ public class SessionSaver {
 			newSessionFile = sessionFile;
 		}
 
+		
 		this.factory = new ObjectFactory();
 		this.sessionType = factory.createSessionType();
-
-		
 		
 		ZipOutputStream zipOutputStream = null;
 		boolean createdSuccessfully = false;
@@ -98,37 +97,28 @@ public class SessionSaver {
 			zipOutputStream = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(newSessionFile)));
 			zipOutputStream.setLevel(1); // quite slow with bigger values														
 
-			// write data and gather metadata simultanously
+			// save session version
 			sessionType.setFormatVersion(ClientSession.SESSION_VERSION);
 
 			// generate all ids
 			generateIdsRecursively(dataManager.getRootFolder());
 
-			// 1st pass, write most metadata
+			// gather session data and save actual data to the zip file
 			saveRecursively(dataManager.getRootFolder(), zipOutputStream);
-
-			// 2nd pass for links (if written in one pass, input dependent operation parameters break when reading)
-//			saveLinksRecursively(dataManager.getRootFolder(), metadata);
-
 			
-			
-			
-			
-			// validate and save meta data
+			// validate and save session data
 			Marshaller marshaller = ClientSession.getJAXBContext().createMarshaller();
 			marshaller.setSchema(ClientSession.getSchema());
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 			marshaller.marshal(factory.createSession(sessionType), System.out);
 
-			ZipEntry cpZipEntry = new ZipEntry(ClientSession.SESSION_METADATA_FILENAME);
-			zipOutputStream.putNextEntry(cpZipEntry);
+			ZipEntry sessionDataZipEntry = new ZipEntry(ClientSession.SESSION_DATA_FILENAME);
+			zipOutputStream.putNextEntry(sessionDataZipEntry);
 			marshaller.marshal(factory.createSession(sessionType), zipOutputStream);
 
 			zipOutputStream.closeEntry() ;							
 
-//			writeFile(zipOutputStream, METADATA_FILENAME, 
-//			new ByteArrayInputStream(metadata.toString().getBytes()));
-
+			// FIXME finally?
 			zipOutputStream.finish();
 			zipOutputStream.close();
 

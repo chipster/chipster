@@ -87,7 +87,7 @@ public class SessionLoader {
 		try {
 			// get the session.xml zip entry
 			zipFile = new ZipFile(sessionFile);
-			InputStream metadataStream = zipFile.getInputStream(zipFile.getEntry(ClientSession.SESSION_METADATA_FILENAME));
+			InputStream metadataStream = zipFile.getInputStream(zipFile.getEntry(ClientSession.SESSION_DATA_FILENAME));
 
 			// create the dom for session.xml
 			Unmarshaller unmarshaller = ClientSession.getJAXBContext().createUnmarshaller();
@@ -323,17 +323,18 @@ public class SessionLoader {
 	
 	private void linkOperationsToOutputs() {
 		
-		for (Operation operation : operations.values()) {
-			// set as the operation for outputs 
-			for (String outputId : operationTypes.get(operation).getOutput()) {
-				// FIXME check
-				DataBean outputBean = dataBeans.get(outputId);
-				outputBean.setOperation(operation);
+		for (DataBean dataBean : dataBeans.values()) {
+			String operationId = dataTypes.get(dataBean).getResultOf();
+			Operation operation = operations.get(operationId);
+			if (operation != null) {
+				// TODO 
+				dataBean.setOperation(operation);
+			} else {
+				// FIXME what to do
 			}
 		}
 	}
 
-	
 	
 	private void linkDataBeans() {
 		for (DataBean dataBean : dataBeans.values()) {

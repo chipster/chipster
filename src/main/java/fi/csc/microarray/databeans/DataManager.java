@@ -576,7 +576,7 @@ public class DataManager {
 	 */
 	public void saveSnapshot(File snapshotDir, ClientApplication application) throws IOException, JAXBException, SAXException {
 		SessionSaver sessionSaver = new SessionSaver(snapshotDir);
-		sessionSaver.saveSnapshot();
+		sessionSaver.saveSession();
 //		SnapshottingSession session = new SnapshottingSession(this, application);
 //		session.saveSnapshot(snapshotDir);
 	}
