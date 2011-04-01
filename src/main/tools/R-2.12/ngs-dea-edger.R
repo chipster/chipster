@@ -1,4 +1,4 @@
-# TOOL "Statistics" / ngs-dea-edger.R: "Differential expression analysis using edgeR" (This tool will perform an analysis for differentially expressed sequences using the R implementation of the edge algorithm.)
+# TOOL ngs-dea-edger.R: "Differential expression analysis using edgeR" (This tool will perform an analysis for differentially expressed sequences using the R implementation of the edge algorithm.)
 # INPUT data.tsv TYPE GENERIC
 # INPUT phenodata.tsv TYPE GENERIC
 # OUTPUT de-list.tsv
