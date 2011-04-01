@@ -2,7 +2,7 @@
 # INPUT GENERIC normalized.tsv OUTPUT column-filter3.tsv
 # PARAMETER column COLUMN_SEL (Data column to filter by)
 # PARAMETER match.term STRING DEFAULT empty (String to search for)
-# PARAMETER exact.match DEFAULT yes [yes,no] (Should only exact matches be retained?)
+# PARAMETER exact.match [yes,no] DEFAULT yes (Should only exact matches be retained?)
 
 # Tool that allows the data to be filtered according to text terms in a column
 # MG 9.3.2010

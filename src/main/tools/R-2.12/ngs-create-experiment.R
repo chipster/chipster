@@ -1,4 +1,4 @@
-# TOOL "Statistics" / ngs-create-experiment.R: "Define NGS experiment" (This tool creates a phenodata file containing descriptive information about samples and experiment setup. Please fill in, at least, the group column to describe the experiment groups to be compared for example in an analysis of differential gene expression.)
+# TOOL ngs-create-experiment.R: "Define NGS experiment" (This tool creates a phenodata file containing descriptive information about samples and experiment setup. Please fill in, at least, the group column to describe the experiment groups to be compared for example in an analysis of differential gene expression.)
 # INPUT counts_sample_{...}.tsv: "Individual sample files with reads and counts" TYPE GENERIC 
 # OUTPUT ngs-data-table.tsv: "Data table with read counts"
 # OUTPUT phenodata.tsv: "Experiment description file"
