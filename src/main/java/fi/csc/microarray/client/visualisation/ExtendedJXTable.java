@@ -75,7 +75,7 @@ public class ExtendedJXTable extends JXTable implements ActionListener, Property
 
 					boolean tmp = doNotDispatchEvents;
 					doNotDispatchEvents = true;
-					application.getSelectionManager().getRowSelectionManager(
+					application.getSelectionManager().getSelectionManager(
 							ExtendedJXTable.this.data).setSelection(converted, ExtendedJXTable.this);
 
 					doNotDispatchEvents = tmp;
@@ -367,7 +367,7 @@ public class ExtendedJXTable extends JXTable implements ActionListener, Property
 		 * intervals[i][1]); }
 		 */
 		this.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		for (int row : application.getSelectionManager().getRowSelectionManager(data)
+		for (int row : application.getSelectionManager().getSelectionManager(data)
 				.getSelectionAsRows()) {
 			this.changeSelection(this.convertRowIndexToView(row), 0, true, false);
 		}

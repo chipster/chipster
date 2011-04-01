@@ -573,7 +573,7 @@ public class HierarchicalClustering extends Visualisation implements PropertyCha
 	}
 
 	protected void updateSelectionsFromApplication(boolean dispatchEvent) {
-		IntegratedSelectionManager manager = application.getSelectionManager().getRowSelectionManager(selectionBean);
+		IntegratedSelectionManager manager = application.getSelectionManager().getSelectionManager(selectionBean);
 
 		orders.updateVisibleIndexes();
 

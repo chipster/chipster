@@ -212,7 +212,7 @@ public class Heatmap extends ChipVisualisation implements PropertyChangeListener
 	}
 
 	protected void updateSelectionsFromApplication(boolean dispatchEvent) {
-		IntegratedSelectionManager manager = application.getSelectionManager().getRowSelectionManager(selectionBean);
+		IntegratedSelectionManager manager = application.getSelectionManager().getSelectionManager(selectionBean);
 
 		selected.clear();
 		for (int i : manager.getSelectionAsRows()) {

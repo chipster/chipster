@@ -248,7 +248,7 @@ implements ActionListener, PropertyChangeListener, SelectionChangeListener {
 	}
 
 	protected void updateSelectionsFromApplication(boolean dispatchEvent) {
-		IntegratedSelectionManager manager = application.getSelectionManager().getRowSelectionManager(data);
+		IntegratedSelectionManager manager = application.getSelectionManager().getSelectionManager(data);
 
 		selectedIndexes.clear();
 		for (int i : manager.getSelectionAsRows()){

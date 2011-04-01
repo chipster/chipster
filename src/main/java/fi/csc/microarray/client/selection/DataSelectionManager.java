@@ -21,7 +21,7 @@ public class DataSelectionManager {
 
     private ClientApplication client;
     private LinkedList<DataItem> selectedDatas = new LinkedList<DataItem>();
-    private Map<DataItem, IntegratedSelectionManager> rowSelectionManagers = new HashMap<DataItem, IntegratedSelectionManager>();
+    private Map<DataItem, IntegratedSelectionManager> selectionManagers = new HashMap<DataItem, IntegratedSelectionManager>();
     
     public DataSelectionManager(ClientApplication client) {
         this.client = client;
@@ -29,19 +29,17 @@ public class DataSelectionManager {
     }
     
     /**
-     * get the selection managers for each dataset. Managers are created lazily
+     * Return selection manager for each dataset. Managers are created lazily
      * only when asked to avoid extra creation with every selection.
-     * 
-     * @param data
-     * @return
+     *
      */
-    public IntegratedSelectionManager getRowSelectionManager(DataBean data){
+    public IntegratedSelectionManager getSelectionManager(DataBean data){
     	IntegratedSelectionManager manager;
-    	manager = rowSelectionManagers.get(data);
+    	manager = selectionManagers.get(data);
     	
     	if(manager == null){
     		manager = new IntegratedSelectionManager(client,data);
-    		rowSelectionManagers.put(data, manager);
+    		selectionManagers.put(data, manager);
     	}
     	
     	return manager;

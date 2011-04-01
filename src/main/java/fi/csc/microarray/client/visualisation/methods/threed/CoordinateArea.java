@@ -514,7 +514,7 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 		Drawable[] drawables = controller.getDataModel().getDataArray();
 		this.clearSelections();
 		for (int index : application.getSelectionManager().
-				getRowSelectionManager(controller.getFrame().getDatas().get(0)).getSelectionAsRows()){
+				getSelectionManager(controller.getFrame().getDatas().get(0)).getSelectionAsRows()){
 			
 			for(Drawable drawable : drawables){
 				if(drawable instanceof DataPoint){

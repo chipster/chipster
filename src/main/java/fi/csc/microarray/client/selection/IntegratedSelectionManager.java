@@ -25,11 +25,13 @@ import fi.csc.microarray.exception.MicroarrayException;
  * @author Petri Klemelä, Aleksi Kallio
  * 
  */
+// FIXME should be refactored to not be dataset specific and use IntegratedEntity for all selections
 public class IntegratedSelectionManager {
 
 	private ClientApplication client;
 	private DataBean data;
 	private int[] selectedRows = new int[0];
+	private IntegratedEntity pointSelection;
 
 	public IntegratedSelectionManager(ClientApplication client, DataBean data) {
 		this.client = client;
@@ -40,8 +42,8 @@ public class IntegratedSelectionManager {
 		return selectedRows.clone();
 	}
 
-	public int getPointSelectionAsRow() {
-		return getSelectionAsRows()[0];
+	public IntegratedEntity getPointSelection() {
+		return pointSelection;
 	}
 
 	public List<String> getSelectionAsIdentifiers() throws MicroarrayException {
@@ -58,10 +60,6 @@ public class IntegratedSelectionManager {
 		}
 
 		return names;
-	}
-	
-	public String getPointSelectionAsIdentifier() throws MicroarrayException {
-		return getSelectionAsIdentifiers().get(0);
 	}
 
 	public List<String> getSelectedLines() throws Exception {
@@ -129,8 +127,8 @@ public class IntegratedSelectionManager {
 	/**
 	 * Focus type of selection.
 	 */
-	public void setPointSelection(int pointSelection, Object source) {
-		selectedRows = new int[pointSelection];
+	public void setPointSelection(IntegratedEntity entity, Object source) {
+		this.pointSelection = entity;
 		client.fireClientEvent(new PointSelectionEvent(data, source));
 	}
 

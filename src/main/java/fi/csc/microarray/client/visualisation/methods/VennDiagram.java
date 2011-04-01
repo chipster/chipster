@@ -254,7 +254,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 		try {
 
 			for (DataBean data : plot.getDataset().getDataBeans()) {
-				IntegratedSelectionManager manager = application.getSelectionManager().getRowSelectionManager(data);
+				IntegratedSelectionManager manager = application.getSelectionManager().getSelectionManager(data);
 				selected.addAll(manager.getSelectionAsIdentifiers());
 			}
 
