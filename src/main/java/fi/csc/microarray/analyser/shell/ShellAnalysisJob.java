@@ -132,7 +132,8 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
             	
             	// no value parameter, don't add anything
             	if (!value.equals(NO_PARAMETER_VALUE_TOKEN)) {
-            		commandParts.add(SHELL_STRING_SEPARATOR + value + SHELL_STRING_SEPARATOR);
+            		commandParts.add(value);
+//            		commandParts.add(SHELL_STRING_SEPARATOR + value + SHELL_STRING_SEPARATOR);
             	}
             	
             }
@@ -141,7 +142,8 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
             // normal parameters
             else if (!value.equals("")) {
                 commandParts.add("-" + parameter.getName());
-                commandParts.add(SHELL_STRING_SEPARATOR + value + SHELL_STRING_SEPARATOR);
+                commandParts.add(value);
+//              commandParts.add(SHELL_STRING_SEPARATOR + value + SHELL_STRING_SEPARATOR);
             }
             index++;
         }
