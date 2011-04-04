@@ -65,52 +65,49 @@ import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
 
-public class HierarchicalClustering extends Visualisation 
-implements PropertyChangeListener, SelectionChangeListener {
+public class HierarchicalClustering extends Visualisation implements PropertyChangeListener, SelectionChangeListener {
 
 	public HierarchicalClustering(VisualisationFrame frame) {
 		super(frame);
 	}
-	
-	private SelectableChartPanel selectableChartPanel;
+
+	protected SelectableChartPanel selectableChartPanel;
 
 	private static final Logger logger = Logger.getLogger(HierarchicalClustering.class);
-	
+
 	OrderSuperviser orders;
-	
-	private  JPanel paramPanel;
+
+	private JPanel paramPanel;
 	private AnnotateListPanel list;
 
-	//Selected indexes in the order of parent data bean
-	private Set<Integer> selected = new HashSet<Integer>();
+	// Selected indexes in the order of parent data bean
+	protected Set<Integer> selected = new HashSet<Integer>();
 
-	private DataBean selectionBean;
+	protected DataBean selectionBean;
 
 	private HCPlot hcPlot;
 
 	private boolean reversed;
 
-	private JPanel zoomChangerPanel;
+	protected JPanel zoomChangerPanel;
 
-	private JPanel spaceFiller;
+	protected JPanel spaceFiller;
 
-	private JScrollPane scroller;
+	protected JScrollPane scroller;
 
-	private Dimension preferredSize;
+	protected Dimension preferredSize;
 
 	private JCheckBox zoomCheckBox;
 
 	private class MicroarrayHCToolTipGenerator extends StandardHCToolTipGenerator {
 
 		/**
-		 * Creates tooltip for Hierarchical clustering visualisation. The
-		 * tooltip includes chip and gene names and value.
+		 * Creates tooltip for Hierarchical clustering visualisation. The tooltip includes chip and gene names and value.
 		 * 
 		 * The code is mainly copied from StandardHCToolTipGenerator
 		 * 
-		 * Note! The rows and columns are in different order than in original
-		 * version of this method. In the Viski library the rows and columns are
-		 * messed up.
+		 * Note! The rows and columns are in different order than in original version of this method. In the Viski library the rows and
+		 * columns are messed up.
 		 */
 		@Override
 		public String generateToolTip(HeatMap heatmap, DataRange rowRange, DataRange columnRange) {
@@ -147,7 +144,7 @@ implements PropertyChangeListener, SelectionChangeListener {
 
 		}
 	}
-	
+
 	@Override
 	public JPanel getParameterPanel() {
 		if (paramPanel == null) {
@@ -166,22 +163,22 @@ implements PropertyChangeListener, SelectionChangeListener {
 		}
 		return paramPanel;
 	}
-	
+
 	public JPanel createSettingsPanel() {
 
 		JPanel settingsPanel = new JPanel();
 		settingsPanel.setLayout(new GridBagLayout());
 		settingsPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
-		
+
 		zoomCheckBox = new JCheckBox("Fit to screen", false);
 
-		zoomCheckBox.addActionListener(new ActionListener(){
+		zoomCheckBox.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
 				setScaledMode(zoomCheckBox.isSelected());
-			}			
+			}
 		});
-		
+
 		GridBagConstraints c = new GridBagConstraints();
 
 		c.gridy = 0;
@@ -190,7 +187,7 @@ implements PropertyChangeListener, SelectionChangeListener {
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weighty = 0;
 		c.weightx = 1.0;
-		settingsPanel.add(zoomCheckBox, c);				
+		settingsPanel.add(zoomCheckBox, c);
 		c.gridy++;
 		c.fill = GridBagConstraints.BOTH;
 		c.weighty = 1.0;
@@ -200,54 +197,48 @@ implements PropertyChangeListener, SelectionChangeListener {
 	}
 
 	/**
-	 * getVisualisation method has too modes. If the genes are clustered the
-	 * mode is normal and in reversed mode the chips are clustered. Both modes
-	 * are implemented in turns of couple rows which makes the structure very
-	 * ugly and vulnerable for mistakes. Maybe some day there is time to
-	 * restructure this method.
+	 * getVisualisation method has too modes. If the genes are clustered the mode is normal and in reversed mode the chips are clustered.
+	 * Both modes are implemented in turns of couple rows which makes the structure very ugly and vulnerable for mistakes. Maybe some day
+	 * there is time to restructure this method.
 	 * 
 	 * @throws MicroarrayException
 	 *             is parsing or visualisation generation fails
 	 */
 	@Override
-	public JComponent getVisualisation(DataBean data) throws MicroarrayException {				
-		
-		//There is no point to bind selections to HC data because it's not possible to visualise it
-		//with other visualisation methods. It's parent is used instead. 
-		List<DataBean> selectionBeans = data.traverseLinks(new Link[] {Link.DERIVATION}, Traversal.DIRECT);
-		
-		//First one is hc data
-		//TODO there is no point to find all ancestors
-		if(selectionBeans.size() > 1){
-			selectionBean = selectionBeans.get(1);
-		}
-		
-		if(selectionBean == null){
-			throw new ErrorReportAsException("Source dataset not found", "Hierarchical clustering " +
-					"needs its source dataset.", " Select both HC and its source dataset by keeping \n" +
-					"Ctrl key pressed and right click with mouse over one of them to create \n" +
-					"derivation link from the original dataset to \n" +
-					"clustered one.");
-		}
-		
-		try {			
+	public JComponent getVisualisation(DataBean data) throws MicroarrayException {
 
-			String hcTree = data.queryFeatures("/clusters/hierarchical/tree").asStrings().iterator().next();
+		try {
 
-			// create heatmap
-			QueryResult heatMapFeature = data.queryFeatures("/clusters/hierarchical/heatmap");			
-			Table heatMapData = heatMapFeature.asTable();
-						
-			TableAnnotationProvider annotationProvider =  new TableAnnotationProvider(selectionBean);
-						
-			// count rows
+			// First find a dataset to which user's selections are connected to.
+			// There is no point to connect selections to cluster tree data because it's not possible to visualise it
+			// with other visualisation methods. The parent that contains the expression values is used instead.
+			List<DataBean> selectionBeans = data.traverseLinks(new Link[] { Link.DERIVATION }, Traversal.DIRECT);
+
+			// First one is the correct one
+			if (selectionBeans.size() > 1) {
+				selectionBean = selectionBeans.get(1);
+			}
+
+			if (selectionBean == null) {
+				throw new ErrorReportAsException("Source dataset not found", "Hierarchical clustering " + "needs its source dataset.", " Select both HC and its source dataset by keeping \n" + "Ctrl key pressed and right click with mouse over one of them to create \n" + "derivation link from the original dataset to \n" + "clustered one.");
+			}
+
+			// Connect selections to correct dataset
+			TableAnnotationProvider annotationProvider = new TableAnnotationProvider(selectionBean);
+
+			// Create heatmap
+			QueryResult heatMapFeature = data.queryFeatures("/clusters/hierarchical/heatmap");
+			Table heatMapDataIterator = heatMapFeature.asTable();
+
+			// Count heatmap rows
 			int rowCount = 0;
-			while (heatMapData.nextRow()) {
+			while (heatMapDataIterator.nextRow()) {
 				rowCount++;
-			}						
+			}
 
+			// Count columns that contain expression values
 			LinkedList<String> columns = new LinkedList<String>();
-			for (String columnName : heatMapData.getColumnNames()) {
+			for (String columnName : heatMapDataIterator.getColumnNames()) {
 				if (columnName.startsWith("chip.")) {
 					columns.add(columnName);
 				} else {
@@ -256,14 +247,12 @@ implements PropertyChangeListener, SelectionChangeListener {
 			}
 			int columnCount = columns.size();
 
-			// HC tree has to be done first to find out the order of rows and number of rows
-			HCTreeNode root = null;
-			ClusterParser parser = new ClusterParser(hcTree);
-			ClusterBranchNode tree = parser.getTree();
-			
-			
-			// check which way we have clustered
-			reversed = hcTree.contains("chip.");
+			// Parse HC tree and check which way we have clustered
+			String hcTree = data.queryFeatures("/clusters/hierarchical/tree").asStrings().iterator().next();
+			ClusterBranchNode tree = new ClusterParser(hcTree).getTree();
+			this.reversed = hcTree.contains("chip.");
+
+			// Adjust gene count for sampling
 			HeatMap heatMap = null;
 			if (!reversed) {
 				rowCount = tree.getLeafCount(); // heatmap has more genes than tree (sampling done), correct for it
@@ -272,28 +261,26 @@ implements PropertyChangeListener, SelectionChangeListener {
 				heatMap = new HeatMap("Heatmap", columnCount, rowCount);
 			}
 
-			// go through the tree to find its biggest height (depth actually)
+			// Go through the tree to find its biggest height
 			int initialHeight = getTreeHeight(tree);
-			
+
+			// Read the tree and fill the treeToId map
 			List<String> treeToId = new ArrayList<String>();
-			treeToId.addAll(Collections.nCopies(rowCount, (String)null));
-						
-			// read the tree and fill the treeToId map
-			root = readTree(tree, 0, initialHeight, treeToId);
-			
+			treeToId.addAll(Collections.nCopies(rowCount, (String) null));
+			HCTreeNode root = readTree(tree, 0, initialHeight, treeToId);
+
 			orders = new OrderSuperviser();
 			orders.setTreeToId(treeToId);
 
-			// set data to heatmap, reset the iterator
-			heatMapData = data.queryFeatures("/clusters/hierarchical/heatmap").asTable();
-			
-			List<Integer> treeToBean = new ArrayList<Integer>();			
+			Table heatMapData = data.queryFeatures("/clusters/hierarchical/heatmap").asTable();
+
+			List<Integer> treeToBean = new ArrayList<Integer>();
 			treeToBean.addAll(Collections.nCopies(rowCount, -1));
-			
+
 			int row = -1; // This is increased to 0 in the beginning of the
-							// loop
+			// loop
 			int originalRow = 0;
-			
+
 			while (heatMapData.nextRow()) {
 
 				if (!reversed) {
@@ -301,7 +288,7 @@ implements PropertyChangeListener, SelectionChangeListener {
 					// this row
 
 					String key = translate(heatMapData.getStringValue(" "));
-					if (orders.idToTree(key) != -1) { //if the id is found						
+					if (orders.idToTree(key) != -1) { // if the id is found
 						row = orders.idToTree(key);
 						treeToBean.set(row, originalRow);
 						originalRow++;
@@ -315,9 +302,8 @@ implements PropertyChangeListener, SelectionChangeListener {
 					row++;
 				}
 
-				String geneName = heatMapData.getStringValue(" ");				
+				String geneName = heatMapData.getStringValue(" ");
 				geneName = annotationProvider.getAnnotatedRowname(geneName);
-				
 
 				if (!reversed) {
 					heatMap.setRowName(row, geneName);
@@ -343,7 +329,7 @@ implements PropertyChangeListener, SelectionChangeListener {
 					}
 				}
 			}
-			
+
 			orders.setTreeToBean(treeToBean);
 
 			// Set column names (row names if reversed)
@@ -373,7 +359,7 @@ implements PropertyChangeListener, SelectionChangeListener {
 			// create the chart...
 			boolean tooltips = true;
 			JFreeChart chart = BioChartFactory.createHCChart("Hierarchical Clustering", // chart
-																						// title
+			// title
 			dataset, // data
 			tooltips, // tooltips?
 			false // URLs?
@@ -382,17 +368,17 @@ implements PropertyChangeListener, SelectionChangeListener {
 			// set special tooltips to hcChart
 			if (chart.getPlot() instanceof HCPlot) {
 				HCPlot hcPlot = (HCPlot) chart.getPlot();
-				
+
 				this.hcPlot = hcPlot;
 				orders.setPlot(hcPlot);
-				
-				this.hcPlot.addChangeListener(new PlotChangeListener(){
+
+				this.hcPlot.addChangeListener(new PlotChangeListener() {
 					public void plotChanged(PlotChangeEvent event) {
-						if(event instanceof ClusteringTreeChangeEvent){
+						if (event instanceof ClusteringTreeChangeEvent) {
 							HierarchicalClustering.this.orders.updateVisibleIndexes();
 							HierarchicalClustering.this.updateSelectionsFromApplication(false);
 						}
-					}					
+					}
 				});
 
 				// Set tooltips
@@ -401,44 +387,40 @@ implements PropertyChangeListener, SelectionChangeListener {
 				}
 
 				// Colors
-				double min = getMinValue(dataset.getHeatMap());
-				double max = getMaxValue(dataset.getHeatMap());
+				double min = Heatmap.getMinValue(dataset.getHeatMap());
+				double max = Heatmap.getMaxValue(dataset.getHeatMap());
 
-				GradientColorPalette colors = new GradientColorPalette(
-						new double[] {min, max}, 
-						new Color[] {Color.BLUE, Color.BLACK, Color.RED});
+				GradientColorPalette colors = new GradientColorPalette(new double[] { min, max }, new Color[] { Color.BLUE, Color.BLACK, Color.RED });
 
 				hcPlot.setColoring(colors);
 
 			}
-			
-			chart.setTitle((TextTitle)null);
-									
+
+			chart.setTitle((TextTitle) null);
+
 			selectableChartPanel = new SelectableChartPanel(chart, this, false);
-			selectableChartPanel.getChartPanel().addChartMouseListener((HCPlot)chart.getPlot());
-						
+			selectableChartPanel.getChartPanel().addChartMouseListener((HCPlot) chart.getPlot());
+
 			updateSelectionsFromApplication(false);
 			application.addPropertyChangeListener(this);
-			
+
 			int blockSize = 10;
-			
-			int width = (int)(heatMap.getColumnsCount() * blockSize + hcPlot.getRowTreeSize() + 
-				hcPlot.getRowNamesSize() + hcPlot.getLeftMarginSize() + hcPlot.getRightMarginSize());
-			
-			//Column tree not visible
-			int height = (int)(heatMap.getRowCount() * blockSize + hcPlot.getColumnNamesSize() + 
-					hcPlot.getTopMarginSize() + hcPlot.getBottomMarginSize());
-			
+
+			int width = (int) (heatMap.getColumnsCount() * blockSize + hcPlot.getRowTreeSize() + hcPlot.getRowNamesSize() + hcPlot.getLeftMarginSize() + hcPlot.getRightMarginSize());
+
+			// Column tree not visible
+			int height = (int) (heatMap.getRowCount() * blockSize + hcPlot.getColumnNamesSize() + hcPlot.getTopMarginSize() + hcPlot.getBottomMarginSize());
+
 			preferredSize = new Dimension(width, height);
-									
+
 			zoomChangerPanel = new JPanel(new BorderLayout());
 			spaceFiller = new JPanel();
-			((FlowLayout)spaceFiller.getLayout()).setAlignment(FlowLayout.LEFT);
+			((FlowLayout) spaceFiller.getLayout()).setAlignment(FlowLayout.LEFT);
 			spaceFiller.setBackground(Color.white);
 			scroller = new JScrollPane(spaceFiller);
-			
+
 			setScaledMode(false);
-			
+
 			return zoomChangerPanel;
 
 		} catch (Exception e) {
@@ -448,50 +430,47 @@ implements PropertyChangeListener, SelectionChangeListener {
 		}
 
 	}
-	
-	
-	public void setScaledMode(boolean scaled){
-		
-		/* Ugly way to change zoom level by changing containing panel layout and scroller
-		 * existence, but JFreeChart scaling is little bit problematic in this kind of 
-		 * usage.
+
+	public void setScaledMode(boolean scaled) {
+
+		/*
+		 * Ugly way to change zoom level by changing containing panel layout and scroller existence, but JFreeChart scaling is little bit
+		 * problematic in this kind of usage.
 		 */
-		if(scaled){
+		if (scaled) {
 			spaceFiller.remove(selectableChartPanel);
 			zoomChangerPanel.remove(scroller);
 			zoomChangerPanel.add(selectableChartPanel, BorderLayout.CENTER);
-			selectableChartPanel.setPreferredSize(null);				
-		} else {			
+			selectableChartPanel.setPreferredSize(null);
+		} else {
 			spaceFiller.add(selectableChartPanel);
 			zoomChangerPanel.remove(selectableChartPanel);
 			zoomChangerPanel.add(scroller, BorderLayout.CENTER);
-			selectableChartPanel.setPreferredSize(preferredSize);				
+			selectableChartPanel.setPreferredSize(preferredSize);
 		}
-		
+
 		zoomChangerPanel.validate();
 		zoomChangerPanel.repaint();
 	}
 
 	/**
-	 * Translates name to parenthesis tree format. This translation is required
-	 * because R script does it.
+	 * Translates name to parenthesis tree format. This translation is required because R script does it.
 	 */
 	private String translate(String gene) {
 
-		while(gene.startsWith(" ") || gene.startsWith("(")){
+		while (gene.startsWith(" ") || gene.startsWith("(")) {
 			gene = gene.substring(1);
 		}
-		while(gene.endsWith(" ") || gene.endsWith(")")){
+		while (gene.endsWith(" ") || gene.endsWith(")")) {
 			gene = gene.substring(0, gene.length() - 1);
 		}
-		
-		
+
 		gene = gene.replace("(", "-").replace(")", "-").replace(" ", "_");
-		
-		while(gene.contains("--")){
+
+		while (gene.contains("--")) {
 			gene = gene.replace("--", "-");
 		}
-		return gene;		
+		return gene;
 	}
 
 	private int getTreeHeight(ClusterNode tree) {
@@ -505,8 +484,8 @@ implements PropertyChangeListener, SelectionChangeListener {
 		}
 	}
 
-	private HCTreeNode readTree(ClusterNode tree, int index, int height, List<String> treeToId) throws DataRangeMismatchException {	
-		 
+	private HCTreeNode readTree(ClusterNode tree, int index, int height, List<String> treeToId) throws DataRangeMismatchException {
+
 		if (tree instanceof ClusterLeafNode) {
 			String gene = ((ClusterLeafNode) tree).getGene();
 			treeToId.set(index, gene);
@@ -515,44 +494,16 @@ implements PropertyChangeListener, SelectionChangeListener {
 
 		} else {
 			HCTreeNode node = new HCTreeNode(height);
-			HCTreeNode leftChild = readTree(((ClusterBranchNode) tree).getLeftBranch(), 
-					index, height - 1, treeToId);
-			
+			HCTreeNode leftChild = readTree(((ClusterBranchNode) tree).getLeftBranch(), index, height - 1, treeToId);
+
 			node.setLeftChild(leftChild);
-			
-			HCTreeNode rightChild = readTree(((ClusterBranchNode) tree).getRightBranch(), 
-					node.getDataRange().getRightBound() + 1, height - 1, treeToId);
-			
+
+			HCTreeNode rightChild = readTree(((ClusterBranchNode) tree).getRightBranch(), node.getDataRange().getRightBound() + 1, height - 1, treeToId);
+
 			node.setRightChild(rightChild);
 
 			return node;
 		}
-	}
-
-	private static Double getMinValue(HeatMap heatmap) {
-		Double min = null;
-		for (int row = 0; row < heatmap.getRowCount(); row++) {
-			for (int column = 0; column < heatmap.getColumnsCount(); column++) {
-				Double value = heatmap.get(row, column);
-				if (min == null || value < min) {
-					min = value;
-				}
-			}
-		}
-		return min;
-	}
-
-	private static Double getMaxValue(HeatMap heatmap) {
-		Double max = null;
-		for (int row = 0; row < heatmap.getRowCount(); row++) {
-			for (int column = 0; column < heatmap.getColumnsCount(); column++) {
-				Double value = heatmap.get(row, column);
-				if (max == null || value > max) {
-					max = value;
-				}
-			}
-		}
-		return max;
 	}
 
 	@Override
@@ -561,133 +512,127 @@ implements PropertyChangeListener, SelectionChangeListener {
 	}
 
 	public void selectionChanged(Rectangle2D.Double selectionRect) {
-		
-		if(selectionRect == null){
+
+		if (selectionRect == null) {
 			selected.clear();
-		} else {					
-			
+		} else {
+
 			orders.updateVisibleIndexes();
-			
+
 			ChartRenderingInfo info = selectableChartPanel.getChartPanel().getChartRenderingInfo();
 
 			EntityCollection entities = info.getEntityCollection();
-			
-			Set<Integer>  newSelection = new HashSet<Integer>();
 
-			for(Object obj: entities.getEntities()){
-				
-				//Don't clear the selection if tree was clicked				
-				if(obj instanceof HCTreeNodeEntity){
-					HCTreeNodeEntity entity = (HCTreeNodeEntity)obj;					
-					if(entity.getArea().intersects(selectionRect)){						
+			Set<Integer> newSelection = new HashSet<Integer>();
+
+			for (Object obj : entities.getEntities()) {
+
+				// Don't clear the selection if tree was clicked
+				if (obj instanceof HCTreeNodeEntity) {
+					HCTreeNodeEntity entity = (HCTreeNodeEntity) obj;
+					if (entity.getArea().intersects(selectionRect)) {
 						return;
-					}					
+					}
 				}
-				
-				if(obj instanceof HeatMapBlockEntity){
-					HeatMapBlockEntity entity = (HeatMapBlockEntity)obj;
-					
-					if(entity.getArea().intersects(selectionRect)){
-						
-						if(!reversed){
+
+				if (obj instanceof HeatMapBlockEntity) {
+					HeatMapBlockEntity entity = (HeatMapBlockEntity) obj;
+
+					if (entity.getArea().intersects(selectionRect)) {
+
+						if (!reversed) {
 							newSelection.addAll(orders.visibleToBean(entity.getRow()));
 						} else {
 							newSelection.add(entity.getColumn());
 						}
-					}					
+					}
 				}
 			}
-			
-			//New selections can't be put directly to selectedIndexes, because every other occurrence
-			//of block (several in one line) inside selection rectangle would undo selection
-			
-			for(Integer row: newSelection){
-				if(selected.contains(row)){
+
+			// New selections can't be put directly to selectedIndexes, because every other occurrence
+			// of block (several in one line) inside selection rectangle would undo selection
+
+			for (Integer row : newSelection) {
+				if (selected.contains(row)) {
 					selected.remove(row);
 				} else {
 					selected.add(row);
 				}
 			}
-			
+
 			showSelection(true);
 		}
 	}
-	
-	
-	
-	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt instanceof RowChoiceEvent && evt.getSource() != this 
-				&& ((RowChoiceEvent) evt).getData() == selectionBean) {
 
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (evt instanceof RowChoiceEvent && evt.getSource() != this && ((RowChoiceEvent) evt).getData() == selectionBean) {
 			updateSelectionsFromApplication(false);
 		}
 	}
-	
+
 	protected void updateSelectionsFromApplication(boolean dispatchEvent) {
 		RowSelectionManager manager = application.getSelectionManager().getRowSelectionManager(selectionBean);
 
 		orders.updateVisibleIndexes();
-		
+
 		selected.clear();
-		for (int i : manager.getSelectedRows()){
-			selected.add(i);			
-		}				
-		
-		showSelection(dispatchEvent);					
-	}		
-	
-	private void showSelection(boolean dispatchEvent){
-		
+		for (int i : manager.getSelectedRows()) {
+			selected.add(i);
+		}
+
+		showSelection(dispatchEvent);
+	}
+
+	protected void showSelection(boolean dispatchEvent) {
+
 		Selection[] detailedSelection;
-		
-		if(!reversed){
+
+		if (!reversed) {
 			detailedSelection = calculateRowSelectionDetails();
 		} else {
 			detailedSelection = calculateColumnSelectionDetails();
-		}		
-		
+		}
+
 		hcPlot.showSelection(detailedSelection, !reversed);
-			
-		list.setSelectedRows(selected, this, dispatchEvent, selectionBean);		
+
+		list.setSelectedRows(selected, this, dispatchEvent, selectionBean);
 	}
-	
-	private Selection[] calculateRowSelectionDetails(){
-		//Number of rows represented by each visible row
+
+	private Selection[] calculateRowSelectionDetails() {
+		// Number of rows represented by each visible row
 		int[] closedRows = orders.getCountOfVisibleReferences();
-		//Number of selected in each visible row
-		int[] selectedRows = new int[closedRows.length];	
-		//Is each visible row fully, partially or not at all selected
+		// Number of selected in each visible row
+		int[] selectedRows = new int[closedRows.length];
+		// Is each visible row fully, partially or not at all selected
 		Selection[] detailedSelection = new Selection[closedRows.length];
 
-
-		for(int selectedRow : selected){
+		for (int selectedRow : selected) {
 			selectedRows[orders.beanToVisible(selectedRow)]++;
 		}
 
-		for(int i = 0; i < selectedRows.length; i++){
-			if(selectedRows[i] == 0){
+		for (int i = 0; i < selectedRows.length; i++) {
+			if (selectedRows[i] == 0) {
 				detailedSelection[i] = Selection.NO;
 
-			} else if(selectedRows[i] == closedRows[i]){
+			} else if (selectedRows[i] == closedRows[i]) {
 				detailedSelection[i] = Selection.YES;
 
-			} else if(selectedRows[i] < closedRows[i]){
+			} else if (selectedRows[i] < closedRows[i]) {
 				detailedSelection[i] = Selection.PARTIAL;
 			}
 		}
-		
-		return detailedSelection;		
-	}
-	
-	private Selection[] calculateColumnSelectionDetails(){
-		//Columns are already in right order, so just convert the selections to right format
-		Selection[] detailedSelection = 
-			new Selection[hcPlot.getDataset().getHeatMap().getColumnsCount()];
 
-		for(int i = 0; i < detailedSelection.length; i++){
-			if(selected.contains(i)){
+		return detailedSelection;
+	}
+
+	private Selection[] calculateColumnSelectionDetails() {
+		// Columns are already in right order, so just convert the selections to right format
+		Selection[] detailedSelection = new Selection[hcPlot.getDataset().getHeatMap().getColumnsCount()];
+
+		for (int i = 0; i < detailedSelection.length; i++) {
+			if (selected.contains(i)) {
 				detailedSelection[i] = Selection.YES;
-			} else { 
+			} else {
 				detailedSelection[i] = Selection.NO;
 			}
 		}

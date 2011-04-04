@@ -1,4 +1,4 @@
-# ANALYSIS "aCGH tools"/"Group tests for called aCGH data" (Statistical tests between two or more groups for called aCGH data. The testing is recommended to be performed after running the Identify common regions from called aCGH data tool.)
+# ANALYSIS "aCGH"/"Group tests for called aCGH data" (Statistical tests between two or more groups for called aCGH data. The testing is recommended to be performed after running the Identify common regions from called aCGH data tool.)
 # INPUT GENE_EXPRS regions.tsv, GENERIC phenodata.tsv
 # OUTPUT groups-test.tsv
 # PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)

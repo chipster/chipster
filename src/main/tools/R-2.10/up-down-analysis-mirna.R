@@ -12,9 +12,11 @@
 
 # Up-down analysis of miRNA targets
 # MG, 25.2.2010
+# MG, 10.2.2011, now gets the gene symbols from the org.HS.eg.db package and adds rownames the output tables to allow use of Venn diagram
 
 # Loads the libraries
 library(RmiR)
+library(org.Hs.eg.db)
 
 # Loads the normalized data and phenodata files
 data_1 <- read.table(file="normalized_mirna.tsv", header=T, sep="\t", row.names=1)
@@ -91,6 +93,22 @@ if (match("merged.table",ls(),nomatch=0)==0) {
 merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4,
 		annotation=chip.type, verbose=TRUE)
 
+# Change the symbols that come from the read.mir() function into
+# the ones that come from the org.Hs.eg.db package
+all_genes <- org.Hs.egSYMBOL
+mapped_genes <- mappedkeys(all_genes)
+mapped_genes  <- as.list(all_genes[mapped_genes])
+symbols_list <- unlist(mapped_genes[as.character(merged.table$gene_id) ])
+merged.table$symbol <- symbols_list
+
+# Change the column names for sake of consistency with other tools
+colnames (merged.table) [1] <- "entrez_id"
+colnames (merged.table) [2] <- "miRNA"
+
+# Add rownames to allow use of Venn diagrams
+# Construct the names from combining the miRNA nameand the target gene symbol
+rownames (merged.table) <- paste (merged.table[,2],"_",merged.table[,4],sep="")
+
 # Identify the miRNA-gene pairs that are behaving oppositely
 mirna.ratio <- merged.table$mirExpr
 gene.ratio <- merged.table$geneExpr
@@ -98,5 +116,7 @@ up.mirna.down.gene <- merged.table[(mirna.ratio>=0 & gene.ratio<0),1:5]
 down.mirna.up.gene <- merged.table[(mirna.ratio<0 & gene.ratio>=0),1:5]
 
 # Write the results to tables to be read into Chipster
-write.table(up.mirna.down.gene, file="mirna-up-gene-down.tsv", sep="\t", quote=FALSE, row.names=FALSE)
-write.table(down.mirna.up.gene, file="mirna-down-gene-up.tsv", sep="\t", quote=FALSE, row.names=FALSE)
+write.table(up.mirna.down.gene, file="mirna-up-gene-down.tsv", sep="\t", quote=FALSE, row.names=TRUE)
+write.table(down.mirna.up.gene, file="mirna-down-gene-up.tsv", sep="\t", quote=FALSE, row.names=TRUE)
+
+# EOF

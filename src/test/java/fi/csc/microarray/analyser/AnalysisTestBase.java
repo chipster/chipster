@@ -61,7 +61,7 @@ public class AnalysisTestBase extends MessagingTestBase {
 	
 
 	@BeforeSuite(alwaysRun = true)
-	protected void setUp() throws Exception {
+	public void setUp() throws Exception {
 		super.setUp();
 		this.manager = new FSDataManager();
 		this.executor = new TaskExecutor(super.endpoint, manager);
@@ -69,7 +69,7 @@ public class AnalysisTestBase extends MessagingTestBase {
 	}
 
 	@AfterSuite(alwaysRun = true)
-	protected void tearDown() throws Exception {
+	public void tearDown() throws Exception {
 		System.out.println("tear down");
 		super.tearDown();
 		System.out.println("tear down done");

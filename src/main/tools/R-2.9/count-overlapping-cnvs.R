@@ -1,11 +1,11 @@
-# ANALYSIS "aCGH tools"/"Count overlapping CNVs" (Counts overlapping CNVs from the database of genomic variants.)
+# ANALYSIS "aCGH"/"Count overlapping CNVs" (Counts overlapping CNVs from the database of genomic variants.)
 # INPUT GENERIC normalized.tsv
 # OUTPUT cnvs.tsv
 # PARAMETER genome.build [GRCh37, NCBI36, NCBI35] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16.)
 
 # count-overlapping-cnvs.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-05
+# 2011-03-07
 
 dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 
@@ -21,11 +21,14 @@ dat2 <- dat[1:first.data.col-1]
 
 # load cnvs
 if (genome.build=='NCBI35') {
-  cnv <- read.table('http://projects.tcag.ca/variation/downloads/variation.hg17.v9.mar.2010.txt', header=TRUE, sep='\t', as.is=TRUE)
+  # cnv <- read.table('http://projects.tcag.ca/variation/downloads/variation.hg17.v10.nov.2010.txt', header=TRUE, sep='\t', as.is=TRUE)
+  cnv <- read.table(file.path(chipster.tools.path, 'DGV', 'variation.hg17.v10.nov.2010.txt'), header=TRUE, sep='\t', as.is=TRUE)
 } else if (genome.build=='NCBI36') {
-  cnv <- read.table('http://projects.tcag.ca/variation/downloads/variation.hg18.v9.mar.2010.txt', header=TRUE, sep='\t', as.is=TRUE)
+  # cnv <- read.table('http://projects.tcag.ca/variation/downloads/variation.hg18.v10.nov.2010.txt', header=TRUE, sep='\t', as.is=TRUE)
+  cnv <- read.table(file.path(chipster.tools.path, 'DGV', 'variation.hg18.v10.nov.2010.txt'), header=TRUE, sep='\t', as.is=TRUE)
 } else {
-  cnv <- read.table('http://projects.tcag.ca/variation/downloads/variation.hg19.v9.mar.2010.txt', header=TRUE, sep='\t', as.is=TRUE)
+  # cnv <- read.table('http://projects.tcag.ca/variation/downloads/variation.hg19.v10.nov.2010.txt', header=TRUE, sep='\t', as.is=TRUE)
+  cnv <- read.table(file.path(chipster.tools.path, 'DGV', 'variation.hg19.v10.nov.2010.txt'), header=TRUE, sep='\t', as.is=TRUE)
 }
 cnv <- cnv[cnv$VariationType == 'CopyNumber',]
 cnv$Chr <- factor(substr(cnv$Chr, 4, 5), levels=c(1:22, 'X', 'Y', 'MT'), ordered=TRUE)

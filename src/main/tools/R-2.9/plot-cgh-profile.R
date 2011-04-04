@@ -1,4 +1,4 @@
-# ANALYSIS "aCGH tools"/"Plot copy number profiles from called aCGH data" (Plot copy number profiles of individual arrays from called aCGH data.)
+# ANALYSIS "aCGH"/"Plot copy number profiles from called aCGH data" (Plot copy number profiles of individual arrays from called aCGH data.)
 # INPUT GENE_EXPRS aberrations.tsv, GENERIC phenodata.tsv
 # OUTPUT cgh-profile.png
 # PARAMETER samples STRING DEFAULT 1 (The numbers of the samples to be plotted, separated by commas. Ranges are also supported (e.g. 1,3,7-10).)
@@ -8,7 +8,7 @@
 
 # plot-cgh-profile.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-05
+# 2010-10-12
 
 library(CGHcall)
 
@@ -74,12 +74,9 @@ for (item in items) {
   chrs.to.plot <- c(chrs.to.plot, seq(range[1], range[length(range)]))
 }
 chrs.to.plot <- unique(chrs.to.plot)
-chrs.to.plot <- chrs.to.plot[chrs.to.plot %in% 0:25]
+chrs.to.plot <- chrs.to.plot[chrs.to.plot %in% dat$chromosome]
 if (length(chrs.to.plot)==0)
   chrs.to.plot <- 0
-
-# remove chromosomes that are out of bounds
-chrs.to.plot <- chrs.to.plot[chrs.to.plot %in% dat$chromosome]
 
 # plot
 bitmap(file='cgh-profile.png', width=image.width/72, height=image.height/72)

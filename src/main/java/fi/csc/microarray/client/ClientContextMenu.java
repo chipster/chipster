@@ -220,7 +220,7 @@ public class ClientContextMenu extends JPopupMenu implements ActionListener, Pop
 			// phenodata cannot link to phenodata
 			if (!((DataBean) items.get(0)).queryFeatures("/phenodata").exists()) {
 
-				List<DataBean> allDatas = application.getAllDataBeans();
+				List<DataBean> allDatas = application.getDataManager().databeans();
 
 				allDatas.remove(selectedItem); // cannot link to itself
 

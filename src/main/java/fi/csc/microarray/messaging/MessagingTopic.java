@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TemporaryTopic;
 import javax.jms.Topic;
@@ -107,7 +108,16 @@ public class MessagingTopic {
 		MapMessage mapMessage = session.createMapMessage();
 		message.marshal(mapMessage);
 		
-		session.createProducer(topic).send(mapMessage);
+		MessageProducer producer = null;
+		try {
+			producer = session.createProducer(topic);
+			producer.send(mapMessage);
+		} finally {
+			try {
+				producer.close();
+			} catch (Exception e) {
+			}
+		}
 	}
 
 	/**

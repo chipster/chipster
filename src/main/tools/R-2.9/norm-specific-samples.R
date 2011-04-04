@@ -1,12 +1,15 @@
 # ANALYSIS Normalisation/"Normalize to specific samples" (Normalizes data to specific samples. 
-# The samples to be normalized are coded with 1 in one column of the phenodata. The samples to be normalized to
-# are coded with 0 in the same column.)
+# The samples to be normalized should be coded with 1 in one column of the phenodata, whereas the samples
+# to be used as reference and normalize against should be coded with 0 in the same column.)
 # INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT normalized2samples.tsv
 # PARAMETER column.to.normalize.by METACOLUMN_SEL DEFAULT group (Phenodata column containing the samples to be normalized)
-
+# PARAMETER scale [log, linear] DEFAULT log (Specifies if the data has been log-transformed or is in linear scale.)
 
 # Normalize the data to specific samples
 # JTT 5.12.2008
+#
+# MG, 23.12.2010
+# Modified to handle linear scale data as well
 
 # Loads the data file
 file<-c("normalized.tsv")
@@ -23,10 +26,10 @@ extract<-phenodata[,grep(column.to.normalize.by, colnames(phenodata))]
 
 # Sanity checks
 if(length(unique(extract))>2) {
-   stop("You have specified more than two groups! You need to define exactly two groups.")
+   stop("CHIPSTER-NOTE: You have specified more than two groups! You need to define exactly two groups.")
 }
 if(max(extract>1)) {
-   stop("The groups should be defined with 0s and 1s! You have numbers larger than 1 in the definitions.")
+   stop("CHIPSTER-NOTE: The groups should be defined with 0s and 1s! You have numbers larger than 1 in the definitions.")
 }
 
 # Extracting the samples
@@ -36,9 +39,17 @@ dat1<-as.data.frame(dat2[,which(extract==1)])
 # Normalization values
 nv<-(rowSums(dat0)/ncol(dat0))
 
+	
 # Normalization
-for(i in 1:ncol(dat2)) {
-   dat2[,i]<-dat2[,i]-nv
+if (scale == "linear") {
+	for(i in 1:ncol(dat2)) {
+   		dat2[,i]<-dat2[,i]/nv
+	}
+}
+if (scale == "log") {
+	for(i in 1:ncol(dat2)) {
+		dat2[,i]<-dat2[,i]-nv
+	}
 }
 
 # Replace the data in the original object with normalized values
@@ -49,3 +60,5 @@ for(i in 1:length(datacols)) {
 
 # Write out data
 write.table(data.frame(dat), file="normalized2samples.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+
+# EOF

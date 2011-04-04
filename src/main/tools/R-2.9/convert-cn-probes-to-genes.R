@@ -1,4 +1,4 @@
-# ANALYSIS "aCGH tools"/"Convert called aCGH data from probes to genes" (Using the chromosomal locations of the probes of an aCGH data set, convert the data from probe-based to gene-based. The probes from which the copy number call for a given gene are determined as follows. If there are probes overlapping with the position of the gene, they are used. In case of no overlaps, the last preceding and first tailing probe are used.)
+# ANALYSIS "aCGH"/"Convert called aCGH data from probes to genes" (Using the chromosomal locations of the probes of an aCGH data set, convert the data from probe-based to gene-based. The probes from which the copy number call for a given gene are determined as follows. If there are probes overlapping with the position of the gene, they are used. In case of no overlaps, the last preceding and first tailing probe are used.)
 # INPUT GENE_EXPRS aberrations.tsv
 # OUTPUT gene-aberrations.tsv
 # PARAMETER method.for.calls [majority, unambiguous] DEFAULT majority (The method majority means that if more than 50% of these probes give an aberrated signal, that call is used for the gene. The unambiguous method requires that all of the probes have the same call, otherwise the gene will be labeled as normal.)
@@ -7,7 +7,7 @@
 
 # convert-cn-probes-to-genes.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-05
+# 2011-03-07
 
 dat <- read.table('aberrations.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 
@@ -16,9 +16,12 @@ if (length(setdiff(pos, colnames(dat)))!=0)
   stop('CHIPSTER-NOTE: This script can only be run on files that have the following columns: chromosome, start, end.')
 
 # load genes
-genes <- read.table(paste('http://www.cangem.org/download.php?platform=CG-PLM-26&flag=', genome.build, sep=''), sep='\t', header=TRUE, row.names=1, as.is=TRUE)
+# genes <- read.table(paste('http://www.cangem.org/download.php?platform=CG-PLM-26&flag=', genome.build, sep=''), sep='\t', header=TRUE, row.names=1, as.is=TRUE)
+genes <- read.table(file.path(chipster.tools.path, 'CanGEM', 'Ensembl_Genes', paste(genome.build, '.txt', sep='')), sep='\t', header=TRUE, row.names=1, as.is=TRUE)
 colnames(genes) <- tolower(colnames(genes))
 colnames(genes)[colnames(genes)=='chr'] <- 'chromosome'
+colnames(genes)[colnames(genes)=='band'] <- 'cytoband'
+colnames(genes)[colnames(genes)=='cnv.per.mb'] <- 'cnv.per.Mb'
 
 # remove genes from chromosomes not present in the array data
 genes <- genes[genes$chromosome %in% dat$chromosome,]
@@ -51,8 +54,8 @@ logratios <- dat[,grep("^chip\\.", colnames(dat))]
 x <- colnames(dat)
 suffix <- sub('^chip\\.', '', x[grep('^chip\\.', x)[1]])
 matrices <- sub(suffix, '', x[grep(suffix, x)])
-matrices <- matrices[matrices != 'flag']
-matrices <- matrices[matrices != 'chip']
+matrices <- matrices[matrices != 'flag.']
+matrices <- matrices[matrices != 'chip.']
 for (m in matrices)
   logratios <- cbind(logratios, dat[,grep(m, colnames(dat))])
 
