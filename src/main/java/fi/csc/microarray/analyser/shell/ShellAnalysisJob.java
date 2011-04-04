@@ -31,7 +31,7 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
 	public static class ShellParameterSecurityPolicy implements ParameterSecurityPolicy {
 		
 		private static final int MAX_VALUE_LENGTH = 1000;
-		public static String COMMAND_LINE_SAFE_VALUE_PATTERN = "[\\w+\\-_:\\.,*()]*"; // Only word characters and some special symbols are allowed
+		public static String COMMAND_LINE_SAFE_VALUE_PATTERN = "[\\w+\\-_:\\.,*()= ]*"; // Only word characters and some special symbols are allowed
 	
 		public boolean isValueValid(String value, ParameterDescription parameterDescription) {
 			
