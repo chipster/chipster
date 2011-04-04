@@ -24,8 +24,14 @@ dat <- read.table(file, header=T, sep="\t", row.names=1, colClasses=colclasses)
 calls<-dat[,grep("flag", names(dat))]
 dat2<-data.frame(dat[,grep("chip", names(dat))])
 
-# Generates the variables
+# Check whether column names contain "chip." and, if so, remove from name
 sample<-colnames(dat2)
+if (length (grep("chip.", sample)) >= 1) {
+	sample<-sub("chip.","",sample)
+}
+
+# Generates the variables
+# sample<-colnames(dat2)
 group<-c(rep("", ncol(dat2)))
 if(chiptype=="empty") {
    chiptype<-c("empty")

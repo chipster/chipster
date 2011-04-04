@@ -60,11 +60,11 @@ import fi.csc.microarray.client.dataview.GraphPanel;
 import fi.csc.microarray.client.dataview.TreePanel;
 import fi.csc.microarray.client.dialog.ChipsterDialog;
 import fi.csc.microarray.client.dialog.ClipboardImportDialog;
-import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.dialog.DialogInfo;
 import fi.csc.microarray.client.dialog.ErrorDialogUtils;
 import fi.csc.microarray.client.dialog.ImportSettingsAccessory;
 import fi.csc.microarray.client.dialog.SnapshotAccessory;
+import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.dialog.URLImportDialog;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
@@ -80,6 +80,7 @@ import fi.csc.microarray.client.selection.DatasetChoiceEvent;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.tasks.TaskExecutor;
+import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
@@ -126,7 +127,7 @@ public class SwingClientApplication extends ClientApplication {
 	private static final long SLOW_VISUALISATION_LIMIT = 5 * 1000;
 	private static final long VERY_SLOW_VISUALISATION_LIMIT = 20 * 1000;
 
-	/**W
+	/**
 	 * Logger for this class
 	 */
 	private static Logger logger;
@@ -856,20 +857,40 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	public void reportTaskError(Task task) throws MicroarrayException {
-		String title = "Running " + task.getNamePrettyPrinted() + " failed. ";
-		String message = "You may have used a tool or parameters which are unsuitable for the selected dataset, or " + "there might be a bug in the analysis tool itself.\n\n" + "The details below may provide hints about the problem. The most useful information is usually at the few last lines.";
+		String title;
+		String message;
+		
+		//
+		boolean userFixable = task.getState() == State.FAILED_USER_ERROR && task.getErrorMessage() != null && !task.getErrorMessage().equals("");
+		
+		// user-friendly message
+		if (userFixable) {
+			title = task.getErrorMessage();
+			message = task.getNamePrettyPrinted() + " was stopped. ";
+		} 
+		
+		// generic message
+		else {
+			title = task.getNamePrettyPrinted() + " did not complete successfully. ";
+			message = "You may have used a tool or parameters which are unsuitable for the selected dataset, or " + "there might be a bug in the analysis tool itself.\n\n" + "The details below may provide hints about the problem.";
+		}		
 
+		// details
 		String details = "";
 		if (task.getErrorMessage() != null) {
-			details = task.getErrorMessage();
+			details += task.getErrorMessage() + "\n\n";
 		}
+		details += "----------------------------------------------------------------------\n";
+		
 		if (task.getScreenOutput() != null) {
-			details = details + "\n\n" + task.getScreenOutput();
+			details += task.getScreenOutput();
 		}
 		
+		DetailsVisibility detailsVisibility = userFixable ? DetailsVisibility.DETAILS_ALWAYS_HIDDEN : DetailsVisibility.DETAILS_HIDDEN;
 		
-		DialogInfo dialogInfo = new DialogInfo(Severity.WARNING, title, message, details);
-		ChipsterDialog.showDialog(mainFrame, dialogInfo, ChipsterDialog.DetailsVisibility.DETAILS_ALWAYS_VISIBLE, false);
+		// show dialog
+		DialogInfo dialogInfo = new DialogInfo(Severity.INFO, title, message, details);
+		ChipsterDialog.showDialog(mainFrame, dialogInfo, detailsVisibility, false);
 	}
 
 	public void reportException(Exception e) {
@@ -1186,7 +1207,8 @@ public class SwingClientApplication extends ClientApplication {
 
 			if (returnValue == 0) {
 				try {
-					saveSession();
+					saveSessionAndQuit();
+					return;
 				} catch (Exception exp) {
 					this.showErrorDialog("Session saving failed", exp);
 					return;
@@ -1197,6 +1219,11 @@ public class SwingClientApplication extends ClientApplication {
 				return;
 			}
 		}
+		
+		quitImmediately();
+	}
+	
+	public void quitImmediately() {
 
 		// hide immediately to look more reactive...
 		childScreens.disposeAll();
@@ -1645,7 +1672,7 @@ public class SwingClientApplication extends ClientApplication {
 					 * saving after opening session. However, if there was datasets already, combination
 					 * of them and new session can be necessary to save. This has to set after the import, because 
 					 */
-					boolean somethingToSave = getAllDataBeans().size() != 0;
+					boolean somethingToSave = manager.databeans().size() != 0;
 					
 					final List<DataItem> newItems = manager.loadSnapshot(sessionFile, manager.getRootFolder(), application);
 					SwingUtilities.invokeAndWait(new Runnable() {
@@ -1662,8 +1689,17 @@ public class SwingClientApplication extends ClientApplication {
 		});
 	}
 	
+	
 	@Override
 	public void saveSession() {
+		saveSession(false);
+	}
+
+	public void saveSessionAndQuit() {
+		saveSession(true);
+	}
+	
+	public void saveSession(final boolean quit) {
 
 		JFileChooser fileChooser = getSnapshotFileChooser(null);
 		int ret = fileChooser.showSaveDialog(this.getMainFrame());
@@ -1688,23 +1724,32 @@ public class SwingClientApplication extends ClientApplication {
 
 				}
 
+				// save
 				runBlockingTask("saving session", new Runnable() {
 
 					public void run() {
 
 						try {
+							// save
 							getDataManager().saveSnapshot(file, application);
-						} catch (IOException e) {
+
+							// quit
+							if (quit) {
+								quitImmediately();
+							}
+
+							menuBar.updateMenuStatus();
+							unsavedChanges = false;
+
+						
+						} catch (Exception e) {
 							throw new RuntimeException(e);
 						}
 					}
 				});
-				
-				menuBar.updateMenuStatus();
-				unsavedChanges = false;
-				
 			} catch (Exception exp) {
 				showErrorDialog("Saving session failed.", exp);
+				return;
 			}
 		}
 		menuBar.updateMenuStatus();

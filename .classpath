@@ -29,8 +29,16 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/activation.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/cron4j-1.1.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/testng-5.9-jdk15.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/activemq-all-5.4.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/batik-awt-util.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/batik-dom.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/batik-svg-dom.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/batik-svggen.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/batik-util.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/batik-xml.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/icepdf-core.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/icepdf-viewer.jar" sourcepath="ext/lib-src/ICEpdf-4.1.4-src.zip"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/activemq-all-5.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jcommon-1.0.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jfreechart-1.0.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/viski-chipster-1.0.1.jar"/>

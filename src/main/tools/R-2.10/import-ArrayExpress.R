@@ -5,6 +5,8 @@
 
 # 13.1.2010
 # JTT
+#
+# modified by MG, 30.4.2010 to add detection calls and remove offending characters
 
 # Loads the libraries
 library(ArrayExpress)
@@ -17,7 +19,11 @@ if(class(dat)=="AffyBatch") {
    library(affy)
    dat2<-rma(dat)
    dat2<-exprs(dat2)
+   calls<-exprs(mas5calls(dat))
+   calls<-as.data.frame(calls)
    colnames(dat2)<-paste("chip.", colnames(dat2), sep="")
+   names(calls)<-paste("flag.", names(calls), sep="")
+   dat2<-data.frame(dat2, calls)
    chiptype<-dat@annotation
 }
 
@@ -38,7 +44,13 @@ if(chiptype=="empty" | class(a)=="try-error") {
 
 # Writes out a phenodata table
 sample<-rownames(pData(dat))
+# remove any comment character from phenodata info
+phenodata.info <- pData(dat)
+for (count in 1:dim (phenodata.info) [2]) {
+	phenodata.info[,count] <- gsub("#", "", phenodata.info[,count])
+}
+
 group<-c(rep("", nrow(pData(dat))))
 chiptype<-paste(chiptype, ".db", sep="")
-write.table(data.frame(sample=sample, chiptype=chiptype, group=group, pData(dat)), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+write.table(data.frame(sample=sample, chiptype=chiptype, group=group, phenodata.info), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 

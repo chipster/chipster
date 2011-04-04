@@ -19,6 +19,7 @@ import javax.jms.JMSException;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.ApplicationConstants;
@@ -36,6 +37,7 @@ import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.messaging.message.NamiMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
+import fi.csc.microarray.messaging.message.JobMessage.ParameterSecurityPolicy;
 import fi.csc.microarray.service.KeepAliveShutdownHandler;
 import fi.csc.microarray.service.ShutdownCallback;
 import fi.csc.microarray.util.MemUtil;
@@ -48,6 +50,26 @@ import fi.csc.microarray.util.MemUtil;
  */
 public class AnalyserServer extends MonitoredNodeBase implements MessagingListener, ResultCallback, ShutdownCallback {
 
+	private static class InternalParameterSecurityPolicy implements ParameterSecurityPolicy {
+
+		private static final int MAX_VALUE_LENGTH = 1000;
+		
+		public boolean isValueValid(String value, ParameterDescription parameterDescription) {
+			
+			// Check parameter size (DOS protection)
+			if (value.length() > MAX_VALUE_LENGTH) {
+				return false;
+				
+			} else {
+				return true;
+			}
+		}
+		
+	}
+	
+	private static InternalParameterSecurityPolicy INTERNAL_PARAMETER_SECURITY_POLICY = new InternalParameterSecurityPolicy();
+	private static AnalysisDescription SOURCECODE_FETCH_DESCRIPTION;
+	
 	public static final String DESCRIPTION_OUTPUT_NAME = "description";
 	public static final String SOURCECODE_OUTPUT_NAME = "sourcecode";
 	
@@ -109,9 +131,16 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	 */
 	public AnalyserServer() throws Exception {
 		
-		// initialise dir, config and logging
+		// Initialise dir, config and logging
 		DirectoryLayout.initialiseServerLayout(Arrays.asList(new String[] {"comp"}));
 		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
+
+		// Initialise static variables, so late because they need logging
+		SOURCECODE_FETCH_DESCRIPTION = new AnalysisDescription(null);
+		SOURCECODE_FETCH_DESCRIPTION.setName("Fetch sourcecode (system internal operation)");
+		SOURCECODE_FETCH_DESCRIPTION.addParameter(new AnalysisDescription.ParameterDescription("tool id", "ID (technical name) of the tool", false));
+
+		// Initialise instance variables
 		this.receiveTimeout = configuration.getInt("comp", "receive-timeout");
 		this.scheduleTimeout = configuration.getInt("comp", "schedule-timeout");
 		this.timeoutCheckInterval = configuration.getInt("comp", "timeout-check-interval");
@@ -530,7 +559,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		ResultMessage resultMessage = new ResultMessage("", JobState.COMPLETED, "", "", 
 				"", requestMessage.getReplyTo());
 		try {
-			String name = new String(requestMessage.getParameters().get(0));
+			String name = new String(requestMessage.getParameters(INTERNAL_PARAMETER_SECURITY_POLICY, SOURCECODE_FETCH_DESCRIPTION).get(0));
 			logger.info("sending source code for " + name);
 			String sourceCode = toolRepository.getDescription(name).getSourceCode();
 			
@@ -541,6 +570,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			
 			URL url = fileBroker.addFile(new ByteArrayInputStream(bytes), null);
 			resultMessage.addPayload(SOURCECODE_OUTPUT_NAME, url);
+			
 		} catch (Exception e) {
 			logger.error("Could not send analysis source code", e);
 			resultMessage.setState(JobState.ERROR);

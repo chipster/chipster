@@ -10,6 +10,9 @@
 
 # Dendrogram
 # JTT 3.10.2007
+#
+# MG 25.11.2010
+# Increased the gene/sample limit to 20000
 
 # Renaming variables
 w<-image.width
@@ -28,7 +31,7 @@ dat<-read.table(file, header=T, sep="\t", row.names=1)
 
 # Loads the phenodata
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
-groups<-phenodata[,grep(column, colnames(phenodata))]
+groups<-phenodata[,pmatch(column,colnames(phenodata))]
 
 # Separates expression values and flags
 calls<-dat[,grep("flag", names(dat))]
@@ -40,8 +43,8 @@ if(margin=="chips") {
    dat2<-t(dat2)        
 }
 
-if (nrow(dat2) > 1000) {
-  stop("Hierarchical clustering dendrogram can be plotted on maximum 1000 of genes/samples");
+if (nrow(dat2) > 20000) {
+  stop("Hierarchical clustering dendrogram can be plotted on maximum 2000 of genes/samples");
 }
 
 # Does the clustering

@@ -15,6 +15,7 @@
 # Modifications by MG
 # Changes to custom.chiptype PARAMETER to account for changes in naming of custom CDF packages (version 12), 23.9.2009
 # Changes to cope with dropped custom package support for certain array types, 12.11.2009
+# Changes to force local custom CDF to load instead of using Brainarray repository, 27.8.2010
 
 # Renaming variables
 norm<-normalization.method
@@ -126,7 +127,14 @@ if(norm=="gcrma" & custom.chiptype=="empty") {
    dat2<-data.frame(dat2, calls)
 }
 if(norm=="gcrma" & custom.chiptype!="empty") {
-   dat2<-exprs(gcrma(dat))
+	# load the annotation packages
+	lib_probes <- paste(chiptype,"probe", sep="")
+	lib_cdf <- paste(chiptype, "cdf", sep="")
+	lib_db <- paste(chiptype, ".db", sep="")
+	library(package=lib_probes, character.only=T)
+	library(package=lib_cdf, character.only=T)
+	library(package=lib_db, character.only=T)
+	dat2<-exprs(gcrma(dat, source="local"))
    calls<-exprs(mas5calls(dat))
    dat2<-as.data.frame(round(dat2, digits=2))
    calls<-as.data.frame(calls)

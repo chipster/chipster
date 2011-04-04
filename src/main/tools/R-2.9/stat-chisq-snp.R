@@ -21,7 +21,7 @@ dat2<-dat[,grep("chip", names(dat))]
 
 # Test needs a parameter "groups" that specifies the grouping of the samples
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
-groups<-phenodata[,grep(column, colnames(phenodata))]
+groups<-phenodata[,pmatch(column,colnames(phenodata))]
 
 # Select only samples in group 1 (controls)
 dat2<-dat[,which(groups==1)]

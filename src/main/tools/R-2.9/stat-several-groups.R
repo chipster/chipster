@@ -17,6 +17,8 @@
 
 # Several groups parametric and non-parametric tests
 # JTT 4.7.2006
+#
+# MG, 24.1.2011 modified the Kruskal/Wallis test
 
 # Loads the libraries
 library(multtest)
@@ -40,11 +42,11 @@ dat2<-dat[,grep("chip", names(dat))]
 
 # Test needs a parameter "groups" that specifies the grouping of the samples
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
-groups<-phenodata[,grep(column, colnames(phenodata))]
+groups<-phenodata[,pmatch(column,colnames(phenodata))]
 
 # Sanity checks
 if(ncol(dat2)<4) {
-   stop("You need to have at least four chips to run this analysis")
+   stop("CHIPSTER-NOTE: You need to have at least four chips to run this analysis")
 }
 
 # Testing
@@ -89,7 +91,7 @@ if(meth=="ANOVA") {
 if(meth=="Kruskal-Wallis") {
    p<-c()
    for(i in 1:nrow(dat2)) {
-      p<-c(p, kruskal.test(dat2[i,], groups))
+	   p<-c(p, kruskal.test(as.numeric (dat2[i,]), groups)$p.value)
    }
    p.raw<-p
    if(adj.method=="none") {
@@ -147,7 +149,7 @@ if(meth=="ANOVA") {
 if(meth=="Kruskal-Wallis") {
    p<-c()
    for(i in 1:nrow(dat2)) {
-      p<-c(p, kruskal.test(dat2[i,], groups))
+	   p<-c(p, kruskal.test(as.numeric (dat2[i,]), groups)$p.value)
    }
    p.raw<-p
    if(adj.method=="none") {

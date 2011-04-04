@@ -1,5 +1,6 @@
 package fi.csc.microarray.databeans.fs;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -31,6 +32,7 @@ import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.util.IOUtils;
 
 
 /**
@@ -67,49 +69,108 @@ public class FSSnapshottingSession {
 		this.application = application;
 	}
 	
-	private ZipOutputStream cpZipOutputStream = null;
 
-	public int saveSnapshot(File snapshot) throws IOException {
-																					
-		FileOutputStream fos = new FileOutputStream(snapshot);			
-		cpZipOutputStream = new ZipOutputStream(fos);					
-		cpZipOutputStream.setLevel(1); // quite slow with bigger values														
+	public void saveSnapshot(File sessionFile) throws IOException {
 
-		// write data and gather metadata simultanously
-		StringBuffer metadata = new StringBuffer("");
-		metadata.append("VERSION " + SNAPSHOT_VERSION + "\n");
-		
-		// generate all ids
-		int dataCount = generateIdsRecursively((FSDataFolder)manager.getRootFolder());
-		
-		// 1st pass, write most metadata
-		saveRecursively((FSDataFolder)manager.getRootFolder(), cpZipOutputStream, metadata);
-		
-		// 2nd pass for links (if written in one pass, input dependent operation parameters break when reading)
-		saveLinksRecursively((FSDataFolder)manager.getRootFolder(), metadata);
+		boolean replaceOldSession = sessionFile.exists();
 
-		writeFile(cpZipOutputStream, METADATA_FILENAME, 
-				new ByteArrayInputStream(metadata.toString().getBytes()));			
-		
-		cpZipOutputStream.finish();					
-		cpZipOutputStream.close();
-		
-		return dataCount;
+		File newSessionFile;
+		File backupFile = null;
+		if (replaceOldSession) {
+			// TODO maybe avoid overwriting existing temp file
+			newSessionFile = new File(sessionFile.getAbsolutePath() + "-temp.cs");
+			backupFile = new File(sessionFile.getAbsolutePath() + "-backup.cs");
+		} else {
+			newSessionFile = sessionFile;
+		}
+
+		ZipOutputStream zipOutputStream = null;
+		boolean createdSuccessfully = false;
+		try {
+			
+			zipOutputStream = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(newSessionFile)));
+			zipOutputStream.setLevel(1); // quite slow with bigger values														
+
+			// write data and gather metadata simultaneously
+			StringBuffer metadata = new StringBuffer("");
+			metadata.append("VERSION " + SNAPSHOT_VERSION + "\n");
+
+			// generate all ids
+			generateIdsRecursively((FSDataFolder)manager.getRootFolder());
+
+			// 1st pass, write most metadata
+			saveRecursively((FSDataFolder)manager.getRootFolder(), zipOutputStream, metadata);
+
+			// 2nd pass for links (if written in one pass, input dependent operation parameters break when reading)
+			saveLinksRecursively((FSDataFolder)manager.getRootFolder(), metadata);
+
+			writeFile(zipOutputStream, METADATA_FILENAME, 
+					new ByteArrayInputStream(metadata.toString().getBytes()));
+
+			zipOutputStream.finish();
+			zipOutputStream.close();
+			
+			// rename new session if replacing existing
+			if (replaceOldSession) {
+				
+				// original to backup
+				if (!sessionFile.renameTo(backupFile)) {
+					throw new IOException("Creating backup " + sessionFile + " -> " + backupFile + " failed.");
+				}
+					
+				// new to original
+				if (newSessionFile.renameTo(sessionFile)) {
+					createdSuccessfully = true;
+
+					// remove backup
+					backupFile.delete();
+				} else {
+					// try to move backup back to original
+					// TODO remove new session file?
+					if (backupFile.renameTo(sessionFile)) {
+						throw new IOException("Moving new " + newSessionFile + " -> " + sessionFile + " failed, " +
+								"restored original session file.");
+					} else {
+						throw new IOException("Moving new " + newSessionFile + " -> " + sessionFile + " failed, " +
+						"also restoring original file failed, backup of original is " + backupFile);
+					}
+				}
+			} 
+			
+			// no existing session
+			else {
+				createdSuccessfully = true;
+			}
+			
+		} catch (RuntimeException e) {
+			// createdSuccesfully is false, so file will be deleted in finally block
+			throw e;
+			
+		} catch (IOException e) {
+			// createdSuccesfully is false, so file will be deleted in finally block
+			throw e;
+
+		} finally {
+			IOUtils.closeIfPossible(zipOutputStream); // called twice for normal execution, not a problem
+			if (!replaceOldSession && !createdSuccessfully) {
+				newSessionFile.delete(); // do not leave bad session files hanging around
+			}
+		}
 	}
 	
 	private void writeFile(ZipOutputStream out, String name, InputStream in) throws IOException {
 			
 		int byteCount;
 		ZipEntry cpZipEntry = new ZipEntry(name);
-		cpZipOutputStream.putNextEntry(cpZipEntry );
+		out.putNextEntry(cpZipEntry );
 
 		byte[] b = new byte[DATA_BLOCK_SIZE];
 
 		while ( (byteCount = in.read(b, 0, DATA_BLOCK_SIZE)) != -1 ) {
-			cpZipOutputStream.write(b, 0, byteCount);
+			out.write(b, 0, byteCount);
 		}
 
-		cpZipOutputStream.closeEntry() ;							
+		out.closeEntry() ;							
 	}
 	
 	private int generateIdsRecursively(FSDataFolder folder) throws IOException {
@@ -383,7 +444,7 @@ public class FSSnapshottingSession {
 		// 2nd pass
 		for (String line : delayedProcessing) {
 			if (line.startsWith("OPERATION_PARAMETER ")) {
-				String[] split = line.split(" ");
+				String[] split = line.split(" ", 4); // split to (max.) 4 pieces, i.e., do no skip trailing whitespace (happens when paramValue is empty)  
 				String operId = split[1];
 				String paramName = split[2];
 				String paramValue = split[3];
@@ -405,7 +466,12 @@ public class FSSnapshottingSession {
 					"The dataset contents have not changed and you can use them as before, but the obsolete parameter has been removed from the history information of the dataset " +						
 					"and will not be saved in further sessions or workflows.";
 					String details = "Analysis tool: " + operation.getCategoryName() + " / " + operation.getName() + "\nObsolete parameter: " + paramName;
-					String dataName = operation.getBindings().size() == 1 ? operation.getBindings().get(0).getData().getName() : null;
+					String dataName = null;
+					if (operation.getBindings() != null) {
+						if (operation.getBindings().size() == 1) {
+							dataName = operation.getBindings().get(0).getData().getName();
+						}
+					}
 					warnAboutObsoleteContent(message, details, dataName);
 				}
 				
@@ -507,5 +573,4 @@ public class FSSnapshottingSession {
 	private String fetchId(DataItem item) {
 		return reversedItemIdMap.get(item).toString();
 	}
-
 }

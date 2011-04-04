@@ -1,5 +1,5 @@
 # ANALYSIS Statistics/"Correlate miRNA with target expression" (Performs a statistical test
-# to detect miRNA targets whose ecpression is significantly positively or negatively correlated
+# to detect miRNA targets whose expression is significantly positively or negatively correlated
 # to the expression of the miRNA.)
 # INPUT GENE_EXPRS normalized_mirna.tsv, GENE_EXPRS normalized_gene.tsv, GENERIC phenodata_mirna.tsv, GENERIC phenodata_gene.tsv
 # OUTPUT mirna-gene-positive-correlation.tsv, mirna-gene-negative-correlation.tsv
@@ -28,9 +28,13 @@
 
 # Correlation analysis of miRNA targets
 # MG, 11.2.2010
+# IS, 8.6.2010, bugfix
+# IS, 28.7.2010, now allows additional samples in the two data sets, but only those ones with a pair are used in the analysis
+# MG, 10.2.2011, now gets the gene symbols from the org.HS.eg.db package and adds rownames the output tables to allow use of Venn diagram
 
 # Loads the libraries
 library(RmiR)
+library(org.Hs.eg.db)
 
 # Loads the normalized data and phenodata files
 data_1 <- read.table(file="normalized_mirna.tsv", header=T, sep="\t", row.names=1)
@@ -57,12 +61,30 @@ mirna.data.2 <- mirna.data[,grep("chip", names(mirna.data))]
 gene.data.2 <- gene.data[,grep("chip", names(gene.data))]
 
 # Get sample order for matching the datasets
-mirna.order <- mirna.phenodata[,grep(order.column.mirna, colnames(mirna.phenodata))]
-gene.order <- mirna.phenodata[,grep(order.column.gene, colnames(gene.phenodata))]
+#mirna.order <- mirna.phenodata[,grep(order.column.mirna, colnames(mirna.phenodata))]
+#gene.order <- gene.phenodata[,grep(order.column.gene, colnames(gene.phenodata))]
+
+# check for unambiguity of sample identifiers
+if (nrow(mirna.phenodata)!=length(unique(mirna.phenodata[,order.column.mirna])))
+	stop('CHIPSTER-NOTE: Unambigous sample identifiers: ', paste(mirna.phenodata[,order.column.mirna], collapse=', ')) 
+if (nrow(gene.phenodata)!=length(unique(gene.phenodata[,order.column.gene])))
+	stop('CHIPSTER-NOTE: Unambigous sample identifiers: ', paste(gene.phenodata[,order.column.gene], collapse=', ')) 
+
+# pick those samples that do have a matching pair
+common.samples <- intersect(mirna.phenodata[,order.column.mirna], gene.phenodata[,order.column.gene])
+rownames(mirna.phenodata) <- mirna.phenodata[,order.column.mirna]
+rownames(gene.phenodata) <- gene.phenodata[,order.column.gene]
+mirna.phenodata$n <- 1:nrow(mirna.phenodata)
+gene.phenodata$n <- 1:nrow(gene.phenodata)
+mirna.order <- mirna.phenodata[common.samples, 'n']
+gene.order <- gene.phenodata[common.samples, 'n']
 
 # Read the chiptype that was used for the gene expression data
 if (id.type=="probe_id") {
 	chip.type <- as.character(gene.phenodata[1,grep("chiptype", names(gene.phenodata))])
+	if (length(grep(".db", chip.type)) == 0 & length(grep("pmcdf", chip.type)) == 0) {
+		chip.type <- paste(chip.type, ".db", sep="")
+	}
 }
 if (id.type=="entrez_id") {
 	chip.type <- "org.Hs.eg.db"
@@ -87,35 +109,35 @@ mirna.data.3 <- mirna.data.2[,order(mirna.order)]
 gene.data.3 <- gene.data.2[,order(gene.order)]
 
 # Create data set appropriate for correlation testing
-mirna.data.4 <- cbind(rownames(mirna.data.3), as.numeric(mirna.data.3[,1]))
-gene.data.4 <- cbind(rownames(gene.data.3), as.numeric(gene.data.3[,1]))
-mirna.data.4 <- as.data.frame(mirna.data.4)
-gene.data.4 <- as.data.frame(gene.data.4)
-mirna.data.4[,2] <- as.numeric(mirna.data.4[,2])
-gene.data.4[,2] <- as.numeric(gene.data.4[,2])
+mirna.data.4 <- data.frame(mirna=rownames(mirna.data.3), exprs=mirna.data.3[,1])
+gene.data.4 <- data.frame(gene=rownames(gene.data.3), exprs=gene.data.3[,1])
+
 # check that the gene list actually contain at least one miRNA target
 try(merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4,
 				annotation=chip.type), silent=TRUE)
+
 if (match("merged.table",ls(),nomatch=0)==0) {
-	stop("There were no targets found in either TarBase or PicTar databases
-for the supplied list of miRNA:s in the gene list selected.
-Try again by selecting a longer list of genes!")
+	stop("There were no targets found in either TarBase or PicTar databases for the supplied list of miRNA:s in the gene list selected. Try again by selecting a longer list of genes!")
 }
 merged.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4,
 		annotation=chip.type, verbose=TRUE)
 
 for (count in 2:number.conditions) {
-	mirna.data.4 <- cbind(rownames(mirna.data.3), as.numeric(mirna.data.3[,count]))
-	gene.data.4 <- cbind(rownames(gene.data.3), as.numeric(gene.data.3[,count]))
-	mirna.data.4 <- as.data.frame(mirna.data.4)
-	gene.data.4 <- as.data.frame(gene.data.4)
-	mirna.data.4[,2] <- as.numeric(mirna.data.4[,2])
-	gene.data.4[,2] <- as.numeric(gene.data.4[,2])
+	mirna.data.4 <- data.frame(mirna=rownames(mirna.data.3), exprs=mirna.data.3[,count])
+	gene.data.4 <- data.frame(gene=rownames(gene.data.3), exprs=gene.data.3[,count])
 	temp.table <- read.mir(gene=gene.data.4, mirna=mirna.data.4,
 			annotation=chip.type, verbose=TRUE)
 	temp.table
 	merged.table <- cbind (merged.table, temp.table)
 }
+
+# Change the symbols that come from the read.mir() function into
+# the ones that come from the org.Hs.eg.db package
+all_genes <- org.Hs.egSYMBOL
+mapped_genes <- mappedkeys(all_genes)
+mapped_genes  <- as.list(all_genes[mapped_genes])
+symbols_list <- unlist(mapped_genes[as.character(merged.table$gene_id) ])
+merged.table$symbol <- symbols_list
 
 # Extract the matching mirna and gene expression values into two vectors
 mirna.expression <- merged.table[, grep("mirExpr", names(merged.table))]
@@ -123,7 +145,7 @@ gene.expression <- merged.table[, grep("geneExpr", names(merged.table))]
 
 # Calculate the pearson correlation value for each mirna-gene pair
 results.table <- data.frame(merged.table$mature_miRNA, merged.table$gene_id, merged.table$symbol, correlation.coefficient=NA, correlation.p.value=NA)
-names (results.table) <- c("miRNA", "gene id", "gene symbol", "correlation coefficient", "p-value")
+names (results.table) <- c("miRNA", "entrez_id", "symbol", "correlation_coefficient", "p-value")
 number.mirna <- dim(merged.table)[1]
 for (mirna.count in 1:number.mirna) {
 	correlation.coefficient <- cor (as.numeric(mirna.expression[mirna.count,]),as.numeric(gene.expression[mirna.count,]), method=correlation.method)
@@ -132,18 +154,22 @@ for (mirna.count in 1:number.mirna) {
 	results.table[mirna.count,4] <- correlation.coefficient
 	results.table[mirna.count,5] <- correlation.p.value
 }
+results.table[,5] <- p.adjust(results.table[,5], method=p.value.adjustment.method)
+
+# Add rownames to allow use of Venn diagrams
+# Construct the names from combining the miRNA nameand the target gene symbol
+rownames (results.table) <- paste (results.table[,1],"_",results.table[,3],sep="")
 
 # Find genes with statistically significant positive correlation
-results.positive <- results.table[results.table[,4]<0,]
+results.positive <- results.table[results.table[,4]>0,]
 results.positive.significant <- results.positive[results.positive[,5]<=p.value.threshold,]
 
 # Find genes with statistically significant negative correlation
-results.negative <- results.table[results.table[,4]>=0,]
+results.negative <- results.table[results.table[,4]<=0,]
 results.negative.significant <- results.negative[results.negative[,5]<=p.value.threshold,]
 
 # Write the results to tables to be read into Chipster
-write.table(results.positive.significant, file="mirna-gene-positive-correlation.tsv", sep="\t", quote=FALSE, row.names=FALSE)
-write.table(results.negative.significant, file="mirna-gene-negative-correlation.tsv", sep="\t", quote=FALSE, row.names=FALSE)
+write.table(results.positive.significant, file="mirna-gene-positive-correlation.tsv", sep="\t", quote=FALSE, row.names=TRUE)
+write.table(results.negative.significant, file="mirna-gene-negative-correlation.tsv", sep="\t", quote=FALSE, row.names=TRUE)
 
-
-
+# EOF

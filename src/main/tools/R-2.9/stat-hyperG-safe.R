@@ -55,7 +55,7 @@ calls<-dat[,grep("flag", names(dat))]
 dat2<-dat[,grep("chip", names(dat))]
 
 # Experimental design
-groups<-phenodata[,grep(column, colnames(phenodata))]
+groups<-phenodata[,pmatch(column,colnames(phenodata))]
 
 # Creates a C matrix
 if(which.ontology=="KEGG") {

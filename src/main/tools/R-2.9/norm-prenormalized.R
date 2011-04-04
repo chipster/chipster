@@ -34,7 +34,15 @@ if (keep.annotations=="yes") {
 dat2<-normalizeBetweenArrays(dat$R, method="none")
 
 # Writes out a phenodata table
-sample<-paste(colnames(dat2), ".tsv", sep="")
+# sample<-paste(colnames(dat2), ".tsv", sep="")
+
+# check is sample names contain a .tsv extension
+
+# Check whether column names contain "chip." and, if so, remove from name
+sample<-colnames(dat2)
+if (length (grep(".tsv", sample)) == 0) {
+	sample<-paste(sample, ".tsv", sep="")
+}
 group<-c(rep("", length(sample)))
 training<-c(rep("", length(sample)))
 time<-c(rep("", length(sample)))
@@ -61,11 +69,17 @@ if (keep.annotations=="yes") {
 }
 
 if(chiptype!="cDNA") {
+	
 	# Including gene names to data
 	lib2<-sub('.db','',chiptype)
 	library(chiptype, character.only=T)
 	symbol<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "SYMBOL", sep="")))))[rownames(M2),])
 	genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[rownames(M2),])
+	
+	# Fixes an issue introduced in BioC2.4 where the "#" character is introduced in some gene names
+	genename <- gsub("#", "", genename)
+	
+	# Write data out
 	write.table(data.frame(symbol, description=genename, round(M2, digits=2)), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 }
 

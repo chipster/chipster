@@ -16,6 +16,8 @@ public class HelpMapping {
 		mappings.put("Preprocessing/Filter by flags", "chipster-manual/filter-flags.html");
 		mappings.put("Preprocessing/Filter by interquartile range", "chipster-manual/filter-iqr.html");
 		mappings.put("Preprocessing/Filter by standard deviation", "chipster-manual/filter-sd.html");
+		mappings.put("Preprocessing/Filter using a column term", "chipster-manual/filter-by-column-term.html");
+		mappings.put("Preprocessing/Filter using a column value", "chipster-manual/filter-by-column-value.html");
 		mappings.put("Preprocessing/Impute missing values", "chipster-manual/impute.html");
 		mappings.put("Preprocessing/Remove missing values", "chipster-manual/na-omit.html");
 
@@ -30,14 +32,17 @@ public class HelpMapping {
 		mappings.put("Normalisation/Affymetrix", "chipster-manual/norm-affy.html");
 		mappings.put("Normalisation/Affymetrix SNP arrays", "chipster-manual/norm-affy-snp.html");
 		mappings.put("Normalisation/Affymetrix gene arrays", "chipster-manual/norm-affy-gene.html");
-		mappings.put("Normalisation/Agilent miRNA", "chipster-manual/norm-agilent-miRNA.html");		
+		mappings.put("Normalisation/Agilent miRNA", "chipster-manual/norm-agilent-mirna.html");		
 		mappings.put("Normalisation/Illumina SNP arrays", "chipster-manual/norm-illumina-snp.html");
 		mappings.put("Normalisation/Process prenormalized", "chipster-manual/norm-process-prenormalized.html");
+		mappings.put("Normalisation/Process prenormalized affy", "chipster-manual/norm-prenormalized-affy.html");
 		mappings.put("Normalisation/Agilent 1-color", "chipster-manual/norm-agilent-1color.html");
 		mappings.put("Normalisation/Agilent 2-color", "chipster-manual/norm-agilent.html");
 		mappings.put("Normalisation/cDNA", "chipster-manual/norm-cdna.html");
 		mappings.put("Normalisation/Illumina", "chipster-manual/norm-illumina.html");
-		mappings.put("Normalisation/Illumina - lumi pipeline", "chipster-manual/norm-illumina-lumi.html"); 
+		mappings.put("Normalisation/Illumina - lumi pipeline", "chipster-manual/norm-illumina-lumi.html");
+		mappings.put("Normalisation/Illumina - lumi pipeline AAI", "chipster-manual/norm-illumina-lumi-AAI.html");
+		mappings.put("Normalisation/Illumina - methylumi pipeline", "chipster-manual/norm-illumina-methylumi.html");
 		mappings.put("Normalisation/Random effects", "chipster-manual/norm-lme.html");
 		mappings.put("Normalisation/Normalize to chip average", "chipster-manual/norm-chip-average.html");
 		mappings.put("Normalisation/Normalize to gene average", "chipster-manual/norm-gene-average.html");
@@ -54,6 +59,7 @@ public class HelpMapping {
 		mappings.put("Statistics/NMDS", "chipster-manual/ordination-nmds.html");
 		mappings.put("Statistics/PCA", "chipster-manual/ordination-pca.html");
 		mappings.put("Statistics/Sample size estimation", "chipster-manual/stat-estimate-sample-size.html");
+		mappings.put("Statistics/Sample size calculations with an adapted BH method", "chipster-manual/sample-size-with-bh.html");
 		mappings.put("Statistics/Correlate with phenodata", "chipster-manual/stat-correlate-phenodata.html");
 		mappings.put("Statistics/Correlate miRNA with target expression", "chipster-manual/correlate-mirna.html");
 		mappings.put("Statistics/Linear modelling", "chipster-manual/stat-linear-modelling.html");
@@ -62,7 +68,7 @@ public class HelpMapping {
 		mappings.put("Statistics/Calculate descriptive statistics", "chipster-manual/calculate-descriptive-statistics.html");
 		mappings.put("Statistics/DCA", "chipster-manual/ordination-dca.html");
 		mappings.put("Statistics/Association analysis", "chipster-manual/stat-chisq-snp.html");
-		mappings.put("Statistics/UP-DOWN analysis of miRNA targets", "chipster-manual/up-down-analysis-mirna.html");
+		mappings.put("Statistics/Up-down analysis of miRNA targets", "chipster-manual/up-down-analysis-mirna.html");
 		
 		mappings.put("Clustering/Hierarchical", "chipster-manual/cluster-hierarchical.html");
 		mappings.put("Clustering/K-Means", "chipster-manual/cluster-kmeans.html");
@@ -102,6 +108,7 @@ public class HelpMapping {
 		mappings.put("Promoter Analysis/Cosmo", "chipster-manual/promoter-tfbs-cosmo.html");
 		
 		mappings.put("Annotation/Agilent, Affymetrix or Illumina genelist", "chipster-manual/annotate-genelist2html.html");
+		mappings.put("Annotation/Find miRNA targets", "chipster-manual/annotate-miRNA-targets.html");
 		mappings.put("Annotation/Add annotations to data", 	"chipster-manual/annotate-add-to-data.html");
 		mappings.put("Annotation/Agilent miRNA", "chipster-manual/annotate-miRNA.html");
 		
@@ -109,24 +116,47 @@ public class HelpMapping {
 		mappings.put("Utilities/Export GEO's SOFT format", "chipster-manual/export-soft.html");
 		mappings.put("Utilities/Export tab2mage format", "chipster-manual/export-tab2mage.html");
 		mappings.put("Utilities/Extract genes from clustering", "chipster-manual/extract-genes-from-clustering.html");
+		mappings.put("Utilities/Extract genes from GO term", "chipster-manual/extract-genes-from-go.html");
+		mappings.put("Utilities/Extract genes from KEGG pathway", "chipster-manual/extract-genes-from-kegg.html");
 		mappings.put("Utilities/Extract genes using a p-value", "chipster-manual/extract-genes-from-stattest.html");
 		mappings.put("Utilities/Extract samples from dataset", "chipster-manual/extract-samples-from-dataset.html");
-		mappings.put("Utilities/Filter using a column", "chipster-manual/filter-by-column.html");
 		mappings.put("Utilities/Average replicate chips", "chipster-manual/average-replicates.html");
 		mappings.put("Utilities/Calculate fold change", "chipster-manual/calculate-fold-change.html");
 		mappings.put("Utilities/Generate phenodata", "chipster-manual/generate-phenodata.html");
 		mappings.put("Utilities/Import from GEO", "chipster-manual/import-from-geo.html");
 		mappings.put("Utilities/Merge tables", "chipster-manual/merge-tables.html");
+		mappings.put("Utilities/Merge data sets", "chipster-manual/merge-datasets.html");
 		mappings.put("Utilities/Search by correlation", "chipster-manual/search-correlation.html");
 		mappings.put("Utilities/Search by gene name", "chipster-manual/search-queryword.html");
 		mappings.put("Utilities/Merge tables", "chipster-manual/merge-tables.html");
 		mappings.put("Utilities/Sort samples", "chipster-manual/sort-samples.html");
 		mappings.put("Utilities/Delete columns", "chipster-manual/delete-columns.html");
+		mappings.put("Utilities/Filter using a column", "chipster-manual/filter-by-column.html");
 		mappings.put("Utilities/Combine probes to genes", "chipster-manual/combine-probes-to-genes.html");
 		mappings.put("Utilities/Extract genes", "chipster-manual/extract-genes.html");
 		mappings.put("Utilities/Change interpretation",	"chipster-manual/change-interpretation.html");
 		mappings.put("Utilities/Sort genes", "chipster-manual/sort-genes.html");
 		mappings.put("Utilities/Random sampling", "chipster-manual/random-sampling.html"); 
+		mappings.put("Utilities/Intersect lists", "chipster-manual/intersect-lists.html"); 
+
+		mappings.put("aCGH/Import from CanGEM", "chipster-manual/import-from-cangem.html");
+		mappings.put("aCGH/Smooth waves from normalized aCGH data", "chipster-manual/smooth-acgh.html");
+		mappings.put("aCGH/Call copy number aberrations from aCGH data", "chipster-manual/detect-copy-number-aberrations.html");
+		mappings.put("aCGH/Plot copy number profiles from called aCGH data", "chipster-manual/plot-cgh-profile.html");
+		mappings.put("aCGH/Identify common regions from called aCGH data", "chipster-manual/detect-common-copy-number-aberration-regions.html");
+		mappings.put("aCGH/Cluster called aCGH data", "chipster-manual/cluster-acgh.html");
+		mappings.put("aCGH/Group tests for called aCGH data", "chipster-manual/stat-acgh.html");
+		mappings.put("aCGH/Convert called aCGH data from probes to genes", "chipster-manual/convert-cn-probes-to-genes.html");
+		mappings.put("aCGH/GO enrichment for called aCGH genes", "chipster-manual/pathways-acgh-hyperg-go.html");
+		mappings.put("aCGH/Match copy number and expression probes", "chipster-manual/match-cn-and-expression-probes.html");
+		mappings.put("aCGH/Plot profiles of matched copy number and expression", "chipster-manual/plot-cn-induced-expression-profile.html");
+		mappings.put("aCGH/Test for copy-number-induced expression changes", "chipster-manual/test-for-cn-induced-differential-expression.html");
+		mappings.put("aCGH/Plot copy-number-induced gene expression", "chipster-manual/plot-cn-induced-gene-expression.html");
+		mappings.put("aCGH/Fetch probe positions from CanGEM", "chipster-manual/fetch-probe-positions-from-cangem.html");
+		mappings.put("aCGH/Add cytogenetic bands", "chipster-manual/add-cytobands.html");
+		mappings.put("aCGH/Count overlapping CNVs", "chipster-manual/count-overlapping-cnvs.html");
+		mappings.put("aCGH/Update aberration frequencies for called aCGH data", "chipster-manual/calculate-aberration-frequencies.html");
+		
 		
 		mappings.put("Miscellaneous/Multiple sequence alignment", "chipster-manual/seqanal-msa.html");
 		mappings.put("Miscellaneous/Phylogenetics", "chipster-manual/seqanal-phylogenetics.html");

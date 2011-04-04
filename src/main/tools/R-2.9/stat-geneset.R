@@ -16,6 +16,9 @@
 # JTT 14.6.2006
 #
 # modified by MG 31.12.2009
+#
+# modified by MG, 3.5.2010 to exclude single gene genesets and added group labels in plots
+# added more info columns in results table
 
 #column<-"group"
 #pathway.or.genelist <-"KEGG"
@@ -60,7 +63,7 @@ calls<-dat[,grep("flag", names(dat))]
 dat2<-dat[,grep("chip", names(dat))]
 
 # Needs a vector groups that specifies which sample to compare
-groups<-phenodata[,grep(column, colnames(phenodata))]
+groups<-phenodata[,pmatch(column,colnames(phenodata))]
 
 # Actual testing and plotting
 x<-as.numeric(x) 
@@ -80,58 +83,85 @@ if(pathways=="KEGG") {
    if(mt=="no") {
       test.kegg<-sort(test.kegg)
    }
-   table.out<-data.frame(pathway=names(test.kegg), pvalue=p.value(test.kegg))
+#   table.out<-data.frame(pathway=names(test.kegg), pvalue=p.value(test.kegg))
+   table.out<-data.frame(pathwayID=names(test.kegg), test.kegg@res)
    names(test.kegg)<-as.list(KEGGPATHID2NAME)[names(test.kegg)]
    table.out<-data.frame(table.out, Description=names(test.kegg))
-   table.out<-table.out[order(table.out$pvalue),]
+   table.out<-table.out[order(table.out$P.value),]
+   # Find out if there are categories including a single gene
+	# and if so remove them
+   indices <- 1:length(table.out$Tested)
+   indices <- indices[table.out$Tested>1]
+   table.out <- table.out[table.out$Tested>1,]
    write.table(table.out, file="globaltest-result-table.tsv", sep="\t", row.names=T, col.names=T, quote=F)
    s<-c(sqrt(x), sqrt(x))
    bitmap(file="multtest.png", width=w/72, height=h/72)
    split.screen(c(sqrt(x), sqrt(x)))
+   if (length (indices) < x) {
+	   x <- length(indices)
+   } 
    for(i in 1:x) {
-      y<-geneplot(test.kegg[i], plot=F, addlegend=F)
-      env2<-paste(lib2, "SYMBOL", sep="")
-      env2<-get(env2)
-      names(y)<-as.list(env2)[names(y)]
-      screen(i)
-      par(mar=c(2,0,2,0)+0.1, yaxt="n")
-      plot(y, main=substr(names(test.kegg[i]), 1, 25), cex.main=0.75)
-  }
+	   y<-geneplot(test.kegg[indices[i]], plot=F, addlegend=T)
+	   env2<-paste(lib2, "SYMBOL", sep="")
+	   env2<-get(env2)
+	   names(y)<-as.list(env2)[names(y)]
+	   screen(i)
+	   par(mar=c(2,0,2,0)+0.1, yaxt="n", cex=0.75)
+	   plot(y, main=substr(names(test.kegg[i]), 1, 25), cex.main=1.5, cex.axis=1.25)
+   } 
   dev.off()
 }
 
 # Testing with GO pathways
 if(pathways=="GO") {
-   # The same with GO-terms
-   lib2<-sub('.db','',lib)
-   env<-paste(lib2, "GO2ALLPROBES", sep="")
-   go2allprobes<-get(env)
-   go<-as.list(go2allprobes)
-   test.go<-globaltest(as.matrix(dat2), groups, go)
-   test.go<-sort(test.go)
-   test.go2<-test.go[1:x,]
-   table.out<-data.frame(pathway=names(test.go2), pvalue=p.value(test.go2))
-   n<-c()
-   for(i in 1:x) {
-      n<-c(n, get(names(test.go2[i,]),GOTERM)@Term)
-   }
-   names(test.go2)<-n
-   table.out<-data.frame(table.out, Description=names(test.go2))
-   table.out<-table.out[order(table.out$pvalue),]
-   write.table(table.out, file="globaltest-result-table.tsv", sep="\t", row.names=T, col.names=T, quote=F)
-   s<-c(sqrt(x), sqrt(x)) 
-   bitmap(file="multtest.png", width=w/72, height=h/72)
-   split.screen(c(sqrt(x), sqrt(x)))
-   for(i in 1:x) {
-      y<-geneplot(test.go[1], plot=F, addlegend=F)
-      env2<-paste(lib2, "SYMBOL", sep="")
-      env2<-get(env2)
-      names(y)<-as.list(env2)[names(y)]
-      screen(i)
-      par(mar=c(2,0,2,0)+0.1, yaxt="n")
-      plot(y, main=substr(names(test.go2[i]), 1, 25), cex.main=0.75)
-   }
-   dev.off()
+	# The same with GO-terms
+	lib2<-sub('.db','',lib)
+	env<-paste(lib2, "GO2ALLPROBES", sep="")
+	go2allprobes<-get(env)
+	go<-as.list(go2allprobes)
+	test.go<-globaltest(as.matrix(dat2), groups, go)
+	
+	if (mt=="yes") {
+		test.go <- gt.multtest(test.go)
+		test.go <- sort(test.go)
+	}
+	if (mt=="no") {
+		test.go <- sort(test.go)
+	}
+
+	
+#	test.go<-sort(test.go)
+	test.go2<-test.go[1:x,]
+	table.out<-data.frame(ontologyID=names(test.go2), test.go2@res)
+	n<-c()
+	for(i in 1:x) {
+		n<-c(n, get(names(test.go2[i,]),GOTERM)@Term)
+	}
+	names(test.go2)<-n
+	table.out<-data.frame(table.out, Description=names(test.go2))
+	table.out<-table.out[order(table.out$P.value),]
+# Find out if there are categories including a single gene
+# and if so remove them
+	indices <- 1:length(table.out$Tested)
+	indices <- indices[table.out$Tested>1]
+	table.out <- table.out[table.out$Tested>1,]
+	write.table(table.out, file="globaltest-result-table.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+	s<-c(sqrt(x), sqrt(x)) 
+	bitmap(file="multtest.png", width=w/72, height=h/72)
+	split.screen(c(sqrt(x), sqrt(x)))
+	if (length (indices) < x) {
+		x <- length(indices)
+	} 
+	for(i in 1:x) {
+		y<-geneplot(test.go[indices[i]], plot=F, addlegend=T)
+		env2<-paste(lib2, "SYMBOL", sep="")
+		env2<-get(env2)
+		names(y)<-as.list(env2)[names(y)]
+		screen(i)
+		par(mar=c(2,0,2,0)+0.1, yaxt="n", cex=0.5)
+		plot(y, main=substr(names(test.go2[i]), 1, 25), cex.main=1.5, cex.axis=1.25)
+	}
+	dev.off()
 }
 
 if(pathways=="current") {
