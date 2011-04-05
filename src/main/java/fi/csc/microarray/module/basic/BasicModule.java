@@ -3,16 +3,20 @@ package fi.csc.microarray.module.basic;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JMenu;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.client.selection.IntegratedEntity;
+import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.methods.ExternalBrowserViewer;
 import fi.csc.microarray.client.visualisation.methods.HtmlViewer;
@@ -25,6 +29,7 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.TypeTag;
 import fi.csc.microarray.databeans.features.RestrictModifier;
+import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.databeans.features.bio.PhenodataProvider;
 import fi.csc.microarray.databeans.features.stat.LogModifier;
 import fi.csc.microarray.databeans.features.stat.NegModifier;
@@ -192,5 +197,20 @@ public class BasicModule implements Module {
 	@Override
 	public String getManualHome() {
 		return "https://extras.csc.fi/biosciences/chipster-manual/index.html";
+	}
+
+	@Override
+	public void addSpeadsheetMenuItems(JPopupMenu spreadsheetPopupMenu, VisualisationFrame visualisationFrame) {
+		// do nothing
+	}
+
+	@Override
+	public List<Boolean> flagLinkableColumns(String[] columnNames) {
+		return Collections.nCopies(columnNames.length, false);
+	}
+
+	@Override
+	public IntegratedEntity createLinkableEntity(Table columns, int column) {
+		return null;
 	}
 }

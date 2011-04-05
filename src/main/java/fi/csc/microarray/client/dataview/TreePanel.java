@@ -212,7 +212,7 @@ public class TreePanel extends JPanel implements DataChangeListener, TreeSelecti
 	
 		// start listening
 		application.getDataManager().addDataChangeListener(this);
-		application.addPropertyChangeListener(this);
+		application.addClientEventListener(this);
 	}
 	
 	public Vector<Component> getFocusComponents(){

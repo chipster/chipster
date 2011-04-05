@@ -45,8 +45,8 @@ import org.jfree.data.hc.HCDataset;
 import org.jfree.data.hc.HCTreeNode;
 import org.jfree.data.hc.HeatMap;
 
-import fi.csc.microarray.client.selection.RowChoiceEvent;
-import fi.csc.microarray.client.selection.RowSelectionManager;
+import fi.csc.microarray.client.selection.SelectionEvent;
+import fi.csc.microarray.client.selection.IntegratedSelectionManager;
 import fi.csc.microarray.client.visualisation.AnnotateListPanel;
 import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
 import fi.csc.microarray.client.visualisation.Visualisation;
@@ -403,7 +403,7 @@ public class HierarchicalClustering extends Visualisation implements PropertyCha
 			selectableChartPanel.getChartPanel().addChartMouseListener((HCPlot) chart.getPlot());
 
 			updateSelectionsFromApplication(false);
-			application.addPropertyChangeListener(this);
+			application.addClientEventListener(this);
 
 			int blockSize = 10;
 
@@ -567,18 +567,18 @@ public class HierarchicalClustering extends Visualisation implements PropertyCha
 	}
 
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt instanceof RowChoiceEvent && evt.getSource() != this && ((RowChoiceEvent) evt).getData() == selectionBean) {
+		if (evt instanceof SelectionEvent && evt.getSource() != this && ((SelectionEvent) evt).getData() == selectionBean) {
 			updateSelectionsFromApplication(false);
 		}
 	}
 
 	protected void updateSelectionsFromApplication(boolean dispatchEvent) {
-		RowSelectionManager manager = application.getSelectionManager().getRowSelectionManager(selectionBean);
+		IntegratedSelectionManager manager = application.getSelectionManager().getSelectionManager(selectionBean);
 
 		orders.updateVisibleIndexes();
 
 		selected.clear();
-		for (int i : manager.getSelectedRows()) {
+		for (int i : manager.getSelectionAsRows()) {
 			selected.add(i);
 		}
 

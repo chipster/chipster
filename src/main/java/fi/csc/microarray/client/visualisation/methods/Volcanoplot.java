@@ -143,7 +143,7 @@ public class Volcanoplot extends Scatterplot implements ActionListener, Property
 
 		chart.removeLegend();
 
-		application.addPropertyChangeListener(this);
+		application.addClientEventListener(this);
 
 		selectableChartPanel = new SelectableChartPanel(chart, this);
 		return selectableChartPanel;

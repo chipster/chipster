@@ -22,25 +22,31 @@ import fi.csc.microarray.exception.MicroarrayException;
 /**
  * Selection manager for the rows that are selected from the specific dataset.
  * 
- * @author klemela
+ * @author Petri Klemelä, Aleksi Kallio
  * 
  */
-public class RowSelectionManager {
+// FIXME should be refactored to not be dataset specific and use IntegratedEntity for all selections
+public class IntegratedSelectionManager {
 
 	private ClientApplication client;
 	private DataBean data;
 	private int[] selectedRows = new int[0];
+	private static IntegratedEntity pointSelection; // FIXME remove static and make the whole thing not dataset specific
 
-	public RowSelectionManager(ClientApplication client, DataBean data) {
+	public IntegratedSelectionManager(ClientApplication client, DataBean data) {
 		this.client = client;
 		this.data = data;
 	}
 
-	public int[] getSelectedRows() {
+	public int[] getSelectionAsRows() {
 		return selectedRows.clone();
 	}
 
-	public List<String> getSelectedIdentifiers() throws MicroarrayException {
+	public IntegratedEntity getPointSelection() {
+		return this.pointSelection;
+	}
+
+	public List<String> getSelectionAsIdentifiers() throws MicroarrayException {
 
 		Arrays.sort(selectedRows);
 
@@ -110,9 +116,20 @@ public class RowSelectionManager {
 		return newData;
 	}
 
-	public void setSelected(int[] selected, Object source) {
-		selectedRows = selected.clone();
-		client.dispatchEvent(new RowChoiceEvent(data, source));
+	/**
+	 * Normal type of selection.
+	 */
+	public void setSelection(int[] selection, Object source) {
+		selectedRows = selection.clone();
+		client.fireClientEvent(new SelectionEvent(data, source));
+	}
+
+	/**
+	 * Focus type of selection.
+	 */
+	public void setPointSelection(IntegratedEntity entity, Object source) {
+		this.pointSelection = entity;
+		client.fireClientEvent(new PointSelectionEvent(data, source));
 	}
 
 	public void clearAll(Object source) {
@@ -134,6 +151,6 @@ public class RowSelectionManager {
 			}
 		}
 		selectedRows = indexes;
-		client.dispatchEvent(new RowChoiceEvent(data, source));
+		client.fireClientEvent(new SelectionEvent(data, source));
 	}
 }

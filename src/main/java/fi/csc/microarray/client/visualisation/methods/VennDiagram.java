@@ -26,8 +26,8 @@ import javax.swing.JTabbedPane;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
-import fi.csc.microarray.client.selection.RowChoiceEvent;
-import fi.csc.microarray.client.selection.RowSelectionManager;
+import fi.csc.microarray.client.selection.SelectionEvent;
+import fi.csc.microarray.client.selection.IntegratedSelectionManager;
 import fi.csc.microarray.client.visualisation.AnnotateListPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
@@ -204,7 +204,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 
 		this.updateSelectionsFromApplication(false);
 
-		application.addPropertyChangeListener(this);
+		application.addClientEventListener(this);
 
 		return chartPanel;
 	}
@@ -242,7 +242,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 	}
 
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt instanceof RowChoiceEvent && evt.getSource() != this) {
+		if (evt instanceof SelectionEvent && evt.getSource() != this) {
 
 			updateSelectionsFromApplication(false);
 		}
@@ -254,8 +254,8 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 		try {
 
 			for (DataBean data : plot.getDataset().getDataBeans()) {
-				RowSelectionManager manager = application.getSelectionManager().getRowSelectionManager(data);
-				selected.addAll(manager.getSelectedIdentifiers());
+				IntegratedSelectionManager manager = application.getSelectionManager().getSelectionManager(data);
+				selected.addAll(manager.getSelectionAsIdentifiers());
 			}
 
 		} catch (MicroarrayException e) {
