@@ -4,12 +4,14 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXHyperlink;
@@ -19,10 +21,13 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.CreateFromTextDialog;
 import fi.csc.microarray.client.dialog.SequenceImportDialog;
 import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.client.selection.IntegratedEntity;
+import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.Module;
 import fi.csc.microarray.module.basic.BasicModule;
@@ -199,6 +204,21 @@ public class SequenceModule implements Module {
 	@Override
 	public String getManualHome() {
 		return "http://chipster.csc.fi/embster/manual";
+	}
+
+	@Override
+	public void addSpeadsheetMenuItems(JPopupMenu spreadsheetPopupMenu, VisualisationFrame visualisationFrame) {
+		// do nothing
+	}
+
+	@Override
+	public List<Boolean> flagLinkableColumns(String[] columnNames) {
+		return Collections.nCopies(columnNames.length, false);
+	}
+
+	@Override
+	public IntegratedEntity createLinkableEntity(Table columns, int column) {
+		return null;
 	}
 
 }

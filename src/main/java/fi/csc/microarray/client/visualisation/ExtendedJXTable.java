@@ -27,7 +27,7 @@ import org.jdesktop.swingx.JXTable;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
-import fi.csc.microarray.client.selection.RowChoiceEvent;
+import fi.csc.microarray.client.selection.SelectionEvent;
 import fi.csc.microarray.databeans.DataBean;
 
 /**
@@ -35,21 +35,21 @@ import fi.csc.microarray.databeans.DataBean;
  * row. Provides also copy-paste operations which are compatible with most
  * common spreadsheet editor like MS Excel and OpenOffice.org
  * 
- * @author mkoski
+ * @author Mikko Koski, Aleksi Kallio
  * 
  */
-public class MicroarrayTable extends JXTable implements ActionListener, PropertyChangeListener {
+public class ExtendedJXTable extends JXTable implements ActionListener, PropertyChangeListener {
 
 	private Clipboard systemClipboard;
 
 	private static ClientApplication application = Session.getSession().getApplication();
 
-	private static Logger logger = Logger.getLogger(MicroarrayTable.class);
+	private static Logger logger = Logger.getLogger(ExtendedJXTable.class);
 
 	private boolean doNotDispatchEvents = true;
 	private DataBean data;
 
-	public MicroarrayTable(DataBean data) {
+	public ExtendedJXTable(DataBean data) {
 
 		this.data = data;
 
@@ -66,24 +66,24 @@ public class MicroarrayTable extends JXTable implements ActionListener, Property
 				if (!doNotDispatchEvents) {
 					logger.debug("Row selection of the table changed");
 
-					int[] selected = MicroarrayTable.this.getSelectedRows();
+					int[] selected = ExtendedJXTable.this.getSelectedRows();
 					int[] converted = new int[selected.length];
 
 					for (int i = 0; i < selected.length; i++) {
-						converted[i] = MicroarrayTable.this.convertRowIndexToModel(selected[i]);
+						converted[i] = ExtendedJXTable.this.convertRowIndexToModel(selected[i]);
 					}
 
 					boolean tmp = doNotDispatchEvents;
 					doNotDispatchEvents = true;
-					application.getSelectionManager().getRowSelectionManager(
-							MicroarrayTable.this.data).setSelected(converted, MicroarrayTable.this);
+					application.getSelectionManager().getSelectionManager(
+							ExtendedJXTable.this.data).setSelection(converted, ExtendedJXTable.this);
 
 					doNotDispatchEvents = tmp;
 				}
 			}
 		});
 
-		application.addPropertyChangeListener(this);
+		application.addClientEventListener(this);
 	}
 
 	/**
@@ -123,7 +123,7 @@ public class MicroarrayTable extends JXTable implements ActionListener, Property
 	 *           if(selectionMode ==
 	 *           ListSelectionModel.MULTIPLE_INTERVAL_SELECTION){ throw new
 	 *           IllegalArgumentException(
-	 *           "MULTIPLE_INTERVAL_SELECTION cannot be used in MicroarrayTable"
+	 *           "MULTIPLE_INTERVAL_SELECTION cannot be used in ExtendedJXTable"
 	 *           ); } }
 	 */
 
@@ -337,15 +337,15 @@ public class MicroarrayTable extends JXTable implements ActionListener, Property
 
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (logger.isDebugEnabled()) {
-			if (evt instanceof RowChoiceEvent) {
-				logger.debug("Got a RowChoiceEvent from \n" + evt.getSource());
+			if (evt instanceof SelectionEvent) {
+				logger.debug("Got a SelectionEvent from \n" + evt.getSource());
 			}
 		}
 
-		if (evt instanceof RowChoiceEvent && !(evt.getSource() == this)
-				&& ((RowChoiceEvent) evt).getData() == data) {
+		if (evt instanceof SelectionEvent && !(evt.getSource() == this)
+				&& ((SelectionEvent) evt).getData() == data) {
 
-			logger.debug("RowChoiceEvent not from Spreadsheet");
+			logger.debug("SelectionEvent not from Spreadsheet");
 
 			updateSelectionsFromApplication();
 		}
@@ -367,8 +367,8 @@ public class MicroarrayTable extends JXTable implements ActionListener, Property
 		 * intervals[i][1]); }
 		 */
 		this.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		for (int row : application.getSelectionManager().getRowSelectionManager(data)
-				.getSelectedRows()) {
+		for (int row : application.getSelectionManager().getSelectionManager(data)
+				.getSelectionAsRows()) {
 			this.changeSelection(this.convertRowIndexToView(row), 0, true, false);
 		}
 		doNotDispatchEvents = tmp;

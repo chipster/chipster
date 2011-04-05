@@ -475,7 +475,7 @@ public class SwingClientApplication extends ClientApplication {
 			}
 
 			DetailsFrame detailsFrameWithListener = new DetailsFrame();
-			addPropertyChangeListener(detailsFrameWithListener);
+			addClientEventListener(detailsFrameWithListener);
 
 			this.detailsFrame = detailsFrameWithListener;
 

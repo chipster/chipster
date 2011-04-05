@@ -89,7 +89,7 @@ public class MicroarrayGraph extends JGraph implements DataChangeListener, Prope
 
 		// start listening
 		application.getDataManager().addDataChangeListener(this);
-		application.addPropertyChangeListener(this);
+		application.addClientEventListener(this);
 	}
 
 	/**
