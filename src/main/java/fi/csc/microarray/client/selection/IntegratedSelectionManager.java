@@ -31,7 +31,7 @@ public class IntegratedSelectionManager {
 	private ClientApplication client;
 	private DataBean data;
 	private int[] selectedRows = new int[0];
-	private IntegratedEntity pointSelection;
+	private static IntegratedEntity pointSelection; // FIXME remove static and make the whole thing not dataset specific
 
 	public IntegratedSelectionManager(ClientApplication client, DataBean data) {
 		this.client = client;
@@ -43,7 +43,7 @@ public class IntegratedSelectionManager {
 	}
 
 	public IntegratedEntity getPointSelection() {
-		return pointSelection;
+		return this.pointSelection;
 	}
 
 	public List<String> getSelectionAsIdentifiers() throws MicroarrayException {
