@@ -1,5 +1,6 @@
 package fi.csc.microarray.client.operation;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -16,23 +17,25 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
-
-import org.apache.log4j.Logger;
 
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
@@ -59,9 +62,7 @@ import fi.csc.microarray.exception.MicroarrayException;
  */
 public class ToolPanel extends JPanel
 							implements ActionListener, PropertyChangeListener {
-    // Logger for this class
-    private static final Logger logger = Logger.getLogger(ToolPanel.class);
-    
+
     // UI texts
 	private static final String OPERATION_LIST_TITLE = "Analysis tools";
 	private static final String SHOW_PARAMETERS_TEXT = "Show parameters";
@@ -165,10 +166,20 @@ public class ToolPanel extends JPanel
 				BorderFactory.createMatteBorder(1, 0, 0, 0, VisualConstants.TOOL_LIST_BORDER_COLOR));
 		
 	    // Search bar
+		JPanel horizontalPanel = new JPanel(new BorderLayout());
+        JTabbedPane tabbedPane = new JTabbedPane();        
+        tabbedPane.addTab("Microarrays", new JPanel());
+        tabbedPane.addTab("Sequence analysis", new JPanel());
+        tabbedPane.addTab("NGS", new JPanel());
+        tabbedPane.addTab("All", new JPanel());
+        tabbedPane.setPreferredSize(new Dimension(400, 0));
+        tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+        horizontalPanel.add(tabbedPane, BorderLayout.CENTER);
+		
         JToolBar searchPanel = new JToolBar();
         searchPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 1));
         // Text field
-        searchField = new JTextField(20);
+        searchField = new JTextField(10);
         searchField.addCaretListener(new CaretListener() {
             public void caretUpdate(CaretEvent e) {
                 // Show filtered tools
@@ -239,11 +250,12 @@ public class ToolPanel extends JPanel
         c.gridheight = 1;
         c.insets.set(0,0,0,0);
         c.fill = GridBagConstraints.BOTH;
-        searchPanel.setPreferredSize(new Dimension(10, 23));
-        searchPanel.setMinimumSize(new Dimension(10, 23));
+//        searchPanel.setPreferredSize(new Dimension(10, 23));
+//        searchPanel.setMinimumSize(new Dimension(10, 23));
         searchPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         searchPanel.putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.SINGLE);
-        operationPanel.add(searchPanel, c);
+        horizontalPanel.add(searchPanel, BorderLayout.EAST);
+        operationPanel.add(horizontalPanel, c);
         operationCardPanel = new JPanel(new CardLayout());
         c.gridy = 1;
         c.weightx = 1;
@@ -315,8 +327,7 @@ public class ToolPanel extends JPanel
 		this.add(bottomPanel, c);		
 
 		// start listening
-		Session.getSession().getApplication().addClientEventListener(this);
-		
+		Session.getSession().getApplication().addClientEventListener(this);		
 	}
 	
 	public Vector<Component> getFocusComponents(){
@@ -462,7 +473,6 @@ public class ToolPanel extends JPanel
 			try {
 				this.currentOperation = new Operation(this.selectedOperationDefinition, application.getSelectionManager().getSelectedDatasAsArray());
 			} catch (MicroarrayException e) {
-				logger.error("could not create operation for " + this.selectedOperationDefinition.getDisplayName(), e);
 				clearOperationSelection();
 				return;
 			}
@@ -540,10 +550,8 @@ public class ToolPanel extends JPanel
 		
 		// Gets the scroller and sets more margin if the scrollbar is visible
 		if(detailFieldScroller.getVerticalScrollBar().isVisible()){
-			logger.debug("vertical scrollbar is visible");
 			detailField.setMargin(new Insets(2,2,2,2+ detailFieldScroller.getVerticalScrollBar().getWidth()));
 		} else {
-			logger.debug("vertical scrollbar is not visible");
 			detailField.setMargin(new Insets(2,2,2,2));
 		}
 	}
@@ -553,10 +561,7 @@ public class ToolPanel extends JPanel
 	 * Dataset selection changed.
 	 */
 	public void propertyChange(PropertyChangeEvent dataEvent) {
-		if(dataEvent instanceof DatasetChoiceEvent) {
-			logger.debug("chosen data " +
-			        application.getSelectionManager().getSelectedDataBean() +
-			        " (possible one among many)");
+		if (dataEvent instanceof DatasetChoiceEvent) {
 			
             // Reselect operation definition, so suitability is recalculated
 			// and parameter values are set to default
@@ -596,5 +601,14 @@ public class ToolPanel extends JPanel
 		searchField.remove(clearSearchButton);
 		operationChoicePanel.deselectTool();
 		showOperationCard(TOOLS_CATEGORIZED);
+	}
+	
+	public static void main(String[] args) throws Exception {
+		ToolPanel toolPanel = new ToolPanel(new LinkedList<ToolCategory>());
+		JFrame frame = new JFrame();
+		frame.add(toolPanel);
+		frame.setSize(1000, 400);
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		frame.setVisible(true);
 	}
 }
