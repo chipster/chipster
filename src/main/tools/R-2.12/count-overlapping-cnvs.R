@@ -63,7 +63,7 @@ cnv.counter <- function(x) {
   bases <- 0
   for (j in rownames(overlaps))
     bases <- bases + min(end, overlaps[j, 'End']) - max(start, overlaps[j, 'Start']) + 1
-  c(count, round(bases / (end - start + 1) * 1000000))
+  c(count, round(bases / (end - start + 1), digits=3))
 }
 
 # first try parallel computing
@@ -72,13 +72,13 @@ try({
   library(snowfall)
   sfInit(parallel=TRUE, cpus=4)
   sfExport(list=c('cnv', 'joined'))
-  dat2[,c('cnv.count', 'cnv.per.Mb')] <- t(sfApply(dat2, 1, cnv.counter))
+  dat2[,c('cnv.count', 'cnv.proportion')] <- t(sfApply(dat2, 1, cnv.counter))
   sfStop()
   prob <- FALSE
 }, silent=TRUE)
 # if problems, fall back to sequential computing
 if (prob)
-  dat2[,c('cnv.count', 'cnv.per.Mb')] <- t(apply(dat2, 1, cnv.counter))
+  dat2[,c('cnv.count', 'cnv.proportion')] <- t(apply(dat2, 1, cnv.counter))
 
 if (first.data.col > 0)
   dat2 <- cbind(dat2, dat[,first.data.col:ncol(dat)])
