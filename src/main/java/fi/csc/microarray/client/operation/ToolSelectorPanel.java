@@ -34,50 +34,49 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.constants.VisualConstants;
 
 /**
- * The panel for two JLists: on the left side, high-level operation category
- * choice list, and on the right side, a list of lower-level operation choices.
+ * The panel for two JLists: on the left side, high-level tool category
+ * choice list, and on the right side, a list of lower-level tool choices.
  * Selections in the left list will directly affect the options shown in the
  * right one. Selecting an operation on the right side list, then, will
- * result in corresponding details being shown in the parent OperationPanel.
+ * result in corresponding details being shown in the parent ToolPanel.
  * 
- * @author Janne Käki
+ * @author Janne Käki, Aleksi Kallio
  *
  */
-@SuppressWarnings("serial")
-public class OperationChoicePanel extends JPanel
+public class ToolSelectorPanel extends JPanel
 								  implements ListSelectionListener {
 	// Logger for this class
 	private static final Logger logger = Logger
-			.getLogger(OperationChoicePanel.class);
+			.getLogger(ToolSelectorPanel.class);
 	
 	private final ClientApplication application = Session.getSession().getApplication();
 	
-	private OperationPanel operationPanel;
+	private ToolPanel toolPanel;
 	
 	private JList categoryList;
-	private JList operationList;
+	private JList toolList;
 	
-	private OperationCategory selectedCategory;
-	private ExecutionItem selectedOperationDefinition;
+	private ToolCategory selectedCategory;
+	private ExecutionItem selectedTool;
 	
 	/**
-	 * Creates a new OperationChoicePanel.
+	 * Creates a new ToolSelectorPanel.
 	 * 
-	 * @param parent The OperationPanel, for communication purposes.
+	 * @param parent The ToolPanel, for communication purposes.
 	 */
-	public OperationChoicePanel(OperationPanel parent,
-	       Collection<OperationCategory> operationCategoryCollection) {
+	public ToolSelectorPanel(ToolPanel parent,
+	       Collection<ToolCategory> toolCategoryCollection) {
 		super(new GridLayout(1, 2));
-		this.operationPanel = parent;
+		this.toolPanel = parent;
 
-        List<OperationCategory> operationCategories;
-        operationCategories = Collections.list(Collections.enumeration(operationCategoryCollection));
+        List<ToolCategory> toolCategories;
+        toolCategories = Collections.list(Collections.enumeration(toolCategoryCollection));
 
 		Object[] categories;
-		if (operationCategories != null) {
-			categories = new Object[operationCategories.size()];
-			for (int i = 0; i < operationCategories.size(); i++) {
-				categories[i] = operationCategories.get(i);
+		if (toolCategories != null) {
+			categories = new Object[toolCategories.size()];
+			for (int i = 0; i < toolCategories.size(); i++) {
+				categories[i] = toolCategories.get(i);
 			}
 		} else {
 			categories = new Object[0];
@@ -90,40 +89,40 @@ public class OperationChoicePanel extends JPanel
 		categoryList.getInsets().right = 1;
 		categoryList.setName("categoryList");
 		
-		operationList = new JList();
-		operationList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		operationList.addListSelectionListener(this);
-		operationList.setCellRenderer(new FontSizeFriendlyListRenderer());
-		operationList.addMouseListener(new MouseClickListener());
-		operationList.getInsets().right = 1;
-		operationList.setName("operationList");
+		toolList = new JList();
+		toolList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		toolList.addListSelectionListener(this);
+		toolList.setCellRenderer(new FontSizeFriendlyListRenderer());
+		toolList.addMouseListener(new MouseClickListener());
+		toolList.getInsets().right = 1;
+		toolList.setName("toolList");
 		
 		JScrollPane categoryListScroller = new JScrollPane(categoryList);		
-		JScrollPane operationListScroller = new JScrollPane(operationList);
+		JScrollPane toolListScroller = new JScrollPane(toolList);
 		
 		//Remove useless borders
 		categoryListScroller.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
-		        VisualConstants.OPERATION_LIST_BORDER_COLOR));
-		operationListScroller.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+		        VisualConstants.TOOL_LIST_BORDER_COLOR));
+		toolListScroller.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 		
 		this.add(categoryListScroller);
-		this.add(operationListScroller);
+		this.add(toolListScroller);
 	}
 	
 	public Vector<Component> getFocusComponents(){
 		Vector<Component> order = new Vector<Component>();
 		order.add(categoryList);
-		order.add(operationList);		
+		order.add(toolList);		
 		return order;
 	}
 	
 	/**
-	 * Deselect operation.
+	 * Deselect tool.
 	 */
-	public void deselectOperation() {
+	public void deselectTool() {
 	    categoryList.clearSelection();
-	    operationList.clearSelection();
-	    operationPanel.selectOperation(null);
+	    toolList.clearSelection();
+	    toolPanel.selectTool(null);
 	}
 	
 	static class FontSizeFriendlyListRenderer extends DefaultListCellRenderer {
@@ -151,7 +150,7 @@ public class OperationChoicePanel extends JPanel
 			JLabel comp = (JLabel)super.getListCellRendererComponent(
 					list, value, index, isSelected, cellHasFocus);
 			
-			Color circleColor = ((OperationCategory)(list.getModel().getElementAt(index))).getColor();
+			Color circleColor = ((ToolCategory)(list.getModel().getElementAt(index))).getColor();
 			if (circleColor == null) {
 				circleColor = comp.getBackground();
 			}
@@ -161,18 +160,18 @@ public class OperationChoicePanel extends JPanel
 		}
 	}
 	
-	public class OperationPopupMenu extends JPopupMenu {
+	public class ToolPopupMenu extends JPopupMenu {
 		JMenuItem helpMenuItem;
-		OperationDefinition operationDefinition;
+		OperationDefinition tool;
 		
-		public OperationPopupMenu(OperationDefinition operationDefinition) {
-			this.operationDefinition = operationDefinition;
+		public ToolPopupMenu(OperationDefinition tool) {
+			this.tool = tool;
 			this.helpMenuItem = new JMenuItem("Help...");
 			
 			helpMenuItem.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e) {
 					if (e.getSource() == helpMenuItem){
-						application.viewHelpFor(OperationPopupMenu.this.operationDefinition);
+						application.viewHelpFor(ToolPopupMenu.this.tool);
 					}
 				}
 				
@@ -187,7 +186,7 @@ public class OperationChoicePanel extends JPanel
 		public void mousePressed(MouseEvent e) {
 			if (e.getButton() == MouseEvent.BUTTON1) {
 				if (e.getClickCount() == 2) {
-					operationPanel.runSelectedOperation();
+					toolPanel.runSelectedOperation();
 				}
 			}
 			maybeShowPopup(e);        
@@ -203,21 +202,21 @@ public class OperationChoicePanel extends JPanel
 //				Help popup menu
 				if (e.getButton() == MouseEvent.BUTTON3) {
 					// Get index of the clicked component
-					int index = operationList.locationToIndex(e.getPoint());
+					int index = toolList.locationToIndex(e.getPoint());
 
 					// Get component by index
-					Object clicked = operationList.getModel().getElementAt(index);
+					Object clicked = toolList.getModel().getElementAt(index);
 
 					// Check that cell really is on a clicked point
-					Rectangle bounds = operationList.getCellBounds(index, index);
+					Rectangle bounds = toolList.getCellBounds(index, index);
 
 					if(bounds != null && clicked != null) {
 						boolean validPoint = bounds.contains(e.getPoint());
 
 						if (clicked instanceof OperationDefinition && validPoint){
-							OperationDefinition operationDefinition = (OperationDefinition)clicked;
+							OperationDefinition tool = (OperationDefinition)clicked;
 
-							JPopupMenu popup = new OperationPopupMenu(operationDefinition);
+							JPopupMenu popup = new ToolPopupMenu(tool);
 							popup.show(e.getComponent(), e.getX(), e.getY());
 						}
 					}
@@ -236,19 +235,19 @@ public class OperationChoicePanel extends JPanel
 		Object source = e.getSource();
 		if (source == categoryList) {
 			Object selected = categoryList.getSelectedValue();
-			if (selected instanceof OperationCategory) {
-				selectedCategory = (OperationCategory) selected;
-				selectedOperationDefinition = null;
-				logger.debug("selected category has " + selectedCategory.getOperationList().size() + " operations");
-				operationList.setListData(selectedCategory.getOperationList());
-				operationPanel.selectOperation(null);
+			if (selected instanceof ToolCategory) {
+				selectedCategory = (ToolCategory) selected;
+				selectedTool = null;
+				logger.debug("selected category has " + selectedCategory.getToolList().size() + " tools");
+				toolList.setListData(selectedCategory.getToolList());
+				toolPanel.selectTool(null);
 			}
-			operationPanel.selectOperation(null);
-		} else if (source == operationList) {
-			Object selected = operationList.getSelectedValue();
+			toolPanel.selectTool(null);
+		} else if (source == toolList) {
+			Object selected = toolList.getSelectedValue();
 			if (selected instanceof ExecutionItem) {
-				selectedOperationDefinition = (ExecutionItem) selected;
-				operationPanel.selectOperation(selectedOperationDefinition);
+				selectedTool = (ExecutionItem) selected;
+				toolPanel.selectTool(selectedTool);
 			}
 		}
 	}

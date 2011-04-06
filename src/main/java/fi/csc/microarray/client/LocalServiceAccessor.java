@@ -6,7 +6,7 @@ import java.util.List;
 import javax.jms.JMSException;
 
 import fi.csc.chipster.tools.ngs.LocalNGSPreprocess;
-import fi.csc.microarray.client.operation.OperationCategory;
+import fi.csc.microarray.client.operation.ToolCategory;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.tasks.LocalTaskExecutor;
 import fi.csc.microarray.client.tasks.TaskExecutor;
@@ -28,8 +28,8 @@ public class LocalServiceAccessor implements ServiceAccessor {
 
 	private DataManager manager;
 
-	private List<OperationCategory> visibleCategories;
-	private List<OperationCategory> hiddenCategories;
+	private List<ToolCategory> visibleCategories;
+	private List<ToolCategory> hiddenCategories;
 
 	
 	
@@ -52,15 +52,15 @@ public class LocalServiceAccessor implements ServiceAccessor {
 	 */
 	@Override
 	public void fetchDescriptions(Module primaryModule) throws Exception {
-		this.visibleCategories = new LinkedList<OperationCategory>();
-		this.hiddenCategories = new LinkedList<OperationCategory>();
+		this.visibleCategories = new LinkedList<ToolCategory>();
+		this.hiddenCategories = new LinkedList<ToolCategory>();
 		
 		// tools list
 //		PreprocessNGSSingle tool = new PreprocessNGSSingle();
 		
 		// for each tool, parse the SADL and create the OperationDefinition
         SADLDescription sadl = new ChipsterSADLParser().parse(LocalNGSPreprocess.getSADL());
-		OperationCategory category = new OperationCategory(INTERNAL_CATEGORY_NAME);
+		ToolCategory category = new ToolCategory(INTERNAL_CATEGORY_NAME);
 		this.hiddenCategories.add(category);
 		
         OperationDefinition od = new OperationDefinition(sadl.getName().getID(), 
@@ -102,7 +102,7 @@ public class LocalServiceAccessor implements ServiceAccessor {
 	}
 
 	@Override
-	public List<OperationCategory> getHiddenCategories() {
+	public List<ToolCategory> getHiddenCategories() {
 		if (hiddenCategories == null) {
 			throw new IllegalStateException("fetchDescriptions(...) must be called first");
 		}
@@ -110,7 +110,7 @@ public class LocalServiceAccessor implements ServiceAccessor {
 	}
 	
 	@Override
-	public List<OperationCategory> getVisibleCategories() {
+	public List<ToolCategory> getVisibleCategories() {
 		if (visibleCategories == null) {
 			throw new IllegalStateException("fetchDescriptions(...) must be called first");
 		}

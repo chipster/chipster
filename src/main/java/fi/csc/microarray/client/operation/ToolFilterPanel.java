@@ -18,20 +18,19 @@ import javax.swing.event.ListSelectionListener;
 import fi.csc.microarray.constants.VisualConstants;
 
 /**
- * A panel that lists operations filtered by a certain criterion.
+ * A panel that lists tools filtered by a certain criterion.
  * 
- * @author naktinis
+ * @author Rimvydas Naktinis
  *
  */
-@SuppressWarnings("serial")
-public class OperationFilterPanel extends JPanel
+public class ToolFilterPanel extends JPanel
                                   implements ListSelectionListener {
     
-    private static final OperationCategory CATEGORY_ALL = new OperationCategory("All");
-    private OperationCategory CATEGORY_NO_MATCHES = new OperationCategory("No matches");
+    private static final ToolCategory CATEGORY_ALL = new ToolCategory("All");
+    private ToolCategory CATEGORY_NO_MATCHES = new ToolCategory("No matches");
     
-    private OperationPanel operationPanel;
-    private List<OperationCategory> categories;
+    private ToolPanel toolPanel;
+    private List<ToolCategory> categories;
     
     private List<OperationDefinition> matchingOperations = new LinkedList<OperationDefinition>();
     private JList categoryList;
@@ -39,17 +38,17 @@ public class OperationFilterPanel extends JPanel
     
     private ExecutionItem selectedOperation;
     
-    public OperationFilterPanel(OperationPanel parent,
-           List<OperationCategory> categories) {
+    public ToolFilterPanel(ToolPanel parent,
+           List<ToolCategory> categories) {
         super(new GridLayout(1, 2));
-        this.operationPanel = parent;
+        this.toolPanel = parent;
         this.categories = categories;
         
         categoryList = new JList();
         categoryList.setSelectedIndex(0);
         categoryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         categoryList.addListSelectionListener(this);
-        categoryList.setCellRenderer(new OperationChoicePanel.CategoryListRenderer());
+        categoryList.setCellRenderer(new ToolSelectorPanel.CategoryListRenderer());
         categoryList.getInsets().right = 1;
         categoryList.setName("categoryList");
         
@@ -57,14 +56,14 @@ public class OperationFilterPanel extends JPanel
         visibleOperationsList = new JList();
         visibleOperationsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         visibleOperationsList.addListSelectionListener(this);
-        visibleOperationsList.setCellRenderer(new OperationChoicePanel.FontSizeFriendlyListRenderer());
+        visibleOperationsList.setCellRenderer(new ToolSelectorPanel.FontSizeFriendlyListRenderer());
         visibleOperationsList.getInsets().right = 1;
         visibleOperationsList.setName("operationList");
         
         JScrollPane categoryListScroller = new JScrollPane(categoryList);       
         JScrollPane operationListScroller = new JScrollPane(visibleOperationsList);
         categoryListScroller.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
-                VisualConstants.OPERATION_LIST_BORDER_COLOR));
+                VisualConstants.TOOL_LIST_BORDER_COLOR));
         operationListScroller.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
         this.add(categoryListScroller);
@@ -79,9 +78,9 @@ public class OperationFilterPanel extends JPanel
             new Vector<OperationDefinition>();
         LinkedList<Float> filteredOperationsWeights = new LinkedList<Float>();
         
-        for (OperationCategory category : categories) {
+        for (ToolCategory category : categories) {
             selectedOperation = null;
-            for (OperationDefinition operation : category.getOperationList()) {
+            for (OperationDefinition operation : category.getToolList()) {
                 int indexInTitle = operation.getDisplayName().toLowerCase().
                                    indexOf(filterPhrase.toLowerCase());
                 int indexInDescription = operation.getDescription().toLowerCase().
@@ -130,19 +129,19 @@ public class OperationFilterPanel extends JPanel
                 filteredOperationsWeights));
         
         // Update category list
-        LinkedList<OperationCategory> matchingCategories = new LinkedList<OperationCategory>();
+        LinkedList<ToolCategory> matchingCategories = new LinkedList<ToolCategory>();
         for (OperationDefinition filteredDefinition : filteredOperations) {
-        	OperationCategory oc = filteredDefinition.getCategory();
+        	ToolCategory oc = filteredDefinition.getCategory();
         	if (!matchingCategories.contains(oc)) {
         		matchingCategories.add(oc);
         	}
         }
 
         // sort categories
-        Collections.sort(matchingCategories, new Comparator<OperationCategory>() {
+        Collections.sort(matchingCategories, new Comparator<ToolCategory>() {
 
 			@Override
-			public int compare(OperationCategory category1, OperationCategory category2) {
+			public int compare(ToolCategory category1, ToolCategory category2) {
 				return categories.indexOf(category1) - categories.indexOf(category2);
 			}
         	
@@ -177,7 +176,7 @@ public class OperationFilterPanel extends JPanel
         
     	// category selected
     	if (event.getSource() == categoryList && categoryList.getSelectedValue() != null) {
-        	OperationCategory selectedCategory = (OperationCategory) categoryList.getSelectedValue();
+        	ToolCategory selectedCategory = (ToolCategory) categoryList.getSelectedValue();
 
         	// get matching tools in the selected category
     		List<OperationDefinition> matchingToolsInSelectedCategory = new LinkedList<OperationDefinition>();
@@ -216,7 +215,7 @@ public class OperationFilterPanel extends JPanel
         	if (selected instanceof ExecutionItem) {
         		
         		selectedOperation = (ExecutionItem) selected;
-        		operationPanel.selectOperation(selectedOperation);
+        		toolPanel.selectTool(selectedOperation);
         		
         		// also select the category of this operation
         		// avoid category changed event which would cause limiting the visible

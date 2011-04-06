@@ -51,34 +51,36 @@ import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
- * The main panel for all operation, parameter and visualization choices in
+ * The main panel for all tool and parameter choices in
  * the client mainframe.
  * 
- * @author Janne Käki, Petri Klemelä
+ * @author Janne Käki, Petri Klemelä, Aleksi Kallio
  *
  */
-@SuppressWarnings("serial")
-public class OperationPanel extends JPanel
+public class ToolPanel extends JPanel
 							implements ActionListener, PropertyChangeListener {
     // Logger for this class
-    private static final Logger logger = Logger.getLogger(OperationPanel.class);
+    private static final Logger logger = Logger.getLogger(ToolPanel.class);
     
+    // UI texts
 	private static final String OPERATION_LIST_TITLE = "Analysis tools";
 	private static final String SHOW_PARAMETERS_TEXT = "Show parameters";
 	private static final String HIDE_PARAMETERS_TEXT = "Hide parameters";	
 	
-	private static final String OPERATIONS = "Operations";
-	private static final String OPERATIONS_CATEGORIZED = "Categorized operations";
-	private static final String OPERATIONS_FILTERED = "Filtered operations";
+	// Card layout names
+	private static final String TOOLS = "Tools";
+	private static final String TOOLS_CATEGORIZED = "Categorized tools";
+	private static final String TOOLS_FILTERED = "Filtered tools";
 	private static final String PARAMETERS = "Parameters";
 	
+	// Panel size
 	private static final int WHOLE_PANEL_HEIGHT = 240;
-	private static final int WHOLE_PANEL_WIDTH= 660;
+	private static final int WHOLE_PANEL_WIDTH = 660;
 	
 	private JPanel operationPanel;
 	private JPanel operationCardPanel;
-	private OperationChoicePanel operationChoicePanel;
-	private OperationFilterPanel operationFilterPanel;
+	private ToolSelectorPanel operationChoicePanel;
+	private ToolFilterPanel operationFilterPanel;
 	private JTextField searchField;
 	private JButton clearSearchButton;
 	private JPanel cardPanel;
@@ -99,17 +101,17 @@ public class OperationPanel extends JPanel
 	private ClientApplication application = Session.getSession().getApplication();
 	
 	/**
-	 * Creates a new OperationPanel.
+	 * Creates a new ToolPanel.
 	 * 
 	 * @param client The client under whose command this panel is assigned.
 	 */
-	public OperationPanel(List<OperationCategory> parsedCategories) throws ParseException {
+	public ToolPanel(List<ToolCategory> parsedCategories) throws ParseException {
 		super(new GridBagLayout());
 		this.setPreferredSize(new Dimension(WHOLE_PANEL_WIDTH, WHOLE_PANEL_HEIGHT));
 		this.setMinimumSize(new Dimension(0,0));
 		
-		operationChoicePanel = new OperationChoicePanel(this, parsedCategories);
-		operationFilterPanel = new OperationFilterPanel(this, parsedCategories);
+		operationChoicePanel = new ToolSelectorPanel(this, parsedCategories);
+		operationFilterPanel = new ToolFilterPanel(this, parsedCategories);
 		
 		cardPanel = new JPanel(new CardLayout());
 		
@@ -160,7 +162,7 @@ public class OperationPanel extends JPanel
 		executeButton.setEnabled(false);
 		
 		detailFieldScroller.setBorder(
-				BorderFactory.createMatteBorder(1, 0, 0, 0, VisualConstants.OPERATION_LIST_BORDER_COLOR));
+				BorderFactory.createMatteBorder(1, 0, 0, 0, VisualConstants.TOOL_LIST_BORDER_COLOR));
 		
 	    // Search bar
         JToolBar searchPanel = new JToolBar();
@@ -177,7 +179,7 @@ public class OperationPanel extends JPanel
                     	field.add(clearSearchButton);
                     }
                 	operationFilterPanel.loadFilteredOperations(field.getText());
-                    showOperationCard(OPERATIONS_FILTERED);
+                    showOperationCard(TOOLS_FILTERED);
                 } else {
                 	clearSearch();
                 }
@@ -224,7 +226,7 @@ public class OperationPanel extends JPanel
         searchField.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         searchField.setPreferredSize(new Dimension(100, 22));
         searchPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
-                VisualConstants.OPERATION_LIST_BORDER_COLOR));
+                VisualConstants.TOOL_LIST_BORDER_COLOR));
 		
 		// Operation choice card contains two other cards:
 		// operations with categories and filtered operations
@@ -251,15 +253,15 @@ public class OperationPanel extends JPanel
         operationPanel.add(operationCardPanel, c);
         
         // Tool selection panels inside operation card
-        operationCardPanel.add(operationChoicePanel, OPERATIONS_CATEGORIZED);
-        operationCardPanel.add(operationFilterPanel, OPERATIONS_FILTERED);
+        operationCardPanel.add(operationChoicePanel, TOOLS_CATEGORIZED);
+        operationCardPanel.add(operationFilterPanel, TOOLS_FILTERED);
         operationCardPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
-                VisualConstants.OPERATION_LIST_BORDER_COLOR));
+                VisualConstants.TOOL_LIST_BORDER_COLOR));
 
 	    // Add operation panel
-	    cardPanel.add(operationPanel, OPERATIONS);
+	    cardPanel.add(operationPanel, TOOLS);
         cardPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
-                VisualConstants.OPERATION_LIST_BORDER_COLOR));
+                VisualConstants.TOOL_LIST_BORDER_COLOR));
 		
 	    // Help and execution panel
 		JPanel topLeftPanel = new JPanel(new GridBagLayout());
@@ -408,7 +410,7 @@ public class OperationPanel extends JPanel
         showParametersTitle(false);
         parametersButton.setText(SHOW_PARAMETERS_TEXT);
         isParametersVisible = false;
-        showCard(OPERATIONS);
+        showCard(TOOLS);
 	}
 	
 	/**
@@ -418,8 +420,8 @@ public class OperationPanel extends JPanel
 	 * The selected dataset will also be taken into account when setting
 	 * the title.
 	 * 
-	 * @param commandWord Either OperationPanel.showOperationsCommand or
-	 * 					  OperationPanel.showParametersCommand.
+	 * @param commandWord Either ToolPanel.showOperationsCommand or
+	 * 					  ToolPanel.showParametersCommand.
 	 */
 	private void showParametersTitle(boolean showParametersTitle) {
 		String title;
@@ -445,7 +447,7 @@ public class OperationPanel extends JPanel
 	 * 					whose details are to be shown.
 	 * @throws MicroarrayException 
 	 */
-	public void selectOperation(ExecutionItem newSelectedOperationDefinition) {
+	public void selectTool(ExecutionItem newSelectedOperationDefinition) {
 		
 		// no operation selected
 		if (newSelectedOperationDefinition == null) {
@@ -558,7 +560,7 @@ public class OperationPanel extends JPanel
 			
             // Reselect operation definition, so suitability is recalculated
 			// and parameter values are set to default
-            selectOperation(selectedOperationDefinition);
+            selectTool(selectedOperationDefinition);
             
             // In case parameter panel is open, open operations panel,
             // because we have just nulled the parameter values
@@ -592,7 +594,7 @@ public class OperationPanel extends JPanel
 		searchField.setText("");
 		searchField.setBackground(Color.WHITE);
 		searchField.remove(clearSearchButton);
-		operationChoicePanel.deselectOperation();
-		showOperationCard(OPERATIONS_CATEGORIZED);
+		operationChoicePanel.deselectTool();
+		showOperationCard(TOOLS_CATEGORIZED);
 	}
 }

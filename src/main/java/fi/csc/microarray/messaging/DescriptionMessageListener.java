@@ -6,7 +6,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.client.operation.OperationCategory;
+import fi.csc.microarray.client.operation.ToolCategory;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.description.SADLDescription.Input;
@@ -23,10 +23,10 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
 	private static final Logger logger = Logger.getLogger(DescriptionMessageListener.class);
     
 	private final CountDownLatch latch = new CountDownLatch(1);
-    private List<OperationCategory> visibleCategories =
-        new LinkedList<OperationCategory>();
-    private List<OperationCategory> hiddenCategories =
-        new LinkedList<OperationCategory>();
+    private List<ToolCategory> visibleCategories =
+        new LinkedList<ToolCategory>();
+    private List<ToolCategory> hiddenCategories =
+        new LinkedList<ToolCategory>();
     private String wantedModule;
     private boolean finished = false;
     
@@ -37,7 +37,7 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
     /**
      * @return categories that are visible to end-user.
      */
-    public List<OperationCategory> getVisibleCategories() {
+    public List<ToolCategory> getVisibleCategories() {
         return visibleCategories;
     }
 
@@ -45,7 +45,7 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
      * @return categories that are hidden from end-user, but still
      * available for execution.
      */
-    public List<OperationCategory> getHiddenCategories() {
+    public List<ToolCategory> getHiddenCategories() {
         return hiddenCategories;
     }
     
@@ -90,7 +90,7 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
         logger.debug("generating operations from " + categories.size() + " categories");
         
         for (Category category : categories) {
-            OperationCategory op = new OperationCategory(category.getName());
+            ToolCategory op = new ToolCategory(category.getName());
             op.setColor(category.getColor());
             
             // hue, with the value .15 generates about 20 different colors
