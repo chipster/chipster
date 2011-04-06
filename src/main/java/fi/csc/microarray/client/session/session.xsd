@@ -30,7 +30,7 @@
     		<xs:element name="name" type="nameType"/>
     		<xs:element name="type" type="xs:string" minOccurs="0"/>
     		<xs:element name="source-code-file" type="xs:string" minOccurs="0"/>
-			<xs:element name="input" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
+			<xs:element name="input" type="inputType" maxOccurs="unbounded" minOccurs="0"/>
 			<xs:element name="output" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
     		<xs:element name="parameter" type="parameterType" maxOccurs="unbounded" minOccurs="0"/>
 		</xs:sequence>
@@ -58,6 +58,14 @@
 			<xs:element name="notes" type="xs:string" minOccurs="0"/>
 		</xs:sequence>
 	</xs:complexType>
+
+    <xs:complexType name="inputType">
+    	<xs:sequence>
+    		<xs:element name="name" type="nameType"></xs:element>
+    		<xs:element name="data" type="xs:string"></xs:element>
+    	</xs:sequence>
+    </xs:complexType>
+
 	
     <xs:complexType name="nameType">
     	<xs:sequence>

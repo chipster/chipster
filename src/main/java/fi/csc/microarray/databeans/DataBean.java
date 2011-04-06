@@ -198,6 +198,11 @@ public class DataBean extends DataItemBase {
 	 */
 	public void setOperation(Operation operation) {
 		this.sourceOperation = operation;
+		if (operation != null) {
+			this.operationRecord = new OperationRecord(operation);
+		} else {
+			this.operationRecord = null;
+		}
 	}
 
 

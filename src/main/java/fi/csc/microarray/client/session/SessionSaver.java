@@ -18,7 +18,7 @@ import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
 
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.client.session.schema.DataType;
@@ -55,9 +55,9 @@ public class SessionSaver {
 	private HashMap<DataItem, String> reversedItemIdMap = new HashMap<DataItem, String>();
 
 	private int operationIdCounter = 0;
-	private HashMap<String, Operation> operationIdMap = new HashMap<String, Operation>();
-	private HashMap<Operation, String> reversedOperationIdMap = new HashMap<Operation, String>();
-	private HashMap<String, OperationType> operationTypeMap = new HashMap<String, OperationType>();
+	private HashMap<String, OperationRecord> operationRecordIdMap = new HashMap<String, OperationRecord>();
+	private HashMap<OperationRecord, String> reversedOperationRecordIdMap = new HashMap<OperationRecord, String>();
+	private HashMap<String, OperationType> operationRecordTypeMap = new HashMap<String, OperationType>();
 	
 	
 	private DataManager dataManager = Session.getSession().getDataManager();
@@ -298,21 +298,21 @@ public class SessionSaver {
 		
 
 		// FIXME accept beans without operation?
-		if (bean.getOperation() != null) {
-			Operation operation = bean.getOperation();
+		if (bean.getOperationRecord() != null) {
+			OperationRecord operationRecord = bean.getOperationRecord();
 			String operId;
 			
 			// write operation or lookup already written
-			if (!operationIdMap.containsValue(operation) ) {
-				operId = generateId(operation);
-				saveOperationMetadata(operation, operId);
+			if (!operationRecordIdMap.containsValue(operationRecord) ) {
+				operId = generateId(operationRecord);
+				saveOperationMetadata(operationRecord, operId);
 
 			} else {
-				operId = reversedOperationIdMap.get(operation).toString();
+				operId = reversedOperationRecordIdMap.get(operationRecord).toString();
 			}
 
 			// link data to operation
-			operationTypeMap.get(operId).getOutput().add(beanId);
+			operationRecordTypeMap.get(operId).getOutput().add(beanId);
 			
 			// link the operation to data
 			dataType.setResultOf(operId);
@@ -338,7 +338,7 @@ public class SessionSaver {
 	}
 
 	
-	private void saveOperationMetadata(Operation operation, String operationId) {
+	private void saveOperationMetadata(OperationRecord operationRecord, String operationId) {
 		OperationType operationType = factory.createOperationType();
 		
 		// session id
@@ -346,12 +346,12 @@ public class SessionSaver {
 		
 		// name
 		NameType nameType = factory.createNameType();
-		nameType.setId(operation.getID());
-		nameType.setDisplayName(operation.getDisplayName());
+		nameType.setId(operationRecord.getID());
+		nameType.setDisplayName(operationRecord.getDisplayName());
 		operationType.setName(nameType);
 		
 		// parameters
-		for (Parameter parameter : operation.getParameters()) {
+		for (Parameter parameter : operationRecord.getParameters()) {
 
 			// Write parameter only when value is not empty
 			if (parameter.getValue() != null && !parameter.getValue().equals("")) {	
@@ -373,7 +373,7 @@ public class SessionSaver {
 		}
 		
 		sessionType.getOperation().add(operationType);
-		operationTypeMap.put(operationId, operationType);
+		operationRecordTypeMap.put(operationId, operationType);
 	}	
 
 
@@ -396,11 +396,11 @@ public class SessionSaver {
 		out.closeEntry() ;							
 	}
 
-	private String generateId(Operation operation) {
+	private String generateId(OperationRecord operationRecord) {
 		String id = String.valueOf(operationIdCounter);
 		operationIdCounter++;
-		operationIdMap.put(id, operation);
-		reversedOperationIdMap.put(operation, id);
+		operationRecordIdMap.put(id, operationRecord);
+		reversedOperationRecordIdMap.put(operationRecord, id);
 		return id.toString();
 	}
 
