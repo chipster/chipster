@@ -16,12 +16,17 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.Icon;
+import javax.xml.bind.JAXBException;
 
 import org.apache.log4j.Logger;
 import org.mortbay.util.IO;
+import org.xml.sax.SAXException;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
+import fi.csc.microarray.client.session.ClientSession;
+import fi.csc.microarray.client.session.SessionLoader;
+import fi.csc.microarray.client.session.SessionSaver;
 import fi.csc.microarray.databeans.DataBean.StorageMethod;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.features.Feature;
@@ -83,6 +88,11 @@ public class DataManager {
 	 */
 	public DataFolder getRootFolder() {
 		return rootFolder;
+	}
+	
+	
+	public boolean isRootFolder(DataFolder folder) {
+		return (rootFolder == folder) && (rootFolder != null);
 	}
 
 	/**
@@ -479,6 +489,21 @@ public class DataManager {
 		return dataBean;
 	}
 
+	/**
+	 * Create a zip file DataBean. Bean contents are already in the zipFile.
+	 * 
+	 * @param name
+	 * @param url location of the zip file, zip entry name as the fragment
+	 * @return
+	 * @throws MicroarrayException
+	 */
+	public DataBean createDataBeanFromZip(String name, URL url) throws MicroarrayException {
+		DataBeanHandler handler = new ZipDataBeanHandler();
+		DataBean dataBean = new DataBean(name, StorageMethod.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new DataBean[] {}, null, this, handler);
+		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
+		return dataBean;
+	}
+
 	
 	/**
 	 * Create a local temporary file DataBean with content, with a parent folder and with sources.
@@ -531,10 +556,14 @@ public class DataManager {
 	 * 
 	 * @see #saveSnapshot(File, ClientApplication)
 	 */
-	public List<DataItem> loadSnapshot(File sessionFile, DataFolder parentFolder, ClientApplication application) throws IOException, MicroarrayException {
-		SnapshottingSession session = new SnapshottingSession(this, application);
-		List<DataItem> newItems = session.loadFromSnapshot(sessionFile, parentFolder);
-		return newItems;
+	public void loadSnapshot(File sessionFile, DataFolder parentFolder, ClientApplication application) throws IOException, MicroarrayException {
+		if (ClientSession.isValidSessionFile(sessionFile)) {
+			SessionLoader sessionLoader = new SessionLoader(sessionFile);
+			sessionLoader.loadSession();
+		} else {
+			SnapshottingSession session = new SnapshottingSession(this, application);
+			session.loadFromSnapshot(sessionFile, parentFolder);
+		}
 	}
 
 
@@ -542,10 +571,14 @@ public class DataManager {
 	 * Saves session (all data: beans, folder structure, operation metadata, links etc.) to a file.
 	 * File is a zip file with all the data files and one metadata file.
 	 * @return count of stored files
+	 * @throws JAXBException 
+	 * @throws SAXException 
 	 */
-	public void saveSnapshot(File snapshotDir, ClientApplication application) throws IOException {
-		SnapshottingSession session = new SnapshottingSession(this, application);
-		session.saveSnapshot(snapshotDir);
+	public void saveSnapshot(File snapshotDir, ClientApplication application) throws IOException, JAXBException, SAXException {
+		SessionSaver sessionSaver = new SessionSaver(snapshotDir);
+		sessionSaver.saveSession();
+//		SnapshottingSession session = new SnapshottingSession(this, application);
+//		session.saveSnapshot(snapshotDir);
 	}
 
 	/**

@@ -12,10 +12,12 @@ import java.util.List;
 
 import javax.jms.JMSException;
 import javax.swing.Icon;
+import javax.xml.bind.JAXBException;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.xml.sax.SAXException;
 
 import fi.csc.microarray.client.AtEndListener;
 import fi.csc.microarray.client.ClientApplication;
@@ -53,7 +55,7 @@ public class FSDataManagerTest {
 	}
 
 	@Test(groups = {"smoke"} )
-	public void testSnapshot() throws IOException, MicroarrayException {
+	public void testSnapshot() throws IOException, MicroarrayException, JAXBException, SAXException {
 
 		// create original
 		DataManager manager1 = new DataManager();

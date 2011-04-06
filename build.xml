@@ -381,6 +381,21 @@
 		<echo>REMEMBER TO TURN DEBUG LOGGING OFF!</echo>
 	</target>
 
+	
+	<target name="generate-session-classes" description="">
+		<delete dir="src/main/java/fi/csc/microarray/client/session/schema" />
+
+		<java classname="com.sun.tools.internal.xjc.XJCFacade">
+	            <arg value="-p" />
+	            <arg value="fi.csc.microarray.client.session.schema"/>
+            	<arg value="-d" />
+            	<arg value="src/main/java"/>
+	    		<arg value="src/main/java/fi/csc/microarray/client/session/session.xsd" />
+	    </java>
+	</target>
+
+	
+	
 	<!--
     <path id="testngpath">
       <pathelement location="${test-src}"/>

@@ -10,8 +10,10 @@ import java.net.URL;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import fi.csc.microarray.client.session.ClientSession;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.StorageMethod;
+import fi.csc.microarray.databeans.sessions.SnapshottingSession;
 
 public class ZipDataBeanHandler extends DataBeanHandlerBase {
 
@@ -53,8 +55,9 @@ public class ZipDataBeanHandler extends DataBeanHandlerBase {
 			throw new IllegalArgumentException("Illegal path:" + url.toString());
 		}
 		
-		// needs to be .cs
-		else if (!getZipFile(dataBean).getName().endsWith(".cs")) {
+		// needs to be session file
+		else if (!getZipFile(dataBean).getName().endsWith("." + ClientSession.SESSION_FILE_EXTENSION) &&
+				!getZipFile(dataBean).getName().endsWith("." + SnapshottingSession.SNAPSHOT_EXTENSION)) {
 			throw new IllegalArgumentException("Not a session file.");
 		}
 		

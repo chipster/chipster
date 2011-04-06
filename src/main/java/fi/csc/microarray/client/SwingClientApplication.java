@@ -66,6 +66,7 @@ import fi.csc.microarray.client.dialog.URLImportDialog;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
+import fi.csc.microarray.client.dialog.DialogInfo.Type;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationPanel;
@@ -75,6 +76,7 @@ import fi.csc.microarray.client.screen.Screen;
 import fi.csc.microarray.client.screen.ShowSourceScreen;
 import fi.csc.microarray.client.screen.TaskManagerScreen;
 import fi.csc.microarray.client.selection.DatasetChoiceEvent;
+import fi.csc.microarray.client.session.ClientSession;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.tasks.TaskExecutor;
@@ -164,7 +166,7 @@ public class SwingClientApplication extends ClientApplication {
 	private boolean unsavedChanges = false;
 
 	private JFileChooser importExportFileChooser;
-	private JFileChooser snapshotFileChooser;
+	private JFileChooser sessionFileChooser;
 	private JFileChooser workflowFileChooser;
 
 	public SwingClientApplication(ClientListener clientListener, AuthenticationRequestListener overridingARL, String module, boolean isStandalone)
@@ -1540,22 +1542,22 @@ public class SwingClientApplication extends ClientApplication {
 		return importExportFileChooser;
 	}
 
-	private JFileChooser getSnapshotFileChooser(JComponent accessory) {
-		if (snapshotFileChooser == null) {
-			snapshotFileChooser = ImportUtils.getFixedFileChooser();
+	private JFileChooser getSessionFileChooser(JComponent accessory) {
+		if (sessionFileChooser == null) {
+			sessionFileChooser = ImportUtils.getFixedFileChooser();
 
-			String[] extensions = { SnapshottingSession.SNAPSHOT_EXTENSION };
-			snapshotFileChooser.setFileFilter(new GeneralFileFilter("Chipster Session", extensions));
-			snapshotFileChooser.setSelectedFile(new File("session." + SnapshottingSession.SNAPSHOT_EXTENSION));
-			snapshotFileChooser.setAcceptAllFileFilterUsed(false);
-			snapshotFileChooser.setMultiSelectionEnabled(false);
+			String[] extensions = { SnapshottingSession.SNAPSHOT_EXTENSION, ClientSession.SESSION_FILE_EXTENSION };
+			sessionFileChooser.setFileFilter(new GeneralFileFilter("Chipster Session (*.cs, *.zip)", extensions));
+			sessionFileChooser.setSelectedFile(new File("session." + ClientSession.SESSION_FILE_EXTENSION));
+			sessionFileChooser.setAcceptAllFileFilterUsed(false);
+			sessionFileChooser.setMultiSelectionEnabled(false);
 
 		}
-		snapshotFileChooser.setAccessory(accessory);
+		sessionFileChooser.setAccessory(accessory);
 
-		fixFileChooserFontSize(snapshotFileChooser);
+		fixFileChooserFontSize(sessionFileChooser);
 
-		return snapshotFileChooser;
+		return sessionFileChooser;
 	}
 
 	private JFileChooser getWorkflowFileChooser() {
@@ -1691,17 +1693,36 @@ public class SwingClientApplication extends ClientApplication {
 	public void loadSession() {
 
 		SnapshotAccessory accessory = new SnapshotAccessory();
-		final JFileChooser fileChooser = getSnapshotFileChooser(accessory);
+		final JFileChooser fileChooser = getSessionFileChooser(accessory);
 		int ret = fileChooser.showOpenDialog(this.getMainFrame());
 		
+		// user has selected a file
 		if (ret == JFileChooser.APPROVE_OPTION) {
-				if (accessory.clearSession()) {
-					if (!clearSession()) {
-						return; // loading cancelled
-					}
-				}								
-								
-				loadSessionImpl(fileChooser.getSelectedFile());		
+			File sessionFile = fileChooser.getSelectedFile();
+			
+			// check that file exists
+			if (!sessionFile.exists()) {
+				DialogInfo info = new DialogInfo(Severity.INFO, "Could not open session file.", "File '" + sessionFile.getName() + "' not found.", "", Type.MESSAGE);
+				ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
+				return;
+			}
+			
+			// check that the file is a session file
+			if (!(ClientSession.isValidSessionFile(sessionFile) || sessionFile.getName().endsWith("." + SnapshottingSession.SNAPSHOT_EXTENSION))) {
+				DialogInfo info = new DialogInfo(Severity.INFO, "Could not open session file.", "File '" + sessionFile.getName() + "' is not a valid session file.", "", Type.MESSAGE);
+				ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
+				return;
+			}
+			
+			// clear previous session 
+			if (accessory.clearSession()) {
+				if (!clearSession()) {
+					return; // loading cancelled
+				}
+			}								
+
+			// load the new session
+			loadSessionImpl(fileChooser.getSelectedFile());		
 		}
 		menuBar.updateMenuStatus();
 	}
@@ -1740,13 +1761,13 @@ public class SwingClientApplication extends ClientApplication {
 	
 	public void saveSession(final boolean quit) {
 
-		JFileChooser fileChooser = getSnapshotFileChooser(null);
+		JFileChooser fileChooser = getSessionFileChooser(null);
 		int ret = fileChooser.showSaveDialog(this.getMainFrame());
 		final ClientApplication application = this; // for inner class
 		
 		if (ret == JFileChooser.APPROVE_OPTION) {
 			try {
-				final File file = fileChooser.getSelectedFile().getName().endsWith("." + SnapshottingSession.SNAPSHOT_EXTENSION) ? fileChooser.getSelectedFile() : new File(fileChooser.getSelectedFile().getCanonicalPath() + "." + SnapshottingSession.SNAPSHOT_EXTENSION);
+				final File file = fileChooser.getSelectedFile().getName().endsWith("." + ClientSession.SESSION_FILE_EXTENSION) ? fileChooser.getSelectedFile() : new File(fileChooser.getSelectedFile().getCanonicalPath() + "." + ClientSession.SESSION_FILE_EXTENSION);
 
 				if (file.exists()) {
 					int returnValue = JOptionPane.DEFAULT_OPTION;
