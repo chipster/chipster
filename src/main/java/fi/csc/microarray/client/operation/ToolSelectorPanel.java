@@ -16,6 +16,7 @@ import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
@@ -52,7 +53,8 @@ public class ToolSelectorPanel extends JPanel
 	private final ClientApplication application = Session.getSession().getApplication();
 	
 	private ToolPanel toolPanel;
-	
+
+	private JList moduleList;
 	private JList categoryList;
 	private JList toolList;
 	
@@ -72,6 +74,13 @@ public class ToolSelectorPanel extends JPanel
         List<ToolCategory> toolCategories;
         toolCategories = Collections.list(Collections.enumeration(toolCategoryCollection));
 
+        // Load modules
+        Object[] modules = new Object[3];
+        modules[0] = "Microarrays";
+        modules[1] = "Sequence analysis";
+        modules[2] = "NGS";
+
+        // Load categories
 		Object[] categories;
 		if (toolCategories != null) {
 			categories = new Object[toolCategories.size()];
@@ -81,7 +90,14 @@ public class ToolSelectorPanel extends JPanel
 		} else {
 			categories = new Object[0];
 		}
-		
+
+		moduleList = new JList(modules);
+		moduleList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		moduleList.addListSelectionListener(this);
+		moduleList.setCellRenderer(new ModuleListRenderer());
+		moduleList.getInsets().right = 1;
+		moduleList.setName("moduleList");
+
 		categoryList = new JList(categories);
 		categoryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		categoryList.addListSelectionListener(this);
@@ -96,21 +112,26 @@ public class ToolSelectorPanel extends JPanel
 		toolList.addMouseListener(new MouseClickListener());
 		toolList.getInsets().right = 1;
 		toolList.setName("toolList");
-		
+
+		JScrollPane moduleListScroller = new JScrollPane(moduleList);		
 		JScrollPane categoryListScroller = new JScrollPane(categoryList);		
 		JScrollPane toolListScroller = new JScrollPane(toolList);
 		
-		//Remove useless borders
+		// Remove useless borders
+		moduleListScroller.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
+		        VisualConstants.TOOL_LIST_BORDER_COLOR));
 		categoryListScroller.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
 		        VisualConstants.TOOL_LIST_BORDER_COLOR));
 		toolListScroller.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 		
+		this.add(moduleListScroller);
 		this.add(categoryListScroller);
 		this.add(toolListScroller);
 	}
 	
 	public Vector<Component> getFocusComponents(){
 		Vector<Component> order = new Vector<Component>();
+		order.add(moduleList);
 		order.add(categoryList);
 		order.add(toolList);		
 		return order;
@@ -120,6 +141,7 @@ public class ToolSelectorPanel extends JPanel
 	 * Deselect tool.
 	 */
 	public void deselectTool() {
+	    moduleList.clearSelection();
 	    categoryList.clearSelection();
 	    toolList.clearSelection();
 	    toolPanel.selectTool(null);
@@ -140,6 +162,28 @@ public class ToolSelectorPanel extends JPanel
 		}
 	}
 	
+
+	static class ModuleListRenderer extends FontSizeFriendlyListRenderer {
+
+		public Component getListCellRendererComponent(
+				JList list, Object value, int index,
+				boolean isSelected, boolean cellHasFocus) {
+			
+			JLabel comp = (JLabel)super.getListCellRendererComponent(
+					list, value, index, isSelected, cellHasFocus);
+			
+			Object name = list.getModel().getElementAt(index);
+			
+			if ("Microarrays".equals(name)) {
+				comp.setIcon(new ImageIcon(VisualConstants.class.getResource("/module.gif")));
+				
+			} else {
+				comp.setIcon(new ImageIcon(VisualConstants.class.getResource("/module.gif")));
+				
+			}
+			return this;
+		}
+	}
 
 	static class CategoryListRenderer extends FontSizeFriendlyListRenderer {
 
