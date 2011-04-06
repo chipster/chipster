@@ -24,6 +24,7 @@ import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.session.schema.DataType;
 import fi.csc.microarray.client.session.schema.FolderType;
+import fi.csc.microarray.client.session.schema.InputType;
 import fi.csc.microarray.client.session.schema.LinkType;
 import fi.csc.microarray.client.session.schema.OperationType;
 import fi.csc.microarray.client.session.schema.ParameterType;
@@ -293,8 +294,8 @@ public class SessionLoader {
 			List<DataBean> inputBeans = new LinkedList<DataBean>();
 			
 			// FIXME add checks
-			for (String inputId : operationTypes.get(operation).getInput()) {
-				DataBean inputBean = dataBeans.get(inputId);
+			for (InputType inputType : operationTypes.get(operation).getInput()) {
+				DataBean inputBean = dataBeans.get(inputType.getData());
 				if (inputBean.queryFeatures("/phenodata/").exists()) {
 					continue; // skip phenodata, it is bound automatically
 				}

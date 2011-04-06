@@ -126,7 +126,8 @@ public class OperationDefinition implements ExecutionItem {
 
 	public static class InputDefinition {
 
-		private String name;
+		private String id;
+		private String displayName;
 		private String description = null;
 		private String postfix = null;
 		private boolean multi = false;
@@ -136,38 +137,42 @@ public class OperationDefinition implements ExecutionItem {
 		/**
 		 * Creates single input.
 		 */
-		public InputDefinition(Name name, SADLSyntax.InputType type) {
+		public InputDefinition(Name name, String description, SADLSyntax.InputType type) {
 			resetMulti();
-			this.name = name.getID();
-			this.description = name.getDisplayName();
+			this.id = name.getID();
+			this.displayName = name.getDisplayName();
+			this.description = description;
 			this.type = type;
 		}
 
 		/**
 		 * Creates multi-input.
 		 */
-		public InputDefinition(String prefix, String postfix, SADLSyntax.InputType type) {
-			this.name = prefix;
+		public InputDefinition(String prefix, String postfix, String displayName, String description, SADLSyntax.InputType type) {
+			this.id = prefix;
 			this.postfix = postfix;
+			this.displayName = displayName;
+			this.description = description;
 			this.type = type;
 			this.multi = true;
 		}
 
-		public String getName() {
+		public String getID() {
 			if (!multi) {
-				return name;
+				return id;
 			} else {
-				return name + Strings.toString(multiCounter, 3) + postfix; // show always at least 3 digits 
+				return id + Strings.toString(multiCounter, 3) + postfix; // show always at least 3 digits 
 			}
 		}
 		
         public String getDescription() {
-            if (description != null) {
-                return description;
-            }
-            return getName();
+                return this.description;
         }
 
+        public String getDisplayName() {
+        	return this.displayName;
+        }
+        
         public void setDescription(String description) {
             this.description = description;
         }
@@ -231,7 +236,7 @@ public class OperationDefinition implements ExecutionItem {
 
 	/**
 	 * Simplified constructor.
-	 * @param name
+	 * @param id
 	 * @param category
 	 * @param description
 	 * @param hasSourceCode
@@ -359,13 +364,13 @@ public class OperationDefinition implements ExecutionItem {
 		return colorCount;
 	}
 
-	public void addInput(Name name, InputType type) {
-		InputDefinition input = new InputDefinition(name, type);
+	public void addInput(Name name, String description, InputType type) {
+		InputDefinition input = new InputDefinition(name, description, type);
 		inputs.add(input);
 	}
 
-	public void addInput(String prefix, String postfix, InputType type) {
-		InputDefinition input = new InputDefinition(prefix, postfix, type);
+	public void addInput(String prefix, String postfix, String displayName, String description, InputType type) {
+		InputDefinition input = new InputDefinition(prefix, postfix, displayName, description, type);
 		inputs.add(input);
 	}
 	
@@ -417,12 +422,12 @@ public class OperationDefinition implements ExecutionItem {
 			for (DataBean value : notProcessedInputValues) {
 
 				// try to match values to input definitions
-				logger.debug("  trying to bind " + value.getName() + " to " + input.name + " (" + input.type + ")");
+				logger.debug("  trying to bind " + value.getName() + " to " + input.id + " (" + input.type + ")");
 				if (doBackwardsCompatibleTypeCheck(input.type, value)) {
 
-					logger.debug("    bound successfully (" + value.getName() + " -> " + input.getName() + ")");
+					logger.debug("    bound successfully (" + value.getName() + " -> " + input.getID() + ")");
 
-					bindings.add(new DataBinding(value, input.getName(), input.getType()));
+					bindings.add(new DataBinding(value, input.getID(), input.getType()));
 					foundBinding = true;
 					removedValues.add(value); // mark it to be removed after iteration
 					
@@ -437,7 +442,7 @@ public class OperationDefinition implements ExecutionItem {
 
 			// input not bound, so can give up
 			if (!foundBinding) {
-				logger.debug("  no binding found for " + input.name);
+				logger.debug("  no binding found for " + input.id);
 				this.evaluatedSuitability = Suitability.NOT_ENOUGH_INPUTS;
 				return null;
 			}
@@ -461,7 +466,7 @@ public class OperationDefinition implements ExecutionItem {
 				DataBean metadata = LinkUtils.retrieveInherited(input, Link.ANNOTATION);
 
 				if (metadata != null) {
-					phenodataBindings.add(new DataBinding(metadata, unboundMetadata.getName(), ChipsterInputTypes.PHENODATA));
+					phenodataBindings.add(new DataBinding(metadata, unboundMetadata.getID(), ChipsterInputTypes.PHENODATA));
 					
 				} else {
 					this.evaluatedSuitability = Suitability.NOT_ENOUGH_INPUTS;
@@ -504,7 +509,7 @@ public class OperationDefinition implements ExecutionItem {
 
 	// TODO update to new type tag system
 	private boolean doBackwardsCompatibleMetadataCheck(InputDefinition input) {
-		return input.name.startsWith("phenodata");
+		return input.id.startsWith("phenodata");
 	}
 
 	/**
@@ -539,7 +544,7 @@ public class OperationDefinition implements ExecutionItem {
 			} else {
 				type = "null";
 			}
-			s += input.getName() + " " + type + " " + input.getDescription() + "\n";
+			s += input.getID() + " " + type + " " + input.getDescription() + "\n";
 		}
 		for (Parameter parameter: parameters) {
 		    // Some parameters don't have default values

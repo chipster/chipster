@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -19,10 +20,10 @@ import org.xml.sax.SAXException;
 
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.OperationRecord;
-import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.client.session.schema.DataType;
 import fi.csc.microarray.client.session.schema.FolderType;
+import fi.csc.microarray.client.session.schema.InputType;
 import fi.csc.microarray.client.session.schema.LinkType;
 import fi.csc.microarray.client.session.schema.NameType;
 import fi.csc.microarray.client.session.schema.ObjectFactory;
@@ -366,10 +367,15 @@ public class SessionSaver {
 		}
 
 		// inputs
-		for (DataBinding binding : operation.getBindings()) {
+		for (Entry<String, DataBean> entry : operationRecord.getInputs().entrySet()) {
+
+			// FIXME add display name and description
 			// FIXME check inputId for null
-			String inputId = reversedItemIdMap.get(binding.getData());
-			operationType.getInput().add(inputId); 
+			InputType inputType = factory.createInputType();
+			inputType.setName(createNameType(entry.getKey(), "", ""));
+			inputType.setData(reversedItemIdMap.get(entry.getValue()));
+			
+			operationType.getInput().add(inputType);
 		}
 		
 		sessionType.getOperation().add(operationType);
@@ -404,6 +410,14 @@ public class SessionSaver {
 		return id.toString();
 	}
 
+	
+	private NameType createNameType(String id, String displayName, String desription) {
+		NameType nameType = factory.createNameType();
+		nameType.setId(id);
+		nameType.setDisplayName(displayName);
+		nameType.setDescription(desription);
+		return nameType;
+	}
 	
 	public static void main(String[] args) throws JAXBException {
 		ObjectFactory objFactory = new ObjectFactory();

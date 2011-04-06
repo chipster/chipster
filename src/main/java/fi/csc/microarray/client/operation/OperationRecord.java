@@ -1,6 +1,6 @@
 package fi.csc.microarray.client.operation;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,8 +15,9 @@ public class OperationRecord {
 	
 	private String sourceCode;
 
-	private LinkedList<Parameter> parameters;
-	private HashMap<String, DataBean> inputs;
+	private List<Parameter> parameters = new LinkedList<Parameter>();
+	private LinkedHashMap<String, DataBean> inputs = new LinkedHashMap<String, DataBean>();
+	
 	
 	public OperationRecord(Operation operation) {
 		
@@ -30,8 +31,10 @@ public class OperationRecord {
 		}
 	
 		// inputs
-		for (DataBinding binding : operation.getBindings()) {
-			this.inputs.put(binding.getName(), binding.getData());
+		if (operation.getBindings() != null) {
+			for (DataBinding binding : operation.getBindings()) {
+				this.inputs.put(binding.getName(), binding.getData());
+			}
 		}
 	}
 	
@@ -45,6 +48,10 @@ public class OperationRecord {
 
 	public List<Parameter> getParameters() {
 		return parameters;
+	}
+	
+	public LinkedHashMap<String, DataBean> getInputs() {
+		return inputs;
 	}
 	
 	

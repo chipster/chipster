@@ -71,6 +71,7 @@
     	<xs:sequence>
     		<xs:element name="id" type="xs:string"></xs:element>
     		<xs:element name="display-name" type="xs:string"></xs:element>
+    		<xs:element name="description" type="xs:string"></xs:element>
     	</xs:sequence>
     </xs:complexType>
 
