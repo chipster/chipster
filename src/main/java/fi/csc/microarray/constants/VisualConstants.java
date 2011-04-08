@@ -232,7 +232,7 @@ public class VisualConstants {
     
     // colors for Plastic3D look and feel
     public static final Color PLASTIC3D_FOCUS_COLOR = new Color(200, 200, 200);
-    public static final Color OPERATION_LIST_BORDER_COLOR = new Color(128,128,128);
+    public static final Color TOOL_LIST_BORDER_COLOR = new Color(128,128,128);
     public static final Color PHENODATA_TABLE_UNEDITABLE_CELL_BACKGROUND = new Color(245, 245, 245);
     
     public static final float DEFAULT_FONT_SIZE = 11f;

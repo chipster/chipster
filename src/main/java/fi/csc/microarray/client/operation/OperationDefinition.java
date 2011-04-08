@@ -23,7 +23,7 @@ import fi.csc.microarray.util.Strings;
 
 /**
  * This class represents the "operations" that an user can select from the right
- * side list in the OperationChoicePanel. These are the "blueprints" of specific
+ * side list in the ToolSelectorPanel. These are the "blueprints" of specific
  * operations - the actual Operations
  * 
  * @author Janne Käki, Aleksi Kallio
@@ -117,10 +117,10 @@ public class OperationDefinition implements ExecutionItem {
 	static {
 		// done here to guarantee right execution order
 		IMPORT_DEFINITION = new OperationDefinition(IMPORT_DEFINITION_ID, "Import data",
-		        OperationCategory.IMPORT_CATEGORY, "Import data.",
+		        ToolCategory.IMPORT_CATEGORY, "Import data.",
 		        false, null);
 		CREATE_DEFINITION = new OperationDefinition(CREATE_DEFINITION_ID, "Create a dataset",
-		        OperationCategory.CREATE_CATEGORY, "Create a new dataset.",
+		        ToolCategory.CREATE_CATEGORY, "Create a new dataset.",
 		        false, null);
 	}
 
@@ -191,7 +191,7 @@ public class OperationDefinition implements ExecutionItem {
 
 	private String id;
 	private String displayName;
-	private OperationCategory category;
+	private ToolCategory category;
 	private LinkedList<Parameter> parameters = new LinkedList<Parameter>();
 	private String description;
 	private String helpURL;
@@ -214,7 +214,7 @@ public class OperationDefinition implements ExecutionItem {
 	 * @param description
 	 *            A written description of this operation's purpose.
 	 */
-	public OperationDefinition(String id, String displayName, OperationCategory category,
+	public OperationDefinition(String id, String displayName, ToolCategory category,
 	                           String description, boolean hasSourceCode,
 	                           String helpURL) {
 		this.id = id;
@@ -237,7 +237,7 @@ public class OperationDefinition implements ExecutionItem {
 	 * @param hasSourceCode
 	 * @param helpURL
 	 */
-     public OperationDefinition(String id, String displayName, OperationCategory category,
+     public OperationDefinition(String id, String displayName, ToolCategory category,
          String description, boolean hasSourceCode) {
          this(id, displayName, category, description, hasSourceCode, null);
      }
@@ -256,7 +256,7 @@ public class OperationDefinition implements ExecutionItem {
 	/**
 	 * @return The category to which this operation definition belongs.
 	 */
-	public OperationCategory getCategory() {
+	public ToolCategory getCategory() {
 		return category;
 	}
 

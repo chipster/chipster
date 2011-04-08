@@ -4,25 +4,24 @@ import java.awt.Color;
 import java.util.Vector;
 
 /**
- * A class representing a category of similar Operations (or, to be more
- * accurate, OperationDefinitions). For example, there might be distinct
- * categories for all Preprocessing, Normalization, and Clustering operations.
- * Categories are used in the OperationChoicePanel to allow the selection of
- * operations by category.
+ * A class representing a category of similar Tools. For example, there might be 
+ * distinct categories for all Preprocessing, Normalization, and Clustering tools.
+ * Categories are used in the ToolSelectorPanel to allow the selection of
+ * tools by category.
  * 
  * @author Janne Käki, Aleksi Kallio
  *
  */
-public class OperationCategory {
+public class ToolCategory {
 
-	public static OperationCategory IMPORT_CATEGORY = new OperationCategory("Import");
-	public static OperationCategory CREATE_CATEGORY = new OperationCategory("Create datasets");
+	public static ToolCategory IMPORT_CATEGORY = new ToolCategory("Import");
+	public static ToolCategory CREATE_CATEGORY = new ToolCategory("Create datasets");
 	
 	/**
 	 * Checks if the category is one of the predefined pseudo categories. Object identity is not required,
 	 * as long as names match.
 	 */
-	public static boolean isPseudoCategory(OperationCategory category) {
+	public static boolean isPseudoCategory(ToolCategory category) {
 		if (IMPORT_CATEGORY.getName().equals(category.getName())) {
 			return true;
 			
@@ -38,7 +37,7 @@ public class OperationCategory {
 	private Color color;
 	
 	/**
-	 * Creates a new, empty OperationCategory.
+	 * Creates a new, empty ToolCategory.
 	 * 
 	 * @param name Name of the category. Something general, such as
 	 * 			   "Normalization" or "Clustering" for example - this is
@@ -47,7 +46,7 @@ public class OperationCategory {
 	 * @param type Type of the category (as the DataType of the datasets
 	 * 			   produced by the operations of this category).
 	 */
-	public OperationCategory(String name) {
+	public ToolCategory(String name) {
 		this.name = name;
 		this.operations = new Vector<OperationDefinition>();
 	}
@@ -69,7 +68,7 @@ public class OperationCategory {
 	/**
 	 * @return A Vector containing the operation definitions of this category.
 	 */
-	public Vector<OperationDefinition> getOperationList() {
+	public Vector<OperationDefinition> getToolList() {
 		return operations;
 	}
 	
