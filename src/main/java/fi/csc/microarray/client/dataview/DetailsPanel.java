@@ -25,7 +25,7 @@ import javax.swing.event.DocumentListener;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
@@ -153,7 +153,7 @@ public class DetailsPanel extends JPanel implements PropertyChangeListener, Focu
 	
 	private String getNameText() {
 		if (currentData != null) {
-			return currentData.getOperation().getDefinition().getFullName();
+			return currentData.getOperationRecord().getFullName();
 			
 		} else {			
 			return null;
@@ -169,13 +169,13 @@ public class DetailsPanel extends JPanel implements PropertyChangeListener, Focu
 		if (currentData != null) {
 			StringBuffer attrib = new StringBuffer();
 			attrib.append(currentData.getDate().toString());
-			Operation lastOper = currentData.getOperation();
-			if (lastOper != null) {
+			OperationRecord operationRecord = currentData.getOperationRecord();
+			if (operationRecord != null) {
 				
-				attrib.append("\nOperation: " + lastOper.getCategoryName() +
-						" / " +lastOper.getID());
+				attrib.append("\nOperation: " + operationRecord.getCategoryName() +
+						" / " + operationRecord.getDisplayName());
 				
-				List<Parameter> params = lastOper.getParameters();
+				List<Parameter> params = operationRecord.getParameters();
 				if (params != null) {
 					attrib.append("\n");
 					for (int i = 0; i < params.size(); i++) {
