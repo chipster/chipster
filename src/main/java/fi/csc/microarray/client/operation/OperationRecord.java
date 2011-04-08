@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.operation.parameter.Parameter;
@@ -44,6 +45,10 @@ public class OperationRecord {
 				this.inputs.put(binding.getName(), binding.getData());
 			}
 		}
+	
+		// source code
+		this.sourceCode = "not yet available";
+	
 	}
 	
 	public String getID() {
@@ -80,5 +85,34 @@ public class OperationRecord {
 		return inputs;
 	}
 	
-	
+	public String getSourceCode() {
+		return sourceCode;
+	}
+
+	public Parameter getParameter(String name) {
+		for (Parameter parameter : parameters) {
+			if (parameter.getID().equals(name)) {
+				return parameter;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * If the given DataBean is a value of an input binding in this record,
+	 * set the value of such input binding to null.
+	 * 
+	 * @param inputBean
+	 */
+	public void removeInput(DataBean inputBean) {
+		if (inputBean == null) {
+			return;
+		}
+		for (Entry<String, DataBean> entry : inputs.entrySet()) {
+			if (entry.getValue() == inputBean) {
+				entry.setValue(null);
+			}
+		}
+	}
+
 }

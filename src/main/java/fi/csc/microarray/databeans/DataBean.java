@@ -140,6 +140,8 @@ public class DataBean extends DataItemBase {
 	private LinkedList<TypeTag> tags = new LinkedList<TypeTag>();
 	
 	protected Date date;
+	
+	// FIXME remove Operation after refactoring
 	private Operation sourceOperation;
 	private OperationRecord operationRecord;
 	private String notes;
@@ -198,13 +200,7 @@ public class DataBean extends DataItemBase {
 	 */
 	public void setOperation(Operation operation) {
 		this.sourceOperation = operation;
-		if (operation != null) {
-			this.operationRecord = new OperationRecord(operation);
-		} else {
-			this.operationRecord = null;
-		}
 	}
-
 
 	public OperationRecord getOperationRecord() {
 		return operationRecord;

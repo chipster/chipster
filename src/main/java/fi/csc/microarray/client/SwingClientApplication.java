@@ -70,6 +70,7 @@ import fi.csc.microarray.client.dialog.DialogInfo.Type;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationPanel;
+import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.screen.ChildScreenPool;
 import fi.csc.microarray.client.screen.HistoryScreen;
 import fi.csc.microarray.client.screen.Screen;
@@ -736,7 +737,7 @@ public class SwingClientApplication extends ClientApplication {
 						// operation
 						// instance, it would be nice if they would be grouped)
 						Operation importOperation = new Operation(OperationDefinition.IMPORT_DEFINITION, new DataBean[] { data });
-						data.setOperation(importOperation);
+						data.setOperationRecord(new OperationRecord(importOperation));
 
 						// data is ready now, make it visible
 						folder.addChild(data);

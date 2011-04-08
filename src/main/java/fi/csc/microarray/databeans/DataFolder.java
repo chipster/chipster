@@ -113,7 +113,7 @@ public class DataFolder extends DataItemBase {
 			}
 
 			boolean isChipwise = false;
-			Parameter pcaOn = data.getOperation().getParameter("do.pca.on");
+			Parameter pcaOn = data.getOperationRecord().getParameter("do.pca.on");
 			if (pcaOn != null) {
 				Object value = pcaOn.getValue();
 				if (value != null) {
@@ -122,7 +122,7 @@ public class DataFolder extends DataItemBase {
 					}
 				}
 			}
-			if (data.getOperation().getDefinition().getDisplayName().equals("PCA") && isChipwise) {
+			if (data.getOperationRecord().getID().equals("ordination-pca.R") && isChipwise) {
 				data.addTypeTag(MicroarrayModule.TypeTags.EXPRESSION_PRIMARY_COMPONENTS_CHIPWISE);
 			}
 

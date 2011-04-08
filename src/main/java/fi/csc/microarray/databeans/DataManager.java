@@ -23,12 +23,12 @@ import org.mortbay.util.IO;
 import org.xml.sax.SAXException;
 
 import fi.csc.microarray.client.ClientApplication;
-import fi.csc.microarray.client.operation.Operation.DataBinding;
+import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.session.ClientSession;
 import fi.csc.microarray.client.session.SessionLoader;
 import fi.csc.microarray.client.session.SessionSaver;
-import fi.csc.microarray.databeans.DataBean.StorageMethod;
 import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.DataBean.StorageMethod;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
 import fi.csc.microarray.databeans.features.Modifier;
@@ -601,22 +601,9 @@ public class DataManager {
 		// remove from operation history
 		for (DataBean source : databeans()) {
 			// we must iterate all datas because links cannot be trusted (they might have been removed by user)
-
-			boolean isDirty = false;
-			List<DataBinding> bindings = source.getOperation().getBindings();
-
-			if (bindings != null) {
-				for (DataBinding binding : bindings) {
-					if (binding.getData() == bean) {
-						// this operation would become dirty after removing the data
-						isDirty = true;
-						break;
-					}
-				}
-			}
-
-			if (isDirty) {
-				source.getOperation().clearBindings();
+			OperationRecord operationRecord = source.getOperationRecord();
+			if (operationRecord != null) {
+				operationRecord.removeInput(bean);
 			}
 		}
 		

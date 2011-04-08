@@ -110,11 +110,9 @@ public class SessionLoader {
 			// check
 			logger.info("after load checking");
 			for (DataBean dataBean : dataBeans.values()) {
-				if (dataBean.getOperation() == null) {
-					logger.info(dataBean.getName() + " has null operation");
-				} else if (dataBean.getOperation().getBindings() == null) {
-					logger.info(dataBean.getOperation().getID() + " has null bindings");
-				}
+				if (dataBean.getOperationRecord() == null) {
+					logger.info(dataBean.getName() + " has null operation record");
+				} 
 			}
 			
 		} 

@@ -9,7 +9,6 @@ import org.jgraph.graph.GraphConstants;
 
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dataview.MicroarrayGraph;
-import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataBean.Link;
@@ -164,8 +163,7 @@ public class GraphVertex extends AbstractGraphVertex {
 	 */
 	@Override
 	public String toString() {
-		Operation oper = getData().getOperation();
-		return Session.getSession().getPrimaryModule().getShortCategoryName(oper.getCategoryName());
+		return Session.getSession().getPrimaryModule().getShortCategoryName(getData().getOperationRecord().getCategoryName());
 	}
 	
 	public void addChildVertex(GraphVertex child){
