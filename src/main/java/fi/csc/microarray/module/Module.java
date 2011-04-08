@@ -159,7 +159,7 @@ public interface Module {
 	 * 
 	 * @return short name (4 letters or less)
 	 */
-	public String getShortCategoryName(Operation operation);
+	public String getShortCategoryName(String categoryName);
 
 	/**
 	 * Should workflow engine check for the number of results? If the module contains tools

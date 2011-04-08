@@ -163,8 +163,8 @@ public class BasicModule implements Module {
 	}
 
 	@Override
-	public String getShortCategoryName(Operation operation) {
-		return shortenCategoryName(operation.getCategoryName());
+	public String getShortCategoryName(String categoryName) {
+		return shortenCategoryName(categoryName);
 	}
 
 	public static String shortenCategoryName(String catName) {

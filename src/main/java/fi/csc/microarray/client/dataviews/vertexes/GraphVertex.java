@@ -165,7 +165,7 @@ public class GraphVertex extends AbstractGraphVertex {
 	@Override
 	public String toString() {
 		Operation oper = getData().getOperation();
-		return Session.getSession().getPrimaryModule().getShortCategoryName(oper);
+		return Session.getSession().getPrimaryModule().getShortCategoryName(oper.getCategoryName());
 	}
 	
 	public void addChildVertex(GraphVertex child){
