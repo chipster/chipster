@@ -39,6 +39,11 @@ import fi.csc.microarray.databeans.DataBean.StorageMethod;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.util.IOUtils;
 
+/**
+ * test
+ * @author hupponen
+ *
+ */
 public class SessionSaver {
 
 	private static final Logger logger = Logger.getLogger(SessionSaver.class);
