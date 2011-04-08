@@ -1,4 +1,4 @@
-# TOOL detect-common-copy-number-aberration-regions.R: "Identify common regions from called aCGH data" (Reduces dimensionality of called aCGH data by identifying common breakpoints.)
+# TOOL acgh-identify-regions.R: "Identify common regions from called aCGH data" (Reduces dimensionality of called aCGH data by identifying common breakpoints.)
 # INPUT aberrations.tsv: aberrations.tsv TYPE GENE_EXPRS 
 # OUTPUT regions.tsv: regions.tsv 
 # OUTPUT regions.pdf: regions.pdf 

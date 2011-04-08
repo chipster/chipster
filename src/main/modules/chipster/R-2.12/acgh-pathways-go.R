@@ -1,4 +1,4 @@
-# TOOL pathways-acgh-hyperg-go.R: "GO enrichment for called aCGH genes" (Performs a statistical test for enrichment of GO terms in frequently aberrated genes. The input should be the output from the tool Convert called aCGH data from probes to genes.)
+# TOOL acgh-pathways-go.R: "GO enrichment for called aCGH genes" (Performs a statistical test for enrichment of GO terms in frequently aberrated genes. The input should be the output from the tool Convert called aCGH data from probes to genes.)
 # INPUT gene-aberrations.tsv: gene-aberrations.tsv TYPE GENE_EXPRS 
 # OUTPUT hypergeo-go.tsv: hypergeo-go.tsv 
 # OUTPUT hypergeo-go.html: hypergeo-go.html 

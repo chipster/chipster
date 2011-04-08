@@ -1,4 +1,4 @@
-# TOOL stat-acgh.R: "Group tests for called aCGH data" (Statistical tests between two or more groups for called aCGH data. The testing is recommended to be performed after running the Identify common regions from called aCGH data tool.)
+# TOOL acgh-group-test.R: "Group tests for called aCGH data" (Statistical tests between two or more groups for called aCGH data. The testing is recommended to be performed after running the Identify common regions from called aCGH data tool.)
 # INPUT regions.tsv: regions.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT groups-test.tsv: groups-test.tsv 

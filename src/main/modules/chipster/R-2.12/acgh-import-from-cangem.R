@@ -1,4 +1,4 @@
-# TOOL import-from-cangem.R: "Import from CanGEM" (Load a microarray data set from the CanGEM database, perform background-correction and normalization, and append chromosomal locations of the microarray probes.)
+# TOOL acgh-import-from-cangem.R: "Import from CanGEM" (Load a microarray data set from the CanGEM database, perform background-correction and normalization, and append chromosomal locations of the microarray probes.)
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
 # PARAMETER accession: accession TYPE STRING DEFAULT CG- (Accession of either a data set, an experiment, a series, or single microarray results.)

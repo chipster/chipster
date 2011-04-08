@@ -1,4 +1,4 @@
-# TOOL match-cn-and-expression-probes.R: "Match copy number and expression probes" (Matches the probes of a copy number data set with probes of an expression data set, using their chromosomal locations. Running this tool is a prerequisite for testing copy-number-induced effects on expression.)
+# TOOL acgh-match-probes.R: "Match copy number and expression probes" (Matches the probes of a copy number data set with probes of an expression data set, using their chromosomal locations. Running this tool is a prerequisite for testing copy-number-induced effects on expression.)
 # INPUT aberrations.tsv: aberrations.tsv TYPE GENE_EXPRS 
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT phenodata_cgh.tsv: phenodata_cgh.tsv TYPE GENERIC 

@@ -1,4 +1,4 @@
-# TOOL cluster-acgh.R: "Cluster called aCGH data" (Perform clustering of aCGH arrays.)
+# TOOL acgh-cluster.R: "Cluster called aCGH data" (Perform clustering of aCGH arrays.)
 # INPUT regions.tsv: regions.tsv TYPE GENERIC 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT wecca.pdf: wecca.pdf 

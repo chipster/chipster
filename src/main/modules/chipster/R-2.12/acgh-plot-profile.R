@@ -1,4 +1,4 @@
-# TOOL plot-cgh-profile.R: "Plot copy number profiles from called aCGH data" (Plot copy number profiles of individual arrays from called aCGH data.)
+# TOOL acgh-plot-profile.R: "Plot copy number profiles from called aCGH data" (Plot copy number profiles of individual arrays from called aCGH data.)
 # INPUT aberrations.tsv: aberrations.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT cgh-profile.pdf: cgh-profile.pdf 

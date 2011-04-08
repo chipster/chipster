@@ -1,4 +1,4 @@
-# TOOL detect-copy-number-aberrations.R: "Call copy number aberrations from aCGH data" (Call copy number aberrations from aCGH log ratios.)
+# TOOL acgh-call-aberrations.R: "Call copy number aberrations from aCGH data" (Call copy number aberrations from aCGH log ratios.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # OUTPUT aberrations.tsv: aberrations.tsv 
 # OUTPUT aberrations.png: aberrations.png 

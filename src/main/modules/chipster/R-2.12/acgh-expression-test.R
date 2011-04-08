@@ -1,4 +1,4 @@
-# TOOL test-for-cn-induced-differential-expression.R: "Test for copy-number-induced expression changes" (Nonparametric testing for changes in expression induced by a change in DNA copy number. The copy number and expression probes of the two data sets must be matched together beforehand using the Match copy number and expression probes tool.)
+# TOOL acgh-expression-test.R: "Test for copy-number-induced expression changes" (Nonparametric testing for changes in expression induced by a change in DNA copy number. The copy number and expression probes of the two data sets must be matched together beforehand using the Match copy number and expression probes tool.)
 # INPUT matched-cn-and-expression.tsv: matched-cn-and-expression.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT cn-induced-expression.tsv: cn-induced-expression.tsv 

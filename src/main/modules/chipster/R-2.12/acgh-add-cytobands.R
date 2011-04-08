@@ -1,4 +1,4 @@
-# TOOL add-cytobands.R: "Add cytogenetic bands" (Adds the cytogenetic band information using chromosome names and start end base pair positions. If this position information is not present in your data set, please first run the Fetch probe positions from CanGEM tool.)
+# TOOL acgh-add-cytobands.R: "Add cytogenetic bands" (Adds the cytogenetic band information using chromosome names and start end base pair positions. If this position information is not present in your data set, please first run the Fetch probe positions from CanGEM tool.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENERIC 
 # OUTPUT cytobands.tsv: cytobands.tsv 
 # PARAMETER genome.build: genome.build TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16.)

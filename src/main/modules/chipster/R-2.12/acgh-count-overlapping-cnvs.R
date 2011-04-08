@@ -1,4 +1,4 @@
-# TOOL count-overlapping-cnvs.R: "Count overlapping CNVs" (Counts overlapping CNVs from the database of genomic variants.)
+# TOOL acgh-count-overlapping-cnvs.R: "Count overlapping CNVs" (Counts overlapping CNVs from the database of genomic variants.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENERIC 
 # OUTPUT cnvs.tsv: cnvs.tsv 
 # PARAMETER genome.build: genome.build TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16.)
