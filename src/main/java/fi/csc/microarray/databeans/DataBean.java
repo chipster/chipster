@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.QueryResult;
 import fi.csc.microarray.databeans.features.RequestExecuter;
@@ -140,6 +141,7 @@ public class DataBean extends DataItemBase {
 	
 	protected Date date;
 	private Operation sourceOperation;
+	private OperationRecord operationRecord;
 	private String notes;
 
 	protected ContentType contentType;
@@ -196,6 +198,21 @@ public class DataBean extends DataItemBase {
 	 */
 	public void setOperation(Operation operation) {
 		this.sourceOperation = operation;
+		if (operation != null) {
+			this.operationRecord = new OperationRecord(operation);
+		} else {
+			this.operationRecord = null;
+		}
+	}
+
+
+	public OperationRecord getOperationRecord() {
+		return operationRecord;
+	}
+
+
+	public void setOperationRecord(OperationRecord operationRecord) {
+		this.operationRecord = operationRecord;
 	}
 
 
@@ -739,7 +756,9 @@ public class DataBean extends DataItemBase {
 		this.cacheUrl = url;
 	}
 
-
+	public void setCreationDate(Date date) {
+		this.date = date;
+	}
 
 	public ReentrantReadWriteLock getLock() {
 		return this.lock;

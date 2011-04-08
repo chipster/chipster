@@ -116,9 +116,9 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
                                                                             tool.getHelpURL());
                 for (Input input : sadl.inputs()) {
                     if (input.getName().isNameSet()) {
-                        newDefinition.addInput(input.getName().getPrefix(), input.getName().getPostfix(), input.getType());
+                        newDefinition.addInput(input.getName().getPrefix(), input.getName().getPostfix(), input.getName().getDisplayName(), input.getComment(), input.getType());
                     } else {
-                        newDefinition.addInput(input.getName(), input.getType());
+                        newDefinition.addInput(input.getName(), input.getComment(), input.getType());
                     }
                 }
     

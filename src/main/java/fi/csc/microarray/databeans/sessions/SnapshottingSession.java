@@ -53,7 +53,9 @@ public class SnapshottingSession {
 	private final int DATA_BLOCK_SIZE = 2048;
 
 	private static final String METADATA_FILENAME = "snapshot_metadata.txt";
+
 	public final static String SNAPSHOT_EXTENSION = "cs";
+
 	private final int SNAPSHOT_VERSION = 2;
 	
 	private static final String ROOT_FOLDER_ID = "0";

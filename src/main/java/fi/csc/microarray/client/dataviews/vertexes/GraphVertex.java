@@ -55,11 +55,11 @@ public class GraphVertex extends AbstractGraphVertex {
 		children = new ArrayList<GraphVertex>();
 		
 		Color c;
-		if (data == null || data.getOperation() == null || data.getOperation().getCategoryColor() == null) {
+		if (data == null || data.getOperationRecord() == null || data.getOperationRecord().getCategoryColor() == null) {
 				c = DEFAULT_VERTEX_COLOR;			
 				
 		} else {			
-			c = data.getOperation().getCategoryColor();
+			c = data.getOperationRecord().getCategoryColor();
 		}
 		
 		GraphConstants.setGradientColor(this.getAttributes(),c);
