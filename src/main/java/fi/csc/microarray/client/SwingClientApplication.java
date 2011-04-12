@@ -102,7 +102,6 @@ import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.Traversal;
-import fi.csc.microarray.databeans.sessions.SnapshottingSession;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -1547,8 +1546,8 @@ public class SwingClientApplication extends ClientApplication {
 		if (sessionFileChooser == null) {
 			sessionFileChooser = ImportUtils.getFixedFileChooser();
 
-			String[] extensions = { SnapshottingSession.SNAPSHOT_EXTENSION, ClientSession.SESSION_FILE_EXTENSION };
-			sessionFileChooser.setFileFilter(new GeneralFileFilter("Chipster Session (*.cs, *.zip)", extensions));
+			String[] extensions = { ClientSession.SESSION_FILE_EXTENSION };
+			sessionFileChooser.setFileFilter(new GeneralFileFilter("Chipster Session (*.zip)", extensions));
 			sessionFileChooser.setSelectedFile(new File("session." + ClientSession.SESSION_FILE_EXTENSION));
 			sessionFileChooser.setAcceptAllFileFilterUsed(false);
 			sessionFileChooser.setMultiSelectionEnabled(false);
@@ -1709,7 +1708,7 @@ public class SwingClientApplication extends ClientApplication {
 			}
 			
 			// check that the file is a session file
-			if (!(ClientSession.isValidSessionFile(sessionFile) || sessionFile.getName().endsWith("." + SnapshottingSession.SNAPSHOT_EXTENSION))) {
+			if (!ClientSession.isValidSessionFile(sessionFile)) {
 				DialogInfo info = new DialogInfo(Severity.INFO, "Could not open session file.", "File '" + sessionFile.getName() + "' is not a valid session file.", "", Type.MESSAGE);
 				ChipsterDialog.showDialog(this, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
 				return;
@@ -1729,6 +1728,15 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	private void loadSessionImpl(final File sessionFile) {
+		
+		// check that it's a valid session file
+		if (!ClientSession.isValidSessionFile(sessionFile)) {
+			DialogInfo dialogInfo = new DialogInfo(Severity.INFO, "Could not open session file.", "The given file is not a valid session file.", "");
+			ChipsterDialog.showDialog(this, dialogInfo, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
+			return;
+		}
+		
+		// start loading the session
 		final ClientApplication application = this; // for inner class
 		runBlockingTask("loading the session", new Runnable() {
 			public void run() {						
@@ -1740,7 +1748,7 @@ public class SwingClientApplication extends ClientApplication {
 					 */
 					boolean somethingToSave = manager.databeans().size() != 0;
 					
-					manager.loadSnapshot(sessionFile, manager.getRootFolder(), application);
+					manager.loadSession(sessionFile, manager.getRootFolder(), application);
 					
 					unsavedChanges = somethingToSave;
 				} catch (Exception e) {
@@ -1792,7 +1800,7 @@ public class SwingClientApplication extends ClientApplication {
 
 						try {
 							// save
-							getDataManager().saveSnapshot(file, application);
+							getDataManager().saveSession(file, application);
 
 							// quit
 							if (quit) {

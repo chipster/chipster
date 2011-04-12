@@ -24,7 +24,6 @@ import org.xml.sax.SAXException;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.operation.OperationRecord;
-import fi.csc.microarray.client.session.ClientSession;
 import fi.csc.microarray.client.session.SessionLoader;
 import fi.csc.microarray.client.session.SessionSaver;
 import fi.csc.microarray.databeans.DataBean.Link;
@@ -35,7 +34,6 @@ import fi.csc.microarray.databeans.features.Modifier;
 import fi.csc.microarray.databeans.handlers.DataBeanHandler;
 import fi.csc.microarray.databeans.handlers.LocalFileDataBeanHandler;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
-import fi.csc.microarray.databeans.sessions.SnapshottingSession;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.IOUtils;
 
@@ -554,16 +552,11 @@ public class DataManager {
 	/**
 	 * Load session from a file.
 	 * 
-	 * @see #saveSnapshot(File, ClientApplication)
+	 * @see #saveSession(File, ClientApplication)
 	 */
-	public void loadSnapshot(File sessionFile, DataFolder parentFolder, ClientApplication application) throws IOException, MicroarrayException {
-		if (ClientSession.isValidSessionFile(sessionFile)) {
-			SessionLoader sessionLoader = new SessionLoader(sessionFile);
-			sessionLoader.loadSession();
-		} else {
-			SnapshottingSession session = new SnapshottingSession(this, application);
-			session.loadFromSnapshot(sessionFile, parentFolder);
-		}
+	public void loadSession(File sessionFile, DataFolder parentFolder, ClientApplication application) throws IOException, MicroarrayException {
+		SessionLoader sessionLoader = new SessionLoader(sessionFile);
+		sessionLoader.loadSession();
 	}
 
 
@@ -574,11 +567,9 @@ public class DataManager {
 	 * @throws JAXBException 
 	 * @throws SAXException 
 	 */
-	public void saveSnapshot(File snapshotDir, ClientApplication application) throws IOException, JAXBException, SAXException {
+	public void saveSession(File snapshotDir, ClientApplication application) throws IOException, JAXBException, SAXException {
 		SessionSaver sessionSaver = new SessionSaver(snapshotDir);
 		sessionSaver.saveSession();
-//		SnapshottingSession session = new SnapshottingSession(this, application);
-//		session.saveSnapshot(snapshotDir);
 	}
 
 	/**

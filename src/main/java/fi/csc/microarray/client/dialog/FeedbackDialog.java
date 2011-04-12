@@ -134,7 +134,7 @@ public class FeedbackDialog extends JDialog implements ActionListener {
                 if (attachSessionBox.isSelected()) {
                     // create a temporary session file
                     File tmpSession = File.createTempFile("session", null);
-                    application.getDataManager().saveSnapshot(tmpSession, application);
+                    application.getDataManager().saveSession(tmpSession, application);
                     // save it with the file broker
                 	FileBrokerClient fileBroker = serviceAccessor.getFileBrokerClient();
                     sessionURL = fileBroker.addFile(new FileInputStream(tmpSession), null).toString();

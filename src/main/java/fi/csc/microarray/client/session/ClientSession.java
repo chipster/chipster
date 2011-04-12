@@ -82,7 +82,7 @@ public class ClientSession {
         // 2. Load the specific schema you want. 
         // Here I load it from a java.io.File, but we could also use a 
         // java.net.URL or a javax.xml.transform.Source
-        File schemaLocation = new File("/opt/xml/docbook/rng/docbook.rng");
+//        File schemaLocation = new File("/opt/xml/docbook/rng/docbook.rng");
         
         // 3. Compile the schema.
         Schema schema = factory.newSchema(new StreamSource(ClientSession.class.getResourceAsStream("/session.xsd")));

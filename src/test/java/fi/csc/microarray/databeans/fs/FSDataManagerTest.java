@@ -75,14 +75,14 @@ public class FSDataManagerTest {
 		if (snap.exists()) {
 			Files.delTree(snap);
 		}		
-		manager1.saveSnapshot(snap, new DummyClientApplication());
+		manager1.saveSession(snap, new DummyClientApplication());
 		
 		// check
 		Assert.assertTrue(snap.exists());
 		
 		// load
 		DataManager manager2 = new DataManager();
-		manager2.loadSnapshot(snap, manager2.getRootFolder(), new DummyClientApplication());
+		manager2.loadSession(snap, manager2.getRootFolder(), new DummyClientApplication());
 		
 		// check
 //		DataFolder root1 = manager1.getRootFolder();

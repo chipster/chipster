@@ -51,31 +51,36 @@ public class WorkflowWriter {
 		return script;
 	}
 
+	/**
+	 * FIXME session refactoring, start using OperationRecords.
+	 * @param script
+	 * @param bean
+	 */
 	private void generateRecursively(StringBuffer script, DataBean bean) {
 
-		// dig all operations that were used to produce children of this bean
-		HashSet<Operation> operations = new HashSet<Operation>();
-		for (DataBean derived : bean.getLinkSources(Link.DERIVATION)) {
-			operations.add(derived.getOperation());
-		}
-
-		// generate operations leading to derived beans
-		for (Operation operation : operations) {
-			LinkedList<DataBean> results = new LinkedList<DataBean>();
-			// collect datas that were produced by this operation
-			for (DataBean derived : bean.getLinkSources(Link.DERIVATION)) {
-				if (derived.getOperation() == operation) {
-					results.add(derived);
-				}
-			}
-
-			generateStep(script, operation, results);
-		}
-
-		// continue recursion from derived beans
-		for (DataBean derived : bean.getLinkSources(Link.DERIVATION)) {
-			generateRecursively(script, derived);
-		}
+//		// dig all operations that were used to produce children of this bean
+//		HashSet<Operation> operations = new HashSet<Operation>();
+//		for (DataBean derived : bean.getLinkSources(Link.DERIVATION)) {
+//			operations.add(derived.getOperation());
+//		}
+//
+//		// generate operations leading to derived beans
+//		for (Operation operation : operations) {
+//			LinkedList<DataBean> results = new LinkedList<DataBean>();
+//			// collect datas that were produced by this operation
+//			for (DataBean derived : bean.getLinkSources(Link.DERIVATION)) {
+//				if (derived.getOperation() == operation) {
+//					results.add(derived);
+//				}
+//			}
+//
+//			generateStep(script, operation, results);
+//		}
+//
+//		// continue recursion from derived beans
+//		for (DataBean derived : bean.getLinkSources(Link.DERIVATION)) {
+//			generateRecursively(script, derived);
+//		}
 	}
 
 	/**

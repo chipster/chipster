@@ -11,7 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.QueryResult;
@@ -141,8 +140,6 @@ public class DataBean extends DataItemBase {
 	
 	protected Date date;
 	
-	// FIXME remove Operation after refactoring
-	private Operation sourceOperation;
 	private OperationRecord operationRecord;
 	private String notes;
 
@@ -179,28 +176,6 @@ public class DataBean extends DataItemBase {
 		this.contentType = contentType;
 	}
 
-	
-
-	/**
-	 * @return The operation that has been selected for this dataset (and which
-	 * 		   may have already been done at least once to produce another
-	 * 		   dataset, or which has not yet been conducted, and maybe never
-	 * 		   will, depending on the user).
-	 */
-	public Operation getOperation() {
-		return sourceOperation;
-	}
-
-
-
-	/**
-	 * Associates the given operation with this DataBean.
-	 * 
-	 * @param operation to associate
-	 */
-	public void setOperation(Operation operation) {
-		this.sourceOperation = operation;
-	}
 
 	public OperationRecord getOperationRecord() {
 		return operationRecord;
