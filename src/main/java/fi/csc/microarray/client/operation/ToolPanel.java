@@ -166,15 +166,11 @@ public class ToolPanel extends JPanel
 				BorderFactory.createMatteBorder(1, 0, 0, 0, VisualConstants.TOOL_LIST_BORDER_COLOR));
 		
 	    // Search bar
-		JPanel horizontalPanel = new JPanel(new BorderLayout());
         JTabbedPane tabbedPane = new JTabbedPane();        
-        tabbedPane.addTab("Microarrays", new JPanel());
-        tabbedPane.addTab("Sequence analysis", new JPanel());
+        tabbedPane.addTab("Microarrays", operationChoicePanel);
         tabbedPane.addTab("NGS", new JPanel());
-        tabbedPane.addTab("All", new JPanel());
         tabbedPane.setPreferredSize(new Dimension(400, 0));
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-        horizontalPanel.add(tabbedPane, BorderLayout.CENTER);
 		
         JToolBar searchPanel = new JToolBar();
         searchPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 1));
@@ -250,12 +246,9 @@ public class ToolPanel extends JPanel
         c.gridheight = 1;
         c.insets.set(0,0,0,0);
         c.fill = GridBagConstraints.BOTH;
-//        searchPanel.setPreferredSize(new Dimension(10, 23));
-//        searchPanel.setMinimumSize(new Dimension(10, 23));
         searchPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         searchPanel.putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.SINGLE);
-        horizontalPanel.add(searchPanel, BorderLayout.EAST);
-        operationPanel.add(horizontalPanel, c);
+        operationPanel.add(searchPanel, c);
         operationCardPanel = new JPanel(new CardLayout());
         c.gridy = 1;
         c.weightx = 1;
@@ -265,7 +258,7 @@ public class ToolPanel extends JPanel
         operationPanel.add(operationCardPanel, c);
         
         // Tool selection panels inside operation card
-        operationCardPanel.add(operationChoicePanel, TOOLS_CATEGORIZED);
+        operationCardPanel.add(tabbedPane, TOOLS_CATEGORIZED);
         operationCardPanel.add(operationFilterPanel, TOOLS_FILTERED);
         operationCardPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
                 VisualConstants.TOOL_LIST_BORDER_COLOR));
@@ -327,7 +320,8 @@ public class ToolPanel extends JPanel
 		this.add(bottomPanel, c);		
 
 		// start listening
-		Session.getSession().getApplication().addClientEventListener(this);		
+		System.out.println("FIXME");
+//		Session.getSession().getApplication().addClientEventListener(this);		
 	}
 	
 	public Vector<Component> getFocusComponents(){
