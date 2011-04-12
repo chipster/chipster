@@ -8,7 +8,7 @@
 
 # stat-acgh.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-02-15
+# 2011-04-06
 
 library(CGHtestpar)
 
@@ -37,6 +37,8 @@ for (group in groupnames) {
   group.sizes <- c(group.sizes, length(group.samples))
   data.info[,paste('loss.freq.', group, sep='')] <- round(mean(as.data.frame(t(group.calls==-1))), digits=3)
   data.info[,paste('gain.freq.', group, sep='')] <- round(mean(as.data.frame(t(group.calls==1))), digits=3)
+  if (2 %in% calls)
+    data.info[,paste('amp.freq.', group, sep='')] <- round(mean(as.data.frame(t(group.calls==2))), digits=3)
 }
 
 pvs <-  pvalstest(datacgh, data.info, teststat=test.statistic, group=group.sizes, groupnames=groupnames, niter=number.of.permutations, ncpus=4)
