@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.JButton;
@@ -31,7 +30,7 @@ import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dataimport.ImportUtils;
 import fi.csc.microarray.client.operation.OperationRecord;
-import fi.csc.microarray.client.operation.parameter.Parameter;
+import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
@@ -204,13 +203,12 @@ public class HistoryScreen extends ScreenBase
 				if (operationRecord != null) {
 					historyText.append(operationRecord.getFullName() + "\n");
 					if (checkBoxes.get("param").isSelected()) {
-                        List<Parameter> params = operationRecord.getParameters();
-						if (params != null && params.size() > 0) {
-							for (Parameter param : params) {
-								historyText.append("Parameter " + param.getDisplayName() + ": " +
-										param.getValueAsString() + "\n");
-							}
-						} 
+
+						for (ParameterRecord parameterRecord : operationRecord.getParameters()) {
+							historyText.append("Parameter " + parameterRecord.getNameID().getDisplayName() + ": " +
+									parameterRecord.getValue() + "\n");
+							
+						}
 					} else {
                         historyText.append("\n");               
                     }

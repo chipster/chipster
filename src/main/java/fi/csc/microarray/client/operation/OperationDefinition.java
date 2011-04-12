@@ -173,6 +173,25 @@ public class OperationDefinition implements ExecutionItem {
         	return this.displayName;
         }
         
+        /**
+         * Get display name for multi input.
+         * 
+         * @param id
+         * @return display name with {...} replaced with the number of the parameter id
+         */
+        public String getDisplayName(String id) {
+        	if (!this.isMulti()) {
+        		return this.displayName;
+        	}
+        	
+        	if (!this.idMatches(id)) {
+        		return this.displayName;
+        	} 
+        	
+        	String middle = id.substring(this.id.length(), id.lastIndexOf(this.postfix));
+        	return this.displayName.replaceAll("\\{\\.\\.\\.\\}", middle);
+        }
+        
         public void setDescription(String description) {
             this.description = description;
         }
@@ -191,6 +210,20 @@ public class OperationDefinition implements ExecutionItem {
 
 		public void resetMulti() {
 			multiCounter = 1;
+		}
+		
+		public boolean idMatches(String id) {
+			if (!this.isMulti()) {
+				return this.getID().equals(id);
+			} else {
+				if (id.startsWith(this.id) && id.endsWith(this.postfix)) {
+					String middle = id.substring(this.id.length(), id.lastIndexOf(this.postfix));
+					if (middle.matches("\\d+")) {
+						return true;
+					}
+				}
+				return false;
+			}
 		}
 	}
 
@@ -378,6 +411,20 @@ public class OperationDefinition implements ExecutionItem {
 	    return inputs;
 	}
 
+	/**
+	 * 
+	 * @param id
+	 * @return null if no input with the given id is found
+	 */
+	public InputDefinition getInput(String id) {
+		for (InputDefinition input : inputs) {
+			if (input.idMatches(id)) {
+				return input;
+			}
+		}
+		return null;
+	}
+	
 	/**
 	 * In a nutshell, formal inputs (as defined by the operation) are bound to
 	 * concrete inputs (as chosen by user) using greedy and order-based

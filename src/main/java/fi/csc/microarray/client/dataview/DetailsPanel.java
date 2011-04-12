@@ -10,7 +10,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.List;
+import java.util.Collection;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -26,7 +26,7 @@ import javax.swing.event.DocumentListener;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.OperationRecord;
-import fi.csc.microarray.client.operation.parameter.Parameter;
+import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataItem;
@@ -175,14 +175,16 @@ public class DetailsPanel extends JPanel implements PropertyChangeListener, Focu
 				attrib.append("\nOperation: " + operationRecord.getCategoryName() +
 						" / " + operationRecord.getDisplayName());
 				
-				List<Parameter> params = operationRecord.getParameters();
+				Collection<ParameterRecord> params = operationRecord.getParameters();
 				if (params != null) {
 					attrib.append("\n");
-					for (int i = 0; i < params.size(); i++) {
-						attrib.append(params.get(i).toString());
+					int i = 0;
+					for (ParameterRecord parameterRecord : params) {
+						attrib.append(parameterRecord.getValue());
 						if (i != params.size()-1) {
 							attrib.append(", ");
 						}
+						i++;
 					}
 				}
 			}

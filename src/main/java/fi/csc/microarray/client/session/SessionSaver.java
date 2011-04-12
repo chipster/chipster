@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -18,9 +17,11 @@ import javax.xml.bind.Marshaller;
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
 
+import fi.csc.microarray.client.NameID;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.OperationRecord;
-import fi.csc.microarray.client.operation.parameter.Parameter;
+import fi.csc.microarray.client.operation.OperationRecord.InputRecord;
+import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
 import fi.csc.microarray.client.session.schema.DataType;
 import fi.csc.microarray.client.session.schema.FolderType;
 import fi.csc.microarray.client.session.schema.InputType;
@@ -38,6 +39,7 @@ import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.StorageMethod;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.util.IOUtils;
+import fi.csc.microarray.util.SwingTools;
 
 /**
  * test
@@ -357,31 +359,37 @@ public class SessionSaver {
 		operationType.setName(nameType);
 		
 		// parameters
-		for (Parameter parameter : operationRecord.getParameters()) {
+		for (ParameterRecord parameterRecord : operationRecord.getParameters()) {
 
 			// Write parameter only when value is not empty
-			if (parameter.getValue() != null && !parameter.getValue().equals("")) {	
+			if (parameterRecord.getValue() != null && !parameterRecord.getValue().equals("")) {	
 				ParameterType parameterType = factory.createParameterType();
 				NameType parameterNameType = factory.createNameType();
-				parameterNameType.setId(parameter.getID());
-				parameterNameType.setDisplayName(parameter.getDisplayName());
+				parameterNameType.setId(parameterRecord.getNameID().getID());
+				parameterNameType.setDisplayName(parameterRecord.getNameID().getDisplayName());
 				parameterType.setName(parameterNameType);
-				parameterType.setValue(parameter.getValueAsString());
+				parameterType.setValue(parameterRecord.getValue());
 				operationType.getParameter().add(parameterType);
 			}
 		}
 
 		// inputs
-		for (Entry<String, DataBean> entry : operationRecord.getInputs().entrySet()) {
+		for (InputRecord inputRecord : operationRecord.getInputs()) {
 
-			// FIXME add display name and description
 			// FIXME check inputId for null
 			InputType inputType = factory.createInputType();
-			inputType.setName(createNameType(entry.getKey(), "", ""));
-			inputType.setData(reversedItemIdMap.get(entry.getValue()));
+			inputType.setName(createNameType(inputRecord.getNameID()));
+			inputType.setData(reversedItemIdMap.get(inputRecord.getValue()));
 			
 			operationType.getInput().add(inputType);
 		}
+		
+		// category
+		operationType.setCategory(operationRecord.getCategoryName());
+		if (operationRecord.getCategoryColor() != null) {
+			operationType.setCategoryColor(SwingTools.colorToHexString(operationRecord.getCategoryColor()));
+		}
+		
 		
 		sessionType.getOperation().add(operationType);
 		operationRecordTypeMap.put(operationId, operationType);
@@ -423,6 +431,11 @@ public class SessionSaver {
 		nameType.setDescription(desription);
 		return nameType;
 	}
+	
+	private NameType createNameType(NameID nameID) {
+		return createNameType(nameID.getID(), nameID.getDisplayName(), nameID.getDescription());
+	}
+	
 	
 	public static void main(String[] args) throws JAXBException {
 		ObjectFactory objFactory = new ObjectFactory();

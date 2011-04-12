@@ -1,5 +1,6 @@
 package fi.csc.microarray.client.session;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,8 +8,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.zip.ZipFile;
 
 import javax.xml.bind.JAXBException;
@@ -19,13 +18,14 @@ import javax.xml.transform.stream.StreamSource;
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
 
+import fi.csc.microarray.client.NameID;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.operation.OperationDefinition;
+import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.session.schema.DataType;
 import fi.csc.microarray.client.session.schema.FolderType;
 import fi.csc.microarray.client.session.schema.InputType;
 import fi.csc.microarray.client.session.schema.LinkType;
+import fi.csc.microarray.client.session.schema.NameType;
 import fi.csc.microarray.client.session.schema.OperationType;
 import fi.csc.microarray.client.session.schema.ParameterType;
 import fi.csc.microarray.client.session.schema.SessionType;
@@ -48,8 +48,8 @@ public class SessionLoader {
 	private LinkedHashMap<String, DataBean> dataBeans = new LinkedHashMap<String, DataBean>();
 	private HashMap<DataBean, DataType> dataTypes = new HashMap<DataBean, DataType>();
 
-	private LinkedHashMap<String, Operation> operations = new LinkedHashMap<String, Operation>();
-	private HashMap<Operation, OperationType> operationTypes = new HashMap<Operation, OperationType>();
+	private LinkedHashMap<String, OperationRecord> operationRecords = new LinkedHashMap<String, OperationRecord>();
+	private HashMap<OperationRecord, OperationType> operationTypes = new HashMap<OperationRecord, OperationType>();
 
 	
 	private DataManager dataManager;
@@ -103,7 +103,7 @@ public class SessionLoader {
 
 			linkDataBeans();
 
-			linkOperations();
+			linkInputsToOperations();
 
 			
 			
@@ -208,13 +208,15 @@ public class SessionLoader {
 
 			// cache url
 			String cacheURLString = dataType.getCacheUrl();
-			URL cacheURL = null;
-			try {
-				cacheURL = new URL(cacheURLString);
-			} catch (MalformedURLException e1) {
-				logger.warn("could not parse cache url: "  + cacheURLString + " for data bean: " + name);
+			if (cacheURLString != null) {
+				URL cacheURL = null;
+				try {
+					cacheURL = new URL(cacheURLString);
+				} catch (MalformedURLException e1) {
+					logger.warn("could not parse cache url: "  + cacheURLString + " for data bean: " + name);
+				}
+				dataBean.setCacheUrl(cacheURL);
 			}
-			dataBean.setCacheUrl(cacheURL);
 
 			// notes
 			dataBean.setNotes(dataType.getNotes());
@@ -235,31 +237,41 @@ public class SessionLoader {
 			String operationSessionId = operationType.getId();
 
 			// check for unique id
-			if (operations.containsKey(operationSessionId)) {
+			if (operationRecords.containsKey(operationSessionId)) {
 				logger.warn("duplicate operation id: " + operationSessionId);
 				continue;
 			}
 
-			String operationId = operationType.getName().getId();
-			OperationDefinition operationDefinition = Session.getSession().getApplication().getOperationDefinition(operationId);
-			
-			// FIXME check for null operation definition
-			Operation operation;
-			try {
-				operation = new Operation(operationDefinition, new DataBean[] {});
-			} catch (MicroarrayException e) {
-				// FIXME Auto-generated catch block
-				e.printStackTrace();
-				continue;
-			}
+			OperationRecord operationRecord = new OperationRecord();
 
-			// FIXME what to do with obsolete parameters
-			for (ParameterType parameterType : operationType.getParameter()) {
-				operation.parseParameter(parameterType.getName().getId(), parameterType.getValue());
+			// id
+			String operationID = operationType.getName().getId();
+			operationRecord.setID(operationID);
+			
+			// display name
+			operationRecord.setDisplayName(operationType.getName().getDisplayName());
+			
+			// description
+			operationRecord.setDescription(operationType.getName().getDescription());
+			
+			// category
+			operationRecord.setCategoryName(operationType.getCategory());
+			String colorString = operationType.getCategoryColor();
+			if (colorString != null) {
+				operationRecord.setCategoryColor(Color.decode(colorString));
 			}
 			
-			operations.put(operationSessionId, operation);
-			operationTypes.put(operation, operationType);
+			// parameters
+			for (ParameterType parameterType : operationType.getParameter()) {
+				operationRecord.addParameter(parameterType.getName().getId(), parameterType.getName().getDisplayName(), parameterType.getName().getDescription(), parameterType.getValue());
+			}
+			
+			// inputs
+			
+			// source code
+			
+			operationRecords.put(operationSessionId, operationRecord);
+			operationTypes.put(operationRecord, operationType);
 
 		}
 	}
@@ -285,52 +297,49 @@ public class SessionLoader {
 		}
 	}
 	
-	private void linkOperations() {
+	/**
+	 * Link OperationRecords and DataBeans by adding real input DataBean references
+	 * to OperationRecords.
+	 * 
+	 */
+	private void linkInputsToOperations() {
 		
-		for (Operation operation : operations.values()) {
-			logger.info("linking operation: " + operation.getID());
-			List<DataBean> inputBeans = new LinkedList<DataBean>();
+		for (OperationRecord operationRecord : operationRecords.values()) {
+			logger.info("linking operation: " + operationRecord.getID());
 			
 			// FIXME add checks
-			for (InputType inputType : operationTypes.get(operation).getInput()) {
+			// get data bean ids from session data
+			for (InputType inputType : operationTypes.get(operationRecord).getInput()) {
+				
+				// find the data bean
 				DataBean inputBean = dataBeans.get(inputType.getData());
+				
+				// skip phenodata, it is bound automatically
 				if (inputBean.queryFeatures("/phenodata/").exists()) {
-					continue; // skip phenodata, it is bound automatically
+					continue; 
 				}
 
-				
-				inputBeans.add(inputBean);
-			
-			}
-			
-			// bind inputs
-			
-			logger.info("binding " + inputBeans.size() + " inputs for " + operation.getID());
-			try {
-				operation.bindInputs(inputBeans.toArray(new DataBean[] {}));
-			} catch (MicroarrayException e) {
-				// FIXME Auto-generated catch block
-				e.printStackTrace();
-				continue;
-			}
-			if (operation.getBindings() == null) {
-				logger.info("bindings is null");
+				// add the reference to the operation record
+				operationRecord.addInput(createNameID(inputType.getName()), inputBean);
 			}
 		}
 	}
 
 	
+	private NameID createNameID(NameType name) {
+		return new NameID(name.getId(), name.getDisplayName(), name.getDescription());
+	}
+
+	/**
+	 * Add links form DataBeans to the OperationRecord which created the DataBean.
+	 * 
+	 */
 	private void linkOperationsToOutputs() {
 		
 		for (DataBean dataBean : dataBeans.values()) {
 			String operationId = dataTypes.get(dataBean).getResultOf();
-			Operation operation = operations.get(operationId);
-			if (operation != null) {
-				// TODO 
-				dataBean.setOperation(operation);
-			} else {
-				// FIXME what to do
-			}
+			OperationRecord operationRecord = operationRecords.get(operationId);
+			dataBean.setOperationRecord(operationRecord);
 		}
 	}
 
