@@ -23,11 +23,11 @@ import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
@@ -43,6 +43,7 @@ import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.dataimport.ActionChooserScreen.ComboBoxRenderer;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationDefinition.Suitability;
@@ -166,14 +167,14 @@ public class ToolPanel extends JPanel
 				BorderFactory.createMatteBorder(1, 0, 0, 0, VisualConstants.TOOL_LIST_BORDER_COLOR));
 		
 	    // Search bar
-        JTabbedPane tabbedPane = new JTabbedPane();        
-        tabbedPane.addTab("Microarrays", operationChoicePanel);
-        tabbedPane.addTab("NGS", new JPanel());
-        tabbedPane.setPreferredSize(new Dimension(400, 0));
-        tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+		JComboBox modules = new JComboBox();		
+		modules.addItem("Microarrays");
+		modules.addItem("NGS");
+		modules.addItem("<html><em>Search</em></html>");
 		
         JToolBar searchPanel = new JToolBar();
-        searchPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 1));
+        searchPanel.setLayout(new BorderLayout());
+        searchPanel.add(modules, BorderLayout.WEST);
         // Text field
         searchField = new JTextField(10);
         searchField.addCaretListener(new CaretListener() {
@@ -228,8 +229,9 @@ public class ToolPanel extends JPanel
         
         
         
-        searchPanel.add(new JLabel(VisualConstants.MAGNIFIER_ICON));
-        searchPanel.add(searchField);
+        searchPanel.add(new JLabel(VisualConstants.MAGNIFIER_ICON), BorderLayout.EAST);
+        searchPanel.add(searchField, BorderLayout.EAST);
+        System.out.println("magnifier missign");
         searchField.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         searchField.setPreferredSize(new Dimension(100, 22));
         searchPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
@@ -246,6 +248,8 @@ public class ToolPanel extends JPanel
         c.gridheight = 1;
         c.insets.set(0,0,0,0);
         c.fill = GridBagConstraints.BOTH;
+//        searchPanel.setPreferredSize(new Dimension(10, 23));
+//        searchPanel.setMinimumSize(new Dimension(10, 23));
         searchPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         searchPanel.putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.SINGLE);
         operationPanel.add(searchPanel, c);
@@ -258,7 +262,7 @@ public class ToolPanel extends JPanel
         operationPanel.add(operationCardPanel, c);
         
         // Tool selection panels inside operation card
-        operationCardPanel.add(tabbedPane, TOOLS_CATEGORIZED);
+        operationCardPanel.add(operationChoicePanel, TOOLS_CATEGORIZED);
         operationCardPanel.add(operationFilterPanel, TOOLS_FILTERED);
         operationCardPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
                 VisualConstants.TOOL_LIST_BORDER_COLOR));
