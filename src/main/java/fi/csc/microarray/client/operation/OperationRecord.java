@@ -10,20 +10,17 @@ import fi.csc.microarray.client.operation.OperationDefinition.InputDefinition;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.databeans.DataBean;
 
+
+/**
+ * Stores information about an executed Operation.
+ * 
+ * 
+ * @author hupponen
+ *
+ */
 public class OperationRecord {
 
-	
-	private String id;
-	private String displayName;
-	private String description;
-	
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
+	private NameID nameID = new NameID();;
 
 	private String categoryName;
 	private Color categoryColor;
@@ -37,8 +34,9 @@ public class OperationRecord {
 	public OperationRecord(Operation operation) {
 		
 		// name
-		this.id = operation.getID();
-		this.displayName = operation.getDisplayName();
+		this.nameID.setId(operation.getID());
+		this.nameID.setDisplayName(operation.getDisplayName());
+		this.nameID.setDescription(operation.getDescription());
 	
 		// category
 		this.categoryName = operation.getCategoryName();
@@ -59,6 +57,7 @@ public class OperationRecord {
 		}
 	
 		// source code
+		// TODO get it from ResultMessage when it becomes available
 		this.sourceCode = "not yet available";
 	
 	}
@@ -66,12 +65,45 @@ public class OperationRecord {
 	public OperationRecord() {
 	}
 
-	public void setID(String id) {
-		this.id = id;
+	public NameID getNameID() {
+		return this.nameID;
+	}
+	
+	public String getCategoryName() {
+		return categoryName;
 	}
 
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
+	public String getFullName() {
+		return getCategoryName() + " / " + nameID.getDisplayName();
+	}
+
+	// TODO check if operation with the id still exists and if the color has changed
+	public Color getCategoryColor() {
+		return categoryColor;
+	}
+
+	/**
+	 * Iteration order of the parameters is determined.
+	 * @return
+	 */
+	public Collection<ParameterRecord> getParameters() {
+		return parameters.values();
+	}
+
+	public ParameterRecord getParameter(String id) {
+		return parameters.get(id);
+	}
+
+	/**
+	 * Iteration order of the parameters is determined.
+	 * @return
+	 */
+	public Collection<InputRecord> getInputs() {
+		return inputs.values();
+	}
+
+	public String getSourceCode() {
+		return sourceCode;
 	}
 
 	public void setCategoryName(String categoryName) {
@@ -86,55 +118,6 @@ public class OperationRecord {
 		this.sourceCode = sourceCode;
 	}
 
-	public String getID() {
-		return id;
-	}
-	
-	public String getDisplayName() {
-		if (displayName != null && !displayName.isEmpty()) {
-			return displayName;
-		} else {
-			return getID();
-		}
-	}
-
-	public String getCategoryName() {
-		return categoryName;
-	}
-	
-	public String getFullName() {
-		return getCategoryName() + " / " + getDisplayName();
-	}
-	
-	
-	// FIXME check if operation with the id still exists and if the color has changed
-	public Color getCategoryColor() {
-		return categoryColor;
-	}
-	
-	/**
-	 * Iteration order of the parameters is determined.
-	 * @return
-	 */
-	public Collection<ParameterRecord> getParameters() {
-		return parameters.values();
-	}
-
-	/**
-	 * Iteration order of the parameters is determined.
-	 * @return
-	 */
-	public Collection<InputRecord> getInputs() {
-		return inputs.values();
-	}
-	
-	public String getSourceCode() {
-		return sourceCode;
-	}
-
-	public ParameterRecord getParameter(String id) {
-		return parameters.get(id);
-	}
 
 	public void addParameter(Parameter parameter) {
 		this.parameters.put(parameter.getID(), new ParameterRecord(parameter));
@@ -146,7 +129,7 @@ public class OperationRecord {
 
 	
 	public void addInput(NameID nameID, DataBean dataBean) {
-		this.inputs.put(id, new InputRecord(nameID, dataBean));
+		this.inputs.put(nameID.getID(), new InputRecord(nameID, dataBean));
 	}
 	
 	
@@ -168,7 +151,7 @@ public class OperationRecord {
 	}
 
 
-	public class StringRecord {
+	private class StringRecord {
 		private NameID nameID;
 		private String value;
 
@@ -197,7 +180,7 @@ public class OperationRecord {
 		}
 	}
 
-	public class DataBeanRecord {
+	private class DataBeanRecord {
 		private NameID nameID;
 		private DataBean value;
 
@@ -234,6 +217,10 @@ public class OperationRecord {
 		public InputRecord(String id, String displayName, String description, DataBean value) {
 			super(id, displayName, description, value);
 		}
+	}
+
+	public void setNameID(NameID nameID) {
+		this.nameID = nameID;
 	}
 	
 }

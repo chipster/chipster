@@ -354,8 +354,9 @@ public class SessionSaver {
 		
 		// name
 		NameType nameType = factory.createNameType();
-		nameType.setId(operationRecord.getID());
-		nameType.setDisplayName(operationRecord.getDisplayName());
+		nameType.setId(operationRecord.getNameID().getID());
+		nameType.setDisplayName(operationRecord.getNameID().getDisplayName());
+		nameType.setDescription(operationRecord.getNameID().getDescription());
 		operationType.setName(nameType);
 		
 		// parameters

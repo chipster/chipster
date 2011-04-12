@@ -244,15 +244,8 @@ public class SessionLoader {
 
 			OperationRecord operationRecord = new OperationRecord();
 
-			// id
-			String operationID = operationType.getName().getId();
-			operationRecord.setID(operationID);
-			
-			// display name
-			operationRecord.setDisplayName(operationType.getName().getDisplayName());
-			
-			// description
-			operationRecord.setDescription(operationType.getName().getDescription());
+			// name id
+			operationRecord.setNameID(createNameID(operationType.getName()));
 			
 			// category
 			operationRecord.setCategoryName(operationType.getCategory());
@@ -266,13 +259,10 @@ public class SessionLoader {
 				operationRecord.addParameter(parameterType.getName().getId(), parameterType.getName().getDisplayName(), parameterType.getName().getDescription(), parameterType.getValue());
 			}
 			
-			// inputs
-			
-			// source code
+			// TODO source code
 			
 			operationRecords.put(operationSessionId, operationRecord);
 			operationTypes.put(operationRecord, operationType);
-
 		}
 	}
 
@@ -305,7 +295,6 @@ public class SessionLoader {
 	private void linkInputsToOperations() {
 		
 		for (OperationRecord operationRecord : operationRecords.values()) {
-			logger.info("linking operation: " + operationRecord.getID());
 			
 			// FIXME add checks
 			// get data bean ids from session data

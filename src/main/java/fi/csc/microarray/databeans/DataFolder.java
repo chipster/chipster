@@ -120,7 +120,7 @@ public class DataFolder extends DataItemBase {
 					isChipwise = true;
 				}
 			}
-			if (data.getOperationRecord().getID().equals("ordination-pca.R") && isChipwise) {
+			if (data.getOperationRecord().getNameID().getID().equals("ordination-pca.R") && isChipwise) {
 				data.addTypeTag(MicroarrayModule.TypeTags.EXPRESSION_PRIMARY_COMPONENTS_CHIPWISE);
 			}
 

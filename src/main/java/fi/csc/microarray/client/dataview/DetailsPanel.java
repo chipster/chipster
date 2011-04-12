@@ -173,7 +173,7 @@ public class DetailsPanel extends JPanel implements PropertyChangeListener, Focu
 			if (operationRecord != null) {
 				
 				attrib.append("\nOperation: " + operationRecord.getCategoryName() +
-						" / " + operationRecord.getDisplayName());
+						" / " + operationRecord.getNameID().getDisplayName());
 				
 				Collection<ParameterRecord> params = operationRecord.getParameters();
 				if (params != null) {
