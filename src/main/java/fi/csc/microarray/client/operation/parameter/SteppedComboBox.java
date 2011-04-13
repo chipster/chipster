@@ -18,7 +18,8 @@ import javax.swing.plaf.metal.MetalComboBoxUI;
  */
 class SteppedComboBoxUI extends MetalComboBoxUI {
 
-	protected ComboPopup createPopup() {
+	@SuppressWarnings("serial")
+    protected ComboPopup createPopup() {
 
 		BasicComboPopup popup = new BasicComboPopup(comboBox)  {
 
@@ -55,6 +56,7 @@ class SteppedComboBoxUI extends MetalComboBoxUI {
 	}
 }
 
+@SuppressWarnings("serial")
 public class SteppedComboBox extends JComboBox {
 
 	protected int popupWidth;
@@ -71,7 +73,7 @@ public class SteppedComboBox extends JComboBox {
 		popupWidth = 0;
 	}
 
-	public SteppedComboBox(Vector items) {
+	public SteppedComboBox(Vector<Object> items) {
 		super(items);
 		setUI(new SteppedComboBoxUI());
 		popupWidth = 0;

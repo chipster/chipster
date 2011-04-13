@@ -35,7 +35,7 @@ import fi.csc.microarray.client.dataimport.events.TitleRowChangedEvent;
  * Class to take care of the file reading/writing and chopping the data to
  * matrix using correct delimiter.
  * 
- * @author Mikko Koski, Petri KlemelÃ¤
+ * @author Mikko Koski, Petri Klemelä
  * 
  */
 public class ConversionModel implements ConversionModelChangeSupport {

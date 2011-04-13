@@ -23,11 +23,15 @@ import javax.swing.event.SwingPropertyChangeSupport;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.chipster.tools.ngs.LocalNGSPreprocess;
+import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.filebroker.FileBrokerClient;
+import fi.csc.microarray.filebroker.JMSFileBrokerClient;
 import fi.csc.microarray.filebroker.FileBrokerException;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.MessagingEndpoint;
@@ -38,7 +42,7 @@ import fi.csc.microarray.messaging.Topics;
 import fi.csc.microarray.messaging.MessagingTopic.AccessMode;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.JobMessage;
-import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
@@ -123,16 +127,10 @@ public class TaskExecutor {
 		 */
 		public ResultMessageListener(Task pendingTask) {
 			this.pendingTask = pendingTask;
-
-			// set the initial state, certain operations do not need to wait for offer
-			if (pendingTask.getName().equals("describe") || pendingTask.getName().equals("describe-operation")) {
-				this.internalState = ResultListenerState.WAIT_FOR_STATUS;
-			} else {
-				this.internalState = ResultListenerState.WAIT_FOR_ACK;
-			}
+			this.internalState = ResultListenerState.WAIT_FOR_ACK;
 		}
 
-		public void onNamiMessage(NamiMessage msg) {
+		public void onChipsterMessage(ChipsterMessage msg) {
 			logger.debug("Task " + pendingTask.getId() + " got message (" + msg.getMessageID() + ") of type " + msg.getClass().getName());
 
 			// ignore everything if we (ResultListener) are already finished
@@ -333,7 +331,7 @@ public class TaskExecutor {
 				URL payloadUrl = resultMessage.getPayload(name);
 				InputStream payload = fileBroker.getFile(payloadUrl); 
 				DataBean bean = manager.createDataBean(name, payload);
-				bean.setUrl(payloadUrl);
+				bean.setCacheUrl(payloadUrl);
 				bean.setContentChanged(false);
 				pendingTask.addOutput(name, bean);
 			}
@@ -381,9 +379,9 @@ public class TaskExecutor {
 
 	public TaskExecutor(MessagingEndpoint endpoint, DataManager manager) throws JMSException {
 		this.manager = manager;
-		this.fileBroker = new FileBrokerClient(endpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
-		requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC, AccessMode.WRITE);
-		jobExecutorStateChangeSupport = new SwingPropertyChangeSupport(this);
+		this.fileBroker = new JMSFileBrokerClient(endpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
+		this.requestTopic = endpoint.createTopic(Topics.Name.REQUEST_TOPIC, AccessMode.WRITE);
+		this.jobExecutorStateChangeSupport = new SwingPropertyChangeSupport(this);
 	}
 
 	/**
@@ -391,17 +389,13 @@ public class TaskExecutor {
 	 */
 	protected TaskExecutor(DataManager manager) throws JMSException {
 		this.manager = manager;
-		jobExecutorStateChangeSupport = new SwingPropertyChangeSupport(this);
+		this.jobExecutorStateChangeSupport = new SwingPropertyChangeSupport(this);
 	}
 
-	public Task createTask(String name) {
-		return createTask(name, false);
+	public Task createTask(Operation operation) {
+		return new Task(operation);
 	}
-
-	public Task createTask(String name, boolean hidden) {
-		Task task = new Task(name, hidden);
-		return task;
-	}
+	
 
 	/**
 	 * Non-blocking.
@@ -423,6 +417,13 @@ public class TaskExecutor {
 	public void startExecuting(final Task task, int timeout) throws TaskException {
 		logger.debug("Starting task " + task.getName());
 
+		// ugly hack for local ngs preprocess
+		if (task.getOperationID().equals("LocalNGSPreprocess.java")) {
+			Runnable taskRunnable = new LocalNGSPreprocess(task);
+			Session.getSession().getApplication().runBlockingTask("running " + task.getNamePrettyPrinted(), taskRunnable);
+			return;
+		}
+		
 		// log parameters
 		List<String> parameters;
 		try {
@@ -443,20 +444,20 @@ public class TaskExecutor {
 		new Thread(new Runnable() {
 			public void run() {
 				try {
-					JobMessage jobMessage = new JobMessage(task.getId(), task.getName(), task.getParameters());
+					JobMessage jobMessage = new JobMessage(task.getId(), task.getOperationID(), task.getParameters());
 
 					// handle inputs
 					logger.debug("adding inputs to job message");
 					updateTaskState(task, State.TRANSFERRING_INPUTS, null, -1);
 					int i = 0;
-					for (final String name : task.inputNames()) {
+					for (final String name : task.getInputNames()) {
 
 						final int fi = i;
 						CopyProgressListener progressListener = new CopyProgressListener() {
 
 							int length = (int)task.getInput(name).getContentLength();
 
-							public void progress(int bytes) {
+							public void progress(long bytes) {
 								float overall = ((float)fi) / ((float)task.getInputCount());
 								float infile = ((float)bytes) / ((float)length);
 								float p = overall + (infile / ((float)task.getInputCount()));
@@ -468,25 +469,25 @@ public class TaskExecutor {
 						// transfer input contents to file broker if needed
 						DataBean bean = task.getInput(name);
 						try {
-							bean.lockContent();
+							bean.getLock().readLock().lock();
 
 							// bean modified, upload
 							if (bean.isContentChanged()) {
-								bean.setUrl(fileBroker.addFile(bean.getContentByteStream(), progressListener)); 
+								bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), progressListener)); 
 								bean.setContentChanged(false);
 							} 
 
 							// bean not modified, check cache, upload if needed
-							else if (bean.getUrl() != null && !fileBroker.checkFile(bean.getUrl(), bean.getContentLength())){
-								bean.setUrl(fileBroker.addFile(bean.getContentByteStream(), progressListener));
+							else if (bean.getCacheUrl() != null && !fileBroker.checkFile(bean.getCacheUrl(), bean.getContentLength())){
+								bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), progressListener));
 							}
 
 						} finally {
-							bean.unlockContent();
+							bean.getLock().readLock().unlock();
 						}
 
 						// add the possibly new url to message
-						jobMessage.addPayload(name, bean.getUrl());
+						jobMessage.addPayload(name, bean.getCacheUrl());
 						
 						
 						logger.debug("added input " + name + " to job message.");
@@ -498,8 +499,8 @@ public class TaskExecutor {
 					logger.debug("sending job message, jobId: " + jobMessage.getJobId());
 
 					requestTopic.sendReplyableMessage(jobMessage, replyListener);
+					
 				} catch (Exception e) {
-
 					// could not send job message --> task fails
 					logger.error("Could not send job message.", e);
 					updateTaskState(task, State.ERROR, "Sending message failed", -1);
@@ -698,18 +699,18 @@ public class TaskExecutor {
 
 	private void resendJobMessage(Task task, Destination replyTo) throws TaskException, MicroarrayException, JMSException, IOException, FileBrokerException {
 
-		JobMessage jobMessage = new JobMessage(task.getId(), task.getName(), task.getParameters());
-		for (String name : task.inputNames()) {
+		JobMessage jobMessage = new JobMessage(task.getId(), task.getOperationID(), task.getParameters());
+		for (String name : task.getInputNames()) {
 			DataBean bean = task.getInput(name);
 			try {
-				bean.lockContent();
-				bean.setUrl(fileBroker.addFile(bean.getContentByteStream(), null)); // no progress listening on resends 
+				bean.getLock().readLock().lock();
+				bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), null)); // no progress listening on resends 
 				bean.setContentChanged(false);
 			} finally {
-				bean.unlockContent();
+				bean.getLock().readLock().unlock();
 			}
 			
-			jobMessage.addPayload(name, bean.getUrl()); // no progress listening on resends
+			jobMessage.addPayload(name, bean.getCacheUrl()); // no progress listening on resends
 		}
 		jobMessage.setReplyTo(replyTo);
 

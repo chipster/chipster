@@ -40,6 +40,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 
 
 	/**
+	 * Checks that parameter values are safe to insert into R code.
 	 * Should closely match the code that is used to output the values in transformVariable(...).
 	 * 
 	 * @see RAnalysisJob#transformVariable(String, String, boolean)
@@ -48,8 +49,24 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 	public static class RParameterSecurityPolicy implements ParameterSecurityPolicy {
 		
 		private static final int MAX_VALUE_LENGTH = 1000;
-		private static String NUMERIC_VALUE_PATTERN = "-?\\d*\\.?\\d*"; // Maybe minus, zero or more digits, maybe point, zero or more digits
-		private static String TEXT_VALUE_PATTERN = "[\\w+-_:;\\.]*"; // Only word characters and some special symbols are allowed
+		
+		/**
+		 * This regular expression is very critical, because it checks code that is directly inserted
+		 * into R script. Hence it should be very conservative.
+		 * 
+		 * Interpretation: Maybe minus, zero or more digits, maybe point, zero or more digits.
+		 */
+		public static String NUMERIC_VALUE_PATTERN = "-?\\d*\\.?\\d*";
+		
+		/**
+		 * This regular expression is not very critical, because text is inserted inside string constant in R code.
+		 * It should however always be combined with additional check that string terminator is not contained,
+		 * because that way the string constant can be escaped. However values can be used in later
+		 * points of the script in very different situations (filenames, etc.) and should be kept as simple as possible.
+		 * 
+		 * Interpretation: Only word characters and some special symbols are allowed.
+		 */
+		public static String TEXT_VALUE_PATTERN = "[\\w+\\-_:\\.,*()]*";
 		
 		/**
 		 *  
@@ -68,7 +85,13 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 				return value.matches(NUMERIC_VALUE_PATTERN);
 				
 			} else {
-				// Text value must match the strictly specified pattern
+				
+				// First check for string termination
+				if (value.contains(R_STRING_SEPARATOR)) {
+					return false;
+				}
+				
+				// Text value must still match specified pattern
 				return value.matches(TEXT_VALUE_PATTERN);
 			}
 			
@@ -254,7 +277,20 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		}
 		if (!processAlive) {
 			outputMessage.setErrorMessage("Starting R failed.");
-			outputMessage.setOutputText("R already finished.");
+			String output = "";
+			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			try {
+				for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+					output += line + "\n";
+				}
+				reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+				for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+					output += line + "\n";
+				}
+			} catch (IOException e) {
+				logger.warn("could not read output stream");
+			}
+			outputMessage.setOutputText("R already finished.\n\n" + output);
 			updateState(JobState.ERROR, "");
 			return;
 		}
@@ -302,7 +338,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		
 		// script now finished or timeout
 		cancelCheck();
-		logger.debug("done waiting for " + analysis.getFullName() + ", state is " + getState());		
+		logger.debug("done waiting for " + analysis.getID() + ", state is " + getState());		
 
 		// add output to result message
 		String output = processMonitor.getOutput();

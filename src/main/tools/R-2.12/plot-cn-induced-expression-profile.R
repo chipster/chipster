@@ -1,14 +1,13 @@
-# ANALYSIS "aCGH"/"Plot profiles of matched copy number and expression" (Plot profiles of two priorly matched data sets of copy number and expression. This tool must be run on the output from the tool Match copy number and expression probes - matched-cn-and-expression.tsv.)
-# INPUT GENE_EXPRS matched-cn-and-expression.tsv, GENERIC phenodata.tsv
-# OUTPUT matched-cn-and-expression-profile.pdf
-# PARAMETER sample INTEGER DEFAULT 1 (The number of the sample to be plotted.)
-# PARAMETER chromosome INTEGER DEFAULT 0 (The chromosome to plot. Use 0 for all.)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image. Not used anymore as plotting format is now PDF.)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image. Not used anymore as plotting format is now PDF.)
+# TOOL plot-cn-induced-expression-profile.R: "Plot profiles of matched copy number and expression" (Plot profiles of two priorly matched data sets of copy number and expression. This tool must be run on the output from the tool Match copy number and expression probes - matched-cn-and-expression.tsv.)
+# INPUT matched-cn-and-expression.tsv: matched-cn-and-expression.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT matched-cn-and-expression-profile.pdf: matched-cn-and-expression-profile.pdf 
+# PARAMETER samples: samples TYPE STRING DEFAULT 1 (The numbers of the samples to be plotted, separated by commas. Ranges are also supported (e.g. 1,3,7-10\).)
+# PARAMETER chromosome: chromosome TYPE INTEGER DEFAULT 0 (The chromosome to plot. Use 0 for all.)
 
 # plot-cn-induced-expression-profile.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-03-28
+# 2011-03-30
 
 library(CGHcall)
 library(intCNGEan)
@@ -27,7 +26,6 @@ if (length(setdiff(pos, colnames(dat)))!=0)
   stop('CHIPSTER-NOTE: This tool can only be run on the output file from the tool Match copy number and expression probes (matched-cn-and-expression.tsv).')
 
 # parse samples to be plotted
-samples <- sample
 samples <- gsub('[^0-9,-]', ',', samples)
 items <- strsplit(samples, ',')[[1]]
 samples.to.plot <- integer()

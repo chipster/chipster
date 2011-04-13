@@ -61,7 +61,8 @@ public class SetupTool {
 		
 		// initialise the setup... or setup the initialisation?
 		HashMap<String, Installer> installers = new HashMap<String, Installer>();
-		installers.put("application", new ApplicationInstaller());
+		installers.put("application", new DummyInstaller());
+		installers.put("file", new DummyInstaller());
 		installers.put("r-package", new RPackageInstaller());
 		installers.put("os-package", new OSPackageInstaller());
 
@@ -254,7 +255,7 @@ public class SetupTool {
 		return item.getLocalName() + " " + item.getAttribute("name") + " (in bundle " + ((Element) item.getParentNode()).getAttribute("name") + ")";
 	}
 
-	private static class ApplicationInstaller implements Installer {
+	private static class DummyInstaller implements Installer {
 
 		public boolean install(Element item, Element dependsOnBundle, PrintWriter infoWriter) {
 

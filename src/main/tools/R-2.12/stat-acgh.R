@@ -1,9 +1,10 @@
-# ANALYSIS "aCGH"/"Group tests for called aCGH data" (Statistical tests between two or more groups for called aCGH data. The testing is recommended to be performed after running the Identify common regions from called aCGH data tool.)
-# INPUT GENE_EXPRS regions.tsv, GENERIC phenodata.tsv
-# OUTPUT groups-test.tsv
-# PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER test.statistic [Chi-square, Wilcoxon, KW] DEFAULT Chi-square (The test to use: either Chi-square, Wilcoxon, or Kruskal-Wallis.)
-# PARAMETER number.of.permutations INTEGER DEFAULT 10000 (The number of permutations. At least 10000 recommended for final calculations.)
+# TOOL stat-acgh.R: "Group tests for called aCGH data" (Statistical tests between two or more groups for called aCGH data. The testing is recommended to be performed after running the Identify common regions from called aCGH data tool.)
+# INPUT regions.tsv: regions.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT groups-test.tsv: groups-test.tsv 
+# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
+# PARAMETER test.statistic: test.statistic TYPE [Chi-square: Chi-square, Wilcoxon: Wilcoxon, KW: KW] DEFAULT Chi-square (The test to use: either Chi-square, Wilcoxon, or Kruskal-Wallis.)
+# PARAMETER number.of.permutations: number.of.permutations TYPE INTEGER DEFAULT 10000 (The number of permutations. At least 10000 recommended for final calculations.)
 
 # stat-acgh.R
 # Ilari Scheinin <firstname.lastname@gmail.com>

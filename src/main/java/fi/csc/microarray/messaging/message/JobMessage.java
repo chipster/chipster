@@ -145,7 +145,7 @@ public class JobMessage extends PayloadMessage {
 		for (String parameter : parameters) {
 			ParameterDescription parameterDescription = descriptionIterator.next();
 			if (!securityPolicy.isValueValid(parameter, parameterDescription)) {
-				throw new ParameterValidityException("illegal parameter value: " + parameter);
+				throw new ParameterValidityException("illegal value for parameter " + parameterDescription.getName() + ": " + parameter);
 			}
 		}
 		
