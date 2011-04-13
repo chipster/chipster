@@ -1,14 +1,12 @@
-# ANALYSIS Utilities/"Search by genomic coordinates" ()
+# ANALYSIS Utilities/"Search by genomic coordinates" (Search by chromosome name and starting and ending base pair positions. The data must contain the corresponding columns.)
 # INPUT GENE_EXPRS normalized.tsv
 # OUTPUT search-coordinates.tsv
-# PARAMETER chromosome STRING DEFAULT 1 ()
-# PARAMETER start INTEGER DEFAULT 100000000 ()
-# PARAMETER end INTEGER DEFAULT 0 ()
-# PARAMETER number.of.closest.results.to.return INTEGER DEFAULT 5 ()
+# PARAMETER position STRING (Position to search for. Must contain three values that are separated by tabs, hyphens, colons or two dots (e.g. X:100-200 or 7:600..700).)
+# PARAMETER include.partial.overlaps [yes, no] DEFAULT yes (Whether to include only features that are completely contained within the search window, or also partial overlaps.)
 
 # search-coordinates.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-11-17
+# 2011-04-13
 
 # load inputs
 dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
@@ -17,25 +15,27 @@ pos <- c('chromosome','start','end')
 if (length(setdiff(pos, colnames(dat)))!=0)
   stop('CHIPSTER-NOTE: This script can only be run on files that have the following columns: chromosome, start, end.')
 
-# discard data from other chromosomes
-dat <- dat[dat$chromosome == chromosome,]
+pos <- gsub('\\t|:|-|\\.\\.|,', ';', position)
+pos <- gsub('[^-0-9XYMTxymt;]', '', pos)
+pos <- strsplit(pos, ';')
 
-# add distance column
-dat2 <- dat[,pos]
-dat2$distance <- abs(dat$start + (dat$end - dat$start) / 2 - (start + (end - start) / 2))
-dat2 <- cbind(dat2, dat[,setdiff(colnames(dat), pos)])
-dat <- dat2
+if (length(pos[[1]]) != 3)
+  stop('CHIPSTER-NOTE: Unsupported format (', position, ') please use e.g. "X:100-200".')
 
-# order according to distance
-dat <- dat[order(dat$distance),]
+chromosome <- pos[[1]][1]
+start <- as.integer(pos[[1]][2])
+end <- as.integer(pos[[1]][3])
 
-# check that we are not trying to return more results than we have
-number.of.closest.results.to.return <- min(number.of.closest.results.to.return, nrow(dat))
-
-if (number.of.closest.results.to.return == 0) {
-  dat <- dat[0,]
+if (include.partial.overlaps == 'no') {
+  dat <- dat[!is.na(dat$chromosome) &
+             dat$chromosome == chromosome &
+             dat$start      >= start &
+             dat$end        <= end,]
 } else {
-  dat <- dat[1:number.of.closest.results.to.return,]
+  dat <- dat[!is.na(dat$chromosome) &
+             dat$chromosome == chromosome &
+             dat$end        >= start &
+             dat$start      <= end,]
 }
 
 # write output
