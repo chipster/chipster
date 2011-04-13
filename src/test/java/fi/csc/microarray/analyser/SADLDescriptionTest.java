@@ -99,7 +99,6 @@ public class SADLDescriptionTest {
 						new File("src/main/modules/sequence/shell"),
 						new File("src/main/modules/chipster/R-2.12"),
 						new File("src/main/modules/ngs/R-2.12"),
-						new File("src/main/modules/chipster/R-2.10"),
 					};
 					LinkedList<File> potentialFiles = new LinkedList<File>(); 
 

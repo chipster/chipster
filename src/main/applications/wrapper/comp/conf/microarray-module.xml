@@ -11,11 +11,10 @@
 	</category>
 
 	<category name="NGS ChIP-seq" color="#e7ddd2">
-        <tool runtime="R-2.10"><resource>ngs-find-peaks-macs-one.R</resource></tool>
-        <tool runtime="R-2.10"><resource>ngs-find-peaks-macs-two.R</resource></tool>    
+<!-- <tool runtime="R-2.12"><resource>ngs-find-peaks-macs.R</resource></tool>  -->        
         <tool runtime="R-2.12"><resource>ngs-find-motifs-jaspar.R</resource></tool>
         <tool runtime="R-2.12"><resource>ngs-find-nearest-genes.R</resource></tool>
-        <tool runtime="R-2.10"><resource>pathways-ngs-hyperg-go.R</resource></tool>
+        <tool runtime="R-2.12"><resource>pathways-ngs-hyperg-go.R</resource></tool>
 	</category>
 
         <category name="NGS miRNA-seq" color="#FF00FF">
@@ -73,7 +72,7 @@
 		<tool runtime="R-2.12"><resource>stat-several-groups.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-linear-modelling.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-correlate-with-phenodata.R</resource></tool>
-		<tool runtime="R-2.10"><resource>correlation-analysis-mirna.R</resource></tool> 
+		<tool runtime="R-2.12"><resource>correlation-analysis-mirna.R</resource></tool> 
 		<tool runtime="R-2.12"><resource>stat-timeseries.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-chisq-snp.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-adjust-pvalues.R</resource></tool>
@@ -82,7 +81,7 @@
 		<tool runtime="R-2.12"><resource>ordination-nmds.R</resource></tool>
 		<tool runtime="R-2.12"><resource>estimate-samplesize.R</resource></tool>
 		<tool runtime="R-2.12"><resource>sample-size-with-bh.R</resource></tool>
-		<tool runtime="R-2.10"><resource>up-down-analysis-mirna.R</resource></tool>
+		<tool runtime="R-2.12"><resource>up-down-analysis-mirna.R</resource></tool>
 		<tool runtime="R-2.12"><resource>medips.R</resource></tool>
 		<tool runtime="R-2.12"><resource>convert-bam-to-medips.R</resource></tool>
 	</category>
@@ -100,7 +99,7 @@
 	<category name="Annotation" color="#80a3b7">
 		<tool runtime="R-2.12"><resource>annotate-genelist2html.R</resource></tool>
 		<tool runtime="R-2.12"><resource>annotate-add-to-data.R</resource></tool>
-		<tool runtime="R-2.10"><resource>annotate-miRNA-targets.R</resource></tool> 
+		<tool runtime="R-2.12"><resource>annotate-miRNA-targets.R</resource></tool> 
 	</category>
 	
 	<category name="Pathways" color="#0177b7">
@@ -109,8 +108,8 @@
 		<tool runtime="R-2.12"><resource>stat-hyperG-safe.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-hyperG-cytoband.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-geneset.R</resource></tool>
-		<tool runtime="R-2.10"><resource>pathways-mirna-hyperg-go.R</resource></tool> 
-		<tool runtime="R-2.10"><resource>pathways-mirna-hyperg-kegg.R</resource></tool> 
+		<tool runtime="R-2.12"><resource>pathways-mirna-hyperg-go.R</resource></tool> 
+		<tool runtime="R-2.12"><resource>pathways-mirna-hyperg-kegg.R</resource></tool> 
 		<tool runtime="beanshell"><resource>annotate-cpdb.bsh</resource></tool>
 		<tool runtime="beanshell"><resource>annotate-intact.bsh</resource></tool>
 		<tool runtime="beanshell"><resource>annotate-reactome.bsh</resource></tool>
