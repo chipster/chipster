@@ -100,6 +100,17 @@ public class ToolPanel extends JPanel
 	
 	private ClientApplication application = Session.getSession().getApplication();
 	
+	
+	private static ActionListener moduleButtonListener = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() instanceof JButton) {
+				JButton button = (JButton) e.getSource();
+				System.out.println(button.getText());
+			}
+		}
+	};
+	
 	/**
 	 * Creates a new ToolPanel.
 	 * 
@@ -166,7 +177,7 @@ public class ToolPanel extends JPanel
 		
 	    // Search bar
         JToolBar searchPanel = new JToolBar();
-        searchPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 1));
+        searchPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         // Text field
         searchField = new JTextField(20);
         searchField.addCaretListener(new CaretListener() {
@@ -220,6 +231,12 @@ public class ToolPanel extends JPanel
         });
         
         
+        for (String moduleName : new String[] {"Microarrays", "Next Gen Sequencing"}) {
+        	JButton button = new JButton(moduleName);
+        	button.setPreferredSize(new Dimension(button.getMinimumSize().width, 22)); 
+        	button.addActionListener(moduleButtonListener);
+        	searchPanel.add(button);
+        }
         
         searchPanel.add(new JLabel(VisualConstants.MAGNIFIER_ICON));
         searchPanel.add(searchField);
