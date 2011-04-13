@@ -27,8 +27,6 @@ import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.apache.log4j.Logger;
-
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.constants.VisualConstants;
@@ -45,9 +43,6 @@ import fi.csc.microarray.constants.VisualConstants;
  */
 public class ToolSelectorPanel extends JPanel
 								  implements ListSelectionListener {
-	// Logger for this class
-	private static final Logger logger = Logger
-			.getLogger(ToolSelectorPanel.class);
 	
 	private final ClientApplication application = Session.getSession().getApplication();
 	
@@ -238,7 +233,6 @@ public class ToolSelectorPanel extends JPanel
 			if (selected instanceof ToolCategory) {
 				selectedCategory = (ToolCategory) selected;
 				selectedTool = null;
-				logger.debug("selected category has " + selectedCategory.getToolList().size() + " tools");
 				toolList.setListData(selectedCategory.getToolList());
 				toolPanel.selectTool(null);
 			}
