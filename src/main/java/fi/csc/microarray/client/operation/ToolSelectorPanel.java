@@ -96,7 +96,6 @@ public class ToolSelectorPanel extends JPanel
 		JScrollPane toolListScroller = new JScrollPane(toolList);
 		
 		//Remove useless borders
-		// dummy
 		categoryListScroller.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
 		        VisualConstants.TOOL_LIST_BORDER_COLOR));
 		toolListScroller.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -121,7 +120,7 @@ public class ToolSelectorPanel extends JPanel
 	    toolPanel.selectTool(null);
 	}
 	
-	static class FontSizeFriendlyListRenderer  extends DefaultListCellRenderer {
+	static class FontSizeFriendlyListRenderer extends DefaultListCellRenderer {
 		public Component getListCellRendererComponent(
 				JList list, Object value, int index,
 				boolean isSelected, boolean cellHasFocus) {
