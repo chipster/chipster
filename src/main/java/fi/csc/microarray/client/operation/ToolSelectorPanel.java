@@ -96,6 +96,7 @@ public class ToolSelectorPanel extends JPanel
 		JScrollPane toolListScroller = new JScrollPane(toolList);
 		
 		//Remove useless borders
+		// dummy
 		categoryListScroller.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
 		        VisualConstants.TOOL_LIST_BORDER_COLOR));
 		toolListScroller.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
