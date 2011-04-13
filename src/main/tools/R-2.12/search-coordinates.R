@@ -39,6 +39,6 @@ if (include.partial.overlaps == 'no') {
 }
 
 # write output
-write.table(dat, file='search-coordinates.tsv', quote=FALSE, sep='\t')
+write.table(format(dat, scientific=FALSE), file='search-coordinates.tsv', quote=FALSE, sep='\t')
 
 # EOF
