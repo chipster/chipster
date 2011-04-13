@@ -15,11 +15,6 @@
 #
 # modified by MG, 29.3.2010 to enable coloring by cluster feature 
 
-# Parameter settings (default) for testing purposes
-do.pca.on<-c("chips")
-explained.variation<-c(80)
-scaling<-c("no")
-centering<-c("yes")
 
 # Renaming variables
 pcaon<-do.pca.on
