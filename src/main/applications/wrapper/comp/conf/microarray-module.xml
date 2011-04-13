@@ -11,7 +11,8 @@
 	</category>
 
 	<category name="NGS ChIP-seq" color="#e7ddd2">
-<!-- <tool runtime="R-2.12"><resource>ngs-find-peaks-macs.R</resource></tool>  -->        
+ 		<tool runtime="R-2.12"><resource>ngs-find-peaks-macs-one.R</resource></tool>        
+ 		<tool runtime="R-2.12"><resource>ngs-find-peaks-macs-two.R</resource></tool>        
         <tool runtime="R-2.12"><resource>ngs-find-motifs-jaspar.R</resource></tool>
         <tool runtime="R-2.12"><resource>ngs-find-nearest-genes.R</resource></tool>
         <tool runtime="R-2.12"><resource>pathways-ngs-hyperg-go.R</resource></tool>
