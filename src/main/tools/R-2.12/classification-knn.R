@@ -9,6 +9,7 @@
 
 # KNN classification
 # JTT 26.6.2006
+# modified by MG, 13.4.2010
 
 # Parameter settings (default) for testing purposes
 #number.of.nearest.neighbors<-2
@@ -39,6 +40,10 @@ if(length(grep("training", names(phenodata)))>0) {
 	tr<-rep(1, nrow(phenodata))
    }
 }
+if(length(grep("training", names(phenodata)))<1) {
+	stop("CHIPSTER-NOTE: In order to run the KNN classification tool you need to set up a column named \"training\" in the phenodata.tsv file, denoting samples to be used for training with 1 and the samples to be used for testing with 2.")
+}
+
 
 # Separates expression values and flags
 calls<-dat[,grep("flag", names(dat))]
@@ -46,10 +51,10 @@ dat2<-dat[,grep("chip", names(dat))]
 
 # Are the parameter values sensical?
 if(k.no>length(dat2)) {
-	stop("The number of neighbors is larger than the number of chips!")
+	stop("CHIPSTER-NOTE: The number of neighbors is larger than the number of chips!")
 }
 if(k.vote>k.no) {
-	stop("The number of votes needed to give a definitive answer is larger than the number of neighbors!")
+	stop("CHIPSTER-NOTE: The number of votes needed to give a definitive answer is larger than the number of neighbors!")
 }
 
 if(validation.type=="predict") {
