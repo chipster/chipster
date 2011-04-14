@@ -100,7 +100,7 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
         try {
 			inputParameters = new LinkedList<String>(inputMessage.getParameters(SHELL_PARAMETER_SECURITY_POLICY, analysis));
 		} catch (ParameterValidityException e) {
-			outputMessage.setErrorMessage("There was an invalid parameter value.");
+			outputMessage.setErrorMessage(e.getMessage()); // always has a message
 			outputMessage.setOutputText(e.toString());
 			updateState(JobState.FAILED_USER_ERROR, "");
 			return;
