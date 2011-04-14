@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
@@ -42,7 +41,6 @@ import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.SwingTools;
 
 /**
- * test
  * @author hupponen
  *
  */
@@ -68,10 +66,10 @@ public class SessionSaver {
 	private HashMap<String, OperationType> operationRecordTypeMap = new HashMap<String, OperationType>();
 	
 	
-	private DataManager dataManager = Session.getSession().getDataManager();
+	private DataManager dataManager;
 
-	ObjectFactory factory;
-	SessionType sessionType;
+	private ObjectFactory factory;
+	private SessionType sessionType;
 
 	
 	public SessionSaver(File sessionFile) {
@@ -87,14 +85,13 @@ public class SessionSaver {
 		File newSessionFile;
 		File backupFile = null;
 		if (replaceOldSession) {
-			// TODO maybe avoid overwriting existing temp file
-			newSessionFile = new File(sessionFile.getAbsolutePath() + "-temp.cs");
-			backupFile = new File(sessionFile.getAbsolutePath() + "-backup.cs");
+			newSessionFile = new File(sessionFile.getAbsolutePath() + "-save-temp.zip");
+			backupFile = new File(sessionFile.getAbsolutePath() + "-save-backup.zip");
 		} else {
 			newSessionFile = sessionFile;
 		}
 
-		
+		// xml schema object factory and xml root
 		this.factory = new ObjectFactory();
 		this.sessionType = factory.createSessionType();
 		
@@ -111,15 +108,16 @@ public class SessionSaver {
 			// generate all ids
 			generateIdsRecursively(dataManager.getRootFolder());
 
-			// gather session data and save actual data to the zip file
+			// gather meta data and save actual data to the zip file
 			saveRecursively(dataManager.getRootFolder(), zipOutputStream);
 			
-			// validate and save session data
+			// validate and meta data
 			Marshaller marshaller = ClientSession.getJAXBContext().createMarshaller();
 			marshaller.setSchema(ClientSession.getSchema());
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 			marshaller.marshal(factory.createSession(sessionType), System.out);
 
+			// save meta data
 			ZipEntry sessionDataZipEntry = new ZipEntry(ClientSession.SESSION_DATA_FILENAME);
 			zipOutputStream.putNextEntry(sessionDataZipEntry);
 			marshaller.marshal(factory.createSession(sessionType), zipOutputStream);
@@ -217,6 +215,14 @@ public class SessionSaver {
 	}
 	
 	
+	private String generateId(OperationRecord operationRecord) {
+		String id = String.valueOf(operationIdCounter);
+		operationIdCounter++;
+		operationRecordIdMap.put(id, operationRecord);
+		reversedOperationRecordIdMap.put(operationRecord, id);
+		return id.toString();
+	}
+
 	private void saveRecursively(DataFolder folder, ZipOutputStream cpZipOutputStream) throws IOException {
 		
 		String folderId = reversedItemIdMap.get(folder);
@@ -230,7 +236,7 @@ public class SessionSaver {
 				DataBean bean = (DataBean)data;
 
 				// create the new URL TODO check the ref
-				String entryName = getNewEntryName();
+				String entryName = getNewZipEntryName();
 				URL newURL = new URL(sessionFile.toURI().toURL(), "#" + entryName);
 
 				// store the new URL temporarily
@@ -249,8 +255,12 @@ public class SessionSaver {
 
 	private void saveDataFolderMetadata(DataFolder folder, String folderId) {
 		FolderType folderType = factory.createFolderType();
+		
+		// name
 		folderType.setId(folderId);
 		folderType.setName(folder.getName());
+		
+		// parent
 		if (folder.getParent() != null) {
 			String parentId = reversedItemIdMap.get(folder.getParent());
 			if (parentId != null) {
@@ -260,11 +270,12 @@ public class SessionSaver {
 			}
 		}
 		
+		// children
 		if (folder.getChildCount() > 0) {
 			for (DataItem child : folder.getChildren()) {
 				String childId = reversedItemIdMap.get(child);
 				if (childId != null) { 
-					folderType.getChild().add(reversedItemIdMap.get(child));
+					folderType.getChild().add(childId);
 				} else {
 					logger.warn("unknown child: " + child.getName());
 				}
@@ -274,13 +285,16 @@ public class SessionSaver {
 		sessionType.getFolder().add(folderType);
 	}	
 	
+	
 	private void saveDataBeanMetadata(DataBean bean, URL newURL, String folderId) {
 		String beanId = reversedItemIdMap.get(bean);
-		
-		// save the basic data
 		DataType dataType = factory.createDataType();
+	
+		// name and id
 		dataType.setId(beanId);
 		dataType.setName(bean.getName());
+
+		// parent
 		if (bean.getParent() != null) {
 			String parentId = reversedItemIdMap.get(bean.getParent());
 			if (parentId != null) {
@@ -290,6 +304,7 @@ public class SessionSaver {
 			}
 		}
 		
+		// notes
 		dataType.setNotes(bean.getNotes());
 		
 		// storage method
@@ -303,7 +318,6 @@ public class SessionSaver {
 		if (bean.getCacheUrl() != null) {
 			dataType.setCacheUrl(bean.getCacheUrl().toString());
 		}
-		
 
 		// FIXME accept beans without operation?
 		if (bean.getOperationRecord() != null) {
@@ -324,14 +338,16 @@ public class SessionSaver {
 			
 			// link the operation to data
 			dataType.setResultOf(operId);
-			
 		}
 		
 		// links to other datasets
 		for (Link type : Link.values()) {
 			for (DataBean target : bean.getLinkTargets(type)) {
-				// FIXME check for targetId not null
 				String targetId = reversedItemIdMap.get(target);				
+				// if for some weird reason target was not around when generating ids, skip it
+				if (targetId == null) {
+					continue;
+				}
 				LinkType linkType = factory.createLinkType();
 				linkType.setTarget(targetId);
 				linkType.setType(type.name());
@@ -340,9 +356,7 @@ public class SessionSaver {
 			}
 		}		
 		
-
 		sessionType.getData().add(dataType);
-
 	}
 
 	
@@ -353,10 +367,7 @@ public class SessionSaver {
 		operationType.setId(operationId);
 		
 		// name
-		NameType nameType = factory.createNameType();
-		nameType.setId(operationRecord.getNameID().getID());
-		nameType.setDisplayName(operationRecord.getNameID().getDisplayName());
-		nameType.setDescription(operationRecord.getNameID().getDescription());
+		NameType nameType = createNameType(operationRecord.getNameID());
 		operationType.setName(nameType);
 		
 		// parameters
@@ -365,10 +376,7 @@ public class SessionSaver {
 			// Write parameter only when value is not empty
 			if (parameterRecord.getValue() != null && !parameterRecord.getValue().equals("")) {	
 				ParameterType parameterType = factory.createParameterType();
-				NameType parameterNameType = factory.createNameType();
-				parameterNameType.setId(parameterRecord.getNameID().getID());
-				parameterNameType.setDisplayName(parameterRecord.getNameID().getDisplayName());
-				parameterType.setName(parameterNameType);
+				parameterType.setName(createNameType(parameterRecord.getNameID()));
 				parameterType.setValue(parameterRecord.getValue());
 				operationType.getParameter().add(parameterType);
 			}
@@ -377,10 +385,14 @@ public class SessionSaver {
 		// inputs
 		for (InputRecord inputRecord : operationRecord.getInputs()) {
 
-			// FIXME check inputId for null
+			String inputID = reversedItemIdMap.get(inputRecord.getValue());
+			// skip inputs which were not around when generating ids
+			if (inputID == null) {
+				continue;
+			}
 			InputType inputType = factory.createInputType();
 			inputType.setName(createNameType(inputRecord.getNameID()));
-			inputType.setData(reversedItemIdMap.get(inputRecord.getValue()));
+			inputType.setData(inputID);
 			
 			operationType.getInput().add(inputType);
 		}
@@ -397,10 +409,11 @@ public class SessionSaver {
 	}	
 
 
-	private String getNewEntryName() {
+	private String getNewZipEntryName() {
 		return "file-" + entryCounter++;
 	}
 
+	
 	private void writeFile(ZipOutputStream out, String name, InputStream in) throws IOException {
 		
 		int byteCount;
@@ -416,14 +429,6 @@ public class SessionSaver {
 		out.closeEntry() ;							
 	}
 
-	private String generateId(OperationRecord operationRecord) {
-		String id = String.valueOf(operationIdCounter);
-		operationIdCounter++;
-		operationRecordIdMap.put(id, operationRecord);
-		reversedOperationRecordIdMap.put(operationRecord, id);
-		return id.toString();
-	}
-
 	
 	private NameType createNameType(String id, String displayName, String desription) {
 		NameType nameType = factory.createNameType();
@@ -433,24 +438,8 @@ public class SessionSaver {
 		return nameType;
 	}
 	
+
 	private NameType createNameType(NameID nameID) {
 		return createNameType(nameID.getID(), nameID.getDisplayName(), nameID.getDescription());
-	}
-	
-	
-	public static void main(String[] args) throws JAXBException {
-		ObjectFactory objFactory = new ObjectFactory();
-		SessionType session = objFactory.createSessionType();
-		session.setFormatVersion(3);
-		FolderType folder = objFactory.createFolderType();
-		folder.setName("Jou folder");
-		folder.setId("folder-1");
-		session.getFolder().add(folder);
-		
-		JAXBContext jaxbContext = JAXBContext.newInstance("fi.csc.microarray.client.session.schema");
-		Marshaller marshaller = jaxbContext.createMarshaller();
-		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-		marshaller.marshal(objFactory.createSession(session), System.out);
-
 	}
 }

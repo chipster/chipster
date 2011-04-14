@@ -52,8 +52,8 @@
 		<xs:sequence>
 			<xs:element name="name" type="xs:string"/>
 			<xs:element name="id" type="xs:string"/>
-			<xs:element name="folder" type="xs:string"/>
-			<xs:element name="result-of" type="xs:string"/>
+			<xs:element name="folder" type="xs:string" minOccurs="0"/>
+			<xs:element name="result-of" type="xs:string" minOccurs="0"/>
 			<xs:element name="storage-type" type="xs:string"/>
 			<xs:element name="url" type="xs:string"/>
 			<xs:element name="cache-url" type="xs:string" minOccurs="0"/>
