@@ -11,13 +11,13 @@
 # MG, 2.3.2010 added the option to filter "withn" and "outside" a symmetrical
 # range of values
 # IS, 12.10.2010 removed the restrictive range from the cutoff parameter
+# IS, 7.4.2011 fixed a bug where certain column names (e.g. 'p-value' did not work)
 
 # Loads the normalized data
-file<-c("normalized.tsv")
-dat<-read.table(file, header=T, sep="\t", row.names=1)
+dat <- read.table('normalized.tsv', header=TRUE, sep="\t", row.names=1, check.names=FALSE)
 
 # Extract the data to a vector
-f<-dat[,grep(column, colnames(dat))]
+f <- dat[, column]
 # Filters the data
 if(smaller.or.larger=="equal-to") {
 	dat2<-dat[which(f==cutoff),]
