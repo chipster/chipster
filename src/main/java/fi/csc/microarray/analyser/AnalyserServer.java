@@ -142,8 +142,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 
 		// initialize analysis tools
 		this.toolRepository = new ToolRepository(this.workDir);
-		
-			
+					
 		// initialize timeout checker
 		timeoutTimer = new Timer(true);
 		timeoutTimer.schedule(new TimeoutTimerTask(), timeoutCheckInterval, timeoutCheckInterval);
