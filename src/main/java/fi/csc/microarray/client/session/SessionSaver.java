@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -80,6 +81,32 @@ public class SessionSaver {
 	
 	public void saveSession() throws IOException, JAXBException, SAXException {
 
+		// xml schema object factory and xml root
+		this.factory = new ObjectFactory();
+		this.sessionType = factory.createSessionType();
+
+
+		// save session version
+		sessionType.setFormatVersion(ClientSession.SESSION_VERSION);
+
+		// generate all ids
+		generateIdsRecursively(dataManager.getRootFolder());
+
+		// gather meta data and save actual data to the zip file
+		saveMetadataRecursively(dataManager.getRootFolder());
+		
+		// validate and meta data
+		Marshaller marshaller = ClientSession.getJAXBContext().createMarshaller();
+		marshaller.setSchema(ClientSession.getSchema());
+		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+		marshaller.marshal(factory.createSession(sessionType), System.out);
+		
+		
+		
+		
+		
+		
+		
 		// figure out the target file
 		boolean replaceOldSession = sessionFile.exists();
 		File newSessionFile;
@@ -91,9 +118,6 @@ public class SessionSaver {
 			newSessionFile = sessionFile;
 		}
 
-		// xml schema object factory and xml root
-		this.factory = new ObjectFactory();
-		this.sessionType = factory.createSessionType();
 		
 		ZipOutputStream zipOutputStream = null;
 		boolean createdSuccessfully = false;
@@ -102,26 +126,16 @@ public class SessionSaver {
 			zipOutputStream = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(newSessionFile)));
 			zipOutputStream.setLevel(1); // quite slow with bigger values														
 
-			// save session version
-			sessionType.setFormatVersion(ClientSession.SESSION_VERSION);
-
-			// generate all ids
-			generateIdsRecursively(dataManager.getRootFolder());
-
-			// gather meta data and save actual data to the zip file
-			saveRecursively(dataManager.getRootFolder(), zipOutputStream);
-			
-			// validate and meta data
-			Marshaller marshaller = ClientSession.getJAXBContext().createMarshaller();
-			marshaller.setSchema(ClientSession.getSchema());
-			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-			marshaller.marshal(factory.createSession(sessionType), System.out);
-
+		
 			// save meta data
 			ZipEntry sessionDataZipEntry = new ZipEntry(ClientSession.SESSION_DATA_FILENAME);
 			zipOutputStream.putNextEntry(sessionDataZipEntry);
 			marshaller.marshal(factory.createSession(sessionType), zipOutputStream);
 
+			
+			// save data bean contents
+			writeDataBeanContentsToZipFile(zipOutputStream);
+			
 			zipOutputStream.closeEntry() ;							
 
 			// FIXME finally?
@@ -223,14 +237,14 @@ public class SessionSaver {
 		return id.toString();
 	}
 
-	private void saveRecursively(DataFolder folder, ZipOutputStream cpZipOutputStream) throws IOException {
+	private void saveMetadataRecursively(DataFolder folder) throws IOException {
 		
 		String folderId = reversedItemIdMap.get(folder);
 		saveDataFolderMetadata(folder, folderId);
 		
 		for (DataItem data : folder.getChildren()) {
 			if (data instanceof DataFolder) {
-				saveRecursively((DataFolder)data, cpZipOutputStream);
+				saveMetadataRecursively((DataFolder)data);
 				
 			} else {
 				DataBean bean = (DataBean)data;
@@ -244,9 +258,6 @@ public class SessionSaver {
 
 				// store metadata
 				saveDataBeanMetadata(bean, newURL, folderId);
-				
-				// write bean contents to zip
-				writeFile(cpZipOutputStream, entryName, bean.getContentByteStream());
 
 			}
 		}
@@ -413,6 +424,16 @@ public class SessionSaver {
 		return "file-" + entryCounter++;
 	}
 
+	
+	private void writeDataBeanContentsToZipFile(ZipOutputStream zipOutputStream) throws IOException {
+		for (Entry<DataBean, URL> entry : this.newURLs.entrySet()) {
+			String entryName = entry.getValue().getRef();
+
+			// write bean contents to zip
+			writeFile(zipOutputStream, entryName, entry.getKey().getContentByteStream());
+		}
+	}
+	
 	
 	private void writeFile(ZipOutputStream out, String name, InputStream in) throws IOException {
 		
