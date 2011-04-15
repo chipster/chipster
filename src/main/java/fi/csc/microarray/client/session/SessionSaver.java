@@ -19,6 +19,9 @@ import org.xml.sax.SAXException;
 
 import fi.csc.microarray.client.NameID;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.dialog.ChipsterDialog;
+import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
+import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.OperationRecord.InputRecord;
 import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
@@ -72,42 +75,46 @@ public class SessionSaver {
 	private ObjectFactory factory;
 	private SessionType sessionType;
 
-	
+	/**
+	 * Create a new instance for every session to be saved.
+	 * 
+	 * @param sessionFile
+	 */
 	public SessionSaver(File sessionFile) {
 		this.sessionFile = sessionFile;
 		this.dataManager = Session.getSession().getDataManager();
 
 	}
 	
-	public void saveSession() throws IOException, JAXBException, SAXException {
+	public boolean saveSession() {
 
 		// xml schema object factory and xml root
 		this.factory = new ObjectFactory();
 		this.sessionType = factory.createSessionType();
+		Marshaller marshaller = null;
+	
+		// gather meta data
+		try {
+			// save session version
+			sessionType.setFormatVersion(ClientSession.SESSION_VERSION);
 
+			// generate all ids
+			generateIdsRecursively(dataManager.getRootFolder());
 
-		// save session version
-		sessionType.setFormatVersion(ClientSession.SESSION_VERSION);
+			// gather meta data
+			saveMetadataRecursively(dataManager.getRootFolder());
 
-		// generate all ids
-		generateIdsRecursively(dataManager.getRootFolder());
-
-		// gather meta data and save actual data to the zip file
-		saveMetadataRecursively(dataManager.getRootFolder());
-		
-		// validate and meta data
-		Marshaller marshaller = ClientSession.getJAXBContext().createMarshaller();
-		marshaller.setSchema(ClientSession.getSchema());
-		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-		marshaller.marshal(factory.createSession(sessionType), System.out);
-		
-		
-		
-		
-		
-		
-		
-		// figure out the target file
+			// validate meta data
+			marshaller = ClientSession.getJAXBContext().createMarshaller();
+			marshaller.setSchema(ClientSession.getSchema());
+			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+			marshaller.marshal(factory.createSession(sessionType), System.out);
+		} catch (Exception e) {
+			Session.getSession().getApplication().showDialog("Saving session failed.", message, e.toString(), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+			return false;
+		}
+			
+		// figure out the target file, use temporary file if target already exists
 		boolean replaceOldSession = sessionFile.exists();
 		File newSessionFile;
 		File backupFile = null;
@@ -118,11 +125,10 @@ public class SessionSaver {
 			newSessionFile = sessionFile;
 		}
 
-		
+		// write data to zip file 
 		ZipOutputStream zipOutputStream = null;
 		boolean createdSuccessfully = false;
-		try {
-			
+		try {	
 			zipOutputStream = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(newSessionFile)));
 			zipOutputStream.setLevel(1); // quite slow with bigger values														
 
@@ -131,17 +137,25 @@ public class SessionSaver {
 			ZipEntry sessionDataZipEntry = new ZipEntry(ClientSession.SESSION_DATA_FILENAME);
 			zipOutputStream.putNextEntry(sessionDataZipEntry);
 			marshaller.marshal(factory.createSession(sessionType), zipOutputStream);
-
-			
-			// save data bean contents
-			writeDataBeanContentsToZipFile(zipOutputStream);
-			
 			zipOutputStream.closeEntry() ;							
 
-			// FIXME finally?
-			zipOutputStream.finish();
-			zipOutputStream.close();
+			// save data bean contents
+			writeDataBeanContentsToZipFile(zipOutputStream);
 
+			createdSuccessfully = true;
+		} catch (Exception e) {
+			
+		} finally {
+			try {
+				zipOutputStream.finish();
+				zipOutputStream.close();
+			} catch (IOException e) {
+				createdSuccessfully = false;
+				logger.warn("could not finish or close session file", e);
+			} finally {
+				IOUtils.closeIfPossible(zipOutputStream);
+			}
+		}
 			
 			
 			// rename new session if replacing existing
@@ -182,23 +196,12 @@ public class SessionSaver {
 
 			createdSuccessfully = true;
 			
-		} catch (RuntimeException e) {
-			// createdSuccesfully is false, so file will be deleted in finally block
-			throw e;
-			
-		} catch (IOException e) {
-			// createdSuccesfully is false, so file will be deleted in finally block
-			throw e;
-
-		} catch (JAXBException e) {
-			// createdSuccesfully is false, so file will be deleted in finally block
-			throw e;
-		} finally {
-			IOUtils.closeIfPossible(zipOutputStream); // called twice for normal execution, not a problem
-			if (!replaceOldSession && !createdSuccessfully) {
-				newSessionFile.delete(); // do not leave bad session files hanging around
-			}
-		}
+//} finally {
+//			IOUtils.closeIfPossible(zipOutputStream); // called twice for normal execution, not a problem
+//			if (!replaceOldSession && !createdSuccessfully) {
+//				newSessionFile.delete(); // do not leave bad session files hanging around
+//			}
+//		}
 	}
 
 	private int generateIdsRecursively(DataFolder folder) throws IOException {
@@ -431,6 +434,7 @@ public class SessionSaver {
 
 			// write bean contents to zip
 			writeFile(zipOutputStream, entryName, entry.getKey().getContentByteStream());
+			zipOutputStream.closeEntry();
 		}
 	}
 	

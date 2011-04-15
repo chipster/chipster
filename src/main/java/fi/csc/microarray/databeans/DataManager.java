@@ -564,12 +564,10 @@ public class DataManager {
 	 * Saves session (all data: beans, folder structure, operation metadata, links etc.) to a file.
 	 * File is a zip file with all the data files and one metadata file.
 	 * @return count of stored files
-	 * @throws JAXBException 
-	 * @throws SAXException 
 	 */
-	public void saveSession(File snapshotDir, ClientApplication application) throws IOException, JAXBException, SAXException {
+	public boolean saveSession(File snapshotDir, ClientApplication application) {
 		SessionSaver sessionSaver = new SessionSaver(snapshotDir);
-		sessionSaver.saveSession();
+		return sessionSaver.saveSession();
 	}
 
 	/**

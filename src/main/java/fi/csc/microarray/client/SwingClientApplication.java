@@ -1781,7 +1781,7 @@ public class SwingClientApplication extends ClientApplication {
 				if (file.exists()) {
 					int returnValue = JOptionPane.DEFAULT_OPTION;
 
-					String message = "The file " + file.getCanonicalPath() + " exists already. Do you want " + "to replace it with the one you are saving?";
+					String message = "The file " + file.getCanonicalPath() + " already exists. Do you want " + "to replace it?";
 
 					Object[] options = { "Cancel", "Replace" };
 
@@ -1798,9 +1798,11 @@ public class SwingClientApplication extends ClientApplication {
 
 					public void run() {
 
-						try {
-							// save
-							getDataManager().saveSession(file, application);
+						// save
+						boolean saveSuccessful;
+						saveSuccessful = getDataManager().saveSession(file, application);
+
+						if (saveSuccessful) {
 
 							// quit
 							if (quit) {
@@ -1809,11 +1811,7 @@ public class SwingClientApplication extends ClientApplication {
 
 							menuBar.updateMenuStatus();
 							unsavedChanges = false;
-
-						
-						} catch (Exception e) {
-							throw new RuntimeException(e);
-						}
+						}						
 					}
 				});
 			} catch (Exception exp) {
