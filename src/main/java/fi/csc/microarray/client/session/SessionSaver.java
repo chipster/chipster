@@ -110,7 +110,7 @@ public class SessionSaver {
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 			marshaller.marshal(factory.createSession(sessionType), System.out);
 		} catch (Exception e) {
-			Session.getSession().getApplication().showDialog("Saving session failed.", message, e.toString(), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+			Session.getSession().getApplication().showDialog("Saving session failed.", "Could not gather session information.", e.toString(), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
 			return false;
 		}
 			
@@ -144,7 +144,9 @@ public class SessionSaver {
 
 			createdSuccessfully = true;
 		} catch (Exception e) {
-			
+			createdSu
+			Session.getSession().getApplication().showDialog("Saving session failed.", "Could not save data to the session file.", e.toString(), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+			return false;
 		} finally {
 			try {
 				zipOutputStream.finish();
@@ -156,52 +158,59 @@ public class SessionSaver {
 				IOUtils.closeIfPossible(zipOutputStream);
 			}
 		}
-			
-			
-			// rename new session if replacing existing
-			if (replaceOldSession) {
-				
-				// original to backup
-				if (!sessionFile.renameTo(backupFile)) {
-					throw new IOException("Creating backup " + sessionFile + " -> " + backupFile + " failed.");
-				}
-					
-				// new to original
-				if (newSessionFile.renameTo(sessionFile)) {
-					createdSuccessfully = true;
 
-					// remove backup
-					backupFile.delete();
-				} else {
-					// try to move backup back to original
-					// TODO remove new session file?
-					if (backupFile.renameTo(sessionFile)) {
-						throw new IOException("Moving new " + newSessionFile + " -> " + sessionFile + " failed, " +
-								"restored original session file.");
-					} else {
-						throw new IOException("Moving new " + newSessionFile + " -> " + sessionFile + " failed, " +
-						"also restoring original file failed, backup of original is " + backupFile);
-					}
-				}
-			} 
-			
-			// session file is now saved, update the urls and handlers in the client
-			for (DataBean bean: newURLs.keySet()) {
+		if (createdSuccessfully == false) {
+			Session.getSession().getApplication().showDialog("Saving session failed.", "Could not close the session file.", e.toString(), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
 
-				// set new url and handler and type
-				bean.setStorageMethod(StorageMethod.LOCAL_SESSION);
-				bean.setContentUrl(newURLs.get(bean));
-				bean.setHandler(new ZipDataBeanHandler());
+		}
+		Session.getSession().getApplication().showDialog("Saving session failed.", "Could not save data to the session file.", e.toString(), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+
+		
+			
+		// rename new session if replacing existing
+		if (replaceOldSession) {
+
+			// original to backup
+			if (!sessionFile.renameTo(backupFile)) {
+				throw new IOException("Creating backup " + sessionFile + " -> " + backupFile + " failed.");
 			}
 
-			createdSuccessfully = true;
+			// new to original
+			if (newSessionFile.renameTo(sessionFile)) {
+				createdSuccessfully = true;
+
+				// remove backup
+				backupFile.delete();
+			} else {
+				// try to move backup back to original
+				// TODO remove new session file?
+				if (backupFile.renameTo(sessionFile)) {
+					throw new IOException("Moving new " + newSessionFile + " -> " + sessionFile + " failed, " +
+					"restored original session file.");
+				} else {
+					throw new IOException("Moving new " + newSessionFile + " -> " + sessionFile + " failed, " +
+							"also restoring original file failed, backup of original is " + backupFile);
+				}
+			}
+		} 
 			
-//} finally {
-//			IOUtils.closeIfPossible(zipOutputStream); // called twice for normal execution, not a problem
-//			if (!replaceOldSession && !createdSuccessfully) {
-//				newSessionFile.delete(); // do not leave bad session files hanging around
-//			}
-//		}
+		// session file is now saved, update the urls and handlers in the client
+		for (DataBean bean: newURLs.keySet()) {
+
+			// set new url and handler and type
+			bean.setStorageMethod(StorageMethod.LOCAL_SESSION);
+			bean.setContentUrl(newURLs.get(bean));
+			bean.setHandler(new ZipDataBeanHandler());
+		}
+
+		createdSuccessfully = true;
+
+		//} finally {
+		//			IOUtils.closeIfPossible(zipOutputStream); // called twice for normal execution, not a problem
+		//			if (!replaceOldSession && !createdSuccessfully) {
+		//				newSessionFile.delete(); // do not leave bad session files hanging around
+		//			}
+		//		}
 	}
 
 	private int generateIdsRecursively(DataFolder folder) throws IOException {
