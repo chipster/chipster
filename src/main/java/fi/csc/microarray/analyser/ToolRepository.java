@@ -81,7 +81,7 @@ public class ToolRepository {
 	private void updateDescription(AnalysisDescription desc) throws AnalysisException {
 	    // FIXME params should not be empty
 	    HashMap<String, String> params = new HashMap<String, String>();
-		AnalysisDescription newDescription = desc.getHandler().handle(desc.getSourceResourceName(), params);
+		AnalysisDescription newDescription = desc.getHandler().handle(null, desc.getSourceResourceFullPath().toString(), params);
 		if (newDescription != null) {
 			newDescription.setUpdatedSinceStartup();
 			
@@ -200,15 +200,28 @@ public class ToolRepository {
 	private void loadModuleDescriptions()
 	       throws IOException, SAXException, ParserConfigurationException {
 		logger.info("loading modules");
-		
-		for (String moduleFilename : DirectoryLayout.getInstance().getConfDir().list()) {
-		    if (moduleFilename.endsWith("-module.xml")) {
-	            File moduleFile = new File(DirectoryLayout.getInstance().getConfDir(), moduleFilename);
-	            if (moduleFile.exists()) {
-	                logger.info("loading from " + moduleFilename);
-	                loadModule(moduleFile);
-	            }
-		    }
+
+		// Iterate over all module directories, and over all module files inside them
+		for (String moduleDirName : DirectoryLayout.getInstance().getModulesDir().list()) {
+			File moduleDir = new File(DirectoryLayout.getInstance().getModulesDir(), moduleDirName);
+			if (moduleDir.isDirectory()) {
+				
+				
+				// Make directory as a known source of tools
+				// FIXME
+				logger.info("detected tool directory: " + moduleDir);
+				
+				// Load module specification files, if they exist
+				for (String moduleFilename : moduleDir.list()) {
+				    if (moduleFilename.endsWith("-module.xml")) {
+			            File moduleFile = new File(moduleDir, moduleFilename);
+			            if (moduleFile.exists()) {
+			                logger.info("loading tools specifications from: " + moduleFilename);
+			                loadModule(moduleDir, moduleFile);
+			            }
+				    }
+				}
+			}
 		}
 	}
 
@@ -232,7 +245,7 @@ public class ToolRepository {
 	 * @throws IOException
 	 * @throws ParserConfigurationException
 	 */
-	private void loadModule(File toolFile)
+	private void loadModule(File moduleDir, File toolFile)
 	    throws FileNotFoundException, SAXException,
 	           IOException, ParserConfigurationException {
 		File toolConfig = toolFile;
@@ -295,9 +308,9 @@ public class ToolRepository {
 		    		logger.warn("not loading a tool without resource element");
 		    		continue;
 		    	}
-		    	String resourceName = resourceElement.getTextContent().trim();
-		    	if (resourceName == null || resourceName.isEmpty()) {
-		    		logger.warn("not loading a tool with empty resource name");
+		    	String toolFilename = resourceElement.getTextContent().trim();
+		    	if (toolFilename == null || toolFilename.isEmpty()) {
+		    		logger.warn("not loading a tool with empty filename");
 		    		continue;
 		    	}
 
@@ -310,7 +323,7 @@ public class ToolRepository {
 		    	String runtimeName = toolElement.getAttribute("runtime");
 		    	ToolRuntime runtime = runtimes.get(runtimeName);
 		    	if (runtime == null) {
-		    		logger.warn("not loading " + resourceName + ": runtime " + runtimeName + " not found");
+		    		logger.warn("not loading " + toolFilename + ": runtime " + runtimeName + " not found");
 		    		continue;
 		    	}
 
@@ -336,7 +349,7 @@ public class ToolRepository {
 		    		parameters.put(parameterName, parameterValue);
 		    	}
 		    	if (!parametersOk) {
-		    		logger.warn("not loading " + resourceName + ": parameter not ok");
+		    		logger.warn("not loading " + toolFilename + ": parameters not ok");
 		    		continue;
 		    	}
 		    	
@@ -345,15 +358,15 @@ public class ToolRepository {
 		    	try {
 		    	    // checked cached descriptions
 		    	    // cached descriptions are updated when needed
-		    	    AnalysisDescription cachedDescription = getDescription(resourceName);
+		    	    AnalysisDescription cachedDescription = getDescription(toolFilename);
 		    	    if (cachedDescription != null) {
 		    	        description = cachedDescription;
 		    	    } else {
-		                description = runtime.getHandler().handle(resourceName, parameters);
+		                description = runtime.getHandler().handle(moduleDir, toolFilename, parameters);
 		    	    }
 		    	    
 		    	} catch (Exception e) {
-		    		logger.warn("loading " + resourceName + " failed, could not create description", e);
+		    		logger.warn("loading " + toolFilename + " failed, could not create description", e);
 		    		continue;
 		    	}
 		    	descriptions.put(description.getID(), description);

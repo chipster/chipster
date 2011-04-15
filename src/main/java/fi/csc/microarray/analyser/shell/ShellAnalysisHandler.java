@@ -49,8 +49,7 @@ public class ShellAnalysisHandler implements AnalysisHandler {
         return analysisJob;
     }
 
-    public AnalysisDescription handle(String descriptionFilename,
-                                      Map<String, String> params)
+    public AnalysisDescription handle(File moduleDir, String descriptionFilename, Map<String, String> params)
             throws AnalysisException {
         
         // Generate analysis description

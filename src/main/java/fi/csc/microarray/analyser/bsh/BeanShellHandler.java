@@ -54,33 +54,37 @@ public class BeanShellHandler implements AnalysisHandler {
 	}
 
 
-	public AnalysisDescription handle(String sourceResourceName,
-	                                  Map<String, String> params) throws AnalysisException {
+	public AnalysisDescription handle(File moduleDir, String toolFilename, Map<String, String> params) throws AnalysisException {
+		
+		File toolFile = new File(moduleDir, toolPath + File.separator + toolFilename);
 		
 		InputStream scriptSource;
 		
-		String scriptPath = toolPath + File.separator + sourceResourceName;
-		logger.debug("creating description from " + scriptPath);
-
-		// check for custom script file
-		File scriptFile = new File(customScriptsDirName + File.separator + scriptPath);
-		if (scriptFile.exists()) {
-			FileInputStream customScriptSource;
-			try {
-				customScriptSource = new FileInputStream(scriptFile);
-			} catch (FileNotFoundException fnfe) {
-				logger.error("Could not load custom script: " + scriptFile, fnfe);
-				throw new AnalysisException("Could not load custom script: " + scriptFile);
-			}
-			scriptSource = customScriptSource;
-			logger.info("using custom-script for " + scriptPath);
-		} else {
-			scriptSource = this.getClass().getResourceAsStream(scriptPath);
+		try {
+			scriptSource = new FileInputStream(toolFile);
+			
+		} catch (FileNotFoundException e) {
+			throw new AnalysisException("Script source " + toolFile + " not found.");
 		}
 		
-		if (scriptSource == null) {
-			throw new AnalysisException("Script source " + sourceResourceName + " not found.");
-		}
+//		String scriptPath = toolPath + File.separator + sourceResourceName;
+//		logger.debug("creating description from " + scriptPath);
+//
+//		// check for custom script file
+//		File scriptFile = new File(customScriptsDirName + File.separator + scriptPath);
+//		if (scriptFile.exists()) {
+//			FileInputStream customScriptSource;
+//			try {
+//				customScriptSource = new FileInputStream(scriptFile);
+//			} catch (FileNotFoundException fnfe) {
+//				logger.error("Could not load custom script: " + scriptFile, fnfe);
+//				throw new AnalysisException("Could not load custom script: " + scriptFile);
+//			}
+//			scriptSource = customScriptSource;
+//			logger.info("using custom-script for " + scriptPath);
+//		} else {
+//			scriptSource = this.getClass().getResourceAsStream(scriptPath);
+//		}
 		
 		// read the SADL from the comment block in the beginning of file
 		// and the actual source code
@@ -93,8 +97,7 @@ public class BeanShellHandler implements AnalysisHandler {
 		// parse SADL		
 		SADLDescription sadlDescription;
 		try {
-			sadlDescription = new ChipsterSADLParser().parse(parsedScript.SADL,
-			        sourceResourceName);
+			sadlDescription = new ChipsterSADLParser().parse(parsedScript.SADL, toolFile.getName());
 		} catch (ParseException e) {
 			throw new AnalysisException(e);
 		}
@@ -111,8 +114,8 @@ public class BeanShellHandler implements AnalysisHandler {
 		ad.setCommand("BeanShell");
 		ad.setImplementation(parsedScript.source); // include headers
 		ad.setSourceCode(parsedScript.source);
-		ad.setSourceResourceName(sourceResourceName);
-		ad.setSourceResourceFullPath(scriptPath);
+//		ad.setSourceResourceName(sourceResourceName);
+		ad.setSourceResourceFullPath(toolFile);
 		
 		return ad;
 	}

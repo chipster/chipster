@@ -52,8 +52,7 @@ public class EmbossAnalysisHandler implements AnalysisHandler {
         return analysisJob;
     }
     
-    public AnalysisDescription handle(String acdFileName,
-                                      Map<String, String> params) throws AnalysisException {
+    public AnalysisDescription handle(File moduleDir, String acdFileName, Map<String, String> params) throws AnalysisException {
         
         // Read ACD description
         File acdFile = new File(acdDirectory, acdFileName);
@@ -71,8 +70,7 @@ public class EmbossAnalysisHandler implements AnalysisHandler {
         description.setSourceCode(sadlDescription.toString() + "\n\n" +
         						"Source code for the EMBOSS tools is available at " + 
                                   "http://emboss.sourceforge.net/.");
-        description.setSourceResourceName(acdFileName);
-        description.setSourceResourceFullPath(acdFile.getAbsolutePath());
+        description.setSourceResourceFullPath(acdFile);
         description.setHelpURL("https://extras.csc.fi/emboss/doc/programs/html/" +
                                sadlDescription.getName().getID() + ".html");
         

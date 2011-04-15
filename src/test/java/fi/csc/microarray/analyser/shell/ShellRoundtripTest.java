@@ -72,7 +72,7 @@ public class ShellRoundtripTest {
         HashMap<String, String> map = new HashMap<String, String>();
         map.put("output", "outseq");
         map.put("executable", "/opt/EMBOSS-6.2.0/emboss/seqret");
-        AnalysisDescription description = analysisHandler.handle(sadlFileName, map);
+        AnalysisDescription description = analysisHandler.handle(null, sadlFileName, map); // module dir should not be null here...
         AnalysisJob analysisJob = analysisHandler.createAnalysisJob(jobMessage,
                                                                     description, resultCallback);
         analysisJob.run();
