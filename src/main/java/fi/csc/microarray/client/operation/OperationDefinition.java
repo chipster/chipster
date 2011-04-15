@@ -388,6 +388,15 @@ public class OperationDefinition implements ExecutionItem {
 	public LinkedList<Parameter> getParameters() {
 		return parameters;
 	}
+	
+	public Parameter getParameter(String id) {
+		for (Parameter parameter: parameters) {
+			if (parameter.getID().equals(id)) {
+				return parameter;
+			}
+		}
+		return null;
+	}
 
 	public void addParameter(Parameter parameter) {
 		parameters.add(parameter);
