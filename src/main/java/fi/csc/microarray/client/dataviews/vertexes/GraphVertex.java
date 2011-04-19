@@ -9,7 +9,6 @@ import org.jgraph.graph.GraphConstants;
 
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dataview.MicroarrayGraph;
-import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataBean.Link;
@@ -55,11 +54,11 @@ public class GraphVertex extends AbstractGraphVertex {
 		children = new ArrayList<GraphVertex>();
 		
 		Color c;
-		if (data == null || data.getOperation() == null || data.getOperation().getCategoryColor() == null) {
+		if (data == null || data.getOperationRecord() == null || data.getOperationRecord().getCategoryColor() == null) {
 				c = DEFAULT_VERTEX_COLOR;			
 				
 		} else {			
-			c = data.getOperation().getCategoryColor();
+			c = data.getOperationRecord().getCategoryColor();
 		}
 		
 		GraphConstants.setGradientColor(this.getAttributes(),c);
@@ -164,8 +163,7 @@ public class GraphVertex extends AbstractGraphVertex {
 	 */
 	@Override
 	public String toString() {
-		Operation oper = getData().getOperation();
-		return Session.getSession().getPrimaryModule().getShortCategoryName(oper.getCategoryName());
+		return Session.getSession().getPrimaryModule().getShortCategoryName(getData().getOperationRecord().getCategoryName());
 	}
 	
 	public void addChildVertex(GraphVertex child){

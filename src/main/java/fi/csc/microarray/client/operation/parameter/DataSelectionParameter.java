@@ -52,4 +52,17 @@ public abstract class DataSelectionParameter extends EnumParameter {
 		
 		setOptions(optionObjects, defaultOptions);
 	}
+
+    
+    public void parseValueAndSetWithoutChecks(String stringValue) {
+        // Try splitting stringValue and pass it to setValue
+        String[] stringValues = stringValue.split(",");
+        List<SelectionOption> selectedOptions = new LinkedList<SelectionOption>();
+        for (String optionValue : stringValues) {
+        	selectedOptions.add(new SelectionOption(optionValue, optionValue));
+        }
+        super.setSelectedOptions(selectedOptions);
+    }
+
+
 }

@@ -37,6 +37,7 @@ import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationCategory;
 import fi.csc.microarray.client.operation.OperationDefinition;
+import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.selection.DataSelectionManager;
 import fi.csc.microarray.client.tasks.Task;
@@ -106,6 +107,7 @@ public abstract class ClientApplication {
 	public abstract void viewHelpFor(OperationDefinition operationDefinition);
 	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal);
 	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility, PluginButton button);
+	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility, PluginButton button, boolean feedBackEnabled);
 	public abstract void deleteDatas(DataItem... datas);	
 	public abstract void createLink(DataBean source, DataBean target, Link type);
 	public abstract void removeLink(DataBean source, DataBean target, Link type);
@@ -453,10 +455,11 @@ public abstract class ClientApplication {
 
 				// read outputs and create derivational links for non-metadata beans
 				DataBean metadataOutput = null;
+				OperationRecord operationRecord = new OperationRecord(oper);
 				for (String outputName : task.outputNames()) {
 
 					DataBean output = task.getOutput(outputName);
-					output.setOperation(oper);
+					output.setOperationRecord(operationRecord);
 
 
 					// set sources

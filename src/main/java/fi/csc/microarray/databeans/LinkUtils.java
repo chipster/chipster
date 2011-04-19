@@ -47,7 +47,7 @@ public class LinkUtils {
 		
 		LinkedList<DataBean> outputSet = new LinkedList<DataBean>();
 		for (DataBean candidateOutput : origin.getLinkSources(Link.derivationalTypes())) {
-			if (candidateOutput.getOperation() == seed.getOperation()) {
+			if (candidateOutput.getOperationRecord() == seed.getOperationRecord()) {
 				outputSet.add(candidateOutput);
 			}
 		}

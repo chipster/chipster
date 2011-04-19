@@ -12,10 +12,12 @@ import java.util.List;
 
 import javax.jms.JMSException;
 import javax.swing.Icon;
+import javax.xml.bind.JAXBException;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.xml.sax.SAXException;
 
 import fi.csc.microarray.client.AtEndListener;
 import fi.csc.microarray.client.ClientApplication;
@@ -53,7 +55,7 @@ public class FSDataManagerTest {
 	}
 
 	@Test(groups = {"smoke"} )
-	public void testSnapshot() throws IOException, MicroarrayException {
+	public void testSnapshot() throws IOException, MicroarrayException, JAXBException, SAXException {
 
 		// create original
 		DataManager manager1 = new DataManager();
@@ -73,14 +75,14 @@ public class FSDataManagerTest {
 		if (snap.exists()) {
 			Files.delTree(snap);
 		}		
-		manager1.saveSnapshot(snap, new DummyClientApplication());
+		manager1.saveSession(snap);
 		
 		// check
 		Assert.assertTrue(snap.exists());
 		
 		// load
 		DataManager manager2 = new DataManager();
-		manager2.loadSnapshot(snap, manager2.getRootFolder(), new DummyClientApplication());
+		manager2.loadSession(snap, manager2.getRootFolder(), new DummyClientApplication());
 		
 		// check
 //		DataFolder root1 = manager1.getRootFolder();
@@ -198,6 +200,11 @@ public class FSDataManagerTest {
 		}
 
 		@Override
+		public void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility, PluginButton button, boolean feedbackEnabled) {
+		}
+
+		
+		@Override
 		public void showHistoryScreenFor(DataBean data) {
 		}
 
@@ -290,6 +297,7 @@ public class FSDataManagerTest {
 
 		@Override
 		protected void initialiseGUI() throws MicroarrayException, IOException {
-		}		
+		}
+
 	}
 }
