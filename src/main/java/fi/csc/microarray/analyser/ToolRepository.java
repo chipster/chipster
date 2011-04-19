@@ -368,7 +368,7 @@ public class ToolRepository {
 		    	}
 
 		    	logger.info("loaded " + description.getID() + " " + description.getDisplayName() + " " +
-		    			description.getSourceResourceFullPath() + disabledStatus + hiddenStatus);
+		    			description.getToolFile() + disabledStatus + hiddenStatus);
 		    }
 
 		    // add the category to the module description message

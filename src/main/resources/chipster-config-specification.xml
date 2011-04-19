@@ -136,10 +136,6 @@
 			<value>10</value>
 		</entry>
 		
-		<entry entryKey="custom-scripts-dir" type="string" description="directory for overriding scripts">
-			<value>custom-scripts</value>
-		</entry>
-
 		<entry entryKey="include-operations" type="strings" description="if specified, all but listed operations are excluded">
 		</entry>
 		

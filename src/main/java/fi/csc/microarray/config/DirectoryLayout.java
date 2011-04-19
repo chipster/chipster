@@ -193,16 +193,6 @@ public class DirectoryLayout {
 		}
 	}
 
-	public File getCustomScriptsDir() throws IOException, IllegalConfigurationException {
-		if (type == Type.SERVER) {
-			File customScriptsDir = new File(getBaseDir(), configuration.getString("comp", "custom-scripts-dir"));
-			return initialise(customScriptsDir);
-			
-		} else {
-			throw new UnsupportedOperationException();
-		}
-	}
-
 	public File getBackupDir() throws IOException, IllegalConfigurationException {
 		if (type == Type.SERVER) {
 			File backupDir = new File(getBaseDir(), configuration.getString("manager", "backup-dir"));

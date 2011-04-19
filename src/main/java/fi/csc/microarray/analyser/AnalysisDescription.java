@@ -265,7 +265,7 @@ public class AnalysisDescription {
 //		this.sourceResourceName = sourceResourceName;
 //	}
 
-	public File getSourceResourceFullPath() {
+	public File getToolFile() {
 		return sourceFile;
 	}
 

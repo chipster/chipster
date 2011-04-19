@@ -37,7 +37,6 @@ public class RAnalysisHandler implements AnalysisHandler {
 	private String rCommand;
 	private String toolPath;
 	private String externalToolPath;
-	private String customScriptsDirName;
 	private ProcessPool processPool;
 	private boolean isDisabled = false;
 	
@@ -57,7 +56,6 @@ public class RAnalysisHandler implements AnalysisHandler {
 		}
 		this.rCommand = command;
 		this.toolPath = parameters.get("toolPath");
-		this.customScriptsDirName = configuration.getString("comp", "custom-scripts-dir");
 	
 		this.externalToolPath = parameters.get("externalToolPath");
 		if (externalToolPath == null) {
@@ -160,21 +158,13 @@ public class RAnalysisHandler implements AnalysisHandler {
 	}
 
 	
+	/**
+	 * Check if the source file has been modified since the 
+	 * AnalysisDescription was created.
+	 */
 	public boolean isUptodate(AnalysisDescription description) {
-		File scriptFile = new File(customScriptsDirName + description.getSourceResourceFullPath());
-		
-		// custom script exists and is than description creation
-		if (scriptFile.exists()) {
-			if (scriptFile.lastModified() > description.getCreationTime()) {
-				return false;
-			}
-		} 
-		
-		// custom script has been deleted
-		else if (description.isUpdatedSinceStartup()) {
-			return false;
-		}
-		return true;
+		File scriptFile = description.getToolFile();
+		return scriptFile.lastModified() <= description.getCreationTime();
 	}
 
 	public boolean isDisabled() {

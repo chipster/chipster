@@ -36,7 +36,7 @@ public class RepositoryModule {
 	public void updateDescription(AnalysisDescription desc) throws AnalysisException {
 	    // FIXME params should not be empty
 	    HashMap<String, String> params = new HashMap<String, String>();
-		AnalysisDescription newDescription = desc.getHandler().handle(null, desc.getSourceResourceFullPath().toString(), params);
+		AnalysisDescription newDescription = desc.getHandler().handle(null, desc.getToolFile().toString(), params);
 		if (newDescription != null) {
 			newDescription.setUpdatedSinceStartup();
 			

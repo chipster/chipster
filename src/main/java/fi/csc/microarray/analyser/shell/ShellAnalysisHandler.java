@@ -91,7 +91,12 @@ public class ShellAnalysisHandler implements AnalysisHandler {
         return false;
     }
 
-    public boolean isUptodate(AnalysisDescription description) {
-        return true;
-    }
+	/**
+	 * Check if the source file has been modified since the 
+	 * AnalysisDescription was created.
+	 */
+	public boolean isUptodate(AnalysisDescription description) {
+		File scriptFile = description.getToolFile();
+		return scriptFile.lastModified() <= description.getCreationTime();
+	}
 }

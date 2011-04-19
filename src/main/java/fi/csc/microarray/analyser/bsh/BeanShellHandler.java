@@ -17,8 +17,6 @@ import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
 import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.analyser.SADLTool;
-import fi.csc.microarray.config.Configuration;
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.description.SADLGenerator;
@@ -39,12 +37,9 @@ public class BeanShellHandler implements AnalysisHandler {
 	static final Logger logger = Logger.getLogger(BeanShellHandler.class);
 
 	private final String toolPath;
-	private final String customScriptsDirName;
 	
 	public BeanShellHandler(HashMap<String, String> parameters) throws IOException, IllegalConfigurationException {
 		this.toolPath = parameters.get("toolPath");
-		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
-		this.customScriptsDirName = configuration.getString("comp", "custom-scripts-dir");
 	}
 	
 	public AnalysisJob createAnalysisJob(JobMessage message, AnalysisDescription description, ResultCallback resultHandler) {
@@ -125,20 +120,8 @@ public class BeanShellHandler implements AnalysisHandler {
 	 * AnalysisDescription was created.
 	 */
 	public boolean isUptodate(AnalysisDescription description) {
-		File scriptFile = new File(customScriptsDirName + description.getSourceResourceFullPath());
-		
-		// custom script exists and is than description creation
-		if (scriptFile.exists()) {
-			if (scriptFile.lastModified() > description.getCreationTime()) {
-				return false;
-			}
-		} 
-		
-		// custom script has been deleted
-		else if (description.isUpdatedSinceStartup()) {
-			return false;
-		}
-		return true;
+		File scriptFile = description.getToolFile();
+		return scriptFile.lastModified() <= description.getCreationTime();
 	}
 
 	public boolean isDisabled() {
