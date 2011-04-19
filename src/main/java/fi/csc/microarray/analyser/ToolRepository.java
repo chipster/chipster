@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -32,7 +31,7 @@ import fi.csc.microarray.util.XmlUtil;
  * synchronized using this, since reading descriptions may cause a
  * description to be updated.
  *  
- * @author hupponen
+ * @author Taavi Hupponen, Aleksi Kallio
  *
  */
 public class ToolRepository {
@@ -42,12 +41,9 @@ public class ToolRepository {
 	private static final Logger logger = Logger
 			.getLogger(ToolRepository.class);
 	
-	private LinkedHashMap<String, AnalysisDescription> descriptions = new LinkedHashMap<String, AnalysisDescription>(); 
-	private LinkedHashMap<String, AnalysisDescription> supportedDescriptions = new LinkedHashMap<String, AnalysisDescription>();
-	private LinkedHashMap<String, AnalysisDescription> visibleDescriptions = new LinkedHashMap<String, AnalysisDescription>();
-	
 	private HashMap<String, ToolRuntime> runtimes = new HashMap<String, ToolRuntime>();
-	private List<ModuleDescriptionMessage> modules = new LinkedList<ModuleDescriptionMessage>();
+	private List<ModuleDescriptionMessage> moduleDescriptions = new LinkedList<ModuleDescriptionMessage>();
+	private List<RepositoryModule> modules = new LinkedList<RepositoryModule>();
 		
 	/**
 	 * 
@@ -60,62 +56,41 @@ public class ToolRepository {
 	}
 	
 	public synchronized AnalysisDescription getDescription(String id) throws AnalysisException {
-		AnalysisDescription desc; 
-
-		// get the description
-		desc = descriptions.get(id);
-
-		// check if description needs to be updated
-		if (desc != null && !desc.isUptodate()) {
-			updateDescription(desc);
+		AnalysisDescription desc = null; 
+		RepositoryModule moduleWithDesc = null;
+		
+		// Get the description
+		for (RepositoryModule module : modules) {
+			if (module.hasDescription(id)) {
+				desc = module.getDescription(id);
+				moduleWithDesc = module;
+				break;
+			}
 		}
 		
-		// return the possibly updated description
-		return descriptions.get(id); 
+		// Return null if nothing is found
+		if (desc == null) {
+			return null;
+		}
+
+		// Check if description needs to be updated
+		if (desc != null && !desc.isUptodate()) {
+			moduleWithDesc.updateDescription(desc);
+		}
+		
+		// Return the possibly updated description
+		return moduleWithDesc.getDescription(id); 
 	}
 	
 	public synchronized boolean supports(String id) {
-		return supportedDescriptions.containsKey(id);
-	}
-	
-	private void updateDescription(AnalysisDescription desc) throws AnalysisException {
-	    // FIXME params should not be empty
-	    HashMap<String, String> params = new HashMap<String, String>();
-		AnalysisDescription newDescription = desc.getHandler().handle(null, desc.getSourceResourceFullPath().toString(), params);
-		if (newDescription != null) {
-			newDescription.setUpdatedSinceStartup();
-			
-			// name (id) of the tool has not changed
-			if (desc.getID().equals(newDescription.getID())) {
-				
-				// replace the old description with the same name
-				descriptions.put(newDescription.getID(), newDescription);
-				if (supportedDescriptions.containsKey(desc.getID())) {
-					supportedDescriptions.put(newDescription.getID(), newDescription);
-				}
-				if (visibleDescriptions.containsKey(desc.getID())) {
-					visibleDescriptions.put(newDescription.getID(), newDescription);
-				}
-			} 
-
-			// name (id) of the tool has changed
-			else {
-				logger.warn("name of the tool has changed after loading from custom-scripts, keeping both old and new");
-				if (descriptions.containsKey(newDescription.getID())){
-					logger.warn("descriptions already contains a tool with the new name, ignoring custom-scripts");
-					return;
-				} 
-				// add the tool with the new name
-				descriptions.put(newDescription.getID(), newDescription);
-				if (supportedDescriptions.containsKey(desc.getID())) {
-					supportedDescriptions.put(newDescription.getID(), newDescription);
-				}
-				if (visibleDescriptions.containsKey(desc.getID())) {
-					visibleDescriptions.put(newDescription.getID(), newDescription);
-				}
+		for (RepositoryModule module : modules) {
+			if (module.isSupportedDescription(id)) {
+				return true;
 			}
 		}
+		return false;
 	}
+	
 
 	/**
 	 * Load available runtimes.
@@ -186,7 +161,7 @@ public class ToolRepository {
 	 */
 	public List<ModuleDescriptionMessage> getModuleDescriptions()
 	        throws ParserConfigurationException, SAXException, IOException {
-	    return modules;
+	    return moduleDescriptions;
 	}
 
 	/**
@@ -248,9 +223,8 @@ public class ToolRepository {
 	private void loadModule(File moduleDir, File toolFile)
 	    throws FileNotFoundException, SAXException,
 	           IOException, ParserConfigurationException {
-		File toolConfig = toolFile;
 
-		Document document = XmlUtil.parseReader(new FileReader(toolConfig));
+		Document document = XmlUtil.parseReader(new FileReader(toolFile));
 		Element moduleElement = (Element)document.getElementsByTagName("module").item(0);
 		
 		// module name 
@@ -260,8 +234,8 @@ public class ToolRepository {
 			return;
 		}
 		
-		// construct the module description message
-		ModuleDescriptionMessage moduleDescriptionMessage = new ModuleDescriptionMessage(moduleName);
+		// construct the module
+		RepositoryModule module = new RepositoryModule(moduleDir, toolFile, moduleName);
 		
 		// stats
 	    int totalCount = 0;
@@ -369,7 +343,7 @@ public class ToolRepository {
 		    		logger.warn("loading " + toolFilename + " failed, could not create description", e);
 		    		continue;
 		    	}
-		    	descriptions.put(description.getID(), description);
+		    	module.putDescription(description.getID(), description);
 
 		    	successfullyLoadedCount++;
 
@@ -377,7 +351,7 @@ public class ToolRepository {
 		    	String disabledStatus = "";
 		    	if (!runtime.isDisabled() && !toolDisabled) {
 		    		// add to supported descriptions list
-		    		supportedDescriptions.put(description.getID(), description);
+		    		module.markSupportedDescription(description.getID());
 		    	} else {
 		    		disabledStatus = " DISABLED";
 		    		disabledCount++;
@@ -398,13 +372,14 @@ public class ToolRepository {
 		    }
 
 		    // add the category to the module description message
-		    moduleDescriptionMessage.addCategory(category);
+		    module.addDescriptionCategory(category);
 		}
 
 		logger.info("loaded " + moduleName + " " + successfullyLoadedCount + "/" + totalCount +
 				" tools, " + disabledCount + " disabled, " + hiddenCount + " hidden");
 
 		// add to modules
-		modules.add(moduleDescriptionMessage);
+		modules.add(module);
+		moduleDescriptions.add(module.getModuleDescriptionMessage());
 	}
 }
