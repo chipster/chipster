@@ -2,7 +2,7 @@ package fi.csc.microarray.client;
 
 import java.util.List;
 
-import fi.csc.microarray.client.operation.OperationCategory;
+import fi.csc.microarray.client.operation.ToolCategory;
 import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.filebroker.FileBrokerClient;
@@ -29,9 +29,9 @@ public interface ServiceAccessor {
 
 	public void fetchDescriptions(Module primaryModule) throws Exception;
 
-	public List<OperationCategory> getVisibleCategories();
+	public List<ToolCategory> getVisibleCategories();
 
-	public List<OperationCategory> getHiddenCategories();
+	public List<ToolCategory> getHiddenCategories();
 
 	public TaskExecutor getTaskExecutor();
 

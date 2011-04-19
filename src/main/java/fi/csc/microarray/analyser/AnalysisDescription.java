@@ -4,6 +4,7 @@
  */
 package fi.csc.microarray.analyser;
 
+import java.io.File;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -129,12 +130,12 @@ public class AnalysisDescription {
 	 * Name of the original source script or java class etc.
 	 * Needed for update checks.
 	 */
-	private String sourceResourceName;
+//	private String sourceResourceName;
 
 	/**
 	 * Needed for update checks.
 	 */
-	private String sourceResourceFullPath;
+	private File sourceFile;
 	
 	private String initialiser;
 	
@@ -256,20 +257,20 @@ public class AnalysisDescription {
 		}
 	}
 
-	public String getSourceResourceName() {
-		return sourceResourceName;
+//	public String getSourceResourceName() {
+//		return sourceResourceName;
+//	}
+
+//	public void setSourceResourceName(String sourceResourceName) {
+//		this.sourceResourceName = sourceResourceName;
+//	}
+
+	public File getSourceResourceFullPath() {
+		return sourceFile;
 	}
 
-	public void setSourceResourceName(String sourceResourceName) {
-		this.sourceResourceName = sourceResourceName;
-	}
-
-	public String getSourceResourceFullPath() {
-		return sourceResourceFullPath;
-	}
-
-	public void setSourceResourceFullPath(String sourceResourceFullPath) {
-		this.sourceResourceFullPath = sourceResourceFullPath;
+	public void setSourceResourceFullPath(File sourceFile) {
+		this.sourceFile = sourceFile;
 	}
 	
 	public void setHelpURL(String helpURL) {

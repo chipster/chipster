@@ -35,7 +35,7 @@ import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.operation.OperationCategory;
+import fi.csc.microarray.client.operation.ToolCategory;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.selection.DataSelectionManager;
@@ -151,7 +151,7 @@ public abstract class ClientApplication {
 	protected String requestedModule;
 
 	// TODO wrap these to some kind of repository
-	protected List<OperationCategory> visibleCategories;
+	protected List<ToolCategory> visibleCategories;
 	protected Map<String, OperationDefinition> operationDefinitions;
 	protected Map<String, OperationDefinition> internalOperationDefinitions;
 
@@ -226,8 +226,8 @@ public abstract class ClientApplication {
 			
 			// create GUI elements from descriptions
 			this.operationDefinitions = new HashMap<String, OperationDefinition>();
-			for (OperationCategory category : visibleCategories) {
-				for (OperationDefinition operationDefinition : category.getOperationList()) {
+			for (ToolCategory category : visibleCategories) {
+				for (OperationDefinition operationDefinition : category.getToolList()) {
 					operationDefinitions.put(operationDefinition.getID(), operationDefinition);
 				}
 			}
@@ -240,8 +240,8 @@ public abstract class ClientApplication {
 	                OperationDefinition.IMPORT_DEFINITION);
 	        internalOperationDefinitions.put(OperationDefinition.CREATE_DEFINITION.getID(),
 	                OperationDefinition.CREATE_DEFINITION);
-			for (OperationCategory category : serviceAccessor.getHiddenCategories()) {
-			    for (OperationDefinition operationDefinition : category.getOperationList()) {
+			for (ToolCategory category : serviceAccessor.getHiddenCategories()) {
+			    for (OperationDefinition operationDefinition : category.getToolList()) {
 			        internalOperationDefinitions.put(operationDefinition.getID(), operationDefinition);
 			    }
 			}
@@ -250,8 +250,8 @@ public abstract class ClientApplication {
 			ServiceAccessor localServiceAccessor = new LocalServiceAccessor();
 			localServiceAccessor.initialise(manager, null);
 			localServiceAccessor.fetchDescriptions(modules.getPrimaryModule());
-			for (OperationCategory category : localServiceAccessor.getHiddenCategories()) {
-			    for (OperationDefinition operationDefinition : category.getOperationList()) {
+			for (ToolCategory category : localServiceAccessor.getHiddenCategories()) {
+			    for (OperationDefinition operationDefinition : category.getToolList()) {
 			        internalOperationDefinitions.put(operationDefinition.getID(), operationDefinition);
 			    }
 			}

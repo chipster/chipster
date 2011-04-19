@@ -34,12 +34,12 @@
 
 <runtimes>
 	<runtime>
-		<name>R-2.9</name>
+		<name>R-2.12</name>
 		<handler>
 			<class>fi.csc.microarray.analyser.r.RAnalysisHandler</class> 
 			<parameter>
 				<name>command</name>
-				<value>/opt/chipster/tools/R-2.9.0/bin/R</value>
+				<value>/opt/chipster/tools/R-2.12.0/bin/R</value>
 			</parameter>
 			<parameter>
 				<name>commandParameters</name>
@@ -47,7 +47,7 @@
 			</parameter>
 			<parameter>
 				<name>toolPath</name>
-				<value>/R-2.9</value>
+				<value>/R-2.12</value>
 			</parameter>
 			<parameter>
 				<name>externalToolPath</name>
@@ -84,7 +84,7 @@
 				<value>/opt/chipster/tools</value>
 			</parameter>
 			<parameter>
-				<name>toolPath</name>
+				<name>embossPath</name>
 				<value>/EMBOSS-6.2.0/emboss</value>
 			</parameter>
 			<parameter>
@@ -99,8 +99,8 @@
 		<handler>
 			<class>fi.csc.microarray.analyser.shell.ShellAnalysisHandler</class>
 			<parameter>
-				<name>descriptionPath</name>
-				<value>/opt/chipster/tools/shell</value>
+				<name>toolPath</name>
+				<value>/shell</value>
 			</parameter>
 		</handler>
 	</runtime>

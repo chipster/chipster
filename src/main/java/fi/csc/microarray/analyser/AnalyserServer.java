@@ -142,8 +142,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 
 		// initialize analysis tools
 		this.toolRepository = new ToolRepository(this.workDir);
-		
-			
+					
 		// initialize timeout checker
 		timeoutTimer = new Timer(true);
 		timeoutTimer.schedule(new TimeoutTimerTask(), timeoutCheckInterval, timeoutCheckInterval);
@@ -436,7 +435,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 
 		// check if requested operation is supported, if not, just ignore the request
 		if (!toolRepository.supports(description.getID())) {
-			logger.debug("Analysis " + jobMessage.getAnalysisId() + " ( " + description.getSourceResourceName() + " ) not supported, ignoring request.");
+			logger.debug("analysis " + jobMessage.getAnalysisId() + " ( " + description.getSourceResourceFullPath() + " ) not supported, ignoring request.");
 			return;
 		}
 

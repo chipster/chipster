@@ -68,7 +68,7 @@ import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
-import fi.csc.microarray.client.operation.OperationPanel;
+import fi.csc.microarray.client.operation.ToolPanel;
 import fi.csc.microarray.client.screen.ChildScreenPool;
 import fi.csc.microarray.client.screen.HistoryScreen;
 import fi.csc.microarray.client.screen.Screen;
@@ -151,7 +151,7 @@ public class SwingClientApplication extends ClientApplication {
 	private TreePanel tree;
 	private DetailsPanel details;
 	private GraphPanel graphPanel;
-	private OperationPanel operationsPanel;
+	private ToolPanel toolPanel;
 	private VisualisationFrameManager visualisationFrameManager;
 	private HistoryScreen historyScreen;
 
@@ -261,7 +261,7 @@ public class SwingClientApplication extends ClientApplication {
 
 		// create operation panel using metadata
 		try {
-			operationsPanel = new OperationPanel(visibleCategories);
+			toolPanel = new ToolPanel(visibleCategories);
 		} catch (ParseException e) {
 			logger.error("SADL parse failed", e);
 			throw new MicroarrayException(e);
@@ -377,7 +377,7 @@ public class SwingClientApplication extends ClientApplication {
 	private void customiseFocusTraversal() throws MicroarrayException {
 		Vector<Component> order = new Vector<Component>();
 		order.addAll(tree.getFocusComponents());
-		order.addAll(operationsPanel.getFocusComponents());
+		order.addAll(toolPanel.getFocusComponents());
 		order.addAll(visualisationFrameManager.getFocusComponents());
 
 		getMainFrame().setFocusTraversalPolicy(new ClientFocusTraversalPolicy(order));
@@ -419,7 +419,7 @@ public class SwingClientApplication extends ClientApplication {
 	public SimpleInternalFrame getOperationsFrame() {
 		if (operationsFrame == null) {
 			operationsFrame = new SimpleInternalFrame("Analysis tools");
-			operationsFrame.setContent(operationsPanel);
+			operationsFrame.setContent(toolPanel);
 		}
 		return operationsFrame;
 	}

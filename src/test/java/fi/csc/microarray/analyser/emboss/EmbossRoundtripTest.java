@@ -99,8 +99,7 @@ public class EmbossRoundtripTest {
         
         // Create a job using a handler
         EmbossAnalysisHandler analysisHandler = new EmbossAnalysisHandler(params);
-        AnalysisDescription description = analysisHandler.handle(acdFileName,
-                                                                 new HashMap<String, String>());
+        AnalysisDescription description = analysisHandler.handle(null, acdFileName, new HashMap<String, String>()); // module should not be null
         AnalysisJob analysisJob = analysisHandler.createAnalysisJob(jobMessage,
                                                                     description, resultCallback);
         analysisJob.run();

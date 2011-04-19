@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.jms.JMSException;
 
-import fi.csc.microarray.client.operation.OperationCategory;
+import fi.csc.microarray.client.operation.ToolCategory;
 import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -34,8 +34,8 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 			return "client";
 		}
 	};
-	private List<OperationCategory> visibleCategories;
-	private List<OperationCategory> hiddenCategories;
+	private List<ToolCategory> visibleCategories;
+	private List<ToolCategory> hiddenCategories;
 
 	public void initialise(DataManager manager, AuthenticationRequestListener authenticationRequestListener) throws MicroarrayException, JMSException {
 		this.endpoint = new MessagingEndpoint(nodeSupport, authenticationRequestListener);
@@ -74,7 +74,7 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 	}
 
 	@Override
-	public List<OperationCategory> getHiddenCategories() {
+	public List<ToolCategory> getHiddenCategories() {
 		if (hiddenCategories == null) {
 			throw new IllegalStateException("fetchDescriptions(...) must be called first");
 		}
@@ -82,7 +82,7 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 	}
 	
 	@Override
-	public List<OperationCategory> getVisibleCategories() {
+	public List<ToolCategory> getVisibleCategories() {
 		if (visibleCategories == null) {
 			throw new IllegalStateException("fetchDescriptions(...) must be called first");
 		}

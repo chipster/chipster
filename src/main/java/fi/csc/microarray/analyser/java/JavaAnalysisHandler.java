@@ -1,5 +1,6 @@
 package fi.csc.microarray.analyser.java;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,8 +48,7 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 	}
 
 
-	public AnalysisDescription handle(String sourceResourceName,
-	                                  Map<String, String> params) throws AnalysisException {
+	public AnalysisDescription handle(File moduleDir, String sourceResourceName, Map<String, String> params) throws AnalysisException {
 		
 		// get the job class
 		Class<? extends Object> jobClass = null;
@@ -88,8 +88,7 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 		
 		ad.setImplementation(jobClass);
 		ad.setCommand("java");
-		ad.setSourceResourceName(jobClass.getName());
-		ad.setSourceResourceFullPath(jobClass.getCanonicalName());
+		ad.setSourceResourceFullPath(new File(jobClass.getCanonicalName()));
 		ad.setSourceCode("Source code for this tool is available within Chipster source code.");
 		
 		return ad;
