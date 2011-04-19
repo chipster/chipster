@@ -171,9 +171,8 @@ public class SequenceModule implements Module {
 	}
 	
 	@Override
-	public String getShortCategoryName(Operation operation) {
-		String catName = operation.getCategoryName(); 
-
+	public String getShortCategoryName(String categoryName) {
+		String catName = categoryName;
 		if (catName.contains(CATEGORY_PART_SEPARATOR)) {
 			catName = catName.substring(catName.indexOf(CATEGORY_PART_SEPARATOR) + 1);
 		}

@@ -382,8 +382,8 @@ public class MicroarrayModule implements Module {
 	}
 
 	@Override
-	public String getShortCategoryName(Operation operation) {
-		return BasicModule.shortenCategoryName(operation.getCategoryName());
+	public String getShortCategoryName(String categoryName) {
+		return BasicModule.shortenCategoryName(categoryName);
 	}
 
 	@Override
