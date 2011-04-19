@@ -38,10 +38,10 @@ public class EmbossAnalysisHandler implements AnalysisHandler {
      */
     public EmbossAnalysisHandler(HashMap<String, String> parameters) {
         String externalToolPath = parameters.get("externalToolPath");
-        String toolPath = parameters.get("toolPath");
+        String embossPath = parameters.get("embossPath");
         String descriptionPath = parameters.get("descriptionPath");
         
-        toolDirectory = new File(externalToolPath, toolPath).getAbsolutePath();
+        toolDirectory = new File(externalToolPath, embossPath).getAbsolutePath();
         acdDirectory = new File(externalToolPath, descriptionPath).getAbsolutePath();
     }
     

@@ -27,7 +27,7 @@ public class ShellAnalysisHandler implements AnalysisHandler {
     
     private String DIRECTORY_NAME = "shell";
 
-    private String descriptionDirectory;
+    private String toolPath;
     
     private static final Logger logger = Logger.getLogger(ShellAnalysisHandler.class);
     
@@ -38,7 +38,7 @@ public class ShellAnalysisHandler implements AnalysisHandler {
      * @param parameters
      */
     public ShellAnalysisHandler(HashMap<String, String> parameters) {
-        descriptionDirectory = parameters.get("descriptionPath");
+        toolPath = parameters.get("toolPath");
     }
     
     public AnalysisJob createAnalysisJob(JobMessage jobMessage,
@@ -55,7 +55,8 @@ public class ShellAnalysisHandler implements AnalysisHandler {
         // Generate analysis description
         AnalysisDescription ad = null;
         try {
-            File sadlFile = new File(descriptionDirectory, descriptionFilename);
+    		File sadlFile = new File(moduleDir, toolPath + File.separator + descriptionFilename);
+
             String sadlString;
             if (sadlFile.exists()) {
                 // Try opening a file using file system
