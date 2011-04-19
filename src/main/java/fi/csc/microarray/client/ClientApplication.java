@@ -107,6 +107,7 @@ public abstract class ClientApplication {
 	public abstract void viewHelpFor(OperationDefinition operationDefinition);
 	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal);
 	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility, PluginButton button);
+	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility, PluginButton button, boolean feedBackEnabled);
 	public abstract void deleteDatas(DataItem... datas);	
 	public abstract void createLink(DataBean source, DataBean target, Link type);
 	public abstract void removeLink(DataBean source, DataBean target, Link type);

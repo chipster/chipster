@@ -7,21 +7,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.ValidationEvent;
+import javax.xml.bind.ValidationEventHandler;
 
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 import fi.csc.microarray.client.NameID;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.dialog.ChipsterDialog;
-import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
-import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.OperationRecord.InputRecord;
 import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
@@ -75,6 +77,10 @@ public class SessionSaver {
 	private ObjectFactory factory;
 	private SessionType sessionType;
 
+
+	private String validationErrors;
+
+
 	/**
 	 * Create a new instance for every session to be saved.
 	 * 
@@ -85,35 +91,81 @@ public class SessionSaver {
 		this.dataManager = Session.getSession().getDataManager();
 
 	}
-	
-	public boolean saveSession() {
 
+	/**
+	 * Use getValidationException() to get the reason for failed validation
+	 * of the metadata (when returning false).
+	 * 
+	 * @return true if the written metadata was valid
+	 * @throws Exception if something else than validation fails
+	 */
+	public boolean saveSession() throws Exception{
+
+		gatherMetadata();
+
+		boolean metadataValid = validateMetadata();
+	
+		writeSessionFile();
+			
+		updateDataBeanURLsAndHandlers();
+		
+		return metadataValid;
+	}
+
+	
+	/**
+	 * Gather the metadata form the data beans, folders and operations.
+	 * 
+	 * @throws IOException
+	 * @throws JAXBException
+	 */
+	private void gatherMetadata() throws IOException, JAXBException {
 		// xml schema object factory and xml root
 		this.factory = new ObjectFactory();
 		this.sessionType = factory.createSessionType();
-		Marshaller marshaller = null;
-	
+
+		// save session version
+		sessionType.setFormatVersion(ClientSession.SESSION_VERSION);
+
+		// generate all ids
+		generateIdsRecursively(dataManager.getRootFolder());
+
 		// gather meta data
-		try {
-			// save session version
-			sessionType.setFormatVersion(ClientSession.SESSION_VERSION);
+		saveMetadataRecursively(dataManager.getRootFolder());
+	}
 
-			// generate all ids
-			generateIdsRecursively(dataManager.getRootFolder());
 
-			// gather meta data
-			saveMetadataRecursively(dataManager.getRootFolder());
-
-			// validate meta data
-			marshaller = ClientSession.getJAXBContext().createMarshaller();
-			marshaller.setSchema(ClientSession.getSchema());
-			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-			marshaller.marshal(factory.createSession(sessionType), System.out);
-		} catch (Exception e) {
-			Session.getSession().getApplication().showDialog("Saving session failed.", "Could not gather session information.", e.toString(), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+	/**
+	 * 
+	 * @throws JAXBException
+	 * @throws SAXException
+	 */
+	private boolean validateMetadata() throws JAXBException, SAXException {
+		Marshaller marshaller = ClientSession.getJAXBContext().createMarshaller();
+		marshaller.setSchema(ClientSession.getSchema());
+		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+		
+		NonStoppingValidationEventHandler validationEventHandler = new NonStoppingValidationEventHandler();
+		marshaller.setEventHandler(validationEventHandler);
+		
+		marshaller.marshal(factory.createSession(sessionType), new DefaultHandler());
+		marshaller.marshal(factory.createSession(sessionType), System.out);
+	
+		if (!validationEventHandler.hasEvents()) {
+			 return true;
+		} else {
+			this.validationErrors = validationEventHandler.getValidationEventsAsString();
 			return false;
 		}
-			
+		 
+	}
+
+	/**
+	 * Write the metadata file and data bean contents to the zip file.
+	 * 
+	 */
+	private void writeSessionFile() throws Exception {
+
 		// figure out the target file, use temporary file if target already exists
 		boolean replaceOldSession = sessionFile.exists();
 		File newSessionFile;
@@ -127,92 +179,78 @@ public class SessionSaver {
 
 		// write data to zip file 
 		ZipOutputStream zipOutputStream = null;
-		boolean createdSuccessfully = false;
 		try {	
 			zipOutputStream = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(newSessionFile)));
 			zipOutputStream.setLevel(1); // quite slow with bigger values														
 
-		
 			// save meta data
 			ZipEntry sessionDataZipEntry = new ZipEntry(ClientSession.SESSION_DATA_FILENAME);
 			zipOutputStream.putNextEntry(sessionDataZipEntry);
+			Marshaller marshaller = ClientSession.getJAXBContext().createMarshaller();
+			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+			// TODO disable validation
+			marshaller.setEventHandler(new NonStoppingValidationEventHandler());
 			marshaller.marshal(factory.createSession(sessionType), zipOutputStream);
 			zipOutputStream.closeEntry() ;							
 
 			// save data bean contents
 			writeDataBeanContentsToZipFile(zipOutputStream);
 
-			createdSuccessfully = true;
-		} catch (Exception e) {
-			createdSu
-			Session.getSession().getApplication().showDialog("Saving session failed.", "Could not save data to the session file.", e.toString(), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
-			return false;
-		} finally {
-			try {
-				zipOutputStream.finish();
-				zipOutputStream.close();
-			} catch (IOException e) {
-				createdSuccessfully = false;
-				logger.warn("could not finish or close session file", e);
-			} finally {
-				IOUtils.closeIfPossible(zipOutputStream);
-			}
-		}
-
-		if (createdSuccessfully == false) {
-			Session.getSession().getApplication().showDialog("Saving session failed.", "Could not close the session file.", e.toString(), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
-
-		}
-		Session.getSession().getApplication().showDialog("Saving session failed.", "Could not save data to the session file.", e.toString(), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
-
+			// close the zip stream
+			zipOutputStream.close();
+		} 
 		
+		catch (Exception e) {
+			IOUtils.closeIfPossible(zipOutputStream);
 			
+			// don't leave the new session file lying around if something went wrong
+			newSessionFile.delete();
+			
+			throw e;
+		}
+
 		// rename new session if replacing existing
 		if (replaceOldSession) {
 
 			// original to backup
 			if (!sessionFile.renameTo(backupFile)) {
-				throw new IOException("Creating backup " + sessionFile + " -> " + backupFile + " failed.");
+				throw new IOException("Creating backup file " + backupFile.getAbsolutePath() + " failed.");
 			}
 
 			// new to original
 			if (newSessionFile.renameTo(sessionFile)) {
-				createdSuccessfully = true;
 
 				// remove backup
 				backupFile.delete();
 			} else {
 				// try to move backup back to original
-				// TODO remove new session file?
 				if (backupFile.renameTo(sessionFile)) {
-					throw new IOException("Moving new " + newSessionFile + " -> " + sessionFile + " failed, " +
+					throw new IOException("Moving new session file " + newSessionFile + " -> " + sessionFile + " failed, " +
 					"restored original session file.");
 				} else {
-					throw new IOException("Moving new " + newSessionFile + " -> " + sessionFile + " failed, " +
+					throw new IOException("Moving new session file " + newSessionFile + " -> " + sessionFile + " failed, " +
 							"also restoring original file failed, backup of original is " + backupFile);
 				}
 			}
 		} 
-			
-		// session file is now saved, update the urls and handlers in the client
-		for (DataBean bean: newURLs.keySet()) {
+	}
 
+
+	/**
+	 * After the session file has been saved, update the urls and handlers in the client
+	 * to point to the data inside the session file.
+	 *
+	 */
+	private void updateDataBeanURLsAndHandlers() {
+		for (DataBean bean: newURLs.keySet()) {
 			// set new url and handler and type
 			bean.setStorageMethod(StorageMethod.LOCAL_SESSION);
 			bean.setContentUrl(newURLs.get(bean));
 			bean.setHandler(new ZipDataBeanHandler());
 		}
-
-		createdSuccessfully = true;
-
-		//} finally {
-		//			IOUtils.closeIfPossible(zipOutputStream); // called twice for normal execution, not a problem
-		//			if (!replaceOldSession && !createdSuccessfully) {
-		//				newSessionFile.delete(); // do not leave bad session files hanging around
-		//			}
-		//		}
 	}
-
+	
+	
 	private int generateIdsRecursively(DataFolder folder) throws IOException {
 		
 		int dataCount = 0;
@@ -342,7 +380,7 @@ public class SessionSaver {
 			dataType.setCacheUrl(bean.getCacheUrl().toString());
 		}
 
-		// FIXME accept beans without operation?
+		// for now, accept beans without operation
 		if (bean.getOperationRecord() != null) {
 			OperationRecord operationRecord = bean.getOperationRecord();
 			String operId;
@@ -476,4 +514,36 @@ public class SessionSaver {
 	private NameType createNameType(NameID nameID) {
 		return createNameType(nameID.getID(), nameID.getDisplayName(), nameID.getDescription());
 	}
+
+	public String getValidationErrors() {
+		return this.validationErrors;
+	}
+
+	private class NonStoppingValidationEventHandler implements ValidationEventHandler {
+		
+		private List<ValidationEvent> validationEvents = new LinkedList<ValidationEvent>();
+		
+		/**
+		 * Continue, no matter what.
+		 */
+		@Override
+		public boolean handleEvent(ValidationEvent event) {
+			this.validationEvents.add(event);
+			return true;
+		}
+		
+		public boolean hasEvents() {
+			return validationEvents.size() > 0;
+		}
+	
+		public String getValidationEventsAsString() {
+			String s = "";
+			for (ValidationEvent event : validationEvents) {
+				s += event.getMessage() + "\n";
+			}
+			return s;
+		}
+	
+	}
+	
 }

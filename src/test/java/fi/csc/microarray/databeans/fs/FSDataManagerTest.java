@@ -75,7 +75,7 @@ public class FSDataManagerTest {
 		if (snap.exists()) {
 			Files.delTree(snap);
 		}		
-		manager1.saveSession(snap, new DummyClientApplication());
+		manager1.saveSession(snap);
 		
 		// check
 		Assert.assertTrue(snap.exists());
@@ -200,6 +200,11 @@ public class FSDataManagerTest {
 		}
 
 		@Override
+		public void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility, PluginButton button, boolean feedbackEnabled) {
+		}
+
+		
+		@Override
 		public void showHistoryScreenFor(DataBean data) {
 		}
 
@@ -292,6 +297,7 @@ public class FSDataManagerTest {
 
 		@Override
 		protected void initialiseGUI() throws MicroarrayException, IOException {
-		}		
+		}
+
 	}
 }

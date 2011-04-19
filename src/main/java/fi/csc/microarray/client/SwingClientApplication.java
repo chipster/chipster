@@ -808,6 +808,15 @@ public class SwingClientApplication extends ClientApplication {
 		ChipsterDialog.showDialog(this, dialogInfo, detailsVisibility, modal, null, button);
 	}
 
+	public void showDialog(String title, String message, String details, Severity severity, boolean modal, ChipsterDialog.DetailsVisibility detailsVisibility, PluginButton button, boolean feedbackEnabled) {
+		DialogInfo dialogInfo = new DialogInfo(severity, title, message, details);
+		dialogInfo.setFeedbackVisible(feedbackEnabled);
+		ChipsterDialog.showDialog(this, dialogInfo, detailsVisibility, modal, null, button);
+	}
+
+	
+	
+	
 	@Override
 	public File saveWorkflow() {
 
@@ -1772,7 +1781,6 @@ public class SwingClientApplication extends ClientApplication {
 
 		JFileChooser fileChooser = getSessionFileChooser(null);
 		int ret = fileChooser.showSaveDialog(this.getMainFrame());
-		final ClientApplication application = this; // for inner class
 		
 		if (ret == JFileChooser.APPROVE_OPTION) {
 			try {
@@ -1800,7 +1808,7 @@ public class SwingClientApplication extends ClientApplication {
 
 						// save
 						boolean saveSuccessful;
-						saveSuccessful = getDataManager().saveSession(file, application);
+						saveSuccessful = getDataManager().saveSession(file);
 
 						if (saveSuccessful) {
 

@@ -16,13 +16,14 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.Icon;
-import javax.xml.bind.JAXBException;
 
 import org.apache.log4j.Logger;
 import org.mortbay.util.IO;
-import org.xml.sax.SAXException;
 
 import fi.csc.microarray.client.ClientApplication;
+import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
+import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.session.SessionLoader;
 import fi.csc.microarray.client.session.SessionSaver;
@@ -35,6 +36,7 @@ import fi.csc.microarray.databeans.handlers.DataBeanHandler;
 import fi.csc.microarray.databeans.handlers.LocalFileDataBeanHandler;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.IOUtils;
 
 public class DataManager {
@@ -563,11 +565,31 @@ public class DataManager {
 	/**
 	 * Saves session (all data: beans, folder structure, operation metadata, links etc.) to a file.
 	 * File is a zip file with all the data files and one metadata file.
-	 * @return count of stored files
+	 * 
+	 * @return true if the session was saved perfectly
 	 */
-	public boolean saveSession(File snapshotDir, ClientApplication application) {
-		SessionSaver sessionSaver = new SessionSaver(snapshotDir);
-		return sessionSaver.saveSession();
+	public boolean saveSession(File sessionFile) {
+		SessionSaver sessionSaver = new SessionSaver(sessionFile);
+		boolean metadataValid = false;
+		try {
+			// save
+			metadataValid = sessionSaver.saveSession();
+		} catch (Exception e) {
+			// save failed, warn about it
+			Session.getSession().getApplication().showDialog("Saving session failed.", "Unfortunately your session could not be saved. Please see the details for more information.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+			return false;
+		}
+
+		// check validation, warn if not valid, return false
+		if (!metadataValid) {
+			// save was successful but metadata validation failed, warn about it
+			String validationDetails = sessionSaver.getValidationErrors();
+			Session.getSession().getApplication().showDialog("Problem with saving the session.", "All the datasets were saved successfully, but there were troubles with saving the session information about them. This means that there may be problems when trying to open the saved session file later on.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", validationDetails, Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+			return false;
+		}
+
+		return true;
+	
 	}
 
 	/**
