@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/main/modules/microarray/java"/>
 	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="src" path="src/test/java"/>
-	<classpathentry excluding="*/java/" kind="src" path="src/main/modules"/>
 	<classpathentry kind="src" path="src/main/workflows"/>
-	<classpathentry kind="src" path="src/main/modules/chipster/java"/>
 	<classpathentry kind="src" path="src/main/modules/ngs/java"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/core-renderer.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/spring.jar"/>
