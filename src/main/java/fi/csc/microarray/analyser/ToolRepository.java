@@ -76,6 +76,7 @@ public class ToolRepository {
 		// Check if description needs to be updated
 		if (desc != null && !desc.isUptodate()) {
 			moduleWithDesc.updateDescription(desc);
+			logger.info("updated tool: " + desc.getID());
 		}
 		
 		// Return the possibly updated description
@@ -336,7 +337,7 @@ public class ToolRepository {
 		    	    if (cachedDescription != null) {
 		    	        description = cachedDescription;
 		    	    } else {
-		                description = runtime.getHandler().handle(moduleDir, toolFilename, parameters);
+		                description = runtime.getHandler().handle(module, toolFilename, parameters);
 		    	    }
 		    	    
 		    	} catch (Exception e) {

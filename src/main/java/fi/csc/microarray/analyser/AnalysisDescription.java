@@ -123,16 +123,13 @@ public class AnalysisDescription {
 	private String sourceCode;
 	private String sadl;
 	private String helpURL = null;
+
 	private AnalysisHandler handler;
 	private Map<String, String> configParameters = null;
-
-    /**
-	 * Name of the original source script or java class etc.
-	 * Needed for update checks.
-	 */
-//	private String sourceResourceName;
+	private RepositoryModule module;
 
 	/**
+	 * Name of the original source script or java class etc.
 	 * Needed for update checks.
 	 */
 	private File sourceFile;
@@ -142,13 +139,14 @@ public class AnalysisDescription {
 	private Date creationTime = new Date();
 	private boolean updatedSinceStartup = false;
 
-
 	/**
 	 * Initializes empty (non-usable) description.
+	 * @param module 
 	 *
 	 */
-	public AnalysisDescription(AnalysisHandler handler) {
+	public AnalysisDescription(AnalysisHandler handler, RepositoryModule module) {
 		this.handler = handler;
+		this.module = module;
 	}
 
 	public String getCommand() {
@@ -314,6 +312,8 @@ public class AnalysisDescription {
 		this.id = id;
 	}
 
-
+	public RepositoryModule getModule() {
+		return this.module;
+	}
 }
  

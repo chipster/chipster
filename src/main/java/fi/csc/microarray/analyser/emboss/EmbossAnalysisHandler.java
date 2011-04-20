@@ -11,6 +11,7 @@ import fi.csc.microarray.analyser.AnalysisDescriptionGenerator;
 import fi.csc.microarray.analyser.AnalysisException;
 import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
+import fi.csc.microarray.analyser.RepositoryModule;
 import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.messaging.message.JobMessage;
@@ -52,7 +53,7 @@ public class EmbossAnalysisHandler implements AnalysisHandler {
         return analysisJob;
     }
     
-    public AnalysisDescription handle(File moduleDir, String acdFileName, Map<String, String> params) throws AnalysisException {
+    public AnalysisDescription handle(RepositoryModule module, String acdFileName, Map<String, String> params) throws AnalysisException {
         
         // Read ACD description
         File acdFile = new File(acdDirectory, acdFileName);
@@ -62,7 +63,7 @@ public class EmbossAnalysisHandler implements AnalysisHandler {
         // Create description for analysis server
         SADLDescription sadlDescription = ACDToSADL.convert(acdDescription, acdFile.getName());
         AnalysisDescription description =
-                new AnalysisDescriptionGenerator().generate(sadlDescription, this);
+                new AnalysisDescriptionGenerator().generate(sadlDescription, this, module);
         
         // Fill description with Emboss-specific values
         description.setCommand("EMBOSS");

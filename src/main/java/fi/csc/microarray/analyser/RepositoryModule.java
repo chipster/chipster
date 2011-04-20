@@ -24,11 +24,10 @@ public class RepositoryModule {
 
 	private ModuleDescriptionMessage moduleDescriptionMessage;
 
-	private File moduleFile;
 	private File moduleDir;
 	
 	public RepositoryModule(File moduleDir, File moduleFile, String moduleName) throws ParserConfigurationException {
-		this.moduleFile = moduleFile;
+		// moduleFile is not used yet, but needed for update checks that are implemented later
 		this.moduleDir = moduleDir;
 		this.moduleDescriptionMessage = new ModuleDescriptionMessage(moduleName);
 	}
@@ -36,7 +35,7 @@ public class RepositoryModule {
 	public void updateDescription(AnalysisDescription desc) throws AnalysisException {
 	    // FIXME params should not be empty
 	    HashMap<String, String> params = new HashMap<String, String>();
-		AnalysisDescription newDescription = desc.getHandler().handle(null, desc.getToolFile().toString(), params);
+		AnalysisDescription newDescription = desc.getHandler().handle(desc.getModule(), desc.getToolFile().getName(), params);
 		if (newDescription != null) {
 			newDescription.setUpdatedSinceStartup();
 			
@@ -99,6 +98,14 @@ public class RepositoryModule {
 
 	public boolean isSupportedDescription(String id) {
 		return supportedDescriptions.contains(id);
+	}
+
+	public void setModuleDir(File moduleDir) {
+		this.moduleDir = moduleDir;
+	}
+
+	public File getModuleDir() {
+		return moduleDir;
 	}
 
 	

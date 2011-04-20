@@ -16,6 +16,7 @@ import fi.csc.microarray.analyser.AnalysisException;
 import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
 import fi.csc.microarray.analyser.ProcessPool;
+import fi.csc.microarray.analyser.RepositoryModule;
 import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.analyser.SADLTool;
 import fi.csc.microarray.config.Configuration;
@@ -85,10 +86,10 @@ public class RAnalysisHandler implements AnalysisHandler {
 	}
 
 
-	public AnalysisDescription handle(File moduleDir, String toolFilename,
+	public AnalysisDescription handle(RepositoryModule module, String toolFilename,
 	                                  Map<String, String> params) throws AnalysisException {
 		
-		File toolFile = new File(moduleDir, toolPath + File.separator + toolFilename);
+		File toolFile = new File(module.getModuleDir(), toolPath + File.separator + toolFilename);
 		
 		InputStream scriptSource;
 		
@@ -99,29 +100,6 @@ public class RAnalysisHandler implements AnalysisHandler {
 			throw new AnalysisException("script source " + toolFile + " not found.");
 		}
 		
-//		String scriptPath = toolPath + File.separator + sourceResourceName;
-//		logger.debug("creating description from " + scriptPath);
-//		
-//		// check for custom script file
-//		File scriptFile = new File(customScriptsDirName + File.separator + scriptPath);
-//		if (scriptFile.exists()) {
-//			FileInputStream customScriptSource;
-//			try {
-//				customScriptSource = new FileInputStream(scriptFile);
-//			} catch (FileNotFoundException fnfe) {
-//				logger.error("Could not load custom script: " + scriptFile, fnfe);
-//				throw new AnalysisException("Could not load custom script: " + scriptFile);
-//			}
-//			scriptSource = customScriptSource;
-//			logger.info("using custom-script for " + scriptPath);
-//		} else {
-//			scriptSource = this.getClass().getResourceAsStream(scriptPath);
-//		}
-//		
-//		if (scriptSource == null) {
-//			throw new AnalysisException(scriptPath + " not found");
-//		}
-//		
 		// read the SADL from the comment block in the beginning of file
 		// and the actual source code
 		SADLTool.ParsedScript parsedScript;
@@ -141,7 +119,7 @@ public class RAnalysisHandler implements AnalysisHandler {
 		
 		// create analysis description
 		AnalysisDescription ad;
-		ad = new AnalysisDescriptionGenerator().generate(sadlDescription, this);
+		ad = new AnalysisDescriptionGenerator().generate(sadlDescription, this, module);
 		
 		// SADL back to string
 		SADLGenerator.generate(sadlDescription);

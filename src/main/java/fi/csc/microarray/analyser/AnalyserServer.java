@@ -534,6 +534,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			try {
 				sourceCode = toolRepository.getDescription(toolID).getSourceCode();
 			} catch (AnalysisException ae) {
+				logger.error(ae);
 				return null;
 			}
 			if (sourceCode != null) {

@@ -12,6 +12,7 @@ import fi.csc.microarray.analyser.AnalysisDescriptionGenerator;
 import fi.csc.microarray.analyser.AnalysisException;
 import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
+import fi.csc.microarray.analyser.RepositoryModule;
 import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.description.SADLDescription;
@@ -48,7 +49,7 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 	}
 
 
-	public AnalysisDescription handle(File moduleDir, String sourceResourceName, Map<String, String> params) throws AnalysisException {
+	public AnalysisDescription handle(RepositoryModule module, String sourceResourceName, Map<String, String> params) throws AnalysisException {
 		
 		// get the job class
 		Class<? extends Object> jobClass = null;
@@ -80,7 +81,7 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 		
 		// create analysis description
 		AnalysisDescription ad;
-		ad = new AnalysisDescriptionGenerator().generate(sadlDescription, this);
+		ad = new AnalysisDescriptionGenerator().generate(sadlDescription, this, module);
 		
 		// SADL back to string
 		SADLGenerator.generate(sadlDescription);
