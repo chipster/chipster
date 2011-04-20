@@ -164,6 +164,8 @@ if(chiptype!="Illumina") {
    genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(chiptype, "GENENAME", sep="")))))[rownames(dat2),])
    symbol<-gsub("#", "", symbol)
    genename<-gsub("#", "", genename)
+   symbols <- gsub("'", "", symbols)
+   genenames <- gsub("'", "", genenames)
    # Write out expression data
    if(produce.flags=="yes") {
       write.table(data.frame(symbol, description=genename, dat2, flags), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
