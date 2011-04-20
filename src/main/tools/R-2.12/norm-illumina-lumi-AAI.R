@@ -586,6 +586,8 @@ if(chiptype!="Illumina") {
 	genenames <- unlist (lookUp(rownames(dat2), chiptype, what="GENENAME"))
 	symbols <- gsub("#", "", symbols)
 	genenames <- gsub("#", "", genenames)
+	symbols <- gsub("'", "", symbols)
+	genenames <- gsub("'", "", genenames)
 	write.table(data.frame(symbol=symbols, description=genenames, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
 } else {
    # Write out expression data
