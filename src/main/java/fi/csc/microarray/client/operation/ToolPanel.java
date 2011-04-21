@@ -103,6 +103,8 @@ public class ToolPanel extends JPanel
 	private ClientApplication application = Session.getSession().getApplication();
 
 	private String previousModuleCard;
+
+	private LinkedList<JButton> moduleButtons = new LinkedList<JButton>();
 	
 	/**
 	 * Creates a new ToolPanel.
@@ -235,16 +237,22 @@ public class ToolPanel extends JPanel
 
         for (final ToolModule toolModule : toolModules) {
         	if (toolModule.isVisible()) {
-        		JButton button = new JButton(Session.getSession().getPrimaryModule().getModuleLongName(toolModule.getModuleName()));
-        		button.setPreferredSize(new Dimension(button.getMinimumSize().width, 22)); 
+        		String buttonText = Session.getSession().getPrimaryModule().getModuleLongName(toolModule.getModuleName());
+        		JButton button = new JButton(buttonText);
+        		button.setName(buttonText);
+        		button.setPreferredSize(new Dimension((int)((float)button.getMinimumSize().width * 1.1), 22)); 
         		button.addActionListener(new ActionListener() {
         			@Override
         			public void actionPerformed(ActionEvent e) {
-        				clearOperationSelection();
-        				showOperationCard(TOOLS_CATEGORIZED + toolModule.getModuleName());
+        				if (e.getSource() instanceof JButton) {
+        					JButton currentButton = (JButton)e.getSource();
+        					selectModule(currentButton, toolModule.getModuleName());
+        				}
         			}
+
         		});
         		searchPanel.add(button);
+        		moduleButtons.add(button);
         	}
         }
         
@@ -343,11 +351,22 @@ public class ToolPanel extends JPanel
 		c.weighty = 0;
 		this.add(bottomPanel, c);		
 
+        selectModule(moduleButtons.getFirst(), toolModules.getFirst().getModuleName());
+
 		// start listening
 		Session.getSession().getApplication().addClientEventListener(this);
 		
 	}
-	
+
+	private void selectModule(JButton currentButton, String moduleName) {
+		for (JButton moduleButton : moduleButtons) {
+			moduleButton.setText(moduleButton.getName());
+		}
+		currentButton.setText("<html><strong>" + currentButton.getName() + "</strong></html>");
+		clearOperationSelection();
+		showOperationCard(TOOLS_CATEGORIZED + moduleName);
+	}
+
 	public Vector<Component> getFocusComponents(){
 				
 		Vector<Component> order = new Vector<Component>();
