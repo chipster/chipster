@@ -36,7 +36,6 @@ public class SequenceModule implements Module {
 
 	private static final String CATEGORY_PART_SEPARATOR = ":";
 	private static final String EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/embster.cs";
-	public static final String SERVER_MODULE_SEQUENCE = "sequence";
 
 	@Override
 	public void plugContentTypes(DataManager manager) {
@@ -61,8 +60,13 @@ public class SequenceModule implements Module {
 	}
 
 	@Override
-	public String getServerModuleName() {
-		return SERVER_MODULE_SEQUENCE;
+	public String[] getServerModuleNames() {
+		return new String[] { "sequence" };
+	}
+
+	@Override
+	public String getModuleLongName(String moduleName) {
+		return "Sequence analysis";
 	}
 
 	@Override

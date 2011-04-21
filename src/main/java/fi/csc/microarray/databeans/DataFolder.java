@@ -80,7 +80,7 @@ public class DataFolder extends DataItemBase {
 			}
 
 			// the rest is microarray specific
-			if (!MicroarrayModule.SERVER_MODULE_NAME.equals(Session.getSession().getPrimaryModule().getServerModuleName())) {
+			if (!MicroarrayModule.SERVER_MODULE_NAME.equals(Session.getSession().getPrimaryModule().getServerModuleNames())) {
 				return;
 			}
 

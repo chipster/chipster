@@ -230,7 +230,7 @@ public class SwingClientApplication extends ClientApplication {
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
-		if (visibleCategories == null) {
+		if (toolModules == null) {
 			throw new MicroarrayException("metadata was not received (analyser not functional?)");
 		}
 
@@ -261,7 +261,7 @@ public class SwingClientApplication extends ClientApplication {
 
 		// create operation panel using metadata
 		try {
-			toolPanel = new ToolPanel(visibleCategories);
+			toolPanel = new ToolPanel(toolModules);
 		} catch (ParseException e) {
 			logger.error("SADL parse failed", e);
 			throw new MicroarrayException(e);

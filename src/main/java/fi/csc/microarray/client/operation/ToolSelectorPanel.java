@@ -9,7 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
@@ -53,19 +52,22 @@ public class ToolSelectorPanel extends JPanel
 	
 	private ToolCategory selectedCategory;
 	private ExecutionItem selectedTool;
+
+	private ToolModule toolModule;
 	
 	/**
 	 * Creates a new ToolSelectorPanel.
 	 * 
 	 * @param parent The ToolPanel, for communication purposes.
 	 */
-	public ToolSelectorPanel(ToolPanel parent,
-	       Collection<ToolCategory> toolCategoryCollection) {
+	public ToolSelectorPanel(ToolPanel parent, ToolModule toolModule) {
 		super(new GridLayout(1, 2));
 		this.toolPanel = parent;
-
+		this.toolModule = toolModule;
+		
         List<ToolCategory> toolCategories;
-        toolCategories = Collections.list(Collections.enumeration(toolCategoryCollection));
+        toolCategories = Collections.list(Collections.enumeration(toolModule.getVisibleCategories()));
+        
 
 		Object[] categories;
 		if (toolCategories != null) {
@@ -244,5 +246,9 @@ public class ToolSelectorPanel extends JPanel
 				toolPanel.selectTool(selectedTool);
 			}
 		}
+	}
+
+	public String getModuleName() {
+		return toolModule.getModuleName();
 	}
 }

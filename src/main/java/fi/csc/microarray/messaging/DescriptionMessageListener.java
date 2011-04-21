@@ -1,13 +1,17 @@
 package fi.csc.microarray.messaging;
 
-import java.util.LinkedList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.client.operation.ToolCategory;
 import fi.csc.microarray.client.operation.OperationDefinition;
+import fi.csc.microarray.client.operation.ToolCategory;
+import fi.csc.microarray.client.operation.ToolModule;
 import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.description.SADLDescription.Input;
 import fi.csc.microarray.description.SADLDescription.Parameter;
@@ -22,33 +26,27 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
     
 	private static final Logger logger = Logger.getLogger(DescriptionMessageListener.class);
     
-	private final CountDownLatch latch = new CountDownLatch(1);
-    private List<ToolCategory> visibleCategories =
-        new LinkedList<ToolCategory>();
-    private List<ToolCategory> hiddenCategories =
-        new LinkedList<ToolCategory>();
-    private String wantedModule;
-    private boolean finished = false;
-    
-    public DescriptionMessageListener(String wantedModule) {
-        this.wantedModule = wantedModule;
-    }
-    
-    /**
-     * @return categories that are visible to end-user.
-     */
-    public List<ToolCategory> getVisibleCategories() {
-        return visibleCategories;
-    }
+	private HashMap<String, ToolModule> modules = new LinkedHashMap<String, ToolModule>();
 
-    /**
-     * @return categories that are hidden from end-user, but still
-     * available for execution.
-     */
-    public List<ToolCategory> getHiddenCategories() {
-        return hiddenCategories;
+	private final CountDownLatch latch = new CountDownLatch(1);
+    private String[] requiredModules;
+    private boolean finished = false;
+
+    private boolean[] isModuleLoaded;
+	private ModuleDescriptionMessage[] messages;
+    
+    public DescriptionMessageListener(String[] requiredModules) {
+        this.requiredModules = requiredModules;
+        this.isModuleLoaded = new boolean[requiredModules.length];
+        this.messages = new ModuleDescriptionMessage[requiredModules.length];
+        Arrays.fill(this.isModuleLoaded, false);
     }
     
+
+	public Collection<ToolModule> getModules() {
+		return modules.values();
+	}
+
     public void waitForResponse() {
         try {
             latch.await();
@@ -57,26 +55,47 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
         }
     }
     
-    public void onChipsterMessage(ChipsterMessage msg) {
-        if (finished) {
-        	return;
-        }
-    	
-    	ModuleDescriptionMessage descriptionMsg = (ModuleDescriptionMessage) msg;
-        
-    	// Only wait for one description message for the correct module
-    	if (descriptionMsg.getModuleName().equals(wantedModule)) {            
-        	try {
-        	    parseMessage(descriptionMsg);
-            } catch (ParseException e) {
-                logger.warn("parsing descriptions message failed", e);
-            } finally {
-                finished = true;
-                latch.countDown();
-            }
-        }
+    public void onChipsterMessage(ChipsterMessage cMsg) {
+    	if (finished) {
+    		return;
+    	}
+
+    	ModuleDescriptionMessage descriptionMsg = (ModuleDescriptionMessage) cMsg;
+
+    	// Filter those modules we are interested in
+    	for (int i = 0; i < requiredModules.length; i++) {
+    		if (requiredModules[i].equals(descriptionMsg.getModuleName()) && isModuleLoaded[i] == false) {
+
+    			// Store the descriptions
+    			isModuleLoaded[i] = true; // mark it loaded if we have at least tried to load it
+    			messages[i] = descriptionMsg;
+    			
+    			// Are we done now?
+    			if (isAllModulesLoaded()) {
+
+    				for (ModuleDescriptionMessage mdMsg : messages) {
+    	    			try {
+    	    				parseMessage(mdMsg);
+    	    			} catch (ParseException e) {
+    	    				logger.warn("parsing descriptions message failed", e);
+    	    			}
+    				}
+    				finished = true;
+    				latch.countDown();
+    			}
+    		}
+    	}
     }
     
+    private boolean isAllModulesLoaded() {
+    	for (boolean isLoaded : isModuleLoaded) {
+    		if (!isLoaded) {
+    			return false;
+    		}
+    	}
+    	return true;
+    }
+
     /**
      * Prepare operation category lists.
      * 
@@ -88,22 +107,18 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
         // Fetch descriptions from the ModuleDescriptionMessage
         List<Category> categories = descriptionMsg.getCategories();
         logger.debug("generating operations from " + categories.size() + " categories");
+        ToolModule module = new ToolModule(descriptionMsg.getModuleName());
         
         for (Category category : categories) {
-            ToolCategory op = new ToolCategory(category.getName());
-            op.setColor(category.getColor());
-            
-            // hue, with the value .15 generates about 20 different colors
-            //float hsb[] = {0f, 0.5f, 0.8f};
-            //hsb[0] = (visibleCategories.size()*0.15f / 1f); 
-            //op.setColor(new Color(Color.HSBtoRGB(hsb[0], hsb[1], hsb[2])));
+            ToolCategory toolCategory = new ToolCategory(category.getName());
+            toolCategory.setColor(category.getColor());
             
             if (category.isHidden()) {
-                hiddenCategories.add(op);
+                module.addHiddenToolCategory(toolCategory);
             } else {
-                visibleCategories.add(op);
+                module.addVisibleToolCategory(toolCategory);
             }
-            logger.debug("added category " + op.getName());
+            logger.debug("added category " + toolCategory.getName());
             
             // Create operation definitions for tools in this category
             for (Tool tool : category.getTools()) {
@@ -111,7 +126,7 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
                 SADLDescription sadl = new ChipsterSADLParser().parse(tool.getDescription());
                 
                 OperationDefinition newDefinition = new OperationDefinition(sadl.getName().getID(), 
-                                                                            sadl.getName().getDisplayName(), op,
+                                                                            sadl.getName().getDisplayName(), toolCategory,
                                                                             sadl.getComment(), true,
                                                                             tool.getHelpURL());
                 for (Input input : sadl.inputs()) {
@@ -132,6 +147,8 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
                 }
             }
         }
+        
+        modules.put(module.getModuleName(), module);
 
         logger.debug("operation generation returning successfully");
     }

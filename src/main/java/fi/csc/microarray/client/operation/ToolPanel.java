@@ -16,7 +16,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.List;
+import java.util.LinkedList;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -67,19 +67,21 @@ public class ToolPanel extends JPanel
 	private static final String SHOW_PARAMETERS_TEXT = "Show parameters";
 	private static final String HIDE_PARAMETERS_TEXT = "Hide parameters";	
 	
-	// Card layout names
+	// Card layout names for upper level switching 
 	private static final String TOOLS = "Tools";
-	private static final String TOOLS_CATEGORIZED = "Categorized tools";
-	private static final String TOOLS_FILTERED = "Filtered tools";
 	private static final String PARAMETERS = "Parameters";
-	
+
+	// Card layout names for lower level switching
+	private static final String TOOLS_CATEGORIZED = "Categorized tools for module ";
+	private static final String TOOLS_FILTERED = "Filtered tools";
+
 	// Panel size
 	private static final int WHOLE_PANEL_HEIGHT = 240;
 	private static final int WHOLE_PANEL_WIDTH = 660;
 	
 	private JPanel operationPanel;
 	private JPanel operationCardPanel;
-	private ToolSelectorPanel operationChoicePanel;
+	private LinkedList<ToolSelectorPanel> operationChoicePanels = new LinkedList<ToolSelectorPanel>();
 	private ToolFilterPanel operationFilterPanel;
 	private JTextField searchField;
 	private JButton clearSearchButton;
@@ -99,30 +101,29 @@ public class ToolPanel extends JPanel
 
 	
 	private ClientApplication application = Session.getSession().getApplication();
-	
-	
-	private static ActionListener moduleButtonListener = new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() instanceof JButton) {
-				JButton button = (JButton) e.getSource();
-				System.out.println(button.getText());
-			}
-		}
-	};
+
+	private String previousModuleCard;
 	
 	/**
 	 * Creates a new ToolPanel.
 	 * 
 	 * @param client The client under whose command this panel is assigned.
 	 */
-	public ToolPanel(List<ToolCategory> parsedCategories) throws ParseException {
+	public ToolPanel(LinkedList<ToolModule> toolModules) throws ParseException {
 		super(new GridBagLayout());
 		this.setPreferredSize(new Dimension(WHOLE_PANEL_WIDTH, WHOLE_PANEL_HEIGHT));
 		this.setMinimumSize(new Dimension(0,0));
 		
-		operationChoicePanel = new ToolSelectorPanel(this, parsedCategories);
-		operationFilterPanel = new ToolFilterPanel(this, parsedCategories);
+		// Gather tools for showing and searching
+		LinkedList<ToolCategory> allVisibleCategories = new LinkedList<ToolCategory>();
+		for (ToolModule toolModule : toolModules) {
+			if (toolModule.isVisible()) {
+				operationChoicePanels.add(new ToolSelectorPanel(this, toolModule));
+				allVisibleCategories.addAll(toolModule.getVisibleCategories());
+			}
+			
+		}
+		operationFilterPanel = new ToolFilterPanel(this, allVisibleCategories);
 		
 		cardPanel = new JPanel(new CardLayout());
 		
@@ -230,12 +231,22 @@ public class ToolPanel extends JPanel
         	
         });
         
-        
-        for (String moduleName : new String[] {"Microarrays", "Next Gen Sequencing"}) {
-        	JButton button = new JButton(moduleName);
-        	button.setPreferredSize(new Dimension(button.getMinimumSize().width, 22)); 
-        	button.addActionListener(moduleButtonListener);
-        	searchPanel.add(button);
+
+
+        for (final ToolModule toolModule : toolModules) {
+        	if (toolModule.isVisible()) {
+        		JButton button = new JButton(Session.getSession().getPrimaryModule().getModuleLongName(toolModule.getModuleName()));
+        		button.setPreferredSize(new Dimension(button.getMinimumSize().width, 22)); 
+        		button.addActionListener(new ActionListener() {
+        			@Override
+        			public void actionPerformed(ActionEvent e) {
+        				if (e.getSource() instanceof JButton) {
+        					showOperationCard(TOOLS_CATEGORIZED + toolModule.getModuleName());
+        				}
+        			}
+        		});
+        		searchPanel.add(button);
+        	}
         }
         
         searchPanel.add(new JLabel(VisualConstants.MAGNIFIER_ICON));
@@ -270,7 +281,9 @@ public class ToolPanel extends JPanel
         operationPanel.add(operationCardPanel, c);
         
         // Tool selection panels inside operation card
-        operationCardPanel.add(operationChoicePanel, TOOLS_CATEGORIZED);
+        for (ToolSelectorPanel panel : operationChoicePanels) {
+        	operationCardPanel.add(panel, TOOLS_CATEGORIZED + panel.getModuleName());	
+        }
         operationCardPanel.add(operationFilterPanel, TOOLS_FILTERED);
         operationCardPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
                 VisualConstants.TOOL_LIST_BORDER_COLOR));
@@ -339,7 +352,9 @@ public class ToolPanel extends JPanel
 	public Vector<Component> getFocusComponents(){
 				
 		Vector<Component> order = new Vector<Component>();
-		order.addAll(operationChoicePanel.getFocusComponents());
+		for (ToolSelectorPanel panel : operationChoicePanels) {
+			order.addAll(panel.getFocusComponents());
+		}
 		//No easy way to add parametercomponents
 		//order.add(parametersButton);
 		order.add(executeButton);				
@@ -406,6 +421,7 @@ public class ToolPanel extends JPanel
     private void showOperationCard(String card) {
         CardLayout cl = (CardLayout)(operationCardPanel.getLayout());
         cl.show(operationCardPanel, card);
+        previousModuleCard = card;
     }
 
 	private void showParameterPanel() {			
@@ -611,7 +627,9 @@ public class ToolPanel extends JPanel
 		searchField.setText("");
 		searchField.setBackground(Color.WHITE);
 		searchField.remove(clearSearchButton);
-		operationChoicePanel.deselectTool();
-		showOperationCard(TOOLS_CATEGORIZED);
+		for (ToolSelectorPanel panel : operationChoicePanels) {
+			panel.deselectTool();
+		}
+		showOperationCard(previousModuleCard);
 	}
 }

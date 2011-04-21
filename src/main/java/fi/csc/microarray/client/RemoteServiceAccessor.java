@@ -1,10 +1,10 @@
 package fi.csc.microarray.client;
 
-import java.util.List;
+import java.util.Collection;
 
 import javax.jms.JMSException;
 
-import fi.csc.microarray.client.operation.ToolCategory;
+import fi.csc.microarray.client.operation.ToolModule;
 import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -34,8 +34,7 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 			return "client";
 		}
 	};
-	private List<ToolCategory> visibleCategories;
-	private List<ToolCategory> hiddenCategories;
+	private Collection<ToolModule> modules = null;
 
 	public void initialise(DataManager manager, AuthenticationRequestListener authenticationRequestListener) throws MicroarrayException, JMSException {
 		this.endpoint = new MessagingEndpoint(nodeSupport, authenticationRequestListener);
@@ -62,33 +61,25 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 
 	@Override
 	public void fetchDescriptions(Module module) throws Exception {
-        DescriptionMessageListener descriptionListener = new DescriptionMessageListener(module.getServerModuleName());
+        DescriptionMessageListener descriptionListener = new DescriptionMessageListener(module.getServerModuleNames());
 		try {
 			this.requestTopic.sendReplyableMessage(new CommandMessage(CommandMessage.COMMAND_DESCRIBE), descriptionListener);
 			descriptionListener.waitForResponse();
 		} finally {
 			descriptionListener.cleanUp();
 		}
-		this.visibleCategories = descriptionListener.getVisibleCategories();
-		this.hiddenCategories = descriptionListener.getHiddenCategories();
+		this.modules = descriptionListener.getModules();
 	}
 
+
 	@Override
-	public List<ToolCategory> getHiddenCategories() {
-		if (hiddenCategories == null) {
+	public Collection<ToolModule> getModules() {
+		if (modules == null) {
 			throw new IllegalStateException("fetchDescriptions(...) must be called first");
 		}
-		return hiddenCategories;
+		return modules;
 	}
 	
-	@Override
-	public List<ToolCategory> getVisibleCategories() {
-		if (visibleCategories == null) {
-			throw new IllegalStateException("fetchDescriptions(...) must be called first");
-		}
-		return visibleCategories;
-	}
-
 	@Override
 	public void close() throws Exception {
 		endpoint.close();

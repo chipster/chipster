@@ -63,9 +63,9 @@ public interface Module {
 	 * Returns the name of the server module associated to this 
 	 * this client side module, or null if not available.
 	 *  
-	 * @return server module name or null
+	 * @return String array of server module names, or null
 	 */
-	public String getServerModuleName();
+	public String[] getServerModuleNames();
 	
 	/**
 	 * Adds import menu items to menu.
@@ -220,5 +220,10 @@ public interface Module {
 	 * @return {@link IntegratedEntity} that is point selected when link is clicked
 	 */
 	public IntegratedEntity createLinkableEntity(Table columns, int column);
+
+	/**
+	 * Converts server module name into GUI friendly name.
+	 */
+	public String getModuleLongName(String moduleName);
 	
 }
