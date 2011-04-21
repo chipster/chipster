@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -15,7 +16,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
+
 import org.apache.log4j.Logger;
+import org.mortbay.io.WriterOutputStream;
 import org.xml.sax.SAXException;
 
 import fi.csc.microarray.client.NameID;
@@ -36,6 +39,7 @@ import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataBean.StorageMethod;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.util.IOUtils;
 
 public class SessionLoader {
 	
@@ -133,8 +137,6 @@ public class SessionLoader {
 			}
 			folders.put(id, dataFolder);
 			folderTypes.put(dataFolder, folderType);
-	
-			logger.debug("successfully parsed folder element: " + dataFolder.getName());
 		}
 	}
 
@@ -237,8 +239,20 @@ public class SessionLoader {
 			for (ParameterType parameterType : operationType.getParameter()) {
 				operationRecord.addParameter(parameterType.getName().getId(), parameterType.getName().getDisplayName(), parameterType.getName().getDescription(), parameterType.getValue());
 			}
-			
-			// TODO source code
+
+			// source code
+			String sourceCodeFileName = operationType.getSourceCodeFile();
+			if (sourceCodeFileName != null && !sourceCodeFileName.isEmpty()) {
+				String sourceCode = null;
+				try {
+					sourceCode = getSourceCode(sourceCodeFileName);
+				} catch (Exception e) {
+					logger.warn("could not load source code from " + sourceCodeFileName);
+				}
+
+				// might be null, is ok
+				operationRecord.setSourceCode(sourceCode);
+			}
 			
 			operationRecords.put(operationSessionId, operationRecord);
 			operationTypes.put(operationRecord, operationType);
@@ -367,4 +381,28 @@ public class SessionLoader {
 	private NameID createNameID(NameType name) {
 		return new NameID(name.getId(), name.getDisplayName(), name.getDescription());
 	}
+
+	private String getSourceCode(String sourceCodeFileName) throws ZipException, IOException {
+		ZipFile zipFile = null;
+		InputStream sourceCodeInputStream = null;
+		StringWriter stringWriter = null;
+		try {
+			zipFile = new ZipFile(sessionFile);
+			sourceCodeInputStream = zipFile.getInputStream(zipFile.getEntry(sourceCodeFileName));
+
+			stringWriter = new StringWriter();
+			IOUtils.copy(sourceCodeInputStream, new WriterOutputStream(stringWriter));
+			stringWriter.flush();
+		}
+		finally {
+			IOUtils.closeIfPossible(sourceCodeInputStream);
+			IOUtils.closeIfPossible(stringWriter);
+			if (zipFile != null) {
+				zipFile.close();
+			}
+		}
+
+		return stringWriter.toString();
+	}
+
 }

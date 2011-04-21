@@ -456,6 +456,8 @@ public abstract class ClientApplication {
 				// read outputs and create derivational links for non-metadata beans
 				DataBean metadataOutput = null;
 				OperationRecord operationRecord = new OperationRecord(oper);
+				operationRecord.setSourceCode(task.getSourceCode());
+				
 				for (String outputName : task.outputNames()) {
 
 					DataBean output = task.getOutput(outputName);

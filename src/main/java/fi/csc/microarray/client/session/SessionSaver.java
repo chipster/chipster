@@ -1,6 +1,7 @@
 package fi.csc.microarray.client.session;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -57,7 +58,8 @@ public class SessionSaver {
 	private HashMap<DataBean, URL> newURLs = new HashMap<DataBean, URL>();
 
 	private int entryCounter = 0;
-
+	private int sourceCodeEntryCounter = 0;
+	
 	private int itemIdCounter = 0;
 	private HashMap<String, DataItem> itemIdMap = new HashMap<String, DataItem>();
 	private HashMap<DataItem, String> reversedItemIdMap = new HashMap<DataItem, String>();
@@ -192,6 +194,9 @@ public class SessionSaver {
 			// save data bean contents
 			writeDataBeanContentsToZipFile(zipOutputStream);
 
+			// save source codes
+			writeSourceCodesToZip(zipOutputStream);
+			
 			// close the zip stream
 			zipOutputStream.close();
 		} 
@@ -366,7 +371,7 @@ public class SessionSaver {
 		
 		// storage method
 		// for now all data content goes to session --> type is local session
-		//dataType.setStorageType(StorageMethod.LOCAL_SESSION.name());
+		dataType.setStorageType(StorageMethod.LOCAL_SESSION.name());
 		
 		// url
 		dataType.setUrl(newURL.toString());
@@ -460,6 +465,11 @@ public class SessionSaver {
 			operationType.setCategoryColor(SwingTools.colorToHexString(operationRecord.getCategoryColor()));
 		}
 		
+		// source code
+		if (operationRecord.getSourceCode() != null) {
+			String entryName = getNewSourceCodeEntryName(operationRecord.getNameID().getID());
+			operationType.setSourceCodeFile(entryName);
+		}
 		
 		sessionType.getOperation().add(operationType);
 		operationRecordTypeMap.put(operationId, operationType);
@@ -470,6 +480,9 @@ public class SessionSaver {
 		return "file-" + entryCounter++;
 	}
 
+	private String getNewSourceCodeEntryName(String prefix) {
+		return "source-code-" + sourceCodeEntryCounter++ + "-" + prefix + ".txt";
+	}
 	
 	private void writeDataBeanContentsToZipFile(ZipOutputStream zipOutputStream) throws IOException {
 		for (Entry<DataBean, URL> entry : this.newURLs.entrySet()) {
@@ -481,6 +494,14 @@ public class SessionSaver {
 		}
 	}
 	
+	private void writeSourceCodesToZip(ZipOutputStream zipOutputStream) throws IOException {
+		for (Entry<String, OperationType> entry : this.operationRecordTypeMap.entrySet()) {
+			String sourceCodeFileName = entry.getValue().getSourceCodeFile();
+			if (sourceCodeFileName != null && !sourceCodeFileName.isEmpty()) {
+				writeFile(zipOutputStream, sourceCodeFileName, new ByteArrayInputStream(this.operationRecordIdMap.get(entry.getKey()).getSourceCode().getBytes()));
+			}
+		}
+	}
 	
 	private void writeFile(ZipOutputStream out, String name, InputStream in) throws IOException {
 		
@@ -494,7 +515,7 @@ public class SessionSaver {
 			out.write(b, 0, byteCount);
 		}
 
-		out.closeEntry() ;							
+		out.closeEntry();							
 	}
 
 	
