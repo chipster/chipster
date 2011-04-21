@@ -240,9 +240,8 @@ public class ToolPanel extends JPanel
         		button.addActionListener(new ActionListener() {
         			@Override
         			public void actionPerformed(ActionEvent e) {
-        				if (e.getSource() instanceof JButton) {
-        					showOperationCard(TOOLS_CATEGORIZED + toolModule.getModuleName());
-        				}
+        				clearOperationSelection();
+        				showOperationCard(TOOLS_CATEGORIZED + toolModule.getModuleName());
         			}
         		});
         		searchPanel.add(button);
@@ -526,7 +525,9 @@ public class ToolPanel extends JPanel
 	private void clearOperationSelection() {
 		this.selectedOperationDefinition = null;
 		this.currentOperation = null;
-
+		for (ToolSelectorPanel panel : operationChoicePanels) {
+			panel.deselectTool();
+		}
 		executeButton.setEnabled(false);
 		parametersButton.setEnabled(false);
 		suitabilityLabel.setIcon(null);

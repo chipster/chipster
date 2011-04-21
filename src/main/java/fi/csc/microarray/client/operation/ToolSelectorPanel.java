@@ -119,7 +119,6 @@ public class ToolSelectorPanel extends JPanel
 	public void deselectTool() {
 	    categoryList.clearSelection();
 	    toolList.clearSelection();
-	    toolPanel.selectTool(null);
 	}
 	
 	static class FontSizeFriendlyListRenderer extends DefaultListCellRenderer {
