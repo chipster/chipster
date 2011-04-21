@@ -17,6 +17,7 @@ public class OperationCategory {
 
 	public static OperationCategory IMPORT_CATEGORY = new OperationCategory("Import");
 	public static OperationCategory CREATE_CATEGORY = new OperationCategory("Create datasets");
+	public static Color UNKNOWN_CATEGORY_COLOR = Color.gray;
 	
 	/**
 	 * Checks if the category is one of the predefined pseudo categories. Object identity is not required,

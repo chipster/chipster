@@ -8,11 +8,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.log4j.Logger;
@@ -62,79 +62,58 @@ public class SessionLoader {
 			throw new MicroarrayException("Not a valid session file.");
 		}
 		this.sessionFile = sessionFile;
-		
 		this.dataManager = Session.getSession().getDataManager();
 	}
 	
-	/**
-	 * For testing.
-	 * 
-	 * @param metadataStream
-	 * @throws ParserConfigurationException 
-	 * @throws IOException 
-	 * @throws JAXBException 
-	 * @throws SAXException 
-	 */
-	SessionLoader(InputStream metadataStream) throws IOException, ParserConfigurationException, JAXBException {
+	
+	public void loadSession() throws ZipException, IOException, JAXBException, SAXException {
 
-		Unmarshaller unmarshaller = ClientSession.getJAXBContext().createUnmarshaller();
-		this.sessionType = unmarshaller.unmarshal(new StreamSource(metadataStream), SessionType.class).getValue();
-	
-		this.dataManager = new DataManager();
+		// parse metadata to jaxb classes
+		parseMetadata();
+
+		// create the basic objects from the jaxb classes 
+		createFolders();
+		createDataBeans();
+		createOperations();
+
+		// create the links between the objects
+		linkOperationsToOutputs();
+		linkDataItemChildren(dataManager.getRootFolder());
+		linkDataBeans();
+		linkInputsToOperations();
+		
 	}
-	
-	public void loadSession() {
+
+	private void parseMetadata() throws ZipException, IOException, JAXBException, SAXException {
 		ZipFile zipFile = null;
 		try {
 			// get the session.xml zip entry
 			zipFile = new ZipFile(sessionFile);
 			InputStream metadataStream = zipFile.getInputStream(zipFile.getEntry(ClientSession.SESSION_DATA_FILENAME));
 
-			// create the dom for session.xml
+			// validate
+			//ClientSession.getSchema().newValidator().validate(new StreamSource(metadataStream));
+			
+			// parse the metadata xml to java objects using jaxb
 			Unmarshaller unmarshaller = ClientSession.getJAXBContext().createUnmarshaller();
+			unmarshaller.setSchema(ClientSession.getSchema());
+			NonStoppingValidationEventHandler validationEventHandler = new NonStoppingValidationEventHandler();
+			unmarshaller.setEventHandler(validationEventHandler);
 			this.sessionType = unmarshaller.unmarshal(new StreamSource(metadataStream), SessionType.class).getValue();
-		
-			parseFolders();
-			parseDataBeans();
-			parseOperations();
 			
-			linkOperationsToOutputs();
-			linkChildren(dataManager.getRootFolder());
-
-			linkDataBeans();
-
-			linkInputsToOperations();
-
-			
-			
-			// check
-			logger.info("after load checking");
-			for (DataBean dataBean : dataBeans.values()) {
-				if (dataBean.getOperationRecord() == null) {
-					logger.info(dataBean.getName() + " has null operation record");
-				} 
+			if (validationEventHandler.hasEvents()) {
+				throw new JAXBException("Invalid session file:\n" + validationEventHandler.getValidationEventsAsString());
 			}
-			
-		} 
-		// FIXME
-		catch (Exception e) {
-			e.printStackTrace();
-			logger.error(e);
 		}
-
-		// try to close all input streams from the zip file
 		finally {
+			// try to close all input streams from the zip file
 			if (zipFile != null) {
-				try {
-					zipFile.close();
-				} catch (IOException e) {
-					logger.warn("could not close zip file");
-				}
+				zipFile.close();
 			}
 		}
 	}
 
-	void parseFolders() {
+	private void createFolders() {
 		for (FolderType folderType : sessionType.getFolder()) {
 			String name = folderType.getName();
 			String id = folderType.getId();
@@ -159,7 +138,7 @@ public class SessionLoader {
 		}
 	}
 
-	void parseDataBeans() {
+	private void createDataBeans() {
 		for (DataType dataType : this.sessionType.getData()) {
 			String name = dataType.getName();
 			String id = dataType.getId();
@@ -232,7 +211,7 @@ public class SessionLoader {
 	}
 
 	
-	private void parseOperations() {
+	private void createOperations() {
 		for (OperationType operationType : sessionType.getOperation()) {
 			String operationSessionId = operationType.getId();
 
@@ -267,7 +246,7 @@ public class SessionLoader {
 	}
 
 	
-	private void linkChildren(DataFolder parent) {
+	private void linkDataItemChildren(DataFolder parent) {
 		for (String childId : folderTypes.get(parent).getChild()) {
 			
 			// check that the referenced data item exists
@@ -282,7 +261,7 @@ public class SessionLoader {
 			
 			// recursively go inside folders
 			if (child instanceof DataFolder) {
-				linkChildren((DataFolder) child);
+				linkDataItemChildren((DataFolder) child);
 			}
 		}
 	}
@@ -296,12 +275,19 @@ public class SessionLoader {
 		
 		for (OperationRecord operationRecord : operationRecords.values()) {
 			
-			// FIXME add checks
 			// get data bean ids from session data
 			for (InputType inputType : operationTypes.get(operationRecord).getInput()) {
 				
+				String inputID = inputType.getData();
+				if (inputID == null) {
+					continue;
+				}
+				
 				// find the data bean
-				DataBean inputBean = dataBeans.get(inputType.getData());
+				DataBean inputBean = dataBeans.get(inputID);
+				if (inputBean == null) {
+					continue;
+				}
 				
 				// skip phenodata, it is bound automatically
 				if (inputBean.queryFeatures("/phenodata/").exists()) {
@@ -315,28 +301,50 @@ public class SessionLoader {
 	}
 
 	
-	private NameID createNameID(NameType name) {
-		return new NameID(name.getId(), name.getDisplayName(), name.getDescription());
-	}
-
 	/**
 	 * Add links form DataBeans to the OperationRecord which created the DataBean.
+	 * 
+	 * If OperationRecord is not found, use unknown OperationRecord.
 	 * 
 	 */
 	private void linkOperationsToOutputs() {
 		
 		for (DataBean dataBean : dataBeans.values()) {
 			String operationId = dataTypes.get(dataBean).getResultOf();
-			OperationRecord operationRecord = operationRecords.get(operationId);
+			OperationRecord operationRecord = null;
+			if (operationId != null) {
+				operationRecord = operationRecords.get(operationId);
+			}
+
+			// if operation record is not found use dummy
+			if (operationRecord == null) {
+				operationRecord = OperationRecord.getUnkownOperationRecord();
+			}
+			
 			dataBean.setOperationRecord(operationRecord);
 		}
 	}
 
-	
+	/**
+	 * 
+	 */
 	private void linkDataBeans() {
 		for (DataBean dataBean : dataBeans.values()) {
 			for (LinkType linkType : dataTypes.get(dataBean).getLink()) {
-				dataBean.addLink(Link.valueOf(linkType.getType()), dataBeans.get(linkType.getTarget()));
+				// if something goes wrong for this link, continue with others
+				try {
+					String targetID = linkType.getTarget();
+					if (targetID != null) {
+						DataBean targetBean = dataBeans.get(targetID);
+						if (targetBean != null) {
+							dataBean.addLink(Link.valueOf(linkType.getType()), targetBean);
+						}
+					}
+					
+				} catch (Exception e) {
+					logger.warn("could not add link", e);
+					continue;
+				}
 			}
 			
 		}
@@ -354,5 +362,9 @@ public class SessionLoader {
 		} else { 
 			return dataBeans.get(id);
 		}
+	}
+
+	private NameID createNameID(NameType name) {
+		return new NameID(name.getId(), name.getDisplayName(), name.getDescription());
 	}
 }

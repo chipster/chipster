@@ -82,7 +82,7 @@ public class FSDataManagerTest {
 		
 		// load
 		DataManager manager2 = new DataManager();
-		manager2.loadSession(snap, manager2.getRootFolder(), new DummyClientApplication());
+		manager2.loadSession(snap);
 		
 		// check
 //		DataFolder root1 = manager1.getRootFolder();

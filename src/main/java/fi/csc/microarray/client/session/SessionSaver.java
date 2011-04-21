@@ -7,16 +7,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.ValidationEvent;
-import javax.xml.bind.ValidationEventHandler;
 
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
@@ -370,7 +366,7 @@ public class SessionSaver {
 		
 		// storage method
 		// for now all data content goes to session --> type is local session
-		dataType.setStorageType(StorageMethod.LOCAL_SESSION.name());
+		//dataType.setStorageType(StorageMethod.LOCAL_SESSION.name());
 		
 		// url
 		dataType.setUrl(newURL.toString());
@@ -519,31 +515,4 @@ public class SessionSaver {
 		return this.validationErrors;
 	}
 
-	private class NonStoppingValidationEventHandler implements ValidationEventHandler {
-		
-		private List<ValidationEvent> validationEvents = new LinkedList<ValidationEvent>();
-		
-		/**
-		 * Continue, no matter what.
-		 */
-		@Override
-		public boolean handleEvent(ValidationEvent event) {
-			this.validationEvents.add(event);
-			return true;
-		}
-		
-		public boolean hasEvents() {
-			return validationEvents.size() > 0;
-		}
-	
-		public String getValidationEventsAsString() {
-			String s = "";
-			for (ValidationEvent event : validationEvents) {
-				s += event.getMessage() + "\n";
-			}
-			return s;
-		}
-	
-	}
-	
 }

@@ -1738,7 +1738,7 @@ public class SwingClientApplication extends ClientApplication {
 
 	private void loadSessionImpl(final File sessionFile) {
 		
-		// check that it's a valid session file
+		// check that it's a valid session file 
 		if (!ClientSession.isValidSessionFile(sessionFile)) {
 			DialogInfo dialogInfo = new DialogInfo(Severity.INFO, "Could not open session file.", "The given file is not a valid session file.", "");
 			ChipsterDialog.showDialog(this, dialogInfo, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true);
@@ -1746,23 +1746,18 @@ public class SwingClientApplication extends ClientApplication {
 		}
 		
 		// start loading the session
-		final ClientApplication application = this; // for inner class
 		runBlockingTask("loading the session", new Runnable() {
 			public void run() {						
-				try {
 					
-					/* If there wasn't data or it was just cleared, there is no need to warn about
-					 * saving after opening session. However, if there was datasets already, combination
-					 * of them and new session can be necessary to save. This has to set after the import, because 
-					 */
-					boolean somethingToSave = manager.databeans().size() != 0;
-					
-					manager.loadSession(sessionFile, manager.getRootFolder(), application);
-					
-					unsavedChanges = somethingToSave;
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}						
+				/* If there wasn't data or it was just cleared, there is no need to warn about
+				 * saving after opening session. However, if there was datasets already, combination
+				 * of them and new session can be necessary to save. This has to set after the import, because 
+				 */
+				boolean somethingToSave = manager.databeans().size() != 0;
+
+				manager.loadSession(sessionFile);
+
+				unsavedChanges = somethingToSave;
 			}
 		});
 	}

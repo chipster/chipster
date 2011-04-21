@@ -222,5 +222,13 @@ public class OperationRecord {
 	public void setNameID(NameID nameID) {
 		this.nameID = nameID;
 	}
-	
+
+	public static OperationRecord getUnkownOperationRecord() {
+		OperationRecord record = new OperationRecord();
+		record.setNameID(new NameID("unknown", "Unknown", "No tool information available."));
+		record.setCategoryName("Unknown");
+		record.setCategoryColor(OperationCategory.UNKNOWN_CATEGORY_COLOR);
+		record.setSourceCode("Source code not available.");
+		return record;
+	}
 }

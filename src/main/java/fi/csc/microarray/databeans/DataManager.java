@@ -556,11 +556,16 @@ public class DataManager {
 	 * 
 	 * @see #saveSession(File, ClientApplication)
 	 */
-	public void loadSession(File sessionFile, DataFolder parentFolder, ClientApplication application) throws IOException, MicroarrayException {
-		SessionLoader sessionLoader = new SessionLoader(sessionFile);
-		sessionLoader.loadSession();
+	public void loadSession(File sessionFile) {
+		SessionLoader sessionLoader;
+		try {
+			sessionLoader = new SessionLoader(sessionFile);
+			sessionLoader.loadSession();
+		} catch (Exception e) {
+			Session.getSession().getApplication().showDialog("Opening session failed.", "Unfortunately the session could not be opened properly. Please see the details for more information.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+			logger.error("loading session failed", e);
+		}
 	}
-
 
 	/**
 	 * Saves session (all data: beans, folder structure, operation metadata, links etc.) to a file.

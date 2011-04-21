@@ -6,13 +6,12 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import javax.xml.XMLConstants;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
@@ -115,18 +114,8 @@ public class ClientSession {
 	}
 
 
-	public static Validator getValidator() throws SAXException {
-        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-
-		
-		Schema schema = factory.newSchema(new StreamSource(ClientSession.class.getResourceAsStream("/session.xsd")));
-        
-        return schema.newValidator();
-	}
-
 	public static Schema getSchema() throws SAXException {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 		return factory.newSchema(new StreamSource(ClientSession.class.getResourceAsStream("session.xsd")));
 	}
-	
 }

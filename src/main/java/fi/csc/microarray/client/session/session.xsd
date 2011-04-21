@@ -54,7 +54,7 @@
 			<xs:element name="id" type="xs:string"/>
 			<xs:element name="folder" type="xs:string" minOccurs="0"/>
 			<xs:element name="result-of" type="xs:string" minOccurs="0"/>
-			<xs:element name="storage-type" type="xs:string"/>
+			<xs:element name="storage-type" type="xs:string" minOccurs="1" maxOccurs="1"/>
 			<xs:element name="url" type="xs:string"/>
 			<xs:element name="cache-url" type="xs:string" minOccurs="0"/>
 			<xs:element name="link" type="linkType" minOccurs="0" maxOccurs="unbounded"/>
