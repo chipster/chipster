@@ -207,8 +207,6 @@ public class SessionLoader {
 			
 			dataBeans.put(id, dataBean);
 			dataTypes.put(dataBean, dataType);
-	
-			logger.debug("successfully parsed databean element: " + dataBean.getName());
 		}
 	}
 
