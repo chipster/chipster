@@ -235,8 +235,9 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		List<String> parameterValues;
 		try {
 			parameterValues = inputMessage.getParameters(R_PARAMETER_SECURITY_POLICY, analysis);
+			
 		} catch (ParameterValidityException e) {
-			outputMessage.setErrorMessage("There was an invalid parameter value.");
+			outputMessage.setErrorMessage(e.getMessage()); // always has a message
 			outputMessage.setOutputText(e.toString());
 			updateState(JobState.FAILED_USER_ERROR, "");
 			return;
