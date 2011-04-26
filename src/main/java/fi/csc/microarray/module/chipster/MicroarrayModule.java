@@ -74,16 +74,16 @@ public class MicroarrayModule implements Module {
 	private static final String EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/chipster2-example.zip";
 	
 	public static class TypeTags {
-		public static final TypeTag RAW_AFFYMETRIX_EXPRESSION_VALUES  = new TypeTag(SERVER_MODULE_NAME, "raw-arrymetrix-expression-values", "must be in CEL format");
-		public static final TypeTag RAW_EXPRESSION_VALUES  = new TypeTag(SERVER_MODULE_NAME, "raw-expression-values", "");
-		public static final TypeTag NORMALISED_EXPRESSION_VALUES = new TypeTag(SERVER_MODULE_NAME, "normalised-expression-values", "must have columns following name pattern \"chip.*\"");
-		public static final TypeTag GENENAMES = new TypeTag(SERVER_MODULE_NAME, "genenames", "must have column \" \" or \"identifier\"");
-		public static final TypeTag SIGNIFICANT_EXPRESSION_FOLD_CHANGES = new TypeTag(SERVER_MODULE_NAME, "significant-expression-fold-changes", "must have columns following name patterns \"FC.*\" and \"p.*\"");
-		public static final TypeTag EXPRESSION_PRIMARY_COMPONENTS_GENEWISE = new TypeTag(SERVER_MODULE_NAME, "expression-primary-components-genewise", "");
-		public static final TypeTag EXPRESSION_PRIMARY_COMPONENTS_CHIPWISE = new TypeTag(SERVER_MODULE_NAME, "expression-primary-components-chipwise", "");
-		public static final TypeTag ORDERED_GENOMIC_ENTITIES = new TypeTag(SERVER_MODULE_NAME, "ordered-genomic-entities", "");
-		public static final TypeTag CLUSTERED_EXPRESSION_VALUES = new TypeTag(SERVER_MODULE_NAME, "clustered-expression-values", "must have column \"cluster\"");
-		public static final TypeTag SOM_CLUSTERED_EXPRESSION_VALUES = new TypeTag(SERVER_MODULE_NAME, "som-clustered-expression-values", "must have columns \"colours\", \"distance2first\", \"cluster\", \"griddim\"");
+		public static final TypeTag RAW_AFFYMETRIX_EXPRESSION_VALUES  = new TypeTag("raw-arrymetrix-expression-values", "must be in CEL format");
+		public static final TypeTag RAW_EXPRESSION_VALUES  = new TypeTag("raw-expression-values", "");
+		public static final TypeTag NORMALISED_EXPRESSION_VALUES = new TypeTag("normalised-expression-values", "must have columns following name pattern \"chip.*\"");
+		public static final TypeTag GENENAMES = new TypeTag("genenames", "must have column \" \" or \"identifier\"");
+		public static final TypeTag SIGNIFICANT_EXPRESSION_FOLD_CHANGES = new TypeTag("significant-expression-fold-changes", "must have columns following name patterns \"FC.*\" and \"p.*\"");
+		public static final TypeTag EXPRESSION_PRIMARY_COMPONENTS_GENEWISE = new TypeTag("expression-primary-components-genewise", "");
+		public static final TypeTag EXPRESSION_PRIMARY_COMPONENTS_CHIPWISE = new TypeTag("expression-primary-components-chipwise", "");
+		public static final TypeTag ORDERED_GENOMIC_ENTITIES = new TypeTag("ordered-genomic-entities", "");
+		public static final TypeTag CLUSTERED_EXPRESSION_VALUES = new TypeTag("clustered-expression-values", "must have column \"cluster\"");
+		public static final TypeTag SOM_CLUSTERED_EXPRESSION_VALUES = new TypeTag("som-clustered-expression-values", "must have columns \"colours\", \"distance2first\", \"cluster\", \"griddim\"");
 	}
 	
 	public static class VisualisationMethods {
@@ -136,8 +136,19 @@ public class MicroarrayModule implements Module {
 	}
 
 	@Override
-	public String getServerModuleName() {
-		return SERVER_MODULE_NAME;
+	public String[] getServerModuleNames() {
+		return new String[] { "microarray", "ngs" };
+	}
+
+	@Override
+	public String getModuleLongName(String moduleName) {
+		if ("microarray".equals(moduleName)) {
+			return "Microarrays";
+		} else if ("ngs".equals(moduleName)) {
+			return "Next Gen Sequencing";
+		} else {
+			throw new IllegalArgumentException("not recognised: " + moduleName);
+		}
 	}
 
 	@Override

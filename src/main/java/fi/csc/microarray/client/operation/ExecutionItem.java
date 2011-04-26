@@ -24,7 +24,7 @@ public interface ExecutionItem {
 	
 	/**
 	 * @return The category name of this ExecutionItem (either the name of an
-	 * 		   OperationCategory or, for workflows, simply "Workflow".
+	 * 		   ToolCategory or, for workflows, simply "Workflow".
 	 */
 	public String getCategoryName();
 	

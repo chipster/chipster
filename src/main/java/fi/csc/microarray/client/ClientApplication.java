@@ -15,10 +15,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -35,9 +33,10 @@ import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.operation.OperationCategory;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
+import fi.csc.microarray.client.operation.ToolCategory;
+import fi.csc.microarray.client.operation.ToolModule;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.selection.DataSelectionManager;
 import fi.csc.microarray.client.tasks.Task;
@@ -152,11 +151,10 @@ public abstract class ClientApplication {
 	
 	protected String requestedModule;
 
-	// TODO wrap these to some kind of repository
-	protected List<OperationCategory> visibleCategories;
-	protected Map<String, OperationDefinition> operationDefinitions;
-	protected Map<String, OperationDefinition> internalOperationDefinitions;
-
+	/**
+	 * Tool modules contain tool categories, that contain the tools. 
+	 */
+	protected LinkedList<ToolModule> toolModules = new LinkedList<ToolModule>(); 
 	protected WorkflowManager workflowManager;
 	protected DataManager manager;
     protected DataSelectionManager selectionManager;
@@ -189,14 +187,14 @@ public abstract class ClientApplication {
 
 		try {
 
-			// initialise modules
+			// Initialise modules
 			ModuleManager modules = new ModuleManager(requestedModule);
 			Session.getSession().setModuleManager(modules);
 
-			// initialise workflows
+			// Initialise workflows
 			this.workflowManager = new WorkflowManager(this);
 
-			// initialise data management
+			// Initialise data management
 			this.manager = new DataManager();
 			Session.getSession().setDataManager(manager);
 			modules.plugAll(this.manager, Session.getSession());
@@ -213,7 +211,7 @@ public abstract class ClientApplication {
 			Session.getSession().setServiceAccessor(serviceAccessor);
 			reportInitialisation(" ok", false);
 
-			// check services
+			// Check services
 			reportInitialisation("Checking remote services...", true);
 			String status = serviceAccessor.checkRemoteServices();
 			if (!ServiceAccessor.ALL_SERVICES_OK.equals(status)) {
@@ -224,43 +222,26 @@ public abstract class ClientApplication {
 			// Fetch descriptions from compute server
 	        reportInitialisation("Fetching analysis descriptions...", true);
 	        serviceAccessor.fetchDescriptions(modules.getPrimaryModule());
-			this.visibleCategories = serviceAccessor.getVisibleCategories();
+			this.toolModules.addAll(serviceAccessor.getModules());
 			
-			// create GUI elements from descriptions
-			this.operationDefinitions = new HashMap<String, OperationDefinition>();
-			for (OperationCategory category : visibleCategories) {
-				for (OperationDefinition operationDefinition : category.getOperationList()) {
-					operationDefinitions.put(operationDefinition.getID(), operationDefinition);
-				}
-			}
-			logger.debug("created " + visibleCategories.size() + " operation categories");
-			reportInitialisation(" ok", false);
+			// Add internal operation definitions
+			ToolCategory internalCategory = new ToolCategory("Internal tools");
+			internalCategory.addOperation(OperationDefinition.IMPORT_DEFINITION);
+			internalCategory.addOperation(OperationDefinition.CREATE_DEFINITION);
+			ToolModule internalModule = new ToolModule("internal");
+			internalModule.addHiddenToolCategory(internalCategory);
+			toolModules.add(internalModule);
 
-			// load internal operation definitions
-			internalOperationDefinitions = new HashMap<String, OperationDefinition>();
-	        internalOperationDefinitions.put(OperationDefinition.IMPORT_DEFINITION.getID(),
-	                OperationDefinition.IMPORT_DEFINITION);
-	        internalOperationDefinitions.put(OperationDefinition.CREATE_DEFINITION.getID(),
-	                OperationDefinition.CREATE_DEFINITION);
-			for (OperationCategory category : serviceAccessor.getHiddenCategories()) {
-			    for (OperationDefinition operationDefinition : category.getOperationList()) {
-			        internalOperationDefinitions.put(operationDefinition.getID(), operationDefinition);
-			    }
-			}
+			// Update to splash screen that we have loaded tools
+			reportInitialisation(" ok", false);
 
 			// load local operation definitions
 			ServiceAccessor localServiceAccessor = new LocalServiceAccessor();
 			localServiceAccessor.initialise(manager, null);
 			localServiceAccessor.fetchDescriptions(modules.getPrimaryModule());
-			for (OperationCategory category : localServiceAccessor.getHiddenCategories()) {
-			    for (OperationDefinition operationDefinition : category.getOperationList()) {
-			        internalOperationDefinitions.put(operationDefinition.getID(), operationDefinition);
-			    }
+			for (ToolModule localModule : localServiceAccessor.getModules()) {
+				toolModules.add(localModule);
 			}
-
-			
-			
-			
 			
 			// start listening to job events
 			taskExecutor.addChangeListener(jobExecutorChangeListener);
@@ -582,15 +563,17 @@ public abstract class ClientApplication {
 
 	/**
 	 * 
-	 * @param operationDefinitionID
+	 * @param toolId
 	 * @return null if operation definition is not found
 	 */
-	public OperationDefinition getOperationDefinition(String operationDefinitionID) {
-		OperationDefinition definition = operationDefinitions.get(operationDefinitionID); 
-		if (definition == null) {
-			definition = internalOperationDefinitions.get(operationDefinitionID);
+	public OperationDefinition getOperationDefinition(String toolId) {
+		for (ToolModule module : toolModules) {
+			OperationDefinition tool = module.getOperationDefinition(toolId);
+			if (tool != null) {
+				return tool;
+			}
 		}
-		return definition;
+		return null;
 	}
 
 	

@@ -1,13 +1,14 @@
 package fi.csc.microarray.client;
 
+import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
 
 import javax.jms.JMSException;
 
 import fi.csc.chipster.tools.ngs.LocalNGSPreprocess;
-import fi.csc.microarray.client.operation.OperationCategory;
 import fi.csc.microarray.client.operation.OperationDefinition;
+import fi.csc.microarray.client.operation.ToolCategory;
+import fi.csc.microarray.client.operation.ToolModule;
 import fi.csc.microarray.client.tasks.LocalTaskExecutor;
 import fi.csc.microarray.client.tasks.TaskExecutor;
 import fi.csc.microarray.databeans.DataManager;
@@ -24,12 +25,12 @@ import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 
 public class LocalServiceAccessor implements ServiceAccessor {
 
-	private static final String INTERNAL_CATEGORY_NAME = "Internal tools";
+	private static final String LOCAL_CATEGORY_NAME = "Local tools";
+	private static final String LOCAL_MODULE_NAME = "local";
 
 	private DataManager manager;
 
-	private List<OperationCategory> visibleCategories;
-	private List<OperationCategory> hiddenCategories;
+	private LinkedList<ToolModule> modules = new LinkedList<ToolModule>();
 
 	
 	
@@ -52,16 +53,13 @@ public class LocalServiceAccessor implements ServiceAccessor {
 	 */
 	@Override
 	public void fetchDescriptions(Module primaryModule) throws Exception {
-		this.visibleCategories = new LinkedList<OperationCategory>();
-		this.hiddenCategories = new LinkedList<OperationCategory>();
-		
-		// tools list
-//		PreprocessNGSSingle tool = new PreprocessNGSSingle();
+		ToolModule module = new ToolModule(LOCAL_MODULE_NAME);
+		this.modules.add(module);
 		
 		// for each tool, parse the SADL and create the OperationDefinition
         SADLDescription sadl = new ChipsterSADLParser().parse(LocalNGSPreprocess.getSADL());
-		OperationCategory category = new OperationCategory(INTERNAL_CATEGORY_NAME);
-		this.hiddenCategories.add(category);
+		ToolCategory category = new ToolCategory(LOCAL_CATEGORY_NAME);
+		module.addHiddenToolCategory(category);
 		
         OperationDefinition od = new OperationDefinition(sadl.getName().getID(), 
                                                                     sadl.getName().getDisplayName(), category,
@@ -102,23 +100,6 @@ public class LocalServiceAccessor implements ServiceAccessor {
 	}
 
 	@Override
-	public List<OperationCategory> getHiddenCategories() {
-		if (hiddenCategories == null) {
-			throw new IllegalStateException("fetchDescriptions(...) must be called first");
-		}
-		return hiddenCategories;
-	}
-	
-	@Override
-	public List<OperationCategory> getVisibleCategories() {
-		if (visibleCategories == null) {
-			throw new IllegalStateException("fetchDescriptions(...) must be called first");
-		}
-		return visibleCategories;
-	}
-
-
-	@Override
 	public void initialise(DataManager manager, AuthenticationRequestListener authenticationRequestListener) throws Exception {
 		this.manager = manager;
 		// we are not interested in authenticationRequestListener
@@ -132,6 +113,11 @@ public class LocalServiceAccessor implements ServiceAccessor {
 	@Override
 	public void sendFeedbackMessage(FeedbackMessage message) throws Exception {
 		throw new UnsupportedOperationException("not supported in standalone mode");
+	}
+
+	@Override
+	public Collection<ToolModule> getModules() {
+		return modules;
 	}
 
 }

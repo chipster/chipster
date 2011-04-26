@@ -80,7 +80,7 @@ public class DataFolder extends DataItemBase {
 			}
 
 			// the rest is microarray specific
-			if (!MicroarrayModule.SERVER_MODULE_NAME.equals(Session.getSession().getPrimaryModule().getServerModuleName())) {
+			if (!(Session.getSession().getPrimaryModule() instanceof MicroarrayModule)) {
 				return;
 			}
 
@@ -91,7 +91,6 @@ public class DataFolder extends DataItemBase {
 			if (data.isContentTypeCompatitible("application/cel")) {
 				data.addTypeTag(MicroarrayModule.TypeTags.RAW_AFFYMETRIX_EXPRESSION_VALUES);
 
-			// FIXME also phenodata gets tagged here
 			} else if (data.queryFeatures("/column/sample").exists() && !data.queryFeatures("/phenodata").exists()) {
 				data.addTypeTag(MicroarrayModule.TypeTags.RAW_EXPRESSION_VALUES);
 

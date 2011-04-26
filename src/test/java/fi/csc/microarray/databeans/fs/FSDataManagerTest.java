@@ -25,7 +25,7 @@ import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
-import fi.csc.microarray.client.operation.OperationCategory;
+import fi.csc.microarray.client.operation.ToolCategory;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.TaskException;
@@ -125,7 +125,7 @@ public class FSDataManagerTest {
 		public OperationDefinition getOperationDefinition(String operationID) {
 			// dummy implementation
 			// FIXME only fixed signature to use operationID
-			return new OperationDefinition("id", "display name", new OperationCategory("cat. name"), "description", false);
+			return new OperationDefinition("id", "display name", new ToolCategory("cat. name"), "description", false);
 		}
 			
 

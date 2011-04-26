@@ -20,16 +20,16 @@ public class OperationGenerator {
 	// Logger for this class
 	private static final Logger logger = Logger.getLogger(OperationGenerator.class);
 	
-	public Map<String, OperationCategory> generateFromMessage(ModuleDescriptionMessage descriptionMsg) throws ParseException {
-        LinkedHashMap<String, OperationCategory> parsedCategories =
-                            new LinkedHashMap<String, OperationCategory>();
+	public Map<String, ToolCategory> generateFromMessage(ModuleDescriptionMessage descriptionMsg) throws ParseException {
+        LinkedHashMap<String, ToolCategory> parsedCategories =
+                            new LinkedHashMap<String, ToolCategory>();
 	    // Fetch descriptions from the DescriptionMessage
 	    List<Category> categories = descriptionMsg.getCategories();
 	    
 	    logger.debug("generating operations from " + categories.size() + " descriptions");
 	    
 	    for (Category category : categories) {
-	        OperationCategory op = new OperationCategory(category.getName());
+	        ToolCategory op = new ToolCategory(category.getName());
 	        op.setColor(category.getColor());
             
             // hue, with the value .15 generates about 20 different colors

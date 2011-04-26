@@ -41,13 +41,11 @@ import fi.csc.microarray.util.GeneralFileFilter;
 
 public class BasicModule implements Module {
 
-	private static final String SERVER_MODULE_NAME = "basic";
-
 	public static class TypeTags {
-		public static final TypeTag TABLE_WITHOUT_COLUMN_NAMES = new TypeTag(SERVER_MODULE_NAME, "table-without-column-names", "first row is the first data row");
-		public static final TypeTag TABLE_WITH_COLUMN_NAMES = new TypeTag(SERVER_MODULE_NAME, "table-without-column-names", "first row is the column name row");
-		public static final TypeTag TABLE_WITH_TITLE_ROW = new TypeTag(SERVER_MODULE_NAME, "table-with-possible-title-row", "first row is title row");
-		public static final TypeTag PHENODATA = new TypeTag(SERVER_MODULE_NAME, "phenodata", "phenodata table");
+		public static final TypeTag TABLE_WITHOUT_COLUMN_NAMES = new TypeTag("table-without-column-names", "first row is the first data row");
+		public static final TypeTag TABLE_WITH_COLUMN_NAMES = new TypeTag("table-without-column-names", "first row is the column name row");
+		public static final TypeTag TABLE_WITH_TITLE_ROW = new TypeTag("table-with-possible-title-row", "first row is title row");
+		public static final TypeTag PHENODATA = new TypeTag("phenodata", "phenodata table");
 	}
 	
 	public static class VisualisationMethods {
@@ -78,8 +76,13 @@ public class BasicModule implements Module {
 	}
 
 	@Override
-	public String getServerModuleName() {
-		return SERVER_MODULE_NAME;
+	public String[] getServerModuleNames() {
+		return null;
+	}
+
+	@Override
+	public String getModuleLongName(String moduleName) {
+		return null;
 	}
 
 	@Override

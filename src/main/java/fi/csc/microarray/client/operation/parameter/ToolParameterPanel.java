@@ -21,7 +21,7 @@ import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
 
 import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.operation.OperationPanel;
+import fi.csc.microarray.client.operation.ToolPanel;
 import fi.csc.microarray.client.operation.OperationDefinition.InputDefinition;
 import fi.csc.microarray.exception.MicroarrayException;
 
@@ -44,7 +44,7 @@ public class ToolParameterPanel extends ParameterPanel {
 	private static final int LEFT_MARGIN = 10;
 	private static final int TOP_MARGIN = 2;
 
-	private OperationPanel parent;
+	private ToolPanel parent;
 	
 	/**
 	 * Creates a new ParameterPanel for the given operation.
@@ -53,7 +53,7 @@ public class ToolParameterPanel extends ParameterPanel {
 	 * @param client The client that is to be informed when a job is done.
 	 * @throws MicroarrayException 
 	 */
-	public ToolParameterPanel(Operation operation, OperationPanel parent) throws MicroarrayException {
+	public ToolParameterPanel(Operation operation, ToolPanel parent) throws MicroarrayException {
 
 	    super(operation, new BorderLayout());
 		this.parent = parent;
