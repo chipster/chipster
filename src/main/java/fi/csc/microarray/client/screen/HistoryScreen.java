@@ -10,8 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.JButton;
@@ -30,11 +28,9 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.ClientApplication.SourceCodeListener;
 import fi.csc.microarray.client.dataimport.ImportUtils;
-import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.operation.OperationDefinition;
-import fi.csc.microarray.client.operation.parameter.Parameter;
+import fi.csc.microarray.client.operation.OperationRecord;
+import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.chipster.MicroarrayModule;
@@ -50,7 +46,7 @@ import fi.csc.microarray.util.Strings;
  *
  */
 public class HistoryScreen extends ScreenBase
-                           implements ActionListener, CaretListener, SourceCodeListener {
+                           implements ActionListener, CaretListener {
 	/**
 	 * Logger for this class
 	 */
@@ -202,18 +198,17 @@ public class HistoryScreen extends ScreenBase
 				historyText.append("Created " + listData.getDate().toString() + "\n");
 			}
 			if (checkBoxes.get("oper").isSelected()) {
-				Operation oper = listData.getOperation();
+				OperationRecord operationRecord = listData.getOperationRecord();
 				historyText.append("Created with operation: ");
-				if (oper != null) {
-					historyText.append(oper.getDefinition().getFullName() + "\n");
+				if (operationRecord != null) {
+					historyText.append(operationRecord.getFullName() + "\n");
 					if (checkBoxes.get("param").isSelected()) {
-                        LinkedList<Parameter> params = oper.getParameters();
-						if (params != null && params.size() > 0) {
-							for (Parameter param : params) {
-								historyText.append("Parameter " + param.getDisplayName() + ": " +
-										param.getValueAsString() + "\n");
-							}
-						} 
+
+						for (ParameterRecord parameterRecord : operationRecord.getParameters()) {
+							historyText.append("Parameter " + parameterRecord.getNameID().getDisplayName() + ": " +
+									parameterRecord.getValue() + "\n");
+							
+						}
 					} else {
                         historyText.append("\n");               
                     }
@@ -255,22 +250,12 @@ public class HistoryScreen extends ScreenBase
 		if (sourceCodes == null) {
 			
 			// make list of wanted source codes
-			List<String> ids = new LinkedList<String>();
-			for (DataBean bean : MicroarrayModule.getSourcePath(data)) {
-				OperationDefinition op = bean.getOperation().getDefinition();
-				if (op.hasSourceCode()) {
-					ids.add(op.getID());
-				} else {
-					ids.add(null);
-				}
-				logger.debug("added source path " + ids.get(ids.size()-1));
+			DataBean[] sourceDatas = MicroarrayModule.getSourcePath(data);
+			sourceCodes = new String[sourceDatas.length];
+			for (int i = 0; i < sourceDatas.length; i++){
+				// might be null, is ok
+				sourceCodes[i] = sourceDatas[i].getOperationRecord().getSourceCode();
 			}
-			
-			// initialise data structure that is used in result gathering 
-			sourceCodes = new String[ids.size()];
-
-			// start source code fetching
-			application.fetchSourceFor(ids.toArray(new String[1]), this);
 		}
 		return sourceCodes;
 	}
@@ -350,11 +335,5 @@ public class HistoryScreen extends ScreenBase
 
 	public JFrame getFrame() {
 		return frame;
-	}
-
-	public void updateSourceCodeAt(int index, String sourceString) {
-		logger.debug("updating source at " + index + " with " + (sourceString != null ? ("string of length " + sourceString.length()) : "<null>"));
-		sourceCodes[index] = sourceString;
-		refreshText();
 	}
 }

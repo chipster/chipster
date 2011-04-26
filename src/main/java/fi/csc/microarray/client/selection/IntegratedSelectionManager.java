@@ -14,6 +14,7 @@ import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
+import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.Link;
@@ -102,7 +103,7 @@ public class IntegratedSelectionManager {
 		writer.flush();
 		dataManager.closeContentOutputStreamAndUnlockDataBean(newData, outputStream);
 		// TODO get the operation definition from the application
-		newData.setOperation(new Operation(OperationDefinition.CREATE_DEFINITION, new DataBean[] { newData }));
+		newData.setOperationRecord(new OperationRecord(new Operation(OperationDefinition.CREATE_DEFINITION, new DataBean[] { newData })));
 
 		
 		// set metadata

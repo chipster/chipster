@@ -99,6 +99,7 @@ public class Task {
 	private long endTime;
 	private String errorMessage;
 	private String screenOutput;
+	private String sourceCode;
 	private Map<String, DataBean> outputs = new HashMap<String, DataBean>();
 	private boolean hasBeenRetried = false;
 	private boolean hidden = false;
@@ -315,4 +316,13 @@ public class Task {
 	public int getCompletionPercentage() {
 		return completionPercentage;
 	}
+
+	public void setSourceCode(String sourceCode) {
+		this.sourceCode = sourceCode;
+	}
+
+	public String getSourceCode() {
+		return this.sourceCode;
+	}
+
 }

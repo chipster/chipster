@@ -105,6 +105,7 @@ public abstract class ClientApplication {
 	public abstract void viewHelpFor(OperationDefinition operationDefinition);
 	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal);
 	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility, PluginButton button);
+	public abstract void showDialog(String title, String message, String details, Severity severity, boolean modal, DetailsVisibility detailsVisibility, PluginButton button, boolean feedBackEnabled);
 	public abstract void deleteDatas(DataItem... datas);	
 	public abstract void createLink(DataBean source, DataBean target, Link type);
 	public abstract void removeLink(DataBean source, DataBean target, Link type);
@@ -434,10 +435,13 @@ public abstract class ClientApplication {
 
 				// read outputs and create derivational links for non-metadata beans
 				DataBean metadataOutput = null;
+				OperationRecord operationRecord = new OperationRecord(oper);
+				operationRecord.setSourceCode(task.getSourceCode());
+				
 				for (String outputName : task.outputNames()) {
 
 					DataBean output = task.getOutput(outputName);
-					output.setOperation(oper);
+					output.setOperationRecord(operationRecord);
 
 
 					// set sources

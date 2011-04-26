@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.operation.parameter.Parameter;
+import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.basic.BasicModule;
@@ -112,16 +112,14 @@ public class DataFolder extends DataItemBase {
 			}
 
 			boolean isChipwise = false;
-			Parameter pcaOn = data.getOperation().getParameter("do.pca.on");
+			ParameterRecord pcaOn = data.getOperationRecord().getParameter("do.pca.on");
 			if (pcaOn != null) {
-				Object value = pcaOn.getValue();
-				if (value != null) {
-					if (value.equals("chips")) {
-						isChipwise = true;
-					}
+				String pcaOnValue = pcaOn.getValue();
+				if (pcaOnValue != null && pcaOnValue.equals("chips")) {
+					isChipwise = true;
 				}
 			}
-			if (data.getOperation().getDefinition().getDisplayName().equals("PCA") && isChipwise) {
+			if (data.getOperationRecord().getNameID().getID().equals("ordination-pca.R") && isChipwise) {
 				data.addTypeTag(MicroarrayModule.TypeTags.EXPRESSION_PRIMARY_COMPONENTS_CHIPWISE);
 			}
 
