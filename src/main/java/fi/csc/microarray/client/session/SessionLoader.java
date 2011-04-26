@@ -62,7 +62,7 @@ public class SessionLoader {
 	
 	
 	public SessionLoader(File sessionFile) throws MicroarrayException {
-		if (!ClientSession.isValidSessionFile(sessionFile)) {
+		if (!UserSession.isValidSessionFile(sessionFile)) {
 			throw new MicroarrayException("Not a valid session file.");
 		}
 		this.sessionFile = sessionFile;
@@ -93,14 +93,14 @@ public class SessionLoader {
 		try {
 			// get the session.xml zip entry
 			zipFile = new ZipFile(sessionFile);
-			InputStream metadataStream = zipFile.getInputStream(zipFile.getEntry(ClientSession.SESSION_DATA_FILENAME));
+			InputStream metadataStream = zipFile.getInputStream(zipFile.getEntry(UserSession.SESSION_DATA_FILENAME));
 
 			// validate
 			//ClientSession.getSchema().newValidator().validate(new StreamSource(metadataStream));
 			
 			// parse the metadata xml to java objects using jaxb
-			Unmarshaller unmarshaller = ClientSession.getJAXBContext().createUnmarshaller();
-			unmarshaller.setSchema(ClientSession.getSchema());
+			Unmarshaller unmarshaller = UserSession.getJAXBContext().createUnmarshaller();
+			unmarshaller.setSchema(UserSession.getSchema());
 			NonStoppingValidationEventHandler validationEventHandler = new NonStoppingValidationEventHandler();
 			unmarshaller.setEventHandler(validationEventHandler);
 			this.sessionType = unmarshaller.unmarshal(new StreamSource(metadataStream), SessionType.class).getValue();
@@ -130,7 +130,7 @@ public class SessionLoader {
 			
 			// create the folder
 			DataFolder dataFolder;
-			if (ClientSession.ROOT_FOLDER_ID.equals(id)) {
+			if (UserSession.ROOT_FOLDER_ID.equals(id)) {
 				dataFolder = dataManager.getRootFolder();
 			} else {
 				dataFolder = dataManager.createFolder(name);

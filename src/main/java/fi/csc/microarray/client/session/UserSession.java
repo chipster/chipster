@@ -17,13 +17,13 @@ import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
 
 
-public class ClientSession {
+public class UserSession {
 
 	public static final String SESSION_FILE_EXTENSION = "zip";
 	public static final String SESSION_DATA_FILENAME = "session.xml";
 	
 	
-	private static final Logger logger = Logger.getLogger(ClientSession.class);
+	private static final Logger logger = Logger.getLogger(UserSession.class);
 	public static final String ROOT_FOLDER_ID = "0";
 	public static final Integer SESSION_VERSION = 1;
 	
@@ -84,7 +84,7 @@ public class ClientSession {
 //        File schemaLocation = new File("/opt/xml/docbook/rng/docbook.rng");
         
         // 3. Compile the schema.
-        Schema schema = factory.newSchema(new StreamSource(ClientSession.class.getResourceAsStream("/session.xsd")));
+        Schema schema = factory.newSchema(new StreamSource(UserSession.class.getResourceAsStream("/session.xsd")));
     
         // 4. Get a validator from the schema.
         Validator validator = schema.newValidator();
@@ -93,7 +93,7 @@ public class ClientSession {
         
         // 6. Check the document
         try {
-        	validator.validate(new StreamSource(ClientSession.class.getResourceAsStream("/session.xml")));
+        	validator.validate(new StreamSource(UserSession.class.getResourceAsStream("/session.xml")));
             System.out.println("input is valid.");
         }
         catch (SAXException ex) {
@@ -116,6 +116,6 @@ public class ClientSession {
 
 	public static Schema getSchema() throws SAXException {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-		return factory.newSchema(new StreamSource(ClientSession.class.getResourceAsStream("session.xsd")));
+		return factory.newSchema(new StreamSource(UserSession.class.getResourceAsStream("session.xsd")));
 	}
 }

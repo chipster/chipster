@@ -123,7 +123,7 @@ public class SessionSaver {
 		this.sessionType = factory.createSessionType();
 
 		// save session version
-		sessionType.setFormatVersion(ClientSession.SESSION_VERSION);
+		sessionType.setFormatVersion(UserSession.SESSION_VERSION);
 
 		// generate all ids
 		generateIdsRecursively(dataManager.getRootFolder());
@@ -139,8 +139,8 @@ public class SessionSaver {
 	 * @throws SAXException
 	 */
 	private boolean validateMetadata() throws JAXBException, SAXException {
-		Marshaller marshaller = ClientSession.getJAXBContext().createMarshaller();
-		marshaller.setSchema(ClientSession.getSchema());
+		Marshaller marshaller = UserSession.getJAXBContext().createMarshaller();
+		marshaller.setSchema(UserSession.getSchema());
 		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 		
 		NonStoppingValidationEventHandler validationEventHandler = new NonStoppingValidationEventHandler();
@@ -182,9 +182,9 @@ public class SessionSaver {
 			zipOutputStream.setLevel(1); // quite slow with bigger values														
 
 			// save meta data
-			ZipEntry sessionDataZipEntry = new ZipEntry(ClientSession.SESSION_DATA_FILENAME);
+			ZipEntry sessionDataZipEntry = new ZipEntry(UserSession.SESSION_DATA_FILENAME);
 			zipOutputStream.putNextEntry(sessionDataZipEntry);
-			Marshaller marshaller = ClientSession.getJAXBContext().createMarshaller();
+			Marshaller marshaller = UserSession.getJAXBContext().createMarshaller();
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 			// TODO disable validation
 			marshaller.setEventHandler(new NonStoppingValidationEventHandler());
