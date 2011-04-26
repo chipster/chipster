@@ -17,6 +17,8 @@ public class ToolCategory {
 	public static ToolCategory IMPORT_CATEGORY = new ToolCategory("Import");
 	public static ToolCategory CREATE_CATEGORY = new ToolCategory("Create datasets");
 	
+    public static Color UNKNOWN_CATEGORY_COLOR = Color.gray;
+
 	/**
 	 * Checks if the category is one of the predefined pseudo categories. Object identity is not required,
 	 * as long as names match.

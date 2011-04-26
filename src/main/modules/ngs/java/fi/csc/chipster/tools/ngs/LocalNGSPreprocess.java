@@ -10,6 +10,7 @@ import fi.csc.chipster.tools.gbrowser.SamBamUtils.SamBamUtilState;
 import fi.csc.chipster.tools.gbrowser.SamBamUtils.SamBamUtilStateListener;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ElandParser;
@@ -152,8 +153,8 @@ public class LocalNGSPreprocess implements Runnable {
 		DataBean indexOutputBean = dataManager.createDataBean(indexOutputName, indexOutputFile);
 		
 		// create new operation instance, without any inputs FIXME parameters are lost, sucks
-		outputBean.setOperation(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {}));
-		indexOutputBean.setOperation(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {}));
+		outputBean.setOperationRecord(new OperationRecord(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {})));
+		indexOutputBean.setOperationRecord(new OperationRecord(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {})));
 		dataManager.getRootFolder().addChild(outputBean);
 		dataManager.getRootFolder().addChild(indexOutputBean);
 	}
@@ -170,7 +171,7 @@ public class LocalNGSPreprocess implements Runnable {
 		DataBean outputBean = dataManager.createDataBean(outputName, outputFile);
 		
 		// Create new operation instance, without any inputs FIXME parameters are lost, sucks
-		outputBean.setOperation(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {}));
+		outputBean.setOperationRecord(new OperationRecord(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {})));
 		dataManager.getRootFolder().addChild(outputBean);
 	}
 
@@ -182,7 +183,7 @@ public class LocalNGSPreprocess implements Runnable {
 		DataBean outputBean = dataManager.createDataBean(outputName, outputFile);
 		
 		// Create new operation instance, without any inputs FIXME parameters are lost, sucks
-		outputBean.setOperation(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {}));
+		outputBean.setOperationRecord(new OperationRecord(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {})));
 		dataManager.getRootFolder().addChild(outputBean);
 	}
 	

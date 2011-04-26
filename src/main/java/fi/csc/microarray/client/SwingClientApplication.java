@@ -69,6 +69,7 @@ import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.dialog.DialogInfo.Type;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
+import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.ToolPanel;
 import fi.csc.microarray.client.screen.ChildScreenPool;
 import fi.csc.microarray.client.screen.HistoryScreen;

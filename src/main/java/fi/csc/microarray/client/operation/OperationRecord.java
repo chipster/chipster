@@ -227,7 +227,7 @@ public class OperationRecord {
 		OperationRecord record = new OperationRecord();
 		record.setNameID(new NameID("unknown", "Unknown", "No tool information available."));
 		record.setCategoryName("Unknown");
-		record.setCategoryColor(OperationCategory.UNKNOWN_CATEGORY_COLOR);
+		record.setCategoryColor(ToolCategory.UNKNOWN_CATEGORY_COLOR);
 		record.setSourceCode("Source code not available.");
 		return record;
 	}

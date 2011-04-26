@@ -34,6 +34,7 @@ import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
+import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.ToolCategory;
 import fi.csc.microarray.client.operation.ToolModule;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
