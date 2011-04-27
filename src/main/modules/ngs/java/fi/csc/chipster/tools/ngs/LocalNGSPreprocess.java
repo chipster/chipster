@@ -152,9 +152,10 @@ public class LocalNGSPreprocess implements Runnable {
 		DataBean outputBean = dataManager.createDataBean(outputName, outputFile);
 		DataBean indexOutputBean = dataManager.createDataBean(indexOutputName, indexOutputFile);
 		
-		// create new operation instance, without any inputs FIXME parameters are lost, sucks
-		outputBean.setOperationRecord(new OperationRecord(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {})));
-		indexOutputBean.setOperationRecord(new OperationRecord(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {})));
+		// Create new operation instance, without any inputs FIXME parameters are lost, sucks create OperationRecord directly
+		OperationRecord operationRecord = new OperationRecord(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {}));
+		outputBean.setOperationRecord(operationRecord);
+		indexOutputBean.setOperationRecord(operationRecord);
 		dataManager.getRootFolder().addChild(outputBean);
 		dataManager.getRootFolder().addChild(indexOutputBean);
 	}
@@ -170,7 +171,7 @@ public class LocalNGSPreprocess implements Runnable {
 		// Create outputs in the client
 		DataBean outputBean = dataManager.createDataBean(outputName, outputFile);
 		
-		// Create new operation instance, without any inputs FIXME parameters are lost, sucks
+		// Create new operation instance, without any inputs FIXME parameters are lost, sucks create OperationRecord directly
 		outputBean.setOperationRecord(new OperationRecord(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {})));
 		dataManager.getRootFolder().addChild(outputBean);
 	}
@@ -182,7 +183,7 @@ public class LocalNGSPreprocess implements Runnable {
 		// Create outputs in the client
 		DataBean outputBean = dataManager.createDataBean(outputName, outputFile);
 		
-		// Create new operation instance, without any inputs FIXME parameters are lost, sucks
+		// Create new operation instance, without any inputs FIXME parameters are lost, sucks create OperationRecord directly
 		outputBean.setOperationRecord(new OperationRecord(new Operation(Session.getSession().getApplication().getOperationDefinition(task.getOperationID()), new DataBean[] {})));
 		dataManager.getRootFolder().addChild(outputBean);
 	}
