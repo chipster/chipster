@@ -82,7 +82,7 @@ public class ToolPanel extends JPanel
 	private JPanel operationPanel;
 	private JPanel operationCardPanel;
 	private LinkedList<ToolSelectorPanel> operationChoicePanels = new LinkedList<ToolSelectorPanel>();
-	private ToolFilterPanel operationFilterPanel;
+	private ToolFilterPanel toolFilterPanel;
 	private JTextField searchField;
 	private JButton clearSearchButton;
 	private JPanel cardPanel;
@@ -125,7 +125,7 @@ public class ToolPanel extends JPanel
 			}
 			
 		}
-		operationFilterPanel = new ToolFilterPanel(this, allVisibleCategories);
+		toolFilterPanel = new ToolFilterPanel(this, allVisibleCategories);
 		
 		cardPanel = new JPanel(new CardLayout());
 		
@@ -192,7 +192,7 @@ public class ToolPanel extends JPanel
                     if (!clearSearchButton.isAncestorOf(field)) {
                     	field.add(clearSearchButton);
                     }
-                	operationFilterPanel.loadFilteredOperations(field.getText());
+                	toolFilterPanel.loadFilteredOperations(field.getText());
                     showOperationCard(TOOLS_FILTERED);
                 } else {
                 	clearSearch();
@@ -239,14 +239,14 @@ public class ToolPanel extends JPanel
         	if (toolModule.isVisible()) {
         		String buttonText = Session.getSession().getPrimaryModule().getModuleLongName(toolModule.getModuleName());
         		JButton button = new JButton(buttonText);
-        		button.setName(buttonText);
+        		button.setName(toolModule.getModuleName());
         		button.setPreferredSize(new Dimension((int)((float)button.getMinimumSize().width * 1.1), 22)); 
         		button.addActionListener(new ActionListener() {
         			@Override
         			public void actionPerformed(ActionEvent e) {
         				if (e.getSource() instanceof JButton) {
         					JButton currentButton = (JButton)e.getSource();
-        					selectModule(currentButton, toolModule.getModuleName());
+        					selectModule(currentButton.getName());
         				}
         			}
 
@@ -291,7 +291,7 @@ public class ToolPanel extends JPanel
         for (ToolSelectorPanel panel : operationChoicePanels) {
         	operationCardPanel.add(panel, TOOLS_CATEGORIZED + panel.getModuleName());	
         }
-        operationCardPanel.add(operationFilterPanel, TOOLS_FILTERED);
+        operationCardPanel.add(toolFilterPanel, TOOLS_FILTERED);
         operationCardPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
                 VisualConstants.TOOL_LIST_BORDER_COLOR));
 
@@ -351,22 +351,38 @@ public class ToolPanel extends JPanel
 		c.weighty = 0;
 		this.add(bottomPanel, c);		
 
-        selectModule(moduleButtons.getFirst(), toolModules.getFirst().getModuleName());
+        selectModule(toolModules.getFirst().getModuleName());
 
 		// start listening
 		Session.getSession().getApplication().addClientEventListener(this);
 		
 	}
 
-	private void selectModule(JButton currentButton, String moduleName) {
-		for (JButton moduleButton : moduleButtons) {
-			moduleButton.setText(moduleButton.getName());
-		}
-		currentButton.setText("<html><strong>" + currentButton.getName() + "</strong></html>");
+	private void selectModule(String moduleName) {
+		highlightTab(moduleName);
 		clearOperationSelection();
 		showOperationCard(TOOLS_CATEGORIZED + moduleName);
 	}
 
+	/**
+	 * Highlight (use bold font) the given tab. 
+	 * 
+	 * Clears previous highlight.
+	 * 
+	 * @param moduleName
+	 */
+	public void highlightTab(String moduleName) {
+		for (JButton moduleButton : moduleButtons) {
+			String longName = ""; 
+			if (moduleButton.getName().equals(moduleName)) {
+				longName = "<html><strong>" + Session.getSession().getPrimaryModule().getModuleLongName(moduleName) + "</strong></html>";
+			} else {
+				longName = Session.getSession().getPrimaryModule().getModuleLongName(moduleButton.getName());
+			}
+			moduleButton.setText(longName);
+		}
+	}
+	
 	public Vector<Component> getFocusComponents(){
 				
 		Vector<Component> order = new Vector<Component>();
@@ -647,9 +663,30 @@ public class ToolPanel extends JPanel
 		searchField.setText("");
 		searchField.setBackground(Color.WHITE);
 		searchField.remove(clearSearchButton);
-		for (ToolSelectorPanel panel : operationChoicePanels) {
-			panel.deselectTool();
+		
+		OperationDefinition tool = (OperationDefinition) this.toolFilterPanel.getSelectedTool();
+		if (tool != null) {
+			ToolCategory category = tool.getCategory();
+			ToolModule module = category.getModule();
+			this.selectModule(module.getModuleName());
+			this.getToolSelectorPanel(module.getModuleName()).selectCategory(category);
+			this.selectTool(tool);
 		}
-		showOperationCard(previousModuleCard);
+		// FIXME select previous or default?
 	}
+
+	/**
+	 * 
+	 * @param moduleName
+	 * @return null if not found
+	 */
+	private ToolSelectorPanel getToolSelectorPanel(String moduleName) {
+		for (ToolSelectorPanel toolSelectorPanel : this.operationChoicePanels) {
+			if (toolSelectorPanel.getModuleName().equals(moduleName)) {
+				return toolSelectorPanel;
+			}
+		}
+		return null;
+	}
+
 }

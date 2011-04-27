@@ -36,7 +36,7 @@ public class ToolFilterPanel extends JPanel
     private JList categoryList;
     private JList visibleOperationsList;
     
-    private ExecutionItem selectedOperation;
+    private ExecutionItem selectedTool;
     
     public ToolFilterPanel(ToolPanel parent,
            List<ToolCategory> categories) {
@@ -79,7 +79,7 @@ public class ToolFilterPanel extends JPanel
         LinkedList<Float> filteredOperationsWeights = new LinkedList<Float>();
         
         for (ToolCategory category : categories) {
-            selectedOperation = null;
+            selectedTool = null;
             for (OperationDefinition operation : category.getToolList()) {
                 int indexInTitle = operation.getDisplayName().toLowerCase().
                                    indexOf(filterPhrase.toLowerCase());
@@ -214,16 +214,25 @@ public class ToolFilterPanel extends JPanel
         	Object selected = visibleOperationsList.getSelectedValue();
         	if (selected instanceof ExecutionItem) {
         		
-        		selectedOperation = (ExecutionItem) selected;
-        		toolPanel.selectTool(selectedOperation);
+        		selectedTool = (ExecutionItem) selected;
+        		toolPanel.selectTool(selectedTool);
         		
         		// also select the category of this operation
         		// avoid category changed event which would cause limiting the visible
         		// tools to this category only
+        		ToolCategory category = ((OperationDefinition)selected).getCategory();
         		categoryList.removeListSelectionListener(this);
-        		categoryList.setSelectedValue(((OperationDefinition)selected).getCategory(), true);
+        		categoryList.setSelectedValue(category, true);
         		categoryList.addListSelectionListener(this);
+        	
+        		// also select the correct module tab
+        		toolPanel.highlightTab(category.getModule().getModuleName());
         	}
         }
     }
+    
+    public ExecutionItem getSelectedTool() {
+    	return this.selectedTool;
+    }
+    
 }

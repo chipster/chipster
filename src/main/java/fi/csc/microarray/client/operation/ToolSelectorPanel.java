@@ -49,9 +49,6 @@ public class ToolSelectorPanel extends JPanel
 	
 	private JList categoryList;
 	private JList toolList;
-	
-	private ToolCategory selectedCategory;
-	private ExecutionItem selectedTool;
 
 	private ToolModule toolModule;
 	
@@ -232,8 +229,7 @@ public class ToolSelectorPanel extends JPanel
 		if (source == categoryList) {
 			Object selected = categoryList.getSelectedValue();
 			if (selected instanceof ToolCategory) {
-				selectedCategory = (ToolCategory) selected;
-				selectedTool = null;
+				ToolCategory selectedCategory = (ToolCategory) selected;
 				toolList.setListData(selectedCategory.getToolList());
 				toolPanel.selectTool(null);
 			}
@@ -241,7 +237,7 @@ public class ToolSelectorPanel extends JPanel
 		} else if (source == toolList) {
 			Object selected = toolList.getSelectedValue();
 			if (selected instanceof ExecutionItem) {
-				selectedTool = (ExecutionItem) selected;
+				ExecutionItem selectedTool = (ExecutionItem) selected;
 				toolPanel.selectTool(selectedTool);
 			}
 		}
@@ -250,4 +246,15 @@ public class ToolSelectorPanel extends JPanel
 	public String getModuleName() {
 		return toolModule.getModuleName();
 	}
+
+	/**
+	 * Also clears tool selection.
+	 * 
+	 * @param category
+	 */
+	public void selectCategory (ToolCategory category) {
+		categoryList.setSelectedValue(category, true);
+		toolPanel.selectTool(null);
+	}
+
 }

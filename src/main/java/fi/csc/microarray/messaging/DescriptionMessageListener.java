@@ -112,6 +112,7 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
         for (Category category : categories) {
             ToolCategory toolCategory = new ToolCategory(category.getName());
             toolCategory.setColor(category.getColor());
+            toolCategory.setModule(module);
             
             if (category.isHidden()) {
                 module.addHiddenToolCategory(toolCategory);
