@@ -24,8 +24,6 @@ import javax.swing.JTextArea;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
-import org.apache.log4j.Logger;
-
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dataimport.ImportUtils;
@@ -47,11 +45,6 @@ import fi.csc.microarray.util.Strings;
  */
 public class HistoryScreen extends ScreenBase
                            implements ActionListener, CaretListener {
-	/**
-	 * Logger for this class
-	 */
-	private static final Logger logger = Logger.getLogger(HistoryScreen.class);
-
 	private static final Dimension BUTTON_SIZE = new Dimension(100, 25);
 	
 	private static final ClientApplication application = Session.getSession().getApplication();
