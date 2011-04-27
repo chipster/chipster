@@ -1,8 +1,10 @@
-# ANALYSIS "Quality control"/"Affymetrix basic" (Affymetrix quality control for RNA degradation and
-# general quality parameters, such as scaling factor. This tool should be run on RAW data, i.e., CEL-files.)
-# INPUT AFFY microarray[...].cel OUTPUT RNA-degradation-plot.pdf, simpleaffy-plot.pdf, spike-in-plot.pdf
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# TOOL qc-affy.R: "Affymetrix basic" (Affymetrix quality control for RNA degradation and general quality parameters, such as scaling factor. This tool should be run on RAW data, i.e., CEL-files.)
+# INPUT microarray{...}.cel: microarray{...}.cel TYPE AFFY 
+# OUTPUT RNA-degradation-plot.pdf: RNA-degradation-plot.pdf 
+# OUTPUT simpleaffy-plot.pdf: simpleaffy-plot.pdf 
+# OUTPUT spike-in-plot.pdf: spike-in-plot.pdf 
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 
 # Affymetrix quality control

@@ -1,10 +1,9 @@
-# ANALYSIS Normalisation/"Process prenormalized" (If you import prenormalized data that is not in Chipster format, you
-# need to import it through Import tool, and then use this tool for preprocessing it. Every column containing normalized
-# expression values need to be specifies as Sample in the Import tool. If you want to be able to use annotation,
-# you need to SPECIFY THE CHIPTYPE.)
-# INPUT CDNA microarray[...].tsv OUTPUT normalized.tsv, phenodata.tsv
-# PARAMETER chiptype STRING DEFAULT empty (chiptype)
-# PARAMETER keep.annotations [yes, no] DEFAULT no (Keep or discard annotation column after preprocessing)
+# TOOL norm-prenormalized.R: "Process prenormalized" (If you import prenormalized data that is not in Chipster format, you need to import it through Import tool, and then use this tool for preprocessing it. Every column containing normalized expression values need to be specifies as Sample in the Import tool. If you want to be able to use annotation, you need to SPECIFY THE CHIPTYPE.)
+# INPUT microarray{...}.tsv: microarray{...}.tsv TYPE CDNA 
+# OUTPUT normalized.tsv: normalized.tsv 
+# OUTPUT META phenodata.tsv: phenodata.tsv 
+# PARAMETER chiptype: chiptype TYPE STRING DEFAULT empty ()
+# PARAMETER keep.annotations: keep.annotations TYPE [yes: yes, no: no] DEFAULT no (Keep or discard annotation column after preprocessing)
 
 
 # Process prenormalized

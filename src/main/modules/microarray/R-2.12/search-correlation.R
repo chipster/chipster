@@ -1,9 +1,9 @@
-# ANALYSIS Utilities/"Search by correlation" (Search similarly expressed genes using correlation. 
-# Genename should be the row name that appears in all data files, e.g., Affymetrix ID.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT search-correlation.tsv
-# PARAMETER genename STRING DEFAULT empty (Gene name)
-# PARAMETER correlation.cutoff DECIMAL FROM 0 TO 1 DEFAULT 0.95 (Correlation cut-off for similar expression)
-# PARAMETER correlation.method [pearson, spearman] DEFAULT pearson (Correlation method)
+# TOOL search-correlation.R: "Search by correlation" (Search similarly expressed genes using correlation. Genename should be the row name that appears in all data files, e.g., Affymetrix ID.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT search-correlation.tsv: search-correlation.tsv 
+# PARAMETER genename: genename TYPE STRING DEFAULT empty (Gene name)
+# PARAMETER correlation.cutoff: correlation.cutoff TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.95 (Correlation cut-off for similar expression)
+# PARAMETER correlation.method: correlation.method TYPE [pearson: pearson, spearman: spearman] DEFAULT pearson (Correlation method)
 
 
 # Search genes with correlation to another gene

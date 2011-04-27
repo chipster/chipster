@@ -1,6 +1,6 @@
 # TOOL convert-bam-to-medips.R: "Convert BAM file to MEDIPS input format" (Converts a BAM file to the MEDIPS input format.)
-# INPUT bam{...}.bam: "BAM data diles" TYPE GENERIC
-# OUTPUT MEDIPS-input{...}.tsv: "A converted BAM file suitable for MEDIPS analysis"
+# INPUT bam{...}.bam: "BAM data diles" TYPE GENERIC 
+# OUTPUT MEDIPS-input{...}.tsv: "A converted BAM file suitable for MEDIPS analysis" 
 
 # Reads the input files, converts them to the MEDIPS format, and writes the converted files on the disk
 library(Rsamtools)

@@ -1,9 +1,12 @@
-# ANALYSIS Statistics/ROTS (Reproducibility-optimized test statistic for comparing the expression levels between two groups; Elo et al. 2008) 
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT ROTS.tsv, ROTSparameters.tsv
-# PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER fdr.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (FDR cut-off for significant results)
-# PARAMETER B INTEGER FROM 10 TO 100000 DEFAULT 500 (Number of bootstrap and permutation resamplings)
-# PARAMETER K INTEGER FROM 1000 TO 100000 DEFAULT 5000 (Largest top list size considered)
+# TOOL stat-ROTS.R: ROTS (Reproducibility-optimized test statistic for comparing the expression levels between two groups; Elo et al. 2008)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT ROTS.tsv: ROTS.tsv 
+# OUTPUT ROTSparameters.tsv: ROTSparameters.tsv 
+# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
+# PARAMETER fdr.threshold: fdr.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (FDR cut-off for significant results)
+# PARAMETER B: B TYPE INTEGER FROM 10 TO 100000 DEFAULT 500 (Number of bootstrap and permutation resamplings)
+# PARAMETER K: K TYPE INTEGER FROM 1000 TO 100000 DEFAULT 5000 (Largest top list size considered)
 
 
 

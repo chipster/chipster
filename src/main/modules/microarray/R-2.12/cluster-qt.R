@@ -1,10 +1,10 @@
-# ANALYSIS Clustering/"Quality Threshold (QT)" (Quality threshold clustering for genes. Divides the genes of the selected
-# data set in a number of clusters. The number and tightness of the clusters is controlled by the option radius.
-# A suitable radius is dependent on the variability of the data set, and it may vary from one data set to another.) 
-# INPUT GENE_EXPRS normalized.tsv OUTPUT qt.tsv, qt.pdf
-# PARAMETER radius.for.similarity DECIMAL FROM 0 TO 1000 DEFAULT 20 (A radius for similar genes)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the resampling image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the resampling image)
+# TOOL cluster-qt.R: "Quality Threshold (QT\)" (Quality threshold clustering for genes. Divides the genes of the selected data set in a number of clusters. The number and tightness of the clusters is controlled by the option radius. A suitable radius is dependent on the variability of the data set, and it may vary from one data set to another.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT qt.tsv: qt.tsv 
+# OUTPUT qt.pdf: qt.pdf 
+# PARAMETER radius.for.similarity: radius.for.similarity TYPE DECIMAL FROM 0 TO 1000 DEFAULT 20 (A radius for similar genes)
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the resampling image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the resampling image)
 
 
 # K-means clustering

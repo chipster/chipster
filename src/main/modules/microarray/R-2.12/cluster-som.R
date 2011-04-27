@@ -1,11 +1,12 @@
-# ANALYSIS Clustering/"Self-organizing map (SOM)" (Self-organizing map clustering of genes. Note that you need to
-# have at least two chips, and columns times rows number of genes in order to able to execute the analysis.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT som.tsv, som.pdf
-# PARAMETER number.of.columns INTEGER FROM 1 TO 100 DEFAULT 4 (Number of SOM grid columns)
-# PARAMETER number.of.rows INTEGER FROM 1 TO 100 DEFAULT 3 (Number of SOM grid rows)
-# PARAMETER coloring.scheme [Red-Green, Blue-Yellow, Black-White] DEFAULT Blue-Yellow (Coloring scheme for the SOM map)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the resampling image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the resampling image)
+# TOOL cluster-som.R: "Self-organizing map (SOM\)" (Self-organizing map clustering of genes. Note that you need to have at least two chips, and columns times rows number of genes in order to able to execute the analysis.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT som.tsv: som.tsv 
+# OUTPUT som.pdf: som.pdf 
+# PARAMETER number.of.columns: number.of.columns TYPE INTEGER FROM 1 TO 100 DEFAULT 4 (Number of SOM grid columns)
+# PARAMETER number.of.rows: number.of.rows TYPE INTEGER FROM 1 TO 100 DEFAULT 3 (Number of SOM grid rows)
+# PARAMETER coloring.scheme: coloring.scheme TYPE [Red-Green: Red-Green, Blue-Yellow: Blue-Yellow, Black-White: Black-White] DEFAULT Blue-Yellow (Coloring scheme for the SOM map)
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the resampling image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the resampling image)
 
 
 # Self-organizing map

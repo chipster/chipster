@@ -1,10 +1,9 @@
-# ANALYSIS Statistics/"Association analysis" (Association tests for normalized SNP array data. Runs a Chi square test
-# for every SNP. Hardy-Weinberg equilibrium is tested in controls only. Association tests use the grouping information
-# of sample in group column of phenodata. Association tests are run for genotype frequences and dominant and recessive
-# models.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT assoc.tsv
-# PARAMETER test.for [Hardy-Weinberg, association] DEFAULT association (What to test for)
-# PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to compare)
+# TOOL stat-chisq-snp.R: "Association analysis" (Association tests for normalized SNP array data. Runs a Chi square test for every SNP. Hardy-Weinberg equilibrium is tested in controls only. Association tests use the grouping information of sample in group column of phenodata. Association tests are run for genotype frequences and dominant and recessive models.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT assoc.tsv: assoc.tsv 
+# PARAMETER test.for: test.for TYPE [Hardy-Weinberg: Hardy-Weinberg, association: association] DEFAULT association (What to test for)
+# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to compare)
 
 
 # Association analysis with normalized SNP data

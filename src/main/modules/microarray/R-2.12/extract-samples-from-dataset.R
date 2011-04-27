@@ -1,9 +1,9 @@
-# ANALYSIS Utilities/"Extract samples from dataset" (Extracts samples from a dataset. Saves the extracted samples as a
-# new dataset. If there are missing values in the specified phenodata column, the samples that do have a value are
-# extracted. If there are no missing values, the samples to be extracted have to be coded with 1, and the samples to
-# be deleted with 0 in the same column.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT extract.tsv, phenodata.tsv
-# PARAMETER column.extract METACOLUMN_SEL DEFAULT group (Phenodata column containing the samples to be extracted)
+# TOOL extract-samples-from-dataset.R: "Extract samples from dataset" (Extracts samples from a dataset. Saves the extracted samples as a new dataset. If there are missing values in the specified phenodata column, the samples that do have a value are extracted. If there are no missing values, the samples to be extracted have to be coded with 1, and the samples to be deleted with 0 in the same column.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT extract.tsv: extract.tsv 
+# OUTPUT META phenodata.tsv: phenodata.tsv 
+# PARAMETER column.extract: column.extract TYPE METACOLUMN_SEL DEFAULT group (Phenodata column containing the samples to be extracted)
 
 # Extracts subset of samples from a dataset
 # JTT 19.10.2007

@@ -1,12 +1,14 @@
-# ANALYSIS Pathways/"SAFE test for KEGG pathway enrichment" (Finds KEGG pathways that are over- 
-# or under-represented in the selected gene list.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT safeplot.png, safe.tsv
-# PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
-# PARAMETER which.ontology [KEGG, GO] DEFAULT KEGG (Which ontology to use in the test?)
-# PARAMETER minimum.category.size INTEGER FROM 1 TO 100 DEFAULT 10 (Minimum size for categories to be evaluated)
+# TOOL stat-hyperG-safe.R: "SAFE test for KEGG pathway enrichment" (Finds KEGG pathways that are over- or under-represented in the selected gene list.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT safeplot.png: safeplot.png 
+# OUTPUT safe.tsv: safe.tsv 
+# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
+# PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# PARAMETER which.ontology: which.ontology TYPE [KEGG: KEGG, GO: GO] DEFAULT KEGG (Which ontology to use in the test?)
+# PARAMETER minimum.category.size: minimum.category.size TYPE INTEGER FROM 1 TO 100 DEFAULT 10 (Minimum size for categories to be evaluated)
 
 # Modified 5.11.2009, MG
 # Accounting for changes in SparseM package regarding matrix.csr class

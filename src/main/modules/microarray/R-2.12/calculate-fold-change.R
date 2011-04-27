@@ -1,7 +1,8 @@
-# ANALYSIS Utilities/"Calculate fold change" (Calculates an arithmetic average of gene expression for replicate chips.
-# Then calculates a ratio of the averages. Works only if you have exactly two groups of samples.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT fold-change.tsv
-# PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to average.)
+# TOOL calculate-fold-change.R: "Calculate fold change" (Calculates an arithmetic average of gene expression for replicate chips. Then calculates a ratio of the averages. Works only if you have exactly two groups of samples.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT fold-change.tsv: fold-change.tsv 
+# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to average.)
 
 
 # Two-group parametric and non-parametric tests

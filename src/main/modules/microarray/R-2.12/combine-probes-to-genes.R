@@ -1,7 +1,7 @@
-# ANALYSIS Utilities/"Combine probes to genes" (Calculates an average for probes or probesets for each gene in the
-# dataset. The data file has to have a symbol column for this to work correctly.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT combined.tsv
-# PARAMETER produce.identifiers [no, yes] DEFAULT no (Should approximate identifiers for the gene be returned)
+# TOOL combine-probes-to-genes.R: "Combine probes to genes" (Calculates an average for probes or probesets for each gene in the dataset. The data file has to have a symbol column for this to work correctly.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT combined.tsv: combined.tsv 
+# PARAMETER produce.identifiers: produce.identifiers TYPE [no: no, yes: yes] DEFAULT no (Should approximate identifiers for the gene be returned)
 
 
 # Combine probes or probeset to genes

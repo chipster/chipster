@@ -1,8 +1,10 @@
-# ANALYSIS Utilities/"Average replicate chips" (Calculates averages for replicate chips.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv
-# OUTPUT average-replicates.tsv, average-phenodata.tsv
-# PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to average.)
-# PARAMETER averaging [mean, median] DEFAULT mean (Averaging using the mean or median.)
+# TOOL average-replicates.R: "Average replicate chips" (Calculates averages for replicate chips.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT average-replicates.tsv: average-replicates.tsv 
+# OUTPUT average-phenodata.tsv: average-phenodata.tsv 
+# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to average.)
+# PARAMETER averaging: averaging TYPE [mean: mean, median: median] DEFAULT mean (Averaging using the mean or median.)
 
 # Average replicate chips
 # JTT 30.7.2007

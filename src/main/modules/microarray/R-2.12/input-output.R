@@ -1,5 +1,6 @@
-# ANALYSIS Test/InputOutput (Empty analysis for testing system wide data transfer.)
-# INPUT GENERIC input.tsv OUTPUT output.tsv
+# TOOL input-output.R: InputOutput (Empty analysis for testing system wide data transfer.)
+# INPUT input.tsv: input.tsv TYPE GENERIC 
+# OUTPUT output.tsv: output.tsv 
 
 #input<-read.table(c("input.tsv"), header=T, sep="\t")
 #system("mv input.tsv output.tsv")

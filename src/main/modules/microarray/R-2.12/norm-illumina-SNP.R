@@ -1,6 +1,7 @@
-# ANALYSIS Normalisation/"Illumina SNP arrays" (Illumina SNP array preprocessing. Input should be a tab-delimited text 
-# file with genotype calls. Typically such a file is created using GenCall software from Illumina.) 
-# INPUT GENERIC chip.txt OUTPUT normalized.tsv, phenodata.tsv 
+# TOOL norm-illumina-SNP.R: "Illumina SNP arrays" (Illumina SNP array preprocessing. Input should be a tab-delimited text file with genotype calls. Typically such a file is created using GenCall software from Illumina.)
+# INPUT chip.txt: chip.txt TYPE GENERIC 
+# OUTPUT normalized.tsv: normalized.tsv 
+# OUTPUT META phenodata.tsv: phenodata.tsv 
 
 # Illumina SNP array normalization
 # JTT 22.10.2008

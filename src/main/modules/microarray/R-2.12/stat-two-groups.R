@@ -1,11 +1,11 @@
-# ANALYSIS Statistics/"Two groups tests" (Tests for comparing the mean gene expression of two groups. 
-# LPE only works, if the whole data is used, i.e., the data should not be pre-filtered, if LPE is used. 
-# Other than empiricalBayes might be slow, if run on unfiltered data.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT two-sample.tsv
-# PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER test [empiricalBayes, fast-t-test, t-test, F-test, Mann-Whitney, LPE] DEFAULT empiricalBayes (Test type)
-# PARAMETER p.value.adjustment.method [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method)
-# PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
+# TOOL stat-two-groups.R: "Two groups tests" (Tests for comparing the mean gene expression of two groups. LPE only works, if the whole data is used, i.e., the data should not be pre-filtered, if LPE is used. Other than empiricalBayes might be slow, if run on unfiltered data.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT two-sample.tsv: two-sample.tsv 
+# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
+# PARAMETER test: test TYPE [empiricalBayes: empiricalBayes, fast-t-test: fast-t-test, t-test: t-test, F-test: F-test, Mann-Whitney: Mann-Whitney, LPE: LPE] DEFAULT empiricalBayes (Test type)
+# PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [none: none, Bonferroni: Bonferroni, Holm: Holm, Hochberg: Hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
+# PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
 
 
 # Two-group parametric and non-parametric tests

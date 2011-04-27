@@ -1,8 +1,9 @@
-# ANALYSIS Normalisation/"Affymetrix exon arrays" (Affymetrix RMA preprocessing for CEL-files. 
-# YOU HAVE TO SPECIFY THE CHIPTYPE.)
-# INPUT AFFY microarray[...].cel OUTPUT normalized.tsv, phenodata.tsv 
-# PARAMETER chiptype [empty, human, mouse, rat] DEFAULT empty (Chiptype)
-# PARAMETER summary.feature [gene, exon] DEFAULT gene (Output summary type)
+# TOOL norm-affy-exon.R: "Affymetrix exon arrays" (Affymetrix RMA preprocessing for CEL-files. YOU HAVE TO SPECIFY THE CHIPTYPE.)
+# INPUT microarray{...}.cel: microarray{...}.cel TYPE AFFY 
+# OUTPUT normalized.tsv: normalized.tsv 
+# OUTPUT META phenodata.tsv: phenodata.tsv 
+# PARAMETER chiptype: chiptype TYPE [empty: empty, human: human, mouse: mouse, rat: rat] DEFAULT empty ()
+# PARAMETER summary.feature: summary.feature TYPE [gene: gene, exon: exon] DEFAULT gene (Output summary type)
 
 
 # Affymetrix normalization

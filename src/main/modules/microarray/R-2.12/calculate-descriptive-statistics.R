@@ -1,7 +1,8 @@
-# ANALYSIS Statistics/"Calculate descriptive statistics" (Calculates basic descriptive statistics for all genes.
-# These include parametric and non-parametric location and spread descriptives.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT descr-stats.tsv, descriptives.tsv
-# PARAMETER calculate.descriptives.for [genes, chips] DEFAULT genes (Descriptive statistics are calculated for...)
+# TOOL calculate-descriptive-statistics.R: "Calculate descriptive statistics" (Calculates basic descriptive statistics for all genes. These include parametric and non-parametric location and spread descriptives.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT descr-stats.tsv: descr-stats.tsv 
+# OUTPUT descriptives.tsv: descriptives.tsv 
+# PARAMETER calculate.descriptives.for: calculate.descriptives.for TYPE [genes: genes, chips: chips] DEFAULT genes (Descriptive statistics are calculated for...)
 
 
 # Two-group parametric and non-parametric tests

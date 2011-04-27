@@ -1,14 +1,12 @@
-# ANALYSIS Utilities/"Intersect lists" (Performs Boolean operations on 2 or 3 data tables or lists
-# - that have one column in common - to identify the rows that intersect, are unique or form a union. The
-# results are collected in one single table with columns for each of the operations. A Venn diagram giving
-# a visual interpretation of the results is also returned.)
-# INPUT GENERIC genelist[...].tsv OUTPUT intersect-lists-operation.tsv, intersect-lists-summary.tsv, venn-diagram-plot.pdf
-# PARAMETER common.column STRING DEFAULT empty (The name of the column that is common to the data tables.)
-# PARAMETER operation [intersection, union] DEFAULT intersection (Defines the operation to be performed on the
-# lists, where "intersection" will yield a list of only the rows that are common between lnput lists, whereas "union"
-# will yield a list of the rows that appear in any of the input lists.)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# TOOL intersect-lists.R: "Intersect lists" (Performs Boolean operations on 2 or 3 data tables or lists - that have one column in common - to identify the rows that intersect, are unique or form a union. The results are collected in one single table with columns for each of the operations. A Venn diagram giving a visual interpretation of the results is also returned.)
+# INPUT genelist{...}.tsv: genelist{...}.tsv TYPE GENERIC 
+# OUTPUT intersect-lists-operation.tsv: intersect-lists-operation.tsv 
+# OUTPUT intersect-lists-summary.tsv: intersect-lists-summary.tsv 
+# OUTPUT venn-diagram-plot.pdf: venn-diagram-plot.pdf 
+# PARAMETER common.column: common.column TYPE STRING DEFAULT empty (The name of the column that is common to the data tables.)
+# PARAMETER operation: operation TYPE [intersection: intersection, union: union] DEFAULT intersection (Defines the operation to be performed on the lists, where intersection will yield a list of only the rows that are common between lnput lists, whereas union will yield a list of the rows that appear in any of the input lists.)
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 # INPUT GENERIC genelist[...].tsv OUTPUT intersect-lists-operation.tsv, intersect-lists-summary.tsv, venn-diagram-plot.pdf
 #common.column <- "symbol"

@@ -1,9 +1,9 @@
 # TOOL ngs-create-experiment.R: "Define NGS experiment" (This tool creates a phenodata file containing descriptive information about samples and experiment setup. Please fill in, at least, the group column to describe the experiment groups to be compared for example in an analysis of differential gene expression.)
 # INPUT counts_sample_{...}.tsv: "Individual sample files with reads and counts" TYPE GENERIC 
-# OUTPUT ngs-data-table.tsv: "Data table with read counts"
-# OUTPUT phenodata.tsv: "Experiment description file"
-# PARAMETER experiment_type: "Type of experiment" TYPE [chip_seq: "ChIP-seq", rna_seq: "RNA-seq", mirna_seq: "miRNA-seq"] DEFAULT rna_seq (The value that is used for a sequence read that is not present in a sample.) 
-# PARAMETER impute_with: "Impute missing data" TYPE INTEGER FROM 0 TO 1000000 DEFAULT 0 (The value that is used for a sequence read that is not present in a sample.) 
+# OUTPUT ngs-data-table.tsv: "Data table with read counts" 
+# OUTPUT META phenodata.tsv: "Experiment description file" 
+# PARAMETER experiment_type: "Type of experiment" TYPE [chip_seq: ChIP-seq, rna_seq: RNA-seq, mirna_seq: miRNA-seq] DEFAULT rna_seq (The value that is used for a sequence read that is not present in a sample.)
+# PARAMETER impute_with: "Impute missing data" TYPE INTEGER FROM 0 TO 1000000 DEFAULT 0 (The value that is used for a sequence read that is not present in a sample.)
 
 ##############################
 #                            #

@@ -1,13 +1,13 @@
 # TOOL ngs-dea-edger.R: "Differential expression analysis using edgeR" (This tool will perform an analysis for differentially expressed sequences using the R implementation of the edge algorithm.)
-# INPUT data.tsv TYPE GENERIC
-# INPUT phenodata.tsv TYPE GENERIC
-# OUTPUT de-list.tsv
-# OUTPUT OPTIONAL ma-plot-raw-counts.png
-# OUTPUT OPTIONAL ma-plot-normalized-counts.png
-# OUTPUT OPTIONAL ma-plot-significant-counts.png
-# OUTPUT OPTIONAL mds-plot.png
+# INPUT data.tsv TYPE GENERIC 
+# INPUT META phenodata.tsv TYPE GENERIC 
+# OUTPUT de-list.tsv 
+# OUTPUT OPTIONAL ma-plot-raw-counts.png 
+# OUTPUT OPTIONAL ma-plot-normalized-counts.png 
+# OUTPUT OPTIONAL ma-plot-significant-counts.png 
+# OUTPUT OPTIONAL mds-plot.png 
 # PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER normalization: "Apply normalization" TYPE [yes, no] DEFAULT yes (If enabled, a normalization factor based on the trimmed mean of M-values \(TMM\) is performed to reduce the effect from sequencing biases.)
+# PARAMETER normalization: "Apply normalization" TYPE [yes, no] DEFAULT yes (If enabled, a normalization factor based on the trimmed mean of M-values (TMM\) is performed to reduce the effect from sequencing biases.)
 # PARAMETER dispersion_estimate: "Dispersion estimate" TYPE [common, tagwise] DEFAULT tagwise (The dispersion of counts for any given sequence can either be estimated based on the actual counts in the sample data set or be moderated across a selection of sequences with similar count numbers. The latter option, which is set by default, typically yields higher sensitivity and specificity.)
 # PARAMETER p_value_adjustment_method: "Multiple testing correction" TYPE [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method.)
 # PARAMETER p_value_threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for statistical significance.)

@@ -1,5 +1,7 @@
-# ANALYSIS Normalisation/"Normalize to specific genes" (Normalizes data to specific genes.)
-# INPUT GENE_EXPRS normalized.tsv, GENE_EXPRS normalized-too.tsv OUTPUT normalized2genes.tsv
+# TOOL norm-specific-genes.R: "Normalize to specific genes" (Normalizes data to specific genes.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT normalized-too.tsv: normalized-too.tsv TYPE GENE_EXPRS 
+# OUTPUT normalized2genes.tsv: normalized2genes.tsv 
 
 
 # Normalize the data to specific genes

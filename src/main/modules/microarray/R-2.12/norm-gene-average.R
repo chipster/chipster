@@ -1,6 +1,7 @@
-# ANALYSIS Normalisation/"Normalize to gene average" (Normalizes data so that the average signal for each gene becomes equal to the value of 1.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT normalized2geneaverage.tsv
-# PARAMETER average.method [median, mean] DEFAULT mean (Method for calculating the average)
+# TOOL norm-gene-average.R: "Normalize to gene average" (Normalizes data so that the average signal for each gene becomes equal to the value of 1.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT normalized2geneaverage.tsv: normalized2geneaverage.tsv 
+# PARAMETER average.method: average.method TYPE [median: median, mean: mean] DEFAULT mean (Method for calculating the average)
 
 # Normalize the data so that each gene has an average of 1 across the
 # chips of one data set

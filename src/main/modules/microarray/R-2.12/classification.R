@@ -1,13 +1,15 @@
-# ANALYSIS Clustering/"Classification" (Performs a classification analysis using the selected data set.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT classification.txt
-# PARAMETER method [knn, lda, dlda, slda, qda, rpart, svm, lvq, naiveBayes, nnet, bagging] DEFAULT knn (Analysis method)
-# PARAMETER standardize [yes, no] DEFAULT yes (Standardize genes before analysis)
-# PARAMETER validation.type [crossvalidate, predict] DEFAULT crossvalidate (Use crossvalidation)
-# PARAMETER crossvalidation.type [LOO] DEFAULT LOO (How to crossvalidate)
-# PARAMETER feature.selection.in.crossvalidation [yes, no] DEFAULT no (Include a feature selection step in crossvalidation)
-# PARAMETER feature.selection.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.75 (What percentage of the t-test values to discard)
-# PARAMETER group.column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER training.column METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the samples in the training groups)
+# TOOL classification.R: Classification (Performs a classification analysis using the selected data set.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT classification.txt: classification.txt 
+# PARAMETER method: method TYPE [knn: knn, lda: lda, dlda: dlda, slda: slda, qda: qda, rpart: rpart, svm: svm, lvq: lvq, naiveBayes: naiveBayes, nnet: nnet, bagging: bagging] DEFAULT knn (Analysis method)
+# PARAMETER standardize: standardize TYPE [yes: yes, no: no] DEFAULT yes (Standardize genes before analysis)
+# PARAMETER validation.type: validation.type TYPE [crossvalidate: crossvalidate, predict: predict] DEFAULT crossvalidate (Use crossvalidation)
+# PARAMETER crossvalidation.type: crossvalidation.type TYPE [LOO: LOO] DEFAULT LOO (How to crossvalidate)
+# PARAMETER feature.selection.in.crossvalidation: feature.selection.in.crossvalidation TYPE [yes: yes, no: no] DEFAULT no (Include a feature selection step in crossvalidation)
+# PARAMETER feature.selection.threshold: feature.selection.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.75 (What percentage of the t-test values to discard)
+# PARAMETER group.column: group.column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
+# PARAMETER training.column: training.column TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the samples in the training groups)
 
 
 # JTT 22.1.2009

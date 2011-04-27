@@ -1,11 +1,12 @@
-# ANALYSIS Statistics/"Several groups tests" (Tests for comparing the mean gene expression of several groups.
-# Other than empiricalBayes might be slow, if run on unfiltered data.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT multiple-sample.tsv
-# PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER test [empiricalBayes, ANOVA, Kruskal-Wallis] DEFAULT empiricalBayes (Test type)
-# PARAMETER p.value.adjustment.method [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method)
-# PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
-# PARAMETER use.simple.analysis [yes, no] DEFAULT no (Use simple analysis: if no significant genes are found, a hundred most significant genes are reported)
+# TOOL stat-several-groups.R: "Several groups tests" (Tests for comparing the mean gene expression of several groups. Other than empiricalBayes might be slow, if run on unfiltered data.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT multiple-sample.tsv: multiple-sample.tsv 
+# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
+# PARAMETER test: test TYPE [empiricalBayes: empiricalBayes, ANOVA: ANOVA, Kruskal-Wallis: Kruskal-Wallis] DEFAULT empiricalBayes (Test type)
+# PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [none: none, Bonferroni: Bonferroni, Holm: Holm, Hochberg: Hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
+# PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
+# PARAMETER use.simple.analysis: use.simple.analysis TYPE [yes: yes, no: no] DEFAULT no (Use simple analysis: if no significant genes are found, a hundred most significant genes are reported)
 
 
 # column<-"group"

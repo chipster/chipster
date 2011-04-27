@@ -1,12 +1,10 @@
-# ANALYSIS Statistics/PCA (Principal component analysis. Creates principal components using genes or samples. 
-# The number of principal component to save is controlled through the explained variablity. All principal components
-# are saved until the explained variability is exceeded, but at least 3 components are always saved.
-# Components are saved as new variables that can be used in further analyses.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT pca.tsv
-# PARAMETER do.pca.on [genes, chips] DEFAULT genes (Data to use for the analysis)
-# PARAMETER explained.variation PERCENT DEFAULT 80 (Amount of experimental variation to explain)
-# PARAMETER scaling [yes, no] DEFAULT no (Scale the data to have a unit variance)
-# PARAMETER centering [yes, no] DEFAULT yes (Scale the data to have the same mean)
+# TOOL ordination-pca.R: PCA (Principal component analysis. Creates principal components using genes or samples. The number of principal component to save is controlled through the explained variablity. All principal components are saved until the explained variability is exceeded, but at least 3 components are always saved. Components are saved as new variables that can be used in further analyses.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT pca.tsv: pca.tsv 
+# PARAMETER do.pca.on: do.pca.on TYPE [genes: genes, chips: chips] DEFAULT genes (Data to use for the analysis)
+# PARAMETER explained.variation: explained.variation TYPE PERCENT DEFAULT 80 (Amount of experimental variation to explain)
+# PARAMETER scaling: scaling TYPE [yes: yes, no: no] DEFAULT no (Scale the data to have a unit variance)
+# PARAMETER centering: centering TYPE [yes: yes, no: no] DEFAULT yes (Scale the data to have the same mean)
 
 
 # Principal component analysis

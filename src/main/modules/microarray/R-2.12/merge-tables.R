@@ -1,5 +1,7 @@
-# ANALYSIS Utilities/"Merge tables" (Merge two tables using row, i.e., gene names.)
-# INPUT GENE_EXPRS normalized.tsv, GENE_EXPRS normalized-too.tsv OUTPUT combined.tsv
+# TOOL merge-tables.R: "Merge tables" (Merge two tables using row, i.e., gene names.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT normalized-too.tsv: normalized-too.tsv TYPE GENE_EXPRS 
+# OUTPUT combined.tsv: combined.tsv 
 
 
 # Combines two different tables using gene names

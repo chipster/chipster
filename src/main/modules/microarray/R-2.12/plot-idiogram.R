@@ -1,11 +1,10 @@
-# ANALYSIS Visualisation/"Idiogram" (Plots the idiogram of genes on all chromosomes in the selected list. 
-# For each chromosome, the Y axis reports the position of the gene along the cytobands. On the X axis the 
-# fold changes of each gene are reported. Up-regulated genes are highlighted with red color, the 
-# down-regulated with green color. Currently, this works only for human, mouse and rat data.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT idiogram.pdf
-# PARAMETER chip.to.plot INTEGER FROM 1 TO 1000 DEFAULT 1 (Which chip to plot)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# TOOL plot-idiogram.R: Idiogram (Plots the idiogram of genes on all chromosomes in the selected list. For each chromosome, the Y axis reports the position of the gene along the cytobands. On the X axis the fold changes of each gene are reported. Up-regulated genes are highlighted with red color, the down-regulated with green color. Currently, this works only for human, mouse and rat data.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT idiogram.pdf: idiogram.pdf 
+# PARAMETER chip.to.plot: chip.to.plot TYPE INTEGER FROM 1 TO 1000 DEFAULT 1 (Which chip to plot)
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 
 # Plotting the idiogram of expressed genes

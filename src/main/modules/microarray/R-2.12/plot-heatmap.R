@@ -1,10 +1,11 @@
-# ANALYSIS Visualisation/"Heatmap" (Draws a heatmap using Pearson correlation and average linkage.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT heatmap.pdf
-# PARAMETER coloring.scheme [Green-Red, Blue-Yellow, Black-White] DEFAULT Blue-Yellow (Coloring scheme for the SOM map)
-# PARAMETER cluster.samples.only [yes, no] DEFAULT no (Disables clustering on the genes. This option is convenient if you
-# want to retain a predefined gene order or make a sample clustering heatmap with more than 10000 genes)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# TOOL plot-heatmap.R: Heatmap (Draws a heatmap using Pearson correlation and average linkage.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT heatmap.pdf: heatmap.pdf 
+# PARAMETER coloring.scheme: coloring.scheme TYPE [Green-Red: Green-Red, Blue-Yellow: Blue-Yellow, Black-White: Black-White] DEFAULT Blue-Yellow (Coloring scheme for the SOM map)
+# PARAMETER cluster.samples.only: cluster.samples.only TYPE [yes: yes, no: no] DEFAULT no (Disables clustering on the genes. This option is convenient if you want to retain a predefined gene order or make a sample clustering heatmap with more than 10000 genes)
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 
 # Heatmap

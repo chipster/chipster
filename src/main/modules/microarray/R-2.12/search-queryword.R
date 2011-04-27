@@ -1,11 +1,10 @@
-# ANALYSIS Utilities/"Search by gene name" (Search genes using gene names, rownames or chromosome locations. 
-# Gene name must be the gene's HUGO name, such as XRCC1. Rowname must the name of the gene that appears
-# on the rows of all data files. Chrosomome location must be a chromosome name, such as X. The "mode" option
-# determines whether the queried gene name or chromosome should be included or excluded in the output data table.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT search.tsv
-# PARAMETER search.for [rowname, Genename, ChromosomeLocation] DEFAULT rowname (What to search with)
-# PARAMETER query STRING DEFAULT empty (Query word)
-# PARAMETER mode [include, exclude] DEFAULT include (Defines whether the found genes should be included or excluded from the resulting data table.)
+# TOOL search-queryword.R: "Search by gene name" (Search genes using gene names, rownames or chromosome locations. Gene name must be the gene's HUGO name, such as XRCC1. Rowname must the name of the gene that appears on the rows of all data files. Chrosomome location must be a chromosome name, such as X. The mode option determines whether the queried gene name or chromosome should be included or excluded in the output data table.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT search.tsv: search.tsv 
+# PARAMETER search.for: search.for TYPE [rowname: rowname, Genename: Genename, ChromosomeLocation: ChromosomeLocation] DEFAULT rowname (What to search with)
+# PARAMETER query: query TYPE STRING DEFAULT empty (Query word)
+# PARAMETER mode: mode TYPE [include: include, exclude: exclude] DEFAULT include (Defines whether the found genes should be included or excluded from the resulting data table.)
 
 # Search genes by name, AffyID, correlation or chromosome location
 # JTT 4.7.2006

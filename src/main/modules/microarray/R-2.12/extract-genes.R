@@ -1,6 +1,7 @@
-# ANALYSIS Utilities/"Extract genes" (Extracts a specified number of genes from the top of the data.) 
-# INPUT GENE_EXPRS normalized.tsv OUTPUT extract-genes.tsv
-# PARAMETER number.of.genes INTEGER FROM 1 TO 1000000 DEFAULT 50 (Number of genes to extract)
+# TOOL extract-genes.R: "Extract genes" (Extracts a specified number of genes from the top of the data.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT extract-genes.tsv: extract-genes.tsv 
+# PARAMETER number.of.genes: number.of.genes TYPE INTEGER FROM 1 TO 1000000 DEFAULT 50 (Number of genes to extract)
 
 
 # Extracts genes 

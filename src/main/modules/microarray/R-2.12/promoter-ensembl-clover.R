@@ -1,18 +1,20 @@
-# ANALYSIS "Promoter Analysis"/"Clover with Ensembl" (Clover Cis eLement OVERrepresentation, see cagt.bu.edu/page/Clover_about for more information. Includes Ensembl database for Human and Mouse. Made by Mandy.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT outputclover.txt
-# PARAMETER species [human, mouse, rat, drosophila, yeast] DEFAULT human (Species)
-# PARAMETER size [small, medium, large] DEFAULT small (Length of upstream sequences)
-# PARAMETER RCrawS INTEGER FROM 0 TO 100 DEFAULT 0 (Number of randomized/control raw scores to calculate for comparison with each target raw score. Setting zero will disclude this function)
-# PARAMETER Pvalue INTEGER FROM 0 TO 100 DEFAULT 0 (P-value threshold: only print results for motifs whose P-values don't exceed this amount. Setting zero will disclude this function)
-# PARAMETER STPrintingLoc INTEGER FROM 0 TO 200 DEFAULT 0 (Score threshold for printing locations of significant motifs. This parameter doesn't affect raw score and P-value calculations, just which motif instances get printed. Setting zero will disclude this function)
-# PARAMETER nucShuffles [yes, no] DEFAULT no (Perform sequence shuffles)
-# PARAMETER DenucRandomization [yes, no] DEFAULT no (Perform dinucleotide randomizations.)
-# PARAMETER MotifShuffles [yes, no] DEFAULT no (Perform Motif Shuffles.)
-# PARAMETER MaskLowercase [yes, no] DEFAULT no (Mask any lowercase letters in the target sequences and background sequences, if any. Lowercase letters are often used to indicate repetitive elements)
-# PARAMETER Database.Selection [ucsc] DEFAULT ucsc (Database to query)
-# PARAMETER upstreamc INTEGER FROM 1 TO 2000 DEFAULT 500 (How many upstream)
-# PARAMETER downstreamc INTEGER FROM 0 TO 1500 DEFAULT 0 (How many downstream)
-# PARAMETER Motifs [jaspar] DEFAULT jaspar ( What form you would like the motifs to be in, Jasper MAO or regular)
+# TOOL promoter-ensembl-clover.R: "Clover with Ensembl" (Clover Cis eLement OVERrepresentation, see cagt.bu.edu page Clover_about for more information. Includes Ensembl database for Human and Mouse. Made by Mandy.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT outputclover.txt: outputclover.txt 
+# PARAMETER species: species TYPE [human: human, mouse: mouse, rat: rat, drosophila: drosophila, yeast: yeast] DEFAULT human ()
+# PARAMETER size: size TYPE [small: small, medium: medium, large: large] DEFAULT small (Length of upstream sequences)
+# PARAMETER RCrawS: RCrawS TYPE INTEGER FROM 0 TO 100 DEFAULT 0 (Number of randomized control raw scores to calculate for comparison with each target raw score. Setting zero will disclude this function)
+# PARAMETER Pvalue: Pvalue TYPE INTEGER FROM 0 TO 100 DEFAULT 0 (P-value threshold: only print results for motifs whose P-values don't exceed this amount. Setting zero will disclude this function)
+# PARAMETER STPrintingLoc: STPrintingLoc TYPE INTEGER FROM 0 TO 200 DEFAULT 0 (Score threshold for printing locations of significant motifs. This parameter doesn't affect raw score and P-value calculations, just which motif instances get printed. Setting zero will disclude this function)
+# PARAMETER nucShuffles: nucShuffles TYPE [yes: yes, no: no] DEFAULT no (Perform sequence shuffles)
+# PARAMETER DenucRandomization: DenucRandomization TYPE [yes: yes, no: no] DEFAULT no (Perform dinucleotide randomizations.)
+# PARAMETER MotifShuffles: MotifShuffles TYPE [yes: yes, no: no] DEFAULT no (Perform Motif Shuffles.)
+# PARAMETER MaskLowercase: MaskLowercase TYPE [yes: yes, no: no] DEFAULT no (Mask any lowercase letters in the target sequences and background sequences, if any. Lowercase letters are often used to indicate repetitive elements)
+# PARAMETER Database.Selection: Database.Selection TYPE [ucsc: ucsc] DEFAULT ucsc (Database to query)
+# PARAMETER upstreamc: upstreamc TYPE INTEGER FROM 1 TO 2000 DEFAULT 500 (How many upstream)
+# PARAMETER downstreamc: downstreamc TYPE INTEGER FROM 0 TO 1500 DEFAULT 0 (How many downstream)
+# PARAMETER Motifs: Motifs TYPE [jaspar: jaspar] DEFAULT jaspar ( What form you would like the motifs to be in, Jasper MAO or regular)
 
 # MbyM 2-2-09
 

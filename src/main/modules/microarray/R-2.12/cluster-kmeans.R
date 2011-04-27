@@ -1,9 +1,10 @@
-# ANALYSIS Clustering/K-Means (K-means clustering of genes. Divides the genes in the selected data set into a specified 
-# number of clusters.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT kmeans.tsv, kmeans.pdf
-# PARAMETER number.of.clusters INTEGER FROM 2 TO 100000 DEFAULT 5 (Number of clusters)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the resampling image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the resampling image)
+# TOOL cluster-kmeans.R: K-Means (K-means clustering of genes. Divides the genes in the selected data set into a specified number of clusters.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT kmeans.tsv: kmeans.tsv 
+# OUTPUT kmeans.pdf: kmeans.pdf 
+# PARAMETER number.of.clusters: number.of.clusters TYPE INTEGER FROM 2 TO 100000 DEFAULT 5 (Number of clusters)
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the resampling image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the resampling image)
 
 
 # K-means clustering

@@ -1,6 +1,7 @@
-# ANALYSIS Annotation/"Add annotations to data" (Annotates the genes, and adds the results to the datafile. 
-# Currently, this function only works with Agilent, Affymetrix and Illumina data.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT data-with-annotations.tsv
+# TOOL annotate-add-to-data.R: "Add annotations to data" (Annotates the genes, and adds the results to the datafile. Currently, this function only works with Agilent, Affymetrix and Illumina data.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT data-with-annotations.tsv: data-with-annotations.tsv 
 
 
 # Adds the annotation to the data

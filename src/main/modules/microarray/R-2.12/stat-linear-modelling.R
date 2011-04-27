@@ -1,19 +1,21 @@
-# ANALYSIS Statistics/"Linear modelling" (Analyzes the data using linear modelling as implemented in limma R package.
-# You can have a maximum of three main effect and their interaction in the model. On top of the main effects,
-# you can specify technical replication and pairing of the samples. Main effects can be fitted as such of as categorical
-# variables, i.e., factors. Fold changes and p-values are reported for all effects and interactions.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT limma.tsv, limma-design.tsv, foldchange.tsv, pvalues.tsv
-# PARAMETER main.effect1 METACOLUMN_SEL DEFAULT group (Main effect 1)
-# PARAMETER main.effect2 METACOLUMN_SEL DEFAULT EMPTY (Main effect 2)
-# PARAMETER main.effect3 METACOLUMN_SEL DEFAULT EMPTY (Main effect 3)
-# PARAMETER technical.replication METACOLUMN_SEL DEFAULT EMPTY (Technical replication)
-# PARAMETER pairing METACOLUMN_SEL DEFAULT EMPTY (Paired samples)
-# PARAMETER treat.main.effect1.as.factor [no, yes] DEFAULT no (Should main.effect1 be treated as a factor)
-# PARAMETER treat.main.effect2.as.factor [no, yes] DEFAULT no (Should main.effect2 be treated as a factor)
-# PARAMETER treat.main.effect3.as.factor [no, yes] DEFAULT no (Should main.effect3 be treated as a factor)
-# PARAMETER adjust.p.values [yes, no] DEFAULT yes (Should the p-values be adjusted for multiple comparisons)
-# PARAMETER p.value.adjustment.method [none, bonferroni, holm, hochberg, BH, BY] DEFAULT BH (Multiple testing correction method)
-# PARAMETER interactions [main, two-way, three-way] DEFAULT main (What to include in the model)
+# TOOL stat-linear-modelling.R: "Linear modelling" (Analyzes the data using linear modelling as implemented in limma R package. You can have a maximum of three main effect and their interaction in the model. On top of the main effects, you can specify technical replication and pairing of the samples. Main effects can be fitted as such of as categorical variables, i.e., factors. Fold changes and p-values are reported for all effects and interactions.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT limma.tsv: limma.tsv 
+# OUTPUT limma-design.tsv: limma-design.tsv 
+# OUTPUT foldchange.tsv: foldchange.tsv 
+# OUTPUT pvalues.tsv: pvalues.tsv 
+# PARAMETER main.effect1: main.effect1 TYPE METACOLUMN_SEL DEFAULT group (Main effect 1)
+# PARAMETER main.effect2: main.effect2 TYPE METACOLUMN_SEL DEFAULT EMPTY (Main effect 2)
+# PARAMETER main.effect3: main.effect3 TYPE METACOLUMN_SEL DEFAULT EMPTY (Main effect 3)
+# PARAMETER technical.replication: technical.replication TYPE METACOLUMN_SEL DEFAULT EMPTY (Technical replication)
+# PARAMETER pairing: pairing TYPE METACOLUMN_SEL DEFAULT EMPTY (Paired samples)
+# PARAMETER treat.main.effect1.as.factor: treat.main.effect1.as.factor TYPE [no: no, yes: yes] DEFAULT no (Should main.effect1 be treated as a factor)
+# PARAMETER treat.main.effect2.as.factor: treat.main.effect2.as.factor TYPE [no: no, yes: yes] DEFAULT no (Should main.effect2 be treated as a factor)
+# PARAMETER treat.main.effect3.as.factor: treat.main.effect3.as.factor TYPE [no: no, yes: yes] DEFAULT no (Should main.effect3 be treated as a factor)
+# PARAMETER adjust.p.values: adjust.p.values TYPE [yes: yes, no: no] DEFAULT yes (Should the p-values be adjusted for multiple comparisons)
+# PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [none: none, bonferroni: bonferroni, holm: holm, hochberg: hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
+# PARAMETER interactions: interactions TYPE [main: main, two-way: two-way, three-way: three-way] DEFAULT main (What to include in the model)
 
 # PARAMETER significance [main, interactions] DEFAULT main (Which p-values to return)
 

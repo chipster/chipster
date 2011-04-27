@@ -1,6 +1,6 @@
-# ANALYSIS Preprocessing/"Remove missing values" (Removal of missing values. All observations, i.e., genes that have
-# at least one missing value are excluded from the data set.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT na-omitted.tsv
+# TOOL na-omitted.R: "Remove missing values" (Removal of missing values. All observations, i.e., genes that have at least one missing value are excluded from the data set.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT na-omitted.tsv: na-omitted.tsv 
 
 
 # Removal of missing values

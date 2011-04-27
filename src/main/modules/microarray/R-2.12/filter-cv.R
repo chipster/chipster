@@ -1,6 +1,7 @@
-# ANALYSIS Preprocessing/"Filter by CV" (Filter genes by their coefficient of variation.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT cv-filter.tsv
-# PARAMETER percentage.to.filter.out DECIMAL FROM 0 TO 1 DEFAULT 0.5 (Percentage to filter out)
+# TOOL filter-cv.R: "Filter by CV" (Filter genes by their coefficient of variation.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT cv-filter.tsv: cv-filter.tsv 
+# PARAMETER percentage.to.filter.out: percentage.to.filter.out TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.5 (Percentage to filter out)
 
 
 # JTT, 14.1.2008

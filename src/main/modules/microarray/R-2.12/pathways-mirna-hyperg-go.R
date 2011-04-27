@@ -1,14 +1,15 @@
-# ANALYSIS Pathways/"GO enrichment for miRNA targets" (Performs a statistical test for enrichments of GO terms in the predicted gene targets of a list of miRNA ID:s.)
-# INPUT GENE_EXPRS normalized.tsv
-# OUTPUT hyperg_go.tsv, hyperg_go.html
-# PARAMETER ontology [all, biological_process, molecular_function, cellular_component] DEFAULT biological_process (The ontology to be analyzed.)
-# PARAMETER p.value.threshold DECIMAL DEFAULT 0.05 (P-value threshold.)
-# PARAMETER minimum.population INTEGER FROM 1 TO 1000000 DEFAULT 5 (Minimum number of genes required to be in a pathway.)
-# PARAMETER conditional.testing [yes, no] DEFAULT yes (Conditional testing means that when a significant GO term is found, i.e. p-value is smaller than the specified thershold, that GO term is removed when testing the significance of its parent.)
-# PARAMETER p.adjust.method [none, BH, BY] DEFAULT none (Method for adjusting the p-value in order to account for multiple testing. Because of the structure of GO, multiple testing is theoretically problematic, and using conditional.testing is a generally the preferred method. The correction can only be applied when no conditional.testing is performed.)
-# PARAMETER over.or.under.representation [over, under] DEFAULT over (Should over or under-represented classes be seeked?)
-# PARAMETER species [human, mouse, rat] DEFAULT human (The species for which the miRNA:s have been analyzed.)
-# PARAMETER database [PicTar, TargetScan, both] DEFAULT both (For human data this parameter defines whether to fetch predicted gene targets from either PicTar or TargetScan databases, or whether to restrict the enrichment analysis to those targets that are common to both databases. To last option is recommended to minimize the occurrence of false positives.) 
+# TOOL pathways-mirna-hyperg-go.R: "GO enrichment for miRNA targets" (Performs a statistical test for enrichments of GO terms in the predicted gene targets of a list of miRNA ID:s.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT hyperg_go.tsv: hyperg_go.tsv 
+# OUTPUT hyperg_go.html: hyperg_go.html 
+# PARAMETER ontology: ontology TYPE [all: all, biological_process: biological_process, molecular_function: molecular_function, cellular_component: cellular_component] DEFAULT biological_process (The ontology to be analyzed.)
+# PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL DEFAULT 0.05 (P-value threshold.)
+# PARAMETER minimum.population: minimum.population TYPE INTEGER FROM 1 TO 1000000 DEFAULT 5 (Minimum number of genes required to be in a pathway.)
+# PARAMETER conditional.testing: conditional.testing TYPE [yes: yes, no: no] DEFAULT yes (Conditional testing means that when a significant GO term is found, i.e. p-value is smaller than the specified thershold, that GO term is removed when testing the significance of its parent.)
+# PARAMETER p.adjust.method: p.adjust.method TYPE [none: none, BH: BH, BY: BY] DEFAULT none (Method for adjusting the p-value in order to account for multiple testing. Because of the structure of GO, multiple testing is theoretically problematic, and using conditional.testing is a generally the preferred method. The correction can only be applied when no conditional.testing is performed.)
+# PARAMETER over.or.under.representation: over.or.under.representation TYPE [over: over, under: under] DEFAULT over (Should over or under-represented classes be seeked?)
+# PARAMETER species: species TYPE [human: human, mouse: mouse, rat: rat] DEFAULT human (The species for which the miRNA:s have been analyzed.)
+# PARAMETER database: database TYPE [PicTar: PicTar, TargetScan: TargetScan, both: both] DEFAULT both (For human data this parameter defines whether to fetch predicted gene targets from either PicTar or TargetScan databases, or whether to restrict the enrichment analysis to those targets that are common to both databases. To last option is recommended to minimize the occurrence of false positives.)
 
 # miRNA hypergeometric test for GO
 # MG, 4.11.2009

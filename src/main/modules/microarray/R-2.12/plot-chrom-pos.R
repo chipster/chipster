@@ -1,10 +1,10 @@
-# ANALYSIS Visualisation/"Chromosomal position" (Plots the chromosomal positions of genes in the selected list. 
-# Currently, this works only for human, mouse and rat data. Before plotting, chips are scaled in order to
-# infer the up- or down-regulation status.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT chromloc.pdf
-# PARAMETER chip.to.plot INTEGER FROM 1 TO 1000 DEFAULT 1 (Which chip to plot)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# TOOL plot-chrom-pos.R: "Chromosomal position" (Plots the chromosomal positions of genes in the selected list. Currently, this works only for human, mouse and rat data. Before plotting, chips are scaled in order to infer the up- or down-regulation status.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT chromloc.pdf: chromloc.pdf 
+# PARAMETER chip.to.plot: chip.to.plot TYPE INTEGER FROM 1 TO 1000 DEFAULT 1 (Which chip to plot)
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 
 # Plotting the chromosomal position of expressed genes

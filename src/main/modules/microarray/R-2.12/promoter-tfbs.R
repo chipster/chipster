@@ -1,14 +1,15 @@
-# ANALYSIS "Promoter Analysis"/Weeder (Finds common sequence motifs in the promoters of input genes. 
-# Promoter sequences are automatically retrieved from a central database. Currently works only for human, mouse, 
-# rat, drosophila, and yeast data.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT seqs.html, seqs.txt.wee
-# PARAMETER species [human, mouse, rat, drosophila, yeast] DEFAULT human (Species)
-# PARAMETER promoter.size [small, medium, large] DEFAULT small (Length of upstream sequences)
-# PARAMETER strands [single, both] DEFAULT single (Analyze both strands of DNA)
-# PARAMETER appears.more.than.once [yes, no] DEFAULT no (Could the motif appear more than once in every sequence)
-# PARAMETER no.of.motifs INTEGER FROM 1 TO 100 DEFAULT 10 (Number of motifs to return)
-# PARAMETER percentage INTEGER FROM 1 TO 100 DEFAULT 50 (Percentage of sequences the motif should appear)
-# PARAMETER tfsize [small, medium] DEFAULT small (Transcription factor binding site size)
+# TOOL promoter-tfbs.R: Weeder (Finds common sequence motifs in the promoters of input genes. Promoter sequences are automatically retrieved from a central database. Currently works only for human, mouse, rat, drosophila, and yeast data.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT seqs.html: seqs.html 
+# OUTPUT seqs.txt.wee: seqs.txt.wee 
+# PARAMETER species: species TYPE [human: human, mouse: mouse, rat: rat, drosophila: drosophila, yeast: yeast] DEFAULT human ()
+# PARAMETER promoter.size: promoter.size TYPE [small: small, medium: medium, large: large] DEFAULT small (Length of upstream sequences)
+# PARAMETER strands: strands TYPE [single: single, both: both] DEFAULT single (Analyze both strands of DNA)
+# PARAMETER appears.more.than.once: appears.more.than.once TYPE [yes: yes, no: no] DEFAULT no (Could the motif appear more than once in every sequence)
+# PARAMETER no.of.motifs: no.of.motifs TYPE INTEGER FROM 1 TO 100 DEFAULT 10 (Number of motifs to return)
+# PARAMETER percentage: percentage TYPE INTEGER FROM 1 TO 100 DEFAULT 50 (Percentage of sequences the motif should appear)
+# PARAMETER tfsize: tfsize TYPE [small: small, medium: medium] DEFAULT small (Transcription factor binding site size)
 
 # Promoter sequence analysis
 # JTT 17.11.2006

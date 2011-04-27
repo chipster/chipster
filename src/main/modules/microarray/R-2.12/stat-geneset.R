@@ -1,14 +1,14 @@
-# ANALYSIS Pathways/"Gene set test" (Testing the significance of a bunch of genes as group, not separately.
-# This tool makes a global test of gene expression, and gives the significance of the expression 
-# of a group of genes. You can use your own genelist or search for the most sigficant KEGG or GO pathways. Searching
-# for the most significant pathways works only, if the whole dataset is used, i.e, data should not be prefiltered.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT multtest.pdf, globaltest-result-table.tsv
-# PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER pathway.or.genelist [KEGG, GO, current] DEFAULT KEGG (Which gene list to test)
-# PARAMETER use.multiple.testing.correction [yes, no] DEFAULT yes (Should multiple testing correction be used)
-# PARAMETER number.of.groups.to.visualize [4, 9, 16] DEFAULT 4 (Number of most significant groups to visualize)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# TOOL stat-geneset.R: "Gene set test" (Testing the significance of a bunch of genes as group, not separately. This tool makes a global test of gene expression, and gives the significance of the expression of a group of genes. You can use your own genelist or search for the most sigficant KEGG or GO pathways. Searching for the most significant pathways works only, if the whole dataset is used, i.e, data should not be prefiltered.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT multtest.pdf: multtest.pdf 
+# OUTPUT globaltest-result-table.tsv: globaltest-result-table.tsv 
+# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
+# PARAMETER pathway.or.genelist: pathway.or.genelist TYPE [KEGG: KEGG, GO: GO, current: current] DEFAULT KEGG (Which gene list to test)
+# PARAMETER use.multiple.testing.correction: use.multiple.testing.correction TYPE [yes: yes, no: no] DEFAULT yes (Should multiple testing correction be used)
+# PARAMETER number.of.groups.to.visualize: number.of.groups.to.visualize TYPE [4: 4, 9: 9, 16: 16] DEFAULT 4 (Number of most significant groups to visualize)
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 
 # Testing the statistical significance of several genes as a group or using KEGG or GO pathways

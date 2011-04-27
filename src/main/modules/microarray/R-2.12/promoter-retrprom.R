@@ -1,8 +1,9 @@
-# ANALYSIS "Promoter Analysis"/"Retrieve promoters" (Retrieves promoters of the selected genes from UCSC genome 
-# database.Currently works only for human, mouse, rat, drosophila, and yeast data.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT seqs.txt
-# PARAMETER species [human, mouse, rat, drosophila, yeast] DEFAULT human (Species)
-# PARAMETER promoter.size [small, medium, large] DEFAULT small (Length of upstream sequences)
+# TOOL promoter-retrprom.R: "Retrieve promoters" (Retrieves promoters of the selected genes from UCSC genome database.Currently works only for human, mouse, rat, drosophila, and yeast data.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT seqs.txt: seqs.txt 
+# PARAMETER species: species TYPE [human: human, mouse: mouse, rat: rat, drosophila: drosophila, yeast: yeast] DEFAULT human ()
+# PARAMETER promoter.size: promoter.size TYPE [small: small, medium: medium, large: large] DEFAULT small (Length of upstream sequences)
 
 
 # JTT 17.7.2007

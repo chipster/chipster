@@ -1,12 +1,13 @@
-# ANALYSIS Visualisation/"Volcano plot" (Tests whether the genes are differentially expressed using one-sample t-test,
-# and plots the result in a form of a Volcano plot, but a table with the original data, the scaled fold change values and the adjusted p-values is also output.
-# This tool is best suited for 2-color array data, where the comparison to a common reference is done on the array.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT volcanoP.pdf, volcanoSE.pdf, one-sample.tsv
-# PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
-# PARAMETER expression.threshold DECIMAL FROM -10 TO 10 DEFAULT 1 (Expression threshold for plotting) 
-# PARAMETER p.value.adjustment.method [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# TOOL plot-volcano.R: "Volcano plot" (Tests whether the genes are differentially expressed using one-sample t-test, and plots the result in a form of a Volcano plot, but a table with the original data, the scaled fold change values and the adjusted p-values is also output. This tool is best suited for 2-color array data, where the comparison to a common reference is done on the array.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT volcanoP.pdf: volcanoP.pdf 
+# OUTPUT volcanoSE.pdf: volcanoSE.pdf 
+# OUTPUT one-sample.tsv: one-sample.tsv 
+# PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
+# PARAMETER expression.threshold: expression.threshold TYPE DECIMAL FROM -10 TO 10 DEFAULT 1 (Expression threshold for plotting)
+# PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [none: none, Bonferroni: Bonferroni, Holm: Holm, Hochberg: Hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 # Volcano plot
 # JTT 19.9.2007

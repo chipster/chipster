@@ -1,4 +1,4 @@
-# ANALYSIS Test/Fail (R job which fails.)
+# TOOL fail.R: Fail (R job which fails.)
 
 failme please
 

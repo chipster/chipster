@@ -1,7 +1,7 @@
-# ANALYSIS Utilities/"Extract genes from clustering" (Extracts genes from a clustering result. Specify the cluster you
-# want to extract the genes from.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT extract.tsv
-# PARAMETER cluster.number INTEGER FROM 1 TO 1000 DEFAULT 1 (Cluster number to extract genes from.)
+# TOOL extract-genes-from-clustering.R: "Extract genes from clustering" (Extracts genes from a clustering result. Specify the cluster you want to extract the genes from.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT extract.tsv: extract.tsv 
+# PARAMETER cluster.number: cluster.number TYPE INTEGER FROM 1 TO 1000 DEFAULT 1 (Cluster number to extract genes from.)
 
 
 # Extracts genes from the clustering result for a specific cluster

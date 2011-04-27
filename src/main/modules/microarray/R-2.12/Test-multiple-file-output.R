@@ -1,9 +1,9 @@
-# TOOL "Statistics" / Test-multiple-file-output.R: "Takes a table of data, extracts the first 3 rows and returns them as individual 1-row tables" (Takes a table of data, extracts the first 3 rows and returns them as individual 1-row tables)
-# INPUT table.tsv: "Data file" TYPE GENERIC
-# OUTPUT result-test-{...}.tsv: "testing multiple file output"
-# OUTPUT table_1.tsv: "also one at a time, first row"
-# OUTPUT table_2.tsv: "also one at a time, second row"
-# OUTPUT table_3.tsv: "also one at a time, thirs row"
+# TOOL Test-multiple-file-output.R: "Takes a table of data, extracts the first 3 rows and returns them as individual 1-row tables" (Takes a table of data, extracts the first 3 rows and returns them as individual 1-row tables)
+# INPUT table.tsv: "Data file" TYPE GENERIC 
+# OUTPUT result-test-{...}.tsv: "testing multiple file output" 
+# OUTPUT table_1.tsv: "also one at a time, first row" 
+# OUTPUT table_2.tsv: "also one at a time, second row" 
+# OUTPUT table_3.tsv: "also one at a time, thirs row" 
 
 #####################################################
 #                                                   #

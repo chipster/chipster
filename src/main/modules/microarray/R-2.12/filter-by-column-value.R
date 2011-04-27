@@ -1,9 +1,9 @@
-# ANALYSIS Preprocessing/"Filter using a column value" (Allows the user to filter the genes on the basis of one numerical column.)
-# INPUT GENERIC normalized.tsv OUTPUT column-filter3.tsv
-# PARAMETER column COLUMN_SEL (Data column to filter by)
-# PARAMETER cutoff DECIMAL DEFAULT 1 (Cut-off for filtering)
-# PARAMETER smaller.or.larger [equal-to, smaller-than, larger-than, within, outside] DEFAULT smaller-than (Smaller or larger than the cutoff is filtered.
-# Use the "within" or "outside" options to filter symmmetrically around two cut-offs, useful for example when searching for 2-fold up- and down-regulated genes.)
+# TOOL filter-by-column-value.R: "Filter using a column value" (Allows the user to filter the genes on the basis of one numerical column.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENERIC 
+# OUTPUT column-filter3.tsv: column-filter3.tsv 
+# PARAMETER column: column TYPE COLUMN_SEL (Data column to filter by)
+# PARAMETER cutoff: cutoff TYPE DECIMAL DEFAULT 1 (Cut-off for filtering)
+# PARAMETER smaller.or.larger: smaller.or.larger TYPE [equal-to: equal-to, smaller-than: smaller-than, larger-than: larger-than, within: within, outside: outside] DEFAULT smaller-than (Smaller or larger than the cutoff is filtered. Use the within or outside options to filter symmmetrically around two cut-offs, useful for example when searching for 2-fold up- and down-regulated genes.)
 
 # Filter on the basis of continuous values in a column
 # JTT 31.1.2008

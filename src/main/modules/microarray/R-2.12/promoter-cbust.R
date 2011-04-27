@@ -1,14 +1,14 @@
-# ANALYSIS "Promoter Analysis"/ClusterBuster (Does a search for known transcription factor binding sites from
-# input sequences using matrices from the Jaspar database. Promoter sequences are automatically retrieved from
-# a central database. Currently works only for human, mouse, rat, drosophila, and yeast data.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT clusters.txt
-# PARAMETER species [human, mouse, rat, drosophila, yeast] DEFAULT human (Species)
-# PARAMETER promoter.size [small, medium, large] DEFAULT small (Length of upstream sequences)
-# PARAMETER cluster.score.threshold INTEGER FROM 1 TO 100 DEFAULT 5 (Print details of all motif clusters with score >= this value)
-# PARAMETER motif.score.threshold INTEGER FROM 1 TO 100 DEFAULT 6 (Print details of all motif matches that have score >= this value and occur within printed clusters)
-# PARAMETER expect.dist.to.neighbor.motifs INTEGER FROM 1 TO 5000 DEFAULT 35 (The expected distance in bp between neighboring motifs in a cluster)
-# PARAMETER range.for.counting.nucl.freqs INTEGER FROM 1 TO 10000 DEFAULT 100 (Range in bp for counting local nucleotide abundances)
-# PARAMETER pseudocount DECIMAL FROM 0 TO 100 DEFAULT 0.375 (This value gets added to all entries in the motif matrices)
+# TOOL promoter-cbust.R: ClusterBuster (Does a search for known transcription factor binding sites from input sequences using matrices from the Jaspar database. Promoter sequences are automatically retrieved from a central database. Currently works only for human, mouse, rat, drosophila, and yeast data.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT clusters.txt: clusters.txt 
+# PARAMETER species: species TYPE [human: human, mouse: mouse, rat: rat, drosophila: drosophila, yeast: yeast] DEFAULT human ()
+# PARAMETER promoter.size: promoter.size TYPE [small: small, medium: medium, large: large] DEFAULT small (Length of upstream sequences)
+# PARAMETER cluster.score.threshold: cluster.score.threshold TYPE INTEGER FROM 1 TO 100 DEFAULT 5 (Print details of all motif clusters with score >= this value)
+# PARAMETER motif.score.threshold: motif.score.threshold TYPE INTEGER FROM 1 TO 100 DEFAULT 6 (Print details of all motif matches that have score >= this value and occur within printed clusters)
+# PARAMETER expect.dist.to.neighbor.motifs: expect.dist.to.neighbor.motifs TYPE INTEGER FROM 1 TO 5000 DEFAULT 35 (The expected distance in bp between neighboring motifs in a cluster)
+# PARAMETER range.for.counting.nucl.freqs: range.for.counting.nucl.freqs TYPE INTEGER FROM 1 TO 10000 DEFAULT 100 (Range in bp for counting local nucleotide abundances)
+# PARAMETER pseudocount: pseudocount TYPE DECIMAL FROM 0 TO 100 DEFAULT 0.375 (This value gets added to all entries in the motif matrices)
 
 
 # JTT 15.12.2006

@@ -1,8 +1,8 @@
-# TOOL "Utilities" / ngs-generate-phenodata.R: "Generate experiment from seq samples" (This tool will group single files with sequence counts into a table and create a phenodata file for describing the experiment setup.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT phenodata.tsv, normalized.tsv
-# PARAMETER chiptype STRING DEFAULT empty (Chiptype)
-# INPUT GENERIC sample[...].tsv 
-# OUTPUT phenodata.tsv, normalized.tsv
+# TOOL ngs-generate-phenodata.R: "Generate experiment from seq samples" (This tool will group single files with sequence counts into a table and create a phenodata file for describing the experiment setup.)
+# INPUT normalized.tsv TYPE GENERIC 
+# OUTPUT META phenodata.tsv 
+# OUTPUT normalized.tsv 
+# PARAMETER chiptype TYPE STRING DEFAULT empty (Chiptype)
 
 ##############################################################
 #                                                            #
