@@ -1,7 +1,8 @@
-# ANALYSIS Utilities/"Extract genes from KEGG pathway" (Fetches the genes that belong to a given KEGG pathway, defined either by ID or description.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv
-# OUTPUT extracted-from-KEGG.tsv
-# PARAMETER match.term STRING DEFAULT empty (The identifier for the KEGG pathway to extract genes from.)
+# TOOL extract-genes-from-kegg.R: "Extract genes from KEGG pathway" (Fetches the genes that belong to a given KEGG pathway, defined either by ID or description.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT extracted-from-KEGG.tsv: extracted-from-KEGG.tsv 
+# PARAMETER match.term: match.term TYPE STRING DEFAULT empty (The identifier for the KEGG pathway to extract genes from.)
 
 # Extract the rows from a table that contain probes that map genes annotated
 # to a given KEGG pathway

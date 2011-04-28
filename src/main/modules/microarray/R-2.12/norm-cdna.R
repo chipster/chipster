@@ -1,10 +1,11 @@
-# ANALYSIS Normalisation/cDNA (cDNA data preprocessing. Automatically averages all the rows,
-# i.e., genes that have the same name.)
-# INPUT CDNA microarray[...].tsv OUTPUT normalized.tsv, phenodata.tsv
-# PARAMETER background.treatment [none, subtract, edwards, normexp] DEFAULT normexp (Background treatment method)
-# PARAMETER background.offset [0, 50] DEFAULT 50 (Background offset)
-# PARAMETER normalize.arrays [none, median, loess] DEFAULT loess (Within array normalization method)
-# PARAMETER normalize.genes [none, scale, quantile, Aquantile, vsn] DEFAULT none (Between arrays normalization method)
+# TOOL norm-cdna.R: cDNA (cDNA data preprocessing. Automatically averages all the rows, i.e., genes that have the same name.)
+# INPUT microarray{...}.tsv: microarray{...}.tsv TYPE CDNA 
+# OUTPUT normalized.tsv: normalized.tsv 
+# OUTPUT META phenodata.tsv: phenodata.tsv 
+# PARAMETER background.treatment: background.treatment TYPE [none: none, subtract: subtract, edwards: edwards, normexp: normexp] DEFAULT normexp (Background treatment method)
+# PARAMETER background.offset: background.offset TYPE [0: 0, 50: 50] DEFAULT 50 (Background offset)
+# PARAMETER normalize.arrays: normalize.arrays TYPE [none: none, median: median, loess: loess] DEFAULT loess (Within array normalization method)
+# PARAMETER normalize.genes: normalize.genes TYPE [none: none, scale: scale, quantile: quantile, Aquantile: Aquantile, vsn: vsn] DEFAULT none (Between arrays normalization method)
 
 
 # cDNA chip normalization

@@ -1,6 +1,7 @@
-# ANALYSIS Utilities/"Calculate sample correlations" (Calculates correlations between samples.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT cor.tsv
-# PARAMETER correlation.method [pearson, spearman] DEFAULT pearson (Correlation measure)
+# TOOL calculate-correlation.R: "Calculate sample correlations" (Calculates correlations between samples.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT cor.tsv: cor.tsv 
+# PARAMETER correlation.method: correlation.method TYPE [pearson: pearson, spearman: spearman] DEFAULT pearson (Correlation measure)
 
 
 # Correlogram

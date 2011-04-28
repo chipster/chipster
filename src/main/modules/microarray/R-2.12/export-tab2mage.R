@@ -1,9 +1,7 @@
-# ANALYSIS Utilities/"Export tab2mage format" (Writes out a text file in tab2mage format. This file is suitable for batch
-# submission to ArrayExpress database. The scripts writes out a blank file, which you need to fill yourself.
-# This file does not necessarily cover all experimental situations, and especially the hybridization section
-# might need modifications. For more information, see tab2mage documentation at 
-# http://tab2mage.sourceforge.net/docs/index.html.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT tab2mage.txt 
+# TOOL export-tab2mage.R: "Export tab2mage format" (Writes out a text file in tab2mage format. This file is suitable for batch submission to ArrayExpress database. The scripts writes out a blank file, which you need to fill yourself. This file does not necessarily cover all experimental situations, and especially the hybridization section might need modifications. For more information, see tab2mage documentation at http: tab2mage.sourceforge.net docs index.html.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT tab2mage.txt: tab2mage.txt 
 
 
 # Writes out a blank tab2mage description of the experiment

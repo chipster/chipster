@@ -1,8 +1,10 @@
-# ANALYSIS Visualisation/"Venn diagram" (Draws a Venn diagram for the three selected gene lists. Select the gene lists
-# from the Workflow view of Datasets before running this tool.)
-# INPUT GENE_EXPRS normalized1.tsv, GENE_EXPRS normalized2.tsv, GENE_EXPRS normalized3.tsv OUTPUT venn.pdf
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# TOOL plot-venn-diagram.R: "Venn diagram" (Draws a Venn diagram for the three selected gene lists. Select the gene lists from the Workflow view of Datasets before running this tool.)
+# INPUT normalized1.tsv: normalized1.tsv TYPE GENE_EXPRS 
+# INPUT normalized2.tsv: normalized2.tsv TYPE GENE_EXPRS 
+# INPUT normalized3.tsv: normalized3.tsv TYPE GENE_EXPRS 
+# OUTPUT venn.pdf: venn.pdf 
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 
 # Parameter settings (default) for testing purposes

@@ -1,8 +1,8 @@
-# ANALYSIS Utilities/"Extract genes from GO term" (Fetches the genes that belong to a given GO term. Note that you have to 
-# give the ID of the GO term in a format like GO:0005515.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv
-# OUTPUT extracted-from-GO.tsv
-# PARAMETER match.term STRING DEFAULT empty (String to search for.)
+# TOOL extract-genes-from-go.R: "Extract genes from GO term" (Fetches the genes that belong to a given GO term. Note that you have to give the ID of the GO term in a format like GO:0005515.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT extracted-from-GO.tsv: extracted-from-GO.tsv 
+# PARAMETER match.term: match.term TYPE STRING DEFAULT empty (String to search for.)
 
 # Extract the rows from a table that contain probes that map genes annotated
 # to a given gene ontology term

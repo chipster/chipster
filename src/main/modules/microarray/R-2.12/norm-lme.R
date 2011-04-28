@@ -1,10 +1,9 @@
-# ANALYSIS Normalisation/"Random effects" (Removes the possible effect of random effects from the normalized expression
-# values of every gene. This can be used for removing batch effects due to day, technician, etc. from the data. 
-# You should have a column in your phenodata that defines the random effects groups, currently
-# only two groups are allowed.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT normalized-lme.tsv
-# PARAMETER column.groups METACOLUMN_SEL DEFAULT group (Phenodata column containing group effects)
-# PARAMETER column.random METACOLUMN_SEL DEFAULT random (Phenodata column containing random effects groups)
+# TOOL norm-lme.R: "Random effects" (Removes the possible effect of random effects from the normalized expression values of every gene. This can be used for removing batch effects due to day, technician, etc. from the data. You should have a column in your phenodata that defines the random effects groups, currently only two groups are allowed.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT normalized-lme.tsv: normalized-lme.tsv 
+# PARAMETER column.groups: column.groups TYPE METACOLUMN_SEL DEFAULT group (Phenodata column containing group effects)
+# PARAMETER column.random: column.random TYPE METACOLUMN_SEL DEFAULT random (Phenodata column containing random effects groups)
 
 # Linear Mixed Model
 # 

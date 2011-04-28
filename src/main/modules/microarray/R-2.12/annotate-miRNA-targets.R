@@ -1,7 +1,8 @@
-# ANALYSIS Annotation/"Find miRNA targets" (Fetches the predicted gene targets of a list of miRNA ID:s in one of the following databases: miRanda, miRbase, miRtarget2, PicTar, TarBase or targetScan.)
-# INPUT GENE_EXPRS normalized_mirna.tsv OUTPUT mirna_targets.tsv
-# PARAMETER species [human] DEFAULT human (The species for which the miRNA:s have been analyzed. Mouse and rat will be supported as soon as the RmiR package from Bioconductor supports this.)
-# PARAMETER database [miranda, mirbase, mirtarget2, pictar, tarbase, targetscan] DEFAULT mirtarget2 (The database from which to search for predicted target genes.)
+# TOOL annotate-miRNA-targets.R: "Find miRNA targets" (Fetches the predicted gene targets of a list of miRNA ID:s in one of the following databases: miRanda, miRbase, miRtarget2, PicTar, TarBase or targetScan.)
+# INPUT normalized_mirna.tsv: normalized_mirna.tsv TYPE GENE_EXPRS 
+# OUTPUT mirna_targets.tsv: mirna_targets.tsv 
+# PARAMETER species: species TYPE [human: human] DEFAULT human (The species for which the miRNA:s have been analyzed. Mouse and rat will be supported as soon as the RmiR package from Bioconductor supports this.)
+# PARAMETER database: database TYPE [miranda: miranda, mirbase: mirbase, mirtarget2: mirtarget2, pictar: pictar, tarbase: tarbase, targetscan: targetscan] DEFAULT mirtarget2 (The database from which to search for predicted target genes.)
 
 # miRNA hypergeometric test for GO
 # MG, 22.2.2010

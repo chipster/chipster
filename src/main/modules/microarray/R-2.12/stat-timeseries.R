@@ -1,14 +1,15 @@
-# ANALYSIS Statistics/"Time series" (Analyses of time series data. Finds periodically expressed genes. 
-# For the ICA method, a standard deviation threshold for significantly differentially expressed genes is needed.
-# If there are more than one replicate per time point, this tool will not work.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT timeseries.tsv, profiles.pdf
-# PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the time to test)
-# PARAMETER analysis.type [periodicity, ica] DEFAULT periodicity (Analysis type)
-# PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
-# PARAMETER p.value.adjustment.method [yes, no] DEFAULT yes (Apply Benjamimi-Hochberg correction?)
-# PARAMETER SD.for.ICA DECIMAL FROM 0 TO 10 DEFAULT 2.0 (Standard deviation for ICA)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# TOOL stat-timeseries.R: "Time series" (Analyses of time series data. Finds periodically expressed genes. For the ICA method, a standard deviation threshold for significantly differentially expressed genes is needed. If there are more than one replicate per time point, this tool will not work.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT timeseries.tsv: timeseries.tsv 
+# OUTPUT profiles.pdf: profiles.pdf 
+# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the time to test)
+# PARAMETER analysis.type: analysis.type TYPE [periodicity: periodicity, ica: ica] DEFAULT periodicity (Analysis type)
+# PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
+# PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [yes: yes, no: no] DEFAULT yes (Apply Benjamimi-Hochberg correction?)
+# PARAMETER SD.for.ICA: SD.for.ICA TYPE DECIMAL FROM 0 TO 10 DEFAULT 2.0 (Standard deviation for ICA)
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 
 # Analysis methods for timeseries

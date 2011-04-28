@@ -1,7 +1,8 @@
-# ANALYSIS Utilities/"Sort genes" (Sort genes according to the selected column in ascending or descending order.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT sort-genes.tsv
-# PARAMETER column COLUMN_SEL DEFAULT EMPTY (Data file column containing the data to sort)
-# PARAMETER method [ascending, descending] DEFAULT ascending (Sort the genes from largest to smallest or vice versa)
+# TOOL sort-genes.R: "Sort genes" (Sort genes according to the selected column in ascending or descending order.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT sort-genes.tsv: sort-genes.tsv 
+# PARAMETER column: column TYPE COLUMN_SEL DEFAULT EMPTY (Data file column containing the data to sort)
+# PARAMETER method: method TYPE [ascending: ascending, descending: descending] DEFAULT ascending (Sort the genes from largest to smallest or vice versa)
 
 
 # Sort genes

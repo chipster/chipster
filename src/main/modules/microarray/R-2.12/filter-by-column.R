@@ -1,11 +1,11 @@
-# ANALYSIS Utilities/"Filter using a column" (Allows the user to filter the genes on the basis of one numerical column. Altered by Mandy to include discrete values)
-# INPUT GENERIC normalized.tsv OUTPUT column-filter3.tsv
-# PARAMETER column COLUMN_SEL (Data column to filter by)
-# PARAMETER Type [Discrete, Continuous] DEFAULT Continuous (Choose Discrete or Continuous)
-# PARAMETER cutoff DECIMAL FROM -100000 TO 100000 DEFAULT 1 (Cut-off for filtering)
-# PARAMETER discrete.match STRING DEFAULT empty (String to search for)
-# PARAMETER smaller.or.larger [equal-to, smaller-than, larger-than, within, outside] DEFAULT smaller-than (Smaller or larger than the cutoff is filtered.
-# Use the "within" or "outside" options to filter symmmetrically around two cut-offs, useful for example when searching for 2-fold up- and down-regulated genes.)
+# TOOL filter-by-column.R: "Filter using a column" (Allows the user to filter the genes on the basis of one numerical column. Altered by Mandy to include discrete values)
+# INPUT normalized.tsv: normalized.tsv TYPE GENERIC 
+# OUTPUT column-filter3.tsv: column-filter3.tsv 
+# PARAMETER column: column TYPE COLUMN_SEL (Data column to filter by)
+# PARAMETER Type: Type TYPE [Discrete: Discrete, Continuous: Continuous] DEFAULT Continuous (Choose Discrete or Continuous)
+# PARAMETER cutoff: cutoff TYPE DECIMAL FROM -100000 TO 100000 DEFAULT 1 (Cut-off for filtering)
+# PARAMETER discrete.match: discrete.match TYPE STRING DEFAULT empty (String to search for)
+# PARAMETER smaller.or.larger: smaller.or.larger TYPE [equal-to: equal-to, smaller-than: smaller-than, larger-than: larger-than, within: within, outside: outside] DEFAULT smaller-than (Smaller or larger than the cutoff is filtered. Use the within or outside options to filter symmmetrically around two cut-offs, useful for example when searching for 2-fold up- and down-regulated genes.)
 
 # Filtering using a column
 # JTT 31.1.2008

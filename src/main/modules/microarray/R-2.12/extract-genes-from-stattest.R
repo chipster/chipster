@@ -1,8 +1,8 @@
-# ANALYSIS Utilities/"Extract genes using a p-value" (Extracts genes from a statistical test result. Specify the p-value 
-# column you want to use for extracting the genes.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT extract.tsv
-# PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
-# PARAMETER p.value.column COLUMN_SEL (Column that contains the p-values)
+# TOOL extract-genes-from-stattest.R: "Extract genes using a p-value" (Extracts genes from a statistical test result. Specify the p-value column you want to use for extracting the genes.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT extract.tsv: extract.tsv 
+# PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
+# PARAMETER p.value.column: p.value.column TYPE COLUMN_SEL (Column that contains the p-values)
 
 
 # Extracts genes from the statistical test results

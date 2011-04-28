@@ -1,8 +1,8 @@
-# ANALYSIS Preprocessing/"Filter by flags" (Gene filtering using flags. If more than the specified number of
-# chips have the specified flag for a particular gene, it passes the filter, and is saved in a new data set.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT call-filtered.tsv
-# PARAMETER filter.by.flag [P, M, A, A.or.M, M.or.P] DEFAULT P (Which flag to filter by)
-# PARAMETER number.of.chips INTEGER FROM 1 TO 10000 DEFAULT 2 (How many samples the should have the specified call value)
+# TOOL filter-flags.R: "Filter by flags" (Gene filtering using flags. If more than the specified number of chips have the specified flag for a particular gene, it passes the filter, and is saved in a new data set.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT call-filtered.tsv: call-filtered.tsv 
+# PARAMETER filter.by.flag: filter.by.flag TYPE [P: P, M: M, A: A, A.or.M: A.or.M, M.or.P: M.or.P] DEFAULT P (Which flag to filter by)
+# PARAMETER number.of.chips: number.of.chips TYPE INTEGER FROM 1 TO 10000 DEFAULT 2 (How many samples the should have the specified call value)
 
 
 # Filtering using flags (calls)

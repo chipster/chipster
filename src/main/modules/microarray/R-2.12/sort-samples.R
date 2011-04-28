@@ -1,7 +1,9 @@
-# ANALYSIS Utilities/"Sort samples" (Sorts samples according to a phenodata column. The column should contain
-# numerical values, since the samples are sorted in ascending order according to the values.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT sort-samples.tsv, phenodata-sorted.tsv
-# PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column specifying how to sort)
+# TOOL sort-samples.R: "Sort samples" (Sorts samples according to a phenodata column. The column should contain numerical values, since the samples are sorted in ascending order according to the values.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT sort-samples.tsv: sort-samples.tsv 
+# OUTPUT phenodata-sorted.tsv: phenodata-sorted.tsv 
+# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column specifying how to sort)
 
 # Sort samples
 # JTT 6.2.2008

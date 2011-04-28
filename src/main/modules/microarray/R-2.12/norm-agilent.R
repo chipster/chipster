@@ -1,12 +1,13 @@
-# ANALYSIS Normalisation/"Agilent 2-color" (Agilent two-color data preprocessing. Automatically averages all the rows,
-# i.e., genes that have the same name. YOU HAVE TO SPECIFY THE CHIPTYPE.)
-# INPUT CDNA microarray[...].tsv OUTPUT normalized.tsv, phenodata.tsv
-# PARAMETER background.treatment [none, subtract, edwards, normexp] DEFAULT normexp (Background treatment method)
-# PARAMETER background.offset [0, 50] DEFAULT 50 (Background offset)
-# PARAMETER normalize.arrays [none, median, loess] DEFAULT loess (Within array normalization method)
-# PARAMETER normalize.genes [none, scale, quantile, Aquantile, vsn] DEFAULT none (Between arrays normalization method)
-# PARAMETER remove.control.probes [yes, no] DEFAULT no (Remove control probes from the dataset)
-# PARAMETER chiptype [empty, Human-1 (4100a), Human-2 (4101a), Human-1A (4110b), Human-1B (4111a), Human-Whole-Genome (4112a), Mouse (4104a), Mouse (4120a), Mouse (4121a), Mouse (4122a), Rat (4105a), Rat (4130a), Rat (4131)] DEFAULT empty (chiptype)
+# TOOL norm-agilent.R: "Agilent 2-color" (Agilent two-color data preprocessing. Automatically averages all the rows, i.e., genes that have the same name. YOU HAVE TO SPECIFY THE CHIPTYPE.)
+# INPUT microarray{...}.tsv: microarray{...}.tsv TYPE CDNA 
+# OUTPUT normalized.tsv: normalized.tsv 
+# OUTPUT META phenodata.tsv: phenodata.tsv 
+# PARAMETER background.treatment: background.treatment TYPE [none: none, subtract: subtract, edwards: edwards, normexp: normexp] DEFAULT normexp (Background treatment method)
+# PARAMETER background.offset: background.offset TYPE [0: 0, 50: 50] DEFAULT 50 (Background offset)
+# PARAMETER normalize.arrays: normalize.arrays TYPE [none: none, median: median, loess: loess] DEFAULT loess (Within array normalization method)
+# PARAMETER normalize.genes: normalize.genes TYPE [none: none, scale: scale, quantile: quantile, Aquantile: Aquantile, vsn: vsn] DEFAULT none (Between arrays normalization method)
+# PARAMETER remove.control.probes: remove.control.probes TYPE [yes: yes, no: no] DEFAULT no (Remove control probes from the dataset)
+# PARAMETER chiptype: chiptype TYPE [empty: empty, Human-1(4100a): Human-1(4100a), Human-2(4101a): Human-2(4101a), Human-1A(4110b): Human-1A(4110b), Human-1B(4111a): Human-1B(4111a), Human-Whole-Genome(4112a): Human-Whole-Genome(4112a), Mouse(4104a): Mouse(4104a), Mouse(4120a): Mouse(4120a), Mouse(4121a): Mouse(4121a), Mouse(4122a): Mouse(4122a), Rat(4105a): Rat(4105a), Rat(4130a): Rat(4130a), Rat(4131): Rat(4131)] DEFAULT empty ()
 
 # cDNA chip normalization
 # JTT 9.6.2006

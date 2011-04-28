@@ -1,6 +1,7 @@
-# ANALYSIS Normalisation/"Affymetrix SNP arrays" (Affymetrix SNP array preprocessing using CEL-files. 
-# Probe sets are automatically flagged using P/M flags.) 
-# INPUT AFFY microarray[...].cel OUTPUT normalized.tsv, phenodata.tsv 
+# TOOL norm-affy-snp.R: "Affymetrix SNP arrays" (Affymetrix SNP array preprocessing using CEL-files. Probe sets are automatically flagged using P M flags.)
+# INPUT microarray{...}.cel: microarray{...}.cel TYPE AFFY 
+# OUTPUT normalized.tsv: normalized.tsv 
+# OUTPUT META phenodata.tsv: phenodata.tsv 
 
 
 # Affymetrix SNP array normalization

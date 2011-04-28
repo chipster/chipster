@@ -1,8 +1,9 @@
-# ANALYSIS "Quality control"/"Illumina" (Illumina quality control using boxplots and density plots.
-# This tool should be run on normalized data.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT boxplot.pdf, densityplot.pdf
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# TOOL qc-illumina.R: Illumina (Illumina quality control using boxplots and density plots. This tool should be run on normalized data.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT boxplot.pdf: boxplot.pdf 
+# OUTPUT densityplot.pdf: densityplot.pdf 
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 
 # Quality control of Illumina chips

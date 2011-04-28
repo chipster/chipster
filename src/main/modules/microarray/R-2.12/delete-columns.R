@@ -1,8 +1,4 @@
-# ANALYSIS Utilities/"Delete columns" (Delete the specified column(s) from the data.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT deleted.tsv
-# PARAMETER column1 COLUMN_SEL DEFAULT EMPTY (Data column to filter by)
-# PARAMETER column2 COLUMN_SEL DEFAULT EMPTY (Data column to filter by)
-# PARAMETER deletion.type [to-right, between] DEFAULT to-right (Delete columns to the right from column1 or between the specified columns)
+# TOOL delete-columns.R: "Delete columns" (Delete the specified column(s)
 
 
 # Deletes columns from data

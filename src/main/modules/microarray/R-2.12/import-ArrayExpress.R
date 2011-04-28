@@ -1,6 +1,7 @@
-# ANALYSIS Utilities/"Import from ArrayExpress" (Import Affymetrix raw data directly from ArrayExpress, and normalise it using the RMA algorithm.)
-# OUTPUT normalized.tsv, phenodata.tsv 
-# PARAMETER accession STRING DEFAULT E-MEXP-1422 (Accession number of the experiment.)
+# TOOL import-ArrayExpress.R: "Import from ArrayExpress" (Import Affymetrix raw data directly from ArrayExpress, and normalise it using the RMA algorithm.)
+# OUTPUT normalized.tsv: normalized.tsv 
+# OUTPUT META phenodata.tsv: phenodata.tsv 
+# PARAMETER accession: accession TYPE STRING DEFAULT E-MEXP-1422 (Accession number of the experiment.)
 
 
 # 13.1.2010

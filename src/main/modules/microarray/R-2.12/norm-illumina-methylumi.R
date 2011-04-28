@@ -1,12 +1,16 @@
-# ANALYSIS Normalisation/"Illumina - methylumi pipeline" (Illumina methylation assay normalization using FinalReport files and lumi methodology.
-# TO USE THIS, YOU NEED TO IMPORT THE FinalReport FILE DIRECTLY, NOT USING THE IMPORT TOOL.)
-# INPUT GENERIC chip.tsv OUTPUT normalized.tsv, unmethylated.tsv, methylated.tsv, phenodata.tsv, QC-plot.pdf
-# PARAMETER color.balance.adjustment [none, quantile, ssn] DEFAULT quantile (Adjustment of color balance)
-# PARAMETER background.correction [none, bgAdjust2C, forcePositive] DEFAULT none (Should background adjustment be applied)
-# PARAMETER normalization [none, quantile, ssn] DEFAULT quantile (Normalization)
-# PARAMETER chiptype [Human] DEFAULT Human (chiptype)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the QC image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the QC image)
+# TOOL norm-illumina-methylumi.R: "Illumina - methylumi pipeline" (Illumina methylation assay normalization using FinalReport files and lumi methodology. TO USE THIS, YOU NEED TO IMPORT THE FinalReport FILE DIRECTLY, NOT USING THE IMPORT TOOL.)
+# INPUT chip.tsv: chip.tsv TYPE GENERIC 
+# OUTPUT normalized.tsv: normalized.tsv 
+# OUTPUT unmethylated.tsv: unmethylated.tsv 
+# OUTPUT methylated.tsv: methylated.tsv 
+# OUTPUT META phenodata.tsv: phenodata.tsv 
+# OUTPUT QC-plot.pdf: QC-plot.pdf 
+# PARAMETER color.balance.adjustment: color.balance.adjustment TYPE [none: none, quantile: quantile, ssn: ssn] DEFAULT quantile (Adjustment of color balance)
+# PARAMETER background.correction: background.correction TYPE [none: none, bgAdjust2C: bgAdjust2C, forcePositive: forcePositive] DEFAULT none (Should background adjustment be applied)
+# PARAMETER normalization: normalization TYPE [none: none, quantile: quantile, ssn: ssn] DEFAULT quantile ()
+# PARAMETER chiptype: chiptype TYPE [Human: Human] DEFAULT Human ()
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the QC image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the QC image)
 
 
 # Illumina methylation array data preprocessing and normalization for FinalReport file

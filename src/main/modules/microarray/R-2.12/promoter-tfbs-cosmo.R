@@ -1,13 +1,15 @@
-# ANALYSIS "Promoter Analysis"/Cosmo (Finds common sequence motifs in the promoters of input genes. 
-# Promoter sequences are automatically retrieved from a central database. Currently works only for human, mouse, 
-# rat, drosophila, and yeast data.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT cosmo-output.txt, seqlogo.pdf, probs.pdf
-# PARAMETER species [human, mouse, rat, drosophila, yeast] DEFAULT human (Species)
-# PARAMETER promoter.size [small, medium, large] DEFAULT small (Length of upstream sequences)
-# PARAMETER strands [single, both] DEFAULT single (Analyze both strands of DNA)
-# PARAMETER appears.more.than.once [yes, no] DEFAULT no (Could the motif appear more than once in every sequence)
-# PARAMETER percentage INTEGER FROM 1 TO 100 DEFAULT 50 (Percentage of sequences the motif should appear)
-# PARAMETER tfsize [small, medium] DEFAULT small (Transcription factor binding site size)
+# TOOL promoter-tfbs-cosmo.R: Cosmo (Finds common sequence motifs in the promoters of input genes. Promoter sequences are automatically retrieved from a central database. Currently works only for human, mouse, rat, drosophila, and yeast data.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT cosmo-output.txt: cosmo-output.txt 
+# OUTPUT seqlogo.pdf: seqlogo.pdf 
+# OUTPUT probs.pdf: probs.pdf 
+# PARAMETER species: species TYPE [human: human, mouse: mouse, rat: rat, drosophila: drosophila, yeast: yeast] DEFAULT human ()
+# PARAMETER promoter.size: promoter.size TYPE [small: small, medium: medium, large: large] DEFAULT small (Length of upstream sequences)
+# PARAMETER strands: strands TYPE [single: single, both: both] DEFAULT single (Analyze both strands of DNA)
+# PARAMETER appears.more.than.once: appears.more.than.once TYPE [yes: yes, no: no] DEFAULT no (Could the motif appear more than once in every sequence)
+# PARAMETER percentage: percentage TYPE INTEGER FROM 1 TO 100 DEFAULT 50 (Percentage of sequences the motif should appear)
+# PARAMETER tfsize: tfsize TYPE [small: small, medium: medium] DEFAULT small (Transcription factor binding site size)
 
 
 # Promoter sequence analysis

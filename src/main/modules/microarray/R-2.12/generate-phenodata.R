@@ -1,6 +1,8 @@
-# ANALYSIS Utilities/"Generate phenodata" (If run on a prenormalized file, generates a blank phenodata for it.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT phenodata.tsv, normalized.tsv
-# PARAMETER chiptype STRING DEFAULT empty (Chiptype)
+# TOOL generate-phenodata.R: "Generate phenodata" (If run on a prenormalized file, generates a blank phenodata for it.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT META phenodata.tsv: phenodata.tsv 
+# OUTPUT normalized.tsv: normalized.tsv 
+# PARAMETER chiptype: chiptype TYPE STRING DEFAULT empty ()
 
 
 # Combines two different tables using gene names

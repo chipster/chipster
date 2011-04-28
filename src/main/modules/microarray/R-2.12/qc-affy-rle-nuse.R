@@ -1,8 +1,9 @@
-# ANALYSIS "Quality control"/"Affymetrix - using RLE and NUSE" (Affymetrix quality control using NUSE and RLE. 
-# This tool should be run on RAW data, i.e., CEL-files.)
-# INPUT AFFY microarray[...].cel OUTPUT rle-plot.pdf, nuse-plot.pdf
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# TOOL qc-affy-rle-nuse.R: "Affymetrix - using RLE and NUSE" (Affymetrix quality control using NUSE and RLE. This tool should be run on RAW data, i.e., CEL-files.)
+# INPUT microarray{...}.cel: microarray{...}.cel TYPE AFFY 
+# OUTPUT rle-plot.pdf: rle-plot.pdf 
+# OUTPUT nuse-plot.pdf: nuse-plot.pdf 
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 
 # Affymetrix quality control

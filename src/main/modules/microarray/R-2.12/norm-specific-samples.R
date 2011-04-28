@@ -1,8 +1,8 @@
-# ANALYSIS Normalisation/"Normalize to specific samples" (Normalizes data to specific samples. 
-# The samples to be normalized are coded with 1 in one column of the phenodata. The samples to be normalized to
-# are coded with 0 in the same column.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT normalized2samples.tsv
-# PARAMETER column.to.normalize.by METACOLUMN_SEL DEFAULT group (Phenodata column containing the samples to be normalized)
+# TOOL norm-specific-samples.R: "Normalize to specific samples" (Normalizes data to specific samples. The samples to be normalized are coded with 1 in one column of the phenodata. The samples to be normalized to are coded with 0 in the same column.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT normalized2samples.tsv: normalized2samples.tsv 
+# PARAMETER column.to.normalize.by: column.to.normalize.by TYPE METACOLUMN_SEL DEFAULT group (Phenodata column containing the samples to be normalized)
 
 
 # Normalize the data to specific samples

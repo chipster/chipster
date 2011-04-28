@@ -1,10 +1,12 @@
-# ANALYSIS Statistics/"Sample size estimation" (Estimates sample size on the basis of a set of normalized control 
-# samples.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT size.pdf, power.pdf, delta.pdf
-# PARAMETER effect.size DECIMAL FROM 0 TO 100 DEFAULT 2 (Fold change)
-# PARAMETER alpha DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value) 
-# PARAMETER beeta DECIMAL FROM 0 TO 1 DEFAULT 0.8 (Power)
-# PARAMETER group.size INTEGER FROM 1 TO 1000 DEFAULT 4 (Sample size)
+# TOOL estimate-samplesize.R: "Sample size estimation" (Estimates sample size on the basis of a set of normalized control samples.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT size.pdf: size.pdf 
+# OUTPUT power.pdf: power.pdf 
+# OUTPUT delta.pdf: delta.pdf 
+# PARAMETER effect.size: effect.size TYPE DECIMAL FROM 0 TO 100 DEFAULT 2 (Fold change)
+# PARAMETER alpha: alpha TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 ()
+# PARAMETER beeta: beeta TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.8 ()
+# PARAMETER group.size: group.size TYPE INTEGER FROM 1 TO 1000 DEFAULT 4 (Sample size)
 
 
 # JTT 15.12.2006

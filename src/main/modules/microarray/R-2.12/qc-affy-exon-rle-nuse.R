@@ -1,10 +1,11 @@
-# ANALYSIS "Quality control"/"Affymetrix exon arrays - using RLE and NUSE" (Affymetrix quality control using NUSE and RLE. 
-# This tool should be run on RAW data, i.e., CEL-files, for exon arrays. The chip type and the summary feature have to be specified.)
-# INPUT AFFY microarray[...].cel OUTPUT rle-plot.png, nuse-plot.png
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
-# PARAMETER chiptype [empty, human, mouse, rat] DEFAULT empty (Chiptype)
-# PARAMETER summary.feature [gene, exon] DEFAULT gene (Output summary type)
+# TOOL qc-affy-exon-rle-nuse.R: "Affymetrix exon arrays - using RLE and NUSE" (Affymetrix quality control using NUSE and RLE. This tool should be run on RAW data, i.e., CEL-files, for exon arrays. The chip type and the summary feature have to be specified.)
+# INPUT microarray{...}.cel: microarray{...}.cel TYPE AFFY 
+# OUTPUT rle-plot.png: rle-plot.png 
+# OUTPUT nuse-plot.png: nuse-plot.png 
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# PARAMETER chiptype: chiptype TYPE [empty: empty, human: human, mouse: mouse, rat: rat] DEFAULT empty ()
+# PARAMETER summary.feature: summary.feature TYPE [gene: gene, exon: exon] DEFAULT gene (Output summary type)
 
 # Affymetrix quality control
 # MG 12.1.2010

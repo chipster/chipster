@@ -1,7 +1,8 @@
-# ANALYSIS Utilities/"Random sampling" (Generates a random sample of the data.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT sample.tsv
-# PARAMETER what.to.sample [genes, chips] DEFAULT genes (Sample genes or chips)
-# PARAMETER sample.size DECIMAL FROM 0 TO 100 DEFAULT 10 (Percentage of the data to sample)
+# TOOL sampling.R: "Random sampling" (Generates a random sample of the data.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT sample.tsv: sample.tsv 
+# PARAMETER what.to.sample: what.to.sample TYPE [genes: genes, chips: chips] DEFAULT genes (Sample genes or chips)
+# PARAMETER sample.size: sample.size TYPE DECIMAL FROM 0 TO 100 DEFAULT 10 (Percentage of the data to sample)
 
 
 # Random sampling

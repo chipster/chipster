@@ -1,11 +1,13 @@
-# ANALYSIS Visualisation/"Dendrogram" (Creates a dendrogram of samples using normalized data with Pearson correlation and 
-# average linkage method. The branches of the tree are colored according to the selected number of groups.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT dendrogram-color.pdf, dendrogram-bw.pdf
-# PARAMETER cluster [genes, chips] DEFAULT chips (What to cluster)
-# PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to color next to the tree)
-# PARAMETER number.of.groups INTEGER FROM 2 TO 20 DEFAULT 2 (How many groups to color to the tree)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# TOOL plot-dendrogram.R: Dendrogram (Creates a dendrogram of samples using normalized data with Pearson correlation and average linkage method. The branches of the tree are colored according to the selected number of groups.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT dendrogram-color.pdf: dendrogram-color.pdf 
+# OUTPUT dendrogram-bw.pdf: dendrogram-bw.pdf 
+# PARAMETER cluster: cluster TYPE [genes: genes, chips: chips] DEFAULT chips (What to cluster)
+# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to color next to the tree)
+# PARAMETER number.of.groups: number.of.groups TYPE INTEGER FROM 2 TO 20 DEFAULT 2 (How many groups to color to the tree)
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 
 # Dendrogram

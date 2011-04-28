@@ -1,7 +1,7 @@
-# ANALYSIS Utilities/"Export GEO's SOFT format" (Writes out a text file in GEO's SOFT format. This file is suitable for 
-# batch submission to GEO database. Before submission to GEO, you need to fill in the missing information of sample
-# descriptions and the series description.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT soft.txt 
+# TOOL export-soft.R: "Export GEO's SOFT format" (Writes out a text file in GEO's SOFT format. This file is suitable for batch submission to GEO database. Before submission to GEO, you need to fill in the missing information of sample descriptions and the series description.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT soft.txt: soft.txt 
 
 
 # Writes out an empty SOFT formatted file for that is suitable for batch submission to NCBI's GEO database once filled in

@@ -1,12 +1,12 @@
 # TOOL ngs-find-peaks-macs-two.R: "Find peaks using MACS, treatment vs. control" (This tool will search for statistically significantly enriched genomic regions in sequencing data from a ChIP-seq experiment. The analysis is performed on one or more treatment samples relative to one or more control samples.)
-# INPUT treatment.bam: "Treatment data file" TYPE GENERIC
-# INPUT control.bam: "Control data file" TYPE GENERIC
-# OUTPUT positive-peaks.tsv: "True enriched peaks"
-# OUTPUT OPTIONAL model-plot.png: "A plot of the fitted peak model"
-# OUTPUT OPTIONAL negative-peaks.tsv: "The false enriched peaks"
-# OUTPUT analysis-log.txt: "Summary of analysis settings and run"
+# INPUT treatment.bam: "Treatment data file" TYPE GENERIC 
+# INPUT control.bam: "Control data file" TYPE GENERIC 
+# OUTPUT positive-peaks.tsv: "True enriched peaks" 
+# OUTPUT OPTIONAL model-plot.png: "A plot of the fitted peak model" 
+# OUTPUT OPTIONAL negative-peaks.tsv: "The false enriched peaks" 
+# OUTPUT analysis-log.txt: "Summary of analysis settings and run" 
 # PARAMETER file.format: "File format" TYPE [ELAND, BAM, BED] DEFAULT BAM (The format of the input files.)
-# PARAMETER species: "Genome" TYPE [human, mouse, rat] DEFAULT human (the species of the samples.)
+# PARAMETER species: Genome TYPE [human, mouse, rat] DEFAULT human (the species of the samples.)
 # PARAMETER read.length: "Read length" TYPE INTEGER FROM 1 TO 200 DEFAULT 25 (The length in nucleotides of the sequence reads)
 # PARAMETER band.with: "Band width" TYPE INTEGER FROM 1 TO 1000 DEFAULT 200 (The scanning window size, typically half the average fragment size of the DNA)
 # PARAMETER p.value.threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.00001 (The cutoff for statistical significance. Since the p-values are not adjusted to account for multiple testing correction the cutoff needs to be substantially more conservative than what is usually applied.)

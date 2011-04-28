@@ -1,8 +1,7 @@
-# ANALYSIS Preprocessing/"Filter by standard deviation" (Filtering the genes according to their standard deviation. 
-# Specify the cut-off in percents. Deviation is expressed as a percentage of data to filter out. These can be made to
-# approximately correspond to SDs assuming normality of the data: 1SD=67%, 2SDs=95%, 3SDs=99.7%.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT sd-filter.tsv
-# PARAMETER percentage.to.filter.out DECIMAL FROM 0 TO 1 DEFAULT 0.997 (Percent of values to filter out)
+# TOOL filter-sd.R: "Filter by standard deviation" (Filtering the genes according to their standard deviation. Specify the cut-off in percents. Deviation is expressed as a percentage of data to filter out. These can be made to approximately correspond to SDs assuming normality of the data: 1SD=67%, 2SDs=95%, 3SDs=99.7%.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT sd-filter.tsv: sd-filter.tsv 
+# PARAMETER percentage.to.filter.out: percentage.to.filter.out TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.997 (Percent of values to filter out)
 
 # JTT, 13.7.2005
 # Heavily modified on 7.6.2006

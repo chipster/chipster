@@ -1,11 +1,12 @@
-# ANALYSIS Normalisation/"Illumina" (Illumina preprocessing using individual files. Every file includes data for one
-# array, i.e., the data that has been imported through Import tool. YOU HAVE TO SPECIFY THE CHIPTYPE.)
-# INPUT CDNA microarray[...].tsv OUTPUT normalized.tsv, phenodata.tsv
-# PARAMETER normalize.chips [none, scale, quantile, vsn] DEFAULT quantile (Between arrays normalization method)
-# PARAMETER beadstudio.version [1, 2, 3] DEFAULT 1 (BeadStudio version number) 
-# PARAMETER chiptype [empty, Human-6v1, HumanRef-8v1, Human-6v2, HumanRef-8v2, Human-6v3, HumanRef-8v3, Human-HT12, Human-HT12v4, Mouse-6v1.0a, MouseRef-8v1.0a, Mouse-6v1.1, MouseRef-8v1.1, Mouse-6v2, MouseRef-8v2, RatRef-12] DEFAULT empty (chiptype)
-# PARAMETER id.type [TargetID, ProbeID] DEFAULT TargetID (Which annotations to use) 
-# PARAMETER produce.flags [yes, no] DEFAULT no (Automatic recoding of Detection-value as flags)
+# TOOL norm-illumina.R: Illumina (Illumina preprocessing using individual files. Every file includes data for one array, i.e., the data that has been imported through Import tool. YOU HAVE TO SPECIFY THE CHIPTYPE.)
+# INPUT microarray{...}.tsv: microarray{...}.tsv TYPE CDNA 
+# OUTPUT normalized.tsv: normalized.tsv 
+# OUTPUT META phenodata.tsv: phenodata.tsv 
+# PARAMETER normalize.chips: normalize.chips TYPE [none: none, scale: scale, quantile: quantile, vsn: vsn] DEFAULT quantile (Between arrays normalization method)
+# PARAMETER beadstudio.version: beadstudio.version TYPE [1: 1, 2: 2, 3: 3] DEFAULT 1 (BeadStudio version number)
+# PARAMETER chiptype: chiptype TYPE [empty: empty, Human-6v1: Human-6v1, HumanRef-8v1: HumanRef-8v1, Human-6v2: Human-6v2, HumanRef-8v2: HumanRef-8v2, Human-6v3: Human-6v3, HumanRef-8v3: HumanRef-8v3, Human-HT12: Human-HT12, Human-HT12v4: Human-HT12v4, Mouse-6v1.0a: Mouse-6v1.0a, MouseRef-8v1.0a: MouseRef-8v1.0a, Mouse-6v1.1: Mouse-6v1.1, MouseRef-8v1.1: MouseRef-8v1.1, Mouse-6v2: Mouse-6v2, MouseRef-8v2: MouseRef-8v2, RatRef-12: RatRef-12] DEFAULT empty ()
+# PARAMETER id.type: id.type TYPE [TargetID: TargetID, ProbeID: ProbeID] DEFAULT TargetID (Which annotations to use)
+# PARAMETER produce.flags: produce.flags TYPE [yes: yes, no: no] DEFAULT no (Automatic recoding of Detection-value as flags)
 
 # Illumina data preprocessing and normalization for separate files
 # JTT 17.10.2007

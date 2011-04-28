@@ -235,9 +235,10 @@ public class ToolRepository {
 			return;
 		}
 		
-		// construct the module
+		// construct the module and register it
 		RepositoryModule module = new RepositoryModule(moduleDir, toolFile, moduleName);
-		
+		modules.add(module);
+
 		// stats
 	    int totalCount = 0;
 		int successfullyLoadedCount = 0;
@@ -331,21 +332,22 @@ public class ToolRepository {
 		    	// create the analysis description
 		    	AnalysisDescription description;
 		    	try {
-		    	    // checked cached descriptions
-		    	    // cached descriptions are updated when needed
-		    	    AnalysisDescription cachedDescription = getDescription(toolFilename);
-		    	    if (cachedDescription != null) {
-		    	        description = cachedDescription;
-		    	    } else {
 		                description = runtime.getHandler().handle(module, toolFilename, parameters);
-		    	    }
+		                
+		                // check for duplicates
+				        AnalysisDescription previousDescription = getDescription(description.getID());
+			    	    if (previousDescription != null) {
+			    	        logger.warn("not loading " + toolFilename + ": tool with the same ID already exists");
+			    	        continue;
+			    	    }
 		    	    
-		    	} catch (Exception e) {
+		    	} catch (AnalysisException e) {
 		    		logger.warn("loading " + toolFilename + " failed, could not create description", e);
 		    		continue;
 		    	}
+		    	
+		    	// register the tool
 		    	module.putDescription(description.getID(), description);
-
 		    	successfullyLoadedCount++;
 
 		    	// disabled or not
@@ -380,7 +382,6 @@ public class ToolRepository {
 				" tools, " + disabledCount + " disabled, " + hiddenCount + " hidden");
 
 		// add to modules
-		modules.add(module);
 		moduleDescriptions.add(module.getModuleDescriptionMessage());
 	}
 }

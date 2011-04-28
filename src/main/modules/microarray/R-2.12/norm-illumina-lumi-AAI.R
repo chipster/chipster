@@ -1,13 +1,11 @@
-# ANALYSIS Normalisation/"Illumina - lumi pipeline AAI" (Illumina normalization using BeadSummaryData files that reports the probe
-# identifiers as Array_Address_Id, for example 4900685, instead of Probe_Id, for example ILMN_2607609, and using lumi methodology.
-# TO USE THIS TOOL, YOU NEED TO IMPORT THE BeadSummaryData FILE DIRECTLY, NOT USING THE IMPORT TOOL.
-# Please note that processing the data with Array_Address_Id is slower and the normalization therefore takes a bit longer time than
-# the Illumina - lumi pipeline tool.)
-# INPUT GENERIC chip.tsv OUTPUT normalized.tsv, phenodata.tsv
-# PARAMETER transformation [none, vst, log2] DEFAULT log2 (How to transform the data)
-# PARAMETER background.correction [none, bgAdjust.affy] DEFAULT none (Should background adjustment be applied)
-# PARAMETER normalize.chips [none, rsn, loess, quantile, vsn] DEFAULT quantile (Between arrays normalization method)
-# PARAMETER chiptype [empty, Human, Mouse, Rat] DEFAULT empty (chiptype)
+# TOOL norm-illumina-lumi-AAI.R: "Illumina - lumi pipeline AAI" (Illumina normalization using BeadSummaryData files that reports the probe identifiers as Array_Address_Id, for example 4900685, instead of Probe_Id, for example ILMN_2607609, and using lumi methodology. TO USE THIS TOOL, YOU NEED TO IMPORT THE BeadSummaryData FILE DIRECTLY, NOT USING THE IMPORT TOOL. Please note that processing the data with Array_Address_Id is slower and the normalization therefore takes a bit longer time than the Illumina - lumi pipeline tool.)
+# INPUT chip.tsv: chip.tsv TYPE GENERIC 
+# OUTPUT normalized.tsv: normalized.tsv 
+# OUTPUT META phenodata.tsv: phenodata.tsv 
+# PARAMETER transformation: transformation TYPE [none: none, vst: vst, log2: log2] DEFAULT log2 (How to transform the data)
+# PARAMETER background.correction: background.correction TYPE [none: none, bgAdjust.affy: bgAdjust.affy] DEFAULT none (Should background adjustment be applied)
+# PARAMETER normalize.chips: normalize.chips TYPE [none: none, rsn: rsn, loess: loess, quantile: quantile, vsn: vsn] DEFAULT quantile (Between arrays normalization method)
+# PARAMETER chiptype: chiptype TYPE [empty: empty, Human: Human, Mouse: Mouse, Rat: Rat] DEFAULT empty ()
 
 # Illumina data preprocessing and normalization for BeadSummaryData that
 # uses Array_Address_Id instead of Probe_Id 
