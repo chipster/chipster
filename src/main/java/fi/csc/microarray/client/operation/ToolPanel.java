@@ -536,7 +536,7 @@ public class ToolPanel extends JPanel
 
 			// show operation info panel
 			this.showParametersTitle(false);
-			this.showOperationInfoText();
+			this.showToolInfoText();
 			parametersButton.setEnabled(true);
 
 			// update suitability label and run buttons
@@ -565,6 +565,7 @@ public class ToolPanel extends JPanel
 		}
 		executeButton.setEnabled(false);
 		parametersButton.setEnabled(false);
+		this.showToolInfoText();
 		suitabilityLabel.setIcon(null);
 		suitabilityLabel.setToolTipText("");
 	}
@@ -584,7 +585,7 @@ public class ToolPanel extends JPanel
 		updateDetailFieldMargin();
 	}
 	
-	public void showOperationInfoText() {
+	public void showToolInfoText() {
 		if (currentOperation != null) {
 			setInfoText(currentOperation.getDescription(), Color.BLACK, true);
 			sourceButton.setEnabled(true);
@@ -672,7 +673,7 @@ public class ToolPanel extends JPanel
 			this.getToolSelectorPanel(module.getModuleName()).selectCategory(category);
 			this.selectTool(tool);
 		}
-		// FIXME select previous or default?
+		// FIXME
 	}
 
 	/**

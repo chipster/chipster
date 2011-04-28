@@ -65,23 +65,15 @@ public class ToolSelectorPanel extends JPanel
         List<ToolCategory> toolCategories;
         toolCategories = Collections.list(Collections.enumeration(toolModule.getVisibleCategories()));
         
-
-		Object[] categories;
-		if (toolCategories != null) {
-			categories = new Object[toolCategories.size()];
-			for (int i = 0; i < toolCategories.size(); i++) {
-				categories[i] = toolCategories.get(i);
-			}
-		} else {
-			categories = new Object[0];
-		}
-		
-		categoryList = new JList(categories);
+		categoryList = new JList();
 		categoryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		categoryList.addListSelectionListener(this);
 		categoryList.setCellRenderer(new CategoryListRenderer());
 		categoryList.getInsets().right = 1;
 		categoryList.setName("categoryList");
+		categoryList.setListData(toolCategories.toArray());
+		
+		
 		
 		toolList = new JList();
 		toolList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -230,10 +222,17 @@ public class ToolSelectorPanel extends JPanel
 			Object selected = categoryList.getSelectedValue();
 			if (selected instanceof ToolCategory) {
 				ToolCategory selectedCategory = (ToolCategory) selected;
-				toolList.setListData(selectedCategory.getToolList());
+				toolList.clearSelection();
 				toolPanel.selectTool(null);
-			}
-			toolPanel.selectTool(null);
+				toolList.setListData(selectedCategory.getToolList());
+
+				// select the category again as selectTool(null) above has cleared the selection
+				// disable events during this selection
+				categoryList.removeListSelectionListener(this);
+        		categoryList.setSelectedValue(selectedCategory, true);
+        		categoryList.addListSelectionListener(this);
+
+ 			}
 		} else if (source == toolList) {
 			Object selected = toolList.getSelectedValue();
 			if (selected instanceof ExecutionItem) {
