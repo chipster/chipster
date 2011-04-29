@@ -49,9 +49,6 @@ public class ToolSelectorPanel extends JPanel
 	
 	private JList categoryList;
 	private JList toolList;
-	
-	private ToolCategory selectedCategory;
-	private ExecutionItem selectedTool;
 
 	private ToolModule toolModule;
 	
@@ -68,23 +65,15 @@ public class ToolSelectorPanel extends JPanel
         List<ToolCategory> toolCategories;
         toolCategories = Collections.list(Collections.enumeration(toolModule.getVisibleCategories()));
         
-
-		Object[] categories;
-		if (toolCategories != null) {
-			categories = new Object[toolCategories.size()];
-			for (int i = 0; i < toolCategories.size(); i++) {
-				categories[i] = toolCategories.get(i);
-			}
-		} else {
-			categories = new Object[0];
-		}
-		
-		categoryList = new JList(categories);
+		categoryList = new JList();
 		categoryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		categoryList.addListSelectionListener(this);
 		categoryList.setCellRenderer(new CategoryListRenderer());
 		categoryList.getInsets().right = 1;
 		categoryList.setName("categoryList");
+		categoryList.setListData(toolCategories.toArray());
+		
+		
 		
 		toolList = new JList();
 		toolList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -232,16 +221,22 @@ public class ToolSelectorPanel extends JPanel
 		if (source == categoryList) {
 			Object selected = categoryList.getSelectedValue();
 			if (selected instanceof ToolCategory) {
-				selectedCategory = (ToolCategory) selected;
-				selectedTool = null;
-				toolList.setListData(selectedCategory.getToolList());
+				ToolCategory selectedCategory = (ToolCategory) selected;
+				toolList.clearSelection();
 				toolPanel.selectTool(null);
-			}
-			toolPanel.selectTool(null);
+				toolList.setListData(selectedCategory.getToolList());
+
+				// select the category again as selectTool(null) above has cleared the selection
+				// disable events during this selection
+				categoryList.removeListSelectionListener(this);
+        		categoryList.setSelectedValue(selectedCategory, true);
+        		categoryList.addListSelectionListener(this);
+
+ 			}
 		} else if (source == toolList) {
 			Object selected = toolList.getSelectedValue();
 			if (selected instanceof ExecutionItem) {
-				selectedTool = (ExecutionItem) selected;
+				ExecutionItem selectedTool = (ExecutionItem) selected;
 				toolPanel.selectTool(selectedTool);
 			}
 		}
@@ -250,4 +245,18 @@ public class ToolSelectorPanel extends JPanel
 	public String getModuleName() {
 		return toolModule.getModuleName();
 	}
+
+	/**
+	 * 
+	 * 
+	 * @param category
+	 */
+	public void selectCategory(ToolCategory category) {
+		categoryList.setSelectedValue(category, true);
+	}
+
+	public void selectTool(OperationDefinition tool) {
+		toolList.setSelectedValue(tool, true);
+	}
+	
 }

@@ -37,6 +37,8 @@ public class ToolCategory {
 	private String name;
 	private Vector<OperationDefinition> operations;
 	private Color color;
+	private ToolModule module;
+	
 	
 	/**
 	 * Creates a new, empty ToolCategory.
@@ -109,5 +111,13 @@ public class ToolCategory {
 	 */
 	public String toString() {
 		return name;
+	}
+
+	public void setModule(ToolModule module) {
+		this.module = module;
+	}
+
+	public ToolModule getModule() {
+		return module;
 	}
 }
