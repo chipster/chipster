@@ -32,7 +32,7 @@ public class VisualisationFrameManager implements PropertyChangeListener{
 	public enum FrameType { MAIN, SIDE, WINDOW };
 	
 	public VisualisationFrameManager(){
-		Session.getSession().getApplication().addPropertyChangeListener(this);
+		Session.getSession().getApplication().addClientEventListener(this);
 		toolBar = new VisualisationToolBar();
 	}
 	

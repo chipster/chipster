@@ -21,7 +21,7 @@ public class DataSelectionManager {
 
     private ClientApplication client;
     private LinkedList<DataItem> selectedDatas = new LinkedList<DataItem>();
-    private Map<DataItem, RowSelectionManager> rowSelectionManagers = new HashMap<DataItem, RowSelectionManager>();
+    private Map<DataItem, IntegratedSelectionManager> selectionManagers = new HashMap<DataItem, IntegratedSelectionManager>();
     
     public DataSelectionManager(ClientApplication client) {
         this.client = client;
@@ -29,19 +29,17 @@ public class DataSelectionManager {
     }
     
     /**
-     * get the selection managers for each dataset. Managers are created lazily
+     * Return selection manager for each dataset. Managers are created lazily
      * only when asked to avoid extra creation with every selection.
-     * 
-     * @param data
-     * @return
+     *
      */
-    public RowSelectionManager getRowSelectionManager(DataBean data){
-    	RowSelectionManager manager;
-    	manager = rowSelectionManagers.get(data);
+    public IntegratedSelectionManager getSelectionManager(DataBean data){
+    	IntegratedSelectionManager manager;
+    	manager = selectionManagers.get(data);
     	
     	if(manager == null){
-    		manager = new RowSelectionManager(client,data);
-    		rowSelectionManagers.put(data, manager);
+    		manager = new IntegratedSelectionManager(client,data);
+    		selectionManagers.put(data, manager);
     	}
     	
     	return manager;
@@ -127,7 +125,7 @@ public class DataSelectionManager {
             }
     	}
     	if(realChange){
-    		client.dispatchEvent(new DatasetChoiceEvent(source));
+    		client.fireClientEvent(new DatasetChoiceEvent(source));
     	}
     }
     
@@ -135,7 +133,7 @@ public class DataSelectionManager {
 
         if (selectedDatas.contains(selectedItem)) {
             selectedDatas.remove(selectedItem);
-            client.dispatchEvent(new DatasetChoiceEvent(source));     
+            client.fireClientEvent(new DatasetChoiceEvent(source));     
         }
         
         // print debug
@@ -155,7 +153,7 @@ public class DataSelectionManager {
 		this.selectedDatas.clear();
 		
         if (dispatchEvent) {
-        	client.dispatchEvent(new DatasetChoiceEvent(source));        	
+        	client.fireClientEvent(new DatasetChoiceEvent(source));        	
         }
 	}
     

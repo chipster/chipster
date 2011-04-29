@@ -1,5 +1,7 @@
 package fi.csc.microarray.analyser;
 
+import java.util.Map;
+
 import fi.csc.microarray.messaging.message.JobMessage;
 
 public interface AnalysisHandler {
@@ -14,16 +16,12 @@ public interface AnalysisHandler {
 	 * Creates analysis description from a String sourceResourceName. Interpretation of sourceResourceName
 	 * is analysis handler specific. Analyser guarantees that this method is called only with supported
 	 * sourceResourceName's.
+	 * @param toolFilename 
 	 * 
 	 * @see #supports(String)
 	 */
-	public AnalysisDescription handle(String sourceResourceName) throws AnalysisException;
+	public AnalysisDescription handle(RepositoryModule module, String toolFilename, Map<String, String> parameters) throws AnalysisException;
 	
-	/**
-	 * Checks if sourceResourceName is understood by this analysis handler.
-	 */
-	public boolean supports(String sourceResourceName);
-
 	/**
 	 * Checks if given analysis description is up to date. Analyser guarantees that this method is called
 	 * only with supported descriptions.
