@@ -247,13 +247,16 @@ public class ToolSelectorPanel extends JPanel
 	}
 
 	/**
-	 * Also clears tool selection.
+	 * 
 	 * 
 	 * @param category
 	 */
-	public void selectCategory (ToolCategory category) {
+	public void selectCategory(ToolCategory category) {
 		categoryList.setSelectedValue(category, true);
-		toolPanel.selectTool(null);
 	}
 
+	public void selectTool(OperationDefinition tool) {
+		toolList.setSelectedValue(tool, true);
+	}
+	
 }

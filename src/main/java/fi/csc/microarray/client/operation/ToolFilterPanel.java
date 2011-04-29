@@ -166,6 +166,12 @@ public class ToolFilterPanel extends JPanel
         if (!filteredOperations.isEmpty()) {
         	visibleOperationsList.setSelectedValue(filteredOperations.firstElement(), true);
         }
+        
+        // no match
+        else {
+        	// unhighlight all module tabs
+        	this.toolPanel.highlightTab(null);
+        }
     }
 
 

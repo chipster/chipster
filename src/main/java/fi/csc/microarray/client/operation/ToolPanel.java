@@ -29,8 +29,8 @@ import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import org.apache.log4j.Logger;
 
@@ -99,10 +99,8 @@ public class ToolPanel extends JPanel
 	private OperationDefinition selectedOperationDefinition = null;
 	private Operation currentOperation = null;
 
-	
+	private LinkedList<ToolModule> toolModules;	
 	private ClientApplication application = Session.getSession().getApplication();
-
-	private String previousModuleCard;
 
 	private LinkedList<JButton> moduleButtons = new LinkedList<JButton>();
 	
@@ -115,6 +113,8 @@ public class ToolPanel extends JPanel
 		super(new GridBagLayout());
 		this.setPreferredSize(new Dimension(WHOLE_PANEL_WIDTH, WHOLE_PANEL_HEIGHT));
 		this.setMinimumSize(new Dimension(0,0));
+
+		this.toolModules = toolModules;
 		
 		// Gather tools for showing and searching
 		LinkedList<ToolCategory> allVisibleCategories = new LinkedList<ToolCategory>();
@@ -183,21 +183,22 @@ public class ToolPanel extends JPanel
         searchPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         // Text field
         searchField = new JTextField(20);
-        searchField.addCaretListener(new CaretListener() {
-            public void caretUpdate(CaretEvent e) {
-                // Show filtered tools
-                JTextField field = (JTextField) e.getSource();
-                if (field.getText().length() > 0) {
-                    field.setBackground(VisualConstants.COLOR_BLUE_LIGHT);
-                    if (!clearSearchButton.isAncestorOf(field)) {
-                    	field.add(clearSearchButton);
-                    }
-                	toolFilterPanel.loadFilteredOperations(field.getText());
-                    showOperationCard(TOOLS_FILTERED);
-                } else {
-                	clearSearch();
-                }
-            }
+        searchField.getDocument().addDocumentListener(new DocumentListener() {
+
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {
+				searchFieldChanged();
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent arg0) {
+				searchFieldChanged();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent arg0) {
+				searchFieldChanged();
+			}
         });
 
         // clear button in the search field
@@ -208,7 +209,8 @@ public class ToolPanel extends JPanel
         clearSearchButton.setBorder(null);
         clearSearchButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
-                clearSearch();
+                clearSearchField();
+            	returnFromSearch();
             }
         });
         
@@ -218,9 +220,8 @@ public class ToolPanel extends JPanel
 			@Override
 			public void keyPressed(KeyEvent event) {
 				if (event.getKeyCode() == KeyEvent.VK_ESCAPE) {
-					clearSearch();
+					searchField.setText("");
 				}
-				
 			}
 
 			@Override
@@ -246,6 +247,7 @@ public class ToolPanel extends JPanel
         			public void actionPerformed(ActionEvent e) {
         				if (e.getSource() instanceof JButton) {
         					JButton currentButton = (JButton)e.getSource();
+        					clearSearchField();
         					selectModule(currentButton.getName());
         				}
         			}
@@ -455,7 +457,6 @@ public class ToolPanel extends JPanel
     private void showOperationCard(String card) {
         CardLayout cl = (CardLayout)(operationCardPanel.getLayout());
         cl.show(operationCardPanel, card);
-        previousModuleCard = card;
     }
 
 	private void showParameterPanel() {			
@@ -660,20 +661,35 @@ public class ToolPanel extends JPanel
 		}
 	}
 
-	private void clearSearch() {
+	
+	private void clearSearchField() {
 		searchField.setText("");
 		searchField.setBackground(Color.WHITE);
 		searchField.remove(clearSearchButton);
+	}
+	
+	/**
+	 * This does not clear the search field. Use clearSearchField() before this
+	 * if needed.
+	 * 
+	 */
+	private void returnFromSearch() {
 		
+		// select the tool selected by the search
 		OperationDefinition tool = (OperationDefinition) this.toolFilterPanel.getSelectedTool();
 		if (tool != null) {
 			ToolCategory category = tool.getCategory();
 			ToolModule module = category.getModule();
 			this.selectModule(module.getModuleName());
 			this.getToolSelectorPanel(module.getModuleName()).selectCategory(category);
-			this.selectTool(tool);
+			this.getToolSelectorPanel(module.getModuleName()).selectTool(tool);
 		}
-		// FIXME
+		
+		// no tool selected by the search return to the module before search
+		else {
+	        selectModule(toolModules.getFirst().getModuleName());
+		}
+	
 	}
 
 	/**
@@ -688,6 +704,24 @@ public class ToolPanel extends JPanel
 			}
 		}
 		return null;
+	}
+
+	private void searchFieldChanged() {
+		// Show filtered tools
+		if (searchField.getText().trim().length() > 0) {
+			searchField.setBackground(VisualConstants.COLOR_BLUE_LIGHT);
+			if (!clearSearchButton.isAncestorOf(searchField)) {
+				searchField.add(clearSearchButton);
+			}
+			toolFilterPanel.loadFilteredOperations(searchField.getText());
+			showOperationCard(TOOLS_FILTERED);
+		} else {
+			// can't touch the text contents here
+			searchField.setBackground(Color.WHITE);
+			searchField.remove(clearSearchButton);
+			returnFromSearch();
+		}
+
 	}
 
 }
