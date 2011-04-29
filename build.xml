@@ -47,10 +47,10 @@
 
 	<!-- external stuff -->
 	<property name="wrapper-dist" value="${ext-apps}/wrapper" />
-	<property name="wrapper-linux-x86-32" value="${wrapper-dist}/wrapper-linux-x86-32-3.2.3" />
-	<property name="wrapper-linux-x86-64" value="${wrapper-dist}/wrapper-linux-x86-64-3.2.3" />
+	<property name="wrapper-linux-x86-32" value="${wrapper-dist}/wrapper-linux-x86-32-3.5.7" />
+	<property name="wrapper-linux-x86-64" value="${wrapper-dist}/wrapper-linux-x86-64-3.5.7" />
 	<property name="wrapper-macosx" value="${wrapper-dist}/wrapper-macosx-universal-64-3.5.7" />
-	<property name="wrapper-windows-x86-32" value="${wrapper-dist}/wrapper-windows-x86-32-3.3.3" />
+	<property name="wrapper-windows-x86-32" value="${wrapper-dist}/wrapper-windows-x86-32-3.5.7" />
 	<property name="activemq-dist" value="${ext-apps}/apache-activemq-5.4.2" />
 
 	<!-- keystore for signing -->
