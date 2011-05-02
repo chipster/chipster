@@ -7,15 +7,19 @@ import java.util.List;
 
 import javax.swing.JMenu;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.client.selection.IntegratedEntity;
+import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
@@ -59,9 +63,9 @@ public interface Module {
 	 * Returns the name of the server module associated to this 
 	 * this client side module, or null if not available.
 	 *  
-	 * @return server module name or null
+	 * @return String array of server module names, or null
 	 */
-	public String getServerModuleName();
+	public String[] getServerModuleNames();
 	
 	/**
 	 * Adds import menu items to menu.
@@ -155,7 +159,7 @@ public interface Module {
 	 * 
 	 * @return short name (4 letters or less)
 	 */
-	public String getShortCategoryName(Operation operation);
+	public String getShortCategoryName(String categoryName);
 
 	/**
 	 * Should workflow engine check for the number of results? If the module contains tools
@@ -189,5 +193,37 @@ public interface Module {
 	 * @return
 	 */
 	public String getManualHome();
+
+	/**
+	 * Called by Spreadsheet to allow adding of module specific menu items to popup menu.
+	 * 
+	 * @param spreadsheetPopupMenu the popup to add items to 
+	 * @param visualisationFrame spreadsheet visualisation frame
+	 */
+	public void addSpeadsheetMenuItems(JPopupMenu spreadsheetPopupMenu, VisualisationFrame visualisationFrame);
+
+	/**
+	 * Flags spreadsheet columns that support linking by this module.
+	 *  
+	 * @param columnNames spreadsheet column names
+	 * 
+	 * @return Boolean list with the same size as columnNames
+	 */
+	public List<Boolean> flagLinkableColumns(String[] columnNames);
+
+	/**
+	 * Converts spreadshoot cell into linkable {@link IntegratedEntity}.
+	 * 
+	 * @param columns current row 
+	 * @param column index of cell 
+	 * 
+	 * @return {@link IntegratedEntity} that is point selected when link is clicked
+	 */
+	public IntegratedEntity createLinkableEntity(Table columns, int column);
+
+	/**
+	 * Converts server module name into GUI friendly name.
+	 */
+	public String getModuleLongName(String moduleName);
 	
 }

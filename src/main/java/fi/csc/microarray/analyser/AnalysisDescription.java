@@ -4,6 +4,7 @@
  */
 package fi.csc.microarray.analyser;
 
+import java.io.File;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -122,32 +123,30 @@ public class AnalysisDescription {
 	private String sourceCode;
 	private String sadl;
 	private String helpURL = null;
+
 	private AnalysisHandler handler;
 	private Map<String, String> configParameters = null;
+	private RepositoryModule module;
 
-    /**
+	/**
 	 * Name of the original source script or java class etc.
 	 * Needed for update checks.
 	 */
-	private String sourceResourceName;
-
-	/**
-	 * Needed for update checks.
-	 */
-	private String sourceResourceFullPath;
+	private File sourceFile;
 	
 	private String initialiser;
 	
 	private Date creationTime = new Date();
 	private boolean updatedSinceStartup = false;
 
-
 	/**
 	 * Initializes empty (non-usable) description.
+	 * @param module 
 	 *
 	 */
-	public AnalysisDescription(AnalysisHandler handler) {
+	public AnalysisDescription(AnalysisHandler handler, RepositoryModule module) {
 		this.handler = handler;
+		this.module = module;
 	}
 
 	public String getCommand() {
@@ -256,20 +255,20 @@ public class AnalysisDescription {
 		}
 	}
 
-	public String getSourceResourceName() {
-		return sourceResourceName;
+//	public String getSourceResourceName() {
+//		return sourceResourceName;
+//	}
+
+//	public void setSourceResourceName(String sourceResourceName) {
+//		this.sourceResourceName = sourceResourceName;
+//	}
+
+	public File getToolFile() {
+		return sourceFile;
 	}
 
-	public void setSourceResourceName(String sourceResourceName) {
-		this.sourceResourceName = sourceResourceName;
-	}
-
-	public String getSourceResourceFullPath() {
-		return sourceResourceFullPath;
-	}
-
-	public void setSourceResourceFullPath(String sourceResourceFullPath) {
-		this.sourceResourceFullPath = sourceResourceFullPath;
+	public void setSourceResourceFullPath(File sourceFile) {
+		this.sourceFile = sourceFile;
 	}
 	
 	public void setHelpURL(String helpURL) {
@@ -313,6 +312,8 @@ public class AnalysisDescription {
 		this.id = id;
 	}
 
-
+	public RepositoryModule getModule() {
+		return this.module;
+	}
 }
  

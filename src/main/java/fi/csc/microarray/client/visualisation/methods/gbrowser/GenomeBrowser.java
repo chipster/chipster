@@ -10,6 +10,8 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -51,6 +53,8 @@ import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
+import fi.csc.microarray.client.selection.IntegratedEntity;
+import fi.csc.microarray.client.selection.PointSelectionEvent;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
@@ -84,10 +88,10 @@ import fi.csc.microarray.util.IOUtils;
 /**
  * Chipster style visualisation for genome browser.
  * 
- * @author Petri Klemel�, Aleksi Kallio
+ * @author Petri Klemelä, Aleksi Kallio
  */
 public class GenomeBrowser extends Visualisation implements ActionListener,
-		RegionListener, FocusListener, ComponentListener {
+		RegionListener, FocusListener, ComponentListener, PropertyChangeListener {
 
 
 	private static final String DEFAULT_ZOOM = "100000";
@@ -209,7 +213,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		trackSwitches.put(new JCheckBox("Strand-specific coverage", false), "ProfileTrack");
 		trackSwitches.put(new JCheckBox("Quality coverage", false), "QualityCoverageTrack");
 		trackSwitches.put(new JCheckBox("Density graph", false), "GelTrack");
-//		trackSwitches.put(new JCheckBox("Show common SNP's", false), "changeSNP"); // TODO re-enable dbSNP view
+//		trackSwitches.put(new JCheckBox("Show known SNP's", false), "changeSNP"); // TODO re-enable dbSNP view
 	}
 
 	@Override
@@ -837,18 +841,21 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			// Remember chromosome
 			visibleChromosome = chrBox.getSelectedItem();
 
-			// wrap it in a panel
+			// Wrap GenomePlot in a panel
 			chartPanel.setChart(new JFreeChart(plot));
 			chartPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-			// add mouse listeners
+			// Add mouse listeners
 			for (View view : plot.getViews()) {
 				chartPanel.addMouseListener(view);
 				chartPanel.addMouseMotionListener(view);
 				chartPanel.addMouseWheelListener(view);
 			}
 
-			// put panel on top of card layout
+			// Add selection listener
+			application.addClientEventListener(this);
+			
+			// Put panel on top of card layout
 			if (plotPanel.getComponentCount() == 2) {
 				plotPanel.remove(1);
 			}
@@ -1131,34 +1138,56 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		this.plot.setReadScale((ReadScale) this.coverageScaleBox.getSelectedItem());
 	}
 
+	@Override
 	public void focusGained(FocusEvent e) {
+		// Ignore
 	}
 
+	@Override
 	public void focusLost(FocusEvent e) {
-		// skip
+		// Ignore
 	}
 
+	@Override
 	public void componentHidden(ComponentEvent arg0) {
-		// skip
+		// Ignore
 	}
 
+	@Override
 	public void componentMoved(ComponentEvent arg0) {
-		// skip
+		// Ignore
 	}
 
+	@Override
 	public void componentResized(ComponentEvent arg0) {
-//        showVisualisation();
-//        updateVisibilityForTracks();
-
 		this.updateLocation();
 		plot.redraw();
 	}
 
+	@Override
 	public void componentShown(ComponentEvent arg0) {
-		// skip
+		// Ignore
 	}
 	
-	public ClientApplication getClientApplication() {
-		return application;
+	@Override
+	public void propertyChange(PropertyChangeEvent event) {
+		if (event instanceof PointSelectionEvent) {
+
+			IntegratedEntity sel = application.getSelectionManager().getSelectionManager(null).getPointSelection();
+
+			// Check if we can process this
+			if (sel.containsKey("chromosome") && sel.containsKey("start") && sel.containsKey("end")) {
+				
+				// Move to selected region 
+				chrBox.setSelectedItem(new Chromosome(sel.get("chromosome")));
+				long start = Long.parseLong(sel.get("start"));
+				long end = Long.parseLong(sel.get("end"));
+				locationField.setText(Long.toString((end + start) / 2));
+				zoomField.setText(Long.toString((end - start) * 2));
+			}
+			
+			// Update
+			updateLocation();
+		}
 	}
 }

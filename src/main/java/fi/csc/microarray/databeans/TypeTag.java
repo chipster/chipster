@@ -14,7 +14,7 @@ public class TypeTag {
 
 	private String tagName;
 
-	public TypeTag(String serverModuleName, String tagName, String description) {
+	public TypeTag(String tagName, String description) {
 		this.tagName = tagName;
 	}
 

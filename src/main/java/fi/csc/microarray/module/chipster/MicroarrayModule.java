@@ -17,6 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
@@ -29,7 +30,10 @@ import fi.csc.microarray.client.dialog.TaskImportDialog;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
+import fi.csc.microarray.client.selection.IntegratedEntity;
+import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
+import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.client.visualisation.methods.ArrayLayout;
 import fi.csc.microarray.client.visualisation.methods.ClusteredProfiles;
@@ -51,6 +55,7 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.TypeTag;
 import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.databeans.features.bio.EmbeddedBinaryProvider;
 import fi.csc.microarray.databeans.features.bio.IdentifierProvider;
 import fi.csc.microarray.databeans.features.bio.NormalisedExpressionProvider;
@@ -66,19 +71,19 @@ import fi.csc.microarray.util.Strings;
 
 public class MicroarrayModule implements Module {
 
-	private static final String EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/ExampleSessionChipsterV2.cs";
+	private static final String EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/chipster2-example.zip";
 	
 	public static class TypeTags {
-		public static final TypeTag RAW_AFFYMETRIX_EXPRESSION_VALUES  = new TypeTag(SERVER_MODULE_NAME, "raw-arrymetrix-expression-values", "must be in CEL format");
-		public static final TypeTag RAW_EXPRESSION_VALUES  = new TypeTag(SERVER_MODULE_NAME, "raw-expression-values", "");
-		public static final TypeTag NORMALISED_EXPRESSION_VALUES = new TypeTag(SERVER_MODULE_NAME, "normalised-expression-values", "must have columns following name pattern \"chip.*\"");
-		public static final TypeTag GENENAMES = new TypeTag(SERVER_MODULE_NAME, "genenames", "must have column \" \" or \"identifier\"");
-		public static final TypeTag SIGNIFICANT_EXPRESSION_FOLD_CHANGES = new TypeTag(SERVER_MODULE_NAME, "significant-expression-fold-changes", "must have columns following name patterns \"FC.*\" and \"p.*\"");
-		public static final TypeTag EXPRESSION_PRIMARY_COMPONENTS_GENEWISE = new TypeTag(SERVER_MODULE_NAME, "expression-primary-components-genewise", "");
-		public static final TypeTag EXPRESSION_PRIMARY_COMPONENTS_CHIPWISE = new TypeTag(SERVER_MODULE_NAME, "expression-primary-components-chipwise", "");
-		public static final TypeTag ORDERED_GENOMIC_ENTITIES = new TypeTag(SERVER_MODULE_NAME, "ordered-genomic-entities", "");
-		public static final TypeTag CLUSTERED_EXPRESSION_VALUES = new TypeTag(SERVER_MODULE_NAME, "clustered-expression-values", "must have column \"cluster\"");
-		public static final TypeTag SOM_CLUSTERED_EXPRESSION_VALUES = new TypeTag(SERVER_MODULE_NAME, "som-clustered-expression-values", "must have columns \"colours\", \"distance2first\", \"cluster\", \"griddim\"");
+		public static final TypeTag RAW_AFFYMETRIX_EXPRESSION_VALUES  = new TypeTag("raw-arrymetrix-expression-values", "must be in CEL format");
+		public static final TypeTag RAW_EXPRESSION_VALUES  = new TypeTag("raw-expression-values", "");
+		public static final TypeTag NORMALISED_EXPRESSION_VALUES = new TypeTag("normalised-expression-values", "must have columns following name pattern \"chip.*\"");
+		public static final TypeTag GENENAMES = new TypeTag("genenames", "must have column \" \" or \"identifier\"");
+		public static final TypeTag SIGNIFICANT_EXPRESSION_FOLD_CHANGES = new TypeTag("significant-expression-fold-changes", "must have columns following name patterns \"FC.*\" and \"p.*\"");
+		public static final TypeTag EXPRESSION_PRIMARY_COMPONENTS_GENEWISE = new TypeTag("expression-primary-components-genewise", "");
+		public static final TypeTag EXPRESSION_PRIMARY_COMPONENTS_CHIPWISE = new TypeTag("expression-primary-components-chipwise", "");
+		public static final TypeTag ORDERED_GENOMIC_ENTITIES = new TypeTag("ordered-genomic-entities", "");
+		public static final TypeTag CLUSTERED_EXPRESSION_VALUES = new TypeTag("clustered-expression-values", "must have column \"cluster\"");
+		public static final TypeTag SOM_CLUSTERED_EXPRESSION_VALUES = new TypeTag("som-clustered-expression-values", "must have columns \"colours\", \"distance2first\", \"cluster\", \"griddim\"");
 	}
 	
 	public static class VisualisationMethods {
@@ -131,8 +136,19 @@ public class MicroarrayModule implements Module {
 	}
 
 	@Override
-	public String getServerModuleName() {
-		return SERVER_MODULE_NAME;
+	public String[] getServerModuleNames() {
+		return new String[] { "microarray", "ngs" };
+	}
+
+	@Override
+	public String getModuleLongName(String moduleName) {
+		if ("microarray".equals(moduleName)) {
+			return "Microarrays";
+		} else if ("ngs".equals(moduleName)) {
+			return "Next Gen Sequencing";
+		} else {
+			throw new IllegalArgumentException("not recognised: " + moduleName);
+		}
 	}
 
 	@Override
@@ -377,8 +393,8 @@ public class MicroarrayModule implements Module {
 	}
 
 	@Override
-	public String getShortCategoryName(Operation operation) {
-		return BasicModule.shortenCategoryName(operation.getCategoryName());
+	public String getShortCategoryName(String categoryName) {
+		return BasicModule.shortenCategoryName(categoryName);
 	}
 
 	@Override
@@ -491,6 +507,44 @@ public class MicroarrayModule implements Module {
 	@Override
 	public String getManualHome() {
 		return "https://extras.csc.fi/biosciences/chipster-manual/index.html";
+	}
+
+	@Override
+	public void addSpeadsheetMenuItems(JPopupMenu spreadsheetPopupMenu, final VisualisationFrame visualisationFrame) {
+
+		JMenuItem annotateMenuItem = new JMenuItem();
+		annotateMenuItem.setText("Create dataset and annotate with Bioconductor");
+		annotateMenuItem.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				VisualisationUtilities.annotateBySelection(visualisationFrame.getDatas(), ANNOTATION_ID);
+			}
+		});
+		spreadsheetPopupMenu.add(annotateMenuItem);
+	}
+
+	@Override
+	public List<Boolean> flagLinkableColumns(String[] columnNames) {
+		LinkedList<Boolean> flags = new LinkedList<Boolean>();
+		for (int i = 0; i < columnNames.length; i++) {
+			
+			if (i > 0 && i < (columnNames.length-1)) {
+				flags.add("column0".equals(columnNames[i-1]) && "column1".equals(columnNames[i]) && "column2".equals(columnNames[i+1]));
+				
+			} else {
+				flags.add(false);
+			}
+			
+		}
+		return flags;
+	}
+
+	@Override
+	public IntegratedEntity createLinkableEntity(Table columns, int column) {
+		IntegratedEntity entity = new IntegratedEntity();
+		entity.put("chromosome", columns.getStringValue("column0"));
+		entity.put("start", columns.getStringValue("column1"));
+		entity.put("end", columns.getStringValue("column2"));
+		return entity;
 	}
 
 }

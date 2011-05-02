@@ -31,7 +31,7 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
 	public static class ShellParameterSecurityPolicy implements ParameterSecurityPolicy {
 		
 		private static final int MAX_VALUE_LENGTH = 1000;
-		public static String COMMAND_LINE_SAFE_VALUE_PATTERN = "[\\w+\\-_:\\.,*()]*"; // Only word characters and some special symbols are allowed
+		public static String COMMAND_LINE_SAFE_VALUE_PATTERN = "[\\w+\\-_:\\.,*()= ]*"; // Only word characters and some special symbols are allowed
 	
 		public boolean isValueValid(String value, ParameterDescription parameterDescription) {
 			
@@ -100,7 +100,7 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
         try {
 			inputParameters = new LinkedList<String>(inputMessage.getParameters(SHELL_PARAMETER_SECURITY_POLICY, analysis));
 		} catch (ParameterValidityException e) {
-			outputMessage.setErrorMessage("There was an invalid parameter value.");
+			outputMessage.setErrorMessage(e.getMessage()); // always has a message
 			outputMessage.setOutputText(e.toString());
 			updateState(JobState.FAILED_USER_ERROR, "");
 			return;
@@ -132,7 +132,8 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
             	
             	// no value parameter, don't add anything
             	if (!value.equals(NO_PARAMETER_VALUE_TOKEN)) {
-            		commandParts.add(SHELL_STRING_SEPARATOR + value + SHELL_STRING_SEPARATOR);
+            		commandParts.add(value);
+//            		commandParts.add(SHELL_STRING_SEPARATOR + value + SHELL_STRING_SEPARATOR);
             	}
             	
             }
@@ -141,7 +142,8 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
             // normal parameters
             else if (!value.equals("")) {
                 commandParts.add("-" + parameter.getName());
-                commandParts.add(SHELL_STRING_SEPARATOR + value + SHELL_STRING_SEPARATOR);
+                commandParts.add(value);
+//              commandParts.add(SHELL_STRING_SEPARATOR + value + SHELL_STRING_SEPARATOR);
             }
             index++;
         }

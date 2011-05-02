@@ -11,13 +11,12 @@ import java.util.Map;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.selection.RowSelectionManager;
+import fi.csc.microarray.client.selection.IntegratedSelectionManager;
 import fi.csc.microarray.client.tasks.ResultBlocker;
 import fi.csc.microarray.client.visualisation.Visualisation.Variable;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
-import fi.csc.microarray.module.chipster.MicroarrayModule;
 import fi.csc.microarray.util.ThreadUtils;
 
 public class VisualisationUtilities {
@@ -31,15 +30,15 @@ public class VisualisationUtilities {
 			// for single datas
 
 			if (datas.size() == 1) {
-				Collection<String> lines = application.getSelectionManager().getRowSelectionManager(datas.get(0)).getSelectedLines();
-				return RowSelectionManager.createDataset(lines, datas.toArray(new DataBean[datas.size()]));
+				Collection<String> lines = application.getSelectionManager().getSelectionManager(datas.get(0)).getSelectedLines();
+				return IntegratedSelectionManager.createDataset(lines, datas.toArray(new DataBean[datas.size()]));
 			} else {
 
 				List<String[]> allColumns = new LinkedList<String[]>();
 
 				// Get list of columns names from every dataset
 				for (DataBean data : datas) {
-					if (application.getSelectionManager().getRowSelectionManager(data).getSelectedRows().length > 0) {
+					if (application.getSelectionManager().getSelectionManager(data).getSelectionAsRows().length > 0) {
 
 						allColumns.add(data.queryFeatures("/column/*").asTable().getColumnNames());
 					}
@@ -107,7 +106,7 @@ public class VisualisationUtilities {
 					lines.add(newLine);
 				}
 
-				return RowSelectionManager.createDataset(lines, datas.toArray(new DataBean[datas.size()]));
+				return IntegratedSelectionManager.createDataset(lines, datas.toArray(new DataBean[datas.size()]));
 			}
 
 		} catch (Exception exp) {
@@ -126,7 +125,7 @@ public class VisualisationUtilities {
 		for (DataBean data : datas) {
 			Table columns = data.queryFeatures("/column/*").asTable();
 
-			int[] indexes = application.getSelectionManager().getRowSelectionManager(data).getSelectedRows();
+			int[] indexes = application.getSelectionManager().getSelectionManager(data).getSelectionAsRows();
 
 			Arrays.sort(indexes);
 
@@ -156,7 +155,7 @@ public class VisualisationUtilities {
 		return lines;
 	}
 
-	public static void annotateBySelection(List<DataBean> datas) {
+	public static void annotateBySelection(List<DataBean> datas, final String annotationOperationName) {
 
 		try {
 			final DataBean filterBySelection = filterBySelection(datas);
@@ -165,10 +164,10 @@ public class VisualisationUtilities {
 				public void run() {
 					try {
 
-						Operation normOp = new Operation(application.getOperationDefinition(MicroarrayModule.ANNOTATION_ID), new DataBean[] { filterBySelection });
-						ResultBlocker normBlocker = new ResultBlocker(2);
-						normOp.setResultListener(normBlocker);
-						application.executeOperation(normOp);
+						Operation annotationOperation = new Operation(application.getOperationDefinition(annotationOperationName), new DataBean[] { filterBySelection });
+						ResultBlocker opBlocker = new ResultBlocker(2);
+						annotationOperation.setResultListener(opBlocker);
+						application.executeOperation(annotationOperation);
 
 					} catch (MicroarrayException e) {
 						application.reportException(e);

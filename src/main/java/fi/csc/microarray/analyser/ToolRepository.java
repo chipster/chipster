@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -32,7 +31,7 @@ import fi.csc.microarray.util.XmlUtil;
  * synchronized using this, since reading descriptions may cause a
  * description to be updated.
  *  
- * @author hupponen
+ * @author Taavi Hupponen, Aleksi Kallio
  *
  */
 public class ToolRepository {
@@ -42,12 +41,9 @@ public class ToolRepository {
 	private static final Logger logger = Logger
 			.getLogger(ToolRepository.class);
 	
-	private LinkedHashMap<String, AnalysisDescription> descriptions = new LinkedHashMap<String, AnalysisDescription>(); 
-	private LinkedHashMap<String, AnalysisDescription> supportedDescriptions = new LinkedHashMap<String, AnalysisDescription>();
-	private LinkedHashMap<String, AnalysisDescription> visibleDescriptions = new LinkedHashMap<String, AnalysisDescription>();
-	
 	private HashMap<String, ToolRuntime> runtimes = new HashMap<String, ToolRuntime>();
-	private List<ModuleDescriptionMessage> modules = new LinkedList<ModuleDescriptionMessage>();
+	private List<ModuleDescriptionMessage> moduleDescriptions = new LinkedList<ModuleDescriptionMessage>();
+	private List<RepositoryModule> modules = new LinkedList<RepositoryModule>();
 		
 	/**
 	 * 
@@ -60,62 +56,42 @@ public class ToolRepository {
 	}
 	
 	public synchronized AnalysisDescription getDescription(String id) throws AnalysisException {
-		AnalysisDescription desc; 
-
-		// get the description
-		desc = descriptions.get(id);
-
-		// check if description needs to be updated
-		if (desc != null && !desc.isUptodate()) {
-			updateDescription(desc);
+		AnalysisDescription desc = null; 
+		RepositoryModule moduleWithDesc = null;
+		
+		// Get the description
+		for (RepositoryModule module : modules) {
+			if (module.hasDescription(id)) {
+				desc = module.getDescription(id);
+				moduleWithDesc = module;
+				break;
+			}
 		}
 		
-		// return the possibly updated description
-		return descriptions.get(id); 
+		// Return null if nothing is found
+		if (desc == null) {
+			return null;
+		}
+
+		// Check if description needs to be updated
+		if (desc != null && !desc.isUptodate()) {
+			moduleWithDesc.updateDescription(desc);
+			logger.info("updated tool: " + desc.getID());
+		}
+		
+		// Return the possibly updated description
+		return moduleWithDesc.getDescription(id); 
 	}
 	
 	public synchronized boolean supports(String id) {
-		return supportedDescriptions.containsKey(id);
-	}
-	
-	private void updateDescription(AnalysisDescription desc) throws AnalysisException {
-	    // FIXME params should not be empty
-	    HashMap<String, String> params = new HashMap<String, String>();
-		AnalysisDescription newDescription = desc.getHandler().handle(desc.getSourceResourceName(), params);
-		if (newDescription != null) {
-			newDescription.setUpdatedSinceStartup();
-			
-			// name (id) of the tool has not changed
-			if (desc.getID().equals(newDescription.getID())) {
-				
-				// replace the old description with the same name
-				descriptions.put(newDescription.getID(), newDescription);
-				if (supportedDescriptions.containsKey(desc.getID())) {
-					supportedDescriptions.put(newDescription.getID(), newDescription);
-				}
-				if (visibleDescriptions.containsKey(desc.getID())) {
-					visibleDescriptions.put(newDescription.getID(), newDescription);
-				}
-			} 
-
-			// name (id) of the tool has changed
-			else {
-				logger.warn("name of the tool has changed after loading from custom-scripts, keeping both old and new");
-				if (descriptions.containsKey(newDescription.getID())){
-					logger.warn("descriptions already contains a tool with the new name, ignoring custom-scripts");
-					return;
-				} 
-				// add the tool with the new name
-				descriptions.put(newDescription.getID(), newDescription);
-				if (supportedDescriptions.containsKey(desc.getID())) {
-					supportedDescriptions.put(newDescription.getID(), newDescription);
-				}
-				if (visibleDescriptions.containsKey(desc.getID())) {
-					visibleDescriptions.put(newDescription.getID(), newDescription);
-				}
+		for (RepositoryModule module : modules) {
+			if (module.isSupportedDescription(id)) {
+				return true;
 			}
 		}
+		return false;
 	}
+	
 
 	/**
 	 * Load available runtimes.
@@ -186,7 +162,7 @@ public class ToolRepository {
 	 */
 	public List<ModuleDescriptionMessage> getModuleDescriptions()
 	        throws ParserConfigurationException, SAXException, IOException {
-	    return modules;
+	    return moduleDescriptions;
 	}
 
 	/**
@@ -200,15 +176,28 @@ public class ToolRepository {
 	private void loadModuleDescriptions()
 	       throws IOException, SAXException, ParserConfigurationException {
 		logger.info("loading modules");
-		
-		for (String moduleFilename : DirectoryLayout.getInstance().getConfDir().list()) {
-		    if (moduleFilename.endsWith("-module.xml")) {
-	            File moduleFile = new File(DirectoryLayout.getInstance().getConfDir(), moduleFilename);
-	            if (moduleFile.exists()) {
-	                logger.info("loading from " + moduleFilename);
-	                loadModule(moduleFile);
-	            }
-		    }
+
+		// Iterate over all module directories, and over all module files inside them
+		for (String moduleDirName : DirectoryLayout.getInstance().getModulesDir().list()) {
+			File moduleDir = new File(DirectoryLayout.getInstance().getModulesDir(), moduleDirName);
+			if (moduleDir.isDirectory()) {
+				
+				
+				// Make directory as a known source of tools
+				// FIXME
+				logger.info("detected tool directory: " + moduleDir);
+				
+				// Load module specification files, if they exist
+				for (String moduleFilename : moduleDir.list()) {
+				    if (moduleFilename.endsWith("-module.xml")) {
+			            File moduleFile = new File(moduleDir, moduleFilename);
+			            if (moduleFile.exists()) {
+			                logger.info("loading tools specifications from: " + moduleFilename);
+			                loadModule(moduleDir, moduleFile);
+			            }
+				    }
+				}
+			}
 		}
 	}
 
@@ -232,12 +221,11 @@ public class ToolRepository {
 	 * @throws IOException
 	 * @throws ParserConfigurationException
 	 */
-	private void loadModule(File toolFile)
+	private void loadModule(File moduleDir, File toolFile)
 	    throws FileNotFoundException, SAXException,
 	           IOException, ParserConfigurationException {
-		File toolConfig = toolFile;
 
-		Document document = XmlUtil.parseReader(new FileReader(toolConfig));
+		Document document = XmlUtil.parseReader(new FileReader(toolFile));
 		Element moduleElement = (Element)document.getElementsByTagName("module").item(0);
 		
 		// module name 
@@ -247,9 +235,10 @@ public class ToolRepository {
 			return;
 		}
 		
-		// construct the module description message
-		ModuleDescriptionMessage moduleDescriptionMessage = new ModuleDescriptionMessage(moduleName);
-		
+		// construct the module and register it
+		RepositoryModule module = new RepositoryModule(moduleDir, toolFile, moduleName);
+		modules.add(module);
+
 		// stats
 	    int totalCount = 0;
 		int successfullyLoadedCount = 0;
@@ -295,9 +284,9 @@ public class ToolRepository {
 		    		logger.warn("not loading a tool without resource element");
 		    		continue;
 		    	}
-		    	String resourceName = resourceElement.getTextContent().trim();
-		    	if (resourceName == null || resourceName.isEmpty()) {
-		    		logger.warn("not loading a tool with empty resource name");
+		    	String toolFilename = resourceElement.getTextContent().trim();
+		    	if (toolFilename == null || toolFilename.isEmpty()) {
+		    		logger.warn("not loading a tool with empty filename");
 		    		continue;
 		    	}
 
@@ -310,7 +299,7 @@ public class ToolRepository {
 		    	String runtimeName = toolElement.getAttribute("runtime");
 		    	ToolRuntime runtime = runtimes.get(runtimeName);
 		    	if (runtime == null) {
-		    		logger.warn("not loading " + resourceName + ": runtime " + runtimeName + " not found");
+		    		logger.warn("not loading " + toolFilename + ": runtime " + runtimeName + " not found");
 		    		continue;
 		    	}
 
@@ -336,35 +325,36 @@ public class ToolRepository {
 		    		parameters.put(parameterName, parameterValue);
 		    	}
 		    	if (!parametersOk) {
-		    		logger.warn("not loading " + resourceName + ": parameter not ok");
+		    		logger.warn("not loading " + toolFilename + ": parameters not ok");
 		    		continue;
 		    	}
 		    	
 		    	// create the analysis description
 		    	AnalysisDescription description;
 		    	try {
-		    	    // checked cached descriptions
-		    	    // cached descriptions are updated when needed
-		    	    AnalysisDescription cachedDescription = getDescription(resourceName);
-		    	    if (cachedDescription != null) {
-		    	        description = cachedDescription;
-		    	    } else {
-		                description = runtime.getHandler().handle(resourceName, parameters);
-		    	    }
+		                description = runtime.getHandler().handle(module, toolFilename, parameters);
+		                
+		                // check for duplicates
+				        AnalysisDescription previousDescription = getDescription(description.getID());
+			    	    if (previousDescription != null) {
+			    	        logger.warn("not loading " + toolFilename + ": tool with the same ID already exists");
+			    	        continue;
+			    	    }
 		    	    
-		    	} catch (Exception e) {
-		    		logger.warn("loading " + resourceName + " failed, could not create description", e);
+		    	} catch (AnalysisException e) {
+		    		logger.warn("loading " + toolFilename + " failed, could not create description", e);
 		    		continue;
 		    	}
-		    	descriptions.put(description.getID(), description);
-
+		    	
+		    	// register the tool
+		    	module.putDescription(description.getID(), description);
 		    	successfullyLoadedCount++;
 
 		    	// disabled or not
 		    	String disabledStatus = "";
 		    	if (!runtime.isDisabled() && !toolDisabled) {
 		    		// add to supported descriptions list
-		    		supportedDescriptions.put(description.getID(), description);
+		    		module.markSupportedDescription(description.getID());
 		    	} else {
 		    		disabledStatus = " DISABLED";
 		    		disabledCount++;
@@ -381,17 +371,17 @@ public class ToolRepository {
 		    	}
 
 		    	logger.info("loaded " + description.getID() + " " + description.getDisplayName() + " " +
-		    			description.getSourceResourceFullPath() + disabledStatus + hiddenStatus);
+		    			description.getToolFile() + disabledStatus + hiddenStatus);
 		    }
 
 		    // add the category to the module description message
-		    moduleDescriptionMessage.addCategory(category);
+		    module.addDescriptionCategory(category);
 		}
 
 		logger.info("loaded " + moduleName + " " + successfullyLoadedCount + "/" + totalCount +
 				" tools, " + disabledCount + " disabled, " + hiddenCount + " hidden");
 
 		// add to modules
-		modules.add(moduleDescriptionMessage);
+		moduleDescriptions.add(module.getModuleDescriptionMessage());
 	}
 }
