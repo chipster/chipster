@@ -52,7 +52,7 @@ public class ToolModule {
     	for (List<ToolCategory> categories : new List[] { visibleCategories, hiddenCategories}) {
     		for (ToolCategory category : categories) {
     			for (OperationDefinition tool : category.getToolList()) {
-    				if (tool.getID() == toolId) {
+    				if (tool.getID().equals(toolId)) {
     					return tool;
     				}
     			}

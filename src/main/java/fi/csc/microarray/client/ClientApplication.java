@@ -223,7 +223,15 @@ public abstract class ClientApplication {
 	        reportInitialisation("Fetching analysis descriptions...", true);
 	        serviceAccessor.fetchDescriptions(modules.getPrimaryModule());
 			this.toolModules.addAll(serviceAccessor.getModules());
-			
+
+			// Add local modules also when in remote mode
+			if (!isStandalone) {
+				ServiceAccessor localServiceAccessor = new LocalServiceAccessor();
+				localServiceAccessor.initialise(manager, null);
+				localServiceAccessor.fetchDescriptions(modules.getPrimaryModule());
+				toolModules.addAll(localServiceAccessor.getModules());
+			}
+
 			// Add internal operation definitions
 			ToolCategory internalCategory = new ToolCategory("Internal tools");
 			internalCategory.addOperation(OperationDefinition.IMPORT_DEFINITION);
@@ -235,13 +243,6 @@ public abstract class ClientApplication {
 			// Update to splash screen that we have loaded tools
 			reportInitialisation(" ok", false);
 
-			// load local operation definitions
-			ServiceAccessor localServiceAccessor = new LocalServiceAccessor();
-			localServiceAccessor.initialise(manager, null);
-			localServiceAccessor.fetchDescriptions(modules.getPrimaryModule());
-			for (ToolModule localModule : localServiceAccessor.getModules()) {
-				toolModules.add(localModule);
-			}
 			
 			// start listening to job events
 			taskExecutor.addChangeListener(jobExecutorChangeListener);

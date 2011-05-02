@@ -129,10 +129,11 @@ public interface Module {
 	/**
 	 * Return URL to example session file or null, if not available.
 	 * 
+	 * @param isStandalone true iff client is running in standalone mode
 	 * @return url or null
 	 * @throws MalformedURLException
 	 */
-	public URL getExampleSessionUrl() throws MalformedURLException;
+	public URL getExampleSessionUrl(boolean isStandalone) throws MalformedURLException;
 
 	/**
 	 * If module is bundled with a repository of workflows, returns them.

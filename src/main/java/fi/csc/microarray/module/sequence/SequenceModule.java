@@ -149,7 +149,7 @@ public class SequenceModule implements Module {
 	}
 
 	@Override
-	public URL getExampleSessionUrl() throws MalformedURLException {
+	public URL getExampleSessionUrl(boolean isStandalone) throws MalformedURLException {
 		return new URL(EXAMPLE_SESSION_URL);
 	}
 
