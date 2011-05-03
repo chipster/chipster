@@ -51,7 +51,7 @@ rownames(dat3)<-rownames(dat2)
 # Calculating the fold change
 # Treatment divided by the control
 if (geometric == "yes") {
-	FD <- dat3[,2]-dat3[,1]
+	FC <- dat3[,2]-dat3[,1]
 } else {
 			FC <- dat3[,2] / dat3 [,1]
 		}
