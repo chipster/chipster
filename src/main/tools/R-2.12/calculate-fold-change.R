@@ -2,13 +2,15 @@
 # Then calculates a ratio of the averages. Works only if you have exactly two groups of samples.)
 # INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT fold-change.tsv
 # PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to average.)
+# PARAMETER geometric [yes, no] DEFAULT yes (Should the geometric or arithmetic mean used in the calculation of
+# average expression for the sample groups?)
+# PARAMETER scale [log2, linear] DEFAULT log2 (What scale to use for expressing the results. Log2 yields a symmetric distribution around zero
+# with no change being equal to 0, up-regulation taking positive values and down-regulation negative values. Conversely, in linear scale 
+# up-regulation is represented by values greater than 1 and down-regulation values being between 0 and 1.)
 
-
-# Two-group parametric and non-parametric tests
+# Calculate fold changes between groups of samples
 # JTT 30.7.2007
-
-# Parameter settings (default) for testing purposes
-#column<-c("group")
+# MG, 3.5.2011, added parameter for choosing aritmetic or geometric mean
 
 # Loads the normalized data
 file<-c("normalized.tsv")
@@ -24,10 +26,15 @@ groups<-phenodata[,pmatch(column,colnames(phenodata))]
 
 # Sanity checks
 if(length(unique(groups))==1) {
-   stop("You do not have any replicates to average!")
+   stop("CHIPSTER-NOTE: You do not have any replicates to average!")
 }
 if(length(unique(groups))>2) {
-   stop("You have more than two groups! I don't know how to calculate fold change.")
+   stop("CHIPSTER-NOTE: You have more than two groups! I don't know how to calculate fold change.")
+}
+
+# If arithmetic mean, then transform values to linear scale
+if (geometric == "yes") {
+	data2 <- 2^dat2
 }
 
 # Calculating averages
@@ -43,7 +50,21 @@ rownames(dat3)<-rownames(dat2)
 
 # Calculating the fold change
 # Treatment divided by the control
-FD<-dat3[,2]-dat3[,1]
+if (geometric == "yes") {
+	FD <- dat3[,2]-dat3[,1]
+} else {
+			FC <- dat3[,2] / dat3 [,1]
+		}
+
+# If arithmetic mean and log2 scale, then transform values back to log2 scale
+if (geometric == "yes" && scale == "log2") {
+	FC <- log2(FC)
+}
+
+# If geometric mean and linear scale, then transform values to linear scale
+if (geometric == "yes" && scale == "log2") {
+	FC <- 2^FC
+}
 
 # Saving the results
 write.table(data.frame(dat, logFC=FD), file="fold-change.tsv", sep="\t", row.names=T, col.names=T, quote=F)
