@@ -10,7 +10,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.List;
+import java.util.Collection;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -25,8 +25,8 @@ import javax.swing.event.DocumentListener;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.operation.parameter.Parameter;
+import fi.csc.microarray.client.operation.OperationRecord;
+import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataItem;
@@ -39,7 +39,7 @@ import fi.csc.microarray.databeans.DataItem;
  * (for the user's personal notes). Both are placed together in one
  * JScrollPane, so that the length of the notes is not limited.
  * 
- * @author Janne KÃ¤ki
+ * @author Janne Käki
  *
  */
 public class DetailsPanel extends JPanel implements PropertyChangeListener, FocusListener, ActionListener, DocumentListener {
@@ -142,13 +142,18 @@ public class DetailsPanel extends JPanel implements PropertyChangeListener, Focu
 		this.setMinimumSize(new Dimension(0,0));
 		this.disable();
 		
+		// notes visible?
+		if (Session.getSession().getPrimaryModule().notesVisibleAtStartup()) {
+			showPanel(CL_MAIN, CL_MAIN_INDEX);
+		}
+		
 		// start listening
-		application.addPropertyChangeListener(this);
+		application.addClientEventListener(this);
 	}
 	
 	private String getNameText() {
 		if (currentData != null) {
-			return currentData.getOperation().getName();
+			return currentData.getOperationRecord().getFullName();
 			
 		} else {			
 			return null;
@@ -164,20 +169,22 @@ public class DetailsPanel extends JPanel implements PropertyChangeListener, Focu
 		if (currentData != null) {
 			StringBuffer attrib = new StringBuffer();
 			attrib.append(currentData.getDate().toString());
-			Operation lastOper = currentData.getOperation();
-			if (lastOper != null) {
+			OperationRecord operationRecord = currentData.getOperationRecord();
+			if (operationRecord != null) {
 				
-				attrib.append("\nOperation: " + lastOper.getCategoryName() +
-						" / " +lastOper.getName());
+				attrib.append("\nOperation: " + operationRecord.getCategoryName() +
+						" / " + operationRecord.getNameID().getDisplayName());
 				
-				List<Parameter> params = lastOper.getParameters();
+				Collection<ParameterRecord> params = operationRecord.getParameters();
 				if (params != null) {
 					attrib.append("\n");
-					for (int i = 0; i < params.size(); i++) {
-						attrib.append(params.get(i).toString());
+					int i = 0;
+					for (ParameterRecord parameterRecord : params) {
+						attrib.append(parameterRecord.getValue());
 						if (i != params.size()-1) {
 							attrib.append(", ");
 						}
+						i++;
 					}
 				}
 			}

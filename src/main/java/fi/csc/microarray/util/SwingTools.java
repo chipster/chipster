@@ -1,5 +1,7 @@
 package fi.csc.microarray.util;
 
+import java.awt.Color;
+
 import javax.swing.SwingUtilities;
 
 public class SwingTools {
@@ -24,4 +26,15 @@ public class SwingTools {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	public static String colorToHexString(Color color) {
+        String colorString = Integer.toHexString(color.getRGB());
+        return "#" + colorString.substring(2, colorString.length());
+	}
+
+	public static Color hexStringToColor(String hexString) {
+        return Color.decode(hexString);
+	}
+
+
 }
