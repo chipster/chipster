@@ -10,7 +10,8 @@
 
 # Calculate fold changes between groups of samples
 # JTT 30.7.2007
-# MG, 3.5.2011, added parameter for choosing aritmetic or geometric mean
+# MG, 3.5.2011, added parameters for choosing aritmetic or geometric mean
+# and for choosing linear or log scale
 
 # Loads the normalized data
 file<-c("normalized.tsv")
@@ -33,8 +34,8 @@ if(length(unique(groups))>2) {
 }
 
 # If arithmetic mean, then transform values to linear scale
-if (geometric == "yes") {
-	data2 <- 2^dat2
+if (geometric == "no") {
+	dat2 <- as.data.frame (2^dat2)
 }
 
 # Calculating averages
@@ -57,14 +58,14 @@ if (geometric == "yes") {
 		}
 
 # If arithmetic mean and log2 scale, then transform values back to log2 scale
-if (geometric == "yes" && scale == "log2") {
+if (geometric == "no" && scale == "log2") {
 	FC <- log2(FC)
 }
 
 # If geometric mean and linear scale, then transform values to linear scale
-if (geometric == "yes" && scale == "log2") {
+if (geometric == "yes" && scale == "linear") {
 	FC <- 2^FC
 }
 
 # Saving the results
-write.table(data.frame(dat, logFC=FD), file="fold-change.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+write.table(data.frame(dat, FC=FC), file="fold-change.tsv", sep="\t", row.names=T, col.names=T, quote=F)
