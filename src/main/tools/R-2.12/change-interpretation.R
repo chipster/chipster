@@ -46,7 +46,7 @@ if(transform=="linear-ln") {
 	if(any(dat2<0)) {
 		stop("Negative values in the data! Can't log-transform.")
 	}
-	dat2<-ln(dat2)
+	dat2<-log(dat2)
 }
 
 # Add the annotations and flags back into the data table

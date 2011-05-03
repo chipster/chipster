@@ -14,13 +14,6 @@
 # MG 25.11.2010
 # Increased the gene/sample limit to 20000
 
-# Parameter settings (default) for testing purposes
-cluster<-c("chips")
-column<-c("group")
-number.of.groups<-c(2)
-image.width<-c(600)
-image.height<-c(600)
-
 # Renaming variables
 w<-image.width
 h<-image.height

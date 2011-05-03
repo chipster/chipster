@@ -7,6 +7,7 @@
 
 # Quality control of Illumina chips
 # 30.7.2007 JTT
+# 19.4.2011 MG, added legend to histogram
 
 # Loads the libraries
 library(limma)
@@ -42,4 +43,5 @@ plot(x[,1], y[,1], col=1, ylim=c(0, max(y)), main="Intensities", type="l", lwd=2
 for(i in 2:ncol(dat2)) {
    lines(x[,i], y[,i], col=i, lwd=2, lty=1)
 }
+legend(legend=colnames(dat2), x="topright", lty=1, cex=0.75, col=c(1:ncol(dat2)))
 dev.off()
