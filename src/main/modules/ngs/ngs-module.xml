@@ -2,15 +2,18 @@
 
 <module name="ngs">
 		
-	<category name="NGS Data processing" color="#27bcd1">
-		<tool runtime="java"><resource>fi.csc.chipster.tools.ngs.PreprocessNGSSingle</resource></tool>
-        <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingTool</resource></tool>
-        <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.RemoveOverlappingTool</resource></tool>
-        <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.FuseRegionsTool</resource></tool>
-        <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.CombineRegionsTool</resource></tool>
-	</category>
+    <category name="Quality control" color="#d5c796">
+    </category>
 
-	<category name="NGS ChIP-seq" color="#e7ddd2">
+    <category name="Alignment" color="#e7df70">
+ 		<tool runtime="R-2.12"><resource>bowtie.R</resource></tool>        
+    </category>
+
+    <category name="SAMtools" color="#d59f45">
+		<tool runtime="java"><resource>fi.csc.chipster.tools.ngs.PreprocessNGSSingle</resource></tool>
+    </category>
+
+	<category name="ChIP-seq" color="#e7881c">
  		<tool runtime="R-2.12"><resource>ngs-find-peaks-macs-one.R</resource></tool>        
  		<tool runtime="R-2.12"><resource>ngs-find-peaks-macs-two.R</resource></tool>        
         <tool runtime="R-2.12"><resource>ngs-find-motifs-jaspar.R</resource></tool>
@@ -18,9 +21,23 @@
         <tool runtime="R-2.12"><resource>pathways-ngs-hyperg-go.R</resource></tool>
 	</category>
 
-    <category name="NGS miRNA-seq" color="#FF00FF">
+    <category name="miRNA-seq" color="#d53833">
         <tool runtime="R-2.12"><resource>ngs-dea-edger.R</resource></tool>
         <tool runtime="R-2.12"><resource>ngs-create-experiment.R</resource></tool>
     </category>
+
+    <category name="Methyl-seq" color="#80a3b7">
+		<tool runtime="R-2.12"><resource>medips.R</resource></tool>
+		<tool runtime="R-2.12"><resource>convert-bam-to-medips.R</resource></tool>
+    </category>
+
+	<category name="Genomic region matching" color="#0177b7">
+        <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingTool</resource></tool>
+        <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.RemoveOverlappingTool</resource></tool>
+        <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.FuseRegionsTool</resource></tool>
+        <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.CombineRegionsTool</resource></tool>
+	</category>
+
+
 
 </module>

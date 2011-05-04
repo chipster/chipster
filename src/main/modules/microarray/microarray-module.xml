@@ -62,8 +62,6 @@
 		<tool runtime="R-2.12"><resource>estimate-samplesize.R</resource></tool>
 		<tool runtime="R-2.12"><resource>sample-size-with-bh.R</resource></tool>
 		<tool runtime="R-2.12"><resource>up-down-analysis-mirna.R</resource></tool>
-		<tool runtime="R-2.12"><resource>medips.R</resource></tool>
-		<tool runtime="R-2.12"><resource>convert-bam-to-medips.R</resource></tool>
 	</category>
 	
 	<category name="Clustering" color="#d53833">
