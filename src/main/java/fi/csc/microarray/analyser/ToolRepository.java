@@ -178,6 +178,7 @@ public class ToolRepository {
 		logger.info("loading modules");
 
 		// Iterate over all module directories, and over all module files inside them
+		List<String> moduleLoadSummaries = new LinkedList<String>();
 		for (String moduleDirName : DirectoryLayout.getInstance().getModulesDir().list()) {
 			File moduleDir = new File(DirectoryLayout.getInstance().getModulesDir(), moduleDirName);
 			if (moduleDir.isDirectory()) {
@@ -193,12 +194,19 @@ public class ToolRepository {
 			            File moduleFile = new File(moduleDir, moduleFilename);
 			            if (moduleFile.exists()) {
 			                logger.info("loading tools specifications from: " + moduleFilename);
-			                loadModule(moduleDir, moduleFile);
+			                moduleLoadSummaries.add(loadModule(moduleDir, moduleFile));
 			            }
 				    }
 				}
 			}
 		}
+		
+		// print summaries
+		logger.info("------ tool summary ------ ");
+		for (String summary : moduleLoadSummaries) {
+			logger.info(summary);
+		}
+		logger.info("------ tool summary ------ ");
 	}
 
 	/**
@@ -216,23 +224,28 @@ public class ToolRepository {
 	 * we should pass them to the client.
 	 * 
 	 * @param toolFile
+	 * @return summary for loading
 	 * @throws FileNotFoundException
+	 * 
 	 * @throws SAXException
 	 * @throws IOException
 	 * @throws ParserConfigurationException
 	 */
-	private void loadModule(File moduleDir, File toolFile)
+	private String loadModule(File moduleDir, File toolFile)
 	    throws FileNotFoundException, SAXException,
 	           IOException, ParserConfigurationException {
 
+		String summary = null;
+		
 		Document document = XmlUtil.parseReader(new FileReader(toolFile));
 		Element moduleElement = (Element)document.getElementsByTagName("module").item(0);
 		
 		// module name 
 		String moduleName = moduleElement.getAttribute("name");
 		if (moduleName.isEmpty()) {
-			logger.warn("not loading a module without a name");
-			return;
+			summary = "not loading a module without a name";
+			logger.warn(summary);
+			return summary;
 		}
 		
 		// construct the module and register it
@@ -378,10 +391,13 @@ public class ToolRepository {
 		    module.addDescriptionCategory(category);
 		}
 
-		logger.info("loaded " + moduleName + " " + successfullyLoadedCount + "/" + totalCount +
-				" tools, " + disabledCount + " disabled, " + hiddenCount + " hidden");
+		summary = "loaded " + moduleName + " " + successfullyLoadedCount + "/" + totalCount +
+		" tools, " + disabledCount + " disabled, " + hiddenCount + " hidden";
+		logger.info(summary);
 
 		// add to modules
 		moduleDescriptions.add(module.getModuleDescriptionMessage());
+		
+		return summary;
 	}
 }
