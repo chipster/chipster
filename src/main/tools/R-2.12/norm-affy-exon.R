@@ -84,8 +84,8 @@ if(chiptype!="empty" & class(a)!="try-error") {
 		
 		# Fixes an issue introduced in BioC2.4 where the "#" character is introduced in some gene names
 		genename <- gsub("#", "", genename)
-		symbols <- gsub("'", "", symbols)
-		genenames <- gsub("'", "", genenames)
+		symbol <- gsub("'", "", symbol)
+		genename <- gsub("'", "", genename)
 		
 		# Writes the results into a file
 		write.table(data.frame(symbol, description=genename, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)
