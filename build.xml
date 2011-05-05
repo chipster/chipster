@@ -163,6 +163,8 @@
 		</javac>
 
 		<copy file="${src}/log4j.properties" tofile="${build}/log4j.properties" />
+		<copy file="${src}/fi/csc/microarray/client/session/session.xsd" tofile="${build}/fi/csc/microarray/client/session/session.xsd" />
+
 	</target>
 
 	<target name="package-jar" depends="compile" description="Create chipster jar">
