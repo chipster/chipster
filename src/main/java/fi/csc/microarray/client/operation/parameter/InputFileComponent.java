@@ -105,7 +105,7 @@ public class InputFileComponent extends JPanel {
      * @return parameter name for this component.
      */
     public JLabel getLabel() {
-        return new JLabel(input.getDescription());
+        return new JLabel(input.getDisplayName());
     }
     
     /**
