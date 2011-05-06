@@ -145,7 +145,7 @@ public class ToolParameterPanel extends ParameterPanel {
                 addParameter(paramPane, inputComponent, inputComponent.getLabel(), con);
             }
                   
-            // Add the inputs to the collapsable pannel
+            // Add the inputs to the collabsiple panel
             pane.add(paramPane);
             paneContainer.add(pane);
             
