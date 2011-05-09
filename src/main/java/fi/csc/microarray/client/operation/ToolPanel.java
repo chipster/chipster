@@ -241,7 +241,7 @@ public class ToolPanel extends JPanel
         		String buttonText = Session.getSession().getPrimaryModule().getModuleLongName(toolModule.getModuleName());
         		JButton button = new JButton(buttonText);
         		button.setName(toolModule.getModuleName());
-        		button.setPreferredSize(new Dimension((int)((float)button.getMinimumSize().width * 1.1), 22)); 
+        		button.setPreferredSize(new Dimension((int)((float)button.getMinimumSize().width * 1.2), 22)); 
         		button.addActionListener(new ActionListener() {
         			@Override
         			public void actionPerformed(ActionEvent e) {
