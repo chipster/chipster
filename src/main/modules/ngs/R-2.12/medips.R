@@ -1,6 +1,6 @@
 # TOOL medips.R: "MEDIPS - methylation analysis" (Methylation analysis for sequencing data.)
-# INPUT MEDIPS-input{...}.tsv: "Converted BAM data files" TYPE GENERIC
-# INPUT phenodata.tsv: "Phenodata describing the experiment" TYPE GENERIC 
+# INPUT MEDIPS-input1.tsv: "Converted BAM data files" TYPE GENERIC
+# INPUT META phenodata.tsv: "Phenodata describing the experiment" TYPE GENERIC 
 # OUTPUT OPTIONAL saturationplot.png: "Saturation plot"
 # OUTPUT OPTIONAL coverageplot.png: "Coverage plot"
 # OUTPUT OPTIONAL calibrationplot.png: "Calibration plot"
@@ -36,9 +36,9 @@
 
 # Processing of the parameters
 if(species=="human") {
-   genome<-c("BSgenome.Hsapiens.UCSC.hg19")
-   pgenome<-"hg19"  
-   library(BSgenome.Hsapiens.UCSC.hg19)
+	genome<-c("BSgenome.Hsapiens.UCSC.hg19")
+	pgenome<-"hg19"  
+	library(BSgenome.Hsapiens.UCSC.hg19)
 }
 w<-image.width
 h<-image.height
@@ -53,102 +53,102 @@ phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 analtype<-length(unique(phenodata$group ))
 repl<-table(phenodata$group)
 if(any(repl>0)) {
-   repltype<-c(2)
+	repltype<-c(2)
 }
 
 if(analtype==1 & repltype==1) {
-# Reading the MEDIPS input file
-library(MEDIPS)
-dat<-MEDIPS.readAlignedSequences(BSgenome=genome, file=files)
-
-# Creating the genome vector
-dat<-MEDIPS.genomeVector(data=dat, bin_size=as.numeric(coverage.resolution), extend=as.numeric(smoothing.extension))
-
-# Cleaning up to save some memory
-gc()
-
-# Saturation analysis
-sr<-MEDIPS.saturationAnalysis(data=dat, bin_size=as.numeric(coverage.resolution), extend=as.numeric(smoothing.extension), no_iterations=10, no_random_iterations=1)
-bitmap(file="saturationplot.png", width=w/72, height=h/72)
-par(mar=c(5,5,5,5))
-MEDIPS.plotSaturation(sr)
-dev.off()
-
-# Pattern Positions
-dat<-MEDIPS.getPositions(data=dat, pattern="CG")
-
-# Coverage analysis
-cr<-MEDIPS.coverageAnalysis(data=dat, extend=as.numeric(smoothing.extension), no_iterations=10)
-bitmap(file="coverageplot.png", width=w/72, height=h/72)
-par(mar=c(5,5,5,5))
-MEDIPS.plotCoverage(cr)
-dev.off()
-
-# Coupling vector
-dat<-MEDIPS.couplingVector(data=dat, fragmentLength=as.numeric(fragment.length), func="count")
-
-# Calibration curve plot
-dat<-MEDIPS.calibrationCurve(data=dat)
-bitmap(file="calibrationplot.png", width=w/72, height=h/72)
-par(mar=c(5,5,5,5))
-MEDIPS.plotCalibrationPlot(dat)
-dev.off()
-
-# Normalization
-dat<-MEDIPS.normalize(data=dat)
-
-# Save the wiggle file
-if(save.wiggle=="yes") {
-   MEDIPS.exportWIG(file="output.bed", data=dat, raw=T, descr=files)
-   library(rtracklayer)
-   wig<-import("output.bed", format="wig")
-   export(wig, "output.bed", format="bed")
-   wig<-read.table("output.bed", header=F, sep="\t")
-   wig<-wig[wig[,5]>0,]
-   write.table(wig, "output.bed", col.names=F, row.names=F, sep="\t", quote=F)
-}
-
-if(promoters.only=="yes") {
-   library(rtracklayer)
-   session <- browserSession()
-   genome(session) <- pgenome
-   query <- ucscTableQuery(session, "refGene")
-   refGene<-getTable(query)
-   sta<-refGene$txStart
-   sta[refGene$strand=="+"]<-sta[refGene$strand=="+"]-1000
-   sta[refGene$strand=="-"]<-sta[refGene$strand=="-"]-500
-   sto<-refGene$txStart
-   sto[refGene$strand=="+"]<-sto[refGene$strand=="+"]+500
-   sto[refGene$strand=="-"]<-sto[refGene$strand=="-"]+1000
-   rois<-data.frame(refGene$chrom, sta, sto, make.unique(as.character(refGene$name)))
-   rois<-rois[rois[,1] %in% unique(dat@genome_chr),]
-   write.table(rois, "rois.tsv", sep="\t", quote=F, col.names=F, row.names=F)
-   frames<-MEDIPS.methylProfiling(data1=dat, ROI_file="rois.tsv", math=mean, select=2)
-   write.table(frames, "output.tsv", sep="\t", quote=F, col.names=T, row.names=F)
-}
-
-if(promoters.only=="no") {
-   frames<-MEDIPS.methylProfiling(data1=dat, frame_size=as.numeric(smoothing.extension), step=as.numeric(smoothing.extension)/2, math=mean, select=2)
-   write.table(frames, "output.tsv", sep="\t", quote=F, col.names=T, row.names=F)
-}
-
-# Some plots of the enrichment results
-bitmap(file="CpGdensities.png", width=w/72, height=h/72)
-par(mar=c(5,5,5,5))
-hist(frames$coupling, breaks=100, main="CpG densities", xlab="CpG coupling factors") 
-dev.off()
-
-bitmap(file="RPMsignal.png", width=w/72, height=h/72)
-par(mar=c(5,5,5,5))
-hist(frames$rpm_A[frames$rpm_A!=0], breaks=100, main="RPM signals", xlab="reads/bin") 
-dev.off()
-
-bitmap(file="AMSsignal.png", width=w/72, height=h/72)
-par(mar=c(5,5,5,5))
-hist(frames$ams_A[frames$ams_A!=0], breaks=100, main="AMS signals", xlab="absolute methylation score (ams)") 
-dev.off()
-
-# Do not delete the following curly bracket - it ends the if-clause for analysis and replication types
+	# Reading the MEDIPS input file
+	library(MEDIPS)
+	dat<-MEDIPS.readAlignedSequences(BSgenome=genome, file=files)
+	
+	# Creating the genome vector
+	dat<-MEDIPS.genomeVector(data=dat, bin_size=as.numeric(coverage.resolution), extend=as.numeric(smoothing.extension))
+	
+	# Cleaning up to save some memory
+	gc()
+	
+	# Saturation analysis
+	sr<-MEDIPS.saturationAnalysis(data=dat, bin_size=as.numeric(coverage.resolution), extend=as.numeric(smoothing.extension), no_iterations=10, no_random_iterations=1)
+	bitmap(file="saturationplot.png", width=w/72, height=h/72)
+	par(mar=c(5,5,5,5))
+	MEDIPS.plotSaturation(sr)
+	dev.off()
+	
+	# Pattern Positions
+	dat<-MEDIPS.getPositions(data=dat, pattern="CG")
+	
+	# Coverage analysis
+	cr<-MEDIPS.coverageAnalysis(data=dat, extend=as.numeric(smoothing.extension), no_iterations=10)
+	bitmap(file="coverageplot.png", width=w/72, height=h/72)
+	par(mar=c(5,5,5,5))
+	MEDIPS.plotCoverage(cr)
+	dev.off()
+	
+	# Coupling vector
+	dat<-MEDIPS.couplingVector(data=dat, fragmentLength=as.numeric(fragment.length), func="count")
+	
+	# Calibration curve plot
+	dat<-MEDIPS.calibrationCurve(data=dat)
+	bitmap(file="calibrationplot.png", width=w/72, height=h/72)
+	par(mar=c(5,5,5,5))
+	MEDIPS.plotCalibrationPlot(dat)
+	dev.off()
+	
+	# Normalization
+	dat<-MEDIPS.normalize(data=dat)
+	
+	# Save the wiggle file
+	if(save.wiggle=="yes") {
+		MEDIPS.exportWIG(file="output.bed", data=dat, raw=T, descr=files)
+		library(rtracklayer)
+		wig<-import("output.bed", format="wig")
+		export(wig, "output.bed", format="bed")
+		wig<-read.table("output.bed", header=F, sep="\t")
+		wig<-wig[wig[,5]>0,]
+		write.table(wig, "output.bed", col.names=F, row.names=F, sep="\t", quote=F)
+	}
+	
+	if(promoters.only=="yes") {
+		library(rtracklayer)
+		session <- browserSession()
+		genome(session) <- pgenome
+		query <- ucscTableQuery(session, "refGene")
+		refGene<-getTable(query)
+		sta<-refGene$txStart
+		sta[refGene$strand=="+"]<-sta[refGene$strand=="+"]-1000
+		sta[refGene$strand=="-"]<-sta[refGene$strand=="-"]-500
+		sto<-refGene$txStart
+		sto[refGene$strand=="+"]<-sto[refGene$strand=="+"]+500
+		sto[refGene$strand=="-"]<-sto[refGene$strand=="-"]+1000
+		rois<-data.frame(refGene$chrom, sta, sto, make.unique(as.character(refGene$name)))
+		rois<-rois[rois[,1] %in% unique(dat@genome_chr),]
+		write.table(rois, "rois.tsv", sep="\t", quote=F, col.names=F, row.names=F)
+		frames<-MEDIPS.methylProfiling(data1=dat, ROI_file="rois.tsv", math=mean, select=2)
+		write.table(frames, "output.tsv", sep="\t", quote=F, col.names=T, row.names=F)
+	}
+	
+	if(promoters.only=="no") {
+		frames<-MEDIPS.methylProfiling(data1=dat, frame_size=as.numeric(smoothing.extension), step=as.numeric(smoothing.extension)/2, math=mean, select=2)
+		write.table(frames, "output.tsv", sep="\t", quote=F, col.names=T, row.names=F)
+	}
+	
+	# Some plots of the enrichment results
+	bitmap(file="CpGdensities.png", width=w/72, height=h/72)
+	par(mar=c(5,5,5,5))
+	hist(frames$coupling, breaks=100, main="CpG densities", xlab="CpG coupling factors") 
+	dev.off()
+	
+	bitmap(file="RPMsignal.png", width=w/72, height=h/72)
+	par(mar=c(5,5,5,5))
+	hist(frames$rpm_A[frames$rpm_A!=0], breaks=100, main="RPM signals", xlab="reads/bin") 
+	dev.off()
+	
+	bitmap(file="AMSsignal.png", width=w/72, height=h/72)
+	par(mar=c(5,5,5,5))
+	hist(frames$ams_A[frames$ams_A!=0], breaks=100, main="AMS signals", xlab="absolute methylation score (ams)") 
+	dev.off()
+	
+	# Do not delete the following curly bracket - it ends the if-clause for analysis and replication types
 }
 
 
@@ -156,62 +156,62 @@ dev.off()
 
 
 if(analtype==2 & repltype==1) {
-library(MEDIPS)
-
-# Assign the files to control and treatment based on the group column from phenodata
-cfile<-as.character(phenodata$sample[phenodata$group==head(sort(phenodata$group), n=1)])
-tfile<-as.character(phenodata$sample[phenodata$group==tail(sort(phenodata$group), n=1)])
-
-# Reads the data
-control<-MEDIPS.readAlignedSequences(BSgenome=genome, file=cfile)
-treatment<-MEDIPS.readAlignedSequences(BSgenome=genome, file=tfile)
-
-# Creating the genome vector
-control<-MEDIPS.genomeVector(data=control, bin_size=as.numeric(coverage.resolution), extend=as.numeric(smoothing.extension))
-treatment<-MEDIPS.genomeVector(data=treatment, bin_size=as.numeric(coverage.resolution), extend=as.numeric(smoothing.extension))
-
-# Pattern Positions
-control<-MEDIPS.getPositions(data=control, pattern="CG")
-treatment<-MEDIPS.getPositions(data=treatment, pattern="CG")
-
-# Coupling vector
-control<-MEDIPS.couplingVector(data=control, fragmentLength=as.numeric(fragment.length), func="count")
-treatment<-MEDIPS.couplingVector(data=treatment, fragmentLength=as.numeric(fragment.length), func="count")
-
-# Calibration curve
-control<-MEDIPS.calibrationCurve(data=control)
-treatment<-MEDIPS.calibrationCurve(data=treatment)
-
-# Normalization
-control<-MEDIPS.normalize(data=control)
-treatment<-MEDIPS.normalize(data=treatment)
-
-# Comparing experiments
-if(promoters.only=="yes") {
-   library(rtracklayer)
-   session <- browserSession()
-   genome(session) <- pgenome
-   query <- ucscTableQuery(session, "refGene")
-   refGene<-getTable(query)
-   sta<-refGene$txStart
-   sta[refGene$strand=="+"]<-sta[refGene$strand=="+"]-1000
-   sta[refGene$strand=="-"]<-sta[refGene$strand=="-"]-500
-   sto<-refGene$txStart
-   sto[refGene$strand=="+"]<-sto[refGene$strand=="+"]+500
-   sto[refGene$strand=="-"]<-sto[refGene$strand=="-"]+1000
-   rois<-data.frame(refGene$chrom, sta, sto, make.unique(as.character(refGene$name)))
-   rois<-rois[rois[,1] %in% unique(c(control@genome_chr), treatment@genome_chr),]
-   write.table(rois, "rois.tsv", sep="\t", quote=F, col.names=F, row.names=F)
-   diff.meth<-MEDIPS.methylProfiling(data1=control, data2=treatment, select=2, frame_size=400, ROI_file="rois.tsv")
-   write.table(diff.meth, "output.tsv", sep="\t", quote=F, col.names=T, row.names=F)
-}
-
-if(promoters.only=="no") {
-   diff.meth<-MEDIPS.methylProfiling(data1=control, data2=treatment, select=2, frame_size=400)
-   write.table(diff.meth, file="output.tsv", sep="\t", quote=F, col.names=T, row.names=F)
-}
-
-# Do not delete the following curly bracket - it ends the if-clause for analysis and replication types
+	library(MEDIPS)
+	
+	# Assign the files to control and treatment based on the group column from phenodata
+	cfile<-as.character(phenodata$sample[phenodata$group==head(sort(phenodata$group), n=1)])
+	tfile<-as.character(phenodata$sample[phenodata$group==tail(sort(phenodata$group), n=1)])
+	
+	# Reads the data
+	control<-MEDIPS.readAlignedSequences(BSgenome=genome, file=cfile)
+	treatment<-MEDIPS.readAlignedSequences(BSgenome=genome, file=tfile)
+	
+	# Creating the genome vector
+	control<-MEDIPS.genomeVector(data=control, bin_size=as.numeric(coverage.resolution), extend=as.numeric(smoothing.extension))
+	treatment<-MEDIPS.genomeVector(data=treatment, bin_size=as.numeric(coverage.resolution), extend=as.numeric(smoothing.extension))
+	
+	# Pattern Positions
+	control<-MEDIPS.getPositions(data=control, pattern="CG")
+	treatment<-MEDIPS.getPositions(data=treatment, pattern="CG")
+	
+	# Coupling vector
+	control<-MEDIPS.couplingVector(data=control, fragmentLength=as.numeric(fragment.length), func="count")
+	treatment<-MEDIPS.couplingVector(data=treatment, fragmentLength=as.numeric(fragment.length), func="count")
+	
+	# Calibration curve
+	control<-MEDIPS.calibrationCurve(data=control)
+	treatment<-MEDIPS.calibrationCurve(data=treatment)
+	
+	# Normalization
+	control<-MEDIPS.normalize(data=control)
+	treatment<-MEDIPS.normalize(data=treatment)
+	
+	# Comparing experiments
+	if(promoters.only=="yes") {
+		library(rtracklayer)
+		session <- browserSession()
+		genome(session) <- pgenome
+		query <- ucscTableQuery(session, "refGene")
+		refGene<-getTable(query)
+		sta<-refGene$txStart
+		sta[refGene$strand=="+"]<-sta[refGene$strand=="+"]-1000
+		sta[refGene$strand=="-"]<-sta[refGene$strand=="-"]-500
+		sto<-refGene$txStart
+		sto[refGene$strand=="+"]<-sto[refGene$strand=="+"]+500
+		sto[refGene$strand=="-"]<-sto[refGene$strand=="-"]+1000
+		rois<-data.frame(refGene$chrom, sta, sto, make.unique(as.character(refGene$name)))
+		rois<-rois[rois[,1] %in% unique(c(control@genome_chr), treatment@genome_chr),]
+		write.table(rois, "rois.tsv", sep="\t", quote=F, col.names=F, row.names=F)
+		diff.meth<-MEDIPS.methylProfiling(data1=control, data2=treatment, select=2, frame_size=400, ROI_file="rois.tsv")
+		write.table(diff.meth, "output.tsv", sep="\t", quote=F, col.names=T, row.names=F)
+	}
+	
+	if(promoters.only=="no") {
+		diff.meth<-MEDIPS.methylProfiling(data1=control, data2=treatment, select=2, frame_size=400)
+		write.table(diff.meth, file="output.tsv", sep="\t", quote=F, col.names=T, row.names=F)
+	}
+	
+	# Do not delete the following curly bracket - it ends the if-clause for analysis and replication types
 }
 
 
@@ -219,71 +219,71 @@ if(promoters.only=="no") {
 
 
 if( (analtype==1 | analtype==2) & repltype==2) {
-library(MEDIPS)
-
-# Assign the files to control and treatment based on the group column from phenodata
-cfiles<-as.character(phenodata$sample[phenodata$group==head(sort(phenodata$group), n=1)])
-tfiles<-as.character(phenodata$sample[phenodata$group==tail(sort(phenodata$group), n=1)])
-
-# Combining the replicates
-for(i in 1:length(cfiles)) {
-   d<-read.table(cfiles, header=F, sep="\t")
-   write.table(d, "group1.tsv", col.names=F, row.names=F, sep="\t", quote=F, append=TRUE)
-}
-for(i in 1:length(cfiles)) {
-   d<-read.table(tfiles, header=F, sep="\t")
-   write.table(d, "group2.tsv", col.names=F, row.names=F, sep="\t", quote=F, append=TRUE)
-}
-
-# Reads the data
-control<-MEDIPS.readAlignedSequences(BSgenome=genome, file="group1.tsv")
-treatment<-MEDIPS.readAlignedSequences(BSgenome=genome, file="group2.tsv")
-
-# Creating the genome vector
-control<-MEDIPS.genomeVector(data=control, bin_size=as.numeric(coverage.resolution), extend=as.numeric(smoothing.extension))
-treatment<-MEDIPS.genomeVector(data=treatment, bin_size=as.numeric(coverage.resolution), extend=as.numeric(smoothing.extension))
-
-# Pattern Positions
-control<-MEDIPS.getPositions(data=control, pattern="CG")
-treatment<-MEDIPS.getPositions(data=treatment, pattern="CG")
-
-# Coupling vector
-control<-MEDIPS.couplingVector(data=control, fragmentLength=as.numeric(fragment.length), func="count")
-treatment<-MEDIPS.couplingVector(data=treatment, fragmentLength=as.numeric(fragment.length), func="count")
-
-# Calibration curve
-control<-MEDIPS.calibrationCurve(data=control)
-treatment<-MEDIPS.calibrationCurve(data=treatment)
-
-# Normalization
-control<-MEDIPS.normalize(data=control)
-treatment<-MEDIPS.normalize(data=treatment)
-
-# Comparing experiments
-if(promoters.only=="yes") {
-   library(rtracklayer)
-   session <- browserSession()
-   genome(session) <- pgenome
-   query <- ucscTableQuery(session, "refGene")
-   refGene<-getTable(query)
-   sta<-refGene$txStart
-   sta[refGene$strand=="+"]<-sta[refGene$strand=="+"]-1000
-   sta[refGene$strand=="-"]<-sta[refGene$strand=="-"]-500
-   sto<-refGene$txStart
-   sto[refGene$strand=="+"]<-sto[refGene$strand=="+"]+500
-   sto[refGene$strand=="-"]<-sto[refGene$strand=="-"]+1000
-   rois<-data.frame(refGene$chrom, sta, sto, make.unique(as.character(refGene$name)))
-   rois<-rois[rois[,1] %in% unique(c(control@genome_chr), treatment@genome_chr),]
-   write.table(rois, "rois.tsv", sep="\t", quote=F, col.names=F, row.names=F)
-   diff.meth<-MEDIPS.methylProfiling(data1=control, data2=treatment, select=2, frame_size=400, ROI_file="rois.tsv")
-   write.table(diff.meth, "output.tsv", sep="\t", quote=F, col.names=T, row.names=F)
-}
-
-if(promoters.only=="no") {
-   diff.meth<-MEDIPS.methylProfiling(data1=control, data2=treatment, select=2, frame_size=400)
-   write.table(diff.meth, file="output.tsv", sep="\t", quote=F, col.names=T, row.names=F)
-}
-
-# Do not delete the following curly bracket - it ends the if-clause for analysis and replication types
+	library(MEDIPS)
+	
+	# Assign the files to control and treatment based on the group column from phenodata
+	cfiles<-as.character(phenodata$sample[phenodata$group==head(sort(phenodata$group), n=1)])
+	tfiles<-as.character(phenodata$sample[phenodata$group==tail(sort(phenodata$group), n=1)])
+	
+	# Combining the replicates
+	for(i in 1:length(cfiles)) {
+		d<-read.table(cfiles, header=F, sep="\t")
+		write.table(d, "group1.tsv", col.names=F, row.names=F, sep="\t", quote=F, append=TRUE)
+	}
+	for(i in 1:length(cfiles)) {
+		d<-read.table(tfiles, header=F, sep="\t")
+		write.table(d, "group2.tsv", col.names=F, row.names=F, sep="\t", quote=F, append=TRUE)
+	}
+	
+	# Reads the data
+	control<-MEDIPS.readAlignedSequences(BSgenome=genome, file="group1.tsv")
+	treatment<-MEDIPS.readAlignedSequences(BSgenome=genome, file="group2.tsv")
+	
+	# Creating the genome vector
+	control<-MEDIPS.genomeVector(data=control, bin_size=as.numeric(coverage.resolution), extend=as.numeric(smoothing.extension))
+	treatment<-MEDIPS.genomeVector(data=treatment, bin_size=as.numeric(coverage.resolution), extend=as.numeric(smoothing.extension))
+	
+	# Pattern Positions
+	control<-MEDIPS.getPositions(data=control, pattern="CG")
+	treatment<-MEDIPS.getPositions(data=treatment, pattern="CG")
+	
+	# Coupling vector
+	control<-MEDIPS.couplingVector(data=control, fragmentLength=as.numeric(fragment.length), func="count")
+	treatment<-MEDIPS.couplingVector(data=treatment, fragmentLength=as.numeric(fragment.length), func="count")
+	
+	# Calibration curve
+	control<-MEDIPS.calibrationCurve(data=control)
+	treatment<-MEDIPS.calibrationCurve(data=treatment)
+	
+	# Normalization
+	control<-MEDIPS.normalize(data=control)
+	treatment<-MEDIPS.normalize(data=treatment)
+	
+	# Comparing experiments
+	if(promoters.only=="yes") {
+		library(rtracklayer)
+		session <- browserSession()
+		genome(session) <- pgenome
+		query <- ucscTableQuery(session, "refGene")
+		refGene<-getTable(query)
+		sta<-refGene$txStart
+		sta[refGene$strand=="+"]<-sta[refGene$strand=="+"]-1000
+		sta[refGene$strand=="-"]<-sta[refGene$strand=="-"]-500
+		sto<-refGene$txStart
+		sto[refGene$strand=="+"]<-sto[refGene$strand=="+"]+500
+		sto[refGene$strand=="-"]<-sto[refGene$strand=="-"]+1000
+		rois<-data.frame(refGene$chrom, sta, sto, make.unique(as.character(refGene$name)))
+		rois<-rois[rois[,1] %in% unique(c(control@genome_chr), treatment@genome_chr),]
+		write.table(rois, "rois.tsv", sep="\t", quote=F, col.names=F, row.names=F)
+		diff.meth<-MEDIPS.methylProfiling(data1=control, data2=treatment, select=2, frame_size=400, ROI_file="rois.tsv")
+		write.table(diff.meth, "output.tsv", sep="\t", quote=F, col.names=T, row.names=F)
+	}
+	
+	if(promoters.only=="no") {
+		diff.meth<-MEDIPS.methylProfiling(data1=control, data2=treatment, select=2, frame_size=400)
+		write.table(diff.meth, file="output.tsv", sep="\t", quote=F, col.names=T, row.names=F)
+	}
+	
+	# Do not delete the following curly bracket - it ends the if-clause for analysis and replication types
 }
 
