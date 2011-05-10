@@ -167,19 +167,24 @@ public class SessionLoader {
 			DataBean dataBean = null;
 			switch (storageMethod) {
 			case LOCAL_SESSION:
+				// use the url for the real session file 
 				try {
+					url = new URL(sessionFile.toURI().toURL(), "#" + url.getRef());
 					dataBean = dataManager.createDataBeanFromZip(name, url);
 				} catch (MicroarrayException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					logger.warn("could not create data bean: " + name);
+					continue;
+				} catch (MalformedURLException e) {
+					logger.warn("could not create data bean: " + name);
+					continue;
 				}
 				break;
 			case LOCAL_USER:
 				try {
 					dataBean = dataManager.createDataBean(name, url);
 				} catch (MicroarrayException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.warn("could not create data bean: " + name);
+					continue;
 				}
 				break;
 			default:

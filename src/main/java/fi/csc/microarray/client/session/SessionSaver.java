@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -374,7 +376,7 @@ public class SessionSaver {
 		dataType.setStorageType(StorageMethod.LOCAL_SESSION.name());
 		
 		// url
-		dataType.setUrl(newURL.toString());
+		dataType.setUrl("file:#" + newURL.getRef());
 		
 		// cache url
 		if (bean.getCacheUrl() != null) {
@@ -535,5 +537,4 @@ public class SessionSaver {
 	public String getValidationErrors() {
 		return this.validationErrors;
 	}
-
 }
