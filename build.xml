@@ -11,6 +11,9 @@
 
 	<!-- the project folder configuration -->
 	<property name="src" location="src/main/java" />
+	<property name="modules-src-microarray" location="src/main/modules/microarray/java" />
+	<property name="modules-src-ngs" location="src/main/modules/ngs/java" />
+	<property name="modules" location="src/main/modules" />
 	<property name="test-src" location="src/test/java" />
 	<property name="ext-src" location="src/main/applications" />
 	<property name="lib" location="ext/lib" />
@@ -19,7 +22,6 @@
 	<property name="ext-apps" location="ext/applications" />
 	<property name="data" location="src/main/resources" />
 	<property name="workflows" location="src/main/workflows" />
-	<property name="tools" location="src/main/tools" />
 	<property name="build" location="bin/ant" />	
 	<property name="dist" location="dist" />
 
@@ -36,7 +38,7 @@
 	<taskdef resource="testngtasks" classpath="${lib}/testng-5.9-jdk15.jar"/>
 
 	<!-- version numbering -->
-	<property name="release-version" value="1.4.7" />
+	<property name="release-version" value="2.0.0" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar" />
 	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />
@@ -83,7 +85,7 @@
             <fatjar.jarsource file="${lib}/viski-chipster-1.0.1.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/commons-pool-1.3.jar" relpath=""/>
             <fatjar.jarsource file="${lib}/commons-daemon.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/swingx-0.9.1.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib}/swingx-1.0.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/bsh-2.0b4.jar" relpath=""/>
             <fatjar.jarsource file="${lib}/jetty-6.1.12.jar" relpath=""/>
 	        <fatjar.jarsource file="${lib}/jetty-util-6.1.12.jar" relpath=""/>
@@ -95,7 +97,9 @@
         	<fatjar.jarsource file="${lib}/geronimo-servlet_2.5_spec-1.1.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/activemq-all-5.4.2.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/commons-logging-1.1.jar" relpath=""/>
-        	<fatjar.jarsource file="${lib}/saaj-api.jar" relpath=""/>
+	    	<fatjar.jarsource file="${lib}/sam-1.32.jar" relpath=""/>
+        	<fatjar.jarsource file="${lib}/picard-1.32.jar" relpath=""/>
+	    	<fatjar.jarsource file="${lib}/saaj-api.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/saaj-impl.jar" relpath=""/>
         	<fatjar.jarsource file="${lib}/activation.jar" relpath=""/>
 		    <fatjar.jarsource file="${lib}/cron4j-1.1.5.jar" relpath=""/>
@@ -106,8 +110,9 @@
  		    <fatjar.jarsource file="${lib}/batik-svggen.jar" relpath=""/>
  		    <fatjar.jarsource file="${lib}/batik-util.jar" relpath=""/>
  		    <fatjar.jarsource file="${lib}/batik-xml.jar" relpath=""/>
+		    <fatjar.jarsource file="${lib}/h2-1.2.137.jar" relpath=""/>
 		    	
-		    </fatjar.build>
+        </fatjar.build>
 
 		<!-- sign it -->
 		<signjar keystore="${keystore}" jar="${client-jar}" alias="${keyalias}" storepass="${keystorepass}"/>
@@ -148,6 +153,8 @@
 		<mkdir dir="${build}" />
 		<javac destdir="${build}" target="1.6" source="1.6" debug="true" failonerror="true">
 			<src path="${src}" />
+			<src path="${modules-src-microarray}" />
+			<src path="${modules-src-ngs}" />
 			<classpath>
 				<fileset dir="${lib}">
 					<include name="**/*.jar" />
@@ -156,6 +163,8 @@
 		</javac>
 
 		<copy file="${src}/log4j.properties" tofile="${build}/log4j.properties" />
+		<copy file="${src}/fi/csc/microarray/client/session/session.xsd" tofile="${build}/fi/csc/microarray/client/session/session.xsd" />
+
 	</target>
 
 	<target name="package-jar" depends="compile" description="Create chipster jar">
@@ -165,7 +174,7 @@
 			</manifest>
 			<fileset dir="${build}/" />
 			<fileset dir="${data}/" />
-			<fileset dir="${tools}/" />
+			<fileset dir="${modules}/" />
 		</jar>
 	</target>
 
@@ -188,7 +197,7 @@
 			<!-- shared -->
 			<tarfileset file="${release-jar}" prefix="chipster/shared/lib" />
 			<tarfileset file="${config-tool-jar}" prefix="chipster/shared/lib" />
-			<tarfileset file="${wrapper-linux-x86-64}/lib/wrapper.jar" prefix="chipster/shared/lib" />
+			<tarfileset file="${wrapper-linux-x86-32}/lib/wrapper.jar" prefix="chipster/shared/lib" />
 			<tarfileset file="${wrapper-linux-x86-32}/lib/libwrapper.so" filemode="755" fullpath="chipster/shared/lib/libwrapper-linux-x86-32.so" />
 			<tarfileset file="${wrapper-linux-x86-64}/lib/libwrapper.so" filemode="755" fullpath="chipster/shared/lib/libwrapper-linux-x86-64.so" />
 			<tarfileset file="${wrapper-macosx}/lib/libwrapper.jnilib" filemode="755" fullpath="chipster/shared/lib/libwrapper-macosx.jnilip" />	
@@ -225,13 +234,11 @@
 			<tarfileset file="${ext-src}/wrapper/auth/chipster-auth" filemode="755" prefix="chipster/auth/bin/macosx" />
 
 			<tarfileset file="${wrapper-windows-x86-32}/bin/wrapper.exe" filemode="755" prefix="chipster/auth/bin/win32" />
-			<!--
 			<tarfileset file="${ext-src}/wrapper/win32/chipster.bat" filemode="755" fullpath="chipster/auth/bin/win32/chipster-auth.bat" />
 			<tarfileset file="${ext-src}/wrapper/win32/chipster-service.bat" filemode="755" prefix="chipster/auth/bin/win32" />
 			<tarfileset file="${ext-src}/wrapper/win32/install-service.bat" filemode="755" prefix="chipster/auth/bin/win32" />
 			<tarfileset file="${ext-src}/wrapper/win32/uninstall-service.bat" filemode="755" prefix="chipster/auth/bin/win32" />
-			-->
-			
+
 			<tarfileset dir="${ext-src}/wrapper/auth/conf" prefix="chipster/auth/conf" />
 			<tarfileset dir="${ext-src}/wrapper/auth/logs" prefix="chipster/auth/logs" /> <!-- must exist for wrapper -->
 			<tarfileset dir="${ext-src}/wrapper/auth/security" prefix="chipster/auth/security" />
@@ -271,9 +278,6 @@
 			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/fileserver/bin/linux-x86-64" />
 			<tarfileset file="${ext-src}/wrapper/fileserver/chipster-fileserver" filemode="755" prefix="chipster/fileserver/bin/linux-x86-64" />
 
-			<tarfileset file="${wrapper-macosx}/bin/wrapper" filemode="755" prefix="chipster/fileserver/bin/macosx" />
-			<tarfileset file="${ext-src}/wrapper/fileserver/chipster-fileserver" filemode="755" prefix="chipster/fileserver/bin/macosx" />
-
 			<tarfileset file="${wrapper-windows-x86-32}/bin/wrapper.exe" filemode="755" prefix="chipster/fileserver/bin/win32" />
 			<tarfileset file="${ext-src}/wrapper/win32/chipster.bat" filemode="755" fullpath="chipster/fileserver/bin/win32/chipster-fileserver.bat" />
 			<tarfileset file="${ext-src}/wrapper/win32/chipster-service.bat" filemode="755" prefix="chipster/fileserver/bin/win32" />
@@ -293,9 +297,6 @@
 
 			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/client/bin/linux-x86-64" />
 			<tarfileset file="${ext-src}/wrapper/client/chipster-client" filemode="755" prefix="chipster/client/bin/linux-x86-64" />
-
-			<tarfileset file="${wrapper-macosx}/bin/wrapper" filemode="755" prefix="chipster/client/bin/macosx" />
-			<tarfileset file="${ext-src}/wrapper/client/chipster-client" filemode="755" prefix="chipster/client/bin/macosx" />
 
 			<tarfileset file="${wrapper-windows-x86-32}/bin/wrapper.exe" filemode="755" prefix="chipster/client/bin/win32" />
 			<tarfileset file="${ext-src}/wrapper/win32/chipster.bat" filemode="755" fullpath="chipster/client/bin/win32/chipster-manager.bat" />
@@ -317,9 +318,6 @@
 			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/webstart/bin/linux-x86-64" />
 			<tarfileset file="${ext-src}/wrapper/webstart/chipster-webstart" filemode="755" prefix="chipster/webstart/bin/linux-x86-64" />
 
-			<tarfileset file="${wrapper-macosx}/bin/wrapper" filemode="755" prefix="chipster/webstart/bin/macosx" />
-			<tarfileset file="${ext-src}/wrapper/webstart/chipster-webstart" filemode="755" prefix="chipster/webstart/bin/macosx" />
-
 			<tarfileset file="${wrapper-windows-x86-32}/bin/wrapper.exe" filemode="755" prefix="chipster/webstart/bin/win32" />
 			<tarfileset file="${ext-src}/wrapper/win32/chipster.bat" filemode="755" fullpath="chipster/webstart/bin/win32/chipster-webstart.bat" />
 			<tarfileset file="${ext-src}/wrapper/win32/chipster-service.bat" filemode="755" prefix="chipster/webstart/bin/win32" />
@@ -333,6 +331,7 @@
 
 			<tarfileset dir="${ext-src}/wrapper/webstart/conf" prefix="chipster/webstart/conf" />
 			<tarfileset dir="${ext-src}/wrapper/webstart/logs" prefix="chipster/webstart/logs" /> <!-- must exist for wrapper -->
+			
 			
 			<!-- manager -->
 			<tarfileset file="${ext-src}/wrapper/manager/chipster-manager-generic" filemode="755" fullpath="chipster/manager/bin/chipster-manager" />
@@ -384,7 +383,7 @@
 
 	<target name="package-zip" depends="package-tar" description="Create chipster zip">
 		<mkdir dir="temp"/>
-		<zip destfile="${release-zip}" compress="false" duplicate="fail" >
+		<zip destfile="${release-zip}" compress="false" duplicate="fail" >	<property name="release-version" value="2.0" />
 		  <tarfileset src="${release-tar}" />
 		</zip>
 
@@ -394,6 +393,21 @@
 		<echo>REMEMBER TO TURN DEBUG LOGGING OFF!</echo>
 	</target>
 
+	
+	<target name="generate-session-classes" description="">
+		<delete dir="src/main/java/fi/csc/microarray/client/session/schema" />
+
+		<java classname="com.sun.tools.internal.xjc.XJCFacade">
+	            <arg value="-p" />
+	            <arg value="fi.csc.microarray.client.session.schema"/>
+            	<arg value="-d" />
+            	<arg value="src/main/java"/>
+	    		<arg value="src/main/java/fi/csc/microarray/client/session/session.xsd" />
+	    </java>
+	</target>
+
+	
+	
 	<!--
     <path id="testngpath">
       <pathelement location="${test-src}"/>

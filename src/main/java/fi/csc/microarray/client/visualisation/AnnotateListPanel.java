@@ -118,7 +118,7 @@ public class AnnotateListPanel extends JPanel {
 
 		if (dispatchEvent) {
 			for (DataBean data : indexes.keySet()) {
-				application.getSelectionManager().getRowSelectionManager(data).setSelected(indexes.get(data), source);
+				application.getSelectionManager().getSelectionManager(data).setSelected(indexes.get(data), source);
 			}
 		}
 	}
@@ -169,7 +169,7 @@ public class AnnotateListPanel extends JPanel {
 
 
 		if (dispatchEvent) {
-			application.getSelectionManager().getRowSelectionManager(data).setSelected(indexes, source);
+			application.getSelectionManager().getSelectionManager(data).setSelection(indexes, source);
 		}
 	}
 
@@ -215,7 +215,7 @@ public class AnnotateListPanel extends JPanel {
 		}
 
 		if (dispatchEvent) {
-			application.getSelectionManager().getRowSelectionManager(data).setSelected(
+			application.getSelectionManager().getSelectionManager(data).setSelected(
 					rows, source);
 		}
 	}

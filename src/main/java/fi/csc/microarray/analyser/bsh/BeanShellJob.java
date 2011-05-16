@@ -11,7 +11,6 @@ import fi.csc.microarray.analyser.AnalysisDescription;
 import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
 import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
-import fi.csc.microarray.analyser.r.RAnalysisJob;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage.ParameterSecurityPolicy;
 import fi.csc.microarray.messaging.message.JobMessage.ParameterValidityException;
@@ -30,12 +29,6 @@ import fi.csc.microarray.messaging.message.JobMessage.ParameterValidityException
  */
 public class BeanShellJob extends OnDiskAnalysisJobBase {
 
-	/**
-	 * Should closely match the code that is used to output the values in transformVariable(...).
-	 * 
-	 * @see RAnalysisJob#transformVariable(String, String, boolean)
-	 *
-	 */
 	public static class BSParameterSecurityPolicy implements ParameterSecurityPolicy {
 		
 		private static final int MAX_VALUE_LENGTH = 10000;
@@ -76,7 +69,7 @@ public class BeanShellJob extends OnDiskAnalysisJobBase {
 		try {
 			parameters = inputMessage.getParameters(BS_PARAMETER_SECURITY_POLICY, analysis);
 		} catch (ParameterValidityException e) {
-			outputMessage.setErrorMessage("There was an invalid parameter value.");
+			outputMessage.setErrorMessage(e.getMessage()); // always has a message
 			outputMessage.setOutputText(e.toString());
 			updateState(JobState.FAILED_USER_ERROR, "");
 			return;
