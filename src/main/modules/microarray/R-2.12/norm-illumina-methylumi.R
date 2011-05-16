@@ -88,6 +88,8 @@ symbols <- unlist (lookUp(rownames(dat5), chiptype, what="SYMBOL"))
 genenames <- unlist (lookUp(rownames(dat5), chiptype, what="GENENAME"))
 symbols <- gsub("#", "", symbols)
 genenames <- gsub("#", "", genenames)
+symbols <- gsub("'", "", symbols)
+genenames <- gsub("'", "", genenames)
 
 # Write out a phenodata
 group<-c(rep("", ncol(dat5)))

@@ -138,8 +138,8 @@ if(chiptype!="cDNA") {
    genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[rownames(M),])
    symbol<-gsub("#", "", symbol)
    genename<-gsub("#", "", genename)
-   symbols <- gsub("'", "", symbols)
-   genenames <- gsub("'", "", genenames)
+   symbol <- gsub("'", "", symbol)
+   genename <- gsub("'", "", genename)
 }
 
 if(chiptype!="cDNA") {

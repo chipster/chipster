@@ -1,15 +1,20 @@
-# TOOL calculate-fold-change.R: "Calculate fold change" (Calculates an arithmetic average of gene expression for replicate chips. Then calculates a ratio of the averages. Works only if you have exactly two groups of samples.)
+# TOOL calculate-fold-change.R: "Calculate fold change" (Calculates a geometric or arithmetic average of gene expression for replicate chips and then
+# calculates a difference or ratio between the averages. The output fold change can be represented either in log2 or linear scale. Note that
+# the tool is only applicable if you have exactly two groups of samples.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT fold-change.tsv: fold-change.tsv 
 # PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to average.)
+# PARAMETER geometric TYPE [yes, no] DEFAULT yes (Should the geometric or arithmetic mean used in the calculation of
+# average expression for the sample groups?)
+# PARAMETER scale TYPE [log2, linear] DEFAULT log2 (What scale to use for expressing the results. Log2 yields a symmetric distribution around zero
+# with no change being equal to 0, up-regulation taking positive values and down-regulation negative values. Conversely, in linear scale 
+# up-regulation is represented by values greater than 1 and down-regulation values being between 0 and 1.)
 
-
-# Two-group parametric and non-parametric tests
+# Calculate fold changes between groups of samples
 # JTT 30.7.2007
-
-# Parameter settings (default) for testing purposes
-#column<-c("group")
+# MG, 3.5.2011, added parameters for choosing aritmetic or geometric mean
+# and for choosing linear or log scale
 
 # Loads the normalized data
 file<-c("normalized.tsv")
@@ -25,10 +30,15 @@ groups<-phenodata[,pmatch(column,colnames(phenodata))]
 
 # Sanity checks
 if(length(unique(groups))==1) {
-   stop("You do not have any replicates to average!")
+   stop("CHIPSTER-NOTE: You do not have any replicates to average!")
 }
 if(length(unique(groups))>2) {
-   stop("You have more than two groups! I don't know how to calculate fold change.")
+   stop("CHIPSTER-NOTE: You have more than two groups! I don't know how to calculate fold change.")
+}
+
+# If arithmetic mean, then transform values to linear scale
+if (geometric == "no") {
+	dat2 <- as.data.frame (2^dat2)
 }
 
 # Calculating averages
@@ -44,7 +54,21 @@ rownames(dat3)<-rownames(dat2)
 
 # Calculating the fold change
 # Treatment divided by the control
-FD<-dat3[,2]-dat3[,1]
+if (geometric == "yes") {
+	FC <- dat3[,2]-dat3[,1]
+} else {
+			FC <- dat3[,2] / dat3 [,1]
+		}
+
+# If arithmetic mean and log2 scale, then transform values back to log2 scale
+if (geometric == "no" && scale == "log2") {
+	FC <- log2(FC)
+}
+
+# If geometric mean and linear scale, then transform values to linear scale
+if (geometric == "yes" && scale == "linear") {
+	FC <- 2^FC
+}
 
 # Saving the results
-write.table(data.frame(dat, logFC=FD), file="fold-change.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+write.table(data.frame(dat, FC=FC), file="fold-change.tsv", sep="\t", row.names=T, col.names=T, quote=F)

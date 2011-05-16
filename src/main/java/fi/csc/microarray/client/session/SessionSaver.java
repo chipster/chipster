@@ -374,7 +374,7 @@ public class SessionSaver {
 		dataType.setStorageType(StorageMethod.LOCAL_SESSION.name());
 		
 		// url
-		dataType.setUrl(newURL.toString());
+		dataType.setUrl("file:#" + newURL.getRef());
 		
 		// cache url
 		if (bean.getCacheUrl() != null) {
@@ -535,5 +535,4 @@ public class SessionSaver {
 	public String getValidationErrors() {
 		return this.validationErrors;
 	}
-
 }

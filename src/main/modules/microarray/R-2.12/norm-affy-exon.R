@@ -2,7 +2,7 @@
 # INPUT microarray{...}.cel: microarray{...}.cel TYPE AFFY 
 # OUTPUT normalized.tsv: normalized.tsv 
 # OUTPUT META phenodata.tsv: phenodata.tsv 
-# PARAMETER chiptype: chiptype TYPE [empty: empty, human: human, mouse: mouse, rat: rat] DEFAULT empty ()
+# PARAMETER chiptype: chiptype TYPE [empty: empty, human: human, mouse: mouse, rat: rat] DEFAULT empty (Chiptype)
 # PARAMETER summary.feature: summary.feature TYPE [gene: gene, exon: exon] DEFAULT gene (Output summary type)
 
 # Affymetrix normalization
@@ -84,8 +84,8 @@ if(chiptype!="empty" & class(a)!="try-error") {
 		
 		# Fixes an issue introduced in BioC2.4 where the "#" character is introduced in some gene names
 		genename <- gsub("#", "", genename)
-		symbols <- gsub("'", "", symbols)
-		genenames <- gsub("'", "", genenames)
+		symbol <- gsub("'", "", symbol)
+		genename <- gsub("'", "", genename)
 		
 		# Writes the results into a file
 		write.table(data.frame(symbol, description=genename, dat2), file="normalized.tsv", col.names=T, quote=F, sep="\t", row.names=T)

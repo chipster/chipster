@@ -56,6 +56,8 @@ if(chiptype!="empty" & class(a)!="try-error") {
 	genename<-gsub("\'", "", data.frame(unlist(as.list(get(paste(lib2, "GENENAME", sep="")))))[unlist(dat$genes),])
 	# Fxes an issue introduced in BioC2.4 where the "#" character is introduced in some gene names
 	genename <- gsub("#", "", genename)
+	symbol <- gsub("'", "", symbol)
+	genename <- gsub("'", "", genename)
 	# Writes the results into a file
 	output_table <- data.frame(symbol, description=genename, dat2)
 	rownames (output_table) <- unlist(dat$genes)
