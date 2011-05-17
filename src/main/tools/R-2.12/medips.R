@@ -3,7 +3,7 @@
 # INPUT META phenodata.tsv: "Phenodata describing the experiment" TYPE GENERIC 
 # OUTPUT OPTIONAL saturationplot.pdf: "Saturation plot"
 # OUTPUT OPTIONAL coverageplot.pdf: "Coverage plot"
-# OUTPUT OPTIONAL calibrationplot.pdf: "Calibration plot"
+# OUTPUT OPTIONAL calibrationplot.png: "Calibration plot"
 # OUTPUT OPTIONAL CpGdensities.pdf: "CpG density plot"
 # OUTPUT OPTIONAL RPMsignal.pdf: "RPM plot"
 # OUTPUT OPTIONAL AMSsignal.pdf: "AMS plot"
@@ -15,7 +15,7 @@
 # PARAMETER coverage.resolution TYPE [25,50,100,200] DEFAULT  50 (Targeted data resolution, in base pairs, when the genome-wide coverage is calculated)
 # PARAMETER smoothing.extension TYPE [200,400,800,1200] DEFAULT 400 (The amount of data smoothing, in base pairs, by extending the reads)
 # PARAMETER fragment.length TYPE [400,800,1600,2400] DEFAULT 800 (Length of the fragment for calculation of local CpGs)
-# PARAMETER save.wiggle TYPE [yes, no] DEFAULT yes (Should the normalized data, as rpm, be saved as a wiggle file)
+# PARAMETER save.bed TYPE [yes, no] DEFAULT yes (Should the normalized data, as rpm, be saved as a BED file)
 # PARAMETER promoter.upstream TYPE [1000,2000,5000] DEFAULT 1000 (How much upstream, in base pairs, from the transcription start site does the promoter extend)
 # PARAMETER promoter.downstream TYPE [250,500,750,1000] DEFAULT 500 (How much downstream, in base pairs, from the transcription start site does the promoter extend)
 # PARAMETER image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
@@ -23,16 +23,16 @@
 
 
 # Parameters for testing purposes only
-species<-"human"
-promoters.only<-"no"
-coverage.resolution<-"100"
-smoothing.extension<-"1200"
-fragment.length<-2400
-save.wiggle<-"yes"
-promoter.upstream<-"1000"
-promoter.downstream<-"500"
-image.width<-600
-image.height<-600
+#species<-"human"
+#promoters.only<-"no"
+#coverage.resolution<-"100"
+#smoothing.extension<-"1200"
+#fragment.length<-2400
+#save.bed<-"yes"
+#promoter.upstream<-"1000"
+#promoter.downstream<-"500"
+#image.width<-600
+#image.height<-600
 
 # Processing of the parameters
 if(species=="human") {
@@ -91,7 +91,7 @@ if(analtype==1 & repltype==1) {
 	
 	# Calibration curve plot
 	dat<-MEDIPS.calibrationCurve(data=dat)
-	pdf(file="calibrationplot.pdf", width=w/72, height=h/72)
+	bitmap(file="calibrationplot.png", width=w/72, height=h/72)
 	par(mar=c(5,5,5,5))
 	MEDIPS.plotCalibrationPlot(dat)
 	dev.off()
@@ -99,8 +99,8 @@ if(analtype==1 & repltype==1) {
 	# Normalization
 	dat<-MEDIPS.normalize(data=dat)
 	
-	# Save the wiggle file
-	if(save.wiggle=="yes") {
+	# Save the bed file
+	if(save.bed=="yes") {
 		MEDIPS.exportWIG(file="output.bed", data=dat, raw=T, descr=files)
 		library(rtracklayer)
 		wig<-import("output.bed", format="wig")
@@ -145,7 +145,7 @@ if(analtype==1 & repltype==1) {
 	hist(frames$rpm_A[frames$rpm_A!=0], breaks=100, main="RPM signals", xlab="reads/bin") 
 	dev.off()
 	
-	pdf(file="AMSsignal.png", width=w/72, height=h/72)
+	pdf(file="AMSsignal.pdf", width=w/72, height=h/72)
 	par(mar=c(5,5,5,5))
 	hist(frames$ams_A[frames$ams_A!=0], breaks=100, main="AMS signals", xlab="absolute methylation score (ams)") 
 	dev.off()
