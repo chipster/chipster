@@ -168,7 +168,8 @@ public class EmbossAnalysisJob extends ShellAnalysisJobBase {
         for (EmbossQualifier qualifier : qualifiers) {
             if (!qualifier.getValue().equals("")) {
                 params.add("-" + qualifier.getName());
-                params.add(SHELL_STRING_SEPARATOR + qualifier.getValue() + SHELL_STRING_SEPARATOR);
+                params.add(qualifier.getValue());
+//                params.add(SHELL_STRING_SEPARATOR + qualifier.getValue() + SHELL_STRING_SEPARATOR);
             }
         }
         
