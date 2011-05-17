@@ -6,6 +6,7 @@ import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.AnalysisDescription.InputDescription;
 import fi.csc.microarray.analyser.AnalysisDescription.OutputDescription;
 import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
+import fi.csc.microarray.analyser.emboss.ACDParameter;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage.ParameterSecurityPolicy;
 import fi.csc.microarray.messaging.message.JobMessage.ParameterValidityException;
@@ -46,7 +47,9 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
 			}
 
 			// Check that content matches the pattern (shell code injection)
-			return value.matches(COMMAND_LINE_SAFE_VALUE_PATTERN);
+			// FIXME remove ACDParameter thing when renaming it's value to something other than <undefined>
+			// fixme should happen when taking the new sessions into use
+			return value.matches(COMMAND_LINE_SAFE_VALUE_PATTERN) || value.matches(ACDParameter.UNDEFINED);
 		}
 
 	}
