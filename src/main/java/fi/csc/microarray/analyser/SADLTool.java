@@ -11,6 +11,8 @@ import java.io.PrintWriter;
 
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.description.SADLDescription;
+import fi.csc.microarray.description.SADLDescription.Input;
+import fi.csc.microarray.description.SADLDescription.Output;
 import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 import fi.csc.microarray.util.IOUtils;
@@ -91,6 +93,18 @@ public class SADLTool {
 			// Parse it
 			SADLDescription sadl = new ChipsterSADLParser().parse(parsedScript.SADL, scriptFile.getName());
 			
+			// Do necessary tweaks to meta inputs/outputs
+			for (Input input : sadl.inputs()) {
+				if ("phenodata.tsv".equals(input.getName().getID())) {
+					input.setMeta(true);
+				}
+			}
+			for (Output output : sadl.outputs()) {
+				if ("phenodata.tsv".equals(output.getName().getID())) {
+					output.setMeta(true);
+				}
+			}
+
 			// Generate SADL from parsed content
 			parsedScript.SADL = sadl.toString();
 			
@@ -111,7 +125,19 @@ public class SADLTool {
 	
 	public static void main(String[] args) throws Exception {
 		DirectoryLayout.initialiseUnitTestLayout();
-		new SADLTool("#").convertToSADL(new File("src/main/tools/R-2.9/norm-affy.R"));
+		convertACGH();
+	}
+
+
+	private static void convertACGH() throws Exception {
+		for (String moduleDir : new String[] { "src/main/modules/microarray/R-2.12", "src/main/modules/ngs/R-2.12" }) {
+			for (File file : new File(moduleDir).listFiles()) {
+				if (file.getName().endsWith(".R")) {
+					System.out.println(file.getCanonicalPath());
+					new SADLTool("#").convertToSADL(file);
+				}
+			}
+		}
 	}
 
 }

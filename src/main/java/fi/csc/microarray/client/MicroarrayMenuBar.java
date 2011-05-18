@@ -86,7 +86,7 @@ public class MicroarrayMenuBar extends JMenuBar implements PropertyChangeListene
 		add(getViewMenu());
 		add(getWorkflowsMenu());
 		add(getHelpInfoMenu());
-		application.addPropertyChangeListener(this);
+		application.addClientEventListener(this);
 	}
 
 	public void updateMenuStatus() {

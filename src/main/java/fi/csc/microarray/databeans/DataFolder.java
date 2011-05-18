@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.operation.parameter.Parameter;
+import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.module.basic.BasicModule;
@@ -80,7 +80,7 @@ public class DataFolder extends DataItemBase {
 			}
 
 			// the rest is microarray specific
-			if (!MicroarrayModule.SERVER_MODULE_NAME.equals(Session.getSession().getPrimaryModule().getServerModuleName())) {
+			if (!(Session.getSession().getPrimaryModule() instanceof MicroarrayModule)) {
 				return;
 			}
 
@@ -91,7 +91,6 @@ public class DataFolder extends DataItemBase {
 			if (data.isContentTypeCompatitible("application/cel")) {
 				data.addTypeTag(MicroarrayModule.TypeTags.RAW_AFFYMETRIX_EXPRESSION_VALUES);
 
-			// FIXME also phenodata gets tagged here
 			} else if (data.queryFeatures("/column/sample").exists() && !data.queryFeatures("/phenodata").exists()) {
 				data.addTypeTag(MicroarrayModule.TypeTags.RAW_EXPRESSION_VALUES);
 
@@ -113,16 +112,14 @@ public class DataFolder extends DataItemBase {
 			}
 
 			boolean isChipwise = false;
-			Parameter pcaOn = data.getOperation().getParameter("do.pca.on");
+			ParameterRecord pcaOn = data.getOperationRecord().getParameter("do.pca.on");
 			if (pcaOn != null) {
-				Object value = pcaOn.getValue();
-				if (value != null) {
-					if (value.equals("chips")) {
-						isChipwise = true;
-					}
+				String pcaOnValue = pcaOn.getValue();
+				if (pcaOnValue != null && pcaOnValue.equals("chips")) {
+					isChipwise = true;
 				}
 			}
-			if (data.getOperation().getDefinition().getDisplayName().equals("PCA") && isChipwise) {
+			if (data.getOperationRecord().getNameID().getID().equals("ordination-pca.R") && isChipwise) {
 				data.addTypeTag(MicroarrayModule.TypeTags.EXPRESSION_PRIMARY_COMPONENTS_CHIPWISE);
 			}
 

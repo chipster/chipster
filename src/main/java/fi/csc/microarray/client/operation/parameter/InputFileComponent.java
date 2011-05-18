@@ -60,7 +60,7 @@ public class InputFileComponent extends JPanel {
                 bindingMap.put(binding.getName(), binding.getData().getName());
                 
                 // Find the selected item
-                if (binding.getName().equals(input.getName())) {
+                if (binding.getName().equals(input.getID())) {
                     currentBean = binding.getData();
                 }
             }
@@ -105,7 +105,7 @@ public class InputFileComponent extends JPanel {
      * @return parameter name for this component.
      */
     public JLabel getLabel() {
-        return new JLabel(input.getDescription());
+        return new JLabel(input.getDisplayName());
     }
     
     /**
@@ -154,7 +154,7 @@ public class InputFileComponent extends JPanel {
                     // Rebind input datasets                    
                     DataBean selectedBean = (DataBean) component.getChoiceBox().getSelectedItem();
                     newBindings.add(new DataBinding(selectedBean,
-                                                    component.getInput().getName(),
+                                                    component.getInput().getID(),
                                                     component.getInput().getType()));
                 }
                 operation.setBindings(newBindings);

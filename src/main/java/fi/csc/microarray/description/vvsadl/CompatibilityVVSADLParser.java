@@ -108,7 +108,7 @@ public class CompatibilityVVSADLParser {
                         this.unitName = packageName + " / " + name;
                 }
                 String comment = readComment(tokens);
-                SADLDescription description = new SADLDescription(Name.createName(name), packageName, comment);
+                SADLDescription description = new SADLDescription(Name.createName(name), comment);
 
                 // read possible inputs
                 if (tokens.hasNext() && "INPUT".equals(tokens.peek())) {
@@ -117,25 +117,11 @@ public class CompatibilityVVSADLParser {
                         description.addInputs(inputs);
                 }
 
-                // read possible metainputs
-                if (tokens.hasNext() && "METAINPUT".equals(tokens.peek())) {
-                        tokens.next(); // skip "METAINPUT"
-                        List<Input> inputs = parseInputs(tokens, description);
-                        description.addMetaInputs(inputs);
-                }
-
                 // read possible outputs
                 if (tokens.hasNext() && "OUTPUT".equals(tokens.peek())) {
                         tokens.next(); // skip "OUTPUT"
                         List<Output> outputs = parseOutputs(tokens, description);
                         description.addOutputs(outputs);
-                }
-
-                // read possible metaoutputs
-                if (tokens.hasNext() && "METAOUTPUT".equals(tokens.peek())) {
-                        tokens.next(); // skip "METAOUTPUT"
-                        List<Output> outputs = parseOutputs(tokens, description);
-                        description.addMetaOutputs(outputs);
                 }
 
                 //      read possible parameters

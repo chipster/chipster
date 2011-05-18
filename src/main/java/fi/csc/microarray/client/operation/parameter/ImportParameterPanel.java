@@ -8,7 +8,7 @@ import java.awt.GridBagLayout;
 import javax.swing.JPanel;
 
 import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.operation.OperationPanel;
+import fi.csc.microarray.client.operation.ToolPanel;
 import fi.csc.microarray.exception.MicroarrayException;
 
 /**
@@ -38,7 +38,7 @@ public class ImportParameterPanel extends ParameterPanel {
 	 * @param client The client that is to be informed when a job is done.
 	 * @throws MicroarrayException 
 	 */
-	public ImportParameterPanel(Operation operation, OperationPanel parent) throws MicroarrayException {
+	public ImportParameterPanel(Operation operation, ToolPanel parent) throws MicroarrayException {
 		super(operation, new BorderLayout());
 	
 		JPanel paramPane = new JPanel(new GridBagLayout());

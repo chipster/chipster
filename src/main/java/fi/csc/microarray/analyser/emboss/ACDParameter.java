@@ -33,6 +33,8 @@ public class ACDParameter {
     
     // Constants
     public static final String UNDEFINED = "<undefined>";
+
+	private static final int MAX_RECURSION_DEPTH = 5;
     
     private String type;
     private String name;
@@ -398,6 +400,7 @@ public class ACDParameter {
         String attrValue = getAttribute(attrName);
         return !(attrValue == null || attrValue.contains("$") || attrValue.contains("@"));
     }
+
     
     /**
      * Resolve a given ACD expression.<br><br>
@@ -408,9 +411,20 @@ public class ACDParameter {
      * 
      * @param exp - expression to be resolved.
      * @param map - a map of variable values.
+     * 
      * @return resolved value.
+     * @throws RuntimeException if maximum recursion depth is reached
      */
     public static String resolveExp(String exp, LinkedHashMap<String, String> map) {
+    	return resolveExp(exp, map, 0);
+    }
+
+    private static String resolveExp(String exp, LinkedHashMap<String, String> map, int recursionDepth) {
+    	
+    	if (recursionDepth > MAX_RECURSION_DEPTH) {
+    		throw new RuntimeException("ACD expression resolving failed, maximum recursion depth reached");
+    	}
+    	
         // Simulate the map
         // TODO: deal with calculated values (such as sequence.length) -> server side
 
@@ -459,7 +473,7 @@ public class ACDParameter {
             resolvedExp = resolvedExp.equals("true") ? "Y" : resolvedExp;
             resolvedExp = resolvedExp.equals("false") ? "N" : resolvedExp;
                 
-            return resolveExp(resolvedExp, map);
+            return resolveExp(resolvedExp, map, recursionDepth++);
         } else {
             // No changes were made - stop the recursion
             return resolvedExp;

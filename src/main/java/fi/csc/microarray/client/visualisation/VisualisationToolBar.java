@@ -121,7 +121,7 @@ public class VisualisationToolBar extends JToolBar implements ActionListener, Pr
 		refreshVisualisationList(VisualisationMethod.NONE, null);
 
 		// start listening
-		application.addPropertyChangeListener(this);
+		application.addClientEventListener(this);
 	}
 
 	public Vector<Component> getFocusComponents() {

@@ -25,6 +25,7 @@ public class SADLDescriptionTest {
 		SADLDescriptionTest test = new SADLDescriptionTest();
 		test.testDescriptions();
 		test.testSADLTool();
+		System.out.println("SADLDescriptionTest OK");
 	}
 
 	@Test(groups = {"unit"} )
@@ -94,11 +95,10 @@ public class SADLDescriptionTest {
 					
 					// Collect all possible files that the resource name might refer to
 					File[] dirsContainingDescriptions = new File[] {
-						new File("src/main/tools/bsh"),
-						new File("src/main/tools/shell"),
-						new File("src/main/tools/R-2.12"),
-						new File("src/main/tools/R-2.10"),
-						new File("src/main/tools/R-2.9"),
+						new File("src/main/modules/chipster/bsh"),
+						new File("src/main/modules/sequence/shell"),
+						new File("src/main/modules/chipster/R-2.12"),
+						new File("src/main/modules/ngs/R-2.12"),
 					};
 					LinkedList<File> potentialFiles = new LinkedList<File>(); 
 

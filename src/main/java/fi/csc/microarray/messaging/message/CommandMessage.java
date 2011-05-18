@@ -63,4 +63,15 @@ public class CommandMessage extends ParameterMessage {
 	public String getCommand() {
 		return command;
 	}
+	
+	/**
+	 * Gets parameters in the order they were inserted.
+	 * No safety precautions, should only be used in messaging
+	 * between system components (never for user input).
+	 */
+	public List<String> getParameters() {
+		return super.getParameters();
+	}
+
+
 }

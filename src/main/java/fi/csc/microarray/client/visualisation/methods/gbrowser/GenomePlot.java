@@ -38,6 +38,8 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 	private OverviewHorizontalView overviewView = null;
 	private ReadScale readScale = ReadScale.AUTO;
     public ChartPanel chartPanel;
+    
+    private boolean showFullHeight = false;
 	
 	/**
 	 * Scale for visualising reads as profiles, gel etc.
@@ -63,7 +65,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
         public String toString() {
             return name;
         }
-    }
+    }    
 
 	public GenomePlot(TooltipEnabledChartPanel panel, boolean horizontal) throws FileNotFoundException, MalformedURLException {
 	    
@@ -177,7 +179,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 			info.setDataArea(area);
 		}
 
-		// this.setBackgroundPaint(Color.black);
+		this.setBackgroundPaint(Color.black);
 
 		drawBackground(g2, area);
 		drawOutline(g2, area);
@@ -185,7 +187,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 		Shape savedClip = g2.getClip();
 		g2.clip(area);
 
-		Rectangle viewArea = (Rectangle) area.getBounds().clone();
+		Rectangle viewArea = (Rectangle) area.getBounds().clone();				
 
 		// Horizontal or vertical split
 		if (true) {
@@ -240,6 +242,15 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 		g2.setClip(savedClip);
 
 		drawOutline(g2, area);
+	}
+	
+	public int getHeightTotal() {
+		int total = 0;
+		for (View view : views) {
+			total += view.getTrackHeightTotal();
+		}
+	
+		return total;
 	}
 
 	/**
@@ -346,5 +357,13 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
             }
         }
         return count;
+    }
+    
+    public boolean isFullHeight() {
+    	return showFullHeight;
+    }
+    
+    public void setFullHeight(boolean b) {
+    	showFullHeight = b;
     }
 }

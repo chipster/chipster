@@ -18,13 +18,12 @@ public class AnalysisDescriptionGenerator {
 	/**
 	 * Converts generic SADLDescription to AnalysisDescription.
 	 */
-	public AnalysisDescription generate(SADLDescription source, AnalysisHandler analysisHandler) {
-		AnalysisDescription description = new AnalysisDescription(analysisHandler);
+	public AnalysisDescription generate(SADLDescription source, AnalysisHandler analysisHandler, RepositoryModule module) {
+		AnalysisDescription description = new AnalysisDescription(analysisHandler, module);
 		
 		description.setID(source.getName().getID());
 		description.setDisplayName(source.getName().getDisplayName());
 		description.setComment(source.getComment());
-		description.setCategory(source.getCategory());
 
 		// not interested in inputs, they were figured out when job was submitted
 		// I'm interested in inputs in java jobs

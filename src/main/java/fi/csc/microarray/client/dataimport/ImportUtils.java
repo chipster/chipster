@@ -48,6 +48,7 @@ import fi.csc.microarray.util.IOUtils;
  */
 public class ImportUtils {
 
+	private static final String PREPROCESS_TOOL_ID = "LocalNGSPreprocess.java";
 	private static final Logger logger = Logger.getLogger(ImportUtils.class);
 	private static final String DEFAULT_FOLDER_NAME = "";
 	private static ClientApplication application = Session.getSession().getApplication();
@@ -384,7 +385,7 @@ public class ImportUtils {
 
 			// create operation, open import operation parameter dialog
 			ClientApplication application = Session.getSession().getApplication();
-			Operation importOperation = new Operation(application.getOperationDefinition("LocalNGSPreprocess.java"), inputBeans.toArray(new DataBean[] {}));
+			Operation importOperation = new Operation(application.getOperationDefinition(PREPROCESS_TOOL_ID), inputBeans.toArray(new DataBean[] {}));
 			new TaskImportDialog(application, "Preprocess NGS data", importSession, importOperation, "Preprocess", "Cancel", "Skip preprocessing", "Please note that preprocessing SAM and BAM files can take several minutes depending on the file size.");
 
 		} catch (Exception me) {

@@ -15,10 +15,9 @@ import fi.csc.microarray.analyser.AnalysisDescriptionGenerator;
 import fi.csc.microarray.analyser.AnalysisException;
 import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
+import fi.csc.microarray.analyser.RepositoryModule;
 import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.analyser.SADLTool;
-import fi.csc.microarray.config.Configuration;
-import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.description.SADLGenerator;
@@ -39,12 +38,9 @@ public class BeanShellHandler implements AnalysisHandler {
 	static final Logger logger = Logger.getLogger(BeanShellHandler.class);
 
 	private final String toolPath;
-	private final String customScriptsDirName;
 	
 	public BeanShellHandler(HashMap<String, String> parameters) throws IOException, IllegalConfigurationException {
 		this.toolPath = parameters.get("toolPath");
-		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
-		this.customScriptsDirName = configuration.getString("comp", "custom-scripts-dir");
 	}
 	
 	public AnalysisJob createAnalysisJob(JobMessage message, AnalysisDescription description, ResultCallback resultHandler) {
@@ -54,32 +50,17 @@ public class BeanShellHandler implements AnalysisHandler {
 	}
 
 
-	public AnalysisDescription handle(String sourceResourceName,
-	                                  Map<String, String> params) throws AnalysisException {
+	public AnalysisDescription handle(RepositoryModule module, String toolFilename, Map<String, String> params) throws AnalysisException {
+		
+		File toolFile = new File(module.getModuleDir(), toolPath + File.separator + toolFilename);
 		
 		InputStream scriptSource;
 		
-		String scriptPath = toolPath + File.separator + sourceResourceName;
-		logger.debug("creating description from " + scriptPath);
-
-		// check for custom script file
-		File scriptFile = new File(customScriptsDirName + File.separator + scriptPath);
-		if (scriptFile.exists()) {
-			FileInputStream customScriptSource;
-			try {
-				customScriptSource = new FileInputStream(scriptFile);
-			} catch (FileNotFoundException fnfe) {
-				logger.error("Could not load custom script: " + scriptFile, fnfe);
-				throw new AnalysisException("Could not load custom script: " + scriptFile);
-			}
-			scriptSource = customScriptSource;
-			logger.info("using custom-script for " + scriptPath);
-		} else {
-			scriptSource = this.getClass().getResourceAsStream(scriptPath);
-		}
-		
-		if (scriptSource == null) {
-			throw new AnalysisException("Script source " + sourceResourceName + " not found.");
+		try {
+			scriptSource = new FileInputStream(toolFile);
+			
+		} catch (FileNotFoundException e) {
+			throw new AnalysisException("Script source " + toolFile + " not found.");
 		}
 		
 		// read the SADL from the comment block in the beginning of file
@@ -93,15 +74,14 @@ public class BeanShellHandler implements AnalysisHandler {
 		// parse SADL		
 		SADLDescription sadlDescription;
 		try {
-			sadlDescription = new ChipsterSADLParser().parse(parsedScript.SADL,
-			        sourceResourceName);
+			sadlDescription = new ChipsterSADLParser().parse(parsedScript.SADL, toolFile.getName());
 		} catch (ParseException e) {
 			throw new AnalysisException(e);
 		}
 		
 		// create analysis description
 		AnalysisDescription ad;
-		ad = new AnalysisDescriptionGenerator().generate(sadlDescription, this);
+		ad = new AnalysisDescriptionGenerator().generate(sadlDescription, this, module);
 		
 		// SADL back to string
 		SADLGenerator.generate(sadlDescription);
@@ -111,8 +91,8 @@ public class BeanShellHandler implements AnalysisHandler {
 		ad.setCommand("BeanShell");
 		ad.setImplementation(parsedScript.source); // include headers
 		ad.setSourceCode(parsedScript.source);
-		ad.setSourceResourceName(sourceResourceName);
-		ad.setSourceResourceFullPath(scriptPath);
+//		ad.setSourceResourceName(sourceResourceName);
+		ad.setSourceResourceFullPath(toolFile);
 		
 		return ad;
 	}
@@ -122,20 +102,8 @@ public class BeanShellHandler implements AnalysisHandler {
 	 * AnalysisDescription was created.
 	 */
 	public boolean isUptodate(AnalysisDescription description) {
-		File scriptFile = new File(customScriptsDirName + description.getSourceResourceFullPath());
-		
-		// custom script exists and is than description creation
-		if (scriptFile.exists()) {
-			if (scriptFile.lastModified() > description.getCreationTime()) {
-				return false;
-			}
-		} 
-		
-		// custom script has been deleted
-		else if (description.isUpdatedSinceStartup()) {
-			return false;
-		}
-		return true;
+		File scriptFile = description.getToolFile();
+		return scriptFile.lastModified() <= description.getCreationTime();
 	}
 
 	public boolean isDisabled() {

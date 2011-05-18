@@ -45,6 +45,7 @@ import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataItemCreatedEvent;
 import fi.csc.microarray.databeans.DataItemRemovedEvent;
+import fi.csc.microarray.util.SwingTools;
 
 /**
  * A GUI component for viewing the DataBeans in a tree structure,
@@ -212,7 +213,7 @@ public class TreePanel extends JPanel implements DataChangeListener, TreeSelecti
 	
 		// start listening
 		application.getDataManager().addDataChangeListener(this);
-		application.addPropertyChangeListener(this);
+		application.addClientEventListener(this);
 	}
 	
 	public Vector<Component> getFocusComponents(){
@@ -374,28 +375,32 @@ public class TreePanel extends JPanel implements DataChangeListener, TreeSelecti
         }        
 	}
 	
-	public void dataChanged(DataChangeEvent dataEvent) {
-		
-		logger.debug("got " + dataEvent.getClass().getSimpleName());
-		
-        if (dataEvent instanceof DataChangeEvent) {
-        	
-        	DataItem data = ((DataChangeEvent)dataEvent).getDataItem();
-        	
-        	if (dataEvent instanceof DataItemCreatedEvent) {
-        		insertData(data);
-        		
-        	} else if (dataEvent instanceof DataItemRemovedEvent) {
-        		removeData(data);
-        	}
-        	
-        	if(treeModel.getChildCount(treeModel.getRoot()) >= 1){
-        		cardLayout.last(cardParent);
-        		tree.repaint();
-        	} else {
-        		cardLayout.first(cardParent);
-        	}
-        }        
+	public void dataChanged(final DataChangeEvent dataEvent) {
+		SwingTools.runInEventDispatchThread(new Runnable() {
+			public void run() {
+
+				if (dataEvent instanceof DataChangeEvent) {
+
+					DataItem data = ((DataChangeEvent)dataEvent).getDataItem();
+
+					if (dataEvent instanceof DataItemCreatedEvent) {
+						insertData(data);
+
+					} else if (dataEvent instanceof DataItemRemovedEvent) {
+						removeData(data);
+					}
+
+
+
+					if(treeModel.getChildCount(treeModel.getRoot()) >= 1){
+						cardLayout.last(cardParent);
+						tree.repaint();
+					} else {
+						cardLayout.first(cardParent);
+					}
+				}
+			}
+		});
 	}
 
 	public void valueChanged(TreeSelectionEvent e) {

@@ -21,9 +21,12 @@ import fi.csc.microarray.analyser.AnalysisDescription;
 import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
 import fi.csc.microarray.analyser.ProcessPool;
+import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.JobState;
+import fi.csc.microarray.messaging.message.JobMessage.ParameterSecurityPolicy;
+import fi.csc.microarray.messaging.message.JobMessage.ParameterValidityException;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -33,10 +36,75 @@ import fi.csc.microarray.util.IOUtils;
  */
 public class RAnalysisJob extends OnDiskAnalysisJobBase {
 
+	private static final String R_STRING_SEPARATOR = "\"";
+
+
+	/**
+	 * Checks that parameter values are safe to insert into R code.
+	 * Should closely match the code that is used to output the values in transformVariable(...).
+	 * 
+	 * @see RAnalysisJob#transformVariable(String, String, boolean)
+	 *
+	 */
+	public static class RParameterSecurityPolicy implements ParameterSecurityPolicy {
+		
+		private static final int MAX_VALUE_LENGTH = 1000;
+		
+		/**
+		 * This regular expression is very critical, because it checks code that is directly inserted
+		 * into R script. Hence it should be very conservative.
+		 * 
+		 * Interpretation: Maybe minus, zero or more digits, maybe point, zero or more digits.
+		 */
+		public static String NUMERIC_VALUE_PATTERN = "-?\\d*\\.?\\d*";
+		
+		/**
+		 * This regular expression is not very critical, because text is inserted inside string constant in R code.
+		 * It should however always be combined with additional check that string terminator is not contained,
+		 * because that way the string constant can be escaped. However values can be used in later
+		 * points of the script in very different situations (filenames, etc.) and should be kept as simple as possible.
+		 * 
+		 * Interpretation: Only word characters and some special symbols are allowed.
+		 */
+		public static String TEXT_VALUE_PATTERN = "[\\w+\\-_:\\.,*()]*";
+		
+		/**
+		 *  
+		 */
+		public boolean isValueValid(String value, ParameterDescription parameterDescription) {
+			
+			// Check parameter size (DOS protection)
+			if (value.length() > MAX_VALUE_LENGTH) {
+				return false;
+			}
+			
+			// Check parameter content (R injection protection)
+			if (parameterDescription.isNumeric()) {
+				
+				// Numeric value must match the strictly specified pattern
+				return value.matches(NUMERIC_VALUE_PATTERN);
+				
+			} else {
+				
+				// First check for string termination
+				if (value.contains(R_STRING_SEPARATOR)) {
+					return false;
+				}
+				
+				// Text value must still match specified pattern
+				return value.matches(TEXT_VALUE_PATTERN);
+			}
+			
+		}
+
+	}
+	
+	public static RParameterSecurityPolicy R_PARAMETER_SECURITY_POLICY = new RParameterSecurityPolicy();
+	
 	static final Logger logger = Logger.getLogger(RAnalysisJob.class);
 	
-	private static String SCRIPT_SUCCESSFUL_STRING = "nami-script-finished-succesfully";
-	private static String SCRIPT_FAILED_STRING = "nami-script-finished-unsuccesfully";
+	private static String SCRIPT_SUCCESSFUL_STRING = "script-finished-succesfully";
+	private static String SCRIPT_FAILED_STRING = "script-finished-unsuccesfully";
 	
 	private int rTimeout;
 	private CountDownLatch waitRLatch = new CountDownLatch(1);
@@ -164,8 +232,18 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		
 		// load input parameters		
 		int i = 0; 
+		List<String> parameterValues;
+		try {
+			parameterValues = inputMessage.getParameters(R_PARAMETER_SECURITY_POLICY, analysis);
+			
+		} catch (ParameterValidityException e) {
+			outputMessage.setErrorMessage(e.getMessage()); // always has a message
+			outputMessage.setOutputText(e.toString());
+			updateState(JobState.FAILED_USER_ERROR, "");
+			return;
+		}
 		for (AnalysisDescription.ParameterDescription param : analysis.getParameters()) {
-			String value = new String(inputMessage.getParameters().get(i));
+			String value = new String(parameterValues.get(i));
 			String rSnippet = transformVariable(param.getName(), value, param.isNumeric());
 			logger.debug("added parameter (" +  rSnippet + ")");
 			inputReaders.add(new BufferedReader(new StringReader(rSnippet)));
@@ -227,17 +305,27 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		RProcessMonitor processMonitor = new RProcessMonitor();
 		new Thread(processMonitor).start();
 		
+		// combine the inputs into a single string and store it as the source code
+		StringBuilder inputStringBuilder = new StringBuilder();
+		try {
+			for (BufferedReader reader : inputReaders) {			
+				for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+					inputStringBuilder.append(line + "\n");
+				}
+			}
+		} catch (IOException ioe) {
+			logger.warn("creating R input failed");
+		}
+	
+		outputMessage.setSourceCode(inputStringBuilder.toString());
+		
 		// write the input to process
 		logger.debug("writing the input to R.");
 		BufferedWriter writer = null;
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
-			for (BufferedReader reader : inputReaders) {			
-				for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-					writer.write(line);
-					writer.newLine();
-				}
-			}
+			writer.write(inputStringBuilder.toString());
+			writer.newLine();
 			writer.flush();
 		} catch (IOException ioe) {
 			// this happens if R has died before or dies while writing the input
@@ -332,7 +420,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 	 */
 	public static String transformVariable(String name, String value, boolean isNumeric) {
 		if (!isNumeric) {
-			value = "\"" + value + "\""; // escape strings and such
+			value = R_STRING_SEPARATOR + value + R_STRING_SEPARATOR; // escape strings and such
 		}
 		name = name.replaceAll(" ", "_"); // remove spaces
 		return (name + " <- " + value);
@@ -349,6 +437,4 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 	public void setProcessPool(ProcessPool processPool) {
 		this.processPool = processPool;
 	}
-
-	
 }

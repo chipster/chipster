@@ -31,12 +31,15 @@ public class ResultMessage extends PayloadMessage {
 	private static final String KEY_STATE_DETAIL = "stateDetail";
 	private static final String KEY_ERROR_MESSAGE = "errorMessage";
 	private static final String KEY_OUTPUT_TEXT = "outputText";
+	private static final String KEY_SOURCE_CODE = "sourceCode";
 	
 	private String jobId;
 	private JobState state;
 	private String stateDetail;
 	private String errorMessage;
 	private String outputText;
+	private String sourceCode;
+	
 	
 
 	public ResultMessage(String jobId, JobState state, String stateDetail, String errorMessage,
@@ -63,6 +66,7 @@ public class ResultMessage extends PayloadMessage {
 		this.stateDetail = from.getString(KEY_STATE_DETAIL);
 		this.errorMessage = from.getString(KEY_ERROR_MESSAGE);
 		this.outputText = from.getString(KEY_OUTPUT_TEXT);
+		this.sourceCode = from.getString(KEY_SOURCE_CODE);
 	}
 
 	public void marshal(MapMessage mapMessage) throws JMSException {
@@ -73,6 +77,7 @@ public class ResultMessage extends PayloadMessage {
 		mapMessage.setString(KEY_STATE_DETAIL, this.stateDetail);
 		mapMessage.setString(KEY_ERROR_MESSAGE, this.errorMessage);
 		mapMessage.setString(KEY_OUTPUT_TEXT, this.outputText);
+		mapMessage.setString(KEY_SOURCE_CODE, this.sourceCode);
 	}
 	
 	/**
@@ -117,6 +122,14 @@ public class ResultMessage extends PayloadMessage {
 		this.outputText = output;
 	}
 
+	public void setSourceCode(String sourceCode) {
+		this.sourceCode = sourceCode;
+	}
+	
+	public String getSourceCode() {
+		return this.sourceCode;
+	}
+	
 	public String getStateDetail() {
 		return stateDetail;
 	}

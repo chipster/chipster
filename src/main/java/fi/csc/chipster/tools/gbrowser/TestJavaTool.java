@@ -2,7 +2,6 @@ package fi.csc.chipster.tools.gbrowser;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 
@@ -31,11 +30,11 @@ public class TestJavaTool extends JavaAnalysisJobBase {
 
 			File commentFile = new File(jobWorkDir, "comment.txt");
 			FileWriter commentWriter = new FileWriter(commentFile);
-			commentWriter.write(inputMessage.getParameters().get(0));
+			commentWriter.write(inputMessage.getParameters(JAVA_PARAMETER_SECURITY_POLICY, this.analysis).get(0));
 			commentWriter.flush();
 			commentWriter.close();
 			
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		

@@ -71,17 +71,16 @@ public class IntensityTrack extends Track {
 			// do the plotting for this concised value
 			int x1 = getView().bpToTrack(regCont.region.start);
 			int x2 = getView().bpToTrack(regCont.region.end) + 2;
-			int y2 = (int) getView().getTrackHeight();						
+			int y = 0;						
 
 			double count = (Float) (regCont.values.get(ColumnType.VALUE));
 			if (doLog) {
 				count = Math.log(count);
 			}
 			
-			int height = (int) Math.min(count * (GenomeBrowserConstants.READ_HEIGHT + GenomeBrowserConstants.SPACE_BETWEEN_READS), getView().getTrackHeight());
-			int y1 = (int) (-height + y2);
+			int height = (int) Math.min(count * (GenomeBrowserConstants.READ_HEIGHT + GenomeBrowserConstants.SPACE_BETWEEN_READS), getView().getTrackHeight());			
 
-			drawables.add(new RectDrawable(x1, y1, x2 - x1, y2 - y1, color, null));
+			drawables.add(new RectDrawable(x1, y, x2 - x1, height, color, null));
 
 		}
 

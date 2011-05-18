@@ -136,7 +136,7 @@ public class GraphPanel extends JPanel implements ActionListener, PropertyChange
 		this.add(graphScroller, c);
 
 		// start listening
-		application.addPropertyChangeListener(this);
+		application.addClientEventListener(this);
 		application.getDataManager().addDataChangeListener(this);
 
 		graph.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));

@@ -49,7 +49,7 @@ public class MicroarrayMain {
 			cmdParser.addParameter("rcheck", false, true, null, "check R script syntax");
 			cmdParser.addParameter("-config", false, true, null, "configuration file URL (chipster-config.xml)");
 			cmdParser.addParameter("-required-analyser-count", false, true, "1", "required comp service count for nagios check");
-            cmdParser.addParameter("-module", false, true, "microarray", "client module (e.g. microarray-module)");
+            cmdParser.addParameter("-module", false, true, "fi.csc.microarray.module.chipster.MicroarrayModule", "client module (e.g. microarray-module)");
 			
 			// parse commandline
 			cmdParser.parse(args);

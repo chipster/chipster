@@ -3,6 +3,7 @@ package fi.csc.microarray.description;
 import java.util.List;
 
 import fi.csc.microarray.description.SADLDescription.Entity;
+import fi.csc.microarray.description.SADLDescription.IOEntity;
 import fi.csc.microarray.description.SADLDescription.Input;
 import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.description.SADLDescription.Output;
@@ -28,13 +29,11 @@ public class SADLGenerator {
 	 */
 	public static String generate(SADLDescription sadl) {
 		
-		String string =	"TOOL " + quoteIfNeeded(sadl.getCategory()) + " / " + generateName(sadl.getName()) + " (" + escapeIfNeeded(sadl.getComment()) + ")\n";
+		String string =	"TOOL " + generateName(sadl.getName()) + " (" + escapeIfNeeded(sadl.getComment()) + ")\n";
 		
 		string += generateInputs("INPUT", sadl.inputs());		
-		string += generateInputs("METAINPUT", sadl.metaInputs());
 		
 		string += generateOutputs("OUTPUT", sadl.outputs());		
-		string += generateOutputs("METAOUTPUT", sadl.metaOutputs());
 
 		if (!sadl.parameters().isEmpty()) {
 			for (Parameter parameter: sadl.parameters()) {
@@ -75,7 +74,7 @@ public class SADLGenerator {
 					}
 				}
 
-				paramString += "(" + escapeIfNeeded(parameter.getComment()) + ")";
+				paramString += possibleComment(parameter.getComment());
 				
 				string += paramString + "\n";
 			}			
@@ -84,11 +83,19 @@ public class SADLGenerator {
 		return string;
 	}
 
+	private static String possibleComment(String comment) {
+		if (comment != null) {
+			return "(" + escapeIfNeeded(comment) + ")";
+		} else {
+			return "";
+		}
+	}
+
 	private static String generateOutputs(String header, List<Output> outputList) {
 		String string = "";
 		if (!outputList.isEmpty()) {
 			for (Output output : outputList) {
-				string += header + " " + generateOptional(output) + generateName(output.getName()) +  "\n";
+				string += header + " " + generateExtensions(output) + generateName(output.getName()) + " " + possibleComment(output.getComment()) + "\n";
 			}
 		}
 		return string;
@@ -98,17 +105,21 @@ public class SADLGenerator {
 		String string = "";
 		if (!inputList.isEmpty()) {
 			for (Input input : inputList) {
-				string += header + " " + generateOptional(input) + generateName(input.getName()) + " TYPE " + input.getType().getName() + "\n";
+				string += header + " " + generateExtensions(input) + generateName(input.getName()) + " TYPE " + input.getType().getName() + " " + possibleComment(input.getComment()) + "\n";
 			}
 			
 		}
 		return string;
 	}
 	
-	private static String generateOptional(Entity entity) {
-		return entity.isOptional() ? "OPTIONAL " : "";		
+	private static String generateExtensions(IOEntity entity) {
+		return (entity.isMeta() ? "META " : "") + generateOptional(entity);		
 	}
-	
+
+	private static String generateOptional(Entity entity) {
+		return (entity.isOptional() ? "OPTIONAL " : "");		
+	}
+
 	public static String generateName(Name name) {
 		
 		String firstPart;

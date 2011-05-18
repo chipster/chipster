@@ -31,6 +31,9 @@ import fi.csc.microarray.util.Files;
  */
 public abstract class ShellAnalysisJobBase extends OnDiskAnalysisJobBase {
  
+	protected static final String SHELL_STRING_SEPARATOR = "\"";
+
+
 	protected String[] command;
 	
     protected Boolean useStdout = false;
