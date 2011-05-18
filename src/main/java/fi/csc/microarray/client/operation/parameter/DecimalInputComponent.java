@@ -3,6 +3,7 @@ package fi.csc.microarray.client.operation.parameter;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.FocusEvent;
+import java.math.BigDecimal;
 
 import javax.swing.JComponent;
 import javax.swing.JTextField;
@@ -44,7 +45,7 @@ public class DecimalInputComponent extends ParameterInputComponent
 		field.setPreferredSize(ParameterInputComponent.PREFERRED_SIZE);
 		if (param.getDecimalValue() != null) {
 		    // If value is null it means the field has no default value
-		    field.setText("" + param.getDecimalValue());
+		    field.setText(new BigDecimal(param.getDecimalValue().toString()).toPlainString());
 		}
 		field.addCaretListener(this);
 		field.addFocusListener(this);
