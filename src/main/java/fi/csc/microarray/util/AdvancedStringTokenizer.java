@@ -15,18 +15,18 @@ public class AdvancedStringTokenizer implements Iterable<String>, Iterator<Strin
 		this(string, true, false, " \t\n\r\f");		
 	}
 	
-	public AdvancedStringTokenizer(String string, boolean trim, boolean groupHyphenated) {
-		this(string, trim, groupHyphenated, " \t\n\r\f");				
+	public AdvancedStringTokenizer(String string, boolean trim, boolean groupQuoted) {
+		this(string, trim, groupQuoted, " \t\n\r\f");				
 	}
 
 	/**
 	 * 
 	 * @param string string to tokenise
 	 * @param trim remove leading and trailing space from tokens
-	 * @param groupHyphenated group text inside hyphens into one token
+	 * @param groupQuoted group text inside quotes into one token
 	 * @param delim characters that delimit tokens
 	 */
-	public AdvancedStringTokenizer(String string, boolean trim, boolean groupHyphenated, String delim) {
+	public AdvancedStringTokenizer(String string, boolean trim, boolean groupQuoted, String delim) {
 		StringTokenizer st = new StringTokenizer(string, delim);
 		this.inputStringLength = string.length();
 		
@@ -35,7 +35,7 @@ public class AdvancedStringTokenizer implements Iterable<String>, Iterator<Strin
 			tokens.add(token);
 		}
 		
-		if (groupHyphenated) {
+		if (groupQuoted) {
 			List<String> originalTokens = tokens; 
 			tokens = new LinkedList<String>();
 			for (int i = 0; i < originalTokens.size(); i++) {

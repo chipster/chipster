@@ -24,11 +24,6 @@ public interface DataItem {
      */
     public abstract void setName(String newName);
     
-    /**
-     * Returns an indented textual representation of this item and its subitems.
-     * 
-     * @param level current indentation level
-     */
-	public abstract String toStringRecursively(int level);
+    public abstract void setParent(DataFolder newParent);
 
 }
