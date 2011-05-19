@@ -1,6 +1,7 @@
 # ANALYSIS Statistics/"SAM" (SAM analysis for one or more groups. You probably need to run this tool several
 # times in order to get an idea of the results, since the results are reported for one delta-value at a time.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT sam.tsv, sam.pdf, sam-delta.pdf
+# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv 
+# OUTPUT sam.tsv, sam.png, sam-delta.pdf
 # PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
 # PARAMETER p.value.adjustment.method [none, Bonferroni, BH] DEFAULT BH (Multiple testing correction method)
 # PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
@@ -45,7 +46,7 @@ if(column=="empty") {
 samout<-sam(dat2, groups, rand=random.number, control=samControl(n.delta=number.of.delta))
 
 # Plots the results
-pdf(file="sam.pdf", width=600/72, height=600/72)
+bitmap(file="sam.png", width=600/72, height=600/72)
 plot(samout)
 dev.off()
 
