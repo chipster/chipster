@@ -95,9 +95,15 @@ public class RAnalysisHandler implements AnalysisHandler {
 		
 		try {
 			scriptSource = new FileInputStream(toolFile);
-			
+
 		} catch (FileNotFoundException e) {
-			throw new AnalysisException("script source " + toolFile + " not found.");
+			toolFile = new File("modules/microarray", toolPath + File.separator + toolFilename);
+			try {
+				scriptSource = new FileInputStream(toolFile);
+
+			} catch (FileNotFoundException fnfe) {
+				throw new AnalysisException("script source " + toolFile + " not found.");
+			}
 		}
 		
 		// read the SADL from the comment block in the beginning of file
