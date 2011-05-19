@@ -110,14 +110,14 @@ if(doresample=="none") {
 }
 
 # Tree calculation, with resampling
-#if(doresample=="none"){
-#   pdf(file="resample.pdf", width=w/72, height=h/72)
-#   plot(1, 1, col=0)
-#   text(1, 1, "This is a dummy image.", col=1)
-#   text(1, 0.9, "To generate a real image, turn on the bootstrapping option.", col=1)
-#   text(1, 0.8, "Note, that bootstrapping is not necessary, and might take a very long time to complete.", col=1)
-#   dev.off()
-#}
+if(doresample=="none"){
+   pdf(file="resample.pdf", width=w/72, height=h/72)
+   plot(1, 1, col=0)
+   text(1, 1, "This is a dummy image.", col=1)
+   text(1, 0.9, "To generate a real image, turn on the bootstrapping option.", col=1)
+   text(1, 0.8, "Note, that bootstrapping is not necessary, and might take a very long time to complete.", col=1)
+   dev.off()
+}
 if(doresample=="bootstrap"){
    library(pvclust)
    clust<-hcluster(x=dat2, method=distmeth, link=treemeth)
