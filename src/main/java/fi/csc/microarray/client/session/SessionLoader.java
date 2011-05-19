@@ -237,6 +237,9 @@ public class SessionLoader {
 			if (colorString != null) {
 				operationRecord.setCategoryColor(Color.decode(colorString));
 			}
+
+			// module
+			operationRecord.setModule(operationType.getModule());
 			
 			// parameters
 			for (ParameterType parameterType : operationType.getParameter()) {

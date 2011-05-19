@@ -25,6 +25,8 @@ public class OperationRecord {
 	private String categoryName;
 	private Color categoryColor;
 	
+	private String moduleName;
+	
 	private String sourceCode;
 
 	private LinkedHashMap<String, ParameterRecord> parameters = new LinkedHashMap<String, ParameterRecord>();
@@ -41,6 +43,9 @@ public class OperationRecord {
 		// category
 		this.categoryName = operation.getCategoryName();
 		this.categoryColor = operation.getCategoryColor();
+		
+		// module
+		this.moduleName = operation.getDefinition().getCategory().getModule().getModuleName();
 		
 		// parameters
 		for (Parameter parameter : operation.getParameters()) {
@@ -73,11 +78,23 @@ public class OperationRecord {
 		return categoryName;
 	}
 
+	public String getModule() {
+		return this.moduleName;
+	}
+	
 	public String getFullName() {
 		return getCategoryName() + " / " + nameID.getDisplayName();
 	}
 
-	// TODO check if operation with the id still exists and if the color has changed
+	/**
+	 * Returns the color of the category when the operation was run.
+	 * 
+	 * In most cases it would be good to use the tool id to get the current
+	 * category and color from there, and only use this color if the tool is 
+	 * no longer available.
+	 * 
+	 * @return
+	 */
 	public Color getCategoryColor() {
 		return categoryColor;
 	}
@@ -110,6 +127,10 @@ public class OperationRecord {
 		this.categoryName = categoryName;
 	}
 
+	public void setModule(String moduleName) {
+		this.moduleName = moduleName;
+	}
+	
 	public void setCategoryColor(Color categoryColor) {
 		this.categoryColor = categoryColor;
 	}
