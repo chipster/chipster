@@ -86,15 +86,6 @@ public class OperationRecord {
 		return getCategoryName() + " / " + nameID.getDisplayName();
 	}
 
-	/**
-	 * Returns the color of the category when the operation was run.
-	 * 
-	 * In most cases it would be good to use the tool id to get the current
-	 * category and color from there, and only use this color if the tool is 
-	 * no longer available.
-	 * 
-	 * @return
-	 */
 	public Color getCategoryColor() {
 		return categoryColor;
 	}
