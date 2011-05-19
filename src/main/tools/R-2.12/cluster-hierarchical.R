@@ -2,8 +2,7 @@
 # clustering method. The clustering result can be validated using bootstrapping. Validation is computationally 
 # very expensive, and works for approximately less than 100 genes.)
 # INPUT GENE_EXPRS normalized.tsv 
-# OUTPUT hc.tre
-# OUTPUT OPTIONAL resample.pdf: "A dendrogram with ressampling probabilities overlaid"
+# OUTPUT hc.tre, resample.pdf
 # PARAMETER cluster [genes, chips] DEFAULT genes (What to cluster)
 # PARAMETER distance.method [euclidian, manhattan, pearson, spearman] DEFAULT pearson (Distance measure)
 # PARAMETER tree.method [single, average, complete, ward] DEFAULT average (Clustering method)
