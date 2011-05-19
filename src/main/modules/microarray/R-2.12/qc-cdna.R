@@ -1,10 +1,9 @@
-# TOOL qc-cdna.R: cDNA (cDNA quality control using boxplots, density plots, and MA plots. This tool should be run on normalized data.)
-# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
-# OUTPUT boxplot.pdf: boxplot.pdf 
-# OUTPUT densityplot.pdf: densityplot.pdf 
-# OUTPUT MA-plot.pdf: MA-plot.pdf 
-# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# ANALYSIS "Quality control"/"cDNA" (cDNA quality control using boxplots, density plots, and MA plots. 
+# This tool should be run on normalized data.)
+# INPUT GENE_EXPRS normalized.tsv 
+# OUTPUT boxplot.png, densityplot.pdf, MA-plot.pdf
+# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 
 # Quality control of cDNA chips
@@ -29,7 +28,7 @@ A<-dat[,grep("average", names(dat))]
 # Producing some basic plots of the data
 
 # Boxplot
-pdf(file="boxplot.pdf", width=w/72, height=h/72)
+bitmap(file="boxplot.png", width=w/72, height=h/72)
 boxplot(as.data.frame(dat2), las=2, cex.axis=0.5)
 dev.off()
 
@@ -45,7 +44,7 @@ plot(x[,1], y[,1], col=1, ylim=c(0, max(y)), main="M intensities", type="l", lwd
 for(i in 2:ncol(dat2)) {
    lines(x[,i], y[,i], col=i, lwd=2, lty=1)
 }
-legend(legend=colnames(dat2), x="topleft", lty=1, cex=0.75, col=c(1:ncol(dat2)))
+legend(legend=colnames(dat2), x="topright", lty=1, cex=0.75, col=c(1:ncol(dat2)))
 dev.off()
 
 # MA plot
