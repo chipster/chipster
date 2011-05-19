@@ -3,7 +3,7 @@
 # very expensive, and works for approximately less than 100 genes.)
 # INPUT GENE_EXPRS normalized.tsv 
 # OUTPUT hc.tre
-# OUTPUT OPTIONAL resample.pdf
+# OUTPUT OPTIONAL resample.pdf: "A dendrogram with ressampling probabilities overlaid"
 # PARAMETER cluster [genes, chips] DEFAULT genes (What to cluster)
 # PARAMETER distance.method [euclidian, manhattan, pearson, spearman] DEFAULT pearson (Distance measure)
 # PARAMETER tree.method [single, average, complete, ward] DEFAULT average (Clustering method)
