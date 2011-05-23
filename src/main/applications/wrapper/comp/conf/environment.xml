@@ -68,9 +68,9 @@
   <bundle name="Basic R environment" depends="Required OS packages for R" required="true">
   
     <item installed="false" name="R" type="application">
-      <dir>/opt/chipster/tools/R-2.9.0</dir>
+      <dir>/opt/chipster/tools/R-2.12.1</dir>
       <comment>
-      	Download http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-2.9.0.tar.gz 
+      	Download http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-2.12.1.tar.gz 
       	and install.
       </comment>
     </item>
