@@ -10,7 +10,7 @@
 # OUTPUT OPTIONAL output.bed: "BED file"
 # OUTPUT output.tsv: "Enrichment data"
 # PARAMETER species TYPE [human] DEFAULT human (Select the species)
-# PARAMETER promoters.only TEPE [yes, no] DEFAULT no (Should the analyses be restricted to promoter regions only)
+# PARAMETER promoters.only TYPE [yes, no] DEFAULT no (Should the analyses be restricted to promoter regions only)
 # PARAMETER coverage.resolution TYPE [25,50,100,200] DEFAULT  50 (Targeted data resolution, in base pairs, when the genome-wide coverage is calculated)
 # PARAMETER smoothing.extension TYPE [200,400,800,1200] DEFAULT 400 (The amount of data smoothing, in base pairs, by extending the reads)
 # PARAMETER fragment.length TYPE [400,800,1600,2400] DEFAULT 800 (Length of the fragment for calculation of local CpGs)
