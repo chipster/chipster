@@ -9,16 +9,16 @@
 # OUTPUT OPTIONAL rois.tsv: "Promoter regions"
 # OUTPUT OPTIONAL output.bed: "BED file"
 # OUTPUT output.tsv: "Enrichment data"
-# PARAMETER species [human] DEFAULT human (Select the species)
-# PARAMETER promoters.only [yes, no] DEFAULT no (Should the analyses be restricted to promoter regions only)
-# PARAMETER coverage.resolution [25,50,100,200] DEFAULT  50 (Targeted data resolution, in base pairs, when the genome-wide coverage is calculated)
-# PARAMETER smoothing.extension [200,400,800,1200] DEFAULT 400 (The amount of data smoothing, in base pairs, by extending the reads)
-# PARAMETER fragment.length [400,800,1600,2400] DEFAULT 800 (Length of the fragment for calculation of local CpGs)
-# PARAMETER save.bam [yes, no] DEFAULT yes (Should the normalized data, as rpm, be saved as a bam file)
-# PARAMETER promoter.upstream [1000,2000,5000] DEFAULT 1000 (How much upstream, in base pairs, from the transcription start site does the promoter extend)
-# PARAMETER promoter.downstream [250,500,750,1000] DEFAULT 500 (How much downstream, in base pairs, from the transcription start site does the promoter extend)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted images in pixels)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted images in pixels)
+# PARAMETER species TYPE [human] DEFAULT human (Select the species)
+# PARAMETER promoters.only TEPE [yes, no] DEFAULT no (Should the analyses be restricted to promoter regions only)
+# PARAMETER coverage.resolution TYPE [25,50,100,200] DEFAULT  50 (Targeted data resolution, in base pairs, when the genome-wide coverage is calculated)
+# PARAMETER smoothing.extension TYPE [200,400,800,1200] DEFAULT 400 (The amount of data smoothing, in base pairs, by extending the reads)
+# PARAMETER fragment.length TYPE [400,800,1600,2400] DEFAULT 800 (Length of the fragment for calculation of local CpGs)
+# PARAMETER save.bam TYPE [yes, no] DEFAULT yes (Should the normalized data, as rpm, be saved as a bam file)
+# PARAMETER promoter.upstream TYPE [1000,2000,5000] DEFAULT 1000 (How much upstream, in base pairs, from the transcription start site does the promoter extend)
+# PARAMETER promoter.downstream TYPE [250,500,750,1000] DEFAULT 500 (How much downstream, in base pairs, from the transcription start site does the promoter extend)
+# PARAMETER image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted images in pixels)
+# PARAMETER image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted images in pixels)
 
 
 # Parameters for testing purposes only
