@@ -16,14 +16,16 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
-
 import org.apache.log4j.Logger;
 import org.mortbay.io.WriterOutputStream;
 import org.xml.sax.SAXException;
 
 import fi.csc.microarray.client.NameID;
 import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
+import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
+import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.client.session.schema.DataType;
 import fi.csc.microarray.client.session.schema.FolderType;
 import fi.csc.microarray.client.session.schema.InputType;
@@ -259,7 +261,30 @@ public class SessionLoader {
 				// might be null, is ok
 				operationRecord.setSourceCode(sourceCode);
 			}
-			
+
+			// update names, category from the current version of the tool
+			OperationDefinition currentTool;
+			currentTool = Session.getSession().getApplication().getOperationDefinition(operationRecord.getNameID().getID(), operationRecord.getModule());
+			if (currentTool == null) {
+				currentTool = Session.getSession().getApplication().getOperationDefinition(operationRecord.getNameID().getID());
+			}
+			if (currentTool != null) {
+				operationRecord.getNameID().setDisplayName(currentTool.getDisplayName());
+				operationRecord.getNameID().setDescription(currentTool.getDescription());
+				operationRecord.setModule(currentTool.getCategory().getModule().getModuleName());
+				operationRecord.setCategoryName(currentTool.getCategoryName());
+				operationRecord.setCategoryColor(currentTool.getCategory().getColor());
+				
+				for (ParameterRecord parameterRecord : operationRecord.getParameters()) {
+					Parameter currentParameter = currentTool.getParameter(parameterRecord.getNameID().getID());
+					if (currentParameter != null) {
+						parameterRecord.getNameID().setDisplayName(currentParameter.getDisplayName());
+						parameterRecord.getNameID().setDescription(currentParameter.getDescription());
+					}
+				}
+			}
+
+			// store the operation record
 			operationRecords.put(operationSessionId, operationRecord);
 			operationTypes.put(operationRecord, operationType);
 		}
