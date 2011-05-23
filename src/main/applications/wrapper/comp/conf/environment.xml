@@ -360,6 +360,10 @@
       <bioconductor-package>MLInterfaces</bioconductor-package>
     </item>
 
+    <item installed="false" name="medips" type="r-package"> 
+      <bioconductor-package>medips</bioconductor-package>
+    </item>
+
 
   </bundle>
   
@@ -404,6 +408,13 @@
     	
 	<item installed="false" name="ROTS" type="r-package">
     	<url>http://www.math.utu.fi/en/research/groups/bio/projects/ROTS_1.1.1.tar.gz</url>
+    </item>    
+    
+	<item installed="false" name="CORNA" type="application">
+    	<comment>
+	    	Go to https://sourceforge.net/projects/corna/files/corna/1.2/CORNA_1.2.tar.gz/download and
+    		download manually.
+    	</comment> 	
     </item>    
     
     <item installed="false" name="microRNA" type="r-package"> 
