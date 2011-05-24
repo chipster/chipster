@@ -81,6 +81,6 @@ result$chromosome[result$chromosome=='23'] <- 'X'
 result$chromosome[result$chromosome=='24'] <- 'Y'
 result$chromosome[result$chromosome=='25'] <- 'MT'
 
-write.table(result, file='cn-induced-expression.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
+write.table(format(result, scientific=FALSE), file='cn-induced-expression.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
 # EOF
