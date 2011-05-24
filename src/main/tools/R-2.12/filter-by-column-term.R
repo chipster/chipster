@@ -1,5 +1,5 @@
 # ANALYSIS Preprocessing/"Filter using a column term" (Allows the user to filter the genes on the basis of one column with textual terms, such as gene symbol, gene description or GO term.)
-# INPUT GENERIC normalized.tsv OUTPUT column-filter3.tsv
+# INPUT GENERIC normalized.tsv OUTPUT column-term-filter.tsv
 # PARAMETER column COLUMN_SEL (Data column to filter by)
 # PARAMETER match.term STRING DEFAULT empty (String to search for)
 # PARAMETER exact.match [yes,no] DEFAULT yes (Should only exact matches be retained?)
