@@ -21,7 +21,7 @@ if(exact.match=="yes") {
 dat2 <- dat[grep(match.term, dat[,column]),]
 
 # write output
-write.table(dat2, 'column-filter3.tsv', sep='\t', quote=FALSE)
+write.table(dat2, 'column-term-filter.tsv', sep='\t', quote=FALSE)
 # EOF
 
 

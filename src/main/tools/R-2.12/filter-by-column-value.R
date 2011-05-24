@@ -38,5 +38,5 @@ if(smaller.or.larger=="within") {
 }
 
 # Writing the data to disk
-write.table(dat2, "column-filter3.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+write.table(dat2, "column-value-filter.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 
