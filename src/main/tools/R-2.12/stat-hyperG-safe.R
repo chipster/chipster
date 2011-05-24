@@ -1,4 +1,4 @@
-# ANALYSIS Pathways/"SAFE test for KEGG pathway enrichment" (Finds KEGG pathways that are over- 
+# ANALYSIS Pathways/"SAFE test for pathway enrichment" (Finds pathways, from the Kyoto Encyclopedia of Genes and Genomes (KEGG) or the Gene Ontology consortium (GO) that are over- 
 # or under-represented in the selected gene list.)
 # INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT safeplot.png, safe.tsv
 # PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
@@ -68,6 +68,7 @@ if(which.ontology=="KEGG") {
 }
 
 if(which.ontology=="GO") {
+	lib2<-sub('.db','',lib)
 	env<-paste(lib, "GO2ALLPROBES", sep="")
 	alleg<-get(env)
 	alleg<-as.list(alleg)
