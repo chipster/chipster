@@ -96,9 +96,165 @@ sampleNames(exp) <- phenodata_exp[common.samples, samples_exp]
 # match probes
 matched <- intCNGEan.match(cgh, exp, CNbpend='yes', GEbpend='yes', method=method)
 
+# bugfix version of the plotting function
+intCNGEan.heatmaps.modified <- function (CNdata, GEdata, location = "mode", colorbreaks = "equiquantiles") 
+{
+    makeSegments <- function(data) {
+        previous <- 2000
+        values <- c()
+        start <- c()
+        end <- c()
+        for (i in 1:length(data)) {
+            if (data[i] != previous) {
+                start <- c(start, i)
+                last <- i - 1
+                if (last > 0) 
+                  end <- c(end, last)
+                values <- c(values, data[i])
+            }
+            previous <- data[i]
+        }
+        end <- c(end, length(data))
+        result <- cbind(values, start, end)
+        return(result)
+    }
+    makeRegions <- function(CNprobs) {
+        splitter <- list()
+        splitter[[1]] <- c(1)
+        index.temp <- 1
+        j <- 1
+        for (i in 1:(dim(CNprobs)[1] - 1)) {
+            if (all(CNprobs[i, ] == CNprobs[i + 1, ])) {
+                index.temp <- c(index.temp, i + 1)
+                splitter[[j]] <- index.temp
+            }
+            else {
+                index.temp <- i + 1
+                j <- j + 1
+                splitter[[j]] <- index.temp
+            }
+        }
+        regDetails <- NULL
+        for (i in 1:length(splitter)) {
+            regDetails <- rbind(regDetails, c(min(splitter[[i]]), 
+                max(splitter[[i]])))
+        }
+        return(regDetails)
+    }
+    if (dim(fData(CNdata))[1] != dim(fData(GEdata))[1]) {
+        stop("CN and GE data have different number of rows.")
+    }
+    if (!all(fData(CNdata)[, 1] == fData(GEdata)[, 1])) {
+        stop("chrosome annotation between CN and GE does not match.")
+    }
+    if (!(location %in% c("mode", "median", "mean"))) {
+        stop("location parameter ill-specified.")
+    }
+    if (!(colorbreaks %in% c("equidistant", "equiquantiles"))) {
+        stop("colorbreaks parameter ill-specified.")
+    }
+    exprsTemp <- as.numeric(exprs(GEdata))
+    histres <- hist(as.numeric(exprs(GEdata)), plot = FALSE, 
+        n = 511)
+    if (location == "median") {
+        exprsMode <- median(exprsTemp)
+    }
+    if (location == "mean") {
+        exprsMode <- mean(exprsTemp)
+    }
+    if (location == "mode") {
+        exprsMode <- histres$mids[which.max(histres$density)]
+    }
+    exprsTempBelowMode <- exprsTemp[exprsTemp < exprsMode]
+    exprsTempAboveMode <- exprsTemp[exprsTemp >= exprsMode]
+    exprsTempBelowMode <- cbind(exprsTempBelowMode, ecdf(exprsTempBelowMode)(exprsTempBelowMode))[order(exprsTempBelowMode), 
+        ]
+    exprsTempAboveMode <- cbind(exprsTempAboveMode, ecdf(exprsTempAboveMode)(exprsTempAboveMode))[order(exprsTempAboveMode), 
+        ]
+    if (colorbreaks == "equiquantiles") {
+        histresBM <- hist(exprsTempBelowMode[, 2], plot = FALSE, 
+            n = 100)
+        histresAM <- hist(exprsTempAboveMode[, 2], plot = FALSE, 
+            n = 101)
+        breaks <- c(quantile(exprsTempBelowMode[, 1], probs = histresBM$breaks), 
+            exprsMode, quantile(exprsTempAboveMode[, 1], probs = histresAM$breaks))
+        collist <- c(maPalette(low = "red", high = "black", k = length(histresBM$breaks)), 
+            maPalette(low = "black", high = "green", k = length(histresAM$breaks)))
+    }
+    if (colorbreaks == "equidistant") {
+        collistBelowMode <- unique(maPalette(low = "red", high = "black", 
+            k = 100))
+        collistAboveMode <- unique(maPalette(low = "black", high = "green", 
+            k = 100))
+        breaks <- c(seq(min(exprsTemp), exprsMode, length.out = length(collistBelowMode) + 
+            1), seq(exprsMode, max(exprsTemp), length.out = length(collistAboveMode))[-1])
+        collist <- unique(c(collistBelowMode, collistAboveMode))
+    }
+    CNprobs <- numeric()
+    for (i in 1:dim(calls(CNdata))[2]) {
+        CNprobs <- cbind(CNprobs, cbind(probloss(CNdata)[, i], 
+            probnorm(CNdata)[, i], probgain(CNdata)[, i], probamp(CNdata)[, 
+                i]))
+    }
+    nclass <- dim(CNprobs)[2]/dim(calls(CNdata))[2]
+    SegExprData <- numeric()
+    for (sampleNo in 1:dim(calls(CNdata))[2]) {
+        SegExpr <- numeric()
+        SegData <- segmented(CNdata[, sampleNo])
+        segments <- makeSegments(segmented(CNdata[, sampleNo]))
+        for (j in 1:dim(segments)[1]) {
+            ids <- c(segments[j, 2]:segments[j, 3])
+            medSegExpr <- median(exprs(GEdata)[ids, sampleNo])
+            SegExpr <- c(SegExpr, rep(medSegExpr, length(ids)))
+        }
+        SegExprData <- cbind(SegExprData, SegExpr)
+    }
+    regDetails <- makeRegions(CNprobs)
+    regCalls <- numeric()
+    regSegExprs <- numeric()
+    regChr <- numeric()
+    for (j in 1:dim(regDetails)[1]) {
+        regCalls <- rbind(regCalls, calls(CNdata)[regDetails[j, 
+            1], ])
+        regSegExprs <- rbind(regSegExprs, SegExprData[regDetails[j, 
+            1], ])
+        regChr <- c(regChr, fData(CNdata)[regDetails[j, 1], 1])
+    }
+    chrInd <- rep(0, length(regChr))
+    chrInd[(regChr%%2 == 0)] <- 1
+    chrColor <- rep("blue", length(regChr))
+    chrColor[(regChr%%2 == 0)] <- c("yellow")
+    Y <- rep(FALSE, length(regChr))
+    for (i in 2:length(regChr)) {
+        if ((regChr[i - 1] != regChr[i])) {
+            Y[i] <- TRUE
+        }
+    }
+    Y[1] <- TRUE
+    beginChr <- rep("", length(regChr))
+    beginChr[Y] <- regChr[Y]
+    CNcolor.coding <- c("red", "black", "green", "white")[1:nclass]
+    def.par <- par
+    fl <- layout(matrix(c(1, 2, 3, 1, 2, 3, 1, 2, 3), 3, 3, byrow = TRUE), 
+        width = c(1, 9, 9))
+    par(mar = c(3, 2, 4, 0))
+    image(z = matrix(chrInd, nrow = 1), xaxt = "n", yaxt = "n", 
+        col = c("blue", "yellow"))
+    axis(2, at = (which(Y) - 1)/(length(Y) - 1), labels = regChr[Y], 
+        tick = FALSE, las = 1)
+    par(mar = c(3, 1, 4, 1))
+    image(z = t(regCalls), xaxt = "n", yaxt = "n", col = CNcolor.coding, 
+        main = "copy number data")
+    par(mar = c(3, 1, 4, 1))
+    image(z = t(regSegExprs), xaxt = "n", yaxt = "n", col = collist, 
+        breaks = breaks, main = "gene expression data")
+    par(def.par)
+    return(invisible(NULL))
+}
+
 # plot heatmaps
 pdf(file='matched-cn-and-expression-heatmap.pdf')
-intCNGEan.heatmaps(matched$CNdata.matched, matched$GEdata.matched)
+intCNGEan.heatmaps.modified(matched$CNdata.matched, matched$GEdata.matched, location='median')
 dev.off()
 
 # separate elements from the resulting object
