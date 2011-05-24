@@ -66,9 +66,9 @@ rownames(result) <- rownames(tuned$ann)
 colnames(result)[1:3] <- tolower(colnames(result)[1:3])
 
 if ('symbol' %in% colnames(dat))
-  result$symbol <- dat[rownames(result), 'symbol']
+  result$symbol <- dat[rownames(tuned$datafortest), 'symbol']
 if ('description' %in% colnames(dat))
-  result$description <- dat[rownames(result), 'description']
+  result$description <- dat[rownames(tuned$datafortest), 'description']
 
 result$probes <- rownames(tuned$datafortest)
 arrays <- colnames(tuned$datafortest)[(2*tuned$nosamp+1):(3*tuned$nosamp)]
