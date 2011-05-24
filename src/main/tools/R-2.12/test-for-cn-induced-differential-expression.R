@@ -7,7 +7,7 @@
 
 # test-for-cn-induced-differential-expression.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-02-07
+# 2011-05-24
 
 library(CGHcall)
 library(intCNGEan)
@@ -64,6 +64,12 @@ if (nrow(tuned$ann) != nrow(result))
 # format and write result table
 rownames(result) <- rownames(tuned$ann)
 colnames(result)[1:3] <- tolower(colnames(result)[1:3])
+
+if ('symbol' %in% colnames(dat))
+  result$symbol <- dat[rownames(result), 'symbol']
+if ('description' %in% colnames(dat))
+  result$description <- dat[rownames(result), 'description']
+
 result$probes <- rownames(tuned$datafortest)
 arrays <- colnames(tuned$datafortest)[(2*tuned$nosamp+1):(3*tuned$nosamp)]
 colnames(tuned$datafortest) <- c(sub('^chip\\.', 'prob1.', arrays), sub('^chip\\.', 'prob2.', arrays), arrays)

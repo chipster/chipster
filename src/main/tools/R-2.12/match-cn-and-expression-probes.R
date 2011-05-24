@@ -9,7 +9,7 @@
 
 # match-cn-and-expression-probes.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-03-28
+# 2011-05-24
 
 library(CGHcall)
 library(intCNGEan)
@@ -80,6 +80,7 @@ cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=copynumber,
 sampleNames(cgh) <- phenodata_cgh[common.samples, samples_cgh]
 
 # build an ExpressionSet object from the expression data
+dat_exp <- exp
 exp$chromosome[exp$chromosome=='X'] <- 23
 exp$chromosome[exp$chromosome=='Y'] <- 24
 exp$chromosome[exp$chromosome=='MT'] <- 25
@@ -102,6 +103,11 @@ dev.off()
 dat3 <- data.frame(matched$CNdata.matched@featureData@data, matched$GEdata.matched@featureData@data)
 colnames(dat3) <- c('chromosome', 'cn.start', 'cn.end', 'exp.probe','exp.start', 'exp.end')
 dat3$exp.probe <- rownames(matched$GEdata.matched@featureData@data)
+
+if ('symbol' %in% colnames(dat_exp))
+  dat3$symbol <- dat_exp[dat3$exp.probe, 'symbol']
+if ('description' %in% colnames(dat_exp))
+  dat3$description <- dat_exp[dat3$exp.probe, 'description']
 
 dat3$loss.freq <- round(mean(as.data.frame(t(assayDataElement(matched$CNdata.matched, "calls")==-1))), digits=3)
 dat3$gain.freq <- round(mean(as.data.frame(t(assayDataElement(matched$CNdata.matched, "calls")==1))), digits=3)
@@ -150,7 +156,7 @@ phenodata_exp$sample <- samples
 phenodata_exp$n <- NULL
 
 # write output
-write.table(dat3, file='matched-cn-and-expression.tsv', quote=FALSE, sep='\t')
-write.table(phenodata_exp, file='matched-phenodata.tsv', quote=FALSE, sep='\t', na='', row.names=FALSE)
+write.table(format(dat3, scientific=FALSE), file='matched-cn-and-expression.tsv', quote=FALSE, sep='\t')
+write.table(format(phenodata_exp, scientific=FALSE), file='matched-phenodata.tsv', quote=FALSE, sep='\t', na='', row.names=FALSE)
 
 # EOF
