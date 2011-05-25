@@ -8,7 +8,7 @@
 
 # test-for-cn-induced-differential-expression.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-02-07
+# 2011-05-24
 
 library(CGHcall)
 library(intCNGEan)
@@ -65,6 +65,12 @@ if (nrow(tuned$ann) != nrow(result))
 # format and write result table
 rownames(result) <- rownames(tuned$ann)
 colnames(result)[1:3] <- tolower(colnames(result)[1:3])
+
+if ('symbol' %in% colnames(dat))
+  result$symbol <- dat[rownames(tuned$datafortest), 'symbol']
+if ('description' %in% colnames(dat))
+  result$description <- dat[rownames(tuned$datafortest), 'description']
+
 result$probes <- rownames(tuned$datafortest)
 arrays <- colnames(tuned$datafortest)[(2*tuned$nosamp+1):(3*tuned$nosamp)]
 colnames(tuned$datafortest) <- c(sub('^chip\\.', 'prob1.', arrays), sub('^chip\\.', 'prob2.', arrays), arrays)
@@ -76,6 +82,6 @@ result$chromosome[result$chromosome=='23'] <- 'X'
 result$chromosome[result$chromosome=='24'] <- 'Y'
 result$chromosome[result$chromosome=='25'] <- 'MT'
 
-write.table(result, file='cn-induced-expression.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
+write.table(format(result, scientific=FALSE), file='cn-induced-expression.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
 # EOF
