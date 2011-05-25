@@ -11,7 +11,9 @@
 
 	<!-- the project folder configuration -->
 	<property name="src" location="src/main/java" />
-	<property name="tools-src" location="src/main/tools/java" />
+	<property name="modules-src-microarray" location="src/main/modules/microarray/java" />
+	<property name="modules-src-ngs" location="src/main/modules/ngs/java" />
+	<property name="modules" location="src/main/modules" />
 	<property name="test-src" location="src/test/java" />
 	<property name="ext-src" location="src/main/applications" />
 	<property name="lib" location="ext/lib" />
@@ -20,7 +22,6 @@
 	<property name="ext-apps" location="ext/applications" />
 	<property name="data" location="src/main/resources" />
 	<property name="workflows" location="src/main/workflows" />
-	<property name="tools" location="src/main/tools" />
 	<property name="build" location="bin/ant" />	
 	<property name="dist" location="dist" />
 
@@ -38,7 +39,6 @@
 
 	<!-- version numbering -->
 	<property name="release-version" value="2.0.0" />
-	<property name="r-version" value="R-2.9" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar" />
 	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />
@@ -47,9 +47,10 @@
 
 	<!-- external stuff -->
 	<property name="wrapper-dist" value="${ext-apps}/wrapper" />
-	<property name="wrapper-linux-x86-32" value="${wrapper-dist}/wrapper-linux-x86-32-3.2.3" />
-	<property name="wrapper-linux-x86-64" value="${wrapper-dist}/wrapper-linux-x86-64-3.2.3" />
-	<property name="wrapper-windows-x86-32" value="${wrapper-dist}/wrapper-windows-x86-32-3.3.3" />
+	<property name="wrapper-linux-x86-32" value="${wrapper-dist}/wrapper-linux-x86-32-3.5.7" />
+	<property name="wrapper-linux-x86-64" value="${wrapper-dist}/wrapper-linux-x86-64-3.5.7" />
+	<property name="wrapper-macosx" value="${wrapper-dist}/wrapper-macosx-universal-64-3.5.7" />
+	<property name="wrapper-windows-x86-32" value="${wrapper-dist}/wrapper-windows-x86-32-3.5.7" />
 	<property name="activemq-dist" value="${ext-apps}/apache-activemq-5.4.2" />
 
 	<!-- keystore for signing -->
@@ -152,7 +153,8 @@
 		<mkdir dir="${build}" />
 		<javac destdir="${build}" target="1.6" source="1.6" debug="true" failonerror="true">
 			<src path="${src}" />
-			<src path="${tools-src}" />
+			<src path="${modules-src-microarray}" />
+			<src path="${modules-src-ngs}" />
 			<classpath>
 				<fileset dir="${lib}">
 					<include name="**/*.jar" />
@@ -161,6 +163,8 @@
 		</javac>
 
 		<copy file="${src}/log4j.properties" tofile="${build}/log4j.properties" />
+		<copy file="${src}/fi/csc/microarray/client/session/session.xsd" tofile="${build}/fi/csc/microarray/client/session/session.xsd" />
+
 	</target>
 
 	<target name="package-jar" depends="compile" description="Create chipster jar">
@@ -170,7 +174,7 @@
 			</manifest>
 			<fileset dir="${build}/" />
 			<fileset dir="${data}/" />
-			<fileset dir="${tools}/" />
+			<fileset dir="${modules}/" />
 		</jar>
 	</target>
 
@@ -196,6 +200,7 @@
 			<tarfileset file="${wrapper-linux-x86-32}/lib/wrapper.jar" prefix="chipster/shared/lib" />
 			<tarfileset file="${wrapper-linux-x86-32}/lib/libwrapper.so" filemode="755" fullpath="chipster/shared/lib/libwrapper-linux-x86-32.so" />
 			<tarfileset file="${wrapper-linux-x86-64}/lib/libwrapper.so" filemode="755" fullpath="chipster/shared/lib/libwrapper-linux-x86-64.so" />
+			<tarfileset file="${wrapper-macosx}/lib/libwrapper.jnilib" filemode="755" fullpath="chipster/shared/lib/libwrapper-macosx.jnilip" />	
 			<tarfileset file="${wrapper-windows-x86-32}/lib/wrapper.dll" fullpath="chipster/shared/lib/wrapper-windows-x86-32.dll" />
 			<tarfileset dir="${lib}" prefix="chipster/shared/lib" />
 			<tarfileset dir="${lib-src}" prefix="chipster/shared/lib-src" />
@@ -215,7 +220,6 @@
 			<tarfileset file="${ext-src}/wrapper/genpasswd.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/genpasswd.bat" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/install_r_pkg.sh" filemode="755" prefix="chipster" />
-			<tarfileset file="${tools}/${r-version}/install.R" prefix="chipster/shared/lib" />
 			
 			<!-- auth -->
 			<tarfileset file="${ext-src}/wrapper/auth/chipster-auth-generic" filemode="755" fullpath="chipster/auth/bin/chipster-auth" />
@@ -225,6 +229,9 @@
 
 			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/auth/bin/linux-x86-64" />
 			<tarfileset file="${ext-src}/wrapper/auth/chipster-auth" filemode="755" prefix="chipster/auth/bin/linux-x86-64" />
+
+			<tarfileset file="${wrapper-macosx}/bin/wrapper" filemode="755" prefix="chipster/auth/bin/macosx" />
+			<tarfileset file="${ext-src}/wrapper/auth/chipster-auth" filemode="755" prefix="chipster/auth/bin/macosx" />
 
 			<tarfileset file="${wrapper-windows-x86-32}/bin/wrapper.exe" filemode="755" prefix="chipster/auth/bin/win32" />
 			<tarfileset file="${ext-src}/wrapper/win32/chipster.bat" filemode="755" fullpath="chipster/auth/bin/win32/chipster-auth.bat" />
@@ -246,6 +253,9 @@
 
 			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/comp/bin/linux-x86-64" />
 			<tarfileset file="${ext-src}/wrapper/comp/chipster-comp" filemode="755" prefix="chipster/comp/bin/linux-x86-64" />
+
+			<tarfileset file="${wrapper-macosx}/bin/wrapper" filemode="755" prefix="chipster/comp/bin/macosx" />
+			<tarfileset file="${ext-src}/wrapper/comp/chipster-comp" filemode="755" prefix="chipster/comp/bin/macosx" />
 
 			<tarfileset file="${wrapper-windows-x86-32}/bin/wrapper.exe" filemode="755" prefix="chipster/comp/bin/win32" />
 			<tarfileset file="${ext-src}/wrapper/win32/chipster.bat" filemode="755" fullpath="chipster/comp/bin/win32/chipster-comp.bat" />
@@ -308,9 +318,6 @@
 			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/webstart/bin/linux-x86-64" />
 			<tarfileset file="${ext-src}/wrapper/webstart/chipster-webstart" filemode="755" prefix="chipster/webstart/bin/linux-x86-64" />
 
-			<tarfileset dir="${ext-src}/wrapper/webstart/conf" prefix="chipster/webstart/conf" />
-			<tarfileset dir="${ext-src}/wrapper/webstart/logs" prefix="chipster/webstart/logs" /> <!-- must exist for wrapper -->
-
 			<tarfileset file="${wrapper-windows-x86-32}/bin/wrapper.exe" filemode="755" prefix="chipster/webstart/bin/win32" />
 			<tarfileset file="${ext-src}/wrapper/win32/chipster.bat" filemode="755" fullpath="chipster/webstart/bin/win32/chipster-webstart.bat" />
 			<tarfileset file="${ext-src}/wrapper/win32/chipster-service.bat" filemode="755" prefix="chipster/webstart/bin/win32" />
@@ -322,6 +329,8 @@
 			<tarfileset file="${ext-src}/wrapper/chipster-client-config.xml" fullpath="chipster/webstart/web-root/chipster-config.xml" />
 			<tarfileset dir="${ext-src}/wrapper/webstart/security" prefix="chipster/webstart/security" />
 
+			<tarfileset dir="${ext-src}/wrapper/webstart/conf" prefix="chipster/webstart/conf" />
+			<tarfileset dir="${ext-src}/wrapper/webstart/logs" prefix="chipster/webstart/logs" /> <!-- must exist for wrapper -->
 			
 			
 			<!-- manager -->
@@ -332,6 +341,9 @@
 
 			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/manager/bin/linux-x86-64" />
 			<tarfileset file="${ext-src}/wrapper/manager/chipster-manager" filemode="755" prefix="chipster/manager/bin/linux-x86-64" />
+
+			<tarfileset file="${wrapper-macosx}/bin/wrapper" filemode="755" prefix="chipster/manager/bin/macosx" />
+			<tarfileset file="${ext-src}/wrapper/manager/chipster-manager" filemode="755" prefix="chipster/manager/bin/macosx" />
 
 			<tarfileset file="${wrapper-windows-x86-32}/bin/wrapper.exe" filemode="755" prefix="chipster/manager/bin/win32" />
 			<tarfileset file="${ext-src}/wrapper/win32/chipster.bat" filemode="755" fullpath="chipster/manager/bin/win32/chipster-manager.bat" />
@@ -358,7 +370,7 @@
 			<tarfileset file="${activemq-dist}/bin/macosx/wrapper" filemode="755" prefix="chipster/activemq/bin/macosx" />
 			<tarfileset file="${activemq-dist}/bin/macosx/activemq" filemode="755" prefix="chipster/activemq/bin/macosx" />
 			<tarfileset file="${activemq-dist}/bin/macosx/libwrapper.jnilib" filemode="755" prefix="chipster/activemq/bin/macosx" />
-			<!--<tarfileset dir="${activemq-dist}/bin/win32" filemode="755" prefix="chipster/activemq/bin/win32" /> -->
+			<!-- <tarfileset dir="${activemq-dist}/bin/win32" filemode="755" prefix="chipster/activemq/bin/win32" /> --> <!-- ActiveMQ has a separate distribution for Windows -->
 			
 			<tarfileset file="${ext-src}/activemq/activemq.xml" prefix="chipster/activemq/conf" />
 			<tarfileset file="${ext-src}/activemq/wrapper/linux-x86-32/wrapper.conf" prefix="chipster/activemq/bin/linux-x86-32" />
@@ -381,6 +393,21 @@
 		<echo>REMEMBER TO TURN DEBUG LOGGING OFF!</echo>
 	</target>
 
+	
+	<target name="generate-session-classes" description="">
+		<delete dir="src/main/java/fi/csc/microarray/client/session/schema" />
+
+		<java classname="com.sun.tools.internal.xjc.XJCFacade">
+	            <arg value="-p" />
+	            <arg value="fi.csc.microarray.client.session.schema"/>
+            	<arg value="-d" />
+            	<arg value="src/main/java"/>
+	    		<arg value="src/main/java/fi/csc/microarray/client/session/session.xsd" />
+	    </java>
+	</target>
+
+	
+	
 	<!--
     <path id="testngpath">
       <pathelement location="${test-src}"/>

@@ -17,6 +17,8 @@ public class ParameterSecurityPolicyTest {
 		Assert.assertFalse(";ls".matches(ShellAnalysisJob.ShellParameterSecurityPolicy.COMMAND_LINE_SAFE_VALUE_PATTERN));
 		Assert.assertFalse(";ls".matches(EmbossAnalysisJob.EmbossParameterSecurityPolicy.COMMAND_LINE_SAFE_VALUE_PATTERN));
 		Assert.assertTrue("embl:X65923".matches(EmbossAnalysisJob.EmbossParameterSecurityPolicy.COMMAND_LINE_SAFE_VALUE_PATTERN));
+		Assert.assertTrue("OS=Homo sapiens".matches(EmbossAnalysisJob.EmbossParameterSecurityPolicy.COMMAND_LINE_SAFE_VALUE_PATTERN));
+
 		// BeanShell and Java analysis jobs have no patterns to test
 	}
 	

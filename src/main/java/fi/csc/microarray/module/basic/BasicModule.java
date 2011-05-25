@@ -3,16 +3,20 @@ package fi.csc.microarray.module.basic;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JMenu;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXHyperlink;
 
 import fi.csc.microarray.client.QuickLinkPanel;
 import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.client.selection.IntegratedEntity;
+import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.methods.ExternalBrowserViewer;
 import fi.csc.microarray.client.visualisation.methods.HtmlViewer;
@@ -25,6 +29,7 @@ import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.TypeTag;
 import fi.csc.microarray.databeans.features.RestrictModifier;
+import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.databeans.features.bio.PhenodataProvider;
 import fi.csc.microarray.databeans.features.stat.LogModifier;
 import fi.csc.microarray.databeans.features.stat.NegModifier;
@@ -36,13 +41,11 @@ import fi.csc.microarray.util.GeneralFileFilter;
 
 public class BasicModule implements Module {
 
-	private static final String SERVER_MODULE_NAME = "basic";
-
 	public static class TypeTags {
-		public static final TypeTag TABLE_WITHOUT_COLUMN_NAMES = new TypeTag(SERVER_MODULE_NAME, "table-without-column-names", "first row is the first data row");
-		public static final TypeTag TABLE_WITH_COLUMN_NAMES = new TypeTag(SERVER_MODULE_NAME, "table-without-column-names", "first row is the column name row");
-		public static final TypeTag TABLE_WITH_TITLE_ROW = new TypeTag(SERVER_MODULE_NAME, "table-with-possible-title-row", "first row is title row");
-		public static final TypeTag PHENODATA = new TypeTag(SERVER_MODULE_NAME, "phenodata", "phenodata table");
+		public static final TypeTag TABLE_WITHOUT_COLUMN_NAMES = new TypeTag("table-without-column-names", "first row is the first data row");
+		public static final TypeTag TABLE_WITH_COLUMN_NAMES = new TypeTag("table-without-column-names", "first row is the column name row");
+		public static final TypeTag TABLE_WITH_TITLE_ROW = new TypeTag("table-with-possible-title-row", "first row is title row");
+		public static final TypeTag PHENODATA = new TypeTag("phenodata", "phenodata table");
 	}
 	
 	public static class VisualisationMethods {
@@ -73,8 +76,13 @@ public class BasicModule implements Module {
 	}
 
 	@Override
-	public String getServerModuleName() {
-		return SERVER_MODULE_NAME;
+	public String[] getServerModuleNames() {
+		return null;
+	}
+
+	@Override
+	public String getModuleLongName(String moduleName) {
+		return null;
 	}
 
 	@Override
@@ -131,7 +139,7 @@ public class BasicModule implements Module {
 	}
 
 	@Override
-	public URL getExampleSessionUrl() throws MalformedURLException {
+	public URL getExampleSessionUrl(boolean isStandalone) throws MalformedURLException {
 		return null;
 	}
 
@@ -158,8 +166,8 @@ public class BasicModule implements Module {
 	}
 
 	@Override
-	public String getShortCategoryName(Operation operation) {
-		return shortenCategoryName(operation.getCategoryName());
+	public String getShortCategoryName(String categoryName) {
+		return shortenCategoryName(categoryName);
 	}
 
 	public static String shortenCategoryName(String catName) {
@@ -192,5 +200,20 @@ public class BasicModule implements Module {
 	@Override
 	public String getManualHome() {
 		return "https://extras.csc.fi/biosciences/chipster-manual/index.html";
+	}
+
+	@Override
+	public void addSpeadsheetMenuItems(JPopupMenu spreadsheetPopupMenu, VisualisationFrame visualisationFrame) {
+		// do nothing
+	}
+
+	@Override
+	public List<Boolean> flagLinkableColumns(String[] columnNames) {
+		return Collections.nCopies(columnNames.length, false);
+	}
+
+	@Override
+	public IntegratedEntity createLinkableEntity(Table columns, int column) {
+		return null;
 	}
 }

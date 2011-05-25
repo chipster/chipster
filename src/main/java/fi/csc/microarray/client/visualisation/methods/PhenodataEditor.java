@@ -38,7 +38,7 @@ import javax.swing.table.TableModel;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.SwingClientApplication;
-import fi.csc.microarray.client.visualisation.MicroarrayTable;
+import fi.csc.microarray.client.visualisation.ExtendedJXTable;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.constants.VisualConstants;
@@ -84,7 +84,7 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 	
 	
 	@SuppressWarnings("serial")
-    private class PhenodataTable extends MicroarrayTable {
+    private class PhenodataTable extends ExtendedJXTable {
 		private static final int NO_SCROLL_WIDTH = 400;
 		private static final int IDENTIFIER_COLUMN_WIDTH = 100;
 				
@@ -287,11 +287,11 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 	@SuppressWarnings("serial")
     public class PhenodataPopupMenu extends JPopupMenu implements ActionListener {
 
-		private MicroarrayTable table;
+		private ExtendedJXTable table;
 		private JMenuItem copyMenuItem;
 		private JMenuItem pasteMenuItem;
 		
-		public PhenodataPopupMenu(MicroarrayTable table) {
+		public PhenodataPopupMenu(ExtendedJXTable table) {
 			this.table = table;
 			copyMenuItem = new JMenuItem("Copy");
 			pasteMenuItem = new JMenuItem("Paste");
@@ -490,6 +490,6 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 
 	@Override
 	public void removeVisualisation(){
-		application.removePropertyChangeListener(table);
+		application.removeClientEventListener(table);
 	}
 }

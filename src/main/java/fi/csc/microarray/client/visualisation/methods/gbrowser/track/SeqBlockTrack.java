@@ -121,11 +121,11 @@ public class SeqBlockTrack extends Track {
 				rect.height = GenomeBrowserConstants.READ_HEIGHT;
 
 				// Check if we are about to go over the edge of the drawing area
-				boolean lastBeforeMaxStackingDepthCut = getYCoord(layer + 1, GenomeBrowserConstants.READ_HEIGHT) < 0;
+				boolean lastBeforeMaxStackingDepthCut = false; //getYCoord(layer + 1, GenomeBrowserConstants.READ_HEIGHT) > getHeight();
 
 				// Check if we are over the edge of the drawing area
-				if (rect.y < 0) {
-					continue;
+				if (rect.y > getHeight()) {
+//					continue;
 				}
 
 				// Check if we have enough space for the actual sequence (at least pixel per nucleotide)
@@ -211,7 +211,7 @@ public class SeqBlockTrack extends Track {
 	}
 
 	private int getYCoord(int layer, int height) {
-		return (int) (getView().getTrackHeight() - ((layer + 1) * (height + GenomeBrowserConstants.SPACE_BETWEEN_READS)));
+		return (int) ((layer + 1) * (height + GenomeBrowserConstants.SPACE_BETWEEN_READS));
 	}
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {

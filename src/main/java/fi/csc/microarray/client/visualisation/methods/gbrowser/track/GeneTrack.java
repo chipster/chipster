@@ -95,7 +95,7 @@ public class GeneTrack extends Track {
 			occupiedSpace.add(end);
 		}
 
-		rect.y = (int) (getView().getTrackHeight() - ((i + 1) * (height + 2)));
+		rect.y = (int) ((i + 1) * (height + 2));
 		rect.height = height;
 
 		drawables.add(new RectDrawable(rect, c, null));

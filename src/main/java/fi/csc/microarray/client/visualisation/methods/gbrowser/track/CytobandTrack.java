@@ -141,7 +141,7 @@ public class CytobandTrack extends Track {
 
 				} else if (band == Band.GAP) {
 
-					int y = (int) getHeight() - (THICKNESS + MARGIN);
+					int y = (int) MARGIN + 1;
 
 					int sideX = getView().bpToTrack(bandRegion.region.end);
 					int cornerX = getView().bpToTrack(bandRegion.region.start);
@@ -164,7 +164,7 @@ public class CytobandTrack extends Track {
 					rect.x = getView().bpToTrack(bandRegion.region.start);
 					rect.width = getView().bpToTrack(bandRegion.region.end) - rect.x;
 
-					rect.y = (int) (getHeight() - (THICKNESS + MARGIN)) + THICKNESS / 4;
+					rect.y = (int) MARGIN + THICKNESS / 4;
 					rect.height = THICKNESS - THICKNESS / 2;
 
 					drawables.add(new RectDrawable(rect, Color.gray, Color.gray));
@@ -182,7 +182,7 @@ public class CytobandTrack extends Track {
 		rect.x = getView().bpToTrack(startBp) - 1;
 		rect.width = getView().bpToTrack(endBp) - rect.x;
 
-		rect.y = (int) (getHeight() - (THICKNESS + MARGIN));
+		rect.y = (int) MARGIN;
 		rect.height = THICKNESS;
 
 		return new RectDrawable(rect, c, Color.black);

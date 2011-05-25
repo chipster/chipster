@@ -134,16 +134,12 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		logger.info("starting compute service...");
 		this.workDir = DirectoryLayout.getInstance().getJobsDataDirBase(id);
 		
-		// initialise custom scripts dir
-		DirectoryLayout.getInstance().getCustomScriptsDir();
-		
 		// initialize executor service
 		this.executorService = Executors.newCachedThreadPool();
 
 		// initialize analysis tools
 		this.toolRepository = new ToolRepository(this.workDir);
-		
-			
+					
 		// initialize timeout checker
 		timeoutTimer = new Timer(true);
 		timeoutTimer.schedule(new TimeoutTimerTask(), timeoutCheckInterval, timeoutCheckInterval);
@@ -436,7 +432,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 
 		// check if requested operation is supported, if not, just ignore the request
 		if (!toolRepository.supports(description.getID())) {
-			logger.debug("Analysis " + jobMessage.getAnalysisId() + " ( " + description.getSourceResourceName() + " ) not supported, ignoring request.");
+			logger.debug("analysis " + jobMessage.getAnalysisId() + " ( " + description.getToolFile() + " ) not supported, ignoring request.");
 			return;
 		}
 
@@ -538,6 +534,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			try {
 				sourceCode = toolRepository.getDescription(toolID).getSourceCode();
 			} catch (AnalysisException ae) {
+				logger.error(ae);
 				return null;
 			}
 			if (sourceCode != null) {

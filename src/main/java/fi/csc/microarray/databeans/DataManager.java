@@ -21,17 +21,22 @@ import org.apache.log4j.Logger;
 import org.mortbay.util.IO;
 
 import fi.csc.microarray.client.ClientApplication;
-import fi.csc.microarray.client.operation.Operation.DataBinding;
-import fi.csc.microarray.databeans.DataBean.StorageMethod;
+import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
+import fi.csc.microarray.client.dialog.DialogInfo.Severity;
+import fi.csc.microarray.client.operation.OperationRecord;
+import fi.csc.microarray.client.session.SessionLoader;
+import fi.csc.microarray.client.session.SessionSaver;
 import fi.csc.microarray.databeans.DataBean.Link;
+import fi.csc.microarray.databeans.DataBean.StorageMethod;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
 import fi.csc.microarray.databeans.features.Modifier;
 import fi.csc.microarray.databeans.handlers.DataBeanHandler;
 import fi.csc.microarray.databeans.handlers.LocalFileDataBeanHandler;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
-import fi.csc.microarray.databeans.sessions.SnapshottingSession;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.IOUtils;
 
 public class DataManager {
@@ -83,6 +88,11 @@ public class DataManager {
 	 */
 	public DataFolder getRootFolder() {
 		return rootFolder;
+	}
+	
+	
+	public boolean isRootFolder(DataFolder folder) {
+		return (rootFolder == folder) && (rootFolder != null);
 	}
 
 	/**
@@ -479,6 +489,21 @@ public class DataManager {
 		return dataBean;
 	}
 
+	/**
+	 * Create a zip file DataBean. Bean contents are already in the zipFile.
+	 * 
+	 * @param name
+	 * @param url location of the zip file, zip entry name as the fragment
+	 * @return
+	 * @throws MicroarrayException
+	 */
+	public DataBean createDataBeanFromZip(String name, URL url) throws MicroarrayException {
+		DataBeanHandler handler = new ZipDataBeanHandler();
+		DataBean dataBean = new DataBean(name, StorageMethod.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new DataBean[] {}, null, this, handler);
+		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
+		return dataBean;
+	}
+
 	
 	/**
 	 * Create a local temporary file DataBean with content, with a parent folder and with sources.
@@ -529,23 +554,47 @@ public class DataManager {
 	/**
 	 * Load session from a file.
 	 * 
-	 * @see #saveSnapshot(File, ClientApplication)
+	 * @see #saveSession(File, ClientApplication)
 	 */
-	public List<DataItem> loadSnapshot(File sessionFile, DataFolder parentFolder, ClientApplication application) throws IOException, MicroarrayException {
-		SnapshottingSession session = new SnapshottingSession(this, application);
-		List<DataItem> newItems = session.loadFromSnapshot(sessionFile, parentFolder);
-		return newItems;
+	public void loadSession(File sessionFile) {
+		SessionLoader sessionLoader;
+		try {
+			sessionLoader = new SessionLoader(sessionFile);
+			sessionLoader.loadSession();
+		} catch (Exception e) {
+			Session.getSession().getApplication().showDialog("Opening session failed.", "Unfortunately the session could not be opened properly. Please see the details for more information.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+			logger.error("loading session failed", e);
+		}
 	}
-
 
 	/**
 	 * Saves session (all data: beans, folder structure, operation metadata, links etc.) to a file.
 	 * File is a zip file with all the data files and one metadata file.
-	 * @return count of stored files
+	 * 
+	 * @return true if the session was saved perfectly
 	 */
-	public void saveSnapshot(File snapshotDir, ClientApplication application) throws IOException {
-		SnapshottingSession session = new SnapshottingSession(this, application);
-		session.saveSnapshot(snapshotDir);
+	public boolean saveSession(File sessionFile) {
+		SessionSaver sessionSaver = new SessionSaver(sessionFile);
+		boolean metadataValid = false;
+		try {
+			// save
+			metadataValid = sessionSaver.saveSession();
+		} catch (Exception e) {
+			// save failed, warn about it
+			Session.getSession().getApplication().showDialog("Saving session failed.", "Unfortunately your session could not be saved. Please see the details for more information.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+			return false;
+		}
+
+		// check validation, warn if not valid, return false
+		if (!metadataValid) {
+			// save was successful but metadata validation failed, warn about it
+			String validationDetails = sessionSaver.getValidationErrors();
+			Session.getSession().getApplication().showDialog("Problem with saving the session.", "All the datasets were saved successfully, but there were troubles with saving the session information about them. This means that there may be problems when trying to open the saved session file later on.\n\nIf you have important unsaved datasets in this session, it might be a good idea to export such datasets using the File -> Export functionality.", validationDetails, Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
+			return false;
+		}
+
+		return true;
+	
 	}
 
 	/**
@@ -568,22 +617,9 @@ public class DataManager {
 		// remove from operation history
 		for (DataBean source : databeans()) {
 			// we must iterate all datas because links cannot be trusted (they might have been removed by user)
-
-			boolean isDirty = false;
-			List<DataBinding> bindings = source.getOperation().getBindings();
-
-			if (bindings != null) {
-				for (DataBinding binding : bindings) {
-					if (binding.getData() == bean) {
-						// this operation would become dirty after removing the data
-						isDirty = true;
-						break;
-					}
-				}
-			}
-
-			if (isDirty) {
-				source.getOperation().clearBindings();
+			OperationRecord operationRecord = source.getOperationRecord();
+			if (operationRecord != null) {
+				operationRecord.removeInput(bean);
 			}
 		}
 		

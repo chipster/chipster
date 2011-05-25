@@ -92,7 +92,7 @@ public class CoverageAndSNPTrack extends Track {
 		int bpWidth = (int) (getView().getWidth() / getView().getBpRegion().getLength());
 
 		// Count maximum y coordinate (the bottom of the track)
-		int bottomlineY = this.getHeight() - 1;
+		int bottomlineY = 0;
 
 		// prepare lines that make up the profile for drawing
 		Iterator<Base> bases = theBaseCacheThang.iterator();
@@ -106,7 +106,7 @@ public class CoverageAndSNPTrack extends Track {
 			drawables.add(new LineDrawable(0, bottomlineY,
 					(int)(startX - bpWidth), bottomlineY, color));
 			drawables.add(new LineDrawable((int)(startX - bpWidth), bottomlineY,
-					startX, (int)(bottomlineY - startY), color));
+					startX, (int)(bottomlineY + startY), color));
 
 			// Draw bar for the first base
 			drawSNPBar(drawables, bpWidth, bottomlineY, previousBase, startX);
@@ -124,19 +124,19 @@ public class CoverageAndSNPTrack extends Track {
 
 				if (currentBase.getBpLocation() - previousBase.getBpLocation() == 1) {
 					// join adjacent bp locations with a line
-					drawables.add(new LineDrawable(startX, (int)(bottomlineY - startY),
-							endX, (int)(bottomlineY - endY), color));
+					drawables.add(new LineDrawable(startX, (int)(bottomlineY + startY),
+							endX, (int)(bottomlineY + endY), color));
 				} else {
 					// Join locations that are more than one bp apart using 3 lines
 					// 1. Slope down
-					drawables.add(new LineDrawable((int)startX, (int)(bottomlineY - startY),
+					drawables.add(new LineDrawable((int)startX, (int)(bottomlineY + startY),
 							(int)(startX + bpWidth), bottomlineY, color));
 					// 2. Bottomline level for the empty area
 					drawables.add(new LineDrawable((int)(startX + bpWidth), bottomlineY,
 							(int)(endX - bpWidth), bottomlineY, color));
 					// 3. Slope up
 					drawables.add(new LineDrawable((int)(endX - bpWidth), bottomlineY,
-							(int)endX, (int)(bottomlineY - endY), color));
+							(int)endX, (int)(bottomlineY + endY), color));
 				}
 				
 
@@ -146,7 +146,7 @@ public class CoverageAndSNPTrack extends Track {
 			// Draw a line from the last location to the end of the graph
 			int endX = getView().bpToTrack(new BpCoord(previousBase.getBpLocation(), chr));
 			long endY = previousBase.getCoverage();
-			drawables.add(new LineDrawable(endX, (int)(bottomlineY - endY),
+			drawables.add(new LineDrawable(endX, (int)(bottomlineY + endY),
 					(int)(endX + bpWidth), bottomlineY, color));
 			drawables.add(new LineDrawable((int)(endX + bpWidth), bottomlineY,
 					getView().getWidth(), bottomlineY, color));
@@ -167,9 +167,9 @@ public class CoverageAndSNPTrack extends Track {
 				if (increment > 0) {
 					Color c = SeqBlockTrack.charColors[nt.ordinal()];
 
-					drawables.add(new RectDrawable(endX, y - increment, bpWidth, increment, c, c));
+					drawables.add(new RectDrawable(endX, y, bpWidth, increment, c, c));
 
-					y -= increment;
+					y += increment;
 				}
 			}
 		}
@@ -206,7 +206,9 @@ public class CoverageAndSNPTrack extends Track {
 	@Override
 	public Integer getHeight() {
 		if (isVisible()) {
-			return super.getHeight();
+			//return super.getHeight();
+			
+			return 100;
 		} else {
 			return 0;
 		}
@@ -215,7 +217,9 @@ public class CoverageAndSNPTrack extends Track {
 	@Override
 	public boolean isStretchable() {
 		// stretchable unless hidden
-		return isVisible();
+		//return isVisible();
+		
+		return false;
 	}
 
 	@Override

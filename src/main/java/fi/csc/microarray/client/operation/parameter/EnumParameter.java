@@ -193,8 +193,13 @@ public class EnumParameter extends Parameter {
         // Add new selections
         if (newValue instanceof List<?> || newValue instanceof String[]) {
             // Multiple selections
-            List<String> checkedList = (List<String>) (newValue instanceof List<?> ?
-                    newValue : Arrays.asList(newValue));
+            
+        	List<String> checkedList;
+        	if (newValue instanceof List<?>) {
+        		checkedList = (List<String>) newValue;
+        	} else {
+        		checkedList = (List<String>) Arrays.asList((String[])newValue);
+        	}
             for (SelectionOption option : options) {
                 if (checkedList.contains(option.getValue())) {
                     selectedOptions.add(option);

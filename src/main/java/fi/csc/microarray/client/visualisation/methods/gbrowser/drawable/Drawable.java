@@ -23,7 +23,7 @@ public abstract class Drawable {
 	/**
      * @return minimum y value of all pixels drawn.
      */
-    public int getMinY() {
+    public int getMaxY() {
         return y;
     }
     

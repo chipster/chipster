@@ -78,7 +78,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	private Point2D dragLastStartPoint;
 	private Iterator<Track> trackIter;
 	private Iterator<Drawable> drawableIter;
-	private boolean continueDrawingLater;
+
 	private Track track;
 	private float y;
 	private int x;
@@ -86,6 +86,9 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	private long dragEventTime;
 	private boolean isStatic;
 	private static final long DRAG_EXPIRATION_TIME_MS = 50;
+
+	private static boolean showFullHeight = true;
+	private static final int Y_MARGIN = 20;
 
 	public View(GenomePlot parent, boolean movable, boolean zoomable, boolean selectable) {
 		this.parentPlot = parent;
@@ -161,14 +164,23 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		if (bpRegion == null) {
 			setBpRegion(new BpCoordRegionDouble(0d, 1024 * 1024 * 250d, new Chromosome("1")), false);
 		}
+		
+		showFullHeight = parentPlot.isFullHeight();
 
 		// Recalculate track heights
 		updateTrackHeights();
 
-		Rectangle viewClip = g.getClipBounds();
-		viewArea = viewClip;
+		viewArea = g.getClipBounds();
+				
+		int drawBufferWidth = (int) (viewArea.getX() + viewArea.getWidth());
+		int drawBufferHeight = (int) (viewArea.getY() + viewArea.getHeight());
 
-		if (drawBuffer == null || drawBuffer.getWidth() != viewArea.getWidth() || drawBuffer.getHeight() != viewArea.getHeight()) {
+		if (drawBuffer == null || 
+				drawBuffer.getWidth() != drawBufferWidth || 
+				drawBuffer.getHeight() != drawBufferHeight) {
+			
+			drawBuffer = new BufferedImage(drawBufferWidth,
+					drawBufferHeight, BufferedImage.TYPE_INT_RGB);		
 
 			drawBuffer = new BufferedImage((int) viewArea.getWidth(), (int) viewArea.getHeight(), BufferedImage.TYPE_INT_RGB);
 
@@ -178,11 +190,14 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		}
 
 		Graphics2D bufG2 = (Graphics2D) drawBuffer.getGraphics();
-		bufG2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-		// DOCME what is this continueDrawingLater for?
-		// long startTime = System.currentTimeMillis();
-		continueDrawingLater = false;
+		bufG2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
+		
+		/* In full height mode we draw always also the content that isn't shown in current vertical
+		 * scrolling position. Setting the original clip to the drawing buffer should
+		 * at least prevent actual pixel manipulating when drawing outside of the view.
+		 */
+		bufG2.setClip(g.getClip());
 
 		// prepare context object
 		TrackContext trackContext = null;
@@ -208,11 +223,12 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 			// draw side menu
 			if (group.isMenuVisible()) {
-				group.menu.setPosition((int) (viewArea.getX() + viewArea.getWidth()), (int) (viewArea.getY() + y));
+				group.menu.setPosition((int) (viewArea.getX() + viewArea.getWidth()),
+						(int) (viewArea.getY() + y));
 			}
 
 			// draw all tracks
-			while (trackIter.hasNext() || (drawableIter != null && drawableIter.hasNext())) {
+			while (trackIter.hasNext()) {
 
 				if (drawableIter == null || !drawableIter.hasNext()) {
 					track = trackIter.next();
@@ -227,7 +243,10 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 					// create view context for this track only if we will use it
 					// currently only used for tracks that contain information
 					// about reads
-					if (expandDrawables && (track instanceof CoverageTrack || track instanceof CoverageAndSNPTrack || track instanceof QualityCoverageTrack)) {
+					if (expandDrawables && 
+							(track instanceof CoverageTrack ||
+									track instanceof CoverageAndSNPTrack ||
+									track instanceof QualityCoverageTrack)) {
 
 						if (parentPlot.getReadScale() == ReadScale.AUTO) {
 							trackContext = new TrackContext(track);
@@ -237,19 +256,40 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 						}
 					}
 
-					// get drawable iterator
-					if (drawableIter == null) {
-						Collection<Drawable> drawables = track.getDrawables();
-						drawableIter = drawables.iterator();
-					}
+					Collection<Drawable> drawables = track.getDrawables();
+					drawableIter = drawables.iterator();
+					
+					int maxY = 20;
+					
+					if (showFullHeight && track.isStretchable()) {
+						
+						while (drawableIter.hasNext()) {										
 
-					while (drawableIter.hasNext()) {
+							Drawable drawable = drawableIter.next();
+
+							if(drawable == null) {
+								continue;
+							}
+							
+							if (drawable.getMaxY() > maxY) {
+								maxY = drawable.getMaxY();
+							}
+						}
+						
+						track.setHeight(maxY + Y_MARGIN);						
+					}
+					
+					y += track.getHeight();
+					
+					drawableIter = drawables.iterator();					
+
+					while (drawableIter.hasNext()) {										
 
 						Drawable drawable = drawableIter.next();
 
-						if (drawable == null) {
+						if(drawable == null) {
 							continue;
-						}
+						}												
 
 						// expand drawables to stretch across all height if necessary
 						if (expandDrawables) {
@@ -259,43 +299,33 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 						// recalculate position for reversed strands
 						int maybeReversedY = (int) y;
 						if (track.isReversed()) {
+							maybeReversedY -= track.getHeight();
+						} else {
 							drawable.upsideDown();
-							maybeReversedY += track.getHeight();
-						}
+						}			
 
 						// draw an object onto the buffer
 						drawDrawable(bufG2, x, maybeReversedY, drawable);
 
-						// if (System.currentTimeMillis() - startTime >= 1000 / FPS) {
-						// continueDrawingLater = true;
-						// this.redraw();
-						// break;
-						// }
 					}
 
-					if (continueDrawingLater) {
-						break;
+					drawableIter = null;
 
-					} else {
-						drawableIter = null;
-					}
-
-					y += track.getHeight();
 
 				} else {
 					drawableIter = null;
-				}
+				}               
 			}
 		}
+		
+		g.drawImage(drawBuffer, 
+				(int) viewArea.getX(), (int) viewArea.getY(), drawBufferWidth, drawBufferHeight,
+				(int) viewArea.getX(), (int) viewArea.getY(), drawBufferWidth, drawBufferHeight, null);				
 
-		g.drawImage(drawBuffer, (int) viewArea.getX(), (int) viewArea.getY(), (int) viewArea.getX() + drawBuffer.getWidth(), (int) viewArea.getY() + drawBuffer.getHeight(), 0, 0, drawBuffer.getWidth(), drawBuffer.getHeight(), null);
-
-		if (!continueDrawingLater) {
-			bufG2.setPaint(Color.white);
-			bufG2.fillRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
-			trackIter = null;
-			drawableIter = null;
-		}
+		bufG2.setPaint(Color.white);
+		bufG2.fillRect(0, 0, drawBuffer.getWidth(), drawBuffer.getHeight());
+		trackIter = null;
+		drawableIter = null;
 	}
 
 	public boolean isRulerEnabled() {
@@ -309,7 +339,11 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		// Calculate height of stretchable tracks
 		for (Track t : getTracks()) {
 			if (t.isStretchable()) {
-				t.setHeight(Math.round(getTrackHeight()));
+				if (showFullHeight) {
+					t.setHeight(Integer.MAX_VALUE);
+				} else {
+					t.setHeight(Math.round(getTrackHeight()));
+				}
 			}
 		}
 	}
@@ -331,6 +365,24 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 			}
 		}
 		return staticHeightTotal;
+	}
+
+	protected int getTrackHeightTotal() {
+		int heightTotal = 0;
+
+		for (Track track : getTracks()) {
+			if (track.isVisible()) {
+				if (track.getHeight() != null) {
+					heightTotal += track.getHeight();
+				}
+			}
+		}
+
+		// Avoid problems in initialisation by having some fixed value
+		if (heightTotal == 0) {
+			heightTotal = getHeight();
+		}
+		return heightTotal;
 	}
 
 	protected int getStretchableTrackCount() {
@@ -526,7 +578,9 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	public void mouseWheelMoved(final MouseWheelEvent e) {
 
-		zoomAnimation((int) scale(e.getPoint()).getX(), e.getWheelRotation());
+		if (!parentPlot.isFullHeight()) {
+			zoomAnimation((int) scale(e.getPoint()).getX(), e.getWheelRotation());
+		}
 	}
 
 	public void zoomAnimation(final int centerX, final int wheelRotation) {
@@ -688,13 +742,13 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	private Point2D scale(Point2D p) {
 		return new Point((int) (p.getX() / parentPlot.chartPanel.getScaleX()), (int) (p.getY() / parentPlot.chartPanel.getScaleY()));
 	}
-	
+
 	public String tooltipRequest(MouseEvent mouseEvent) {
-		Point locationOnPanel = (Point)mouseEvent.getLocationOnScreen().clone();
+		Point locationOnPanel = (Point) mouseEvent.getLocationOnScreen().clone();
 		SwingUtilities.convertPointFromScreen(locationOnPanel, parentPlot.chartPanel);
 		return tooltipRequest(locationOnPanel);
 	}
-	
+
 	public String tooltipRequest(Point2D locationOnPanel) {
 		return null; // tooltips disabled by default in views
 	}

@@ -16,6 +16,7 @@ import fi.csc.microarray.analyser.AnalysisException;
 import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
 import fi.csc.microarray.analyser.ProcessPool;
+import fi.csc.microarray.analyser.RepositoryModule;
 import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.analyser.SADLTool;
 import fi.csc.microarray.config.Configuration;
@@ -37,7 +38,6 @@ public class RAnalysisHandler implements AnalysisHandler {
 	private String rCommand;
 	private String toolPath;
 	private String externalToolPath;
-	private String customScriptsDirName;
 	private ProcessPool processPool;
 	private boolean isDisabled = false;
 	
@@ -57,7 +57,6 @@ public class RAnalysisHandler implements AnalysisHandler {
 		}
 		this.rCommand = command;
 		this.toolPath = parameters.get("toolPath");
-		this.customScriptsDirName = configuration.getString("comp", "custom-scripts-dir");
 	
 		this.externalToolPath = parameters.get("externalToolPath");
 		if (externalToolPath == null) {
@@ -87,32 +86,18 @@ public class RAnalysisHandler implements AnalysisHandler {
 	}
 
 
-	public AnalysisDescription handle(String sourceResourceName,
+	public AnalysisDescription handle(RepositoryModule module, String toolFilename,
 	                                  Map<String, String> params) throws AnalysisException {
+		
+		File toolFile = new File(module.getModuleDir(), toolPath + File.separator + toolFilename);
 		
 		InputStream scriptSource;
 		
-		String scriptPath = toolPath + File.separator + sourceResourceName;
-		logger.debug("creating description from " + scriptPath);
-		
-		// check for custom script file
-		File scriptFile = new File(customScriptsDirName + File.separator + scriptPath);
-		if (scriptFile.exists()) {
-			FileInputStream customScriptSource;
-			try {
-				customScriptSource = new FileInputStream(scriptFile);
-			} catch (FileNotFoundException fnfe) {
-				logger.error("Could not load custom script: " + scriptFile, fnfe);
-				throw new AnalysisException("Could not load custom script: " + scriptFile);
-			}
-			scriptSource = customScriptSource;
-			logger.info("using custom-script for " + scriptPath);
-		} else {
-			scriptSource = this.getClass().getResourceAsStream(scriptPath);
-		}
-		
-		if (scriptSource == null) {
-			throw new AnalysisException(scriptPath + " not found");
+		try {
+			scriptSource = new FileInputStream(toolFile);
+			
+		} catch (FileNotFoundException e) {
+			throw new AnalysisException("script source " + toolFile + " not found.");
 		}
 		
 		// read the SADL from the comment block in the beginning of file
@@ -127,15 +112,14 @@ public class RAnalysisHandler implements AnalysisHandler {
 		// parse SADL		
 		SADLDescription sadlDescription;
 		try {
-			sadlDescription = new ChipsterSADLParser().parse(parsedScript.SADL,
-			        sourceResourceName);
+			sadlDescription = new ChipsterSADLParser().parse(parsedScript.SADL, toolFile.getName());
 		} catch (ParseException e) {
 			throw new AnalysisException(e);
 		}
 		
 		// create analysis description
 		AnalysisDescription ad;
-		ad = new AnalysisDescriptionGenerator().generate(sadlDescription, this);
+		ad = new AnalysisDescriptionGenerator().generate(sadlDescription, this, module);
 		
 		// SADL back to string
 		SADLGenerator.generate(sadlDescription);
@@ -145,29 +129,20 @@ public class RAnalysisHandler implements AnalysisHandler {
 		ad.setCommand(rCommand);
 		ad.setImplementation(parsedScript.source); // include headers
 		ad.setSourceCode(parsedScript.source);
-		ad.setSourceResourceName(sourceResourceName);
-		ad.setSourceResourceFullPath(scriptPath);
+		ad.setSourceResourceFullPath(toolFile);
 		ad.setInitialiser("chipster.tools.path = '" + externalToolPath + "'\n");
 		
 		return ad;
 	}
 
 	
+	/**
+	 * Check if the source file has been modified since the 
+	 * AnalysisDescription was created.
+	 */
 	public boolean isUptodate(AnalysisDescription description) {
-		File scriptFile = new File(customScriptsDirName + description.getSourceResourceFullPath());
-		
-		// custom script exists and is than description creation
-		if (scriptFile.exists()) {
-			if (scriptFile.lastModified() > description.getCreationTime()) {
-				return false;
-			}
-		} 
-		
-		// custom script has been deleted
-		else if (description.isUpdatedSinceStartup()) {
-			return false;
-		}
-		return true;
+		File scriptFile = description.getToolFile();
+		return scriptFile.lastModified() <= description.getCreationTime();
 	}
 
 	public boolean isDisabled() {

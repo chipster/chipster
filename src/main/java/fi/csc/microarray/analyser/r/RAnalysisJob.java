@@ -235,8 +235,9 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		List<String> parameterValues;
 		try {
 			parameterValues = inputMessage.getParameters(R_PARAMETER_SECURITY_POLICY, analysis);
+			
 		} catch (ParameterValidityException e) {
-			outputMessage.setErrorMessage("There was an invalid parameter value.");
+			outputMessage.setErrorMessage(e.getMessage()); // always has a message
 			outputMessage.setOutputText(e.toString());
 			updateState(JobState.FAILED_USER_ERROR, "");
 			return;
@@ -304,17 +305,27 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		RProcessMonitor processMonitor = new RProcessMonitor();
 		new Thread(processMonitor).start();
 		
+		// combine the inputs into a single string and store it as the source code
+		StringBuilder inputStringBuilder = new StringBuilder();
+		try {
+			for (BufferedReader reader : inputReaders) {			
+				for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+					inputStringBuilder.append(line + "\n");
+				}
+			}
+		} catch (IOException ioe) {
+			logger.warn("creating R input failed");
+		}
+	
+		outputMessage.setSourceCode(inputStringBuilder.toString());
+		
 		// write the input to process
 		logger.debug("writing the input to R.");
 		BufferedWriter writer = null;
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
-			for (BufferedReader reader : inputReaders) {			
-				for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-					writer.write(line);
-					writer.newLine();
-				}
-			}
+			writer.write(inputStringBuilder.toString());
+			writer.newLine();
 			writer.flush();
 		} catch (IOException ioe) {
 			// this happens if R has died before or dies while writing the input

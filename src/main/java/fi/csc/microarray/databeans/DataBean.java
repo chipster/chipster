@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import fi.csc.microarray.client.operation.Operation;
+import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.QueryResult;
 import fi.csc.microarray.databeans.features.RequestExecuter;
@@ -139,7 +139,8 @@ public class DataBean extends DataItemBase {
 	private LinkedList<TypeTag> tags = new LinkedList<TypeTag>();
 	
 	protected Date date;
-	private Operation sourceOperation;
+	
+	private OperationRecord operationRecord;
 	private String notes;
 
 	protected ContentType contentType;
@@ -175,27 +176,14 @@ public class DataBean extends DataItemBase {
 		this.contentType = contentType;
 	}
 
-	
 
-	/**
-	 * @return The operation that has been selected for this dataset (and which
-	 * 		   may have already been done at least once to produce another
-	 * 		   dataset, or which has not yet been conducted, and maybe never
-	 * 		   will, depending on the user).
-	 */
-	public Operation getOperation() {
-		return sourceOperation;
+	public OperationRecord getOperationRecord() {
+		return operationRecord;
 	}
 
 
-
-	/**
-	 * Associates the given operation with this DataBean.
-	 * 
-	 * @param operation to associate
-	 */
-	public void setOperation(Operation operation) {
-		this.sourceOperation = operation;
+	public void setOperationRecord(OperationRecord operationRecord) {
+		this.operationRecord = operationRecord;
 	}
 
 
@@ -739,7 +727,9 @@ public class DataBean extends DataItemBase {
 		this.cacheUrl = url;
 	}
 
-
+	public void setCreationDate(Date date) {
+		this.date = date;
+	}
 
 	public ReentrantReadWriteLock getLock() {
 		return this.lock;

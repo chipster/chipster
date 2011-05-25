@@ -360,6 +360,9 @@ public class TaskExecutor {
 				if (resultMessage.getErrorMessage() != null) {
 					pendingTask.setErrorMessage(resultMessage.getErrorMessage());
 				}
+				
+				// source code
+				pendingTask.setSourceCode(resultMessage.getSourceCode());
 			}
 
 			// end time(s)
