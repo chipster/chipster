@@ -13,6 +13,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.UIManager;
+
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
@@ -40,6 +42,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
     public ChartPanel chartPanel;
     
     private boolean showFullHeight = false;
+	private Rectangle dirtyArea;
 	
 	/**
 	 * Scale for visualising reads as profiles, gel etc.
@@ -70,9 +73,10 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 	public GenomePlot(TooltipEnabledChartPanel panel, boolean horizontal) throws FileNotFoundException, MalformedURLException {
 	    
 	    // set chart panel
-	    chartPanel = panel;
-	    chartPanel.setLayout(null);
-
+	    this.chartPanel = panel;
+	    this.chartPanel.setLayout(null);
+	    this.dirtyArea = panel.getBounds();
+	    
 		// add overview view
 		this.overviewView = new OverviewHorizontalView(this);
 		this.overviewView.margin = 0;
@@ -179,16 +183,16 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 			info.setDataArea(area);
 		}
 
-		this.setBackgroundPaint(Color.black);
-
-		drawBackground(g2, area);
-		drawOutline(g2, area);
+		this.setBackgroundPaint(UIManager.getColor("Panel.background"));
+		g2.setClip(this.dirtyArea);
+		drawBackground(g2, this.dirtyArea); // clear everything that was drawn before 
 
 		Shape savedClip = g2.getClip();
 		g2.clip(area);
 
 		Rectangle viewArea = (Rectangle) area.getBounds().clone();				
-
+		this.dirtyArea = viewArea; 
+		
 		// Horizontal or vertical split
 		if (true) {
 
@@ -208,6 +212,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 				g2.setClip(viewArea);
 				view.drawView(g2, false);
+				this.dirtyArea = viewArea.union(this.dirtyArea);
 			}
 
 		} else {
@@ -237,11 +242,10 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 				g2.setClip(viewArea);
 				view.drawView(g2, false);
+				this.dirtyArea = viewArea.union(this.dirtyArea);
 			}
 		}
 		g2.setClip(savedClip);
-
-		drawOutline(g2, area);
 	}
 	
 	public int getHeightTotal() {
