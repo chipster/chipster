@@ -11,7 +11,7 @@ import javax.swing.Icon;
 /**
  * 
  * Simple class implementing Icon interface, which dwaws colored circles. This
- * is used in the OperationCategory list to show different color for every
+ * is used in the ToolCategory list to show different color for every
  * category.
  * 
  * @author klemela

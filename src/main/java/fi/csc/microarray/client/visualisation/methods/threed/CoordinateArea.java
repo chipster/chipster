@@ -23,7 +23,7 @@ import javax.swing.event.MouseInputListener;
 
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.selection.RowChoiceEvent;
+import fi.csc.microarray.client.selection.SelectionEvent;
 import fi.csc.microarray.constants.VisualConstants;
 
 /**
@@ -31,7 +31,7 @@ import fi.csc.microarray.constants.VisualConstants;
  * handles selections, rotations etc. The base of the implemention is Threed-visualisation
  * from Viski library (http://www.cs.helsinki.fi/group/viski/ ).
  * 
- * @author Petri KlemelÃ¤
+ * @author Petri Klemelä
  */
 public class CoordinateArea extends JComponent 
 implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChangeListener  {
@@ -105,7 +105,7 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 		kineticMovement = movement.startKineticMove(25, 0.95);		
 		
 		this.updateSelectedFromApplication();
-		application.addPropertyChangeListener(this);
+		application.addClientEventListener(this);
 		
 	}
 
@@ -503,8 +503,8 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 	}
 
 	public void propertyChange(PropertyChangeEvent evt) {
-		if(evt instanceof RowChoiceEvent && !evt.getSource().equals(this) && 
-				((RowChoiceEvent)evt).getData() == controller.getFrame().getDatas().get(0)){			
+		if(evt instanceof SelectionEvent && !evt.getSource().equals(this) && 
+				((SelectionEvent)evt).getData() == controller.getFrame().getDatas().get(0)){			
 			updateSelectedFromApplication();
 			this.repaint();
 		}
@@ -514,7 +514,7 @@ implements ActionListener, MouseInputListener, MouseWheelListener, PropertyChang
 		Drawable[] drawables = controller.getDataModel().getDataArray();
 		this.clearSelections();
 		for (int index : application.getSelectionManager().
-				getRowSelectionManager(controller.getFrame().getDatas().get(0)).getSelectedRows()){
+				getSelectionManager(controller.getFrame().getDatas().get(0)).getSelectionAsRows()){
 			
 			for(Drawable drawable : drawables){
 				if(drawable instanceof DataPoint){

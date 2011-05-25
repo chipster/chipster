@@ -1,6 +1,7 @@
 package fi.csc.microarray.client.operation.parameter;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.features.Table;
@@ -13,12 +14,12 @@ import fi.csc.microarray.exception.MicroarrayException;
  * @author Aleksi Kallio
  *
  */
-public abstract class DataSelectionParameter extends SingleSelectionParameter {
+public abstract class DataSelectionParameter extends EnumParameter {
 
 	protected String initValue;
 	
-	public DataSelectionParameter(String name, String description, String initValue) {
-		super(name, description);
+	public DataSelectionParameter(String id, String displayName, String description, String initValue) {
+		super(id, displayName, description);
 		this.initValue = initValue;
 	}
 	
@@ -43,7 +44,25 @@ public abstract class DataSelectionParameter extends SingleSelectionParameter {
 			}
 		}
 		String[] strings = (String[]) colNames.toArray(new String[colNames.size()]);
-		SelectionOption[] optionObjects = SelectionOption.convertStrings(strings);
-		setOptions(optionObjects, initIndex);
+		SelectionOption[] optionObjects = SelectionOption.convertStrings(strings, strings);
+		
+		// A list of default values
+		List<SelectionOption> defaultOptions = new LinkedList<SelectionOption>();
+		defaultOptions.add(optionObjects[initIndex]);
+		
+		setOptions(optionObjects, defaultOptions);
 	}
+
+    
+    public void parseValueAndSetWithoutChecks(String stringValue) {
+        // Try splitting stringValue and pass it to setValue
+        String[] stringValues = stringValue.split(",");
+        List<SelectionOption> selectedOptions = new LinkedList<SelectionOption>();
+        for (String optionValue : stringValues) {
+        	selectedOptions.add(new SelectionOption(optionValue, optionValue));
+        }
+        super.setSelectedOptions(selectedOptions);
+    }
+
+
 }
