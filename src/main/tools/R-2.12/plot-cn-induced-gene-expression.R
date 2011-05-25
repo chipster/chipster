@@ -7,7 +7,7 @@
 
 # plot-cn-induced-gene-expression.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-03-28
+# 2011-05-25
 
 library(intCNGEan)
 
@@ -20,6 +20,10 @@ dat$reg.id <- NULL
 dat$begin.reg <- NULL
 dat$end.reg <- NULL
 dat$shrinkage <- NULL
+if ('symbol' %in% colnames(dat))
+  dat$probes <- paste(dat$symbol, dat$probes, sep='\n')
+dat$symbol <- NULL
+dat$description <- NULL
 
 # return the data to the original order
 # not sure if necessary, but just in case
