@@ -13,7 +13,6 @@
 	<tool runtime="R-2.12">norm-illumina.R</tool>
 	<tool runtime="R-2.12">norm-illumina-r210.R</tool>
 	<tool runtime="R-2.12">norm-illumina-lumi.R</tool>
-	<tool runtime="R-2.12">norm-illumina-lumi-AAI.R</tool>
 	<tool runtime="R-2.12">norm-illumina-methylumi.R</tool>
 	<tool runtime="R-2.12">norm-lme.R</tool>
 	<tool runtime="R-2.12">norm-illumina-SNP.R</tool>
