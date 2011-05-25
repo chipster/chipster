@@ -2,6 +2,7 @@
 # INPUT cn-induced-expression.tsv: cn-induced-expression.tsv TYPE GENE_EXPRS 
 # OUTPUT cn-induced-expression-plot.pdf: cn-induced-expression-plot.pdf 
 # PARAMETER gene.ids: gene.ids TYPE STRING DEFAULT 1 (The gene.ids of the genes to be plotted, separated by commas. Ranges are also supported (e.g. 1,3,7-10\).)
+# PARAMETER genes: genes TYPE STRING DEFAULT empty (Gene symbols or probe names to be plotted, separated by commas. If this field is filled, the gene.ids parameter will be ignored.)
 
 # plot-cn-induced-gene-expression.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
@@ -11,6 +12,30 @@ library(intCNGEan)
 
 # read input file
 dat <- read.table('cn-induced-expression.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+
+# parse the input string
+if (genes == '' || genes == 'empty') {
+  gene.ids <- gsub('[^0-9,-]', ',', gene.ids)
+  items <- strsplit(gene.ids, ',')[[1]]
+  to.plot <- integer()
+  for (item in items) {
+    item <- item[item!='']
+    if (length(item)==0) next
+    range <- strsplit(item, '-')[[1]]
+    range <- range[range!='']
+    if (length(range)==0) next
+    to.plot <- c(to.plot, seq(range[1], range[length(range)]))
+  }
+  to.plot <- unique(to.plot)
+} else {
+  items <- strsplit(genes, ',', genes)[[1]]
+  to.plot <- integer()
+  for (item in items) {
+    to.plot <- c(to.plot, dat[gsub(' ', '', item), 'gene.id'])
+    to.plot <- c(to.plot, dat[dat$symbol == gsub(' ', '', item), 'gene.id'])
+  }
+  to.plot <- unique(to.plot)
+}
 
 # if testing was done with analysis.type='regional', the resulting table contains four more columns
 # those are removed so that we can calculate the number of samples from the number of columns
@@ -36,20 +61,6 @@ colnames(tuned$callprobs) <- NULL
 colnames(tuned$ann) <- c('Chromosome','Start','End')
 names(tuned$lossorgain) <- dat$probes
 names(tuned$genestotest) <- dat$probes
-
-# parse the input string
-gene.ids <- gsub('[^0-9,-]', ',', gene.ids)
-items <- strsplit(gene.ids, ',')[[1]]
-to.plot <- integer()
-for (item in items) {
-  item <- item[item!='']
-  if (length(item)==0) next
-  range <- strsplit(item, '-')[[1]]
-  range <- range[range!='']
-  if (length(range)==0) next
-  to.plot <- c(to.plot, seq(range[1], range[length(range)]))
-}
-to.plot <- unique(to.plot)
 
 # remove genes that are not present
 to.plot <- intersect(to.plot, tuned$genestotest)
