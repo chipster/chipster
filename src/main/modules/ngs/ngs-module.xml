@@ -50,4 +50,10 @@ runtime="R-2.12"><resource>bowtie.R</resource></tool>
         <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.regions.CombineRegionsTool</resource></tool>
         </category>
 
+    <category name="Filtering" color="#a49900">
+                <tool runtime="R-2.12"><resource>ngs-filter-annotations.R</resource></tool>
+                <tool runtime="R-2.12"><resource>ngs-filter-results-column.R</resource></tool>
+    </category>
+
+
 </module>
