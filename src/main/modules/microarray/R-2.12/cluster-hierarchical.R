@@ -1,16 +1,14 @@
-# ANALYSIS Clustering/Hierarchical (Hierarchical clustering of genes or chips. Specify the distance measure and the 
-# clustering method. The clustering result can be validated using bootstrapping. Validation is computationally 
-# very expensive, and works for approximately less than 100 genes.)
-# INPUT GENE_EXPRS normalized.tsv 
-# OUTPUT hc.tre, resample.pdf
-# PARAMETER cluster [genes, chips] DEFAULT genes (What to cluster)
-# PARAMETER distance.method [euclidian, manhattan, pearson, spearman] DEFAULT pearson (Distance measure)
-# PARAMETER tree.method [single, average, complete, ward] DEFAULT average (Clustering method)
-# PARAMETER resampling [none, bootstrap] DEFAULT none (Validation)
-# PARAMETER number.of.replicates INTEGER FROM 1 TO 10000 DEFAULT 1000 (Number of pseudoreplicates to use in validation)
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the resampling image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the resampling image)
-
+# TOOL cluster-hierarchical.R: Hierarchical (Hierarchical clustering of genes or chips. Specify the distance measure and the clustering method. The clustering result can be validated using bootstrapping. Validation is computationally very expensive, and works for approximately less than 100 genes.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT hc.tre: hc.tre 
+# OUTPUT resample.pdf: resample.pdf 
+# PARAMETER cluster: cluster TYPE [genes: genes, chips: chips] DEFAULT genes (What to cluster)
+# PARAMETER distance.method: distance.method TYPE [euclidian: euclidian, manhattan: manhattan, pearson: pearson, spearman: spearman] DEFAULT pearson (Distance measure)
+# PARAMETER tree.method: tree.method TYPE [single: single, average: average, complete: complete, ward: ward] DEFAULT average (Clustering method)
+# PARAMETER resampling: resampling TYPE [none: none, bootstrap: bootstrap] DEFAULT none (Validation)
+# PARAMETER number.of.replicates: number.of.replicates TYPE INTEGER FROM 1 TO 10000 DEFAULT 1000 (Number of pseudoreplicates to use in validation)
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the resampling image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the resampling image)
 
 # Hierarchical clustering, permutation testing 
 # JTT 22.6.2006
