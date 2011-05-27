@@ -1,10 +1,10 @@
-# ANALYSIS "Quality control"/"cDNA" (cDNA quality control using boxplots, density plots, and MA plots. 
-# This tool should be run on normalized data.)
-# INPUT GENE_EXPRS normalized.tsv 
-# OUTPUT boxplot.png, densityplot.pdf, MA-plot.pdf
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
-
+# TOOL qc-cdna.R: cDNA (cDNA quality control using boxplots, density plots, and MA plots. This tool should be run on normalized data.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT boxplot.png: boxplot.png 
+# OUTPUT densityplot.pdf: densityplot.pdf 
+# OUTPUT MA-plot.pdf: MA-plot.pdf 
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 # Quality control of cDNA chips
 # 30.6.2006 JTT

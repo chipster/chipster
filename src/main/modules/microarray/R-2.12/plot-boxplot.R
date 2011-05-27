@@ -1,8 +1,9 @@
-# ANALYSIS Visualisation/"Boxplot" (Creates a boxplot of normalized data. One box per chip is plotted.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv 
-# OUTPUT boxplot.png
-# PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
-# PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
+# TOOL plot-boxplot.R: Boxplot (Creates a boxplot of normalized data. One box per chip is plotted.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
+# OUTPUT boxplot.png: boxplot.png 
+# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
+# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
 
 # Boxplot
