@@ -11,9 +11,7 @@
 	<tool runtime="R-2.12">norm-agilent-miRNA.R</tool>
 	<tool runtime="R-2.12">norm-cdna.R</tool>
 	<tool runtime="R-2.12">norm-illumina.R</tool>
-	<tool runtime="R-2.12">norm-illumina-r210.R</tool>
 	<tool runtime="R-2.12">norm-illumina-lumi.R</tool>
-	<tool runtime="R-2.12">norm-illumina-lumi-AAI.R</tool>
 	<tool runtime="R-2.12">norm-illumina-methylumi.R</tool>
 	<tool runtime="R-2.12">norm-lme.R</tool>
 	<tool runtime="R-2.12">norm-illumina-SNP.R</tool>
@@ -21,7 +19,7 @@
 	<tool runtime="R-2.12">norm-prenormalized-affy.R</tool>
 	<tool runtime="R-2.12">norm-chip-average.R</tool>
 	<tool runtime="R-2.12">norm-gene-average.R</tool>
-	<tool runtime="R-2.12">norm-specific-samples.R</tool>
+ 	<tool runtime="R-2.12">norm-specific-samples.R</tool>
 	<tool runtime="R-2.12">norm-specific-genes.R</tool>
 
 	<!-- QUALITY CONTROL -->
@@ -45,7 +43,6 @@
 	<tool runtime="R-2.12">na-omitted.R</tool>
 
 	<!-- STATISTICS -->
-	<tool runtime="R-2.12">stat-singleslide.R</tool>
 	<tool runtime="R-2.12">stat-one-group.R</tool>
 	<tool runtime="R-2.12">stat-two-groups.R</tool>
 	<tool runtime="R-2.12">stat-ROTS.R</tool>
@@ -54,14 +51,14 @@
 	<tool runtime="R-2.12">stat-linear-modelling.R</tool>
 	<tool runtime="R-2.12">stat-correlate-with-phenodata.R</tool>
 	<tool runtime="R-2.12">correlation-analysis-mirna.R</tool>
-	<tool runtime="R-2.12">stat-timeseries.R</tool>
+	<tool runtime="R-2.12">stat-timeseries.R</tool>			
 	<tool runtime="R-2.12">stat-chisq-snp.R</tool>
 	<tool runtime="R-2.12">stat-adjust-pvalues.R</tool>
 	<tool runtime="R-2.12">ordination-pca.R</tool>
 	<tool runtime="R-2.12">ordination-ca.R</tool>
 	<tool runtime="R-2.12">ordination-nmds.R</tool>
 	<tool runtime="R-2.12">estimate-samplesize.R</tool>
-	<tool runtime="R-2.12">sample-size-with-bh.R</tool>
+	<tool runtime="R-2.12">sample-size-with-bh.R</tool>                        
 	<tool runtime="R-2.12">up-down-analysis-mirna.R</tool>
 
 	<!-- CLUSTERING -->
@@ -72,16 +69,16 @@
 	<tool runtime="R-2.12">cluster-qt.R</tool>
 	<tool runtime="R-2.12">cluster-som.R</tool>
 	<tool runtime="R-2.12">classification.R</tool>
-
+			
 	<!-- ANNOTATION -->
 	<tool runtime="R-2.12">annotate-genelist2html.R</tool>
-	<tool runtime="R-2.12">annotate-add-to-data.R</tool>
+	<tool runtime="R-2.12">annotate-add-to-data.R</tool> 
 	<tool runtime="R-2.12">annotate-agilent-miRNA.R</tool>
 	<tool runtime="R-2.12">annotate-miRNA-targets.R</tool>
-
+			
 	<!-- PATHWAYS -->
-	<tool runtime="R-2.12">stat-hyperG-GO.R</tool>
-	<tool runtime="R-2.12">stat-hyperG-KEGG-PFAM.R</tool>
+	<tool runtime="R-2.12">stat-hyperG-GO.R</tool>	
+	<tool runtime="R-2.12">stat-hyperG-KEGG-PFAM.R</tool>	
 	<tool runtime="R-2.12">stat-hyperG-safe.R</tool>
 	<tool runtime="R-2.12">stat-hyperG-cytoband.R</tool>
 	<tool runtime="R-2.12">stat-geneset.R</tool>
@@ -93,15 +90,15 @@
 
 	<!-- PROMOTER -->
 	<tool runtime="R-2.12">promoter-tfbs.R</tool>
-	<tool runtime="R-2.12">promoter-tfbs-cosmo.R</tool>
+	<tool runtime="R-2.12">promoter-tfbs-cosmo.R</tool>	
 	<tool runtime="R-2.12">promoter-cbust.R</tool>
-	<tool runtime="R-2.12">promoter-retrprom.R</tool>
+	<tool runtime="R-2.12">promoter-retrprom.R</tool>	
 
-	<!-- VISUALISATION -->
+	<!-- VISUALISATION -->			
 	<tool runtime="R-2.12">plot-idiogram.R</tool>
 	<tool runtime="R-2.12">plot-chrom-pos.R</tool>
 	<tool runtime="R-2.12">plot-volcano.R</tool>
-	<tool runtime="R-2.12">plot-volcano-data-exists.R</tool>
+	<tool runtime="R-2.12">plot-volcano-data-exists.R</tool> 
 	<tool runtime="R-2.12">plot-boxplot.R</tool>
 	<tool runtime="R-2.12">plot-dendrogram.R</tool>
 	<tool runtime="R-2.12">plot-histogram.R</tool>
@@ -111,21 +108,17 @@
 	<!-- UTILITIES -->
 	<tool runtime="R-2.12">search-correlation.R</tool>
 	<tool runtime="R-2.12">search-queryword.R</tool>
-	<tool runtime="R-2.12">search-coordinates.R</tool>
-	<tool runtime="R-2.12">merge-tables.R</tool>
 	<tool runtime="R-2.12">merge-datasets.R</tool>
-	<tool runtime="R-2.12">extract-genes-from-clustering.R</tool>
+	<tool runtime="R-2.12">extract-samples-from-dataset.R</tool>
 	<tool runtime="R-2.12">extract-genes-from-go.R</tool>
 	<tool runtime="R-2.12">extract-genes-from-kegg.R</tool>
-	<tool runtime="R-2.12">extract-samples-from-dataset.R</tool>
-	<tool runtime="R-2.12">extract-genes-from-stattest.R</tool>
 	<tool runtime="R-2.12">extract-genes.R</tool>
+	<tool runtime="R-2.12">extract-target-gene-expression.R</tool>
 	<tool runtime="R-2.12">calculate-fold-change.R</tool>
 	<tool runtime="R-2.12">average-replicates.R</tool>
 	<tool runtime="R-2.12">combine-probes-to-genes.R</tool>
 	<tool runtime="R-2.12">change-interpretation.R</tool>
-	<tool runtime="R-2.12">generate-phenodata.R</tool>
-	<tool runtime="R-2.12">filter-by-column.R</tool>
+	<tool runtime="R-2.12">generate-phenodata.R</tool>			
 	<tool runtime="R-2.12">delete-columns.R</tool>
 	<tool runtime="R-2.12">calculate-descriptive-statistics.R</tool>
 	<tool runtime="R-2.12">sort-samples.R</tool>
@@ -149,21 +142,24 @@
 	<tool runtime="R-2.12">pathways-acgh-hyperg-go.R</tool>
 	<tool runtime="R-2.12">match-cn-and-expression-probes.R</tool>
 	<tool runtime="R-2.12">plot-cn-induced-expression-profile.R</tool>
-	<tool runtime="R-2.12">test-for-cn-induced-differential-expression.R</tool>	
+	<tool runtime="R-2.12">test-for-cn-induced-differential-expression.R</tool>
 	<tool runtime="R-2.12">plot-cn-induced-gene-expression.R</tool>
 	<tool runtime="R-2.12">fetch-probe-positions-from-cangem.R</tool>
 	<tool runtime="R-2.12">add-cytobands.R</tool>
 	<tool runtime="R-2.12">count-overlapping-cnvs.R</tool>
 	<tool runtime="R-2.12">calculate-aberration-frequencies.R</tool>
-
+			
 	<!-- HIDDEN -->
 	<tool runtime="R-2.12" hidden="true">test.R</tool>
 	<tool runtime="R-2.12" hidden="true">no-operation.R</tool>
-	<tool runtime="R-2.12" hidden="true">echo.R</tool>
-	<tool runtime="R-2.12" hidden="true">fail.R</tool>
+	<tool runtime="R-2.12" hidden="true">echo.R</tool>			
+	<tool runtime="R-2.12" hidden="true">fail.R</tool>			
 	<tool runtime="R-2.12" hidden="true">input-output.R</tool>
 	<tool runtime="R-2.12" hidden="true">simple-input-output.R</tool>
 	<tool runtime="R-2.12" hidden="true">data-throughput.R</tool>
 	<tool runtime="R-2.12" hidden="true">sleep.R</tool>
 	<tool runtime="R-2.12" hidden="true">input-sleep-output.R</tool>
+	
 </tools>
+
+

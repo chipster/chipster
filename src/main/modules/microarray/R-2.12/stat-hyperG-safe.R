@@ -1,4 +1,4 @@
-# TOOL stat-hyperG-safe.R: "SAFE test for KEGG pathway enrichment" (Finds KEGG pathways that are over- or under-represented in the selected gene list.)
+# TOOL stat-hyperG-safe.R: "SAFE test for KEGG pathway enrichment" (Finds pathways from the Kyoto Encyclopedia of Genes and Genomes, KEGG, that are over- or under-represented in the selected gene list.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT safeplot.png: safeplot.png 
@@ -7,12 +7,13 @@
 # PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
 # PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
-# PARAMETER which.ontology: which.ontology TYPE [KEGG: KEGG, GO: GO] DEFAULT KEGG (Which ontology to use in the test?)
 # PARAMETER minimum.category.size: minimum.category.size TYPE INTEGER FROM 1 TO 100 DEFAULT 10 (Minimum size for categories to be evaluated)
 
 # Modified 5.11.2009, MG
 # Accounting for changes in SparseM package regarding matrix.csr class
 
+
+# PARAMETER which.ontology [KEGG, GO] DEFAULT KEGG (Which ontology to use in the test?)
 # Parameter settings (default) for testing purposes
 #column<-"group"
 #which.ontology<-"KEGG"
@@ -60,26 +61,27 @@ dat2<-dat[,grep("chip", names(dat))]
 groups<-phenodata[,pmatch(column,colnames(phenodata))]
 
 # Creates a C matrix
-if(which.ontology=="KEGG") {
+#if(which.ontology=="KEGG") {
 	lib2<-sub('.db','',lib)
 	env<-paste(lib2, "PATH", sep="")
 	alleg<-get(env)
 	alleg<-as.list(alleg)
 	cmatrix<-getCmatrix(gene.list=alleg, present.genes=rownames(dat), min.size=minimum.category.size)
 	#cmatrix<-getCmatrix(gene.list=alleg, present.genes=rownames(dat))
-}
+#}
 
-if(which.ontology=="GO") {
-	env<-paste(lib, "GO2ALLPROBES", sep="")
-	alleg<-get(env)
-	alleg<-as.list(alleg)
-	tcmatrix<-getCmatrix(alleg)
-	tcmatrix<-tcmatrix[,dimnames(tcmatrix)[[2]] %in% rownames(dat2)]
-	cmatrix<-matrix(0, dim(dat2)[[1]], dim(tcmatrix)[[1]])
-	dimnames(cmatrix)<-list(dimnames(dat2)[[1]], dimnames(tcmatrix)[[1]]) 
-	cmatrix[match(dimnames(tcmatrix)[[2]], dimnames(dat2)[[1]]), ] <- t(tcmatrix)
-	cmatrix2<-cmatrix[,apply(cmatrix, 2, sum) >= minimum.category.size]
-}
+#if(which.ontology=="GO") {
+#	lib2<-sub('.db','',lib)
+#	env<-paste(lib2, "GO2ALLPROBES", sep="")
+#	alleg<-get(env)
+#	alleg<-as.list(alleg)
+#	tcmatrix<-getCmatrix(alleg)
+#	tcmatrix<-tcmatrix[,dimnames(tcmatrix)[[2]] %in% rownames(dat2)]
+#	cmatrix<-matrix(0, dim(dat2)[[1]], dim(tcmatrix)[[1]])
+#	dimnames(cmatrix)<-list(dimnames(dat2)[[1]], dimnames(tcmatrix)[[1]]) 
+#	cmatrix[match(dimnames(tcmatrix)[[2]], dimnames(dat2)[[1]]), ] <- t(tcmatrix)
+#	cmatrix2<-cmatrix[,apply(cmatrix, 2, sum) >= minimum.category.size]
+#}
 
 # Runs the analysis
 result<-safe(dat2, groups, cmatrix, alpha=p.value.threshold, min.size=minimum.category.size)
@@ -109,4 +111,5 @@ if(length(result@global.pval)==0) {
 	result.table <- result.table[order(result.table$P.Value),]
 	write.table(result.table, file="safe.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 }
+
 

@@ -1,5 +1,7 @@
 package fi.csc.microarray.client.operation.parameter;
 
+import java.math.BigDecimal;
+
 /**
  * A parameter which takes float values.
  * 
@@ -168,6 +170,6 @@ public class DecimalParameter extends Parameter {
 
 	@Override
 	public String getValueAsString() {
-	    return value != null ? value.toString() : "";
+	    return value != null ? new BigDecimal(value.toString()).toPlainString() : "";
 	}
 }

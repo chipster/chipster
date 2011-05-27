@@ -1,6 +1,6 @@
 # TOOL filter-by-column-term.R: "Filter using a column term" (Allows the user to filter the genes on the basis of one column with textual terms, such as gene symbol, gene description or GO term.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENERIC 
-# OUTPUT column-filter3.tsv: column-filter3.tsv 
+# OUTPUT column-term-filter.tsv: column-term-filter.tsv 
 # PARAMETER column: column TYPE COLUMN_SEL (Data column to filter by)
 # PARAMETER match.term: match.term TYPE STRING DEFAULT empty (String to search for)
 # PARAMETER exact.match: exact.match TYPE [yes: yes, no: no] DEFAULT yes (Should only exact matches be retained?)
@@ -22,7 +22,6 @@ if(exact.match=="yes") {
 dat2 <- dat[grep(match.term, dat[,column]),]
 
 # write output
-write.table(dat2, 'column-filter3.tsv', sep='\t', quote=FALSE)
+write.table(dat2, 'column-term-filter.tsv', sep='\t', quote=FALSE)
 # EOF
-
 

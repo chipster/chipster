@@ -861,7 +861,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			}
 			
 			verticalScroller = new JScrollPane(chartPanel);
-			
+
 			setFullHeight(showFullHeightBox.isSelected());
 
 			plotPanel.add(verticalScroller, PLOTPANEL);
