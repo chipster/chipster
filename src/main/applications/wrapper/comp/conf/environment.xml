@@ -183,18 +183,6 @@
       <default-bioconductor-packages/>
     </item>
 
-    <item installed="false" name="WECCA" type="r-package"> 
-      <bioconductor-package>WECCA</bioconductor-package>
-    </item>
-
-    <item installed="false" name="NoWaves" type="r-package"> 
-      <bioconductor-package>NoWaves</bioconductor-package>
-    </item>
-
-    <item installed="false" name="intCNGEan" type="r-package"> 
-      <bioconductor-package>intCNGEan</bioconductor-package>
-    </item>
-
     <item installed="false" name="ctc" type="r-package"> 
       <bioconductor-package>ctc</bioconductor-package>
     </item>
@@ -360,8 +348,8 @@
       <bioconductor-package>MLInterfaces</bioconductor-package>
     </item>
 
-    <item installed="false" name="medips" type="r-package"> 
-      <bioconductor-package>medips</bioconductor-package>
+    <item installed="false" name="MEDIPS" type="r-package"> 
+      <bioconductor-package>MEDIPS</bioconductor-package>
     </item>
 
 
@@ -410,11 +398,20 @@
     	<url>http://www.math.utu.fi/en/research/groups/bio/projects/ROTS_1.1.1.tar.gz</url>
     </item>    
     
-	<item installed="false" name="CORNA" type="application">
-    	<comment>
-	    	Go to https://sourceforge.net/projects/corna/files/corna/1.2/CORNA_1.2.tar.gz/download and
-    		download manually.
-    	</comment> 	
+    <item installed="false" name="WECCA" type="r-package"> 
+    	<url>http://www.few.vu.nl/~wvanwie/WECCA/WECCA_0.30.tar.gz</url>
+    </item>
+
+    <item installed="false" name="NoWaves" type="r-package"> 
+    	<url>http://www.few.vu.nl/~mavdwiel/NoWaves/NoWaves_0.4.tar.gz</url>
+    </item>
+
+    <item installed="false" name="intCNGEan" type="r-package"> 
+      <url>http://www.few.vu.nl/~wvanwie/software/intCNGEan/intCNGEan_0.53.tar.gz</url>
+    </item>
+    
+	<item installed="false" name="CORNA" type="r-package">
+		<url>http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools-extras/CORNA_1.2.tar.gz</url>
     </item>    
     
     <item installed="false" name="microRNA" type="r-package"> 
@@ -512,7 +509,7 @@
       </comment>
     </item>
     
-	<item installed="false" name="Jaspar motif collection" type="file">
+	<item installed="false" name="Jaspar motif collection" type="application">
 	  <dir>/opt/chipster/tools/ClusterBuster</dir>
 	  <comment>
 	  	Download from http://zlab.bu.edu/clover/jaspar2 file jaspar2005core.txt.
@@ -534,6 +531,7 @@
       	and install.
       </comment>
     </item>
+
 
 	<item installed="false" name="EMBOSS seqret" type="application">
 	  <dir>/opt/chipster/tools/emboss</dir>
