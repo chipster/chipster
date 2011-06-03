@@ -5,7 +5,7 @@
 
 # count-overlapping-cnvs.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-04-06
+# 2011-06-03
 
 dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 
@@ -15,7 +15,7 @@ if (length(setdiff(pos, colnames(dat)))!=0)
 
 dat$chromosome <- factor(dat$chromosome, levels=c(1:22, 'X', 'Y', 'MT'), ordered=TRUE)
 
-first.data.col <- min(0, grep('chip', names(dat)), grep('flag', names(dat)))
+first.data.col <- max(0, min(grep('chip', names(dat)), grep('flag', names(dat))))
 
 if (first.data.col > 0) {
   dat2 <- dat[1:first.data.col-1]
