@@ -7,7 +7,7 @@
 # Ilari Scheinin <firstname.lastname@gmail.com>
 # 2011-06-03
 
-dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+dat <- read.table('normalized.tsv', header=TRUE, sep='\t', quote='', as.is=TRUE, row.names=1)
 
 pos <- c('chromosome','start','end')
 if (length(setdiff(pos, colnames(dat)))!=0)
@@ -83,6 +83,6 @@ if (prob)
 if (first.data.col > 0)
   dat2 <- cbind(dat2, dat[,first.data.col:ncol(dat)])
 
-write.table(dat2, file='cnvs.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
+write.table(format(dat2, scientific=FALSE), file='cnvs.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
 # EOF
