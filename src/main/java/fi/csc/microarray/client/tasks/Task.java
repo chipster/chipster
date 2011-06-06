@@ -5,6 +5,7 @@
 package fi.csc.microarray.client.tasks;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -190,7 +191,9 @@ public class Task {
 	}
 	
 	public void addParameter(String name, Float input) {
-		addParameter(name, input.toString()); // we handle Float internally as a String
+		// we handle Float internally as a String
+		// avoid scientific notation
+		addParameter(name, new BigDecimal("" + input).toPlainString()); 
 	}
 	
 	public void addParameter(String name, String input) {

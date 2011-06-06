@@ -1,4 +1,4 @@
-# ANALYSIS Utilities/"Delete columns" (Delete the specified column(s) from the data.)
+# ANALYSIS Utilities/"Delete columns" (Delete the specified column or columns from the data.)
 # INPUT GENE_EXPRS normalized.tsv OUTPUT deleted.tsv
 # PARAMETER column1 COLUMN_SEL DEFAULT EMPTY (Data column to filter by)
 # PARAMETER column2 COLUMN_SEL DEFAULT EMPTY (Data column to filter by)
