@@ -1,6 +1,6 @@
-# ANALYSIS Annotation/"miRNA annotations" (Annotates the miRNA probes, and creates a web-page of links to databases with
-# additional information.)
-# INPUT GENE_EXPRS normalized.tsv OUTPUT annot.html
+# TOOL annotate-agilent-miRNA.R: "miRNA annotations" (Annotates the miRNA probes, and creates a web-page of links to databases with additional information.)
+# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# OUTPUT annot.html: annot.html 
 
 
 # Agilent miRNA annotation

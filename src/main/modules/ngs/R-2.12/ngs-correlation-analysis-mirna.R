@@ -1,30 +1,16 @@
-# ANALYSIS Statistics/"Correlate miRNA with target expression" (Performs a statistical test
-# to detect miRNA targets whose expression is significantly positively or negatively correlated
-# to the expression of the miRNA.)
-# INPUT GENE_EXPRS normalized_mirna.tsv, GENE_EXPRS normalized_gene.tsv, GENERIC phenodata_mirna.tsv, GENERIC phenodata_gene.tsv
-# OUTPUT mirna-gene-positive-correlation.tsv, mirna-gene-negative-correlation.tsv
-# PARAMETER order.column.mirna METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the order of the samples, so that the gene
-# expression and miRNA expression arrays can be correctly matched in the analysis. For time course
-# experiments the actual time can be used, for multiple-condition type of experiments it is
-# adviced to encode the different conditions with a number, e.g. 1, 2, 3, 4 and 5 for
-# an experiment where five different conditions have been assessed. NOTE: If a custom array was used
-# for assessing the gene expression it is crucial that ENTREZ gene ID or HUGO gene symbols have
-# been specified as identifier when importing the data into CHIPSTER.)
-# PARAMETER order.column.gene METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the order of the samples, so that the gene
-# expression and miRNA expression arrays can be correctly matched in the analysis. For time course
-# experiments the actual time can be used, for multiple-condition type of experiments it is
-# adviced to encode the different conditions with a number, e.g. 1, 2, 3, 4 and 5 for
-# an experiment where five different conditions have been assessed. NOTE: If a custom array was used
-# for assessing the gene expression it is crucial that ENTREZ gene ID have
-# been specified as identifier when importing the data into CHIPSTER.)
-# PARAMETER id.type [probe_id, entrez_id] DEFAULT probe_id (Defines the type of gene identifier to use. For supported array types
-# from Affymetrix, Agilent or Illumina "probe_id" should be used, whereas for custom arrays "entrez_id" should be used.)
-# PARAMETER correlation.method [pearson, spearman, kendall] DEFAULT pearson (Method for calculating the correlation. Peasron's method is parametric, 
-# whereas Spearman's correlation is a non-parametric rank-based method that is less sensitive to outliers.
-# Kendall's method is suitable in those cases one is interested in the sign of the changes in expression between adjacent
-# data points, rather than the magnitude.)
-# PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
-# PARAMETER p.value.adjustment.method [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method)
+# TOOL ngs-correlation-analysis-mirna.R: "Correlate miRNA with target expression" (Performs a statistical test to detect miRNA targets whose expression is significantly positively or negatively correlated to the expression of the miRNA.)
+# INPUT normalized_mirna.tsv: normalized_mirna.tsv TYPE GENE_EXPRS 
+# INPUT normalized_gene.tsv: normalized_gene.tsv TYPE GENE_EXPRS 
+# INPUT phenodata_mirna.tsv: phenodata_mirna.tsv TYPE GENERIC 
+# INPUT phenodata_gene.tsv: phenodata_gene.tsv TYPE GENERIC 
+# OUTPUT mirna-gene-positive-correlation.tsv: mirna-gene-positive-correlation.tsv 
+# OUTPUT mirna-gene-negative-correlation.tsv: mirna-gene-negative-correlation.tsv 
+# PARAMETER order.column.mirna: order.column.mirna TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the order of the samples, so that the gene expression and miRNA expression arrays can be correctly matched in the analysis. For time course experiments the actual time can be used, for multiple-condition type of experiments it is adviced to encode the different conditions with a number, e.g. 1, 2, 3, 4 and 5 for an experiment where five different conditions have been assessed. NOTE: If a custom array was used for assessing the gene expression it is crucial that ENTREZ gene ID or HUGO gene symbols have been specified as identifier when importing the data into CHIPSTER.)
+# PARAMETER order.column.gene: order.column.gene TYPE METACOLUMN_SEL DEFAULT EMPTY (Phenodata column describing the order of the samples, so that the gene expression and miRNA expression arrays can be correctly matched in the analysis. For time course experiments the actual time can be used, for multiple-condition type of experiments it is adviced to encode the different conditions with a number, e.g. 1, 2, 3, 4 and 5 for an experiment where five different conditions have been assessed. NOTE: If a custom array was used for assessing the gene expression it is crucial that ENTREZ gene ID have been specified as identifier when importing the data into CHIPSTER.)
+# PARAMETER id.type: id.type TYPE [probe_id: probe_id, entrez_id: entrez_id] DEFAULT probe_id (Defines the type of gene identifier to use. For supported array types from Affymetrix, Agilent or Illumina probe_id should be used, whereas for custom arrays entrez_id should be used.)
+# PARAMETER correlation.method: correlation.method TYPE [pearson: pearson, spearman: spearman, kendall: kendall] DEFAULT pearson (Method for calculating the correlation. Peasron's method is parametric, whereas Spearman's correlation is a non-parametric rank-based method that is less sensitive to outliers. Kendall's method is suitable in those cases one is interested in the sign of the changes in expression between adjacent data points, rather than the magnitude.)
+# PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
+# PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [none: none, Bonferroni: Bonferroni, Holm: Holm, Hochberg: Hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
 
 # Correlation analysis of miRNA targets
 # MG, 11.2.2010

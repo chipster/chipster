@@ -11,11 +11,11 @@
 # JTT 30.3.2010, added a parameter to control matching
 
 # Loads the normalized data
-dat <- read.table('normalized.tsv', header=TRUE, sep='\t', quote='')
+dat <- read.table('normalized.tsv', header=TRUE, sep='\t', quote='', check.names=FALSE)
 
 # Only exact matches?
 if(exact.match=="yes") {
-   match.term<-paste("^", match.term, "$", sep="")
+	match.term<-paste("^", match.term, "$", sep="")
 }
 
 # grep the desired rows
@@ -24,4 +24,5 @@ dat2 <- dat[grep(match.term, dat[,column]),]
 # write output
 write.table(dat2, 'column-term-filter.tsv', sep='\t', quote=FALSE)
 # EOF
+
 

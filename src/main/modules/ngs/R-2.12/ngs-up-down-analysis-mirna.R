@@ -1,14 +1,14 @@
-# ANALYSIS Statistics/"Up-down analysis of miRNA targets" (Given a dataset of miRNA expression and a dataset of gene expression for a two-group comparison experiment,
-# this tool identifies the genes whose expression is upregulated in response to an downregulated miRNA, or vice-versa. It is recommended that the two data sets have been
-# filtered to exclude low quality and/or invariable data and subjected to statistical testing for significant differences in expression between the two experiment groups.
-# NOTE you need to assign a higher number to the samples belonging to the treatment grop in the column describing the experiment group for the calculations to be correct.)
-# INPUT GENE_EXPRS normalized_mirna.tsv, GENE_EXPRS normalized_gene.tsv, GENERIC phenodata_mirna.tsv, GENERIC phenodata_gene.tsv
-# OUTPUT mirna-up-gene-down.tsv, mirna-down-gene-up.tsv
-# PARAMETER average.method [mean, median] DEFAULT median (The method to calculate the average of samples in each experiment group.)
-# PARAMETER groups.column.mirna METACOLUMN_SEL DEFAULT group (Phenodata column describing the experiment groups of the samples in the miRNA expression dataset.)
-# PARAMETER groups.column.gene METACOLUMN_SEL DEFAULT group (Phenodata column describing the experiment groups of the samples in the gene expression dataset.)
-# PARAMETER id.type [probe_id, entrez_id] DEFAULT probe_id (Defines the type of gene identifier to use. For supported array types
-# from Affymetrix, Agilent or Illumina "probe_id" should be used, whereas for custom arrays "entrez_id" should be used.)
+# TOOL ngs-up-down-analysis-mirna.R: "Up-down analysis of miRNA targets" (Given a dataset of miRNA expression and a dataset of gene expression for a two-group comparison experiment, this tool identifies the genes whose expression is upregulated in response to an downregulated miRNA, or vice-versa. It is recommended that the two data sets have been filtered to exclude low quality and or invariable data and subjected to statistical testing for significant differences in expression between the two experiment groups. NOTE you need to assign a higher number to the samples belonging to the treatment grop in the column describing the experiment group for the calculations to be correct.)
+# INPUT normalized_mirna.tsv: normalized_mirna.tsv TYPE GENE_EXPRS 
+# INPUT normalized_gene.tsv: normalized_gene.tsv TYPE GENE_EXPRS 
+# INPUT phenodata_mirna.tsv: phenodata_mirna.tsv TYPE GENERIC 
+# INPUT phenodata_gene.tsv: phenodata_gene.tsv TYPE GENERIC 
+# OUTPUT mirna-up-gene-down.tsv: mirna-up-gene-down.tsv 
+# OUTPUT mirna-down-gene-up.tsv: mirna-down-gene-up.tsv 
+# PARAMETER average.method: average.method TYPE [mean: mean, median: median] DEFAULT median (The method to calculate the average of samples in each experiment group.)
+# PARAMETER groups.column.mirna: groups.column.mirna TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the experiment groups of the samples in the miRNA expression dataset.)
+# PARAMETER groups.column.gene: groups.column.gene TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the experiment groups of the samples in the gene expression dataset.)
+# PARAMETER id.type: id.type TYPE [probe_id: probe_id, entrez_id: entrez_id] DEFAULT probe_id (Defines the type of gene identifier to use. For supported array types from Affymetrix, Agilent or Illumina probe_id should be used, whereas for custom arrays entrez_id should be used.)
 
 # Up-down analysis of miRNA targets
 # MG, 25.2.2010
