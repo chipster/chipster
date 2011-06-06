@@ -66,7 +66,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 		 * 
 		 * Interpretation: Only word characters and some special symbols are allowed.
 		 */
-		public static String TEXT_VALUE_PATTERN = "[\\w+\\-_:\\.,*()]*";
+		public static String TEXT_VALUE_PATTERN = "[\\w+\\-_:\\.,*() ]*";
 		
 		/**
 		 *  
