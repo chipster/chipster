@@ -347,10 +347,10 @@ public class ToolRepository {
 		    	try {
 		                description = runtime.getHandler().handle(module, toolFilename, parameters);
 		                
-		                // check for duplicates
-				        AnalysisDescription previousDescription = getDescription(description.getID());
+		                // check for duplicates in this module
+				        AnalysisDescription previousDescription = module.getDescription(description.getID());
 			    	    if (previousDescription != null) {
-			    	        logger.warn("not loading " + toolFilename + ": tool with the same ID already exists");
+			    	        logger.warn("not loading " + toolFilename + ": tool with the same ID already exists in this module");
 			    	        continue;
 			    	    }
 		    	    

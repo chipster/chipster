@@ -464,7 +464,10 @@ public class SessionSaver {
 		if (operationRecord.getCategoryColor() != null) {
 			operationType.setCategoryColor(SwingTools.colorToHexString(operationRecord.getCategoryColor()));
 		}
-		
+
+		// module
+		operationType.setModule(operationRecord.getModule());
+
 		// source code
 		if (operationRecord.getSourceCode() != null) {
 			String entryName = getNewSourceCodeEntryName(operationRecord.getNameID().getID());
