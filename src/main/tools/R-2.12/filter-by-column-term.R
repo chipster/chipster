@@ -10,7 +10,7 @@
 # JTT 30.3.2010, added a parameter to control matching
 
 # Loads the normalized data
-dat <- read.table('normalized.tsv', header=TRUE, sep='\t', quote='')
+dat <- read.table('normalized.tsv', header=TRUE, sep='\t', quote='', check.names=FALSE)
 
 # Only exact matches?
 if(exact.match=="yes") {
