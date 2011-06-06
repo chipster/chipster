@@ -385,10 +385,14 @@ public class AnnotationManager {
 
 			long contentLength = Long.parseLong(splitted[4]);
 
-			annotations.add(new GenomeAnnotation(splitted[0], splitted[1], splitted[2], url, contentLength));
+			addAnnotation(new GenomeAnnotation(splitted[0], splitted[1], splitted[2], url, contentLength));
 		}
 	}
 
+	public void addAnnotation(GenomeAnnotation annotation) {
+		annotations.add(annotation);
+	}
+	
 	private URL getRemoteAnnotationsUrl() throws Exception {
 		FileBrokerClient fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
 		URL annotationsUrl = new URL(fileBroker.getPublicUrl() + "/" + ANNOTATIONS_PATH);
