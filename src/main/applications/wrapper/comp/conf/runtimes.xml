@@ -67,4 +67,41 @@
 			</parameter>
 		</handler>
 	</runtime>
+	
+	<runtime>
+        <name>java</name>
+        <handler>
+            <class>fi.csc.microarray.analyser.java.JavaAnalysisHandler</class> 
+        </handler>
+    </runtime>
+	
+	<runtime>
+		<name>EMBOSS</name>
+		<handler>
+			<class>fi.csc.microarray.analyser.emboss.EmbossAnalysisHandler</class>
+			<parameter>
+				<name>externalToolPath</name>
+				<value>/opt/chipster/tools</value>
+			</parameter>
+			<parameter>
+				<name>embossPath</name>
+				<value>/EMBOSS-6.2.0/emboss</value>
+			</parameter>
+			<parameter>
+				<name>descriptionPath</name>
+				<value>/EMBOSS-6.2.0/emboss/acd</value>
+			</parameter>
+		</handler>
+	</runtime>
+	
+	<runtime>
+		<name>shell</name>
+		<handler>
+			<class>fi.csc.microarray.analyser.shell.ShellAnalysisHandler</class>
+			<parameter>
+				<name>toolPath</name>
+				<value>/shell</value>
+			</parameter>
+		</handler>
+	</runtime>
 </runtimes>

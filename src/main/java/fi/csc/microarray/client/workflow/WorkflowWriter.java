@@ -7,13 +7,16 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import fi.csc.microarray.client.operation.Operation;
-import fi.csc.microarray.client.operation.Operation.DataBinding;
+import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.operation.OperationDefinition;
+import fi.csc.microarray.client.operation.OperationRecord;
+import fi.csc.microarray.client.operation.OperationRecord.InputRecord;
+import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
+import fi.csc.microarray.client.operation.parameter.DataSelectionParameter;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.Link;
-import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 
 public class WorkflowWriter {
 
@@ -51,25 +54,30 @@ public class WorkflowWriter {
 		return script;
 	}
 
+	/**
+	 * FIXME session refactoring, start using OperationRecords.
+	 * @param script
+	 * @param bean
+	 */
 	private void generateRecursively(StringBuffer script, DataBean bean) {
 
 		// dig all operations that were used to produce children of this bean
-		HashSet<Operation> operations = new HashSet<Operation>();
+		HashSet<OperationRecord> operationRecords = new HashSet<OperationRecord>();
 		for (DataBean derived : bean.getLinkSources(Link.DERIVATION)) {
-			operations.add(derived.getOperation());
+			operationRecords.add(derived.getOperationRecord());
 		}
 
 		// generate operations leading to derived beans
-		for (Operation operation : operations) {
+		for (OperationRecord operationRecord : operationRecords) {
 			LinkedList<DataBean> results = new LinkedList<DataBean>();
 			// collect datas that were produced by this operation
 			for (DataBean derived : bean.getLinkSources(Link.DERIVATION)) {
-				if (derived.getOperation() == operation) {
+				if (derived.getOperationRecord() == operationRecord) {
 					results.add(derived);
 				}
 			}
 
-			generateStep(script, operation, results);
+			generateStep(script, operationRecord, results);
 		}
 
 		// continue recursion from derived beans
@@ -82,28 +90,32 @@ public class WorkflowWriter {
 	 * 
 	 * @param results must be in the same order as they were produced by the operation!
 	 */
-	private void generateStep(StringBuffer script, Operation operation, LinkedList<DataBean> results) {
-		if (operation.getBindings() == null) {
-			// not enough data (i.e. bindings) available (this was import data, source data was deleted etc.)
-			writeWarnings.add("Operation " + operation.getDefinition().getFullName() + " was skipped.");
-			return;
+	private void generateStep(StringBuffer script, OperationRecord operationRecord, LinkedList<DataBean> results) {
+		
+		OperationDefinition toolDefinition = Session.getSession().getApplication().getOperationDefinition(operationRecord.getNameID().getID());
+		if (toolDefinition == null) {
+			// TODO writeWarnings
 		}
-
+		
 		StringBuffer dataString = new StringBuffer("\ndatas = new WfDataBean[] {\n");
 		boolean first = true;
-		for (DataBinding binding : operation.getBindings()) {
-			if (binding.getInputType() == ChipsterInputTypes.PHENODATA) {
-				continue; // phenodata is bound automatically
+		for (InputRecord inputRecord : operationRecord.getInputs()) {
+			
+			// skip phenodata as it is bound automatically
+			if (inputRecord.getNameID().getID().equals("phenodata.tsv")) {
+				continue; 
 			}
 			if (!first) {
 				dataString.append(",\n");
 			} else {
 				first = false;
 			}
-			String name = resultIdMap.get(binding.getData());
+
+			
+			String name = resultIdMap.get(inputRecord.getValue());
 			if (name == null) {
 				// we cannot handle this, too complicated structure
-				writeWarnings.add("Operation " + operation.getDefinition().getFullName() + " was skipped because it combines multiple workflow branches.");
+				writeWarnings.add("Tool " + operationRecord.getFullName() + " was skipped because it combines multiple workflow branches.");
 				return; // skip this branch, nothing was written to script yet
 			}
 			dataString.append("  " + name);
@@ -111,13 +123,24 @@ public class WorkflowWriter {
 		dataString.append("\n};\n");
 		script.append(dataString);
 
-		script.append("op = new WfOperation(app.locateOperationDefinition(\"" + operation.getCategoryName() + "\", \"" + operation.getName() + "\"), datas);\n");
+		script.append("op = new WfOperation(app.getOperationDefinition(\"" + operationRecord.getNameID().getID() + "\"), datas);\n");
 
-		for (Parameter parameter : operation.getParameters()) {
-			script.append("op.setParameter(\"" + parameter.getName() + "\", " + parameter.getValueAsJava() + ");\n");
+		for (ParameterRecord parameterRecord : operationRecord.getParameters()) {
+			// Write code that sets the value only when value is not empty
+			if (parameterRecord.getValue() != null && !parameterRecord.getValue().equals("")) {	
+				Parameter parameter = (Parameter)toolDefinition.getParameter(parameterRecord.getNameID().getID()).clone();
+				if (parameter != null) {
+					if (parameter instanceof DataSelectionParameter) {
+						((DataSelectionParameter)parameter).parseValueAndSetWithoutChecks(parameterRecord.getValue());
+					} else {
+						parameter.parseValue(parameterRecord.getValue());
+					}
+					script.append("op.setParameter(\"" + parameter.getID() + "\", " + parameter.getValueAsJava() + ");\n");
+				}
+			}
 		}
 
-		int resultCount = operation.getDefinition().getOutputCount();
+		int resultCount = toolDefinition.getOutputCount();
 		script.append("opBlocker = new WfResultBlocker(" + resultCount + ");\n");
 		script.append("op.setResultListener(opBlocker);\n");
 		script.append("app.executeOperation(op);\n");
@@ -136,7 +159,7 @@ public class WorkflowWriter {
 	private void generateHeader(StringBuffer script, DataBean root) {
 		// write info and imports
 		script.append(generateVersionHeaderLine());
-		script.append("/* \n" + "  BeanShell workflow script for " + ApplicationConstants.APPLICATION_TITLE + "\n" + "  Generated by " + System.getProperty("user.name") + " at " + new Date().toString() + "\n" + "*/\n");
+		script.append("/* \n" + "  BeanShell workflow script for " + ApplicationConstants.TITLE + "\n" + "  Generated by " + System.getProperty("user.name") + " at " + new Date().toString() + "\n" + "*/\n");
 		script.append("\n");
 		script.append("import fi.csc.microarray.client.workflow.api.*;\n");
 		script.append("\n");

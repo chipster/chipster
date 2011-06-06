@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -15,17 +16,18 @@ import fi.csc.microarray.analyser.AnalysisException;
 import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
 import fi.csc.microarray.analyser.ProcessPool;
+import fi.csc.microarray.analyser.RepositoryModule;
 import fi.csc.microarray.analyser.ResultCallback;
-import fi.csc.microarray.analyser.VVSADLTool;
+import fi.csc.microarray.analyser.SADLTool;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.description.VVSADLParser.ParseException;
-import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.description.SADLDescription;
+import fi.csc.microarray.description.SADLGenerator;
+import fi.csc.microarray.description.SADLParser.ParseException;
 import fi.csc.microarray.messaging.message.JobMessage;
-import fi.csc.microarray.module.chipster.ChipsterVVSADLParser;
+import fi.csc.microarray.module.chipster.ChipsterSADLParser;
 
 public class RAnalysisHandler implements AnalysisHandler {
-	private static final String FILETYPE = ".r";
 
 	/**
 	 * Logger for this class
@@ -36,7 +38,6 @@ public class RAnalysisHandler implements AnalysisHandler {
 	private String rCommand;
 	private String toolPath;
 	private String externalToolPath;
-	private String customScriptsDirName;
 	private ProcessPool processPool;
 	private boolean isDisabled = false;
 	
@@ -56,7 +57,6 @@ public class RAnalysisHandler implements AnalysisHandler {
 		}
 		this.rCommand = command;
 		this.toolPath = parameters.get("toolPath");
-		this.customScriptsDirName = configuration.getString("comp", "custom-scripts-dir");
 	
 		this.externalToolPath = parameters.get("externalToolPath");
 		if (externalToolPath == null) {
@@ -86,84 +86,63 @@ public class RAnalysisHandler implements AnalysisHandler {
 	}
 
 
-	public AnalysisDescription handle(String sourceResourceName) throws AnalysisException {
+	public AnalysisDescription handle(RepositoryModule module, String toolFilename,
+	                                  Map<String, String> params) throws AnalysisException {
+		
+		File toolFile = new File(module.getModuleDir(), toolPath + File.separator + toolFilename);
 		
 		InputStream scriptSource;
 		
-		String scriptPath = toolPath + File.separator + sourceResourceName;
-		logger.debug("creating descriptions from " + scriptPath);
-		
-		// check for custom script file
-		File scriptFile = new File(customScriptsDirName + File.separator + scriptPath);
-		if (scriptFile.exists()) {
-			FileInputStream customScriptSource;
-			try {
-				customScriptSource = new FileInputStream(scriptFile);
-			} catch (FileNotFoundException fnfe) {
-				logger.error("Could not load custom script: " + scriptFile, fnfe);
-				throw new AnalysisException("Could not load custom script: " + scriptFile);
-			}
-			scriptSource = customScriptSource;
-			logger.info("using custom-script for " + scriptPath);
-		} else {
-			scriptSource = this.getClass().getResourceAsStream(scriptPath);
-		}
-		
-		if (scriptSource == null) {
-			throw new AnalysisException(scriptPath + " not found");
-		}
-		
-		// read the VVSADL from the comment block in the beginning of file
-		// and the actual source code
-		VVSADLTool.ParsedRScript parsedScript;
 		try {
-			parsedScript = new VVSADLTool().parseRScript(scriptSource);
-		} catch (MicroarrayException e) {				
+			scriptSource = new FileInputStream(toolFile);
+			
+		} catch (FileNotFoundException e) {
+			throw new AnalysisException("script source " + toolFile + " not found.");
+		}
+		
+		// read the SADL from the comment block in the beginning of file
+		// and the actual source code
+		SADLTool.ParsedScript parsedScript;
+		try {
+			parsedScript = new SADLTool("#").parseScript(scriptSource);
+		} catch (IOException e) {				
 			throw new AnalysisException(e);
 		}
 		
-		// parse VVSADL and create AnalysisDescription		
-		AnalysisDescription ad;
+		// parse SADL		
+		SADLDescription sadlDescription;
 		try {
-			ad = new AnalysisDescriptionGenerator().generate(new ChipsterVVSADLParser().parse(parsedScript.VVSADL), this);
+			sadlDescription = new ChipsterSADLParser().parse(parsedScript.SADL, toolFile.getName());
 		} catch (ParseException e) {
 			throw new AnalysisException(e);
 		}
-		ad.setVVSADL(parsedScript.VVSADL);
+		
+		// create analysis description
+		AnalysisDescription ad;
+		ad = new AnalysisDescriptionGenerator().generate(sadlDescription, this, module);
+		
+		// SADL back to string
+		SADLGenerator.generate(sadlDescription);
+		ad.setSADL(SADLGenerator.generate(sadlDescription));
 
 		// add R specific stuff to AnalysisDescription
 		ad.setCommand(rCommand);
-		ad.setImplementation(parsedScript.rSource); // include headers
-		ad.setSourceCode(parsedScript.rSource);
-		ad.setSourceResourceName(sourceResourceName);
-		ad.setSourceResourceFullPath(scriptPath);
+		ad.setImplementation(parsedScript.source); // include headers
+		ad.setSourceCode(parsedScript.source);
+		ad.setSourceResourceFullPath(toolFile);
 		ad.setInitialiser("chipster.tools.path = '" + externalToolPath + "'\n");
 		
 		return ad;
 	}
 
 	
-	public boolean supports(String sourceResourceName) {
-		logger.debug("do we support " + sourceResourceName + ": " + sourceResourceName.toLowerCase().endsWith(FILETYPE));
-		return sourceResourceName.toLowerCase().endsWith(FILETYPE);
-	}
-
-
+	/**
+	 * Check if the source file has been modified since the 
+	 * AnalysisDescription was created.
+	 */
 	public boolean isUptodate(AnalysisDescription description) {
-		File scriptFile = new File(customScriptsDirName + description.getSourceResourceFullPath());
-		
-		// custom script exists and is than description creation
-		if (scriptFile.exists()) {
-			if (scriptFile.lastModified() > description.getCreationTime()) {
-				return false;
-			}
-		} 
-		
-		// custom script has been deleted
-		else if (description.isUpdatedSinceStartup()) {
-			return false;
-		}
-		return true;
+		File scriptFile = description.getToolFile();
+		return scriptFile.lastModified() <= description.getCreationTime();
 	}
 
 	public boolean isDisabled() {

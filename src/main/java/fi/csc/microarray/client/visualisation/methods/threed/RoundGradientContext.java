@@ -9,7 +9,7 @@ import java.awt.image.WritableRaster;
 /**
  * Class for drawing fake 3d balls.
  * 
- * @author Petri KlemelÃ¤
+ * @author Petri Klemelä
  */
 public class RoundGradientContext
     implements PaintContext {
