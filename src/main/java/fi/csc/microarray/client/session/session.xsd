@@ -35,6 +35,7 @@
     		<xs:element name="parameter" type="parameterType" maxOccurs="unbounded" minOccurs="0"/>
     		<xs:element name="category" type="xs:string" />
     		<xs:element name="categoryColor" type="xs:string" minOccurs="0" />
+			<xs:element name="module" type="xs:string" />
 
 		</xs:sequence>
 	</xs:complexType>
