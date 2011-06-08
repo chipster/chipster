@@ -25,8 +25,11 @@ dat<-read.table(file, header=T, sep="\t", row.names=1)
 calls<-dat[,grep("flag", names(dat))]
 dat2<-dat[,grep("chip", names(dat))]
 
+# Handle average columns for 2-color arrays
+dat_average <- dat[,grep("average", names(dat))]
+
 # Check if there is annotation info available and if so extract it
-annotations <- dat[,-c(grep("chip",names(dat)), grep("flag", names(dat)))]
+annotations <- dat[,-c(grep("chip",names(dat)), grep("flag", names(dat)), grep("average", names(dat)))]
 if (length(annotations)>0) {
 	rownames(annotations) <- rownames(dat)
 }
@@ -54,7 +57,8 @@ if(max(extract>1)) {
 }
 
 # Extracting the samples
-dat2<-dat2[,which(extract==1)]
+dat3<-data.frame (dat2[,which(extract==1)], dat_average[,which(extract==1)])
+colnames(dat3) <- c(names(dat2)[which(extract==1)], names(dat_average)[which(extract==1)])
 if(ncol(calls)>=1) {
    calls2<-calls[,which(extract==1)]
 }
@@ -62,11 +66,13 @@ phenodata2<-phenodata[which(extract==1),]
 
 # Writing the data to disk
 if (length(annotations)>0) {
-	dat2 <- data.frame(annotations,dat2)
+#	column_names <- c(names(annotations),names(dat2))
+	dat3 <- data.frame(annotations,dat3)
+#	colnames(dat2) <- column_names
 }
 if(ncol(calls)>=1) {
-   write.table(data.frame(dat2, calls2), file="extract.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+   write.table(data.frame(dat3, calls2), file="extract.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 } else {
-   write.table(data.frame(dat2), file="extract.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+   write.table(data.frame(dat3), file="extract.tsv", sep="\t", row.names=T, col.names=T, quote=F)
 }
 write.table(phenodata2, file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F, na='')
