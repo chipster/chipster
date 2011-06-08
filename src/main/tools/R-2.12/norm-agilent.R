@@ -159,6 +159,12 @@ names(A)<-paste("average.", names(A), sep="")
 names(A)<-paste(names(A), ".tsv", sep="")
 A<-data.frame(A)
 M<-data.frame(M)
+
+# Fix names for when reading single slide
+if (length(files) == 1) {
+	names(M) <- "chip.microarray001.tsv"
+	names(A) <- "average.microarray001.tsv"
+}
 rownames(M)<-genes
 rownames(A)<-genes
 
