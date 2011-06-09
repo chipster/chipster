@@ -1,6 +1,6 @@
-# ANALYSIS Statistics/"Linear modelling" (Analyzes the data using linear modelling as implemented in limma R package.
-# You can have a maximum of three main effect and their interaction in the model. On top of the main effects,
-# you can specify technical replication and pairing of the samples. Main effects can be fitted as such of as categorical
+# ANALYSIS Statistics/"Linear modelling" (Analyzes the data using linear modelling as implemented in the R package limma.
+# You can have a maximum of three main effects and their interactions in the model. In addition,
+# you can specify technical replication and pairing of the samples. Main effects can be fitted as such or as categorical
 # variables, i.e., factors. Fold changes and p-values are reported for all effects and interactions.)
 # INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT limma.tsv, limma-design.tsv, foldchange.tsv, pvalues.tsv
 # PARAMETER main.effect1 METACOLUMN_SEL DEFAULT group (Main effect 1)
