@@ -125,11 +125,11 @@ public class SADLTool {
 	
 	public static void main(String[] args) throws Exception {
 		DirectoryLayout.initialiseUnitTestLayout();
-		convertACGH();
+		convertBeanshell();
 	}
 
 
-	private static void convertACGH() throws Exception {
+	public static void convertACGH() throws Exception {
 		for (String moduleDir : new String[] { "src/main/modules/microarray/R-2.12", "src/main/modules/ngs/R-2.12" }) {
 			for (File file : new File(moduleDir).listFiles()) {
 				if (file.getName().endsWith(".R")) {
@@ -139,5 +139,36 @@ public class SADLTool {
 			}
 		}
 	}
+	
+	public static void convertSomeScripts() throws Exception {
+		File files[] = new File[] {
+			new File("src/main/modules/microarray/R-2.12/annotate-agilent-miRNA.R"),
+			new File("src/main/modules/ngs/R-2.12/ngs-annotate-miRNA-targets.R"),
+			new File("src/main/modules/ngs/R-2.12/ngs-correlation-analysis-mirna.R"),
+			new File("src/main/modules/ngs/R-2.12/ngs-extract-target-gene-expression.R"),
+			new File("src/main/modules/ngs/R-2.12/ngs-filter-annotations.R"),
+			new File("src/main/modules/ngs/R-2.12/ngs-filter-results-column.R"),
+			new File("src/main/modules/ngs/R-2.12/ngs-pathways-mirna-hyperg-go.R"),
+			new File("src/main/modules/ngs/R-2.12/ngs-pathways-mirna-hyperg-kegg.R"),
+			new File("src/main/modules/ngs/R-2.12/ngs-up-down-analysis-mirna.R")
+		};
+		
+		for (File file : files) {
+			if (file.getName().endsWith(".R")) {
+				System.out.println(file.getCanonicalPath());
+				new SADLTool("#").convertToSADL(file);
+			}
+		}
+	}
+
+	public static void convertBeanshell() throws Exception {
+		for (File file : new File("src/main/modules/microarray/bsh").listFiles()) {
+			if (file.getName().endsWith(".bsh")) {
+				System.out.println(file.getCanonicalPath());
+				new SADLTool("//").convertToSADL(file);
+			}
+		}
+	}
+
 
 }
