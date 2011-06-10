@@ -1,4 +1,4 @@
-# TOOL stat-linear-modelling.R: "Linear modelling" (Analyzes the data using linear modelling as implemented in limma R package. You can have a maximum of three main effect and their interaction in the model. On top of the main effects, you can specify technical replication and pairing of the samples. Main effects can be fitted as such of as categorical variables, i.e., factors. Fold changes and p-values are reported for all effects and interactions.)
+# TOOL stat-linear-modelling.R: "Linear modelling" (Analyzes the data using linear modelling as implemented in the R package limma. You can have a maximum of three main effects and their interactions in the model. In addition, you can specify technical replication and pairing of the samples. Main effects can be fitted as such or as categorical variables, i.e., factors. Fold changes and p-values are reported for all effects and interactions.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT limma.tsv: limma.tsv 
