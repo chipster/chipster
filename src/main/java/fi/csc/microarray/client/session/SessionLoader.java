@@ -271,7 +271,9 @@ public class SessionLoader {
 			if (currentTool != null) {
 				operationRecord.getNameID().setDisplayName(currentTool.getDisplayName());
 				operationRecord.getNameID().setDescription(currentTool.getDescription());
-				operationRecord.setModule(currentTool.getCategory().getModule().getModuleName());
+				if (currentTool.getCategory().getModule() != null) {
+					operationRecord.setModule(currentTool.getCategory().getModule().getModuleName());
+				}
 				operationRecord.setCategoryName(currentTool.getCategoryName());
 				operationRecord.setCategoryColor(currentTool.getCategory().getColor());
 				
