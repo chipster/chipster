@@ -497,7 +497,7 @@ public class MicroarrayModule implements Module {
 
 	@Override
 	public boolean notesVisibleAtStartup() {
-		return false;
+		return true;
 	}
 
 	@Override
