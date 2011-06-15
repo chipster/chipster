@@ -45,7 +45,9 @@ public class OperationRecord {
 		this.categoryColor = operation.getCategoryColor();
 		
 		// module
-		this.moduleName = operation.getDefinition().getCategory().getModule().getModuleName();
+		if (operation.getDefinition().getCategory().getModule() != null) {
+			this.moduleName = operation.getDefinition().getCategory().getModule().getModuleName();
+		}
 		
 		// parameters
 		for (Parameter parameter : operation.getParameters()) {
