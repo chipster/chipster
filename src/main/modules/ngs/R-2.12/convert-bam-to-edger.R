@@ -24,7 +24,7 @@ system(samtools.command)
 # length of sequence
 input.file <- "sam_file"
 output.file <- "sam_file_extracted"
-extract.command <- paste ("awk '{print $10\"\t\"$3\"\t\"$4\"\t\"length($10)+$4}'", input.file, ">", output.file)
+extract.command <- paste ("awk '{print $10\"\t\"$3\"\t\"$4\"\t\"length($10)+$4}\"\t\"length($10)'", input.file, ">", output.file)
 system(extract.command)
 
 # Find the unique reads
@@ -51,10 +51,20 @@ output.file <- "sam_file_trimmed"
 trim.command <- paste ("grep -v \\*", input.file, ">", output.file)
 system(trim.command)
 
-# Output tab delimited text file to Chipster
+# Add column headers
+headers <- c("ID","chr","start","end","length","count")
 input.file <- "sam_file_trimmed"
+header.file <- "header_file"
 output.file <- "edgeR-input.tsv"
-write.command <- paste ("mv", input.file, output.file)
-system(write.command)
+write.table(headers, file=header.file, col.names=T, row.names=F, quote=F, sep="\t")
+merge.command <- paste("cat", header.file, input.file, ">", output.file)
+system(merge.command)
+
+# Output tab delimited text file to Chipster
+#input.file <- "sam_file_trimmed"
+#output.file <- "edgeR-input.tsv"
+#write.command <- paste ("mv", input.file, output.file)
+#system(write.command)
+
 # EOF
 
