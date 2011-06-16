@@ -43,13 +43,13 @@ system(unique.command)
 # Create an output file with sequence reads that occur at least count_limit times
 input.file <- "sam_file_unique"
 output.file <- "sam_file_output"
-output.command <- paste ("awk '{if($1> 10)print $2\"\t\"$3\"\t\"$4\"\t\"$5\"\t\"$6\"\t\"$1}'", input.file, ">", output.file)
+output.command <- paste ("awk '{if($1>", count_limit, ")print $2\"\t\"$3\"\t\"$4\"\t\"$5\"\t\"$6\"\t\"$1}'", input.file, ">", output.file)
 system(output.command)
 
 # Creat sequence read ID composed of chromosome name, start position and end position
 input.file <- "sam_file_output"
 output.file <- "sam_file_id"
-id.command <- paste ("awk '{print $2\"_\"$3\"_\"$4\"\t\"$1\"\t\"$2\"\t\"$3\"\t\"$4\"\t\"$5\"\t\"$6}'", input.file, ">", output.file)
+id.command <- paste ("awk '{print $2\"_\"$3\"_\"$4\"_\"$1\"\t\"$1\"\t\"$2\"\t\"$3\"\t\"$4\"\t\"$5\"\t\"$6}'", input.file, ">", output.file)
 system(id.command)
 
 # Remove sequence reads mapping to random chromosome
