@@ -24,7 +24,7 @@ system(samtools.command)
 # length of sequence
 input.file <- "sam_file"
 output.file <- "sam_file_extracted"
-extract.command <- paste ("awk '{print $10\"\t\"$3\"\t\"$4\"\t\"length($10)+$4\"\t\"length($10))'", input.file, ">", output.file)
+extract.command <- paste ("awk '{print $10\"\t\"$3\"\t\"$4\"\t\"length($10)+$4\"\t\"length($10)}'", input.file, ">", output.file)
 system(extract.command)
 
 # Find the unique reads
