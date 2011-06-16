@@ -7,8 +7,8 @@
 
 # Sam tools setup
 samtools.binary <- c(file.path(chipster.tools.path, "samtools", "samtools"))
-command.start <- paste("bash -c '", samtools.binary)
-
+#command.start <- paste("bash -c '", samtools.binary)
+command.start <- "/fs/local/users/chipster/tools/samtools/samtools"
 # Extract the BAM file into SAM
 samtools.parameters <- "view"
 samtools.input <- "bam_file.bam"
@@ -24,7 +24,7 @@ system(samtools.command)
 # length of sequence
 input.file <- "sam_file"
 output.file <- "sam_file_extracted"
-extract.command <- paste ("awk '{print $10"\t"$3"\t"$4"\t"length($10)+$4}'", input.file, ">", output.file)
+extract.command <- paste ("awk '{print $10\"\t\"$3\"\t\"$4\"\t\"length($10)+$4}'", input.file, ">", output.file)
 system(extract.command)
 
 # Find the unique reads
@@ -42,21 +42,19 @@ system(sort.command)
 # Create an output file with sequence reads that occur at least count_limit times
 input.file <- "sam_file_sorted"
 output.file <- "sam_file_output"
-output.command <- paste ("awk '{if($1> 10)print $2"\t"$3"\t"$4"\t"$1}'", input.file, ">", output.file)
+output.command <- paste ("awk '{if($1> 10)print $2\"\t\"$3\"\t\"$4\"\t\"$1}'", input.file, ">", output.file)
 system(output.command)
 
 # Remove sequence reads mapping to random chromosome
 input.file <- "sam_file_output"
 output.file <- "sam_file_trimmed"
-trim.command <- paste ("grep -v \*", input.file, ">", output.file)
+trim.command <- paste ("grep -v \\*", input.file, ">", output.file)
 system(trim.command)
 
 # Output tab delimited text file to Chipster
-write.table(output.file, file="edgeR-input.tsv", , col.names=F, row.names=F, quote=F, sep="\t")
-
+input.file <- "sam_file_trimmed"
+output.file <- "edgeR-input.tsv"
+write.command <- paste ("mv", input.file, output.file)
+system(write.command)
 # EOF
-
-# rename result files
-system("mv alignment.sorted.bam bowtie.bam")
-system("mv alignment.sorted.bam.bai bowtie.bam.bai")
 
