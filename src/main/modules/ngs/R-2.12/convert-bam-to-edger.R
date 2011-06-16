@@ -42,7 +42,7 @@ system(sort.command)
 # Create an output file with sequence reads that occur at least count_limit times
 input.file <- "sam_file_sorted"
 output.file <- "sam_file_output"
-output.command <- paste ("awk '{if($1> 10)print $2\"\t\"$3\"\t\"$4\"\t\"$1}'", input.file, ">", output.file)
+output.command <- paste ("awk '{if($1> 10)print $2\"\t\"$3\"\t\"$4\"\t\"$5\"\t\"$6}\"\t\"$1'", input.file, ">", output.file)
 system(output.command)
 
 # Remove sequence reads mapping to random chromosome
@@ -52,11 +52,11 @@ trim.command <- paste ("grep -v \\*", input.file, ">", output.file)
 system(trim.command)
 
 # Add column headers
-headers <- paste("ID","chr","start","end","length","count", sep="\t")
+headers <- paste("ID\t","chr\t","start\t","end\t","length\t","count", sep="")
 input.file <- "sam_file_trimmed"
 header.file <- "header_file"
 output.file <- "edgeR-input.tsv"
-system(paste("echo", headers, ">", header.file))
+system(paste("echo \"", headers, "\"", ">", header.file))
 # write.table(headers, file=header.file, col.names=F, row.names=F, quote=F, sep="\t")
 merge.command <- paste("cat", header.file, input.file, ">", output.file)
 system(merge.command)
