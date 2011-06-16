@@ -52,11 +52,12 @@ trim.command <- paste ("grep -v \\*", input.file, ">", output.file)
 system(trim.command)
 
 # Add column headers
-headers <- c("ID","chr","start","end","length","count")
+headers <- paste("ID","chr","start","end","length","count", sep="\t")
 input.file <- "sam_file_trimmed"
 header.file <- "header_file"
 output.file <- "edgeR-input.tsv"
-write.table(headers, file=header.file, col.names=T, row.names=F, quote=F, sep="\t")
+system(paste("echo", headers, ">", header.file))
+# write.table(headers, file=header.file, col.names=F, row.names=F, quote=F, sep="\t")
 merge.command <- paste("cat", header.file, input.file, ">", output.file)
 system(merge.command)
 
