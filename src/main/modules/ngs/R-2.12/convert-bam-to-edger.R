@@ -27,32 +27,39 @@ output.file <- "sam_file_extracted"
 extract.command <- paste ("awk '{print $10\"\t\"$3\"\t\"$4\"\t\"length($10)+$4-1\"\t\"length($10)}'", input.file, ">", output.file)
 system(extract.command)
 
-# Find the unique reads
-input.file <- "sam_file_extracted"
-output.file <- "sam_file_unique"
-unique.command <- paste ("uniq -c -f 1", input.file, ">", output.file)
-system(unique.command)
 
 # Sort sequence reads according to chromosome and start position
-input.file <- "sam_file_unique"
+input.file <- "sam_file_extracted"
 output.file <- "sam_file_sorted"
 sort.command <- paste ("sort -k3n -k4n", input.file, ">", output.file)
 system(sort.command)
 
-# Create an output file with sequence reads that occur at least count_limit times
+# Find the unique reads
 input.file <- "sam_file_sorted"
+output.file <- "sam_file_unique"
+unique.command <- paste ("uniq -c -f 1", input.file, ">", output.file)
+system(unique.command)
+
+# Create an output file with sequence reads that occur at least count_limit times
+input.file <- "sam_file_unique"
 output.file <- "sam_file_output"
 output.command <- paste ("awk '{if($1> 10)print $2\"\t\"$3\"\t\"$4\"\t\"$5\"\t\"$6\"\t\"$1}'", input.file, ">", output.file)
 system(output.command)
 
-# Remove sequence reads mapping to random chromosome
+# Creat sequence read ID composed of chromosome name, start position and end position
 input.file <- "sam_file_output"
+output.file <- "sam_file_id"
+id.command <- paste ("awk '{print $2\"_\"$3\"_\"$4\"\t\"$1\"\t\"$2\"\t\"$3\"\t\"$4\"\t\"$5\"\t\"$6}'", input.file, ">", output.file)
+system(id.command)
+
+# Remove sequence reads mapping to random chromosome
+input.file <- "sam_file_id"
 output.file <- "sam_file_trimmed"
 trim.command <- paste ("grep -v \\*", input.file, ">", output.file)
 system(trim.command)
 
 # Add column headers
-headers <- paste("ID\t","chr\t","start\t","end\t","length\t","count", sep="")
+headers <- paste("id\t","sequence\t","chr\t","start\t","end\t","length\t","count", sep="")
 input.file <- "sam_file_trimmed"
 header.file <- "header_file"
 output.file <- "edgeR-input.tsv"
