@@ -8,7 +8,8 @@
 # Sam tools setup
 samtools.binary <- c(file.path(chipster.tools.path, "samtools", "samtools"))
 #command.start <- paste("bash -c '", samtools.binary)
-command.start <- "/fs/local/users/chipster/tools/samtools/samtools"
+#command.start <- "/fs/local/users/chipster/tools/samtools/samtools"
+command.start <- samtools.binary
 # Extract the BAM file into SAM
 samtools.parameters <- "view"
 samtools.input <- "bam_file.bam"
