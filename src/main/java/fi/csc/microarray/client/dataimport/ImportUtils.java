@@ -4,7 +4,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -18,7 +17,6 @@ import java.util.Set;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileSystemView;
 
 import org.apache.log4j.Logger;
 
@@ -26,12 +24,7 @@ import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.dataimport.table.InformationDialog;
-import fi.csc.microarray.client.dialog.ChipsterDialog;
-import fi.csc.microarray.client.dialog.DialogInfo;
 import fi.csc.microarray.client.dialog.TaskImportDialog;
-import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
-import fi.csc.microarray.client.dialog.DialogInfo.Severity;
-import fi.csc.microarray.client.dialog.DialogInfo.Type;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
@@ -52,8 +45,6 @@ public class ImportUtils {
 	private static final Logger logger = Logger.getLogger(ImportUtils.class);
 	private static final String DEFAULT_FOLDER_NAME = "";
 	private static ClientApplication application = Session.getSession().getApplication();
-
-	private static boolean zipDialogShown = false;
 
 	/**
 	 * <strong>You must always use this!</strong> This is a convenience method,
@@ -81,41 +72,6 @@ public class ImportUtils {
 	 * @return a safe file chooser
 	 */
 	public static JFileChooser getFixedFileChooser(File file) {
-
-		// first check for the bug
-		String osName = System.getProperty("os.name");
-		boolean hasZipFolderSupport = osName.contains("Windows XP") || osName.contains("Windows NT (unknown)") || osName.contains("Windows Vista");
-
-		if (hasZipFolderSupport && !zipDialogShown) {
-			boolean zipsOnDesktop = false;
-
-			// check desktop folder
-			File[] roots = FileSystemView.getFileSystemView().getRoots();
-			for (File root : roots) {
-
-				// list zips
-				String[] zips = root.list(new FilenameFilter() {
-					public boolean accept(File dir, String name) {
-						String lcName = name.toLowerCase();
-						return lcName.endsWith(".zip");
-					}
-				});
-
-				if (zips.length > 0) {
-					zipsOnDesktop = true;
-					break;
-				}
-			}
-
-			if (zipsOnDesktop) {
-				DialogInfo info = new DialogInfo(Severity.INFO, "ZIP files detected", 
-						"There seems to be ZIP files on your desktop. "
-						+ "This can slow down selecting files in some Windows versions. " 
-						+ "If you experience this problem, please move the ZIP files to a subfolder.", null, Type.OK_MESSAGE); 
-				ChipsterDialog.showDialog(null, info, DetailsVisibility.DETAILS_ALWAYS_HIDDEN, true, null, null);
-				zipDialogShown = true;
-			}
-		}
 
 		JFileChooser fileChooser = file != null ? new JFileChooser(file) : new JFileChooser();
 		fileChooser.putClientProperty("FileChooser.useShellFolder", Boolean.FALSE);
