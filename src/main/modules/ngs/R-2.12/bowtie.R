@@ -7,7 +7,7 @@
 # OUTPUT bowtie.log 
 # OUTPUT OPTIONAL unaligned-reads.fastq 
 # OUTPUT OPTIONAL multireads.fastq 
-# PARAMETER genome: "Genome or transcriptome" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", rn4: "Rat genome (rn4\)", miRBase16mouse: "Mouse miRBase16"] DEFAULT mm9 (Genome or transcriptome that you would like to align your reads against.)
+# PARAMETER genome: "Genome or transcriptome" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", rn4: "Rat genome (rn4\)", miRBase16mouse: "Mouse miRBase16", mmu_miRB17mature: "Mouse miRBase17"] DEFAULT mm9 (Genome or transcriptome that you would like to align your reads against.)
 # PARAMETER max.mismatches: "Number of mismatches allowed" TYPE [0, 1, 2, 3] DEFAULT 2 (How many mismatches are the alignments allowed to have?)
 # PARAMETER limit.to.seed: "Consider mismatches only in the seed region" TYPE [yes, no] DEFAULT no (Should the mismatch limit be applied only to the left, good quality part of the read? You can define the length of this seed region with the next parameter.)
 # PARAMETER seed: "Length of the seed region" TYPE INTEGER FROM 5 TO 50 DEFAULT 28 (If you have chosen to apply the mismatch limit only to the left, good quality part of the read, how many bases should be considered? The minimum length of seed region is 5.)
