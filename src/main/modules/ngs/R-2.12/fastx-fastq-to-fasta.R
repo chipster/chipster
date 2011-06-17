@@ -1,0 +1,22 @@
+# TOOL fastx-fastq-to-fasta.R: "Convert fastq to fasta" (Convert fastq to fasta.)
+# INPUT reads.fastq TYPE GENERIC 
+# OUTPUT reads.fasta
+# PARAMETER OPTIONAL remove.unknowns: "Remove sequences with unknown nucleotides" TYPE [yes, no] DEFAULT yes (Remove sequences with unknown nucleotides)
+# PARAMETER OPTIONAL rename.identifiers: "Rename sequence identifiers as numbers" TYPE [yes, no] DEFAULT no (Rename sequence identifiers as numbers)
+
+
+
+# EK 17.6.2011
+
+# binary
+binary <- c(file.path(chipster.tools.path, "fastx", "bin", "fastq_to_fasta"))
+
+remove.parameter <- ifelse(remove.unknowns == "yes", "", "-n")
+rename.parameter <- ifelse(rename.identifiers == "no", "", "-r")
+
+# command
+command <- paste(binary, remove.parameter, rename.parameter, "-i reads.fastq -o reads.fasta")
+
+# run
+system(command)
+
