@@ -27,7 +27,7 @@ files<-dir()
 files<-files[grep("counts_sample_", files)]
 number_files <- length(files)
 if (number_files < 1) {
-	stop("CHIPSTER-NOTE: You need to have 1 data file to run this tool!")
+	stop("CHIPSTER-NOTE: You need to have at least 1 data file to run this tool!")
 }
 
 # Read in data files
@@ -46,12 +46,25 @@ for (count in 2:number_files) {
 }
 identifiers <- as.character(unique(identifiers))
 
+# Extract chromosome, start, end and length from id
+extract_info <- strsplit(identifiers, "_")
+chr_info <- extract_info[[1]][1]
+start_info <- extract_info[[1]][2]
+end_info <- extract_info[[1]][3]
+length_info <- as.numeric(end_info)-as.numeric(start_info)+1
+sequence_info <- extract_info[[1]][4]
+
 # Create table for all sample counts
 annotation_columns <- 5
 data_table <- array (dim = c(length(identifiers), number_files+annotation_columns))
 data_table <- as.data.frame(data_table)
 rownames (data_table) <- identifiers
 colnames(data_table) [1:annotation_columns] <- c("chr","start","end","length","sequence")
+data_table$chr <- chr_info
+data_table$start <- start_info
+data_table$end <- end_info
+data_table$length <- length_info
+data_table$sequence <- sequence_info
 for (count in 1:number_files) {
 	print(count)
 	# Fill in data where there is real data
@@ -59,7 +72,7 @@ for (count in 1:number_files) {
 	indices <- as.character(indices)
 	print(indices)
 	print(length(indices))
-	data_table[indices, (count+annotation_columns)] <- get (paste ("data_", count, sep=""))[get (paste ("data_", count, sep=""))[,1]==indices,3]
+	data_table[indices, (count+annotation_columns)] <- get (paste ("data_", count, sep=""))[get (paste ("data_", count, sep=""))[,1]==indices,7]
 	# Impute data where there isn't any
 	indices_empty <- setdiff(identifiers, indices)
 	print(indices_empty)
