@@ -48,11 +48,12 @@ identifiers <- as.character(unique(identifiers))
 
 # Extract chromosome, start, end and length from id
 extract_info <- strsplit(identifiers, "_")
-chr_info <- extract_info[[1]][1]
-start_info <- extract_info[[1]][2]
-end_info <- extract_info[[1]][3]
+extract_info <- unlist(extract_info)
+chr_info <-  extract_info [seq(1,length(extract_info),4)]
+start_info <- extract_info [seq(2,length(extract_info),4)]
+end_info <- extract_info [seq(3,length(extract_info),4)]
 length_info <- as.numeric(end_info)-as.numeric(start_info)+1
-sequence_info <- extract_info[[1]][4]
+sequence_info <-  extract_info [seq(4,length(extract_info),4)]
 
 # Create table for all sample counts
 annotation_columns <- 5
