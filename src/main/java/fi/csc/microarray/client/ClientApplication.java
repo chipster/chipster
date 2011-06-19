@@ -577,6 +577,25 @@ public abstract class ClientApplication {
 		return null;
 	}
 
+	/**
+	 * Get OperationDefinition from specific module.
+	 * 
+	 * @param toolId
+	 * @param moduleName
+	 * @return null if not found
+	 */
+	public OperationDefinition getOperationDefinition(String toolId, String moduleName) {
+		for (ToolModule module : toolModules) {
+			if (module.getModuleName().equals(moduleName)) {
+				OperationDefinition tool = module.getOperationDefinition(toolId);
+				if (tool != null) {
+					return tool;
+				}
+			}
+		}
+		return null;
+	}
+
 	
 	/**
 	 * FIXME Better handling for existing file

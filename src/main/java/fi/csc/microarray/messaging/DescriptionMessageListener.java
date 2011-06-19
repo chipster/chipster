@@ -9,6 +9,8 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.log4j.Logger;
 
+import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.ToolCategory;
 import fi.csc.microarray.client.operation.ToolModule;
@@ -125,6 +127,15 @@ public class DescriptionMessageListener extends TempTopicMessagingListenerBase {
             for (Tool tool : category.getTools()) {
                 
                 SADLDescription sadl = new ChipsterSADLParser().parse(tool.getDescription());
+                
+                // check for duplicate id in this module
+                if (module.getOperationDefinition(sadl.getName().getID()) != null) {
+                	logger.warn("ignoring tool with duplicate id: " + sadl.getName().getID());
+                	Session.getSession().getApplication().showDialog("Ignoring tool with duplicate id " + sadl.getName().getID() , 
+                				"This message is meant for the Chipster service administrator, who should check the tool configurations. Don't worry about it.", "", Severity.INFO, false);
+                	continue;
+                }
+                
                 
                 OperationDefinition newDefinition = new OperationDefinition(sadl.getName().getID(), 
                                                                             sadl.getName().getDisplayName(), toolCategory,
