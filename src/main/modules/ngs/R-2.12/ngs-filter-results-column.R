@@ -1,8 +1,9 @@
-# ANALYSIS Preprocessing/"Filter NGS results" (Allows the user to filter the results on the basis of values in any numerical column.)
-# INPUT GENERIC results.tsv OUTPUT filtered-NGS-results.tsv
-# PARAMETER column COLUMN_SEL (Data column to filter by)
-# PARAMETER cutoff DECIMAL FROM -10000000 TO 10000000 DEFAULT 1 (Cut-off for filtering)
-# PARAMETER smaller.or.larger [equal-to, smaller-than, larger-than] DEFAULT smaller-than (Smaller, equal or larger than the cutoff is filtered.)
+# TOOL ngs-filter-results-column.R: "Filter NGS results" (Allows the user to filter the results on the basis of values in any numerical column.)
+# INPUT results.tsv: results.tsv TYPE GENERIC 
+# OUTPUT filtered-NGS-results.tsv: filtered-NGS-results.tsv 
+# PARAMETER column: column TYPE COLUMN_SEL (Data column to filter by)
+# PARAMETER cutoff: cutoff TYPE DECIMAL FROM -10000000 TO 10000000 DEFAULT 1 (Cut-off for filtering)
+# PARAMETER smaller.or.larger: smaller.or.larger TYPE [equal-to: equal-to, smaller-than: smaller-than, larger-than: larger-than] DEFAULT smaller-than (Smaller, equal or larger than the cutoff is filtered.)
 
 # Filter NGS results on the basis of a continuous parameter in a column
 # MG 26.5.2010

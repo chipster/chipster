@@ -5,7 +5,10 @@
     </category>
 
     <category name="Quality control" color="#e7df70">
-    </category>
+            <tool runtime="R-2.12"><resource>fastx-statistics.R</resource></tool>
+            <tool runtime="R-2.12"><resource>fastx-fastq-to-fasta.R</resource></tool>
+    
+</category>
 
     <category name="Alignment" color="#d59f45">
                 <tool 
@@ -13,7 +16,8 @@ runtime="R-2.12"><resource>bowtie.R</resource></tool>
     </category>
 
     <category name="SAMtools" color="#e7881c">
-                <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.PreprocessNGSSingle</resource></tool>
+        <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.PreprocessNGSSingle</resource></tool>
+        <tool runtime="R-2.12"><resource>samtools-merge.R</resource></tool>
     </category>
 
         <category name="ChIP-seq" color="#d53833">

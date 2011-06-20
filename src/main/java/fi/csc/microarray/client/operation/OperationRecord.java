@@ -25,6 +25,8 @@ public class OperationRecord {
 	private String categoryName;
 	private Color categoryColor;
 	
+	private String moduleName;
+	
 	private String sourceCode;
 
 	private LinkedHashMap<String, ParameterRecord> parameters = new LinkedHashMap<String, ParameterRecord>();
@@ -41,6 +43,11 @@ public class OperationRecord {
 		// category
 		this.categoryName = operation.getCategoryName();
 		this.categoryColor = operation.getCategoryColor();
+		
+		// module
+		if (operation.getDefinition().getCategory().getModule() != null) {
+			this.moduleName = operation.getDefinition().getCategory().getModule().getModuleName();
+		}
 		
 		// parameters
 		for (Parameter parameter : operation.getParameters()) {
@@ -73,11 +80,14 @@ public class OperationRecord {
 		return categoryName;
 	}
 
+	public String getModule() {
+		return this.moduleName;
+	}
+	
 	public String getFullName() {
 		return getCategoryName() + " / " + nameID.getDisplayName();
 	}
 
-	// TODO check if operation with the id still exists and if the color has changed
 	public Color getCategoryColor() {
 		return categoryColor;
 	}
@@ -110,6 +120,10 @@ public class OperationRecord {
 		this.categoryName = categoryName;
 	}
 
+	public void setModule(String moduleName) {
+		this.moduleName = moduleName;
+	}
+	
 	public void setCategoryColor(Color categoryColor) {
 		this.categoryColor = categoryColor;
 	}

@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -170,7 +171,7 @@ public class ToolPanel extends JPanel
 		executeButton.setText("<html><b>Run</b></html>");
 		executeButton.setHorizontalAlignment(SwingConstants.CENTER);
 		executeButton.setHorizontalTextPosition(SwingConstants.LEFT);
-		executeButton.setToolTipText("Run selected operation for selected datasets");
+		executeButton.setToolTipText("Run selected tool for selected datasets");
 		executeButton.addActionListener(this);
 		executeButton.setName("executeButton");
 		executeButton.setEnabled(false);
@@ -178,11 +179,11 @@ public class ToolPanel extends JPanel
 		detailFieldScroller.setBorder(
 				BorderFactory.createMatteBorder(1, 0, 0, 0, VisualConstants.TOOL_LIST_BORDER_COLOR));
 		
-	    // Search bar
-        JToolBar searchPanel = new JToolBar();
-        searchPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+	    // search panel contents
+        
         // Text field
-        searchField = new JTextField(20);
+        searchField = new JTextField(18);
+        searchField.setMinimumSize(searchField.getPreferredSize());
         searchField.getDocument().addDocumentListener(new DocumentListener() {
 
 			@Override
@@ -233,9 +234,33 @@ public class ToolPanel extends JPanel
 			}
         	
         });
+
+
+        // layout search panel
+        JToolBar searchPanel = new JToolBar();
+        searchPanel.setLayout(new GridBagLayout());
+		GridBagConstraints g = new GridBagConstraints();
+		g.anchor = GridBagConstraints.EAST;
+		g.gridx = 0;
+		g.gridy = 0;
+		g.weightx = 0.0;
+		g.insets = new Insets(0, 0, 0, 0);
+		g.fill = GridBagConstraints.NONE;
+
+        searchPanel.add(new JLabel(VisualConstants.MAGNIFIER_ICON), g);
+		g.gridx++;
+        searchPanel.add(searchField, g);
+		g.gridx++;
+        searchField.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        searchField.setPreferredSize(new Dimension(100, 22));
+        searchPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
+                VisualConstants.TOOL_LIST_BORDER_COLOR));
+
         
-
-
+        
+        
+        
+        // module button panel contents
         for (final ToolModule toolModule : toolModules) {
         	if (toolModule.isVisible()) {
         		String buttonText = Session.getSession().getPrimaryModule().getModuleLongName(toolModule.getModuleName());
@@ -253,40 +278,81 @@ public class ToolPanel extends JPanel
         			}
 
         		});
-        		searchPanel.add(button);
         		moduleButtons.add(button);
         	}
         }
+
         
-        searchPanel.add(new JLabel(VisualConstants.MAGNIFIER_ICON));
-        searchPanel.add(searchField);
-        searchField.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        searchField.setPreferredSize(new Dimension(100, 22));
-        searchPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
-                VisualConstants.TOOL_LIST_BORDER_COLOR));
+        // layout module button panel
+        JPanel moduleButtonPanel = new JPanel(new GridBagLayout());
+//        moduleButtonPanel.setBorder(BorderFactory.createLineBorder(Color.BLUE));
+		GridBagConstraints mc = new GridBagConstraints();
+		mc.anchor = GridBagConstraints.WEST;
+		mc.gridx = 0;
+		mc.gridy = 0;
+		mc.weightx = 0.0;
+		mc.insets = new Insets(0, 0, 0, 0);
+		mc.fill = GridBagConstraints.NONE;
+
+		for (JButton moduleButton : moduleButtons) {
+			moduleButtonPanel.add(moduleButton, mc);
+			mc.gridx++;
+		}
 		
-		// Operation choice card contains two other cards:
-		// operations with categories and filtered operations
-		operationPanel = new JPanel(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
+        
+		
+
+        
+        operationPanel = new JPanel(new GridBagLayout());
+        operationPanel.putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.SINGLE);
+        GridBagConstraints c = new GridBagConstraints();
 	    c.gridx = 0;
         c.gridy = 0;
-        c.weightx = 1;
+        c.weightx = 0;
         c.weighty = 0;
         c.gridheight = 1;
         c.insets.set(0,0,0,0);
-        c.fill = GridBagConstraints.BOTH;
-        searchPanel.setPreferredSize(new Dimension(10, 23));
-        searchPanel.setMinimumSize(new Dimension(10, 23));
-        searchPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        c.fill = GridBagConstraints.NONE;
+        c.anchor = GridBagConstraints.WEST;
+        operationPanel.add(moduleButtonPanel, c);
+
+        
+//        searchPanel.setPreferredSize(new Dimension(10, 23));
+//        searchPanel.setMinimumSize(new Dimension(10, 23));
+//        searchPanel.setBorder(BorderFactory.createLineBorder(Color.RED));
+//        searchPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         searchPanel.putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.SINGLE);
+
+        
+        JToolBar fillPanel = new JToolBar();
+        fillPanel.setBorder(BorderFactory.createEmptyBorder());
+        //fillPanel.add(new JLabel());
+        fillPanel.putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.SINGLE);
+        c.gridx++;
+        c.weightx = 2;
+        c.fill = GridBagConstraints.BOTH;
+        c.anchor = GridBagConstraints.WEST;
+        operationPanel.add(fillPanel, c);
+        
+        c.gridx++;
+        c.weightx = 0;
+        c.fill = GridBagConstraints.NONE;
+        c.anchor = GridBagConstraints.EAST;
         operationPanel.add(searchPanel, c);
+        
+        
+        
+		// Operation choice card contains two other cards:
+		// operations with categories and filtered operations
         operationCardPanel = new JPanel(new CardLayout());
+        c.gridx = 0;
+        c.gridwidth = 3;
         c.gridy = 1;
         c.weightx = 1;
         c.weighty = 1;
         c.fill = GridBagConstraints.BOTH;
         c.insets.set(0,0,0,0);
+        c.anchor = GridBagConstraints.WEST;
         operationPanel.add(operationCardPanel, c);
         
         // Tool selection panels inside operation card

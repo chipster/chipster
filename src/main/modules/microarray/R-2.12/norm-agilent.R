@@ -7,7 +7,7 @@
 # PARAMETER normalize.arrays: normalize.arrays TYPE [none: none, median: median, loess: loess] DEFAULT loess (Within array normalization method)
 # PARAMETER normalize.genes: normalize.genes TYPE [none: none, scale: scale, quantile: quantile, Aquantile: Aquantile, vsn: vsn] DEFAULT none (Between arrays normalization method)
 # PARAMETER remove.control.probes: remove.control.probes TYPE [yes: yes, no: no] DEFAULT no (Remove control probes from the dataset)
-# PARAMETER chiptype: chiptype TYPE [empty: empty, Human-1(4100a): Human-1(4100a), Human-2(4101a): Human-2(4101a), Human-1A(4110b): Human-1A(4110b), Human-1B(4111a): Human-1B(4111a), Human-Whole-Genome(4112a): Human-Whole-Genome(4112a), Mouse(4104a): Mouse(4104a), Mouse(4120a): Mouse(4120a), Mouse(4121a): Mouse(4121a), Mouse(4122a): Mouse(4122a), Rat(4105a): Rat(4105a), Rat(4130a): Rat(4130a), Rat(4131): Rat(4131)] DEFAULT empty ()
+# PARAMETER chiptype: chiptype TYPE [empty: empty, Human-1(4100a): "Human-1 (4100a)", Human-2(4101a): "Human-2 (4101a)", Human-1A(4110b): "Human-1A (4110b)", Human-1B(4111a): "Human-1B (4111a)", Human-Whole-Genome(4112a): "Human-Whole-Genome (4112a)", Mouse(4104a): "Mouse (4104a)", Mouse(4120a): "Mouse (4120a)", Mouse(4121a): "Mouse (4121a)", Mouse(4122a): "Mouse (4122a)", Rat(4105a): "Rat (4105a)", Rat(4130a): "Rat (4130a)", Rat(4131): "Rat (4131)",  Zebrafish-1(2519f):  "Zebrafish-1 (2519f)"] DEFAULT empty ()
 
 # cDNA chip normalization
 # JTT 9.6.2006
@@ -160,6 +160,12 @@ names(A)<-paste("average.", names(A), sep="")
 names(A)<-paste(names(A), ".tsv", sep="")
 A<-data.frame(A)
 M<-data.frame(M)
+
+# Fix names for when reading single slide
+if (length(files) == 1) {
+	names(M) <- "chip.microarray001.tsv"
+	names(A) <- "average.microarray001.tsv"
+}
 rownames(M)<-genes
 rownames(A)<-genes
 
