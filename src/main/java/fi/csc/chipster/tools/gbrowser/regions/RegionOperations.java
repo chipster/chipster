@@ -27,13 +27,6 @@ public class RegionOperations {
 
 	private static final String EMPTY_EXTRA_FIELDS = "";
 
-
-	public static void main(String[] args) throws FileNotFoundException, IOException {
-		RegionOperations tool = new RegionOperations();
-		List<RegionContent> file1 = tool.loadFile(new File("test1.bed"));
-		List<RegionContent> file2 = tool.loadFile(new File("test2.bed"));
-		tool.print(tool.intersect(file1, file2, 1L, RegionOperations.LEFT_PAIR_POLICY, false), System.out);
-	}
 	
 	/**
 	 * Intersects regions on two sets and returns either unions or intersections of intersecting pairs.
