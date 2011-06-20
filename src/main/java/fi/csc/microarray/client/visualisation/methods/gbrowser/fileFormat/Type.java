@@ -8,8 +8,7 @@ public enum Type {
 	
 	STRING(String.class), 
 	LONG(Long.class), 
-	FLOAT(Float.class), 
-	NEWLINE(String.class);
+	FLOAT(Float.class); 
 
 	private Class<?> javaType;
 
