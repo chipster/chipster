@@ -6,13 +6,17 @@
 # PARAMETER column.extract: column.extract TYPE METACOLUMN_SEL DEFAULT group (Phenodata column containing the samples to be extracted)
 
 # Extracts subset of samples from a dataset
-# JTT 19.10.2007
+# JTT, 19.10.2007
 #
-# modified, MG, 20.4.2010 to include annotation info
-
+# Modified to also include annotation info in the output dataset.
+# MG, 20.4.2010
+#
 # Modified to first filter out samples with missing values. And in the case of no missing values, follow
 # the earlier behaviour of coding samples to be extracted with 1 and samples to be removed with 0.
-# IS 28.7.2010
+# IS, 28.7.2010
+#
+# Modified to handle 2-color array data when extracting single sample.
+# MG, 17.6.2011
 
 # Parameter settings (default) for testing purposes
 #column.extract<-"group"
@@ -40,8 +44,6 @@ phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 # Extract the data from the phenodata column
 extract<-phenodata[,pmatch(column.extract,colnames(phenodata))]
 
-# extract<-phenodata[,grep(column.extract, colnames(phenodata))]
-
 # If there are samples with missing values, extract the ones that do have values.
 if (length(extract[is.na(extract)])>0) {
 	extract[!is.na(extract)] <- 1
@@ -57,8 +59,11 @@ if(max(extract>1)) {
 }
 
 # Extracting the samples
-dat3<-data.frame (dat2[,which(extract==1)], dat_average[,which(extract==1)])
-colnames(dat3) <- c(names(dat2)[which(extract==1)], names(dat_average)[which(extract==1)])
+dat3<-dat2[,which(extract==1)]
+if (dim(dat_average)[2]>0) {
+	dat3<-data.frame (dat2[,which(extract==1)], dat_average[,which(extract==1)])
+	colnames(dat3) <- c(names(dat2)[which(extract==1)], names(dat_average)[which(extract==1)])
+} 
 if(ncol(calls)>=1) {
 	calls2<-calls[,which(extract==1)]
 }
@@ -66,9 +71,7 @@ phenodata2<-phenodata[which(extract==1),]
 
 # Writing the data to disk
 if (length(annotations)>0) {
-#	column_names <- c(names(annotations),names(dat2))
 	dat3 <- data.frame(annotations,dat3)
-#	colnames(dat2) <- column_names
 }
 if(ncol(calls)>=1) {
 	write.table(data.frame(dat3, calls2), file="extract.tsv", sep="\t", row.names=T, col.names=T, quote=F)
