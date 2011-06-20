@@ -25,6 +25,16 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  */
 public class RegionOperations {
 
+	private static final String EMPTY_EXTRA_FIELDS = "";
+
+
+	public static void main(String[] args) throws FileNotFoundException, IOException {
+		RegionOperations tool = new RegionOperations();
+		List<RegionContent> file1 = tool.loadFile(new File("test1.bed"));
+		List<RegionContent> file2 = tool.loadFile(new File("test2.bed"));
+		tool.print(tool.intersect(file1, file2, 1L, RegionOperations.LEFT_PAIR_POLICY, false), System.out);
+	}
+	
 	/**
 	 * Intersects regions on two sets and returns either unions or intersections of intersecting pairs.
 	 * 
@@ -160,7 +170,7 @@ public class RegionOperations {
 
 	public static PairPolicy MERGE_PAIR_POLICY = new PairPolicy() {
 		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
-			collector.add(new RegionContent(left.region.merge(right.region), ""));
+			collector.add(new RegionContent(left.region.merge(right.region), EMPTY_EXTRA_FIELDS));
 		}
 	};
 
@@ -172,7 +182,7 @@ public class RegionOperations {
 	
 	public static PairPolicy SUBTRACTED_LEFT_PAIR_POLICY = new PairPolicy() {
 		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
-			collector.add(new RegionContent(left.region.subtract(right.region), ""));
+			collector.add(new RegionContent(left.region.subtract(right.region), EMPTY_EXTRA_FIELDS));
 		}
 	};
 
@@ -184,13 +194,13 @@ public class RegionOperations {
 	
 	public static PairPolicy SUBTRACTED_RIGHT_PAIR_POLICY = new PairPolicy() {
 		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
-			collector.add(new RegionContent(right.region.subtract(left.region), ""));
+			collector.add(new RegionContent(right.region.subtract(left.region), EMPTY_EXTRA_FIELDS));
 		}
 	};
 
 	public static PairPolicy INTERSECT_PAIR_POLICY = new PairPolicy() {
 		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
-			collector.add(new RegionContent(left.region.intersect(right.region), ""));
+			collector.add(new RegionContent(left.region.intersect(right.region), EMPTY_EXTRA_FIELDS));
 		}
 	};
 
@@ -285,7 +295,7 @@ public class RegionOperations {
 			}
 			
 			// Write out
-			mergedRegions.add(new RegionContent(new BpCoordRegion(regions.get(i).region.start, regions.get(j).region.end), ""));
+			mergedRegions.add(new RegionContent(new BpCoordRegion(regions.get(i).region.start, regions.get(j).region.end), EMPTY_EXTRA_FIELDS));
 			
 			// Jump to region after the previously written one
 			i = j+1;
