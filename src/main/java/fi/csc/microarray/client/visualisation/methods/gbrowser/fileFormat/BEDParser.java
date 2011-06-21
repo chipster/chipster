@@ -38,7 +38,7 @@ public class BEDParser extends TsvParser {
 		new ColumnDefinition(ColumnType.BP_START, Type.LONG), 
 		new ColumnDefinition(ColumnType.BP_END, Type.LONG),
 		new ColumnDefinition(ColumnType.ID, Type.STRING),
-		new ColumnDefinition(ColumnType.VALUE, Type.LONG),
+		new ColumnDefinition(ColumnType.VALUE, Type.FLOAT),
 		new ColumnDefinition(ColumnType.STRAND, Type.STRING),
 		new ColumnDefinition(ColumnType.THICK_START, Type.STRING),
 		new ColumnDefinition(ColumnType.THICK_END, Type.STRING),
