@@ -115,6 +115,10 @@
 			</resource>
 		</tool>
 		<tool runtime="java">
+			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingDatabaseTool
+			</resource>
+		</tool>
+		<tool runtime="java">
 			<resource>fi.csc.chipster.tools.ngs.regions.RemoveOverlappingTool
 			</resource>
 		</tool>
