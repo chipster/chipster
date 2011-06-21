@@ -43,6 +43,7 @@
 
     <category name="RNA-seq" color="#0177b7">
         <tool runtime="R-2.12"><resource>ngs-dea-edger-RNA.R</resource></tool>
+        <tool runtime="R-2.12"><resource>dea-cufflinks.R</resource></tool>
         </category>
 
     <category name="Methyl-seq" color="#629a9b">
