@@ -1,4 +1,4 @@
-# TOOL bowtie-with-index-building.R: "Bowtie against own genome" (Bowtie aligns reads to genome, transcriptome, known miRNAs, etc. There are two modes: mismatches are considered either throughout the read, or only in the user-defined left part of the read. In the latter case also quality values are taken into account.
+# TOOL bowtie-with-index-building.R: "Bowtie for private genomes" (Bowtie aligns reads to genome, transcriptome, known miRNAs, etc. There are two modes: mismatches are considered either throughout the read, or only in the user-defined left part of the read. In the latter case also quality values are taken into account.
 # Results are sorted and indexed bam files. 
 # This Bowtie version allows you align reads against private genome sequences supplied in fasta format.)
 # INPUT reads.txt: "Reads to align" TYPE GENERIC

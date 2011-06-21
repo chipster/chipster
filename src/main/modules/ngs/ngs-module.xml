@@ -11,9 +11,11 @@
 </category>
 
     <category name="Alignment" color="#d59f45">
-                <tool 
-runtime="R-2.12"><resource>bowtie.R</resource></tool>        
+                <tool runtime="R-2.12"><resource>bowtie.R</resource></tool> 
+                   <tool runtime="R-2.12"><resource>bowtie-with-index-building.R</resource></tool>     
     </category>
+
+   
 
     <category name="SAMtools" color="#e7881c">
         <tool runtime="java"><resource>fi.csc.chipster.tools.ngs.PreprocessNGSSingle</resource></tool>
