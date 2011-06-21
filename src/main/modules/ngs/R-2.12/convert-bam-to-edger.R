@@ -1,5 +1,5 @@
 # TOOL convert-bam-to-edger.R: "Convert BAM file to edgeR input format" (This tool takes BAM files as an input, calculates the number of times each sequence tag is identified and removes the ones for which the count is under the user defined threshold)
-# INPUT bam_file.bam: "BAM data dile" TYPE GENERIC
+# INPUT bam_file.bam: "BAM data file" TYPE GENERIC
 # OUTPUT edgeR-input.tsv: "A converted BAM file suitable for edgeR analysis"
 # PARAMETER count_limit: "Count limit" TYPE INTEGER FROM 0 TO 1000 DEFAULT 10 (The lowest number of times a sequence tag has to appear in the data)
 
