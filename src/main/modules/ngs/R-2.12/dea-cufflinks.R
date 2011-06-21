@@ -46,12 +46,12 @@ cufflinks.command <- paste(command.start, cufflinks.parameters, cufflinks.input.
 system(cufflinks.command)
 
 # Rename output files for Chipster
-mv cds.diff de-cds.tsv
-mv gene_exp.diff de-genes.tsv
-mv isoforms_exp.diff de-isoforms.tsv
-mv promoters.diff de-promoters.tsv
-mv splicing.diff de-splicing.tsv
-mv tss_group_exp.diff de-tss.tsv
+system ("mv cds.diff de-cds.tsv")
+system ("mv gene_exp.diff de-genes.tsv")
+system ("mv isoforms_exp.diff de-isoforms.tsv")
+system ("mv promoters.diff de-promoters.tsv")
+system ("mv splicing.diff de-splicing.tsv")
+system ("mv tss_group_exp.diff de-tss.tsv")
 
 # EOF
 
