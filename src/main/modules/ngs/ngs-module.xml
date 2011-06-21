@@ -30,7 +30,8 @@ runtime="R-2.12"><resource>bowtie.R</resource></tool>
 
     <category name="miRNA-seq" color="#80a3b7">
         <tool runtime="R-2.12"><resource>ngs-correlation-analysis-mirna.R</resource></tool>
-        <tool runtime="R-2.12"><resource>ngs-dea-edger.R</resource></tool>
+         <tool runtime="R-2.12"><resource>convert-bam-to-edger.R</resource></tool>
+         <tool runtime="R-2.12"><resource>ngs-dea-edger.R</resource></tool>
         <tool runtime="R-2.12"><resource>ngs-extract-target-gene-expression.R</resource></tool>
         <tool runtime="R-2.12"><resource>ngs-annotate-miRNA-targets.R</resource></tool>
         <tool runtime="R-2.12"><resource>ngs-pathways-mirna-hyperg-go.R</resource></tool>
@@ -43,9 +44,7 @@ runtime="R-2.12"><resource>bowtie.R</resource></tool>
         </category>
 
     <category name="Methyl-seq" color="#629a9b">
-                <tool runtime="R-2.12"><resource>medips.R</resource></tool>
-                <tool runtime="R-2.12"><resource>convert-bam-to-medips.R</resource></tool>
-		<tool runtime="R-2.12"><resource>MEDIPS_one_sample_V1.R</resource></tool>
+				<tool runtime="R-2.12"><resource>MEDIPS_one_sample_V1.R</resource></tool>
                 <tool runtime="R-2.12"><resource>MEDIPS_two_samples_V1.R</resource></tool>
                 <tool runtime="R-2.12"><resource>convertBAMtoMEDIPS_V2.R</resource></tool>
                 <tool runtime="R-2.12"><resource>combineMEDIPS_V2.R</resource></tool>
