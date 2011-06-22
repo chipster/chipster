@@ -1,7 +1,7 @@
 # TOOL dea-cufflinks.R: "Differential expression analysis using Cufflinks"  (This tool will perform an analysis for differentially expressed genes and isoforms using the Cufflinks algorithm.)
 # INPUT treatment.bam: "BAM data file for the treatment sample" TYPE GENERIC
 # INPUT control.bam: "BAM data file for the control sample" TYPE GENERIC
-# OUTPUT cufflinks-log.txt: "
+# OUTPUT cufflinks-log.txt
 # OUTPUT de-cds.tsv
 # OUTPUT de-genes.tsv
 # OUTPUT de-isoforms.tsv
