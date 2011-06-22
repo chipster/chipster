@@ -1,4 +1,4 @@
-# TOOL bowtie.sadl: Bowtie (Bowtie aligns reads to genome, transcriptome, known miRNAs, etc. There are two modes: mismatches are considered either throughout the read, or only in the user-defined left part of the read. In the latter case also quality values are taken into account.
+# TOOL bowtie.R: "Bowtie" (Bowtie aligns reads to genome, transcriptome, known miRNAs, etc. There are two modes: mismatches are considered either throughout the read, or only in the user-defined left part of the read. In the latter case also quality values are taken into account.
 # Results are sorted and indexed bam files, which are ready for viewing in the Chipster genome browser. 
 # Note that this Bowtie tool uses genome indeces provided by Chipster. If you would like to align reads against your own datasets, please use the tool \"Bowtie with self-made indeces\" which will appear soon.)
 # INPUT reads.txt: "Reads to align" TYPE GENERIC 

@@ -2,6 +2,7 @@
 # INPUT data.tsv TYPE GENERIC
 # INPUT phenodata.tsv TYPE GENERIC
 # OUTPUT de-list.tsv
+# OUTPUT de-list.bed
 # OUTPUT OPTIONAL ma-plot-raw-counts.pdf
 # OUTPUT OPTIONAL ma-plot-normalized-counts.pdf
 # OUTPUT OPTIONAL ma-plot-significant-counts.pdf
@@ -154,3 +155,12 @@ output_table <- data.frame (dat[significant_indices,], significant_results)
 
 # Output the table
 write.table(output_table, file="de-list.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+
+# Also output a bed graph file for visualization and region matching tools
+empty_column <- character(length(significant_indices))
+bed_output <- output_table [,c("chr","start","end")]
+bed_output <- cbind(bed_output,empty_column)
+bed_output <- cbind(bed_output, output_table[,"logFC"])
+write.table(bed_output, file="de-list.bed", sep="\t", row.names=F, col.names=F, quote=F)
+
+# EOF

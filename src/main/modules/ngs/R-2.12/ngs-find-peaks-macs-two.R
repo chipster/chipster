@@ -2,6 +2,7 @@
 # INPUT treatment.bam: "Treatment data file" TYPE GENERIC 
 # INPUT control.bam: "Control data file" TYPE GENERIC 
 # OUTPUT positive-peaks.tsv: "True enriched peaks" 
+# OUTPUT positive-peaks.bed: "True enriched peaks in a format compatible with the Genome Browser"
 # OUTPUT OPTIONAL model-plot.png: "A plot of the fitted peak model" 
 # OUTPUT OPTIONAL negative-peaks.tsv: "The false enriched peaks" 
 # OUTPUT analysis-log.txt: "Summary of analysis settings and run" 
