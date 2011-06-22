@@ -51,7 +51,7 @@ sink()
 # Rename output files for Chipster
 system ("mv cds_exp.diff de-cds.tsv")
 system ("mv gene_exp.diff de-genes.tsv")
-system ("mv isoforms_exp.diff de-isoforms.tsv")
+system ("mv isoform_exp.diff de-isoforms.tsv")
 system ("mv promoters.diff de-promoters.tsv")
 system ("mv splicing.diff de-splicing.tsv")
 system ("mv tss_group_exp.diff de-tss.tsv")
