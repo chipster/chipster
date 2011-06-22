@@ -30,8 +30,7 @@
 
 	<category name="SAMtools" color="#e7881c">
 		<tool runtime="java">
-			<resource>fi.csc.chipster.tools.ngs.PreprocessNGSSingle
-			</resource>
+			<resource>fi.csc.chipster.tools.ngs.PreprocessNGSSingle</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>samtools-merge.R</resource>
@@ -40,12 +39,10 @@
 
 	<category name="ChIP-seq" color="#d53833">
 		<tool runtime="R-2.12">
-			<resource>ngs-find-peaks-macs-one.R
-			</resource>
+			<resource>ngs-find-peaks-macs-one.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
-			<resource>ngs-find-peaks-macs-two.R
-			</resource>
+			<resource>ngs-find-peaks-macs-two.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>ngs-find-motifs-jaspar.R</resource>
@@ -60,31 +57,25 @@
 
 	<category name="miRNA-seq" color="#80a3b7">
 		<tool runtime="R-2.12">
-			<resource>ngs-correlation-analysis-mirna.R
-			</resource>
+			<resource>ngs-correlation-analysis-mirna.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>ngs-dea-edger.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
-			<resource>ngs-extract-target-gene-expression.R
-			</resource>
+			<resource>ngs-extract-target-gene-expression.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
-			<resource>ngs-annotate-miRNA-targets.R
-			</resource>
+			<resource>ngs-annotate-miRNA-targets.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
-			<resource>ngs-pathways-mirna-hyperg-go.R
-			</resource>
+			<resource>ngs-pathways-mirna-hyperg-go.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
-			<resource>ngs-pathways-mirna-hyperg-kegg.R
-			</resource>
+			<resource>ngs-pathways-mirna-hyperg-kegg.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
-			<resource>ngs-up-down-analysis-mirna.R
-			</resource>
+			<resource>ngs-up-down-analysis-mirna.R</resource>
 		</tool>
 	</category>
 
@@ -117,24 +108,19 @@
 
 	<category name="Genomic region matching" color="#c0d2de">
 		<tool runtime="java">
-			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingTool
-			</resource>
+			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingTool</resource>
 		</tool>
 		<tool runtime="java">
-			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingDatabaseTool
-			</resource>
+			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingDatabaseTool</resource>
 		</tool>
 		<tool runtime="java">
-			<resource>fi.csc.chipster.tools.ngs.regions.RemoveOverlappingTool
-			</resource>
+			<resource>fi.csc.chipster.tools.ngs.regions.RemoveOverlappingTool</resource>
 		</tool>
 		<tool runtime="java">
-			<resource>fi.csc.chipster.tools.ngs.regions.FuseRegionsTool
-			</resource>
+			<resource>fi.csc.chipster.tools.ngs.regions.FuseRegionsTool</resource>
 		</tool>
 		<tool runtime="java">
-			<resource>fi.csc.chipster.tools.ngs.regions.CombineRegionsTool
-			</resource>
+			<resource>fi.csc.chipster.tools.ngs.regions.CombineRegionsTool</resource>
 		</tool>
 	</category>
 
@@ -143,8 +129,7 @@
 			<resource>ngs-filter-annotations.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
-			<resource>ngs-filter-results-column.R
-			</resource>
+			<resource>ngs-filter-results-column.R</resource>
 		</tool>
 	</category>
 
