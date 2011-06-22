@@ -16,8 +16,6 @@
 		<tool runtime="R-2.12">
 			<resource>sortbed.R</resource>
 		</tool>
-
-
 	</category>
 
 	<category name="Alignment" color="#d59f45">
