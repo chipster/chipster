@@ -1,6 +1,7 @@
 # TOOL dea-cufflinks.R: "Differential expression analysis using Cufflinks"  (This tool will perform an analysis for differentially expressed genes and isoforms using the Cufflinks algorithm.)
 # INPUT treatment.bam: "BAM data file for the treatment sample" TYPE GENERIC
 # INPUT control.bam: "BAM data file for the control sample" TYPE GENERIC
+# OUTPUT cufflinks-log.txt: "
 # OUTPUT de-cds.tsv
 # OUTPUT de-genes.tsv
 # OUTPUT de-isoforms.tsv
@@ -22,7 +23,7 @@
 ############################################################
 
 # Cufflinks tools setup
-cufflinks.binary <- c(file.path(chipster.tools.path, "cufflinks", "cufflinks"))
+cufflinks.binary <- c(file.path(chipster.tools.path, "cufflinks", "cuffdiff"))
 command.start <- cufflinks.binary
 
 # Annotation file setup
@@ -43,10 +44,12 @@ cufflinks.parameters <- annotation.file
 cufflinks.input.treatment <- "treatment.bam"
 cufflinks.input.control <- "control.bam"
 cufflinks.command <- paste(command.start, cufflinks.parameters, cufflinks.input.treatment, cufflinks.input.control)
+sink(file="cufflinks-log.txt")
 system(cufflinks.command)
+sink()
 
 # Rename output files for Chipster
-system ("mv cds.diff de-cds.tsv")
+system ("mv cds_exp.diff de-cds.tsv")
 system ("mv gene_exp.diff de-genes.tsv")
 system ("mv isoforms_exp.diff de-isoforms.tsv")
 system ("mv promoters.diff de-promoters.tsv")
