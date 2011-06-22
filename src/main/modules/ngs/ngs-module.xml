@@ -92,8 +92,7 @@
 			<resource>MEDIPS_one_sample_V1.R</resource>
 		</tool>
 		<tool runtime="java">
-			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingDatabaseTool
-			</resource>
+			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingDatabaseTool</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>MEDIPS_two_samples_V1.R</resource>
@@ -108,20 +107,16 @@
 
 	<category name="Genomic region matching" color="#c0d2de">
 		<tool runtime="java">
-			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingTool
-			</resource>
+			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingTool</resource>
 		</tool>
 		<tool runtime="java">
-			<resource>fi.csc.chipster.tools.ngs.regions.RemoveOverlappingTool
-			</resource>
+			<resource>fi.csc.chipster.tools.ngs.regions.RemoveOverlappingTool</resource>
 		</tool>
 		<tool runtime="java">
-			<resource>fi.csc.chipster.tools.ngs.regions.FuseRegionsTool
-			</resource>
+			<resource>fi.csc.chipster.tools.ngs.regions.FuseRegionsTool</resource>
 		</tool>
 		<tool runtime="java">
-			<resource>fi.csc.chipster.tools.ngs.regions.CombineRegionsTool
-			</resource>
+			<resource>fi.csc.chipster.tools.ngs.regions.CombineRegionsTool</resource>
 		</tool>
 	</category>
 
