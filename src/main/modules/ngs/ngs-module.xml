@@ -7,6 +7,8 @@
     <category name="Quality control" color="#e7df70">
             <tool runtime="R-2.12"><resource>fastx-statistics.R</resource></tool>
             <tool runtime="R-2.12"><resource>fastx-fastq-to-fasta.R</resource></tool>
+             <tool runtime="R-2.12"><resource>sortbed.R</resource></tool>           
+            
     
 </category>
 
