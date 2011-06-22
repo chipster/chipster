@@ -411,7 +411,7 @@ public class AnnotationManager {
 			writer = new FileWriter(contentsFile, true);
 			writer.write(FILE_ID + "\n");
 			for (GenomeAnnotation row : annotations) {
-				writer.write(row.species + "\t" + row.version + "\t" + row.type + "\t" + row.url.getFile() + "\n");
+				writer.write(row.species + "\t" + row.version + "\t" + row.type.getId() + "\t" + row.url.getFile() + "\n" + row.contentLength);
 			}
 		} finally {
 			IOUtils.closeIfPossible(writer);
