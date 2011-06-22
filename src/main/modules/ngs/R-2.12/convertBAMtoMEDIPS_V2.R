@@ -1,4 +1,4 @@
-# TOOL convertBAMtoMEDIPS_V2.R: "Convert BAM file to MEDIPS input format V2" (Converts a BAM file to the MEDIPS input format.)
+# TOOL convertBAMtoMEDIPS_V2.R: "Convert BAM file to MEDIPS input format" (Converts a BAM file to the MEDIPS input format.)
 # INPUT bam{...}.bam: "BAM data diles" TYPE GENERIC
 # OUTPUT MEDIPS-input{...}.tsv: "A converted BAM file suitable for MEDIPS analysis"
 
