@@ -27,14 +27,14 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 	 * Logger for this class
 	 */
 	static final Logger logger = Logger.getLogger(JavaAnalysisHandler.class);
+	
+	private HashMap<String, String> parameters;
 
 	
 	public JavaAnalysisHandler(HashMap<String, String> parameters) throws IOException, IllegalConfigurationException {
-		//Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
+		this.parameters = parameters;
 	}
 
-	
-	
 	@SuppressWarnings(value="unchecked")
 	public AnalysisJob createAnalysisJob(JobMessage message, AnalysisDescription description, ResultCallback resultHandler) {
 		try {
@@ -47,7 +47,10 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 			throw new RuntimeException("internal error: type " + description.getImplementation().toString() + " could not be instantiated");
 		}
 	}
-
+	
+	public HashMap<String, String> getParameters() {
+		return parameters;
+	}
 
 	public AnalysisDescription handle(RepositoryModule module, String sourceResourceName, Map<String, String> params) throws AnalysisException {
 		

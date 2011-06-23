@@ -3,6 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 import java.util.LinkedHashMap;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Type;
 
 /**
  * Content for given genomic region. Content is data dependent, but basically it is data parsed from tabular data. All the 
@@ -52,7 +53,7 @@ public class RegionContent implements Comparable<RegionContent> {
 	public String toString() {
 		String extra = "";
 		for (Object value : values.values()) {
-			extra += "\t" + value;
+			extra += "\t" + Type.toString(value);
 		}
 		return region.toString(true) + extra;
 	}

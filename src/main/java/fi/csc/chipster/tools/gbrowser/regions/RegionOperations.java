@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
@@ -25,6 +26,16 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  */
 public class RegionOperations {
 
+	private static final String EMPTY_EXTRA_FIELDS = "";
+
+	public static void main(String[] args) throws FileNotFoundException, IOException {
+		RegionOperations tool = new RegionOperations();
+		List<RegionContent> file1 = tool.loadFile(new File("test1.bed"));
+		List<RegionContent> file2 = tool.loadFile(new File("test2.bed"));
+		tool.print(tool.intersect(file1, file2, 1L, RegionOperations.LEFT_PAIR_POLICY_WITH_AUGMENTATION, false), System.out);
+	}
+	
+	
 	/**
 	 * Intersects regions on two sets and returns either unions or intersections of intersecting pairs.
 	 * 
@@ -160,7 +171,7 @@ public class RegionOperations {
 
 	public static PairPolicy MERGE_PAIR_POLICY = new PairPolicy() {
 		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
-			collector.add(new RegionContent(left.region.merge(right.region), ""));
+			collector.add(new RegionContent(left.region.merge(right.region), EMPTY_EXTRA_FIELDS));
 		}
 	};
 
@@ -169,10 +180,16 @@ public class RegionOperations {
 			collector.add(left);
 		}
 	};
-	
+
+	public static PairPolicy LEFT_PAIR_POLICY_WITH_AUGMENTATION = new PairPolicy() {
+		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
+			collector.add(augment(left, right));
+		}
+	};
+
 	public static PairPolicy SUBTRACTED_LEFT_PAIR_POLICY = new PairPolicy() {
 		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
-			collector.add(new RegionContent(left.region.subtract(right.region), ""));
+			collector.add(new RegionContent(left.region.subtract(right.region), EMPTY_EXTRA_FIELDS));
 		}
 	};
 
@@ -181,16 +198,22 @@ public class RegionOperations {
 			collector.add(right);
 		}
 	};
-	
+
+	public static PairPolicy RIGHT_PAIR_POLICY_WITH_AUGMENTATION = new PairPolicy() {
+		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
+			collector.add(augment(right, left));
+		}
+	};
+
 	public static PairPolicy SUBTRACTED_RIGHT_PAIR_POLICY = new PairPolicy() {
 		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
-			collector.add(new RegionContent(right.region.subtract(left.region), ""));
+			collector.add(new RegionContent(right.region.subtract(left.region), EMPTY_EXTRA_FIELDS));
 		}
 	};
 
 	public static PairPolicy INTERSECT_PAIR_POLICY = new PairPolicy() {
 		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
-			collector.add(new RegionContent(left.region.intersect(right.region), ""));
+			collector.add(new RegionContent(left.region.intersect(right.region), EMPTY_EXTRA_FIELDS));
 		}
 	};
 
@@ -285,7 +308,7 @@ public class RegionOperations {
 			}
 			
 			// Write out
-			mergedRegions.add(new RegionContent(new BpCoordRegion(regions.get(i).region.start, regions.get(j).region.end), ""));
+			mergedRegions.add(new RegionContent(new BpCoordRegion(regions.get(i).region.start, regions.get(j).region.end), EMPTY_EXTRA_FIELDS));
 			
 			// Jump to region after the previously written one
 			i = j+1;
@@ -308,4 +331,30 @@ public class RegionOperations {
 	public void sort(List<RegionContent> rows) {
 		Collections.sort(rows);
 	}
+	
+	/**
+	 * Augment extra fields of primary RegionContent with secondary RegionContent.
+	 * @return
+	 */
+	private static RegionContent augment(RegionContent primary, RegionContent secondary) {
+		
+		RegionContent augmented = new RegionContent(primary.region, "");
+		augmented.values.clear();
+		
+		// Copy from primary, but augmenting from secondary
+		for (Entry<ColumnType, Object> entry : primary.values.entrySet()) {
+			Object value = entry.getValue();
+			if (value == null || "".equals(value.toString().trim())) {
+				Object valueInSecondary = secondary.values.get(entry.getKey());
+				if (valueInSecondary != null && !"".equals(valueInSecondary.toString().trim())) {
+					augmented.values.put(entry.getKey(), valueInSecondary);
+					continue;
+				}
+			}
+			augmented.values.put(entry.getKey(), value);
+		}
+		
+		return augmented;
+	}
+
 }
