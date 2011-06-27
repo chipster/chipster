@@ -125,7 +125,7 @@ public class SeqBlockTrack extends Track {
 
 				// Check if we are over the edge of the drawing area
 				if (rect.y > getHeight()) {
-//					continue;
+					continue;
 				}
 
 				// Check if we have enough space for the actual sequence (at least pixel per nucleotide)
