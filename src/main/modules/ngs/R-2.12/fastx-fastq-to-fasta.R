@@ -11,6 +11,7 @@
 # binary
 binary <- c(file.path(chipster.tools.path, "fastx", "bin", "fastq_to_fasta"))
 
+# parameters
 remove.parameter <- ifelse(remove.unknowns == "yes", "", "-n")
 rename.parameter <- ifelse(rename.identifiers == "no", "", "-r")
 

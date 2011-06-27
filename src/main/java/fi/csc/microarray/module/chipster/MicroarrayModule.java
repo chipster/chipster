@@ -116,6 +116,8 @@ public class MicroarrayModule implements Module {
 		manager.plugContentType("application/x-treeview", true, false, "Newick formatted tree from clustering", VisualConstants.ICON_TYPE_TEXT, "tre");
 		manager.plugContentType("application/cel", true, false, "Affymetrix CEL", VisualConstants.ICON_TYPE_RAWDATA, "cel");
 		manager.plugContentType("text/bed", true, false, "BED file", VisualConstants.ICON_TYPE_TEXT, "bed");
+		manager.plugContentType("chemical/x-fasta", true, false, "FASTA", VisualConstants.ICON_TYPE_TEXT, "fasta", "fa", "fna", "fsa", "mpfa");
+		manager.plugContentType("text/fastq", true, false, "FASTQ", VisualConstants.ICON_TYPE_TEXT, "fastq", "fq");
 	}
 
 	public void plugFeatures(DataManager manager) {

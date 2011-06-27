@@ -72,6 +72,10 @@
         <name>java</name>
         <handler>
             <class>fi.csc.microarray.analyser.java.JavaAnalysisHandler</class> 
+			<parameter>
+				<name>externalToolPath</name>
+				<value>/opt/chipster/tools</value>
+			</parameter>
         </handler>
     </runtime>
 	

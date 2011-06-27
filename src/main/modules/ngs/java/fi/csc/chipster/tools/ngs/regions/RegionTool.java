@@ -13,7 +13,7 @@ import fi.csc.microarray.util.IOUtils;
 
 public abstract class RegionTool extends JavaAnalysisJobBase {
 
-	protected abstract LinkedList<RegionContent> operate(LinkedList<List<RegionContent>> inputs, List<String> parameters);
+	protected abstract LinkedList<RegionContent> operate(LinkedList<List<RegionContent>> inputs, List<String> parameters) throws Exception;
 	
 	@Override
 	protected void execute() { 
