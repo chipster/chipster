@@ -83,16 +83,10 @@
 
 	<category name="miRNA-seq" color="#0177b7">
 		<tool runtime="R-2.12">
-			<resource>ngs-correlation-analysis-mirna.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
 			<resource>convert-bam-to-edger.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>ngs-dea-edger.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>ngs-extract-target-gene-expression.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>ngs-annotate-miRNA-targets.R</resource>
@@ -104,7 +98,13 @@
 			<resource>ngs-pathways-mirna-hyperg-kegg.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
+			<resource>ngs-correlation-analysis-mirna.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
 			<resource>ngs-up-down-analysis-mirna.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>ngs-extract-target-gene-expression.R</resource>
 		</tool>
 	</category>
 	
@@ -129,17 +129,19 @@
 
 	<category name="Methyl-seq" color="#c0d2de">
 		<tool runtime="R-2.12">
-			<resource>MEDIPS_one_sample_V1.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>MEDIPS_two_samples_V1.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
 			<resource>convertBAMtoMEDIPS_V2.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>combineMEDIPS_V2.R</resource>
 		</tool>
+		<tool runtime="R-2.12">
+			<resource>MEDIPS_one_sample_V1.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>MEDIPS_two_samples_V1.R</resource>
+		</tool>
+
+
 	</category>
 
 
