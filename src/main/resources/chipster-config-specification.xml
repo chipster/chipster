@@ -213,7 +213,7 @@
 		</entry>
 		
 		<entry entryKey="max-job-size-mb" type="int" description="maximum job size in megabytes">
-			<value>5000</value>
+			<value>10000</value>
 		</entry>
 
 	</configuration-module>
