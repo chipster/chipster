@@ -1,5 +1,4 @@
-# TOOL fastx-quality-filter.R: "Filter out low quality reads" (Filters out reads which contain quality scores below the user-specified criteria.
-# This tool is based on the FASTQ Quality Filter tool of the FASTX package.)
+# TOOL fastx-quality-filter.R: "Filter out low quality reads" (Filters out reads which contain quality scores below the user-specified criteria. This tool is based on the FASTQ Quality Filter tool of the FASTX package.)
 # INPUT reads.fastq TYPE GENERIC
 # OUTPUT quality-filtered.fastq
 # OUTPUT quality-filtered.log
