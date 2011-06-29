@@ -41,7 +41,9 @@ public class SeqBlockTrack extends Track {
 		new Color(128, 128, 128, 128), // G
 		new Color(192, 64, 64, 128) // T
 	};
-
+	
+	public static final Color CUTOFF_COLOR = Color.ORANGE;
+	
 	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
 
 	private long maxBpLength;
@@ -146,7 +148,7 @@ public class SeqBlockTrack extends Track {
 
 				// Mark last line that will be drawn
 				if (lastBeforeMaxStackingDepthCut) {
-					color = Color.ORANGE;
+					color = CUTOFF_COLOR;
 				}
 
 				drawables.add(new RectDrawable(rect, color, null, cigar.toInfoString()));
@@ -202,7 +204,7 @@ public class SeqBlockTrack extends Track {
 
 					// Tell that we have reached max. stacking depth
 					if (lastBeforeMaxStackingDepthCut) {
-						bg = bg.brighter();
+						bg = CUTOFF_COLOR;
 					}
 
 					// Draw rectangle
