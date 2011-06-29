@@ -1,6 +1,7 @@
-# TOOL bowtie-with-index-building.R: "Bowtie for private genomes" (Bowtie aligns reads to genome, transcriptome, known miRNAs, etc. There are two modes: mismatches are considered either throughout the read, or only in the user-defined left part of the read. In the latter case also quality values are taken into account.
+# TOOL bowtie-with-index-building.R: "Bowtie against own genomes" (Bowtie aligns reads to genome, transcriptome, miRNAs, etc. There are two modes: mismatches are considered either throughout the read, or only in the user-defined left part of the read. In the latter case also quality values are taken into account.
 # Results are sorted and indexed bam files. 
-# This Bowtie version allows you align reads against private genome sequences supplied in fasta format.)
+# This tool allows you align reads against your own sequences, which you have to supply in fasta format.
+# If you would like to align reads against public genomes supplied by Chipster, please use the tool \"Bowtie\".)
 # INPUT reads.txt: "Reads to align" TYPE GENERIC
 # INPUT genome.txt: "Genome to align against" TYPE GENERIC
 # OUTPUT bowtie.bam 

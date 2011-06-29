@@ -1,4 +1,4 @@
-# TOOL samtools-merge.R: "Merge BAM files" (Merge BAM files.)
+# TOOL samtools-merge.R: "Merge BAM files" (Merges sorted BAM files and creates an index for the result file, so that it is possible to view it in the Chipster genome browser. This tool is based on the Samtools package.)
 # INPUT alignment{...}.bam: alignment{...}.bam TYPE GENERIC 
 # OUTPUT merged.bam 
 # OUTPUT merged.bam.bai
