@@ -43,7 +43,6 @@ public class SeqBlockTrack extends Track {
 	};
 
 	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
-	private List<Integer> occupiedSpace = new ArrayList<Integer>();
 
 	private long maxBpLength;
 	private long minBpLength;
@@ -62,10 +61,6 @@ public class SeqBlockTrack extends Track {
 	@Override
 	public Collection<Drawable> getDrawables() {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
-
-		// FIXME remove occupied space with something that does not assumg
-		occupiedSpace.clear();
-		
 
 		// If SNP highlight mode is on, we need reference sequence data
 		char[] refSeq = highlightSNP ? getReferenceArray(refReads, view, strand) : null;
@@ -94,6 +89,7 @@ public class SeqBlockTrack extends Track {
 		}
 
 		// Main loop: Iterate over ReadPart objects (one object corresponds to one continuous element)
+		List<Integer> occupiedSpace = new ArrayList<Integer>();
 		for (ReadPart readPart : readParts.values()) {
 
 			// Skip elements that are not in this view
