@@ -105,7 +105,7 @@ public class Cigar {
 
 	}
 	
-	public List<ReadPart> getVisibleElements() {
+	private List<ReadPart> getVisibleElements() {
 		
 		// Regions are parsed lazily
 		if (visibleElements == null) {
@@ -120,7 +120,7 @@ public class Cigar {
 
 				if (element.isVisible()) {
 					String subSeq = seq.substring((int)seqCoord, (int)(seqCoord + element.getLength()));
-					ReadPart region = new ReadPart(refCoord, refCoord + element.getLength(), read.region.start.chr, subSeq);
+					ReadPart region = new ReadPart(refCoord, refCoord + element.getLength(), read.region.start.chr, read, subSeq);
 					visibleElements.add(region);
 				}
 
