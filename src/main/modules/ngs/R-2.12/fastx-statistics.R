@@ -1,4 +1,4 @@
-# TOOL fastx-statistics.R: "FASTX quality statistics" (FASTX quality statistics.)
+# TOOL fastx-statistics.R: "Read quality statistics" (Calculates quality statistics of the reads and generates a Solexa quality score boxplot. This tool is based on the FASTX Statistics and FASTQ Quality Chart tool of the FASTX package.)
 # INPUT reads.fastq TYPE GENERIC 
 # OUTPUT quality-stats.tsv 
 # OUTPUT qualities.png

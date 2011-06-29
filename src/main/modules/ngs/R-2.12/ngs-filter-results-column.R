@@ -1,4 +1,4 @@
-# TOOL ngs-filter-results-column.R: "Filter NGS results" (Allows the user to filter the results on the basis of values in any numerical column.)
+# TOOL ngs-filter-results-column.R: "Filter by column value" (Allows the user to filter the results on the basis of values in any numerical column.)
 # INPUT results.tsv: results.tsv TYPE GENERIC 
 # OUTPUT filtered-NGS-results.tsv: filtered-NGS-results.tsv 
 # PARAMETER column: column TYPE COLUMN_SEL (Data column to filter by)
