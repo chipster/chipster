@@ -121,7 +121,7 @@ public class SeqBlockTrack extends Track {
 				rect.height = GenomeBrowserConstants.READ_HEIGHT;
 
 				// Check if we are about to go over the edge of the drawing area
-				boolean lastBeforeMaxStackingDepthCut = false; //getYCoord(layer + 1, GenomeBrowserConstants.READ_HEIGHT) > getHeight();
+				boolean lastBeforeMaxStackingDepthCut = getYCoord(layer + 1, GenomeBrowserConstants.READ_HEIGHT) > getHeight();
 
 				// Check if we are over the edge of the drawing area
 				if (rect.y > getHeight()) {
@@ -138,7 +138,7 @@ public class SeqBlockTrack extends Track {
 					
 					// Mark last line that will be drawn
 					if (lastBeforeMaxStackingDepthCut) {
-						color = color.brighter();
+						color = Color.ORANGE;
 					}
 
 					drawables.add(new RectDrawable(rect, color, null, cigar.toInfoString()));
