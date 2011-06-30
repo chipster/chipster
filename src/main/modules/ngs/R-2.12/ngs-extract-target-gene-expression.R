@@ -1,4 +1,4 @@
-# TOOL ngs-extract-target-gene-expression.R: "Extract data for miRNA targets" (This tools provides a means of extracting the expression data for a set of target genes identified from an integrative analysis of miRNA and gene expression. Two files need to be selected,the result file from an integrative analysis and the file containing the gene expression data to be extracted.)
+# TOOL ngs-extract-target-gene-expression.R: "Extract miRNA target expression data" (Extracts the expression data for a set of target genes identified by an integrative analysis of miRNA and gene expression. Two files need to be selected: the result file from an integrative analysis and the file containing the gene expression data.)
 # INPUT normalized_gene.tsv: normalized_gene.tsv TYPE GENE_EXPRS 
 # INPUT normalized_mirna.tsv: normalized_mirna.tsv TYPE GENERIC 
 # INPUT phenodata_gene.tsv: phenodata_gene.tsv TYPE GENERIC 

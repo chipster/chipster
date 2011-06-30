@@ -70,6 +70,9 @@
 		<tool runtime="R-2.12">
 			<resource>bowtie-with-index-building.R</resource>
 		</tool>
+		<tool runtime="R-2.12">
+			<resource>tophat.R</resource>
+		</tool>
 	</category>
 	
 	<category name="RNA-seq" color="#80a3b7">

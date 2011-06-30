@@ -1,5 +1,5 @@
-# TOOL ngs-find-motifs-jaspar.R: "Find common motifs and match to Jaspar" (This tool scans a set of genomic regions for consensus sequence motifs,
-# calculates the alignment score against transcription factors in the Jaspar database and finds the 10 highest ranking for each motif.)
+# TOOL ngs-find-motifs-jaspar.R: "Find common motifs and match to JASPAR" (This tool scans a set of genomic regions for consensus sequence motifs,
+# calculates the alignment score against transcription factors in the JASPAR database, and reports the 10 highest ranking for each motif.)
 # INPUT results.tsv: "Results data file" TYPE GENERIC 
 # OUTPUT motif-analysis-summary.txt: "A lot of analysis information collected in one single file" 
 # OUTPUT logo-plot-{...}.png: "Logo plots for each consensus motif" 
@@ -16,7 +16,7 @@
 # Tool that searches for consensus motifs in a set  #
 # of genomic regions, typically a result from a     #
 # peak finding analysis for ChIP-seq data,          #
-# calculaates alignemt scores to TF from the JASPAR #
+# calculates alignment scores to TF from the JASPAR #
 # database and collects results for the 10 highest  #
 # TF for each motif.                                #
 #                                                   #
@@ -30,7 +30,7 @@ library(MotIV)
 library(rGADEM)
 library(package=genome, character.only=TRUE)
 
-# Covert genome name to fit requirements from rGADEM package
+# Convert genome name to fit requirements from rGADEM package
 #if (genome == "BSgenome.Hsapiens.UCSC.hg17" | genome == "BSgenome.Hsapiens.UCSC.hg18" | genome == "BSgenome.Hsapiens.UCSC.hg19") {
 #		genome <- "Hsapiens"
 #}
