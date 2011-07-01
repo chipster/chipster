@@ -76,8 +76,8 @@ public class SeqTrack extends Track {
 					seq = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA".substring(0, (int) (endBp.minus(startBp) + 1));
 				}
 
-				drawables.addAll(getSeqDrawables(startBp, endBp, seq, 1));
-				drawables.addAll(getSeqDrawables(startBp, endBp, Sequence.complement(seq), 11));
+				drawables.addAll(getSeqDrawables(startBp, endBp, seq, 11));
+				drawables.addAll(getSeqDrawables(startBp, endBp, Sequence.complement(seq), 1));
 
 			}
 		}
