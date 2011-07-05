@@ -8,7 +8,7 @@
 # OUTPUT de-promoters.tsv
 # OUTPUT de-splicing.tsv
 # OUTPUT de-tss.tsv
-# PARAMETER genome: "Genome or transcriptome" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", rn4: "Rat genome (rn4\)"] DEFAULT mm9 (Genome or transcriptome that your reads were aligned against.)
+# PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)", mm9: "Mouse (mm9\)", rn4: "Rat (rn4\)"] DEFAULT mm9 (Genome that your reads were aligned against.)
 
 
 ############################################################
