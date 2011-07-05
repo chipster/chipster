@@ -119,7 +119,7 @@ public class AnnotationManager {
 
 		@Override
 		public String toString() {
-			return species + " " + version;
+			return species + version;
 		}
 
 		@Override

@@ -44,6 +44,7 @@ public class ReadTrackGroup extends TrackGroup {
     
     private DataSource seqFile;
 	private DataSource userData;
+	private ReadpartDataProvider readpartProvider;
 	private Class<? extends AreaRequestHandler> userDataHandler;
 	private String title;
 	private boolean initialised = false;
@@ -54,6 +55,7 @@ public class ReadTrackGroup extends TrackGroup {
         super(view);
         
         this.userData = userData;
+        this.readpartProvider = new ReadpartDataProvider(view, userData, userDataHandler);
         this.userDataHandler = userDataHandler; 
         this.seqFile = seqFile;
         this.title = title;
@@ -69,8 +71,8 @@ public class ReadTrackGroup extends TrackGroup {
         addReadOverviewTrack();
 
         // Detailed
-        reads = new SeqBlockTrack(view, userData,
-                userDataHandler, fontColor, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+        reads = new SeqBlockTrack(view, userData, readpartProvider, userDataHandler, 
+                fontColor, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         tracks.add(reads);
         sepTrackReads = new SeparatorTrack(view, Color.gray, 1, 0, Long.MAX_VALUE);
         sepTrackReads.setName("Reads");
@@ -92,8 +94,8 @@ public class ReadTrackGroup extends TrackGroup {
         addReadOverviewReversedTrack();
         
         // Detailed - reversed
-        readsReversed = new SeqBlockTrack(view, userData,
-                userDataHandler, fontColor, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+        readsReversed = new SeqBlockTrack(view, userData, readpartProvider, userDataHandler, 
+                fontColor, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         readsReversed.setStrand(Strand.REVERSED);
         tracks.add(readsReversed);
     	SeparatorTrack sepTrackReads2 = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT); 
