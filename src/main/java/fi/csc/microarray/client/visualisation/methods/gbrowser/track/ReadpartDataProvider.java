@@ -83,14 +83,14 @@ public class ReadpartDataProvider implements AreaResultListener {
 		}
 	}
 
-	public SortedMap<Long, ReadPart> getReadparts(Strand strand) {
+	public Iterable<ReadPart> getReadparts(Strand strand) {
 		switch (strand) {
 			case BOTH:
-				return readParts;
+				return readParts.values();
 			case FORWARD:
-				return readPartsF;
+				return readPartsF.values();
 			case REVERSED:
-				return readPartsR;
+				return readPartsR.values();
 		}
 		throw new IllegalArgumentException("illegal strand: " + strand);
 	}

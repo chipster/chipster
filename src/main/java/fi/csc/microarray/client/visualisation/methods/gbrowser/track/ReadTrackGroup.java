@@ -112,7 +112,7 @@ public class ReadTrackGroup extends TrackGroup {
         tracks.add(sepTrackProfile);
         
         // SNP profile
-        profileSNPTrack = new CoverageAndSNPTrack(view, userData, userDataHandler, seqFile, ChunkTreeHandlerThread.class, 
+        profileSNPTrack = new CoverageAndSNPTrack(view, userData, readpartProvider, userDataHandler, seqFile, ChunkTreeHandlerThread.class, 
                 Color.BLACK, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         profileSNPTrack.setStrand(Strand.BOTH); //Will be set anyway in the track constructor
         tracks.add(profileSNPTrack);

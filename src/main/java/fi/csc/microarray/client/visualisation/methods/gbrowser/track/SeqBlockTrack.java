@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
@@ -68,11 +67,11 @@ public class SeqBlockTrack extends Track {
 		char[] refSeq = highlightSNP ? getReferenceArray(refReads, view, strand) : null;
 
 		// Preprocessing loop: Iterate over RegionContent objects (one object corresponds to one read)
-		SortedMap<Long, ReadPart> readParts = readpartProvider.getReadparts(getStrand()); 
+		Iterable<ReadPart> readParts = readpartProvider.getReadparts(getStrand()); 
 
 		// Main loop: Iterate over ReadPart objects (one object corresponds to one continuous element)
 		List<Integer> occupiedSpace = new ArrayList<Integer>();
-		for (ReadPart readPart : readParts.values()) {
+		for (ReadPart readPart : readParts) {
 
 			// Skip elements that are not in this view
 			if (!readPart.intersects(getView().getBpRegion())) {
