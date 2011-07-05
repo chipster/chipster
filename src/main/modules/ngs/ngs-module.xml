@@ -73,6 +73,9 @@
 		<tool runtime="R-2.12">
 			<resource>tophat.R</resource>
 		</tool>
+		<tool runtime="R-2.12">
+			<resource>tophat-single-end.R</resource>
+		</tool>
 	</category>
 	
 	<category name="RNA-seq" color="#80a3b7">
