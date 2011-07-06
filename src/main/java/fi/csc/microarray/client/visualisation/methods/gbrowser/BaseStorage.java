@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.TreeMap;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -199,24 +198,12 @@ public class BaseStorage {
 	 * Goes through data and gives count for each location and nucleotide.
 	 * @param refSeq 
 	 */
-	public void getNucleotideCounts(Collection<RegionContent> reads, View view, char[] refSeq) {
+	public void getNucleotideCounts(Iterable<ReadPart> readParts, View view, char[] refSeq) {
 	
 		// Sweep collector
 		collector = new TreeMap<Long, Base>();
-		Iterator<RegionContent> iter = reads.iterator();
 
-		// iterate over RegionContent objects (one object corresponds to one read)
-		while (iter.hasNext()) {
-
-			RegionContent read = iter.next();
-
-			// remove those that are not in this view
-			if (!read.region.intersects(view.getBpRegion())) {
-				iter.remove();
-				continue;
-			}
-
-			for (ReadPart readPart : Cigar.splitVisibleElements(read)) {
+			for (ReadPart readPart : readParts) {
 
 				// Skip elements that are not in this view
 				if (!readPart.intersects(view.getBpRegion())) {
@@ -254,7 +241,6 @@ public class BaseStorage {
 					if (nucleotide != null) {
 						base.addNucleotidee(nucleotide);
 					}
-				}
 			}
 		}
 	}

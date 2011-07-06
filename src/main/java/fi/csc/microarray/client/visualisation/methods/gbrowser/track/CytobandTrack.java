@@ -52,7 +52,8 @@ public class CytobandTrack extends Track {
 		BLACK("gpos100", Color.black), 
 		GAP("acen", null), 
 		OTHER("gvar", Color.white),
-		STALK("stalk", null);
+		STALK("stalk", null),
+		TIP("tip", null);
 
 		private String id;
 		private Color color;

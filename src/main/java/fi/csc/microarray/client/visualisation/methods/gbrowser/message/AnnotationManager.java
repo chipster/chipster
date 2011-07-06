@@ -119,7 +119,7 @@ public class AnnotationManager {
 
 		@Override
 		public String toString() {
-			return species + " " + version;
+			return species + version;
 		}
 
 		@Override
@@ -189,7 +189,7 @@ public class AnnotationManager {
 		if (remoteContentsOk) {
 			logger.info("using remote annotation contents file");
 			OutputStream localContentsStream = null;
-			;
+			
 			try {
 				remoteContentsStream = remoteContents.openStream();
 				localContentsStream = new FileOutputStream(localContents);
