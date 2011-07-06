@@ -25,7 +25,8 @@ public class ReadpartDataProvider implements AreaResultListener {
 	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
 	private SortedMap<Long, ReadPart> readParts = new TreeMap<Long, ReadPart>(); 
 	private SortedMap<Long, ReadPart> readPartsF = new TreeMap<Long, ReadPart>(); 
-	private SortedMap<Long, ReadPart> readPartsR = new TreeMap<Long, ReadPart>(); 
+	private SortedMap<Long, ReadPart> readPartsR = new TreeMap<Long, ReadPart>();
+	private boolean needsRefresh = false;
 
 	public ReadpartDataProvider(View view, DataSource readData, Class<? extends AreaRequestHandler> readDataHandler) {
 		this.view = view;
@@ -43,15 +44,13 @@ public class ReadpartDataProvider implements AreaResultListener {
 		if (areaResult.status.file == readData && areaResult.status.concise == false) {
 			// Add this to queue of RegionContents to be processed
 			this.reads.add(areaResult.content);
-			refreshReadparts();
+			needsRefresh = true;
 			view.redraw();
 		}
 	}
 
 	private void refreshReadparts() {
-		// TODO Auto-generated method stub
-		 //&& areaResult.content.values.get(ColumnType.STRAND) == getStrand()
-		
+
 		readParts.clear();
 		readPartsF.clear();
 		readPartsR.clear();
@@ -84,6 +83,12 @@ public class ReadpartDataProvider implements AreaResultListener {
 	}
 
 	public Iterable<ReadPart> getReadparts(Strand strand) {
+		
+		if (needsRefresh) {
+			refreshReadparts();
+			needsRefresh = false;
+		}
+		
 		switch (strand) {
 			case BOTH:
 				return readParts.values();
