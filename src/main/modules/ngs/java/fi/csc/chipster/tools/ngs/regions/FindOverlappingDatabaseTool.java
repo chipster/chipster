@@ -59,14 +59,14 @@ public class FindOverlappingDatabaseTool extends RegionTool {
 	
 	public static void main(String[] args) throws Exception {
 		// For testing
-		String testPath = "/home/akallio/Desktop";  
+		String testPath = "";  
 		FindOverlappingDatabaseTool tool = new FindOverlappingDatabaseTool();
 		HashMap<String, String> p = new LinkedHashMap<String, String>();
 		p.put("externalToolPath", testPath);
 		tool.analysis = new AnalysisDescription(new JavaAnalysisHandler(p), null);
 		tool.analysis.addOutputFile(SADLDescription.Name.createName(testPath + File.separator + "overlapping.bed"), false);
 		tool.analysis.addOutputFile(SADLDescription.Name.createName(testPath + File.separator + "overlapping.tsv"), false);
-		List<RegionContent> file1 = new RegionOperations().loadFile(new File(testPath, "miRNAseqHeight-preprocessed.bed"));
+		List<RegionContent> file1 = new RegionOperations().loadFile(new File(testPath, "miRNAseq.bed"));
 		LinkedList<List<RegionContent>> list = new LinkedList<List<RegionContent>>();
 		list.add(file1);
 		LinkedList<String> parameters = new LinkedList<String>();
