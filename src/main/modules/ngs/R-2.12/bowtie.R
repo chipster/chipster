@@ -18,7 +18,7 @@
 # PARAMETER OPTIONAL alignment.no: "How many valid alignments are reported per read" TYPE [1, 2, 3] DEFAULT 1 (If there are several, equally good alignments, how many should be reported?)
 # PARAMETER OPTIONAL unaligned.file: "Put unaligned reads to a separate file" TYPE [yes, no] DEFAULT no (Would you like to store unaligned reads to a new fastq file? Note that also multireads will be added to this file, unless you asked them to be put to a separate file.)
 
-# EK 22.3.2011 
+# EK 22.3.2011
 
 # bowtie
 bowtie.binary <- c(file.path(chipster.tools.path, "bowtie", "bowtie"))
