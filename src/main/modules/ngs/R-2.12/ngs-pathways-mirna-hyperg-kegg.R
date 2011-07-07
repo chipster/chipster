@@ -1,5 +1,5 @@
 # TOOL ngs-pathways-mirna-hyperg-kegg.R: "KEGG enrichment for miRNA targets" (Performs a statistical test for enrichmens of KEGG pathways in the predicted gene targets of a list of miRNA ID:s.)
-# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT normalized.tsv: normalized.tsv TYPE GENERIC 
 # OUTPUT hyperg_kegg.tsv: hyperg_kegg.tsv 
 # PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value threshold)
 # PARAMETER p.adjust.method: p.adjust.method TYPE [none: none, BH: BH, BY: BY] DEFAULT BH (method for adjusting the p-value in order to account for multiple testing)
