@@ -39,7 +39,6 @@ public class ReadpartDataProvider implements AreaResultListener {
 
 	@Override
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
-
 		// Check that areaResult has false concised status and correct strand
 		if (areaResult.status.file == readData && areaResult.status.concise == false) {
 			// Add this to queue of RegionContents to be processed
@@ -50,7 +49,6 @@ public class ReadpartDataProvider implements AreaResultListener {
 	}
 
 	private void refreshReadparts() {
-
 		readParts.clear();
 		readPartsF.clear();
 		readPartsR.clear();
@@ -70,6 +68,12 @@ public class ReadpartDataProvider implements AreaResultListener {
 			
 			// Pool and sort read parts by strands
 			for (ReadPart visibleRegion : visibleRegions) {
+				
+				// Skip read parts that are not in this view
+				if (!visibleRegion.intersects(view.getBpRegion())) {
+					continue;
+				}
+				
 				readParts.put(visibleRegion.start.bp, visibleRegion); 
 				
 				if (read.values.get(ColumnType.STRAND) == Strand.FORWARD) {
