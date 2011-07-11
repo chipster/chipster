@@ -1,10 +1,10 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
@@ -23,9 +23,9 @@ public class ReadpartDataProvider implements AreaResultListener {
 	private View view;
 	private DataSource readData;
 	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
-	private SortedMap<Long, ReadPart> readParts = new TreeMap<Long, ReadPart>(); 
-	private SortedMap<Long, ReadPart> readPartsF = new TreeMap<Long, ReadPart>(); 
-	private SortedMap<Long, ReadPart> readPartsR = new TreeMap<Long, ReadPart>();
+	private LinkedList<ReadPart> readParts = new LinkedList<ReadPart>(); 
+	private LinkedList<ReadPart> readPartsF = new LinkedList<ReadPart>(); 
+	private LinkedList<ReadPart> readPartsR = new LinkedList<ReadPart>();
 	private boolean needsRefresh = false;
 
 	public ReadpartDataProvider(View view, DataSource readData, Class<? extends AreaRequestHandler> readDataHandler) {
@@ -68,22 +68,24 @@ public class ReadpartDataProvider implements AreaResultListener {
 			
 			// Pool and sort read parts by strands
 			for (ReadPart visibleRegion : visibleRegions) {
-				
 				// Skip read parts that are not in this view
 				if (!visibleRegion.intersects(view.getBpRegion())) {
 					continue;
 				}
 				
-				readParts.put(visibleRegion.start.bp, visibleRegion); 
+				readParts.add(visibleRegion); 
 				
 				if (read.values.get(ColumnType.STRAND) == Strand.FORWARD) {
-					readPartsF.put(visibleRegion.start.bp, visibleRegion);
+					readPartsF.add(visibleRegion);
 				} else if (read.values.get(ColumnType.STRAND) == Strand.REVERSED) {
-					readPartsR.put(visibleRegion.start.bp, visibleRegion);
+					readPartsR.add(visibleRegion);
 				}
-
 			}
 		}
+		
+		Collections.sort(readParts);
+		Collections.sort(readPartsF);
+		Collections.sort(readPartsR);
 	}
 
 	public Iterable<ReadPart> getReadparts(Strand strand) {
@@ -95,11 +97,11 @@ public class ReadpartDataProvider implements AreaResultListener {
 		
 		switch (strand) {
 			case BOTH:
-				return readParts.values();
+				return readParts;
 			case FORWARD:
-				return readPartsF.values();
+				return readPartsF;
 			case REVERSED:
-				return readPartsR.values();
+				return readPartsR;
 		}
 		throw new IllegalArgumentException("illegal strand: " + strand);
 	}
