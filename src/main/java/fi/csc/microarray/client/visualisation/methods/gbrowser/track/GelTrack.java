@@ -7,11 +7,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
@@ -20,11 +18,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaR
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -47,18 +43,18 @@ public class GelTrack extends Track {
     private long maxBpLength;
     private long minBpLength;
 
-    private Collection<RegionContent> reads = new TreeSet<RegionContent>();
     private TreeMap<Long, Long> collector = new TreeMap<Long, Long>();
     private Color color;
-    
     private Color BACKGROUND = Color.WHITE;
+	private ReadpartDataProvider readpartProvider;
 
-    public GelTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
+    public GelTrack(View view, DataSource file, ReadpartDataProvider readpartProvider, Class<? extends AreaRequestHandler> handler,
             Color color, long minBpLength, long maxBpLength) {
         super(view, file, handler);
         this.color = color;
         this.minBpLength = minBpLength;
         this.maxBpLength = maxBpLength;
+		this.readpartProvider = readpartProvider;
     }
 
     @Override
@@ -66,106 +62,83 @@ public class GelTrack extends Track {
         Collection<Drawable> drawables = getEmptyDrawCollection();
 
         collector.clear();
-        
+
         // draw a black rectangle as the background
         drawables.add(new RectDrawable(new Rectangle(0, 0,
-                getView().getWidth(), this.getHeight()), BACKGROUND, BACKGROUND));
+        		getView().getWidth(), this.getHeight()), BACKGROUND, BACKGROUND));
 
-        // iterate over RegionContent objects (one object corresponds to one read)
-        if (reads != null) {
-            Iterator<RegionContent> iter = reads.iterator();
-            Chromosome lastChromosome = null;
-            Long maxItems = 1L;
-            
-            // count items in each position
-            while (iter.hasNext()) {
-                RegionContent read = iter.next();
+        Chromosome lastChromosome = null;
+        Long maxItems = 1L;
 
-                // remove those that are not in this view
-                if (!read.region.intersects(getView().getBpRegion())) {
-                    iter.remove();
-                    continue;
-                }
+        // Iterate over ReadPart objects (one object corresponds to one continuous element)
+        Iterable<ReadPart> readParts = readpartProvider.getReadparts(getStrand()); 
+        for (ReadPart element : readParts) {
 
-    			// Split read into continuous blocks (elements) by using the cigar
-                List<ReadPart> elements = Cigar.splitVisibleElements(read);
-                for (ReadPart element : elements) {
+        	// Skip elements that are not in this view
+        	if (!element.intersects(getView().getBpRegion())) {
+        		continue;
+        	}
 
-                	// Skip elements that are not in this view
-                	if (!element.intersects(getView().getBpRegion())) {
-                		continue;
-                	}
+        	// collect relevant data for this read
+        	BpCoord startBp = element.start;
+        	BpCoord endBp = element.end;
+        	lastChromosome = element.start.chr;
 
-                	// collect relevant data for this read
-                	BpCoord startBp = element.start;
-                	BpCoord endBp = element.end;
-                	lastChromosome = element.start.chr;
+        	int seqLength = (int) (endBp.minus(startBp) + 1);
 
-                	int seqLength = (int) (endBp.minus(startBp) + 1);
+        	for (Long i = element.start.bp; i <= (element.start.bp + seqLength); i++) {
+        		if (collector.containsKey(i)) {
+        			maxItems = Math.max(maxItems, collector.get(i) + 1);
+        			collector.put(i, collector.get(i) + 1);
+        		} else {
+        			collector.put(i, 1L);
+        		}
+        	}
+        }            
 
-                	for (Long i = element.start.bp; i <= (element.start.bp + seqLength); i++) {
-                		if (collector.containsKey(i)) {
-                			maxItems = Math.max(maxItems, collector.get(i) + 1);
-                			collector.put(i, collector.get(i) + 1);
-                		} else {
-                			collector.put(i, 1L);
-                		}
-                	}
-                }
-            }            
+        // prepare lines that make up the profile for drawing
+        Iterator<Long> bpLocations = collector.keySet().iterator();
+        if (bpLocations.hasNext()) {
+        	Long lastBpLocation = bpLocations.next();
 
-            // prepare lines that make up the profile for drawing
-            Iterator<Long> bpLocations = collector.keySet().iterator();
-            if (bpLocations.hasNext()) {
-                Long lastBpLocation = bpLocations.next();
-                
-                // hue
-                float hue = Color.RGBtoHSB(color.getRed(), color.getGreen(),
-                        color.getBlue(), null)[0];
-                
-                while (bpLocations.hasNext()) {
-                    // take coordinates from bp
-                    Long currentBpLocation = bpLocations.next();
-                    long startX = getView().bpToTrack(new BpCoord(lastBpLocation, lastChromosome));
-                    long endX = getView().bpToTrack(new BpCoord(currentBpLocation, lastChromosome));
-                    
-                    // choose lightness
-                    Color c;
-                    float lightness;
-                    if (view.parentPlot.getReadScale() == ReadScale.AUTO) {
-                        lightness = collector.get(currentBpLocation)/(float)maxItems; 
-                    } else {
-                        lightness = Math.min(collector.get(currentBpLocation)/
-                                    (float)view.parentPlot.getReadScale().numReads, 1);
-                    }
-                    if (currentBpLocation - lastBpLocation == 1) {
-                        c = Color.getHSBColor(hue, 0, 1-lightness);
-                        
-                        // draw a rectangle for each region
-                        drawables.add(new RectDrawable(new Rectangle((int)startX, 0,
-                                (int)(endX-startX), this.getHeight()), c, c));
-                    }
-                    
-                    lastBpLocation = currentBpLocation;
-                }
-            }
+        	// hue
+        	float hue = Color.RGBtoHSB(color.getRed(), color.getGreen(),
+        			color.getBlue(), null)[0];
+
+        	while (bpLocations.hasNext()) {
+        		// take coordinates from bp
+        		Long currentBpLocation = bpLocations.next();
+        		long startX = getView().bpToTrack(new BpCoord(lastBpLocation, lastChromosome));
+        		long endX = getView().bpToTrack(new BpCoord(currentBpLocation, lastChromosome));
+
+        		// choose lightness
+        		Color c;
+        		float lightness;
+        		if (view.parentPlot.getReadScale() == ReadScale.AUTO) {
+        			lightness = collector.get(currentBpLocation)/(float)maxItems; 
+        		} else {
+        			lightness = Math.min(collector.get(currentBpLocation)/
+        					(float)view.parentPlot.getReadScale().numReads, 1);
+        		}
+        		if (currentBpLocation - lastBpLocation == 1) {
+        			c = Color.getHSBColor(hue, 0, 1-lightness);
+
+        			// draw a rectangle for each region
+        			drawables.add(new RectDrawable(new Rectangle((int)startX, 0,
+        					(int)(endX-startX), this.getHeight()), c, c));
+        		}
+
+        		lastBpLocation = currentBpLocation;
+        	}
         }
-
+        
         return drawables;
     }
 
     public void processAreaResult(AreaResult<RegionContent> areaResult) {
 
-        // check that areaResult has same concised status (currently always false)
-        // and correct strand
-        if (areaResult.status.concise == isConcised()
-                && (getStrand() == areaResult.content.values.get(ColumnType.STRAND) ||
-                    getStrand() == Strand.BOTH)) {
-            
-            // add this to queue of RegionContents to be processed
-            this.reads.add(areaResult.content);
-            getView().redraw();
-        }
+		// Do not listen to actual read data, because that is taken care by ReadpartDataProvider
+
     }
 
     @Override

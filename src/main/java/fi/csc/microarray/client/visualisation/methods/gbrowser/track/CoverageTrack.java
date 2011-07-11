@@ -6,11 +6,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
@@ -22,7 +20,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -41,19 +38,19 @@ public class CoverageTrack extends Track {
 	private long maxBpLength;
 	private long minBpLength;
 
-	private Collection<RegionContent> forwardReads = new TreeSet<RegionContent>();
-	private Collection<RegionContent> backwardReads = new TreeSet<RegionContent>();
 	private Color forwardColor;
 	private Color backwardColor;
+	private ReadpartDataProvider readpartProvider;
 
 
-	public CoverageTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
+	public CoverageTrack(View view, DataSource file, ReadpartDataProvider readpartProvider, Class<? extends AreaRequestHandler> handler,
 	        Color forwardColor, Color backwardColor, long minBpLength, long maxBpLength) {
 		super(view, file, handler);
 		this.forwardColor = forwardColor;
 		this.backwardColor = backwardColor;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
+		this.readpartProvider = readpartProvider;
 	}
 	
 	/**
@@ -61,49 +58,36 @@ public class CoverageTrack extends Track {
 	 * 
 	 * @return
 	 */
-	private Collection<Drawable> getDrawableReads(Collection<RegionContent> reads, Color color) {
+	private Collection<Drawable> getDrawableReads(Strand strand, Color color) {
         Collection<Drawable> drawables = getEmptyDrawCollection();
         
         TreeMap<Long, Long> collector = new TreeMap<Long, Long>();
-        Iterator<RegionContent> iter = reads.iterator();
         Chromosome lastChromosome = null;
 
-        // iterate over RegionContent objects (one object corresponds to one read)
-        while (iter.hasNext()) {
+		Iterable<ReadPart> readParts = readpartProvider.getReadparts(strand); 
 
-        	RegionContent read = iter.next();
+		for (ReadPart element : readParts) {
 
-        	// remove those that are not in this view
-        	if (!read.region.intersects(getView().getBpRegion())) {
-        		iter.remove();
-        		continue;
-        	}
+			// Skip elements that are not in this view
+			if (!element.intersects(getView().getBpRegion())) {
+				continue;
+			}
 
-        	// Split read into continuous blocks (elements) by using the cigar
-        	List<ReadPart> elements = Cigar.splitVisibleElements(read);
-        	for (ReadPart element : elements) {
+			// collect relevant data for this read
+			BpCoord startBp = element.start;
+			BpCoord endBp = element.end;
+			lastChromosome = element.start.chr;
 
-        		// Skip elements that are not in this view
-        		if (!element.intersects(getView().getBpRegion())) {
-        			continue;
-        		}
+			int seqLength = (int) (endBp.minus(startBp) + 1);
 
-        		// collect relevant data for this read
-        		BpCoord startBp = element.start;
-        		BpCoord endBp = element.end;
-        		lastChromosome = element.start.chr;
-
-        		int seqLength = (int) (endBp.minus(startBp) + 1);
-
-        		for (Long i = element.start.bp; i <= (element.start.bp + seqLength); i++) {
-        			if (collector.containsKey(i)) {
-        				collector.put(i, collector.get(i) + 1);
-        			} else {
-        				collector.put(i, 1L);
-        			}
-        		}
-        	}
-        }
+			for (Long i = element.start.bp; i <= (element.start.bp + seqLength); i++) {
+				if (collector.containsKey(i)) {
+					collector.put(i, collector.get(i) + 1);
+				} else {
+					collector.put(i, 1L);
+				}
+			}
+		}
         
         // width of a single bp in pixels
         int bpWidth = (int) (getView().getWidth() / getView().getBpRegion().getLength());
@@ -173,29 +157,14 @@ public class CoverageTrack extends Track {
         Collection<Drawable> drawables = getEmptyDrawCollection();
 
         // add drawables from both reads (if present)
-		drawables.addAll(getDrawableReads(forwardReads, forwardColor));
-		drawables.addAll(getDrawableReads(backwardReads, backwardColor));
+		drawables.addAll(getDrawableReads(Strand.FORWARD, forwardColor));
+		drawables.addAll(getDrawableReads(Strand.REVERSED, backwardColor));
 
 		return drawables;
 	}
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
-
-		// check that areaResult has same concised status (currently always false)
-		// and correct strand
-	    if (areaResult.status.concise == isConcised()) {
-	        if (getStrand() == areaResult.content.values.get(ColumnType.STRAND) || 
-	            getStrand() == Strand.BOTH) {
-	            
-	            // Put data to different collections for different strands
-	            if (areaResult.content.values.get(ColumnType.STRAND) == Strand.FORWARD) {
-	                forwardReads.add(areaResult.content);
-	            } else {
-	                backwardReads.add(areaResult.content);
-	            }
-	            getView().redraw();
-	        }
-	    }
+		// Do not listen to actual read data, because that is taken care by ReadpartDataProvider
 	}
 
     @Override
