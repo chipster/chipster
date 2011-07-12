@@ -3,7 +3,9 @@
 # OUTPUT ngs-data-table.tsv: "Data table with read counts" 
 # OUTPUT META phenodata.tsv: "Experiment description file" 
 # PARAMETER experiment_type: "Type of experiment" TYPE [chip_seq: ChIP-seq, rna_seq: RNA-seq, mirna_seq: miRNA-seq] DEFAULT rna_seq (The value that is used for a sequence read that is not present in a sample.)
+# PARAMETER alignment_type: "Type of alignment" TYPE [genome: genome, other: other] DEFAULT genome (If something else than the genome was used as reference to align against please select "other".)
 # PARAMETER impute_with: "Impute missing data" TYPE INTEGER FROM 0 TO 1000000 DEFAULT 0 (The value that is used for a sequence read that is not present in a sample.)
+
 
 ##############################
 #                            #
@@ -21,6 +23,8 @@
 # read sequence length       #
 #                            #
 ##############################
+
+# modified by MG, to accout for data that has been aligned to other than a genome
 
 # Sanity check the input data
 files<-dir()
@@ -46,14 +50,16 @@ for (count in 2:number_files) {
 }
 identifiers <- as.character(unique(identifiers))
 
-# Extract chromosome, start, end and length from id
-extract_info <- strsplit(identifiers, "_")
-extract_info <- unlist(extract_info)
-chr_info <-  extract_info [seq(1,length(extract_info),4)]
-start_info <- extract_info [seq(2,length(extract_info),4)]
-end_info <- extract_info [seq(3,length(extract_info),4)]
-length_info <- as.numeric(end_info)-as.numeric(start_info)+1
-sequence_info <-  extract_info [seq(4,length(extract_info),4)]
+# Extract chromosome, start, end and length from id if aligned against genome
+if (alignment_type == "genome") {
+	extract_info <- strsplit(identifiers, "_")
+	extract_info <- unlist(extract_info)
+	chr_info <-  extract_info [seq(1,length(extract_info),4)]
+	start_info <- extract_info [seq(2,length(extract_info),4)]
+	end_info <- extract_info [seq(3,length(extract_info),4)]
+	length_info <- as.numeric(end_info)-as.numeric(start_info)+1
+	sequence_info <-  extract_info [seq(4,length(extract_info),4)]
+}
 
 # Create table for all sample counts
 annotation_columns <- 5
@@ -61,11 +67,21 @@ data_table <- array (dim = c(length(identifiers), number_files+annotation_column
 data_table <- as.data.frame(data_table)
 rownames (data_table) <- identifiers
 colnames(data_table) [1:annotation_columns] <- c("chr","start","end","length","sequence")
-data_table$chr <- chr_info
-data_table$start <- start_info
-data_table$end <- end_info
-data_table$length <- length_info
-data_table$sequence <- sequence_info
+if (alignment_type == "genome") {
+	data_table$chr <- chr_info
+	data_table$start <- start_info
+	data_table$end <- end_info
+	data_table$length <- length_info
+	data_table$sequence <- sequence_info
+}
+if (alignment_type == "other") {
+	data_table$chr <- "NA"
+	data_table$start <- "NA"
+	data_table$end <- "NA"
+	data_table$length <- "NA"
+	data_table$sequence <- "NA"
+}
+
 for (count in 1:number_files) {
 	print(count)
 	# Fill in data where there is real data
@@ -73,7 +89,12 @@ for (count in 1:number_files) {
 	indices <- as.character(indices)
 	print(indices)
 	print(length(indices))
-	data_table[indices, (count+annotation_columns)] <- get (paste ("data_", count, sep=""))[get (paste ("data_", count, sep=""))[,1]==indices,7]
+	if (alignment_type == "genome") {
+		data_table[indices, (count+annotation_columns)] <- get (paste ("data_", count, sep=""))[get (paste ("data_", count, sep=""))[,1]==indices,7]
+	}
+	if (alignment_type == "other") {
+		data_table[indices, (count+annotation_columns)] <- get (paste ("data_", count, sep=""))[get (paste ("data_", count, sep=""))[,1]==indices,2]
+	}
 	# Impute data where there isn't any
 	indices_empty <- setdiff(identifiers, indices)
 	print(indices_empty)
@@ -81,7 +102,6 @@ for (count in 1:number_files) {
 	colnames(data_table) [count+annotation_columns] <- paste("Sample_", count, sep="")
 	print (data_table [,count+annotation_columns])
 }
-
 
 # Generates the variables necessary to the phenodata file
 # sample<-colnames(dat2)
