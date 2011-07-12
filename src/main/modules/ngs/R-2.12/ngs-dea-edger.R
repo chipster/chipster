@@ -1,8 +1,8 @@
 # TOOL ngs-dea-edger.R: "Differential expression analysis using edgeR" (This tool will perform an analysis for differentially expressed sequences using the R implementation of the edge algorithm.)
 # INPUT data.tsv TYPE GENERIC
 # INPUT phenodata.tsv TYPE GENERIC
-# OUTPUT de-list.tsv
-# OUTPUT de-list.bed
+# OUTPUT OPTIONAL de-list.tsv
+# OUTPUT OPTIONAL de-list.bed
 # OUTPUT OPTIONAL ma-plot-raw-counts.pdf
 # OUTPUT OPTIONAL ma-plot-normalized-counts.pdf
 # OUTPUT OPTIONAL ma-plot-significant-counts.pdf
@@ -35,7 +35,7 @@ w <- image_width
 h <- image_height
 
 # Loads the normalized data
-file <- c("ngs-data-table.tsv")
+file <- c("data.tsv")
 dat <- read.table(file, header=T, sep="\t", row.names=1)
 
 # Separates expression values and flags
@@ -171,6 +171,8 @@ if (dim(significant_results)[1] > 0) {
 }
 
 # Output a message if no significant genes are found
-stop ("CHIPSTER-NOTE: No statistically significantly expressed sequences were found. Try again with a less stringent p-value cut-off or multiple tesying correction method.")
+if (dim(significant_results)[1] == 0) {
+	stop ("CHIPSTER-NOTE: No statistically significantly expressed sequences were found. Try again with a less stringent p-value cut-off or multiple testing correction method.")
+}
 
 # EOF
