@@ -99,14 +99,18 @@ for (count in 1:number_files) {
 	indices_empty <- setdiff(identifiers, indices)
 	print(indices_empty)
 	data_table[indices_empty, (count+annotation_columns)] <- impute_with
-	colnames(data_table) [count+annotation_columns] <- paste("Sample_", count, sep="")
+	colnames(data_table) [count+annotation_columns] <- paste("chip.sample.", count, sep="")
 	print (data_table [,count+annotation_columns])
 }
 
 # Generates the variables necessary to the phenodata file
 # sample<-colnames(dat2)
 groups <- c(rep("", number_files))
+# Check whether column names contain "chip." and, if so, remove from name
 samples <- colnames (data_table) [(annotation_columns+1):(annotation_columns+number_files)]
+if (length (grep("chip.", samples)) >= 1) {
+	samples<-sub("chip.","",samples)
+}
 
 # Writes out the data and the phenodata table
 write.table(data_table, file="ngs-data-table.tsv", sep="\t", row.names=T, col.names=T, quote=F)
