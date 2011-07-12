@@ -17,6 +17,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDPar
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.util.Strings;
 
 /**
  * A generic tool for operating on Chipster formatted genomic region sets.
@@ -323,8 +324,34 @@ public class RegionOperations {
 	public void print(List<RegionContent> regionContents, OutputStream outputStream) {
 		PrintWriter out = new PrintWriter(outputStream);
 		for (RegionContent regionContent : regionContents) {
-			out.println(regionContent);
+			out.println(regionContent.toString());
 		}
+		out.flush();
+	}
+
+	/**
+	 * Prints out regions and their extra fields in TSV text format. Output has
+	 * header row and row name column. Uses extra value ID as row names. 
+	 * Row names must be unique, so repeating ID's are ignored.
+	 * 
+	 */
+	public void printTSV(List<RegionContent> regionContents, OutputStream outputStream) {
+
+		// Print header (row name column is nameless)
+		PrintWriter out = new PrintWriter(outputStream);
+		out.println("chromosome\tstart\tend\t" + Strings.delimit(regionContents.get(0).values.keySet(), "\t").toLowerCase());
+		
+		// Print row names and values
+		HashSet<String> rowNames = new HashSet<String>();
+		for (RegionContent regionContent : regionContents) {
+			String rowName = regionContent.values.get(ColumnType.ID).toString();
+			if (rowNames.contains(rowName)) {
+				continue;
+			}
+			out.println(rowName + "\t" + regionContent.toString());
+			rowNames.add(rowName);
+		}
+		
 		out.flush();
 	}
 

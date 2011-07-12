@@ -1,5 +1,5 @@
 # TOOL ngs-pathways-mirna-hyperg-go.R: "GO enrichment for miRNA targets" (Performs a statistical test for enrichments of GO terms in the predicted gene targets of a list of miRNA ID:s.)
-# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
+# INPUT normalized.tsv: normalized.tsv TYPE GENERIC 
 # OUTPUT hyperg_go.tsv: hyperg_go.tsv 
 # OUTPUT hyperg_go.html: hyperg_go.html 
 # PARAMETER ontology: ontology TYPE [all: all, biological_process: biological_process, molecular_function: molecular_function, cellular_component: cellular_component] DEFAULT biological_process (The ontology to be analyzed.)

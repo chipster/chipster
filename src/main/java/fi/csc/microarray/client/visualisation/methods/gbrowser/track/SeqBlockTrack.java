@@ -11,8 +11,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
@@ -44,8 +42,6 @@ public class SeqBlockTrack extends Track {
 	
 	public static final Color CUTOFF_COLOR = Color.ORANGE;
 	
-	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
-
 	private long maxBpLength;
 	private long minBpLength;
 
@@ -54,10 +50,13 @@ public class SeqBlockTrack extends Track {
 
 	private boolean highlightSNP = false;
 
-	public SeqBlockTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler, Color fontColor, long minBpLength, long maxBpLength) {
+	private ReadpartDataProvider readpartProvider;
+
+	public SeqBlockTrack(View view, DataSource file, ReadpartDataProvider readpartProvider, Class<? extends AreaRequestHandler> handler, Color fontColor, long minBpLength, long maxBpLength) {
 		super(view, file, handler);
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
+		this.readpartProvider = readpartProvider;
 	}
 
 	@Override
@@ -68,31 +67,11 @@ public class SeqBlockTrack extends Track {
 		char[] refSeq = highlightSNP ? getReferenceArray(refReads, view, strand) : null;
 
 		// Preprocessing loop: Iterate over RegionContent objects (one object corresponds to one read)
-		SortedMap<Long, ReadPart> readParts = new TreeMap<Long, ReadPart>();
-		Iterator<RegionContent> iter = reads.iterator();
-		while (iter.hasNext()) {
-
-			RegionContent read = iter.next();
-
-			// Remove reads that are not in this view
-			if (!read.region.intersects(getView().getBpRegion())) {
-				iter.remove();
-				continue;
-			}
-
-			// Split read into continuous blocks (elements) by using the cigar
-			List<ReadPart> visibleRegions = Cigar.splitVisibleElements(read);
-			
-			// Pool and sort read parts so that they are easier to layout
-			for (ReadPart visibleRegion : visibleRegions) {
-				readParts.put(visibleRegion.start.bp, visibleRegion);
-			}
-			
-		}
+		Iterable<ReadPart> readParts = readpartProvider.getReadparts(getStrand()); 
 
 		// Main loop: Iterate over ReadPart objects (one object corresponds to one continuous element)
 		List<Integer> occupiedSpace = new ArrayList<Integer>();
-		for (ReadPart readPart : readParts.values()) {
+		for (ReadPart readPart : readParts) {
 
 			// Skip elements that are not in this view
 			if (!readPart.intersects(getView().getBpRegion())) {
@@ -225,13 +204,8 @@ public class SeqBlockTrack extends Track {
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
 
-		// Check that areaResult has same concised status (currently always false) and correct strand
-		if (areaResult.status.file == file && areaResult.status.concise == isConcised() && areaResult.content.values.get(ColumnType.STRAND) == getStrand()) {
-			// Add this to queue of RegionContents to be processed
-			this.reads.add(areaResult.content);
-			getView().redraw();
-		}
-
+		// Do not listen to actual read data, because that is taken care by ReadpartDataProvider
+		
 		// "Spy" on reference sequence data, if available
 		if (areaResult.status.file == refData) {
 			this.refReads.add(areaResult.content);
