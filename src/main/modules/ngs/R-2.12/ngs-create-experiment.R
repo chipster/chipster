@@ -75,7 +75,6 @@ if (alignment_type == "genome") {
 	data_table$sequence <- sequence_info
 }
 if (alignment_type == "other") {
-	rownames (data_table) <- tolower (rownames(data_table))
 	data_table$chr <- "NA"
 	data_table$start <- "NA"
 	data_table$end <- "NA"
@@ -111,6 +110,12 @@ groups <- c(rep("", number_files))
 samples <- colnames (data_table) [(annotation_columns+1):(annotation_columns+number_files)]
 if (length (grep("chip.", samples)) >= 1) {
 	samples<-sub("chip.","",samples)
+}
+
+# Force identifiers to lower case if miRNA-seq data has been aligned against other
+# than a reference genome
+if (experiment_type == "mirna_seq" && alignment_type == "other") {
+	rownames (data_table) <- tolower (rownames(data_table))
 }
 
 # Writes out the data and the phenodata table
