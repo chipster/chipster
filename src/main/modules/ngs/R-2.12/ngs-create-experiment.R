@@ -75,6 +75,7 @@ if (alignment_type == "genome") {
 	data_table$sequence <- sequence_info
 }
 if (alignment_type == "other") {
+	rownames (data_table) <- tolower (rownames(data_table))
 	data_table$chr <- "NA"
 	data_table$start <- "NA"
 	data_table$end <- "NA"
