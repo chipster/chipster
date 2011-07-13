@@ -99,7 +99,7 @@ for (count in 1:number_files) {
 	indices_empty <- setdiff(identifiers, indices)
 	print(indices_empty)
 	data_table[indices_empty, (count+annotation_columns)] <- impute_with
-	colnames(data_table) [count+annotation_columns] <- paste("chip.sample.", count, sep="")
+	colnames(data_table) [count+annotation_columns] <- paste("chip.sample", count, sep="")
 	print (data_table [,count+annotation_columns])
 }
 
