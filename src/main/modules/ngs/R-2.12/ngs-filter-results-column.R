@@ -2,9 +2,9 @@
 # INPUT results.tsv: results.tsv TYPE GENERIC 
 # OUTPUT filtered-NGS-results.tsv: filtered-NGS-results.tsv 
 # PARAMETER column: column TYPE COLUMN_SEL (Data column to filter by)
-# PARAMETER has.rownames: data with rownames TYPE [yes: yes, no: no] DEFAULT no (Specifies whether the data has unique identifiers as rownmaes or lacks them.)
+# PARAMETER has.rownames: "data with rownames" TYPE [yes: yes, no: no] DEFAULT no (Specifies whether the data has unique identifiers as rownmaes or lacks them.)
 # PARAMETER cutoff: cutoff TYPE DECIMAL FROM -10000000 TO 10000000 DEFAULT 1 (Cut-off for filtering)
-# PARAMETER smaller.or.larger: filtering criteria TYPE [equal-to: equal-to, smaller-than: smaller-than, larger-than: larger-than, within: within, outside: outside] DEFAULT smaller-than (Smaller or larger than the cutoff is filtered.
+# PARAMETER smaller.or.larger: "filtering criteria" TYPE [equal-to: equal-to, smaller-than: smaller-than, larger-than: larger-than, within: within, outside: outside] DEFAULT smaller-than (Smaller or larger than the cutoff is filtered.
 # Use the "within" or "outside" options to filter symmmetrically around two cut-offs, useful for example when searching for 2-fold up- and down-regulated genes.)
 
 # Filter NGS results on the basis of a continuous parameter in a column
@@ -13,7 +13,7 @@
 # Loads the data
 file <- c("results.tsv")
 if (has.rownames == "yes") {
-	dat <- read.table('normalized.tsv', header=TRUE, sep="\t", row.names=1, check.names=FALSE)
+	dat <- read.table(file, header=TRUE, sep="\t", row.names=1, check.names=FALSE)
 }
 if (has.rownames == "yes") {
 	dat <- read.table(file, header=T, sep="\t") 
