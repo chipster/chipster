@@ -217,6 +217,9 @@ public class Authenticator extends NodeBase implements ShutdownCallback {
 			AuthenticationMessage request = new AuthenticationMessage(operation);
 			request.setSessionID(sessionID);
 			request.setReplyTo(loginMessage.getReplyTo());
+			if (succeeded) {
+				request.setUsername(loginMessage.getUsername());
+			}
 			endpoint.replyToMessage(loginMessage, request, Topics.MultiplexName.AUTHORISE_TO.toString());
 		}
 		

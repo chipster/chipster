@@ -155,6 +155,9 @@ public class TaskExecutor {
 					logger.debug("Task " + pendingTask.getId() + " got result message with ERROR.");
 					taskFinished(State.ERROR, resultMessage.getStateDetail(), resultMessage);
 					return;
+				} else if (JobState.FAILED_USER_ERROR.equals(resultMessage.getState())) {
+					taskFinished(State.FAILED_USER_ERROR, resultMessage.getStateDetail(), resultMessage);
+					return;
 				}
 			}
 

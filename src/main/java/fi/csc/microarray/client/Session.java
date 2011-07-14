@@ -29,6 +29,7 @@ public class Session {
 	private ModuleManager moduleManager;
 	private Frames frames;
 	private VisualisationMethodRepository visualisations = new VisualisationMethodRepository();
+	private String username;
 	
 	/**
 	 * 
@@ -88,4 +89,13 @@ public class Session {
 	public VisualisationMethodRepository getVisualisations() {
 		return visualisations;
 	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	
 }
