@@ -207,7 +207,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 				    viewArea.height = (int) (view.getHeight());
 				} else {
 				    viewArea.height = (int) (area.getBounds().getHeight() -
-				            sumStaticViewHeights()) / countStaticViews();
+				            sumStaticViewHeights()) / countStaticViews() + 1;
 				}
 
 				g2.setClip(viewArea);

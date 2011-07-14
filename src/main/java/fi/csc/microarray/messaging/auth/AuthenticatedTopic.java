@@ -57,6 +57,7 @@ public class AuthenticatedTopic extends MessagingTopic {
 						}
 						
 					} else if (authMsg.isLoginAck()) {						
+						fi.csc.microarray.client.Session.getSession().setUsername(authMsg.getUsername());
 						listener.authenticationSucceeded();
 						
 					} else {

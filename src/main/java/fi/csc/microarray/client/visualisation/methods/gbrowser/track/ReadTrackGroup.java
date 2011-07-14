@@ -44,6 +44,7 @@ public class ReadTrackGroup extends TrackGroup {
     
     private DataSource seqFile;
 	private DataSource userData;
+	private ReadpartDataProvider readpartProvider;
 	private Class<? extends AreaRequestHandler> userDataHandler;
 	private String title;
 	private boolean initialised = false;
@@ -54,6 +55,7 @@ public class ReadTrackGroup extends TrackGroup {
         super(view);
         
         this.userData = userData;
+        this.readpartProvider = new ReadpartDataProvider(view, userData, userDataHandler);
         this.userDataHandler = userDataHandler; 
         this.seqFile = seqFile;
         this.title = title;
@@ -69,8 +71,8 @@ public class ReadTrackGroup extends TrackGroup {
         addReadOverviewTrack();
 
         // Detailed
-        reads = new SeqBlockTrack(view, userData,
-                userDataHandler, fontColor, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+        reads = new SeqBlockTrack(view, userData, readpartProvider, userDataHandler, 
+                fontColor, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         tracks.add(reads);
         sepTrackReads = new SeparatorTrack(view, Color.gray, 1, 0, Long.MAX_VALUE);
         sepTrackReads.setName("Reads");
@@ -92,8 +94,8 @@ public class ReadTrackGroup extends TrackGroup {
         addReadOverviewReversedTrack();
         
         // Detailed - reversed
-        readsReversed = new SeqBlockTrack(view, userData,
-                userDataHandler, fontColor, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+        readsReversed = new SeqBlockTrack(view, userData, readpartProvider, userDataHandler, 
+                fontColor, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         readsReversed.setStrand(Strand.REVERSED);
         tracks.add(readsReversed);
     	SeparatorTrack sepTrackReads2 = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT); 
@@ -101,7 +103,7 @@ public class ReadTrackGroup extends TrackGroup {
         tracks.add(sepTrackReads2);
         
         // Profile
-        profileTrack = new CoverageTrack(view, userData, userDataHandler,
+        profileTrack = new CoverageTrack(view, userData, readpartProvider, userDataHandler,
                 Color.BLACK, VisualConstants.COLOR_BLUE, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         profileTrack.setStrand(Strand.BOTH);
         tracks.add(profileTrack);
@@ -110,7 +112,7 @@ public class ReadTrackGroup extends TrackGroup {
         tracks.add(sepTrackProfile);
         
         // SNP profile
-        profileSNPTrack = new CoverageAndSNPTrack(view, userData, userDataHandler, seqFile, ChunkTreeHandlerThread.class, 
+        profileSNPTrack = new CoverageAndSNPTrack(view, userData, readpartProvider, userDataHandler, seqFile, ChunkTreeHandlerThread.class, 
                 Color.BLACK, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         profileSNPTrack.setStrand(Strand.BOTH); //Will be set anyway in the track constructor
         tracks.add(profileSNPTrack);
@@ -128,7 +130,7 @@ public class ReadTrackGroup extends TrackGroup {
     	tracks.add(sepTrackQualityCoverage);
         
         // Gel
-        gelTrack = new GelTrack(view, userData, userDataHandler,
+        gelTrack = new GelTrack(view, userData, readpartProvider, userDataHandler,
                 Color.WHITE, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         gelTrack.setStrand(Strand.BOTH);
         tracks.add(gelTrack);

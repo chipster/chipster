@@ -6,35 +6,22 @@ public class ReadPart extends BpCoordRegion {
 
 	
 	private String sequencePart;
+	private RegionContent read;
 
-	public ReadPart() {
-		super();
-	}
-
-	public ReadPart(BpCoord start, BpCoord end) {
-		super(start, end);
-	}
-
-	public ReadPart(BpCoordRegion bpRegion) {
-		super(bpRegion);
-	}
-
-	public ReadPart(Long start, Chromosome chr1, Long end, Chromosome chr2) {
-		super(start, chr1, end, chr2);
-	}
-
-	public ReadPart(Long start, Long end, Chromosome chr, String sequencePart) {
+	public ReadPart(Long start, Long end, Chromosome chr, RegionContent read, String sequencePart) {
 		super(start, end, chr);
+		this.read = read;
 		this.sequencePart = sequencePart;
 	}
 
 	public ReadPart(RegionContent read) {
-		this(read.region, (String)read.values.get(ColumnType.SEQUENCE));
+		super(read.region);
+		this.read = read;
+		this.sequencePart = (String)read.values.get(ColumnType.SEQUENCE);
 	}
 
-	public ReadPart(BpCoordRegion region, String sequencePart) {
-		this(region);
-		this.sequencePart = sequencePart;
+	public RegionContent getRead() {
+		return read;
 	}
 
 	public String getSequencePart() {

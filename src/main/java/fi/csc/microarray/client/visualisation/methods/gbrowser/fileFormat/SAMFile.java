@@ -34,7 +34,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.IntensityTr
  */
 public class SAMFile {
 
-    final public int SAMPLE_DIVIDER = 4;
+    private static final int RECORD_READING_SAFE_LIMIT = 1000;
+	final public int SAMPLE_DIVIDER = 4;
     final public int SAMPLE_SIZE_BP = 100;
 
 	private ConcisedValueCache cache = new ConcisedValueCache();
@@ -89,7 +90,12 @@ public class SAMFile {
                 this.reader.query(chromosome,
                 request.start.bp.intValue(), request.end.bp.intValue(), false);
         
+		int recordCount = 0;
         for (Iterator<SAMRecord> i = iterator; i.hasNext();) {
+        	if (recordCount > RECORD_READING_SAFE_LIMIT) {
+        		break;
+        	}
+        	recordCount++;
             SAMRecord record = i.next();
             // Region for this read
             BpCoordRegion recordRegion =

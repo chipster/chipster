@@ -40,7 +40,6 @@ public class CoverageAndSNPTrack extends Track {
 	private long maxBpLength;
 	private long minBpLength;
 
-	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
 	private Color forwardColor;
 
 	private boolean highlightSNP = false;
@@ -48,13 +47,15 @@ public class CoverageAndSNPTrack extends Track {
 	private BaseStorage theBaseCacheThang = new BaseStorage();
 	private DataSource refFile;
 	private Collection<RegionContent> refReads = new TreeSet<RegionContent>();
+	private ReadpartDataProvider readpartProvider;
 
-	public CoverageAndSNPTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler, DataSource refFile, Class<? extends AreaRequestHandler> refHandler, 
+	public CoverageAndSNPTrack(View view, DataSource file, ReadpartDataProvider readpartProvider, Class<? extends AreaRequestHandler> handler, DataSource refFile, Class<? extends AreaRequestHandler> refHandler, 
 			Color forwardColor, long minBpLength, long maxBpLength) {
 		super(view, file, handler);
 		this.forwardColor = forwardColor;
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
+		this.readpartProvider = readpartProvider;
 
 		setStrand(Strand.BOTH);
 		
@@ -77,7 +78,7 @@ public class CoverageAndSNPTrack extends Track {
 	 * 
 	 * @return
 	 */
-	private Collection<Drawable> getDrawableReads(Collection<RegionContent> reads, Color color) {
+	private Collection<Drawable> getDrawableReads(Color color) {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
 		Chromosome chr = getView().getBpRegion().start.chr;
@@ -86,7 +87,7 @@ public class CoverageAndSNPTrack extends Track {
 		char[] refSeq = SeqBlockTrack.getReferenceArray(refReads, view, strand);
 
 		// Count nucleotides for each location
-		theBaseCacheThang.getNucleotideCounts(reads, view, refSeq); 
+		theBaseCacheThang.getNucleotideCounts(readpartProvider.getReadparts(getStrand()), view, refSeq); 
 
 		// Count width of a single bp in pixels
 		int bpWidth = (int) (getView().getWidth() / getView().getBpRegion().getLength());
@@ -181,21 +182,14 @@ public class CoverageAndSNPTrack extends Track {
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
 		// add drawables from both reads (if present)
-		drawables.addAll(getDrawableReads(reads, forwardColor));
+		drawables.addAll(getDrawableReads(forwardColor));
 
 		return drawables;
 	}
 
 	public void processAreaResult(AreaResult<RegionContent> areaResult) {
 
-		// Check that areaResult has same concised status (currently always false) and correct strand
-		if (areaResult.status.file == file && areaResult.status.concise == isConcised()) {
-
-			// Don't care about strand
-			reads.add(areaResult.content);
-
-			getView().redraw();
-		}
+		// Do not listen to actual read data, because that is taken care by ReadpartDataProvider
 		
 		// "Spy" on reference sequence data, if available
 		if (areaResult.status.file == refFile) {

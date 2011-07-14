@@ -47,6 +47,7 @@ public abstract class RegionTool extends JavaAnalysisJobBase {
 			
 		} catch (Exception e) {
 			updateState(JobState.FAILED, e.getMessage());
+			outputMessage.setOutputText(e.toString());
 			return;
 		}
 		updateStateToClient(JobState.RUNNING, "preprocessing finished");

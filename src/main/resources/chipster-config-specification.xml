@@ -59,6 +59,11 @@
 
 		<entry entryKey="password" type="string" description="password for authenticating connection to broker">
 		</entry>
+
+		<entry entryKey="guest-username" type="string" description="username for the guest accout which is not allowed to run tasks">
+			<value>guest</value>
+		</entry>
+
 	
 	</configuration-module>
 
@@ -240,7 +245,7 @@
 		</entry>
 		
 		<entry entryKey="max-job-size-mb" type="int" description="maximum job size in megabytes">
-			<value>5000</value>
+			<value>10000</value>
 		</entry>
 
 	</configuration-module>
