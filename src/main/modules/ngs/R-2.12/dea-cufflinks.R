@@ -9,6 +9,9 @@
 # OUTPUT de-splicing.tsv
 # OUTPUT de-tss.tsv
 # PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)", mm9: "Mouse (mm9\)", rn4: "Rat (rn4\)"] DEFAULT mm9 (Genome that your reads were aligned against.)
+# PARAMETER fold.change.threshold: "Fold change cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.00001 (The cutoff for differential expression. Notice that the fold changes are reported using base 2 logarithmic scale, so the cutoff for finding 2-fold regulated genes should be given as 1.)
+# PARAMETER p.value.threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.00001 (The cutoff for statistical significance. Since the p-values are not adjusted to account for multiple testing correction the cutoff needs to be substantially more conservative than what is usually applied.)
+# PARAMETER q.value.threshold: "Q-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.00001 (The cutoff for statistical significance. Notice that q-values are adjusted to account for multiple testing correction.)
 
 
 ############################################################
@@ -55,6 +58,8 @@ system ("mv isoform_exp.diff de-isoforms.tsv")
 system ("mv promoters.diff de-promoters.tsv")
 system ("mv splicing.diff de-splicing.tsv")
 system ("mv tss_group_exp.diff de-tss.tsv")
+
+# Filter the output based on user defined cutoffs
 
 # EOF
 
