@@ -1,7 +1,6 @@
 # TOOL ngs-find-nearest-genes.R: "Find the nearest genes for regions" (This tool takes set of genomic regions, such as ChIP-seq peaks, and fetches the nearest gene for each.)
 # INPUT regions-list.tsv: "Table with genomic regions" TYPE GENERIC 
 # OUTPUT nearest-genes.tsv: "Table listing the nearest gene feature for each input region." 
-# OUTPUT unique-genes-list.tsv: "Table listing the unique genes that can be mapped with gene symbols and entrez gene ids." 
 # PARAMETER species: Species TYPE [Human, Mouse, Rat] DEFAULT Human (The species of the genome to use for fetching annotationsan.)
 
 #####################################################
@@ -17,12 +16,13 @@
 #####################################################
 
 # Possible additional parameters and output
+# OUTPUT unique-genes-list.tsv: "Table listing the unique genes that can be mapped with gene symbols and entrez gene ids." 
 # OUTPUT logo-plot-{...}.png: "Logo plots for each consensus motif"
 # PARAMETER feature: "Genomic feature" TYPE [TSS, exon, miRNA] DEFAULT TSS (The genomic feature to look for in each region. Currently, transcription start site, exon or miRNA are supported feature types)
 # PARAMETER e.value.cutoff: "E-value cutoff" TYPE DECIMAL FROM 0 TO 100 DEFAULT 0.01 (This parameter controls the alignment stringency, where a lower value means better alignment.)
 
 # Set up testing parameters
-species <- "Human"
+# species <- "Human"
 
 # Load the libraries
 library(ChIPpeakAnno)
@@ -61,7 +61,7 @@ results_annotated = annotatePeakInBatch(results_ranged, AnnotationData = TSS.hum
 
 # Convert into a table and extract the useful columns
 results_table <- as.data.frame(results_annotated)
-rownames(results_table) <- sub (" ", "_", results_table$name)
+# rownames(results_table) <- sub (" ", "_", results_table$name)
 results_table <- results_table[,c(-5,-13,-14)]
 table_header <- c("chromosome","region_start","region_end","region_width",
 	"region_id","strand","ensembl_id","gene_start","gene_end","location",
@@ -69,27 +69,8 @@ table_header <- c("chromosome","region_start","region_end","region_width",
 names(results_table) <- table_header
 
 # Write output
-write.table(results_table, file="nearest-genes.tsv", sep="\t", col.names=T, row.names=T, quote=F)
-
-# Fetch additional gene info from BioMart database
-ensembl_annotations <- useMart("ensembl", dataset=as.character(ensembl_dataset))
-ensembl_id_list <- as.character(unique(results_table$ensembl_id))
-gene_annotations <- getBM(filters="ensembl_gene_id", values=ensembl_id_list, attributes=c("ensembl_gene_id","hgnc_symbol","description","entrezgene"), mart=ensembl_annotations)
-
-# Keep only the ones that that have a unique ensembl gene id and actually map to unique entrez id:s
-gene_annotations_na <- na.omit(gene_annotations)
-unique_ensembl_id <- unique(levels(as.factor(gene_annotations_na[,1])))
-matches <- na.omit(match (unique_ensembl_id, gene_annotations_na[,1], nomatch=NA))
-gene_annotations_unique <- gene_annotations_na[matches,]
-unique_entrez_id <- unique(levels(as.factor(gene_annotations_unique[,4])))
-matches <- na.omit(match (unique_entrez_id, gene_annotations_unique[,4], nomatch=NA))
-gene_annotations_unique <- gene_annotations_unique[matches,]
-rownames(gene_annotations_unique) <- gene_annotations_unique[,1]
-gene_annotations_unique <- gene_annotations_unique[,2:4]
-names(gene_annotations_unique)[1] <- "symbol"
-
-# Write output
-write.table(gene_annotations_unique, file="unique-genes-list.tsv", sep="\t", col.names=T, row.names=T, quote=F)
+# write.table(results_table, file="nearest-genes.tsv", sep="\t", col.names=T, row.names=T, quote=F)
+write.table(results_table, file="nearest-genes.tsv", sep="\t", col.names=T, row.names=F, quote=F)
 
 # EOF
 
