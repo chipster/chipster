@@ -72,7 +72,7 @@ import fi.csc.microarray.util.Strings;
 public class MicroarrayModule implements Module {
 
 	private static final String EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/chipster2-example.zip";
-	private static final String STANDALONE_EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/browser-example-session.zip";
+	private static final String STANDALONE_EXAMPLE_SESSION_URL = "http://chipster.csc.fi/examples/viewer-example-session.zip";
 	
 	public static class TypeTags {
 		public static final TypeTag RAW_AFFYMETRIX_EXPRESSION_VALUES  = new TypeTag("raw-arrymetrix-expression-values", "must be in CEL format");
