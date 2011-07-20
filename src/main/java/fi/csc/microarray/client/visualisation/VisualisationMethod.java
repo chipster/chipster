@@ -77,6 +77,7 @@ public class VisualisationMethod {
 			visualisation.initialise(frame);
 			return visualisation;
 		} catch (Exception e) {
+			e.printStackTrace();
 			application.reportException(e);
 			return null;
 		}

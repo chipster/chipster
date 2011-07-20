@@ -79,8 +79,8 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	
-	private static final int URL_REQUEST_TIMEOUT = 30; // seconds
-	private static final int FILE_AVAILABLE_TIMEOUT = 10; // seconds 
+	private static final int URL_REQUEST_TIMEOUT = 5; // seconds
+	private static final int FILE_AVAILABLE_TIMEOUT = 5; // seconds 
 	
 	private static final Logger logger = Logger.getLogger(JMSFileBrokerClient.class);
 	
@@ -217,7 +217,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		URL url;
 		try {
 			CommandMessage urlRequestMessage = new CommandMessage(CommandMessage.COMMAND_PUBLIC_URL_REQUEST);
-			urlTopic.sendReplyableMessage(urlRequestMessage, replyListener);
+			urlTopic.sendReplyableMessage(urlRequestMessage, replyListener); // FIXME blocks forever if we have lost network
 			url = replyListener.waitForReply(URL_REQUEST_TIMEOUT, TimeUnit.SECONDS);
 		} finally {
 			replyListener.cleanUp();
