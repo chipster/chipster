@@ -7,9 +7,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FilePa
  * Result containing file contents. Used by the file layer to return content to the tree layer. 
  *
  */
-public class FileResult {
+public class ChunkFileResult {
 
-	public FileRequest request;
+	public ChunkFileRequest request;
 	public ByteRegion exactRegion;
 	public FileParser chunkParser;
 	public FsfStatus status;
@@ -21,7 +21,7 @@ public class FileResult {
 	 * @param requestQueueSize
 	 *            only to update user interface
 	 */
-	public FileResult(Chunk chunk, FileRequest fileRequest, FileParser inputParser, ByteRegion exactRegion, FsfStatus status) {
+	public ChunkFileResult(Chunk chunk, ChunkFileRequest fileRequest, FileParser inputParser, ByteRegion exactRegion, FsfStatus status) {
 		this.request = fileRequest;
 		this.chunkParser = inputParser;
 		this.exactRegion = exactRegion;

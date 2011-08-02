@@ -23,7 +23,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.IntensityTr
 
 /**
  * SAM and BAM file abstraction. Uses picard library for actual
- * parsing. This is just a facade.
+ * parsing. Does result splitting and caching.
  * 
  * TODO Check how and when we could close the files.
  * 
