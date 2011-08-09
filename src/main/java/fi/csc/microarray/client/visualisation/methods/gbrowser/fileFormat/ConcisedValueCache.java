@@ -18,8 +18,8 @@ public class ConcisedValueCache {
 
 	public static class Counts {
 
-		Integer forwardCount;
-		Integer reverseCount;
+		public Integer forwardCount;
+		public Integer reverseCount;
 
 		public Counts(int forwardCount, int reverseCount) {
 			this.forwardCount = forwardCount;
