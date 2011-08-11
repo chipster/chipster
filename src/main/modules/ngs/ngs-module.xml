@@ -42,7 +42,7 @@
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>bed-sort.R</resource>
-		</tool>
+		</tool>	
 	</category>
 
 	<category name="Matching genomic regions" color="#e7881c">
@@ -65,6 +65,9 @@
 		<tool runtime="java">
 			<resource>fi.csc.chipster.tools.ngs.regions.CombineRegionsTool
 			</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bedtools-pairtopair.R</resource>
 		</tool>
 	</category>
 
