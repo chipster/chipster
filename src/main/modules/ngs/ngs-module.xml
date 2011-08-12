@@ -43,6 +43,9 @@
 		<tool runtime="R-2.12">
 			<resource>bed-sort.R</resource>
 		</tool>	
+		<tool runtime="R-2.12">
+			<resource>bedtools-bamtobed.R</resource>
+		</tool>	
 	</category>
 
 	<category name="Matching genomic regions" color="#e7881c">
