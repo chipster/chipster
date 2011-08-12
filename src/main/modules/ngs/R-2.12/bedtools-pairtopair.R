@@ -11,7 +11,7 @@
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "pairToPair"))
 
 # command
-command <- paste(binary, "-f", f, "-type", type, "-is", is, "-rdn", rdn, "-a", a, "-b", b)
+command <- paste(binary, "-f", f, "-type", type, "-is", is, "-rdn", rdn, "-a", a, "-b", b, "> result.txt")
 
 # run
 system(command)
