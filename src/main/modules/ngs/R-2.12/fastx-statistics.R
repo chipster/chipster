@@ -14,7 +14,10 @@ binary.stats <- c(file.path(chipster.tools.path, "fastx", "bin", "fastx_quality_
 command.stats <- paste(binary.stats, "-i reads.fastq -o quality-stats.tsv")
 
 # run
-system(command.stats, intern=TRUE)
+ret <- system(command.stats)
+if (ret > 0) {
+	stop('Unsupported input file type, please see tool output for more details.')
+}
 
 # binary
 binary.qualities <- c(file.path(chipster.tools.path, "fastx", "bin", "fastq_quality_boxplot_graph.sh"))
@@ -23,7 +26,10 @@ binary.qualities <- c(file.path(chipster.tools.path, "fastx", "bin", "fastq_qual
 command.qualities <- paste(binary.qualities, "-i quality-stats.tsv", "-o qualities.png")
 
 # run
-system(command.qualities, intern=TRUE)
+ret <- system(command.qualities)
+if (ret > 0) {
+	stop('Unsupported input file type, please see tool output for more details.')
+}
 
 # binary
 #binary.distribution <- c(file.path(chipster.tools.path, "fastx", "bin", "fastx_nucleotide_distribution_graph.sh"))
