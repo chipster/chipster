@@ -15,7 +15,7 @@ file <- c("results.tsv")
 if (has.rownames == "yes") {
 	dat <- read.table(file, header=TRUE, sep="\t", row.names=1, check.names=FALSE)
 }
-if (has.rownames == "yes") {
+if (has.rownames == "no") {
 	dat <- read.table(file, header=T, sep="\t") 
 }
 

@@ -414,6 +414,12 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	
 	private void receiveJob(JobMessage jobMessage) {
 
+		if (jobMessage.getUsername().equals(DirectoryLayout.getInstance().getConfiguration().getString("security", "guest-username"))) {
+			ResultMessage resultMessage = new ResultMessage("", JobState.FAILED_USER_ERROR, "", "Running tools is disabled for guest users.", 
+					"", jobMessage.getReplyTo());
+			sendReplyMessage(jobMessage, resultMessage);
+			return;
+		}
 		
 		
 		// try to find the requested operation in tool repository

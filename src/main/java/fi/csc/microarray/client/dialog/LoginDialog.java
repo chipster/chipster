@@ -2,6 +2,7 @@ package fi.csc.microarray.client.dialog;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -43,6 +44,7 @@ public class LoginDialog extends JDialog implements ActionListener, KeyListener 
 
 	public LoginDialog(LoginCallback callback, boolean previousAttemptFailed) {
 		super();
+		this.setMaximumSize(new Dimension(100, 100));
 		this.loginCallback = callback;
 		this.previousAttemptFailed = previousAttemptFailed;
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -72,13 +74,17 @@ public class LoginDialog extends JDialog implements ActionListener, KeyListener 
 		c.gridx = 0;
 		c.gridy = 0;
 
-		// c.gridwidth = 2;
-		// JLabel infoLabel = new JLabel("Enter your Chipster username and
-		// password");
-		// //infoLabel.setFont(infoLabel.getFont().deriveFont(Font.BOLD));
-		// panel.add(infoLabel, c);
-		// c.gridwidth = 1;
-		// c.gridy++;
+		 c.gridwidth = 2;
+		 JLabel infoLabel = new JLabel("<html><p>Please enter your Chipster username and password,<br>or use the username 'guest' and password 'guest'<br/>to have a look. Running tools is disabled for guests.</p></html>");
+//		 infoLabel.setFont(infoLabel.getFont().deriveFont(Font.BOLD));
+		 panel.add(infoLabel, c);
+		 c.gridy++;
+//		 JLabel infoLabel2 = new JLabel("<html><p>You can also login as a guest with the username 'guest'<br/>and password 'guest'.<br/>Running tools is disabled for guests.</p>");
+//		 //infoLabel.setFont(infoLabel.getFont().deriveFont(Font.BOLD));
+//		 panel.add(infoLabel2, c);
+//		 c.gridy++;
+
+		 c.gridwidth = 1;
 
 		if (previousAttemptFailed) {
 			c.gridwidth = 2;

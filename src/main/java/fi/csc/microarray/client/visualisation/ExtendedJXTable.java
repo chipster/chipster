@@ -63,7 +63,7 @@ public class ExtendedJXTable extends JXTable implements ActionListener, Property
 
 		this.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent e) {
-				if (!doNotDispatchEvents) {
+				if (!doNotDispatchEvents && !e.getValueIsAdjusting()) {
 					logger.debug("Row selection of the table changed");
 
 					int[] selected = ExtendedJXTable.this.getSelectedRows();

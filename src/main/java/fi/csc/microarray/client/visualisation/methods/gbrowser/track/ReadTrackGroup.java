@@ -103,7 +103,7 @@ public class ReadTrackGroup extends TrackGroup {
         tracks.add(sepTrackReads2);
         
         // Profile
-        profileTrack = new CoverageTrack(view, userData, userDataHandler,
+        profileTrack = new CoverageTrack(view, userData, readpartProvider, userDataHandler,
                 Color.BLACK, VisualConstants.COLOR_BLUE, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         profileTrack.setStrand(Strand.BOTH);
         tracks.add(profileTrack);
@@ -130,7 +130,7 @@ public class ReadTrackGroup extends TrackGroup {
     	tracks.add(sepTrackQualityCoverage);
         
         // Gel
-        gelTrack = new GelTrack(view, userData, userDataHandler,
+        gelTrack = new GelTrack(view, userData, readpartProvider, userDataHandler,
                 Color.WHITE, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
         gelTrack.setStrand(Strand.BOTH);
         tracks.add(gelTrack);

@@ -59,6 +59,11 @@
 
 		<entry entryKey="password" type="string" description="password for authenticating connection to broker">
 		</entry>
+
+		<entry entryKey="guest-username" type="string" description="username for the guest accout which is not allowed to run tasks">
+			<value>guest</value>
+		</entry>
+
 	
 	</configuration-module>
 

@@ -1,4 +1,4 @@
-# TOOL MEDIPS_two_samples_V1.R: "MEDIPS - methylation analysis, treatment vs. control" (Methylation analysis for sequencing data. Analysis for two conditions or files.)
+# TOOL MEDIPS_two_samples_V1.R: "MEDIPS - methylation analysis, treatment vs. control" (Analysis of MeDIP-seq data for two conditions. This tool is based on the MEDIPS package developed by Chavez et al.)
 # INPUT control.tsv: "Converted BAM data file for the control" TYPE GENERIC
 # INPUT treatment.tsv: "Converted BAM data file for the treatment" TYPE GENERIC
 # OUTPUT OPTIONAL saturationplot.png: "Saturation plot"
