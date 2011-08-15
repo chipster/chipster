@@ -1,8 +1,7 @@
-# TOOL fastx-statistics.R: "Read quality statistics" (Calculates quality statistics of the reads and generates a Solexa quality score boxplot. This tool is based on the FASTX Statistics and FASTQ Quality Chart tool of the FASTX package.)
+# TOOL fastx-statistics.R: "Read quality statistics with FASTX" (Calculates quality statistics of the reads. Please note that this tool only works with Sanger quality scores.
+# This tool is based on the FASTX Statistics tool of the FASTX package.)
 # INPUT reads.fastq TYPE GENERIC 
 # OUTPUT quality-stats.tsv 
-# OUTPUT qualities.png
-
 
 
 # EK 17.6.2011
@@ -20,16 +19,16 @@ if (ret > 0) {
 }
 
 # binary
-binary.qualities <- c(file.path(chipster.tools.path, "fastx", "bin", "fastq_quality_boxplot_graph.sh"))
+#binary.qualities <- c(file.path(chipster.tools.path, "fastx", "bin", "fastq_quality_boxplot_graph.sh"))
 
 # command
-command.qualities <- paste(binary.qualities, "-i quality-stats.tsv", "-o qualities.png")
+#command.qualities <- paste(binary.qualities, "-i quality-stats.tsv", "-o qualities.png")
 
 # run
-ret <- system(command.qualities)
-if (ret > 0) {
-	stop('Unsupported input file type, please see tool output for more details.')
-}
+#ret <- system(command.qualities)
+#if (ret > 0) {
+#	stop('Unsupported input file type, please see tool output for more details.')
+#}
 
 # binary
 #binary.distribution <- c(file.path(chipster.tools.path, "fastx", "bin", "fastx_nucleotide_distribution_graph.sh"))
