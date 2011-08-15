@@ -1,5 +1,4 @@
-# TOOL fastx-statistics.R: "Read quality statistics with FASTX" (Calculates quality statistics of the reads. Please note that this tool only works with Sanger quality scores.
-# This tool is based on the FASTX Statistics tool of the FASTX package.)
+# TOOL fastx-statistics.R: "Read quality statistics with FASTX" (Calculates quality statistics of the reads. This tool is based on the FASTX Statistics tool of the FASTX package.)
 # INPUT reads.fastq TYPE GENERIC 
 # OUTPUT quality-stats.tsv 
 
