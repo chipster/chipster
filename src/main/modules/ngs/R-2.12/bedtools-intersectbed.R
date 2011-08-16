@@ -35,11 +35,13 @@ if (f == "yes") {options <- paste(options, "-f", f)}
 if (r == "yes") {options <- paste(options, "-r")}
 if (s == "yes") {options <- paste(options, "-s")}
 if (split == "yes") {options <- paste(options, "-split")}
+
+# input files
 if (abam == "yes") {options <- paste(options, "-abam file.a -b file.b")}
 if (abam == "no") {options <- paste(options, "-a file.a -b file.b")}
 
 # command
-command <- paste(binary, options, ">intersectbed.bed")
+command <- paste(binary, options, "> intersectbed.bed")
 
 # run
 system(command)

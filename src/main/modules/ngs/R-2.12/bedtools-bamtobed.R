@@ -20,10 +20,12 @@ if (output.type == "BED12") {
 if (split == "yes") {options <- paste(options, "-split")}
 if (ed == "yes") {options <- paste(options, "-ed")}
 if (cigar == 'yes') {options <- paste(options,"-cigar")}
+
+# input files
 options <- paste(options, "-i", "file.a")
 
 # command
-command <- paste(binary, options, ">bamtobed.bed")
+command <- paste(binary, options, "> bamtobed.bed")
 
 # run
 system(command)

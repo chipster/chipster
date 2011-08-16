@@ -14,9 +14,10 @@ binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "pairToPair"))
 options <- paste("")
 if (is == "yes") {options <- paste(options, "-si")}
 if (rdn == "yes") {options <- paste(options, "-rdn")}
+options <- paste(options, "-f", f, "-type", type) 
 
-# common options
-options <- paste(options, "-f", f, "-type", type, "-a file.a -b file.b")
+# input files
+options <- paste(options,"-a file.a -b file.b")
 
 # command
 command <- paste(binary, options, " > pairtopair.bedpe")

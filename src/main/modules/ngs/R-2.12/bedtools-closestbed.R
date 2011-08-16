@@ -14,12 +14,13 @@ binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "closestBed"))
 options <- paste("")
 if (s == "yes") {options <- paste(options, "-s")}
 if (d == "yes") {options <- paste(options, "-d")}
+options <- paste(options, "-t", t)
 
-# common options
-options <- paste(options, "-t", t, "-a file.a -b file.b")
+# input files
+options <- paste(options,"-a file.a -b file.b")
 
 # command
-command <- paste(binary, options, " >closestbed.bed")
+command <- paste(binary, options, " > closestbed.bed")
 
 # run
 system(command)
