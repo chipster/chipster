@@ -94,9 +94,9 @@ public class SAMFileFetcherThread extends Thread {
     	List<RegionContent> responseList = new LinkedList<RegionContent>();
         
         // Read the given region
-        String chromosome = dataSource.getSAM().getChromosomeNameUnnormaliser().unnormalise(request.start.chr);
+        String chromosome = dataSource.getChromosomeNameUnnormaliser().unnormalise(request.start.chr);
 		CloseableIterator<SAMRecord> iterator =
-                dataSource.getSAM().getReader().query(chromosome,
+                dataSource.getReader().query(chromosome,
                 request.start.bp.intValue(), request.end.bp.intValue(), false);
         
 		int recordCount = 0;
@@ -205,7 +205,7 @@ public class SAMFileFetcherThread extends Thread {
 		int start = stepMiddlepoint - SAMPLE_SIZE_BP/2;
 		int end = stepMiddlepoint + SAMPLE_SIZE_BP/2;
 		CloseableIterator<SAMRecord> iterator =
-			dataSource.getSAM().getReader().query(dataSource.getSAM().getChromosomeNameUnnormaliser().unnormalise(request.start.chr),
+			dataSource.getReader().query(dataSource.getChromosomeNameUnnormaliser().unnormalise(request.start.chr),
 					start, end, false);
 
 		// Count reads in this sample area
