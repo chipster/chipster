@@ -82,6 +82,9 @@
 			<resource>bedtools-intersectbed.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
+			<resource>bedtools-pairtobed.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
 			<resource>bedtools-pairtopair.R</resource>
 		</tool>
 				<tool runtime="R-2.12">

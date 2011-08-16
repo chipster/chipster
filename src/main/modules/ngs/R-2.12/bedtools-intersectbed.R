@@ -22,8 +22,10 @@ binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "intersectBed"))
 
 # options
 options <- paste("")
-if (ubam == "yes") {options <- paste(options, "-ubam")}
-if (bed == "yes") {options <- paste(options,"-bed")}
+if (abam == "yes") {
+	if (ubam == "yes") {options <- paste(options, "-ubam")}
+	if (bed == "yes") {options <- paste(options, "-bed")}
+}
 if (wa == "yes") {options <- paste(options,"-wa")}
 if (wb == "yes") {options <- paste(options,"-wb")}
 if (wo == "yes") {options <- paste(options,"-wo")}
