@@ -22,7 +22,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
  * Gel-like track that shows intensity of some parameter as a continuous stripe
@@ -135,7 +134,7 @@ public class GelTrack extends Track {
         return drawables;
     }
 
-    public void processAreaResult(AreaResult<RegionContent> areaResult) {
+    public void processAreaResult(AreaResult areaResult) {
 
 		// Do not listen to actual read data, because that is taken care by ReadpartDataProvider
 

@@ -17,7 +17,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
  * Ruler that shows coordinates.
@@ -104,7 +103,7 @@ public class RulerTrack extends Track {
 
 	}
 
-	public void processAreaResult(AreaResult<RegionContent> areaResult) {
+	public void processAreaResult(AreaResult areaResult) {
 		// no data
 	}
 

@@ -188,7 +188,7 @@ public class QualityCoverageTrack extends Track {
 		return drawables;
 	}
 
-	public void processAreaResult(AreaResult<RegionContent> areaResult) {
+	public void processAreaResult(AreaResult areaResult) {
 
 		// check that areaResult has same concised status (currently always false)
 		// and correct strand

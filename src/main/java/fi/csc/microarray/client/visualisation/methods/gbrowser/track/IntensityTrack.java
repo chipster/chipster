@@ -94,7 +94,7 @@ public class IntensityTrack extends Track {
 		return drawables;
 	}
 
-	public void processAreaResult(AreaResult<RegionContent> areaResult) {		
+	public void processAreaResult(AreaResult areaResult) {		
 
 		if (areaResult.status.concise == this.isConcised() && 
 				areaResult.content.values.get(ColumnType.STRAND) == getStrand() && 

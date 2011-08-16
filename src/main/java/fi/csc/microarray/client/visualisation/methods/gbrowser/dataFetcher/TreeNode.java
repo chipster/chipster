@@ -282,7 +282,7 @@ public class TreeNode {
 
 		for (RegionContent regCont : concisedValues) {
 			if (areaRequest.intersects(regCont.region)) {
-				tree.createAreaResult(new AreaResult<RegionContent>(status, regCont));
+				tree.createAreaResult(new AreaResult(status, regCont));
 			}
 		}
 	}
@@ -300,7 +300,7 @@ public class TreeNode {
 		for (RegionContent rc : chunkParser.getAll(chunk, areaRequest.requestedContents)) {
 
 			if (areaRequest.intersects(rc.region)) {
-				tree.createAreaResult(new AreaResult<RegionContent>(status, rc));
+				tree.createAreaResult(new AreaResult(status, rc));
 			}
 		}
 	}

@@ -47,7 +47,7 @@ public class SAMHandlerThread extends AreaRequestHandler {
     private void processFileResult(SAMFileResult fileResult) {
 
     	for (RegionContent content : fileResult.getContent()) {
-    		createAreaResult(new AreaResult<RegionContent>(fileResult.getStatus(), content));
+    		createAreaResult(new AreaResult(fileResult.getStatus(), content));
     	}
 	}
 

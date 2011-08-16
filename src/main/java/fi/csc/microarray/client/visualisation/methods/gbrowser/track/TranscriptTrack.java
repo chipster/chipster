@@ -205,7 +205,7 @@ public class TranscriptTrack extends Track {
 		return new RectDrawable(rect, c, null);
 	}
 
-	public void processAreaResult(AreaResult<RegionContent> areaResult) {
+	public void processAreaResult(AreaResult areaResult) {
 
 		// Genes and transcripts are ordered in the file, but to here they come in any order
 		// That's why we have to put them to Gene objects to sort them again

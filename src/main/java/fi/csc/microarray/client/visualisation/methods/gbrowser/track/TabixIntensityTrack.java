@@ -88,7 +88,7 @@ public class TabixIntensityTrack extends Track {
 		return drawables;
 	}
 
-	public void processAreaResult(AreaResult<RegionContent> areaResult) {
+	public void processAreaResult(AreaResult areaResult) {
 		
 		
 		if (areaResult.status.concise == this.isConcised() && 
