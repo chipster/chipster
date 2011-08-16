@@ -187,7 +187,7 @@ public class CoverageAndSNPTrack extends Track {
 		return drawables;
 	}
 
-	public void processAreaResult(AreaResult<RegionContent> areaResult) {
+	public void processAreaResult(AreaResult areaResult) {
 
 		// Do not listen to actual read data, because that is taken care by ReadpartDataProvider
 		

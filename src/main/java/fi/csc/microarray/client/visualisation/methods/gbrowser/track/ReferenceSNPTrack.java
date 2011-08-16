@@ -161,7 +161,7 @@ public class ReferenceSNPTrack extends Track {
 	}
 
 	@Override
-	public void processAreaResult(AreaResult<RegionContent> areaResult) {
+	public void processAreaResult(AreaResult areaResult) {
 		if (areaResult.content.values.get(ColumnType.STRAND) == getStrand()) {
 			values.add(areaResult.content);
 		}

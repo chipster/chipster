@@ -6,7 +6,6 @@ import javax.swing.SwingUtilities;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public abstract class AreaRequestHandler extends Thread {
 
@@ -64,7 +63,7 @@ public abstract class AreaRequestHandler extends Thread {
 	 * 
 	 * @param areaResult
 	 */
-	public void createAreaResult(final AreaResult<RegionContent> areaResult) {
+	public void createAreaResult(final AreaResult areaResult) {
 
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {

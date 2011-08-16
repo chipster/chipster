@@ -189,7 +189,7 @@ public class CytobandTrack extends Track {
 		return new RectDrawable(rect, c, Color.black);
 	}
 
-	public void processAreaResult(AreaResult<RegionContent> areaResult) {
+	public void processAreaResult(AreaResult areaResult) {
 
 		if (areaResult.content.values.containsKey(ColumnType.METADATA) &&
 				((Map<?, ?>)(areaResult.content.values.get(ColumnType.METADATA))).containsKey(CytobandParser.LAST_ROW_OF_CHROMOSOME) && 

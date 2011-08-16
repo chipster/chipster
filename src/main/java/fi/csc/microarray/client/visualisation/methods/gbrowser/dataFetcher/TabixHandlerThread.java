@@ -34,7 +34,7 @@ public class TabixHandlerThread extends AreaRequestHandler {
 			//} else {
 				// Create a result for each read
 				for (RegionContent content : tabixData.getTabix().getReads(areaRequest)) {
-					createAreaResult(new AreaResult<RegionContent>(areaRequest.status, content));
+					createAreaResult(new AreaResult(areaRequest.status, content));
 				}            
 			//}
 		} catch (IOException e) {

@@ -10,16 +10,16 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileRequest;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ChunkFileRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ChunkFileResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ByteRegion;
 
 public class ChunkTreeHandlerThread extends AreaRequestHandler {
 
 	private TreeNode rootNode;
 
-	private BlockingQueue<FileRequest> fileRequestQueue = new LinkedBlockingQueue<FileRequest>();
-	private ConcurrentLinkedQueue<FileResult> fileResultQueue = new ConcurrentLinkedQueue<FileResult>();
+	private BlockingQueue<ChunkFileRequest> fileRequestQueue = new LinkedBlockingQueue<ChunkFileRequest>();
+	private ConcurrentLinkedQueue<ChunkFileResult> fileResultQueue = new ConcurrentLinkedQueue<ChunkFileResult>();
 
 	private ChunkFileFetcherThread fileFetcher;
 
@@ -37,6 +37,7 @@ public class ChunkTreeHandlerThread extends AreaRequestHandler {
 		this.inputParser = this.file.getFileParser();
 	}
 
+	@Override
 	public synchronized void run() {
 
 		try {
@@ -52,10 +53,9 @@ public class ChunkTreeHandlerThread extends AreaRequestHandler {
 	}
 
 	protected boolean checkOtherQueues() {
-		FileResult fileResult;
+		ChunkFileResult fileResult = null;
 		if ((fileResult = fileResultQueue.poll()) != null) {
 			fileResult.status.fileResultCount = fileResultQueue.size();
-
 			processFileResult(fileResult);
 		}
 		return fileResult != null;
@@ -65,7 +65,7 @@ public class ChunkTreeHandlerThread extends AreaRequestHandler {
 		rootNode = new TreeNode(new ByteRegion(file.getHeaderLength(), fileLength, false), this, null);
 	}
 
-	private void processFileResult(FileResult fileResult) {
+	private void processFileResult(ChunkFileResult fileResult) {
 		fileResult.request.node.processFileResult(fileResult);
 	}
 
@@ -85,7 +85,7 @@ public class ChunkTreeHandlerThread extends AreaRequestHandler {
 	public void createFileRequest(AreaRequest areaRequest, ByteRegion byteRegion, TreeNode node) {
 		areaRequest.status.maybeClearQueue(fileRequestQueue);
 
-		fileRequestQueue.add(new FileRequest(areaRequest, byteRegion.clone(), node, areaRequest.status));
+		fileRequestQueue.add(new ChunkFileRequest(areaRequest, byteRegion.clone(), node, areaRequest.status));
 	}
 
 	public FileParser getInputParser() {

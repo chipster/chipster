@@ -5,7 +5,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaReque
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ByteRegion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ChunkFileResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -194,7 +194,7 @@ public class TreeNode {
 	 * @See FsfStatus for description of chunk
 	 * @param fileResult
 	 */
-	public void processFileResult(FileResult fileResult) {
+	public void processFileResult(ChunkFileResult fileResult) {
 
 		if (isLeaf) {
 
@@ -282,7 +282,7 @@ public class TreeNode {
 
 		for (RegionContent regCont : concisedValues) {
 			if (areaRequest.intersects(regCont.region)) {
-				tree.createAreaResult(new AreaResult<RegionContent>(status, regCont));
+				tree.createAreaResult(new AreaResult(status, regCont));
 			}
 		}
 	}
@@ -300,7 +300,7 @@ public class TreeNode {
 		for (RegionContent rc : chunkParser.getAll(chunk, areaRequest.requestedContents)) {
 
 			if (areaRequest.intersects(rc.region)) {
-				tree.createAreaResult(new AreaResult<RegionContent>(status, rc));
+				tree.createAreaResult(new AreaResult(status, rc));
 			}
 		}
 	}

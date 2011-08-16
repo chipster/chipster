@@ -202,7 +202,7 @@ public class SeqBlockTrack extends Track {
 		return (int) ((layer + 1) * (height + GenomeBrowserConstants.SPACE_BETWEEN_READS));
 	}
 
-	public void processAreaResult(AreaResult<RegionContent> areaResult) {
+	public void processAreaResult(AreaResult areaResult) {
 
 		// Do not listen to actual read data, because that is taken care by ReadpartDataProvider
 		

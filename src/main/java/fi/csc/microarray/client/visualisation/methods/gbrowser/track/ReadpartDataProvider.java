@@ -38,7 +38,7 @@ public class ReadpartDataProvider implements AreaResultListener {
 	}
 
 	@Override
-	public void processAreaResult(AreaResult<RegionContent> areaResult) {
+	public void processAreaResult(AreaResult areaResult) {
 		// Check that areaResult has false concised status and correct strand
 		if (areaResult.status.file == readData && areaResult.status.concise == false) {
 			// Add this to queue of RegionContents to be processed

@@ -6,7 +6,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TreeN
  * Request for file content. Used by the tree layer to request content from the file layer. 
  *
  */
-public class FileRequest {
+public class ChunkFileRequest {
 
 	public AreaRequest areaRequest;
 	public ByteRegion byteRegion;
@@ -14,7 +14,7 @@ public class FileRequest {
 
 	public FsfStatus status;
 
-	public FileRequest(AreaRequest areaRequest, ByteRegion rowRegion, TreeNode node, FsfStatus status) {
+	public ChunkFileRequest(AreaRequest areaRequest, ByteRegion rowRegion, TreeNode node, FsfStatus status) {
 		super();
 		this.byteRegion = rowRegion;
 		this.node = node;
