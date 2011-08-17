@@ -60,5 +60,35 @@ system(paste("echo \"", headers, "\"", ">", header.file))
 merge.command <- paste("cat", header.file, input.file, ">", output.file)
 system(merge.command)
 
+# Read file into R
+file <- c("edgeR-input.tsv")
+dat <- read.table(file, header=T, sep="\t", row.names=1)
+
+# Merge sequences with same starting position into single one and sum counts
+# Go through data chromosome by chromosome
+chr_list <- levels (dat$chr)
+chr_number <- length (chr_list)
+for (count in 1:chr_number) {
+	dat_temp <- dat[,dat$chr==chr_list[count]
+	counts_temp <- dat_temp$count
+	start_temp <- dat_temp$start
+	end_temp <- dat_temp$end
+	length_temp <- dat_temp$length
+	names (counts_temp) <- rownames(dat_temp)
+	counts_temp_merged <- aggregate (counts_temp, by=(list (as.character (dat_temp$start))), FUN=sum)
+	start_temp_longest <-  aggregate (start_temp, by=(list (as.character (dat_temp$start))), FUN=max)
+	end_temp_longest <-  aggregate (end_temp, by=(list (as.character (dat_temp$start))), FUN=max)
+	length_temp_longest <-  aggregate (length_temp, by=(list (as.character (dat_temp$start))), FUN=max)
+	
+	# fetch the corresponding seq_id and sequences
+	id_temp <- paste(chr_list[count], "_", start_temp_longest[,2], "_", end_temp_longest[,2], sep="")
+	sequence_id <- character(length(id_temp))
+	for (count_2 in 1:length(id_temp)) {
+		sequence_id[count_2] <- names (counts_temp) [grep (id_temp[count_2], names(counts_temp))]
+	}
+	sequence_temp_matched <- dat_temp[sequence_id,]
+	sequence_temp_matched <- sequence_temp_matched$sequence
+	
+
 # EOF
 
