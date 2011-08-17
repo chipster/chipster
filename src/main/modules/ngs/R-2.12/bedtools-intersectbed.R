@@ -33,7 +33,7 @@ if (wao == "yes") {options <- paste(options,"-wao")}
 if (u == "yes") {options <- paste(options, "-u")}
 if (c == "yes") {options <- paste(options, "-c")}
 if (v == "yes") {options <- paste(options, "-v")}
-if (f == "yes") {options <- paste(options, "-f", f)}
+options <- paste(options, "-f", f)
 if (r == "yes") {options <- paste(options, "-r")}
 if (s == "yes") {options <- paste(options, "-s")}
 if (split == "yes") {options <- paste(options, "-split")}

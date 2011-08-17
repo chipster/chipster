@@ -9,15 +9,15 @@
 # PARAMETER OPTIONAL f: "Minimum overlap" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.000000001 (Minimum overlap required as a fraction of A (e.g. 0.05\). Default is 1E-9 (effectively 1bp\))
 # PARAMETER OPTIONAL s: "Force strandedness" TYPE [yes, no] DEFAULT no (Enforce strandedness when finding overlaps. Default is to ignore stand. Not applicable with  output type inspan or outspan.)
 # PARAMETER type: "Approach to reporting overlaps" TYPE [either, neither, both, xor, notboth, ispan, ospan, notispan, notospan] DEFAULT either (Approach to reporting overlaps between BEDPE and BED.
-# either:  Report overlaps if either end of A overlaps B.
+# either: Report overlaps if either end of A overlaps B.
 # neither: Report A if neither end of A overlaps B.
-# both:    Report overlaps if both ends of A overlap  B.
-# xor:     Report overlaps if one and only one end of A overlaps B.
+# both: Report overlaps if both ends of A overlap  B.
+# xor: Report overlaps if one and only one end of A overlaps B.
 # notboth: Report overlaps if neither end or one and only one end of A overlap B.  That is, xor + neither.
-# ispan:   Report overlaps between [end1, start2] of A and B. Note: If chrom1 <> chrom2, entry is ignored.
-# ospan:   Report overlaps between [start1, end2] of A and B. Note: If chrom1 <> chrom2, entry is ignored.
-# notispan:        Report A if ispan of A doesn't overlap B. Note: If chrom1 <> chrom2, entry is ignored.
-# notospan:        Report A if ospan of A doesn't overlap B. Note: If chrom1 <> chrom2, entry is ignored.)
+# ispan: Report overlaps between [end1, start2] of A and B. Note: If chrom1 <> chrom2, entry is ignored.
+# ospan: Report overlaps between [start1, end2] of A and B. Note: If chrom1 <> chrom2, entry is ignored.
+# notispan: Report A if ispan of A doesn't overlap B. Note: If chrom1 <> chrom2, entry is ignored.
+# notospan: Report A if ospan of A doesn't overlap B. Note: If chrom1 <> chrom2, entry is ignored.)
 
 # binary
 binary <- c(file.path(chipster.tools.path, "bedtools", "bin", "pairToBed"))
