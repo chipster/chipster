@@ -63,32 +63,90 @@ system(merge.command)
 # Read file into R
 file <- c("edgeR-input.tsv")
 dat <- read.table(file, header=T, sep="\t", row.names=1)
-
 # Merge sequences with same starting position into single one and sum counts
 # Go through data chromosome by chromosome
 chr_list <- levels (dat$chr)
 chr_number <- length (chr_list)
+results_table <- dat[1,]
+results_table[1,] <- 0
 for (count in 1:chr_number) {
-	dat_temp <- dat[,dat$chr==chr_list[count]
+	dat_temp <- dat[dat$chr==chr_list[count],]
 	counts_temp <- dat_temp$count
 	start_temp <- dat_temp$start
 	end_temp <- dat_temp$end
 	length_temp <- dat_temp$length
 	names (counts_temp) <- rownames(dat_temp)
-	counts_temp_merged <- aggregate (counts_temp, by=(list (as.character (dat_temp$start))), FUN=sum)
-	start_temp_longest <-  aggregate (start_temp, by=(list (as.character (dat_temp$start))), FUN=max)
-	end_temp_longest <-  aggregate (end_temp, by=(list (as.character (dat_temp$start))), FUN=max)
-	length_temp_longest <-  aggregate (length_temp, by=(list (as.character (dat_temp$start))), FUN=max)
+	counts_temp_merged <- aggregate (counts_temp, by=(list (as.character (dat_temp$start))), FUN=sum) [,2]
+	start_temp_longest <-  aggregate (start_temp, by=(list (as.character (dat_temp$start))), FUN=max) [,2]
+	end_temp_longest <-  aggregate (end_temp, by=(list (as.character (dat_temp$start))), FUN=max) [,2]
+	length_temp_longest <-  aggregate (length_temp, by=(list (as.character (dat_temp$start))), FUN=max) [,2]
 	
 	# fetch the corresponding seq_id and sequences
-	id_temp <- paste(chr_list[count], "_", start_temp_longest[,2], "_", end_temp_longest[,2], sep="")
+	id_temp <- paste(chr_list[count], "_", start_temp_longest, "_", end_temp_longest, sep="")
 	sequence_id <- character(length(id_temp))
 	for (count_2 in 1:length(id_temp)) {
 		sequence_id[count_2] <- names (counts_temp) [grep (id_temp[count_2], names(counts_temp))]
 	}
 	sequence_temp_matched <- dat_temp[sequence_id,]
-	sequence_temp_matched <- sequence_temp_matched$sequence
+	sequence_temp_matched <- as.character(sequence_temp_matched$sequence)
 	
+	print(chr_list[count])
+	
+	# construct the result table for the chromosome
+	results_temp <- data.frame(
+			sequence=sequence_temp_matched, 
+			chr=chr_list[count], 
+			start=start_temp_longest,
+			end=end_temp_longest,
+			length=length_temp_longest,
+			count=counts_temp_merged, 
+			row.names=sequence_id
+	)
+	results_table <- rbind (results_table, results_temp)
+}
+results_table <- results_table[-1,]
+
+# Merge sequences with same ending position into single one and sum counts
+# Go through data chromosome by chromosome
+dat <- results_table
+chr_list <- levels (dat$chr)
+chr_number <- length (chr_list)
+results_table <- dat[1,]
+results_table[1,] <- 0
+for (count in 1:chr_number) {
+	dat_temp <- dat[dat$chr==chr_list[count],]
+	counts_temp <- dat_temp$count
+	start_temp <- dat_temp$start
+	end_temp <- dat_temp$end
+	length_temp <- dat_temp$length
+	names (counts_temp) <- rownames(dat_temp)
+	counts_temp_merged <- aggregate (counts_temp, by=(list (as.character (dat_temp$end))), FUN=sum) [,2]
+	start_temp_longest <-  aggregate (start_temp, by=(list (as.character (dat_temp$end))), FUN=max) [,2]
+	end_temp_longest <-  aggregate (end_temp, by=(list (as.character (dat_temp$end))), FUN=max) [,2]
+	length_temp_longest <-  aggregate (length_temp, by=(list (as.character (dat_temp$end))), FUN=max) [,2]
+	
+	# fetch the corresponding seq_id and sequences
+	id_temp <- paste(chr_list[count], "_", start_temp_longest, "_", end_temp_longest, sep="")
+	sequence_id <- character(length(id_temp))
+	for (count_2 in 1:length(id_temp)) {
+		sequence_id[count_2] <- names (counts_temp) [grep (id_temp[count_2], names(counts_temp))]
+	}
+	sequence_temp_matched <- dat_temp[sequence_id,]
+	sequence_temp_matched <- as.character(sequence_temp_matched$sequence)
+	
+	# construct the result table for the chromosome
+	results_temp <- data.frame(
+			sequence=sequence_temp_matched, 
+			chr=chr_list[count], 
+			start=start_temp_longest,
+			end=end_temp_longest,
+			length=length_temp_longest,
+			count=counts_temp_merged, 
+			row.names=sequence_id
+	)
+	results_table <- rbind (results_table, results_temp)
+}
+results_table <- results_table[-1,]
 
 # EOF
 
