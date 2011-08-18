@@ -24,3 +24,4 @@ command <- paste(binary, options, " > closestbed.bed")
 
 # run
 system(command)
+if (file.info("closestbed.bed")$size == 0) {system("echo \"No results found\" > closestbed.bed")}

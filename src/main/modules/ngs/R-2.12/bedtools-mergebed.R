@@ -27,3 +27,4 @@ command <- paste(binary, options, "> mergebed.bed")
 
 # run
 system(command)
+if (file.info("mergebed.bed")$size == 0) {system("echo \"No results found\" > mergebed.bed")}

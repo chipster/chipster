@@ -1,7 +1,7 @@
 # TOOL bedtools-pairtobed.R: "BEDTools pairToBed" (Report overlaps between a BEDPE file and a BED/GFF/VCF file.)
-# INPUT file.a: "Input file A" TYPE GENERIC
-# INPUT file.b: "Input file B" TYPE GENERIC
-# OUTPUT pairtobed
+# INPUT file.a: "BEDPE file" TYPE GENERIC
+# INPUT file.b: "BED file" TYPE GENERIC
+# OUTPUT pairtobed.txt
 # PARAMETER abam: "File A is BAM format" TYPE [yes, no] DEFAULT no (Select yes if file A is BAM format.)
 # PARAMETER OPTIONAL ubam: "Write uncompressed BAM output" TYPE [yes,no] DEFAULT no (Write uncompressed BAM output. Default is to write compressed BAM.) 
 # PARAMETER OPTIONAL bedpe: "When using BAM input, write output as BEDPE." TYPE [yes,no] DEFAULT no (When using BAM input, write output as BEDPE. The default is to write output in BAM.) 
@@ -32,7 +32,6 @@ if (abam == "yes") {
 if (ed == "yes") {options <- paste(options, "-ed")}
 options <- paste(options, "-f", f) 
 if (s == "yes") {options <- paste(options, "-s")}
-if (rdn == "yes") {options <- paste(options, "-rdn")}
 options <- paste(options, "-type", type) 
 
 # input files
@@ -42,7 +41,8 @@ if (abam == "no") {options <- paste(options, "-a file.a -b file.b")}
 
 
 # command
-command <- paste(binary, options, " > pairtobed")
+command <- paste(binary, options, " > pairtobed.bed")
 
 # run
 system(command)
+if (file.info("pairtobed.bed")$size == 0) {system("echo \"No results found\" > pairtobed.bed")}

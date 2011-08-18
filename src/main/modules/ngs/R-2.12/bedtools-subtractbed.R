@@ -22,3 +22,4 @@ command <- paste(binary, options, "> subtractbed.bed")
 
 # run
 system(command)
+if (file.info("subtractbed.bed")$size == 0) {system("echo \"No results found\" > subtractbed.bed")}

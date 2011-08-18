@@ -28,3 +28,4 @@ command <- paste(binary, options, "> slopbed.bed")
 
 # run
 system(command)
+if (file.info("slopbed.bed")$size == 0) {system("echo \"No results found\" > slopbed.bed")}

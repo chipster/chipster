@@ -31,3 +31,4 @@ command <- paste(binary, options, " > genomecoveragebed.txt")
 
 # run
 system(command)
+if (file.info("genomecoveragebed.txt")$size == 0) {system("echo \"No results found\" > genomecoveragebed.txt")}

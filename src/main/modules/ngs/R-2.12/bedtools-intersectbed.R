@@ -47,3 +47,4 @@ command <- paste(binary, options, "> intersectbed.bed")
 
 # run
 system(command)
+if (file.info("intersectbed.bed")$size == 0) {system("echo \"No results found\" > intersectbed.bed")}

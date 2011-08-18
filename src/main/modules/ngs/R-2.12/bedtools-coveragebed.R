@@ -27,3 +27,4 @@ command <- paste(binary, options, " > coveragebed.txt")
 
 # run
 system(command)
+if (file.info("coveragebed.txt")$size == 0) {system("echo \"No results found\" > coveragebed.txt")}

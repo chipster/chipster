@@ -39,3 +39,4 @@ command <- paste(binary, options, " > windowbed.bed")
 
 # run
 system(command)
+if (file.info("windowbed.bed")$size == 0) {system("echo \"No results found\" > windowbed.bed")}

@@ -29,3 +29,4 @@ command <- paste(binary, options, "> bamtobed.bed")
 
 # run
 system(command)
+if (file.info("bamtobed.bed")$size == 0) {system("echo \"No results found\" > bamtobed.bed")}
