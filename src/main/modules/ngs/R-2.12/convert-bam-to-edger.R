@@ -148,5 +148,8 @@ for (count in 1:chr_number) {
 }
 results_table <- results_table[-1,]
 
+# Writing data to disk
+write.table(data.frame(results_table), file="edgeR-input.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+
 # EOF
 
