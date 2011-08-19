@@ -67,7 +67,7 @@ if (merge_overlapping != "no") {
 	file <- c("edgeR-input.tsv")
 	dat <- read.table(file, header=T, sep="\t", row.names=1)
 
-	if (merger_overlapping == "start" || merge_overlapping == "both") {
+	if (merge_overlapping == "start" || merge_overlapping == "both") {
 	# Merge sequences with same starting position into single one and sum counts
 	# Go through data chromosome by chromosome
 	chr_list <- levels (dat$chr)
@@ -110,10 +110,12 @@ if (merge_overlapping != "no") {
 	results_table <- results_table[-1,]
 	}
 	
-	if (merger_overlapping == "end" || merge_overlapping == "both") {
+	if (merge_overlapping == "end" || merge_overlapping == "both") {
 	# Merge sequences with same ending position into single one and sum counts
 	#Go through data chromosome by chromosome
-	dat <- results_table
+	if (merge_overlapping == "both") {
+		dat <- results_table
+	}
 	chr_list <- levels (dat$chr)
 	chr_number <- length (chr_list)
 	results_table <- dat[1,]
