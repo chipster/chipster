@@ -96,8 +96,9 @@ public class DataFolder extends DataItemBase {
 
 			} else if (chips != null && chips.getColumnCount() > 0) {
 				data.addTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
-
-			} else if (data.queryFeatures("/identifier").exists()) {
+			} 
+			
+			if (data.queryFeatures("/identifier").exists()) {
 				data.addTypeTag(MicroarrayModule.TypeTags.GENENAMES);
 			} 
 

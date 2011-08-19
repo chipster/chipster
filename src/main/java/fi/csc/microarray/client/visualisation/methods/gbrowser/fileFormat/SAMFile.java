@@ -34,7 +34,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.IntensityTr
  */
 public class SAMFile {
 
-    private static final int RECORD_READING_SAFE_LIMIT = 1000;
+    private static final int RECORD_READING_SAFE_LIMIT = 10000;
 	final public int SAMPLE_DIVIDER = 4;
     final public int SAMPLE_SIZE_BP = 100;
 

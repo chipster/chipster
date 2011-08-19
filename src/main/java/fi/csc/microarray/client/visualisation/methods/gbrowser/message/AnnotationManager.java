@@ -170,17 +170,20 @@ public class AnnotationManager {
 		this.localAnnotationsRoot = DirectoryLayout.getInstance().getLocalAnnotationDir();
 
 		// try to parse the remote contents file
-		URL remoteContents = IOUtils.createURL(remoteAnnotationsRoot, CONTENTS_FILE);
-		boolean remoteContentsOk;
+		boolean remoteContentsOk = false;
 		InputStream remoteContentsStream = null;
-		try {
-			remoteContentsStream = remoteContents.openStream();
-			parseFrom(remoteContentsStream);
-			remoteContentsOk = true;
-		} catch (Exception e) {
-			remoteContentsOk = false;
-		} finally {
-			IOUtils.closeIfPossible(remoteContentsStream);
+		URL remoteContents = null;
+		if (this.remoteAnnotationsRoot != null) {
+			remoteContents = IOUtils.createURL(remoteAnnotationsRoot, CONTENTS_FILE);
+			try {
+				remoteContentsStream = remoteContents.openStream();
+				parseFrom(remoteContentsStream);
+				remoteContentsOk = true;
+			} catch (Exception e) {
+				remoteContentsOk = false;
+			} finally {
+				IOUtils.closeIfPossible(remoteContentsStream);
+			}
 		}
 
 		// if everything went well, also make a local copy of contents file
@@ -377,11 +380,11 @@ public class AnnotationManager {
 			}
 			String[] splitted = line.split("\t");
 
-			// always store the remote url even if a local file exists
-			// existence of the local is checked later everytime it is needed
+			// Try to always store the remote url even if a local file exists.
+			// Existence of the local is checked later every time it is needed.
 			URL url;
 			String fileName = splitted[3];
-			url = IOUtils.createURL(remoteAnnotationsRoot, fileName);
+			url = IOUtils.createURL(remoteAnnotationsRoot != null ? remoteAnnotationsRoot : new URL("file://"), fileName);
 
 			long contentLength = Long.parseLong(splitted[4]);
 
@@ -395,8 +398,12 @@ public class AnnotationManager {
 	
 	private URL getRemoteAnnotationsUrl() throws Exception {
 		FileBrokerClient fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
-		URL annotationsUrl = new URL(fileBroker.getPublicUrl() + "/" + ANNOTATIONS_PATH);
-		return annotationsUrl;
+		if (fileBroker.getPublicUrl() != null) {
+			return new URL(fileBroker.getPublicUrl() + "/" + ANNOTATIONS_PATH);
+			
+		} else {
+			return null;
+		}
 	}
 
 	/**
