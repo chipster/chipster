@@ -157,7 +157,8 @@ if (merge_overlapping != "no") {
 	}
 	
 	# Writing data to disk
-	write.table(data.frame(results_table), file="edgeR-input.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+	write.table(data.frame(id=rownames(results_table), results_table), file="edgeR-input.tsv", col.names=T, quote=F, sep="\t", row.names=F)
 }
+
 # EOF
 
