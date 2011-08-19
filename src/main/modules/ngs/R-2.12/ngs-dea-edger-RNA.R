@@ -38,8 +38,8 @@ file <- c("data.tsv")
 dat <- read.table(file, header=T, sep="\t", row.names=1)
 
 # Separates expression values and flags
-annotations <- dat[,-grep("Sample", names(dat))]
-dat2 <- dat[,grep("Sample", names(dat))]
+annotations <- dat[,-grep("chip", names(dat))]
+dat2 <- dat[,grep("chip", names(dat))]
 
 # Test needs a parameter "groups" that specifies the grouping of the samples
 phenodata <- read.table("phenodata.tsv", header=T, sep="\t")
