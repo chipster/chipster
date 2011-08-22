@@ -207,21 +207,24 @@ public class TranscriptTrack extends Track {
 
 	public void processAreaResult(AreaResult areaResult) {
 
-		// Genes and transcripts are ordered in the file, but to here they come in any order
-		// That's why we have to put them to Gene objects to sort them again
-		// Sorting is needed to draw partly overlapping genes in the same order every time
-		if (!areaResult.status.concise && areaResult.content.values.get(ColumnType.STRAND) == getStrand()) {
+		for (RegionContent content : areaResult.getContents()) {
 
-			Map<ColumnType, Object> values = areaResult.content.values;
-			String id = (String) values.get(ColumnType.PARENT_ID);
+			// Genes and transcripts are ordered in the file, but to here they come in any order
+			// That's why we have to put them to Gene objects to sort them again
+			// Sorting is needed to draw partly overlapping genes in the same order every time
+			if (!areaResult.getStatus().concise && content.values.get(ColumnType.STRAND) == getStrand()) {
 
-			if (!genes.containsKey(id)) {
-				genes.put(id, new Gene(new BpCoordRegion((Long) values.get(ColumnType.PARENT_BP_START), (Long) values.get(ColumnType.PARENT_BP_END), (Chromosome) values.get(ColumnType.CHROMOSOME)), id));
+				Map<ColumnType, Object> values = content.values;
+				String id = (String) values.get(ColumnType.PARENT_ID);
+
+				if (!genes.containsKey(id)) {
+					genes.put(id, new Gene(new BpCoordRegion((Long) values.get(ColumnType.PARENT_BP_START), (Long) values.get(ColumnType.PARENT_BP_END), (Chromosome) values.get(ColumnType.CHROMOSOME)), id));
+				}
+
+				genes.get(id).add(content);
+
+				getView().redraw();
 			}
-
-			genes.get(id).add(areaResult.content);
-
-			getView().redraw();
 		}
 	}
 

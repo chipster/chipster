@@ -96,16 +96,18 @@ public class IntensityTrack extends Track {
 
 	public void processAreaResult(AreaResult areaResult) {		
 
-		if (areaResult.status.concise == this.isConcised() && 
-				areaResult.content.values.get(ColumnType.STRAND) == getStrand() && 
-				areaResult.content.values.get(ColumnType.VALUE) != null &&
-				areaResult.content.region.intersects(getView().getBpRegion())) { 
+		for (RegionContent content : areaResult.getContents()) {
+			if (areaResult.getStatus().concise == this.isConcised() && 
+					content.values.get(ColumnType.STRAND) == getStrand() && 
+					content.values.get(ColumnType.VALUE) != null &&
+					content.region.intersects(getView().getBpRegion())) { 
 
-			
-			values.add(areaResult.content);
-			valueStorageOrder.add(areaResult.content);
-			getView().redraw();
+				values.add(content);
+				valueStorageOrder.add(content);
+			}
 		}
+
+		getView().redraw();
 	}
 
 	public Integer getHeight() {

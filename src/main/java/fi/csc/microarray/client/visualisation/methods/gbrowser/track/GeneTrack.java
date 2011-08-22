@@ -111,11 +111,11 @@ public class GeneTrack extends Track {
 
 	public void processAreaResult(AreaResult areaResult) {
 
-		if (areaResult.status.concise == this.isConcised() && areaResult.content.values.get(ColumnType.STRAND) == getStrand()) {
-
-			this.reads.add(areaResult.content);
-
-			getView().redraw();
+		for (RegionContent content : areaResult.getContents()) {
+			if (areaResult.getStatus().concise == this.isConcised() && content.values.get(ColumnType.STRAND) == getStrand()) {
+				this.reads.add(content);
+				getView().redraw();
+			}			
 		}
 	}
 

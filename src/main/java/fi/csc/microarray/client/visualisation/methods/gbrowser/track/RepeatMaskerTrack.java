@@ -145,7 +145,7 @@ public class RepeatMaskerTrack extends Track {
 		
 	@Override
 	public void processAreaResult(AreaResult areaResult) {
-		this.reads.add(areaResult.content);
+		this.reads.addAll(areaResult.getContents());
         getView().redraw();
 	}
 

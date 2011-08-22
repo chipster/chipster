@@ -90,15 +90,17 @@ public class TabixIntensityTrack extends Track {
 
 	public void processAreaResult(AreaResult areaResult) {
 		
-		
-		if (areaResult.status.concise == this.isConcised() && 
-				areaResult.content.values.get(ColumnType.VALUE) != null &&
-				areaResult.content.values.get(ColumnType.VALUE) instanceof Float &&
-				areaResult.content.region.intersects(getView().getBpRegion())) { 
-			
-			values.add(areaResult.content);
-			getView().redraw();
+		for (RegionContent content : areaResult.getContents()) {
+			if (areaResult.getStatus().concise == this.isConcised() && 
+					content.values.get(ColumnType.VALUE) != null &&
+					content.values.get(ColumnType.VALUE) instanceof Float &&
+					content.region.intersects(getView().getBpRegion())) { 
+
+				values.add(content);
+			}
 		}
+		
+		getView().redraw();
 	}
 
 	public Integer getHeight() {

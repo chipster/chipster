@@ -66,7 +66,7 @@ public class QueueManager implements AreaResultListener {
 
 	public void processAreaResult(AreaResult areaResult) {
 
-		for (AreaResultListener listener : queues.get(areaResult.status.file).listeners) {
+		for (AreaResultListener listener : queues.get(areaResult.getStatus().file).listeners) {
 			listener.processAreaResult(areaResult);
 		}
 	}

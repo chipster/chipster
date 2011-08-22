@@ -40,9 +40,9 @@ public class ReadpartDataProvider implements AreaResultListener {
 	@Override
 	public void processAreaResult(AreaResult areaResult) {
 		// Check that areaResult has false concised status and correct strand
-		if (areaResult.status.file == readData && areaResult.status.concise == false) {
+		if (areaResult.getStatus().file == readData && areaResult.getStatus().concise == false) {
 			// Add this to queue of RegionContents to be processed
-			this.reads.add(areaResult.content);
+			this.reads.addAll(areaResult.getContents());
 			needsRefresh = true;
 			view.redraw();
 		}

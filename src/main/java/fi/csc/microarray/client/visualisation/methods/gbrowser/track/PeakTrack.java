@@ -87,8 +87,8 @@ public class PeakTrack extends Track {
 
 	public void processAreaResult(AreaResult areaResult) {
 
-		if (areaResult.status.concise == this.isConcised()) {
-			this.peaks.add(areaResult.content);
+		if (areaResult.getStatus().concise == this.isConcised()) {
+			this.peaks.addAll(areaResult.getContents());
 			getView().redraw();
 		}
 	}

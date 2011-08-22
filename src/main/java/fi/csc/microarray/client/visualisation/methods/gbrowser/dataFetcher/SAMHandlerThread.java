@@ -9,7 +9,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.SAMDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class SAMHandlerThread extends AreaRequestHandler {
     
@@ -46,9 +45,7 @@ public class SAMHandlerThread extends AreaRequestHandler {
 
     private void processFileResult(SAMFileResult fileResult) {
 
-    	for (RegionContent content : fileResult.getContent()) {
-    		createAreaResult(new AreaResult(fileResult.getStatus(), content));
-    	}
+    	createAreaResult(new AreaResult(fileResult.getStatus(), fileResult.getContent()));
 	}
 
 	/**

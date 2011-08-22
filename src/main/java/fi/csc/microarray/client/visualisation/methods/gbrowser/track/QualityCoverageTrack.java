@@ -190,15 +190,17 @@ public class QualityCoverageTrack extends Track {
 
 	public void processAreaResult(AreaResult areaResult) {
 
-		// check that areaResult has same concised status (currently always false)
-		// and correct strand
-		if (areaResult.status.concise == isConcised()) {
-			if (getStrand() == areaResult.content.values.get(ColumnType.STRAND) || 
-					getStrand() == Strand.BOTH) {
+		for (RegionContent content : areaResult.getContents()) {
 
-				forwardReads.add(areaResult.content);
+			// check that areaResult has same concised status (currently always false)
+			// and correct strand
+			if (areaResult.getStatus().concise == isConcised()) {
+				if (getStrand() == content.values.get(ColumnType.STRAND) || 
+						getStrand() == Strand.BOTH) {
 
-				getView().redraw();
+					forwardReads.add(content);
+					getView().redraw();
+				}
 			}
 		}
 	}

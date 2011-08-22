@@ -192,8 +192,8 @@ public class CoverageAndSNPTrack extends Track {
 		// Do not listen to actual read data, because that is taken care by ReadpartDataProvider
 		
 		// "Spy" on reference sequence data, if available
-		if (areaResult.status.file == refFile) {
-			this.refReads.add(areaResult.content);
+		if (areaResult.getStatus().file == refFile) {
+			this.refReads.addAll(areaResult.getContents());
 		}
 	}
 
