@@ -1,7 +1,5 @@
 <module name="ngs">
 
-
-	
 	<category name="Filtering" color="#d5c796">
 		<tool runtime="R-2.12">
 			<resource>fastx-clipper.R</resource>
@@ -14,7 +12,6 @@
 		</tool>
 	</category>
 
-
 	<category name="Quality control" color="#e7df70">
 		<tool runtime="R-2.12">
 			<resource>fastqc.R</resource>
@@ -26,7 +23,7 @@
 			<resource>fastx-quality-filter.R</resource>
 		</tool>
 	</category>
-	
+
 	<category name="Utilities" color="#d59f45">
 		<tool runtime="R-2.12">
 			<resource>ngs-create-experiment.R</resource>
@@ -45,25 +42,71 @@
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>bed-sort.R</resource>
+		</tool>	
+		<tool runtime="R-2.12">
+			<resource>bedtools-bamtobed.R</resource>
+		</tool>	
+		<tool runtime="R-2.12">
+			<resource>bedtools-fastafrombed.R</resource>
+		</tool>	
+		<tool runtime="R-2.12">
+			<resource>bedtools-mergebed.R</resource>
 		</tool>
+		<tool runtime="R-2.12">
+			<resource>bedtools-slopbed.R</resource>
+		</tool>	
+		<tool runtime="R-2.12">
+			<resource>bedtools-subtractbed.R</resource>
+		</tool>	
 	</category>
-	
-	<category name="Matching genomic regions" color="#e7881c"> 
+
+	<category name="Matching genomic regions" color="#e7881c">
 		<tool runtime="java">
-			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingTool</resource>
+			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingTool
+			</resource>
 		</tool>
 		<tool runtime="java">
-			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingDatabaseTool</resource>
+			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingDatabaseTool
+			</resource>
 		</tool>
 		<tool runtime="java">
-			<resource>fi.csc.chipster.tools.ngs.regions.RemoveOverlappingTool</resource>
+			<resource>fi.csc.chipster.tools.ngs.regions.RemoveOverlappingTool
+			</resource>
 		</tool>
 		<tool runtime="java">
-			<resource>fi.csc.chipster.tools.ngs.regions.FuseRegionsTool</resource>
+			<resource>fi.csc.chipster.tools.ngs.regions.FuseRegionsTool
+			</resource>
 		</tool>
 		<tool runtime="java">
-			<resource>fi.csc.chipster.tools.ngs.regions.CombineRegionsTool</resource>
+			<resource>fi.csc.chipster.tools.ngs.regions.CombineRegionsTool
+			</resource>
 		</tool>
+		<tool runtime="R-2.12">
+			<resource>bedtools-closestbed.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bedtools-coveragebed.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bedtools-genomecoveragebed.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bedtools-intersectbed.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bedtools-overlap.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bedtools-pairtobed.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bedtools-pairtopair.R</resource>
+		</tool>
+				<tool runtime="R-2.12">
+			<resource>bedtools-windowbed.R</resource>
+		</tool>
+		
+		
 	</category>
 
 	<category name="Alignment" color="#d53833">
@@ -78,7 +121,7 @@
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>bowtie-paired-end-with-index-building.R</resource>
-		</tool>			
+		</tool>
 		<tool runtime="R-2.12">
 			<resource>tophat.R</resource>
 		</tool>
@@ -86,7 +129,7 @@
 			<resource>tophat-single-end.R</resource>
 		</tool>
 	</category>
-	
+
 	<category name="RNA-seq" color="#80a3b7">
 		<tool runtime="R-2.12">
 			<resource>ngs-dea-edger-RNA.R</resource>
@@ -125,7 +168,7 @@
 			<resource>ngs-extract-target-gene-expression.R</resource>
 		</tool>
 	</category>
-	
+
 	<category name="ChIP-seq" color="#629a9b">
 		<tool runtime="R-2.12">
 			<resource>ngs-find-peaks-macs-one.R</resource>
@@ -147,7 +190,6 @@
 		</tool>
 	</category>
 
-
 	<category name="Methyl-seq" color="#c0d2de">
 		<tool runtime="R-2.12">
 			<resource>convertBAMtoMEDIPS_V2.R</resource>
@@ -161,11 +203,6 @@
 		<tool runtime="R-2.12">
 			<resource>MEDIPS_two_samples_V1.R</resource>
 		</tool>
-
-
 	</category>
-
-
-
 
 </module>
