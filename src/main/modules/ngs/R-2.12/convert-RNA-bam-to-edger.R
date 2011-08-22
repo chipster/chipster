@@ -4,6 +4,7 @@
 # INPUT file.b: "BED file" TYPE GENERIC
 # OUTPUT edgeR-input.tsv
 # PARAMETER OPTIONAL s: "Force strandedness" TYPE [yes, no] DEFAULT no (Force strandedness. That is, only include hits in A that overlap B on the same strand. By default, hits are included without respect to strand.)
+# PARAMETER OPTIONAL split: "Treat split BAM or BED12 entries as distinct BED intervals" TYPE [yes, no] DEFAULT no (Treat "split" BAM or BED12 entries as distinct BED intervals when computing coverage. For BAM files, this uses the CIGAR N and D operations to infer the blocks for computing coverage. For BED12 files, this uses the BlockCount, BlockStarts, and BlockEnds fields (i.e., columns 10,11,12\).)
 
 # MG 22.8.2011
 # modified from the coveragebed tool by AMS
@@ -25,7 +26,7 @@ options <- paste("")
 if (s == "yes") {options <- paste(options, "-s")}
 # if (hist == "yes") {options <- paste(options, "-hist")}
 # if (d == "yes") {options <- paste(options, "-d")}
-# if (split == "yes") {options <- paste(options, "-split")}
+if (split == "yes") {options <- paste(options, "-split")}
 
 # input files
 if (abam == "yes") {options <- paste(options, "-abam file.a -b file.b")}
