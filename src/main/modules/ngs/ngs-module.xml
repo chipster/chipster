@@ -4,6 +4,9 @@
 	
 	<category name="Filtering" color="#d5c796">
 		<tool runtime="R-2.12">
+			<resource>htseq-count-own-gff.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
 			<resource>fastx-clipper.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
