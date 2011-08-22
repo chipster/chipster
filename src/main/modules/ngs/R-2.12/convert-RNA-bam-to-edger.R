@@ -2,11 +2,14 @@
 # The output from this tool is suitable for downstream analysis using the edgeR algorithm.)
 # INPUT file.a: "BAM file" TYPE GENERIC
 # INPUT file.b: "BED file" TYPE GENERIC
-# OUTPUT coveragebed.bed 
+# OUTPUT edgeR-input.tsv
 # PARAMETER OPTIONAL s: "Force strandedness" TYPE [yes, no] DEFAULT no (Force strandedness. That is, only include hits in A that overlap B on the same strand. By default, hits are included without respect to strand.)
 # PARAMETER OPTIONAL hist: "Report a histogram of coverage" TYPE [yes, no] DEFAULT no (Report a histogram of coverage for each feature in B as well as a summary histogram for all features in B. Output (tab delimited\) after each feature in B: 1\) depth, 2\) \# bases at depth, 3\) size of B, 4\) % of B at depth.)
 # PARAMETER OPTIONAL d: "Report the depth at each position" TYPE [yes, no] DEFAULT no (Report the depth at each position in each B feature. Positions reported are one based.  Each position and depth follow the complete B feature.)
 # PARAMETER OPTIONAL split: "Treat split BAM or BED12 entries as distinct BED intervals" TYPE [yes, no] DEFAULT no (Treat "split" BAM or BED12 entries as distinct BED intervals when computing coverage. For BAM files, this uses the CIGAR N and D operations to infer the blocks for computing coverage. For BED12 files, this uses the BlockCount, BlockStarts, and BlockEnds fields (i.e., columns 10,11,12\).)
+
+# MG 22.8.2011
+# modified from the coveragebed tool by AMS
 
 # Not needed for use with RNA-seq data
 # PARAMETER abam: "File A is BAM format" TYPE [yes, no] DEFAULT no (Select yes if file A is BAM format.)
@@ -29,8 +32,27 @@ if (abam == "yes") {options <- paste(options, "-abam file.a -b file.b")}
 if (abam == "no") {options <- paste(options, "-a file.a -b file.b")}
 
 # command
-command <- paste(binary, options, " > coveragebed.bed")
+command <- paste(binary, options, " > coveragebed.tsv")
 
 # run
 system(command)
-if (file.info("coveragebed.bed")$size == 0) {system("echo \"No results found\" > coveragebed.bed")}
+
+# bring in file to R environment for formating
+file <- c("coveragebed.tsv")
+dat <- read.table(file, header=F, sep="\t")
+id_list <- paste(dat$V1,dat$V2,dat$V3,dat$V4, sep="_")
+length_list <- dat$V3-dat$V2+1
+results_table <- data.frame	(
+		id=id_list,
+		sequence=dat$V4,
+		chr=dat$V1,
+		start=dat$V2,
+		end=dat$V3,
+		length=length_list,
+		count=dat$V5
+)
+
+# write result table to output
+write.table(results_table, file="edgeR-input.tsv", col.names=T, quote=F, sep="\t", row.names=F)
+
+# EOF
