@@ -132,6 +132,9 @@
 
 	<category name="RNA-seq" color="#80a3b7">
 		<tool runtime="R-2.12">
+			<resource>convert-RNA-bam-to-edger.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
 			<resource>ngs-dea-edger-RNA.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
