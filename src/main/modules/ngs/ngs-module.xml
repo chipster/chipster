@@ -97,11 +97,9 @@
 	</category>
 
 	<category name="miRNA-seq" color="#0177b7">
-		<!-- 
 		<tool runtime="R-2.12">
 			<resource>convert-bam-to-edger.R</resource>
 		</tool>
-		 -->
 		<tool runtime="R-2.12">
 			<resource>convert-miRBase-bam-to-edger.R</resource>
 		</tool>
