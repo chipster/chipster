@@ -28,7 +28,7 @@ public class SAMFileResult {
 		return areaRequest;
 	}
 
-	public List<RegionContent> getContent() {
+	public List<RegionContent> getContents() {
 		return content;
 	}
 

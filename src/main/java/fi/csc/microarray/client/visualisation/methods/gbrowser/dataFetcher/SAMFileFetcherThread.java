@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.SortedMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -13,26 +12,21 @@ import net.sf.samtools.SAMRecord;
 import net.sf.samtools.util.CloseableIterator;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.SAMDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ConcisedValueCache;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ConcisedValueCache.Counts;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.IntensityTrack;
 
 public class SAMFileFetcherThread extends Thread {
 
-	private static final int RESULT_CHUNK_SIZE = 500;
-
 	final private int SAMPLE_SIZE_BP = 100;
+
+	private static final int RESULT_CHUNK_SIZE = 500;
 
 	private BlockingQueue<SAMFileRequest> fileRequestQueue;
 	private ConcurrentLinkedQueue<SAMFileResult> fileResultQueue;
-
-	private ConcisedValueCache cache = new ConcisedValueCache();
 
 	private SAMDataSource dataSource;
 
@@ -60,7 +54,7 @@ public class SAMFileFetcherThread extends Thread {
 
 	private void processFileRequest(SAMFileRequest fileRequest) throws IOException {
 		if (fileRequest.areaRequest.status.concise) {
-			fetchConciseReads(fileRequest);
+			sampleToGetConcisedRegion(fileRequest);
 
 		} else {
 			fetchReads(fileRequest);
@@ -152,58 +146,16 @@ public class SAMFileFetcherThread extends Thread {
 		iterator.close();
 	}
 
-	/**
-	 * Return approximation of reads in a given range.
-	 * <p>
-	 * Works by dividing requested area into several equally-sized regions (samples) and then for each such region asking only a part of its
-	 * data (given by SAMPLE_FRACTION) in the beginning of the sample.
-	 * <p>
-	 * BAM File requests are still quite expensive.
-	 * 
-	 * @param request
-	 * @return
-	 */
-	public void fetchConciseReads(SAMFileRequest fileRequest) {
+	private void sampleToGetConcisedRegion(SAMFileRequest request) {
 
-		List<RegionContent> responseList = new LinkedList<RegionContent>();
-		AreaRequest request = fileRequest.areaRequest;
-
-		// How many times file is read
-		int step = request.getLength().intValue() / IntensityTrack.SAMPLING_GRANULARITY;
-
-		// Divide visible region into subregions and iterate over them
-		for (long pos = request.start.bp; pos < request.end.bp; pos += step) {
-
-			BpCoord from = new BpCoord(pos, request.start.chr);
-			BpCoord to = new BpCoord(pos + step, request.start.chr);
-
-			// Use cached content, if exists for this region
-			SortedMap<BpCoord, Counts> indexedValues = cache.subMap(from, to);
-			if (!indexedValues.isEmpty()) {
-				convertCacheHitsToConcisedRegions(request, responseList, step, pos, indexedValues);
-
-			} else {
-				sampleToGetConcisedRegion(request, responseList, step, pos);
-			}
-
-		}
-
-		SAMFileResult result = new SAMFileResult(responseList, fileRequest, fileRequest.areaRequest, fileRequest.getStatus());
-
-		fileResultQueue.add(result);
-
-		synchronized (this) {
-			notifyAll();
-		}
-	}
-
-	private void sampleToGetConcisedRegion(AreaRequest request, List<RegionContent> responseList, int step, long pos) {
-
+		BpCoord from = request.getFrom();
+		BpCoord to = request.getTo();
+		
 		// Fetch new content by taking sample from the middle of this area
-		int stepMiddlepoint = (int) pos + step / 2;
-		int start = stepMiddlepoint - SAMPLE_SIZE_BP / 2;
-		int end = stepMiddlepoint + SAMPLE_SIZE_BP / 2;
-		CloseableIterator<SAMRecord> iterator = dataSource.getReader().query(dataSource.getChromosomeNameUnnormaliser().unnormalise(request.start.chr), start, end, false);
+		long stepMiddlepoint = (from.bp + to.bp) / 2;
+		long start = stepMiddlepoint - SAMPLE_SIZE_BP / 2;
+		long end = stepMiddlepoint + SAMPLE_SIZE_BP / 2;
+		CloseableIterator<SAMRecord> iterator = dataSource.getReader().query(dataSource.getChromosomeNameUnnormaliser().unnormalise(from.chr), (int) start, (int) end, false);
 
 		// Count reads in this sample area
 		int countForward = 0;
@@ -221,56 +173,18 @@ public class SAMFileFetcherThread extends Thread {
 			}
 		}
 
+		// We are done
 		iterator.close();
 
-		// Store value in cache
-		cache.store(new BpCoord((long) stepMiddlepoint, request.start.chr), countForward, countReverse);
+		// Send result
+		LinkedList<RegionContent> content = new LinkedList<RegionContent>();
+		content.add(new RegionContent(new BpCoordRegion(from, to), countForward, countReverse));
+		SAMFileResult result = new SAMFileResult(content, request, request.areaRequest, request.getStatus());
+		fileResultQueue.add(result);
 
-		addConcisedRegionContents(request, responseList, pos, pos + step, countForward, countReverse);
-	}
-
-	private void convertCacheHitsToConcisedRegions(AreaRequest request, List<RegionContent> responseList, int step, long pos, SortedMap<BpCoord, Counts> indexedValues) {
-		// Return one result pair for each region covered by one cache hit
-		long startPos = pos;
-		int cacheHitsPerRegion = 0;
-		for (BpCoord coord : indexedValues.keySet()) {
-
-			// Find end: either next cache hit or end of region
-			long endPos;
-			SortedMap<BpCoord, Counts> tailMap = indexedValues.tailMap(coord);
-			if (tailMap.size() > 1) {
-				Iterator<BpCoord> iterator = tailMap.keySet().iterator();
-				iterator.next(); // read away this cache hit
-				BpCoord next = iterator.next();
-				endPos = (startPos + next.bp) / 2;
-
-			} else {
-				endPos = (pos + step);
-			}
-
-			addConcisedRegionContents(request, responseList, startPos, endPos, indexedValues.get(coord).forwardCount, indexedValues.get(coord).reverseCount);
-			cacheHitsPerRegion++;
-
-			// Move to next region
-			startPos += endPos;
+		synchronized (this) {
+			notifyAll();
 		}
-	}
-
-	private void addConcisedRegionContents(AreaRequest request, List<RegionContent> responseList, long startPos, long endPos, int countForward, int countReverse) {
-		// Create two approximated response objects: one for each strand
-		BpCoordRegion recordRegion = new BpCoordRegion(startPos, endPos, request.start.chr);
-
-		// Forward
-		LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
-		values.put(ColumnType.VALUE, (float) countForward);
-		values.put(ColumnType.STRAND, Strand.FORWARD);
-		responseList.add(new RegionContent(recordRegion, values));
-
-		// Reverse
-		values = new LinkedHashMap<ColumnType, Object>();
-		values.put(ColumnType.VALUE, (float) countReverse);
-		values.put(ColumnType.STRAND, Strand.REVERSED);
-		responseList.add(new RegionContent(recordRegion, values));
 	}
 
 }

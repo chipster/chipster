@@ -26,6 +26,13 @@ public class RegionContent implements Comparable<RegionContent> {
 		this.values.put(ColumnType.VALUE, concisedValue);
 	}
 
+	public RegionContent(BpCoordRegion region, Object concisedValueForward,  Object concisedValueReverse) {
+		this.region = region;
+		this.values = new LinkedHashMap<ColumnType, Object>();
+		this.values.put(ColumnType.VALUE_FORWARD, concisedValueForward);
+		this.values.put(ColumnType.VALUE_REVERSE, concisedValueReverse);
+	}
+
 	public int compareTo(RegionContent other) {
 
 		int regionComparison = this.region.compareTo(other.region);
