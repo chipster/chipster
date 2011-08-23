@@ -1,7 +1,8 @@
 # TOOL ngs-dea-edger-RNA.R: "Differential expression analysis using edgeR" (This tool will perform an analysis for differentially expressed sequences using the R implementation of the edge algorithm.)
 # INPUT data.tsv TYPE GENERIC
 # INPUT phenodata.tsv TYPE GENERIC
-# OUTPUT de-list.tsv
+# OUTPUT OPTIONAL de-list.tsv
+# OUTPUT OPTIONAL de-list.bed
 # OUTPUT OPTIONAL ma-plot-raw-counts.pdf
 # OUTPUT OPTIONAL ma-plot-normalized-counts.pdf
 # OUTPUT OPTIONAL ma-plot-significant-counts.pdf
@@ -21,8 +22,7 @@
 # statistical testing for finding differentially expressed #
 # sequence tags                                            #
 #                                                          #
-# MG, 11.3.2011                                            #
-# development version                                      #
+# MG, 11.6.2011                                            #
 #                                                          #
 ############################################################
 
@@ -48,7 +48,7 @@ group_levels <- levels(as.factor(groups))
 
 # Sanity checks
 if(length(unique(groups))==1 | length(unique(groups))>=3) {
-	stop("You need to have exactly two groups to run this analysis")
+	stop("CHIPSTER-NOTE: You need to have exactly two groups to run this analysis")
 }
 
 # Create a DGEList
@@ -66,7 +66,7 @@ if (normalization == "yes") {
 # Produce MDS plot of normazied data
 pdf(file="mds-plot.pdf", width=w/72, height=h/72)
 sample_colors <-  ifelse (dge_list$samples$group==group_levels[1], 1, 2)
-plotMDS.dge(dge_list, main="MDS Plot", xlim=c(-2,1), col=sample_colors)
+plotMDS.dge(dge_list, main="MDS Plot", col=sample_colors)
 legend(x="topleft", legend = group_levels,col=c(1,2), pch=19)
 dev.off()
 
@@ -133,11 +133,11 @@ if (dispersion_estimate == "tagwise") {
 	
 	# Extract results in a nice-looking table
 	number_tags <- dim (dge_list$counts) [1]
-	results_table <- topTags (stat_test, n=number_tags, adjust.method="BH", sort.by="p.value")
+	results_table <- topTags (stat_test, n=number_tags, adjust.method=p_value_adjustment_method, sort.by="p.value")
 	results_table <- results_table$table
 	
 	# Extract the significant tags based on adjusted p-value cutoff
-	cutoff <- 0.05
+	cutoff <- p_value_threshold
 	significant_results <- results_table[results_table$FDR<cutoff,]
 	
 	# Make an MA-plot displaying the significant reads
@@ -150,7 +150,28 @@ if (dispersion_estimate == "tagwise") {
 
 # Create a tbale with the original counts per sample together with the statistical tests results
 # ready for output in Chipster
-output_table <- data.frame (dat[significant_indices,], significant_results)
+# If there are no significant results return a message
+if (dim(significant_results)[1] > 0) {
+	output_table <- data.frame (dat[significant_indices,], significant_results)
+}
 
 # Output the table
-write.table(output_table, file="de-list.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+if (dim(significant_results)[1] > 0) {
+	write.table(output_table, file="de-list.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+}
+
+# Also output a bed graph file for visualization and region matching tools
+if (dim(significant_results)[1] > 0) {
+	empty_column <- character(length(significant_indices))
+	bed_output <- output_table [,c("chr","start","end")]
+	bed_output <- cbind(bed_output,empty_column)
+	bed_output <- cbind(bed_output, output_table[,"logFC"])
+	write.table(bed_output, file="de-list.bed", sep="\t", row.names=F, col.names=F, quote=F)
+}
+
+# Output a message if no significant genes are found
+if (dim(significant_results)[1] == 0) {
+	stop ("CHIPSTER-NOTE: No statistically significantly expressed sequences were found. Try again with a less stringent p-value cut-off or multiple testing correction method.")
+}
+
+# EOF
