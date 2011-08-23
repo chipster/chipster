@@ -49,7 +49,7 @@ group_levels <- levels(as.factor(groups))
 
 # Sanity checks
 if(length(unique(groups))==1 | length(unique(groups))>=3) {
-	stop("You need to have exactly two groups to run this analysis")
+	stop("CHIPSTER-NOTE: You need to have exactly two groups to run this analysis")
 }
 
 # Create a DGEList
@@ -67,7 +67,7 @@ if (normalization == "yes") {
 # Produce MDS plot of normazied data
 pdf(file="mds-plot.pdf", width=w/72, height=h/72)
 sample_colors <-  ifelse (dge_list$samples$group==group_levels[1], 1, 2)
-plotMDS.dge(dge_list, main="MDS Plot", xlim=c(-2,1), col=sample_colors)
+plotMDS.dge(dge_list, main="MDS Plot", col=sample_colors)
 legend(x="topleft", legend = group_levels,col=c(1,2), pch=19)
 dev.off()
 
