@@ -255,6 +255,12 @@ public class ConfigTool {
 
 		try {
 
+			String hostName = "";
+			String brokerProtocol = "tcp";
+			int brokerPort = 61616;
+			int filebrokerPort = 8070;
+			
+			
 			// sniff current host
 			try {
 				String host = InetAddress.getLocalHost().getHostName();
@@ -264,6 +270,22 @@ public class ConfigTool {
 			} catch (UnknownHostException e) {
 				// ignore, sniffing failed
 			}
+			
+			configs[BROKER_HOST_INDEX][VAL_INDEX] = hostName;
+			configs[BROKER_PROTOCOL_INDEX][VAL_INDEX] = brokerProtocol;
+			configs[BROKER_PORT_INDEX][VAL_INDEX] = String.valueOf(brokerPort);
+			configs[FILEBROKER_HOST_INDEX][VAL_INDEX] = hostName;
+			configs[FILEBROKER_PORT_INDEX][VAL_INDEX] = String.valueOf(filebrokerPort);
+//			configs[WS_CODEBASE_INDEX][VAL_INDEX] = ;
+//			configs[WS_PORT][VAL_INDEX] = ;
+//			configs[MANAGER_PORT][VAL_INDEX] = ;
+//			configs[MANAGER_EMAIL][VAL_INDEX] = ;
+//			configs[R_COMMAND_INDEX][VAL_INDEX] = ;
+//			configs[MAX_JOBS_INDEX][VAL_INDEX] = ;
+
+			
+			
+			
 			
 			updateConfigs();
 
