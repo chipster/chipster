@@ -1,4 +1,4 @@
-# TOOL htseq-count-own-gff.R: "Count reads with HTSeq using your own GTF" (Calculates how many reads in a BAM file map to each gene. If you would like to align reads against public GTF files supplied by Chipster, please use the tool \"Count reads with HTSeq\".)
+# TOOL htseq-count-own-gtf.R: "Count reads with HTSeq using your own GTF" (Calculates how many reads in a BAM file map to each gene. If you would like to align reads against public GTF files supplied by Chipster, please use the tool \"Count reads with HTSeq\".)
 # INPUT alignment.bam: "BAM alignment file" TYPE GENERIC
 # INPUT features.gtf: "GTF feature file" TYPE GENERIC
 # OUTPUT htseq-counts.tsv

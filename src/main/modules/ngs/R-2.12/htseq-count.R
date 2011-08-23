@@ -8,7 +8,7 @@
 # PARAMETER OPTIONAL mode: "Mode to handle reads overlapping more than one feature" TYPE [union, intersection-strict, intersection-nonempty] DEFAULT union (How to deal with reads that overlap more than one gene or exon?)
 # PARAMETER OPTIONAL minaqual: "Minimum alignment quality" TYPE INTEGER FROM 0 TO 100 DEFAULT 0 (Skip all reads with alignment quality lower than the given minimum value.)
 # PARAMETER OPTIONAL feature.type: "Feature type to count" TYPE [exon, CDS] DEFAULT exon (Which feature type to use, all features of other type are ignored.)
-# PARAMETER OPTIONAL id.attribute: "Feature ID to use"" TYPE [gene_id, transcript_id, gene_name, transcript_name, protein_name] DEFAULT gene_id (GFF attribute to be used as feature ID. Several GFF lines with the same feature ID will be considered as parts of the same feature. The feature ID is used to identity the counts in the output table.)
+# PARAMETER OPTIONAL id.attribute: "Feature ID to use" TYPE [gene_id, transcript_id, gene_name, transcript_name, protein_name] DEFAULT gene_id (GFF attribute to be used as feature ID. Several GFF lines with the same feature ID will be considered as parts of the same feature. The feature ID is used to identity the counts in the output table.)
 
 # TH and EK 22.8.2011
 
@@ -25,9 +25,8 @@ samtools.sort <- ifelse(paired == "yes", paste(samtools.binary, "sort -on alignm
 samtools.view <- paste(samtools.binary, "view -")
 
 # htseq-count
-htseq.binary <- c(file.path(chipster.tools.path, "htseq", "htseq-count"))
-gtfs <- c(file.path(chipster.tools.path, "htseq", "gtfs"))
-htseq <- paste(htseq.binary, "-q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "-", gtfs, "/", organism > htseq-counts-out.txt")
+htseq.binary <- file.path(chipster.tools.path, "htseq", "htseq-count")
+gtf <- file.path(chipster.tools.path, "htseq", "gtfs", organism )
 
 # run
 command <- paste(command.start, samtools.sort, " | ", samtools.view, " | ", htseq, command.end)
