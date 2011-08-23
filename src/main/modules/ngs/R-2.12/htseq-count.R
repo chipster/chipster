@@ -1,0 +1,39 @@
+# TOOL htseq-count.R: "Count reads with HTSeq" (Calculates how many reads in a BAM file map to each gene. If you would like to map reads against your own feature files, please use the tool \"Count reads with HTSeq using your own GTF\".)
+# INPUT alignment.bam: "BAM alignment file" TYPE GENERIC
+# OUTPUT htseq-counts.tsv 
+# OUTPUT OPTIONAL htseq-count-info.txt
+# PARAMETER paired: "Does the alignment file contain paired-end data" TYPE [yes, no] DEFAULT no (Does the alignment data contain paired end or single end reads?)
+# PARAMETER stranded: "Data was produced with a strand-specific RNA-seq protocol" TYPE [yes, no, reverse] DEFAULT no (If you select no, a read is considered overlapping with a feature regardless of whether it is mapped to the same or the opposite strand as the feature. If you select yes, the read has to be mapped to the same strand as the feature. You have to say no, if your was not made with a strand-specific RNA-seq protocol, because otherwise half your reads will be lost.)
+# PARAMETER organism: "Organism" TYPE [hg19.63.gtf: "Human (hg19.63)", mm9.63.gtf: "Mouse (mm9.63)", rn4.63.gtf: "Rat (rn4.63)"] DEFAULT hg19.63.gtf (Which organism is your data from.)
+# PARAMETER OPTIONAL mode: "Mode to handle reads overlapping more than one feature" TYPE [union, intersection-strict, intersection-nonempty] DEFAULT union (How to deal with reads that overlap more than one gene or exon?)
+# PARAMETER OPTIONAL minaqual: "Minimum alignment quality" TYPE INTEGER FROM 0 TO 100 DEFAULT 0 (Skip all reads with alignment quality lower than the given minimum value.)
+# PARAMETER OPTIONAL feature.type: "Feature type to count" TYPE [exon, CDS] DEFAULT exon (Which feature type to use, all features of other type are ignored.)
+# PARAMETER OPTIONAL id.attribute: "Feature ID to use"" TYPE [gene_id, transcript_id, gene_name, transcript_name, protein_name] DEFAULT gene_id (GFF attribute to be used as feature ID. Several GFF lines with the same feature ID will be considered as parts of the same feature. The feature ID is used to identity the counts in the output table.)
+
+# TH and EK 22.8.2011
+
+# bash wrapping
+python.path <- paste(sep="", "PYTHONPATH=", file.path(chipster.tools.path, "lib", "python2.6", "site-packages"), ":$PYTHONPATH")
+command.start <- paste("bash -c '", python.path, ";")
+command.end <- "'"
+
+# sort bam if the data is paired-end
+samtools.binary <- file.path(chipster.tools.path, "samtools", "samtools")
+samtools.sort <- ifelse(paired == "yes", paste(samtools.binary, "sort -on alignment.bam sorted-by-name"), "cat alignment.bam")
+
+# convert bam to sam
+samtools.view <- paste(samtools.binary, "view -")
+
+# htseq-count
+htseq.binary <- c(file.path(chipster.tools.path, "htseq", "htseq-count"))
+htseq <- paste(htseq.binary, "-q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "-", organism " > htseq-counts-out.txt")
+
+# run
+command <- paste(command.start, samtools.sort, " | ", samtools.view, " | ", htseq, command.end)
+system(command)
+
+# separate result file
+system("head -n -5 htseq-counts-out.txt > htseq-counts.tsv")
+system("tail -n 5 htseq-counts-out.txt > htseq-count-info.txt")
+
+
