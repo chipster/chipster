@@ -26,7 +26,8 @@ samtools.view <- paste(samtools.binary, "view -")
 
 # htseq-count
 htseq.binary <- c(file.path(chipster.tools.path, "htseq", "htseq-count"))
-htseq <- paste(htseq.binary, "-q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "-", organism " > htseq-counts-out.txt")
+gtfs <- c(file.path(chipster.tools.path, "htseq", "gtfs"))
+htseq <- paste(htseq.binary, "-q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "-", gtfs, "/", organism > htseq-counts-out.txt")
 
 # run
 command <- paste(command.start, samtools.sort, " | ", samtools.view, " | ", htseq, command.end)
