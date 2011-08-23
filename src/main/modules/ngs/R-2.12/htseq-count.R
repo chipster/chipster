@@ -4,7 +4,7 @@
 # OUTPUT OPTIONAL htseq-count-info.txt
 # PARAMETER paired: "Does the alignment file contain paired-end data" TYPE [yes, no] DEFAULT no (Does the alignment data contain paired end or single end reads?)
 # PARAMETER stranded: "Data was produced with a strand-specific RNA-seq protocol" TYPE [yes, no, reverse] DEFAULT no (If you select no, a read is considered overlapping with a feature regardless of whether it is mapped to the same or the opposite strand as the feature. If you select yes, the read has to be mapped to the same strand as the feature. You have to say no, if your was not made with a strand-specific RNA-seq protocol, because otherwise half your reads will be lost.)
-# PARAMETER organism: "Organism" TYPE [hg19.63.gtf: "Human (hg19.63)", mm9.63.gtf: "Mouse (mm9.63)", rn4.63.gtf: "Rat (rn4.63)"] DEFAULT hg19.63.gtf (Which organism is your data from.)
+# PARAMETER organism: "Organism" TYPE [yeast.gtf: "yeast", hg19.63.gtf: "Human (hg19.63)", mm9.63.gtf: "Mouse (mm9.63)", rn4.63.gtf: "Rat (rn4.63)"] DEFAULT yeast.gtf (Which organism is your data from.)
 # PARAMETER OPTIONAL mode: "Mode to handle reads overlapping more than one feature" TYPE [union, intersection-strict, intersection-nonempty] DEFAULT union (How to deal with reads that overlap more than one gene or exon?)
 # PARAMETER OPTIONAL minaqual: "Minimum alignment quality" TYPE INTEGER FROM 0 TO 100 DEFAULT 0 (Skip all reads with alignment quality lower than the given minimum value.)
 # PARAMETER OPTIONAL feature.type: "Feature type to count" TYPE [exon, CDS] DEFAULT exon (Which feature type to use, all features of other type are ignored.)
@@ -35,5 +35,15 @@ system(command)
 # separate result file
 system("head -n -5 htseq-counts-out.txt > htseq-counts.tsv")
 system("tail -n 5 htseq-counts-out.txt > htseq-count-info.txt")
+
+# bring in file to R environment for formating
+file <- c("htseq-counts.tsv")
+dat <- read.table(file, header=F, sep="\t")
+names(dat) <- c("id", "count")
+
+# write result table to output
+write.table(dat, file="htseq-counts.tsv", col.names=T, quote=F, sep="\t", row.names=F)
+
+# EOF
 
 
