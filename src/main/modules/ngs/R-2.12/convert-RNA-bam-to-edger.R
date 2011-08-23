@@ -1,5 +1,4 @@
-# TOOL convert-RNA-bam-to-edger.R: "Convert RNA bam file to edgeR input format" (Returns the count number per genomic feature in a BAM file from an RNA-seq experiment using an annotation file in BED format. 
-# The output from this tool is suitable for downstream analysis using the edgeR algorithm.)
+# TOOL convert-RNA-bam-to-edger.R: "Map aligned reads to genes with coverageBed using own BED" (Calculates how many reads in a BAM file map to each gene. You have to provide the gene locations in the BED format. This tool is based on the coverageBed tool of the BEDTools package. In order to use the output in edgeR, you need to select all samples and run the tool \"Utilities - Define NGS experiment\".)
 # INPUT file.a: "BAM file" TYPE GENERIC
 # INPUT file.b: "BED file" TYPE GENERIC
 # OUTPUT edgeR-input.tsv
