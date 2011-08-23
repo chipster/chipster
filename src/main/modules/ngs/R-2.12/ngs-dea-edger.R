@@ -7,6 +7,7 @@
 # OUTPUT OPTIONAL ma-plot-normalized-counts.pdf
 # OUTPUT OPTIONAL ma-plot-significant-counts.pdf
 # OUTPUT OPTIONAL mds-plot.pdf
+# OUTPUT OPTIONAL edgeR-log.txt
 # PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
 # PARAMETER normalization: "Apply normalization" TYPE [yes, no] DEFAULT yes (If enabled, a normalization factor based on the trimmed mean of M-values \(TMM\) is performed to reduce the effect from sequencing biases.)
 # PARAMETER dispersion_estimate: "Dispersion estimate" TYPE [common, tagwise] DEFAULT tagwise (The dispersion of counts for any given sequence can either be estimated based on the actual counts in the sample data set or be moderated across a selection of sequences with similar count numbers. The latter option, which is set by default, typically yields higher sensitivity and specificity.)
@@ -22,8 +23,7 @@
 # statistical testing for finding differentially expressed #
 # sequence tags                                            #
 #                                                          #
-# MG, 11.3.2011                                            #
-# development version                                      #
+# MG, 11.6.2011                                            #
 #                                                          #
 ############################################################
 
@@ -73,7 +73,7 @@ dev.off()
 
 # MA-plot comparison before and after normalization
 pdf(file="ma-plot-raw-counts.pdf", width=w/72, height=h/72)
-maPlot(dge_list$counts[, 1], dge_list$counts[, 2], normalize = TRUE, pch = 19,
+maPlot(dge_list$counts[, 1], dge_list$counts[, 2], normalize = FALSE, pch = 19,
 		cex = 0.4, ylim = c(-8, 8))
 grid(col = "blue")
 title("Raw counts")
@@ -85,7 +85,7 @@ if (normalization == "yes") {
 	pdf(file="ma-plot-normalized-counts.pdf", width=w/72, height=h/72)
 	eff.libsize <- dge_list$samples$lib.size * dge_list$samples$norm.factors
 	maPlot(dge_list$counts[, 1]/eff.libsize[1], dge_list$counts[, 2]/eff.libsize[2],
-			normalize = FALSE, pch = 19, cex = 0.4, ylim = c(-8, 8))
+			normalize = TRUE, pch = 19, cex = 0.4, ylim = c(-8, 8))
 	grid(col = "blue")
 	title("Normalized counts")
 	dev.off()
@@ -172,7 +172,7 @@ if (dim(significant_results)[1] > 0) {
 
 # Output a message if no significant genes are found
 if (dim(significant_results)[1] == 0) {
-	stop ("CHIPSTER-NOTE: No statistically significantly expressed sequences were found. Try again with a less stringent p-value cut-off or multiple testing correction method.")
+	cat("No statistically significantly expressed sequences were found. Try again with a less stringent p-value cut-off or multiple testing correction method.", file="edgeR-log.txt")
 }
 
 # EOF
