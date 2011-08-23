@@ -46,21 +46,6 @@
 		<tool runtime="R-2.12">
 			<resource>bed-sort.R</resource>
 		</tool>	
-		<tool runtime="R-2.12">
-			<resource>bedtools-bamtobed.R</resource>
-		</tool>	
-		<tool runtime="R-2.12">
-			<resource>bedtools-fastafrombed.R</resource>
-		</tool>	
-		<tool runtime="R-2.12">
-			<resource>bedtools-mergebed.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>bedtools-slopbed.R</resource>
-		</tool>	
-		<tool runtime="R-2.12">
-			<resource>bedtools-subtractbed.R</resource>
-		</tool>	
 	</category>
 
 	<category name="Matching genomic regions" color="#e7881c">
@@ -83,30 +68,6 @@
 		<tool runtime="java">
 			<resource>fi.csc.chipster.tools.ngs.regions.CombineRegionsTool
 			</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>bedtools-closestbed.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>bedtools-coveragebed.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>bedtools-genomecoveragebed.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>bedtools-intersectbed.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>bedtools-overlap.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>bedtools-pairtobed.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>bedtools-pairtopair.R</resource>
-		</tool>
-				<tool runtime="R-2.12">
-			<resource>bedtools-windowbed.R</resource>
 		</tool>
 		
 		
