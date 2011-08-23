@@ -35,3 +35,13 @@ system(command)
 # separate result file
 system("head -n -5 htseq-counts-out.txt > htseq-counts.tsv")
 system("tail -n 5 htseq-counts-out.txt > htseq-count-info.txt")
+
+# bring in file to R environment for formating
+file <- c("htseq-counts.tsv")
+dat <- read.table(file, header=F, sep="\t")
+names(dat) <- c("id", "count")
+
+# write result table to output
+write.table(dat, file="htseq-counts.tsv", col.names=T, quote=F, sep="\t", row.names=F)
+
+# EOF
