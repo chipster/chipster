@@ -20,11 +20,11 @@ public class FindOverlappingDatabaseTool extends RegionTool {
 
 	@Override
 	public String getSADL() {
-		return 	"TOOL FindOverlappingDatabaseTool.java: \"Find overlapping regions from database\" (Returns regions that have overlap with some region in a database. Adds name of the overlapping database region to the output. Repeating matches are skipped for the TSV output, but included in the BED output.)" + "\n" +
+		return 	"TOOL FindOverlappingDatabaseTool.java: \"Match genomic regions against miRBase\" (Returns genomic regions which overlap with miRNA locations reported in miRBase. Adds name of the overlapping miRNA location to the output. Repeating matches are skipped for the TSV output, but included in the BED output.)" + "\n" +
 				"INPUT data.bed: \"Set of regions\" TYPE GENERIC" + "\n" +
 				"OUTPUT overlapping.bed: \"Overlapping regions\"" + "\n" + 
 				"OUTPUT overlapping.tsv: \"Overlapping regions as TSV\"" + "\n" + 
-				"PARAMETER database: \"Database\" TYPE [miRBase16: \"miRBase 16\"] DEFAULT miRBase16 (Which database is used for comparison?)" + 
+				"PARAMETER database: \"Database\" TYPE [miRBase16: \"miRBase 16\"] DEFAULT miRBase16 (Which miRBase version is used for comparison?)" + 
 				"PARAMETER min.overlap.bp: \"Minimum number of overlapping basepairs\" TYPE INTEGER FROM 1 DEFAULT 1 (How many basepairs are required to consider regions overlapping?)";
 	}
 

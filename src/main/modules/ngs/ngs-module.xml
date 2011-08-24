@@ -51,10 +51,6 @@
 			</resource>
 		</tool>
 		<tool runtime="java">
-			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingDatabaseTool
-			</resource>
-		</tool>
-		<tool runtime="java">
 			<resource>fi.csc.chipster.tools.ngs.regions.RemoveOverlappingTool
 			</resource>
 		</tool>
@@ -115,6 +111,9 @@
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>convert-miRBase-bam-to-edger.R</resource>
+		</tool>
+		<tool runtime="java">
+			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingDatabaseTool</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>ngs-dea-edger.R</resource>
