@@ -120,7 +120,7 @@ if (experiment_type == "mirna_seq" && alignment_type == "other") {
 
 # Writes out the data and the phenodata table
 write.table(data_table, file="ngs-data-table.tsv", sep="\t", row.names=T, col.names=T, quote=F)
-write.table(data.frame(sample=samples, chiptype="not applicable", experiment=experiment_type, group=groups), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+write.table(data.frame(sample=samples, chiptype="not applicable", experiment=experiment_type, group=groups, library_size=""), file="phenodata.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
 # EOF
 
