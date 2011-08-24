@@ -24,6 +24,8 @@
 # sequence tags                                            #
 #                                                          #
 # MG, 11.6.2011                                            #
+# updated, MG, 23.08.2011, to include library size from    #
+# phenodata file                                           #
 #                                                          #
 ############################################################
 
@@ -46,6 +48,9 @@ dat2 <- dat[,grep("chip", names(dat))]
 phenodata <- read.table("phenodata.tsv", header=T, sep="\t")
 groups <- as.character (phenodata[,pmatch(column,colnames(phenodata))])
 group_levels <- levels(as.factor(groups))
+# If the library_size column contains data then use that as estimate
+lib_size <- as.numeric(phenodata$library_size)
+if (is.na(lib_size[1])) estimate_lib_size <- "TRUE" else estimate_lib_size <- "FALSE"
 
 # Sanity checks
 if(length(unique(groups))==1 | length(unique(groups))>=3) {
@@ -53,8 +58,13 @@ if(length(unique(groups))==1 | length(unique(groups))>=3) {
 }
 
 # Create a DGEList
-# Notice that Library size is calculated from column totals
-dge_list <- DGEList (count=dat2, group=groups)
+# Notice that Library size is calculated from column totals if no library size
+# exist in the phenodata file
+if (estimate_lib_size) {
+	dge_list <- DGEList (count=dat2, group=groups)
+} else {
+	dge_list <- DGEList (count=dat2, group=groups, lib.size=lib_size)
+}
 
 # Check lib size totals
 # dge_list$samples
