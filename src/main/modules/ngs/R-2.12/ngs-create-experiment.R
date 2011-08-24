@@ -1,11 +1,11 @@
-# TOOL ngs-create-experiment.R: "Define NGS experiment" (This tool creates a phenodata file containing descriptive information about samples and experiment setup. Please fill in, at least, the group column to describe the experiment groups to be compared for example in an analysis of differential gene expression.)
+# TOOL ngs-create-experiment.R: "Define NGS experiment" (This tool creates a phenodata file containing descriptive information about samples and experiment setup. Please fill in the group column to describe the experiment groups to be compared for example in an analysis of differential gene expression
+# If known, it is also recommended to fill in the total library size for each sample. This information is used in downstream analyses to reduce the effect of experiment bias from the data.)
 # INPUT counts_sample_{...}.tsv: "Individual sample files with reads and counts" TYPE GENERIC 
 # OUTPUT ngs-data-table.tsv: "Data table with read counts" 
 # OUTPUT META phenodata.tsv: "Experiment description file" 
 # PARAMETER experiment_type: "Type of experiment" TYPE [chip_seq: ChIP-seq, rna_seq: RNA-seq, mirna_seq: miRNA-seq] DEFAULT rna_seq (The value that is used for a sequence read that is not present in a sample.)
 # PARAMETER alignment_type: "Type of alignment" TYPE [genome: genome, other: other] DEFAULT genome (If something else than the genome was used as reference to align against please select "other".)
 # PARAMETER impute_with: "Impute missing data" TYPE INTEGER FROM 0 TO 1000000 DEFAULT 0 (The value that is used for a sequence read that is not present in a sample.)
-
 
 ##############################
 #                            #
