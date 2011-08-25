@@ -58,15 +58,12 @@
 		<tool runtime="R-2.12">
 			<resource>bedtools-subtractbed.R</resource>
 		</tool>	
+	
 	</category>
 
 	<category name="Matching genomic regions" color="#e7881c">
 		<tool runtime="java">
 			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingTool
-			</resource>
-		</tool>
-		<tool runtime="java">
-			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingDatabaseTool
 			</resource>
 		</tool>
 		<tool runtime="java">
@@ -133,6 +130,15 @@
 
 	<category name="RNA-seq" color="#80a3b7">
 		<tool runtime="R-2.12">
+			<resource>htseq-count.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>htseq-count-own-gtf.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>convert-RNA-bam-to-edger.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
 			<resource>ngs-dea-edger-RNA.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
@@ -147,6 +153,11 @@
 		<tool runtime="R-2.12">
 			<resource>convert-miRBase-bam-to-edger.R</resource>
 		</tool>
+		<!--
+		<tool runtime="java">
+			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingDatabaseTool</resource>
+		</tool>
+		-->
 		<tool runtime="R-2.12">
 			<resource>ngs-dea-edger.R</resource>
 		</tool>

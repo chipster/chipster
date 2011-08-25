@@ -1,7 +1,7 @@
-# TOOL convert-bam-to-edger.R: "Convert genomic BAM file to edgeR input format" (This tool takes BAM files as an input, calculates the number of times each sequence tag is identified and removes the ones for which the count is under the user defined threshold)
+# TOOL convert-bam-to-edger.R: "Convert genomic BAM file to edgeR input format" (This tool takes BAM files as an input, calculates the number of times each sequence tag is identified and removes the ones for which the count is under the user defined threshold.)
 # INPUT bam_file.bam: "Alignment against genome in BAM format" TYPE GENERIC
 # OUTPUT edgeR-input.tsv: "A converted BAM file suitable for edgeR analysis"
-# PARAMETER count_limit: "Count limit" TYPE INTEGER FROM 0 TO 100000 DEFAULT 100 (The lowest number of times a sequence tag has to appear in the data)
+# PARAMETER count_limit: "Count limit" TYPE INTEGER FROM 0 TO 100000 DEFAULT 10 (The lowest number of times a sequence tag has to appear in the data)
 # PARAMETER merge_overlapping: "Merge overlapping reads" TYPE [no, start, end, both] DEFAULT both (If enabled, reads with identical start or end position, but differing in length or nucleotide composition, will be merged into one. The count number will be summed over the merged reads and the sequence and length of the longest among the merged reads will be reported.)
 
 # MG 15.6.2011
@@ -157,7 +157,8 @@ if (merge_overlapping != "no") {
 	}
 	
 	# Writing data to disk
-	write.table(data.frame(results_table), file="edgeR-input.tsv", col.names=T, quote=F, sep="\t", row.names=T)
+	write.table(data.frame(id=rownames(results_table), results_table), file="edgeR-input.tsv", col.names=T, quote=F, sep="\t", row.names=F)
 }
+
 # EOF
 
