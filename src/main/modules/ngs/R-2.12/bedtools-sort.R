@@ -1,4 +1,4 @@
-# TOOL bed-sort.R: "Sort BED files" (Sorts a BED file by chromosome and then by start position. This tool is based on the BEDTools package.)
+# TOOL bed-sort.R: "BEDTools sortBed" (Sorts a BED file by chromosome and then by start position. This tool is based on the BEDTools package.)
 # INPUT regions.bed TYPE GENERIC 
 # OUTPUT sorted.bed 
 
