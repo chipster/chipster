@@ -105,8 +105,6 @@
 				<tool runtime="R-2.12">
 			<resource>bedtools-windowbed.R</resource>
 		</tool>
-		
-		
 	</category>
 
 	<category name="Alignment" color="#d53833">
