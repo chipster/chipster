@@ -82,16 +82,19 @@
 			</resource>
 		</tool>
 		<tool runtime="R-2.12">
+			<resource>bedtools-intersectbed.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
 			<resource>bedtools-closestbed.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bedtools-windowbed.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>bedtools-coveragebed.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>bedtools-genomecoveragebed.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>bedtools-intersectbed.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>bedtools-overlap.R</resource>
@@ -102,9 +105,7 @@
 		<tool runtime="R-2.12">
 			<resource>bedtools-pairtopair.R</resource>
 		</tool>
-				<tool runtime="R-2.12">
-			<resource>bedtools-windowbed.R</resource>
-		</tool>
+
 		
 		
 	</category>
