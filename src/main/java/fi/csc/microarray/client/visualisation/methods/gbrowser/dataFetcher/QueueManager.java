@@ -57,7 +57,7 @@ public class QueueManager implements AreaResultListener {
 
 		req.status.maybeClearQueue(context.queue);
 		context.queue.add(req);
-		context.thread.notifyTree();
+		context.thread.notifyAreaRequestHandler();
 	}
 
 	public void addResultListener(DataSource file, AreaResultListener listener) {

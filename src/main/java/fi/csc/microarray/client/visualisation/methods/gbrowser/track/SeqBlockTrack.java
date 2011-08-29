@@ -68,7 +68,7 @@ public class SeqBlockTrack extends Track {
 
 		// Preprocessing loop: Iterate over RegionContent objects (one object corresponds to one read)
 		Iterable<ReadPart> readParts = readpartProvider.getReadparts(getStrand()); 
-
+int reads = 0;
 		// Main loop: Iterate over ReadPart objects (one object corresponds to one continuous element)
 		List<Integer> occupiedSpace = new ArrayList<Integer>();
 		for (ReadPart readPart : readParts) {
@@ -105,6 +105,8 @@ public class SeqBlockTrack extends Track {
 				occupiedSpace.add(end);
 			}
 
+			reads++;
+			
 			// Now we can decide the y coordinate
 			rect.y = getYCoord(layer, GenomeBrowserConstants.READ_HEIGHT);
 			rect.height = GenomeBrowserConstants.READ_HEIGHT;

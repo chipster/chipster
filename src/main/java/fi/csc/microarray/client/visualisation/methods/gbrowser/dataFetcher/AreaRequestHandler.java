@@ -52,7 +52,7 @@ public abstract class AreaRequestHandler extends Thread {
 		return false; // hook for checking fileFetcherQueue
 	}
 
-	public synchronized void notifyTree() {
+	public synchronized void notifyAreaRequestHandler() {
 		notifyAll();
 	}
 

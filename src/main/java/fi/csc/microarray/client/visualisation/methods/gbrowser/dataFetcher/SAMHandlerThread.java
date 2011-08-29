@@ -43,7 +43,7 @@ public class SAMHandlerThread extends AreaRequestHandler {
 	public synchronized void run() {
 
 		// Start file processing layer thread
-		fileFetcher = new SAMFileFetcherThread(fileRequestQueue, fileResultQueue, samData);
+		fileFetcher = new SAMFileFetcherThread(fileRequestQueue, fileResultQueue, this, samData);
 		fileFetcher.start();
 		
 		// Start this thread

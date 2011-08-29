@@ -24,7 +24,7 @@ public class ChunkFileFetcherThread extends Thread {
 	private BlockingQueue<ChunkFileRequest> fileRequestQueue;
 	private ConcurrentLinkedQueue<ChunkFileResult> fileResultQueue;
 
-	private ChunkTreeHandlerThread treeThread;
+	private ChunkTreeHandlerThread areaRequestThread;
 
 	private ChunkDataSource dataSource;
 
@@ -32,16 +32,16 @@ public class ChunkFileFetcherThread extends Thread {
 
 	public ChunkFileFetcherThread(BlockingQueue<ChunkFileRequest> fileRequestQueue,
 	        ConcurrentLinkedQueue<ChunkFileResult> fileResultQueue,
-	        ChunkTreeHandlerThread treeThread, FileParser inputParser) {
+	        ChunkTreeHandlerThread areaRequestThread, FileParser inputParser) {
 
 		this.fileRequestQueue = fileRequestQueue;
 		this.fileResultQueue = fileResultQueue;
-		this.treeThread = treeThread;
+		this.areaRequestThread = areaRequestThread;
 		this.inputParser = inputParser;
 
 		this.setDaemon(true);
 
-		this.dataSource = treeThread.getFile();
+		this.dataSource = areaRequestThread.getFile();
 	}
 
 	public void run() {
@@ -163,7 +163,7 @@ public class ChunkFileFetcherThread extends Thread {
 		ChunkFileResult result = new ChunkFileResult(chunk, fileRequest, inputParser, exactRegion, fileRequest.status);
 
 		fileResultQueue.add(result);
-		treeThread.notifyTree();
+		areaRequestThread.notifyAreaRequestHandler();
 
 	}
 

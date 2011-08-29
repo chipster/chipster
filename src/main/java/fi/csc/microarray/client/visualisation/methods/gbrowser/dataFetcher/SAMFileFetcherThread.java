@@ -30,10 +30,13 @@ public class SAMFileFetcherThread extends Thread {
 
 	private SAMDataSource dataSource;
 
-	public SAMFileFetcherThread(BlockingQueue<SAMFileRequest> fileRequestQueue, ConcurrentLinkedQueue<SAMFileResult> fileResultQueue, SAMDataSource dataSource) {
+	private SAMHandlerThread areaRequestThread;
+
+	public SAMFileFetcherThread(BlockingQueue<SAMFileRequest> fileRequestQueue, ConcurrentLinkedQueue<SAMFileResult> fileResultQueue, SAMHandlerThread areaRequestThread, SAMDataSource dataSource) {
 
 		this.fileRequestQueue = fileRequestQueue;
 		this.fileResultQueue = fileResultQueue;
+		this.areaRequestThread = areaRequestThread;
 		this.dataSource = dataSource;
 		this.setDaemon(true);
 	}
@@ -75,7 +78,7 @@ public class SAMFileFetcherThread extends Thread {
 	public void fetchReads(SAMFileRequest fileRequest) {
 
 		AreaRequest request = fileRequest.areaRequest;
-
+int res = 0;
 		// Read the given region
 		String chromosome = dataSource.getChromosomeNameUnnormaliser().unnormalise(request.start.chr);
 		CloseableIterator<SAMRecord> iterator = dataSource.getReader().query(chromosome, request.start.bp.intValue(), request.end.bp.intValue(), false);
@@ -88,7 +91,7 @@ public class SAMFileFetcherThread extends Thread {
 			// Split results into chunks
 			for (int c = 0; c < RESULT_CHUNK_SIZE && iterator.hasNext(); c++) {
 				SAMRecord record = iterator.next();
-
+res++;
 				// Region for this read
 				BpCoordRegion recordRegion = new BpCoordRegion((long) record.getAlignmentStart(), (long) record.getAlignmentEnd(), request.start.chr);
 
@@ -136,10 +139,8 @@ public class SAMFileFetcherThread extends Thread {
 			// Send result
 			SAMFileResult result = new SAMFileResult(responseList, fileRequest, fileRequest.areaRequest, fileRequest.getStatus());
 			fileResultQueue.add(result);
-
-			synchronized (this) {
-				notifyAll();
-			}
+			areaRequestThread.notifyAreaRequestHandler();
+			
 		}
 
 		// We are done
@@ -181,10 +182,8 @@ public class SAMFileFetcherThread extends Thread {
 		content.add(new RegionContent(new BpCoordRegion(from, to), countForward, countReverse));
 		SAMFileResult result = new SAMFileResult(content, request, request.areaRequest, request.getStatus());
 		fileResultQueue.add(result);
+		areaRequestThread.notifyAreaRequestHandler();
 
-		synchronized (this) {
-			notifyAll();
-		}
 	}
 
 }
