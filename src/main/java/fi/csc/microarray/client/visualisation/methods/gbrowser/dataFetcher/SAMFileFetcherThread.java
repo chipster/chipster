@@ -32,6 +32,8 @@ public class SAMFileFetcherThread extends Thread {
 
 	private SAMHandlerThread areaRequestThread;
 
+	private BpCoordRegion previousRequestedRegion;
+
 	public SAMFileFetcherThread(BlockingQueue<SAMFileRequest> fileRequestQueue, ConcurrentLinkedQueue<SAMFileResult> fileResultQueue, SAMHandlerThread areaRequestThread, SAMDataSource dataSource) {
 
 		this.fileRequestQueue = fileRequestQueue;
@@ -60,6 +62,35 @@ public class SAMFileFetcherThread extends Thread {
 			sampleToGetConcisedRegion(fileRequest);
 
 		} else {
+			
+			// Process only new part of the requested area
+			// FIXME We rely on other layers to cache previous results, which is not very clean.
+			AreaRequest request = fileRequest.areaRequest;
+			if (previousRequestedRegion != null) {
+				
+				if (request.intersects(previousRequestedRegion)) {
+					BpCoordRegion overlap = request.intersect(previousRequestedRegion);
+					
+					BpCoordRegion newRegion = new BpCoordRegion(request.start, request.end);
+					
+					if (overlap.start.equals(request.start)) {
+						// Overlaps from left
+						newRegion.start = overlap.end;
+						
+					} else if (overlap.end.equals(request.end)) {
+						// Overlaps from right
+						newRegion.end = overlap.start;
+						
+					} else {
+						// Overlap inside request, do nothing, because would need splitting
+					}
+					
+					fileRequest.areaRequest = new AreaRequest(newRegion, request.requestedContents, request.status, request.depthToGo);
+				}
+				
+			}
+			previousRequestedRegion = request;
+			
 			fetchReads(fileRequest);
 		}
 	}
@@ -78,7 +109,7 @@ public class SAMFileFetcherThread extends Thread {
 	public void fetchReads(SAMFileRequest fileRequest) {
 
 		AreaRequest request = fileRequest.areaRequest;
-int res = 0;
+
 		// Read the given region
 		String chromosome = dataSource.getChromosomeNameUnnormaliser().unnormalise(request.start.chr);
 		CloseableIterator<SAMRecord> iterator = dataSource.getReader().query(chromosome, request.start.bp.intValue(), request.end.bp.intValue(), false);
@@ -91,7 +122,7 @@ int res = 0;
 			// Split results into chunks
 			for (int c = 0; c < RESULT_CHUNK_SIZE && iterator.hasNext(); c++) {
 				SAMRecord record = iterator.next();
-res++;
+
 				// Region for this read
 				BpCoordRegion recordRegion = new BpCoordRegion((long) record.getAlignmentStart(), (long) record.getAlignmentEnd(), request.start.chr);
 
@@ -100,31 +131,26 @@ res++;
 
 				RegionContent read = new RegionContent(recordRegion, values);
 
+				if (request.requestedContents.contains(ColumnType.ID)) {
+					values.put(ColumnType.ID, record.getReadName());
+				}
+
 				if (request.requestedContents.contains(ColumnType.STRAND)) {
 					values.put(ColumnType.STRAND, record.getReadNegativeStrandFlag() ? Strand.REVERSED : Strand.FORWARD);
-
 				}
 
 				if (request.requestedContents.contains(ColumnType.QUALITY)) {
-
-					/*
-					 * Now string because of equality problem described below, should be some nice internal object type in the future
-					 */
-
 					values.put(ColumnType.QUALITY, record.getBaseQualityString());
 				}
 
 				if (request.requestedContents.contains(ColumnType.CIGAR)) {
-
 					Cigar cigar = new Cigar(read, record.getCigar());
 					values.put(ColumnType.CIGAR, cigar);
 				}
 
 				// TODO Deal with "=" and "N" in read string
 				if (request.requestedContents.contains(ColumnType.SEQUENCE)) {
-
 					String seq = record.getReadString();
-
 					values.put(ColumnType.SEQUENCE, seq);
 				}
 

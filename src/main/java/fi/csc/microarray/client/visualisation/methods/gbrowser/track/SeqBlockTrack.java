@@ -237,7 +237,7 @@ int reads = 0;
 	@Override
 	public Map<DataSource, Set<ColumnType>> requestedData() {
 		HashMap<DataSource, Set<ColumnType>> datas = new HashMap<DataSource, Set<ColumnType>>();
-		datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] { ColumnType.SEQUENCE, ColumnType.STRAND, ColumnType.CIGAR })));
+		datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] { ColumnType.ID, ColumnType.SEQUENCE, ColumnType.STRAND, ColumnType.CIGAR })));
 
 		// We might also need reference sequence data
 		if (highlightSNP) {

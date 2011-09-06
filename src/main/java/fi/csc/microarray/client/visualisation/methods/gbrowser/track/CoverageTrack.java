@@ -197,6 +197,7 @@ public class CoverageTrack extends Track {
         HashMap<DataSource, Set<ColumnType>> datas = new
         HashMap<DataSource, Set<ColumnType>>();
         datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+        		ColumnType.ID, 
                 ColumnType.SEQUENCE,
                 ColumnType.STRAND })));
         return datas;

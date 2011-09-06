@@ -238,6 +238,7 @@ public class QualityCoverageTrack extends Track {
 		HashMap<DataSource, Set<ColumnType>> datas = new
 		HashMap<DataSource, Set<ColumnType>>();
 		datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+				ColumnType.ID, 
 				ColumnType.STRAND,
 				ColumnType.QUALITY,
 				ColumnType.CIGAR })));

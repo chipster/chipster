@@ -108,13 +108,4 @@ public class BpCoordRegion implements Comparable<BpCoordRegion> {
 		}
 		return new BpCoordRegion(start.min(other.start), end.max(other.end));
 	}
-
-	public BpCoordRegion subtract(BpCoordRegion other) {
-		if (!intersects(other)) {
-			throw new IllegalArgumentException("regions do not intersect");
-		}
-		return new BpCoordRegion(start.max(other.end), end.min(other.start));
-	}
-	
-	
 }

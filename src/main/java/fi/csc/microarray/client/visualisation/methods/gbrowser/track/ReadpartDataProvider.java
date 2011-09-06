@@ -41,8 +41,12 @@ public class ReadpartDataProvider implements AreaResultListener {
 	public void processAreaResult(AreaResult areaResult) {
 		// Check that areaResult has false concised status and correct strand
 		if (areaResult.getStatus().file == readData && areaResult.getStatus().concise == false) {
+			
 			// Add this to queue of RegionContents to be processed
 			synchronized (reads) {
+
+				// Here identical region contents are removed (set semantics, no duplicates)
+				// So it is essential that reads have their unique ID's.
 				this.reads.addAll(areaResult.getContents());
 				needsRefresh = true;
 			}
