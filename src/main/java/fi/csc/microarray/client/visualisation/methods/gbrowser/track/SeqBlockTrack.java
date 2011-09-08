@@ -84,7 +84,7 @@ int reads = 0;
 			// Create rectangle covering the correct screen area (x-axis)
 			Rectangle rect = new Rectangle();
 			rect.x = getView().bpToTrack(readPart.start);
-			rect.width = (int) Math.round(getView().bpWidth() * widthInBps);
+			rect.width = (int) Math.floor(getView().bpWidth() * widthInBps);
 
 			// Do not draw invisible rectangles
 			if (rect.width < 2) {
