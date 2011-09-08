@@ -82,14 +82,23 @@ public class TabixIntensityTrack extends Track {
 		Iterator<Integer> profileIterator = profileDerivate.keySet().iterator();
 		int lastX = -1;
 		int lastY = 0;
+		int lastDrawnX = -1;
+		int lastDrawnY = -1;
 		while (profileIterator.hasNext()) {
 
 			Integer x = profileIterator.next();
 			Integer newY = lastY + profileDerivate.get(x);
-			
-			if (lastX != -1) {
-				drawables.add(new LineDrawable(lastX, lastY, lastX, newY, color));
+
+			// Smooth profile by removing less than 10 pixel deviations
+			if (lastX != -1 && (x-lastX) > 10) {
+				
+				if (lastDrawnX != -1) {
+					drawables.add(new LineDrawable(lastDrawnX, lastDrawnY, lastX, newY, color));
+				}
+				
 				drawables.add(new LineDrawable(lastX, newY, x, newY, color));
+				lastDrawnX = x;
+				lastDrawnY = newY;
 			}
 
 			lastX = x;
