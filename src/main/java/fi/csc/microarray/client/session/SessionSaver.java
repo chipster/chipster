@@ -100,14 +100,18 @@ public class SessionSaver {
 	public boolean saveSession() throws Exception{
 
 		gatherMetadata();
-
 		boolean metadataValid = validateMetadata();
 	
-		writeSessionFile();
-			
+		writeSessionFile(true);
 		updateDataBeanURLsAndHandlers();
 		
 		return metadataValid;
+	}
+
+	public void saveLightweightSession() throws Exception{
+
+		gatherMetadata();
+		writeSessionFile(false);
 	}
 
 	
@@ -161,8 +165,10 @@ public class SessionSaver {
 	/**
 	 * Write the metadata file and data bean contents to the zip file.
 	 * 
+	 * @param saveData if true, also actual contents of databeans are saved 
+	 * 
 	 */
-	private void writeSessionFile() throws Exception {
+	private void writeSessionFile(boolean saveData) throws Exception {
 
 		// figure out the target file, use temporary file if target already exists
 		boolean replaceOldSession = sessionFile.exists();
@@ -192,8 +198,10 @@ public class SessionSaver {
 			zipOutputStream.closeEntry() ;							
 
 			// save data bean contents
-			writeDataBeanContentsToZipFile(zipOutputStream);
-
+			if (saveData) {
+				writeDataBeanContentsToZipFile(zipOutputStream);
+			}
+			
 			// save source codes
 			writeSourceCodesToZip(zipOutputStream);
 			

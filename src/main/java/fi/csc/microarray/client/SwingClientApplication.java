@@ -353,6 +353,7 @@ public class SwingClientApplication extends ClientApplication {
 		manager.addDataChangeListener(new DataChangeListener() {
 			public void dataChanged(DataChangeEvent event) {
 				unsavedChanges = true;
+				System.out.println("data changed");
 			}
 		});
 
@@ -1802,9 +1803,16 @@ public class SwingClientApplication extends ClientApplication {
 					public void run() {
 
 						// save
-						boolean saveSuccessful;
-						saveSuccessful = getDataManager().saveSession(file);
-
+//						boolean saveSuccessful = getDataManager().saveSession(file);
+						boolean saveSuccessful = true;
+						try {
+							getDataManager().saveLightweightSession(file);
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							// FIXME remove
+							e.printStackTrace();
+						}
+						
 						if (saveSuccessful) {
 
 							// quit
