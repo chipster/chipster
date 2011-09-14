@@ -353,7 +353,6 @@ public class SwingClientApplication extends ClientApplication {
 		manager.addDataChangeListener(new DataChangeListener() {
 			public void dataChanged(DataChangeEvent event) {
 				unsavedChanges = true;
-				System.out.println("data changed");
 			}
 		});
 

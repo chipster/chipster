@@ -99,7 +99,7 @@ public class SessionSaver {
 	 */
 	public boolean saveSession() throws Exception{
 
-		gatherMetadata();
+		gatherMetadata(false);
 		boolean metadataValid = validateMetadata();
 	
 		writeSessionFile(true);
@@ -108,9 +108,9 @@ public class SessionSaver {
 		return metadataValid;
 	}
 
-	public void saveLightweightSession() throws Exception{
+	public void saveLightweightSession() throws Exception {
 
-		gatherMetadata();
+		gatherMetadata(false);
 		writeSessionFile(false);
 	}
 
@@ -121,7 +121,7 @@ public class SessionSaver {
 	 * @throws IOException
 	 * @throws JAXBException
 	 */
-	private void gatherMetadata() throws IOException, JAXBException {
+	private void gatherMetadata(boolean saveData) throws IOException, JAXBException {
 		// xml schema object factory and xml root
 		this.factory = new ObjectFactory();
 		this.sessionType = factory.createSessionType();
@@ -133,7 +133,7 @@ public class SessionSaver {
 		generateIdsRecursively(dataManager.getRootFolder());
 
 		// gather meta data
-		saveMetadataRecursively(dataManager.getRootFolder());
+		saveMetadataRecursively(dataManager.getRootFolder(), saveData);
 	}
 
 
@@ -296,25 +296,31 @@ public class SessionSaver {
 		return id.toString();
 	}
 
-	private void saveMetadataRecursively(DataFolder folder) throws IOException {
+	private void saveMetadataRecursively(DataFolder folder, boolean saveData) throws IOException {
 		
 		String folderId = reversedItemIdMap.get(folder);
 		saveDataFolderMetadata(folder, folderId);
 		
 		for (DataItem data : folder.getChildren()) {
 			if (data instanceof DataFolder) {
-				saveMetadataRecursively((DataFolder)data);
+				saveMetadataRecursively((DataFolder)data, saveData);
 				
 			} else {
 				DataBean bean = (DataBean)data;
 
-				// create the new URL TODO check the ref
+				// create the new URL
 				String entryName = getNewZipEntryName();
-				URL newURL = new URL(sessionFile.toURI().toURL(), "#" + entryName);
+				URL newURL = bean.getContentUrl();
+				
+				if (saveData) {
 
-				// store the new URL temporarily
-				newURLs.put(bean, newURL);
+					// data is saved to zip, change URL to point there 
+					newURL = new URL(sessionFile.toURI().toURL(), "#" + entryName);
 
+					// store the new URL temporarily
+					newURLs.put(bean, newURL);
+				}
+				
 				// store metadata
 				saveDataBeanMetadata(bean, newURL, folderId);
 
