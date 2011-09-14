@@ -44,8 +44,7 @@ public class DataBean extends DataItemBase {
 	public enum StorageMethod {
 		LOCAL_USER,
 		LOCAL_TEMP,
-		LOCAL_SESSION,
-		REMOTE;
+		LOCAL_SESSION;
 	}
 	
 	
