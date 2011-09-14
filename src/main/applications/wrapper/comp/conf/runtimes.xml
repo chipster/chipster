@@ -79,6 +79,7 @@
         </handler>
     </runtime>
 	
+	<!-- By default we don't require EMBOSS (disabling handler makes tools disabled) 
 	<runtime>
 		<name>EMBOSS</name>
 		<handler>
@@ -97,7 +98,8 @@
 			</parameter>
 		</handler>
 	</runtime>
-	
+	-->
+	 
 	<runtime>
 		<name>shell</name>
 		<handler>
@@ -108,4 +110,5 @@
 			</parameter>
 		</handler>
 	</runtime>
+	
 </runtimes>
