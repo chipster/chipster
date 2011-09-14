@@ -510,7 +510,7 @@ public class HierarchicalClustering extends Visualisation implements PropertyCha
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
 		DataBean parentBean = MicroarrayModule.getProperSource(bean); 
-		return bean.isContentTypeCompatitible("application/x-treeview") && parentBean.hasTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
+		return bean.isContentTypeCompatitible("application/x-treeview") && parentBean != null && parentBean.hasTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
 	}
 
 	public void selectionChanged(Rectangle2D.Double selectionRect) {
