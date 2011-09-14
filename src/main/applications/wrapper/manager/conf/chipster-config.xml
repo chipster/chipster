@@ -43,6 +43,10 @@
 		<entry entryKey="web-console-port">
 			<value></value>			
 		</entry>
+
+		<entry entryKey="admin-email">
+			<value></value>			
+		</entry>
 		
 	</configuration-module>
 	

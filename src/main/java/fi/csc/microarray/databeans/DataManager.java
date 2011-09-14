@@ -594,8 +594,22 @@ public class DataManager {
 		}
 
 		return true;
-	
 	}
+	
+
+	/**
+	 * Saves lightweight session (folder structure, operation metadata, links etc.) to a file.
+	 * Does not save actual data inside databeans.
+	 * 
+	 * @return true if the session was saved perfectly
+	 * @throws Exception 
+	 */
+	public void saveLightweightSession(File sessionFile) throws Exception {
+		// save
+		SessionSaver sessionSaver = new SessionSaver(sessionFile);
+		sessionSaver.saveLightweightSession();
+	}
+
 
 	/**
 	 * Delete DataItem and its children (if any). Root folder cannot be removed.
