@@ -43,7 +43,7 @@ mds<-isoMDS(dat2.dist)
 # Plotting the image
 pdf(file="nmds.pdf", width=w/72, height=h/72)
 plot(mds$points[,1], mds$points[,2], main="NMDS", pch=19, xlab="Dimension 1", ylab="Dimension 2", type="n")
-text(mds$points[,1], mds$points[,2], phenodata$description, cex=0.75, col=phenodata$group+2)
+text(mds$points[,1], mds$points[,2], phenodata$description, cex=0.75, col=1+1:length(levels(as.factor(phenodata$group))))
 if (length(levels(as.factor(phenodata$group))) > 0) {
 	legend (x="topleft", legend=levels(as.factor(phenodata$group)), col=1+1:length(levels(as.factor(phenodata$group))), cex=0.5, pch=19)
 }
