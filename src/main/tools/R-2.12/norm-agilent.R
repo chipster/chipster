@@ -4,15 +4,18 @@
 # PARAMETER background.treatment [none, subtract, edwards, normexp] DEFAULT normexp (Background treatment method)
 # PARAMETER background.offset [0, 50] DEFAULT 50 (Background offset)
 # PARAMETER normalize.arrays [none, median, loess] DEFAULT loess (Within array normalization method)
-# PARAMETER normalize.genes [none, scale, quantile, Aquantile, vsn] DEFAULT none (Between arrays normalization method)
+# PARAMETER normalize.genes [none, scale, quantile, Aquantile, vsn] DEFAULT none (Between arrays normalization method. Notice that in the case of vsn then the red and green intensities are treated as if they were single channel data, i.e., red and green channels from the same array are treated as unpaired. This algorithm is therefore separate from the backgroundCorrection, normalizeWithinArrays, then normalizeBetweenArrays paradigm used elsewhere in the limma package.)
 # PARAMETER remove.control.probes [yes, no] DEFAULT no (Remove control probes from the dataset)
-# PARAMETER chiptype [empty, Human-1 (4100a), Human-2 (4101a), Human-1A (4110b), Human-1B (4111a), Human-Whole-Genome (4112a), Mouse (4104a), Mouse (4120a), Mouse (4121a), Mouse (4122a), Rat (4105a), Rat (4130a), Rat (4131), Zebrafish-1 (2519f)]  DEFAULT empty (chiptype)
+# PARAMETER chiptype [empty, Human-1 (4100a), Human-2 (4101a), Human-1A (4110b), Human-1B (4111a), Human-Whole-Genome (4112a), Human-Whole-Genome (4851a), Mouse (4104a), Mouse (4120a), Mouse (4121a), Mouse (4122a), Rat (4105a), Rat (4130a), Rat (4131), Zebrafish-1 (2519f)]  DEFAULT empty (chiptype)
 
 # cDNA chip normalization
 # JTT 9.6.2006
 #
 # MG, 10.3.2010
 # modified script to cope with manually set flags
+#
+# MG, 15.9.2011
+# updated vsn normalization
 
 #background.treatment<-"normexp"
 #background.offset<-50
@@ -37,15 +40,20 @@ columns.other<-c("flag", "annotation")
 files<-dir()
 files<-files[files!="phenodata.tsv"]
 dat<-read.maimages(files=files, columns=columns, annotation=annotation, other.columns=columns.other) 
-
 # Normalization within arrays
-dat2<-normalizeWithinArrays(dat, method=normwa, bc.method=bg, offset=as.numeric(background.offset))
+if (normba!="vsn") {
+	dat2<-normalizeWithinArrays(dat, method=normwa, bc.method=bg, offset=as.numeric(background.offset))
+}
 
 # Normalization across arrays
-dat3<-normalizeBetweenArrays(dat2, method=normba)
+if (normba=="vsn") {
+	dat3 <- normalizeVSN(dat)
+} else {
+	dat3<-normalizeBetweenArrays(dat2, method=normba)
+}
 
 # Writes out a phenodata table
-sample<-paste(colnames(dat2$M), ".tsv", sep="")
+sample<-paste(rownames(dat$targets), ".tsv", sep="")
 group<-c(rep("", length(sample)))
 training<-c(rep("", length(sample)))
 time<-c(rep("", length(sample)))
@@ -67,6 +75,9 @@ if(chiptype=="Human-1B(4111a)") {
 }
 if(chiptype=="Human-Whole-Genome(4112a)") {
 	chiptype<-c("hgug4112a")
+}
+if(chiptype=="Human-Whole-Genome(4851a)") {
+	chiptype<-c("hgug4851a.db")
 }
 if(chiptype=="Mouse(4104a)") {
 	chiptype<-c("mgug4104a")
