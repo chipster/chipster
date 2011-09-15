@@ -38,8 +38,11 @@ if (length(levels(as.factor(phenodata$group))) > 0) {sample_colors <- numeric(le
 			if(group_identity[count_samples]==group_levels[count_levels]) sample_colors[count_samples] <- 1+count_levels
 		}
 	}
-}
 level_colors <- levels(as.factor(sample_colors))
+}
+if (length(levels(as.factor(phenodata$group))) > 0) {sample_colors <- numeric(length(phenodata$group)) {
+	sample_colors <- rep(1,length(phenodata$group),1)
+}
 
 # Plotting
 if(nrow(phenodata)==ncol(dat2)) {
