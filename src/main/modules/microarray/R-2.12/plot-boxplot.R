@@ -5,9 +5,10 @@
 # PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
-
 # Boxplot
 # JTT 2.10.2007
+# MG, 15.9.2011
+# Updated coloring
 
 # Parameter settings (default) for testing purposes
 #image.width<-c(600)
@@ -30,14 +31,14 @@ phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 
 # Plotting
 if(nrow(phenodata)==ncol(dat2)) {
-   bitmap(file="boxplot.png", width=w/72, height=h/72)
-   par(mar=c(12,5,5,5))
-   boxplot(as.data.frame(dat2), las=2, names=phenodata$description)
-   dev.off()
+	bitmap(file="boxplot.png", width=w/72, height=h/72)
+	par(mar=c(12,5,5,5))
+	boxplot(as.data.frame(dat2), las=2, names=phenodata$description, col=phenodata$group+2)
+	dev.off()
 } else {
-   bitmap(file="boxplot.png", width=w/72, height=h/72)
-   par(mar=c(12,5,5,5))
-   boxplot(as.data.frame(dat2), las=2)
-   dev.off()
+	bitmap(file="boxplot.png", width=w/72, height=h/72)
+	par(mar=c(12,5,5,5))
+	boxplot(as.data.frame(dat2), las=2, col=phenodata$group+2)
+	dev.off()
 }
 

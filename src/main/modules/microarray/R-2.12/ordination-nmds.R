@@ -9,6 +9,9 @@
 # Non-metric multidimensional scaling
 # JTT 14.1.2008
 
+# MG, 15.9.2011
+# Updated coloring
+
 # Parameter settings (default) for testing purposes
 #image.width<-c(600)
 #image.height<-c(600)
@@ -40,5 +43,5 @@ mds<-isoMDS(dat2.dist)
 # Plotting the image
 pdf(file="nmds.pdf", width=w/72, height=h/72)
 plot(mds$points[,1], mds$points[,2], main="NMDS", pch=19, xlab="Dimension 1", ylab="Dimension 2", type="n")
-text(mds$points[,1], mds$points[,2], phenodata$description, cex=0.75, col=phenodata$group)
+text(mds$points[,1], mds$points[,2], phenodata$description, cex=0.75, col=phenodata$group+2)
 dev.off()
