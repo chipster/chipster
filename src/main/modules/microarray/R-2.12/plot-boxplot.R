@@ -42,7 +42,7 @@ if (length(levels(as.factor(phenodata$group))) > 0) {
 level_colors <- levels(as.factor(sample_colors))
 }
 if (length(levels(as.factor(phenodata$group))) == 0) {
-	sample_colors <- rep(1,length(phenodata$group),1)
+	sample_colors <- rep(2,length(phenodata$group))
 }
 
 # Plotting
