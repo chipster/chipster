@@ -30,12 +30,13 @@ dat2<-dat[,grep("chip", names(dat))]
 phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
 
 # Setup sample colors according to group
-sample_colors <- numeric(length(phenodata$group))
-group_levels <- levels(as.factor(phenodata$group))
-group_identity <- as.character(phenodata$group)
-for (count_levels in 1:length(group_levels)) {
-	for (count_samples in 1:length(phenodata$group)) {
-		if(group_identity[count_samples]==group_levels[count_levels]) sample_colors[count_samples] <- 1+count_levels
+if (length(levels(as.factor(phenodata$group))) > 0) {sample_colors <- numeric(length(phenodata$group))
+	group_levels <- levels(as.factor(phenodata$group))
+	group_identity <- as.character(phenodata$group)
+	for (count_levels in 1:length(group_levels)) {
+		for (count_samples in 1:length(phenodata$group)) {
+			if(group_identity[count_samples]==group_levels[count_levels]) sample_colors[count_samples] <- 1+count_levels
+		}
 	}
 }
 level_colors <- levels(as.factor(sample_colors))
