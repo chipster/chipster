@@ -34,13 +34,17 @@ if(nrow(phenodata)==ncol(dat2)) {
 	bitmap(file="boxplot.png", width=w/72, height=h/72)
 	par(mar=c(12,5,5,5))
 	boxplot(as.data.frame(dat2), las=2, names=phenodata$description, col=phenodata$group+2)
-	legend (x="topleft", legend=levels(as.factor(phenodata$group)), col=1+1:length(levels(as.factor(phenodata$group))), cex=0.5, pch=19)
-	dev.off()
+	if (length(levels(as.factor(phenodata$group))) > 0) {
+		legend (x="topleft", legend=levels(as.factor(phenodata$group)), col=1+1:length(levels(as.factor(phenodata$group))), cex=0.5, pch=19)
+	}
+		dev.off()
 } else {
 	bitmap(file="boxplot.png", width=w/72, height=h/72)
 	par(mar=c(12,5,5,5))
 	boxplot(as.data.frame(dat2), las=2, col=phenodata$group+2)
-	legend (x="topleft", legend=levels(as.factor(phenodata$group)), col=1+1:length(levels(as.factor(phenodata$group))), cex=0.5, pch=19)
+	if (length(levels(as.factor(phenodata$group))) > 0) {
+		legend (x="topleft", legend=levels(as.factor(phenodata$group)), col=1+1:length(levels(as.factor(phenodata$group))), cex=0.5, pch=19)
+	}
 	dev.off()
 }
 
