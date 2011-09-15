@@ -7,6 +7,8 @@
 
 # Boxplot
 # JTT 2.10.2007
+# MG, 15.9.2011
+# Updated coloring
 
 # Parameter settings (default) for testing purposes
 #image.width<-c(600)
