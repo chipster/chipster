@@ -8,11 +8,9 @@
 
 # stat-acgh.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-04-06
+# 2011-06-27
 
-library(CGHtestpar)
-
-dat <- read.table('regions.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+dat <- read.table('regions.tsv', header=TRUE, sep='\t', quote='', as.is=TRUE, row.names=1)
 phenodata <- read.table('phenodata.tsv', header=TRUE, sep='\t')
 
 groupnames <- unique(phenodata[,column])
@@ -41,9 +39,21 @@ for (group in groupnames) {
     data.info[,paste('amp.freq.', group, sep='')] <- round(mean(as.data.frame(t(group.calls==2))), digits=3)
 }
 
-pvs <-  pvalstest(datacgh, data.info, teststat=test.statistic, group=group.sizes, groupnames=groupnames, niter=number.of.permutations, ncpus=4)
-fdrs <- fdrperm(pvs)
+# first try parallel computing
+prob <- TRUE
+try({
+  library(CGHtestpar)
+  pvs <-  pvalstest(datacgh, data.info, teststat=test.statistic, group=group.sizes, groupnames=groupnames, niter=number.of.permutations, ncpus=4)
+  fdrs <- fdrperm(pvs)
+  prob <- FALSE
+}, silent=TRUE)
+# if problems, fall back to sequential computing
+if (prob) {
+  library(CGHtest)
+  pvs <-  pvalstest(datacgh, data.info, teststat=test.statistic, group=group.sizes, groupnames=groupnames, niter=number.of.permutations)
+  fdrs <- fdrperm(pvs)
+}
 
-write.table(fdrs, file="groups-test.tsv", quote=FALSE, sep="\t", row.names=TRUE, col.names=TRUE)
+write.table(format(fdrs, scientific=FALSE), file='groups-test.tsv', quote=FALSE, sep='\t', row.names=TRUE, col.names=TRUE)
 
 # EOF
