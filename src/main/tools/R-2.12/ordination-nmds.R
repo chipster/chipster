@@ -4,7 +4,6 @@
 # PARAMETER image.width INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image.height INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
 
-
 # Non-metric multidimensional scaling
 # JTT 14.1.2008
 
@@ -39,11 +38,27 @@ dat2.dist<-dist(t(dat2))
 # Calculating the MDS
 mds<-isoMDS(dat2.dist)
 
+# Setup sample colors according to group
+if (length(levels(as.factor(phenodata$group))) > 0) {
+	sample_colors <- numeric(length(phenodata$group))
+	group_levels <- levels(as.factor(phenodata$group))
+	group_identity <- as.character(phenodata$group)
+	for (count_levels in 1:length(group_levels)) {
+		for (count_samples in 1:length(phenodata$group)) {
+			if(group_identity[count_samples]==group_levels[count_levels]) sample_colors[count_samples] <- 1+count_levels
+		}
+	}
+	level_colors <- levels(as.factor(sample_colors))
+}
+if (length(levels(as.factor(phenodata$group))) == 0) {
+	sample_colors <- rep(2,length(phenodata$group))
+}
+
 # Plotting the image
 pdf(file="nmds.pdf", width=w/72, height=h/72)
 plot(mds$points[,1], mds$points[,2], main="NMDS", pch=19, xlab="Dimension 1", ylab="Dimension 2", type="n")
-text(mds$points[,1], mds$points[,2], phenodata$description, cex=0.75, col=phenodata$group+2)
+text(mds$points[,1], mds$points[,2], phenodata$description, cex=0.75, col=sample_colors)
 if (length(levels(as.factor(phenodata$group))) > 0) {
-	legend (x="topleft", legend=levels(as.factor(phenodata$group)), col=1+1:length(levels(as.factor(phenodata$group))), cex=0.5, pch=19)
+	legend (x="topleft", legend=group_levels, col=level_colors, cex=0.5, pch=19)
 }
 dev.off()
