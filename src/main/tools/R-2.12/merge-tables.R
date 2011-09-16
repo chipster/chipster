@@ -1,6 +1,6 @@
 # ANALYSIS Utilities/"Merge tables" (Merge two tables using row, i.e., gene names.)
 # INPUT GENERIC normalized.tsv, GENERIC normalized-too.tsv OUTPUT combined.tsv
-
+# PARAMETER include.everything [yes, no] DEFAULT no (include not matching lines into result)
 
 # Combines two different tables using gene names
 # JTT 22.10.2007
@@ -16,7 +16,9 @@ table1<-read.table(file=name1, sep="\t", header=T, row.names=1)
 table2<-read.table(file=name2, sep="\t", header=T, row.names=1)
 
 # Combines tables using row names
-table3<-merge(table1, table2, by.x="row.names", by.y="row.names")
+include=FALSE
+if( include.everything == "yes" ) include=TRUE
+table3<-merge(table1, table2, by.x="row.names", by.y="row.names", all=include)
 row.names(table3)<-table3$Row.names
 table3<-table3[-1]
 
