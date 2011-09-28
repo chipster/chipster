@@ -1,6 +1,6 @@
 # TOOL bowtie.R: "Bowtie for single end reads" (Bowtie aligns reads to genome, transcriptome, known miRNAs, etc. There are two modes: mismatches are considered either throughout the read, or only in the user-defined left part of the read. In the latter case also quality values are taken into account.
 # Results are sorted and indexed bam files, which are ready for viewing in the Chipster genome browser. 
-# Note that this Bowtie tool uses public genomes provided by Chipster. If you would like to align reads against your own datasets, please use the tool \"Bowtie against own genomes\".)
+# Note that this Bowtie tool uses publicly available genomes. If you would like to align reads against your own datasets, please use the tool \"Bowtie against own genomes\".)
 # INPUT reads.txt: "Reads to align" TYPE GENERIC 
 # OUTPUT bowtie.bam 
 # OUTPUT bowtie.bam.bai 
