@@ -1,7 +1,7 @@
 # ANALYSIS Preprocessing/"Dichotomize continious data" (Dichotomize the data into values 0 and 1 based on a single cut-off value.)
 # INPUT GENE_EXPRS normalized.tsv OUTPUT dichotomized.tsv
 # PARAMETER what.mode [absolute, relative] DEFAULT relative (Determines whether to apply an absolute or relative level cut-off. If realive level is used the cut-off represents a percentile of the data distribution.)
-# PARAMETER cut.off DECIMAL FROM 0 TO 1000000 DEFAULT 50 (Percentage to filter out)
+# PARAMETER cut.off DECIMAL FROM 0 TO 1000000 DEFAULT 50 (The absolute or relative percentage cut-off defining the data to filter out.)
 
 # MG, 23.9.2011
 
