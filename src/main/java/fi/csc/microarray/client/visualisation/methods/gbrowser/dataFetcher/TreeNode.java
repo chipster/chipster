@@ -1,11 +1,13 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 
+import java.util.LinkedList;
+
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ByteRegion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ChunkFileResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -194,7 +196,7 @@ public class TreeNode {
 	 * @See FsfStatus for description of chunk
 	 * @param fileResult
 	 */
-	public void processFileResult(FileResult fileResult) {
+	public void processFileResult(ChunkFileResult fileResult) {
 
 		if (isLeaf) {
 
@@ -280,11 +282,18 @@ public class TreeNode {
 	 */
 	private void createConcisedResult(AreaRequest areaRequest, FsfStatus status) {
 
+		LinkedList<RegionContent> contents = new LinkedList<RegionContent>();
+		
 		for (RegionContent regCont : concisedValues) {
 			if (areaRequest.intersects(regCont.region)) {
-				tree.createAreaResult(new AreaResult<RegionContent>(status, regCont));
+				contents.add(regCont);
 			}
 		}
+		
+		if (!contents.isEmpty()) {
+			tree.createAreaResult(new AreaResult(status, contents));
+		}
+
 	}
 
 	/**
@@ -297,11 +306,16 @@ public class TreeNode {
 	 */
 	public void createAreaResultOfAllRows(Chunk chunk, FileParser chunkParser, AreaRequest areaRequest, FsfStatus status) {
 
-		for (RegionContent rc : chunkParser.getAll(chunk, areaRequest.requestedContents)) {
+		LinkedList<RegionContent> contents = new LinkedList<RegionContent>();
 
+		for (RegionContent rc : chunkParser.getAll(chunk, areaRequest.requestedContents)) {
 			if (areaRequest.intersects(rc.region)) {
-				tree.createAreaResult(new AreaResult<RegionContent>(status, rc));
+				contents.add(rc);
 			}
+		}
+
+		if (!contents.isEmpty()) {
+			tree.createAreaResult(new AreaResult(status, contents));
 		}
 	}
 }

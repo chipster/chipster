@@ -26,14 +26,21 @@ public class RegionContent implements Comparable<RegionContent> {
 		this.values.put(ColumnType.VALUE, concisedValue);
 	}
 
+	public RegionContent(BpCoordRegion region, Object concisedValueForward,  Object concisedValueReverse) {
+		this.region = region;
+		this.values = new LinkedHashMap<ColumnType, Object>();
+		this.values.put(ColumnType.VALUE_FORWARD, concisedValueForward);
+		this.values.put(ColumnType.VALUE_REVERSE, concisedValueReverse);
+	}
+
 	public int compareTo(RegionContent other) {
 
 		int regionComparison = this.region.compareTo(other.region);
 
 		if (regionComparison != 0) {
-			return regionComparison;					
-		} else {
+			return regionComparison;			
 			
+		} else {
 			return values.toString().compareTo(other.values.toString());
 		}
 	}
@@ -45,8 +52,11 @@ public class RegionContent implements Comparable<RegionContent> {
 
 	@Override
 	public boolean equals(Object o) {
-		RegionContent other = (RegionContent) o; 
-		return region.equals(other.region) && values.toString().equals(other.values.toString());		
+		if (o instanceof RegionContent) {
+			return this.compareTo((RegionContent) o) == 0;
+		} else {
+			return false;
+		}
 	}
 	
 	@Override

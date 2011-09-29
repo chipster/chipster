@@ -68,7 +68,7 @@ public class SeqBlockTrack extends Track {
 
 		// Preprocessing loop: Iterate over RegionContent objects (one object corresponds to one read)
 		Iterable<ReadPart> readParts = readpartProvider.getReadparts(getStrand()); 
-
+int reads = 0;
 		// Main loop: Iterate over ReadPart objects (one object corresponds to one continuous element)
 		List<Integer> occupiedSpace = new ArrayList<Integer>();
 		for (ReadPart readPart : readParts) {
@@ -84,7 +84,7 @@ public class SeqBlockTrack extends Track {
 			// Create rectangle covering the correct screen area (x-axis)
 			Rectangle rect = new Rectangle();
 			rect.x = getView().bpToTrack(readPart.start);
-			rect.width = (int) Math.round(getView().bpWidth() * widthInBps);
+			rect.width = (int) Math.floor(getView().bpWidth() * widthInBps);
 
 			// Do not draw invisible rectangles
 			if (rect.width < 2) {
@@ -105,6 +105,8 @@ public class SeqBlockTrack extends Track {
 				occupiedSpace.add(end);
 			}
 
+			reads++;
+			
 			// Now we can decide the y coordinate
 			rect.y = getYCoord(layer, GenomeBrowserConstants.READ_HEIGHT);
 			rect.height = GenomeBrowserConstants.READ_HEIGHT;
@@ -202,13 +204,13 @@ public class SeqBlockTrack extends Track {
 		return (int) ((layer + 1) * (height + GenomeBrowserConstants.SPACE_BETWEEN_READS));
 	}
 
-	public void processAreaResult(AreaResult<RegionContent> areaResult) {
+	public void processAreaResult(AreaResult areaResult) {
 
 		// Do not listen to actual read data, because that is taken care by ReadpartDataProvider
 		
 		// "Spy" on reference sequence data, if available
-		if (areaResult.status.file == refData) {
-			this.refReads.add(areaResult.content);
+		if (areaResult.getStatus().file == refData) {
+			this.refReads.addAll(areaResult.getContents());
 		}
 	}
 
@@ -235,7 +237,7 @@ public class SeqBlockTrack extends Track {
 	@Override
 	public Map<DataSource, Set<ColumnType>> requestedData() {
 		HashMap<DataSource, Set<ColumnType>> datas = new HashMap<DataSource, Set<ColumnType>>();
-		datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] { ColumnType.SEQUENCE, ColumnType.STRAND, ColumnType.CIGAR })));
+		datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] { ColumnType.ID, ColumnType.SEQUENCE, ColumnType.STRAND, ColumnType.CIGAR })));
 
 		// We might also need reference sequence data
 		if (highlightSNP) {

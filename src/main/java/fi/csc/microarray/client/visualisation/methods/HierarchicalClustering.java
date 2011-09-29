@@ -255,11 +255,14 @@ public class HierarchicalClustering extends Visualisation implements PropertyCha
 
 			// Adjust gene count for sampling
 			HeatMap heatMap = null;
+			int dataCount;
 			if (!reversed) {
 				rowCount = tree.getLeafCount(); // heatmap has more genes than tree (sampling done), correct for it
 				heatMap = new HeatMap("Heatmap", rowCount, columnCount);
+				dataCount = rowCount;
 			} else {
 				heatMap = new HeatMap("Heatmap", columnCount, rowCount);
+				dataCount = columnCount;
 			}
 
 			// Go through the tree to find its biggest height
@@ -267,7 +270,7 @@ public class HierarchicalClustering extends Visualisation implements PropertyCha
 
 			// Read the tree and fill the treeToId map
 			List<String> treeToId = new ArrayList<String>();
-			treeToId.addAll(Collections.nCopies(rowCount, (String) null));
+			treeToId.addAll(Collections.nCopies(dataCount, (String) null));
 			HCTreeNode root = readTree(tree, 0, initialHeight, treeToId);
 
 			orders = new OrderSuperviser();
@@ -510,7 +513,7 @@ public class HierarchicalClustering extends Visualisation implements PropertyCha
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
 		DataBean parentBean = MicroarrayModule.getProperSource(bean); 
-		return bean.isContentTypeCompatitible("application/x-treeview") && parentBean.hasTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
+		return bean.isContentTypeCompatitible("application/x-treeview") && parentBean != null && parentBean.hasTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
 	}
 
 	public void selectionChanged(Rectangle2D.Double selectionRect) {

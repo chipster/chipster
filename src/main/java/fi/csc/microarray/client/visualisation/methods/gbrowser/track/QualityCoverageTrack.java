@@ -188,17 +188,19 @@ public class QualityCoverageTrack extends Track {
 		return drawables;
 	}
 
-	public void processAreaResult(AreaResult<RegionContent> areaResult) {
+	public void processAreaResult(AreaResult areaResult) {
 
-		// check that areaResult has same concised status (currently always false)
-		// and correct strand
-		if (areaResult.status.concise == isConcised()) {
-			if (getStrand() == areaResult.content.values.get(ColumnType.STRAND) || 
-					getStrand() == Strand.BOTH) {
+		for (RegionContent content : areaResult.getContents()) {
 
-				forwardReads.add(areaResult.content);
+			// check that areaResult has same concised status (currently always false)
+			// and correct strand
+			if (areaResult.getStatus().concise == isConcised()) {
+				if (getStrand() == content.values.get(ColumnType.STRAND) || 
+						getStrand() == Strand.BOTH) {
 
-				getView().redraw();
+					forwardReads.add(content);
+					getView().redraw();
+				}
 			}
 		}
 	}
@@ -236,6 +238,7 @@ public class QualityCoverageTrack extends Track {
 		HashMap<DataSource, Set<ColumnType>> datas = new
 		HashMap<DataSource, Set<ColumnType>>();
 		datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+				ColumnType.ID, 
 				ColumnType.STRAND,
 				ColumnType.QUALITY,
 				ColumnType.CIGAR })));

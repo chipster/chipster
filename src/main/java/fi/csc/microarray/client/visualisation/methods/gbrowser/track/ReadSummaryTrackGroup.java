@@ -34,7 +34,7 @@ public class ReadSummaryTrackGroup extends ReadTrackGroup implements ActionListe
     @Override
     protected void addReadOverviewTrack() {
         readOverviewSummary = new TabixIntensityTrack(view, summaryDataSource,
-                TabixHandlerThread.class, Color.gray, GenomeBrowserConstants.SWITCH_VIEWS_AT, Long.MAX_VALUE);
+                TabixHandlerThread.class, Color.black, GenomeBrowserConstants.SWITCH_VIEWS_AT, Long.MAX_VALUE);
         tracks.add(readOverviewSummary);
     }
 

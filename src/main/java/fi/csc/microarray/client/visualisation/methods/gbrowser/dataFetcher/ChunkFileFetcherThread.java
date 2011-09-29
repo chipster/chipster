@@ -7,12 +7,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ByteRegion;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileRequest;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ChunkFileRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ChunkFileResult;
 
 /**
- * DOCME
- * 
  * Chunk reader is the original genome browser data fetching implementation with a tree type 
  * data structure and it was made primarily for the tab separated text files. This class is the 
  * lowest level of file reading. This is done in separate thread to avoid any other things to slow 
@@ -23,28 +21,27 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FileResul
  */
 public class ChunkFileFetcherThread extends Thread {
 
-	private BlockingQueue<FileRequest> fileRequestQueue;
-	private ConcurrentLinkedQueue<FileResult> fileResultQueue;
+	private BlockingQueue<ChunkFileRequest> fileRequestQueue;
+	private ConcurrentLinkedQueue<ChunkFileResult> fileResultQueue;
 
-	private ChunkTreeHandlerThread treeThread;
+	private ChunkTreeHandlerThread areaRequestThread;
 
 	private ChunkDataSource dataSource;
 
-	//TODO Is this useless here?
 	private FileParser inputParser;
 
-	public ChunkFileFetcherThread(BlockingQueue<FileRequest> fileRequestQueue,
-	        ConcurrentLinkedQueue<FileResult> fileResultQueue,
-	        ChunkTreeHandlerThread treeThread, FileParser inputParser) {
+	public ChunkFileFetcherThread(BlockingQueue<ChunkFileRequest> fileRequestQueue,
+	        ConcurrentLinkedQueue<ChunkFileResult> fileResultQueue,
+	        ChunkTreeHandlerThread areaRequestThread, FileParser inputParser) {
 
 		this.fileRequestQueue = fileRequestQueue;
 		this.fileResultQueue = fileResultQueue;
-		this.treeThread = treeThread;
+		this.areaRequestThread = areaRequestThread;
 		this.inputParser = inputParser;
 
 		this.setDaemon(true);
 
-		this.dataSource = treeThread.getFile();
+		this.dataSource = areaRequestThread.getFile();
 	}
 
 	public void run() {
@@ -52,9 +49,7 @@ public class ChunkFileFetcherThread extends Thread {
 		while (true) {
 			try {
 				processFileRequest(fileRequestQueue.take());
-				// if(fileRequestQueue.peek() != null){
-				// processFileRequest(fileRequestQueue.poll());
-				// }
+				
 			} catch (IOException e) {
 				e.printStackTrace(); // FIXME fix exception handling
 			} catch (InterruptedException e) {
@@ -76,13 +71,13 @@ public class ChunkFileFetcherThread extends Thread {
 	 * @param fileRequest
 	 * @throws IOException
 	 */
-	private void processFileRequest(FileRequest fileRequest) throws IOException {
+	private void processFileRequest(ChunkFileRequest fileRequest) throws IOException {
 		
 		Chunk chunk = new Chunk();
 		ByteRegion exactRegion = null;
 		
 		
-		/* If the fileRequst.byteRegion.exact is set, the requested area starts from the beginning 
+		/* If the fileRequest.byteRegion.exact is set, the requested area starts from the beginning 
 		 * of the line and ends to the new line character of the same or other line.
 		 */
 		if (fileRequest.byteRegion.exact) {
@@ -165,10 +160,10 @@ public class ChunkFileFetcherThread extends Thread {
 		fileRequest.status.maybeClearQueue(fileResultQueue);
 		fileRequest.status.fileRequestCount = fileRequestQueue.size();
 
-		FileResult result = new FileResult(chunk, fileRequest, inputParser, exactRegion, fileRequest.status);
+		ChunkFileResult result = new ChunkFileResult(chunk, fileRequest, inputParser, exactRegion, fileRequest.status);
 
 		fileResultQueue.add(result);
-		treeThread.notifyTree();
+		areaRequestThread.notifyAreaRequestHandler();
 
 	}
 

@@ -189,24 +189,23 @@ public class CytobandTrack extends Track {
 		return new RectDrawable(rect, c, Color.black);
 	}
 
-	public void processAreaResult(AreaResult<RegionContent> areaResult) {
+	public void processAreaResult(AreaResult areaResult) {
 
-		if (areaResult.content.values.containsKey(ColumnType.METADATA) &&
-				((Map<?, ?>)(areaResult.content.values.get(ColumnType.METADATA))).containsKey(CytobandParser.LAST_ROW_OF_CHROMOSOME) && 
-				getView().getBpRegion().start.chr.equals(areaResult.content.region.start.chr)) {					
+		for (RegionContent content : areaResult.getContents()) {
+			if (content.values.containsKey(ColumnType.METADATA) &&
+					((Map<?, ?>)(content.values.get(ColumnType.METADATA))).containsKey(CytobandParser.LAST_ROW_OF_CHROMOSOME) && 
+					getView().getBpRegion().start.chr.equals(content.region.start.chr)) {					
 
-			if (maxBp == null || maxBp.compareTo(areaResult.content.region.end) < 0) {
-				maxBp = new BpCoord(areaResult.content.region.end);
+				if (maxBp == null || maxBp.compareTo(content.region.end) < 0) {
+					maxBp = new BpCoord(content.region.end);
+				}
+			}				
+
+			if (getView().getBpRegion().intersects(content.region)) {
+				this.bands.add(content);
+				getView().redraw();
 			}
-		}				
-
-		if (getView().getBpRegion().intersects(areaResult.content.region)) {
-
-			this.bands.add(areaResult.content);
-			getView().redraw();
 		}
-
-		//		 this.reads.addAll(result.collection);
 	}
 
 	@Override

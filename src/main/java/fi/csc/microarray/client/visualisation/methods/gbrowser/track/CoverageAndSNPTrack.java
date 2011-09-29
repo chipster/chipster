@@ -187,13 +187,13 @@ public class CoverageAndSNPTrack extends Track {
 		return drawables;
 	}
 
-	public void processAreaResult(AreaResult<RegionContent> areaResult) {
+	public void processAreaResult(AreaResult areaResult) {
 
 		// Do not listen to actual read data, because that is taken care by ReadpartDataProvider
 		
 		// "Spy" on reference sequence data, if available
-		if (areaResult.status.file == refFile) {
-			this.refReads.add(areaResult.content);
+		if (areaResult.getStatus().file == refFile) {
+			this.refReads.addAll(areaResult.getContents());
 		}
 	}
 
@@ -229,6 +229,7 @@ public class CoverageAndSNPTrack extends Track {
 		HashMap<DataSource, Set<ColumnType>> datas = new
 		HashMap<DataSource, Set<ColumnType>>();
 		datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+				ColumnType.ID, 
 				ColumnType.SEQUENCE,
 				ColumnType.STRAND,
 				ColumnType.QUALITY,

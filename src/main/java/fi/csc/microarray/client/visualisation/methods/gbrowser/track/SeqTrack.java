@@ -133,29 +133,10 @@ public class SeqTrack extends Track {
 		return drawables;
 	}
 
-	public void processAreaResult(AreaResult<RegionContent> areaResult) {
+	public void processAreaResult(AreaResult areaResult) {
 
-		// if(!areaResult.status.concise){
-
-		// int seqLength = ((String)(areaResult.content.values.get(Content.SEQUENCE))).length();
-		// long startBp = (Long) areaResult.content.values.get(Content.FILE_INDEX) * seqLength - 200;
-		//			
-		//			
-		// areaResult.content.region = new Region(startBp, startBp + seqLength);
-
-		// if(areaResult.content.region.intercepts(getView().getBpRegion())){
-
-		// System.out.println(startBp + ", " + seqLength + ((String)(areaResult.content.values.get(Content.SEQUENCE))));
-		// System.out.println((String)(areaResult.content.values.get(Content.SEQUENCE)) + areaResult.content.region);
-
-		// areaResult.content.region.start.bp -= 10000;
-		// areaResult.content.region.end.bp -= 10000;
-
-		this.reads.add(areaResult.content);
-		// } 
-
+		this.reads.addAll(areaResult.getContents());
 		getView().redraw();
-		// }
 	}
 
 	@Override
