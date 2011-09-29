@@ -82,6 +82,10 @@ public class DataManager {
 		this.rootFolder = folder;		
 	}
 
+	public File getRepository() {
+		return repositoryRoot;
+	}
+	
 	/**
 	 * Returns the root folder, acting as a gateway into the actual data
 	 * content under this manager.
@@ -196,7 +200,7 @@ public class DataManager {
 		String fileName = "chipster";
 		File repository = new File(tempDir, fileName);
 		
-		// if file with the beanName already exists, add running number 
+		// if directory with that name already exists, add running number 
 		boolean repositoryCreated = false;
 		for (int i = 1;  !repositoryCreated && i < 1000; i++) {
 			repositoryCreated = repository.mkdir();
@@ -594,7 +598,20 @@ public class DataManager {
 		}
 
 		return true;
+	}
+
 	
+	/**
+	 * Saves lightweight session (folder structure, operation metadata, links etc.) to a file.
+	 * Does not save actual data inside databeans.
+	 * 
+	 * @return true if the session was saved perfectly
+	 * @throws Exception 
+	 */
+	public void saveLightweightSession(File sessionFile) throws Exception {
+
+		SessionSaver sessionSaver = new SessionSaver(sessionFile);
+		sessionSaver.saveLightweightSession();
 	}
 
 	/**

@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
@@ -124,9 +126,9 @@ import fi.csc.microarray.util.Strings;
 public class SwingClientApplication extends ClientApplication {
 
 	private static final int METADATA_FETCH_TIMEOUT_SECONDS = 15;
-
 	private static final long SLOW_VISUALISATION_LIMIT = 5 * 1000;
 	private static final long VERY_SLOW_VISUALISATION_LIMIT = 20 * 1000;
+	private static final long SESSION_BACKUP_INTERVAL = 5 * 1000;
 
 	/**
 	 * Logger for this class
@@ -164,6 +166,9 @@ public class SwingClientApplication extends ClientApplication {
 	private static float fontSize = VisualConstants.DEFAULT_FONT_SIZE;
 
 	private boolean unsavedChanges = false;
+	private boolean unbackuppedChanges = false;
+
+	private File aliveSignalFile;
 
 	private JFileChooser importExportFileChooser;
 	private JFileChooser sessionFileChooser;
@@ -349,13 +354,48 @@ public class SwingClientApplication extends ClientApplication {
 		mainFrame.setVisible(true);
 		mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-		// Remember changes to confirm close only when necessary
+		// Remember changes to confirm close only when necessary and to backup when necessary
 		manager.addDataChangeListener(new DataChangeListener() {
 			public void dataChanged(DataChangeEvent event) {
 				unsavedChanges = true;
+				unbackuppedChanges = true;
 			}
 		});
 
+		// Start checking for backup need
+		aliveSignalFile = new File(manager.getRepository(), "i_am_alive");
+		aliveSignalFile.createNewFile();
+		aliveSignalFile.deleteOnExit();
+		
+		Timer timer = new Timer("Backup timer", true); // make daemon timer
+
+		timer.scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				aliveSignalFile.setLastModified(System.currentTimeMillis()); // touch the file
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						if (unbackuppedChanges) {
+							File sessionFile = new File(getDataManager().getRepository(), "backup_session.zip");
+							for (int i = 0; sessionFile.exists(); i++) {
+								sessionFile = new File(getDataManager().getRepository(), "backup_session" + i + ".zip");
+							}
+							sessionFile.deleteOnExit();
+							
+							try {
+								getDataManager().saveLightweightSession(sessionFile);
+								
+							} catch (Exception e) {
+								logger.warn(e); // do not care that much about failing session backups
+							}
+						}
+						unbackuppedChanges = false;
+					}
+				});
+			}
+		}, SESSION_BACKUP_INTERVAL, SESSION_BACKUP_INTERVAL);
+		
 		// it's alive!
 		super.setEventsEnabled(true);
 		manager.setEventsEnabled(true);
