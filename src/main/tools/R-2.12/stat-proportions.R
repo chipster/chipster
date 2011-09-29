@@ -1,48 +1,78 @@
-# Test for differences in proportions
+# ANALYSIS Statistics/"Test proportions" (Tests for comparing proportions in dichotomized data.)
+# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT peop-test.tsv
 # PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
-# PARAMETER test [Fisher, Chisquare, hypergeometric] DEFAULT Chisquare (Test type)
-# PARAMETER p.value.adjustment.method [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method)
+# PARAMETER p.value.adjustment.method [none, Bonferroni, Holm, Hochberg, BH, BY, Storey-Q] DEFAULT BH (Multiple testing correction method)
 # PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
 
+# MG, 29.9.2011
+
+# Optional parameter
+# PARAMETER test [Fisher, Chisquare, hypergeometric] DEFAULT Chisquare (Test type)
+
+# Loads the libraries
+library(multtest)
+library(qvalue)
 
 # Loads the normalized data
-file<-c("normalized.tsv")
-dat<-read.table(file, header=T, sep="\t", row.names=1)
+file <- c("dichotomized_2.tsv")
+dat <- read.table(file, header=T, sep="\t", row.names=1)
 
 # Separates expression values and flags
-calls<-dat[,grep("flag", names(dat))]
-dat2<-dat[,grep("chip", names(dat))]
+calls <- dat[,grep("flag", names(dat))]
+dat_2 <- dat[,grep("chip", names(dat))]
 
 # Test needs a parameter "groups" that specifies the grouping of the samples
-phenodata<-read.table("phenodata.tsv", header=T, sep="\t")
-groups<-phenodata[,pmatch(column,colnames(phenodata))]
+phenodata <- read.table("phenodata.tsv", header=T, sep="\t")
+groups <- phenodata[,pmatch(column,colnames(phenodata))]
+group_levels <- (unique(groups))
 
 # Sanity checks
-if(length(unique(groups))==1 | length(unique(groups))>=3) {
-	stop("You need to have exactly two groups to run this analysis")
+num_groups <- length(unique(groups))
+if(num_groups<=1) {
+	stop("CHIPSTER NOTE: You need to have at least two groups to run this analysis")
 }
 
-# Chi-square test
-if(meth=="Chisquare") {
-	p<-c()
-	len<-nrow(dat2)
-	dat2.1<-dat2[,groups==unique(groups)[1]]
-	dat2.2<-dat2[,groups==unique(groups)[2]]
-	for(i in 1:len) {
-		p<-c(p, var.test(x=as.numeric(dat2.1[i,]), y=as.numeric(dat2.2[i,]))$p.value)
-	}
-	p.raw<-p
-	if(adj.method=="none") {
-		p.adjusted<-p.raw
-	}
-	if(adj.method=="Bonferroni" | adj.method=="BH") {
-		p.adjusted<-mt.rawp2adjp(p.raw, adj.method)
-		p.adjusted<-p.adjusted$adjp[order(p.adjusted$index),][,2]
-	}
-	dat<-dat[p.adjusted<=p.cut,]   
-	p.adjusted<-p.adjusted[p.adjusted<=p.cut]
-	write.table(data.frame(dat, p.adjusted=round(p.adjusted, digits=6)), file="two-sample.tsv", sep="\t", row.names=T, col.names=T, quote=F)
+# Calculate number of 0 and 1 occurrencies for each group of samples
+dat_0 <- matrix(nrow=nrow(dat_2), ncol=length(group_levels), NA)
+dat_1 <- matrix(nrow=nrow(dat_2), ncol=length(group_levels), NA)
+for(group_count in 1:length(group_levels)) {
+	dat_0[,group_count] <- rowSums(data.frame(dat_2[,which(groups==group_levels[group_count])]))
+	dat_1[,group_count] <- ncol(dat_2)-dat_0[,group_count] 
+}
+
+# Perform test of equal proportions per row of data
+results <- matrix (nrow=nrow(dat_2), ncol=2)
+for (row_number in 1:nrow(dat_2)) {
+	counts_table <- matrix(nrow=length(group_levels),ncol=2,data=c(dat_0[row_number,],dat_1[row_number,]), byrow=FALSE)
+	results[row_number,1] <- prop.test(counts_table)$statistic
+	results[row_number,2] <- prop.test(counts_table)$p.value
 }
 
 
+# Extract raw p-values
+raw_p <- results[,2]
 
+# Perform multiple testing correction
+if (p.value.adjustment.method != "none") {
+	if (p.value.adjustment.method == "Storey-Q") {
+		adj_p <- qvalue(raw_p)
+		adj_p2 <- adj_p$qvalues
+	} else {
+		adj_p <- mt.rawp2adjp(raw_p, proc=as.character(p.value.adjustment.method))
+		adj_p2 <- adj_p$adjp[order(adj_p$index),][,2]
+	}
+	adj_p2df <- as.data.frame(adj_p2)
+	results <- cbind(results, adj_p2df)
+	colnames(results) <- c("chi_square","p_value", "adjusted_p_value")
+} else {
+	colnames(results) <- c("chi_square","p_value")
+}
+
+# Extract only significant results
+dat_out <- data.frame(dat,results)
+if (p.value.adjustment.method != "none") {
+	dat_out <- dat_out[dat_out$adjusted_p_value <= p.value.threshold,]   
+}
+
+# Writing out data
+write.table(dat_out, file="prop-test.tsv", sep="\t", row.names=T, col.names=T, quote=F)
