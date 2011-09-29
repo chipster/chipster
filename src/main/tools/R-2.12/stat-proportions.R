@@ -1,5 +1,5 @@
 # ANALYSIS Statistics/"Test proportions" (Tests for comparing proportions in dichotomized data.)
-# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT peop-test.tsv
+# INPUT GENE_EXPRS normalized.tsv, GENERIC phenodata.tsv OUTPUT prop-test.tsv
 # PARAMETER column METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
 # PARAMETER p.value.adjustment.method [none, Bonferroni, Holm, Hochberg, BH, BY, Storey-Q] DEFAULT BH (Multiple testing correction method)
 # PARAMETER p.value.threshold DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
@@ -14,7 +14,7 @@ library(multtest)
 library(qvalue)
 
 # Loads the normalized data
-file <- c("dichotomized_2.tsv")
+file <- c("normalized.tsv")
 dat <- read.table(file, header=T, sep="\t", row.names=1)
 
 # Separates expression values and flags
@@ -48,6 +48,9 @@ for (row_number in 1:nrow(dat_2)) {
 	results[row_number,2] <- prop.test(counts_table)$p.value
 }
 
+# If NAN result replace with statistic 0 and p-value 1
+results[is.nan(results[,1]),1] <- 0
+results[is.nan(results[,2]),2] <- 1
 
 # Extract raw p-values
 raw_p <- results[,2]
@@ -72,6 +75,8 @@ if (p.value.adjustment.method != "none") {
 dat_out <- data.frame(dat,results)
 if (p.value.adjustment.method != "none") {
 	dat_out <- dat_out[dat_out$adjusted_p_value <= p.value.threshold,]   
+} else {
+	dat_out <- dat_out[dat_out$p_value <= p.value.threshold,]   
 }
 
 # Writing out data
