@@ -83,8 +83,7 @@ public class ZipDataBeanHandler extends DataBeanHandlerBase {
 	}
 
 	public OutputStream getOutputStream(DataBean dataBean) throws IOException {
-		// FIXME
-		throw new UnsupportedOperationException("not supported yet");
+		throw new UnsupportedOperationException("zip data bean does not support output");
 	}
 	
 }

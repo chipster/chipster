@@ -687,18 +687,15 @@ public class DataManager {
 	 * @throws IOException 
 	 */
 	public OutputStream getContentOutputStreamAndLockDataBean(DataBean bean) throws IOException {
-		// FIXME find correct place for this
+
 		bean.setContentChanged(true);
 		
-		// for local temp beans, just get the output stream
-		if (bean.getStorageMethod().equals(StorageMethod.LOCAL_TEMP)) {
-			return bean.getHandler().getOutputStream(bean);
+		// Only local temp beans support output, so convert to local temp bean if needed
+		if (!bean.getStorageMethod().equals(StorageMethod.LOCAL_TEMP)) {
+			this.convertToLocalTempDataBean(bean);
 		}
-		// for other bean types, convert to local bean
-		else {
-			this.convertToLocalFileDataBean(bean);
-			return bean.getHandler().getOutputStream(bean);
-		}
+		
+		return bean.getHandler().getOutputStream(bean);
 	}
 
 	/**
@@ -723,7 +720,7 @@ public class DataManager {
 	public File getLocalFile(DataBean bean) throws IOException {
 		// convert non local file beans to local file beans
 		if (!(bean.getHandler() instanceof LocalFileDataBeanHandler)) {
-			this.convertToLocalFileDataBean(bean);
+			this.convertToLocalTempDataBean(bean);
 		}
 		
 		// get the file
@@ -732,7 +729,7 @@ public class DataManager {
 	}
 	
 	
-	private void convertToLocalFileDataBean(DataBean bean) throws IOException {
+	private void convertToLocalTempDataBean(DataBean bean) throws IOException {
 		// FIXME lock bean
 		
 		// TODO think about that name
