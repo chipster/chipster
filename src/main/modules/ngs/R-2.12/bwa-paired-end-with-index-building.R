@@ -27,38 +27,51 @@
 
 # KM 26.8.2011
 
-# bwa
-bwa.binary <- file.path(chipster.tools.path, "bin", "bwa")
+
+##
+# bwa indexing
+##
 bwa.index.binary <- file.path(chipster.tools.path, "bin", "check_bwa_index.csh")
 bwa.indexes <- file.path(chipster.tools.path, "bwa_indexes/tmp")
-
-command.start <- paste("bash -c '", bwa.binary)
 
 check.command <- paste ( bwa.index.binary, "genome.txt| tail -1 ")
 genome.dir <- system(check.command, intern = TRUE)
 bwa.genome <- file.path( genome.dir , "genome.txt")
 
-#stop(paste('CHIPSTER-NOTE: ', bwa.genome))
-# common parameters
 
+###
+# common parameters for bwa runs
+###
 # mode specific parameters
+bwa.binary <- file.path(chipster.tools.path, "bin", "bwa")
+command.start <- paste("bash -c '", bwa.binary)
 quality.parameter <- ifelse(quality.format == "solexa1_3", "-I", "")
 mode.parameters <- paste("aln -t 2 -o", num.gaps, "-e", num.extensions, "-d", disallow.gaps, "-i" , disallow.indel , "-l" , seed.length , "-k" , seed.edit , "-O" , gap.opening , "-E" , gap.extension , "-q" , trim.threshold, "-B" , barcode.length , "-M" , mismatch.penalty , quality.parameter)
 
-# command ending
+###
+# run the first set
+###
 command.end <- paste(bwa.genome, "reads1.txt 1> alignment1.sai 2> bwa.log'")
-command.end <- paste(bwa.genome, "reads2.txt 1> alignment2.sai 2> bwa.log'")
-
-
-# run bwa alignment
 bwa.command <- paste(command.start, mode.parameters, command.end)
 #stop(paste('CHIPSTER-NOTE: ', bwa.command))
 system(bwa.command)
 
 
+###
+# run the second set
+###
+command.end <- paste(bwa.genome, "reads2.txt 1> alignment2.sai 2>> bwa.log'")
+bwa.command <- paste(command.start, mode.parameters, command.end)
+#stop(paste('CHIPSTER-NOTE: ', bwa.command))
+system(bwa.command)
+
+system("ls -l >> bwa.log")
+
+###
 # sai to sam conversion
+###
 sampe.parameters <- paste("sampe -n", alignment.no, "-a", max.insert, "-o" , max.occurrence , "-N" , max.discordant )
-sampe.end <- paste(bwa.genome, "alignment1.sai alignment2.sai reads1.txt reads1.txt 1> alignment.sam 2>samse.log'" )
+sampe.end <- paste(bwa.genome, "alignment1.sai alignment2.sai reads1.txt reads1.txt 1> alignment.sam 2>>bwa.log'" )
 sampe.command <- paste( command.start, sampe.parameters , sampe.end )
 system(sampe.command)
 

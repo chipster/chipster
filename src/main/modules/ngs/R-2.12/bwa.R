@@ -42,14 +42,17 @@ command.end <- paste(bwa.genome, "reads.txt 1> alignment.sai 2> bwa.log'")
 
 # run bwa alignment
 bwa.command <- paste(command.start, mode.parameters, command.end)
+
 #stop(paste('CHIPSTER-NOTE: ', bwa.command))
 system(bwa.command)
 
-
+#system ("pwd")
+#system ("ls -l >> bwa.log")
 # sai to sam conversion
 samse.parameters <- paste("samse -n", alignment.no )
-samse.end <- paste(genome, "alignment.sai reads.txt 1> alignment.sam 2>samse.log'" )
+samse.end <- paste(bwa.genome, "alignment.sai reads.txt 1> alignment.sam 2>>bwa.log'" )
 samse.command <- paste( command.start, samse.parameters , samse.end )
+paste('CHIPSTER-NOTE: ', samse.command)
 system(samse.command)
 
 		

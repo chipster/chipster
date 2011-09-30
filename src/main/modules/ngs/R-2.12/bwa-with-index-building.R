@@ -52,7 +52,7 @@ system(bwa.command)
 
 # sai to sam conversion
 samse.parameters <- paste("samse -n", alignment.no )
-samse.end <- paste(bwa.genome, "alignment.sai reads.txt 1> alignment.sam 2>samse.log'" )
+samse.end <- paste(bwa.genome, "alignment.sai reads.txt 1> alignment.sam 2>> bwa.log'" )
 samse.command <- paste( command.start, samse.parameters , samse.end )
 system(samse.command)
 
