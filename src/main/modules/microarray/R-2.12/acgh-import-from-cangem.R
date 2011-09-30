@@ -15,7 +15,7 @@
 
 # import-from-cangem.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-06
+# 2011-06-30
 
 # check for valid accession
 accession <- toupper(accession)
@@ -31,6 +31,7 @@ if (session != 'empty' && session != '') {
 
 # fetch list of arrays from CanGEM
 cangem.samples <- read.table(paste('http://www.cangem.org/scripts/listhybs.php?accession=', accession, auth, sep=''), sep='\t', header=TRUE, as.is=TRUE)
+cangem.samples$GUID <- NULL
 
 # check that we did get some results
 if (nrow(cangem.samples)==0)
