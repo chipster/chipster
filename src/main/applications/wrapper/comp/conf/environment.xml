@@ -176,6 +176,11 @@
       <package>moments</package>
     </item>
 
+	<item installed="false" name="snowfall" type="r-package">
+      <repository>http://cran.r-project.org</repository>
+      <package>snowfall</package>
+    </item>
+
 
 	<!--  BioConductor packages -->
 	
@@ -332,6 +337,10 @@
       <bioconductor-package>CGHregions</bioconductor-package>
     </item>
 
+    <item installed="false" name="CGHregions" type="r-package"> 
+      <bioconductor-package>CGHregions</bioconductor-package>
+    </item>
+
     <item installed="false" name="DNAcopy" type="r-package"> 
       <bioconductor-package>DNAcopy</bioconductor-package>
     </item>
@@ -351,68 +360,6 @@
     <item installed="false" name="MEDIPS" type="r-package"> 
       <bioconductor-package>MEDIPS</bioconductor-package>
     </item>
-
-
-  </bundle>
-  
-  <bundle name="Additional R packages" depends="Basic R environment">
-     
-    <!--  BioConductor annotations -->
-    
-    <item installed="false" name="bioconductor-annotations" type="r-package"> 
-      <bioconductor-repository>4</bioconductor-repository>
-    </item>
-
-
-	<!--  Other packages -->
-	
-    <item installed="false" name="altcdf-annotations" type="r-package"> 
-      <from-web-page>http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/13.0.0/entrezg.asp</from-web-page>
-    </item>
-    
-    <item installed="false" name="affy-exon-exon-rat" type="r-package">
-    	<url>http://xmap.picr.man.ac.uk/downloads/cdf/ratexonpmcdf_1.1.tar.gz</url>
-    </item>
-
-    <item installed="false" name="affy-exon-exon-mouse" type="r-package">
-    	<url>http://xmap.picr.man.ac.uk/downloads/cdf/mouseexonpmcdf_1.1.tar.gz</url>
-    </item>
-    
-    <item installed="false" name="affy-exon-exon-human" type="r-package">
-    	<url>http://xmap.picr.man.ac.uk/downloads/cdf/exon.pmcdf_1.1.tar.gz</url>
-    </item>
-    
-  	<item installed="false" name="fpc" type="r-package">
-    	<url>http://addictedtor.free.fr/packages/fpc_1.1-5.tar.gz</url>
-    </item>
-
-	<item installed="false" name="A2R" type="r-package">
-    	<url>http://addictedtor.free.fr/packages/A2R/A2R_0.0-4.tar.gz</url>
-    </item>
-
-	<item installed="false" name="rda" type="r-package">
-    	<url>http://cran.r-project.org/src/contrib/Archive/rda/rda_1.0.1.tar.gz</url>
-    </item>
-    	
-	<item installed="false" name="ROTS" type="r-package">
-    	<url>http://www.math.utu.fi/en/research/groups/bio/projects/ROTS_1.1.1.tar.gz</url>
-    </item>    
-    
-    <item installed="false" name="WECCA" type="r-package"> 
-    	<url>http://www.few.vu.nl/~wvanwie/WECCA/WECCA_0.30.tar.gz</url>
-    </item>
-
-    <item installed="false" name="NoWaves" type="r-package"> 
-    	<url>http://www.few.vu.nl/~mavdwiel/NoWaves/NoWaves_0.4.tar.gz</url>
-    </item>
-
-    <item installed="false" name="intCNGEan" type="r-package"> 
-      <url>http://www.few.vu.nl/~wvanwie/software/intCNGEan/intCNGEan_0.53.tar.gz</url>
-    </item>
-    
-	<item installed="false" name="CORNA" type="r-package">
-		<url>http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools-extras/CORNA_1.2.tar.gz</url>
-    </item>    
     
     <item installed="false" name="microRNA" type="r-package"> 
       <bioconductor-package>microRNA</bioconductor-package>
@@ -489,18 +436,79 @@
     <item installed="false" name="lumiRatIDMapping" type="r-package"> 
       <bioconductor-package>lumiRatIDMapping</bioconductor-package>
     </item>
-   
+
+  </bundle>
+  
+  <bundle name="Additional R packages" depends="Basic R environment">
+     
+    <!--  BioConductor annotations -->
+    
+    <item installed="false" name="bioconductor-annotations" type="r-package"> 
+      <bioconductor-repository>4</bioconductor-repository>
+    </item>
+
+
+	<!--  Other packages -->
+	
+    <item installed="false" name="altcdf-annotations" type="r-package"> 
+      <from-web-page>http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/13.0.0/entrezg.asp</from-web-page>
+    </item>
+    
+    <item installed="false" name="affy-exon-exon-rat" type="r-package">
+    	<url>http://xmap.picr.man.ac.uk/downloads/cdf/ratexonpmcdf_1.1.tar.gz</url>
+    </item>
+
+    <item installed="false" name="affy-exon-exon-mouse" type="r-package">
+    	<url>http://xmap.picr.man.ac.uk/downloads/cdf/mouseexonpmcdf_1.1.tar.gz</url>
+    </item>
+    
+    <item installed="false" name="affy-exon-exon-human" type="r-package">
+    	<url>http://xmap.picr.man.ac.uk/downloads/cdf/exon.pmcdf_1.1.tar.gz</url>
+    </item>
+    
+  	<item installed="false" name="fpc" type="r-package">
+    	<url>http://addictedtor.free.fr/packages/fpc_1.1-5.tar.gz</url>
+    </item>
+
+	<item installed="false" name="A2R" type="r-package">
+    	<url>http://addictedtor.free.fr/packages/A2R/A2R_0.0-4.tar.gz</url>
+    </item>
+
+	<item installed="false" name="rda" type="r-package">
+    	<url>http://cran.r-project.org/src/contrib/Archive/rda/rda_1.0.1.tar.gz</url>
+    </item>
+    	
+	<item installed="false" name="ROTS" type="r-package">
+    	<url>http://www.math.utu.fi/en/research/groups/bio/projects/ROTS_1.1.1.tar.gz</url>
+    </item>    
+    
+    <item installed="false" name="WECCA" type="r-package"> 
+    	<url>http://www.few.vu.nl/~wvanwie/WECCA/WECCA_0.30.tar.gz</url>
+    </item>
+
+    <item installed="false" name="NoWaves" type="r-package"> 
+    	<url>http://www.few.vu.nl/~mavdwiel/NoWaves/NoWaves_0.4.tar.gz</url>
+    </item>
+
+    <item installed="false" name="intCNGEan" type="r-package"> 
+      <url>http://www.few.vu.nl/~wvanwie/software/intCNGEan/intCNGEan_0.53.tar.gz</url>
+    </item>
+    
+	<item installed="false" name="CORNA" type="r-package">
+		<url>http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools-extras/CORNA_1.2.tar.gz</url>
+    </item>    
+    
+	<item installed="false" name="CGHtest" type="r-package">
+		<url>http://www.few.vu.nl/~mavdwiel/CGHtest/CGHtest_1.1.tar.gz</url>
+    </item>
+		
+	<item installed="false" name="CGHtestpar" type="r-package">
+		<url>http://www.few.vu.nl/~mavdwiel/CGHtest/CGHtestpar_0.0.tar.gz</url>
+    </item>
+
   </bundle>
   
   <bundle name="External applications">
-
-    <item installed="false" name="Weeder" type="application">
-      <dir>/opt/chipster/tools/weeder</dir>
-      <comment>
-      	Download http://159.149.109.9/modtools/downloads/weeder1.3.1.tar.gz 
-      	and install.
-      </comment>
-    </item>
 
     <item installed="false" name="ClusterBuster" type="application">
       <dir>/opt/chipster/tools/ClusterBuster</dir>
@@ -516,53 +524,22 @@
 	  </comment>
 	</item>
 
-	<item installed="false" name="Mafft" type="application">
-	  <dir>/opt/chipster/tools/mafft</dir>
+    <item installed="false" name="Weeder" type="application">
+      <dir>/opt/chipster/tools/weeder</dir>
       <comment>
-      	Download http://align.bmr.kyushu-u.ac.jp/mafft/software/mafft-6.712-with-extensions-src.tgz 
+      	Download http://159.149.109.9/modtools/downloads/weeder1.3.1.tar.gz 
       	and install.
-      </comment>
-    </item>
-
-	<item installed="false" name="Muscle" type="application">
-	  <dir>/opt/chipster/tools/weeder</dir>
-      <comment>
-      	Download http://www.drive5.com/muscle/downloads3.7/muscle3.7_src.tar.gz 
-      	and install.
-      </comment>
-    </item>
-
-
-	<item installed="false" name="EMBOSS seqret" type="application">
-	  <dir>/opt/chipster/tools/emboss</dir>
-      <comment>
-      	Download from http://emboss.sourceforge.net/download/ and install seqret 
-      	application to EMBOSS-5.0.0/bin
-      </comment>
-    </item>
-
-	<item installed="false" name="clustalw2" type="application">
-	  <dir>/opt/chipster/tools/clustal</dir>
-      <comment>
-      	Download from ftp://ftp.ebi.ac.uk/pub/software/clustalw2 and install
-      </comment>
-    </item>
-
-	<item installed="false" name="RAxML" type="application">
-	  <dir>/opt/chipster/tools/raxml</dir>
-      <comment>
-      	Download from http://icwww.epfl.ch/%7Estamatak/index-Dateien/Page443.htm and install
       </comment>
     </item>
 
 	<item installed="false" name="Promoter sequences" type="application">
 	  <dir>/opt/chipster/tools/weeder/seqs</dir>
       <comment>	
-      	Promoter analysis tools need the promoter sequences in a suitable format. Download the 
-      	promoter sequence file for human, mouse and rat from http://hgdownload.cse.ucsc.edu/downloads.html, 
-      	and for yeast from http://www.ncbi.nlm.nih.gov/CBBresearch/Landsman/Cell_cycle_data/upstream_seq.html.
-		Run the accessory script promoter-accessory.R for these sequence files. The result is a bunch of 
-		tabular files that must be placed to /opt/chipster/tools/weeder/seqs/. 
+      	Promoter analysis tools need the promoter sequences in a suitable format. 
+      	Download and unpack sequence files to directory weeder/seqs: 
+      	http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools-extras/weeder-seqs/all-sequence-files.zip
+        For information on how the sequence files were generated, see 
+        http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools-extras/weeder-seqs/README.TXT 
       </comment>
     </item>
 

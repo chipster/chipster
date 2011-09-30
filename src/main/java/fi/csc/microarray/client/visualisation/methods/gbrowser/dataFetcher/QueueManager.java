@@ -10,7 +10,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 public class QueueManager implements AreaResultListener {
 
@@ -58,16 +57,16 @@ public class QueueManager implements AreaResultListener {
 
 		req.status.maybeClearQueue(context.queue);
 		context.queue.add(req);
-		context.thread.notifyTree();
+		context.thread.notifyAreaRequestHandler();
 	}
 
 	public void addResultListener(DataSource file, AreaResultListener listener) {
 		queues.get(file).listeners.add(listener);
 	}
 
-	public void processAreaResult(AreaResult<RegionContent> areaResult) {
+	public void processAreaResult(AreaResult areaResult) {
 
-		for (AreaResultListener listener : queues.get(areaResult.status.file).listeners) {
+		for (AreaResultListener listener : queues.get(areaResult.getStatus().file).listeners) {
 			listener.processAreaResult(areaResult);
 		}
 	}

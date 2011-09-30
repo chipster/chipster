@@ -174,7 +174,6 @@
 			</manifest>
 			<fileset dir="${build}/" />
 			<fileset dir="${data}/" />
-			<fileset dir="${modules}/" />
 		</jar>
 	</target>
 
@@ -266,7 +265,7 @@
 			<tarfileset dir="${ext-src}/wrapper/comp/conf" prefix="chipster/comp/conf" />
 			<tarfileset dir="${ext-src}/wrapper/comp/logs" prefix="chipster/comp/logs" /> <!-- must exist for wrapper -->
 			<tarfileset dir="${ext-src}/wrapper/comp/security" prefix="chipster/comp/security" />
-
+			<tarfileset dir="${modules}/" prefix="chipster/comp/modules" />
 			
 			
 			<!-- fileserver -->
@@ -277,6 +276,9 @@
 
 			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/fileserver/bin/linux-x86-64" />
 			<tarfileset file="${ext-src}/wrapper/fileserver/chipster-fileserver" filemode="755" prefix="chipster/fileserver/bin/linux-x86-64" />
+
+			<tarfileset file="${wrapper-macosx}/bin/wrapper" filemode="755" prefix="chipster/fileserver/bin/macosx" />
+			<tarfileset file="${ext-src}/wrapper/fileserver/chipster-fileserver" filemode="755" prefix="chipster/fileserver/bin/macosx" />
 
 			<tarfileset file="${wrapper-windows-x86-32}/bin/wrapper.exe" filemode="755" prefix="chipster/fileserver/bin/win32" />
 			<tarfileset file="${ext-src}/wrapper/win32/chipster.bat" filemode="755" fullpath="chipster/fileserver/bin/win32/chipster-fileserver.bat" />
@@ -298,6 +300,9 @@
 			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/client/bin/linux-x86-64" />
 			<tarfileset file="${ext-src}/wrapper/client/chipster-client" filemode="755" prefix="chipster/client/bin/linux-x86-64" />
 
+			<tarfileset file="${wrapper-macosx}/bin/wrapper" filemode="755" prefix="chipster/client/bin/macosx" />
+			<tarfileset file="${ext-src}/wrapper/client/chipster-client" filemode="755" prefix="chipster/client/bin/macosx" />
+
 			<tarfileset file="${wrapper-windows-x86-32}/bin/wrapper.exe" filemode="755" prefix="chipster/client/bin/win32" />
 			<tarfileset file="${ext-src}/wrapper/win32/chipster.bat" filemode="755" fullpath="chipster/client/bin/win32/chipster-manager.bat" />
 			<tarfileset file="${ext-src}/wrapper/win32/chipster-service.bat" filemode="755" prefix="chipster/client/bin/win32" />
@@ -317,6 +322,9 @@
 
 			<tarfileset file="${wrapper-linux-x86-64}/bin/wrapper" filemode="755" prefix="chipster/webstart/bin/linux-x86-64" />
 			<tarfileset file="${ext-src}/wrapper/webstart/chipster-webstart" filemode="755" prefix="chipster/webstart/bin/linux-x86-64" />
+
+			<tarfileset file="${wrapper-macosx}/bin/wrapper" filemode="755" prefix="chipster/webstart/bin/macosx" />
+			<tarfileset file="${ext-src}/wrapper/webstart/chipster-webstart" filemode="755" prefix="chipster/webstart/bin/macosx" />
 
 			<tarfileset file="${wrapper-windows-x86-32}/bin/wrapper.exe" filemode="755" prefix="chipster/webstart/bin/win32" />
 			<tarfileset file="${ext-src}/wrapper/win32/chipster.bat" filemode="755" fullpath="chipster/webstart/bin/win32/chipster-webstart.bat" />
@@ -380,7 +388,7 @@
 		</tar>
 
 	</target>
-
+	
 	<target name="package-zip" depends="package-tar" description="Create chipster zip">
 		<mkdir dir="temp"/>
 		<zip destfile="${release-zip}" compress="false" duplicate="fail" >	<property name="release-version" value="2.0" />

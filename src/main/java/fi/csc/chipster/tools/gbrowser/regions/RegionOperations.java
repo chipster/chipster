@@ -188,12 +188,6 @@ public class RegionOperations {
 		}
 	};
 
-	public static PairPolicy SUBTRACTED_LEFT_PAIR_POLICY = new PairPolicy() {
-		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
-			collector.add(new RegionContent(left.region.subtract(right.region), EMPTY_EXTRA_FIELDS));
-		}
-	};
-
 	public static PairPolicy RIGHT_PAIR_POLICY = new PairPolicy() {
 		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
 			collector.add(right);
@@ -203,12 +197,6 @@ public class RegionOperations {
 	public static PairPolicy RIGHT_PAIR_POLICY_WITH_AUGMENTATION = new PairPolicy() {
 		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
 			collector.add(augment(right, left));
-		}
-	};
-
-	public static PairPolicy SUBTRACTED_RIGHT_PAIR_POLICY = new PairPolicy() {
-		public void process(RegionContent left, RegionContent right, LinkedList<RegionContent> collector) {
-			collector.add(new RegionContent(right.region.subtract(left.region), EMPTY_EXTRA_FIELDS));
 		}
 	};
 

@@ -25,7 +25,7 @@
   <application-desc main-class="fi.csc.microarray.MicroarrayMain">
   	<argument>client</argument>
   	<argument>-module</argument>
-  	<argument>microarray</argument> <!-- alternative value: sequence -->
+  	<argument>fi.csc.microarray.module.chipster.MicroarrayModule</argument> <!-- alternative value: fi.csc.microarray.module.sequence.SequenceModule -->
   	<argument>-config</argument>
   	<argument></argument>
   </application-desc>

@@ -85,8 +85,8 @@ public class WIGTrack extends Track{
 	}
 	
 	@Override
-	public void processAreaResult(AreaResult<RegionContent> areaResult) {
-		this.values.add(areaResult.content);
+	public void processAreaResult(AreaResult areaResult) {
+		this.values.addAll(areaResult.getContents());
         getView().redraw();
 	}
 

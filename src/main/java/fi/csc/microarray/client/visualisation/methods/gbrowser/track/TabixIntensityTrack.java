@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
@@ -17,7 +18,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
@@ -37,7 +37,7 @@ public class TabixIntensityTrack extends Track {
 		this.minBpLength = minBpLength;
 		this.maxBpLength = maxBpLength;
 	}
-
+	
 	@Override
 	public Collection<Drawable> getDrawables() {
 
@@ -45,60 +45,82 @@ public class TabixIntensityTrack extends Track {
 
 		Iterator<RegionContent> iterator = values.iterator();
 		
-		int lastX = 0;
-		int lastY = (int) getView().getTrackHeight();
-		BpCoord lastStart = null;
 		
+		// Construct coverage profile by finding where it changes (derivate)
+		TreeMap<Integer, Integer> profileDerivate = new TreeMap<Integer, Integer>();
 		while (iterator.hasNext()) {
 
 			RegionContent regCont = iterator.next();
 			
-			// remove values that have gone out of view
+			// Remove values that have gone out of view
 			if (!regCont.region.intersects(getView().getBpRegion())) {
 				iterator.remove();
 				continue;
 			}
 			
-			// do the plotting for this consised value
-			BpCoord start = regCont.region.start;
-			int x1 = getView().bpToTrack(start);
-			//int x2 = getView().bpToTrack(regCont.region.end) + 2;
-			int y2 = (int) getView().getTrackHeight();						
-			
-			int val = (int) Math.min( (Math.log((Float)regCont.values.get(ColumnType.VALUE)) / regCont.region.getLength() * 1000), 
+			// Process this read
+			int startX = getView().bpToTrack(regCont.region.start);
+			int endX = getView().bpToTrack(regCont.region.end);
+			int height = (int) Math.min( (Math.log((Float)regCont.values.get(ColumnType.VALUE)) / regCont.region.getLength() * 1000), 
 					getView().getTrackHeight());
 			
-			int y1 = (int) (-val + y2);
-			
-			// if we are trying to cover a large genomic area and zoomed out, there was empty 
-			// region in the genome and we should not draw silly looking diagonal line
-			boolean zoomedOut = x1 - lastX > 10;
-			if ((lastStart == null || regCont.region.start.minus(lastStart) > 100000) && zoomedOut) {
-//				lastX = x1;
-// did not work with 8k summaries
+			// Update profile at the start location
+			if (profileDerivate.get(startX) == null) {
+				profileDerivate.put(startX, 0);
 			}
+			profileDerivate.put(startX, profileDerivate.get(startX) + height);
 			
-			drawables.add(new LineDrawable(lastX, lastY, x1, y1, color));
-			
-			lastX = x1;
-			lastY = y1;
-			lastStart = start; 
+			// Update profile at the end location
+			if (profileDerivate.get(endX) == null) {
+				profileDerivate.put(endX, 0);
+			}
+			profileDerivate.put(endX, profileDerivate.get(endX) - height);
+		}
+		
+
+		// Iterate over the profile changes (derivate) and draw the actual profile
+		Iterator<Integer> profileIterator = profileDerivate.keySet().iterator();
+		int lastX = -1;
+		int lastY = 0;
+		int lastDrawnX = -1;
+		int lastDrawnY = -1;
+		while (profileIterator.hasNext()) {
+
+			Integer x = profileIterator.next();
+			Integer newY = lastY + profileDerivate.get(x);
+
+			// Smooth profile by removing less than 10 pixel deviations
+			if (lastX != -1 && (x-lastX) > 10) {
+				
+				if (lastDrawnX != -1) {
+					drawables.add(new LineDrawable(lastDrawnX, lastDrawnY, lastX, newY, color));
+				}
+				
+				drawables.add(new LineDrawable(lastX, newY, x, newY, color));
+				lastDrawnX = x;
+				lastDrawnY = newY;
+			}
+
+			lastX = x;
+			lastY = newY;
 		}
 
 		return drawables;
 	}
 
-	public void processAreaResult(AreaResult<RegionContent> areaResult) {
+	public void processAreaResult(AreaResult areaResult) {
 		
-		
-		if (areaResult.status.concise == this.isConcised() && 
-				areaResult.content.values.get(ColumnType.VALUE) != null &&
-				areaResult.content.values.get(ColumnType.VALUE) instanceof Float &&
-				areaResult.content.region.intersects(getView().getBpRegion())) { 
-			
-			values.add(areaResult.content);
-			getView().redraw();
+		for (RegionContent content : areaResult.getContents()) {
+			if (areaResult.getStatus().concise == this.isConcised() && 
+					content.values.get(ColumnType.VALUE) != null &&
+					content.values.get(ColumnType.VALUE) instanceof Float &&
+					content.region.intersects(getView().getBpRegion())) { 
+
+				values.add(content);
+			}
 		}
+		
+		getView().redraw();
 	}
 
 	public Integer getHeight() {

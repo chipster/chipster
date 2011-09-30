@@ -1,20 +1,26 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.net.URL;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SAMFile;
+import net.sf.samtools.SAMFileReader;
+import net.sf.samtools.SAMSequenceRecord;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ChromosomeNameUnnormaliser;
 
 /**
  * Data source for SAM files.
  * 
- * @author naktinis
+ * @author Rimvydas Naktinis, Aleksi Kallio
  *
  */
 public class SAMDataSource extends DataSource {
-    
-    SAMFile samFile = null;
+	
+	private ChromosomeNameUnnormaliser chromosomeNameUnnormaliser = ChromosomeNameUnnormaliser.newIdentityPreversingUnnormaliser();
+	private SAMFileReader reader;
+
     
     
     public SAMDataSource(URL url) throws FileNotFoundException {
@@ -29,12 +35,37 @@ public class SAMDataSource extends DataSource {
      * @param file
      * @throws FileNotFoundException
      */
-    public SAMDataSource(File file, File indexFile) throws FileNotFoundException {
-        super(file);
-        samFile = new SAMFile(file, indexFile);
+    public SAMDataSource(File samFile, File indexFile) throws FileNotFoundException {
+        super(samFile);
+
+    	// BAMFileReader emits useless warning to System.err that can't be turned off,
+    	// so we direct it to other stream and discard. 
+    	PrintStream originalErr = System.err;
+    	System.setErr(new PrintStream(new ByteArrayOutputStream()));
+        this.reader = new SAMFileReader(samFile, indexFile);
+
+        // Iterate chromosomes to check naming convention
+        for (SAMSequenceRecord sequenceRecord : this.reader.getFileHeader().getSequenceDictionary().getSequences()) {
+
+        	// Create unnormaliser for this naming convention
+        	this.chromosomeNameUnnormaliser = new ChromosomeNameUnnormaliser(sequenceRecord.getSequenceName());
+
+        	// Look only at the first sequence (assume all have the same convention)
+        	break;
+        }
+
+        
+        // Restore System.err
+        System.setErr(originalErr);
+
     }
-    
-    public SAMFile getSAM() {
-        return samFile;
-    }
+
+	public SAMFileReader getReader() {
+		return reader;
+	}
+
+	public ChromosomeNameUnnormaliser getChromosomeNameUnnormaliser() {
+		return chromosomeNameUnnormaliser;
+	}
+
 }

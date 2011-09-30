@@ -322,7 +322,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 	}
 
 	public void redraw() {
-		this.datasetChanged(new DatasetChangeEvent(this, null));
+		this.datasetChanged(new DatasetChangeEvent(this, null));		
 	}
 
 	public Collection<View> getViews() {

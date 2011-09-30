@@ -12,7 +12,7 @@ public class PreprocessNGSSingle extends JavaAnalysisJobBase {
 
 	@Override
 	public String getSADL() {
-		return 	"TOOL PreprocessNGSSingle.java: \"Preprocess NGS data\" (Preprocesses SAM or BAM formatted input files. Input is converted if necessary to BAM, sorted and indexed. Please note that preprocessing is required for visualising the data in the Chipster Genome browser.)" + "\n" +
+		return 	"TOOL PreprocessNGSSingle.java: \"Convert SAM to BAM, sort and index BAM\" (Converts SAM to BAM and sorts and indexes BAM files. Please note that this preprocessing is required for visualising the data in the Chipster Genome browser. This tools is based on the Picard package.)" + "\n" +
 				"INPUT data.bam: \"Input bam file\" TYPE GENERIC" + "\n" +
 				"OUTPUT preprocessed.bam: \"Preprocessed bam file\"" + "\n" + 
 		        "OUTPUT preprocessed.bam.bai: \"Preprocessed bam index file\"" + "\n"; 

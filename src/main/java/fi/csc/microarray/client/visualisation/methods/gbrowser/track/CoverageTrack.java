@@ -21,7 +21,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
  * Track for showing the coverage of reads. Profile is drawn by calculating
@@ -163,7 +162,7 @@ public class CoverageTrack extends Track {
 		return drawables;
 	}
 
-	public void processAreaResult(AreaResult<RegionContent> areaResult) {
+	public void processAreaResult(AreaResult areaResult) {
 		// Do not listen to actual read data, because that is taken care by ReadpartDataProvider
 	}
 
@@ -198,6 +197,7 @@ public class CoverageTrack extends Track {
         HashMap<DataSource, Set<ColumnType>> datas = new
         HashMap<DataSource, Set<ColumnType>>();
         datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
+        		ColumnType.ID, 
                 ColumnType.SEQUENCE,
                 ColumnType.STRAND })));
         return datas;

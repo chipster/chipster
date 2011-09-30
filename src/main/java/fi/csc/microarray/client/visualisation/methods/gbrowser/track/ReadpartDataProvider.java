@@ -38,14 +38,42 @@ public class ReadpartDataProvider implements AreaResultListener {
 	}
 
 	@Override
-	public void processAreaResult(AreaResult<RegionContent> areaResult) {
+	public void processAreaResult(AreaResult areaResult) {
 		// Check that areaResult has false concised status and correct strand
-		if (areaResult.status.file == readData && areaResult.status.concise == false) {
+		if (areaResult.getStatus().file == readData && areaResult.getStatus().concise == false) {
+			
 			// Add this to queue of RegionContents to be processed
-			this.reads.add(areaResult.content);
-			needsRefresh = true;
+			synchronized (reads) {
+
+				// Here identical region contents are removed (set semantics, no duplicates)
+				// So it is essential that reads have their unique ID's.
+				this.reads.addAll(areaResult.getContents());
+				needsRefresh = true;
+			}
 			view.redraw();
 		}
+	}
+
+	public Iterable<ReadPart> getReadparts(Strand strand) {
+
+		synchronized (reads) {
+
+			if (needsRefresh) {
+				refreshReadparts();
+				needsRefresh = false;
+			}
+
+			switch (strand) {
+			case BOTH:
+				return readParts;
+			case FORWARD:
+				return readPartsF;
+			case REVERSED:
+				return readPartsR;
+			}
+			throw new IllegalArgumentException("illegal strand: " + strand);
+		}
+
 	}
 
 	private void refreshReadparts() {
@@ -86,24 +114,6 @@ public class ReadpartDataProvider implements AreaResultListener {
 		Collections.sort(readParts);
 		Collections.sort(readPartsF);
 		Collections.sort(readPartsR);
-	}
-
-	public Iterable<ReadPart> getReadparts(Strand strand) {
-		
-		if (needsRefresh) {
-			refreshReadparts();
-			needsRefresh = false;
-		}
-		
-		switch (strand) {
-			case BOTH:
-				return readParts;
-			case FORWARD:
-				return readPartsF;
-			case REVERSED:
-				return readPartsR;
-		}
-		throw new IllegalArgumentException("illegal strand: " + strand);
 	}
 
 }

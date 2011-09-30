@@ -1,5 +1,8 @@
 package fi.csc.microarray.cluster;
 
+import java.io.File;
+
+import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.LookaheadStringReader;
 
 /**
@@ -113,4 +116,8 @@ public class ClusterParser {
 		}
 	}
 
+	public static void main(String[] args) throws Exception  {
+		String tree = Files.fileToString(new File("test.tre")); // for testing parsing issues
+		new ClusterParser(tree).getTree();
+	}
 }
