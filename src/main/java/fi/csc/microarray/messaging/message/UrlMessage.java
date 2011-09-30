@@ -7,7 +7,7 @@ import javax.jms.JMSException;
 import javax.jms.MapMessage;
 
 
-public class UrlMessage extends NamiMessage {
+public class UrlMessage extends ChipsterMessage {
 	
 	private final static String KEY_URL = "url";
 	

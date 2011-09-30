@@ -1,0 +1,232 @@
+<module name="ngs">
+
+	<category name="Filtering" color="#d5c796">
+		<tool runtime="R-2.12">
+			<resource>fastx-clipper.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>ngs-filter-annotations.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>ngs-filter-results-column.R</resource>
+		</tool>
+	</category>
+
+	<category name="Quality control" color="#e7df70">
+		<tool runtime="R-2.12">
+			<resource>fastqc.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>fastx-statistics.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>fastx-quality-filter.R</resource>
+		</tool>
+	</category>
+
+	<category name="Utilities" color="#d59f45">
+		<tool runtime="R-2.12">
+			<resource>ngs-create-experiment.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>fastx-trimmer.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>fastx-fastq-to-fasta.R</resource>
+		</tool>
+		<tool runtime="java">
+			<resource>fi.csc.chipster.tools.ngs.PreprocessNGSSingle</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>samtools-merge.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bedtools-sort.R</resource>
+		</tool>	
+		<tool runtime="R-2.12">
+			<resource>bedtools-bamtobed.R</resource>
+		</tool>	
+		<tool runtime="R-2.12">
+			<resource>bedtools-fastafrombed.R</resource>
+		</tool>	
+		<tool runtime="R-2.12">
+			<resource>bedtools-mergebed.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bedtools-slopbed.R</resource>
+		</tool>	
+		<tool runtime="R-2.12">
+			<resource>bedtools-subtractbed.R</resource>
+		</tool>	
+	
+	</category>
+
+	<category name="Matching genomic regions" color="#e7881c">
+		<tool runtime="java">
+			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingTool
+			</resource>
+		</tool>
+		<tool runtime="java">
+			<resource>fi.csc.chipster.tools.ngs.regions.RemoveOverlappingTool
+			</resource>
+		</tool>
+		<tool runtime="java">
+			<resource>fi.csc.chipster.tools.ngs.regions.FuseRegionsTool
+			</resource>
+		</tool>
+		<tool runtime="java">
+			<resource>fi.csc.chipster.tools.ngs.regions.CombineRegionsTool
+			</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bedtools-intersectbed.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bedtools-closestbed.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bedtools-windowbed.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bedtools-coveragebed.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bedtools-genomecoveragebed.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bedtools-overlap.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bedtools-pairtobed.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bedtools-pairtopair.R</resource>
+		</tool>
+
+		
+		
+	</category>
+
+	<category name="Alignment" color="#d53833">
+		<tool runtime="R-2.12">
+			<resource>bowtie.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bowtie-paired-end.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bowtie-with-index-building.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bowtie-paired-end-with-index-building.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>tophat.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>tophat-single-end.R</resource>
+		</tool>
+	    <tool runtime="R-2.12">
+			<resource>bwa.R</resource>
+		</tool>
+	    <tool runtime="R-2.12">
+			<resource>bwa-paired-end.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bwa-with-index-building.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bwa-paired-end-with-index-building.R</resource>
+		</tool>
+	</category>
+
+	<category name="RNA-seq" color="#80a3b7">
+		<tool runtime="R-2.12">
+			<resource>htseq-count.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>htseq-count-own-gtf.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>convert-RNA-bam-to-edger.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>ngs-dea-edger-RNA.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>dea-cufflinks.R</resource>
+		</tool>
+	</category>
+
+	<category name="miRNA-seq" color="#0177b7">
+		<tool runtime="R-2.12">
+			<resource>convert-bam-to-edger.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>convert-miRBase-bam-to-edger.R</resource>
+		</tool>
+		<!--
+		<tool runtime="java">
+			<resource>fi.csc.chipster.tools.ngs.regions.FindOverlappingDatabaseTool</resource>
+		</tool>
+		-->
+		<tool runtime="R-2.12">
+			<resource>ngs-dea-edger.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>ngs-annotate-miRNA-targets.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>ngs-pathways-mirna-hyperg-go.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>ngs-pathways-mirna-hyperg-kegg.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>ngs-correlation-analysis-mirna.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>ngs-up-down-analysis-mirna.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>ngs-extract-target-gene-expression.R</resource>
+		</tool>
+	</category>
+
+	<category name="ChIP-seq" color="#629a9b">
+		<tool runtime="R-2.12">
+			<resource>ngs-find-peaks-macs-one.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>ngs-find-peaks-macs-two.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>ngs-find-motifs-jaspar.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>ngs-find-nearest-genes.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>ngs-find-unique-genes.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>pathways-ngs-hyperg-go.R</resource>
+		</tool>
+	</category>
+
+	<category name="Methyl-seq" color="#c0d2de">
+		<tool runtime="R-2.12">
+			<resource>convertBAMtoMEDIPS_V2.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>combineMEDIPS_V2.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>MEDIPS_one_sample_V1.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>MEDIPS_two_samples_V1.R</resource>
+		</tool>
+	</category>
+
+</module>

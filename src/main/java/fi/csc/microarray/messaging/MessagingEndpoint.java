@@ -32,7 +32,7 @@ import fi.csc.microarray.messaging.MessagingTopic.Type;
 import fi.csc.microarray.messaging.auth.AuthenticatedTopic;
 import fi.csc.microarray.messaging.auth.AuthenticationRequestListener;
 import fi.csc.microarray.messaging.message.CommandMessage;
-import fi.csc.microarray.messaging.message.NamiMessage;
+import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.util.KeyAndTrustManager;
 import fi.csc.microarray.util.UrlTransferUtil;
 
@@ -216,17 +216,17 @@ public class MessagingEndpoint implements MessagingListener {
 		return new AuthenticatedTopic(session, topicName.toString(), Type.NORMAL, accessMode, authenticationListener, this);		
 	}
 	
-    public void replyToMessage(NamiMessage original, NamiMessage reply) throws JMSException {
+    public void replyToMessage(ChipsterMessage original, ChipsterMessage reply) throws JMSException {
     	replyToMessage(original, reply, DEFAULT_REPLY_CHANNEL);
     }
 
-    public void replyToMessage(NamiMessage original, NamiMessage reply, String replyChannel) throws JMSException {
+    public void replyToMessage(ChipsterMessage original, ChipsterMessage reply, String replyChannel) throws JMSException {
     	reply.setMultiplexChannel(replyChannel);
     	Destination replyToDest = original.getReplyTo();
     	replyToMessage(replyToDest, reply);
     }
 
-    private void replyToMessage(Destination replyToDest, NamiMessage reply) throws JMSException {
+    private void replyToMessage(Destination replyToDest, ChipsterMessage reply) throws JMSException {
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
     	try {
 			MapMessage msg = session.createMapMessage();
@@ -240,7 +240,7 @@ public class MessagingEndpoint implements MessagingListener {
 	/**
 	 * Reacts to administrative messages.
 	 */
-	public void onNamiMessage(NamiMessage msg) {
+	public void onChipsterMessage(ChipsterMessage msg) {
 		try {
 			CommandMessage txtMsg = (CommandMessage)msg;
 			logger.debug("got admin request " + txtMsg.getCommand());

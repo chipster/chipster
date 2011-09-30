@@ -53,6 +53,7 @@ public class ConfigTool {
 			{"URL of Web Start files", "http://myhost.mydomain"},
 			{"Web Start www-server port", "8081"},
 			{"manager www-console port", "8082"},
+			{"admin e-mail address", "chipster-admin@mydomain"},
 			{CURRENT_R_VERSION + ".x command", "/opt/chipster/tools/" + CURRENT_R_VERSION + ".0/"},
 			{"max. simultanous jobs (more recommended when compute service on separate node)", "3"}
 	};
@@ -68,8 +69,9 @@ public class ConfigTool {
 	private final int WS_CODEBASE_INDEX = 5;
 	private final int WS_PORT = 6;
 	private final int MANAGER_PORT = 7;
-	private final int R_COMMAND_INDEX = 8;
-	private final int MAX_JOBS_INDEX = 9;
+	private final int MANAGER_EMAIL = 8;
+	private final int R_COMMAND_INDEX = 9;
+	private final int MAX_JOBS_INDEX = 10;
 
 	private String[][] passwords = new String[][] {
 			{"comp", ""},
@@ -97,6 +99,9 @@ public class ConfigTool {
 
 		} else if ("configure".equals(args[0])) {
 			configTool.configure();
+
+		} else if ("simple-configure".equals(args[0])) {
+			configTool.simpleConfigure();
 
 		} else if ("genpasswd".equals(args[0])) {
 			configTool.genpasswd();
@@ -225,34 +230,7 @@ public class ConfigTool {
 			//
 			// STEP 2. UPDATE CONFIGS
 			//
-			
-			// update all Chipster configs
-			for (String componentDir : getComponentDirsWithConfig()) {
-				if (new File(componentDir).exists()) {
-					File configFile = new File(componentDir + File.separator + DirectoryLayout.CONF_DIR + File.separator + Configuration.CONFIG_FILENAME);
-					updateChipsterConfigFile(configFile);
-				}
-			}
-			File wsClientConfigFile = new File("webstart" + File.separator + DirectoryLayout.WEB_ROOT + File.separator + Configuration.CONFIG_FILENAME);
-			if (wsClientConfigFile.exists()) {
-				updateChipsterConfigFile(wsClientConfigFile);
-			}
-			File runtimesConfigFile = new File("comp" + File.separator + DirectoryLayout.CONF_DIR + File.separator + "runtimes.xml");
-			if (runtimesConfigFile.exists()) {
-				updateRuntimesConfigFile(runtimesConfigFile);
-			}
-
-			// update ActiveMQ config
-			File activemqConfigFile = new File(brokerDir + File.separator + DirectoryLayout.CONF_DIR + File.separator + "activemq.xml");
-			if (activemqConfigFile.exists()) {
-				updateActivemqConfigFile(activemqConfigFile);
-			}
-			
-			// update Web Start config
-			File wsConfigFile = new File(webstartDir + File.separator + DirectoryLayout.WEB_ROOT + File.separator + "chipster.jnlp");
-			if (wsConfigFile.exists()) {
-				updateWsConfigFile(wsConfigFile);
-			}
+			updateConfigs();
 			
 			verifyChanges(in);
 
@@ -270,6 +248,96 @@ public class ConfigTool {
 		
 		writeChangesToDisk();
 
+	}
+
+	
+	public void simpleConfigure() throws Exception {
+
+		try {
+
+			String hostName = "";
+			String brokerProtocol = "tcp";
+			int brokerPort = 61616;
+			int filebrokerPort = 8070;
+			
+			
+			// sniff current host
+			try {
+				String host = InetAddress.getLocalHost().getHostName();
+				configs[BROKER_HOST_INDEX][VAL_INDEX] = host;
+				configs[FILEBROKER_HOST_INDEX][VAL_INDEX] = host;
+				configs[WS_CODEBASE_INDEX][VAL_INDEX] = "http://" + host + ":8081";
+			} catch (UnknownHostException e) {
+				// ignore, sniffing failed
+			}
+			
+			configs[BROKER_HOST_INDEX][VAL_INDEX] = hostName;
+			configs[BROKER_PROTOCOL_INDEX][VAL_INDEX] = brokerProtocol;
+			configs[BROKER_PORT_INDEX][VAL_INDEX] = String.valueOf(brokerPort);
+			configs[FILEBROKER_HOST_INDEX][VAL_INDEX] = hostName;
+			configs[FILEBROKER_PORT_INDEX][VAL_INDEX] = String.valueOf(filebrokerPort);
+//			configs[WS_CODEBASE_INDEX][VAL_INDEX] = ;
+//			configs[WS_PORT][VAL_INDEX] = ;
+//			configs[MANAGER_PORT][VAL_INDEX] = ;
+//			configs[MANAGER_EMAIL][VAL_INDEX] = ;
+//			configs[R_COMMAND_INDEX][VAL_INDEX] = ;
+//			configs[MAX_JOBS_INDEX][VAL_INDEX] = ;
+
+			
+			
+			
+			
+			updateConfigs();
+
+			BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+			verifyChanges(in);
+
+		} catch (Throwable t) {
+			t.printStackTrace();
+			System.err.println("\nQuitting, no changes written to disk!");
+			return;
+
+		}
+		
+		
+		//
+		// STEP 3. WRITE CHANGES
+		//
+		
+		writeChangesToDisk();
+
+	}
+
+	
+	
+	private void updateConfigs() throws Exception {
+		// update all Chipster configs
+		for (String componentDir : getComponentDirsWithConfig()) {
+			if (new File(componentDir).exists()) {
+				File configFile = new File(componentDir + File.separator + DirectoryLayout.CONF_DIR + File.separator + Configuration.CONFIG_FILENAME);
+				updateChipsterConfigFile(configFile);
+			}
+		}
+		File wsClientConfigFile = new File("webstart" + File.separator + DirectoryLayout.WEB_ROOT + File.separator + Configuration.CONFIG_FILENAME);
+		if (wsClientConfigFile.exists()) {
+			updateChipsterConfigFile(wsClientConfigFile);
+		}
+		File runtimesConfigFile = new File("comp" + File.separator + DirectoryLayout.CONF_DIR + File.separator + "runtimes.xml");
+		if (runtimesConfigFile.exists()) {
+			updateRuntimesConfigFile(runtimesConfigFile);
+		}
+
+		// update ActiveMQ config
+		File activemqConfigFile = new File(brokerDir + File.separator + DirectoryLayout.CONF_DIR + File.separator + "activemq.xml");
+		if (activemqConfigFile.exists()) {
+			updateActivemqConfigFile(activemqConfigFile);
+		}
+		
+		// update Web Start config
+		File wsConfigFile = new File(webstartDir + File.separator + DirectoryLayout.WEB_ROOT + File.separator + "chipster.jnlp");
+		if (wsConfigFile.exists()) {
+			updateWsConfigFile(wsConfigFile);
+		}
 	}
 
 	private void updateActivemqConfigFile(File configFile) throws Exception {
@@ -356,6 +424,7 @@ public class ConfigTool {
 		Element managerModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "manager");
 		if (managerModule != null) {
 			updateConfigEntryValue(managerModule, "web-console-port", configs[MANAGER_PORT][VAL_INDEX]);
+			updateConfigEntryValue(managerModule, "admin-email", configs[MANAGER_EMAIL][VAL_INDEX]);
 		}
 
 		writeLater(configFile, doc);

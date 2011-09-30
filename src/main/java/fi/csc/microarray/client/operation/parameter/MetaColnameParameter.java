@@ -9,8 +9,8 @@ import fi.csc.microarray.module.chipster.ChipsterInputTypes;
 
 public class MetaColnameParameter extends ColnameParameter {
 
-	protected MetaColnameParameter(String name, String description, String initValue) {
-		super(name, description, initValue);
+	protected MetaColnameParameter(String id, String displayName, String description, String initValue) {
+		super(id, displayName, description, initValue);
 	}
 
 	public void setDataBindings(List<DataBinding> bindings) throws MicroarrayException {

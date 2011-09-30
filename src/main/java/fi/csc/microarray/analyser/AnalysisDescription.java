@@ -4,32 +4,28 @@
  */
 package fi.csc.microarray.analyser;
 
+import java.io.File;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.log4j.Logger;
-
+import fi.csc.microarray.description.SADLDescription.Name;
 import fi.csc.microarray.messaging.message.JobMessage;
 
 
 /**
- * Describes one analysis, such as "median normalisation".
+ * Compute service specific versions of analysis tools descriptions.
+ * Content is overlapping with generic SADLDescription objects, but 
+ * some features are not here and some are extra.
  * 
- * @author hupponen, akallio 
+ * @author Taavi Hupponen, Aleksi Kallio 
  */
 public class AnalysisDescription {
-	/**
-	 * Logger for this class
-	 */
-	@SuppressWarnings("unused")
-	private static final Logger logger = Logger
-			.getLogger(AnalysisDescription.class);
 
 	/**
 	 * Describes one parameter, such as "number of iterations".
 	 * 
-	 * @author akallio
 	 */
 	public static class ParameterDescription {
 
@@ -57,6 +53,49 @@ public class AnalysisDescription {
 	}
 	
 	/**
+	 * Describes an output (parameter name and file name). 
+	 */
+	public static class OutputDescription {
+        private Name fileName;
+        private boolean optional;
+
+        public Name getFileName() {
+            return fileName;
+        }
+        
+        public boolean isOptional() {
+            return optional;
+        }
+	    
+	    public OutputDescription(Name fileName, boolean optional) {
+	        this.fileName = fileName;
+	        this.optional = optional;
+	    }
+	}
+	
+
+	/**
+	 * Describes an input (parameter name and file name). 
+	 */
+	public static class InputDescription {
+        private String fileName;
+
+        public String getFileName() {
+            return fileName;
+        }
+	    
+	    public InputDescription(String fileName) {
+	        this.fileName = fileName;
+	    }
+	}
+
+	
+	
+	
+	private String id;
+	
+
+	/**
 	 * Actual executable that handles the analysis.
 	 */
 	private String command;
@@ -69,7 +108,7 @@ public class AnalysisDescription {
 	/**
 	 * Analysis name (used in GUI etc.)
 	 */
-	private String name;
+	private String displayName;
 	
 	/**
 	 * Description.
@@ -77,31 +116,37 @@ public class AnalysisDescription {
 	private String comment;
 
 	
-	
-	private List<String> outputFiles = new LinkedList<String>();
+
+	private List<InputDescription> inputFiles = new LinkedList<InputDescription>();
+	private List<OutputDescription> outputFiles = new LinkedList<OutputDescription>();
 	private List<ParameterDescription> parameters = new LinkedList<ParameterDescription>();
 	private String sourceCode;
-	private String category;
-	private String vvsadl;
+	private String sadl;
+	private String helpURL = null;
+
 	private AnalysisHandler handler;
-	
-	// these are needed for update check
-	/** Name of the original source script or java class or whatever */
-	private String sourceResourceName;
-	private String sourceResourceFullPath;
+	private Map<String, String> configParameters = null;
+	private RepositoryModule module;
+
+	/**
+	 * Name of the original source script or java class etc.
+	 * Needed for update checks.
+	 */
+	private File sourceFile;
 	
 	private String initialiser;
 	
 	private Date creationTime = new Date();
 	private boolean updatedSinceStartup = false;
 
-
 	/**
 	 * Initializes empty (non-usable) description.
+	 * @param module 
 	 *
 	 */
-	public AnalysisDescription(AnalysisHandler handler) {
+	public AnalysisDescription(AnalysisHandler handler, RepositoryModule module) {
 		this.handler = handler;
+		this.module = module;
 	}
 
 	public String getCommand() {
@@ -123,7 +168,12 @@ public class AnalysisDescription {
 		return implementation;
 	}
 	
-	public List<String> getOutputFiles() {
+
+	public List<InputDescription> getInputFiles() {
+		return inputFiles;
+	}
+	
+	public List<OutputDescription> getOutputFiles() {
 		return outputFiles;
 	}
 	
@@ -159,20 +209,29 @@ public class AnalysisDescription {
 		this.comment = comment;
 	}
 
-	public String getFullName() {
-		return "\"" + getCategory() + "\"/\"" + getName() + "\""; 
+	public String getID() {
+		 return this.id;
 	}
 	
-	public String getName() {
-		return name;
+	public String getDisplayName() {
+		if (displayName == null) {
+			return id;
+		} else {
+			return displayName;
+		}
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
 	}
+	
 
-	public void addOutputFile(String file) {
-		outputFiles.add(file);
+	public void addInputFile(String fileName) {
+		inputFiles.add(new InputDescription(fileName));
+	}
+	
+	public void addOutputFile(Name fileName, boolean optional) {
+		outputFiles.add(new OutputDescription(fileName, optional));
 	}
 
 	public void setSourceCode(String sourceCode) {
@@ -183,43 +242,43 @@ public class AnalysisDescription {
 		return sourceCode;
 	}
 
-	public void setCategory(String category) {
-		this.category = category;		
-	}
-
-	public String getCategory() {
-		return category;
-	}
-
-	public void setVVSADL(String vvsadl) {
-		this.vvsadl = vvsadl;
+	public void setSADL(String sadl) {
+		this.sadl = sadl;
 	}
 	
-	public String getVVSADL() {
+	public String getSADL() {
 		
-		if (vvsadl != null) {
-			return vvsadl;
+		if (sadl != null) {
+			return sadl;
 		} else {
-			throw new RuntimeException("vvsadl is null");
+			throw new RuntimeException("sadl is null");
 		}
 	}
 
-	public String getSourceResourceName() {
-		return sourceResourceName;
+//	public String getSourceResourceName() {
+//		return sourceResourceName;
+//	}
+
+//	public void setSourceResourceName(String sourceResourceName) {
+//		this.sourceResourceName = sourceResourceName;
+//	}
+
+	public File getToolFile() {
+		return sourceFile;
 	}
 
-	public void setSourceResourceName(String sourceResourceName) {
-		this.sourceResourceName = sourceResourceName;
+	public void setSourceResourceFullPath(File sourceFile) {
+		this.sourceFile = sourceFile;
+	}
+	
+	public void setHelpURL(String helpURL) {
+	    this.helpURL = helpURL;
 	}
 
-	public String getSourceResourceFullPath() {
-		return sourceResourceFullPath;
+    public String getHelpURL() {
+	    return helpURL;
 	}
-
-	public void setSourceResourceFullPath(String sourceResourceFullPath) {
-		this.sourceResourceFullPath = sourceResourceFullPath;
-	}
-
+    
 	
 	public long getCreationTime() {
 		return this.creationTime.getTime();
@@ -240,8 +299,21 @@ public class AnalysisDescription {
 	public void setUpdatedSinceStartup() {
 		this.updatedSinceStartup = true;
 	}
+  
+    public Map<String, String> getConfigParameters() {
+        return configParameters;
+    }
 
-	
-	
+    public void setConfigParameters(Map<String, String> configParameters) {
+        this.configParameters = configParameters;
+    }
+
+	public void setID(String id) {
+		this.id = id;
+	}
+
+	public RepositoryModule getModule() {
+		return this.module;
+	}
 }
  

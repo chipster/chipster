@@ -45,8 +45,8 @@ import org.jfree.data.hc.HCDataset;
 import org.jfree.data.hc.HCTreeNode;
 import org.jfree.data.hc.HeatMap;
 
-import fi.csc.microarray.client.selection.RowChoiceEvent;
-import fi.csc.microarray.client.selection.RowSelectionManager;
+import fi.csc.microarray.client.selection.SelectionEvent;
+import fi.csc.microarray.client.selection.IntegratedSelectionManager;
 import fi.csc.microarray.client.visualisation.AnnotateListPanel;
 import fi.csc.microarray.client.visualisation.TableAnnotationProvider;
 import fi.csc.microarray.client.visualisation.Visualisation;
@@ -64,11 +64,12 @@ import fi.csc.microarray.databeans.features.QueryResult;
 import fi.csc.microarray.databeans.features.Table;
 import fi.csc.microarray.exception.ErrorReportAsException;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 public class HierarchicalClustering extends Visualisation implements PropertyChangeListener, SelectionChangeListener {
 
-	public HierarchicalClustering(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	protected SelectableChartPanel selectableChartPanel;
@@ -254,11 +255,14 @@ public class HierarchicalClustering extends Visualisation implements PropertyCha
 
 			// Adjust gene count for sampling
 			HeatMap heatMap = null;
+			int dataCount;
 			if (!reversed) {
 				rowCount = tree.getLeafCount(); // heatmap has more genes than tree (sampling done), correct for it
 				heatMap = new HeatMap("Heatmap", rowCount, columnCount);
+				dataCount = rowCount;
 			} else {
 				heatMap = new HeatMap("Heatmap", columnCount, rowCount);
+				dataCount = columnCount;
 			}
 
 			// Go through the tree to find its biggest height
@@ -266,7 +270,7 @@ public class HierarchicalClustering extends Visualisation implements PropertyCha
 
 			// Read the tree and fill the treeToId map
 			List<String> treeToId = new ArrayList<String>();
-			treeToId.addAll(Collections.nCopies(rowCount, (String) null));
+			treeToId.addAll(Collections.nCopies(dataCount, (String) null));
 			HCTreeNode root = readTree(tree, 0, initialHeight, treeToId);
 
 			orders = new OrderSuperviser();
@@ -402,7 +406,7 @@ public class HierarchicalClustering extends Visualisation implements PropertyCha
 			selectableChartPanel.getChartPanel().addChartMouseListener((HCPlot) chart.getPlot());
 
 			updateSelectionsFromApplication(false);
-			application.addPropertyChangeListener(this);
+			application.addClientEventListener(this);
 
 			int blockSize = 10;
 
@@ -508,7 +512,8 @@ public class HierarchicalClustering extends Visualisation implements PropertyCha
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		return bean.isContentTypeCompatitible("application/x-treeview") && bean.queryFeatures("/clusters/hierarchical/tree").exists() && bean.queryFeatures("/clusters/hierarchical/heatmap").exists();
+		DataBean parentBean = MicroarrayModule.getProperSource(bean); 
+		return bean.isContentTypeCompatitible("application/x-treeview") && parentBean != null && parentBean.hasTypeTag(MicroarrayModule.TypeTags.NORMALISED_EXPRESSION_VALUES);
 	}
 
 	public void selectionChanged(Rectangle2D.Double selectionRect) {
@@ -565,18 +570,18 @@ public class HierarchicalClustering extends Visualisation implements PropertyCha
 	}
 
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt instanceof RowChoiceEvent && evt.getSource() != this && ((RowChoiceEvent) evt).getData() == selectionBean) {
+		if (evt instanceof SelectionEvent && evt.getSource() != this && ((SelectionEvent) evt).getData() == selectionBean) {
 			updateSelectionsFromApplication(false);
 		}
 	}
 
 	protected void updateSelectionsFromApplication(boolean dispatchEvent) {
-		RowSelectionManager manager = application.getSelectionManager().getRowSelectionManager(selectionBean);
+		IntegratedSelectionManager manager = application.getSelectionManager().getSelectionManager(selectionBean);
 
 		orders.updateVisibleIndexes();
 
 		selected.clear();
-		for (int i : manager.getSelectedRows()) {
+		for (int i : manager.getSelectionAsRows()) {
 			selected.add(i);
 		}
 

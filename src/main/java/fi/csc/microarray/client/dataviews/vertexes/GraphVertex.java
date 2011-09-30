@@ -7,8 +7,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.jgraph.graph.GraphConstants;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dataview.MicroarrayGraph;
-import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataBean.Link;
@@ -22,7 +22,7 @@ import fi.csc.microarray.exception.MicroarrayException;
  * it has already undergone). The vertices can be selected (which will select 
  * the corresponding dataset) and moved around on the graph panel.
  * 
- * @author Janne KÃ¤ki, Mikko Koski
+ * @author Janne Käki, Mikko Koski
  *
  */
 public class GraphVertex extends AbstractGraphVertex {
@@ -54,11 +54,11 @@ public class GraphVertex extends AbstractGraphVertex {
 		children = new ArrayList<GraphVertex>();
 		
 		Color c;
-		if (data == null || data.getOperation() == null || data.getOperation().getCategoryColor() == null) {
+		if (data == null || data.getOperationRecord() == null || data.getOperationRecord().getCategoryColor() == null) {
 				c = DEFAULT_VERTEX_COLOR;			
 				
 		} else {			
-			c = data.getOperation().getCategoryColor();
+			c = data.getOperationRecord().getCategoryColor();
 		}
 		
 		GraphConstants.setGradientColor(this.getAttributes(),c);
@@ -163,12 +163,7 @@ public class GraphVertex extends AbstractGraphVertex {
 	 */
 	@Override
 	public String toString() {
-		Operation oper = getData().getOperation();
-		String catName = oper.getCategoryName(); 
-		if (catName.startsWith("Import")) {
-			return "file";
-		}
-		return catName.substring(0, catName.length() > 4 ? 4 : catName.length());
+		return Session.getSession().getPrimaryModule().getShortCategoryName(getData().getOperationRecord().getCategoryName());
 	}
 	
 	public void addChildVertex(GraphVertex child){

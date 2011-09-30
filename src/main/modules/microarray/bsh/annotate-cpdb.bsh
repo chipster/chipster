@@ -1,0 +1,35 @@
+// TOOL annotate-cpdb.bsh: "Hypergeometric test for ConsensusPathDB" (ConsensusPathDB created by Herwig et al. contains functional molecular interactions obtained from 13 publicly available databases, including Reactome, KEGG, BioCarta and HumanCyc. This service is provided by the Max Planck Institute for Molecular Genetics. NOTE! Supports any data with human gene symbols or UniProt identifiers.)
+// INPUT input.tsv: input.tsv TYPE GENELIST 
+// OUTPUT cpdb.html: cpdb.html 
+// OUTPUT cpdb.tsv: cpdb.tsv 
+// PARAMETER p.value.threshold: p.value.threshold TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (P-value cut-off for significant results)
+// PARAMETER input.type: input.type TYPE [gene: gene, uniprot: uniprot] DEFAULT gene (What kind of identifiers input data contains)
+
+import fi.csc.microarray.analyser.bsh.*;
+import fi.csc.microarray.analyser.ws.*;
+import fi.csc.microarray.analyser.ws.impl.*;
+import fi.csc.microarray.analyser.ws.ResultTableCollector.RowFilter;
+import fi.csc.microarray.analyser.ws.ResultTableCollector.ResultRow;
+
+// check id type
+String type;
+if ("uniprot".equals(jobInfo.parameters.get("input.type"))) {
+    type = "uniprot";
+} else {
+    type = "hgnc";
+}
+
+// query the web service
+ResultTableCollector annotations = CpdbWsUtils.query(JavaJobUtils.getGeneNames(new File(jobInfo.workDir + "/input.tsv")), type);
+
+// filter results
+annotations.filterRows(new RowFilter() {
+	public boolean shouldRemove(ResultRow row) {
+    	return Double.parseDouble(row.getValue("ns1:pValue")) > Double.parseDouble(jobInfo.parameters.get("p.value.threshold"));
+    }
+});
+
+// create output files
+File htmlFile = new File(jobInfo.workDir + "/cpdb.html");
+File textFile = new File(jobInfo.workDir + "/cpdb.tsv");
+CpdbWsUtils.writeResult(annotations, htmlFile, textFile);

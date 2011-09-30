@@ -26,24 +26,22 @@ import javax.swing.JTabbedPane;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
-import fi.csc.microarray.client.selection.RowChoiceEvent;
-import fi.csc.microarray.client.selection.RowSelectionManager;
+import fi.csc.microarray.client.selection.SelectionEvent;
+import fi.csc.microarray.client.selection.IntegratedSelectionManager;
 import fi.csc.microarray.client.visualisation.AnnotateListPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
-import fi.csc.microarray.client.visualisation.VisualisationMethod;
 import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.VisualisationUtilities;
 import fi.csc.microarray.client.visualisation.methods.VenndiPlot.AREAS;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.chipster.MicroarrayModule;
 
 public class VennDiagram extends Visualisation implements PropertyChangeListener, ActionListener {
 
-	private static final String IDENTIFIER_COLUMN = "/identifier";
-
-	public VennDiagram(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	private VenndiPlot plot;
@@ -206,7 +204,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 
 		this.updateSelectionsFromApplication(false);
 
-		application.addPropertyChangeListener(this);
+		application.addClientEventListener(this);
 
 		return chartPanel;
 	}
@@ -218,14 +216,15 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 
 	@Override
 	public boolean canVisualise(List<DataBean> beans) throws MicroarrayException {
+		
+		// VENN diagram can be be used for 2 or 3 datasets
 		if (beans.size() < 2 || beans.size() > 3) {
 			return false;
 		}
 
+		// check that all datasets have gene name column
 		for (DataBean data : beans) {
-			boolean isTabular = VisualisationMethod.SPREADSHEET.getHeadlessVisualiser().canVisualise(data);
-
-			if (!(isTabular && data.queryFeatures(IDENTIFIER_COLUMN).exists())) {
+			if (!(isTabular(data) && data.hasTypeTag(MicroarrayModule.TypeTags.GENENAMES))) {
 				return false;
 			}
 		}
@@ -243,7 +242,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 	}
 
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt instanceof RowChoiceEvent && evt.getSource() != this) {
+		if (evt instanceof SelectionEvent && evt.getSource() != this) {
 
 			updateSelectionsFromApplication(false);
 		}
@@ -255,8 +254,8 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 		try {
 
 			for (DataBean data : plot.getDataset().getDataBeans()) {
-				RowSelectionManager manager = application.getSelectionManager().getRowSelectionManager(data);
-				selected.addAll(manager.getSelectedIdentifiers());
+				IntegratedSelectionManager manager = application.getSelectionManager().getSelectionManager(data);
+				selected.addAll(manager.getSelectionAsIdentifiers());
 			}
 
 		} catch (MicroarrayException e) {
@@ -301,7 +300,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 		vars.add((Variable)colBox.getSelectedItem());
 		
 		application.setVisualisationMethod(new VisualisationMethodChangedEvent(this,
-				VisualisationMethod.VENN_DIAGRAM, vars, 
+				MicroarrayModule.VisualisationMethods.VENN_DIAGRAM, vars, 
 				getFrame().getDatas(), getFrame().getType(), getFrame()));
 	}
 	
@@ -323,7 +322,7 @@ public class VennDiagram extends Visualisation implements PropertyChangeListener
 			commonCols.retainAll(colsC);
 		}
 							
-		Visualisation.fillCompoBox(colBox, commonCols.toArray());
+		Visualisation.fillComboBox(colBox, commonCols.toArray());
 	}
 	
 	@Override

@@ -30,15 +30,15 @@ import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import org.apache.log4j.Logger;
-import org.jdesktop.swingx.table.ColumnHeaderRenderer;
 
 import fi.csc.microarray.client.SwingClientApplication;
-import fi.csc.microarray.client.visualisation.MicroarrayTable;
+import fi.csc.microarray.client.visualisation.ExtendedJXTable;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
 import fi.csc.microarray.constants.VisualConstants;
@@ -48,6 +48,7 @@ import fi.csc.microarray.databeans.DataChangeEvent;
 import fi.csc.microarray.databeans.DataChangeListener;
 import fi.csc.microarray.databeans.features.table.TableBeanEditor;
 import fi.csc.microarray.exception.MicroarrayException;
+import fi.csc.microarray.module.basic.BasicModule;
 
 
 /**
@@ -72,8 +73,8 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 		return PHENODATA_GROUP_COLUMN.equals(columnName);
 	}
 
-	public PhenodataEditor(VisualisationFrame frame) {
-		super(frame);
+	public void initialise(VisualisationFrame frame) throws Exception {
+		super.initialise(frame);
 	}
 
 	private JPanel paramPanel;
@@ -82,7 +83,8 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 	
 	
 	
-	private class PhenodataTable extends MicroarrayTable {
+	@SuppressWarnings("serial")
+    private class PhenodataTable extends ExtendedJXTable {
 		private static final int NO_SCROLL_WIDTH = 400;
 		private static final int IDENTIFIER_COLUMN_WIDTH = 100;
 				
@@ -282,13 +284,14 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 	 * @author Mikko Koski
 	 *
 	 */
-	public class PhenodataPopupMenu extends JPopupMenu implements ActionListener {
+	@SuppressWarnings("serial")
+    public class PhenodataPopupMenu extends JPopupMenu implements ActionListener {
 
-		private MicroarrayTable table;
+		private ExtendedJXTable table;
 		private JMenuItem copyMenuItem;
 		private JMenuItem pasteMenuItem;
 		
-		public PhenodataPopupMenu(MicroarrayTable table) {
+		public PhenodataPopupMenu(ExtendedJXTable table) {
 			this.table = table;
 			copyMenuItem = new JMenuItem("Copy");
 			pasteMenuItem = new JMenuItem("Paste");
@@ -401,6 +404,7 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 		//Dimension tableSize = size;
 		//tableSize.setSize(tableSize.getWidth()-MARGIN, tableSize.getHeight()-MARGIN);
 		table.setUneditableBackground(VisualConstants.PHENODATA_TABLE_UNEDITABLE_CELL_BACKGROUND);
+	
 		table.setModel(tableModel);
 		table.getColumn(0).setPreferredWidth(PhenodataTable.IDENTIFIER_COLUMN_WIDTH);		
 		
@@ -445,7 +449,7 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 			if (columnObject instanceof TableColumn) {
 				TableColumn tableColumn = (TableColumn) columnObject;
 				if(isGroupPhenodataColumn(tableColumn.getHeaderValue().toString())){
-					ColumnHeaderRenderer header = ColumnHeaderRenderer.createColumnHeaderRenderer();
+					DefaultTableCellRenderer header = new DefaultTableCellRenderer();
 					if(!data.queryFeatures("/phenodata/is-complete").exists()){
 						header.setIcon(VisualConstants.PHENODATA_ICON);
 						logger.debug("Header updated. Warning icon enabled.");
@@ -454,6 +458,10 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 						logger.debug("Header updated. Warning icon disabled.");
 						
 					}
+					
+					// FIXME hackhack
+					header.setBackground(VisualConstants.TEXTAREA_UNEDITABLE_BACKGROUND);
+	
 					header.repaint();
 					table.getTableHeader().repaint();
 
@@ -476,12 +484,12 @@ public class PhenodataEditor extends Visualisation implements DataChangeListener
 
 	@Override
 	public boolean canVisualise(DataBean bean) throws MicroarrayException {
-		return bean.queryFeatures("/phenodata").exists();
+		return bean.hasTypeTag(BasicModule.TypeTags.PHENODATA);
 	}
 	
 
 	@Override
 	public void removeVisualisation(){
-		application.removePropertyChangeListener(table);
+		application.removeClientEventListener(table);
 	}
 }

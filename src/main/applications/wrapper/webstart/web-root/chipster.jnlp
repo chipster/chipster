@@ -8,8 +8,8 @@
     <title>Chipster </title>
     <vendor>The Finnish IT Center for Science CSC</vendor>
     <homepage href="http://chipster.csc.fi"/>
-    <description>Software for DNA microarray data analysis</description>
-    <description kind="short">Software for DNA microarray data analysis</description>
+    <description>Software for life science data analysis</description>
+    <description kind="short">Software for life science data analysis</description>
     <shortcut>
       <desktop/>
       <menu submenu="Chipster"/>
@@ -19,11 +19,13 @@
     <all-permissions/>
   </security>
   <resources>
-    <j2se version="1.5+" href="http://java.sun.com/products/autodl/j2se" java-vm-args="-Xmx1024m" /> <!-- 1 giga should be safe, more causes troubles -->
+    <j2se version="1.5+" href="http://java.sun.com/products/autodl/j2se" java-vm-args="-Xmx900m" /> <!-- more than 900M is known to cause trouble in some environments -->
     <jar href="lib/chipster-current.jar" download="eager"/>
   </resources>
   <application-desc main-class="fi.csc.microarray.MicroarrayMain">
   	<argument>client</argument>
+  	<argument>-module</argument>
+  	<argument>fi.csc.microarray.module.chipster.MicroarrayModule</argument> <!-- alternative value: fi.csc.microarray.module.sequence.SequenceModule -->
   	<argument>-config</argument>
   	<argument></argument>
   </application-desc>

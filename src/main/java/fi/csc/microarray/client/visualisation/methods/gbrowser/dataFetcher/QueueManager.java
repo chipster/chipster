@@ -1,0 +1,73 @@
+package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+
+public class QueueManager implements AreaResultListener {
+
+	private class QueueContext {
+		public Queue<AreaRequest> queue;
+		public Collection<AreaResultListener> listeners = new ArrayList<AreaResultListener>();
+		public AreaRequestHandler thread;
+	}
+
+	private Map<DataSource, QueueContext> queues = new HashMap<DataSource, QueueContext>();
+
+	public void createQueue(DataSource file, Class<? extends AreaRequestHandler> dataFetcher) {
+
+		if (!queues.containsKey(file)) {
+			QueueContext context = new QueueContext();
+			context.queue = new ConcurrentLinkedQueue<AreaRequest>();
+			try {
+			    // create a thread which is an instance of class which is passed
+			    // as data fetcher to this method
+				context.thread = dataFetcher.getConstructor(DataSource.class,
+				        Queue.class, AreaResultListener.class).
+				        newInstance(file, context.queue, this);
+
+				queues.put(file, context);
+				context.thread.start();
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	/**
+	 * Remove queue for the given data source.
+	 * 
+	 * @param file
+	 */
+	public void removeQueue(DataSource file) {
+	    queues.remove(file);
+	}
+
+	public void addAreaRequest(DataSource file, AreaRequest req, boolean clearQueues) {
+		req.status.file = file;
+		QueueContext context = queues.get(file);
+
+		req.status.maybeClearQueue(context.queue);
+		context.queue.add(req);
+		context.thread.notifyAreaRequestHandler();
+	}
+
+	public void addResultListener(DataSource file, AreaResultListener listener) {
+		queues.get(file).listeners.add(listener);
+	}
+
+	public void processAreaResult(AreaResult areaResult) {
+
+		for (AreaResultListener listener : queues.get(areaResult.getStatus().file).listeners) {
+			listener.processAreaResult(areaResult);
+		}
+	}
+}
