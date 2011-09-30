@@ -48,6 +48,8 @@ public class SessionLoader {
 	private File sessionFile;
 	private SessionType sessionType;
 	
+	private boolean restoreData;
+	
 	private LinkedHashMap<String, DataFolder> folders = new LinkedHashMap<String, DataFolder>();
 	private HashMap<DataFolder, FolderType> folderTypes = new HashMap<DataFolder, FolderType>();
 
@@ -63,12 +65,13 @@ public class SessionLoader {
 	private static final Logger logger = Logger.getLogger(SessionLoader.class);
 	
 	
-	public SessionLoader(File sessionFile) throws MicroarrayException {
+	public SessionLoader(File sessionFile, boolean restoreData) throws MicroarrayException {
 		if (!UserSession.isValidSessionFile(sessionFile)) {
 			throw new MicroarrayException("Not a valid session file.");
 		}
 		this.sessionFile = sessionFile;
 		this.dataManager = Session.getSession().getDataManager();
+		this.restoreData = restoreData;
 	}
 	
 	
@@ -165,6 +168,11 @@ public class SessionLoader {
 				continue;
 			}
 			
+			// If we are restoring, copy data local
+			if (restoreData) {
+				System.out.println("NOW WE SHOULD LOAD");
+				// FIXME
+			}
 			
 			DataBean dataBean = null;
 			switch (storageMethod) {

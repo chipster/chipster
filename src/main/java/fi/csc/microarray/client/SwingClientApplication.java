@@ -16,8 +16,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
@@ -63,6 +61,7 @@ import fi.csc.microarray.client.dialog.ChipsterDialog;
 import fi.csc.microarray.client.dialog.DialogInfo;
 import fi.csc.microarray.client.dialog.ErrorDialogUtils;
 import fi.csc.microarray.client.dialog.ImportSettingsAccessory;
+import fi.csc.microarray.client.dialog.SessionRestoreDialog;
 import fi.csc.microarray.client.dialog.SnapshotAccessory;
 import fi.csc.microarray.client.dialog.URLImportDialog;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
@@ -97,8 +96,6 @@ import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.ContentType;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataChangeEvent;
-import fi.csc.microarray.databeans.DataChangeListener;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
@@ -128,7 +125,6 @@ public class SwingClientApplication extends ClientApplication {
 	private static final int METADATA_FETCH_TIMEOUT_SECONDS = 15;
 	private static final long SLOW_VISUALISATION_LIMIT = 5 * 1000;
 	private static final long VERY_SLOW_VISUALISATION_LIMIT = 20 * 1000;
-	private static final long SESSION_BACKUP_INTERVAL = 5 * 1000;
 
 	/**
 	 * Logger for this class
@@ -164,11 +160,6 @@ public class SwingClientApplication extends ClientApplication {
 	private WaitGlassPane waitPanel = new WaitGlassPane();
 	
 	private static float fontSize = VisualConstants.DEFAULT_FONT_SIZE;
-
-	private boolean unsavedChanges = false;
-	private boolean unbackuppedChanges = false;
-
-	private File aliveSignalFile;
 
 	private JFileChooser importExportFileChooser;
 	private JFileChooser sessionFileChooser;
@@ -353,48 +344,6 @@ public class SwingClientApplication extends ClientApplication {
 		mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		mainFrame.setVisible(true);
 		mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
-		// Remember changes to confirm close only when necessary and to backup when necessary
-		manager.addDataChangeListener(new DataChangeListener() {
-			public void dataChanged(DataChangeEvent event) {
-				unsavedChanges = true;
-				unbackuppedChanges = true;
-			}
-		});
-
-		// Start checking for backup need
-		aliveSignalFile = new File(manager.getRepository(), "i_am_alive");
-		aliveSignalFile.createNewFile();
-		aliveSignalFile.deleteOnExit();
-		
-		Timer timer = new Timer("Backup timer", true); // make daemon timer
-
-		timer.scheduleAtFixedRate(new TimerTask() {
-			@Override
-			public void run() {
-				aliveSignalFile.setLastModified(System.currentTimeMillis()); // touch the file
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						if (unbackuppedChanges) {
-							File sessionFile = new File(getDataManager().getRepository(), "backup_session.zip");
-							for (int i = 0; sessionFile.exists(); i++) {
-								sessionFile = new File(getDataManager().getRepository(), "backup_session" + i + ".zip");
-							}
-							sessionFile.deleteOnExit();
-							
-							try {
-								getDataManager().saveLightweightSession(sessionFile);
-								
-							} catch (Exception e) {
-								logger.warn(e); // do not care that much about failing session backups
-							}
-						}
-						unbackuppedChanges = false;
-					}
-				});
-			}
-		}, SESSION_BACKUP_INTERVAL, SESSION_BACKUP_INTERVAL);
 		
 		// it's alive!
 		super.setEventsEnabled(true);
@@ -412,8 +361,17 @@ public class SwingClientApplication extends ClientApplication {
 			});
 		}
 
+		// final touches
 		customiseFocusTraversal();
 		restoreDefaultView();
+		
+		// check for session restore need
+		File mostRecentDeadTempDirectory = checkTempDirectories();
+		if (mostRecentDeadTempDirectory != null) {
+			
+			File sessionFile = UserSession.findBackupFile(mostRecentDeadTempDirectory, false);
+			new SessionRestoreDialog(this, sessionFile).setVisible(true);
+		}
 	}
 
 	private void customiseFocusTraversal() throws MicroarrayException {
@@ -1596,7 +1554,7 @@ public class SwingClientApplication extends ClientApplication {
 			sessionFileChooser = ImportUtils.getFixedFileChooser();
 
 			String[] extensions = { UserSession.SESSION_FILE_EXTENSION };
-			sessionFileChooser.setFileFilter(new GeneralFileFilter("Chipster Session (*.zip)", extensions));
+			sessionFileChooser.setFileFilter(new GeneralFileFilter("Chipster Session (." + UserSession.SESSION_FILE_EXTENSION + ")", extensions));
 			sessionFileChooser.setSelectedFile(new File("session." + UserSession.SESSION_FILE_EXTENSION));
 			sessionFileChooser.setAcceptAllFileFilterUsed(false);
 			sessionFileChooser.setMultiSelectionEnabled(false);
@@ -1720,6 +1678,16 @@ public class SwingClientApplication extends ClientApplication {
 
 
 	@Override
+	public void loadSessionFrom(File file) {
+		loadSessionImpl(file, false);
+	}
+
+	@Override
+	public void restoreSessionFrom(File file) {
+		loadSessionImpl(file, true);
+	}
+
+	@Override
 	public void loadSessionFrom(URL url) {
 		try {
 			final File tempFile = ImportUtils.createTempFile(ImportUtils.URLToFilename(url), ImportUtils.getExtension(ImportUtils.URLToFilename(url)));
@@ -1728,7 +1696,7 @@ public class SwingClientApplication extends ClientApplication {
 			FileLoaderProcess fileLoaderProcess = new FileLoaderProcess(tempFile, url, info) {
 				@Override
 				protected void postProcess() {
-					loadSessionImpl(tempFile);
+					loadSessionImpl(tempFile, false);
 				};
 			};			
 			fileLoaderProcess.runProcess();
@@ -1771,12 +1739,12 @@ public class SwingClientApplication extends ClientApplication {
 			}								
 
 			// load the new session
-			loadSessionImpl(fileChooser.getSelectedFile());		
+			loadSessionImpl(fileChooser.getSelectedFile(), false);		
 		}
 		menuBar.updateMenuStatus();
 	}
 
-	private void loadSessionImpl(final File sessionFile) {
+	private void loadSessionImpl(final File sessionFile, final boolean restoreSession) {
 		
 		// check that it's a valid session file 
 		if (!UserSession.isValidSessionFile(sessionFile)) {
@@ -1795,9 +1763,13 @@ public class SwingClientApplication extends ClientApplication {
 				 */
 				boolean somethingToSave = manager.databeans().size() != 0;
 
-				manager.loadSession(sessionFile);
+				manager.loadSession(sessionFile, restoreSession);
 
 				unsavedChanges = somethingToSave;
+				
+				if (restoreSession) {
+					clearDeadTempDirectories();
+				}
 			}
 		});
 	}
@@ -1887,7 +1859,7 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	@Override
-	public void heartBeat() {
+	public void checkFreeMemory() {
 		statusBar.updateMemoryIndicator();
 	}
 

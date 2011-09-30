@@ -21,6 +21,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.Icon;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import org.apache.log4j.Logger;
@@ -39,6 +40,7 @@ import fi.csc.microarray.client.operation.ToolCategory;
 import fi.csc.microarray.client.operation.ToolModule;
 import fi.csc.microarray.client.operation.Operation.DataBinding;
 import fi.csc.microarray.client.selection.DataSelectionManager;
+import fi.csc.microarray.client.session.UserSession;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.TaskEventListener;
 import fi.csc.microarray.client.tasks.TaskException;
@@ -53,6 +55,8 @@ import fi.csc.microarray.client.workflow.WorkflowManager;
 import fi.csc.microarray.config.Configuration;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataChangeEvent;
+import fi.csc.microarray.databeans.DataChangeListener;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
@@ -76,14 +80,14 @@ import fi.csc.microarray.util.Files;
  */
 public abstract class ClientApplication {
 
-	private static final int HEARTBEAT_DELAY = 2*1000;
+	protected static final String ALIVE_SIGNAL_FILENAME = "i_am_alive";
+
+	protected static final int MEMORY_CHECK_INTERVAL = 2*1000;
+	protected static final int SESSION_BACKUP_INTERVAL = 5 * 1000;
 
 	// Logger for this class
 	private static Logger logger;
 
-	public static File SNAPSHOT_DIR = null;
-	public static File OLD_SNAPSHOT_DIR = null;
-		
     // 
 	// ABSTRACT INTERFACE
 	//
@@ -114,6 +118,8 @@ public abstract class ClientApplication {
 	public abstract File openWorkflow();
 	public abstract void loadSession();
 	public abstract void loadSessionFrom(URL url);
+	public abstract void loadSessionFrom(File file);
+	public abstract void restoreSessionFrom(File file);
 	public abstract void saveSession();
 	public abstract void runWorkflow(URL workflowScript);
 	public abstract void runWorkflow(URL workflowScript, AtEndListener atEndListener);
@@ -127,7 +133,7 @@ public abstract class ClientApplication {
 	 * Method is called periodically to maintain state that cannot be maintained 
 	 * in realtime. 
 	 */
-	public abstract void heartBeat();
+	public abstract void checkFreeMemory();
 	
 	// 
 	// CONCRETE IMPLEMENTATIONS (SOME PARTIAL)
@@ -163,6 +169,12 @@ public abstract class ClientApplication {
 	protected boolean isStandalone;
 	private AuthenticationRequestListener overridingARL;
 
+	protected boolean unsavedChanges = false;
+	protected boolean unbackuppedChanges = false;
+
+	protected File aliveSignalFile;
+	private LinkedList<File> deadDirectories = new LinkedList<File>();
+
     protected ClientConstants clientConstants;
     protected Configuration configuration;
 
@@ -182,8 +194,6 @@ public abstract class ClientApplication {
 		
 		// these had to be delayed as they are not available before loading configuration
 		logger = Logger.getLogger(ClientApplication.class);
-		SNAPSHOT_DIR = new File(DirectoryLayout.getInstance().getUserDataDir().getAbsolutePath(), "session-snapshot.zip");
-		OLD_SNAPSHOT_DIR = new File(DirectoryLayout.getInstance().getUserDataDir().getAbsolutePath(), "workspace-snapshot");
 
 		try {
 
@@ -198,8 +208,6 @@ public abstract class ClientApplication {
 			this.manager = new DataManager();
 			Session.getSession().setDataManager(manager);
 			modules.plugAll(this.manager, Session.getSession());
-			
-
 			this.selectionManager = new DataSelectionManager(this);
 			Session.getSession().setClientApplication(this);
 		
@@ -242,7 +250,6 @@ public abstract class ClientApplication {
 
 			// Update to splash screen that we have loaded tools
 			reportInitialisation(" ok", false);
-
 			
 			// start listening to job events
 			taskExecutor.addChangeListener(jobExecutorChangeListener);
@@ -253,17 +260,59 @@ public abstract class ClientApplication {
 			// we can initialise graphical parts of the system
 			initialiseGUI();
 
-			// start heartbeat
-			final Timer timer = new Timer(HEARTBEAT_DELAY, new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					ClientApplication.this.heartBeat();
+			// Remember changes to confirm close only when necessary and to backup when necessary
+			manager.addDataChangeListener(new DataChangeListener() {
+				public void dataChanged(DataChangeEvent event) {
+					unsavedChanges = true;
+					unbackuppedChanges = true;
 				}
 			});
+
+			// Start checking amount of free memory 
+			final Timer memoryCheckTimer = new Timer(MEMORY_CHECK_INTERVAL, new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					ClientApplication.this.checkFreeMemory();
+				}
+			});
+			memoryCheckTimer.setCoalesce(true);
+			memoryCheckTimer.setRepeats(true);
+			memoryCheckTimer.setInitialDelay(0);
+			memoryCheckTimer.start();
+			
+			// Start checking if background backup is needed
+			aliveSignalFile = new File(manager.getRepository(), "i_am_alive");
+			aliveSignalFile.createNewFile();
+			aliveSignalFile.deleteOnExit();
+			
+			Timer timer = new Timer(SESSION_BACKUP_INTERVAL, new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					aliveSignalFile.setLastModified(System.currentTimeMillis()); // touch the file
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							if (unbackuppedChanges) {
+								
+								File sessionFile = UserSession.findBackupFile(getDataManager().getRepository(), true);
+								sessionFile.deleteOnExit();
+								
+								try {
+									getDataManager().saveLightweightSession(sessionFile);
+									
+								} catch (Exception e) {
+									logger.warn(e); // do not care that much about failing session backups
+								}
+							}
+							unbackuppedChanges = false;
+						}
+					});
+				}
+			});
+
 			timer.setCoalesce(true);
 			timer.setRepeats(true);
-			timer.setInitialDelay(0);
+			timer.setInitialDelay(SESSION_BACKUP_INTERVAL);
 			timer.start();
-
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -664,6 +713,65 @@ public abstract class ClientApplication {
 	
 	public boolean isStandalone() {
 		return this.isStandalone;
+	}
+
+	/**
+	 * Collects all dead temp directories and returns the most recent
+	 * that has a restorable session .
+	 */
+	protected File checkTempDirectories() throws IOException {
+
+		Iterable<File> tmpDirectories = getDataManager().listAllRepositories();
+		File mostRecentDeadSignalFile = null;
+		
+		for (File directory : tmpDirectories) {
+
+			// Skip current temp directory
+			if (directory.equals(getDataManager().getRepository())) {
+				continue;
+			}
+			
+			// Check is it alive
+			if (isTempDirectoryUpdatedRecently(directory)) {
+				continue; // was alive
+			}
+			
+			// Maybe needs restore, wait
+			try {
+				Thread.sleep(SESSION_BACKUP_INTERVAL);
+			} catch (InterruptedException e) {
+				// ignore
+			}
+
+			 // Check again
+			if (isTempDirectoryUpdatedRecently(directory)) {
+				continue; // was alive after all
+			}
+
+			// It is dead, might be the one that should be recovered, check that
+			deadDirectories.add(directory);
+			File deadSignalFile = new File(directory, ALIVE_SIGNAL_FILENAME);
+			if (UserSession.findBackupFile(directory, false) != null 
+					&& (mostRecentDeadSignalFile == null 
+							|| mostRecentDeadSignalFile.lastModified() < deadSignalFile.lastModified())) {
+				
+				mostRecentDeadSignalFile = deadSignalFile;
+				
+			}
+		}
+		
+		return mostRecentDeadSignalFile != null ? mostRecentDeadSignalFile.getParentFile() : null;
+	}
+	
+	private boolean isTempDirectoryUpdatedRecently(File tmpDir) {
+		return System.currentTimeMillis() - new File(tmpDir, ALIVE_SIGNAL_FILENAME).lastModified() < 2*SESSION_BACKUP_INTERVAL;
+	}
+	
+	public void clearDeadTempDirectories() {
+		for (File dir : deadDirectories) {
+			Files.delTree(dir);
+		}
+		deadDirectories.clear();
 	}
 	
 }
