@@ -42,6 +42,7 @@
 		<tool runtime="R-2.12"><resource>filter-by-column-value.R</resource></tool>
 		<tool runtime="R-2.12"><resource>impute.R</resource></tool>
 		<tool runtime="R-2.12"><resource>na-omitted.R</resource></tool>
+		<tool runtime="R-2.12"><resource>dichotomize-continious-data.R</resource></tool>
 	</category>
 	
 	<category name="Statistics" color="#e7881c">
@@ -51,6 +52,7 @@
 		<tool runtime="R-2.12"><resource>stat-sam.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-several-groups.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-linear-modelling.R</resource></tool>
+		<tool runtime="R-2.12"><resource>stat-proportions.R</resource></tool>
 		<tool runtime="R-2.12"><resource>stat-correlate-with-phenodata.R</resource></tool>
 		<tool runtime="R-2.12"><resource>correlation-analysis-mirna.R</resource></tool> 
 		<tool runtime="R-2.12"><resource>stat-timeseries.R</resource></tool>
