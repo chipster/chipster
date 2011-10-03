@@ -1,28 +1,27 @@
-# TOOL bwa-paired-end.R: "BWA for paired-end reads" (BWA aligns reads to genome, transcriptome, known miRNAs, etc.
-# Results are sorted and indexed bam files, which are ready for viewing in the Chipster genome browser. 
-# Note that this BWA tool uses public genomes provided by Chipster. If you would like to align reads against your own datasets, please use the tool \"BWA against own genomes\".)
+# TOOL bwa-paired-end.R: "BWA for paired-end reads" (BWA aligns reads to genomes and transcriptomes. Results are sorted and indexed bam files, which are ready for viewing in the Chipster genome browser. 
+# Note that this BWA tool uses publicly available genomes. If you would like to align reads against your own datasets, please use the tool \"BWA for paired-end reads and own genomes\".)
 # INPUT reads1.txt: "Paired-end read set 1 to align" TYPE GENERIC 
 # INPUT reads2.txt: "Paired-end read set 2 to align" TYPE GENERIC 
 # OUTPUT bwa.bam 
 # OUTPUT bwa.bam.bai 
 # OUTPUT bwa.log 
-# PARAMETER genome: "Genome or transcriptome" TYPE [hg19.fa: "Human genome (hg19\)", mm9.fa: "Mouse genome (mm9\)", rn4.fa: "Rat genome (rn4\)", mmu_miRB17mature.fa: "Mouse miRBase17"] DEFAULT mm9.fa (Genome or transcriptome that you would like to align your reads against.)
-# PARAMETER seed.length: "Seed length" TYPE INTEGER DEFAULT 32 ( Number of first nucleotides to be used as seed. If the seed length is longer than query sequences, then seeding will be disabled) 
-# PARAMETER seed.edit:"maximum of differences in the seed" TYPE INTEGER DEFAULT 2 ( maximum differences in the seed )
+# PARAMETER genome: "Genome or transcriptome" TYPE [hg19.fa: "Human genome (hg19\)", mm9.fa: "Mouse genome (mm9\)", rn4.fa: "Rat genome (rn4\)"] DEFAULT mm9.fa (Genome or transcriptome that you would like to align your reads against.)
+# PARAMETER seed.length: "Seed length" TYPE INTEGER DEFAULT 32 (Number of first nucleotides to be used as a seed. If the seed length is longer than query sequences, then seeding will be disabled) 
+# PARAMETER seed.edit:"Maximum of differences in the seed" TYPE INTEGER DEFAULT 2 (Maximum differences in the seed )
 # PARAMETER quality.format: "Quality value format used" TYPE [solexa1_3: "Illumina GA v1.3 or later", sanger: Sanger] DEFAULT sanger (Note that this parameter is taken into account only if you chose to apply the mismatch limit to the seed region. Are the quality values in the Sanger format (ASCII characters equal to the Phred quality plus 33\) or in the Illumina Genome Analyzer Pipeline v1.3 or later format (ASCII characters equal to the Phred quality plus 64\)? Please see the manual for details.)
-# PARAMETER OPTIONAL num.gaps: "Maximum number of gap opens" TYPE INTEGER DEFAULT 1 ( Maximum number of gap opens for one read )
+# PARAMETER OPTIONAL num.gaps: "Maximum number of gap openings" TYPE INTEGER DEFAULT 1 (Maximum number of gap openings for one read )
 # PARAMETER OPTIONAL num.extensions: "Maximum number of gap extensions" TYPE INTEGER DEFAULT -1 (Maximum number of gap extensions, -1 for disabling long gaps )
-# PARAMETER OPTIONAL gap.opening: "Gap open penalty " TYPE INTEGER DEFAULT 11 (Gap open penalty)
-# PARAMETER OPTIONAL gap.extension: "Gap extension penalty " TYPE INTEGER DEFAULT 4 ( Gap extension penalty)
-# PARAMETER OPTIONAL mismatch.penalty: "Mismatch penalty threshold" TYPE INTEGER DEFAULT 4 ( BWA will not search for suboptimal hits with a score lower than defined. )
-# PARAMETER OPTIONAL disallow.gaps: "Maximum occurrences for extending a long deletion"  TYPE INTEGER DEFAULT 10 ( Maximum occurrences for extending a long deletion )
-# PARAMETER OPTIONAL disallow.indel: "Maximum occurrences for extending a long deletion"  TYPE INTEGER DEFAULT 5 ( do not put an indel within the defined value of bp towards the ends )
-# PARAMETER OPTIONAL trim.threshold: "quality trimming threshold" TYPE INTEGER DEFAULT 0 ( quality threshold for read trimming down to 35bp )
-# PARAMETER OPTIONAL barcode.length: "Barcode length"  TYPE INTEGER DEFAULT 0 ( Length of barcode starting from the 5 pime-end. The barcode of each read will be trimmed before mapping.)
-# PARAMETER OPTIONAL alignment.no: "maximum hits to output for paired reads" TYPE INTEGER DEFAULT 3 ( Maximum number of alignments to output in the XA tag for reads paired properly. If a read has more than the given amount of  hits, the XA tag will not be written)
-# PARAMETER OPTIONAL max.discordant: "maximum hits to output for discordant pairs" TYPE INTEGER DEFAULT 10 ( Maximum number of alignments to output in the XA tag for disconcordant read pairs, excluding singletons. If a read has more than INT hits, the XA tag will not be written.) 
-# PARAMETER OPTIONAL max.insert: "maximum insert size" TYPE INTEGER DEFAULT 500 (Maximum insert size for a read pair to be considered being mapped properly. This option is only used when there are not enough good alignment to infer the distribution of insert sizes.)
-# PARAMETER OPTIONAL max.occurrence: "maximum occurrences for one end" TYPE INTEGER DEFAULT 100000 (Maximum occurrences of a read for pairing. A read with more occurrneces will be treated as a single-end read. Reducing this parameter helps faster pairing. The Default value is 100000. For reads shorter than 30bp, applying a smaller value is recommended to get a sensible speed at the cost of pairing accuracy.)
+# PARAMETER OPTIONAL gap.opening: "Gap open penalty " TYPE INTEGER DEFAULT 11 (Gap opening penalty)
+# PARAMETER OPTIONAL gap.extension: "Gap extension penalty " TYPE INTEGER DEFAULT 4 (Gap extension penalty)
+# PARAMETER OPTIONAL mismatch.penalty: "Mismatch penalty threshold" TYPE INTEGER DEFAULT 4 (BWA will not search for suboptimal hits with a score lower than defined. )
+# PARAMETER OPTIONAL disallow.gaps: "Maximum occurrences for extending a long deletion"  TYPE INTEGER DEFAULT 10 (Maximum occurrences for extending a long deletion )
+# PARAMETER OPTIONAL disallow.indel: "Disallow an indel within the given number of pb towards the ends"  TYPE INTEGER DEFAULT 5 (Do not put an indel within the defined value of bp towards the ends )
+# PARAMETER OPTIONAL trim.threshold: "Quality trimming threshold" TYPE INTEGER DEFAULT 0 (Quality threshold for read trimming down to 35bp )
+# PARAMETER OPTIONAL barcode.length: "Barcode length"  TYPE INTEGER DEFAULT 0 (Length of barcode starting from the 5 pime-end. The barcode of each read will be trimmed before mapping.)
+# PARAMETER OPTIONAL alignment.no: "Maximum hits to output for paired reads" TYPE INTEGER DEFAULT 3 (Maximum number of alignments to output in the XA tag for reads paired properly. If a read has more than the given amount of hits, the XA tag will not be written)
+# PARAMETER OPTIONAL max.discordant: "Maximum hits to output for discordant pairs" TYPE INTEGER DEFAULT 10 (Maximum number of alignments to output in the XA tag for disconcordant read pairs, excluding singletons. If a read has more than INT hits, the XA tag will not be written.) 
+# PARAMETER OPTIONAL max.insert: "Maximum insert size" TYPE INTEGER DEFAULT 500 (Maximum insert size for a read pair to be considered being mapped properly. This option is only used when there are not enough good alignments to infer the distribution of insert sizes.)
+# PARAMETER OPTIONAL max.occurrence: "Maximum occurrences for one end" TYPE INTEGER DEFAULT 100000 (Maximum occurrences of a read for pairing. A read with more occurrneces will be treated as a single-end read. Reducing this parameter helps faster pairing. The default value is 100000. For reads shorter than 30bp, applying a smaller value is recommended to get a sensible speed at the cost of pairing accuracy.)
 
 
 # KM 26.8.2011
