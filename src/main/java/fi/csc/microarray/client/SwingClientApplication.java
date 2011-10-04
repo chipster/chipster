@@ -1768,7 +1768,8 @@ public class SwingClientApplication extends ClientApplication {
 				unsavedChanges = somethingToSave;
 				
 				if (restoreSession) {
-					clearDeadTempDirectories();
+//					clearDeadTempDirectories();
+				// FIXME
 				}
 			}
 		});

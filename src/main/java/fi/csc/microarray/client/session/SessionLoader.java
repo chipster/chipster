@@ -48,7 +48,7 @@ public class SessionLoader {
 	private File sessionFile;
 	private SessionType sessionType;
 	
-	private boolean restoreData;
+	private boolean isDatalessSession;
 	
 	private LinkedHashMap<String, DataFolder> folders = new LinkedHashMap<String, DataFolder>();
 	private HashMap<DataFolder, FolderType> folderTypes = new HashMap<DataFolder, FolderType>();
@@ -71,7 +71,7 @@ public class SessionLoader {
 		}
 		this.sessionFile = sessionFile;
 		this.dataManager = Session.getSession().getDataManager();
-		this.restoreData = restoreData;
+		this.isDatalessSession = restoreData;
 	}
 	
 	
@@ -168,16 +168,15 @@ public class SessionLoader {
 				continue;
 			}
 			
-			// If we are restoring, copy data local
-			if (restoreData) {
-				System.out.println("NOW WE SHOULD LOAD");
+//				- viive pois
+//				- ja tämä kohta kuntoon
+//				- ja testaus
 				// FIXME
-			}
 			
 			DataBean dataBean = null;
-			switch (storageMethod) {
-			case LOCAL_SESSION:
-				// use the url for the real session file 
+			if (storageMethod == StorageMethod.LOCAL_SESSION && !isDatalessSession) {
+
+				// data is inside the session file, use the url for the real session file 
 				try {
 					url = new URL(sessionFile.toURI().toURL(), "#" + url.getRef());
 					dataBean = dataManager.createDataBeanFromZip(name, url);
@@ -188,18 +187,30 @@ public class SessionLoader {
 					logger.warn("could not create data bean: " + name);
 					continue;
 				}
-				break;
-			case LOCAL_USER:
+				
+			} else {
+
+				// data is outside of the session file, decode the URL as it is
 				try {
-					dataBean = dataManager.createDataBean(name, url);
+
+					switch (storageMethod) {
+
+					case LOCAL_SESSION:
+						dataBean = dataManager.createDataBeanFromZip(name, url);
+						break;
+						
+					case LOCAL_USER:
+						dataBean = dataManager.createDataBean(name, url);
+						break;
+						
+					default:
+						throw new IllegalArgumentException("unsupported storage method: " + storageMethodString);
+					}
+					
 				} catch (MicroarrayException e) {
 					logger.warn("could not create data bean: " + name);
 					continue;
 				}
-				break;
-			default:
-				logger.warn("unexpected storage method " + storageMethod.name() + " for data bean: " + name);	
-				continue;
 			}
 
 			// cache url

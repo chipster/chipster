@@ -322,7 +322,7 @@ public class SessionSaver {
 				}
 				
 				// store metadata
-				saveDataBeanMetadata(bean, newURL, folderId);
+				saveDataBeanMetadata(bean, newURL, folderId, saveData);
 
 			}
 		}
@@ -362,7 +362,7 @@ public class SessionSaver {
 	}	
 	
 	
-	private void saveDataBeanMetadata(DataBean bean, URL newURL, String folderId) {
+	private void saveDataBeanMetadata(DataBean bean, URL newURL, String folderId, boolean saveData) {
 		String beanId = reversedItemIdMap.get(bean);
 		DataType dataType = factory.createDataType();
 	
@@ -382,13 +382,24 @@ public class SessionSaver {
 		
 		// notes
 		dataType.setNotes(bean.getNotes());
-		
-		// storage method
-		// for now all data content goes to session --> type is local session
-		dataType.setStorageType(StorageMethod.LOCAL_SESSION.name());
-		
-		// url
-		dataType.setUrl("file:#" + newURL.getRef());
+
+		// write storage method and URL, depending on if data is packed into zip or not
+		if (saveData) {
+
+			// all data content goes to session --> type is local session
+			dataType.setStorageType(StorageMethod.LOCAL_SESSION.name());
+
+			// url
+			dataType.setUrl("file:#" + newURL.getRef());
+			
+		} else {
+
+			// all data content goes to session --> type is local session
+			dataType.setStorageType(bean.getStorageMethod().toString());
+
+			// url
+			dataType.setUrl(bean.getContentUrl().toString());
+		}
 		
 		// cache url
 		if (bean.getCacheUrl() != null) {
