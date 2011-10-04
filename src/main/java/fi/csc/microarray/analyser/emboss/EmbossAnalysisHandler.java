@@ -73,9 +73,12 @@ public class EmbossAnalysisHandler implements AnalysisHandler {
                                   "http://emboss.sourceforge.net/.");
         description.setSourceResourceName(acdFileName);
         description.setSourceResourceFullPath(acdFile.getAbsolutePath());
+        String idBase = sadlDescription.getName().getID();
+        if (idBase.endsWith(".acd")) {
+        	idBase = idBase.substring(0, idBase.length() - ".acd".length());
+        } 
         description.setHelpURL("https://extras.csc.fi/emboss/doc/programs/html/" +
-                               sadlDescription.getName().getID() + ".html");
-        
+                               idBase + ".html");
         return description;
     }
     
@@ -86,4 +89,5 @@ public class EmbossAnalysisHandler implements AnalysisHandler {
     public boolean isDisabled() {
         return false;
     }
+
 }
