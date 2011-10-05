@@ -1,24 +1,24 @@
-# TOOL bwa.R: "BWA for single end reads" (BWA aligns reads to genomes and transcriptomes. Results are sorted and indexed bam files, which are ready for viewing in the Chipster genome browser. 
+# TOOL bwa.R: "BWA for single end reads" (BWA aligns reads to genomes and transcriptomes. Unlike Bowtie, it allows gapped alignments. Results are sorted and indexed bam files, which are ready for viewing in the Chipster genome browser. 
 # Note that this BWA tool uses publicly available genomes. If you would like to align reads against your own datasets, please use the tool \"BWA against own genomes\".)
 # INPUT reads.txt: "Reads to align" TYPE GENERIC 
 # OUTPUT bwa.bam 
 # OUTPUT bwa.bam.bai 
 # OUTPUT bwa.log 
 # PARAMETER genome: "Genome or transcriptome" TYPE [hg19.fa: "Human genome (hg19\)", mm9.fa: "Mouse genome (mm9\)", rn4.fa: "Rat genome (rn4\)", mmu_miRB17mature.fa: "Mouse miRBase17"] DEFAULT mm9.fa (Genome or transcriptome that you would like to align your reads against.)
-# PARAMETER algorithm: "Aligning algorithm type" TYPE [aln: "aln", bwasw: "BWA-SW"] DEFAULT aln (Alingment algorithm to be used. The default algorithm is aln. BWA-SW is designmed for long, over 300pb, single-end reads with more errors)
-# PARAMETER seed.length: "Seed length" TYPE INTEGER DEFAULT 32 (Number of first nucleotides to be used as a seed. If the seed length is longer than query sequences, then seeding will be disabled) 
-# PARAMETER seed.edit:"Maximum of differences in the seed" TYPE INTEGER DEFAULT 2 (Maximum differences in the seed)
+# PARAMETER algorithm: "Alignment algorithm type" TYPE [aln: "aln", bwasw: "BWA-SW"] DEFAULT aln (Alignment algorithm to be used. The default algorithm is aln. BWA-SW is designed for long, over 300pb, single-end reads with more errors.)
+# PARAMETER seed.length: "Length of the seed region" TYPE INTEGER DEFAULT 32 (How many bases of the left, good quality part of the read should be used as the seed region. If the seed length is longer than the reads, the seeding will be disabled.) 
+# PARAMETER seed.edit: "Maximum number of differences in the seed region" TYPE INTEGER DEFAULT 2 (Maximum number of differences such as mismatches or indels in the seed region.)
 # PARAMETER quality.format: "Quality value format used" TYPE [solexa1_3: "Illumina GA v1.3 or later", sanger: Sanger] DEFAULT sanger (Note that this parameter is taken into account only if you chose to apply the mismatch limit to the seed region. Are the quality values in the Sanger format (ASCII characters equal to the Phred quality plus 33\) or in the Illumina Genome Analyzer Pipeline v1.3 or later format (ASCII characters equal to the Phred quality plus 64\)? Please see the manual for details.)
-# PARAMETER OPTIONAL num.gaps: "Maximum number of gap openings" TYPE INTEGER DEFAULT 1 (Maximum number of gap openings for one read)
-# PARAMETER OPTIONAL num.extensions: "Maximum number of gap extensions" TYPE INTEGER DEFAULT -1 (Maximum number of gap extensions, -1 for disabling long gaps )
-# PARAMETER OPTIONAL gap.opening: "Gap opening penalty " TYPE INTEGER DEFAULT 11 (Gap opening penalty)
-# PARAMETER OPTIONAL gap.extension: "Gap extension penalty " TYPE INTEGER DEFAULT 4 (Gap extension penalty)
-# PARAMETER OPTIONAL mismatch.penalty: "Mismatch penalty threshold" TYPE INTEGER DEFAULT 4 (BWA will not search for suboptimal hits with a score lower than defined. )
-# PARAMETER OPTIONAL disallow.gaps: "Maximum occurrences for extending a long deletion"  TYPE INTEGER DEFAULT 10 (Maximum occurrences for extending a long deletion )
-# PARAMETER OPTIONAL disallow.indel: "Disallow an indel within the given number of pb towards the ends"  TYPE INTEGER DEFAULT 5 (Do not put an indel within the defined value of bp towards the ends )
-# PARAMETER OPTIONAL trim.threshold: "Quality trimming threshold" TYPE INTEGER DEFAULT 0 (Quality threshold for read trimming down to 35bp )
+# PARAMETER OPTIONAL num.gaps: "Maximum number of gaps" TYPE INTEGER DEFAULT 1 (Maximum number of gap openings for one read.)
+# PARAMETER OPTIONAL num.extensions: "Maximum number of gap extensions" TYPE INTEGER DEFAULT -1 (Maximum number of gap extensions, -1 for disabling long gaps.)
+# PARAMETER OPTIONAL gap.opening: "Gap opening penalty " TYPE INTEGER DEFAULT 11 (Gap opening penalty.)
+# PARAMETER OPTIONAL gap.extension: "Gap extension penalty " TYPE INTEGER DEFAULT 4 (Gap extension penalty.)
+# PARAMETER OPTIONAL mismatch.penalty: "Mismatch penalty threshold" TYPE INTEGER DEFAULT 4 (BWA will not search for suboptimal hits with a score lower than the alignment score minus this.)
+# PARAMETER OPTIONAL disallow.gaps: "Maximum occurrences for extending a long deletion"  TYPE INTEGER DEFAULT 10 (Maximum occurrences for extending a long deletion.)
+# PARAMETER OPTIONAL disallow.indel: "Disallow an indel within the given number of bp towards the ends"  TYPE INTEGER DEFAULT 5 (Do not put an indel within the defined value of bp towards the ends.)
+# PARAMETER OPTIONAL trim.threshold: "Quality trimming threshold" TYPE INTEGER DEFAULT 0 (Quality threshold for read trimming down to 35bp.)
 # PARAMETER OPTIONAL barcode.length: "Barcode length"  TYPE INTEGER DEFAULT 0 (Length of barcode starting from the 5 prime-end. The barcode of each read will be trimmed before mapping.)
-# PARAMETER OPTIONAL alignment.no: "How many valid alignments are reported per read" TYPE  INTEGER DEFAULT 3 (Maximum number of alignments to output in the XA tag for reads paired properly. If a read has more than the given amount of  hits, the XA tag will not be written)
+# PARAMETER OPTIONAL alignment.no: "How many valid alignments are reported per read" TYPE  INTEGER DEFAULT 3 (Maximum number of alignments to report.)
 
 
 # KM 24.8.2011

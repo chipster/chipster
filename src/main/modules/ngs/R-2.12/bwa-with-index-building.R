@@ -1,24 +1,24 @@
-# TOOL bwa-with-index-building.R: "BWA for single end reads and own genome" (BWA aligns reads to genomes and transcriptomes. Results are sorted and indexed bam files. 
+# TOOL bwa-with-index-building.R: "BWA for single end reads and own genome" (BWA aligns reads to genomes and transcriptomes. Unlike Bowtie, it supports gapped alignments. Results are sorted and indexed bam files. 
 # Note that this BWA tool requires that you have imported the reference genome to Chipster in fasta format. If you would like to align reads against publicly available genomes, please use the tool \"BWA for single end reads\".)
 # INPUT reads.txt: "Reads to align" TYPE GENERIC 
 # INPUT genome.txt: "Reference genome" TYPE GENERIC
 # OUTPUT bwa.bam 
 # OUTPUT bwa.bam.bai 
 # OUTPUT bwa.log 
-# PARAMETER algorithm: "Aligning algorithm type" TYPE [aln: "aln", bwasw: "BWA-SW"] DEFAULT aln (Alignment algorithm to be used. The default algorithm is aln. BWA-SW is designmed for long, over 300pb, single-end reads with more errors)
-# PARAMETER seed.length: "Seed length" TYPE INTEGER DEFAULT 32 ( -l : Number of first nucleotides to be used as a seed. If the seed length is longer than query sequences, then seeding will be disabled) 
-# PARAMETER seed.edit:"Maximum of differences in the seed" TYPE INTEGER DEFAULT 2 ( -k: maximum differences in the seed )
+# PARAMETER algorithm: "Alignment algorithm type" TYPE [aln: "aln", bwasw: "BWA-SW"] DEFAULT aln (Alignment algorithm to be used. The default algorithm is aln. BWA-SW is designed for long, over 300pb, single-end reads with more errors.)
+# PARAMETER seed.length: "Length of the seed region" TYPE INTEGER DEFAULT 32 (How many bases of the left, good quality part of the read should be used as the seed region. If the seed length is longer than the reads, the seeding will be disabled. Corresponds to the command line parameter -l.) 
+# PARAMETER seed.edit: "Maximum number of of differences in the seed region" TYPE INTEGER DEFAULT 2 (Maximum number of differences such as mismatches or indels in the seed region. Corresponds to the command line parameter -k.)
 # PARAMETER quality.format: "Quality value format used" TYPE [solexa1_3: "Illumina GA v1.3 or later", sanger: Sanger] DEFAULT sanger (Note that this parameter is taken into account only if you chose to apply the mismatch limit to the seed region. Are the quality values in the Sanger format (ASCII characters equal to the Phred quality plus 33\) or in the Illumina Genome Analyzer Pipeline v1.3 or later format (ASCII characters equal to the Phred quality plus 64\)? Please see the manual for details.)
-# PARAMETER OPTIONAL num.gaps: "Maximum number of gap openings" TYPE INTEGER DEFAULT 1 ( -o : Maximum number of gap openings for one read )
-# PARAMETER OPTIONAL num.extensions: "Maximum number of gap extensions" TYPE INTEGER DEFAULT -1 ( -e : Maximum number of gap extensions, -1 for disabling long gaps )
-# PARAMETER OPTIONAL gap.opening: "Gap opening penalty " TYPE INTEGER DEFAULT 11 ( -O: Gap opening penalty)
-# PARAMETER OPTIONAL gap.extension: "Gap extension penalty " TYPE INTEGER DEFAULT 4 ( -E: Gap extension penalty)
-# PARAMETER OPTIONAL mismatch.penalty: "Mismatch penalty threshold" TYPE INTEGER DEFAULT 4 ( -M: BWA will not search for suboptimal hits with a score lower than defined. )
-# PARAMETER OPTIONAL disallow.gaps: "Maximum occurrences for extending a long deletion"  TYPE INTEGER DEFAULT 10 ( -d : Maximum occurrences for extending a long deletion )
-# PARAMETER OPTIONAL disallow.indel: "Disallow an indel within the given number of pb towards the ends"  TYPE INTEGER DEFAULT 5 ( -i : Do not put an indel within the defined value of bp towards the ends )
-# PARAMETER OPTIONAL trim.threshold: "Quality trimming threshold" TYPE INTEGER DEFAULT 0 (-q : Quality threshold for read trimming down to 35bp)
-# PARAMETER OPTIONAL barcode.length: "Barcode length"  TYPE INTEGER DEFAULT 0 ( -B : Length of barcode starting from the 5 prime end. The barcode of each read will be trimmed before mapping.)
-# PARAMETER OPTIONAL alignment.no: "How many valid alignments are reported per read" TYPE  INTEGER DEFAULT 3 ( smase-n : Maximum number of alignments to output in the XA tag for reads paired properly. If a read has more than the given amount of  hits, the XA tag will not be written)
+# PARAMETER OPTIONAL num.gaps: "Maximum number of gaps" TYPE INTEGER DEFAULT 1 (Maximum number of gap openings for one read. Corresponds to the command line parameter -o.)
+# PARAMETER OPTIONAL num.extensions: "Maximum number of gap extensions" TYPE INTEGER DEFAULT -1 (Maximum number of gap extensions, -1 for disabling long gaps. Corresponds to the command line parameter -e.)
+# PARAMETER OPTIONAL gap.opening: "Gap opening penalty " TYPE INTEGER DEFAULT 11 (Gap opening penalty. Corresponds to the command line parameter -O.)
+# PARAMETER OPTIONAL gap.extension: "Gap extension penalty " TYPE INTEGER DEFAULT 4 (Gap extension penalty. Corresponds to the command line parameter -E.)
+# PARAMETER OPTIONAL mismatch.penalty: "Mismatch penalty threshold" TYPE INTEGER DEFAULT 4 (BWA will not search for suboptimal hits with a score lower than the alignment score minus this. Corresponds to the command line parameter -M.)
+# PARAMETER OPTIONAL disallow.gaps: "Maximum occurrences for extending a long deletion"  TYPE INTEGER DEFAULT 10 (Maximum occurrences for extending a long deletion. Corresponds to the command line parameter -d.)
+# PARAMETER OPTIONAL disallow.indel: "Disallow an indel within the given number of bp towards the ends"  TYPE INTEGER DEFAULT 5 (Do not put an indel within the defined value of bp towards the ends. Corresponds to the command line parameter -i.)
+# PARAMETER OPTIONAL trim.threshold: "Quality trimming threshold" TYPE INTEGER DEFAULT 0 (Quality threshold for read trimming down to 35bp. Corresponds to the command line parameter -q.)
+# PARAMETER OPTIONAL barcode.length: "Barcode length"  TYPE INTEGER DEFAULT 0 (Length of barcode starting from the 5 prime end. The barcode of each read will be trimmed before mapping. Corresponds to the command line parameter -B.)
+# PARAMETER OPTIONAL alignment.no: "How many valid alignments are reported per read" TYPE  INTEGER DEFAULT 3 (Maximum number of alignments to report. Corresponds to the samse command line parameter -n.)
 
 # KM 24.8.2011
 
