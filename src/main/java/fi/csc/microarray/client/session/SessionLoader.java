@@ -195,9 +195,10 @@ public class SessionLoader {
 						break;
 						
 					case LOCAL_USER:
+					case LOCAL_TEMP:
 						dataBean = dataManager.createDataBean(name, url);
 						break;
-						
+
 					default:
 						throw new IllegalArgumentException("unsupported storage method: " + storageMethodString);
 					}
