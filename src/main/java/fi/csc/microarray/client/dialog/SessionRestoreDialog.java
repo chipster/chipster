@@ -81,8 +81,12 @@ public class SessionRestoreDialog extends JDialog implements ActionListener {
 	 */
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
+		
 		if (source == restoreButton) {
-			client.restoreSessionFrom(sessionFile);
+			client.restoreSessionFrom(sessionFile); // client will clear dead dirs after the restore 
+			
+		} else {
+			client.clearDeadTempDirectories();
 		}
 		
 		this.dispose();
