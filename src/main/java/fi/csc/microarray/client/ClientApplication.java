@@ -731,21 +731,38 @@ public abstract class ClientApplication {
 				continue;
 			}
 			
-			// Check is it alive
-			if (isTempDirectoryUpdatedRecently(directory)) {
-				continue; // was alive
-			}
 			
-			// Maybe needs restore, wait
-			try {
-				Thread.sleep(SESSION_BACKUP_INTERVAL);
-			} catch (InterruptedException e) {
-				// ignore
-			}
+			// Check is it alive, wait until alive file should have been updated
+			File aliveSignalFile = new File(directory, ALIVE_SIGNAL_FILENAME);
+			long originalLastModified = aliveSignalFile.lastModified();
+			while ((System.currentTimeMillis() - aliveSignalFile.lastModified()) < 2*SESSION_BACKUP_INTERVAL) {
+				
+				// Updated less than twice the interval time ago ("not too long ago"), so keep on checking
+				// until we see new update that confirms it is alive, or have waited long
+				// enough that the time since last update grows larger than twice the interval.
+				
+				// Check if restorable
+				if (UserSession.findBackupFile(directory, false) == null) {
+					// Does not have backup file, so not interesting for backup.
+					// Should be removed anyway, but removing empty directories is not
+					// important enough to warrant the extra waiting that follows next.
+					// So we will skip this and if it was dead, it will be anyway 
+					// cleaned away in the next client startup.
+					
+					continue;
+				}
+				
+				// Check if updated
+				if (aliveSignalFile.lastModified() != originalLastModified) {
+					continue; // we saw an update, it is alive
+				}
 
-			 // Check again
-			if (isTempDirectoryUpdatedRecently(directory)) {
-				continue; // was alive after all
+				// Wait for it to update
+				try {
+					Thread.sleep(1000); // 1 second
+				} catch (InterruptedException e) {
+					// ignore
+				}
 			}
 
 			// It is dead, might be the one that should be recovered, check that
@@ -761,10 +778,6 @@ public abstract class ClientApplication {
 		}
 		
 		return mostRecentDeadSignalFile != null ? mostRecentDeadSignalFile.getParentFile() : null;
-	}
-	
-	private boolean isTempDirectoryUpdatedRecently(File tmpDir) {
-		return System.currentTimeMillis() - new File(tmpDir, ALIVE_SIGNAL_FILENAME).lastModified() < 2*SESSION_BACKUP_INTERVAL;
 	}
 	
 	public void clearDeadTempDirectories() {
