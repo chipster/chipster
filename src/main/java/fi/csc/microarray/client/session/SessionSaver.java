@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import javax.xml.bind.JAXBException;
@@ -221,6 +222,14 @@ public class SessionSaver {
 		// rename new session if replacing existing
 		if (replaceOldSession) {
 
+			for (ZipFile zipFile: dataManager.getZipFiles()) {
+				try {
+					zipFile.close();
+				} catch (Exception e) {
+					logger.warn("could not close zip file");
+				}
+			}
+			
 			// original to backup
 			if (!sessionFile.renameTo(backupFile)) {
 				throw new IOException("Creating backup file " + backupFile.getAbsolutePath() + " failed.");

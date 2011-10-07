@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.session.UserSession;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataBean.StorageMethod;
@@ -22,7 +23,8 @@ public class ZipDataBeanHandler extends DataBeanHandlerBase {
 	
 	public long getContentLength(DataBean dataBean) throws IOException {
 		checkCompatibility(dataBean);
-		ZipFile zipFile = new ZipFile(getZipFile(dataBean));		
+		ZipFile zipFile = new ZipFile(getZipFile(dataBean));
+		Session.getSession().getDataManager().addZipFile(zipFile);
 		ZipEntry zipEntry = zipFile.getEntry(dataBean.getContentUrl().getRef());
 		return zipEntry.getSize();
 	}
@@ -30,6 +32,7 @@ public class ZipDataBeanHandler extends DataBeanHandlerBase {
 	public InputStream getInputStream(DataBean dataBean) throws IOException {
 		checkCompatibility(dataBean);
 		ZipFile zipFile = new ZipFile(getZipFile(dataBean));
+		Session.getSession().getDataManager().addZipFile(zipFile);
 		ZipEntry zipEntry = zipFile.getEntry(dataBean.getContentUrl().getRef());
 		return zipFile.getInputStream(zipEntry);
 	}

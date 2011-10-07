@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipFile;
 
 import javax.swing.Icon;
 
@@ -74,6 +75,7 @@ public class DataManager {
 	private DataFolder rootFolder;	
 	private File repositoryRoot;
 
+	private List<ZipFile> zipFiles = new LinkedList<ZipFile>();
 	
 	public DataManager() throws IOException {
 		rootFolder = createFolder(DataManager.ROOT_NAME);
@@ -849,4 +851,15 @@ public class DataManager {
 		return repositories;
 	}
 
+	public void addZipFile(ZipFile zipFile) {
+		this.zipFiles.add(zipFile);
+	}
+	
+	public List<ZipFile> getZipFiles() {
+		return this.zipFiles;
+	}
+	
+	public void clearZipFiles() {
+		zipFiles.clear();
+	}
 }
