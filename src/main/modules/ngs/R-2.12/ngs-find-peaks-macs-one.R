@@ -28,8 +28,6 @@
 #                                                   #
 # MG, 26.5.2010                                     #
 #                                                   #
-# Development version                               #
-#                                                   #
 # Tool that searches for genomic regions that are   #
 # significantly enriched in sequence reads from a   #
 # ChIP-chip or ChIP-seq experiment. The tool uses   #
@@ -74,6 +72,16 @@
 # PARAMETER treatment.group: "The group label used for the treatment samples" TYPE STRING DEFAULT "empty"
 # PARAMETER control.group: "The group label used for the control samples" TYPE STRING DEFAULT "empty"
 
+# This parameter is no longer needed, as MACS automatically lowers the m-fold cut-off if needed as of version 1.4.0
+# PARAMETER adjust.mfold: "Adjust m-fold" TYPE [yes, no] DEFAULT yes (Enabling this option, when building peak model is selected, the m-fold cutoff is automatically adjusted down in case the user-selected value is to stringent for finding peaks for modeling.)
+
+# This parameter has been disabled since its functionality is quite well emulated by the separate strand coverage track in the Genome Browser
+# PARAMETER produce.wiggle: "Produce wiggle" TYPE [yes, no] DEFAULT no (Determines if WIGGLE type files should be output or not. By default this option is turned off due to the significantly longer run times it causes. However, for displaying p-values in one track of the Genome Browser, this paramter should be set to indicate the chromosome for which to produce the wiggle file.)
+
+# This output is now obsolete since Chipster can view the .tsv output file in Genome Browser
+# OUTPUT positive-peaks.bed: "True enriched peaks in a format compatible with the Genome Browser"
+
+
 ##################################
 #                                #
 # PARAMETER SETTINGS FOR TESTING #
@@ -93,9 +101,6 @@
 # m.fold.upper <- 30
 # m.fold.lower <- 10
 # adjust.mfold <- "yes"
-
-# find_peals_using_MACS.R
-# MG, 22.5.2010
 
 # Set up approximate mappable genome size depending on species
 if (species == "human") {
