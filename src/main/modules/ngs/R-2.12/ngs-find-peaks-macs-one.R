@@ -14,16 +14,6 @@
 # PARAMETER m.fold.upper: "Upper M-fold cutoff" TYPE INTEGER FROM 1 TO 100 DEFAULT 30 (Sets the cutoff used to determine peak regions for model building. A too high value may result in not enough peaks being identified for building the model. Notice that if the peak model is disabled this parameter has no effect.)
 # PARAMETER m.fold.lower: "Lower M-fold cutoff" TYPE INTEGER FROM 1 TO 100 DEFAULT 10 (Sets the cutoff used to determine peak regions for model building. A too low value may result in the inclusion of many false peaks being used for building the model. Notice that if the peak model is disabled this parameter has no effect.)
 
-# This parameter is no longer needed, as MACS automatically lowers the m-fold cut-off if needed as of version 1.4.0
-# PARAMETER adjust.mfold: "Adjust m-fold" TYPE [yes, no] DEFAULT yes (Enabling this option, when building peak model is selected, the m-fold cutoff is automatically adjusted down in case the user-selected value is to stringent for finding peaks for modeling.)
-
-# This parameter has been disabled since its functionality is quite well emulated by the separate strand coverage track in the Genome Browser
-# PARAMETER produce.wiggle: "Produce wiggle" TYPE [yes, no] DEFAULT no (Determines if WIGGLE type files should be output or not. By default this option is turned off due to the significantly longer run times it causes. However, for displaying p-values in one track of the Genome Browser, this paramter should be set to indicate the chromosome for which to produce the wiggle file.)
-
-# This output is now obsolete since Chipster can view the .tsv output file in Genome Browser
-# OUTPUT positive-peaks.bed: "True enriched peaks in a format compatible with the Genome Browser"
-
-
 #####################################################
 #                                                   #
 # MG, 26.5.2010                                     #
