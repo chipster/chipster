@@ -22,6 +22,7 @@ public class UserSession {
 	public static final String SESSION_FILE_EXTENSION = "zip";
 	public static final String SESSION_DATA_FILENAME = "session.xml";
 	
+	protected static final String SESSION_BACKUP_PREFIX = "backup_session";
 	
 	private static final Logger logger = Logger.getLogger(UserSession.class);
 	public static final String ROOT_FOLDER_ID = "0";
@@ -117,5 +118,22 @@ public class UserSession {
 	public static Schema getSchema() throws SAXException {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 		return factory.newSchema(new StreamSource(UserSession.class.getResourceAsStream("session.xsd")));
+	}
+
+
+	public static File findBackupFile(File directory, boolean oneAfterLast) {
+		
+		File sessionFile = null;
+		File candidateSessionFile = new File(directory, SESSION_BACKUP_PREFIX + "." + SESSION_FILE_EXTENSION);
+
+		for (int i = 0; candidateSessionFile.exists(); i++) {
+			sessionFile = candidateSessionFile;
+			candidateSessionFile = new File(directory, SESSION_BACKUP_PREFIX + i + "." + SESSION_FILE_EXTENSION);
+		}
+		
+		if (oneAfterLast) {
+			sessionFile = candidateSessionFile;
+		}
+		return sessionFile;
 	}
 }

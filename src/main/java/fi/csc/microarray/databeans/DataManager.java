@@ -38,8 +38,12 @@ import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.IOUtils;
+import fi.csc.microarray.util.Strings;
 
 public class DataManager {
+
+	private static final String TEMP_DIR_PREFIX = "chipster";
+
 
 	private static final int MAX_FILENAME_LENGTH = 256;
 
@@ -82,6 +86,10 @@ public class DataManager {
 		this.rootFolder = folder;		
 	}
 
+	public File getRepository() {
+		return repositoryRoot;
+	}
+	
 	/**
 	 * Returns the root folder, acting as a gateway into the actual data
 	 * content under this manager.
@@ -177,31 +185,21 @@ public class DataManager {
 
 	private File createRepository() throws IOException {
 		// get temp dir
-		File tempDir =  new File(System.getProperty("java.io.tmpdir"));
-
-		// check if temp dir is writeable
-		if (!tempDir.canWrite()) {
-			// try home dir
-			tempDir = new File(System.getProperty("user.home"));
-			if (!tempDir.canWrite()) {
-				// try current working dir
-				tempDir = new File(System.getProperty("user.dir"));
-				if (!tempDir.canWrite()) {
-					// give up
-					throw new IOException("Could not create repository directory.");
-				}
-			}
+		File tempRoot = getTempRoot();
+		if (!tempRoot.canWrite()) {
+			// give up
+			throw new IOException("Could not create repository directory.");
 		}
 		
-		String fileName = "chipster";
-		File repository = new File(tempDir, fileName);
+		String fileName = TEMP_DIR_PREFIX;
+		File repository = new File(tempRoot, fileName);
 		
-		// if file with the beanName already exists, add running number 
+		// if directory with that name already exists, add running number 
 		boolean repositoryCreated = false;
 		for (int i = 1;  !repositoryCreated && i < 1000; i++) {
 			repositoryCreated = repository.mkdir();
 			if (!repositoryCreated) {
-				repository = new File(tempDir, fileName + "-" + i);
+				repository = new File(tempRoot, fileName + "-" + i);
 			}
 		}
 
@@ -211,6 +209,21 @@ public class DataManager {
 		
 		repository.deleteOnExit();
 		return repository;
+	}
+
+	private File getTempRoot() {
+		File tempDir =  new File(System.getProperty("java.io.tmpdir"));
+
+		// check if temp dir is writeable
+		if (!tempDir.canWrite()) {
+			// try home dir
+			tempDir = new File(System.getProperty("user.home"));
+			if (!tempDir.canWrite()) {
+				// try current working dir
+				tempDir = new File(System.getProperty("user.dir"));
+			}
+		}
+		return tempDir;
 	}
 
 	
@@ -556,10 +569,10 @@ public class DataManager {
 	 * 
 	 * @see #saveSession(File, ClientApplication)
 	 */
-	public void loadSession(File sessionFile) {
+	public void loadSession(File sessionFile, boolean restoreData) {
 		SessionLoader sessionLoader;
 		try {
-			sessionLoader = new SessionLoader(sessionFile);
+			sessionLoader = new SessionLoader(sessionFile, restoreData);
 			sessionLoader.loadSession();
 		} catch (Exception e) {
 			Session.getSession().getApplication().showDialog("Opening session failed.", "Unfortunately the session could not be opened properly. Please see the details for more information.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
@@ -594,7 +607,20 @@ public class DataManager {
 		}
 
 		return true;
+	}
+
 	
+	/**
+	 * Saves lightweight session (folder structure, operation metadata, links etc.) to a file.
+	 * Does not save actual data inside databeans.
+	 * 
+	 * @return true if the session was saved perfectly
+	 * @throws Exception 
+	 */
+	public void saveLightweightSession(File sessionFile) throws Exception {
+
+		SessionSaver sessionSaver = new SessionSaver(sessionFile);
+		sessionSaver.saveLightweightSession();
 	}
 
 	/**
@@ -687,18 +713,15 @@ public class DataManager {
 	 * @throws IOException 
 	 */
 	public OutputStream getContentOutputStreamAndLockDataBean(DataBean bean) throws IOException {
-		// FIXME find correct place for this
+
 		bean.setContentChanged(true);
 		
-		// for local temp beans, just get the output stream
-		if (bean.getStorageMethod().equals(StorageMethod.LOCAL_TEMP)) {
-			return bean.getHandler().getOutputStream(bean);
+		// Only local temp beans support output, so convert to local temp bean if needed
+		if (!bean.getStorageMethod().equals(StorageMethod.LOCAL_TEMP)) {
+			this.convertToLocalTempDataBean(bean);
 		}
-		// for other bean types, convert to local bean
-		else {
-			this.convertToLocalFileDataBean(bean);
-			return bean.getHandler().getOutputStream(bean);
-		}
+		
+		return bean.getHandler().getOutputStream(bean);
 	}
 
 	/**
@@ -723,7 +746,7 @@ public class DataManager {
 	public File getLocalFile(DataBean bean) throws IOException {
 		// convert non local file beans to local file beans
 		if (!(bean.getHandler() instanceof LocalFileDataBeanHandler)) {
-			this.convertToLocalFileDataBean(bean);
+			this.convertToLocalTempDataBean(bean);
 		}
 		
 		// get the file
@@ -732,7 +755,7 @@ public class DataManager {
 	}
 	
 	
-	private void convertToLocalFileDataBean(DataBean bean) throws IOException {
+	private void convertToLocalTempDataBean(DataBean bean) throws IOException {
 		// FIXME lock bean
 		
 		// TODO think about that name
@@ -803,6 +826,27 @@ public class DataManager {
 	
 	public TypeTag getTypeTag(String name) {
 		return this.tagMap.get(name);
+	}
+
+	public Iterable<File> listAllRepositories() {
+
+		LinkedList<File> repositories = new LinkedList<File>();
+		
+		File tempRoot = getTempRoot();
+		
+		for (File file: tempRoot.listFiles()) {
+			
+			if (file.isDirectory() && file.getName().startsWith(TEMP_DIR_PREFIX)) {
+				
+				String postfix = file.getName().substring(TEMP_DIR_PREFIX.length());
+				if ("".equals(postfix) || Strings.isIntegerNumber(postfix)) {
+					
+					repositories.add(file);
+				}
+			}
+		}
+		
+		return repositories;
 	}
 
 }

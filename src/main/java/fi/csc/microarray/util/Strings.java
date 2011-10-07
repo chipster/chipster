@@ -62,6 +62,16 @@ public class Strings {
 		return v != null;
 	}
 
+	public static boolean isIntegerNumber(String string) {
+		Integer v = null;
+		try {
+			v = Integer.valueOf(string);
+		} catch (NumberFormatException e) {
+			// ignore
+		}		
+		return v != null;
+	}
+
 	public static boolean containsAnyOf(String toCompare, boolean caseSensitive, String... strings) {
 		if (!caseSensitive) {
 			toCompare = toCompare.toLowerCase();

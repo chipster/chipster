@@ -48,6 +48,8 @@ public class SessionLoader {
 	private File sessionFile;
 	private SessionType sessionType;
 	
+	private boolean isDatalessSession;
+	
 	private LinkedHashMap<String, DataFolder> folders = new LinkedHashMap<String, DataFolder>();
 	private HashMap<DataFolder, FolderType> folderTypes = new HashMap<DataFolder, FolderType>();
 
@@ -63,12 +65,13 @@ public class SessionLoader {
 	private static final Logger logger = Logger.getLogger(SessionLoader.class);
 	
 	
-	public SessionLoader(File sessionFile) throws MicroarrayException {
+	public SessionLoader(File sessionFile, boolean restoreData) throws MicroarrayException {
 		if (!UserSession.isValidSessionFile(sessionFile)) {
 			throw new MicroarrayException("Not a valid session file.");
 		}
 		this.sessionFile = sessionFile;
 		this.dataManager = Session.getSession().getDataManager();
+		this.isDatalessSession = restoreData;
 	}
 	
 	
@@ -165,11 +168,15 @@ public class SessionLoader {
 				continue;
 			}
 			
+//				- viive pois
+//				- ja tämä kohta kuntoon
+//				- ja testaus
+				// FIXME
 			
 			DataBean dataBean = null;
-			switch (storageMethod) {
-			case LOCAL_SESSION:
-				// use the url for the real session file 
+			if (storageMethod == StorageMethod.LOCAL_SESSION && !isDatalessSession) {
+
+				// data is inside the session file, use the url for the real session file 
 				try {
 					url = new URL(sessionFile.toURI().toURL(), "#" + url.getRef());
 					dataBean = dataManager.createDataBeanFromZip(name, url);
@@ -180,18 +187,30 @@ public class SessionLoader {
 					logger.warn("could not create data bean: " + name);
 					continue;
 				}
-				break;
-			case LOCAL_USER:
+				
+			} else {
+
+				// data is outside of the session file, decode the URL as it is
 				try {
-					dataBean = dataManager.createDataBean(name, url);
+
+					switch (storageMethod) {
+
+					case LOCAL_SESSION:
+						dataBean = dataManager.createDataBeanFromZip(name, url);
+						break;
+						
+					case LOCAL_USER:
+						dataBean = dataManager.createDataBean(name, url);
+						break;
+						
+					default:
+						throw new IllegalArgumentException("unsupported storage method: " + storageMethodString);
+					}
+					
 				} catch (MicroarrayException e) {
 					logger.warn("could not create data bean: " + name);
 					continue;
 				}
-				break;
-			default:
-				logger.warn("unexpected storage method " + storageMethod.name() + " for data bean: " + name);	
-				continue;
 			}
 
 			// cache url
