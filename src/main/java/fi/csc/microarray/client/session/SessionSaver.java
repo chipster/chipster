@@ -99,10 +99,12 @@ public class SessionSaver {
 	 */
 	public boolean saveSession() throws Exception{
 
-		gatherMetadata(false);
+		boolean saveData = true;
+		
+		gatherMetadata(saveData);
 		boolean metadataValid = validateMetadata();
 	
-		writeSessionFile(true);
+		writeSessionFile(saveData);
 		updateDataBeanURLsAndHandlers();
 		
 		return metadataValid;
@@ -110,8 +112,10 @@ public class SessionSaver {
 
 	public void saveLightweightSession() throws Exception {
 
-		gatherMetadata(false);
-		writeSessionFile(false);
+		boolean saveData = false;
+		
+		gatherMetadata(saveData);
+		writeSessionFile(saveData);
 	}
 
 	
