@@ -229,6 +229,8 @@ public class SessionSaver {
 					logger.warn("could not close zip file");
 				}
 			}
+			dataManager.clearZipFiles();
+			
 			
 			// original to backup
 			if (!sessionFile.renameTo(backupFile)) {
