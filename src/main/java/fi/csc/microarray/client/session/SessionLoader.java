@@ -168,11 +168,6 @@ public class SessionLoader {
 				continue;
 			}
 			
-//				- viive pois
-//				- ja tämä kohta kuntoon
-//				- ja testaus
-				// FIXME
-			
 			DataBean dataBean = null;
 			if (storageMethod == StorageMethod.LOCAL_SESSION && !isDatalessSession) {
 
