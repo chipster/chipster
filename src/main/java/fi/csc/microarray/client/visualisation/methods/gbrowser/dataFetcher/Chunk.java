@@ -1,14 +1,15 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 
+import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
+
 /**
- * DOCME
- * 
  * Chunk is a part of file containing only full lines. The default length of the chunk can be 
  * defined in the parser classes, but the exact length will be only in the some order of 
  * magnitude and the exact length depends on how the lines happen to become divided between 
- * these chunks. 
+ * these chunks. Relevant only for {@link ChunkDataSource}.
  * 
- * @author klemela
+ * @author Petri Klemelä
+ * @see ChunkDataSource
  */
 public class Chunk implements Cloneable {
 

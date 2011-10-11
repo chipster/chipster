@@ -3,7 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TreeNode;
 
 /**
- * Request for file content. Used by the tree layer to request content from the file layer. 
+ * Request for file content. Used by the processing (tree) layer to request content from the data source layer. 
  *
  */
 public class ChunkFileRequest {

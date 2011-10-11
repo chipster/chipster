@@ -4,6 +4,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaReque
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
 
+/**
+ * Request to {@link SAMFileFetcherThread}.
+ * 
+ * @author akallio
+ *
+ */
 public class SAMFileRequest {
 
 	public AreaRequest areaRequest;

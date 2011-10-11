@@ -8,6 +8,13 @@ import java.util.List;
 import net.sf.samtools.CigarElement;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 
+/**
+ * Represents the CIGAR string, as supported by the SAM standard. CIGAR string is used to
+ * store the information on what parts of the read matched the genome. 
+ * 
+ * @author Aleksi Kallio
+ *
+ */
 public class Cigar {
 	private List<CigarItem> elements = new ArrayList<CigarItem>();
 	private LinkedList<ReadPart> visibleElements = null;

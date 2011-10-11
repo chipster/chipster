@@ -18,6 +18,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * Splices reads into spliced parts, returned as {@link ReadPart} objects.
+ * 
+ * @author Aleksi Kallio
+ *
+ */
 public class ReadpartDataProvider implements AreaResultListener {
 
 	private View view;

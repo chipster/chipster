@@ -27,7 +27,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.TooltipEnabledChartPanel.TooltipRequestProcessor;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.TooltipAugmentedChartPanel.TooltipRequestProcessor;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.QueueManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -46,8 +46,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 
 /**
- * Combines track to create a single synchronised view. All tracks within one view move hand-in-hand. View is responsible for allocating
- * space and taking care of actual drawing.
+ * Combines tracks to create a single synchronised view. All tracks within one view move hand-in-hand. 
+ * View is responsible for allocating space and taking care of actual drawing.
  * 
  */
 public abstract class View implements MouseListener, MouseMotionListener, MouseWheelListener, TooltipRequestProcessor {

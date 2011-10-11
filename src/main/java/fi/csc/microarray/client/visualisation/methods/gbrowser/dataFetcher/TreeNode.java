@@ -11,6 +11,14 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ChunkFile
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * <p>Implementation of a node of tree structure. All the recursive functionality is done in this 
+ * class. Things concerning the whole tree are done in class called {@link ChunkTreeHandlerThread}.</p>
+ * 
+ * <p>Only the leaf nodes of the tree point to the part of the file and the upper nodes of the tree
+ * are used only for the searching and sampling.</p>
+ * 
+ */
 public class TreeNode {
 
 	private static final boolean DEPTH_LIMIT_ACTIVE = false;
@@ -30,18 +38,6 @@ public class TreeNode {
 	private ByteRegion unExactByteRegion;
 	private boolean isLeaf;
 
-	/**
-	 * DOCME
-	 * 
-	 * Chunk reader is the original genome browser data fetching implementation with a tree type 
-	 * data structure and it was made primarily for the tab separated text files. This class is the
-	 * implementation of a node of tree structure. All the recursive functionality is done in this 
-	 * class. Things concerning the whole tree are done in class called ChunkTreeHandlerThread.
-	 * 
-	 * Only the leaf nodes of the tree point to the part of the file and the upper nodes of the tree
-	 * are used only for the searching and sampling.
-	 * 
-	 */
 	public TreeNode(ByteRegion nodeByteRegion, ChunkTreeHandlerThread tree, TreeNode parent) {
 
 		this.tree = tree;

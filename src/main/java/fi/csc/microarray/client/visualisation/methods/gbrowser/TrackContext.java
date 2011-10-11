@@ -4,9 +4,10 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 
 /**
- * Context for a Drawable object. Context is influenced by other
+ * Helper class for collecting drawing related information for a {@link Drawable} 
+ * object. Context is influenced by other
  * drawable objects that are currently visible and by size of
- * the track.
+ * the track. It is used when placing and sizing {@link Drawable} objects to a {@link Track}.
  * 
  * @author naktinis
  *

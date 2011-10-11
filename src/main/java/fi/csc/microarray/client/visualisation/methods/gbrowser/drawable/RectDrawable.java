@@ -5,6 +5,12 @@ import java.awt.Rectangle;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.TrackContext;
 
+/**
+ * A rectangle that can be either filled or not.
+ * 
+ * @author Petri Klemelä
+ *
+ */
 public class RectDrawable extends Drawable {
 
 	public int width;

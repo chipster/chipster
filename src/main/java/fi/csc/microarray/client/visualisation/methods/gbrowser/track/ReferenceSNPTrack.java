@@ -20,19 +20,19 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResul
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
- * Track showing known SNP's of the genome. 
+ * <p>Track showing known SNP's of the genome.</p> 
  * 
- * There are two ways of showing data: 1. by nucleotide color, or 2. by consequence to transcript.
+ * <p>There are two ways of showing data: 1. by nucleotide color, or 2. by consequence to transcript.</p>
  * 
- * in the consequence to transcript way the color is get by simple prioritization
+ * <p>In the consequence to transcript way the color is get by simple prioritization
  * mechanism. There is array of colors, which are ordered by importance and
  * consequences enumeration, which are also ordered by importance, and particular
  * color refer to particular consequence name. If consequence name number is greater than
- * maxColorIndex, then 'default' gray color is defined.
+ * maxColorIndex, then 'default' gray color is defined.</p>
  * 
- * If importance sequence is changed, so the colors array must be changed accordingly.
+ * <p>If importance sequence is changed, so the colors array must be changed accordingly.</p>
  * 
- * @author zukauska
+ * @author Vilius Zukauskas
  *
  */
 

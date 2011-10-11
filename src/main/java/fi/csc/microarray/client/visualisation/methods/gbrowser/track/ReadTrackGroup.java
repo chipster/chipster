@@ -14,7 +14,7 @@ import fi.csc.microarray.constants.VisualConstants;
  * Tracks containing information about reads: sequences themselves, gel,
  * profile etc.
  * 
- * @author naktinis, zukauska
+ * @author Rimvydas Naktinis, Vilius Zukauskas
  *
  */
 public class ReadTrackGroup extends TrackGroup {

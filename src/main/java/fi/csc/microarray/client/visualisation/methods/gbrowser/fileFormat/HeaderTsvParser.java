@@ -11,6 +11,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * Extends {@link TsvParser} to support files that have header line as their first line.
+ *  
+ * @author Aleksi Kallio
+ *
+ */
 public class HeaderTsvParser extends TsvParser {
 
 	public HeaderTsvParser() {

@@ -24,7 +24,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  * Track for showing wig format data
  * 
  */
-
 public class WIGTrack extends Track{
 	
 	private long maxBpLength;

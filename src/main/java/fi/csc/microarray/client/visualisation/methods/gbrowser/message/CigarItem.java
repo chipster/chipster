@@ -3,6 +3,12 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 import net.sf.samtools.CigarElement;
 import net.sf.samtools.CigarOperator;
 
+/**
+ * Single item (continuous block of same type bases) of CIGAR string.
+ * 
+ * @author Aleksi Kallio
+ *
+ */
 public class CigarItem {
 	private CigarElement cigarElement;
 	

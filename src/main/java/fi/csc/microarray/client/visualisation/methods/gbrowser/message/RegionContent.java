@@ -6,8 +6,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Type;
 
 /**
- * Content for given genomic region. Content is data dependent, but basically it is data parsed from tabular data. All the 
- * rows fall within the genomic region.
+ * Content for given genomic region. Content is data dependent, but basically it is data parsed from the 
+ * input file or other data source. All the rows fall within the genomic region.
  *
  */
 public class RegionContent implements Comparable<RegionContent> {

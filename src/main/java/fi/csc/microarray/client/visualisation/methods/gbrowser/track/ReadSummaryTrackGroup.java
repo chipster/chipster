@@ -16,7 +16,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Tabix
  * Tracks containing information about reads: sequences themselves, gel,
  * profile etc.
  * 
- * @author naktinis, klemela
+ * @author Rimvydas Naktinis, Petri Klemelä
  *
  */
 public class ReadSummaryTrackGroup extends ReadTrackGroup implements ActionListener {

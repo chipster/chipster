@@ -2,28 +2,20 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.net.URL;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TabixFile;
-import fi.csc.microarray.exception.MicroarrayException;
 
 /**
- * Data source for Tabix files.
+ * Experimental data source for indexed Tabix files.
  * 
- * @author naktinis, klemela
+ * @author Petri Klemelä
  *
  */
 public class TabixDataSource extends DataSource {
     
-    TabixFile tabixFile = null;
+    private TabixFile tabixFile = null;
     
     
-    public TabixDataSource(URL url) throws FileNotFoundException, MicroarrayException {
-        // TODO Support URLs    	
-        super(url);
-        throw new MicroarrayException("Reading Tabix files from URL not yet supported");
-    }
-
     /**
      * Generally we would like to have both data and index files,
      * because otherwise we could not access random locations.

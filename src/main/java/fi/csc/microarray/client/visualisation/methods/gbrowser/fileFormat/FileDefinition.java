@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 /**
- * Define file format as a list of columns.
+ * Defines a file format as a list of columns. Used for tab separated files.
  * 
  */
 @SuppressWarnings("serial")

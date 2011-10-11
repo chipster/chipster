@@ -30,7 +30,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 import fi.csc.microarray.constants.VisualConstants;
 
 /**
- * Track for showing transcripts.
+ * Track for showing transcripts. Lower zoom level version of {@link GeneTrack}.
  *
  */
 public class TranscriptTrack extends Track {

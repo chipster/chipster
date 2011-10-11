@@ -1,10 +1,8 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
 /**
- * Floating-point version of BpCoordRegion. Used when floating point precision is needed in calculations.
+ * Floating-point version of {@link BpCoordRegion}. Used when floating point precision is needed in calculations.
  * 
- * @see BpCoordRegion
- *
  */
 public class BpCoordRegionDouble implements Comparable<BpCoordRegionDouble> {
 	

@@ -8,9 +8,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
- * DOCME
+ * Subclass of {@link TsvParser} implementing the concised method for our own annotation file format.
  * 
- * Subclass of Tsv parser implementing the concised method for our own Annotation file format.
+ * @author Petri Klemelä
  *
  */
 public abstract class AnnotationTsvParser extends TsvParser{

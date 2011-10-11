@@ -11,13 +11,15 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ChunkFile
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ChunkFileResult;
 
 /**
- * Chunk reader is the original genome browser data fetching implementation with a tree type 
- * data structure and it was made primarily for the tab separated text files. This class is the 
- * lowest level of file reading. This is done in separate thread to avoid any other things to slow 
- * down file reading. 
+ * <p>Chunk file fetcher is data fetching implementation with a tree type 
+ * data structure and it was made primarily for tab separated text files. This class is the 
+ * lowest type of file reading. This is done in separate thread to avoid any other things to slow 
+ * down file reading.</p> 
  * 
- * Communication between the threads is done with the queues. FileRequests are file locations that
- * need reading and content of the file is returned with FileResult objects. 
+ * <p>Communication between the threads is done with the queues. {@link ChunkFileRequest} are file locations that
+ * need reading and content of the file is returned with {@link ChunkFileResult} objects.</p>
+ * 
+ * @author Petri Klemelä
  */
 public class ChunkFileFetcherThread extends Thread {
 

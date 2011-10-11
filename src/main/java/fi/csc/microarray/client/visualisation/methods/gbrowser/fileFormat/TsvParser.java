@@ -16,6 +16,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 /**
  * Generic parser for tab-separated value files.
  *
+ * @author Petri Klemelä
  */
 public abstract class TsvParser extends FileParser {
 

@@ -1,5 +1,9 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.utils;
 
+/**
+ * Utility class for DNA sequence operations.
+ * 
+ */
 public class Sequence {
     
     /**

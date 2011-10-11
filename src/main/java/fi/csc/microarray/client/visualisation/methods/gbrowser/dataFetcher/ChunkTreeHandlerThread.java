@@ -14,6 +14,15 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ChunkFile
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ChunkFileResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ByteRegion;
 
+/**
+ * Processing layer implementation for chunk files (tab separated text files). Because those files do not 
+ * have indexing, we have to build a tree index for them in the fly. The tree does two things: it builds
+ * an index that can map genomic coordinates to file coordinates, and summarises values so that high level
+ * views can be drawn by using the tree alone.
+ * 
+ * @author Petri Klemelä
+ * @see TreeNode
+ */
 public class ChunkTreeHandlerThread extends AreaRequestHandler {
 
 	private TreeNode rootNode;

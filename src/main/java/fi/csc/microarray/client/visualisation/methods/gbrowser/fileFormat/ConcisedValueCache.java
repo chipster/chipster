@@ -7,7 +7,8 @@ import java.util.TreeMap;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 
 /**
- * Cache for quickly fetching summary values. 
+ * Cache for quickly fetching summary values. By using the cache, we do not have to sample through the file
+ * all the time. Works with FIFO principle.  
  * 
  * @author Aleksi Kallio
  *

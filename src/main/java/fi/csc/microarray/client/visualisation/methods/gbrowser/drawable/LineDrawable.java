@@ -4,6 +4,12 @@ import java.awt.Color;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.TrackContext;
 
+/**
+ * A line that goes from one point to another.
+ * 
+ * @author Petri Klemelä
+ *
+ */
 public class LineDrawable extends Drawable {
 
 	public int x2;

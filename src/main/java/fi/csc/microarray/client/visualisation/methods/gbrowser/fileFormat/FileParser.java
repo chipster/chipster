@@ -6,25 +6,22 @@ import java.util.List;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
 
 /**
- * Generic file parser. Information is divided into chunks.
+ * Generic file parser for tab separated files. Information is divided into chunks.
  * 
- * @See FsfStatus for description of chunk
  */
 public abstract class FileParser {
 
 
 	/**
-	 * DOCME
-	 * 
-	 * Method for getting all the lines from the data chunk. RequestedContents is used to define
+	 * Method for getting all the lines from the data chunk. requestedContents is used to define
 	 * which columns should be returned to avoid parsing data that isn't really used. It's up to
-	 * the parser implementation to decide how these ColumnTypes are mapped to the columns of 
-	 * particular file format. Of course the Track that will eventually draw to content must be 
+	 * the parser implementation to decide how these {@link ColumnType} objects are mapped to the columns of 
+	 * particular file format. Of course the {@link Track} that will eventually draw to content must be 
 	 * able to support the data type that is returned.  
 	 * 
-	 * @See FsfStatus for description of chunk
 	 * @param chunk
 	 * @param requestedContents
 	 * @return list of RegionContent objects containing the requested columns from the chunk data
@@ -32,17 +29,16 @@ public abstract class FileParser {
 	public abstract List<RegionContent> getAll(Chunk chunk, Collection<ColumnType> requestedContents);
 	
 	/**
-	 * Method for getting a summary of data in the chunk. These summaries will be used, when the 
+	 * <p>Method for getting a summary of data in the chunk. These summaries will be used, when the 
 	 * View area is too big to be able to draw all the detailed content in that area. Good summary
-	 * is for example read coverage, which is: 
+	 * is for example read coverage, which is:</p> 
 	 * 
-	 * count of reads in chunk * read length / length of total chunk area
+	 * <p>count of reads in chunk * read length / length of total chunk area</p>
 	 * 
-	 * This can be also be weighted with the read quality to calculate quality coverage.
+	 * <p>This can be also be weighted with the read quality to calculate quality coverage.</p>
 	 * 
-	 * Even if the parser doesn't support concised results, it must still return an empty array.
+	 * <p>Even if the parser doesn't support concised results, it must still return an empty array.</p>
 	 * 
-	 * @See FsfStatus for description of chunk
 	 * @param chunk
 	 * @return 
 	 */

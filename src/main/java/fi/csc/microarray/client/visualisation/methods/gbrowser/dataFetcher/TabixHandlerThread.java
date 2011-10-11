@@ -8,6 +8,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.TabixDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 
+/**
+ * Experimental Tabix support.
+ * 
+ * @author Aleksi Kallio
+ *
+ */
 public class TabixHandlerThread extends AreaRequestHandler {
 
 	TabixDataSource tabixData;

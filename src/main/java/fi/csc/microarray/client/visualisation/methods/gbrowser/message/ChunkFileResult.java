@@ -4,7 +4,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.FileParser;
 
 /**
- * Result containing file contents. Used by the file layer to return content to the tree layer. 
+ * Result containing file contents. Used by the data source layer to return content to the processing (tree) layer. 
  *
  */
 public class ChunkFileResult {

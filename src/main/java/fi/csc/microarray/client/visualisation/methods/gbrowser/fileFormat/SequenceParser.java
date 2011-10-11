@@ -5,6 +5,12 @@ import java.util.Arrays;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * Parses the internal format of reference genome files.
+ * 
+ * @author Petri Klemelä
+ *
+ */
 public class SequenceParser extends TsvParser {
 
 	private static FileDefinition fileDef = new FileDefinition(

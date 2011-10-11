@@ -1,5 +1,9 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
+/**
+ * Genome browser wide constants.
+ *
+ */
 public class GenomeBrowserConstants {
 
 	// Visibility level thresholds

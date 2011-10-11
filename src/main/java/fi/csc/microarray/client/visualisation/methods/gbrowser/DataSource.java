@@ -6,12 +6,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- * One source of genomic content, typically corresponding to one track. Abstraction hides
- * the physical data source, that can be either a file or a URL accessed via HTTP.
+ * <p>One source of genomic content. Abstraction hides the physical data source, that can be either 
+ * a file or a URL accessed via HTTP.</p>
  *
- * TODO: add comparison methods so that when DataSource is used as a key
+ * <p>TODO: add comparison methods so that when DataSource is used as a key
  * in a hash map, data sources with identical urls or file paths would be
- * considered the same
+ * considered the same.</p>
+ * 
+ * @author Petri Klemelä
  *
  */
 public abstract class DataSource {

@@ -6,6 +6,12 @@ import java.util.List;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 
+/**
+ * Special version of horizontal view of tracks. It is used for the chromosome overview panel.
+ *  
+ * @author Petri Klemelä
+ *
+ */
 public class OverviewHorizontalView extends HorizontalView {
 	
 	private List<RegionListener> overviewListeners = new LinkedList<RegionListener>();

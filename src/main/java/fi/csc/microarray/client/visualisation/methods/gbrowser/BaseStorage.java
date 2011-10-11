@@ -8,6 +8,13 @@ import java.util.TreeMap;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * Utility class for storing information that is organised by bases (genomic coordinates).
+ * Helpful when you need to e.g. convert a set or reads to base specific coverage.
+ * 
+ * @author Aleksi Kallio
+ *
+ */
 public class BaseStorage {
 
 	private static final int MIN_SIGNIFICANT_SNP_COUNT = 2;

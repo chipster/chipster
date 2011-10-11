@@ -28,10 +28,10 @@ import fi.csc.microarray.util.IOUtils;
 
 /**
  * 
- * Class for saving and loading contents file. The contents file describes what
+ * Class for saving and loading annotation contents file. The contents file describes what
  * annotation data files we have available at the annotation repository.
  * 
- * @author Petri Klemelä, hupponen
+ * @author Petri Klemelä, Taavi Hupponen
  * 
  */
 public class AnnotationManager {

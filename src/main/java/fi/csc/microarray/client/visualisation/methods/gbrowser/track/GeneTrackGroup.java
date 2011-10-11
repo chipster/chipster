@@ -12,13 +12,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand
 import fi.csc.microarray.constants.VisualConstants;
 
 /**
- * track group containing information about genes: transcript, intensity, gene, snp
+ * Track group containing information about genes: transcript, intensity, gene, snp
  * repeat masker.
  * 
- * @author zukauska
+ * @author Vilius Zukauskas
  *
  */
-
 public class GeneTrackGroup extends TrackGroup {
 	
 	protected TranscriptTrack transcript;

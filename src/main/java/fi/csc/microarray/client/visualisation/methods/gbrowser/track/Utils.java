@@ -1,5 +1,9 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.track;
 
+/**
+ * Utilities for {@link Track} classes.
+ *  
+ */
 public class Utils {
 
 	public static String toHumanReadable(long i) {

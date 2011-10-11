@@ -1,10 +1,12 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
 /**
- * Chrosome coordinate. The class supports different naming 
+ * <p>Chrosome part of a genomic coordinate.</p> 
+ * 
+ * <p>The class supports different naming 
  * conventions: X, chrX, chrX.fa, X.fa. Internally names
  * are normalised and normalised name is used in all comparisons,
- * so naming conventions can be mixed.
+ * so naming conventions can be mixed.</p>
  * 
  * @author Petri Klemelä, Aleksi Kallio
  */

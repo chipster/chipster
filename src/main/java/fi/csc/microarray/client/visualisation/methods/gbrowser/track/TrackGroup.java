@@ -15,15 +15,16 @@ import javax.swing.JPanel;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 
 /**
- * A collection of tracks representing a single data source or
+ * <p>A collection of tracks representing a single data source or
  * related in any other logical way and displayed one after
- * another.
+ * another. Typically one group object corresponds to what
+ * user considers as a "track".</p>
  * 
- * The track group is also responsible for drawing the side menu,
+ * <p>The track group is also responsible for drawing the side menu,
  * switching tracks inside the group and changing properties of
- * individual groups.
+ * individual groups.</p>
  * 
- * @author naktinis
+ * @author Rimvydas Naktinis
  *
  */
 public class TrackGroup {

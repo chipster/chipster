@@ -2,8 +2,13 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 
-public class ReadPart extends BpCoordRegion {
+/**
+ * Single spliced part of a spliced read. 
 
+ * @author Aleksi Kallio
+ *
+ */
+public class ReadPart extends BpCoordRegion {
 	
 	private String sequencePart;
 	private RegionContent read;

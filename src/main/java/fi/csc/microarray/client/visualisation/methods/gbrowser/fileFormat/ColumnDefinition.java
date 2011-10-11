@@ -3,6 +3,7 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 /**
  * Column in tab-separated value file. 
  *
+ *@author Petri Klemelä
  */
 public class ColumnDefinition {
 
