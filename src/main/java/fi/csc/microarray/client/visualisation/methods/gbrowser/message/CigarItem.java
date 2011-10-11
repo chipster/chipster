@@ -19,7 +19,7 @@ public class CigarItem {
 	}
 
 	public boolean isVisible() {
-		return cigarElement.getOperator() == CigarOperator.M;
+		return cigarElement.getOperator() == CigarOperator.M || cigarElement.getOperator() == CigarOperator.X || cigarElement.getOperator() == CigarOperator.EQ;
 	}
 	
 	public boolean consumesReferenceBases() {
