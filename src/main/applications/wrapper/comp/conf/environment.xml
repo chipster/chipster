@@ -181,6 +181,10 @@
       <package>snowfall</package>
     </item>
 
+	<item installed="false" name="sm" type="r-package">
+      <repository>http://cran.r-project.org</repository>
+      <package>sm</package>
+    </item>
 
 	<!--  BioConductor packages -->
 	
@@ -251,7 +255,6 @@
     <item installed="false" name="biomaRt" type="r-package"> 
       <bioconductor-package>biomaRt</bioconductor-package>
     </item>
-
       
     <item installed="false" name="lumi" type="r-package"> 
       <bioconductor-package>lumi</bioconductor-package>
@@ -435,6 +438,14 @@
     
     <item installed="false" name="lumiRatIDMapping" type="r-package"> 
       <bioconductor-package>lumiRatIDMapping</bioconductor-package>
+    </item>
+
+    <item installed="false" name="edgeR" type="r-package"> 
+      <bioconductor-package>edgeR</bioconductor-package>
+    </item>
+
+    <item installed="false" name="rtracklayer" type="r-package"> 
+      <bioconductor-package>rtracklayer</bioconductor-package>
     </item>
 
   </bundle>
