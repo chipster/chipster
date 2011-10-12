@@ -1,4 +1,4 @@
-# TOOL "Statistics" / MEDIPS.R: "MEDIPS - methylation analysis, treatment v. control" (Methylation analysis for sequencing data. Analysis for two conditions or files.)
+# TOOL MEDIPS_two_samples_V2.R: "MEDIPS - methylation analysis, treatment vs.control V2" (Methylation analysis for sequencing data. Analysis for two conditions or files.)
 # INPUT control.tsv: "Converted BAM data file for the control" TYPE GENERIC
 # INPUT treatment.tsv: "Converted BAM data file for the treatment" TYPE GENERIC
 # OUTPUT methylation-comparison.tsv: "Enrichment data"

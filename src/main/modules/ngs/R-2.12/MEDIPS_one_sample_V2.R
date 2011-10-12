@@ -1,4 +1,4 @@
-# TOOL "Statistics" / MEDIPS.R: "MEDIPS - methylation analysis, control only" (Methylation analysis for sequencing data. Analysis for a single condition or file.)
+# TOOL MEDIPS_one_sample_V2.R: "MEDIPS - methylation analysis, treatment only V2" (Methylation analysis for sequencing data. Analysis for a single condition or file.)
 # INPUT MEDIPS-input.tsv: "Converted BAM data files in MEDIPS format" TYPE GENERIC
 # OUTPUT OPTIONAL saturationplot.png: "Saturation plot"
 # OUTPUT OPTIONAL coverageplot.pdf: "Coverage plot"
