@@ -1,4 +1,4 @@
-# TOOL bwasw-with-index-building.R: "BWA-SW algorithm for single-end reads and own genome" (BWA aligns reads to genomes and transcriptomes. Unlike Bowtie, it supports gapped alignments. This BWA version uses the BWA-SW algorithm that is designed for long, over 300pb, single-end low-quelity reads. Results are sorted and indexed bam files. 
+# TOOL bwasw-with-index-building.R: "BWA-SW for single-end reads and own genome" (BWA aligns reads to genomes and transcriptomes. Unlike Bowtie, it supports gapped alignments. This BWA version uses the BWA-SW algorithm that is designed for long, over 300pb, low-quality reads. Results are sorted and indexed bam files. 
 # Note that this BWA tool requires that you have imported the reference genome to Chipster in fasta format. If you would like to align reads against publicly available genomes, please use the tool \"BWA for single end reads\".)
 # INPUT reads.txt: "Reads to align" TYPE GENERIC 
 # INPUT genome.txt: "Reference genome" TYPE GENERIC
@@ -14,7 +14,7 @@
 # PARAMETER OPTIONAL threshold.coeff: "Coefficient for threshold adjustment" TYPE DECIMAL DEFAULT 5.5 (Coefficient for threshold adjustment according to query length. Given an l-long query, the threshold for a hit to be retained is a*max\{T,c*log\(l\)\}. Corresponds to the command line parameter -c. )
 # PARAMETER OPTIONAL z.best: "Z-best heuristics" TYPE INTEGER DEFAULT 1 (Z-best heuristics. Higher -z increases accuracy at the cost of speed. Corresponds to the command line parameter -z.)
 # PARAMETER OPTIONAL sa.interval: "Maximum SA interval size" TYPE INTEGER DEFAULT 3 (Maximum SA interval size for initiating a seed. Higher value increases accuracy at the cost of speed. Corresponds to the command line parameter -s.)
-# PARAMETER OPTIONAL min.support: " Reverse alignment limit" TYPE INTEGER DEFAULT 5 (Minimum number of seeds supporting the resultant alignment to skip reverse alignment. Corresponds to the command line parameter -N)
+# PARAMETER OPTIONAL min.support: "Reverse alignment limit" TYPE INTEGER DEFAULT 5 (Minimum number of seeds supporting the resultant alignment to skip reverse alignment. Corresponds to the command line parameter -N)
 # PARAMETER OPTIONAL alignment.no: "How many valid alignments are reported per read" TYPE  INTEGER DEFAULT 3 (Maximum number of alignments to report. Corresponds to the command line parameter bwa samse -n )
 
 # KM 24.8.2011

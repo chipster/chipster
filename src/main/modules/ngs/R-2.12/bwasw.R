@@ -1,10 +1,10 @@
-# TOOL bwasw.R: "BWA-SW algorithm for single-end reads" (BWA aligns reads to genomes and transcriptomes. Unlike Bowtie, it allows gapped alignments. This BWA version uses the BWA-SW algorithm that is designed for long, over 300pb, single-end low-quelity reads. The alignment results are sorted and indexed bam files, which are ready for viewing in the Chipster genome browser. 
+# TOOL bwasw.R: "BWA-SW for single-end reads" (BWA aligns reads to genomes and transcriptomes. Unlike Bowtie, it allows gapped alignments. This BWA version uses the BWA-SW algorithm that is designed for long, over 300pb, low-quality reads. The alignment results are sorted and indexed bam files, which are ready for viewing in the Chipster genome browser. 
 # Note that this BWA tool uses publicly available genomes. If you would like to align reads against your own datasets, please use the tool \"BWA against own genomes\".)
 # INPUT reads.txt: "Reads to align" TYPE GENERIC 
 # OUTPUT bwa.bam 
 # OUTPUT bwa.bam.bai 
 # OUTPUT bwa.log 
-# PARAMETER genome: "Genome or transcriptome" TYPE [hg19.fa: "Human genome (hg19\)", mm9.fa: "Mouse genome (mm9\)", rn4.fa: "Rat genome (rn4\)", mmu_miRB17mature.fa: "Mouse miRBase17"] DEFAULT mm9.fa (Genome or transcriptome that you would like to align your reads against.)
+# PARAMETER genome: "Genome or transcriptome" TYPE [hg19.fa: "Human genome (hg19\)", mm9.fa: "Mouse genome (mm9\)", rn4.fa: "Rat genome (rn4\)"] DEFAULT mm9.fa (Genome or transcriptome that you would like to align your reads against.)
 # PARAMETER OPTIONAL match.score: "Score of a match" TYPE INTEGER DEFAULT 1 (Score of a matching base. Corresponds to the command line parameter -a)
 # PARAMETER OPTIONAL gap.opening: "Gap opening penalty " TYPE INTEGER DEFAULT 11 (Gap opening penalty. Corresponds to the command line parameter -q)
 # PARAMETER OPTIONAL gap.extension: "Gap extension penalty " TYPE INTEGER DEFAULT 4 (Gap extension penalty. Corresponds to the command line parameter -r)
@@ -14,7 +14,7 @@
 # PARAMETER OPTIONAL threshold.coeff: "Coefficient for threshold adjustment" TYPE DECIMAL DEFAULT 5.5 (Coefficient for threshold adjustment according to query length. Given an l-long query, the threshold for a hit to be retained is a*max\{T,c*log\(l\)\}. Corresponds to the command line parameter -c )
 # PARAMETER OPTIONAL z.best: "Z-best heuristics" TYPE INTEGER DEFAULT 1 (Z-best heuristics. Higher -z increases accuracy at the cost of speed. Corresponds to the command line parameter -z.)
 # PARAMETER OPTIONAL sa.interval: "Maximum SA interval size" TYPE INTEGER DEFAULT 3 (Maximum SA interval size for initiating a seed. Higher value increases accuracy at the cost of speed. Corresponds to the command line parameter -s.)
-# PARAMETER OPTIONAL min.support: " Reverse alignment limit" TYPE INTEGER DEFAULT 5 (Minimum number of seeds supporting the resultant alignment to skip reverse alignment. Corresponds to the command line parameter -N)
+# PARAMETER OPTIONAL min.support: "Reverse alignment limit" TYPE INTEGER DEFAULT 5 (Minimum number of seeds supporting the resultant alignment to skip reverse alignment. Corresponds to the command line parameter -N)
 # PARAMETER OPTIONAL alignment.no: "How many valid alignments are reported per read" TYPE  INTEGER DEFAULT 3 (Maximum number of alignments to report. Corresponds to the command line parameter bwa samse -n )
 
 # KM 24.8.2011
