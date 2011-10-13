@@ -1,4 +1,4 @@
-# TOOL combineMEDIPS_V2.R: "Combine several MEDIPS formatted files" (Combines MEDIPS formatted files.)
+# TOOL combineMEDIPS.R: "Combine several MEDIPS formatted files" (Combines MEDIPS formatted files.)
 # INPUT MEDIPS-input{...}.tsv: "MEDIPS files" TYPE GENERIC
 # OUTPUT MEDIPS-input.tsv: "A converted BAM file suitable for MEDIPS analysis"
 
