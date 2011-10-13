@@ -5,9 +5,9 @@
 # OUTPUT bwa.bam 
 # OUTPUT bwa.bam.bai 
 # OUTPUT bwa.log 
-# PARAMETER algorithm: "Alignment algorithm type" TYPE [aln: "aln", bwasw: "BWA-SW"] DEFAULT aln (Alignment algorithm to be used. The default algorithm is aln. BWA-SW is designed for long, over 300pb, single-end reads with more errors.)
 # PARAMETER seed.length: "Length of the seed region" TYPE INTEGER DEFAULT 32 (How many bases of the left, good quality part of the read should be used as the seed region. If the seed length is longer than the reads, the seeding will be disabled. Corresponds to the command line parameter -l.) 
 # PARAMETER seed.edit: "Maximum number of of differences in the seed region" TYPE INTEGER DEFAULT 2 (Maximum number of differences such as mismatches or indels in the seed region. Corresponds to the command line parameter -k.)
+# PARAMETER total.edit: "Maximum edit distance for the whole read" TYPE DECIMAL DEFAULT 0.04 ( Maximum edit distance if the value is more than one. If the value is between 1 and 0 then it defines the fraction of missing alignments given 2% uniform base error rate. In the latter case, the maximum edit distance is automatically chosen for different read lengths. Corresponds to the command line parameter -n.)
 # PARAMETER quality.format: "Quality value format used" TYPE [solexa1_3: "Illumina GA v1.3 or later", sanger: Sanger] DEFAULT sanger (Note that this parameter is taken into account only if you chose to apply the mismatch limit to the seed region. Are the quality values in the Sanger format (ASCII characters equal to the Phred quality plus 33\) or in the Illumina Genome Analyzer Pipeline v1.3 or later format (ASCII characters equal to the Phred quality plus 64\)? Please see the manual for details.)
 # PARAMETER OPTIONAL num.gaps: "Maximum number of gaps" TYPE INTEGER DEFAULT 1 (Maximum number of gap openings for one read. Corresponds to the command line parameter -o.)
 # PARAMETER OPTIONAL num.extensions: "Maximum number of gap extensions" TYPE INTEGER DEFAULT -1 (Maximum number of gap extensions, -1 for disabling long gaps. Corresponds to the command line parameter -e.)
@@ -35,13 +35,18 @@ bwa.genome <- file.path( genome.dir , "genome.txt")
 # common parameters
 
 # mode specific parameters
+if (total.edit >= 1) {
+	total.edit <- round(total.edit)
+}
 quality.parameter <- ifelse(quality.format == "solexa1_3", "-I", "")
-aln.mode.parameters <- paste("aln -t 2 -o", num.gaps, "-e", num.extensions, "-d", disallow.gaps, "-i" , disallow.indel , "-l" , seed.length , "-k" , seed.edit , "-O" , gap.opening , "-E" , gap.extension , "-q" , trim.threshold, "-B" , barcode.length, "-M" , mismatch.penalty , quality.parameter)
-bwasw.mode.parameters <- paste("bwasw -t 2 -b", mismatch.penalty , "-q" , gap.opening , "-r" ,  gap.extension )
-mode.parameters <- ifelse(algorithm == "aln", aln.mode.parameters, bwasw.mode.parameters)
+mode.parameters <- paste("aln -t 2 -o", num.gaps, "-e", num.extensions, "-d", disallow.gaps, "-i" , disallow.indel , "-l" , seed.length , "-k" , seed.edit , "-O" , gap.opening , "-E" , gap.extension , "-q" , trim.threshold, "-B" , barcode.length, "-M" , mismatch.penalty , "-n" , total.edit , quality.parameter)
+
 
 # command ending
 command.end <- paste( bwa.genome , "reads.txt 1> alignment.sai 2>> bwa.log'")
+
+echo.command <- paste("echo '", bwa.binary , mode.parameters, bwa.genome, "reads.txt ' > bwa.log" )
+system(echo.command)
 
 # run bwa alignment
 bwa.command <- paste(command.start, mode.parameters, command.end)
