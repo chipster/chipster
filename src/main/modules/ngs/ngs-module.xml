@@ -129,11 +129,17 @@
 	    <tool runtime="R-2.12">
 			<resource>bwa.R</resource>
 		</tool>
+		<tool runtime="R-2.12">
+			<resource>bwasw.R</resource>
+		</tool>
 	    <tool runtime="R-2.12">
 			<resource>bwa-paired-end.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>bwa-with-index-building.R</resource>
+		</tool>
+	<tool runtime="R-2.12">
+			<resource>bwasw-with-index-building.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>bwa-paired-end-with-index-building.R</resource>
@@ -227,7 +233,7 @@
 		<tool runtime="R-2.12">
 			<resource>MEDIPS_two_samples_V1.R</resource>
 		</tool>
-				<tool runtime="R-2.12">
+		<tool runtime="R-2.12">
 			<resource>MEDIPS_one_sample_V2.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
