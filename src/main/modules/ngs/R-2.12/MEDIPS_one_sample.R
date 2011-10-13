@@ -1,4 +1,4 @@
-# TOOL MEDIPS_one_sample_V2.R: "MEDIPS - methylation analysis, treatment only V2" (Methylation analysis for sequencing data. Analysis for a single condition or file.)
+# TOOL MEDIPS_one_sample.R: "MEDIPS - methylation analysis, treatment only" (Methylation analysis for sequencing data. Analysis for a single condition or file.)
 # INPUT MEDIPS-input.tsv: "Converted BAM data files in MEDIPS format" TYPE GENERIC
 # OUTPUT OPTIONAL saturationplot.png: "Saturation plot"
 # OUTPUT OPTIONAL coverageplot.pdf: "Coverage plot"
@@ -11,14 +11,14 @@
 # OUTPUT methylation.tsv: "Enrichment data"
 # PARAMETER species TYPE [human] DEFAULT human (Select the species)
 # PARAMETER promoters.only TYPE [yes, no] DEFAULT no (Should the analyses be restricted to promoter regions only)
-# PARAMETER coverage.resolution TYPE [25,50,100,200] DEFAULT  50 (Targeted data resolution, in base pairs, when the genome-wide coverage is calculated)
-# PARAMETER smoothing.extension TYPE [200,400,800,1200] DEFAULT 400 (The amount of data smoothing, in base pairs, by extending the reads)
-# PARAMETER fragment.length TYPE [400,800,1600,2400] DEFAULT 800 (Length of the fragment for calculation of local CpGs)
-# PARAMETER save.bed TYPE [yes, no] DEFAULT yes (Should the normalized data, as RPM, be saved as a BED file)
-# PARAMETER promoter.upstream TYPE [1000,2000,5000] DEFAULT 1000 (How much upstream, in base pairs, from the transcription start site does the promoter extend)
-# PARAMETER promoter.downstream TYPE [250,500,750,1000] DEFAULT 500 (How much downstream, in base pairs, from the transcription start site does the promoter extend)
-# PARAMETER image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted images in pixels)
-# PARAMETER image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted images in pixels)
+# PARAMETER fragment.length TYPE [400,800,1600,2400] DEFAULT 800 (Fragment length, used for calculating local CpGs)
+# PARAMETER OPTIONAL coverage.resolution TYPE [25,50,100,200] DEFAULT  50 (Targeted data resolution, in base pairs, when the genome-wide coverage is calculated)
+# PARAMETER OPTIONAL smoothing.extension TYPE [200,400,800,1200] DEFAULT 400 (The amount of data smoothing, in base pairs, by extending the reads)
+# PARAMETER OPTIONAL save.bed TYPE [yes, no] DEFAULT yes (Should the normalized data, as RPM, be saved as a BED file)
+# PARAMETER OPTIONAL promoter.upstream TYPE [1000,2000,5000] DEFAULT 1000 (How much upstream, in base pairs, from the transcription start site does the promoter extend)
+# PARAMETER OPTIONAL promoter.downstream TYPE [250,500,750,1000] DEFAULT 500 (How much downstream, in base pairs, from the transcription start site does the promoter extend)
+# PARAMETER OPTIONAL image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted images in pixels)
+# PARAMETER OPTIONAL image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted images in pixels)
 
 
 # Parameters for testing purposes only

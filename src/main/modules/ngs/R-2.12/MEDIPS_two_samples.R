@@ -1,14 +1,14 @@
-# TOOL MEDIPS_two_samples_V2.R: "MEDIPS - methylation analysis, treatment vs.control V2" (Methylation analysis for sequencing data. Analysis for two conditions or files.)
+# TOOL MEDIPS_two_samples.R: "MEDIPS - methylation analysis, treatment vs.control" (Methylation analysis for sequencing data. Analysis for two conditions.)
 # INPUT control.tsv: "Converted BAM data file for the control" TYPE GENERIC
 # INPUT treatment.tsv: "Converted BAM data file for the treatment" TYPE GENERIC
 # OUTPUT methylation-comparison.tsv: "Enrichment data"
 # PARAMETER species TYPE [human] DEFAULT human (Select the species)
 # PARAMETER promoters.only TYPE [yes, no] DEFAULT no (Should the analyses be restricted to promoter regions only)
-# PARAMETER coverage.resolution TYPE [25,50,100,200] DEFAULT  50 (Targeted data resolution, in base pairs, when the genome-wide coverage is calculated)
-# PARAMETER smoothing.extension TYPE [200,400,800,1200] DEFAULT 400 (The amount of data smoothing, in base pairs, by extending the reads)
-# PARAMETER fragment.length TYPE [400,800,1600,2400] DEFAULT 800 (Length of the fragment for calculation of local CpGs)
-# PARAMETER promoter.upstream TYPE [1000,2000,5000] DEFAULT 1000 (How much upstream, in base pairs, from the transcription start site does the promoter extend)
-# PARAMETER promoter.downstream TYPE [250,500,750,1000] DEFAULT 500 (How much downstream, in base pairs, from the transcription start site does the promoter extend)
+# PARAMETER fragment.length TYPE [400,800,1600,2400] DEFAULT 800 (Fragment length, used for calculating local CpGs)
+# PARAMETER OPTIONAL coverage.resolution TYPE [25,50,100,200] DEFAULT  50 (Targeted data resolution, in base pairs, when the genome-wide coverage is calculated)
+# PARAMETER OPTIONAL smoothing.extension TYPE [200,400,800,1200] DEFAULT 400 (The amount of data smoothing, in base pairs, by extending the reads)
+# PARAMETER OPTIONAL promoter.upstream TYPE [1000,2000,5000] DEFAULT 1000 (How much upstream, in base pairs, from the transcription start site does the promoter extend)
+# PARAMETER OPTIONAL promoter.downstream TYPE [250,500,750,1000] DEFAULT 500 (How much downstream, in base pairs, from the transcription start site does the promoter extend)
 
 
 # Parameters for testing purposes only
