@@ -21,6 +21,7 @@ import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.dialog.DialogInfo.Type;
 /**
@@ -149,6 +150,7 @@ public class ChipsterDialog extends JDialog {
                     feedback.showDialog();
                 }
             });
+		    feedbackButton.setEnabled(!Session.getSession().getServiceAccessor().isStandalone()); // disable button when standalone
 		    mainPanel.add(feedbackButton, g);
 		}
 		
