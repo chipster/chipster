@@ -8,9 +8,16 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 
+/**
+ * Collects and resends area results. Used by the {@link View} objects to manage incoming area results.
+ * 
+ * @author Petri Klemelä
+ *
+ */
 public class QueueManager implements AreaResultListener {
 
 	private class QueueContext {

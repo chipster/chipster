@@ -29,7 +29,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  * the number of nucleotides hitting each basepair location. Should look
  * similar to IntensityTrack, but is exact.
  * 
- * If track's strand is set to Strand.BOTH, two profiles are drawn, one for
+ * If track's strand is set to {@link Strand#BOTH}, two profiles are drawn, one for
  * each strand.
  *
  * @see IntensityTrack

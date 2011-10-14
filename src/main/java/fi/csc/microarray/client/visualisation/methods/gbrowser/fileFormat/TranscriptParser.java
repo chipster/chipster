@@ -3,7 +3,9 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 import java.util.Arrays;
 
 /**
- * File format for storing transcription information.
+ * Parser for internal trancsript file format.
+ * 
+ * @author Petri Klemelä
  *
  */
 public class TranscriptParser extends AnnotationTsvParser {

@@ -21,7 +21,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.WIGTrack;
 import fi.csc.microarray.constants.VisualConstants;
 
 /**
- * Utility for creating predefined track groups.  
+ * Utility class for creating predefined {@link TrackGroup} objects.  
+ *
+ *@author Petri Klemelä, Aleksi Kallio
  *
  */
 public class TrackFactory {

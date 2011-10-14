@@ -1,7 +1,7 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
 /**
- * Region of genome limited by two BpCoord locations. 
+ * Region of genome limited by two {@link BpCoord} coordinates. 
  *
  */
 public class BpCoordRegion implements Comparable<BpCoordRegion> {

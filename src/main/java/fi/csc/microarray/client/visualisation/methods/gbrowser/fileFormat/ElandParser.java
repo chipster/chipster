@@ -12,7 +12,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
- * File produced by ELAND (Efficient Large-scale Alignment of Nucleotide
+ * Parser for files produced by ELAND (Efficient Large-scale Alignment of Nucleotide
  * Databases) program.
  *
  */

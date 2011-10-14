@@ -2,6 +2,12 @@ package fi.csc.microarray.client.visualisation.methods.gbrowser.drawable;
 
 import java.awt.Color;
 
+/**
+ * A single row of text.
+ * 
+ * @author Petri Klemelä
+ *
+ */
 public class TextDrawable extends Drawable {
 
 	private static final int TEXT_HEIGHT = 10;

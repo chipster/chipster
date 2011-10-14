@@ -29,9 +29,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.EmptyTrack;
 
 /**
- * The main visual component for Genome Browser. Compatible with JFreeChart. 
+ * <p>The main visual component for Genome browser. GenomePlot is the core of the view layer and runs inside Swing event
+ * dispatch thread. The plot is constructed out of {@link View} components. Compatible with JFreeChart visualization library.</p>
  * 
  * @author Petri Klemelä, Aleksi Kallio
+ * @see View
  */
 public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, Serializable {
 
@@ -70,7 +72,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
         }
     }    
 
-	public GenomePlot(TooltipEnabledChartPanel panel, boolean horizontal) throws FileNotFoundException, MalformedURLException {
+	public GenomePlot(TooltipAugmentedChartPanel panel, boolean horizontal) throws FileNotFoundException, MalformedURLException {
 	    
 	    // set chart panel
 	    this.chartPanel = panel;
@@ -231,9 +233,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 
 				View view = views.get(i);
 
-				if (view instanceof VerticalView) {
-					viewArea.grow(0, -view.margin);
-				} else if (view instanceof HorizontalView) {
+				if (view instanceof HorizontalView) {
 					viewArea.grow(-view.margin, 0);
 				}
 

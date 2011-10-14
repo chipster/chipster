@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import javax.xml.bind.JAXBException;
@@ -99,15 +100,23 @@ public class SessionSaver {
 	 */
 	public boolean saveSession() throws Exception{
 
-		gatherMetadata();
-
+		boolean saveData = true;
+		
+		gatherMetadata(saveData);
 		boolean metadataValid = validateMetadata();
 	
-		writeSessionFile();
-			
+		writeSessionFile(saveData);
 		updateDataBeanURLsAndHandlers();
 		
 		return metadataValid;
+	}
+
+	public void saveLightweightSession() throws Exception {
+
+		boolean saveData = false;
+		
+		gatherMetadata(saveData);
+		writeSessionFile(saveData);
 	}
 
 	
@@ -117,7 +126,7 @@ public class SessionSaver {
 	 * @throws IOException
 	 * @throws JAXBException
 	 */
-	private void gatherMetadata() throws IOException, JAXBException {
+	private void gatherMetadata(boolean saveData) throws IOException, JAXBException {
 		// xml schema object factory and xml root
 		this.factory = new ObjectFactory();
 		this.sessionType = factory.createSessionType();
@@ -129,7 +138,7 @@ public class SessionSaver {
 		generateIdsRecursively(dataManager.getRootFolder());
 
 		// gather meta data
-		saveMetadataRecursively(dataManager.getRootFolder());
+		saveMetadataRecursively(dataManager.getRootFolder(), saveData);
 	}
 
 
@@ -161,8 +170,10 @@ public class SessionSaver {
 	/**
 	 * Write the metadata file and data bean contents to the zip file.
 	 * 
+	 * @param saveData if true, also actual contents of databeans are saved 
+	 * 
 	 */
-	private void writeSessionFile() throws Exception {
+	private void writeSessionFile(boolean saveData) throws Exception {
 
 		// figure out the target file, use temporary file if target already exists
 		boolean replaceOldSession = sessionFile.exists();
@@ -192,8 +203,10 @@ public class SessionSaver {
 			zipOutputStream.closeEntry() ;							
 
 			// save data bean contents
-			writeDataBeanContentsToZipFile(zipOutputStream);
-
+			if (saveData) {
+				writeDataBeanContentsToZipFile(zipOutputStream);
+			}
+			
 			// save source codes
 			writeSourceCodesToZip(zipOutputStream);
 			
@@ -213,6 +226,16 @@ public class SessionSaver {
 		// rename new session if replacing existing
 		if (replaceOldSession) {
 
+			for (ZipFile zipFile: dataManager.getZipFiles()) {
+				try {
+					zipFile.close();
+				} catch (Exception e) {
+					logger.warn("could not close zip file");
+				}
+			}
+			dataManager.clearZipFiles();
+			
+			
 			// original to backup
 			if (!sessionFile.renameTo(backupFile)) {
 				throw new IOException("Creating backup file " + backupFile.getAbsolutePath() + " failed.");
@@ -288,27 +311,33 @@ public class SessionSaver {
 		return id.toString();
 	}
 
-	private void saveMetadataRecursively(DataFolder folder) throws IOException {
+	private void saveMetadataRecursively(DataFolder folder, boolean saveData) throws IOException {
 		
 		String folderId = reversedItemIdMap.get(folder);
 		saveDataFolderMetadata(folder, folderId);
 		
 		for (DataItem data : folder.getChildren()) {
 			if (data instanceof DataFolder) {
-				saveMetadataRecursively((DataFolder)data);
+				saveMetadataRecursively((DataFolder)data, saveData);
 				
 			} else {
 				DataBean bean = (DataBean)data;
 
-				// create the new URL TODO check the ref
+				// create the new URL
 				String entryName = getNewZipEntryName();
-				URL newURL = new URL(sessionFile.toURI().toURL(), "#" + entryName);
+				URL newURL = bean.getContentUrl();
+				
+				if (saveData) {
 
-				// store the new URL temporarily
-				newURLs.put(bean, newURL);
+					// data is saved to zip, change URL to point there 
+					newURL = new URL(sessionFile.toURI().toURL(), "#" + entryName);
 
+					// store the new URL temporarily
+					newURLs.put(bean, newURL);
+				}
+				
 				// store metadata
-				saveDataBeanMetadata(bean, newURL, folderId);
+				saveDataBeanMetadata(bean, newURL, folderId, saveData);
 
 			}
 		}
@@ -348,7 +377,7 @@ public class SessionSaver {
 	}	
 	
 	
-	private void saveDataBeanMetadata(DataBean bean, URL newURL, String folderId) {
+	private void saveDataBeanMetadata(DataBean bean, URL newURL, String folderId, boolean saveData) {
 		String beanId = reversedItemIdMap.get(bean);
 		DataType dataType = factory.createDataType();
 	
@@ -368,13 +397,24 @@ public class SessionSaver {
 		
 		// notes
 		dataType.setNotes(bean.getNotes());
-		
-		// storage method
-		// for now all data content goes to session --> type is local session
-		dataType.setStorageType(StorageMethod.LOCAL_SESSION.name());
-		
-		// url
-		dataType.setUrl("file:#" + newURL.getRef());
+
+		// write storage method and URL, depending on if data is packed into zip or not
+		if (saveData) {
+
+			// all data content goes to session --> type is local session
+			dataType.setStorageType(StorageMethod.LOCAL_SESSION.name());
+
+			// url
+			dataType.setUrl("file:#" + newURL.getRef());
+			
+		} else {
+
+			// all data content goes to session --> type is local session
+			dataType.setStorageType(bean.getStorageMethod().toString());
+
+			// url
+			dataType.setUrl(bean.getContentUrl().toString());
+		}
 		
 		// cache url
 		if (bean.getCacheUrl() != null) {

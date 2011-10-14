@@ -6,11 +6,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
- * Parser for WIG file format.
+ * Parser for the WIG file format.
  * 
+ * @author Vilius Zukauskas
  * @see http://genome.ucsc.edu/goldenPath/help/wiggle.html
  */
-
 public class WIGParser extends TsvParser {
 
 	public WIGParser() {

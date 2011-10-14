@@ -9,10 +9,11 @@ import java.io.IOException;
 
 /**
  * 
- * simple wig format converting tool
+ * Simple wig format conversion tool.
+ * 
+ * @author Vilius Zukauskas
  *  
  */
-
 public class WIGConvertingTool {
 	
 	private static final String VARIABLE_STEP = "variableStep";

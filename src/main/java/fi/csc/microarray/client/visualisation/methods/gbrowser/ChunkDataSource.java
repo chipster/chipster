@@ -15,7 +15,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvPar
 import fi.csc.microarray.util.IOUtils;
 
 /**
- * Handler for files accessed directly (e.g. tab-separated files).
+ * Handler for data sources that are accessed directly, meaning that they do not
+ * have indexes (like tab-separated tables). Reads data in chunks and the user
+ * must parse meaningful content out from the chunks.
+ * 
+ * @author Petri Klemelä, Aleksi Kallio
  *
  */
 public class ChunkDataSource extends DataSource {

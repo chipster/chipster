@@ -18,6 +18,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaR
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
@@ -28,13 +29,13 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ReadPart;
  * of gray shades or a heatmap. Not to be confused with Intensity track which
  * shows more something like distribution graph.
  * 
- * Basically this track shows the same information as ProfileTrack, but in a
+ * Basically this track shows the same information as {@link CoverageTrack}, but in a
  * different format.
  * 
- * If track's strand is set to Strand.BOTH, number of reads on both strands
+ * If track's strand is set to {@link Strand#BOTH}, number of reads on both strands
  * are summed up.
  * 
- * @author naktinis
+ * @author Rimvydas Naktinis
  *
  */
 public class GelTrack extends Track {

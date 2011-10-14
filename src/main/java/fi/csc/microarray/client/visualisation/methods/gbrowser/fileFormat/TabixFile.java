@@ -18,7 +18,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  * Tabix file abstraction. Uses tabix-software for actual
  * parsing. This is just a facade.
  * 
- * @author naktinis, akallio, klemela
+ * @author Rimvydas Naktinis, Aleksi Kallio, Petri Klemelä
  *
  */
 public class TabixFile {

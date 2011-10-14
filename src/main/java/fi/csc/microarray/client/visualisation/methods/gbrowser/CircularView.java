@@ -20,6 +20,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDo
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 
+/**
+ * Experimental circular view of the tracks (cf. Circos).
+ * 
+ * @author Petri Klemelä
+ *
+ */
 public class CircularView extends View {
 
 	private Point offset;

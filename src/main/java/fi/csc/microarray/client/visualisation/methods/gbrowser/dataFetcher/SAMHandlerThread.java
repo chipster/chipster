@@ -23,6 +23,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRe
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.IntensityTrack;
 
+/**
+ * The processing layer thread for SAM compatible files.
+ * 
+ * @author Aleksi Kallio
+ *
+ */
 public class SAMHandlerThread extends AreaRequestHandler {
     
 	private ConcisedValueCache cache = new ConcisedValueCache();

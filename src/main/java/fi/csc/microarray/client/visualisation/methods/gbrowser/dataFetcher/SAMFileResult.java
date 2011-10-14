@@ -6,6 +6,12 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaReque
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * Result generated from {@link SAMHandlerThread} by {@link SAMFileFetcherThread}.
+ * 
+ * @author Aleksi Kallio
+ *
+ */
 public class SAMFileResult {
 
 	private List<RegionContent> content;

@@ -28,7 +28,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 import fi.csc.microarray.client.visualisation.methods.gbrowser.utils.Sequence;
 
 /**
- * Track that shows actual content of reads using color coding.
+ * The read track, most important of all tracks. Shows actual content of reads using color coding.
  * 
  */
 public class SeqBlockTrack extends Track {

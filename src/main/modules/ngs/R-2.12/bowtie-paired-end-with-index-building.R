@@ -1,7 +1,6 @@
-# TOOL bowtie-paired-end-with-index-building.R: "Bowtie for paired end reads and own genome" (Bowtie aligns reads to genome, transcriptome, miRNAs, etc. There are two modes: mismatches are considered either throughout the read, or only in the user-defined left part of the read. In the latter case also quality values are taken into account.
+# TOOL bowtie-paired-end-with-index-building.R: "Bowtie for paired end reads and own genome" (Bowtie aligns reads to genomes and transcriptomes. There are two modes: mismatches are considered either throughout the read, or only in the user-defined left part of the read. In the latter case also quality values are taken into account.
 # Results are sorted and indexed bam files. 
-# This tool allows you align reads against your own sequences, which you have to supply in fasta format.
-# If you would like to align reads against public genomes supplied by Chipster, please use the tool \"Bowtie for paired end reads\".)
+# This tool allows you align reads against your own sequences, which you have to supply in fasta format. If you would like to align reads against public genomes supplied by Chipster, please use the tool \"Bowtie for paired end reads\".)
 # INPUT reads1.fq: "No 1 mate reads" TYPE GENERIC
 # INPUT reads2.fq: "No 2 mate reads" TYPE GENERIC
 # INPUT genome.txt: "Genome to align against" TYPE GENERIC

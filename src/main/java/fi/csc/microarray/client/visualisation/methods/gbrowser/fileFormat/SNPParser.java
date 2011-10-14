@@ -17,14 +17,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosom
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
- * single nucleotide polymorphism parser
+ * Single nucleotide polymorphism (SNP) file parser. File should have a header row.
  * 
- * it parses snp annotation files. File should have header row.
- * 
- * @author zukauska
+ * @author Vilius Zukauskas
  *
  */
-
 public class SNPParser extends TsvParser{
 
 	public SNPParser() {

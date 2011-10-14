@@ -25,7 +25,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
- * Track for genes.
+ * Track for genes. Higher zoom level version of {@link TranscriptTrack}.
  *
  */
 public class GeneTrack extends Track {

@@ -8,9 +8,9 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.TreeN
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 
 /**
- * Fast seek file status.
+ * <p>Fast seek file status.</p>
  * 
- * A generic status field that travels with all requests. It is used to synchronise the different parts of the system. 
+ * <p>A generic status field that travels with all requests. It is used to synchronise the different parts of the system.</p> 
  */
 public class FsfStatus implements Cloneable {
 
@@ -38,8 +38,6 @@ public class FsfStatus implements Cloneable {
 
 	public void maybeClearQueue(Object fileResultQueue) {
 		if (clearQueues && !clearedAlready.contains(fileResultQueue)) {
-			
-			//System.out.println(fileResultQueue + "cleared...");
 			
 			clearedAlready.add(fileResultQueue);
 			((Queue<?>) fileResultQueue).clear();

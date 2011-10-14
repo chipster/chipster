@@ -61,6 +61,7 @@ import fi.csc.microarray.client.dialog.ChipsterDialog;
 import fi.csc.microarray.client.dialog.DialogInfo;
 import fi.csc.microarray.client.dialog.ErrorDialogUtils;
 import fi.csc.microarray.client.dialog.ImportSettingsAccessory;
+import fi.csc.microarray.client.dialog.SessionRestoreDialog;
 import fi.csc.microarray.client.dialog.SnapshotAccessory;
 import fi.csc.microarray.client.dialog.URLImportDialog;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
@@ -95,8 +96,6 @@ import fi.csc.microarray.constants.ApplicationConstants;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.ContentType;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataChangeEvent;
-import fi.csc.microarray.databeans.DataChangeListener;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
@@ -124,7 +123,6 @@ import fi.csc.microarray.util.Strings;
 public class SwingClientApplication extends ClientApplication {
 
 	private static final int METADATA_FETCH_TIMEOUT_SECONDS = 15;
-
 	private static final long SLOW_VISUALISATION_LIMIT = 5 * 1000;
 	private static final long VERY_SLOW_VISUALISATION_LIMIT = 20 * 1000;
 
@@ -162,8 +160,6 @@ public class SwingClientApplication extends ClientApplication {
 	private WaitGlassPane waitPanel = new WaitGlassPane();
 	
 	private static float fontSize = VisualConstants.DEFAULT_FONT_SIZE;
-
-	private boolean unsavedChanges = false;
 
 	private JFileChooser importExportFileChooser;
 	private JFileChooser sessionFileChooser;
@@ -348,14 +344,7 @@ public class SwingClientApplication extends ClientApplication {
 		mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		mainFrame.setVisible(true);
 		mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
-		// Remember changes to confirm close only when necessary
-		manager.addDataChangeListener(new DataChangeListener() {
-			public void dataChanged(DataChangeEvent event) {
-				unsavedChanges = true;
-			}
-		});
-
+		
 		// it's alive!
 		super.setEventsEnabled(true);
 		manager.setEventsEnabled(true);
@@ -372,8 +361,17 @@ public class SwingClientApplication extends ClientApplication {
 			});
 		}
 
+		// final touches
 		customiseFocusTraversal();
 		restoreDefaultView();
+		
+		// check for session restore need
+		File mostRecentDeadTempDirectory = checkTempDirectories();
+		if (mostRecentDeadTempDirectory != null) {
+			
+			File sessionFile = UserSession.findBackupFile(mostRecentDeadTempDirectory, false);
+			new SessionRestoreDialog(this, sessionFile).setVisible(true);
+		}
 	}
 
 	private void customiseFocusTraversal() throws MicroarrayException {
@@ -1556,7 +1554,7 @@ public class SwingClientApplication extends ClientApplication {
 			sessionFileChooser = ImportUtils.getFixedFileChooser();
 
 			String[] extensions = { UserSession.SESSION_FILE_EXTENSION };
-			sessionFileChooser.setFileFilter(new GeneralFileFilter("Chipster Session (*.zip)", extensions));
+			sessionFileChooser.setFileFilter(new GeneralFileFilter("Chipster Session (." + UserSession.SESSION_FILE_EXTENSION + ")", extensions));
 			sessionFileChooser.setSelectedFile(new File("session." + UserSession.SESSION_FILE_EXTENSION));
 			sessionFileChooser.setAcceptAllFileFilterUsed(false);
 			sessionFileChooser.setMultiSelectionEnabled(false);
@@ -1680,6 +1678,16 @@ public class SwingClientApplication extends ClientApplication {
 
 
 	@Override
+	public void loadSessionFrom(File file) {
+		loadSessionImpl(file, false);
+	}
+
+	@Override
+	public void restoreSessionFrom(File file) {
+		loadSessionImpl(file, true);
+	}
+
+	@Override
 	public void loadSessionFrom(URL url) {
 		try {
 			final File tempFile = ImportUtils.createTempFile(ImportUtils.URLToFilename(url), ImportUtils.getExtension(ImportUtils.URLToFilename(url)));
@@ -1688,7 +1696,7 @@ public class SwingClientApplication extends ClientApplication {
 			FileLoaderProcess fileLoaderProcess = new FileLoaderProcess(tempFile, url, info) {
 				@Override
 				protected void postProcess() {
-					loadSessionImpl(tempFile);
+					loadSessionImpl(tempFile, false);
 				};
 			};			
 			fileLoaderProcess.runProcess();
@@ -1731,12 +1739,12 @@ public class SwingClientApplication extends ClientApplication {
 			}								
 
 			// load the new session
-			loadSessionImpl(fileChooser.getSelectedFile());		
+			loadSessionImpl(fileChooser.getSelectedFile(), false);		
 		}
 		menuBar.updateMenuStatus();
 	}
 
-	private void loadSessionImpl(final File sessionFile) {
+	private void loadSessionImpl(final File sessionFile, final boolean restoreSession) {
 		
 		// check that it's a valid session file 
 		if (!UserSession.isValidSessionFile(sessionFile)) {
@@ -1755,9 +1763,13 @@ public class SwingClientApplication extends ClientApplication {
 				 */
 				boolean somethingToSave = manager.databeans().size() != 0;
 
-				manager.loadSession(sessionFile);
+				manager.loadSession(sessionFile, restoreSession);
 
 				unsavedChanges = somethingToSave;
+				
+				if (restoreSession) {
+					clearDeadTempDirectories();
+				}
 			}
 		});
 	}
@@ -1847,7 +1859,7 @@ public class SwingClientApplication extends ClientApplication {
 	}
 
 	@Override
-	public void heartBeat() {
+	public void checkFreeMemory() {
 		statusBar.updateMemoryIndicator();
 	}
 

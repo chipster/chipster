@@ -7,6 +7,13 @@ import javax.swing.SwingUtilities;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 
+/**
+ * The active thread of the processing layer. Receives area requests and sends out
+ * file request to the lower data source layer.
+ *  
+ * @author Petri Klemelä, Aleksi Kallio
+ *
+ */
 public abstract class AreaRequestHandler extends Thread {
 
 	private Queue<AreaRequest> areaRequestQueue;

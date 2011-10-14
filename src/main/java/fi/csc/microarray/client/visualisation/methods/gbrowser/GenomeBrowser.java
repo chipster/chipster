@@ -86,9 +86,11 @@ import fi.csc.microarray.gbrowser.index.GeneIndexActions;
 import fi.csc.microarray.util.IOUtils;
 
 /**
- * Chipster style visualisation for genome browser.
+ * Facade class that hides genome browser internals and exposes an API that is compatible 
+ * with Chipster visualization system. 
  * 
  * @author Petri Klemelä, Aleksi Kallio
+ * @see GenomePlot
  */
 public class GenomeBrowser extends Visualisation implements ActionListener,
 		RegionListener, FocusListener, ComponentListener, PropertyChangeListener {
@@ -707,7 +709,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			}
 			
 			// Create the chart panel with tooltip support				
-			TooltipEnabledChartPanel chartPanel = new TooltipEnabledChartPanel();
+			TooltipAugmentedChartPanel chartPanel = new TooltipAugmentedChartPanel();
 			this.plot = new GenomePlot(chartPanel, true);
 			((NonScalableChartPanel)chartPanel).setGenomePlot(plot);
 			

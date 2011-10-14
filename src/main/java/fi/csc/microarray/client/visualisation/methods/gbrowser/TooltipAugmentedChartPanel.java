@@ -4,7 +4,13 @@ import java.awt.event.MouseEvent;
 
 import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 
-public class TooltipEnabledChartPanel extends NonScalableChartPanel {
+/**
+ * Class that adds tooltip support to {@link NonScalableChartPanel}.
+ * 
+ * @author Aleksi Kallio
+ *
+ */
+public class TooltipAugmentedChartPanel extends NonScalableChartPanel {
 
 	public static interface TooltipRequestProcessor {
 		public String tooltipRequest(MouseEvent mouseEvent);

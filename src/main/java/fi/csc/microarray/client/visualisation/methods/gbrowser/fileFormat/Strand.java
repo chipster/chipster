@@ -1,11 +1,10 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat;
 
 /**
- * DNA strand.
+ * DNA strand, either forward or reverse. Value BOTH is usually used in tracks to denote that
+ * information from both strands should be included in a single track.
  * 
- * Value BOTH is usually used in tracks to denote that
- * information from both strands should be included in
- * a single track.
+ * @author Petri Klemelä
  */
 public enum Strand {
 	FORWARD, 

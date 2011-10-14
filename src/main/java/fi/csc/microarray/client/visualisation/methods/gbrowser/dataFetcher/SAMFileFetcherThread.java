@@ -19,6 +19,13 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRe
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
+/**
+ * The data processing layer thread for SAM compatible files. Uses the main file and index file.
+ * Receives file requests and send file results.
+ * 
+ * @author Aleksi Kallio
+ *
+ */
 public class SAMFileFetcherThread extends Thread {
 
 	final private int SAMPLE_SIZE_BP = 100;

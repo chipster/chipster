@@ -27,10 +27,11 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 
 /**
  * 
- * Track for marking the DNA sequencing 
+ * Track for marking repeat areas of the reference genome.
+ * 
+ * @author Vilius Zukauskas
  *
  */
-
 public class RepeatMaskerTrack extends Track {
 	
 	private long maxBpLength;

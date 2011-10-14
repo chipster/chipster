@@ -6,7 +6,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRe
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
 /**
- * Struct for holding information for a gene.
+ * Holder for information about a single gene.
  *
  */
 public class Gene extends TreeSet<RegionContent> implements Comparable<Gene> {

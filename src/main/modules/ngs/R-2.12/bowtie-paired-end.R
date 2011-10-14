@@ -1,6 +1,6 @@
-# TOOL bowtie-paired-end.R: "Bowtie for paired end reads" (Bowtie aligns reads to genome, transcriptome, known miRNAs, etc. There are two modes: mismatches are considered either throughout the read, or only in the user-defined left part of the read. In the latter case also quality values are taken into account.
+# TOOL bowtie-paired-end.R: "Bowtie for paired end reads" (Bowtie aligns reads to genomes or transcriptomes. There are two modes: mismatches are considered either throughout the read, or only in the user-defined left part of the read. In the latter case also quality values are taken into account.
 # Results are sorted and indexed bam files, which are ready for viewing in the Chipster genome browser. 
-# Note that this Bowtie tool uses public genomes provided by Chipster. If you would like to align reads against your own datasets, please use the tool \"Bowtie against own genomes\".)
+# Note that this Bowtie tool uses publicly available genomes. If you would like to align reads against your own datasets, please use the tool \"Bowtie for paired-end reads and own genome\".)
 # INPUT reads1.fq: "No 1 mate reads" TYPE GENERIC
 # INPUT reads2.fq: "No 2 mate reads" TYPE GENERIC
 # OUTPUT bowtie.bam 
@@ -10,11 +10,11 @@
 # OUTPUT OPTIONAL unaligned_2.fq
 # OUTPUT OPTIONAL multireads_1.fq
 # OUTPUT OPTIONAL multireads_2.fq
-# PARAMETER genome: "Genome or transcriptome" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", rn4: "Rat genome (rn4\)", mmu_miRB17mature: "Mouse miRBase17"] DEFAULT mm9 (Genome or transcriptome that you would like to align your reads against.)
+# PARAMETER genome: "Genome or transcriptome" TYPE [hg19: "Human genome (hg19\)", mm9: "Mouse genome (mm9\)", rn4: "Rat genome (rn4\)"] DEFAULT mm9 (Genome or transcriptome that you would like to align your reads against.)
 # PARAMETER max.mismatches: "Number of mismatches allowed" TYPE [0, 1, 2, 3] DEFAULT 2 (How many mismatches are the alignments allowed to have?)
 # PARAMETER limit.to.seed: "Consider mismatches only in the seed region" TYPE [yes, no] DEFAULT no (Should the mismatch limit be applied only to the left, good quality part of the read? You can define the length of this seed region with the next parameter.)
 # PARAMETER seed: "Length of the seed region" TYPE INTEGER FROM 5 TO 50 DEFAULT 28 (If you have chosen to apply the mismatch limit only to the left, good quality part of the read, how many bases should be considered? The minimum length of seed region is 5.)
-# PARAMETER multiread: "How many places is a read allowed to align to" TYPE [1, 2, 1000000: "no limit"] DEFAULT 1000000 (If you want to have alignments only for uniquely mapping reads, select 1.)
+# PARAMETER multiread: "How many best category hits is the read allowed to have" TYPE [1, 2, 1000000: "no limit"] DEFAULT 1000000 (If you want to have alignments only for uniquely mapping reads, select 1.)
 # PARAMETER OPTIONAL min.insert.size: "Minimum insert size" TYPE INTEGER FROM 0 TO 1000 DEFAULT 0 (The minimum insert size for valid paired-end alignments. E.g. if 60 is specified and a paired-end alignment consists of two 20-bp alignments in the appropriate orientation with a 20-bp gap between them, that alignment is considered valid.)
 # PARAMETER OPTIONAL max.insert.size: "Maximum insert size" TYPE INTEGER FROM 50 TO 1500 DEFAULT 250 (The maximum insert size for valid paired-end alignments. E.g. if 100 is specified and a paired-end alignment consists of two 20-bp alignments in the proper orientation with a 60-bp gap between them, that alignment is considered valid.)
 # PARAMETER OPTIONAL orientation: "Upstream-downstream mate orientation" TYPE [fr: "mate1 upstream of reverse complement of mate2 or vice versa", rf: "upstream mate1 reverse-complemented and mate2 forward-oriented"] DEFAULT fr (The upstream-downstream mate orientations for a valid paired-end alignment against the forward reference strand.)

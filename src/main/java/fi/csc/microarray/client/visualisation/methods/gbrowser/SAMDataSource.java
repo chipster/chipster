@@ -4,14 +4,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
-import java.net.URL;
 
 import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMSequenceRecord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ChromosomeNameUnnormaliser;
 
 /**
- * Data source for SAM files.
+ * Data source for indexed SAM compatible files (.sam/.bam). Because index is required, in practice
+ * supports only .bam.
  * 
  * @author Rimvydas Naktinis, Aleksi Kallio
  *
@@ -20,13 +20,6 @@ public class SAMDataSource extends DataSource {
 	
 	private ChromosomeNameUnnormaliser chromosomeNameUnnormaliser = ChromosomeNameUnnormaliser.newIdentityPreversingUnnormaliser();
 	private SAMFileReader reader;
-
-    
-    
-    public SAMDataSource(URL url) throws FileNotFoundException {
-        // TODO Support URLs
-        super(url);
-    }
 
     /**
      * Generally we would like to have both data and index files,

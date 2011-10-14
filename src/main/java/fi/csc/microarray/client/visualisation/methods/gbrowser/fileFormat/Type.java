@@ -5,6 +5,7 @@ import java.text.DecimalFormat;
 /**
  * Possible types of values stored in a file.
  *
+ * @author Petri Klemelä
  */
 public enum Type {
 	

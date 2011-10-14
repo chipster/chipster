@@ -25,7 +25,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
 
 /**
- * The basic view of genome browser. 
+ * The basic view of genome browser. Shows the tracks horizontally.
  *
  */
 public class HorizontalView extends View implements KeyListener {

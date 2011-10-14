@@ -19,9 +19,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.WIGPar
 
 
 /**
- * Quick started utility for developing genome browser. Might evolve into standalone version of
- * the browser some day.
- *
+ * Quick and dirty starter utility for genome browser development and debugging.
  */
 public class GenomeBrowserStarter {
 
@@ -52,7 +50,7 @@ public class GenomeBrowserStarter {
 
 	public static void main(String[] args) throws IOException {
 		boolean horizontal = true;
-		TooltipEnabledChartPanel panel = new TooltipEnabledChartPanel();
+		TooltipAugmentedChartPanel panel = new TooltipAugmentedChartPanel();
 		GenomePlot plot = new GenomePlot(panel, horizontal);
 		TrackFactory.addCytobandTracks(plot,
 		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.GRCh37.59_karyotype.tsv", new CytobandParser()));

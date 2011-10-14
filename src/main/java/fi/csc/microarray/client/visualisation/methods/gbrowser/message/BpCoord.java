@@ -1,7 +1,7 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.message;
 
 /**
- * Basepair coordinate: base(pair) location and chromosome.
+ * Basepair coordinate: base(pair) location and chromosome. The basic coordinate used throughout the Genome Browser.
  *
  */
 public class BpCoord implements Comparable<BpCoord> {
