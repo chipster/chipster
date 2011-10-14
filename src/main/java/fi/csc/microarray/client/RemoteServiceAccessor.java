@@ -105,4 +105,9 @@ public class RemoteServiceAccessor implements ServiceAccessor {
         requestTopic.sendMessage(message);
 	}
 
+	@Override
+	public boolean isStandalone() {
+		return false;
+	}
+
 }
