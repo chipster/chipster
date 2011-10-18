@@ -186,266 +186,331 @@
       <package>sm</package>
     </item>
 
-	<!--  BioConductor packages -->
+	<!--  Bioconductor packages -->
 	
     <item installed="false" name="bioconductor" type="r-package"> 
       <default-bioconductor-packages/>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
 
     <item installed="false" name="ctc" type="r-package"> 
       <bioconductor-package>ctc</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
     
     <item installed="false" name="oligo" type="r-package"> 
       <bioconductor-package>oligo</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
     
     <item installed="false" name="ssize" type="r-package"> 
       <bioconductor-package>ssize</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="LPE" type="r-package"> 
       <bioconductor-package>LPE</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="Ruuid" type="r-package"> 
       <bioconductor-package>Ruuid</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="graph" type="r-package"> 
       <bioconductor-package>graph</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="affyQCReport" type="r-package"> 
       <bioconductor-package>affyQCReport</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="GlobalAncova" type="r-package"> 
       <bioconductor-package>GlobalAncova</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="impute" type="r-package"> 
       <bioconductor-package>impute</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="idiogram" type="r-package"> 
       <bioconductor-package>idiogram</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="GOstats" type="r-package"> 
       <bioconductor-package>GOstats</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="beadarray" type="r-package"> 
       <bioconductor-package>beadarray</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="simpleaffy" type="r-package"> 
       <bioconductor-package>simpleaffy</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="globaltest" type="r-package"> 
       <bioconductor-package>globaltest</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
 
     <item installed="false" name="geneplotter" type="r-package"> 
       <bioconductor-package>geneplotter</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="biomaRt" type="r-package"> 
       <bioconductor-package>biomaRt</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="lumi" type="r-package"> 
       <bioconductor-package>lumi</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="prada" type="r-package"> 
       <bioconductor-package>prada</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="siggenes" type="r-package"> 
       <bioconductor-package>siggenes</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="plier" type="r-package"> 
       <bioconductor-package>plier</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
 
     <item installed="false" name="cosmo" type="r-package"> 
       <bioconductor-package>cosmo</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="beadarraySNP" type="r-package"> 
       <bioconductor-package>beadarraySNP</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="GEOquery" type="r-package"> 
       <bioconductor-package>GEOquery</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="ArrayExpress" type="r-package"> 
       <bioconductor-package>ArrayExpress</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
 
     <item installed="false" name="GeneCycle" type="r-package"> 
       <bioconductor-package>GeneCycle</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="GeneNet" type="r-package"> 
       <bioconductor-package>GeneNet</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="GenomeGraphs" type="r-package"> 
       <bioconductor-package>GenomeGraphs</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="MLInterfaces" type="r-package"> 
       <bioconductor-package>MLInterfaces</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="GOstats" type="r-package"> 
       <bioconductor-package>GOstats</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
 
     <item installed="false" name="PAnnBuilder" type="r-package"> 
       <bioconductor-package>PAnnBuilder</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="oligoClasses" type="r-package"> 
       <bioconductor-package>oligoClasses</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="statmod" type="r-package"> 
       <bioconductor-package>statmod</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="vegan" type="r-package"> 
       <bioconductor-package>vegan</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="safe" type="r-package"> 
       <bioconductor-package>safe</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
       
     <item installed="false" name="CGHbase" type="r-package"> 
       <bioconductor-package>CGHbase</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
 
     <item installed="false" name="CGHcall" type="r-package"> 
       <bioconductor-package>CGHcall</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
 
     <item installed="false" name="CGHregions" type="r-package"> 
       <bioconductor-package>CGHregions</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
 
     <item installed="false" name="CGHregions" type="r-package"> 
       <bioconductor-package>CGHregions</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
 
     <item installed="false" name="DNAcopy" type="r-package"> 
       <bioconductor-package>DNAcopy</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
     
     <item installed="false" name="hgu133plus2probe" type="r-package"> 
       <bioconductor-package>hgu133plus2probe</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
 
     <item installed="false" name="hgu133plus2cdf" type="r-package"> 
       <bioconductor-package>hgu133plus2cdf</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
 
     <item installed="false" name="MLInterfaces" type="r-package"> 
       <bioconductor-package>MLInterfaces</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
 
     <item installed="false" name="MEDIPS" type="r-package"> 
       <bioconductor-package>MEDIPS</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
     
     <item installed="false" name="microRNA" type="r-package"> 
       <bioconductor-package>microRNA</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
 
     <item installed="false" name="RmiR" type="r-package"> 
       <bioconductor-package>RmiR</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
     
     <item installed="false" name="biomaRt" type="r-package"> 
       <bioconductor-package>biomaRt</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
     
     <item installed="false" name="ChIPpeakAnno" type="r-package"> 
       <bioconductor-package>ChIPpeakAnno</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
     
     <item installed="false" name="rGADEM" type="r-package"> 
       <bioconductor-package>rGADEM</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
     
     <item installed="false" name="MotIV" type="r-package"> 
       <bioconductor-package>MotIV</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
     
     <item installed="false" name="PICS" type="r-package"> 
       <bioconductor-package>PICS</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
     
     <item installed="false" name="IRanges" type="r-package"> 
       <bioconductor-package>IRanges</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
     
     <item installed="false" name="BSgenome" type="r-package"> 
       <bioconductor-package>BSgenome</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
  
     <item installed="false" name="seqLogo" type="r-package"> 
       <bioconductor-package>seqLogo</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
     
     <item installed="false" name="GenomicRanges" type="r-package"> 
       <bioconductor-package>GenomicRanges</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
     
     <item installed="false" name="Biostrings" type="r-package"> 
       <bioconductor-package>Biostrings</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
     
     <item installed="false" name="ChIPpeakAnno" type="r-package"> 
       <bioconductor-package>ChIPpeakAnno</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
     
     <item installed="false" name="chipseq" type="r-package"> 
       <bioconductor-package>chipseq</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
  
     <item installed="false" name="Rsamtools" type="r-package"> 
       <bioconductor-package>Rsamtools</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
     
     <item installed="false" name="ShortRead" type="r-package"> 
       <bioconductor-package>ShortRead</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
     
     <item installed="false" name="lumiHumanIDMapping" type="r-package"> 
       <bioconductor-package>lumiHumanIDMapping</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
     
     <item installed="false" name="lumiMouseIDMapping" type="r-package"> 
       <bioconductor-package>lumiMouseIDMapping</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
     
     <item installed="false" name="lumiRatIDMapping" type="r-package"> 
       <bioconductor-package>lumiRatIDMapping</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
 
     <item installed="false" name="edgeR" type="r-package"> 
       <bioconductor-package>edgeR</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
 
     <item installed="false" name="rtracklayer" type="r-package"> 
       <bioconductor-package>rtracklayer</bioconductor-package>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
 
   </bundle>
@@ -456,6 +521,7 @@
     
     <item installed="false" name="bioconductor-annotations" type="r-package"> 
       <bioconductor-repository>4</bioconductor-repository>
+      <mirror>http://www.bioconductor.org</mirror>
     </item>
 
 
