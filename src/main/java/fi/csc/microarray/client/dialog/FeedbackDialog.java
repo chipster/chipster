@@ -41,12 +41,14 @@ public class FeedbackDialog extends JDialog implements ActionListener {
     private JTextField emailField;
     private JCheckBox attachSessionBox;
     private JCheckBox attachLogsBox;
+	private String errorMessage;
     
-    public FeedbackDialog(SwingClientApplication application) {
+    public FeedbackDialog(SwingClientApplication application, String errorMessage) {
         super(application.getMainFrame(), true);
 
         this.application = application;
         this.setTitle("Send feedback");
+        this.errorMessage = errorMessage;
         
         // Layout
         this.setLayout(new GridBagLayout());
@@ -146,7 +148,8 @@ public class FeedbackDialog extends JDialog implements ActionListener {
                 }
                 
                 // prepare feedback message
-                FeedbackMessage message = new FeedbackMessage(detailArea.getText(),
+                String messageText = detailArea.getText() + "\n\nError message:\n" + errorMessage;
+                FeedbackMessage message = new FeedbackMessage(messageText,
                         emailField.getText(), sessionURL);
                 
                 // attach log files if client allows

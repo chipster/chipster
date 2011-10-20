@@ -22,17 +22,17 @@
 
 # KM 24.8.2011
 
-# bwa
-bwa.binary <- file.path(chipster.tools.path, "bin", "bwa")
-bwa.index.binary <- file.path(chipster.tools.path, "bin", "check_bwa_index.csh")
-bwa.indexes <- file.path(chipster.tools.path, "bwa_indexes")
+# bwa settings
+bwa.binary <- file.path(chipster.tools.path, "bwa", "bwa")
 command.start <- paste("bash -c '", bwa.binary)
 
-check.command <- paste ( bwa.index.binary, "genome.txt| tail -1 ")
-genome.dir <- system(check.command, intern = TRUE)
-bwa.genome <- file.path( genome.dir , "genome.txt")
-#stop(paste('CHIPSTER-NOTE: ', files))
-# common parameters
+# Choose indextype based on the genome size
+gsize.mb <- file.info("genome.txt")$size / (1024*1024)
+
+# Do indexing
+print("Indexing the genome...")
+genome.dir <- system(paste(bwa.binary, " index -a", index.type, " genome.txt"), intern = TRUE)
+bwa.genome <- file.path("genome.txt")
 
 # mode specific parameters
 if (total.edit >= 1) {

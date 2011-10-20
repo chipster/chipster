@@ -40,5 +40,7 @@ public interface ServiceAccessor {
 	public void sendFeedbackMessage(FeedbackMessage message) throws Exception;
 
 	public Collection<ToolModule> getModules();
+	
+	public boolean isStandalone();
 
 }
