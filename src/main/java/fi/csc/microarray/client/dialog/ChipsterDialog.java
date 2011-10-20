@@ -21,6 +21,7 @@ import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
+import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.dialog.DialogInfo.Type;
 /**
@@ -143,12 +144,14 @@ public class ChipsterDialog extends JDialog {
         g.gridx++;
 		if (dialogInfo.getFeedbackVisible()) {
 		    JButton feedbackButton = new JButton("Send feedback");
+		    final String errorMessage = dialogInfo.getDetails();
 		    feedbackButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    FeedbackDialog feedback = new FeedbackDialog(application);
+                    FeedbackDialog feedback = new FeedbackDialog(application, errorMessage);
                     feedback.showDialog();
                 }
             });
+		    feedbackButton.setEnabled(!Session.getSession().getServiceAccessor().isStandalone()); // disable button when standalone
 		    mainPanel.add(feedbackButton, g);
 		}
 		

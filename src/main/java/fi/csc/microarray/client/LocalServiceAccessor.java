@@ -120,4 +120,9 @@ public class LocalServiceAccessor implements ServiceAccessor {
 		return modules;
 	}
 
+	@Override
+	public boolean isStandalone() {
+		return true;
+	}
+
 }
