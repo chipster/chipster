@@ -28,14 +28,17 @@
 
 
 ##
-# bwa indexing
+# bwa settings
 ##
-bwa.index.binary <- file.path(chipster.tools.path, "bin", "check_bwa_index.csh")
-bwa.indexes <- file.path(chipster.tools.path, "bwa_indexes/tmp")
+bwa.binary <- file.path(chipster.tools.path, "bwa", "bwa")
 
-check.command <- paste ( bwa.index.binary, "genome.txt| tail -1 ")
-genome.dir <- system(check.command, intern = TRUE)
-bwa.genome <- file.path( genome.dir , "genome.txt")
+# Choose indextype based on the genome size
+gsize.mb <- file.info("genome.txt")$size / (1024*1024)
+
+# Do indexing
+print("Indexing the genome...")
+genome.dir <- system(paste(bwa.binary, " index -a", index.type, " genome.txt"), intern = TRUE)
+bwa.genome <- file.path("genome.txt")
 
 
 ###
@@ -45,7 +48,6 @@ bwa.genome <- file.path( genome.dir , "genome.txt")
 if (total.edit >= 1) {
 	total.edit <- round(total.edit)
 }
-bwa.binary <- file.path(chipster.tools.path, "bin", "bwa")
 command.start <- paste("bash -c '", bwa.binary)
 quality.parameter <- ifelse(quality.format == "solexa1_3", "-I", "")
 mode.parameters <- paste("aln -t 2 -o", num.gaps, "-e", num.extensions, "-d", disallow.gaps, "-i" , disallow.indel , "-l" , seed.length , "-k" , seed.edit , "-O" , gap.opening , "-E" , gap.extension , "-q" , trim.threshold, "-B" , barcode.length , "-M" , mismatch.penalty , "-n" , total.edit , quality.parameter)
