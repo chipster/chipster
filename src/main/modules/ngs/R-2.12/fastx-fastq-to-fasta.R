@@ -1,4 +1,4 @@
-# TOOL fastx-fastq-to-fasta.R: "Convert fastq to fasta" (Convert fastq files to fasta format. This tool is based on the FASTX package.)
+# TOOL fastx-fastq-to-fasta.R: "Convert FASTQ to FASTA" (Convert FASTQ files to FASTA format. This tool is based on the FASTX package.)
 # INPUT reads.fastq TYPE GENERIC 
 # OUTPUT reads.fasta
 # OUTPUT fasta.log
@@ -17,7 +17,7 @@ remove.parameter <- ifelse(remove.unknowns == "yes", "", "-n")
 rename.parameter <- ifelse(rename.identifiers == "no", "", "-r")
 
 # command
-command <- paste(binary, remove.parameter, rename.parameter, "-i reads.fastq -o reads.fasta > fasta.log")
+command <- paste(binary, remove.parameter, rename.parameter, "-v -i reads.fastq -o reads.fasta > fasta.log")
 
 # run
 system(command)
