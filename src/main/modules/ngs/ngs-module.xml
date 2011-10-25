@@ -34,6 +34,9 @@
 		<tool runtime="R-2.12">
 			<resource>fastx-fastq-to-fasta.R</resource>
 		</tool>
+		<tool runtime="R-2.12">
+			<resource>fastx-renamer.R</resource>
+		</tool>
 		<tool runtime="java">
 			<resource>fi.csc.chipster.tools.ngs.PreprocessNGSSingle</resource>
 		</tool>
