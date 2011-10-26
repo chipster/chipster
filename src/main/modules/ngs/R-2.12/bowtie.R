@@ -49,8 +49,8 @@ system(bowtie.command)
 # samtools binary
 samtools.binary <- c(file.path(chipster.tools.path, "samtools", "samtools"))
 
-# convert sam to bam
-system(paste(samtools.binary, "view -bS alignment.sam -o alignment.bam"))
+# convert sam to bam, removes unaligned reads
+system(paste(samtools.binary, "view -bS -q 1 alignment.sam -o alignment.bam"))
 
 # sort bam
 system(paste(samtools.binary, "sort alignment.bam alignment.sorted"))
