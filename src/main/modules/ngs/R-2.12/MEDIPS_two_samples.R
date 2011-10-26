@@ -10,7 +10,6 @@
 # PARAMETER OPTIONAL promoter.upstream TYPE [1000,2000,5000] DEFAULT 1000 (How much upstream, in base pairs, from the transcription start site does the promoter extend)
 # PARAMETER OPTIONAL promoter.downstream TYPE [250,500,750,1000] DEFAULT 500 (How much downstream, in base pairs, from the transcription start site does the promoter extend)
 
-
 # Parameters for testing purposes only
 #species<-"human"
 #promoters.only<-"no"
@@ -20,19 +19,14 @@
 #promoter.upstream<-"1000"
 #promoter.downstream<-"500"
 
-
 # Processing of the parameters
 if(species=="human") {
    genome<-c("BSgenome.Hsapiens.UCSC.hg19")
    pgenome<-"hg19"  
    library(BSgenome.Hsapiens.UCSC.hg19)
 }
-w<-image.width
-h<-image.height
 
-
-
-
+# Load library to memory
 library(MEDIPS)
 
 # Assign the files to control and treatment
@@ -87,3 +81,5 @@ if(promoters.only=="no") {
    diff.meth<-MEDIPS.methylProfiling(data1=control, data2=treatment, select=2, frame_size=400)
    write.table(diff.meth, file="methylation-comparison.tsv", sep="\t", quote=F, col.names=T, row.names=F)
 }
+
+# EOF
