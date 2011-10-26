@@ -92,6 +92,9 @@
 # m.fold <- 32
 # adjust.mfold <- "yes"
 
+# MACS settings
+macs.binary <- file.path(chipster.tools.path, "macs", "macs14")
+
 # Set up approximate mappable genome size depending on species
 if (species == "human") {
 	genome.size <- as.character(3.5e+9*0.978*.9)
@@ -247,20 +250,18 @@ runMACS <- function(..., logFile="/dev/null") {
 		}
 		
 		# Command
-		command <- paste("/v/users/chipster/tools/bin/macs14", paste(flags, params, collapse=" "))
+		command <- paste(macs.binary, paste(flags, params, collapse=" "))
 		if (!is.null(switchOnParams)) {
 			switchOnParams <-  paste(switchOnParams, collapse=" ")
 			command <- paste(command, switchOnParams)
 		}
-		# Environment
-		environment <- "export PYTHONPATH=/v/users/chipster/tools/lib/python2.6/site-packages ; export PATH=${PATH}:/v/users/akallio/bin ;"
 		
 		# Run macs. Macs writes its output to stderr (stream number 2)
 		# &> redirects both stderr and stdout
 		# Iterates through mfold values to find low enough that works
 		if (build.model == "yes" & adjust.mfold == "yes") {
 			for (mfold in list(32, 24, 16, 8)) {
-				system.output <- system(paste(environment, command, paste("--mfold=", mfold, sep=""), "2>", logFile))
+				system.output <- system(paste(command, paste("--mfold=", mfold, sep=""), "2>", logFile))
 #				system.output <- system(paste(command, paste("--mfold=", mfold, sep=""), "2>", logFile))
 				if (system.output == 0) {
 					break; # was succesfull, don't lower mfold value any more
@@ -268,7 +269,7 @@ runMACS <- function(..., logFile="/dev/null") {
 			}
 		}
 		if (build.model == "yes" & adjust.mfold == "no") {
-			system.output <- system(paste(environment, command, "2>", logFile))
+			system.output <- system(paste(command, "2>", logFile))
 			if (system.output != 0) {
 				stop("CHIPSTER-NOTE: Building the peak model failed. Retry by lowering the m-fold value or enabling the automatic m-fold adjustment.") 
 			}
@@ -277,7 +278,7 @@ runMACS <- function(..., logFile="/dev/null") {
 			}
 		}
 		if (build.model == "no") {
-			system.output <- system(paste(environment, command, "2>", logFile))
+			system.output <- system(paste(command, "2>", logFile))
 			if (system.output != 0) {
 				stop("CHIPSTER-NOTE: Building the peak model failed. Retry by lowering the m-fold value or enabling the automatic m-fold adjustment.") 
 			}

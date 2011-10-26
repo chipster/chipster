@@ -302,21 +302,27 @@ public class SetupTool {
 
 				} else if (item.getElementsByTagName("default-bioconductor-packages").getLength() > 0) {
 					// default BioC Lite packages available via Bioconductor installation mechanism
-					return runRCommands(rExecutable, new String[] { "source(\"http://www.bioconductor.org/biocLite.R\")", "biocLite()" });
+					String mirror = item.getElementsByTagName("mirror").item(0).getTextContent().trim();
+					return runRCommands(rExecutable, generateBiocCommands(new String[] { 
+							"biocLite()" 
+					}, mirror));
 
 				} else if (item.getElementsByTagName("bioconductor-package").getLength() > 0) {
 					// available via Bioconductor installation mechanism
 					String packageName = item.getElementsByTagName("bioconductor-package").item(0).getTextContent().trim();
-					return runRCommands(rExecutable, new String[] { "source(\"http://www.bioconductor.org/biocLite.R\")", "biocLite(c(\"" + packageName + "\"))" });
+					String mirror = item.getElementsByTagName("mirror").item(0).getTextContent().trim();
+					return runRCommands(rExecutable, generateBiocCommands(new String[] { 
+							"biocLite(c(\"" + packageName + "\"))" 
+					}, mirror));
 
 				} else if (item.getElementsByTagName("bioconductor-repository").getLength() > 0) {
 					// Bioconductor annotation repository
 					String repositoryName = item.getElementsByTagName("bioconductor-repository").item(0).getTextContent().trim();
-					return runRCommands(rExecutable, new String[] { 
-							"source(\"http://www.bioconductor.org/biocLite.R\")", 
+					String mirror = item.getElementsByTagName("mirror").item(0).getTextContent().trim();
+					return runRCommands(rExecutable, generateBiocCommands(new String[] { 
 							"setRepositories(ind=c(" + repositoryName + "))",
 							"install.packages(available.packages())"
-					});
+					}, mirror));
 
 				} else if (item.getElementsByTagName("from-web-page").getLength() > 0) {
 					// available as .tar.gz via URL's listed on web page => web crawl them
@@ -354,6 +360,19 @@ public class SetupTool {
 				e.printStackTrace();
 				return false;
 			}
+		}
+
+		private String[] generateBiocCommands(String[] commands, String mirror) {
+			String[] initBioc = new String[] {
+					"source(\"http://www.bioconductor.org/biocLite.R\")",
+					"options(\"BioC_mirror\" = c(\"Mirror\"=\"" + mirror + "\"))"
+			};
+
+			String[] biocCommands = new String[initBioc.length + commands.length];
+			System.arraycopy(initBioc, 0, biocCommands, 0, initBioc.length);
+			System.arraycopy(commands, 0, biocCommands, initBioc.length, commands.length);
+			
+			return biocCommands;
 		}
 
 		private String fetchRExecutable(Element dependsOnBundle) {
