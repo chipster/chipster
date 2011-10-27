@@ -9,9 +9,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map.Entry;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -20,6 +17,9 @@ import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import de.schlichtherle.truezip.zip.ZipEntry;
+import de.schlichtherle.truezip.zip.ZipFile;
+import de.schlichtherle.truezip.zip.ZipOutputStream;
 import fi.csc.microarray.client.NameID;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.OperationRecord;

@@ -48,6 +48,7 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/jgraph-5.12.2.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/swingx-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/mail.jar"/>
+	<classpathentry kind="lib" path="ext/lib/truezip-samples-7.3.4-jar-with-dependencies.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin/eclipse"/>
 </classpath>
