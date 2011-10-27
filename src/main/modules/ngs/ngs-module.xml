@@ -67,7 +67,6 @@
 		<tool runtime="R-2.12">
 			<resource>bedtools-subtractbed.R</resource>
 		</tool>	
-	
 	</category>
 
 	<category name="Matching genomic regions" color="#e7881c">
@@ -110,10 +109,7 @@
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>bedtools-pairtopair.R</resource>
-		</tool>
-
-		
-		
+		</tool>	
 	</category>
 
 	<category name="Alignment" color="#d53833">
