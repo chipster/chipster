@@ -44,6 +44,9 @@
 			<resource>samtools-merge.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
+			<resource>samtools-subset.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
 			<resource>samtools-count.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
