@@ -1,4 +1,4 @@
-# TOOL pathways-ngs-hyperg-go.R: "GO enrichment for list of genes" (Performs a statistical test for enrichment of GO terms in a query list of genes. The input should be the output from the tool Find nearest genes for regions.)
+# TOOL pathways-ngs-hyperg-go.R: "GO enrichment for list of genes" (Performs a statistical test for enrichment of GO terms in a query list of genes. The input file should be from the tool Find unique and annotated genes.)
 # INPUT gene-list.tsv: gene-list.tsv TYPE GENERIC 
 # OUTPUT hypergeo-go.tsv: hypergeo-go.tsv 
 # OUTPUT hypergeo-go.html: hypergeo-go.html 

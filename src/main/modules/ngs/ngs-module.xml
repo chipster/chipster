@@ -2,6 +2,9 @@
 
 	<category name="Filtering" color="#d5c796">
 		<tool runtime="R-2.12">
+			<resource>fastx-quality-filter.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
 			<resource>fastx-clipper.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
@@ -19,9 +22,6 @@
 		<tool runtime="R-2.12">
 			<resource>fastx-statistics.R</resource>
 		</tool>
-		<tool runtime="R-2.12">
-			<resource>fastx-quality-filter.R</resource>
-		</tool>
 	</category>
 
 	<category name="Utilities" color="#d59f45">
@@ -34,11 +34,20 @@
 		<tool runtime="R-2.12">
 			<resource>fastx-fastq-to-fasta.R</resource>
 		</tool>
+		<tool runtime="R-2.12">
+			<resource>fastx-renamer.R</resource>
+		</tool>
 		<tool runtime="java">
 			<resource>fi.csc.chipster.tools.ngs.PreprocessNGSSingle</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>samtools-merge.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>samtools-count.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>samtools-idxstats.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>bedtools-sort.R</resource>
