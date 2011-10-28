@@ -7,9 +7,9 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
+import de.schlichtherle.truezip.zip.ZipEntry;
+import de.schlichtherle.truezip.zip.ZipFile;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.session.UserSession;
 import fi.csc.microarray.databeans.DataBean;

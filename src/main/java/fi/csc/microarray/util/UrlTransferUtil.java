@@ -26,6 +26,8 @@ public class UrlTransferUtil {
 
 	/**
 	 * Uploads a file (or similar) over HTTP.
+	 * NOTE! Compression does not work with files larger than 4 gigabytes
+	 * in JDK 1.6 and earlier.
 	 *  
 	 * @param url address to copy to
 	 * @param fis source to copy from

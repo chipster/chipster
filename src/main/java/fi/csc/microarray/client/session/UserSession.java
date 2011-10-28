@@ -3,7 +3,6 @@ package fi.csc.microarray.client.session;
 import java.io.File;
 import java.io.IOException;
 import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -15,6 +14,8 @@ import javax.xml.validation.Validator;
 
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
+
+import de.schlichtherle.truezip.zip.ZipFile;
 
 
 public class UserSession {
