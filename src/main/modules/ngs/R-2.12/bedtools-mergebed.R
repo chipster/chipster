@@ -1,4 +1,4 @@
-# TOOL bedtools-mergebed.R: "BEDTools mergeBed" (mergeBed combines overlapping or book-ended (that is, one base pair away\) features in a feature file into a single feature which spans all of the combined features.)
+# TOOL bedtools-mergebed.R: "Merge BED" (Combines overlapping or book-ended (that is, one base pair away\) features in a feature file into a single feature which spans all of the combined features.)
 # INPUT file.a: "Input file" TYPE GENERIC
 # OUTPUT mergebed.bed
 # PARAMETER OPTIONAL s: "Force strandedness" TYPE [yes, no] DEFAULT no (Force strandedness.  That is, only merge features that are the same strand. By default, merging is done without respect to strand.)

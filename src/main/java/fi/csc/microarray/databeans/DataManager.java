@@ -14,13 +14,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.ZipFile;
 
 import javax.swing.Icon;
 
 import org.apache.log4j.Logger;
 import org.mortbay.util.IO;
 
+import de.schlichtherle.truezip.zip.ZipFile;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;

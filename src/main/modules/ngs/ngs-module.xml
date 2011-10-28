@@ -32,36 +32,44 @@
 			<resource>fastx-trimmer.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
-			<resource>fastx-fastq-to-fasta.R</resource>
+			<resource>fastx-renamer.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
-			<resource>fastx-renamer.R</resource>
+			<resource>bedtools-bamtobed.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>fastx-fastq-to-fasta.R</resource>
 		</tool>
 		<tool runtime="java">
 			<resource>fi.csc.chipster.tools.ngs.PreprocessNGSSingle</resource>
 		</tool>
 		<tool runtime="R-2.12">
-			<resource>samtools-merge.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
 			<resource>bedtools-sort.R</resource>
-		</tool>	
-		<tool runtime="R-2.12">
-			<resource>bedtools-bamtobed.R</resource>
-		</tool>	
-		<tool runtime="R-2.12">
-			<resource>bedtools-fastafrombed.R</resource>
-		</tool>	
+		</tool>
 		<tool runtime="R-2.12">
 			<resource>bedtools-mergebed.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
-			<resource>bedtools-slopbed.R</resource>
+			<resource>samtools-merge.R</resource>
+		</tool>
+
+		<tool runtime="R-2.12">
+			<resource>samtools-idxstats.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>samtools-subset.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>samtools-count.R</resource>
 		</tool>	
 		<tool runtime="R-2.12">
-			<resource>bedtools-subtractbed.R</resource>
+			<resource>bedtools-fastafrombed.R</resource>
 		</tool>	
-	
+
+		<tool runtime="R-2.12">
+			<resource>bedtools-slopbed.R</resource>
+		</tool>	
+
 	</category>
 
 	<category name="Matching genomic regions" color="#e7881c">
@@ -81,6 +89,9 @@
 			<resource>fi.csc.chipster.tools.ngs.regions.CombineRegionsTool
 			</resource>
 		</tool>
+		<tool runtime="R-2.12">
+			<resource>bedtools-subtractbed.R</resource>
+		</tool>	
 		<tool runtime="R-2.12">
 			<resource>bedtools-intersectbed.R</resource>
 		</tool>
@@ -104,10 +115,7 @@
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>bedtools-pairtopair.R</resource>
-		</tool>
-
-		
-		
+		</tool>	
 	</category>
 
 	<category name="Alignment" color="#d53833">

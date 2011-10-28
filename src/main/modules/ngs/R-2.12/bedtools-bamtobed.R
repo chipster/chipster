@@ -1,4 +1,4 @@
-# TOOL bedtools-bamtobed.R: "BEDTools bamToBed" (Converts BAM alignments to BED6, BED12 or BEDPE format.)
+# TOOL bedtools-bamtobed.R: "Convert BAM to BED" (Converts BAM alignments to BED6, BED12 or BEDPE format. This tool is based on the BEDTools package.)
 # INPUT file.a: "BAM file" TYPE GENERIC
 # OUTPUT bamtobed.bed
 # PARAMETER output.type: "Output type" TYPE [BED6, BED12, BEDPE] DEFAULT "BED6" (Select the output type (BED6, BED12 or BEDPE\).)

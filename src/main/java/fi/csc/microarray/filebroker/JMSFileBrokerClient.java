@@ -180,8 +180,9 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 * 
 	 * Talks to the file broker using JMS.
 	 * 
-	 * If useCompression is true, request an url ending with .compressed
-	 * 
+	 * If useCompression is true, request an url ending with .compressed.
+	 * NOTE! Compression does not work with files larger than 4 gigabytes
+	 * in JDK 1.6 and earlier.
 	 *  
 	 * @return the new URL, may be null if file broker sends null or
 	 * if reply is not received before timeout
