@@ -10,7 +10,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -20,6 +19,7 @@ import org.apache.log4j.Logger;
 import org.mortbay.io.WriterOutputStream;
 import org.xml.sax.SAXException;
 
+import de.schlichtherle.truezip.zip.ZipFile;
 import fi.csc.microarray.client.NameID;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.OperationDefinition;

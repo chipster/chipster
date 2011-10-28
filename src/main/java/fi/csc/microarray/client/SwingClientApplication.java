@@ -1532,7 +1532,6 @@ public class SwingClientApplication extends ClientApplication {
 		}
 
 		importExportFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		importExportFileChooser.setAcceptAllFileFilterUsed(true);
 		
 		for (Module module : Session.getSession().getModules()) {
 			for (FileFilter filter : module.getImportFileFilter()) {
@@ -1540,6 +1539,7 @@ public class SwingClientApplication extends ClientApplication {
 				importExportFileChooser.setFileFilter(filter);
 			}
 		}
+		importExportFileChooser.setAcceptAllFileFilterUsed(true);
 
 		ImportSettingsAccessory access = new ImportSettingsAccessory(importExportFileChooser);
 		importExportFileChooser.setAccessory(access);
