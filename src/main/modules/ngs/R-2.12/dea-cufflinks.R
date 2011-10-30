@@ -2,12 +2,8 @@
 # INPUT treatment.bam: "BAM data file for the treatment sample" TYPE GENERIC
 # INPUT control.bam: "BAM data file for the control sample" TYPE GENERIC
 # OUTPUT cufflinks-log.txt
-# OUTPUT de-cds.tsv
 # OUTPUT de-genes.tsv
 # OUTPUT de-isoforms.tsv
-# OUTPUT de-promoters.tsv
-# OUTPUT de-splicing.tsv
-# OUTPUT de-tss.tsv
 # PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)", mm9: "Mouse (mm9\)", rn4: "Rat (rn4\)"] DEFAULT mm9 (Genome that your reads were aligned against.)
 # PARAMETER fold.change.threshold: "Fold change cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0 (The cutoff for differential expression. Notice that the fold changes are reported using base 2 logarithmic scale, so the cutoff for finding 2-fold regulated genes should be given as 1.)
 # PARAMETER p.value.threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 1 (The cutoff for statistical significance. Since the p-values are not adjusted to account for multiple testing correction the cutoff needs to be substantially more conservative than what is usually applied.)
@@ -27,6 +23,12 @@
 # MG, 21.6.2011                                            #
 #                                                          #
 ############################################################
+
+# Output that is yet to be supported
+# OUTPUT de-cds.tsv
+# OUTPUT de-tss.tsv
+# OUTPUT de-splicing.tsv
+# OUTPUT de-promoters.tsv
 
 # Cufflinks tools setup
 cufflinks.binary <- c(file.path(chipster.tools.path, "cufflinks", "cuffdiff"))
