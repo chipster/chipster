@@ -18,10 +18,13 @@
 #                                                          #
 # Analaysis workflow using Cufflinks for normalization and #
 # statistical testing for finding differentially expressed #
-# sequence tags mapping to genes and transcript isoforms   #
+# sequence tags mapping to genes and transcript isoforms.  #
+#                                                          #
+# The tool assumes that all samples belonging to each      #
+# experiment condition have been merged into one single    #
+# BAM file.                                                #
 #                                                          #
 # MG, 21.6.2011                                            #
-# development version, 1 sample vs 1 sample                #
 #                                                          #
 ############################################################
 
@@ -32,7 +35,7 @@ command.start <- cufflinks.binary
 # Annotation file setup
 annotation.path <- c(file.path(chipster.tools.path, "genomes"))
 if (genome == "hg19") {
-	annotation.file <- "homo_sampiens/annotations/Homo_sapiens.GRCh37.62.gtf"
+	annotation.file <- "homo_sapiens/annotations/Homo_sapiens.GRCh37.62.gtf"
 }
 if (genome == "mm9") {
 	annotation.file <- "mus_musculus/annotations/Mus_musculus.NCBIM37.62.gtf"
@@ -47,9 +50,9 @@ cufflinks.parameters <- annotation.file
 cufflinks.input.treatment <- "treatment.bam"
 cufflinks.input.control <- "control.bam"
 cufflinks.command <- paste(command.start, cufflinks.parameters, cufflinks.input.treatment, cufflinks.input.control)
-sink(file="cufflinks-log.txt")
+# sink(file="cufflinks-log.txt")
 system(cufflinks.command)
-sink()
+# sink()
 
 # Rename output files for Chipster
 system ("mv cds_exp.diff de-cds.tsv")
@@ -58,6 +61,7 @@ system ("mv isoform_exp.diff de-isoforms.tsv")
 system ("mv promoters.diff de-promoters.tsv")
 system ("mv splicing.diff de-splicing.tsv")
 system ("mv tss_group_exp.diff de-tss.tsv")
+system ("cat ./logs/reports.log ./logs/run.log > cufflinks-log.txt")
 
 # Filter the output based on user defined cutoffs
 dat <- read.table(file="de-genes.tsv", header=T, sep="\t")
