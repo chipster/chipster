@@ -1,4 +1,4 @@
-# TOOL samtools-idxstats.R: "Statistics for BAM" (Counts how many alignments there are per each chromosome. Please note that in addition to BAM file you have to provide an index file with the same name as the BAM. You can create the index file using the tool Convert SAM to BAM, sort and index BAM. This tool is based on the SAMtools package.)
+# TOOL samtools-idxstats.R: "Statistics for BAM" (Counts how many alignments there are per each chromosome. Please note that in addition to BAM file you have to provide an index file with the same name. You can create the index file using the tool Index BAM. This tool is based on the SAMtools package.)
 # INPUT alignment.bam: "BAM file" TYPE GENERIC 
 # INPUT alignment.bai: "Index file .bai" TYPE GENERIC
 # OUTPUT bam-stats.tsv
