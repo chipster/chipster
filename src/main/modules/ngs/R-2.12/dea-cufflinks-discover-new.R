@@ -72,10 +72,9 @@ annotation.file <- c(file.path(chipster.tools.path, "genomes", annotation.file))
 cufflinks.parameters <- annotation.file
 cufflinks.input.treatment <- "treatment.bam"
 cufflinks.input.control <- "control.bam"
-cufflinks.command <- paste(command.start, cufflinks.parameters, cufflinks.input.treatment, cufflinks.input.control)
-sink(file="cufflinks-log.txt")
+cufflinks.command <- paste(command.start, cufflinks.parameters, cufflinks.input.treatment, cufflinks.input.control, " > cufflinks-log.txt")
 system(cufflinks.command)
-sink()
+
 
 
 
@@ -86,7 +85,6 @@ system ("mv isoform_exp.diff de-isoforms.tsv")
 system ("mv promoters.diff de-promoters.tsv")
 system ("mv splicing.diff de-splicing.tsv")
 system ("mv tss_group_exp.diff de-tss.tsv")
-system ("cat ./logs/reports.log ./logs/run.log > cufflinks-log.txt")
 
 # EOF
 
