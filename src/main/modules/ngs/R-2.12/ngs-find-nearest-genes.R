@@ -7,8 +7,6 @@
 #                                                   #
 # MG, 28.10.2010                                    #
 #                                                   #
-# Development version                               #
-#                                                   #
 # Tool that fetches the nearest gene, exon or miRNA #
 # for a set of genomic regions, such as the output  #
 # from a peak detection algorithm for ChIP-seq data #

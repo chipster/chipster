@@ -16,12 +16,16 @@
 # Analaysis workflow using Cufflinks for normalization and #
 # statistical testing for finding differentially expressed #
 # sequence tags mapping to novel genes, transcript         #
-# isoforms and splice junctions                            #
+# isoforms and splice junctions.                           #
 #                                                          #
-# MG, 23.6.2011                                            #
-# development version, 1 sample vs 1 sample                #
+# The tool assumes that all samples belonging to each      #
+# experiment condition have been merged into one single    #
+# BAM file.                                                #
+#                                                          #
+# MG, 21.6.2011                                            #
 #                                                          #
 ############################################################
+
 
 
 # Map the reads to reference genome using TopHat
@@ -54,7 +58,7 @@ command.start <- cufflinks.binary
 # Annotation file setup
 annotation.path <- c(file.path(chipster.tools.path, "genomes"))
 if (genome == "hg19") {
-	annotation.file <- "homo_sampiens/annotations/Homo_sapiens.GRCh37.62.gtf"
+	annotation.file <- "homo_sapiens/annotations/Homo_sapiens.GRCh37.62.gtf"
 }
 if (genome == "mm9") {
 	annotation.file <- "mus_musculus/annotations/Mus_musculus.NCBIM37.62.gtf"
@@ -68,10 +72,9 @@ annotation.file <- c(file.path(chipster.tools.path, "genomes", annotation.file))
 cufflinks.parameters <- annotation.file
 cufflinks.input.treatment <- "treatment.bam"
 cufflinks.input.control <- "control.bam"
-cufflinks.command <- paste(command.start, cufflinks.parameters, cufflinks.input.treatment, cufflinks.input.control)
-sink(file="cufflinks-log.txt")
+cufflinks.command <- paste(command.start, cufflinks.parameters, cufflinks.input.treatment, cufflinks.input.control, " > cufflinks-log.txt")
 system(cufflinks.command)
-sink()
+
 
 
 
