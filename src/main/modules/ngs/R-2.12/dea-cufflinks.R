@@ -2,12 +2,8 @@
 # INPUT treatment.bam: "BAM data file for the treatment sample" TYPE GENERIC
 # INPUT control.bam: "BAM data file for the control sample" TYPE GENERIC
 # OUTPUT cufflinks-log.txt
-# OUTPUT de-cds.tsv
 # OUTPUT de-genes.tsv
 # OUTPUT de-isoforms.tsv
-# OUTPUT de-promoters.tsv
-# OUTPUT de-splicing.tsv
-# OUTPUT de-tss.tsv
 # PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)", mm9: "Mouse (mm9\)", rn4: "Rat (rn4\)"] DEFAULT mm9 (Genome that your reads were aligned against.)
 # PARAMETER fold.change.threshold: "Fold change cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0 (The cutoff for differential expression. Notice that the fold changes are reported using base 2 logarithmic scale, so the cutoff for finding 2-fold regulated genes should be given as 1.)
 # PARAMETER p.value.threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 1 (The cutoff for statistical significance. Since the p-values are not adjusted to account for multiple testing correction the cutoff needs to be substantially more conservative than what is usually applied.)
@@ -18,12 +14,21 @@
 #                                                          #
 # Analaysis workflow using Cufflinks for normalization and #
 # statistical testing for finding differentially expressed #
-# sequence tags mapping to genes and transcript isoforms   #
+# sequence tags mapping to genes and transcript isoforms.  #
+#                                                          #
+# The tool assumes that all samples belonging to each      #
+# experiment condition have been merged into one single    #
+# BAM file.                                                #
 #                                                          #
 # MG, 21.6.2011                                            #
-# development version, 1 sample vs 1 sample                #
 #                                                          #
 ############################################################
+
+# Output that is yet to be supported
+# OUTPUT de-cds.tsv
+# OUTPUT de-tss.tsv
+# OUTPUT de-splicing.tsv
+# OUTPUT de-promoters.tsv
 
 # Cufflinks tools setup
 cufflinks.binary <- c(file.path(chipster.tools.path, "cufflinks", "cuffdiff"))
@@ -32,7 +37,7 @@ command.start <- cufflinks.binary
 # Annotation file setup
 annotation.path <- c(file.path(chipster.tools.path, "genomes"))
 if (genome == "hg19") {
-	annotation.file <- "homo_sampiens/annotations/Homo_sapiens.GRCh37.62.gtf"
+	annotation.file <- "homo_sapiens/annotations/Homo_sapiens.GRCh37.62.gtf"
 }
 if (genome == "mm9") {
 	annotation.file <- "mus_musculus/annotations/Mus_musculus.NCBIM37.62.gtf"
@@ -46,34 +51,81 @@ annotation.file <- c(file.path(chipster.tools.path, "genomes", annotation.file))
 cufflinks.parameters <- annotation.file
 cufflinks.input.treatment <- "treatment.bam"
 cufflinks.input.control <- "control.bam"
-cufflinks.command <- paste(command.start, cufflinks.parameters, cufflinks.input.treatment, cufflinks.input.control)
-sink(file="cufflinks-log.txt")
+cufflinks.command <- paste(command.start, cufflinks.parameters, cufflinks.input.treatment, cufflinks.input.control, " > cufflinks-log.txt")
 system(cufflinks.command)
-sink()
 
 # Rename output files for Chipster
-system ("mv cds_exp.diff de-cds.tsv")
 system ("mv gene_exp.diff de-genes.tsv")
 system ("mv isoform_exp.diff de-isoforms.tsv")
-system ("mv promoters.diff de-promoters.tsv")
-system ("mv splicing.diff de-splicing.tsv")
-system ("mv tss_group_exp.diff de-tss.tsv")
+# system ("mv cds_exp.diff de-cds.tsv")
+# system ("mv promoters.diff de-promoters.tsv")
+# system ("mv splicing.diff de-splicing.tsv")
+# system ("mv tss_group_exp.diff de-tss.tsv")
 
-# Filter the output based on user defined cutoffs
+# DE genes
+# Extract chtomosome locations and add in the first three table columns
 dat <- read.table(file="de-genes.tsv", header=T, sep="\t")
-if (fold.change.threshold != 0) {
-	dat2 <- data [dat$ln(fold_change) >= fold.change.threshold,]
-	dat3 <- data [dat$ln(fold_change) <= fold.change.threshold,]
-	dat4 <- rbind (dat2,dat3)
-	write.table(dat4, file="de-genes.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+regions_list <- as.character(dat$locus)
+chr_list <- character(length(regions_list))
+start_list <- numeric(length(regions_list))
+end_list <- numeric(length(regions_list))
+for (count in 1:length(regions_list)) {
+	chr_list[count] <- unlist(strsplit (regions_list[count], split=":")) [1]
+	start_list[count] <- unlist(strsplit(unlist(strsplit(regions_list[count], split=":"))[2], split="-")) [1]
+	end_list[count] <- unlist(strsplit(unlist(strsplit(regions_list[count], split=":"))[2], split="-")) [2]	
 }
-if (p.value.threshold != 1) {
-	dat2 <- data [dat$p_value <= p.value.threshold,]
-	write.table(dat2, file="de-genes.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+dat2 <- data.frame(chr=chr_list, start=start_list, end=end_list, dat)
+
+# Rename gene to symbol for compability with venn diagram
+colnames (dat2) [6] <- "symbol"
+
+# Filter the gene output based on user defined cutoffs
+if (fold.change.threshold != 0) {
+	dat3 <- dat2 [dat2$ln.fold_change. >= fold.change.threshold,]
+	dat4 <- dat2 [dat2$ln.fold_change. <= -fold.change.threshold,]
+	dat5 <- rbind (dat3,dat4)
+	write.table(dat5, file="de-genes.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+}
+if (p.value.threshold < 1) {
+	dat3 <- dat2 [dat2$p_value <= p.value.threshold,]
+	write.table(dat3, file="de-genes.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 	}
-if (q.value.threshold != 1) {
-	dat2 <- data [dat$q_value <= q.value.threshold,]
-	write.table(dat2, file="de-genes.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+if (q.value.threshold < 1) {
+	dat3 <- dat2 [dat2$q_value <= q.value.threshold,]
+	write.table(dat3, file="de-genes.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+}
+
+# DE isoforms
+# Extract chtomosome locations and add in the first three table columns
+dat <- read.table(file="de-isoform.tsv", header=T, sep="\t")
+regions_list <- as.character(dat$locus)
+chr_list <- character(length(regions_list))
+start_list <- numeric(length(regions_list))
+end_list <- numeric(length(regions_list))
+for (count in 1:length(regions_list)) {
+	chr_list[count] <- unlist(strsplit (regions_list[count], split=":")) [1]
+	start_list[count] <- unlist(strsplit(unlist(strsplit(regions_list[count], split=":"))[2], split="-")) [1]
+	end_list[count] <- unlist(strsplit(unlist(strsplit(regions_list[count], split=":"))[2], split="-")) [2]	
+}
+dat2 <- data.frame(chr=chr_list, start=start_list, end=end_list, dat)
+
+# Rename gene to symbol for compability with venn diagram
+colnames (dat2) [6] <- "symbol"
+
+# Filter the isoforms output based on user defined cutoffs
+if (fold.change.threshold != 0) {
+	dat3 <- dat2 [dat2$ln.fold_change. >= fold.change.threshold,]
+	dat4 <- dat2 [dat2$ln.fold_change. <= -fold.change.threshold,]
+	dat5 <- rbind (dat3,dat4)
+	write.table(dat5, file="de-isoforms.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+}
+if (p.value.threshold < 1) {
+	dat3 <- dat2 [dat2$p_value <= p.value.threshold,]
+	write.table(dat3, file="de-isofomrs.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+}
+if (q.value.threshold < 1) {
+	dat3 <- dat2 [dat2$q_value <= q.value.threshold,]
+	write.table(dat3, file="de-isoforms.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 }
 
 # EOF
