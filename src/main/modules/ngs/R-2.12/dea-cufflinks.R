@@ -4,6 +4,8 @@
 # OUTPUT cufflinks-log.txt
 # OUTPUT de-genes.tsv
 # OUTPUT de-isoforms.tsv
+# OUTPUT OPTIONAL de-genes.bed
+# OUTPUT OPTIONAL de-isoforms.bed
 # PARAMETER genome: "Genome" TYPE [hg19: "Human (hg19\)", mm9: "Mouse (mm9\)", rn4: "Rat (rn4\)"] DEFAULT mm9 (Genome that your reads were aligned against.)
 # PARAMETER fold.change.threshold: "Fold change cutoff" TYPE DECIMAL FROM 0 TO 1000000 DEFAULT 0 (The cutoff for differential expression. Notice that the fold changes are reported using base 2 logarithmic scale, so the cutoff for finding 2-fold regulated genes should be given as 1.)
 # PARAMETER p.value.threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 1 (The cutoff for statistical significance. Since the p-values are not adjusted to account for multiple testing correction the cutoff needs to be substantially more conservative than what is usually applied.)
@@ -78,22 +80,29 @@ dat2 <- data.frame(chr=chr_list, start=start_list, end=end_list, dat)
 
 # Rename gene to symbol for compability with venn diagram
 colnames (dat2) [6] <- "symbol"
+colnames (dat2) [13] <- "ln(fold_change)"
 
 # Filter the gene output based on user defined cutoffs
+results_list <- dat2
 if (fold.change.threshold != 0) {
 	dat3 <- dat2 [dat2$ln.fold_change. >= fold.change.threshold,]
 	dat4 <- dat2 [dat2$ln.fold_change. <= -fold.change.threshold,]
-	dat5 <- rbind (dat3,dat4)
-	write.table(dat5, file="de-genes.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+	results_list <- rbind (dat3,dat4)
 }
 if (p.value.threshold < 1) {
-	dat3 <- dat2 [dat2$p_value <= p.value.threshold,]
-	write.table(dat3, file="de-genes.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+	results_file <- dat2 [dat2$p_value <= p.value.threshold,]
 	}
 if (q.value.threshold < 1) {
-	dat3 <- dat2 [dat2$q_value <= q.value.threshold,]
-	write.table(dat3, file="de-genes.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+	results_file <- dat2 [dat2$q_value <= q.value.threshold,]
 }
+write.table(results_list, file="de-genes.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+
+# Also output a bed graph file for visualization and region matching tools
+if (dim(results_list)[1] > 0) {
+	bed_output <- results_list[,c("chr","start","end","symbol","ln.fold_change.")]
+	write.table(bed_output, file="de-genes.bed", sep="\t", row.names=F, col.names=F, quote=F)
+}
+
 
 # DE isoforms
 # Extract chtomosome locations and add in the first three table columns
@@ -111,21 +120,27 @@ dat2 <- data.frame(chr=chr_list, start=start_list, end=end_list, dat)
 
 # Rename gene to symbol for compability with venn diagram
 colnames (dat2) [6] <- "symbol"
+colnames (dat2) [13] <- "ln(fold_change)"
 
 # Filter the isoforms output based on user defined cutoffs
+results_list <- dat2
 if (fold.change.threshold != 0) {
 	dat3 <- dat2 [dat2$ln.fold_change. >= fold.change.threshold,]
 	dat4 <- dat2 [dat2$ln.fold_change. <= -fold.change.threshold,]
-	dat5 <- rbind (dat3,dat4)
-	write.table(dat5, file="de-isoforms.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+	results_list <- rbind (dat3,dat4)
 }
 if (p.value.threshold < 1) {
-	dat3 <- dat2 [dat2$p_value <= p.value.threshold,]
-	write.table(dat3, file="de-isofomrs.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+	results_list <- dat2 [dat2$p_value <= p.value.threshold,]
 }
 if (q.value.threshold < 1) {
-	dat3 <- dat2 [dat2$q_value <= q.value.threshold,]
-	write.table(dat3, file="de-isoforms.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+	results_list <- dat2 [dat2$q_value <= q.value.threshold,]
+}
+write.table(results_list, file="de-isoforms.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+
+# Also output a bed graph file for visualization and region matching tools
+if (dim(results_list)[1] > 0) {
+	bed_output <- results_list[,c("chr","start","end","symbol","ln.fold_change.")]
+	write.table(bed_output, file="de-isoforms.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
 # EOF
