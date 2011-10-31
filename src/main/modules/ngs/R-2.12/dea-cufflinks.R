@@ -1,4 +1,4 @@
-# TOOL dea-cufflinks.R: "Differential expression analysis using Cufflinks"  (This tool will perform an analysis for differentially expressed genes and isoforms using the Cufflinks algorithm. Note that only one filtering criteria should be applied for a given analysis run.)
+# TOOL dea-cufflinks.R: "Differential expression analysis using Cufflinks"  (This tool will perform an analysis for differentially expressed genes and isoforms using the Cufflinks algorithm. Note that only one filtering criteria should be applied for a given analysis run. When left at default settings Cufflinks filter out unsuccessfully tested loci, as well as those with a Benjamini-Hochberg adjusted false discovery rate less than 0.05.)
 # INPUT treatment.bam: "BAM data file for the treatment sample" TYPE GENERIC
 # INPUT control.bam: "BAM data file for the control sample" TYPE GENERIC
 # OUTPUT cufflinks-log.txt
@@ -110,7 +110,7 @@ if (dim(results_list)[1] > 0) {
 	# add chr to the chromosome name for genome browser compability
 	bed_output[,1] <- paste("chr",bed_output[,1],sep="")
 	# sort according to chromosome location
-	bed_output <- bed_output[c(bed_output$chr, bed_output$start, bed_output$end, decreasing=FALSE),]
+	bed_output <- bed_output[order(c(bed_output$chr, bed_output$start, bed_output$end), decreasing=FALSE),]
 	write.table(bed_output, file="de-genes.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
@@ -160,7 +160,7 @@ if (dim(results_list)[1] > 0) {
 	bed_output <- results_list[,c("chr","start","end","symbol","ln(fold_change)")]
 	# add chr to the chromosome name for genome browser compability
 	bed_output[,1] <- paste("chr",bed_output[,1], sep="")
-	bed_output <- bed_output[c(bed_output$chr, bed_output$start, bed_output$end, decreasing=FALSE),]
+	bed_output <- bed_output[order(c(bed_output$chr, bed_output$start, bed_output$end), decreasing=FALSE),]
 	write.table(bed_output, file="de-isoforms.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
