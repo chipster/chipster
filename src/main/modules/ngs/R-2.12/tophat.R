@@ -29,7 +29,8 @@ path.bowtie.index <- c(file.path(path.bowtie, "indexes", genome))
 command.start <- paste("bash -c '", set.path, tophat.binary)
 
 # parameters
-command.parameters <- paste("-r", mate.inner.distance, "-a", min.anchor.length, "-m", splice.mismatches, "-i", min.intron.length, "-I", max.intron.length, "-F", min.isoform.fraction)
+command.parameters <- paste("-r", mate.inner.distance, "-a", min.anchor.length, "-m", splice.mismatches, "-i", min.intron.length, "-I", max.intron.length, "-F", min.isoform.fraction, "--library-type fr-unstranded")
+
 
 # command ending
 command.end <- paste(path.bowtie.index, "reads1.fq reads2.fq'")
