@@ -90,16 +90,16 @@ if (fold.change.threshold != 0) {
 	results_list <- rbind (dat3,dat4)
 }
 if (p.value.threshold < 1) {
-	results_file <- dat2 [dat2$p_value <= p.value.threshold,]
+	results_list <- dat2 [dat2$p_value <= p.value.threshold,]
 	}
 if (q.value.threshold < 1) {
-	results_file <- dat2 [dat2$q_value <= q.value.threshold,]
+	results_list <- dat2 [dat2$q_value <= q.value.threshold,]
 }
 write.table(results_list, file="de-genes.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
 # Also output a bed graph file for visualization and region matching tools
 if (dim(results_list)[1] > 0) {
-	bed_output <- results_list[,c("chr","start","end","symbol","ln.fold_change.")]
+	bed_output <- results_list[,c("chr","start","end","symbol","ln(fold_change)")]
 	write.table(bed_output, file="de-genes.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
@@ -139,7 +139,7 @@ write.table(results_list, file="de-isoforms.tsv", sep="\t", row.names=F, col.nam
 
 # Also output a bed graph file for visualization and region matching tools
 if (dim(results_list)[1] > 0) {
-	bed_output <- results_list[,c("chr","start","end","symbol","ln.fold_change.")]
+	bed_output <- results_list[,c("chr","start","end","symbol","ln(fold_change)")]
 	write.table(bed_output, file="de-isoforms.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
