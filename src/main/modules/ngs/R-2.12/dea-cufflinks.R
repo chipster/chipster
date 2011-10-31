@@ -83,18 +83,25 @@ colnames (dat2) [6] <- "symbol"
 colnames (dat2) [13] <- "ln(fold_change)"
 
 # Filter the gene output based on user defined cutoffs
+dat2 <- dat2[dat2$status=="OK",]
 results_list <- dat2
-if (fold.change.threshold != 0) {
-	dat3 <- dat2 [dat2$ln.fold_change. >= fold.change.threshold,]
-	dat4 <- dat2 [dat2$ln.fold_change. <= -fold.change.threshold,]
-	results_list <- rbind (dat3,dat4)
-}
-if (p.value.threshold < 1) {
-	results_list <- dat2 [dat2$p_value <= p.value.threshold,]
+if (fold.change.threshold != 0 || p.value.threshold < 1 || q.value.threshold < 1) {
+	if (fold.change.threshold != 0) {
+		dat3 <- dat2 [dat2$ln.fold_change. >= fold.change.threshold,]
+		dat4 <- dat2 [dat2$ln.fold_change. <= -fold.change.threshold,]
+		results_list <- rbind (dat3,dat4)
 	}
-if (q.value.threshold < 1) {
-	results_list <- dat2 [dat2$q_value <= q.value.threshold,]
+	if (p.value.threshold < 1) {
+		results_list <- dat2 [dat2$p_value <= p.value.threshold,]
+	}
+	if (q.value.threshold < 1) {
+		results_list <- dat2 [dat2$q_value <= q.value.threshold,]
+	}
+} else {
+	results_list <- results_list[results_list$significant=="yes",]
 }
+# order according to increasing q-value
+results_list <- results_list[order(results_list$q_value, decreasing=FALSE),]
 write.table(results_list, file="de-genes.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
 # Also output a bed graph file for visualization and region matching tools
@@ -102,6 +109,8 @@ if (dim(results_list)[1] > 0) {
 	bed_output <- results_list[,c("chr","start","end","symbol","ln(fold_change)")]
 	# add chr to the chromosome name for genome browser compability
 	bed_output[,1] <- paste("chr",bed_output[,1],sep="")
+	# sort according to chromosome location
+	bed_output <- bed_output[c(bed_output$chr, bed_output$start, bed_output$end, decreasing=FALSE),]
 	write.table(bed_output, file="de-genes.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
@@ -125,18 +134,25 @@ colnames (dat2) [6] <- "symbol"
 colnames (dat2) [13] <- "ln(fold_change)"
 
 # Filter the isoforms output based on user defined cutoffs
+dat2 <- dat2[dat2$status=="OK",]
 results_list <- dat2
-if (fold.change.threshold != 0) {
-	dat3 <- dat2 [dat2$ln.fold_change. >= fold.change.threshold,]
-	dat4 <- dat2 [dat2$ln.fold_change. <= -fold.change.threshold,]
-	results_list <- rbind (dat3,dat4)
+if (fold.change.threshold != 0 || p.value.threshold < 1 || q.value.threshold < 1) {
+	if (fold.change.threshold != 0) {
+		dat3 <- dat2 [dat2$ln.fold_change. >= fold.change.threshold,]
+		dat4 <- dat2 [dat2$ln.fold_change. <= -fold.change.threshold,]
+		results_list <- rbind (dat3,dat4)
+	}
+	if (p.value.threshold < 1) {
+		results_list <- dat2 [dat2$p_value <= p.value.threshold,]
+	}
+	if (q.value.threshold < 1) {
+		results_list <- dat2 [dat2$q_value <= q.value.threshold,]
+	}
+} else {
+	results_list <- results_list[results_list$significant=="yes",]
 }
-if (p.value.threshold < 1) {
-	results_list <- dat2 [dat2$p_value <= p.value.threshold,]
-}
-if (q.value.threshold < 1) {
-	results_list <- dat2 [dat2$q_value <= q.value.threshold,]
-}
+# order according to increasing q-value
+results_list <- results_list[order(results_list$q_value, decreasing=FALSE),]
 write.table(results_list, file="de-isoforms.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
 # Also output a bed graph file for visualization and region matching tools
@@ -144,6 +160,7 @@ if (dim(results_list)[1] > 0) {
 	bed_output <- results_list[,c("chr","start","end","symbol","ln(fold_change)")]
 	# add chr to the chromosome name for genome browser compability
 	bed_output[,1] <- paste("chr",bed_output[,1], sep="")
+	bed_output <- bed_output[c(bed_output$chr, bed_output$start, bed_output$end, decreasing=FALSE),]
 	write.table(bed_output, file="de-isoforms.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
