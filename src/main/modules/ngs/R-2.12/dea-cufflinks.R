@@ -101,7 +101,7 @@ write.table(results_list, file="de-genes.tsv", sep="\t", row.names=F, col.names=
 if (dim(results_list)[1] > 0) {
 	bed_output <- results_list[,c("chr","start","end","symbol","ln(fold_change)")]
 	# add chr to the chromosome name for genome browser compability
-	bed_output[,1] <- paste("chr",bed_output[,1])
+	bed_output[,1] <- paste("chr",bed_output[,1],sep="")
 	write.table(bed_output, file="de-genes.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
@@ -143,7 +143,7 @@ write.table(results_list, file="de-isoforms.tsv", sep="\t", row.names=F, col.nam
 if (dim(results_list)[1] > 0) {
 	bed_output <- results_list[,c("chr","start","end","symbol","ln(fold_change)")]
 	# add chr to the chromosome name for genome browser compability
-	bed_output[,1] <- paste("chr",bed_output[,1])
+	bed_output[,1] <- paste("chr",bed_output[,1], sep="")
 	write.table(bed_output, file="de-isoforms.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
