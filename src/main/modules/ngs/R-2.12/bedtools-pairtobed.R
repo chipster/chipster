@@ -1,4 +1,4 @@
-# TOOL bedtools-pairtobed.R: "BEDTools pairToBed" (Report overlaps between a BEDPE file and a BED/GFF/VCF file.)
+# TOOL bedtools-pairtobed.R: "Overlap BEDPE with BED" (Reports overlaps between a BEDPE file and a BED/GFF/VCF file. This tool is based on the BEDTools package.)
 # INPUT file.a: "BEDPE file" TYPE GENERIC
 # INPUT file.b: "BED file" TYPE GENERIC
 # OUTPUT pairtobed.txt

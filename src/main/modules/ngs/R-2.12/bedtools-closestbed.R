@@ -1,4 +1,4 @@
-# TOOL bedtools-closestbed.R: "BEDTools closestBed" (For each feature in A, finds the closest feature (upstream or downstream\) in B.)
+# TOOL bedtools-closestbed.R: "Closest BED" (For each feature in A, finds the closest feature (upstream or downstream\) in B. This tool is based on the BEDTools package.)
 # INPUT file.a: "BED file A" TYPE GENERIC
 # INPUT file.b: "BED file B" TYPE GENERIC
 # OUTPUT closestbed.bed 

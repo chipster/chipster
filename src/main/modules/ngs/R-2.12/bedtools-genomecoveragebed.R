@@ -1,4 +1,4 @@
-# TOOL bedtools-genomecoveragebed.R: "BEDTools genomeCoverageBed" (Compute the coverage of a feature file among a genome.)
+# TOOL bedtools-genomecoveragebed.R: "Genome coverage BED" (Compute the coverage of a feature file among a genome. This tool is based on the BEDTools package.)
 # INPUT file.a: "Input file" TYPE GENERIC
 # INPUT file.b: "Genome file" TYPE GENERIC
 # OUTPUT genomecoveragebed.txt 

@@ -1,4 +1,4 @@
-# TOOL bedtools-fastafrombed.R: "BEDTools fastaFromBed" (fastaFromBed extracts sequences from a FASTA file for each of the intervals defined in a BED file. The headers in the input FASTA file must exactly match the chromosome column in the BED file.)
+# TOOL bedtools-fastafrombed.R: "FASTA from BED" (Extracts sequences from a FASTA file for each of the intervals defined in a BED file. The headers in the input FASTA file must exactly match the chromosome column in the BED file. This tool is based on the BEDTools package.)
 # INPUT f.file: "FASTA file" TYPE GENERIC
 # INPUT b.file: "BED/GFF/VCF file" TYPE GENERIC
 # OUTPUT fastafrombed.txt

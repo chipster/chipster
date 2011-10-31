@@ -1,4 +1,4 @@
-# TOOL bedtools-slopbed.R: "BEDTools slopBed" (slopBed will increase the size of each feature in a feature file be a user-defined number of bases. slopBed will restrict the resizing to the size of the chromosome (i.e. no start < 0 and no end > chromosome size\).)
+# TOOL bedtools-slopbed.R: "Slop BED" (Increases the size of each feature in a feature file be a user-defined number of bases, but restricts the resizing to the size of the chromosome (i.e. no start < 0 and no end > chromosome size\). This tool is based on the BEDTools package.)
 # INPUT bed.file: "BED/GFF/VCF file" TYPE GENERIC
 # INPUT gen.file: "Genome file" TYPE GENERIC
 # OUTPUT slopbed.bed
