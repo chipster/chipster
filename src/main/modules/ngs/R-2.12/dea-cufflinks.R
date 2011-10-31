@@ -79,6 +79,7 @@ for (count in 1:length(regions_list)) {
 dat2 <- data.frame(chr=chr_list, start=start_list, end=end_list, dat)
 
 # Rename gene to symbol for compability with venn diagram
+colnames (dat2) [5] <- "ensembl_id"
 colnames (dat2) [6] <- "symbol"
 colnames (dat2) [13] <- "ln(fold_change)"
 
@@ -144,6 +145,7 @@ for (count in 1:length(regions_list)) {
 dat2 <- data.frame(chr=chr_list, start=start_list, end=end_list, dat)
 
 # Rename gene to symbol for compability with venn diagram
+colnames (dat2) [5] <- "ensembl_id"
 colnames (dat2) [6] <- "symbol"
 colnames (dat2) [13] <- "ln(fold_change)"
 
