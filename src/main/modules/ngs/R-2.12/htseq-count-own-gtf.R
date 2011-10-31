@@ -1,4 +1,4 @@
-# TOOL htseq-count-own-gtf.R: "Map aligned reads to genes with HTSeq using own GTF" (Calculates how many reads in a BAM file map to each gene. You have to provide the gene locations in the GTF format. If you would like to align reads against public GTF files supplied by Chipster, please use the tool \"Map aligned reads to genes with HTSeq\". This tool is based on the HTSeq package. In order to use the output in edgeR, you need to select all samples and run the tool \"Utilities - Define NGS experiment\".)
+# TOOL htseq-count-own-gtf.R: "Map aligned reads to genes with HTSeq using own GTF" (Calculates how many reads in a BAM file map to each gene. You have to provide the gene locations in the GTF format. Please note that the chromosome names have to be same in the GTF and BAM files. This tool is based on the HTSeq package. In order to use the output in edgeR, you need to select all samples and run the tool \"Utilities - Define NGS experiment\".)
 # INPUT alignment.bam: "BAM alignment file" TYPE GENERIC
 # INPUT features.gtf: "GTF feature file" TYPE GENERIC
 # OUTPUT htseq-counts.tsv
