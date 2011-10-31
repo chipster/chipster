@@ -1,4 +1,4 @@
-# TOOL dea-cufflinks.R: "Differential expression analysis using Cufflinks"  (This tool will perform an analysis for differentially expressed genes and isoforms using the Cufflinks algorithm.)
+# TOOL dea-cufflinks.R: "Differential expression analysis using Cufflinks"  (This tool will perform an analysis for differentially expressed genes and isoforms using the Cufflinks algorithm. Note that only one filtering criteria should be applied for a given analysis run.)
 # INPUT treatment.bam: "BAM data file for the treatment sample" TYPE GENERIC
 # INPUT control.bam: "BAM data file for the control sample" TYPE GENERIC
 # OUTPUT cufflinks-log.txt
@@ -97,7 +97,7 @@ if (q.value.threshold < 1) {
 
 # DE isoforms
 # Extract chtomosome locations and add in the first three table columns
-dat <- read.table(file="de-isoform.tsv", header=T, sep="\t")
+dat <- read.table(file="de-isoforms.tsv", header=T, sep="\t")
 regions_list <- as.character(dat$locus)
 chr_list <- character(length(regions_list))
 start_list <- numeric(length(regions_list))
