@@ -53,7 +53,7 @@ annotation.file <- c(file.path(chipster.tools.path, "genomes", annotation.file))
 cufflinks.parameters <- annotation.file
 cufflinks.input.treatment <- "treatment.bam"
 cufflinks.input.control <- "control.bam"
-cufflinks.command <- paste(command.start, cufflinks.parameters, cufflinks.input.treatment, cufflinks.input.control, " > cufflinks-log.txt")
+cufflinks.command <- paste(command.start, cufflinks.parameters, cufflinks.input.treatment, cufflinks.input.control)
 system(cufflinks.command)
 
 # Rename output files for Chipster
@@ -110,10 +110,22 @@ if (dim(results_list)[1] > 0) {
 	# add chr to the chromosome name for genome browser compability
 	bed_output[,1] <- paste("chr",bed_output[,1],sep="")
 	# sort according to chromosome location
-	bed_output <- bed_output[order(c(bed_output$chr, bed_output$start, bed_output$end), decreasing=FALSE),]
+	bed_output <- bed_output[order(bed_output$chr, bed_output$start, bed_output$end, decreasing=FALSE),]
 	write.table(bed_output, file="de-genes.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
+# Report numbers to the log file
+if (dim(results_list)[1] > 0) {
+	sink(file="cufflinks-log.txt")
+	number_genes_tested <- dim(dat)[1]
+	number_filtered <- number_genes_tested-dim(results_list)[1]
+	number_significant <- dim(results_list)[1]
+	print(paste("In total, ", number_genes_tested, " genes werre tested for differential expression.", sep=""))
+	print(paste("Of these, ", number_filtered, " didn't fulfill the technical criteria for testing or the significance cut-off specified.", sep=""))
+	print(paste(number_significant, " genes were found to be statiscially significantly differentially expressed.", sep=""))	
+} else {
+	print(paste("Out of the ", number_genes_tested, " genes tested there were no statistically significantly differentially expressed ones found."), sep="")
+}
 
 # DE isoforms
 # Extract chtomosome locations and add in the first three table columns
@@ -160,9 +172,21 @@ if (dim(results_list)[1] > 0) {
 	bed_output <- results_list[,c("chr","start","end","symbol","ln(fold_change)")]
 	# add chr to the chromosome name for genome browser compability
 	bed_output[,1] <- paste("chr",bed_output[,1], sep="")
-	bed_output <- bed_output[order(c(bed_output$chr, bed_output$start, bed_output$end), decreasing=FALSE),]
+	bed_output <- bed_output[order(bed_output$chr, bed_output$start, bed_output$end, decreasing=FALSE),]
 	write.table(bed_output, file="de-isoforms.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
+# Report numbers to the log file
+if (dim(results_list)[1] > 0) {
+	number_genes_tested <- dim(dat)[1]
+	number_filtered <- number_genes_tested-dim(results_list)[1]
+	number_significant <- dim(results_list)[1]
+	print(paste("In total, ", number_genes_tested, " transcript isoforms werre tested for differential expression.", sep=""))
+	print(paste("Of these, ", number_filtered, " didn't fulfill the technical criteria for testing or the significance cut-off specified.", sep=""))
+	print(paste(number_significant, " transcripts were found to be statiscially significantly differentially expressed.", sep=""))	
+} else {
+	print(paste("Out of the ", number_genes_tested, " transcripts tested there were no statistically significantly differentially expressed ones found."), sep="")
+}
+sink()
 # EOF
 
