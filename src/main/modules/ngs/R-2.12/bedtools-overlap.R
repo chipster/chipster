@@ -1,4 +1,4 @@
-# TOOL bedtools-overlap.R: "BEDTools overlap" (Computes the amount of overlap (positive values\) or distance (negative values\) between genome features and reports the result at the end of the same line.)
+# TOOL bedtools-overlap.R: "Overlap BED" (Computes the amount of overlap (positive values\) or distance (negative values\) between genome features and reports the result at the end of the same line. This tool is based on the BEDTools package.)
 # INPUT file.a: "BED file A" TYPE GENERIC
 # OUTPUT overlap.bed 
 # PARAMETER cols: "Columns to use" TYPE STRING DEFAULT "2,3,6,7" (Specify the columns (1-based\) for the starts and ends of the features for which you'd like to compute the overlap/distance. The columns must be listed in the following order: start1,end1,start2,end2.)

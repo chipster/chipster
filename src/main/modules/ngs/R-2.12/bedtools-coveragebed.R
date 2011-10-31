@@ -1,4 +1,4 @@
-# TOOL bedtools-coveragebed.R: "BEDTools coverageBed" (Returns the depth and breadth of coverage of features from A on the intervals in B.)
+# TOOL bedtools-coveragebed.R: "Coverage BED" (Returns the depth and breadth of coverage of features from A on the intervals in B. This tool is based on the BEDTools package.)
 # INPUT file.a: "Input file A" TYPE GENERIC
 # INPUT file.b: "Input file B" TYPE GENERIC
 # OUTPUT coveragebed.bed 

@@ -1,4 +1,4 @@
-# TOOL bedtools-pairtopair.R: "BEDTools pairToPair" (pairToPair compares two BEDPE files in search of overlaps where each end of a BEDPE feature in A overlaps with the ends of a feature in B.)
+# TOOL bedtools-pairtopair.R: "Compare two BEDPE files" (Compares two BEDPE files in search of overlaps where each end of a BEDPE feature in A overlaps with the ends of a feature in B. This tool is based on the BEDTools package.)
 # INPUT file.a: "BEDPE file A" TYPE GENERIC
 # INPUT file.b: "BEDPE file B" TYPE GENERIC
 # OUTPUT pairtopair.bed 

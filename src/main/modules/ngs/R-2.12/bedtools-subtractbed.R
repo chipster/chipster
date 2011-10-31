@@ -1,4 +1,4 @@
-# TOOL bedtools-subtractbed.R: "BEDTools subtractBed" (Removes the portion(s\) of an interval that is overlapped by another feature(s\).)
+# TOOL bedtools-subtractbed.R: "Subtract BED" (Removes the portion(s\) of an interval that is overlapped by another feature(s\). This tool is based on the BEDTools package.)
 # INPUT file.a: "Input file A" TYPE GENERIC
 # INPUT file.b: "Input file B" TYPE GENERIC
 # OUTPUT subtractbed.bed 

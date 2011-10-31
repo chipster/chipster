@@ -1,4 +1,4 @@
-# TOOL bedtools-intersectbed.R: "BEDTools intersectBed" (Report overlaps between two feature files.)
+# TOOL bedtools-intersectbed.R: "Intersect BED" (Report overlaps between two feature files. This tool is based on the BEDTools package.)
 # INPUT file.a: "Input file A" TYPE GENERIC
 # INPUT file.b: "Input file B" TYPE GENERIC
 # OUTPUT intersectbed.bed 

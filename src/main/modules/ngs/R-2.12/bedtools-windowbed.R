@@ -1,4 +1,4 @@
-# TOOL bedtools-windowbed.R: "BEDTools windowBed" (Examines a window around each feature in A and reports all features in B that overlap the window. For each overlap the entire entry in A and B are reported.)
+# TOOL bedtools-windowbed.R: "Window BED" (Examines a window around each feature in A and reports all features in B that overlap the window. For each overlap the entire entry in A and B are reported. This tool is based on the BEDTools package.)
 # INPUT file.a: "Input file A" TYPE GENERIC
 # INPUT file.b: "Input file B" TYPE GENERIC
 # OUTPUT windowbed.bed 
