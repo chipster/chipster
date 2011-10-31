@@ -107,10 +107,10 @@ write.table(results_list, file="de-genes.tsv", sep="\t", row.names=F, col.names=
 # Also output a bed graph file for visualization and region matching tools
 if (dim(results_list)[1] > 0) {
 	bed_output <- results_list[,c("chr","start","end","symbol","ln(fold_change)")]
-	# add chr to the chromosome name for genome browser compability
-	bed_output[,1] <- paste("chr",bed_output[,1],sep="")
 	# sort according to chromosome location
 	bed_output <- bed_output[order(bed_output$chr, bed_output$start, bed_output$end, decreasing=FALSE),]
+	# add chr to the chromosome name for genome browser compability
+	bed_output[,1] <- paste("chr",bed_output[,1],sep="")
 	write.table(bed_output, file="de-genes.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
@@ -120,11 +120,13 @@ if (dim(results_list)[1] > 0) {
 	number_genes_tested <- dim(dat)[1]
 	number_filtered <- number_genes_tested-dim(results_list)[1]
 	number_significant <- dim(results_list)[1]
-	print(paste("In total, ", number_genes_tested, " genes werre tested for differential expression.", sep=""))
-	print(paste("Of these, ", number_filtered, " didn't fulfill the technical criteria for testing or the significance cut-off specified.", sep=""))
-	print(paste(number_significant, " genes were found to be statiscially significantly differentially expressed.", sep=""))	
+	cat("GENE TEST SUMMARY\n")
+	cat("In total,", number_genes_tested, "genes werre tested for differential expression.")
+	cat("Of these,", number_filtered, "didn't fulfill the technical criteria for testing or the significance cut-off specified.")
+	cat(number_significant, "genes were found to be statiscially significantly differentially expressed.")	
 } else {
-	print(paste("Out of the ", number_genes_tested, " genes tested there were no statistically significantly differentially expressed ones found."), sep="")
+	cat("GENE TEST SUMMARY\n")
+	cat("Out of the", number_genes_tested, "genes tested there were no statistically significantly differentially expressed ones found.")
 }
 
 # DE isoforms
@@ -170,9 +172,10 @@ write.table(results_list, file="de-isoforms.tsv", sep="\t", row.names=F, col.nam
 # Also output a bed graph file for visualization and region matching tools
 if (dim(results_list)[1] > 0) {
 	bed_output <- results_list[,c("chr","start","end","symbol","ln(fold_change)")]
-	# add chr to the chromosome name for genome browser compability
-	bed_output[,1] <- paste("chr",bed_output[,1], sep="")
+	# sort according to chromosome location
 	bed_output <- bed_output[order(bed_output$chr, bed_output$start, bed_output$end, decreasing=FALSE),]
+	# add chr to the chromosome name for genome browser compability
+	bed_output[,1] <- paste("chr",bed_output[,1],sep="")
 	write.table(bed_output, file="de-isoforms.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
@@ -181,12 +184,15 @@ if (dim(results_list)[1] > 0) {
 	number_genes_tested <- dim(dat)[1]
 	number_filtered <- number_genes_tested-dim(results_list)[1]
 	number_significant <- dim(results_list)[1]
-	print(paste("In total, ", number_genes_tested, " transcript isoforms werre tested for differential expression.", sep=""))
-	print(paste("Of these, ", number_filtered, " didn't fulfill the technical criteria for testing or the significance cut-off specified.", sep=""))
-	print(paste(number_significant, " transcripts were found to be statiscially significantly differentially expressed.", sep=""))	
+	cat("\n\nTRANSCRIPT ISOFORM SUMMARY\n")
+	cat("In total,", number_genes_tested, "transcript isoforms werre tested for differential expression.")
+	cat("Of these,", number_filtered, "didn't fulfill the technical criteria for testing or the significance cut-off specified.")
+	cat(number_significant, "transcripts were found to be statiscially significantly differentially expressed.")	
 } else {
-	print(paste("Out of the ", number_genes_tested, " transcripts tested there were no statistically significantly differentially expressed ones found."), sep="")
+	cat("\n\nTRANSCRIPT ISOFORM SUMMARY\n")
+	cat("Out of the", number_genes_tested, "transcripts tested there were no statistically significantly differentially expressed ones found.")
 }
 sink()
+
 # EOF
 
