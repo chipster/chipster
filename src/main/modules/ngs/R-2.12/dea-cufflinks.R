@@ -121,8 +121,8 @@ if (dim(results_list)[1] > 0) {
 	number_filtered <- number_genes_tested-dim(results_list)[1]
 	number_significant <- dim(results_list)[1]
 	cat("GENE TEST SUMMARY\n")
-	cat("In total,", number_genes_tested, "genes werre tested for differential expression.")
-	cat("Of these,", number_filtered, "didn't fulfill the technical criteria for testing or the significance cut-off specified.")
+	cat("In total,", number_genes_tested, "genes werre tested for differential expression.\n")
+	cat("Of these,", number_filtered, "didn't fulfill the technical criteria for testing or the significance cut-off specified.\n")
 	cat(number_significant, "genes were found to be statiscially significantly differentially expressed.")	
 } else {
 	cat("GENE TEST SUMMARY\n")
@@ -184,12 +184,12 @@ if (dim(results_list)[1] > 0) {
 	number_genes_tested <- dim(dat)[1]
 	number_filtered <- number_genes_tested-dim(results_list)[1]
 	number_significant <- dim(results_list)[1]
-	cat("\n\nTRANSCRIPT ISOFORM SUMMARY\n")
-	cat("In total,", number_genes_tested, "transcript isoforms werre tested for differential expression.")
-	cat("Of these,", number_filtered, "didn't fulfill the technical criteria for testing or the significance cut-off specified.")
+	cat("\n\nTRANSCRIPT ISOFORMS TEST SUMMARY\n")
+	cat("In total,", number_genes_tested, "transcript isoforms werre tested for differential expression.\n")
+	cat("Of these,", number_filtered, "didn't fulfill the technical criteria for testing or the significance cut-off specified.\n")
 	cat(number_significant, "transcripts were found to be statiscially significantly differentially expressed.")	
 } else {
-	cat("\n\nTRANSCRIPT ISOFORM SUMMARY\n")
+	cat("\n\nTRANSCRIPT ISOFORMS TEST SUMMARY\n")
 	cat("Out of the", number_genes_tested, "transcripts tested there were no statistically significantly differentially expressed ones found.")
 }
 sink()
