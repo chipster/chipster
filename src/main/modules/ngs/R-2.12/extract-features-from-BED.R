@@ -1,5 +1,5 @@
 # TOOL extract-features-from-BED.R: "Extract features from BED" (This tool extracts the description column, usually gene identifiers, removes duplicate entries and creates a table containing only the extracted features. The output is compatible with downstream tools.)
-# INPUT bedfile.bed "BED file with description column to extract" TYPE GENERIC 
+# INPUT bedfile.bed: "BED file with description column to extract" TYPE GENERIC 
 # OUTPUT extracted-features.tsv: "Table listing the unique features found in the description column of the bed file." 
 
 #######################################################
