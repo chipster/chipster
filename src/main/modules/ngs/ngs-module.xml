@@ -67,9 +67,11 @@
 		<tool runtime="R-2.12">
 			<resource>bedtools-fastafrombed.R</resource>
 		</tool>	
-
 		<tool runtime="R-2.12">
 			<resource>bedtools-slopbed.R</resource>
+		</tool>	
+		<tool runtime="R-2.12">
+			<resource>extract-features-from-BED.R</resource>
 		</tool>	
 
 	</category>
