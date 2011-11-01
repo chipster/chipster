@@ -13,7 +13,7 @@
 #######################################################
 
 file <- "bedfile.bed"
-dat2 <- read.table(file=file, header=TRUE, sep="\t")
+dat <- read.table(file=file, header=TRUE, sep="\t")
 list_ids <- dat[,4]
 unique_ids <- unique(list_ids)
 output_table <- as.data.frame(unique_ids)
