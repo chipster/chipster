@@ -7,7 +7,7 @@ import fi.csc.microarray.client.operation.OperationDefinition;
 
 public class HelpMapping {
 
-    private static final String URL_BASE = "https://extras.csc.fi/biosciences/";
+    public static final String URL_BASE = "https://extras.csc.fi/biosciences/";
 
 //	private static final String DEFAULT_HELP_PAGE = "chipster-manual/tools.html";
 	private static Map<String, String> mappings = new HashMap<String, String>();
