@@ -1,4 +1,4 @@
-# TOOL dea-cufflinks.R: "Differential expression analysis using Cufflinks"  (This tool will perform an analysis for differentially expressed genes and isoforms using the Cufflinks algorithm. Note that only one filtering criteria should be applied for a given analysis run.)
+# TOOL dea-cufflinks.R: "Differential expression analysis using Cufflinks"  (This tool will perform an analysis for differentially expressed genes and isoforms using the Cufflinks algorithm. Note that only one filtering criteria should be applied for a given analysis run. When left at default settings Cufflinks filter out unsuccessfully tested loci, as well as those with a Benjamini-Hochberg adjusted false discovery rate less than 0.05.)
 # INPUT treatment.bam: "BAM data file for the treatment sample" TYPE GENERIC
 # INPUT control.bam: "BAM data file for the control sample" TYPE GENERIC
 # OUTPUT cufflinks-log.txt
@@ -53,7 +53,7 @@ annotation.file <- c(file.path(chipster.tools.path, "genomes", annotation.file))
 cufflinks.parameters <- annotation.file
 cufflinks.input.treatment <- "treatment.bam"
 cufflinks.input.control <- "control.bam"
-cufflinks.command <- paste(command.start, cufflinks.parameters, cufflinks.input.treatment, cufflinks.input.control, " > cufflinks-log.txt")
+cufflinks.command <- paste(command.start, cufflinks.parameters, cufflinks.input.treatment, cufflinks.input.control)
 system(cufflinks.command)
 
 # Rename output files for Chipster
@@ -79,32 +79,56 @@ for (count in 1:length(regions_list)) {
 dat2 <- data.frame(chr=chr_list, start=start_list, end=end_list, dat)
 
 # Rename gene to symbol for compability with venn diagram
+colnames (dat2) [5] <- "ensembl_id"
 colnames (dat2) [6] <- "symbol"
 colnames (dat2) [13] <- "ln(fold_change)"
 
 # Filter the gene output based on user defined cutoffs
+dat2 <- dat2[dat2$status=="OK",]
 results_list <- dat2
-if (fold.change.threshold != 0) {
-	dat3 <- dat2 [dat2$ln.fold_change. >= fold.change.threshold,]
-	dat4 <- dat2 [dat2$ln.fold_change. <= -fold.change.threshold,]
-	results_list <- rbind (dat3,dat4)
-}
-if (p.value.threshold < 1) {
-	results_list <- dat2 [dat2$p_value <= p.value.threshold,]
+if (fold.change.threshold != 0 || p.value.threshold < 1 || q.value.threshold < 1) {
+	if (fold.change.threshold != 0) {
+		dat3 <- dat2 [dat2$ln.fold_change. >= fold.change.threshold,]
+		dat4 <- dat2 [dat2$ln.fold_change. <= -fold.change.threshold,]
+		results_list <- rbind (dat3,dat4)
 	}
-if (q.value.threshold < 1) {
-	results_list <- dat2 [dat2$q_value <= q.value.threshold,]
+	if (p.value.threshold < 1) {
+		results_list <- dat2 [dat2$p_value <= p.value.threshold,]
+	}
+	if (q.value.threshold < 1) {
+		results_list <- dat2 [dat2$q_value <= q.value.threshold,]
+	}
+} else {
+	results_list <- results_list[results_list$significant=="yes",]
 }
+# order according to increasing q-value
+results_list <- results_list[order(results_list$q_value, decreasing=FALSE),]
 write.table(results_list, file="de-genes.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
 # Also output a bed graph file for visualization and region matching tools
 if (dim(results_list)[1] > 0) {
 	bed_output <- results_list[,c("chr","start","end","symbol","ln(fold_change)")]
+	# sort according to chromosome location
+	bed_output <- bed_output[order(bed_output$chr, bed_output$start, bed_output$end, decreasing=FALSE),]
 	# add chr to the chromosome name for genome browser compability
 	bed_output[,1] <- paste("chr",bed_output[,1],sep="")
 	write.table(bed_output, file="de-genes.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
 
+# Report numbers to the log file
+if (dim(results_list)[1] > 0) {
+	sink(file="cufflinks-log.txt")
+	number_genes_tested <- dim(dat)[1]
+	number_filtered <- number_genes_tested-dim(results_list)[1]
+	number_significant <- dim(results_list)[1]
+	cat("GENE TEST SUMMARY\n")
+	cat("In total,", number_genes_tested, "genes werre tested for differential expression.\n")
+	cat("Of these,", number_filtered, "didn't fulfill the technical criteria for testing or the significance cut-off specified.\n")
+	cat(number_significant, "genes were found to be statiscially significantly differentially expressed.")	
+} else {
+	cat("GENE TEST SUMMARY\n")
+	cat("Out of the", number_genes_tested, "genes tested there were no statistically significantly differentially expressed ones found.")
+}
 
 # DE isoforms
 # Extract chtomosome locations and add in the first three table columns
@@ -121,31 +145,56 @@ for (count in 1:length(regions_list)) {
 dat2 <- data.frame(chr=chr_list, start=start_list, end=end_list, dat)
 
 # Rename gene to symbol for compability with venn diagram
+colnames (dat2) [5] <- "ensembl_id"
 colnames (dat2) [6] <- "symbol"
 colnames (dat2) [13] <- "ln(fold_change)"
 
 # Filter the isoforms output based on user defined cutoffs
+dat2 <- dat2[dat2$status=="OK",]
 results_list <- dat2
-if (fold.change.threshold != 0) {
-	dat3 <- dat2 [dat2$ln.fold_change. >= fold.change.threshold,]
-	dat4 <- dat2 [dat2$ln.fold_change. <= -fold.change.threshold,]
-	results_list <- rbind (dat3,dat4)
+if (fold.change.threshold != 0 || p.value.threshold < 1 || q.value.threshold < 1) {
+	if (fold.change.threshold != 0) {
+		dat3 <- dat2 [dat2$ln.fold_change. >= fold.change.threshold,]
+		dat4 <- dat2 [dat2$ln.fold_change. <= -fold.change.threshold,]
+		results_list <- rbind (dat3,dat4)
+	}
+	if (p.value.threshold < 1) {
+		results_list <- dat2 [dat2$p_value <= p.value.threshold,]
+	}
+	if (q.value.threshold < 1) {
+		results_list <- dat2 [dat2$q_value <= q.value.threshold,]
+	}
+} else {
+	results_list <- results_list[results_list$significant=="yes",]
 }
-if (p.value.threshold < 1) {
-	results_list <- dat2 [dat2$p_value <= p.value.threshold,]
-}
-if (q.value.threshold < 1) {
-	results_list <- dat2 [dat2$q_value <= q.value.threshold,]
-}
+# order according to increasing q-value
+results_list <- results_list[order(results_list$q_value, decreasing=FALSE),]
 write.table(results_list, file="de-isoforms.tsv", sep="\t", row.names=F, col.names=T, quote=F)
 
 # Also output a bed graph file for visualization and region matching tools
 if (dim(results_list)[1] > 0) {
 	bed_output <- results_list[,c("chr","start","end","symbol","ln(fold_change)")]
+	# sort according to chromosome location
+	bed_output <- bed_output[order(bed_output$chr, bed_output$start, bed_output$end, decreasing=FALSE),]
 	# add chr to the chromosome name for genome browser compability
-	bed_output[,1] <- paste("chr",bed_output[,1], sep="")
+	bed_output[,1] <- paste("chr",bed_output[,1],sep="")
 	write.table(bed_output, file="de-isoforms.bed", sep="\t", row.names=F, col.names=F, quote=F)
 }
+
+# Report numbers to the log file
+if (dim(results_list)[1] > 0) {
+	number_genes_tested <- dim(dat)[1]
+	number_filtered <- number_genes_tested-dim(results_list)[1]
+	number_significant <- dim(results_list)[1]
+	cat("\n\nTRANSCRIPT ISOFORMS TEST SUMMARY\n")
+	cat("In total,", number_genes_tested, "transcript isoforms werre tested for differential expression.\n")
+	cat("Of these,", number_filtered, "didn't fulfill the technical criteria for testing or the significance cut-off specified.\n")
+	cat(number_significant, "transcripts were found to be statiscially significantly differentially expressed.")	
+} else {
+	cat("\n\nTRANSCRIPT ISOFORMS TEST SUMMARY\n")
+	cat("Out of the", number_genes_tested, "transcripts tested there were no statistically significantly differentially expressed ones found.")
+}
+sink()
 
 # EOF
 
