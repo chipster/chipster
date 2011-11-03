@@ -21,7 +21,6 @@ import de.schlichtherle.truezip.zip.ZipEntry;
 import de.schlichtherle.truezip.zip.ZipFile;
 import de.schlichtherle.truezip.zip.ZipOutputStream;
 import fi.csc.microarray.client.NameID;
-import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.OperationRecord.InputRecord;
 import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
@@ -85,9 +84,9 @@ public class SessionSaver {
 	 * 
 	 * @param sessionFile
 	 */
-	public SessionSaver(File sessionFile) {
+	public SessionSaver(File sessionFile, DataManager dataManager) {
 		this.sessionFile = sessionFile;
-		this.dataManager = Session.getSession().getDataManager();
+		this.dataManager = dataManager;
 
 	}
 
@@ -270,7 +269,7 @@ public class SessionSaver {
 			// set new url and handler and type
 			bean.setStorageMethod(StorageMethod.LOCAL_SESSION);
 			bean.setContentUrl(newURLs.get(bean));
-			bean.setHandler(new ZipDataBeanHandler());
+			bean.setHandler(new ZipDataBeanHandler(dataManager));
 		}
 	}
 	

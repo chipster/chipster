@@ -498,7 +498,7 @@ public class DataManager {
 			throw new MicroarrayException(e);
 		}
 		
-		DataBeanHandler handler = new ZipDataBeanHandler();
+		DataBeanHandler handler = new ZipDataBeanHandler(this);
 		DataBean dataBean = new DataBean(name, StorageMethod.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new DataBean[] {}, null, this, handler);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
 		return dataBean;
@@ -513,7 +513,7 @@ public class DataManager {
 	 * @throws MicroarrayException
 	 */
 	public DataBean createDataBeanFromZip(String name, URL url) throws MicroarrayException {
-		DataBeanHandler handler = new ZipDataBeanHandler();
+		DataBeanHandler handler = new ZipDataBeanHandler(this);
 		DataBean dataBean = new DataBean(name, StorageMethod.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new DataBean[] {}, null, this, handler);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
 		return dataBean;
@@ -558,7 +558,7 @@ public class DataManager {
 			throw new MicroarrayException(e);
 		}
 		
-		DataBeanHandler handler = new LocalFileDataBeanHandler();
+		DataBeanHandler handler = new LocalFileDataBeanHandler(this);
 		DataBean dataBean = new DataBean(name, type, "", url, guessContentType(name), new Date(), sources, folder, this, handler);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
 		return dataBean;
@@ -574,9 +574,10 @@ public class DataManager {
 	public void loadSession(File sessionFile, boolean restoreData) {
 		SessionLoader sessionLoader;
 		try {
-			sessionLoader = new SessionLoader(sessionFile, restoreData);
+			sessionLoader = new SessionLoader(sessionFile, restoreData, this);
 			sessionLoader.loadSession();
 		} catch (Exception e) {
+			e.printStackTrace();
 			Session.getSession().getApplication().showDialog("Opening session failed.", "Unfortunately the session could not be opened properly. Please see the details for more information.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
 			logger.error("loading session failed", e);
 		}
@@ -589,7 +590,7 @@ public class DataManager {
 	 * @return true if the session was saved perfectly
 	 */
 	public boolean saveSession(File sessionFile) {
-		SessionSaver sessionSaver = new SessionSaver(sessionFile);
+		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
 		boolean metadataValid = false;
 		try {
 			// save
@@ -621,7 +622,7 @@ public class DataManager {
 	 */
 	public void saveLightweightSession(File sessionFile) throws Exception {
 
-		SessionSaver sessionSaver = new SessionSaver(sessionFile);
+		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
 		sessionSaver.saveLightweightSession();
 	}
 
@@ -776,7 +777,7 @@ public class DataManager {
 		
 		bean.setContentUrl(newURL);
 		bean.setStorageMethod(StorageMethod.LOCAL_TEMP);
-		bean.setHandler(new LocalFileDataBeanHandler());
+		bean.setHandler(new LocalFileDataBeanHandler(this));
 		bean.setContentChanged(true);
 	}
 	
