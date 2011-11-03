@@ -7,8 +7,6 @@
 #                                                     #
 # MG, 13.7.2011                                       #
 #                                                     #
-# Development version                                 #
-#                                                     #
 # Tool that removes duplicate genes from a list of    #
 # ENSEMBL identifiers, coverts them to unique entrez  #
 # identifiers and adds gene annotations to the output #
@@ -24,8 +22,8 @@ library(biomaRt)
 
 # Load the annotation data
 if (species == "Human") {
-	data(TSS.human.NCBI36)
-	annotations <- TSS.human.NCBI36
+	data(TSS.human.GRCh37)
+	annotations <- TSS.human.GRCh37
 	ensembl_dataset <- "hsapiens_gene_ensembl"
 	filter <- "ens_hs_gene"
 }
