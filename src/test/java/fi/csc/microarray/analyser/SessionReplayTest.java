@@ -3,13 +3,17 @@ package fi.csc.microarray.analyser;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.Icon;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
 
+import de.schlichtherle.truezip.zip.ZipFile;
 import fi.csc.microarray.client.AtEndListener;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.RemoteServiceAccessor;
@@ -21,6 +25,11 @@ import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.ToolModule;
+import fi.csc.microarray.client.session.NonStoppingValidationEventHandler;
+import fi.csc.microarray.client.session.UserSession;
+import fi.csc.microarray.client.session.schema.DataType;
+import fi.csc.microarray.client.session.schema.OperationType;
+import fi.csc.microarray.client.session.schema.SessionType;
 import fi.csc.microarray.client.tasks.Task;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.tasks.TaskExecutor;
@@ -58,6 +67,7 @@ public class SessionReplayTest extends MessagingTestBase {
 			
 			// Set up main (target) system
 			DataManager manager = new DataManager();
+			moduleManager.plugAll(manager, null);
 			TaskExecutor executor = new TaskExecutor(super.endpoint, manager);
 			LinkedList<ToolModule> toolModules = new LinkedList<ToolModule>();
 			ServiceAccessor serviceAccessor = new RemoteServiceAccessor();
@@ -70,6 +80,30 @@ public class SessionReplayTest extends MessagingTestBase {
 			DataManager sourceManager = new DataManager();
 			moduleManager.plugAll(sourceManager, null);
 			sourceManager.loadSession(testSession, false);
+
+			// Parse operation information from the session file
+			ZipFile zipFile = new ZipFile(testSession);
+			InputStream metadataStream = zipFile.getInputStream(zipFile.getEntry(UserSession.SESSION_DATA_FILENAME));
+			Unmarshaller unmarshaller = UserSession.getJAXBContext().createUnmarshaller();
+			unmarshaller.setSchema(UserSession.getSchema());
+			NonStoppingValidationEventHandler validationEventHandler = new NonStoppingValidationEventHandler();
+			unmarshaller.setEventHandler(validationEventHandler);
+			SessionType sessionMetadata = unmarshaller.unmarshal(new StreamSource(metadataStream), SessionType.class).getValue();
+			
+			// Pick import operations
+			LinkedList<String> importOpIds = new LinkedList<String>();
+			for (OperationType operation : sessionMetadata.getOperation()) {
+				if (OperationDefinition.IMPORT_DEFINITION_ID.equals(operation.getName().getId())) {
+					importOpIds.add(operation.getId());
+				}
+			}
+
+			// Copy imported data into target session
+			for (DataType data : sessionMetadata.getData()) {
+				if (importOpIds.contains(data.getResultOf())) {
+					System.out.println(data.getName());
+				}
+			}
 
 //			DataBean input = manager.createDataBean("input.tsv", new ByteArrayInputStream("input output test".getBytes()));
 //			Task task = executor.createTask(new Operation(getOperationDefinition("input-output.R", toolModules), new DataBean[] {input}));
