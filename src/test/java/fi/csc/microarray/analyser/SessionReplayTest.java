@@ -57,7 +57,7 @@ import fi.csc.microarray.module.chipster.MicroarrayModule;
 public class SessionReplayTest extends MessagingTestBase {
 
 	private File[] testSessions = new File[] {
-			new File("/home/akallio/testable_session.zip")
+			new File("testable_session.zip")
 	};
 	
 	public SessionReplayTest(String username, String password, String configURL) {
