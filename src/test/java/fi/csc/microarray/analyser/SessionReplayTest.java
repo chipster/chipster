@@ -8,12 +8,18 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.Icon;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
+import org.testng.Assert;
+
 import de.schlichtherle.truezip.zip.ZipFile;
+import fi.csc.microarray.TestConstants;
+import fi.csc.microarray.analyser.AnalysisTestBase.JobResultListener;
 import fi.csc.microarray.client.AtEndListener;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.RemoteServiceAccessor;
@@ -23,6 +29,7 @@ import fi.csc.microarray.client.dataimport.ImportItem;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
 import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
+import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.ToolModule;
 import fi.csc.microarray.client.session.NonStoppingValidationEventHandler;
@@ -101,34 +108,35 @@ public class SessionReplayTest extends MessagingTestBase {
 			// Copy imported data into target session
 			for (DataType data : sessionMetadata.getData()) {
 				if (importOpIds.contains(data.getResultOf())) {
-					System.out.println(data.getName());
+					manager.createDataBean(data.getName(), testSession, data.getUrl().substring("#file:".length()));
 				}
 			}
 
-//			DataBean input = manager.createDataBean("input.tsv", new ByteArrayInputStream("input output test".getBytes()));
-//			Task task = executor.createTask(new Operation(getOperationDefinition("input-output.R", toolModules), new DataBean[] {input}));
-//
-//			// Execute the job
-//			CountDownLatch latch = new CountDownLatch(1);
-//			task.addTaskEventListener(new JobResultListener(latch));
-//			executor.startExecuting(task);
-//			latch.await(TestConstants.TIMEOUT_AFTER, TimeUnit.MILLISECONDS); // wait
-//			State endState = task.getState();
-//			Assert.assertEquals(endState, State.COMPLETED);
-//			if (!task.getState().equals(State.COMPLETED)) {
-//				return task.getState();
-//			}
-//
-//			// Check output
-//			DataBean output = task.getOutput("output.tsv");
-//
-//			ByteArrayOutputStream out = new ByteArrayOutputStream();
-//			IO.copy(output.getContentByteStream(), out);
-//
-//			String outputString = out.toString();
-//			if (!"1\n2\n3\n".equals(outputString)) {
-//				return State.FAILED;
-//			}
+			// Run operations in the order they were run originally
+			for (OperationType operation : sessionMetadata.getOperation()) {
+
+				// Skip import operations
+				if (importOpIds.contains(operation.getId())) {
+					continue;
+				}
+
+				// Set up task
+				Task task = executor.createTask(new Operation(getOperationDefinition(operation.getName().getId(), toolModules), new DataBean[] {})); // FIXME fetch correct inputs
+				
+				// Execute the task
+				CountDownLatch latch = new CountDownLatch(1);
+				task.addTaskEventListener(new JobResultListener(latch));
+				executor.startExecuting(task);
+				latch.await(TestConstants.TIMEOUT_AFTER, TimeUnit.MILLISECONDS);
+				State endState = task.getState();
+				Assert.assertEquals(endState, State.COMPLETED);
+				if (!task.getState().equals(State.COMPLETED)) {
+					return task.getState();
+				}
+				
+				// Compare outputs to source session (or should we do this in a one go at the end???)
+				// FIXME
+			}
 		}
 		
 		return State.COMPLETED;
