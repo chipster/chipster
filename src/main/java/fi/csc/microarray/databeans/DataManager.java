@@ -433,6 +433,21 @@ public class DataManager {
 
 	
 	/**
+	 * Find and return the first DataBean with the given name.
+	 * @param name the name of the DataBean being search for
+	 * @return the first found DataBean with given name
+	 */
+	public DataBean getDataBean(String name) {
+		for (DataBean dataBean : databeans()) {
+			if (dataBean.getName().equals(name)) {
+				return dataBean;
+			}
+		}
+		return null;
+	}
+	
+	
+	/**
 	 * Create a local temporary file DataBean without content, without a parent folder and without sources. 
 	 * If a reference to this bean is lost it can not be accessed any more.
 	 */

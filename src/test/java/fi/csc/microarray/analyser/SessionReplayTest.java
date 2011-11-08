@@ -31,6 +31,8 @@ import fi.csc.microarray.client.dialog.ChipsterDialog.PluginButton;
 import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
+import fi.csc.microarray.client.operation.OperationRecord;
+import fi.csc.microarray.client.operation.OperationRecord.InputRecord;
 import fi.csc.microarray.client.operation.ToolModule;
 import fi.csc.microarray.client.session.NonStoppingValidationEventHandler;
 import fi.csc.microarray.client.session.UserSession;
@@ -57,7 +59,7 @@ import fi.csc.microarray.module.chipster.MicroarrayModule;
 public class SessionReplayTest extends MessagingTestBase {
 
 	private File[] testSessions = new File[] {
-			new File("testable_session.zip")
+			new File("/home/hupponen/ngs-test.zip")
 	};
 	
 	public SessionReplayTest(String username, String password, String configURL) {
@@ -88,40 +90,70 @@ public class SessionReplayTest extends MessagingTestBase {
 			moduleManager.plugAll(sourceManager, null);
 			sourceManager.loadSession(testSession, false);
 
-			// Parse operation information from the session file
-			ZipFile zipFile = new ZipFile(testSession);
-			InputStream metadataStream = zipFile.getInputStream(zipFile.getEntry(UserSession.SESSION_DATA_FILENAME));
-			Unmarshaller unmarshaller = UserSession.getJAXBContext().createUnmarshaller();
-			unmarshaller.setSchema(UserSession.getSchema());
-			NonStoppingValidationEventHandler validationEventHandler = new NonStoppingValidationEventHandler();
-			unmarshaller.setEventHandler(validationEventHandler);
-			SessionType sessionMetadata = unmarshaller.unmarshal(new StreamSource(metadataStream), SessionType.class).getValue();
 			
-			// Pick import operations
-			LinkedList<String> importOpIds = new LinkedList<String>();
-			for (OperationType operation : sessionMetadata.getOperation()) {
-				if (OperationDefinition.IMPORT_DEFINITION_ID.equals(operation.getName().getId())) {
-					importOpIds.add(operation.getId());
+			// Pick import operations FIXME 
+			LinkedList<OperationRecord> importOperationRecords = new LinkedList<OperationRecord>();
+			for (DataBean dataBean : sourceManager.databeans()) {
+				OperationRecord operationRecord = dataBean.getOperationRecord();
+				if (OperationDefinition.IMPORT_DEFINITION_ID.equals(operationRecord.getNameID().getID()) && 
+						! importOperationRecords.contains(operationRecord)) {
+					// copy imported databean
+					DataBean dataBeanCopy = manager.createDataBean(dataBean.getName(), testSession, dataBean.getContentUrl().getRef());
+					dataBeanCopy.setOperationRecord(operationRecord);
+					manager.getRootFolder().addChild(dataBeanCopy);
+					
+					importOperationRecords.add(operationRecord);
 				}
 			}
 
-			// Copy imported data into target session
-			for (DataType data : sessionMetadata.getData()) {
-				if (importOpIds.contains(data.getResultOf())) {
-					manager.createDataBean(data.getName(), testSession, data.getUrl().substring("#file:".length()));
+			LinkedList<OperationRecord> operationRecords = new LinkedList<OperationRecord>();
+			for (DataBean dataBean : sourceManager.databeans()) {
+				OperationRecord operationRecord = dataBean.getOperationRecord();
+				if (!operationRecords.contains(operationRecord)) {
+				operationRecords.add(operationRecord);
 				}
 			}
+			
+			System.out.println("databeans: " + sourceManager.databeans().size());
+			System.out.println("operation records: " + operationRecords.size());
+			
+			
+			System.out.println("jep");
+
+
 
 			// Run operations in the order they were run originally
-			for (OperationType operation : sessionMetadata.getOperation()) {
+			for (OperationRecord operationRecord : operationRecords) {
 
 				// Skip import operations
-				if (importOpIds.contains(operation.getId())) {
+				if (importOperationRecords.contains(operationRecord)) {
+					System.out.println("skipping import operation " + operationRecord.getFullName());
 					continue;
 				}
 
+				// Get inputs
+				LinkedList <DataBean> inputBeans = new LinkedList<DataBean>();
+				for (InputRecord inputRecord : operationRecord.getInputs()) {
+					DataBean inputBean = manager.getDataBean(inputRecord.getValue().getName());
+					if (inputBean != null) {
+						inputBeans.add(inputBean);
+					}
+				}
+
+				// check if there are enough inputs
+				if (operationRecord.getInputs().size() != inputBeans.size()) {
+					System.out.println("not enough inputs for " + operationRecord.getFullName() + ", skipping");
+					continue;
+				}
+
+				System.out.println("creating operation for " + operationRecord.getFullName());
+
+				Operation operation = new Operation(getOperationDefinition(operationRecord.getNameID().getID(), toolModules), inputBeans.toArray(new DataBean[] {}));
+				
+				// Parameters
+
 				// Set up task
-				Task task = executor.createTask(new Operation(getOperationDefinition(operation.getName().getId(), toolModules), new DataBean[] {})); // FIXME fetch correct inputs
+				Task task = executor.createTask(operation);
 				
 				// Execute the task
 				CountDownLatch latch = new CountDownLatch(1);
@@ -134,6 +166,7 @@ public class SessionReplayTest extends MessagingTestBase {
 					return task.getState();
 				}
 				
+				break;
 				// Compare outputs to source session (or should we do this in a one go at the end???)
 				// FIXME
 			}
