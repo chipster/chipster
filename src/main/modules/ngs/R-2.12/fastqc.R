@@ -17,15 +17,15 @@
 # check out if the file is compressed and if so add a gzip suffix
 system("file reads.fastq > file_info")
 system("grep gzip file_info > is_gzip")
-system("[ -s is_gzip ] && mv reads.fastq reads.gzip")
+system("[ -s is_gzip ] && mv reads.fastq reads.gz")
 
 # binary
 binary <- c(file.path(chipster.tools.path, "FastQC", "fastqc"))
 
 # command, different for compressed file
-file_info <- scan(file=file_info, nline=1, what="character")
-if (grep("gzip", file_info) > 0) {
-	command <- paste(binary, "reads.gzip")
+file_info <- scan(file="file_info", nlines=1, what="character")
+if (length(grep("gzip", file_info)) > 0) {
+	command <- paste(binary, "reads.gz")
 } else {
 	command <- paste(binary, "reads.fastq")
 }
