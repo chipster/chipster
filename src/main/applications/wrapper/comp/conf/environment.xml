@@ -448,11 +448,6 @@
       <mirror>http://www.bioconductor.org</mirror>
     </item>
     
-    <item installed="false" name="BSgenome" type="r-package"> 
-      <bioconductor-package>BSgenome</bioconductor-package>
-      <mirror>http://www.bioconductor.org</mirror>
-    </item>
- 
     <item installed="false" name="seqLogo" type="r-package"> 
       <bioconductor-package>seqLogo</bioconductor-package>
       <mirror>http://www.bioconductor.org</mirror>
