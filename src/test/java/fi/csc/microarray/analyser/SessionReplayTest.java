@@ -3,7 +3,6 @@ package fi.csc.microarray.analyser;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -12,12 +11,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.Icon;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.transform.stream.StreamSource;
 
 import org.testng.Assert;
 
-import de.schlichtherle.truezip.zip.ZipFile;
 import fi.csc.microarray.TestConstants;
 import fi.csc.microarray.analyser.AnalysisTestBase.JobResultListener;
 import fi.csc.microarray.client.AtEndListener;
@@ -34,23 +30,19 @@ import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
 import fi.csc.microarray.client.operation.OperationRecord.InputRecord;
 import fi.csc.microarray.client.operation.ToolModule;
-import fi.csc.microarray.client.session.NonStoppingValidationEventHandler;
-import fi.csc.microarray.client.session.UserSession;
-import fi.csc.microarray.client.session.schema.DataType;
-import fi.csc.microarray.client.session.schema.OperationType;
-import fi.csc.microarray.client.session.schema.SessionType;
 import fi.csc.microarray.client.tasks.Task;
+import fi.csc.microarray.client.tasks.Task.State;
+import fi.csc.microarray.client.tasks.TaskEventListener;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.tasks.TaskExecutor;
-import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.MessagingTestBase;
 import fi.csc.microarray.module.ModuleManager;
@@ -118,9 +110,6 @@ public class SessionReplayTest extends MessagingTestBase {
 			System.out.println("operation records: " + operationRecords.size());
 			
 			
-			System.out.println("jep");
-
-
 
 			// Run operations in the order they were run originally
 			for (OperationRecord operationRecord : operationRecords) {
@@ -148,7 +137,7 @@ public class SessionReplayTest extends MessagingTestBase {
 
 				System.out.println("creating operation for " + operationRecord.getFullName());
 
-				Operation operation = new Operation(getOperationDefinition(operationRecord.getNameID().getID(), toolModules), inputBeans.toArray(new DataBean[] {}));
+				final Operation operation = new Operation(getOperationDefinition(operationRecord.getNameID().getID(), toolModules), inputBeans.toArray(new DataBean[] {}));
 				
 				// Parameters
 
@@ -158,6 +147,22 @@ public class SessionReplayTest extends MessagingTestBase {
 				// Execute the task
 				CountDownLatch latch = new CountDownLatch(1);
 				task.addTaskEventListener(new JobResultListener(latch));
+//				task.addTaskEventListener(new TaskEventListener() {
+//					public void onStateChange(Task job, State oldState, State newState) {
+//						if (newState.isFinished()) {
+//							try {
+//								// FIXME there should be no need to pass the operation as it goes within the task
+//								Session.getSession().getApplication().onFinishedTask(job, operation);
+//							} catch (Exception e) {
+//								throw new RuntimeException(e);
+//							}
+//						}
+//					}
+//				});
+
+				
+				
+				
 				executor.startExecuting(task);
 				latch.await(TestConstants.TIMEOUT_AFTER, TimeUnit.MILLISECONDS);
 				State endState = task.getState();
@@ -166,8 +171,14 @@ public class SessionReplayTest extends MessagingTestBase {
 					return task.getState();
 				}
 				
-				break;
+				
 				// Compare outputs to source session (or should we do this in a one go at the end???)
+				System.out.println("target databeans: " + manager.databeans().size());
+				int i = 0;
+				for (DataBean outBean :  task.outputs()) {
+					i++;
+				}
+				System.out.println("outputs: " + i);
 				// FIXME
 			}
 		}
