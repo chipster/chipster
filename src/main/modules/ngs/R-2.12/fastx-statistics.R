@@ -5,6 +5,11 @@
 
 # EK 17.6.2011
 
+# check out if the file is compressed and if so unzip it
+system("file reads.fastq > file_info")
+system("grep gzip file_info > is_gzip")
+system("[ -s is_gzip ] && mv reads.gzip reads.gz ; gzip -d reads.gz ; mv reads reads.fastq")
+
 # binary
 binary.stats <- c(file.path(chipster.tools.path, "fastx", "bin", "fastx_quality_stats"))
 
