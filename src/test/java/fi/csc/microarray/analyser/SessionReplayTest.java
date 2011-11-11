@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -14,7 +15,6 @@ import javax.swing.Icon;
 
 import org.testng.Assert;
 
-import fi.csc.microarray.TestConstants;
 import fi.csc.microarray.analyser.AnalysisTestBase.JobResultListener;
 import fi.csc.microarray.client.AtEndListener;
 import fi.csc.microarray.client.ClientApplication;
@@ -28,21 +28,20 @@ import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
-import fi.csc.microarray.client.operation.OperationRecord.InputRecord;
 import fi.csc.microarray.client.operation.ToolModule;
+import fi.csc.microarray.client.operation.OperationRecord.InputRecord;
 import fi.csc.microarray.client.tasks.Task;
-import fi.csc.microarray.client.tasks.Task.State;
-import fi.csc.microarray.client.tasks.TaskEventListener;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.tasks.TaskExecutor;
+import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
-import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
+import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.MessagingTestBase;
 import fi.csc.microarray.module.ModuleManager;
@@ -51,7 +50,7 @@ import fi.csc.microarray.module.chipster.MicroarrayModule;
 public class SessionReplayTest extends MessagingTestBase {
 
 	private File[] testSessions = new File[] {
-			new File("/home/hupponen/ngs-test.zip")
+			new File("/Users/taavi/ngs-test.zip")
 	};
 	
 	public SessionReplayTest(String username, String password, String configURL) {
@@ -81,33 +80,33 @@ public class SessionReplayTest extends MessagingTestBase {
 			DataManager sourceManager = new DataManager();
 			moduleManager.plugAll(sourceManager, null);
 			sourceManager.loadSession(testSession, false);
-
 			
-			// Pick import operations FIXME 
+			// Pick import operations and copy imported data beans to target manager 
 			LinkedList<OperationRecord> importOperationRecords = new LinkedList<OperationRecord>();
 			for (DataBean dataBean : sourceManager.databeans()) {
 				OperationRecord operationRecord = dataBean.getOperationRecord();
-				if (OperationDefinition.IMPORT_DEFINITION_ID.equals(operationRecord.getNameID().getID()) && 
-						! importOperationRecords.contains(operationRecord)) {
+				if (OperationDefinition.IMPORT_DEFINITION_ID.equals(operationRecord.getNameID().getID())) {
 					// copy imported databean
 					DataBean dataBeanCopy = manager.createDataBean(dataBean.getName(), testSession, dataBean.getContentUrl().getRef());
 					dataBeanCopy.setOperationRecord(operationRecord);
-					manager.getRootFolder().addChild(dataBeanCopy);
 					
+					// TODO what if not in the root folder in the source manager
+					manager.getRootFolder().addChild(dataBeanCopy);
 					importOperationRecords.add(operationRecord);
 				}
 			}
 
+			// Get operation records, avoid duplicates for tools with many outputs
 			LinkedList<OperationRecord> operationRecords = new LinkedList<OperationRecord>();
 			for (DataBean dataBean : sourceManager.databeans()) {
 				OperationRecord operationRecord = dataBean.getOperationRecord();
 				if (!operationRecords.contains(operationRecord)) {
-				operationRecords.add(operationRecord);
+					operationRecords.add(operationRecord);
 				}
 			}
 			
-			System.out.println("databeans: " + sourceManager.databeans().size());
-			System.out.println("operation records: " + operationRecords.size());
+			System.out.println("source session databeans: " + sourceManager.databeans().size());
+			System.out.println("source session operation records: " + operationRecords.size());
 			
 			
 
@@ -121,6 +120,7 @@ public class SessionReplayTest extends MessagingTestBase {
 				}
 
 				// Get inputs
+				// TODO what if data bean names are not unique in the source session?
 				LinkedList <DataBean> inputBeans = new LinkedList<DataBean>();
 				for (InputRecord inputRecord : operationRecord.getInputs()) {
 					DataBean inputBean = manager.getDataBean(inputRecord.getValue().getName());
@@ -129,60 +129,45 @@ public class SessionReplayTest extends MessagingTestBase {
 					}
 				}
 
-				// check if there are enough inputs
+				// Check if there are enough inputs
 				if (operationRecord.getInputs().size() != inputBeans.size()) {
 					System.out.println("not enough inputs for " + operationRecord.getFullName() + ", skipping");
+					// TODO fail the test
 					continue;
 				}
 
-				System.out.println("creating operation for " + operationRecord.getFullName());
-
-				final Operation operation = new Operation(getOperationDefinition(operationRecord.getNameID().getID(), toolModules), inputBeans.toArray(new DataBean[] {}));
-				
-				// Parameters
-
 				// Set up task
+				Operation operation = new Operation(getOperationDefinition(operationRecord.getNameID().getID(), toolModules), inputBeans.toArray(new DataBean[] {}));
+
+				// Parameters FIXME, see how to do it in the workflows
+
 				Task task = executor.createTask(operation);
 				
 				// Execute the task
+				System.out.println("running " + operation.getDefinition().getFullName());
 				CountDownLatch latch = new CountDownLatch(1);
 				task.addTaskEventListener(new JobResultListener(latch));
-//				task.addTaskEventListener(new TaskEventListener() {
-//					public void onStateChange(Task job, State oldState, State newState) {
-//						if (newState.isFinished()) {
-//							try {
-//								// FIXME there should be no need to pass the operation as it goes within the task
-//								Session.getSession().getApplication().onFinishedTask(job, operation);
-//							} catch (Exception e) {
-//								throw new RuntimeException(e);
-//							}
-//						}
-//					}
-//				});
-
-				
-				
-				
 				executor.startExecuting(task);
-				latch.await(TestConstants.TIMEOUT_AFTER, TimeUnit.MILLISECONDS);
-				State endState = task.getState();
-				Assert.assertEquals(endState, State.COMPLETED);
+				latch.await(1000*60*10, TimeUnit.MILLISECONDS);
 				if (!task.getState().equals(State.COMPLETED)) {
 					return task.getState();
 				}
 				
+				// Link data beans, link metadata etc
+				Session.getSession().getApplication().onFinishedTask(task, operation);
+				
+				// Fill metadata if needed
 				
 				// Compare outputs to source session (or should we do this in a one go at the end???)
-				System.out.println("target databeans: " + manager.databeans().size());
-				int i = 0;
-				for (DataBean outBean :  task.outputs()) {
-					i++;
-				}
-				System.out.println("outputs: " + i);
-				// FIXME
 			}
+			
+			// Compare data 
+			System.out.println("checking all data beans");
+			Assert.assertEquals(sourceManager.databeans().size(), manager.databeans().size());
+			Assert.assertTrue(compareDataItemsRecursively(sourceManager.getRootFolder(), manager.getRootFolder()));
+			
+			
 		}
-		
 		return State.COMPLETED;
 	}
 
@@ -197,6 +182,56 @@ public class SessionReplayTest extends MessagingTestBase {
 		return null;
 	}
 
+	
+	private boolean compareDataItemsRecursively (DataItem item1, DataItem item2) {
+		System.out.println("comparing " + item1.getName() + " and " + item2.getName());
+		
+		// Check name
+		Assert.assertEquals(item1.getName(), item2.getName());
+		
+		// Check that same class
+		DataFolder folder1 = null, folder2 = null;
+		DataBean bean1 = null, bean2 = null;
+		if (item1 instanceof DataFolder) {
+			folder1 = (DataFolder) item1;
+			Assert.assertTrue(item2 instanceof DataFolder);
+			folder2 = (DataFolder) item2;
+		} else {
+			bean1 = (DataBean) item1;
+			Assert.assertTrue(item2 instanceof DataBean);
+			bean2 = (DataBean) item2;
+		}
+	
+		// DataBean
+		if (item1 instanceof DataBean) {
+			// name
+			Assert.assertEquals(bean1.getName(),  bean2.getName()); 
+			
+			// size
+			Assert.assertEquals(bean1.getContentLength(), bean2.getContentLength());
+		}
+		
+		// DataFolder 
+		else {
+			
+			// child count
+			
+			Assert.assertEquals(folder1.getChildCount(), folder2.getChildCount());
+			
+			// children equal
+			// TODO sort children first?
+			// TODO check contents, links
+			Iterator<DataItem> iterator1 = folder1.getChildren().iterator();
+			Iterator<DataItem> iterator2 = folder2.getChildren().iterator();
+			while (iterator1.hasNext()) {
+				Assert.assertTrue(compareDataItemsRecursively(iterator1.next(), iterator2.next()));
+			}
+		}
+	
+		return true;
+	
+	}
+	
 	public static void main(String[] args) throws Exception {
 		
 		DirectoryLayout.initialiseClientLayout("http://chipster.csc.fi/rc/chipster-config.xml");
@@ -254,6 +289,7 @@ public class SessionReplayTest extends MessagingTestBase {
 		public SessionLoadingSkeletonApplication(SessionReplayTest parent, LinkedList<ToolModule> toolModules) {
 			this.parent = parent;
 			this.toolModules = toolModules;
+			logger = org.apache.log4j.Logger.getLogger(SessionLoadingSkeletonApplication.class);
 		}
 		
 		@Override
