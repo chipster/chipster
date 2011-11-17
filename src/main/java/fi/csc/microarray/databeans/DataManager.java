@@ -656,6 +656,13 @@ public class DataManager {
 		}		
 	}
 	
+	/**
+	 * Remove all DataBeans and DataFolders, except for the root folder.
+	 */
+	public void deleteAllDataItems() {
+		deleteDataFolder(getRootFolder());
+	}
+	
 	private void deleteDataBean(DataBean bean) {
 
 		// remove from operation history

@@ -2,17 +2,20 @@ package fi.csc.microarray.analyser;
 
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -34,6 +37,7 @@ import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
+import fi.csc.microarray.client.operation.ToolCategory;
 import fi.csc.microarray.client.operation.ToolModule;
 import fi.csc.microarray.client.operation.OperationRecord.InputRecord;
 import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
@@ -59,61 +63,39 @@ import fi.csc.microarray.util.IOUtils;
 
 public class SessionReplayTest extends MessagingTestBase {
 
+	private static final String FLAG_FILE = "tool-test-ok";
+	private static final String DEFAULT_SESSIONS_DIR = "sessions";
+	
+	private static final long TOOL_TEST_TIMEOUT = 1;
+	private static final TimeUnit TOOL_TEST_TIMEOUT_UNIT = TimeUnit.HOURS;
+	
 	private static final boolean CHECK_EXACT_OUTPUT_SIZE = true;
 	
-	private File[] testSessions = new File[] {
-			new File("/home/hupponen/ngs-test.zip"),
-			new File("/home/hupponen/ngs-test-many.zip"),
-			new File("/home/hupponen/ngs-test-with-changed-parameter.zip"),
-			new File("/home/hupponen/test-example.zip"),
-
-	};
+	
+	private List<ToolTestResult> toolTestResults = new LinkedList<ToolTestResult>();
+	
+	// Sessions which cause something to be thrown, normal tool failures etc not counted
+	private LinkedHashMap<File, Throwable> sessionsWithErrors = new LinkedHashMap<File, Throwable>();
+	
+	private TaskExecutor executor;
+	private DataManager manager, sourceManager;
+	LinkedList<ToolModule> toolModules;
 	
 	public SessionReplayTest(String username, String password, String configURL) {
 		super(username, password, configURL);
 	}
 
-	public boolean test() throws Exception {
-		LinkedHashMap<File, Boolean> sessionTestResults = new LinkedHashMap<File, Boolean>();
-		boolean combinedResult = true;
-		for (File testSession : testSessions) {
+	public boolean testSessions(String sessionsDirName) throws Exception {
 
-			boolean result = false;
-			try {
-				result = testSession(testSession);
-			} catch (Throwable e) {
-				result = false;
-			}
-			sessionTestResults.put(testSession, result);
-			if (!result) {
-				combinedResult = false;
-			}
-		
-		}
-
-		System.out.println("-----------------------------");
-		for (File testSession : sessionTestResults.keySet()) {
-			String result = sessionTestResults.get(testSession) ? "OK" : "FAILED";
-			System.out.println(testSession.getName() + " " +  result);
-		}
-		System.out.println("-----------------------------");
-		
-		return combinedResult;
-	}
-
-	private boolean testSession(File session) throws InstantiationException,
-			IllegalAccessException, ClassNotFoundException, IOException,
-			JMSException, Exception, MicroarrayException, TaskException,
-			InterruptedException {
 		// Set up modules
 		ModuleManager moduleManager = new ModuleManager("fi.csc.microarray.module.chipster.MicroarrayModule");
 		Session.getSession().setModuleManager(moduleManager);
 		
 		// Set up main (target) system
-		DataManager manager = new DataManager();
+		manager = new DataManager();
 		moduleManager.plugAll(manager, null);
-		TaskExecutor executor = new TaskExecutor(super.endpoint, manager);
-		LinkedList<ToolModule> toolModules = new LinkedList<ToolModule>();
+		executor = new TaskExecutor(super.endpoint, manager);
+		toolModules = new LinkedList<ToolModule>();
 		ServiceAccessor serviceAccessor = new RemoteServiceAccessor();
 		serviceAccessor.initialise(manager, this.authenticationListener);
 		serviceAccessor.fetchDescriptions(new MicroarrayModule());
@@ -121,12 +103,49 @@ public class SessionReplayTest extends MessagingTestBase {
 		Session.getSession().setClientApplication(new SessionLoadingSkeletonApplication(this, toolModules));
 		
 		// Set up source system
-		DataManager sourceManager = new DataManager();
+		sourceManager = new DataManager();
 		moduleManager.plugAll(sourceManager, null);
-		sourceManager.loadSession(session, false);
 		
+		// Run all sessions
+		File sessionsDir = new File(sessionsDirName);
+		for (File testSession : sessionsDir.listFiles()) {
+			
+			// Zip files only, maybe should check if it really is a session file
+			if (!testSession.getName().endsWith(".zip")) {
+				continue;
+			}
+
+			// Clear data managers after previous session
+			manager.deleteAllDataItems();
+			sourceManager.deleteAllDataItems();
+			
+			// Test session
+			try {
+				testSession(testSession);
+			} catch (Throwable e) {
+				sessionsWithErrors.put(testSession, e);
+			}
+		}
+
+		// Create reports
+		createReports();
+		
+		// Get overall result
+		boolean combinedResult = true;
+		for (ToolTestResult toolTestResult : toolTestResults) {
+			if (toolTestResult.getTestResult().equals(TestResult.FAIL)) {
+				combinedResult = false;
+			}
+		}
+		return combinedResult;
+	}
+
+	private void testSession(File session) throws IOException, MicroarrayException, TaskException, InterruptedException {
+
 		Map<DataBean, DataBean> sourceDataBeanToTargetDataBean = new HashMap<DataBean, DataBean>();
-		
+
+		// Load session
+		sourceManager.loadSession(session, false);
 		
 		// Pick import operations and copy imported data beans to target manager 
 		// Also map OperationRecords to outputs TODO check that order is right, might need to traverse links
@@ -168,12 +187,7 @@ public class SessionReplayTest extends MessagingTestBase {
 				operationRecords.add(operationRecord);
 			}
 		}
-		
-		System.out.println("source session databeans: " + sourceManager.databeans().size());
-		System.out.println("source session operation records: " + operationRecords.size());
-		
-		
-
+	
 		// Run operations in the order they were run originally
 		for (OperationRecord operationRecord : operationRecords) {
 
@@ -190,9 +204,9 @@ public class SessionReplayTest extends MessagingTestBase {
 				if (inputBean != null) {
 					inputBeans.add(inputBean);
 				} else {
-					System.out.println("not enough inputs for " + operationRecord.getFullName() + ", skipping");
-					// TODO fail the test
-					continue;
+					String s = "not enough inputs for " + operationRecord.getFullName();
+					System.out.println(s);
+					throw new RuntimeException(s);
 				}
 			}
 
@@ -210,13 +224,11 @@ public class SessionReplayTest extends MessagingTestBase {
 							parameter.parseValue(parameterRecord.getValue());
 						}
 
-						// set it
-						//System.out.println("setting parameter " + parameter.getID() + ": " + parameter.getValueAsString());
+						// Set it
 						operation.setParameter(parameter.getID(), parameter.getValue());
 					}
 				}
 			}
-
 
 			Task task = executor.createTask(operation);
 			
@@ -225,20 +237,53 @@ public class SessionReplayTest extends MessagingTestBase {
 			CountDownLatch latch = new CountDownLatch(1);
 			task.addTaskEventListener(new JobResultListener(latch));
 			executor.startExecuting(task);
-			latch.await(1000*60*10, TimeUnit.MILLISECONDS); // FIXME remove hard coding
+			latch.await(TOOL_TEST_TIMEOUT, TOOL_TEST_TIMEOUT_UNIT);
+			
+			// Task failed
 			if (!task.getState().equals(State.COMPLETED)) {
-				return false;
+				
+				// try to cancel if still running
+				if (task.getState().equals(State.RUNNING)) {
+					executor.kill(task);
+					toolTestResults.add(new ToolTestResult(TestResult.FAIL, operation, session, task, "task did not finish before test timeout " +TOOL_TEST_TIMEOUT + " " + TOOL_TEST_TIMEOUT_UNIT.toString()));
+					return;
+				}
+				toolTestResults.add(new ToolTestResult(TestResult.FAIL, operation, session, task, "task failed"));
+				return;
 			}
 			
-			// Link data beans, link metadata etc
-			// Target manager needs to be available throught session for some of these to work
+			// Check results
+			// Target manager needs to be available through session for some of these to work
 			Session.getSession().setDataManager(manager);
 			try {
+				
+				// Link result beans, add to folders etc
 				Session.getSession().getApplication().onFinishedTask(task, operation);
 
-				// Add source bean -> target bean mapping
-				// There might be more target outputs than source outputs, it's fine
+				// Check that number of results and result names match
 				Iterator<DataBean> targetIterator = task.outputs().iterator();
+				for (DataBean sourceBean : outputMap.get(operationRecord)) {
+					if (targetIterator.hasNext()) {
+						DataBean targetBean = targetIterator.next();
+						if (!sourceBean.getName().equals(targetBean.getName())) {
+							toolTestResults.add(new ToolTestResult(TestResult.FAIL, operation, session, task, "mismatch in result dataset names, "
+									+ "expecting: " + sourceBean.getName() + " got: " + targetBean.getName()));
+							return;
+						}
+					} 
+					// Not enough results
+					else {
+						toolTestResults.add(new ToolTestResult(TestResult.FAIL, operation, session, task, "not enough result datasets"));
+						return;
+					}
+				}
+				if (targetIterator.hasNext()) {
+					toolTestResults.add(new ToolTestResult(TestResult.FAIL, operation, session, task, "too many result datasets"));
+					return;
+				}
+
+				// Find and replace metadata 
+				targetIterator = task.outputs().iterator();
 				for (DataBean sourceBean : outputMap.get(operationRecord)) {
 					DataBean targetBean = targetIterator.next();
 
@@ -255,23 +300,31 @@ public class SessionReplayTest extends MessagingTestBase {
 							manager.closeContentOutputStreamAndUnlockDataBean(targetBean, metadataOut);
 						}
 					}
+				}
 
-					Assert.assertEquals(sourceBean.getName(), targetBean.getName());
+				// Compare data beans, add source bean -> target bean mapping
+				targetIterator = task.outputs().iterator();
+				for (DataBean sourceBean : outputMap.get(operationRecord)) {
+					DataBean targetBean = targetIterator.next();
+					try {
+						compareDataBeans(sourceBean, targetBean);
+					} catch (Throwable t) {
+						toolTestResults.add(new ToolTestResult(TestResult.FAIL, operation, session, task, t.getMessage()));
+						return;
+					}
+					
+					// Add source bean -> target bean mapping, needed for further operations
 					sourceDataBeanToTargetDataBean.put(sourceBean, targetBean);
+					
+					// Add result
+					toolTestResults.add(new ToolTestResult(TestResult.OK, operation, session, task));
+				
 				}
 			} finally {
 				// Set session data manager back to null to avoid problems
 				Session.getSession().setDataManager(null);
 			}
-
-			
 		}
-		// Compare data 
-		System.out.println("checking all data beans");
-		Assert.assertEquals(sourceManager.databeans().size(), manager.databeans().size());
-		Assert.assertTrue(compareDataItemsRecursively(sourceManager.getRootFolder(), manager.getRootFolder()));
-		
-		return true;
 	}
 
 
@@ -285,115 +338,203 @@ public class SessionReplayTest extends MessagingTestBase {
 		return null;
 	}
 
-	
-	private boolean compareDataItemsRecursively (DataItem item1, DataItem item2) throws IOException {
-		System.out.println("comparing " + item1.getName() + " and " + item2.getName());
-		
-		// Check name
-		Assert.assertEquals(item1.getName(), item2.getName());
-		
-		// Check that same class
-		DataFolder folder1 = null, folder2 = null;
-		DataBean bean1 = null, bean2 = null;
-		if (item1 instanceof DataFolder) {
-			folder1 = (DataFolder) item1;
-			Assert.assertTrue(item2 instanceof DataFolder);
-			folder2 = (DataFolder) item2;
-		} else {
-			bean1 = (DataBean) item1;
-			Assert.assertTrue(item2 instanceof DataBean);
-			bean2 = (DataBean) item2;
+	/**
+	 * 
+	 * @param bean1
+	 * @param bean2
+	 * 
+	 * @throws Errors if not equal
+	 */
+	private void compareDataBeans(DataBean bean1, DataBean bean2) {
+
+		// Check name, may be already checked though
+		Assert.assertEquals(bean1.getName(), bean2.getName());
+
+		// exact size
+		if (CHECK_EXACT_OUTPUT_SIZE) {
+			Assert.assertEquals(bean1.getContentLength(), bean2.getContentLength());
 		}
-	
-		// DataBean
-		if (item1 instanceof DataBean) {
-			// name
-			Assert.assertEquals(bean1.getName(),  bean2.getName()); 
-			
-			// exact size
-			if (CHECK_EXACT_OUTPUT_SIZE) {
-				Assert.assertEquals(bean1.getContentLength(), bean2.getContentLength());
-			}
-			
-			// content
-			if (bean1.getContentLength() > 0) {
-				Assert.assertTrue(bean2.getContentLength() > 0);
-			}
-			
-			
-//			InputStream in1 = null;
-//			InputStream in2 = null;
-//
-//			try {
-//				in1 = bean1.getContentByteStream();
-//				in2 = bean2.getContentByteStream();
-//				Assert.assertTrue(IOUtils.contentEquals(in1, in2));
-//			} finally {
-//				IOUtils.closeIfPossible(in1);
-//				IOUtils.closeIfPossible(in2);
-//			}
-//			
-			
-			
+
+		// zero size not allowed if source non-zero
+		if (bean1.getContentLength() > 0) {
+			Assert.assertTrue(bean2.getContentLength() > 0, "zero size dataset");
 		}
-		
-		// DataFolder 
-		else {
-			
-			// child count
-			
-			Assert.assertEquals(folder1.getChildCount(), folder2.getChildCount());
-			
-			// children equal
-			// TODO sort children first?
-			// TODO check contents, links
-			Iterator<DataItem> iterator1 = folder1.getChildren().iterator();
-			Iterator<DataItem> iterator2 = folder2.getChildren().iterator();
-			while (iterator1.hasNext()) {
-				Assert.assertTrue(compareDataItemsRecursively(iterator1.next(), iterator2.next()));
-			}
-		}
-	
-		return true;
-	
 	}
+
 	
 	public static void main(String[] args) throws Exception {
-		
-		DirectoryLayout.initialiseClientLayout("http://chipster.csc.fi/rc/chipster-config.xml");
-		
-		// initialize
-		SessionReplayTest test = null;
-		try {
-			test = new SessionReplayTest("nagios", "99b44a74-d735-4588-93cd-314fbc203e0a", "http://chipster.csc.fi/rc/chipster-config.xml");
-		} catch (Exception e) {
-			System.out.println("CHIPSTER TEST: Initializing the test failed");
-			System.exit(3);
-		}
 
-		// run
-		boolean success = false;
+		boolean testOK = false;
 		try {
-			test.setUp();
-			success = test.test();
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("TEST ERROR");
-			return;
-		} finally {
-			test.tearDown();
-		}
 
-		if (success) {
-			System.out.println("TEST OK");
+			String configURL = null;
+			String username = null;
+			String password = null;
+			String sessionsDir = DEFAULT_SESSIONS_DIR;
+			switch(args.length) {
+			case 0:
+				System.out.println("config not supported yet");
+				updateFlagFileAndExit(false);
+				break;
+			case 3:
+				configURL = args[0];
+				username = args[1];
+				password = args[2];
+				DirectoryLayout.initialiseClientLayout(configURL);
+				break;
+			case 4:
+				configURL = args[0];
+				username = args[1];
+				password = args[2];
+				DirectoryLayout.initialiseClientLayout(configURL);
+				sessionsDir = args[3];
+				break;
+
+			default:
+				System.out.println("Usage: " + SessionReplayTest.class.getSimpleName() + " <config-url username password> <sessions dir>\n" +
+				"If there are no arguments, config file is used.");
+				updateFlagFileAndExit(false);
+			}
+
+
+			// initialize
+			SessionReplayTest test = null;
+			try {
+				test = new SessionReplayTest(username, password, configURL);
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.out.println("TOOL TESTS INIT ERROR");
+				updateFlagFileAndExit(false);
+			}
+
+			// run
+			try {
+				test.setUp();
+				testOK = test.testSessions(sessionsDir);
+			} catch (Exception e) {
+				System.out.println("TOOL TEST ERROR");
+				test.tearDown();
+				updateFlagFileAndExit(false);
+			} finally {
+				test.tearDown();
+			}
+
+			if (testOK) {
+				System.out.println("TOOL TESTS OK");
+				updateFlagFileAndExit(true);
+			} else {
+				System.out.println("TOOL TESTS FAILED");
+				updateFlagFileAndExit(false);
+			}
+		} 
+		
+		// Should only get here if something weird happens
+		finally {
+			updateFlagFileAndExit(false);
+		}
+	}
+	
+	private void createReports() throws IOException {
+		File htmlFile = new File("index.html");
+		FileWriter writer = new FileWriter(htmlFile);
+		writer.write("<html><body>");
+		System.out.println("tasks run: " + toolTestResults.size());
+	
+		Set<String> uniqueTools = new HashSet<String>(); 
+		for (ToolTestResult toolTestResult : toolTestResults) {
+			if (!uniqueTools.contains(toolTestResult.getOperation().getID())) {
+				uniqueTools.add(toolTestResult.getOperation().getID());
+			}
+		}
+		System.out.println("tools tested: " + uniqueTools.size() + "/" + getTotalNumberOfTools());
+		writer.write("tools tested: " + uniqueTools.size() + "/" + getTotalNumberOfTools());
+		
+		for (ToolTestResult toolTestResult : toolTestResults) {
+			System.out.println(toolTestResult.getOperation().getDefinition().getFullName() + " " + 
+					toolTestResult.getTestResult() + " " + toolTestResult.getTask().getState());
+		}
+		
+		writer.write("</body></html>");
+		writer.flush();
+		writer.close();
+	}
+	
+	private static void updateFlagFileAndExit(boolean testOK) throws IOException {
+		File flagFile = new File(FLAG_FILE);
+		if (testOK) {
+			if (!flagFile.exists()) {
+				flagFile.createNewFile();
+			} else {
+				flagFile.setLastModified(System.currentTimeMillis());
+			}
+		} else {
+			flagFile.delete();
+		}
+		
+		if (testOK) {
 			System.exit(0);
 		} else {
-			System.out.println("TEST FAILED");
 			System.exit(1);
 		}
+	}
 	
+	
+	private enum TestResult {
+		OK,FAIL;
+	}
+	
+	private class ToolTestResult {
+		private TestResult testResult;
+		private Operation operation;
+		private File sessionFile;
+		private Task task;
+		private String testErrorMessage;
+		
+		public ToolTestResult(TestResult testResult, Operation operation, File sessionFile, Task task) {
+			this(testResult, operation, sessionFile, task, null);
+		}
+		
+		public ToolTestResult(TestResult testResult, Operation operation, File sessionFile, Task task, String testErrorMessage) {
+			this.testResult = testResult;
+			this.operation = operation;
+			this.sessionFile = sessionFile;
+			this.task = task;
+			this.testErrorMessage = testErrorMessage;
+		}
+
+		public TestResult getTestResult() {
+			return testResult;
+		}
+		public Operation getOperation() {
+			return operation;
+		}
+		public File getSession() {
+			return sessionFile;
+		}
+		public Task getTask() {
+			return task;
+		}
+		
+		public String getTestErrorMessage() {
+			return testErrorMessage;
+		}
 		
 	}
+	
+	private int getTotalNumberOfTools() {
+		Set<String> uniqueIDs = new HashSet<String>();
+		for (ToolModule toolModule : toolModules) {
+			for (ToolCategory toolCategory : toolModule.getVisibleCategories()) {
+				for (OperationDefinition od : toolCategory.getToolList()) {
+					if (!uniqueIDs.contains(od.getID())) {
+						uniqueIDs.add(od.getID());
+					}
+				}
+			}
+		}
+		return uniqueIDs.size();
+	}
+	
 	
 	public static class SessionLoadingSkeletonApplication extends ClientApplication {
 
