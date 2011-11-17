@@ -9,12 +9,14 @@
 # PARAMETER minimum.number.of.sds.between.segments: minimum.number.of.sds.between.segments TYPE DECIMAL FROM 0 TO 10 DEFAULT 0 (Minimum number of standard deviations required between segments.)
 # PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image.)
 # PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image.)
+# PARAMETER organism: organism TYPE [human: human, other: other] DEFAULT human (Organism.)
+# PARAMETER genome.build: genome.build TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16. Not used unless organism is set to human.)
 
 # detect-copy-number-aberrations.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-03-30
+# 2011-11-17
 
-library(CGHcall)
+library(CGHcall) # source CGHcallPlus
 
 dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 
@@ -40,7 +42,8 @@ cgh.pre <- preprocess(cgh.raw, nchrom=number.of.chromosomes)
 cgh.nor <- normalize(cgh.pre, method=normalization)
 cgh.seg <- segmentData(cgh.nor, min.width=as.integer(minimum.number.of.probes.per.segment), undo.splits='sdundo', undo.SD=minimum.number.of.sds.between.segments)
 cgh.psn <- postsegnormalize(cgh.seg)
-cgh.cal <- CGHcall(cgh.psn, nclass=as.integer(number.of.copy.number.states))
+# cgh.cal <- CGHcall(cgh.psn, nclass=as.integer(number.of.copy.number.states), organism=organism, build=genome.build)
+cgh.cal <- CGHcall(cgh.psn, nclass=as.integer(number.of.copy.number.states), organism=organism) # change to CGHcallPlus
 cgh <- ExpandCGHcall(cgh.cal, cgh.psn)
 
 dat3 <- data.frame(cgh@featureData@data)
@@ -50,12 +53,13 @@ for (col in c('cytoband', 'symbol', 'description', 'cnvs'))
   if (col %in% colnames(dat))
     dat3[,col] <- dat[rownames(dat3), col]
 
-dat3$loss.freq <- round(mean(as.data.frame(t(assayDataElement(cgh, "calls")==-1))), digits=3)
-dat3$gain.freq <- round(mean(as.data.frame(t(assayDataElement(cgh, "calls")==1))), digits=3)
-if (number.of.copy.number.states=='4' && 2 %in% assayDataElement(cgh, 'calls'))
-  dat3$amp.freq <- round(mean(as.data.frame(t(assayDataElement(cgh, "calls")==2))), digits=3)
-
 calls <- assayDataElement(cgh, 'calls')
+
+dat3$loss.freq <- round(rowMeans(calls == -1), digits=3)
+dat3$gain.freq <- round(rowMeans(calls == 1), digits=3)
+if (number.of.copy.number.states=='4' && 2 %in% assayDataElement(cgh, 'calls'))
+  dat3$amp.freq <- round(rowMeans(calls == 2), digits=3)
+
 colnames(calls) <- sub('chip.', 'flag.', chips)
 dat3 <- cbind(dat3, calls)
 
@@ -94,7 +98,8 @@ write.table(dat3, file='aberrations.tsv', quote=FALSE, sep='\t', col.names=TRUE,
 
 bitmap(file='aberrations.png', width=image.width/72, height=image.height/72)
 # pdf(file='aberrations.pdf')
-plot.summary(cgh)
+plot.summary(cgh) # change for CGHcallPlus
+# frequencyPlot(cgh)
 dev.off()
 
 # EOF

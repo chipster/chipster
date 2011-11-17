@@ -7,9 +7,9 @@
 
 # detect-common-copy-number-aberration-regions.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-03-30
+# 2011-11-17
 
-library(CGHcall)
+library(CGHcall) # source CGHcallPlus
 library(CGHregions)
 library(WECCA)
 
@@ -93,6 +93,7 @@ pdf(file='regions.pdf')
 plot(regions)
 dev.off()
 
+# bitmap(file='regions-frequencies.png', width=600/72, height=600/72)
 pdf(file='regions-frequencies.pdf')
 frequencyPlot(regions)
 dev.off()
