@@ -19,9 +19,9 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import javax.jms.JMSException;
 import javax.swing.Icon;
 
+import org.springframework.validation.Errors;
 import org.testng.Assert;
 
 import fi.csc.microarray.analyser.AnalysisTestBase.JobResultListener;
@@ -37,24 +37,24 @@ import fi.csc.microarray.client.dialog.DialogInfo.Severity;
 import fi.csc.microarray.client.operation.Operation;
 import fi.csc.microarray.client.operation.OperationDefinition;
 import fi.csc.microarray.client.operation.OperationRecord;
-import fi.csc.microarray.client.operation.ToolCategory;
-import fi.csc.microarray.client.operation.ToolModule;
 import fi.csc.microarray.client.operation.OperationRecord.InputRecord;
 import fi.csc.microarray.client.operation.OperationRecord.ParameterRecord;
+import fi.csc.microarray.client.operation.ToolCategory;
+import fi.csc.microarray.client.operation.ToolModule;
 import fi.csc.microarray.client.operation.parameter.DataSelectionParameter;
 import fi.csc.microarray.client.operation.parameter.Parameter;
 import fi.csc.microarray.client.tasks.Task;
+import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.client.tasks.TaskException;
 import fi.csc.microarray.client.tasks.TaskExecutor;
-import fi.csc.microarray.client.tasks.Task.State;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager;
 import fi.csc.microarray.client.visualisation.VisualisationFrameManager.FrameType;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.databeans.DataFolder;
 import fi.csc.microarray.databeans.DataItem;
 import fi.csc.microarray.databeans.DataManager;
-import fi.csc.microarray.databeans.DataBean.Link;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.MessagingTestBase;
 import fi.csc.microarray.module.ModuleManager;
@@ -69,7 +69,7 @@ public class SessionReplayTest extends MessagingTestBase {
 	private static final long TOOL_TEST_TIMEOUT = 1;
 	private static final TimeUnit TOOL_TEST_TIMEOUT_UNIT = TimeUnit.HOURS;
 	
-	private static final boolean CHECK_EXACT_OUTPUT_SIZE = true;
+	private static final boolean CHECK_EXACT_OUTPUT_SIZE = false;
 	
 	
 	private List<ToolTestResult> toolTestResults = new LinkedList<ToolTestResult>();
@@ -372,10 +372,6 @@ public class SessionReplayTest extends MessagingTestBase {
 			String password = null;
 			String sessionsDir = DEFAULT_SESSIONS_DIR;
 			switch(args.length) {
-			case 0:
-				System.out.println("config not supported yet");
-				updateFlagFileAndExit(false);
-				break;
 			case 3:
 				configURL = args[0];
 				username = args[1];
@@ -412,6 +408,7 @@ public class SessionReplayTest extends MessagingTestBase {
 				test.setUp();
 				testOK = test.testSessions(sessionsDir);
 			} catch (Exception e) {
+				e.printStackTrace();
 				System.out.println("TOOL TEST ERROR");
 				test.tearDown();
 				updateFlagFileAndExit(false);
@@ -435,24 +432,38 @@ public class SessionReplayTest extends MessagingTestBase {
 	}
 	
 	private void createReports() throws IOException {
-		File htmlFile = new File("index.html");
-		FileWriter writer = new FileWriter(htmlFile);
-		writer.write("<html><body>");
-		System.out.println("tasks run: " + toolTestResults.size());
-	
+		
+		
+		// unique tools tested
 		Set<String> uniqueTools = new HashSet<String>(); 
 		for (ToolTestResult toolTestResult : toolTestResults) {
 			if (!uniqueTools.contains(toolTestResult.getOperation().getID())) {
 				uniqueTools.add(toolTestResult.getOperation().getID());
 			}
 		}
-		System.out.println("tools tested: " + uniqueTools.size() + "/" + getTotalNumberOfTools());
-		writer.write("tools tested: " + uniqueTools.size() + "/" + getTotalNumberOfTools());
 		
+		// failed and successful tasks
+		List<ToolTestResult> failedTasks = new LinkedList<ToolTestResult>();
+		List<ToolTestResult> successTasks = new LinkedList<ToolTestResult>();
 		for (ToolTestResult toolTestResult : toolTestResults) {
-			System.out.println(toolTestResult.getOperation().getDefinition().getFullName() + " " + 
-					toolTestResult.getTestResult() + " " + toolTestResult.getTask().getState());
+			if (TestResult.FAIL.equals(toolTestResult.getTestResult())) {
+				failedTasks.add(toolTestResult);
+			} else {
+				successTasks.add(toolTestResult);
+			}
 		}
+		
+		//
+
+		File htmlFile = new File("index.html");
+		FileWriter writer = new FileWriter(htmlFile);
+		writer.write("<html><body>");
+		writer.write("<h1>Tool tests</h1>");
+
+		writer.write("<p>Tasks: " + failedTasks.size() + " failed " + successTasks.size() + " successful "+ toolTestResults.size() + " total</p>");
+
+		writer.write("<p>Unique tools tested: " + uniqueTools.size() + "/" + getTotalNumberOfTools() + "</p>");
+
 		
 		writer.write("</body></html>");
 		writer.flush();
