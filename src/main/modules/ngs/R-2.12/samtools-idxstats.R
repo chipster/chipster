@@ -9,5 +9,16 @@
 samtools.binary <- c(file.path(chipster.tools.path, "samtools", "samtools"))
 
 # convert sam to bam
-system(paste(samtools.binary, "idxstats alignment.bam > bam-stats.tsv"))
+system(paste(samtools.binary, "idxstats alignment.bam > bam-out.tsv"))
 
+# read into R to prettify table
+dat <- read.table(file="bam-out.tsv", header=FALSE, sep="\t")
+colnames (dat) [1] <- "chr_name"
+colnames (dat) [2] <- "chr_length"
+colnames (dat) [3] <- "mapped_count"
+colnames (dat) [4] <- "unmapped_count"
+
+# output table with headers
+write.table(dat, file="bam-stats.tsv", sep="\t", row.names=F, col.names=T, quote=F)
+
+# EOF
