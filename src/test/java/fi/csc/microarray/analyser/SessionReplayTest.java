@@ -16,6 +16,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -69,7 +71,7 @@ public class SessionReplayTest extends MessagingTestBase {
 	private static final long TOOL_TEST_TIMEOUT = 1;
 	private static final TimeUnit TOOL_TEST_TIMEOUT_UNIT = TimeUnit.HOURS;
 	
-	private static final boolean CHECK_EXACT_OUTPUT_SIZE = false;
+	private static final boolean CHECK_EXACT_OUTPUT_SIZE = true;
 	
 	
 	private List<ToolTestResult> toolTestResults = new LinkedList<ToolTestResult>();
@@ -154,7 +156,7 @@ public class SessionReplayTest extends MessagingTestBase {
 		for (DataBean dataBean : sourceManager.databeans()) {
 			OperationRecord operationRecord = dataBean.getOperationRecord();
 
-			// pick import operations
+			// pick import operations FIXME pick also any other without parent dataset
 			if (OperationDefinition.IMPORT_DEFINITION_ID.equals(operationRecord.getNameID().getID())) {
 				// copy imported databean, add mapping
 				DataBean dataBeanCopy = manager.createDataBean(dataBean.getName(), session, dataBean.getContentUrl().getRef());
@@ -434,12 +436,38 @@ public class SessionReplayTest extends MessagingTestBase {
 	private void createReports() throws IOException {
 		
 		
-		// unique tools tested
-		Set<String> uniqueTools = new HashSet<String>(); 
+		// count unique tools and sessions
+		HashMap<String, Integer> uniqueTools = new HashMap<String,Integer>(); 
+		Set<File> uniqueSessions = new HashSet<File>();
+		HashMap<String, List<File>> toolToSessionsMap = new HashMap<String, List<File>>();
 		for (ToolTestResult toolTestResult : toolTestResults) {
-			if (!uniqueTools.contains(toolTestResult.getOperation().getID())) {
-				uniqueTools.add(toolTestResult.getOperation().getID());
+			if (!uniqueTools.containsKey(toolTestResult.getOperation().getID())) {
+				uniqueTools.put(toolTestResult.getOperation().getID(), 1);
+			} else {
+				uniqueTools.put(toolTestResult.getOperation().getID(), uniqueTools.get(toolTestResult.getOperation().getID()) + 1);
 			}
+
+			if (!toolToSessionsMap.containsKey(toolTestResult.getOperation().getID())) {
+				List<File> sessionsList = new LinkedList<File>();
+				sessionsList.add(toolTestResult.getSession());
+				toolToSessionsMap.put(toolTestResult.getOperation().getID(), sessionsList);
+			} else {
+				List<File> sessionsList = toolToSessionsMap.get(toolTestResult.getOperation().getID());
+				if (!sessionsList.contains(toolTestResult.getSession())) {
+					sessionsList.add(toolTestResult.getSession());
+				}
+			}
+			
+			if (!uniqueSessions.contains(toolTestResult.getSession())) {
+				uniqueSessions.add(toolTestResult.getSession());
+			}
+		}
+
+		// sort tools by test count
+		TreeMap<Integer,String> testsPerTool = new TreeMap<Integer,String>();
+		for (Entry<String, Integer> entry : uniqueTools.entrySet()) {
+			System.out.println("putting " + entry.getValue() + " " + entry.getKey());
+			testsPerTool.put(new Integer(entry.getValue()), entry.getKey());
 		}
 		
 		// failed and successful tasks
@@ -458,11 +486,82 @@ public class SessionReplayTest extends MessagingTestBase {
 		File htmlFile = new File("index.html");
 		FileWriter writer = new FileWriter(htmlFile);
 		writer.write("<html><body>");
-		writer.write("<h1>Tool tests</h1>");
+		writer.write("<h2>Tool tests</h2>");
 
+		writer.write("<h3>Summary</h3>");
 		writer.write("<p>Tasks: " + failedTasks.size() + " failed " + successTasks.size() + " successful "+ toolTestResults.size() + " total</p>");
 
 		writer.write("<p>Unique tools tested: " + uniqueTools.size() + "/" + getTotalNumberOfTools() + "</p>");
+		writer.write("<p>Number of sessions: " + uniqueSessions.size() + "</p>");
+
+		
+		// Failed tests
+		writer.write("<h3>Failed tools</h3>");
+		writer.write("<table><tr>" + 
+				"<th>Tool</th>" + 
+				"<th>Session</th>" +
+				"<th>Test error message</th>" + 
+				"<th>Task end state</th>" + 
+				"<th>Task error message</th>" +
+				"<th>Task screen output</th>" + 
+				"</tr>");
+		for (ToolTestResult toolTestResult : failedTasks) {
+			writer.write("<tr>" +
+					"<td>" + toolTestResult.getOperation().getDefinition().getFullName() + "</td>" +
+					"<td>" + toolTestResult.getSession().getName() + "</td>" + // TODO add link
+					"<td>" + toolTestResult.getTestErrorMessage() + "</td>" +
+					"<td>" + toolTestResult.getTask().getState() + "</td>" +
+					"<td>" + toolTestResult.getTask().getErrorMessage() + "</td>" +
+//					"<td>" + toolTestResult.getTask().getScreenOutput() + "</td>" +
+					"<td>" + "link to output" + "</td>" +
+			    	"</tr>");
+		}
+		writer.write("</table>");
+
+		// Successful tools
+		writer.write("<h3>Successful tools</h3>");
+		writer.write("<table><tr>" + 
+				"<th>Tool</th>" + 
+				"<th>Session</th>" +
+				"<th>Test error message</th>" + 
+				"<th>Task end state</th>" + 
+				"<th>Task error message</th>" +
+				"<th>Task screen output</th>" + 
+				"</tr>");
+		for (ToolTestResult toolTestResult : successTasks) {
+			writer.write("<tr>" +
+					"<td>" + toolTestResult.getOperation().getDefinition().getFullName() + "</td>" +
+					"<td>" + toolTestResult.getSession().getName() + "</td>" + // TODO add link
+					"<td>" + toolTestResult.getTestErrorMessage() + "</td>" +
+					"<td>" + toolTestResult.getTask().getState() + "</td>" +
+					"<td>" + toolTestResult.getTask().getErrorMessage() + "</td>" +
+					"<td>" + "link to output" + "</td>" +
+//					"<td>" + toolTestResult.getTask().getScreenOutput() + "</td>" +
+			    	"</tr>");
+		}
+		writer.write("</table>");
+		
+		
+		writer.write("<h3>Coverage</h3>");
+		writer.write("<table><tr>" + 
+				"<th>Tool</th>" + 
+				"<th>Test count</th>" +
+				"<th>Sessions</th>" + 
+				"</tr>");
+		for (Entry<Integer, String> entry : testsPerTool.entrySet()) {
+			String sessionsString = "";
+			for (File session : toolToSessionsMap.get(entry.getValue())) {
+				sessionsString += session.getName() + " ";
+			}
+			sessionsString.trim();
+			
+			writer.write("<tr>" +
+					"<td>" + this.getOperationDefinition(entry.getValue(), toolModules).getFullName()  + "</td>" +
+					"<td>" + entry.getKey() + "</td>" +
+					"<td>" + sessionsString + "</td>" +
+			    	"</tr>");
+		}
+		writer.write("</table>");
 
 		
 		writer.write("</body></html>");
