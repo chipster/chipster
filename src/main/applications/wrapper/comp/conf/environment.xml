@@ -151,11 +151,6 @@
       <package>zoo</package>
     </item>
 
-	<item installed="false" name="qvalue" type="r-package">
-      <repository>http://cran.r-project.org</repository>
-      <package>qvalue</package>
-    </item>
-
 	<item installed="false" name="scrime" type="r-package">
       <repository>http://cran.r-project.org</repository>
       <package>scrime</package>
@@ -507,7 +502,12 @@
       <bioconductor-package>rtracklayer</bioconductor-package>
       <mirror>http://www.bioconductor.org</mirror>
     </item>
-
+      
+    <item installed="true" name="qvalue" type="r-package">
+      <bioconductor-package>qvalue</bioconductor-package>
+      <mirror>http://mirrors.ebi.ac.uk/bioconductor/</mirror>
+    </item>
+      
   </bundle>
   
   <bundle name="Additional R packages" depends="Basic R environment">
