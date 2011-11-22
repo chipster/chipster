@@ -86,7 +86,7 @@ public abstract class ClientApplication {
 	protected static final int SESSION_BACKUP_INTERVAL = 5 * 1000;
 
 	// Logger for this class
-	private static Logger logger;
+	protected static Logger logger;
 
     // 
 	// ABSTRACT INTERFACE

@@ -13,12 +13,13 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.StorageMethod;
 
 public class LocalFileDataBeanHandler extends DataBeanHandlerBase {
 
-	public LocalFileDataBeanHandler() {
-		super(StorageMethod.LOCAL_USER, StorageMethod.LOCAL_TEMP);
+	public LocalFileDataBeanHandler(DataManager dataManager) {
+		super(dataManager, StorageMethod.LOCAL_USER, StorageMethod.LOCAL_TEMP);
 	}
 	
 	

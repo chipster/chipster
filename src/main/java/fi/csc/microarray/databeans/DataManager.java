@@ -433,6 +433,21 @@ public class DataManager {
 
 	
 	/**
+	 * Find and return the first DataBean with the given name.
+	 * @param name the name of the DataBean being search for
+	 * @return the first found DataBean with given name
+	 */
+	public DataBean getDataBean(String name) {
+		for (DataBean dataBean : databeans()) {
+			if (dataBean.getName().equals(name)) {
+				return dataBean;
+			}
+		}
+		return null;
+	}
+	
+	
+	/**
 	 * Create a local temporary file DataBean without content, without a parent folder and without sources. 
 	 * If a reference to this bean is lost it can not be accessed any more.
 	 */
@@ -498,7 +513,7 @@ public class DataManager {
 			throw new MicroarrayException(e);
 		}
 		
-		DataBeanHandler handler = new ZipDataBeanHandler();
+		DataBeanHandler handler = new ZipDataBeanHandler(this);
 		DataBean dataBean = new DataBean(name, StorageMethod.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new DataBean[] {}, null, this, handler);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
 		return dataBean;
@@ -513,7 +528,7 @@ public class DataManager {
 	 * @throws MicroarrayException
 	 */
 	public DataBean createDataBeanFromZip(String name, URL url) throws MicroarrayException {
-		DataBeanHandler handler = new ZipDataBeanHandler();
+		DataBeanHandler handler = new ZipDataBeanHandler(this);
 		DataBean dataBean = new DataBean(name, StorageMethod.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new DataBean[] {}, null, this, handler);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
 		return dataBean;
@@ -558,7 +573,7 @@ public class DataManager {
 			throw new MicroarrayException(e);
 		}
 		
-		DataBeanHandler handler = new LocalFileDataBeanHandler();
+		DataBeanHandler handler = new LocalFileDataBeanHandler(this);
 		DataBean dataBean = new DataBean(name, type, "", url, guessContentType(name), new Date(), sources, folder, this, handler);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
 		return dataBean;
@@ -574,9 +589,10 @@ public class DataManager {
 	public void loadSession(File sessionFile, boolean restoreData) {
 		SessionLoader sessionLoader;
 		try {
-			sessionLoader = new SessionLoader(sessionFile, restoreData);
+			sessionLoader = new SessionLoader(sessionFile, restoreData, this);
 			sessionLoader.loadSession();
 		} catch (Exception e) {
+			e.printStackTrace();
 			Session.getSession().getApplication().showDialog("Opening session failed.", "Unfortunately the session could not be opened properly. Please see the details for more information.", Exceptions.getStackTrace(e), Severity.WARNING, true, DetailsVisibility.DETAILS_HIDDEN, null);
 			logger.error("loading session failed", e);
 		}
@@ -589,7 +605,7 @@ public class DataManager {
 	 * @return true if the session was saved perfectly
 	 */
 	public boolean saveSession(File sessionFile) {
-		SessionSaver sessionSaver = new SessionSaver(sessionFile);
+		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
 		boolean metadataValid = false;
 		try {
 			// save
@@ -621,7 +637,7 @@ public class DataManager {
 	 */
 	public void saveLightweightSession(File sessionFile) throws Exception {
 
-		SessionSaver sessionSaver = new SessionSaver(sessionFile);
+		SessionSaver sessionSaver = new SessionSaver(sessionFile, this);
 		sessionSaver.saveLightweightSession();
 	}
 
@@ -638,6 +654,13 @@ public class DataManager {
 		} else {
 			deleteDataBean((DataBean)data);
 		}		
+	}
+	
+	/**
+	 * Remove all DataBeans and DataFolders, except for the root folder.
+	 */
+	public void deleteAllDataItems() {
+		deleteDataFolder(getRootFolder());
 	}
 	
 	private void deleteDataBean(DataBean bean) {
@@ -776,7 +799,7 @@ public class DataManager {
 		
 		bean.setContentUrl(newURL);
 		bean.setStorageMethod(StorageMethod.LOCAL_TEMP);
-		bean.setHandler(new LocalFileDataBeanHandler());
+		bean.setHandler(new LocalFileDataBeanHandler(this));
 		bean.setContentChanged(true);
 	}
 	
