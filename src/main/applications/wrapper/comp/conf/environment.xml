@@ -579,7 +579,7 @@
     </item>
     
 	<item installed="false" name="CORNA" type="r-package">
-		<url>http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools-extras/CORNA_1.2.tar.gz</url>
+		<url>http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/R_libraries/CORNA_1.2.tar.gz</url>
     </item>    
     
 	<item installed="false" name="CGHtest" type="r-package">
@@ -621,9 +621,9 @@
       <comment>	
       	Promoter analysis tools need the promoter sequences in a suitable format. 
       	Download and unpack sequence files to directory weeder/seqs: 
-      	http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools-extras/weeder-seqs/all-sequence-files.zip
+      	http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/weeder-seqs/all-sequence-files.zip
         For information on how the sequence files were generated, see 
-        http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools-extras/weeder-seqs/README.TXT 
+        http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/weeder-seqs/README.TXT 
       </comment>
     </item>
 
