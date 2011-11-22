@@ -10,21 +10,21 @@ import java.net.URL;
 
 import de.schlichtherle.truezip.zip.ZipEntry;
 import de.schlichtherle.truezip.zip.ZipFile;
-import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.session.UserSession;
 import fi.csc.microarray.databeans.DataBean;
+import fi.csc.microarray.databeans.DataManager;
 import fi.csc.microarray.databeans.DataBean.StorageMethod;
 
 public class ZipDataBeanHandler extends DataBeanHandlerBase {
 
-	public ZipDataBeanHandler() {
-		super(StorageMethod.LOCAL_SESSION);
+	public ZipDataBeanHandler(DataManager dataManager) {
+		super(dataManager, StorageMethod.LOCAL_SESSION);
 	}
 	
 	public long getContentLength(DataBean dataBean) throws IOException {
 		checkCompatibility(dataBean);
 		ZipFile zipFile = new ZipFile(getZipFile(dataBean));
-		Session.getSession().getDataManager().addZipFile(zipFile);
+		dataManager.addZipFile(zipFile);
 		ZipEntry zipEntry = zipFile.getEntry(dataBean.getContentUrl().getRef());
 		return zipEntry.getSize();
 	}
@@ -32,7 +32,7 @@ public class ZipDataBeanHandler extends DataBeanHandlerBase {
 	public InputStream getInputStream(DataBean dataBean) throws IOException {
 		checkCompatibility(dataBean);
 		ZipFile zipFile = new ZipFile(getZipFile(dataBean));
-		Session.getSession().getDataManager().addZipFile(zipFile);
+		dataManager.addZipFile(zipFile);
 		ZipEntry zipEntry = zipFile.getEntry(dataBean.getContentUrl().getRef());
 		return zipFile.getInputStream(zipEntry);
 	}
