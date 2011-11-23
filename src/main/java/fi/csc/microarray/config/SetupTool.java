@@ -301,7 +301,7 @@ public class SetupTool {
 					if (isRPackageInstalled(rExecutable, packageName)) {
 						return true; // can be skipped
 					}
-					return runRInstallCommand(rExecutable, "install.packages(c(\"" + packageName + "\"), repos=\"" + repository + "\", dependencies = T)");
+					return runRInstallCommand(rExecutable, "install.packages(c(\"" + packageName + "\"), repos=\"" + repository + "\")");
 
 				} else if (item.getElementsByTagName("default-bioconductor-packages").getLength() > 0) {
 					// default BioC Lite packages available via Bioconductor installation mechanism
