@@ -8,6 +8,7 @@ import org.apache.commons.io.FileUtils;
 import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
 import fi.csc.microarray.messaging.JobState;
+import fi.csc.microarray.util.Exceptions;
 
 public class TestJavaTool extends JavaAnalysisJobBase {
 
@@ -36,7 +37,7 @@ public class TestJavaTool extends JavaAnalysisJobBase {
 
 		} catch (Exception ioe) {
 			outputMessage.setErrorMessage("Running Java job failed.");
-			outputMessage.setOutputText(ioe.toString());
+			outputMessage.setOutputText(Exceptions.getStackTrace(ioe));
 			updateState(JobState.FAILED, "");
 		}
 		updateState(JobState.RUNNING, "Java tool finished");

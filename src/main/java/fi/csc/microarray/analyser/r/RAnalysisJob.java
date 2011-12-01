@@ -27,6 +27,7 @@ import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage.ParameterSecurityPolicy;
 import fi.csc.microarray.messaging.message.JobMessage.ParameterValidityException;
+import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.IOUtils;
 
 /**
@@ -238,7 +239,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 			
 		} catch (ParameterValidityException e) {
 			outputMessage.setErrorMessage(e.getMessage()); // always has a message
-			outputMessage.setOutputText(e.toString());
+			outputMessage.setOutputText(Exceptions.getStackTrace(e));
 			updateState(JobState.FAILED_USER_ERROR, "");
 			return;
 		}
@@ -266,7 +267,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 			this.process = processPool.getProcess();
 		} catch (Exception e) {
 			outputMessage.setErrorMessage("Starting R failed.");
-			outputMessage.setOutputText(e.toString());
+			outputMessage.setOutputText(Exceptions.getStackTrace(e));
 			updateState(JobState.ERROR, "");
 			return;
 		}
@@ -342,7 +343,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 			waitRLatch.await(rTimeout, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			outputMessage.setErrorMessage("Running R was interrupted.");
-			outputMessage.setOutputText(e.toString());
+			outputMessage.setOutputText(Exceptions.getStackTrace(e));
 			updateState(JobState.ERROR, "");
 			return;
 		}

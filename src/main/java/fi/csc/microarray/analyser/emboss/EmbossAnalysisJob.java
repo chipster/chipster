@@ -12,6 +12,7 @@ import fi.csc.microarray.analyser.shell.ShellAnalysisJobBase;
 import fi.csc.microarray.analyser.shell.ShellAnalysisJob.ShellParameterSecurityPolicy;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage.ParameterValidityException;
+import fi.csc.microarray.util.Exceptions;
 
 /**
  * Runs EMBOSS applications.
@@ -67,7 +68,7 @@ public class EmbossAnalysisJob extends ShellAnalysisJobBase {
 			
 		} catch (ParameterValidityException e) {
 			outputMessage.setErrorMessage(e.getMessage()); // always has a message
-			outputMessage.setOutputText(e.toString());
+			outputMessage.setOutputText(Exceptions.getStackTrace(e));
 			updateState(JobState.FAILED_USER_ERROR, "");
 			return;
 		}

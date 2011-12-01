@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import fi.csc.microarray.analyser.AnalysisDescription.OutputDescription;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage;
+import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
 
@@ -63,7 +64,7 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 
 				// get url
 				URL inputUrl = inputMessage.getPayload(fileName);
-
+				
 				// get stream
 				File outputFile;
 				BufferedInputStream inputStream = null;
@@ -84,7 +85,7 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 			}
 		} catch (Exception e) {
 			outputMessage.setErrorMessage("Transferring input data to computing service failed.");
-			outputMessage.setOutputText(e.toString());
+			outputMessage.setOutputText("Mitä perkelettä" + Exceptions.getStackTrace(e));
 			updateState(JobState.ERROR, "");
 			return;
 		}			
@@ -145,7 +146,7 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 	                if (!fileDescription.isOptional()) {
 	                    logger.error("required output file not found", e);
 	                    outputMessage.setErrorMessage("Required output file is missing.");
-	                    outputMessage.setOutputText(e.toString());
+	                    outputMessage.setOutputText(Exceptions.getStackTrace(e));
 	                    updateState(JobState.ERROR, "");
 	                    return;
 	                }
@@ -154,7 +155,7 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 	                // TODO continue or return? also note the super.postExecute()
 	                logger.error("could not put file to file broker", e);
 	                outputMessage.setErrorMessage("Could not send output file.");
-	                outputMessage.setOutputText(e.toString());
+	                outputMessage.setOutputText(Exceptions.getStackTrace(e));
 	                updateState(JobState.ERROR, "");
 	                return;
 	            }

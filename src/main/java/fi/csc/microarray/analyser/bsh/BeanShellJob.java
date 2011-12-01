@@ -14,6 +14,7 @@ import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage.ParameterSecurityPolicy;
 import fi.csc.microarray.messaging.message.JobMessage.ParameterValidityException;
+import fi.csc.microarray.util.Exceptions;
 
 
 /**
@@ -70,7 +71,7 @@ public class BeanShellJob extends OnDiskAnalysisJobBase {
 			parameters = inputMessage.getParameters(BS_PARAMETER_SECURITY_POLICY, analysis);
 		} catch (ParameterValidityException e) {
 			outputMessage.setErrorMessage(e.getMessage()); // always has a message
-			outputMessage.setOutputText(e.toString());
+			outputMessage.setOutputText(Exceptions.getStackTrace(e));
 			updateState(JobState.FAILED_USER_ERROR, "");
 			return;
 		}
@@ -97,7 +98,7 @@ public class BeanShellJob extends OnDiskAnalysisJobBase {
 			String errorMessage = "Running the BeanShell script failed.";
 			logger.warn(errorMessage, te);
 			outputMessage.setErrorMessage(errorMessage);
-			outputMessage.setOutputText(te.toString());
+			outputMessage.setOutputText(Exceptions.getStackTrace(te));
 			updateState(JobState.FAILED, "");
 			return;
 		} 
@@ -106,7 +107,7 @@ public class BeanShellJob extends OnDiskAnalysisJobBase {
 		catch (EvalError ee) {
 			String errorMessage = "The BeanShell script could not be evaluated.";
 			outputMessage.setErrorMessage(errorMessage);
-			outputMessage.setOutputText(ee.toString());
+			outputMessage.setOutputText(Exceptions.getStackTrace(ee));
 			updateState(JobState.ERROR, "");
 			return;
 		}
