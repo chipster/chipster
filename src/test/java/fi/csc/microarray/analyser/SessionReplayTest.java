@@ -20,7 +20,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -277,7 +276,7 @@ public class SessionReplayTest extends MessagingTestBase {
 					toolTestResults.add(new ToolTestResult(TestResult.FAIL, operation, session, task, "task did not finish before test timeout " +TOOL_TEST_TIMEOUT + " " + TOOL_TEST_TIMEOUT_UNIT.toString()));
 					return;
 				}
-				toolTestResults.add(new ToolTestResult(TestResult.FAIL, operation, session, task, "task failed"));
+				toolTestResults.add(new ToolTestResult(TestResult.FAIL, operation, session, task, "task was not completed"));
 				return;
 			}
 			

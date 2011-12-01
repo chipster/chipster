@@ -181,6 +181,13 @@
       <package>sm</package>
     </item>
 
+	<item installed="false" name="flexmix" type="r-package">
+	  <!--  required by WECCA -->
+      <repository>http://cran.r-project.org</repository>
+      <package>flexmix</package>
+    </item>
+
+
 	<!--  Bioconductor packages -->
 	
     <item installed="false" name="bioconductor" type="r-package"> 
