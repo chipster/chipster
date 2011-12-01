@@ -395,17 +395,6 @@ public abstract class ClientApplication {
 			return;
 		}
 		
-		// check job size
-		long bytes = 0;
-		for (DataBinding binding : operation.getBindings()) {
-			bytes += binding.getData().getContentLength();			
-		}
-		int megabytes = (int)(bytes/1000000L);
-		if (megabytes > clientConstants.MAX_JOB_SIZE_MB) {
-			showDialog("Task not started since input datasets are too large.", "Maximum size for input datasets is " + clientConstants.MAX_JOB_SIZE_MB + " megabytes.", "Input datasets size: " + megabytes, Severity.INFO, false);
-			return;
-		}
-		
 		// start executing the task
 		Task task = taskExecutor.createTask(operation);
 		task.addTaskEventListener(new TaskEventListener() {
