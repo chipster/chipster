@@ -298,12 +298,15 @@ public class SetupTool {
 					// available in CRAN repository
 					String repository = item.getElementsByTagName("repository").item(0).getTextContent().trim();
 					String packageName = item.getElementsByTagName("package").item(0).getTextContent().trim();
-					return runRCommand(rExecutable, "install.packages(c(\"" + packageName + "\"), repos=\"" + repository + "\", dependencies = T)");
+					if (isRPackageInstalled(rExecutable, packageName)) {
+						return true; // can be skipped
+					}
+					return runRInstallCommand(rExecutable, "install.packages(c(\"" + packageName + "\"), repos=\"" + repository + "\")");
 
 				} else if (item.getElementsByTagName("default-bioconductor-packages").getLength() > 0) {
 					// default BioC Lite packages available via Bioconductor installation mechanism
 					String mirror = item.getElementsByTagName("mirror").item(0).getTextContent().trim();
-					return runRCommands(rExecutable, generateBiocCommands(new String[] { 
+					return runRInstallCommands(rExecutable, generateBiocCommands(new String[] { 
 							"biocLite()" 
 					}, mirror));
 
@@ -311,7 +314,10 @@ public class SetupTool {
 					// available via Bioconductor installation mechanism
 					String packageName = item.getElementsByTagName("bioconductor-package").item(0).getTextContent().trim();
 					String mirror = item.getElementsByTagName("mirror").item(0).getTextContent().trim();
-					return runRCommands(rExecutable, generateBiocCommands(new String[] { 
+					if (isRPackageInstalled(rExecutable, packageName)) {
+						return true; // can be skipped
+					}
+					return runRInstallCommands(rExecutable, generateBiocCommands(new String[] { 
 							"biocLite(c(\"" + packageName + "\"))" 
 					}, mirror));
 
@@ -319,7 +325,7 @@ public class SetupTool {
 					// Bioconductor annotation repository
 					String repositoryName = item.getElementsByTagName("bioconductor-repository").item(0).getTextContent().trim();
 					String mirror = item.getElementsByTagName("mirror").item(0).getTextContent().trim();
-					return runRCommands(rExecutable, generateBiocCommands(new String[] { 
+					return runRInstallCommands(rExecutable, generateBiocCommands(new String[] { 
 							"setRepositories(ind=c(" + repositoryName + "))",
 							"install.packages(available.packages())"
 					}, mirror));
@@ -387,7 +393,7 @@ public class SetupTool {
 			File file = downloadFile(url);
 
 			// install the package
-			boolean ok = runRCommand(rExecutable, "install.packages(pkgs=\"" + file.getAbsolutePath() + "\", repos=NULL)");
+			boolean ok = runRInstallCommand(rExecutable, "install.packages(pkgs=\"" + file.getAbsolutePath() + "\", repos=NULL)");
 
 			// clean up
 			file.delete();
@@ -415,11 +421,25 @@ public class SetupTool {
 
 	}
 
-	private static boolean runRCommand(String rExecutable, String command) throws IOException, InterruptedException {
-		return runRCommands(rExecutable, new String[] { command });
+	
+	private static boolean isRPackageInstalled(String rExecutable, String packageName) throws IOException, InterruptedException {
+		// in the R code we do some tricks because the source code itself is echoed to output 
+		String buffer = runRCommands(rExecutable, new String[] { "if(require(\"" + packageName + "\")) { print(gsub(\"_remove this_\", \"\", paste(\"IS ALREADY INSTALLED:_remove this_\", \"" + packageName + "\"))) }" });
+		return buffer.contains("IS ALREADY INSTALLED: " + packageName);
+	}
+	
+	private static boolean runRInstallCommand(String rExecutable, String command) throws IOException, InterruptedException {
+		return runRInstallCommands(rExecutable, new String[] { command });
 	}
 
-	private static boolean runRCommands(String rExecutable, String[] commands) throws IOException, InterruptedException {
+	private static boolean runRInstallCommands(String rExecutable, String[] commands) throws IOException, InterruptedException {
+		String buffer =  runRCommands(rExecutable, commands);
+
+		// check that something was done and nothing failed (in case multiple packages installed due to dependencies)
+		return buffer.contains("DONE") && !buffer.contains("FAILED") && !buffer.contains("ERROR");
+	}
+	
+	private static String runRCommands(String rExecutable, String[] commands) throws IOException, InterruptedException {
 		Process process = Runtime.getRuntime().exec((rExecutable + " --vanilla"), null, new File(System.getProperty("user.dir")));
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 		startBackgroundEchoThread(process.getInputStream(), new OutputStream[] { System.out, buffer });
@@ -432,8 +452,7 @@ public class SetupTool {
 		commandWriter.flush();
 		process.waitFor();
 
-		// check that something was done and nothing failed (in case multiple packages installed due to dependencies)
-		return buffer.toString().contains("DONE") && !buffer.toString().contains("FAILED"); 
+		return buffer.toString(); 
 	}
 
 	private static void startBackgroundEchoThread(final InputStream inputStream, final OutputStream[] outs) {
