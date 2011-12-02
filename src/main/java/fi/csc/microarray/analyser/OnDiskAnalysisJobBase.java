@@ -1,11 +1,8 @@
 package fi.csc.microarray.analyser;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.net.URL;
 import java.util.List;
 
@@ -16,7 +13,6 @@ import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;
-import fi.csc.microarray.util.IOUtils;
 
 /**
  * Provides functionality for transferring input files from file broker
@@ -62,30 +58,17 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 			for (String fileName : inputMessage.payloadNames()) {
 				cancelCheck();
 
-				// get url
-				URL inputUrl = inputMessage.getPayload(fileName);
+				// get url and output file
+				URL url = inputMessage.getPayload(fileName);
+				File localFile = new File(jobWorkDir, fileName);
 				
-				// get stream
-				File outputFile;
-				BufferedInputStream inputStream = null;
-				BufferedOutputStream fileStream = null;
-				try {
-					inputStream = new BufferedInputStream(resultHandler.getFileBrokerClient().getFile(inputUrl));
-
-					// copy to file
-					outputFile = new File(jobWorkDir, fileName);
-					fileStream = new BufferedOutputStream(new FileOutputStream(outputFile));
-					IOUtils.copy(inputStream, fileStream);
-				} finally {
-					IOUtils.closeIfPossible(inputStream);
-					IOUtils.closeIfPossible(fileStream);
-				}
-
-				logger.debug("created input file: " + outputFile.getName() + " " + outputFile.length());
+				// make local file available, by downloading, copying or symlinking
+				resultHandler.getFileBrokerClient().getLocalFile(new File(jobWorkDir, fileName), url);
+				logger.debug("made available local file: " + localFile.getName() + " " + localFile.length());
 			}
 		} catch (Exception e) {
 			outputMessage.setErrorMessage("Transferring input data to computing service failed.");
-			outputMessage.setOutputText("Mitä perkelettä" + Exceptions.getStackTrace(e));
+			outputMessage.setOutputText(Exceptions.getStackTrace(e));
 			updateState(JobState.ERROR, "");
 			return;
 		}			

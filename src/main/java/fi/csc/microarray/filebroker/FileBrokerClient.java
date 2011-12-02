@@ -1,5 +1,6 @@
 package fi.csc.microarray.filebroker;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -71,5 +72,7 @@ public interface FileBrokerClient {
 	 * @throws JMSException
 	 */
 	public abstract URL getPublicUrl() throws Exception;
+
+	public abstract void getLocalFile(File file, URL inputUrl) throws IOException;
 
 }

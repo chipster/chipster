@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.SocketAddress;
@@ -24,6 +25,12 @@ public class UrlTransferUtil {
 		return url.openStream();		
 	}
 
+	
+	public static String parseFilename(URL url) {
+		int start = url.getPath().contains("/") ? url.getPath().lastIndexOf("/") + 1 : url.getPath().length();
+		return url.getPath().substring(start);
+	}
+	
 	/**
 	 * Uploads a file (or similar) over HTTP.
 	 * NOTE! Compression does not work with files larger than 4 gigabytes

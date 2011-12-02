@@ -1,5 +1,9 @@
 package fi.csc.microarray.filebroker;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -88,16 +92,23 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	private MessagingTopic urlTopic;	
 	private boolean useChunked;
 	private boolean useCompression;
+	private String[] localFilebrokerPaths;
 	
-	public JMSFileBrokerClient(MessagingTopic urlTopic) throws JMSException {
+	public JMSFileBrokerClient(MessagingTopic urlTopic, String[] localFilebrokerPaths) {
+
+		this.urlTopic = urlTopic;
+		this.localFilebrokerPaths = localFilebrokerPaths;
+
 		// read configs
 		this.useChunked = DirectoryLayout.getInstance().getConfiguration().getBoolean("messaging", "use-chunked-http"); 
 		this.useCompression = DirectoryLayout.getInstance().getConfiguration().getBoolean("messaging", "use-compression");
 		
-		// initialize messaging
-		this.urlTopic = urlTopic;
 	}
 	
+	public JMSFileBrokerClient(MessagingTopic urlTopic) throws JMSException {
+		this(urlTopic, null);
+	}
+
 
 	/* (non-Javadoc)
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#addFile(java.io.InputStream, fi.csc.microarray.util.IOUtils.CopyProgressListener)
@@ -225,6 +236,34 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		}
 
 		return url;
+	}
+
+
+	@Override
+	public void getLocalFile(File localFile, URL url) throws IOException {
+		// Try to find the file locally
+		for (String path : localFilebrokerPaths) {
+			File fileInFilebrokerCache = new File(path, UrlTransferUtil.parseFilename(url));
+			if (fileInFilebrokerCache.exists()) {
+				IOUtils.copy(fileInFilebrokerCache, localFile); // FIXME try to symlink also
+			}
+		}
+		
+		// Not available locally, need to download
+		BufferedInputStream inputStream = null;
+		BufferedOutputStream fileStream = null;
+		try {
+			inputStream = new BufferedInputStream(getFile(url));
+
+			// Download to file
+			fileStream = new BufferedOutputStream(new FileOutputStream(localFile));
+			IOUtils.copy(inputStream, fileStream);
+		} finally {
+			IOUtils.closeIfPossible(inputStream);
+			IOUtils.closeIfPossible(fileStream);
+		}
+
+		
 	}
 
 }
