@@ -770,9 +770,17 @@ public abstract class ClientApplication {
 	}
 	
 	public void clearDeadTempDirectories() {
-		for (File dir : deadDirectories) {
-			Files.delTree(dir);
+		
+		// Try to clear dead temp directories
+		try {
+			for (File dir : deadDirectories) {
+				Files.delTree(dir);
+			}
+		} catch (IOException e) {
+			reportException(e);
 		}
+
+		// Remove them from bookkeeping in any case
 		deadDirectories.clear();
 	}
 	
