@@ -57,7 +57,7 @@ calls <- assayDataElement(cgh, 'calls')
 
 dat3$loss.freq <- round(rowMeans(calls == -1), digits=3)
 dat3$gain.freq <- round(rowMeans(calls == 1), digits=3)
-if (number.of.copy.number.states=='4' && 2 %in% assayDataElement(cgh, 'calls'))
+if (number.of.copy.number.states=='4' && 2 %in% calls)
   dat3$amp.freq <- round(rowMeans(calls == 2), digits=3)
 
 colnames(calls) <- sub('chip.', 'flag.', chips)
