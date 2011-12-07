@@ -7,9 +7,9 @@
 
 # detect-common-copy-number-aberration-regions.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-03-30
+# 2011-11-17
 
-library(CGHcall)
+library(CGHcall) # source CGHcallPlus
 library(CGHregions)
 library(WECCA)
 
@@ -56,10 +56,10 @@ if (nrow(dat2[dat2$chromosome %in% dat$chromosome & dat2$end %in% dat$start,]) >
   for (row in rownames(dat2))
     dat2[row, 'end'] <- dat[dat$chromosome == dat2[row, 'chromosome'] & dat$start == dat2[row, 'end'], 'end'][1]
 
-dat2$loss.freq <- round(mean(as.data.frame(t(hardcalls==-1))), digits=3)
-dat2$gain.freq <- round(mean(as.data.frame(t(hardcalls==1))), digits=3)
+dat2$loss.freq <- round(rowMeans(hardcalls == -1), digits=3)
+dat2$gain.freq <- round(rowMeans(hardcalls == 1), digits=3)
 if (2 %in% hardcalls)
-  dat2$amp.freq <- round(mean(as.data.frame(t(hardcalls==2))), digits=3)
+  dat2$amp.freq <- round(rowMeans(hardcalls == 2), digits=3)
 
 dat2 <- cbind(dat2, hardcalls)
 colnames(dat2) <- sub('calls\\.', 'flag\\.', colnames(dat2))
@@ -93,6 +93,7 @@ pdf(file='regions.pdf')
 plot(regions)
 dev.off()
 
+# bitmap(file='regions-frequencies.png', width=600/72, height=600/72)
 pdf(file='regions-frequencies.pdf')
 frequencyPlot(regions)
 dev.off()
