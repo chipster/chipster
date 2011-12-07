@@ -1,7 +1,6 @@
 package fi.csc.microarray.analyser;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.List;
@@ -119,7 +118,7 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 	            // copy file to file broker
 	            URL url;
 	            try {
-	                url = resultHandler.getFileBrokerClient().addFile(new FileInputStream(outputFile), null);
+	                url = resultHandler.getFileBrokerClient().addFile(outputFile, null);
 	                // put url to result message
 	                outputMessage.addPayload(outputFile.getName(), url);
 	                logger.debug("transferred output file: " + fileDescription.getFileName());

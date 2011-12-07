@@ -12,6 +12,18 @@ import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 public interface FileBrokerClient {
 
 	/**
+	 * Add InputStream as file to file broker.
+	 * 
+	 * @param content
+	 * @param progressListener may be null
+	 * @return url to the added file
+	 * @throws FileBrokerException if url from file broker is null or getting url timeouts
+	 * @throws JMSException
+	 * @throws IOException
+	 */
+	public abstract URL addInputStream(InputStream content, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException;
+
+	/**
 	 * Add file to file broker.
 	 * 
 	 * @param content
@@ -21,8 +33,7 @@ public interface FileBrokerClient {
 	 * @throws JMSException
 	 * @throws IOException
 	 */
-	public abstract URL addFile(InputStream content, CopyProgressListener progressListener) throws FileBrokerException, JMSException,
-			IOException;
+	public abstract URL addFile(File file, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException;
 
 	/**
 	 *  Get the InputStream for a while form the FileBroker.

@@ -479,13 +479,13 @@ public class TaskExecutor {
 
 							// bean modified, upload
 							if (bean.isContentChanged()) {
-								bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), progressListener)); 
+								bean.setCacheUrl(fileBroker.addInputStream(bean.getContentByteStream(), progressListener)); 
 								bean.setContentChanged(false);
 							} 
 
 							// bean not modified, check cache, upload if needed
 							else if (bean.getCacheUrl() != null && !fileBroker.checkFile(bean.getCacheUrl(), bean.getContentLength())){
-								bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), progressListener));
+								bean.setCacheUrl(fileBroker.addInputStream(bean.getContentByteStream(), progressListener));
 							}
 
 						} finally {
@@ -710,7 +710,7 @@ public class TaskExecutor {
 			DataBean bean = task.getInput(name);
 			try {
 				bean.getLock().readLock().lock();
-				bean.setCacheUrl(fileBroker.addFile(bean.getContentByteStream(), null)); // no progress listening on resends 
+				bean.setCacheUrl(fileBroker.addInputStream(bean.getContentByteStream(), null)); // no progress listening on resends 
 				bean.setContentChanged(false);
 			} finally {
 				bean.getLock().readLock().unlock();

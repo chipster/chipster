@@ -22,7 +22,7 @@ import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 public class SimpleFileBrokerClient implements FileBrokerClient {
 
 	@Override
-	public URL addFile(InputStream content, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
+	public URL addInputStream(InputStream content, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
 		throw new UnsupportedOperationException();
 	}
 
@@ -42,6 +42,11 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 
 	@Override
 	public void getLocalFile(File file, URL inputUrl) throws IOException {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public URL addFile(File file, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
 		throw new UnsupportedOperationException();
 	}
 
