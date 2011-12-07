@@ -23,6 +23,7 @@ import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.UrlMessage;
+import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.UrlTransferUtil;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
@@ -241,11 +242,15 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 
 	@Override
 	public void getLocalFile(File localFile, URL url) throws IOException {
-		// Try to find the file locally
+		// Try to find the file locally and symlink/copy it
 		for (String path : localFilebrokerPaths) {
 			File fileInFilebrokerCache = new File(path, UrlTransferUtil.parseFilename(url));
 			if (fileInFilebrokerCache.exists()) {
-				IOUtils.copy(fileInFilebrokerCache, localFile); // FIXME try to symlink also
+				boolean linkCreated = Files.createSymbolicLink(fileInFilebrokerCache, localFile);
+				
+				if (!linkCreated) {
+					IOUtils.copy(fileInFilebrokerCache, localFile); // cannot create a link, must copy
+				}
 			}
 		}
 		
