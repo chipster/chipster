@@ -8,8 +8,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -54,7 +59,7 @@ public class ConfigTool {
 			{"Web Start www-server port", "8081"},
 			{"manager www-console port", "8082"},
 			{"admin e-mail address", "chipster-admin@mydomain"},
-			{CURRENT_R_VERSION + ".x command", "/opt/chipster/tools/" + CURRENT_R_VERSION + ".0/"},
+			{"path to R binary", "/opt/chipster2/tools/R/bin/R"},
 			{"max. simultanous jobs (more recommended when compute service on separate node)", "3"}
 	};
 
@@ -83,10 +88,7 @@ public class ConfigTool {
 	private HashMap<String, Document> documentsToWrite = new HashMap<String, Document>();
 
 	public ConfigTool() throws ParserConfigurationException {
-		System.out.println("Chipster ConfigTool");
-		System.out.println("");
-		System.out.println("No changes are written before you verify them");
-		System.out.println("");
+		System.out.println("Configuring Chipster");
 	}
 	
 	public static void main(String[] args) throws Exception {
@@ -99,10 +101,10 @@ public class ConfigTool {
 
 		} else if ("configure".equals(args[0])) {
 			configTool.configure();
-
-		} else if ("simple-configure".equals(args[0])) {
-			configTool.simpleConfigure();
-
+		} else if ("auto-configure".equals(args[0])) {
+			configTool.simpleConfigure(null);
+		} else if ("simple-configure".equals(args[0]) && args.length == 2) {
+			configTool.simpleConfigure(args[1]);
 		} else if ("genpasswd".equals(args[0])) {
 			configTool.genpasswd();
 
@@ -193,15 +195,20 @@ public class ConfigTool {
 
 	public static void verifyChanges(BufferedReader in, String question) throws Exception {
 		System.out.println(question + " [yes/no]?");
-		String answer = in.readLine();
-		if (!"yes".equals(answer)) {
-			throw new Exception("User decided to abort");
+		for (String answer = in.readLine();!"yes".equals(answer); answer = in.readLine()) {
+			if ("no".equals(answer)) {
+				throw new Exception("User decided to abort");	
+			}
+			System.out.println(question + " [yes/no]?");
 		}
 	}
 
 	public void configure() throws Exception {
 
 		try {
+			System.out.println("No changes are written before you verify them.");
+			System.out.println("");
+
 			BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 
 			//
@@ -210,23 +217,32 @@ public class ConfigTool {
 			
 			// sniff current host
 			try {
-				String host = InetAddress.getLocalHost().getHostName();
+				String host = getInetAddress().getHostName();
 				configs[BROKER_HOST_INDEX][VAL_INDEX] = host;
 				configs[FILEBROKER_HOST_INDEX][VAL_INDEX] = host;
-				configs[WS_CODEBASE_INDEX][VAL_INDEX] = "http://" + host + ":8081";
+				configs[WS_CODEBASE_INDEX][VAL_INDEX] = "http://" + configs[BROKER_HOST_INDEX][VAL_INDEX] + ":" + configs[WS_PORT][VAL_INDEX];
 			} catch (UnknownHostException e) {
 				// ignore, sniffing failed
 			}
 			
 			// gather required data
 			for (int i = 0; i < configs.length; i++) {
+				if (i == WS_CODEBASE_INDEX) {
+					continue;
+				}
 				System.out.println("Please specify " + configs[i][KEY_INDEX] + " [" + configs[i][VAL_INDEX] + "]: ");
 				String line = in.readLine();
 				if (!line.trim().equals("")) {
 					configs[i][VAL_INDEX] = line;
 				}
 			}
+			
+			// add web start location
+			configs[WS_CODEBASE_INDEX][VAL_INDEX] = "http://" + configs[BROKER_HOST_INDEX][VAL_INDEX] + ":" + configs[WS_PORT][VAL_INDEX];
 
+			
+			
+			
 			//
 			// STEP 2. UPDATE CONFIGS
 			//
@@ -250,47 +266,26 @@ public class ConfigTool {
 
 	}
 
+	/**
+	 * Configure server host, use defaults for other things.
+	 * 
+	 * @param host
+	 * @throws Exception
+	 */
+	public void simpleConfigure(String host) throws Exception {
 	
-	public void simpleConfigure() throws Exception {
-
+		// auto detect hostname
+		if (host == null) {
+			host = getInetAddress().getHostName();
+		}
+		
 		try {
 
-			String hostName = "";
-			String brokerProtocol = "tcp";
-			int brokerPort = 61616;
-			int filebrokerPort = 8070;
-			
-			
-			// sniff current host
-			try {
-				String host = InetAddress.getLocalHost().getHostName();
-				configs[BROKER_HOST_INDEX][VAL_INDEX] = host;
-				configs[FILEBROKER_HOST_INDEX][VAL_INDEX] = host;
-				configs[WS_CODEBASE_INDEX][VAL_INDEX] = "http://" + host + ":8081";
-			} catch (UnknownHostException e) {
-				// ignore, sniffing failed
-			}
-			
-			configs[BROKER_HOST_INDEX][VAL_INDEX] = hostName;
-			configs[BROKER_PROTOCOL_INDEX][VAL_INDEX] = brokerProtocol;
-			configs[BROKER_PORT_INDEX][VAL_INDEX] = String.valueOf(brokerPort);
-			configs[FILEBROKER_HOST_INDEX][VAL_INDEX] = hostName;
-			configs[FILEBROKER_PORT_INDEX][VAL_INDEX] = String.valueOf(filebrokerPort);
-//			configs[WS_CODEBASE_INDEX][VAL_INDEX] = ;
-//			configs[WS_PORT][VAL_INDEX] = ;
-//			configs[MANAGER_PORT][VAL_INDEX] = ;
-//			configs[MANAGER_EMAIL][VAL_INDEX] = ;
-//			configs[R_COMMAND_INDEX][VAL_INDEX] = ;
-//			configs[MAX_JOBS_INDEX][VAL_INDEX] = ;
-
-			
-			
-			
+			configs[BROKER_HOST_INDEX][VAL_INDEX] = host;
+			configs[FILEBROKER_HOST_INDEX][VAL_INDEX] = host;
+			configs[WS_CODEBASE_INDEX][VAL_INDEX] = "http://" + host + ":" + configs[WS_PORT][VAL_INDEX];
 			
 			updateConfigs();
-
-			BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-			verifyChanges(in);
 
 		} catch (Throwable t) {
 			t.printStackTrace();
@@ -497,4 +492,41 @@ public class ConfigTool {
 	public static String[] getComponentDirsWithConfig() {
 		return componentDirsWithConfig;
 	}
+
+	
+	/**
+	 * Prefer something other than loopback.
+	 * 
+	 * @return
+	 * @throws SocketException
+	 * @throws UnknownHostException
+	 */
+	public static InetAddress getInetAddress() throws SocketException, UnknownHostException {
+		
+		// try to use eth0 if found
+		NetworkInterface eth0 = NetworkInterface.getByName("eth0");
+		if (eth0 != null) {
+			Enumeration<InetAddress> addresses = eth0.getInetAddresses();
+			for (InetAddress address : Collections.list(addresses)) {
+				if (address instanceof Inet4Address) {
+					return address;
+				}
+			}
+		} 
+		
+		// something other than eth0 or loopback
+		Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+		for (NetworkInterface iface : Collections.list(interfaces)) {
+			Enumeration<InetAddress> addresses = iface.getInetAddresses();
+			for (InetAddress address : Collections.list(addresses)) {
+				if (address instanceof Inet4Address && !address.isLoopbackAddress()) {
+					return address;
+				}
+			}
+		}
+	
+		// default, probably loopback
+		return InetAddress.getLocalHost();
+	}
+
 }
