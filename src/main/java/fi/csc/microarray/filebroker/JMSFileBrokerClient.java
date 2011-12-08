@@ -146,10 +146,10 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 
 
 	/**
-	 * @see fi.csc.microarray.filebroker.FileBrokerClient#addInputStream(InputStream, CopyProgressListener)
+	 * @see fi.csc.microarray.filebroker.FileBrokerClient#addFile(InputStream, CopyProgressListener)
 	 */
 	@Override
-	public URL addInputStream(InputStream inputStream, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
+	public URL addFile(InputStream file, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
 		
 		// Get new url
 		URL url = getNewUrl(useCompression);
@@ -159,7 +159,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 
 		// Upload the stream into a file at filebroker
 		logger.debug("uploading new file: " + url);
-		UrlTransferUtil.uploadStream(url, inputStream, useChunked, useCompression, progressListener);
+		UrlTransferUtil.uploadStream(url, file, useChunked, useCompression, progressListener);
 		logger.debug("successfully uploaded: " + url);
 		
 		return url;
@@ -283,19 +283,19 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 * local filebroker paths (given in constructor of this class), them it is symlinked or copied locally.
 	 * Otherwise the file pointed by the url is downloaded.
 	 * 
-  	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getLocalFile(File, URL)
+  	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getFile(File, URL)
 	 */
 	@Override
-	public void getLocalFile(File localFile, URL url) throws IOException {
+	public void getFile(File destFile, URL url) throws IOException {
 		// Try to find the file locally and symlink/copy it
 		if (localFilebrokerPath != null) {
 			File fileInFilebrokerCache = new File(localFilebrokerPath, UrlTransferUtil.parseFilename(url));
 			// If file in filebroker cache is compressed, it will have specific suffix and we will not match it
 			if (fileInFilebrokerCache.exists()) {
-				boolean linkCreated = Files.createSymbolicLink(fileInFilebrokerCache, localFile);
+				boolean linkCreated = Files.createSymbolicLink(fileInFilebrokerCache, destFile);
 
 				if (!linkCreated) {
-					IOUtils.copy(fileInFilebrokerCache, localFile); // cannot create a link, must copy
+					IOUtils.copy(fileInFilebrokerCache, destFile); // cannot create a link, must copy
 				}
 			}
 		}
@@ -307,7 +307,7 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 			inputStream = new BufferedInputStream(getFile(url));
 
 			// Download to file
-			fileStream = new BufferedOutputStream(new FileOutputStream(localFile));
+			fileStream = new BufferedOutputStream(new FileOutputStream(destFile));
 			IOUtils.copy(inputStream, fileStream);
 		} finally {
 			IOUtils.closeIfPossible(inputStream);

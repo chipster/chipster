@@ -62,7 +62,7 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 				File localFile = new File(jobWorkDir, fileName);
 				
 				// make local file available, by downloading, copying or symlinking
-				resultHandler.getFileBrokerClient().getLocalFile(new File(jobWorkDir, fileName), url);
+				resultHandler.getFileBrokerClient().getFile(new File(jobWorkDir, fileName), url);
 				logger.debug("made available local file: " + localFile.getName() + " " + localFile.length());
 			}
 		} catch (Exception e) {

@@ -139,7 +139,7 @@ public class FeedbackDialog extends JDialog implements ActionListener {
                     application.getDataManager().saveSession(tmpSession);
                     // save it with the file broker
                 	FileBrokerClient fileBroker = serviceAccessor.getFileBrokerClient();
-                    sessionURL = fileBroker.addInputStream(new FileInputStream(tmpSession), null).toString();
+                    sessionURL = fileBroker.addFile(new FileInputStream(tmpSession), null).toString();
                     // delete temp file
                     tmpSession.delete();
                 } else {
@@ -158,7 +158,7 @@ public class FeedbackDialog extends JDialog implements ActionListener {
                     for (File logFile : logDir.listFiles()) {
                         // save it with the file broker
                     	FileBrokerClient fileBroker = serviceAccessor.getFileBrokerClient();
-                        String logURL = fileBroker.addInputStream(new FileInputStream(logFile), null).toString();
+                        String logURL = fileBroker.addFile(new FileInputStream(logFile), null).toString();
                         message.addLog(logFile.getName(), logURL);
                     }
                 }
