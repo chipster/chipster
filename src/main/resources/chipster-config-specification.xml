@@ -126,6 +126,10 @@
     
 	<configuration-module moduleId="comp" description="comp service">
 
+		<entry entryKey="local-filebroker-user-data-path" type="string" description="path to local filebroker's user data directory">
+			<value></value>
+		</entry>
+		
 		<entry entryKey="work-dir" type="string" description="directory for temporary job files">
 			<value>jobs-data</value>
 		</entry>
