@@ -153,6 +153,7 @@
 		<mkdir dir="${build}" />
 		<javac destdir="${build}" target="1.6" source="1.6" debug="true" failonerror="true">
 			<src path="${src}" />
+			<src path="${test-src}" />
 			<src path="${modules-src-microarray}" />
 			<src path="${modules-src-ngs}" />
 			<classpath>
@@ -363,6 +364,8 @@
 			<tarfileset dir="${ext-src}/wrapper/manager/logs" prefix="chipster/manager/logs" /> <!-- must exist for wrapper -->
 			<tarfileset dir="${ext-src}/wrapper/manager/security" prefix="chipster/manager/security" />
 
+			<tarfileset dir="${ext-src}/wrapper/manager/testrunner" prefix="chipster/manager/testrunner" />
+		
 			
 			<!-- activemq -->
 			<!-- this looks weird because tar task does not preserve file permissions and activemq has messed up with some files -->

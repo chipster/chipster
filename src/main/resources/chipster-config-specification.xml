@@ -236,6 +236,30 @@
 	
 			
 	</configuration-module>
+
+
+	<configuration-module moduleId="testrunner" description="testrunner">
+	
+		<entry entryKey="username" type="string" description="username for running test">
+			<value>chipster</value>
+		</entry>
+	
+		<entry entryKey="password" type="string" description="">
+			<value>chipster</value>
+		</entry>
+
+		<entry entryKey="database-username" type="string" description="username for JDBC">
+			<value>chipster</value>
+		</entry>
+
+		<entry entryKey="database-password" type="string" description="password for JDBC">
+			<value></value>
+		</entry>
+
+	
+			
+	</configuration-module>
+
 	
 	
 	<configuration-module moduleId="client" description="client constants">
@@ -244,10 +268,6 @@
 			<value>10</value>
 		</entry>
 		
-		<entry entryKey="max-job-size-mb" type="int" description="maximum job size in megabytes">
-			<value>10000</value>
-		</entry>
-
 	</configuration-module>
 	
 

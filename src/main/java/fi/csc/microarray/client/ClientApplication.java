@@ -86,7 +86,7 @@ public abstract class ClientApplication {
 	protected static final int SESSION_BACKUP_INTERVAL = 5 * 1000;
 
 	// Logger for this class
-	private static Logger logger;
+	protected static Logger logger;
 
     // 
 	// ABSTRACT INTERFACE
@@ -392,17 +392,6 @@ public abstract class ClientApplication {
 		if (taskExecutor.getRunningTaskCount() >= clientConstants.MAX_JOBS) {
 			showDialog("Task not started as there are maximum number of tasks already running.", "You can only run " + clientConstants.MAX_JOBS + " tasks at the same time. Please wait for one of the currently running tasks to finish and try again.",
 						null, Severity.INFO, false);
-			return;
-		}
-		
-		// check job size
-		long bytes = 0;
-		for (DataBinding binding : operation.getBindings()) {
-			bytes += binding.getData().getContentLength();			
-		}
-		int megabytes = (int)(bytes/1000000L);
-		if (megabytes > clientConstants.MAX_JOB_SIZE_MB) {
-			showDialog("Task not started since input datasets are too large.", "Maximum size for input datasets is " + clientConstants.MAX_JOB_SIZE_MB + " megabytes.", "Input datasets size: " + megabytes, Severity.INFO, false);
 			return;
 		}
 		

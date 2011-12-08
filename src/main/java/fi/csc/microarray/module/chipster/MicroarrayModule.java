@@ -148,7 +148,7 @@ public class MicroarrayModule implements Module {
 		if ("microarray".equals(moduleName)) {
 			return "Microarrays";
 		} else if ("ngs".equals(moduleName)) {
-			return "Next Gen Sequencing";
+			return "NGS";
 		} else {
 			throw new IllegalArgumentException("not recognised: " + moduleName);
 		}
