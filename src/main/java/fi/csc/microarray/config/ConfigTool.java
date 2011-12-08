@@ -100,8 +100,8 @@ public class ConfigTool {
 		} else if ("configure".equals(args[0])) {
 			configTool.configure();
 
-		} else if ("simple-configure".equals(args[0])) {
-			configTool.simpleConfigure();
+		} else if ("simple-configure".equals(args[0]) && args.length == 2) {
+			configTool.simpleConfigure(args[1]);
 
 		} else if ("genpasswd".equals(args[0])) {
 			configTool.genpasswd();
