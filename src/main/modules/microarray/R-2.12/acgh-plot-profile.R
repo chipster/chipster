@@ -83,7 +83,7 @@ if (length(chrs.to.plot)==0)
   chrs.to.plot <- 0
 
 # plot
-pdf(file='cgh-profile.pdf')
+pdf(file='cgh-profile.pdf', paper='a4r', width=0, height=0)
 for (sample in samples.to.plot)
   if (0 %in% chrs.to.plot) {
     plot(cgh[,sample], dotres=1/resolution)

@@ -89,12 +89,11 @@ dat2$chromosome[dat2$chromosome=='25'] <- 'MT'
 
 write.table(dat2, file='regions.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
-pdf(file='regions.pdf')
+pdf(file='regions.pdf', paper='a4r', width=0, height=0)
 plot(regions)
 dev.off()
 
-# bitmap(file='region-frequencies.png', width=600/72, height=600/72)
-pdf(file='region-frequencies.pdf')
+pdf(file='region-frequencies.pdf', paper='a4r', width=0, height=0)
 frequencyPlot(regions)
 dev.off()
 

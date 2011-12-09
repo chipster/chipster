@@ -69,7 +69,7 @@ if (length(sample)==0)
   stop('CHIPSTER-NOTE: Nothing to plot.')
 
 # plot
-pdf(file='matched-cn-and-expression-profile.pdf')
+pdf(file='matched-cn-and-expression-profile.pdf', paper='a4r', width=0, height=0)
 for (sample in samples.to.plot)
   intCNGEan.profilesPlot(matched$CNdata.matched, matched$GEdata.matched, sampleNo=sample, chr=chromosome)
 dev.off()
