@@ -7,9 +7,9 @@
 
 # plot-cn-induced-expression-profile.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-03-30
+# 2012-12-09
 
-library(CGHcall)
+source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 library(intCNGEan)
 
 # read the input files

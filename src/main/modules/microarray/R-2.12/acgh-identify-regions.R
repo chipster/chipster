@@ -2,14 +2,14 @@
 # INPUT aberrations.tsv: aberrations.tsv TYPE GENE_EXPRS 
 # OUTPUT regions.tsv: regions.tsv 
 # OUTPUT regions.pdf: regions.pdf 
-# OUTPUT regions-frequencies.pdf: regions-frequencies.pdf 
+# OUTPUT region-frequencies.pdf: region-frequencies.pdf 
 # PARAMETER max.info.loss: max.info.loss TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.01 (Maximal information loss allowed.)
 
 # detect-common-copy-number-aberration-regions.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-11-17
+# 2011-12-09
 
-library(CGHcall) # source CGHcallPlus
+source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 library(CGHregions)
 library(WECCA)
 
@@ -93,8 +93,8 @@ pdf(file='regions.pdf')
 plot(regions)
 dev.off()
 
-# bitmap(file='regions-frequencies.png', width=600/72, height=600/72)
-pdf(file='regions-frequencies.pdf')
+# bitmap(file='region-frequencies.png', width=600/72, height=600/72)
+pdf(file='region-frequencies.pdf')
 frequencyPlot(regions)
 dev.off()
 

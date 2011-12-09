@@ -1,7 +1,7 @@
 # TOOL acgh-call-aberrations.R: "Call copy number aberrations from aCGH data" (Call copy number aberrations from aCGH log ratios.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # OUTPUT aberrations.tsv: aberrations.tsv 
-# OUTPUT aberrations.png: aberrations.png 
+# OUTPUT aberration-frequencies.png: aberration-frequencies.png 
 # PARAMETER normalization: normalization TYPE [median: median, mode: mode, none: none] DEFAULT none (Normalization method.)
 # PARAMETER number.of.chromosomes: number.of.chromosomes TYPE INTEGER DEFAULT 23 (Number of chromosomes. Usually 23 for sex-matched reference samples and 22 otherwise.)
 # PARAMETER number.of.copy.number.states: number.of.copy.number.states TYPE [3: 3, 4: 4] DEFAULT 3 (Whether to call loss vs. normal vs. gain or loss vs. normal vs. gain vs. amplification.)
@@ -14,9 +14,9 @@
 
 # detect-copy-number-aberrations.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-11-17
+# 2011-12-09
 
-library(CGHcall) # source CGHcallPlus
+source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 
 dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 
@@ -42,8 +42,7 @@ cgh.pre <- preprocess(cgh.raw, nchrom=number.of.chromosomes)
 cgh.nor <- normalize(cgh.pre, method=normalization)
 cgh.seg <- segmentData(cgh.nor, min.width=as.integer(minimum.number.of.probes.per.segment), undo.splits='sdundo', undo.SD=minimum.number.of.sds.between.segments)
 cgh.psn <- postsegnormalize(cgh.seg)
-# cgh.cal <- CGHcall(cgh.psn, nclass=as.integer(number.of.copy.number.states), organism=organism, build=genome.build)
-cgh.cal <- CGHcall(cgh.psn, nclass=as.integer(number.of.copy.number.states), organism=organism) # change to CGHcallPlus
+cgh.cal <- CGHcall(cgh.psn, nclass=as.integer(number.of.copy.number.states), organism=organism, build=genome.build)
 cgh <- ExpandCGHcall(cgh.cal, cgh.psn)
 
 dat3 <- data.frame(cgh@featureData@data)
@@ -96,10 +95,10 @@ dat3$chromosome[dat3$chromosome=='25'] <- 'MT'
 
 write.table(dat3, file='aberrations.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
-bitmap(file='aberrations.png', width=image.width/72, height=image.height/72)
-# pdf(file='aberrations.pdf')
-plot.summary(cgh) # change for CGHcallPlus
-# frequencyPlot(cgh)
+bitmap(file='aberration-frequencies.png', width=image.width/72, height=image.height/72)
+# pdf(file='aberration-frequencies.pdf')
+# plot.summary(cgh)
+frequencyPlot(cgh)
 dev.off()
 
 # EOF
