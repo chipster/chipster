@@ -1,8 +1,5 @@
 #!/bin/bash
 
-ACTIVEMQ_START_DELAY=10
-
-#!/bin/bash
 # The following two lines are used by the chkconfig command. Change as is
 #  appropriate for your application.  They should remain commented.
 # chkconfig: 2345 30 70
@@ -21,17 +18,26 @@ ACTIVEMQ_START_DELAY=10
 # Description: $APP_LONG_NAME
 ### END INIT INFO
 
-
 ACTIVEMQ_START_DELAY=10
 
 # detect chipster home
 if [ -h $0 ]
 then
-    BINARY_REAL_PATH="$(readlink "$0")"
+    BINARY_REAL_PATH="$(readlink -f "$0")"
 else
     BINARY_REAL_PATH="$0"
 fi
 CHIPSTER_HOME="$(dirname "${BINARY_REAL_PATH}")"
+
+
+# run auto configure if needed
+AUTO_CONFIG_FLAG_FILE="${CHIPSTER_HOME}/auto-config-to-be-run"
+if [[ -f $AUTO_CONFIG_FLAG_FILE && "$1" == "start" ]]
+then
+	rm "${AUTO_CONFIG_FLAG_FILE}"
+	cd "${CHIPSTER_HOME}"
+	./configure.sh auto
+fi
 
 # platform, should be linux-x86-32, linux-x86-64 or macosx (autodetected if not set)
 PLATFORM=""
