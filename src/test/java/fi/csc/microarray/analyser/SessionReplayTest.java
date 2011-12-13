@@ -551,12 +551,12 @@ public class SessionReplayTest extends MessagingTestBase {
 		String totalTime = String.format("%02dm %02ds", (duration/60), (duration%60));
 		writer.write("<table>" +
 				"<tr><td>Results summary</td><td>" + 
-				 successTasks.size() + " <span style=\"color: green\">ok</span>, " + 
-				 failedTasks.size() + " <span style=\"color: red\">failed</span>, "+
+				 successTasks.size() + " <span" + (successTasks.isEmpty() ? "" : " style=\"color: green\"") + ">ok</span>, " + 
+				 failedTasks.size() + " <span" + (failedTasks.isEmpty() ? "" : " style=\"color: red\"") + ">failed</span>, "+
 				 toolTestResults.size() + " total</td</tr>" +
 				"<tr><td>Tool coverage</td><td>" + uniqueTools.size() + "/" + getTotalNumberOfTools() + "</td></tr>" +
 				"<tr><td>Sessions</td><td>" + uniqueSessions.size() + "</td></tr>" +
-				"<tr><td>Date</td><td>" + startTime.toString() + "</td></tr>" +
+				"<tr><td>Start time</td><td>" + startTime.toString() + "</td></tr>" +
 				"<tr><td>Total time</td><td>" + totalTime + "</td></tr>" +
 
 				"</table>");
