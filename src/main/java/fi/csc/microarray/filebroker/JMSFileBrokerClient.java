@@ -287,10 +287,13 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	 */
 	@Override
 	public void getFile(File destFile, URL url) throws IOException {
+		
 		// Try to find the file locally and symlink/copy it
 		if (localFilebrokerPath != null) {
-			File fileInFilebrokerCache = new File(localFilebrokerPath, UrlTransferUtil.parseFilename(url));
+			
 			// If file in filebroker cache is compressed, it will have specific suffix and we will not match it
+			File fileInFilebrokerCache = new File(localFilebrokerPath, UrlTransferUtil.parseFilename(url));
+			
 			if (fileInFilebrokerCache.exists()) {
 				boolean linkCreated = Files.createSymbolicLink(fileInFilebrokerCache, destFile);
 
@@ -298,20 +301,21 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 					IOUtils.copy(fileInFilebrokerCache, destFile); // cannot create a link, must copy
 				}
 			}
-		}
-		
-		// Not available locally, need to download
-		BufferedInputStream inputStream = null;
-		BufferedOutputStream fileStream = null;
-		try {
-			inputStream = new BufferedInputStream(getFile(url));
-
-			// Download to file
-			fileStream = new BufferedOutputStream(new FileOutputStream(destFile));
-			IOUtils.copy(inputStream, fileStream);
-		} finally {
-			IOUtils.closeIfPossible(inputStream);
-			IOUtils.closeIfPossible(fileStream);
+			
+		} else {
+			// Not available locally, need to download
+			BufferedInputStream inputStream = null;
+			BufferedOutputStream fileStream = null;
+			try {
+				// Download to file
+				inputStream = new BufferedInputStream(getFile(url));
+				fileStream = new BufferedOutputStream(new FileOutputStream(destFile));
+				IOUtils.copy(inputStream, fileStream);
+				
+			} finally {
+				IOUtils.closeIfPossible(inputStream);
+				IOUtils.closeIfPossible(fileStream);
+			}
 		}
 	}
 
