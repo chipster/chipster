@@ -12,7 +12,7 @@
 
 # match-cn-and-expression-probes.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-12-09
+# 2012-12-13
 
 source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 library(intCNGEan)
@@ -315,7 +315,7 @@ phenodata_exp$sample <- samples
 phenodata_exp$n <- NULL
 
 # write output
-write.table(format(dat3, scientific=FALSE), file='matched-cn-and-expression.tsv', quote=FALSE, sep='\t')
-write.table(format(phenodata_exp, scientific=FALSE), file='matched-phenodata.tsv', quote=FALSE, sep='\t', na='', row.names=FALSE)
+write.table(dat3, file='matched-cn-and-expression.tsv', quote=FALSE, sep='\t')
+write.table(phenodata_exp, file='matched-phenodata.tsv', quote=FALSE, sep='\t', na='', row.names=FALSE)
 
 # EOF
