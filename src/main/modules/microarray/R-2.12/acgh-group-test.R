@@ -1,4 +1,4 @@
-# TOOL acgh-group-test.R: "Group tests for called aCGH data" (Statistical tests between two or more groups for called aCGH data. The testing is recommended to be performed after running the Identify common regions from called aCGH data tool.)
+# TOOL acgh-group-test.R: "Group tests for called copy number data" (Statistical tests between two or more groups for called copy number data. The testing is recommended to be performed after running the Identify common regions from called copy number data tool.)
 # INPUT regions.tsv: regions.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT groups-test.tsv: groups-test.tsv 
@@ -85,8 +85,8 @@ FDRplot <- function(fdrs, which, main = 'Frequency Plot with FDR',...) {
   labels <- c(0.01, 0.05, 0.025, 0.1, 0.25, 0.5, 1)
   axis(side=4, at=-log10(labels) - 1, labels=labels, las=1)
   mtext('FDR', side=4, line=3)
-  mtext(groupnames[1], side=3, line=-2)
-  mtext(groupnames[2], side=1, line=-2)
+  mtext(groupnames[1], side=2, line=3, at=0.5)
+  mtext(groupnames[2], side=2, line=3, at=-0.5)
 }
 
 pdf('groups-test.pdf', paper='a4r', width=0, height=0)

@@ -62,10 +62,10 @@ sampleNames(exp) <- phenodata$description
 matched <- list(CNdata.matched=cgh, GEdata.matched=exp)
 
 # remove samples that are out of bounds
-sample <- sample[sample<=length(sampleNames(matched$CNdata.matched))]
+samples.to.plot <- samples.to.plot[samples.to.plot<=length(sampleNames(matched$CNdata.matched))]
 
 # check that we have something to plot
-if (length(sample)==0)
+if (length(samples.to.plot)==0)
   stop('CHIPSTER-NOTE: Nothing to plot.')
 
 # plot

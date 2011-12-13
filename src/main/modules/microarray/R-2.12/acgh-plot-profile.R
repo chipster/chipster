@@ -1,4 +1,4 @@
-# TOOL acgh-plot-profile.R: "Plot copy number profiles from called aCGH data" (Plot copy number profiles of individual arrays from called aCGH data.)
+# TOOL acgh-plot-profile.R: "Plot copy number profiles" (Plot copy number profiles of individual samples.)
 # INPUT aberrations.tsv: aberrations.tsv TYPE GENE_EXPRS 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT cgh-profile.pdf: cgh-profile.pdf 
@@ -8,7 +8,7 @@
 
 # plot-cgh-profile.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2012-12-09
+# 2012-12-13
 
 source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 
@@ -17,6 +17,8 @@ dat <- read.table('aberrations.tsv', header=TRUE, sep='\t', as.is=TRUE, row.name
 phenodata <- read.table("phenodata.tsv", header=TRUE, sep="\t", as.is=TRUE)
 
 # parse samples to be plotted
+if (samples=='0')
+  samples <- paste('1-', nrow(phenodata), sep='')
 samples <- gsub('[^0-9,-]', ',', samples)
 items <- strsplit(samples, ',')[[1]]
 samples.to.plot <- integer()

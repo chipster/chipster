@@ -5,7 +5,7 @@
 # INPUT phenodata_exp.tsv: phenodata_exp.tsv TYPE GENERIC 
 # OUTPUT matched-cn-and-expression.tsv: matched-cn-and-expression.tsv 
 # OUTPUT matched-cn-and-expression-heatmap.pdf: matched-cn-and-expression-heatmap.pdf 
-# OUTPUT matched-phenodata.tsv: matched-phenodata.tsv 
+# OUTPUT META phenodata-matched.tsv: phenodata-matched.tsv 
 # PARAMETER sample.identifiers.1: sample.identifiers.1 TYPE METACOLUMN_SEL DEFAULT Sample (The phenodata column for data set 1 used to link the two data sets together.)
 # PARAMETER sample.identifiers.2: sample.identifiers.2 TYPE METACOLUMN_SEL DEFAULT Sample (The phenodata column for data set 2 used to link the two data sets together.)
 # PARAMETER method: method TYPE [distance: distance, overlap: overlap, overlapplus: overlapplus] DEFAULT distance (The method for linking copy number and expression probes together.)
@@ -253,7 +253,7 @@ intCNGEan.heatmaps.modified <- function (CNdata, GEdata, location = "mode", colo
 }
 
 # plot heatmaps
-pdf(file='matched-cn-and-expression-heatmap.pdf')
+pdf(file='matched-cn-and-expression-heatmap.pdf', paper='a4r', width=0, height=0)
 intCNGEan.heatmaps.modified(matched$CNdata.matched, matched$GEdata.matched, location='median')
 dev.off()
 
@@ -316,6 +316,6 @@ phenodata_exp$n <- NULL
 
 # write output
 write.table(dat3, file='matched-cn-and-expression.tsv', quote=FALSE, sep='\t')
-write.table(phenodata_exp, file='matched-phenodata.tsv', quote=FALSE, sep='\t', na='', row.names=FALSE)
+write.table(phenodata_exp, file='phenodata-matched.tsv', quote=FALSE, sep='\t', na='', row.names=FALSE)
 
 # EOF

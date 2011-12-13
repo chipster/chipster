@@ -1,4 +1,4 @@
-# TOOL acgh-identify-regions.R: "Identify common regions from called aCGH data" (Reduces dimensionality of called aCGH data by identifying common breakpoints.)
+# TOOL acgh-identify-regions.R: "Identify common regions from called copy number data" (Reduces dimensionality of called copy number data by identifying common breakpoints.)
 # INPUT aberrations.tsv: aberrations.tsv TYPE GENE_EXPRS 
 # OUTPUT regions.tsv: regions.tsv 
 # OUTPUT regions.pdf: regions.pdf 
@@ -7,7 +7,7 @@
 
 # detect-common-copy-number-aberration-regions.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-12-09
+# 2011-12-13
 
 source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 library(CGHregions)

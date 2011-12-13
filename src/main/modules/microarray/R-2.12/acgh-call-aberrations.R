@@ -1,4 +1,4 @@
-# TOOL acgh-call-aberrations.R: "Call copy number aberrations from aCGH data" (Call copy number aberrations from aCGH log ratios.)
+# TOOL acgh-call-aberrations.R: "Call copy number aberrations" (Call copy number aberrations from aCGH log ratios or NGS data.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # OUTPUT aberrations.tsv: aberrations.tsv 
 # OUTPUT aberration-frequencies.pdf: aberration-frequencies.pdf 
@@ -12,7 +12,7 @@
 
 # detect-copy-number-aberrations.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-12-09
+# 2011-12-13
 
 source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 
