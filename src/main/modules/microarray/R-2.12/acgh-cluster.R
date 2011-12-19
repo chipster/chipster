@@ -1,12 +1,13 @@
-# TOOL acgh-cluster.R: "Cluster called aCGH data" (Perform clustering of aCGH arrays.)
+# TOOL acgh-cluster.R: "Cluster called copy number data" (Perform clustering of copy number data.)
 # INPUT regions.tsv: regions.tsv TYPE GENERIC 
 # INPUT META phenodata.tsv: phenodata.tsv TYPE GENERIC 
 # OUTPUT wecca.pdf: wecca.pdf 
 # PARAMETER type.of.calls: type.of.calls TYPE [hard: hard, soft: soft] DEFAULT soft (Whether to cluster the arrays based on soft or hard calls. Hard calls are losses, normals, and gains, whereas soft calls refer to the respective probabilities of these calls. The preferred choice is to use soft calls whenever they are available.)
+# PARAMETER column: column TYPE METACOLUMN_SEL DEFAULT group (Phenodata column to include in the output plot.)
 
 # cluster-acgh.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-03-30
+# 2011-12-13
 
 library(WECCA)
 
@@ -46,8 +47,35 @@ if (type.of.calls == 'hard') {
   dendrogram <- WECCAsc(regions)
 }
 
-pdf(file='wecca.pdf')
-WECCA.heatmap(regions, dendrogram)
+# overriding the plotting function
+WECCA.heatmap <- function (cghdata.regioned, dendrogram,...) 
+{
+    nclass <- dim(cghdata.regioned$softcalls)[2]/dim(cghdata.regioned$hardcalls)[2]
+    chr.color <- rep("green3", dim(cghdata.regioned$hardcalls)[1])
+    ids <- ((cghdata.regioned$ann[, 1]%%2) == 0)
+    chr.color[ids] <- c("gray")
+    Y <- rep(FALSE, dim(cghdata.regioned$hardcalls)[1])
+    for (i in 2:(dim(cghdata.regioned$ann)[1])) {
+        if ((cghdata.regioned$ann[i - 1, 1] != cghdata.regioned$ann[i, 
+            1])) {
+            Y[i] <- TRUE
+        }
+    }
+    Y[1] <- TRUE
+    begin.chr <- rep("", dim(cghdata.regioned$ann)[1])
+    begin.chr[Y] <- cghdata.regioned$ann[Y, 1]
+    color.coding <- c("red", "black", "blue", "white")[1:nclass]
+    heatmap(cghdata.regioned$hardcalls, Colv = as.dendrogram(dendrogram), 
+        Rowv = NA, col = color.coding, labRow = begin.chr, RowSideColors = chr.color, 
+        scale = "none",...)
+}
+
+pdf(file='wecca.pdf', paper='a4', width=0, height=0)
+if (column == 'EMPTY') {
+  WECCA.heatmap(regions, dendrogram, margins=c(10,1))
+} else {
+  WECCA.heatmap(regions, dendrogram, margins=c(10,1), ColSideColors=palette()[as.factor(phenodata[,column])])
+}
 dev.off()
 
 # EOF

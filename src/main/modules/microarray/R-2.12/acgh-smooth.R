@@ -5,9 +5,9 @@
 
 # smooth-acgh.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2010-10-05
+# 2011-12-09
 
-library(CGHcall)
+source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 library(NoWaves)
 
 pos <- c('chromosome','start','end')

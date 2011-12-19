@@ -5,7 +5,7 @@
 
 # count-overlapping-cnvs.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-06-03
+# 2012-12-13
 
 dat <- read.table('normalized.tsv', header=TRUE, sep='\t', quote='', as.is=TRUE, row.names=1)
 
@@ -83,6 +83,6 @@ if (prob)
 if (first.data.col > 0)
   dat2 <- cbind(dat2, dat[,first.data.col:ncol(dat)])
 
-write.table(format(dat2, scientific=FALSE), file='cnvs.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
+write.table(dat2, file='cnvs.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
 # EOF

@@ -8,9 +8,9 @@
 
 # test-for-cn-induced-differential-expression.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-05-24
+# 2012-12-13
 
-library(CGHcall)
+source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 library(intCNGEan)
 
 # read the input files
@@ -82,6 +82,6 @@ result$chromosome[result$chromosome=='23'] <- 'X'
 result$chromosome[result$chromosome=='24'] <- 'Y'
 result$chromosome[result$chromosome=='25'] <- 'MT'
 
-write.table(format(result, scientific=FALSE), file='cn-induced-expression.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
+write.table(result, file='cn-induced-expression.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
 # EOF
