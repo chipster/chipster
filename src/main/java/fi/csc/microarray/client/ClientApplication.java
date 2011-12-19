@@ -776,7 +776,7 @@ public abstract class ClientApplication {
 			for (File dir : deadDirectories) {
 				Files.delTree(dir);
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			reportException(e);
 		}
 

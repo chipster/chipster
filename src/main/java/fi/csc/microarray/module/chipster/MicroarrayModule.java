@@ -353,7 +353,12 @@ public class MicroarrayModule implements Module {
 				String originalName = null;
 				for (DataBinding binding : oper.getBindings()) {
 					if (binding.getName().equals(sample)) {
-						originalName = binding.getData().getName();
+						DataBean ancestor = binding.getData().getUniqueAncestorRecursively(binding.getData());
+						if (!ancestor.equals(binding.getData())) {
+							originalName = binding.getData().getName() + " ( " + ancestor.getName() + " )";
+						} else {
+							originalName = binding.getData().getName();
+						}
 						correctRowFound = true;
 						break;
 					}

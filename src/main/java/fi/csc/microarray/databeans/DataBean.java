@@ -745,6 +745,19 @@ public class DataBean extends DataItemBase {
 		return getName();
 	}
 
+	/**
+	 * Get the oldest unique ancestor the databean was derived from.
+	 * 
+	 * @param dataBean
+	 * @return the given databean if there is no unique ancestor
+	 */
+	public DataBean getUniqueAncestorRecursively(DataBean dataBean) {
+		if (dataBean.getLinkTargets(Link.derivationalTypes()).size() != 1) {
+			return dataBean;
+		} else {
+			return getUniqueAncestorRecursively(dataBean.getLinkTargets(Link.derivationalTypes()).get(0));
+		}
+	}
 
 
 	private void conditionallySelect(DataBeanSelector selector, LinkedList<DataBean> selected, DataBean bean) {
