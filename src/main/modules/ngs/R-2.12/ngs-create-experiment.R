@@ -27,8 +27,8 @@
 # modified by MG, to accout for data that has been aligned to other than a genome
 
 # Sanity check the input data
-files<-dir()
-files<-files[grep("sample", files)]
+files <- dir()
+files <- files[grep("sample", files)]
 number_files <- length(files)
 if (number_files < 1) {
 	stop("CHIPSTER-NOTE: You need to have at least 1 data file to run this tool!")
@@ -99,7 +99,7 @@ for (count in 1:number_files) {
 	indices_empty <- setdiff(identifiers, indices)
 	print(indices_empty)
 	data_table[indices_empty, (count+annotation_columns)] <- impute_with
-	colnames(data_table) [count+annotation_columns] <- paste("chip.", file[count], sep="")
+	colnames(data_table) [count+annotation_columns] <- paste("chip.", files[count], sep="")
 	print (data_table [,count+annotation_columns])
 }
 
