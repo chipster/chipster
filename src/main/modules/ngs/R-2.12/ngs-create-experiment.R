@@ -83,12 +83,12 @@ if (alignment_type == "other") {
 }
 
 for (count in 1:number_files) {
-	print(count)
+	#print(count)
 	# Fill in data where there is real data
 	indices <- get (paste ("data_", count, sep=""))[,1]
 	indices <- as.character(indices)
-	print(indices)
-	print(length(indices))
+	#print(indices)
+	#print(length(indices))
 	if (alignment_type == "genome") {
 		data_table[indices, (count+annotation_columns)] <- get (paste ("data_", count, sep=""))[get (paste ("data_", count, sep=""))[,1]==indices,7]
 	}
@@ -97,7 +97,7 @@ for (count in 1:number_files) {
 	}
 	# Impute data where there isn't any
 	indices_empty <- setdiff(identifiers, indices)
-	print(indices_empty)
+	#print(indices_empty)
 	data_table[indices_empty, (count+annotation_columns)] <- impute_with
 	colnames(data_table) [count+annotation_columns] <- paste("chip.", files[count], sep="")
 	print (data_table [,count+annotation_columns])
