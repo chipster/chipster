@@ -2,7 +2,7 @@
 # INPUT treatment.bam: "Treatment data file" TYPE GENERIC 
 # OUTPUT positive-peaks.tsv: "True enriched peaks" 
 # OUTPUT positive-peaks.bed: "True enriched peaks in a format compatible with the Genome Browser"
-# OUTPUT OPTIONAL model-plot.png: "A plot of the fitted peak model" 
+# OUTPUT OPTIONAL model-plot.pdf: "A plot of the fitted peak model" 
 # OUTPUT OPTIONAL negative-peaks.tsv: "The false enriched peaks" 
 # OUTPUT analysis-log.txt: "Summary of analysis settings and run" 
 # PARAMETER file.format: "File format" TYPE [ELAND, BAM, BED] DEFAULT BAM (The format of the input files.)
@@ -383,6 +383,6 @@ system ("mv results_peaks.bed positive-peaks.bed")
 # Source the R code for plotting the MACS model and convert the PDF file to PNG
 if (build.model == "yes") {
 	source("results_model.r")
-	system("convert results_model.pdf model-plot.png")
+	system("mv results_model.pdf model-plot.pdf")
 }
 
