@@ -55,12 +55,10 @@ public class OperationRecord {
 		}
 	
 		// inputs
-		if (operation.getBindings() != null) {
-			for (DataBinding binding : operation.getBindings()) {
-				InputDefinition inputDefinition = operation.getDefinition().getInput(binding.getName());
-				String displayName = inputDefinition.isMulti() ? inputDefinition.getDisplayName(binding.getName()) : inputDefinition.getDisplayName();
-				this.inputs.put(binding.getName(), new InputRecord(binding.getName(), displayName, inputDefinition.getDescription(), binding.getData()));
-			}
+		for (DataBinding binding : operation.getBindings()) {
+			InputDefinition inputDefinition = operation.getDefinition().getInput(binding.getName());
+			String displayName = inputDefinition.isMulti() ? inputDefinition.getDisplayName(binding.getName()) : inputDefinition.getDisplayName();
+			this.inputs.put(binding.getName(), new InputRecord(binding.getName(), displayName, inputDefinition.getDescription(), binding.getData()));
 		}
 	
 		// source code
