@@ -75,7 +75,8 @@ public class SessionReplayTest extends MessagingTestBase {
 	private static final long TOOL_TEST_TIMEOUT = 1;
 	private static final TimeUnit TOOL_TEST_TIMEOUT_UNIT = TimeUnit.HOURS;
 	
-	private static final boolean CHECK_EXACT_OUTPUT_SIZE = false;
+	private static final boolean FAIL_ON_OUTPUT_SIZE_MISMATCH = false;
+	private static final boolean CHECK_CONTENTS = true;
 	
 	
 	private static final String CSS = "<style type=\"text/css\">" + 
@@ -293,11 +294,20 @@ public class SessionReplayTest extends MessagingTestBase {
 				for (DataBean sourceBean : outputMap.get(operationRecord)) {
 					if (targetIterator.hasNext()) {
 						DataBean targetBean = targetIterator.next();
-						if (!sourceBean.getName().equals(targetBean.getName())) {
-							toolTestResults.add(new ToolTestResult(TestResult.FAIL, operation, session, task, "mismatch in result dataset names, "
-									+ "expecting: " + sourceBean.getName() + " got: " + targetBean.getName()));
+
+						// check content types
+						if (!sourceBean.getContentType().getType().equals(targetBean.getContentType().getType())) {
+							toolTestResults.add(new ToolTestResult(TestResult.FAIL, operation, session, task, "Mismatch in result content types, "
+									+ sourceBean.getName() + ": " + sourceBean.getContentType().getType() + ", " + targetBean.getName() + ": " + targetBean.getContentType().getType()));
 							return;
 						}
+						
+//						// check names
+//						if (!sourceBean.getName().equals(targetBean.getName())) {
+//							toolTestResults.add(new ToolTestResult(TestResult.FAIL, operation, session, task, "mismatch in result dataset names, "
+//									+ "expecting: " + sourceBean.getName() + " got: " + targetBean.getName()));
+//							return;
+//						}
 					} 
 					// Not enough results
 					else {
@@ -331,6 +341,9 @@ public class SessionReplayTest extends MessagingTestBase {
 				}
 
 				// Compare data beans, add source bean -> target bean mapping
+				List<String> outputsWithMisMatchingSizes = new LinkedList<String>();
+				List<String> outputsWithMisMatchingContents = new LinkedList<String>();
+
 				targetIterator = task.outputs().iterator();
 				for (DataBean sourceBean : outputMap.get(operationRecord)) {
 					DataBean targetBean = targetIterator.next();
@@ -344,10 +357,42 @@ public class SessionReplayTest extends MessagingTestBase {
 					// Add source bean -> target bean mapping, needed for further operations
 					sourceDataBeanToTargetDataBean.put(sourceBean, targetBean);
 					
-					// Add result
-					toolTestResults.add(new ToolTestResult(TestResult.OK, operation, session, task));
-				
+					// Collect size matches
+					if (sourceBean.getContentLength() != targetBean.getContentLength()) {
+						if (sourceBean.getName().equals(targetBean.getName())) {
+							outputsWithMisMatchingSizes.add(sourceBean.getName());
+						} else {
+							outputsWithMisMatchingSizes.add(sourceBean.getName() + " | " + targetBean.getName());
+						}
+					}
+
+					// Collect content matches
+					if (CHECK_CONTENTS) {
+						InputStream sourceIn = null, targetIn = null;
+						try {
+							sourceIn = sourceBean.getContentByteStream();
+							targetIn = targetBean.getContentByteStream();
+							if (!IOUtils.contentEquals(sourceIn, targetIn)) {
+
+								if (sourceBean.getName().equals(targetBean.getName())) {
+									outputsWithMisMatchingContents.add(sourceBean.getName());
+								} else {
+									outputsWithMisMatchingContents.add(sourceBean.getName() + " | " + targetBean.getName());
+								}
+							}
+						} finally {
+							IOUtils.closeIfPossible(sourceIn);
+							IOUtils.closeIfPossible(targetIn);
+						}
+					}
 				}
+
+				// Add result
+				ToolTestResult toolTestResult = new ToolTestResult(TestResult.OK, operation, session, task, null);
+				toolTestResult.setOutputsWithMisMatchingSizes(outputsWithMisMatchingSizes);
+				toolTestResult.setOutputsWithMisMatchingContents(outputsWithMisMatchingContents);
+				toolTestResults.add(toolTestResult);
+
 			} finally {
 				// Set session data manager back to null to avoid problems
 				Session.getSession().setDataManager(null);
@@ -375,11 +420,14 @@ public class SessionReplayTest extends MessagingTestBase {
 	 */
 	private void compareDataBeans(DataBean bean1, DataBean bean2) {
 
-		// Check name, may be already checked though
-		Assert.assertEquals(bean1.getName(), bean2.getName());
+//		// Check name, may be already checked though
+//		Assert.assertEquals(bean1.getName(), bean2.getName());
 
+		// check content types
+		Assert.assertEquals(bean1.getContentType().getType(), bean2.getContentType().getType());
+		
 		// exact size
-		if (CHECK_EXACT_OUTPUT_SIZE) {
+		if (FAIL_ON_OUTPUT_SIZE_MISMATCH) {
 			Assert.assertEquals(bean1.getContentLength(), bean2.getContentLength(), "comparing output size");
 		}
 
@@ -572,6 +620,8 @@ public class SessionReplayTest extends MessagingTestBase {
 				"<th>Test error message</th>" + 
 				"<th>Task error message</th>" +
 				"<th>Task screen output</th>" + 
+				"<th>Outputs with mismatching sizes</th>" + 
+				"<th>Outputs with mismatching contents</th>" + 
 				"</tr>");
 
 		// Failed tests
@@ -584,7 +634,9 @@ public class SessionReplayTest extends MessagingTestBase {
 					"<td>" + nullToEmpty(toolTestResult.getTestErrorMessage()) + "</td>" +
 					"<td>" + nullToEmpty(toolTestResult.getTask().getErrorMessage()) + "</td>" +
 					"<td>" + createScreenOutputLink(toolTestResult.getTask()) + "</td>" +
-			    	"</tr>");
+					"<td>" + getOutputsWithMisMatchingSizes(toolTestResult) + "</td>" +
+					"<td>" + getOutputsWithMisMatchingContents(toolTestResult) + "</td>" +
+					"</tr>");
 		}
 
 		// Successful tests
@@ -597,7 +649,9 @@ public class SessionReplayTest extends MessagingTestBase {
 					"<td>" + nullToEmpty(toolTestResult.getTestErrorMessage()) + "</td>" +
 					"<td>" + nullToEmpty(toolTestResult.getTask().getErrorMessage()) + "</td>" +
 					"<td>" + createScreenOutputLink(toolTestResult.getTask()) + "</td>" +
-			    	"</tr>");
+					"<td>" + getOutputsWithMisMatchingSizes(toolTestResult) + "</td>" +
+					"<td>" + getOutputsWithMisMatchingContents(toolTestResult) + "</td>" +
+					"</tr>");
 		}
 		writer.write("</table>");
 		
@@ -646,6 +700,30 @@ public class SessionReplayTest extends MessagingTestBase {
 		writer.close();
 	}
 	
+	
+	private String getOutputsWithMisMatchingSizes(ToolTestResult toolTestResult) {
+		String s = "";
+		for (String output : toolTestResult.getOutputsWithMisMatchingSizes()) {
+			s += output + ", ";
+		}
+		if (s.endsWith(", ")) {
+			s = s.substring(0, s.length() - ", ".length());
+		}
+		return s;
+	}
+
+	private String getOutputsWithMisMatchingContents(ToolTestResult toolTestResult) {
+		String s = "";
+		for (String output : toolTestResult.getOutputsWithMisMatchingContents()) {
+			s += output + ", ";
+		}
+		if (s.endsWith(", ")) {
+			s = s.substring(0, s.length() - ", ".length());
+		}
+		return s;
+	}
+
+	
 	private static void updateFlagFileAndExit(boolean testOK) throws IOException {
 		File flagFile = new File(FLAG_FILE);
 		if (testOK) {
@@ -676,10 +754,9 @@ public class SessionReplayTest extends MessagingTestBase {
 		private File sessionFile;
 		private Task task;
 		private String testErrorMessage;
-		
-		public ToolTestResult(TestResult testResult, Operation operation, File sessionFile, Task task) {
-			this(testResult, operation, sessionFile, task, null);
-		}
+		private List<String> outputsWithMisMatchingSizes = new LinkedList<String>();
+		private List<String> outputsWithMisMatchingContents = new LinkedList<String>();
+
 		
 		public ToolTestResult(TestResult testResult, Operation operation, File sessionFile, Task task, String testErrorMessage) {
 			this.testResult = testResult;
@@ -705,6 +782,23 @@ public class SessionReplayTest extends MessagingTestBase {
 		public String getTestErrorMessage() {
 			return testErrorMessage;
 		}
+
+		public List<String> getOutputsWithMisMatchingSizes() {
+			return outputsWithMisMatchingSizes;
+		}
+
+		public void setOutputsWithMisMatchingSizes(List<String> outputs) {
+			this.outputsWithMisMatchingSizes = outputs;
+		}
+
+		public List<String> getOutputsWithMisMatchingContents() {
+			return outputsWithMisMatchingContents;
+		}
+
+		public void setOutputsWithMisMatchingContents(List<String> outputs) {
+			this.outputsWithMisMatchingContents = outputs;
+		}
+
 		
 	}
 	
