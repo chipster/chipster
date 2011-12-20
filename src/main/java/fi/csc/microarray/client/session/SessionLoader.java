@@ -65,12 +65,12 @@ public class SessionLoader {
 	private static final Logger logger = Logger.getLogger(SessionLoader.class);
 	
 	
-	public SessionLoader(File sessionFile, boolean restoreData) throws MicroarrayException {
+	public SessionLoader(File sessionFile, boolean restoreData, DataManager dataManager) throws MicroarrayException {
 		if (!UserSession.isValidSessionFile(sessionFile)) {
 			throw new MicroarrayException("Not a valid session file.");
 		}
 		this.sessionFile = sessionFile;
-		this.dataManager = Session.getSession().getDataManager();
+		this.dataManager = dataManager; 
 		this.isDatalessSession = restoreData;
 	}
 	
@@ -225,7 +225,7 @@ public class SessionLoader {
 			dataBean.setNotes(dataType.getNotes());
 			//			dataBean.setCreationDate(date);
 			
-			dataBean.setContentType(Session.getSession().getDataManager().guessContentType(dataBean.getName()));
+			dataBean.setContentType(dataManager.guessContentType(dataBean.getName()));
 			
 			dataBeans.put(id, dataBean);
 			dataTypes.put(dataBean, dataType);

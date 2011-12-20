@@ -1,5 +1,10 @@
 package fi.csc.microarray.filebroker;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -19,6 +24,7 @@ import fi.csc.microarray.messaging.message.ChipsterMessage;
 import fi.csc.microarray.messaging.message.CommandMessage;
 import fi.csc.microarray.messaging.message.ParameterMessage;
 import fi.csc.microarray.messaging.message.UrlMessage;
+import fi.csc.microarray.util.Files;
 import fi.csc.microarray.util.IOUtils;
 import fi.csc.microarray.util.UrlTransferUtil;
 import fi.csc.microarray.util.IOUtils.CopyProgressListener;
@@ -61,11 +67,9 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		}
 	
 		/**
-		 * 
-		 * 
-		 * @param timeout
-		 * @param unit
-		 * @return
+		 * @param timeout in given units
+		 * @param unit unit of the timeout
+		 * @return 
 		 * @throws RuntimeException if interrupted
 		 */
 		public URL waitForReply(long timeout, TimeUnit unit) {
@@ -88,40 +92,84 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	private MessagingTopic urlTopic;	
 	private boolean useChunked;
 	private boolean useCompression;
+	private String localFilebrokerPath;
 	
-	public JMSFileBrokerClient(MessagingTopic urlTopic) throws JMSException {
+	public JMSFileBrokerClient(MessagingTopic urlTopic, String localFilebrokerPath) {
+
+		this.urlTopic = urlTopic;
+		this.localFilebrokerPath = localFilebrokerPath;
+
 		// read configs
 		this.useChunked = DirectoryLayout.getInstance().getConfiguration().getBoolean("messaging", "use-chunked-http"); 
 		this.useCompression = DirectoryLayout.getInstance().getConfiguration().getBoolean("messaging", "use-compression");
 		
-		// initialize messaging
-		this.urlTopic = urlTopic;
 	}
 	
+	public JMSFileBrokerClient(MessagingTopic urlTopic) throws JMSException {
+		this(urlTopic, null);
+	}
 
-	/* (non-Javadoc)
-	 * @see fi.csc.microarray.filebroker.FileBrokerClient#addFile(java.io.InputStream, fi.csc.microarray.util.IOUtils.CopyProgressListener)
+
+
+	/**
+	 * @see fi.csc.microarray.filebroker.FileBrokerClient#addFile(File, CopyProgressListener)
 	 */
-	public URL addFile(InputStream content, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
+	@Override
+	public URL addFile(File file, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
 		
-		// get new url
+		// Get new url
 		URL url = getNewUrl(useCompression);
 		if (url == null) {
 			throw new FileBrokerException("New URL is null.");
 		}
+
+		// Try to move/copy it locally, or otherwise upload the file
+		if (localFilebrokerPath != null && !useCompression) {
+			String filename = IOUtils.getFilenameWithoutPath(url);
+			File dest = new File(localFilebrokerPath, filename);
+			boolean success = file.renameTo(dest);
+			if (!success) {
+				IOUtils.copy(file, dest); // could not move (different partition etc.), do a local copy
+			}
+
+		} else {
+			InputStream stream = new FileInputStream(file);
+			try {
+				UrlTransferUtil.uploadStream(url, stream, useChunked, useCompression, progressListener);
+			} finally {
+				IOUtils.closeIfPossible(stream);
+			}
+		}
 		
-		// upload content
+		return url;
+	}
+
+
+	/**
+	 * @see fi.csc.microarray.filebroker.FileBrokerClient#addFile(InputStream, CopyProgressListener)
+	 */
+	@Override
+	public URL addFile(InputStream file, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
+		
+		// Get new url
+		URL url = getNewUrl(useCompression);
+		if (url == null) {
+			throw new FileBrokerException("New URL is null.");
+		}
+
+		// Upload the stream into a file at filebroker
 		logger.debug("uploading new file: " + url);
-		UrlTransferUtil.uploadStream(url, content, useChunked, useCompression, progressListener);
+		UrlTransferUtil.uploadStream(url, file, useChunked, useCompression, progressListener);
 		logger.debug("successfully uploaded: " + url);
 		
 		return url;
 	}
 	
 	
-	/* (non-Javadoc)
+	/**
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getFile(java.net.URL)
 	 */
+	@Override
 	public InputStream getFile(URL url) throws IOException {
 		InputStream payload = null;
 		
@@ -151,9 +199,10 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	}
 
 	
-	/* (non-Javadoc)
+	/**
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#checkFile(java.net.URL, long)
 	 */
+	@Override
 	public boolean checkFile(URL url, long contentLength) {
 
 		HttpURLConnection connection = null;
@@ -209,9 +258,10 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		return url;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getPublicUrl()
 	 */
+	@Override
 	public URL getPublicUrl() throws JMSException {
 
 		UrlMessageListener replyListener = new UrlMessageListener();  
@@ -225,6 +275,48 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		}
 
 		return url;
+	}
+
+
+	/**
+	 * Get a local copy of a file. If the filename part of the url matches any of the files found from 
+	 * local filebroker paths (given in constructor of this class), them it is symlinked or copied locally.
+	 * Otherwise the file pointed by the url is downloaded.
+	 * 
+  	 * @see fi.csc.microarray.filebroker.FileBrokerClient#getFile(File, URL)
+	 */
+	@Override
+	public void getFile(File destFile, URL url) throws IOException {
+		
+		// Try to find the file locally and symlink/copy it
+		if (localFilebrokerPath != null) {
+			
+			// If file in filebroker cache is compressed, it will have specific suffix and we will not match it
+			File fileInFilebrokerCache = new File(localFilebrokerPath, UrlTransferUtil.parseFilename(url));
+			
+			if (fileInFilebrokerCache.exists()) {
+				boolean linkCreated = Files.createSymbolicLink(fileInFilebrokerCache, destFile);
+
+				if (!linkCreated) {
+					IOUtils.copy(fileInFilebrokerCache, destFile); // cannot create a link, must copy
+				}
+			}
+			
+		} else {
+			// Not available locally, need to download
+			BufferedInputStream inputStream = null;
+			BufferedOutputStream fileStream = null;
+			try {
+				// Download to file
+				inputStream = new BufferedInputStream(getFile(url));
+				fileStream = new BufferedOutputStream(new FileOutputStream(destFile));
+				IOUtils.copy(inputStream, fileStream);
+				
+			} finally {
+				IOUtils.closeIfPossible(inputStream);
+				IOUtils.closeIfPossible(fileStream);
+			}
+		}
 	}
 
 }

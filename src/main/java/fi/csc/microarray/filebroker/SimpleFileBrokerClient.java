@@ -1,5 +1,6 @@
 package fi.csc.microarray.filebroker;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -37,6 +38,16 @@ public class SimpleFileBrokerClient implements FileBrokerClient {
 	@Override
 	public URL getPublicUrl() throws MalformedURLException {
 		return new URL(DirectoryLayout.getInstance().getConfiguration().getString("messaging", "public-files-url"));
+	}
+
+	@Override
+	public void getFile(File file, URL inputUrl) throws IOException {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public URL addFile(File file, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException {
+		throw new UnsupportedOperationException();
 	}
 
 }

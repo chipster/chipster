@@ -1,20 +1,20 @@
-# TOOL acgh-call-aberrations.R: "Call copy number aberrations from aCGH data" (Call copy number aberrations from aCGH log ratios.)
+# TOOL acgh-call-aberrations.R: "Call copy number aberrations" (Call copy number aberrations from aCGH log ratios or NGS data.)
 # INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
 # OUTPUT aberrations.tsv: aberrations.tsv 
-# OUTPUT aberrations.png: aberrations.png 
+# OUTPUT aberration-frequencies.pdf: aberration-frequencies.pdf 
 # PARAMETER normalization: normalization TYPE [median: median, mode: mode, none: none] DEFAULT none (Normalization method.)
 # PARAMETER number.of.chromosomes: number.of.chromosomes TYPE INTEGER DEFAULT 23 (Number of chromosomes. Usually 23 for sex-matched reference samples and 22 otherwise.)
 # PARAMETER number.of.copy.number.states: number.of.copy.number.states TYPE [3: 3, 4: 4] DEFAULT 3 (Whether to call loss vs. normal vs. gain or loss vs. normal vs. gain vs. amplification.)
 # PARAMETER minimum.number.of.probes.per.segment: minimum.number.of.probes.per.segment TYPE [2: 2, 3: 3, 4: 4, 5: 5] DEFAULT 2 (Minimum number of probes per segment.)
 # PARAMETER minimum.number.of.sds.between.segments: minimum.number.of.sds.between.segments TYPE DECIMAL FROM 0 TO 10 DEFAULT 0 (Minimum number of standard deviations required between segments.)
-# PARAMETER image.width: image.width TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image.)
-# PARAMETER image.height: image.height TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image.)
+# PARAMETER organism: organism TYPE [human: human, other: other] DEFAULT human (Organism.)
+# PARAMETER genome.build: genome.build TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16. Not used unless organism is set to human.)
 
 # detect-copy-number-aberrations.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-03-30
+# 2011-12-13
 
-library(CGHcall)
+source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 
 dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 
@@ -40,7 +40,7 @@ cgh.pre <- preprocess(cgh.raw, nchrom=number.of.chromosomes)
 cgh.nor <- normalize(cgh.pre, method=normalization)
 cgh.seg <- segmentData(cgh.nor, min.width=as.integer(minimum.number.of.probes.per.segment), undo.splits='sdundo', undo.SD=minimum.number.of.sds.between.segments)
 cgh.psn <- postsegnormalize(cgh.seg)
-cgh.cal <- CGHcall(cgh.psn, nclass=as.integer(number.of.copy.number.states))
+cgh.cal <- CGHcall(cgh.psn, nclass=as.integer(number.of.copy.number.states), organism=organism, build=genome.build)
 cgh <- ExpandCGHcall(cgh.cal, cgh.psn)
 
 dat3 <- data.frame(cgh@featureData@data)
@@ -50,12 +50,13 @@ for (col in c('cytoband', 'symbol', 'description', 'cnvs'))
   if (col %in% colnames(dat))
     dat3[,col] <- dat[rownames(dat3), col]
 
-dat3$loss.freq <- round(mean(as.data.frame(t(assayDataElement(cgh, "calls")==-1))), digits=3)
-dat3$gain.freq <- round(mean(as.data.frame(t(assayDataElement(cgh, "calls")==1))), digits=3)
-if (number.of.copy.number.states=='4' && 2 %in% assayDataElement(cgh, 'calls'))
-  dat3$amp.freq <- round(mean(as.data.frame(t(assayDataElement(cgh, "calls")==2))), digits=3)
-
 calls <- assayDataElement(cgh, 'calls')
+
+dat3$loss.freq <- round(rowMeans(calls == -1), digits=3)
+dat3$gain.freq <- round(rowMeans(calls == 1), digits=3)
+if (number.of.copy.number.states=='4' && 2 %in% calls)
+  dat3$amp.freq <- round(rowMeans(calls == 2), digits=3)
+
 colnames(calls) <- sub('chip.', 'flag.', chips)
 dat3 <- cbind(dat3, calls)
 
@@ -92,9 +93,9 @@ dat3$chromosome[dat3$chromosome=='25'] <- 'MT'
 
 write.table(dat3, file='aberrations.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
-bitmap(file='aberrations.png', width=image.width/72, height=image.height/72)
-# pdf(file='aberrations.pdf')
-plot.summary(cgh)
+# bitmap(file='aberration-frequencies.png', width=image.width/72, height=image.height/72)
+pdf(file='aberration-frequencies.pdf', paper='a4r', width=0, height=0)
+frequencyPlot(cgh)
 dev.off()
 
 # EOF

@@ -1,15 +1,15 @@
-# TOOL acgh-identify-regions.R: "Identify common regions from called aCGH data" (Reduces dimensionality of called aCGH data by identifying common breakpoints.)
+# TOOL acgh-identify-regions.R: "Identify common regions from called copy number data" (Reduces dimensionality of called copy number data by identifying common breakpoints.)
 # INPUT aberrations.tsv: aberrations.tsv TYPE GENE_EXPRS 
 # OUTPUT regions.tsv: regions.tsv 
 # OUTPUT regions.pdf: regions.pdf 
-# OUTPUT regions-frequencies.pdf: regions-frequencies.pdf 
+# OUTPUT region-frequencies.pdf: region-frequencies.pdf 
 # PARAMETER max.info.loss: max.info.loss TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.01 (Maximal information loss allowed.)
 
 # detect-common-copy-number-aberration-regions.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-03-30
+# 2011-12-13
 
-library(CGHcall)
+source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 library(CGHregions)
 library(WECCA)
 
@@ -56,10 +56,10 @@ if (nrow(dat2[dat2$chromosome %in% dat$chromosome & dat2$end %in% dat$start,]) >
   for (row in rownames(dat2))
     dat2[row, 'end'] <- dat[dat$chromosome == dat2[row, 'chromosome'] & dat$start == dat2[row, 'end'], 'end'][1]
 
-dat2$loss.freq <- round(mean(as.data.frame(t(hardcalls==-1))), digits=3)
-dat2$gain.freq <- round(mean(as.data.frame(t(hardcalls==1))), digits=3)
+dat2$loss.freq <- round(rowMeans(hardcalls == -1), digits=3)
+dat2$gain.freq <- round(rowMeans(hardcalls == 1), digits=3)
 if (2 %in% hardcalls)
-  dat2$amp.freq <- round(mean(as.data.frame(t(hardcalls==2))), digits=3)
+  dat2$amp.freq <- round(rowMeans(hardcalls == 2), digits=3)
 
 dat2 <- cbind(dat2, hardcalls)
 colnames(dat2) <- sub('calls\\.', 'flag\\.', colnames(dat2))
@@ -89,11 +89,11 @@ dat2$chromosome[dat2$chromosome=='25'] <- 'MT'
 
 write.table(dat2, file='regions.tsv', quote=FALSE, sep='\t', col.names=TRUE, row.names=TRUE)
 
-pdf(file='regions.pdf')
+pdf(file='regions.pdf', paper='a4r', width=0, height=0)
 plot(regions)
 dev.off()
 
-pdf(file='regions-frequencies.pdf')
+pdf(file='region-frequencies.pdf', paper='a4r', width=0, height=0)
 frequencyPlot(regions)
 dev.off()
 

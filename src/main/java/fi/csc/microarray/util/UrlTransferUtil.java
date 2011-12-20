@@ -24,6 +24,12 @@ public class UrlTransferUtil {
 		return url.openStream();		
 	}
 
+	
+	public static String parseFilename(URL url) {
+		int start = url.getPath().contains("/") ? url.getPath().lastIndexOf("/") + 1 : url.getPath().length();
+		return url.getPath().substring(start);
+	}
+	
 	/**
 	 * Uploads a file (or similar) over HTTP.
 	 * NOTE! Compression does not work with files larger than 4 gigabytes

@@ -105,7 +105,8 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 	private LinkedHashMap<String, AnalysisJob> receivedJobs = new LinkedHashMap<String, AnalysisJob>();
 	private LinkedHashMap<String, AnalysisJob> scheduledJobs = new LinkedHashMap<String, AnalysisJob>();
 	private LinkedHashMap<String, AnalysisJob> runningJobs = new LinkedHashMap<String, AnalysisJob>();
-	Timer timeoutTimer;
+	private Timer timeoutTimer;
+	private String localFilebrokerPath;
 	
 
 	/**
@@ -124,7 +125,14 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		this.scheduleTimeout = configuration.getInt("comp", "schedule-timeout");
 		this.timeoutCheckInterval = configuration.getInt("comp", "timeout-check-interval");
 		this.sweepWorkDir= configuration.getBoolean("comp", "sweep-work-dir");
-		this.maxJobs = configuration.getInt("comp", "max-jobs");		
+		this.maxJobs = configuration.getInt("comp", "max-jobs");
+		String fbPath = configuration.getString("comp", "local-filebroker-user-data-path");
+		if ("".equals(fbPath.trim())) {
+			this.localFilebrokerPath = null; // null => path optimisation not used
+		} else {
+			this.localFilebrokerPath = fbPath;
+		}
+		
 		logger = Logger.getLogger(AnalyserServer.class);
 		loggerJobs = Logger.getLogger("jobs");
 		loggerStatus = Logger.getLogger("status");
@@ -153,7 +161,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		
 		managerTopic = endpoint.createTopic(Topics.Name.JOB_LOG_TOPIC, AccessMode.WRITE);
 		
-		fileBroker = new JMSFileBrokerClient(this.endpoint.createTopic(Topics.Name.AUTHORISED_URL_TOPIC, AccessMode.WRITE));
+		fileBroker = new JMSFileBrokerClient(this.endpoint.createTopic(Topics.Name.AUTHORISED_URL_TOPIC, AccessMode.WRITE), this.localFilebrokerPath);
 		
 		// create keep-alive thread and register shutdown hook
 		KeepAliveShutdownHandler.init(this);

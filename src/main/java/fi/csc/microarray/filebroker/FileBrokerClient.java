@@ -1,5 +1,6 @@
 package fi.csc.microarray.filebroker;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -11,22 +12,35 @@ import fi.csc.microarray.util.IOUtils.CopyProgressListener;
 public interface FileBrokerClient {
 
 	/**
-	 * Add file to file broker.
+	 * Add InputStream as file to file broker.
 	 * 
-	 * @param content
+	 * @param file
 	 * @param progressListener may be null
 	 * @return url to the added file
 	 * @throws FileBrokerException if url from file broker is null or getting url timeouts
 	 * @throws JMSException
 	 * @throws IOException
 	 */
-	public abstract URL addFile(InputStream content, CopyProgressListener progressListener) throws FileBrokerException, JMSException,
-			IOException;
+	public abstract URL addFile(InputStream file, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException;
 
 	/**
-	 *  Get the InputStream for a while form the FileBroker.
+	 * Add file to file broker. Might use local transfer instead of uploading.
+	 * 
+	 * @see #addFile(InputStream, CopyProgressListener)
+	 * 
+	 * @param file
+	 * @param progressListener may be null
+	 * @return url to the added file
+	 * @throws FileBrokerException if url from file broker is null or getting url timeouts
+	 * @throws JMSException
+	 * @throws IOException
+	 */
+	public abstract URL addFile(File file, CopyProgressListener progressListener) throws FileBrokerException, JMSException, IOException;
+
+	/**
+	 *  Get the InputStream for a while from the FileBroker.
 	 *  
-	 *  If payload is not available right a way, wait for awhile for
+	 *  If payload is not available right a way, wait for a while for
 	 *  the payload to become available. 
 	 *  
 	 *  This is useful if getFile is called immediately after addFile, 
@@ -41,6 +55,19 @@ public interface FileBrokerClient {
 	 * @throws IOException
 	 */
 	public abstract InputStream getFile(URL url) throws IOException;
+
+	/**
+	 * Get File pointed by url to destFile. Might use local file transfer instead
+	 * of downloading.
+	 * 
+	 * @see #getFile(URL)
+	 * 
+	 * @param destFile destination file that must not exist
+	 * @param url source file
+	 * 
+	 * @throws IOException
+	 */
+	public abstract void getFile(File destFile, URL url) throws IOException;
 
 	/**
 	 * Check if a file exists at the file broker.

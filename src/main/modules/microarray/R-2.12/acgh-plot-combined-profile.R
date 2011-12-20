@@ -7,9 +7,9 @@
 
 # plot-cn-induced-expression-profile.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-03-30
+# 2012-12-09
 
-library(CGHcall)
+source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 library(intCNGEan)
 
 # read the input files
@@ -62,14 +62,14 @@ sampleNames(exp) <- phenodata$description
 matched <- list(CNdata.matched=cgh, GEdata.matched=exp)
 
 # remove samples that are out of bounds
-sample <- sample[sample<=length(sampleNames(matched$CNdata.matched))]
+samples.to.plot <- samples.to.plot[samples.to.plot<=length(sampleNames(matched$CNdata.matched))]
 
 # check that we have something to plot
-if (length(sample)==0)
+if (length(samples.to.plot)==0)
   stop('CHIPSTER-NOTE: Nothing to plot.')
 
 # plot
-pdf(file='matched-cn-and-expression-profile.pdf')
+pdf(file='matched-cn-and-expression-profile.pdf', paper='a4r', width=0, height=0)
 for (sample in samples.to.plot)
   intCNGEan.profilesPlot(matched$CNdata.matched, matched$GEdata.matched, sampleNo=sample, chr=chromosome)
 dev.off()

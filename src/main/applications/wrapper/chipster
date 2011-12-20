@@ -1,8 +1,43 @@
 #!/bin/bash
 
+# The following two lines are used by the chkconfig command. Change as is
+#  appropriate for your application.  They should remain commented.
+# chkconfig: 2345 30 70
+# description: $APP_LONG_NAME
+ 
+# Initialization block for the install_initd and remove_initd scripts used by
+#  SUSE linux distributions.
+### BEGIN INIT INFO
+# Provides: $APP_NAME
+# Required-Start: $local_fs $network $syslog
+# Should-Start: 
+# Required-Stop:
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: $APP_LONG_NAME
+# Description: $APP_LONG_NAME
+### END INIT INFO
+
 ACTIVEMQ_START_DELAY=10
 
-CHIPSTER_HOME="$(dirname "$(readlink ${BASH_SOURCE[0]})")"
+# detect chipster home
+if [ -h $0 ]
+then
+    BINARY_REAL_PATH="$(readlink -f "$0")"
+else
+    BINARY_REAL_PATH="$0"
+fi
+CHIPSTER_HOME="$(dirname "${BINARY_REAL_PATH}")"
+
+
+# run auto configure if needed
+AUTO_CONFIG_FLAG_FILE="${CHIPSTER_HOME}/auto-config-to-be-run"
+if [[ -f $AUTO_CONFIG_FLAG_FILE && "$1" == "start" ]]
+then
+	rm "${AUTO_CONFIG_FLAG_FILE}"
+	cd "${CHIPSTER_HOME}"
+	./configure.sh auto
+fi
 
 # platform, should be linux-x86-32, linux-x86-64 or macosx (autodetected if not set)
 PLATFORM=""

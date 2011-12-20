@@ -1,11 +1,7 @@
 package fi.csc.microarray.analyser;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.net.URL;
 import java.util.List;
 
@@ -14,8 +10,8 @@ import org.apache.log4j.Logger;
 import fi.csc.microarray.analyser.AnalysisDescription.OutputDescription;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage;
+import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;
-import fi.csc.microarray.util.IOUtils;
 
 /**
  * Provides functionality for transferring input files from file broker
@@ -61,30 +57,17 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 			for (String fileName : inputMessage.payloadNames()) {
 				cancelCheck();
 
-				// get url
-				URL inputUrl = inputMessage.getPayload(fileName);
-
-				// get stream
-				File outputFile;
-				BufferedInputStream inputStream = null;
-				BufferedOutputStream fileStream = null;
-				try {
-					inputStream = new BufferedInputStream(resultHandler.getFileBrokerClient().getFile(inputUrl));
-
-					// copy to file
-					outputFile = new File(jobWorkDir, fileName);
-					fileStream = new BufferedOutputStream(new FileOutputStream(outputFile));
-					IOUtils.copy(inputStream, fileStream);
-				} finally {
-					IOUtils.closeIfPossible(inputStream);
-					IOUtils.closeIfPossible(fileStream);
-				}
-
-				logger.debug("created input file: " + outputFile.getName() + " " + outputFile.length());
+				// get url and output file
+				URL url = inputMessage.getPayload(fileName);
+				File localFile = new File(jobWorkDir, fileName);
+				
+				// make local file available, by downloading, copying or symlinking
+				resultHandler.getFileBrokerClient().getFile(new File(jobWorkDir, fileName), url);
+				logger.debug("made available local file: " + localFile.getName() + " " + localFile.length());
 			}
 		} catch (Exception e) {
 			outputMessage.setErrorMessage("Transferring input data to computing service failed.");
-			outputMessage.setOutputText(e.toString());
+			outputMessage.setOutputText(Exceptions.getStackTrace(e));
 			updateState(JobState.ERROR, "");
 			return;
 		}			
@@ -135,7 +118,7 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 	            // copy file to file broker
 	            URL url;
 	            try {
-	                url = resultHandler.getFileBrokerClient().addFile(new FileInputStream(outputFile), null);
+	                url = resultHandler.getFileBrokerClient().addFile(outputFile, null);
 	                // put url to result message
 	                outputMessage.addPayload(outputFile.getName(), url);
 	                logger.debug("transferred output file: " + fileDescription.getFileName());
@@ -145,7 +128,7 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 	                if (!fileDescription.isOptional()) {
 	                    logger.error("required output file not found", e);
 	                    outputMessage.setErrorMessage("Required output file is missing.");
-	                    outputMessage.setOutputText(e.toString());
+	                    outputMessage.setOutputText(Exceptions.getStackTrace(e));
 	                    updateState(JobState.ERROR, "");
 	                    return;
 	                }
@@ -154,7 +137,7 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 	                // TODO continue or return? also note the super.postExecute()
 	                logger.error("could not put file to file broker", e);
 	                outputMessage.setErrorMessage("Could not send output file.");
-	                outputMessage.setOutputText(e.toString());
+	                outputMessage.setOutputText(Exceptions.getStackTrace(e));
 	                updateState(JobState.ERROR, "");
 	                return;
 	            }

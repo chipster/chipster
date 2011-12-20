@@ -42,7 +42,7 @@ public class AnalysisTestBase extends MessagingTestBase {
 	protected TaskExecutor executor;
 	
 	
-	class JobResultListener implements TaskEventListener {
+	public static class JobResultListener implements TaskEventListener {
 
 		private CountDownLatch latch;
 		

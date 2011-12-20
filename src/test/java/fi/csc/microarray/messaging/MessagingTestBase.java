@@ -67,7 +67,7 @@ public abstract class MessagingTestBase {
 				return "test";
 			}
 		});
-		logger.debug("endpoint created");
+		System.out.println("endpoint created");
 		endpoint.setAuthenticationListener(authenticationListener);
 	}
 	

@@ -11,6 +11,7 @@ import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
 import fi.csc.microarray.analyser.AnalysisDescription.OutputDescription;
 import fi.csc.microarray.messaging.JobState;
+import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;
 
 /**
@@ -111,7 +112,7 @@ public abstract class ShellAnalysisJobBase extends OnDiskAnalysisJobBase {
 
         } catch (Exception e) {
         	outputMessage.setErrorMessage("Running analysis tool failed.");
-        	outputMessage.setOutputText(e.toString());
+        	outputMessage.setOutputText(Exceptions.getStackTrace(e));
         	updateState(JobState.ERROR, "analysis tool failed");
         	return;
         }

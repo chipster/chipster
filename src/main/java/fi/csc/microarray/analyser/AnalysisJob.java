@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.messaging.message.ResultMessage;
+import fi.csc.microarray.util.Exceptions;
 
 /**
  * Interface to analysis jobs. Implementations do the actual analysis
@@ -147,7 +148,7 @@ public abstract class AnalysisJob implements Runnable {
 			this.setExecutionEndTime(new Date());
 			updateState(JobState.ERROR, "running tool failed");
 			outputMessage.setErrorMessage("Running tool failed.");
-			outputMessage.setOutputText(e.toString());
+			outputMessage.setOutputText(Exceptions.getStackTrace(e));
 			outputMessage.setState(this.state);
 			outputMessage.setStateDetail(this.stateDetail);
 			resultHandler.sendResultMessage(inputMessage, outputMessage);

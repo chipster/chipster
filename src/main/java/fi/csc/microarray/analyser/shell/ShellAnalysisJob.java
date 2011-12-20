@@ -9,6 +9,7 @@ import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage.ParameterSecurityPolicy;
 import fi.csc.microarray.messaging.message.JobMessage.ParameterValidityException;
+import fi.csc.microarray.util.Exceptions;
 
 /**
  * Job that is run as a generic shell command.
@@ -101,7 +102,7 @@ public class ShellAnalysisJob extends ShellAnalysisJobBase {
 			inputParameters = new LinkedList<String>(inputMessage.getParameters(SHELL_PARAMETER_SECURITY_POLICY, analysis));
 		} catch (ParameterValidityException e) {
 			outputMessage.setErrorMessage(e.getMessage()); // always has a message
-			outputMessage.setOutputText(e.toString());
+			outputMessage.setOutputText(Exceptions.getStackTrace(e));
 			updateState(JobState.FAILED_USER_ERROR, "");
 			return;
 		}

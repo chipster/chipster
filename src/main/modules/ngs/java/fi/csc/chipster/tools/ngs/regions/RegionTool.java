@@ -9,6 +9,7 @@ import fi.csc.chipster.tools.gbrowser.regions.RegionOperations;
 import fi.csc.microarray.analyser.java.JavaAnalysisJobBase;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.messaging.JobState;
+import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.IOUtils;
 
 public abstract class RegionTool extends JavaAnalysisJobBase {
@@ -47,7 +48,7 @@ public abstract class RegionTool extends JavaAnalysisJobBase {
 			
 		} catch (Exception e) {
 			updateState(JobState.FAILED, e.getMessage());
-			outputMessage.setOutputText(e.toString());
+			outputMessage.setOutputText(Exceptions.getStackTrace(e));
 			return;
 		}
 		updateStateToClient(JobState.RUNNING, "preprocessing finished");
