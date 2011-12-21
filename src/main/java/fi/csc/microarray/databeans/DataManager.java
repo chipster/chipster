@@ -20,7 +20,6 @@ import javax.swing.Icon;
 import org.apache.log4j.Logger;
 import org.mortbay.util.IO;
 
-import de.schlichtherle.truezip.zip.ZipFile;
 import fi.csc.microarray.client.ClientApplication;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.dialog.ChipsterDialog.DetailsVisibility;
@@ -33,7 +32,6 @@ import fi.csc.microarray.databeans.DataBean.StorageMethod;
 import fi.csc.microarray.databeans.features.Feature;
 import fi.csc.microarray.databeans.features.FeatureProvider;
 import fi.csc.microarray.databeans.features.Modifier;
-import fi.csc.microarray.databeans.handlers.DataBeanHandler;
 import fi.csc.microarray.databeans.handlers.LocalFileDataBeanHandler;
 import fi.csc.microarray.databeans.handlers.ZipDataBeanHandler;
 import fi.csc.microarray.exception.MicroarrayException;
@@ -69,7 +67,8 @@ public class DataManager {
 	private DataFolder rootFolder;	
 	private File repositoryRoot;
 
-	private List<ZipFile> zipFiles = new LinkedList<ZipFile>();
+	private ZipDataBeanHandler zipDataBeanHandler = new ZipDataBeanHandler(this);
+	private LocalFileDataBeanHandler localFileDataBeanHandler = new LocalFileDataBeanHandler(this);
 	
 	public DataManager() throws IOException {
 		rootFolder = createFolder(DataManager.ROOT_NAME);
@@ -486,8 +485,7 @@ public class DataManager {
 			throw new MicroarrayException(e);
 		}
 		
-		DataBeanHandler handler = new ZipDataBeanHandler(this);
-		DataBean dataBean = new DataBean(name, StorageMethod.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new DataBean[] {}, null, this, handler);
+		DataBean dataBean = new DataBean(name, StorageMethod.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new DataBean[] {}, null, this, zipDataBeanHandler);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
 		return dataBean;
 	}
@@ -501,8 +499,7 @@ public class DataManager {
 	 * @throws MicroarrayException
 	 */
 	public DataBean createDataBeanFromZip(String name, URL url) throws MicroarrayException {
-		DataBeanHandler handler = new ZipDataBeanHandler(this);
-		DataBean dataBean = new DataBean(name, StorageMethod.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new DataBean[] {}, null, this, handler);
+		DataBean dataBean = new DataBean(name, StorageMethod.LOCAL_SESSION, "", url, guessContentType(name), new Date(), new DataBean[] {}, null, this, zipDataBeanHandler);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
 		return dataBean;
 	}
@@ -545,8 +542,7 @@ public class DataManager {
 			throw new MicroarrayException(e);
 		}
 		
-		DataBeanHandler handler = new LocalFileDataBeanHandler(this);
-		DataBean dataBean = new DataBean(name, type, "", url, guessContentType(name), new Date(), sources, folder, this, handler);
+		DataBean dataBean = new DataBean(name, type, "", url, guessContentType(name), new Date(), sources, folder, this, localFileDataBeanHandler);
 		dispatchEventIfVisible(new DataItemCreatedEvent(dataBean));
 		return dataBean;
 	}
@@ -770,7 +766,7 @@ public class DataManager {
 		
 		bean.setContentUrl(newURL);
 		bean.setStorageMethod(StorageMethod.LOCAL_TEMP);
-		bean.setHandler(new LocalFileDataBeanHandler(this));
+		bean.setHandler(localFileDataBeanHandler);
 		bean.setContentChanged(true);
 	}
 	
@@ -841,15 +837,7 @@ public class DataManager {
 		return repositories;
 	}
 
-	public void addZipFile(ZipFile zipFile) {
-		this.zipFiles.add(zipFile);
-	}
-	
-	public List<ZipFile> getZipFiles() {
-		return this.zipFiles;
-	}
-	
-	public void clearZipFiles() {
-		zipFiles.clear();
+	public void flushSession() {
+		zipDataBeanHandler.closeZipFiles();
 	}
 }

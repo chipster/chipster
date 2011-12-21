@@ -18,7 +18,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import de.schlichtherle.truezip.zip.ZipEntry;
-import de.schlichtherle.truezip.zip.ZipFile;
 import de.schlichtherle.truezip.zip.ZipOutputStream;
 import fi.csc.microarray.client.NameID;
 import fi.csc.microarray.client.operation.OperationRecord;
@@ -225,15 +224,8 @@ public class SessionSaver {
 		// rename new session if replacing existing
 		if (replaceOldSession) {
 
-			for (ZipFile zipFile: dataManager.getZipFiles()) {
-				try {
-					zipFile.close();
-				} catch (Exception e) {
-					logger.warn("could not close zip file");
-				}
-			}
-			dataManager.clearZipFiles();
-			
+			// close open files, because they might stop us from overwriting existing session file
+			dataManager.flushSession();
 			
 			// original to backup
 			if (!sessionFile.renameTo(backupFile)) {

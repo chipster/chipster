@@ -75,6 +75,7 @@ public class Operation implements ExecutionItem {
 	 * @throws MicroarrayException
 	 */
 	public Operation(OperationDefinition definition, DataBean[] beans) throws MicroarrayException {
+		logger.debug("created operation from definition " + definition.getID());
 		this.definition = definition;
 		this.parameters = Parameter.cloneParameters(definition.getParameters());
 		bindInputs(beans);
