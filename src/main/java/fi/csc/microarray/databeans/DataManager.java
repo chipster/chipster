@@ -44,19 +44,13 @@ import fi.csc.microarray.util.Strings;
 public class DataManager {
 
 	private static final String TEMP_DIR_PREFIX = "chipster";
-
-
 	private static final int MAX_FILENAME_LENGTH = 256;
-
-
 	private static final Logger logger = Logger.getLogger(DataManager.class);
 
-	
 	/**
 	 * The initial name for the root folder.
 	 */
 	public final static String ROOT_NAME = "Datasets";
-
 	
 	private Map<String, FeatureProvider> factories = new HashMap<String, FeatureProvider>();
 	private Map<String, Modifier> modifiers = new HashMap<String, Modifier>();
@@ -138,8 +132,6 @@ public class DataManager {
 		listeners.add(listener);
 	}
 
-	
-	
 	
 	/**
 	 * Creates a new empty file in the repository managed by this FSDataManager.
@@ -227,10 +219,6 @@ public class DataManager {
 		}
 		return tempDir;
 	}
-
-	
-	
-	
 	
 	/**
 	 * @param enabled if property change events should be sent
@@ -267,7 +255,6 @@ public class DataManager {
 			}
 		}
 	}
-
 	
 	
 	public static DataBean[] wrapSource(DataBean source) {
@@ -283,14 +270,6 @@ public class DataManager {
 		return sources;
 		
 	}
-
-
-	
-	
-
-
-
-
 
 	
 	/**
@@ -392,12 +371,6 @@ public class DataManager {
 		return factory.createFeature(namePostfix, bean);
 	}
 
-	
-	
-	
-
-
-	
 
 	
 	/**
@@ -559,7 +532,6 @@ public class DataManager {
 		return bean;
 	}
 	
-	
 
 	/**
 	 * The file is used directly, the contents are not copied anywhere.
@@ -580,7 +552,6 @@ public class DataManager {
 	}
 	
 	
-
 	/**
 	 * Load session from a file.
 	 * 
@@ -804,9 +775,6 @@ public class DataManager {
 	}
 	
 	
-	
-	
-	
 	private void deleteDataFolder(DataFolder folder) {
 
 		// remove children
@@ -829,7 +797,6 @@ public class DataManager {
 			parent.removeChild(folder);
 		}
 	}
-
 	
 	
 	private String getNamePostfix(String featureName, String factoryName) {
