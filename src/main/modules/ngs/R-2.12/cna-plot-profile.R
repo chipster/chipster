@@ -4,20 +4,21 @@
 # PARAMETER normalization: "Normalization" TYPE [median: median, mode: mode, none: none] DEFAULT median (Normalization method.)
 # PARAMETER counts: "Counts" TYPE [count: "Original raw counts", corrected: "GC corrected counts"] DEFAULT corrected (Whether to use original raw read counts, or GC corrected ones.)
 # PARAMETER chromosomes: chromosomes TYPE STRING DEFAULT 0 (The numbers of the chromosomes to be plotted, separated by commas. 0 means all chromosomes. Ranges are also supported (e.g. 1,3,7-10\).)
-# PARAMETER resolution: resolution TYPE DECIMAL FROM 0 TO 1 DEFAULT 1 (Proportion of log-ratio data points to draw. Lower values lead to smaller file sizes and faster processing.)
+# PARAMETER resolution: resolution TYPE DECIMAL FROM 0.001 TO 1 DEFAULT 1 (Proportion of log-ratio data points to draw. Lower values lead to smaller file sizes and faster processing.)
 
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-12-21
+# 2011-12-22
 
 source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 
-if (counts == 'count) {
+if (counts == 'count') {
   colClasses <- c('character', 'character', 'integer', 'integer', 'numeric', 'NULL')
 } else {
   colClasses <- c('character', 'character', 'integer', 'integer', 'NULL', 'numeric')
 }
 
 dat <- read.table('binned-hits.tsv', header=TRUE, sep='\t', row.names=1, colClasses=colClasses)
+dat[,4] <- dat[,4] - min(dat[,4], na.rm=TRUE) + 1 # to prevent negative values
 dat[,4] <- log2(dat[,4])
 dat <- data.frame(bin=1:nrow(dat), dat)
 

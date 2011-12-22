@@ -4,16 +4,17 @@
 # PARAMETER organism: "Organism" TYPE [human: human] DEFAULT human (Organism.)
 # PARAMETER genome.build: "Genome build" TYPE [GRCh37: GRCh37] DEFAULT GRCh37 (Genome build.)
 # PARAMETER bin.size: "Bin size" TYPE [1: "1 kbp", 5: "5 kbp", 10: "10 kbp", 15: "15 kbp", 30: "30 kbp", 100: "100 kbp"] DEFAULT 30 (Bin size.)
+
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-12-21
+# 2011-12-22
 
 library(limma)
 bin.size <- as.integer(bin.size)
 binbp <- bin.size * 1000
 binstring <- paste(bin.size, 'kbp', sep='')
 
-# chipster.tools.path <- "/home/ischeini/.opt/samtools"
-system(paste(file.path(chipster.tools.path, 'samtools'), ' view -F 0x0404 -q 1 alignment.bam | cut -f3,4 | tr -d chr > hits.txt', sep=''))
+# chipster.tools.path <- "/home/ischeini/.opt/"
+system(paste(file.path(chipster.tools.path, 'samtools', 'samtools'), ' view -F 0x0404 -q 1 alignment.bam | cut -f3,4 | tr -d chr > hits.txt', sep=''))
 
 chromosomes <- c(1:22, 'X', 'Y', 'MT')
 genomes <- list(GRCh37=c(249250621, 243199373, 198022430, 191154276, 180915260, 171115067, 159138663, 146364022, 141213431, 135534747, 135006516, 133851895, 115169878, 107349540, 102531392, 90354753, 81195210, 78077248, 59128983, 63025520, 48129895, 51304566, 155270560, 59373566, 16571)) # Y not 59034049
@@ -52,7 +53,7 @@ close(f)
 unlink('hits.txt') 
 
 gc.correct <- function(x) {
-  x$count[x$count==0] <- NA # ?
+  # x$count[x$count==0] <- NA # ?
   means <- numeric(length=length(gc.intervals))
   for (i in 1:length(gc.intervals))
     means[i] <- mean(x[!is.na(gc$permil) & gc$permil==gc.intervals[i],'count'], na.rm=TRUE)
@@ -61,11 +62,11 @@ gc.correct <- function(x) {
   for (i in 1:length(gc.intervals))
     x[!is.na(gc$permil) & gc$permil==gc.intervals[i],'corrected'] <- x[!is.na(gc$permil) & gc$permil==gc.intervals[i],'count'] + correction[i]
   x$corrected <- round(x$corrected)
-  x$corrected - min(x$corrected, na.rm=TRUE) # to prevent negative values
+  # x$corrected - min(x$corrected, na.rm=TRUE) # to prevent negative values
 }
 
 # gc <- read.table(file.path(chipster.tools.path, '..', '..', '.MPScall', paste('gc.', bin.size, 'kbp.txt.gz', sep='')), header=TRUE, sep='\t', as.is=TRUE, colClasses=c('character', 'integer', 'integer', 'numeric'))
-gc <- read.table(file.path(chipster.tools.path, 'MPScall', paste('gc.', bin.size, 'kbp.txt.gz', sep='')), header=TRUE, sep='\t', as.is=TRUE, colClasses=c('character', 'integer', 'integer', 'numeric'))
+gc <- read.table(file.path(chipster.tools.path, 'MPScall', genome.build, paste('gc.', bin.size, 'kbp.txt.gz', sep='')), header=TRUE, sep='\t', as.is=TRUE, colClasses=c('character', 'integer', 'integer', 'numeric'))
 gc$permil <- as.integer(round(gc$gc*1000))
 gc.intervals <<- seq(from=range(gc$permil, finite=TRUE)[1], to=range(gc$permil, finite=TRUE)[2])
 bins$corrected <- gc.correct(bins)
