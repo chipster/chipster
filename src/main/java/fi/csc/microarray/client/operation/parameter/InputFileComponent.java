@@ -50,7 +50,7 @@ public class InputFileComponent extends JPanel {
         DataBean currentBean = null;
         Boolean enabled = false;
         Integer index = 0;
-        if (bindings != null) {
+        if (!bindings.isEmpty()) {
             
             // User has already selected the input files
             enabled = true;

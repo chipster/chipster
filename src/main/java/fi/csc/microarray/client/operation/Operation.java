@@ -93,7 +93,11 @@ public class Operation implements ExecutionItem {
 	public Operation(Operation o) throws MicroarrayException {
 		logger.debug("cloned operation from " + o.getID());
 		this.definition = o.definition;
-		this.bindings = o.bindings;
+		if (o.bindings != null) {
+			this.bindings = o.bindings;
+		} else {
+			this.bindings = new LinkedList<DataBinding>(); 
+		}
 		this.parameters = Parameter.cloneParameters(o.getParameters());
 	}
 
@@ -117,7 +121,10 @@ public class Operation implements ExecutionItem {
 	 */
 	public void bindInputs(DataBean[] beans) throws MicroarrayException {
 		this.bindings = definition.bindInputs(Arrays.asList(beans));
-
+		if (bindings == null) {
+			bindings = new LinkedList<DataBinding>();
+		}
+		
 		// update bindings to parameters
 		for (Parameter parameter : parameters) {
 			if (bindings == null) {
@@ -129,7 +136,7 @@ public class Operation implements ExecutionItem {
 	}
 
 	public void clearBindings() {
-		this.bindings = null;
+		this.bindings.clear();
 	}
 
 	public List<DataBinding> getBindings() {
@@ -154,7 +161,11 @@ public class Operation implements ExecutionItem {
 	 * Set new input file bindings.
 	 */
 	public void setBindings(LinkedList<DataBinding> bindings) {
-	    this.bindings = bindings;
+	    if (bindings != null) {
+	    	this.bindings = bindings;
+	    } else {
+	    	this.bindings = new LinkedList<DataBinding>();	
+	    }
 	}
 
 	/**

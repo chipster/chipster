@@ -19,6 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -94,6 +95,7 @@ public class SessionReplayTest extends MessagingTestBase {
 	// Sessions which cause something to be thrown, normal tool failures etc not counted
 	// TODO add to report
 	private LinkedHashMap<File, Throwable> sessionsWithErrors = new LinkedHashMap<File, Throwable>();
+	private LinkedHashMap<File, String> sessionsWithMissingTools = new LinkedHashMap<File, String>();
 	
 	private TaskExecutor executor;
 	private DataManager manager, sourceManager;
@@ -152,11 +154,15 @@ public class SessionReplayTest extends MessagingTestBase {
 		createReports();
 		
 		// Get overall result
-		boolean combinedResult = true;
+		boolean combinedToolsResult = true;
 		for (ToolTestResult toolTestResult : toolTestResults) {
 			if (toolTestResult.getTestResult().equals(TestResult.FAIL)) {
-				combinedResult = false;
+				combinedToolsResult = false;
 			}
+		}
+		if (!combinedToolsResult) {
+			System.out.println("failed tools, failing");
+			return false;
 		}
 		
 		// Fail if no results at all
@@ -165,7 +171,19 @@ public class SessionReplayTest extends MessagingTestBase {
 			return false;
 		}
 		
-		return combinedResult;
+		// Fail if missing tools
+		if (sessionsWithMissingTools.size() > 0) {
+			System.out.println("missing tools, failing");
+			return false;
+		}
+
+		// Fail if sessions with errors
+		if (sessionsWithErrors.size() > 0) {
+			System.out.println("sessions with errors, failing");
+			return false;
+		}
+		
+		return true;
 	}
 
 	private void testSession(File session) throws IOException, MicroarrayException, TaskException, InterruptedException {
@@ -222,7 +240,7 @@ public class SessionReplayTest extends MessagingTestBase {
 
 			// Skip import operations
 			if (importOperationRecords.contains(operationRecord)) {
-				System.out.println("skipping import operation " + operationRecord.getFullName());
+				System.out.println("skipping import or local or something operation " + operationRecord.getFullName());
 				continue;
 			}
 
@@ -240,7 +258,13 @@ public class SessionReplayTest extends MessagingTestBase {
 			}
 
 			// Set up task
-			Operation operation = new Operation(getOperationDefinition(operationRecord.getNameID().getID(), toolModules), inputBeans.toArray(new DataBean[] {}));
+			OperationDefinition operationDefinition = getOperationDefinition(operationRecord.getNameID().getID(), toolModules);
+			if (operationDefinition == null) {
+				System.out.println("Missing tool: " + operationRecord.getNameID().getID() + "  in session: " + session.getName() + " skipping rest of the session");
+				sessionsWithMissingTools.put(session, operationRecord.getNameID().getID());
+				return;
+			}
+			Operation operation = new Operation(operationDefinition, inputBeans.toArray(new DataBean[] {}));
 
 			// Parameters, copy paste from workflows
 			for (ParameterRecord parameterRecord : operationRecord.getParameters()) {
@@ -588,13 +612,18 @@ public class SessionReplayTest extends MessagingTestBase {
 		
 		// Main title
 		String titleStatus = "<span style=\"color: green\">everything ok!</span>";
-		if (failedTasks.size() > 0) {
-			titleStatus = "<span style=\"color: red\">" + failCounts.keySet().size() + " tool(s) failed in " + failedTasks.size() + " test(s)</span>";
+		if (failedTasks.size() > 0 || sessionsWithErrors.size() > 0 || sessionsWithMissingTools.size() > 0) {
+			titleStatus = "<span style=\"color: red\">" + 
+						failCounts.keySet().size() + " tool(s) failed in " + failedTasks.size() + " test(s), " +
+						sessionsWithErrors.size() + " session(s) with errors, " +
+						sessionsWithMissingTools.size() + " sessions(s) with missing tools" +
+						"</span>";
 		}
 		writer.write("<h2>Tool tests &ndash; " + titleStatus + "</h2>");
 
 		writer.write("<h3>Summary</h3>");
 
+		// Summary
 		long duration = (System.currentTimeMillis() - startTime.getTime())/1000;
 		String totalTime = String.format("%02dm %02ds", (duration/60), (duration%60));
 		writer.write("<table>" +
@@ -602,16 +631,57 @@ public class SessionReplayTest extends MessagingTestBase {
 				 successTasks.size() + " <span" + (successTasks.isEmpty() ? "" : " style=\"color: green\"") + ">ok</span>, " + 
 				 failedTasks.size() + " <span" + (failedTasks.isEmpty() ? "" : " style=\"color: red\"") + ">failed</span>, "+
 				 toolTestResults.size() + " total</td</tr>" +
-				"<tr><td>Tool coverage</td><td>" + uniqueTools.size() + "/" + getTotalNumberOfTools() + "</td></tr>" +
-				"<tr><td>Sessions</td><td>" + uniqueSessions.size() + "</td></tr>" +
-				"<tr><td>Start time</td><td>" + startTime.toString() + "</td></tr>" +
-				"<tr><td>Total time</td><td>" + totalTime + "</td></tr>" +
+				
+				 "<tr><td>Tool coverage</td><td>" + uniqueTools.size() + "/" + getTotalNumberOfTools() + "</td></tr>" +
+				
+				 "<tr><td>Sessions</td>" + 
+				 "<td>" + uniqueSessions.size() + " total, " + 
+				 sessionsWithErrors.size() + " <span" + (sessionsWithErrors.isEmpty() ? "" : " style=\"color: red\"") + ">with errors</span>, " +
+				 sessionsWithMissingTools.size() + " <span" + (sessionsWithMissingTools.isEmpty() ? "" : " style=\"color: red\"") + ">with missing tools</span>, "+
+				 "</td></tr>" +
+
+				 
+				 "<tr><td>Start time</td><td>" + startTime.toString() + "</td></tr>" +
+				 "<tr><td>Total time</td><td>" + totalTime + "</td></tr>" +
 
 				"</table>");
 		
+		// Sessions with errors
+		if (sessionsWithErrors.size() > 0) {
+			writer.write("<h3>Sessions with errors</h3>");
+			writer.write("<table><tr>" + 
+					"<th>Session</th>" + 
+					"<th>Throwable</th>" +
+					"</tr>");
+			for (Entry<File, Throwable> entry : sessionsWithErrors.entrySet()) {
+				writer.write("<tr>" +
+						"<td>" + entry.getKey().getName() + "</td>" +
+						"<td>" + entry.getValue().toString() + "</td>" +
+						"</tr>");
+			}
+			writer.write("</table>");
+		}
 
-		// Test results
-		writer.write("<h3>Test results</h3>");
+		// Missing tools
+		if (sessionsWithMissingTools.size() > 0) {
+			writer.write("<h3>Sessions with missing tools</h3>");
+			writer.write("<table><tr>" + 
+					"<th>Session</th>" + 
+					"<th>Tool</th>" +
+					"</tr>");
+			for (Entry<File, String> entry : sessionsWithMissingTools.entrySet()) {
+				writer.write("<tr>" +
+						"<td>" + entry.getKey().getName() + "</td>" +
+						"<td>" + entry.getValue() + "</td>" +
+						"</tr>");
+			}
+			writer.write("</table>");
+		}
+
+		
+		
+		// Tool test results
+		writer.write("<h3>Tool test results</h3>");
 		writer.write("<table><tr>" + 
 				"<th>Tool</th>" + 
 				"<th>Result</th>" +
