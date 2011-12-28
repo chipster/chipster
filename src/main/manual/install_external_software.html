@@ -1,0 +1,79 @@
+<html>
+<body>
+
+<h2>Installing external software</h2>
+
+<p>Chipster relies on external programs for promoter analysis. ClusterBuster is needed for searching the known 
+transcription factor binding sites, and Weeder is used for inferring the common elements in the promoter sequences, 
+i.e., finding possible unknown transcription factor binding sites.</p>
+
+<p>Chipster also depends on external programs for multiple sequence alignment and phylogenetic analysis. Muscle and 
+Mafft are used for sequence alignment, seqret from the EMBOSS package for sequence format conversion and RAxML and 
+ClustalW for phylogenetic analysis.</p>
+
+
+<h3>R and Bioconductor </h3>
+
+<ul>
+   <li>Install R 2.6.1 from http://www.r-project.org.</li>
+   <li>Run the <a href="R-install.R">installation script</a> in R (you should have writing permissions to the install folder).</li>
+   <li>Download and install the packages fpc (v. 1.1-5) and A2R (v. 0.04) from http://addictedtor.free.fr/packages/</li>
+   <li>Download and install Affymetrix exon array CDFs from http://xmap.picr.man.ac.uk/download/index.jsp#2</li>
+   <li>In addition you will need to install Illumina Probe ID annotation packages. Those should be available from
+       http://www.bioconductor.org/packages/2.2/data/annotation/</li>
+</ul>
+
+
+<h3>ClusterBuster and Weeder</h3>
+
+
+<h4>Installing executables</h4>
+
+<p>Download and install ClusterBuster (v. ?.?.?) and Weeder (v. 1.3). These can be downloaded from:</p>
+
+<p><a href="http://cagt.bu.edu/page/ClusterBuster_download">http://cagt.bu.edu/page/ClusterBuster_download</a></p>
+<p><a href="http://www.pesolelab.it/index.php?mod=04_Tools">http://www.pesolelab.it/index.php?mod=04_Tools</a></p>
+
+<p>In the R scripts promoter-cbust.R and promoter-tfbs.R change the paths to the executable to be correct.</p>
+
+<p>Weeder needs to be able to link to frequency files, and the location of these is indicated in the 
+promoter-tfbs.R script. These need to be changed to point to a correct location, also.</p>
+
+
+<h4>Installing matrix files</h4>
+
+<p>Download the Jaspar database for ClusterBuster from:</p>
+
+<a href="http://zlab.bu.edu/clover/jaspar2">http://zlab.bu.edu/clover/jaspar2</a>
+
+<p>Rename the file as jaspar2005core.txt, and modify the path to it in the script promoter-cbust.R.</p>
+
+
+<h4>Installing promoter sequence files</h4>
+
+<p>Promoter analysis tools need the promoter sequences in a suitable format. Download the promoter sequence file for 
+human, mouse and rat from <a href="http://hgdownload.cse.ucsc.edu/downloads.html">http://hgdownload.cse.ucsc.edu/downloads.html</a>, 
+and for yeast from <a href="http://www.ncbi.nlm.nih.gov/CBBresearch/Landsman/Cell_cycle_data/upstream_seq.html">http://www.ncbi.nlm.nih.gov/CBBresearch/Landsman/Cell_cycle_data/upstream_seq.html</a>. 
+
+<p>Run the accessory script promoter-accessory.R for these sequence files. The result is a bunch of tabular files 
+that can be easily handled with R. The path to these files needs to be changed in the scripts promoter-cbust.R, 
+promoter-tfbs.R and promoter-retrprom.R.</p>
+
+
+<h3>Sequence analysis and phylogenetics tools</h3>
+
+<p>Download and install the following programs: </p>
+
+<p><a href="http://align.bmr.kyushu-u.ac.jp/mafft/software/">Mafft v. 6.240</a></p>
+<p><a href="http://www.drive5.com/muscle/download3.6.html">Muscle v. 3.6</a></p>
+<p><a href="http://emboss.sourceforge.net/download/">EMBOSS v. 5.0.0</a></p>
+<p><a href="ftp://ftp.ebi.ac.uk/pub/software/clustalw2">ClustalW v. 2.0.4</a></p>
+<p><a href="http://icwww.epfl.ch/~stamatak/index-Dateien/Page443.htm">RAxML HPC v. 7.0.0</a></p>
+
+<p>The script seqanal-msa.R and seqanal-phylogenetics.R contain paths to these executables. Please
+modify the path according to your system.</p>
+
+
+</body>
+
+</html>

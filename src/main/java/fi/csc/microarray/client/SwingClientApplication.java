@@ -1651,8 +1651,8 @@ public class SwingClientApplication extends ClientApplication {
 
 	public void viewHelp(String page) {
 		try {
-			if (!page.startsWith(HelpMapping.URL_BASE)) {
-				page = HelpMapping.URL_BASE + page;
+			if (!page.startsWith(HelpMapping.MANUAL_ROOT)) {
+				page = HelpMapping.MANUAL_ROOT + page;
 			}
 			BrowserLauncher.openURL(page);
 		} catch (Exception e) {

@@ -1,0 +1,37 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>Statistics / Time series</h2>
+
+<h3>Description</h3>
+
+Finds periodically expressed genes from the selected gene list.
+
+<h3>Parameters</h3>
+
+<ul>
+<li>Analysis type (periodicity, ica) [periodicity]</li>
+<li>P-value cut-off (0...1) [0.05]</li>
+<li>Apply Benjamini-Hochberg FDR correction to p-values (yes, no) [yes]</li>
+<li>Standard deviation for ica (0...10) [2]</li>
+<li>Image width (200...3200) [600]</li>
+<li>Image height (200...3200) [600]</li>
+</ul>
+
+<h3>Details</h3>
+
+<p>Periodically expressed genes can be found using either the Fisher's G test or
+independent component analysis (ICA). For the Fisher's test, genes that have the
+corrected p-value less than the specified threshold are returned. For ICA, genes
+that are within the specified standard deviation from the mean, are returned.</p>
+
+<h3>Output</h3>
+
+<p>A list of genes expression and p-values (periodicity analysis) or a list of genes
+with expression values and their cluster membership (ICA). For ICA, a plot of genes
+in the clusters is also generated.</p>
+
+</body>
+

@@ -1,0 +1,32 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title></title>
+</head>
+<body>
+	<h2>Preprocessing / Filter by column value</h2>
+	
+<h3>Description</h3>
+
+<p>Filters rows in a table containing genomic regions based on the values in the selected data column.</p></p>
+
+<h3>Parameters</h3>
+
+<ul>
+<li>column (...) [empty]</li>
+<li>cutoff (-100000...100000) [1]</li>
+<li>smaller.or.larger (equal-to, smaller-than, larger-than, within, outside) [smaller-than]</li>
+</ul>
+
+<h3>Details</h3>
+
+<p>Filters rows in a table with genomic regions based on continuous values in the selected data column, for example after using the tool "Find peaks using MMACS, treatment vs. control""). 
+The options "within" and "outside" can be used to filter based on a symmetrical range of values. </p>
+
+<h3>Output</h3>
+
+<p>A tabular text file containing only the genomic regions that pass the filtering criteria.</p>
+
+</body>

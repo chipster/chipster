@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>Annotation / Affymetrix, Illumina or Agilent gene list </h2>
+
+<h3>Description</h3>
+
+<p>This tool creates an HTML page containing annotations for a selected Affymetrix, Illumina or Agilent gene list.</p>
+
+<h3>Parameters</h3>
+
+<ul>
+<li>Column containing expression values [empty]</li>
+<li>Column containing p-values [empty]</li>
+</ul>
+
+<h3>Details</h3>
+
+<p>Currently, Affymetrix probe set IDs, Illumina Target IDs and Agilent probe names can be annotated.</p>
+
+<p>If the annotated dataset contains p-values or expression values, those can be included in the annotation table.
+P-values and expression values can be calculated using some statistical test, especially empirical Bayes, or using
+the utility toll for calculation fold changes between exactly two groups.</p>
+
+<h3>Output</h3>
+
+<p>Tool writes an HTML and a text file with annotations for the genes. This annotation page contains information on the probe 
+location in the chromosomes, links to outside databases, such as, Pubmed and RefSeq, and GO and KEGG pathway 
+information.</p>
+
+<h3>References</h3>
+
+<p>This tool utilizes the Bioconductor package 
+<a href="http://bioconductor.org/packages/2.2/bioc/html/annaffy.html">annaffy</a>. </p>
+
+
+</body>
+

@@ -50,6 +50,8 @@ import fi.csc.microarray.client.visualisation.methods.VennDiagram;
 import fi.csc.microarray.client.visualisation.methods.Volcanoplot;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomeBrowser;
 import fi.csc.microarray.client.visualisation.methods.threed.Scatterplot3D;
+import fi.csc.microarray.config.Configuration;
+import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.constants.VisualConstants;
 import fi.csc.microarray.databeans.DataBean;
 import fi.csc.microarray.databeans.DataManager;
@@ -514,7 +516,8 @@ public class MicroarrayModule implements Module {
 
 	@Override
 	public String getManualHome() {
-		return "https://extras.csc.fi/biosciences/chipster-manual/index.html";
+		Configuration configuration = DirectoryLayout.getInstance().getConfiguration();
+		return configuration.getString("client", "manual-root");
 	}
 
 	@Override

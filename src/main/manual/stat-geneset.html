@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>Pathways / Gene set test</h2>
+
+<h3>Description</h3>
+
+<p>Tests the statistical significance of a set of genes simultaneously, not gene by gene as is
+the usual method of analysis. </p>
+
+<h3>Parameters</h3>
+
+<ul>
+<li>Gene list to test (KEGG, GO, current) [current]</li>
+<li>Use Benjamini and Hochberg's FDR (yes, no) [yes]</li>
+<li>Number of the most significant groups to visualize (4, 9, 16) [4]</li>
+<li>Width of the image (200...3200) [600]</li>
+<li>Height of the image (200...3200) [600]</li>
+</ul>
+
+<h3>Details</h3>
+
+<p>This tool should be run on the normalized, unfiltered data set. Otherwise, the analysis
+will end with an error.</p>
+
+<p>The test is run by using the current list of genes, so that their significance can be assessed or
+all KEGG pathways or GO groups can be tested for significance. If KEGG or GO is selected
+only the specified number of the most significant findings are visualized, while the result table will include the complete results. 
+The user can select whether or not to apply multiple testing correction, using the method of Benjamini and Hochberg, which transforms the
+p-values into false discovery rates.</p>
+
+<p>Note that gene sets consisting of only one gene are automatically removed from the analysis results.</p>
+
+<h3>Output</h3>
+
+<p>A table summarizing the analysis results per gene set.<p>
+
+<p> The table includes information about the size of the gene set, how many individual
+probes for that gene set were tested, the gene set representative Q statistic, the expected Q value based on an asymptotic distribution,
+the variance in the expected Q statistic, the unadjusted p-values and the ones adjusted for multiple testing. 
+If you would like to know what are the genes listed as "tested", you can run the tool "Utilities/ Extract genes from GO term" on your original data set. 
+	
+</p>
+
+<p>An image illustrating the results in a barplot.</p>
+
+<p>The bars in the plot show the influence of each gene on the test statistic, which is calculated as the average of the bars.
+The solid reference line shows the expected influence, if the gene was not associated with the sample groups. The equidistant
+horizontal marks on the bars represent how far, in terms of standard deviations, from the expected influence the observed influence is.
+Red color bars signify a negative association to the groups (downregulation), whereas green bars correspond to a positive association
+(upregulation). The most significant pathway can be found in the top-left corner of the image, and the pathways are plotted according to
+decreasing significance to the right and then down.</p>
+
+<p>For further information about the geneplot please see the <a href="http://bioconductor.org/packages/2.2/bioc/vignettes/globaltest/inst/doc/GlobalTest.pdf">manual of the GlobalTest package</a> (page 19).</p>
+
+<h3>References</h3>
+
+<p>This tool uses Bioconductor package globaltest. Please cite the articles:</p>
+
+<p>Goeman, J. J., Oosting, J., Cleton-Jansen, A. M., Anninga, J. K., and van
+Houwelingen, J. C. (2005). Testing association of a pathway with survival
+using gene expression data. Bioinformatics, 21(9):1950–1957.</p>
+
+<p>Goeman, J. J., van de Geer, S. A., de Kort, F., and van Houwelingen, J. C.
+(2004). A global test for groups of genes: testing association with a clinical
+outcome. Bioinformatics, 20(1):93–99.</p>
+
+<p>Goeman, J. J., van de Geer, S. A., and van Houwelingen, J. C. (2006). Testing
+against a high-dimensional alternative. Journal of the Royal Statistical Society
+Series B-Statistical Methodology, 68(3):477–493.</p>
+
+</body>
+

@@ -416,6 +416,12 @@ public class ConfigTool {
 			updateConfigEntryValue(webstartModule, "port", configs[WS_PORT][VAL_INDEX]);
 		}
 
+		Element clientModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "client");
+		if (clientModule != null) {
+			updateConfigEntryValue(clientModule, "manual-root", configs[WS_CODEBASE_INDEX][VAL_INDEX] + "/manual/");
+		}
+
+		
 		Element managerModule = XmlUtil.getChildWithAttributeValue(doc.getDocumentElement(), "moduleId", "manager");
 		if (managerModule != null) {
 			updateConfigEntryValue(managerModule, "web-console-port", configs[MANAGER_PORT][VAL_INDEX]);

@@ -1,0 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title></title>
+</head>
+<body>
+	<h2>aCGH / Match copy number and expression probes</h2>
+	
+	<h3>Description</h3>
+	<p>Matches the probes of a copy number data set with probes of an expression data set, using their chromosomal locations. Running this tool is a prerequisite for testing copy-number-induced effects on expression.</p>
+	
+	<h3>Parameters</h3>
+	<ul>
+		<li>Phenodata column of first data set to define sample names used for matching</li>
+		<li>Phenodata column of second data set to define sample names used for matching</li>
+		<li>Method used for matching (distance, overlap, overlapplus) [distance]</li>
+		<li>Image width (200...3200) [600]</li>
+		<li>Image height (200...3200) [600]</li>
+	</ul>
+	
+	<h3>Details</h3>
+	<p>First samples without matching pair in the other data set are removed from the analysis. Then copy number and expression probes are paired with each other using the specified method. The details of the methods are as follows.</p>
+	<p>Matching occurs on the basis of genomic locations. In case of &quot;distance&quot;, the midpoint of copy number and expression features are calculated and for each gene on the expression array the closest feature of the copy number platform is selected. If method is &quot;overlap&quot;, each gene in the expression data set is matched to the feature from the copy number platform with the maximum percentage of overlap. If the maximum percentage of overlap equals zero, the gene is not included in the matched objects. If method is &quot;overlapplus&quot;, the features are first matched by their percentage of overlap (as with the &quot;overlap&quot; method). For all non-matched expression features its closest two copy number features (one down- and one upstream) are determined. If the copy number signature of these two copy number features is identical, intrapolation seems reasonable, and and the expression feature is matched to the closest of these two copy number features. Hence, method &quot;overlapplus&quot; makes use of the copy number data, consequently, matching may be different for different data sets.</p>
+	
+	<h3>Output</h3>
+	<p>A table of matched copy number and expression probes. This file can be used to test for copy-number induced expression changes (&quot;Test for copy number induced expression changes&quot; tool) and to plot profiles of individual samples (&quot;Plot profiles of matched copy number and expression&quot; tool).</p>
+	<p>A heatmap showing the two dataset organized by chromosomal position is also generated.</p>
+	
+	<h3>References</h3>
+	<p>Wieringen et al. (2009) Nonparametric testing for DNA copy number induced differential mRNA gene expression. Biometrics 65: 19-29</p>
+</body>
+</html>

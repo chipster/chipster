@@ -1,0 +1,199 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title>Chipster manual</title></head>
+<body>
+
+<h2>Manual for Chipster</h2>
+
+<p>Chipster is an analysis software for DNA microarray expression data. Most of
+the analysis tools have been implemented in R. We are also drawing on the ready-made annotation
+packages for commercially available chips. Currently Chipster works best with Affymetrix, Agilent and Illumina data. It is capable of importing
+also cDNA data, but since most of these do not have an annotation package in the Bioconductor repository, the
+functionality that requires annotation packages (for example annotation, pathway enrichment and and promoter analysis) is disabled.</p>
+
+<ul>
+<li>General</li>
+<ul>
+<li> <a href="basic-functionality.html">General functionality of Chipster</a> </li>
+<li> <a href="supported-chips.html">Supported microarray chip types</a> </li>
+<li> <a href="data-formats.html">Accepted data formats</a> </li>
+<li> <a href="requirements.html">Software requirements</a> </li>
+</ul>
+<li>Working with Chipster</li>
+<ul>
+<li> <a href="import.html">Data import and preprocessing</a> </li>
+<li> <a href="tools.html">Analysis tools</a> </li>
+<li> <a href="tutorials.html">Tutorials</a> </li>
+<li> <a href="workflow.html">Outline of expression data analysis</a> </li>
+</ul>
+<li> <a href="developer.html">For developers</a> </li>
+<li> <a href="copyright.html">Copyright</a> </li>
+</ul>
+
+<hr>
+<h3><a name="import">Data import and preprocessing</a></h3>
+
+<p>Chipster is rather flexible in what type of data it can import. Data import
+and preprocessing have been described in more detail in these documents.</p>
+
+<ul>
+<li> Affymetrix
+   <ul>
+   <li><a href="import-affymetrix-data.html">Import</a></li>
+   <li><a href="normalize-affymetrix-data.html">Normalize</a></li>
+   <li><a href="import-affymetrix-wizard.html">Analysis wizard</a></li>
+   </ul>
+<li> Illumina
+   <ul>
+   <li><a href="import-illumina-data.html">Import</a> </li>
+   <li><a href="normalize-illumina-data.html">Normalize</a> </li>
+   </ul>
+<li> Agilent (2-color)
+   <ul>
+   <li><a href="import-agilent-data.html">Import</a></li>
+   <li><a href="normalize-agilent-data.html">Normalize</a></li>
+   </ul>
+<li> Agilent (1-color)
+   <ul>
+   <li><a href="import-agilent-data-1color.html">Import</a></li>
+   <li><a href="normalize-agilent-data.html">Normalize</a></li>
+   </ul>
+<li> cDNA
+   <ul>
+   <li><a href="import-cdna-data.html">Import</a></li>
+   <li><a href="normalize-cdna-data.html">Normalize</a></li>
+   </ul>
+<li> Prenormalized data
+   <ul>
+   <li><a href="import-prenormalized-data.html">Import</a></li>
+   </ul>
+</ul>
+
+
+<h3><a name="tools">Tools</a></h3>
+
+<p>Every tool is decribed in detail on its own help page. 
+The help page is divided into four parts: General description, Parameters, Details on how the tool works, and Output 
+where the results are described. The Parameters part contains the list of parameters, their possible values (1-100)
+and their default values [10].</p>
+
+<ul>
+<!-- ANNOTATION -->
+<li> <a href="annotate-genelist2html.html">Annotation / Affymetrix gene list</a> </li>
+
+<!-- CLUSTERING -->
+<li> <a href="cluster-hierarchical.html">Clustering / Hierarchical</a> </li>
+<li> <a href="cluster-kmeans.html">Clustering / K-means</a> </li>
+<li> <a href="cluster-knn-classification.html">Clustering / KNN classification</a> </li>
+<li> <a href="cluster-som.html">Clustering / SOM</a> </li>
+<li> <a href="cluster-qt.html">Clustering / QT</a> </li>
+
+<!-- NORMALIZATION -->
+<li> <a href="norm-affy.html">Normalisation / Affymetrix </a> </li>
+<li> <a href="norm-affy-exon.html">Normalisation / Affymetrix exon arrays</a> </li>
+<li> <a href="norm-agilent.html">Normalisation / Agilent 2-color</a> </li>
+<li> <a href="norm-agilent-1color.html">Normalisation / Agilent 1-color </a> </li>
+<li> <a href="norm-cdna.html">Normalisation / cDNA</a> </li>
+<li> <a href="norm-illumina.html">Normalisation / Illumina - BeadStudio output</a> </li>
+<li> <a href="norm-lme.html">Normalisation / random effects </a> </li>
+
+<!-- PATHWAYS -->
+<li> <a href="pathways-hypergeometric-go.html">Pathways / Hypergeometric test for GO</a> </li>
+<li> <a href="pathways-hypergeometric-kegg.html">Pathways / Hypergeometric test for KEGG / PFAM</a> </li>
+<li> <a href="stat-geneset.html">Pathways / Gene set test</a> </li>
+<li> <a href="pathway-bayesian.html">Pathways / Bayesian network </a> </li>
+<li> <a href="pathway-boolean-bestim.html">Pathways / Boolean network </a> </li>
+
+<!-- PREPROCESSING -->
+<li> <a href="filter-cv.html">Preprocessing / Filter by CV</a> </li>
+<li> <a href="filter-expression.html">Preprocessing / Filter by expression</a> </li>
+<li> <a href="filter-flags.html">Preprocessing / Filter by flags</a> </li>
+<li> <a href="filter-sd.html">Preprocessing / Filter by standard deviation</a> </li>
+<li> <a href="filter-iqr.html">Preprocessing / Filter by interquartile range</a> </li>
+<li> <a href="impute.html">Preprocessing / Impute missing values</a> </li>
+<li> <a href="na-omit.html">Preprocessing / Remove missing values </a> </li>
+
+<!-- QUALITY CONTROL -->
+<li> <a href="qc-affy.html">Quality control / Affymetrix </a> </li>
+<li> <a href="qc-affy-rle-nuse.html">Quality control / Affymetrix RLE/NUSE</a> </li>
+<li> <a href="qc-agilent.html">Quality control / Agilent </a> </li>
+<li> <a href="qc-agilent-one-color.html">Quality control / Agilent 1-color </a> </li>
+<li> <a href="qc-cdna.html">Quality control / cDNA </a> </li>
+<li> <a href="qc-illumina.html">Quality control / Illumina </a> </li>
+
+<!-- PROMOTER ANALYSIS -->
+<li> <a href="promoter-tfbs.html">Promoter analysis / Weeder</a> </li>
+<li> <a href="promoter-cbust.html">Promoter analysis / ClusterBuster</a> </li>
+<li> <a href="promoter-retrprom.html">Promoter analysis / Retrieve promoters</a> </li>
+
+<!-- STATISTICS -->
+<li> <a href="stat-one-group.html">Statistics / One sample tests</a> </li>
+<li> <a href="ordination-nmds.html">Statistics / NMDS </a> </li>
+<li> <a href="ordination-pca.html">Statistics / PCA </a> </li>
+<li> <a href="stat-several-groups.html">Statistics / Several groups tests</a> </li>
+<li> <a href="stat-singleslide.html">Statistics / Single-slide methods</a> </li>
+<li> <a href="stat-timeseries.html">Statistics / Time series</a> </li>
+<li> <a href="stat-two-groups.html">Statistics / Two groups tests</a> </li>
+<li> <a href="stat-correlate-phenodata.html">Statistics / Correlate with phenodata</a> </li>
+<li> <a href="stat-estimate-sample-size.html">Statistics / Sample size estimation</a> </li>
+<li> <a href="stat-linear-modelling.html">Statistics / Linear modelling</a> </li>
+
+<!-- UTILITIES -->
+<li> <a href="export-tab2mage.html">Utilities / Export tab2mage format</a> </li>
+<li> <a href="export-soft.html">Utilities / Export GEO's SOFT format</a> </li>
+<li> <a href="import-from-geo.html">Utilities / Import from GEO</a> </li>
+<li> <a href="merge-tables.html">Utilities / Merge tables </a> </li>
+<li> <a href="average-replicates.html">Utilities / Average replicates </a> </li>
+<li> <a href="calculate-descriptive-statistics.html">Utilities / Calculate descriptive statistics </a> </li>
+<li> <a href="calculate-fold-change.html">Utilities / Calculate fold change </a> </li>
+<li> <a href="extract-genes-from-clustering.html">Utilities / Extract genes from clustering </a> </li>
+<li> <a href="extract-genes-from-stattest.html">Utilities / Extract genes from a statistical test results </a> </li>
+<li> <a href="extract-samples-from-dataset.html">Utilities / Extract samples from dataset </a> </li>
+<li> <a href="generate-phenodata.html">Utilities / Generate phenodata </a> </li>
+<li> <a href="search-correlation.html">Utilities / Search by correlation</a> </li>
+<li> <a href="search-queryword.html">Utilities / Search by gene name </a> </li>
+<li> <a href="filter-by-column.html">Utilities / Filter by column </a> </li>
+
+<!-- VISUALIZATION -->
+<li> <a href="plot-chrom-pos.html">Visualisation / Chromosomal position </a> </li>
+<li> <a href="plot-idiogram.html">Visualisation / Idiogram</a> </li>
+<li> <a href="plot-volcano.html">Visualisation / Volcano plot</a> </li>
+<li> <a href="plot-volcano-data-exists.html">Visualisation / Volcano plot from existing results</a> </li>
+<li> <a href="plot-boxplot.html">Visualisation / Boxplot</a> </li>
+<li> <a href="plot-correlogram.html">Visualisation / Correlogram</a> </li>
+<li> <a href="plot-dendrogram.html">Visualisation / Dendrogram</a> </li>
+<li> <a href="plot-heatmap.html">Visualisation / Heatmap</a> </li>
+<li> <a href="plot-histogram.html">Visualisation / Histogram</a> </li>
+<li> <a href="plot-venn-diagram.html">Visualisation / Venn-diagram</a> </li>
+
+<!--        <li> <a href=" "> </a> </li>        -->
+</ul>
+
+
+<h3><a name="developer">For developers</a></h3>
+
+<p>Chipster is an open source software that will be available for downloading from 
+<a href="http://sourceforge.net/projects/chipster/">Sourceforge</a>. The <a href="http://chipster.wiki.sourceforge.net/">Wiki</a> in Sourceforge provides developers with extra information regarding a local installation
+and configuring and strating the system:</p>
+
+<ul>
+	<li><a href="http://chipster.wiki.sourceforge.net/ArchitectureDescription">Architecture description</a></li>
+	<li><a href="http://chipster.wiki.sourceforge.net/ServerInstallation">Server installation instructions</a></li>
+	<li><a href="http://chipster.wiki.sourceforge.net/ClientInstallation">Starting client without Java Webstart</a></li>
+	<li><a href="http://chipster.wiki.sourceforge.net/GeneratingSslKeys">Generating your own SSL keys</a></li>
+	<li><a href="install_external_software.html">Installing required external software</a></li>
+	<li><a href="adding_scripts.html">Adding new R scripts</a></li>
+</ul>
+
+
+<h3><a name="copyright">Copyright</a></h3>
+
+<ul>
+   <li><a href="about.html">Copyright notice for Chipster</a></li>
+   <li><a href="copyright.html">Copyright notice for this manual</a></li>
+</ul>
+
+
+</body>
+
+</html>
