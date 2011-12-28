@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title></title>
+</head>
+<body>
+	<h2>aCGH / Plot copy-number-induced gene expression</h2>
+	
+	<h3>Description</h3>
+	<p>Plot the expression level of specified gene(s) for a copy number vs. expression comparison. This tool must be run on the output from 
+	the tool "Test for copy number induced expression changes" - cn-induced-expression.tsv.</p>
+	
+	<h3>Parameters</h3>
+	<ul>
+		<li>Gene IDs of the genes to be plotted (...) [1]</li>
+		<li>Gene symbols of the genes to be plotted (...) [empty]</li>
+		<li>Image width (200...3200) [600]</li>
+		<li>Image height (200...3200) [600]</li>
+	</ul>
+	
+	<h3>Details</h3>
+	<p>For each gene, the samples are divided into two groups either &quot;loss vs. no-loss (normals and gains)&quot; or &quot;no-gain (losses and normals) vs. gain&quot; depending on the amount of gains and losses for that particular gene. 
+	The expression values of the specified gene(s) are then plotted across the two groups. Each sample is plotted as an open blue circle, 
+	and the center of the circle marks the expression level of the particular gene in that sample. 
+	The radius of the circle is proportional to the corresponding copy number call probability (e.g. a large circle in the &quot;loss&quot; group means that for this particular sample, a call for loss was made with high probability). 
+	Call probabilities equal to zero reduce circles to dots. The red filled circles have a radius proportional to the estimated expected call probabilities,
+	with their centerpoints at the estimated mean expression for the respective call.</p>
+	
+	<h3>Output</h3>
+	<p>An image showing the expression levels for the gene(s) of interest in the two groups defined by copy number.</p>
+	
+	<h3>References</h3>
+	<p>Wieringen et al. (2009) Nonparametric testing for DNA copy number induced differential mRNA gene expression. Biometrics 65: 19-29</p>
+</body>
+</html>

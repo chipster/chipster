@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title></title>
+</head>
+<body>
+	<h2>aCGH tools / Convert called copy number data from probes to genes</h2>
+	
+	<h3>Description</h3>
+	<p>Using the chromosomal locations of the probes of an aCGH data set, convert the data from probe-based to gene-based. The probes from which the copy number call for a given gene are determined as follows. If there are probes overlapping with the position of the gene, they are used. In case of no overlaps, the last preceding and first tailing probe are used.</p>
+	
+	<h3>Parameters</h3>
+	<ul>
+		<li>Method to use to determine calls for the genes (majority, unambiguous) [majority]</li>
+		<li>Method to use for other data columns (mean, median) [mean]</li>
+		<li>Human genome build to use (GRCh37/hg19, NCBI36/hg18, NCBI35/hg17, NCBI34/hg16) [GRCh37/hg19]</li>
+	</ul>
+	
+	<h3>Details</h3>
+	<p>The list of Ensembl genes is retrieved, and the input data converted from probe-based to gene-based. For a given gene, the probes to use are determined as described in the referenced CanGEM paper. The majority method means that the gene is marked as a loss (or gain), if more than 50% of the determined probes show a loss (or a gain). The unambiguous method requires that all of the probes have to give the same signal, or otherwise the gene is marked as normal copy number.</p>
+	
+	<h3>Output</h3>
+	<p>Input data set transferred from probe-based to gene-based measurements.</p>
+	
+	<h3>References</h3>
+	<p>CanGEM:<br />Scheinin et al. (2008) CanGEM: mining gene copy number changes in cancer. Nucleic Acids Res 36: D830-D835</p>
+	<p>Ensembl:<br />Flicek et al. (2010) Ensembl&apos;s 10th year. Nucleic Acids Res 38: D557-62</p>
+</body>
+</html>

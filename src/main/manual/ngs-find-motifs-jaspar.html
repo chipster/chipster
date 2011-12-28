@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>NGS ChIP-seq /  Find common motifs and match to JASPAR</h2>
+
+<h3>Description</h3>
+
+This tool scans a set of genomic regions for consensus sequence motifs,
+calculates the alignment score against transcription factors in the Jaspar database and finds the 10 highest ranking for each motif.
+
+<br>
+<br>
+<h3>Parameters</h3>
+
+<ul>
+<li>P-value cutoff (0...1) [0.0002]</li>
+<li>E-value cutoff (0...1) [0.01]</li>
+<li>Genome ([BSgenome.Hsapiens.UCSC.hg17, BSgenome.Hsapiens.UCSC.hg18, BSgenome.Hsapiens.UCSC.hg19, BSgenome.Mmusculus.UCSC.mm8, BSgenome.Mmusculus.UCSC.mm9, BSgenome.Rnorvegicus.UCSC.rn4]) [BSgenome.Hsapiens.UCSC.hg18]</li>
+</ul>
+
+<br>
+<h3>Details</h3>
+
+<p>For a more thorough  description of the technical details please  consult the original publications cited in the References section below. Briefly, the analysis proceeds through the following steps:
+
+<dl>
+<dd>- Given a set of genomic regions the analysis algorithm will first perform a de novo motif discovery in an unseeded fasion. The starting set of position weighted matrices (PWM) is obtained through a combination of space dyads and expectation maximization procedures. Further optimization is achieved using genetic algorithms techniques.</dd>
+<br>
+<dd>- In the second phase of the analysis. the PWM for known transcription factors collected in the JASPAR database, are matched to the set of consensus motifs discovered in the previous step.</dd>
+<br>
+<dd>- Finally, the top ten best matching transcription factors are gathered for each consensus motif, logo plots created and E-values  scoring the match strength are calculated. </dd>
+</dl>
+<br>
+
+<h3>Output</h3>
+
+<p>The analysis output consists of the following:</p>
+
+
+<ul>
+<li>motif-analysis-summary.tsv:	A test file that summarizes the analysis with information on </li>
+<dl>
+    <dd>- number of consensus motifs</dd>
+    <dd>- number of matches per motif</dd>
+    <dd>- matches repartition</dd>
+    <dd>- the UPAC nucleotide sequences for the motifs </dd>
+    <dd>- number of occurrences of consensus sequence for each motif </dd>
+    <dd>- the position weighted matrices for each motif </dd>
+</dl>
+<br>
+<li>logo-plot-(...).pdf: For each consensus motif the ten best matching transcription factors from the JASPAR database are represented with a logo plot.<br></li>
+</ul>
+
+<br>
+<h3>References</h3>
+
+<p>This tool uses the following Bioconductor packages:</p>
+<ul>
+<li>MotIV<br></li>
+<li>rGADEM<br></li>
+<li>BSgenome annotation packages</li>
+</ul>
+
+
+<br>For more details refer to these publications:</br>
+
+<br>S. Mahony, P.V. Benos "STAMP: a web tool for exploring DNA-binding motif similarities." Nucl
+Acids Res, (2007) 35:W253-258</br>
+
+<br>S Mahony, PE Auron, PV Benos, "DNA familial binding proles made easy: comparison of
+various motif alignment and clustering strategies", PLoS Computational Biology (2007) 3(3):e61</br>
+
+<br>L. Leiping. GADEM: A Genetic Algorithm Guided Formation of
+Spaced Dyads Coupled with an EM Algorithm for Motif Discovery.
+J Comput Biology, (2009) Feb;16(2):317-29.</br>
+</body>
+

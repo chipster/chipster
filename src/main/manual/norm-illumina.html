@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>Normalisation / Illumina </h2>
+
+<h3>Description</h3>
+
+<p>Normalize Illumina arrays to remove systematic bias.</p>
+
+<h3>Parameters</h3>
+
+<ul>
+<li>Within array normalization method (none, scale, quantile, vsn) [quantile]</li>
+<!--<li>Produce flags (yes, no) [no]</li>-->
+<li>BeadStudio version (1,2,3) [1]</li>
+<li>Chip type (empty, ...) [empty]</li>
+<li>ID type (TargetID, ProbeID) [TargetID]</li>
+</ul>
+
+<h3>Details</h3>
+
+<p>This tool normalizes Illumina files that have been imported using the Import tool.
+This tool splits BeadSummaryData into separate "chips", which allows the user to select which chips
+to normalize together, or to exclude from the analysis.</p>
+
+<p>Within array normalization methods offer basic options, such as scaling the chips to the same
+median, quantile normalizing the chips to make the expression value follow the same distribution on
+all chips, and variance stabilizing normalization. Please note that during normalization the data is also log2-transformed</p>
+
+<p>If the flags are produced, the Illumina detection values are automatically recoded into P/M/A flags.</p>
+
+<p>Beadstudio versions differ in the data format they produce. Therefore you need to select the correct
+BeadStudio version in order to be able to get the right results.
+
+<p>It is obligatory to enter the chiptype. Otherwise annotation-based analyses do not work.</p>
+
+<p>ID type specifies how the data was generated in BeadStdio. There are typically several probes per each 
+gene. TargetIDs summarize all these probes as an expression estimate for one gene. ProbeID does not make
+this summarization, and several probes per gene remain in the dataset. TargetIDs are alphanumeric codes, 
+such as 0610005A07RIK or GI_10047089-S, whereas ProbeIDs are numerical codes, such as 5570647.</p>
+
+<h3>Output</h3>
+
+<p>A tab-delimited text file containing gene names, expression estimates and call values ("flags"). 
+This file is suitable for all further analyses.</p>
+
+<h3>References</h3>
+
+
+<p>This tool uses the Bioconductor package limma.</p>
+
+<p>For normalization, please cite:</p>
+
+<p>Smyth, G. K., and Speed, T. P. (2003). Normalization of cDNA microarray data.
+Methods 31, 265-273.</p>
+
+<p>For background correction steps, please cite:</p>
+
+<p>Ritchie, M. E., Silver, J., Oshlack, A., Silver, J., Holmes, M., Diyagama, D.,
+Holloway, A., and Smyth, G. K. (2007). A comparison of background correction
+methods for two-colour microarrays. Bioinformatics.</p>
+
+
+</body>
+

@@ -1,0 +1,471 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en"><head><title>Chipster manual</title></head><body>
+
+<h2>Version update 16.5.2011: What is new in Chipster 1.4.7</h2>
+
+<br>The main change is <b>new R/Bioconductor and annotation packages</b>: All the R/Bioconductor-based analysis tools have been updated and now run under R 2.12.1 and Bioconductor 2.7.
+Please note that while Chipster 1.4.7 is focused on microarray and proteomics data analysis, new tools for next generation sequencing data are constantly added to <a href="http://chipster.csc.fi/beta/">Chipster 2.0</a>.
+	
+<ol>
+
+<li><b>New analysis tools</b>
+	<ul>
+	  <li> <a href="extract-target-gene-expression.html">Utilities / Extract data for miRNA targets</a>. This tool extracts gene expression data from a gene expression data set, based on the result list from one of the miRNA to gene expression correlation tools.
+	</ul>
+<p></p>	
+
+<li><b>Changes to analysis tools</b>
+	<ul>
+      <li><a href="search-queryword.html">Utilities / Search by gene name</a>: A new parameter to control whether to perform exact matching for the query term has been added.</li>
+      <li><a href="calculate-fold-change.html">Utilities / Calculate fold change</a>: New parameters have been added to give users the choice to use either arithmetic or geometric mean and whether to output the results in linear or base 2 logarithmic scale.</li>
+	</ul>
+<p></p>	
+
+<li><b>Obsolete analysis tools</b>
+	<ul>
+      <li><a href="extract-genes-from-clustering.html">Utilities / Extract genes from clustering</a>: This tool has been dropped since its functionality is now provided in the tool <a href="filter-by-column-value.html">Preprocessing / Filter using a column value</a>.</li>
+      <li><a href="extract-genes-from-stattest.html">Utilities / Extract genes using a p-value </a>: This tool has been dropped since its functionality is now provided in the tool <a href="filter-by-column-value.html">Preprocessing / Filter using a column value</a>.</li>
+       <li><a href="filter-by-column.html">Utilities / Filter by column</a>: This tool has been dropped since its functionality is now provided in the tool <a href="filter-by-column-value.html">Preprocessing / Filter using a column value</a>.</li>
+      <li><a href="merge-tables.html">Utilities / Merge tables </a>: This tool has been dropped since its functionality is now provided in the tool <a href="merge-datasets.html">Utilities / Merge datasets</a>.</li>
+	</ul>
+<p></p>	
+
+<li><b>Visualization changes</b>
+	<ul>
+	  <li> All tools that generate static graphical visualizations have been modified to yield output in PDF format, allowing for high-quality and scalable plots.
+	</ul>
+<p></p>	
+</ol>
+<hr>
+
+
+<h2>Version update 7.12.2010: What is new in Chipster 1.4.6</h2>
+	
+<ol>
+<li><b>New analysis tools</b>
+	<ul>
+	  <li> <a href="extract-genes-from-kegg.html">Utilities / Extract genes from KEGG pathway</a>. 
+	  This tool can be used to retrieve the genes that map to a pathway determined significant by pathway analysis tools such has Hypergeometric test
+	   for KEGG and Gene set test. Note that there is a similar tool also for GO analysis results (Utilities / Extract genes from GO term)
+	</ul>
+<p></p>	
+<li><b>Changes to analysis tools</b>
+	<ul>
+      <li><a href="cluster-hierarchical.html">Clustering / Hierarchical</a>: The maximum number of genes/samples to be clustered is increased to 20 000.</li>
+      <li><a href="plot-dendrogram.html">Visualization / Dendrogram</a>: The maximum number of samples to be clustered is increased to 20 000.</li>
+      <li><a href="plot-heatmap.html">Visualization / Heatmap</a>: The maximum number of genes/samples to be clustered is increased to 20 000. </li>
+      <li><a href="sort-samples.html">Utilities / Sort samples</a>: This tool was originally intended for ordering samples in a desired way for publication images of result gene lists, and as such 
+      it was not suitable for being used prior to statistical testing. It has been modified so that it now creates a new phenodata file, making it suitable to be used at any stage of analysis. </li>
+	</ul>
+
+</ol>
+<hr>
+
+<h2>Version update 14.10.2010: What is new in Chipster 1.4.5</h2>
+
+<br>This release completes the aCGH analysis functionality in Chipster. The aCGH functionality, 
+kindly contributed by Ilari Scheinin (University of Helsinki), has now passed the beta testing phase, and the tools also have their manual pages. Please note that as "beta testing" has been removed from the category name, the workflows created with the test version won't be functional.
+	
+<ol>
+<li><b>New analysis tools</b>
+	<ul>
+	  <li> <a href="smooth-acgh.html">aCGH / Smooth waves from normalized aCGH data</a>
+	  <li> <a href="calculate-aberration-frequencies.html">aCGH / Calculate aberration frequencies from called aCGH data</a>
+	  <li> <a href="cluster-acgh.html">aCGH / Cluster called aCGH data</a>
+	  <li> <a href="stat-acgh.html">aCGH / Group tests for called aCGH data</a>
+	  <li> <a href="convert-cn-probes-to-genes.html">aCGH / Convert called aCGH data from probes to genes</a>
+	  <li> <a href="pathways-acgh-hyperg-go.html">aCGH / GO enrichment for copy number aberrations</a>
+	  <li> <a href="match-cn-and-expression-probes.html">aCGH / Match copy number and expression probes</a>
+	  <li> <a href="merge-datasets.html">Utilities / Merge datasets</a>
+	  <li> <a href="extract-genes-from-go.html">Utilities / Extract genes from GO term</a>
+	</ul>
+<p></p>	
+<li><b>Changes to analysis tools</b>
+	<ul>
+      <li><a href="pathways-hypergeometric-go.html">Pathways / Hypergeometric test for GO</a>: Now includes parameters for p-value adjustment method, GO category type (BP, MF, CC), minimum size of category, and conditional testing. Results are given both as html and as a table which can be used for further filtering.</li>
+      <li><a href="pathways-hyperg-mirna-go.html">Pathways / GO enrichment for miRNA targets</a>: Now includes parameters for p-value adjustment method, GO category type (BP, MF, CC), minimum size of category, and conditional testing. Results are given both as html and as a table which can be used for further filtering.</li>
+      <li><a href="annotate-miRNA-targets.html">Annotations / Find miRNA targets</a>: Modified the output to allow use of downstream tools, such as Venn Diagram visualization to compare output from different gene target databases and select consensus genes. </li>
+      <li><a href="filter-by-column-value.html">Preprocessing / Filter using a column value</a>: Removed the restrictive range from the cutoff parameter. </li>
+ 		<li><a href="calculate-descriptive-statistics.html">Statistics / Calculate descriptive statistics</a>: Modified the behavior for chips so that it now calculates the statistics for all column.</li>
+ 		<li><a href="stat-geneset.html">Statistics / Gene set test</a>: Modified to exclude single gene gene sets and added group labels in plots and added more columns with information to results table.</li>
+		<li><a href="combine-probes-to-genes.html">Utilities / Combine probes to genes</a>: Modified to work on input that contains results from the Annotations / Add annotations to data tool.</li>
+		<li><a href="average-replicates.htm">Utilities / Average replicate chips</a>: Modified so that it generates a new phenodata file, enabling downstream analysis of the averaged data.</li>
+		<li><a href="extract-samples-from-dataset.html">Utilities / Extract samples from dataset</a>: Modified to include annotations and to exclude samples with no class assigned.</li>
+      </li>
+	</ul>
+
+</ol>
+<hr>
+
+<h2>Version update 20.4.2010: What is new in Chipster 1.4.4</h2>
+
+Fixed the 3D scatter plot bug of Chipster 1.4.3  
+
+<hr>
+
+<h2>Version update 9.4.2010: What is new in Chipster 1.4.3</h2>
+
+<ol>
+<li><b>New analysis tools</b>
+<br>This release completes the miRNA analysis functionality in Chipster and also includes a whole new set of tools for aCGH data. The aCGH functionality, 
+kindly contributed by Ilari Scheinin (University of Helsinki) also allows to integrate aCGH data with expression data.
+	<ul>
+	<li> <a href="annotate-mirna-targets.html">Annotation / Find miRNA targets</a>: Fetches the predicted gene targets for a list of miRNA identifiers in miRanda, miRBase, miRtarget2, PicTar, TarBase and TargetScan.
+	<li> <a href="https://extras.csc.fi/biosciences/chipster-manual/up-down-analysis-mirna.html">Statistics / Up-down analysis of miRNA targets</a>: Given a miRNA expression dataset and a mRNA expression dataset for a two-group comparison experiment, this tool identifies the genes whose expression is down-regulated 
+	  in response to an up-regulated miRNA, or vice-versa. </li>  
+	<li> aCGH tools: This category is labelled as beta testing because there might still be some changes to the tool names and the manual pages are not yet available. To read 
+	more please see recent course <a href="https://extras.csc.fi/biosciences/chipster-manual/aCGH_slides.pdf">slides</a>. The <a href="http://www.cangem.org/">CanGEM</a> database is used for data import, and probe position and cytoband information. Note that for analyzing your own aCGH data, you can
+normalize it with the Normalize / cDNA tool and then fetch the probe positions from CanGEM to allow the subsequent analysis. The following tools are available:
+	<ul>
+	<li> Import from CanGEM
+	<li> Call copy number aberrations from aCGH data
+	<li> Plot copy number profiles from called aCGH data
+	<li> Identify common regions from called aCGH data
+	<li> Test for DNA copy number induced differential expression
+	<li> Plot combined profiles of copy number and expression
+	<li> Plot copy-number-induced gene expression
+	<li> Fetch probe positions from CanGEM
+	<li> Add cytogenetic bands
+	<li> Count overlapping CNVs: Compares the found CNVs to the <a href=http://projects.tcag.ca/variation/">Database of Genomic variants</a>
+	<li> Sample size calculations with an adapted BH method
+		</ul>
+	<li> <a href="filter-by-column-value">Preprocessing / Filter using a column value</a>: Filters the data based on values in the specified column. This can be used for filtering e.g. by fold change after statistical testing: Selecting "outside"
+	  and a cutoff of 1 would give all the genes that are two fold up- or down-regulated (as the FC column is in log2 scale).
+	<li> <a href="filter-by-column-term">Preprocessing / Filter using a column term</a>: Filters data based on terms in a specified text column. This can be used for example for retrieving
+	  genes belonging to a certain pathway or gene ontology category after running the "Add annotations to data" tool.
+	 <li> <a href="norm-prenormalized-affy.html">Normalize / Process prenormalized Affy</a>: Converts normalized Affymetrix data to Chipster format and creates a phenodata table for it.
+	 <li><a href="intersect-lists.html">Utilities / Intersect lists</a>: Identifies the intersection, or union, between two or three data tables that share one or more columns with common identifiers.
+	</ul>
+	
+<li><b>Changes to analysis tools</b>
+	<ul>
+	 <li>  Normalization / Agilent: Flags can be handled in normalization and subsequently used in analysis.
+	  <li> Utilities / Search by gene name: Option to include or exclude the specified genes.
+	  <li> Utilities / Sort samples: Gene symbols and descriptions are kept in the result file.
+	  <li> Utilities / Combine probes to genes: Gene symbols and descriptions are kept in the result file.
+	</ul>
+<li><b>Changes to visualizations</b>
+	<ul>
+	  <li> Venn diagram: Possibility to combine datasets using the gene symbol column, instead of the identifier column. This allows you to intersect gene lists from different array platforms</li>
+      <li> 3D scatter for PCA: Possibility to color genes according to cluster, p-value, fold change etc.</li>
+      <li> Volcano plot: The y-axis -log(p) has been changed to use log10 instead of ln.
+
+	</ul>
+
+</ol>
+<hr>
+
+
+<h2>Version update 11.2.2010: What is new in Chipster 1.4.2</h2>
+
+<ol>
+<li><b>New functionality</b>
+	<ul>
+	  <li> Ready-made analysis workflows for miRNA and proteomics data. 
+	  They can be started from the top panel menu Workflow/ Run from Chipster repository. More information about the content of the workflows is
+	  available <a href="https://extras.csc.fi/biosciences/chipster-manual/workflows.html#ready">here</a>
+	  <li> Statistics / Correlate miRNA with target expression. <a href="https://extras.csc.fi/biosciences/chipster-manual/correlate-mirna.html">Read more...</a>.</li></ul>   
+<li><b>Changes to analysis tools</b>
+	<ul>
+	  <li> Clustering / KNN classification: Improved validation of classifiers with a test set.
+	</ul>
+<li><b>Changes to visualizations</b>
+	<ul>
+      <li> Hierarchical clustering: Color scheme has been changed to blue-red in order to cater for color blind users. If you prefer the old
+      green-red scheme, please note that the colors can be easily changed by right-clicking on the heatmap and 
+      selecting Properties /Plot / Heatmap coloring.</li>
+      <li> Possibility to add gene / protein annotations to visualizations. If you are analyzing custom chip or proteomics data, Chipster cannot automatically generate
+      the gene symbols displayed in visualizations. However, you can now mark any column as annotation in the Import tool, and these annotations will be diplayed together with identifiers
+      in the interactive visualizations.</li>
+	</ul>
+
+</ol>
+
+<hr>
+
+<h2>Version update 20.1.2010: What is new in Chipster 1.4.1</h2>
+
+<ol>
+<li><b>New analysis tools</b>
+	<ul>
+	  <li> Pathways / GO enrichment for miRNA targets. <a href="https://extras.csc.fi/biosciences/chipster-manual/pathways-hyperg-mirna-go.html">Read more...</a>
+	  <li> Pathways / KEGG enrichment for miRNA targets. <a href="https://extras.csc.fi/biosciences/chipster-manual/pathways-hyperg-mirna-kegg.html">Read more...</a>      
+      <li> Utilities / Import from ArrayExpress. This tool imports Affymetrix raw data directly from ArrayExpress and normalizes it using the RMA algorithm. 
+	  <li> Quality control / Affymetrix exon arrays - using RLE and NUSE
+	  <li> Normalization / Normalize to chip average
+	  <li> Normalization / Normalize to gene average
+	
+	</ul>
+<li><b>Changes to analysis tools</b>
+	<ul>
+	  <li> Pathways / Association to Reactome pathways. Support for UniProt identifiers added to enable analysis of proteomics data. 
+      <li> Pathways / Protein interactions from IntAct. Support for UniProt identifiers added to enable analysis of proteomics data.
+      <li> Pathways / Hypergeometric test for ConsensusPathDB. Support for UniProt identifiers added to enable analysis of proteomics data.
+      <li> Pathways / Hypergeometric test for GO. In order to avoid identification of directly related GO terms with considerable overlap of genes, this tool now uses a conditional method which removes the genes of the significant child categories before testing their parents.
+      <li> Pathways / Hypergeometric test for cytobands. In order to avoid identification of related regions with considerable overlap of genes, this tool now uses a conditional method which removes the significant genes of subregions before testing the larger regions. 
+      <li> Quality control / Affymetrix basic. Spike-in performance plot added.
+	  <li> Annotation / Agilent, Affymetrix or Illumina gene list. Possibility to annotate lists of identifiers (with no expression data)
+	  <li> Statistics / Linear modelling. Parameter called "significance" has been removed, as p-values are always calculated for interactions if they are taken into account in the model.
+	  <li> Fixes to promoter analysis tools so that they cope better with R2.9.</li>
+	</ul>
+<li><b>Visualization news:</b>
+	<ul>
+      <li> 3D scatter plot for PCA: Samples can be colored based on phenodata columns which contain text (in addition to numbers).
+	</ul>
+
+</ol>
+
+<hr>
+
+<h2>Version update 11.11.2009: What is new in Chipster 1.4.0</h2>
+
+<ol>
+<li><b>New R/Bioconductor version, updated annotation packages</b><br>
+All the analysis tool scripts have been updated to use R 2.9. Consequently the annotation and pathway tools have been updated to use
+annotation packages in the .db -format. The following versions of the annotation packages are currently in use:
+	<ul>
+      <li> <a href="http://www.bioconductor.org/packages/2.4/data/annotation/">Bioconductor 2.4</a>
+      <li> <a href="http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/12.0.0/entrezg.asp">BrainArray v12 entrezg</a>
+      <li> <a href="http://xmap.picr.man.ac.uk/download/index#ohsdb">X:map exon cdfs v1.1</a>
+	</ul>
+<li><b>New analysis tools</b>
+	<ul>
+	  <li> Pathways / Hypergeometric test for ConsensusPathDB. <a href="https://extras.csc.fi/biosciences/chipster-manual/pathways-hypergeometric-cpdb.html">Read more...</a>
+	  <li> Pathways / Association to Reactome pathways. <a href="https://extras.csc.fi/biosciences/chipster-manual/pathways-reactome.html">Read more...</a>
+      <li> Pathways / Protein interactions from IntAct. <a href="https://extras.csc.fi/biosciences/chipster-manual/pathways-intact.html">Read more...</a>
+      <li> Normalization / Agilent miRNA. <a href="https://extras.csc.fi/biosciences/chipster-manual/norm-agilent-mirna.html">Read more...</a>
+	</ul>
+<li><b>Changes to analysis tools</b>
+	<ul>
+      <li> Normalization / Affymetrix exon arrays: Gene symbol and description columns are added, when the data is normalized at gene level. Larger data sets can be analyzed as the normalization is now running on a cluster node with 16 GB of memory.
+      <li> Normalization / Affymetrix gene arrays: Larger data sets can be analyzed as the normalization is now running on a cluster node with 16 GB of memory.
+      <li> Normalization / Process prenormalized: Additional annotation columns are retained in the data.
+	</ul>
+<li><b>Visualization news:</b>
+	<ul>
+      <li> 3D scatter plot for PCA: After running principal component analysis (PCA) for samples as a quality control, this visualization allows to color the data points according to experimental group (or another column in the phenodata table, such as batch).
+	</ul>
+<li>Import tool can be used to convert decimal separator (e.g. from comma to dot) in the files to be imported to Chipster</li>
+<li>Bug fixes to session and workflow functionality.</li>
+
+</ol>
+
+<hr>
+
+<h2>Version update 17.7.2009: What is new in Chipster 1.3.0</h2>
+
+<ol>
+<li><b>Support for new chip types</b>
+	<ul>
+      <li> Affymetrix Human, Mouse and Rat Gene 1.0 ST arrays. These arrays can be normalized and annotated (see below). Of the Affymetrix quality control tools only the RLE - NUSE tool is currently suitable for them.
+	</ul>
+<li><b>New analysis tools</b>
+	<ul>
+      <li> Normalization / Affymetrix gene arrays
+      <li> Annotation / Affymetrix gene ST genelist
+	</ul>
+<li><b>Visualization news:</b>
+	<ul>
+      <li>Hierarchical / heatmap: 
+			<ul>
+			<li>Possibility to select genes (and create a new dataset out of them) by drawing a box on the heatmap
+			<li>The image includes gene symbols in addition to the probe names
+			<li>Bigger image with scroll bars to view large heatmaps. Ticking the box "Fit to the screen" shows the whole heatmap.
+			<li>Changing the heatmap colors (right click and select properties/ plot/ heatmap coloring) has been made clearer
+			</ul>
+      <li>Expression profiles: Possibility to select genes (and create a new dataset out of them) by drawing a box on the image
+	</ul>
+</ol>
+
+<hr>
+
+<h2>Version update 27.3.2009: What is new in Chipster 1.2.4</h2>
+
+<ol>
+<li><b>New analysis tools</b>
+	<ul>
+      <li> Statistics/ Ordination-ca: Performs a detrended correspondence analysis. This ordination method can be used for example in quality control and time series analysis. 
+      <li> Clustering/ Classification: Adds many new classification methods to Chipster, including variaties of discriminant analysis, neural nets, support vector machines and naive Bayes. The tool does not yet implement validation using a separate test set, only cross-validation.
+      <li> Annotation/ miRNA target annotation: Provides miRBase IDs and target predictions (by TargetScan and MIRANDA) for probes from Agilent miRNA arrays. 
+      <li> Annotation/ Add annotations to the data: Provides the same annotations (chromosome location, pathway involment etc) as the Annotate gene list -tool, but the annotation columns are appended to the expression data file.
+	<li> Normalization/ Normalize to specific genes: Normalizes the data to specific genes given in a separate gene identifier list. The identifier list must have a title row with text "identifier" and contain gene identifiers used in the data file. An average of these genes is calculated, and the expression values of all genes are adjusted using this average.
+      <li> Normalization/ Process prenormalized: Allows an easy import of data which has been normalized by some other software. This tool converts the data to Chipster format (by adding the text "chip." in front of the expression value columns) and generates the phenodata file. The normalized data file needs to be imported to Chipster using the Import tool.
+      <li> Pathways/ Hypergeometric test for cytobands: Performs a hypergeometric test for enrichment of genes to certain chromosomal positions (cytobands).
+      <li> Utilities/ Sort genes: Sorts genes based on a specified column. (As before, you can also sort genes in the spreadsheet view of the visualization panel by clicking on the column names. However, as the visualization panel only shows max 20 000 rows at the time, it is not able to sort larger data sets).
+      <li> Utilities/ Extract genes: Extracts the specified number of genes from the top of the data table. For example, one can first run the Calculate descriptive statistics -tool, sort genes based on the standard deviation column, and then extract the 50 top-most genes.
+	</ul>
+<li><b>Support for new chip types</b>
+	<ul>
+      <li> Illumina Human HT-12 (when importing these files to Chipster with the Import tool, select the PROBE_ID column as an identifier)
+      <li> (Agilent miRNA arrays, see the annotation tool described above)
+	</ul>
+<li><b>Solved problems</b>
+	<ul>
+      <li>In some institutions Chipster started normally but no tools could be used (empty error message). This was caused by a proxy server restricting network traffic. This problem has now been solved by a proxy bypass feature.
+      <li>Venn diagram didn't allow creating new datasets if one of the files contained only gene identifiers (and no expression columns). This has now been fixed, allowing users to filter datasets with their own gene lists. The column containing the identifiers has to be named "identifier".
+	</ul>
+</ol>
+
+<hr>
+
+<h2>Version update 5.2.2009: What is new in Chipster 1.2.3</h2>
+<ol>
+<li>Chipster is updated automatically also when you start it using the desktop icon (but we still recommend you to launch it from the web page, as this way you can read the latest announcements as well)
+<li>Normalization/ Affymetrix exon arrays: Updated the script to use Bioconductor 2.2 in order to overcome the affyio bug. 
+</ol>
+
+<hr>
+
+<h2>Version update 8.1.2009: What is new in Chipster 1.2.2</h2>
+
+<ol>
+<li><b>New analysis tools</b>
+	<ul>
+      <li> Statistics/ Adjust P-values: Adjusts raw p-values in the selected column for multiple testing using a specified method.
+	<li> Normalization/ Normalize to specific samples: Normalizes data to specific samples. The samples to be normalized are coded with 1 in one column of the phenodata. The samples to be normalized to are coded with 0 in the same column.
+      <li> Normalization/ Illumina SNP arrays: Illumina SNP array preprocessing. Input should be a tab-delimited text file with genotype calls. Typically such a file is created using GenCall software from Illumina.
+      <li> Statistics/ Association analysis: Association tests for normalized SNP array data. Runs a Chi square test for every SNP. Hardy-Weinberg equilibrium is tested in controls only. Association tests use the grouping information of sample in group column of phenodata. Association tests are run for genotype frequences and dominant and recessive models.
+      <li> Utilities/ Combine probes to genes: Calculates an average for probes or probesets for each gene in the dataset. The data file has to have a symbol column for this to work correctly. After running this tool, only expression values and gene symbols are retained in the data, all other columns and information are lost.
+	</ul>
+<li><b>Changes to analysis tools</b>
+	<ul>
+      <li>Preprocessing/ Filter by CV: The genes whose CV is bigger than the median CV are kept.
+      <li>Normalization/ Illumina: The normalization method parameter has been renamed to "normalize.chips".
+      <li>Normalization/ Illumina -lumi pipeline: The normalization method parameter has been renamed to "normalize.chips".
+      <li>Promoter analysis/ Weeder: Filtering added so that if there are several probe sets for the same transcript (RefSeq id), the promoter sequence is used only once.
+      <li>Promoter analysis/ Cosmo: Filtering added so that if there are several probe sets for the same transcript (RefSeq id), the promoter sequence is used only once.
+      <li>Promoter analysis/ ClusterBuster: Filtering added so that if there are several probe sets for the same transcript (RefSeq id), the promoter sequence is used only once.
+      <li>Promoter analysis/ Retrieve promoters: Filtering added so that if there are several probe sets for the same transcript (RefSeq id), the promoter sequence is retrieved only once.
+	</ul>
+<li><b>Visualization news:</b>
+	<ul>
+      <li>Venn diagram: Gene symbols added to the gene list in the "selected" tab, better merging in data set creation
+      <li>3D scatter plot: Gene symbols added to the gene list in the "selected" tab
+      <li>Volcano plot: Better scaling, gene symbols added to the gene list in the "selected" tab
+	<li>Phenodata editor: Possibility to copy the contents of one cell to many cells
+	</ul>
+</ol>
+
+<hr>
+
+<h2>Version update 11.11.2008: What is new in Chipster 1.2.1</h2>
+
+<ol>
+<li><b>New functionality and visualization:</b>
+	<ul>
+      <li>Interactive volcano plot
+	</ul>
+<li><b>Changes to analysis tools</b>
+	<ul>
+      <li>Statistics/ Linear modelling: More descriptive parameter names. Phenodata column names
+are added to the result files for clarity. P-values and fold changes are given also as separate files, so that
+they can be used for box plots, clustering, etc.
+      <li>Statistics/ NMDS: The sample names are colored according to the group column from the
+phenodata. An additional result file is created where the sample names are taken from the description column of the phenodata (defaults to original file names, can be renamed in Chipster).
+      <li>Statistics/ One sample tests: By default the chips are scaled to the same mean before running the test, but this can be avoided by the setting the new parameter scale.to.same.mean to "no".
+      <li>Utilities/ Calculate descriptive statistics: Writes the descriptives also in a
+separate file, which can be used for drawing histograms and boxplots.
+      <li>Preprocessing/ Filter by expression: By default the chips are scaled to the same mean before filtering, but this can be avoided by the setting the new parameter scale.to.same.mean to "no".
+<li>Normalization/ Agilent 1-color: The normalization method parameter has been renamed to "normalize.chips".
+
+	</ul>
+<li><b>Annotation support for new chip types:</b>
+	<ul>
+      <li> Illumina Human V3
+      <li> Illumina Mouse V2
+      <li>Agilent Zebrafish V2
+	<li>Agilent Rice (not comprehensive annotations)
+	</ul>
+</ol>
+
+<hr>
+
+<h2>Version update 13.10.2008: What is new in Chipster 1.2.0</h2>
+
+<ol>
+<li><b><a href="#tools">New analysis tools</a></b>
+<li><b><a href="#visualizations">Visualization news:</a></b>
+	<ul>
+      <li>Possibility to create gene lists by selecting datapoints from images 
+	<li>Interactive Venn diagram
+      <li>Data points selected in one visualization stay selected in the next one
+	<li>Possibility to open visualizations in a separate window
+	<li>Possibility to change sample names in visualizations
+      <li>Gene symbols are automatically available in 2D scatter plot, SOM visualization and spreadsheets
+	<li>Expression profiles are colored according to the expression level
+	<li>Annotations for data points selected in images is more comprehensive and not limited to Affymetrix data
+	</ul>
+<li><b><a href="#chips">Support for new array types</a></b>
+<li><b><a href="#sessions">Possibility to save multiple analysis sessions (workspaces)</a></b>
+<li><b><a href="#workflows">More flexible analysis workflow saving</a></b>
+<li><b><a href="#general">General improvements</a></b>
+	<ul>
+	<li>Improved Workflow view: automatic sizing, better layout
+	<li>The limit of concurrent analysis jobs per user is increased from 5 to 10
+	<li>For a complete list if changes, please see the <a href="http://chipster.csc.fi/release_notes.shtml">release notes</a>.
+	</ul>
+</ol>
+
+<a name="tools"><h3>New analysis tools</h3></a>
+
+<ul>
+<li><b>ROTS</b> (reproducibility-optimized test statistic) ranks genes in order of evidence for differential expression for two-group comparisons. This tool was kindly contributed by Dr Laura Elo (please cite Elo L, Fil�n S, Lahesmaa R and Aittokallio T. 2008 IEEE/ACM Transactions on Computational Biology and Bioinformatics  5: 423-431). <a href="stat-ROTS.html">Read more...</a>   
+<li><b>SAFE</b> is a tool for analysis of over- or under-representation of genes in KEGG pathways. It takes both over-representation and expression into account, and the user can define the minimum pathway size to be considered. <a href="pathways-hypergeometric-safe.html">Read more...</a>     
+<li><b>lumi pipeline</b> normalization for Illumina data. Lumi offers new normalization methods such as rsn and loess. It uses BeadSummaryData files as input, so your raw data must be in one file. The filename must end with ".txt", and you should NOT use the Import tool for bringing the data into Chipster (in the Import files -window change the action to "Import directly"). <a href="norm-illumina-lumi.html">Read more...</a> 
+<li><b>Delete columns</b> enables deletion of unwanted columns from the data, for example after using the Merge tables -tool. <a href="delete-columns.html">Read more...</a> 
+<li><b>Random sampling</b> enables random sampling of genes or chips from the data, for example before hierarchical clustering of large datasets.
+</ul>
+
+<a name="visualizations"><h3>Visualization news</h3></a>
+
+<b> </b>
+
+<ul>
+      <li><b>Possibility to create gene lists by selecting datapoints from images</b>. You can create new gene lists by selecting data points in 2D and 3D scatter plots, Venn diagram and spreadsheet. After selecting data points with the mouse, go to the Selected-tab and click on the "Create dataset" button (for spreadsheets highlight the gene identifiers, right click, and choose "Create dataset").
+	<li><b>Interactive Venn diagram</b>. If you select 2-3 datasets (by keeping the control key down) you can visualize them as an interactive Venn diagram and thus create new datasets based on the image.
+      <li><b>Data points selected in one visualization stay selected in the next one</b>. Selecting data points for example in a scatter plot will also highlight the same genes in a subsequent spreadsheet view and vice versa.
+	<li><b>Possibility to open visualizations in a separate window</b>. Clicking the "Detach" button will open your current visualization in a separate window. This allows you to have several visualizations open at the same time.
+	<li><b>Possibility to change sample names in visualizations</b>. The phenodata file has a new column called Description. This column is used for sample names in hierarchical clustering and expression profile visualizations. By default it contains the original chip names, but you can type in any description you like.
+      <li><b>Gene symbols are automatically available in 2D scatter plot, SOM visualization and spreadsheets</b>. During normalization both gene symbol and description is added to the spreadsheet. 
+	<li><b>Expression profiles are colored according to the expression level</b>
+	<li><b>Annotations for data points selected in images is more comprehensive and not limited to Affymetrix data</b>. The Annotate button in the Selected-tab of 2D/3D scatter plots and Venn diagram now creates a gene list of the selected data points and annotates it using Chipster's annotation tool, which is based on Bioconductor (instead of launching the GeneCruiser service by Broad Institute). 
+	</ul>
+
+<a name="#chips"><h3>Support for new array types</h3></a>
+	<ul>
+	<li><b>Human Genome U133 Plus 2.0 Array</b>. Chipster's Affymetrix normalization and quality control scripts have been changed to use R2.7.1 in order to allow these functionalities also for Human Genome U133 Plus 2.0 Arrays.
+	<li><b>Agilent drosophila</b>
+	<li><b>Agilent rhesus monkey</b>
+	<li><b>Note that even if your array is not listed in <a href="supported-chips.html">supported chip types</a>, you can still analyze it with Chipster</b>. For other Illumina and Agilent arrays (such as miRNA arrays) simply choose "empty" as a chiptype during normalization, and Chipster will automatically calculate a mean of all probes which have the same identifier. The only exception is Affymetrix chips, because they require the CDF and probe packages for the summarization to work.
+	</ul>
+
+<a name="sessions"><h3>Possibility to save multiple analysis sessions (workspaces)</h3></a>
+
+In order to continue your work later on, you have to save your analysis session (workspace). Saving the session will save all the datasets and their
+relationships. In Chipster 1.2, a session is packed into a single compressed file with an extension .cs (for Chipster Session). This file is saved on your computer, but you can also take it with and continue your work on another computer by copying the session file there. Session files also allow you to share your work with a colleague. Chipster 1.2 allows you to save multiple analysis sessions separately, and you can save the session files anywhere you like.</p>
+
+<p>To save a session select File->Save session. A previously saved session can be loaded by selecting File->Open session. By default the current
+data is cleared before another session is loaded, but you can also combine sessions by selecting "Add to current session" from the session file dialog.</p>
+
+<p><b>Note!</b> Sessions are an extended version of the previous workspace system.
+If you have saved a workspace with an earlier Chipster version, you can open it
+by selecting File->Open workspace (session) saved with Chipster 1.1. Unlike
+the old workspace system, the new session system also allows you to create
+workflows from datasets that were loaded from a session and you
+can view all the details for them (including the source
+code) in the analysis history.</p>
+
+<a name="workflows"><h3>More flexible analysis workflow saving</h3></a>
+
+<p>Workflows allow you to automate your analysis steps, and also share analysis pipelines with collaborators. Workflow is a description of the analysis steps that you've run to the currently selected dataset. If you have run a workflow that you would like to reuse or perhaps share with a colleague, you should save it by selecting its starting point data set and choosing Workflow->Save starting from selected. In Chipster 1.2 you can save the workflow file anywhere you like. You can also change its name, but the ending has to be .bsh.</p>
+<p>You can apply the same workflow to another normalized dataset by selecting Workflow->Open and run, or Workflow->Run recent (if you saved the workflow during the same analysis session or if it is located under nami-workfiles in the chipster-scripts -folder).</p>
+
+<a name="general"><h3>General improvements</h3></a>
+
+	<ul>
+	<li><b>Improved Workflow view</b>: automatic sizing, better layout</b>
+	<li><b>The limit of concurrent analysis jobs per user is increased from 5 to 10 </b>
+	</ul>
+
+</body></html>

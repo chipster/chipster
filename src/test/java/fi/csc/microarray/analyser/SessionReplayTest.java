@@ -19,6 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -75,7 +76,8 @@ public class SessionReplayTest extends MessagingTestBase {
 	private static final long TOOL_TEST_TIMEOUT = 1;
 	private static final TimeUnit TOOL_TEST_TIMEOUT_UNIT = TimeUnit.HOURS;
 	
-	private static final boolean CHECK_EXACT_OUTPUT_SIZE = false;
+	private static final boolean FAIL_ON_OUTPUT_SIZE_MISMATCH = false;
+	private static final boolean CHECK_CONTENTS = true;
 	
 	
 	private static final String CSS = "<style type=\"text/css\">" + 
@@ -93,6 +95,7 @@ public class SessionReplayTest extends MessagingTestBase {
 	// Sessions which cause something to be thrown, normal tool failures etc not counted
 	// TODO add to report
 	private LinkedHashMap<File, Throwable> sessionsWithErrors = new LinkedHashMap<File, Throwable>();
+	private LinkedHashMap<File, String> sessionsWithMissingTools = new LinkedHashMap<File, String>();
 	
 	private TaskExecutor executor;
 	private DataManager manager, sourceManager;
@@ -151,11 +154,15 @@ public class SessionReplayTest extends MessagingTestBase {
 		createReports();
 		
 		// Get overall result
-		boolean combinedResult = true;
+		boolean combinedToolsResult = true;
 		for (ToolTestResult toolTestResult : toolTestResults) {
 			if (toolTestResult.getTestResult().equals(TestResult.FAIL)) {
-				combinedResult = false;
+				combinedToolsResult = false;
 			}
+		}
+		if (!combinedToolsResult) {
+			System.out.println("failed tools, failing");
+			return false;
 		}
 		
 		// Fail if no results at all
@@ -164,7 +171,19 @@ public class SessionReplayTest extends MessagingTestBase {
 			return false;
 		}
 		
-		return combinedResult;
+		// Fail if missing tools
+		if (sessionsWithMissingTools.size() > 0) {
+			System.out.println("missing tools, failing");
+			return false;
+		}
+
+		// Fail if sessions with errors
+		if (sessionsWithErrors.size() > 0) {
+			System.out.println("sessions with errors, failing");
+			return false;
+		}
+		
+		return true;
 	}
 
 	private void testSession(File session) throws IOException, MicroarrayException, TaskException, InterruptedException {
@@ -221,7 +240,7 @@ public class SessionReplayTest extends MessagingTestBase {
 
 			// Skip import operations
 			if (importOperationRecords.contains(operationRecord)) {
-				System.out.println("skipping import operation " + operationRecord.getFullName());
+				System.out.println("skipping import or local or something operation " + operationRecord.getFullName());
 				continue;
 			}
 
@@ -239,7 +258,13 @@ public class SessionReplayTest extends MessagingTestBase {
 			}
 
 			// Set up task
-			Operation operation = new Operation(getOperationDefinition(operationRecord.getNameID().getID(), toolModules), inputBeans.toArray(new DataBean[] {}));
+			OperationDefinition operationDefinition = getOperationDefinition(operationRecord.getNameID().getID(), toolModules);
+			if (operationDefinition == null) {
+				System.out.println("Missing tool: " + operationRecord.getNameID().getID() + "  in session: " + session.getName() + " skipping rest of the session");
+				sessionsWithMissingTools.put(session, operationRecord.getNameID().getID());
+				return;
+			}
+			Operation operation = new Operation(operationDefinition, inputBeans.toArray(new DataBean[] {}));
 
 			// Parameters, copy paste from workflows
 			for (ParameterRecord parameterRecord : operationRecord.getParameters()) {
@@ -293,11 +318,20 @@ public class SessionReplayTest extends MessagingTestBase {
 				for (DataBean sourceBean : outputMap.get(operationRecord)) {
 					if (targetIterator.hasNext()) {
 						DataBean targetBean = targetIterator.next();
-						if (!sourceBean.getName().equals(targetBean.getName())) {
-							toolTestResults.add(new ToolTestResult(TestResult.FAIL, operation, session, task, "mismatch in result dataset names, "
-									+ "expecting: " + sourceBean.getName() + " got: " + targetBean.getName()));
+
+						// check content types
+						if (!sourceBean.getContentType().getType().equals(targetBean.getContentType().getType())) {
+							toolTestResults.add(new ToolTestResult(TestResult.FAIL, operation, session, task, "Mismatch in result content types, "
+									+ sourceBean.getName() + ": " + sourceBean.getContentType().getType() + ", " + targetBean.getName() + ": " + targetBean.getContentType().getType()));
 							return;
 						}
+						
+//						// check names
+//						if (!sourceBean.getName().equals(targetBean.getName())) {
+//							toolTestResults.add(new ToolTestResult(TestResult.FAIL, operation, session, task, "mismatch in result dataset names, "
+//									+ "expecting: " + sourceBean.getName() + " got: " + targetBean.getName()));
+//							return;
+//						}
 					} 
 					// Not enough results
 					else {
@@ -331,6 +365,9 @@ public class SessionReplayTest extends MessagingTestBase {
 				}
 
 				// Compare data beans, add source bean -> target bean mapping
+				List<String> outputsWithMisMatchingSizes = new LinkedList<String>();
+				List<String> outputsWithMisMatchingContents = new LinkedList<String>();
+
 				targetIterator = task.outputs().iterator();
 				for (DataBean sourceBean : outputMap.get(operationRecord)) {
 					DataBean targetBean = targetIterator.next();
@@ -344,10 +381,42 @@ public class SessionReplayTest extends MessagingTestBase {
 					// Add source bean -> target bean mapping, needed for further operations
 					sourceDataBeanToTargetDataBean.put(sourceBean, targetBean);
 					
-					// Add result
-					toolTestResults.add(new ToolTestResult(TestResult.OK, operation, session, task));
-				
+					// Collect size matches
+					if (sourceBean.getContentLength() != targetBean.getContentLength()) {
+						if (sourceBean.getName().equals(targetBean.getName())) {
+							outputsWithMisMatchingSizes.add(sourceBean.getName());
+						} else {
+							outputsWithMisMatchingSizes.add(sourceBean.getName() + " | " + targetBean.getName());
+						}
+					}
+
+					// Collect content matches
+					if (CHECK_CONTENTS) {
+						InputStream sourceIn = null, targetIn = null;
+						try {
+							sourceIn = sourceBean.getContentByteStream();
+							targetIn = targetBean.getContentByteStream();
+							if (!IOUtils.contentEquals(sourceIn, targetIn)) {
+
+								if (sourceBean.getName().equals(targetBean.getName())) {
+									outputsWithMisMatchingContents.add(sourceBean.getName());
+								} else {
+									outputsWithMisMatchingContents.add(sourceBean.getName() + " | " + targetBean.getName());
+								}
+							}
+						} finally {
+							IOUtils.closeIfPossible(sourceIn);
+							IOUtils.closeIfPossible(targetIn);
+						}
+					}
 				}
+
+				// Add result
+				ToolTestResult toolTestResult = new ToolTestResult(TestResult.OK, operation, session, task, null);
+				toolTestResult.setOutputsWithMisMatchingSizes(outputsWithMisMatchingSizes);
+				toolTestResult.setOutputsWithMisMatchingContents(outputsWithMisMatchingContents);
+				toolTestResults.add(toolTestResult);
+
 			} finally {
 				// Set session data manager back to null to avoid problems
 				Session.getSession().setDataManager(null);
@@ -375,11 +444,14 @@ public class SessionReplayTest extends MessagingTestBase {
 	 */
 	private void compareDataBeans(DataBean bean1, DataBean bean2) {
 
-		// Check name, may be already checked though
-		Assert.assertEquals(bean1.getName(), bean2.getName());
+//		// Check name, may be already checked though
+//		Assert.assertEquals(bean1.getName(), bean2.getName());
 
+		// check content types
+		Assert.assertEquals(bean1.getContentType().getType(), bean2.getContentType().getType());
+		
 		// exact size
-		if (CHECK_EXACT_OUTPUT_SIZE) {
+		if (FAIL_ON_OUTPUT_SIZE_MISMATCH) {
 			Assert.assertEquals(bean1.getContentLength(), bean2.getContentLength(), "comparing output size");
 		}
 
@@ -540,13 +612,18 @@ public class SessionReplayTest extends MessagingTestBase {
 		
 		// Main title
 		String titleStatus = "<span style=\"color: green\">everything ok!</span>";
-		if (failedTasks.size() > 0) {
-			titleStatus = "<span style=\"color: red\">" + failCounts.keySet().size() + " tool(s) failed in " + failedTasks.size() + " test(s)</span>";
+		if (failedTasks.size() > 0 || sessionsWithErrors.size() > 0 || sessionsWithMissingTools.size() > 0) {
+			titleStatus = "<span style=\"color: red\">" + 
+						failCounts.keySet().size() + " tool(s) failed in " + failedTasks.size() + " test(s), " +
+						sessionsWithErrors.size() + " session(s) with errors, " +
+						sessionsWithMissingTools.size() + " sessions(s) with missing tools" +
+						"</span>";
 		}
 		writer.write("<h2>Tool tests &ndash; " + titleStatus + "</h2>");
 
 		writer.write("<h3>Summary</h3>");
 
+		// Summary
 		long duration = (System.currentTimeMillis() - startTime.getTime())/1000;
 		String totalTime = String.format("%02dm %02ds", (duration/60), (duration%60));
 		writer.write("<table>" +
@@ -554,16 +631,57 @@ public class SessionReplayTest extends MessagingTestBase {
 				 successTasks.size() + " <span" + (successTasks.isEmpty() ? "" : " style=\"color: green\"") + ">ok</span>, " + 
 				 failedTasks.size() + " <span" + (failedTasks.isEmpty() ? "" : " style=\"color: red\"") + ">failed</span>, "+
 				 toolTestResults.size() + " total</td</tr>" +
-				"<tr><td>Tool coverage</td><td>" + uniqueTools.size() + "/" + getTotalNumberOfTools() + "</td></tr>" +
-				"<tr><td>Sessions</td><td>" + uniqueSessions.size() + "</td></tr>" +
-				"<tr><td>Start time</td><td>" + startTime.toString() + "</td></tr>" +
-				"<tr><td>Total time</td><td>" + totalTime + "</td></tr>" +
+				
+				 "<tr><td>Tool coverage</td><td>" + uniqueTools.size() + "/" + getTotalNumberOfTools() + "</td></tr>" +
+				
+				 "<tr><td>Sessions</td>" + 
+				 "<td>" + uniqueSessions.size() + " total, " + 
+				 sessionsWithErrors.size() + " <span" + (sessionsWithErrors.isEmpty() ? "" : " style=\"color: red\"") + ">with errors</span>, " +
+				 sessionsWithMissingTools.size() + " <span" + (sessionsWithMissingTools.isEmpty() ? "" : " style=\"color: red\"") + ">with missing tools</span>, "+
+				 "</td></tr>" +
+
+				 
+				 "<tr><td>Start time</td><td>" + startTime.toString() + "</td></tr>" +
+				 "<tr><td>Total time</td><td>" + totalTime + "</td></tr>" +
 
 				"</table>");
 		
+		// Sessions with errors
+		if (sessionsWithErrors.size() > 0) {
+			writer.write("<h3>Sessions with errors</h3>");
+			writer.write("<table><tr>" + 
+					"<th>Session</th>" + 
+					"<th>Throwable</th>" +
+					"</tr>");
+			for (Entry<File, Throwable> entry : sessionsWithErrors.entrySet()) {
+				writer.write("<tr>" +
+						"<td>" + entry.getKey().getName() + "</td>" +
+						"<td>" + entry.getValue().toString() + "</td>" +
+						"</tr>");
+			}
+			writer.write("</table>");
+		}
 
-		// Test results
-		writer.write("<h3>Test results</h3>");
+		// Missing tools
+		if (sessionsWithMissingTools.size() > 0) {
+			writer.write("<h3>Sessions with missing tools</h3>");
+			writer.write("<table><tr>" + 
+					"<th>Session</th>" + 
+					"<th>Tool</th>" +
+					"</tr>");
+			for (Entry<File, String> entry : sessionsWithMissingTools.entrySet()) {
+				writer.write("<tr>" +
+						"<td>" + entry.getKey().getName() + "</td>" +
+						"<td>" + entry.getValue() + "</td>" +
+						"</tr>");
+			}
+			writer.write("</table>");
+		}
+
+		
+		
+		// Tool test results
+		writer.write("<h3>Tool test results</h3>");
 		writer.write("<table><tr>" + 
 				"<th>Tool</th>" + 
 				"<th>Result</th>" +
@@ -572,6 +690,8 @@ public class SessionReplayTest extends MessagingTestBase {
 				"<th>Test error message</th>" + 
 				"<th>Task error message</th>" +
 				"<th>Task screen output</th>" + 
+				"<th>Outputs with mismatching sizes</th>" + 
+				"<th>Outputs with mismatching contents</th>" + 
 				"</tr>");
 
 		// Failed tests
@@ -584,7 +704,9 @@ public class SessionReplayTest extends MessagingTestBase {
 					"<td>" + nullToEmpty(toolTestResult.getTestErrorMessage()) + "</td>" +
 					"<td>" + nullToEmpty(toolTestResult.getTask().getErrorMessage()) + "</td>" +
 					"<td>" + createScreenOutputLink(toolTestResult.getTask()) + "</td>" +
-			    	"</tr>");
+					"<td>" + getOutputsWithMisMatchingSizes(toolTestResult) + "</td>" +
+					"<td>" + getOutputsWithMisMatchingContents(toolTestResult) + "</td>" +
+					"</tr>");
 		}
 
 		// Successful tests
@@ -597,7 +719,9 @@ public class SessionReplayTest extends MessagingTestBase {
 					"<td>" + nullToEmpty(toolTestResult.getTestErrorMessage()) + "</td>" +
 					"<td>" + nullToEmpty(toolTestResult.getTask().getErrorMessage()) + "</td>" +
 					"<td>" + createScreenOutputLink(toolTestResult.getTask()) + "</td>" +
-			    	"</tr>");
+					"<td>" + getOutputsWithMisMatchingSizes(toolTestResult) + "</td>" +
+					"<td>" + getOutputsWithMisMatchingContents(toolTestResult) + "</td>" +
+					"</tr>");
 		}
 		writer.write("</table>");
 		
@@ -646,6 +770,30 @@ public class SessionReplayTest extends MessagingTestBase {
 		writer.close();
 	}
 	
+	
+	private String getOutputsWithMisMatchingSizes(ToolTestResult toolTestResult) {
+		String s = "";
+		for (String output : toolTestResult.getOutputsWithMisMatchingSizes()) {
+			s += output + ", ";
+		}
+		if (s.endsWith(", ")) {
+			s = s.substring(0, s.length() - ", ".length());
+		}
+		return s;
+	}
+
+	private String getOutputsWithMisMatchingContents(ToolTestResult toolTestResult) {
+		String s = "";
+		for (String output : toolTestResult.getOutputsWithMisMatchingContents()) {
+			s += output + ", ";
+		}
+		if (s.endsWith(", ")) {
+			s = s.substring(0, s.length() - ", ".length());
+		}
+		return s;
+	}
+
+	
 	private static void updateFlagFileAndExit(boolean testOK) throws IOException {
 		File flagFile = new File(FLAG_FILE);
 		if (testOK) {
@@ -676,10 +824,9 @@ public class SessionReplayTest extends MessagingTestBase {
 		private File sessionFile;
 		private Task task;
 		private String testErrorMessage;
-		
-		public ToolTestResult(TestResult testResult, Operation operation, File sessionFile, Task task) {
-			this(testResult, operation, sessionFile, task, null);
-		}
+		private List<String> outputsWithMisMatchingSizes = new LinkedList<String>();
+		private List<String> outputsWithMisMatchingContents = new LinkedList<String>();
+
 		
 		public ToolTestResult(TestResult testResult, Operation operation, File sessionFile, Task task, String testErrorMessage) {
 			this.testResult = testResult;
@@ -705,6 +852,23 @@ public class SessionReplayTest extends MessagingTestBase {
 		public String getTestErrorMessage() {
 			return testErrorMessage;
 		}
+
+		public List<String> getOutputsWithMisMatchingSizes() {
+			return outputsWithMisMatchingSizes;
+		}
+
+		public void setOutputsWithMisMatchingSizes(List<String> outputs) {
+			this.outputsWithMisMatchingSizes = outputs;
+		}
+
+		public List<String> getOutputsWithMisMatchingContents() {
+			return outputsWithMisMatchingContents;
+		}
+
+		public void setOutputsWithMisMatchingContents(List<String> outputs) {
+			this.outputsWithMisMatchingContents = outputs;
+		}
+
 		
 	}
 	

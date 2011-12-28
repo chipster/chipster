@@ -384,7 +384,7 @@ public abstract class ClientApplication {
 		}
 		
 		// check operation (relevant only for workflows)
-		if (operation.getBindings() == null) {
+		if (operation.getBindings().isEmpty()) {
 			throw new RuntimeException("Attempted to run " + operation.getDefinition().getFullName() + " with input datasets that were not compatitible with the operation.");
 		}
 		
@@ -776,7 +776,7 @@ public abstract class ClientApplication {
 			for (File dir : deadDirectories) {
 				Files.delTree(dir);
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			reportException(e);
 		}
 

@@ -530,7 +530,7 @@
 	<!--  Other packages -->
 	
     <item installed="false" name="altcdf-annotations" type="r-package"> 
-      <from-web-page>http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/13.0.0/entrezg.asp</from-web-page>
+      <from-web-page>http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/14.0.0/entrezg.asp</from-web-page>
     </item>
     
     <item installed="false" name="affy-exon-exon-rat" type="r-package">
@@ -545,18 +545,6 @@
     	<url>http://xmap.picr.man.ac.uk/downloads/cdf/exon.pmcdf_1.1.tar.gz</url>
     </item>
 
-    <item installed="false" name="hugene11stv1cdf" type="r-package">
-    	<url>http://nugo-r.bioinformatics.nl/Custom_CDF_DB_V14.1.0/src/contrib/hugene11stv1cdf_2.3.0.tar.gz</url>
-    </item>
-
-    <item installed="false" name="mogene11stv1cdf" type="r-package">
-    	<url>http://nugo-r.bioinformatics.nl/Custom_CDF_DB_V14.1.0/src/contrib/mogene11stv1cdf_2.3.0.tar.gz</url>
-    </item>
-
-    <item installed="false" name="ragene11stv1cdf" type="r-package">
-    	<url>http://nugo-r.bioinformatics.nl/Custom_CDF_DB_V14.1.0/src/contrib/ragene11stv1cdf_2.3.0.tar.gz</url>
-    </item>
-    
   	<item installed="false" name="fpc" type="r-package">
     	<url>http://addictedtor.free.fr/packages/fpc_1.1-5.tar.gz</url>
     </item>
