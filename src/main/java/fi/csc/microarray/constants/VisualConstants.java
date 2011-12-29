@@ -175,7 +175,7 @@ public class VisualConstants {
     
 
     public static final ImageIcon SPLASH_SCREEN =
-        new ImageIcon(VisualConstants.class.getResource("/splash.png"));
+        new ImageIcon(VisualConstants.class.getResource("/splash-ng.png"));
     public static final Color SPLASH_BORDER_COLOR =
     	new Color(150, 150, 150);
     public static final Font SPLASH_SCREEN_FONT = 
