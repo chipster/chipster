@@ -1,7 +1,7 @@
 library(CGHcall)
 
 setMethod("plot", signature(x="cghRaw", y="missing"),
-function (x, y, ... )
+function (x, y, dotres=1, ylimit=c(-2,5),... )
 {
     for (i in 1:ncol(x)) {
         cat("Plotting sample", sampleNames(x)[i], "\n")
@@ -9,7 +9,9 @@ function (x, y, ... )
         data            <- data.frame(chrom, bpstart(x), copynumber(x)[,i])
         colnames(data)  <- c("chromosome", "position", "ratio")
         chrom.labels    <- as.character(unique(chrom))
-        plot(data[,3], cex=.1, main=sampleNames(x)[i], ylab=expression(log[2]~ratio), xlab="chromosomes", ylim=c(-2,5), xaxt="n", xaxs="i")
+        nclone <- length(chrom)
+        whichtoplot <- seq(1,nclone,by=dotres) #added 15/06/2009
+        plot(whichtoplot,data[whichtoplot,3], cex=.1, main=sampleNames(x)[i], ylab=expression(log[2]~ratio), xlab="chromosomes", ylim=ylimit, xaxt="n", xaxs="i")
         abline(h=0) 
         for (iii in 1:length(cumsum(table(chrom)))) {
             segments(cumsum(table(chrom))[[iii]], -3, cumsum(table(chrom))[[iii]], 6, lty=2)
