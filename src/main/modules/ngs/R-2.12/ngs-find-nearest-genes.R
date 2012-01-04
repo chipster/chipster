@@ -1,7 +1,7 @@
 # TOOL ngs-find-nearest-genes.R: "Find the nearest genes for regions" (This tool takes set of genomic regions, such as ChIP-seq peaks, and fetches the nearest gene for each.)
 # INPUT regions-list.tsv: "Table with genomic regions" TYPE GENERIC 
 # OUTPUT nearest-genes.tsv: "Table listing the nearest gene feature for each input region." 
-# PARAMETER species: Species TYPE [Human, Mouse, Rat] DEFAULT Human (The species of the genome to use for fetching annotationsan.)
+# PARAMETER species: Genome TYPE [Human: "Human (hg18\)", Mouse: "Mouse (mm9\)", Rat: "Rat (rn4\)"] DEFAULT Human (The genome to use for fetching annotations.)
 
 #####################################################
 #                                                   #
