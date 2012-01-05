@@ -1,7 +1,7 @@
 library(CGHcall)
 
 setMethod("plot", signature(x="cghRaw", y="missing"),
-function (x, y, dotres=1, ylimit=c(-2,5),... )
+function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio),... )
 {
     for (i in 1:ncol(x)) {
         cat("Plotting sample", sampleNames(x)[i], "\n")
@@ -11,7 +11,7 @@ function (x, y, dotres=1, ylimit=c(-2,5),... )
         chrom.labels    <- as.character(unique(chrom))
         nclone <- length(chrom)
         whichtoplot <- seq(1,nclone,by=dotres) #added 15/06/2009
-        plot(whichtoplot,data[whichtoplot,3], cex=.1, main=sampleNames(x)[i], ylab=expression(log[2]~ratio), xlab="chromosomes", ylim=ylimit, xaxt="n", xaxs="i")
+        plot(whichtoplot,data[whichtoplot,3], cex=.1, main=sampleNames(x)[i], ylab=ylab, xlab="chromosomes", ylim=ylimit, xaxt="n", xaxs="i")
         abline(h=0) 
         for (iii in 1:length(cumsum(table(chrom)))) {
             segments(cumsum(table(chrom))[[iii]], -3, cumsum(table(chrom))[[iii]], 6, lty=2)
@@ -29,11 +29,13 @@ function (x, y, dotres=1, ylimit=c(-2,5),... )
         ### MAD
         mad.value <- round(mad(copynumber(x)[chromosomes(x) < 23,i], na.rm=TRUE), digits=2)
         mtext(paste('MAD =', mad.value), side=3, line=0, adj=1)
+        ### number of data points
+        mtext(paste(round(nclone / 1000), 'K', sep=''), side=3, line=0, adj=0)
     }
 })
 
 setMethod("plot", signature(x="cghSeg", y="missing"),
-function (x, y, dotres=1, ylimit=c(-2,5),... )
+function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio),... )
 {
     for (i in 1:ncol(x)) {
         cat("Plotting sample", sampleNames(x)[i], "\n")
@@ -44,7 +46,7 @@ function (x, y, dotres=1, ylimit=c(-2,5),... )
         chrom.labels    <- as.character(unique(chrom))
         nclone <- length(chrom)
         whichtoplot <- seq(1,nclone,by=dotres) #added 15/06/2009
-        plot(whichtoplot,data[whichtoplot,3], cex=.1, main=sampleNames(x)[i], ylab=expression(log[2]~ratio), xlab="chromosomes", ylim=ylimit, xaxt="n", xaxs="i")
+        plot(whichtoplot,data[whichtoplot,3], cex=.1, main=sampleNames(x)[i], ylab=ylab, xlab="chromosomes", ylim=ylimit, xaxt="n", xaxs="i")
         if (dotres != 1)
             mtext(paste('Plot resolution: 1/',dotres, sep=''), side=3, line=0)
         abline(h=0) 
@@ -67,11 +69,13 @@ function (x, y, dotres=1, ylimit=c(-2,5),... )
         ### MAD
         mad.value <- round(mad(copynumber(x)[chromosomes(x) < 23,i], na.rm=TRUE), digits=2)
         mtext(paste('MAD =', mad.value), side=3, line=0, adj=1)
+        ### number of data points
+        mtext(paste(round(nclone / 1000), 'K', sep=''), side=3, line=0, adj=0)
     }
 })
 
 setMethod("plot", signature(x="cghCall", y="missing"),
-function (x, y, dotres=1, ylimit=c(-5,5),... )
+function (x, y, dotres=1, ylimit=c(-5,5), ylab=expression(log[2]~ratio),... )
 {
     calls           <- calls(x)
     nsamples        <- ncol(x)
@@ -116,7 +120,7 @@ function (x, y, dotres=1, ylimit=c(-5,5),... )
         box()
         
         ### Add axis labels
-        mtext(expression(log[2]~ratio), side=4, line=3, srt=270)
+        mtext(ylab, side=4, line=3, srt=270)
         mtext("probability", side=2, line=3, srt=270)
         mtext('chromosomes', side=1, line=3)
         
@@ -145,6 +149,9 @@ function (x, y, dotres=1, ylimit=c(-5,5),... )
         ### MAD
         mad.value <- round(mad(copynumber(x)[chromosomes(x) < 23,i], na.rm=TRUE), digits=2)
         mtext(paste('MAD =', mad.value), side=3, line=0, adj=1)
+
+        ### number of data points
+        mtext(paste(round(nclone / 1000), 'K', sep=''), side=3, line=0, adj=0)
     }
 })
 

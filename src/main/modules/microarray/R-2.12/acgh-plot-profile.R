@@ -57,6 +57,8 @@ probamp <- as.matrix(dat[,grep("probamp", names(dat))])
 
 if (ncol(segmented) == 0) {
   cgh <- new('cghRaw', copynumber=copynumber, featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
+} else if (ncol(calls) == 0) {
+  cgh <- new('cghSeg', assayData=assayDataNew(copynumber=copynumber, segmented=segmented), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
 } else if (ncol(probamp) == 0) {
   cgh <- new('cghCall', assayData=assayDataNew(calls=calls, copynumber=copynumber, segmented=segmented, probloss=probloss, probnorm=probnorm, probgain=probgain), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
 } else {

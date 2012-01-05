@@ -1,44 +1,33 @@
-# TOOL acgh-call-aberrations.R: "Call copy number aberrations" (Call copy number aberrations from aCGH log ratios or NGS data.)
-# INPUT normalized.tsv: normalized.tsv TYPE GENE_EXPRS 
-# OUTPUT aberrations.tsv: aberrations.tsv 
-# OUTPUT aberration-frequencies.pdf: aberration-frequencies.pdf 
-# PARAMETER normalization: normalization TYPE [median: median, mode: mode, none: none] DEFAULT none (Normalization method.)
-# PARAMETER number.of.chromosomes: number.of.chromosomes TYPE INTEGER DEFAULT 23 (Number of chromosomes. Usually 23 for sex-matched reference samples and 22 otherwise.)
+# TOOL acgh-call-aberrations.R: "Call aberrations from segmented copy number data" (Call copy number aberrations from aCGH log ratios or NGS data.)
+# INPUT segmented.tsv: segmented.tsv TYPE GENE_EXPRS
+# OUTPUT aberrations.tsv: aberrations.tsv
+# OUTPUT aberration-frequencies.pdf: aberration-frequencies.pdf
 # PARAMETER number.of.copy.number.states: number.of.copy.number.states TYPE [3: 3, 4: 4] DEFAULT 3 (Whether to call loss vs. normal vs. gain or loss vs. normal vs. gain vs. amplification.)
-# PARAMETER minimum.number.of.probes.per.segment: minimum.number.of.probes.per.segment TYPE [2: 2, 3: 3, 4: 4, 5: 5] DEFAULT 2 (Minimum number of probes per segment.)
-# PARAMETER minimum.number.of.sds.between.segments: minimum.number.of.sds.between.segments TYPE DECIMAL FROM 0 TO 10 DEFAULT 0 (Minimum number of standard deviations required between segments.)
 # PARAMETER organism: organism TYPE [human: human, other: other] DEFAULT human (Organism.)
 # PARAMETER genome.build: genome.build TYPE [GRCh37: GRCh37, NCBI36: NCBI36, NCBI35: NCBI35, NCBI34: NCBI34] DEFAULT GRCh37 (The genome build to use. GRCh37 = hg19, NCBI36 = hg18, NCBI35 = hg17, NCBI34 = hg16. Not used unless organism is set to human.)
 
-# detect-copy-number-aberrations.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-12-13
+# 2012-01-05
 
 source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 
-dat <- read.table('normalized.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
+dat <- read.table('segmented.tsv', header=TRUE, sep='\t', as.is=TRUE, row.names=1)
 
-pos <- c('chromosome','start','end')
-if (length(setdiff(pos, colnames(dat)))!=0)
-  stop('CHIPSTER-NOTE: This script can only be run on files that have the following columns: chromosome, start, end.')
+if (length(grep("^segmented\\.", names(dat))) == 0)
+  stop('CHIPSTER-NOTE: This tool needs segmented input, so please first run the tool Segment copy number data.')
 
-dat2 <- data.frame(probe=rownames(dat), dat[,c('chromosome', 'start', 'end')], dat[,grep("chip", names(dat))], stringsAsFactors=FALSE)
-chips <- colnames(dat)[grep("chip", names(dat))]
+dat$chromosome[dat$chromosome=='X'] <- '23'
+dat$chromosome[dat$chromosome=='Y'] <- '24'
+dat$chromosome[dat$chromosome=='MT'] <- '25'
+dat$chromosome <- as.integer(dat$chromosome)
 
-if (ncol(dat2)==4)
-  stop('CHIPSTER-NOTE: No array data found. The input file must have columns labeled with "chip.".')
-if (ncol(dat2)==5)
-  colnames(dat2)[5] <- chips[1]
+logratios <- as.matrix(dat[,grep("^chip\\.", names(dat))])
+segmented <- as.matrix(dat[,grep("^segmented\\.", names(dat))])
 
-dat2$chromosome[dat2$chromosome=='X'] <- 23
-dat2$chromosome[dat2$chromosome=='Y'] <- 24
-dat2$chromosome[dat2$chromosome=='MT'] <- 25
-dat2$chromosome <- as.integer(dat2$chromosome)
+cgh.seg <- new('cghSeg', assayData=assayDataNew(copynumber=logratios, segmented=segmented), featureData=new('AnnotatedDataFrame', data=data.frame(Chromosome=dat$chromosome, Start=dat$start, End=dat$end, row.names=row.names(dat))))
 
-cgh.raw <- make_cghRaw(dat2)
-cgh.pre <- preprocess(cgh.raw, nchrom=number.of.chromosomes)
-cgh.nor <- normalize(cgh.pre, method=normalization)
-cgh.seg <- segmentData(cgh.nor, min.width=as.integer(minimum.number.of.probes.per.segment), undo.splits='sdundo', undo.SD=minimum.number.of.sds.between.segments)
+chips <- colnames(dat)[grep("^chip\\.", names(dat))]
+
 cgh.psn <- postsegnormalize(cgh.seg)
 cgh.cal <- CGHcall(cgh.psn, nclass=as.integer(number.of.copy.number.states), organism=organism, build=genome.build)
 cgh <- ExpandCGHcall(cgh.cal, cgh.psn)
