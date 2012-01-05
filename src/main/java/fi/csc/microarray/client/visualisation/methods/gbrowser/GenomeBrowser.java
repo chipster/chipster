@@ -224,13 +224,15 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		if (paramPanel == null) {
 			paramPanel = new JPanel();
 			paramPanel.setLayout(new GridBagLayout());
-			paramPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
 
 			JPanel settings = this.createSettingsPanel();
-
+			JScrollPane settingsScrollPane = new JScrollPane(settings);
+			settingsScrollPane.setBorder(BorderFactory.createEmptyBorder());
+			settingsScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+			
 			JTabbedPane tabPane = new JTabbedPane();
-			tabPane.addTab("Settings", settings);
-
+			tabPane.addTab("Settings", settingsScrollPane);
+			   
 			GridBagConstraints c = new GridBagConstraints();
 
 			c.gridy = 0;
@@ -266,7 +268,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	}
 
 	private JPanel getDatasetsPanel() {
-		if (this.datasetsPanel == null) { 
+		if (datasetsPanel == null) { 
 			datasetsPanel = new JPanel(new GridBagLayout());
 			datasetsPanel.setBorder(VisualConstants.createSettingsPanelSubPanelBorder("Datasets"));
 
@@ -281,11 +283,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			datasetSwitchesPanel = new JPanel();
 			datasetSwitchesPanel.setLayout(new BoxLayout(datasetSwitchesPanel, BoxLayout.Y_AXIS));
 			
-			JScrollPane scrollPane = new JScrollPane(datasetSwitchesPanel);
-			scrollPane.setBorder(BorderFactory.createEmptyBorder());
-
-			scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);		
-			datasetsPanel.add(scrollPane, dc);
+			datasetsPanel.add(datasetSwitchesPanel, dc);
 		}
 		
 		return datasetsPanel;
@@ -371,7 +369,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	public JPanel createSettingsPanel() {
 
 		settingsPanel.setLayout(new GridBagLayout());
-		settingsPanel.setPreferredSize(Visualisation.PARAMETER_SIZE);
 
 		GridBagConstraints c = new GridBagConstraints();
 
@@ -394,7 +391,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		c.fill = GridBagConstraints.BOTH;
 	
 		// options
-//		c.weighty = 1.0;
 		settingsPanel.add(getOptionsPanel(), c);
 		c.gridy++;
 		
