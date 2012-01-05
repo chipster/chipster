@@ -96,8 +96,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		RegionListener, FocusListener, ComponentListener, PropertyChangeListener {
 
 
-	private static final String DEFAULT_ZOOM = "100000";
-	private static final String DEFAULT_LOCATION = "1000000";
+	private static final long DEFAULT_VIEWSIZE = 100000;
+	private static final long DEFAULT_LOCATION = 1000000;
 	final static String WAITPANEL = "waitpanel";
 	final static String PLOTPANEL = "plotpanel";
 
@@ -175,8 +175,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private JLabel locationLabel = new JLabel("Location (gene or position)");
 	private JTextField locationField = new JTextField();
 
-	private JLabel zoomLabel = new JLabel("Zoom");
-	private JTextField zoomField = new JTextField(10);
+	private JLabel viewsizeLabel = new JLabel("View size");
+	private JTextField viewsizeField = new JTextField();
+	private Long viewsize;
 	
 	private JLabel chrLabel = new JLabel("Chromosome");
 	private JComboBox chrBox = new JComboBox();
@@ -197,7 +198,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private Map<JCheckBox, String> trackSwitches = new LinkedHashMap<JCheckBox, String>();
 	private Set<JCheckBox> datasetSwitches = new HashSet<JCheckBox>();
 	private Long lastLocation;
-	private Long lastZoom;
+	private Long lastViewsize;
 	private JScrollPane verticalScroller;
 	private JCheckBox showFullHeightBox;
 	
@@ -467,19 +468,19 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			c.insets.set(0, 0, 10, 0);
 			locationPanel.add(locationField, c);
 
-			// zoom
+			// viewsize
 			c.gridx = 0;
 			c.gridwidth = 5;
 			c.gridy++;
 			c.insets.set(0, 0, 0, 0);
-			zoomLabel.setEnabled(false);
-			locationPanel.add(zoomLabel, c);
+			viewsizeLabel.setEnabled(false);
+			locationPanel.add(viewsizeLabel, c);
 			c.gridwidth = 4;
 			c.gridy++;
 			c.insets.set(0, 0, 10, 0);
-			zoomField.setEnabled(false);
-			locationPanel.add(this.zoomField, c);
-			this.zoomField.addActionListener(this);
+			viewsizeField.setEnabled(false);
+			viewsizeField.setEditable(false); // view size is never editable
+			locationPanel.add(this.viewsizeField, c);
 
 			// go button
 			c.gridy++;
@@ -557,7 +558,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
 
-		if (source == goButton || source == locationField || source == zoomField) {
+		if (source == goButton || source == locationField) {
 
 			// disable changing of the genome
 			this.genomeBox.setEnabled(false);
@@ -623,8 +624,8 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			this.chrBox.setEnabled(true);
 			this.locationLabel.setEnabled(true);
 			this.locationField.setEnabled(true);
-			this.zoomLabel.setEnabled(true);
-			this.zoomField.setEnabled(true);
+			this.viewsizeLabel.setEnabled(true);
+			this.viewsizeField.setEnabled(true);
 			this.showFullHeightBox.setEnabled(true);
 			
 			for (Track track : tracks) {
@@ -819,14 +820,16 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			// End 3D effect
 			plot.getDataView().addTrack(new SeparatorTrack3D(plot.getDataView(), 0, Long.MAX_VALUE, false));
 
-			// Fill in initial positions if not filled in
+			// Fill in initial position if not filled in
 			if (locationField.getText().trim().isEmpty()) {
-				locationField.setText(DEFAULT_LOCATION);
+				locationField.setText("" + DEFAULT_LOCATION);
 			}
-			if (zoomField.getText().trim().isEmpty()) {
-				zoomField.setText(DEFAULT_ZOOM);
+
+			if (viewsizeField.getText().trim().isEmpty()) {
+				viewsizeField.setText("" + DEFAULT_VIEWSIZE);
+				viewsize = DEFAULT_VIEWSIZE;
 			}
-			
+
 			// Initialise the plot
 			plot.addDataRegionListener(this);
 
@@ -974,10 +977,9 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	}
 
 	public void regionChanged(BpCoordRegion bpRegion) {
-		locationField.setText(bpRegion.getMid().toString());
-		zoomField.setText("" + bpRegion.getLength());
+		updateCoordinateFields(bpRegion.getMid(), bpRegion.getLength());
 		this.lastLocation = bpRegion.getMid();
-		this.lastZoom = bpRegion.getLength();
+		this.lastViewsize = bpRegion.getLength();
 	}
 
 	private List<Interpretation> interpretUserDatas(List<DataBean> datas) {
@@ -1102,12 +1104,10 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			if (geneLocation == null) {
 				
 				// Move to last known location
-				if (lastLocation != null && lastZoom != null) {
-					locationField.setText(lastLocation.toString());
-					zoomField.setText(lastZoom.toString());
+				if (lastLocation != null && lastViewsize != null) {
+					updateCoordinateFields(lastLocation, lastViewsize);
 				} else {
-					locationField.setText(DEFAULT_LOCATION);
-					zoomField.setText(DEFAULT_ZOOM);
+					updateCoordinateFields(DEFAULT_LOCATION, DEFAULT_VIEWSIZE);
 				}
 				
 				// Tell the user 
@@ -1120,17 +1120,27 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				
 				// Update coordinate controls with gene's location
 				chrBox.setSelectedItem(new Chromosome(geneLocation.start.chr));
-				locationField.setText(Long.toString((geneLocation.end.bp + geneLocation.start.bp) / 2));
-				zoomField.setText(Long.toString((geneLocation.end.bp - geneLocation.start.bp) * 2));
+				updateCoordinateFields((geneLocation.end.bp + geneLocation.start.bp) / 2, (geneLocation.end.bp - geneLocation.start.bp) * 2);
 
 			}
 		}
 	}
 
+	private void updateCoordinateFields(Long location, Long viewsize) {
+		locationField.setText(location.toString());
+		if (viewsize > 1000000) {
+			viewsizeField.setText(Math.round(((float)viewsize) / 1000000f) + " Mb");
+		} else if (viewsize > 1000) {
+			viewsizeField.setText(Math.round(((float)viewsize) / 1000f) + " kb");
+		} else {
+			viewsizeField.setText(viewsize + "");
+		}
+	}
+
+
 	private void move() {
 		plot.moveDataBpRegion((Chromosome) chrBox.getSelectedItem(),
-				Long.parseLong(locationField.getText()), Long
-				.parseLong(zoomField.getText()));
+				Long.parseLong(locationField.getText()), viewsize);
 
 		// Set scale of profile track containing reads information
 		this.plot.setReadScale((ReadScale) this.coverageScaleBox.getSelectedItem());
@@ -1180,8 +1190,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 				chrBox.setSelectedItem(new Chromosome(sel.get("chromosome")));
 				long start = Long.parseLong(sel.get("start"));
 				long end = Long.parseLong(sel.get("end"));
-				locationField.setText(Long.toString((end + start) / 2));
-				zoomField.setText(Long.toString((end - start) * 2));
+				updateCoordinateFields((end + start) / 2, (end - start) * 2);
 			}
 			
 			// Update
