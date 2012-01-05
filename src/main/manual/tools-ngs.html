@@ -5,10 +5,9 @@
 
 <h2>Analysis tools for next generation sequencing data</h2>
 
-<p>Every tool is described in detail on its own help page. 
-The help page is divided into four parts: General description, Parameters, Details on how the tool works, and Output 
-where the results are described. The Parameters part contains the list of parameters, their possible values (1-100)
-and their default values [10].</p>
+<p>Chipster's NGS analysis tools are grouped in the categories listed below. Each analysis tool has its own detailed manual page, which consists of four sections: 
+General description, parameters, details, output and reference.
+ The parameter section contains the list of parameters, their possible values (1-100) and their default values [10]. The manual for Chipster's built-in genome browser can be found <a href="genomeBrowser.html">here</a>.</p>
 
 <ol>
 <li> <a href="#filtering">Filtering</a> </li>
@@ -21,30 +20,54 @@ and their default values [10].</p>
 <li> <a href="#ChIP">ChIP-seq</a> </li>
 <li> <a href="#methyl">Methyl-seq</a> </li>
 </ol>
-
+<hr>
 <ul>
 <b><a name="filtering">Filtering</a></b>
+<li> <a href="fastx-quality-filter.html">Filter out low quality reads</a> </li>
+<li> <a href="fastx-clipper.html">Filter reads for adapters, length and Ns</a></li>
 <li> <a href="ngs-filter-annotations.html">Filter by column term </a> </li>
 <li> <a href="ngs-filter-results-column.html">Filter by column value </a> </li>
 <br>
 <br>
+<b><a name="quality">Quality control</a></b>
+<li> Read quality with FastQC </li>
+<li> <a href="fastx-statistics.html">Quality statistics with FASTX</a></li>
+<br>
+<br>
 <b><a name="utilities">Utilities</a></b>
-<li> <a href="bedtools-bamtobed.html">BEDTools bamToBed </a> </li>
-<li> <a href="bedtools-fastafrombed.html">BEDTools fastaFromBed </a> </li>
-<li> <a href="bedtools-mergebed.html">BEDTools mergeBed </a> </li>
-<li> <a href="bedtools-slopbed.html">BEDTools slopBed </a> </li>
-<li> <a href="bedtools-subtractbed.html">BEDTools subtractBed </a> </li>
+<li> Define NGS experiment </li>
+<li> <a href="fastx-trimmer.html">Trim reads</a> </li>
+<li> <a href="fastx-renamer.html">Rename reads</a> </li>
+<li> <a href="bedtools-bamtobed.html">Convert BAM to BED </a> </li>
+<li> <a href="fastx-fastq-to-fasta.html">Convert FASTQ to FASTA</a> </li>
+<li> Convert SAM to BAM, sort and index BAM </li>
+<li> Sort BED </li>
+<li> <a href="bedtools-mergebed.html">Merge BED </a> </li>
+<li> Merge BAM </li>
+<li> Index BAM </li>
+<li> Statistics for BAM </li>
+<li> Make a subset of BAM </li>
+<li> Count alignments in BAM </li>
+<li> <a href="bedtools-fastafrombed.html">FASTA from BED </a> </li>
+<li> <a href="bedtools-slopbed.html">Slop BED </a> </li>
+<li> Extract featured from BED </li>
+
 <br>
 <br>
 <b><a name="regions">Matching genomic regions</a></b>
-<li> <a href="bedtools-intersectbed.html">BEDTools intersectBed </a> </li>
-<li> <a href="bedtools-closestbed.html">BEDTools closestBed </a> </li>
-<li> <a href="bedtools-windowbed.html">BEDTools windowBed </a> </li>
-<li> <a href="bedtools-coveragebed.html">BEDTools coverageBed </a> </li>
-<li> <a href="bedtools-genomecoveragebed.html">BEDTools genomeCoverageBed </a> </li>
-<li> <a href="bedtools-overlap.html">BEDTools overlap </a> </li>
-<li> <a href="bedtools-pairtobed.html">BEDTools pairToBed </a> </li>
-<li> <a href="bedtools-pairtopair.html">BEDTools pairToPair </a> </li>
+<li> Find overlapping regions </li>
+<li> Remove overlapping regions </li>
+<li> Fuse overlapping regions </li>
+<li> Combine region files </li>
+<li> <a href="bedtools-subtractbed.html">Subtract BED </a> </li>
+<li> <a href="bedtools-intersectbed.html">Intersect BED </a> </li>
+<li> <a href="bedtools-closestbed.html">Closest BED </a> </li>
+<li> <a href="bedtools-windowbed.html">Window BED </a> </li>
+<li> <a href="bedtools-coveragebed.html">Coverage BED </a> </li>
+<li> <a href="bedtools-genomecoveragebed.html">Genome coverage BED </a> </li>
+<li> <a href="bedtools-overlap.html">Overlap BED </a> </li>
+<li> <a href="bedtools-pairtobed.html">Overlap BEDPE with BED </a> </li>
+<li> <a href="bedtools-pairtopair.html">Compare two BEDPE files </a> </li>
 <br>
 <br>
 <b><a name="alignment">Alignment</a></b>
@@ -58,13 +81,35 @@ and their default values [10].</p>
 <li> <a href="bwa-with-index-building.html">BWA for single-end reads and own genome</a> </li>
 <li> <a href="bwasw-with-index-building.html">BWA-SW for single-end reads and own genome</a> </li>
 <li> <a href="bwa-paired-end-with-index-building.html">BWA for paired-end reads and own genome </a> </li>
+<li> TopHat for paired end reads </li>
+<li> TopHat for single end reads </li>
+<br>
+<br>
+<b><a name="RNA">RNA-seq</a></b>
+<li> Map aligned reads to genes with HTSeq using own GTF </li>
+<li> Map aligned reads to genes with coverageBed using own BED </li>
+<li> Differential expression analysis using edgeR</li>
+<li> Differential expression analysis using Cufflinks</li>
+<br>
+<br>
+<b><a name="miRNA">miRNA-seq</a></b>
+<li> Convert genomic BAM to edgeR input format </li>
+<li> Convert miRBased BAM to edgeR input format </li>
+<li> Differential expression analysis using edgeR</li>
+<li> Find miRNA targets </li>
+<li> GO enrichment for miRNA targets</li>
+<li> KEGG enrichment for miRNA targets</li>
+<li> Correlate miRNA with target expression</li>
+<li> Up-down analysis of miRNA targets</li>
+<li> Extract miRNA target expression data</li>
 <br>
 <br>
 <b><a name="ChIP">ChIP-seq</a></b>
 <li> <a href="ngs-find-peaks-macs-one.html">Find peaks using MACS, treatment only </a> </li>
 <li> <a href="ngs-find-peaks-macs-two.html">Find peaks using MACS, treatment vs. control </a> </li>
-<li> <a href="ngs-find-motifs-jaspar.html">Find common motifs and match to Jaspar </a> </li>
+<li> <a href="ngs-find-motifs-jaspar.html">Find common motifs and match to JASPAR </a> </li>
 <li> <a href="ngs-find-nearest-genes.html">Find the nearest genes for regions </a> </li>
+<li> Find unique and annotated genes</li>
 <li> <a href="pathways-ngs-hyperg-go.html">GO enrichment for list of genes </a> </li>
 <br>
 <br>
