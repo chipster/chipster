@@ -11,12 +11,13 @@ public class FindOverlappingTool extends RegionTool {
 	@Override
 	public String getSADL() {
 		return 	"TOOL FindOverlappingTool.java: \"Find overlapping regions\" (Returns regions that have overlap with some region in the other input file. Also known as intersection.)" + "\n" +
-				"INPUT data1.bed: \"First set of regions\" TYPE GENERIC" + "\n" +
-				"INPUT data2.bed: \"Second set of regions\" TYPE GENERIC" + "\n" +
+				"INPUT data1.bed: \"Region file A\" TYPE GENERIC" + "\n" +
+				"INPUT data2.bed: \"Region file B\" TYPE GENERIC" + "\n" +
 				"OUTPUT overlapping.bed: \"Overlapping regions\"" + "\n" + 
-				"PARAMETER return.type: \"Type of returned regions\" TYPE [first: \"Regions from the first set only\", first_augmented: \"Augmented regions from the first set\", both: \"Regions from both sets\", merged: \"Merged regions\", intersection: \"Overlapping pieces of regions\"] DEFAULT first (How overlapping regions are returned?)" + 
-				"PARAMETER min.overlap.bp: \"Minimum number of overlapping basepairs\" TYPE INTEGER FROM 1 DEFAULT 1 (How many basepairs are required to consider regions overlapping?)";
+				"PARAMETER return.type: \"Type of returned regions\" TYPE [first: \"Original regions from file A\", first_augmented: \"Original regions from file A augmented with info from file B\", both: \"Original regions from both files\", merged: \"Regions from both files merged\", intersection: \"Overlapping parts of the regions\"] DEFAULT first (How overlapping regions are returned?)" + 
+				"PARAMETER min.overlap.bp: \"Minimum number of overlapping bases\" TYPE INTEGER FROM 1 DEFAULT 1 (How many bases are required to consider regions overlapping?)";
 	}
+	
 
 	@Override
 	protected LinkedList<RegionContent> operate(LinkedList<List<RegionContent>> inputs, List<String> parameters) {
