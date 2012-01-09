@@ -187,4 +187,8 @@ public class RepeatMaskerTrack extends Track {
         return datas;
 	}
 	
+	@Override
+	public String getName() {
+		return "RepeatMaskerTrack";
+	}	
 }
