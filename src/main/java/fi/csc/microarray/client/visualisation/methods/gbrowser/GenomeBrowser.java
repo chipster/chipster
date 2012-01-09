@@ -177,7 +177,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 	private JLabel viewsizeLabel = new JLabel("View size");
 	private JTextField viewsizeField = new JTextField();
-	private Long viewsize;
 	
 	private JLabel chrLabel = new JLabel("Chromosome");
 	private JComboBox chrBox = new JComboBox();
@@ -824,11 +823,12 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			// Fill in initial position if not filled in
 			if (locationField.getText().trim().isEmpty()) {
 				locationField.setText("" + DEFAULT_LOCATION);
+				lastLocation = DEFAULT_LOCATION;
 			}
 
 			if (viewsizeField.getText().trim().isEmpty()) {
 				viewsizeField.setText("" + DEFAULT_VIEWSIZE);
-				viewsize = DEFAULT_VIEWSIZE;
+				lastViewsize = DEFAULT_VIEWSIZE;
 			}
 
 			// Initialise the plot
@@ -1141,7 +1141,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 	private void move() {
 		plot.moveDataBpRegion((Chromosome) chrBox.getSelectedItem(),
-				Long.parseLong(locationField.getText()), viewsize);
+				Long.parseLong(locationField.getText()), lastViewsize);
 
 		// Set scale of profile track containing reads information
 		this.plot.setReadScale((ReadScale) this.coverageScaleBox.getSelectedItem());
