@@ -10,6 +10,7 @@
 # Two-group parametric and non-parametric tests
 # JTT 4.7.2006
 # OH, 7.11.2011
+# EK, 8.1.2012
 
 # Loads the libraries
 library(multtest)
@@ -45,7 +46,7 @@ if(length(unique(groups))==1 | length(unique(groups))>=3) {
 # Empirical Bayes
 if(meth=="empiricalBayes") {
 	library(limma)
-	design<-model.matrix(~groups)
+	design<-model.matrix(~as.factor(groups))
 	fit<-lmFit(dat2, design)
 	fit<-eBayes(fit)
 	tab<-toptable(fit, coef=2, number=nrow(fit), adjust.method=adj.method)
