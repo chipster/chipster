@@ -177,7 +177,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 	private JLabel viewsizeLabel = new JLabel("View size");
 	private JTextField viewsizeField = new JTextField();
-	private Long viewsize;
 	
 	private JLabel chrLabel = new JLabel("Chromosome");
 	private JComboBox chrBox = new JComboBox();
@@ -209,14 +208,15 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		// initialize annotations
 		this.annotationManager = new AnnotationManager();
 		this.annotationManager.initialize();
-		
+
+		trackSwitches.put(new JCheckBox("Low complexity regions", false), "RepeatMaskerTrack"); // TODO re-enable dbSNP view
+//		trackSwitches.put(new JCheckBox("Known SNP's", false), "changeSNP"); // TODO re-enable dbSNP view
 		trackSwitches.put(new JCheckBox("Reads", true), "Reads");
 		trackSwitches.put(new JCheckBox("Highlight SNPs", false), "highlightSNP");
-		trackSwitches.put(new JCheckBox("Coverage and SNP's", true), "ProfileSNPTrack");
+		trackSwitches.put(new JCheckBox("Coverage and SNPs", true), "ProfileSNPTrack");
 		trackSwitches.put(new JCheckBox("Strand-specific coverage", false), "ProfileTrack");
-		trackSwitches.put(new JCheckBox("Quality coverage", false), "QualityCoverageTrack");
+//		trackSwitches.put(new JCheckBox("Quality coverage", false), "QualityCoverageTrack"); // TODO re-enable quality coverage
 		trackSwitches.put(new JCheckBox("Density graph", false), "GelTrack");
-//		trackSwitches.put(new JCheckBox("Show known SNP's", false), "changeSNP"); // TODO re-enable dbSNP view
 	}
 
 	@Override
@@ -823,11 +823,12 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			// Fill in initial position if not filled in
 			if (locationField.getText().trim().isEmpty()) {
 				locationField.setText("" + DEFAULT_LOCATION);
+				lastLocation = DEFAULT_LOCATION;
 			}
 
 			if (viewsizeField.getText().trim().isEmpty()) {
 				viewsizeField.setText("" + DEFAULT_VIEWSIZE);
-				viewsize = DEFAULT_VIEWSIZE;
+				lastViewsize = DEFAULT_VIEWSIZE;
 			}
 
 			// Initialise the plot
@@ -1140,7 +1141,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 
 	private void move() {
 		plot.moveDataBpRegion((Chromosome) chrBox.getSelectedItem(),
-				Long.parseLong(locationField.getText()), viewsize);
+				Long.parseLong(locationField.getText()), lastViewsize);
 
 		// Set scale of profile track containing reads information
 		this.plot.setReadScale((ReadScale) this.coverageScaleBox.getSelectedItem());
