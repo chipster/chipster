@@ -35,6 +35,9 @@
 			<resource>fastx-renamer.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
+			<resource>samtools-rmdup.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
 			<resource>bedtools-bamtobed.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
