@@ -44,7 +44,7 @@
 			<resource>fi.csc.chipster.tools.ngs.PreprocessNGSSingle</resource>
 		</tool>
 		<tool runtime="R-2.12">
-			<resource>samtools-convertSAMtoBAM-sort-index.R</resource>
+			<resource>samtools-convert-SAMtoBAM-sort-index.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>bedtools-sort.R</resource>
