@@ -41,13 +41,13 @@
 			<resource>samtools-rmdup.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
+			<resource>samtools-convert-SAMtoBAM-sort-index.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
 			<resource>bedtools-bamtobed.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>fastx-fastq-to-fasta.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>samtools-convert-SAMtoBAM-sort-index.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>samtools-index.R</resource>
