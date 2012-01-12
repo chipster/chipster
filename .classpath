@@ -39,7 +39,6 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/batik-xml.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/icepdf-core.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/icepdf-viewer.jar" sourcepath="ext/lib-src/ICEpdf-4.1.4-src.zip"/>
-	<classpathentry exported="true" kind="lib" path="ext/lib/h2-1.2.137.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/picard-1.32.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/sam-1.32.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/jcommon-1.0.9.jar"/>
@@ -48,7 +47,8 @@
 	<classpathentry exported="true" kind="lib" path="ext/lib/jgraph-5.12.2.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/swingx-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="ext/lib/mail.jar"/>
-	<classpathentry kind="lib" path="ext/lib/truezip-samples-7.3.4-jar-with-dependencies.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/truezip-samples-7.3.4-jar-with-dependencies.jar"/>
+	<classpathentry exported="true" kind="lib" path="ext/lib/h2-1.3.163.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin/eclipse"/>
 </classpath>
