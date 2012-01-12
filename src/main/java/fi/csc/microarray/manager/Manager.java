@@ -203,17 +203,17 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		}
 		
 		// start manager web console
-		org.mortbay.jetty.Server managerWebConsoleServer = new org.mortbay.jetty.Server();
-		managerWebConsoleServer.setThreadPool(new QueuedThreadPool());
-		Connector connector = new SelectChannelConnector();
-		connector.setServer(managerWebConsoleServer);
-		connector.setPort(configuration.getInt("manager", "manager-web-console-port"));
-		managerWebConsoleServer.setConnectors(new Connector[]{ connector });
-        WebAppContext webapp = new WebAppContext();
-        webapp.setContextPath("/");
-        webapp.setWar("webapps/chipster-manager-console.war");
-        managerWebConsoleServer.setHandler(webapp);
-        managerWebConsoleServer.start();
+//		org.mortbay.jetty.Server managerWebConsoleServer = new org.mortbay.jetty.Server();
+//		managerWebConsoleServer.setThreadPool(new QueuedThreadPool());
+//		Connector connector = new SelectChannelConnector();
+//		connector.setServer(managerWebConsoleServer);
+//		connector.setPort(configuration.getInt("manager", "manager-web-console-port"));
+//		managerWebConsoleServer.setConnectors(new Connector[]{ connector });
+//        WebAppContext webapp = new WebAppContext();
+//        webapp.setContextPath("/");
+//        webapp.setWar("webapps/chipster-manager-console.war");
+//        managerWebConsoleServer.setHandler(webapp);
+//        managerWebConsoleServer.start();
         
 		
 		// create keep-alive thread and register shutdown hook
