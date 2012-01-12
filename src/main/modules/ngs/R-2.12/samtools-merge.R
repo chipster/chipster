@@ -3,7 +3,7 @@
 # OUTPUT merged.bam 
 # OUTPUT merged.bam.bai
 
-# EK 17.6.2011
+# EK 27.10.2011
 
 # samtools binary
 samtools.binary <- c(file.path(chipster.tools.path, "samtools", "samtools"))
