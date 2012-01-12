@@ -23,13 +23,17 @@ import fi.csc.microarray.util.XmlUtil;
 
 
 /**
- * The ToolRepository manages analysis tools and runtimes. Analysis tools
- * are visible to AnalyserServer as AnalysisDescriptions, where as runtimes
- * are not visible outside of this class.
- * 
- * After initialization, any access to descriptions maps should be use 
- * synchronized using this, since reading descriptions may cause a
- * description to be updated.
+ * <p>Manages analysis tools, modules and runtimes. Analysis tools
+ * are visible to AnalyserServer as AnalysisDescriptions, where as runtimes and modules
+ * are not visible outside of this class.</p>
+ *
+ * <p>Access is strictly synchronised, because all operations
+ * may lead to module or script updates if files on the disk have changed. To avoid
+ * deadlocking, dependencies must be kept one way: RepositoryModule never calls ToolRepository and
+ * AnalysisDescription never calls RepositoryModule.</p>
+ *
+ * @see RepositoryModule
+ * @see AnalysisDescription
  *  
  * @author Taavi Hupponen, Aleksi Kallio
  *
@@ -42,7 +46,6 @@ public class ToolRepository {
 			.getLogger(ToolRepository.class);
 	
 	private HashMap<String, ToolRuntime> runtimes = new HashMap<String, ToolRuntime>();
-	private List<ModuleDescriptionMessage> moduleDescriptions = new LinkedList<ModuleDescriptionMessage>();
 	private List<RepositoryModule> modules = new LinkedList<RepositoryModule>();
 		
 	/**
@@ -56,36 +59,26 @@ public class ToolRepository {
 	}
 	
 	public synchronized AnalysisDescription getDescription(String id) throws AnalysisException {
-		AnalysisDescription desc = null; 
-		RepositoryModule moduleWithDesc = null;
 		
-		// Get the description
+		// Iterate over modules and return description if it is found
 		for (RepositoryModule module : modules) {
-			if (module.hasDescription(id)) {
-				desc = module.getDescription(id);
-				moduleWithDesc = module;
-				break;
+			AnalysisDescription desc = module.getDescription(id);
+			
+			if (desc != null) {
+				return desc;
 			}
 		}
 		
-		// Return null if nothing is found
-		if (desc == null) {
-			return null;
-		}
-
-		// Check if description needs to be updated
-		if (desc != null && !desc.isUptodate()) {
-			moduleWithDesc.updateDescription(desc);
-			logger.info("updated tool: " + desc.getID());
-		}
-		
-		// Return the possibly updated description
-		return moduleWithDesc.getDescription(id); 
+		// Nothing was find
+		return null;
 	}
 	
-	public synchronized boolean supports(String id) {
+	/**
+	 * @return true if this comp service can run the given tool.
+	 */
+	public synchronized boolean supports(String toolId) {
 		for (RepositoryModule module : modules) {
-			if (module.isSupportedDescription(id)) {
+			if (module.isSupportedDescription(toolId)) {
 				return true;
 			}
 		}
@@ -98,7 +91,7 @@ public class ToolRepository {
 	 * 
 	 * @param workDir
 	 */
-	private void loadRuntimes(File workDir) throws IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException, IOException, SAXException, ParserConfigurationException  { 
+	private synchronized void loadRuntimes(File workDir) throws IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException, IOException, SAXException, ParserConfigurationException  { 
 		logger.info("loading runtimes");
 
 		File runtimeConfig = new File(DirectoryLayout.getInstance().getConfDir(), "runtimes.xml");
@@ -160,8 +153,15 @@ public class ToolRepository {
 	 * @throws SAXException
      * @throws IOException
 	 */
-	public List<ModuleDescriptionMessage> getModuleDescriptions()
+	public synchronized List<ModuleDescriptionMessage> getModuleDescriptions()
 	        throws ParserConfigurationException, SAXException, IOException {
+		
+		LinkedList<ModuleDescriptionMessage> moduleDescriptions = new LinkedList<ModuleDescriptionMessage>();
+
+		for (RepositoryModule module : modules) {
+			moduleDescriptions.add(module.getModuleDescriptionMessage());
+		}
+		
 	    return moduleDescriptions;
 	}
 
@@ -173,7 +173,7 @@ public class ToolRepository {
 	 * @throws SAXException
 	 * @throws ParserConfigurationException
 	 */
-	private void loadModuleDescriptions()
+	private synchronized void loadModuleDescriptions()
 	       throws IOException, SAXException, ParserConfigurationException {
 		logger.info("loading modules");
 
@@ -231,7 +231,7 @@ public class ToolRepository {
 	 * @throws IOException
 	 * @throws ParserConfigurationException
 	 */
-	private String loadModule(File moduleDir, File toolFile)
+	private synchronized String loadModule(File moduleDir, File toolFile)
 	    throws FileNotFoundException, SAXException,
 	           IOException, ParserConfigurationException {
 
@@ -395,9 +395,6 @@ public class ToolRepository {
 		" tools, " + disabledCount + " disabled, " + hiddenCount + " hidden";
 		logger.info(summary);
 
-		// add to modules
-		moduleDescriptions.add(module.getModuleDescriptionMessage());
-		
 		return summary;
 	}
 }

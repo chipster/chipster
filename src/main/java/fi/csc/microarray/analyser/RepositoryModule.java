@@ -12,6 +12,16 @@ import org.apache.log4j.Logger;
 import fi.csc.microarray.messaging.message.ModuleDescriptionMessage;
 import fi.csc.microarray.messaging.message.ModuleDescriptionMessage.Category;
 
+/**
+ * <p>One module in repository, corresponds to one (modulename)-module.xml file.</p>
+ * 
+ * <p>Access is strictly synchronised, because all operations
+ * may lead to module or script updates if files on the disk have changed. To avoid
+ * deadlocking, dependencies must be kept one way: RepositoryModule never calls ToolRepository and
+ * AnalysisDescription never calls RepositoryModule.</p>
+ *
+ * @author Taavi Hupponen, Aleksi Kallio 
+ */
 public class RepositoryModule {
 	/**
 	 * Logger for this class
@@ -35,7 +45,7 @@ public class RepositoryModule {
 	public void updateDescription(AnalysisDescription desc) throws AnalysisException {
 	    // FIXME params should not be empty
 	    HashMap<String, String> params = new HashMap<String, String>();
-		AnalysisDescription newDescription = desc.getHandler().handle(desc.getModule(), desc.getToolFile().getName(), params);
+		AnalysisDescription newDescription = desc.getHandler().handle(this, desc.getToolFile().getName(), params);
 		if (newDescription != null) {
 			newDescription.setUpdatedSinceStartup();
 			
@@ -76,19 +86,31 @@ public class RepositoryModule {
 	}
 
 	public ModuleDescriptionMessage getModuleDescriptionMessage() {
-		return moduleDescriptionMessage;
+		return moduleDescriptionMessage; // FIXME remove this and construct on fly
 	}
 
-	public AnalysisDescription getDescription(String id) {
-		return descriptions.get(id);
+	public AnalysisDescription getDescription(String id) throws AnalysisException {
+		
+		// Find description
+		AnalysisDescription desc = descriptions.get(id);
+		
+		// Return null if nothing is found
+		if (desc == null) {
+			return null;
+		}
+
+		// Check if description needs to be updated
+		if (desc != null && !desc.isUptodate()) {
+			updateDescription(desc);
+			logger.info("updated tool: " + desc.getID());
+		}
+		
+		// Return the possibly updated description
+		return descriptions.get(id); 
 	}
 
 	public void putDescription(String id, AnalysisDescription description) {
 		descriptions.put(id, description);
-	}
-
-	public boolean hasDescription(String id) {
-		return descriptions.containsKey(id);
 	}
 
 	public void markSupportedDescription(String id) {
