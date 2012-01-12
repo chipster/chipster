@@ -3,35 +3,35 @@
 <head><title></title></head>
 <body>
 
-<h2>Utilities / Count alignments in BAM</h2>
+<h2>Utilities / Remove duplicate reads from BAM</h2>
 
 <h3>Description</h3>
 
 <p>
-Given a BAM file, this tool counts how many alignments it contains, taking the mapping quality into account if needed.
+Given a BAM file, this tool removes reads which have identical external coordinates.
 </p>
 
 <h3>Parameters</h3>
 
 <ul>
-<li>Minimum mapping quality required for counting (0-1000) [0]</li>
+<li>Is the data paired end or single end reads (paired, single) [paired]</li>
 </ul>
 
 <h3>Details</h3>
 
-<p> 
-By default all alignments are counted, but users can choose to count only alignments which have the specified
-mapping quality or higher
-(note that unlike BWA, Bowtie doesn't calculate mapping quality, it just inserts 255 to the field 5 of BAM file if the read aligns, and 0 if it doesn't align).
+<p>
+You have to indicate if you have single end or paired end data. 
+In the paired end mode the insert size (ISIZE) has to be correctly set in the BAM file. 
+If multiple read pairs have identical coordinates, only the pair with highest mapping quality is kept. 
+Note that this tool doesn't work for orphan reads or pairs which map to different chromosomes.
 </p>
 
 
 <h3>Output</h3>
 
 <p>
-Output is a text file containing the number of alignments.
+Output is a BAM file.
 </p>
-
 
 <h3>References</h3>
 
