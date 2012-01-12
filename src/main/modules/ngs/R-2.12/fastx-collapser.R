@@ -1,4 +1,4 @@
-# TOOL fastx-collapser.R: "Remove duplicate reads from FASTQ" (Collapses identical sequences in a FASTQ file into a single sequence. The sequences are renamed with sequence number and the multiplicity value. This tool is based on the FASTA/Q Collapser tool of the FASTX package.)
+# TOOL fastx-collapser.R: "Remove duplicate reads from FASTQ or FASTA" (Collapses identical sequences in a FASTQ/FASTA file into a single sequence. The sequences are renamed with sequence number and the multiplicity value. This tool is based on the FASTA/Q Collapser tool of the FASTX package.)
 # INPUT reads.fastq TYPE GENERIC
 # OUTPUT duplicates-removed.fastq 
 
