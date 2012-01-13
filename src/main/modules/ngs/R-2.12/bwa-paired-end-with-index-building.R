@@ -32,13 +32,17 @@
 ##
 bwa.binary <- file.path(chipster.tools.path, "bwa", "bwa")
 
-# Choose indextype based on the genome size
-gsize.mb <- file.info("genome.txt")$size / (1024*1024)
+# bwa settings
+bwa.binary <- file.path(chipster.tools.path, "bwa", "bwa")
+bwa.index.binary <- file.path(chipster.tools.path, "bwa", "check_bwa_index.sh")
+command.start <- paste("bash -c '", bwa.binary)
 
 # Do indexing
 print("Indexing the genome...")
-genome.dir <- system(paste(bwa.binary, " index -a", index.type, " genome.txt"), intern = TRUE)
-bwa.genome <- file.path("genome.txt")
+system("echo Indexing the genome... > bwa.log")
+check.command <- paste ( bwa.index.binary, "genome.txt| tail -1 ")
+genome.dir <- system(check.command, intern = TRUE)
+bwa.genome <- file.path( genome.dir , "genome.txt")
 
 
 ###
@@ -74,8 +78,6 @@ command.end <- paste(bwa.genome, "reads2.txt 1> alignment2.sai 2>> bwa.log'")
 bwa.command <- paste(command.start, mode.parameters, command.end)
 #stop(paste('CHIPSTER-NOTE: ', bwa.command))
 system(bwa.command)
-
-system("ls -l >> bwa.log")
 
 ###
 # sai to sam conversion
