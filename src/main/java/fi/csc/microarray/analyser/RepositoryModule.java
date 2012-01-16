@@ -5,8 +5,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -35,8 +37,8 @@ public class RepositoryModule {
 	 */
 	private static final Logger logger = Logger.getLogger(RepositoryModule.class);
 	
-	private LinkedList<Category> categories = new LinkedList<Category>();
-	private LinkedHashSet<ToolDescription> descriptions = new LinkedHashSet<ToolDescription>();
+	private LinkedList<CategoryInModule> categories = new LinkedList<CategoryInModule>();
+	private LinkedHashMap<String, ToolDescription> descriptions = new LinkedHashMap<String, ToolDescription>();
 	private LinkedHashSet<String> supportedDescriptions = new LinkedHashSet<String>();
 	private LinkedHashSet<String> visibleDescriptions = new LinkedHashSet<String>();
 
@@ -48,6 +50,39 @@ public class RepositoryModule {
 	private String summary = null;
 	private String moduleName = null;
 	
+    public static class CategoryInModule {
+        private String name;
+        private String color;
+        private Boolean hidden;
+        private List<ToolDescription> tools = new LinkedList<ToolDescription>();
+        
+        public CategoryInModule(String name, String color, Boolean hidden) {
+            this.name = name;
+            this.color = color;
+            this.hidden = hidden;
+        }
+        
+        public String getName() {
+            return name;
+        }
+        
+        public String getColor() {
+            return color;
+        }
+        
+        public Boolean isHidden() {
+            return hidden;
+        }
+        
+        public void addTool(ToolDescription tool) {
+            tools.add(tool);
+        }
+        
+        public List<ToolDescription> getTools() {
+            return tools;
+        }
+    }
+
 	public RepositoryModule(File moduleDir, File moduleFile, HashMap<String, ToolRuntime> runtimes) throws ParserConfigurationException, FileNotFoundException, SAXException, IOException {
 		this.moduleFile = moduleFile;
 		this.moduleDir = moduleDir;
@@ -62,7 +97,14 @@ public class RepositoryModule {
 		
 		// Construct description message using the current state 
 		ModuleDescriptionMessage msg = new ModuleDescriptionMessage(moduleName);
-		for (Category category : categories) {
+		
+		for (CategoryInModule categoryInModule : categories) {
+			Category category = new Category(categoryInModule.getName(), categoryInModule.getColor(), categoryInModule.isHidden());
+			
+			for (ToolDescription tool : categoryInModule.getTools()) {
+				ToolDescription freshTool = reloadToolIfNeeded(tool); // check that we are using up-to-date description
+				category.addTool(freshTool.getSADL(), freshTool.getHelpURL());
+			}
 			msg.addCategory(category);
 		}
 		
@@ -75,7 +117,7 @@ public class RepositoryModule {
 		reloadModuleIfNeeded();		
 		
 		// Find description
-		ToolDescription desc = findDescription(id);
+		ToolDescription desc = descriptions.get(id);
 		
 		// Return null if nothing is found
 		if (desc == null) {
@@ -83,26 +125,23 @@ public class RepositoryModule {
 		}
 
 		// Check if description needs to be updated
-		if (desc != null && !desc.isUptodate()) {
-			updateDescription(desc);
-			logger.info("updated tool: " + desc.getID());
-		}
+		reloadToolIfNeeded(desc);
 		
 		// Return the possibly updated description
-		return findDescription(id); 
+		return descriptions.get(id); 
 	}
 
-	private ToolDescription findDescription(String id) {
+	private ToolDescription reloadToolIfNeeded(ToolDescription oldDesc) {
 		
-		// Always iterate over descriptions, because they can change their ID on the fly
-		for (ToolDescription description : descriptions) {
-			if (id.equals(description.getID())) {
-				return description;
-			}
+		if (oldDesc != null && !oldDesc.isUptodate()) {
+			ToolDescription newDesc = updateDescription(oldDesc);
+			logger.info("updated tool: " + oldDesc.getID());
+			return newDesc;
+			
+		} else {
+			return oldDesc;	
 		}
 		
-		// Matching description was not found
-		return null;
 	}
 
 	public synchronized boolean isSupportedDescription(String id) {
@@ -125,49 +164,55 @@ public class RepositoryModule {
 		return summary;
 	}
 
-	private synchronized void updateDescription(ToolDescription desc) {
+	private synchronized ToolDescription updateDescription(ToolDescription oldDescription) {
 	    // FIXME params should not be empty
 	    HashMap<String, String> params = new HashMap<String, String>();
 		ToolDescription newDescription;
 		try {
-			newDescription = desc.getHandler().handle(moduleDir, desc.getToolFile().getName(), params);
+			newDescription = oldDescription.getHandler().handle(moduleDir, oldDescription.getToolFile().getName(), params);
+			
 		} catch (AnalysisException e) {
 			// update failed, continue using the old one
-			return;
+			return oldDescription;
 		}
-		if (newDescription != null) {
-			newDescription.setUpdatedSinceStartup();
-			
-			// name (id) of the tool has not changed
-			if (desc.getID().equals(newDescription.getID())) {
-				
-				// replace the old description with the same name
-				descriptions.add(newDescription);
-				if (supportedDescriptions.contains(desc.getID())) {
-					supportedDescriptions.add(newDescription.getID());
-				}
-				if (visibleDescriptions.contains(desc.getID())) {
-					visibleDescriptions.add(newDescription.getID());
-				}
-			} 
+		
+		if (newDescription == null) {
+			return oldDescription;
+		}
 
-			// name (id) of the tool has changed
-			else {
-				logger.warn("ID of the tool has changed, registering it with old and new name");
-				if (findDescription(newDescription.getID()) != null){
-					logger.warn("descriptions already contain a tool with the new name, ignoring the new tool");
-					return;
-				} 
-				// add the tool with the new name
-				descriptions.add(newDescription);
-				if (supportedDescriptions.contains(desc.getID())) {
-					supportedDescriptions.add(newDescription.getID());
-				}
-				if (visibleDescriptions.contains(desc.getID())) {
-					visibleDescriptions.add(newDescription.getID());
-				}
+		newDescription.setUpdatedSinceStartup();
+
+		// name (id) of the tool has not changed
+		if (oldDescription.getID().equals(newDescription.getID())) {
+
+			// replace the old description with the same name
+			descriptions.put(newDescription.getID(), newDescription);
+			if (supportedDescriptions.contains(oldDescription.getID())) {
+				supportedDescriptions.add(newDescription.getID());
+			}
+			if (visibleDescriptions.contains(oldDescription.getID())) {
+				visibleDescriptions.add(newDescription.getID());
+			}
+		} 
+
+		// name (id) of the tool has changed
+		else {
+			logger.warn("name of the tool was changed, keeping both old and new");
+			if (descriptions.containsKey(newDescription.getID())){
+				logger.warn("descriptions already contains a tool with the new name, ignoring reload");
+				return oldDescription;
+			} 
+			// add the tool with the new name
+			descriptions.put(newDescription.getID(), newDescription);
+			if (supportedDescriptions.contains(oldDescription.getID())) {
+				supportedDescriptions.add(newDescription.getID());
+			}
+			if (visibleDescriptions.contains(oldDescription.getID())) {
+				visibleDescriptions.add(newDescription.getID());
 			}
 		}
+
+		return newDescription;
 	}
 
 	/**
@@ -238,7 +283,7 @@ public class RepositoryModule {
 		    boolean categoryHidden = Boolean.valueOf(categoryElement.getAttribute("hidden"));
 
 		    // Create and register the category
-		    Category category = new Category(categoryName, categoryColor, categoryHidden);
+		    CategoryInModule category = new CategoryInModule(categoryName, categoryColor, categoryHidden);
 		    categories.add(category);
 		    
 		    // Load tools and add them to category
@@ -263,7 +308,7 @@ public class RepositoryModule {
 
 		    	// Tool runtime
 		    	String runtimeName = toolElement.getAttribute("runtime");
-		    	ToolRuntime runtime = runtimes.get(runtimeName); // FIXME depends on repository!!!
+		    	ToolRuntime runtime = runtimes.get(runtimeName);
 		    	if (runtime == null) {
 		    		logger.warn("not loading " + resource + ": runtime " + runtimeName + " not found");
 		    		continue;
@@ -313,7 +358,7 @@ public class RepositoryModule {
 		    	}
 		    	
 		    	// Register the tool
-		    	descriptions.add(description);
+		    	descriptions.put(description.getID(), description);
 		    	successfullyLoadedCount++;
 
 		    	// Set disabled if needed
@@ -328,7 +373,7 @@ public class RepositoryModule {
 		    	}
 
 	    		// Add to category, which gets sent to the client
-	    		category.addTool(description.getSADL(), description.getHelpURL());
+	    		category.addTool(description);
 	    		
                 // Set hidden if needed    		
                 String hiddenStatus = "";
