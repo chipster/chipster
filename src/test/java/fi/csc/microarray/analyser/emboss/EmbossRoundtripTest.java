@@ -13,7 +13,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
-import fi.csc.microarray.analyser.AnalysisDescription;
+import fi.csc.microarray.analyser.ToolDescription;
 import fi.csc.microarray.analyser.AnalysisJob;
 import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.config.DirectoryLayout;
@@ -99,7 +99,7 @@ public class EmbossRoundtripTest {
         
         // Create a job using a handler
         EmbossAnalysisHandler analysisHandler = new EmbossAnalysisHandler(params);
-        AnalysisDescription description = analysisHandler.handle(null, acdFileName, new HashMap<String, String>()); // module should not be null
+        ToolDescription description = analysisHandler.handle(null, acdFileName, new HashMap<String, String>()); // module should not be null
         AnalysisJob analysisJob = analysisHandler.createAnalysisJob(jobMessage,
                                                                     description, resultCallback);
         analysisJob.run();
