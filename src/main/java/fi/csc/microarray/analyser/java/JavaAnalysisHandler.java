@@ -7,12 +7,11 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.analyser.AnalysisDescription;
-import fi.csc.microarray.analyser.AnalysisDescriptionGenerator;
+import fi.csc.microarray.analyser.ToolDescription;
+import fi.csc.microarray.analyser.ToolDescriptionGenerator;
 import fi.csc.microarray.analyser.AnalysisException;
 import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
-import fi.csc.microarray.analyser.RepositoryModule;
 import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
 import fi.csc.microarray.description.SADLDescription;
@@ -36,7 +35,7 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 	}
 
 	@SuppressWarnings(value="unchecked")
-	public AnalysisJob createAnalysisJob(JobMessage message, AnalysisDescription description, ResultCallback resultHandler) {
+	public AnalysisJob createAnalysisJob(JobMessage message, ToolDescription description, ResultCallback resultHandler) {
 		try {
 			Class<? extends Object> jobClass = (Class<? extends Object>)description.getImplementation();
 			JavaAnalysisJobBase analysisJob = (JavaAnalysisJobBase)jobClass.newInstance();
@@ -52,7 +51,7 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 		return parameters;
 	}
 
-	public AnalysisDescription handle(RepositoryModule module, String sourceResourceName, Map<String, String> params) throws AnalysisException {
+	public ToolDescription handle(File moduleDir, String sourceResourceName, Map<String, String> params) throws AnalysisException {
 		
 		// get the job class
 		Class<? extends Object> jobClass = null;
@@ -83,8 +82,8 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 		}
 		
 		// create analysis description
-		AnalysisDescription ad;
-		ad = new AnalysisDescriptionGenerator().generate(sadlDescription, this, module);
+		ToolDescription ad;
+		ad = new ToolDescriptionGenerator().generate(sadlDescription, this);
 		
 		// SADL back to string
 		SADLGenerator.generate(sadlDescription);
@@ -111,7 +110,7 @@ public class JavaAnalysisHandler implements AnalysisHandler {
 		return JavaAnalysisJobBase.class.isAssignableFrom(jobClass);
 	}
 
-	public boolean isUptodate(AnalysisDescription description) {
+	public boolean isUptodate(ToolDescription description) {
 		return true;
 	}
 

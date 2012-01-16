@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.analyser.JobCancelledException;
-import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
+import fi.csc.microarray.analyser.ToolDescription.ParameterDescription;
 import fi.csc.microarray.analyser.shell.ShellAnalysisJobBase;
 import fi.csc.microarray.analyser.shell.ShellAnalysisJob.ShellParameterSecurityPolicy;
 import fi.csc.microarray.messaging.JobState;

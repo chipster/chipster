@@ -23,11 +23,11 @@ import fi.csc.microarray.messaging.message.JobMessage;
  * <p>Access is strictly synchronised, because all operations
  * may lead to module or script updates if files on the disk have changed. To avoid
  * deadlocking, dependencies must be kept one way: RepositoryModule never calls ToolRepository and
- * AnalysisDescription never calls RepositoryModule.</p>
+ * ToolDescription never calls RepositoryModule.</p>
  *
  * @author Taavi Hupponen, Aleksi Kallio 
  */
-public class AnalysisDescription {
+public class ToolDescription {
 
 	/**
 	 * Describes one parameter, such as "number of iterations".
@@ -150,7 +150,7 @@ public class AnalysisDescription {
 	 * @param module 
 	 *
 	 */
-	public AnalysisDescription(AnalysisHandler handler) {
+	public ToolDescription(AnalysisHandler handler) {
 		this.handler = handler;
 	}
 
