@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 
@@ -37,7 +36,7 @@ public class RepositoryModule {
 	private static final Logger logger = Logger.getLogger(RepositoryModule.class);
 	
 	private LinkedList<Category> categories = new LinkedList<Category>();
-	private LinkedHashMap<String, ToolDescription> descriptions = new LinkedHashMap<String, ToolDescription>();
+	private LinkedHashSet<ToolDescription> descriptions = new LinkedHashSet<ToolDescription>();
 	private LinkedHashSet<String> supportedDescriptions = new LinkedHashSet<String>();
 	private LinkedHashSet<String> visibleDescriptions = new LinkedHashSet<String>();
 
@@ -76,7 +75,7 @@ public class RepositoryModule {
 		reloadModuleIfNeeded();		
 		
 		// Find description
-		ToolDescription desc = descriptions.get(id);
+		ToolDescription desc = findDescription(id);
 		
 		// Return null if nothing is found
 		if (desc == null) {
@@ -90,7 +89,20 @@ public class RepositoryModule {
 		}
 		
 		// Return the possibly updated description
-		return descriptions.get(id); 
+		return findDescription(id); 
+	}
+
+	private ToolDescription findDescription(String id) {
+		
+		// Always iterate over descriptions, because they can change their ID on the fly
+		for (ToolDescription description : descriptions) {
+			if (id.equals(description.getID())) {
+				return description;
+			}
+		}
+		
+		// Matching description was not found
+		return null;
 	}
 
 	public synchronized boolean isSupportedDescription(String id) {
@@ -130,7 +142,7 @@ public class RepositoryModule {
 			if (desc.getID().equals(newDescription.getID())) {
 				
 				// replace the old description with the same name
-				descriptions.put(newDescription.getID(), newDescription);
+				descriptions.add(newDescription);
 				if (supportedDescriptions.contains(desc.getID())) {
 					supportedDescriptions.add(newDescription.getID());
 				}
@@ -141,13 +153,13 @@ public class RepositoryModule {
 
 			// name (id) of the tool has changed
 			else {
-				logger.warn("name of the tool has changed after loading from custom-scripts, keeping both old and new");
-				if (descriptions.containsKey(newDescription.getID())){
-					logger.warn("descriptions already contains a tool with the new name, ignoring custom-scripts");
+				logger.warn("ID of the tool has changed, registering it with old and new name");
+				if (findDescription(newDescription.getID()) != null){
+					logger.warn("descriptions already contain a tool with the new name, ignoring the new tool");
 					return;
 				} 
 				// add the tool with the new name
-				descriptions.put(newDescription.getID(), newDescription);
+				descriptions.add(newDescription);
 				if (supportedDescriptions.contains(desc.getID())) {
 					supportedDescriptions.add(newDescription.getID());
 				}
@@ -301,7 +313,7 @@ public class RepositoryModule {
 		    	}
 		    	
 		    	// Register the tool
-		    	descriptions.put(description.getID(), description);
+		    	descriptions.add(description);
 		    	successfullyLoadedCount++;
 
 		    	// Set disabled if needed
