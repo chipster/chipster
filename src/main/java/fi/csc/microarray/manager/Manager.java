@@ -18,10 +18,6 @@ import javax.jms.JMSException;
 
 import org.apache.log4j.Logger;
 import org.h2.tools.Server;
-import org.mortbay.jetty.Connector;
-import org.mortbay.jetty.nio.SelectChannelConnector;
-import org.mortbay.jetty.webapp.WebAppContext;
-import org.mortbay.thread.QueuedThreadPool;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -46,6 +42,8 @@ import fi.csc.microarray.util.MemUtil;
 
 /**
  * Monitoring database and tool for Chipster server system.
+ * 
+ * Using JdbcTemplate this way for inserts is really slow.
  * 
  * @author Taavi Hupponen
  */
@@ -82,22 +80,19 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
     private SimpleJdbcInsert insertJobTemplate;
     private String feedbackEmail;
 
-	// TODO index, unique keys
 	private static final String CREATE_JOBS_TABLE = 
 		"CREATE TABLE IF NOT EXISTS jobs (" +
 		"id VARCHAR(100) PRIMARY KEY, " + 
-		"operation VARCHAR(100), " +
-		"status VARCHAR(100), " + 
+		"operation VARCHAR(200), " +
+		"status VARCHAR(200), " + 
 		"starttime DATETIME DEFAULT NULL, " + 
 		"endtime DATETIME DEFAULT NULL, " +
 		"wallclockTime INT DEFAULT NULL, " +
 		"errorMessage TEXT DEFAULT NULL, " +
 		"outputText TEXT DEFAULT NULL, " + 
 		"username VARCHAR(200), " +
-		"compHost VARCHAR(200)" +
-		"); ";
-		//"CREATE UNIQUE INDEX IF NOT EXISTS jobIdIndex on jobs(id); ";
-	
+		"compHost VARCHAR(500)" +
+		");";
 	
 	
 	/**
@@ -203,17 +198,17 @@ public class Manager extends MonitoredNodeBase implements MessagingListener, Shu
 		}
 		
 		// start manager web console
-		org.mortbay.jetty.Server managerWebConsoleServer = new org.mortbay.jetty.Server();
-		managerWebConsoleServer.setThreadPool(new QueuedThreadPool());
-		Connector connector = new SelectChannelConnector();
-		connector.setServer(managerWebConsoleServer);
-		connector.setPort(configuration.getInt("manager", "manager-web-console-port"));
-		managerWebConsoleServer.setConnectors(new Connector[]{ connector });
-        WebAppContext webapp = new WebAppContext();
-        webapp.setContextPath("/");
-        webapp.setWar("webapps/chipster-manager-console.war");
-        managerWebConsoleServer.setHandler(webapp);
-        managerWebConsoleServer.start();
+//		org.mortbay.jetty.Server managerWebConsoleServer = new org.mortbay.jetty.Server();
+//		managerWebConsoleServer.setThreadPool(new QueuedThreadPool());
+//		Connector connector = new SelectChannelConnector();
+//		connector.setServer(managerWebConsoleServer);
+//		connector.setPort(configuration.getInt("manager", "manager-web-console-port"));
+//		managerWebConsoleServer.setConnectors(new Connector[]{ connector });
+//        WebAppContext webapp = new WebAppContext();
+//        webapp.setContextPath("/");
+//        webapp.setWar("webapps/chipster-manager-console.war");
+//        managerWebConsoleServer.setHandler(webapp);
+//        managerWebConsoleServer.start();
         
 		
 		// create keep-alive thread and register shutdown hook
