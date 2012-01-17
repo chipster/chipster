@@ -33,7 +33,7 @@ public class ReadTrackGroup extends TrackGroup {
     protected SeqBlockTrack readsReversed;
     protected CoverageTrack profileTrack;
     protected CoverageAndSNPTrack profileSNPTrack;
-    protected QualityCoverageTrack qualityCoverageTrack;
+//    protected QualityCoverageTrack qualityCoverageTrack;
     protected GelTrack gelTrack;
     protected SeparatorTrack sepTrackReads;
     protected SeparatorTrack sepTrackSeq;
@@ -121,13 +121,12 @@ public class ReadTrackGroup extends TrackGroup {
     	tracks.add(sepTrackProfileSNP);
 
     	// Quality coverage
-        qualityCoverageTrack = new QualityCoverageTrack(view, userData, userDataHandler,
-        		Color.ORANGE, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
-        profileSNPTrack.setStrand(Strand.BOTH); //Will be set anyway in the track constructor
-        tracks.add(qualityCoverageTrack);
-    	sepTrackQualityCoverage = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
-    	sepTrackQualityCoverage.setName("QualityCoverageTrack");
-    	tracks.add(sepTrackQualityCoverage);
+//        qualityCoverageTrack = new QualityCoverageTrack(view, userData, userDataHandler,
+//        		Color.ORANGE, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+//        tracks.add(qualityCoverageTrack);
+//    	sepTrackQualityCoverage = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+//    	sepTrackQualityCoverage.setName("QualityCoverageTrack");
+//    	tracks.add(sepTrackQualityCoverage);
         
         // Gel
         gelTrack = new GelTrack(view, userData, readpartProvider, userDataHandler,

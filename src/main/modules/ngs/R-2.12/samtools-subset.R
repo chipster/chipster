@@ -1,4 +1,4 @@
-# TOOL samtools-subset.R: "Make a subset of BAM" (Retrieves alignments for a specified chromosome or a region, taking the mapping quality into account if needed. For retrieving regions within chromosomes, please use the format chr1:1-100. Please note that in addition to BAM file you have to provide an index file with the same name. You can create the index file using the tool Convert SAM to BAM, sort and index BAM. This tool is based on the SAMtools package.)
+# TOOL samtools-subset.R: "Make a subset of BAM" (Retrieves alignments for a specified chromosome or a region, taking the mapping quality into account if needed. For retrieving regions within chromosomes, please use the format chr1:1-100. Please note that in addition to BAM file you have to provide an index file for it. You can create the index file using the tool Index BAM. This tool is based on the SAMtools package.)
 # INPUT alignment.bam: "BAM file" TYPE GENERIC 
 # INPUT alignment.bai: "Index file .bai" TYPE GENERIC
 # OUTPUT alignment-subset.bam

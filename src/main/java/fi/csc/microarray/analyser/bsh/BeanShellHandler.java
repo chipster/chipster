@@ -10,12 +10,11 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.analyser.AnalysisDescription;
-import fi.csc.microarray.analyser.AnalysisDescriptionGenerator;
+import fi.csc.microarray.analyser.ToolDescription;
+import fi.csc.microarray.analyser.ToolDescriptionGenerator;
 import fi.csc.microarray.analyser.AnalysisException;
 import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
-import fi.csc.microarray.analyser.RepositoryModule;
 import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.analyser.SADLTool;
 import fi.csc.microarray.config.ConfigurationLoader.IllegalConfigurationException;
@@ -43,16 +42,16 @@ public class BeanShellHandler implements AnalysisHandler {
 		this.toolPath = parameters.get("toolPath");
 	}
 	
-	public AnalysisJob createAnalysisJob(JobMessage message, AnalysisDescription description, ResultCallback resultHandler) {
+	public AnalysisJob createAnalysisJob(JobMessage message, ToolDescription description, ResultCallback resultHandler) {
 		BeanShellJob analysisJob = new BeanShellJob();
 		analysisJob.construct(message, description, resultHandler);
 		return analysisJob;
 	}
 
 
-	public AnalysisDescription handle(RepositoryModule module, String toolFilename, Map<String, String> params) throws AnalysisException {
+	public ToolDescription handle(File moduleDir, String toolFilename, Map<String, String> params) throws AnalysisException {
 		
-		File toolFile = new File(module.getModuleDir(), toolPath + File.separator + toolFilename);
+		File toolFile = new File(moduleDir, toolPath + File.separator + toolFilename);
 		
 		InputStream scriptSource;
 		
@@ -80,14 +79,14 @@ public class BeanShellHandler implements AnalysisHandler {
 		}
 		
 		// create analysis description
-		AnalysisDescription ad;
-		ad = new AnalysisDescriptionGenerator().generate(sadlDescription, this, module);
+		ToolDescription ad;
+		ad = new ToolDescriptionGenerator().generate(sadlDescription, this);
 		
 		// SADL back to string
 		SADLGenerator.generate(sadlDescription);
 		ad.setSADL(SADLGenerator.generate(sadlDescription));
 
-		// add stuff to the AnalysisDescription
+		// add stuff to the ToolDescription
 		ad.setCommand("BeanShell");
 		ad.setImplementation(parsedScript.source); // include headers
 		ad.setSourceCode(parsedScript.source);
@@ -99,9 +98,9 @@ public class BeanShellHandler implements AnalysisHandler {
 
 	/**
 	 * Check if the source file has been modified since the 
-	 * AnalysisDescription was created.
+	 * ToolDescription was created.
 	 */
-	public boolean isUptodate(AnalysisDescription description) {
+	public boolean isUptodate(ToolDescription description) {
 		File scriptFile = description.getToolFile();
 		return scriptFile.lastModified() <= description.getCreationTime();
 	}

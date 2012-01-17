@@ -199,7 +199,7 @@ public class BasicModule implements Module {
 
 	@Override
 	public String getManualHome() {
-		return "https://extras.csc.fi/biosciences/chipster-manual/index.html";
+		return "http://chipster.csc.fi/manual/index.html";
 	}
 
 	@Override

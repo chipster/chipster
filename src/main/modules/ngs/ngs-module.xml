@@ -35,25 +35,28 @@
 			<resource>fastx-renamer.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
+			<resource>fastx-collapser.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>samtools-rmdup.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>samtools-index.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>samtools-sort-index-BAM.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>samtools-convert-SAMtoBAM-sort-index.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
 			<resource>bedtools-bamtobed.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>fastx-fastq-to-fasta.R</resource>
 		</tool>
-		<tool runtime="java">
-			<resource>fi.csc.chipster.tools.ngs.PreprocessNGSSingle</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>bedtools-sort.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>bedtools-mergebed.R</resource>
-		</tool>
 		<tool runtime="R-2.12">
 			<resource>samtools-merge.R</resource>
-		</tool>
-		<tool runtime="R-2.12">
-			<resource>samtools-index.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>samtools-idxstats.R</resource>
@@ -63,6 +66,9 @@
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>samtools-count.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bedtools-sort.R</resource>
 		</tool>	
 		<tool runtime="R-2.12">
 			<resource>bedtools-fastafrombed.R</resource>
@@ -86,10 +92,6 @@
 			</resource>
 		</tool>
 		<tool runtime="java">
-			<resource>fi.csc.chipster.tools.ngs.regions.FuseRegionsTool
-			</resource>
-		</tool>
-		<tool runtime="java">
 			<resource>fi.csc.chipster.tools.ngs.regions.CombineRegionsTool
 			</resource>
 		</tool>
@@ -104,6 +106,9 @@
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>bedtools-windowbed.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>bedtools-mergebed.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
 			<resource>bedtools-coveragebed.R</resource>

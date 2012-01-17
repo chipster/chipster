@@ -1,12 +1,12 @@
 # TOOL ngs-find-nearest-genes.R: "Find the nearest genes for regions" (This tool takes set of genomic regions, such as ChIP-seq peaks, and fetches the nearest gene for each.)
 # INPUT regions-list.tsv: "Table with genomic regions" TYPE GENERIC 
 # OUTPUT nearest-genes.tsv: "Table listing the nearest gene feature for each input region." 
-# PARAMETER species: Species TYPE [Human, Mouse, Rat] DEFAULT Human (The species of the genome to use for fetching annotationsan.)
+# PARAMETER species: "Genome" TYPE [Human: "Human (hg19\)", Mouse: "Mouse (mm9\)", Rat: "Rat (rn4\)"] DEFAULT none (The genome to use for fetching annotations.)
 
 #####################################################
 #                                                   #
 # MG, 28.10.2010                                    #
-#                                                   #
+# EK 9.2.2012                                       #
 # Tool that fetches the nearest gene, exon or miRNA #
 # for a set of genomic regions, such as the output  #
 # from a peak detection algorithm for ChIP-seq data #
@@ -27,9 +27,10 @@ library(ChIPpeakAnno)
 library(biomaRt)
 
 # Load the annotation data
+
 if (species == "Human") {
-	data(TSS.human.NCBI36)
-	annotations <- TSS.human.NCBI36
+	data(TSS.human.GRCh37)
+	annotations <- TSS.human.GRCh37
 	ensembl_dataset <- "hsapiens_gene_ensembl"
 	filter <- "ens_hs_gene"
 }
@@ -55,7 +56,7 @@ results_bed[,1] <- paste("chr",results_bed[,1], sep="")
 results_ranged <- BED2RangedData(results_bed)
 
 # Annotate the data
-results_annotated = annotatePeakInBatch(results_ranged, AnnotationData = TSS.human.NCBI36)
+results_annotated = annotatePeakInBatch(results_ranged, AnnotationData = annotations)
 
 # Convert into a table and extract the useful columns
 results_table <- as.data.frame(results_annotated)

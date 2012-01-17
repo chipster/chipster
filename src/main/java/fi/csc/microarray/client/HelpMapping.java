@@ -22,7 +22,10 @@ public class HelpMapping {
 		
 		// others
 		else {
-			String page = definition.getID().replace(".R", ".html");
+			String page = definition.getID();
+			if (page.contains(".")) {
+				page = page.substring(0, page.lastIndexOf(".")) + ".html"; 
+			}
 			return MANUAL_ROOT + page;
 		}
 	}

@@ -3,19 +3,19 @@
 <head><title></title></head>
 <body>
 
-<h2>BEDTools mergeBed</h2>
+<h2>Matching genomic regions /  Merge BED</h2>
 
 <h3>Description</h3>
 
 <p>
-Merges overlapping BED/GFF/VCF entries into a single interval.
+Merges overlapping regions (features) in one BED/GFF/VCF file into a single interval.
 </p>
 
 <h3>Parameters</h3>
 
 <ul>
 <li>Force strandedness (yes, no) [no]</li>
-<li>Report the number of BED entries that were merged (yes, no) [no]</li>
+<li>Report the number of features that were merged (yes, no) [no]</li>
 <li>Maximum distance between features allowed (Integer) [0]</li>
 <li>Report the names of the merged features separated by semicolons (yes, no) [no]</li>
 <li>Report the scores of the merged features (yes, no) [no]</li>
@@ -25,7 +25,7 @@ Merges overlapping BED/GFF/VCF entries into a single interval.
 <h3>Details</h3>
 
 <p>
-mergeBed combines overlapping or “book-ended” (that is, one base pair away) features in a feature file
+This tool combines overlapping or “book-ended” (that is, one base pair away) features in a feature file
 into a single feature which spans all of the combined features.
 </p>
 
