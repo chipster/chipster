@@ -6,12 +6,11 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.analyser.AnalysisDescription;
-import fi.csc.microarray.analyser.AnalysisDescriptionGenerator;
+import fi.csc.microarray.analyser.ToolDescription;
+import fi.csc.microarray.analyser.ToolDescriptionGenerator;
 import fi.csc.microarray.analyser.AnalysisException;
 import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
-import fi.csc.microarray.analyser.RepositoryModule;
 import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.description.SADLDescription;
 import fi.csc.microarray.messaging.message.JobMessage;
@@ -46,14 +45,14 @@ public class EmbossAnalysisHandler implements AnalysisHandler {
         acdDirectory = new File(externalToolPath, descriptionPath).getAbsolutePath();
     }
     
-    public AnalysisJob createAnalysisJob(JobMessage jobMessage, AnalysisDescription description,
+    public AnalysisJob createAnalysisJob(JobMessage jobMessage, ToolDescription description,
                                          ResultCallback resultCallback) {
         EmbossAnalysisJob analysisJob = new EmbossAnalysisJob(toolDirectory, acdDirectory);
         analysisJob.construct(jobMessage, description, resultCallback);
         return analysisJob;
     }
     
-    public AnalysisDescription handle(RepositoryModule module, String acdFileName, Map<String, String> params) throws AnalysisException {
+    public ToolDescription handle(File moduleDir, String acdFileName, Map<String, String> params) throws AnalysisException {
         
         // Read ACD description
         File acdFile = new File(acdDirectory, acdFileName);
@@ -62,8 +61,8 @@ public class EmbossAnalysisHandler implements AnalysisHandler {
         
         // Create description for analysis server
         SADLDescription sadlDescription = ACDToSADL.convert(acdDescription, acdFile.getName());
-        AnalysisDescription description =
-                new AnalysisDescriptionGenerator().generate(sadlDescription, this, module);
+        ToolDescription description =
+                new ToolDescriptionGenerator().generate(sadlDescription, this);
         
         // Fill description with Emboss-specific values
         description.setCommand("EMBOSS");
@@ -78,7 +77,7 @@ public class EmbossAnalysisHandler implements AnalysisHandler {
         return description;
     }
     
-    public boolean isUptodate(AnalysisDescription description) {
+    public boolean isUptodate(ToolDescription description) {
         return true;
     }
 

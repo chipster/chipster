@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.analyser.AnalysisDescription.OutputDescription;
+import fi.csc.microarray.analyser.ToolDescription.OutputDescription;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.util.Exceptions;
@@ -26,7 +26,7 @@ public abstract class OnDiskAnalysisJobBase extends AnalysisJob {
 	protected File jobWorkDir;
 
 	@Override
-	public void construct(JobMessage inputMessage, AnalysisDescription analysis, ResultCallback resultHandler) {
+	public void construct(JobMessage inputMessage, ToolDescription analysis, ResultCallback resultHandler) {
 		super.construct(inputMessage, analysis, resultHandler);
 		this.jobWorkDir = new File(resultHandler.getWorkDir(), getId());
 	}

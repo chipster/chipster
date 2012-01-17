@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 
 import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
-import fi.csc.microarray.analyser.AnalysisDescription.OutputDescription;
+import fi.csc.microarray.analyser.ToolDescription.OutputDescription;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.util.Exceptions;
 import fi.csc.microarray.util.Files;

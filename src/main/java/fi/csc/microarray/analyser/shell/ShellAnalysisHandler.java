@@ -7,12 +7,11 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.analyser.AnalysisDescription;
-import fi.csc.microarray.analyser.AnalysisDescriptionGenerator;
+import fi.csc.microarray.analyser.ToolDescription;
+import fi.csc.microarray.analyser.ToolDescriptionGenerator;
 import fi.csc.microarray.analyser.AnalysisException;
 import fi.csc.microarray.analyser.AnalysisHandler;
 import fi.csc.microarray.analyser.AnalysisJob;
-import fi.csc.microarray.analyser.RepositoryModule;
 import fi.csc.microarray.analyser.ResultCallback;
 import fi.csc.microarray.messaging.message.JobMessage;
 import fi.csc.microarray.module.chipster.ChipsterSADLParser;
@@ -43,20 +42,20 @@ public class ShellAnalysisHandler implements AnalysisHandler {
     }
     
     public AnalysisJob createAnalysisJob(JobMessage jobMessage,
-            AnalysisDescription description, ResultCallback resultCallback)
+            ToolDescription description, ResultCallback resultCallback)
             throws AnalysisException {
         ShellAnalysisJob analysisJob = new ShellAnalysisJob();
         analysisJob.construct(jobMessage, description, resultCallback);
         return analysisJob;
     }
 
-    public AnalysisDescription handle(RepositoryModule module, String descriptionFilename, Map<String, String> params)
+    public ToolDescription handle(File moduleDir, String descriptionFilename, Map<String, String> params)
             throws AnalysisException {
         
         // Generate analysis description
-        AnalysisDescription ad = null;
+        ToolDescription ad = null;
         try {
-    		File sadlFile = new File(module.getModuleDir(), toolPath + File.separator + descriptionFilename);
+    		File sadlFile = new File(moduleDir, toolPath + File.separator + descriptionFilename);
 
             String sadlString;
             if (sadlFile.exists()) {
@@ -71,8 +70,8 @@ public class ShellAnalysisHandler implements AnalysisHandler {
             }
             
             // Initiate description and set some basic values
-            ad = new AnalysisDescriptionGenerator().generate(
-            		new ChipsterSADLParser().parse(sadlString), this, module);
+            ad = new ToolDescriptionGenerator().generate(
+            		new ChipsterSADLParser().parse(sadlString), this);
             ad.setSADL(sadlString);
             ad.setSourceCode(sadlString);
             
@@ -94,9 +93,9 @@ public class ShellAnalysisHandler implements AnalysisHandler {
 
 	/**
 	 * Check if the source file has been modified since the 
-	 * AnalysisDescription was created.
+	 * ToolDescription was created.
 	 */
-	public boolean isUptodate(AnalysisDescription description) {
+	public boolean isUptodate(ToolDescription description) {
 		File scriptFile = description.getToolFile();
 		return scriptFile.lastModified() <= description.getCreationTime();
 	}

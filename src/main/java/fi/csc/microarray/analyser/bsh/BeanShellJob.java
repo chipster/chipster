@@ -7,10 +7,10 @@ import org.apache.log4j.Logger;
 import bsh.EvalError;
 import bsh.Interpreter;
 import bsh.TargetError;
-import fi.csc.microarray.analyser.AnalysisDescription;
+import fi.csc.microarray.analyser.ToolDescription;
 import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
-import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
+import fi.csc.microarray.analyser.ToolDescription.ParameterDescription;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage.ParameterSecurityPolicy;
 import fi.csc.microarray.messaging.message.JobMessage.ParameterValidityException;
@@ -75,7 +75,7 @@ public class BeanShellJob extends OnDiskAnalysisJobBase {
 			updateState(JobState.FAILED_USER_ERROR, "");
 			return;
 		}
-		for (AnalysisDescription.ParameterDescription param : analysis.getParameters()) {
+		for (ToolDescription.ParameterDescription param : analysis.getParameters()) {
 			jobInfo.parameters.put(param.getName(), parameters.get(i));
 			i++;
 		}

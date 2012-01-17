@@ -35,14 +35,19 @@ public class ModuleDescriptionMessage extends ChipsterMessage {
      */
     public ModuleDescriptionMessage() { }
     
-    public ModuleDescriptionMessage(String moduleName) throws ParserConfigurationException {
-        // Start constructing the XML
-        moduleXml = XmlUtil.newDocument();
-        moduleXml.appendChild(moduleXml.createElement("module"));
-        
-        // Set module's name
-        setModuleName(moduleName);
-        getFirstModule().setAttribute("name", moduleName);
+    public ModuleDescriptionMessage(String moduleName) {
+    	try {
+    		// Start constructing the XML
+    		moduleXml = XmlUtil.newDocument();
+    		moduleXml.appendChild(moduleXml.createElement("module"));
+
+    		// Set module's name
+    		setModuleName(moduleName);
+    		getFirstModule().setAttribute("name", moduleName);
+
+    	} catch (ParserConfigurationException e) {
+    		throw new RuntimeException(e); // should never happen
+    	}
     }
     
     private void setModuleName(String moduleName) {
