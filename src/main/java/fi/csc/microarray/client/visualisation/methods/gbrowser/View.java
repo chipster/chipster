@@ -39,7 +39,6 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRe
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CoverageAndSNPTrack;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CoverageTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.QualityCoverageTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
@@ -244,8 +243,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 					// currently only used for tracks that contain information
 					// about reads
 					if (expandDrawables && 
-							(track instanceof CoverageTrack ||
-									track instanceof CoverageAndSNPTrack ||
+							(track instanceof CoverageAndSNPTrack ||
 									track instanceof QualityCoverageTrack)) {
 
 						if (parentPlot.getReadScale() == ReadScale.AUTO) {

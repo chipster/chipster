@@ -76,7 +76,7 @@ public class HorizontalView extends View implements KeyListener {
 
 		} else if (drawable instanceof LineDrawable) {
 			drawLineDrawable(g, x, y, drawable);
-		}
+		} 
 	}
 
 	protected void drawTextDrawable(Graphics2D g, int x, int y, Drawable drawable) {

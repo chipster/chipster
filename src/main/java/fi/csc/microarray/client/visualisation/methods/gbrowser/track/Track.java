@@ -164,6 +164,7 @@ public abstract class Track implements AreaResultListener {
     }
 
 	private Point2D[] arrowPoints = new Point2D[] { new Point.Double(0, 0.25), new Point.Double(0.5, 0.25), new Point.Double(0.5, 0), new Point.Double(1, 0.5), new Point.Double(0.5, 1), new Point.Double(0.5, 0.75), new Point.Double(0, 0.75), new Point.Double(0, 0.25) };
+	private String name = "Track";
 
 	/**
 	 * DOCME
@@ -201,7 +202,11 @@ public abstract class Track implements AreaResultListener {
 	}
 	
 	public String getName() {
-		return "Track";
+		return name ;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 	public boolean isNameVisible(Rectangle rect) {
