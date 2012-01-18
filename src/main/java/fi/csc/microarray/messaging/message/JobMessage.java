@@ -12,8 +12,8 @@ import javax.jms.MapMessage;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.analyser.AnalysisDescription;
-import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
+import fi.csc.microarray.analyser.ToolDescription;
+import fi.csc.microarray.analyser.ToolDescription.ParameterDescription;
 
 
 /**
@@ -116,7 +116,7 @@ public class JobMessage extends PayloadMessage {
 	 * 
 	 * @throws ParameterValidityException if some parameter value fails check by security policy 
 	 */
-	public List<String> getParameters(ParameterSecurityPolicy securityPolicy, AnalysisDescription description) throws ParameterValidityException {
+	public List<String> getParameters(ParameterSecurityPolicy securityPolicy, ToolDescription description) throws ParameterValidityException {
 		
 		// Do argument checking first
 		if (securityPolicy == null) {

@@ -60,7 +60,7 @@ public abstract class AnalysisJob implements Runnable {
 	
 	protected JobMessage inputMessage;
 	protected ResultCallback resultHandler;
-	protected AnalysisDescription analysis;
+	protected ToolDescription analysis;
 
 	private Date receiveTime;
 	private Date scheduleTime;
@@ -82,7 +82,7 @@ public abstract class AnalysisJob implements Runnable {
 	}
 	
 
-	public void construct(JobMessage inputMessage, AnalysisDescription analysis, ResultCallback resultHandler) {
+	public void construct(JobMessage inputMessage, ToolDescription analysis, ResultCallback resultHandler) {
 		this.constructed = true;
 		this.analysis = analysis;
 		this.inputMessage = inputMessage;

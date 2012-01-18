@@ -17,11 +17,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.analyser.AnalysisDescription;
+import fi.csc.microarray.analyser.ToolDescription;
 import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
 import fi.csc.microarray.analyser.ProcessPool;
-import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
+import fi.csc.microarray.analyser.ToolDescription.ParameterDescription;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.JobState;
@@ -243,7 +243,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 			updateState(JobState.FAILED_USER_ERROR, "");
 			return;
 		}
-		for (AnalysisDescription.ParameterDescription param : analysis.getParameters()) {
+		for (ToolDescription.ParameterDescription param : analysis.getParameters()) {
 			String value = new String(parameterValues.get(i));
 			String rSnippet = transformVariable(param.getName(), value, param.isNumeric());
 			logger.debug("added parameter (" +  rSnippet + ")");

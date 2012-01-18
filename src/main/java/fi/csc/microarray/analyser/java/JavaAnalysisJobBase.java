@@ -2,7 +2,7 @@ package fi.csc.microarray.analyser.java;
 
 import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
-import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
+import fi.csc.microarray.analyser.ToolDescription.ParameterDescription;
 import fi.csc.microarray.messaging.message.JobMessage.ParameterSecurityPolicy;
 
 public abstract class JavaAnalysisJobBase extends OnDiskAnalysisJobBase {

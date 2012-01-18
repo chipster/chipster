@@ -10,11 +10,11 @@ public class RemoveOverlappingTool extends RegionTool {
 
 	@Override
 	public String getSADL() {
-		return 	"TOOL RemoveOverlappingTool.java: \"Remove overlapping regions\" (Returns regions in the first input file that do not have overlap with any of the regions in the second input file. Also known as subtraction.)" + "\n" +
-				"INPUT data1.bed: \"Regions to remove from\" TYPE GENERIC" + "\n" +
-				"INPUT data2.bed: \"Regions that possibly overlap with the first input file\" TYPE GENERIC" + "\n" +
+		return 	"TOOL RemoveOverlappingTool.java: \"Remove overlapping regions\" (Returns regions from file A which do not overlap with any of the regions in file B. Also known as subtraction.)" + "\n" +
+				"INPUT data1.bed: \"Region file A\" TYPE GENERIC" + "\n" +
+				"INPUT data2.bed: \"Region file B\" TYPE GENERIC" + "\n" +
 				"OUTPUT nonoverlapping.bed: \"Regions of first input that do not overlap\"" + "\n" + 
-				"PARAMETER min.overlap.bp: \"Minimum number of overlapping basepairs\" TYPE INTEGER FROM 1 DEFAULT 1 (How many basepairs are required to consider regions overlapping?)";
+				"PARAMETER min.overlap.bp: \"Minimum number of overlapping bases\" TYPE INTEGER FROM 1 DEFAULT 1 (How many bases are required to consider regions overlapping?)";
 	}
 
 	@Override

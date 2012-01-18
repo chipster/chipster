@@ -1,18 +1,13 @@
-# TOOL convert-RNA-bam-to-edger.R: "Map aligned reads to genes with coverageBed using own BED" (Calculates how many reads in a BAM file map to each gene. You have to provide the gene locations in the BED format. This tool is based on the coverageBed tool of the BEDTools package. In order to use the output in edgeR, you need to select all samples and run the tool \"Utilities - Define NGS experiment\".)
+# TOOL convert-RNA-bam-to-edger.R: "Map aligned reads to genes with coverageBed using own BED" (Calculates how many reads in a BAM file map to each gene. You have to provide the gene locations in the BED format. Please note that the chromosome names have to be same in the BED and BAM files. This tool is based on the coverageBed tool of the BEDTools package. In order to use the output in edgeR, you need to select all samples and run the tool \"Utilities - Define NGS experiment\".)
 # INPUT file.a: "BAM file" TYPE GENERIC
 # INPUT file.b: "BED file" TYPE GENERIC
 # OUTPUT edgeR-input.tsv
-# PARAMETER OPTIONAL s: "Force strandedness" TYPE [yes, no] DEFAULT no (Force strandedness. That is, only include hits in A that overlap B on the same strand. By default, hits are included without respect to strand.)
+# PARAMETER OPTIONAL s: "Force strandedness" TYPE [yes, no] DEFAULT no (Force strandedness. That is, only count reads in BAM that overlap genes on the same strand in the BED file. By default, hits are counted regardless of strand.)
 # PARAMETER OPTIONAL split: "Treat split BAM or BED12 entries as distinct BED intervals" TYPE [yes, no] DEFAULT no (Treat "split" BAM or BED12 entries as distinct BED intervals when computing coverage. For BAM files, this uses the CIGAR N and D operations to infer the blocks for computing coverage. For BED12 files, this uses the BlockCount, BlockStarts, and BlockEnds fields (i.e., columns 10,11,12\).)
 
 # MG 22.8.2011
 # modified from the coveragebed tool by AMS
-
-# Not needed for use with RNA-seq data
-# PARAMETER OPTIONAL hist: "Report a histogram of coverage" TYPE [yes, no] DEFAULT no (Report a histogram of coverage for each feature in B as well as a summary histogram for all features in B. Output (tab delimited\) after each feature in B: 1\) depth, 2\) \# bases at depth, 3\) size of B, 4\) % of B at depth.)
-# PARAMETER OPTIONAL d: "Report the depth at each position" TYPE [yes, no] DEFAULT no (Report the depth at each position in each B feature. Positions reported are one based.  Each position and depth follow the complete B feature.)
-# PARAMETER OPTIONAL split: "Treat split BAM or BED12 entries as distinct BED intervals" TYPE [yes, no] DEFAULT no (Treat "split" BAM or BED12 entries as distinct BED intervals when computing coverage. For BAM files, this uses the CIGAR N and D operations to infer the blocks for computing coverage. For BED12 files, this uses the BlockCount, BlockStarts, and BlockEnds fields (i.e., columns 10,11,12\).)
-# PARAMETER abam: "File A is BAM format" TYPE [yes, no] DEFAULT no (Select yes if file A is BAM format.)
+# EK 10.1.2012
 
 # setup parameters
 abam <- "yes"

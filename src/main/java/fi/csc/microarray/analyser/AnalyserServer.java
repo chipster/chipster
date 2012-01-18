@@ -431,13 +431,7 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 		
 		
 		// try to find the requested operation in tool repository
-		AnalysisDescription description = null;
-		try {
-			description = toolRepository.getDescription(jobMessage.getAnalysisId());
-		} catch (AnalysisException e) {
-			logger.warn("Could not fetch description for " + jobMessage.getAnalysisId());
-			return;
-		}
+		ToolDescription description = toolRepository.getDescription(jobMessage.getAnalysisId());
 
 		// check if this instance has the requested operation
 		if (description == null) {
@@ -544,13 +538,8 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 			String toolID = new String(requestMessage.getParameters().get(0));
 			
 			logger.info("sending source code for " + toolID);
-			String sourceCode;
-			try {
-				sourceCode = toolRepository.getDescription(toolID).getSourceCode();
-			} catch (AnalysisException ae) {
-				logger.error(ae);
-				return null;
-			}
+			String sourceCode = toolRepository.getDescription(toolID).getSourceCode();
+
 			if (sourceCode != null) {
 				return new SourceMessage(sourceCode);
 			} else {

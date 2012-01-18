@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import fi.csc.chipster.tools.gbrowser.regions.RegionOperations;
-import fi.csc.microarray.analyser.AnalysisDescription;
+import fi.csc.microarray.analyser.ToolDescription;
 import fi.csc.microarray.analyser.java.JavaAnalysisHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.description.SADLDescription;
@@ -63,7 +63,7 @@ public class FindOverlappingDatabaseTool extends RegionTool {
 		FindOverlappingDatabaseTool tool = new FindOverlappingDatabaseTool();
 		HashMap<String, String> p = new LinkedHashMap<String, String>();
 		p.put("externalToolPath", testPath);
-		tool.analysis = new AnalysisDescription(new JavaAnalysisHandler(p), null);
+		tool.analysis = new ToolDescription(new JavaAnalysisHandler(p));
 		tool.analysis.addOutputFile(SADLDescription.Name.createName(testPath + File.separator + "overlapping.bed"), false);
 		tool.analysis.addOutputFile(SADLDescription.Name.createName(testPath + File.separator + "overlapping.tsv"), false);
 		List<RegionContent> file1 = new RegionOperations().loadFile(new File(testPath, "miRNAseq.bed"));

@@ -24,15 +24,16 @@
 
 # bwa settings
 bwa.binary <- file.path(chipster.tools.path, "bwa", "bwa")
+bwa.index.binary <- file.path(chipster.tools.path, "bwa", "check_bwa_index.sh")
 command.start <- paste("bash -c '", bwa.binary)
 
-# Choose indextype based on the genome size
-gsize.mb <- file.info("genome.txt")$size / (1024*1024)
 
 # Do indexing
 print("Indexing the genome...")
-genome.dir <- system(paste(bwa.binary, " index -a", index.type, " genome.txt"), intern = TRUE)
-bwa.genome <- file.path("genome.txt")
+system("echo Indexing the genome... > bwa.log")
+check.command <- paste ( bwa.index.binary, "genome.txt| tail -1 ")
+genome.dir <- system(check.command, intern = TRUE)
+bwa.genome <- file.path( genome.dir , "genome.txt")
 
 # mode specific parameters
 if (total.edit >= 1) {
@@ -44,12 +45,12 @@ mode.parameters <- paste("aln -t 2 -o", num.gaps, "-e", num.extensions, "-d", di
 
 # command ending
 command.end <- paste( bwa.genome , "reads.txt 1> alignment.sai 2>> bwa.log'")
-
-echo.command <- paste("echo '", bwa.binary , mode.parameters, bwa.genome, "reads.txt ' > bwa.log" )
-system(echo.command)
+system("echo Running the alignment with command: >> bwa.log")
 
 # run bwa alignment
 bwa.command <- paste(command.start, mode.parameters, command.end)
+echo.command <- paste("echo '",bwa.command ,"'  >> bwa.log")
+system(echo.command)
 #stop(paste('CHIPSTER-NOTE: ', bwa.command))
 system(bwa.command)
 
