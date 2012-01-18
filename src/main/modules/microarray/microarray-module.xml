@@ -104,9 +104,10 @@
 
 	<category name="aCGH" color="#c0d2de">
 		<tool runtime="R-2.12"><resource>acgh-import-from-cangem.R</resource></tool>
-		<tool runtime="R-2.12"><resource>acgh-smooth.R</resource></tool>
-		<tool runtime="R-2.12"><resource>acgh-call-aberrations.R</resource></tool>
 		<tool runtime="R-2.12"><resource>acgh-plot-profile.R</resource></tool>
+		<tool runtime="R-2.12"><resource>acgh-smooth.R</resource></tool>
+		<tool runtime="R-2.12"><resource>acgh-segment.R</resource></tool>
+		<tool runtime="R-2.12"><resource>acgh-call-aberrations.R</resource></tool>
 		<tool runtime="R-2.12"><resource>acgh-identify-regions.R</resource></tool>
 		<tool runtime="R-2.12"><resource>acgh-cluster.R</resource></tool>
 		<tool runtime="R-2.12"><resource>acgh-group-test.R</resource></tool>
