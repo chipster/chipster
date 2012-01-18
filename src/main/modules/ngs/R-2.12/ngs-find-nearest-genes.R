@@ -1,12 +1,13 @@
 # TOOL ngs-find-nearest-genes.R: "Find the nearest genes for regions" (This tool takes set of genomic regions, such as ChIP-seq peaks, and fetches the nearest gene for each.)
 # INPUT regions-list.tsv: "Table with genomic regions" TYPE GENERIC 
 # OUTPUT nearest-genes.tsv: "Table listing the nearest gene feature for each input region." 
-# PARAMETER species: "Genome" TYPE [Human: "Human (hg19\)", Mouse: "Mouse (mm9\)", Rat: "Rat (rn4\)"] DEFAULT none (The genome to use for fetching annotations.)
+# PARAMETER species: "Genome" TYPE [Human_hg18: "Human (hg18\)", Human_hg19: "Human (hg19\)", Mouse: "Mouse (mm9\)", Rat: "Rat (rn4\)"] DEFAULT none (The genome to use for fetching annotations.)
 
 #####################################################
 #                                                   #
 # MG, 28.10.2010                                    #
-# EK 9.2.2012                                       #
+# EK, 9.2.2012                                      #
+#                                                   #
 # Tool that fetches the nearest gene, exon or miRNA #
 # for a set of genomic regions, such as the output  #
 # from a peak detection algorithm for ChIP-seq data #
@@ -27,8 +28,13 @@ library(ChIPpeakAnno)
 library(biomaRt)
 
 # Load the annotation data
-
-if (species == "Human") {
+if (species == "Human_hg18") {
+	data(TSS.human.NCBI36)
+	annotations <- TSS.human.NCBI36
+	ensembl_dataset <- "hsapiens_gene_ensembl"
+	filter <- "ens_hs_gene"
+}
+if (species == "Human_hg19") {
 	data(TSS.human.GRCh37)
 	annotations <- TSS.human.GRCh37
 	ensembl_dataset <- "hsapiens_gene_ensembl"
