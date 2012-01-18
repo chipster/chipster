@@ -449,6 +449,12 @@ then
   #unzip -q All_bwa_indexes_v1.zip -d ${TOOLS_PATH}/bwa_indexes
   #rm All_bwa_indexes_v1.zip
 
+
+	## Data from Ilari for CNA-seq tools
+	wget -nv http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/GRCh37.zip
+	unzip -q GRCh37.zip -d ${TOOLS_PATH}/MPScall
+	rm GRCh37.zip
+
   ## Create checksums
   cd ${TOOLS_PATH}/
   find . '!' -type d '!' -type l -print0 | xargs -0 sha256sum >> tools.sha256sum

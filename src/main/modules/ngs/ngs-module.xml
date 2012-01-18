@@ -237,6 +237,21 @@
 		</tool>
 	</category>
 
+	<category name="CNA-seq" color="#c0d2de">
+		<tool runtime="R-2.12">
+			<resource>cna-bin-hits.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>cna-plot-profile.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>cna-compare-to-reference.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
+			<resource>cna-define-experiment.R</resource>
+		</tool>
+	</category>
+
 	<category name="Methyl-seq" color="#c0d2de">
 		<tool runtime="R-2.12">
 			<resource>convertBAMtoMEDIPS.R</resource>
