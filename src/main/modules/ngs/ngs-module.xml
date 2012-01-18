@@ -168,6 +168,9 @@
 
 	<category name="RNA-seq" color="#80a3b7">
 		<tool runtime="R-2.12">
+			<resource>htseq-count.R</resource>
+		</tool>
+		<tool runtime="R-2.12">
 			<resource>htseq-count-own-gtf.R</resource>
 		</tool>
 		<tool runtime="R-2.12">
