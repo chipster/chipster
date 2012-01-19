@@ -316,7 +316,7 @@ then
 
   # Bowtie indexes, built for Chipster
   cd ${TMPDIR_PATH}/
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/All_bowtie_indexes_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/indexes/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/All_bowtie_indexes_v2.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/indexes/
 
   # FastQC, GPL v3 or later
   cd ${TMPDIR_PATH}/
