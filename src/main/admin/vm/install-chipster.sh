@@ -425,6 +425,10 @@ then
   #unzip -q All_genomes_for_tools_v1.zip -d ${TOOLS_PATH}/genomes
   #rm All_genomes_for_tools_v1.zip
 
+  # GTF gene data for tools
+  cd ${TMPDIR_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/gtfs/All_gtfs_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomes
+
   # miRNA mapping data
   cd ${TMPDIR_PATH}/
   #wget -nv http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/2.0.0/All_miRNA_mappings_v1.zip
