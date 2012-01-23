@@ -215,7 +215,10 @@ ln -s /scratch/jobs-data ${CHIP_PATH}/comp/jobs-data
 
 touch ${CHIP_PATH}/auto-config-to-be-run
 
-## LINKS TO TOOLS PATH SHOULD BE RELATIVE, INSTEAD OF USING TOOLS_PATH
+##############################################
+# Install external applications and datasets #
+##############################################
+
 if [ $mode == "devel" -a $build_tools == "yes" ]
 then
   ## R:
