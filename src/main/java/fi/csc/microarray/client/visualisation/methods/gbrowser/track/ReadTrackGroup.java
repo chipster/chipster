@@ -31,7 +31,7 @@ public class ReadTrackGroup extends TrackGroup {
     protected SeqTrack seq;
     protected IntensityTrack readOverviewReversed;
     protected SeqBlockTrack readsReversed;
-    protected CoverageAndSNPTrack profileTrack;
+    protected CoverageTrack profileTrack;
     protected CoverageAndSNPTrack profileSNPTrack;
 //    protected QualityCoverageTrack qualityCoverageTrack;
     protected GelTrack gelTrack;
@@ -103,34 +103,18 @@ public class ReadTrackGroup extends TrackGroup {
         tracks.add(sepTrackReads2);
         
         // Profile
-        
-        Color forwardColor = new Color(0,0,0, 128);
-        Color reverseColor = new Color(
-        		VisualConstants.COLOR_BLUE.getRed(), 
-        		VisualConstants.COLOR_BLUE.getGreen(), 
-        		VisualConstants.COLOR_BLUE.getBlue(), 
-        		128);
-        
-//        profileTrack = new CoverageTrack(view, userData, readpartProvider, userDataHandler,
-//        		forwardColor, reverseColor, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
-//        profileTrack.setStrand(Strand.BOTH);
-//        tracks.add(profileTrack);
-//    	sepTrackProfile = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT); 
-//    	sepTrackProfile.setName("ProfileTrack");
-//        tracks.add(sepTrackProfile);
-        
-        profileTrack = new CoverageAndSNPTrack(view, userData, readpartProvider, userDataHandler, 
-        		seqFile, ChunkTreeHandlerThread.class, forwardColor, reverseColor, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
-        profileTrack.setName("ProfileTrack");
+        profileTrack = new CoverageTrack(view, userData, readpartProvider, userDataHandler,
+                Color.BLACK, VisualConstants.COLOR_BLUE, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+        profileTrack.setStrand(Strand.BOTH);
         tracks.add(profileTrack);
-        sepTrackProfile = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
-        sepTrackProfile.setName("ProfileTrack");
-    	tracks.add(sepTrackProfile);
+    	sepTrackProfile = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT); 
+    	sepTrackProfile.setName("ProfileTrack");
+        tracks.add(sepTrackProfile);
         
         // SNP profile
-        profileSNPTrack = new CoverageAndSNPTrack(view, userData, readpartProvider, userDataHandler, 
-        		seqFile, ChunkTreeHandlerThread.class, Color.BLACK, null, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
-        profileSNPTrack.setName("ProfileSNPTrack");
+        profileSNPTrack = new CoverageAndSNPTrack(view, userData, readpartProvider, userDataHandler, seqFile, ChunkTreeHandlerThread.class, 
+                Color.BLACK, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
+        profileSNPTrack.setStrand(Strand.BOTH); //Will be set anyway in the track constructor
         tracks.add(profileSNPTrack);
     	sepTrackProfileSNP = new SeparatorTrack(view, Color.gray, 1, 0, GenomeBrowserConstants.SWITCH_VIEWS_AT);
     	sepTrackProfileSNP.setName("ProfileSNPTrack");
