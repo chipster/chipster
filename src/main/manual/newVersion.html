@@ -2,6 +2,49 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="en"><head><title>Chipster manual</title></head><body>
 
+<h2>Version update 24.1.2012: What is new in Chipster 2.0</h2>
+
+<br>Chipster 2.0 contains a comprehensive collection of analysis tools for next generation sequencing (NGS) data. 
+Visualization options now include a built-in genome browser, allowing you to view reads and results in their genomic context. 
+Importantly, also the analysis session handling has been improved.  
+
+<ol>
+
+<li><b>NGS functionality</b>. The following analysis packages and several R-based tools are now available under the NGS tab in the Analysis tool panel. 
+For more information about the individual tools, please see the <a href="tools-ngs.html">NGS tool manual</a>.</li>
+	<ul>
+	  <li> <b>Quality control</b>: FastQC and FASTX.
+	  <li> <b>Utilities and genomic region matching</b>: BEDTools and SAMtools.
+	  <li> <b>Alignment</b>: Bowtie, BWA and TopHat.
+	  <li> <b>RNA-seq</b>: edgeR, Cufflinks, HTSeq.
+	  <li> <b>miRNA-seq</b>: edgeR, pathway analysis for target genes, correlate with target expression.	 
+	  <li> <b>ChIP-seq</b>: MACS, motif detection and matching against JASPAR, retrieval of nearby genes and pathway analysis for them.
+	  <li> <b>CNA-seq</b>: Count and plot copy number profile, compare to reference.
+	  <li> <b>MeDIP-seq</b>: MEDIPS.
+	</ul>
+<p></p>	
+
+<li><b>Built-in genome browser</b>
+	<ul>
+      <li>Allows you to view reads and results in their genomic context using Ensembl annotations.
+      <li>Zooms into nucleotide level and highlights SNPs.      
+      <li>Calculates coverage automatically.
+      </ul>
+<p></p>	
+
+<li><b>Improved analysis session handling</b>
+	<ul>
+      <li>Analysis sessions are automatically saved on the background, so if your session stops unexpectedly, you can always retrieve your data from the server.
+      <li>Analysis sessions use a new format so that saved sessions are functional even if the analysis tools that were used for creating them have changed meanwhile. The new
+      sessions have ending .zip. <b>The old sessions (.cs) won't work in Chipster 2.0</b>, but we will keep the Chipster version 1.4.7 running so that people can access also their old sessions.
+      Note that Chipster 2.0 RC was the release candidate version of Chipster 2.0, so those sessions are compatible. 
+      <b>We strongly encourage all users to move to Chipster 2.0 now, and use Chipster 1.4.7 only when working with old .cs sessions. </b>
+      </ul>
+<p></p>	
+
+</ol>
+<hr>
+
 <h2>Version update 16.5.2011: What is new in Chipster 1.4.7</h2>
 
 <br>The main change is <b>new R/Bioconductor and annotation packages</b>: All the R/Bioconductor-based analysis tools have been updated and now run under R 2.12.1 and Bioconductor 2.7.
