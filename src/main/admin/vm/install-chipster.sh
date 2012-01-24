@@ -153,7 +153,7 @@ if [ $mode == "runtime" ]
 then
   ## Runtime:
   # aptitude -y install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev (141 packages)
-  aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc # (117 packages)
+aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc # (117 packages)
 elif [ $mode == "devel" ]
 then
   ## Devel:
@@ -215,7 +215,10 @@ ln -s /scratch/jobs-data ${CHIP_PATH}/comp/jobs-data
 
 touch ${CHIP_PATH}/auto-config-to-be-run
 
-## LINKS TO TOOLS PATH SHOULD BE RELATIVE, INSTEAD OF USING TOOLS_PATH
+##############################################
+# Install external applications and datasets #
+##############################################
+
 if [ $mode == "devel" -a $build_tools == "yes" ]
 then
   ## R:
