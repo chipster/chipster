@@ -30,7 +30,7 @@ public class SAMFileFetcherThread extends Thread {
 
 	final private int SAMPLE_SIZE_BP = 100;
 
-	private static final int RESULT_CHUNK_SIZE = 100;
+	private static final int RESULT_CHUNK_SIZE = 500;
 
 	private BlockingQueue<SAMFileRequest> fileRequestQueue;
 	private ConcurrentLinkedQueue<SAMFileResult> fileResultQueue;

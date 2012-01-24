@@ -125,9 +125,6 @@ public class SAMHandlerThread extends AreaRequestHandler {
 				convertCacheHitsToConcisedRegions(request, step, pos, indexedValues);
 
 			} else {
-				
-				request.status.maybeClearQueue(fileRequestQueue);
-				
 				fileRequestQueue.add(new SAMFileRequest(request, from, to, request.status));
 			}
 
