@@ -243,7 +243,8 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 					// currently only used for tracks that contain information
 					// about reads
 					if (expandDrawables && 
-							(track instanceof CoverageAndSNPTrack ||
+							(track instanceof CoverageTrack ||
+									track instanceof CoverageAndSNPTrack ||
 									track instanceof QualityCoverageTrack)) {
 
 						if (parentPlot.getReadScale() == ReadScale.AUTO) {
