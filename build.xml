@@ -40,7 +40,7 @@
 	<!-- version numbering -->
 	<property name="release-version" value="2.0.0" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
-	<property name="release-tar" value="${dist}/chipster-${release-version}.tar" />
+	<property name="release-tar" value="${dist}/chipster-${release-version}.tar.gz" />
 	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />
 	<property name="config-tool-jar" value="${dist}/chipster-config-tool.jar" />
 	<property name="client-jar" value="${dist}/microarray-${release-version}.jar" />
@@ -192,7 +192,7 @@
 	</target>
 
 	<target name="package-tar" description="Create chipster tar">
-		<tar destfile="${release-tar}" longfile="gnu" >
+		<tar destfile="${release-tar}" longfile="gnu" compression="gzip">
 
 			<!-- shared -->
 			<tarfileset file="${release-jar}" prefix="chipster/shared/lib" />
