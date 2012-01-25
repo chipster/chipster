@@ -213,13 +213,14 @@
 			<tarfileset file="${ext-src}/wrapper/setup.bat" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/configure.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/configure.bat" filemode="755" prefix="chipster" />
+			<!-- (Upgrade and migrate not available for 2.0, fresh install is required)
 			<tarfileset file="${ext-src}/wrapper/upgrade.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/upgrade.bat" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/migrate.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/migrate.bat" filemode="755" prefix="chipster" />
+			-->
 			<tarfileset file="${ext-src}/wrapper/genpasswd.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/genpasswd.bat" filemode="755" prefix="chipster" />
-			<tarfileset file="${ext-src}/wrapper/install_r_pkg.sh" filemode="755" prefix="chipster" />
 			
 			<!-- auth -->
 			<tarfileset file="${ext-src}/wrapper/auth/chipster-auth-generic" filemode="755" fullpath="chipster/auth/bin/chipster-auth" />
