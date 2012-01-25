@@ -35,8 +35,8 @@ public class SAMHandlerThread extends AreaRequestHandler {
 
 	private SAMDataSource samData;
 	private SAMFileFetcherThread fileFetcher;
-	private BlockingQueue<SAMFileRequest> fileRequestQueue = new LinkedBlockingQueue<SAMFileRequest>();
-	private ConcurrentLinkedQueue<SAMFileResult> fileResultQueue = new ConcurrentLinkedQueue<SAMFileResult>();
+	private BlockingQueue<BpCoordFileRequest> fileRequestQueue = new LinkedBlockingQueue<BpCoordFileRequest>();
+	private ConcurrentLinkedQueue<ParsedFileResult> fileResultQueue = new ConcurrentLinkedQueue<ParsedFileResult>();
 
     public SAMHandlerThread(DataSource file, Queue<AreaRequest> areaRequestQueue,
             AreaResultListener areaResultListener) {
@@ -57,14 +57,14 @@ public class SAMHandlerThread extends AreaRequestHandler {
 	}
 
 	protected boolean checkOtherQueues() {
-		SAMFileResult fileResult = null;
+		ParsedFileResult fileResult = null;
 		if ((fileResult = fileResultQueue.poll()) != null) {
 			processFileResult(fileResult);
 		}
 		return fileResult != null;
 	}
 
-    private void processFileResult(SAMFileResult fileResult) {
+    private void processFileResult(ParsedFileResult fileResult) {
 
     	if (fileResult.getStatus().concise) {
 
@@ -92,7 +92,7 @@ public class SAMHandlerThread extends AreaRequestHandler {
 			processConcisedAreaRequest(areaRequest);
 
 		} else {
-			fileRequestQueue.add(new SAMFileRequest(areaRequest, areaRequest.start, areaRequest.end, areaRequest.status));
+			fileRequestQueue.add(new BpCoordFileRequest(areaRequest, areaRequest.start, areaRequest.end, areaRequest.status));
 		}
 		
     }
@@ -128,7 +128,7 @@ public class SAMHandlerThread extends AreaRequestHandler {
 				
 				request.status.maybeClearQueue(fileRequestQueue);
 				
-				fileRequestQueue.add(new SAMFileRequest(request, from, to, request.status));
+				fileRequestQueue.add(new BpCoordFileRequest(request, from, to, request.status));
 			}
 
 		}

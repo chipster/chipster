@@ -32,8 +32,8 @@ public class SAMFileFetcherThread extends Thread {
 
 	private static final int RESULT_CHUNK_SIZE = 100;
 
-	private BlockingQueue<SAMFileRequest> fileRequestQueue;
-	private ConcurrentLinkedQueue<SAMFileResult> fileResultQueue;
+	private BlockingQueue<BpCoordFileRequest> fileRequestQueue;
+	private ConcurrentLinkedQueue<ParsedFileResult> fileResultQueue;
 
 	private SAMDataSource dataSource;
 
@@ -41,7 +41,7 @@ public class SAMFileFetcherThread extends Thread {
 
 	private BpCoordRegion previousRequestedRegion;
 
-	public SAMFileFetcherThread(BlockingQueue<SAMFileRequest> fileRequestQueue, ConcurrentLinkedQueue<SAMFileResult> fileResultQueue, SAMHandlerThread areaRequestThread, SAMDataSource dataSource) {
+	public SAMFileFetcherThread(BlockingQueue<BpCoordFileRequest> fileRequestQueue, ConcurrentLinkedQueue<ParsedFileResult> fileResultQueue, SAMHandlerThread areaRequestThread, SAMDataSource dataSource) {
 
 		this.fileRequestQueue = fileRequestQueue;
 		this.fileResultQueue = fileResultQueue;
@@ -64,7 +64,7 @@ public class SAMFileFetcherThread extends Thread {
 		}
 	}
 
-	private void processFileRequest(SAMFileRequest fileRequest) throws IOException {
+	private void processFileRequest(BpCoordFileRequest fileRequest) throws IOException {
 		if (fileRequest.areaRequest.status.concise) {
 			sampleToGetConcisedRegion(fileRequest);
 
@@ -113,7 +113,7 @@ public class SAMFileFetcherThread extends Thread {
 	 * @param request
 	 * @return
 	 */
-	public void fetchReads(SAMFileRequest fileRequest) {
+	public void fetchReads(BpCoordFileRequest fileRequest) {
 
 		AreaRequest request = fileRequest.areaRequest;
 
@@ -170,7 +170,7 @@ public class SAMFileFetcherThread extends Thread {
 			}
 
 			// Send result
-			SAMFileResult result = new SAMFileResult(responseList, fileRequest, fileRequest.areaRequest, fileRequest.getStatus());
+			ParsedFileResult result = new ParsedFileResult(responseList, fileRequest, fileRequest.areaRequest, fileRequest.getStatus());
 			fileResultQueue.add(result);
 			areaRequestThread.notifyAreaRequestHandler();
 			
@@ -180,7 +180,7 @@ public class SAMFileFetcherThread extends Thread {
 		iterator.close();
 	}
 
-	private void sampleToGetConcisedRegion(SAMFileRequest request) {
+	private void sampleToGetConcisedRegion(BpCoordFileRequest request) {
 
 		BpCoord from = request.getFrom();
 		BpCoord to = request.getTo();
@@ -213,7 +213,7 @@ public class SAMFileFetcherThread extends Thread {
 		// Send result
 		LinkedList<RegionContent> content = new LinkedList<RegionContent>();
 		content.add(new RegionContent(new BpCoordRegion(from, to), countForward, countReverse));
-		SAMFileResult result = new SAMFileResult(content, request, request.areaRequest, request.getStatus());
+		ParsedFileResult result = new ParsedFileResult(content, request, request.areaRequest, request.getStatus());
 		fileResultQueue.add(result);
 		areaRequestThread.notifyAreaRequestHandler();
 

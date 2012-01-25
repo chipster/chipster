@@ -9,18 +9,19 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.CytobandDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Cytoband;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.LineDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.TextDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
@@ -37,53 +38,30 @@ public class CytobandTrack extends Track {
 
 	private BpCoord maxBp;
 
-	private Collection<RegionContent> bands = new TreeSet<RegionContent>();
+	private SortedSet<Cytoband> cbands = new TreeSet<Cytoband>();
 
 	private boolean showText;
-
-	enum Band {
-
-		WHITE("gneg", Color.white), 
-		LIGHT_GRAY("gpos25", Color.lightGray),
-		MOUSE_LIGHT_GRAY("gpos33", Color.lightGray),
-		MID_GRAY("gpos50", Color.gray),
-		MOUSE_DARK_GRAY("gpos66", Color.darkGray),
-		DARK_GRAY("gpos75", Color.darkGray), 
-		BLACK("gpos100", Color.black), 
-		GAP("acen", null), 
-		OTHER("gvar", Color.white),
-		STALK("stalk", null),
-		TIP("tip", null);
-
-		private String id;
-		private Color color;
-
-		Band(String id, Color color) {
-			this.id = id;
-			this.color = color;
-		}
-
-		public String getId() {
-			return id;
-		}
-
-		public Color getColor() {
-			return color;
-		}
+	
+	final Map<Cytoband.Stain, Color> stainColors = new HashMap<Cytoband.Stain, Color>();
+	
+	{
+		stainColors.put(Cytoband.Stain.GNEG, Color.white);
+		stainColors.put(Cytoband.Stain.GPOS25, Color.lightGray);
+		stainColors.put(Cytoband.Stain.GPOS33, Color.lightGray);
+		stainColors.put(Cytoband.Stain.GPOS50, Color.gray);
+		stainColors.put(Cytoband.Stain.GPOS66, Color.darkGray);
+		stainColors.put(Cytoband.Stain.GPOS75, Color.darkGray);
+		stainColors.put(Cytoband.Stain.GPOS100, Color.black);
+		stainColors.put(Cytoband.Stain.ACEN, null);
+		stainColors.put(Cytoband.Stain.GVAR, Color.white);
+		stainColors.put(Cytoband.Stain.STALK, null);
+		stainColors.put(Cytoband.Stain.TIP, null);
+		stainColors.put(Cytoband.Stain.UNRECOGNIZED, null);
 	}
 
-	public Band getBand(String id) {
-		for (Band band : Band.values()) {
-			if (band.getId().equals(id)) {
-				return band;
-			}
-		}
-		return null;
-	}
-
-	public CytobandTrack(View view, ChunkDataSource file,
+	public CytobandTrack(View view, CytobandDataSource data,
 	        Class<? extends AreaRequestHandler> handler, boolean showText) {
-		super(view, file, handler);
+		super(view, data, handler); 
 
 		this.showText = showText;
 	}
@@ -93,33 +71,35 @@ public class CytobandTrack extends Track {
 
 		Collection<Drawable> drawables = getEmptyDrawCollection();
 
-		if (bands != null) {
+		if (cbands != null) {
 			
 
 			boolean firstGap = true;
 			
-			//Iterator instead of for to be able to delete items from the collection
-			Iterator<RegionContent> bandRegionIter = bands.iterator();
+			//Iterator instead of 'for' to be able to delete items from the collection
+			Iterator<Cytoband> cbandIter = cbands.iterator();
 
-			while (bandRegionIter.hasNext()) {
+			while (cbandIter.hasNext()) {
 								
-				RegionContent bandRegion = bandRegionIter.next();
+				Cytoband cband = cbandIter.next();
 				
 				//Remove items that don't belong to this view area
-				if (!getView().getBpRegion().intersects(bandRegion.region)) {
-					bandRegionIter.remove();
+				if (!getView().getBpRegion().intersects(cband.getRegion())) {
+					cbandIter.remove();
 					continue;
 				}
 
-				Band band = getBand((String) bandRegion.values.get(ColumnType.VALUE));
-				String text = (String) bandRegion.values.get(ColumnType.ID);
+				Cytoband.Stain stain = cband.getStain();
+				Color stainColor = stainColors.get(stain);
+				String text = (String) cband.getBand();
 
 				if (text == null) {
 					text = "";
 				}
 
-				if (band != null && band.getColor() != null) {
-					RectDrawable box = createDrawable(bandRegion.region.start, bandRegion.region.end, band.color);
+				if (stain != null && stainColor != null) {
+					RectDrawable box = createDrawable(cband.getRegion().start, cband.getRegion().end, 
+							stainColor);
 					drawables.add(box);
 
 					if (showText) {
@@ -140,12 +120,12 @@ public class CytobandTrack extends Track {
 					}
 					firstGap = true;
 
-				} else if (band == Band.GAP) {
+				} else if (stain == Cytoband.Stain.ACEN) {
 
 					int y = (int) MARGIN + 1;
 
-					int sideX = getView().bpToTrack(bandRegion.region.end);
-					int cornerX = getView().bpToTrack(bandRegion.region.start);
+					int sideX = getView().bpToTrack(cband.getRegion().end);
+					int cornerX = getView().bpToTrack(cband.getRegion().start);
 
 					if (firstGap) {
 						int tmp = sideX;
@@ -158,12 +138,12 @@ public class CytobandTrack extends Track {
 
 					drawables.add(new LineDrawable(sideX, y + THICKNESS - 1, cornerX, y + THICKNESS / 2, Color.black));
 
-				} else if (band == Band.STALK) {
+				} else if (stain == Cytoband.Stain.STALK) {
 					
 					Rectangle rect = new Rectangle();
 
-					rect.x = getView().bpToTrack(bandRegion.region.start);
-					rect.width = getView().bpToTrack(bandRegion.region.end) - rect.x;
+					rect.x = getView().bpToTrack(cband.getRegion().start);
+					rect.width = getView().bpToTrack(cband.getRegion().end) - rect.x;
 
 					rect.y = (int) MARGIN + THICKNESS / 4;
 					rect.height = THICKNESS - THICKNESS / 2;
@@ -192,19 +172,25 @@ public class CytobandTrack extends Track {
 	public void processAreaResult(AreaResult areaResult) {
 
 		for (RegionContent content : areaResult.getContents()) {
-			if (content.values.containsKey(ColumnType.METADATA) &&
-					((Map<?, ?>)(content.values.get(ColumnType.METADATA))).containsKey(CytobandParser.LAST_ROW_OF_CHROMOSOME) && 
-					getView().getBpRegion().start.chr.equals(content.region.start.chr)) {					
-
-				if (maxBp == null || maxBp.compareTo(content.region.end) < 0) {
-					maxBp = new BpCoord(content.region.end);
-				}
-			}				
-
+//			if (content.values.containsKey(ColumnType.METADATA) &&
+//					((Map<?, ?>)(content.values.get(ColumnType.METADATA))).containsKey(CytobandParser.LAST_ROW_OF_CHROMOSOME) && 
+//					getView().getBpRegion().start.chr.equals(content.region.start.chr)) {					
+//
+//				if (maxBp == null || maxBp.compareTo(content.region.end) < 0) {
+//					maxBp = new BpCoord(content.region.end);
+//				}
+//			}				
+//
+			
 			if (getView().getBpRegion().intersects(content.region)) {
-				this.bands.add(content);
+				
+				Cytoband cband = (Cytoband) content.values.get(ColumnType.VALUE);
+				
+				cbands.add(cband);
+				
 				getView().redraw();
 			}
+						
 		}
 	}
 
@@ -220,10 +206,10 @@ public class CytobandTrack extends Track {
 
     @Override
     public Map<DataSource, Set<ColumnType>> requestedData() {
+    	    	
         HashMap<DataSource, Set<ColumnType>> datas = new
         HashMap<DataSource, Set<ColumnType>>();
         datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
-                ColumnType.ID,
                 ColumnType.VALUE })));
         return datas;
     }

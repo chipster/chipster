@@ -1,11 +1,13 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser;
 
 import java.awt.Color;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.CytobandHandlerThread;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CytobandTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.EmptyTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.GeneTrackGroup;
@@ -107,7 +109,18 @@ public class TrackFactory {
 	}
 
 	public static void addCytobandTracks(GenomePlot plot, ChunkDataSource cytobandData) {
-		CytobandTrack overviewCytobands = new CytobandTrack(plot.getOverviewView(), cytobandData, ChunkTreeHandlerThread.class, false);
+		
+		//TODO replace with real data
+		
+		CytobandDataSource data = null;
+		try {
+			data = new CytobandDataSource(new File("/home/klemela/chipster/orig-annotations/karyotype.txt"), 
+					new File("/home/klemela/chipster/orig-annotations/seq_region.txt"));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		CytobandTrack overviewCytobands = new CytobandTrack(plot.getOverviewView(), data, CytobandHandlerThread.class, false);
 		addTrack(plot.getOverviewView(), overviewCytobands);
 	}
 
