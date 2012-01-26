@@ -1,4 +1,5 @@
 library(CGHcall)
+library(CGHregions)
 
 setMethod("plot", signature(x="cghRaw", y="missing"),
 function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio), build="GRCh37",... )
@@ -33,7 +34,14 @@ function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio), build="
         mad.value <- round(mad(copynumber(x)[chromosomes(x) < 23,i], na.rm=TRUE), digits=2)
         mtext(paste('MAD =', mad.value), side=3, line=0, adj=1)
         ### number of data points
-        mtext(paste(round(nclone / 1000), 'K', sep=''), side=3, line=0, adj=0)
+        str <- paste(round(nclone / 1000), 'k x ', sep='')
+        probe <- median(bpend(x)-bpstart(x)+1)
+        if (probe < 1000) {
+            str <- paste(str, probe, ' bp', sep='')
+        } else {
+            str <- paste(str, round(probe / 1000), ' kbp', sep='')
+        }
+        mtext(str, side=3, line=0, adj=0)
     }
 })
 
@@ -76,7 +84,14 @@ function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio), build="
         mad.value <- round(mad(copynumber(x)[chromosomes(x) < 23,i], na.rm=TRUE), digits=2)
         mtext(paste('MAD =', mad.value), side=3, line=0, adj=1)
         ### number of data points
-        mtext(paste(round(nclone / 1000), 'K', sep=''), side=3, line=0, adj=0)
+        str <- paste(round(nclone / 1000), 'k x ', sep='')
+        probe <- median(bpend(x)-bpstart(x)+1)
+        if (probe < 1000) {
+            str <- paste(str, probe, ' bp', sep='')
+        } else {
+            str <- paste(str, round(probe / 1000), ' kbp', sep='')
+        }
+        mtext(str, side=3, line=0, adj=0)
     }
 })
 
@@ -157,7 +172,14 @@ function (x, y, dotres=1, ylimit=c(-5,5), ylab=expression(log[2]~ratio),... )
         mtext(paste('MAD =', mad.value), side=3, line=0, adj=1)
 
         ### number of data points
-        mtext(paste(round(nclone / 1000), 'K', sep=''), side=3, line=0, adj=0)
+        str <- paste(round(nclone / 1000), 'k x ', sep='')
+        probe <- median(bpend(cgh)-bpstart(cgh)+1)
+        if (probe < 1000) {
+            str <- paste(str, probe, ' bp', sep='')
+        } else {
+            str <- paste(str, round(probe / 1000), ' kbp', sep='')
+        }
+        mtext(str, side=3, line=0, adj=0)
     }
 })
 
@@ -668,5 +690,20 @@ CGHcallPlus <- function(inputSegmented, prior="auto", nclass=4, organism="human"
 }
 environment(CGHcallPlus) <- environment(CGHcall:::CGHcall)
 CGHcall <- CGHcallPlus
+
+CGHregionsPlus <- function(input, ...) {
+  regions <- CGHregions:::CGHregions(input, ...)
+  # End positions of regions should be the end position of the last data point of that region,
+  # but instead CGHregions returns the start position of the last data point.
+  # Check if that is indeed the case:
+  if (class(input) == 'cghCall') {
+    if (sum(regions@featureData@data$End %in% input@featureData@data$Start) > sum(regions@featureData@data$End %in% input@featureData@data$End))
+      for (row in rownames(regions@featureData@data))
+        regions@featureData@data[row, 'End'] <- input@featureData@data[input@featureData@data$Chromosome == regions@featureData@data[row, 'Chromosome'] & input@featureData@data$Start == regions@featureData@data[row, 'End'], 'End'][1]
+  }
+  regions
+}
+environment(CGHregionsPlus) <- environment(CGHregions:::CGHregions)
+CGHregions <- CGHregionsPlus
 
 # EOF
