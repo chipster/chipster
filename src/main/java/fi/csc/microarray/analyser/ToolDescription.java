@@ -17,11 +17,17 @@ import fi.csc.microarray.messaging.message.JobMessage;
 /**
  * Compute service specific versions of analysis tools descriptions.
  * Content is overlapping with generic SADLDescription objects, but 
- * some features are not here and some are extra.
+ * some features are not neede here and excluded. Takes also care of updating
+ * the description when file on the disk changes.
  * 
+ * <p>Access is strictly synchronised, because all operations
+ * may lead to module or script updates if files on the disk have changed. To avoid
+ * deadlocking, dependencies must be kept one way: RepositoryModule never calls ToolRepository and
+ * ToolDescription never calls RepositoryModule.</p>
+ *
  * @author Taavi Hupponen, Aleksi Kallio 
  */
-public class AnalysisDescription {
+public class ToolDescription {
 
 	/**
 	 * Describes one parameter, such as "number of iterations".
@@ -126,13 +132,12 @@ public class AnalysisDescription {
 
 	private AnalysisHandler handler;
 	private Map<String, String> configParameters = null;
-	private RepositoryModule module;
 
 	/**
 	 * Name of the original source script or java class etc.
 	 * Needed for update checks.
 	 */
-	private File sourceFile;
+	private File toolFile = null;
 	
 	private String initialiser;
 	
@@ -141,12 +146,12 @@ public class AnalysisDescription {
 
 	/**
 	 * Initializes empty (non-usable) description.
+	 * 
 	 * @param module 
 	 *
 	 */
-	public AnalysisDescription(AnalysisHandler handler, RepositoryModule module) {
+	public ToolDescription(AnalysisHandler handler) {
 		this.handler = handler;
-		this.module = module;
 	}
 
 	public String getCommand() {
@@ -255,20 +260,12 @@ public class AnalysisDescription {
 		}
 	}
 
-//	public String getSourceResourceName() {
-//		return sourceResourceName;
-//	}
-
-//	public void setSourceResourceName(String sourceResourceName) {
-//		this.sourceResourceName = sourceResourceName;
-//	}
-
 	public File getToolFile() {
-		return sourceFile;
+		return toolFile;
 	}
 
-	public void setSourceResourceFullPath(File sourceFile) {
-		this.sourceFile = sourceFile;
+	public void setToolFile(File sourceFile) {
+		this.toolFile = sourceFile;
 	}
 	
 	public void setHelpURL(String helpURL) {
@@ -310,10 +307,6 @@ public class AnalysisDescription {
 
 	public void setID(String id) {
 		this.id = id;
-	}
-
-	public RepositoryModule getModule() {
-		return this.module;
 	}
 }
  

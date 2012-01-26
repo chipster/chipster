@@ -17,11 +17,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import fi.csc.microarray.analyser.AnalysisDescription;
+import fi.csc.microarray.analyser.ToolDescription;
 import fi.csc.microarray.analyser.JobCancelledException;
 import fi.csc.microarray.analyser.OnDiskAnalysisJobBase;
 import fi.csc.microarray.analyser.ProcessPool;
-import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
+import fi.csc.microarray.analyser.ToolDescription.ParameterDescription;
 import fi.csc.microarray.config.DirectoryLayout;
 import fi.csc.microarray.exception.MicroarrayException;
 import fi.csc.microarray.messaging.JobState;
@@ -243,7 +243,7 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 			updateState(JobState.FAILED_USER_ERROR, "");
 			return;
 		}
-		for (AnalysisDescription.ParameterDescription param : analysis.getParameters()) {
+		for (ToolDescription.ParameterDescription param : analysis.getParameters()) {
 			String value = new String(parameterValues.get(i));
 			String rSnippet = transformVariable(param.getName(), value, param.isNumeric());
 			logger.debug("added parameter (" +  rSnippet + ")");
@@ -420,10 +420,21 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 	 * Converts a name-value -pair into R variable definition.
 	 */
 	public static String transformVariable(String name, String value, boolean isNumeric) {
+		
+		// Escape strings and such
 		if (!isNumeric) {
-			value = R_STRING_SEPARATOR + value + R_STRING_SEPARATOR; // escape strings and such
+			value = R_STRING_SEPARATOR + value + R_STRING_SEPARATOR; 
 		}
-		name = name.replaceAll(" ", "_"); // remove spaces
+		
+		// If numeric, check for empty value
+		if (isNumeric && value.trim().isEmpty()) {
+			value = "NA"; // R's constant for "not available" 
+		}
+		
+		// Sanitize parameter name (remove spaces)
+		name = name.replaceAll(" ", "_"); 
+		
+		// Construct and return parameter assignment
 		return (name + " <- " + value);
 	}
 

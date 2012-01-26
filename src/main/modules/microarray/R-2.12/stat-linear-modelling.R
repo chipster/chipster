@@ -15,7 +15,7 @@
 # PARAMETER treat.main.effect3.as.factor: treat.main.effect3.as.factor TYPE [no: no, yes: yes] DEFAULT no (Should main.effect3 be treated as a factor)
 # PARAMETER adjust.p.values: adjust.p.values TYPE [yes: yes, no: no] DEFAULT yes (Should the p-values be adjusted for multiple comparisons)
 # PARAMETER p.value.adjustment.method: p.value.adjustment.method TYPE [none: none, bonferroni: bonferroni, holm: holm, hochberg: hochberg, BH: BH, BY: BY] DEFAULT BH (Multiple testing correction method)
-# PARAMETER interactions: interactions TYPE [main: main, two-way: two-way, three-way: three-way] DEFAULT main (What to include in the model)
+# PARAMETER interactions: interactions TYPE [main: "main effects", two-way: "main effects and interactions"] DEFAULT main (What to include in the model)
 
 # PARAMETER significance [main, interactions] DEFAULT main (Which p-values to return)
 

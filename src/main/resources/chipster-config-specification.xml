@@ -176,7 +176,7 @@
 		</entry>
 		
 		<entry entryKey="r-timeout" type="int" description="timeout for a single R script, seconds">
-			<value>36000</value> <!-- 10 hours -->
+			<value>2592000</value> <!-- 30 days -->
 		</entry>
 		
 		<entry entryKey="timeout-check-interval" type="int" description="receive, schedule timeout check interval, milliseconds">

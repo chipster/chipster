@@ -4,13 +4,13 @@
 # OUTPUT OPTIONAL htseq-count-info.txt
 # PARAMETER paired: "Does the alignment file contain paired-end data" TYPE [yes, no] DEFAULT no (Does the alignment data contain paired end or single end reads?)
 # PARAMETER stranded: "Was the data produced with a strand-specific RNA-seq protocol" TYPE [yes, no, reverse] DEFAULT no (If you select no, a read is considered overlapping with a feature regardless of whether it is mapped to the same or the opposite strand as the feature. If you select yes, the read has to be mapped to the same strand as the feature. You have to say no, if your was not made with a strand-specific RNA-seq protocol, because otherwise half your reads will be lost.)
-# PARAMETER organism: "Organism" TYPE [hg19.63.gtf: "Human (hg19.63)", mm9.63.gtf: "Mouse (mm9.63)", rn4.63.gtf: "Rat (rn4.63)"] DEFAULT hg19.63.gtf (Which organism is your data from.)
+# PARAMETER organism: "Organism" TYPE [hg19EnsemblGenesUCSCjan2012.gtf: "Human (hg19.65)", mm9EnsemblGenesUCSCjan2012.gtf: "Mouse (mm9.65)", rn4EnsemblGenesUCSCjan2012.gtf: "Rat (rn4.65)"] DEFAULT hg19EnsemblGenesUCSCjan2012.gtf (Which organism is your data from.)
 # PARAMETER OPTIONAL mode: "Mode to handle reads overlapping more than one feature" TYPE [union, intersection-strict, intersection-nonempty] DEFAULT union (How to deal with reads that overlap more than one gene or exon?)
 # PARAMETER OPTIONAL minaqual: "Minimum alignment quality" TYPE INTEGER FROM 0 TO 100 DEFAULT 0 (Skip all reads with alignment quality lower than the given minimum value.)
 # PARAMETER OPTIONAL feature.type: "Feature type to count" TYPE [exon, CDS] DEFAULT exon (Which feature type to use, all features of other type are ignored.)
 # PARAMETER OPTIONAL id.attribute: "Feature ID to use" TYPE [gene_id, transcript_id, gene_name, transcript_name, protein_name] DEFAULT gene_id (GFF attribute to be used as feature ID. Several GFF lines with the same feature ID will be considered as parts of the same feature. The feature ID is used to identity the counts in the output table.)
 
-# TH and EK 22.8.2011
+# TH and EK 18.1.2012
 
 # bash wrapping
 python.path <- paste(sep="", "PYTHONPATH=", file.path(chipster.tools.path, "lib", "python2.6", "site-packages"), ":$PYTHONPATH")
@@ -26,7 +26,7 @@ samtools.view <- paste(samtools.binary, "view -")
 
 # htseq-count
 htseq.binary <- file.path(chipster.tools.path, "htseq", "htseq-count")
-gtf <- file.path(chipster.tools.path, "htseq", "gtfs", organism)
+gtf <- file.path(chipster.tools.path, "genomes", organism)
 htseq <- paste(htseq.binary, "-q -m", mode, "-s", stranded, "-a", minaqual, "-t", feature.type, "-i", id.attribute, "-", gtf, " > htseq-counts-out.txt")
 
 # run

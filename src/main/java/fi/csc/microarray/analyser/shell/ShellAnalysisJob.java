@@ -3,9 +3,9 @@ package fi.csc.microarray.analyser.shell;
 import java.util.LinkedList;
 
 import fi.csc.microarray.analyser.JobCancelledException;
-import fi.csc.microarray.analyser.AnalysisDescription.InputDescription;
-import fi.csc.microarray.analyser.AnalysisDescription.OutputDescription;
-import fi.csc.microarray.analyser.AnalysisDescription.ParameterDescription;
+import fi.csc.microarray.analyser.ToolDescription.InputDescription;
+import fi.csc.microarray.analyser.ToolDescription.OutputDescription;
+import fi.csc.microarray.analyser.ToolDescription.ParameterDescription;
 import fi.csc.microarray.messaging.JobState;
 import fi.csc.microarray.messaging.message.JobMessage.ParameterSecurityPolicy;
 import fi.csc.microarray.messaging.message.JobMessage.ParameterValidityException;

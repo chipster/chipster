@@ -5,9 +5,8 @@
 # OUTPUT region-frequencies.pdf: region-frequencies.pdf 
 # PARAMETER max.info.loss: max.info.loss TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.01 (Maximal information loss allowed.)
 
-# detect-common-copy-number-aberration-regions.R
 # Ilari Scheinin <firstname.lastname@gmail.com>
-# 2011-12-13
+# 2012-01-05
 
 source(file.path(chipster.tools.path, 'MPScall', 'CGHcallPlus-R-2.12.R'))
 library(CGHregions)
@@ -23,7 +22,7 @@ dat$chromosome <- as.integer(dat$chromosome)
 calls <- as.matrix(dat[,grep("^flag\\.", names(dat))])
 logratios <- as.matrix(dat[,grep("^chip\\.", names(dat))])
 
-if (length(grep("^segmented\\.", names(dat)))>0) { # input contains probabilities (is a CGHcall object)
+if (length(grep("^probnorm\\.", names(dat)))>0) { # input contains probabilities (is a CGHcall object)
   segmented <- as.matrix(dat[,grep("^segmented\\.", names(dat))])
   probloss <- as.matrix(dat[,grep("^probloss\\.", names(dat))])
   probnorm <- as.matrix(dat[,grep("^probnorm\\.", names(dat))])
