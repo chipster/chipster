@@ -91,7 +91,7 @@ public class BeanShellHandler implements AnalysisHandler {
 		ad.setImplementation(parsedScript.source); // include headers
 		ad.setSourceCode(parsedScript.source);
 //		ad.setSourceResourceName(sourceResourceName);
-		ad.setSourceResourceFullPath(toolFile);
+		ad.setToolFile(toolFile);
 		
 		return ad;
 	}

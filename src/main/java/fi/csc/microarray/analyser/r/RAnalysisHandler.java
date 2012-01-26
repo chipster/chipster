@@ -134,7 +134,7 @@ public class RAnalysisHandler implements AnalysisHandler {
 		ad.setCommand(rCommand);
 		ad.setImplementation(parsedScript.source); // include headers
 		ad.setSourceCode(parsedScript.source);
-		ad.setSourceResourceFullPath(toolFile);
+		ad.setToolFile(toolFile);
 		ad.setInitialiser("chipster.tools.path = '" + externalToolPath + "'\n");
 		
 		return ad;
