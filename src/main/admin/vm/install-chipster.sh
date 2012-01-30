@@ -153,7 +153,7 @@ if [ $mode == "runtime" ]
 then
   ## Runtime:
   # aptitude -y install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev (141 packages)
-  aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc # (117 packages)
+aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc # (117 packages)
 elif [ $mode == "devel" ]
 then
   ## Devel:
@@ -183,9 +183,7 @@ mkdir ${TMPDIR_PATH}/
 
 # Install Chipster
 cd ${TMPDIR_PATH}/
-#wget -nv http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/${CHIP_VER}/chipster-${CHIP_VER}.tar
-#tar -xf chipster-${CHIP_VER}.tar
-curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/${CHIP_VER}/chipster-${CHIP_VER}.tar | tar -x
+curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/${CHIP_VER}/chipster-${CHIP_VER}.tar.gz | tar -xz
 mv chipster/ ${CHIP_PATH}/
 #rm chipster-${CHIP_VER}.tar
 
@@ -215,7 +213,10 @@ ln -s /scratch/jobs-data ${CHIP_PATH}/comp/jobs-data
 
 touch ${CHIP_PATH}/auto-config-to-be-run
 
-## LINKS TO TOOLS PATH SHOULD BE RELATIVE, INSTEAD OF USING TOOLS_PATH
+##############################################
+# Install external applications and datasets #
+##############################################
+
 if [ $mode == "devel" -a $build_tools == "yes" ]
 then
   ## R:
@@ -252,20 +253,15 @@ then
 
   # Weeder, custom license, according to developers VM bundling is ok
   cd ${TMPDIR_PATH}/
-  #wget -nv http://159.149.109.9/modtools/downloads/weeder1.4.2.tar.gz
-  #tar -xzf weeder1.4.2.tar.gz
   curl -s http://159.149.109.9/modtools/downloads/weeder1.4.2.tar.gz | tar -xz
   cd Weeder1.4.2/
   ./compileall
   cd ../
   mkdir ${TOOLS_PATH}/weeder/
   mv Weeder1.4.2/ ${TOOLS_PATH}/weeder/
-  #rm weeder1.4.2.tar.gz
 
   # ClusterBuster, no license
   cd ${TMPDIR_PATH}/
-  #wget -nv http://zlab.bu.edu/~mfrith/downloads/cbust-src.tar.gz
-  #tar -xzf cbust-src.tar.gz
   curl -s http://zlab.bu.edu/~mfrith/downloads/cbust-src.tar.gz | tar -xz
   cd cbust-src/
   make
@@ -273,26 +269,19 @@ then
   mv cbust ${TOOLS_PATH}/ClusterBuster/
   cd ../
   rm -rf cbust-src/
-  #rm cbust-src.tar.gz
 
   # Jaspar, no license
   cd ${TMPDIR_PATH}/
-  #? wget -nv http://zlab.bu.edu/clover/jaspar2005core
   wget -nv http://zlab.bu.edu/clover/jaspar2
   mv jaspar2 ${TOOLS_PATH}/ClusterBuster/jaspar2005core.txt
 
   # Promoter sequence files, license?
   cd ${TMPDIR_PATH}/
-  #wget -nv http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/weeder_seqs/all-sequence-files.zip
   mkdir ${TOOLS_PATH}/weeder/seqs/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/weeder_seqs/All_Weeder_sequence_files_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/weeder/seqs/
-  #unzip -q all-sequence-files.zip -d ${TOOLS_PATH}/weeder/seqs/
-  #rm all-sequence-files.zip
 
   # BEDTools, GNU GPL v2
   cd ${TMPDIR_PATH}/
-  #wget -nv http://bedtools.googlecode.com/files/BEDTools.v2.12.0.tar.gz
-  #tar -xzf BEDTools.v2.12.0.tar.gz
   curl -s http://bedtools.googlecode.com/files/BEDTools.v2.12.0.tar.gz | tar -xz
   cd BEDTools-Version-2.12.0
   make clean
@@ -300,7 +289,6 @@ then
   cd ../
   mv BEDTools-Version-2.12.0/ ${TOOLS_PATH}/
   ln -s BEDTools-Version-2.12.0 ${TOOLS_PATH}/bedtools
-  #rm BEDTools.v2.12.0.tar.gz
 
   # MACS, Artistic licence
   cd ${TMPDIR_PATH}/
@@ -312,15 +300,12 @@ then
 
   # SAM tools, BSD License, MIT License
   cd ${TMPDIR_PATH}/
-  #wget -nv -O samtools-0.1.13.tar.bz2 http://sourceforge.net/projects/samtools/files/samtools/0.1.13/samtools-0.1.13.tar.bz2/download
-  #tar -xjf samtools-0.1.13.tar.bz2
   curl -sL http://sourceforge.net/projects/samtools/files/samtools/0.1.13/samtools-0.1.13.tar.bz2/download | tar -xj
   cd samtools-0.1.13/
   make
   cd ../
   mv samtools-0.1.13/ ${TOOLS_PATH}
   ln -s samtools-0.1.13 ${TOOLS_PATH}/samtools
-  #rm samtools-0.1.13.tar.bz2
 
   # Bowtie, Artistic License
   cd ${TMPDIR_PATH}/
@@ -332,11 +317,7 @@ then
 
   # Bowtie indexes, built for Chipster
   cd ${TMPDIR_PATH}/
-  #wget -nv http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/2.0.0/All_bowtie_indexes_v1.zip
-  #mkdir ${TOOLS_PATH}/bowtie/indexes
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/All_bowtie_indexes_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/indexes/
-  #unzip -q All_bowtie_indexes_v1.zip -d ${TOOLS_PATH}/bowtie/indexes/
-  #rm All_bowtie_indexes_v1.zip
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bowtie_indexes/All_bowtie_indexes_v2.tar.gz | tar -xz -C ${TOOLS_PATH}/bowtie/indexes/
 
   # FastQC, GPL v3 or later
   cd ${TMPDIR_PATH}/
@@ -353,8 +334,6 @@ then
   #
   # HTSeq, GPL v3 or later
   cd ${TMPDIR_PATH}/
-  #wget -nv http://pypi.python.org/packages/source/H/HTSeq/HTSeq-0.5.3p3.tar.gz#md5=624ef2a50b07bf62b979802f1b114762
-  #tar -xzf HTSeq-0.5.3p3.tar.gz
   curl -s http://pypi.python.org/packages/source/H/HTSeq/HTSeq-0.5.3p3.tar.gz#md5=624ef2a50b07bf62b979802f1b114762 | tar -xz
   cd HTSeq-0.5.3p3/
   python setup.py install
@@ -363,45 +342,32 @@ then
   ln -s /usr/local/bin/htseq-qa ${TOOLS_PATH}/htseq/htseq-qa
   ln -s /usr/local/bin/htseq-count ${TOOLS_PATH}/htseq/htseq-count
   rm -rf HTSeq-0.5.3p3/
-  #rm HTSeq-0.5.3p3.tar.gz
 
   # HTseq GTFs
   cd ${TMPDIR_PATH}/
-  #wget -nv http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/2.0.0/All_htseq_gtfs_v1.zip
   mkdir ${TOOLS_PATH}/htseq/gtfs/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/htseq_gtfs/All_htseq_gtfs_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/htseq/gtfs/
-  #unzip -q All_htseq_gtfs_v1.zip -d ${TOOLS_PATH}/htseq/gtfs/
-  #rm All_htseq_gtfs_v1.zip
 
   # Cufflinks, Boost License
   cd ${TMPDIR_PATH}/
-  #wget -nv http://cufflinks.cbcb.umd.edu/downloads/cufflinks-1.0.3.Linux_x86_64.tar.gz
-  #tar -xzf cufflinks-1.0.3.Linux_x86_64.tar.gz
   curl -s http://cufflinks.cbcb.umd.edu/downloads/cufflinks-1.0.3.Linux_x86_64.tar.gz | tar -xz
   mv cufflinks-1.0.3.Linux_x86_64 ${TOOLS_PATH}/
   ln -s cufflinks-1.0.3.Linux_x86_64 ${TOOLS_PATH}/cufflinks
-  #rm cufflinks-1.0.3.Linux_x86_64.tar.gz
 
   # Tophat, The Artistic License
   cd ${TMPDIR_PATH}/
-  #wget -nv http://tophat.cbcb.umd.edu/downloads/tophat-1.3.0.Linux_x86_64.tar.gz
-  #tar -xzf tophat-1.3.0.Linux_x86_64.tar.gz
   curl -s http://tophat.cbcb.umd.edu/downloads/tophat-1.3.0.Linux_x86_64.tar.gz | tar -xz
   mv tophat-1.3.0.Linux_x86_64 ${TOOLS_PATH}/
   ln -s tophat-1.3.0.Linux_x86_64 ${TOOLS_PATH}/tophat
-  #rm tophat-1.3.0.Linux_x86_64.tar.gz
 
   # BWA, GPL v3 or later, MIT License
   cd ${TMPDIR_PATH}/
-  #wget -nv -O bwa-0.5.9.tar.bz2 http://sourceforge.net/projects/bio-bwa/files/bwa-0.5.9.tar.bz2/download
-  #tar -xjf bwa-0.5.9.tar.bz2
   curl -sL http://sourceforge.net/projects/bio-bwa/files/bwa-0.5.9.tar.bz2/download | tar -xj
   cd bwa-0.5.9/
   make
   cd ../
   mv bwa-0.5.9/ ${TOOLS_PATH}/
   ln -s bwa-0.5.9 ${TOOLS_PATH}/bwa
-  #rm bwa-0.5.9.tar.bz2
 
   # Fastx links
   mkdir -p ${TOOLS_PATH}/fastx/bin/
@@ -411,49 +377,37 @@ then
 
   # CanGEM probe mapping data
   cd ${TMPDIR_PATH}/
-  #wget -nv http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/2.0.0/All_CanGEM_probe_mappings_v1.zip
   mkdir ${TOOLS_PATH}/CanGEM/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/CanGEM_probe_mappings/All_CanGEM_probe_mappings_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/CanGEM/
-  #unzip -q All_CanGEM_probe_mappings_v1.zip -d ${TOOLS_PATH}/CanGEM
-  #rm All_CanGEM_probe_mappings_v1.zip
 
   # Genome data for tools
   cd ${TMPDIR_PATH}/
-  #wget -nv http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/2.0.0/All_genomes_for_tools_v1.zip
   mkdir ${TOOLS_PATH}/genomes/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes_for_tools/All_genomes_for_tools_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomes/
-  #unzip -q All_genomes_for_tools_v1.zip -d ${TOOLS_PATH}/genomes
-  #rm All_genomes_for_tools_v1.zip
+
+  # GTF gene data for tools
+  cd ${TMPDIR_PATH}/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/gtfs/All_gtfs_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomes
 
   # miRNA mapping data
   cd ${TMPDIR_PATH}/
-  #wget -nv http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/2.0.0/All_miRNA_mappings_v1.zip
   mkdir ${TOOLS_PATH}/miRNA_mappings/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/miRNA_mappings/All_miRNA_mappings_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/miRNA_mappings/
-  #unzip -q All_miRNA_mappings_v1.zip -d ${TOOLS_PATH}/miRNA_mappings
-  #rm All_miRNA_mappings_v1.zip
 
   # Genome variant databases
   cd ${TMPDIR_PATH}/
-  #wget -nv http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/2.0.0/All_genomic_variant_dbs.zip
   mkdir ${TOOLS_PATH}/DGV/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomic_variant_dbs/All_genomic_variant_dbs_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/DGV/
-  #unzip -q All_genomic_variant_dbs.zip -d ${TOOLS_PATH}/DGV
-  #rm All_genomic_variant_dbs.zip
 
   # bwa indexes, built for Chipster
   cd ${TMPDIR_PATH}/
-  #wget -nv http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/2.0.0/All_bwa_indexes_v1.zip
   mkdir ${TOOLS_PATH}/bwa_indexes/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/All_bwa_indexes_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/bwa_indexes/
-  #unzip -q All_bwa_indexes_v1.zip -d ${TOOLS_PATH}/bwa_indexes
-  #rm All_bwa_indexes_v1.zip
 
-
-	## Data from Ilari for CNA-seq tools
-	wget -nv http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/GRCh37.zip
-	unzip -q GRCh37.zip -d ${TOOLS_PATH}/MPScall
-	rm GRCh37.zip
+  ## Data for CNA-seq tools (produced by Ilari Scheinin)
+  wget -nv http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/GRCh37.zip
+  unzip -q GRCh37.zip -d ${TOOLS_PATH}/MPScall
+  rm GRCh37.zip
 
   ## Create checksums
   cd ${TOOLS_PATH}/

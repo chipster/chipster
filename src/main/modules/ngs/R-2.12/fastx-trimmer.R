@@ -2,7 +2,7 @@
 # INPUT reads.fastq TYPE GENERIC
 # OUTPUT trimmed.fastq 
 # PARAMETER first: "First base to keep" TYPE INTEGER FROM 1 TO 100 DEFAULT 1 (First base to keep.)
-# PARAMETER last: "Last base to keep" TYPE INTEGER FROM 1 TO 100 DEFAULT 50 (Last base to keep.)
+# PARAMETER last: "Last base to keep" TYPE INTEGER FROM 1 TO 300 DEFAULT 75 (Last base to keep.)
 
 
 

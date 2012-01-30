@@ -40,10 +40,10 @@
 	<!-- version numbering -->
 	<property name="release-version" value="2.0.0" />
 	<property name="release-jar" value="${dist}/chipster-${release-version}.jar" />
-	<property name="release-tar" value="${dist}/chipster-${release-version}.tar" />
+	<property name="release-tar" value="${dist}/chipster-${release-version}.tar.gz" />
 	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />
 	<property name="config-tool-jar" value="${dist}/chipster-config-tool.jar" />
-	<property name="client-jar" value="${dist}/microarray-${release-version}.jar" />
+	<property name="client-jar" value="${dist}/chipster-all-${release-version}.jar" />
 
 	<!-- external stuff -->
 	<property name="wrapper-dist" value="${ext-apps}/wrapper" />
@@ -192,7 +192,7 @@
 	</target>
 
 	<target name="package-tar" description="Create chipster tar">
-		<tar destfile="${release-tar}" longfile="gnu" >
+		<tar destfile="${release-tar}" longfile="gnu" compression="gzip">
 
 			<!-- shared -->
 			<tarfileset file="${release-jar}" prefix="chipster/shared/lib" />
@@ -213,13 +213,14 @@
 			<tarfileset file="${ext-src}/wrapper/setup.bat" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/configure.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/configure.bat" filemode="755" prefix="chipster" />
+			<!-- (Upgrade and migrate not available for 2.0, fresh install is required)
 			<tarfileset file="${ext-src}/wrapper/upgrade.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/upgrade.bat" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/migrate.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/migrate.bat" filemode="755" prefix="chipster" />
+			-->
 			<tarfileset file="${ext-src}/wrapper/genpasswd.sh" filemode="755" prefix="chipster" />
 			<tarfileset file="${ext-src}/wrapper/genpasswd.bat" filemode="755" prefix="chipster" />
-			<tarfileset file="${ext-src}/wrapper/install_r_pkg.sh" filemode="755" prefix="chipster" />
 			
 			<!-- auth -->
 			<tarfileset file="${ext-src}/wrapper/auth/chipster-auth-generic" filemode="755" fullpath="chipster/auth/bin/chipster-auth" />
@@ -334,7 +335,7 @@
 			<tarfileset file="${ext-src}/wrapper/win32/uninstall-service.bat" filemode="755" prefix="chipster/webstart/bin/win32" />
 
 			<tarfileset dir="${ext-src}/wrapper/webstart/web-root" prefix="chipster/webstart/web-root" />
-			<tarfileset file="dist/microarray-${release-version}.jar" fullpath="chipster/webstart/web-root/lib/chipster-current.jar" />
+			<tarfileset file="${client-jar}" fullpath="chipster/webstart/web-root/lib/chipster-current.jar" />
 			<tarfileset file="${ext-src}/wrapper/chipster-client-config.xml" fullpath="chipster/webstart/web-root/chipster-config.xml" />
 			<tarfileset dir="${ext-src}/wrapper/webstart/security" prefix="chipster/webstart/security" />
 

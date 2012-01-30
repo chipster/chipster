@@ -52,15 +52,17 @@ public class ShellAnalysisHandler implements AnalysisHandler {
     public ToolDescription handle(File moduleDir, String descriptionFilename, Map<String, String> params)
             throws AnalysisException {
         
-        // Generate analysis description
-        ToolDescription ad = null;
+        // Generate tool description
+        ToolDescription description = null;
         try {
     		File sadlFile = new File(moduleDir, toolPath + File.separator + descriptionFilename);
 
             String sadlString;
+            File toolFile = null;
             if (sadlFile.exists()) {
                 // Try opening a file using file system
                 sadlString = Files.fileToString(sadlFile);
+                toolFile = sadlFile;
             } else {
                 // Open file as a resource
                 InputStream scriptSource = 
@@ -70,21 +72,22 @@ public class ShellAnalysisHandler implements AnalysisHandler {
             }
             
             // Initiate description and set some basic values
-            ad = new ToolDescriptionGenerator().generate(
+            description = new ToolDescriptionGenerator().generate(
             		new ChipsterSADLParser().parse(sadlString), this);
-            ad.setSADL(sadlString);
-            ad.setSourceCode(sadlString);
+            description.setSADL(sadlString);
+            description.setSourceCode(sadlString);
+            description.setToolFile(toolFile);
             
             // Command to be executed is stored in configuration file
-            ad.setCommand(params.get("executable"));
-            ad.setConfigParameters(params);
+            description.setCommand(params.get("executable"));
+            description.setConfigParameters(params);
             
             // Log success
             logger.info("successfully loaded shell analysis description " + descriptionFilename);
         } catch (Exception e) {
             throw new AnalysisException(e);
         }
-        return ad;
+        return description;
     }
 
     public boolean isDisabled() {
@@ -97,6 +100,11 @@ public class ShellAnalysisHandler implements AnalysisHandler {
 	 */
 	public boolean isUptodate(ToolDescription description) {
 		File scriptFile = description.getToolFile();
-		return scriptFile.lastModified() <= description.getCreationTime();
+		
+		if (scriptFile != null) {
+			return scriptFile.lastModified() <= description.getCreationTime();
+		} else {
+			return true;
+		}
 	}
 }

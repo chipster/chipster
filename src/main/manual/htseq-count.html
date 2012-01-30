@@ -3,12 +3,12 @@
 <head><title></title></head>
 <body>
 
-<h2>RNA-seq / Map aligned reads to genes with HTSeq using own GTF</h2>
+<h2>RNA-seq / Map aligned reads to genes with HTSeq</h2>
 
 <h3>Description</h3>
 
 <p>
-Given mapped reads in a BAM file and gene locations in a GTF file, this tool calculates how many reads map to each gene.
+Given mapped reads in a BAM file, this tool calculates how many reads map to each gene using Ensembl annotations.
 </p>
 
 <h3>Parameters</h3>
@@ -16,6 +16,7 @@ Given mapped reads in a BAM file and gene locations in a GTF file, this tool cal
 <ul>
 <li>Does the alignment file contain paired-end data (yes, no) [no]</li>
 <li>Was the data produced with a strand-specific RNA-seq protocol (yes, no, reverse) [no]</li>
+<li>Organism (human hg19.65, mouse mm9.65, rn4.65) [human hg19.65]</li>
 <li>Mode to handle reads overlapping more than one gene (union, intersection-strict, intersection-nonempty) [union]</li>
 <li>Minimum mapping quality (0-100) [0]</li>
 <li>Feature type to count (exon, CDS) [exon]</li>
@@ -24,9 +25,9 @@ Given mapped reads in a BAM file and gene locations in a GTF file, this tool cal
 
 <h3>Details</h3>
 
-<p>
-You need to provide gene locations in <a href="http://mblab.wustl.edu/GTF2.html">GTF format</a>. 
-Note that the chromosome names have to be same in the GTF and BAM files. When making the BAM file for RNA-seq data, you can use splicing-aware aligner such as TopHat,
+<p> 
+Note that the chromosome names in your BAM file need to the chr prefix (e.g. chr1). 
+You can use splicing-aware aligner such as TopHat when making the BAM file for RNA-seq data,
 because HTSeq makes full use of the information in the CIGAR field of BAM.
 </p>
 <p>
