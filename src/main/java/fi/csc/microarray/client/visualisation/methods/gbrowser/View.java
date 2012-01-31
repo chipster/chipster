@@ -39,6 +39,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRe
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CoverageAndSNPTrack;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.track.CoverageTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.QualityCoverageTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.RulerTrack;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.Track;
@@ -243,7 +244,8 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 					// currently only used for tracks that contain information
 					// about reads
 					if (expandDrawables && 
-							(track instanceof CoverageAndSNPTrack ||
+							(track instanceof CoverageTrack ||
+									track instanceof CoverageAndSNPTrack ||
 									track instanceof QualityCoverageTrack)) {
 
 						if (parentPlot.getReadScale() == ReadScale.AUTO) {
@@ -480,9 +482,8 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		// Bp-region change may change visibility of tracks, calculate sizes again
 		trackHeight = null;
 
-		fireAreaRequests();
-		
 		if (!disableDrawing) {
+			fireAreaRequests();
 			dispatchRegionChange();
 		}
 	}
@@ -522,42 +523,33 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 			stopAnimation();
 
-			mouseAnimationTimer = new Timer(1000 / FPS, new ActionListener() {
+			mouseZoomTimer = new Timer(1000 / FPS, new ActionListener() {
 
-				private int i = 2; //Skip a few frames to get a head start
+				private int i = 0;
 				private int ANIMATION_FRAMES = 30;
 				private long startTime = System.currentTimeMillis();
 
 				public void actionPerformed(ActionEvent arg0) {
-					
-					boolean skipFrame = false;
-					boolean done = false;
 
-					do {
-						double endX = dragEndPoint.getX();
-						double startX = dragLastStartPoint.getX();
+					double endX = dragEndPoint.getX();
+					double startX = dragLastStartPoint.getX();
 
-						double newX = endX - (endX - startX) / (ANIMATION_FRAMES - i);
+					double newX = endX - (endX - startX) / (ANIMATION_FRAMES - i);
 
-						dragEndPoint = new Point2D.Double(newX, dragEndPoint.getY());
+					dragEndPoint = new Point2D.Double(newX, dragEndPoint.getY());
 
-						skipFrame = (i < (ANIMATION_FRAMES - 1)) && System.currentTimeMillis() > startTime + (1000 / FPS) * i;
+					boolean skipFrame = (i < (ANIMATION_FRAMES - 1)) && System.currentTimeMillis() > startTime + (1000 / FPS) * i;
 
-						done = i >= ANIMATION_FRAMES;
-						
-						if (!done) {
-							handleDrag(dragLastStartPoint, dragEndPoint, skipFrame);
-							i++;
-						} else {
-							stopAnimation();
-						}
-						
-					} while (skipFrame && !done);
+					if (i < ANIMATION_FRAMES) {
+						handleDrag(dragLastStartPoint, dragEndPoint, skipFrame);
+						i++;
+					} else {
+						stopAnimation();
+					}
 				}
 			});
-			mouseAnimationTimer.setCoalesce(true);
-			mouseAnimationTimer.setRepeats(true);
-			mouseAnimationTimer.start();
+			mouseZoomTimer.setRepeats(true);
+			mouseZoomTimer.start();
 		}
 	}
 
@@ -582,7 +574,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	protected abstract void handleDrag(Point2D start, Point2D end, boolean disableDrawing);
 
-	private Timer mouseAnimationTimer;
+	private Timer mouseZoomTimer;
 
 	public void mouseWheelMoved(final MouseWheelEvent e) {
 
@@ -594,43 +586,37 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	public void zoomAnimation(final int centerX, final int wheelRotation) {
 		stopAnimation();
 
-		mouseAnimationTimer = new Timer(1000 / FPS, new ActionListener() {
+		mouseZoomTimer = new Timer(1000 / FPS, new ActionListener() {
 
-			private int i = 2; //Skip some frames to give a head start
+			private int i = 0;
 
-			private long startTime = System.currentTimeMillis();
+			// 100 ms to give time for slower machines to view couple animation frames also
+			private long startTime = System.currentTimeMillis() + 100;
 			private int ANIMATION_FRAMES = 15;
 
 			public void actionPerformed(ActionEvent arg0) {
 
 				boolean skipFrame = (i < (ANIMATION_FRAMES - 1)) && System.currentTimeMillis() > startTime + (1000 / FPS) * i;
-				boolean done = false;
 
-				do {
-					
-					done = i >= ANIMATION_FRAMES;
-					
-					if (!done) {
-						zoom(centerX, wheelRotation, skipFrame);
-						i++;
+				if (i < ANIMATION_FRAMES) {
+					zoom(centerX, wheelRotation, skipFrame);
+					i++;
 
-					} else {
-						stopAnimation();
-					}
-					
-				} while (skipFrame && !done);
+				} else {
+					stopAnimation();
+				}
 			}
 		});
 
-		mouseAnimationTimer.setRepeats(true);
-		mouseAnimationTimer.setCoalesce(true);
-		mouseAnimationTimer.start();
+		mouseZoomTimer.setRepeats(true);
+		mouseZoomTimer.setCoalesce(false);
+		mouseZoomTimer.start();
 	}
 
 	private void stopAnimation() {
-		if (mouseAnimationTimer != null) {
-			mouseAnimationTimer.stop();
-			mouseAnimationTimer = null;
+		if (mouseZoomTimer != null) {
+			mouseZoomTimer.stop();
+			mouseZoomTimer = null;
 		}
 	}
 
@@ -677,10 +663,6 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 				}
 			}
 			setBpRegion(new BpCoordRegionDouble(startBp, getBpRegionDouble().start.chr, endBp, getBpRegionDouble().end.chr), disableDrawing);
-			
-			if (!disableDrawing) {
-				parentPlot.redraw();
-			}
 		}
 	}
 
@@ -734,10 +716,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	}
 
 	public void redraw() {
-		//Dont accept redraw request from tracks if animation is running
-		if (mouseAnimationTimer == null || !mouseAnimationTimer.isRunning()) {
-			parentPlot.redraw();
-		}
+		parentPlot.redraw();
 	}
 
 	public List<Long> getRulerInfo() {
