@@ -1,7 +1,8 @@
 library(CGHcall)
+library(CGHregions)
 
 setMethod("plot", signature(x="cghRaw", y="missing"),
-function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio),... )
+function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio), build="GRCh37",... )
 {
     for (i in 1:ncol(x)) {
         cat("Plotting sample", sampleNames(x)[i], "\n")
@@ -9,33 +10,43 @@ function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio),... )
         data            <- data.frame(chrom, bpstart(x), copynumber(x)[,i])
         colnames(data)  <- c("chromosome", "position", "ratio")
         chrom.labels    <- as.character(unique(chrom))
+        pos             <- bpstart(x)
+        chrom.ends <- .getCumulativeChromosomeEnds(build)[1:max(chrom)]
+        for (j in 2:max(chrom))
+            pos[chrom == j] <- pos[chrom == j] + chrom.ends[j-1]
         nclone <- length(chrom)
         whichtoplot <- seq(1,nclone,by=dotres) #added 15/06/2009
-        plot(whichtoplot,data[whichtoplot,3], cex=.1, main=sampleNames(x)[i], ylab=ylab, xlab="chromosomes", ylim=ylimit, xaxt="n", xaxs="i")
-        abline(h=0) 
-        for (iii in 1:length(cumsum(table(chrom)))) {
-            segments(cumsum(table(chrom))[[iii]], -3, cumsum(table(chrom))[[iii]], 6, lty=2)
-        }
-        ax <- (cumsum(table(chrom)) + c(0,cumsum(table(chrom))[-length(cumsum(table(chrom)))])) / 2
+        plot(pos[whichtoplot], data[whichtoplot,3], cex=.1, main=sampleNames(x)[i], ylab=ylab, xlab="chromosomes", ylim=ylimit, xaxt="n", xaxs="i")
+        abline(h=0)
+        for (j in 2:max(chrom))
+            abline(v=chrom.ends[j-1], lty=2)
+        ax <- (chrom.ends + c(0, chrom.ends[-length(chrom.ends)])) / 2
         axis(side=1, at=ax, labels=chrom.labels, cex=.2, lwd=.5, las=1, cex.axis=1, cex.lab=1)
         amps <- data[,3]
         amps[amps>=5] <- 5.15
         amps[amps<5] <- NA
-        points(amps, pch=24, col='blue', bg='blue', cex=0.5)
+        points(pos, amps, pch=24, col='blue', bg='blue', cex=0.5)
         dels <- data[,3]
         dels[dels<=-2] <- -2.15
         dels[dels>-2] <- NA
-        points(dels, pch=25, col='red', bg='red', cex=0.5)
+        points(pos, dels, pch=25, col='red', bg='red', cex=0.5)
         ### MAD
         mad.value <- round(mad(copynumber(x)[chromosomes(x) < 23,i], na.rm=TRUE), digits=2)
         mtext(paste('MAD =', mad.value), side=3, line=0, adj=1)
         ### number of data points
-        mtext(paste(round(nclone / 1000), 'K', sep=''), side=3, line=0, adj=0)
+        str <- paste(round(nclone / 1000), 'k x ', sep='')
+        probe <- median(bpend(x)-bpstart(x)+1)
+        if (probe < 1000) {
+            str <- paste(str, probe, ' bp', sep='')
+        } else {
+            str <- paste(str, round(probe / 1000), ' kbp', sep='')
+        }
+        mtext(str, side=3, line=0, adj=0)
     }
 })
 
 setMethod("plot", signature(x="cghSeg", y="missing"),
-function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio),... )
+function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio), build="GRCh37",... )
 {
     for (i in 1:ncol(x)) {
         cat("Plotting sample", sampleNames(x)[i], "\n")
@@ -44,33 +55,43 @@ function (x, y, dotres=1, ylimit=c(-2,5), ylab=expression(log[2]~ratio),... )
         data            <- data.frame(chrom, bpstart(x), copynumber(x)[,i])
         colnames(data)  <- c("chromosome", "position", "ratio")
         chrom.labels    <- as.character(unique(chrom))
+        pos             <- bpstart(x)
+        chrom.ends <- .getCumulativeChromosomeEnds(build)[1:max(chrom)]
+        for (j in 2:max(chrom))
+            pos[chrom == j] <- pos[chrom == j] + chrom.ends[j-1]
         nclone <- length(chrom)
         whichtoplot <- seq(1,nclone,by=dotres) #added 15/06/2009
-        plot(whichtoplot,data[whichtoplot,3], cex=.1, main=sampleNames(x)[i], ylab=ylab, xlab="chromosomes", ylim=ylimit, xaxt="n", xaxs="i")
+        plot(pos[whichtoplot], data[whichtoplot,3], cex=.1, main=sampleNames(x)[i], ylab=ylab, xlab="chromosomes", ylim=ylimit, xaxt="n", xaxs="i")
         if (dotres != 1)
             mtext(paste('Plot resolution: 1/',dotres, sep=''), side=3, line=0)
         abline(h=0) 
-        for (iii in 1:length(cumsum(table(chrom)))) {
-            segments(cumsum(table(chrom))[[iii]],-3,cumsum(table(chrom))[[iii]],6,lty=2)
-        }
-        ax<-(cumsum(table(chrom))+c(0,cumsum(table(chrom))[-length(cumsum(table(chrom)))]))/2
+        for (j in 2:max(chrom))
+            abline(v=chrom.ends[j-1], lty=2)
+        ax <- (chrom.ends + c(0, chrom.ends[-length(chrom.ends)])) / 2
         axis(side=1,at=ax,labels=chrom.labels,cex=.2,lwd=.5,las=1,cex.axis=1,cex.lab=1)
         for (jjj in (1:nrow(segment))) {
-            segments(segment[jjj,2], segment[jjj,1], segment[jjj,3], segment[jjj,1], col="chocolate", lwd=3)        
+            segments(pos[segment[jjj,2]], segment[jjj,1], pos[segment[jjj,3]], segment[jjj,1], col="chocolate", lwd=3)        
         }
         amps <- data[,3]
         amps[amps>=5] <- 5.15
         amps[amps<5] <- NA
-        points(amps, pch=24, col='blue', bg='blue', cex=0.5)
+        points(pos, amps, pch=24, col='blue', bg='blue', cex=0.5)
         dels <- data[,3]
         dels[dels<=-2] <- -2.15
         dels[dels>-2] <- NA
-        points(dels, pch=25, col='red', bg='red', cex=0.5)
+        points(pos, dels, pch=25, col='red', bg='red', cex=0.5)
         ### MAD
         mad.value <- round(mad(copynumber(x)[chromosomes(x) < 23,i], na.rm=TRUE), digits=2)
         mtext(paste('MAD =', mad.value), side=3, line=0, adj=1)
         ### number of data points
-        mtext(paste(round(nclone / 1000), 'K', sep=''), side=3, line=0, adj=0)
+        str <- paste(round(nclone / 1000), 'k x ', sep='')
+        probe <- median(bpend(x)-bpstart(x)+1)
+        if (probe < 1000) {
+            str <- paste(str, probe, ' bp', sep='')
+        } else {
+            str <- paste(str, round(probe / 1000), ' kbp', sep='')
+        }
+        mtext(str, side=3, line=0, adj=0)
     }
 })
 
@@ -151,7 +172,14 @@ function (x, y, dotres=1, ylimit=c(-5,5), ylab=expression(log[2]~ratio),... )
         mtext(paste('MAD =', mad.value), side=3, line=0, adj=1)
 
         ### number of data points
-        mtext(paste(round(nclone / 1000), 'K', sep=''), side=3, line=0, adj=0)
+        str <- paste(round(nclone / 1000), 'k x ', sep='')
+        probe <- median(bpend(cgh)-bpstart(cgh)+1)
+        if (probe < 1000) {
+            str <- paste(str, probe, ' bp', sep='')
+        } else {
+            str <- paste(str, round(probe / 1000), ' kbp', sep='')
+        }
+        mtext(str, side=3, line=0, adj=0)
     }
 })
 
@@ -217,6 +245,22 @@ make_cghRawPlus <- function(input) {
 }
 environment(make_cghRawPlus) <- environment(CGHcall:::make_cghRaw)
 make_cghRaw <- make_cghRawPlus
+
+.getCumulativeChromosomeEnds <- function(build) {
+    build <- as.integer(gsub('[^0-9]', '', build))
+    if (build == 34 || build == 16) {
+       chromosome.sizes <- c(246127941, 243615958, 199344050, 191731959, 181034922, 170914576, 158545518, 146308819, 136372045, 135037215, 134482954, 132078379, 113042980, 105311216, 100256656, 90041932, 81860266, 76115139, 63811651, 63741868, 46976097, 49396972, 153692391, 50286555)
+    } else if (build == 35 || build == 17) {
+       chromosome.sizes <- c(245522847, 243018229, 199505740, 191411218, 180857866, 170975699, 158628139, 146274826, 138429268, 135413628, 134452384, 132449811, 114142980, 106368585, 100338915, 88827254, 78774742, 76117153, 63811651, 62435964, 46944323, 49554710, 154824264, 57701691)
+    } else if (build == 36 || build == 18) {
+       chromosome.sizes <- c(247249719, 242951149, 199501827, 191273063, 180857866, 170899992, 158821424, 146274826, 140273252, 135374737, 134452384, 132349534, 114142980, 106368585, 100338915, 88827254, 78774742, 76117153, 63811651, 62435964, 46944323, 49691432, 154913754, 57772954)
+    } else {
+       chromosome.sizes <- c(249250621, 243199373, 198022430, 191154276, 180915260, 171115067, 159138663, 146364022, 141213431, 135534747, 135006516, 133851895, 115169878, 107349540, 102531392, 90354753, 81195210, 78077248, 59128983, 63025520, 48129895, 51304566, 155270560, 59373566)
+    }
+    for (i in 2:length(chromosome.sizes))
+      chromosome.sizes[i] <- chromosome.sizes[i] + chromosome.sizes[i-1]
+    chromosome.sizes
+}
 
 .getCentromerePlus <- function(build) {
     build <- as.integer(gsub('[^0-9]', '', build))
@@ -646,5 +690,20 @@ CGHcallPlus <- function(inputSegmented, prior="auto", nclass=4, organism="human"
 }
 environment(CGHcallPlus) <- environment(CGHcall:::CGHcall)
 CGHcall <- CGHcallPlus
+
+CGHregionsPlus <- function(input, ...) {
+  regions <- CGHregions:::CGHregions(input, ...)
+  # End positions of regions should be the end position of the last data point of that region,
+  # but instead CGHregions returns the start position of the last data point.
+  # Check if that is indeed the case:
+  if (class(input) == 'cghCall') {
+    if (sum(regions@featureData@data$End %in% input@featureData@data$Start) > sum(regions@featureData@data$End %in% input@featureData@data$End))
+      for (row in rownames(regions@featureData@data))
+        regions@featureData@data[row, 'End'] <- input@featureData@data[input@featureData@data$Chromosome == regions@featureData@data[row, 'Chromosome'] & input@featureData@data$Start == regions@featureData@data[row, 'End'], 'End'][1]
+  }
+  regions
+}
+environment(CGHregionsPlus) <- environment(CGHregions:::CGHregions)
+CGHregions <- CGHregionsPlus
 
 # EOF
