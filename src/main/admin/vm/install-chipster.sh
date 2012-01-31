@@ -404,11 +404,18 @@ then
   mkdir ${TOOLS_PATH}/bwa_indexes/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/All_bwa_indexes_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/bwa_indexes/
 
-  ## Data for CNA-seq tools (produced by Ilari Scheinin)
+  # Data for CNA-seq tools (produced by Ilari Scheinin)
   wget -nv http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/GRCh37.zip
   unzip -q GRCh37.zip -d ${TOOLS_PATH}/MPScall
   rm GRCh37.zip
 
+  # prinseq
+  cd ${TMPDIR_PATH}/
+  wget http://downloads.sourceforge.net/project/prinseq/standalone/prinseq-lite-0.17.3.tar.gz
+  tar -xzf prinseq-lite-0.17.3.tar.gz ${TOOLS_PATH}
+  ln -s prinseq-lite-0.17.3 prinseq
+  rm prinseq-lite-0.17.3.tar.gz
+  
   ## Create checksums
   cd ${TOOLS_PATH}/
   find . '!' -type d '!' -type l -print0 | xargs -0 sha256sum >> tools.sha256sum
