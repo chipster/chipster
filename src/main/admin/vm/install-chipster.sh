@@ -362,12 +362,12 @@ then
 
   # BWA, GPL v3 or later, MIT License
   cd ${TMPDIR_PATH}/
-  curl -sL http://sourceforge.net/projects/bio-bwa/files/bwa-0.5.9.tar.bz2/download | tar -xj
-  cd bwa-0.5.9/
+  curl -sL http://sourceforge.net/projects/bio-bwa/files/bwa-0.6.1.tar.bz2/download | tar -xj
+  cd bwa-0.6.1/
   make
   cd ../
-  mv bwa-0.5.9/ ${TOOLS_PATH}/
-  ln -s bwa-0.5.9 ${TOOLS_PATH}/bwa
+  mv bwa-0.6.1/ ${TOOLS_PATH}/
+  ln -s bwa-0.6.1 ${TOOLS_PATH}/bwa
 
   # Fastx links
   mkdir -p ${TOOLS_PATH}/fastx/bin/
