@@ -10,7 +10,8 @@
 # OUTPUT OPTIONAL edgeR-log.txt
 # PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
 # PARAMETER normalization: "Apply normalization" TYPE [yes, no] DEFAULT yes (If enabled, a normalization factor based on the trimmed mean of M-values \(TMM\) is performed to reduce the effect from sequencing biases.)
-# PARAMETER dispersion_estimate: "Dispersion estimate" TYPE [common, tagwise] DEFAULT tagwise (The dispersion of counts for any given sequence can either be estimated based on the actual counts in the sample data set or be moderated across a selection of sequences with similar count numbers. The latter option, which is set by default, typically yields higher sensitivity and specificity.)
+# PARAMETER dispersion_method: "Dispersion method" TYPE [common, tagwise] DEFAULT tagwise (The dispersion of counts for any given sequence can either be estimated based on the actual counts in the sample data set or be moderated across a selection of sequences with similar count numbers. The latter option, which is set by default, typically yields higher sensitivity and specificity. Note that when no biological replicates are available common dispersion is used regardless of the setting.)
+# PARAMETER dispersion_estimate:"Dispersion estimate" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.1 (The value to use for estimating the common dispersion when no replicates are available.) 
 # PARAMETER p_value_adjustment_method: "Multiple testing correction" TYPE [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method.)
 # PARAMETER p_value_threshold: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for statistical significance.)
 # PARAMETER image_width: "Plot width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
@@ -26,6 +27,8 @@
 # MG, 11.6.2011                                            #
 # updated, MG, 23.08.2011, to include library size from    #
 # phenodata file                                           #
+# updated MG, 30.01.2012 to allow analysis without         #
+# biological replicates                                    #
 #                                                          #
 ############################################################
 
@@ -48,15 +51,19 @@ dat2 <- dat[,grep("chip", names(dat))]
 phenodata <- read.table("phenodata.tsv", header=T, sep="\t")
 groups <- as.character (phenodata[,pmatch(column,colnames(phenodata))])
 group_levels <- levels(as.factor(groups))
+number_samples <- length(groups)
 
 # If the library_size column contains data then use that as estimate
 lib_size <- as.numeric(phenodata$library_size)
 if (is.na(lib_size[1])) estimate_lib_size <- "TRUE" else estimate_lib_size <- "FALSE"
 
 # Sanity checks
-if(length(unique(groups))==1 | length(unique(groups))>=3) {
+# only 2 group comparison is supported
+if (length(unique(groups))==1 | length(unique(groups))>=3) {
 	stop("CHIPSTER-NOTE: You need to have exactly two groups to run this analysis")
 }
+# if no biological replicates, force common dispersion
+if (number_samples == 2) dispersion_method <- "common" 
 
 # Create a DGEList
 # Notice that Library size is calculated from column totals if no library size
@@ -76,11 +83,14 @@ if (normalization == "yes") {
 }
 
 # Produce MDS plot of normazied data
-pdf(file="mds-plot.pdf", width=w/72, height=h/72)
-sample_colors <-  ifelse (dge_list$samples$group==group_levels[1], 1, 2)
-plotMDS.dge(dge_list, main="MDS Plot", col=sample_colors)
-legend(x="topleft", legend = group_levels,col=c(1,2), pch=19)
-dev.off()
+# NOTE: only possible when there are more than 2 samples in total
+if (number_samples > 2) {
+	pdf(file="mds-plot.pdf", width=w/72, height=h/72)
+	sample_colors <-  ifelse (dge_list$samples$group==group_levels[1], 1, 2)
+	plotMDS.dge(dge_list, main="MDS Plot", col=sample_colors)
+	legend(x="topleft", legend = group_levels,col=c(1,2), pch=19)
+	dev.off()
+}
 
 # MA-plot comparison before and after normalization
 pdf(file="ma-plot-raw-counts.pdf", width=w/72, height=h/72)
@@ -106,12 +116,14 @@ if (normalization == "yes") {
 # Anlysis using common dispersion #
 ###################################
 
-if (dispersion_estimate == "common") {
+if (dispersion_method == "common") {
 	# Calculate common dispersion
 	dge_list <- estimateCommonDisp(dge_list)
 	
 	# Statistical testing
-	stat_test <- exactTest(dge_list)
+	if (number_samples != 2) stat_test <- exactTest(dge_list, common.disp=TRUE) 
+	if (number_samples == 2) stat_test <- exactTest(dge_list, common.disp=TRUE, dispersion=dispersion_estimate)
+	
 	
 	# Extract results in a nice-looking table
 	number_tags <- dim (dge_list$counts) [1]
@@ -134,7 +146,7 @@ if (dispersion_estimate == "common") {
 # Anlysis using moderated tagwise dispersion #
 ##############################################
 
-if (dispersion_estimate == "tagwise") {
+if (dispersion_method == "tagwise") {
 	# Calculate the tagwise dispersion
 	number_moderating_tags <- 10
 	dge_list <- estimateCommonDisp(dge_list)
