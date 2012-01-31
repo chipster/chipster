@@ -411,9 +411,9 @@ then
 
   # prinseq
   cd ${TMPDIR_PATH}/
-  wget http://downloads.sourceforge.net/project/prinseq/standalone/prinseq-lite-0.17.3.tar.gz
-  tar -xzf prinseq-lite-0.17.3.tar.gz ${TOOLS_PATH}
-  ln -s prinseq-lite-0.17.3 prinseq
+  wget http://downloads.sourceforge.net/project/prinseq/standalone/prinseq-lite-0.17.3.tar.gz  # curl -s did not work for this URL 
+  tar -xzf prinseq-lite-0.17.3.tar.gz -C ${TOOLS_PATH}
+  ln -s ${TOOLS_PATH}/prinseq-lite-0.17.3 ${TOOLS_PATH}/prinseq
   rm prinseq-lite-0.17.3.tar.gz
   
   ## Create checksums
