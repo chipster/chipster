@@ -28,6 +28,7 @@ import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.client.ClientApplication;
+import fi.csc.microarray.client.HelpMapping;
 import fi.csc.microarray.client.Session;
 import fi.csc.microarray.client.SwingClientApplication;
 import fi.csc.microarray.client.dataimport.table.InformationDialog;
@@ -365,9 +366,9 @@ public class ImportScreen extends ScreenBase  implements ImportScreenModel, Acti
 		
 		if (source == helpButton){
 			if (this.getCurrentStep() == Step.FIRST){
-				application.viewHelp("chipster-manual/import-help.html#step1");
+				application.viewHelp(HelpMapping.MANUAL_ROOT + "import-help.html#step1");
 			} else {
-				application.viewHelp("chipster-manual/import-help.html#step2");
+				application.viewHelp(HelpMapping.MANUAL_ROOT + "import-help.html#step2");
 			}
 		}
 		
