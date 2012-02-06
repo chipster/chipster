@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Properties;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -201,7 +202,11 @@ public class MessagingEndpoint implements MessagingListener {
 		reliableConnectionFactory.setPassword(password);
 		reliableConnectionFactory.setBrokerURL(completeBrokerUrl);
 		
-
+		// use asynchronous sending
+		Properties properties = reliableConnectionFactory.getProperties();
+		properties.put("useAsyncSend", "true");
+		reliableConnectionFactory.setProperties(properties);
+		
 		reliableConnectionFactory.setWatchTopicAdvisories(false);
 		return reliableConnectionFactory;
 	}
@@ -300,13 +305,8 @@ public class MessagingEndpoint implements MessagingListener {
 	public void setSessionID(String sessionID) {
 		this.sessionID = sessionID;
 	}
-
-	/**
-	 * For testing only.
-	 * 
-	 * @return
-	 */
-	public ActiveMQConnection getConnection() {
-		return connection;
+	
+	public boolean isConnectionActive() {
+		return !connection.isTransportFailed();
 	}
 }

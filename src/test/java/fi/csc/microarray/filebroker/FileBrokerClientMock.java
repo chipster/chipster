@@ -24,7 +24,7 @@ public class FileBrokerClientMock extends JMSFileBrokerClient {
     HashMap<String, InputStream> files = new HashMap<String, InputStream>();
     
     public FileBrokerClientMock() throws JMSException {
-        super(null);
+        super(null, null);
     }
     
     public URL addFile(InputStream content, CopyProgressListener progressListener) {
