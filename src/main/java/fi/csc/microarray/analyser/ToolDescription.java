@@ -137,7 +137,7 @@ public class ToolDescription {
 	 * Name of the original source script or java class etc.
 	 * Needed for update checks.
 	 */
-	private File sourceFile = null;
+	private File toolFile = null;
 	
 	private String initialiser;
 	
@@ -261,11 +261,11 @@ public class ToolDescription {
 	}
 
 	public File getToolFile() {
-		return sourceFile;
+		return toolFile;
 	}
 
-	public void setSourceResourceFullPath(File sourceFile) {
-		this.sourceFile = sourceFile;
+	public void setToolFile(File sourceFile) {
+		this.toolFile = sourceFile;
 	}
 	
 	public void setHelpURL(String helpURL) {

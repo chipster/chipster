@@ -420,10 +420,21 @@ public class RAnalysisJob extends OnDiskAnalysisJobBase {
 	 * Converts a name-value -pair into R variable definition.
 	 */
 	public static String transformVariable(String name, String value, boolean isNumeric) {
+		
+		// Escape strings and such
 		if (!isNumeric) {
-			value = R_STRING_SEPARATOR + value + R_STRING_SEPARATOR; // escape strings and such
+			value = R_STRING_SEPARATOR + value + R_STRING_SEPARATOR; 
 		}
-		name = name.replaceAll(" ", "_"); // remove spaces
+		
+		// If numeric, check for empty value
+		if (isNumeric && value.trim().isEmpty()) {
+			value = "NA"; // R's constant for "not available" 
+		}
+		
+		// Sanitize parameter name (remove spaces)
+		name = name.replaceAll(" ", "_"); 
+		
+		// Construct and return parameter assignment
 		return (name + " <- " + value);
 	}
 

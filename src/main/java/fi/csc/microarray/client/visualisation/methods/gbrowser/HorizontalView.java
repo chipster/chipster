@@ -129,9 +129,7 @@ public class HorizontalView extends View implements KeyListener {
 		bpRegion.move(bpMove);
 		setBpRegion(bpRegion, disableDrawing);
 
-		if (!disableDrawing) {
-			parentPlot.redraw();
-		}
+		parentPlot.redraw();
 	}
 	
 	@Override

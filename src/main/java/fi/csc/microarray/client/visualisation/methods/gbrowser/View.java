@@ -14,8 +14,6 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,8 +26,6 @@ import java.util.Set;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
-import fi.csc.microarray.client.Session;
-import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.TooltipAugmentedChartPanel.TooltipRequestProcessor;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.QueueManager;

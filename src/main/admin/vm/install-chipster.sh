@@ -153,7 +153,7 @@ if [ $mode == "runtime" ]
 then
   ## Runtime:
   # aptitude -y install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev (141 packages)
-  aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc # (117 packages)
+aptitude -y --without-recommends install libgfortran3 libcurl3 libglib2.0-0 libglu1-mesa libgsl0ldbl libpng12-0 libreadline6 libxml2 mesa-common-dev tcl tk xorg-dev unixodbc # (117 packages)
 elif [ $mode == "devel" ]
 then
   ## Devel:
@@ -183,9 +183,7 @@ mkdir ${TMPDIR_PATH}/
 
 # Install Chipster
 cd ${TMPDIR_PATH}/
-#wget -nv http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/${CHIP_VER}/chipster-${CHIP_VER}.tar
-#tar -xf chipster-${CHIP_VER}.tar
-curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/${CHIP_VER}/chipster-${CHIP_VER}.tar | tar -x
+curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/${CHIP_VER}/chipster-${CHIP_VER}.tar.gz | tar -xz
 mv chipster/ ${CHIP_PATH}/
 #rm chipster-${CHIP_VER}.tar
 
@@ -215,7 +213,10 @@ ln -s /scratch/jobs-data ${CHIP_PATH}/comp/jobs-data
 
 touch ${CHIP_PATH}/auto-config-to-be-run
 
-## LINKS TO TOOLS PATH SHOULD BE RELATIVE, INSTEAD OF USING TOOLS_PATH
+##############################################
+# Install external applications and datasets #
+##############################################
+
 if [ $mode == "devel" -a $build_tools == "yes" ]
 then
   ## R:
@@ -361,12 +362,12 @@ then
 
   # BWA, GPL v3 or later, MIT License
   cd ${TMPDIR_PATH}/
-  curl -sL http://sourceforge.net/projects/bio-bwa/files/bwa-0.5.9.tar.bz2/download | tar -xj
-  cd bwa-0.5.9/
+  curl -sL http://sourceforge.net/projects/bio-bwa/files/bwa-0.6.1.tar.bz2/download | tar -xj
+  cd bwa-0.6.1/
   make
   cd ../
-  mv bwa-0.5.9/ ${TOOLS_PATH}/
-  ln -s bwa-0.5.9 ${TOOLS_PATH}/bwa
+  mv bwa-0.6.1/ ${TOOLS_PATH}/
+  ln -s bwa-0.6.1 ${TOOLS_PATH}/bwa
 
   # Fastx links
   mkdir -p ${TOOLS_PATH}/fastx/bin/
@@ -375,39 +376,41 @@ then
   ln -s /usr/bin/fastx_* ${TOOLS_PATH}/fastx/bin/
 
   # CanGEM probe mapping data
-  cd ${TMPDIR_PATH}/
   mkdir ${TOOLS_PATH}/CanGEM/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/CanGEM_probe_mappings/All_CanGEM_probe_mappings_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/CanGEM/
 
   # Genome data for tools
-  cd ${TMPDIR_PATH}/
   mkdir ${TOOLS_PATH}/genomes/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomes_for_tools/All_genomes_for_tools_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomes/
 
   # GTF gene data for tools
-  cd ${TMPDIR_PATH}/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/gtfs/All_gtfs_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomes
 
   # miRNA mapping data
-  cd ${TMPDIR_PATH}/
   mkdir ${TOOLS_PATH}/miRNA_mappings/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/miRNA_mappings/All_miRNA_mappings_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/miRNA_mappings/
 
   # Genome variant databases
-  cd ${TMPDIR_PATH}/
   mkdir ${TOOLS_PATH}/DGV/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/genomic_variant_dbs/All_genomic_variant_dbs_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/DGV/
 
   # bwa indexes, built for Chipster
-  cd ${TMPDIR_PATH}/
   mkdir ${TOOLS_PATH}/bwa_indexes/
   curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/bwa_indexes/All_bwa_indexes_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/bwa_indexes/
 
-  ## Data for CNA-seq tools (produced by Ilari Scheinin)
+  # Data for CNA-seq tools (produced by Ilari Scheinin)
   wget -nv http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/tools_extras/misc/GRCh37.zip
   unzip -q GRCh37.zip -d ${TOOLS_PATH}/MPScall
   rm GRCh37.zip
 
+  # prinseq
+  cd ${TMPDIR_PATH}/
+  curl -sL http://sourceforge.net/projects/prinseq/files/standalone/prinseq-lite-0.17.3.tar.gz/download | tar -xz
+  chmod a+x prinseq-lite-0.17.3/prinseq-lite.pl
+  chmod a+x prinseq-lite-0.17.3/prinseq-graphs.pl
+  mv prinseq-lite-0.17.3 ${TOOLS_PATH}/
+  ln -s prinseq-lite-0.17.3 ${TOOLS_PATH}/prinseq
+  
   ## Create checksums
   cd ${TOOLS_PATH}/
   find . '!' -type d '!' -type l -print0 | xargs -0 sha256sum >> tools.sha256sum
