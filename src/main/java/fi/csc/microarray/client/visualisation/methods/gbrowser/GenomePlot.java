@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -15,17 +14,15 @@ import java.util.List;
 
 import javax.swing.UIManager;
 
-import org.jfree.chart.ChartMouseEvent;
-import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.PlotState;
 import org.jfree.data.general.DatasetChangeEvent;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.EmptyTrack;
 
 /**
@@ -35,7 +32,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.EmptyTrack;
  * @author Petri Klemelä, Aleksi Kallio
  * @see View
  */
-public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, Serializable {
+public class GenomePlot extends Plot {
 
 	private List<View> views = new LinkedList<View>();
 	private View dataView = null;
@@ -73,7 +70,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
     }    
 
 	public GenomePlot(TooltipAugmentedChartPanel panel, boolean horizontal) throws FileNotFoundException, MalformedURLException {
-	    
+		
 	    // set chart panel
 	    this.chartPanel = panel;
 	    this.chartPanel.setLayout(null);
@@ -102,7 +99,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 		panel.addTooltipRequestProcessor(dataView);
 
 		dataView.addRegionListener(new RegionListener() {
-			public void regionChanged(BpCoordRegion bpRegion) {
+			public void regionChanged(Region bpRegion) {
 				overviewView.highlight = bpRegion;
 				overviewView.setBpRegion(new BpCoordRegionDouble(0.0, 250*1000*1000.0, bpRegion.start.chr), false);
 			}
@@ -111,7 +108,7 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 		overviewView.addOverviewRegionListener(new RegionListener() {
 
 			@Override
-			public void regionChanged(BpCoordRegion bpRegion) {
+			public void regionChanged(Region bpRegion) {
 				dataView.setBpRegion(new BpCoordRegionDouble(bpRegion), false);
 			}		
 		});
@@ -258,18 +255,6 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
 	}
 
 	/**
-	 * Implements the ChartMouseListener interface. This method does nothing.
-	 * 
-	 * @param event
-	 *            the mouse event.
-	 */
-	public void chartMouseMoved(ChartMouseEvent event) {
-	}
-
-	public void chartMouseClicked(ChartMouseEvent e) {
-	}
-
-	/**
 	 * Tests this plot for equality with an arbitrary object. Note that the plot's dataset is NOT included in the test for equality.
 	 * 
 	 * @param obj
@@ -370,4 +355,8 @@ public class GenomePlot extends Plot implements ChartMouseListener, Cloneable, S
     public void setFullHeight(boolean b) {
     	showFullHeight = b;
     }
+
+	public void clean() {
+		dataView.clean();
+	}
 }

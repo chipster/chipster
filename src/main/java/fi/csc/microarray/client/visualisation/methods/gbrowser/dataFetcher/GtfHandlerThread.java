@@ -5,39 +5,38 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.CytobandDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.LineDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.ChunkFileRequest;
 
 /**
- * Processing layer of cytoband data. There is no need for processing with this data type, so just passing 
+ * Processing layer of gene and transcript annotation data. There is no need for processing with this data type, so just passing 
  * original data through.
  * 
  * @author Petri Klemelä
  *
  */
-public class CytobandHandlerThread extends AreaRequestHandler {
+public class GtfHandlerThread extends AreaRequestHandler {
 
-	private CytobandDataSource dataSource;
+	private LineDataSource dataSource;
 	
-	private CytobandFileFetcherThread fileFetcher;
+	private GtfFileFetcherThread fileFetcher;
 	private BlockingQueue<BpCoordFileRequest> fileRequestQueue = new LinkedBlockingQueue<BpCoordFileRequest>();
 	private ConcurrentLinkedQueue<ParsedFileResult> fileResultQueue = new ConcurrentLinkedQueue<ParsedFileResult>();
 
-    public CytobandHandlerThread(DataSource file, Queue<AreaRequest> areaRequestQueue,
+    public GtfHandlerThread(DataSource file, Queue<AreaRequest> areaRequestQueue,
             AreaResultListener areaResultListener) {
         
         super(areaRequestQueue, areaResultListener);
-        dataSource = (CytobandDataSource) file;
+        dataSource = (LineDataSource) file;
     }
 
 	@Override
 	public synchronized void run() {
 
 		// Start file processing layer thread
-		fileFetcher = new CytobandFileFetcherThread(fileRequestQueue, fileResultQueue, this,
+		fileFetcher = new GtfFileFetcherThread(fileRequestQueue, fileResultQueue, this,
 				dataSource);
 		
 		fileFetcher.start();
@@ -72,7 +71,6 @@ public class CytobandHandlerThread extends AreaRequestHandler {
 			return;
 		}
 
-			
 		fileRequestQueue.add(new BpCoordFileRequest(areaRequest, areaRequest.start, areaRequest.end, areaRequest.status));		
     }
 }

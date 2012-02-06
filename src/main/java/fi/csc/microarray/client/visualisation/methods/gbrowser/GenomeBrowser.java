@@ -57,6 +57,7 @@ import fi.csc.microarray.client.selection.PointSelectionEvent;
 import fi.csc.microarray.client.visualisation.NonScalableChartPanel;
 import fi.csc.microarray.client.visualisation.Visualisation;
 import fi.csc.microarray.client.visualisation.VisualisationFrame;
+import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.ChunkTreeHandlerThread;
@@ -73,8 +74,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TsvPar
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.Genome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AnnotationManager.GenomeAnnotation;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.SeparatorTrack3D;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
@@ -92,7 +93,7 @@ import fi.csc.microarray.util.IOUtils;
  * @see GenomePlot
  */
 public class GenomeBrowser extends Visualisation implements ActionListener,
-		RegionListener, FocusListener, ComponentListener, PropertyChangeListener {
+		RegionListener, ComponentListener, PropertyChangeListener {
 
 
 	private static final long DEFAULT_VIEWSIZE = 100000;
@@ -976,7 +977,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 		}
 	}
 
-	public void regionChanged(BpCoordRegion bpRegion) {
+	public void regionChanged(Region bpRegion) {
 		updateCoordinateFields(bpRegion.getMid(), bpRegion.getLength());
 		this.lastLocation = bpRegion.getMid();
 		this.lastViewsize = bpRegion.getLength();
@@ -1099,7 +1100,7 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	private void translateGenename() throws SQLException {
 		if (!GeneIndexActions.checkIfNumber(locationField.getText())) {
 
-			BpCoordRegion geneLocation = gia.getLocation(locationField.getText().toUpperCase());
+			Region geneLocation = gia.getLocation(locationField.getText().toUpperCase());
 
 			if (geneLocation == null) {
 				
@@ -1147,16 +1148,6 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 	}
 
 	@Override
-	public void focusGained(FocusEvent e) {
-		// Ignore
-	}
-
-	@Override
-	public void focusLost(FocusEvent e) {
-		// Ignore
-	}
-
-	@Override
 	public void componentHidden(ComponentEvent arg0) {
 		// Ignore
 	}
@@ -1196,5 +1187,21 @@ public class GenomeBrowser extends Visualisation implements ActionListener,
 			// Update
 			updateLocation();
 		}
+	}
+	
+	@Override
+	public void removeVisualisation() {
+		
+		super.removeVisualisation();
+
+		if (plot != null) {
+			plot.clean();
+		}
+// Keeping database consumes maybe 30 MB of RAM per genome, but subsequent GB visualisations start faster
+//		gia.clean();	
+//		this.gia = null;
+		
+		application.removeClientEventListener(this);
+
 	}
 }

@@ -63,7 +63,13 @@ public class IntensityTrack extends Track {
 			}
 			
 			// remove values that are too wide for this view (when zooming in)
-			if (removeTooWide && regCont.region.getLength() > (getView().getBpRegion().getLength() / SAMPLING_GRANULARITY * 2)) {
+			if (removeTooWide && regCont.region.getLength() > ((getView().getBpRegion().getLength() / SAMPLING_GRANULARITY) * 2)) {
+				iterator.remove();
+				continue;
+			}
+			
+			// remove values that are too narrow to show (when zooming out)
+			if (regCont.region.getLength() < (getView().getBpRegion().getLength() / (SAMPLING_GRANULARITY * 4))) {
 				iterator.remove();
 				continue;
 			}
@@ -101,7 +107,7 @@ public class IntensityTrack extends Track {
 					content.values.get(ColumnType.STRAND) == getStrand() && 
 					content.values.get(ColumnType.VALUE) != null &&
 					content.region.intersects(getView().getBpRegion())) { 
-
+				
 				values.add(content);
 				valueStorageOrder.add(content);
 			}

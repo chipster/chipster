@@ -15,7 +15,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.CytobandDataSourc
 import fi.csc.microarray.client.visualisation.methods.gbrowser.LineDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -39,6 +39,8 @@ public class CytobandFileFetcherThread extends Thread {
 	private CytobandDataSource dataSource;
 		
 	SortedSet<Cytoband> cytobands;
+	
+	private  boolean poison = false;
 
 	public CytobandFileFetcherThread(BlockingQueue<BpCoordFileRequest> fileRequestQueue, 
 			ConcurrentLinkedQueue<ParsedFileResult> fileResultQueue, CytobandHandlerThread areaRequestThread,
@@ -54,7 +56,7 @@ public class CytobandFileFetcherThread extends Thread {
 
 	public void run() {
 
-		while (true) {
+		while (!poison) {
 			try {
 				processFileRequest(fileRequestQueue.take());
 
@@ -114,7 +116,7 @@ public class CytobandFileFetcherThread extends Thread {
 						
 					} else {
 
-						BpCoordRegion region = new BpCoordRegion(
+						Region region = new Region(
 								Long.decode(seq_region_start), Long.decode(seq_region_end), new Chromosome(chr));
 
 						Cytoband cytoband = new Cytoband(region, band, stain);
@@ -125,6 +127,11 @@ public class CytobandFileFetcherThread extends Thread {
 	}
 
 	private void processFileRequest(BpCoordFileRequest fileRequest) throws IOException {
+		
+		if (fileRequest.getStatus().poison) {
+			poison = true;
+			return;
+		}
 		
 		if (cytobands == null) {
 			cytobands = new TreeSet<Cytoband>();
@@ -153,5 +160,9 @@ public class CytobandFileFetcherThread extends Thread {
 				
 		fileResultQueue.add(result);		
 		areaRequestThread.notifyAreaRequestHandler();
+	}
+	
+	public String toString() {
+		return this.getClass().getName() + " - " + dataSource;
 	}
 }

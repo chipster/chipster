@@ -46,6 +46,7 @@ public class LineDataSource extends DataSource {
 
 		if (result == null) {
 			reader.close();
+			reader = null;
 		}
 
 		return result;

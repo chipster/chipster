@@ -15,7 +15,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 
@@ -39,7 +39,9 @@ public class SAMFileFetcherThread extends Thread {
 
 	private SAMHandlerThread areaRequestThread;
 
-	private BpCoordRegion previousRequestedRegion;
+	private Region previousRequestedRegion;
+	
+	private boolean poison = false;
 
 	public SAMFileFetcherThread(BlockingQueue<BpCoordFileRequest> fileRequestQueue, ConcurrentLinkedQueue<ParsedFileResult> fileResultQueue, SAMHandlerThread areaRequestThread, SAMDataSource dataSource) {
 
@@ -52,7 +54,7 @@ public class SAMFileFetcherThread extends Thread {
 
 	public void run() {
 
-		while (true) {
+		while (!poison) {
 			try {
 				processFileRequest(fileRequestQueue.take());
 
@@ -65,6 +67,12 @@ public class SAMFileFetcherThread extends Thread {
 	}
 
 	private void processFileRequest(BpCoordFileRequest fileRequest) throws IOException {
+		
+		if (fileRequest.getStatus().poison) {
+			poison = true;
+			return;
+		}
+		
 		if (fileRequest.areaRequest.status.concise) {
 			sampleToGetConcisedRegion(fileRequest);
 
@@ -76,9 +84,9 @@ public class SAMFileFetcherThread extends Thread {
 			if (previousRequestedRegion != null) {
 				
 				if (request.intersects(previousRequestedRegion)) {
-					BpCoordRegion overlap = request.intersect(previousRequestedRegion);
+					Region overlap = request.intersect(previousRequestedRegion);
 					
-					BpCoordRegion newRegion = new BpCoordRegion(request.start, request.end);
+					Region newRegion = new Region(request.start, request.end);
 					
 					if (overlap.start.equals(request.start)) {
 						// Overlaps from left
@@ -131,7 +139,7 @@ public class SAMFileFetcherThread extends Thread {
 				SAMRecord record = iterator.next();
 
 				// Region for this read
-				BpCoordRegion recordRegion = new BpCoordRegion((long) record.getAlignmentStart(), (long) record.getAlignmentEnd(), request.start.chr);
+				Region recordRegion = new Region((long) record.getAlignmentStart(), (long) record.getAlignmentEnd(), request.start.chr);
 
 				// Values for this read
 				LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();
@@ -212,11 +220,14 @@ public class SAMFileFetcherThread extends Thread {
 
 		// Send result
 		LinkedList<RegionContent> content = new LinkedList<RegionContent>();
-		content.add(new RegionContent(new BpCoordRegion(from, to), countForward, countReverse));
+		content.add(new RegionContent(new Region(from, to), countForward, countReverse));
 		ParsedFileResult result = new ParsedFileResult(content, request, request.areaRequest, request.getStatus());
 		fileResultQueue.add(result);
 		areaRequestThread.notifyAreaRequestHandler();
 
 	}
-
+	
+	public String toString() {
+		return this.getClass().getName() + " - " + dataSource;
+	}
 }

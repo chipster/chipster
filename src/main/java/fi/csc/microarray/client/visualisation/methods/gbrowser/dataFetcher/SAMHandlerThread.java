@@ -19,7 +19,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Concis
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.track.IntensityTrack;
 
@@ -88,6 +88,16 @@ public class SAMHandlerThread extends AreaRequestHandler {
      */
     @Override
     protected void processAreaRequest(AreaRequest areaRequest) {
+    	
+		super.processAreaRequest(areaRequest);
+		
+		if (areaRequest.status.poison) {
+			
+			BpCoordFileRequest fileRequest = new BpCoordFileRequest(areaRequest, null, null, areaRequest.status);
+			fileRequestQueue.add(fileRequest);
+			return;
+		}
+    	
 		if (areaRequest.status.concise) {
 			processConcisedAreaRequest(areaRequest);
 
@@ -167,7 +177,7 @@ public class SAMHandlerThread extends AreaRequestHandler {
 
 	private void addConcisedRegionContents(AreaRequest request, List<RegionContent> responseList, long startPos, long endPos, int countForward, int countReverse) {
 		// Create two approximated response objects: one for each strand
-		BpCoordRegion recordRegion = new BpCoordRegion(startPos, endPos, request.start.chr);
+		Region recordRegion = new Region(startPos, endPos, request.start.chr);
 
 		// Forward
 		LinkedHashMap<ColumnType, Object> values = new LinkedHashMap<ColumnType, Object>();

@@ -1,11 +1,11 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
 public class Cytoband implements Comparable<Cytoband> {
 	
-	private BpCoordRegion region;
+	private Region region;
 	private String band;
 	private Stain stain; 
 	
@@ -35,20 +35,20 @@ public class Cytoband implements Comparable<Cytoband> {
 		}
 	}
 
-	public Cytoband(BpCoordRegion region, String band, String stain) {
+	public Cytoband(Region region, String band, String stain) {
 		this.region = region;
 		this.band = band;
 		this.stain = getStain(stain);
 	}
 	
-	public Cytoband(BpCoordRegion region, String band, Stain stain) {
+	public Cytoband(Region region, String band, Stain stain) {
 		this.region = region;
 		this.band = band;
 		this.stain = stain;
 	}
 	
 	public Cytoband(BpCoord coord) {
-		this.region = new BpCoordRegion(coord, coord);
+		this.region = new Region(coord, coord);
 	}
 
 	private Stain getStain(String id) {
@@ -63,24 +63,34 @@ public class Cytoband implements Comparable<Cytoband> {
 	
 
 	public int compareTo(Cytoband other) {
-
-		int comparison = this.region.compareTo(other.region);
-
-		if (comparison != 0) {
-			return comparison;			
-		} 
 		
-		comparison = this.band.compareTo(other.getBand());
+		int regionComparison = this.region.compareTo(other.region);
 		
-		if (comparison != 0 && this.band != null) {
-			return comparison;			
-		} 
+		int bandComparison = 0;
+		int stainComparison = 0;
 		
-		if (this.stain != null) {
-			comparison = this.stain.compareTo(other.getStain());
+		if (this.band != null && other.getBand() != null) {
+			bandComparison = this.band.compareTo(other.getBand());
+		} else if (this.band == null && other.getBand() == null) {
+			bandComparison = 0;
+		} else if (this.band == null) {
+			bandComparison = -1;
 		}
 		
-		return comparison;
+		if (this.stain != null && other.getBand() != null) {
+			stainComparison = this.stain.compareTo(other.getStain());
+		} else if (this.stain == null && other.getBand() == null) {
+			stainComparison = 0;
+		} else if (this.stain == null) {
+			stainComparison = -1;
+		}
+		
+		if (regionComparison != 0) {
+			return regionComparison;
+		} else if (bandComparison != 0) {
+			return bandComparison;
+		}
+		return stainComparison;
 	}
 	
 	public Stain getStain() {
@@ -111,7 +121,7 @@ public class Cytoband implements Comparable<Cytoband> {
 		return region.toString(true) + ", " + band + ", " + stain.getId();
 	}
 
-	public BpCoordRegion getRegion() {
+	public Region getRegion() {
 		return region;
 	}
 }

@@ -15,7 +15,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Chunk;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.BEDParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
 import fi.csc.microarray.util.Strings;
 
@@ -131,7 +131,7 @@ public class RegionOperations {
 		 * @param right
 		 * @return true iff left and right are pairs according to this rule
 		 */
-		public boolean isPair(BpCoordRegion left, BpCoordRegion right);
+		public boolean isPair(Region left, Region right);
 	}
 
 	/**
@@ -147,11 +147,11 @@ public class RegionOperations {
 			this.minLength = minLength;
 		}
 
-		public boolean isPair(BpCoordRegion left, BpCoordRegion right) {
+		public boolean isPair(Region left, Region right) {
 			if (!left.intersects(right)) {
 				return false;
 			}
-			BpCoordRegion intersection = left.intersect(right);
+			Region intersection = left.intersect(right);
 			return intersection.getLength() >= minLength;
 		}
 	}
@@ -297,7 +297,7 @@ public class RegionOperations {
 			}
 			
 			// Write out
-			mergedRegions.add(new RegionContent(new BpCoordRegion(regions.get(i).region.start, regions.get(j).region.end), EMPTY_EXTRA_FIELDS));
+			mergedRegions.add(new RegionContent(new Region(regions.get(i).region.start, regions.get(j).region.end), EMPTY_EXTRA_FIELDS));
 			
 			// Jump to region after the previously written one
 			i = j+1;

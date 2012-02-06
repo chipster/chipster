@@ -8,7 +8,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
  * @author Aleksi Kallio
  *
  */
-public class ReadPart extends BpCoordRegion {
+public class ReadPart extends Region {
 	
 	private String sequencePart;
 	private RegionContent read;

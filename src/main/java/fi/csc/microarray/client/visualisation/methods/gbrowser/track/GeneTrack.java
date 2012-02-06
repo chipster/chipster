@@ -13,10 +13,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.AreaRequestHandler;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.Gene;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.Drawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.drawable.RectDrawable;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
@@ -30,7 +30,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  */
 public class GeneTrack extends Track {
 
-	private Collection<RegionContent> reads = new TreeSet<RegionContent>();
+	private Collection<Gene> genes = new TreeSet<Gene>();
 	private List<Integer> occupiedSpace = new ArrayList<Integer>();
 
 	private long maxBpLength;
@@ -39,7 +39,7 @@ public class GeneTrack extends Track {
 	private Color color;
 
 
-	public GeneTrack(View view, ChunkDataSource file, Class<? extends AreaRequestHandler> handler,
+	public GeneTrack(View view, DataSource file, Class<? extends AreaRequestHandler> handler,
 	        Color color, long minBpLength, long maxBpLength) {
 		super(view, file, handler);
 		this.color = color;
@@ -53,22 +53,22 @@ public class GeneTrack extends Track {
 
 		occupiedSpace.clear();
 
-		if (reads != null) {
+		if (genes != null) {
 
-			Iterator<RegionContent> iter = reads.iterator();
+			Iterator<Gene> iter = genes.iterator();
 			while (iter.hasNext()) {
 
-				RegionContent read = iter.next();
+				Gene gene = iter.next();
 
 				// FIXME this and all the other incarnations of the same 3 lines should be refactored up to Track or something
-				if (!read.region.intersects(getView().getBpRegion())) {
+				if (!gene.getRegion().intersects(getView().getBpRegion())) {
 					iter.remove();
 					continue;
 				}
 
-				String name = ((String) read.values.get(ColumnType.DESCRIPTION));
+				String name = gene.getName();
 
-				createDrawable(read.region.start, read.region.end, 10, color, name, drawables);
+				createDrawable(gene.getRegion().start, gene.getRegion().end, 10, color, name, drawables);
 			}
 		}
 
@@ -112,9 +112,15 @@ public class GeneTrack extends Track {
 	public void processAreaResult(AreaResult areaResult) {
 
 		for (RegionContent content : areaResult.getContents()) {
-			if (areaResult.getStatus().concise == this.isConcised() && content.values.get(ColumnType.STRAND) == getStrand()) {
-				this.reads.add(content);
-				getView().redraw();
+			if (areaResult.getStatus().concise == this.isConcised()) {
+				
+				Gene gene = (Gene) content.values.get(ColumnType.VALUE);
+								
+				if (gene.getRegion().getStrand() == getStrand()) {
+					this.genes.add(gene);
+
+					getView().redraw();
+				}
 			}			
 		}
 	}
@@ -147,8 +153,6 @@ public class GeneTrack extends Track {
         HashMap<DataSource, Set<ColumnType>> datas = new
         HashMap<DataSource, Set<ColumnType>>();
         datas.put(file, new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
-                ColumnType.STRAND,
-                ColumnType.DESCRIPTION,
                 ColumnType.VALUE })));
         return datas;
     }

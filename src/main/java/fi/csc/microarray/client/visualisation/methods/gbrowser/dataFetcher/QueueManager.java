@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -11,6 +12,8 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.DataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.View;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaResult;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 
 /**
  * Collects and resends area results. Used by the {@link View} objects to manage incoming area results.
@@ -75,6 +78,22 @@ public class QueueManager implements AreaResultListener {
 
 		for (AreaResultListener listener : queues.get(areaResult.getStatus().file).listeners) {
 			listener.processAreaResult(areaResult);
+		}
+	}
+
+	public void poisonAll() {
+		
+		for (Entry<DataSource, QueueContext> entry : queues.entrySet()) {
+			
+			FsfStatus status = new FsfStatus();
+			status.poison = true;
+			AreaRequest request = new AreaRequest(new Region(), null, status);
+						
+			QueueContext context = entry.getValue();
+			context.queue.add(request);
+			context.thread.notifyAreaRequestHandler();
+			
+			context.thread = null;
 		}
 	}
 }

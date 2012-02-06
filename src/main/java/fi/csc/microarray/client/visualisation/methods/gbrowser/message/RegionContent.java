@@ -12,28 +12,28 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Type;
  */
 public class RegionContent implements Comparable<RegionContent> {
 	
-	public BpCoordRegion region;
+	public Region region;
 	public LinkedHashMap<ColumnType, Object> values;
 
-	public RegionContent(BpCoordRegion region, LinkedHashMap<ColumnType, Object> values) {
+	public RegionContent(Region region, LinkedHashMap<ColumnType, Object> values) {
 		this.region = region;
 		this.values = values;
 	}
 
-	public RegionContent(BpCoordRegion region, Object concisedValue) {
+	public RegionContent(Region region, Object concisedValue) {
 		this.region = region;
 		this.values = new LinkedHashMap<ColumnType, Object>();
 		this.values.put(ColumnType.VALUE, concisedValue);
 	}
 
-	public RegionContent(BpCoordRegion region, Object concisedValueForward,  Object concisedValueReverse) {
+	public RegionContent(Region region, Object concisedValueForward,  Object concisedValueReverse) {
 		this.region = region;
 		this.values = new LinkedHashMap<ColumnType, Object>();
 		this.values.put(ColumnType.VALUE_FORWARD, concisedValueForward);
 		this.values.put(ColumnType.VALUE_REVERSE, concisedValueReverse);
 	}
 
-	public RegionContent(BpCoordRegion region) {
+	public RegionContent(Region region) {
 		this.region = region;
 		this.values = new LinkedHashMap<ColumnType, Object>(); 
 	}

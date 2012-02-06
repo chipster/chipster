@@ -14,6 +14,8 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,6 +28,8 @@ import java.util.Set;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+import fi.csc.microarray.client.Session;
+import fi.csc.microarray.client.visualisation.VisualisationMethodChangedEvent;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.GenomePlot.ReadScale;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.TooltipAugmentedChartPanel.TooltipRequestProcessor;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.QueueManager;
@@ -34,7 +38,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordDouble;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegion;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoordRegionDouble;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.FsfStatus;
@@ -52,7 +56,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.track.TrackGroup;
 public abstract class View implements MouseListener, MouseMotionListener, MouseWheelListener, TooltipRequestProcessor {
 
 	public BpCoordRegionDouble bpRegion;
-	public BpCoordRegion highlight;
+	public Region highlight;
 
 	public Collection<TrackGroup> trackGroups = new LinkedList<TrackGroup>();
 	protected Rectangle viewArea = new Rectangle(0, 0, 500, 500);
@@ -491,8 +495,8 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		return bpRegion;
 	}
 
-	public BpCoordRegion getBpRegion() {
-		return new BpCoordRegion((long) (double) bpRegion.start.bp, bpRegion.start.chr, (long) (double) bpRegion.end.bp, bpRegion.end.chr);
+	public Region getBpRegion() {
+		return new Region((long) (double) bpRegion.start.bp, bpRegion.start.chr, (long) (double) bpRegion.end.bp, bpRegion.end.chr);
 	}
 
 	public void mouseClicked(MouseEvent e) {
@@ -774,4 +778,8 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		return null; // tooltips disabled by default in views
 	}
 
+	public void clean() {
+		
+		queueManager.poisonAll();
+	}
 }
