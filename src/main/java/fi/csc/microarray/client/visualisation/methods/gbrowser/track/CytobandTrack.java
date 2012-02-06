@@ -188,10 +188,9 @@ public class CytobandTrack extends Track {
 				
 				cbands.add(cband);
 				
-				getView().redraw();
-			}
-						
+			}						
 		}
+		getView().redraw();
 	}
 
 	@Override

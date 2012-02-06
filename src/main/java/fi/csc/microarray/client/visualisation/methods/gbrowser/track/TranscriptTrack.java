@@ -229,9 +229,9 @@ public class TranscriptTrack extends Track {
 				
 				genes.add(gene);
 
-				getView().redraw();
 			}
 		}
+		getView().redraw();
 	}
 
 	private long maxBpLength;

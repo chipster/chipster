@@ -119,10 +119,10 @@ public class GeneTrack extends Track {
 				if (gene.getRegion().getStrand() == getStrand()) {
 					this.genes.add(gene);
 
-					getView().redraw();
 				}
 			}			
 		}
+		getView().redraw();
 	}
 
 	@Override

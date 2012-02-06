@@ -199,10 +199,10 @@ public class QualityCoverageTrack extends Track {
 						getStrand() == Strand.BOTH) {
 
 					forwardReads.add(content);
-					getView().redraw();
 				}
 			}
 		}
+		getView().redraw();
 	}
 
 	@Override
