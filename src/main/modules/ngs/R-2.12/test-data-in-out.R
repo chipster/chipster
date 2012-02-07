@@ -1,5 +1,5 @@
-# TOOL test-data-in.R: "Test data input" (Data input test tool.) 
+# TOOL test-data-in-out.R: "Test data input and output" (Data input output test.) 
 # INPUT input TYPE GENERIC
-# OUTPUT data-input-test.txt
+# OUTPUT output
 
-system("echo 'data input test' > data-input-test.txt")
+system("cp input output")
