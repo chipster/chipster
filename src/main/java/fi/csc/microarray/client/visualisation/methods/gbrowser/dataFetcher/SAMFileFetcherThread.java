@@ -15,6 +15,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Column
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.Strand;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.BpCoord;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Region;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Cigar;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionContent;
@@ -169,6 +170,14 @@ public class SAMFileFetcherThread extends Thread {
 					values.put(ColumnType.SEQUENCE, seq);
 				}
 
+				if (request.requestedContents.contains(ColumnType.MATE_POSITION)) {
+					
+					BpCoord mate = new BpCoord((Long)(long)record.getMateAlignmentStart(),
+							new Chromosome(record.getMateReferenceName()));
+					
+					values.put(ColumnType.MATE_POSITION, mate);
+				}
+				
 				/*
 				 * NOTE! RegionContents created from the same read area has to be equal in methods equals, hash and compareTo. Primary types
 				 * should be ok, but objects (including tables) has to be handled in those methods separately. Otherwise tracks keep adding
