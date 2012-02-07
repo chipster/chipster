@@ -27,7 +27,7 @@
 # KM 26.8.2011
 
 # bwa
-bwa.binary <- file.path(chipster.tools.path, "bin", "bwa")
+bwa.binary <- file.path(chipster.tools.path, "bwa", "bwa")
 bwa.indexes <- file.path(chipster.tools.path, "bwa_indexes")
 bwa.genome <- file.path(bwa.indexes, genome)
 command.start <- paste("bash -c '", bwa.binary)
