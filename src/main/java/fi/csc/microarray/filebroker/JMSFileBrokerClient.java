@@ -18,7 +18,6 @@ import javax.jms.JMSException;
 import org.apache.log4j.Logger;
 
 import fi.csc.microarray.config.DirectoryLayout;
-import fi.csc.microarray.messaging.MessagingEndpoint;
 import fi.csc.microarray.messaging.MessagingTopic;
 import fi.csc.microarray.messaging.TempTopicMessagingListenerBase;
 import fi.csc.microarray.messaging.message.ChipsterMessage;
@@ -94,11 +93,9 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	private boolean useChunked;
 	private boolean useCompression;
 	private String localFilebrokerPath;
-	private MessagingEndpoint endpoint;
 	
-	public JMSFileBrokerClient(MessagingEndpoint endpoint, MessagingTopic urlTopic, String localFilebrokerPath) {
+	public JMSFileBrokerClient(MessagingTopic urlTopic, String localFilebrokerPath) {
 
-		this.endpoint = endpoint;
 		this.urlTopic = urlTopic;
 		this.localFilebrokerPath = localFilebrokerPath;
 
@@ -108,8 +105,8 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 		
 	}
 	
-	public JMSFileBrokerClient(MessagingEndpoint endpoint, MessagingTopic urlTopic) throws JMSException {
-		this(endpoint, urlTopic, null);
+	public JMSFileBrokerClient(MessagingTopic urlTopic) throws JMSException {
+		this(urlTopic, null);
 	}
 
 
@@ -267,17 +264,14 @@ public class JMSFileBrokerClient implements FileBrokerClient {
 	@Override
 	public URL getPublicUrl() throws JMSException {
 
-		URL url = null;
-		
-		if (endpoint.isConnectionActive()) {
-			UrlMessageListener replyListener = new UrlMessageListener();  
-			try {
-				CommandMessage urlRequestMessage = new CommandMessage(CommandMessage.COMMAND_PUBLIC_URL_REQUEST);
-				urlTopic.sendReplyableMessage(urlRequestMessage, replyListener); 
-				url = replyListener.waitForReply(URL_REQUEST_TIMEOUT, TimeUnit.SECONDS);
-			} finally {
-				replyListener.cleanUp();
-			}
+		UrlMessageListener replyListener = new UrlMessageListener();  
+		URL url;
+		try {
+			CommandMessage urlRequestMessage = new CommandMessage(CommandMessage.COMMAND_PUBLIC_URL_REQUEST);
+			urlTopic.sendReplyableMessage(urlRequestMessage, replyListener); // FIXME blocks forever if we have lost network
+			url = replyListener.waitForReply(URL_REQUEST_TIMEOUT, TimeUnit.SECONDS);
+		} finally {
+			replyListener.cleanUp();
 		}
 
 		return url;

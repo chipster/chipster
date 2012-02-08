@@ -96,7 +96,7 @@ public class RemoteServiceAccessor implements ServiceAccessor {
 
 	@Override
 	public FileBrokerClient getFileBrokerClient() throws Exception {
-        return new JMSFileBrokerClient(endpoint, endpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
+        return new JMSFileBrokerClient(endpoint.createTopic(Topics.Name.URL_TOPIC, AccessMode.WRITE));
 	}
 
 	@Override
