@@ -8,9 +8,10 @@
 # OUTPUT OPTIONAL p-value-plot.pdf
 # PARAMETER column: "Column describing groups" TYPE METACOLUMN_SEL DEFAULT group (Phenodata column describing the groups to test)
 # PARAMETER normalization: "Apply normalization" TYPE [yes, no] DEFAULT yes (If enabled, a normalization factor based on estimated library size is calculated.)
-# PARAMETER dispersion_method: "Dispersion method" TYPE [common, tagwise] DEFAULT tagwise (The dispersion of counts for any given sequence can either be estimated based on the actual counts in the sample data set or be moderated across a selection of sequences with similar count numbers. The latter option, which is set by default, typically yields higher sensitivity and specificity. Note that when no biological replicates are available common dispersion is used regardless of the setting.)
-# PARAMETER dispersion_estimate:"Dispersion estimate" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.1 (The value to use for estimating the common dispersion when no replicates are available.) 
-# PARAMETER p.value.adjustment.method: "Multiple testing correction" TYPE [none, Bonferroni, Holm, Hochberg, BH, BY] DEFAULT BH (Multiple testing correction method.)
+# PARAMETER replicates: "Disregard replicates" TYPE [yes, no] DEFAULT no (In order to estimate the biological and experimental variability of the data in one experiment it is necessary to have independent biological replicates of each experiment condition. However, for various reasons, biological replicates may be available for only one of the conditions or not available at all. In the former scenario, DESeq will estimate variability using the replicates of the single condition for which they are available. It is important to note that this is only an approximation and the reliability of results may suffer as a consequence. In the case where there are no replicates at all the variance is estimated by assuming the single samples from the different conditions to be replicates. The approximation will be even less reliable and results affected accordingly.)
+# PARAMETER fitting_method: "Dispersion method" TYPE [maximum: "fit all", fit-only: "fit low"] DEFAULT maximum (The dispersion of counts for any given sequence can either be replaced with the fitted value from the dispersion model or replaced only if the fitted value is larger than the original dispersion estimate, which is the default option. The latter option optimises the balance between false positives and false negatives whereas the former minimises false positives and is therefore more conservative.)
+# PARAMETER dispersion_estimate:"Dispersion estimate" TYPE [parametric: "parametric", local: "local"] DEFAULT parametric (The dispersion can be estimated using either a two-coefficient parametric model, which is suitable in most cases, or the fit is calculated locally, which might work better under certain circumstances.)
+# PARAMETER p.value.adjustment.method: "Multiple testing correction" TYPE [none, bonferroni: "Bonferroni", holm: "Holm", hochberg: "Hochberg", BH: "BH", BY: "BY", fdr: "FDR"] DEFAULT BH (Multiple testing correction method.)
 # PARAMETER p.value.cutoff: "P-value cutoff" TYPE DECIMAL FROM 0 TO 1 DEFAULT 0.05 (The cutoff for statistical significance.)
 # PARAMETER image_width: "Plot width" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Width of the plotted network image)
 # PARAMETER image_height: "Plot height" TYPE INTEGER FROM 200 TO 3200 DEFAULT 600 (Height of the plotted network image)
@@ -34,7 +35,14 @@ w <- image_width
 h <- image_height
 
 # Set parameters for testing
-# p.value.cutoff <- 0.1
+column <- "group"
+replicates <- "yes"
+normalization <- "yes"
+fitting_method <- "maximum"
+dispersion_estimate <- "parametric"
+p.value.adjustment.method <- "BH"
+p.value.cutoff <- 0.1
+
 
 # Loads the normalized data
 file <- c("data.tsv")
@@ -53,45 +61,76 @@ number_samples <- length(groups)
 # If the library_size column contains data then use that as estimate
 lib_size <- as.numeric(phenodata$library_size)
 if (is.na(lib_size[1])) estimate_lib_size <- "TRUE" else estimate_lib_size <- "FALSE"
+lib_size <- lib_size/mean(lib_size)
+
 
 # Sanity checks
 # only 2 group comparison is supported
 if (length(unique(groups))==1 | length(unique(groups))>=3) {
 	stop("CHIPSTER-NOTE: You need to have exactly two groups to run this analysis")
 }
-# if no biological replicates, force common dispersion
-#if (number_samples == 2) dispersion_method <- "common" 
+# if no biological replicates, force blind mode in dispersion estimation
+if (number_samples == 2 && replicates == "no")  {
+	stop("CHIPSTER-NOTE: You need to have independent biological replicates for at least one of the experiment conditions. Alternatively, run the analysis with the disregard replicates parameter set to yes.")
+}
+if (number_samples == 2 && replicates == "yes")  {
+	blind_dispersion <- TRUE
+} else {
+	blind_dispersion <- FALSE
+}
 
 # Create a counts data object
-counts_data <- newCountDataSet( dat2, groups )
+counts_data <- newCountDataSet(dat2, groups)
 
-# Calculate scaling factors based on estimated library size
-counts_data <- estimateSizeFactors( counts_data )
+# Calculate scaling factors based on estimated library size, unless it is give in phenodata
+if (normalization == "yes") {
+	if (estimate_lib_size) {
+		counts_data <- estimateSizeFactors(counts_data)
+	} else {
+		counts_data <- estimateSizeFactors(counts_data)
+		estimateSizeFactors(counts_data) <- lib_size
+	}
+} else {
+	estimateSizeFactors(counts_data) <- 1
+}
 
 # Estimate dispersion values for each gene and replaced with fitted values
 # use sharingMode parameter to control how conservative
 # use fitType to control for parametric or local fit
-counts_data <- estimateDispersions( counts_data )
+if (blind_dispersion) {
+	counts_data <- estimateDispersions(counts_data, method="blind", sharingMode=fit_only,
+			fitType=dispersion_estimate)
+} else {
+	counts_data <- estimateDispersions(counts_data, method="pooled", sharingMode=fitting_method,
+			fitType=dispersion_estimate)
+}
+
 
 # Function that produces a qc plot to check dispersion estimates
-plotDispEsts <- function( cds ) {
-	plot(rowMeans( counts( cds, normalized=TRUE ) ), fitInfo(cds)$perGeneDispEsts,pch = '.', 
-			log="xy", main="Dispersion plot", xlab="normalized counts", ylab="dispersion" )
-	xg <- 10^seq( -.5, 5, length.out=300 )
-	lines( xg, fitInfo(cds)$dispFun( xg ), col="red" )
-	legend (x="topright", legend="fitted dipersion", col="red", cex=1, pch="-")
+plotDispEsts <- function(cds) {
+	plot(rowMeans( counts(cds, normalized=TRUE)), fitInfo(cds)$perGeneDispEsts,pch = '.', 
+			log="xy", main="Dispersion plot", xlab="normalized counts", ylab="dispersion")
+	xg <- 10^seq( -.5, 5, length.out=300)
+	lines(xg, fitInfo(cds)$dispFun(xg), col="red")
+	legend(x="topright", legend="fitted dipersion", col="red", cex=1, pch="-")
 }
 
 # Make plot
 pdf(file="dispersion-plot.pdf")
-plotDispEsts( counts_data )
+plotDispEsts(counts_data)
 dev.off()
 
 # Calculate statistic for differential expression
-results_table <- nbinomTest( counts_data, group_levels[2], group_levels[1] )
+results_table <- nbinomTest(counts_data, group_levels[2], group_levels[1] )
+
+# Merge with original data table
+output_table <- cbind (dat2, results_table[,-1])
+
+# adjust p-values
+output_table$padj <- p.adjust(output_table$pval, method=p.value.adjustment.method)
 
 # Filter out the significant ones
-significant_table <- results_table[ (results_table$padj <  p.value.cutoff ),]
+significant_table <- output_table[ (output_table$padj <  p.value.cutoff ),]
 
 # Order results based on raw p-values
 significant_table <- significant_table[ order(significant_table$pval), ] 
@@ -112,51 +151,17 @@ legend (x="topright", legend=c("p-values","adjusted p-values", "uniform distribu
 		cex=1, pch=15)
 dev.off()
 
-
-
 # Define function for making MA-plot of significant findings
-plotDE <- function( res )
+plotDE <- function(res)
 	plot(res$baseMean, res$log2FoldChange,
-			log="x", pch=20, cex=.3,  col = ifelse( res$padj < .1, "red", "black"),
-			main="MA plot", xlab="mean counts", ylab="log2(fold change)" ) 
+			log="x", pch=20, cex=.3, col = ifelse( res$padj < .1, "red", "black"),
+			main="MA plot", xlab="mean counts", ylab="log2(fold change)") 
+
 # Make MA-plot
 pdf(file="ma-plot.pdf")
-plotDE( results_table )
+plotDE(results_table)
 legend (x="topleft", legend=c("significant features","not significant"), col=c("red","black"),
 		cex=1, pch=19)
 dev.off()
-# EOF
-
-
-
-
-
-
-
-# Create a tbale with the original counts per sample together with the statistical tests results
-# ready for output in Chipster
-# If there are no significant results return a message
-if (dim(significant_results)[1] > 0) {
-	output_table <- data.frame (dat[significant_indices,], significant_results)
-}
-
-# Output the table
-if (dim(significant_results)[1] > 0) {
-	write.table(output_table, file="de-list.tsv", sep="\t", row.names=T, col.names=T, quote=F)
-}
-
-# Also output a bed graph file for visualization and region matching tools
-if (dim(significant_results)[1] > 0) {
-	empty_column <- character(length(significant_indices))
-	bed_output <- output_table [,c("chr","start","end")]
-	bed_output <- cbind(bed_output,empty_column)
-	bed_output <- cbind(bed_output, output_table[,"logFC"])
-	write.table(bed_output, file="de-list.bed", sep="\t", row.names=F, col.names=F, quote=F)
-}
-
-# Output a message if no significant genes are found
-if (dim(significant_results)[1] == 0) {
-	cat("No statistically significantly expressed sequences were found. Try again with a less stringent p-value cut-off or multiple testing correction method.", file="edgeR-log.txt")
-}
 
 # EOF
