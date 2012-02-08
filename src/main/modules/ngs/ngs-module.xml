@@ -178,6 +178,9 @@
 		<tool runtime="R-2.12">
 			<resource>dea-cufflinks.R</resource>
 		</tool>
+		<tool runtime="R-2.14">
+			<resource>dea-deseq.R</resource>
+		</tool>
 	</category>
 
 	<category name="miRNA-seq" color="#0177b7">
