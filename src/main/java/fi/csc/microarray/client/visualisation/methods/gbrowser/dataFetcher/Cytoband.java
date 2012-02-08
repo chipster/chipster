@@ -18,6 +18,7 @@ public class Cytoband implements Comparable<Cytoband> {
 		GPOS66("gpos66"),
 		GPOS75("gpos75"), 
 		GPOS100("gpos100"), 
+		GPOS("gpos"),
 		ACEN("acen"), 
 		GVAR("gvar"),
 		STALK("stalk"),

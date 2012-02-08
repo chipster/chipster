@@ -50,8 +50,9 @@ public class CytobandDemo extends JFrame implements AreaResultListener {
 		stainColors.put(Cytoband.Stain.GPOS66, Color.darkGray);
 		stainColors.put(Cytoband.Stain.GPOS75, Color.darkGray);
 		stainColors.put(Cytoband.Stain.GPOS100, Color.black);
+		stainColors.put(Cytoband.Stain.GPOS, Color.black);
 		stainColors.put(Cytoband.Stain.ACEN, null);
-		stainColors.put(Cytoband.Stain.GVAR, Color.white);
+		stainColors.put(Cytoband.Stain.GVAR, Color.lightGray);
 		stainColors.put(Cytoband.Stain.STALK, null);
 		stainColors.put(Cytoband.Stain.TIP, null);
 		stainColors.put(Cytoband.Stain.UNRECOGNIZED, null);
@@ -63,13 +64,16 @@ public class CytobandDemo extends JFrame implements AreaResultListener {
 		CytobandDataSource file = null;
 		try {
 			
-			// Download and extract following files
-			// ftp://ftp.ensembl.org/pub/release-65/mysql/homo_sapiens_core_65_37/karyotype.txt.gz
-			// ftp://ftp.ensembl.org/pub/release-65/mysql/homo_sapiens_core_65_37/seq_region.txt.gz
-			// and adjust this paths correspondingly:
+			/*
+			 *  Download and extract following files
+			 *  ftp://ftp.ensembl.org/pub/release-65/mysql/rattus_norvegicus_core_65_34/seq_region.txt.gz
+			 *  ftp://ftp.ensembl.org/pub/release-65/mysql/rattus_norvegicus_core_65_34/karyotype.txt.gz
+			 *  
+			 *  and adjust this paths correspondingly:
+			 */
 			
-			file = new CytobandDataSource(new File("/home/klemela/chipster/orig-annotations/karyotype.txt"), 
-					new File("/home/klemela/chipster/orig-annotations/seq_region.txt"));
+			file = new CytobandDataSource(new File("/home/klemela/chipster/ohtu/rattus/karyotype.txt"), 
+					new File("/home/klemela/chipster/ohtu/rattus/seq_region.txt"));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -83,17 +87,17 @@ public class CytobandDemo extends JFrame implements AreaResultListener {
 	public void requestData() {
 		
 		areaRequestQueue.add(new AreaRequest(
-				new Region(0l, 250000000l, new Chromosome("1")), 
+				new Region(0l, 270000000l, new Chromosome("1")), 
 				new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {ColumnType.VALUE })),
 				new FsfStatus()));
 		
 		areaRequestQueue.add(new AreaRequest(
-				new Region(0l, 250000000l, new Chromosome("2")), 
+				new Region(0l, 270000000l, new Chromosome("2")), 
 				new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {ColumnType.VALUE })),
 				new FsfStatus()));
 		
 		areaRequestQueue.add(new AreaRequest(
-				new Region(0l, 250000000l, new Chromosome("X")), 
+				new Region(0l, 270000000l, new Chromosome("X")), 
 				new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {ColumnType.VALUE })),
 				new FsfStatus()));
 
@@ -101,7 +105,7 @@ public class CytobandDemo extends JFrame implements AreaResultListener {
 	}
 
 	public int bpToDisplay(long bp) {
-		return (int) (bp / 250000000f * WIN_WIDTH);
+		return (int) (bp / 270000000f * WIN_WIDTH);
 	}
 
 

@@ -42,11 +42,11 @@ public class PairedEndDemo extends JFrame implements AreaResultListener {
 			
 			// Adjust these paths to point to the demo data
 			
-			file = new SAMDataSource(new File("/home/klemela/chipster/ohtu/ohtu-only-different-chr.bam"),
-					new File("/home/klemela/chipster/ohtu/ohtu-only-different-chr.bam.bai"));
+			file = new SAMDataSource(new File("ohtu-between-chrs.bam"),
+					new File("ohtu-between-chrs.bam.bai"));
 			
-//			file = new SAMDataSource(new File("ohtu-only-paired.bam"),
-//					new File("ohtu-only-paired.bam.bai"));
+//			file = new SAMDataSource(new File("ohtu-paired-end.bam"),
+//					new File("ohtu-paired-end.bam.bai"));
 			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -65,13 +65,13 @@ public class PairedEndDemo extends JFrame implements AreaResultListener {
 		 */
 		
 		areaRequestQueue.add(new AreaRequest(
-				new Region(0l, 250000000l, new Chromosome("1")), 
+				new Region(0l, 270000000l, new Chromosome("1")), 
 				new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
 						ColumnType.ID, ColumnType.STRAND, ColumnType.MATE_POSITION})),
 				new FsfStatus()));
 		
 		areaRequestQueue.add(new AreaRequest(
-				new Region(0l, 250000000l, new Chromosome("X")), 
+				new Region(0l, 270000000l, new Chromosome("X")), 
 				new HashSet<ColumnType>(Arrays.asList(new ColumnType[] {
 						ColumnType.ID, ColumnType.STRAND, ColumnType.MATE_POSITION})),
 				new FsfStatus()));
@@ -80,7 +80,7 @@ public class PairedEndDemo extends JFrame implements AreaResultListener {
 	}
 
 	public int bpToDisplay(long bp) {
-		return (int) (bp / 250000000f * WIN_WIDTH);
+		return (int) (bp / 270000000f * WIN_WIDTH);
 	}
 
  
