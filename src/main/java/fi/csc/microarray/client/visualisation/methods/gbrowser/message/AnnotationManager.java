@@ -397,13 +397,17 @@ public class AnnotationManager {
 	}
 	
 	private URL getRemoteAnnotationsUrl() throws Exception {
-		FileBrokerClient fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
-		if (fileBroker.getPublicUrl() != null) {
-			return new URL(fileBroker.getPublicUrl() + "/" + ANNOTATIONS_PATH);
-			
-		} else {
-			return null;
-		}
+
+		// FIXME remove hard coded nic
+		return new URL("http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/live/");
+//		
+//		FileBrokerClient fileBroker = Session.getSession().getServiceAccessor().getFileBrokerClient();
+//		if (fileBroker.getPublicUrl() != null) {
+//			return new URL(fileBroker.getPublicUrl() + "/" + ANNOTATIONS_PATH);
+//			
+//		} else {
+//			return null;
+//		}
 	}
 
 	/**
