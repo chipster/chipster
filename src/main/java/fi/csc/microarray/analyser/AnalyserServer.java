@@ -404,7 +404,9 @@ public class AnalyserServer extends MonitoredNodeBase implements MessagingListen
 				try {
 					endpoint.replyToMessage(original, reply);
 				} catch (JMSException e) {
-					logger.error("Could not send message.", e);
+					// Failing is ok, if some other comp has replied quicker and
+					// the TempTopic has already been deleted
+					//logger.error("Could not send message.", e);
 				}
 			}
 		}).start();
