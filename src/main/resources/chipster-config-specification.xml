@@ -22,7 +22,7 @@
 		</entry>
 
 		<entry entryKey="public-files-url" type="string" description="url for the root of the public files">
-			<value>http://chipster-filebroker.csc.fi:8090/public</value>
+			<value>http://chipster-filebroker.csc.fi:8080/public</value>
 		</entry>
 
 
@@ -143,6 +143,10 @@
 		
 		<entry entryKey="schedule-timeout" type="int" description="time after which a scheduled job is removed if there is now response from the client, seconds">
 			<value>10</value>
+		</entry>
+
+		<entry entryKey="offer-delay" type="int" description="delay before sending the job offer message, milliseconds">
+			<value>0</value>
 		</entry>
 		
 		<entry entryKey="include-operations" type="strings" description="if specified, all but listed operations are excluded">

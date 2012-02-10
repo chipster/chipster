@@ -127,23 +127,7 @@ public class LayoutManager {
 			intersectingCell = this.getIntersectingVertex(potentialPosition, vertex);
 			
 			if (intersectingCell != null && intersectingCell instanceof GraphVertex) {
-				GraphVertex graphCell = (GraphVertex)intersectingCell;
-				boolean haveSameRoot = false;
-				
-				// if these have different roots, we assume that makeSpace() can handle it 
-				for (GraphVertex cell : vertex.getRootVerticesOfThisVertex()) {
-					if (graphCell.getRootVerticesOfThisVertex().contains(cell)) {
-						haveSameRoot = true;
-						break;
-					}
-				}
-				
-				if (haveSameRoot) {
-					potentialPosition = new Point((int)(potentialPosition.getX() + vertex.getDefaultWidth() + vertex.getMarginX()), (int)(potentialPosition.getY()));
-					
-				} else {
-					done = true;
-				}
+				potentialPosition = new Point((int)(potentialPosition.getX() + vertex.getDefaultWidth() + vertex.getMarginX()), (int)(potentialPosition.getY()));
 				
 			} else {
 				done = true;
@@ -157,8 +141,6 @@ public class LayoutManager {
 		Dimension dim = new Dimension(GraphVertex.DEFAULT_WIDTH,GraphVertex.DEFAULT_HEIGHT);
 		Rectangle newPlace = new Rectangle(newPoint, dim);
 		
-		// visible vertices are enough, because only invisible are the raw datas
-		// which are placed with other algorithms
 		for (AbstractGraphVertex cell : graph.getVisibleVertexes()) {
 			logger.debug("does " + cell + " intersect " + vertex.getData().getName() + ": " + (cell.getBounds().intersects(newPlace)  && cell != vertex));  
 			if (cell.getBounds().intersects(newPlace) && cell != vertex) {
