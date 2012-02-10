@@ -267,7 +267,12 @@
 			<tarfileset dir="${ext-src}/wrapper/comp/conf" prefix="chipster/comp/conf" />
 			<tarfileset dir="${ext-src}/wrapper/comp/logs" prefix="chipster/comp/logs" /> <!-- must exist for wrapper -->
 			<tarfileset dir="${ext-src}/wrapper/comp/security" prefix="chipster/comp/security" />
-			<tarfileset dir="${modules}/" prefix="chipster/comp/modules" />
+			<tarfileset dir="${modules}/" prefix="chipster/comp/modules" >
+				<exclude name="sequence/" />
+			</tarfileset>
+			
+				
+				
 			
 			
 			<!-- fileserver -->
