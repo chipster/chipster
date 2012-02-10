@@ -40,13 +40,10 @@ public class PairedEndDemo extends JFrame implements AreaResultListener {
 		SAMDataSource file = null;
 		try {
 			
-			// Adjust these paths to point to the demo data
+			// Adjust these paths to point to the demo data			
+			file = new SAMDataSource(new File("/home/klemela/chipster/ohtu/ohtu-within-chr.bam"),
+					new File("/home/klemela/chipster/ohtu/ohtu-within-chr.bam.bai"));
 			
-			file = new SAMDataSource(new File("ohtu-between-chrs.bam"),
-					new File("ohtu-between-chrs.bam.bai"));
-			
-//			file = new SAMDataSource(new File("ohtu-paired-end.bam"),
-//					new File("ohtu-paired-end.bam.bai"));
 			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -89,12 +86,20 @@ public class PairedEndDemo extends JFrame implements AreaResultListener {
 		//Background painting disabled to avoid flickering, demo needs to paint only once
 		//super.paint(g);
 
-		paint(g, new Chromosome("1"), 50, new Chromosome("X"), 400, Color.black, Color.green);
-		paint(g, new Chromosome("X"), 400, new Chromosome("1"), 50, Color.black, Color.blue);
+		//For within chromosome
+		paint(g, new Chromosome("1"), 50, new Chromosome("1"), 200, Color.black, Color.green, true);
+		paint(g, new Chromosome("1"), 200, new Chromosome("1"), 50, Color.black, Color.blue, false);
+		
+		paint(g, new Chromosome("X"), 250, new Chromosome("X"), 400, Color.black, Color.green, true);
+		paint(g, new Chromosome("X"), 400, new Chromosome("X"), 250, Color.black, Color.blue, false);
+		
+		//For between chromosomes		
+//		paint(g, new Chromosome("1"), 50, new Chromosome("X"), 200, Color.black, Color.green, false);
+//		paint(g, new Chromosome("X"), 200, new Chromosome("1"), 50, Color.black, Color.blue, true);
 		
 	}
 	
-	public void paint(Graphics g, Chromosome fromChr, int fromY, Chromosome toChr, int toY, Color readColor, Color connectionColor) {
+	public void paint(Graphics g, Chromosome fromChr, int fromY, Chromosome toChr, int toY, Color readColor, Color connectionColor, boolean direction) {
 		
 		
 		Iterator<RegionContent> readIter = reads.iterator();
@@ -108,8 +113,16 @@ public class PairedEndDemo extends JFrame implements AreaResultListener {
 				continue;
 			}
 			
+			/* The connections are drawn twice (with different colors), because that is how they are in the data.
+			 * When visualising connections within one chromosome we draw the same chromosome twice, so draw only 
+			 * selected direction to avoid drawing each connection actually four times.
+			 */
+			if ((read.region.start.compareTo(mate) < 0) == direction) {
+				continue;
+			}
+			
 			int x = bpToDisplay(read.region.start.bp);
-			// End coordinate of the read is read.region.end
+			// End coordinate of the read is read.region.end, but that can not be visualised in this zoom level
 			
 			
 			g.setColor(readColor);
@@ -154,23 +167,30 @@ public class PairedEndDemo extends JFrame implements AreaResultListener {
 			mateChr = ((BpCoord)read.values.get(ColumnType.MATE_POSITION)).chr;
 			
 			if (unmappedChr.equals(mateChr)) {
-				//Mate is unmapped, location is unknown, 
-				//These are removed already from the demo data
+				//Mate is unmapped, location is unknown
 				continue;
 			}
 			
 			if (readChr.equals(mateChr)) {
 				
-				//Mate is in the same chromosome, not visualised in this demo
-				continue;
-			}
-			
+				/* Make data smaller by filtering out pairs that are relatively close to each other. 
+				 * Probably this shouldn't be done in a real study, at least not this heavily. 
+				 * However, this filtering might be useful in early phases of visualisation development to
+				 * limit the size of the data. 
+				 */
+				if (Math.abs(
+						read.region.start.bp - ((BpCoord)read.values.get(ColumnType.MATE_POSITION)).bp) < 100000) {
+					continue;
+
+				}
+			}			
 			
 			if (!upperChr.equals(mateChr) && !lowerChr.equals(mateChr)) {
 				
 				//Only showing connections between Chromosome 1 and X in this demo, reject others
 				continue;
 			}
+			
 			
 			/*
 			 * The connections of read pairs aren't stored in the data separately, but both ends 
@@ -188,7 +208,7 @@ public class PairedEndDemo extends JFrame implements AreaResultListener {
 			reads.add(read);
 			
 		}
-		
+				
 		this.repaint();
 	}
 }
