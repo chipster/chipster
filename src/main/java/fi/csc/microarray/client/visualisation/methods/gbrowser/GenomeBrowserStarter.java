@@ -11,7 +11,7 @@ import javax.swing.WindowConstants;
 import org.jfree.chart.JFreeChart;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher.SAMHandlerThread;
-import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
+//import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.CytobandParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.GeneParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.SequenceParser;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.TranscriptParser;
@@ -52,8 +52,8 @@ public class GenomeBrowserStarter {
 		boolean horizontal = true;
 		TooltipAugmentedChartPanel panel = new TooltipAugmentedChartPanel();
 		GenomePlot plot = new GenomePlot(panel, horizontal);
-		TrackFactory.addCytobandTracks(plot,
-		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.GRCh37.59_karyotype.tsv", new CytobandParser()));
+//		TrackFactory.addCytobandTracks(plot,
+//		        new ChunkDataSource(URL_ROOT, "Homo_sapiens.GRCh37.59_karyotype.tsv", new CytobandParser()));
 		TrackFactory.addTitleTrack(plot, "SNP");
 		
 		TrackFactory.addTitleTrack(plot, "Annotations");
