@@ -66,6 +66,12 @@ public class CytobandDemo extends JFrame implements AreaResultListener {
 			
 			/*
 			 *  Download and extract following files
+			 *  
+			 *  For human:
+			 *  ftp://ftp.ensembl.org/pub/release-65/mysql/homo_sapiens_core_65_37/karyotype.txt.gz
+			 *  ftp://ftp.ensembl.org/pub/release-65/mysql/homo_sapiens_core_65_37/seq_region.txt.gz
+			 *  
+			 *  For rat:
 			 *  ftp://ftp.ensembl.org/pub/release-65/mysql/rattus_norvegicus_core_65_34/seq_region.txt.gz
 			 *  ftp://ftp.ensembl.org/pub/release-65/mysql/rattus_norvegicus_core_65_34/karyotype.txt.gz
 			 *  
