@@ -12,6 +12,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import fi.csc.microarray.client.visualisation.methods.gbrowser.ChunkDataSource;
+import fi.csc.microarray.client.visualisation.methods.gbrowser.FastaDataSource;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.fileFormat.ColumnType;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.AreaRequest;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
@@ -62,16 +63,22 @@ public class FastaFileFetcherThread extends Thread {
 			int secondNewLine = headString.indexOf("\n", firstNewLine + 1);
 			
 			headerLength = firstNewLine + 1; //plus one because of new line character
-			rowLength = secondNewLine - firstNewLine; //including new line character
+			fileRowLength = secondNewLine - firstNewLine; //including new line character
 		}
 		
 		public long bpToFile(long bp) {
-			int rows = (int) (bp / rowLength);			
-			int column = (int) (bp % rowLength);
-			return headerLength + rows * rowLength + column;
+			long bpRowLength = fileRowLength - 1;//Minus one because file rowLength contains new line character
+			int rows = (int) (bp / bpRowLength);//Minus one to calculate in 0-based coordinate system
+			int column = (int) (bp % bpRowLength); //Minus one to calculate in 0-based coordinate system
+			return headerLength + rows * fileRowLength + column;
 		}
 		
 		public String read(long bpStart, long bpEnd) throws IOException {
+			
+			//Convert to 0-based coordinate system
+			bpStart--;
+			bpEnd--;
+			
 			if (headerLength == -1) {
 				init();
 			}
@@ -79,7 +86,7 @@ public class FastaFileFetcherThread extends Thread {
 			long startPosition = bpToFile(bpStart);
 			long endPosition = bpToFile(bpEnd);
 			
-			byte[] bytes = new byte[(int) (endPosition - startPosition + 1)];
+			byte[] bytes = new byte[(int) (endPosition - startPosition) + 1];
 			
 			dataSource.read(startPosition, bytes);
 			
@@ -92,12 +99,12 @@ public class FastaFileFetcherThread extends Thread {
 		
 		private ChunkDataSource dataSource;
 		private long headerLength = -1;
-		private long rowLength = -1;
+		private long fileRowLength = -1;
 	}
 
 	public FastaFileFetcherThread(BlockingQueue<BpCoordFileRequest> fileRequestQueue, 
 			ConcurrentLinkedQueue<ParsedFileResult> fileResultQueue, FastaHandlerThread areaRequestThread,
-			Map<Chromosome, ChunkDataSource> dataSources) {
+			FastaDataSource dataSource) {
 
 		this.fileRequestQueue = fileRequestQueue;
 		this.fileResultQueue = fileResultQueue;
@@ -105,7 +112,7 @@ public class FastaFileFetcherThread extends Thread {
 		
 		this.fastas = new TreeMap<Chromosome, Fasta>();
 		
-		for (Entry<Chromosome, ChunkDataSource> entry : dataSources.entrySet()) {
+		for (Entry<Chromosome, ChunkDataSource> entry : dataSource.entrySet()) {
 			fastas.put(entry.getKey(), new Fasta(entry.getValue()));
 		}
 
@@ -159,14 +166,5 @@ public class FastaFileFetcherThread extends Thread {
 	
 	public String toString() {
 		return this.getClass().getName() + " - " + fastas;
-	}
-	
-	public static void main(String args[]) throws IOException {
-		
-		FastaFileFetcherThread thread = new FastaFileFetcherThread(null,  null, null, new TreeMap<Chromosome, ChunkDataSource>());
-				
-		Fasta fasta = thread.new Fasta(new ChunkDataSource(new File("/home/klemela/chipster/fastaTest.fa"), null));
-		
-		System.out.println(fasta.read(0, 29));
 	}
 }
