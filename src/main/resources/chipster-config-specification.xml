@@ -144,6 +144,10 @@
 		<entry entryKey="schedule-timeout" type="int" description="time after which a scheduled job is removed if there is now response from the client, seconds">
 			<value>10</value>
 		</entry>
+
+		<entry entryKey="offer-delay" type="int" description="delay before sending the job offer message, milliseconds">
+			<value>0</value>
+		</entry>
 		
 		<entry entryKey="include-operations" type="strings" description="if specified, all but listed operations are excluded">
 		</entry>
