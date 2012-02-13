@@ -1,6 +1,5 @@
 package fi.csc.microarray.client.visualisation.methods.gbrowser.dataFetcher;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -21,14 +20,13 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
 
 /**
  * 
- * The data retrieval layer thread for gtf files from the ftp.ensembl.org containing genes and transcripts. 
- * Keeps annotations of only one chromosome in memory to keep memory consumption in about 200 MB (for 1. human 
- * chromosome). Annotation file is about 400 MB and has to be read through in every chromosome change, so
- * performance and memory consumption of readFile() method is quite important. This allows showing annotations
- * without too much waiting, currently in about 4 seconds. Receives file requests and sends file results.
+ * The data retrieval layer thread for fasta files from the ftp.ensembl.org containing reference sequence. 
+ * There is a separate fasta file for each chromosome. When first request of a file is received, first rows of the file
+ * are read to get the lengths of header line and data rows. It's assumed that all data rows have equal length, so that 
+ * with this information we can calculate exact byte location of every requested sequence region. File parsing is not 
+ * needed like in the tabular files, because the String from the file is all the data that is needed.
  * 
- * Data is stored in hierarchical structure of Gene, Transcript and Exon objects. After file reading a 
- * coverage is calculated representing number of exons over the chromosome.
+ * Receives file requests and sends file results.
  * 
  * @author Petri Klemelä
  *
@@ -68,11 +66,20 @@ public class FastaFileFetcherThread extends Thread {
 		
 		public long bpToFile(long bp) {
 			long bpRowLength = fileRowLength - 1;//Minus one because file rowLength contains new line character
-			int rows = (int) (bp / bpRowLength);//Minus one to calculate in 0-based coordinate system
-			int column = (int) (bp % bpRowLength); //Minus one to calculate in 0-based coordinate system
+			int rows = (int) (bp / bpRowLength);
+			int column = (int) (bp % bpRowLength);
 			return headerLength + rows * fileRowLength + column;
 		}
 		
+		/**
+		 * Returns the requested region of the file. Coordinates are in 1-based coordinate system and
+		 * returned sequence includes the end coordinate, i.e. read(3, 5) returns a String with three characters.
+		 * 
+		 * @param bpStart
+		 * @param bpEnd
+		 * @return
+		 * @throws IOException
+		 */
 		public String read(long bpStart, long bpEnd) throws IOException {
 			
 			//Convert to 0-based coordinate system

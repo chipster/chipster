@@ -10,8 +10,11 @@ import java.util.TreeMap;
 import fi.csc.microarray.client.visualisation.methods.gbrowser.message.Chromosome;
 
 /**
- * Data source for indexed SAM compatible files (.sam/.bam). Because index is required, in practice
- * supports only .bam.
+ * Data source for fasta files. Each chromosome has a separate file that are stored in Map 
+ * data structure. ChunkDataSources are used to get the random access functionality.
+ * Having multiple DataSources inside one DataSource doesn't fit especially nicely with the
+ * original concept of DataSource, but was needed to disguise this group of files into a form
+ * that is allowed to travel through other layers of the system.
  * 
  * @author Petri Klemelä
  *
