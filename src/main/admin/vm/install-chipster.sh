@@ -410,6 +410,11 @@ then
   chmod a+x prinseq-lite-0.17.3/prinseq-graphs.pl
   mv prinseq-lite-0.17.3 ${TOOLS_PATH}/
   ln -s prinseq-lite-0.17.3 ${TOOLS_PATH}/prinseq
+
+  # Genome annotations for genome browser
+  mkdir -p ${TOOLS_PATH}/genomebrowser/annotations
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/All_genomes_for_browser_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations
+  ln -s ${TOOLS_PATH}/genomebrowser/annotations ${CHIP_PATH}/fileserver/file-root/public/annotations
   
   ## Create checksums
   cd ${TOOLS_PATH}/
