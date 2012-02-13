@@ -28,7 +28,7 @@ import fi.csc.microarray.client.visualisation.methods.gbrowser.message.RegionCon
  */
 public class IntensityTrack extends Track {
 
-    final public static int SAMPLING_GRANULARITY = 100;
+    final public static int SAMPLING_GRANULARITY = 500;
 
 	private SortedSet<RegionContent> values = new TreeSet<RegionContent>();
 	private LinkedList<RegionContent> valueStorageOrder = new LinkedList<RegionContent>();

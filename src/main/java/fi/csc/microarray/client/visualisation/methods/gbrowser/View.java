@@ -480,8 +480,9 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 		// Bp-region change may change visibility of tracks, calculate sizes again
 		trackHeight = null;
 
+		fireAreaRequests();
+		
 		if (!disableDrawing) {
-			fireAreaRequests();
 			dispatchRegionChange();
 		}
 	}
@@ -521,33 +522,42 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 			stopAnimation();
 
-			mouseZoomTimer = new Timer(1000 / FPS, new ActionListener() {
+			mouseAnimationTimer = new Timer(1000 / FPS, new ActionListener() {
 
-				private int i = 0;
+				private int i = 2; //Skip a few frames to get a head start
 				private int ANIMATION_FRAMES = 30;
 				private long startTime = System.currentTimeMillis();
 
 				public void actionPerformed(ActionEvent arg0) {
+					
+					boolean skipFrame = false;
+					boolean done = false;
 
-					double endX = dragEndPoint.getX();
-					double startX = dragLastStartPoint.getX();
+					do {
+						double endX = dragEndPoint.getX();
+						double startX = dragLastStartPoint.getX();
 
-					double newX = endX - (endX - startX) / (ANIMATION_FRAMES - i);
+						double newX = endX - (endX - startX) / (ANIMATION_FRAMES - i);
 
-					dragEndPoint = new Point2D.Double(newX, dragEndPoint.getY());
+						dragEndPoint = new Point2D.Double(newX, dragEndPoint.getY());
 
-					boolean skipFrame = (i < (ANIMATION_FRAMES - 1)) && System.currentTimeMillis() > startTime + (1000 / FPS) * i;
+						skipFrame = (i < (ANIMATION_FRAMES - 1)) && System.currentTimeMillis() > startTime + (1000 / FPS) * i;
 
-					if (i < ANIMATION_FRAMES) {
-						handleDrag(dragLastStartPoint, dragEndPoint, skipFrame);
-						i++;
-					} else {
-						stopAnimation();
-					}
+						done = i >= ANIMATION_FRAMES;
+						
+						if (!done) {
+							handleDrag(dragLastStartPoint, dragEndPoint, skipFrame);
+							i++;
+						} else {
+							stopAnimation();
+						}
+						
+					} while (skipFrame && !done);
 				}
 			});
-			mouseZoomTimer.setRepeats(true);
-			mouseZoomTimer.start();
+			mouseAnimationTimer.setCoalesce(true);
+			mouseAnimationTimer.setRepeats(true);
+			mouseAnimationTimer.start();
 		}
 	}
 
@@ -572,7 +582,7 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 
 	protected abstract void handleDrag(Point2D start, Point2D end, boolean disableDrawing);
 
-	private Timer mouseZoomTimer;
+	private Timer mouseAnimationTimer;
 
 	public void mouseWheelMoved(final MouseWheelEvent e) {
 
@@ -584,37 +594,43 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	public void zoomAnimation(final int centerX, final int wheelRotation) {
 		stopAnimation();
 
-		mouseZoomTimer = new Timer(1000 / FPS, new ActionListener() {
+		mouseAnimationTimer = new Timer(1000 / FPS, new ActionListener() {
 
-			private int i = 0;
+			private int i = 2; //Skip some frames to give a head start
 
-			// 100 ms to give time for slower machines to view couple animation frames also
-			private long startTime = System.currentTimeMillis() + 100;
+			private long startTime = System.currentTimeMillis();
 			private int ANIMATION_FRAMES = 15;
 
 			public void actionPerformed(ActionEvent arg0) {
 
 				boolean skipFrame = (i < (ANIMATION_FRAMES - 1)) && System.currentTimeMillis() > startTime + (1000 / FPS) * i;
+				boolean done = false;
 
-				if (i < ANIMATION_FRAMES) {
-					zoom(centerX, wheelRotation, skipFrame);
-					i++;
+				do {
+					
+					done = i >= ANIMATION_FRAMES;
+					
+					if (!done) {
+						zoom(centerX, wheelRotation, skipFrame);
+						i++;
 
-				} else {
-					stopAnimation();
-				}
+					} else {
+						stopAnimation();
+					}
+					
+				} while (skipFrame && !done);
 			}
 		});
 
-		mouseZoomTimer.setRepeats(true);
-		mouseZoomTimer.setCoalesce(false);
-		mouseZoomTimer.start();
+		mouseAnimationTimer.setRepeats(true);
+		mouseAnimationTimer.setCoalesce(true);
+		mouseAnimationTimer.start();
 	}
 
 	private void stopAnimation() {
-		if (mouseZoomTimer != null) {
-			mouseZoomTimer.stop();
-			mouseZoomTimer = null;
+		if (mouseAnimationTimer != null) {
+			mouseAnimationTimer.stop();
+			mouseAnimationTimer = null;
 		}
 	}
 
@@ -661,6 +677,10 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 				}
 			}
 			setBpRegion(new BpCoordRegionDouble(startBp, getBpRegionDouble().start.chr, endBp, getBpRegionDouble().end.chr), disableDrawing);
+			
+			if (!disableDrawing) {
+				parentPlot.redraw();
+			}
 		}
 	}
 
@@ -714,7 +734,10 @@ public abstract class View implements MouseListener, MouseMotionListener, MouseW
 	}
 
 	public void redraw() {
-		parentPlot.redraw();
+		//Dont accept redraw request from tracks if animation is running
+		if (mouseAnimationTimer == null || !mouseAnimationTimer.isRunning()) {
+			parentPlot.redraw();
+		}
 	}
 
 	public List<Long> getRulerInfo() {
