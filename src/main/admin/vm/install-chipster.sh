@@ -147,7 +147,7 @@ aptitude -y --without-recommends install python-numpy python-matplotlib
 # xorg-dev (only devel?)
 # python-dev (python), for HTSeq
 
-build_tools="no" # Should tools be built, set to either "yes" or "no"
+build_tools="yes" # Should tools be built, set to either "yes" or "no"
 mode="devel" # Set to either "runtime" or "devel"
 if [ $mode == "runtime" ]
 then
@@ -420,8 +420,8 @@ then
 
   # Genome annotations for genome browser
   cd ${TMPDIR_PATH}/
-  mkdir -p ${TOOLS_PATH}/genomebrowser/annotations
-  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/All_genomes_for_browser_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations
+  mkdir -p ${TOOLS_PATH}/genomebrowser/annotations/
+  curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/annotations/compressed/All_genomes_for_browser_v1.tar.gz | tar -xz -C ${TOOLS_PATH}/genomebrowser/annotations/
   ln -s ${TOOLS_PATH}/genomebrowser/annotations ${CHIP_PATH}/fileserver/file-root/public/annotations
   
   ## Create checksums
