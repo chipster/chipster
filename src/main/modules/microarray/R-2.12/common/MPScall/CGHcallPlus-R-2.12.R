@@ -237,6 +237,8 @@ make_cghRawPlus <- function(input) {
     input <- input[order(input[,2], input[,3]),]
     copynumber  <- as.matrix(input[,5:ncol(input)])
     rownames(copynumber) <- input[,1]
+    if (ncol(copynumber) == 1)
+      colnames(copynumber) <- colnames(input)[5]
     annotation  <- data.frame(Chromosome=input[,2], Start=input[,3], End=input[,4], row.names=input[,1])
     metadata    <- data.frame(labelDescription=c("Chromosomal position", "Basepair position start", "Basepair position end"), row.names=c("Chromosome", "Start", "End"))    
     dimLabels   <- c("featureNames", "featureColumns")
@@ -245,6 +247,56 @@ make_cghRawPlus <- function(input) {
 }
 environment(make_cghRawPlus) <- environment(CGHcall:::make_cghRaw)
 make_cghRaw <- make_cghRawPlus
+
+preprocessPlus <- 
+function (input, maxmiss = 30, nchrom = 23, ...) 
+{
+    input <- input[!is.na(chromosomes(input)) & !is.na(bpstart(input))]
+    input <- input[chromosomes(input) != 0 & bpstart(input) != 
+        0, ]
+    input <- input[chromosomes(input) <= nchrom, ]
+    countMissing <- function(x, maxMissing) {
+        if (length(x[is.na(x)]) <= maxMissing) 
+            return(TRUE)
+        return(FALSE)
+    }
+    nummis <- length(copynumber(input)[is.na(copynumber(input))])
+    if (nummis > 0) {
+        allowed <- ncol(input) * maxmiss/100
+        filter <- apply(copynumber(input), 1, countMissing, allowed)
+        input <- input[filter, ]
+    }
+    nummis <- length(copynumber(input)[is.na(copynumber(input))])
+    if (nummis > 0) {
+        if (!exists("k")) 
+            k <- 10
+        new.k <- ceiling((1 - maxmiss/100) * ncol(input))
+        new.k <- min(new.k, k)
+        if (new.k != 10) 
+            cat("Changing impute.knn parameter k from", k, "to", 
+                new.k, "due to small sample size.\n")
+        if (new.k > 1) {
+            nrows <- nrow(copynumber(input))
+            nrpi <- floor(nrows/100)
+            resultsall <- c()
+            for (i in 1:(100 - 1)) {
+                datforimp <- copynumber(input)[((i - 1) * nrpi + 
+                  1):(nrpi * i), ]
+                result <- impute::impute.knn(datforimp, k = new.k)
+                resultsall <- rbind(resultsall, result$data)
+            }
+            datforimp <- copynumber(input)[((100 - 1) * nrpi + 
+                1):nrows, ]
+            result <- impute::impute.knn(datforimp, k = new.k)
+            resultsall <- rbind(resultsall, result$data)
+            copynumber(input) <- CGHcall:::.assignNames(resultsall, 
+                input)
+        }
+    }
+    input
+}
+environment(preprocessPlus) <- environment(CGHcall:::preprocess)
+preprocess <- preprocessPlus
 
 .getCumulativeChromosomeEnds <- function(build) {
     build <- as.integer(gsub('[^0-9]', '', build))
