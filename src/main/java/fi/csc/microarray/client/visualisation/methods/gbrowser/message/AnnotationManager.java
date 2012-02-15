@@ -35,7 +35,7 @@ import fi.csc.microarray.util.IOUtils;
  * 
  */
 public class AnnotationManager {
-	private static final String CONTENTS_FILE = "contents.txt";
+	private static final String CONTENTS_FILE = "contents2.txt";
 	private static final String ANNOTATIONS_PATH = "annotations";
 
 	private static final Logger logger = Logger.getLogger(AnnotationManager.class);
@@ -43,9 +43,9 @@ public class AnnotationManager {
 	private URL remoteAnnotationsRoot;
 	private File localAnnotationsRoot;
 
-	private final File contentsFile = new File("contents.txt");
+	private final File contentsFile = new File(CONTENTS_FILE);
 
-	private final String FILE_ID = "CHIPSTER ANNOTATION CONTENTS FILE VERSION 1";
+	private final String FILE_ID = "CHIPSTER ANNOTATION CONTENTS FILE VERSION 2";
 
 	private LinkedList<GenomeAnnotation> annotations = new LinkedList<GenomeAnnotation>();
 
@@ -58,13 +58,15 @@ public class AnnotationManager {
 		public String species;
 		public String version;
 		public AnnotationType type;
+		public Chromosome chr;
 
 		private URL url;
 		private long contentLength;
 
-		public GenomeAnnotation(String species, String version, String annotationType, URL url, long contentLength) {
+		public GenomeAnnotation(String species, String version, String annotationType, Chromosome chr, URL url, long contentLength) {
 			this.species = species;
 			this.version = version;
+			this.chr = chr;
 			this.contentLength = contentLength;
 			this.url = url;
 
@@ -139,7 +141,7 @@ public class AnnotationManager {
 	}
 
 	public enum AnnotationType {
-		CYTOBANDS("Cytobands"), TRANSCRIPTS("ENSEMBL Transcripts"), GENES("ENSEMBL Genes"), MIRNA("ENSEMBL miRNA Genes"), REFERENCE(
+		CYTOBANDS("Cytobands"), CYTOBANDS_SEQ_REGION("Cytobands seq_region"), ANNOTATIONS("ENSEMBL Gtf"), REFERENCE(
 				"Reference sequence"), SNP("ENSEMBL SNP");
 
 		String id;
@@ -386,9 +388,10 @@ public class AnnotationManager {
 			String fileName = splitted[3];
 			url = IOUtils.createURL(remoteAnnotationsRoot != null ? remoteAnnotationsRoot : new URL("file://"), fileName);
 
-			long contentLength = Long.parseLong(splitted[4]);
+			long contentLength = Long.parseLong(splitted[5]);
+			Chromosome chr = new Chromosome(splitted[3]);
 
-			addAnnotation(new GenomeAnnotation(splitted[0], splitted[1], splitted[2], url, contentLength));
+			addAnnotation(new GenomeAnnotation(splitted[0], splitted[1], splitted[2], chr, url, contentLength));
 		}
 	}
 
@@ -418,7 +421,9 @@ public class AnnotationManager {
 			writer = new FileWriter(contentsFile, true);
 			writer.write(FILE_ID + "\n");
 			for (GenomeAnnotation row : annotations) {
-				writer.write(row.species + "\t" + row.version + "\t" + row.type.getId() + "\t" + row.url.getFile() + "\n" + row.contentLength);
+				writer.write(row.species + "\t" + row.version + "\t" + row.type.getId() + "\t" + 
+						row.chr.toNormalisedString()+ "\t" + row.url.getFile() + "\n" + row.contentLength);
+				
 			}
 		} finally {
 			IOUtils.closeIfPossible(writer);
