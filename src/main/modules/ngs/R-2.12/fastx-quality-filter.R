@@ -9,13 +9,13 @@
 
 # EK 28.6.2011
 
-# binary
-binary <- c(file.path(chipster.tools.path, "fastx", "bin", "fastq_quality_filter"))
-
 # check out if the file is compressed and if so unzip it
 system("file reads.fastq > file_info")
 system("grep gzip file_info > is_gzip")
 system("[ -s is_gzip ] && mv reads.fastq reads.gz ; gzip -d reads.gz ; mv reads reads.fastq")
+
+# binary
+binary <- c(file.path(chipster.tools.path, "fastx", "bin", "fastq_quality_filter"))
 
 # command
 command <- paste(binary, "-v", "-q", quality, "-p", percentage, "-i reads.fastq -o quality-filtered.fastq > quality-filtered.log")
