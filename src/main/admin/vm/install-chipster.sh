@@ -43,25 +43,6 @@ set -o pipefail
 #    fi
 #}
 
-## Temporary hacks for OpenNebula environment !!!
-#sed -i'~' 's:UUID=b05b9f6e-e7e1-490b-81f2-c698238d9f12:LABEL=tmp:' /etc/fstab
-#sed -i'~' 's:UUID=897ed4de-d7f9-40e6-ace7-fba7259f4438:LABEL=swap:' /etc/fstab
-#tune2fs -L tmp /dev/vdb
-#mkswap -f -L swap /dev/vdc
-#mount -a
-#swapon -a
-#chmod 1777 /tmp/
-#chown root:root /tmp/
-
-## Configure system:
-#! sudo mkfs.ext4 /dev/vdc
-#! sudo mkfs.ext4 /dev/vdd
-#! echo '/dev/vdb  /tmp        ext4  errors=remount-ro  0  1' >> /etc/fstab
-#! echo '/dev/vdd  /mnt/tools  ext4  errors=remount-ro  0  1' >> /etc/fstab
-#! mount /tmp
-#! chown -R root:root /tmp/
-#! chmod 1777 /tmp/
-
 ## System update
 aptitude update
 aptitude -y full-upgrade
@@ -185,7 +166,6 @@ mkdir ${TMPDIR_PATH}/
 cd ${TMPDIR_PATH}/
 curl -s http://www.nic.funet.fi/pub/sci/molbio/chipster/dist/versions/${CHIP_VER}/chipster-${CHIP_VER}.tar.gz | tar -xz
 mv chipster/ ${CHIP_PATH}/
-#rm chipster-${CHIP_VER}.tar
 
 # Make some config "corrections"
 sed -i'~' "s:/opt/chipster/:${CHIP_PATH}/:" ${CHIP_PATH}/comp/conf/environment.xml
@@ -221,8 +201,6 @@ if [ $mode == "devel" -a $build_tools == "yes" ]
 then
   ## R:
   cd ${TMPDIR_PATH}/
-  #wget -nv http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-${R_VER}.tar.gz
-  #tar -xzf R-${R_VER}.tar.gz
   curl -s http://ftp.sunet.se/pub/lang/CRAN/src/base/R-2/R-${R_VER}.tar.gz | tar -xz
   cd R-${R_VER}/
   ## Fix for "/opt/chipster/tools/R-2.12.1/lib64/R/lib/libRlapack.so: undefined symbol: _gfortran_compare_string"
@@ -235,7 +213,6 @@ then
   echo 'MAKEFLAGS=-j' > ${TOOLS_PATH}/R-${R_VER}/lib64/R/etc/Makevars.site # (could also be $HOME/.R/Makevars)
   cd ../
   rm -rf R-${R_VER}/
-  #rm R-${R_VER}.tar.gz
   ln -s R-${R_VER} ${TOOLS_PATH}/R
 
   ## R Libraries:
