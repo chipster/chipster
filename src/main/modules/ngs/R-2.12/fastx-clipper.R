@@ -5,16 +5,23 @@
 # OUTPUT clipped.log
 # PARAMETER adapter: "Adapter to be removed" TYPE STRING DEFAULT CCTTAAGG (Adapter sequence that is used for filtering and that is subsequently removed.)
 # PARAMETER short: "Discard sequences shorter than" TYPE INTEGER FROM 1 TO 100 DEFAULT 15 (Minimum length of sequences to keep.)
+# PARAMETER quality.format: "Quality value format used" TYPE [sanger: Sanger, illuminaold: "Illumina GA v1.3-1.5"] DEFAULT sanger (What quality encoding is used in your FASTQ file. Select Sanger if your data comes from Illumina 1.8 or later, SOLiD or 454.)
 
 
 
 # EK 27.6.2011
 
+# check out if the file is compressed and if so unzip it
+system("file reads.fastq > file_info")
+system("grep gzip file_info > is_gzip")
+system("[ -s is_gzip ] && mv reads.fastq reads.gz ; gzip -d reads.gz ; mv reads reads.fastq")
+
 # binary
 binary <- c(file.path(chipster.tools.path, "fastx", "bin", "fastx_clipper"))
 
 # command
-command <- paste(binary, "-l", short, "-a", adapter, "-i reads.fastq -o clipped.fastq  > clipped.log")
+quality.scale <- ifelse(quality.format == "sanger", "-Q 33", "")
+command <- paste(binary, "-l", short, "-a", adapter, quality.scale, "-i reads.fastq -o clipped.fastq  > clipped.log")
 
 # run
 system(command)

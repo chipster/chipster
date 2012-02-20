@@ -4,7 +4,7 @@
 # OUTPUT ngs-data-table.tsv: "Data table with read counts" 
 # OUTPUT META phenodata.tsv: "Experiment description file" 
 # PARAMETER experiment_type: "Type of experiment" TYPE [chip_seq: ChIP-seq, rna_seq: RNA-seq, mirna_seq: miRNA-seq] DEFAULT rna_seq (The value that is used for a sequence read that is not present in a sample.)
-# PARAMETER alignment_type: "Type of alignment" TYPE [genome: genome, other: other] DEFAULT genome (If something else than the genome was used as reference to align against please select "other".)
+# PARAMETER alignment_type: "Does your data contain genomic coordinates" TYPE [genome: yes, other: no] DEFAULT genome (Does your data table contain genomic coordinates.)
 # PARAMETER impute_with: "Impute missing data" TYPE INTEGER FROM 0 TO 1000000 DEFAULT 0 (The value that is used for a sequence read that is not present in a sample.)
 
 ##############################

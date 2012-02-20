@@ -43,7 +43,7 @@
 	<property name="release-tar" value="${dist}/chipster-${release-version}.tar.gz" />
 	<property name="release-zip" value="${dist}/chipster-${release-version}.zip" />
 	<property name="config-tool-jar" value="${dist}/chipster-config-tool.jar" />
-	<property name="client-jar" value="${dist}/microarray-${release-version}.jar" />
+	<property name="client-jar" value="${dist}/chipster-all-${release-version}.jar" />
 
 	<!-- external stuff -->
 	<property name="wrapper-dist" value="${ext-apps}/wrapper" />
@@ -335,7 +335,7 @@
 			<tarfileset file="${ext-src}/wrapper/win32/uninstall-service.bat" filemode="755" prefix="chipster/webstart/bin/win32" />
 
 			<tarfileset dir="${ext-src}/wrapper/webstart/web-root" prefix="chipster/webstart/web-root" />
-			<tarfileset file="dist/microarray-${release-version}.jar" fullpath="chipster/webstart/web-root/lib/chipster-current.jar" />
+			<tarfileset file="${client-jar}" fullpath="chipster/webstart/web-root/lib/chipster-current.jar" />
 			<tarfileset file="${ext-src}/wrapper/chipster-client-config.xml" fullpath="chipster/webstart/web-root/chipster-config.xml" />
 			<tarfileset dir="${ext-src}/wrapper/webstart/security" prefix="chipster/webstart/security" />
 
