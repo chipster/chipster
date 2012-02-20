@@ -1,0 +1,36 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>Filter based on length</h2>
+
+<h3>Description</h3>
+
+<p>Filters out reads form a reads file based the length of a read.
+</p>
+
+
+<h3>Details</h3>
+
+<p>This tool utilizes the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>. 
+The filtering is calculated with PRIONSEQ options <i>-max_len</i> and <i>-min_len</i>.<br> 
+You should define the acceptable length range with parameters <b>Maximum length</b>and <b>Minimum length</b>.
+</p>
+<h3>Output</h3>
+<p>
+The reads that pass the length filtering condition  are saved to file called <b>accepted.fastq</b> or <a>accepted.fasta</a>.
+You can also choose to write out the duplicate reads that are filtered out.
+These reads are stored to file <b>rejected.fastq</b> or <b>rejected.fasta</b>.
+You can also print out a log file that contains information about the filtering task and
+statistics about how many reads were accepted and rejected.
+</p>
+
+	
+
+<h3>Reference</h3>
+
+This tool is based on the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>.
+
+</body>
+

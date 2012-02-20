@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>Trim reads by quality</h2>
+
+<h3>Description</h3>
+
+<p>Trims reads based on the quality values.</p>
+
+
+<h3>Details</h3>
+<p>
+This tool utilizes the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>. 
+The filtering is calculated with PRIONSEQ options <i>-trim_qual_left</i>, <i>-trim_qual_right</i>, 
+<i>-trim_qual_type</i>, <i>-trim_qual_rule</i>, <i>-trim_qual_window</i>,and </i>-trim_qual_step</i>
+</p>
+<p>Sequences can be trimmed from either end using different rules applied to a sliding window. 
+To stop at the first base that fails the rule defined, use a window size of 1. A bigger window 
+size can trim sequences that might contain a high quality score in between low quality scores 
+without stopping at the high quality score. To move the sliding window over all quality scores 
+without missing any, the step size should be less or equal to the window size.
+</p>
+
+<h3>Output</h3>
+
+<p>
+The trimmed reads are saved to file called <b>trimmed.fastq</b> or <a>trimmed.fasta</a>.
+You can also print out a log file that contains information about the filtering task and
+statistics about how many reads were accepted and rejected.
+</p>
+	
+
+<h3>Reference</h3>
+
+This tool is based on the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>.
+
+</body>
+

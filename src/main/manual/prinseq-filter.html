@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>General read set filter</h2>
+
+<h3>Description</h3>
+
+<p>This tool is a general filtering tool for FASTQ or FASTA formatted reads files. It contains all the filtering
+methods used in the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>, including the length, complexity,
+Ns, and duplicate filtering methods that are available as separate filtering tools too.
+</p>
+
+<h3>Details</h3>
+<p>
+When you launch the filtering tool, only those filtering methods, for which some value is assigned, are used. 
+You can use several filtering methods in the same time. Form example filtering with parameters 
+<b>Maximum length: 100</b> and <b>Maximum count of Ns: 1</b>
+would produce a reads set where all the reads are shorter than 101 bases 
+and they contain less than 2 Ns.
+</p>
+<p>For detailed descriptions of the different filtering conditions, please check the
+manual  of the  <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>.
+From the table below, you can check what PRINSEQ command line options the parameter definitions 
+correspond:
+<table>
+<tr><td><b>Parameter name</b></td><td><b>command line option</b></td><td><b>Description</b> </td></tr>
+<tr><td>Maximum length</td><td>-max_len</td><td> Select only reads that are shorter than the given value.</td></tr>
+<tr><td>Minimum length</td><td>-min_len</td><td> Select only reads that are longer than the given value.)</td></tr>
+<tr><td>Maximum GC content</td><td>-max_gc</td><td> Select only reads that has GC content that is less than the given value.)</td></tr>
+<tr><td>Minimum GC content</td><td>-min_gc</td><td> Select only reads that has GC content that is more than the given value.)</td></tr>
+<tr><td>Minimum quality score </td><td>-min_qual_score </td><td>Filter reads with GC content below than the given value.)</td></tr>
+<tr><td>Maximum quality score</td><td>-max_qual_score</td><td> Filter reads with GC content above then the given value.)</td></tr>
+<tr><td>Minimum mean quality</td><td>-min_qual_mean</td><td> Filter reads with quality score mean below the given value.)</td></tr>
+<tr><td>Maximum mean qualit </td><td>-max_qual_mean </td><td>Filter reads with quality score mean above the given value.)</td></tr>
+<tr><td>Maximum percentage of Ns </td><td>-ns_max_p</td><td> Filter reads for which the percentage of Ns id higher than the given value.)</td></tr>
+<tr><td>Maximun count of Ns</td><td>-ns_max_n </td><td>  Filter reads for which the count of Ns is higher than the given value.)</td></tr>
+<tr><td>Maximum number of reads</td><td>-seq_num </td><td> Only keep the given number number of reads, that pass all other filters.)</td></tr>
+<tr><td>Type of duplicates to filter</td><td>-derep </td><td>  Type of duplicates to filter.)</td></tr>
+<tr><td>Number of allowed duplicates</td><td>-derep_min </td><td>This option specifies the number of allowed duplicates. For example, to remove reads that occur more than 5 times, you would specify value 6.)</td></tr>
+<tr><td>Dust filter threshold</td><td> -lc_method dust -lc_threshold </td><td>Use DUST algorithm with the given threshold value, between 0 and 100, to filter sequences by sequence complexity. The dust method uses this as maximum allowed score.)</td></tr>
+<tr><td>Entropy filter threshold </td><td>-lc_method entropy -lc_threshold </td><td> Use Entropy algorithm with the given threshold value, between 0 and 100, to filter reads by sequence complexity. The entropy method uses this as the as minimum allowed value.)</td></tr>
+<tr><td>Quality data is in Phred+64 format</td><td>-phred64</td><td> You should select \"yes\" option if the quality data in FASTQ file is in Phred+64 format. For Illumina 1.8+, Sanger, Roche/454, Ion Torrent, PacBio data, you should use the default value: no)</td></tr>
+</table>
+
+</p> 
+<h3>Output</h3>
+
+<p>
+The reads that pass the filtering condition are saved to file called <b>accepted.fastq</b> or <a>accepted.fasta</a>.
+You can also choose to write out the duplicate reads that are filtered out.
+These reads are stored to file <b>rejected.fastq</b> or <b>rejected.fasta</b>.
+You can also print out a log file that contains information about the filtering task and
+statistics about how many reads were accepted and rejected.
+</p>
+
+
+<h3>Reference</h3>
+
+This tool is based on the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>.
+
+</body>
+

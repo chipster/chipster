@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>Poly-A/T trimmer</h2>
+
+<h3>Description</h3>
+
+<p>This tool removes poly-A/T tails from nucleotide sequences.f. 
+</p>
+
+
+<h3>Details</h3>
+
+<p> Poly-A/T tails can be trimmed from either end specifying a minimum tail length. 
+All repeats of As or Ts with at least this length will be trimmed from the sequence ends. 
+A small number of tails can occur even after trimming poly-A/T tails. For example, 
+a sequence that ends with AAAAATTTTT and that has been trimmed for the poly-T will still contain the poly-A.
+</p>
+<p>
+Trimming poly-A/T tails can reduce the number of false positives during database searches, 
+as long tails tend to align well to sequences with low complexity or sequences with 
+poly-A tails in the database.
+<p><p>
+This tool utilizes the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>. 
+The filtering is calculated with PRIONSEQ options <i>-trim_tail_left</i> and <i>-trim_tail_right</i>.
+</p>
+<h3>Output</h3>
+
+<p>
+The trimmed reads are saved to file called <b>trimmed.fastq</b> or <a>trimmed.fasta</a>.
+You can also print out a log file that contains information about the filtering task and
+statistics about how many reads were accepted and rejected.
+</p>
+	
+
+<h3>Reference</h3>
+
+This tool is based on the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>.
+
+</body>
+

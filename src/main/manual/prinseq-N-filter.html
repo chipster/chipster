@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>Filter based on Ns</h2>
+
+<h3>Description</h3>
+
+<p>Filters out reads form a reads file based the number or percentage of unassigned nucleotides in a read.
+</p>
+
+<h3>Details</h3>
+
+<p>This tool utilizes the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>.<br> 
+The filtering is calculated with PRIONSEQ options <i>-ns_max_n</i> and <i>-ns_max_p</i>.
+
+<li>If you define the "Maximum count of Ns" value, the reads that contain more the defined amount of reads are filtered out.</li>
+<li>If you define the "Maximum Percentage of Ns" value, the reads that contain higher percentage of Ns are filtered out.</li>
+</p>
+<h3>Output</h3>
+
+<p>
+The reads that pass the filtering condition are saved to file called <b>accepted.fastq</b> or <a>accepted.fasta</a>.
+You can also choose to write out the duplicate reads that are filtered out.
+These reads are stored to file <b>rejected.fastq</b> or <b>rejected.fasta</b>.
+You can also print out a log file that contains information about the filtering task and
+statistics about how many reads were accepted and rejected.
+</p>
+
+
+
+
+	
+
+<h3>Reference</h3>
+
+This tool is based on the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>.
+
+</body>
+

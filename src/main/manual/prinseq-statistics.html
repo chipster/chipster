@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head><title></title></head>
+<body>
+
+<h2>Reads file statistics</h2>
+
+<h3>Description</h3>
+
+<p>This tool calculates general statistics of the reads in the given FASTQ or FASTA file.</p>
+
+
+<h3>Details</h3>
+
+<p>This tool utilizes the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>. The statistics are calculated using the PRINSEQ option: <i>-stats_all</i>.<br>
+The input data can be in FASTQ or FASTA format </p>
+
+<h3>Output</h3>
+
+<p>
+The command output is a table that contains following values
+</p>
+<table>
+<tr><td>stats_dinuc	aatt</td><td>Dinucleotide odds ratio for AA/TT.</td></tr>
+<tr><td>stats_dinuc	acgt</td><td>Dinucleotide odds ratio for AC/GT.</td></tr>
+<tr><td>stats_dinuc	agct</td><td>Dinucleotide odds ratio for AG/CT.</td></tr>
+<tr><td>stats_dinuc	at</td><td>Dinucleotide odds ratio for AT.</td></tr>
+<tr><td>stats_dinuc	catg</td><td>Dinucleotide odds ratio for CA/TG.</td></tr>
+<tr><td>stats_dinuc	ccgg</td><td>Dinucleotide odds ratio for CC/GG.</td></tr>
+<tr><td>stats_dinuc	cg	</td><td>Dinucleotide odds ratio for CG.</td></tr>
+<tr><td>stats_dinuc	gatc</td><td>Dinucleotide odds ratio for GA/TC.</td></tr>
+<tr><td>stats_dinuc	gc</td><td>Dinucleotide odds ratio for GC.</td></tr>
+<tr><td>stats_dinuc	ta</td><td>Dinucleotide odds ratio for TA.</td></tr>
+<tr><td>stats_dupl	3</td><td>The number of 3' duplicates.</td></tr>
+<tr><td>stats_dupl	3maxd</td><td>	</td></tr>
+<tr><td>stats_dupl	5	</td><td>The number of 5' duplicates.</td></tr>
+<tr><td>stats_dupl	5maxd</td><td>	</td></tr>
+<tr><td>stats_dupl	exact	</td><td>The number of exact duplicates.</td></tr>
+<tr><td>stats_dupl	exactmaxd</td><td>	</td></tr>
+<tr><td>stats_dupl	exactrevcomp</td><td>Number of exact duplicates with reverse complements.</td></tr>
+<tr><td>stats_dupl	exactrevcompmaxd</td><td>	</td></tr>
+<tr><td>stats_dupl	revcomp	</td><td>Number of 5'/3' duplicates with reverse complements.</td></tr>
+<tr><td>stats_dupl	revcompmaxd	</td><td> </td></tr>
+<tr><td>stats_dupl	total</td><td>Total number of duplicates.</td></tr>
+<tr><td>stats_info	bases</td><td>Total number of bases in the input file.</td></tr>
+<tr><td>stats_info	reads</td><td>Number of reads in the input file.</td></tr>
+<tr><td>stats_len	max	101	</td><td>Length of the longest read.</td></tr>
+<tr><td>stats_len	mean</td><td>Mean length of the reads.</td></tr>
+<tr><td>stats_len	median</td><td>Median of the read lengths.</td></tr> 
+<tr><td>stats_len	min</td><td>Length of the shortest read.</td></tr>
+<tr><td>stats_len	mode</td><td>Mode of the read lengths.</td></tr>
+<tr><td>stats_len	modeval</td><td>Number of mode length sequences.</td></tr>
+<tr><td>stats_len	range</td><td>Range of the sequence lengths.</td></tr>
+<tr><td>stats_len	stddev</td><td>Standard deviation of the read lengths.</td></tr>
+<tr><td>stats_ns	maxn</td><td>Maximum number of Ns in one read.</td></tr>
+<tr><td>stats_ns	maxp</td><td>The maximum percentage of Ns per read.</td></tr>
+<tr><td>stats_ns	seqswithn</td><td>Number of reads with ambiguous base N.</td></tr>
+<tr><td>stats_tag	midnum	</td><td>The number of predefined MIDs.</td></tr>
+<tr><td>stats_tag	prob3</td><td>The probability of a tag sequence at the 3'-end (in percentage).</td></tr>
+<tr><td>stats_tag	prob5</td><td>The probability of a tag sequence at the 5'-end (in percentage).</td></tr>
+</table>
+	
+
+<h3>Reference</h3>
+
+This tool is based on the <a href="http://prinseq.sourceforge.net/">PRINSEQ package</a>.
+
+</body>
+
