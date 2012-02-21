@@ -86,10 +86,10 @@ if (normalization == "yes") {
 		counts_data <- estimateSizeFactors(counts_data)
 	} else {
 		counts_data <- estimateSizeFactors(counts_data)
-		estimateSizeFactors(counts_data) <- lib_size
+		sizeFactors(counts_data) <- lib_size
 	}
 } else {
-	estimateSizeFactors(counts_data) <- 1
+	sizeFactors(counts_data) <- 1
 }
 
 # Estimate dispersion values for each gene and replace with fitted values
